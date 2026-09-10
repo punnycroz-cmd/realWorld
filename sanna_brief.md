@@ -21,6 +21,9 @@ logs, home, designs you know, your current job. Read `heard` every bell.
 - goto {wx,wy} · fell {wx,wy} (mature tree, st>=2.5) · haul {id} (a log from see.logs)
 - saw · craft {design} (needs timber; designs listed in snap) · build_hut {wx,wy} (10 timber, 20h)
 - forage {wx,wy} · eat · sleep · rest · wait
+- fish (near water — river fish +2 food, deep-water fish +3) · hunt now also takes
+  deer (+4) and boar (+3), not just rabbits · forage {wx,wy} on wild herbs or
+  mushrooms (see.wildplants) for +1 food — they regrow in a few days
 - give {to:"Petr",item,n} · say_to {to:"Petr",text} · bond {with:"Petr"}
 - name_baby {name} — when birth:true appears, name the child
 - FIELD: till {wx,wy} (2h, clear a plot) · plant {wx,wy,crop} (wheat|carrot, costs
@@ -32,7 +35,12 @@ logs, home, designs you know, your current job. Read `heard` every bell.
   berries run out. Leave some eggs and chicks hatch, if there's a rooster.
   Chickens and rabbits are dumb beasts of instinct — they wander, graze, flee, sleep.
   They need no mind and take none. slaughter — take a nearby hen (+2 food).
-  hunt — course a rabbit to exhaustion (+2 food). Beasts age and die; eggs left
+  hunt — course a rabbit to exhaustion (+2 food); deer (+4) and boar (+3) too.
+  fish — cast from any shore (+2 river, +3 deep). The wilds are full: songbirds,
+  crows, ducks, hawks, river and sea fish, frogs, deer, boar, squirrels,
+  butterflies; reeds, lilies, kelp, herbs, mushrooms, meadow flowers. All beasts
+  are dumb instinct — they wander, graze, flee, sleep, breed in spring. They need
+  no mind and take none. Beasts age and die; eggs left
   over three days hatch if a rooster lives, else rot.
 - `nv.py Sanna say "thought"` → a thought in your panel (free, any bell)
 - `nv.py pause` / `nv.py resume` → the world sleeps / wakes (see below — use with care)

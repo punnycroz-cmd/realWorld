@@ -174,6 +174,10 @@ function farmJobTick(v,dtH){
       const adult=isHunt?ADULT_RAB:ADULT_BIRD;
       for(const a of herd){ if(a.dead||a.age<adult) continue;
         const d=Math.hypot(a.x-v.x,a.y-v.y)/CS; if(d<bd){bd=d;best=a;} }
+      // wild hook: deer and boar join the hunt
+      if(isHunt&&window.WILD) for(const a of WILD.animals){
+        if(a.dead||!a.yield||a.age<(a.adult||90)) continue;
+        const d=Math.hypot(a.x-v.x,a.y-v.y)/CS; if(d<bd){bd=d;best=a;} }
       if(!best){ v.job=null;
         v.lastResult={kind:J.kind,ok:false,why:isHunt?'no rabbit near':'no chicken near'}; return; }
       J.prey=best;
@@ -185,8 +189,8 @@ function farmJobTick(v,dtH){
     }
     v.act=J.kind; v.actLabel=isHunt?'taking the rabbit':'taking the hen'; J.t=(J.t||0)+dtH;
     if(J.t>=0.5){
-      p.dead=true; v.inv.food=(v.inv.food||0)+2; gainSkill(v,'hunt',0.05);
-      v.job=null; v.lastResult={kind:J.kind,ok:true,yield:2};
+      p.dead=true; const y=p.yield||2; v.inv.food=(v.inv.food||0)+y; gainSkill(v,'hunt',0.05);
+      v.job=null; v.lastResult={kind:J.kind,ok:true,yield:y};
     }
     return;
   }
@@ -301,7 +305,8 @@ NV.order=function(name,o){
     const isHunt=vb==='hunt';
     const herd=isHunt?ANIM.rabbits:ANIM.chicks;
     const adult=isHunt?ADULT_RAB:ADULT_BIRD;
-    const near=herd.some(a=>!a.dead&&a.age>=adult&&Math.hypot(a.x-v.x,a.y-v.y)/CS<(isHunt?40:8));
+    const near=herd.some(a=>!a.dead&&a.age>=adult&&Math.hypot(a.x-v.x,a.y-v.y)/CS<(isHunt?40:8))
+      ||(isHunt&&window.WILD&&WILD.animals.some(a=>!a.dead&&a.yield&&a.age>=(a.adult||90)&&Math.hypot(a.x-v.x,a.y-v.y)/CS<40));
     if(!near) return isHunt?'no rabbit near':'no chicken near';
     v.job={kind:vb,t:0,prey:null}; return 'ok';
   }
@@ -439,6 +444,8 @@ function farmGenesis(){
   }
 }
 window.farmGenesis=farmGenesis;
+window.metabolize=metabolize;   // wild module reuses the native body during its jobs
+window.nearVillager=nearestVillager;
 // white-box access for tests and the minds' tools
 window.FARM=FARM; window.ANIM=ANIM; window.CROPS=CROPS; window.CAPS=CAPS;
 window.mkChick=mkChick; window.mkRabbit=mkRabbit;
