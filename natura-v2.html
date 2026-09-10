@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Natura v1 — a living world</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#07090d;color:#dfe6f2;
+    font-family:"Trebuchet MS",Verdana,sans-serif;user-select:none}
+  #top{position:fixed;top:0;left:0;right:0;height:46px;display:flex;align-items:center;gap:10px;
+    padding:0 12px;background:#0d1219;border-bottom:1px solid #1e2a3a;z-index:10;font-size:14px}
+  #top .title{font-weight:bold;color:#9fd08a;letter-spacing:1px;margin-right:8px}
+  #top .pill{background:#16202e;border:1px solid #2a3a52;border-radius:12px;padding:3px 10px;white-space:nowrap}
+  #top button{background:#16202e;border:1px solid #2a3a52;color:#dfe6f2;border-radius:8px;
+    padding:4px 10px;cursor:pointer;font-family:inherit;font-size:13px}
+  #top button.on{background:#2c4a2e;border-color:#5a8a4a;color:#cfe8b8}
+  #top button:hover{background:#1e2c40}
+  #cv{position:fixed;top:46px;left:0;right:300px;bottom:0;display:block;cursor:grab}
+  #side{position:fixed;top:46px;right:0;width:300px;bottom:0;background:#0d1219;
+    border-left:1px solid #1e2a3a;display:flex;flex-direction:column;z-index:10}
+  #side h3{margin:10px 12px 4px;font-size:12px;color:#8aa0b8;text-transform:uppercase;letter-spacing:1px}
+  #stats{padding:0 12px;font-size:13px;line-height:1.7;color:#b9c8dc}
+  #stats b{color:#e8f0fa}
+  #log{flex:1;overflow-y:auto;padding:0 12px;font-size:12.5px;line-height:1.65;color:#9fb2c8}
+  #log .ev{margin-bottom:6px;border-left:2px solid #2a3a52;padding-left:8px}
+  #log .ev.storm{border-color:#7a9fd0}
+  #log .ev.fire{border-color:#d07a4a}
+  #log .ev.life{border-color:#7ad08a}
+  #log .ev .d{color:#6a7f96;font-size:11px}
+  #insp{border-top:1px solid #1e2a3a;padding:8px 12px;font-size:12.5px;min-height:110px;color:#b9c8dc}
+  #hint{position:fixed;left:12px;bottom:10px;font-size:12px;color:#5a6f88;z-index:10;
+    background:rgba(10,14,20,.7);padding:4px 10px;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="top">
+  <span class="title">NATURA v2</span>
+  <span class="pill" id="clock">Day 1 · Spring · 08:00</span>
+  <span class="pill" id="wx">—</span>
+  <button id="bPause">⏸</button>
+  <button id="b1" class="on">1×</button>
+  <button id="b4">4×</button>
+  <button id="b16">16×</button>
+  <button id="bNew">↻ new world</button>
+  <span class="pill" id="fps">—</span>
+</div>
+<canvas id="cv"></canvas>
+<div id="side">
+  <h3>World</h3>
+  <div id="stats">—</div>
+  <h3>Chronicle</h3>
+  <div id="log"></div>
+  <h3>Inspector <span style="color:#5a6f88">(click the land)</span></h3>
+  <div id="insp">—</div>
+</div>
+<div id="hint">drag to pan · wheel to zoom · click a cell to inspect · nothing here is scripted</div>
+<script>
+'use strict';
+/* =====================================================================
+   NATURA v1 — a watchmaker world sim.
+   Nature is a causal simulation: temperature, humidity, pressure and wind
+   produce clouds, rain and storms. The ecosystem (grass, seeds, trees,
+   fire, decay) lives on top of it. Nothing is placed by hand after genesis.
+   ===================================================================== */
+
+/* ---------------- utils ---------------- */
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+function hash2(x,y,s){
+  let h=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^Math.imul(s|0,2246822519);
+  h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16;
+  return (h>>>0)/4294967295;
+}
+function vnoise(x,y,s){
+  const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi;
+  const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
+  const a=hash2(xi,yi,s), b=hash2(xi+1,yi,s), c=hash2(xi,yi+1,s), d=hash2(xi+1,yi+1,s);
+  return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;
+}
+function fbm(x,y,s,oct){
+  let t=0,amp=0.5,f=1,n=0;
+  for(let i=0;i<oct;i++){ t+=amp*vnoise(x*f,y*f,s+i*131); n+=amp; amp*=0.5; f*=2.03; }
+  return t/n;
+}
+
+/* ---------------- config ---------------- */
+const CS=16;            // world px per cell
+const CHN=16;           // cells per chunk side
+const SEA=0.34;         // sea level
+let SEED=20260910;
+const W={
+  day:1, tod:8,         // time of day 0..24
+  speed:1, paused:false,
+  windAng:0.7, windSpd:1,
+  dryDays:0,
+  logCount:0,
+};
+const chunks=new Map(); // "cx,cy" -> chunk
+const cam={x:0,y:0,zoom:1};
+let insp=null;          // inspected cell {wx,wy}
+let flash=0;            // lightning flash timer
+const cool={};          // event cooldowns
+/* migratory low-pressure systems: the fronts that bring rain to everyone */
+const systems=[];
+function initSystems(){
+  systems.length=0;
+  for(let k=0;k<6;k++) systems.push({
+    x:(hash2(k,1,SEED+900)-0.5)*3000, y:(hash2(k,2,SEED+900)-0.5)*3000,
+    r:520+hash2(k,3,SEED+900)*380, inten:0.4+hash2(k,4,SEED+900)*0.6,
+    ph:hash2(k,5,SEED+900)*10,
+  });
+  // the first front starts over the birthplace, so the young world gets rain
+  systems[0].x=200; systems[0].y=-150; systems[0].inten=0.9;
+}
+initSystems();
+
+/* ---------------- terrain: infinite deterministic chunks ---------------- */
+function genChunk(cx,cy){
+  const N=CHN, n=N*N;
+  const ch={cx,cy,
+    h:new Float32Array(n), moist:new Float32Array(n), fert:new Float32Array(n),
+    grass:new Float32Array(n), tStage:new Float32Array(n), tHp:new Float32Array(n),
+    burn:new Float32Array(n), snag:new Float32Array(n),
+    temp:new Float32Array(n), hum:new Float32Array(n), cloud:new Float32Array(n),
+    rain:new Float32Array(n), storm:new Float32Array(n)};
+  for(let iy=0;iy<N;iy++)for(let ix=0;ix<N;ix++){
+    const wx=cx*N+ix, wy=cy*N+iy, i=iy*N+ix;
+    let h=fbm(wx*0.030,wy*0.030,SEED,4);
+    h=Math.pow(h,1.25);
+    const m=fbm(wx*0.008+500,wy*0.008+500,SEED+9,3);      // mountain mask
+    if(m>0.60) h=Math.min(1,h+(m-0.60)*1.6);
+    ch.h[i]=h;
+    const land=h>=SEA;
+    ch.moist[i]= land ? 0.55+fbm(wx*0.020+900,wy*0.020+900,SEED+31,3)*0.40 : 1;
+    ch.fert[i]= 0.30+fbm(wx*0.05+300,wy*0.05+300,SEED+77,2)*0.60;
+    ch.grass[i]= (land&&h<0.78) ? 0.25+hash2(wx,wy,SEED+5)*0.45 : 0;
+    const f=fbm(wx*0.05+700,wy*0.05+700,SEED+55,3);        // forest patches
+    if(land&&h<0.72&&f>0.56&&hash2(wx,wy,SEED+6)>0.30){
+      ch.tStage[i]=3.1+hash2(wx,wy,SEED+8)*1.7; ch.tHp[i]=1;
+    }
+    ch.temp[i]=20; ch.hum[i]=0.55;
+  }
+  chunks.set(cx+','+cy,ch);
+  return ch;
+}
+function chunkAt(cx,cy){
+  const k=cx+','+cy;
+  let c=chunks.get(k);
+  if(!c) c=genChunk(cx,cy);
+  return c;
+}
+function cellChunk(wx,wy){
+  const cx=Math.floor(wx/CHN), cy=Math.floor(wy/CHN);
+  const c=chunkAt(cx,cy);
+  return {c, i:(wy-cy*CHN)*CHN+(wx-cx*CHN)};
+}
+// read a field without generating (for neighbor sampling at sim edges)
+function fieldAt(field,wx,wy,def){
+  const cx=Math.floor(wx/CHN), cy=Math.floor(wy/CHN);
+  const c=chunks.get(cx+','+cy);
+  if(!c) return def;
+  return c[field][(wy-cy*CHN)*CHN+(wx-cx*CHN)];
+}
+function ensureVisibleChunks(){
+  const wpx=cv.width/dpr, wpy=cv.height/dpr;
+  const x0=cam.x-wpx/2/cam.zoom-CS*CHN, x1=cam.x+wpx/2/cam.zoom+CS*CHN;
+  const y0=cam.y-wpy/cam.zoom-CS*CHN,   y1=cam.y+wpy/cam.zoom+CS*CHN;
+  for(let cx=Math.floor(x0/CS/CHN);cx<=Math.floor(x1/CS/CHN);cx++)
+    for(let cy=Math.floor(y0/CS/CHN);cy<=Math.floor(y1/CS/CHN);cy++)
+      chunkAt(cx,cy);
+}
+
+/* ---------------- input: pan / zoom / inspect ---------------- */
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+let dpr=1;
+function resize(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.floor((window.innerWidth-300)*dpr);
+  cv.height=Math.floor((window.innerHeight-46)*dpr);
+  cv.style.width=(window.innerWidth-300)+'px';
+  cv.style.height=(window.innerHeight-46)+'px';
+}
+window.addEventListener('resize',resize); resize();
+function w2s(wx,wy){ // world px -> screen px
+  return {x:(wx-cam.x)*cam.zoom+cv.width/dpr/2, y:(wy-cam.y)*cam.zoom+cv.height/dpr/2};
+}
+function s2w(sx,sy){
+  return {x:(sx-cv.width/dpr/2)/cam.zoom+cam.x, y:(sy-cv.height/dpr/2)/cam.zoom+cam.y};
+}
+let drag=null;
+cv.addEventListener('mousedown',e=>{ drag={x:e.clientX,y:e.clientY,moved:0}; cv.style.cursor='grabbing'; });
+window.addEventListener('mousemove',e=>{
+  if(!drag) return;
+  const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  drag.moved+=Math.abs(dx)+Math.abs(dy);
+  cam.x-=dx/cam.zoom; cam.y-=dy/cam.zoom;
+  drag.x=e.clientX; drag.y=e.clientY;
+});
+window.addEventListener('mouseup',e=>{
+  if(drag&&drag.moved<5){
+    const r=cv.getBoundingClientRect();
+    const w=s2w(e.clientX-r.left,e.clientY-r.top);
+    insp={wx:Math.floor(w.x/CS), wy:Math.floor(w.y/CS)};
+    renderInspector();
+  }
+  drag=null; cv.style.cursor='grab';
+});
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  const before=s2w(mx,my);
+  cam.zoom=clamp(cam.zoom*(e.deltaY<0?1.15:1/1.15),0.35,4);
+  const after=s2w(mx,my);
+  cam.x+=before.x-after.x; cam.y+=before.y-after.y;
+},{passive:false});
+
+/* ---------------- events / chronicle ---------------- */
+const logEl=document.getElementById('log');
+function logEvent(kind,text){
+  const dayStr='Day '+Math.floor(W.day);
+  const div=document.createElement('div');
+  div.className='ev '+kind;
+  div.innerHTML='<span class="d">'+dayStr+'</span> '+text;
+  logEl.prepend(div);
+  while(logEl.children.length>60) logEl.lastChild.remove();
+  W.logCount++;
+}
+function cooled(key,days){
+  const t=W.day;
+  if(cool[key]&&t-cool[key]<days) return false;
+  cool[key]=t; return true;
+}
+
+/* ---------------- the simulation ---------------- */
+let activeList=[];
+function computeActive(){
+  activeList.length=0;
+  for(const c of chunks.values()){
+    const ccx=(c.cx*CHN+CHN/2)*CS, ccy=(c.cy*CHN+CHN/2)*CS;
+    const rx=cv.width/dpr/2/cam.zoom+CS*CHN*1.5, ry=cv.height/dpr/2/cam.zoom+CS*CHN*1.5;
+    if(Math.abs(ccx-cam.x)<rx&&Math.abs(ccy-cam.y)<ry) activeList.push(c);
+  }
+}
+const SEASONS=['Spring','Summer','Autumn','Winter'];
+function seasonIdx(){ return Math.floor((W.day%365)/91.25)%4; }
+
+function simTick(dtH){
+  // time
+  W.tod+=dtH;
+  while(W.tod>=24){ W.tod-=24; W.day+=1; }
+  W.windAng+=(fbm(W.day*0.3,3.7,SEED+400,2)-0.5)*0.6*dtH;
+  W.windSpd=clamp(W.windSpd+(hash2(Math.floor(W.day*10),7,SEED+401)-0.5)*0.4*dtH,0.2,3);
+  // drift the pressure systems with the wind; their intensity breathes
+  const sysVX=Math.cos(W.windAng)*W.windSpd*36, sysVY=Math.sin(W.windAng)*W.windSpd*36;
+  for(const s of systems){
+    s.x+=sysVX*dtH+(fbm(W.day+s.ph,s.ph,SEED+910,2)-0.5)*60*dtH;
+    s.y+=sysVY*dtH+(fbm(s.ph,W.day+s.ph,SEED+911,2)-0.5)*60*dtH;
+    s.inten=clamp(s.inten+(fbm(W.day*0.5+s.ph,0.3,SEED+912,2)-0.5)*0.5*dtH,0.05,1);
+    // keep systems near the watched region: wrap around camera
+    const R=2600;
+    if(s.x<cam.x-R)s.x+=R*2; if(s.x>cam.x+R)s.x-=R*2;
+    if(s.y<cam.y-R)s.y+=R*2; if(s.y>cam.y+R)s.y-=R*2;
+  }
+  const si=seasonIdx();
+  const seasonT=Math.sin(((W.day%365)/365)*Math.PI*2);       // -1..1 over year
+  const diurnal=Math.sin(((W.tod-9)/24)*Math.PI*2);           // peak ~15:00
+  const wdx=Math.cos(W.windAng), wdy=Math.sin(W.windAng);
+  let rainCells=0, stormCells=0, treeCount=0, fireCount=0;
+
+  for(const ch of activeList){
+    const bx=ch.cx*CHN, by=ch.cy*CHN;
+    for(let iy=0;iy<CHN;iy++)for(let ix=0;ix<CHN;ix++){
+      const i=iy*CHN+ix, wx=bx+ix, wy=by+iy;
+      const h=ch.h[i], land=h>=SEA;
+      /* ---- weather: temperature ---- */
+      const lat=wy*0.004;
+      const tT=26-Math.abs(lat)*0.55+seasonT*9*(0.35+Math.min(1,Math.abs(lat)*0.2))
+             +diurnal*6.5*(1-ch.cloud[i]*0.55)
+             +(fbm(wx*0.01+W.day*0.05,wy*0.01,SEED+500,2)-0.5)*7;
+      ch.temp[i]+=(tT-ch.temp[i])*Math.min(1,0.22*dtH);
+      const T=ch.temp[i];
+      /* ---- evaporation -> humidity ---- */
+      const evR=(land?ch.moist[i]*0.030:0.075)*(T>0?1:0.15)*dtH;
+      ch.hum[i]+=evR;
+      // wind advection: pull toward upwind neighbor
+      const ux=Math.round(wx-wdx*2.5), uy=Math.round(wy-wdy*2.5);
+      const humU=fieldAt('hum',ux,uy,ch.hum[i]);
+      ch.hum[i]+=(humU-ch.hum[i])*clamp(0.35*W.windSpd*dtH,0,0.8);
+      const cloudU=fieldAt('cloud',ux,uy,ch.cloud[i]);
+      ch.cloud[i]+=(cloudU-ch.cloud[i])*clamp(0.20*W.windSpd*dtH,0,0.6);
+      /* ---- condensation -> clouds ---- */
+      if(ch.hum[i]>0.90){
+        ch.cloud[i]=clamp(ch.cloud[i]+(ch.hum[i]-0.90)*4*dtH,0,1);
+        ch.hum[i]-=(ch.hum[i]-0.90)*2*dtH;
+      }
+      const cloudT=clamp((ch.hum[i]-0.60)*3.2,0,1);
+      ch.cloud[i]+=(cloudT-ch.cloud[i])*Math.min(1,0.5*dtH);
+      /* ---- precipitation ---- */
+      let rain=0;
+      if(ch.cloud[i]>0.68&&T>1) rain=(ch.cloud[i]-0.68)*1.5;
+      const inst=(ch.hum[i]>0.80&&T>25)?(ch.hum[i]-0.80)*8:0;   // instability
+      if(inst>0.55){ ch.storm[i]=1; stormCells++; rain*=2.4; }
+      else ch.storm[i]=Math.max(0,ch.storm[i]-dtH*0.8);
+      ch.rain[i]=rain;
+      // frontal lift: migratory low-pressure systems bring rain to everyone
+      {
+        const px=wx*CS, py=wy*CS;
+        let lift=0;
+        for(let si=0;si<systems.length;si++){
+          const s=systems[si], dx=px-s.x, dy=py-s.y, r2=s.r*s.r, d2=dx*dx+dy*dy;
+          if(d2<r2*4) lift+=s.inten*Math.exp(-d2/r2);
+        }
+        if(lift>0.01){
+          ch.cloud[i]=clamp(ch.cloud[i]+Math.min(1.2,lift)*0.30*dtH,0,1);
+          ch.hum[i]=clamp(ch.hum[i]+lift*0.03*dtH,0,1.2);
+          if(lift>0.25&&T>1) ch.rain[i]+=(lift-0.25)*0.9;
+        }
+      }
+      rain=ch.rain[i];
+      if(rain>0.05) rainCells++;
+      ch.hum[i]=clamp(ch.hum[i]-rain*0.16*dtH,0,1.2);
+      /* ---- soil moisture ---- */
+      if(land){
+        ch.moist[i]=clamp(ch.moist[i]+(rain*0.45-(0.004+T*0.00035))*dtH,0,1);
+      }
+      /* ---- ecosystem ---- */
+      if(land&&h<0.86){
+        // grass
+        const gg=(ch.moist[i]>0.18&&T>4&&T<37)?0.030*ch.moist[i]*(1-ch.grass[i]):-0.022;
+        ch.grass[i]=clamp(ch.grass[i]+gg*dtH,0,1);
+        if(ch.grass[i]>0.75&&hash2(wx,wy,Math.floor(W.day))>0.6){
+          const nx=wx+Math.floor(hash2(wx,wy,11)*3)-1, ny=wy+Math.floor(hash2(wx,wy,12)*3)-1;
+          const cc=cellChunk(nx,ny);
+          if(cc.c.h[cc.i]>=SEA) cc.c.grass[cc.i]=clamp(cc.c.grass[cc.i]+0.12,0,1);
+        }
+        // trees
+        const st=ch.tStage[i];
+        if(st>0){
+          treeCount++;
+          if(ch.burn[i]>0){ ch.tHp[i]-=ch.burn[i]*2.2*dtH; }
+          else{
+            // drought hits the young hardest; ancients have deep roots
+            const youth = st<1.5?3 : st<3?1 : 0.22;
+            const stress=(ch.moist[i]<0.06||T<0||T>41)?0.006*youth:0;
+            /* stress applied via ch.tHp below */
+            ch.tHp[i]-=stress*dtH;
+            if(stress===0&&ch.moist[i]>0.4&&ch.tHp[i]<1) ch.tHp[i]=Math.min(1,ch.tHp[i]+0.012*dtH); // recovery
+            if(ch.tHp[i]>0){
+              if(st<0.9){ // seed: germinate when wet
+                if(ch.moist[i]>0.30) ch.tStage[i]=1;
+              }else{
+                const tF=T>6&&T<34?1:0.25;
+                const gr=0.0042*clamp(ch.moist[i]*1.5,0,1)*tF*(0.35+0.65*ch.fert[i]);
+                ch.tStage[i]=Math.min(5,st+gr*dtH);
+              }
+              // seed dispersal from mature trees
+              if(st>=3.6&&hash2(wx,wy,Math.floor(W.day*3)+5)<0.55*dtH/24*3){
+                const sa=hash2(wx,wy,Math.floor(W.day*3)+6)*Math.PI*2;
+                const sd=2+hash2(wx,wy,Math.floor(W.day*3)+7)*(2+W.windSpd*3);
+                const nx=wx+Math.round(Math.cos(sa)*sd+wdx*W.windSpd*2);
+                const ny=wy+Math.round(Math.sin(sa)*sd+wdy*W.windSpd*2);
+                const cc=cellChunk(nx,ny);
+                if(cc.c.h[cc.i]>=SEA&&cc.c.h[cc.i]<0.78&&cc.c.tStage[cc.i]===0&&cc.c.snag[cc.i]===0){
+                  cc.c.tStage[cc.i]=0.5; cc.c.tHp[cc.i]=1;
+                }
+              }
+              // ancient trees die of age
+              if(st>=4.99&&hash2(wx,wy,Math.floor(W.day)+9)<0.02*dtH/24) ch.tHp[i]=0;
+            }
+          }
+          if(ch.tHp[i]<=0){ ch.tStage[i]=0; ch.tHp[i]=0; ch.snag[i]=1; }
+        }else if(ch.snag[i]>0){
+          // fallen giant decays, feeding the soil
+          ch.snag[i]-=dtH/72;
+          ch.fert[i]=clamp(ch.fert[i]+0.004*dtH,0,1);
+          if(ch.snag[i]<=0) ch.snag[i]=0;
+        }
+        // fire spread + burnout
+        if(ch.burn[i]>0){
+          fireCount++;
+          ch.burn[i]-=dtH*0.45;
+          ch.grass[i]=Math.max(0,ch.grass[i]-ch.burn[i]*0.6*dtH);
+          ch.fert[i]=clamp(ch.fert[i]+0.012*dtH,0,1);          // ash fertilizes
+          if(ch.burn[i]>0.15){
+            for(let k=0;k<4;k++){
+              const nx=wx+[1,-1,0,0][k], ny=wy+[0,0,1,-1][k];
+              const fuel=fieldAt('grass',nx,ny,0)+fieldAt('tStage',nx,ny,0)*0.2;
+              const dry=1-fieldAt('moist',nx,ny,1);
+              const windPush=1+ ( ([wdx,wdy][k<2?0:1]*[1,-1,1,-1][k]) )*0.8;
+              if(fuel>0.25&&dry>0.50&&ch.rain[i]<0.05&&hash2(nx,ny,Math.floor(W.tod*4)+k)<0.60*dtH*dry*windPush){
+                const cc=cellChunk(nx,ny);
+                if(cc.c.burn[cc.i]<=0) cc.c.burn[cc.i]=0.9;
+              }
+            }
+          }
+          if(ch.burn[i]<=0) ch.burn[i]=0;
+        }else{
+          // lightning: strikes the storm cell, but dry lightning reaches
+          // parched ground at the storm's edge too
+          const nearStorm=ch.storm[i]>0||fieldAt('storm',wx+2,wy,0)>0||fieldAt('storm',wx-2,wy,0)>0
+                        ||fieldAt('storm',wx,wy+2,0)>0||fieldAt('storm',wx,wy-2,0)>0;
+          if(nearStorm){
+            const fuel=ch.grass[i]+ch.tStage[i]*0.15;
+            const dry=1-ch.moist[i];
+            if(fuel>0.4&&dry>0.65&&hash2(wx,wy,Math.floor(W.tod*8))<0.0022*dtH*(1+dry)){
+              ch.burn[i]=1;
+              if(cooled('fire',0.5)) logEvent('fire','Wildfire ignited by lightning — the forest burns.');
+            }
+          }
+        }
+      }
+    }
+  }
+  // drought tracking + storm chronicle
+  if(rainCells===0) W.dryDays+=dtH/24; else {
+    if(W.dryDays>4&&cooled('rain',3)) logEvent('storm','Rain returns after '+Math.floor(W.dryDays)+' dry days. The land drinks.');
+    W.dryDays=0;
+  }
+  if(stormCells>120&&cooled('storm',2.5)) logEvent('storm','A storm is building — black clouds gather.');
+  if(flash>0) flash-=dtH/3;
+  else if(stormCells>0&&Math.random()<0.06) flash=0.5;
+  return {rainCells,stormCells,treeCount,fireCount};
+}
+
+/* ---------------- rendering ---------------- */
+function groundRGB(h,moist){
+  if(h<SEA-0.05) return [16,48,70];
+  if(h<SEA) return [36,98,128];
+  if(h<SEA+0.025) return [216,192,126];
+  if(h>0.82) return [130,130,138];
+  const t=clamp(moist,0,1);
+  return [Math.round(lerp(170,74,t)),Math.round(lerp(160,140,t)),Math.round(lerp(98,64,t))];
+}
+function darkness(){
+  const t=W.tod;
+  if(t<4.5||t>=21.5) return 1;
+  if(t<6.5) return 1-(t-4.5)/2;
+  if(t<19.5) return 0;
+  return (t-19.5)/2;
+}
+function render(){
+  const cw=cv.width/dpr, chh=cv.height/dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#07090d'; ctx.fillRect(0,0,cw,chh);
+  const cs=CS*cam.zoom;
+  const wx0=Math.floor((cam.x-cw/2/cam.zoom)/CS), wx1=Math.floor((cam.x+cw/2/cam.zoom)/CS);
+  const wy0=Math.floor((cam.y-chh/2/cam.zoom)/CS), wy1=Math.floor((cam.y+chh/2/cam.zoom)/CS);
+  const tNow=performance.now()/1000;
+  for(let wy=wy0;wy<=wy1;wy++)for(let wx=wx0;wx<=wx1;wx++){
+    const {c,i}=cellChunk(wx,wy);
+    const h=c.h[i];
+    const sx=(wx*CS-cam.x)*cam.zoom+cw/2, sy=(wy*CS-cam.y)*cam.zoom+chh/2;
+    const g=groundRGB(h,c.moist[i]);
+    // grass tint + subtle per-cell texture
+    const tex=(hash2(wx,wy,SEED+21)-0.5)*14;
+    let r=g[0]+tex,gg=g[1]+tex,b=g[2]+tex;
+    if(h>=SEA){
+      const gr=c.grass[i]*0.5;
+      r=Math.round(lerp(r,80,gr)); gg=Math.round(lerp(gg,150,gr)); b=Math.round(lerp(b,70,gr));
+    }else if(h<SEA){
+      const w=Math.sin(tNow*1.5+wx*0.7+wy)*4; r+=w; gg+=w; b+=w; // water shimmer
+    }
+    ctx.fillStyle=`rgb(${r|0},${gg|0},${b|0})`;
+    ctx.fillRect(sx,sy,cs+0.5,cs+0.5);
+    const cxp=sx+cs/2, cyp=sy+cs/2;
+    // dead snag
+    if(c.snag[i]>0){
+      ctx.strokeStyle='#5a4632'; ctx.lineWidth=Math.max(1,2*cam.zoom);
+      ctx.beginPath(); ctx.moveTo(cxp,cyp+cs*0.3); ctx.lineTo(cxp,cyp-cs*0.25); ctx.stroke();
+    }
+    // tree canopy
+    const st=c.tStage[i];
+    if(st>=1&&c.burn[i]<=0){
+      const rad=(2+st*1.6)*cam.zoom;
+      const li=Math.round(24+c.tHp[i]*14);
+      ctx.fillStyle=`hsl(${100+c.tHp[i]*12},38%,${li}%)`;
+      ctx.beginPath(); ctx.arc(cxp,cyp,rad,0,7); ctx.fill();
+      ctx.fillStyle=`hsl(${100+c.tHp[i]*12},42%,${li+9}%)`;
+      ctx.beginPath(); ctx.arc(cxp-rad*0.25,cyp-rad*0.25,rad*0.55,0,7); ctx.fill();
+    }
+    // fire
+    if(c.burn[i]>0){
+      const fl=0.7+0.3*Math.sin(tNow*22+wx*3+wy);
+      const rad=(7+5*fl)*cam.zoom*c.burn[i];
+      const grd=ctx.createRadialGradient(cxp,cyp,1,cxp,cyp,rad);
+      grd.addColorStop(0,'rgba(255,200,80,0.95)'); grd.addColorStop(0.5,'rgba(255,110,30,0.7)');
+      grd.addColorStop(1,'rgba(200,40,10,0)');
+      ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(cxp,cyp,rad,0,7); ctx.fill();
+    }
+    // clouds
+    if(c.cloud[i]>0.03){
+      ctx.fillStyle=`rgba(235,242,250,${(c.cloud[i]*0.55).toFixed(2)})`;
+      ctx.fillRect(sx-1,sy-1,cs+2,cs+2);
+    }
+    // storm gloom
+    if(c.storm[i]>0){
+      ctx.fillStyle=`rgba(18,22,38,${(c.storm[i]*0.4).toFixed(2)})`;
+      ctx.fillRect(sx,sy,cs+0.5,cs+0.5);
+    }
+    // rain streaks
+    if(c.rain[i]>0.15&&(wx+wy)%2===0){
+      ctx.strokeStyle=`rgba(150,190,230,${clamp(c.rain[i],0,0.8).toFixed(2)})`;
+      ctx.lineWidth=1;
+      const rxp=sx+((wx*7+wy*13)%Math.max(4,cs));
+      ctx.beginPath(); ctx.moveTo(rxp,sy); ctx.lineTo(rxp-3*cam.zoom,sy+cs*0.7); ctx.stroke();
+    }
+  }
+  // lightning flash
+  if(flash>0){ ctx.fillStyle=`rgba(220,230,255,${(flash*0.5).toFixed(2)})`; ctx.fillRect(0,0,cw,chh); }
+  // night
+  const dk=darkness();
+  if(dk>0.02){ ctx.fillStyle=`rgba(6,10,26,${(dk*0.62).toFixed(2)})`; ctx.fillRect(0,0,cw,chh); }
+  // inspector
+  if(insp){
+    const p=w2s(insp.wx*CS,insp.wy*CS);
+    ctx.strokeStyle='#ffd98a'; ctx.lineWidth=2;
+    ctx.strokeRect(p.x,p.y,cs,cs);
+  }
+}
+
+/* ---------------- inspector + HUD ---------------- */
+const inspEl=document.getElementById('insp');
+function renderInspector(){
+  if(!insp){ inspEl.textContent='—'; return; }
+  const {c,i}=cellChunk(insp.wx,insp.wy);
+  const h=c.h[i], land=h>=SEA;
+  const biome=!land?'water':h<SEA+0.025?'sand':h>0.82?'rock':c.moist[i]>0.55?'lush land':'dry land';
+  const tree=c.tStage[i]>=1?['','seed','sprout','sapling','mature','ancient'][Math.min(5,Math.floor(c.tStage[i]))]
+    +' ('+Math.round(c.tHp[i]*100)+'%)':c.tStage[i]>0?'seed':'—';
+  inspEl.innerHTML=
+    '<b>cell</b> '+insp.wx+', '+insp.wy+' · <b>'+biome+'</b><br>'+
+    'temp <b>'+c.temp[i].toFixed(1)+'°C</b> · humidity <b>'+Math.round(c.hum[i]*100)+'%</b><br>'+
+    'soil <b>'+Math.round(c.moist[i]*100)+'%</b> · fertility <b>'+Math.round(c.fert[i]*100)+'%</b><br>'+
+    'grass <b>'+Math.round(c.grass[i]*100)+'%</b> · tree <b>'+tree+'</b>'+
+    (c.burn[i]>0?'<br><b style="color:#e08a4a">🔥 burning</b>':'')+
+    (c.rain[i]>0.05?'<br>🌧 raining':'')+(c.storm[i]>0?'<br>⛈ storm':'');
+}
+const clockEl=document.getElementById('clock'), wxEl=document.getElementById('wx'),
+      statsEl=document.getElementById('stats'), fpsEl=document.getElementById('fps');
+const DIRS=['E','NE','N','NW','W','SW','S','SE'];
+let lastStats={rainCells:0,stormCells:0,treeCount:0,fireCount:0};
+function updateHUD(){
+  const hh=Math.floor(W.tod), mm=Math.floor((W.tod-hh)*60);
+  clockEl.textContent='Day '+Math.floor(W.day)+' · '+SEASONS[seasonIdx()]+' · '+
+    String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  // sample weather at screen center
+  const w=s2w(cv.width/dpr/2,cv.height/dpr/2);
+  const {c,i}=cellChunk(Math.floor(w.x/CS),Math.floor(w.y/CS));
+  const wd=DIRS[((Math.round(W.windAng/(Math.PI*2)*8)%8)+8)%8];
+  wxEl.textContent=c.temp[i].toFixed(0)+'°C · wind '+wd+' · '+
+    (lastStats.stormCells>0?'⛈ storm':lastStats.rainCells>0?'🌧 rain':c.cloud[i]>0.4?'☁ cloudy':'☀ clear');
+  statsEl.innerHTML=
+    'trees <b>'+lastStats.treeCount+'</b> · burning <b>'+lastStats.fireCount+'</b><br>'+
+    'rain cells <b>'+lastStats.rainCells+'</b> · storm cells <b>'+lastStats.stormCells+'</b><br>'+
+    'dry streak <b>'+W.dryDays.toFixed(1)+'d</b> · seed <b>'+SEED+'</b><br>'+
+    'chronicle entries <b>'+W.logCount+'</b>';
+}
+
+/* ---------------- controls ---------------- */
+function setSpeed(s){
+  W.speed=s; W.paused=false;
+  for(const id of ['b1','b4','b16']) document.getElementById(id).classList.remove('on');
+  document.getElementById('b'+s).classList.add('on');
+  document.getElementById('bPause').classList.remove('on');
+}
+document.getElementById('b1').onclick=()=>setSpeed(1);
+document.getElementById('b4').onclick=()=>setSpeed(4);
+document.getElementById('b16').onclick=()=>setSpeed(16);
+document.getElementById('bPause').onclick=e=>{
+  W.paused=!W.paused; e.target.classList.toggle('on',W.paused);
+};
+document.getElementById('bNew').onclick=()=>{
+  SEED=Math.floor(Math.random()*1e9); chunks.clear();
+  initSystems();
+  for(const k in cool) delete cool[k];
+  logEl.innerHTML=''; W.day=1; W.tod=8; W.dryDays=0; W.logCount=0;
+  logEvent('life','A new world condenses out of the noise. Seed '+SEED+'.');
+};
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space'){ e.preventDefault(); document.getElementById('bPause').click(); }
+});
+
+/* ---------------- main loop ---------------- */
+let lastT=performance.now(), fpsA=60, hudT=0;
+function frame(){
+  requestAnimationFrame(frame);
+  const now=performance.now();
+  const dtR=Math.min(0.1,(now-lastT)/1000); lastT=now;
+  fpsA=fpsA*0.95+(1/Math.max(1e-3,dtR))*0.05;
+  ensureVisibleChunks();
+  computeActive();
+  if(!W.paused&&W.speed>0){
+    lastStats=simTick(dtR*W.speed);   // 1× = 1 game-hour per real second
+  }
+  render();
+  hudT+=dtR;
+  if(hudT>0.5){ hudT=0; updateHUD(); fpsEl.textContent=Math.round(fpsA)+' fps'; }
+}
+/* genesis */
+ensureVisibleChunks(); computeActive();
+(function findSpawn(){ // start the camera on pleasant land, not mid-ocean
+  for(let r=0;r<400;r+=8)for(let a=0;a<12;a++){
+    const wx=Math.round(Math.cos(a/12*6.283)*r), wy=Math.round(Math.sin(a/12*6.283)*r);
+    const {c,i}=cellChunk(wx,wy);
+    if(c.h[i]>0.40&&c.h[i]<0.60){ cam.x=wx*CS; cam.y=wy*CS; return; }
+  }
+})();
+logEvent('life','A new world condenses out of the noise. Seed '+SEED+'.');
+logEvent('life','Grass spreads. Seeds fall. No one is watching — yet.');
+frame();
+</script>
+</body>
+</html>

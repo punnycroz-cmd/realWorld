@@ -1,0 +1,1 @@
+Day 18 ~12:37 — Manifested **chair** for Marta (WANT_DESIGN: chair). Cozy storybook pixel-art wooden chair sprite, 128x128, transparent background, saved to sprites/chair.png. Registered: 3 timber, 4 hours. The design exists now — the labor is hers.
