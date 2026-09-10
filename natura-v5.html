@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Natura v5 — a living world</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#07090d;color:#dfe6f2;
+    font-family:"Trebuchet MS",Verdana,sans-serif;user-select:none}
+  #top{position:fixed;top:0;left:0;right:0;height:46px;display:flex;align-items:center;gap:10px;
+    padding:0 12px;background:#0d1219;border-bottom:1px solid #1e2a3a;z-index:10;font-size:14px}
+  #top .title{font-weight:bold;color:#9fd08a;letter-spacing:1px;margin-right:8px}
+  #top .pill{background:#16202e;border:1px solid #2a3a52;border-radius:12px;padding:3px 10px;white-space:nowrap}
+  #top button{background:#16202e;border:1px solid #2a3a52;color:#dfe6f2;border-radius:8px;
+    padding:4px 10px;cursor:pointer;font-family:inherit;font-size:13px}
+  #top button.on{background:#2c4a2e;border-color:#5a8a4a;color:#cfe8b8}
+  #top button:hover{background:#1e2c40}
+  #cv{position:fixed;top:46px;left:0;right:300px;bottom:0;display:block;cursor:grab}
+  #side{position:fixed;top:46px;right:0;width:300px;bottom:0;background:#0d1219;
+    border-left:1px solid #1e2a3a;display:flex;flex-direction:column;z-index:10}
+  #side h3{margin:10px 12px 4px;font-size:12px;color:#8aa0b8;text-transform:uppercase;letter-spacing:1px}
+  #stats{padding:0 12px;font-size:13px;line-height:1.7;color:#b9c8dc}
+  #stats b{color:#e8f0fa}
+  #log{flex:1;overflow-y:auto;padding:0 12px;font-size:12.5px;line-height:1.65;color:#9fb2c8}
+  #log .ev{margin-bottom:6px;border-left:2px solid #2a3a52;padding-left:8px}
+  #log .ev.storm{border-color:#7a9fd0}
+  #log .ev.fire{border-color:#d07a4a}
+  #log .ev.life{border-color:#7ad08a}
+  #log .ev .d{color:#6a7f96;font-size:11px}
+  #insp{border-top:1px solid #1e2a3a;padding:8px 12px;font-size:12.5px;min-height:110px;color:#b9c8dc}
+  #marta{border-top:1px solid #1e2a3a;padding:2px 0 8px}
+  #mThought{font-style:italic;color:#d8cfa8;background:#141a10;border-left:2px solid #8a9a5a;
+    padding:6px 8px;margin:8px 12px 4px;border-radius:0 8px 8px 0;line-height:1.5;font-size:12.5px}
+  #mStats{padding:0 12px;font-size:12.5px;line-height:1.7;color:#b9c8dc}
+  #mStats b{color:#e8f0fa}
+  #hint{position:fixed;left:12px;bottom:10px;font-size:12px;color:#5a6f88;z-index:10;
+    background:rgba(10,14,20,.7);padding:4px 10px;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="top">
+  <span class="title">NATURA v5</span>
+  <span class="pill" id="clock">Day 1 · Spring · 08:00</span>
+  <span class="pill" id="wx">—</span>
+  <button id="bPause">⏸</button>
+  <button id="b1" class="on">1×</button>
+  <button id="b4">4×</button>
+  <button id="b16">16×</button>
+  <button id="b64">64×</button>
+  <button id="bNew">↻ new world</button>
+  <span class="pill" id="fps">—</span>
+</div>
+<canvas id="cv"></canvas>
+<div id="side">
+  <h3>World</h3>
+  <div id="stats">—</div>
+  <h3>Chronicle</h3>
+  <div id="log"></div>
+  <h3>Souls <span style="color:#5a6f88">· the living</span></h3>
+  <div id="marta"><div id="mThought" style="display:none"></div><div id="soulStats">&mdash;</div></div>
+  <h3>Inspector <span style="color:#5a6f88">(click the land)</span></h3>
+  <div id="insp">—</div>
+</div>
+<div id="hint">drag to pan · wheel to zoom · click a cell to inspect · nothing here is scripted</div>
+<script>
+'use strict';
+/* =====================================================================
+   NATURA v5 — a watchmaker world sim.
+   Nature is a causal simulation: temperature, humidity, pressure and wind
+   produce clouds, rain and storms. The ecosystem (grass, seeds, trees,
+   fire, decay) lives on top of it. Nothing is placed by hand after genesis.
+   ===================================================================== */
+
+/* ---------------- utils ---------------- */
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+function hash2(x,y,s){
+  let h=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^Math.imul(s|0,2246822519);
+  h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16;
+  return (h>>>0)/4294967295;
+}
+function vnoise(x,y,s){
+  const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi;
+  const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
+  const a=hash2(xi,yi,s), b=hash2(xi+1,yi,s), c=hash2(xi,yi+1,s), d=hash2(xi+1,yi+1,s);
+  return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;
+}
+function fbm(x,y,s,oct){
+  let t=0,amp=0.5,f=1,n=0;
+  for(let i=0;i<oct;i++){ t+=amp*vnoise(x*f,y*f,s+i*131); n+=amp; amp*=0.5; f*=2.03; }
+  return t/n;
+}
+
+/* ---------------- config ---------------- */
+const CS=16;            // world px per cell
+const CHN=16;           // cells per chunk side
+const SEA=0.34;         // sea level
+let SEED=20260910;
+const W={
+  day:1, tod:8,         // time of day 0..24
+  speed:1, paused:false,
+  windAng:0.7, windSpd:1,
+  dryDays:0,
+  logCount:0,
+};
+const chunks=new Map(); // "cx,cy" -> chunk
+const cam={x:0,y:0,zoom:1};
+let insp=null;          // inspected cell {wx,wy}
+let flash=0;            // lightning flash timer
+const cool={};          // event cooldowns
+/* migratory low-pressure systems: the fronts that bring rain to everyone */
+const systems=[];
+function initSystems(){
+  systems.length=0;
+  for(let k=0;k<6;k++) systems.push({
+    x:(hash2(k,1,SEED+900)-0.5)*3000, y:(hash2(k,2,SEED+900)-0.5)*3000,
+    r:520+hash2(k,3,SEED+900)*380, inten:0.4+hash2(k,4,SEED+900)*0.6,
+    ph:hash2(k,5,SEED+900)*10,
+  });
+  // the first front starts over the birthplace, so the young world gets rain
+  systems[0].x=200; systems[0].y=-150; systems[0].inten=0.9;
+}
+initSystems();
+
+/* ---------------- terrain: infinite deterministic chunks ---------------- */
+function genChunk(cx,cy){
+  const N=CHN, n=N*N;
+  const ch={cx,cy,
+    h:new Float32Array(n), moist:new Float32Array(n), fert:new Float32Array(n),
+    grass:new Float32Array(n), tStage:new Float32Array(n), tHp:new Float32Array(n),
+    burn:new Float32Array(n), snag:new Float32Array(n), bush:new Float32Array(n),
+    temp:new Float32Array(n), hum:new Float32Array(n), cloud:new Float32Array(n),
+    rain:new Float32Array(n), storm:new Float32Array(n)};
+  for(let iy=0;iy<N;iy++)for(let ix=0;ix<N;ix++){
+    const wx=cx*N+ix, wy=cy*N+iy, i=iy*N+ix;
+    let h=fbm(wx*0.030,wy*0.030,SEED,4);
+    h=Math.pow(h,1.25);
+    const m=fbm(wx*0.008+500,wy*0.008+500,SEED+9,3);      // mountain mask
+    if(m>0.60) h=Math.min(1,h+(m-0.60)*1.6);
+    ch.h[i]=h;
+    const land=h>=SEA;
+    ch.moist[i]= land ? 0.55+fbm(wx*0.020+900,wy*0.020+900,SEED+31,3)*0.40 : 1;
+    ch.fert[i]= 0.30+fbm(wx*0.05+300,wy*0.05+300,SEED+77,2)*0.60;
+    ch.grass[i]= (land&&h<0.78) ? 0.25+hash2(wx,wy,SEED+5)*0.45 : 0;
+    const f=fbm(wx*0.05+700,wy*0.05+700,SEED+55,3);        // forest patches
+    if(land&&h<0.72&&f>0.56&&hash2(wx,wy,SEED+6)>0.30){
+      ch.tStage[i]=3.1+hash2(wx,wy,SEED+8)*1.7; ch.tHp[i]=1;
+    }
+    ch.temp[i]=20; ch.hum[i]=0.55;
+  }
+  chunks.set(cx+','+cy,ch);
+  return ch;
+}
+function chunkAt(cx,cy){
+  const k=cx+','+cy;
+  let c=chunks.get(k);
+  if(!c) c=genChunk(cx,cy);
+  return c;
+}
+function cellChunk(wx,wy){
+  const cx=Math.floor(wx/CHN), cy=Math.floor(wy/CHN);
+  const c=chunkAt(cx,cy);
+  return {c, i:(wy-cy*CHN)*CHN+(wx-cx*CHN)};
+}
+// read a field without generating (for neighbor sampling at sim edges)
+function fieldAt(field,wx,wy,def){
+  const cx=Math.floor(wx/CHN), cy=Math.floor(wy/CHN);
+  const c=chunks.get(cx+','+cy);
+  if(!c) return def;
+  return c[field][(wy-cy*CHN)*CHN+(wx-cx*CHN)];
+}
+function ensureVisibleChunks(){
+  const wpx=cv.width/dpr, wpy=cv.height/dpr;
+  const x0=cam.x-wpx/2/cam.zoom-CS*CHN, x1=cam.x+wpx/2/cam.zoom+CS*CHN;
+  const y0=cam.y-wpy/cam.zoom-CS*CHN,   y1=cam.y+wpy/cam.zoom+CS*CHN;
+  for(let cx=Math.floor(x0/CS/CHN);cx<=Math.floor(x1/CS/CHN);cx++)
+    for(let cy=Math.floor(y0/CS/CHN);cy<=Math.floor(y1/CS/CHN);cy++)
+      chunkAt(cx,cy);
+}
+
+/* ---------------- souls: villagers, children, designs ---------------- */
+const SETTLE={wx:0,wy:0,founded:false};
+const BUILD={huts:[],bench:null,pile:null,crate:null};
+const items=[]; let itemSeq=1;                 // ground items: {id,type:'log',x,y}
+const BUSHSPOTS=[];
+const villagers=[]; let vSeq=1;
+const children=[]; let childSeq=1;
+const DESIGNS={
+  table:{name:'table',timber:4,hours:6,sprite:null,by:'Marta',made:true},
+};
+const MILE={};
+
+function addVillager(name,sex,age,x,y,colors,skills){
+  const v={id:vSeq++,name,sex,age,x,y,hunger:1,energy:1,hp:1,
+    inv:{log:0,timber:0,table:0,chair:0,berries:0,food:sex==='F'?8:6},
+    skills:Object.assign({fell:0.25,saw:0.25,build:0.25,forage:0.35},skills||{}),
+    carry:[],carryMax:2,act:'idle',actLabel:'taking in the land',job:null,
+    thought:'\u2026',heard:[],partner:null,bond:{id:0,until:0},pregnant:0,childIds:[],
+    lastResult:null,colors};
+  villagers.push(v); return v;
+}
+function vByName(n){ return villagers.find(v=>v.name===n); }
+function vById(id){ return villagers.find(v=>v.id===id); }
+
+function foundSettlement(){
+  const R=15, sx=SETTLE.wx, sy=SETTLE.wy;
+  for(let wy=sy-R;wy<=sy+R;wy++)for(let wx=sx-R;wx<=sx+R;wx++) cellChunk(wx,wy);
+  for(let wy=sy-R;wy<=sy+R;wy++)for(let wx=sx-R;wx<=sx+R;wx++){
+    const {c,i}=cellChunk(wx,wy);
+    const d=Math.hypot(wx-sx,wy-sy);
+    if(d<R){
+      const t=(d/R)*(d/R);
+      c.h[i]=lerp(0.46,c.h[i],t);
+      if(d<R-2){ c.tStage[i]=0; c.tHp[i]=0; c.snag[i]=0; c.burn[i]=0; }
+      c.moist[i]=Math.max(c.moist[i],0.55);
+      if(c.h[i]>=SEA) c.grass[i]=Math.max(c.grass[i],0.7);
+    }
+  }
+  BUILD.huts=[{wx:sx-3,wy:sy-2,w:3,h:2}];
+  BUILD.bench={wx:sx+2,wy:sy-1,w:1,h:1};
+  BUILD.pile={wx:sx+2,wy:sy+2,w:2,h:1};
+  BUILD.crate={wx:sx-3,wy:sy+2,w:1,h:1};
+  let placed=0, guard=0;
+  while(placed<44&&guard++<6000){
+    const a=hash2(guard,placed,SEED+700)*Math.PI*2;
+    const r=18+hash2(placed,guard,SEED+701)*42;
+    const wx=Math.round(sx+Math.cos(a)*r), wy=Math.round(sy+Math.sin(a)*r);
+    const {c,i}=cellChunk(wx,wy);
+    if(c.h[i]>=SEA+0.02&&c.h[i]<0.72&&c.tStage[i]<1&&c.bush[i]<0.5){ c.bush[i]=1; BUSHSPOTS.push({wx,wy}); placed++; }
+  }
+  addVillager('Marta','F',34,(sx-1)*CS,(sy+1)*CS,
+    {dress:'#3a5a8a',skin:'#e8b88a',hat:'#c8a04a',hair:'#5a3a22'});
+  SETTLE.founded=true;
+  logEvent('life','A settler raises a hut on the green. Her name is Marta.');
+}
+function spawnTomas(){
+  // he walks in from the hills, 25 cells out
+  const sx=SETTLE.wx, sy=SETTLE.wy;
+  const a=hash2(7,7,SEED+730)*Math.PI*2;
+  let wx=sx+Math.round(Math.cos(a)*25), wy=sy+Math.round(Math.sin(a)*25);
+  const {c}=cellChunk(wx,wy);
+  if(!(c.h[cellChunk(wx,wy).i]>=SEA)){ wx=sx+18; wy=sy; }
+  const t=addVillager('Tomas','M',35,wx*CS,wy*CS,
+    {dress:'#4a6a3a',skin:'#d8a878',hat:null,hair:'#3a2a1a'},
+    {fell:0.35,saw:0.3,build:0.35,forage:0.3});
+  t.job={kind:'goto',wx:sx,wy:sy,label:'walking into the valley'};
+  logEvent('life','A traveler walks in from the hills. His name is Tomas.');
+}
+function resetSouls(){
+  villagers.length=0; children.length=0; items.length=0; BUSHSPOTS.length=0;
+  BUILD.huts=[]; BUILD.bench=null; BUILD.pile=null; BUILD.crate=null;
+  for(const k in DESIGNS) if(k!=='table') delete DESIGNS[k];
+  DESIGNS.table={name:'table',timber:4,hours:6,sprite:null,by:'Marta',made:true};
+  for(const k in MILE) delete MILE[k];
+  vSeq=1; childSeq=1;
+}
+
+/* ---- bodies: needs, movement, jobs ---- */
+function vMoveTo(v,tx,ty,dtH){
+  const dx=tx-v.x, dy=ty-v.y, d=Math.hypot(dx,dy);
+  const step=v.speed()*dtH*(v.energy<0.2?0.55:1);
+  if(d<=step){ v.x=tx; v.y=ty; return true; }
+  v.x+=dx/d*step; v.y+=dy/d*step; return false;
+}
+function dropLogs(wx,wy,n){
+  for(let k=0;k<n;k++)
+    items.push({id:itemSeq++,type:'log',
+      x:(wx+(hash2(itemSeq,k,SEED+720)-0.5)*2)*CS,
+      y:(wy+(hash2(k,itemSeq,SEED+721)-0.5)*2)*CS});
+}
+function gainSkill(v,k,amt){ v.skills[k]=clamp(v.skills[k]+(amt||0.04)*(v.age<14?2:1),0,1); }
+
+function villagerTick(dtH){
+  if(!SETTLE.founded) return;
+  for(const ch of activeList)for(let i=0;i<256;i++)
+    if(ch.bush[i]>0&&ch.bush[i]<1) ch.bush[i]=Math.min(1,ch.bush[i]+dtH/72);
+  for(const v of villagers) soulTick(v,dtH);
+  for(const ch of children) childTick(ch,dtH);
+  // mutual bonding -> the chance of a child
+  const nowH=W.day*24+W.tod;
+  for(const a of villagers){
+    if(!a.bond.id) continue;
+    const b=vById(a.bond.id);
+    if(b&&b.bond.id===a.id&&nowH<b.bond.until&&b.age>=18&&a.age>=18){
+      a.bond.id=0; b.bond.id=0;
+      a.actLabel='holding '+b.name; b.actLabel='holding '+a.name;
+      a.partner=b.name; b.partner=a.name;
+      const f=a.sex==='F'?a:b;
+      if(f.pregnant<=0&&f.age<=42&&a.hp>0.4&&b.hp>0.4&&Math.random()<0.5){
+        f.pregnant=270;
+        f.lastResult={kind:'bond',note:'something has changed'};
+      }
+    } else if(nowH>=a.bond.until){ a.bond.id=0; }
+  }
+}
+
+function soulTick(v,dtH){
+  v.speed=()=>70*(v.age<14?0.55:1);
+  const sleeping=v.job&&v.job.kind==='sleep', resting=v.job&&v.job.kind==='rest';
+  const working=v.job&&!sleeping&&!resting;
+  const drain=v.age<6?48:96;
+  v.hunger=clamp(v.hunger-dtH/drain*(v.pregnant>0?1.35:1),0,1);
+  v.energy=clamp(v.energy+(sleeping?dtH/6:resting?dtH/10:working?-dtH/26:-dtH/48),0,1);
+  // aging and the long decline
+  v.age+=dtH/8760;
+  const maxHp=v.age>70?Math.max(0.08,1-(v.age-70)*0.12):1;
+  v.hp=clamp(v.hp+(v.hunger<=0?-dtH/60:v.hunger>0.3?dtH/120:0),0.05,1);
+  v.hp=Math.min(v.hp,maxHp);
+  if(v.hp<=0.06&&(v.age>70||v.hunger<=0)){
+    logEvent('life',v.name+' has died at '+Math.floor(v.age)+'. The valley keeps the bones.');
+    const k=villagers.indexOf(v); if(k>=0) villagers.splice(k,1);
+    return;
+  }
+  if(v.pregnant>0){
+    v.pregnant-=dtH/24;
+    if(v.pregnant<=0){ v.pregnant=0; giveBirth(v); }
+  }
+  // old messages fade
+  v.heard=v.heard.filter(m=>W.day-m.day<3);
+  const J=v.job;
+  if(!J){
+    v.act='idle';
+    v.actLabel=v.pregnant>0?'resting, hand on her belly':
+      v.hunger<0.25?'stomach growling':v.energy<0.25?'weary':'taking in the land';
+    return;
+  }
+  const at=(wx,wy)=>vMoveTo(v,wx*CS,wy*CS,dtH);
+  const near=(wx,wy,r)=>Math.hypot(v.x-wx*CS,v.y-wy*CS)<=(r||1.7)*CS;
+  if(J.kind==='goto'){
+    v.act='walk'; v.actLabel=J.label||'walking';
+    if(at(J.wx,J.wy)) v.job=null;
+  }else if(J.kind==='fell'){
+    const {c,i}=cellChunk(J.wx,J.wy);
+    if(c.tStage[i]<2.5){ v.job=null; return; }
+    if(!near(J.wx,J.wy)){ v.act='walk'; v.actLabel='going to the tree'; at(J.wx,J.wy); return; }
+    v.act='fell'; v.actLabel='felling the tree';
+    J.t+=dtH*(v.energy<0.15?0.5:1);
+    const need=2.5*(1.7-v.skills.fell);
+    if(J.t>=need){
+      c.tStage[i]=0; c.tHp[i]=0; c.snag[i]=0;
+      const bad=Math.random()>v.skills.fell+0.25;      // it falls badly
+      dropLogs(J.wx,J.wy,bad?2:(Math.random()<v.skills.fell?3:2));
+      gainSkill(v,'fell');
+      v.job=null;
+      v.lastResult={kind:'fell',note:bad?'it fell badly — only two good logs':'three good logs'};
+      if(!MILE.fell){ MILE.fell=1; logEvent('life',v.name+' felled a tree. Logs lie in the grass.'); }
+    }
+  }else if(J.kind==='haul'){
+    if(J.phase===0){
+      const it0=items.find(e=>e.id===J.id);
+      if(!it0){ v.job=null; return; }
+      v.act='walk'; v.actLabel='going to the log';
+      if(vMoveTo(v,it0.x,it0.y,dtH)){ J.phase=1; J.t=0; }
+    }else if(J.phase===1){
+      v.act='haul'; v.actLabel='lifting the log'; J.t+=dtH;
+      if(J.t>=0.25){
+        const it=items.find(e=>e.id===J.id);
+        if(it){ const k=items.indexOf(it); if(k>=0) items.splice(k,1); v.carry.push(it.type); }
+        J.phase=2;
+      }
+    }else{
+      v.act='haul'; v.actLabel='hauling logs to the pile';
+      const p=BUILD.pile;
+      if(at(p.wx,p.wy)){ v.inv.log+=v.carry.length; v.carry=[]; v.job=null;
+        if(!MILE.haul&&v.inv.log>0){ MILE.haul=1; logEvent('life','The woodpile grows. '+v.name+' is stockpiling timber.'); } }
+    }
+  }else if(J.kind==='saw'){
+    const b=BUILD.bench;
+    if(!near(b.wx,b.wy)){ v.act='walk'; v.actLabel='going to the workbench'; at(b.wx,b.wy); return; }
+    if(v.inv.log<=0){ v.job=null; return; }
+    v.act='saw'; v.actLabel='sawing timber'; J.t+=dtH*(0.7+v.skills.saw*0.6);
+    let n=0;
+    while(J.t>=1&&v.inv.log>0){ J.t-=1; v.inv.log--; v.inv.timber+=2; n++; }
+    if(n>0) gainSkill(v,'saw');
+    if(!MILE.saw&&v.inv.timber>0){ MILE.saw=1; logEvent('life','First planks sawn at the workbench.'); }
+  }else if(J.kind==='craft'){
+    const d=DESIGNS[J.design];
+    if(!d){ v.job=null; return; }
+    if(v.inv.timber<d.timber){ v.job=null; v.lastResult={kind:'craft',note:'not enough timber'}; return; }
+    const b=BUILD.bench;
+    if(!near(b.wx,b.wy)){ v.act='walk'; v.actLabel='going to the workbench'; at(b.wx,b.wy); return; }
+    v.act='build'; v.actLabel='making a '+d.name; J.t+=dtH*(0.7+v.skills.build*0.6);
+    if(J.t>=d.hours){
+      v.inv.timber-=d.timber;
+      const s=v.skills.build, r=Math.random(), isNew=!d.made;
+      let q;
+      if(isNew&&r<0.20*(1-s)){           // the first attempt can truly fail
+        q='failed'; v.inv.timber+=Math.floor(d.timber/2);
+      }else if(s+r*0.5<0.38) q='crude';
+      else if(s+r*0.5<0.85) q='sturdy';
+      else q='fine';
+      d.made=true; gainSkill(v,'build',0.06);
+      v.job=null;
+      if(q==='failed'){
+        v.lastResult={kind:'craft',design:J.design,quality:'failed',
+          note:'it collapsed — salvaged half the timber'};
+        logEvent('life',v.name+' tried to make a '+d.name+' and it fell apart. The wood is salvaged.');
+      }else{
+        const key=J.design+(q==='crude'?'_crude':'');
+        v.inv[key]=(v.inv[key]||0)+1;
+        v.lastResult={kind:'craft',design:J.design,quality:q,
+          note:q==='crude'?'it stands, barely — a wobbly '+d.name:
+               q==='fine'?'a fine '+d.name+', better than the design':'a sturdy '+d.name};
+        if(!MILE['craft_'+J.design]){
+          MILE['craft_'+J.design]=1;
+          logEvent('life',v.name+' made a '+q+' '+d.name+' — the first of its kind in this world.');
+        }
+      }
+    }
+  }else if(J.kind==='build_hut'){
+    if(v.inv.timber<10){ v.job=null; v.lastResult={kind:'hut',note:'need 10 timber'}; return; }
+    if(!near(J.wx,J.wy,2.5)){ v.act='walk'; v.actLabel='going to the building site'; at(J.wx,J.wy); return; }
+    v.act='build'; v.actLabel='raising a hut'; J.t+=dtH*(0.7+v.skills.build*0.6);
+    if(J.t>=20){
+      v.inv.timber-=10;
+      BUILD.huts.push({wx:J.wx,wy:J.wy,w:3,h:2});
+      gainSkill(v,'build',0.08); v.job=null;
+      v.lastResult={kind:'hut',note:'the hut stands'};
+      logEvent('life',v.name+' raised a new hut. The settlement grows.');
+    }
+  }else if(J.kind==='forage'){
+    const {c,i}=cellChunk(J.wx,J.wy);
+    if(c.bush[i]<0.3){ v.job=null; return; }
+    if(!near(J.wx,J.wy,1.4)){ v.act='walk'; v.actLabel='looking for berries'; at(J.wx,J.wy); return; }
+    v.act='forage'; v.actLabel='picking berries'; J.t+=dtH;
+    if(J.t>=0.5){ c.bush[i]=0; v.inv.berries+=3; gainSkill(v,'forage'); v.job=null; }
+  }else if(J.kind==='eat'){
+    v.act='eat'; v.actLabel='eating'; J.t+=dtH;
+    if(J.t>=0.25){
+      if(v.inv.food>0){ v.inv.food--; v.hunger=1; }
+      else if(v.inv.berries>=2){ v.inv.berries-=2; v.hunger=1; }
+      v.job=null;
+    }
+  }else if(J.kind==='sleep'){
+    const h=BUILD.huts[0], hx=(h.wx+1)*CS, hy=(h.wy+0.5)*CS;
+    if(Math.hypot(v.x-hx,v.y-hy)>1.6*CS){ v.act='walk'; v.actLabel='going home to rest'; vMoveTo(v,hx,hy,dtH); return; }
+    v.act='sleep'; v.actLabel='sleeping';
+    if(v.energy>=1) v.job=null;
+  }else if(J.kind==='rest'){
+    v.act='rest'; v.actLabel='resting'; J.t+=dtH;
+    if(J.t>=1||v.energy>=1) v.job=null;
+  }else if(J.kind==='give'){
+    const t=vById(J.to);
+    if(!t){ v.job=null; return; }
+    if(Math.hypot(v.x-t.x,v.y-t.y)>2.5*CS){ v.act='walk'; v.actLabel='going to '+t.name; vMoveTo(v,t.x,t.y,dtH); return; }
+    const n=Math.min(J.n,v.inv[J.item]||0);
+    if(n>0){ v.inv[J.item]-=n; t.inv[J.item]=(t.inv[J.item]||0)+n;
+      t.heard.push({from:v.name,text:'gave you '+n+' '+J.item,day:W.day}); }
+    v.job=null;
+    v.lastResult={kind:'give',note:n>0?'gave '+n+' '+J.item+' to '+t.name:'nothing to give'};
+  }else if(J.kind==='say_to'){
+    const t=vById(J.to);
+    if(t){ t.heard.push({from:v.name,text:J.text.slice(0,140),day:W.day});
+      if(t.heard.length>6) t.heard.shift(); }
+    v.thought=J.text.slice(0,140); v.job=null;
+  }else if(J.kind==='bond'){
+    const t=vById(J.with);
+    if(!t){ v.job=null; return; }
+    if(Math.hypot(v.x-t.x,v.y-t.y)>2*CS){ v.act='walk'; v.actLabel='going to '+t.name; vMoveTo(v,t.x,t.y,dtH); return; }
+    v.act='bond'; v.actLabel='with '+t.name; v.bond={id:t.id,until:W.day*24+W.tod+8}; v.job=null;
+  }else if(J.kind==='name_baby'){
+    const ch=children.find(c=>c.motherId===v.id&&!c.name);
+    if(ch){ ch.name=J.name.slice(0,24); v.job=null;
+      logEvent('life',ch.name+' is named. The valley learns a new word.'); }
+    else v.job=null;
+  }else{ v.job=null; }
+}
+
+/* ---- children ---- */
+function giveBirth(mother){
+  const father=mother.partner?vByName(mother.partner):null;
+  const ch={id:childSeq++,name:null,sex:Math.random()<0.5?'F':'M',age:0,
+    x:mother.x,y:mother.y,hunger:1,energy:1,hp:1,
+    motherId:mother.id,fatherId:father?father.id:0,
+    colors:{dress:mother.colors.dress,skin:mother.colors.skin,hat:null,
+      hair:father?father.colors.hair:mother.colors.hair}};
+  children.push(ch); mother.childIds.push(ch.id);
+  mother.lastResult={kind:'birth',note:'a child is born — name it'};
+  logEvent('life','A child is born to '+mother.name+(father?' and '+father.name:'')+'.');
+}
+function childTick(ch,dtH){
+  ch.age+=dtH/8760;
+  ch.hunger=clamp(ch.hunger-dtH/30,0,1);
+  ch.hp=clamp(ch.hp+(ch.hunger<=0?-dtH/48:dtH/120),0.05,1);
+  const m=vById(ch.motherId);
+  if(ch.age<2){ // babe in arms
+    if(m){ ch.x=m.x; ch.y=m.y;
+      if(ch.hunger<0.45&&m.inv.food>0){ m.inv.food--; ch.hunger=1; } }
+    return;
+  }
+  if(ch.age>=14){ // grown: becomes a soul
+    const v=addVillager(ch.name||'Nameless',ch.sex,14,ch.x,ch.y,ch.colors,{fell:0.3,saw:0.3,build:0.3,forage:0.4});
+    v.inv.food=4;
+    const k=children.indexOf(ch); if(k>=0) children.splice(k,1);
+    logEvent('life',v.name+' is grown — a new adult in the valley.');
+    return;
+  }
+  // toddler/child: stays near mother, nibbles what she's given
+  if(m){
+    const d=Math.hypot(ch.x-m.x,ch.y-m.y);
+    if(d>3*CS){ const s=40*dtH; ch.x+=(m.x-ch.x)/d*s; ch.y+=(m.y-ch.y)/d*s; }
+    if(ch.hunger<0.4&&m.inv.berries>0){ m.inv.berries--; ch.hunger=Math.min(1,ch.hunger+0.5); }
+  }
+}
+
+/* ---- the mind link: one body per name ---- */
+function snapFor(v){
+  const wx=Math.round(v.x/CS), wy=Math.round(v.y/CS);
+  const {c,i}=cellChunk(wx,wy);
+  const trees=[];
+  outer: for(let r=4;r<=70;r+=4)for(let a=0;a<16;a++){
+    const tx=wx+Math.round(Math.cos(a/16*6.283)*r), ty=wy+Math.round(Math.sin(a/16*6.283)*r);
+    const cc=cellChunk(tx,ty);
+    if(cc.c.tStage[cc.i]>=2.5&&cc.c.burn[cc.i]<=0) trees.push({wx:tx,wy:ty,st:+cc.c.tStage[cc.i].toFixed(1),d:r});
+    if(trees.length>=14) break outer;
+  }
+  const bushes=[];
+  for(const s of BUSHSPOTS){
+    const cc=cellChunk(s.wx,s.wy);
+    if(cc.c.bush[cc.i]>0.5){
+      const d=Math.round(Math.hypot(s.wx-wx,s.wy-wy));
+      if(d<=90) bushes.push({wx:s.wx,wy:s.wy,d});
+    }
+    if(bushes.length>=8) break;
+  }
+  bushes.sort((a,b)=>a.d-b.d);
+  const designs={};
+  for(const k in DESIGNS) designs[k]={name:DESIGNS[k].name,timber:DESIGNS[k].timber,hours:DESIGNS[k].hours,by:DESIGNS[k].by};
+  return {
+    day:+W.day.toFixed(1), tod:+W.tod.toFixed(2), season:SEASONS[seasonIdx()],
+    weather:{temp:+c.temp[i].toFixed(1), rain:c.rain[i]>0.05, storm:c.storm[i]>0,
+             cloud:+c.cloud[i].toFixed(2), burning:c.burn[i]>0},
+    me:{name:v.name,sex:v.sex,age:+v.age.toFixed(1),wx,wy,
+        hunger:+v.hunger.toFixed(2),energy:+v.energy.toFixed(2),hp:+v.hp.toFixed(2),
+        act:v.act,doing:v.actLabel,inv:Object.assign({},v.inv),
+        carrying:v.carry.slice(),carryMax:v.carryMax,thought:v.thought,
+        skills:Object.assign({},v.skills),
+        partner:v.partner,pregnant:v.pregnant>0?+v.pregnant.toFixed(0):0,
+        children:v.childIds.map(id=>{const ch=children.find(c=>c.id===id);
+          return ch?{name:ch.name||'unnamed',age:+ch.age.toFixed(1)}:null;}).filter(Boolean)},
+    others:villagers.filter(o=>o!==v).map(o=>({name:o.name,sex:o.sex,age:Math.floor(o.age),
+        wx:Math.round(o.x/CS),wy:Math.round(o.y/CS),doing:o.actLabel,
+        d:Math.round(Math.hypot(o.x-v.x,o.y-v.y)/CS)})),
+    littleones:children.map(ch=>({name:ch.name||'unnamed',age:+ch.age.toFixed(1),
+        mother:vById(ch.motherId)?vById(ch.motherId).name:'?',
+        d:Math.round(Math.hypot(ch.x-v.x,ch.y-v.y)/CS)})),
+    heard:v.heard.slice(),
+    home:{huts:BUILD.huts.map(h=>({wx:h.wx+1,wy:h.wy})),bench:{wx:BUILD.bench.wx,wy:BUILD.bench.wy},
+          pile:{wx:BUILD.pile.wx,wy:BUILD.pile.wy},crate:{wx:BUILD.crate.wx,wy:BUILD.crate.wy}},
+    see:{trees,bushes,logs:items.map(e=>({id:e.id,d:Math.round(Math.hypot(e.x-v.x,e.y-v.y)/CS)}))},
+    designs,
+    job:v.job?{kind:v.job.kind,t:+(v.job.t||0).toFixed(2),phase:v.job.phase||0}:null,
+    birth:children.some(ch=>ch.motherId===v.id&&!ch.name),
+    lastResult:v.lastResult
+  };
+}
+window.NV={
+  list(){ return villagers.map(v=>v.name); },
+  snap(name){ const v=vByName(name); return v?snapFor(v):{error:'no such soul'}; },
+  say(name,t){
+    const v=vByName(name); if(!v) return;
+    v.thought=String(t).slice(0,220);
+  },
+  addDesign(id,info){
+    DESIGNS[id]={name:info.name||id,timber:info.timber||3,hours:info.hours||4,
+      sprite:info.sprite||null,by:info.by||'?',made:false};
+    if(info.sprite){
+      window.__spr=window.__spr||{};
+      const im=new Image();
+      im.onload=()=>{ window.__spr[id]=im; };
+      im.src=info.sprite;
+    }
+    logEvent('life','A new design is dreamed: '+DESIGNS[id].name+', by '+DESIGNS[id].by+'.');
+    return 'design added: '+id;
+  },
+  setSprite(id,path){
+    const d=DESIGNS[id]; if(!d) return 'no such design';
+    d.sprite=path;
+    window.__spr=window.__spr||{};
+    const im=new Image();
+    im.onload=()=>{ window.__spr[id]=im; };
+    im.src=path;
+    return 'sprite attached: '+id;
+  },
+  order(name,o){
+    const v=vByName(name);
+    if(!v) return 'no such soul';
+    if(!o||typeof o.verb!=='string') return 'no verb given';
+    const vb=o.verb, same=(k,f)=>v.job&&v.job.kind===k&&(!f||f());
+    if(vb==='wait'){ return 'waiting'; }
+    if(vb==='goto'){
+      if(typeof o.wx!=='number'||typeof o.wy!=='number') return 'goto needs wx,wy';
+      if(same('goto',()=>v.job.wx===o.wx&&v.job.wy===o.wy)) return 'already going there';
+      v.job={kind:'goto',wx:Math.round(o.wx),wy:Math.round(o.wy),label:o.label||'walking'};
+      return 'ok';
+    }
+    if(vb==='fell'){
+      const {c,i}=cellChunk(o.wx,o.wy);
+      if(!(c.h[i]>=SEA)) return 'that is water';
+      if(c.tStage[i]<2.5) return 'no mature tree there';
+      if(same('fell',()=>v.job.wx===o.wx&&v.job.wy===o.wy)) return 'already felling it';
+      v.job={kind:'fell',wx:o.wx,wy:o.wy,t:0}; return 'ok';
+    }
+    if(vb==='haul'){
+      const it=items.find(e=>e.id===o.id);
+      if(!it) return 'no such log';
+      if(v.job&&v.job.kind==='haul') return 'already hauling';
+      if(v.carry.length>=v.carryMax) return 'hands full';
+      v.job={kind:'haul',id:o.id,phase:0,t:0}; return 'ok';
+    }
+    if(vb==='saw'){
+      if(v.inv.log<=0) return 'no logs to saw';
+      if(same('saw')) return 'already sawing';
+      v.job={kind:'saw',t:0}; return 'ok';
+    }
+    if(vb==='craft'){
+      const d=DESIGNS[o.design];
+      if(!d) return 'no such design — dream it first';
+      if(v.inv.timber<d.timber) return 'need '+d.timber+' timber for a '+d.name;
+      if(same('craft',()=>v.job.design===o.design)) return 'already making it';
+      v.job={kind:'craft',design:o.design,t:0}; return 'ok';
+    }
+    if(vb==='build_hut'){
+      if(v.inv.timber<10) return 'need 10 timber for a hut';
+      const {c}=cellChunk(o.wx,o.wy);
+      if(!(c.h[cellChunk(o.wx,o.wy).i]>=SEA)) return 'that is water';
+      v.job={kind:'build_hut',wx:Math.round(o.wx),wy:Math.round(o.wy),t:0}; return 'ok';
+    }
+    if(vb==='forage'){
+      const {c,i}=cellChunk(o.wx,o.wy);
+      if(c.bush[i]<0.3) return 'no berries there';
+      if(same('forage',()=>v.job.wx===o.wx&&v.job.wy===o.wy)) return 'already picking there';
+      v.job={kind:'forage',wx:o.wx,wy:o.wy,t:0}; return 'ok';
+    }
+    if(vb==='eat'){
+      if(v.inv.food<=0&&v.inv.berries<2) return 'nothing to eat';
+      v.job={kind:'eat',t:0}; return 'ok';
+    }
+    if(vb==='sleep'){ if(same('sleep')) return 'already sleeping'; v.job={kind:'sleep'}; return 'ok'; }
+    if(vb==='rest'){ if(same('rest')) return 'already resting'; v.job={kind:'rest',t:0}; return 'ok'; }
+    if(vb==='give'){
+      const t=vById(typeof o.to==='number'?o.to:(vByName(o.to)||{}).id);
+      if(!t) return 'no such soul';
+      if(!(v.inv[o.item]>0)) return 'you have no '+o.item;
+      v.job={kind:'give',to:t.id,item:o.item,n:Math.min(o.n||1,9)}; return 'ok';
+    }
+    if(vb==='say_to'){
+      const t=vByName(o.to);
+      if(!t) return 'no such soul';
+      if(typeof o.text!=='string'||!o.text.trim()) return 'say what?';
+      v.job={kind:'say_to',to:t.id,text:o.text}; return 'ok';
+    }
+    if(vb==='bond'){
+      const t=vByName(o.with);
+      if(!t) return 'no such soul';
+      if(t.age<18||v.age<18) return 'not grown';
+      v.job={kind:'bond',with:t.id}; return 'ok';
+    }
+    if(vb==='name_baby'){
+      if(!children.some(ch=>ch.motherId===v.id&&!ch.name)) return 'no unnamed child';
+      if(typeof o.name!=='string'||!o.name.trim()) return 'give a name';
+      v.job={kind:'name_baby',name:o.name.trim()}; return 'ok';
+    }
+    return 'unknown verb '+vb;
+  },
+  speed(s){ if(s===1||s===4||s===16||s===64) setSpeed(s); return 'speed '+W.speed; },
+  pause(){ W.paused=true; return 'paused'; },
+  resume(){ W.paused=false; return 'running'; },
+  addTraveler(name,sex,age,colors,skills){
+    if(vByName(name)) return 'already here';
+    const a=Math.random()*6.283;
+    const wx=SETTLE.wx+Math.round(Math.cos(a)*20), wy=SETTLE.wy+Math.round(Math.sin(a)*20);
+    const v=addVillager(name,sex,age,wx*CS,wy*CS,
+      colors||{dress:'#777',skin:'#e8b88a',hat:null,hair:'#333'},skills||null);
+    v.job={kind:'goto',wx:SETTLE.wx,wy:SETTLE.wy,label:'walking in'};
+    logEvent('life','A traveler walks in from the hills. Their name is '+name+'.');
+    return 'welcome '+name;
+  }
+};
+
+/* ---------------- input: pan / zoom / inspect ---------------- *//* ---------------- input: pan / zoom / inspect ---------------- */
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+let dpr=1;
+function resize(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.floor((window.innerWidth-300)*dpr);
+  cv.height=Math.floor((window.innerHeight-46)*dpr);
+  cv.style.width=(window.innerWidth-300)+'px';
+  cv.style.height=(window.innerHeight-46)+'px';
+}
+window.addEventListener('resize',resize); resize();
+function w2s(wx,wy){ // world px -> screen px
+  return {x:(wx-cam.x)*cam.zoom+cv.width/dpr/2, y:(wy-cam.y)*cam.zoom+cv.height/dpr/2};
+}
+function s2w(sx,sy){
+  return {x:(sx-cv.width/dpr/2)/cam.zoom+cam.x, y:(sy-cv.height/dpr/2)/cam.zoom+cam.y};
+}
+let drag=null;
+cv.addEventListener('mousedown',e=>{ drag={x:e.clientX,y:e.clientY,moved:0}; cv.style.cursor='grabbing'; });
+window.addEventListener('mousemove',e=>{
+  if(!drag) return;
+  const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+  drag.moved+=Math.abs(dx)+Math.abs(dy);
+  cam.x-=dx/cam.zoom; cam.y-=dy/cam.zoom;
+  drag.x=e.clientX; drag.y=e.clientY;
+});
+window.addEventListener('mouseup',e=>{
+  if(drag&&drag.moved<5){
+    const r=cv.getBoundingClientRect();
+    const w=s2w(e.clientX-r.left,e.clientY-r.top);
+    insp={wx:Math.floor(w.x/CS), wy:Math.floor(w.y/CS)};
+    renderInspector();
+  }
+  drag=null; cv.style.cursor='grab';
+});
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  const before=s2w(mx,my);
+  cam.zoom=clamp(cam.zoom*(e.deltaY<0?1.15:1/1.15),0.35,4);
+  const after=s2w(mx,my);
+  cam.x+=before.x-after.x; cam.y+=before.y-after.y;
+},{passive:false});
+
+/* ---------------- events / chronicle ---------------- */
+const logEl=document.getElementById('log');
+function logEvent(kind,text){
+  const dayStr='Day '+Math.floor(W.day);
+  const div=document.createElement('div');
+  div.className='ev '+kind;
+  div.innerHTML='<span class="d">'+dayStr+'</span> '+text;
+  logEl.prepend(div);
+  while(logEl.children.length>60) logEl.lastChild.remove();
+  W.logCount++;
+}
+function cooled(key,days){
+  const t=W.day;
+  if(cool[key]&&t-cool[key]<days) return false;
+  cool[key]=t; return true;
+}
+
+/* ---------------- the simulation ---------------- */
+let activeList=[];
+function computeActive(){
+  activeList.length=0;
+  for(const c of chunks.values()){
+    const ccx=(c.cx*CHN+CHN/2)*CS, ccy=(c.cy*CHN+CHN/2)*CS;
+    const rx=cv.width/dpr/2/cam.zoom+CS*CHN*1.5, ry=cv.height/dpr/2/cam.zoom+CS*CHN*1.5;
+    if(Math.abs(ccx-cam.x)<rx&&Math.abs(ccy-cam.y)<ry) activeList.push(c);
+  }
+}
+const SEASONS=['Spring','Summer','Autumn','Winter'];
+function seasonIdx(){ return Math.floor((W.day%365)/91.25)%4; }
+
+function simTick(dtH){
+  // time
+  W.tod+=dtH;
+  while(W.tod>=24){ W.tod-=24; W.day+=1; }
+  W.windAng+=(fbm(W.day*0.3,3.7,SEED+400,2)-0.5)*0.6*dtH;
+  W.windSpd=clamp(W.windSpd+(hash2(Math.floor(W.day*10),7,SEED+401)-0.5)*0.4*dtH,0.2,3);
+  // drift the pressure systems with the wind; their intensity breathes
+  const sysVX=Math.cos(W.windAng)*W.windSpd*36, sysVY=Math.sin(W.windAng)*W.windSpd*36;
+  for(const s of systems){
+    s.x+=sysVX*dtH+(fbm(W.day+s.ph,s.ph,SEED+910,2)-0.5)*60*dtH;
+    s.y+=sysVY*dtH+(fbm(s.ph,W.day+s.ph,SEED+911,2)-0.5)*60*dtH;
+    s.inten=clamp(s.inten+(fbm(W.day*0.5+s.ph,0.3,SEED+912,2)-0.5)*0.5*dtH,0.05,1);
+    // keep systems near the watched region: wrap around camera
+    const R=2600;
+    if(s.x<cam.x-R)s.x+=R*2; if(s.x>cam.x+R)s.x-=R*2;
+    if(s.y<cam.y-R)s.y+=R*2; if(s.y>cam.y+R)s.y-=R*2;
+  }
+  const si=seasonIdx();
+  const seasonT=Math.sin(((W.day%365)/365)*Math.PI*2);       // -1..1 over year
+  const diurnal=Math.sin(((W.tod-9)/24)*Math.PI*2);           // peak ~15:00
+  const wdx=Math.cos(W.windAng), wdy=Math.sin(W.windAng);
+  let rainCells=0, stormCells=0, treeCount=0, fireCount=0;
+
+  for(const ch of activeList){
+    const bx=ch.cx*CHN, by=ch.cy*CHN;
+    for(let iy=0;iy<CHN;iy++)for(let ix=0;ix<CHN;ix++){
+      const i=iy*CHN+ix, wx=bx+ix, wy=by+iy;
+      const h=ch.h[i], land=h>=SEA;
+      /* ---- weather: temperature ---- */
+      const lat=wy*0.004;
+      const tT=26-Math.abs(lat)*0.55+seasonT*9*(0.35+Math.min(1,Math.abs(lat)*0.2))
+             +diurnal*6.5*(1-ch.cloud[i]*0.55)
+             +(fbm(wx*0.01+W.day*0.05,wy*0.01,SEED+500,2)-0.5)*7;
+      ch.temp[i]+=(tT-ch.temp[i])*Math.min(1,0.22*dtH);
+      const T=ch.temp[i];
+      /* ---- evaporation -> humidity ---- */
+      const evR=(land?ch.moist[i]*0.030:0.075)*(T>0?1:0.15)*dtH;
+      ch.hum[i]+=evR;
+      // wind advection: pull toward upwind neighbor
+      const ux=Math.round(wx-wdx*2.5), uy=Math.round(wy-wdy*2.5);
+      const humU=fieldAt('hum',ux,uy,ch.hum[i]);
+      ch.hum[i]+=(humU-ch.hum[i])*clamp(0.35*W.windSpd*dtH,0,0.8);
+      const cloudU=fieldAt('cloud',ux,uy,ch.cloud[i]);
+      ch.cloud[i]+=(cloudU-ch.cloud[i])*clamp(0.20*W.windSpd*dtH,0,0.6);
+      /* ---- condensation -> clouds ---- */
+      if(ch.hum[i]>0.90){
+        ch.cloud[i]=clamp(ch.cloud[i]+(ch.hum[i]-0.90)*4*dtH,0,1);
+        ch.hum[i]-=(ch.hum[i]-0.90)*2*dtH;
+      }
+      const cloudT=clamp((ch.hum[i]-0.60)*3.2,0,1);
+      ch.cloud[i]+=(cloudT-ch.cloud[i])*Math.min(1,0.5*dtH);
+      /* ---- precipitation ---- */
+      let rain=0;
+      if(ch.cloud[i]>0.68&&T>1) rain=(ch.cloud[i]-0.68)*1.5;
+      const inst=(ch.hum[i]>0.80&&T>25)?(ch.hum[i]-0.80)*8:0;   // instability
+      if(inst>0.55){ ch.storm[i]=1; stormCells++; rain*=2.4; }
+      else ch.storm[i]=Math.max(0,ch.storm[i]-dtH*0.8);
+      ch.rain[i]=rain;
+      // frontal lift: migratory low-pressure systems bring rain to everyone
+      {
+        const px=wx*CS, py=wy*CS;
+        let lift=0;
+        for(let si=0;si<systems.length;si++){
+          const s=systems[si], dx=px-s.x, dy=py-s.y, r2=s.r*s.r, d2=dx*dx+dy*dy;
+          if(d2<r2*4) lift+=s.inten*Math.exp(-d2/r2);
+        }
+        if(lift>0.01){
+          ch.cloud[i]=clamp(ch.cloud[i]+Math.min(1.2,lift)*0.30*dtH,0,1);
+          ch.hum[i]=clamp(ch.hum[i]+lift*0.03*dtH,0,1.2);
+          if(lift>0.25&&T>1) ch.rain[i]+=(lift-0.25)*0.9;
+        }
+      }
+      rain=ch.rain[i];
+      if(rain>0.05) rainCells++;
+      ch.hum[i]=clamp(ch.hum[i]-rain*0.16*dtH,0,1.2);
+      /* ---- soil moisture ---- */
+      if(land){
+        ch.moist[i]=clamp(ch.moist[i]+(rain*0.45-(0.004+T*0.00035))*dtH,0,1);
+      }
+      /* ---- ecosystem ---- */
+      if(land&&h<0.86){
+        // grass
+        const gg=(ch.moist[i]>0.18&&T>4&&T<37)?0.030*ch.moist[i]*(1-ch.grass[i]):-0.022;
+        ch.grass[i]=clamp(ch.grass[i]+gg*dtH,0,1);
+        if(ch.grass[i]>0.75&&hash2(wx,wy,Math.floor(W.day))>0.6){
+          const nx=wx+Math.floor(hash2(wx,wy,11)*3)-1, ny=wy+Math.floor(hash2(wx,wy,12)*3)-1;
+          const cc=cellChunk(nx,ny);
+          if(cc.c.h[cc.i]>=SEA) cc.c.grass[cc.i]=clamp(cc.c.grass[cc.i]+0.12,0,1);
+        }
+        // trees
+        const st=ch.tStage[i];
+        if(st>0){
+          treeCount++;
+          if(ch.burn[i]>0){ ch.tHp[i]-=ch.burn[i]*2.2*dtH; }
+          else{
+            // drought hits the young hardest; ancients have deep roots
+            const youth = st<1.5?3 : st<3?1 : 0.22;
+            const stress=(ch.moist[i]<0.06||T<0||T>41)?0.006*youth:0;
+            /* stress applied via ch.tHp below */
+            ch.tHp[i]-=stress*dtH;
+            if(stress===0&&ch.moist[i]>0.4&&ch.tHp[i]<1) ch.tHp[i]=Math.min(1,ch.tHp[i]+0.012*dtH); // recovery
+            if(ch.tHp[i]>0){
+              if(st<0.9){ // seed: germinate when wet
+                if(ch.moist[i]>0.30) ch.tStage[i]=1;
+              }else{
+                const tF=T>6&&T<34?1:0.25;
+                const gr=0.0042*clamp(ch.moist[i]*1.5,0,1)*tF*(0.35+0.65*ch.fert[i]);
+                ch.tStage[i]=Math.min(5,st+gr*dtH);
+              }
+              // seed dispersal from mature trees
+              if(st>=3.6&&hash2(wx,wy,Math.floor(W.day*3)+5)<0.55*dtH/24*3){
+                const sa=hash2(wx,wy,Math.floor(W.day*3)+6)*Math.PI*2;
+                const sd=2+hash2(wx,wy,Math.floor(W.day*3)+7)*(2+W.windSpd*3);
+                const nx=wx+Math.round(Math.cos(sa)*sd+wdx*W.windSpd*2);
+                const ny=wy+Math.round(Math.sin(sa)*sd+wdy*W.windSpd*2);
+                const cc=cellChunk(nx,ny);
+                if(cc.c.h[cc.i]>=SEA&&cc.c.h[cc.i]<0.78&&cc.c.tStage[cc.i]===0&&cc.c.snag[cc.i]===0){
+                  cc.c.tStage[cc.i]=0.5; cc.c.tHp[cc.i]=1;
+                }
+              }
+              // ancient trees die of age
+              if(st>=4.99&&hash2(wx,wy,Math.floor(W.day)+9)<0.02*dtH/24) ch.tHp[i]=0;
+            }
+          }
+          if(ch.tHp[i]<=0){ ch.tStage[i]=0; ch.tHp[i]=0; ch.snag[i]=1; }
+        }else if(ch.snag[i]>0){
+          // fallen giant decays, feeding the soil
+          ch.snag[i]-=dtH/72;
+          ch.fert[i]=clamp(ch.fert[i]+0.004*dtH,0,1);
+          if(ch.snag[i]<=0) ch.snag[i]=0;
+        }
+        // fire spread + burnout
+        if(ch.burn[i]>0){
+          fireCount++;
+          ch.burn[i]-=dtH*0.45;
+          ch.grass[i]=Math.max(0,ch.grass[i]-ch.burn[i]*0.6*dtH);
+          ch.fert[i]=clamp(ch.fert[i]+0.012*dtH,0,1);          // ash fertilizes
+          if(ch.burn[i]>0.15){
+            for(let k=0;k<4;k++){
+              const nx=wx+[1,-1,0,0][k], ny=wy+[0,0,1,-1][k];
+              const fuel=fieldAt('grass',nx,ny,0)+fieldAt('tStage',nx,ny,0)*0.2;
+              const dry=1-fieldAt('moist',nx,ny,1);
+              const windPush=1+ ( ([wdx,wdy][k<2?0:1]*[1,-1,1,-1][k]) )*0.8;
+              if(fuel>0.25&&dry>0.50&&ch.rain[i]<0.05&&hash2(nx,ny,Math.floor(W.tod*4)+k)<0.60*dtH*dry*windPush){
+                const cc=cellChunk(nx,ny);
+                if(cc.c.burn[cc.i]<=0) cc.c.burn[cc.i]=0.9;
+              }
+            }
+          }
+          if(ch.burn[i]<=0) ch.burn[i]=0;
+        }else{
+          // lightning: strikes the storm cell, but dry lightning reaches
+          // parched ground at the storm's edge too
+          const nearStorm=ch.storm[i]>0||fieldAt('storm',wx+2,wy,0)>0||fieldAt('storm',wx-2,wy,0)>0
+                        ||fieldAt('storm',wx,wy+2,0)>0||fieldAt('storm',wx,wy-2,0)>0;
+          if(nearStorm){
+            const fuel=ch.grass[i]+ch.tStage[i]*0.15;
+            const dry=1-ch.moist[i];
+            if(fuel>0.4&&dry>0.65&&hash2(wx,wy,Math.floor(W.tod*8))<0.0022*dtH*(1+dry)){
+              ch.burn[i]=1;
+              if(cooled('fire',0.5)) logEvent('fire','Wildfire ignited by lightning — the forest burns.');
+            }
+          }
+        }
+      }
+    }
+  }
+  // drought tracking + storm chronicle
+  if(rainCells===0) W.dryDays+=dtH/24; else {
+    if(W.dryDays>4&&cooled('rain',3)) logEvent('storm','Rain returns after '+Math.floor(W.dryDays)+' dry days. The land drinks.');
+    W.dryDays=0;
+  }
+  if(stormCells>120&&cooled('storm',2.5)) logEvent('storm','A storm is building — black clouds gather.');
+  if(flash>0) flash-=dtH/3;
+  else if(stormCells>0&&Math.random()<0.06) flash=0.5;
+  villagerTick(dtH);
+  return {rainCells,stormCells,treeCount,fireCount};
+}
+
+/* ---------------- rendering ---------------- */
+function groundRGB(h,moist){
+  if(h<SEA-0.05) return [16,48,70];
+  if(h<SEA) return [36,98,128];
+  if(h<SEA+0.025) return [216,192,126];
+  if(h>0.82) return [130,130,138];
+  const t=clamp(moist,0,1);
+  return [Math.round(lerp(170,74,t)),Math.round(lerp(160,140,t)),Math.round(lerp(98,64,t))];
+}
+function darkness(){
+  const t=W.tod;
+  if(t<4.5||t>=21.5) return 1;
+  if(t<6.5) return 1-(t-4.5)/2;
+  if(t<19.5) return 0;
+  return (t-19.5)/2;
+}
+function render(){
+  const cw=cv.width/dpr, chh=cv.height/dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#07090d'; ctx.fillRect(0,0,cw,chh);
+  const cs=CS*cam.zoom;
+  const wx0=Math.floor((cam.x-cw/2/cam.zoom)/CS), wx1=Math.floor((cam.x+cw/2/cam.zoom)/CS);
+  const wy0=Math.floor((cam.y-chh/2/cam.zoom)/CS), wy1=Math.floor((cam.y+chh/2/cam.zoom)/CS);
+  const tNow=performance.now()/1000;
+  for(let wy=wy0;wy<=wy1;wy++)for(let wx=wx0;wx<=wx1;wx++){
+    const {c,i}=cellChunk(wx,wy);
+    const h=c.h[i];
+    const sx=(wx*CS-cam.x)*cam.zoom+cw/2, sy=(wy*CS-cam.y)*cam.zoom+chh/2;
+    const g=groundRGB(h,c.moist[i]);
+    // grass tint + subtle per-cell texture
+    const tex=(hash2(wx,wy,SEED+21)-0.5)*14;
+    let r=g[0]+tex,gg=g[1]+tex,b=g[2]+tex;
+    if(h>=SEA){
+      const gr=c.grass[i]*0.5;
+      r=Math.round(lerp(r,80,gr)); gg=Math.round(lerp(gg,150,gr)); b=Math.round(lerp(b,70,gr));
+    }else if(h<SEA){
+      const w=Math.sin(tNow*1.5+wx*0.7+wy)*4; r+=w; gg+=w; b+=w; // water shimmer
+    }
+    ctx.fillStyle=`rgb(${r|0},${gg|0},${b|0})`;
+    ctx.fillRect(sx,sy,cs+0.5,cs+0.5);
+    const cxp=sx+cs/2, cyp=sy+cs/2;
+    // dead snag
+    if(c.snag[i]>0){
+      ctx.strokeStyle='#5a4632'; ctx.lineWidth=Math.max(1,2*cam.zoom);
+      ctx.beginPath(); ctx.moveTo(cxp,cyp+cs*0.3); ctx.lineTo(cxp,cyp-cs*0.25); ctx.stroke();
+    }
+    // tree canopy
+    const st=c.tStage[i];
+    if(st>=1&&c.burn[i]<=0){
+      const rad=(2+st*1.6)*cam.zoom;
+      const li=Math.round(24+c.tHp[i]*14);
+      ctx.fillStyle=`hsl(${100+c.tHp[i]*12},38%,${li}%)`;
+      ctx.beginPath(); ctx.arc(cxp,cyp,rad,0,7); ctx.fill();
+      ctx.fillStyle=`hsl(${100+c.tHp[i]*12},42%,${li+9}%)`;
+      ctx.beginPath(); ctx.arc(cxp-rad*0.25,cyp-rad*0.25,rad*0.55,0,7); ctx.fill();
+    }
+    // fire
+    if(c.burn[i]>0){
+      const fl=0.7+0.3*Math.sin(tNow*22+wx*3+wy);
+      const rad=(7+5*fl)*cam.zoom*c.burn[i];
+      const grd=ctx.createRadialGradient(cxp,cyp,1,cxp,cyp,rad);
+      grd.addColorStop(0,'rgba(255,200,80,0.95)'); grd.addColorStop(0.5,'rgba(255,110,30,0.7)');
+      grd.addColorStop(1,'rgba(200,40,10,0)');
+      ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(cxp,cyp,rad,0,7); ctx.fill();
+    }
+    // clouds
+    if(c.cloud[i]>0.03){
+      ctx.fillStyle=`rgba(235,242,250,${(c.cloud[i]*0.55).toFixed(2)})`;
+      ctx.fillRect(sx-1,sy-1,cs+2,cs+2);
+    }
+    // storm gloom
+    if(c.storm[i]>0){
+      ctx.fillStyle=`rgba(18,22,38,${(c.storm[i]*0.4).toFixed(2)})`;
+      ctx.fillRect(sx,sy,cs+0.5,cs+0.5);
+    }
+    // rain streaks
+    if(c.rain[i]>0.15&&(wx+wy)%2===0){
+      ctx.strokeStyle=`rgba(150,190,230,${clamp(c.rain[i],0,0.8).toFixed(2)})`;
+      ctx.lineWidth=1;
+      const rxp=sx+((wx*7+wy*13)%Math.max(4,cs));
+      ctx.beginPath(); ctx.moveTo(rxp,sy); ctx.lineTo(rxp-3*cam.zoom,sy+cs*0.7); ctx.stroke();
+    }
+  }
+  // ---- settlement & souls ----
+  if(SETTLE.founded){
+    const bx=wx0-2, bx1=wx1+2, by=wy0-2, by1=wy1+2;
+    const inView=(wx,wy)=>wx>=bx&&wx<=bx1&&wy>=by&&wy<=by1;
+    const R=(wx,wy,w,h,fill)=>{ const p=w2s(wx*CS,wy*CS);
+      ctx.fillStyle=fill; ctx.fillRect(p.x,p.y,w*cs,h*cs); };
+    for(let wy=wy0;wy<=wy1;wy++)for(let wx=wx0;wx<=wx1;wx++){
+      const {c,i}=cellChunk(wx,wy);
+      if(c.bush[i]>0.5&&c.tStage[i]<1){
+        const p=w2s(wx*CS,wy*CS), cxp=p.x+cs/2, cyp=p.y+cs/2;
+        ctx.fillStyle='#2d5a2d';
+        ctx.beginPath(); ctx.arc(cxp,cyp,cs*0.32,0,7); ctx.fill();
+        ctx.fillStyle='#c04040';
+        for(let k=0;k<3;k++){
+          const a=k*2.1+wx;
+          ctx.beginPath(); ctx.arc(cxp+Math.cos(a)*cs*0.16,cyp+Math.sin(a)*cs*0.16,Math.max(1,cs*0.05),0,7); ctx.fill();
+        }
+      }
+    }
+    for(const e of items){
+      if(e.x<wx0*CS||e.x>wx1*CS||e.y<wy0*CS||e.y>wy1*CS) continue;
+      const p=w2s(e.x,e.y);
+      ctx.fillStyle='#7a5a38'; ctx.fillRect(p.x-cs*0.3,p.y-cs*0.1,cs*0.6,cs*0.2);
+      ctx.fillStyle='#c8a06a'; ctx.fillRect(p.x+cs*0.22,p.y-cs*0.1,cs*0.08,cs*0.2);
+    }
+    for(const h of BUILD.huts){
+      if(!inView(h.wx,h.wy)) continue;
+      R(h.wx,h.wy,3,2,'#8a6a48');
+      R(h.wx,h.wy,3,0.7,'#5a4028');
+      const p=w2s((h.wx+1.5)*CS,(h.wy+1.4)*CS);
+      ctx.fillStyle='#2a1c10'; ctx.fillRect(p.x-cs*0.2,p.y-cs*0.3,cs*0.4,cs*0.6);
+    }
+    if(BUILD.bench&&inView(BUILD.bench.wx,BUILD.bench.wy)){
+      R(BUILD.bench.wx,BUILD.bench.wy,1,1,'#9a7a50');
+      const p=w2s(BUILD.bench.wx*CS,BUILD.bench.wy*CS);
+      ctx.fillStyle='#6a4f30'; ctx.fillRect(p.x+cs*0.1,p.y+cs*0.35,cs*0.8,cs*0.12);
+    }
+    if(BUILD.pile&&inView(BUILD.pile.wx,BUILD.pile.wy)){
+      const logs=villagers.reduce((n,v)=>n+v.inv.log,0);
+      const n=Math.min(12,logs);
+      for(let k=0;k<n;k++){
+        const p=w2s((BUILD.pile.wx+(k%6)*0.32)*CS,(BUILD.pile.wy+Math.floor(k/6)*0.32)*CS);
+        ctx.fillStyle='#7a5a38';
+        ctx.beginPath(); ctx.arc(p.x+cs*0.16,p.y+cs*0.16,cs*0.14,0,7); ctx.fill();
+        ctx.fillStyle='#c8a06a';
+        ctx.beginPath(); ctx.arc(p.x+cs*0.16,p.y+cs*0.16,cs*0.06,0,7); ctx.fill();
+      }
+    }
+    if(BUILD.crate&&inView(BUILD.crate.wx,BUILD.crate.wy)) R(BUILD.crate.wx,BUILD.crate.wy,1,1,'#a08050');
+    // furniture owned, shown by the first hut
+    {
+      const h=BUILD.huts[0];
+      if(h&&inView(h.wx,h.wy)){
+        const nT=villagers.reduce((n,v)=>n+(v.inv.table||0),0);
+        const nC=villagers.reduce((n,v)=>n+(v.inv.chair||0)+(v.inv.chair_crude||0),0);
+        const p0=w2s((h.wx+0.4)*CS,(h.wy+2.3)*CS);
+        for(let k=0;k<Math.min(4,nT);k++){
+          const px=p0.x+k*cs*0.9;
+          ctx.fillStyle='#7a5230'; ctx.fillRect(px,p0.y-cs*0.5,cs*0.7,cs*0.12);
+          ctx.fillRect(px+cs*0.05,p0.y-cs*0.38,cs*0.1,cs*0.38);
+          ctx.fillRect(px+cs*0.55,p0.y-cs*0.38,cs*0.1,cs*0.38);
+        }
+        for(let k=0;k<Math.min(6,nC);k++){
+          const des=DESIGNS.chair, px=p0.x+k*cs*0.55, py=p0.y+cs*0.35;
+          if(des&&des.sprite&&window.__spr&&window.__spr.chair){
+            const im=window.__spr.chair;
+            ctx.drawImage(im,px,py-cs*0.5,cs*0.5,cs*0.5);
+          }else{
+            ctx.fillStyle='#8a6238'; ctx.fillRect(px,py-cs*0.4,cs*0.32,cs*0.1);
+            ctx.fillRect(px+cs*0.03,py-cs*0.3,cs*0.07,cs*0.3);
+            ctx.fillRect(px+cs*0.22,py-cs*0.3,cs*0.07,cs*0.3);
+            ctx.fillRect(px+cs*0.03,py-cs*0.55,cs*0.26,cs*0.18);
+          }
+        }
+      }
+    }
+    const drawSoul=(x,y,colors,scale,label,sub)=>{
+      const p=w2s(x,y), u=cam.zoom*scale, cxp=p.x, cyp=p.y;
+      if(cxp<-30||cyp<-30||cxp>cw+30||cyp>chh+30) return;
+      ctx.fillStyle='rgba(0,0,0,0.3)';
+      ctx.beginPath(); ctx.ellipse(cxp,cyp+6*u,7*u,2.6*u,0,0,7); ctx.fill();
+      ctx.fillStyle=colors.dress;
+      ctx.fillRect(cxp-4*u,cyp-4*u,8*u,10*u);
+      ctx.fillStyle=colors.skin;
+      ctx.beginPath(); ctx.arc(cxp,cyp-8*u,4.4*u,0,7); ctx.fill();
+      ctx.fillStyle=colors.hair;
+      ctx.beginPath(); ctx.arc(cxp,cyp-9*u,4.4*u,Math.PI,0); ctx.fill();
+      if(colors.hat){
+        ctx.fillStyle=colors.hat;
+        ctx.beginPath(); ctx.ellipse(cxp,cyp-9*u,7*u,2.6*u,0,0,7); ctx.fill();
+      }
+      if(label&&cam.zoom>1.4){
+        ctx.fillStyle='rgba(240,235,220,0.9)'; ctx.font=`${11}px sans-serif`;
+        ctx.textAlign='center'; ctx.fillText(label,cxp,cyp-16*u); ctx.textAlign='left';
+      }
+      if(sub){ ctx.fillStyle='#dfe6f2'; ctx.font=`${10*u}px sans-serif`; ctx.fillText(sub,cxp+8*u,cyp-14*u); }
+    };
+    for(const v of villagers){
+      const hasBaby=children.some(ch=>ch.motherId===v.id&&ch.age<2);
+      drawSoul(v.x,v.y,v.colors,v.age<14?0.62:1,v.name,
+        v.act==='sleep'?'z':(v.pregnant>0?'+':'')+(hasBaby?'•':''));
+    }
+    for(const ch of children){
+      if(ch.age<2) continue;
+      const m=vById(ch.motherId);
+      drawSoul(ch.x,ch.y+4,ch.colors,ch.age<14?0.45+ch.age*0.02:0.62,ch.name||'…',null);
+    }
+  }
+  // lightning flash
+  if(flash>0){ ctx.fillStyle=`rgba(220,230,255,${(flash*0.5).toFixed(2)})`; ctx.fillRect(0,0,cw,chh); }  // lightning flash${(flash*0.5).toFixed(2)})`; ctx.fillRect(0,0,cw,chh); }
+  // night
+  const dk=darkness();
+  if(dk>0.02){ ctx.fillStyle=`rgba(6,10,26,${(dk*0.62).toFixed(2)})`; ctx.fillRect(0,0,cw,chh); }
+  // inspector
+  if(insp){
+    const p=w2s(insp.wx*CS,insp.wy*CS);
+    ctx.strokeStyle='#ffd98a'; ctx.lineWidth=2;
+    ctx.strokeRect(p.x,p.y,cs,cs);
+  }
+}
+
+/* ---------------- inspector + HUD ---------------- */
+const inspEl=document.getElementById('insp');
+function renderInspector(){
+  if(!insp){ inspEl.textContent='—'; return; }
+  const {c,i}=cellChunk(insp.wx,insp.wy);
+  const h=c.h[i], land=h>=SEA;
+  const biome=!land?'water':h<SEA+0.025?'sand':h>0.82?'rock':c.moist[i]>0.55?'lush land':'dry land';
+  const tree=c.tStage[i]>=1?['','seed','sprout','sapling','mature','ancient'][Math.min(5,Math.floor(c.tStage[i]))]
+    +' ('+Math.round(c.tHp[i]*100)+'%)':c.tStage[i]>0?'seed':'—';
+  inspEl.innerHTML=
+    '<b>cell</b> '+insp.wx+', '+insp.wy+' · <b>'+biome+'</b><br>'+
+    'temp <b>'+c.temp[i].toFixed(1)+'°C</b> · humidity <b>'+Math.round(c.hum[i]*100)+'%</b><br>'+
+    'soil <b>'+Math.round(c.moist[i]*100)+'%</b> · fertility <b>'+Math.round(c.fert[i]*100)+'%</b><br>'+
+    'grass <b>'+Math.round(c.grass[i]*100)+'%</b> · tree <b>'+tree+'</b>'+
+    (c.burn[i]>0?'<br><b style="color:#e08a4a">🔥 burning</b>':'')+
+    (c.rain[i]>0.05?'<br>🌧 raining':'')+(c.storm[i]>0?'<br>⛈ storm':'');
+}
+const clockEl=document.getElementById('clock'), wxEl=document.getElementById('wx'),
+      statsEl=document.getElementById('stats'), fpsEl=document.getElementById('fps');
+const mThoughtEl=document.getElementById('mThought'), mStatsEl=document.getElementById('soulStats');
+function renderSouls(){
+  if(!SETTLE.founded){ mStatsEl.textContent='—'; return; }
+  const bars=b=>{ const f=Math.round(clamp(b,0,1)*8); return '█'.repeat(f)+'░'.repeat(8-f); };
+  let html='';
+  for(const v of villagers){
+    const kids=children.filter(c=>c.motherId===v.id)
+      .map(c=>(c.name||'unnamed')+'('+c.age.toFixed(1)+')').join(', ');
+    html+='<div style="margin-bottom:6px"><b style="color:#e8d8a8">'+v.name+'</b>'+
+      ' <span style="color:#6a7f96">'+Math.floor(v.age)+(v.sex==='F'?'F':'M')+'</span>'+
+      (v.pregnant>0?' <span style="color:#e8a8c8">♥ '+Math.ceil(v.pregnant)+'d</span>':'')+'<br>'+
+      '<span style="font-style:italic;color:#d8cfa8">&ldquo;'+v.thought+'&rdquo;</span><br>'+
+      '<span style="color:#8aa0b8">doing</span> '+v.actLabel+'<br>'+
+      'hunger '+bars(v.hunger)+' energy '+bars(v.energy)+'<br>'+
+      'log '+v.inv.log+' · timber '+v.inv.timber+' · table '+(v.inv.table||0)+' · chair '+((v.inv.chair||0)+(v.inv.chair_crude||0))+
+      ' · food '+v.inv.food+' · berries '+v.inv.berries+
+      (kids?'<br><span style="color:#8aa0b8">children:</span> '+kids:'')+'</div>';
+  }
+  mStatsEl.innerHTML=html||'—';
+  const th=villagers[0];
+  if(th) mThoughtEl.textContent='\u201c'+th.thought+'\u201d';
+}const DIRS=['E','NE','N','NW','W','SW','S','SE'];
+let lastStats={rainCells:0,stormCells:0,treeCount:0,fireCount:0};
+function updateHUD(){
+  const hh=Math.floor(W.tod), mm=Math.floor((W.tod-hh)*60);
+  clockEl.textContent='Day '+Math.floor(W.day)+' · '+SEASONS[seasonIdx()]+' · '+
+    String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  // sample weather at screen center
+  const w=s2w(cv.width/dpr/2,cv.height/dpr/2);
+  const {c,i}=cellChunk(Math.floor(w.x/CS),Math.floor(w.y/CS));
+  const wd=DIRS[((Math.round(W.windAng/(Math.PI*2)*8)%8)+8)%8];
+  wxEl.textContent=c.temp[i].toFixed(0)+'°C · wind '+wd+' · '+
+    (lastStats.stormCells>0?'⛈ storm':lastStats.rainCells>0?'🌧 rain':c.cloud[i]>0.4?'☁ cloudy':'☀ clear');
+  renderSouls();
+  statsEl.innerHTML=
+    'trees <b>'+lastStats.treeCount+'</b> · burning <b>'+lastStats.fireCount+'</b><br>'+
+    'rain cells <b>'+lastStats.rainCells+'</b> · storm cells <b>'+lastStats.stormCells+'</b><br>'+
+    'dry streak <b>'+W.dryDays.toFixed(1)+'d</b> · seed <b>'+SEED+'</b><br>'+
+    'chronicle entries <b>'+W.logCount+'</b>';
+}
+
+/* ---------------- controls ---------------- */
+function setSpeed(s){
+  W.speed=s; W.paused=false;
+  for(const id of ['b1','b4','b16','b64']) document.getElementById(id).classList.remove('on');
+  document.getElementById('b'+s).classList.add('on');
+  document.getElementById('bPause').classList.remove('on');
+}
+document.getElementById('b1').onclick=()=>setSpeed(1);
+document.getElementById('b4').onclick=()=>setSpeed(4);
+document.getElementById('b16').onclick=()=>setSpeed(16);
+document.getElementById('b64').onclick=()=>setSpeed(64);
+document.getElementById('bPause').onclick=e=>{
+  W.paused=!W.paused; e.target.classList.toggle('on',W.paused);
+};
+document.getElementById('bNew').onclick=()=>{
+  SEED=Math.floor(Math.random()*1e9); chunks.clear();
+  initSystems();
+  for(const k in cool) delete cool[k];
+  logEl.innerHTML=''; W.day=1; W.tod=8; W.dryDays=0; W.logCount=0;
+  findSpawn();
+  SETTLE.wx=Math.round(cam.x/CS); SETTLE.wy=Math.round(cam.y/CS);
+  resetSouls();
+  SETTLE.founded=false; foundSettlement(); spawnTomas();
+  if(window.farmGenesis) farmGenesis();
+  logEvent('life','A new world condenses out of the noise. Seed '+SEED+'.');
+};
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space'){ e.preventDefault(); document.getElementById('bPause').click(); }
+});
+
+/* ---------------- main loop ---------------- */
+let lastT=performance.now(), fpsA=60, hudT=0;
+function frame(){
+  requestAnimationFrame(frame);
+  const now=performance.now();
+  const dtR=Math.min(0.1,(now-lastT)/1000); lastT=now;
+  fpsA=fpsA*0.95+(1/Math.max(1e-3,dtR))*0.05;
+  ensureVisibleChunks();
+  computeActive();
+  if(!W.paused&&W.speed>0){
+    lastStats=simTick(dtR*W.speed);   // 1× = 1 game-hour per real second
+  }
+  render();
+  hudT+=dtR;
+  if(hudT>0.5){ hudT=0; updateHUD(); fpsEl.textContent=Math.round(fpsA)+' fps'; }
+}
+/* genesis */
+ensureVisibleChunks(); computeActive();
+function findSpawn(){ // start the camera on pleasant land, not mid-ocean
+  for(let r=0;r<400;r+=8)for(let a=0;a<12;a++){
+    const wx=Math.round(Math.cos(a/12*6.283)*r), wy=Math.round(Math.sin(a/12*6.283)*r);
+    const {c,i}=cellChunk(wx,wy);
+    if(c.h[i]>0.40&&c.h[i]<0.60){ cam.x=wx*CS; cam.y=wy*CS; return; }
+  }
+}
+findSpawn();
+SETTLE.wx=Math.round(cam.x/CS); SETTLE.wy=Math.round(cam.y/CS);
+foundSettlement(); spawnTomas();
+logEvent('life','A new world condenses out of the noise. Seed '+SEED+'.');
+logEvent('life','Grass spreads. Seeds fall. No one is watching — yet.');
+/* ================= food system v2 (farming + scripted animals) ================= */
+/* Natura food system v2 — farming + scripted animals (no AI minds; pure instinct).
+   v2 changes: causal hatching from REAL laid eggs (no magic chicks), rabbit sexes
+   + pairing, stamina-based pursuit (persistence hunting), slaughter + hunt verbs,
+   egg-eating order fix, mortality + population caps, bNew-safe genesis.
+   Injected into page scope once (guarded). */
+if(!window.__FARMV2){
+window.__FARMV2=true;
+
+const CROPS={
+  wheat:{seed:2,growH:130,food:4,seedBack:2,label:'wheat'},
+  carrot:{seed:1,growH:90,food:3,seedBack:1,label:'carrot'}
+};
+const FARM={plots:[]};            // {wx,wy,crop,stage:0..4,t,water}
+const ANIM={chicks:[],eggs:[],rabbits:[]};
+const CAPS={chicks:14,rabbits:10,eggs:24};
+const HATCH_H=72, ROT_H=150;      // eggs hatch (if a rooster lives) or rot
+const ADULT_BIRD=146, ADULT_RAB=90;   // breeding age, in days
+const OLD_BIRD=1825, OLD_RAB=1460;    // natural lifespan, in days (~5y / ~4y)
+let reproT=0, genesisSeeded=false;
+
+/* ---------- crops ---------- */
+function farmTick(dtH){
+  const si=seasonIdx();
+  const seasonMult=[1,1.25,0.7,0.12][si];
+  for(const p of FARM.plots){
+    if(!p.crop||p.stage>=3) continue;
+    const cc=cellChunk(p.wx,p.wy), c=cc.c, i=cc.i;
+    if(c.rain[i]>0.05) p.water=Math.min(1,p.water+dtH/8);
+    else p.water=Math.max(0,p.water-dtH/(si===1?26:48));
+    if(p.water<0.1&&c.temp[i]>25&&Math.random()<dtH*0.004){ p.stage=4; continue; } // withered
+    p.t+=dtH*(0.35+0.65*p.water)*seasonMult;
+    const G=CROPS[p.crop].growH;
+    p.stage=p.t>=G?3:(p.t>=G*0.55?2:1);
+  }
+  // eggs age: hatch if fertilized (a rooster lives), else rot away
+  const rooAlive=ANIM.chicks.some(a=>!a.dead&&a.sex==='roo'&&a.age>ADULT_BIRD);
+  for(let i=ANIM.eggs.length-1;i>=0;i--){
+    const e=ANIM.eggs[i]; e.age+=dtH;
+    if(e.age>=HATCH_H&&rooAlive&&ANIM.chicks.length<CAPS.chicks){
+      ANIM.chicks.push(mkChick(e.x,e.y,Math.random()<0.6?'hen':'roo',0));
+      if(cooled('hatch',2)) logEvent('life','A chick pecks its way out of a shell.');
+      ANIM.eggs.splice(i,1);
+    }else if(e.age>=ROT_H){ ANIM.eggs.splice(i,1); }
+  }
+  for(const a of ANIM.chicks) chickTick(a,dtH);
+  for(const r of ANIM.rabbits) rabbitTick(r,dtH);
+  for(let i=ANIM.chicks.length-1;i>=0;i--) if(ANIM.chicks[i].dead) ANIM.chicks.splice(i,1);
+  for(let i=ANIM.rabbits.length-1;i>=0;i--) if(ANIM.rabbits[i].dead) ANIM.rabbits.splice(i,1);
+  reproT+=dtH;
+  if(reproT>72){ reproT=0; reproduce(); }
+}
+
+function nearestVillager(x,y){
+  let bv=null,bd=1e9;
+  for(const v of villagers){ const d=Math.hypot(v.x-x,v.y-y)/CS; if(d<bd){bd=d;bv=v;} }
+  return {v:bv,d:bd};
+}
+
+function critterMove(a,dtH,speed){
+  const dx=a.tx-a.x, dy=a.ty-a.y, d=Math.hypot(dx,dy);
+  if(d>2){ const s=Math.min(d,speed*CS*dtH); a.x+=dx/d*s; a.y+=dy/d*s; a.moving=true; }
+  else a.moving=false;
+}
+
+// stamina: a long chase tires the beast — this is what makes hunting possible
+function tireOf(a,dtH){
+  if(a.state==='flee') a.stamT=(a.stamT||0)+dtH;
+  else a.stamT=Math.max(0,(a.stamT||0)-dtH*2);
+  return a.state==='flee'?Math.max(0.32,1-(a.stamT||0)/2.2):1;
+}
+
+function grazeHunger(a,dtH){
+  const cc=cellChunk(Math.round(a.x/CS),Math.round(a.y/CS));
+  if(cc.c.grass[cc.i]>0.3&&cc.c.h[cc.i]>=SEA)
+    a.hunger=Math.min(1,(a.hunger==null?0.8:a.hunger)+dtH*0.06);
+  else a.hunger=Math.max(0,(a.hunger==null?0.8:a.hunger)-dtH*0.008);
+  if(a.hunger<=0) a.starve=(a.starve||0)+dtH; else a.starve=0;
+}
+
+function chickTick(a,dtH){
+  if(a.dead) return;
+  a.age+=dtH/24; a.t=(a.t||0)+dtH;
+  const night=W.tod<0.22||W.tod>0.78;
+  const nv=nearestVillager(a.x,a.y);
+  if(night){ a.state='sleep'; }
+  else if(nv.v&&nv.d<2.2){ a.state='flee';
+    const dx=a.x-nv.v.x, dy=a.y-nv.v.y, d=Math.hypot(dx,dy)||1;
+    a.tx=a.x+dx/d*4*CS; a.ty=a.y+dy/d*4*CS;
+  } else if(a.tx==null||a.t>6){ a.t=0; a.state=Math.random()<0.6?'graze':'wander';
+    a.tx=a.x+(Math.random()-0.5)*10*CS; a.ty=a.y+(Math.random()-0.5)*10*CS;
+  }
+  const tire=tireOf(a,dtH);
+  if(a.state!=='sleep'&&a.state!=='graze') critterMove(a,dtH,(a.state==='flee'?4:1.5)*tire);
+  else a.moving=false;
+  grazeHunger(a,dtH);
+  if((a.age>OLD_BIRD&&Math.random()<dtH*0.003)||(a.starve>120&&Math.random()<dtH*0.05)){
+    a.dead=true;
+    if(cooled('adeath',4)) logEvent('life','A chicken dies. The flock carries on.');
+    return;
+  }
+  a.layT=(a.layT==null?20+Math.random()*15:a.layT)-dtH;
+  if(a.sex==='hen'&&a.age>ADULT_BIRD&&a.layT<=0&&a.hunger>0.35&&ANIM.eggs.length<CAPS.eggs){
+    ANIM.eggs.push({x:a.x+(Math.random()-0.5)*CS,y:a.y+(Math.random()-0.5)*CS,age:0});
+    a.layT=28+Math.random()*18;
+  }
+}
+
+function rabbitTick(r,dtH){
+  if(r.dead) return;
+  r.age+=dtH/24; r.t=(r.t||0)+dtH;
+  const night=W.tod<0.22||W.tod>0.78;
+  const nv=nearestVillager(r.x,r.y);
+  if(night){ r.state='sleep'; }
+  else if(nv.v&&nv.d<4){ r.state='flee';
+    const dx=r.x-nv.v.x, dy=r.y-nv.v.y, d=Math.hypot(dx,dy)||1;
+    r.tx=r.x+dx/d*6*CS; r.ty=r.y+dy/d*6*CS;
+  } else if(r.tx==null||r.t>8){ r.t=0; r.state=Math.random()<0.7?'graze':'wander';
+    r.tx=r.x+(Math.random()-0.5)*16*CS; r.ty=r.y+(Math.random()-0.5)*16*CS;
+  }
+  const tire=tireOf(r,dtH);
+  if(r.state!=='sleep'&&r.state!=='graze') critterMove(r,dtH,(r.state==='flee'?6:2)*tire);
+  else r.moving=false;
+  grazeHunger(r,dtH);
+  if((r.age>OLD_RAB&&Math.random()<dtH*0.003)||(r.starve>120&&Math.random()<dtH*0.05)){
+    r.dead=true;
+    if(cooled('adeath',4)) logEvent('life','A rabbit dies in the grass.');
+  }
+}
+
+// rabbits: a buck and a doe must meet — no spontaneous litters
+function reproduce(){
+  if(ANIM.rabbits.length>=CAPS.rabbits) return;
+  const does=ANIM.rabbits.filter(r=>!r.dead&&r.sex==='F'&&r.age>ADULT_RAB);
+  for(const f of does){
+    const m=ANIM.rabbits.find(r=>!r.dead&&r.sex==='M'&&r.age>ADULT_RAB
+      &&Math.hypot(r.x-f.x,r.y-f.y)/CS<25);
+    if(m){
+      ANIM.rabbits.push(mkRabbit(f.x+(Math.random()-0.5)*2*CS,f.y+(Math.random()-0.5)*2*CS));
+      if(cooled('litter',6)) logEvent('life','Young rabbits nose out of a burrow.');
+      break;
+    }
+  }
+}
+
+function mkChick(x,y,sex,age){
+  return {x,y,sex,age:(age==null?1:age),state:'wander',t:Math.random()*6,tx:null,ty:null,
+    hunger:0.8,layT:20+Math.random()*15,
+    col:sex==='roo'?'#8a4a2a':(Math.random()<0.5?'#f2ede2':'#9a6a3a')};
+}
+function mkRabbit(x,y,age){
+  return {x,y,sex:Math.random()<0.5?'M':'F',age:(age==null?0:age),hunger:0.8,
+    state:'wander',t:Math.random()*8,tx:null,ty:null};
+}
+
+/* ---------- villager jobs ---------- */
+function farmJobTick(v,dtH){
+  const J=v.job;
+  if(J.kind==='collect'){
+    let bi=-1,bd=1e9;
+    ANIM.eggs.forEach((e,idx)=>{ const d=Math.hypot(e.x-v.x,e.y-v.y)/CS; if(d<bd){bd=d;bi=idx;} });
+    if(bi<0){ v.job=null; v.lastResult={kind:'collect',got:0}; return; }
+    const e=ANIM.eggs[bi];
+    if(Math.hypot(e.x-v.x,e.y-v.y)>1.2*CS){ v.act='walk'; v.actLabel='fetching eggs'; vMoveTo(v,e.x,e.y,dtH); return; }
+    v.act='gather'; v.actLabel='gathering eggs'; J.t=(J.t||0)+dtH;
+    if(J.t>=0.3){ ANIM.eggs.splice(bi,1); v.inv.eggs=(v.inv.eggs||0)+1;
+      gainSkill(v,'forage',0.02); v.job=null; v.lastResult={kind:'collect',got:1}; }
+    return;
+  }
+  if(J.kind==='slaughter'||J.kind==='hunt'){
+    const isHunt=J.kind==='hunt';
+    const herd=isHunt?ANIM.rabbits:ANIM.chicks;
+    if(!J.prey||J.prey.dead){
+      let best=null,bd=isHunt?40:8;
+      const adult=isHunt?ADULT_RAB:ADULT_BIRD;
+      for(const a of herd){ if(a.dead||a.age<adult) continue;
+        const d=Math.hypot(a.x-v.x,a.y-v.y)/CS; if(d<bd){bd=d;best=a;} }
+      if(!best){ v.job=null;
+        v.lastResult={kind:J.kind,ok:false,why:isHunt?'no rabbit near':'no chicken near'}; return; }
+      J.prey=best;
+    }
+    const p=J.prey;
+    if(Math.hypot(p.x-v.x,p.y-v.y)>1.2*CS){
+      v.act='walk'; v.actLabel=isHunt?'coursing a rabbit':'catching a hen';
+      vMoveTo(v,p.x,p.y,dtH); return;
+    }
+    v.act=J.kind; v.actLabel=isHunt?'taking the rabbit':'taking the hen'; J.t=(J.t||0)+dtH;
+    if(J.t>=0.5){
+      p.dead=true; v.inv.food=(v.inv.food||0)+2; gainSkill(v,'hunt',0.05);
+      v.job=null; v.lastResult={kind:J.kind,ok:true,yield:2};
+    }
+    return;
+  }
+  const plot=FARM.plots.find(p=>p.wx===J.wx&&p.wy===J.wy);
+  const px=J.wx*CS, py=J.wy*CS;
+  const goFar=()=>Math.hypot(px-v.x,py-v.y)>1.6*CS;
+  if(J.kind==='till'){
+    if(plot){ v.job=null; return; }
+    if(goFar()){ v.act='walk'; v.actLabel='going to the field'; vMoveTo(v,px,py,dtH); return; }
+    v.act='till'; v.actLabel='tilling soil'; J.t=(J.t||0)+dtH;
+    if(J.t>=2){ FARM.plots.push({wx:J.wx,wy:J.wy,crop:null,stage:0,t:0,water:0.6});
+      gainSkill(v,'farm'); v.job=null; v.lastResult={kind:'till',ok:true}; }
+  }else if(J.kind==='plant'){
+    if(!plot||plot.crop){ v.job=null; v.lastResult={kind:'plant',ok:false,why:'no tilled plot'}; return; }
+    const cost=J.crop==='wheat'?2:1;
+    if((v.inv.seeds||0)<cost){ v.job=null; v.lastResult={kind:'plant',ok:false,why:'need seeds'}; return; }
+    if(goFar()){ v.act='walk'; v.actLabel='going to the field'; vMoveTo(v,px,py,dtH); return; }
+    v.act='plant'; v.actLabel='planting '+J.crop; J.t=(J.t||0)+dtH;
+    if(J.t>=1){ v.inv.seeds-=cost; plot.crop=J.crop; plot.stage=1; plot.t=0;
+      gainSkill(v,'farm'); v.job=null; v.lastResult={kind:'plant',ok:true,crop:J.crop}; }
+  }else if(J.kind==='tend'){
+    if(!plot||!plot.crop||plot.stage>=3){ v.job=null; return; }
+    if(goFar()){ v.act='walk'; v.actLabel='going to the field'; vMoveTo(v,px,py,dtH); return; }
+    v.act='tend'; v.actLabel='tending crops'; J.t=(J.t||0)+dtH;
+    if(J.t>=1){ plot.water=1; plot.t+=4; gainSkill(v,'farm',0.03);
+      v.job=null; v.lastResult={kind:'tend',ok:true}; }
+  }else if(J.kind==='harvest'){
+    if(!plot||!plot.crop||(plot.stage!==3&&plot.stage!==4)){ v.job=null;
+      v.lastResult={kind:'harvest',ok:false,why:'not ready'}; return; }
+    if(goFar()){ v.act='walk'; v.actLabel='going to the field'; vMoveTo(v,px,py,dtH); return; }
+    v.act='harvest'; v.actLabel='harvesting '+plot.crop; J.t=(J.t||0)+dtH;
+    if(J.t>=1){
+      const P=CROPS[plot.crop], wasStage=plot.stage;
+      if(wasStage===3){ v.inv.food+=P.food; v.inv.seeds=(v.inv.seeds||0)+P.seedBack; }
+      else v.inv.seeds=(v.inv.seeds||0)+1;   // withered: salvage seeds
+      gainSkill(v,'farm'); v.job=null;
+      v.lastResult={kind:'harvest',ok:true,crop:plot.crop,stage:wasStage,yield:wasStage===3?P.food:0};
+      plot.crop=null; plot.stage=0; plot.t=0;
+    }
+  }
+}
+
+/* ---------- hooks into the engine ---------- */
+function metabolize(v,dtH){   // the body's native upkeep; farming is honest work too
+  const drain=v.age<6?48:96;
+  v.hunger=clamp(v.hunger-dtH/drain*(v.pregnant>0?1.35:1),0,1);
+  v.energy=clamp(v.energy-dtH/26,0,1);
+  v.age+=dtH/8760;
+  const maxHp=v.age>70?Math.max(0.08,1-(v.age-70)*0.12):1;
+  v.hp=clamp(v.hp+(v.hunger<=0?-dtH/60:v.hunger>0.3?dtH/120:0),0.05,1);
+  v.hp=Math.min(v.hp,maxHp);
+  if(v.hp<=0.06&&(v.age>70||v.hunger<=0)){
+    logEvent('life',v.name+' has died at '+Math.floor(v.age)+'. The valley keeps the bones.');
+    const k=villagers.indexOf(v); if(k>=0) villagers.splice(k,1);
+  }
+}
+const _soulTickF=soulTick;
+soulTick=function(v,dtH){
+  if(!v.speed) v.speed=()=>70*(v.age<14?0.55:1);   // bodies always know their pace
+  const J=v.job;
+  const farmKind=J&&(J.kind==='till'||J.kind==='plant'||J.kind==='tend'
+    ||J.kind==='harvest'||J.kind==='collect'||J.kind==='slaughter'||J.kind==='hunt');
+  const eggEat=J&&J.kind==='eat'&&v.inv.food<=0&&v.inv.berries<2&&(v.inv.eggs||0)>=2;
+  if(farmKind){ farmJobTick(v,dtH); }
+  else if(eggEat){
+    v.act='eat'; v.actLabel='eating eggs'; J.t=(J.t||0)+dtH;   // eggs: food of last resort
+    if(J.t>=0.25){ v.inv.eggs-=2; v.hunger=1; v.job=null; }
+  }else{
+    const wasForage=J&&J.kind==='forage';
+    _soulTickF(v,dtH);
+    if(wasForage&&!v.job&&Math.random()<0.3) v.inv.seeds=(v.inv.seeds||0)+1;  // seed heads
+    return;
+  }
+  if(villagers.indexOf(v)>=0) metabolize(v,dtH);
+};
+
+const _orderF=NV.order;
+NV.order=function(name,o){
+  const v=vByName(name); if(!v) return 'no such soul';
+  const vb=o&&o.verb;
+  if(vb==='till'||vb==='plant'||vb==='tend'||vb==='harvest'){
+    if(typeof o.wx!=='number'||typeof o.wy!=='number') return 'needs wx,wy';
+    const wx=Math.round(o.wx), wy=Math.round(o.wy);
+    const cc=cellChunk(wx,wy);
+    if(!(cc.c.h[cc.i]>=SEA)) return 'that is water';
+    const plot=FARM.plots.find(p=>p.wx===wx&&p.wy===wy);
+    if(vb==='till'){
+      if(cc.c.tStage[cc.i]>=1) return 'tree in the way — fell it first';
+      if(FARM.plots.some(p=>Math.hypot(p.wx-wx,p.wy-wy)<1.5)) return 'already tilled here';
+      v.job={kind:'till',wx,wy,t:0}; return 'ok';
+    }
+    if(!plot) return 'till the soil first';
+    if(vb==='plant'){
+      if(plot.crop) return 'already planted';
+      if(o.crop!=='wheat'&&o.crop!=='carrot') return 'unknown crop (wheat|carrot)';
+      const cost=o.crop==='wheat'?2:1;
+      if((v.inv.seeds||0)<cost) return 'need '+cost+' seeds';
+      v.job={kind:'plant',wx,wy,crop:o.crop,t:0}; return 'ok';
+    }
+    if(!plot.crop) return 'nothing planted here';
+    if(vb==='tend'){
+      if(plot.stage>=3||plot.stage===4) return 'nothing to tend';
+      v.job={kind:'tend',wx,wy,t:0}; return 'ok';
+    }
+    if(vb==='harvest'){
+      if(plot.stage!==3&&plot.stage!==4) return 'not ready yet';
+      v.job={kind:'harvest',wx,wy,t:0}; return 'ok';
+    }
+  }
+  if(vb==='collect'){ v.job={kind:'collect',t:0}; return 'ok'; }
+  if(vb==='slaughter'||vb==='hunt'){
+    const isHunt=vb==='hunt';
+    const herd=isHunt?ANIM.rabbits:ANIM.chicks;
+    const adult=isHunt?ADULT_RAB:ADULT_BIRD;
+    const near=herd.some(a=>!a.dead&&a.age>=adult&&Math.hypot(a.x-v.x,a.y-v.y)/CS<(isHunt?40:8));
+    if(!near) return isHunt?'no rabbit near':'no chicken near';
+    v.job={kind:vb,t:0,prey:null}; return 'ok';
+  }
+  // eggs are food of last resort: the native order refuses 'eat' with empty hands,
+  // so the farm speaks up for the eggs here
+  if(vb==='eat'&&(v.inv.eggs||0)>=2&&v.inv.food<=0&&v.inv.berries<2){
+    v.job={kind:'eat',t:0}; return 'ok';
+  }
+  return _orderF.call(this,name,o);
+};
+
+const _snapF=NV.snap;
+NV.snap=function(name){
+  const s=_snapF(name); if(s.error) return s;
+  const v=vByName(name), wx=Math.round(v.x/CS), wy=Math.round(v.y/CS);
+  s.see.plots=FARM.plots
+    .filter(p=>Math.hypot(p.wx-wx,p.wy-wy)<=60)
+    .map(p=>({wx:p.wx,wy:p.wy,crop:p.crop,stage:p.stage,water:+p.water.toFixed(2),
+      d:Math.round(Math.hypot(p.wx-wx,p.wy-wy))}));
+  s.see.animals=[];
+  for(const a of ANIM.chicks){ if(a.dead) continue;
+    const d=Math.hypot(a.x-v.x,a.y-v.y)/CS;
+    if(d<=60) s.see.animals.push({kind:a.age<0.3?'chick':'chicken',sex:a.sex,d:Math.round(d)}); }
+  for(const e of ANIM.eggs){ const d=Math.hypot(e.x-v.x,e.y-v.y)/CS;
+    if(d<=60) s.see.animals.push({kind:'egg',d:Math.round(d)}); }
+  for(const r of ANIM.rabbits){ if(r.dead) continue;
+    const d=Math.hypot(r.x-v.x,r.y-v.y)/CS;
+    if(d<=60) s.see.animals.push({kind:'rabbit',sex:r.sex,d:Math.round(d)}); }
+  return s;
+};
+
+const _simTickF=simTick;
+simTick=function(dtH){ farmTick(dtH); return _simTickF(dtH); };
+
+/* ---------- rendering ---------- */
+function drawFarm(){
+  const z=cam.zoom, cw=cv.width/dpr, chh=cv.height/dpr;
+  const onScr=(wx,wy)=>{ const s=w2s(wx,wy); return s.x>-40&&s.y>-40&&s.x<cw+40&&s.y<chh+40; };
+  for(const p of FARM.plots){
+    const px=p.wx*CS, py=p.wy*CS;
+    if(!onScr(px,py)) continue;
+    const s=w2s(px,py), cs=CS*z;
+    ctx.fillStyle='#4a3423';
+    ctx.fillRect(s.x-cs/2,s.y-cs/2,cs,cs);
+    ctx.strokeStyle='#2e2013'; ctx.lineWidth=Math.max(1,1.5*z);
+    for(let r=0;r<3;r++){ ctx.beginPath();
+      ctx.moveTo(s.x-cs/2+3*z,s.y-cs/2+(r+0.7)*cs/3);
+      ctx.lineTo(s.x+cs/2-3*z,s.y-cs/2+(r+0.7)*cs/3); ctx.stroke(); }
+    if(p.crop&&p.stage>=1){
+      const n=p.stage===1?3:(p.stage===2?5:7);
+      for(let k=0;k<n;k++){
+        const gx=s.x-cs/2+(k+0.5)*cs/n, gy=s.y+cs/2-4*z;
+        const hgt=(p.stage===1?4:(p.stage===2?9:14))*z;
+        if(p.stage===4){ ctx.strokeStyle='#6a4a2a'; }
+        else if(p.crop==='wheat'&&p.stage===3){ ctx.strokeStyle='#d8a83a'; }
+        else { ctx.strokeStyle='#3f8a3a'; }
+        ctx.lineWidth=Math.max(1,2*z);
+        ctx.beginPath(); ctx.moveTo(gx,gy); ctx.lineTo(gx,gy-hgt); ctx.stroke();
+        if(p.stage===3){
+          if(p.crop==='wheat'){ ctx.fillStyle='#e8c04a';
+            ctx.fillRect(gx-2*z,gy-hgt-3*z,4*z,4*z); }
+          else { ctx.fillStyle='#c86a2a';
+            ctx.beginPath(); ctx.arc(gx,gy-2*z,2.5*z,0,7); ctx.fill(); }
+        }
+      }
+    }
+  }
+  for(const e of ANIM.eggs){
+    if(!onScr(e.x,e.y)) continue;
+    const s=w2s(e.x,e.y);
+    ctx.fillStyle='#f4f0e4';
+    ctx.beginPath(); ctx.ellipse(s.x,s.y,3*z,4*z,0,0,7); ctx.fill();
+    ctx.strokeStyle='#b8b0a0'; ctx.lineWidth=Math.max(1,z);
+    ctx.beginPath(); ctx.ellipse(s.x,s.y,3*z,4*z,0,0,7); ctx.stroke();
+  }
+  for(const a of ANIM.chicks){
+    if(a.dead||!onScr(a.x,a.y)) continue;
+    const s=w2s(a.x,a.y), sc=(a.age<0.3?0.5:1)*z;
+    ctx.fillStyle='rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.ellipse(s.x,s.y+5*sc,6*sc,2.5*sc,0,0,7); ctx.fill();
+    ctx.fillStyle=a.col;
+    ctx.beginPath(); ctx.ellipse(s.x,s.y,6*sc,5*sc,0,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(s.x+5*sc,s.y-4*sc,3.5*sc,0,7); ctx.fill();
+    ctx.fillStyle='#e88a2a';
+    ctx.beginPath(); ctx.moveTo(s.x+8*sc,s.y-4*sc); ctx.lineTo(s.x+11*sc,s.y-3*sc);
+    ctx.lineTo(s.x+8*sc,s.y-2*sc); ctx.fill();
+    ctx.fillStyle='#1a1a1a';
+    ctx.fillRect(s.x+5*sc,s.y-5*sc,1.6*sc,1.6*sc);
+    if(a.sex==='roo'){ ctx.fillStyle='#c83a2a';
+      ctx.fillRect(s.x+3*sc,s.y-9*sc,3*sc,3*sc); }
+    if(a.moving&&a.state!=='sleep'){
+      ctx.strokeStyle='#c8782a'; ctx.lineWidth=Math.max(1,1.5*sc);
+      const lp=(performance.now()/180+a.x)%2<1?1:-1;
+      ctx.beginPath(); ctx.moveTo(s.x-2*sc,s.y+5*sc); ctx.lineTo(s.x-2*sc+lp*2*sc,s.y+9*sc); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(s.x+2*sc,s.y+5*sc); ctx.lineTo(s.x+2*sc-lp*2*sc,s.y+9*sc); ctx.stroke();
+    }
+  }
+  for(const r of ANIM.rabbits){
+    if(r.dead||!onScr(r.x,r.y)) continue;
+    const s=w2s(r.x,r.y), sc=z;
+    ctx.fillStyle='rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(s.x,s.y+4*sc,5*sc,2*sc,0,0,7); ctx.fill();
+    ctx.fillStyle='#8a7a68';
+    ctx.beginPath(); ctx.ellipse(s.x,s.y,5*sc,4*sc,0,0,7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(s.x-3*sc,s.y-7*sc,1.6*sc,4*sc,-0.2,0,7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(s.x+1*sc,s.y-7*sc,1.6*sc,4*sc,0.2,0,7); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(s.x+4*sc,s.y-1*sc,1.4*sc,0,7); ctx.fill();
+    ctx.fillStyle='#1a1a1a'; ctx.fillRect(s.x+3.4*sc,s.y-1.6*sc,1.2*sc,1.2*sc);
+  }
+}
+const _renderF=render;
+render=function(){ _renderF(); drawFarm(); };
+
+/* ---------- genesis stock (bNew-safe) ---------- */
+function farmGenesis(){
+  FARM.plots.length=0; ANIM.eggs.length=0; ANIM.chicks.length=0; ANIM.rabbits.length=0;
+  reproT=0;
+  const hx=BUILD.huts[0]?(BUILD.huts[0].wx+1)*CS:SETTLE.wx*CS;
+  const hy=BUILD.huts[0]?(BUILD.huts[0].wy+1)*CS:SETTLE.wy*CS;
+  for(const sx of ['hen','hen','hen','roo'])
+    ANIM.chicks.push(mkChick(hx+(Math.random()-0.5)*6*CS,hy+(Math.random()-0.5)*6*CS,sx,200));
+  for(let k=0;k<6;k++){
+    const a=Math.random()*6.28, r=15+Math.random()*25;
+    const wx=SETTLE.wx+Math.round(Math.cos(a)*r), wy=SETTLE.wy+Math.round(Math.sin(a)*r);
+    const cc=cellChunk(wx,wy);
+    if(cc.c.h[cc.i]>=SEA) ANIM.rabbits.push(mkRabbit(wx*CS,wy*CS,120));
+  }
+  if(!genesisSeeded){
+    genesisSeeded=true;
+    for(const v of villagers){
+      v.inv.seeds=(v.inv.seeds||0)+5; v.inv.eggs=v.inv.eggs||0;
+      if(v.skills.farm==null) v.skills.farm=0.25;
+    }
+    logEvent('life','Seed grain and half-wild hens come with the new spring.');
+  }
+}
+window.farmGenesis=farmGenesis;
+// white-box access for tests and the minds' tools
+window.FARM=FARM; window.ANIM=ANIM; window.CROPS=CROPS; window.CAPS=CAPS;
+window.mkChick=mkChick; window.mkRabbit=mkRabbit;
+window.chickTick=chickTick; window.rabbitTick=rabbitTick;
+window.reproduce=reproduce; window.farmTick=farmTick;
+
+// newcomers (travelers, births grown) carry seed grain — installed once
+const _av=addVillager;
+addVillager=function(n,sx,a,x,y,c,sk){
+  const v=_av(n,sx,a,x,y,c,sk);
+  v.inv.seeds=(v.inv.seeds||0)+5; v.inv.eggs=v.inv.eggs||0;
+  if(v.skills.farm==null) v.skills.farm=0.25;
+  return v;
+};
+}
+
+farmGenesis();
+frame();
+</script>
+</body>
+</html>

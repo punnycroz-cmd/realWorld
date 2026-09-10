@@ -10,7 +10,7 @@ PORT = 19830
 def conn():
     tabs = json.load(urllib.request.urlopen(
         'http://127.0.0.1:%d/json/list' % PORT, timeout=5))
-    pg = [t for t in tabs if t['type'] == 'page' and 'natura-v4' in t.get('url', '')]
+    pg = [t for t in tabs if t['type'] == 'page' and 'natura-v' in t.get('url', '')]
     if not pg:
         pg = [t for t in tabs if t['type'] == 'page']
     ws = websocket.create_connection(pg[0]['webSocketDebuggerUrl'], timeout=60)

@@ -31,7 +31,9 @@ bushes/logs, home, designs you know, your current job. Read `heard` every bell.
 - collect — gather nearby eggs. Hens lay; 2 eggs eat as a meal when food and
   berries run out. Leave some eggs and chicks hatch, if there's a rooster.
   Chickens and rabbits are dumb beasts of instinct — they wander, graze, flee, sleep.
-  They need no mind and take none.
+  They need no mind and take none. slaughter — take a nearby hen (+2 food).
+  hunt — course a rabbit to exhaustion (+2 food). Beasts age and die; eggs left
+  over three days hatch if a rooster lives, else rot.
 - `nv.py Petr say "thought"` → a thought in your panel (free, any bell)
 - `nv.py pause` / `nv.py resume` → the world sleeps / wakes (see below — use with care)
 
