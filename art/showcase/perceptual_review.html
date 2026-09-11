@@ -31,74 +31,88 @@
       const items = report && report.details ? report.details : (refData.characters || []).map(c => ({ id: c.id, score: 1 }));
 
       items.forEach((res, i) => {
-        const ref = refData.characters.find(c => c.id === res.id);
-        if (!ref) return;
+        try {
+          const ref = refData.characters.find(c => c.id === res.id);
+          if (!ref) return;
 
-        const dna = new CharacterDNA({
-          id: ref.id,
-          ageYears: ref.anatomy.agePhase === 'child' ? 5 : (ref.anatomy.agePhase === 'elder' ? 65 : 30),
-          face: { skinRampKey: ref.face.skinTone, mouthShape: 'neutral', noseGeometry: 'straight', eyeShape: 'normal' },
-          hair: { style: ref.hair.style, colorRampKey: ref.hair.color },
-          clothing: { archetype: ref.clothing.family.split('-')[0], layers: { trousersOrSkirt: 'trousers', footwear: 'boots' } },
-          palette: { shirt: '#35633f', pants: '#25395c', boots: '#422810' },
-          anatomy: { heightScale: 1.0, widthScale: 1.0, shoulderWidth: 10 },
-          condition: { wetness: ref.condition === 'wet' ? 1.0 : 0 }
-        });
+          const dna = new CharacterDNA({
+            id: ref.id,
+            ageYears: ref.anatomy.agePhase === 'child' ? 5 : (ref.anatomy.agePhase === 'elder' ? 65 : 30),
+            face: { skinRampKey: ref.face.skinTone, mouthShape: 'neutral', noseGeometry: 'straight', eyeShape: 'normal' },
+            hair: { style: ref.hair.style, colorRampKey: ref.hair.color },
+            clothing: { archetype: ref.clothing.family.split('-')[0], layers: { trousersOrSkirt: 'trousers', footwear: 'boots' } },
+            palette: { shirt: '#35633f', pants: '#25395c', boots: '#422810' },
+            anatomy: { heightScale: 1.0, widthScale: 1.0, shoulderWidth: 10 },
+            condition: { wetness: ref.condition === 'wet' ? 1.0 : 0 }
+          });
 
-        const cNative = CharacterGenerator.renderFrame(dna, 0, 'idle', 0);
-        const nativeCanvas = cNative.toCanvas();
-        
-        // Render at 4x
-        const c4x = document.createElement('canvas');
-        c4x.width = 128; c4x.height = 192;
-        const ctx4x = c4x.getContext('2d');
-        ctx4x.imageSmoothingEnabled = false;
-        ctx4x.drawImage(nativeCanvas, 0, 0, 128, 192);
+          const cNative = CharacterGenerator.renderFrame(dna, 0, 'idle', 0);
+          const nativeCanvas = cNative.toCanvas();
+          
+          // Render at 4x
+          const c4x = document.createElement('canvas');
+          c4x.width = 128; c4x.height = 192;
+          const ctx4x = c4x.getContext('2d');
+          ctx4x.imageSmoothingEnabled = false;
+          ctx4x.drawImage(nativeCanvas, 0, 0, 128, 192);
 
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="label">${ref.id} (${ref.name || 'Sample'})</div>
-          <div class="sprite-container">
-            <div>
-              <div class="canvas-wrap" id="c1x_${i}"></div>
-              <div class="label">1x (32x48)</div>
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="label">${ref.id} (${ref.name || 'Sample'})</div>
+            <div class="sprite-container">
+              <div>
+                <div class="canvas-wrap" id="c1x_${i}"></div>
+                <div class="label">1x (32x48)</div>
+              </div>
+              <div>
+                <div class="canvas-wrap" id="c4x_${i}"></div>
+                <div class="label">4x (128x192)</div>
+              </div>
             </div>
-            <div>
-              <div class="canvas-wrap" id="c4x_${i}"></div>
-              <div class="label">4x (128x192)</div>
-            </div>
-          </div>
-          <div class="score">Score: ${((res.score || 1) * 100).toFixed(0)}%</div>
-        `;
-        container.appendChild(card);
-        document.getElementById(`c1x_${i}`).appendChild(nativeCanvas);
-        document.getElementById(`c4x_${i}`).appendChild(c4x);
+            <div class="score">Score: ${((res.score || 1) * 100).toFixed(0)}%</div>
+          `;
+          container.appendChild(card);
+          document.getElementById(`c1x_${i}`).appendChild(nativeCanvas);
+          document.getElementById(`c4x_${i}`).appendChild(c4x);
+        } catch (e) {
+          console.error('Error rendering card ' + i, e);
+          const errDiv = document.createElement('div');
+          errDiv.className = 'card';
+          errDiv.style.color = 'red';
+          errDiv.innerText = 'Render Error: ' + e.message;
+          container.appendChild(errDiv);
+        }
       });
     }
 
-    // Attempt fetch first (for http server), fallback to standalone sample if opened via file://
-    Promise.all([
-      fetch('../reference_library/high_fidelity_references.json').then(r => r.json()).catch(() => null),
-      fetch('../perceptual_report.json').then(r => r.json()).catch(() => null)
-    ]).then(([refData, report]) => {
-      if (refData) {
-        runReview(refData, report || {});
-      } else {
-        // Standalone fallback samples so file:// protocol still renders immediately
-        const fallbackRefs = {
-          characters: [
-            { id: 'ref_001', name: 'Child Villager', anatomy: { agePhase: 'child', build: 'short' }, face: { skinTone: 'light' }, hair: { style: 'short-cropped', color: 'black' }, clothing: { family: 'farmer-work' }, condition: 'healthy' },
-            { id: 'ref_002', name: 'Hunter / Ranger', anatomy: { agePhase: 'youth', build: 'slim' }, face: { skinTone: 'tan' }, hair: { style: 'long-flowing', color: 'auburn' }, clothing: { family: 'hunter-leather' }, condition: 'healthy' },
-            { id: 'ref_003', name: 'Elder Scholar', anatomy: { agePhase: 'elder', build: 'medium' }, face: { skinTone: 'light' }, hair: { style: 'bald', color: 'grey' }, clothing: { family: 'scholar-robe' }, condition: 'healthy' },
-            { id: 'ref_004', name: 'Miner (Stout)', anatomy: { agePhase: 'adult', build: 'heavy' }, face: { skinTone: 'deep' }, hair: { style: 'messy-crops', color: 'brown' }, clothing: { family: 'miner-work' }, condition: 'wet' },
-            { id: 'ref_005', name: 'Craftswoman', anatomy: { agePhase: 'adult', build: 'medium' }, face: { skinTone: 'tan' }, hair: { style: 'braided-halfup', color: 'blonde' }, clothing: { family: 'tailor-fine' }, condition: 'healthy' },
-            { id: 'ref_006', name: 'Blacksmith', anatomy: { agePhase: 'adult', build: 'heavy' }, face: { skinTone: 'light' }, hair: { style: 'short-cropped', color: 'black' }, clothing: { family: 'smith-heavy' }, condition: 'healthy' }
-          ]
-        };
-        runReview(fallbackRefs, { details: fallbackRefs.characters.map(c => ({ id: c.id, score: 1 })) });
-      }
-    });
+    window.onload = () => {
+      // Attempt fetch first (for http server), fallback to standalone sample if opened via file://
+      Promise.all([
+        fetch('../reference_library/high_fidelity_references.json').then(r => r.json()).catch(() => null),
+        fetch('../perceptual_report.json').then(r => r.json()).catch(() => null)
+      ]).then(([refData, report]) => {
+        if (refData) {
+          runReview(refData, report || {});
+        } else {
+          // Standalone fallback samples so file:// protocol still renders immediately
+          const fallbackRefs = {
+            characters: [
+              { id: 'ref_001', name: 'Child Villager', anatomy: { agePhase: 'child', build: 'short' }, face: { skinTone: 'light' }, hair: { style: 'short-cropped', color: 'black' }, clothing: { family: 'farmer-work' }, condition: 'healthy' },
+              { id: 'ref_002', name: 'Hunter / Ranger', anatomy: { agePhase: 'youth', build: 'slim' }, face: { skinTone: 'tan' }, hair: { style: 'long-flowing', color: 'auburn' }, clothing: { family: 'hunter-leather' }, condition: 'healthy' },
+              { id: 'ref_003', name: 'Elder Scholar', anatomy: { agePhase: 'elder', build: 'medium' }, face: { skinTone: 'light' }, hair: { style: 'bald', color: 'grey' }, clothing: { family: 'scholar-robe' }, condition: 'healthy' },
+              { id: 'ref_004', name: 'Miner (Stout)', anatomy: { agePhase: 'adult', build: 'heavy' }, face: { skinTone: 'deep' }, hair: { style: 'messy-crops', color: 'brown' }, clothing: { family: 'miner-work' }, condition: 'wet' },
+              { id: 'ref_005', name: 'Craftswoman', anatomy: { agePhase: 'adult', build: 'medium' }, face: { skinTone: 'tan' }, hair: { style: 'braided-halfup', color: 'blonde' }, clothing: { family: 'tailor-fine' }, condition: 'healthy' },
+              { id: 'ref_006', name: 'Blacksmith', anatomy: { agePhase: 'adult', build: 'heavy' }, face: { skinTone: 'light' }, hair: { style: 'short-cropped', color: 'black' }, clothing: { family: 'smith-heavy' }, condition: 'healthy' }
+            ]
+          };
+          runReview(fallbackRefs, { details: fallbackRefs.characters.map(c => ({ id: c.id, score: 1 })) });
+        }
+      }).catch(e => {
+        document.getElementById('container').innerText = 'Initialization Error: ' + e.message;
+        console.error(e);
+      });
+    };
   </script>
 </body>
 </html>
