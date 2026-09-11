@@ -441,124 +441,145 @@ class CharacterGenerator {
   }
 
   /**
-   * Boundless Procedural Hybrid Synthesis Engine
-   * Creates 100% original characters never seen before in any single sprite sheet
-   * by cross-synthesizing modular anatomy matrices with procedural shaders,
-   * accessories, scars, tattoos, and dynamic DNA palettes.
+   * Pure Procedural Creative Synthesis Engine (70x70 High-Definition Canvas)
+   * Builds 100% original characters from pure anatomical rules, volumetric ramps,
+   * muscle cylinders, and expressive facial features WITHOUT Frankenstein splicing.
    */
   static generateCreativeHybrid(spec = {}, dir = 0, frame = 0) {
     const c = new VP.PixelCanvas(70, 70);
-    const matrices = (typeof AM !== 'undefined' && AM) ? AM : (typeof window !== 'undefined' ? window.ANATOMY_MATRICES : null);
-    if (!matrices) return c;
-
-    const dirName = (dir === 0 ? 'down' : (dir === 1 ? 'up' : (dir === 2 ? 'left' : 'right')));
     const frameIdx = (frame || 0) % 8;
+    const walkBobY = Math.round(Math.sin((frameIdx / 8) * Math.PI * 2) * 1.5);
+    const legSwing = Math.round(Math.sin((frameIdx / 8) * Math.PI * 2) * 4);
 
-    // 1. Modular DNA Selection
-    const bodySource = spec.body || 'blacksmith';    // Source of torso, muscles, posture
-    const headSource = spec.head || 'herbalist';     // Source of face, eye appeal, hood/hair
-    const legsSource = spec.legs || 'blacksmith';    // Source of legs, trousers, boots
-    const propSource = spec.prop || 'fisherman';     // Source of held tools or gear
+    // Dynamic Palettes
+    const skinRamp = VP.makeRamp(spec.skin || '#dda078');
+    const hairRamp = VP.makeRamp(spec.hair || '#241a14');
+    const tunicRamp = VP.makeRamp(spec.cloth || '#2d4a3e');
+    const trousersRamp = VP.makeRamp(spec.trousers || '#2b2a36');
+    const leatherRamp = VP.makeRamp(spec.leather || '#59381e');
+    const metalRamp = VP.makeRamp(spec.metal || '#8892a6');
 
-    // 2. Extract layers
-    const bodyPixels = matrices[bodySource] && matrices[bodySource][dirName] ? matrices[bodySource][dirName][frameIdx] : [];
-    const headPixels = matrices[headSource] && matrices[headSource][dirName] ? matrices[headSource][dirName][frameIdx] : [];
-    const legsPixels = matrices[legsSource] && matrices[legsSource][dirName] ? matrices[legsSource][dirName][frameIdx] : [];
-    const propPixels = matrices[propSource] && matrices[propSource][dirName] ? matrices[propSource][dirName][frameIdx] : [];
+    const isHeavy = spec.build === 'heavy';
+    const bodyW = isHeavy ? 17 : 13;
+    const armR = isHeavy ? 4 : 3;
 
-    // Custom Color Palette Palettization
-    const skinHex = spec.skin || '#dda078';
-    const hairHex = spec.hair || '#22222a';
-    const clothHex = spec.cloth || '#4a3260';
-    const skinRamp = VP.makeRamp(skinHex);
-    const hairRamp = VP.makeRamp(hairHex);
-    const clothRamp = VP.makeRamp(clothHex);
+    // Ground Shadow
+    c.ellipse(35, 65, isHeavy ? 15 : 12, 4, 'rgba(16, 12, 8, 0.35)', 1, 0);
 
-    // Helper: remap pixel color procedurally
-    function remap(hex, partType) {
-      const r = parseInt(hex.slice(1,3), 16);
-      const g = parseInt(hex.slice(3,5), 16);
-      const b = parseInt(hex.slice(5,7), 16);
-      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      const isDarkOutline = lum < 0.15;
-      if (isDarkOutline) return '#16141a';
+    // 1. Legs & Heavy Boots (Articulated Kinematics)
+    const legLX = 35 - Math.floor(bodyW * 0.45);
+    const legRX = 35 + Math.floor(bodyW * 0.45);
+    const hipY = 41 + walkBobY;
 
-      if (partType === 'skin' || (r > g && g > b && r > 120 && b < 180 && (r - b) > 30)) {
-        const t = Math.min(6, Math.max(0, Math.floor(lum * 7)));
-        return skinRamp[t] || hex;
-      }
-      if (partType === 'cloth') {
-        const t = Math.min(6, Math.max(0, Math.floor(lum * 7)));
-        return clothRamp[t] || hex;
-      }
-      if (partType === 'hair') {
-        const t = Math.min(6, Math.max(0, Math.floor(lum * 7)));
-        return hairRamp[t] || hex;
-      }
-      return hex;
+    // Left Leg
+    VP.drawLimbCylinder(c, legLX, hipY, legLX + legSwing, 59 + walkBobY, 3, trousersRamp, 10, isHeavy);
+    VP.drawBevelBox(c, legLX + legSwing - 4, 58 + walkBobY, 8, 7, leatherRamp, 12);
+    // Right Leg
+    VP.drawLimbCylinder(c, legRX, hipY, legRX - legSwing, 59 + walkBobY, 3, trousersRamp, 10, isHeavy);
+    VP.drawBevelBox(c, legRX - legSwing - 4, 58 + walkBobY, 8, 7, leatherRamp, 12);
+
+    // 2. Torso & Armor/Tunic (Volumetric cluster with realistic cloth folds)
+    const torsoY = 25 + walkBobY;
+    VP.drawCluster(c, 35, torsoY + 8, bodyW, 10, tunicRamp, 20, 'UL');
+    VP.drawFabricFolds(c, 35 - bodyW + 2, torsoY + 7, (bodyW - 2) * 2, 2, tunicRamp, 21);
+
+    // Belt & Buckle
+    c.fillRect(35 - bodyW + 1, hipY - 2, (bodyW - 1) * 2, 3, leatherRamp[1], 4, 25);
+    VP.drawBevelBox(c, 33, hipY - 3, 5, 5, metalRamp, 26);
+
+    // Optional: Shoulder Pauldrons / Armor
+    if (spec.armor) {
+      VP.drawBevelBox(c, 35 - bodyW - 2, torsoY - 1, 6, 6, metalRamp, 28);
+      VP.drawBevelBox(c, 35 + bodyW - 4, torsoY - 1, 6, 6, metalRamp, 28);
+      VP.drawGlint(c, 35 - bodyW - 1, torsoY, '#ffffff', 29);
     }
 
-    // A. Draw Legs (y >= 43)
-    for (let i = 0; i < legsPixels.length; i++) {
-      const [px, py, hex] = legsPixels[i];
-      if (py >= 43) {
-        c.setPixel(px, py, remap(hex, 'legs'), 1, 10);
-      }
+    // 3. Arms & Hands (Muscular volumetric cylinders)
+    const armLX = 35 - bodyW - 1;
+    const armRX = 35 + bodyW + 1;
+    const handLY = hipY + 4;
+    const handRY = hipY + 4;
+
+    // Arm cylinders with muscle bulge
+    const armRamp = spec.sleeveless ? skinRamp : tunicRamp;
+    VP.drawLimbCylinder(c, armLX + 2, torsoY + 2, armLX - legSwing, handLY, armR, armRamp, 22, isHeavy);
+    VP.drawLimbCylinder(c, armRX - 2, torsoY + 2, armRX + legSwing, handRY, armR, armRamp, 22, isHeavy);
+
+    // Hands / Leather Gauntlets
+    if (spec.gauntlets) {
+      VP.drawGauntlet(c, armLX - legSwing, handLY - 2, armR * 2 + 2, 6, leatherRamp, 24);
+      VP.drawGauntlet(c, armRX + legSwing, handRY - 2, armR * 2 + 2, 6, leatherRamp, 24);
+    } else {
+      VP.drawHand(c, armLX - legSwing, handLY, skinRamp, 'open', 24);
+      VP.drawHand(c, armRX + legSwing, handRY, skinRamp, 'fist', 24);
     }
 
-    // B. Draw Torso & Arms (20 <= y < 43)
-    for (let i = 0; i < bodyPixels.length; i++) {
-      const [px, py, hex] = bodyPixels[i];
-      if (py >= 20 && py < 43) {
-        c.setPixel(px, py, remap(hex, 'cloth'), 1, 20);
-      }
+    // 4. Neck & Head (High definition organic facial appeal)
+    const headY = 16 + walkBobY;
+    c.fillRect(33, headY + 7, 5, 4, skinRamp[2], 2, 28); // Neck shadow
+    VP.drawCluster(c, 35, headY, 11, 10, skinRamp, 30, 'UL');
+
+    // 5. Expressive Facial Grammar
+    // Eyes: Sclera + Iris + Specular Spark
+    c.fillRect(29, headY - 1, 4, 3, '#f0f4f8', 2, 32);
+    c.fillRect(31, headY - 1, 2, 3, spec.eyeColor || '#1f2937', 2, 33);
+    c.setPixel(30, headY - 1, '#ffffff', 5, 34); // Specular
+
+    c.fillRect(37, headY - 1, 4, 3, '#f0f4f8', 2, 32);
+    c.fillRect(37, headY - 1, 2, 3, spec.eyeColor || '#1f2937', 2, 33);
+    c.setPixel(38, headY - 1, '#ffffff', 5, 34);
+
+    // Eyebrows
+    const browY = headY - 3;
+    c.fillRect(28, browY, isHeavy ? 6 : 5, 2, hairRamp[0], 2, 35);
+    c.fillRect(37, browY, isHeavy ? 6 : 5, 2, hairRamp[0], 2, 35);
+
+    // Nose & Lip
+    c.fillRect(34, headY + 2, 2, 3, skinRamp[1], 2, 32);
+    c.fillRect(33, headY + 6, 4, 1, skinRamp[1], 2, 32);
+
+    // Facial Hair
+    if (spec.beard) {
+      c.fillRect(30, headY + 5, 10, 5, hairRamp[1], 2, 36);
+      c.fillRect(32, headY + 9, 6, 3, hairRamp[0], 2, 36);
     }
 
-    // C. Draw Head & Face (y < 26)
-    for (let i = 0; i < headPixels.length; i++) {
-      const [px, py, hex] = headPixels[i];
-      if (py < 26) {
-        c.setPixel(px, py, remap(hex, 'skin'), 1, 30);
-      }
+    // 6. Hair & Headwear
+    if (spec.hairStyle === 'afro') {
+      VP.drawAfroClusters(c, 35, headY - 4, 13, 9, hairRamp, 40);
+    } else if (spec.hairStyle === 'hood') {
+      // Flowing draped hood around face
+      const hoodRamp = tunicRamp;
+      c.fillRect(21, headY - 7, 28, 4, hoodRamp[3], 3, 38);
+      c.fillRect(21, headY - 3, 5, 14, hoodRamp[2], 3, 38);
+      c.fillRect(44, headY - 3, 5, 14, hoodRamp[2], 3, 38);
+    } else {
+      // Long flowing locks
+      VP.drawCluster(c, 35, headY - 4, 12, 5, hairRamp, 40, 'UL');
+      VP.drawCurvedLock(c, 27, headY - 2, 23, headY + 12, 4, hairRamp, -1, 41);
+      VP.drawCurvedLock(c, 43, headY - 2, 47, headY + 12, 4, hairRamp, 1, 41);
     }
 
-    // D. Cross-Synthesize Props / Tools (Special item from propSource)
-    if (spec.prop === 'blacksmith') {
-      // Sledgehammer
-      for (let i = 0; i < propPixels.length; i++) {
-        const [px, py, hex] = propPixels[i];
-        if (px < 25 && py < 30) c.setPixel(px, py, hex, 1, 40);
-      }
-    } else if (spec.prop === 'fisherman') {
-      // Fishing rod
-      for (let i = 0; i < propPixels.length; i++) {
-        const [px, py, hex] = propPixels[i];
-        if (px > 42 && py < 48) c.setPixel(px, py, hex, 1, 40);
-      }
-    } else if (spec.prop === 'herbalist') {
-      // Flower basket
-      for (let i = 0; i < propPixels.length; i++) {
-        const [px, py, hex] = propPixels[i];
-        if (px >= 24 && px <= 48 && py >= 32 && py <= 46) c.setPixel(px, py, hex, 1, 40);
-      }
+    // 7. Weapon / Crafted Prop (Mathematically constructed)
+    if (spec.weapon === 'warhammer') {
+      const hx = armRX + legSwing + 4;
+      const hy = handRY - 18;
+      // Haft
+      c.fillRect(hx - 1, hy, 3, 24, '#5e381b', 4, 45);
+      // Double Beveled Hammer Head
+      VP.drawBevelBox(c, hx - 7, hy - 4, 15, 8, metalRamp, 46);
+      VP.drawGlint(c, hx - 6, hy - 4, '#ffffff', 47);
+    } else if (spec.weapon === 'staff') {
+      const sx = armLX - legSwing - 2;
+      const sy = handLY - 22;
+      c.fillRect(sx, sy, 2, 28, '#704221', 4, 45);
+      // Glowing crystal tip
+      c.fillRect(sx - 2, sy - 4, 6, 6, '#38bdf8', 5, 46);
+      c.setPixel(sx, sy - 2, '#ffffff', 5, 47);
     }
 
-    // E. Procedural Signature Accents (Scars, Eye Patches, War Paint, Magical Runes)
-    if (spec.eyepatch && dir === 0) {
-      c.fillRect(36, 17, 4, 3, '#111116', 1, 50);
-      c.line(32, 15, 42, 19, '#22222a', 1, 51); // Strap
-    }
-    if (spec.warpaint && dir === 0) {
-      c.setPixel(32, 19, '#962d2d', 1, 50);
-      c.setPixel(32, 20, '#962d2d', 1, 50);
-      c.setPixel(40, 19, '#962d2d', 1, 50);
-      c.setPixel(40, 20, '#962d2d', 1, 50);
-    }
-    if (spec.goldTrim && dir === 0) {
-      // Gold trim on collar
-      c.fillRect(33, 24, 7, 1, '#e5b328', 1, 50);
-    }
-
+    // Selective Outline to tie the entire character organically together
+    VP.applySelectiveOutline(c);
     return c;
   }
 }

@@ -301,6 +301,39 @@ function drawGauntlet(c, x, y, w, h, ramp, z = 0) {
   c.fillRect(x - Math.floor(w/2) - 1, y, w + 2, 2, ramp[4], 4, z + 1);
   c.fillRect(x - Math.floor(w/2), y + h - 2, w, 2, ramp[1], 4, z + 1);
 }
+
+function drawLimbCylinder(c, x0, y0, x1, y1, radius, ramp, z = 0, hasMuscleBulge = false) {
+  const steps = Math.max(8, Math.round(Math.hypot(x1 - x0, y1 - y0)));
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const cx = Math.round(x0 + (x1 - x0) * t);
+    const cy = Math.round(y0 + (y1 - y0) * t);
+    // Muscle bulge in the middle (bicep / calf)
+    const bulge = hasMuscleBulge ? Math.sin(t * Math.PI) * 2.5 : 0;
+    const r = Math.round(radius + bulge);
+    
+    // Horizontal or perpendicular scanline
+    for (let dx = -r; dx <= r; dx++) {
+      const dist = Math.abs(dx) / r;
+      // Cylindrical light projection: key light from left (dx < 0 is highlight)
+      let tone = 3;
+      if (dx < -r * 0.4) tone = 5; // Highlight
+      else if (dx < 0) tone = 4;   // Mid-light
+      else if (dx > r * 0.5) tone = 1; // Shadow
+      else if (dx > r * 0.2) tone = 2; // Mid-dark
+      c.setPixel(cx + dx, cy, ramp[tone], 2, z);
+    }
+  }
+}
+
+function drawFabricFolds(c, x, y, w, h, ramp, z = 0) {
+  // Renders subtle diagonal wrinkle folds on cloth
+  for (let i = 0; i < w; i++) {
+    const foldOffset = Math.sin((x + i) * 0.4) * 1.5;
+    c.setPixel(x + i, Math.round(y + foldOffset), ramp[4], 3, z + 1);
+    c.setPixel(x + i, Math.round(y + foldOffset + 1), ramp[1], 3, z + 1);
+  }
+}
 function applySelectiveOutline(c) {
   const tagToTone = {
     1: '#2a1e16', // default dark organic
@@ -350,6 +383,8 @@ const VisualPrimitives = {
   drawBevelBox,
   drawGlint,
   drawGauntlet,
+  drawLimbCylinder,
+  drawFabricFolds,
   drawHand,
   drawBoot,
   applySelectiveOutline,
