@@ -65,6 +65,7 @@
       <input type="range" id="speedRange" min="60" max="300" value="120" oninput="updateSpeed(this.value)">
       <span id="speedLabel">120ms</span>
     </label>
+    <button onclick="toggleResolution()" id="resBtn" style="padding: 6px 14px; background: #1f6feb; border: none; color: #fff; border-radius: 6px; cursor: pointer; font-weight: bold;">Mode: High-Fidelity 70x70 Matrix</button>
     <button onclick="togglePlay()" id="playBtn" style="padding: 6px 14px; background: #238636; border: none; color: #fff; border-radius: 6px; cursor: pointer; font-weight: bold;">Pause Animation</button>
   </div>
 
@@ -123,6 +124,7 @@
   <div class="gallery-grid" id="galleryGrid"></div>
 
   <!-- Include Art Bundle -->
+  <script src="../reference_library/anatomy_matrices.js"></script>
   <script src="../visual_primitives.js"></script>
   <script src="../animation_system.js"></script>
   <script src="../character_dna.js"></script>
@@ -130,11 +132,12 @@
   <script src="../visual_state_adapter.js"></script>
 
   <script>
-    let curZoom = 4;
+    let curZoom = 3;
     let animTimer = null;
     let animSpeed = 120;
     let isPlaying = true;
     let frameIdx = 0;
+    let useHighRes = true; // Toggle between 70x70 High-Res Matrix and 32x48 Retro Mode
 
     function updateZoom(z) {
       curZoom = z;
@@ -237,8 +240,29 @@
       });
     }
 
+    function toggleResolution() {
+      useHighRes = !useHighRes;
+      const btn = document.getElementById('resBtn');
+      btn.innerText = useHighRes ? 'Mode: High-Fidelity 70x70 Matrix' : 'Mode: Retro 32x48 Canonical';
+      btn.style.background = useHighRes ? '#1f6feb' : '#d29922';
+      
+      // Update canvas sizes
+      const targetW = useHighRes ? 70 : 32;
+      const targetH = useHighRes ? 70 : 48;
+
+      GALLERY_CHARS.forEach((spec, i) => {
+        const cv = document.getElementById('gal_' + i);
+        if (cv) {
+          cv.width = targetW;
+          cv.height = targetH;
+        }
+      });
+      updateZoom(curZoom);
+      tick();
+    }
+
     function tick() {
-      frameIdx = (frameIdx + 1) % 6;
+      frameIdx = (frameIdx + 1) % 8;
       // Draw Tomas New
       const tomas = CharacterDNA.fromVillager({ id: 1, name: 'Tomas', sex: 'M', age: 35, colors: { dress: '#4a6a3a', skin: '#d8a878', hair: '#3a2a1a' } });
       const pCvs = CharacterGenerator.renderFrame(tomas, 0, 'walk', frameIdx, {});
@@ -254,12 +278,23 @@
         const dna = CharacterDNA.fromVillager(spec);
         if (spec.pregnant) dna.condition.pregnant = spec.pregnant;
         if (spec.condition) Object.assign(dna.condition, spec.condition);
-        const pC = CharacterGenerator.renderFrame(dna, spec.dir || 0, spec.act, frameIdx, dna.condition);
+        
+        // Use High-Res Matrix Engine or Retro Engine
+        const pC = useHighRes
+          ? CharacterGenerator.renderHighResFrame(dna, spec.dir || 0, spec.act, frameIdx, dna.condition)
+          : CharacterGenerator.renderFrame(dna, spec.dir || 0, spec.act, frameIdx, dna.condition);
+
         const cv = document.getElementById('gal_' + i);
         if (cv) {
+          if (cv.width !== pC.width || cv.height !== pC.height) {
+            cv.width = pC.width;
+            cv.height = pC.height;
+            cv.style.width = (cv.width * curZoom) + 'px';
+            cv.style.height = (cv.height * curZoom) + 'px';
+          }
           const c2 = cv.getContext('2d');
-          c2.clearRect(0,0,32,48);
-          const im2 = c2.createImageData(32, 48);
+          c2.clearRect(0,0,pC.width,pC.height);
+          const im2 = c2.createImageData(pC.width, pC.height);
           im2.data.set(pC.data);
           c2.putImageData(im2, 0, 0);
         }
@@ -270,7 +305,7 @@
       drawLegacy(document.getElementById('cvsLegacy'));
       drawWillowbrook(document.getElementById('cvsWb'));
       setupGallery();
-      updateZoom(4);
+      updateZoom(3);
       tick();
       animTimer = setInterval(tick, animSpeed);
     };
