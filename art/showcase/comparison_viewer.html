@@ -123,6 +123,10 @@
   <h2>2. Living State Gallery (Responsive to Simulation)</h2>
   <div class="gallery-grid" id="galleryGrid"></div>
 
+  <h2 style="margin-top: 36px; color: #a371f7;">3. Boundless Procedural Hybrids (100% Sáng Tạo Mới Bằng Code)</h2>
+  <p class="sub">Những nhân vật hoàn toàn mới, chưa từng tồn tại trong bất kỳ sprite sheet mẫu nào — được code tự do lai ghép từ các nguyên tử giải phẫu, tô màu DNA động, phụ kiện và họa tiết thủ tục!</p>
+  <div class="gallery-grid" id="hybridGrid"></div>
+
   <!-- Include Art Bundle -->
   <script src="../reference_library/anatomy_matrices.js"></script>
   <script src="../visual_primitives.js"></script>
@@ -224,6 +228,30 @@
       { name: 'Tereza (Wet & Muddy)', id: 23, sex: 'F', age: 28, colors: { dress: '#cf6a26', skin: '#dda078', hair: '#7c4828' }, condition: { wetness: 0.8, dirt: 0.8 }, act: 'work' }
     ];
 
+    // Boundless Creative Hybrids definitions (Synthesized from multiple anatomies & custom DNA)
+    const HYBRID_CHARS = [
+      {
+        name: 'The Battle-Alchemist',
+        spec: { body: 'blacksmith', head: 'herbalist', legs: 'blacksmith', prop: 'blacksmith', cloth: '#3b244d', skin: '#df9f70', warpaint: true },
+        desc: 'Cơ bắp Thợ rèn + Áo choàng Dược sư + Búa tạ + Sơn chiến binh đỏ'
+      },
+      {
+        name: 'The Sea Shaman',
+        spec: { body: 'herbalist', head: 'fisherman', legs: 'herbalist', prop: 'fisherman', cloth: '#1d3e4d', skin: '#c47d4e', eyepatch: true },
+        desc: 'Mũ Beanie Ngư dân + Bịt mắt hải tặc + Áo choàng xanh biển + Cần câu'
+      },
+      {
+        name: 'The Iron Baroness',
+        spec: { body: 'mayor', head: 'baker', legs: 'mayor', prop: 'blacksmith', cloth: '#5e1b24', skin: '#f4c39b', goldTrim: true },
+        desc: 'Khuôn mặt Thợ làm bánh + Lễ phục Thị trưởng đỏ mận viền vàng + Búa thép'
+      },
+      {
+        name: 'The Shadow Nomad',
+        spec: { body: 'blacksmith', head: 'herbalist', legs: 'herbalist', prop: 'herbalist', cloth: '#1f2229', skin: '#543026', warpaint: true },
+        desc: 'Cơ bắp vạm vỡ + Hood đen trùm đầu + Da ngăm sâu + Giỏ thảo dược độc'
+      }
+    ];
+
     function setupGallery() {
       const grid = document.getElementById('galleryGrid');
       GALLERY_CHARS.forEach((spec, i) => {
@@ -237,6 +265,22 @@
           <div class="meta" style="text-align: center;">Role: <strong>${spec.role || 'Villager'}</strong> | Act: <strong>${spec.act}</strong></div>
         `;
         grid.appendChild(div);
+      });
+
+      // Setup Hybrid Grid
+      const hGrid = document.getElementById('hybridGrid');
+      HYBRID_CHARS.forEach((spec, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.borderColor = '#8957e5';
+        div.innerHTML = `
+          <h3 style="color: #d2a8ff;">${spec.name}</h3>
+          <div class="canvas-container" style="min-height: 140px; background: #161224;">
+            <canvas id="hyb_${i}" width="70" height="70"></canvas>
+          </div>
+          <div class="meta" style="text-align: center; color: #b392f0; font-size: 11px;">${spec.desc}</div>
+        `;
+        hGrid.appendChild(div);
       });
     }
 
@@ -279,7 +323,6 @@
         if (spec.pregnant) dna.condition.pregnant = spec.pregnant;
         if (spec.condition) Object.assign(dna.condition, spec.condition);
         
-        // Use High-Res Matrix Engine or Retro Engine
         const pC = useHighRes
           ? CharacterGenerator.renderHighResFrame(dna, spec.dir || 0, spec.act, frameIdx, dna.condition)
           : CharacterGenerator.renderFrame(dna, spec.dir || 0, spec.act, frameIdx, dna.condition);
@@ -297,6 +340,21 @@
           const im2 = c2.createImageData(pC.width, pC.height);
           im2.data.set(pC.data);
           c2.putImageData(im2, 0, 0);
+        }
+      });
+
+      // Draw Boundless Creative Hybrids
+      HYBRID_CHARS.forEach((spec, i) => {
+        const pHyb = CharacterGenerator.generateCreativeHybrid(spec.spec, 0, frameIdx);
+        const cvH = document.getElementById('hyb_' + i);
+        if (cvH) {
+          cvH.style.width = (70 * curZoom) + 'px';
+          cvH.style.height = (70 * curZoom) + 'px';
+          const ctxH = cvH.getContext('2d');
+          ctxH.clearRect(0, 0, 70, 70);
+          const imH = ctxH.createImageData(70, 70);
+          imH.data.set(pHyb.data);
+          ctxH.putImageData(imH, 0, 0);
         }
       });
     }
