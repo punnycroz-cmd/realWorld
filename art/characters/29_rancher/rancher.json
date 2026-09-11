@@ -1,0 +1,89 @@
+{
+  "id": 29,
+  "slug": "rancher",
+  "name": "Dusty McCallister",
+  "titleVi": "Chủ Trang Trại Ngựa",
+  "role": "rancher",
+  "sex": "M",
+  "age": 40,
+  "bio": "Tay thuần hóa ngựa hoang dũng cảm với kỹ thuật quăng dây thừng điêu luyện trên thảo nguyên.",
+  "actionName": "Twirl Lasso",
+  "actionVi": "Quay Dây Thừng Lasso Bắt Ngựa",
+  "sprite": {
+    "sheetWidth": 256,
+    "sheetHeight": 336,
+    "frameWidth": 32,
+    "frameHeight": 48,
+    "columns": 8,
+    "rows": 7,
+    "png1x": "rancher_spritesheet.png",
+    "png4x": "rancher_spritesheet_4x.png"
+  },
+  "animations": {
+    "idle_down": {
+      "row": 0,
+      "startCol": 0,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "idle_up": {
+      "row": 0,
+      "startCol": 4,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "idle_left": {
+      "row": 1,
+      "startCol": 0,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "idle_right": {
+      "row": 1,
+      "startCol": 4,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "walk_down": {
+      "row": 2,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "walk_up": {
+      "row": 3,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "walk_left": {
+      "row": 4,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "walk_right": {
+      "row": 5,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "profession_action": {
+      "row": 6,
+      "startCol": 0,
+      "frameCount": 8,
+      "fps": 8,
+      "loop": true,
+      "label": "Twirl Lasso",
+      "labelVi": "Quay Dây Thừng Lasso Bắt Ngựa"
+    }
+  }
+}

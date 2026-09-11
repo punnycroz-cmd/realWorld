@@ -1,0 +1,89 @@
+{
+  "id": 2,
+  "slug": "farmer",
+  "name": "Marta Greenleaf",
+  "titleVi": "Nông Dân Cần Mẫn",
+  "role": "farmer",
+  "sex": "F",
+  "age": 32,
+  "bio": "Chăm sóc những cánh đồng lúa mì trĩu hạt và vườn rau xanh tốt quanh năm.",
+  "actionName": "Till Ground",
+  "actionVi": "Cuốc Đất Canh Tác",
+  "sprite": {
+    "sheetWidth": 256,
+    "sheetHeight": 336,
+    "frameWidth": 32,
+    "frameHeight": 48,
+    "columns": 8,
+    "rows": 7,
+    "png1x": "farmer_spritesheet.png",
+    "png4x": "farmer_spritesheet_4x.png"
+  },
+  "animations": {
+    "idle_down": {
+      "row": 0,
+      "startCol": 0,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "idle_up": {
+      "row": 0,
+      "startCol": 4,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "idle_left": {
+      "row": 1,
+      "startCol": 0,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "idle_right": {
+      "row": 1,
+      "startCol": 4,
+      "frameCount": 4,
+      "fps": 4,
+      "loop": true
+    },
+    "walk_down": {
+      "row": 2,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "walk_up": {
+      "row": 3,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "walk_left": {
+      "row": 4,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "walk_right": {
+      "row": 5,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "profession_action": {
+      "row": 6,
+      "startCol": 0,
+      "frameCount": 8,
+      "fps": 8,
+      "loop": true,
+      "label": "Till Ground",
+      "labelVi": "Cuốc Đất Canh Tác"
+    }
+  }
+}

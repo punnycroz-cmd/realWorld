@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Natura - 30 Character Sprite Sheets & Profession Animations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0d14;
+      --bg-secondary: #111622;
+      --bg-card: rgba(19, 26, 42, 0.85);
+      --bg-glass: rgba(25, 34, 56, 0.65);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(56, 189, 248, 0.35);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #3b82f6;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --shadow-glow: 0 0 25px rgba(56, 189, 248, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+    }
+
+    /* Top Navigation */
+    header {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+    }
+
+    .brand-title h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .stats-pills {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pill {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    .pill span {
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    /* Main Container Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 480px 1fr;
+      gap: 24px;
+      padding: 24px 32px;
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    /* Left Stage View */
+    .stage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      position: sticky;
+      top: 96px;
+      height: fit-content;
+    }
+
+    .char-profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    .char-badge-id {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .char-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .char-title-vi {
+      font-size: 14px;
+      color: var(--accent-amber);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .char-bio {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    /* Canvas Stage Box */
+    .canvas-viewport {
+      background: #06080d;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+      background-image: 
+        linear-gradient(45deg, #0e131d 25%, transparent 25%),
+        linear-gradient(-45deg, #0e131d 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #0e131d 75%),
+        linear-gradient(-45deg, transparent 75%, #0e131d 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    #previewCanvas {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+    }
+
+    .stage-overlay-info {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(10, 13, 20, 0.8);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    .stage-overlay-zoom {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .zoom-btn {
+      background: rgba(10, 13, 20, 0.7);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .zoom-btn.active, .zoom-btn:hover {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+    }
+
+    /* Animation Selector Buttons */
+    .anim-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .anim-btn-group {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .btn-anim {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 4px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .btn-anim:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .btn-anim.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Profession Highlight Button */
+    .btn-profession-action {
+      grid-column: span 4;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1));
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fef08a;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+    }
+
+    .btn-profession-action:hover, .btn-profession-action.active {
+      background: linear-gradient(135deg, var(--accent-amber), #d97706);
+      color: #000;
+      border-color: #fde047;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Playback Controls */
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .play-toggle-btn {
+      background: var(--accent-cyan);
+      border: none;
+      color: #000;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .speed-slider-group {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .speed-slider-group label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .speed-slider-group input {
+      flex: 1;
+      accent-color: var(--accent-cyan);
+    }
+
+    /* Download Actions */
+    .download-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-dl {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-dl:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-dl-primary {
+      grid-column: span 2;
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #a7f3d0;
+    }
+
+    .btn-dl-primary:hover {
+      background: var(--accent-emerald);
+      color: #000;
+    }
+
+    /* Right Panel: Character Matrix */
+    .catalog-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .catalog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .catalog-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .search-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      width: 240px;
+      font-family: inherit;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+
+    /* Characters 30 Grid */
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+      max-height: 800px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .character-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+    .character-grid::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .char-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .char-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(30, 42, 68, 0.6);
+    }
+
+    .char-card.active {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .char-card-thumb {
+      width: 48px;
+      height: 56px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .char-card-thumb canvas {
+      image-rendering: pixelated;
+    }
+
+    .char-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .char-card-number {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .char-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .char-card-vi {
+      font-size: 11px;
+      color: var(--accent-amber);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .char-card-action {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Spritesheet Drawer View */
+    .sheet-drawer-container {
+      margin-top: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      grid-column: span 2;
+    }
+
+    .sheet-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .sheet-scroll-viewport {
+      background: #07090e;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      overflow-x: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #fullSheetImg {
+      image-rendering: pixelated;
+      max-width: 100%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+      .stage-card {
+        position: static;
+      }
+      .sheet-drawer-container {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-logo">N</div>
+      <div class="brand-title">
+        <h1>Natura 30 Characters & Profession Animations</h1>
+        <p>Thư mục 30 nhân vật sprite sheet hoàn chỉnh chuẩn game 2D</p>
+      </div>
+    </div>
+    <div class="stats-pills">
+      <div class="pill">Nhân vật: <span>30</span></div>
+      <div class="pill">Khung hình / Sheet: <span>56 Frames</span></div>
+      <div class="pill">Cơ chế: <span>Skeletal & Profession Kinematics</span></div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- Left: Stage Player View -->
+    <section class="stage-card">
+      <div class="char-profile-header">
+        <div>
+          <span class="char-badge-id" id="badgeId">CHAR #01</span>
+          <h2 class="char-name" id="charName">Brom Ironbeard</h2>
+          <div class="char-title-vi" id="charTitleVi">Thợ Rèn Luyện Kim</div>
+          <p class="char-bio" id="charBio">Thợ rèn danh tiếng của thị trấn, sở hữu đôi tay chai sần và cơ bắp cuồn cuộn.</p>
+        </div>
+      </div>
+
+      <!-- Canvas Stage -->
+      <div class="canvas-viewport">
+        <div class="stage-overlay-zoom">
+          <button class="zoom-btn" onclick="setZoom(2, this)">2x</button>
+          <button class="zoom-btn" onclick="setZoom(4, this)">4x</button>
+          <button class="zoom-btn active" onclick="setZoom(5, this)">5x</button>
+          <button class="zoom-btn" onclick="setZoom(6, this)">6x</button>
+        </div>
+        <canvas id="previewCanvas" width="32" height="48"></canvas>
+        <div class="stage-overlay-info" id="stageInfo">Đang tải...</div>
+      </div>
+
+      <!-- Animation Selection -->
+      <div>
+        <div class="anim-section-title">Chọn Hoạt Ảnh (Animations)</div>
+        <div class="anim-btn-group">
+          <!-- Profession Action (Highlighted) -->
+          <button class="btn-profession-action active" id="btnProfession" onclick="switchAnim('profession_action')">
+            ★ <span id="labelProfession">Rèn Đe Đập Búa Tóe Lửa</span>
+          </button>
+          <!-- Basic Idle -->
+          <button class="btn-anim" id="btn_idle_down" onclick="switchAnim('idle_down')">Idle Down</button>
+          <button class="btn-anim" id="btn_idle_up" onclick="switchAnim('idle_up')">Idle Up</button>
+          <button class="btn-anim" id="btn_idle_left" onclick="switchAnim('idle_left')">Idle Left</button>
+          <button class="btn-anim" id="btn_idle_right" onclick="switchAnim('idle_right')">Idle Right</button>
+          <!-- Basic Walk -->
+          <button class="btn-anim" id="btn_walk_down" onclick="switchAnim('walk_down')">Walk Down</button>
+          <button class="btn-anim" id="btn_walk_up" onclick="switchAnim('walk_up')">Walk Up</button>
+          <button class="btn-anim" id="btn_walk_left" onclick="switchAnim('walk_left')">Walk Left</button>
+          <button class="btn-anim" id="btn_walk_right" onclick="switchAnim('walk_right')">Walk Right</button>
+        </div>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="playback-controls">
+        <button class="play-toggle-btn" id="playToggle" onclick="togglePlay()">⏸</button>
+        <div class="speed-slider-group">
+          <label id="fpsLabel">8 FPS</label>
+          <input type="range" id="fpsRange" min="2" max="20" value="8" oninput="changeFps(this.value)">
+        </div>
+      </div>
+
+      <!-- Download Buttons -->
+      <div class="download-group">
+        <button class="btn-dl btn-dl-primary" onclick="downloadCurrentPng4x()">
+          💾 Tải Sprite Sheet 4x HD (PNG)
+        </button>
+        <button class="btn-dl" onclick="downloadCurrentPng1x()">
+          🖼️ Tải Sprite Sheet 1x
+        </button>
+        <button class="btn-dl" onclick="downloadCurrentJson()">
+          📄 Tải File JSON Metadata
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: 30 Characters Catalog Grid -->
+    <section class="catalog-card">
+      <div class="catalog-header">
+        <h2>Danh Sách 30 Nhân Vật Nghề Nghiệp</h2>
+        <input type="text" class="search-box" id="searchBox" placeholder="Tìm kiếm nhân vật..." oninput="filterGrid(this.value)">
+      </div>
+
+      <div class="character-grid" id="characterGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Full Spritesheet Viewer Drawer -->
+    <section class="sheet-drawer-container">
+      <div class="sheet-drawer-header">
+        <div>
+          <h3>Xem Toàn Bộ Sprite Sheet Layout (Ma trận 8x7 = 56 Frame)</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+            Hàng 0: Idle Down / Up (8f) · Hàng 1: Idle Left / Right (8f) · Hàng 2-5: Walk 4 hướng · Hàng 6: Hoạt ảnh nghề nghiệp đặc thù (8f)
+          </p>
+        </div>
+        <span class="char-badge-id" id="sheetDimLabel">256 x 336 px (1x) / 1024 x 1344 px (4x)</span>
+      </div>
+      <div class="sheet-scroll-viewport">
+        <img id="fullSheetImg" src="" alt="Full Character Sprite Sheet">
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let manifest = [];
+    let activeCharIndex = 0;
+    let activeAnimKey = 'profession_action';
+    let currentFrameIdx = 0;
+    let isPlaying = true;
+    let currentFps = 8;
+    let timerId = null;
+    let currentZoom = 5;
+
+    let spriteSheetImage = new Image();
+    const previewCanvas = document.getElementById('previewCanvas');
+    const ctx = previewCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    // Load Manifest
+    async function init() {
+      try {
+        const res = await fetch('characters_manifest.json');
+        manifest = await res.json();
+        renderGrid();
+        selectCharacter(0);
+      } catch (err) {
+        console.error('Error loading manifest:', err);
+      }
+    }
+
+    function renderGrid(filter = '') {
+      const grid = document.getElementById('characterGrid');
+      grid.innerHTML = '';
+
+      manifest.forEach((c, idx) => {
+        const q = filter.toLowerCase();
+        if (q && !c.name.toLowerCase().includes(q) && !c.titleVi.toLowerCase().includes(q) && !c.actionVi.toLowerCase().includes(q)) {
+          return;
+        }
+
+        const card = document.createElement('div');
+        card.className = `char-card ${idx === activeCharIndex ? 'active' : ''}`;
+        card.id = `card_${idx}`;
+        card.onclick = () => selectCharacter(idx);
+
+        card.innerHTML = `
+          <div class="char-card-thumb">
+            <img src="${c.sprite1x}" style="width: 32px; height: 48px; object-fit: none; object-position: 0 0;" alt="${c.name}">
+          </div>
+          <div class="char-card-info">
+            <div class="char-card-number">#${String(c.id).padStart(2, '0')} · ${c.role}</div>
+            <div class="char-card-name">${c.name}</div>
+            <div class="char-card-vi">${c.titleVi}</div>
+            <div class="char-card-action">★ ${c.actionName}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterGrid(val) {
+      renderGrid(val);
+    }
+
+    async function selectCharacter(idx) {
+      if (!manifest || !manifest[idx]) return;
+      activeCharIndex = idx;
+      document.querySelectorAll('.char-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.getElementById(`card_${idx}`);
+      if (activeCard) activeCard.classList.add('active');
+
+      const charData = manifest[idx];
+      const badge = document.getElementById('badgeId');
+      if (badge) badge.innerText = `CHAR #${String(charData.id).padStart(2, '0')}`;
+      const nameEl = document.getElementById('charName');
+      if (nameEl) nameEl.innerText = charData.name;
+      const titleEl = document.getElementById('charTitleVi');
+      if (titleEl) titleEl.innerText = charData.titleVi;
+      const actEl = document.getElementById('labelProfession');
+      if (actEl) actEl.innerText = `${charData.actionVi}`;
+
+      try {
+        const res = await fetch(charData.jsonFile);
+        window.currentFullJson = await res.json();
+        const bioEl = document.getElementById('charBio');
+        if (bioEl) bioEl.innerText = window.currentFullJson.bio || '';
+      } catch(e) {
+        console.warn('Could not load char json:', e);
+      }
+
+      // Load Sprite Sheet Image with explicit loading check
+      const newImg = new Image();
+      newImg.onload = () => {
+        spriteSheetImage = newImg;
+        currentFrameIdx = 0;
+        const fullSheet = document.getElementById('fullSheetImg');
+        if (fullSheet) fullSheet.src = charData.sprite4x;
+        renderCurrentFrame();
+      };
+      newImg.onerror = (e) => {
+        console.error('Failed to load spritesheet:', charData.sprite1x, e);
+      };
+      newImg.src = charData.sprite1x;
+      if (newImg.complete && newImg.naturalWidth > 0) {
+        spriteSheetImage = newImg;
+        currentFrameIdx = 0;
+        const fullSheet = document.getElementById('fullSheetImg');
+        if (fullSheet) fullSheet.src = charData.sprite4x;
+        renderCurrentFrame();
+      }
+    }
+
+    function setZoom(scale, btn) {
+      currentZoom = scale;
+      document.querySelectorAll('.zoom-btn').forEach(b => {
+        b.classList.toggle('active', b === btn || b.textContent.trim() === `${scale}x`);
+      });
+      const canvas = document.getElementById('previewCanvas');
+      if (canvas) {
+        canvas.style.width = (32 * scale) + 'px';
+        canvas.style.height = (48 * scale) + 'px';
+      }
+    }
+
+    function switchAnim(animKey) {
+      activeAnimKey = animKey;
+      currentFrameIdx = 0;
+
+      document.querySelectorAll('.btn-anim, .btn-profession-action').forEach(b => b.classList.remove('active'));
+      if (animKey === 'profession_action') {
+        const pBtn = document.getElementById('btnProfession');
+        if (pBtn) pBtn.classList.add('active');
+      } else {
+        const b = document.getElementById(`btn_${animKey}`);
+        if (b) b.classList.add('active');
+      }
+
+      renderCurrentFrame();
+    }
+
+    function renderCurrentFrame() {
+      if (!previewCanvas) return;
+      if (!spriteSheetImage || !spriteSheetImage.complete || !spriteSheetImage.naturalWidth) return;
+      if (!window.currentFullJson || !window.currentFullJson.animations) return;
+
+      const animDef = window.currentFullJson.animations[activeAnimKey] || 
+                      window.currentFullJson.animations['profession_action'] || 
+                      window.currentFullJson.animations['idle_down'];
+      if (!animDef) return;
+
+      const row = animDef.row;
+      const col = animDef.startCol + (currentFrameIdx % animDef.frameCount);
+
+      const cellW = 32;
+      const cellH = 48;
+
+      ctx.clearRect(0, 0, 32, 48);
+      ctx.drawImage(
+        spriteSheetImage,
+        col * cellW, row * cellH, cellW, cellH,
+        0, 0, cellW, cellH
+      );
+
+      const stageInfo = document.getElementById('stageInfo');
+      if (stageInfo) {
+        const displayLabel = animDef.labelVi || animDef.label || activeAnimKey.replace('_', ' ').toUpperCase();
+        stageInfo.innerText = `${displayLabel} · Frame ${(currentFrameIdx % animDef.frameCount) + 1}/${animDef.frameCount}`;
+      }
+    }
+
+    function step() {
+      if (!window.currentFullJson || !window.currentFullJson.animations) return;
+      const animDef = window.currentFullJson.animations[activeAnimKey] || 
+                      window.currentFullJson.animations['profession_action'];
+      if (!animDef) return;
+
+      currentFrameIdx = (currentFrameIdx + 1) % animDef.frameCount;
+      renderCurrentFrame();
+    }
+
+    function startLoop() {
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (isPlaying) step();
+      }, 1000 / currentFps);
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('playToggle');
+      if (btn) btn.innerText = isPlaying ? '⏸' : '▶';
+    }
+
+    function changeFps(val) {
+      currentFps = parseInt(val, 10);
+      const label = document.getElementById('fpsLabel');
+      if (label) label.innerText = `${currentFps} FPS`;
+      startLoop();
+    }
+
+    function downloadCurrentPng1x() {
+      if (!manifest || !manifest[activeCharIndex]) return;
+      const c = manifest[activeCharIndex];
+      const a = document.createElement('a');
+      a.href = c.sprite1x;
+      a.download = `${c.slug}_spritesheet.png`;
+      a.click();
+    }
+
+    function downloadCurrentPng4x() {
+      if (!manifest || !manifest[activeCharIndex]) return;
+      const c = manifest[activeCharIndex];
+      const a = document.createElement('a');
+      a.href = c.sprite4x;
+      a.download = `${c.slug}_spritesheet_4x.png`;
+      a.click();
+    }
+
+    function downloadCurrentJson() {
+      if (!manifest || !manifest[activeCharIndex]) return;
+      const c = manifest[activeCharIndex];
+      const a = document.createElement('a');
+      a.href = c.jsonFile;
+      a.download = `${c.slug}.json`;
+      a.click();
+    }
+
+    // Initialize safely on load
+    window.addEventListener('DOMContentLoaded', async () => {
+      setZoom(5);
+      await init();
+      startLoop();
+    });
+  </script>
+</body>
+</html>
