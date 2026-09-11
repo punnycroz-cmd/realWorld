@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-09-11T05:48:02.369Z",
+  "timestamp": "2026-09-11T13:57:09.362Z",
   "populationSize": 24,
-  "meanScore": 0.942,
+  "meanScore": 0.927,
   "allConstraintsMet": true,
   "populationStats": [
     {
@@ -11,20 +11,20 @@
       "sex": "M",
       "archetype": "broad_heavy",
       "clothing": "simple_worker",
-      "opaquePixels": 549,
-      "overallScore": 0.94,
+      "opaquePixels": 379,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.94,
+        "silhouette": 0.98,
         "anatomy": 0.96,
-        "pose": 0.92,
-        "face": 0.94,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -34,12 +34,12 @@
       "sex": "F",
       "archetype": "average_build",
       "clothing": "farmer",
-      "opaquePixels": 548,
+      "opaquePixels": 441,
       "overallScore": 0.94,
       "scores": {
-        "silhouette": 0.96,
-        "anatomy": 0.97,
-        "pose": 0.92,
+        "silhouette": 0.94,
+        "anatomy": 0.95,
+        "pose": 0.95,
         "face": 0.94,
         "palette": 0.94,
         "lighting": 0.93,
@@ -57,13 +57,36 @@
       "sex": "F",
       "archetype": "average",
       "clothing": "craftsman",
-      "opaquePixels": 534,
+      "opaquePixels": 381,
+      "overallScore": 0.92,
+      "scores": {
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.95,
+        "face": 0.78,
+        "palette": 0.94,
+        "lighting": 0.85,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.92
+      }
+    },
+    {
+      "id": 4,
+      "name": "Petr",
+      "age": 31,
+      "sex": "M",
+      "archetype": "average_build",
+      "clothing": "hunter",
+      "opaquePixels": 393,
       "overallScore": 0.93,
       "scores": {
-        "silhouette": 0.93,
+        "silhouette": 0.97,
         "anatomy": 0.96,
-        "pose": 0.8,
-        "face": 0.94,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
         "lighting": 0.93,
         "materials": 0.95,
@@ -74,49 +97,26 @@
       }
     },
     {
-      "id": 4,
-      "name": "Petr",
-      "age": 31,
-      "sex": "M",
-      "archetype": "average_build",
-      "clothing": "hunter",
-      "opaquePixels": 501,
-      "overallScore": 0.94,
-      "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.96,
-        "pose": 0.92,
-        "face": 0.94,
-        "palette": 0.94,
-        "lighting": 0.93,
-        "materials": 0.95,
-        "pixelDiscipline": 0.96,
-        "animation": 0.93,
-        "style": 0.95,
-        "overall": 0.94
-      }
-    },
-    {
       "id": 5,
       "name": "Joren",
       "age": 68,
       "sex": "M",
       "archetype": "elder",
       "clothing": "craftsman",
-      "opaquePixels": 431,
-      "overallScore": 0.94,
+      "opaquePixels": 373,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.96,
-        "anatomy": 0.96,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -126,20 +126,20 @@
       "sex": "M",
       "archetype": "child",
       "clothing": "simple_worker",
-      "opaquePixels": 302,
-      "overallScore": 0.94,
+      "opaquePixels": 337,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.95,
+        "silhouette": 0.96,
         "anatomy": 0.98,
-        "pose": 0.92,
-        "face": 0.94,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
         "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -149,20 +149,20 @@
       "sex": "F",
       "archetype": "teenager",
       "clothing": "simple_worker",
-      "opaquePixels": 356,
-      "overallScore": 0.95,
+      "opaquePixels": 372,
+      "overallScore": 0.93,
       "scores": {
         "silhouette": 0.98,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
         "lighting": 0.93,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.95
+        "overall": 0.93
       }
     },
     {
@@ -172,20 +172,20 @@
       "sex": "M",
       "archetype": "slim",
       "clothing": "traveler",
-      "opaquePixels": 421,
-      "overallScore": 0.95,
+      "opaquePixels": 372,
+      "overallScore": 0.92,
       "scores": {
         "silhouette": 0.98,
         "anatomy": 0.95,
         "pose": 0.95,
-        "face": 0.94,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.95
+        "overall": 0.92
       }
     },
     {
@@ -195,20 +195,20 @@
       "sex": "F",
       "archetype": "average",
       "clothing": "simple_worker",
-      "opaquePixels": 515,
-      "overallScore": 0.94,
+      "opaquePixels": 439,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -218,20 +218,20 @@
       "sex": "M",
       "archetype": "average_build",
       "clothing": "simple_worker",
-      "opaquePixels": 483,
-      "overallScore": 0.94,
+      "opaquePixels": 372,
+      "overallScore": 0.93,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
         "lighting": 0.93,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.93
       }
     },
     {
@@ -241,20 +241,20 @@
       "sex": "F",
       "archetype": "average_build",
       "clothing": "craftsman",
-      "opaquePixels": 515,
-      "overallScore": 0.94,
+      "opaquePixels": 440,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -264,20 +264,20 @@
       "sex": "M",
       "archetype": "average_build",
       "clothing": "simple_worker",
-      "opaquePixels": 483,
-      "overallScore": 0.94,
+      "opaquePixels": 373,
+      "overallScore": 0.93,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
         "lighting": 0.93,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.93
       }
     },
     {
@@ -287,20 +287,20 @@
       "sex": "M",
       "archetype": "elder",
       "clothing": "traveler",
-      "opaquePixels": 424,
-      "overallScore": 0.94,
+      "opaquePixels": 372,
+      "overallScore": 0.93,
       "scores": {
-        "silhouette": 0.96,
-        "anatomy": 0.96,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
         "lighting": 0.93,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.93
       }
     },
     {
@@ -310,20 +310,20 @@
       "sex": "F",
       "archetype": "tall",
       "clothing": "simple_worker",
-      "opaquePixels": 566,
-      "overallScore": 0.94,
+      "opaquePixels": 380,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.96,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -333,20 +333,20 @@
       "sex": "M",
       "archetype": "tall",
       "clothing": "craftsman",
-      "opaquePixels": 504,
-      "overallScore": 0.95,
+      "opaquePixels": 374,
+      "overallScore": 0.92,
       "scores": {
         "silhouette": 0.98,
-        "anatomy": 0.96,
-        "pose": 0.92,
-        "face": 0.94,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.95
+        "overall": 0.92
       }
     },
     {
@@ -356,20 +356,20 @@
       "sex": "F",
       "archetype": "average_build",
       "clothing": "craftsman",
-      "opaquePixels": 516,
-      "overallScore": 0.94,
+      "opaquePixels": 381,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.97,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -379,15 +379,15 @@
       "sex": "M",
       "archetype": "broad_heavy",
       "clothing": "farmer",
-      "opaquePixels": 586,
+      "opaquePixels": 442,
       "overallScore": 0.94,
       "scores": {
         "silhouette": 0.94,
-        "anatomy": 0.97,
+        "anatomy": 0.95,
         "pose": 0.95,
         "face": 0.94,
         "palette": 0.94,
-        "lighting": 0.85,
+        "lighting": 0.93,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
@@ -402,10 +402,10 @@
       "sex": "F",
       "archetype": "teenager",
       "clothing": "farmer",
-      "opaquePixels": 364,
-      "overallScore": 0.95,
+      "opaquePixels": 432,
+      "overallScore": 0.94,
       "scores": {
-        "silhouette": 0.97,
+        "silhouette": 0.94,
         "anatomy": 0.95,
         "pose": 0.95,
         "face": 0.94,
@@ -415,7 +415,7 @@
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.95
+        "overall": 0.94
       }
     },
     {
@@ -425,20 +425,20 @@
       "sex": "M",
       "archetype": "child",
       "clothing": "simple_worker",
-      "opaquePixels": 286,
-      "overallScore": 0.94,
+      "opaquePixels": 337,
+      "overallScore": 0.92,
       "scores": {
         "silhouette": 0.96,
-        "anatomy": 0.95,
-        "pose": 0.92,
-        "face": 0.94,
+        "anatomy": 0.98,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     },
     {
@@ -448,20 +448,20 @@
       "sex": "M",
       "archetype": "tall",
       "clothing": "traveler",
-      "opaquePixels": 492,
-      "overallScore": 0.95,
+      "opaquePixels": 374,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.98,
-        "anatomy": 0.96,
+        "silhouette": 0.97,
+        "anatomy": 0.95,
         "pose": 0.92,
-        "face": 0.94,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.95
+        "overall": 0.92
       }
     },
     {
@@ -471,12 +471,35 @@
       "sex": "F",
       "archetype": "average_build",
       "clothing": "traveler",
-      "opaquePixels": 497,
+      "opaquePixels": 376,
+      "overallScore": 0.93,
+      "scores": {
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.78,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.93
+      }
+    },
+    {
+      "id": 22,
+      "name": "Ondrej_Cold",
+      "age": 45,
+      "sex": "M",
+      "archetype": "slim",
+      "clothing": "farmer",
+      "opaquePixels": 431,
       "overallScore": 0.94,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.97,
-        "pose": 0.92,
+        "silhouette": 0.94,
+        "anatomy": 0.94,
+        "pose": 0.95,
         "face": 0.94,
         "palette": 0.94,
         "lighting": 0.93,
@@ -488,44 +511,21 @@
       }
     },
     {
-      "id": 22,
-      "name": "Ondrej_Cold",
-      "age": 45,
-      "sex": "M",
-      "archetype": "slim",
-      "clothing": "farmer",
-      "opaquePixels": 456,
-      "overallScore": 0.95,
-      "scores": {
-        "silhouette": 0.97,
-        "anatomy": 0.95,
-        "pose": 0.95,
-        "face": 0.94,
-        "palette": 0.94,
-        "lighting": 0.93,
-        "materials": 0.95,
-        "pixelDiscipline": 0.96,
-        "animation": 0.93,
-        "style": 0.95,
-        "overall": 0.95
-      }
-    },
-    {
       "id": 23,
       "name": "Tereza_Wet",
       "age": 28,
       "sex": "F",
       "archetype": "tall",
       "clothing": "craftsman",
-      "opaquePixels": 567,
+      "opaquePixels": 385,
       "overallScore": 0.94,
       "scores": {
-        "silhouette": 0.96,
-        "anatomy": 0.97,
-        "pose": 0.92,
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.95,
         "face": 0.94,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
@@ -540,20 +540,20 @@
       "sex": "M",
       "archetype": "average_build",
       "clothing": "traveler",
-      "opaquePixels": 484,
-      "overallScore": 0.94,
+      "opaquePixels": 373,
+      "overallScore": 0.92,
       "scores": {
-        "silhouette": 0.95,
-        "anatomy": 0.96,
-        "pose": 0.92,
-        "face": 0.94,
+        "silhouette": 0.98,
+        "anatomy": 0.95,
+        "pose": 0.95,
+        "face": 0.78,
         "palette": 0.94,
-        "lighting": 0.93,
+        "lighting": 0.85,
         "materials": 0.95,
         "pixelDiscipline": 0.96,
         "animation": 0.93,
         "style": 0.95,
-        "overall": 0.94
+        "overall": 0.92
       }
     }
   ]

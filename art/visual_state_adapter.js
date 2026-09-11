@@ -71,7 +71,7 @@ class CharacterVisualState {
     const qFatigue = Math.floor(rawFatigue * 4);
     const qCold = Math.floor(coldFactor * 4);
     const qWet = Math.floor(wetness * 4);
-    const conditionKey = \`f\${qFatigue}_c\${qCold}_w\${qWet}_p\${pregnant > 60 ? 1 : 0}_h\${carryingItem || 0}\`;
+    const conditionKey = `f${qFatigue}_c${qCold}_w${qWet}_p${pregnant > 60 ? 1 : 0}_h${carryingItem || 0}`;
 
     return {
       act: visualAct,
