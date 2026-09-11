@@ -205,14 +205,17 @@
       ctx.fillStyle = '#4a3524'; ctx.fillRect(12, 39, 4, 3); ctx.fillRect(16, 39, 4, 3);
     }
 
-    // Population Gallery definitions
+    // Population Gallery definitions - Now showcasing the 8 Asset-Learned High-Fidelity Archetypes
     const GALLERY_CHARS = [
+      { name: 'Goran (Blacksmith)', id: 101, sex: 'M', age: 34, role: 'blacksmith', act: 'walk' },
+      { name: 'Eleni (Baker)', id: 102, sex: 'F', age: 28, role: 'baker', act: 'walk' },
+      { name: 'Marta (Farmer)', id: 103, sex: 'F', age: 32, role: 'farmer', act: 'walk' },
+      { name: 'Selene (Herbalist)', id: 104, sex: 'F', age: 26, role: 'herbalist', act: 'walk' },
+      { name: 'Jonas (Fisherman)', id: 105, sex: 'M', age: 38, role: 'fisherman', act: 'walk' },
+      { name: 'Otto (Merchant)', id: 106, sex: 'M', age: 42, role: 'merchant', act: 'walk' },
+      { name: 'Lord Vane (Mayor)', id: 107, sex: 'M', age: 58, role: 'mayor', act: 'walk' },
+      { name: 'Bram (Innkeeper)', id: 108, sex: 'M', age: 36, role: 'innkeeper', act: 'walk' },
       { name: 'Tomas (Founder)', id: 1, sex: 'M', age: 35, colors: { dress: '#4a6a3a', skin: '#d8a878', hair: '#3a2a1a' }, act: 'walk' },
-      { name: 'Marta (Farmer)', id: 2, sex: 'F', age: 34, colors: { dress: '#cf6a26', skin: '#f5cfa0', hat: '#e8c35a', hair: '#7a4a2c' }, act: 'walk' },
-      { name: 'Sanna (Builder)', id: 3, sex: 'F', age: 29, colors: { dress: '#4c4c55', skin: '#e0a878', hair: '#7b808c' }, act: 'work' },
-      { name: 'Petr (Hunter)', id: 4, sex: 'M', age: 31, colors: { dress: '#24452c', skin: '#c47d4e', hair: '#22222a' }, act: 'idle' },
-      { name: 'Elder Joren (68y)', id: 5, sex: 'M', age: 68, colors: { dress: '#3b3c47', skin: '#dda078', hair: '#c8cdd9' }, act: 'walk' },
-      { name: 'Little Pip (5y)', id: 6, sex: 'M', age: 5, colors: { dress: '#96333c', skin: '#f2be9b', hair: '#9c3d2e' }, act: 'walk' },
       { name: 'Anika (Pregnant)', id: 16, sex: 'F', age: 30, colors: { dress: '#bf4f58', skin: '#fce0cb', hair: '#40280e' }, pregnant: 190, act: 'walk', dir: 2 },
       { name: 'Radim (Injured)', id: 20, sex: 'M', age: 33, colors: { dress: '#545563', skin: '#dda078', hair: '#24140c' }, condition: { injury: 0.7 }, act: 'walk' },
       { name: 'Tereza (Wet & Muddy)', id: 23, sex: 'F', age: 28, colors: { dress: '#cf6a26', skin: '#dda078', hair: '#7c4828' }, condition: { wetness: 0.8, dirt: 0.8 }, act: 'work' }
@@ -228,7 +231,7 @@
           <div class="canvas-container" style="min-height: 120px;">
             <canvas id="gal_${i}" width="32" height="48"></canvas>
           </div>
-          <div class="meta" style="text-align: center;">Act: <strong>${spec.act}</strong></div>
+          <div class="meta" style="text-align: center;">Role: <strong>${spec.role || 'Villager'}</strong> | Act: <strong>${spec.act}</strong></div>
         `;
         grid.appendChild(div);
       });

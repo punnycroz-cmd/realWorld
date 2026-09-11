@@ -118,7 +118,7 @@ class CharacterDNA {
     const femaleHair = ['long', 'bob', 'braided', 'tied', 'wavy', 'curly'];
     const maleHair = ['short', 'messy', 'tied', 'straight', 'curly', age > 50 ? 'bald' : 'short'];
     const hairStyles = sex === 'feminine' ? femaleHair : maleHair;
-    const hairStyle = choose(hairStyles, r6);
+    let hairStyle = choose(hairStyles, r6);
 
     let hairColorKey = 'brown';
     if (age > 60) hairColorKey = 'grey';
@@ -132,15 +132,76 @@ class CharacterDNA {
       hairColorKey = choose(['black', 'brown', 'blonde', 'auburn'], r1);
     }
 
-    // 4. Clothing & Role Archetype
+    // 4. Clothing & Role Archetype (Supports 8 Core High-Fidelity NPC Archetypes)
     let clothingArchetype = 'simple_worker';
     let heldTool = null;
-    if (name === 'Tomas') {
-      clothingArchetype = 'simple_worker';
-      heldTool = 'felling_axe';
-    } else if (name === 'Marta') {
+    let heldAccessory = null;
+
+    const lowerName = name.toLowerCase();
+    const roleKey = (v.role || '').toLowerCase();
+
+    if (lowerName.includes('blacksmith') || roleKey === 'blacksmith') {
+      clothingArchetype = 'blacksmith';
+      anatomyArchetype = 'broad_heavy';
+      widthScale = 1.25;
+      shoulderWidth = 14;
+      limbThickness = 4;
+      skinRampKey = 'tan';
+      hairStyle = 'afro_curls';
+      hairColorKey = 'black';
+      facialHair = 'full_beard';
+      heldTool = 'sledgehammer';
+      heldAccessory = 'leather_gauntlets';
+    } else if (lowerName.includes('baker') || roleKey === 'baker') {
+      clothingArchetype = 'baker';
+      anatomyArchetype = 'round_soft';
+      widthScale = 1.1;
+      shoulderWidth = 11;
+      hairStyle = 'bun';
+      hairColorKey = 'blonde';
+      heldAccessory = 'chef_toque';
+    } else if (lowerName.includes('herbalist') || roleKey === 'herbalist') {
+      clothingArchetype = 'herbalist';
+      anatomyArchetype = 'slim';
+      widthScale = 0.92;
+      shoulderWidth = 9;
+      hairStyle = 'long';
+      hairColorKey = 'brown';
+      heldAccessory = 'flower_basket';
+    } else if (lowerName.includes('fisherman') || roleKey === 'fisherman') {
+      clothingArchetype = 'fisherman';
+      anatomyArchetype = 'standard';
+      facialHair = 'stubble';
+      hairStyle = 'short';
+      hairColorKey = 'brown';
+      heldTool = 'fishing_rod';
+      heldAccessory = 'beanie';
+    } else if (lowerName.includes('merchant') || roleKey === 'merchant') {
+      clothingArchetype = 'merchant';
+      anatomyArchetype = 'round_soft';
+      widthScale = 1.08;
+      facialHair = 'mustache';
+      hairStyle = 'short';
+      hairColorKey = 'brown';
+      heldAccessory = 'coin_pouch';
+    } else if (lowerName.includes('mayor') || roleKey === 'mayor') {
+      clothingArchetype = 'mayor';
+      anatomyArchetype = 'tall';
+      heightScale = 1.06;
+      hairColorKey = 'grey';
+      facialHair = 'handlebar_mustache';
+      heldAccessory = 'tophat_sash';
+    } else if (lowerName.includes('innkeeper') || roleKey === 'innkeeper') {
+      clothingArchetype = 'innkeeper';
+      hairStyle = 'tied';
+      heldAccessory = 'half_apron';
+    } else if (lowerName.includes('farmer') || lowerName === 'marta' || roleKey === 'farmer') {
       clothingArchetype = 'farmer';
       heldTool = 'hoe';
+      heldAccessory = 'straw_hat';
+    } else if (name === 'Tomas') {
+      clothingArchetype = 'simple_worker';
+      heldTool = 'felling_axe';
     } else if (name === 'Sanna') {
       clothingArchetype = 'craftsman';
       heldTool = 'crosscut_saw';
@@ -151,16 +212,61 @@ class CharacterDNA {
       clothingArchetype = choose(['simple_worker', 'farmer', 'craftsman', 'traveler'], r2);
     }
 
-    // Palette mapping from villager colors
+    // Palette mapping from villager colors & archetypes
     const palette = {
-      shirt: colors.dress || choose(['#35633f', '#96333c', '#385382', '#946028', '#545563'], r3),
-      pants: choose(['#25395c', '#3b3c47', '#5c3a21', '#422810'], r4),
-      boots: '#422810',
-      vest: clothingArchetype === 'farmer' ? '#7e512f' : null,
-      apron: (clothingArchetype === 'craftsman' || clothingArchetype === 'farmer') ? '#c2baa8' : null,
-      cloak: clothingArchetype === 'hunter' ? '#24452c' : (clothingArchetype === 'traveler' ? '#385382' : null),
-      hat: colors.hat || (clothingArchetype === 'farmer' ? '#cfa23e' : null),
-      belt: '#23160c'
+      shirt: colors.dress || (
+        clothingArchetype === 'blacksmith' ? '#242228' :
+        clothingArchetype === 'baker' ? '#ede8de' :
+        clothingArchetype === 'herbalist' ? '#2e5a36' :
+        clothingArchetype === 'fisherman' ? '#e2a842' :
+        clothingArchetype === 'merchant' ? '#2b6e68' :
+        clothingArchetype === 'mayor' ? '#1c284e' :
+        clothingArchetype === 'innkeeper' ? '#ede5d5' :
+        choose(['#35633f', '#96333c', '#385382', '#946028', '#545563'], r3)
+      ),
+      pants: (
+        clothingArchetype === 'blacksmith' ? '#28252a' :
+        clothingArchetype === 'baker' ? '#423226' :
+        clothingArchetype === 'herbalist' ? '#3d2e24' :
+        clothingArchetype === 'fisherman' ? '#695138' :
+        clothingArchetype === 'merchant' ? '#5a3d2c' :
+        clothingArchetype === 'mayor' ? '#1c2236' :
+        choose(['#25395c', '#3b3c47', '#5c3a21', '#422810'], r4)
+      ),
+      boots: (
+        clothingArchetype === 'blacksmith' ? '#18151c' :
+        clothingArchetype === 'mayor' ? '#11131a' :
+        '#422810'
+      ),
+      vest: (
+        clothingArchetype === 'innkeeper' ? '#6e2b29' :
+        clothingArchetype === 'farmer' ? '#7e512f' : null
+      ),
+      overalls: (
+        clothingArchetype === 'blacksmith' ? '#222026' :
+        clothingArchetype === 'farmer' ? '#2d5386' : null
+      ),
+      apron: (
+        clothingArchetype === 'baker' ? '#f5f4ef' :
+        clothingArchetype === 'merchant' ? '#8c684e' :
+        clothingArchetype === 'innkeeper' ? '#73513a' :
+        (clothingArchetype === 'craftsman' ? '#c2baa8' : null)
+      ),
+      coat: (
+        clothingArchetype === 'fisherman' ? '#26415e' :
+        clothingArchetype === 'mayor' ? '#1c284e' : null
+      ),
+      hood: clothingArchetype === 'herbalist' ? '#2e5a36' : null,
+      hat: colors.hat || (
+        clothingArchetype === 'farmer' ? '#cfa23e' :
+        clothingArchetype === 'baker' ? '#f4f3ed' :
+        clothingArchetype === 'fisherman' ? '#2e4970' :
+        clothingArchetype === 'merchant' ? '#5c483a' :
+        clothingArchetype === 'mayor' ? '#182038' : null
+      ),
+      sash: clothingArchetype === 'mayor' ? '#d99824' : null,
+      belt: '#23160c',
+      heldAccessory
     };
 
     return new CharacterDNA({

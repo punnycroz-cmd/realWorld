@@ -256,7 +256,51 @@ function drawBoot(c, x, y, dir, ramp, z = 0) {
     c.fillRect(x + 1, y, 2, 1, ramp[5], 4, z+1);
   }
 }
+function drawAfroClusters(c, cx, cy, rx, ry, ramp, z = 0) {
+  const rxi = Math.ceil(rx), ryi = Math.ceil(ry);
+  for (let y = -ryi; y <= ryi; y += 2) {
+    const term = 1 - (y * y) / (ry * ry);
+    if (term < 0) continue;
+    const halfW = Math.round(rx * Math.sqrt(term));
+    for (let x = -halfW; x <= halfW; x += 2) {
+      const distRatio = Math.sqrt((x * x) / (rx * rx) + (y * y) / (ry * ry));
+      if (distRatio > 1.05) continue;
+      // Dithered cluster index based on grid and position
+      const n = ((x ^ (y * 3)) & 3);
+      const lightProj = (-x / rx * 0.6 - y / ry * 0.7);
+      let toneIdx = 1;
+      if (lightProj > 0.3) toneIdx = n === 0 ? 4 : 3;
+      else if (lightProj > 0.0) toneIdx = n === 0 ? 3 : 2;
+      else toneIdx = n === 0 ? 1 : 0;
+      
+      c.fillRect(cx + x, cy + y, 2, 2, ramp[toneIdx], 2, z);
+    }
+  }
+}
 
+function drawBevelBox(c, x, y, w, h, baseRamp, z = 0) {
+  // Beveled rectangular block with highlight at top/left and shadow at bottom/right
+  c.fillRect(x, y, w, h, baseRamp[3], 4, z);
+  // Top highlight
+  c.fillRect(x, y, w, 1, baseRamp[5], 4, z + 1);
+  // Left highlight
+  c.fillRect(x, y, 1, h, baseRamp[4], 4, z + 1);
+  // Right shadow
+  c.fillRect(x + w - 1, y, 1, h, baseRamp[1], 4, z + 1);
+  // Bottom dark shadow
+  c.fillRect(x, y + h - 1, w, 1, baseRamp[0], 4, z + 1);
+}
+
+function drawGlint(c, x, y, color = '#ffffff', z = 100) {
+  c.setPixel(x, y, color, 5, z);
+}
+
+function drawGauntlet(c, x, y, w, h, ramp, z = 0) {
+  c.fillRect(x - Math.floor(w/2), y, w, h, ramp[3], 4, z);
+  // Cuff highlight & fold
+  c.fillRect(x - Math.floor(w/2) - 1, y, w + 2, 2, ramp[4], 4, z + 1);
+  c.fillRect(x - Math.floor(w/2), y + h - 2, w, 2, ramp[1], 4, z + 1);
+}
 function applySelectiveOutline(c) {
   const tagToTone = {
     1: '#2a1e16', // default dark organic
@@ -302,6 +346,10 @@ const VisualPrimitives = {
   makeRamp,
   drawCluster,
   drawCurvedLock,
+  drawAfroClusters,
+  drawBevelBox,
+  drawGlint,
+  drawGauntlet,
   drawHand,
   drawBoot,
   applySelectiveOutline,
