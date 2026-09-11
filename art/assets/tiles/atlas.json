@@ -1,0 +1,26 @@
+{
+ "tile_size": 32,
+ "cols": 5,
+ "order": [
+  "grass_1",
+  "grass_2",
+  "grass_3",
+  "grass_4",
+  "grass_5",
+  "grass_6",
+  "dirt_1",
+  "dirt_2",
+  "dirt_3",
+  "dirt_4",
+  "dirt_5",
+  "dirt_6",
+  "water_1",
+  "water_2",
+  "water_3",
+  "water_4",
+  "stone_1",
+  "stone_2",
+  "stone_3",
+  "stone_4"
+ ]
+}

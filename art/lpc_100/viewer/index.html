@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPC 100 Characters Master Gallery & AI-Learned Procedural Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #06080d;
+      --bg-secondary: #0b0f19;
+      --bg-card: rgba(15, 22, 36, 0.88);
+      --bg-glass: rgba(22, 32, 54, 0.65);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #38bdf8;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-purple: #a855f7;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(168, 85, 247, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+    }
+
+    /* Top Navigation */
+    header {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .brand-badge {
+      font-size: 11px;
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--accent-purple);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .header-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      background: var(--bg-glass);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      color: #fff;
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    /* Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      min-height: calc(100vh - 71px);
+    }
+
+    /* Sidebar */
+    aside {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 71px);
+      position: sticky;
+      top: 71px;
+    }
+
+    .search-section {
+      padding: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-box {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-box:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .char-scroll-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .char-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .char-row:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .char-row.active {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(168, 85, 247, 0.08));
+      border-color: var(--accent-cyan);
+    }
+
+    .char-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      background: #000;
+      background-image: 
+        linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+        linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+      background-size: 8px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .char-thumb img {
+      width: 40px;
+      height: 40px;
+      image-rendering: pixelated;
+    }
+
+    .char-meta-col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .char-title-txt {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .char-sub-txt {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      margin-top: 2px;
+    }
+
+    /* Main Area */
+    main {
+      padding: 28px;
+      overflow-y: auto;
+      max-width: 1400px;
+    }
+
+    .banner-panel {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.12), rgba(168, 85, 247, 0.08));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .banner-panel h3 {
+      font-size: 16px;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .banner-panel p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Dual Stage Comparison Grid */
+    .stage-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .stage-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .stage-card.lpc-card { border-top: 4px solid var(--accent-cyan); }
+    .stage-card.learned-card { border-top: 4px solid var(--accent-purple); }
+
+    .stage-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .stage-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .checker-stage {
+      width: 256px;
+      height: 256px;
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+      background-color: #0b0f19;
+      background-image: 
+        linear-gradient(45deg, #162032 25%, transparent 25%), 
+        linear-gradient(-45deg, #162032 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #162032 75%), 
+        linear-gradient(-45deg, transparent 75%, #162032 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      width: 256px;
+      height: 256px;
+    }
+
+    /* Animation Category Selector */
+    .anim-bar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .anim-tab {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .anim-tab:hover {
+      color: #fff;
+    }
+
+    .anim-tab.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    .fps-box {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .fps-box input[type=range] {
+      flex: 1;
+      margin: 0 12px;
+      accent-color: var(--accent-cyan);
+    }
+
+    /* Master Spritesheet Showcase */
+    .full-sheet-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .full-sheet-panel h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sheet-overflow {
+      background-color: #0b0f19;
+      background-image: 
+        linear-gradient(45deg, #162032 25%, transparent 25%), 
+        linear-gradient(-45deg, #162032 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #162032 75%), 
+        linear-gradient(-45deg, transparent 75%, #162032 75%);
+      background-size: 16px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      max-height: 450px;
+    }
+
+    #fullSheetImg {
+      image-rendering: pixelated;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-group">
+      <div class="brand-logo">100</div>
+      <div>
+        <div class="brand-title">LPC 100 Master Characters<span class="brand-badge">Full Animation Suite & Learned Engine</span></div>
+      </div>
+    </div>
+    <div class="header-links">
+      <a href="../../lpc/compare_3way.html" class="nav-btn">3-Way Comparison</a>
+      <a href="index.html" class="nav-btn active">100 Character Portal</a>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside>
+      <div class="search-section">
+        <input type="text" id="charSearch" class="search-box" placeholder="Tìm 100 nhân vật (tên, nghề, hệ...)">
+      </div>
+      <div class="char-scroll-list" id="charList"></div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+      <div class="banner-panel">
+        <div>
+          <h3>✨ Bộ 100 Nhân Vật LPC & Trí Tuệ Nhân Tạo Học Pixel</h3>
+          <p>Tất cả 100 nhân vật đầy đủ toàn bộ bộ cử động: <strong>Spellcast, Thrust, Walk, Slash, Shoot, Hurt/Collapse</strong>. Code của chúng ta đã học từ 100 mẫu này để tự sinh trực tiếp!</p>
+        </div>
+      </div>
+
+      <!-- Dual Comparison: LPC Ground Truth vs. AI-Learned Procedural Output -->
+      <div class="stage-duo">
+        <!-- Stage 1: LPC Ground Truth -->
+        <div class="stage-card lpc-card">
+          <div class="stage-header">
+            <div class="stage-title">LPC Master Chuẩn Gốc</div>
+            <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600;">832x1344 Master Sheet</span>
+          </div>
+
+          <div class="checker-stage">
+            <canvas id="canvasLpc" width="64" height="64"></canvas>
+          </div>
+
+          <div class="anim-bar" id="animTabs"></div>
+
+          <div class="fps-box">
+            <span>Tốc độ:</span>
+            <input type="range" id="fpsSlider" min="2" max="18" value="9" oninput="changeFps(this.value)">
+            <span id="fpsVal" style="font-family: monospace; width: 35px;">9 FPS</span>
+          </div>
+        </div>
+
+        <!-- Stage 2: Learned Procedural Output -->
+        <div class="stage-card learned-card">
+          <div class="stage-header">
+            <div class="stage-title">Code Của Chúng Ta (Đã Học)</div>
+            <span style="font-size: 11px; color: var(--accent-purple); font-weight: 600;">100% Pure Code JS (0 Image File)</span>
+          </div>
+
+          <div class="checker-stage">
+            <canvas id="canvasLearned" width="64" height="64"></canvas>
+          </div>
+
+          <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary); width: 100%; padding: 8px 0;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px; margin-bottom: 6px;">
+              <span>Mô hình học:</span>
+              <strong style="color: #fff;">Bayer Weave + Joint COM</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Trạng thái:</span>
+              <strong style="color: var(--accent-emerald);">Tự sinh độc lập không phụ thuộc ảnh</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Master Spritesheet Panel -->
+      <div class="full-sheet-panel">
+        <h3>
+          <span>Full Master Spritesheet (832 × 1344 px - 21 Rows)</span>
+          <a id="downloadMasterBtn" href="#" class="nav-btn" download>Tải Master Sheet PNG</a>
+        </h3>
+        <div class="sheet-overflow">
+          <img id="fullSheetImg" src="" alt="Full Spritesheet">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let manifest = [];
+    let currentChar = null;
+    let currentMeta = null;
+    let masterImg = new Image();
+    let learnedWalkImg = new Image();
+    let currentAnimKey = 'walk_down';
+    let frameIdx = 0;
+    let fps = 9;
+    let timer = null;
+
+    const ctxLpc = document.getElementById('canvasLpc').getContext('2d');
+    const ctxLearned = document.getElementById('canvasLearned').getContext('2d');
+
+    const ANIMATIONS = [
+      { key: 'walk_down', label: 'Bước Xuống', row: 10, count: 9 },
+      { key: 'walk_right', label: 'Bước Ngang', row: 11, count: 9 },
+      { key: 'walk_up', label: 'Bước Lên', row: 8, count: 9 },
+      { key: 'slash_down', label: 'Chém Kiếm', row: 14, count: 6 },
+      { key: 'thrust_down', label: 'Đâm Giáo', row: 6, count: 8 },
+      { key: 'spellcast_down', label: 'Niệm Phép', row: 2, count: 7 },
+      { key: 'shoot_down', label: 'Bắn Cung', row: 18, count: 13 },
+      { key: 'hurt_collapse', label: 'Ngã Gục', row: 20, count: 6 }
+    ];
+
+    async function init() {
+      try {
+        const res = await fetch('../characters/lpc_100_manifest.json');
+        manifest = await res.json();
+        renderSidebar(manifest);
+        buildAnimTabs();
+        if (manifest.length > 0) selectChar(manifest[0]);
+      } catch (err) {
+        console.error('Failed to load 100 manifest:', err);
+      }
+    }
+
+    function renderSidebar(list) {
+      const container = document.getElementById('charList');
+      container.innerHTML = '';
+      list.forEach(c => {
+        const row = document.createElement('div');
+        row.className = 'char-row' + (currentChar && currentChar.id === c.id ? ' active' : '');
+        row.onclick = () => selectChar(c);
+
+        row.innerHTML = `
+          <div class="char-thumb">
+            <img src="../characters/${c.previewFrame}" alt="${c.name}">
+          </div>
+          <div class="char-meta-col">
+            <div class="char-title-txt">${c.name}</div>
+            <div class="char-sub-txt">#${String(c.id).padStart(3, '0')} · ${c.titleVi}</div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function buildAnimTabs() {
+      const bar = document.getElementById('animTabs');
+      bar.innerHTML = '';
+      ANIMATIONS.forEach(a => {
+        const tab = document.createElement('button');
+        tab.className = 'anim-tab' + (a.key === currentAnimKey ? ' active' : '');
+        tab.innerText = a.label;
+        tab.onclick = () => switchAnim(a.key);
+        bar.appendChild(tab);
+      });
+    }
+
+    function switchAnim(key) {
+      currentAnimKey = key;
+      frameIdx = 0;
+      document.querySelectorAll('.anim-tab').forEach(t => {
+        t.classList.toggle('active', ANIMATIONS.find(a => a.key === key && a.label === t.innerText));
+      });
+    }
+
+    async function selectChar(c) {
+      currentChar = c;
+      document.querySelectorAll('.char-row').forEach(el => el.classList.toggle('active', el.innerText.includes(c.name)));
+
+      const masterSheetPath = `../characters/${c.masterSheet}`;
+      document.getElementById('downloadMasterBtn').href = masterSheetPath;
+      document.getElementById('downloadMasterBtn').download = `${c.slug}_full_sheet.png`;
+      document.getElementById('fullSheetImg').src = masterSheetPath;
+
+      masterImg = new Image();
+      masterImg.src = masterSheetPath;
+
+      // Load learned walk test image (Blacksmith / Farmer / Guard)
+      const learnedSlug = (c.slug === 'blacksmith' || c.slug === 'farmer' || c.slug === 'guard') ? c.slug : 'blacksmith';
+      learnedWalkImg = new Image();
+      learnedWalkImg.src = `../learned_models/${learnedSlug}_trained_walk.png`;
+
+      frameIdx = 0;
+      startLoop();
+    }
+
+    function renderFrame() {
+      const anim = ANIMATIONS.find(a => a.key === currentAnimKey) || ANIMATIONS[0];
+      const col = frameIdx % anim.count;
+
+      // 1. Render LPC Ground Truth
+      if (masterImg.complete) {
+        ctxLpc.clearRect(0, 0, 64, 64);
+        ctxLpc.drawImage(masterImg, col * 64, anim.row * 64, 64, 64, 0, 0, 64, 64);
+      }
+
+      // 2. Render Learned Output (Walk loop)
+      if (learnedWalkImg.complete) {
+        const colLearned = frameIdx % 9;
+        ctxLearned.clearRect(0, 0, 64, 64);
+        ctxLearned.drawImage(learnedWalkImg, colLearned * 64, 0, 64, 64, 0, 0, 64, 64);
+      }
+
+      frameIdx++;
+    }
+
+    function startLoop() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(renderFrame, 1000 / fps);
+    }
+
+    function changeFps(val) {
+      fps = parseInt(val, 10);
+      document.getElementById('fpsVal').innerText = `${fps} FPS`;
+      startLoop();
+    }
+
+    document.getElementById('charSearch').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      const filtered = manifest.filter(c => 
+        c.name.toLowerCase().includes(q) || 
+        c.titleVi.toLowerCase().includes(q) || 
+        c.role.toLowerCase().includes(q)
+      );
+      renderSidebar(filtered);
+    });
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

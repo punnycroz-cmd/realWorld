@@ -1,0 +1,97 @@
+{
+  "id": 15,
+  "slug": "potter",
+  "name": "Nadia Claywell",
+  "titleVi": "Nghệ Nhân Làm Gốm",
+  "role": "potter",
+  "sex": "F",
+  "age": 28,
+  "actionVi": "Xoay Bàn Nặn Gốm",
+  "standard": {
+    "engine": "LPC Universal Modular Standard",
+    "transparent": true,
+    "squareGrid": true,
+    "cellWidth": 64,
+    "cellHeight": 64,
+    "sheetWidth": 576,
+    "sheetHeight": 448,
+    "columns": 9,
+    "rows": 7,
+    "png1x": "potter_spritesheet.png",
+    "png2x": "potter_spritesheet_2x.png"
+  },
+  "animations": {
+    "idle_down": {
+      "row": 0,
+      "startCol": 0,
+      "frameCount": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "idle_up": {
+      "row": 0,
+      "startCol": 2,
+      "frameCount": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "idle_left": {
+      "row": 0,
+      "startCol": 4,
+      "frameCount": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "idle_right": {
+      "row": 0,
+      "startCol": 6,
+      "frameCount": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "walk_up": {
+      "row": 1,
+      "startCol": 0,
+      "frameCount": 9,
+      "fps": 10,
+      "loop": true
+    },
+    "walk_left": {
+      "row": 2,
+      "startCol": 0,
+      "frameCount": 9,
+      "fps": 10,
+      "loop": true
+    },
+    "walk_down": {
+      "row": 3,
+      "startCol": 0,
+      "frameCount": 9,
+      "fps": 10,
+      "loop": true
+    },
+    "walk_right": {
+      "row": 4,
+      "startCol": 0,
+      "frameCount": 9,
+      "fps": 10,
+      "loop": true
+    },
+    "profession_down": {
+      "row": 5,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true,
+      "labelVi": "Xoay Bàn Nặn Gốm (Trước)"
+    },
+    "profession_side": {
+      "row": 6,
+      "startCol": 0,
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true,
+      "labelVi": "Xoay Bàn Nặn Gốm (Ngang)"
+    }
+  }
+}

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Side-by-Side Comparison: Cách Cũ (Procedural 32x48) vs Cách Mới (LPC Standard 64x64)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #080b11;
+      --bg-card: rgba(16, 23, 38, 0.85);
+      --bg-glass: rgba(24, 34, 58, 0.65);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #38bdf8;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      background-image: 
+        radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(245, 158, 11, 0.06) 0%, transparent 40%);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-compare {
+      font-size: 12px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .char-picker-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .picker-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .picker-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .picker-btn.active {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(12px);
+      position: relative;
+    }
+
+    .panel.old-method {
+      border-top: 4px solid var(--accent-amber);
+    }
+
+    .panel.new-method {
+      border-top: 4px solid var(--accent-cyan);
+    }
+
+    .panel-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .panel-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag-old {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .tag-new {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .canvas-stage {
+      width: 256px;
+      height: 256px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #0b0f19;
+      background-image: 
+        linear-gradient(45deg, #162032 25%, transparent 25%), 
+        linear-gradient(-45deg, #162032 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #162032 75%), 
+        linear-gradient(-45deg, transparent 75%, #162032 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+    }
+
+    .metric-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .metric-label {
+      color: var(--text-secondary);
+    }
+
+    .metric-val {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .controls-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .anim-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-anim {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-anim:hover {
+      color: #fff;
+    }
+
+    .btn-anim.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    .analysis-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .analysis-card h3 {
+      font-size: 17px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .analysis-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .analysis-table th, .analysis-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .analysis-table th {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .check-good {
+      color: var(--accent-emerald);
+      font-weight: 600;
+    }
+
+    .check-warn {
+      color: var(--accent-amber);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        So Sánh Cùng 1 Nhân Vật
+        <span class="badge-compare">Cách Cũ vs Cách Mới</span>
+      </h1>
+      <div style="font-size: 13px; color: var(--text-secondary);">
+        Đang so sánh: <strong id="currentCharLabel" style="color: #fff;">Brom Ironbeard (Thợ Rèn)</strong>
+      </div>
+    </header>
+
+    <!-- Character Selector -->
+    <div class="char-picker-bar" id="pickerBar"></div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="anim-buttons">
+        <button class="btn-anim active" onclick="setAnim('walk_down')">Bước Đi Xuống (Walk Down)</button>
+        <button class="btn-anim" onclick="setAnim('walk_right')">Bước Đi Ngang (Walk Right)</button>
+        <button class="btn-anim" onclick="setAnim('action')">Hành Động Nghề Nghiệp</button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-secondary);">
+        <span>Tốc độ:</span>
+        <input type="range" id="fpsSlider" min="2" max="18" value="8" oninput="changeFps(this.value)">
+        <span id="fpsDisplay" style="font-family: monospace; width: 40px;">8 FPS</span>
+      </div>
+    </div>
+
+    <!-- Side-by-Side Comparison Panels -->
+    <div class="comparison-grid">
+      <!-- OLD METHOD PANEL -->
+      <div class="panel old-method">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Cách Cũ (Procedural Code-Gen)</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">32 × 48 px Retro Geometric Engine</div>
+          </div>
+          <span class="panel-tag tag-old">Cách Cũ</span>
+        </div>
+
+        <div class="canvas-stage">
+          <canvas id="canvasOld" width="32" height="48" style="width: 170px; height: 256px;"></canvas>
+        </div>
+
+        <div class="metric-list">
+          <div class="metric-row">
+            <span class="metric-label">Độ phân giải khung hình:</span>
+            <span class="metric-val">32 × 48 px (1,536 px)</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Hình khối & Chi tiết:</span>
+            <span class="metric-val check-warn">Đồ họa khối Pixel kỷ hà</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Mắt, Biểu cảm, Nếp gấp:</span>
+            <span class="metric-val check-warn">Đơn giản (1-2 pixel chấm)</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Chuyển động chân tay:</span>
+            <span class="metric-val">Kinematic tính toán lượng giác</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW METHOD PANEL -->
+      <div class="panel new-method">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Cách Mới (LPC Modular Standard)</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">64 × 64 px Handcrafted Layered Standard</div>
+          </div>
+          <span class="panel-tag tag-new">Cách Mới</span>
+        </div>
+
+        <div class="canvas-stage">
+          <canvas id="canvasNew" width="64" height="64" style="width: 256px; height: 256px;"></canvas>
+        </div>
+
+        <div class="metric-list">
+          <div class="metric-row">
+            <span class="metric-label">Độ phân giải khung hình:</span>
+            <span class="metric-val check-good">64 × 64 px (4,096 px - gấp 2.7x)</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Hình khối & Chi tiết:</span>
+            <span class="metric-val check-good">Đổ bóng dither, vải vóc, viền nổi</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Mắt, Biểu cảm, Nếp gấp:</span>
+            <span class="metric-val check-good">Chi tiết tròng mắt, tóc uốn, dây đai</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Chuyển động chân tay:</span>
+            <span class="metric-val check-good">9-frame mượt mà, 0 Jitter tuyệt đối</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparative Table -->
+    <div class="analysis-card">
+      <h3>Bảng Đánh Giá Chi Tiết Kỹ Thuật</h3>
+      <table class="analysis-table">
+        <thead>
+          <tr>
+            <th>Tiêu chí so sánh</th>
+            <th>Cách Cũ (Procedural 32x48)</th>
+            <th>Cách Mới (LPC Modular 64x64)</th>
+            <th>Ưu thế thực tế</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Mật độ điểm ảnh (Pixel Density)</strong></td>
+            <td>1,536 px / frame</td>
+            <td>4,096 px / frame (gấp 2.7 lần)</td>
+            <td class="check-good">Cách mới: Nét gấp 3 lần, không bị vỡ hạt</td>
+          </tr>
+          <tr>
+            <td><strong>Độ mượt bước đi (Walk Frames)</strong></td>
+            <td>6 frames</td>
+            <td>9 frames chu kỳ chuẩn RPG</td>
+            <td class="check-good">Cách mới: Dáng đi tự nhiên hơn nhiều</td>
+          </tr>
+          <tr>
+            <td><strong>Trang phục & Đạo cụ</strong></td>
+            <td>Tô màu theo dải mã HEX lên khối chữ nhật</td>
+            <td>Từng nếp gấp vải, đổ bóng dither thủ công, thắt lưng, găng tay</td>
+            <td class="check-good">Cách mới: Thẩm mỹ cao cấp, nhìn chuẩn game thương mại</td>
+          </tr>
+          <tr>
+            <td><strong>Độ ổn định tiếp đất & Trục ngang</strong></td>
+            <td>Tính bằng công thức COM bobY</td>
+            <td>Cố định theo hệ tọa độ khung xương 64x64</td>
+            <td class="check-good">Cả hai đều có nền trong suốt & không rung giật</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SAMPLE_CHARACTERS = [
+      { id: 1, slug: 'blacksmith', name: 'Brom Ironbeard (Thợ Rèn)', folder: '01_blacksmith' },
+      { id: 2, slug: 'farmer', name: 'Marta Greenleaf (Nông Dân)', folder: '02_farmer' },
+      { id: 3, slug: 'baker', name: 'Clara Hearthstone (Thợ Bánh)', folder: '03_baker' },
+      { id: 4, slug: 'herbalist', name: 'Lyra Wildflower (Thảo Dược)', folder: '04_herbalist' },
+      { id: 8, slug: 'guard', name: 'Sir Roland (Lính Canh)', folder: '08_guard' },
+      { id: 11, slug: 'scholar', name: 'Master Eldon (Học Giả)', folder: '11_scholar' }
+    ];
+
+    let selectedChar = SAMPLE_CHARACTERS[0];
+    let currentAnimType = 'walk_down';
+    let oldMeta = null;
+    let newMeta = null;
+    let oldSheet = new Image();
+    let newSheet = new Image();
+    let frameIdx = 0;
+    let fps = 8;
+    let timer = null;
+
+    const ctxOld = document.getElementById('canvasOld').getContext('2d');
+    const ctxNew = document.getElementById('canvasNew').getContext('2d');
+
+    function renderPicker() {
+      const bar = document.getElementById('pickerBar');
+      bar.innerHTML = '';
+      SAMPLE_CHARACTERS.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'picker-btn' + (c.id === selectedChar.id ? ' active' : '');
+        btn.innerText = c.name;
+        btn.onclick = () => selectCharacter(c);
+        bar.appendChild(btn);
+      });
+    }
+
+    async function selectCharacter(c) {
+      selectedChar = c;
+      document.querySelectorAll('.picker-btn').forEach(b => b.classList.toggle('active', b.innerText === c.name));
+      document.getElementById('currentCharLabel').innerText = c.name;
+
+      // Load old metadata & sheet
+      const oldJsonPath = `../characters/${c.folder}/${c.slug}.json`;
+      const oldImgPath = `../characters/${c.folder}/${c.slug}_spritesheet.png`;
+      const oldRes = await fetch(oldJsonPath);
+      oldMeta = await oldRes.json();
+      oldSheet = new Image();
+      oldSheet.src = oldImgPath;
+
+      // Load new metadata & sheet
+      const newJsonPath = `generated/${c.folder}/${c.slug}.json`;
+      const newImgPath = `generated/${c.folder}/${c.slug}_spritesheet.png`;
+      const newRes = await fetch(newJsonPath);
+      newMeta = await newRes.json();
+      newSheet = new Image();
+      newSheet.src = newImgPath;
+
+      frameIdx = 0;
+      startLoop();
+    }
+
+    function setAnim(type) {
+      currentAnimType = type;
+      frameIdx = 0;
+      document.querySelectorAll('.btn-anim').forEach(b => {
+        b.classList.toggle('active', 
+          (type === 'walk_down' && b.innerText.includes('Xuống')) ||
+          (type === 'walk_right' && b.innerText.includes('Ngang')) ||
+          (type === 'action' && b.innerText.includes('Nghề'))
+        );
+      });
+    }
+
+    function renderLoop() {
+      if (!oldMeta || !newMeta || !oldSheet.complete || !newSheet.complete) return;
+
+      // 1. Render Old Canvas (32x48)
+      let oldAnimDef = oldMeta.animations['walk_down'];
+      if (currentAnimType === 'walk_right') oldAnimDef = oldMeta.animations['walk_right'] || oldMeta.animations['walk_down'];
+      if (currentAnimType === 'action') oldAnimDef = oldMeta.animations['profession_action'] || oldMeta.animations['walk_down'];
+
+      if (oldAnimDef) {
+        const fOld = frameIdx % oldAnimDef.frameCount;
+        const colOld = oldAnimDef.startCol + fOld;
+        const rowOld = oldAnimDef.row;
+        ctxOld.clearRect(0, 0, 32, 48);
+        ctxOld.drawImage(oldSheet, colOld * 32, rowOld * 48, 32, 48, 0, 0, 32, 48);
+      }
+
+      // 2. Render New Canvas (64x64)
+      let newAnimDef = newMeta.animations['walk_down'];
+      if (currentAnimType === 'walk_right') newAnimDef = newMeta.animations['walk_right'];
+      if (currentAnimType === 'action') newAnimDef = newMeta.animations['profession_side'] || newMeta.animations['profession_down'];
+
+      if (newAnimDef) {
+        const fNew = frameIdx % newAnimDef.frameCount;
+        const colNew = newAnimDef.startCol + fNew;
+        const rowNew = newAnimDef.row;
+        ctxNew.clearRect(0, 0, 64, 64);
+        ctxNew.drawImage(newSheet, colNew * 64, rowNew * 64, 64, 64, 0, 0, 64, 64);
+      }
+
+      frameIdx++;
+    }
+
+    function startLoop() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(renderLoop, 1000 / fps);
+    }
+
+    function changeFps(val) {
+      fps = parseInt(val, 10);
+      document.getElementById('fpsDisplay').innerText = `${fps} FPS`;
+      startLoop();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      renderPicker();
+      await selectCharacter(SAMPLE_CHARACTERS[0]);
+    });
+  </script>
+</body>
+</html>

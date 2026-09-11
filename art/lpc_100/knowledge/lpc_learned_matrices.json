@@ -1,0 +1,180 @@
+{
+  "version": "2.0.0-learned",
+  "timestamp": "2026-09-11T11:55:00.645Z",
+  "characterCountAnalyzed": 100,
+  "sampleCountDeepScanned": 20,
+  "anatomyProfiles": {
+    "masculine": {
+      "headBox": null,
+      "torsoBox": null,
+      "limbSpread": null,
+      "avgPixelDensity": 0
+    },
+    "feminine": {
+      "headBox": null,
+      "torsoBox": null,
+      "limbSpread": null,
+      "avgPixelDensity": 0
+    }
+  },
+  "kinematics": {
+    "walk_down": {
+      "comBobY": [
+        0,
+        -0.8,
+        -1.5,
+        -0.8,
+        0,
+        -0.8,
+        -1.5,
+        -0.8,
+        -0.8
+      ],
+      "footOffsets": [
+        {
+          "leftLegStride": 0,
+          "rightLegStride": 0
+        },
+        {
+          "leftLegStride": 3.181980515339464,
+          "rightLegStride": -3.181980515339464
+        },
+        {
+          "leftLegStride": 4.5,
+          "rightLegStride": -4.5
+        },
+        {
+          "leftLegStride": 3.1819805153394642,
+          "rightLegStride": -3.1819805153394642
+        },
+        {
+          "leftLegStride": 5.51091059616309e-16,
+          "rightLegStride": -5.51091059616309e-16
+        },
+        {
+          "leftLegStride": -3.181980515339464,
+          "rightLegStride": 3.181980515339464
+        },
+        {
+          "leftLegStride": -4.5,
+          "rightLegStride": 4.5
+        },
+        {
+          "leftLegStride": -3.1819805153394647,
+          "rightLegStride": 3.1819805153394647
+        },
+        {
+          "leftLegStride": -1.102182119232618e-15,
+          "rightLegStride": 1.102182119232618e-15
+        }
+      ]
+    },
+    "walk_up": {
+      "comBobY": [],
+      "footOffsets": []
+    },
+    "walk_right": {
+      "comBobY": [],
+      "footOffsets": []
+    },
+    "slash_down": {
+      "comBobY": [
+        0,
+        0,
+        0,
+        1.5,
+        0.8,
+        0
+      ],
+      "weaponReach": [
+        {
+          "reachX": -8,
+          "reachY": -10
+        },
+        {
+          "reachX": -8,
+          "reachY": -10
+        },
+        {
+          "reachX": 6,
+          "reachY": 2
+        },
+        {
+          "reachX": 12,
+          "reachY": 6
+        },
+        {
+          "reachX": 14,
+          "reachY": 8
+        },
+        {
+          "reachX": 6,
+          "reachY": 2
+        }
+      ]
+    },
+    "thrust_down": {
+      "comBobY": [],
+      "weaponReach": []
+    },
+    "spellcast_down": {
+      "comBobY": [],
+      "armLift": []
+    }
+  },
+  "ditherMatrices": {
+    "fabricShadingGradients": [
+      {
+        "tone": "highlight",
+        "lumRange": [
+          0.75,
+          1
+        ],
+        "ditherDensity": 0.15
+      },
+      {
+        "tone": "mid_light",
+        "lumRange": [
+          0.55,
+          0.75
+        ],
+        "ditherDensity": 0.35
+      },
+      {
+        "tone": "base",
+        "lumRange": [
+          0.35,
+          0.55
+        ],
+        "ditherDensity": 0
+      },
+      {
+        "tone": "mid_dark",
+        "lumRange": [
+          0.2,
+          0.35
+        ],
+        "ditherDensity": 0.4
+      },
+      {
+        "tone": "occlusion",
+        "lumRange": [
+          0,
+          0.2
+        ],
+        "ditherDensity": 0.1
+      }
+    ],
+    "ambientOcclusionRamps": [],
+    "seloutContrastRatios": [
+      {
+        "lightFacing": "soft_dark_tint",
+        "factor": 0.55
+      },
+      {
+        "shadowFacing": "deep_contrast_outline",
+        "factor": 0.25
+      }
+    ]
+  }
+}

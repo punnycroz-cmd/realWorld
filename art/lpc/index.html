@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPC Modular Standard - 30 High-Fidelity Character Sprite Sheets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #07090e;
+      --bg-secondary: #0d121d;
+      --bg-card: rgba(16, 23, 38, 0.85);
+      --bg-glass: rgba(22, 32, 54, 0.65);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(56, 189, 248, 0.4);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #3b82f6;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --shadow-glow: 0 0 25px rgba(56, 189, 248, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+    }
+
+    /* Top Navigation */
+    header {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      font-size: 11px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .header-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: var(--bg-glass);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      color: #fff;
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    /* Main Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      min-height: calc(100vh - 77px);
+    }
+
+    /* Sidebar Roster */
+    aside {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 77px);
+      position: sticky;
+      top: 77px;
+    }
+
+    .search-box {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .character-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .char-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .char-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .char-item.active {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.08));
+      border-color: var(--accent-cyan);
+    }
+
+    .char-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: #000;
+      background-image: 
+        linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+        linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+      background-size: 8px 8px;
+      background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .char-icon-wrap img {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+    }
+
+    .char-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .char-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .char-role {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      margin-top: 2px;
+    }
+
+    /* Content Area */
+    main {
+      padding: 32px;
+      overflow-y: auto;
+      max-width: 1400px;
+    }
+
+    .banner-standard {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.12), rgba(16, 185, 129, 0.08));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .banner-text h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .banner-text p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .stage-section {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+
+    /* Live Preview Box */
+    .preview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .checkerboard-stage {
+      width: 256px;
+      height: 256px;
+      border-radius: 12px;
+      border: 2px solid var(--border-accent);
+      background-color: #0b0f19;
+      background-image: 
+        linear-gradient(45deg, #162032 25%, transparent 25%), 
+        linear-gradient(-45deg, #162032 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #162032 75%), 
+        linear-gradient(-45deg, transparent 75%, #162032 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+
+    #previewCanvas {
+      image-rendering: pixelated;
+      width: 256px;
+      height: 256px;
+    }
+
+    /* Alignment Guides */
+    .guide-line-center {
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      width: 1px;
+      background: rgba(56, 189, 248, 0.4);
+      pointer-events: none;
+      display: none;
+    }
+
+    .guide-line-baseline {
+      position: absolute;
+      left: 0; right: 0; top: calc(100% - 32px);
+      height: 1px;
+      background: rgba(244, 63, 94, 0.5);
+      pointer-events: none;
+      display: none;
+    }
+
+    .stage-controls {
+      width: 100%;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .anim-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .anim-btn {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .anim-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .anim-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .fps-control {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 4px 0;
+    }
+
+    .fps-control input[type=range] {
+      flex: 1;
+      margin: 0 12px;
+      accent-color: var(--accent-cyan);
+    }
+
+    /* Details Panel */
+    .details-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .char-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .char-title-wrap h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .char-title-wrap .sub-title {
+      font-size: 15px;
+      color: var(--accent-cyan);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .download-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-download:hover {
+      opacity: 0.9;
+    }
+
+    .btn-download.secondary {
+      background: var(--bg-glass);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-download.secondary:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .spec-item .spec-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .spec-item .spec-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    /* Full Spritesheet Section */
+    .sheet-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .sheet-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sheet-img-wrap {
+      background-color: #0b0f19;
+      background-image: 
+        linear-gradient(45deg, #162032 25%, transparent 25%), 
+        linear-gradient(-45deg, #162032 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #162032 75%), 
+        linear-gradient(-45deg, transparent 75%, #162032 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    #fullSheetImg {
+      image-rendering: pixelated;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-group">
+      <div class="brand-logo">LPC</div>
+      <div>
+        <div class="brand-title">High-Fidelity 30 Characters<span class="brand-badge">64x64 Modular RPG Engine</span></div>
+      </div>
+    </div>
+    <div class="header-links">
+      <a href="../characters/index.html" class="nav-btn">Procedural 32x48 Viewer</a>
+      <a href="index.html" class="nav-btn active">LPC 64x64 Viewer</a>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Sidebar Character Roster -->
+    <aside>
+      <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm nhân vật (VD: thợ rèn, lính...)">
+      </div>
+      <div class="character-list" id="charList"></div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+      <div class="banner-standard">
+        <div class="banner-text">
+          <h3>✨ Tiêu Chuẩn LPC Cao Cấp (High Quality & Detail)</h3>
+          <p>Khung hình chuẩn 64×64 px, 100% Alpha Transparent, căn tâm tuyệt đối, vạch tiếp đất đồng bộ, cử động 4 hướng + nghề nghiệp mượt mà.</p>
+        </div>
+        <button id="toggleGuideBtn" class="nav-btn" onclick="toggleGuides()">Bật Đường Căn Chuẩn</button>
+      </div>
+
+      <div class="stage-section">
+        <!-- Live Animation Stage -->
+        <div class="preview-card">
+          <div class="checkerboard-stage">
+            <canvas id="previewCanvas" width="64" height="64"></canvas>
+            <div id="guideCenter" class="guide-line-center"></div>
+            <div id="guideBaseline" class="guide-line-baseline"></div>
+          </div>
+
+          <div class="stage-controls">
+            <div class="anim-buttons" id="animButtons"></div>
+            
+            <div class="fps-control">
+              <span>Tốc độ:</span>
+              <input type="range" id="fpsSlider" min="2" max="24" value="9" oninput="changeFps(this.value)">
+              <span id="fpsDisplay" style="font-family: monospace; width: 45px; text-align: right;">9 FPS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Character Details & Specs -->
+        <div class="details-card">
+          <div class="char-header">
+            <div class="char-title-wrap">
+              <h2 id="charName">Brom Ironbeard</h2>
+              <div class="sub-title" id="charTitleVi">Thợ Rèn Luyện Kim</div>
+            </div>
+            <div class="download-group">
+              <a id="download1x" href="#" class="btn-download" download>Tải 1x PNG</a>
+              <a id="download2x" href="#" class="btn-download" download>Tải 2x PNG</a>
+              <a id="downloadJson" href="#" class="btn-download secondary" download>Tải JSON</a>
+            </div>
+          </div>
+
+          <div class="specs-grid">
+            <div class="spec-item">
+              <div class="spec-label">Độ phân giải</div>
+              <div class="spec-val">64 × 64 px / cell</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Nền (Alpha)</div>
+              <div class="spec-val" style="color: var(--accent-emerald);">100% Transparent</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Căn tâm / Jitter</div>
+              <div class="spec-val" style="color: var(--accent-cyan);">0 Jitter (LPC Fixed)</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Lưới Sprite Sheet</div>
+              <div class="spec-val">9 cột × 7 hàng (576x448)</div>
+            </div>
+          </div>
+
+          <div style="font-size: 14px; line-height: 1.6; color: var(--text-secondary);" id="charActionDesc">
+            Hành động đặc thù nghề nghiệp: Rèn Đe Đập Búa Tóe Lửa.
+          </div>
+        </div>
+      </div>
+
+      <!-- Master Spritesheet Display -->
+      <div class="sheet-card">
+        <h3>
+          <span>Full Master Spritesheet (64x64 Grid)</span>
+          <span style="font-size: 13px; font-weight: normal; color: var(--text-muted);" id="sheetDims">576 × 448 px</span>
+        </h3>
+        <div class="sheet-img-wrap">
+          <img id="fullSheetImg" src="" alt="Master Spritesheet">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let manifest = [];
+    let currentChar = null;
+    let currentMeta = null;
+    let sheetImg = new Image();
+    let currentAnim = 'walk_down';
+    let currentFrame = 0;
+    let fps = 9;
+    let timer = null;
+    let guidesEnabled = false;
+
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+
+    async function init() {
+      try {
+        const res = await fetch('generated/lpc_manifest.json');
+        manifest = await res.json();
+        renderSidebar(manifest);
+        if (manifest.length > 0) {
+          selectChar(manifest[0]);
+        }
+      } catch (err) {
+        console.error('Failed to load LPC manifest:', err);
+      }
+    }
+
+    function renderSidebar(list) {
+      const container = document.getElementById('charList');
+      container.innerHTML = '';
+      list.forEach((c, idx) => {
+        const item = document.createElement('div');
+        item.className = 'char-item' + (currentChar && currentChar.id === c.id ? ' active' : '');
+        item.onclick = () => selectChar(c);
+
+        item.innerHTML = `
+          <div class="char-icon-wrap">
+            <img src="generated/${c.folder}/frames/idle_down_0.png" alt="${c.name}">
+          </div>
+          <div class="char-info">
+            <div class="char-name">${c.name}</div>
+            <div class="char-role">${c.titleVi}</div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function selectChar(c) {
+      currentChar = c;
+      document.querySelectorAll('.char-item').forEach(el => el.classList.remove('active'));
+      const activeEl = Array.from(document.querySelectorAll('.char-item')).find(el => el.innerText.includes(c.name));
+      if (activeEl) activeEl.classList.add('active');
+
+      // Update details
+      document.getElementById('charName').innerText = c.name;
+      document.getElementById('charTitleVi').innerText = c.titleVi;
+      document.getElementById('charActionDesc').innerText = `Hành động nghề nghiệp đặc thù: ${c.actionVi}`;
+
+      const p1x = `generated/${c.sprite1x}`;
+      const p2x = `generated/${c.sprite2x}`;
+      const pJson = `generated/${c.jsonFile}`;
+
+      document.getElementById('download1x').href = p1x;
+      document.getElementById('download1x').download = `${c.slug}_spritesheet.png`;
+      document.getElementById('download2x').href = p2x;
+      document.getElementById('download2x').download = `${c.slug}_spritesheet_2x.png`;
+      document.getElementById('downloadJson').href = pJson;
+      document.getElementById('downloadJson').download = `${c.slug}.json`;
+
+      document.getElementById('fullSheetImg').src = p2x;
+
+      // Load metadata
+      const metaRes = await fetch(pJson);
+      currentMeta = await metaRes.json();
+      buildAnimButtons(currentMeta.animations);
+
+      // Load sheet image for canvas player
+      sheetImg = new Image();
+      sheetImg.onload = () => {
+        currentFrame = 0;
+        startLoop();
+      };
+      sheetImg.src = p1x;
+    }
+
+    function buildAnimButtons(anims) {
+      const container = document.getElementById('animButtons');
+      container.innerHTML = '';
+      Object.keys(anims).forEach(key => {
+        const anim = anims[key];
+        const btn = document.createElement('button');
+        btn.className = 'anim-btn' + (key === currentAnim ? ' active' : '');
+        btn.innerText = anim.labelVi || key.replace('_', ' ').toUpperCase();
+        btn.onclick = () => switchAnim(key);
+        container.appendChild(btn);
+      });
+    }
+
+    function switchAnim(key) {
+      currentAnim = key;
+      currentFrame = 0;
+      document.querySelectorAll('.anim-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.toLowerCase().includes(key.replace('_', ' ')));
+      });
+    }
+
+    function renderFrame() {
+      if (!currentMeta || !sheetImg.complete) return;
+      const anim = currentMeta.animations[currentAnim] || currentMeta.animations['walk_down'];
+      if (!anim) return;
+
+      const f = currentFrame % anim.frameCount;
+      const col = anim.startCol + f;
+      const row = anim.row;
+      const cw = 64;
+      const ch = 64;
+
+      ctx.clearRect(0, 0, 64, 64);
+      ctx.drawImage(sheetImg, col * cw, row * ch, cw, ch, 0, 0, cw, ch);
+      currentFrame++;
+    }
+
+    function startLoop() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(renderFrame, 1000 / fps);
+    }
+
+    function changeFps(val) {
+      fps = parseInt(val, 10);
+      document.getElementById('fpsDisplay').innerText = `${fps} FPS`;
+      startLoop();
+    }
+
+    function toggleGuides() {
+      guidesEnabled = !guidesEnabled;
+      document.getElementById('guideCenter').style.display = guidesEnabled ? 'block' : 'none';
+      document.getElementById('guideBaseline').style.display = guidesEnabled ? 'block' : 'none';
+      document.getElementById('toggleGuideBtn').innerText = guidesEnabled ? 'Tắt Đường Căn Chuẩn' : 'Bật Đường Căn Chuẩn';
+      document.getElementById('toggleGuideBtn').classList.toggle('active', guidesEnabled);
+    }
+
+    // Search filter
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = manifest.filter(c => 
+        c.name.toLowerCase().includes(query) || 
+        c.titleVi.toLowerCase().includes(query) ||
+        c.role.toLowerCase().includes(query)
+      );
+      renderSidebar(filtered);
+    });
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
