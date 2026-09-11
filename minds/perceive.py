@@ -123,24 +123,29 @@ def build_labels(snap):
 
 def _body_text(me, w, fire_d, fire_burn):
     parts = []
-    h = me['hunger']
-    if h > 0.6:
-        parts.append('your belly is full')
-    elif h > 0.35:
-        parts.append('a hollow feeling gnaws at your stomach')
-    elif h > 0.15:
-        parts.append('your stomach cramps with hunger')
+    feelings = me.get('feelings')
+    if feelings:
+        # v9: the sim speaks the body's state as words; never show a stat
+        parts.extend(feelings[:5])
     else:
-        parts.append('you feel faint with hunger')
-    e = me['energy']
-    if e < 0.3:
-        parts.append('you are exhausted; your eyelids droop')
-    elif e < 0.6:
-        parts.append('your limbs feel heavy')
-    if me['hp'] < 0.5:
-        parts.append('pain gnaws at you')
-    elif me['hp'] < 0.8:
-        parts.append('you ache dully')
+        h = me['hunger']
+        if h > 0.6:
+            parts.append('your belly is full')
+        elif h > 0.35:
+            parts.append('a hollow feeling gnaws at your stomach')
+        elif h > 0.15:
+            parts.append('your stomach cramps with hunger')
+        else:
+            parts.append('you feel faint with hunger')
+        e = me['energy']
+        if e < 0.3:
+            parts.append('you are exhausted; your eyelids droop')
+        elif e < 0.6:
+            parts.append('your limbs feel heavy')
+        if me['hp'] < 0.5:
+            parts.append('pain gnaws at you')
+        elif me['hp'] < 0.8:
+            parts.append('you ache dully')
     t = w['temp']
     if t < 6:
         parts.append('the air bites cold')

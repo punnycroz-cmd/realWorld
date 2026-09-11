@@ -161,6 +161,8 @@ def parse_step(p, ctx):
     # -- direct body states --
     if re.search(r'\b(eat|food|meal|hungry|starving)\b', t):
         return [('eat', {})]
+    if re.search(r'\b(drink|thirst|thirsty)\b', t):
+        return [('drink', {})]
     if re.search(r'\b(sleep|nap)\b', t):
         return [('sleep', {})]
     if re.search(r'\b(rest)\b', t):
@@ -351,7 +353,7 @@ def compose(name, soul, ptext, carry, mems, dangers, instincts, habits, plan):
     L.append('RIGHT NOW — what your senses tell you:\n' + ptext)
     L.append('You carry: %s.' % carry)
     L.append('YOUR BODY: in the next few hours you can move, take things within '
-              'reach, drop what you carry, use one thing on another, speak, eat, '
+              'reach, drop what you carry, use one thing on another, speak, eat, drink, '
               'sleep, rest, or wait. Your hands already know how to fell trees, '
               'saw timber, build, forage, farm, hunt and fish — old skills, quick '
               'and sure. Anything else, you must attempt with your body and see '
