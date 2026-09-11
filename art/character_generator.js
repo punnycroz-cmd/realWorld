@@ -10,6 +10,10 @@ if (typeof require !== 'undefined') {
   VP = require('./visual_primitives.js');
   AS = require('./animation_system.js');
   CD = require('./character_dna.js');
+} else {
+  VP = (typeof window !== 'undefined' ? window : globalThis);
+  AS = (typeof window !== 'undefined' ? window : globalThis);
+  CD = (typeof window !== 'undefined' ? window : globalThis);
 }
 
 class CharacterGenerator {
@@ -224,6 +228,10 @@ class CharacterGenerator {
     VP.applySelectiveOutline(out);
     return out;
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.CharacterGenerator = CharacterGenerator;
 }
 
 if (typeof module !== 'undefined' && module.exports) {

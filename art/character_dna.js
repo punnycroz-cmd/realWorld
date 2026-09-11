@@ -285,6 +285,11 @@ class CharacterDNA {
   }
 }
 
+if (typeof window !== 'undefined') {
+  window.CharacterDNA = CharacterDNA;
+  window.phash = phash;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { CharacterDNA, phash };
 }

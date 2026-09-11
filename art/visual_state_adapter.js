@@ -91,6 +91,10 @@ class CharacterVisualState {
   }
 }
 
+if (typeof window !== 'undefined') {
+  window.CharacterVisualState = CharacterVisualState;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { CharacterVisualState };
 }

@@ -297,18 +297,25 @@ function applySelectiveOutline(c) {
   c.data = newData;
 }
 
+const VisualPrimitives = {
+  PixelCanvas,
+  makeRamp,
+  drawCluster,
+  drawCurvedLock,
+  drawHand,
+  drawBoot,
+  applySelectiveOutline,
+  parseHex,
+  toHex,
+  shade,
+  mix
+};
+
+if (typeof window !== 'undefined') {
+  Object.assign(window, VisualPrimitives);
+  window.VP = VisualPrimitives;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    PixelCanvas,
-    makeRamp,
-    drawCluster,
-    drawCurvedLock,
-    drawHand,
-    drawBoot,
-    applySelectiveOutline,
-    parseHex,
-    toHex,
-    shade,
-    mix
-  };
+  module.exports = VisualPrimitives;
 }

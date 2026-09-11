@@ -142,6 +142,10 @@ class AnimationSystem {
   }
 }
 
+if (typeof window !== 'undefined') {
+  window.AnimationSystem = AnimationSystem;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { AnimationSystem };
 }
