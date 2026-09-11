@@ -8,8 +8,9 @@ and the world keeps running with or without an observer.
 - `natura-v9.html` — the living body build (hydration/satiety/fatigue/coreTemp simulation)
 - `natura-v1..v8.html` — earlier generations
 - `build_v10.py` — compiler that builds `natura-v10.html` with procedural character art
-- `art/` — character DNA, visual primitives, animation kinematics, generator, and benchmark suite
-- `docs/` — character art system specifications, visual grammar, and quality reports
+- `art/reference_library/` — high-fidelity visual reference dataset for perceptual learning
+- `art/` — character DNA, multi-scale visual primitives, animation kinematics, generator, perceptual critic, and benchmark suite
+- `docs/` — character art system specifications, high-fidelity visual grammar, animation grammar, and quality reports
 - `farm_v1.js`, `wild_v1.js` — farming and wild ecology modules (deterministic instincts, zero AI tokens)
 - `nv.py` — helper to inspect / order the valley's souls
 - `*_brief*.md`, `*_diary.md` — founder briefs and diaries

@@ -18,142 +18,594 @@
     "condition"
   ],
   "properties": {
-    "id": { "type": "string" },
-    "version": { "type": "string" },
-    "name": { "type": "string" },
-    "seed": { "type": "number" },
-    "ageYears": { "type": "number", "minimum": 0, "maximum": 120 },
+    "id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "number"
+    },
+    "ageYears": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 120
+    },
     "genderPresentation": {
       "type": "string",
-      "enum": ["feminine", "masculine", "androgynous"]
+      "enum": [
+        "feminine",
+        "masculine",
+        "androgynous"
+      ]
     },
-    "role": { "type": "string" },
+    "role": {
+      "type": "string"
+    },
     "anatomy": {
       "type": "object",
-      "required": ["archetype", "heightScale", "widthScale", "shoulderWidth", "torsoLegRatio"],
+      "required": [
+        "archetype",
+        "heightScale",
+        "widthScale",
+        "shoulderWidth",
+        "torsoLegRatio"
+      ],
       "properties": {
         "archetype": {
           "type": "string",
-          "enum": ["small", "average", "tall", "slim", "average_build", "broad_heavy", "child", "teenager", "adult", "elder"]
+          "enum": [
+            "small",
+            "average",
+            "tall",
+            "slim",
+            "average_build",
+            "broad_heavy",
+            "child",
+            "teenager",
+            "adult",
+            "elder"
+          ]
         },
-        "heightScale": { "type": "number", "minimum": 0.5, "maximum": 1.5 },
-        "widthScale": { "type": "number", "minimum": 0.5, "maximum": 1.5 },
-        "headScale": { "type": "number", "minimum": 0.7, "maximum": 1.4 },
-        "shoulderWidth": { "type": "number", "minimum": 5, "maximum": 16 },
-        "hipWidth": { "type": "number", "minimum": 5, "maximum": 16 },
-        "limbThickness": { "type": "number", "minimum": 1, "maximum": 5 },
-        "torsoLegRatio": { "type": "number", "minimum": 0.8, "maximum": 1.5 },
-        "hunchForward": { "type": "number", "minimum": 0, "maximum": 3 }
+        "heightScale": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "widthScale": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "headScale": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "shoulderWidth": {
+          "type": "number",
+          "minimum": 5,
+          "maximum": 16
+        },
+        "hipWidth": {
+          "type": "number",
+          "minimum": 5,
+          "maximum": 16
+        },
+        "limbThickness": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "torsoLegRatio": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 1.5
+        },
+        "hunchForward": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "armProportions": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "handSize": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "footSize": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "stance": {
+          "type": "string",
+          "enum": [
+            "neutral",
+            "wide",
+            "narrow",
+            "pigeon_toed",
+            "splayed"
+          ]
+        }
       }
     },
     "face": {
       "type": "object",
-      "required": ["shape", "skinRampKey", "eyeShape", "eyeColor", "browStyle"],
+      "required": [
+        "shape",
+        "skinRampKey",
+        "eyeShape",
+        "eyeColor",
+        "browStyle"
+      ],
       "properties": {
         "shape": {
           "type": "string",
-          "enum": ["round", "oval", "long", "broad", "narrow", "soft", "angular", "weathered"]
+          "enum": [
+            "round",
+            "oval",
+            "long",
+            "broad",
+            "narrow",
+            "soft",
+            "angular",
+            "weathered"
+          ]
         },
-        "skinRampKey": { "type": "string" },
-        "customSkinRamp": { "type": "array", "items": { "type": "string" } },
+        "skinRampKey": {
+          "type": "string"
+        },
+        "customSkinRamp": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "eyeShape": {
           "type": "string",
-          "enum": ["normal", "wide", "squint", "deep_set", "soft"]
+          "enum": [
+            "normal",
+            "wide",
+            "squint",
+            "deep_set",
+            "soft"
+          ]
         },
-        "eyeColor": { "type": "string" },
+        "eyeColor": {
+          "type": "string"
+        },
         "browStyle": {
           "type": "string",
-          "enum": ["neutral", "arched", "thick", "fine", "furrowed", "drooping"]
+          "enum": [
+            "neutral",
+            "arched",
+            "thick",
+            "fine",
+            "furrowed",
+            "drooping"
+          ]
         },
         "noseStyle": {
           "type": "string",
-          "enum": ["subtle", "straight", "aquiline", "button", "broad"]
+          "enum": [
+            "subtle",
+            "straight",
+            "aquiline",
+            "button",
+            "broad"
+          ]
         },
         "mouthStyle": {
           "type": "string",
-          "enum": ["neutral", "thin", "full", "smile", "firm"]
+          "enum": [
+            "neutral",
+            "thin",
+            "full",
+            "smile",
+            "firm"
+          ]
         },
         "facialHair": {
-          "type": ["string", "null"],
-          "enum": [null, "none", "stubble", "full_beard", "mustache", "goatee", "long_grey_beard"]
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "none",
+            "stubble",
+            "full_beard",
+            "mustache",
+            "goatee",
+            "long_grey_beard"
+          ]
         },
-        "blushIntensity": { "type": "number", "minimum": 0, "maximum": 1 },
-        "wrinkleIntensity": { "type": "number", "minimum": 0, "maximum": 1 }
+        "blushIntensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "wrinkleIntensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "faceWidth": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "faceHeight": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "eyeSpacing": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "eyeScale": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "browAngle": {
+          "type": "number",
+          "minimum": -45,
+          "maximum": 45
+        },
+        "noseGeometry": {
+          "type": "string",
+          "enum": [
+            "subtle",
+            "straight",
+            "aquiline",
+            "button",
+            "broad",
+            "hooked"
+          ]
+        },
+        "mouthShape": {
+          "type": "string",
+          "enum": [
+            "neutral",
+            "thin",
+            "full",
+            "smile",
+            "firm",
+            "pursed"
+          ]
+        },
+        "cheekVolume": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "jawShape": {
+          "type": "string",
+          "enum": [
+            "soft",
+            "angular",
+            "square",
+            "pointed",
+            "jowls",
+            "weak"
+          ]
+        }
       }
     },
     "hair": {
       "type": "object",
-      "required": ["style", "colorRampKey"],
+      "required": [
+        "style",
+        "colorRampKey"
+      ],
       "properties": {
         "style": {
           "type": "string",
-          "enum": ["short", "long", "bob", "braided", "tied", "messy", "curly", "wavy", "straight", "bald", "receding"]
+          "enum": [
+            "short",
+            "long",
+            "bob",
+            "braided",
+            "tied",
+            "messy",
+            "curly",
+            "wavy",
+            "straight",
+            "bald",
+            "receding"
+          ]
         },
-        "colorRampKey": { "type": "string" },
-        "customHairRamp": { "type": "array", "items": { "type": "string" } },
-        "volume": { "type": "number", "minimum": 0.5, "maximum": 1.5 },
-        "fringe": { "type": "boolean" },
-        "accessory": { "type": ["string", "null"] }
+        "colorRampKey": {
+          "type": "string"
+        },
+        "customHairRamp": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "volume": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.5
+        },
+        "fringe": {
+          "type": "boolean"
+        },
+        "accessory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "silhouette": {
+          "type": "string"
+        },
+        "strandGroups": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "sideMass": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "backMass": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "highlightDirection": {
+          "type": "string",
+          "enum": [
+            "upper_left",
+            "top",
+            "diffuse"
+          ]
+        }
       }
     },
     "clothing": {
       "type": "object",
-      "required": ["archetype", "layers"],
+      "required": [
+        "archetype",
+        "layers"
+      ],
       "properties": {
         "archetype": {
           "type": "string",
-          "enum": ["simple_worker", "farmer", "craftsman", "hunter", "traveler", "winter", "summer", "worn", "better_quality"]
+          "enum": [
+            "simple_worker",
+            "farmer",
+            "craftsman",
+            "hunter",
+            "traveler",
+            "winter",
+            "summer",
+            "worn",
+            "better_quality"
+          ]
         },
         "layers": {
           "type": "object",
           "properties": {
-            "undershirt": { "type": ["string", "null"] },
-            "tunicOrShirt": { "type": ["string", "null"] },
-            "vestOrBodice": { "type": ["string", "null"] },
-            "trousersOrSkirt": { "type": ["string", "null"] },
-            "apron": { "type": ["string", "null"] },
-            "cloakOrCowl": { "type": ["string", "null"] },
-            "hat": { "type": ["string", "null"] },
-            "footwear": { "type": ["string", "null"] },
-            "belt": { "type": ["string", "null"] }
+            "undershirt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "tunicOrShirt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "vestOrBodice": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "trousersOrSkirt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "apron": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "cloakOrCowl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "hat": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "footwear": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "belt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "seamPlacement": {
+              "type": "string"
+            },
+            "foldStyle": {
+              "type": "string"
+            },
+            "cuffs": {
+              "type": "string"
+            },
+            "collar": {
+              "type": "string"
+            },
+            "hems": {
+              "type": "string"
+            }
           }
         },
-        "wearLevel": { "type": "number", "minimum": 0, "maximum": 1 }
+        "wearLevel": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "materialType": {
+          "type": "string",
+          "enum": [
+            "linen",
+            "wool",
+            "leather",
+            "rough_cloth"
+          ]
+        }
       }
     },
     "palette": {
       "type": "object",
-      "required": ["shirt", "pants", "boots"],
+      "required": [
+        "shirt",
+        "pants",
+        "boots"
+      ],
       "properties": {
-        "shirt": { "type": "string" },
-        "pants": { "type": "string" },
-        "boots": { "type": "string" },
-        "vest": { "type": ["string", "null"] },
-        "apron": { "type": ["string", "null"] },
-        "cloak": { "type": ["string", "null"] },
-        "hat": { "type": ["string", "null"] },
-        "belt": { "type": ["string", "null"] }
+        "shirt": {
+          "type": "string"
+        },
+        "pants": {
+          "type": "string"
+        },
+        "boots": {
+          "type": "string"
+        },
+        "vest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "apron": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cloak": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hat": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "belt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "accessories": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "heldTool": {
-      "type": ["string", "null"],
-      "enum": [null, "felling_axe", "hoe", "crosscut_saw", "hammer", "hunting_bow", "fishing_rod", "basket", "walking_staff", "mug"]
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        null,
+        "felling_axe",
+        "hoe",
+        "crosscut_saw",
+        "hammer",
+        "hunting_bow",
+        "fishing_rod",
+        "basket",
+        "walking_staff",
+        "mug"
+      ]
     },
     "condition": {
       "type": "object",
       "properties": {
-        "fatigue": { "type": "number", "minimum": 0, "maximum": 1 },
-        "cold": { "type": "number", "minimum": 0, "maximum": 1 },
-        "wetness": { "type": "number", "minimum": 0, "maximum": 1 },
-        "dirt": { "type": "number", "minimum": 0, "maximum": 1 },
-        "injury": { "type": "number", "minimum": 0, "maximum": 1 },
-        "illness": { "type": "number", "minimum": 0, "maximum": 1 },
-        "pregnant": { "type": "number", "minimum": 0, "maximum": 270 },
-        "carryingItem": { "type": ["string", "null"] }
+        "fatigue": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "cold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "wetness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "dirt": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "injury": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "illness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "pregnant": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 270
+        },
+        "carryingItem": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "style": {
@@ -161,11 +613,64 @@
       "properties": {
         "outlineMode": {
           "type": "string",
-          "enum": ["selective_color", "dark_neutral", "clean_unoutlined"]
+          "enum": [
+            "selective_color",
+            "dark_neutral",
+            "clean_unoutlined"
+          ]
         },
         "shadingQuality": {
           "type": "string",
-          "enum": ["volumetric_smooth", "cell_shaded", "classic"]
+          "enum": [
+            "volumetric_smooth",
+            "cell_shaded",
+            "classic"
+          ]
+        },
+        "clusterSize": {
+          "type": "number"
+        },
+        "outlineStrength": {
+          "type": "number"
+        },
+        "contrast": {
+          "type": "number"
+        },
+        "paletteCompression": {
+          "type": "number"
+        },
+        "pixelRhythm": {
+          "type": "string"
+        }
+      }
+    },
+    "material": {
+      "type": "object",
+      "properties": {
+        "roughness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "shadowDepth": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "highlightStrength": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "edgeResponse": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "textureDensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         }
       }
     }

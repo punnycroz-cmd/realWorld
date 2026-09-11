@@ -1,25 +1,37 @@
 {
   "$schema": "./character_dna.schema.json",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "grid": {
     "width": 32,
     "height": 48,
-    "rootAnchor": { "x": 16, "y": 46 },
-    "worldCellFootprint": { "width": 16, "height": 32 }
+    "rootAnchor": {
+      "x": 16,
+      "y": 46
+    },
+    "worldCellFootprint": {
+      "width": 16,
+      "height": 32
+    }
   },
   "proportions": {
     "child": {
-      "ageRange": [2, 6],
+      "ageRange": [
+        2,
+        6
+      ],
       "heightPx": 20,
       "headHeight": 6,
       "ratio": "1:3.3",
       "shoulderWidth": 6,
       "hipWidth": 6,
       "limbThickness": 2,
-      "torsoLegRatio": 1.0
+      "torsoLegRatio": 1
     },
     "teen": {
-      "ageRange": [7, 15],
+      "ageRange": [
+        7,
+        15
+      ],
       "heightPx": 28,
       "headHeight": 7,
       "ratio": "1:4.0",
@@ -29,7 +41,10 @@
       "torsoLegRatio": 1.15
     },
     "adult_female": {
-      "ageRange": [16, 55],
+      "ageRange": [
+        16,
+        55
+      ],
       "heightPx": 33,
       "headHeight": 8,
       "ratio": "1:4.9",
@@ -39,7 +54,10 @@
       "torsoLegRatio": 1.2
     },
     "adult_male": {
-      "ageRange": [16, 55],
+      "ageRange": [
+        16,
+        55
+      ],
       "heightPx": 35,
       "headHeight": 8,
       "ratio": "1:5.1",
@@ -49,7 +67,10 @@
       "torsoLegRatio": 1.22
     },
     "elder": {
-      "ageRange": [56, 100],
+      "ageRange": [
+        56,
+        100
+      ],
       "heightPx": 31,
       "headHeight": 8,
       "ratio": "1:4.6",
@@ -57,32 +78,97 @@
       "hipWidth": 9,
       "limbThickness": 3,
       "torsoLegRatio": 1.1,
-      "hunchOffset": { "dx": 0, "dy": 1, "headForward": 1 }
+      "hunchOffset": {
+        "dx": 0,
+        "dy": 1,
+        "headForward": 1
+      }
     }
   },
   "anchors": {
-    "root": { "x": 16, "y": 46 },
-    "pelvis": { "x": 16, "y": 28 },
-    "spine": { "x": 16, "y": 23 },
-    "neck": { "x": 16, "y": 18 },
-    "head": { "x": 16, "y": 17 },
-    "shoulderLeft": { "x": 11, "y": 19 },
-    "shoulderRight": { "x": 21, "y": 19 },
-    "hipLeft": { "x": 13, "y": 28 },
-    "hipRight": { "x": 19, "y": 28 },
+    "root": {
+      "x": 16,
+      "y": 46
+    },
+    "pelvis": {
+      "x": 16,
+      "y": 28
+    },
+    "spine": {
+      "x": 16,
+      "y": 23
+    },
+    "neck": {
+      "x": 16,
+      "y": 18
+    },
+    "head": {
+      "x": 16,
+      "y": 17
+    },
+    "shoulderLeft": {
+      "x": 11,
+      "y": 19
+    },
+    "shoulderRight": {
+      "x": 21,
+      "y": 19
+    },
+    "hipLeft": {
+      "x": 13,
+      "y": 28
+    },
+    "hipRight": {
+      "x": 19,
+      "y": 28
+    },
     "kneeY": 35,
     "ankleY": 42
   },
   "faceGrammar": {
-    "box": { "x0": 11, "x1": 21, "y0": 9, "y1": 17 },
+    "box": {
+      "x0": 11,
+      "x1": 21,
+      "y0": 9,
+      "y1": 17
+    },
     "eyePlacement": {
-      "left": { "x": [12, 13], "y": [12, 13] },
-      "right": { "x": [18, 19], "y": [12, 13] },
+      "left": {
+        "x": [
+          12,
+          13
+        ],
+        "y": [
+          12,
+          13
+        ]
+      },
+      "right": {
+        "x": [
+          18,
+          19
+        ],
+        "y": [
+          12,
+          13
+        ]
+      },
       "pupilDistance": 5,
       "features": {
-        "sclera": { "color": "#f0f4f8", "offsetX": 0, "offsetY": 1 },
-        "iris": { "offsetX": 1, "offsetY": 0 },
-        "specular": { "color": "#ffffff", "offsetX": 0, "offsetY": 0 }
+        "sclera": {
+          "color": "#f0f4f8",
+          "offsetX": 0,
+          "offsetY": 1
+        },
+        "iris": {
+          "offsetX": 1,
+          "offsetY": 0
+        },
+        "specular": {
+          "color": "#ffffff",
+          "offsetX": 0,
+          "offsetY": 0
+        }
       }
     },
     "brows": {
@@ -96,23 +182,78 @@
       }
     },
     "nose": {
-      "bridge": { "x": 16, "y": 14 },
-      "highlight": { "x": 15, "y": 14 }
+      "bridge": {
+        "x": 16,
+        "y": 14
+      },
+      "highlight": {
+        "x": 15,
+        "y": 14
+      }
     },
     "mouth": {
       "y": 15,
-      "neutral": { "x": [15, 17], "height": 1 },
-      "open": { "x": [15, 17], "height": 2 }
-    }
+      "neutral": {
+        "x": [
+          15,
+          17
+        ],
+        "height": 1
+      },
+      "open": {
+        "x": [
+          15,
+          17
+        ],
+        "height": 2
+      }
+    },
+    "eyeShapes": {
+      "round": {
+        "width": 2,
+        "height": 2,
+        "lidArc": true
+      },
+      "narrow": {
+        "width": 2,
+        "height": 1,
+        "lidArc": false
+      },
+      "drooping": {
+        "width": 2,
+        "height": 2,
+        "lidArc": true,
+        "bagShadow": true
+      }
+    },
+    "jawlines": [
+      "soft",
+      "angular",
+      "square",
+      "pointed",
+      "jowls"
+    ]
   },
   "pixelGrammar": {
     "minClusterSize": 2,
     "allowOrphanPixels": false,
-    "orphanExceptions": ["specular_glint", "water_droplet"],
+    "orphanExceptions": [
+      "specular_glint",
+      "water_droplet"
+    ],
     "outlineStyle": "selective_color",
     "dithering": {
-      "allowedSurfaces": ["ground_shadow", "heavy_cloak_hem"],
-      "forbiddenSurfaces": ["face", "hair", "hands", "feet", "tools"]
+      "allowedSurfaces": [
+        "ground_shadow",
+        "heavy_cloak_hem"
+      ],
+      "forbiddenSurfaces": [
+        "face",
+        "hair",
+        "hands",
+        "feet",
+        "tools"
+      ]
     }
   },
   "lighting": {
@@ -136,35 +277,203 @@
   },
   "colorRamps": {
     "skin": {
-      "light": ["#543026", "#8c523c", "#b87656", "#dda078", "#f2be9b", "#fce0cb", "#fff4ec"],
-      "tan": ["#42241a", "#6e3c28", "#9e5a38", "#c47d4e", "#df9f70", "#f4c39b", "#fde5cb"],
-      "deep": ["#2e1a12", "#4e2a1b", "#733e26", "#995634", "#b87248", "#d69368", "#ecc09e"],
-      "pale_sickly": ["#362a26", "#5e4b44", "#846c64", "#ada298", "#cec8be", "#e4e1da", "#f4f3f0"],
-      "fever_flush": ["#6e2424", "#9c3636", "#c85252", "#e87474", "#f79e9e", "#fac8c8", "#ffeded"]
+      "light": [
+        "#543026",
+        "#8c523c",
+        "#b87656",
+        "#dda078",
+        "#f2be9b",
+        "#fce0cb",
+        "#fff4ec"
+      ],
+      "tan": [
+        "#42241a",
+        "#6e3c28",
+        "#9e5a38",
+        "#c47d4e",
+        "#df9f70",
+        "#f4c39b",
+        "#fde5cb"
+      ],
+      "deep": [
+        "#2e1a12",
+        "#4e2a1b",
+        "#733e26",
+        "#995634",
+        "#b87248",
+        "#d69368",
+        "#ecc09e"
+      ],
+      "pale_sickly": [
+        "#362a26",
+        "#5e4b44",
+        "#846c64",
+        "#ada298",
+        "#cec8be",
+        "#e4e1da",
+        "#f4f3f0"
+      ],
+      "fever_flush": [
+        "#6e2424",
+        "#9c3636",
+        "#c85252",
+        "#e87474",
+        "#f79e9e",
+        "#fac8c8",
+        "#ffeded"
+      ]
     },
     "hair": {
-      "black": ["#121114", "#1f1e24", "#32303a", "#4c4958", "#6a677a", "#9491a3", "#c6c4d4"],
-      "brown": ["#24140c", "#3c2214", "#5a331c", "#7c4828", "#a36239", "#c98654", "#e8b382"],
-      "blonde": ["#40280e", "#664319", "#966728", "#c7923e", "#e5b65f", "#f7d68a", "#fff2c4"],
-      "auburn": ["#2a0e0e", "#4c1a16", "#722920", "#9c3d2e", "#c45945", "#e3816a", "#fab09d"],
-      "grey": ["#24262b", "#3d4047", "#5a5d66", "#7b808c", "#a1a6b3", "#c8cdd9", "#edf0f7"]
+      "black": [
+        "#121114",
+        "#1f1e24",
+        "#32303a",
+        "#4c4958",
+        "#6a677a",
+        "#9491a3",
+        "#c6c4d4"
+      ],
+      "brown": [
+        "#24140c",
+        "#3c2214",
+        "#5a331c",
+        "#7c4828",
+        "#a36239",
+        "#c98654",
+        "#e8b382"
+      ],
+      "blonde": [
+        "#40280e",
+        "#664319",
+        "#966728",
+        "#c7923e",
+        "#e5b65f",
+        "#f7d68a",
+        "#fff2c4"
+      ],
+      "auburn": [
+        "#2a0e0e",
+        "#4c1a16",
+        "#722920",
+        "#9c3d2e",
+        "#c45945",
+        "#e3816a",
+        "#fab09d"
+      ],
+      "grey": [
+        "#24262b",
+        "#3d4047",
+        "#5a5d66",
+        "#7b808c",
+        "#a1a6b3",
+        "#c8cdd9",
+        "#edf0f7"
+      ]
     },
     "textiles": {
-      "forest": ["#0f1c12", "#182f1f", "#24452c", "#35633f", "#4e855b", "#73ab80", "#a8d4b2"],
-      "madder": ["#240d10", "#42161b", "#6b222a", "#96333c", "#bf4f58", "#dc7880", "#f2b0b5"],
-      "indigo": ["#0f1626", "#17243d", "#25395c", "#385382", "#5272a8", "#7899cf", "#adc4eb"],
-      "ochre": ["#241508", "#422810", "#694119", "#946028", "#be813d", "#dda861", "#f5d194"],
-      "linen": ["#262420", "#423f38", "#6b665a", "#999282", "#c2baa8", "#e3dcd0", "#f7f4ec"],
-      "charcoal": ["#16161a", "#26262e", "#3b3c47", "#545563", "#747687", "#989ab0", "#c2c4d9"]
+      "forest": [
+        "#0f1c12",
+        "#182f1f",
+        "#24452c",
+        "#35633f",
+        "#4e855b",
+        "#73ab80",
+        "#a8d4b2"
+      ],
+      "madder": [
+        "#240d10",
+        "#42161b",
+        "#6b222a",
+        "#96333c",
+        "#bf4f58",
+        "#dc7880",
+        "#f2b0b5"
+      ],
+      "indigo": [
+        "#0f1626",
+        "#17243d",
+        "#25395c",
+        "#385382",
+        "#5272a8",
+        "#7899cf",
+        "#adc4eb"
+      ],
+      "ochre": [
+        "#241508",
+        "#422810",
+        "#694119",
+        "#946028",
+        "#be813d",
+        "#dda861",
+        "#f5d194"
+      ],
+      "linen": [
+        "#262420",
+        "#423f38",
+        "#6b665a",
+        "#999282",
+        "#c2baa8",
+        "#e3dcd0",
+        "#f7f4ec"
+      ],
+      "charcoal": [
+        "#16161a",
+        "#26262e",
+        "#3b3c47",
+        "#545563",
+        "#747687",
+        "#989ab0",
+        "#c2c4d9"
+      ]
     },
     "leather": {
-      "stout": ["#23160c", "#3d2615", "#5c3a21", "#7e512f", "#a36c42", "#c68b5c", "#e3af82"],
-      "dark": ["#160e08", "#26190e", "#3b2717", "#543822", "#734e30", "#946743", "#b6845d"]
+      "stout": [
+        "#23160c",
+        "#3d2615",
+        "#5c3a21",
+        "#7e512f",
+        "#a36c42",
+        "#c68b5c",
+        "#e3af82"
+      ],
+      "dark": [
+        "#160e08",
+        "#26190e",
+        "#3b2717",
+        "#543822",
+        "#734e30",
+        "#946743",
+        "#b6845d"
+      ]
     },
     "metal": {
-      "iron": ["#1a1b1f", "#2c2e36", "#454854", "#616675", "#83899c", "#abb2c7", "#d8def0"],
-      "steel": ["#22262d", "#363c47", "#505869", "#707a8f", "#96a2bc", "#c0cbe6", "#edf2ff"],
-      "brass": ["#2b2009", "#473510", "#6e531a", "#9e7727", "#cfa23e", "#edd06d", "#fff2aa"]
+      "iron": [
+        "#1a1b1f",
+        "#2c2e36",
+        "#454854",
+        "#616675",
+        "#83899c",
+        "#abb2c7",
+        "#d8def0"
+      ],
+      "steel": [
+        "#22262d",
+        "#363c47",
+        "#505869",
+        "#707a8f",
+        "#96a2bc",
+        "#c0cbe6",
+        "#edf2ff"
+      ],
+      "brass": [
+        "#2b2009",
+        "#473510",
+        "#6e531a",
+        "#9e7727",
+        "#cfa23e",
+        "#edd06d",
+        "#fff2aa"
+      ]
     }
   },
   "animationKinematics": {
@@ -172,36 +481,125 @@
       "frameCount": 6,
       "frameDurationMs": 120,
       "curves": {
-        "comBobY": [0, -1, 1, 0, -1, 1],
-        "torsoTilt": [0, 1, 0, 0, 1, 0],
-        "legAngleLeft": [-18, -8, 8, 18, 8, -8],
-        "legAngleRight": [18, 8, -8, -18, -8, 8],
-        "armSwingLeft": [16, 8, -8, -16, -8, 8],
-        "armSwingRight": [-16, -8, 8, 16, 8, -8],
-        "headLagY": [0, 0, -1, 0, 0, -1]
+        "comBobY": [
+          0,
+          -1,
+          1,
+          0,
+          -1,
+          1
+        ],
+        "torsoTilt": [
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "legAngleLeft": [
+          -18,
+          -8,
+          8,
+          18,
+          8,
+          -8
+        ],
+        "legAngleRight": [
+          18,
+          8,
+          -8,
+          -18,
+          -8,
+          8
+        ],
+        "armSwingLeft": [
+          16,
+          8,
+          -8,
+          -16,
+          -8,
+          8
+        ],
+        "armSwingRight": [
+          -16,
+          -8,
+          8,
+          16,
+          8,
+          -8
+        ],
+        "headLagY": [
+          0,
+          0,
+          -1,
+          0,
+          0,
+          -1
+        ]
       }
     },
     "idle": {
       "frameCount": 4,
       "frameDurationMs": 240,
       "curves": {
-        "chestExpansion": [0, 1, 1, 0],
-        "headBobY": [0, -1, -1, 0],
-        "armDrift": [0, 0, 1, 0]
+        "chestExpansion": [
+          0,
+          1,
+          1,
+          0
+        ],
+        "headBobY": [
+          0,
+          -1,
+          -1,
+          0
+        ],
+        "armDrift": [
+          0,
+          0,
+          1,
+          0
+        ]
       }
     },
     "work": {
-      "chop": { "frames": 4, "contactFrame": 2 },
-      "saw": { "frames": 4, "contactFrame": 1 },
-      "till": { "frames": 4, "contactFrame": 2 },
-      "hammer": { "frames": 3, "contactFrame": 1 },
-      "fish": { "frames": 4, "contactFrame": 2 }
+      "chop": {
+        "frames": 4,
+        "contactFrame": 2
+      },
+      "saw": {
+        "frames": 4,
+        "contactFrame": 1
+      },
+      "till": {
+        "frames": 4,
+        "contactFrame": 2
+      },
+      "hammer": {
+        "frames": 3,
+        "contactFrame": 1
+      },
+      "fish": {
+        "frames": 4,
+        "contactFrame": 2
+      }
     },
     "talk": {
       "frameCount": 4,
       "frameDurationMs": 140,
-      "mouthCycle": [0, 1, 0, 1],
-      "gestureHand": [0, 1, 2, 1]
+      "mouthCycle": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "gestureHand": [
+        0,
+        1,
+        2,
+        1
+      ]
     }
   },
   "simulationAdapters": {
@@ -220,8 +618,8 @@
       "lipCyanShift": true
     },
     "fever": {
-      "threshold": 38.0,
-      "blushIntensity": 1.0,
+      "threshold": 38,
+      "blushIntensity": 1,
       "sweatGlint": true
     },
     "injury": {
@@ -237,6 +635,62 @@
     "mud": {
       "heightFromGroundPx": 5,
       "spatterDensity": 0.4
+    }
+  },
+  "detailHierarchy": [
+    "face",
+    "eyes",
+    "hair_silhouette",
+    "fringe",
+    "hands",
+    "tools",
+    "upper_torso",
+    "clothing_folds",
+    "legs",
+    "boots",
+    "micro_decoration"
+  ],
+  "multiScale": {
+    "supportedNativeScales": [
+      {
+        "width": 32,
+        "height": 48,
+        "tag": "1x"
+      },
+      {
+        "width": 48,
+        "height": 72,
+        "tag": "1.5x"
+      },
+      {
+        "width": 64,
+        "height": 96,
+        "tag": "2x"
+      }
+    ],
+    "downsampleStrategy": "pixel_aware_reduction"
+  },
+  "materials": {
+    "linen": {
+      "finish": "matte",
+      "contrast": "low",
+      "highlightStyle": "soft"
+    },
+    "leather": {
+      "finish": "specular",
+      "contrast": "high",
+      "highlightStyle": "sharp"
+    },
+    "wool": {
+      "finish": "matte",
+      "contrast": "lowest",
+      "highlightStyle": "none",
+      "ditherEdges": true
+    },
+    "metal": {
+      "finish": "metallic",
+      "contrast": "extreme",
+      "highlightStyle": "1px_glint"
     }
   }
 }

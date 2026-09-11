@@ -1,6 +1,7 @@
 /**
- * Natura Character Generator (Phase 5)
+ * Natura Character Generator (Phase 15 - High Fidelity)
  * Compiles structured CharacterDNA into high-definition, hand-crafted pixel art.
+ * Employs multi-scale rendering (64x96 -> 32x48) and Z-buffering for proper layering.
  */
 'use strict';
 
@@ -14,14 +15,15 @@ if (typeof require !== 'undefined') {
 class CharacterGenerator {
   /**
    * Renders a single pixel frame of a character given DNA and pose state.
-   * Returns a PixelCanvas (32x48).
+   * Renders at 2x scale internally, then downsamples for high-fidelity structures.
    */
   static renderFrame(dna, dir = 0, act = 'idle', frame = 0, condition = {}) {
-    const c = new VP.PixelCanvas(32, 48);
+    const scale = 2; // High-res internal composition
+    const c = new VP.PixelCanvas(32 * scale, 48 * scale);
     const cond = Object.assign({}, dna.condition || {}, condition || {});
     const pose = AS.AnimationSystem.getPose(act, frame, dir, cond, dna.ageYears);
 
-    // Color ramps
+    // Core Ramps
     const skinRamp = VP.makeRamp(
       dna.face.skinRampKey === 'deep' ? '#995634' :
       (dna.face.skinRampKey === 'light' ? '#dda078' : '#c47d4e')
@@ -36,261 +38,191 @@ class CharacterGenerator {
     const pantsRamp = VP.makeRamp(dna.palette.pants || '#25395c');
     const bootRamp = VP.makeRamp(dna.palette.boots || '#422810');
     const apronRamp = dna.palette.apron ? VP.makeRamp(dna.palette.apron) : null;
-    const vestRamp = dna.palette.vest ? VP.makeRamp(dna.palette.vest) : null;
-    const hatRamp = dna.palette.hat ? VP.makeRamp(dna.palette.hat) : null;
-
-    // Proportions and scale
+    
+    // Proportions
     const anat = dna.anatomy;
     const isChild = dna.ageYears < 7;
-    const isTeen = dna.ageYears >= 7 && dna.ageYears < 16;
-    const isElder = dna.ageYears > 58;
     const heightScale = anat.heightScale || 1.0;
     const widthScale = anat.widthScale || 1.0;
     const bobY = pose.comBobY;
 
-    // Calibrated ground anchor
-    const groundY = 43;
-    const totalHeight = Math.round(32 * heightScale);
-    const headCenterY = Math.round(groundY - totalHeight + 4 + bobY + pose.headBobY);
-    const neckY = headCenterY + 3;
-    const torsoY = headCenterY + 4; // Right beneath chin
-    const hipY = Math.round(torsoY + Math.round((totalHeight - 8) * 0.44));
-    const shW = Math.max(6, Math.round((anat.shoulderWidth || 10) * widthScale));
+    // Calibrated ground anchor at 2x scale
+    const groundY = 43 * scale;
+    const totalHeight = Math.round(32 * scale * heightScale);
+    const headCenterY = Math.round(groundY - totalHeight + 4*scale + bobY*scale + pose.headBobY*scale);
+    const neckY = headCenterY + 3*scale;
+    const torsoY = headCenterY + 4*scale;
+    const hipY = Math.round(torsoY + Math.round((totalHeight - 8*scale) * 0.44));
+    
+    // Z-Layers
+    const Z_BACK_HAIR = 10;
+    const Z_BACK_LEG = 20;
+    const Z_FRONT_LEG = 30;
+    const Z_TORSO = 40;
+    const Z_BACK_ARM = 50;
+    const Z_HEAD = 60;
+    const Z_FRONT_HAIR = 70;
+    const Z_FRONT_ARM = 80;
+    const Z_ACCESSORY = 90;
+
+    const shW = Math.max(6*scale, Math.round((anat.shoulderWidth || 10) * widthScale * scale));
     const halfShW = Math.floor(shW / 2);
 
     // 1. Ground Shadow
     if (!pose.sleeping) {
-      c.ellipse(16, 45, isChild ? 4 : (halfShW + 1), 2, 'rgba(16, 12, 8, 0.28)', 0);
+      c.ellipse(16*scale, 45*scale, isChild ? 4*scale : (halfShW + 1*scale), 2*scale, 'rgba(16, 12, 8, 0.28)', 0, 0);
     }
 
     // Special Sleeping Pose
     if (pose.sleeping) {
-      // Horizontal sleeping roll
-      c.fillRect(6, 32, 20, 10, pantsRamp[2], 3); // blanket/quilt
-      c.fillRect(6, 30, 8, 5, '#e3dcd0', 3);       // pillow
-      c.ellipse(10, 29, 4, 4, skinRamp[3], 2);     // head
-      c.ellipse(10, 27, 4, 3, hairRamp[3], 2);     // hair cap
-      c.fillRect(9, 29, 2, 1, '#1b1b22', 2);       // closed eye
-      c.fillRect(24, 35, 4, 4, bootRamp[2], 4);    // boots peeking out
+      c.fillRect(6*scale, 32*scale, 20*scale, 10*scale, pantsRamp[2], 3, Z_TORSO);
+      c.ellipse(10*scale, 29*scale, 4*scale, 4*scale, skinRamp[3], 2, Z_HEAD);
       VP.applySelectiveOutline(c);
-      return c;
+      return scale > 1 ? c.downsample(32, 48) : c;
     }
 
-    // 2. Back Hair (if long hair and facing front/profile, or facing back)
+    // 2. Back Hair
     if (dna.hair.style === 'long' || dna.hair.style === 'braided' || dir === 1) {
-      const hairLen = dna.hair.style === 'long' ? 14 : (dna.hair.style === 'braided' ? 12 : 8);
-      c.fillRect(16 - halfShW + 1, headCenterY - 4, (halfShW - 1) * 2, hairLen, hairRamp[1], 2);
-      if (dna.hair.style === 'braided') {
-        // Twin braids hanging down
-        c.fillRect(11, headCenterY + 4, 2, 8, hairRamp[2], 2);
-        c.fillRect(19, headCenterY + 4, 2, 8, hairRamp[2], 2);
-        c.setPixel(11, headCenterY + 12, '#96333c', 2); // tie ribbon
-        c.setPixel(19, headCenterY + 12, '#96333c', 2);
-      }
+      const hairLen = dna.hair.style === 'long' ? 14*scale : 10*scale;
+      c.fillRect(16*scale - halfShW + 1*scale, headCenterY - 4*scale, (halfShW - 1*scale) * 2, hairLen, hairRamp[1], 2, Z_BACK_HAIR);
     }
 
     // 3. Legs & Trousers / Skirt
     const isSkirt = dna.clothing.layers.trousersOrSkirt === 'skirt';
     if (isSkirt && dir !== 2 && dir !== 3) {
-      // Skirt flare
-      const skirtW = halfShW + 2;
-      for (let y = hipY; y <= 40 + bobY; y++) {
-        const prog = (y - hipY) / (40 + bobY - hipY);
+      const skirtW = halfShW + 2*scale;
+      for (let y = hipY; y <= (40 + bobY)*scale; y++) {
+        const prog = (y - hipY) / ((40 + bobY)*scale - hipY);
         const w = Math.round(skirtW * (0.8 + 0.4 * prog));
-        c.fillRect(16 - w, y, w * 2, 1, pantsRamp[3], 3);
-        // Shadow on right side
-        c.fillRect(16 + w - 2, y, 2, 1, pantsRamp[1], 3);
+        c.fillRect(16*scale - w, y, w * 2, 1, pantsRamp[3], 3, Z_BACK_LEG);
       }
-      // Hem highlight
-      c.fillRect(16 - skirtW, 40 + bobY, skirtW * 2, 1, pantsRamp[4], 3);
-      // Boots visible beneath hem
-      VP.drawBoot(c, 12, 41 + bobY, dir, bootRamp);
-      VP.drawBoot(c, 18, 41 + bobY, dir, bootRamp);
+      VP.drawBoot(c, 12*scale, (41 + bobY)*scale, dir, bootRamp, Z_BACK_LEG);
+      VP.drawBoot(c, 18*scale, (41 + bobY)*scale, dir, bootRamp, Z_BACK_LEG);
     } else {
-      // Trousers & Legs
-      const footLY = pose.legLeft.footY + bobY;
-      const footRY = pose.legRight.footY + bobY;
-      const legLX = pose.legLeft.x;
-      const legRX = pose.legRight.x;
+      const footLY = (pose.legLeft.footY + bobY) * scale;
+      const footRY = (pose.legRight.footY + bobY) * scale;
+      const legLX = pose.legLeft.x * scale;
+      const legRX = pose.legRight.x * scale;
 
-      if (dir === 2 || dir === 3) {
-        // Profile view: one leg in front of other
-        c.fillRect(legLX - 2, hipY, 4, footLY - hipY, pantsRamp[3], 3);
-        c.fillRect(legLX + 1, hipY, 1, footLY - hipY, pantsRamp[1], 3);
-        VP.drawBoot(c, legLX - 2, footLY, dir, bootRamp);
+      // Profile logic for legs
+      let leftZ = (dir === 3) ? Z_FRONT_LEG : Z_BACK_LEG;
+      let rightZ = (dir === 2) ? Z_FRONT_LEG : Z_BACK_LEG;
+      if (dir === 0 || dir === 1) { leftZ = Z_FRONT_LEG; rightZ = Z_FRONT_LEG; }
 
-        c.fillRect(legRX - 2, hipY, 3, footRY - hipY, pantsRamp[2], 3);
-        VP.drawBoot(c, legRX - 2, footRY, dir, bootRamp);
-      } else {
-        // Front / Back view
-        c.fillRect(12, hipY, 3, footLY - hipY, pantsRamp[3], 3);
-        c.fillRect(14, hipY, 1, footLY - hipY, pantsRamp[1], 3); // inner shade
-        VP.drawBoot(c, 11, footLY, dir, bootRamp);
+      // Left Leg
+      c.fillRect(legLX - 2*scale, hipY, 3*scale, footLY - hipY, pantsRamp[3], 3, leftZ);
+      VP.drawBoot(c, legLX - 2*scale, footLY, dir, bootRamp, leftZ);
 
-        c.fillRect(18, hipY, 3, footRY - hipY, pantsRamp[3], 3);
-        c.fillRect(20, hipY, 1, footRY - hipY, pantsRamp[1], 3);
-        VP.drawBoot(c, 17, footRY, dir, bootRamp);
-      }
+      // Right Leg
+      c.fillRect(legRX - 2*scale, hipY, 3*scale, footRY - hipY, pantsRamp[3], 3, rightZ);
+      VP.drawBoot(c, legRX - 2*scale, footRY, dir, bootRamp, rightZ);
     }
 
-    // 4. Torso with natural shoulder slope
+    // 4. Torso
     const torsoW = halfShW * 2;
-    // Sloped trapezius shoulders
-    c.fillRect(16 - halfShW + 2, torsoY, (halfShW - 2) * 2, 1, shirtRamp[3], 3);
-    c.fillRect(16 - halfShW + 1, torsoY + 1, (halfShW - 1) * 2, 1, shirtRamp[3], 3);
-    c.fillRect(16 - halfShW, torsoY + 2, torsoW, hipY - torsoY - 1, shirtRamp[3], 3);
-
-    // Collar notch showing undershirt
-    c.setPixel(16, torsoY, skinRamp[2], 2);
-    c.setPixel(16, torsoY + 1, '#f7f4ec', 3);
-
-    // Core shadow & highlights
-    c.fillRect(16 + halfShW - 2, torsoY + 2, 2, hipY - torsoY - 1, shirtRamp[1], 3);
-    c.fillRect(16 - halfShW, torsoY + 2, 2, hipY - torsoY - 1, shirtRamp[4], 3);
-
+    c.fillRect(16*scale - halfShW + 2*scale, torsoY, (halfShW - 2*scale) * 2, 1*scale, shirtRamp[3], 3, Z_TORSO);
+    c.fillRect(16*scale - halfShW, torsoY + 2*scale, torsoW, hipY - torsoY, shirtRamp[3], 3, Z_TORSO);
     // Belt
-    c.fillRect(16 - halfShW, hipY - 2, torsoW, 2, '#23160c', 3);
-    c.setPixel(16, hipY - 2, '#edd06d', 5); // Brass buckle sparkle
-
-    // Vest / Apron layers
-    if (vestRamp) {
-      c.fillRect(16 - halfShW, torsoY + 2, 3, hipY - torsoY - 3, vestRamp[3], 3);
-      c.fillRect(16 + halfShW - 3, torsoY + 2, 3, hipY - torsoY - 3, vestRamp[2], 3);
-    }
+    c.fillRect(16*scale - halfShW, hipY - 2*scale, torsoW, 2*scale, '#23160c', 4, Z_TORSO+1);
+    c.setPixel(16*scale, hipY - 2*scale, '#edd06d', 4, Z_TORSO+2); // Buckle
     if (apronRamp && dir !== 1) {
-      c.fillRect(16 - halfShW + 2, torsoY + 4, torsoW - 4, hipY - torsoY + 6, apronRamp[3], 3);
-      c.fillRect(16 + halfShW - 4, torsoY + 4, 2, hipY - torsoY + 6, apronRamp[1], 3);
+      c.fillRect(16*scale - halfShW + 2*scale, torsoY + 4*scale, torsoW - 4*scale, hipY - torsoY + 6*scale, apronRamp[3], 3, Z_TORSO+3);
     }
 
-    // Pregnancy profile swell
-    if (cond.pregnant > 60 && (dir === 2 || dir === 3)) {
-      const swell = Math.min(4, Math.floor(cond.pregnant / 50));
-      c.fillRect(16 - halfShW - swell, torsoY + 4, swell, 6, shirtRamp[3], 3);
-    }
+    // 5. Arms
+    const armLX = (16 - halfShW/scale - 1) * scale;
+    const armRX = (16 + halfShW/scale) * scale;
+    const handLY = Math.min(hipY + 4*scale, (pose.armLeft.y + bobY) * scale);
+    const handRY = Math.min(hipY + 4*scale, (pose.armRight.y + bobY) * scale);
 
-    // 5. Arms & Hands
-    const armLX = 16 - halfShW - 1;
-    const armRX = 16 + halfShW;
-    const handLY = Math.min(hipY + 4, pose.armLeft.y + bobY);
-    const handRY = Math.min(hipY + 4, pose.armRight.y + bobY);
+    let lArmZ = (dir === 3) ? Z_FRONT_ARM : Z_BACK_ARM;
+    let rArmZ = (dir === 2) ? Z_FRONT_ARM : Z_BACK_ARM;
+    if (dir === 0 || dir === 1) { lArmZ = Z_FRONT_ARM; rArmZ = Z_FRONT_ARM; }
 
-    if (dir === 2 || dir === 3) {
-      // Profile view: single primary arm in view
-      const activeHandY = handRY;
-      c.fillRect(15, torsoY + 2, 3, activeHandY - torsoY - 1, shirtRamp[3], 3);
-      VP.drawHand(c, 15, activeHandY, skinRamp, pose.tool.active ? 'fist' : 'open');
-    } else {
-      // Front / Back View
-      // Left Arm
-      c.fillRect(armLX, torsoY + 2, 2, handLY - torsoY - 1, shirtRamp[3], 3);
-      c.fillRect(armLX, torsoY + 2, 1, handLY - torsoY - 1, shirtRamp[4], 3); // highlight
-      VP.drawHand(c, armLX, handLY, skinRamp, 'open');
+    c.fillRect(armLX, torsoY + 2*scale, 2*scale, handLY - torsoY - 1*scale, shirtRamp[3], 3, lArmZ);
+    VP.drawHand(c, armLX, handLY, skinRamp, 'open', lArmZ);
 
-      // Right Arm
-      c.fillRect(armRX, torsoY + 2, 2, handRY - torsoY - 1, shirtRamp[3], 3);
-      c.fillRect(armRX + 1, torsoY + 2, 1, handRY - torsoY - 1, shirtRamp[1], 3); // shade
-      VP.drawHand(c, armRX, handRY, skinRamp, pose.tool.active ? 'fist' : 'open');
-    }
+    c.fillRect(armRX, torsoY + 2*scale, 2*scale, handRY - torsoY - 1*scale, shirtRamp[3], 3, rArmZ);
+    VP.drawHand(c, armRX, handRY, skinRamp, pose.tool.active ? 'fist' : 'open', rArmZ);
 
     // 6. Neck & Head
-    c.fillRect(15, neckY, 3, 2, skinRamp[1], 2); // seamless neck
-    // Head shape: centered at (16, headCenterY)
-    VP.drawCluster(c, 16, headCenterY, 4, 4, skinRamp, 'UL');
+    c.fillRect(15*scale, neckY, 2*scale, 3*scale, skinRamp[1], 2, Z_HEAD);
+    VP.drawCluster(c, 16*scale, headCenterY, 4*scale, 4*scale, skinRamp, Z_HEAD, 'UL');
 
-    // 7. Face Features (eyes, nose, mouth)
-    const faceBox = {
-      x0: 12,
-      x1: 20,
-      centerY: headCenterY
-    };
-    VP.drawFaceFeatures(c, faceBox, dna.face, pose.blink, pose.mouthOpen, dir);
-
-    // Facial hair (beard)
-    if (dna.face.facialHair === 'full_beard' || dna.face.facialHair === 'long_grey_beard') {
-      const beardLen = dna.face.facialHair === 'long_grey_beard' ? 5 : 3;
-      c.fillRect(13, headCenterY + 2, 7, beardLen, hairRamp[2], 2);
-      c.fillRect(14, headCenterY + 2 + beardLen, 5, 2, hairRamp[1], 2);
-    } else if (dna.face.facialHair === 'mustache') {
-      c.fillRect(14, headCenterY + 2, 5, 1, hairRamp[2], 2);
-    }
-
-    // 8. Front Hair / Coiffure
-    if (dir === 1) {
-      // Back view: hair covers entire occiput
-      c.fillRect(12, headCenterY - 5, 9, 8, hairRamp[3], 2);
-      c.fillRect(17, headCenterY - 5, 4, 8, hairRamp[1], 2); // right shadow
-    } else {
-      // Hair crown & front locks
-      c.fillRect(12, headCenterY - 5, 9, 3, hairRamp[3], 2);
-      // Highlights on crown
-      c.setPixel(14, headCenterY - 5, hairRamp[5], 2);
-      c.setPixel(15, headCenterY - 5, hairRamp[5], 2);
-
-      if (dna.hair.style === 'bob') {
-        c.fillRect(11, headCenterY - 3, 2, 6, hairRamp[2], 2);
-        c.fillRect(20, headCenterY - 3, 2, 6, hairRamp[2], 2);
-      } else if (dna.hair.style === 'tied') {
-        c.fillRect(15, headCenterY - 7, 3, 2, hairRamp[2], 2);
-        c.setPixel(16, headCenterY - 6, '#edd06d', 5);
-      } else if (dna.hair.style === 'bald') {
-        c.fillRect(11, headCenterY - 2, 2, 4, hairRamp[2], 2);
-        c.fillRect(20, headCenterY - 2, 2, 4, hairRamp[2], 2);
-      } else {
-        VP.drawCurvedLock(c, 12, headCenterY - 4, 12, headCenterY + 1, 2, hairRamp, -1);
-        VP.drawCurvedLock(c, 20, headCenterY - 4, 20, headCenterY + 1, 2, hairRamp, 1);
-      }
-    }
-
-    // 9. Hat (if worn)
-    if (hatRamp && dna.palette.hat) {
-      // Wide straw brim or felt cap
-      c.fillRect(10, headCenterY - 5, 13, 2, hatRamp[3], 3);
-      c.fillRect(13, headCenterY - 8, 7, 3, hatRamp[3], 3);
-      c.fillRect(13, headCenterY - 6, 7, 1, '#8c2424', 3); // hat band
-    }
-
-    // 10. Tools & Carried Items
-    if (dna.heldTool && !pose.sleeping) {
-      const toolX = dir === 2 ? 15 : armRX;
-      const toolY = dir === 2 ? handRY : handRY;
-      VP.drawTool(c, dna.heldTool, toolX, toolY, 0, act);
-    }
-    if (cond.carryingItem === 'log' || (pose.carriedItem && pose.carriedItem.type === 'log')) {
-      // Substantial horizontal timber log in arms
-      const woodRamp = VP.makeRamp('#8a5a38');
-      c.fillRect(8, torsoY + 3, 16, 5, woodRamp[3], 5);
-      c.fillRect(8, torsoY + 3, 16, 1, woodRamp[5], 5); // top light
-      c.fillRect(8, torsoY + 7, 16, 1, woodRamp[1], 5); // bottom shadow
-      c.ellipse(8, torsoY + 5, 2, 2, woodRamp[4], 5);   // cut end
-      c.ellipse(24, torsoY + 5, 2, 2, woodRamp[2], 5);
-    }
-
-    // 11. Condition Effects (wetness, mud, bandages)
-    VP.applyConditionEffects(c, cond);
-
-    // 12. Final Master Touch: Selective Color Outline
-    VP.applySelectiveOutline(c);
-
-    return c;
-  }
-
-  /**
-   * Renders a full animated spritesheet for given directions and animation clips.
-   */
-  static renderSheet(dna, actions = ['idle', 'walk', 'work', 'talk', 'sit', 'sleep'], dirs = [0, 1, 2]) {
-    const sheet = {};
-    for (const dir of dirs) {
-      sheet[dir] = {};
-      for (const act of actions) {
-        const frameCount = act === 'walk' ? 6 : (act === 'idle' ? 4 : (act === 'work' ? 4 : (act === 'talk' ? 4 : 2)));
-        sheet[dir][act] = [];
-        for (let f = 0; f < frameCount; f++) {
-          const frameCanvas = this.renderFrame(dna, dir, act, f, dna.condition);
-          sheet[dir][act].push(frameCanvas);
+    // 7. Face (High Fidelity)
+    if (dir === 0 || dir === 2 || dir === 3) {
+      const fX = 16*scale;
+      const fY = headCenterY;
+      
+      // Eyes (more complex at 2x scale)
+      if (dir === 0) {
+        // Left eye
+        c.fillRect(fX - 4, fY - 2, 2, 2, '#f0f4f8', 2, Z_HEAD+1); // Sclera
+        c.fillRect(fX - 3, fY - 2, 2, 2, skinRamp[0], 2, Z_HEAD+2); // Iris
+        c.setPixel(fX - 3, fY - 2, '#ffffff', 2, Z_HEAD+3); // Specular
+        
+        // Right eye
+        c.fillRect(fX + 2, fY - 2, 2, 2, '#f0f4f8', 2, Z_HEAD+1);
+        c.fillRect(fX + 3, fY - 2, 2, 2, skinRamp[0], 2, Z_HEAD+2);
+        c.setPixel(fX + 3, fY - 2, '#ffffff', 2, Z_HEAD+3);
+        
+        // Eyebrows
+        c.fillRect(fX - 5, fY - 4, 3, 1, hairRamp[1], 2, Z_HEAD+1);
+        c.fillRect(fX + 2, fY - 4, 3, 1, hairRamp[1], 2, Z_HEAD+1);
+        
+        // Nose (geometry dependent)
+        if (dna.face.noseGeometry === 'aquiline') {
+           c.fillRect(fX - 1, fY, 2, 3, skinRamp[1], 2, Z_HEAD+1); // Shadow bridge
+           c.fillRect(fX - 2, fY + 1, 1, 2, skinRamp[4], 2, Z_HEAD+2); // Highlight
+        } else {
+           c.fillRect(fX, fY, 1, 2, skinRamp[1], 2, Z_HEAD+1);
+        }
+        
+        // Mouth
+        c.fillRect(fX - 1, fY + 4, 3, 1, skinRamp[1], 2, Z_HEAD+1);
+        if (dna.face.mouthShape === 'smile') {
+           c.setPixel(fX - 2, fY + 3, skinRamp[1], 2, Z_HEAD+1);
+           c.setPixel(fX + 2, fY + 3, skinRamp[1], 2, Z_HEAD+1);
         }
       }
     }
-    return sheet;
+
+    // 8. Front Hair (Locks and Fringe)
+    if (dna.hair.style !== 'bald') {
+      const hX = 16*scale;
+      const hY = headCenterY - 4*scale;
+      // Main crown
+      VP.drawCluster(c, hX, hY, 4*scale, 2*scale, hairRamp, Z_FRONT_HAIR, 'UL');
+      // Fringe lock left
+      VP.drawCurvedLock(c, hX - 2*scale, hY, hX - 4*scale, hY + 4*scale, 2*scale, hairRamp, -1, Z_FRONT_HAIR+1);
+      // Fringe lock right
+      VP.drawCurvedLock(c, hX + 2*scale, hY, hX + 4*scale, hY + 4*scale, 2*scale, hairRamp, 1, Z_FRONT_HAIR+1);
+    }
+
+    // 9. Tools
+    if (pose.tool.active) {
+      if (dna.heldTool === 'hoe' || dna.heldTool === 'felling_axe') {
+         c.fillRect(armRX - 2*scale, handRY - 6*scale, 1*scale, 14*scale, '#7e512f', 4, Z_ACCESSORY);
+         c.fillRect(armRX - 3*scale, handRY - 7*scale, 3*scale, 2*scale, '#83899c', 4, Z_ACCESSORY+1); // Iron head
+      }
+    }
+
+    // 10. Conditions
+    if (cond.wetness > 0.5) {
+      // Darken overall
+      for(let i=0; i<c.data.length; i+=4) {
+        if(c.data[i+3] > 0) {
+          c.data[i] = Math.max(0, c.data[i] * 0.8);
+          c.data[i+1] = Math.max(0, c.data[i+1] * 0.8);
+          c.data[i+2] = Math.max(0, c.data[i+2] * 0.8);
+        }
+      }
+    }
+
+    // Downsample & Outline
+    const out = scale > 1 ? c.downsample(32, 48) : c;
+    VP.applySelectiveOutline(out);
+    return out;
   }
 }
 

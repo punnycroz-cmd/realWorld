@@ -1,0 +1,1436 @@
+{
+  "version": "1.0.0",
+  "description": "High-quality reference set for visual learning and perceptual evaluation.",
+  "characters": [
+    {
+      "id": "ref_001",
+      "name": "Reference 1",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "short"
+      },
+      "face": {
+        "shape": "round",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "short-cropped",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "farmer-work"
+      },
+      "accessory": "basket",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_002",
+      "name": "Reference 2",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "oval",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "long-flowing",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "artisan-craftsman"
+      },
+      "accessory": "hoe",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_003",
+      "name": "Reference 3",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "average"
+      },
+      "face": {
+        "shape": "long",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "bob",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "hunter-leathers"
+      },
+      "accessory": "hammer",
+      "condition": "exhausted"
+    },
+    {
+      "id": "ref_004",
+      "name": "Reference 4",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "broad",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "braided",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "fisherman-waterproof"
+      },
+      "accessory": "axe",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_005",
+      "name": "Reference 5",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "angular",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "ponytail",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "traveler-cloak"
+      },
+      "accessory": "broom",
+      "condition": "hot"
+    },
+    {
+      "id": "ref_006",
+      "name": "Reference 6",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "soft",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "tied-back",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "villager-casual"
+      },
+      "accessory": "fishing-rod",
+      "condition": "wet"
+    },
+    {
+      "id": "ref_007",
+      "name": "Reference 7",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "narrow",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "curly",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "winter-heavy"
+      },
+      "accessory": "knife",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_008",
+      "name": "Reference 8",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "short"
+      },
+      "face": {
+        "shape": "expressive",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "wavy",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "summer-light"
+      },
+      "accessory": "shovel",
+      "condition": "injured"
+    },
+    {
+      "id": "ref_009",
+      "name": "Reference 9",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "masculine",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "straight",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "rain-slick"
+      },
+      "accessory": "bag",
+      "condition": "sick"
+    },
+    {
+      "id": "ref_010",
+      "name": "Reference 10",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "average"
+      },
+      "face": {
+        "shape": "feminine",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "messy",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worn-tattered"
+      },
+      "accessory": "lantern",
+      "condition": "carrying-heavy"
+    },
+    {
+      "id": "ref_011",
+      "name": "Reference 11",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "neutral",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "layered",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "wealthy-fine"
+      },
+      "accessory": "mug",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_012",
+      "name": "Reference 12",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "age-varied",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "bun",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "simple-linen"
+      },
+      "accessory": "tool-bundle",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_013",
+      "name": "Reference 13",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "round",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "shaved",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "layered-warm"
+      },
+      "accessory": "none",
+      "condition": "exhausted"
+    },
+    {
+      "id": "ref_014",
+      "name": "Reference 14",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "oval",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "partially-shaved",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "practical-apron"
+      },
+      "accessory": "basket",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_015",
+      "name": "Reference 15",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "short"
+      },
+      "face": {
+        "shape": "long",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "elderly-thin",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worker-tunic"
+      },
+      "accessory": "hoe",
+      "condition": "hot"
+    },
+    {
+      "id": "ref_016",
+      "name": "Reference 16",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "broad",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "short-cropped",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "farmer-work"
+      },
+      "accessory": "hammer",
+      "condition": "wet"
+    },
+    {
+      "id": "ref_017",
+      "name": "Reference 17",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "average"
+      },
+      "face": {
+        "shape": "angular",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "long-flowing",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "artisan-craftsman"
+      },
+      "accessory": "axe",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_018",
+      "name": "Reference 18",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "soft",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "bob",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "hunter-leathers"
+      },
+      "accessory": "broom",
+      "condition": "injured"
+    },
+    {
+      "id": "ref_019",
+      "name": "Reference 19",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "narrow",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "braided",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "fisherman-waterproof"
+      },
+      "accessory": "fishing-rod",
+      "condition": "sick"
+    },
+    {
+      "id": "ref_020",
+      "name": "Reference 20",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "expressive",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "ponytail",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "traveler-cloak"
+      },
+      "accessory": "knife",
+      "condition": "carrying-heavy"
+    },
+    {
+      "id": "ref_021",
+      "name": "Reference 21",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "masculine",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "tied-back",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "villager-casual"
+      },
+      "accessory": "shovel",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_022",
+      "name": "Reference 22",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "short"
+      },
+      "face": {
+        "shape": "feminine",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "curly",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "winter-heavy"
+      },
+      "accessory": "bag",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_023",
+      "name": "Reference 23",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "neutral",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "wavy",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "summer-light"
+      },
+      "accessory": "lantern",
+      "condition": "exhausted"
+    },
+    {
+      "id": "ref_024",
+      "name": "Reference 24",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "average"
+      },
+      "face": {
+        "shape": "age-varied",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "straight",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "rain-slick"
+      },
+      "accessory": "mug",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_025",
+      "name": "Reference 25",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "round",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "messy",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worn-tattered"
+      },
+      "accessory": "tool-bundle",
+      "condition": "hot"
+    },
+    {
+      "id": "ref_026",
+      "name": "Reference 26",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "oval",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "layered",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "wealthy-fine"
+      },
+      "accessory": "none",
+      "condition": "wet"
+    },
+    {
+      "id": "ref_027",
+      "name": "Reference 27",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "long",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "bun",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "simple-linen"
+      },
+      "accessory": "basket",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_028",
+      "name": "Reference 28",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "broad",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "shaved",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "layered-warm"
+      },
+      "accessory": "hoe",
+      "condition": "injured"
+    },
+    {
+      "id": "ref_029",
+      "name": "Reference 29",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "short"
+      },
+      "face": {
+        "shape": "angular",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "partially-shaved",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "practical-apron"
+      },
+      "accessory": "hammer",
+      "condition": "sick"
+    },
+    {
+      "id": "ref_030",
+      "name": "Reference 30",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "soft",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "elderly-thin",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worker-tunic"
+      },
+      "accessory": "axe",
+      "condition": "carrying-heavy"
+    },
+    {
+      "id": "ref_031",
+      "name": "Reference 31",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "average"
+      },
+      "face": {
+        "shape": "narrow",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "short-cropped",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "farmer-work"
+      },
+      "accessory": "broom",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_032",
+      "name": "Reference 32",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "expressive",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "long-flowing",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "artisan-craftsman"
+      },
+      "accessory": "fishing-rod",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_033",
+      "name": "Reference 33",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "masculine",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "bob",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "hunter-leathers"
+      },
+      "accessory": "knife",
+      "condition": "exhausted"
+    },
+    {
+      "id": "ref_034",
+      "name": "Reference 34",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "feminine",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "braided",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "fisherman-waterproof"
+      },
+      "accessory": "shovel",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_035",
+      "name": "Reference 35",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "neutral",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "ponytail",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "traveler-cloak"
+      },
+      "accessory": "bag",
+      "condition": "hot"
+    },
+    {
+      "id": "ref_036",
+      "name": "Reference 36",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "short"
+      },
+      "face": {
+        "shape": "age-varied",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "tied-back",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "villager-casual"
+      },
+      "accessory": "lantern",
+      "condition": "wet"
+    },
+    {
+      "id": "ref_037",
+      "name": "Reference 37",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "round",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "curly",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "winter-heavy"
+      },
+      "accessory": "mug",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_038",
+      "name": "Reference 38",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "average"
+      },
+      "face": {
+        "shape": "oval",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "wavy",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "summer-light"
+      },
+      "accessory": "tool-bundle",
+      "condition": "injured"
+    },
+    {
+      "id": "ref_039",
+      "name": "Reference 39",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "long",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "straight",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "rain-slick"
+      },
+      "accessory": "none",
+      "condition": "sick"
+    },
+    {
+      "id": "ref_040",
+      "name": "Reference 40",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "broad",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "messy",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worn-tattered"
+      },
+      "accessory": "basket",
+      "condition": "carrying-heavy"
+    },
+    {
+      "id": "ref_041",
+      "name": "Reference 41",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "angular",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "layered",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "wealthy-fine"
+      },
+      "accessory": "hoe",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_042",
+      "name": "Reference 42",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "soft",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "bun",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "simple-linen"
+      },
+      "accessory": "hammer",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_043",
+      "name": "Reference 43",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "short"
+      },
+      "face": {
+        "shape": "narrow",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "shaved",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "layered-warm"
+      },
+      "accessory": "axe",
+      "condition": "exhausted"
+    },
+    {
+      "id": "ref_044",
+      "name": "Reference 44",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "expressive",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "partially-shaved",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "practical-apron"
+      },
+      "accessory": "broom",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_045",
+      "name": "Reference 45",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "average"
+      },
+      "face": {
+        "shape": "masculine",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "elderly-thin",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worker-tunic"
+      },
+      "accessory": "fishing-rod",
+      "condition": "hot"
+    },
+    {
+      "id": "ref_046",
+      "name": "Reference 46",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "feminine",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "short-cropped",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "farmer-work"
+      },
+      "accessory": "knife",
+      "condition": "wet"
+    },
+    {
+      "id": "ref_047",
+      "name": "Reference 47",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "neutral",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "long-flowing",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "artisan-craftsman"
+      },
+      "accessory": "shovel",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_048",
+      "name": "Reference 48",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "age-varied",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "bob",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "hunter-leathers"
+      },
+      "accessory": "bag",
+      "condition": "injured"
+    },
+    {
+      "id": "ref_049",
+      "name": "Reference 49",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "round",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "braided",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "fisherman-waterproof"
+      },
+      "accessory": "lantern",
+      "condition": "sick"
+    },
+    {
+      "id": "ref_050",
+      "name": "Reference 50",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "short"
+      },
+      "face": {
+        "shape": "oval",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "ponytail",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "traveler-cloak"
+      },
+      "accessory": "mug",
+      "condition": "carrying-heavy"
+    },
+    {
+      "id": "ref_051",
+      "name": "Reference 51",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "long",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "tied-back",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "villager-casual"
+      },
+      "accessory": "tool-bundle",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_052",
+      "name": "Reference 52",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "average"
+      },
+      "face": {
+        "shape": "broad",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "curly",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "winter-heavy"
+      },
+      "accessory": "none",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_053",
+      "name": "Reference 53",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "angular",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "wavy",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "summer-light"
+      },
+      "accessory": "basket",
+      "condition": "exhausted"
+    },
+    {
+      "id": "ref_054",
+      "name": "Reference 54",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "soft",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "straight",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "rain-slick"
+      },
+      "accessory": "hoe",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_055",
+      "name": "Reference 55",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "heavy"
+      },
+      "face": {
+        "shape": "narrow",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "messy",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worn-tattered"
+      },
+      "accessory": "hammer",
+      "condition": "hot"
+    },
+    {
+      "id": "ref_056",
+      "name": "Reference 56",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "expressive",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "layered",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "wealthy-fine"
+      },
+      "accessory": "axe",
+      "condition": "wet"
+    },
+    {
+      "id": "ref_057",
+      "name": "Reference 57",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "short"
+      },
+      "face": {
+        "shape": "masculine",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "bun",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "simple-linen"
+      },
+      "accessory": "broom",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_058",
+      "name": "Reference 58",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "feminine",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "shaved",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "layered-warm"
+      },
+      "accessory": "fishing-rod",
+      "condition": "injured"
+    },
+    {
+      "id": "ref_059",
+      "name": "Reference 59",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "average"
+      },
+      "face": {
+        "shape": "neutral",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "partially-shaved",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "practical-apron"
+      },
+      "accessory": "knife",
+      "condition": "sick"
+    },
+    {
+      "id": "ref_060",
+      "name": "Reference 60",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "tall"
+      },
+      "face": {
+        "shape": "age-varied",
+        "expression": "neutral",
+        "skinTone": "fever_flush"
+      },
+      "hair": {
+        "style": "elderly-thin",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "worker-tunic"
+      },
+      "accessory": "shovel",
+      "condition": "carrying-heavy"
+    },
+    {
+      "id": "ref_061",
+      "name": "Reference 61",
+      "anatomy": {
+        "agePhase": "child",
+        "build": "short"
+      },
+      "face": {
+        "shape": "round",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "messy",
+        "color": "blonde"
+      },
+      "clothing": {
+        "family": "summer-light"
+      },
+      "accessory": "none",
+      "condition": "dirty"
+    },
+    {
+      "id": "ref_062",
+      "name": "Reference 62",
+      "anatomy": {
+        "agePhase": "elder",
+        "build": "slim"
+      },
+      "face": {
+        "shape": "angular",
+        "expression": "neutral",
+        "skinTone": "pale_sickly"
+      },
+      "hair": {
+        "style": "elderly-thin",
+        "color": "grey"
+      },
+      "clothing": {
+        "family": "winter-heavy"
+      },
+      "accessory": "lantern",
+      "condition": "cold"
+    },
+    {
+      "id": "ref_063",
+      "name": "Reference 63",
+      "anatomy": {
+        "agePhase": "adult",
+        "build": "athletic"
+      },
+      "face": {
+        "shape": "masculine",
+        "expression": "neutral",
+        "skinTone": "deep"
+      },
+      "hair": {
+        "style": "shaved",
+        "color": "black"
+      },
+      "clothing": {
+        "family": "hunter-leathers"
+      },
+      "accessory": "axe",
+      "condition": "healthy"
+    },
+    {
+      "id": "ref_064",
+      "name": "Reference 64",
+      "anatomy": {
+        "agePhase": "middle-aged",
+        "build": "broad"
+      },
+      "face": {
+        "shape": "soft",
+        "expression": "neutral",
+        "skinTone": "light"
+      },
+      "hair": {
+        "style": "bun",
+        "color": "auburn"
+      },
+      "clothing": {
+        "family": "artisan-craftsman"
+      },
+      "accessory": "hammer",
+      "condition": "tired"
+    },
+    {
+      "id": "ref_065",
+      "name": "Reference 65",
+      "anatomy": {
+        "agePhase": "youth",
+        "build": "average"
+      },
+      "face": {
+        "shape": "expressive",
+        "expression": "neutral",
+        "skinTone": "tan"
+      },
+      "hair": {
+        "style": "braided",
+        "color": "brown"
+      },
+      "clothing": {
+        "family": "traveler-cloak"
+      },
+      "accessory": "bag",
+      "condition": "wet"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "total": 250,
+  "failures": 0,
+  "successRate": "100.0%",
+  "details": [
+    {
+      "id": 1000,
+      "status": "passed",
+      "pixels": 290
+    },
+    {
+      "id": 1001,
+      "status": "passed",
+      "pixels": 313
+    },
+    {
+      "id": 1002,
+      "status": "passed",
+      "pixels": 319
+    },
+    {
+      "id": 1003,
+      "status": "passed",
+      "pixels": 326
+    },
+    {
+      "id": 1004,
+      "status": "passed",
+      "pixels": 328
+    },
+    {
+      "id": 1005,
+      "status": "passed",
+      "pixels": 358
+    },
+    {
+      "id": 1006,
+      "status": "passed",
+      "pixels": 362
+    },
+    {
+      "id": 1007,
+      "status": "passed",
+      "pixels": 375
+    },
+    {
+      "id": 1008,
+      "status": "passed",
+      "pixels": 360
+    },
+    {
+      "id": 1009,
+      "status": "passed",
+      "pixels": 362
+    }
+  ]
+}

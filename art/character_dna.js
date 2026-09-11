@@ -180,7 +180,11 @@ class CharacterDNA {
         hipWidth,
         limbThickness,
         torsoLegRatio,
-        hunchForward
+        hunchForward,
+        armProportions: 1.0,
+        handSize: 1.0,
+        footSize: 1.0,
+        stance: 'neutral'
       },
       face: {
         shape: faceShape,
@@ -192,14 +196,28 @@ class CharacterDNA {
         mouthStyle: 'neutral',
         facialHair,
         blushIntensity: age < 12 ? 0.65 : 0.25,
-        wrinkleIntensity: age > 55 ? Math.min(1.0, (age - 55) / 25) : 0
+        wrinkleIntensity: age > 55 ? Math.min(1.0, (age - 55) / 25) : 0,
+        faceWidth: 1.0,
+        faceHeight: 1.0,
+        eyeSpacing: 5,
+        eyeScale: 1.0,
+        browAngle: 0,
+        noseGeometry: 'straight',
+        mouthShape: 'neutral',
+        cheekVolume: 0.5,
+        jawShape: 'angular'
       },
       hair: {
         style: hairStyle,
         colorRampKey: hairColorKey,
         volume: 1.0,
         fringe: true,
-        accessory: sex === 'feminine' && hairStyle === 'braided' ? 'ribbon' : null
+        accessory: sex === 'feminine' && hairStyle === 'braided' ? 'ribbon' : null,
+        silhouette: hairStyle,
+        strandGroups: 3,
+        sideMass: 0.5,
+        backMass: 0.5,
+        highlightDirection: 'upper_left'
       },
       clothing: {
         archetype: clothingArchetype,
@@ -214,7 +232,15 @@ class CharacterDNA {
           footwear: 'boots',
           belt: 'leather_belt'
         },
-        wearLevel: age > 40 ? 0.35 : 0.1
+        wearLevel: age > 40 ? 0.35 : 0.1,
+        materialType: 'linen'
+      },
+      material: {
+        roughness: 0.5,
+        shadowDepth: 0.5,
+        highlightStrength: 0.5,
+        edgeResponse: 0.5,
+        textureDensity: 0.5
       },
       palette,
       accessories: [],
@@ -231,7 +257,12 @@ class CharacterDNA {
       },
       style: {
         outlineMode: 'selective_color',
-        shadingQuality: 'volumetric_smooth'
+        shadingQuality: 'volumetric_smooth',
+        clusterSize: 2,
+        outlineStrength: 1.0,
+        contrast: 1.0,
+        paletteCompression: 1.0,
+        pixelRhythm: 'natural'
       }
     });
   }
