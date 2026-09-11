@@ -1,0 +1,257 @@
+{
+  "timestamp": "2026-09-11T05:47:58.489Z",
+  "evaluationSummary": {
+    "totalEvaluated": 18,
+    "meanOverallScore": 0.943,
+    "passingThreshold": 0.9,
+    "status": "PASSED"
+  },
+  "archetypeReports": {
+    "Tomas": {
+      "idle": {
+        "silhouette": 0.97,
+        "anatomy": 0.97,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "walk": {
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "work": {
+        "silhouette": 0.97,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      }
+    },
+    "Marta": {
+      "idle": {
+        "silhouette": 0.98,
+        "anatomy": 0.98,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "walk": {
+        "silhouette": 0.97,
+        "anatomy": 0.97,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "work": {
+        "silhouette": 0.98,
+        "anatomy": 0.97,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      }
+    },
+    "Sanna": {
+      "idle": {
+        "silhouette": 0.94,
+        "anatomy": 0.98,
+        "pose": 0.8,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.93
+      },
+      "walk": {
+        "silhouette": 0.93,
+        "anatomy": 0.98,
+        "pose": 0.8,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.93
+      },
+      "work": {
+        "silhouette": 0.93,
+        "anatomy": 0.98,
+        "pose": 0.8,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.93
+      }
+    },
+    "Petr": {
+      "idle": {
+        "silhouette": 0.97,
+        "anatomy": 0.97,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "walk": {
+        "silhouette": 0.98,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "work": {
+        "silhouette": 0.97,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      }
+    },
+    "Joren_Elder": {
+      "idle": {
+        "silhouette": 0.97,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      },
+      "walk": {
+        "silhouette": 0.96,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      },
+      "work": {
+        "silhouette": 0.97,
+        "anatomy": 0.96,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      }
+    },
+    "Pip_Child": {
+      "idle": {
+        "silhouette": 0.96,
+        "anatomy": 0.98,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.95
+      },
+      "walk": {
+        "silhouette": 0.95,
+        "anatomy": 0.98,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.85,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      },
+      "work": {
+        "silhouette": 0.96,
+        "anatomy": 0.97,
+        "pose": 0.92,
+        "face": 0.94,
+        "palette": 0.94,
+        "lighting": 0.93,
+        "materials": 0.95,
+        "pixelDiscipline": 0.96,
+        "animation": 0.93,
+        "style": 0.95,
+        "overall": 0.94
+      }
+    }
+  }
+}
