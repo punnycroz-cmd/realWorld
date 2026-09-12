@@ -30,29 +30,19 @@ const N_EYE='#14100c', N_BLUSH='#f28f8f', N_MOUTH='#8a4030', N_MOUTH_O='#5e2818'
      profile: eye (4,11) 1x2 | blush (3,13) 1x1 | mouth (3,14) 2x1
    Use nvFaceFront / nvFaceProfile so every face matches. */
 
-/* expressive face, front (Direction A specular catchlight + 2-tone blush) */
+/* minimal face, front */
 function nvFaceFront(g,dy,blink,open){
-  if(blink){
-    paR(g,9,12+dy,1,1,N_EYE); paR(g,14,12+dy,1,1,N_EYE);
-  } else {
-    paR(g,9,11+dy,1,2,N_EYE); paR(g,14,11+dy,1,2,N_EYE);
-    paPX(g,9,11+dy,'#ffffff'); paPX(g,14,11+dy,'#ffffff'); /* Direction A Specular Catchlight */
-  }
+  if(blink){ paR(g,9,12+dy,1,1,N_EYE); paR(g,14,12+dy,1,1,N_EYE); }
+  else { paR(g,9,11+dy,1,2,N_EYE); paR(g,14,11+dy,1,2,N_EYE); }
   paR(g,7,13+dy,1,1,N_BLUSH); paR(g,16,13+dy,1,1,N_BLUSH);
-  paPX(g,6,13+dy,'#fde2e4'); paPX(g,17,13+dy,'#fde2e4'); /* soft peach blush halo */
   if(open) paR(g,11,14+dy,2,2,N_MOUTH_O);
   else paR(g,11,14+dy,2,1,N_MOUTH);
 }
-/* expressive face, profile facing left */
+/* minimal face, profile facing left */
 function nvFaceProfile(g,dy,blink,open){
-  if(blink){
-    paR(g,4,12+dy,1,1,N_EYE);
-  } else {
-    paR(g,4,11+dy,1,2,N_EYE);
-    paPX(g,4,11+dy,'#ffffff'); /* Direction A Specular Catchlight */
-  }
+  if(blink) paR(g,4,12+dy,1,1,N_EYE);
+  else paR(g,4,11+dy,1,2,N_EYE);
   paR(g,3,13+dy,1,1,N_BLUSH);
-  paPX(g,2,13+dy,'#fde2e4'); /* soft peach blush halo */
   if(open) paR(g,3,14+dy,2,2,N_MOUTH_O);
   else paR(g,3,14+dy,2,1,N_MOUTH);
 }
@@ -102,7 +92,7 @@ function nvSit(g,pal,headFn,fr){
   if(pal.apron){ paR(g,9,21,6,6,pal.apron); paR(g,13,22,2,5,pal.apronD); }
   paR(g,5,21,3,4,pal.shirt); paR(g,16,21,3,4,pal.shirt);  /* resting arms */
   paR(g,5,24,2,2,pal.skin); paR(g,17,24,2,2,pal.skin);
-  headFn(g,0,2,blink,false,{sit:true});
+  headFn(g,0,2,blink,false);
 }
 
 /* sleeping body, shared; pal.sleepHat(g) optional */
@@ -122,12 +112,11 @@ function nvSleepPaint(g,pal){
 /* ================= MARTA (Farmer, tool: hoe) ================= */
 const martaPal={skin:'#f5cfa0',skinD:'#dfa878',hair:'#7a4a2c',hairD:'#5a3520',shirt:'#cf6a26',shirtD:'#a34e1a',pants:'#3b6ea5',pantsD:'#2c4f7d',boots:'#6b4a26',bootsD:'#4e3319',apron:null,apronD:null};
 
-function martaHead(g,dir,dy,blink,open,opt){
+function martaHead(g,dir,dy,blink,open){
   const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
   const P=martaPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD;
   const STRAW='#e8c35a',STRAWD='#c9a043',BAND='#a32e2e';
-  const showHat = !(opt && (opt.sit || opt.noHat));
-  const hat=()=>{ if(showHat){ R(8,1,9,3,STRAW); R(8,3,9,1,BAND); R(15,1,2,2,STRAWD); R(3,4,19,3,STRAW); R(3,6,19,1,STRAWD); } };
+  const hat=()=>{ R(8,1,9,3,STRAW); R(8,3,9,1,BAND); R(15,1,2,2,STRAWD); R(3,4,19,3,STRAW); R(3,6,19,1,STRAWD); };
   if(dir===1){
     R(4,6,17,13,HR); hat();
     for(let i=0;i<8;i++){ R(5,17+i,3,1,i%2?HRD:HR); R(17,17+i,3,1,i%2?HR:HRD); }
@@ -139,13 +128,11 @@ function martaHead(g,dir,dy,blink,open,opt){
     R(4,7,3,11,HR); R(18,7,3,11,HR);
     R(4,7,1,11,HRD); R(20,7,1,11,HRD);
     R(5,7,15,2,HR);
-    paR(g,7,7+dy,4,1,'#a86c44'); /* crown sheen highlight */
     for(let i=0;i<7;i++){ R(4,10+i,3,1,i%2?HR:HRD); R(18,10+i,3,1,i%2?HRD:HR); }
     R(4,17,3,1,BAND); R(18,17,3,1,BAND);
   }else{
     R(11,6,10,13,HR); R(19,7,2,12,HRD);
     R(5,7,8,2,HR);
-    paR(g,7,7+dy,3,1,'#a86c44'); /* crown sheen highlight */
     for(let i=0;i<7;i++){ R(4,10+i,3,1,i%2?HR:HRD); }
     R(4,17,3,1,BAND);
     for(let i=0;i<5;i++){ R(17,12+i,3,1,i%2?HRD:HR); }
@@ -205,13 +192,11 @@ function bramHead(g,dir,dy,blink,open){
   if(dir===1){ R(4,6,17,13,HR); R(4,6,17,1,HRD); return; }
   R(4,6,17,13,SK); R(19,8,2,10,SKD);
   if(dir===0){
-    R(5,6,15,3,HR); R(7,6,5,1,'#443f38'); /* crown highlight */
-    R(4,8,2,4,HR); R(19,8,2,4,HR);
+    R(5,6,15,3,HR); R(4,8,2,4,HR); R(19,8,2,4,HR);
     nvFaceFront(g,dy,blink,open);
     R(6,13,13,6,HR); R(6,16,13,3,HRD); R(16,13,3,6,HRD);
   }else{
-    R(12,6,9,7,HR); R(13,6,4,1,'#443f38'); /* crown highlight */
-    R(4,6,3,3,HR);
+    R(12,6,9,7,HR); R(4,6,3,3,HR);
     nvFaceProfile(g,dy,blink,open);
     R(5,13,9,6,HR); R(5,16,9,3,HRD);
   }
@@ -797,189 +782,6 @@ function pipTorso(g, dir, act, fr, dy){
   }
 }
 
-/* ================= ROWAN (Traveling Bard, tool: lute) ================= */
-const rowanPal={
-  skin:'#fcd3b6',skinD:'#e0a98b',
-  hair:'#d97706',hairD:'#92400e',hairH:'#f59e0b',
-  shirt:'#15803d',shirtD:'#166534',
-  pants:'#78350f',pantsD:'#451a03',
-  boots:'#3f2817',bootsD:'#2b1b10',
-  hat:'#047857',feather:'#f59e0b',
-  apron:null,apronD:null
-};
-
-function rowanHead(g,dir,dy,blink,open,opt){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=rowanPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD,HRH=P.hairH;
-  if(dir===1){
-    R(4,6,17,13,HR); R(4,6,17,2,HRD);
-    if(!(opt&&opt.sit)){ R(5,2,14,5,P.hat); R(12,0,2,4,P.feather); }
-    return;
-  }
-  R(4,6,17,13,SK); R(19,8,2,10,SKD);
-  if(dir===0){
-    R(5,7,15,3,HR); R(7,7,4,1,HRH);
-    R(4,9,3,7,HR); R(18,9,3,7,HR);
-    R(4,13,2,3,HRD); R(19,13,2,3,HRD);
-    if(!(opt&&opt.sit)){
-      R(5,2,14,5,P.hat); R(13,0,2,4,P.feather); R(5,5,14,2,'#065f46');
-    }
-    nvFaceFront(g,dy,blink,open);
-  }else{
-    R(11,6,10,13,HR); R(18,7,2,12,HRD);
-    R(5,7,7,2,HR); R(7,7,3,1,HRH);
-    if(!(opt&&opt.sit)){
-      R(5,2,14,5,P.hat); R(11,0,2,4,P.feather); R(5,5,14,2,'#065f46');
-    }
-    nvFaceProfile(g,dy,blink,open);
-  }
-}
-
-function rowanTorso(g,dir,act,fr,dy){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=rowanPal,SH=P.shirt,SHD=P.shirtD,DN=P.pants,DND=P.pantsD,SK=P.skin;
-  const GOLD='#fbbf24',BELT='#451a03';
-  R(8,18,9,8,SH); R(15,18,2,8,SHD);
-  R(8,23,9,2,BELT); R(11,23,3,2,GOLD);
-  R(9,25,7,2,DN); R(14,25,2,2,DND);
-  const mir=dir===2;
-  const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
-  const tArm=(ay)=> { R(HX-1,ay,4,7,SH); R(HX,ay+5,2,2,SK); };
-  const oArm=(ay)=> { R(OX,ay,4,7,OSH); R(OX,ay+5,2,2,SK); };
-  if(act==='walk'){
-    const s=nvSwing(fr),oT=mir?s:-s,oO=mir?-s:s;
-    oArm(18+oO); tArm(18+oT);
-  }else if(act==='talk'){
-    if(fr===1){ R(OX,12,4,7,OSH); R(OX,12,2,2,SK); } else oArm(18);
-    tArm(18);
-  }else{
-    oArm(18); tArm(18);
-  }
-}
-
-/* ================= CLARA (Silk Merchant, tool: basket) ================= */
-const claraPal={
-  skin:'#eab088',skinD:'#cf8f66',
-  hair:'#27272a',hairD:'#18181b',hairH:'#52525b',
-  shirt:'#7e22ce',shirtD:'#581c87',
-  pants:'#4338ca',pantsD:'#312e81',
-  boots:'#713f12',bootsD:'#502c0d',
-  turban:'#e0e7ff',turbanD:'#c7d2fe',jewel:'#facc15',
-  apron:null,apronD:null
-};
-
-function claraHead(g,dir,dy,blink,open,opt){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=claraPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD,HRH=P.hairH;
-  if(dir===1){
-    R(4,6,17,13,HR); R(4,14,17,4,HRD);
-    if(!(opt&&opt.sit)){ R(5,2,15,6,P.turban); R(5,6,15,2,P.turbanD); }
-    return;
-  }
-  R(4,6,17,13,SK); R(19,8,2,10,SKD);
-  if(dir===0){
-    R(5,7,15,3,HR); R(7,7,4,1,HRH);
-    R(4,9,3,8,HR); R(18,9,3,8,HR);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.turban); R(5,6,15,2,P.turbanD);
-      paPX(g,12,4+dy,P.jewel); paPX(g,13,4+dy,P.jewel);
-    }
-    nvFaceFront(g,dy,blink,open);
-  }else{
-    R(11,6,10,13,HR); R(18,7,2,12,HRD);
-    R(5,7,7,2,HR); R(7,7,3,1,HRH);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.turban); R(5,6,15,2,P.turbanD);
-      paPX(g,8,4+dy,P.jewel);
-    }
-    nvFaceProfile(g,dy,blink,open);
-  }
-}
-
-function claraTorso(g,dir,act,fr,dy){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=claraPal,SH=P.shirt,SHD=P.shirtD,DN=P.pants,DND=P.pantsD,SK=P.skin;
-  const GOLD='#facc15',SASH='#e0e7ff';
-  R(8,18,9,8,SH); R(15,18,2,8,SHD);
-  R(9,19,2,6,GOLD); R(14,19,2,6,GOLD);
-  R(8,23,9,2,SASH);
-  R(9,25,7,2,DN); R(14,25,2,2,DND);
-  const mir=dir===2;
-  const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
-  const tArm=(ay)=> { R(HX-1,ay,4,7,SH); R(HX,ay+5,2,2,SK); };
-  const oArm=(ay)=> { R(OX,ay,4,7,OSH); R(OX,ay+5,2,2,SK); };
-  if(act==='walk'){
-    const s=nvSwing(fr),oT=mir?s:-s,oO=mir?-s:s;
-    oArm(18+oO); tArm(18+oT);
-  }else if(act==='talk'){
-    if(fr===1){ R(OX,12,4,7,OSH); R(OX,12,2,2,SK); } else oArm(18);
-    tArm(18);
-  }else{
-    oArm(18); tArm(18);
-  }
-}
-
-/* ================= GARETH (Wandering Knight, tool: sword) ================= */
-const garethPal={
-  skin:'#fed7aa',skinD:'#fba96b',
-  hair:'#71717a',hairD:'#3f3f46',hairH:'#a1a1aa',
-  shirt:'#94a3b8',shirtD:'#64748b',
-  pants:'#475569',pantsD:'#334155',
-  boots:'#1e293b',bootsD:'#0f172a',
-  cape:'#dc2626',capeD:'#991b1b',
-  helm:'#cbd5e1',helmD:'#94a3b8',
-  apron:null,apronD:null
-};
-
-function garethHead(g,dir,dy,blink,open,opt){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=garethPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD,HRH=P.hairH;
-  if(dir===1){
-    R(4,6,17,13,HR); R(4,6,17,2,HRD);
-    if(!(opt&&opt.sit)){ R(5,2,14,6,P.helm); R(5,5,14,3,P.helmD); R(11,0,3,4,P.cape); }
-    return;
-  }
-  R(4,6,17,13,SK); R(19,8,2,10,SKD);
-  if(dir===0){
-    R(5,7,15,3,HR); R(7,7,4,1,HRH);
-    R(4,9,2,5,HR); R(19,9,2,5,HR);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.helm); R(5,6,15,2,P.helmD); R(11,0,3,4,P.cape);
-    }
-    nvFaceFront(g,dy,blink,open);
-  }else{
-    R(11,6,10,13,HR); R(18,7,2,12,HRD);
-    R(5,7,7,2,HR); R(7,7,3,1,HRH);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.helm); R(5,6,15,2,P.helmD); R(10,0,3,4,P.cape);
-    }
-    nvFaceProfile(g,dy,blink,open);
-  }
-}
-
-function garethTorso(g,dir,act,fr,dy){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=garethPal,SH=P.shirt,SHD=P.shirtD,DN=P.pants,DND=P.pantsD,SK=P.skin;
-  const GOLD='#fbbf24',STEEL='#cbd5e1';
-  R(6,18,3,9,P.cape); R(16,18,3,9,P.capeD);
-  R(8,18,9,8,SH); R(15,18,2,8,SHD);
-  R(12,19,2,6,GOLD); R(10,21,6,2,GOLD);
-  R(9,25,7,2,DN); R(14,25,2,2,DND);
-  const mir=dir===2;
-  const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
-  const tArm=(ay)=> { R(HX-1,ay,4,7,STEEL); R(HX,ay+5,2,2,SK); };
-  const oArm=(ay)=> { R(OX,ay,4,7,SHD); R(OX,ay+5,2,2,SK); };
-  if(act==='walk'){
-    const s=nvSwing(fr),oT=mir?s:-s,oO=mir?-s:s;
-    oArm(18+oO); tArm(18+oT);
-  }else if(act==='talk'){
-    if(fr===1){ R(OX,12,4,7,OSH); R(OX,12,2,2,SK); } else oArm(18);
-    tArm(18);
-  }else{
-    oArm(18); tArm(18);
-  }
-}
-
 /* ---------------- per-villager design registry ----------------
    Each entry: { pal, head(g,dir,dy,blink,open), torso(g,dir,act,fr,dy) }
    pal keys: skin,skinD,hair,hairD,shirt,shirtD,pants,pantsD,boots,bootsD,
@@ -993,9 +795,6 @@ const DESIGNS = {
   Finn:{pal:finnPal,head:finnHead,torso:finnTorso},
   Alden:{pal:aldenPal,head:aldenHead,torso:aldenTorso},
   Pip:{pal:pipPal,head:pipHead,torso:pipTorso},
-  Rowan:{pal:rowanPal,head:rowanHead,torso:rowanTorso},
-  Clara:{pal:claraPal,head:claraHead,torso:claraTorso},
-  Gareth:{pal:garethPal,head:garethHead,torso:garethTorso},
 };
 
 /* ---------------- frame composer: logical -> 48x64 ---------------- */
@@ -1037,145 +836,9 @@ function nvSleepFrame(spec,fr){
 
 /* ---------------- BUILD ALL + DRAW ---------------- */
 function workFor(name){
-  return {Marta:'hoe',Bram:'hammer',Sella:'rollingpin',Tobin:'mug',Wren:'broom',
-          Finn:'rod',Alden:'scroll',Pip:'ball',
-          Rowan:'lute',Clara:'basket',Gareth:'sword'}[name]||'idle';
+  return {Marta:'hoe',Bram:'hammer',Sella:'basket',Tobin:'mug',Wren:'broom',
+          Finn:'rod',Alden:'scroll',Pip:'ball'}[name]||'idle';
 }
-
-function paLine(g,x0,y0,x1,y1,col){
-  const dx=Math.abs(x1-x0), dy=Math.abs(y1-y0);
-  const sx=x0<x1?1:-1, sy=y0<y1?1:-1;
-  let err=dx-dy, x=x0, y=y0;
-  while(true){
-    paPX(g,x,y,col);
-    if(x===x1&&y===y1) break;
-    const e2=2*err;
-    if(e2>-dy){ err-=dy; x+=sx; }
-    if(e2<dx){ err+=dx; y+=sy; }
-  }
-}
-
-function buildTools(){
-  PA.tools={};
-  function mkTool(drawFn){
-    const L=paMk(14,14), g=L.g;
-    drawFn(g);
-    paOutline(L.c,N_OUTL);
-    const s=paMk(28,28), g2=s.g;
-    g2.imageSmoothingEnabled=false;
-    g2.drawImage(L.c,0,0,28,28);
-    return s.c;
-  }
-
-  PA.tools.hoe = mkTool(g=>{
-    paLine(g,2,12,10,4,'#8a5229');
-    cR(g,8,2,5,3,'#64748b'); cR(g,10,4,3,4,'#475569'); cP(g,9,3,'#94a3b8');
-  });
-
-  PA.tools.hammer = mkTool(g=>{
-    paLine(g,3,12,9,5,'#8a5229');
-    cR(g,7,2,6,4,'#334155'); cR(g,8,3,4,2,'#64748b'); cP(g,8,2,'#94a3b8');
-  });
-
-  PA.tools.rollingpin = mkTool(g=>{
-    cR(g,3,5,8,4,'#e2b17a'); cR(g,4,6,6,2,'#fde68a');
-    cR(g,1,6,2,2,'#92400e'); cR(g,11,6,2,2,'#92400e');
-  });
-
-  PA.tools.mug = mkTool(g=>{
-    cR(g,4,5,6,6,'#78350f'); cR(g,5,6,4,4,'#92400e');
-    cR(g,4,6,6,1,'#94a3b8'); cR(g,4,9,6,1,'#94a3b8');
-    cBlob(g,7,4,3,'#ffffff'); cBlob(g,5,4,2,'#fef3c7');
-    cR(g,2,6,2,4,'#78350f'); cP(g,3,7,'#14100c');
-  });
-
-  PA.tools.broom = mkTool(g=>{
-    paLine(g,3,12,11,3,'#8a5229');
-    cR(g,2,9,4,4,'#ca8a04'); cR(g,1,11,5,2,'#eab308');
-  });
-
-  PA.tools.rod = mkTool(g=>{
-    paLine(g,2,12,12,2,'#ca8a04'); cP(g,5,9,'#854d0e'); cP(g,9,5,'#854d0e');
-    cBlob(g,4,10,1,'#64748b');
-  });
-
-  PA.tools.scroll = mkTool(g=>{
-    paLine(g,5,12,9,4,'#451a03');
-    cBlob(g,10,3,2,'#fbbf24'); cP(g,10,2,'#fef08a');
-  });
-
-  PA.tools.ball = mkTool(g=>{
-    cR(g,6,8,2,4,'#8a5229'); cP(g,4,5,'#8a5229'); cP(g,8,5,'#8a5229');
-    paLine(g,4,5,8,5,'#ef4444');
-  });
-
-  PA.tools.lute = mkTool(g=>{
-    paLine(g,2,12,8,6,'#92400e'); /* neck */
-    cBlob(g,9,4,3,'#d97706'); /* pear body */
-    cBlob(g,9,4,2,'#b45309');
-    cP(g,9,4,'#1e1b18'); /* sound hole */
-    paLine(g,4,11,8,5,'#fde68a'); /* strings */
-  });
-
-  PA.tools.basket = mkTool(g=>{
-    cR(g,3,5,8,6,'#b45309'); /* wicker basket body */
-    cR(g,4,6,6,4,'#d97706');
-    paLine(g,4,5,10,5,'#f472b6'); /* silk rolls inside: pink */
-    paLine(g,4,4,8,4,'#38bdf8'); /* cyan silk */
-    paLine(g,4,3,10,3,'#78350f'); /* handle */
-  });
-
-  PA.tools.sword = mkTool(g=>{
-    paLine(g,2,12,11,3,'#94a3b8'); /* blade */
-    paLine(g,3,11,10,4,'#e2e8f0'); /* blade fuller highlight */
-    cR(g,3,10,4,2,'#d97706'); /* crossguard */
-    cR(g,1,12,2,2,'#451a03'); /* grip */
-    cP(g,1,13,'#fbbf24'); /* pommel */
-  });
-}
-
-function buildThoughtBubbles(){
-  PA.fx.bubbles={};
-  function mkBubble(drawIcon){
-    const L=paMk(10,9), g=L.g;
-    cBlob(g,5,4,4,'#ffffff');
-    cR(g,2,7,2,2,'#ffffff'); cP(g,3,8,'#ffffff');
-    drawIcon(g);
-    paOutline(L.c,N_OUTL);
-    const s=paMk(20,18), g2=s.g;
-    g2.imageSmoothingEnabled=false;
-    g2.drawImage(L.c,0,0,20,18);
-    return s.c;
-  }
-
-  PA.fx.bubbles.talk = mkBubble(g=>{
-    cP(g,3,4,'#2b2b2b'); cP(g,5,4,'#2b2b2b'); cP(g,7,4,'#2b2b2b');
-  });
-  PA.fx.bubbles.food = mkBubble(g=>{
-    cR(g,3,3,5,3,'#c27829'); cR(g,4,2,3,1,'#f5c369'); cP(g,4,3,'#fef08a'); cP(g,6,3,'#fef08a');
-  });
-  PA.fx.bubbles.sleep = mkBubble(g=>{
-    cR(g,3,2,3,1,'#7c3aed'); cP(g,5,3,'#7c3aed'); cP(g,4,4,'#7c3aed'); cR(g,3,5,3,1,'#7c3aed'); cP(g,7,5,'#a855f7');
-  });
-  PA.fx.bubbles.heart = mkBubble(g=>{
-    cR(g,3,2,2,2,'#e11d48'); cR(g,6,2,2,2,'#e11d48'); cR(g,3,4,5,2,'#e11d48'); cR(g,4,6,3,1,'#e11d48'); cP(g,5,7,'#e11d48');
-  });
-  PA.fx.bubbles.work = mkBubble(g=>{
-    cR(g,3,2,4,2,'#64748b'); cR(g,4,4,2,3,'#92400e');
-  });
-  PA.fx.bubbles.idea = mkBubble(g=>{
-    cBlob(g,5,3,2,'#facc15'); cR(g,5,5,2,2,'#f59e0b'); cP(g,5,7,'#64748b');
-  });
-  PA.fx.bubbles.cold = mkBubble(g=>{
-    cP(g,5,2,'#38bdf8'); cP(g,5,6,'#38bdf8'); cP(g,3,4,'#38bdf8'); cP(g,7,4,'#38bdf8'); cP(g,5,4,'#0284c7');
-  });
-  PA.fx.bubbles.happy = mkBubble(g=>{
-    cP(g,3,3,'#2b2b2b'); cP(g,7,3,'#2b2b2b'); cP(g,3,5,'#dc2626'); cR(g,4,6,3,1,'#2b2b2b');
-  });
-
-  PA.fx.bubble = PA.fx.bubbles.talk;
-}
-
 function buildChars(){
   PA.chars=[];
   for(let i=0;i<G.villagers.length;i++){
@@ -1196,8 +859,18 @@ function buildChars(){
     PA.chars.push(F);
     v._ci=i;
   }
-  buildTools();
-  buildThoughtBubbles();
+  /* chunky talk bubble */
+  {
+    const L=paMk(8,7), g=L.g;
+    cBlob(g,4,3,3,'#ffffff');
+    cR(g,1,5,2,2,'#ffffff'); cP(g,2,6,'#ffffff');
+    cP(g,2,3,'#2b2b2b'); cP(g,4,3,'#2b2b2b'); cP(g,6,3,'#2b2b2b');
+    paOutline(L.c,N_OUTL);
+    const s=paMk(16,14), g2=s.g;
+    g2.imageSmoothingEnabled=false;
+    g2.drawImage(L.c,0,0,16,14);
+    PA.fx.bubble=s.c;
+  }
 }
 
 function paCharDraw(g,v){
@@ -1219,13 +892,7 @@ function paCharDraw(g,v){
   else if(st==='sit'){ arr=F[dir].sit; fi=Math.floor(t/120)%2; }
   else { arr=F[dir].idle; fi=(((t+Math.floor(v.seed*10))%210)<14)?1:0; }
   const fr=arr[fi%arr.length];
-  let dyOffset = 0;
-  if(v.triumphT > 0){
-    dyOffset = -Math.sin(v.triumphT * Math.PI) * 4; /* celebratory mini-jump! */
-  } else if(v.needs && v.needs.rest < 0.25){
-    dyOffset = 1; /* low energy slump */
-  }
-  const dx=Math.round(px0-fr.width/2), dy=Math.round(py0+2-fr.height + dyOffset);
+  const dx=Math.round(px0-fr.width/2), dy=Math.round(py0+2-fr.height);
   g.imageSmoothingEnabled=false;
   if(v.face===3&&st!=='sit'){
     g.save(); g.translate(Math.round(px0)*2,0); g.scale(-1,1);
@@ -1234,98 +901,9 @@ function paCharDraw(g,v){
   } else {
     g.drawImage(fr, dx, dy);
   }
-
-  // RimWorld-Style Dynamic Attached Tool
-  const toolKey = (v.equippedTool && v.equippedTool.kind) || workFor(v.name);
-  const sprTool = PA.tools && PA.tools[toolKey];
-  if(sprTool && st!=='sleep'){
-    let hx = px0, hy = py0 - 18 + dyOffset;
-    const isRight = v.face === 3;
-    const isLeft = v.face === 2;
-    const isBack = v.face === 1;
-    let toolAngle = 0;
-
-    if(v.triumphT > 0){
-      toolAngle = -1.2; /* raising tool high in triumph! */
-    } else if(st === 'work'){
-      if(toolKey === 'hammer'){
-        const swing = Math.sin(t * 0.22);
-        toolAngle = swing < 0 ? swing * 0.9 : swing * 1.3;
-      } else if(toolKey === 'hoe'){
-        const swing = Math.sin(t * 0.18);
-        toolAngle = swing * 0.85;
-      } else if(toolKey === 'rollingpin'){
-        toolAngle = Math.sin(t * 0.28) * 0.35;
-      } else if(toolKey === 'rod'){
-        toolAngle = -0.35 + Math.sin(t * 0.08) * 0.08;
-      } else if(toolKey === 'mug'){
-        toolAngle = Math.sin(t * 0.15) * 0.25;
-      } else if(toolKey === 'lute'){
-        toolAngle = -0.3 + Math.sin(t * 0.25) * 0.15; /* strumming lute */
-      } else if(toolKey === 'sword'){
-        toolAngle = Math.sin(t * 0.12) * 0.3; /* gleaming knight stance */
-      } else if(toolKey === 'basket'){
-        toolAngle = Math.sin(t * 0.1) * 0.12; /* displaying wares */
-      } else {
-        toolAngle = Math.sin(t * 0.2) * 0.4;
-      }
-    } else if(st === 'walk'){
-      toolAngle = Math.sin(v.walkPhase * 6.366) * 0.25;
-    } else {
-      toolAngle = Math.sin((t + v.seed * 10) * 0.05) * 0.08;
-    }
-
-    if(isLeft){
-      hx = px0 - 7; hy = py0 - 17;
-    } else if(isRight){
-      hx = px0 + 7; hy = py0 - 17;
-    } else if(isBack){
-      hx = px0 + 8; hy = py0 - 18;
-    } else {
-      hx = px0 + 8; hy = py0 - 17;
-    }
-
-    g.save();
-    g.translate(hx, hy);
-    if(isRight){ g.scale(-1, 1); }
-    g.rotate(toolAngle);
-    g.drawImage(sprTool, -6, -20);
-
-    // Finn's fishing line
-    if(toolKey === 'rod' && (st === 'work' || st === 'idle')){
-      const rodTipX = -6 + 22, rodTipY = -20 + 4;
-      const waterTargetY = py0 + 14 - hy;
-      g.strokeStyle = 'rgba(224, 242, 254, 0.75)';
-      g.lineWidth = 1;
-      g.beginPath();
-      g.moveTo(rodTipX, rodTipY);
-      g.quadraticCurveTo(rodTipX + 8, waterTargetY * 0.5, rodTipX + 4, waterTargetY);
-      g.stroke();
-      g.fillStyle = '#ef4444';
-      g.fillRect(rodTipX + 3, waterTargetY - 2, 3, 3);
-      g.fillStyle = '#ffffff';
-      g.fillRect(rodTipX + 4, waterTargetY - 1, 1, 1);
-    }
-    g.restore();
-  }
-
-  // RimWorld-Style Floating Thought / Need Bubble
-  let activeBubble = null;
-  if(st === 'talk'){
-    activeBubble = (Math.sin(v.seed * 10) > 0.3) ? PA.fx.bubbles.heart : PA.fx.bubbles.talk;
-  } else if(v.currentBubble && PA.fx.bubbles && PA.fx.bubbles[v.currentBubble]){
-    activeBubble = PA.fx.bubbles[v.currentBubble];
-  } else if(v.needs && v.needs.food < 0.35 && PA.fx.bubbles){
-    activeBubble = PA.fx.bubbles.food;
-  } else if(v.needs && v.needs.rest < 0.35 && PA.fx.bubbles){
-    activeBubble = PA.fx.bubbles.sleep;
-  } else if(st === 'work' && PA.fx.bubbles){
-    activeBubble = (Math.floor(t / 80) % 3 === 0) ? PA.fx.bubbles.work : (Math.floor(t / 140) % 2 === 0 ? PA.fx.bubbles.idea : null);
-  }
-
-  if(activeBubble){
-    const bob = Math.sin((t + v.seed * 15) * 0.08) * 2;
-    g.drawImage(activeBubble, Math.round(px0 + 6), Math.round(py0 - 74 + bob));
+  if(st==='talk'){
+    const b=PA.fx.bubble, bob=Math.sin(t*0.1)*2;
+    g.drawImage(b, Math.round(px0+8), Math.round(py0-72+bob));
   }
 }
 

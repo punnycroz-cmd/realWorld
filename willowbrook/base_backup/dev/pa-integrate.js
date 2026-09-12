@@ -191,27 +191,8 @@ function drawVillager(g,v){
     g.setLineDash([6,4]); g.lineDashOffset=-G.frame*0.3;
     g.beginPath(); g.ellipse(sx,sy+2,16,7,0,0,7); g.stroke();
     g.restore();
-  } else if(v===G.inspectedVillager){
-    g.save();
-    g.strokeStyle='#38bdf8'; g.lineWidth=1.5;
-    g.setLineDash([4,3]); g.lineDashOffset=-G.frame*0.2;
-    g.beginPath(); g.ellipse(sx,sy+2,15,6.5,0,0,7); g.stroke();
-    g.restore();
   }
   paCharDraw(g,v);
-
-  // RimWorld-Style Mini Work Progress Bar
-  if(v.state==='work' && v.workProgress > 0){
-    const bw=24, bh=4;
-    const bx=Math.round(sx-bw/2), by=Math.round(sy-66);
-    g.fillStyle='rgba(15,23,42,0.85)';
-    g.fillRect(bx-1,by-1,bw+2,bh+2);
-    g.fillStyle='#1e293b';
-    g.fillRect(bx,by,bw,bh);
-    g.fillStyle=v.workProgress>0.8?'#4ade80':'#38bdf8';
-    g.fillRect(bx,by,Math.round(bw*clamp(v.workProgress,0,1)),bh);
-  }
-
   // name tag (kept from old renderer)
   const name=v.name+(v.isNPC?'':' (you)');
   ctx.font='11px system-ui'; const tw=ctx.measureText(name).width;

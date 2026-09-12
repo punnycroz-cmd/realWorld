@@ -101,7 +101,7 @@ function v7Walls(g, spec, pal, R){
     v7R(g,ox+2,wallY+2,W-4,wallH-4,pal.stone[1]);
     for(let ry=wallY+2,row=0; ry<wallB-2; ry+=12, row++){
       const off=(row%2)*10;
-      for(let rx=ox+2+off; rx<ox+W-18; rx+=20){
+      for(let rx=ox+2-20+off; rx<ox+W-2; rx+=20){
         const t=phash(rx,ry,spec.key||8);
         const body=t<0.35?pal.stone[3]:(t<0.70?pal.stone[4]:pal.stone[2]);
         v7R(g,rx+2,ry+2,16,8,body);
@@ -203,10 +203,6 @@ function v7Door(g,cx,baseY,w,h,pal,lit){
 function v7Chimney(g,chx,topY,botY,pal){
   const w=18, B=pal.brick;
   v7R(g,chx-w/2,topY,w,botY-topY,B[1]);
-  g.save();
-  g.beginPath();
-  g.rect(chx-w/2, topY, w, botY-topY);
-  g.clip();
   for(let ry=topY,row=0; ry<botY; ry+=6, row++){
     const off=(row%2)*5;
     for(let rx=chx-w/2+off; rx<chx+w/2; rx+=10){
@@ -215,7 +211,6 @@ function v7Chimney(g,chx,topY,botY,pal){
       v7R(g,rx+1,ry+1,8,2,B[5]);
     }
   }
-  g.restore();
   v7R(g,chx-w/2-2,topY-8,w+4,8,pal.stone[2]);
   v7R(g,chx-w/2-2,topY-8,w+4,2,pal.stone[5]);
   v7R(g,chx-5,topY-18,10,10,MAT.ironDark[2]);
@@ -255,12 +250,7 @@ function composeBuilding(spec){
       const chx=ox+spec.chimneyX*2;
       chimTop=v7Chimney(g,chx,roofBase-roofH-10,roofBase+6,pal);
     }
-    g.save();
-    g.beginPath();
-    g.rect(ox+2, wallY+2, W-4, wallH-4);
-    g.clip();
     v7Walls(g,spec,pal,R);
-    g.restore();
     v7Roof(g,R.apexX,R.apexY,roofH,Math.round(W/2+8),pal.roof,spec.roofStyle,spec.key||7,night);
     // eave beam + shadow on wall top
     v7R(g,R.apexX-Math.round(W/2+8),roofBase,Math.round(W/2+8)*2,6,pal.wood[2]);

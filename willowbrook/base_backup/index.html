@@ -94,47 +94,6 @@
   #autotest{position:absolute;top:60px;left:10px;z-index:50;background:rgba(0,0,0,.8);
     border:1px solid #4a5f82;border-radius:8px;padding:10px 14px;font-size:12px;
     max-width:420px;max-height:70%;overflow:auto;display:none;white-space:pre-wrap}
-  /* ---------- RimWorld-Style Pawn Inspector ---------- */
-  #pawn-inspector{
-    position:absolute;bottom:14px;left:14px;width:280px;z-index:15;
-    background:rgba(18,24,38,0.92);backdrop-filter:blur(8px);
-    border:1px solid #3b4c68;border-radius:12px;
-    padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,0.55);
-    display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text);
-    user-select:none;transition:transform 0.15s, opacity 0.15s;
-  }
-  .pi-header{display:flex;align-items:center;gap:10px}
-  #pi-avatar{width:34px;height:34px;border-radius:8px;background:#131a27;border:1px solid #3a4c68;flex-shrink:0}
-  .pi-info{flex:1;min-width:0}
-  .pi-name-row{display:flex;align-items:center;gap:6px}
-  .pi-name{font-weight:800;font-size:14px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pi-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
-  .pi-tag.npc{background:#334155;color:#94a3b8}
-  .pi-role{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pi-btn-switch{background:var(--ui-bg2);border:1px solid #3a4c68;color:var(--text);border-radius:6px;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px}
-  .pi-btn-switch:hover{background:#3b4f70}
-  .pi-activity-bar{display:flex;align-items:center;gap:6px;padding:4px 8px;background:rgba(14,20,32,0.6);border-radius:6px;font-size:11.5px;color:#d1d5db}
-  .pi-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;box-shadow:0 0 6px #4ade80}
-  .pi-needs-grid{display:flex;flex-direction:column;gap:5px;background:rgba(14,20,32,0.4);padding:6px 8px;border-radius:6px}
-  .pi-need{display:flex;flex-direction:column;gap:2px}
-  .pi-need-head{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted)}
-  .pi-need-head span:last-child{color:#e2e8f0;font-weight:700}
-  .pi-track{height:5px;background:#1e293b;border-radius:3px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
-  .pi-fill{height:100%;transition:width 0.3s ease}
-  .pi-food-fill{background:linear-gradient(90deg,#eab308,#4ade80)}
-  .pi-rest-fill{background:linear-gradient(90deg,#3b82f6,#38bdf8)}
-  .pi-mood-fill{background:linear-gradient(90deg,#a855f7,#ec4899)}
-  .pi-gear-card{display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(14,20,32,0.6);border-radius:6px;border:1px solid #2d3b50}
-  .pi-gear-icon{font-size:16px;flex-shrink:0}
-  .pi-gear-details{flex:1;min-width:0}
-  .pi-gear-name{font-weight:700;font-size:11.5px;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pi-gear-desc{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pi-thoughts-box{display:flex;flex-direction:column;gap:4px}
-  .pi-th-title{font-size:10px;font-weight:700;letter-spacing:0.5px;color:var(--muted);text-transform:uppercase}
-  .pi-th-list{display:flex;flex-direction:column;gap:3px}
-  .pi-th-item{font-size:11px;padding:2px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pi-th-item.pos{background:rgba(34,197,94,0.15);color:#86efac;border-left:2px solid #22c55e}
-  .pi-th-item.neg{background:rgba(239,68,68,0.15);color:#fca5a5;border-left:2px solid #ef4444}
 </style>
 </head>
 <body>
@@ -155,51 +114,6 @@
     <canvas id="game"></canvas>
     <canvas id="minimap" width="172" height="129"></canvas>
     <div id="floater-layer"></div>
-    <!-- RimWorld-Style Pawn Inspector Panel -->
-    <div id="pawn-inspector">
-      <div class="pi-header">
-        <canvas id="pi-avatar" width="34" height="34"></canvas>
-        <div class="pi-info">
-          <div class="pi-name-row">
-            <span class="pi-name" id="pi-name">Marta</span>
-            <span class="pi-tag" id="pi-tag" title="Click to control">Controlled</span>
-          </div>
-          <div class="pi-role" id="pi-role">Village Farmer</div>
-        </div>
-        <button class="pi-btn-switch" id="pi-btn-switch" title="Next Villager (Tab)">⇄</button>
-      </div>
-      <div class="pi-activity-bar">
-        <span class="pi-dot" id="pi-act-dot"></span>
-        <span class="pi-act-text" id="pi-activity">Tending crops</span>
-      </div>
-      <div class="pi-needs-grid">
-        <div class="pi-need">
-          <div class="pi-need-head"><span>🍞 Food</span><span id="pi-val-food">85%</span></div>
-          <div class="pi-track"><div class="pi-fill pi-food-fill" id="pi-fill-food" style="width:85%"></div></div>
-        </div>
-        <div class="pi-need">
-          <div class="pi-need-head"><span>💤 Rest</span><span id="pi-val-rest">90%</span></div>
-          <div class="pi-track"><div class="pi-fill pi-rest-fill" id="pi-fill-rest" style="width:90%"></div></div>
-        </div>
-        <div class="pi-need">
-          <div class="pi-need-head"><span>❤️ Mood</span><span id="pi-val-mood">92%</span></div>
-          <div class="pi-track"><div class="pi-fill pi-mood-fill" id="pi-fill-mood" style="width:92%"></div></div>
-        </div>
-      </div>
-      <div class="pi-gear-card">
-        <span class="pi-gear-icon" id="pi-gear-icon">🌾</span>
-        <div class="pi-gear-details">
-          <div class="pi-gear-name" id="pi-gear-name">Sturdy Farming Hoe</div>
-          <div class="pi-gear-desc" id="pi-gear-desc">Sharp steel blade, ash handle</div>
-        </div>
-      </div>
-      <div class="pi-thoughts-box" id="pi-thoughts-box">
-        <div class="pi-th-title">Recent Thoughts</div>
-        <div class="pi-th-list" id="pi-th-list">
-          <div class="pi-th-item pos">+5 Peaceful village morning</div>
-        </div>
-      </div>
-    </div>
     <div id="prompt"></div>
     <div id="dialogue"><div class="who"><span id="dlg-name"></span><span id="dlg-role"></span></div>
       <div class="line" id="dlg-line"></div><div class="hint">E / click — continue · Esc — close</div></div>
@@ -891,9 +805,7 @@ function buildInteractables(){
       sfx('pop');
     });
     if(o.kind==='anvil') addInter(o.x,o.y,34,'Anvil','work',()=>{
-      const v=controlledVillager(); v.state='work'; v.workT=3;
-      if(typeof paSpawnSparks==='function') paSpawnSparks(o.x,o.y-8,6);
-      floater(v.x,v.y-40,'🔨 Clang!');
+      const v=controlledVillager(); v.state='work'; v.workT=3; floater(v.x,v.y-40,'🔨 Clang!');
     });
   }
   for(const o of objects){
@@ -924,12 +836,6 @@ function bLine(id){
    ===================================================================== */
 function controlledVillager(){ return G.villagers[G.controlled]; }
 
-function addVillagerThought(v,text,val){
-  if(!v.thoughts) v.thoughts=[];
-  v.thoughts.unshift({text,val,time:G.frame});
-  if(v.thoughts.length>5) v.thoughts.pop();
-}
-
 function makeVillagers(){
   const V=(name,role,look,homeId,workTx,workTy,lines,workLine)=>({
     name, role, look, homeId, workTx, workTy, lines, workLine,
@@ -938,19 +844,6 @@ function makeVillagers(){
     dirMode:'home', wanderT:0, sitAt:null, workT:0, talking:0, dlg:null,
     isNPC:true, stuckT:0, lastX:0, lastY:0,
   });
-  const gearDefs={
-    Marta: {name:'Sturdy Farming Hoe', kind:'hoe', icon:'🌾', desc:'Hand-forged hoe blade, ash wood handle.'},
-    Bram: {name:'Smithing Hammer', kind:'hammer', icon:'⚒️', desc:'Dense steel hammer for anvil shaping.'},
-    Sella: {name:'Maple Rolling Pin', kind:'rollingpin', icon:'🥖', desc:'Carved maple pin for sourdough loaves.'},
-    Tobin: {name:'Frothy Ale Tankard', kind:'mug', icon:'🍺', desc:'Oak tankard with cellar-chilled brew.'},
-    Wren: {name:'Herbalist Broom', kind:'broom', icon:'🌿', desc:'Lavender-scented broom for herb bundling.'},
-    Finn: {name:'Willow Fishing Rod', kind:'rod', icon:'🎣', desc:'Bending willow pole with silken line.'},
-    Alden: {name:'Mayor’s Walking Cane', kind:'scroll', icon:'📜', desc:'Polished walnut cane with brass pommel.'},
-    Pip: {name:'Oak Slingshot', kind:'ball', icon:'🎯', desc:'Forked oak branch with leather pouch.'},
-    Rowan: {name:'Carved Pine Lute', kind:'lute', icon:'🎵', desc:'Resonant lute crafted from ancient pines, tuned for tavern ballads.'},
-    Clara: {name:'Silk Merchant Basket', kind:'basket', icon:'🧺', desc:'Woven wicker basket overflowing with lustrous exotic silks.'},
-    Gareth: {name:'Silver Longsword', kind:'sword', icon:'⚔️', desc:'Gleaming castle-forged blade inscribed with vows of honor.'}
-  };
   const defs=[
     V('Marta','Farmer',{skin:'#f2c89b',hair:'#6b4a2e',hairStyle:'long',shirt:'#7fae5a',pants:'#5c452b',apron:'#c9a26b',tool:'hoe'},
       'farmhouse',11.5,30.5,
@@ -990,119 +883,9 @@ function makeVillagers(){
     v.x=px(b.door.tx)+TILE/2; v.y=py(b.door.ty)+TILE/2+10;
     v.homeTx=b.door.tx; v.homeTy=b.door.ty;
     v.path=null; v.aiT=Math.random()*1.5;
-    v.needs={
-      food:+(0.80+Math.random()*0.15).toFixed(2),
-      rest:+(0.85+Math.random()*0.12).toFixed(2),
-      mood:+(0.88+Math.random()*0.10).toFixed(2)
-    };
-    v.thoughts=[
-      {text:'Peaceful morning in Willowbrook',val:5},
-      {text:'Cozy village atmosphere',val:3}
-    ];
-    v.equippedTool=gearDefs[v.name]||{name:'Handy Tool',kind:'hoe',icon:'🔧',desc:'A trusty village tool.'};
-    v.workProgress=0;
     G.villagers.push(v);
   }
 }
-
-/* ------------------------------ Wandering Visitors System ---------------------- */
-function spawnWanderingVisitor(archetype){
-  const archetypes = {
-    Rowan: {
-      name: 'Rowan', role: 'Traveling Bard',
-      look: {skin:'#fcd3b6', hair:'#d97706', hairStyle:'feather', shirt:'#15803d', pants:'#78350f', hat:'#047857'},
-      homeId: 'inn', workTx: 28.5, workTy: 30.6,
-      lines: [
-        'Greetings, traveler! Care for a ballad of dragons and ancient kings?',
-        'Tobin pours the sweetest blackberry cordial in the realm.',
-        'The road is long, but a lively song makes the miles fly by!'
-      ],
-      workLine: 'Strumming chords… finding the perfect harmony.',
-      thoughts: [
-        {text:'The acoustics at The Sleepy Stag are lovely', val:5},
-        {text:'Good company and sweet cider', val:4}
-      ]
-    },
-    Clara: {
-      name: 'Clara', role: 'Silk Merchant',
-      look: {skin:'#eab088', hair:'#27272a', hairStyle:'turban', shirt:'#7e22ce', pants:'#4338ca'},
-      homeId: 'inn', workTx: 32.5, workTy: 28.0,
-      lines: [
-        'Straight from the southern weavers — touch this silk, soft as summer clouds!',
-        'I trade in dyes, velvet, and rare tapestries.',
-        'Willowbrook has a peaceful charm unlike any capital.'
-      ],
-      workLine: 'Unfurling bolts of shimmering emerald silk.',
-      thoughts: [
-        {text:'Willowbrook folks have an eye for quality silk', val:5},
-        {text:'A profitable journey so far', val:4}
-      ]
-    },
-    Gareth: {
-      name: 'Gareth', role: 'Wandering Knight',
-      look: {skin:'#fed7aa', hair:'#71717a', hairStyle:'helm', shirt:'#94a3b8', pants:'#475569'},
-      homeId: 'inn', workTx: 29.5, workTy: 27.5,
-      lines: [
-        'Hail! I am Gareth, sworn knight of the Silver Shield.',
-        'I walk the realm defending quiet hamlets from banditry.',
-        'May your harvest be bountiful and your hearth warm.'
-      ],
-      workLine: 'Inspecting armor buckles and honing my blade.',
-      thoughts: [
-        {text:'A peaceful haven away from castle intrigue', val:6},
-        {text:'The blacksmith Bram knows his steel', val:4}
-      ]
-    }
-  };
-
-  const a = archetypes[archetype] || archetypes.Rowan;
-  const existing = G.villagers.find(v => v.name === a.name);
-  if(existing) return existing;
-
-  const b = buildings.find(b => b.id === a.homeId);
-  const v = {
-    name: a.name, role: a.role, look: a.look, homeId: a.homeId,
-    workTx: a.workTx, workTy: a.workTy, lines: a.lines, workLine: a.workLine,
-    x: px(b ? b.door.tx : 28) + TILE/2,
-    y: py(b ? b.door.ty : 30) + TILE/2 + 10,
-    face: 0, state: 'idle', moving: false, walkPhase: Math.random()*6,
-    seed: Math.random()*100, path: null, pathI: 0, aiT: Math.random()*1.5,
-    dirMode: 'home', wanderT: 0, sitAt: null, workT: 0, talking: 0, dlg: null,
-    isNPC: true, isVisitor: true, stuckT: 0, lastX: 0, lastY: 0,
-    homeTx: b ? b.door.tx : 28, homeTy: b ? b.door.ty : 30,
-    needs: {
-      food: +(0.78 + Math.random()*0.15).toFixed(2),
-      rest: +(0.82 + Math.random()*0.12).toFixed(2),
-      mood: +(0.90 + Math.random()*0.08).toFixed(2)
-    },
-    thoughts: a.thoughts.slice(),
-    workProgress: 0,
-    equippedTool: {
-      Rowan: {name:'Carved Pine Lute', kind:'lute', icon:'🎵', desc:'Resonant lute crafted from ancient pines, tuned for tavern ballads.'},
-      Clara: {name:'Silk Merchant Basket', kind:'basket', icon:'🧺', desc:'Woven wicker basket overflowing with lustrous exotic silks.'},
-      Gareth: {name:'Silver Longsword', kind:'sword', icon:'⚔️', desc:'Gleaming castle-forged blade inscribed with vows of honor.'}
-    }[a.name] || {name:'Travel Gear', kind:'hoe', icon:'🎒', desc:'Wanderer gear.'}
-  };
-
-  registerVillagerSprites(v);
-  G.villagers.push(v);
-  floater(v.x, v.y - 52, '✦ A visitor arrives: ' + v.name + ' the ' + v.role + '!');
-  return v;
-}
-
-function checkWanderingVisitors(){
-  if(G.day >= 2 && !G.villagers.some(v => v.name === 'Rowan')){
-    spawnWanderingVisitor('Rowan');
-  }
-  if(G.day >= 4 && !G.villagers.some(v => v.name === 'Clara')){
-    spawnWanderingVisitor('Clara');
-  }
-  if(G.day >= 6 && !G.villagers.some(v => v.name === 'Gareth')){
-    spawnWanderingVisitor('Gareth');
-  }
-}
-window.spawnWanderingVisitor = spawnWanderingVisitor;
-
 
 /* ------------------------------ A* pathfinding ---------------------- */
 function findPath(sx,sy,tx,ty){
@@ -1256,52 +1039,11 @@ function updateNPC(v,dt){
       if(dist(v.x,v.y,u.x,u.y)<30&&dist(v.x,v.y,u.x,u.y)>4){
         v.face=u.x>v.x?3:2; u.face=v.x>u.x?3:2;
         v.state='talk'; v.talking=2.5; u.state='talk'; u.talking=2.5;
-        addVillagerThought(v,'Friendly chat with '+u.name,4);
-        addVillagerThought(u,'Friendly chat with '+v.name,4);
         break;
       }
     }
   }
-
-  if(v.triumphT>0) v.triumphT=Math.max(0,v.triumphT-dt*1.5);
-
-  // Work state: progress accumulation & particle emitters
-  if(v.state==='work'){
-    v.workProgress=(v.workProgress||0)+dt*0.35;
-    if(v.name==='Bram'&&Math.random()<dt*6){
-      paSpawnSparks(v.x+(v.face===3?14:-14),v.y-12,3);
-    }else if(v.name==='Sella'&&Math.random()<dt*4){
-      paSpawnFlour(v.x,v.y-8,2);
-    }else if(v.name==='Marta'&&Math.random()<dt*5){
-      paSpawnWheat(v.x,v.y-4,2);
-    }else if(v.name==='Finn'&&Math.random()<dt*4){
-      paSpawnSplash(v.x+(v.face===3?20:-20),v.y+6,2);
-    }else if(v.name==='Wren'&&Math.random()<dt*4){
-      paSpawnLeaf(v.x,v.y-6,2);
-    }else if(v.name==='Rowan'&&Math.random()<dt*5){
-      paSpawnMusic(v.x+(v.face===3?16:-16),v.y-10,1);
-    }
-    if(v.workProgress>=1.0){
-      v.workProgress=0;
-      v.triumphT=1.0; /* crafting triumph celebratory bounce! */
-      const craftMap={
-        Marta:'🌾 Harvested Spelt!', Bram:'⚔️ Forged Horseshoe!',
-        Sella:'🍞 Fresh Bread Baked!', Tobin:'🍺 Cellar Ale Poured!',
-        Wren:'🌿 Lavender Bundled!', Finn:'🐟 River Trout Landed!',
-        Alden:'📜 Village Record Sealed!', Pip:'⭐ Target Hit!',
-        Rowan:'🎶 Performed Ballad of the Stag!', Clara:'✨ Rare Silk Displayed!',
-        Gareth:'🛡️ Armor Polished & Ready!'
-      };
-      const craft=craftMap[v.name]||'✨ Task Complete!';
-      floater(v.x,v.y-48,craft);
-      addVillagerThought(v,'Finished work task',6);
-    }
-  }else{
-    v.workProgress=0;
-  }
-
-  const speedMultiplier=(v.needs&&v.needs.rest<0.25)?0.75:1.0;
-  if(v.state!=='talk'&&v.state!=='sit'&&v.state!=='sleep') moveAlongPath(v,dt,NPC_SPEED*speedMultiplier);
+  if(v.state!=='talk'&&v.state!=='sit'&&v.state!=='sleep') moveAlongPath(v,dt,NPC_SPEED);
   else v.moving=false;
   // gentle separation so villagers don't stack
   for(const u of G.villagers){
@@ -1314,25 +1056,6 @@ function updateNPC(v,dt){
       if(!circleHitsSolid(v.x,ny,8)) v.y=ny;
     }
   }
-}
-
-function updateVillagerNeeds(v,dt){
-  if(!v.needs) return;
-  if(v.state==='sleep'){
-    v.needs.rest=Math.min(1,v.needs.rest+dt*0.05);
-    v.needs.food=Math.max(0,v.needs.food-dt*0.002);
-  }else{
-    v.needs.rest=Math.max(0,v.needs.rest-dt*0.004);
-    v.needs.food=Math.max(0,v.needs.food-dt*0.006);
-  }
-  const hour=G.timeMin/60;
-  if(v.state==='sit'||(hour>=12&&hour<=13.5)){
-    v.needs.food=Math.min(1,v.needs.food+dt*0.06);
-  }
-  const thoughtBonus=(v.thoughts||[]).reduce((acc,th)=>acc+(th.val||0),0)*0.01;
-  const baseMood=(v.needs.food*0.45+v.needs.rest*0.45+0.1);
-  const targetMood=clamp(baseMood+thoughtBonus,0.1,1.0);
-  v.needs.mood=lerp(v.needs.mood,targetMood,dt*0.1);
 }
 /* =====================================================================
    INPUT + CAMERA + CHARACTER SWITCHING
@@ -1365,7 +1088,6 @@ function selectVillager(i,quiet){
     prev.talking=0;
   }
   G.controlled=i;
-  G.inspectedVillager=G.villagers[i];
   const v=controlledVillager();
   v.isNPC=false; v.path=null; v.moving=false; v.talking=0;
   if(v.state==='sleep'||v.state==='work') v.state='idle';
@@ -1374,7 +1096,6 @@ function selectVillager(i,quiet){
   // camera hop: jump partway for a smooth-but-quick transition
   G.cam.x=lerp(G.cam.x,v.x,0.55); G.cam.y=lerp(G.cam.y,v.y,0.55);
   updateCharChip();
-  updatePawnInspector();
   if(!quiet) floater(v.x,v.y-52,'✦ '+v.name);
   sfx('select');
 }
@@ -1563,10 +1284,8 @@ canvas.addEventListener('mousedown',e=>{
     if(d<bd){ bd=d; best=i; }
   }
   if(best!==null){
-    G.inspectedVillager=G.villagers[best];
     if(best===G.controlled){ floater(G.villagers[best].x,G.villagers[best].y-52,'That’s you!'); }
     else selectVillager(best);
-    updatePawnInspector();
     return;
   }
   // interactable hit?
@@ -1834,135 +1553,7 @@ function updateCharChip(){
   document.getElementById('ui-name').textContent=v.name;
   document.getElementById('ui-role').textContent=v.role;
   document.getElementById('ui-dot').style.background=v.look.shirt;
-  updatePawnInspector();
 }
-
-function updatePawnInspector(){
-  const target=G.inspectedVillager||controlledVillager();
-  if(!target) return;
-
-  const nameEl=document.getElementById('pi-name');
-  const roleEl=document.getElementById('pi-role');
-  const tagEl=document.getElementById('pi-tag');
-  const actEl=document.getElementById('pi-activity');
-  const actDot=document.getElementById('pi-act-dot');
-
-  if(nameEl) nameEl.textContent=target.name;
-  if(roleEl) roleEl.textContent=target.role;
-  if(tagEl){
-    const isCtrl=target===controlledVillager();
-    tagEl.textContent=isCtrl?'Controlled':'Take Control';
-    tagEl.className=isCtrl?'pi-tag':'pi-tag npc';
-  }
-
-  // Activity description
-  if(actEl){
-    let actDesc='Wandering peacefully';
-    if(target.state==='walk') actDesc=target.isNPC?'Commuting across town':'Walking';
-    else if(target.state==='work'){
-      const workDescs={
-        Marta:'Tending the crops',
-        Bram:'Forging steel at the anvil',
-        Sella:'Baking loaves at the counter',
-        Tobin:'Tending the tavern & hearth',
-        Wren:'Drying healing herb bundles',
-        Finn:'Angling by the tranquil pond',
-        Alden:'Managing village affairs',
-        Pip:'Practicing slingshot targets'
-      };
-      actDesc=workDescs[target.name]||'Engaged in village work';
-    }else if(target.state==='talk') actDesc='In friendly conversation';
-    else if(target.state==='sit') actDesc='Resting on a wooden bench';
-    else if(target.state==='sleep') actDesc='Sleeping peacefully';
-    actEl.textContent=actDesc;
-  }
-  if(actDot){
-    actDot.style.background=target.state==='work'?'#f59e0b':(target.state==='sleep'?'#818cf8':'#4ade80');
-    actDot.style.boxShadow='0 0 6px '+actDot.style.background;
-  }
-
-  // Needs meters
-  if(target.needs){
-    const foodPct=Math.round(clamp(target.needs.food,0,1)*100);
-    const restPct=Math.round(clamp(target.needs.rest,0,1)*100);
-    const moodPct=Math.round(clamp(target.needs.mood,0,1)*100);
-
-    const fVal=document.getElementById('pi-val-food');
-    const fBar=document.getElementById('pi-fill-food');
-    if(fVal) fVal.textContent=foodPct+'%';
-    if(fBar) fBar.style.width=foodPct+'%';
-
-    const rVal=document.getElementById('pi-val-rest');
-    const rBar=document.getElementById('pi-fill-rest');
-    if(rVal) rVal.textContent=restPct+'%';
-    if(rBar) rBar.style.width=restPct+'%';
-
-    const mVal=document.getElementById('pi-val-mood');
-    const mBar=document.getElementById('pi-fill-mood');
-    if(mVal) mVal.textContent=moodPct+'%';
-    if(mBar) mBar.style.width=moodPct+'%';
-  }
-
-  // Equipped gear
-  if(target.equippedTool){
-    const gIcon=document.getElementById('pi-gear-icon');
-    const gName=document.getElementById('pi-gear-name');
-    const gDesc=document.getElementById('pi-gear-desc');
-    if(gIcon) gIcon.textContent=target.equippedTool.icon||'🌾';
-    if(gName) gName.textContent=target.equippedTool.name||'Tool';
-    if(gDesc) gDesc.textContent=target.equippedTool.desc||'';
-  }
-
-  // Thoughts log
-  const thList=document.getElementById('pi-th-list');
-  if(thList&&target.thoughts){
-    thList.innerHTML='';
-    const thoughts=target.thoughts.slice(0,3);
-    for(const th of thoughts){
-      const div=document.createElement('div');
-      const isPos=(th.val||0)>=0;
-      div.className='pi-th-item '+(isPos?'pos':'neg');
-      div.textContent=(isPos?'+':'')+th.val+' '+th.text;
-      thList.appendChild(div);
-    }
-  }
-
-  // Avatar thumbnail rendering on pi-avatar canvas
-  const cvs=document.getElementById('pi-avatar');
-  if(cvs&&PA.chars&&PA.chars[target._ci]){
-    const actx=cvs.getContext('2d');
-    actx.imageSmoothingEnabled=false;
-    actx.clearRect(0,0,34,34);
-    const fr=PA.chars[target._ci][0].idle[0];
-    if(fr){
-      actx.drawImage(fr,4,2,40,40,-3,-4,40,40);
-    }
-  }
-}
-
-// Inspector interactive buttons
-function initInspectorEvents(){
-  const piSwitch=document.getElementById('pi-btn-switch');
-  if(piSwitch&&!piSwitch._bound){
-    piSwitch._bound=true;
-    piSwitch.addEventListener('click',e=>{
-      e.stopPropagation();
-      selectVillager(G.controlled+1);
-    });
-  }
-  const piTag=document.getElementById('pi-tag');
-  if(piTag&&!piTag._bound){
-    piTag._bound=true;
-    piTag.addEventListener('click',e=>{
-      e.stopPropagation();
-      if(G.inspectedVillager){
-        const idx=G.villagers.indexOf(G.inspectedVillager);
-        if(idx!==-1) selectVillager(idx);
-      }
-    });
-  }
-}
-initInspectorEvents();
 function updateClock(){
   const h=Math.floor(G.timeMin/60)%24, m=Math.floor(G.timeMin%60);
   document.getElementById('ui-clock').textContent=pad2(h)+':'+pad2(m);
@@ -2038,7 +1629,7 @@ let lastT=0, uiT=0;
 function update(dt){
   // clock
   G.timeMin+=dt*G.speed*MIN_PER_SEC;
-  if(G.timeMin>=1440){ G.timeMin-=1440; G.day++; checkWanderingVisitors(); }
+  if(G.timeMin>=1440){ G.timeMin-=1440; G.day++; }
   // crops grow
   for(const o of objects){
     if(o.kind==='crop'&&o.growth<1) o.growth=Math.min(1,o.growth+dt*G.speed*0.004);
@@ -2046,7 +1637,6 @@ function update(dt){
   // villagers
   for(const v of G.villagers){
     if(v.isNPC) updateNPC(v,dt*G.speed);
-    updateVillagerNeeds(v,dt*G.speed);
   }
   updatePlayer(dt);
   updateCamera(dt);
@@ -2064,7 +1654,7 @@ function frame(t){
     else { G.frame++; }
     render();
     uiT-=rawDt;
-    if(uiT<=0){ uiT=0.15; updateClock(); updatePrompt(); updatePawnInspector(); }
+    if(uiT<=0){ uiT=0.25; updateClock(); updatePrompt(); }
   }catch(e){ reportError(e); }
 }
 
@@ -2098,7 +1688,7 @@ function boot(){
     setLoad('Lighting lamps…');
     resize();
     buildDrawables();
-    updateTop(); updateCharChip(); updateClock(); updatePawnInspector();
+    updateTop(); updateCharChip(); updateClock();
     // center camera on Marta
     const m0=G.villagers[0];
     G.cam.x=m0.x; G.cam.y=m0.y;
@@ -2110,20 +1700,6 @@ function boot(){
       document.getElementById('start').style.display='none';
       G.started=true;
       runAutoTest();
-    } else if(qp.has('play')){
-      document.getElementById('start').style.display='none';
-      G.started=true;
-      if(qp.has('visitor')){
-        const vis=spawnWanderingVisitor(qp.get('visitor'));
-        if(vis && qp.has('selectVisitor')){
-          const idx=G.villagers.indexOf(vis);
-          if(idx>=0) selectVillager(idx, true);
-        }
-      }
-      if(qp.has('select')){
-        const idx=parseInt(qp.get('select'),10);
-        if(!isNaN(idx)) selectVillager(idx, true);
-      }
     } else {
       document.getElementById('start').style.display='flex';
     }
@@ -4415,29 +3991,19 @@ const N_EYE='#14100c', N_BLUSH='#f28f8f', N_MOUTH='#8a4030', N_MOUTH_O='#5e2818'
      profile: eye (4,11) 1x2 | blush (3,13) 1x1 | mouth (3,14) 2x1
    Use nvFaceFront / nvFaceProfile so every face matches. */
 
-/* expressive face, front (Direction A specular catchlight + 2-tone blush) */
+/* minimal face, front */
 function nvFaceFront(g,dy,blink,open){
-  if(blink){
-    paR(g,9,12+dy,1,1,N_EYE); paR(g,14,12+dy,1,1,N_EYE);
-  } else {
-    paR(g,9,11+dy,1,2,N_EYE); paR(g,14,11+dy,1,2,N_EYE);
-    paPX(g,9,11+dy,'#ffffff'); paPX(g,14,11+dy,'#ffffff'); /* Direction A Specular Catchlight */
-  }
+  if(blink){ paR(g,9,12+dy,1,1,N_EYE); paR(g,14,12+dy,1,1,N_EYE); }
+  else { paR(g,9,11+dy,1,2,N_EYE); paR(g,14,11+dy,1,2,N_EYE); }
   paR(g,7,13+dy,1,1,N_BLUSH); paR(g,16,13+dy,1,1,N_BLUSH);
-  paPX(g,6,13+dy,'#fde2e4'); paPX(g,17,13+dy,'#fde2e4'); /* soft peach blush halo */
   if(open) paR(g,11,14+dy,2,2,N_MOUTH_O);
   else paR(g,11,14+dy,2,1,N_MOUTH);
 }
-/* expressive face, profile facing left */
+/* minimal face, profile facing left */
 function nvFaceProfile(g,dy,blink,open){
-  if(blink){
-    paR(g,4,12+dy,1,1,N_EYE);
-  } else {
-    paR(g,4,11+dy,1,2,N_EYE);
-    paPX(g,4,11+dy,'#ffffff'); /* Direction A Specular Catchlight */
-  }
+  if(blink) paR(g,4,12+dy,1,1,N_EYE);
+  else paR(g,4,11+dy,1,2,N_EYE);
   paR(g,3,13+dy,1,1,N_BLUSH);
-  paPX(g,2,13+dy,'#fde2e4'); /* soft peach blush halo */
   if(open) paR(g,3,14+dy,2,2,N_MOUTH_O);
   else paR(g,3,14+dy,2,1,N_MOUTH);
 }
@@ -4487,7 +4053,7 @@ function nvSit(g,pal,headFn,fr){
   if(pal.apron){ paR(g,9,21,6,6,pal.apron); paR(g,13,22,2,5,pal.apronD); }
   paR(g,5,21,3,4,pal.shirt); paR(g,16,21,3,4,pal.shirt);  /* resting arms */
   paR(g,5,24,2,2,pal.skin); paR(g,17,24,2,2,pal.skin);
-  headFn(g,0,2,blink,false,{sit:true});
+  headFn(g,0,2,blink,false);
 }
 
 /* sleeping body, shared; pal.sleepHat(g) optional */
@@ -4507,12 +4073,11 @@ function nvSleepPaint(g,pal){
 /* ================= MARTA (Farmer, tool: hoe) ================= */
 const martaPal={skin:'#f5cfa0',skinD:'#dfa878',hair:'#7a4a2c',hairD:'#5a3520',shirt:'#cf6a26',shirtD:'#a34e1a',pants:'#3b6ea5',pantsD:'#2c4f7d',boots:'#6b4a26',bootsD:'#4e3319',apron:null,apronD:null};
 
-function martaHead(g,dir,dy,blink,open,opt){
+function martaHead(g,dir,dy,blink,open){
   const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
   const P=martaPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD;
   const STRAW='#e8c35a',STRAWD='#c9a043',BAND='#a32e2e';
-  const showHat = !(opt && (opt.sit || opt.noHat));
-  const hat=()=>{ if(showHat){ R(8,1,9,3,STRAW); R(8,3,9,1,BAND); R(15,1,2,2,STRAWD); R(3,4,19,3,STRAW); R(3,6,19,1,STRAWD); } };
+  const hat=()=>{ R(8,1,9,3,STRAW); R(8,3,9,1,BAND); R(15,1,2,2,STRAWD); R(3,4,19,3,STRAW); R(3,6,19,1,STRAWD); };
   if(dir===1){
     R(4,6,17,13,HR); hat();
     for(let i=0;i<8;i++){ R(5,17+i,3,1,i%2?HRD:HR); R(17,17+i,3,1,i%2?HR:HRD); }
@@ -4524,13 +4089,11 @@ function martaHead(g,dir,dy,blink,open,opt){
     R(4,7,3,11,HR); R(18,7,3,11,HR);
     R(4,7,1,11,HRD); R(20,7,1,11,HRD);
     R(5,7,15,2,HR);
-    paR(g,7,7+dy,4,1,'#a86c44'); /* crown sheen highlight */
     for(let i=0;i<7;i++){ R(4,10+i,3,1,i%2?HR:HRD); R(18,10+i,3,1,i%2?HRD:HR); }
     R(4,17,3,1,BAND); R(18,17,3,1,BAND);
   }else{
     R(11,6,10,13,HR); R(19,7,2,12,HRD);
     R(5,7,8,2,HR);
-    paR(g,7,7+dy,3,1,'#a86c44'); /* crown sheen highlight */
     for(let i=0;i<7;i++){ R(4,10+i,3,1,i%2?HR:HRD); }
     R(4,17,3,1,BAND);
     for(let i=0;i<5;i++){ R(17,12+i,3,1,i%2?HRD:HR); }
@@ -4590,13 +4153,11 @@ function bramHead(g,dir,dy,blink,open){
   if(dir===1){ R(4,6,17,13,HR); R(4,6,17,1,HRD); return; }
   R(4,6,17,13,SK); R(19,8,2,10,SKD);
   if(dir===0){
-    R(5,6,15,3,HR); R(7,6,5,1,'#443f38'); /* crown highlight */
-    R(4,8,2,4,HR); R(19,8,2,4,HR);
+    R(5,6,15,3,HR); R(4,8,2,4,HR); R(19,8,2,4,HR);
     nvFaceFront(g,dy,blink,open);
     R(6,13,13,6,HR); R(6,16,13,3,HRD); R(16,13,3,6,HRD);
   }else{
-    R(12,6,9,7,HR); R(13,6,4,1,'#443f38'); /* crown highlight */
-    R(4,6,3,3,HR);
+    R(12,6,9,7,HR); R(4,6,3,3,HR);
     nvFaceProfile(g,dy,blink,open);
     R(5,13,9,6,HR); R(5,16,9,3,HRD);
   }
@@ -5182,189 +4743,6 @@ function pipTorso(g, dir, act, fr, dy){
   }
 }
 
-/* ================= ROWAN (Traveling Bard, tool: lute) ================= */
-const rowanPal={
-  skin:'#fcd3b6',skinD:'#e0a98b',
-  hair:'#d97706',hairD:'#92400e',hairH:'#f59e0b',
-  shirt:'#15803d',shirtD:'#166534',
-  pants:'#78350f',pantsD:'#451a03',
-  boots:'#3f2817',bootsD:'#2b1b10',
-  hat:'#047857',feather:'#f59e0b',
-  apron:null,apronD:null
-};
-
-function rowanHead(g,dir,dy,blink,open,opt){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=rowanPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD,HRH=P.hairH;
-  if(dir===1){
-    R(4,6,17,13,HR); R(4,6,17,2,HRD);
-    if(!(opt&&opt.sit)){ R(5,2,14,5,P.hat); R(12,0,2,4,P.feather); }
-    return;
-  }
-  R(4,6,17,13,SK); R(19,8,2,10,SKD);
-  if(dir===0){
-    R(5,7,15,3,HR); R(7,7,4,1,HRH);
-    R(4,9,3,7,HR); R(18,9,3,7,HR);
-    R(4,13,2,3,HRD); R(19,13,2,3,HRD);
-    if(!(opt&&opt.sit)){
-      R(5,2,14,5,P.hat); R(13,0,2,4,P.feather); R(5,5,14,2,'#065f46');
-    }
-    nvFaceFront(g,dy,blink,open);
-  }else{
-    R(11,6,10,13,HR); R(18,7,2,12,HRD);
-    R(5,7,7,2,HR); R(7,7,3,1,HRH);
-    if(!(opt&&opt.sit)){
-      R(5,2,14,5,P.hat); R(11,0,2,4,P.feather); R(5,5,14,2,'#065f46');
-    }
-    nvFaceProfile(g,dy,blink,open);
-  }
-}
-
-function rowanTorso(g,dir,act,fr,dy){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=rowanPal,SH=P.shirt,SHD=P.shirtD,DN=P.pants,DND=P.pantsD,SK=P.skin;
-  const GOLD='#fbbf24',BELT='#451a03';
-  R(8,18,9,8,SH); R(15,18,2,8,SHD);
-  R(8,23,9,2,BELT); R(11,23,3,2,GOLD);
-  R(9,25,7,2,DN); R(14,25,2,2,DND);
-  const mir=dir===2;
-  const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
-  const tArm=(ay)=> { R(HX-1,ay,4,7,SH); R(HX,ay+5,2,2,SK); };
-  const oArm=(ay)=> { R(OX,ay,4,7,OSH); R(OX,ay+5,2,2,SK); };
-  if(act==='walk'){
-    const s=nvSwing(fr),oT=mir?s:-s,oO=mir?-s:s;
-    oArm(18+oO); tArm(18+oT);
-  }else if(act==='talk'){
-    if(fr===1){ R(OX,12,4,7,OSH); R(OX,12,2,2,SK); } else oArm(18);
-    tArm(18);
-  }else{
-    oArm(18); tArm(18);
-  }
-}
-
-/* ================= CLARA (Silk Merchant, tool: basket) ================= */
-const claraPal={
-  skin:'#eab088',skinD:'#cf8f66',
-  hair:'#27272a',hairD:'#18181b',hairH:'#52525b',
-  shirt:'#7e22ce',shirtD:'#581c87',
-  pants:'#4338ca',pantsD:'#312e81',
-  boots:'#713f12',bootsD:'#502c0d',
-  turban:'#e0e7ff',turbanD:'#c7d2fe',jewel:'#facc15',
-  apron:null,apronD:null
-};
-
-function claraHead(g,dir,dy,blink,open,opt){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=claraPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD,HRH=P.hairH;
-  if(dir===1){
-    R(4,6,17,13,HR); R(4,14,17,4,HRD);
-    if(!(opt&&opt.sit)){ R(5,2,15,6,P.turban); R(5,6,15,2,P.turbanD); }
-    return;
-  }
-  R(4,6,17,13,SK); R(19,8,2,10,SKD);
-  if(dir===0){
-    R(5,7,15,3,HR); R(7,7,4,1,HRH);
-    R(4,9,3,8,HR); R(18,9,3,8,HR);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.turban); R(5,6,15,2,P.turbanD);
-      paPX(g,12,4+dy,P.jewel); paPX(g,13,4+dy,P.jewel);
-    }
-    nvFaceFront(g,dy,blink,open);
-  }else{
-    R(11,6,10,13,HR); R(18,7,2,12,HRD);
-    R(5,7,7,2,HR); R(7,7,3,1,HRH);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.turban); R(5,6,15,2,P.turbanD);
-      paPX(g,8,4+dy,P.jewel);
-    }
-    nvFaceProfile(g,dy,blink,open);
-  }
-}
-
-function claraTorso(g,dir,act,fr,dy){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=claraPal,SH=P.shirt,SHD=P.shirtD,DN=P.pants,DND=P.pantsD,SK=P.skin;
-  const GOLD='#facc15',SASH='#e0e7ff';
-  R(8,18,9,8,SH); R(15,18,2,8,SHD);
-  R(9,19,2,6,GOLD); R(14,19,2,6,GOLD);
-  R(8,23,9,2,SASH);
-  R(9,25,7,2,DN); R(14,25,2,2,DND);
-  const mir=dir===2;
-  const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
-  const tArm=(ay)=> { R(HX-1,ay,4,7,SH); R(HX,ay+5,2,2,SK); };
-  const oArm=(ay)=> { R(OX,ay,4,7,OSH); R(OX,ay+5,2,2,SK); };
-  if(act==='walk'){
-    const s=nvSwing(fr),oT=mir?s:-s,oO=mir?-s:s;
-    oArm(18+oO); tArm(18+oT);
-  }else if(act==='talk'){
-    if(fr===1){ R(OX,12,4,7,OSH); R(OX,12,2,2,SK); } else oArm(18);
-    tArm(18);
-  }else{
-    oArm(18); tArm(18);
-  }
-}
-
-/* ================= GARETH (Wandering Knight, tool: sword) ================= */
-const garethPal={
-  skin:'#fed7aa',skinD:'#fba96b',
-  hair:'#71717a',hairD:'#3f3f46',hairH:'#a1a1aa',
-  shirt:'#94a3b8',shirtD:'#64748b',
-  pants:'#475569',pantsD:'#334155',
-  boots:'#1e293b',bootsD:'#0f172a',
-  cape:'#dc2626',capeD:'#991b1b',
-  helm:'#cbd5e1',helmD:'#94a3b8',
-  apron:null,apronD:null
-};
-
-function garethHead(g,dir,dy,blink,open,opt){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=garethPal,SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD,HRH=P.hairH;
-  if(dir===1){
-    R(4,6,17,13,HR); R(4,6,17,2,HRD);
-    if(!(opt&&opt.sit)){ R(5,2,14,6,P.helm); R(5,5,14,3,P.helmD); R(11,0,3,4,P.cape); }
-    return;
-  }
-  R(4,6,17,13,SK); R(19,8,2,10,SKD);
-  if(dir===0){
-    R(5,7,15,3,HR); R(7,7,4,1,HRH);
-    R(4,9,2,5,HR); R(19,9,2,5,HR);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.helm); R(5,6,15,2,P.helmD); R(11,0,3,4,P.cape);
-    }
-    nvFaceFront(g,dy,blink,open);
-  }else{
-    R(11,6,10,13,HR); R(18,7,2,12,HRD);
-    R(5,7,7,2,HR); R(7,7,3,1,HRH);
-    if(!(opt&&opt.sit)){
-      R(5,2,15,6,P.helm); R(5,6,15,2,P.helmD); R(10,0,3,4,P.cape);
-    }
-    nvFaceProfile(g,dy,blink,open);
-  }
-}
-
-function garethTorso(g,dir,act,fr,dy){
-  const R=(x,y,w,h,c)=>paR(g,x,y+dy,w,h,c);
-  const P=garethPal,SH=P.shirt,SHD=P.shirtD,DN=P.pants,DND=P.pantsD,SK=P.skin;
-  const GOLD='#fbbf24',STEEL='#cbd5e1';
-  R(6,18,3,9,P.cape); R(16,18,3,9,P.capeD);
-  R(8,18,9,8,SH); R(15,18,2,8,SHD);
-  R(12,19,2,6,GOLD); R(10,21,6,2,GOLD);
-  R(9,25,7,2,DN); R(14,25,2,2,DND);
-  const mir=dir===2;
-  const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
-  const tArm=(ay)=> { R(HX-1,ay,4,7,STEEL); R(HX,ay+5,2,2,SK); };
-  const oArm=(ay)=> { R(OX,ay,4,7,SHD); R(OX,ay+5,2,2,SK); };
-  if(act==='walk'){
-    const s=nvSwing(fr),oT=mir?s:-s,oO=mir?-s:s;
-    oArm(18+oO); tArm(18+oT);
-  }else if(act==='talk'){
-    if(fr===1){ R(OX,12,4,7,OSH); R(OX,12,2,2,SK); } else oArm(18);
-    tArm(18);
-  }else{
-    oArm(18); tArm(18);
-  }
-}
-
 /* ---------------- per-villager design registry ----------------
    Each entry: { pal, head(g,dir,dy,blink,open), torso(g,dir,act,fr,dy) }
    pal keys: skin,skinD,hair,hairD,shirt,shirtD,pants,pantsD,boots,bootsD,
@@ -5378,9 +4756,6 @@ const DESIGNS = {
   Finn:{pal:finnPal,head:finnHead,torso:finnTorso},
   Alden:{pal:aldenPal,head:aldenHead,torso:aldenTorso},
   Pip:{pal:pipPal,head:pipHead,torso:pipTorso},
-  Rowan:{pal:rowanPal,head:rowanHead,torso:rowanTorso},
-  Clara:{pal:claraPal,head:claraHead,torso:claraTorso},
-  Gareth:{pal:garethPal,head:garethHead,torso:garethTorso},
 };
 
 /* ---------------- frame composer: logical -> 48x64 ---------------- */
@@ -5422,173 +4797,41 @@ function nvSleepFrame(spec,fr){
 
 /* ---------------- BUILD ALL + DRAW ---------------- */
 function workFor(name){
-  return {Marta:'hoe',Bram:'hammer',Sella:'rollingpin',Tobin:'mug',Wren:'broom',
-          Finn:'rod',Alden:'scroll',Pip:'ball',
-          Rowan:'lute',Clara:'basket',Gareth:'sword'}[name]||'idle';
+  return {Marta:'hoe',Bram:'hammer',Sella:'basket',Tobin:'mug',Wren:'broom',
+          Finn:'rod',Alden:'scroll',Pip:'ball'}[name]||'idle';
 }
-
-function paLine(g,x0,y0,x1,y1,col){
-  const dx=Math.abs(x1-x0), dy=Math.abs(y1-y0);
-  const sx=x0<x1?1:-1, sy=y0<y1?1:-1;
-  let err=dx-dy, x=x0, y=y0;
-  while(true){
-    paPX(g,x,y,col);
-    if(x===x1&&y===y1) break;
-    const e2=2*err;
-    if(e2>-dy){ err-=dy; x+=sx; }
-    if(e2<dx){ err+=dx; y+=sy; }
-  }
-}
-
-function buildTools(){
-  PA.tools={};
-  function mkTool(drawFn){
-    const L=paMk(14,14), g=L.g;
-    drawFn(g);
-    paOutline(L.c,N_OUTL);
-    const s=paMk(28,28), g2=s.g;
-    g2.imageSmoothingEnabled=false;
-    g2.drawImage(L.c,0,0,28,28);
-    return s.c;
-  }
-
-  PA.tools.hoe = mkTool(g=>{
-    paLine(g,2,12,10,4,'#8a5229');
-    cR(g,8,2,5,3,'#64748b'); cR(g,10,4,3,4,'#475569'); cP(g,9,3,'#94a3b8');
-  });
-
-  PA.tools.hammer = mkTool(g=>{
-    paLine(g,3,12,9,5,'#8a5229');
-    cR(g,7,2,6,4,'#334155'); cR(g,8,3,4,2,'#64748b'); cP(g,8,2,'#94a3b8');
-  });
-
-  PA.tools.rollingpin = mkTool(g=>{
-    cR(g,3,5,8,4,'#e2b17a'); cR(g,4,6,6,2,'#fde68a');
-    cR(g,1,6,2,2,'#92400e'); cR(g,11,6,2,2,'#92400e');
-  });
-
-  PA.tools.mug = mkTool(g=>{
-    cR(g,4,5,6,6,'#78350f'); cR(g,5,6,4,4,'#92400e');
-    cR(g,4,6,6,1,'#94a3b8'); cR(g,4,9,6,1,'#94a3b8');
-    cBlob(g,7,4,3,'#ffffff'); cBlob(g,5,4,2,'#fef3c7');
-    cR(g,2,6,2,4,'#78350f'); cP(g,3,7,'#14100c');
-  });
-
-  PA.tools.broom = mkTool(g=>{
-    paLine(g,3,12,11,3,'#8a5229');
-    cR(g,2,9,4,4,'#ca8a04'); cR(g,1,11,5,2,'#eab308');
-  });
-
-  PA.tools.rod = mkTool(g=>{
-    paLine(g,2,12,12,2,'#ca8a04'); cP(g,5,9,'#854d0e'); cP(g,9,5,'#854d0e');
-    cBlob(g,4,10,1,'#64748b');
-  });
-
-  PA.tools.scroll = mkTool(g=>{
-    paLine(g,5,12,9,4,'#451a03');
-    cBlob(g,10,3,2,'#fbbf24'); cP(g,10,2,'#fef08a');
-  });
-
-  PA.tools.ball = mkTool(g=>{
-    cR(g,6,8,2,4,'#8a5229'); cP(g,4,5,'#8a5229'); cP(g,8,5,'#8a5229');
-    paLine(g,4,5,8,5,'#ef4444');
-  });
-
-  PA.tools.lute = mkTool(g=>{
-    paLine(g,2,12,8,6,'#92400e'); /* neck */
-    cBlob(g,9,4,3,'#d97706'); /* pear body */
-    cBlob(g,9,4,2,'#b45309');
-    cP(g,9,4,'#1e1b18'); /* sound hole */
-    paLine(g,4,11,8,5,'#fde68a'); /* strings */
-  });
-
-  PA.tools.basket = mkTool(g=>{
-    cR(g,3,5,8,6,'#b45309'); /* wicker basket body */
-    cR(g,4,6,6,4,'#d97706');
-    paLine(g,4,5,10,5,'#f472b6'); /* silk rolls inside: pink */
-    paLine(g,4,4,8,4,'#38bdf8'); /* cyan silk */
-    paLine(g,4,3,10,3,'#78350f'); /* handle */
-  });
-
-  PA.tools.sword = mkTool(g=>{
-    paLine(g,2,12,11,3,'#94a3b8'); /* blade */
-    paLine(g,3,11,10,4,'#e2e8f0'); /* blade fuller highlight */
-    cR(g,3,10,4,2,'#d97706'); /* crossguard */
-    cR(g,1,12,2,2,'#451a03'); /* grip */
-    cP(g,1,13,'#fbbf24'); /* pommel */
-  });
-}
-
-function buildThoughtBubbles(){
-  PA.fx.bubbles={};
-  function mkBubble(drawIcon){
-    const L=paMk(10,9), g=L.g;
-    cBlob(g,5,4,4,'#ffffff');
-    cR(g,2,7,2,2,'#ffffff'); cP(g,3,8,'#ffffff');
-    drawIcon(g);
-    paOutline(L.c,N_OUTL);
-    const s=paMk(20,18), g2=s.g;
-    g2.imageSmoothingEnabled=false;
-    g2.drawImage(L.c,0,0,20,18);
-    return s.c;
-  }
-
-  PA.fx.bubbles.talk = mkBubble(g=>{
-    cP(g,3,4,'#2b2b2b'); cP(g,5,4,'#2b2b2b'); cP(g,7,4,'#2b2b2b');
-  });
-  PA.fx.bubbles.food = mkBubble(g=>{
-    cR(g,3,3,5,3,'#c27829'); cR(g,4,2,3,1,'#f5c369'); cP(g,4,3,'#fef08a'); cP(g,6,3,'#fef08a');
-  });
-  PA.fx.bubbles.sleep = mkBubble(g=>{
-    cR(g,3,2,3,1,'#7c3aed'); cP(g,5,3,'#7c3aed'); cP(g,4,4,'#7c3aed'); cR(g,3,5,3,1,'#7c3aed'); cP(g,7,5,'#a855f7');
-  });
-  PA.fx.bubbles.heart = mkBubble(g=>{
-    cR(g,3,2,2,2,'#e11d48'); cR(g,6,2,2,2,'#e11d48'); cR(g,3,4,5,2,'#e11d48'); cR(g,4,6,3,1,'#e11d48'); cP(g,5,7,'#e11d48');
-  });
-  PA.fx.bubbles.work = mkBubble(g=>{
-    cR(g,3,2,4,2,'#64748b'); cR(g,4,4,2,3,'#92400e');
-  });
-  PA.fx.bubbles.idea = mkBubble(g=>{
-    cBlob(g,5,3,2,'#facc15'); cR(g,5,5,2,2,'#f59e0b'); cP(g,5,7,'#64748b');
-  });
-  PA.fx.bubbles.cold = mkBubble(g=>{
-    cP(g,5,2,'#38bdf8'); cP(g,5,6,'#38bdf8'); cP(g,3,4,'#38bdf8'); cP(g,7,4,'#38bdf8'); cP(g,5,4,'#0284c7');
-  });
-  PA.fx.bubbles.happy = mkBubble(g=>{
-    cP(g,3,3,'#2b2b2b'); cP(g,7,3,'#2b2b2b'); cP(g,3,5,'#dc2626'); cR(g,4,6,3,1,'#2b2b2b');
-  });
-
-  PA.fx.bubble = PA.fx.bubbles.talk;
-}
-
-function registerVillagerSprites(v){
-  if(!PA.chars) PA.chars=[];
-  const D=DESIGNS[v.name]||DESIGNS.Marta;
-  const spec={name:v.name, work:workFor(v.name), kid:v.name==='Pip', pal:D.pal};
-  const F={};
-  for(const dir of [0,1,2]){
-    F[dir]={idle:[],walk:[],talk:[],work:[],sit:[],sleep:[]};
-    for(let f=0;f<2;f++) F[dir].idle.push(nvFrame(spec,dir,'idle',f));
-    for(let f=0;f<4;f++) F[dir].walk.push(nvFrame(spec,dir,'walk',f));
-    for(let f=0;f<2;f++) F[dir].talk.push(nvFrame(spec,dir,'talk',f));
-    for(let f=0;f<3;f++) F[dir].work.push(nvFrame(spec,dir,'work',f));
-    for(let f=0;f<2;f++) F[dir].sit.push(nvFrame(spec,dir,'sit',f));
-    F[dir].sleep.push(nvSleepFrame(spec,0));
-    F[dir].sleep.push(nvSleepFrame(spec,1));
-  }
-  const idx = PA.chars.length;
-  PA.chars.push(F);
-  v._ci = idx;
-  return idx;
-}
-
 function buildChars(){
   PA.chars=[];
   for(let i=0;i<G.villagers.length;i++){
-    registerVillagerSprites(G.villagers[i]);
+    const v=G.villagers[i];
+    const D=DESIGNS[v.name]||DESIGNS.Marta;
+    const spec={name:v.name, work:workFor(v.name), kid:v.name==='Pip', pal:D.pal};
+    const F={};
+    for(const dir of [0,1,2]){
+      F[dir]={idle:[],walk:[],talk:[],work:[],sit:[],sleep:[]};
+      for(let f=0;f<2;f++) F[dir].idle.push(nvFrame(spec,dir,'idle',f));
+      for(let f=0;f<4;f++) F[dir].walk.push(nvFrame(spec,dir,'walk',f));
+      for(let f=0;f<2;f++) F[dir].talk.push(nvFrame(spec,dir,'talk',f));
+      for(let f=0;f<3;f++) F[dir].work.push(nvFrame(spec,dir,'work',f));
+      for(let f=0;f<2;f++) F[dir].sit.push(nvFrame(spec,dir,'sit',f));
+      F[dir].sleep.push(nvSleepFrame(spec,0));
+      F[dir].sleep.push(nvSleepFrame(spec,1));
+    }
+    PA.chars.push(F);
+    v._ci=i;
   }
-  buildTools();
-  buildThoughtBubbles();
+  /* chunky talk bubble */
+  {
+    const L=paMk(8,7), g=L.g;
+    cBlob(g,4,3,3,'#ffffff');
+    cR(g,1,5,2,2,'#ffffff'); cP(g,2,6,'#ffffff');
+    cP(g,2,3,'#2b2b2b'); cP(g,4,3,'#2b2b2b'); cP(g,6,3,'#2b2b2b');
+    paOutline(L.c,N_OUTL);
+    const s=paMk(16,14), g2=s.g;
+    g2.imageSmoothingEnabled=false;
+    g2.drawImage(L.c,0,0,16,14);
+    PA.fx.bubble=s.c;
+  }
 }
 
 function paCharDraw(g,v){
@@ -5610,13 +4853,7 @@ function paCharDraw(g,v){
   else if(st==='sit'){ arr=F[dir].sit; fi=Math.floor(t/120)%2; }
   else { arr=F[dir].idle; fi=(((t+Math.floor(v.seed*10))%210)<14)?1:0; }
   const fr=arr[fi%arr.length];
-  let dyOffset = 0;
-  if(v.triumphT > 0){
-    dyOffset = -Math.sin(v.triumphT * Math.PI) * 4; /* celebratory mini-jump! */
-  } else if(v.needs && v.needs.rest < 0.25){
-    dyOffset = 1; /* low energy slump */
-  }
-  const dx=Math.round(px0-fr.width/2), dy=Math.round(py0+2-fr.height + dyOffset);
+  const dx=Math.round(px0-fr.width/2), dy=Math.round(py0+2-fr.height);
   g.imageSmoothingEnabled=false;
   if(v.face===3&&st!=='sit'){
     g.save(); g.translate(Math.round(px0)*2,0); g.scale(-1,1);
@@ -5625,98 +4862,9 @@ function paCharDraw(g,v){
   } else {
     g.drawImage(fr, dx, dy);
   }
-
-  // RimWorld-Style Dynamic Attached Tool
-  const toolKey = (v.equippedTool && v.equippedTool.kind) || workFor(v.name);
-  const sprTool = PA.tools && PA.tools[toolKey];
-  if(sprTool && st!=='sleep'){
-    let hx = px0, hy = py0 - 18 + dyOffset;
-    const isRight = v.face === 3;
-    const isLeft = v.face === 2;
-    const isBack = v.face === 1;
-    let toolAngle = 0;
-
-    if(v.triumphT > 0){
-      toolAngle = -1.2; /* raising tool high in triumph! */
-    } else if(st === 'work'){
-      if(toolKey === 'hammer'){
-        const swing = Math.sin(t * 0.22);
-        toolAngle = swing < 0 ? swing * 0.9 : swing * 1.3;
-      } else if(toolKey === 'hoe'){
-        const swing = Math.sin(t * 0.18);
-        toolAngle = swing * 0.85;
-      } else if(toolKey === 'rollingpin'){
-        toolAngle = Math.sin(t * 0.28) * 0.35;
-      } else if(toolKey === 'rod'){
-        toolAngle = -0.35 + Math.sin(t * 0.08) * 0.08;
-      } else if(toolKey === 'mug'){
-        toolAngle = Math.sin(t * 0.15) * 0.25;
-      } else if(toolKey === 'lute'){
-        toolAngle = -0.3 + Math.sin(t * 0.25) * 0.15; /* strumming lute */
-      } else if(toolKey === 'sword'){
-        toolAngle = Math.sin(t * 0.12) * 0.3; /* gleaming knight stance */
-      } else if(toolKey === 'basket'){
-        toolAngle = Math.sin(t * 0.1) * 0.12; /* displaying wares */
-      } else {
-        toolAngle = Math.sin(t * 0.2) * 0.4;
-      }
-    } else if(st === 'walk'){
-      toolAngle = Math.sin(v.walkPhase * 6.366) * 0.25;
-    } else {
-      toolAngle = Math.sin((t + v.seed * 10) * 0.05) * 0.08;
-    }
-
-    if(isLeft){
-      hx = px0 - 7; hy = py0 - 17;
-    } else if(isRight){
-      hx = px0 + 7; hy = py0 - 17;
-    } else if(isBack){
-      hx = px0 + 8; hy = py0 - 18;
-    } else {
-      hx = px0 + 8; hy = py0 - 17;
-    }
-
-    g.save();
-    g.translate(hx, hy);
-    if(isRight){ g.scale(-1, 1); }
-    g.rotate(toolAngle);
-    g.drawImage(sprTool, -6, -20);
-
-    // Finn's fishing line
-    if(toolKey === 'rod' && (st === 'work' || st === 'idle')){
-      const rodTipX = -6 + 22, rodTipY = -20 + 4;
-      const waterTargetY = py0 + 14 - hy;
-      g.strokeStyle = 'rgba(224, 242, 254, 0.75)';
-      g.lineWidth = 1;
-      g.beginPath();
-      g.moveTo(rodTipX, rodTipY);
-      g.quadraticCurveTo(rodTipX + 8, waterTargetY * 0.5, rodTipX + 4, waterTargetY);
-      g.stroke();
-      g.fillStyle = '#ef4444';
-      g.fillRect(rodTipX + 3, waterTargetY - 2, 3, 3);
-      g.fillStyle = '#ffffff';
-      g.fillRect(rodTipX + 4, waterTargetY - 1, 1, 1);
-    }
-    g.restore();
-  }
-
-  // RimWorld-Style Floating Thought / Need Bubble
-  let activeBubble = null;
-  if(st === 'talk'){
-    activeBubble = (Math.sin(v.seed * 10) > 0.3) ? PA.fx.bubbles.heart : PA.fx.bubbles.talk;
-  } else if(v.currentBubble && PA.fx.bubbles && PA.fx.bubbles[v.currentBubble]){
-    activeBubble = PA.fx.bubbles[v.currentBubble];
-  } else if(v.needs && v.needs.food < 0.35 && PA.fx.bubbles){
-    activeBubble = PA.fx.bubbles.food;
-  } else if(v.needs && v.needs.rest < 0.35 && PA.fx.bubbles){
-    activeBubble = PA.fx.bubbles.sleep;
-  } else if(st === 'work' && PA.fx.bubbles){
-    activeBubble = (Math.floor(t / 80) % 3 === 0) ? PA.fx.bubbles.work : (Math.floor(t / 140) % 2 === 0 ? PA.fx.bubbles.idea : null);
-  }
-
-  if(activeBubble){
-    const bob = Math.sin((t + v.seed * 15) * 0.08) * 2;
-    g.drawImage(activeBubble, Math.round(px0 + 6), Math.round(py0 - 74 + bob));
+  if(st==='talk'){
+    const b=PA.fx.bubble, bob=Math.sin(t*0.1)*2;
+    g.drawImage(b, Math.round(px0+8), Math.round(py0-72+bob));
   }
 }
 
@@ -5724,8 +4872,10 @@ function paCharDraw(g,v){
 /* ================= pa-fx.js ================= */
 /* =====================================================================
    PA-FX v6 — ambient effects: chimney smoke, fireflies, dust.
-   Particle kinds: 'smoke' | 'firefly' | 'dust' | 'spark' | 'flour' |
-   'wheat' | 'splash' | 'leaf'.
+   Particle kinds: 'smoke' | 'firefly' | 'dust' | undefined (legacy).
+   Logic identical to previous version; only the smoke sprite ART was
+   upgraded to the v6 hand-crafted style (layered cool-grey puffs with
+   warm upper-left rim light and crisp dithered edges).
    ===================================================================== */
 function buildFx(){
   // smoke puffs: 3 hand-crafted pixel blobs (14x14 native)
@@ -5758,74 +4908,6 @@ function paBlobPx(g,cx,cy,r,col){
   g.fillStyle=col;
   for(let j=-r;j<=r;j++)for(let i=-r;i<=r;i++)
     if(i*i+j*j<=r*r) g.fillRect(cx+i,cy+j,1,1);
-}
-
-function paSpawnSparks(x,y,count){
-  count=count||3;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'spark',x:x+rand(-2,2),y:y+rand(-2,2),
-      vx:rand(-50,50),vy:rand(-90,-35),life:rand(0.35,0.65),maxLife:0.65,
-      col:choice(['#ffffff','#fef08a','#facc15','#fb923c','#ea580c'])
-    });
-  }
-}
-function paSpawnFlour(x,y,count){
-  count=count||2;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'flour',x:x+rand(-4,4),y:y+rand(-4,4),
-      vx:rand(-12,12),vy:rand(-18,-6),life:rand(0.6,1.1),maxLife:1.1,
-      size:rand(2.5,4.5)
-    });
-  }
-}
-function paSpawnWheat(x,y,count){
-  count=count||2;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'wheat',x:x+rand(-4,4),y:y+rand(-4,4),
-      vx:rand(-20,20),vy:rand(-35,-12),life:rand(0.5,0.9),maxLife:0.9,
-      col:choice(['#fef08a','#facc15','#d97706','#84cc16','#65a30d'])
-    });
-  }
-}
-function paSpawnSplash(x,y,count){
-  count=count||3;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'splash',x:x+rand(-3,3),y:y+rand(-2,2),
-      vx:rand(-35,35),vy:rand(-60,-20),life:rand(0.3,0.55),maxLife:0.55,
-      col:choice(['#f0f9ff','#bae6fd','#38bdf8','#0284c7'])
-    });
-  }
-}
-function paSpawnLeaf(x,y,count){
-  count=count||2;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'leaf',x:x+rand(-4,4),y:y+rand(-4,4),
-      vx:rand(-14,14),vy:rand(-22,-8),life:rand(0.7,1.2),maxLife:1.2,
-      col:choice(['#86efac','#4ade80','#16a34a','#c084fc','#9333ea'])
-    });
-  }
-}
-function paSpawnMusic(x,y,count){
-  count=count||1;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'music',x:x+rand(-5,5),y:y+rand(-4,4),
-      vx:rand(-12,12),vy:rand(-28,-14),life:rand(0.8,1.4),maxLife:1.4,
-      note:choice(['♪','♫','♩']),
-      col:choice(['#fbbf24','#f472b6','#a78bfa','#38bdf8'])
-    });
-  }
 }
 
 function paFxUpdate(dt){
@@ -5870,18 +4952,6 @@ function paUpdateParticles(dt){
       p.life-=dt*0.25;
     }else if(p.kind==='dust'){
       p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt*1.25;
-    }else if(p.kind==='spark'){
-      p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=240*dt; p.life-=dt*1.8;
-    }else if(p.kind==='flour'){
-      p.x+=p.vx*dt+Math.sin(p.life*6)*4*dt; p.y+=p.vy*dt; p.life-=dt*1.1;
-    }else if(p.kind==='wheat'){
-      p.x+=p.vx*dt+Math.sin(p.life*8)*6*dt; p.y+=p.vy*dt; p.vy+=60*dt; p.life-=dt*1.1;
-    }else if(p.kind==='splash'){
-      p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=220*dt; p.life-=dt*1.9;
-    }else if(p.kind==='leaf'){
-      p.x+=p.vx*dt+Math.sin(p.life*5)*10*dt; p.y+=p.vy*dt; p.vy+=25*dt; p.life-=dt*1.0;
-    }else if(p.kind==='music'){
-      p.x+=p.vx*dt+Math.sin(p.life*6)*12*dt; p.y+=p.vy*dt; p.life-=dt*0.9;
     }else{
       p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; p.life-=dt*1.4;
     }
@@ -5910,38 +4980,6 @@ function paDrawParticles(g){
       g.globalAlpha=clamp(p.life/(p.maxLife||0.8),0,1)*0.5;
       g.fillStyle='#d9c9a0';
       g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,3,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='spark'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||0.6),0,1);
-      g.fillStyle=p.col||'#facc15';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,2,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='flour'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||1.0),0,1)*0.65;
-      g.fillStyle='#fffef0';
-      const s=Math.round(p.size||3);
-      g.fillRect(Math.round(p.x)-s/2,Math.round(p.y)-s/2,s,s);
-      g.globalAlpha=1;
-    }else if(p.kind==='wheat'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||0.8),0,1)*0.9;
-      g.fillStyle=p.col||'#facc15';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,2,3);
-      g.globalAlpha=1;
-    }else if(p.kind==='splash'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||0.5),0,1)*0.85;
-      g.fillStyle=p.col||'#38bdf8';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,2,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='leaf'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||1.0),0,1)*0.85;
-      g.fillStyle=p.col||'#4ade80';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,3,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='music'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||1.2),0,1)*0.95;
-      g.fillStyle=p.col||'#fbbf24';
-      g.font='bold 10px sans-serif';
-      g.fillText(p.note||'♪',Math.round(p.x)-3,Math.round(p.y));
       g.globalAlpha=1;
     }else{
       g.globalAlpha=clamp(p.life,0,1);
@@ -6145,27 +5183,8 @@ function drawVillager(g,v){
     g.setLineDash([6,4]); g.lineDashOffset=-G.frame*0.3;
     g.beginPath(); g.ellipse(sx,sy+2,16,7,0,0,7); g.stroke();
     g.restore();
-  } else if(v===G.inspectedVillager){
-    g.save();
-    g.strokeStyle='#38bdf8'; g.lineWidth=1.5;
-    g.setLineDash([4,3]); g.lineDashOffset=-G.frame*0.2;
-    g.beginPath(); g.ellipse(sx,sy+2,15,6.5,0,0,7); g.stroke();
-    g.restore();
   }
   paCharDraw(g,v);
-
-  // RimWorld-Style Mini Work Progress Bar
-  if(v.state==='work' && v.workProgress > 0){
-    const bw=24, bh=4;
-    const bx=Math.round(sx-bw/2), by=Math.round(sy-66);
-    g.fillStyle='rgba(15,23,42,0.85)';
-    g.fillRect(bx-1,by-1,bw+2,bh+2);
-    g.fillStyle='#1e293b';
-    g.fillRect(bx,by,bw,bh);
-    g.fillStyle=v.workProgress>0.8?'#4ade80':'#38bdf8';
-    g.fillRect(bx,by,Math.round(bw*clamp(v.workProgress,0,1)),bh);
-  }
-
   // name tag (kept from old renderer)
   const name=v.name+(v.isNPC?'':' (you)');
   ctx.font='11px system-ui'; const tw=ctx.measureText(name).width;
@@ -6353,13 +5372,7 @@ async function runAutoTest(){
     const t0=performance.now();
     frames(600,0.016);
     const ms=performance.now()-t0;
-    /* ---- Character Generator Advancements & Wandering Visitors ---- */
-    const f0=PA.chars[0][0].idle[0];
-    log(!!(f0&&f0.width===48&&f0.height===64),'chibi: Direction A 48x64 sprites with specular catchlights');
-    const vis=spawnWanderingVisitor('Rowan');
-    log(vis&&vis.name==='Rowan'&&vis.role==='Traveling Bard','visitor: Rowan spawned successfully');
-    log(G.villagers.length===9&&vis.equippedTool&&vis.equippedTool.kind==='lute','visitor: lute tool & pawn stats assigned');
-    log(!!(PA.tools&&PA.tools.lute&&PA.tools.sword&&PA.tools.basket),'tools: visitor tools (lute, sword, basket) prerendered');
+    log(ms<15000,'perf: 600 update+render frames','total '+(ms/1000).toFixed(1)+'s, '+(ms/600).toFixed(2)+'ms/frame');
 
     /* ---- final ---- */
     log(G.errCount===0,'no runtime errors across whole pass','errCount='+G.errCount);

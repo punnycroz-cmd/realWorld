@@ -65,74 +65,6 @@ function paFxUpdate(dt){
   }
 }
 
-function paSpawnSparks(x,y,count){
-  count=count||3;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'spark',x:x+rand(-2,2),y:y+rand(-2,2),
-      vx:rand(-50,50),vy:rand(-90,-35),life:rand(0.35,0.65),maxLife:0.65,
-      col:choice(['#ffffff','#fef08a','#facc15','#fb923c','#ea580c'])
-    });
-  }
-}
-function paSpawnFlour(x,y,count){
-  count=count||2;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'flour',x:x+rand(-4,4),y:y+rand(-4,4),
-      vx:rand(-12,12),vy:rand(-18,-6),life:rand(0.6,1.1),maxLife:1.1,
-      size:rand(2.5,4.5)
-    });
-  }
-}
-function paSpawnWheat(x,y,count){
-  count=count||2;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'wheat',x:x+rand(-4,4),y:y+rand(-4,4),
-      vx:rand(-20,20),vy:rand(-35,-12),life:rand(0.5,0.9),maxLife:0.9,
-      col:choice(['#fef08a','#facc15','#d97706','#84cc16','#65a30d'])
-    });
-  }
-}
-function paSpawnSplash(x,y,count){
-  count=count||3;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'splash',x:x+rand(-3,3),y:y+rand(-2,2),
-      vx:rand(-35,35),vy:rand(-60,-20),life:rand(0.3,0.55),maxLife:0.55,
-      col:choice(['#f0f9ff','#bae6fd','#38bdf8','#0284c7'])
-    });
-  }
-}
-function paSpawnLeaf(x,y,count){
-  count=count||2;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'leaf',x:x+rand(-4,4),y:y+rand(-4,4),
-      vx:rand(-14,14),vy:rand(-22,-8),life:rand(0.7,1.2),maxLife:1.2,
-      col:choice(['#86efac','#4ade80','#16a34a','#c084fc','#9333ea'])
-    });
-  }
-}
-function paSpawnMusic(x,y,count){
-  count=count||1;
-  for(let i=0;i<count;i++){
-    if(G.particles.length>260) break;
-    G.particles.push({
-      kind:'music',x:x+rand(-5,5),y:y+rand(-4,4),
-      vx:rand(-12,12),vy:rand(-28,-14),life:rand(0.8,1.4),maxLife:1.4,
-      note:choice(['♪','♫','♩']),
-      col:choice(['#fbbf24','#f472b6','#a78bfa','#38bdf8'])
-    });
-  }
-}
-
 function paUpdateParticles(dt){
   for(let i=G.particles.length-1;i>=0;i--){
     const p=G.particles[i];
@@ -148,18 +80,6 @@ function paUpdateParticles(dt){
       p.life-=dt*0.25;
     }else if(p.kind==='dust'){
       p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt*1.25;
-    }else if(p.kind==='spark'){
-      p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=240*dt; p.life-=dt*1.8;
-    }else if(p.kind==='flour'){
-      p.x+=p.vx*dt+Math.sin(p.life*6)*4*dt; p.y+=p.vy*dt; p.life-=dt*1.1;
-    }else if(p.kind==='wheat'){
-      p.x+=p.vx*dt+Math.sin(p.life*8)*6*dt; p.y+=p.vy*dt; p.vy+=60*dt; p.life-=dt*1.1;
-    }else if(p.kind==='splash'){
-      p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=220*dt; p.life-=dt*1.9;
-    }else if(p.kind==='leaf'){
-      p.x+=p.vx*dt+Math.sin(p.life*5)*10*dt; p.y+=p.vy*dt; p.vy+=25*dt; p.life-=dt*1.0;
-    }else if(p.kind==='music'){
-      p.x+=p.vx*dt+Math.sin(p.life*6)*12*dt; p.y+=p.vy*dt; p.life-=dt*0.9;
     }else{
       p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; p.life-=dt*1.4;
     }
@@ -188,38 +108,6 @@ function paDrawParticles(g){
       g.globalAlpha=clamp(p.life/(p.maxLife||0.8),0,1)*0.5;
       g.fillStyle='#d9c9a0';
       g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,3,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='spark'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||0.6),0,1);
-      g.fillStyle=p.col||'#facc15';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,2,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='flour'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||1.0),0,1)*0.65;
-      g.fillStyle='#fffef0';
-      const s=Math.round(p.size||3);
-      g.fillRect(Math.round(p.x)-s/2,Math.round(p.y)-s/2,s,s);
-      g.globalAlpha=1;
-    }else if(p.kind==='wheat'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||0.8),0,1)*0.9;
-      g.fillStyle=p.col||'#facc15';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,2,3);
-      g.globalAlpha=1;
-    }else if(p.kind==='splash'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||0.5),0,1)*0.85;
-      g.fillStyle=p.col||'#38bdf8';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,2,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='leaf'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||1.0),0,1)*0.85;
-      g.fillStyle=p.col||'#4ade80';
-      g.fillRect(Math.round(p.x)-1,Math.round(p.y)-1,3,2);
-      g.globalAlpha=1;
-    }else if(p.kind==='music'){
-      g.globalAlpha=clamp(p.life/(p.maxLife||1.2),0,1)*0.95;
-      g.fillStyle=p.col||'#fbbf24';
-      g.font='bold 10px sans-serif';
-      g.fillText(p.note||'♪',Math.round(p.x)-3,Math.round(p.y));
       g.globalAlpha=1;
     }else{
       g.globalAlpha=clamp(p.life,0,1);
