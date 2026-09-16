@@ -148,3 +148,386 @@ window.__aiBridge.getEvents = function(since){
   since = since || 0;
   return EVENTS.filter(e => e.seq > since);
 };
+
+/* =====================================================================
+   PHASE 6A: SELECTIVE ATTENTION & PERCEPTION DTO (A1 & A3)
+   3-Gate Attention Pipeline: sensation -> attention -> interpretation -> memory
+   ===================================================================== */
+
+class PerceptionDTO {
+  constructor(data = {}) {
+    this.timestamp = data.timestamp || (typeof W !== 'undefined' ? (W.day + (W.tod || 0)/24) : 0);
+    this.villagerName = data.villagerName || '';
+    this.threats = data.threats || [];
+    this.urgentNeeds = data.urgentNeeds || [];
+    this.attended = data.attended || [];
+    this.ignored = data.ignored || [];
+    this.interrupt = Boolean(data.interrupt);
+    this.replanNeeded = Boolean(data.replanNeeded);
+    this.see = data.see || [];
+    this.hear = data.hear || [];
+    this.nearby = data.nearby || [];
+  }
+}
+
+function getUrgentNeeds(v){
+  if(!v) return [];
+  const b = typeof ensureBody === 'function' ? ensureBody(v) : (v.body || {});
+  const urgent = [];
+  const sat = b.satiety != null ? b.satiety : 1.0;
+  const hyd = b.hydration != null ? b.hydration : 1.0;
+  const fat = b.fatigue != null ? b.fatigue : 0.0;
+  const temp = b.coreTemp != null ? b.coreTemp : 37.0;
+
+  const satietyDeficit = clamp(1.0 - sat, 0, 1);
+  const hydrationDeficit = clamp(1.0 - hyd, 0, 1);
+  const fatigueDeficit = clamp(fat, 0, 1);
+  const coldDeficit = temp < 35.0 ? 1.0 : clamp((36.5 - temp) / 3.0, 0, 1);
+
+  if(satietyDeficit > 0.75) urgent.push('hunger');
+  if(hydrationDeficit > 0.75) urgent.push('thirst');
+  if(fatigueDeficit > 0.75) urgent.push('fatigue');
+  if(coldDeficit > 0.75) urgent.push('cold');
+  return urgent;
+}
+
+function isEdibleStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string'){
+    const s = stimulus.toLowerCase();
+    const foodWords = ['bread', 'fish', 'egg', 'meal', 'cookedmeat', 'cookedfish', 'crop', 'berries', 'rawmeat', 'meat', 'food', 'cabbage', 'carrot', 'wheat'];
+    return foodWords.some(w => s.includes(w));
+  }
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.edible === true) return true;
+  if(stimulus.foodKind) return true;
+  if(stimulus.crop && stimulus.stage >= 2) return true;
+  if(stimulus.kind === 'crop' && stimulus.stage >= 2) return true;
+  const foodKinds = ['bread', 'fish', 'egg', 'meal', 'cookedFish', 'cookedMeat', 'crop', 'berries', 'rawMeat', 'meat', 'mealLavish', 'mealFine', 'mealPoor', 'cabbage', 'carrots', 'wheat'];
+  if(stimulus.kind && foodKinds.map(f => f.toLowerCase()).includes(String(stimulus.kind).toLowerCase())) return true;
+  if(stimulus.items && typeof stimulus.items === 'object'){
+    return Object.keys(stimulus.items).some(k => (stimulus.items[k] || 0) > 0 && foodKinds.map(f => f.toLowerCase()).includes(k.toLowerCase()));
+  }
+  if(typeof FOOD_VAL !== 'undefined' && stimulus.kind && FOOD_VAL[stimulus.kind] > 0) return true;
+  return false;
+}
+
+function isThirstStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string'){
+    const s = stimulus.toLowerCase();
+    return s.includes('water') || s.includes('well') || s.includes('lake') || s.includes('drink') || s.includes('spring');
+  }
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.water || stimulus.drink) return true;
+  if(stimulus.kind === 'well' || stimulus.kind === 'lake' || stimulus.kind === 'spring') return true;
+  if(stimulus.place === 'lake' || stimulus.place === 'well') return true;
+  if(stimulus.what && /well|lake|water|drink|spring/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isFatigueStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string') return /bed|sleep|rest/i.test(stimulus);
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.sleep || stimulus.rest) return true;
+  if(stimulus.kind === 'bed' || stimulus.kind === 'bench') return true;
+  if(stimulus.place === 'inn' || stimulus.place === 'bed') return true;
+  if(stimulus.what && /bed|bench|sleeping|rest/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isColdStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string') return /fire|campfire|warm|hearth/i.test(stimulus);
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.warm) return true;
+  if(stimulus.kind === 'fire' || stimulus.kind === 'firepit' || stimulus.kind === 'campfire') return true;
+  if(stimulus.place === 'inn' || stimulus.place === 'firepit') return true;
+  if(stimulus.what && /fire|warmth|campfire/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function stimulusSolvesNeed(stimulus, need){
+  if(need === 'hunger') return isEdibleStimulus(stimulus);
+  if(need === 'thirst') return isThirstStimulus(stimulus);
+  if(need === 'fatigue') return isFatigueStimulus(stimulus);
+  if(need === 'cold') return isColdStimulus(stimulus);
+  return false;
+}
+
+function isHostileBeastStimulus(stimulus){
+  if(!stimulus || typeof stimulus !== 'object') return false;
+  const isBeast = (stimulus.kind === 'wolf' || stimulus.kind === 'bear' || stimulus.threat === 'wolf' || stimulus.threat === 'bear');
+  if(!isBeast) return false;
+  if(stimulus.hostile === true) return true;
+  const st = stimulus.state || (stimulus.ref && stimulus.ref.state);
+  return (st === 'stalk' || st === 'attack' || st === 'hunt' || st === 'fight');
+}
+
+function isWildfireStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string'){
+    return /wildfire|raging fire|cháy/i.test(stimulus);
+  }
+  if(typeof stimulus !== 'object') return false;
+  // Exclude normal controlled fires
+  if(stimulus.campfire || stimulus.hearth || stimulus.kind === 'campfire' || stimulus.kind === 'firepit') return false;
+  if(stimulus.kind === 'fire' && !stimulus.isWildfire && stimulus.threat !== 'wildfire') return false;
+
+  if(stimulus.kind === 'wildfire' || stimulus.isWildfire === true || stimulus.threat === 'wildfire' || stimulus.danger === 'wildfire') return true;
+  if(stimulus.isFire && stimulus.kind !== 'fire') return true;
+  if(stimulus.what && /wildfire|raging fire|cháy/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isScreamStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string') return /scream|shriek|thét|hét/i.test(stimulus);
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.scream || stimulus.shout || stimulus.sound === 'scream' || stimulus.sound === 'shout' || stimulus.kind === 'scream') return true;
+  if(stimulus.what && /scream|shriek|thét|hét/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isGate1Threat(stimulus){
+  if(!stimulus) return false;
+  return isHostileBeastStimulus(stimulus) || isWildfireStimulus(stimulus) || isScreamStimulus(stimulus);
+}
+
+function isRelevantToCurrentGoal(v, stimulus, details = {}){
+  if(!v || !v.plan || !v.plan.length){
+    return true; // No active plan -> not blinded by task focus
+  }
+  const st = v.plan[0];
+  if(!st) return true;
+
+  // Highly salient observations (e.g. theft caught, major events)
+  if(details && details.salience >= 0.8) return true;
+  if(details && details.topic && (details.topic.startsWith('theft_') || details.topic.startsWith('event_') || details.topic.startsWith('ownership_'))) return true;
+
+  // Stolen or targeted item match
+  if(st.itemId && (stimulus.targetId === st.itemId || stimulus.itemId === st.itemId || stimulus.id === st.itemId || (details && details.topic && details.topic.includes(st.itemId)))) return true;
+  if(stimulus.targetId || stimulus.action === 'steal' || stimulus.result === 'caught') return true;
+
+  if(st.place && (stimulus.place === st.place || (stimulus.what && stimulus.what.includes(st.place)))) return true;
+  if(st.person && (stimulus.who === st.person || stimulus.name === st.person || stimulus.target === st.person)) return true;
+  if(st.target && (stimulus.target === st.target || stimulus.id === st.target || stimulus.topic === st.target || stimulus.what === st.target)) return true;
+  if(st.what && (stimulus.what === st.what || stimulus.kind === st.what || stimulus.foodKind === st.what)) return true;
+  if(st.targetKey && (stimulus.targetKey === st.targetKey || stimulus.topic === st.targetKey)) return true;
+
+  if(st.verb === 'farm' && (stimulus.crop || stimulus.kind === 'crop' || (stimulus.what && stimulus.what.includes('crop')))) return true;
+  if(st.verb === 'cook' && (stimulus.rawMeat || stimulus.fish || stimulus.kind === 'fire' || stimulus.place === 'firepit')) return true;
+  if((st.verb === 'fell' || st.verb === 'chop') && (stimulus.kind === 'tree' || (stimulus.what && stimulus.what.includes('tree')))) return true;
+  if(st.verb === 'eat' && isEdibleStimulus(stimulus)) return true;
+  if(st.verb === 'drink' && isThirstStimulus(stimulus)) return true;
+  if(st.verb === 'sleep' && isFatigueStimulus(stimulus)) return true;
+  if(st.verb === 'douse' && (stimulus.kind === 'fire' || stimulus.kind === 'wildfire' || isThirstStimulus(stimulus))) return true;
+  if((st.verb === 'buy' || st.verb === 'sell') && (stimulus.place === 'shop' || stimulus.place === 'inn' || stimulus.kind === 'shop')) return true;
+
+  if(stimulus.event && (stimulus.who === v.name || stimulus.target === v.name || stimulus.participant === v.name || stimulus.child === v.name)) return true;
+
+  return false;
+}
+
+function filterAttention(v, stimulus, details = {}){
+  if(!v) return { attended: false, gate: 0, reason: 'no_villager' };
+
+  if(details.bypassAttention === true) return { attended: true, gate: 0, reason: 'bypassed' };
+
+  // Cổng 1 — Cảm giác đột biến: lửa mất kiểm soát (wildfire), tiếng thét, sói/gấu hostile
+  // -> preemptive interrupt, cướp quyền chú ý ngay lập tức, đặt flag để utility re-plan.
+  // Exception: Douse plans are not wiped by the fire being fought.
+  if(isGate1Threat(stimulus) || isGate1Threat(details)){
+    const isFire = isWildfireStimulus(stimulus) || isWildfireStimulus(details);
+    const isDousing = v.plan && v.plan.length && (v.plan[0].verb === 'douse' || v.plan[0].douse);
+    if(isFire && isDousing){
+      // Villager is actively fighting fire; the fire does not wipe their douse plan
+      return { attended: true, gate: 1, preemptive: false, reason: 'dousing_active' };
+    }
+
+    v.interrupted = true;
+    v.replanNeeded = true;
+    v.replanTriggered = true;
+    if(v.plan && v.plan.length && !v.plan[0].flee && !v.plan[0].guard){
+      v.plan = [];
+      v.currentAction = null;
+    }
+    return { attended: true, gate: 1, preemptive: true, reason: 'sudden_threat' };
+  }
+
+  // Cổng 2 — Trạng thái khẩn cấp: need sinh học >75%
+  // -> tunnel vision, lọc bỏ mọi vật thể không giải quyết cơn đói/khát/mệt/rét.
+  const urgent = getUrgentNeeds(v);
+  if(urgent.length > 0){
+    const solves = urgent.some(need => stimulusSolvesNeed(stimulus, need));
+    if(solves){
+      return { attended: true, gate: 2, reason: 'solves_urgent_need', urgentNeeds: urgent };
+    } else {
+      // Irrelevant = background noise, KHÔNG ghi memory
+      return { attended: false, gate: 2, reason: 'tunnel_vision_noise', urgentNeeds: urgent };
+    }
+  }
+
+  // Cổng 3 — Mục tiêu hiện tại (top-down relevance):
+  // Chỉ vật thể/sự kiện liên quan việc đang làm dở mới được vào interpretation + memory.
+  if(!isRelevantToCurrentGoal(v, stimulus, details)){
+    return { attended: false, gate: 3, reason: 'goal_irrelevant_noise' };
+  }
+
+  return { attended: true, gate: 3, reason: 'relevant_or_general' };
+}
+
+function perceiveSurroundings(v, seed = 0){
+  if(!v || v.dead) return new PerceptionDTO({ villagerName: v ? v.name : '' });
+  const range = sightRange();
+  const attended = [];
+  const ignored = [];
+  const threats = [];
+  const urgent = getUrgentNeeds(v);
+  let interrupt = false;
+
+  const rawStimuli = [];
+
+  // 1. Animals
+  if(typeof ANIMALS !== 'undefined' && Array.isArray(ANIMALS)){
+    for(const a of ANIMALS){
+      if(a.dead) continue;
+      const d = Math.hypot(a.x - v.x, a.y - v.y) / CS;
+      if(d <= range){
+        // Only hostile beasts interrupt plans; a bear that's eating or
+        // wandering is not an immediate threat. Interrupting for passive
+        // animals traps villagers in a clear/decide loop where they never
+        // complete survival actions (drink/eat) and die of needs.
+        const isBeast = (a.kind === 'wolf' || a.kind === 'bear');
+        const isHostile = isBeast && (a.state === 'stalk' || a.state === 'attack' || a.state === 'hunt' || a.state === 'fight');
+        rawStimuli.push({
+          kind: a.kind,
+          state: a.state,
+          threat: isHostile ? a.kind : null,
+          hostile: isHostile,
+          x: a.x, y: a.y, dist: d, ref: a,
+          id: 'animal_' + a.kind + '_' + Math.round(a.x)
+        });
+      }
+    }
+  }
+
+  // 2. Burning / Fires (uncontrolled wildfire in BURNING array)
+  if(typeof BURNING !== 'undefined' && Array.isArray(BURNING)){
+    for(const b of BURNING){
+      const bx = b.wx * CS + 16, by = b.wy * CS + 16;
+      const d = Math.hypot(bx - v.x, by - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: 'wildfire', isWildfire: true, threat: 'wildfire',
+          wx: b.wx, wy: b.wy, x: bx, y: by, dist: d, ref: b,
+          id: 'wildfire_' + b.wx + '_' + b.wy
+        });
+      }
+    }
+  }
+  // Controlled campfires / hearths (normal-use fires — NOT gate-1 threats)
+  if(typeof FIRES !== 'undefined' && Array.isArray(FIRES)){
+    for(const f of FIRES){
+      if(f.burnH > 0){
+        const d = Math.hypot(f.x - v.x, f.y - v.y) / CS;
+        if(d <= range){
+          rawStimuli.push({
+            kind: 'fire', campfire: true,
+            x: f.x, y: f.y, dist: d, ref: f,
+            id: 'fire_' + Math.round(f.x) + '_' + Math.round(f.y)
+          });
+        }
+      }
+    }
+  }
+
+  // 3. Piles
+  if(typeof PILES !== 'undefined' && Array.isArray(PILES)){
+    for(const p of PILES){
+      const d = Math.hypot(p.x - v.x, p.y - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: 'pile', items: p.items,
+          wx: p.wx, wy: p.wy, x: p.x, y: p.y, dist: d, ref: p,
+          id: 'pile_' + p.wx + '_' + p.wy
+        });
+      }
+    }
+  }
+
+  // 4. Crops
+  if(typeof CROPS !== 'undefined' && Array.isArray(CROPS)){
+    for(const c of CROPS){
+      const cx = c.wx * CS + 16, cy = c.wy * CS + 16;
+      const d = Math.hypot(cx - v.x, cy - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: 'crop', stage: c.stage,
+          wx: c.wx, wy: c.wy, x: cx, y: cy, dist: d, ref: c,
+          id: 'crop_' + c.wx + '_' + c.wy
+        });
+      }
+    }
+  }
+
+  // 5. Village objects
+  if(typeof VILLAGE_OBJECTS !== 'undefined' && Array.isArray(VILLAGE_OBJECTS)){
+    for(const o of VILLAGE_OBJECTS){
+      const d = Math.hypot(o.x - v.x, o.y - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: o.kind, x: o.x, y: o.y, dist: d, ref: o,
+          id: 'obj_' + o.kind + '_' + Math.round(o.x)
+        });
+      }
+    }
+  }
+
+  // Deterministic sorting with seeded tie breaking (strictly NO Math.random)
+  const effSeed = (seed != null ? seed : (typeof SEED !== 'undefined' ? SEED : 1)) >>> 0;
+  rawStimuli.sort((a, b) => {
+    const thA = isGate1Threat(a) ? 1 : 0;
+    const thB = isGate1Threat(b) ? 1 : 0;
+    if(thA !== thB) return thB - thA;
+    if(Math.abs(a.dist - b.dist) > 0.05) return a.dist - b.dist;
+    const keyA = `${effSeed}:${v.name}:${a.id || a.kind}`;
+    const keyB = `${effSeed}:${v.name}:${b.id || b.kind}`;
+    const hA = hashString18(keyA);
+    const hB = hashString18(keyB);
+    if(hA !== hB) return hB - hA;
+    return (a.id || '').localeCompare(b.id || '');
+  });
+
+
+  for(const stim of rawStimuli){
+    const filter = filterAttention(v, stim);
+    if(filter.attended){
+      attended.push(stim);
+      if(filter.preemptive){
+        interrupt = true;
+        threats.push(stim);
+      }
+    } else {
+      ignored.push(stim);
+    }
+  }
+
+  return new PerceptionDTO({
+    timestamp: typeof W !== 'undefined' ? (W.day + (W.tod || 0)/24) : 0,
+    villagerName: v.name,
+    threats,
+    urgentNeeds: urgent,
+    attended,
+    ignored,
+    interrupt,
+    replanNeeded: interrupt || Boolean(v.replanNeeded)
+  });
+}
+
+function brainObserve(v, dtH){
+  const seed = (typeof RNGS !== 'undefined' && RNGS.s != null) ? RNGS.s : (typeof SEED !== 'undefined' ? SEED : 0);
+  return perceiveSurroundings(v, seed);
+}
+

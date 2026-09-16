@@ -889,9 +889,44 @@ routineNeeds = function(v){
   evaluateAndApplyUtilityAction(v);
 };
 
-/* ---- Autonomous Villager AI loop ---- */
-const __uvUtilityBase = updateVillagerAI;
-updateVillagerAI = function(v, dtH){
+/* ---- Autonomous Villager AI loop: Observe -> Think -> Learn (A3 Pattern) ---- */
+
+function brainThink(v, dtH, perception){
+  if(perception && (perception.interrupt || perception.replanNeeded)){
+    v.replanNeeded = true;
+    v.interrupted = true;
+  }
+  if(v.replanNeeded || v.interrupted){
+    if(v.plan && v.plan.length && !v.plan[0].flee && !v.plan[0].guard && v.plan[0].verb !== 'douse' && !v.plan[0].douse){
+      v.plan = [];
+      v.currentAction = null;
+    }
+    v.replanNeeded = false;
+    v.interrupted = false;
+  }
+
+  // Utility Action Selection: if no plan, score all candidates and pick best!
+  if(!v.plan || !v.plan.length){
+    evaluateAndApplyUtilityAction(v);
+  }
+
+  // Execute current plan step
+  if(v.plan && v.plan.length){
+    planTick(v, dtH);
+  }
+
+  return { plan: v.plan, currentAction: v.currentAction };
+}
+
+function brainLearn(v, dtH, outcome){
+  // Triumph timer decay
+  if(v.triumphT > 0){
+    v.triumphT = Math.max(0, v.triumphT - dtH * 15);
+  }
+  return { learned: true };
+}
+
+function updateVillagerBrain(v, dtH){
   if(v.dead) return;
   if(v.downed) downedTick(v, dtH);
   if(v.downed && v.downed.kind !== 'leg') return;
@@ -943,24 +978,19 @@ updateVillagerAI = function(v, dtH){
     if(beastNear && !v.plan[0].flee){
       v.plan = [];
       v.currentAction = null;
+      v.interrupted = true;
+      v.replanNeeded = true;
     }
   }
 
-  // 6. Utility Action Selection: if no plan, score all candidates and pick best!
-  if(!v.plan || !v.plan.length){
-    evaluateAndApplyUtilityAction(v);
-  }
+  // 6. OBSERVE (Attention filter A1) -> 7. THINK (Decision & execution) -> 8. LEARN (Memory consolidation)
+  const perception = (typeof brainObserve === 'function') ? brainObserve(v, dtH) : null;
+  const outcome = brainThink(v, dtH, perception);
+  brainLearn(v, dtH, outcome);
+}
 
-  // 7. Execute current plan step
-  if(v.plan && v.plan.length){
-    planTick(v, dtH);
-  }
-
-  // 8. Triumph timer decay
-  if(v.triumphT > 0){
-    v.triumphT = Math.max(0, v.triumphT - dtH * 15);
-  }
-};
+const __uvUtilityBase = updateVillagerAI;
+updateVillagerAI = updateVillagerBrain;
 
 /* ---- Extend window.__aiBridge with utility inspection helpers ---- */
 window.__aiBridge.evaluateUtility = function(name){

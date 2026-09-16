@@ -108,6 +108,16 @@ function fbm(x,y,s,oct=3){
   return t/n;
 }
 
+/* ---- Deterministic String/Seeded Hashing (FNV-1a 32-bit, NO Math.random) ---- */
+function hashString18(str){
+  let h = 0x811c9dc5;
+  for(let i = 0; i < str.length; i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
 /* ---- Meteorological Systems (Migratory Low-Pressure Fronts) ---- */
 const systems = [];
 function initSystems(){

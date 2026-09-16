@@ -38,6 +38,15 @@ function doBuyStep(v, step, dtH){
       v.thoughts = [{ text:'The inn is out of ' + what, val:-2 }]; return true;
     }
     if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold for ' + what, val:-2 }]; return true; }
+    if(typeof checkPriceExpectation === 'function'){
+      const expRes = checkPriceExpectation(v, what, price);
+      if(expRes && !expRes.match && expRes.replan){
+        v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
+        v.replanNeeded = true;
+        v.interrupted = true;
+        return true;
+      }
+    }
     v.gold -= price; tobin.gold = (tobin.gold || 0) + price;
     if(what !== 'room'){
       if(INN.stock[what]) INN.stock[what]--;
@@ -56,6 +65,15 @@ function doBuyStep(v, step, dtH){
   if(price == null){ v.thoughts = [{ text:'The shop does not sell that', val:-2 }]; return true; }
   if((SHOP.stock[what] || 0) <= 0){ v.thoughts = [{ text:'The shop is out of ' + what, val:-2 }]; return true; }
   if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold', val:-2 }]; return true; }
+  if(typeof checkPriceExpectation === 'function'){
+    const expRes = checkPriceExpectation(v, what, price);
+    if(expRes && !expRes.match && expRes.replan){
+      v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
+      v.replanNeeded = true;
+      v.interrupted = true;
+      return true;
+    }
+  }
   v.gold -= price; sella.gold = (sella.gold || 0) + price;
   SHOP.stock[what]--;
   addInv(v, what, 1);

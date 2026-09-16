@@ -300,8 +300,27 @@ function doTakeStep(v, step, dtH){
     const r = planMoveToward(v, p.x, p.y, dtH);
     return r === 'stuck' ? true : false;
   }
-  const n = Math.min(p.items[what] || 0, 3);
-  if(n <= 0){ step.pile = null; return false; }
+  const n = Math.min(p.items ? (p.items[what] || 0) : 0, 3);
+  if(n <= 0){
+    if(typeof checkStashExpectation === 'function'){
+      const stashTopic = step.stashKey || step.targetKey || (p ? `pile_${p.wx}_${p.wy}` : null) || `stash_${Math.floor(v.x/CS)}_${Math.floor(v.y/CS)}`;
+      const expRes = checkStashExpectation(v, stashTopic, null);
+      if(expRes && !expRes.match && expRes.replan){
+        v.thoughts = [{ text: `Where is the ${what}? It was supposed to be here!`, val: -3 }];
+        v.replanNeeded = true;
+        v.interrupted = true;
+        step.pile = null;
+        return true;
+      }
+    }
+    step.pile = null;
+    v.thoughts = [{ text: 'No ' + what + ' to take', val: -1 }];
+    return true;
+  }
+  if(typeof checkStashExpectation === 'function'){
+    const stashTopic = step.stashKey || step.targetKey || (p ? `pile_${p.wx}_${p.wy}` : null);
+    if(stashTopic) checkStashExpectation(v, stashTopic, { wx: p.wx, wy: p.wy, items: p.items });
+  }
   p.items[what] -= n; addInv(v, what, n); cleanPile(p);
   // Phase 2A+: provenance rides with the items. Prefer real pile records;
   // fall back to the legacy felledBy tag (hand-tagged log piles, e.g. tests).
@@ -399,8 +418,32 @@ function doForageStep(v, step, dtH){
     return r === 'stuck' ? true : false;
   }
   v.state = 'work'; v.moving = false;
+  if(s.kind === 'bush'){
+    const cc = cellChunk(s.wx, s.wy);
+    if(cc.c && cc.c.bush && cc.c.bush[cc.i] < 0){
+      // Depleted bush on arrival
+      if(typeof checkStashExpectation === 'function'){
+        const spotTopic = step.stashKey || step.targetKey || `stash_${s.wx}_${s.wy}`;
+        const expRes = checkStashExpectation(v, spotTopic, null);
+        if(expRes && !expRes.match && expRes.replan){
+          v.thoughts = [{ text: 'The bushes are bare!', val: -3 }];
+          v.replanNeeded = true;
+          v.interrupted = true;
+          step.spot = null;
+          return true;
+        }
+      }
+      step.spot = null;
+      v.thoughts = [{ text: 'Nothing to forage', val: -1 }];
+      return true;
+    }
+  }
   step.prog = (step.prog || 0) + dtH;
   if(step.prog >= 0.5){
+    if(typeof checkStashExpectation === 'function'){
+      const spotTopic = step.stashKey || step.targetKey || `stash_${s.wx}_${s.wy}`;
+      checkStashExpectation(v, spotTopic, { wx: s.wx, wy: s.wy });
+    }
     if(s.kind === 'bush'){
       const cc = cellChunk(s.wx, s.wy);
       if(cc.c){

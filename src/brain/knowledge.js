@@ -162,9 +162,13 @@ function ensureEpistemic(v){
       memories: [],
       beliefs: {},
       ownership: {},
+      expectations: {},
       lastDecayDay: (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0
     };
     initDefaultEpistemic(v);
+  }
+  if(!v.epistemic.expectations){
+    v.epistemic.expectations = {};
   }
   return v.epistemic;
 }
@@ -175,6 +179,15 @@ function observe(v, content, details){
   if(!v) return null;
   ensureEpistemic(v);
   details = details || {};
+
+  // Selective Attention filter (A1) — background noise does NOT become memory
+  if(details.bypassAttention !== true){
+    const att = (typeof filterAttention === 'function') ? filterAttention(v, content, details) : { attended: true };
+    if(!att.attended){
+      return null;
+    }
+  }
+
   const topic = details.topic || (typeof content === 'string' ? content : (content && content.topic) || 'general');
   const source = details.source || 'direct';
 
@@ -269,6 +282,41 @@ function observe(v, content, details){
     }
   }
 
+  // Phase 6A: Stash/Location observation anchors expectation
+  if(topic && (topic.startsWith('stash_') || topic.startsWith('pile_') || (content && (content.kind === 'stash' || content.kind === 'pile')))){
+    if(content && (content.wx != null || (where && where.x != null)) && !content.empty && content.status !== 'missing'){
+      const wx = content.wx != null ? content.wx : Math.floor(where.x / CS);
+      const wy = content.wy != null ? content.wy : Math.floor(where.y / CS);
+      const subj = (topic.startsWith('stash_') || topic.startsWith('pile_')) ? topic : `stash_${wx}_${wy}`;
+      setExpectation(v, {
+        subject: subj,
+        attribute: 'location',
+        predictedValue: { wx, wy },
+        confidence: mem.confidence,
+        learnedTick: now,
+        source: source
+      });
+    }
+  }
+
+  return mem;
+}
+
+function observeStash(v, stashKey, pos, details = {}){
+  const topic = stashKey.startsWith('stash_') ? stashKey : `stash_${stashKey}`;
+  const wx = pos.wx != null ? pos.wx : Math.floor((pos.x || 0) / CS);
+  const wy = pos.wy != null ? pos.wy : Math.floor((pos.y || 0) / CS);
+  const mem = observe(v, { kind: 'stash', wx, wy, items: pos.items }, Object.assign({ topic }, details));
+  if(mem){
+    setExpectation(v, {
+      subject: topic,
+      attribute: 'location',
+      predictedValue: { wx, wy },
+      confidence: mem.confidence,
+      learnedTick: mem.when,
+      source: details.source || 'direct'
+    });
+  }
   return mem;
 }
 
@@ -337,6 +385,254 @@ function recordOwnershipBelief(v, targetId, details){
   return record;
 }
 
+/* =====================================================================
+   PHASE 6A: EXPECTATION ENGINE (A2)
+   Record: { subject, attribute, predictedValue, confidence, learnedTick, source }
+   Rules:
+     - match predictedValue: +confidence, 0 processing overhead
+     - mismatch beyond threshold: SURPRISE = |actual - predicted| * confidence
+       -> emotion tag -> update Epistemic Store -> call re-plan
+   Strictly bounded to 3 groups (HARD STOP):
+     (1) price: shop / inn prices
+     (2) location: household furniture / stash location
+     (3) presence: presence of family member / relative
+   ===================================================================== */
+
+const VALID_EXPECTATION_ATTRIBUTES = ['price', 'location', 'presence'];
+const EXPECTATION_TTL_DAYS = 7; // Phase 6A B2: Expectations expire after 7 sim days
+
+function setExpectation(v, exp){
+  if(!v || !exp || !exp.subject || !exp.attribute) return null;
+  // Hard stop: strictly 3 groups only
+  if(!VALID_EXPECTATION_ATTRIBUTES.includes(exp.attribute)) return null;
+  ensureEpistemic(v);
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1.0;
+  const record = {
+    subject: exp.subject,
+    attribute: exp.attribute,
+    predictedValue: exp.predictedValue,
+    confidence: exp.confidence != null ? +Number(exp.confidence).toFixed(4) : 0.8,
+    learnedTick: exp.learnedTick != null ? exp.learnedTick : now,
+    source: exp.source || 'direct'
+  };
+  const key = `${exp.subject}:${exp.attribute}`;
+  v.epistemic.expectations[key] = record;
+  return record;
+}
+
+function getExpectation(v, subject, attribute){
+  if(!v || !subject || !attribute) return null;
+  ensureEpistemic(v);
+  const key = `${subject}:${attribute}`;
+  if(v.epistemic.expectations[key]) return v.epistemic.expectations[key];
+  if(attribute === 'location'){
+    const stripped = subject.replace(/^stash_/, '');
+    if(v.epistemic.expectations[`${stripped}:${attribute}`]) return v.epistemic.expectations[`${stripped}:${attribute}`];
+    if(v.epistemic.expectations[`stash_${stripped}:${attribute}`]) return v.epistemic.expectations[`stash_${stripped}:${attribute}`];
+  }
+  return null;
+}
+
+function checkExpectation(v, subject, attribute, actualValue, context = {}){
+  if(!v || !subject || !attribute) return { match: true, surprise: 0 };
+  if(!VALID_EXPECTATION_ATTRIBUTES.includes(attribute)) return { match: true, surprise: 0 };
+  ensureEpistemic(v);
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1.0;
+  let exp = getExpectation(v, subject, attribute);
+
+  if(!exp){
+    // Initial expectation anchor
+    exp = setExpectation(v, {
+      subject,
+      attribute,
+      predictedValue: actualValue,
+      confidence: 0.8,
+      learnedTick: now,
+      source: context.source || 'direct'
+    });
+    return { match: true, surprise: 0, confidence: exp.confidence };
+  }
+
+  // 1. Group 1: Price (nối systems/13b_economy.js)
+  if(attribute === 'price'){
+    const predPrice = Number(exp.predictedValue);
+    const actPrice = Number(actualValue);
+    const diff = Math.abs(actPrice - predPrice);
+    // Shock threshold: deviation > 1 gold AND > 30% of predicted price, or diff >= 5
+    const isShock = (diff > 1 && diff >= predPrice * 0.3) || diff >= 5;
+
+    if(!isShock){
+      // Tri giác khớp dự đoán -> +confidence, tốn 0 xử lý
+      exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
+      return { match: true, surprise: 0, confidence: exp.confidence };
+    }
+
+    // Lệch quá ngưỡng -> sự kiện SURPRISE = |thực tế − dự đoán| × confidence
+    const surprise = +(diff * exp.confidence).toFixed(2);
+    const emotionTag = actPrice > predPrice ? 'disappointed' : 'pleased';
+
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({ tag: emotionTag, intensity: surprise, when: now, subject });
+    if(v.emotions.length > 20) v.emotions.shift();
+
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({
+      text: actPrice > predPrice
+        ? `Shocked by ${subject} price: wanted ${predPrice}g, seller demands ${actPrice}g!`
+        : `Delighted! ${subject} is cheaper than expected: was ${predPrice}g, now ${actPrice}g!`,
+      val: actPrice > predPrice ? -3 : 2
+    });
+
+    // Ép update Epistemic Store
+    observe(v, { subject, attribute, oldPrice: predPrice, newPrice: actPrice, surprise, emotion: emotionTag }, {
+      topic: `price_${subject}`,
+      source: 'direct',
+      confidence: 0.95,
+      salience: Math.min(1.0, 0.5 + surprise * 0.1),
+      conflicts: true,
+      bypassAttention: true
+    });
+
+    exp.predictedValue = actPrice;
+    exp.learnedTick = now;
+
+    // Gọi re-plan
+    v.replanNeeded = true;
+    v.interrupted = true;
+    v.lastSurprise = { subject, attribute, surprise, emotion: emotionTag, diff, when: now };
+
+    return {
+      match: false,
+      surprise,
+      emotion: emotionTag,
+      diff,
+      replan: true,
+      predictedValue: predPrice,
+      actualValue: actPrice
+    };
+  }
+
+  // 2. Group 2: Location / Stash
+  if(attribute === 'location'){
+    const isMissing = actualValue == null || actualValue === false || (typeof actualValue === 'object' && (actualValue.empty || actualValue.status === 'missing'));
+    if(!isMissing){
+      exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
+      return { match: true, surprise: 0, confidence: exp.confidence };
+    }
+
+    // Stale stash expectation violation
+    const surprise = +(1.0 * exp.confidence).toFixed(2);
+    const emotionTag = 'confused';
+
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({ tag: emotionTag, intensity: surprise, when: now, subject });
+    if(v.emotions.length > 20) v.emotions.shift();
+
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({ text: `Where is the ${subject}? It was supposed to be here!`, val: -3 });
+
+    // Update epistemic store: supersede old belief có lưu vết lịch sử
+    const topic = context.topic || `stash_${subject}`;
+    const oldBelief = v.epistemic.beliefs[topic];
+    const newMem = observe(v, { subject, attribute, status: 'missing', empty: true, surprise }, {
+      topic,
+      source: 'direct',
+      confidence: 0.95,
+      salience: 0.8,
+      conflicts: true,
+      bypassAttention: true
+    });
+
+    exp.predictedValue = null;
+    exp.learnedTick = now;
+
+    v.replanNeeded = true;
+    v.interrupted = true;
+    v.lastSurprise = {
+      subject,
+      attribute,
+      surprise,
+      emotion: emotionTag,
+      when: now,
+      supersededBeliefId: oldBelief ? oldBelief.id : null
+    };
+
+    return { match: false, surprise, emotion: emotionTag, replan: true, newMemory: newMem };
+  }
+
+  // 3. Group 3: Presence (sự hiện diện người thân)
+  if(attribute === 'presence'){
+    const predPresence = Boolean(exp.predictedValue);
+    const actPresence = Boolean(actualValue);
+
+    if(predPresence === actPresence){
+      exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
+      return { match: true, surprise: 0, confidence: exp.confidence };
+    }
+
+    const surprise = +(1.0 * exp.confidence).toFixed(2);
+    const emotionTag = (!actPresence && predPresence) ? 'worried' : 'surprised';
+
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({ tag: emotionTag, intensity: surprise, when: now, subject });
+    if(v.emotions.length > 20) v.emotions.shift();
+
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({
+      text: (!actPresence && predPresence) ? `Where is ${subject}? Expected them to be here!` : `Surprised to see ${subject}!`,
+      val: (!actPresence && predPresence) ? -2 : 1
+    });
+
+    observe(v, { subject, attribute, expected: predPresence, actual: actPresence, surprise, emotion: emotionTag }, {
+      topic: `presence_${subject}`,
+      source: 'direct',
+      confidence: 0.9,
+      salience: 0.7,
+      conflicts: true,
+      bypassAttention: true
+    });
+
+    exp.predictedValue = actPresence;
+    exp.learnedTick = now;
+
+    v.replanNeeded = true;
+    v.lastSurprise = { subject, attribute, surprise, emotion: emotionTag, when: now };
+
+    return { match: false, surprise, emotion: emotionTag, replan: true };
+  }
+
+  return { match: true, surprise: 0 };
+}
+
+function checkPriceExpectation(v, itemKind, actualPrice){
+  return checkExpectation(v, itemKind, 'price', actualPrice);
+}
+
+function checkStashExpectation(v, topicOrSubject, actualValue){
+  const topic = topicOrSubject ? (topicOrSubject.startsWith('stash_') ? topicOrSubject : `stash_${topicOrSubject}`) : '';
+  let exp = getExpectation(v, topicOrSubject, 'location');
+  if(!exp && topic) exp = getExpectation(v, topic, 'location');
+  if(!exp && v && v.epistemic && v.epistemic.expectations){
+    const vx = Math.floor((v.x || 0) / CS), vy = Math.floor((v.y || 0) / CS);
+    for(const k of Object.keys(v.epistemic.expectations)){
+      const candidate = v.epistemic.expectations[k];
+      if(candidate && candidate.attribute === 'location' && candidate.predictedValue){
+        const pv = candidate.predictedValue;
+        if(Math.abs(pv.wx - vx) <= 1 && Math.abs(pv.wy - vy) <= 1){
+          exp = candidate;
+          break;
+        }
+      }
+    }
+  }
+  const subj = exp ? exp.subject : (topicOrSubject || 'stash');
+  return checkExpectation(v, subj, 'location', actualValue, { topic: subj });
+}
+
+function checkPresenceExpectation(v, personName, actualPresence){
+  return checkExpectation(v, personName, 'presence', actualPresence);
+}
+
 /* ---- Forgetting / Epistemic Decay ---- */
 
 function decayEpistemic(v, dtDays){
@@ -387,6 +683,40 @@ function decayEpistemic(v, dtDays){
     o.confidence = Math.max(0, +(o.confidence - baseDecay * traitMult).toFixed(4));
     if(o.confidence <= 0.05 && (!o.claims || o.claims.length === 0)){
       o.knownOwner = null;
+    }
+  }
+
+  // 4. Decay and expire expectations (Phase 6A B2)
+  if(v.epistemic.expectations){
+    const nowDays = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 0;
+    for(const key of Object.keys(v.epistemic.expectations)){
+      const exp = v.epistemic.expectations[key];
+      if(!exp) continue;
+      let expired = false;
+      if(exp.learnedTick != null){
+        const ageDays = nowDays - exp.learnedTick;
+        if(ageDays >= EXPECTATION_TTL_DAYS){
+          expired = true;
+        }
+      }
+      if(dtDays > 0){
+        exp.ageDays = (exp.ageDays || 0) + dtDays;
+        if(exp.ageDays >= EXPECTATION_TTL_DAYS){
+          expired = true;
+        }
+        if(!expired){
+          const decayAmount = (dtDays / EXPECTATION_TTL_DAYS) * traitMult;
+          exp.confidence = Math.max(0, +(exp.confidence - decayAmount).toFixed(4));
+          if(exp.confidence <= 0.05){
+            expired = true;
+          }
+        }
+      }
+      if(expired){
+        exp.confidence = 0;
+        exp.expired = true;
+        delete v.epistemic.expectations[key];
+      }
     }
   }
 }
@@ -728,7 +1058,8 @@ witnessEvent = function(v, text){
       topic: 'event_' + ((v.events && v.events.length) || 0),
       source: 'direct',
       confidence: 0.9,
-      salience: 0.6
+      salience: 0.6,
+      bypassAttention: true
     });
   }
 };
@@ -759,5 +1090,25 @@ if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.claim = function(claimantName, targetId, text){
     const c = VILLAGERS.find(p => p.name === claimantName);
     return c ? claimOwnership(c, targetId, { text }) : null;
+  };
+  window.__aiBridge.getExpectations = function(name){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? (v.epistemic ? v.epistemic.expectations : {}) : null;
+  };
+  window.__aiBridge.setExpectation = function(name, exp){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? setExpectation(v, exp) : null;
+  };
+  window.__aiBridge.checkExpectation = function(name, subject, attribute, actualValue){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? checkExpectation(v, subject, attribute, actualValue) : null;
+  };
+  window.__aiBridge.checkStashExpectation = function(name, topicOrSubject, actualValue){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? checkStashExpectation(v, topicOrSubject, actualValue) : null;
+  };
+  window.__aiBridge.observeStash = function(name, stashKey, pos){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? observeStash(v, stashKey, pos) : null;
   };
 }

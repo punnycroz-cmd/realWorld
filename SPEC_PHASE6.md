@@ -27,7 +27,7 @@ _Ngày: 2026-09-16. Trạng thái: SPEC (chưa implement). Điều kiện tiên 
 ### LÀM
 
 **A1. Selective Attention — bộ lọc 3 cổng** (đặt trong `brain/12b_perception.js`, đúng vị trí pipeline sensation → attention → interpretation → memory):
-- Cổng 1 — Cảm giác đột biến: lửa, tiếng thét, sói/gấu trong tầm nhìn → preemptive interrupt, cướp quyền chú ý ngay lập tức.
+- Cổng 1 — Cảm giác đột biến: **lửa mất kiểm soát (wildfire — không tính lửa trại/bếp đang dùng bình thường)**, tiếng thét, **sói/gấu ở trạng thái hostile (stalk/attack/hunt/fight — đúng hành vi Phase 4 đã audit; thú hiền state wander KHÔNG trigger)** → preemptive interrupt, cướp quyền chú ý ngay lập tức. Plan firefight (douse) không bị wipe bởi chính đám lửa đang dập.
 - Cổng 2 — Trạng thái khẩn cấp: need sinh học >75% → tunnel vision, lọc bỏ mọi vật thể không giải quyết cơn đói/khát/mệt/rét.
 - Cổng 3 — Mục tiêu hiện tại (top-down relevance): chỉ vật thể/sự kiện liên quan việc đang làm dở mới được vào interpretation + ghi memory; còn lại là "nhiễu nền", lướt qua không lưu.
 - Ông đồ nhượng bộ ở vòng 2: cổng 1 được đè bẹp mọi "trạng thái mải nghĩ".

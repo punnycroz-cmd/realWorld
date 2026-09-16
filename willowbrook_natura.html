@@ -4226,6 +4226,16 @@ function fbm(x,y,s,oct=3){
   return t/n;
 }
 
+/* ---- Deterministic String/Seeded Hashing (FNV-1a 32-bit, NO Math.random) ---- */
+function hashString18(str){
+  let h = 0x811c9dc5;
+  for(let i = 0; i < str.length; i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
 /* ---- Meteorological Systems (Migratory Low-Pressure Fronts) ---- */
 const systems = [];
 function initSystems(){
@@ -6652,6 +6662,389 @@ window.__aiBridge.getEvents = function(since){
 };
 
 /* =====================================================================
+   PHASE 6A: SELECTIVE ATTENTION & PERCEPTION DTO (A1 & A3)
+   3-Gate Attention Pipeline: sensation -> attention -> interpretation -> memory
+   ===================================================================== */
+
+class PerceptionDTO {
+  constructor(data = {}) {
+    this.timestamp = data.timestamp || (typeof W !== 'undefined' ? (W.day + (W.tod || 0)/24) : 0);
+    this.villagerName = data.villagerName || '';
+    this.threats = data.threats || [];
+    this.urgentNeeds = data.urgentNeeds || [];
+    this.attended = data.attended || [];
+    this.ignored = data.ignored || [];
+    this.interrupt = Boolean(data.interrupt);
+    this.replanNeeded = Boolean(data.replanNeeded);
+    this.see = data.see || [];
+    this.hear = data.hear || [];
+    this.nearby = data.nearby || [];
+  }
+}
+
+function getUrgentNeeds(v){
+  if(!v) return [];
+  const b = typeof ensureBody === 'function' ? ensureBody(v) : (v.body || {});
+  const urgent = [];
+  const sat = b.satiety != null ? b.satiety : 1.0;
+  const hyd = b.hydration != null ? b.hydration : 1.0;
+  const fat = b.fatigue != null ? b.fatigue : 0.0;
+  const temp = b.coreTemp != null ? b.coreTemp : 37.0;
+
+  const satietyDeficit = clamp(1.0 - sat, 0, 1);
+  const hydrationDeficit = clamp(1.0 - hyd, 0, 1);
+  const fatigueDeficit = clamp(fat, 0, 1);
+  const coldDeficit = temp < 35.0 ? 1.0 : clamp((36.5 - temp) / 3.0, 0, 1);
+
+  if(satietyDeficit > 0.75) urgent.push('hunger');
+  if(hydrationDeficit > 0.75) urgent.push('thirst');
+  if(fatigueDeficit > 0.75) urgent.push('fatigue');
+  if(coldDeficit > 0.75) urgent.push('cold');
+  return urgent;
+}
+
+function isEdibleStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string'){
+    const s = stimulus.toLowerCase();
+    const foodWords = ['bread', 'fish', 'egg', 'meal', 'cookedmeat', 'cookedfish', 'crop', 'berries', 'rawmeat', 'meat', 'food', 'cabbage', 'carrot', 'wheat'];
+    return foodWords.some(w => s.includes(w));
+  }
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.edible === true) return true;
+  if(stimulus.foodKind) return true;
+  if(stimulus.crop && stimulus.stage >= 2) return true;
+  if(stimulus.kind === 'crop' && stimulus.stage >= 2) return true;
+  const foodKinds = ['bread', 'fish', 'egg', 'meal', 'cookedFish', 'cookedMeat', 'crop', 'berries', 'rawMeat', 'meat', 'mealLavish', 'mealFine', 'mealPoor', 'cabbage', 'carrots', 'wheat'];
+  if(stimulus.kind && foodKinds.map(f => f.toLowerCase()).includes(String(stimulus.kind).toLowerCase())) return true;
+  if(stimulus.items && typeof stimulus.items === 'object'){
+    return Object.keys(stimulus.items).some(k => (stimulus.items[k] || 0) > 0 && foodKinds.map(f => f.toLowerCase()).includes(k.toLowerCase()));
+  }
+  if(typeof FOOD_VAL !== 'undefined' && stimulus.kind && FOOD_VAL[stimulus.kind] > 0) return true;
+  return false;
+}
+
+function isThirstStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string'){
+    const s = stimulus.toLowerCase();
+    return s.includes('water') || s.includes('well') || s.includes('lake') || s.includes('drink') || s.includes('spring');
+  }
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.water || stimulus.drink) return true;
+  if(stimulus.kind === 'well' || stimulus.kind === 'lake' || stimulus.kind === 'spring') return true;
+  if(stimulus.place === 'lake' || stimulus.place === 'well') return true;
+  if(stimulus.what && /well|lake|water|drink|spring/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isFatigueStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string') return /bed|sleep|rest/i.test(stimulus);
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.sleep || stimulus.rest) return true;
+  if(stimulus.kind === 'bed' || stimulus.kind === 'bench') return true;
+  if(stimulus.place === 'inn' || stimulus.place === 'bed') return true;
+  if(stimulus.what && /bed|bench|sleeping|rest/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isColdStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string') return /fire|campfire|warm|hearth/i.test(stimulus);
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.warm) return true;
+  if(stimulus.kind === 'fire' || stimulus.kind === 'firepit' || stimulus.kind === 'campfire') return true;
+  if(stimulus.place === 'inn' || stimulus.place === 'firepit') return true;
+  if(stimulus.what && /fire|warmth|campfire/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function stimulusSolvesNeed(stimulus, need){
+  if(need === 'hunger') return isEdibleStimulus(stimulus);
+  if(need === 'thirst') return isThirstStimulus(stimulus);
+  if(need === 'fatigue') return isFatigueStimulus(stimulus);
+  if(need === 'cold') return isColdStimulus(stimulus);
+  return false;
+}
+
+function isHostileBeastStimulus(stimulus){
+  if(!stimulus || typeof stimulus !== 'object') return false;
+  const isBeast = (stimulus.kind === 'wolf' || stimulus.kind === 'bear' || stimulus.threat === 'wolf' || stimulus.threat === 'bear');
+  if(!isBeast) return false;
+  if(stimulus.hostile === true) return true;
+  const st = stimulus.state || (stimulus.ref && stimulus.ref.state);
+  return (st === 'stalk' || st === 'attack' || st === 'hunt' || st === 'fight');
+}
+
+function isWildfireStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string'){
+    return /wildfire|raging fire|cháy/i.test(stimulus);
+  }
+  if(typeof stimulus !== 'object') return false;
+  // Exclude normal controlled fires
+  if(stimulus.campfire || stimulus.hearth || stimulus.kind === 'campfire' || stimulus.kind === 'firepit') return false;
+  if(stimulus.kind === 'fire' && !stimulus.isWildfire && stimulus.threat !== 'wildfire') return false;
+
+  if(stimulus.kind === 'wildfire' || stimulus.isWildfire === true || stimulus.threat === 'wildfire' || stimulus.danger === 'wildfire') return true;
+  if(stimulus.isFire && stimulus.kind !== 'fire') return true;
+  if(stimulus.what && /wildfire|raging fire|cháy/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isScreamStimulus(stimulus){
+  if(!stimulus) return false;
+  if(typeof stimulus === 'string') return /scream|shriek|thét|hét/i.test(stimulus);
+  if(typeof stimulus !== 'object') return false;
+  if(stimulus.scream || stimulus.shout || stimulus.sound === 'scream' || stimulus.sound === 'shout' || stimulus.kind === 'scream') return true;
+  if(stimulus.what && /scream|shriek|thét|hét/i.test(stimulus.what)) return true;
+  return false;
+}
+
+function isGate1Threat(stimulus){
+  if(!stimulus) return false;
+  return isHostileBeastStimulus(stimulus) || isWildfireStimulus(stimulus) || isScreamStimulus(stimulus);
+}
+
+function isRelevantToCurrentGoal(v, stimulus, details = {}){
+  if(!v || !v.plan || !v.plan.length){
+    return true; // No active plan -> not blinded by task focus
+  }
+  const st = v.plan[0];
+  if(!st) return true;
+
+  // Highly salient observations (e.g. theft caught, major events)
+  if(details && details.salience >= 0.8) return true;
+  if(details && details.topic && (details.topic.startsWith('theft_') || details.topic.startsWith('event_') || details.topic.startsWith('ownership_'))) return true;
+
+  // Stolen or targeted item match
+  if(st.itemId && (stimulus.targetId === st.itemId || stimulus.itemId === st.itemId || stimulus.id === st.itemId || (details && details.topic && details.topic.includes(st.itemId)))) return true;
+  if(stimulus.targetId || stimulus.action === 'steal' || stimulus.result === 'caught') return true;
+
+  if(st.place && (stimulus.place === st.place || (stimulus.what && stimulus.what.includes(st.place)))) return true;
+  if(st.person && (stimulus.who === st.person || stimulus.name === st.person || stimulus.target === st.person)) return true;
+  if(st.target && (stimulus.target === st.target || stimulus.id === st.target || stimulus.topic === st.target || stimulus.what === st.target)) return true;
+  if(st.what && (stimulus.what === st.what || stimulus.kind === st.what || stimulus.foodKind === st.what)) return true;
+  if(st.targetKey && (stimulus.targetKey === st.targetKey || stimulus.topic === st.targetKey)) return true;
+
+  if(st.verb === 'farm' && (stimulus.crop || stimulus.kind === 'crop' || (stimulus.what && stimulus.what.includes('crop')))) return true;
+  if(st.verb === 'cook' && (stimulus.rawMeat || stimulus.fish || stimulus.kind === 'fire' || stimulus.place === 'firepit')) return true;
+  if((st.verb === 'fell' || st.verb === 'chop') && (stimulus.kind === 'tree' || (stimulus.what && stimulus.what.includes('tree')))) return true;
+  if(st.verb === 'eat' && isEdibleStimulus(stimulus)) return true;
+  if(st.verb === 'drink' && isThirstStimulus(stimulus)) return true;
+  if(st.verb === 'sleep' && isFatigueStimulus(stimulus)) return true;
+  if(st.verb === 'douse' && (stimulus.kind === 'fire' || stimulus.kind === 'wildfire' || isThirstStimulus(stimulus))) return true;
+  if((st.verb === 'buy' || st.verb === 'sell') && (stimulus.place === 'shop' || stimulus.place === 'inn' || stimulus.kind === 'shop')) return true;
+
+  if(stimulus.event && (stimulus.who === v.name || stimulus.target === v.name || stimulus.participant === v.name || stimulus.child === v.name)) return true;
+
+  return false;
+}
+
+function filterAttention(v, stimulus, details = {}){
+  if(!v) return { attended: false, gate: 0, reason: 'no_villager' };
+
+  if(details.bypassAttention === true) return { attended: true, gate: 0, reason: 'bypassed' };
+
+  // Cổng 1 — Cảm giác đột biến: lửa mất kiểm soát (wildfire), tiếng thét, sói/gấu hostile
+  // -> preemptive interrupt, cướp quyền chú ý ngay lập tức, đặt flag để utility re-plan.
+  // Exception: Douse plans are not wiped by the fire being fought.
+  if(isGate1Threat(stimulus) || isGate1Threat(details)){
+    const isFire = isWildfireStimulus(stimulus) || isWildfireStimulus(details);
+    const isDousing = v.plan && v.plan.length && (v.plan[0].verb === 'douse' || v.plan[0].douse);
+    if(isFire && isDousing){
+      // Villager is actively fighting fire; the fire does not wipe their douse plan
+      return { attended: true, gate: 1, preemptive: false, reason: 'dousing_active' };
+    }
+
+    v.interrupted = true;
+    v.replanNeeded = true;
+    v.replanTriggered = true;
+    if(v.plan && v.plan.length && !v.plan[0].flee && !v.plan[0].guard){
+      v.plan = [];
+      v.currentAction = null;
+    }
+    return { attended: true, gate: 1, preemptive: true, reason: 'sudden_threat' };
+  }
+
+  // Cổng 2 — Trạng thái khẩn cấp: need sinh học >75%
+  // -> tunnel vision, lọc bỏ mọi vật thể không giải quyết cơn đói/khát/mệt/rét.
+  const urgent = getUrgentNeeds(v);
+  if(urgent.length > 0){
+    const solves = urgent.some(need => stimulusSolvesNeed(stimulus, need));
+    if(solves){
+      return { attended: true, gate: 2, reason: 'solves_urgent_need', urgentNeeds: urgent };
+    } else {
+      // Irrelevant = background noise, KHÔNG ghi memory
+      return { attended: false, gate: 2, reason: 'tunnel_vision_noise', urgentNeeds: urgent };
+    }
+  }
+
+  // Cổng 3 — Mục tiêu hiện tại (top-down relevance):
+  // Chỉ vật thể/sự kiện liên quan việc đang làm dở mới được vào interpretation + memory.
+  if(!isRelevantToCurrentGoal(v, stimulus, details)){
+    return { attended: false, gate: 3, reason: 'goal_irrelevant_noise' };
+  }
+
+  return { attended: true, gate: 3, reason: 'relevant_or_general' };
+}
+
+function perceiveSurroundings(v, seed = 0){
+  if(!v || v.dead) return new PerceptionDTO({ villagerName: v ? v.name : '' });
+  const range = sightRange();
+  const attended = [];
+  const ignored = [];
+  const threats = [];
+  const urgent = getUrgentNeeds(v);
+  let interrupt = false;
+
+  const rawStimuli = [];
+
+  // 1. Animals
+  if(typeof ANIMALS !== 'undefined' && Array.isArray(ANIMALS)){
+    for(const a of ANIMALS){
+      if(a.dead) continue;
+      const d = Math.hypot(a.x - v.x, a.y - v.y) / CS;
+      if(d <= range){
+        // Only hostile beasts interrupt plans; a bear that's eating or
+        // wandering is not an immediate threat. Interrupting for passive
+        // animals traps villagers in a clear/decide loop where they never
+        // complete survival actions (drink/eat) and die of needs.
+        const isBeast = (a.kind === 'wolf' || a.kind === 'bear');
+        const isHostile = isBeast && (a.state === 'stalk' || a.state === 'attack' || a.state === 'hunt' || a.state === 'fight');
+        rawStimuli.push({
+          kind: a.kind,
+          state: a.state,
+          threat: isHostile ? a.kind : null,
+          hostile: isHostile,
+          x: a.x, y: a.y, dist: d, ref: a,
+          id: 'animal_' + a.kind + '_' + Math.round(a.x)
+        });
+      }
+    }
+  }
+
+  // 2. Burning / Fires (uncontrolled wildfire in BURNING array)
+  if(typeof BURNING !== 'undefined' && Array.isArray(BURNING)){
+    for(const b of BURNING){
+      const bx = b.wx * CS + 16, by = b.wy * CS + 16;
+      const d = Math.hypot(bx - v.x, by - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: 'wildfire', isWildfire: true, threat: 'wildfire',
+          wx: b.wx, wy: b.wy, x: bx, y: by, dist: d, ref: b,
+          id: 'wildfire_' + b.wx + '_' + b.wy
+        });
+      }
+    }
+  }
+  // Controlled campfires / hearths (normal-use fires — NOT gate-1 threats)
+  if(typeof FIRES !== 'undefined' && Array.isArray(FIRES)){
+    for(const f of FIRES){
+      if(f.burnH > 0){
+        const d = Math.hypot(f.x - v.x, f.y - v.y) / CS;
+        if(d <= range){
+          rawStimuli.push({
+            kind: 'fire', campfire: true,
+            x: f.x, y: f.y, dist: d, ref: f,
+            id: 'fire_' + Math.round(f.x) + '_' + Math.round(f.y)
+          });
+        }
+      }
+    }
+  }
+
+  // 3. Piles
+  if(typeof PILES !== 'undefined' && Array.isArray(PILES)){
+    for(const p of PILES){
+      const d = Math.hypot(p.x - v.x, p.y - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: 'pile', items: p.items,
+          wx: p.wx, wy: p.wy, x: p.x, y: p.y, dist: d, ref: p,
+          id: 'pile_' + p.wx + '_' + p.wy
+        });
+      }
+    }
+  }
+
+  // 4. Crops
+  if(typeof CROPS !== 'undefined' && Array.isArray(CROPS)){
+    for(const c of CROPS){
+      const cx = c.wx * CS + 16, cy = c.wy * CS + 16;
+      const d = Math.hypot(cx - v.x, cy - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: 'crop', stage: c.stage,
+          wx: c.wx, wy: c.wy, x: cx, y: cy, dist: d, ref: c,
+          id: 'crop_' + c.wx + '_' + c.wy
+        });
+      }
+    }
+  }
+
+  // 5. Village objects
+  if(typeof VILLAGE_OBJECTS !== 'undefined' && Array.isArray(VILLAGE_OBJECTS)){
+    for(const o of VILLAGE_OBJECTS){
+      const d = Math.hypot(o.x - v.x, o.y - v.y) / CS;
+      if(d <= range){
+        rawStimuli.push({
+          kind: o.kind, x: o.x, y: o.y, dist: d, ref: o,
+          id: 'obj_' + o.kind + '_' + Math.round(o.x)
+        });
+      }
+    }
+  }
+
+  // Deterministic sorting with seeded tie breaking (strictly NO Math.random)
+  const effSeed = (seed != null ? seed : (typeof SEED !== 'undefined' ? SEED : 1)) >>> 0;
+  rawStimuli.sort((a, b) => {
+    const thA = isGate1Threat(a) ? 1 : 0;
+    const thB = isGate1Threat(b) ? 1 : 0;
+    if(thA !== thB) return thB - thA;
+    if(Math.abs(a.dist - b.dist) > 0.05) return a.dist - b.dist;
+    const keyA = `${effSeed}:${v.name}:${a.id || a.kind}`;
+    const keyB = `${effSeed}:${v.name}:${b.id || b.kind}`;
+    const hA = hashString18(keyA);
+    const hB = hashString18(keyB);
+    if(hA !== hB) return hB - hA;
+    return (a.id || '').localeCompare(b.id || '');
+  });
+
+
+  for(const stim of rawStimuli){
+    const filter = filterAttention(v, stim);
+    if(filter.attended){
+      attended.push(stim);
+      if(filter.preemptive){
+        interrupt = true;
+        threats.push(stim);
+      }
+    } else {
+      ignored.push(stim);
+    }
+  }
+
+  return new PerceptionDTO({
+    timestamp: typeof W !== 'undefined' ? (W.day + (W.tod || 0)/24) : 0,
+    villagerName: v.name,
+    threats,
+    urgentNeeds: urgent,
+    attended,
+    ignored,
+    interrupt,
+    replanNeeded: interrupt || Boolean(v.replanNeeded)
+  });
+}
+
+function brainObserve(v, dtH){
+  const seed = (typeof RNGS !== 'undefined' && RNGS.s != null) ? RNGS.s : (typeof SEED !== 'undefined' ? SEED : 0);
+  return perceiveSurroundings(v, seed);
+}
+
+
+/* =====================================================================
    PART 12C: ACTION QUEUE — postAction accepts verbs, queues multi-step
    plans executed over ticks. Unknown verbs are rejected, never squashed.
    v.brainControlled: skip scripted schedule; run plans + guard + body.
@@ -6953,8 +7346,27 @@ function doTakeStep(v, step, dtH){
     const r = planMoveToward(v, p.x, p.y, dtH);
     return r === 'stuck' ? true : false;
   }
-  const n = Math.min(p.items[what] || 0, 3);
-  if(n <= 0){ step.pile = null; return false; }
+  const n = Math.min(p.items ? (p.items[what] || 0) : 0, 3);
+  if(n <= 0){
+    if(typeof checkStashExpectation === 'function'){
+      const stashTopic = step.stashKey || step.targetKey || (p ? `pile_${p.wx}_${p.wy}` : null) || `stash_${Math.floor(v.x/CS)}_${Math.floor(v.y/CS)}`;
+      const expRes = checkStashExpectation(v, stashTopic, null);
+      if(expRes && !expRes.match && expRes.replan){
+        v.thoughts = [{ text: `Where is the ${what}? It was supposed to be here!`, val: -3 }];
+        v.replanNeeded = true;
+        v.interrupted = true;
+        step.pile = null;
+        return true;
+      }
+    }
+    step.pile = null;
+    v.thoughts = [{ text: 'No ' + what + ' to take', val: -1 }];
+    return true;
+  }
+  if(typeof checkStashExpectation === 'function'){
+    const stashTopic = step.stashKey || step.targetKey || (p ? `pile_${p.wx}_${p.wy}` : null);
+    if(stashTopic) checkStashExpectation(v, stashTopic, { wx: p.wx, wy: p.wy, items: p.items });
+  }
   p.items[what] -= n; addInv(v, what, n); cleanPile(p);
   // Phase 2A+: provenance rides with the items. Prefer real pile records;
   // fall back to the legacy felledBy tag (hand-tagged log piles, e.g. tests).
@@ -7052,8 +7464,32 @@ function doForageStep(v, step, dtH){
     return r === 'stuck' ? true : false;
   }
   v.state = 'work'; v.moving = false;
+  if(s.kind === 'bush'){
+    const cc = cellChunk(s.wx, s.wy);
+    if(cc.c && cc.c.bush && cc.c.bush[cc.i] < 0){
+      // Depleted bush on arrival
+      if(typeof checkStashExpectation === 'function'){
+        const spotTopic = step.stashKey || step.targetKey || `stash_${s.wx}_${s.wy}`;
+        const expRes = checkStashExpectation(v, spotTopic, null);
+        if(expRes && !expRes.match && expRes.replan){
+          v.thoughts = [{ text: 'The bushes are bare!', val: -3 }];
+          v.replanNeeded = true;
+          v.interrupted = true;
+          step.spot = null;
+          return true;
+        }
+      }
+      step.spot = null;
+      v.thoughts = [{ text: 'Nothing to forage', val: -1 }];
+      return true;
+    }
+  }
   step.prog = (step.prog || 0) + dtH;
   if(step.prog >= 0.5){
+    if(typeof checkStashExpectation === 'function'){
+      const spotTopic = step.stashKey || step.targetKey || `stash_${s.wx}_${s.wy}`;
+      checkStashExpectation(v, spotTopic, { wx: s.wx, wy: s.wy });
+    }
     if(s.kind === 'bush'){
       const cc = cellChunk(s.wx, s.wy);
       if(cc.c){
@@ -8010,6 +8446,15 @@ function doBuyStep(v, step, dtH){
       v.thoughts = [{ text:'The inn is out of ' + what, val:-2 }]; return true;
     }
     if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold for ' + what, val:-2 }]; return true; }
+    if(typeof checkPriceExpectation === 'function'){
+      const expRes = checkPriceExpectation(v, what, price);
+      if(expRes && !expRes.match && expRes.replan){
+        v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
+        v.replanNeeded = true;
+        v.interrupted = true;
+        return true;
+      }
+    }
     v.gold -= price; tobin.gold = (tobin.gold || 0) + price;
     if(what !== 'room'){
       if(INN.stock[what]) INN.stock[what]--;
@@ -8028,6 +8473,15 @@ function doBuyStep(v, step, dtH){
   if(price == null){ v.thoughts = [{ text:'The shop does not sell that', val:-2 }]; return true; }
   if((SHOP.stock[what] || 0) <= 0){ v.thoughts = [{ text:'The shop is out of ' + what, val:-2 }]; return true; }
   if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold', val:-2 }]; return true; }
+  if(typeof checkPriceExpectation === 'function'){
+    const expRes = checkPriceExpectation(v, what, price);
+    if(expRes && !expRes.match && expRes.replan){
+      v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
+      v.replanNeeded = true;
+      v.interrupted = true;
+      return true;
+    }
+  }
   v.gold -= price; sella.gold = (sella.gold || 0) + price;
   SHOP.stock[what]--;
   addInv(v, what, 1);
@@ -11772,9 +12226,13 @@ function ensureEpistemic(v){
       memories: [],
       beliefs: {},
       ownership: {},
+      expectations: {},
       lastDecayDay: (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0
     };
     initDefaultEpistemic(v);
+  }
+  if(!v.epistemic.expectations){
+    v.epistemic.expectations = {};
   }
   return v.epistemic;
 }
@@ -11785,6 +12243,15 @@ function observe(v, content, details){
   if(!v) return null;
   ensureEpistemic(v);
   details = details || {};
+
+  // Selective Attention filter (A1) — background noise does NOT become memory
+  if(details.bypassAttention !== true){
+    const att = (typeof filterAttention === 'function') ? filterAttention(v, content, details) : { attended: true };
+    if(!att.attended){
+      return null;
+    }
+  }
+
   const topic = details.topic || (typeof content === 'string' ? content : (content && content.topic) || 'general');
   const source = details.source || 'direct';
 
@@ -11879,6 +12346,41 @@ function observe(v, content, details){
     }
   }
 
+  // Phase 6A: Stash/Location observation anchors expectation
+  if(topic && (topic.startsWith('stash_') || topic.startsWith('pile_') || (content && (content.kind === 'stash' || content.kind === 'pile')))){
+    if(content && (content.wx != null || (where && where.x != null)) && !content.empty && content.status !== 'missing'){
+      const wx = content.wx != null ? content.wx : Math.floor(where.x / CS);
+      const wy = content.wy != null ? content.wy : Math.floor(where.y / CS);
+      const subj = (topic.startsWith('stash_') || topic.startsWith('pile_')) ? topic : `stash_${wx}_${wy}`;
+      setExpectation(v, {
+        subject: subj,
+        attribute: 'location',
+        predictedValue: { wx, wy },
+        confidence: mem.confidence,
+        learnedTick: now,
+        source: source
+      });
+    }
+  }
+
+  return mem;
+}
+
+function observeStash(v, stashKey, pos, details = {}){
+  const topic = stashKey.startsWith('stash_') ? stashKey : `stash_${stashKey}`;
+  const wx = pos.wx != null ? pos.wx : Math.floor((pos.x || 0) / CS);
+  const wy = pos.wy != null ? pos.wy : Math.floor((pos.y || 0) / CS);
+  const mem = observe(v, { kind: 'stash', wx, wy, items: pos.items }, Object.assign({ topic }, details));
+  if(mem){
+    setExpectation(v, {
+      subject: topic,
+      attribute: 'location',
+      predictedValue: { wx, wy },
+      confidence: mem.confidence,
+      learnedTick: mem.when,
+      source: details.source || 'direct'
+    });
+  }
   return mem;
 }
 
@@ -11947,6 +12449,254 @@ function recordOwnershipBelief(v, targetId, details){
   return record;
 }
 
+/* =====================================================================
+   PHASE 6A: EXPECTATION ENGINE (A2)
+   Record: { subject, attribute, predictedValue, confidence, learnedTick, source }
+   Rules:
+     - match predictedValue: +confidence, 0 processing overhead
+     - mismatch beyond threshold: SURPRISE = |actual - predicted| * confidence
+       -> emotion tag -> update Epistemic Store -> call re-plan
+   Strictly bounded to 3 groups (HARD STOP):
+     (1) price: shop / inn prices
+     (2) location: household furniture / stash location
+     (3) presence: presence of family member / relative
+   ===================================================================== */
+
+const VALID_EXPECTATION_ATTRIBUTES = ['price', 'location', 'presence'];
+const EXPECTATION_TTL_DAYS = 7; // Phase 6A B2: Expectations expire after 7 sim days
+
+function setExpectation(v, exp){
+  if(!v || !exp || !exp.subject || !exp.attribute) return null;
+  // Hard stop: strictly 3 groups only
+  if(!VALID_EXPECTATION_ATTRIBUTES.includes(exp.attribute)) return null;
+  ensureEpistemic(v);
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1.0;
+  const record = {
+    subject: exp.subject,
+    attribute: exp.attribute,
+    predictedValue: exp.predictedValue,
+    confidence: exp.confidence != null ? +Number(exp.confidence).toFixed(4) : 0.8,
+    learnedTick: exp.learnedTick != null ? exp.learnedTick : now,
+    source: exp.source || 'direct'
+  };
+  const key = `${exp.subject}:${exp.attribute}`;
+  v.epistemic.expectations[key] = record;
+  return record;
+}
+
+function getExpectation(v, subject, attribute){
+  if(!v || !subject || !attribute) return null;
+  ensureEpistemic(v);
+  const key = `${subject}:${attribute}`;
+  if(v.epistemic.expectations[key]) return v.epistemic.expectations[key];
+  if(attribute === 'location'){
+    const stripped = subject.replace(/^stash_/, '');
+    if(v.epistemic.expectations[`${stripped}:${attribute}`]) return v.epistemic.expectations[`${stripped}:${attribute}`];
+    if(v.epistemic.expectations[`stash_${stripped}:${attribute}`]) return v.epistemic.expectations[`stash_${stripped}:${attribute}`];
+  }
+  return null;
+}
+
+function checkExpectation(v, subject, attribute, actualValue, context = {}){
+  if(!v || !subject || !attribute) return { match: true, surprise: 0 };
+  if(!VALID_EXPECTATION_ATTRIBUTES.includes(attribute)) return { match: true, surprise: 0 };
+  ensureEpistemic(v);
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1.0;
+  let exp = getExpectation(v, subject, attribute);
+
+  if(!exp){
+    // Initial expectation anchor
+    exp = setExpectation(v, {
+      subject,
+      attribute,
+      predictedValue: actualValue,
+      confidence: 0.8,
+      learnedTick: now,
+      source: context.source || 'direct'
+    });
+    return { match: true, surprise: 0, confidence: exp.confidence };
+  }
+
+  // 1. Group 1: Price (nối systems/13b_economy.js)
+  if(attribute === 'price'){
+    const predPrice = Number(exp.predictedValue);
+    const actPrice = Number(actualValue);
+    const diff = Math.abs(actPrice - predPrice);
+    // Shock threshold: deviation > 1 gold AND > 30% of predicted price, or diff >= 5
+    const isShock = (diff > 1 && diff >= predPrice * 0.3) || diff >= 5;
+
+    if(!isShock){
+      // Tri giác khớp dự đoán -> +confidence, tốn 0 xử lý
+      exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
+      return { match: true, surprise: 0, confidence: exp.confidence };
+    }
+
+    // Lệch quá ngưỡng -> sự kiện SURPRISE = |thực tế − dự đoán| × confidence
+    const surprise = +(diff * exp.confidence).toFixed(2);
+    const emotionTag = actPrice > predPrice ? 'disappointed' : 'pleased';
+
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({ tag: emotionTag, intensity: surprise, when: now, subject });
+    if(v.emotions.length > 20) v.emotions.shift();
+
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({
+      text: actPrice > predPrice
+        ? `Shocked by ${subject} price: wanted ${predPrice}g, seller demands ${actPrice}g!`
+        : `Delighted! ${subject} is cheaper than expected: was ${predPrice}g, now ${actPrice}g!`,
+      val: actPrice > predPrice ? -3 : 2
+    });
+
+    // Ép update Epistemic Store
+    observe(v, { subject, attribute, oldPrice: predPrice, newPrice: actPrice, surprise, emotion: emotionTag }, {
+      topic: `price_${subject}`,
+      source: 'direct',
+      confidence: 0.95,
+      salience: Math.min(1.0, 0.5 + surprise * 0.1),
+      conflicts: true,
+      bypassAttention: true
+    });
+
+    exp.predictedValue = actPrice;
+    exp.learnedTick = now;
+
+    // Gọi re-plan
+    v.replanNeeded = true;
+    v.interrupted = true;
+    v.lastSurprise = { subject, attribute, surprise, emotion: emotionTag, diff, when: now };
+
+    return {
+      match: false,
+      surprise,
+      emotion: emotionTag,
+      diff,
+      replan: true,
+      predictedValue: predPrice,
+      actualValue: actPrice
+    };
+  }
+
+  // 2. Group 2: Location / Stash
+  if(attribute === 'location'){
+    const isMissing = actualValue == null || actualValue === false || (typeof actualValue === 'object' && (actualValue.empty || actualValue.status === 'missing'));
+    if(!isMissing){
+      exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
+      return { match: true, surprise: 0, confidence: exp.confidence };
+    }
+
+    // Stale stash expectation violation
+    const surprise = +(1.0 * exp.confidence).toFixed(2);
+    const emotionTag = 'confused';
+
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({ tag: emotionTag, intensity: surprise, when: now, subject });
+    if(v.emotions.length > 20) v.emotions.shift();
+
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({ text: `Where is the ${subject}? It was supposed to be here!`, val: -3 });
+
+    // Update epistemic store: supersede old belief có lưu vết lịch sử
+    const topic = context.topic || `stash_${subject}`;
+    const oldBelief = v.epistemic.beliefs[topic];
+    const newMem = observe(v, { subject, attribute, status: 'missing', empty: true, surprise }, {
+      topic,
+      source: 'direct',
+      confidence: 0.95,
+      salience: 0.8,
+      conflicts: true,
+      bypassAttention: true
+    });
+
+    exp.predictedValue = null;
+    exp.learnedTick = now;
+
+    v.replanNeeded = true;
+    v.interrupted = true;
+    v.lastSurprise = {
+      subject,
+      attribute,
+      surprise,
+      emotion: emotionTag,
+      when: now,
+      supersededBeliefId: oldBelief ? oldBelief.id : null
+    };
+
+    return { match: false, surprise, emotion: emotionTag, replan: true, newMemory: newMem };
+  }
+
+  // 3. Group 3: Presence (sự hiện diện người thân)
+  if(attribute === 'presence'){
+    const predPresence = Boolean(exp.predictedValue);
+    const actPresence = Boolean(actualValue);
+
+    if(predPresence === actPresence){
+      exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
+      return { match: true, surprise: 0, confidence: exp.confidence };
+    }
+
+    const surprise = +(1.0 * exp.confidence).toFixed(2);
+    const emotionTag = (!actPresence && predPresence) ? 'worried' : 'surprised';
+
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({ tag: emotionTag, intensity: surprise, when: now, subject });
+    if(v.emotions.length > 20) v.emotions.shift();
+
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({
+      text: (!actPresence && predPresence) ? `Where is ${subject}? Expected them to be here!` : `Surprised to see ${subject}!`,
+      val: (!actPresence && predPresence) ? -2 : 1
+    });
+
+    observe(v, { subject, attribute, expected: predPresence, actual: actPresence, surprise, emotion: emotionTag }, {
+      topic: `presence_${subject}`,
+      source: 'direct',
+      confidence: 0.9,
+      salience: 0.7,
+      conflicts: true,
+      bypassAttention: true
+    });
+
+    exp.predictedValue = actPresence;
+    exp.learnedTick = now;
+
+    v.replanNeeded = true;
+    v.lastSurprise = { subject, attribute, surprise, emotion: emotionTag, when: now };
+
+    return { match: false, surprise, emotion: emotionTag, replan: true };
+  }
+
+  return { match: true, surprise: 0 };
+}
+
+function checkPriceExpectation(v, itemKind, actualPrice){
+  return checkExpectation(v, itemKind, 'price', actualPrice);
+}
+
+function checkStashExpectation(v, topicOrSubject, actualValue){
+  const topic = topicOrSubject ? (topicOrSubject.startsWith('stash_') ? topicOrSubject : `stash_${topicOrSubject}`) : '';
+  let exp = getExpectation(v, topicOrSubject, 'location');
+  if(!exp && topic) exp = getExpectation(v, topic, 'location');
+  if(!exp && v && v.epistemic && v.epistemic.expectations){
+    const vx = Math.floor((v.x || 0) / CS), vy = Math.floor((v.y || 0) / CS);
+    for(const k of Object.keys(v.epistemic.expectations)){
+      const candidate = v.epistemic.expectations[k];
+      if(candidate && candidate.attribute === 'location' && candidate.predictedValue){
+        const pv = candidate.predictedValue;
+        if(Math.abs(pv.wx - vx) <= 1 && Math.abs(pv.wy - vy) <= 1){
+          exp = candidate;
+          break;
+        }
+      }
+    }
+  }
+  const subj = exp ? exp.subject : (topicOrSubject || 'stash');
+  return checkExpectation(v, subj, 'location', actualValue, { topic: subj });
+}
+
+function checkPresenceExpectation(v, personName, actualPresence){
+  return checkExpectation(v, personName, 'presence', actualPresence);
+}
+
 /* ---- Forgetting / Epistemic Decay ---- */
 
 function decayEpistemic(v, dtDays){
@@ -11997,6 +12747,40 @@ function decayEpistemic(v, dtDays){
     o.confidence = Math.max(0, +(o.confidence - baseDecay * traitMult).toFixed(4));
     if(o.confidence <= 0.05 && (!o.claims || o.claims.length === 0)){
       o.knownOwner = null;
+    }
+  }
+
+  // 4. Decay and expire expectations (Phase 6A B2)
+  if(v.epistemic.expectations){
+    const nowDays = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 0;
+    for(const key of Object.keys(v.epistemic.expectations)){
+      const exp = v.epistemic.expectations[key];
+      if(!exp) continue;
+      let expired = false;
+      if(exp.learnedTick != null){
+        const ageDays = nowDays - exp.learnedTick;
+        if(ageDays >= EXPECTATION_TTL_DAYS){
+          expired = true;
+        }
+      }
+      if(dtDays > 0){
+        exp.ageDays = (exp.ageDays || 0) + dtDays;
+        if(exp.ageDays >= EXPECTATION_TTL_DAYS){
+          expired = true;
+        }
+        if(!expired){
+          const decayAmount = (dtDays / EXPECTATION_TTL_DAYS) * traitMult;
+          exp.confidence = Math.max(0, +(exp.confidence - decayAmount).toFixed(4));
+          if(exp.confidence <= 0.05){
+            expired = true;
+          }
+        }
+      }
+      if(expired){
+        exp.confidence = 0;
+        exp.expired = true;
+        delete v.epistemic.expectations[key];
+      }
     }
   }
 }
@@ -12338,7 +13122,8 @@ witnessEvent = function(v, text){
       topic: 'event_' + ((v.events && v.events.length) || 0),
       source: 'direct',
       confidence: 0.9,
-      salience: 0.6
+      salience: 0.6,
+      bypassAttention: true
     });
   }
 };
@@ -12369,6 +13154,26 @@ if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.claim = function(claimantName, targetId, text){
     const c = VILLAGERS.find(p => p.name === claimantName);
     return c ? claimOwnership(c, targetId, { text }) : null;
+  };
+  window.__aiBridge.getExpectations = function(name){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? (v.epistemic ? v.epistemic.expectations : {}) : null;
+  };
+  window.__aiBridge.setExpectation = function(name, exp){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? setExpectation(v, exp) : null;
+  };
+  window.__aiBridge.checkExpectation = function(name, subject, attribute, actualValue){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? checkExpectation(v, subject, attribute, actualValue) : null;
+  };
+  window.__aiBridge.checkStashExpectation = function(name, topicOrSubject, actualValue){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? checkStashExpectation(v, topicOrSubject, actualValue) : null;
+  };
+  window.__aiBridge.observeStash = function(name, stashKey, pos){
+    const v = VILLAGERS.find(p => p.name === name);
+    return v ? observeStash(v, stashKey, pos) : null;
   };
 }
 
@@ -13263,9 +14068,44 @@ routineNeeds = function(v){
   evaluateAndApplyUtilityAction(v);
 };
 
-/* ---- Autonomous Villager AI loop ---- */
-const __uvUtilityBase = updateVillagerAI;
-updateVillagerAI = function(v, dtH){
+/* ---- Autonomous Villager AI loop: Observe -> Think -> Learn (A3 Pattern) ---- */
+
+function brainThink(v, dtH, perception){
+  if(perception && (perception.interrupt || perception.replanNeeded)){
+    v.replanNeeded = true;
+    v.interrupted = true;
+  }
+  if(v.replanNeeded || v.interrupted){
+    if(v.plan && v.plan.length && !v.plan[0].flee && !v.plan[0].guard && v.plan[0].verb !== 'douse' && !v.plan[0].douse){
+      v.plan = [];
+      v.currentAction = null;
+    }
+    v.replanNeeded = false;
+    v.interrupted = false;
+  }
+
+  // Utility Action Selection: if no plan, score all candidates and pick best!
+  if(!v.plan || !v.plan.length){
+    evaluateAndApplyUtilityAction(v);
+  }
+
+  // Execute current plan step
+  if(v.plan && v.plan.length){
+    planTick(v, dtH);
+  }
+
+  return { plan: v.plan, currentAction: v.currentAction };
+}
+
+function brainLearn(v, dtH, outcome){
+  // Triumph timer decay
+  if(v.triumphT > 0){
+    v.triumphT = Math.max(0, v.triumphT - dtH * 15);
+  }
+  return { learned: true };
+}
+
+function updateVillagerBrain(v, dtH){
   if(v.dead) return;
   if(v.downed) downedTick(v, dtH);
   if(v.downed && v.downed.kind !== 'leg') return;
@@ -13317,24 +14157,19 @@ updateVillagerAI = function(v, dtH){
     if(beastNear && !v.plan[0].flee){
       v.plan = [];
       v.currentAction = null;
+      v.interrupted = true;
+      v.replanNeeded = true;
     }
   }
 
-  // 6. Utility Action Selection: if no plan, score all candidates and pick best!
-  if(!v.plan || !v.plan.length){
-    evaluateAndApplyUtilityAction(v);
-  }
+  // 6. OBSERVE (Attention filter A1) -> 7. THINK (Decision & execution) -> 8. LEARN (Memory consolidation)
+  const perception = (typeof brainObserve === 'function') ? brainObserve(v, dtH) : null;
+  const outcome = brainThink(v, dtH, perception);
+  brainLearn(v, dtH, outcome);
+}
 
-  // 7. Execute current plan step
-  if(v.plan && v.plan.length){
-    planTick(v, dtH);
-  }
-
-  // 8. Triumph timer decay
-  if(v.triumphT > 0){
-    v.triumphT = Math.max(0, v.triumphT - dtH * 15);
-  }
-};
+const __uvUtilityBase = updateVillagerAI;
+updateVillagerAI = updateVillagerBrain;
 
 /* ---- Extend window.__aiBridge with utility inspection helpers ---- */
 window.__aiBridge.evaluateUtility = function(name){
@@ -18820,6 +19655,440 @@ runAutoTest = async function(){
   log(leaked.length === 0, 'year23: part23 leaves no test villagers behind',
     leaked.length ? leaked.map(o => o.name).join(',') : VILLAGERS.length + ' villagers');
   el.textContent += `part23 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
+};
+
+/* =====================================================================
+   PART 24 AUTOTEST — Phase 6A: Senses & Expectations ("Con người không hoàn hảo")
+   Automated verification of:
+     24.1 (Gate 2): Biological emergency (hunger >75%) creates tunnel vision:
+                    non-food objects ignored (no memory created)
+     24.2 (Gate 1): Sudden threat (hostile-only beast/wildfire) preemptive interrupt
+                    and douse plan protection (docile wolf causes 0 wipes across 40 ticks)
+     24.3 (Expectation): Bread price expectation violated by price shock
+                         -> surprise event + disappointment emotion + re-plan flag
+     24.4 (Stale Stash): Stash belief from 5 days ago found empty
+                         -> surprise + superseded belief with preserved history
+     24.5 (Determinism): Same seed & environment yields bit-identical attended set
+     24.6 (Gate 3): Goal relevance: focused villager ignores task-irrelevant background stimuli
+     24.7 (Boundary): Clean observe -> think -> learn pipeline with typed PerceptionDTO
+     24.8 (Expectation Match): Matching price expectation reinforces confidence with zero overhead
+     24.9 (B2 Expiry): Expectation from 10 sim days ago expires after tick (TTL=7d)
+     24.10 (B3 Live Loop): Real gameplay take step at emptied stash triggers surprise on arrival without bypassAttention cheat
+     24.11 (O4 Reorder): Failed purchases (out of stock) do not anchor expectations
+     24.12 (Cleanup): No test villagers leaked
+   ===================================================================== */
+function mkTestV24(name, wx, wy, extra){
+  const v = mkTestV22(name, wx, wy, extra);
+  ensureEpistemic(v);
+  return v;
+}
+
+const __runAutoTest24 = runAutoTest;
+runAutoTest = async function(){
+  await __runAutoTest24();
+  const el = document.getElementById('autotest');
+  const res = [];
+  const log = (ok, title, desc) => {
+    res.push({ ok: Boolean(ok), title: title });
+    el.textContent += (ok ? 'PASS' : 'FAIL') + ' | ' + title + (desc ? ' — ' + desc : '') + '\n';
+  };
+  const madeNames = [];
+  function mk(name, wx, wy, extra){
+    const v = mkTestV24(name, wx, wy, extra);
+    madeNames.push(name);
+    return v;
+  }
+  function cleanup(){
+    for(const n of madeNames){
+      const i = VILLAGERS.findIndex(o => o && o.name === n);
+      if(i >= 0) VILLAGERS.splice(i, 1);
+    }
+    madeNames.length = 0;
+  }
+
+  // -------------------------------------------------------------------
+  // 24.1 (Cổng 2): villager đói 80% + vật thể không ăn được trong tầm nhìn -> KHÔNG ghi memory
+  // -------------------------------------------------------------------
+  const t1 = mk('T24_Gate2_Starve', 10, 10);
+  const b1 = ensureBody(t1);
+  b1.satiety = 0.20; // 80% hunger (>75% emergency threshold)
+
+  // Non-edible stimulus (wooden chair) while starving
+  const nonFoodMem = observe(t1, { kind: 'chair', name: 'carved oak chair' }, { source: 'direct', topic: 'chair_spot' });
+  const hasChairMem = t1.epistemic.memories.some(m => m.topic === 'chair_spot' || (m.content && m.content.kind === 'chair'));
+
+  // Edible stimulus (bread) under the same 80% hunger -> solves hunger, passes gate 2
+  const foodMem = observe(t1, { kind: 'bread', foodKind: 'bread', name: 'warm bread' }, { source: 'direct', topic: 'bread_spot' });
+  const hasBreadMem = t1.epistemic.memories.some(m => m.topic === 'bread_spot');
+
+  // Discrimination: verify normal hunger (10%) DOES record the chair
+  b1.satiety = 0.90;
+  const normalMem = observe(t1, { kind: 'chair', name: 'carved oak chair' }, { source: 'direct', topic: 'chair_normal' });
+  const hasNormalChairMem = t1.epistemic.memories.some(m => m.topic === 'chair_normal');
+
+  const ok24_1 = (nonFoodMem === null) && (!hasChairMem) && (foodMem !== null) && hasBreadMem && (normalMem !== null) && hasNormalChairMem;
+  log(ok24_1, 'attention24: gate 2 tunnel vision blocks non-food memory when hunger >75%',
+    `nonFoodMem=${nonFoodMem == null ? 'null' : 'recorded'} foodMem=${foodMem ? 'recorded' : 'null'} normalMem=${normalMem ? 'recorded' : 'null'}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.2 (Cổng 1): lửa/sói hostile -> interrupt flag được đặt, re-plan trigger
+  // Probe-style check: docile wolf causes NO wipe/interrupt across 40 ticks,
+  // travel matches control; hostile wolf interrupts; douse plan preserved.
+  // -------------------------------------------------------------------
+  const t2 = mk('T24_Gate1_Threat', 10, 10);
+  t2.plan = [{ verb: 'farm', tx: 200, ty: 200 }];
+  t2.interrupted = false;
+  t2.replanNeeded = false;
+
+  // Hostile wolf appears -> triggers Gate 1
+  const threatResult = filterAttention(t2, { kind: 'wolf', threat: 'wolf', hostile: true });
+  const interruptFlagSet = t2.interrupted === true && t2.replanNeeded === true;
+  const planPreempted = t2.plan.length === 0;
+
+  // Wildfire appearance also triggers Gate 1
+  const t2Fire = mk('T24_Gate1_Fire', 12, 10);
+  t2Fire.plan = [{ verb: 'cook', tx: 200, ty: 200 }];
+  filterAttention(t2Fire, { kind: 'wildfire', isFire: true });
+  const fireInterrupted = t2Fire.interrupted === true && t2Fire.plan.length === 0;
+
+  // Probe: docile wolf in view causes no wipe/interrupt across 40 ticks,
+  // travel matches control; hostile wolf interrupts; douse plan preserved.
+  const wy = 0;
+  const y = wy * CS + 16;
+  const startX = 2 * CS + 16;
+  const targetX = 14 * CS + 16;
+  const dtWalk = 8 / (85 * 60);
+
+  // Control: villager walks with no animal nearby along open boulevard
+  const vCtrl = mk('T24_Ctrl_Walk', 2, wy);
+  vCtrl.x = startX; vCtrl.y = y;
+  vCtrl.plan = [{ verb: 'go', tx: targetX, ty: y }];
+  let ctrlWipes = 0;
+  for(let i = 0; i < 40; i++){
+    updateVillagerAI(vCtrl, dtWalk);
+    if(!vCtrl.plan || vCtrl.plan.length === 0) ctrlWipes++;
+  }
+  const ctrlDist = (vCtrl.x - startX) / CS;
+
+  // Test: villager walks with docile wandering wolf in view (11 tiles away, sightRange=14, > survivalGuard 10)
+  const vWolf = mk('T24_Docile_Walk', 2, wy);
+  vWolf.x = startX; vWolf.y = y;
+  vWolf.plan = [{ verb: 'go', tx: targetX, ty: y }];
+  const docileWolf = { kind: 'wolf', state: 'wander', x: startX, y: y + 11 * CS, dead: false };
+  ANIMALS.push(docileWolf);
+
+  let docileWipes = 0;
+  let docileInterrupts = 0;
+  for(let i = 0; i < 40; i++){
+    docileWolf.x = vWolf.x;
+    docileWolf.y = vWolf.y + 11 * CS;
+    updateVillagerAI(vWolf, dtWalk);
+    if(vWolf.interrupted) docileInterrupts++;
+    if(!vWolf.plan || vWolf.plan.length === 0) docileWipes++;
+  }
+  const wolfDist = (vWolf.x - startX) / CS;
+
+  // Hostile wolf switch: wolf turns hostile and approaches (8 tiles away)
+  docileWolf.state = 'attack';
+  docileWolf.x = vWolf.x + 8 * CS;
+  docileWolf.y = vWolf.y;
+  vWolf.interrupted = false;
+  vWolf.replanNeeded = false;
+  vWolf.replanTriggered = false;
+  vWolf.plan = [{ verb: 'farm', tx: vWolf.x + 10, ty: vWolf.y }];
+  updateVillagerAI(vWolf, dtWalk);
+  const hostileWolfInterrupted = (vWolf.replanTriggered === true || vWolf.interrupted === true || vWolf.replanNeeded === true ||
+    (vWolf.plan && vWolf.plan.length > 0 && vWolf.plan[0].flee === true) ||
+    (vWolf.thoughts && vWolf.thoughts.some(t => t.text.includes('Fleeing'))));
+
+  // Campfire check: normal campfire does not trigger Gate 1 interrupt
+  const vCamp = mk('T24_Campfire_Check', 10, 10);
+  vCamp.plan = [{ verb: 'farm', tx: 500, ty: 500 }];
+  vCamp.interrupted = false;
+  const campAtt = filterAttention(vCamp, { kind: 'fire', campfire: true });
+  const campfireNoInterrupt = campAtt.preemptive !== true && vCamp.plan.length > 0;
+
+  // Firefighter douse plan check: active douse plan is not wiped by wildfire
+  const vDouse = mk('T24_Douse_Check', 10, 10);
+  vDouse.plan = [{ verb: 'douse', tx: 300, ty: 300 }];
+  vDouse.interrupted = false;
+  const douseAtt = filterAttention(vDouse, { kind: 'wildfire', isFire: true });
+  const dousePlanPreserved = vDouse.plan.length > 0 && vDouse.plan[0].verb === 'douse' && !vDouse.interrupted;
+
+  // Clean up added animal
+  const wIdx = ANIMALS.indexOf(docileWolf);
+  if(wIdx >= 0) ANIMALS.splice(wIdx, 1);
+
+  const probeDocileOk = (docileWipes === 0) && (docileInterrupts === 0) && (Math.abs(wolfDist - ctrlDist) < 0.05);
+  const ok24_2 = threatResult.attended && threatResult.preemptive && interruptFlagSet && planPreempted && fireInterrupted &&
+                 probeDocileOk && hostileWolfInterrupted && campfireNoInterrupt && dousePlanPreserved;
+  log(ok24_2, 'attention24: gate 1 hostile-only beast and wildfire threat (docile wolf 0/40 wipes, travel matches control, hostile interrupts, douse preserved)',
+    `wolfInterrupt=${interruptFlagSet} fireInterrupt=${fireInterrupted} docileWipes=${docileWipes}/40 distRatio=${(wolfDist/ctrlDist).toFixed(2)} hostile=${hostileWolfInterrupted} douseOk=${dousePlanPreserved}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.3 (Expectation): đặt expectation giá bánh mì -> tăng giá sốc -> surprise event + emotion + re-plan flag
+  // -------------------------------------------------------------------
+  const t3 = mk('T24_Expect_Price', 10, 10);
+  t3.gold = 50;
+  const shopPos = placePos('shop') || { x: 10 * CS, y: 10 * CS };
+  t3.x = shopPos.x; t3.y = shopPos.y;
+
+  setExpectation(t3, { subject: 'bread', attribute: 'price', predictedValue: 3, confidence: 0.9, source: 'habit' });
+  const origShopPrice = SHOP.buyPrice.bread;
+  SHOP.buyPrice.bread = 15; // Price shock: from 3g to 15g
+
+  const buyStep = { verb: 'buy', what: 'bread' };
+  doBuyStep(t3, buyStep, 0.1);
+
+  const surpriseRecorded = t3.lastSurprise && t3.lastSurprise.surprise > 0;
+  const expectedSurprise = +(Math.abs(15 - 3) * 0.9).toFixed(2); // 10.8
+  const surpriseValueOk = surpriseRecorded && Math.abs(t3.lastSurprise.surprise - expectedSurprise) < 0.05;
+  const emotionRecorded = t3.emotions && t3.emotions.some(e => e.tag === 'disappointed');
+  const replanFlagSet = t3.replanNeeded === true;
+  const purchaseCanceled = t3.gold === 50 && (t3.inv.bread || 0) === 0;
+
+  SHOP.buyPrice.bread = origShopPrice; // Restore shop price
+
+  const ok24_3 = surpriseRecorded && surpriseValueOk && emotionRecorded && replanFlagSet && purchaseCanceled;
+  log(ok24_3, 'expectation24: bread price shock triggers surprise event, disappointment emotion, and replan flag',
+    `surprise=${t3.lastSurprise && t3.lastSurprise.surprise} (want ${expectedSurprise}) emotion=${emotionRecorded} replan=${replanFlagSet} goldPreserved=${purchaseCanceled}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.4 (Stale Stash): belief vị trí đồ 5 ngày trước -> đến nơi trống -> surprise + belief superseded có lịch sử
+  // -------------------------------------------------------------------
+  const t4 = mk('T24_Stale_Stash', 10, 10);
+  const nowDay = (typeof W !== 'undefined' && W.day != null) ? W.day : 10;
+  const learnedDay = nowDay - 5;
+
+  const oldMem = observe(t4, { kind: 'stash', wx: 25, wy: 15, items: { bread: 3 } }, {
+    topic: 'stash_hidden_grove',
+    when: learnedDay,
+    confidence: 0.85,
+    source: 'direct',
+    bypassAttention: true
+  });
+  setExpectation(t4, {
+    subject: 'stash_hidden_grove',
+    attribute: 'location',
+    predictedValue: { wx: 25, wy: 15 },
+    confidence: 0.85,
+    learnedTick: learnedDay,
+    source: 'direct'
+  });
+
+  const bBefore = getBelief(t4, 'stash_hidden_grove');
+  const initialBeliefValid = bBefore && !bBefore.superseded;
+
+  // Stash is checked at location and found empty/missing
+  const stashRes = checkStashExpectation(t4, 'stash_hidden_grove', null);
+
+  const bAfter = getBelief(t4, 'stash_hidden_grove');
+  const oldMemInHistory = t4.epistemic.memories.find(m => m.id === oldMem.id);
+  const oldBeliefSuperseded = oldMemInHistory && oldMemInHistory.superseded === true && oldMemInHistory.supersededBy != null;
+  const newBeliefActive = bAfter && bAfter.content && (bAfter.content.status === 'missing' || bAfter.content.empty === true);
+  const stashSurpriseOk = stashRes && !stashRes.match && stashRes.surprise > 0;
+  const emotionOk = stashRes && (stashRes.emotion === 'confused' || stashRes.emotion === 'disappointed');
+
+  const ok24_4 = initialBeliefValid && stashSurpriseOk && emotionOk && oldBeliefSuperseded && newBeliefActive;
+  log(ok24_4, 'expectation24: stale stash belief 5 days ago found empty triggers surprise and supersedes with history',
+    `initialOk=${initialBeliefValid} surprise=${stashRes && stashRes.surprise} superseded=${oldBeliefSuperseded} histMemId=${oldMemInHistory && oldMemInHistory.supersededBy}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.5 (Determinism): cùng seed -> cùng attended set
+  // -------------------------------------------------------------------
+  const t5A = mk('T24_DetA', 10, 10);
+  const t5B = mk('T24_DetB', 10, 10);
+
+  t5A.x = 160; t5A.y = 160;
+  t5B.x = 160; t5B.y = 160;
+  ensureBody(t5A).satiety = 0.8; ensureBody(t5B).satiety = 0.8;
+
+  const scanA1 = perceiveSurroundings(t5A, 777);
+  const scanA2 = perceiveSurroundings(t5A, 777);
+  const scanB = perceiveSurroundings(t5B, 777);
+
+  const listA1 = scanA1.attended.map(s => s.id || s.kind).join(',');
+  const listA2 = scanA2.attended.map(s => s.id || s.kind).join(',');
+  const listB = scanB.attended.map(s => s.id || s.kind).join(',');
+
+  const selfDetOk = (listA1 === listA2);
+  const crossDetOk = (listA1 === listB);
+
+  const ok24_5 = selfDetOk && crossDetOk;
+  log(ok24_5, 'attention24: deterministic attention set: same seed yields bit-identical attended stimuli',
+    `count=${scanA1.attended.length} match=${selfDetOk && crossDetOk}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.6 (Cổng 3): Goal relevance — villager on task only attends relevant objects
+  // -------------------------------------------------------------------
+  const t6 = mk('T24_Gate3_Goal', 10, 10);
+  t6.plan = [{ verb: 'fell', target: 'tree', what: 'tree' }];
+
+  const treeAtt = filterAttention(t6, { kind: 'tree', what: 'tree' });
+  const benchAtt = filterAttention(t6, { kind: 'bench', what: 'wooden bench' });
+
+  // When idle, bench IS attended
+  t6.plan = [];
+  const benchIdleAtt = filterAttention(t6, { kind: 'bench', what: 'wooden bench' });
+
+  const ok24_6 = treeAtt.attended === true && benchAtt.attended === false && benchIdleAtt.attended === true;
+  log(ok24_6, 'attention24: gate 3 top-down relevance filters task-irrelevant background stimuli during active plan',
+    `tree=${treeAtt.attended} benchInTask=${benchAtt.attended} benchIdle=${benchIdleAtt.attended}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.7 (Boundary): Clean observe -> think -> learn pipeline with typed PerceptionDTO
+  // -------------------------------------------------------------------
+  const t7 = mk('T24_Boundary', 10, 10);
+  const pDto = brainObserve(t7, 0.1);
+  const isDtoInstance = pDto instanceof PerceptionDTO;
+  const dtoHasKeys = Array.isArray(pDto.attended) && Array.isArray(pDto.ignored) && Array.isArray(pDto.threats);
+  const thinkRes = brainThink(t7, 0.1, pDto);
+  const learnRes = brainLearn(t7, 0.1, thinkRes);
+
+  const ok24_7 = isDtoInstance && dtoHasKeys && thinkRes != null && learnRes != null;
+  log(ok24_7, 'boundary24: brain boundary observe -> think -> learn produces typed PerceptionDTO',
+    `isDTO=${isDtoInstance} attended=${pDto.attended.length} ignored=${pDto.ignored.length}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.8 (Expectation Match): matching expectation increases confidence with 0 overhead
+  // -------------------------------------------------------------------
+  const t8 = mk('T24_Expect_Match', 10, 10);
+  setExpectation(t8, { subject: 'bread', attribute: 'price', predictedValue: 3, confidence: 0.8 });
+  const matchRes = checkPriceExpectation(t8, 'bread', 3);
+  const expAfter = getExpectation(t8, 'bread', 'price');
+  const confIncreased = expAfter && expAfter.confidence > 0.8;
+  const zeroSurprise = matchRes.match === true && matchRes.surprise === 0;
+
+  const ok24_8 = zeroSurprise && confIncreased && !t8.replanNeeded;
+  log(ok24_8, 'expectation24: matching perception increases confidence with 0 overhead and no replan',
+    `match=${matchRes.match} newConf=${expAfter && expAfter.confidence} replan=${t8.replanNeeded}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.9 (B2 Expiry): Stale expectation from 10 sim days ago expires after tick (TTL=7d)
+  // -------------------------------------------------------------------
+  const t9 = mk('T24_Expect_Expiry', 10, 10);
+  const curDay = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 10;
+
+  // Stale expectation from 10 sim days ago (> EXPECTATION_TTL_DAYS)
+  setExpectation(t9, {
+    subject: 'bread',
+    attribute: 'price',
+    predictedValue: 3,
+    confidence: 0.8,
+    learnedTick: curDay - 10,
+    source: 'habit'
+  });
+
+  // Fresh expectation from 1 sim day ago (< EXPECTATION_TTL_DAYS)
+  setExpectation(t9, {
+    subject: 'ale',
+    attribute: 'price',
+    predictedValue: 2,
+    confidence: 0.8,
+    learnedTick: curDay - 1,
+    source: 'habit'
+  });
+
+  // Run epistemic tick
+  epistemicTick(t9, 1.0);
+
+  const staleExp = getExpectation(t9, 'bread', 'price');
+  const freshExp = getExpectation(t9, 'ale', 'price');
+
+  const staleExpired = staleExp === null || staleExp.confidence === 0 || staleExp.expired === true;
+  const freshRetained = freshExp !== null && freshExp.confidence > 0.5;
+
+  const ok24_9 = staleExpired && freshRetained;
+  log(ok24_9, 'expectation24: expectation with learnedTick 10 days ago expires after tick (TTL=7d)',
+    `staleExpired=${staleExpired} freshRetained=${freshRetained}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.10 (B3 Live Loop): Real gameplay take step at emptied stash triggers surprise on arrival without bypassAttention
+  // -------------------------------------------------------------------
+  const t10 = mk('T24_Stash_LiveLoop', 10, 10);
+  t10.x = 10 * CS; t10.y = 10 * CS;
+  t10.plan = []; // Idle -> passes Gate 3 top-down relevance without bypassAttention cheat!
+
+  // 1. Stash exists with bread
+  const stashX = 11 * CS + 16, stashY = 10 * CS + 16;
+  const testPile = dropPileAt(stashX, stashY, 'bread', 3);
+
+  // 2. Villager observes stash normally (NO bypassAttention: true)
+  const stashObs = observe(t10, {
+    kind: 'stash',
+    wx: 11, wy: 10,
+    items: { bread: 3 }
+  }, {
+    topic: 'stash_apple_grove',
+    source: 'direct'
+    // NO bypassAttention: true — passes through attention filter!
+  });
+
+  const observedOk = stashObs !== null;
+  const expBefore = getExpectation(t10, 'stash_apple_grove', 'location');
+  const expAnchored = expBefore !== null && expBefore.confidence > 0;
+
+  // 3. Stash empties while villager is away
+  testPile.items.bread = 0;
+  cleanPile(testPile);
+
+  // 4. Villager executes take step at remembered stash location
+  t10.x = stashX; t10.y = stashY; // Villager arrives at the stash location
+  const takeStep = { verb: 'take', what: 'bread', pile: testPile, stashKey: 'stash_apple_grove' };
+  t10.plan = [takeStep];
+  doTakeStep(t10, takeStep, 0.1);
+
+  // 5. Expectation check on arrival must record surprise
+  const surpriseFired = t10.lastSurprise != null && t10.lastSurprise.surprise > 0;
+  const emotionFired = t10.emotions && t10.emotions.some(e => e.tag === 'confused');
+  const replanFired = t10.replanNeeded === true;
+  const beliefSuperseded = t10.epistemic.memories.some(m => m.topic === 'stash_apple_grove' && m.superseded === true);
+
+  // Clean up pile if any remains
+  const pIdx = PILES.indexOf(testPile);
+  if(pIdx >= 0) PILES.splice(pIdx, 1);
+
+  const ok24_10 = observedOk && expAnchored && surpriseFired && emotionFired && replanFired && beliefSuperseded;
+  log(ok24_10, 'expectation24: real gameplay take step at emptied stash triggers surprise and replan without bypassAttention',
+    `observed=${observedOk} expAnchored=${expAnchored} surprise=${t10.lastSurprise && t10.lastSurprise.surprise} emotion=${emotionFired} replan=${replanFired}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.11 (O4 Reorder): Failed purchases (out of stock) do not anchor expectations
+  // -------------------------------------------------------------------
+  const t11 = mk('T24_O4_Stock', 10, 10);
+  t11.gold = 50;
+  const shopPosO4 = placePos('shop') || { x: 10 * CS, y: 10 * CS };
+  t11.x = shopPosO4.x; t11.y = shopPosO4.y;
+  const origBreadStock = SHOP.stock.bread;
+  SHOP.stock.bread = 0; // Out of stock
+  doBuyStep(t11, { verb: 'buy', what: 'bread' }, 0.1);
+  const breadExp = getExpectation(t11, 'bread', 'price');
+  SHOP.stock.bread = origBreadStock;
+  const ok24_11 = (breadExp === null) && t11.thoughts && t11.thoughts.some(th => th.text.includes('out of bread'));
+  log(ok24_11, 'expectation24: failed purchase on out-of-stock item does not anchor expectation or overwrite thought',
+    `breadExp=${breadExp == null ? 'null' : 'anchored'} thought=${t11.thoughts && t11.thoughts[0] && t11.thoughts[0].text}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 24.12 Cleanup check: no test villagers leaked
+  // -------------------------------------------------------------------
+  cleanup();
+  const leaked24 = VILLAGERS.filter(o => o && o.name && o.name.startsWith('T24_'));
+  const ok24_12 = leaked24.length === 0;
+  log(ok24_12, 'cleanup24: part24 cleans up all test villagers without leaking',
+    leaked24.length === 0 ? '0 leaked' : leaked24.map(o => o.name).join(','));
+
+  el.textContent += `part24 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
 };
 
 </script>
