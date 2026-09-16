@@ -615,3 +615,15 @@ deaths (was incorrectly asserting zero `starvation`).
 - Adversarial probes 11/11: triage provably idempotent (no thrash); isActivelyBleeding exactly matches the blood-loss loop condition (airtight); blockedAhead routes around real buildings (townhall) with no orbit/oscillation.
 - Observation (non-blocking, NOT fixed): addWound 14a_medical.js:35 has blood<0.4 down trigger without the predicate. Disposition: real call sites pass fresh open/bleeding wounds, so the predicate would be true anyway; the probe's open:false case is artificial. Single plan-wipe self-heals in 1 tick — not a spiral. Left as-is to keep the accepted build stable.
 - PHASE 4 COMPLETE AND ACCEPTED. No commit/push (HEAD 4e6fd80).
+
+### Warren release review (2026-09-16, ~01:42 PDT) — SIGN-OFF (conditional)
+- Tag v0.4.0-phase4 (1aded9c): source audit PASS (clean tree), suite 224/0 FAIL, build reproducibility PASS (fresh worktree byte-identical), package integrity PASS (no /home paths, no http refs, no fetch/XHR — file:// safe), cold smoke PASS (fresh temp dir, headless Chromium, 2 canvases, __aiBridge live, 0 console/page errors).
+- Artifact sha256: 5d0ce53a4344f3f82fa7d1983b34dab18470af9dadd9bbe9cc22b28c34b96781 (785,585 bytes).
+- Condition: main is ahead 1 of origin/main — release not shipped until tag pushed. Cache-busting: stable filename fine for file://; version the name if ever served over HTTP.
+- NOT verified: multi-browser, long-run gameplay (Examiner's domain). Push needs user's one-time token.
+
+### SPEC Phase 6 approved (2026-09-16, ~05:30 PDT)
+- User reviewed 2 external Natura builds (GLM 5.3: Next.js/TS 1.5MB; Qwen Coder: Vite/TS ~3.2k lines) via 2 parallel code-read analysts (read-only, no trust in their worklogs — caught GLM claiming "demand-responsive caravan" that was pure RNG in code).
+- Consolidated steal list approved by user: P0 Survival Guard (both AIs independently invented it — strongest signal; implements Principle 2) + belief tuples/expectation records + stale stash beliefs; P1 scarcity+season pricing (magic 8 replaced by stock/weeklyConsumption), weather→fire causal chain, emotion derivation layer, body-factor chain (injury→infection→work/speed penalty); P2 brain observe/think/learn boundary for Phase 9. Deferred: needs-derived-from-body refactor (Phase 7+; current needs stable through 30-day run).
+- Verdict: GLM = fuller village game (body sim, eco causality, content) but omniscient brain, no ownership/provenance, no imperfection layer; Qwen = lean demo with clean patterns but hollow sim (no death code at all, fake economy, broken save). Ours leads in epistemic architecture + determinism + QA discipline. Direction: steal mechanisms, never their architectures.
+- Wrote `SPEC_PHASE6.md` (LÀM/KHÔNG LÀM/acceptance criteria per sub-phase 6A→6D + deferred + process rules); pointer added to SPEC_BUILD_PLAN.md phase list. No code touched — awaiting Phase 5 release push before 6A implementation.

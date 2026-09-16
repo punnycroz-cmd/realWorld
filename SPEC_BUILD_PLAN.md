@@ -48,6 +48,7 @@ Spec yêu cầu modular, không single-file. Nhưng game phải giữ **1 file H
 - **Phase 3 — Công cụ & lưu trữ:** save/load, inspector WHY, debug overlays.
 - **Phase 4 — Kiểm thử dài:** chạy nhiều ngày/tuần/mùa mô phỏng, fix kẹt agent, loop vô hạn, bug sinh/tử, kinh tế.
 - **Phase 5 — Release:** Examiner audit cuối + Warren checklist.
+- **Phase 6 — "Con người không hoàn hảo":** SPEC đã duyệt (2026-09-16) tại `SPEC_PHASE6.md`. 4 sub-phase: 6A giác quan & kỳ vọng (attention 3 cổng, expectation engine, brain boundary) → 6B thích ứng & sinh thái (dynamic candidates, carrying capacity, weather→fire) → 6C tâm lý & căn tính (survival guard, conflicting motivations, emotion, identity) → 6D kinh tế & xã hội (scarcity pricing, caravan demand thật, reputation pipeline + 3 proto-norms). Tích hợp steal list đã duyệt từ 2 bản Natura ngoài (GLM 5.3 / Qwen). Deferred: needs-from-body refactor (Phase 7+).
 
 ## Phân công team
 
