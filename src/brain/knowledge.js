@@ -157,6 +157,7 @@ function initDefaultEpistemic(v){
 
 function ensureEpistemic(v){
   if(!v) return null;
+  if(!v.identity) v.identity = [];
   if(!v.epistemic){
     v.epistemic = {
       memories: [],
@@ -171,6 +172,59 @@ function ensureEpistemic(v){
     v.epistemic.expectations = {};
   }
   return v.epistemic;
+}
+
+/* =====================================================================
+   PHASE 6C: AUTOBIOGRAPHICAL IDENTITY (C5)
+   v.identity: at most 3-5 self-beliefs, NEVER hand-configured — they
+   crystallize when events hit EXTREME salience. Every tag measurably
+   changes attention (6A) and goal selection.
+   ===================================================================== */
+const IDENTITY_TAGS = {
+  PIPS_MOTHER: 'pips_mother',
+  NEAR_DROWNING_SURVIVOR: 'near_drowning_survivor',
+  FIRE_SAVIOR: 'fire_savior',
+  BETRAYED: 'betrayed',
+  MASTER_CRAFTSMAN: 'master_craftsman',
+  MASTER_FARMER: 'master_farmer',
+  VILLAGE_PROTECTOR: 'village_protector'
+};
+
+function formIdentityTag(v, tag, details = {}){
+  if(!v) return null;
+  if(!v.identity) v.identity = [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1.0;
+  const salience = details.salience != null ? details.salience : 1.0;
+  const biasCoeff = details.biasCoeff || (tag === 'pips_mother' ? 5.0 : 2.5);
+
+  const existing = v.identity.find(id => id.tag === tag);
+  if(existing){
+    existing.salience = Math.max(existing.salience, salience);
+    existing.formedAt = now;
+    existing.biasCoeff = biasCoeff;
+    return existing;
+  }
+
+  // Max 5 identity tags: old tags drop when newer upheavals shake them
+  if(v.identity.length >= 5){
+    v.identity.sort((a, b) => {
+      if(Math.abs(a.salience - b.salience) > 1e-4) return a.salience - b.salience;
+      return a.formedAt - b.formedAt;
+    });
+    const dropped = v.identity.shift();
+    if(v.thoughts) v.thoughts.push({ text: `Old identity shed: ${dropped.tag}`, val: 0 });
+  }
+
+  const entry = {
+    tag,
+    salience,
+    formedAt: now,
+    source: details.source || 'crystallized_experience',
+    biasCoeff
+  };
+  v.identity.push(entry);
+  if(v.thoughts) v.thoughts.push({ text: `Deep identity crystallized: ${tag}`, val: 4 });
+  return entry;
 }
 
 /* ---- Core Epistemic APIs ---- */
@@ -197,7 +251,46 @@ function observe(v, content, details){
   else if(source === 'claim') defaultConf = 0.30;
 
   const conf = details.confidence != null ? details.confidence : defaultConf;
-  const salience = details.salience != null ? details.salience : 0.5;
+  let salience = details.salience != null ? details.salience : 0.5;
+
+  // Phase 6C: Identity-driven attention multiplier on salience (C5)
+  if(typeof getIdentityAttentionMultiplier === 'function'){
+    const idMult = getIdentityAttentionMultiplier(v, content, details);
+    if(idMult > 1.0){
+      salience = Math.min(1.0, +(salience * idMult).toFixed(4));
+    }
+  }
+
+  // Phase 6C: Crystallize Autobiographical Identity from extreme salience events (C5)
+  if(details.salience >= 0.90 || salience >= 0.90){
+    let evtStr = '';
+    if(typeof content === 'string') evtStr = content;
+    else if(content && typeof content === 'object'){
+      evtStr = Object.values(content).filter(x => typeof x === 'string').join(' ');
+    }
+    evtStr += ` ${details.topic || ''} ${details.event || ''}`;
+    if(/drown/i.test(evtStr) || details.topic === 'near_drowning_survivor' || v.state === 'drown_panic'){
+      formIdentityTag(v, 'near_drowning_survivor', { salience, source: 'near_drowning' });
+    } else if((/fire|wildfire|cháy/i.test(evtStr) && /save|hero|douse/i.test(evtStr)) || details.topic === 'fire_savior'){
+      formIdentityTag(v, 'fire_savior', { salience, source: 'saving_village_from_fire' });
+    } else if(/betray|betrayal|theft_from_friend/i.test(evtStr) || details.topic === 'betrayed'){
+      formIdentityTag(v, 'betrayed', { salience, source: 'betrayal' });
+    } else if(/master/i.test(evtStr) || (details && details.topic && details.topic.startsWith('master_'))){
+      let sk = (content && content.skill) || (details && details.skill) || '';
+      if(!sk){
+        if(/farmer|farming/i.test(evtStr)) sk = 'farmer';
+        else if(/craftsman|building|crafting|tailor/i.test(evtStr)) sk = 'craftsman';
+        else sk = 'craftsman';
+      }
+      if(sk === 'farming') sk = 'farmer';
+      if(sk === 'building' || sk === 'crafting' || sk === 'tailoring') sk = 'craftsman';
+      formIdentityTag(v, 'master_' + sk, { salience, source: 'master_' + sk });
+    } else if(/pip/i.test(evtStr) && (/mother|parent|birth|protect/i.test(evtStr) || details.topic === 'pips_mother')){
+      formIdentityTag(v, 'pips_mother', { salience, source: 'pips_mother', biasCoeff: 5.0 });
+    } else if(/protector|repel|defend|village_protect|repelled_wolf|rescued_villager/i.test(evtStr) || details.topic === 'village_protector'){
+      formIdentityTag(v, 'village_protector', { salience, source: 'defending_village' });
+    }
+  }
   const now = details.when != null ? details.when : ((typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0);
   const where = details.where || ((v.x != null && v.y != null) ? { x: Math.round(v.x), y: Math.round(v.y) } : null);
   const who = details.who || null;

@@ -330,6 +330,31 @@ function isRelevantToCurrentGoal(v, stimulus, details = {}){
   return false;
 }
 
+function getIdentityAttentionMultiplier(v, stimulus, details = {}){
+  if(!v || !v.identity || !v.identity.length) return 1.0;
+  let mult = 1.0;
+  for(const id of v.identity){
+    if(id.tag === 'pips_mother'){
+      const text = `${(stimulus && (stimulus.who || stimulus.person || stimulus.target || stimulus.name || stimulus.what || stimulus.kind || '')) || ''} ${(details && (details.who || details.topic || details.what || '')) || ''}`;
+      const isPip = /pip/i.test(text);
+      const isCry = /cry|khóc|weep|sob/i.test(text) || (stimulus && stimulus.kind === 'cry') || (details && details.kind === 'cry');
+      if(isPip || isCry){
+        mult = Math.max(mult, id.biasCoeff || 5.0);
+      }
+    } else if(id.tag === 'fire_savior'){
+      if(isWildfireStimulus(stimulus) || isWildfireStimulus(details)){
+        mult = Math.max(mult, id.biasCoeff || 2.5);
+      }
+    } else if(id.tag === 'near_drowning_survivor'){
+      const text = `${(stimulus && stimulus.what) || ''} ${(details && details.topic) || ''}`;
+      if(/water|lake|drown/i.test(text)){
+        mult = Math.max(mult, id.biasCoeff || 2.0);
+      }
+    }
+  }
+  return mult;
+}
+
 function filterAttention(v, stimulus, details = {}){
   if(!v) return { attended: false, gate: 0, reason: 'no_villager' };
 
@@ -369,13 +394,22 @@ function filterAttention(v, stimulus, details = {}){
     }
   }
 
+  // Phase 6C: Autobiographical identity bias on attention (C5)
+  // E.g. 'Pip's mother' tag -> Pip's cry salience x5
+  const idMult = getIdentityAttentionMultiplier(v, stimulus, details);
+  const baseSal = details.salience != null ? details.salience : (stimulus && stimulus.salience != null ? stimulus.salience : 0.2);
+  const effectiveSalience = baseSal * idMult;
+  if(effectiveSalience >= 0.80){
+    return { attended: true, gate: 3, reason: 'identity_high_salience', effectiveSalience, idMult };
+  }
+
   // Cổng 3 — Mục tiêu hiện tại (top-down relevance):
   // Chỉ vật thể/sự kiện liên quan việc đang làm dở mới được vào interpretation + memory.
   if(!isRelevantToCurrentGoal(v, stimulus, details)){
-    return { attended: false, gate: 3, reason: 'goal_irrelevant_noise' };
+    return { attended: false, gate: 3, reason: 'goal_irrelevant_noise', idMult };
   }
 
-  return { attended: true, gate: 3, reason: 'relevant_or_general' };
+  return { attended: true, gate: 3, reason: 'relevant_or_general', idMult };
 }
 
 function perceiveSurroundings(v, seed = 0){

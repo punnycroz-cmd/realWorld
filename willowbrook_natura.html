@@ -4551,6 +4551,12 @@ let inspectedPawnIdx = 0;
 function ensureBody(v){
   if(v.body){
     if(v.body.hygiene == null) v.body.hygiene = 0.95;
+    if(v.body.workFactor == null) v.body.workFactor = 1.0;
+    if(v.body.speedFactor == null) v.body.speedFactor = 1.0;
+    v.bodyWorkFactor = v.body.workFactor;
+    v.bodySpeedFactor = v.body.speedFactor;
+    if(!v.emotions) v.emotions = [];
+    if(!v.identity) v.identity = [];
     v.hygiene = v.body.hygiene;
     return v.body;
   }
@@ -4567,8 +4573,14 @@ function ensureBody(v){
     oxygen: 1.0,
     hygiene: 0.95,
     lastMeal: 2.0,
-    lastDrink: 1.0
+    lastDrink: 1.0,
+    workFactor: 1.0,
+    speedFactor: 1.0
   };
+  v.bodyWorkFactor = 1.0;
+  v.bodySpeedFactor = 1.0;
+  if(!v.emotions) v.emotions = [];
+  if(!v.identity) v.identity = [];
   v.hygiene = v.body.hygiene;
   return v.body;
 }
@@ -4636,11 +4648,32 @@ function bodyTick(v, dtH){
       b.hydration = Math.min(1.0, b.hydration + dtH * 1.5); // swallowing water
     }
   } else if(isShallow){
-    if(v.state === 'walk' || v.state === 'wade') v.state = 'wade';
+    if(v.state === 'drown_panic'){
+      if(typeof observe === 'function'){
+        observe(v, { event: 'survived near-drowning', what: 'escaped deep water after near drowning' }, {
+          topic: 'near_drowning_survivor',
+          salience: 0.95,
+          source: 'direct',
+          bypassAttention: true
+        });
+      }
+    }
+    if(v.state === 'walk' || v.state === 'wade' || v.state === 'drown_panic') v.state = 'wade';
     exert = (v.moving ? 1.4 : 0.2); // wading drag
     b.oxygen = Math.min(1.0, b.oxygen + dtH * 20);
     if(envTemp > 24) b.stress = Math.max(0, b.stress - dtH * 0.5); // refreshing summer dip
   } else {
+    if(v.state === 'drown_panic'){
+      if(typeof observe === 'function'){
+        observe(v, { event: 'survived near-drowning', what: 'escaped deep water after near drowning' }, {
+          topic: 'near_drowning_survivor',
+          salience: 0.95,
+          source: 'direct',
+          bypassAttention: true
+        });
+      }
+      v.state = 'idle';
+    }
     b.oxygen = Math.min(1.0, b.oxygen + dtH * 20);
   }
 
@@ -4690,6 +4723,112 @@ function bodyTick(v, dtH){
 
   // Sensation drives
   v.thoughts = bodyDrives(v);
+
+  // Phase 6C: Body-factor chain (C4)
+  calcBodyFactors(v);
+
+  // Phase 6C: Emotion derivation layer (C3)
+  updateDerivedEmotions(v, dtH);
+}
+
+/* ---- Phase 6C: Body-factor chain (C4) ----
+   Untreated wounds -> infection; every condition multiplies work factor /
+   speed factor by severity; pain + blood loss stack. */
+function calcBodyFactors(v){
+  const b = ensureBody(v);
+  if(typeof syncWounds === 'function') syncWounds(v);
+  let pain = (b.injury || 0) * 0.5;
+  let woundInf = 0;
+  if(b.wounds && b.wounds.length){
+    for(const w of b.wounds){
+      pain += (w.sev || 0) * (w.dressed ? 0.4 : 1.0);
+      woundInf = Math.max(woundInf, w.inf || 0);
+    }
+  }
+  pain = clamp(pain, 0, 1);
+  const blood = b.blood != null ? b.blood : 1.0;
+  const bloodLoss = clamp(1.0 - blood, 0, 1);
+  const infection = clamp(Math.max(woundInf, b.illness || 0), 0, 1);
+
+  // Multiplicative degradation across conditions (pain + blood loss stack)
+  let wf = 1.0;
+  let sf = 1.0;
+  if(pain > 0.05){
+    wf *= Math.max(0.1, 1.0 - pain * 0.45);
+    sf *= Math.max(0.1, 1.0 - pain * 0.35);
+  }
+  if(bloodLoss > 0.05){
+    wf *= Math.max(0.1, 1.0 - bloodLoss * 0.50);
+    sf *= Math.max(0.1, 1.0 - bloodLoss * 0.40);
+  }
+  if(infection > 0.05){
+    wf *= Math.max(0.1, 1.0 - infection * 0.40);
+    sf *= Math.max(0.1, 1.0 - infection * 0.30);
+  }
+  if(typeof hasFracture === 'function' && hasFracture(v, 'leg')){
+    wf *= 0.3;
+    sf *= 0.2;
+  }
+  b.workFactor = +clamp(wf, 0.05, 1.0).toFixed(3);
+  b.speedFactor = +clamp(sf, 0.05, 1.0).toFixed(3);
+  v.bodyWorkFactor = b.workFactor;
+  v.bodySpeedFactor = b.speedFactor;
+  return { workFactor: b.workFactor, speedFactor: b.speedFactor, pain, bloodLoss, infection };
+}
+
+/* ---- Phase 6C: Emotion derivation layer (C3) ----
+   Emotions derived from body/needs + decay: hungry->anxious,
+   pain->suffering, stable->content. */
+function recordOrUpdateEmotion(v, tag, intensity, subject){
+  if(!v.emotions) v.emotions = [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1;
+  const existing = v.emotions.find(e => e.tag === tag && (!subject || e.subject === subject));
+  if(existing){
+    existing.intensity = Math.max(existing.intensity || 0, intensity);
+    existing.when = now;
+  } else {
+    v.emotions.push({ tag, intensity, when: now, subject: subject || null });
+    if(v.emotions.length > 20) v.emotions.shift();
+  }
+}
+
+function updateDerivedEmotions(v, dtH){
+  const b = ensureBody(v);
+  if(!v.emotions) v.emotions = [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1;
+  const dt = dtH != null ? dtH : 0.5;
+
+  // 1. Emotion decay over time
+  for(let i = v.emotions.length - 1; i >= 0; i--){
+    const e = v.emotions[i];
+    if(e.decay !== false){
+      e.intensity = Math.max(0, +(e.intensity - dt * 0.15).toFixed(4));
+      if(e.intensity <= 0.01 && e.tag !== 'content'){
+        v.emotions.splice(i, 1);
+      }
+    }
+  }
+
+  // 2. Derive: hungry -> anxious
+  if(b.satiety < 0.35){
+    const anxiousIntensity = +clamp((0.35 - b.satiety) / 0.35, 0.1, 1.0).toFixed(2);
+    recordOrUpdateEmotion(v, 'anxious', anxiousIntensity);
+  }
+
+  // 3. Derive: pain/damage -> suffering
+  const pain = (b.injury || 0) * 0.5 + ((b.wounds || []).reduce((s, w) => s + (w.sev || 0), 0));
+  const bloodLoss = clamp(1.0 - (b.blood != null ? b.blood : 1.0), 0, 1);
+  const infection = Math.max((b.wounds || []).reduce((mx, w) => Math.max(mx, w.inf || 0), 0), b.illness || 0);
+  const totalSuffering = Math.max(pain, bloodLoss, infection);
+  if(totalSuffering > 0.15){
+    const sufferingIntensity = +clamp(totalSuffering, 0.1, 1.0).toFixed(2);
+    recordOrUpdateEmotion(v, 'suffering', sufferingIntensity);
+  }
+
+  // 4. Derive: stable -> content
+  if(b.satiety >= 0.55 && b.hydration >= 0.55 && b.fatigue <= 0.45 && totalSuffering < 0.15){
+    recordOrUpdateEmotion(v, 'content', 0.6);
+  }
 }
 
 /* ---------------------------------------------------------------------
@@ -6328,6 +6467,14 @@ function guardPlanFor(v, need){
     const esc = getShallowEscapeVector(v.x, v.y);
     return [{ verb: 'go', tx: v.x + esc.dx * CS * 4, ty: v.y + esc.dy * CS * 4, guard: true }];
   }
+  if(need === 'rest_or_tend'){
+    const b = v.body;
+    const hasOpenWound = b && b.wounds && b.wounds.some(w => w.open || w.bleed > 0 || !w.dressed);
+    if(hasOpenWound){
+      return [{ verb: 'tend', person: v.name, guard: true }];
+    }
+    return [{ verb: 'rest', hours: 2, guard: true }];
+  }
   return [];
 }
 /* Does the current plan already work toward satisfying a survival need?
@@ -6345,6 +6492,7 @@ function planAddressesNeed(plan, need){
     if(need === 'sleep' && (vb === 'sleep' || vb === 'rest')) return true;
     if((need === 'warm' || need === 'cool') && (vb === 'rest' || vb === 'sleep')) return true;
     if(need === 'flee_water' && vb === 'go') return true;
+    if(need === 'rest_or_tend' && (vb === 'rest' || vb === 'sleep' || vb === 'tend')) return true;
   }
   return false;
 }
@@ -6368,6 +6516,7 @@ function survivalGuard(v){
   } else if(b.hydration < 0.12) need = 'drink';
   else if(b.satiety < 0.10) need = 'eat';
   else if(b.fatigue > 0.96) need = 'sleep';
+  else if((b.blood != null ? b.blood : 1.0) < 0.70) need = 'rest_or_tend';
   else if(b.coreTemp < 35.0) need = 'warm';
   else if(b.coreTemp > 39.5) need = 'cool';
   else if(v.state === 'drown_panic' && b.oxygen < 0.3) need = 'flee_water';
@@ -6846,6 +6995,31 @@ function isRelevantToCurrentGoal(v, stimulus, details = {}){
   return false;
 }
 
+function getIdentityAttentionMultiplier(v, stimulus, details = {}){
+  if(!v || !v.identity || !v.identity.length) return 1.0;
+  let mult = 1.0;
+  for(const id of v.identity){
+    if(id.tag === 'pips_mother'){
+      const text = `${(stimulus && (stimulus.who || stimulus.person || stimulus.target || stimulus.name || stimulus.what || stimulus.kind || '')) || ''} ${(details && (details.who || details.topic || details.what || '')) || ''}`;
+      const isPip = /pip/i.test(text);
+      const isCry = /cry|khóc|weep|sob/i.test(text) || (stimulus && stimulus.kind === 'cry') || (details && details.kind === 'cry');
+      if(isPip || isCry){
+        mult = Math.max(mult, id.biasCoeff || 5.0);
+      }
+    } else if(id.tag === 'fire_savior'){
+      if(isWildfireStimulus(stimulus) || isWildfireStimulus(details)){
+        mult = Math.max(mult, id.biasCoeff || 2.5);
+      }
+    } else if(id.tag === 'near_drowning_survivor'){
+      const text = `${(stimulus && stimulus.what) || ''} ${(details && details.topic) || ''}`;
+      if(/water|lake|drown/i.test(text)){
+        mult = Math.max(mult, id.biasCoeff || 2.0);
+      }
+    }
+  }
+  return mult;
+}
+
 function filterAttention(v, stimulus, details = {}){
   if(!v) return { attended: false, gate: 0, reason: 'no_villager' };
 
@@ -6885,13 +7059,22 @@ function filterAttention(v, stimulus, details = {}){
     }
   }
 
+  // Phase 6C: Autobiographical identity bias on attention (C5)
+  // E.g. 'Pip's mother' tag -> Pip's cry salience x5
+  const idMult = getIdentityAttentionMultiplier(v, stimulus, details);
+  const baseSal = details.salience != null ? details.salience : (stimulus && stimulus.salience != null ? stimulus.salience : 0.2);
+  const effectiveSalience = baseSal * idMult;
+  if(effectiveSalience >= 0.80){
+    return { attended: true, gate: 3, reason: 'identity_high_salience', effectiveSalience, idMult };
+  }
+
   // Cổng 3 — Mục tiêu hiện tại (top-down relevance):
   // Chỉ vật thể/sự kiện liên quan việc đang làm dở mới được vào interpretation + memory.
   if(!isRelevantToCurrentGoal(v, stimulus, details)){
-    return { attended: false, gate: 3, reason: 'goal_irrelevant_noise' };
+    return { attended: false, gate: 3, reason: 'goal_irrelevant_noise', idMult };
   }
 
-  return { attended: true, gate: 3, reason: 'relevant_or_general' };
+  return { attended: true, gate: 3, reason: 'relevant_or_general', idMult };
 }
 
 function perceiveSurroundings(v, seed = 0){
@@ -7657,8 +7840,100 @@ function planForVerb(v, action){
   }
   return { ok: true, steps };
 }
+/* =====================================================================
+   PHASE 6C: SURVIVAL GUARD & ANTI-OSCILLATION (C1)
+   ===================================================================== */
+function isSurvivalOrEmergencyAction(v, step, act){
+  if(act && (act.category === 'emergency' || act.category === 'survival' || act.type === 'emergency' || act.type === 'survival' || act.guard)) return true;
+  if(step && (step.guard || step.flee || step.fleeFire || step.emergency || step.survival || step.microsleep || step.verb === 'douse' || step.douse || step.verb === 'tend' || (step.verb === 'rest' && step.guard))) return true;
+  if(v && v.currentAction && (v.currentAction.category === 'emergency' || v.currentAction.category === 'survival' || v.currentAction.id === 'microsleep' || v.currentAction.id === 'flee' || v.currentAction.guard)) return true;
+  return false;
+}
+
+function getSurvivalGuardTriggers(v){
+  if(!v || v.dead) return [];
+  const b = ensureBody(v);
+  const triggers = [];
+
+  // 1. Thirst < 8 (b.hydration < 0.08)
+  if(b.hydration < 0.08){
+    triggers.push({ type: 'thirst', need: 'drink', priority: 120 + (0.08 - b.hydration) * 1000 });
+  }
+
+  // 2. Hunger < 6 (b.satiety < 0.06)
+  if(b.satiety < 0.06){
+    triggers.push({ type: 'hunger', need: 'eat', priority: 115 + (0.06 - b.satiety) * 1000 });
+  }
+
+  // 3. Warmth < 6 (b.coreTemp < 35.0)
+  if(b.coreTemp < 35.0){
+    triggers.push({ type: 'warmth', need: 'warm', priority: 105 + (35.0 - b.coreTemp) * 100 });
+  }
+
+  // 4. Blood < 70 (b.blood < 0.70)
+  const bl = b.blood != null ? b.blood : 1.0;
+  if(bl < 0.70){
+    triggers.push({ type: 'blood', need: 'rest_or_tend', priority: 100 + (0.70 - bl) * 100 });
+  }
+
+  // 5. Fire adjacent (BURNING within CS * 2.0)
+  if(typeof BURNING !== 'undefined' && Array.isArray(BURNING)){
+    for(const f of BURNING){
+      const fx = f.wx * CS + 16, fy = f.wy * CS + 16;
+      if(Math.hypot(v.x - fx, v.y - fy) <= CS * 2.0){
+        triggers.push({ type: 'fire_adjacent', need: 'flee_fire', threat: f, priority: 200 });
+        break;
+      }
+    }
+  }
+
+  // 6. Wolf adjacent (hostile wolf within CS * 2.0)
+  if(typeof ANIMALS !== 'undefined' && Array.isArray(ANIMALS)){
+    for(const a of ANIMALS){
+      if(a.dead || a.kind !== 'wolf') continue;
+      const isHostile = (a.state === 'stalk' || a.state === 'attack' || a.state === 'hunt' || a.state === 'fight');
+      if(isHostile && Math.hypot(v.x - a.x, v.y - a.y) <= CS * 2.0){
+        triggers.push({ type: 'wolf_adjacent', need: 'flee_wolf', threat: a, priority: 190 });
+        break;
+      }
+    }
+  }
+
+  triggers.sort((a, b2) => b2.priority - a.priority);
+  return triggers;
+}
+
+function checkSurvivalGuardInterrupt(v){
+  if(!v || v.dead) return false;
+  if(v.guardLock > 0) return false;
+
+  const triggers = getSurvivalGuardTriggers(v);
+  if(!triggers || !triggers.length) return false;
+
+  const curStep = v.plan && v.plan.length ? v.plan[0] : null;
+  if(isSurvivalOrEmergencyAction(v, curStep, v.currentAction)){
+    return false;
+  }
+
+  // Cancel interruptible action and trigger survival re-decide with anti-oscillation lock
+  v.plan = [];
+  v.currentAction = null;
+  v.interrupted = true;
+  v.replanNeeded = true;
+  v.guardLock = 10; // Anti-oscillation lock
+
+  if(typeof survivalGuard === 'function') survivalGuard(v);
+  return true;
+}
+
 /* ---- plan executor: one step at a time, interruptible by survivalGuard ---- */
 function planTick(v, dtH){
+  // Anti-oscillation lock decay
+  if(v.guardLock > 0) v.guardLock--;
+
+  // Phase 6C: Survival Guard interrupt check (C1)
+  if(checkSurvivalGuardInterrupt(v)) return;
+
   if(!v.plan || !v.plan.length) return;
   const step = v.plan[0];
   step.t = (step.t || 0) + dtH;
@@ -7991,6 +8266,20 @@ function illnessInjuryTick(v, dtH){
     b.injury = Math.max(0, b.injury - dtH * 0.08);
     b.illness = Math.max(0, b.illness - dtH * 0.06);
   }
+
+  // Phase 6C: Untreated wounds -> infection chain (C4)
+  if(b.wounds && b.wounds.length){
+    let maxInf = 0;
+    for(const w of b.wounds){
+      if(!w.dressed && w.inf > 0.15) maxInf = Math.max(maxInf, w.inf);
+    }
+    if(maxInf > 0.15){
+      b.illness = clamp((b.illness || 0) + dtH * 0.03 * maxInf, 0, 1);
+    }
+  }
+
+  // Update body work and speed factors
+  if(typeof calcBodyFactors === 'function') calcBodyFactors(v);
 }
 /* ---- world: crops, chickens, campfires, lightning, wildfire, regrow ---- */
 function cropTick(h){
@@ -9640,6 +9929,24 @@ function doRescueStep(v, step, dtH){
   witnessEvent(v, 'Laid ' + t.name + ' down inside');
   witnessEvent(t, 'Carried to shelter by ' + v.name);
   gainXP(v, 'medicine', 4);
+  if(t.downReason === 'drowning' || (t.body && t.body.drownH > 0)){
+    if(typeof observe === 'function'){
+      observe(t, { event: 'rescued from drowning', what: 'rescued from deep water by ' + v.name }, {
+        topic: 'near_drowning_survivor',
+        salience: 0.95,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
+  }
+  if(typeof observe === 'function'){
+    observe(v, { event: 'rescued_villager', what: 'rescued ' + t.name + ' and brought them to shelter' }, {
+      topic: 'village_protector',
+      salience: 0.92,
+      source: 'direct',
+      bypassAttention: true
+    });
+  }
   return true;
 }
 function nearestThreat(v){
@@ -9750,7 +10057,18 @@ function killAnimal(a, by){
     hide: a.kind === 'bear' ? 3 : (a.kind === 'boar' ? 2 : 1)
   });
   logEvent('hunt', (by ? by.name + ' ' : '') + 'killed a ' + a.kind);
-  if(by){ witnessEvent(by, 'Killed a ' + a.kind); gainXP(by, 'hunting', 8); }
+  if(by){
+    witnessEvent(by, 'Killed a ' + a.kind);
+    gainXP(by, 'hunting', 8);
+    if(typeof observe === 'function'){
+      observe(by, { event: 'repelled_wolf', what: 'defended village against ' + a.kind }, {
+        topic: 'village_protector',
+        salience: 0.92,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
+  }
   for(const o of ANIMALS){
     if(o.pack && o.pack === a.pack && !o.dead){ o.state = 'flee'; o.hp = Math.min(o.hp, o.maxhp * 0.5); }
   }
@@ -10067,9 +10385,21 @@ function gainXP(v, s, amt){
   const strong = v.talents && v.talents.strong && v.talents.strong.indexOf(s) >= 0;
   let a = amt * (weak ? 0.5 : (strong ? 1.6 : 1));
   a *= Math.max(0.25, 1 - sk.lvl / 12);
+  const oldLvl = sk.lvl;
   sk.xp += a;
   while(sk.xp >= 100 && sk.lvl < 10){ sk.xp -= 100; sk.lvl += 1; }
   if(sk.lvl >= 10) sk.xp = Math.min(sk.xp, 99);
+  if(oldLvl < 7 && sk.lvl >= 7){
+    const masterKind = (s === 'farming') ? 'farmer' : (s === 'building' || s === 'crafting' || s === 'tailoring') ? 'craftsman' : s;
+    if(typeof observe === 'function'){
+      observe(v, { event: 'mastery_achieved', skill: masterKind, what: 'Reached master rank in ' + s }, {
+        topic: 'master_' + masterKind,
+        salience: 0.90,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
+  }
 }
 function skillWords(v){
   ensureSkills(v);
@@ -11501,6 +11831,14 @@ function doDouseStep(v, step, dtH){
     gainXP(v, 'building', 1);
     witnessEvent(v, 'Doused part of the wildfire');
     logEvent('douse', v.name + ' doused fire');
+    if(typeof observe === 'function'){
+      observe(v, { event: 'saved village from wildfire', what: 'doused wildfire' }, {
+        topic: 'fire_savior',
+        salience: 0.90,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
     step.fire = null;
   }
   let near = 0;
@@ -12454,6 +12792,7 @@ function initDefaultEpistemic(v){
 
 function ensureEpistemic(v){
   if(!v) return null;
+  if(!v.identity) v.identity = [];
   if(!v.epistemic){
     v.epistemic = {
       memories: [],
@@ -12468,6 +12807,59 @@ function ensureEpistemic(v){
     v.epistemic.expectations = {};
   }
   return v.epistemic;
+}
+
+/* =====================================================================
+   PHASE 6C: AUTOBIOGRAPHICAL IDENTITY (C5)
+   v.identity: at most 3-5 self-beliefs, NEVER hand-configured — they
+   crystallize when events hit EXTREME salience. Every tag measurably
+   changes attention (6A) and goal selection.
+   ===================================================================== */
+const IDENTITY_TAGS = {
+  PIPS_MOTHER: 'pips_mother',
+  NEAR_DROWNING_SURVIVOR: 'near_drowning_survivor',
+  FIRE_SAVIOR: 'fire_savior',
+  BETRAYED: 'betrayed',
+  MASTER_CRAFTSMAN: 'master_craftsman',
+  MASTER_FARMER: 'master_farmer',
+  VILLAGE_PROTECTOR: 'village_protector'
+};
+
+function formIdentityTag(v, tag, details = {}){
+  if(!v) return null;
+  if(!v.identity) v.identity = [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1.0;
+  const salience = details.salience != null ? details.salience : 1.0;
+  const biasCoeff = details.biasCoeff || (tag === 'pips_mother' ? 5.0 : 2.5);
+
+  const existing = v.identity.find(id => id.tag === tag);
+  if(existing){
+    existing.salience = Math.max(existing.salience, salience);
+    existing.formedAt = now;
+    existing.biasCoeff = biasCoeff;
+    return existing;
+  }
+
+  // Max 5 identity tags: old tags drop when newer upheavals shake them
+  if(v.identity.length >= 5){
+    v.identity.sort((a, b) => {
+      if(Math.abs(a.salience - b.salience) > 1e-4) return a.salience - b.salience;
+      return a.formedAt - b.formedAt;
+    });
+    const dropped = v.identity.shift();
+    if(v.thoughts) v.thoughts.push({ text: `Old identity shed: ${dropped.tag}`, val: 0 });
+  }
+
+  const entry = {
+    tag,
+    salience,
+    formedAt: now,
+    source: details.source || 'crystallized_experience',
+    biasCoeff
+  };
+  v.identity.push(entry);
+  if(v.thoughts) v.thoughts.push({ text: `Deep identity crystallized: ${tag}`, val: 4 });
+  return entry;
 }
 
 /* ---- Core Epistemic APIs ---- */
@@ -12494,7 +12886,46 @@ function observe(v, content, details){
   else if(source === 'claim') defaultConf = 0.30;
 
   const conf = details.confidence != null ? details.confidence : defaultConf;
-  const salience = details.salience != null ? details.salience : 0.5;
+  let salience = details.salience != null ? details.salience : 0.5;
+
+  // Phase 6C: Identity-driven attention multiplier on salience (C5)
+  if(typeof getIdentityAttentionMultiplier === 'function'){
+    const idMult = getIdentityAttentionMultiplier(v, content, details);
+    if(idMult > 1.0){
+      salience = Math.min(1.0, +(salience * idMult).toFixed(4));
+    }
+  }
+
+  // Phase 6C: Crystallize Autobiographical Identity from extreme salience events (C5)
+  if(details.salience >= 0.90 || salience >= 0.90){
+    let evtStr = '';
+    if(typeof content === 'string') evtStr = content;
+    else if(content && typeof content === 'object'){
+      evtStr = Object.values(content).filter(x => typeof x === 'string').join(' ');
+    }
+    evtStr += ` ${details.topic || ''} ${details.event || ''}`;
+    if(/drown/i.test(evtStr) || details.topic === 'near_drowning_survivor' || v.state === 'drown_panic'){
+      formIdentityTag(v, 'near_drowning_survivor', { salience, source: 'near_drowning' });
+    } else if((/fire|wildfire|cháy/i.test(evtStr) && /save|hero|douse/i.test(evtStr)) || details.topic === 'fire_savior'){
+      formIdentityTag(v, 'fire_savior', { salience, source: 'saving_village_from_fire' });
+    } else if(/betray|betrayal|theft_from_friend/i.test(evtStr) || details.topic === 'betrayed'){
+      formIdentityTag(v, 'betrayed', { salience, source: 'betrayal' });
+    } else if(/master/i.test(evtStr) || (details && details.topic && details.topic.startsWith('master_'))){
+      let sk = (content && content.skill) || (details && details.skill) || '';
+      if(!sk){
+        if(/farmer|farming/i.test(evtStr)) sk = 'farmer';
+        else if(/craftsman|building|crafting|tailor/i.test(evtStr)) sk = 'craftsman';
+        else sk = 'craftsman';
+      }
+      if(sk === 'farming') sk = 'farmer';
+      if(sk === 'building' || sk === 'crafting' || sk === 'tailoring') sk = 'craftsman';
+      formIdentityTag(v, 'master_' + sk, { salience, source: 'master_' + sk });
+    } else if(/pip/i.test(evtStr) && (/mother|parent|birth|protect/i.test(evtStr) || details.topic === 'pips_mother')){
+      formIdentityTag(v, 'pips_mother', { salience, source: 'pips_mother', biasCoeff: 5.0 });
+    } else if(/protector|repel|defend|village_protect|repelled_wolf|rescued_villager/i.test(evtStr) || details.topic === 'village_protector'){
+      formIdentityTag(v, 'village_protector', { salience, source: 'defending_village' });
+    }
+  }
   const now = details.when != null ? details.when : ((typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0);
   const where = details.where || ((v.x != null && v.y != null) ? { x: Math.round(v.x), y: Math.round(v.y) } : null);
   const who = details.who || null;
@@ -14009,6 +14440,54 @@ function enumerateCandidateActions(v){
     plan: [{ verb: 'work', hours: 1 }]
   });
 
+  // 19. DUTY: CARE FOR SICK VILLAGER (C2)
+  if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS)){
+    let sickVillager = null;
+    let sickDistMin = 1e9;
+    for(const o of VILLAGERS){
+      if(o === v || o.dead) continue;
+      const ob = o.body;
+      const isSick = ob && (
+        (ob.illness && ob.illness > 0.2) ||
+        (ob.wounds && ob.wounds.length > 0) ||
+        ob.fever ||
+        o.downed
+      );
+      if(isSick){
+        const d = Math.hypot(o.x - v.x, o.y - v.y);
+        if(d < sickDistMin){
+          sickDistMin = d;
+          sickVillager = o;
+        }
+      }
+    }
+    if(sickVillager){
+      candidates.push({
+        id: 'duty_care_' + sickVillager.name,
+        category: 'duty',
+        type: 'duty',
+        name: 'Care for sick ' + sickVillager.name,
+        targetKey: 'person_' + sickVillager.name,
+        person: sickVillager.name,
+        tx: sickVillager.x, ty: sickVillager.y,
+        plan: [{ verb: 'go', person: sickVillager.name }, { verb: 'tend', person: sickVillager.name }]
+      });
+    }
+  }
+
+  // 20. SELF-TEND (Care for own wounds / bleeding)
+  if(b.wounds && b.wounds.length > 0 && b.wounds.some(w => w.open || w.bleed > 0 || !w.dressed)){
+    candidates.push({
+      id: 'self_tend',
+      category: 'survival',
+      type: 'survival',
+      name: 'Tend own wounds',
+      targetKey: 'self_tend',
+      tx: v.x, ty: v.y,
+      plan: [{ verb: 'tend', person: v.name, guard: true }]
+    });
+  }
+
   return candidates;
 }
 
@@ -14073,6 +14552,11 @@ function scoreCandidateAction(v, c){
       score = fatigueDeficit * 40 + injuryDeficit * 35;
       if(p.traits.includes('lazy') || p.lazy > 1.2) score += 25 * (p.lazy || 1.5);
       if(p.traits.includes('industrious') || p.industrious > 1.2) score -= 20 * (p.industrious || 1.5);
+      return score;
+    }
+
+    case 'self_tend': {
+      score = injuryDeficit * 60 + (1.0 - (b.blood != null ? b.blood : 1.0)) * 50;
       return score;
     }
 
@@ -14142,9 +14626,50 @@ function scoreCandidateAction(v, c){
     return score;
   }
 
+  // DUTY actions (C2: Tier 1)
+  if(c.category === 'duty' || (c.id && c.id.startsWith('duty_care'))){
+    score = 50 - distCost * 0.4;
+    // Explicit conditional modifiers — NO fuzzy weights:
+    // Mayor duty (Alden)
+    if(v.role === 'Village Mayor') score += 45;
+    // Healer / Herbalist duty
+    else if(v.role === 'Herbalist & Apothecary' || (typeof skillLvl === 'function' && skillLvl(v, 'medicine') >= 3)) score += 40;
+    // Kin / bond duty
+    if(c.person && v.bonds && (v.bonds[c.person] || 0) > 40) score += 30;
+    // Protective identity
+    if(v.identity && v.identity.some(tag => tag.tag === 'pips_mother' || tag.tag === 'village_protector')) score += 35;
+    return score;
+  }
+
   // WORK actions
   if(c.category === 'work'){
     score = 25 - distCost * 0.5;
+
+    // Phase 6C: Body-factor chain feeding into work utility (C4)
+    // Impaired villagers autonomously pick lighter/closer work
+    const wf = v.bodyWorkFactor != null ? v.bodyWorkFactor : (b.workFactor != null ? b.workFactor : 1.0);
+    const sf = v.bodySpeedFactor != null ? v.bodySpeedFactor : (b.speedFactor != null ? b.speedFactor : 1.0);
+
+    // Walking impairment penalizes travel distance
+    if(sf < 1.0){
+      score -= distCost * (1.0 - sf) * 1.5;
+    }
+
+    // Heavy vs light work exertion weighting
+    let exertion = 1.0;
+    if(c.id === 'work_fell') exertion = 2.2;         // Heavy labor: tree chopping
+    else if(c.id === 'work_generic') exertion = 1.8;   // Heavy labor: smithing/hauling
+    else if(c.id === 'work_farm') exertion = 1.6;      // Heavy labor: field hoeing / harvesting
+    else if(c.id === 'work_fish') exertion = 0.9;      // Moderate labor: fishing
+    else if(c.id === 'work_forage') exertion = 0.5;    // Light labor: foraging
+    else if(c.id && c.id.startsWith('work_recipe')) exertion = 0.3; // Light labor: crafting at bench
+    else if(c.id && c.id.startsWith('clean_')) exertion = 0.3;      // Light labor: sweeping
+
+    if(wf < 1.0){
+      const heavyScale = exertion >= 1.0 ? 80 : 15;
+      const impairmentPenalty = (1.0 - wf) * exertion * heavyScale;
+      score -= impairmentPenalty;
+    }
 
     // Personality weights
     if(p.traits.includes('industrious') || p.industrious > 1.2) score += 25 * (p.industrious || 1.5);
@@ -14181,6 +14706,22 @@ function scoreCandidateAction(v, c){
     return score;
   }
 
+  // Phase 6C: Autobiographical identity bias on goal selection (C5)
+  if(v.identity && v.identity.length){
+    for(const id of v.identity){
+      if(id.tag === 'pips_mother' && (c.person === 'Pip' || (c.id && c.id.includes('Pip')))){
+        score += 50;
+      } else if(id.tag === 'fire_savior' && (c.id === 'douse' || (c.verb === 'douse'))){
+        score += 30;
+      } else if(id.tag.startsWith('master_')){
+        const sk = id.tag.replace('master_', '');
+        if(c.workType === sk || (c.recipeId && c.recipeId.includes(sk))){
+          score += 30;
+        }
+      }
+    }
+  }
+
   return score;
 }
 
@@ -14199,6 +14740,7 @@ function getCandidateReason(v, c){
   if(c.id === 'drink_lake') return 'Thirst deficit: drink from lake';
   if(c.id === 'sleep') return 'Fatigue deficit: sleep in bed';
   if(c.id === 'rest') return 'Fatigue/injury: rest and recover';
+  if(c.id === 'self_tend') return 'Severe injury/bleeding: bandage own wounds';
   if(c.id === 'warm') return 'Cold deficit: warm up by fire';
   if(c.id === 'work_farm') return 'Farming: tend crops in field';
   if(c.id === 'work_fish') return 'Fishing: fish by the lake';
@@ -14218,25 +14760,103 @@ function getCandidateReason(v, c){
 function evaluateVillagerUtility(v){
   ensurePersonality(v);
   if(typeof ensureEpistemic === 'function') ensureEpistemic(v);
+
+  const b = ensureBody(v);
   const candidates = enumerateCandidateActions(v);
+
+  // Check death-threshold survival guard triggers (C1)
+  const triggers = (typeof getSurvivalGuardTriggers === 'function') ? getSurvivalGuardTriggers(v) : [];
+  const topTrig = triggers.length > 0 ? triggers[0] : null;
+
   for(const c of candidates){
     if(!c.reason) c.reason = getCandidateReason(v, c);
     c.score = scoreCandidateAction(v, c);
-  }
-  // Deterministic sorting: highest score wins, ties broken via seeded hash
-  candidates.sort((a, b) => {
-    if(Math.abs(a.score - b.score) > 1e-6){
-      return b.score - a.score;
+
+    // Phase 6C: Tier 2 Biological Override (deficit above ~85%) (C2)
+    // Forced microsleep regardless of duty (poetry loses to biology)
+    if(b.fatigue >= 0.85 && c.id === 'sleep'){
+      c.score = 99999;
+      c.microsleep = true;
+      c.name = 'Forced microsleep';
+      c.reason = 'Biology overrides duty (fatigue >= 85%): forced microsleep';
+      if(c.plan && c.plan.length) c.plan[0].microsleep = true;
     }
-    return deterministicTieBreak18(v, a, b);
+
+    // Phase 6C: Survival Guard clauses with absolute priority overriding all candidates (C1)
+    if(topTrig){
+      if(topTrig.need === 'flee_fire' && (c.id === 'flee' || c.id === 'douse')){
+        c.score += 20000;
+      } else if(topTrig.need === 'flee_wolf' && c.id === 'flee'){
+        c.score += 15000;
+      } else if(topTrig.need === 'drink' && c.id.startsWith('drink')){
+        c.score += 10000;
+      } else if(topTrig.need === 'eat' && (c.id.startsWith('eat') || c.id === 'explore_food')){
+        c.score += 9000;
+      } else if(topTrig.need === 'warm' && c.id === 'warm'){
+        c.score += 8000;
+      } else if(topTrig.need === 'rest_or_tend' && (c.id === 'rest' || c.id === 'self_tend' || c.id === 'sleep')){
+        c.score += 8500;
+        c.guard = true;
+        c.category = 'survival';
+        if(c.plan && c.plan.length){
+          for(const step of c.plan) step.guard = true;
+        }
+      }
+    }
+  }
+
+  // Deterministic sorting: highest score wins, ties broken via seeded hash
+  candidates.sort((a, b2) => {
+    if(Math.abs(a.score - b2.score) > 1e-6){
+      return b2.score - a.score;
+    }
+    return deterministicTieBreak18(v, a, b2);
   });
+
   const bestAction = candidates.length && candidates[0].score > -Infinity ? candidates[0] : null;
+  if(bestAction && (bestAction.score >= 8000 || (bestAction.plan && bestAction.plan[0] && bestAction.plan[0].guard))){
+    v.guardLock = 10;
+  }
   return { bestAction, candidates };
 }
 
 function executeUtilityAction(v, action){
   if(!action) return false;
   v.currentAction = action;
+
+  // Phase 6C: Emotional trace of suppressed body needs (C2)
+  const b = ensureBody(v);
+  if(action.category === 'duty' && b.fatigue >= 0.50){
+    // Suppressed sleep for duty: record suppression stress + emotion tag ('tired-but-proud')
+    b.stress = clamp((b.stress || 0) + 0.15, 0, 1);
+    const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1;
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({
+      tag: 'tired-but-proud',
+      intensity: +clamp(b.fatigue, 0.5, 1.0).toFixed(2),
+      when: now,
+      subject: action.person || null
+    });
+    if(typeof observe === 'function'){
+      observe(v, {
+        event: 'suppressed_need_for_duty',
+        duty: action.id,
+        person: action.person,
+        fatigue: b.fatigue,
+        suppressionStress: 0.15,
+        emotion: 'tired-but-proud'
+      }, {
+        topic: 'duty_tradeoff',
+        confidence: 1.0,
+        salience: 0.8,
+        emotion: 'tired-but-proud',
+        bypassAttention: true
+      });
+    }
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({ text: 'Muscles ache, but duty comes first (tired-but-proud)', val: 2 });
+  }
+
   if(action.plan && action.plan.length){
     v.plan = action.plan.map(s => Object.assign({}, s));
   } else if(action.verb){
@@ -14540,6 +15160,9 @@ function handleActionFailure(v, action, reason, targetKey){
 /* ---- Wrapped planTick: catch pathing stuck & step failure without silent discard ---- */
 const __basePlanTick18 = planTick;
 planTick = function(v, dtH){
+  // Phase 6C: Survival Guard check on live wrapper chain before verb dispatch (C1)
+  if(typeof checkSurvivalGuardInterrupt === 'function' && checkSurvivalGuardInterrupt(v)) return;
+
   if(!v.plan || !v.plan.length) return;
   const step = v.plan[0];
   if(step.verb === 'work'){
@@ -14594,6 +15217,11 @@ function brainThink(v, dtH, perception){
     }
     v.replanNeeded = false;
     v.interrupted = false;
+  }
+
+  // Phase 6C: Survival Guard check before all verb dispatch (C1)
+  if(typeof checkSurvivalGuardInterrupt === 'function' && checkSurvivalGuardInterrupt(v)){
+    return { plan: v.plan, currentAction: v.currentAction };
   }
 
   // Utility Action Selection: if no plan, score all candidates and pick best!
@@ -16380,8 +17008,9 @@ function doStealStep(v, step, dtH){
   if(seers.length){
     // CAUGHT — the item stays; beliefs, memories, bonds all move
     for(const s of seers){
-      s.thoughts = [{ text: (s === victim ? v.name + ' tried to steal my ' + it.label + '!' : 'Caught ' + v.name + ' trying to steal ' + it.label + '!'), val: -3 }];
-      if(typeof observe === 'function') observe(s, { targetId: it.id, thief: v.name, victim: victim.name },
+      const isVictim = (s === victim);
+      s.thoughts = [{ text: (isVictim ? v.name + ' tried to steal my ' + it.label + '!' : 'Caught ' + v.name + ' trying to steal ' + it.label + '!'), val: -3 }];
+      if(typeof observe === 'function') observe(s, { targetId: it.id, thief: v.name, victim: victim.name, event: isVictim ? 'betrayal' : 'theft' },
         { topic: 'theft_' + it.id, source: 'direct', confidence: 0.95, salience: 0.95,
           evidence: ['Saw ' + v.name + ' try to steal ' + it.label + ' from ' + victim.name] });
       if(typeof recordOwnershipBelief === 'function')
@@ -21051,6 +21680,453 @@ runAutoTest = async function(){
     `leakedVillagers=${leakedV.length} leakedCrops=${leakedCrops.length} leakedFires=${leakedFires.length}`);
 
   el.textContent += `part25 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
+};
+
+/* =====================================================================
+   PART 26 AUTOTEST — Phase 6C: Deep Psychology & Autobiographical Identity
+   ("Tâm lý sâu & Căn tính")
+   Automated verification of:
+     26.1 (C2 Tier 1 Conflicting Motivations): Alden fatigue 70% + sick person
+          needing care -> duty beats sleep, suppression stress + emotion tag
+          ('tired-but-proud') recorded into memory.
+     26.2 (C2 Tier 2 Biology Override): Alden fatigue 95% -> forced microsleep
+          despite duty (biology overrides poetry 100%).
+     26.3 (C1 Survival Guard & Anti-Oscillation): Death-threshold trigger ->
+          no oscillation: after re-decide lock, action stable >= N ticks (anti eat<->flee loop).
+     26.4 (C5 Autobiographical Identity): Extreme-salience event -> new identity
+          tag forms -> tag measurably affects attention (e.g. Pip's mother cry salience x5)
+          and drops oldest when exceeding 5 tags.
+     26.5 (C4 Body-Factor Chain): Untreated wound -> infection -> work factor drops ->
+          villager picks lighter work than an unimpaired control.
+     26.6 (C3 Emotion Derivation): Emotions derived from body/needs + decay:
+          hungry->anxious, pain->suffering, stable->content.
+     26.7 (C1 Defect 1 Fix - Blood Guard Steer): Probe blood=0.5 triggers rest_or_tend
+          guard boost (>=8000) and villager picks rest/tend over work.
+     26.8 (C5 Defect 2 Fix - Real Identity Crystallization): All 7/7 identity tags
+          crystallize via real gameplay paths (0 manual formIdentityTag calls).
+     26.9 (Cleanup): Verify all test entities cleaned up cleanly.
+   ===================================================================== */
+
+function mkTestV26(name, wx, wy, extra){
+  const v = mkTestV25(name, wx, wy, extra);
+  ensureBody(v);
+  ensureEpistemic(v);
+  return v;
+}
+
+const __runAutoTest26 = runAutoTest;
+runAutoTest = async function(){
+  await __runAutoTest26();
+  const el = document.getElementById('autotest');
+  const res = [];
+  const log = (ok, title, desc) => {
+    res.push({ ok: Boolean(ok), title: title });
+    el.textContent += (ok ? 'PASS' : 'FAIL') + ' | ' + title + (desc ? ' — ' + desc : '') + '\n';
+  };
+  const madeNames = [];
+  function mk(name, wx, wy, extra){
+    const v = mkTestV26(name, wx, wy, extra);
+    madeNames.push(name);
+    return v;
+  }
+  function cleanup(){
+    for(const n of madeNames){
+      const i = VILLAGERS.findIndex(o => o && o.name === n);
+      if(i >= 0) VILLAGERS.splice(i, 1);
+    }
+    madeNames.length = 0;
+  }
+
+  // -------------------------------------------------------------------
+  // 26.1 (C2 Tier 1): Duty beats sleep below ~80% deficit + emotional trace
+  // Alden at fatigue 70% + sick person needing care -> duty beats sleep ->
+  // record suppression stress + emotion tag ('tired-but-proud') into memory.
+  // -------------------------------------------------------------------
+  const tSick1 = mk('T26_Sick_Barnaby', 2, -8, { role: 'Villager' });
+  tSick1.body.illness = 0.45;
+  tSick1.body.wounds = [{ loc: 'arm', sev: 0.5, open: true, bleed: 0.05, dressed: false, t: 1 }];
+
+  const tAlden1 = mk('T26_Alden_Duty', 0, -10, { role: 'Village Mayor' });
+  tAlden1.body.fatigue = 0.70; // 70% fatigue deficit (Tier 1)
+  tAlden1.body.stress = 0.05;
+  tAlden1.body.hydration = 0.90;
+  tAlden1.body.satiety = 0.90;
+
+  const eval1 = evaluateVillagerUtility(tAlden1);
+  const best1 = eval1.bestAction;
+  const sleepCandidate1 = eval1.candidates.find(c => c.id === 'sleep');
+
+  const dutyWon = best1 && best1.category === 'duty' && best1.id.startsWith('duty_care');
+  const dutyOutscoredSleep = sleepCandidate1 && best1 && best1.score > sleepCandidate1.score;
+
+  // Execute the chosen duty action to leave the emotional trace
+  const initialStress = tAlden1.body.stress;
+  executeUtilityAction(tAlden1, best1);
+
+  const suppressionStressRecorded = tAlden1.body.stress > initialStress;
+  const emotionTagRecorded = tAlden1.emotions && tAlden1.emotions.some(e => e.tag === 'tired-but-proud');
+  const memoryRecorded = tAlden1.epistemic.memories && tAlden1.epistemic.memories.some(m =>
+    m.topic === 'duty_tradeoff' && m.content && m.content.emotion === 'tired-but-proud'
+  );
+
+  const ok26_1 = dutyWon && dutyOutscoredSleep && suppressionStressRecorded && emotionTagRecorded && memoryRecorded;
+  log(ok26_1, 'conflict26: Tier 1 duty beats sleep at 70% fatigue, recording suppression stress and tired-but-proud emotion',
+    `winner=${best1 && best1.id} (score=${best1 && best1.score.toFixed(1)}) vs sleepScore=${sleepCandidate1 ? sleepCandidate1.score.toFixed(1) : 'none'} stress=${tAlden1.body.stress.toFixed(2)} emotion=${emotionTagRecorded} mem=${memoryRecorded}`);
+
+  // -------------------------------------------------------------------
+  // 26.2 (C2 Tier 2): Biology overrides poetry 100% at fatigue 95%
+  // Alden at fatigue 95% -> forced microsleep despite duty
+  // -------------------------------------------------------------------
+  const tAlden2 = mk('T26_Alden_Exhausted', 0, -10, { role: 'Village Mayor' });
+  tAlden2.body.fatigue = 0.95; // 95% fatigue deficit (Tier 2 biological override)
+  tAlden2.body.hydration = 0.90;
+  tAlden2.body.satiety = 0.90;
+
+  const eval2 = evaluateVillagerUtility(tAlden2);
+  const best2 = eval2.bestAction;
+
+  const microsleepTriggered = best2 && (best2.id === 'microsleep' || (best2.plan && best2.plan[0] && best2.plan[0].microsleep));
+  const dutyDenied = best2 && best2.category !== 'duty';
+
+  const ok26_2 = microsleepTriggered && dutyDenied;
+  log(ok26_2, 'conflict26: Tier 2 biology overrides poetry 100% at 95% fatigue (forced microsleep)',
+    `winner=${best2 && best2.id} category=${best2 && best2.category} score=${best2 && best2.score} reason=${best2 && best2.reason}`);
+
+  // -------------------------------------------------------------------
+  // 26.3 (C1): Survival Guard & Anti-Oscillation on Live Wrapper Chain
+  // Real {verb:'work'} step on LIVE wrapper chain interrupted by Survival Guard (blood=0.55 -> rest/tend with guard:true)
+  // Stable >= 8 ticks after trigger (no blind re-cancel / oscillation)
+  // Both live planTick wrapper chain and production brainThink choke point verified
+  // -------------------------------------------------------------------
+  const tGuard = mk('T26_Guard_Villager', 5, 5, { role: 'Village Farmer' });
+  tGuard.body.hydration = 0.90;
+  tGuard.body.satiety = 0.90;
+  tGuard.body.coreTemp = 37.0;
+  tGuard.body.blood = 0.50; // Low blood deficit (blood=0.5 triggers rest_or_tend survival guard)
+
+  // Start with a REAL work action on the live wrapper chain (the common swallowed verb)
+  tGuard.plan = [{ verb: 'work', hours: 3 }];
+  tGuard.currentAction = { id: 'work_farming', category: 'work' };
+
+  // Step 1: planTick runs on LIVE wrapper chain and triggers survival guard interrupt
+  planTick(tGuard, 0.05);
+
+  const interruptTriggered = tGuard.interrupted === true && tGuard.guardLock > 0;
+  const initialGuardedAction = tGuard.plan && tGuard.plan.length ? tGuard.plan[0] : null;
+  const planIsRestOrTend = initialGuardedAction &&
+    (initialGuardedAction.verb === 'rest' || initialGuardedAction.verb === 'tend') &&
+    initialGuardedAction.guard === true;
+
+  // Step 2: verify stability for N ticks (N = 8) under continued low-blood pressure
+  const N_TICKS = 8;
+  let stayStable = true;
+  for(let i = 0; i < N_TICKS; i++){
+    planTick(tGuard, 0.02);
+    // Action must remain the guarded survival action and not wipe or oscillate
+    const cur = tGuard.plan && tGuard.plan.length ? tGuard.plan[0] : null;
+    if(!cur || (cur.verb !== 'rest' && cur.verb !== 'tend') || !cur.guard){
+      stayStable = false;
+      break;
+    }
+  }
+
+  // Also verify production brainThink choke point (Observe -> Think -> Learn per-tick decision)
+  const tGuardBT = mk('T26_Guard_BrainThink', 5, 5, { role: 'Village Farmer' });
+  tGuardBT.body.hydration = 0.90;
+  tGuardBT.body.satiety = 0.90;
+  tGuardBT.body.coreTemp = 37.0;
+  tGuardBT.body.blood = 0.50;
+  tGuardBT.plan = [{ verb: 'work', hours: 3 }];
+  tGuardBT.currentAction = { id: 'work_farming', category: 'work' };
+
+  brainThink(tGuardBT, 0.05);
+  const btInterrupted = tGuardBT.interrupted === true && tGuardBT.guardLock > 0;
+  const btAction = tGuardBT.plan && tGuardBT.plan.length ? tGuardBT.plan[0] : null;
+  const btIsRestOrTend = btAction &&
+    (btAction.verb === 'rest' || btAction.verb === 'tend') &&
+    btAction.guard === true;
+  let btStable = true;
+  for(let i = 0; i < N_TICKS; i++){
+    brainThink(tGuardBT, 0.02);
+    const cur = tGuardBT.plan && tGuardBT.plan.length ? tGuardBT.plan[0] : null;
+    if(!cur || (cur.verb !== 'rest' && cur.verb !== 'tend') || !cur.guard){
+      btStable = false;
+      break;
+    }
+  }
+
+  const ok26_3 = interruptTriggered && planIsRestOrTend && stayStable && btInterrupted && btIsRestOrTend && btStable;
+  log(ok26_3, 'guard26: survival guard interrupts real work step on live chain -> rest/tend guard:true, stable >=8 ticks (both planTick & brainThink)',
+    `planTick(interrupted=${interruptTriggered} lock=${tGuard.guardLock} verb=${initialGuardedAction && initialGuardedAction.verb} guard=${initialGuardedAction && initialGuardedAction.guard} stableFor${N_TICKS}=${stayStable}) brainThink(interrupted=${btInterrupted} lock=${tGuardBT.guardLock} verb=${btAction && btAction.verb} guard=${btAction && btAction.guard} stableFor${N_TICKS}=${btStable})`);
+
+  // -------------------------------------------------------------------
+  // 26.4 (C5): Autobiographical Identity crystallization & attention multiplier
+  // Extreme-salience event -> identity tag forms -> tag measurably affects attention
+  // -------------------------------------------------------------------
+  const tMarta = mk('T26_Marta_Identity', 0, 0, { role: 'Village Farmer' });
+  tMarta.identity = [];
+
+  // Extreme-salience event (salience >= 0.90) forms identity tag
+  observe(tMarta, { event: 'pips_mother', who: 'Marta', child: 'Pip' }, {
+    topic: 'pips_mother',
+    salience: 0.95,
+    source: 'direct'
+  });
+
+  const tagFormed = tMarta.identity.some(id => id.tag === 'pips_mother');
+
+  // Measurable behavioral effect: Pip's cry salience x5 in attention
+  const cryStimulus = { kind: 'cry', who: 'Pip', what: "Pip's distressed cry in the distance" };
+  const cryDetails = { salience: 0.18, who: 'Pip' };
+
+  // Control villager without identity tag on task
+  const tStranger = mk('T26_Stranger_Task', 10, 10, { role: 'Woodcutter' });
+  tStranger.plan = [{ verb: 'fell' }]; // Task focus
+  tStranger.identity = [];
+
+  const strangerAttention = filterAttention(tStranger, cryStimulus, cryDetails);
+  const martaAttention = filterAttention(tMarta, cryStimulus, cryDetails);
+
+  // Stranger filters out low-salience cry due to task focus (attended: false)
+  // Marta with 'pips_mother' tag has salience multiplied by 5 (0.18 x 5 = 0.90 >= 0.80), piercing gate 3!
+  const attentionDiverged = strangerAttention.attended === false && martaAttention.attended === true;
+  const multiplierApplied = martaAttention.idMult >= 5.0 || (martaAttention.effectiveSalience && martaAttention.effectiveSalience >= 0.85);
+
+  // Verify tag cap: maximum 5 tags, oldest/lowest-salience drops
+  formIdentityTag(tMarta, 'tag_alpha', { salience: 0.50 });
+  formIdentityTag(tMarta, 'tag_beta', { salience: 0.55 });
+  formIdentityTag(tMarta, 'tag_gamma', { salience: 0.60 });
+  formIdentityTag(tMarta, 'tag_delta', { salience: 0.65 });
+  // Adding 6th tag must drop lowest salience (tag_alpha at 0.50)
+  formIdentityTag(tMarta, 'tag_omega', { salience: 0.99 });
+  const maxTagsEnforced = tMarta.identity.length === 5;
+  const droppedLowest = !tMarta.identity.some(id => id.tag === 'tag_alpha');
+
+  const ok26_4 = tagFormed && attentionDiverged && multiplierApplied && maxTagsEnforced && droppedLowest;
+  log(ok26_4, 'identity26: extreme salience crystallizes identity tag with 5x cry attention multiplier and 5-tag cap',
+    `tagFormed=${tagFormed} strangerAtt=${strangerAttention.attended} martaAtt=${martaAttention.attended} mult=${martaAttention.idMult} tagsCount=${tMarta.identity.length} droppedAlpha=${droppedLowest}`);
+
+  // -------------------------------------------------------------------
+  // 26.5 (C4): Body-factor chain
+  // Untreated wound -> infection -> work factor drops -> villager picks lighter work
+  // -------------------------------------------------------------------
+  const tControl = mk('T26_Work_Control', 0, 0, { role: 'Village Farmer' });
+  tControl.body.hydration = 0.9;
+  tControl.body.satiety = 0.9;
+  tControl.body.fatigue = 0.1;
+  calcBodyFactors(tControl);
+
+  const tImpaired = mk('T26_Work_Impaired', 0, 0, { role: 'Village Farmer' });
+  tImpaired.body.hydration = 0.9;
+  tImpaired.body.satiety = 0.9;
+  tImpaired.body.fatigue = 0.1;
+
+  // Untreated wound develops infection
+  if(typeof addWound === 'function'){
+    addWound(tImpaired, 'arm', 0.6, { open: true, bleed: 0.15, fracture: false });
+  } else {
+    tImpaired.body.wounds = [{ loc: 'arm', sev: 0.6, open: true, bleed: 0.15, inf: 0.4, dressed: false, t: 5 }];
+  }
+  tImpaired.body.wounds[0].inf = 0.45; // Untreated infection
+  tImpaired.body.blood = 0.80;        // Blood loss
+  calcBodyFactors(tImpaired);
+
+  const controlWF = tControl.bodyWorkFactor != null ? tControl.bodyWorkFactor : 1.0;
+  const impairedWF = tImpaired.bodyWorkFactor != null ? tImpaired.bodyWorkFactor : 1.0;
+  const workFactorDropped = impairedWF < 0.70 && impairedWF < controlWF;
+
+  // Set up ripe crop (heavy farm work) and recipe workbench/spot (light work)
+  const heavyAction = { id: 'work_farm', category: 'work', workType: 'farming', ripe: true, tx: tControl.x + 10, ty: tControl.y + 10 };
+  const lightAction = { id: 'work_recipe_basket', category: 'work', workType: 'crafting', recipeId: 'basket', name: 'Weave basket', tx: tControl.x + 10, ty: tControl.y + 10 };
+
+  const controlHeavyScore = scoreCandidateAction(tControl, heavyAction);
+  const controlLightScore = scoreCandidateAction(tControl, lightAction);
+
+  const impairedHeavyScore = scoreCandidateAction(tImpaired, heavyAction);
+  const impairedLightScore = scoreCandidateAction(tImpaired, lightAction);
+
+  // Control prefers heavy farm work (higher base + role bonus)
+  const controlPrefersHeavy = controlHeavyScore > controlLightScore;
+  // Impaired villager prefers lighter work due to heavy labor penalty from low workFactor
+  const impairedPrefersLight = impairedLightScore > impairedHeavyScore;
+
+  const ok26_5 = workFactorDropped && controlPrefersHeavy && impairedPrefersLight;
+  log(ok26_5, 'bodyFactor26: untreated wound and infection drops workFactor causing autonomous preference for lighter work',
+    `controlWF=${controlWF.toFixed(2)} impairedWF=${impairedWF.toFixed(2)} control(heavy=${controlHeavyScore.toFixed(1)} light=${controlLightScore.toFixed(1)}) impaired(heavy=${impairedHeavyScore.toFixed(1)} light=${impairedLightScore.toFixed(1)})`);
+
+  // -------------------------------------------------------------------
+  // 26.6 (C3): Emotion derivation layer (body/needs -> emotions + decay)
+  // Hungry -> anxious, pain -> suffering, stable -> content
+  // -------------------------------------------------------------------
+  const tEmote = mk('T26_Emote_Villager', 0, 0, { role: 'Villager' });
+  tEmote.body.hydration = 0.9;
+  tEmote.body.satiety = 0.20; // hungry
+  tEmote.body.fatigue = 0.2;
+  updateDerivedEmotions(tEmote, 0.5);
+
+  const derivedAnxious = tEmote.emotions && tEmote.emotions.some(e => e.tag === 'anxious');
+
+  // Inflict pain/injury
+  tEmote.body.injury = 0.6;
+  updateDerivedEmotions(tEmote, 0.5);
+  const derivedSuffering = tEmote.emotions && tEmote.emotions.some(e => e.tag === 'suffering');
+
+  // Stabilize needs
+  tEmote.body.satiety = 0.85;
+  tEmote.body.injury = 0.0;
+  tEmote.body.wounds = [];
+  tEmote.body.illness = 0.0;
+  updateDerivedEmotions(tEmote, 0.5);
+  const derivedContent = tEmote.emotions && tEmote.emotions.some(e => e.tag === 'content');
+
+  const ok26_6 = derivedAnxious && derivedSuffering && derivedContent;
+  log(ok26_6, 'emotions26: derived emotions layer correctly maps body states to anxious, suffering, and content',
+    `anxious=${derivedAnxious} suffering=${derivedSuffering} content=${derivedContent}`);
+
+  // -------------------------------------------------------------------
+  // 26.7 (C1 Defect 1): Blood guard trigger boosts rest/tend and villager picks it over work
+  // probe blood=0.5 -> rest/tend candidate gets guard boost (>=8000) and villager
+  // actually picks it instead of work candidates.
+  // -------------------------------------------------------------------
+  const tBleed = mk('T26_Bleed_Villager', 0, 0, { role: 'Village Farmer' });
+  tBleed.body.hydration = 0.90;
+  tBleed.body.satiety = 0.90;
+  tBleed.body.fatigue = 0.10;
+  tBleed.body.coreTemp = 37.0;
+  tBleed.body.blood = 0.50; // Low blood deficit (triggers blood survival guard)
+
+  // Ensure ripe crop exists for farming candidate
+  let addedCrop = false;
+  if(typeof CROPS !== 'undefined' && Array.isArray(CROPS) && CROPS.length === 0){
+    CROPS.push({ wx: 2, wy: 2, stage: 2, plant: 'wheat' });
+    addedCrop = true;
+  }
+
+  const bleedTrigs = getSurvivalGuardTriggers(tBleed);
+  const bloodTrig = bleedTrigs.find(tr => tr.type === 'blood' && tr.need === 'rest_or_tend');
+
+  const evalBleed = evaluateVillagerUtility(tBleed);
+  const bestBleed = evalBleed.bestAction;
+  const restCandidate = evalBleed.candidates.find(c => c.id === 'rest');
+  const workCandidate = evalBleed.candidates.find(c => c.category === 'work' || c.id.startsWith('work_'));
+
+  const guardBoostApplied = restCandidate && restCandidate.score >= 8000;
+  const restPickedOverWork = bestBleed && (bestBleed.id === 'rest' || bestBleed.id === 'self_tend') &&
+    (!workCandidate || bestBleed.score > workCandidate.score);
+
+  // Apply action and verify plan is set to guarded rest/tend
+  tBleed.brainControlled = false;
+  evaluateAndApplyUtilityAction(tBleed);
+  const planIsGuarded = tBleed.plan && tBleed.plan.length > 0 &&
+    (tBleed.plan[0].verb === 'rest' || tBleed.plan[0].verb === 'tend') &&
+    tBleed.plan[0].guard === true;
+
+  if(addedCrop && typeof CROPS !== 'undefined' && Array.isArray(CROPS)){
+    CROPS.pop();
+  }
+
+  const ok26_7 = Boolean(bloodTrig) && guardBoostApplied && restPickedOverWork && planIsGuarded;
+  log(ok26_7, 'bloodGuard26: blood=0.5 triggers rest_or_tend guard boost (>=8000) and villager picks rest over work',
+    `trig=${Boolean(bloodTrig)} restScore=${restCandidate ? restCandidate.score.toFixed(1) : 'none'} workScore=${workCandidate ? workCandidate.score.toFixed(1) : 'none'} winner=${bestBleed && bestBleed.id} planVerb=${tBleed.plan && tBleed.plan[0] && tBleed.plan[0].verb}`);
+
+  // -------------------------------------------------------------------
+  // 26.8 (C5 Defect 2): Real gameplay paths crystallize all 7/7 identity tags
+  // No manual formIdentityTag calls — all 7 tags in IDENTITY_TAGS must form via
+  // real gameplay emitters:
+  // 1. pips_mother: birth observation with child 'Pip'
+  // 2. betrayed: theft victim in doStealStep
+  // 3. fire_savior: douse wildfire in doDouseStep
+  // 4. near_drowning_survivor: escape deep water after drown_panic in updateBody
+  // 5. master_craftsman: gainXP building skill reaching level >= 7
+  // 6. master_farmer: gainXP farming skill reaching level >= 7
+  // 7. village_protector: killAnimal repelling hostile wolf
+  // -------------------------------------------------------------------
+
+  // 1. pips_mother
+  const tMarta2 = mk('T26_Marta_Birth', 0, 0, { role: 'Village Farmer' });
+  tMarta2.identity = [];
+  observe(tMarta2, { event: 'birth', child: 'Pip' }, {
+    topic: 'birth_Pip',
+    salience: 0.95,
+    source: 'direct'
+  });
+  const tagPipsMother = tMarta2.identity.some(id => id.tag === IDENTITY_TAGS.PIPS_MOTHER);
+
+  // 2. betrayed (theft victim in real doStealStep)
+  const tThief = mk('T26_Thief', 5, 5, { role: 'Villager' });
+  const tVictim = mk('T26_Victim', 5.2, 5, { role: 'Villager' });
+  tVictim.identity = [];
+  const stolenItem = (typeof mintIdentifiedItem === 'function')
+    ? mintIdentifiedItem('plank', { creator: tVictim.name, holder: tVictim.name, x: tVictim.x, y: tVictim.y })
+    : { id: 'test_stolen_plank', label: 'carved plank', currentHolder: tVictim.name, holderType: 'villager', status: 'held', actualOwner: tVictim.name };
+  if(typeof ITEMS !== 'undefined') ITEMS[stolenItem.id] = stolenItem;
+  doStealStep(tThief, { itemId: stolenItem.id, from: tVictim.name }, 0.1);
+  const tagBetrayed = tVictim.identity.some(id => id.tag === IDENTITY_TAGS.BETRAYED);
+
+  // 3. fire_savior (wildfire doused in real doDouseStep)
+  const tFirefighter = mk('T26_Firefighter', 15, 15, { role: 'Villager' });
+  tFirefighter.identity = [];
+  tFirefighter.wetBucket = true;
+  const burnCell = { wx: 15, wy: 15 };
+  if(typeof BURNING !== 'undefined' && Array.isArray(BURNING)){
+    BURNING.push(burnCell);
+  }
+  const dStep = { verb: 'douse', fire: burnCell, prog: 0.45 };
+  doDouseStep(tFirefighter, dStep, 0.1); // prog reaches 0.55 >= 0.5 -> extinguished & observed
+  const tagFireSavior = tFirefighter.identity.some(id => id.tag === IDENTITY_TAGS.FIRE_SAVIOR);
+
+  // 4. near_drowning_survivor (escaping drown_panic in real updateBody)
+  const tDrowner = mk('T26_Drowner', 0, 0, { role: 'Villager' });
+  tDrowner.canSwim = false;
+  tDrowner.state = 'drown_panic';
+  tDrowner.body.oxygen = 0.3;
+  tDrowner.identity = [];
+  // Move to dry land tile (x: 0, y: 0) and run bodyTick -> transitions out of deep water and observes survival
+  tDrowner.x = 0; tDrowner.y = 0;
+  bodyTick(tDrowner, 0.05);
+  const tagNearDrowning = tDrowner.identity.some(id => id.tag === IDENTITY_TAGS.NEAR_DROWNING_SURVIVOR);
+
+  // 5. master_craftsman (building skill reaches Master level 7 via gainXP)
+  const tCrafter = mk('T26_Crafter', 0, 0, { role: 'Villager' });
+  tCrafter.identity = [];
+  gainXP(tCrafter, 'building', 700);
+  const tagMasterCraftsman = tCrafter.identity.some(id => id.tag === IDENTITY_TAGS.MASTER_CRAFTSMAN);
+
+  // 6. master_farmer (farming skill reaches Master level 7 via gainXP)
+  const tFarmer = mk('T26_Farmer', 0, 0, { role: 'Village Farmer' });
+  tFarmer.identity = [];
+  gainXP(tFarmer, 'farming', 700);
+  const tagMasterFarmer = tFarmer.identity.some(id => id.tag === IDENTITY_TAGS.MASTER_FARMER);
+
+  // 7. village_protector (repelling wolf threat via real killAnimal)
+  const tProtector = mk('T26_Protector', 0, 0, { role: 'Villager' });
+  tProtector.identity = [];
+  const testWolf = { kind: 'wolf', x: 10, y: 10, hp: 10, maxhp: 10, dead: false };
+  if(typeof ANIMALS !== 'undefined' && Array.isArray(ANIMALS)){
+    ANIMALS.push(testWolf);
+  }
+  killAnimal(testWolf, tProtector);
+  const tagVillageProtector = tProtector.identity.some(id => id.tag === IDENTITY_TAGS.VILLAGE_PROTECTOR);
+
+  if(typeof ITEMS !== 'undefined' && stolenItem && stolenItem.id){
+    delete ITEMS[stolenItem.id];
+  }
+
+  const all7TagsFormed = tagPipsMother && tagBetrayed && tagFireSavior && tagNearDrowning &&
+                         tagMasterCraftsman && tagMasterFarmer && tagVillageProtector;
+
+  log(all7TagsFormed, 'identityTags26: all 7/7 identity tags form end-to-end via real gameplay paths (zero manual formIdentityTag)',
+    `mother=${tagPipsMother} betrayed=${tagBetrayed} fire=${tagFireSavior} drown=${tagNearDrowning} craft=${tagMasterCraftsman} farm=${tagMasterFarmer} protector=${tagVillageProtector}`);
+
+  // -------------------------------------------------------------------
+  // 26.9 (Cleanup): Verify no test entities leaked
+  // -------------------------------------------------------------------
+  cleanup();
+  const leakedV = VILLAGERS.filter(v => v && v.name && v.name.startsWith('T26_'));
+  const ok26_9 = leakedV.length === 0;
+  log(ok26_9, 'cleanup26: part26 cleans up all test villagers cleanly', `leaked=${leakedV.length}`);
+
+  el.textContent += `part26 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
 };
 
 </script>

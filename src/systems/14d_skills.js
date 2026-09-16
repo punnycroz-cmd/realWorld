@@ -19,9 +19,21 @@ function gainXP(v, s, amt){
   const strong = v.talents && v.talents.strong && v.talents.strong.indexOf(s) >= 0;
   let a = amt * (weak ? 0.5 : (strong ? 1.6 : 1));
   a *= Math.max(0.25, 1 - sk.lvl / 12);
+  const oldLvl = sk.lvl;
   sk.xp += a;
   while(sk.xp >= 100 && sk.lvl < 10){ sk.xp -= 100; sk.lvl += 1; }
   if(sk.lvl >= 10) sk.xp = Math.min(sk.xp, 99);
+  if(oldLvl < 7 && sk.lvl >= 7){
+    const masterKind = (s === 'farming') ? 'farmer' : (s === 'building' || s === 'crafting' || s === 'tailoring') ? 'craftsman' : s;
+    if(typeof observe === 'function'){
+      observe(v, { event: 'mastery_achieved', skill: masterKind, what: 'Reached master rank in ' + s }, {
+        topic: 'master_' + masterKind,
+        salience: 0.90,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
+  }
 }
 function skillWords(v){
   ensureSkills(v);

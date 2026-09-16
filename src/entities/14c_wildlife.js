@@ -56,7 +56,18 @@ function killAnimal(a, by){
     hide: a.kind === 'bear' ? 3 : (a.kind === 'boar' ? 2 : 1)
   });
   logEvent('hunt', (by ? by.name + ' ' : '') + 'killed a ' + a.kind);
-  if(by){ witnessEvent(by, 'Killed a ' + a.kind); gainXP(by, 'hunting', 8); }
+  if(by){
+    witnessEvent(by, 'Killed a ' + a.kind);
+    gainXP(by, 'hunting', 8);
+    if(typeof observe === 'function'){
+      observe(by, { event: 'repelled_wolf', what: 'defended village against ' + a.kind }, {
+        topic: 'village_protector',
+        salience: 0.92,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
+  }
   for(const o of ANIMALS){
     if(o.pack && o.pack === a.pack && !o.dead){ o.state = 'flee'; o.hp = Math.min(o.hp, o.maxhp * 0.5); }
   }

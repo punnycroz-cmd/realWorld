@@ -648,8 +648,9 @@ function doStealStep(v, step, dtH){
   if(seers.length){
     // CAUGHT — the item stays; beliefs, memories, bonds all move
     for(const s of seers){
-      s.thoughts = [{ text: (s === victim ? v.name + ' tried to steal my ' + it.label + '!' : 'Caught ' + v.name + ' trying to steal ' + it.label + '!'), val: -3 }];
-      if(typeof observe === 'function') observe(s, { targetId: it.id, thief: v.name, victim: victim.name },
+      const isVictim = (s === victim);
+      s.thoughts = [{ text: (isVictim ? v.name + ' tried to steal my ' + it.label + '!' : 'Caught ' + v.name + ' trying to steal ' + it.label + '!'), val: -3 }];
+      if(typeof observe === 'function') observe(s, { targetId: it.id, thief: v.name, victim: victim.name, event: isVictim ? 'betrayal' : 'theft' },
         { topic: 'theft_' + it.id, source: 'direct', confidence: 0.95, salience: 0.95,
           evidence: ['Saw ' + v.name + ' try to steal ' + it.label + ' from ' + victim.name] });
       if(typeof recordOwnershipBelief === 'function')

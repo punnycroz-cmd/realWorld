@@ -607,8 +607,100 @@ function planForVerb(v, action){
   }
   return { ok: true, steps };
 }
+/* =====================================================================
+   PHASE 6C: SURVIVAL GUARD & ANTI-OSCILLATION (C1)
+   ===================================================================== */
+function isSurvivalOrEmergencyAction(v, step, act){
+  if(act && (act.category === 'emergency' || act.category === 'survival' || act.type === 'emergency' || act.type === 'survival' || act.guard)) return true;
+  if(step && (step.guard || step.flee || step.fleeFire || step.emergency || step.survival || step.microsleep || step.verb === 'douse' || step.douse || step.verb === 'tend' || (step.verb === 'rest' && step.guard))) return true;
+  if(v && v.currentAction && (v.currentAction.category === 'emergency' || v.currentAction.category === 'survival' || v.currentAction.id === 'microsleep' || v.currentAction.id === 'flee' || v.currentAction.guard)) return true;
+  return false;
+}
+
+function getSurvivalGuardTriggers(v){
+  if(!v || v.dead) return [];
+  const b = ensureBody(v);
+  const triggers = [];
+
+  // 1. Thirst < 8 (b.hydration < 0.08)
+  if(b.hydration < 0.08){
+    triggers.push({ type: 'thirst', need: 'drink', priority: 120 + (0.08 - b.hydration) * 1000 });
+  }
+
+  // 2. Hunger < 6 (b.satiety < 0.06)
+  if(b.satiety < 0.06){
+    triggers.push({ type: 'hunger', need: 'eat', priority: 115 + (0.06 - b.satiety) * 1000 });
+  }
+
+  // 3. Warmth < 6 (b.coreTemp < 35.0)
+  if(b.coreTemp < 35.0){
+    triggers.push({ type: 'warmth', need: 'warm', priority: 105 + (35.0 - b.coreTemp) * 100 });
+  }
+
+  // 4. Blood < 70 (b.blood < 0.70)
+  const bl = b.blood != null ? b.blood : 1.0;
+  if(bl < 0.70){
+    triggers.push({ type: 'blood', need: 'rest_or_tend', priority: 100 + (0.70 - bl) * 100 });
+  }
+
+  // 5. Fire adjacent (BURNING within CS * 2.0)
+  if(typeof BURNING !== 'undefined' && Array.isArray(BURNING)){
+    for(const f of BURNING){
+      const fx = f.wx * CS + 16, fy = f.wy * CS + 16;
+      if(Math.hypot(v.x - fx, v.y - fy) <= CS * 2.0){
+        triggers.push({ type: 'fire_adjacent', need: 'flee_fire', threat: f, priority: 200 });
+        break;
+      }
+    }
+  }
+
+  // 6. Wolf adjacent (hostile wolf within CS * 2.0)
+  if(typeof ANIMALS !== 'undefined' && Array.isArray(ANIMALS)){
+    for(const a of ANIMALS){
+      if(a.dead || a.kind !== 'wolf') continue;
+      const isHostile = (a.state === 'stalk' || a.state === 'attack' || a.state === 'hunt' || a.state === 'fight');
+      if(isHostile && Math.hypot(v.x - a.x, v.y - a.y) <= CS * 2.0){
+        triggers.push({ type: 'wolf_adjacent', need: 'flee_wolf', threat: a, priority: 190 });
+        break;
+      }
+    }
+  }
+
+  triggers.sort((a, b2) => b2.priority - a.priority);
+  return triggers;
+}
+
+function checkSurvivalGuardInterrupt(v){
+  if(!v || v.dead) return false;
+  if(v.guardLock > 0) return false;
+
+  const triggers = getSurvivalGuardTriggers(v);
+  if(!triggers || !triggers.length) return false;
+
+  const curStep = v.plan && v.plan.length ? v.plan[0] : null;
+  if(isSurvivalOrEmergencyAction(v, curStep, v.currentAction)){
+    return false;
+  }
+
+  // Cancel interruptible action and trigger survival re-decide with anti-oscillation lock
+  v.plan = [];
+  v.currentAction = null;
+  v.interrupted = true;
+  v.replanNeeded = true;
+  v.guardLock = 10; // Anti-oscillation lock
+
+  if(typeof survivalGuard === 'function') survivalGuard(v);
+  return true;
+}
+
 /* ---- plan executor: one step at a time, interruptible by survivalGuard ---- */
 function planTick(v, dtH){
+  // Anti-oscillation lock decay
+  if(v.guardLock > 0) v.guardLock--;
+
+  // Phase 6C: Survival Guard interrupt check (C1)
+  if(checkSurvivalGuardInterrupt(v)) return;
+
   if(!v.plan || !v.plan.length) return;
   const step = v.plan[0];
   step.t = (step.t || 0) + dtH;

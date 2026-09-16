@@ -69,6 +69,14 @@ function doDouseStep(v, step, dtH){
     gainXP(v, 'building', 1);
     witnessEvent(v, 'Doused part of the wildfire');
     logEvent('douse', v.name + ' doused fire');
+    if(typeof observe === 'function'){
+      observe(v, { event: 'saved village from wildfire', what: 'doused wildfire' }, {
+        topic: 'fire_savior',
+        salience: 0.90,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
     step.fire = null;
   }
   let near = 0;

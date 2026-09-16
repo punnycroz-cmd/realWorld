@@ -503,3 +503,38 @@ Hội đồng được phép nêu quan ngại (quyết định cuối vẫn thu�
 1. Đồng ý ~90% với hội đồng. Phản biện hay nhất vòng: "15 tầng là làm sâu pipeline, không phải nhồi thêm hệ thống — Expectation Engine giúp **vứt bỏ** hàng trăm dòng code cứng nhắc."
 2. Giữ lại cảnh báo của Ông đồ như điều kiện nghiệm thu cho mọi sub-phase 6A→6D: **mỗi tầng mới phải chứng minh nó tạo ra câu chuyện mà tầng cũ không tạo được** — nếu không, 6A→6D vẫn có thể thành "thêm system → code khổng lồ" trá hình.
 3. Ba quan ngại ở 6.2 (waterfall, cultural priors, giữ highest-need-wins ở ngưỡng nguy cấp) trở thành ràng buộc bắt buộc khi viết spec Phase 6.
+
+## Phần 7 — Adaptation Master Document + hội đồng 4 persona vòng 3 (2026-09-16)
+
+### 7.1. Bối cảnh
+User gửi Master Document v1.0 (12 chemicals, 9 organs, feeling-scape, voice, dream...) yêu cầu adapt chọn lọc — chỉ logic game, bỏ roadmap. Lead viết `docs/ADAPT_MASTER_DOC.md` (ADOPT/DISCUSS D1–D4/DEFER/DROP) và `docs/ADAPT_D1-D4_DETAIL.md` (so từng mục với code hiện tại kèm file:dòng). D1 chưa chốt option thì user up thêm build ngoài "Hearth" (~5.300 dòng, áp dụng literally review của ta) — 3 bài học: misery phải bounded (không thì ratchet), opinion = list of reasons có decay (steal cho 6D), "long-run balance is not solved" (labour allocation là blind spot của ta → Phase 7).
+
+### 7.2. Hai bổ sung từ thảo luận EP (đã chốt vào doc)
+1. `FeelingSubstrate` interface ngay bây giờ (getFeelingScape/getLayers; C3 đi qua nó; Phase 7 swap không phá AI brain).
+2. Cross-effects dạng accumulator tích tụ + decay dt-scaled (determinism), không conditional bật/tắt.
+
+### 7.3. Hội đồng 4 persona vòng 3 — kết quả (biên bản đầy đủ: `docs/ADAPT_4PERSONA_DEBATE.md`)
+**Đồng thuận:** A4 phân tầng (AI chỉ đọc qualities, không đọc số); D2 = vocabulary-only, 0 state machine cơ quan mới; **hoãn D3** (không consumer = bug #13); thu gọn 40 qualities → ~12 core (tiết kiệm quota); WHY HUD phải thanh trừng số float sau 6E.
+**Phản biện sắc nhất:**
+- Thợ cả: interface là "lời dối trá lịch thiệp" nếu hứa swap êm — 3 accumulator tuyến tính vs 12 chất phi tuyến, phân phối tín hiệu đảo lộn, AI brain sẽ hóa điên.
+- Nhà sinh thái: Option 1 toàn mũi tên một chiều, thiếu feedback vòng kín — đến Phase 7 sẽ vỡ từ gốc.
+- Nhà nhận thức luận (gỡ): interface trung thực **iff** nó là lối đi độc đạo bắt buộc — mọi code nhận thức phải hỏi substrate, cấm chọc thẳng `v.body`. Vi phạm = đồ trang trí.
+- Ông đồ: accumulator decay theo giờ vứt bỏ chronic states — mẹ chôn con hôm qua, hôm nay ăn khoai no là `content` = robot vô hồn.
+- D2: phản ví dụ họng bỏng (uống nước trào ra) + bàng quang (tè dầm khi sợ) — Thợ cả gỡ bằng `conditions[]` 3 dòng, không cần 9 organs; nhưng vocabulary **bắt buộc** phải đọc `conditions`, không chỉ 6 fields.
+- D3: ý tưởng hay nhất — voice intensity → acoustic amplitude trong A2 (tiếng thét 40m giật lính gác dậy) — nhưng vẫn hoãn vì quota.
+- D4: Ông đồ tố "ngủ = nút reset vô cảm"; Thợ cả cảnh báo depression loop (chưa có cơ chế chữa lành); Nhà sinh thái đề xuất `stressResidue` 10–15% bất đối xứng, 2–3 ngày bình yên mới tan.
+**3 câu hỏi trình EP:** (1) 1A YAGNI vs 1B interface ngay; (2) smallest 6E: Alpha (A3+D1+A2) vs Beta (Alpha + A1/D2 12 qualities, hội đồng khuyên Beta); (3) 3A cắt sạch D4 vs 3B thêm `stressResidue`.
+
+### 7.4. Backlog từ Hearth (user đã duyệt)
+- Phase 7: soak test dài ngày + labour allocation model ("2 người lo nước hôm nay").
+- 6E: sàn accumulator + thích nghi (chống ratchet kiểu Hearth mood −100).
+- 6D: relationship = danh sách lý do có decay (thay số đơn).
+
+### 7.5. 6C PASS ở attempt 2/2 (2026-09-16)
+Bài học lớn nhất Phase 6: **test xanh không có nghĩa gameplay sống**. Attempt 1 đặt guard trong
+planTick wrapper — nhưng `tests/18_autotest.js` bundle SAU `utility.js` nên wrap NGOÀI và nuốt
+`{verb:'work'}` trước khi guard kịp chạy. Villager chảy máu vẫn làm việc, test vẫn xanh vì dùng `wait`.
+Fix đúng: đặt guard tại **production choke point** `brainThink` — nơi mọi decision path đều đi qua,
+không wrapper nào với tới. Examiner verify bằng probe adversarial riêng (boundary 0.69/0.71, player
+không miễn trừ, 150 ticks không oscillation, flee không bị giẫm) — 9/9. Quy tắc mới: mọi gameplay
+guard phải sống trong production path, và test phải drive bundled chain thật.

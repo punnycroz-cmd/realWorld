@@ -597,6 +597,54 @@ function enumerateCandidateActions(v){
     plan: [{ verb: 'work', hours: 1 }]
   });
 
+  // 19. DUTY: CARE FOR SICK VILLAGER (C2)
+  if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS)){
+    let sickVillager = null;
+    let sickDistMin = 1e9;
+    for(const o of VILLAGERS){
+      if(o === v || o.dead) continue;
+      const ob = o.body;
+      const isSick = ob && (
+        (ob.illness && ob.illness > 0.2) ||
+        (ob.wounds && ob.wounds.length > 0) ||
+        ob.fever ||
+        o.downed
+      );
+      if(isSick){
+        const d = Math.hypot(o.x - v.x, o.y - v.y);
+        if(d < sickDistMin){
+          sickDistMin = d;
+          sickVillager = o;
+        }
+      }
+    }
+    if(sickVillager){
+      candidates.push({
+        id: 'duty_care_' + sickVillager.name,
+        category: 'duty',
+        type: 'duty',
+        name: 'Care for sick ' + sickVillager.name,
+        targetKey: 'person_' + sickVillager.name,
+        person: sickVillager.name,
+        tx: sickVillager.x, ty: sickVillager.y,
+        plan: [{ verb: 'go', person: sickVillager.name }, { verb: 'tend', person: sickVillager.name }]
+      });
+    }
+  }
+
+  // 20. SELF-TEND (Care for own wounds / bleeding)
+  if(b.wounds && b.wounds.length > 0 && b.wounds.some(w => w.open || w.bleed > 0 || !w.dressed)){
+    candidates.push({
+      id: 'self_tend',
+      category: 'survival',
+      type: 'survival',
+      name: 'Tend own wounds',
+      targetKey: 'self_tend',
+      tx: v.x, ty: v.y,
+      plan: [{ verb: 'tend', person: v.name, guard: true }]
+    });
+  }
+
   return candidates;
 }
 
@@ -661,6 +709,11 @@ function scoreCandidateAction(v, c){
       score = fatigueDeficit * 40 + injuryDeficit * 35;
       if(p.traits.includes('lazy') || p.lazy > 1.2) score += 25 * (p.lazy || 1.5);
       if(p.traits.includes('industrious') || p.industrious > 1.2) score -= 20 * (p.industrious || 1.5);
+      return score;
+    }
+
+    case 'self_tend': {
+      score = injuryDeficit * 60 + (1.0 - (b.blood != null ? b.blood : 1.0)) * 50;
       return score;
     }
 
@@ -730,9 +783,50 @@ function scoreCandidateAction(v, c){
     return score;
   }
 
+  // DUTY actions (C2: Tier 1)
+  if(c.category === 'duty' || (c.id && c.id.startsWith('duty_care'))){
+    score = 50 - distCost * 0.4;
+    // Explicit conditional modifiers — NO fuzzy weights:
+    // Mayor duty (Alden)
+    if(v.role === 'Village Mayor') score += 45;
+    // Healer / Herbalist duty
+    else if(v.role === 'Herbalist & Apothecary' || (typeof skillLvl === 'function' && skillLvl(v, 'medicine') >= 3)) score += 40;
+    // Kin / bond duty
+    if(c.person && v.bonds && (v.bonds[c.person] || 0) > 40) score += 30;
+    // Protective identity
+    if(v.identity && v.identity.some(tag => tag.tag === 'pips_mother' || tag.tag === 'village_protector')) score += 35;
+    return score;
+  }
+
   // WORK actions
   if(c.category === 'work'){
     score = 25 - distCost * 0.5;
+
+    // Phase 6C: Body-factor chain feeding into work utility (C4)
+    // Impaired villagers autonomously pick lighter/closer work
+    const wf = v.bodyWorkFactor != null ? v.bodyWorkFactor : (b.workFactor != null ? b.workFactor : 1.0);
+    const sf = v.bodySpeedFactor != null ? v.bodySpeedFactor : (b.speedFactor != null ? b.speedFactor : 1.0);
+
+    // Walking impairment penalizes travel distance
+    if(sf < 1.0){
+      score -= distCost * (1.0 - sf) * 1.5;
+    }
+
+    // Heavy vs light work exertion weighting
+    let exertion = 1.0;
+    if(c.id === 'work_fell') exertion = 2.2;         // Heavy labor: tree chopping
+    else if(c.id === 'work_generic') exertion = 1.8;   // Heavy labor: smithing/hauling
+    else if(c.id === 'work_farm') exertion = 1.6;      // Heavy labor: field hoeing / harvesting
+    else if(c.id === 'work_fish') exertion = 0.9;      // Moderate labor: fishing
+    else if(c.id === 'work_forage') exertion = 0.5;    // Light labor: foraging
+    else if(c.id && c.id.startsWith('work_recipe')) exertion = 0.3; // Light labor: crafting at bench
+    else if(c.id && c.id.startsWith('clean_')) exertion = 0.3;      // Light labor: sweeping
+
+    if(wf < 1.0){
+      const heavyScale = exertion >= 1.0 ? 80 : 15;
+      const impairmentPenalty = (1.0 - wf) * exertion * heavyScale;
+      score -= impairmentPenalty;
+    }
 
     // Personality weights
     if(p.traits.includes('industrious') || p.industrious > 1.2) score += 25 * (p.industrious || 1.5);
@@ -769,6 +863,22 @@ function scoreCandidateAction(v, c){
     return score;
   }
 
+  // Phase 6C: Autobiographical identity bias on goal selection (C5)
+  if(v.identity && v.identity.length){
+    for(const id of v.identity){
+      if(id.tag === 'pips_mother' && (c.person === 'Pip' || (c.id && c.id.includes('Pip')))){
+        score += 50;
+      } else if(id.tag === 'fire_savior' && (c.id === 'douse' || (c.verb === 'douse'))){
+        score += 30;
+      } else if(id.tag.startsWith('master_')){
+        const sk = id.tag.replace('master_', '');
+        if(c.workType === sk || (c.recipeId && c.recipeId.includes(sk))){
+          score += 30;
+        }
+      }
+    }
+  }
+
   return score;
 }
 
@@ -787,6 +897,7 @@ function getCandidateReason(v, c){
   if(c.id === 'drink_lake') return 'Thirst deficit: drink from lake';
   if(c.id === 'sleep') return 'Fatigue deficit: sleep in bed';
   if(c.id === 'rest') return 'Fatigue/injury: rest and recover';
+  if(c.id === 'self_tend') return 'Severe injury/bleeding: bandage own wounds';
   if(c.id === 'warm') return 'Cold deficit: warm up by fire';
   if(c.id === 'work_farm') return 'Farming: tend crops in field';
   if(c.id === 'work_fish') return 'Fishing: fish by the lake';
@@ -806,25 +917,103 @@ function getCandidateReason(v, c){
 function evaluateVillagerUtility(v){
   ensurePersonality(v);
   if(typeof ensureEpistemic === 'function') ensureEpistemic(v);
+
+  const b = ensureBody(v);
   const candidates = enumerateCandidateActions(v);
+
+  // Check death-threshold survival guard triggers (C1)
+  const triggers = (typeof getSurvivalGuardTriggers === 'function') ? getSurvivalGuardTriggers(v) : [];
+  const topTrig = triggers.length > 0 ? triggers[0] : null;
+
   for(const c of candidates){
     if(!c.reason) c.reason = getCandidateReason(v, c);
     c.score = scoreCandidateAction(v, c);
-  }
-  // Deterministic sorting: highest score wins, ties broken via seeded hash
-  candidates.sort((a, b) => {
-    if(Math.abs(a.score - b.score) > 1e-6){
-      return b.score - a.score;
+
+    // Phase 6C: Tier 2 Biological Override (deficit above ~85%) (C2)
+    // Forced microsleep regardless of duty (poetry loses to biology)
+    if(b.fatigue >= 0.85 && c.id === 'sleep'){
+      c.score = 99999;
+      c.microsleep = true;
+      c.name = 'Forced microsleep';
+      c.reason = 'Biology overrides duty (fatigue >= 85%): forced microsleep';
+      if(c.plan && c.plan.length) c.plan[0].microsleep = true;
     }
-    return deterministicTieBreak18(v, a, b);
+
+    // Phase 6C: Survival Guard clauses with absolute priority overriding all candidates (C1)
+    if(topTrig){
+      if(topTrig.need === 'flee_fire' && (c.id === 'flee' || c.id === 'douse')){
+        c.score += 20000;
+      } else if(topTrig.need === 'flee_wolf' && c.id === 'flee'){
+        c.score += 15000;
+      } else if(topTrig.need === 'drink' && c.id.startsWith('drink')){
+        c.score += 10000;
+      } else if(topTrig.need === 'eat' && (c.id.startsWith('eat') || c.id === 'explore_food')){
+        c.score += 9000;
+      } else if(topTrig.need === 'warm' && c.id === 'warm'){
+        c.score += 8000;
+      } else if(topTrig.need === 'rest_or_tend' && (c.id === 'rest' || c.id === 'self_tend' || c.id === 'sleep')){
+        c.score += 8500;
+        c.guard = true;
+        c.category = 'survival';
+        if(c.plan && c.plan.length){
+          for(const step of c.plan) step.guard = true;
+        }
+      }
+    }
+  }
+
+  // Deterministic sorting: highest score wins, ties broken via seeded hash
+  candidates.sort((a, b2) => {
+    if(Math.abs(a.score - b2.score) > 1e-6){
+      return b2.score - a.score;
+    }
+    return deterministicTieBreak18(v, a, b2);
   });
+
   const bestAction = candidates.length && candidates[0].score > -Infinity ? candidates[0] : null;
+  if(bestAction && (bestAction.score >= 8000 || (bestAction.plan && bestAction.plan[0] && bestAction.plan[0].guard))){
+    v.guardLock = 10;
+  }
   return { bestAction, candidates };
 }
 
 function executeUtilityAction(v, action){
   if(!action) return false;
   v.currentAction = action;
+
+  // Phase 6C: Emotional trace of suppressed body needs (C2)
+  const b = ensureBody(v);
+  if(action.category === 'duty' && b.fatigue >= 0.50){
+    // Suppressed sleep for duty: record suppression stress + emotion tag ('tired-but-proud')
+    b.stress = clamp((b.stress || 0) + 0.15, 0, 1);
+    const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1;
+    if(!v.emotions) v.emotions = [];
+    v.emotions.push({
+      tag: 'tired-but-proud',
+      intensity: +clamp(b.fatigue, 0.5, 1.0).toFixed(2),
+      when: now,
+      subject: action.person || null
+    });
+    if(typeof observe === 'function'){
+      observe(v, {
+        event: 'suppressed_need_for_duty',
+        duty: action.id,
+        person: action.person,
+        fatigue: b.fatigue,
+        suppressionStress: 0.15,
+        emotion: 'tired-but-proud'
+      }, {
+        topic: 'duty_tradeoff',
+        confidence: 1.0,
+        salience: 0.8,
+        emotion: 'tired-but-proud',
+        bypassAttention: true
+      });
+    }
+    v.thoughts = v.thoughts || [];
+    v.thoughts.push({ text: 'Muscles ache, but duty comes first (tired-but-proud)', val: 2 });
+  }
+
   if(action.plan && action.plan.length){
     v.plan = action.plan.map(s => Object.assign({}, s));
   } else if(action.verb){
@@ -1128,6 +1317,9 @@ function handleActionFailure(v, action, reason, targetKey){
 /* ---- Wrapped planTick: catch pathing stuck & step failure without silent discard ---- */
 const __basePlanTick18 = planTick;
 planTick = function(v, dtH){
+  // Phase 6C: Survival Guard check on live wrapper chain before verb dispatch (C1)
+  if(typeof checkSurvivalGuardInterrupt === 'function' && checkSurvivalGuardInterrupt(v)) return;
+
   if(!v.plan || !v.plan.length) return;
   const step = v.plan[0];
   if(step.verb === 'work'){
@@ -1182,6 +1374,11 @@ function brainThink(v, dtH, perception){
     }
     v.replanNeeded = false;
     v.interrupted = false;
+  }
+
+  // Phase 6C: Survival Guard check before all verb dispatch (C1)
+  if(typeof checkSurvivalGuardInterrupt === 'function' && checkSurvivalGuardInterrupt(v)){
+    return { plan: v.plan, currentAction: v.currentAction };
   }
 
   // Utility Action Selection: if no plan, score all candidates and pick best!

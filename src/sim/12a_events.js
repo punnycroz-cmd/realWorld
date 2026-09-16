@@ -100,6 +100,14 @@ function guardPlanFor(v, need){
     const esc = getShallowEscapeVector(v.x, v.y);
     return [{ verb: 'go', tx: v.x + esc.dx * CS * 4, ty: v.y + esc.dy * CS * 4, guard: true }];
   }
+  if(need === 'rest_or_tend'){
+    const b = v.body;
+    const hasOpenWound = b && b.wounds && b.wounds.some(w => w.open || w.bleed > 0 || !w.dressed);
+    if(hasOpenWound){
+      return [{ verb: 'tend', person: v.name, guard: true }];
+    }
+    return [{ verb: 'rest', hours: 2, guard: true }];
+  }
   return [];
 }
 /* Does the current plan already work toward satisfying a survival need?
@@ -117,6 +125,7 @@ function planAddressesNeed(plan, need){
     if(need === 'sleep' && (vb === 'sleep' || vb === 'rest')) return true;
     if((need === 'warm' || need === 'cool') && (vb === 'rest' || vb === 'sleep')) return true;
     if(need === 'flee_water' && vb === 'go') return true;
+    if(need === 'rest_or_tend' && (vb === 'rest' || vb === 'sleep' || vb === 'tend')) return true;
   }
   return false;
 }
@@ -140,6 +149,7 @@ function survivalGuard(v){
   } else if(b.hydration < 0.12) need = 'drink';
   else if(b.satiety < 0.10) need = 'eat';
   else if(b.fatigue > 0.96) need = 'sleep';
+  else if((b.blood != null ? b.blood : 1.0) < 0.70) need = 'rest_or_tend';
   else if(b.coreTemp < 35.0) need = 'warm';
   else if(b.coreTemp > 39.5) need = 'cool';
   else if(v.state === 'drown_panic' && b.oxygen < 0.3) need = 'flee_water';

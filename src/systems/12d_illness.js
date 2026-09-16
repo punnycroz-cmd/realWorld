@@ -13,4 +13,18 @@ function illnessInjuryTick(v, dtH){
     b.injury = Math.max(0, b.injury - dtH * 0.08);
     b.illness = Math.max(0, b.illness - dtH * 0.06);
   }
+
+  // Phase 6C: Untreated wounds -> infection chain (C4)
+  if(b.wounds && b.wounds.length){
+    let maxInf = 0;
+    for(const w of b.wounds){
+      if(!w.dressed && w.inf > 0.15) maxInf = Math.max(maxInf, w.inf);
+    }
+    if(maxInf > 0.15){
+      b.illness = clamp((b.illness || 0) + dtH * 0.03 * maxInf, 0, 1);
+    }
+  }
+
+  // Update body work and speed factors
+  if(typeof calcBodyFactors === 'function') calcBodyFactors(v);
 }

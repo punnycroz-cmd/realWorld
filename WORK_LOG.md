@@ -645,3 +645,48 @@ deaths (was incorrectly asserting zero `starvation`).
 - Perf probes: Robin 1.70 ms/tick, Examiner 3.17 ms/tick (20 villagers × 3 days, machine-dependent) — both well under threshold, no optimization needed.
 - Debt carried: presence group API still 0 in-game callers (→ wire in 6C/6D or descope); proximity fallback ±1 tile; pre-existing Math.random in ui/10_controls.js:38.
 - Commit 6B riêng. Next: 6C (Survival Guard, conflicting motives, emotions, impairment, identity).
+
+### Master-doc adaptation + D1–D4 detail (2026-09-16, ~09:05 PDT)
+- User gửi Master Document v1.0, yêu cầu adapt chọn lọc (chỉ logic game, bỏ roadmap).
+- Lead viết `docs/ADAPT_MASTER_DOC.md` (ADOPT sau Phase 6 / DISCUSS D1–D4 / DEFER / DROP) và `docs/ADAPT_D1-D4_DETAIL.md` (so từng mục: doc gốc nói gì → code hiện có gì [kèm file:dòng] → sẽ làm gì → không làm gì → ví dụ đời thật).
+- D1: khuyến nghị Option 1 (giữ C3 + cross-effects), 12 chất → Phase 7. User không bịa số (đồng ý), nhưng lo feeling-scape nghèo cho AI brain → đề xuất 2 bổ sung, lead **chấp nhận cả 2**: (1) định nghĩa `FeelingSubstrate` interface ngay (getFeelingScape/getLayers; C3 hiện tại đi qua nó; Phase 7 swap implementation không phá AI brain; test chạy được cả 2); (2) cross-effects dạng accumulator có tích tụ + decay scale theo dtH (determinism), không conditional bật/tắt. Đã cập nhật vào D1–D4 detail doc.
+- D2: vocabulary-only (mọi organ state đều bucket-hóa được từ body fields). D3: intensity fragmenting 4 mức cho memory/HUD, bỏ personality matrix (chưa có consumer). D4: functional core (consolidation + morning mood), bỏ REM/coherence formula.
+- Kỷ luật giữ: presentation không lái behavior; interface phải được dùng thật (chống bug #13).
+
+### Hearth external build analysis (2026-09-16, ~09:20 PDT)
+- User upload `workspace.tar.gz`: build "Hearth" (~5.300 dòng single-file, RimWorld-tradition, 14 dân, 366 ngày/0.6–1.8s) — tác giả áp dụng literally review Willowbrook Natura của ta (trích đúng số bug #28/#31/#33/#34/#5). Chưa rõ provenance/quyền sử dụng — đã hỏi user.
+- Xác nhận thiết kế ta: survivalGuard veto tách lethal/incapacitating (= C1 6C), utility ladder bounded, why-trace panel (= #pi-why). Ta đi trước ở: epistemic layer (nó ghi "villagers still omniscient"), attention gates, sói 2-state, scarcity pricing + reputation (kế hoạch 6D của ta).
+- 3 bài học đắt: (1) "Misery is BOUNDED; comfort is not" — mood kẹt −100 cả năm là ratchet không phải con người → accumulator của ta **phải có sàn** + thích nghi; (2) "Opinion is not one number: list of reasons, each decays" → steal cho 6D reputation; (3) **"Long-run balance is not solved"** — sau 1 năm còn 0–1 dân (35 sinh/48 chết); nguyên nhân: labour allocation ("2 người lo nước hôm nay" thay vì re-bid mỗi tick) — blind spot của ta (utility AI cũng re-bid mỗi tick).
+- Backlog đã chốt với user: (a) soak test dài ngày + (b) labour allocation model → Phase 7; (c) sàn accumulator + thích nghi → 6E (cùng D1 decay couplings); (d) relationship-dạng-lý-do-decay → 6D reputation.
+- RimWorld cheatsheet đính kèm: "Be accurate where accuracy creates story. Be stylised everywhere else." — đúng tinh thần adaptation; đã ném cho 4 personas.
+
+### 4-persona debate về D1–D4 (2026-09-16, ~09:14 PDT — đang chạy)
+- User yêu cầu tạm dừng fix 6C để thảo luận thêm. Đã kill run fix (code dở trên disk).
+- agy/Robin đang chạy tranh luận 4 personas (Thợ cả, Ông đồ, Nhà sinh thái, Nhà nhận thức luận — theo biên bản vòng 2) về các thay đổi D1–D4: interface có phải fiction không, D2 có mất story nào không, D3 presentation vs decoration, D4 defer nightmare→trauma có lỗ hổng không, quota cắn thì cắt gì trước. Chỉ thảo luận, không đụng code. Output: `docs/ADAPT_4PERSONA_DEBATE.md`.
+- 6C fix attempt 2/2 (guard check vào brainThink) TẠM DỪNG — resume sau khi user chốt từ debate.
+
+### Chốt 1B/Beta/3B + 4 điều kiện enforce + 3 ADR (2026-09-16, ~09:30 PDT)
+- EP chốt theo khuyến nghị lead: **1B / Beta / 3B**, kèm 4 điều kiện enforce (ghi từ Hearth: quyết định không có cơ chế enforce sẽ bị undermine):
+  1. Lint rule cấm `v.body.` trong `src/brain/**` (CI fail) — chống bypass interface.
+  2. ADR ghi rõ interface KHÔNG hứa swap êm — chỉ hứa 1 chỗ viết lại thay vì 100 chỗ.
+  3. A1 eye-read probe 24h đọc bằng mắt (chống bug attention filter kiểu Hearth #16).
+  4. `stressResidue ≤ 0.35×maxStress` + recovery 8%/ngày bình yên (ngày bình yên = không threat, không loss, mood>0).
+- Đã viết 3 ADR TRƯỚC khi code (theo yêu cầu EP): `docs/adr/ADR-001-substrate-interface.md`,
+  `ADR-002-smallest-6e-beta.md`, `ADR-003-stress-residue.md`. ADR-001 ghi rõ lý do đã sửa
+  (interface = ép kỷ luật A4, không phải swap êm). Các số 0.35/8% là tham số tune khởi đầu, không phải chân lý.
+- 6C fix attempt 2/2 vẫn TẠM DỪNG (chờ resume sau khi chốt debate).
+
+### 6C PASS — commit (2026-09-16, ~09:56 PDT)
+- **Examiner Tier-3 re-audit: PASS** (attempt 2/2). Guard check nằm trong production `brainThink`
+  (`src/brain/utility.js:1380`), trước `evaluateAndApplyUtilityAction` và `planTick` — không wrapper
+  nào shadow được (grep `brainThink =` = 0 hit). Return giữ contract `{plan, currentAction}` cho brainLearn.
+- Examiner tự chạy: harness 259 lines 0 FAIL (24:12/12, 25:11/11, 26:9/9); probe Robin 13/13;
+  **probe adversarial riêng 9/9**: E1 full path updateVillagerAI với vết thương hở → tend có guard,
+  workProgress đóng băng; E2 biên blood=0.69 fire / 0.71 không fire; E3 brainControlled (player)
+  chảy máu vẫn bị interrupt (guard không miễn trừ player); E4 150 ticks blood=0.5 → verb work
+  không bao giờ quay lại; E5 flee plan không bị blood guard giẫm (flee ưu tiên hơn, đúng thiết kế).
+- Test 26.3 chạy bundled planTick thật (không mock, không wait-evasion). Scope 17 files đều là 6C
+  hợp lệ, không creep. Không thêm Math.random() gameplay. Rebuild byte-identical (930.544 bytes),
+  deterministic build.
+- Debt còn lại (non-blocking): `__uvUtilityBase` dead capture (từ 6A); test modules bundle vào game
+  (quyết định kiến trúc để sau 6C); `fire_savior` dead bias + `betrayed` chưa effect → backlog 6D.

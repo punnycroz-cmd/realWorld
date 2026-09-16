@@ -92,6 +92,24 @@ function doRescueStep(v, step, dtH){
   witnessEvent(v, 'Laid ' + t.name + ' down inside');
   witnessEvent(t, 'Carried to shelter by ' + v.name);
   gainXP(v, 'medicine', 4);
+  if(t.downReason === 'drowning' || (t.body && t.body.drownH > 0)){
+    if(typeof observe === 'function'){
+      observe(t, { event: 'rescued from drowning', what: 'rescued from deep water by ' + v.name }, {
+        topic: 'near_drowning_survivor',
+        salience: 0.95,
+        source: 'direct',
+        bypassAttention: true
+      });
+    }
+  }
+  if(typeof observe === 'function'){
+    observe(v, { event: 'rescued_villager', what: 'rescued ' + t.name + ' and brought them to shelter' }, {
+      topic: 'village_protector',
+      salience: 0.92,
+      source: 'direct',
+      bypassAttention: true
+    });
+  }
   return true;
 }
 function nearestThreat(v){

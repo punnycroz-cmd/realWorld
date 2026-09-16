@@ -14,6 +14,12 @@ let inspectedPawnIdx = 0;
 function ensureBody(v){
   if(v.body){
     if(v.body.hygiene == null) v.body.hygiene = 0.95;
+    if(v.body.workFactor == null) v.body.workFactor = 1.0;
+    if(v.body.speedFactor == null) v.body.speedFactor = 1.0;
+    v.bodyWorkFactor = v.body.workFactor;
+    v.bodySpeedFactor = v.body.speedFactor;
+    if(!v.emotions) v.emotions = [];
+    if(!v.identity) v.identity = [];
     v.hygiene = v.body.hygiene;
     return v.body;
   }
@@ -30,8 +36,14 @@ function ensureBody(v){
     oxygen: 1.0,
     hygiene: 0.95,
     lastMeal: 2.0,
-    lastDrink: 1.0
+    lastDrink: 1.0,
+    workFactor: 1.0,
+    speedFactor: 1.0
   };
+  v.bodyWorkFactor = 1.0;
+  v.bodySpeedFactor = 1.0;
+  if(!v.emotions) v.emotions = [];
+  if(!v.identity) v.identity = [];
   v.hygiene = v.body.hygiene;
   return v.body;
 }
@@ -99,11 +111,32 @@ function bodyTick(v, dtH){
       b.hydration = Math.min(1.0, b.hydration + dtH * 1.5); // swallowing water
     }
   } else if(isShallow){
-    if(v.state === 'walk' || v.state === 'wade') v.state = 'wade';
+    if(v.state === 'drown_panic'){
+      if(typeof observe === 'function'){
+        observe(v, { event: 'survived near-drowning', what: 'escaped deep water after near drowning' }, {
+          topic: 'near_drowning_survivor',
+          salience: 0.95,
+          source: 'direct',
+          bypassAttention: true
+        });
+      }
+    }
+    if(v.state === 'walk' || v.state === 'wade' || v.state === 'drown_panic') v.state = 'wade';
     exert = (v.moving ? 1.4 : 0.2); // wading drag
     b.oxygen = Math.min(1.0, b.oxygen + dtH * 20);
     if(envTemp > 24) b.stress = Math.max(0, b.stress - dtH * 0.5); // refreshing summer dip
   } else {
+    if(v.state === 'drown_panic'){
+      if(typeof observe === 'function'){
+        observe(v, { event: 'survived near-drowning', what: 'escaped deep water after near drowning' }, {
+          topic: 'near_drowning_survivor',
+          salience: 0.95,
+          source: 'direct',
+          bypassAttention: true
+        });
+      }
+      v.state = 'idle';
+    }
     b.oxygen = Math.min(1.0, b.oxygen + dtH * 20);
   }
 
@@ -153,4 +186,110 @@ function bodyTick(v, dtH){
 
   // Sensation drives
   v.thoughts = bodyDrives(v);
+
+  // Phase 6C: Body-factor chain (C4)
+  calcBodyFactors(v);
+
+  // Phase 6C: Emotion derivation layer (C3)
+  updateDerivedEmotions(v, dtH);
+}
+
+/* ---- Phase 6C: Body-factor chain (C4) ----
+   Untreated wounds -> infection; every condition multiplies work factor /
+   speed factor by severity; pain + blood loss stack. */
+function calcBodyFactors(v){
+  const b = ensureBody(v);
+  if(typeof syncWounds === 'function') syncWounds(v);
+  let pain = (b.injury || 0) * 0.5;
+  let woundInf = 0;
+  if(b.wounds && b.wounds.length){
+    for(const w of b.wounds){
+      pain += (w.sev || 0) * (w.dressed ? 0.4 : 1.0);
+      woundInf = Math.max(woundInf, w.inf || 0);
+    }
+  }
+  pain = clamp(pain, 0, 1);
+  const blood = b.blood != null ? b.blood : 1.0;
+  const bloodLoss = clamp(1.0 - blood, 0, 1);
+  const infection = clamp(Math.max(woundInf, b.illness || 0), 0, 1);
+
+  // Multiplicative degradation across conditions (pain + blood loss stack)
+  let wf = 1.0;
+  let sf = 1.0;
+  if(pain > 0.05){
+    wf *= Math.max(0.1, 1.0 - pain * 0.45);
+    sf *= Math.max(0.1, 1.0 - pain * 0.35);
+  }
+  if(bloodLoss > 0.05){
+    wf *= Math.max(0.1, 1.0 - bloodLoss * 0.50);
+    sf *= Math.max(0.1, 1.0 - bloodLoss * 0.40);
+  }
+  if(infection > 0.05){
+    wf *= Math.max(0.1, 1.0 - infection * 0.40);
+    sf *= Math.max(0.1, 1.0 - infection * 0.30);
+  }
+  if(typeof hasFracture === 'function' && hasFracture(v, 'leg')){
+    wf *= 0.3;
+    sf *= 0.2;
+  }
+  b.workFactor = +clamp(wf, 0.05, 1.0).toFixed(3);
+  b.speedFactor = +clamp(sf, 0.05, 1.0).toFixed(3);
+  v.bodyWorkFactor = b.workFactor;
+  v.bodySpeedFactor = b.speedFactor;
+  return { workFactor: b.workFactor, speedFactor: b.speedFactor, pain, bloodLoss, infection };
+}
+
+/* ---- Phase 6C: Emotion derivation layer (C3) ----
+   Emotions derived from body/needs + decay: hungry->anxious,
+   pain->suffering, stable->content. */
+function recordOrUpdateEmotion(v, tag, intensity, subject){
+  if(!v.emotions) v.emotions = [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1;
+  const existing = v.emotions.find(e => e.tag === tag && (!subject || e.subject === subject));
+  if(existing){
+    existing.intensity = Math.max(existing.intensity || 0, intensity);
+    existing.when = now;
+  } else {
+    v.emotions.push({ tag, intensity, when: now, subject: subject || null });
+    if(v.emotions.length > 20) v.emotions.shift();
+  }
+}
+
+function updateDerivedEmotions(v, dtH){
+  const b = ensureBody(v);
+  if(!v.emotions) v.emotions = [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0)/24) : 1;
+  const dt = dtH != null ? dtH : 0.5;
+
+  // 1. Emotion decay over time
+  for(let i = v.emotions.length - 1; i >= 0; i--){
+    const e = v.emotions[i];
+    if(e.decay !== false){
+      e.intensity = Math.max(0, +(e.intensity - dt * 0.15).toFixed(4));
+      if(e.intensity <= 0.01 && e.tag !== 'content'){
+        v.emotions.splice(i, 1);
+      }
+    }
+  }
+
+  // 2. Derive: hungry -> anxious
+  if(b.satiety < 0.35){
+    const anxiousIntensity = +clamp((0.35 - b.satiety) / 0.35, 0.1, 1.0).toFixed(2);
+    recordOrUpdateEmotion(v, 'anxious', anxiousIntensity);
+  }
+
+  // 3. Derive: pain/damage -> suffering
+  const pain = (b.injury || 0) * 0.5 + ((b.wounds || []).reduce((s, w) => s + (w.sev || 0), 0));
+  const bloodLoss = clamp(1.0 - (b.blood != null ? b.blood : 1.0), 0, 1);
+  const infection = Math.max((b.wounds || []).reduce((mx, w) => Math.max(mx, w.inf || 0), 0), b.illness || 0);
+  const totalSuffering = Math.max(pain, bloodLoss, infection);
+  if(totalSuffering > 0.15){
+    const sufferingIntensity = +clamp(totalSuffering, 0.1, 1.0).toFixed(2);
+    recordOrUpdateEmotion(v, 'suffering', sufferingIntensity);
+  }
+
+  // 4. Derive: stable -> content
+  if(b.satiety >= 0.55 && b.hydration >= 0.55 && b.fatigue <= 0.45 && totalSuffering < 0.15){
+    recordOrUpdateEmotion(v, 'content', 0.6);
+  }
 }
