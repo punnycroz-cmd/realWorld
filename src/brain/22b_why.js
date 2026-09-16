@@ -33,6 +33,7 @@ evaluateVillagerUtility = function(v){
         name: c.name || c.id || 'action',
         category: c.category || null,
         score: (c.score === -Infinity) ? 'ruled-out' : +(+c.score).toFixed(2),
+        reason: c.reason || null,
         distCells: dist,
         source: c.source || null,
         opportunity: !!c.opportunity,
@@ -47,7 +48,8 @@ evaluateVillagerUtility = function(v){
         id: r.bestAction.id || null,
         name: r.bestAction.name || r.bestAction.id || 'action',
         category: r.bestAction.category || null,
-        score: +(+(r.bestAction.score)).toFixed(2)
+        score: +(+(r.bestAction.score)).toFixed(2),
+        reason: r.bestAction.reason || null
       } : null,
       // The inputs that fed the scores (need deficits, personality, time).
       // These are the "because": hungry + close + brave -> chose this.
@@ -105,7 +107,7 @@ function explainAction(name){
     role: v.role || null,
     state: v.state || null,
     plan: plan,
-    currentAction: v.currentAction ? { id: v.currentAction.id || null, name: v.currentAction.name || v.currentAction.id || null } : null,
+    currentAction: v.currentAction ? { id: v.currentAction.id || null, name: v.currentAction.name || v.currentAction.id || null, reason: v.currentAction.reason || null } : null,
     decision: d,
     beliefsActedOn: beliefs,
     // Last failure -> observation -> re-evaluation entry (never silent).
@@ -134,12 +136,14 @@ updateHUD = function(){
     const w = d.winner;
     let html = '<div class="pi-why-winner">▶ ' + escapeHtml(w ? w.name : '(idle)') +
       (w ? ' <span class="pi-why-score">' + w.score + '</span>' : '') + '</div>';
+    if(w && w.reason) html += '<div class="pi-why-reason" style="font-size:11px;color:#94a3b8;margin:2px 0 4px 0;">why: ' + escapeHtml(w.reason) + '</div>';
     html += '<div class="pi-why-why">because: ' + escapeHtml(needBits.length ? needBits.join(', ') : 'no pressing need') +
       (inp.isNight ? ' · night' : '') + '</div>';
     html += '<div class="pi-why-top">';
     for(const c of (d.top || []).slice(0, 4)){
       const mark = (w && c.id === w.id) ? '● ' : '○ ';
-      html += '<div>' + mark + escapeHtml(c.name) + ' <span class="pi-why-score">' + c.score + '</span></div>';
+      html += '<div>' + mark + escapeHtml(c.name) + ' <span class="pi-why-score">' + c.score + '</span>' +
+        (c.reason ? ' <span class="pi-why-detail" style="font-size:10px;opacity:0.75;">(' + escapeHtml(c.reason) + ')</span>' : '') + '</div>';
     }
     html += '</div>';
     if(v.thoughts && v.thoughts.length && (v.thoughts[0].val || 0) < 0)

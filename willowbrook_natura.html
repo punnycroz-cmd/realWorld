@@ -5618,6 +5618,12 @@ function loop(timestamp){
   updateHUD();
 }
 
+function soulTick(v, dtH){
+  bodyTick(v, dtH);
+  if(v.isNPC) updateVillagerAI(v, dtH);
+  else updatePlayerPawn(v, dtH);
+}
+
 function simTick(dtH){
   W.tod += dtH;
   if(W.tod >= 24){
@@ -5656,9 +5662,7 @@ function simTick(dtH){
 
   // Villager biological ticks & autonomous schedules
   for(const v of VILLAGERS){
-    bodyTick(v, dtH);
-    if(v.isNPC) updateVillagerAI(v, dtH);
-    else updatePlayerPawn(v, dtH);
+    soulTick(v, dtH);
   }
 }
 
@@ -7493,12 +7497,18 @@ function doForageStep(v, step, dtH){
     if(s.kind === 'bush'){
       const cc = cellChunk(s.wx, s.wy);
       if(cc.c){
-        // Foraged bushes regrow after 4 days (negative value = regrow day).
-        // This keeps foraging sustainable; without it the finite bushes run
-        // out and the village starves once the inn bread is gone.
-        cc.c.bush[cc.i] = -(W.day + 4);
-        const bc = cc.c.bushCells;
-        if(bc){ const k = bc.indexOf(cc.i); if(k >= 0) bc.splice(k, 1); }
+        // Carrying capacity & tile depletion (B2):
+        // Harvesting depletes the tile/bush. If full (>0.5), it drops to partial (0.4);
+        // repeated harvesting completely depletes the bush (<= 0), scheduling regen by season.
+        const curB = cc.c.bush[cc.i];
+        if(curB > 0.5){
+          cc.c.bush[cc.i] = 0.4;
+        } else {
+          const regenDays = (W.season === 'Spring') ? 3 : ((W.season === 'Summer') ? 4 : 5);
+          cc.c.bush[cc.i] = -(W.day + regenDays);
+          const bc = cc.c.bushCells;
+          if(bc){ const k = bc.indexOf(cc.i); if(k >= 0) bc.splice(k, 1); }
+        }
         markChunkDirty(cc.c);
       }
       addInv(v, 'berries', 2 + Math.floor(srand() * 3));
@@ -7984,10 +7994,11 @@ function illnessInjuryTick(v, dtH){
 }
 /* ---- world: crops, chickens, campfires, lightning, wildfire, regrow ---- */
 function cropTick(h){
-  if(W.season === 'Winter') return;
+  if(W.season === 'Winter') return; // Winter growth is 0
+  const seasonMult = (W.season === 'Summer') ? 1.2 : ((W.season === 'Spring') ? 1.0 : 0.7);
   for(const c of CROPS){
     if(c.stage >= 3) continue;
-    c.grow += h / 24;
+    c.grow += (h / 24) * seasonMult;
     if(c.grow >= 2){ c.grow = 0; c.stage++; }
   }
 }
@@ -8038,11 +8049,117 @@ function lightningTick(h){
     if(Math.hypot(t.wx - wx, t.wy - wy) < 2.5){ ignite(t.wx, t.wy); break; }
   }
 }
+
+/* =====================================================================
+   PHASE 6B: WEATHER -> FIRE CAUSAL CHAIN (B3)
+   - dryDays counter -> dryness
+   - fire spread = f(fuel by terrain/tree/house, wind direction, dryness)
+   - rain/snow extinguishes fire
+   - tile burned -> scorched + ash pile with provenance 'burned'
+   ===================================================================== */
+function getDryness(){
+  if(typeof W === 'undefined') return 0.5;
+  if((W.rain || 0) > 0.25) return 0; // Active rain drenches terrain
+  const dryDays = W.dryDays || 0;
+  const tempBoost = Math.max(0, ((W.temp || 20) - 20) * 0.02);
+  const rainPenalty = (W.rain || 0) * 2.0;
+  return clamp((dryDays / 10) + tempBoost - rainPenalty, 0, 1);
+}
+
+function getCellFuel(wx, wy){
+  if(typeof getWaterDepth === 'function' && getWaterDepth(wx, wy) > 0) return 0;
+  const cc = cellChunk(wx, wy);
+  if(!cc || !cc.c) return 0;
+  const tt = cc.c.tileType ? cc.c.tileType[cc.i] : 0;
+  if(tt === 2 || tt === 3) return 0; // water, stone
+  if(tt === 5) return 0.8;           // wooden bridge / pier
+  if(typeof WILDTREES !== 'undefined'){
+    const t = WILDTREES.find(tr => tr.wx === wx && tr.wy === wy && tr.stage > 0);
+    if(t) return 2.0 * (t.stage / 3);
+  }
+  if(cc.c.bush && cc.c.bush[cc.i] > 0){
+    return 1.2 * cc.c.bush[cc.i];
+  }
+  if(typeof VILLAGE_BUILDINGS !== 'undefined'){
+    const bld = VILLAGE_BUILDINGS.find(b =>
+      wx >= b.wx && wx < b.wx + (b.tw || 4) &&
+      wy >= b.wy && wy < b.wy + (b.th || 4)
+    );
+    if(bld) return 1.5;
+  }
+  if(tt === 0 || tt === 4) return 0.5; // grass / field
+  return 0.2;
+}
+
+function onTileBurned(wx, wy){
+  const cc = cellChunk(wx, wy);
+  if(cc.c){
+    if(!cc.c.scorched) cc.c.scorched = new Uint8Array(cc.c.tileType.length);
+    cc.c.scorched[cc.i] = 1;
+
+    const ti = WILDTREES.findIndex(t => t.wx === wx && t.wy === wy);
+    if(ti >= 0){
+      if(cc.c.tStage) cc.c.tStage[cc.i] = 0;
+      WILDTREES.splice(ti, 1);
+    }
+    if(cc.c.bush && cc.c.bush[cc.i] > 0){
+      cc.c.bush[cc.i] = 0;
+      if(cc.c.bushCells){
+        const bi = cc.c.bushCells.indexOf(cc.i);
+        if(bi >= 0) cc.c.bushCells.splice(bi, 1);
+      }
+    }
+    markChunkDirty(cc.c);
+  }
+
+  // Scorch building if present
+  if(typeof VILLAGE_BUILDINGS !== 'undefined'){
+    for(const bd of VILLAGE_BUILDINGS){
+      if(wx >= bd.wx && wx < bd.wx + (bd.tw || 4) && wy >= bd.wy && wy < bd.wy + (bd.th || 4)){
+        bd.scorch = (bd.scorch || 0) + 1.5;
+        if(bd.scorch > 6 && !bd.ruined){
+          bd.ruined = true;
+          logEvent('fire', bd.name + ' was ruined by fire!');
+        }
+      }
+    }
+  }
+
+  // Create ash pile with provenance 'burned' (Principle 4)
+  const ax = wx * CS + 16, ay = wy * CS + 16;
+  const ashPile = dropPileAt(ax, ay, 'ash', 1);
+  if(ashPile){
+    ashPile.provenance = 'burned';
+    if(typeof createProvenance === 'function'){
+      const prov = createProvenance('wildfire', {}, 0.5, 'nature', W.day);
+      prov.provenance = 'burned';
+      prov.source = 'burned';
+      if(typeof pileProvList === 'function'){
+        pileProvList(ashPile).push({ item: 'ash', prov: prov });
+      }
+    }
+  }
+  logEvent('fire', `Tile (${wx}, ${wy}) burned to ash`);
+}
+
 function wildfireTick(h){
   if(!BURNING.length) return;
-  const dry = W.rain < 0.25;
+  const dryness = getDryness();
+  W.dryness = dryness;
+  const isRaining = (W.rain || 0) > 0.25;
+  const isSnowing = W.season === 'Winter' && (W.temp || 0) < 2 && (W.rain || 0) > 0.05;
+
   for(const b of BURNING.slice()){
-    b.t -= h;
+    // Rain and snow extinguish fire!
+    if(isRaining){
+      b.t -= h * (2.0 + (W.rain - 0.25) * 8.0);
+    } else if(isSnowing){
+      b.t -= h * 4.0;
+    } else {
+      b.t -= h;
+    }
+
+    // Villager burn damage
     for(const v of VILLAGERS){
       if(v.dead) continue;
       if(Math.hypot(v.x - (b.wx * CS + 16), v.y - (b.wy * CS + 16)) < CS * 1.2){
@@ -8053,38 +8170,59 @@ function wildfireTick(h){
         if(bd.injury >= 1) killVillager(v, 'burned in wildfire');
       }
     }
-    if(dry && srand() < (0.25 + W.windSpd * 0.1) * h){
-      const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-      const d = dirs[Math.floor(srand() * 4)];
-      const tree = WILDTREES.find(t => t.wx === b.wx + d[0] && t.wy === b.wy + d[1] && t.stage > 0);
-      if(tree) ignite(tree.wx, tree.wy);
-    }
-    if(b.t <= 0){
-      const bi = BURNING.indexOf(b); if(bi >= 0) BURNING.splice(bi, 1);
-      const ti = WILDTREES.findIndex(t => t.wx === b.wx && t.wy === b.wy);
-      if(ti >= 0){
-        const cc = cellChunk(b.wx, b.wy); if(cc.c.tStage){ cc.c.tStage[cc.i] = 0; markChunkDirty(cc.c); }
-        WILDTREES.splice(ti, 1);
+
+    // Fire spread f(fuel, wind direction, dryness)
+    if(!isRaining && !isSnowing && dryness > 0.05){
+      const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]];
+      const windAngle = W.windAng || 0;
+      const windSpd = W.windSpd || 1.0;
+      const wx = Math.cos(windAngle), wy = Math.sin(windAngle);
+
+      for(const [dx, dy] of dirs){
+        const nx = b.wx + dx, ny = b.wy + dy;
+        if(BURNING.some(existing => existing.wx === nx && existing.wy === ny)) continue;
+        const fuel = getCellFuel(nx, ny);
+        if(fuel <= 0) continue;
+
+        const dist = Math.hypot(dx, dy);
+        const windAlignment = (dx * wx + dy * wy) / dist; // -1 to 1
+        const windFactor = clamp(1.0 + windAlignment * 0.7 * (windSpd / 1.5), 0.2, 2.5);
+        const spreadProb = (0.08 + 0.35 * dryness) * fuel * windFactor * (h / dist);
+
+        if(srand() < spreadProb){
+          ignite(nx, ny);
+          break;
+        }
       }
+    }
+
+    if(b.t <= 0){
+      const bi = BURNING.indexOf(b);
+      if(bi >= 0) BURNING.splice(bi, 1);
+      onTileBurned(b.wx, b.wy);
     }
   }
 }
+
 function treeRegrowTick(h){
-  if(srand() >= 0.02 * h) return;
+  if(W.season === 'Winter') return; // Winter regen is 0!
+  const seasonRate = (W.season === 'Spring') ? 0.03 : ((W.season === 'Summer') ? 0.025 : 0.015);
+  if(srand() >= seasonRate * h) return;
   const t = WILDTREES[Math.floor(srand() * WILDTREES.length)];
   if(t && t.stage < 3){
     t.stage++;
     const cc = cellChunk(t.wx, t.wy); if(cc.c.tStage){ cc.c.tStage[cc.i] = t.stage; markChunkDirty(cc.c); }
   }
 }
-/* Bushes foraged for berries regrow after 4 days (c.bush[i] < 0 means the
-   absolute value is the day it regrows). Without this, foraging is a finite
-   resource and the village starves once the inn's bread runs out. */
+
+/* Bushes foraged for berries regrow after days set by season.
+   In WINTER, regen is 0 — bushes do not regrow until Spring. */
 let bushRegrowLastDay = -1;
 function bushRegrowTick(h){
-  // Check once per day, not every 0.5h tick.
   if(W.day === bushRegrowLastDay) return;
   bushRegrowLastDay = W.day;
+  // B2 Carrying capacity: winter regen is 0!
+  if(W.season === 'Winter') return;
   for(const c of chunks.values()){
     if(!c.bush) continue;
     let regrew = false;
@@ -8099,6 +8237,7 @@ function bushRegrowTick(h){
     if(regrew) markChunkDirty(c);
   }
 }
+
 let parityAcc = 0;
 function parityWorldTick(dtH){
   parityAcc += dtH;
@@ -8107,6 +8246,14 @@ function parityWorldTick(dtH){
     cropTick(h); chickenTick(h); fireTick(h);
     lightningTick(h); wildfireTick(h);
     socialTick(h); pregnancyTick(h / 24); treeRegrowTick(h); bushRegrowTick(h);
+
+    // Weather dryness update
+    if(W.rain < 0.15 && !(W.season === 'Winter' && (W.temp || 20) < 0)){
+      W.dryDays = (W.dryDays || 0) + (h / 24);
+    } else if(W.rain > 0.3){
+      W.dryDays = Math.max(0, (W.dryDays || 0) - (h / 24) * 3);
+    }
+    W.dryness = getDryness();
   }
 }
 const __baseSimTick = simTick;
@@ -8114,6 +8261,11 @@ simTick = function(dtH){
   __baseSimTick(dtH);
   parityWorldTick(dtH);
 };
+
+if(typeof window !== 'undefined' && window.__aiBridge){
+  window.__aiBridge.getDryness = function(){ return getDryness(); };
+  window.__aiBridge.getDryDays = function(){ return (typeof W !== 'undefined') ? (W.dryDays || 0) : 0; };
+}
 /* ---- overlay: piles, campfires, crops, chickens, wildfire ---- */
 function drawParityOverlay(){
   if(!ctx) return;
@@ -8405,6 +8557,75 @@ window.__aiBridge.getDreams = function(name){
   return (v.dreams || []).slice();
 };
 window.__aiBridge.getCapabilityGaps = function(){ return CAPABILITY_GAPS.slice(); };
+
+/* =====================================================================
+   PHASE 6B: GOAL TEMPLATES FOR DYNAMIC CANDIDATE GENERATION
+   Templates represent structured fallback goals when an action is blocked.
+   Used by generateDynamicCandidates in utility.js alongside beliefs and habits.
+   ===================================================================== */
+const GOAL_TEMPLATES = [
+  {
+    id: 'gt_work_local',
+    category: 'work',
+    name: 'Shift to local productive labor',
+    generate: function(v, blocked){
+      return {
+        id: 'template_work_local',
+        name: 'Shift to local productive labor',
+        category: 'work',
+        targetKey: 'local_work',
+        source: 'template',
+        reason: 'Goal template: shift to accessible labor when primary path blocked',
+        tx: v.x, ty: v.y,
+        plan: [{ verb: 'work', hours: 1 }]
+      };
+    }
+  },
+  {
+    id: 'gt_sustenance_inn',
+    category: 'survival',
+    name: 'Fall back to inn for sustenance',
+    generate: function(v, blocked){
+      const bKey = blocked ? (blocked.targetKey || blocked.id) : null;
+      if(bKey === 'inn') return null;
+      const innPos = (typeof placePos === 'function') ? placePos('inn') : null;
+      if(innPos){
+        return {
+          id: 'template_inn_sustenance',
+          name: 'Fall back to inn for sustenance',
+          category: 'survival',
+          targetKey: 'inn',
+          source: 'template',
+          reason: 'Goal template: seek sustenance at village inn',
+          tx: innPos.x, ty: innPos.y,
+          plan: [{ verb: 'go', place: 'inn', targetKey: 'inn' }, { verb: 'eat' }]
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'gt_pause_recover',
+    category: 'leisure',
+    name: 'Pause and adapt to obstruction',
+    generate: function(v, blocked){
+      return {
+        id: 'template_pause',
+        name: 'Pause and adapt to obstruction',
+        category: 'leisure',
+        targetKey: 'pause_local',
+        source: 'template',
+        reason: 'Goal template: pause and adapt to obstruction',
+        tx: v.x, ty: v.y,
+        plan: [{ verb: 'wait', hours: 0.5 }]
+      };
+    }
+  }
+];
+
+if(typeof window !== 'undefined' && window.__aiBridge){
+  window.__aiBridge.getGoalTemplates = function(){ return GOAL_TEMPLATES.slice(); };
+}
 
 /* =====================================================================
    PART 13B: ECONOMY — gold, Sella's shop, buy/sell verbs.
@@ -9565,7 +9786,16 @@ function wolfBrain(a, dtH){
   const px = a.x, py = a.y;
   const fireNear = FIRES.some(f => f.burnH > 0 && Math.hypot(f.x - px, f.y - py) < CS * 5);
   const villsNear = VILLAGERS.filter(v => !v.dead && !v.downed && Math.hypot(v.x - px, v.y - py) < CS * 7);
-  if(fireNear || villsNear.length >= 3 || villsNear.some(v => v.name === 'Gareth')){
+  const torchNear = (typeof TORCHES !== 'undefined' && TORCHES.some(t => Math.hypot(t.x - px, t.y - py) < CS * 5)) ||
+                    (typeof VILLAGE_OBJECTS !== 'undefined' && VILLAGE_OBJECTS.some(o => (o.kind === 'torch' || o.torch) && Math.hypot(o.x - px, o.y - py) < CS * 5)) ||
+                    villsNear.some(v => v.hasTorch || v.torch || (v.inv && v.inv.torch > 0) || (v.equippedTool && (v.equippedTool === 'torch' || v.equippedTool.kind === 'torch')));
+
+  const isStarving = Boolean(a.starving || a.extremeHunger || (a.hunger != null && a.hunger >= 0.8));
+  const crowdDeterred = villsNear.length >= 3 || villsNear.some(v => v.name === 'Gareth');
+  const fireDeterred = fireNear || torchNear;
+
+  // 2-state wolf: normally deterred by fire/torch/crowd; EXTREME hunger overrides fear!
+  if((fireDeterred || crowdDeterred) && !isStarving){
     const ang = Math.atan2(py, px);
     moveAnimal(a, px + Math.cos(ang) * CS * 10, py + Math.sin(ang) * CS * 10, dtH, 1.2);
     a.state = 'flee'; return;
@@ -9580,8 +9810,10 @@ function wolfBrain(a, dtH){
       if(o === v || o.dead) continue;
       if(Math.hypot(o.x - v.x, o.y - v.y) < CS * 8) companions++;
     }
-    if(companions >= 2) continue;
-    if(fenceNear(v.x, v.y, 6)) continue;
+    const targetHasTorch = v.hasTorch || v.torch || (v.inv && v.inv.torch > 0) || (v.equippedTool && (v.equippedTool === 'torch' || v.equippedTool.kind === 'torch'));
+    if(targetHasTorch && !isStarving) continue;
+    if(companions >= 2 && !isStarving) continue;
+    if(fenceNear(v.x, v.y, 6) && !isStarving) continue;
     if(d < bd){ bd = d; target = v; tKind = 'villager'; }
   }
   for(const c of CHICKENS){
@@ -9726,11 +9958,11 @@ function animalBrain(a, dtH){
 let animSlowAcc = 0;
 function animalFrameTick(dtH){
   const step = Math.min(dtH, 0.03);
+  const wolfRate = (typeof W !== 'undefined' && W.season === 'Winter') ? 0.022 : 0.012;
   for(const a of ANIMALS.slice()){
     if(a.dead) continue;
-    // Phase 4 balance: slower hunger regen (0.02->0.012/h) — wolves hunt less
-    // relentlessly, giving mauled villagers time to recover between attacks.
-    a.hunger = clamp((a.hunger || 0) + dtH * 0.012, 0, 1);
+    // Phase 4 balance + 6B season: wolves hunt more aggressively in winter
+    a.hunger = clamp((a.hunger || 0) + dtH * (a.kind === 'wolf' ? wolfRate : 0.012), 0, 1);
     a.atkCd = Math.max(0, (a.atkCd || 0) - dtH);
     animalBrain(a, step);
     if(a.hp <= 0) killAnimal(a, null);
@@ -9759,7 +9991,8 @@ function worldSlowTick(h){
       }
     }
   }
-  if(srand() < 0.02 * h && !ANIMALS.some(a => a.kind === 'bear' && !a.dead)){
+  // 6B: 4 seasons affect huntable game — bears hibernate during winter!
+  if((typeof W === 'undefined' || W.season !== 'Winter') && srand() < 0.02 * h && !ANIMALS.some(a => a.kind === 'bear' && !a.dead)){
     const ang = srand() * Math.PI * 2;
     spawnAnimal('bear', Math.cos(ang) * 30 * CS + 16, Math.sin(ang) * 26 * CS + 16);
     logEvent('wildlife', 'A bear has been sighted in the wilds');
@@ -13951,12 +14184,43 @@ function scoreCandidateAction(v, c){
   return score;
 }
 
+/* ---- Transparent Reason Derivation for Candidates ---- */
+function getCandidateReason(v, c){
+  if(c.reason) return c.reason;
+  if(c.id === 'flee') return 'Threat nearby: flee to safe shelter';
+  if(c.id === 'douse') return 'Wildfire threatens settlement structures or villagers';
+  if(c.id === 'eat_inv') return 'Hunger deficit: eat food from inventory';
+  if(c.id && c.id.startsWith('eat_pile')) return 'Belief: eat ' + (c.foodKind || 'food') + ' from ground pile';
+  if(c.id === 'eat_inn') return 'Belief: meal available at village inn';
+  if(c.id === 'eat_kitchen') return 'Belief: fresh bread available in kitchen';
+  if(c.id === 'explore_food') return 'Hunger deficit: search for wild food';
+  if(c.id === 'drink_well') return 'Thirst deficit: fresh water from village well';
+  if(c.id === 'drink_river') return 'Thirst deficit: drink from river';
+  if(c.id === 'drink_lake') return 'Thirst deficit: drink from lake';
+  if(c.id === 'sleep') return 'Fatigue deficit: sleep in bed';
+  if(c.id === 'rest') return 'Fatigue/injury: rest and recover';
+  if(c.id === 'warm') return 'Cold deficit: warm up by fire';
+  if(c.id === 'work_farm') return 'Farming: tend crops in field';
+  if(c.id === 'work_fish') return 'Fishing: fish by the lake';
+  if(c.id === 'work_forage') return 'Foraging: forage for wild food';
+  if(c.id === 'work_fell') return 'Logging: fell timber tree';
+  if(c.id && c.id.startsWith('work_recipe')) return 'Crafting: craft ' + (c.name || 'item');
+  if(c.id && c.id.startsWith('clean_')) return 'Sanitation: clean building';
+  if(c.id === 'cook') return 'Cooking: cook wholesome food';
+  if(c.id && c.id.startsWith('socialize')) return 'Social need: converse with companion';
+  if(c.id === 'trade_caravan') return 'Commerce: trade with merchant caravan';
+  if(c.id === 'leisure') return 'Leisure: stroll around village';
+  if(c.id === 'work_generic') return 'Labor: general village labor';
+  return 'Utility action: ' + (c.name || c.id);
+}
+
 /* ---- Utility Evaluator & Decision Selector ---- */
 function evaluateVillagerUtility(v){
   ensurePersonality(v);
   if(typeof ensureEpistemic === 'function') ensureEpistemic(v);
   const candidates = enumerateCandidateActions(v);
   for(const c of candidates){
+    if(!c.reason) c.reason = getCandidateReason(v, c);
     c.score = scoreCandidateAction(v, c);
   }
   // Deterministic sorting: highest score wins, ties broken via seeded hash
@@ -13996,32 +14260,280 @@ function evaluateAndApplyUtilityAction(v){
   return bestAction;
 }
 
-/* ---- Failure Handling: Observation -> Interpretation -> Knowledge -> Re-evaluation ---- */
+/* =====================================================================
+   PHASE 6B: DYNAMIC CANDIDATE GENERATION (B1)
+   When an action is blocked or fails, queries Epistemic Beliefs to generate
+   AT MOST 3 candidates from goal templates + beliefs + habit.
+   Replaces the static fallback ladder A -> B -> C.
+   Deterministic tie-breaking ensures identical candidates for identical seeds.
+   ===================================================================== */
+function generateDynamicCandidates(v, blockedAction, context){
+  if(!v) return [];
+  ensurePersonality(v);
+  if(typeof ensureEpistemic === 'function') ensureEpistemic(v);
+
+  const blockedKey = blockedAction ? (blockedAction.targetKey || (blockedAction.args && blockedAction.args.targetKey) || blockedAction.place || blockedAction.id) : null;
+  const blockedCat = blockedAction ? (blockedAction.category || blockedAction.kind || blockedAction.verb) : 'work';
+
+  const candidates = [];
+  const b = ensureBody(v);
+  const p = ensurePersonality(v);
+  const beliefs = (v.epistemic && v.epistemic.beliefs) || {};
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1;
+
+  const isTargetUnreach = (key) => {
+    if(!key || !v.unreachable) return false;
+    const rec = v.unreachable[key];
+    if(!rec) return false;
+    if(rec.until > now) return true;
+    delete v.unreachable[key];
+    return false;
+  };
+
+  // 1. Epistemic Beliefs
+  for(const k of Object.keys(beliefs)){
+    const bel = beliefs[k];
+    if(!bel || bel.superseded || (bel.confidence != null && bel.confidence < 0.15)) continue;
+    if(blockedKey && (k === blockedKey || (bel.content && (bel.content.place === blockedKey || bel.content.targetKey === blockedKey)))) continue;
+    if(isTargetUnreach(k)) continue;
+
+    if(bel.topic && (bel.topic.startsWith('food_') || bel.topic.startsWith('stash_') || bel.topic.startsWith('pile_'))){
+      const place = bel.content && bel.content.place;
+      const fKind = (bel.content && (bel.content.foodKind || bel.content.what || bel.content.kind || bel.content.name)) || 'food';
+      const pos = (place && typeof placePos === 'function' ? placePos(place) : null) ||
+                  (bel.content && bel.content.wx != null ? { x: bel.content.wx * CS + 16, y: bel.content.wy * CS + 16 } : null) ||
+                  (bel.where && bel.where.x != null ? { x: bel.where.x, y: bel.where.y } : null) ||
+                  (v ? { x: v.x, y: v.y } : { x: 0, y: 0 });
+      if(pos && (!blockedKey || place !== blockedKey)){
+        const conf = bel.confidence != null ? bel.confidence : 0.9;
+        candidates.push({
+          id: 'belief_' + k,
+          name: 'Seek ' + fKind + ' at ' + (place || 'stash'),
+          category: 'survival',
+          targetKey: k,
+          source: 'belief',
+          beliefConfidence: conf,
+          reason: `Belief: ${fKind} at ${place || 'stash'} (confidence ${conf.toFixed(2)})`,
+          tx: pos.x, ty: pos.y,
+          plan: [{ verb: 'go', tx: pos.x, ty: pos.y, targetKey: k }, { verb: 'eat' }]
+        });
+      }
+    } else if(bel.topic && (bel.topic.startsWith('bld_') || bel.topic.startsWith('workshop') || bel.topic.startsWith('smithy'))){
+      const bldId = (bel.content && bel.content.bldId) || bel.topic.replace('bld_', '');
+      const bPos = (typeof placePos === 'function') ? placePos(bldId) : null;
+      if(bPos && bldId !== blockedKey && !isTargetUnreach(bldId)){
+        const conf = bel.confidence != null ? bel.confidence : 0.85;
+        candidates.push({
+          id: 'belief_work_' + bldId,
+          name: 'Work at ' + bldId,
+          category: 'work',
+          targetKey: bldId,
+          source: 'belief',
+          beliefConfidence: conf,
+          reason: `Belief: accessible workshop at ${bldId} (confidence ${conf.toFixed(2)})`,
+          tx: bPos.x, ty: bPos.y,
+          plan: [{ verb: 'go', tx: bPos.x, ty: bPos.y, targetKey: bldId }, { verb: 'work', hours: 1 }]
+        });
+      }
+    } else if(bel.topic === 'well' || bel.topic === 'water_well'){
+      const wPos = (typeof placePos === 'function') ? placePos('well') : null;
+      if(wPos && 'well' !== blockedKey && !isTargetUnreach('well')){
+        const conf = bel.confidence != null ? bel.confidence : 0.95;
+        candidates.push({
+          id: 'belief_well',
+          name: 'Drink from well',
+          category: 'survival',
+          targetKey: 'well',
+          source: 'belief',
+          beliefConfidence: conf,
+          reason: `Belief: fresh water at well (confidence ${conf.toFixed(2)})`,
+          tx: wPos.x, ty: wPos.y,
+          plan: [{ verb: 'go', place: 'well', targetKey: 'well' }, { verb: 'drink' }]
+        });
+      }
+    }
+  }
+
+  // 2. Habits
+  const habits = (Array.isArray(v.habits) && v.habits.length) ? v.habits : (
+    (v.role === 'Master Blacksmith') ? ['smithing', 'rest_smithy'] :
+    (v.role === 'Village Farmer') ? ['farming', 'rest_home'] :
+    (v.role === 'Herbalist & Apothecary') ? ['foraging', 'herbalism'] :
+    (v.role === 'Innkeeper' || v.role === 'Baker & Shopkeeper') ? ['cooking', 'rest_inn'] :
+    ['work_generic', 'rest']
+  );
+
+  for(const h of habits){
+    if(h === 'smithing'){
+      const sPos = (typeof placePos === 'function') ? placePos('smithy') : null;
+      if(sPos && 'smithy' !== blockedKey && !isTargetUnreach('smithy')){
+        candidates.push({
+          id: 'habit_smithing',
+          name: 'Forge iron at Bram\'s anvil',
+          category: 'work',
+          targetKey: 'smithy',
+          source: 'habit',
+          habitScore: 25,
+          reason: 'Habit: skilled iron forging at smithy anvil',
+          tx: sPos.x, ty: sPos.y,
+          plan: [{ verb: 'go', place: 'smithy', targetKey: 'smithy' }, { verb: 'work', hours: 1 }]
+        });
+      }
+    } else if(h === 'farming'){
+      if('crops' !== blockedKey && !isTargetUnreach('crops') && typeof CROPS !== 'undefined' && CROPS.length > 0){
+        const c = CROPS[0];
+        candidates.push({
+          id: 'habit_farming',
+          name: 'Tend crops in field',
+          category: 'work',
+          targetKey: 'crops',
+          source: 'habit',
+          habitScore: 20,
+          reason: 'Habit: routine crop maintenance in field',
+          tx: c.wx * CS + 16, ty: c.wy * CS + 16,
+          plan: [{ verb: 'farm' }]
+        });
+      }
+    } else if(h === 'foraging'){
+      if(typeof findForageSpot === 'function'){
+        const fs = findForageSpot(v);
+        if(fs && ('forage_' + fs.wx + '_' + fs.wy) !== blockedKey && !isTargetUnreach('forage_' + fs.wx + '_' + fs.wy)){
+          candidates.push({
+            id: 'habit_forage',
+            name: 'Forage nearby vegetation',
+            category: 'work',
+            targetKey: 'forage_' + fs.wx + '_' + fs.wy,
+            source: 'habit',
+            habitScore: 20,
+            reason: 'Habit: gather familiar local plants',
+            tx: fs.x, ty: fs.y,
+            plan: [{ verb: 'forage' }]
+          });
+        }
+      }
+    } else if(h === 'rest_smithy' || h === 'rest_home' || h === 'rest' || h === 'rest_inn'){
+      const bldId = (h === 'rest_smithy') ? 'smithy' : (h === 'rest_inn' ? 'inn' : (v.homeId || 'inn'));
+      const hPos = (typeof placePos === 'function') ? placePos(bldId) : null;
+      candidates.push({
+        id: 'habit_rest',
+        name: 'Rest and recover',
+        category: 'leisure',
+        targetKey: bldId,
+        source: 'habit',
+        habitScore: 15,
+        reason: 'Habit: rest and recover energy',
+        tx: hPos ? hPos.x : v.x, ty: hPos ? hPos.y : v.y,
+        plan: [{ verb: 'rest', hours: 0.5 }]
+      });
+    } else if(h === 'work_generic'){
+      candidates.push({
+        id: 'habit_labor',
+        name: 'General settlement labor',
+        category: 'work',
+        targetKey: 'work_local',
+        source: 'habit',
+        habitScore: 10,
+        reason: 'Habit: general manual labor around village',
+        tx: v.x, ty: v.y,
+        plan: [{ verb: 'work', hours: 1 }]
+      });
+    }
+  }
+
+  // 3. Goal templates
+  if(typeof GOAL_TEMPLATES !== 'undefined' && Array.isArray(GOAL_TEMPLATES)){
+    for(const gt of GOAL_TEMPLATES){
+      const gen = gt.generate(v, blockedAction);
+      if(gen && (!blockedKey || gen.targetKey !== blockedKey) && !isTargetUnreach(gen.targetKey)){
+        candidates.push(gen);
+      }
+    }
+  }
+
+  // Deduplicate
+  const unique = [];
+  const seen = new Set();
+  for(const c of candidates){
+    const k = (c.id || '') + ':' + (c.targetKey || '');
+    if(!seen.has(k)){
+      seen.add(k);
+      unique.push(c);
+    }
+  }
+
+  // Score
+  for(const c of unique){
+    let sc = scoreCandidateAction(v, c);
+    if(c.habitScore) sc += c.habitScore;
+    if(c.beliefConfidence != null) sc += (c.beliefConfidence - 0.5) * 12;
+    c.score = sc;
+  }
+
+  // Filter out unreachable
+  const viable = unique.filter(c => c.score > -Infinity);
+
+  // Partition candidates into beliefSourced (source==='belief') and others
+  const beliefSourced = [];
+  const others = [];
+  for(const c of viable){
+    if(c.source === 'belief') beliefSourced.push(c);
+    else others.push(c);
+  }
+
+  // Sort each partition deterministically (keep existing tie-break)
+  const sortPartition = (arr) => {
+    arr.sort((a, b) => {
+      if(Math.abs(a.score - b.score) > 1e-6) return b.score - a.score;
+      return deterministicTieBreak18(v, a, b);
+    });
+  };
+
+  sortPartition(beliefSourced);
+  sortPartition(others);
+
+  // Final list = beliefSourced first, then fill remaining slots (total <= 3) from others by score
+  const finalCands = beliefSourced.slice(0, 3);
+  if(finalCands.length < 3){
+    finalCands.push(...others.slice(0, 3 - finalCands.length));
+  }
+  return finalCands;
+}
+
+function markTargetUnreachable(v, key, reason, hours){
+  if(!v || !key) return;
+  if(!v.unreachable) v.unreachable = {};
+  const duration = (hours != null) ? hours : 0.1;
+  const now = (typeof W !== 'undefined') ? (W.day + (W.tod || 0) / 24) : 0;
+  v.unreachable[key] = { until: now + duration, reason: reason || 'unreachable' };
+}
+
+/* ---- Failure Handling: Observation -> Interpretation -> Knowledge -> Dynamic Re-evaluation ---- */
 function handleActionFailure(v, action, reason, targetKey){
   if(!v) return;
   const reasonText = reason || 'action failed';
   const actName = action ? (action.name || action.kind || action.verb || 'action') : 'action';
 
   // 1. OBSERVATION: Thought recorded explaining WHY.
-  // This function is only ever called for a NEW failure (the planTick wrapper
-  // detects failures by thoughts-array identity change, and the plan-building
-  // path calls it on a fresh !ok result), so always post FRESH observation text
-  // describing THIS event — never keep stale text from an older failure.
   v.thoughts = [{ text: `Can't reach ${actName}: ${reasonText}`, val: -2 }];
 
   // 2. INTERPRETATION & NEW KNOWLEDGE:
-  if(!v.unreachable) v.unreachable = {};
   if(targetKey){
-    v.unreachable[targetKey] = { until: W.day + W.tod / 24 + 0.1, reason: reasonText };
+    markTargetUnreachable(v, targetKey, reasonText, 0.1);
   }
 
   // 3. Clear failed plan
   v.plan = [];
   v.currentAction = null;
 
-  // 4. RE-EVALUATION & NEW ACTION for autonomous villagers
+  // 4. DYNAMIC CANDIDATE GENERATION (B1: max 3 from goal templates + beliefs + habit)
   if(!v.brainControlled){
-    evaluateAndApplyUtilityAction(v);
+    const cands = generateDynamicCandidates(v, action, reasonText);
+    v.__lastCandidates = cands;
+    if(cands && cands.length && cands[0].score > -Infinity){
+      executeUtilityAction(v, cands[0]);
+    } else {
+      evaluateAndApplyUtilityAction(v);
+    }
   }
 }
 
@@ -14186,8 +14698,15 @@ window.__aiBridge.getUtilityScores = function(name){
     id: c.id,
     name: c.name,
     category: c.category,
-    score: +c.score.toFixed(2)
+    score: +c.score.toFixed(2),
+    reason: c.reason || null
   }));
+};
+
+window.__aiBridge.generateDynamicCandidates = function(name, blockedAction){
+  const v = VILLAGERS.find(p => p.name === name);
+  if(!v) return [];
+  return generateDynamicCandidates(v, blockedAction);
 };
 
 /* =====================================================================
@@ -18825,6 +19344,7 @@ evaluateVillagerUtility = function(v){
         name: c.name || c.id || 'action',
         category: c.category || null,
         score: (c.score === -Infinity) ? 'ruled-out' : +(+c.score).toFixed(2),
+        reason: c.reason || null,
         distCells: dist,
         source: c.source || null,
         opportunity: !!c.opportunity,
@@ -18839,7 +19359,8 @@ evaluateVillagerUtility = function(v){
         id: r.bestAction.id || null,
         name: r.bestAction.name || r.bestAction.id || 'action',
         category: r.bestAction.category || null,
-        score: +(+(r.bestAction.score)).toFixed(2)
+        score: +(+(r.bestAction.score)).toFixed(2),
+        reason: r.bestAction.reason || null
       } : null,
       // The inputs that fed the scores (need deficits, personality, time).
       // These are the "because": hungry + close + brave -> chose this.
@@ -18897,7 +19418,7 @@ function explainAction(name){
     role: v.role || null,
     state: v.state || null,
     plan: plan,
-    currentAction: v.currentAction ? { id: v.currentAction.id || null, name: v.currentAction.name || v.currentAction.id || null } : null,
+    currentAction: v.currentAction ? { id: v.currentAction.id || null, name: v.currentAction.name || v.currentAction.id || null, reason: v.currentAction.reason || null } : null,
     decision: d,
     beliefsActedOn: beliefs,
     // Last failure -> observation -> re-evaluation entry (never silent).
@@ -18926,12 +19447,14 @@ updateHUD = function(){
     const w = d.winner;
     let html = '<div class="pi-why-winner">▶ ' + escapeHtml(w ? w.name : '(idle)') +
       (w ? ' <span class="pi-why-score">' + w.score + '</span>' : '') + '</div>';
+    if(w && w.reason) html += '<div class="pi-why-reason" style="font-size:11px;color:#94a3b8;margin:2px 0 4px 0;">why: ' + escapeHtml(w.reason) + '</div>';
     html += '<div class="pi-why-why">because: ' + escapeHtml(needBits.length ? needBits.join(', ') : 'no pressing need') +
       (inp.isNight ? ' · night' : '') + '</div>';
     html += '<div class="pi-why-top">';
     for(const c of (d.top || []).slice(0, 4)){
       const mark = (w && c.id === w.id) ? '● ' : '○ ';
-      html += '<div>' + mark + escapeHtml(c.name) + ' <span class="pi-why-score">' + c.score + '</span></div>';
+      html += '<div>' + mark + escapeHtml(c.name) + ' <span class="pi-why-score">' + c.score + '</span>' +
+        (c.reason ? ' <span class="pi-why-detail" style="font-size:10px;opacity:0.75;">(' + escapeHtml(c.reason) + ')</span>' : '') + '</div>';
     }
     html += '</div>';
     if(v.thoughts && v.thoughts.length && (v.thoughts[0].val || 0) < 0)
@@ -20089,6 +20612,445 @@ runAutoTest = async function(){
     leaked24.length === 0 ? '0 leaked' : leaked24.map(o => o.name).join(','));
 
   el.textContent += `part24 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
+};
+
+/* =====================================================================
+   PART 25 AUTOTEST — Phase 6B: Adaptation & Ecology ("Thích ứng & Sinh thái")
+   Automated verification of:
+     25.1 (B1 Candidates): Dynamic candidate generation on blocked action
+                           (<= 3 candidates from templates + beliefs + habit,
+                           all have reason strings, deterministic tie-breaking)
+     25.2 (B1 WHY): WHY inspector transparent reason integration (explainAction,
+                    decision.winner.reason, candidate reasons, #pi-why HUD)
+     25.2b (B1 Stash): Dynamic candidate reason/name uses exact food kind from belief
+                       (berry stash produces "berries" not "bread")
+     25.3 (B2 Depletion): Carrying capacity & bush depletion (1st harvest -> 0.4,
+                          2nd harvest -> <= 0; winter regen = 0; spring regrows)
+     25.4 (B2 Seasons): 4 seasons ecology (crops paused in winter vs 1.2x in summer;
+                        bear hibernation in winter; tree regen paused in winter)
+     25.5 (B2 Wolves): 2-state wolf AI (normal wolf deterred by torch/crowd;
+                       starving wolf hunger >= 0.8 overrides fear and attacks)
+     25.6 (B3 Weather): Weather-fire causal chain (dryDays -> dryness, rain/snow
+                        extinguishes fires, fuel calculation by terrain/structures)
+     25.7 (B3 Burn/Ash): Burned tile marked scorched, vegetation cleared, ash pile
+                         spawned with provenance 'burned'
+     25.8 (B3 Firefight): Firefighting system selects threatened fires, douses and
+                          clears burning tiles safely before destruction
+     25.9 (Probe): Performance sanity probe measuring avg ms/tick for soulTick
+                   across 20 villagers over 3 game days (144 ticks)
+     25.10 (Cleanup): No test entities or villagers leaked
+   ===================================================================== */
+function mkTestV25(name, wx, wy, extra){
+  const v = mkTestV24(name, wx, wy, extra);
+  return v;
+}
+
+const __runAutoTest25 = runAutoTest;
+runAutoTest = async function(){
+  await __runAutoTest25();
+  const el = document.getElementById('autotest');
+  const res = [];
+  const log = (ok, title, desc) => {
+    res.push({ ok: Boolean(ok), title: title });
+    el.textContent += (ok ? 'PASS' : 'FAIL') + ' | ' + title + (desc ? ' — ' + desc : '') + '\n';
+  };
+  const madeNames = [];
+  function mk(name, wx, wy, extra){
+    const v = mkTestV25(name, wx, wy, extra);
+    madeNames.push(name);
+    return v;
+  }
+  function cleanup(){
+    for(const n of madeNames){
+      const i = VILLAGERS.findIndex(o => o && o.name === n);
+      if(i >= 0) VILLAGERS.splice(i, 1);
+    }
+    madeNames.length = 0;
+  }
+
+  // -------------------------------------------------------------------
+  // 25.1 (B1 Candidates): Dynamic Candidate Generation
+  // When an action is blocked: queries beliefs, habit, and goal templates.
+  // Returns AT MOST 3 candidates, all have transparent reason strings, deterministic.
+  // -------------------------------------------------------------------
+  const t1 = mk('T25_Dyn_Bram', -10, 8, { habit: 'blacksmith', role: 'Master Blacksmith' });
+  t1.canSwim = false;
+  // Seed a belief about food at inn
+  observe(t1, { kind: 'bread', name: 'fresh loaf', targetKey: 'inn' }, { source: 'direct', topic: 'inn_bread' });
+
+  const blockedAct = { id: 'cross_bridge', name: 'Cross river bridge', targetKey: 'river_bridge' };
+  markTargetUnreachable(t1, 'river_bridge');
+
+  const cands1 = generateDynamicCandidates(t1, blockedAct, 'river_bridge blocked');
+  const maxThree = cands1.length <= 3 && cands1.length > 0;
+  const allHaveReason = cands1.every(c => typeof c.reason === 'string' && c.reason.length > 0);
+  const blockedOmitted = !cands1.some(c => c.targetKey === 'river_bridge');
+  const sourcesValid = cands1.every(c => c.source === 'habit' || c.source === 'template' || c.source === 'belief');
+  const hasBelief = cands1.some(c => c.source === 'belief');
+
+  // Determinism check: identical seed and state produce identical candidates
+  const cands2 = generateDynamicCandidates(t1, blockedAct, 'river_bridge blocked');
+  const deterministic = (cands1.length === cands2.length) &&
+    cands1.every((c, i) => c.id === cands2[i].id && Math.abs(c.score - cands2[i].score) < 1e-6 && c.reason === cands2[i].reason);
+
+  const candSummary = cands1.map(c => `${c.id}(${c.source})`).join(',');
+  const ok25_1 = maxThree && allHaveReason && blockedOmitted && sourcesValid && hasBelief && deterministic;
+  log(ok25_1, 'dynamicCandidates25: generate at most 3 candidates from beliefs+habit+templates with reasons and determinism',
+    `count=${cands1.length} hasBelief=${hasBelief} cands=[${candSummary}] allHaveReason=${allHaveReason} blockedOmitted=${blockedOmitted} det=${deterministic}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 25.2 (B1 WHY): WHY Inspector Integration
+  // explainAction includes currentAction.reason, winner.reason, and candidate reasons.
+  // -------------------------------------------------------------------
+  const t2 = mk('T25_Why_Inspect', 0, 0);
+  const evalRes = evaluateVillagerUtility(t2);
+  const explain = explainAction(t2.name);
+
+  const hasDecision = explain && explain.decision != null;
+  const winnerHasReason = hasDecision && explain.decision.winner && typeof explain.decision.winner.reason === 'string';
+  const topHaveReasons = hasDecision && Array.isArray(explain.decision.top) &&
+    explain.decision.top.every(c => c.reason == null || typeof c.reason === 'string');
+
+  // Also verify currentAction reason if action is active
+  if(t2.currentAction){
+    t2.currentAction.reason = 'Testing action transparent justification';
+  }
+  const explainActive = explainAction(t2.name);
+  const currentHasReason = !t2.currentAction || (explainActive.currentAction && explainActive.currentAction.reason === 'Testing action transparent justification');
+
+  const ok25_2 = hasDecision && winnerHasReason && topHaveReasons && currentHasReason;
+  log(ok25_2, 'whyInspector25: explainAction and decision trace include transparent reasons',
+    `winnerReason="${explain.decision && explain.decision.winner && explain.decision.winner.reason}" topCount=${explain.decision ? explain.decision.top.length : 0}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 25.2b (B1 Reason / Food Kind): Dynamic Candidate Food Kind from Belief
+  // Villager with a berry-stash belief (topic stash_*, content {kind:'berries', name:'berry cache', place:'north_woods'})
+  // generateDynamicCandidates -> assert at least one candidate reason/name contains 'berries' (case-insensitive) and does NOT contain 'bread'.
+  // -------------------------------------------------------------------
+  const tBerry = mk('T25_Berry_Believer', 0, 0);
+  observe(tBerry, { kind: 'berries', name: 'berry cache', place: 'north_woods' }, { topic: 'stash_berries' });
+  const berryCands = generateDynamicCandidates(tBerry, null);
+  const berryCand = berryCands.find(c => {
+    const text = ((c.name || '') + ' ' + (c.reason || '')).toLowerCase();
+    return text.includes('berries');
+  });
+  const hasBerriesNoBread = Boolean(berryCand && !(((berryCand.name || '') + ' ' + (berryCand.reason || '')).toLowerCase().includes('bread')));
+  const ok25_2b = hasBerriesNoBread;
+  log(ok25_2b, 'beliefFoodKind25: villager with berry-stash belief generates candidate with "berries" and not "bread"',
+    `cands=${berryCands.length} matchName="${berryCand ? berryCand.name : 'none'}" matchReason="${berryCand ? berryCand.reason : 'none'}" hasBerriesNoBread=${hasBerriesNoBread}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 25.3 (B2 Depletion): Carrying Capacity & Bush Depletion
+  // 1st harvest: drops capacity from 1.0 to 0.4.
+  // 2nd harvest: completely depletes bush (<= 0), schedules regen day.
+  // Winter: regen is 0 (does not regrow). Spring: regrows to 1.0.
+  // -------------------------------------------------------------------
+  const bwx = 150, bwy = 150;
+  const bcc = cellChunk(bwx, bwy);
+  if(!bcc.c.bush) bcc.c.bush = new Float32Array(bcc.c.tileType.length);
+  if(!bcc.c.bushCells) bcc.c.bushCells = [];
+  bcc.c.bush[bcc.i] = 1.0;
+  if(bcc.c.bushCells.indexOf(bcc.i) < 0) bcc.c.bushCells.push(bcc.i);
+
+  const t3 = mk('T25_Harvester', bwx, bwy);
+  const origSeason = W.season;
+  const origDay = W.day;
+  W.season = 'Summer';
+  W.day = 10;
+
+  const spot = { kind: 'bush', wx: bwx, wy: bwy, x: bwx * CS + 16, y: bwy * CS + 16 };
+  t3.x = spot.x; t3.y = spot.y;
+
+  // First harvest -> capacity drops to 0.4
+  doForageStep(t3, { verb: 'forage', spot: spot, prog: 0.5 }, 0.1);
+  const capAfter1st = bcc.c.bush[bcc.i];
+  const stillInCells = bcc.c.bushCells.indexOf(bcc.i) >= 0;
+
+  // Second harvest -> depleted (<= 0) and removed from bushCells
+  doForageStep(t3, { verb: 'forage', spot: spot, prog: 0.5 }, 0.1);
+  const capAfter2nd = bcc.c.bush[bcc.i];
+  const removedFromCells = bcc.c.bushCells.indexOf(bcc.i) < 0;
+
+  // Winter zero-regen: advance 10 days in Winter, calling bushRegrowTick
+  W.season = 'Winter';
+  for(let d = 0; d < 10; d++){
+    W.day++;
+    bushRegrowTick(0.5);
+  }
+  const winterRegenZero = bcc.c.bush[bcc.i] <= 0;
+
+  // Spring resumption: switch to Spring, advance to regrow day
+  W.season = 'Spring';
+  W.day = Math.abs(capAfter2nd) + 1;
+  bushRegrowTick(0.5);
+  const springRegrew = bcc.c.bush[bcc.i] === 1.0 && bcc.c.bushCells.indexOf(bcc.i) >= 0;
+
+  // Restore world state
+  W.season = origSeason;
+  W.day = origDay;
+
+  const ok25_3 = (Math.abs(capAfter1st - 0.4) < 1e-4) && stillInCells &&
+                 (capAfter2nd <= 0) && removedFromCells && winterRegenZero && springRegrew;
+  log(ok25_3, 'carryingCapacity25: bush harvesting depletes tile (1.0->0.4->depleted), 0 winter regen, spring recovery',
+    `h1=${capAfter1st} h2=${capAfter2nd} winter=${winterRegenZero} springRegrew=${springRegrew}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 25.4 (B2 Seasons): 4 Seasons Ecology - Crops, Hibernation & Trees
+  // Winter halts crop growth (mult 0x), Summer accelerates (mult 1.2x).
+  // Bears hibernate during Winter (spawn rate 0). Winter halts tree regrowth.
+  // -------------------------------------------------------------------
+  const origSeason4 = W.season;
+  const testCrop = { wx: 250, wy: 250, stage: 1, grow: 0, kind: 'wheat' };
+  CROPS.push(testCrop);
+
+  // Winter crop test
+  W.season = 'Winter';
+  cropTick(12);
+  const winterCropGrowth = testCrop.grow; // Should be 0
+
+  // Summer crop test
+  W.season = 'Summer';
+  cropTick(12);
+  const summerCropGrowth = testCrop.grow; // (12 / 24) * 1.2 = 0.6
+
+  // Bear hibernation test
+  W.season = 'Winter';
+  // Remove existing bears
+  const bearsBefore = ANIMALS.filter(a => a.kind === 'bear');
+  for(const b of bearsBefore) b.dead = true;
+  for(let i = 0; i < 25; i++) worldSlowTick(24);
+  const winterBearsSpawned = ANIMALS.some(a => a.kind === 'bear' && !a.dead);
+
+  // Tree regrowth in Winter
+  const testTree = { wx: 251, wy: 251, stage: 1 };
+  WILDTREES.push(testTree);
+  for(let i = 0; i < 20; i++) treeRegrowTick(1.0);
+  const winterTreePaused = testTree.stage === 1;
+
+  // Cleanup
+  const cIdx = CROPS.indexOf(testCrop);
+  if(cIdx >= 0) CROPS.splice(cIdx, 1);
+  const tIdx = WILDTREES.indexOf(testTree);
+  if(tIdx >= 0) WILDTREES.splice(tIdx, 1);
+  W.season = origSeason4;
+
+  const ok25_4 = (winterCropGrowth === 0) && (Math.abs(summerCropGrowth - 0.6) < 1e-4) &&
+                 (!winterBearsSpawned) && winterTreePaused;
+  log(ok25_4, 'seasonsEcology25: winter pauses crop growth, bear spawns (hibernation), and tree regrowth',
+    `winterCrop=${winterCropGrowth} summerCrop=${summerCropGrowth} winterBear=${winterBearsSpawned} treePaused=${winterTreePaused}`);
+
+  // -------------------------------------------------------------------
+  // 25.5 (B2 Wolves): 2-State Wolf AI
+  // Sated wolf (hunger < 0.8) flees from torch.
+  // Starving wolf (hunger >= 0.8) has extreme hunger override fear and stalks/attacks.
+  // -------------------------------------------------------------------
+  const origAnimals = ANIMALS.slice();
+  ANIMALS.length = 0;
+
+  const tv1 = mk('T25_TorchBearer', 100, 100);
+  tv1.hasTorch = true;
+  tv1.torch = true;
+
+  // 1. Sated wolf with torch nearby -> flees
+  const satedWolf = {
+    id: 991, kind: 'wolf', x: (100 * CS + 16) + CS * 2, y: 100 * CS + 16,
+    hunger: 0.4, state: 'idle', dead: false, downed: false, hp: 50, maxHp: 50
+  };
+  ANIMALS.push(satedWolf);
+  wolfBrain(satedWolf, 0.05);
+  const satedFlees = satedWolf.state === 'flee';
+
+  // 2. Starving wolf (hunger = 0.88 >= 0.8) with torch nearby -> hunger overrides fear
+  const starvingWolf = {
+    id: 992, kind: 'wolf', x: (100 * CS + 16) + CS * 2, y: 100 * CS + 16,
+    hunger: 0.88, state: 'idle', dead: false, downed: false, hp: 50, maxHp: 50
+  };
+  ANIMALS.push(starvingWolf);
+  wolfBrain(starvingWolf, 0.05);
+  const starvingDoesNotFlee = starvingWolf.state !== 'flee';
+
+  // Restore animals
+  ANIMALS.length = 0;
+  for(const a of origAnimals) ANIMALS.push(a);
+
+  const ok25_5 = satedFlees && starvingDoesNotFlee;
+  log(ok25_5, 'wolvesTwoState25: sated wolf flees torch; extreme hunger >= 0.8 overrides fear',
+    `satedFlee=${satedFlees} starvingFlee=${starvingWolf.state === 'flee'}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 25.6 (B3 Weather): Weather-Fire Causal Chain
+  // dryDays accumulation -> dryness factor (0..1). Rain resets dryness.
+  // Rain/snow accelerates fire extinguishment.
+  // -------------------------------------------------------------------
+  const origDryDays = W.dryDays;
+  const origRain = W.rain;
+  const origBurning = BURNING.slice();
+  BURNING.length = 0;
+
+  // Dryness calculation check
+  W.dryDays = 0; W.rain = 0;
+  const dryZero = getDryness() === 0;
+
+  W.dryDays = 15; W.rain = 0;
+  const dryHigh = getDryness() >= 0.75;
+
+  W.dryDays = 15; W.rain = 0.5; // Rain suppresses dryness
+  const dryRainSuppressed = getDryness() === 0;
+
+  // Fire extinguishment under rain vs dry
+  const fireDry = { wx: 400, wy: 400, t: 10.0 };
+  const fireRain = { wx: 401, wy: 401, t: 10.0 };
+
+  // 1 tick of dry weather
+  BURNING.push(fireDry);
+  W.rain = 0.0; W.dryDays = 10;
+  wildfireTick(1.0);
+  const dryLoss = 10.0 - fireDry.t;
+
+  // 1 tick of wet weather
+  BURNING.length = 0;
+  BURNING.push(fireRain);
+  W.rain = 0.8;
+  wildfireTick(1.0);
+  const rainLoss = 10.0 - fireRain.t;
+
+  const rainExtinguishesFaster = rainLoss > dryLoss * 3;
+
+  // Fuel calculation checks
+  const waterFuel = getCellFuel(28, 7); // lake / deep water tile
+  const bridgeFuel = getCellFuel(13, -8); // wooden bridge
+
+  // Restore weather state
+  BURNING.length = 0;
+  for(const b of origBurning) BURNING.push(b);
+  W.dryDays = origDryDays;
+  W.rain = origRain;
+
+  const ok25_6 = dryZero && dryHigh && dryRainSuppressed && rainExtinguishesFaster && (waterFuel === 0);
+  log(ok25_6, 'weatherFireChain25: dryDays creates dryness; rain extinguishes fires rapidly; water has 0 fuel',
+    `dryZero=${dryZero} dryHigh=${dryHigh} rainLoss=${rainLoss.toFixed(1)} dryLoss=${dryLoss.toFixed(1)} waterFuel=${waterFuel}`);
+
+  // -------------------------------------------------------------------
+  // 25.7 (B3 Burn/Ash): Burned Tile -> Scorched Chunk & Ash Pile with Provenance
+  // When burning tile expires, marks chunk scorched and drops ash pile with provenance 'burned'.
+  // -------------------------------------------------------------------
+  const burnWx = 500, burnWy = 500;
+  const bChunk = cellChunk(burnWx, burnWy);
+  const fireTile = { wx: burnWx, wy: burnWy, t: 0.1 };
+  BURNING.push(fireTile);
+
+  // Tick until fire burns out
+  W.rain = 0; W.dryDays = 5;
+  wildfireTick(0.2); // b.t <= 0 -> onTileBurned called
+
+  const tileBurnedOut = !BURNING.some(b => b.wx === burnWx && b.wy === burnWy);
+  const chunkScorched = bChunk.c && bChunk.c.scorched && bChunk.c.scorched[bChunk.i] === 1;
+
+  // Check ash pile created at coords
+  const ashAx = burnWx * CS + 16, ashAy = burnWy * CS + 16;
+  const ashPile = PILES.find(p => p.items && p.items.ash > 0 && Math.hypot(p.x - ashAx, p.y - ashAy) < CS);
+  const ashProvBurned = ashPile && ashPile.provenance === 'burned';
+
+  // Clean up
+  if(ashPile){
+    const pi = PILES.indexOf(ashPile);
+    if(pi >= 0) PILES.splice(pi, 1);
+  }
+  if(bChunk.c && bChunk.c.scorched) bChunk.c.scorched[bChunk.i] = 0;
+
+  const ok25_7 = tileBurnedOut && chunkScorched && ashProvBurned;
+  log(ok25_7, 'tileBurnedAsh25: burned tile marks chunk scorched and drops ash pile with provenance "burned"',
+    `burnedOut=${tileBurnedOut} scorched=${Boolean(chunkScorched)} ashProv=${ashPile && ashPile.provenance}`);
+
+  // -------------------------------------------------------------------
+  // 25.8 (B3 Firefight): Firefighting System Integration
+  // Fire near building receives elevated firePriority; firefighter douses it.
+  // -------------------------------------------------------------------
+  const bld = VILLAGE_BUILDINGS[0] || { wx: 0, wy: 0, tw: 4, th: 4, name: 'Townhall' };
+  const threatFire = { wx: bld.wx + 1, wy: bld.wy + 1, t: 8.0 };
+  BURNING.push(threatFire);
+
+  const prio = firePriority(threatFire);
+  const prioElevated = prio > 5;
+
+  const firefighter = mk('T25_Firefighter', bld.wx + 2, bld.wy + 2);
+  firefighter.wetBucket = true; // bucket loaded
+
+  // Execute douse step
+  const douseStep = { verb: 'douse', fire: threatFire, prog: 0.4 };
+  doDouseStep(firefighter, douseStep, 0.2); // prog reaches 0.6 >= 0.5 -> extinguished
+
+  const fireExtinguished = !BURNING.some(b => b === threatFire);
+  if(!fireExtinguished){
+    const fIdx = BURNING.indexOf(threatFire);
+    if(fIdx >= 0) BURNING.splice(fIdx, 1);
+  }
+
+  const ok25_8 = prioElevated && fireExtinguished;
+  log(ok25_8, 'firefighting25: threat fire receives elevated priority and is safely doused by villager',
+    `prio=${prio.toFixed(1)} extinguished=${fireExtinguished}`);
+  cleanup();
+
+  // -------------------------------------------------------------------
+  // 25.9 (Probe): Performance Sanity Probe
+  // Measure avg ms/tick (soulTick across all villagers) on a populated village
+  // (20 villagers, 3 game days = 72 hours = 144 ticks at 0.5h/tick).
+  // -------------------------------------------------------------------
+  const initialVillagersCount = VILLAGERS.length;
+  const extraNeeded = Math.max(0, 20 - initialVillagersCount);
+  const extraVills = [];
+  for(let i = 0; i < extraNeeded; i++){
+    const ev = mk(`T25_PerfV_${i}`, -5 + (i % 4) * 2, -5 + Math.floor(i / 4) * 2, {
+      role: 'Villager',
+      isNPC: true
+    });
+    extraVills.push(ev);
+  }
+
+  const totalVillagers = VILLAGERS.length;
+  const simHours = 72; // 3 game days
+  const stepH = 0.5;
+  const totalTicks = Math.round(simHours / stepH); // 144 ticks
+
+  const tStart = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  for(let tick = 0; tick < totalTicks; tick++){
+    for(const v of VILLAGERS){
+      if(!v.dead){
+        soulTick(v, stepH);
+      }
+    }
+  }
+  const tEnd = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  const elapsedMs = tEnd - tStart;
+  const avgMsPerTick = elapsedMs / totalTicks;
+  const avgMsPerVillagerTick = avgMsPerTick / totalVillagers;
+
+  // Clean up extra villagers
+  cleanup();
+
+  // Performance criterion: avg ms per tick should be reasonable (e.g. < 25ms in Node.js)
+  const ok25_9 = avgMsPerTick < 25.0 && totalVillagers >= 20;
+  log(ok25_9, 'perfProbe25: soulTick performance probe on populated village (20 villagers, 3 game days)',
+    `totalTime=${elapsedMs.toFixed(1)}ms ticks=${totalTicks} avgMs/tick=${avgMsPerTick.toFixed(4)}ms avgMs/villager/tick=${avgMsPerVillagerTick.toFixed(4)}ms`);
+
+  // -------------------------------------------------------------------
+  // 25.10 (Cleanup): Verify No Leaked Test Entities
+  // -------------------------------------------------------------------
+  cleanup();
+  const leakedV = VILLAGERS.filter(v => v && v.name && v.name.startsWith('T25_'));
+  const leakedCrops = CROPS.filter(c => c && c.wx >= 250);
+  const leakedFires = BURNING.filter(b => b && b.wx >= 400);
+
+  const ok25_10 = leakedV.length === 0 && leakedCrops.length === 0 && leakedFires.length === 0;
+  log(ok25_10, 'cleanup25: part25 cleans up all test entities without leaking',
+    `leakedVillagers=${leakedV.length} leakedCrops=${leakedCrops.length} leakedFires=${leakedFires.length}`);
+
+  el.textContent += `part25 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
 };
 
 </script>

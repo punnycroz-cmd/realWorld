@@ -447,12 +447,18 @@ function doForageStep(v, step, dtH){
     if(s.kind === 'bush'){
       const cc = cellChunk(s.wx, s.wy);
       if(cc.c){
-        // Foraged bushes regrow after 4 days (negative value = regrow day).
-        // This keeps foraging sustainable; without it the finite bushes run
-        // out and the village starves once the inn bread is gone.
-        cc.c.bush[cc.i] = -(W.day + 4);
-        const bc = cc.c.bushCells;
-        if(bc){ const k = bc.indexOf(cc.i); if(k >= 0) bc.splice(k, 1); }
+        // Carrying capacity & tile depletion (B2):
+        // Harvesting depletes the tile/bush. If full (>0.5), it drops to partial (0.4);
+        // repeated harvesting completely depletes the bush (<= 0), scheduling regen by season.
+        const curB = cc.c.bush[cc.i];
+        if(curB > 0.5){
+          cc.c.bush[cc.i] = 0.4;
+        } else {
+          const regenDays = (W.season === 'Spring') ? 3 : ((W.season === 'Summer') ? 4 : 5);
+          cc.c.bush[cc.i] = -(W.day + regenDays);
+          const bc = cc.c.bushCells;
+          if(bc){ const k = bc.indexOf(cc.i); if(k >= 0) bc.splice(k, 1); }
+        }
         markChunkDirty(cc.c);
       }
       addInv(v, 'berries', 2 + Math.floor(srand() * 3));

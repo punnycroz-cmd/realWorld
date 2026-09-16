@@ -18,6 +18,12 @@ function loop(timestamp){
   updateHUD();
 }
 
+function soulTick(v, dtH){
+  bodyTick(v, dtH);
+  if(v.isNPC) updateVillagerAI(v, dtH);
+  else updatePlayerPawn(v, dtH);
+}
+
 function simTick(dtH){
   W.tod += dtH;
   if(W.tod >= 24){
@@ -56,9 +62,7 @@ function simTick(dtH){
 
   // Villager biological ticks & autonomous schedules
   for(const v of VILLAGERS){
-    bodyTick(v, dtH);
-    if(v.isNPC) updateVillagerAI(v, dtH);
-    else updatePlayerPawn(v, dtH);
+    soulTick(v, dtH);
   }
 }
 

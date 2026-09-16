@@ -92,7 +92,16 @@ function wolfBrain(a, dtH){
   const px = a.x, py = a.y;
   const fireNear = FIRES.some(f => f.burnH > 0 && Math.hypot(f.x - px, f.y - py) < CS * 5);
   const villsNear = VILLAGERS.filter(v => !v.dead && !v.downed && Math.hypot(v.x - px, v.y - py) < CS * 7);
-  if(fireNear || villsNear.length >= 3 || villsNear.some(v => v.name === 'Gareth')){
+  const torchNear = (typeof TORCHES !== 'undefined' && TORCHES.some(t => Math.hypot(t.x - px, t.y - py) < CS * 5)) ||
+                    (typeof VILLAGE_OBJECTS !== 'undefined' && VILLAGE_OBJECTS.some(o => (o.kind === 'torch' || o.torch) && Math.hypot(o.x - px, o.y - py) < CS * 5)) ||
+                    villsNear.some(v => v.hasTorch || v.torch || (v.inv && v.inv.torch > 0) || (v.equippedTool && (v.equippedTool === 'torch' || v.equippedTool.kind === 'torch')));
+
+  const isStarving = Boolean(a.starving || a.extremeHunger || (a.hunger != null && a.hunger >= 0.8));
+  const crowdDeterred = villsNear.length >= 3 || villsNear.some(v => v.name === 'Gareth');
+  const fireDeterred = fireNear || torchNear;
+
+  // 2-state wolf: normally deterred by fire/torch/crowd; EXTREME hunger overrides fear!
+  if((fireDeterred || crowdDeterred) && !isStarving){
     const ang = Math.atan2(py, px);
     moveAnimal(a, px + Math.cos(ang) * CS * 10, py + Math.sin(ang) * CS * 10, dtH, 1.2);
     a.state = 'flee'; return;
@@ -107,8 +116,10 @@ function wolfBrain(a, dtH){
       if(o === v || o.dead) continue;
       if(Math.hypot(o.x - v.x, o.y - v.y) < CS * 8) companions++;
     }
-    if(companions >= 2) continue;
-    if(fenceNear(v.x, v.y, 6)) continue;
+    const targetHasTorch = v.hasTorch || v.torch || (v.inv && v.inv.torch > 0) || (v.equippedTool && (v.equippedTool === 'torch' || v.equippedTool.kind === 'torch'));
+    if(targetHasTorch && !isStarving) continue;
+    if(companions >= 2 && !isStarving) continue;
+    if(fenceNear(v.x, v.y, 6) && !isStarving) continue;
     if(d < bd){ bd = d; target = v; tKind = 'villager'; }
   }
   for(const c of CHICKENS){
@@ -253,11 +264,11 @@ function animalBrain(a, dtH){
 let animSlowAcc = 0;
 function animalFrameTick(dtH){
   const step = Math.min(dtH, 0.03);
+  const wolfRate = (typeof W !== 'undefined' && W.season === 'Winter') ? 0.022 : 0.012;
   for(const a of ANIMALS.slice()){
     if(a.dead) continue;
-    // Phase 4 balance: slower hunger regen (0.02->0.012/h) — wolves hunt less
-    // relentlessly, giving mauled villagers time to recover between attacks.
-    a.hunger = clamp((a.hunger || 0) + dtH * 0.012, 0, 1);
+    // Phase 4 balance + 6B season: wolves hunt more aggressively in winter
+    a.hunger = clamp((a.hunger || 0) + dtH * (a.kind === 'wolf' ? wolfRate : 0.012), 0, 1);
     a.atkCd = Math.max(0, (a.atkCd || 0) - dtH);
     animalBrain(a, step);
     if(a.hp <= 0) killAnimal(a, null);
@@ -286,7 +297,8 @@ function worldSlowTick(h){
       }
     }
   }
-  if(srand() < 0.02 * h && !ANIMALS.some(a => a.kind === 'bear' && !a.dead)){
+  // 6B: 4 seasons affect huntable game — bears hibernate during winter!
+  if((typeof W === 'undefined' || W.season !== 'Winter') && srand() < 0.02 * h && !ANIMALS.some(a => a.kind === 'bear' && !a.dead)){
     const ang = srand() * Math.PI * 2;
     spawnAnimal('bear', Math.cos(ang) * 30 * CS + 16, Math.sin(ang) * 26 * CS + 16);
     logEvent('wildlife', 'A bear has been sighted in the wilds');

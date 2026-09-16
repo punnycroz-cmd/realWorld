@@ -772,12 +772,43 @@ function scoreCandidateAction(v, c){
   return score;
 }
 
+/* ---- Transparent Reason Derivation for Candidates ---- */
+function getCandidateReason(v, c){
+  if(c.reason) return c.reason;
+  if(c.id === 'flee') return 'Threat nearby: flee to safe shelter';
+  if(c.id === 'douse') return 'Wildfire threatens settlement structures or villagers';
+  if(c.id === 'eat_inv') return 'Hunger deficit: eat food from inventory';
+  if(c.id && c.id.startsWith('eat_pile')) return 'Belief: eat ' + (c.foodKind || 'food') + ' from ground pile';
+  if(c.id === 'eat_inn') return 'Belief: meal available at village inn';
+  if(c.id === 'eat_kitchen') return 'Belief: fresh bread available in kitchen';
+  if(c.id === 'explore_food') return 'Hunger deficit: search for wild food';
+  if(c.id === 'drink_well') return 'Thirst deficit: fresh water from village well';
+  if(c.id === 'drink_river') return 'Thirst deficit: drink from river';
+  if(c.id === 'drink_lake') return 'Thirst deficit: drink from lake';
+  if(c.id === 'sleep') return 'Fatigue deficit: sleep in bed';
+  if(c.id === 'rest') return 'Fatigue/injury: rest and recover';
+  if(c.id === 'warm') return 'Cold deficit: warm up by fire';
+  if(c.id === 'work_farm') return 'Farming: tend crops in field';
+  if(c.id === 'work_fish') return 'Fishing: fish by the lake';
+  if(c.id === 'work_forage') return 'Foraging: forage for wild food';
+  if(c.id === 'work_fell') return 'Logging: fell timber tree';
+  if(c.id && c.id.startsWith('work_recipe')) return 'Crafting: craft ' + (c.name || 'item');
+  if(c.id && c.id.startsWith('clean_')) return 'Sanitation: clean building';
+  if(c.id === 'cook') return 'Cooking: cook wholesome food';
+  if(c.id && c.id.startsWith('socialize')) return 'Social need: converse with companion';
+  if(c.id === 'trade_caravan') return 'Commerce: trade with merchant caravan';
+  if(c.id === 'leisure') return 'Leisure: stroll around village';
+  if(c.id === 'work_generic') return 'Labor: general village labor';
+  return 'Utility action: ' + (c.name || c.id);
+}
+
 /* ---- Utility Evaluator & Decision Selector ---- */
 function evaluateVillagerUtility(v){
   ensurePersonality(v);
   if(typeof ensureEpistemic === 'function') ensureEpistemic(v);
   const candidates = enumerateCandidateActions(v);
   for(const c of candidates){
+    if(!c.reason) c.reason = getCandidateReason(v, c);
     c.score = scoreCandidateAction(v, c);
   }
   // Deterministic sorting: highest score wins, ties broken via seeded hash
@@ -817,32 +848,280 @@ function evaluateAndApplyUtilityAction(v){
   return bestAction;
 }
 
-/* ---- Failure Handling: Observation -> Interpretation -> Knowledge -> Re-evaluation ---- */
+/* =====================================================================
+   PHASE 6B: DYNAMIC CANDIDATE GENERATION (B1)
+   When an action is blocked or fails, queries Epistemic Beliefs to generate
+   AT MOST 3 candidates from goal templates + beliefs + habit.
+   Replaces the static fallback ladder A -> B -> C.
+   Deterministic tie-breaking ensures identical candidates for identical seeds.
+   ===================================================================== */
+function generateDynamicCandidates(v, blockedAction, context){
+  if(!v) return [];
+  ensurePersonality(v);
+  if(typeof ensureEpistemic === 'function') ensureEpistemic(v);
+
+  const blockedKey = blockedAction ? (blockedAction.targetKey || (blockedAction.args && blockedAction.args.targetKey) || blockedAction.place || blockedAction.id) : null;
+  const blockedCat = blockedAction ? (blockedAction.category || blockedAction.kind || blockedAction.verb) : 'work';
+
+  const candidates = [];
+  const b = ensureBody(v);
+  const p = ensurePersonality(v);
+  const beliefs = (v.epistemic && v.epistemic.beliefs) || {};
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1;
+
+  const isTargetUnreach = (key) => {
+    if(!key || !v.unreachable) return false;
+    const rec = v.unreachable[key];
+    if(!rec) return false;
+    if(rec.until > now) return true;
+    delete v.unreachable[key];
+    return false;
+  };
+
+  // 1. Epistemic Beliefs
+  for(const k of Object.keys(beliefs)){
+    const bel = beliefs[k];
+    if(!bel || bel.superseded || (bel.confidence != null && bel.confidence < 0.15)) continue;
+    if(blockedKey && (k === blockedKey || (bel.content && (bel.content.place === blockedKey || bel.content.targetKey === blockedKey)))) continue;
+    if(isTargetUnreach(k)) continue;
+
+    if(bel.topic && (bel.topic.startsWith('food_') || bel.topic.startsWith('stash_') || bel.topic.startsWith('pile_'))){
+      const place = bel.content && bel.content.place;
+      const fKind = (bel.content && (bel.content.foodKind || bel.content.what || bel.content.kind || bel.content.name)) || 'food';
+      const pos = (place && typeof placePos === 'function' ? placePos(place) : null) ||
+                  (bel.content && bel.content.wx != null ? { x: bel.content.wx * CS + 16, y: bel.content.wy * CS + 16 } : null) ||
+                  (bel.where && bel.where.x != null ? { x: bel.where.x, y: bel.where.y } : null) ||
+                  (v ? { x: v.x, y: v.y } : { x: 0, y: 0 });
+      if(pos && (!blockedKey || place !== blockedKey)){
+        const conf = bel.confidence != null ? bel.confidence : 0.9;
+        candidates.push({
+          id: 'belief_' + k,
+          name: 'Seek ' + fKind + ' at ' + (place || 'stash'),
+          category: 'survival',
+          targetKey: k,
+          source: 'belief',
+          beliefConfidence: conf,
+          reason: `Belief: ${fKind} at ${place || 'stash'} (confidence ${conf.toFixed(2)})`,
+          tx: pos.x, ty: pos.y,
+          plan: [{ verb: 'go', tx: pos.x, ty: pos.y, targetKey: k }, { verb: 'eat' }]
+        });
+      }
+    } else if(bel.topic && (bel.topic.startsWith('bld_') || bel.topic.startsWith('workshop') || bel.topic.startsWith('smithy'))){
+      const bldId = (bel.content && bel.content.bldId) || bel.topic.replace('bld_', '');
+      const bPos = (typeof placePos === 'function') ? placePos(bldId) : null;
+      if(bPos && bldId !== blockedKey && !isTargetUnreach(bldId)){
+        const conf = bel.confidence != null ? bel.confidence : 0.85;
+        candidates.push({
+          id: 'belief_work_' + bldId,
+          name: 'Work at ' + bldId,
+          category: 'work',
+          targetKey: bldId,
+          source: 'belief',
+          beliefConfidence: conf,
+          reason: `Belief: accessible workshop at ${bldId} (confidence ${conf.toFixed(2)})`,
+          tx: bPos.x, ty: bPos.y,
+          plan: [{ verb: 'go', tx: bPos.x, ty: bPos.y, targetKey: bldId }, { verb: 'work', hours: 1 }]
+        });
+      }
+    } else if(bel.topic === 'well' || bel.topic === 'water_well'){
+      const wPos = (typeof placePos === 'function') ? placePos('well') : null;
+      if(wPos && 'well' !== blockedKey && !isTargetUnreach('well')){
+        const conf = bel.confidence != null ? bel.confidence : 0.95;
+        candidates.push({
+          id: 'belief_well',
+          name: 'Drink from well',
+          category: 'survival',
+          targetKey: 'well',
+          source: 'belief',
+          beliefConfidence: conf,
+          reason: `Belief: fresh water at well (confidence ${conf.toFixed(2)})`,
+          tx: wPos.x, ty: wPos.y,
+          plan: [{ verb: 'go', place: 'well', targetKey: 'well' }, { verb: 'drink' }]
+        });
+      }
+    }
+  }
+
+  // 2. Habits
+  const habits = (Array.isArray(v.habits) && v.habits.length) ? v.habits : (
+    (v.role === 'Master Blacksmith') ? ['smithing', 'rest_smithy'] :
+    (v.role === 'Village Farmer') ? ['farming', 'rest_home'] :
+    (v.role === 'Herbalist & Apothecary') ? ['foraging', 'herbalism'] :
+    (v.role === 'Innkeeper' || v.role === 'Baker & Shopkeeper') ? ['cooking', 'rest_inn'] :
+    ['work_generic', 'rest']
+  );
+
+  for(const h of habits){
+    if(h === 'smithing'){
+      const sPos = (typeof placePos === 'function') ? placePos('smithy') : null;
+      if(sPos && 'smithy' !== blockedKey && !isTargetUnreach('smithy')){
+        candidates.push({
+          id: 'habit_smithing',
+          name: 'Forge iron at Bram\'s anvil',
+          category: 'work',
+          targetKey: 'smithy',
+          source: 'habit',
+          habitScore: 25,
+          reason: 'Habit: skilled iron forging at smithy anvil',
+          tx: sPos.x, ty: sPos.y,
+          plan: [{ verb: 'go', place: 'smithy', targetKey: 'smithy' }, { verb: 'work', hours: 1 }]
+        });
+      }
+    } else if(h === 'farming'){
+      if('crops' !== blockedKey && !isTargetUnreach('crops') && typeof CROPS !== 'undefined' && CROPS.length > 0){
+        const c = CROPS[0];
+        candidates.push({
+          id: 'habit_farming',
+          name: 'Tend crops in field',
+          category: 'work',
+          targetKey: 'crops',
+          source: 'habit',
+          habitScore: 20,
+          reason: 'Habit: routine crop maintenance in field',
+          tx: c.wx * CS + 16, ty: c.wy * CS + 16,
+          plan: [{ verb: 'farm' }]
+        });
+      }
+    } else if(h === 'foraging'){
+      if(typeof findForageSpot === 'function'){
+        const fs = findForageSpot(v);
+        if(fs && ('forage_' + fs.wx + '_' + fs.wy) !== blockedKey && !isTargetUnreach('forage_' + fs.wx + '_' + fs.wy)){
+          candidates.push({
+            id: 'habit_forage',
+            name: 'Forage nearby vegetation',
+            category: 'work',
+            targetKey: 'forage_' + fs.wx + '_' + fs.wy,
+            source: 'habit',
+            habitScore: 20,
+            reason: 'Habit: gather familiar local plants',
+            tx: fs.x, ty: fs.y,
+            plan: [{ verb: 'forage' }]
+          });
+        }
+      }
+    } else if(h === 'rest_smithy' || h === 'rest_home' || h === 'rest' || h === 'rest_inn'){
+      const bldId = (h === 'rest_smithy') ? 'smithy' : (h === 'rest_inn' ? 'inn' : (v.homeId || 'inn'));
+      const hPos = (typeof placePos === 'function') ? placePos(bldId) : null;
+      candidates.push({
+        id: 'habit_rest',
+        name: 'Rest and recover',
+        category: 'leisure',
+        targetKey: bldId,
+        source: 'habit',
+        habitScore: 15,
+        reason: 'Habit: rest and recover energy',
+        tx: hPos ? hPos.x : v.x, ty: hPos ? hPos.y : v.y,
+        plan: [{ verb: 'rest', hours: 0.5 }]
+      });
+    } else if(h === 'work_generic'){
+      candidates.push({
+        id: 'habit_labor',
+        name: 'General settlement labor',
+        category: 'work',
+        targetKey: 'work_local',
+        source: 'habit',
+        habitScore: 10,
+        reason: 'Habit: general manual labor around village',
+        tx: v.x, ty: v.y,
+        plan: [{ verb: 'work', hours: 1 }]
+      });
+    }
+  }
+
+  // 3. Goal templates
+  if(typeof GOAL_TEMPLATES !== 'undefined' && Array.isArray(GOAL_TEMPLATES)){
+    for(const gt of GOAL_TEMPLATES){
+      const gen = gt.generate(v, blockedAction);
+      if(gen && (!blockedKey || gen.targetKey !== blockedKey) && !isTargetUnreach(gen.targetKey)){
+        candidates.push(gen);
+      }
+    }
+  }
+
+  // Deduplicate
+  const unique = [];
+  const seen = new Set();
+  for(const c of candidates){
+    const k = (c.id || '') + ':' + (c.targetKey || '');
+    if(!seen.has(k)){
+      seen.add(k);
+      unique.push(c);
+    }
+  }
+
+  // Score
+  for(const c of unique){
+    let sc = scoreCandidateAction(v, c);
+    if(c.habitScore) sc += c.habitScore;
+    if(c.beliefConfidence != null) sc += (c.beliefConfidence - 0.5) * 12;
+    c.score = sc;
+  }
+
+  // Filter out unreachable
+  const viable = unique.filter(c => c.score > -Infinity);
+
+  // Partition candidates into beliefSourced (source==='belief') and others
+  const beliefSourced = [];
+  const others = [];
+  for(const c of viable){
+    if(c.source === 'belief') beliefSourced.push(c);
+    else others.push(c);
+  }
+
+  // Sort each partition deterministically (keep existing tie-break)
+  const sortPartition = (arr) => {
+    arr.sort((a, b) => {
+      if(Math.abs(a.score - b.score) > 1e-6) return b.score - a.score;
+      return deterministicTieBreak18(v, a, b);
+    });
+  };
+
+  sortPartition(beliefSourced);
+  sortPartition(others);
+
+  // Final list = beliefSourced first, then fill remaining slots (total <= 3) from others by score
+  const finalCands = beliefSourced.slice(0, 3);
+  if(finalCands.length < 3){
+    finalCands.push(...others.slice(0, 3 - finalCands.length));
+  }
+  return finalCands;
+}
+
+function markTargetUnreachable(v, key, reason, hours){
+  if(!v || !key) return;
+  if(!v.unreachable) v.unreachable = {};
+  const duration = (hours != null) ? hours : 0.1;
+  const now = (typeof W !== 'undefined') ? (W.day + (W.tod || 0) / 24) : 0;
+  v.unreachable[key] = { until: now + duration, reason: reason || 'unreachable' };
+}
+
+/* ---- Failure Handling: Observation -> Interpretation -> Knowledge -> Dynamic Re-evaluation ---- */
 function handleActionFailure(v, action, reason, targetKey){
   if(!v) return;
   const reasonText = reason || 'action failed';
   const actName = action ? (action.name || action.kind || action.verb || 'action') : 'action';
 
   // 1. OBSERVATION: Thought recorded explaining WHY.
-  // This function is only ever called for a NEW failure (the planTick wrapper
-  // detects failures by thoughts-array identity change, and the plan-building
-  // path calls it on a fresh !ok result), so always post FRESH observation text
-  // describing THIS event — never keep stale text from an older failure.
   v.thoughts = [{ text: `Can't reach ${actName}: ${reasonText}`, val: -2 }];
 
   // 2. INTERPRETATION & NEW KNOWLEDGE:
-  if(!v.unreachable) v.unreachable = {};
   if(targetKey){
-    v.unreachable[targetKey] = { until: W.day + W.tod / 24 + 0.1, reason: reasonText };
+    markTargetUnreachable(v, targetKey, reasonText, 0.1);
   }
 
   // 3. Clear failed plan
   v.plan = [];
   v.currentAction = null;
 
-  // 4. RE-EVALUATION & NEW ACTION for autonomous villagers
+  // 4. DYNAMIC CANDIDATE GENERATION (B1: max 3 from goal templates + beliefs + habit)
   if(!v.brainControlled){
-    evaluateAndApplyUtilityAction(v);
+    const cands = generateDynamicCandidates(v, action, reasonText);
+    v.__lastCandidates = cands;
+    if(cands && cands.length && cands[0].score > -Infinity){
+      executeUtilityAction(v, cands[0]);
+    } else {
+      evaluateAndApplyUtilityAction(v);
+    }
   }
 }
 
@@ -1007,6 +1286,13 @@ window.__aiBridge.getUtilityScores = function(name){
     id: c.id,
     name: c.name,
     category: c.category,
-    score: +c.score.toFixed(2)
+    score: +c.score.toFixed(2),
+    reason: c.reason || null
   }));
+};
+
+window.__aiBridge.generateDynamicCandidates = function(name, blockedAction){
+  const v = VILLAGERS.find(p => p.name === name);
+  if(!v) return [];
+  return generateDynamicCandidates(v, blockedAction);
 };

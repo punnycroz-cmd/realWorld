@@ -118,3 +118,72 @@ window.__aiBridge.getDreams = function(name){
   return (v.dreams || []).slice();
 };
 window.__aiBridge.getCapabilityGaps = function(){ return CAPABILITY_GAPS.slice(); };
+
+/* =====================================================================
+   PHASE 6B: GOAL TEMPLATES FOR DYNAMIC CANDIDATE GENERATION
+   Templates represent structured fallback goals when an action is blocked.
+   Used by generateDynamicCandidates in utility.js alongside beliefs and habits.
+   ===================================================================== */
+const GOAL_TEMPLATES = [
+  {
+    id: 'gt_work_local',
+    category: 'work',
+    name: 'Shift to local productive labor',
+    generate: function(v, blocked){
+      return {
+        id: 'template_work_local',
+        name: 'Shift to local productive labor',
+        category: 'work',
+        targetKey: 'local_work',
+        source: 'template',
+        reason: 'Goal template: shift to accessible labor when primary path blocked',
+        tx: v.x, ty: v.y,
+        plan: [{ verb: 'work', hours: 1 }]
+      };
+    }
+  },
+  {
+    id: 'gt_sustenance_inn',
+    category: 'survival',
+    name: 'Fall back to inn for sustenance',
+    generate: function(v, blocked){
+      const bKey = blocked ? (blocked.targetKey || blocked.id) : null;
+      if(bKey === 'inn') return null;
+      const innPos = (typeof placePos === 'function') ? placePos('inn') : null;
+      if(innPos){
+        return {
+          id: 'template_inn_sustenance',
+          name: 'Fall back to inn for sustenance',
+          category: 'survival',
+          targetKey: 'inn',
+          source: 'template',
+          reason: 'Goal template: seek sustenance at village inn',
+          tx: innPos.x, ty: innPos.y,
+          plan: [{ verb: 'go', place: 'inn', targetKey: 'inn' }, { verb: 'eat' }]
+        };
+      }
+      return null;
+    }
+  },
+  {
+    id: 'gt_pause_recover',
+    category: 'leisure',
+    name: 'Pause and adapt to obstruction',
+    generate: function(v, blocked){
+      return {
+        id: 'template_pause',
+        name: 'Pause and adapt to obstruction',
+        category: 'leisure',
+        targetKey: 'pause_local',
+        source: 'template',
+        reason: 'Goal template: pause and adapt to obstruction',
+        tx: v.x, ty: v.y,
+        plan: [{ verb: 'wait', hours: 0.5 }]
+      };
+    }
+  }
+];
+
+if(typeof window !== 'undefined' && window.__aiBridge){
+  window.__aiBridge.getGoalTemplates = function(){ return GOAL_TEMPLATES.slice(); };
+}

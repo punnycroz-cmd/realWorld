@@ -635,3 +635,13 @@ deaths (was incorrectly asserting zero `starvation`).
 - **Examiner re-audit: PASS.** Tự chạy harness (237 lines, 0 FAIL, part24 12/12), probe độc lập 6/6 cho B1 (docile wolf 0/40 wipes, travel 10.0=control, campfire 0/40, douse giữ nguyên), B2 probe 10-day expectation gone sau 24h, B3 probe pile trống → surprise+replan qua đường thật. Kỷ luật giữ: không Bayes/FOV creep, không Math.random mới, rebuild byte-identical 59 modules, __aiBridge nguyên vẹn.
 - Non-blocking observations ghi nợ: Oa presence group còn 0 caller (phải wire ở 6C/6D hoặc descope tường minh); Ob proximity fallback ±1 tile có thể gán nhầm stash gần; Oe Math.random còn ở ui/10_controls.js:38 (visitor pick, pre-6A). Khuyến nghị long-run 30-day probe trước 6B (attention chạy mỗi tick/villager).
 - Commit 6A riêng. Next: 6B (dynamic candidates, carrying capacity, seasons, weather→fire).
+
+### Phase 6B committed (2026-09-16, ~07:00 PDT)
+- Robin implementation: dynamic candidates (utility.js/13a_intent.js), tile depletion + seasons + wolf 2-state (12d_world.js/14c_wildlife.js), weather→fire chain (dryDays→dryness, fuel/wind spread, rain extinguishes, ash 'burned' provenance). Part 25: 10 tests, harness green.
+- **Examiner audit 1: FAIL** — 2 blocking: (1) belief candidates crowded out of top-3 by static habit/template scores (spec's own Bram example failed; test 25.1 vacuous); (2) WHY reason lied: berry-stash belief → "Seek bread at stash" (fKind fallback || 'bread').
+- Robin fix attempt 1: **fixed nothing** (lead verified code directly — 25.1 still no belief assertion, line 890 unchanged). Attempt 2/2 with exact line-level brief.
+- Robin fix attempt 2: belief-first partition (beliefs fill top slots first, ≤3, deterministic), fKind fallback chain extended (foodKind||what||kind||name||'food'), pos fallback line 891, 25.1 extended (hasBelief, fails on old code), new test 25.2b (berries not bread). Also removed hardcoded founder-name habit fallbacks (O1).
+- **Examiner re-audit: PASS.** Own probes: belief-first 19/19 (incl. no-belief fallback path), berry reason truthful, no regression on B2/B3/wolves, rebuild byte-identical, no new Math.random, __aiBridge intact.
+- Perf probes: Robin 1.70 ms/tick, Examiner 3.17 ms/tick (20 villagers × 3 days, machine-dependent) — both well under threshold, no optimization needed.
+- Debt carried: presence group API still 0 in-game callers (→ wire in 6C/6D or descope); proximity fallback ±1 tile; pre-existing Math.random in ui/10_controls.js:38.
+- Commit 6B riêng. Next: 6C (Survival Guard, conflicting motives, emotions, impairment, identity).
