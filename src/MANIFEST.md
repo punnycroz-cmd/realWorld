@@ -1,0 +1,120 @@
+# Willowbrook Natura — `src/` module manifest
+
+The game is authored as plain-JS modules under `src/`. The bundler
+(`scripts/build_willowbrook_natura.py`) concatenates them **in the order listed
+in `src/_order.txt`** into one `<script>` block — no ES modules in the output,
+so the page stays openable from `file://`.
+
+**All modules share one script scope** (as before the split). Treat top-level
+`const`/`let` names as global: do not redeclare a name in two modules, and do
+not reorder modules without checking cross-module references. Within those
+constraints, each module is an independent unit of the simulation.
+
+## Module map (bundle order)
+
+### `sim/` — world, time, space
+| module | from | contents |
+|---|---|---|
+| `sim/00_core.js` | PART 2 | constants (CS/CHN), world clock & weather state `W`, noise/math helpers, chunked terrain gen, system registry |
+| `sim/01_settlement.js` | PART 3 | village layout: `VILLAGE_BUILDINGS`, `VILLAGE_OBJECTS`, `initVillageSettlement` |
+| `sim/04_navigation.js` | PART 5B | movement, water depth, collision |
+| `sim/06_mainloop.js` | PART 7 | main loop, `simTick`, time advance |
+| `sim/11_boot.js` | PART 11b | `boot()`, canvas setup, art prerender, `?test` dispatch |
+| `sim/12a_events.js` | PART 12A | event log, mortality, `survivalGuard`; 2B: river `placePos` at bridge |
+| `sim/12d_parity.js` | PART 12D intro | parity world-state arrays (PILES/FIRES/CROPS/CHICKENS/BURNING), `initParityWorld` |
+| `sim/12d_world.js` | PART 12D | crops, chickens, campfires, lightning, wildfire, regrowth ticks |
+
+### `entities/` — things that live
+| module | from | contents |
+|---|---|---|
+| `entities/02_body.js` | PART 4 | living bodies: needs, biometrics, `bodyTick`; Phase 2E: hygiene need (0..1), elder metabolic modifiers (1.35x fatigue, 0.85x calorie burn), hygiene sensations & thoughts |
+| `entities/12d_pregnancy.js` | PART 12D | pregnancy, birth, children growth; Phase 2E: `birthChild` reuses `createVillager` factory, records parentage (`motherId`/`fatherId`), household membership, 2D parent and witness birth memories; pregnancy cooldown (30 sim-days), deterministic aging hook. 2E FIX: conception is married-only (unmarried fallback removed), adult-stage conscious non-starving females only; ALL randomness seeded via `hashString18(SEED:…)` — zero `Math.random` (name/sex/seed/conception draw). |
+| `entities/14c_wildlife.js` | PART 14C | wolves/boars/bears AI, `hunt` verb, carcasses |
+| `entities/15b_husbandry.js` | PART 15B | taming, pens/coops, feeding, breeding |
+
+### `systems/` — gameplay systems (verbs & mechanics)
+| module | from | contents |
+|---|---|---|
+| `systems/12c_actions.js` | PART 12C | action queue, `postAction`, 16+ verbs, multi-step plans; Phase 2E: child weaker carry capacity (max 6), elder slower movement (0.75x speed). 2E FIX: `planMoveToward` hardened against non-finite targets (returns 'stuck', never corrupts position); planTick `'go'` resolves `person`→coords when no `follow`/coords given (fixes socialize/teach NaN zombie bug); `occupationBonusFor(v, act)` helper wires the +25% occupation bonus into farm/cook/fish executors (progress rate). |
+| `systems/12d_social.js` | PART 12D | bonds, autonomous chats, chat lines |
+| `systems/12d_illness.js` | PART 12D | base illness & injury tick |
+| `systems/13b_economy.js` | PART 13B | gold, Sella's shop, buy/sell; 2B: inn trade (Tobin serves meals) |
+| `systems/13c_butcher.js` | PART 13C | butchering, corpse decay, burial, wildfire building damage |
+| `systems/14a_medical.js` | PART 14A | wounds/bleeding/infection, poultice/splint/fever-tea, `tend` |
+| `systems/14b_rescue.js` | PART 14B | downed states, `rescue` carry |
+| `systems/14d_skills.js` | PART 14D | 8 skills, XP, talents, `assignWork` |
+| `systems/14e_construction.js` | PART 14E | materials, integrity, `repair`, fences/coops/huts; 2B: `CONSTRUCT` entries for barn/workshop/kitchen |
+| `systems/14f_wiring.js` | PART 14F | PART 14 verb registration, planTick cases, `boot` override |
+| `systems/15a_food.js` | PART 15A | meal tiers, spoilage, food poisoning, `preserve` |
+| `systems/15c_caravan.js` | PART 15C | seasonal merchant caravan, `trade` |
+| `systems/15d_friction.js` | PART 15D | insults, grudges, rivalries, brawls, apologies |
+| `systems/15e_firefight.js` | PART 15E | `douse`, autonomous firefighting duty |
+| `systems/15f_wiring.js` | PART 15F | PART 15 verb registration, planTick cases |
+| `systems/16a_recipes.js` | Phase 2A | generic `recipe` verb: runs any `RECIPE_TABLE` entry (inputs/tools/skill checks, workstation walk, provenance on outputs); `planForVerb`/`planTick` wraps; intent patterns (saw/mill/bake/build). Workstation policy: station missing -> work in place; station exists but unreachable (pathing `stuck`) -> thought "Can't reach the X" (val -2) and the step ends — never silent. 2E FIX: crafting progress rate multiplied by `occupationBonusFor(v, 'crafting')` (carpenter +25%). |
+| `systems/17a_buildings.js` | Phase 2B | building entity model: indoor temperature dynamics (fire warms, winter cools), cleanliness 0..1 decay & cleaning (`clean` verb), capacity & overcrowding mood penalties, ownership tracking (`actualOwner` precursor), expansion (`expand` verb costs logs/stone, adds capacity), abandonment decay (unoccupied N days -> fast cleanliness decay + slow structural decay), demolition (`demolish` verb reclaims 50% materials). Functional buildings: barn (animal housing & shelter), workshop (workbench workstation for recipes), kitchen (cooking station with fire), inn (guest rooms & meals commerce with Tobin). Procedural pixel-art prerender for barn, workshop, kitchen (`composeBuilding`). |
+| `systems/20_social_life.js` | Phase 2E | Social life engine: life stages (child->youth->adult->elder) with heavy verb blocking for children (fell, construct, demolish) and heaviest work for elders (fell, demolish, expand); marriage mechanics (2 conscious adults, mutual bond >= 0.7, proximity <= 4 cells, spouseId links, wedding memories, witness relationship beliefs, honest spouse cleanup on death); household entity system (shared home building, household membership, home storage food preference); ordinary activities (bathe restores hygiene with cold/dirt risk, visit builds bond, play lowers stress and boosts mood, childcare feeds child from REAL pooled household food stock — conservation enforced, honest failure thought when stores empty — and hydrates only near real water sources, insult, sweep/tidy clean); relationship bond decay without contact (~0.01/day); dynamic businesses (productive activity tracking for farming/crafting/cooking/fishing/trading, occupation emergence with 25% efficiency bonus WIRED into farm/cook/fish/craft progress rates and trader stall-price discount, village market stall entity for commerce); utility AI candidate & scoring integration (life stage, hygiene deficit, childcare, visit, play, occupation bonus, home food); natural language intent parsing. 2E FIX: failed 'marry' plan records explanatory thought + observation instead of vanishing silently. |
+| `systems/21a_ownership.js` | Phase 2F | Ownership, provenance & information layers. IDENTITY BOUNDARY (documented): identified kinds (plank, furniture — stable id, creator, quality, condition, material parentIds, tree lineage roots, full event history) live in the ITEMS registry AND keep a count mirror in v.inv[kind] so legacy count semantics keep working; bulk goods (food, grain, logs, crops) stay count-based with no identity. OWNERSHIP LAYERS: actualOwner (world truth, only legitimate transfer changes it) vs currentHolder (possession) vs per-character knownOwner/suspectedOwner/confidence/evidence/claims via Phase 2D epistemic APIs — actualOwner never broadcast. Transfer engine recordTransfer with exact semantics: gift/sell/buy/inherit change holder+owner; steal changes holder only (stolenFrom set); borrow changes holder, keeps owner, records expectedReturnH; return restores; lose/find/abandon keep owner; claims never alter actualOwner. Every transfer appends to the item's immutable history AND the world transfer log; participants and conscious witnesses form memories/beliefs through 2D APIs. Material lineage: stable tree ids (ensureTreeId/recordFelledTree), getLineage(itemId) returns chair->plank->tree chains; crafting identified outputs stores parentIds + treeIds (anonymous fallback for legacy bulk inputs). Claims/disputes: raiseItemClaim records claim + witnesses (2D claimOwnership untouched); conflicting claims open a dispute; resolveDispute is deterministic (evidence ladder: creation/direct observation > witnessed transactions/possession history > hearsay > bare claim; thief admission counts against them), mayor (Alden) decides else oldest adult non-claimant else holder keeps pending; mediation orders POSSESSION only, never rewrites actualOwner; resolution recorded as permanent event; loser gets memory + bond grudge. Verbs: steal (conscious-witness check, caught leaves item in place with beliefs/bonds/memories, unseen moves holder only), borrow (bond-gated request, honest refusal), giveback, mediate; take/drop of identified kinds go through the registry (placed/unattended/lost/abandoned pickup via 'find'); taking another's HELD item is honestly refused, never silent. ownershipTick: dead holders set items down, missing-item notices (last event steal/find), overdue-borrow notices. Utility: giveback (overdue first), recover own items, mediate, borrow-from-friends, hard-gated steal candidates; scoring consults beliefs, never world truth. No Math.random; no mood engine. |
+
+### `render/` — drawing
+| module | from | contents |
+|---|---|---|
+| `render/05_render.js` | PART 6 | render pipeline, camera, sprite drawing |
+| `render/12d_overlay.js` | PART 12D | overlay: piles, campfires, crops, chickens, wildfire |
+
+Pixel-art source modules (`pa-core/terrain/veg/props/buildings/chars/fx`) are
+**not** duplicated here — they live in `willowbrook/dev/pa-*.js` and are
+bundled first (PART 1). They are shared with the original Willowbrook game, so
+they stay in place rather than being copied.
+
+### `ui/` — interface
+| module | from | contents |
+|---|---|---|
+| `ui/08_hud.js` | PART 9 | HUD, RimWorld-style Pawn Inspector |
+| `ui/10_controls.js` | PART 11a | buttons, speed, pause, pawn selection controls |
+
+The HTML shell and all CSS live in the bundler (`scripts/build_willowbrook_natura.py`,
+`HTML_TEMPLATE`) — not in `src/`.
+
+### `data/` — static data
+| module | from | contents |
+|---|---|---|
+| `data/03_roster.js` | PART 5 | founding villager definitions, `initVillagers`; Phase 2E: canonical `createVillager` entity factory |
+| `data/recipes.js` | Phase 2A | `RECIPE_TABLE` (wood chain: fell_tree/plank/furniture; grain chain: harvest_crop/flour/bread), `getRecipe`/`findRecipe`, provenance API (`createProvenance`, `calcSkillQuality`, `recordUsage`, `attachItemProvenance`, `getItemProvenance`). Transfer API: `stripItemProvenance` (called on every inventory decrement — drop/eat/burn/sell/craft/mend/build/cook/preserve/feed/recipe-inputs — so no ghost records survive), `addItemProvenance`, pile-side `p.prov` store via `pileProvList`/`movePileProvenance` (records ride with dropped/taken items; take prefers real pile records, falls back to the legacy `felledBy` tag). NOTE: `tools` are descriptive metadata — no tool items exist in inventories yet, so all `toolsRequired` are `[]`; the executor gates on them automatically once tool items exist. |
+
+### `brain/` — decision-making & external interface
+| module | from | contents |
+|---|---|---|
+| `brain/07_ai.js` | PART 8 | rule-based villager AI, `updateVillagerAI`, player pawn controls |
+| `brain/09_bridge.js` | PART 10 | `window.__aiBridge` (listVillagers/getPerception/postAction/…); Phase 2E: getLifeStage, getHousehold, getRelationships, getOccupation, marry helpers |
+| `brain/12b_perception.js` | PART 12B | honest perception (replaces leaky v1) |
+| `brain/13a_intent.js` | PART 13A | plain-word intent planner, dreams, capability gaps |
+| `brain/knowledge.js` | Phase 2D | Individual epistemic store: memories, active beliefs, ownership beliefs, claims & evidence. Separation of reality vs perception vs memory vs knowledge vs belief vs claim vs evidence vs uncertainty. Core API: `observe`, `getBelief`, `knowsAbout`, `getOwnershipBelief`, `recordOwnershipBelief`, `claimOwnership`, `teach`, `decayEpistemic`. Teaching mechanic with proximity & consciousness gating. Sim-time forgetting with personality fidelity presets (sharp / average / forgetful) and salience weighting. Superseding of conflicting beliefs with history preservation. Generalized conflict detection: ANY shared content key with a different value supersedes (not just 5 hardcoded keys). History integrity: beliefs deep-clone evidence/content (beliefFromMemory) so reinforcement never mutates historical entries. Opt-in observation dedupe (details.dedupeWindowH): equivalent recent observations reinforce without pushing duplicate memories. Utility AI integration: consults beliefs before omniscience for food targets, exploring when unknown. Verbs: `teach`, `claim`. `__aiBridge` inspection helpers. Phase 2E: teaching learning bonus for child/youth students (+15% confidence/salience). |
+| `brain/utility.js` | Phase 2C | Utility AI: candidate action evaluation (eat, drink, sleep, work, cook, craft/recipe, clean, socialize, flee, douse, trade, warm, rest, leisure), scoring across 8 need deficits, personality weights (industrious/lazy/sociable/cautious/brave/gluttonous), distance/proximity cost, risk modifiers (beasts, fire, night), opportunity bonuses (caravan in town, inn meal, fresh bread). Deterministic seeded tie-breaking (no Math.random). Honest failure handling: failure -> observation thought -> interpretation -> new knowledge (v.unreachable) -> re-evaluation -> new action. Bridge contract (__aiBridge) intact. Epistemic integration (2D): candidate generation consults character beliefs, falling back to explore when food locations are unknown; pile re-observation deduped (dedupeWindowH 6h) to avoid memory spam. |
+
+### `tests/` — in-page autotest suite (`?test`)
+| module | from | contents |
+|---|---|---|
+| `tests/12d_autotest.js` | PART 12D | parity systems tests |
+| `tests/13_autotest.js` | PART 13 | intent/economy/butcher tests + test factory |
+| `tests/14_autotest.js` | PART 14 | medical/rescue/wildlife/skills/build/clothing tests |
+| `tests/15_autotest.js` | PART 15 | food/husbandry/caravan/friction/firefight tests |
+| `tests/16_autotest.js` | Phase 2A | recipe table lookup, plank/furniture/flour/bread production, provenance fields, input gating, intent compilation, felled-log pile provenance |
+| `tests/17_autotest.js` | Phase 2B | building entity properties, indoor temp dynamics (fire warms, winter cools), capacity & overcrowding penalties, ownership tracking, expansion, abandonment decay, demolition material reclamation, river worldgen & bridge crossing & drinking/fishing, functional buildings integration (barn, workshop, kitchen, inn), intent parser compilation |
+| `tests/18_autotest.js` | Phase 2C | starving scores eat above work, exhausted chooses sleep, beast nearby makes flee outscore foraging, personality (industrious vs lazy) changes work/leisure ranking for identical needs, unreachable food target -> thought recorded + re-evaluation picks alternative, determinism with seeded RNG, __aiBridge contract intact + utility inspection, survivalGuard hard safety net, caravan/inn opportunity bonuses, distance proximity cost, cleanliness deficit cleaning, social deficit chat elevation |
+| `tests/19_autotest.js` | Phase 2D | 15 automated assertions: direct observation yields high confidence belief, student taught by teacher gains hearsay knowledge with reduced confidence, forgetting over sim days with sharp vs forgetful presets, high salience persistence, false beliefs contradicting world truth, superseded beliefs with history retention, ownership belief structure with evidence/claims, claim recording without mutating actualOwner, third-party claim witnessing, proximity-gated teaching, consciousness-gated teaching, unknown topic null query, utility AI belief-driven food targeting vs exploration, 19.14 regression (non-hardcoded key conflict supersedes instead of silently merging), 19.15 regression (belief reinforcement does not mutate historical evidence array). |
+| `tests/20_autotest.js` | Phase 2E | 26 automated assertions: deterministic life stage transitions (child->youth->adult->elder), child heavy verb blocking, elder slower movement & heavy labor blocking, marriage gating (mutual bond, adult, proximity, consciousness), wedding memories recorded in both spouses & witnesses, death honestly clears spouse link without dangling spouseId, household unit shares home building & members, birth creates child with parentage + household membership + 2D memories, childcare consumes REAL food stock (conservation asserted) + honest failure thought when stores empty, bathe raises hygiene to 1.0, bonds decay without contact, occupation emerges from sustained activity, occupation bonus PROVEN as exactly 1.25x farm progress through the real executor chain, play preferred by children in utility scoring, market stall trade with inventory exchange & gold conservation, trader occupation earns real price discount (5g→4g), unmarried pair never conceives over 40 days, birth deterministic (same mother+day → same name/sex), failed marriage plan leaves explanatory thought, person-targeted 'go' resolves to coords + NaN targets never corrupt position, blocked-destination movement arrives without treadmill, critical thirst beats nearby wolf (drink plan issued), wall-following navigates around building to the well (no trap), critical-thirst villager at well with drink plan survives to drink (mortality-order), exhausted villager with sleep plan survives to sleep, dehydrated player pawn gets survival drink plan (no idle death). |
+| `tests/21_autotest.js` | Phase 2F | 28 automated assertions: stable identified object id/creator/owner/holder/create-event; chair->plank->tree lineage through real crafting; gift changes owner+holder with item+world log entries; unseen theft moves holder only (owner stays, thief knows truth); victim missing-item notice + true belief; caught theft leaves item in place with victim/witness beliefs, memory, bond damage; borrow records expectedReturnH and giveback restores; refused borrow is honest failure; overdue-borrow query + lender/borrower notices; lose/find keep owner; abandon keeps owner; claim never alters owner; conflicting claims open dispute; deterministic evidence-weighted resolution with permanent resolution event + loser grudge; bulk goods stay count-based; taking another's held item honestly refused; stranger belief lookup leaks nothing while witnesses of public gifts form honest beliefs; failed claim on nonexistent item fails honestly; a late third claimant joins an open dispute and is scored in resolution; a claim conflicting with a settled dispute reopens a fresh dispute (history preserved); the AI bridge never exposes actualOwner in any getter while viewers get belief-scoped data; no borrow/steal candidates when inputs are already held (hasCraftInputs guard); a claimant mayor cannot decide their own dispute; the bridge transfer log redacts true-ownership tails ("ownership stays X", "(owner still X)", "(still owned by X)") from steal/find/abandon events while the internal history keeps the full record. |
+| `sim/22a_save.js` | Phase 3 | Versioned save/load of the ACTUAL sim state (localStorage in browser, in-memory fallback): world clock/weather/pressure systems, mutated chunks (typed arrays packed as {__ta,d}), full villager records (body/needs/skills/bonds/inventory/plans/pregnancy/wounds/memories/epistemic/thoughts/why-trace), identified-item registry + ITEM/TRANSFER/TREE/epistemic id counters, transfer log, piles/fires/crops/chickens/wildlife/livestock/carcasses/fences/coops, felled trees, caravan/shop/inn, households, event log, UI indices, and RNGS.s (seeded RNG stream) so continuation is bit-identical. `currentAction` (transient, may hold live otherPerson refs) excluded; `_ci` preserved as-saved. Manual slot + autosave-once-per-day via simTick wrap; version mismatch / bad JSON rejected without mutating the world. Bridge: saveGame/loadGame/worldHash/hasSave. |
+| `brain/22b_why.js` | Phase 3 | Why-action inspector: wraps (never replaces) `evaluateVillagerUtility`, recording only the LAST decision per villager — winner, top-6 candidates with scores, need deficits + personality weights + night flag that fed the scores, per-candidate distance. `__aiBridge.explainAction(name)` returns the structured trace: current plan, decision, belief-scoped ownership beliefs acted on (never actualOwner), latest negative thought (failure→observation chain). Pawn inspector gains a "🧠 Why this action?" section refreshed inside updateHUD. |
+| `render/22c_overlays.js` | Phase 3 | Five independently toggleable debug overlays, ALL OFF by default (draw function returns immediately when all off): needs bars, ownership labels (holder + inspected villager's believed owner — belief-scoped), belief-confidence view (known/suspected/unknown) for the inspected villager, building/farm zones, event feed. Wraps drawParityOverlay; no competing renderer. Bridge: debugOverlays()/setDebugOverlay(). Browser: 🛠 Debug button + checkbox panel. |
+| `tests/22_autotest.js` | Phase 3 | 14 automated assertions: saveGame produces a non-empty blob; worldHash stable without ticks; RNG stream state (RNGS.s) restored exactly; save→12 ticks→hashA vs load→12 ticks→hashB bit-identical; save→load→save byte-identical; incompatible version rejected cleanly with world untouched; identified-item id counters survive (no id reuse); open dispute with both claimants survives; utility decision records trace (winner + candidates); trace carries need/personality/distance score components; explainAction structured, belief-scoped, no actualOwner leak; overlays draw nothing when all off; needs overlay toggles on/off cleanly; autosave fires via simTick hook. |
+
+## Dependency notes for Phase 2
+
+- Later PARTs **wrap** earlier functions (`const __baseBodyTick = bodyTick; …`
+  in 12A; `boot = function(){…}` override in 14F). Keep 14F/15F wiring modules
+  after the modules they patch.
+- `sim/11_boot.js` references almost everything; it must stay after PARTs 2–10.
+- Test modules are self-contained but rely on the full sim; they run only under `?test`.
+- Phase 2 may further split large modules (e.g. `systems/12c_actions.js`,
+  `render/05_render.js`) — the `_order.txt` list is the only ordering contract.
