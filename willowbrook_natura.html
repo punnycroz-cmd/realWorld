@@ -8055,9 +8055,491 @@ function initParityWorld(){
   for(let k = 0; k < 4; k++)
     CHICKENS.push({ name: CN[k], x: (-13 + k) * CS + 16, y: -2 * CS + 16, state: 'peck', t: srand() * 2, eggT: 8 + srand() * 10 });
 }
-/* ---- social: bonds, autonomous chats ---- */
+/* ---- social: bonds, autonomous chats, reputation-opportunity pipeline & proto-norms ---- */
+
+/* Constants for reputation, proto-norms & gossip */
+const REPUTATION_DECAY_RATE = 0.95; // daily decay rate (multiply by decay^days)
+const REPUTATION_EPSILON = 0.02;    // drop below epsilon
+const OSTRACISM_DURATION_DAYS = 7;  // N days of ostracism for proto-norm violations
+
+function ensureReputationFields(v){
+  if(!v) return;
+  if(!v.reputationReasons) v.reputationReasons = {};
+  if(v.ostracizedUntil == null) v.ostracizedUntil = 0;
+  if(!v.ostracizing) v.ostracizing = {};
+  if(!v.bonds) v.bonds = {};
+  if(!v.bondMile) v.bondMile = {};
+}
+
+function getReputationReasons(observer, targetName){
+  if(!observer || !targetName) return [];
+  ensureReputationFields(observer);
+  const tName = typeof targetName === 'object' ? targetName.name : targetName;
+  return observer.reputationReasons[tName] || [];
+}
+
+function addReputationReason(observer, targetName, reason){
+  if(!observer || !targetName || !reason) return null;
+  ensureReputationFields(observer);
+  const tName = typeof targetName === 'object' ? targetName.name : targetName;
+  if(observer.name === tName) return null; // self-opinions not tracked
+
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+  const day = reason.day != null ? reason.day : Math.floor(now);
+  const weight = reason.weight != null ? +Number(reason.weight).toFixed(2) : 0;
+  const decay = reason.decay != null ? reason.decay : REPUTATION_DECAY_RATE;
+  const confidence = reason.confidence != null ? +Number(reason.confidence).toFixed(2) : 1.0;
+
+  const entry = {
+    kind: reason.kind || 'interaction',
+    by: tName,
+    day: day,
+    weight: weight,
+    decay: decay,
+    confidence: confidence,
+    source: reason.source || 'direct',
+    teller: reason.teller || null,
+    victim: reason.victim || null,
+    distorted: !!reason.distorted
+  };
+
+  if(!observer.reputationReasons[tName]){
+    observer.reputationReasons[tName] = [];
+  }
+  observer.reputationReasons[tName].push(entry);
+
+  // If severe violation, sync bond to 0
+  if(weight <= -0.5){
+    observer.bonds[tName] = 0.0;
+  } else if(weight > 0 && observer.bonds[tName] != null){
+    observer.bonds[tName] = clamp(observer.bonds[tName] + weight * 0.1, 0, 1);
+  }
+
+  return entry;
+}
+
+function decayReputationReasons(v, dtDays){
+  if(!v || !v.reputationReasons) return;
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+  for(const targetName in v.reputationReasons){
+    const list = v.reputationReasons[targetName];
+    if(!Array.isArray(list)) continue;
+    const kept = [];
+    for(const r of list){
+      const days = Math.max(0, now - (r.day || now));
+      const decayFactor = Math.pow(r.decay || REPUTATION_DECAY_RATE, days);
+      const effWeight = Math.abs(r.weight * decayFactor * (r.confidence != null ? r.confidence : 1.0));
+      if(effWeight >= REPUTATION_EPSILON){
+        kept.push(r);
+      }
+    }
+    if(kept.length > 0){
+      v.reputationReasons[targetName] = kept;
+    } else {
+      delete v.reputationReasons[targetName];
+    }
+  }
+}
+
+function calculateTrust(observer, target){
+  if(!observer || !target) return 0.5;
+  const oName = typeof observer === 'object' ? observer.name : observer;
+  const tName = typeof target === 'object' ? target.name : target;
+  if(oName === tName) return 1.0;
+
+  const obs = typeof observer === 'object' ? observer : (typeof VILLAGERS !== 'undefined' ? VILLAGERS.find(x => x.name === oName) : null);
+  if(!obs) return 0.5;
+  ensureReputationFields(obs);
+
+  const reasons = obs.reputationReasons[tName] || [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+
+  // Base trust is 0.5, modulated by baseline bond if known
+  let baseTrust = 0.5;
+  if(obs.bonds && obs.bonds[tName] != null){
+    baseTrust = obs.bonds[tName];
+  }
+
+  // Proto-norm active ostracism collapses trust to ~0
+  if(isOstracized(tName, obs)){
+    return 0.0;
+  }
+
+  if(reasons.length === 0){
+    return clamp(baseTrust, 0.05, 0.95);
+  }
+
+  let netWeight = 0;
+  let severeViolation = false;
+
+  for(const r of reasons){
+    const days = Math.max(0, now - (r.day || now));
+    const decayFactor = Math.pow(r.decay || REPUTATION_DECAY_RATE, days);
+    const effWeight = r.weight * decayFactor * (r.confidence != null ? r.confidence : 1.0);
+    netWeight += effWeight;
+    if(effWeight <= -0.4){
+      severeViolation = true;
+    }
+  }
+
+  // Proto-norm severe violation collapses trust to ~0
+  if(severeViolation || netWeight <= -0.6){
+    return Math.max(0.0, Math.min(0.05, +(0.05 + netWeight + 0.6).toFixed(4)));
+  }
+
+  const finalTrust = clamp(baseTrust + netWeight, 0.0, 1.0);
+  return +finalTrust.toFixed(4);
+}
+
+function explainTrust(observer, target){
+  const o = typeof observer === 'object' ? observer : (typeof VILLAGERS !== 'undefined' ? VILLAGERS.find(x => x.name === observer) : null);
+  const tName = typeof target === 'object' ? target.name : target;
+  if(!o) return { trust: 0.5, reasons: [] };
+  ensureReputationFields(o);
+
+  const reasons = (o.reputationReasons && o.reputationReasons[tName]) || [];
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+  const explainedReasons = reasons.map(r => {
+    const days = Math.max(0, now - (r.day || now));
+    const decayFactor = Math.pow(r.decay || REPUTATION_DECAY_RATE, days);
+    const effWeight = +(r.weight * decayFactor * (r.confidence != null ? r.confidence : 1.0)).toFixed(3);
+    return Object.assign({}, r, { daysElapsed: +days.toFixed(1), effectiveWeight: effWeight });
+  });
+
+  return {
+    observer: o.name,
+    target: tName,
+    trust: calculateTrust(o, tName),
+    reasons: explainedReasons
+  };
+}
+
+function getTrust(observer, target){
+  return calculateTrust(observer, target);
+}
+
+function getCollectiveTrust(targetName){
+  const tName = typeof targetName === 'object' ? targetName.name : targetName;
+  if(typeof VILLAGERS === 'undefined') return 0.5;
+  const electors = VILLAGERS.filter(v => !v.dead && !v.outsider && v.name !== tName);
+  if(electors.length === 0) return 0.5;
+
+  let total = 0;
+  for(const e of electors){
+    total += calculateTrust(e, tName);
+  }
+  return +(total / electors.length).toFixed(4);
+}
+
+/* Proto-Norms: Stealing, Protect Children, Fire Mutual Aid */
+
+function setOstracism(villagerName, days, observer){
+  const vName = typeof villagerName === 'object' ? villagerName.name : villagerName;
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+  const until = now + (days || OSTRACISM_DURATION_DAYS);
+
+  if(typeof VILLAGERS !== 'undefined'){
+    const v = VILLAGERS.find(x => x.name === vName);
+    if(v){
+      v.ostracizedUntil = Math.max(v.ostracizedUntil || 0, until);
+    }
+  }
+
+  if(observer){
+    ensureReputationFields(observer);
+    observer.ostracizing[vName] = Math.max(observer.ostracizing[vName] || 0, until);
+  }
+}
+
+function isOstracized(villagerName, observer){
+  const vName = typeof villagerName === 'object' ? villagerName.name : villagerName;
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+
+  if(observer){
+    ensureReputationFields(observer);
+    if(observer.ostracizing && (observer.ostracizing[vName] || 0) > now){
+      return true;
+    }
+  }
+
+  if(typeof VILLAGERS !== 'undefined'){
+    const v = VILLAGERS.find(x => x.name === vName);
+    if(v && (v.ostracizedUntil || 0) > now){
+      return true;
+    }
+  }
+  return false;
+}
+
+function recordNormViolation(witness, offenderName, normKind, details){
+  if(!witness || !offenderName) return null;
+  ensureReputationFields(witness);
+  details = details || {};
+
+  const oName = typeof offenderName === 'object' ? offenderName.name : offenderName;
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+
+  // 1. Reason entry with weight -1.0
+  const reason = addReputationReason(witness, oName, {
+    kind: normKind, // 'theft-witnessed', 'child-harm', 'child-neglect', 'fire-refusal'
+    by: oName,
+    day: Math.floor(now),
+    weight: details.weight != null ? details.weight : -1.0,
+    source: details.source || 'direct',
+    confidence: details.confidence != null ? details.confidence : 1.0,
+    victim: details.victim || details.child || null
+  });
+
+  // 2. Trust wiped to ~0 + bond wiped
+  witness.bonds[oName] = 0.0;
+
+  // 3. Ostracism for N days
+  setOstracism(oName, details.days || OSTRACISM_DURATION_DAYS, witness);
+
+  // 4. Memory & Thought
+  const desc = details.item ? `Saw ${oName} steal ${details.item}`
+             : details.child ? `Saw ${oName} harm/neglect child ${details.child}`
+             : `Saw ${oName} violate village proto-norm (${normKind})`;
+  if(!witness.thoughts || witness.thoughts.length === 0){
+    witness.thoughts = [{ text: desc + ' — untrustworthy outcast!', val: -4 }];
+  }
+  if(typeof witnessEvent === 'function'){
+    witnessEvent(witness, desc);
+  }
+  if(typeof logEvent === 'function'){
+    logEvent('norm', `${witness.name} witnessed norm violation by ${oName} (${normKind})`);
+  }
+
+  return reason;
+}
+
+function recordProsocialDeed(doer, kind, details){
+  if(!doer) return;
+  details = details || {};
+  const dName = typeof doer === 'object' ? doer.name : doer;
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+  const weight = details.weight != null ? details.weight : 0.25;
+
+  if(typeof VILLAGERS !== 'undefined'){
+    for(const w of VILLAGERS){
+      if(w.dead || w.name === dName) continue;
+      if(typeof distCells === 'function' && doer.x != null && w.x != null){
+        if(distCells(w, doer) > 14) continue;
+      }
+      addReputationReason(w, dName, {
+        kind: kind, // 'fire-aid', etc.
+        by: dName,
+        day: Math.floor(now),
+        weight: weight,
+        source: 'direct',
+        confidence: 0.95
+      });
+      if(typeof addBond === 'function') addBond(w, doer, weight * 0.2);
+    }
+  }
+}
+
+/* Gossip Pipeline */
+
+function spreadGossip(speaker, listener, forcedRumor){
+  if(!speaker || !listener || speaker === listener || speaker.dead || listener.dead) return null;
+  ensureReputationFields(speaker);
+  ensureReputationFields(listener);
+
+  const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
+  let rumor = forcedRumor;
+
+  if(!rumor){
+    // Pick highest impact social reason from speaker's beliefs
+    let bestReason = null, bestImpact = 0;
+    for(const targetName in speaker.reputationReasons){
+      if(targetName === listener.name) continue;
+      const list = speaker.reputationReasons[targetName];
+      for(const r of list){
+        const impact = Math.abs(r.weight || 0) * (r.confidence != null ? r.confidence : 1.0);
+        if(impact > bestImpact){
+          bestImpact = impact;
+          bestReason = r;
+        }
+      }
+    }
+    if(!bestReason) return null;
+    rumor = Object.assign({}, bestReason);
+  }
+
+  // 1-hop distortion:
+  // - Details shift: who/what slightly altered, confidence lowered
+  const originalConf = rumor.confidence != null ? rumor.confidence : 1.0;
+  const distortedConf = +Math.max(0.2, originalConf * 0.75).toFixed(2);
+  const distortedWeight = +(rumor.weight * 0.85).toFixed(2);
+
+  let distortedKind = rumor.kind;
+  if(distortedKind === 'theft-witnessed') distortedKind = 'theft-rumor';
+  else if(distortedKind === 'child-harm') distortedKind = 'child-harm-rumor';
+  else if(distortedKind === 'fire-refusal') distortedKind = 'fire-refusal-rumor';
+
+  let targetPerson = rumor.by;
+  if(rumor.mistakenWho){
+    targetPerson = rumor.mistakenWho;
+  }
+
+  const gossipReason = {
+    kind: distortedKind,
+    by: targetPerson,
+    day: Math.floor(now),
+    weight: distortedWeight,
+    source: 'gossip',
+    teller: speaker.name,
+    confidence: distortedConf,
+    decay: rumor.decay || REPUTATION_DECAY_RATE,
+    victim: rumor.victim || null,
+    distorted: true
+  };
+
+  // Add reason to listener's opinion of targetPerson
+  addReputationReason(listener, targetPerson, gossipReason);
+
+  // If severe violation rumor, listener also ostracizes targetPerson
+  if(distortedWeight <= -0.4){
+    setOstracism(targetPerson, 5, listener);
+    listener.bonds[targetPerson] = Math.min(listener.bonds[targetPerson] || 0.5, 0.05);
+  }
+
+  // Record hearsay memory/belief in listener's epistemic store
+  if(typeof observe === 'function'){
+    observe(listener, {
+      event: 'gossip',
+      about: targetPerson,
+      kind: distortedKind,
+      teller: speaker.name
+    }, {
+      topic: 'gossip_' + targetPerson,
+      source: 'hearsay',
+      confidence: distortedConf,
+      salience: 0.75,
+      evidence: ['Heard from ' + speaker.name + ' that ' + targetPerson + ' committed ' + distortedKind]
+    });
+  }
+
+  if(typeof witnessEvent === 'function'){
+    witnessEvent(speaker, 'Gossiped with ' + listener.name + ' about ' + targetPerson);
+    witnessEvent(listener, 'Heard gossip from ' + speaker.name + ' about ' + targetPerson);
+  }
+  if(typeof logEvent === 'function'){
+    logEvent('gossip', `${speaker.name} gossiped to ${listener.name} about ${targetPerson} (${distortedKind})`);
+  }
+
+  return gossipReason;
+}
+
+/* Role Vacancy Selection */
+
+function fillRoleVacancy(role, options){
+  options = options || {};
+  let candidates = options.candidates;
+  if(!candidates && typeof VILLAGERS !== 'undefined'){
+    candidates = VILLAGERS.filter(v => !v.dead && !v.outsider && (v.stage === 'adult' || v.stage === 'elder'));
+  } else if(Array.isArray(candidates)){
+    candidates = candidates.map(c => typeof c === 'string' ? (VILLAGERS.find(v => v.name === c) || null) : c).filter(Boolean);
+  } else {
+    candidates = [];
+  }
+
+  if(!candidates.length){
+    return { ok: false, role, reason: 'no candidates available' };
+  }
+
+  const livingElectors = (typeof VILLAGERS !== 'undefined')
+    ? VILLAGERS.filter(v => !v.dead && !v.outsider && (v.stage === 'adult' || v.stage === 'elder'))
+    : [];
+
+  const scored = [];
+  for(const c of candidates){
+    const electors = livingElectors.filter(e => e.name !== c.name);
+    let totalTrust = 0;
+    for(const e of electors){
+      totalTrust += calculateTrust(e, c);
+    }
+    const collectiveTrust = electors.length > 0 ? +(totalTrust / electors.length).toFixed(4) : 0.5;
+
+    // Disqualification: if currently ostracized or collective trust is collapsed (< 0.2)
+    const ostracized = isOstracized(c.name);
+    const disqualified = ostracized || (collectiveTrust < 0.2);
+
+    // Capability / suitability secondary bonus (breaks ties among honest candidates)
+    let suitability = 0;
+    const rLower = String(role).toLowerCase();
+    if(rLower.includes('guard')){
+      const huntLvl = (c.skills && c.skills.hunting && c.skills.hunting.lvl) || 0;
+      const brave = (c.personality && c.personality.brave) || 1.0;
+      suitability = (huntLvl * 0.05) + ((brave - 1.0) * 0.05);
+    } else if(rLower.includes('healer') || rLower.includes('herbalist')){
+      const medLvl = (c.skills && c.skills.medicine && c.skills.medicine.lvl) || 0;
+      suitability = medLvl * 0.1;
+    } else if(rLower.includes('head') || rLower.includes('mayor')){
+      const age = c.ageY || 25;
+      suitability = Math.min(0.1, (age - 18) * 0.002);
+    }
+
+    const finalScore = disqualified ? -1.0 : +(collectiveTrust + suitability).toFixed(4);
+    scored.push({
+      name: c.name,
+      candidate: c,
+      collectiveTrust,
+      suitability: +suitability.toFixed(3),
+      disqualified,
+      ostracized,
+      score: finalScore
+    });
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+
+  const best = scored[0];
+  if(!best || best.score < 0 || best.disqualified){
+    return {
+      ok: false,
+      role,
+      reason: 'all candidates disqualified or untrusted',
+      candidates: scored
+    };
+  }
+
+  const winner = best.candidate;
+  const roleNameMap = {
+    'guard': 'Village Guard',
+    'village guard': 'Village Guard',
+    'healer': 'Village Healer',
+    'village healer': 'Village Healer',
+    'herbalist': 'Herbalist & Apothecary',
+    'village head': 'Village Head',
+    'head': 'Village Head',
+    'mayor': 'Village Mayor'
+  };
+  const finalRoleTitle = roleNameMap[role.toLowerCase()] || role;
+  winner.role = finalRoleTitle;
+  if(typeof logEvent === 'function'){
+    logEvent('role', winner.name + ' was chosen as ' + finalRoleTitle + ' (collective trust: ' + best.collectiveTrust + ')');
+  }
+
+  return {
+    ok: true,
+    role: finalRoleTitle,
+    winner: winner.name,
+    candidate: winner,
+    collectiveTrust: best.collectiveTrust,
+    score: best.score,
+    candidates: scored,
+    reasoning: `${winner.name} chosen as ${finalRoleTitle} with collective trust ${best.collectiveTrust.toFixed(2)}`
+  };
+}
+
+/* Original Social Systems: Bonds & Autonomous Chat */
+
 function addBond(a, b, amt){
   if(!a || !b || a === b || a.dead || b.dead) return;
+  ensureReputationFields(a);
+  ensureReputationFields(b);
   const na = a.bonds[b.name] || 0;
   a.bonds[b.name] = clamp(na + amt, 0, 1);
   b.bonds[a.name] = clamp((b.bonds[a.name] || 0) + amt, 0, 1);
@@ -8067,10 +8549,11 @@ function addBond(a, b, amt){
     if(na < th && a.bonds[b.name] >= th && !mA[key]){
       mA[key] = 1;
       const label = th >= 0.9 ? 'close friends' : th >= 0.6 ? 'friends' : 'acquaintances';
-      logEvent('bond', a.name + ' and ' + b.name + ' are now ' + label);
+      if(typeof logEvent === 'function') logEvent('bond', a.name + ' and ' + b.name + ' are now ' + label);
     }
   }
 }
+
 function socialTick(h){
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
@@ -8083,11 +8566,30 @@ function socialTick(h){
       const line = CHAT_LINES[Math.floor(srand() * CHAT_LINES.length)];
       witnessEvent(a, 'Chatted with ' + b.name + ': "' + line + '"');
       witnessEvent(b, 'Chatted with ' + a.name);
+      // Autonomous gossip: deterministic chance based on villager coords
+      const chatHash = Math.abs(Math.floor((a.x + b.x) * 11 + (a.y + b.y) * 7)) % 100;
+      if(chatHash < 35){
+        if(chatHash % 2 === 0) spreadGossip(a, b);
+        else spreadGossip(b, a);
+      }
     }
   }
   for(const v of VILLAGERS){
     if(v.chatT > 0){ v.chatT -= h; if(v.chatT <= 0 && v.state === 'chat') v.state = 'idle'; }
+    decayReputationReasons(v, h / 24);
   }
+}
+
+/* AI Bridge Extensions */
+if(typeof window !== 'undefined' && window.__aiBridge){
+  window.__aiBridge.getTrust = (obs, target) => calculateTrust(obs, target);
+  window.__aiBridge.explainTrust = (obs, target) => explainTrust(obs, target);
+  window.__aiBridge.getReputationReasons = (obs, target) => getReputationReasons(obs, target);
+  window.__aiBridge.getCollectiveTrust = (target) => getCollectiveTrust(target);
+  window.__aiBridge.isOstracized = (name, obs) => isOstracized(name, obs);
+  window.__aiBridge.spreadGossip = (spk, lst, rumor) => spreadGossip(spk, lst, rumor);
+  window.__aiBridge.fillRoleVacancy = (role, opt) => fillRoleVacancy(role, opt);
+  window.__aiBridge.recordNormViolation = (wit, off, kind, det) => recordNormViolation(wit, off, kind, det);
 }
 /* ---- pregnancy & birth ---- */
 // 2E fix: all birth randomness is seeded (hashString18 + SEED), never Math.random.
@@ -8919,11 +9421,14 @@ if(typeof window !== 'undefined' && window.__aiBridge){
 /* =====================================================================
    PART 13B: ECONOMY — gold, Sella's shop, buy/sell verbs.
    Gold is conserved: buyer pays, seller receives, stock is real.
+   Phase 6D (D1): Scarcity pricing, demand signal API, expectation
+   violation purchase cancel / substitution, absolute material conservation.
    ===================================================================== */
 const SHOP = {
-  stock: { bread:20, fish:8, egg:12, meal:6, cookedFish:6, cookedMeat:6 },
-  buyPrice:  { bread:3, fish:5, egg:2, meal:9, cookedFish:7, cookedMeat:8 },
-  sellPrice: { bread:2, fish:3, egg:1, meal:6, cookedFish:4, cookedMeat:5, crop:1, berries:1, log:1, stone:1 }
+  stock: { bread:20, fish:8, egg:12, meal:6, cookedFish:6, cookedMeat:6, salt:10 },
+  floorPrice: { bread:3, fish:5, egg:2, meal:9, cookedFish:7, cookedMeat:8, salt:3 },
+  sellPrice: { bread:2, fish:3, egg:1, meal:6, cookedFish:4, cookedMeat:5, crop:1, berries:1, log:1, stone:1, salt:2 },
+  priceOverrides: {}
 };
 FOOD_VAL.rawMeat = 0.12; FOOD_VAL.cookedMeat = 0.55; FOOD_VAL.meal = 0.7;
 const __firstFood12 = firstFood;
@@ -8936,8 +9441,208 @@ function shopkeeper(){ return VILLAGERS.find(v => v.name === 'Sella' && !v.dead)
 function innkeeper(){ return VILLAGERS.find(v => v.name === 'Tobin' && !v.dead) || null; }
 const INN = {
   stock: { meal:10, cookedMeat:8, cookedFish:8, bread:12, ale:15 },
-  buyPrice: { meal:8, cookedMeat:7, cookedFish:6, bread:3, ale:2, room:2 }
+  floorPrice: { meal:8, cookedMeat:7, cookedFish:6, bread:3, ale:2, room:2 },
+  sellPrice: {},
+  priceOverrides: {}
 };
+
+/* ---- Phase 6D (D1): Scarcity Pricing & Demand-Signal Engine ----
+   NO magic constants: weeklyConsumption is grounded in village population
+   and physiological daily caloric burn (calLoss ~0.48 satiety/day in bodyTick,
+   meaning ~1 food unit per villager per day -> 7 units/week per capita).
+   Scarcity = max(0, 1 - stock / weeklyConsumption).
+   Price = floorPrice * (1 + scarcity) * seasonMult. */
+
+const WEEKLY_PER_CAPITA_DEMAND = {
+  bread: 1.5,       // Primary grain staple (~1.5 loaves/week per capita)
+  egg: 1.0,         // Poultry produce (~1 egg/week per capita)
+  fish: 0.7,        // River/pond catch (~0.7 fish/week per capita)
+  cookedFish: 0.5,  // Prepared fish
+  cookedMeat: 0.5,  // Prepared butcher meat
+  meal: 0.5,        // Hearty prepared meal
+  salt: 0.8,        // Preservation & curing requirement (~0.8 salt/week per capita)
+  crop: 1.2,        // Farm produce
+  berries: 0.8,     // Foraged fruit
+  rawMeat: 0.6,     // Butchered meat
+  spice: 0.2,       // Luxury caravan import
+  cloth: 0.3,       // Garment repair
+  knife: 0.1        // Durable tool
+};
+
+const ITEM_SUBSTITUTES = {
+  salt: 'fish',         // Fresh food instead of preserving / salting
+  saltedMeat: 'fish',   // Fresh food instead of cured meat
+  smokedMeat: 'fish',   // Fresh food instead of smoked meat
+  cookedMeat: 'fish',
+  meal: 'cookedFish'
+};
+
+const Economy = {
+  demands: {},
+  demandLog: [],
+  trackedWeeklyConsumption: {},
+  recentTransactions: [],
+
+  /* Demand-signal API for caravan (Task 2) and market systems */
+  recordDemand(itemId, qtyUnmet){
+    const qty = (qtyUnmet != null && !isNaN(qtyUnmet)) ? Number(qtyUnmet) : 1;
+    if(!itemId || qty <= 0) return;
+    this.demands[itemId] = (this.demands[itemId] || 0) + qty;
+    const now = (typeof W !== 'undefined' && W && W.day != null) ? (W.day + (W.tod || 0)/24) : 0;
+    this.demandLog.push({ itemId, qty, time: now });
+    if(this.demandLog.length > 200) this.demandLog.shift();
+    logEvent('trade', 'Demand signal: unmet demand for ' + itemId + ' (+' + qty + ', total: ' + this.demands[itemId] + ')');
+  },
+
+  getDemand(itemId){
+    return this.demands[itemId] || 0;
+  },
+
+  getAllDemands(){
+    return Object.assign({}, this.demands);
+  },
+
+  consumeDemands(){
+    const snapshot = Object.assign({}, this.demands);
+    this.demands = {};
+    return snapshot;
+  },
+
+  resetDemand(itemId){
+    if(itemId) delete this.demands[itemId];
+    else this.demands = {};
+  },
+
+  /* Population-based weekly consumption — zero magic numbers */
+  getWeeklyConsumption(itemId){
+    if(this.trackedWeeklyConsumption && (this.trackedWeeklyConsumption[itemId] || 0) > 0){
+      return this.trackedWeeklyConsumption[itemId];
+    }
+    let pop = 8;
+    if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS) && VILLAGERS.length > 0){
+      const residents = VILLAGERS.filter(v => !v.dead && !v.outsider && v.role !== 'Test' && (!v.name || (!v.name.startsWith('Test') && !v.name.startsWith('T24_') && !v.name.startsWith('T20_') && !v.name.startsWith('T25_') && !v.name.startsWith('T26_'))));
+      if(residents.length > 0){
+        let count = 0;
+        for(const v of residents){
+          if(v.stage === 'child' || (v.ageY != null && v.ageY <= 12)) count += 0.5;
+          else if(v.stage === 'elder' || (v.ageY != null && v.ageY >= 60)) count += 0.85;
+          else count += 1.0;
+        }
+        pop = Math.max(1, count);
+      }
+    }
+    const perCapita = WEEKLY_PER_CAPITA_DEMAND[itemId] || 1.0;
+    return Math.max(1, Math.round(pop * perCapita));
+  },
+
+  /* Scarcity = max(0, 1 - stock / weeklyConsumption) */
+  getScarcity(itemId, stock){
+    const wc = this.getWeeklyConsumption(itemId);
+    if(wc <= 0) return 0;
+    const s = (stock != null) ? stock : (SHOP.stock[itemId] || 0);
+    return Math.max(0, 1 - s / wc);
+  },
+
+  /* Season multiplier: food is pricier in winter, 1.0 otherwise */
+  getSeasonMult(itemId){
+    const season = (typeof W !== 'undefined' && W && W.season) ? W.season : 'Spring';
+    const isFood = Boolean(
+      (typeof FOOD_VAL !== 'undefined' && FOOD_VAL[itemId] != null) ||
+      (typeof FOOD_SPOIL !== 'undefined' && FOOD_SPOIL[itemId] != null) ||
+      ['bread', 'fish', 'egg', 'meal', 'cookedFish', 'cookedMeat', 'crop', 'berries', 'rawMeat', 'saltedMeat', 'smokedMeat', 'smokedFish'].includes(itemId)
+    );
+    if(!isFood) return 1.0;
+    if(season === 'Winter') return 1.4;
+    return 1.0;
+  },
+
+  /* Price formula: floorPrice * (1 + scarcity) * seasonMult */
+  getPrice(itemId, place){
+    const targetPlace = place || 'shop';
+    const store = (targetPlace === 'inn') ? INN : SHOP;
+    if(store && store.priceOverrides && store.priceOverrides[itemId] != null){
+      return store.priceOverrides[itemId];
+    }
+    const floor = (store && store.floorPrice && store.floorPrice[itemId] != null)
+      ? store.floorPrice[itemId]
+      : ((SHOP.floorPrice && SHOP.floorPrice[itemId] != null) ? SHOP.floorPrice[itemId] : 3);
+    if(itemId === 'room') return floor;
+
+    const currentStock = (store && store.stock && store.stock[itemId] != null) ? store.stock[itemId] : 0;
+    const scarcity = this.getScarcity(itemId, currentStock);
+    const seasonMult = this.getSeasonMult(itemId);
+    return Math.max(1, Math.round(floor * (1 + scarcity) * seasonMult));
+  },
+
+  getSubstitute(itemId){
+    return ITEM_SUBSTITUTES[itemId] || null;
+  },
+
+  setSubstitute(itemId, subId){
+    ITEM_SUBSTITUTES[itemId] = subId;
+  },
+
+  recordTransaction(itemId, qty, price){
+    const q = qty || 1;
+    const now = (typeof W !== 'undefined' && W && W.day != null) ? (W.day + (W.tod || 0)/24) : 0;
+    this.recentTransactions.push({ itemId, qty: q, price, time: now });
+    while(this.recentTransactions.length > 0 && (now - this.recentTransactions[0].time) > 7){
+      const old = this.recentTransactions.shift();
+      if(this.trackedWeeklyConsumption[old.itemId]){
+        this.trackedWeeklyConsumption[old.itemId] = Math.max(0, this.trackedWeeklyConsumption[old.itemId] - old.qty);
+      }
+    }
+    this.trackedWeeklyConsumption[itemId] = (this.trackedWeeklyConsumption[itemId] || 0) + q;
+  }
+};
+
+/* Transparent Price Proxy for backward compatibility with SHOP.buyPrice[...] and overrides */
+function createPriceProxy(store, place){
+  return new Proxy(store.floorPrice, {
+    get(target, prop){
+      if(typeof prop !== 'string') return target[prop];
+      if(store.priceOverrides && store.priceOverrides[prop] != null){
+        return store.priceOverrides[prop];
+      }
+      if(prop in target){
+        return Economy.getPrice(prop, place);
+      }
+      return target[prop];
+    },
+    set(target, prop, value){
+      if(!store.priceOverrides) store.priceOverrides = {};
+      if(value === target[prop]){
+        delete store.priceOverrides[prop];
+      } else {
+        store.priceOverrides[prop] = value;
+      }
+      return true;
+    },
+    has(target, prop){
+      return prop in target || (store.priceOverrides && prop in store.priceOverrides);
+    },
+    ownKeys(target){
+      const keys = new Set([...Reflect.ownKeys(target), ...Object.keys(store.priceOverrides || {})]);
+      return Array.from(keys);
+    },
+    getOwnPropertyDescriptor(target, prop){
+      return {
+        value: this.get(target, prop),
+        writable: true,
+        enumerable: true,
+        configurable: true
+      };
+    }
+  });
+}
+
+SHOP.buyPrice = createPriceProxy(SHOP, 'shop');
+INN.buyPrice = createPriceProxy(INN, 'inn');
+
+if(typeof window !== 'undefined' && window.__aiBridge){
+  window.__aiBridge.getEconomy = function(){ return Economy; };
+}
+
 function doBuyStep(v, step, dtH){
   const what = step.what || 'bread';
   const fromInn = (step.from === 'inn' || step.place === 'inn');
@@ -8947,59 +9652,87 @@ function doBuyStep(v, step, dtH){
     const r = planMoveToward(v, p.x, p.y, dtH);
     return r === 'stuck' ? true : false;
   }
-  if(fromInn){
-    const tobin = innkeeper();
-    if(!tobin){ v.thoughts = [{ text:'The inn is closed; Tobin is away', val:-2 }]; return true; }
-    const price = INN.buyPrice[what] || SHOP.buyPrice[what];
-    if(price == null){ v.thoughts = [{ text:'The inn does not serve that', val:-2 }]; return true; }
-    if(what !== 'room' && INN.stock[what] != null && INN.stock[what] <= 0){
-      v.thoughts = [{ text:'The inn is out of ' + what, val:-2 }]; return true;
-    }
-    if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold for ' + what, val:-2 }]; return true; }
-    if(typeof checkPriceExpectation === 'function'){
-      const expRes = checkPriceExpectation(v, what, price);
-      if(expRes && !expRes.match && expRes.replan){
-        v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
-        v.replanNeeded = true;
-        v.interrupted = true;
-        return true;
-      }
-    }
-    v.gold -= price; tobin.gold = (tobin.gold || 0) + price;
-    if(what !== 'room'){
-      if(INN.stock[what]) INN.stock[what]--;
-      addInv(v, what, 1);
-    } else {
-      v.innLodgingPaid = true;
-    }
-    v.state = 'idle';
-    witnessEvent(v, 'Purchased ' + what + ' at the inn for ' + price + ' gold');
-    logEvent('trade', v.name + ' bought ' + what + ' from Tobin at the inn (' + price + 'g)');
+  const store = fromInn ? INN : SHOP;
+  const seller = fromInn ? innkeeper() : shopkeeper();
+  if(!seller){
+    v.thoughts = [{ text: (fromInn ? 'The inn is closed; Tobin is away' : 'The shop is closed'), val: -2 }];
     return true;
   }
-  const sella = shopkeeper();
-  if(!sella){ v.thoughts = [{ text:'The shop is closed', val:-2 }]; return true; }
-  const price = SHOP.buyPrice[what];
-  if(price == null){ v.thoughts = [{ text:'The shop does not sell that', val:-2 }]; return true; }
-  if((SHOP.stock[what] || 0) <= 0){ v.thoughts = [{ text:'The shop is out of ' + what, val:-2 }]; return true; }
-  if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold', val:-2 }]; return true; }
+  const price = fromInn ? (INN.buyPrice[what] || SHOP.buyPrice[what]) : SHOP.buyPrice[what];
+  if(price == null){
+    v.thoughts = [{ text: (fromInn ? 'The inn does not serve that' : 'The shop does not sell that'), val: -2 }];
+    return true;
+  }
+
+  // Check out of stock -> record unmet demand and attempt substitution if permitted
+  if(what !== 'room' && store.stock[what] != null && store.stock[what] <= 0){
+    Economy.recordDemand(what, step.n || step.qty || 1);
+    const canSub = (step.allowSubstitute !== false);
+    const sub = canSub ? Economy.getSubstitute(what) : null;
+    const subPrice = sub ? (fromInn ? (INN.buyPrice[sub] || SHOP.buyPrice[sub]) : SHOP.buyPrice[sub]) : null;
+    if(sub && (store.stock[sub] || 0) > 0 && subPrice != null && (v.gold || 0) >= subPrice){
+      v.thoughts = [{ text: what + ' is out of stock; switching to ' + sub, val: -1 }];
+      witnessEvent(v, 'Found ' + what + ' out of stock; bought ' + sub + ' instead');
+      step.originalWhat = step.originalWhat || what;
+      step.what = sub;
+      step.switchedToSubstitute = true;
+      v.switchedToSubstitute = sub;
+      return doBuyStep(v, step, dtH);
+    }
+    v.thoughts = [{ text: (fromInn ? 'The inn is out of ' : 'The shop is out of ') + what, val: -2 }];
+    return true;
+  }
+
+  // 6A Expectation tuple check: price shock triggers expectation violation
   if(typeof checkPriceExpectation === 'function'){
     const expRes = checkPriceExpectation(v, what, price);
     if(expRes && !expRes.match && expRes.replan){
+      // Record unmet demand signal for what the villager originally came to buy
+      Economy.recordDemand(what, step.n || step.qty || 1);
+      const canSub = (step.allowSubstitute !== false);
+      const sub = canSub ? Economy.getSubstitute(what) : null;
+      const subPrice = sub ? (fromInn ? (INN.buyPrice[sub] || SHOP.buyPrice[sub]) : SHOP.buyPrice[sub]) : null;
+      if(sub && (store.stock[sub] || 0) > 0 && subPrice != null && (v.gold || 0) >= subPrice){
+        v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g; switching to ' + sub, val: -1 }];
+        witnessEvent(v, 'Decided ' + what + ' was too dear at ' + price + 'g; bought ' + sub + ' instead');
+        step.originalWhat = step.originalWhat || what;
+        step.what = sub;
+        step.switchedToSubstitute = true;
+        v.switchedToSubstitute = sub;
+        return doBuyStep(v, step, dtH);
+      }
       v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
       v.replanNeeded = true;
       v.interrupted = true;
+      v.purchaseCancelled = true;
       return true;
     }
   }
-  v.gold -= price; sella.gold = (sella.gold || 0) + price;
-  SHOP.stock[what]--;
-  addInv(v, what, 1);
+
+  // Check gold affordability
+  if((v.gold || 0) < price){
+    Economy.recordDemand(what, step.n || step.qty || 1);
+    v.thoughts = [{ text: (fromInn ? 'Not enough gold for ' + what : 'Not enough gold'), val: -2 }];
+    return true;
+  }
+
+  // Execute purchase
+  v.gold -= price;
+  seller.gold = (seller.gold || 0) + price;
+  if(what !== 'room'){
+    if(store.stock[what]) store.stock[what]--;
+    addInv(v, what, 1);
+  } else {
+    v.innLodgingPaid = true;
+  }
+  Economy.recordTransaction(what, 1, price);
   v.state = 'idle';
-  witnessEvent(v, 'Bought ' + what + ' for ' + price + ' gold');
-  logEvent('trade', v.name + ' bought ' + what + ' from Sella (' + price + 'g)');
+  const sellerName = fromInn ? 'Tobin at the inn' : 'Sella';
+  witnessEvent(v, (fromInn ? 'Purchased ' + what + ' at the inn for ' + price + ' gold' : 'Bought ' + what + ' for ' + price + ' gold'));
+  logEvent('trade', v.name + ' bought ' + what + (fromInn ? ' from ' + sellerName : ' from Sella') + ' (' + price + 'g)');
   return true;
 }
+
 function doSellStep(v, step, dtH){
   const what = step.what || 'fish';
   const p = placePos('shop');
@@ -11488,8 +12221,28 @@ wolfBrain = function(a, dtH){
    stock (spice, cloth, knives, salt), wants hides/smoked meat/eggs.
    Fixed prices with familiarity haggling (mechanical, no dialogue —
    words belong to the AI brain). Guards count as a group vs wolves.
+   Phase 6D (D2): Genuinely demand-driven stock via Economy.consumeDemands(),
+   exclusive salt restocking for Sella's shop, capacity-capped supply.
    ===================================================================== */
-const CARAVAN = { active: false, campT: 0, members: [], stock: {}, sellP: {}, buyP: {} };
+const CARAVAN_BASE_STOCK = { spice: 6, cloth: 8, knife: 2, salt: 10 };
+const CARAVAN_CAPACITY = {
+  spice: 25, cloth: 30, knife: 10, salt: 40,
+  bread: 30, fish: 20, egg: 25, meal: 15, cookedFish: 15, cookedMeat: 15
+};
+const CARAVAN_DEFAULT_CAP = 30;
+const CARAVAN_DEMAND_K = 1.0;
+
+const CARAVAN = {
+  active: false,
+  inTown: false,
+  campT: 0,
+  members: [],
+  stock: {},
+  manifest: {},
+  lastDemands: {},
+  sellP: {},
+  buyP: {}
+};
 const TRADER_NAMES = ['Yusuf', 'Petra', 'Dain'];
 function mkCaravanMember(name, role, wx, wy){
   const v = mkTestV13(name, wx, wy, { role: role, outsider: true, brainControlled: true });
@@ -11504,11 +12257,64 @@ function mkCaravanMember(name, role, wx, wy){
 }
 function arriveCaravan(){
   if(CARAVAN.active) return;
-  CARAVAN.active = true; CARAVAN.campT = 14; CARAVAN.members = [];
-  CARAVAN.stock = { spice: 6, cloth: 8, knife: 2, salt: 10 };
+  CARAVAN.active = true;
+  CARAVAN.inTown = true;
+  CARAVAN.campT = 14;
+  CARAVAN.members = [];
+
+  // 1. Demand-signal interface: snapshot + clear accumulated unmet demands
+  const demands = (typeof Economy !== 'undefined' && typeof Economy.consumeDemands === 'function')
+    ? Economy.consumeDemands()
+    : {};
+  CARAVAN.lastDemands = Object.assign({}, demands);
+
+  // 2. Genuinely demand-driven stock calculation: baseQty + k * demandQty, capped by capacity (zero RNG)
+  CARAVAN.stock = {};
   CARAVAN.sellP = { spice: 12, cloth: 8, knife: 25, salt: 3 };
   CARAVAN.buyP = { hide: 6, smokedMeat: 5, egg: 2, rawMeat: 3, berries: 1 };
+
+  for(const item of Object.keys(CARAVAN_BASE_STOCK)){
+    const base = CARAVAN_BASE_STOCK[item];
+    const d = demands[item] || 0;
+    const cap = CARAVAN_CAPACITY[item] || CARAVAN_DEFAULT_CAP;
+    CARAVAN.stock[item] = Math.min(cap, Math.max(0, Math.round(base + CARAVAN_DEMAND_K * d)));
+  }
+
+  for(const item of Object.keys(demands)){
+    if(CARAVAN.stock[item] != null) continue;
+    const d = demands[item];
+    if(d > 0){
+      const cap = CARAVAN_CAPACITY[item] || CARAVAN_DEFAULT_CAP;
+      CARAVAN.stock[item] = Math.min(cap, Math.max(0, Math.round(CARAVAN_DEMAND_K * d)));
+      if(CARAVAN.sellP[item] == null){
+        CARAVAN.sellP[item] = (typeof Economy !== 'undefined' && Economy.getPrice)
+          ? Economy.getPrice(item, 'shop')
+          : ((typeof SHOP !== 'undefined' && SHOP.floorPrice && SHOP.floorPrice[item]) || 5);
+      }
+    }
+  }
+
+  CARAVAN.manifest = Object.assign({}, CARAVAN.stock);
+
+  // 3. Restock Sella's shop: caravan is the ONLY source of salt for the village.
+  // Demanded shop commodities are also delivered into SHOP.stock.
+  if(typeof SHOP !== 'undefined' && SHOP.stock){
+    // Salt is exclusively restocked via the traveling caravan
+    const saltBrought = CARAVAN.stock.salt || 0;
+    SHOP.stock.salt = (SHOP.stock.salt || 0) + saltBrought;
+
+    // Restock any other shop goods that recorded unmet demand signals
+    for(const item of Object.keys(demands)){
+      if(item === 'salt') continue;
+      if(SHOP.stock[item] != null && (CARAVAN.stock[item] || 0) > 0){
+        SHOP.stock[item] = (SHOP.stock[item] || 0) + CARAVAN.stock[item];
+      }
+    }
+  }
+
   const cx = 4 * CS + 16, cy = 2 * CS + 16;
+  CARAVAN.x = cx;
+  CARAVAN.y = cy;
   const roles = ['spice trader', 'caravan guard', 'caravan guard'];
   for(let i = 0; i < 3; i++){
     const m = mkCaravanMember(TRADER_NAMES[i], roles[i], 34 + i * 2, -20);
@@ -11526,7 +12332,10 @@ function departCaravan(){
     const i = VILLAGERS.indexOf(m);
     if(i >= 0) VILLAGERS.splice(i, 1);
   }
-  CARAVAN.members = []; CARAVAN.active = false; CARAVAN.stock = {};
+  CARAVAN.members = [];
+  CARAVAN.active = false;
+  CARAVAN.inTown = false;
+  CARAVAN.stock = {};
   logEvent('caravan', 'The caravan packed up and departed.');
   showToast('🐪 The caravan departed.');
 }
@@ -11556,7 +12365,13 @@ function doTradeStep(v, step, dtH){
   if(buy){
     const price = CARAVAN.sellP[what];
     if(price == null){ v.thoughts = [{ text: 'The traders do not sell ' + what, val: -1 }]; return true; }
-    if((CARAVAN.stock[what] || 0) <= 0){ v.thoughts = [{ text: 'The caravan is out of ' + what, val: -1 }]; return true; }
+    if((CARAVAN.stock[what] || 0) <= 0){
+      if(typeof Economy !== 'undefined' && typeof Economy.recordDemand === 'function'){
+        Economy.recordDemand(what, 1);
+      }
+      v.thoughts = [{ text: 'The caravan is out of ' + what, val: -1 }];
+      return true;
+    }
     const cost = Math.max(1, Math.ceil(price * (1 - disc)));
     if((v.gold || 0) < cost){ v.thoughts = [{ text: 'Cannot afford ' + what, val: -2 }]; return true; }
     v.gold -= cost; m.gold = (m.gold || 0) + cost; CARAVAN.stock[what]--;
@@ -11579,8 +12394,15 @@ function doTradeStep(v, step, dtH){
 }
 window.__aiBridge.getCaravan = function(){
   if(!CARAVAN.active) return null;
-  return { stock: Object.assign({}, CARAVAN.stock),
-    sellP: Object.assign({}, CARAVAN.sellP), buyP: Object.assign({}, CARAVAN.buyP) };
+  return {
+    active: CARAVAN.active,
+    inTown: CARAVAN.inTown,
+    stock: Object.assign({}, CARAVAN.stock),
+    manifest: Object.assign({}, CARAVAN.manifest || CARAVAN.stock),
+    lastDemands: Object.assign({}, CARAVAN.lastDemands || {}),
+    sellP: Object.assign({}, CARAVAN.sellP),
+    buyP: Object.assign({}, CARAVAN.buyP)
+  };
 };
 
 /* =====================================================================
@@ -11831,6 +12653,9 @@ function doDouseStep(v, step, dtH){
     gainXP(v, 'building', 1);
     witnessEvent(v, 'Doused part of the wildfire');
     logEvent('douse', v.name + ' doused fire');
+    if(typeof recordProsocialDeed === 'function'){
+      recordProsocialDeed(v, 'fire-aid', { weight: 0.25 });
+    }
     if(typeof observe === 'function'){
       observe(v, { event: 'saved village from wildfire', what: 'doused wildfire' }, {
         topic: 'fire_savior',
@@ -14390,6 +15215,7 @@ function enumerateCandidateActions(v){
   if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS)){
     for(const other of VILLAGERS){
       if(other === v || other.dead || other.state === 'sleep' || other.state === 'drown_panic') continue;
+      if(typeof isOstracized === 'function' && isOstracized(other.name, v)) continue;
       const d = Math.hypot(other.x - v.x, other.y - v.y) / CS;
       if(d <= 20){
         candidates.push({
@@ -14461,7 +15287,7 @@ function enumerateCandidateActions(v){
         }
       }
     }
-    if(sickVillager){
+    if(sickVillager && !(typeof isOstracized === 'function' && isOstracized(sickVillager.name, v))){
       candidates.push({
         id: 'duty_care_' + sickVillager.name,
         category: 'duty',
@@ -15410,6 +16236,7 @@ function updateLifeStage(v){
 
 function ensureSocialFields(v){
   if(!v) return;
+  if(typeof ensureReputationFields === 'function') ensureReputationFields(v);
   if(v.ageY == null){
     if(v.name === 'Pip') v.ageY = 9;
     else if(v.name === 'Alden') v.ageY = 68;
@@ -16053,6 +16880,10 @@ doBuyStep = function(v, step, dtH){
       const r = planMoveToward(v, sx, sy, dtH);
       return r === 'stuck' ? true : false;
     }
+    if(typeof isOstracized === 'function' && isOstracized(v.name)){
+      v.thoughts = [{ text: 'The merchant refused to trade with an outcast', val: -3 }];
+      return true;
+    }
     const what = step.what || Object.keys(stall.stock || {})[0] || 'crop';
     const basePrice = (stall.prices && stall.prices[what]) || 2;
     // 2E: traders haggle better — the +25% occupation efficiency expressed as a price cut.
@@ -16189,7 +17020,8 @@ enumerateCandidateActions = function(v){
   // 4. Visit candidate (bonded acquaintances)
   if(v.stage !== 'child' && v.bonds){
     for(const name of Object.keys(v.bonds)){
-      const val = v.bonds[name];
+      if(typeof isOstracized === 'function' && isOstracized(name, v)) continue;
+      const val = (typeof calculateTrust === 'function') ? calculateTrust(v, name) : v.bonds[name];
       if(val >= 0.4){
         const target = VILLAGERS.find(x => x.name === name && !x.dead);
         if(target && distCells(v, target) > 4 && distCells(v, target) < 30){
@@ -16211,15 +17043,17 @@ enumerateCandidateActions = function(v){
   // 5. Market stall candidate
   const stall = ensureMarketStall();
   if(stall && Object.keys(stall.stock || {}).some(k => stall.stock[k] > 0)){
-    candidates.push({
-      id: 'trade_stall',
-      category: 'trade',
-      name: 'Trade at market stall',
-      targetKey: 'market_stall',
-      tx: stall.x,
-      ty: stall.y,
-      plan: [{ verb: 'buy', place: 'stall' }]
-    });
+    if(!(typeof isOstracized === 'function' && isOstracized(v.name))){
+      candidates.push({
+        id: 'trade_stall',
+        category: 'trade',
+        name: 'Trade at market stall',
+        targetKey: 'market_stall',
+        tx: stall.x,
+        ty: stall.y,
+        plan: [{ verb: 'buy', place: 'stall' }]
+      });
+    }
   }
 
   return candidates;
@@ -17018,6 +17852,14 @@ function doStealStep(v, step, dtH){
           evidence: ['Saw ' + v.name + ' try to steal ' + it.label], source: 'direct' });
       if(typeof witnessEvent === 'function') witnessEvent(s, 'Caught ' + v.name + ' stealing from ' + victim.name);
       if(typeof addBond === 'function') addBond(s, v, s === victim ? -0.3 : -0.1);
+      if(typeof recordNormViolation === 'function'){
+        recordNormViolation(s, v.name, 'theft-witnessed', {
+          weight: -1.0,
+          victim: victim.name,
+          item: it.label,
+          source: 'direct'
+        });
+      }
     }
     v.thoughts = [{ text: 'Caught trying to steal ' + it.label + '!', val: -4 }];
     if(typeof observe === 'function') observe(v, { targetId: it.id, result: 'caught' },
@@ -17058,9 +17900,15 @@ function doBorrowStep(v, step, dtH){
   v.state = 'chat'; v.moving = false;
   step.prog = (step.prog || 0) + dtH;
   if(step.prog < 0.2) return false;
+  if(typeof isOstracized === 'function' && (isOstracized(v.name, lender) || isOstracized(lender.name, v))){
+    v.thoughts = [{ text: lender.name + ' refused to lend ' + it.label + ' to an outcast', val: -2 }];
+    lender.thoughts = [{ text: "Refused to lend to an outcast (" + v.name + ")", val: -2 }];
+    return true;
+  }
   const bond = (v.bonds && v.bonds[lender.name]) || 0;
   const bondBack = (lender.bonds && lender.bonds[v.name]) || 0;
-  if(Math.max(bond, bondBack) < 0.2){
+  const trust = (typeof calculateTrust === 'function') ? Math.min(calculateTrust(v, lender), calculateTrust(lender, v)) : 1.0;
+  if(Math.max(bond, bondBack) < 0.2 || trust < 0.2){
     v.thoughts = [{ text: lender.name + ' refused to lend ' + it.label, val: -2 }];
     lender.thoughts = [{ text: "Didn't trust " + v.name + ' with my ' + it.label, val: -1 }];
     if(typeof observe === 'function'){
@@ -17327,7 +18175,9 @@ function ownershipCandidates(v){
       if(typeof isConscious === 'function' && !isConscious(o)) continue;
       const held = heldIdentifiedOf(o, input);
       if(!held.length) continue;
-      const b1 = (v.bonds && v.bonds[o.name]) || 0, b2 = (o.bonds && o.bonds[v.name]) || 0;
+      if(typeof isOstracized === 'function' && (isOstracized(o.name, v) || isOstracized(v.name, o))) continue;
+      const b1 = (typeof calculateTrust === 'function') ? calculateTrust(v, o) : ((v.bonds && v.bonds[o.name]) || 0);
+      const b2 = (typeof calculateTrust === 'function') ? calculateTrust(o, v) : ((o.bonds && o.bonds[v.name]) || 0);
       const trust = Math.max(b1, b2);
       if(trust < 0.2) continue;
       const sc = trust - (typeof distCells === 'function' ? distCells(v, o) / 200 : 0);
@@ -17363,7 +18213,18 @@ function ownershipCandidates(v){
 }
 const __enum21 = enumerateCandidateActions;
 enumerateCandidateActions = function(v){
-  return __enum21(v).concat(ownershipCandidates(v));
+  const all = __enum21(v).concat(ownershipCandidates(v));
+  // Ostracism filter: do not offer social, duty, or trade help to ostracized villagers
+  if(typeof isOstracized === 'function'){
+    return all.filter(c => {
+      const target = c.person || c.targetName || (c.otherPerson && c.otherPerson.name) || (c.childName);
+      if(target && isOstracized(target, v)){
+        if(c.category === 'social' || c.category === 'duty' || c.category === 'trade') return false;
+      }
+      return true;
+    });
+  }
+  return all;
 };
 const __score21 = scoreCandidateAction;
 scoreCandidateAction = function(v, c){
@@ -22127,6 +22988,288 @@ runAutoTest = async function(){
   log(ok26_9, 'cleanup26: part26 cleans up all test villagers cleanly', `leaked=${leakedV.length}`);
 
   el.textContent += `part26 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
+};
+
+/* =====================================================================
+   PART 27 AUTOTEST — Phase 6D: "Con người không hoàn hảo"
+   Automated verification of:
+     27.1 (T1 Salt Closed Loop, Multi-Trip):
+          Salt stock 0 -> price high -> doBuyStep out-of-stock records demand
+          -> arriveCaravan brings MORE salt proportional to demand -> stock
+          restored -> price falls -> second arrival with zero demand brings
+          base only.
+     27.2 (T2 Thief Caught Red-Handed):
+          Real doStealStep with conscious witness within 12 cells ->
+          calculateTrust(witness, thief) <= 0.05 -> isOstracized(thief) true
+          -> fillRoleVacancy('guard', {candidates:[thief, honest]}) elects the
+          HONEST one (winner === honest.name, thief score -1 disqualified).
+     27.3 (T3 False Rumor Distortion):
+          NO real theft -> spreadGossip(speaker, listener, {kind:'theft-witnessed',
+          by:innocent.name, weight:-1.0, confidence:0.9}) -> listener holds
+          'theft-rumor' gossip reason about innocent with non-direct source ->
+          calculateTrust(listener, innocent) <= 0.05 without real crime.
+   ===================================================================== */
+
+function mkTestV27(name, wx, wy, extra){
+  const v = mkTestV13(name, wx, wy, Object.assign({ stage: 'adult' }, extra || {}));
+  ensureBody(v);
+  ensureEpistemic(v);
+  if(typeof ensureReputationFields === 'function') ensureReputationFields(v);
+  return v;
+}
+
+const __runAutoTest27 = runAutoTest;
+runAutoTest = async function(){
+  await __runAutoTest27();
+  const el = document.getElementById('autotest');
+  const res = [];
+  const log = (ok, title, desc) => {
+    res.push({ ok: Boolean(ok), title: title });
+    el.textContent += (ok ? 'PASS' : 'FAIL') + ' | ' + title + (desc ? ' — ' + desc : '') + '\n';
+  };
+
+  const madeNames = [];
+  function mk(name, wx, wy, extra){
+    const v = mkTestV27(name, wx, wy, extra);
+    madeNames.push(name);
+    return v;
+  }
+  function cleanupTestVillagers(){
+    for(const n of madeNames){
+      const i = VILLAGERS.findIndex(o => o && o.name === n);
+      if(i >= 0) VILLAGERS.splice(i, 1);
+    }
+    madeNames.length = 0;
+  }
+
+  // ===================================================================
+  // 27.1 (T1 Salt Closed Loop, Multi-Trip)
+  // Salt stock 0 -> price high -> doBuyStep out-of-stock records demand
+  // -> arriveCaravan brings MORE salt proportional to demand -> stock
+  // restored -> price falls -> second arrival with zero demand brings base only.
+  // ===================================================================
+  const savedSaltStock = (typeof SHOP !== 'undefined' && SHOP.stock) ? SHOP.stock.salt : 10;
+  const savedFishStock = (typeof SHOP !== 'undefined' && SHOP.stock) ? SHOP.stock.fish : 8;
+  const savedSaltOverride = (typeof SHOP !== 'undefined' && SHOP.priceOverrides) ? SHOP.priceOverrides.salt : undefined;
+  const savedDemands = (typeof Economy !== 'undefined' && typeof Economy.getAllDemands === 'function')
+    ? Economy.getAllDemands()
+    : {};
+  const wasCaravanActive = (typeof CARAVAN !== 'undefined') ? CARAVAN.active : false;
+
+  const sella = (typeof VILLAGERS !== 'undefined') ? VILLAGERS.find(v => v && v.name === 'Sella') : null;
+  const savedSellaDead = sella ? sella.dead : false;
+
+  let ok27_1 = false;
+  let t1Desc = '';
+
+  try {
+    if(sella) sella.dead = false;
+    if(typeof CARAVAN !== 'undefined' && CARAVAN.active && typeof departCaravan === 'function'){
+      departCaravan();
+    }
+    if(typeof Economy !== 'undefined' && typeof Economy.resetDemand === 'function'){
+      Economy.resetDemand();
+    }
+
+    // Step 1: Deplete salt to 0
+    SHOP.stock.salt = 0;
+    const floorPrice = (SHOP.floorPrice && SHOP.floorPrice.salt) || 3;
+    const highPrice = (typeof Economy !== 'undefined' && typeof Economy.getPrice === 'function')
+      ? Economy.getPrice('salt', 'shop')
+      : ((SHOP.buyPrice && SHOP.buyPrice.salt) || 6);
+    const priceIsHigh = highPrice > floorPrice;
+
+    // Step 2: Buyer attempts to buy out-of-stock salt via real doBuyStep
+    const pShop = (typeof placePos === 'function' ? placePos('shop') : null) || { x: 0, y: 0 };
+    const tBuyer = mk('T27_Salt_Buyer', 0, 0, { gold: 30, stage: 'adult', role: 'Test' });
+    tBuyer.x = pShop.x;
+    tBuyer.y = pShop.y;
+
+    const buyStep = { verb: 'buy', what: 'salt', qty: 5 };
+    doBuyStep(tBuyer, buyStep, 0.1);
+
+    const recordedDemand = (typeof Economy !== 'undefined' && typeof Economy.getDemand === 'function')
+      ? Economy.getDemand('salt')
+      : 0;
+    const demandRecorded = recordedDemand >= 5;
+
+    // Step 3: First caravan arrival (unmet demand active)
+    arriveCaravan();
+    const trip1Salt = (typeof CARAVAN !== 'undefined' && CARAVAN.stock) ? CARAVAN.stock.salt : 0;
+    const baseSalt = (typeof CARAVAN_BASE_STOCK !== 'undefined' && CARAVAN_BASE_STOCK.salt) || 10;
+    const trip1BroughtMoreThanBase = trip1Salt > baseSalt; // 10 base + 5 demand = 15
+    const shopSaltRestored = (SHOP.stock.salt || 0) >= trip1Salt;
+
+    const restockedPrice = (typeof Economy !== 'undefined' && typeof Economy.getPrice === 'function')
+      ? Economy.getPrice('salt', 'shop')
+      : ((SHOP.buyPrice && SHOP.buyPrice.salt) || 3);
+    const priceFell = restockedPrice < highPrice;
+
+    // Step 4: Depart first caravan
+    departCaravan();
+
+    // Step 5: Second caravan arrival with zero unmet demand
+    const demandBeforeTrip2 = (typeof Economy !== 'undefined' && typeof Economy.getDemand === 'function')
+      ? Economy.getDemand('salt')
+      : 0;
+    arriveCaravan();
+    const trip2Salt = (typeof CARAVAN !== 'undefined' && CARAVAN.stock) ? CARAVAN.stock.salt : 0;
+    const trip2BringsBaseOnly = (trip2Salt === baseSalt);
+    const trip2LessThanTrip1 = (trip2Salt < trip1Salt);
+
+    departCaravan();
+
+    ok27_1 = priceIsHigh && demandRecorded && trip1BroughtMoreThanBase &&
+             shopSaltRestored && priceFell && (demandBeforeTrip2 === 0) &&
+             trip2BringsBaseOnly && trip2LessThanTrip1;
+
+    t1Desc = `priceHigh=${highPrice}g (floor=${floorPrice}g) demand=${recordedDemand} trip1Brought=${trip1Salt} (base=${baseSalt}) restoredStock=${SHOP.stock.salt} priceFell=${restockedPrice}g trip2Demand=${demandBeforeTrip2} trip2Brought=${trip2Salt}`;
+  } finally {
+    if(sella) sella.dead = savedSellaDead;
+    if(typeof CARAVAN !== 'undefined' && CARAVAN.active && typeof departCaravan === 'function'){
+      departCaravan();
+    }
+    if(wasCaravanActive && typeof arriveCaravan === 'function'){
+      arriveCaravan();
+    }
+    if(typeof SHOP !== 'undefined' && SHOP.stock){
+      SHOP.stock.salt = savedSaltStock;
+      SHOP.stock.fish = savedFishStock;
+      if(savedSaltOverride !== undefined && SHOP.priceOverrides){
+        SHOP.priceOverrides.salt = savedSaltOverride;
+      } else if(SHOP.priceOverrides){
+        delete SHOP.priceOverrides.salt;
+      }
+    }
+    if(typeof Economy !== 'undefined' && typeof Economy.resetDemand === 'function'){
+      Economy.resetDemand();
+      for(const k of Object.keys(savedDemands)){
+        Economy.recordDemand(k, savedDemands[k]);
+      }
+    }
+    const bIdx = VILLAGERS.findIndex(v => v && v.name === 'T27_Salt_Buyer');
+    if(bIdx >= 0) VILLAGERS.splice(bIdx, 1);
+    const mIdx = madeNames.indexOf('T27_Salt_Buyer');
+    if(mIdx >= 0) madeNames.splice(mIdx, 1);
+  }
+
+  log(ok27_1, 'demandCaravan27: T1 salt closed loop (out-of-stock buy -> demand -> caravan brings demand-driven cargo -> stock restored -> price falls -> zero-demand brings base only)', t1Desc);
+
+  // ===================================================================
+  // 27.2 (T2 Thief Caught Red-Handed)
+  // Real doStealStep with a conscious witness within 12 cells ->
+  // calculateTrust(witness, thief) <= 0.05 -> isOstracized(thief) true ->
+  // fillRoleVacancy('guard', {candidates:[thief(max hunting lvl 5), honest(lvl 3)]})
+  // elects the HONEST one (winner === honest.name, thief score -1 disqualified).
+  // ===================================================================
+  let ok27_2 = false;
+  let t2Desc = '';
+  let lootItem = null;
+
+  try {
+    const tThief = mk('T27_Thief', 10, 10, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tThief);
+    tThief.skills.hunting = { lvl: 5, xp: 0 };
+    tThief.personality = Object.assign({}, tThief.personality, { brave: 1.2 });
+
+    const tVictim = mk('T27_Victim', 10.2, 10, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tVictim);
+
+    const tWitness = mk('T27_Witness', 11, 10, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tWitness);
+
+    const tHonest = mk('T27_Honest', 12, 12, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tHonest);
+    tHonest.skills.hunting = { lvl: 3, xp: 0 };
+    tHonest.personality = Object.assign({}, tHonest.personality, { brave: 1.0 });
+
+    // Mint loot held by victim
+    lootItem = (typeof mintIdentifiedItem === 'function')
+      ? mintIdentifiedItem('plank', { creator: tVictim.name, holder: tVictim.name, x: tVictim.x, y: tVictim.y })
+      : { id: 'test_t27_plank', label: 'plank #27', currentHolder: tVictim.name, holderType: 'villager', status: 'held', actualOwner: tVictim.name };
+    if(typeof ITEMS !== 'undefined') ITEMS[lootItem.id] = lootItem;
+
+    // Thief within 1.6 cells of victim, conscious witness within 12 cells
+    const stealStep = { verb: 'steal', itemId: lootItem.id, from: tVictim.name };
+    doStealStep(tThief, stealStep, 0.1);
+
+    // Assert witness trust and ostracism
+    const witnessTrust = calculateTrust(tWitness, tThief);
+    const thiefOstracized = isOstracized(tThief.name);
+
+    // Election for guard role with candidates [thief, honest]
+    const vacRes = fillRoleVacancy('guard', { candidates: [tThief, tHonest] });
+    const winnerHonest = vacRes.ok === true && vacRes.winner === tHonest.name;
+    const thiefEntry = vacRes.candidates && vacRes.candidates.find(c => c.name === tThief.name);
+    const thiefDisqualified = Boolean(thiefEntry && thiefEntry.score === -1.0 && thiefEntry.disqualified === true);
+
+    ok27_2 = (witnessTrust <= 0.05) && (thiefOstracized === true) && winnerHonest && thiefDisqualified;
+    t2Desc = `witnessTrust=${witnessTrust} thiefOstracized=${thiefOstracized} vacOk=${vacRes.ok} winner=${vacRes.winner} thiefScore=${thiefEntry && thiefEntry.score} thiefDisq=${thiefEntry && thiefEntry.disqualified}`;
+  } finally {
+    if(typeof ITEMS !== 'undefined' && lootItem && lootItem.id){
+      delete ITEMS[lootItem.id];
+    }
+    for(const n of ['T27_Thief', 'T27_Victim', 'T27_Witness', 'T27_Honest']){
+      const idx = VILLAGERS.findIndex(v => v && v.name === n);
+      if(idx >= 0) VILLAGERS.splice(idx, 1);
+      const mIdx = madeNames.indexOf(n);
+      if(mIdx >= 0) madeNames.splice(mIdx, 1);
+    }
+  }
+
+  log(ok27_2, 'normVacancy27: T2 caught thief has trust<=0.05 and ostracized -> guard role vacancy elects honest candidate (thief score -1 disqualified)', t2Desc);
+
+  // ===================================================================
+  // 27.3 (T3 False Rumor Distortion)
+  // NO real theft -> spreadGossip(speaker, listener, {kind:'theft-witnessed',
+  // by:innocent.name, weight:-1.0, confidence:0.9}) -> listener holds
+  // 'theft-rumor' gossip reason about innocent -> calculateTrust <= 0.05.
+  // Assert the reason's source is NOT 'direct'.
+  // ===================================================================
+  let ok27_3 = false;
+  let t3Desc = '';
+
+  try {
+    const tSpeaker = mk('T27_Gossip_Speaker', 0, 0, { stage: 'adult', role: 'Villager' });
+    const tListener = mk('T27_Gossip_Listener', 0, 0, { stage: 'adult', role: 'Villager' });
+    const tInnocent = mk('T27_Innocent', 0, 0, { stage: 'adult', role: 'Villager' });
+
+    // Staging false rumor — zero real crime/theft performed
+    const rumorPayload = {
+      kind: 'theft-witnessed',
+      by: tInnocent.name,
+      weight: -1.0,
+      confidence: 0.9
+    };
+    spreadGossip(tSpeaker, tListener, rumorPayload);
+
+    const listenerReasons = (typeof getReputationReasons === 'function')
+      ? getReputationReasons(tListener, tInnocent.name)
+      : ((tListener.reputationReasons && tListener.reputationReasons[tInnocent.name]) || []);
+
+    const rumorReason = listenerReasons.find(r => r.kind === 'theft-rumor' && r.by === tInnocent.name);
+    const hasTheftRumor = Boolean(rumorReason);
+    const sourceNotDirect = Boolean(rumorReason && rumorReason.source !== 'direct');
+    const listenerTrust = calculateTrust(tListener, tInnocent);
+    const trustCollapsed = listenerTrust <= 0.05;
+
+    ok27_3 = hasTheftRumor && sourceNotDirect && trustCollapsed;
+    t3Desc = `hasTheftRumor=${hasTheftRumor} source=${rumorReason && rumorReason.source} teller=${rumorReason && rumorReason.teller} listenerTrust=${listenerTrust}`;
+  } finally {
+    for(const n of ['T27_Gossip_Speaker', 'T27_Gossip_Listener', 'T27_Innocent']){
+      const idx = VILLAGERS.findIndex(v => v && v.name === n);
+      if(idx >= 0) VILLAGERS.splice(idx, 1);
+      const mIdx = madeNames.indexOf(n);
+      if(mIdx >= 0) madeNames.splice(mIdx, 1);
+    }
+  }
+
+  log(ok27_3, 'falseRumor27: T3 false rumor via spreadGossip creates non-direct theft-rumor reason and collapses trust<=0.05 with zero real theft', t3Desc);
+
+  // Final cleanup safeguard
+  cleanupTestVillagers();
+
+  el.textContent += `part27 done ==== ${res.filter(r => r.ok).length}/${res.length} passed ====\n`;
 };
 
 </script>

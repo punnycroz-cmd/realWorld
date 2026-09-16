@@ -71,6 +71,7 @@ function updateLifeStage(v){
 
 function ensureSocialFields(v){
   if(!v) return;
+  if(typeof ensureReputationFields === 'function') ensureReputationFields(v);
   if(v.ageY == null){
     if(v.name === 'Pip') v.ageY = 9;
     else if(v.name === 'Alden') v.ageY = 68;
@@ -714,6 +715,10 @@ doBuyStep = function(v, step, dtH){
       const r = planMoveToward(v, sx, sy, dtH);
       return r === 'stuck' ? true : false;
     }
+    if(typeof isOstracized === 'function' && isOstracized(v.name)){
+      v.thoughts = [{ text: 'The merchant refused to trade with an outcast', val: -3 }];
+      return true;
+    }
     const what = step.what || Object.keys(stall.stock || {})[0] || 'crop';
     const basePrice = (stall.prices && stall.prices[what]) || 2;
     // 2E: traders haggle better — the +25% occupation efficiency expressed as a price cut.
@@ -850,7 +855,8 @@ enumerateCandidateActions = function(v){
   // 4. Visit candidate (bonded acquaintances)
   if(v.stage !== 'child' && v.bonds){
     for(const name of Object.keys(v.bonds)){
-      const val = v.bonds[name];
+      if(typeof isOstracized === 'function' && isOstracized(name, v)) continue;
+      const val = (typeof calculateTrust === 'function') ? calculateTrust(v, name) : v.bonds[name];
       if(val >= 0.4){
         const target = VILLAGERS.find(x => x.name === name && !x.dead);
         if(target && distCells(v, target) > 4 && distCells(v, target) < 30){
@@ -872,15 +878,17 @@ enumerateCandidateActions = function(v){
   // 5. Market stall candidate
   const stall = ensureMarketStall();
   if(stall && Object.keys(stall.stock || {}).some(k => stall.stock[k] > 0)){
-    candidates.push({
-      id: 'trade_stall',
-      category: 'trade',
-      name: 'Trade at market stall',
-      targetKey: 'market_stall',
-      tx: stall.x,
-      ty: stall.y,
-      plan: [{ verb: 'buy', place: 'stall' }]
-    });
+    if(!(typeof isOstracized === 'function' && isOstracized(v.name))){
+      candidates.push({
+        id: 'trade_stall',
+        category: 'trade',
+        name: 'Trade at market stall',
+        targetKey: 'market_stall',
+        tx: stall.x,
+        ty: stall.y,
+        plan: [{ verb: 'buy', place: 'stall' }]
+      });
+    }
   }
 
   return candidates;

@@ -547,6 +547,7 @@ function enumerateCandidateActions(v){
   if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS)){
     for(const other of VILLAGERS){
       if(other === v || other.dead || other.state === 'sleep' || other.state === 'drown_panic') continue;
+      if(typeof isOstracized === 'function' && isOstracized(other.name, v)) continue;
       const d = Math.hypot(other.x - v.x, other.y - v.y) / CS;
       if(d <= 20){
         candidates.push({
@@ -618,7 +619,7 @@ function enumerateCandidateActions(v){
         }
       }
     }
-    if(sickVillager){
+    if(sickVillager && !(typeof isOstracized === 'function' && isOstracized(sickVillager.name, v))){
       candidates.push({
         id: 'duty_care_' + sickVillager.name,
         category: 'duty',

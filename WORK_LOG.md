@@ -690,3 +690,43 @@ deaths (was incorrectly asserting zero `starvation`).
   deterministic build.
 - Debt còn lại (non-blocking): `__uvUtilityBase` dead capture (từ 6A); test modules bundle vào game
   (quyết định kiến trúc để sau 6C); `fire_savior` dead bias + `betrayed` chưa effect → backlog 6D.
+
+### Rebuild prompt cho AI khác (2026-09-16, ~10:25 PDT)
+- User yêu cầu prompt chi tiết để AI khác làm lại game. Lead viết `~/workspace/WILLOWBROOK_REBUILD_PROMPT.md`
+  (~24KB): game là gì, kiến trúc module/build/determinism, epistemic architecture 9 khái niệm, catalog hệ thống
+  gameplay (body → utility AI → perception → sinh thái → tâm lý → kinh tế/xã hội), toàn bộ 36 bug + cơ chế fix,
+  9 nguyên tắc dẫn đường, ADR-001/002/003 + 4 điều kiện enforce, bài học Hearth, roadmap Phase 7/8/9, Ông đồ's gate.
+
+### 6D implement — 2 lần dispatch thất bại, lần 3 đang chạy (2026-09-16)
+- Dispatch 1 (09:56): chết 09:59 vì lỗi API agy (2 attempts failed) — không làm gì.
+- Dispatch 2 (10:15): API đã hồi, chạy 30 phút thì bị print-timeout 30m cắt giữa chừng — tree sạch, không lưu gì.
+- Dispatch 3 (10:46): chạy lại với `--print-timeout 60m` + dặn Robin SAVE PROGRESS TO DISK nếu bị cắt.
+- Bài học: task lớn (implement phase mới) cần timeout >30m; đã ghi vào AGENTS.md.
+
+## 2026-09-16 — 6D split into checkpointed sub-tasks + model switch to flash-medium
+- User decision: default agy model High → gemini-3.8-flash-medium (faster/cheaper; Examiner stays the quality gate). agy.sh now appends --model (override: --model / AGY_MODEL).
+- API errors today are network/proxy flakiness (streamGenerateContent POST fails, 400 location filter), NOT quota — only one real 429 (08:09). Smoke tests pass between failures.
+- New resilience pattern per user request: 6D split into 4 sequential tasks (D1 pricing / D2 caravan / D3 reputation+norms / T1-T3 autotest), each ≤20m, each writes .phase6d_progress.md checkpoint + defines interface for next task, each verifies own work with real bundled-chain probe. Task 1 (D1, medium) dispatched 11:45.
+- Killed the full-6D run (proc_fef3d897b0a9, was on High) to restart under the new pattern.
+
+## 2026-09-16 — Timeout 4h + checkpoint watchdog
+- agy.sh default print-timeout: 30m → 4h. Timeout giờ chỉ là cầu dao chống treo; task khỏe không bao giờ bị đồng hồ cắt.
+- Watchdog: cron `phase6d-checkpoint-watchdog` mỗi 10 phút chạy `~/workspace/agents/check_6d_progress.sh` (checkpoint mtime + src mtime + agy log + pgrep). Stall ≥25 phút → lead kill + resume từ `.phase6d_progress.md`. Xóa cron khi 6D commit xong.
+- Task 1 (D1, medium, 20m) vẫn đang chạy từ 11:45 — giữ nguyên vì scope nhỏ vừa 20m.
+
+## 2026-09-16 — 6D Task 1 (D1) DONE, verified by lead
+- Robin's turn cut twice (20m timeout, then proxy refused 3 attempts). Code survived on disk (+273/-42 in src/systems/13b_economy.js).
+- Lead verified instead of re-dispatching (no quota spent): rebuild OK (939,560 bytes); harness 259 lines 0 FAIL parts 14-26; /tmp/probe_d1.js 8/8 PASS on real bundled chain (salt 3g→6g depleted; transparent buyPrice proxy; winter ×1.4 on food; out-of-stock → demand + salt→fish substitute; price shock vs seeded expectation → purchaseCancelled + demand).
+- Finding: salt correctly excluded from winter mult (not food, it's a preservative); probe's missing inv:{} was a probe artifact, not a game bug.
+- Checkpoint written: .phase6d_progress.md with demand-signal interface contract for Task 2 (recordDemand/getDemand/getAllDemands/consumeDemands).
+
+### 6D PASS — commit (2026-09-16, ~13:55 PDT)
+Phase 6D 'Con người không hoàn hảo' done in 4 checkpointed sub-tasks (4h timeout backstop + 10m checkpoint watchdog; no stall fired).
+- **Task 1 (D1 scarcity pricing, lead-verified, no re-dispatch):** 13b_economy.js — salt stock=10, floorPrice=3; price=floor×(1+scarcity)×season; winter ×1.4 on food, salt exempt (preservative); out-of-stock/shock/can't-afford → recordDemand; salt→fish & cookedMeat→fish & meal→cookedFish substitutes on real doBuyStep; priceOverrides replace writes. Lead probe /tmp/probe_d1.js 8/8 on bundled chain (salt 3g→6g depleted, demand=1 per failed buy, shock cancels + records demand).
+- **Task 2 (D2 demand caravan):** 15c_caravan.js — arriveCaravan consumeDemands() → cargo=min(cap, round(base+1.0×demand)); salt base 10 cap 40 into SHOP.stock.salt; arrival witnessEvent; members are outsiders, removed from VILLAGERS on departure. Lead probe 10/10 (demand 11 → salt 21 & bread 1; price 6g→3g; second no-demand trip brings base 10). First run died on proxy location-filter; retry succeeded.
+- **Task 3 (D3 reputation + proto-norms):** 12d_social.js reputationReasons (weight×decay^days×confidence, epsilon prune), calculateTrust (0.5 baseline, severe collapse →~0), spreadGossip (1-hop: kind theft-witnessed→theft-rumor, ×0.85 weight, ×0.75 conf, mistakenWho redirects accusation), setOstracism (7d direct / 5d gossip), fillRoleVacancy (collective trust, ostracized or <0.2 → disqualified score -1; head/guard/healer roles). Wiring: doStealStep→recordNormViolation for all seers (21a_ownership.js:661); doDouseStep→recordProsocialDeed (15e_firefight.js); utility.js +3 lines; 20_social_life.js +28. Lead probe /tmp/lead_probe_d3.js 7/7: real steal→trust 0, ostracized, guard vacancy elects honest (hunting 3) over thief (hunting 5, score -1); false rumor→false 'theft-rumor' reason on innocent, trust 0, no direct source. Worker probe 31/31 — lead did not trust it before self-running (and one of its vacancy asserts was vacuous in first form).
+- **Task 4 (27_autotest):** T1 salt closed-loop multi-trip (stock 0→high price→demand→caravan brings more→price falls→zero-demand trip brings base only); T2 thief caught red-handed → vacancy skips thief; T3 false rumor → false reputation. Harness run twice by lead AND twice by Examiner: **263 lines, 0 FAIL, part27 3/3**. T1 wraps Sella's death in Part 25's 72h stress probe (try/finally save/restore dead + salt/demands/caravan cleanup) — contained, no leakage.
+- **Examiner Tier-3: PASS** (own probes 9/9+2/2). Verified: caravan byte-identical cargo for identical demands; salt enters ONLY via caravan (15c_caravan.js:87); winter salt=6g vs bread=8g; no infinite rumor mill (2nd hop shrinks); gossip production path via socialTick; rebuild byte-identical (md5 0a519002228522deb34a954fbd8178d9); zero Math.random in 6D modules.
+- **Non-blocking debts carried (Examiner flagged, lead corrected in .phase6d_progress.md):** (1) "3 proto-norms" is really theft-only in gameplay — child-harm/neglect + fire-refusal are dead API (spec scoped them as seeds, so acceptance stands; needs real triggers in Phase 7 or explicit descope). (2) Ostracism is instant village-wide, contradicts local-belief principle — Phase 7 design debt. (3) fillRoleVacancy has no production caller (dormant until AI brain). (4) Salt "exclusivity" = caravan introduces NEW salt; doSellStep can recycle existing salt into SHOP.stock (conserved, no arbitrage). (5) Latent: getWeeklyConsumption name filter excludes T24_/T25_/T26_ but not T27_.
+- Pre-existing debts still open: __uvUtilityBase dead capture; test modules bundled into shipped game; pre-existing Math.random in ui/10_controls.js:38; presence-expectation still 0 callers.
+- Bundle 975,955 bytes. Next: remove checkpoint watchdog; Phase 6E per adaptation 1B/Beta/3B (NOT started).

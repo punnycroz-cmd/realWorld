@@ -658,6 +658,14 @@ function doStealStep(v, step, dtH){
           evidence: ['Saw ' + v.name + ' try to steal ' + it.label], source: 'direct' });
       if(typeof witnessEvent === 'function') witnessEvent(s, 'Caught ' + v.name + ' stealing from ' + victim.name);
       if(typeof addBond === 'function') addBond(s, v, s === victim ? -0.3 : -0.1);
+      if(typeof recordNormViolation === 'function'){
+        recordNormViolation(s, v.name, 'theft-witnessed', {
+          weight: -1.0,
+          victim: victim.name,
+          item: it.label,
+          source: 'direct'
+        });
+      }
     }
     v.thoughts = [{ text: 'Caught trying to steal ' + it.label + '!', val: -4 }];
     if(typeof observe === 'function') observe(v, { targetId: it.id, result: 'caught' },
@@ -698,9 +706,15 @@ function doBorrowStep(v, step, dtH){
   v.state = 'chat'; v.moving = false;
   step.prog = (step.prog || 0) + dtH;
   if(step.prog < 0.2) return false;
+  if(typeof isOstracized === 'function' && (isOstracized(v.name, lender) || isOstracized(lender.name, v))){
+    v.thoughts = [{ text: lender.name + ' refused to lend ' + it.label + ' to an outcast', val: -2 }];
+    lender.thoughts = [{ text: "Refused to lend to an outcast (" + v.name + ")", val: -2 }];
+    return true;
+  }
   const bond = (v.bonds && v.bonds[lender.name]) || 0;
   const bondBack = (lender.bonds && lender.bonds[v.name]) || 0;
-  if(Math.max(bond, bondBack) < 0.2){
+  const trust = (typeof calculateTrust === 'function') ? Math.min(calculateTrust(v, lender), calculateTrust(lender, v)) : 1.0;
+  if(Math.max(bond, bondBack) < 0.2 || trust < 0.2){
     v.thoughts = [{ text: lender.name + ' refused to lend ' + it.label, val: -2 }];
     lender.thoughts = [{ text: "Didn't trust " + v.name + ' with my ' + it.label, val: -1 }];
     if(typeof observe === 'function'){
@@ -967,7 +981,9 @@ function ownershipCandidates(v){
       if(typeof isConscious === 'function' && !isConscious(o)) continue;
       const held = heldIdentifiedOf(o, input);
       if(!held.length) continue;
-      const b1 = (v.bonds && v.bonds[o.name]) || 0, b2 = (o.bonds && o.bonds[v.name]) || 0;
+      if(typeof isOstracized === 'function' && (isOstracized(o.name, v) || isOstracized(v.name, o))) continue;
+      const b1 = (typeof calculateTrust === 'function') ? calculateTrust(v, o) : ((v.bonds && v.bonds[o.name]) || 0);
+      const b2 = (typeof calculateTrust === 'function') ? calculateTrust(o, v) : ((o.bonds && o.bonds[v.name]) || 0);
       const trust = Math.max(b1, b2);
       if(trust < 0.2) continue;
       const sc = trust - (typeof distCells === 'function' ? distCells(v, o) / 200 : 0);
@@ -1003,7 +1019,18 @@ function ownershipCandidates(v){
 }
 const __enum21 = enumerateCandidateActions;
 enumerateCandidateActions = function(v){
-  return __enum21(v).concat(ownershipCandidates(v));
+  const all = __enum21(v).concat(ownershipCandidates(v));
+  // Ostracism filter: do not offer social, duty, or trade help to ostracized villagers
+  if(typeof isOstracized === 'function'){
+    return all.filter(c => {
+      const target = c.person || c.targetName || (c.otherPerson && c.otherPerson.name) || (c.childName);
+      if(target && isOstracized(target, v)){
+        if(c.category === 'social' || c.category === 'duty' || c.category === 'trade') return false;
+      }
+      return true;
+    });
+  }
+  return all;
 };
 const __score21 = scoreCandidateAction;
 scoreCandidateAction = function(v, c){

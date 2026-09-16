@@ -538,3 +538,16 @@ Fix đúng: đặt guard tại **production choke point** `brainThink` — nơi 
 không wrapper nào với tới. Examiner verify bằng probe adversarial riêng (boundary 0.69/0.71, player
 không miễn trừ, 150 ticks không oscillation, flee không bị giẫm) — 9/9. Quy tắc mới: mọi gameplay
 guard phải sống trong production path, và test phải drive bundled chain thật.
+
+## 2026-09-16 — Chống chịu lỗi API bằng task nhỏ + checkpoint
+API Google qua egress proxy chập chờn (POST streamGenerateContent rớt, 400 location filter) — không phải quota. Task dài 60m dính lỗi là mất trắng. Đổi chiến lược: chia phase thành task ≤20m nối tiếp, mỗi task (1) lưu checkpoint `.phase6d_progress.md`, (2) định nghĩa interface cho task sau, (3) tự verify bằng probe chạy production path thật. Mất 1 task chỉ mất 1 mảnh. Kèm quyết định của user: default model High → flash-medium (Examiner vẫn là cửa chất lượng).
+
+## 2026-09-16 — D1 xong, lead verify thay vì đốt quota
+Robin bị cắt 2 lần (timeout 20m, proxy refuse). Code nằm trên đĩa nên lead tự verify: rebuild + harness xanh + probe 8/8 chạy production path thật. Không tốn thêm quota agy. Bài học: khi code đã on-disk và việc còn lại là verify cơ học, lead làm nhanh hơn re-dispatch. Checkpoint `.phase6d_progress.md` là hợp đồng interface cho task sau — chính nó cứu Task 1.
+
+## 2026-09-16 — 6D xong: scarcity + caravan + reputation, Examiner PASS ngay attempt đầu
+Phase 6D hoàn thành trong 4 task nối tiếp (D1 → D2 → D3 → 27_autotest), mỗi task tự verify bằng probe chạy production path thật rồi lead tự chạy lại. Harness 263 lines, 0 FAIL, part27 3/3 — Examiner audit một lần là PASS, không cần fix round.
+**Bài học lớn nhất 6D: checkpoint là hợp đồng interface, không chỉ là log.** Task 2 (caravan) chạy được chính vì Task 1 để lại định nghĩa đầy đủ `recordDemand/getDemand/getAllDemands/consumeDemands` trong `.phase6d_progress.md` — khi run đầu của Task 2 chết do lỗi proxy location-filter, run retry không cần hỏi lại lead. Task 4 cũng chạy được nhờ contract T2/T3 Task 3 ghi sẵn. Chiến lược "task ≤20m + checkpoint" đã đúng với mục đích chống chịu API chập chờn.
+**Bài học thứ hai: đừng tin worker summary, kể cả khi số liệu đẹp.** Task 3 báo probe 31/31 — lead tự viết probe riêng và phát hiện assert vacancy của mình cũng vacuous (winner undefined vì chưa hiểu API trả `res.winner`). Sửa probe thành case có ý nghĩa (thief hunting 5 vs honest 3 → honest thắng, thief score -1) mới thực sự test T2. Examiner cũng verify lại tất cả bằng probe riêng.
+**Bài học thứ ba: checkpoint phải được sửa khi audit chứng minh nó sai.** Lead từng ghi "child harm → collapse trust" như feature đã chạy; Examiner chứng minh child-harm/fire-refusal là dead API (0 production caller). Sửa checkpoint ngay, không để claim sai tồn tại. Acceptance vẫn đứng vì spec đã scope "gieo mầm" — nhưng hồ sơ phải trung thực.
+**Thiết kế:** reputation = danh sách lý do có decay (không phải số đơn) — đúng khuyến nghị từ bài học Hearth. Ostracism toàn-làng ngay lập tức vi phạm nguyên tắc "villager chỉ biết qua giác quan trung thực" — nợ thiết kế Phase 7 (scope ostracism theo local belief/gossip propagation).

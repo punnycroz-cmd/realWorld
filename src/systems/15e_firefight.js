@@ -69,6 +69,9 @@ function doDouseStep(v, step, dtH){
     gainXP(v, 'building', 1);
     witnessEvent(v, 'Doused part of the wildfire');
     logEvent('douse', v.name + ' doused fire');
+    if(typeof recordProsocialDeed === 'function'){
+      recordProsocialDeed(v, 'fire-aid', { weight: 0.25 });
+    }
     if(typeof observe === 'function'){
       observe(v, { event: 'saved village from wildfire', what: 'doused wildfire' }, {
         topic: 'fire_savior',

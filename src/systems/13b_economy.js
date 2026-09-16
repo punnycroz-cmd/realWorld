@@ -1,11 +1,14 @@
 /* =====================================================================
    PART 13B: ECONOMY — gold, Sella's shop, buy/sell verbs.
    Gold is conserved: buyer pays, seller receives, stock is real.
+   Phase 6D (D1): Scarcity pricing, demand signal API, expectation
+   violation purchase cancel / substitution, absolute material conservation.
    ===================================================================== */
 const SHOP = {
-  stock: { bread:20, fish:8, egg:12, meal:6, cookedFish:6, cookedMeat:6 },
-  buyPrice:  { bread:3, fish:5, egg:2, meal:9, cookedFish:7, cookedMeat:8 },
-  sellPrice: { bread:2, fish:3, egg:1, meal:6, cookedFish:4, cookedMeat:5, crop:1, berries:1, log:1, stone:1 }
+  stock: { bread:20, fish:8, egg:12, meal:6, cookedFish:6, cookedMeat:6, salt:10 },
+  floorPrice: { bread:3, fish:5, egg:2, meal:9, cookedFish:7, cookedMeat:8, salt:3 },
+  sellPrice: { bread:2, fish:3, egg:1, meal:6, cookedFish:4, cookedMeat:5, crop:1, berries:1, log:1, stone:1, salt:2 },
+  priceOverrides: {}
 };
 FOOD_VAL.rawMeat = 0.12; FOOD_VAL.cookedMeat = 0.55; FOOD_VAL.meal = 0.7;
 const __firstFood12 = firstFood;
@@ -18,8 +21,208 @@ function shopkeeper(){ return VILLAGERS.find(v => v.name === 'Sella' && !v.dead)
 function innkeeper(){ return VILLAGERS.find(v => v.name === 'Tobin' && !v.dead) || null; }
 const INN = {
   stock: { meal:10, cookedMeat:8, cookedFish:8, bread:12, ale:15 },
-  buyPrice: { meal:8, cookedMeat:7, cookedFish:6, bread:3, ale:2, room:2 }
+  floorPrice: { meal:8, cookedMeat:7, cookedFish:6, bread:3, ale:2, room:2 },
+  sellPrice: {},
+  priceOverrides: {}
 };
+
+/* ---- Phase 6D (D1): Scarcity Pricing & Demand-Signal Engine ----
+   NO magic constants: weeklyConsumption is grounded in village population
+   and physiological daily caloric burn (calLoss ~0.48 satiety/day in bodyTick,
+   meaning ~1 food unit per villager per day -> 7 units/week per capita).
+   Scarcity = max(0, 1 - stock / weeklyConsumption).
+   Price = floorPrice * (1 + scarcity) * seasonMult. */
+
+const WEEKLY_PER_CAPITA_DEMAND = {
+  bread: 1.5,       // Primary grain staple (~1.5 loaves/week per capita)
+  egg: 1.0,         // Poultry produce (~1 egg/week per capita)
+  fish: 0.7,        // River/pond catch (~0.7 fish/week per capita)
+  cookedFish: 0.5,  // Prepared fish
+  cookedMeat: 0.5,  // Prepared butcher meat
+  meal: 0.5,        // Hearty prepared meal
+  salt: 0.8,        // Preservation & curing requirement (~0.8 salt/week per capita)
+  crop: 1.2,        // Farm produce
+  berries: 0.8,     // Foraged fruit
+  rawMeat: 0.6,     // Butchered meat
+  spice: 0.2,       // Luxury caravan import
+  cloth: 0.3,       // Garment repair
+  knife: 0.1        // Durable tool
+};
+
+const ITEM_SUBSTITUTES = {
+  salt: 'fish',         // Fresh food instead of preserving / salting
+  saltedMeat: 'fish',   // Fresh food instead of cured meat
+  smokedMeat: 'fish',   // Fresh food instead of smoked meat
+  cookedMeat: 'fish',
+  meal: 'cookedFish'
+};
+
+const Economy = {
+  demands: {},
+  demandLog: [],
+  trackedWeeklyConsumption: {},
+  recentTransactions: [],
+
+  /* Demand-signal API for caravan (Task 2) and market systems */
+  recordDemand(itemId, qtyUnmet){
+    const qty = (qtyUnmet != null && !isNaN(qtyUnmet)) ? Number(qtyUnmet) : 1;
+    if(!itemId || qty <= 0) return;
+    this.demands[itemId] = (this.demands[itemId] || 0) + qty;
+    const now = (typeof W !== 'undefined' && W && W.day != null) ? (W.day + (W.tod || 0)/24) : 0;
+    this.demandLog.push({ itemId, qty, time: now });
+    if(this.demandLog.length > 200) this.demandLog.shift();
+    logEvent('trade', 'Demand signal: unmet demand for ' + itemId + ' (+' + qty + ', total: ' + this.demands[itemId] + ')');
+  },
+
+  getDemand(itemId){
+    return this.demands[itemId] || 0;
+  },
+
+  getAllDemands(){
+    return Object.assign({}, this.demands);
+  },
+
+  consumeDemands(){
+    const snapshot = Object.assign({}, this.demands);
+    this.demands = {};
+    return snapshot;
+  },
+
+  resetDemand(itemId){
+    if(itemId) delete this.demands[itemId];
+    else this.demands = {};
+  },
+
+  /* Population-based weekly consumption — zero magic numbers */
+  getWeeklyConsumption(itemId){
+    if(this.trackedWeeklyConsumption && (this.trackedWeeklyConsumption[itemId] || 0) > 0){
+      return this.trackedWeeklyConsumption[itemId];
+    }
+    let pop = 8;
+    if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS) && VILLAGERS.length > 0){
+      const residents = VILLAGERS.filter(v => !v.dead && !v.outsider && v.role !== 'Test' && (!v.name || (!v.name.startsWith('Test') && !v.name.startsWith('T24_') && !v.name.startsWith('T20_') && !v.name.startsWith('T25_') && !v.name.startsWith('T26_'))));
+      if(residents.length > 0){
+        let count = 0;
+        for(const v of residents){
+          if(v.stage === 'child' || (v.ageY != null && v.ageY <= 12)) count += 0.5;
+          else if(v.stage === 'elder' || (v.ageY != null && v.ageY >= 60)) count += 0.85;
+          else count += 1.0;
+        }
+        pop = Math.max(1, count);
+      }
+    }
+    const perCapita = WEEKLY_PER_CAPITA_DEMAND[itemId] || 1.0;
+    return Math.max(1, Math.round(pop * perCapita));
+  },
+
+  /* Scarcity = max(0, 1 - stock / weeklyConsumption) */
+  getScarcity(itemId, stock){
+    const wc = this.getWeeklyConsumption(itemId);
+    if(wc <= 0) return 0;
+    const s = (stock != null) ? stock : (SHOP.stock[itemId] || 0);
+    return Math.max(0, 1 - s / wc);
+  },
+
+  /* Season multiplier: food is pricier in winter, 1.0 otherwise */
+  getSeasonMult(itemId){
+    const season = (typeof W !== 'undefined' && W && W.season) ? W.season : 'Spring';
+    const isFood = Boolean(
+      (typeof FOOD_VAL !== 'undefined' && FOOD_VAL[itemId] != null) ||
+      (typeof FOOD_SPOIL !== 'undefined' && FOOD_SPOIL[itemId] != null) ||
+      ['bread', 'fish', 'egg', 'meal', 'cookedFish', 'cookedMeat', 'crop', 'berries', 'rawMeat', 'saltedMeat', 'smokedMeat', 'smokedFish'].includes(itemId)
+    );
+    if(!isFood) return 1.0;
+    if(season === 'Winter') return 1.4;
+    return 1.0;
+  },
+
+  /* Price formula: floorPrice * (1 + scarcity) * seasonMult */
+  getPrice(itemId, place){
+    const targetPlace = place || 'shop';
+    const store = (targetPlace === 'inn') ? INN : SHOP;
+    if(store && store.priceOverrides && store.priceOverrides[itemId] != null){
+      return store.priceOverrides[itemId];
+    }
+    const floor = (store && store.floorPrice && store.floorPrice[itemId] != null)
+      ? store.floorPrice[itemId]
+      : ((SHOP.floorPrice && SHOP.floorPrice[itemId] != null) ? SHOP.floorPrice[itemId] : 3);
+    if(itemId === 'room') return floor;
+
+    const currentStock = (store && store.stock && store.stock[itemId] != null) ? store.stock[itemId] : 0;
+    const scarcity = this.getScarcity(itemId, currentStock);
+    const seasonMult = this.getSeasonMult(itemId);
+    return Math.max(1, Math.round(floor * (1 + scarcity) * seasonMult));
+  },
+
+  getSubstitute(itemId){
+    return ITEM_SUBSTITUTES[itemId] || null;
+  },
+
+  setSubstitute(itemId, subId){
+    ITEM_SUBSTITUTES[itemId] = subId;
+  },
+
+  recordTransaction(itemId, qty, price){
+    const q = qty || 1;
+    const now = (typeof W !== 'undefined' && W && W.day != null) ? (W.day + (W.tod || 0)/24) : 0;
+    this.recentTransactions.push({ itemId, qty: q, price, time: now });
+    while(this.recentTransactions.length > 0 && (now - this.recentTransactions[0].time) > 7){
+      const old = this.recentTransactions.shift();
+      if(this.trackedWeeklyConsumption[old.itemId]){
+        this.trackedWeeklyConsumption[old.itemId] = Math.max(0, this.trackedWeeklyConsumption[old.itemId] - old.qty);
+      }
+    }
+    this.trackedWeeklyConsumption[itemId] = (this.trackedWeeklyConsumption[itemId] || 0) + q;
+  }
+};
+
+/* Transparent Price Proxy for backward compatibility with SHOP.buyPrice[...] and overrides */
+function createPriceProxy(store, place){
+  return new Proxy(store.floorPrice, {
+    get(target, prop){
+      if(typeof prop !== 'string') return target[prop];
+      if(store.priceOverrides && store.priceOverrides[prop] != null){
+        return store.priceOverrides[prop];
+      }
+      if(prop in target){
+        return Economy.getPrice(prop, place);
+      }
+      return target[prop];
+    },
+    set(target, prop, value){
+      if(!store.priceOverrides) store.priceOverrides = {};
+      if(value === target[prop]){
+        delete store.priceOverrides[prop];
+      } else {
+        store.priceOverrides[prop] = value;
+      }
+      return true;
+    },
+    has(target, prop){
+      return prop in target || (store.priceOverrides && prop in store.priceOverrides);
+    },
+    ownKeys(target){
+      const keys = new Set([...Reflect.ownKeys(target), ...Object.keys(store.priceOverrides || {})]);
+      return Array.from(keys);
+    },
+    getOwnPropertyDescriptor(target, prop){
+      return {
+        value: this.get(target, prop),
+        writable: true,
+        enumerable: true,
+        configurable: true
+      };
+    }
+  });
+}
+
+SHOP.buyPrice = createPriceProxy(SHOP, 'shop');
+INN.buyPrice = createPriceProxy(INN, 'inn');
+
+if(typeof window !== 'undefined' && window.__aiBridge){
+  window.__aiBridge.getEconomy = function(){ return Economy; };
+}
+
 function doBuyStep(v, step, dtH){
   const what = step.what || 'bread';
   const fromInn = (step.from === 'inn' || step.place === 'inn');
@@ -29,59 +232,87 @@ function doBuyStep(v, step, dtH){
     const r = planMoveToward(v, p.x, p.y, dtH);
     return r === 'stuck' ? true : false;
   }
-  if(fromInn){
-    const tobin = innkeeper();
-    if(!tobin){ v.thoughts = [{ text:'The inn is closed; Tobin is away', val:-2 }]; return true; }
-    const price = INN.buyPrice[what] || SHOP.buyPrice[what];
-    if(price == null){ v.thoughts = [{ text:'The inn does not serve that', val:-2 }]; return true; }
-    if(what !== 'room' && INN.stock[what] != null && INN.stock[what] <= 0){
-      v.thoughts = [{ text:'The inn is out of ' + what, val:-2 }]; return true;
-    }
-    if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold for ' + what, val:-2 }]; return true; }
-    if(typeof checkPriceExpectation === 'function'){
-      const expRes = checkPriceExpectation(v, what, price);
-      if(expRes && !expRes.match && expRes.replan){
-        v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
-        v.replanNeeded = true;
-        v.interrupted = true;
-        return true;
-      }
-    }
-    v.gold -= price; tobin.gold = (tobin.gold || 0) + price;
-    if(what !== 'room'){
-      if(INN.stock[what]) INN.stock[what]--;
-      addInv(v, what, 1);
-    } else {
-      v.innLodgingPaid = true;
-    }
-    v.state = 'idle';
-    witnessEvent(v, 'Purchased ' + what + ' at the inn for ' + price + ' gold');
-    logEvent('trade', v.name + ' bought ' + what + ' from Tobin at the inn (' + price + 'g)');
+  const store = fromInn ? INN : SHOP;
+  const seller = fromInn ? innkeeper() : shopkeeper();
+  if(!seller){
+    v.thoughts = [{ text: (fromInn ? 'The inn is closed; Tobin is away' : 'The shop is closed'), val: -2 }];
     return true;
   }
-  const sella = shopkeeper();
-  if(!sella){ v.thoughts = [{ text:'The shop is closed', val:-2 }]; return true; }
-  const price = SHOP.buyPrice[what];
-  if(price == null){ v.thoughts = [{ text:'The shop does not sell that', val:-2 }]; return true; }
-  if((SHOP.stock[what] || 0) <= 0){ v.thoughts = [{ text:'The shop is out of ' + what, val:-2 }]; return true; }
-  if((v.gold || 0) < price){ v.thoughts = [{ text:'Not enough gold', val:-2 }]; return true; }
+  const price = fromInn ? (INN.buyPrice[what] || SHOP.buyPrice[what]) : SHOP.buyPrice[what];
+  if(price == null){
+    v.thoughts = [{ text: (fromInn ? 'The inn does not serve that' : 'The shop does not sell that'), val: -2 }];
+    return true;
+  }
+
+  // Check out of stock -> record unmet demand and attempt substitution if permitted
+  if(what !== 'room' && store.stock[what] != null && store.stock[what] <= 0){
+    Economy.recordDemand(what, step.n || step.qty || 1);
+    const canSub = (step.allowSubstitute !== false);
+    const sub = canSub ? Economy.getSubstitute(what) : null;
+    const subPrice = sub ? (fromInn ? (INN.buyPrice[sub] || SHOP.buyPrice[sub]) : SHOP.buyPrice[sub]) : null;
+    if(sub && (store.stock[sub] || 0) > 0 && subPrice != null && (v.gold || 0) >= subPrice){
+      v.thoughts = [{ text: what + ' is out of stock; switching to ' + sub, val: -1 }];
+      witnessEvent(v, 'Found ' + what + ' out of stock; bought ' + sub + ' instead');
+      step.originalWhat = step.originalWhat || what;
+      step.what = sub;
+      step.switchedToSubstitute = true;
+      v.switchedToSubstitute = sub;
+      return doBuyStep(v, step, dtH);
+    }
+    v.thoughts = [{ text: (fromInn ? 'The inn is out of ' : 'The shop is out of ') + what, val: -2 }];
+    return true;
+  }
+
+  // 6A Expectation tuple check: price shock triggers expectation violation
   if(typeof checkPriceExpectation === 'function'){
     const expRes = checkPriceExpectation(v, what, price);
     if(expRes && !expRes.match && expRes.replan){
+      // Record unmet demand signal for what the villager originally came to buy
+      Economy.recordDemand(what, step.n || step.qty || 1);
+      const canSub = (step.allowSubstitute !== false);
+      const sub = canSub ? Economy.getSubstitute(what) : null;
+      const subPrice = sub ? (fromInn ? (INN.buyPrice[sub] || SHOP.buyPrice[sub]) : SHOP.buyPrice[sub]) : null;
+      if(sub && (store.stock[sub] || 0) > 0 && subPrice != null && (v.gold || 0) >= subPrice){
+        v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g; switching to ' + sub, val: -1 }];
+        witnessEvent(v, 'Decided ' + what + ' was too dear at ' + price + 'g; bought ' + sub + ' instead');
+        step.originalWhat = step.originalWhat || what;
+        step.what = sub;
+        step.switchedToSubstitute = true;
+        v.switchedToSubstitute = sub;
+        return doBuyStep(v, step, dtH);
+      }
       v.thoughts = [{ text: 'Price shock: ' + what + ' costs ' + price + 'g (expected ' + expRes.predictedValue + 'g)', val: -3 }];
       v.replanNeeded = true;
       v.interrupted = true;
+      v.purchaseCancelled = true;
       return true;
     }
   }
-  v.gold -= price; sella.gold = (sella.gold || 0) + price;
-  SHOP.stock[what]--;
-  addInv(v, what, 1);
+
+  // Check gold affordability
+  if((v.gold || 0) < price){
+    Economy.recordDemand(what, step.n || step.qty || 1);
+    v.thoughts = [{ text: (fromInn ? 'Not enough gold for ' + what : 'Not enough gold'), val: -2 }];
+    return true;
+  }
+
+  // Execute purchase
+  v.gold -= price;
+  seller.gold = (seller.gold || 0) + price;
+  if(what !== 'room'){
+    if(store.stock[what]) store.stock[what]--;
+    addInv(v, what, 1);
+  } else {
+    v.innLodgingPaid = true;
+  }
+  Economy.recordTransaction(what, 1, price);
   v.state = 'idle';
-  witnessEvent(v, 'Bought ' + what + ' for ' + price + ' gold');
-  logEvent('trade', v.name + ' bought ' + what + ' from Sella (' + price + 'g)');
+  const sellerName = fromInn ? 'Tobin at the inn' : 'Sella';
+  witnessEvent(v, (fromInn ? 'Purchased ' + what + ' at the inn for ' + price + ' gold' : 'Bought ' + what + ' for ' + price + ' gold'));
+  logEvent('trade', v.name + ' bought ' + what + (fromInn ? ' from ' + sellerName : ' from Sella') + ' (' + price + 'g)');
   return true;
 }
+
 function doSellStep(v, step, dtH){
   const what = step.what || 'fish';
   const p = placePos('shop');

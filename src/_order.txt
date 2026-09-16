@@ -59,3 +59,4 @@ tests/23_autotest.js
 tests/24_autotest.js
 tests/25_autotest.js
 tests/26_autotest.js
+tests/27_autotest.js
