@@ -37,6 +37,15 @@ function lightningTick(h){
   const sx = wx * CS + 16, sy = wy * CS + 16;
   logEvent('lightning', 'Lightning struck ' + compassDir(wx, wy) + ' of the village');
   showToast('⛈ Lightning strikes!');
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.propagateSound === 'function'){
+    FeelingSubstrate.propagateSound({
+      kind: 'thunder',
+      originX: sx,
+      originY: sy,
+      radius: 60,
+      metadata: { wx: wx, wy: wy }
+    });
+  }
   for(const v of VILLAGERS){
     if(v.dead) continue;
     const d = Math.hypot(v.x - sx, v.y - sy) / CS;
@@ -186,6 +195,18 @@ function wildfireTick(h){
           }));
         }
       }
+    }
+
+    // Phase 6E E3: Acoustic fire roar propagation with physical distance falloff (radius 16)
+    if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.propagateSound === 'function'){
+      FeelingSubstrate.propagateSound({
+        kind: 'fire_roar',
+        originX: b.wx * CS + 16,
+        originY: b.wy * CS + 16,
+        radius: 16,
+        sourceName: 'wildfire',
+        metadata: { wx: b.wx, wy: b.wy }
+      });
     }
 
     // Fire spread f(fuel, wind direction, dryness)

@@ -71,7 +71,19 @@
     downed:            { signalKind: 'crisis_downed',  baseIntensity: 0.95, domain: 'somatic',     affect: 'suffering' },
     injury:            { signalKind: 'pain_injury',    baseIntensity: 0.80, domain: 'somatic',     affect: 'pain' },
     starvation:        { signalKind: 'hunger_starving',baseIntensity: 0.85, domain: 'somatic',     affect: 'hunger' },
-    scream:            { signalKind: 'acoustic_scream',baseIntensity: 0.70, domain: 'acoustic',    affect: 'fear' }
+    // A2 Acoustic Sound Events (Physical Propagation with Falloff)
+    scream:            { signalKind: 'acoustic_scream', baseIntensity: 0.85, domain: 'acoustic',    affect: 'fear' },
+    acoustic_scream:   { signalKind: 'acoustic_scream', baseIntensity: 0.85, domain: 'acoustic',    affect: 'fear' },
+    fire_roar:         { signalKind: 'acoustic_fire',   baseIntensity: 0.75, domain: 'acoustic',    affect: 'fear' },
+    acoustic_fire:     { signalKind: 'acoustic_fire',   baseIntensity: 0.75, domain: 'acoustic',    affect: 'fear' },
+    wolf_howl:         { signalKind: 'acoustic_wolf',   baseIntensity: 0.75, domain: 'acoustic',    affect: 'fear' },
+    wolf_growl:        { signalKind: 'acoustic_wolf',   baseIntensity: 0.70, domain: 'acoustic',    affect: 'fear' },
+    acoustic_wolf:     { signalKind: 'acoustic_wolf',   baseIntensity: 0.75, domain: 'acoustic',    affect: 'fear' },
+    fight_noise:       { signalKind: 'acoustic_fight',  baseIntensity: 0.65, domain: 'acoustic',    affect: 'fear' },
+    brawl_noise:       { signalKind: 'acoustic_fight',  baseIntensity: 0.65, domain: 'acoustic',    affect: 'fear' },
+    acoustic_fight:    { signalKind: 'acoustic_fight',  baseIntensity: 0.65, domain: 'acoustic',    affect: 'fear' },
+    thunder:           { signalKind: 'acoustic_thunder',baseIntensity: 0.85, domain: 'acoustic',    affect: 'fear' },
+    acoustic_thunder:  { signalKind: 'acoustic_thunder',baseIntensity: 0.85, domain: 'acoustic',    affect: 'fear' }
   };
 
   // Standardize any world event into { kind, intensity, source, tick, metadata }
@@ -127,13 +139,41 @@
       return normalizeEventToSignal(rawEvent, tick, params);
     },
 
-    // Ensure all 3 D1 accumulators exist on villager
+    // Ensure all 3 D1 accumulators and 3B stressResidue exist on villager
     ensureSubstrate: function(v){
       if(!v) return;
       if(v.hungerStressAcc == null) v.hungerStressAcc = 0.0;
       if(v.fearFatigueAcc == null) v.fearFatigueAcc = 0.0;
       if(v.painPatienceAcc == null) v.painPatienceAcc = 0.0;
+      if(v.stressResidue == null) v.stressResidue = 0.0;
+      if(!v._tickSignalGroupIntensities) v._tickSignalGroupIntensities = {};
       if(!v._recentSignals) v._recentSignals = [];
+    },
+
+    // 3B: Derived max stress from body / mind (ceiling base, no made-up constants)
+    getMaxStress: function(v){
+      if(!v) return 1.0;
+      const b = (typeof ensureBody === 'function') ? ensureBody(v) : (v && v.body ? v.body : {});
+      if(b && b.maxStress != null) return b.maxStress;
+      if(v && v.maxStress != null) return v.maxStress;
+      return 1.0;
+    },
+
+    // 3B: Strict ceiling assertion: stressResidue <= 0.35 * maxStress
+    assertCeiling: function(v){
+      if(!v) return;
+      const maxStress = this.getMaxStress(v);
+      const ceiling = 0.35 * maxStress;
+      if(v.stressResidue > ceiling + 1e-6){
+        throw new Error(`[SUBSTRATE ASSERTION FAIL] stressResidue (${v.stressResidue}) exceeded 0.35 * maxStress (${ceiling})`);
+      }
+    },
+
+    getStressResidue: function(v){
+      if(!v) return 0.0;
+      this.ensureSubstrate(v);
+      this.assertCeiling(v);
+      return +v.stressResidue.toFixed(4);
     },
 
     // Ingest normalized signal into villager substrate
@@ -144,10 +184,38 @@
         ? rawSignal
         : normalizeEventToSignal(rawSignal);
 
+      const curTick = (signal.tick != null)
+        ? signal.tick
+        : ((typeof W !== 'undefined' && W.day != null) ? +(W.day * 24 + (W.tod || 0)).toFixed(2) : (v._tick || 0));
+
+      // Same-tick source group deduplication (NN1 / 3(f) formula):
+      // Prevent double/triple-counting when multiple systems (e.g. wildfireTick + survivalGuard + acoustic_fire)
+      // emit from the same fire in the same tick.
+      let groupKey = null;
+      if(signal.kind === 'threat_fire' || signal.kind === 'acoustic_fire' || signal.rawKind === 'wildfire' || signal.rawKind === 'fire'){
+        groupKey = 'fire';
+      }
+
+      let deltaIntensity = signal.intensity;
+      if(groupKey){
+        if(v._lastSignalTick !== curTick){
+          v._lastSignalTick = curTick;
+          v._tickSignalGroupIntensities = {};
+        }
+        const prevGroup = v._tickSignalGroupIntensities[groupKey] || 0.0;
+        deltaIntensity = Math.max(0.0, signal.intensity - prevGroup);
+        v._tickSignalGroupIntensities[groupKey] = Math.max(prevGroup, signal.intensity);
+      }
+
       // Explicit causal routing into D1 accumulators & substrate:
-      if(signal.affect === 'fear' || signal.kind === 'fear' || signal.domain === 'danger'){
-        // Fear event -> boosts fearFatigueAcc
-        v.fearFatigueAcc = clamp((v.fearFatigueAcc || 0) + signal.intensity, 0.0, 1.0);
+      if(signal.affect === 'fear' || signal.kind === 'fear' || signal.domain === 'danger' || signal.domain === 'acoustic'){
+        // Fear / danger / acoustic shock event -> boosts fearFatigueAcc
+        v.fearFatigueAcc = clamp((v.fearFatigueAcc || 0) + deltaIntensity, 0.0, 1.0);
+        // Acoustic scream / shock interrupts sleeping villagers
+        if(v.state === 'sleep' && signal.domain === 'acoustic' && signal.intensity >= 0.35){
+          v.state = 'idle';
+          v.plan = [];
+        }
       } else if(signal.affect === 'hunger' || signal.kind === 'hunger_starving'){
         // Acute hunger signal -> boosts hungerStressAcc
         v.hungerStressAcc = clamp((v.hungerStressAcc || 0) + signal.intensity * 0.4, 0.0, 1.0);
@@ -170,11 +238,89 @@
         v.fearFatigueAcc = clamp((v.fearFatigueAcc || 0) - signal.intensity * 0.4, 0.0, 1.0);
       }
 
+      // 3B: Acute trauma leaves lasting stress residue (ceiling clamped)
+      if((signal.affect === 'fear' || signal.affect === 'suffering' || signal.affect === 'sorrow') && signal.intensity >= 0.50 && deltaIntensity > 0){
+        const residueGain = deltaIntensity * 0.12;
+        const maxStress = this.getMaxStress(v);
+        const ceiling = 0.35 * maxStress;
+        v.stressResidue = Math.min(ceiling, (v.stressResidue || 0) + residueGain);
+        this.assertCeiling(v);
+      }
+
       // Record in recent signals ring buffer for auditing / getLayers
       v._recentSignals.push(signal);
       if(v._recentSignals.length > 8) v._recentSignals.shift();
 
       return signal;
+    },
+
+    // A2: Physical acoustic sound propagation with distance falloff
+    // Propagates sound events (scream, fire roar, wolf howl/growl, brawl, thunder)
+    // within physical radius with linear distance falloff: intensity *= (1 - d/R).
+    // Outside radius: zero signal. Deterministic, zero Math.random().
+    propagateSound: function(soundEvent){
+      if(!soundEvent) return [];
+      const kind = (soundEvent.kind || soundEvent.type || 'scream').toLowerCase();
+      const SOUND_PROFILES = {
+        scream:           { signalKind: 'acoustic_scream',  defaultRadius: 25, baseIntensity: 0.85 },
+        acoustic_scream:  { signalKind: 'acoustic_scream',  defaultRadius: 25, baseIntensity: 0.85 },
+        fire_roar:        { signalKind: 'acoustic_fire',    defaultRadius: 16, baseIntensity: 0.75 },
+        acoustic_fire:    { signalKind: 'acoustic_fire',    defaultRadius: 16, baseIntensity: 0.75 },
+        wolf_howl:        { signalKind: 'acoustic_wolf',    defaultRadius: 30, baseIntensity: 0.75 },
+        wolf_growl:       { signalKind: 'acoustic_wolf',    defaultRadius: 20, baseIntensity: 0.70 },
+        acoustic_wolf:    { signalKind: 'acoustic_wolf',    defaultRadius: 30, baseIntensity: 0.75 },
+        fight_noise:      { signalKind: 'acoustic_fight',   defaultRadius: 20, baseIntensity: 0.65 },
+        brawl_noise:      { signalKind: 'acoustic_fight',   defaultRadius: 20, baseIntensity: 0.65 },
+        acoustic_fight:   { signalKind: 'acoustic_fight',   defaultRadius: 20, baseIntensity: 0.65 },
+        thunder:          { signalKind: 'acoustic_thunder', defaultRadius: 60, baseIntensity: 0.85 },
+        acoustic_thunder: { signalKind: 'acoustic_thunder', defaultRadius: 60, baseIntensity: 0.85 }
+      };
+      const profile = SOUND_PROFILES[kind] || {
+        signalKind: 'acoustic_' + kind,
+        defaultRadius: 20,
+        baseIntensity: 0.70
+      };
+
+      const radiusCells = (soundEvent.radius != null) ? soundEvent.radius : profile.defaultRadius;
+      const baseIntensity = (soundEvent.intensity != null) ? soundEvent.intensity : profile.baseIntensity;
+      const originX = soundEvent.originX != null ? soundEvent.originX : (soundEvent.x != null ? soundEvent.x : 0);
+      const originY = soundEvent.originY != null ? soundEvent.originY : (soundEvent.y != null ? soundEvent.y : 0);
+      const source = soundEvent.source || null;
+      const cellSize = (typeof CS !== 'undefined' && CS > 0) ? CS : 32;
+
+      const delivered = [];
+      const villagers = (typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS)) ? VILLAGERS : [];
+
+      for(let i = 0; i < villagers.length; i++){
+        const v = villagers[i];
+        if(!v || v.dead) continue;
+        if(source && (v === source || v.name === source.name)) continue;
+
+        const dCells = Math.hypot(v.x - originX, v.y - originY) / cellSize;
+        if(dCells <= radiusCells){
+          const falloff = Math.max(0.0, 1.0 - (dCells / radiusCells));
+          const finalIntensity = +(clamp(baseIntensity * falloff, 0.01, 1.0).toFixed(3));
+          if(finalIntensity > 0){
+            const sig = this.receiveSignal(v, {
+              kind: profile.signalKind,
+              intensity: finalIntensity,
+              source: (source && source.name) ? source.name : (soundEvent.sourceName || 'sound'),
+              tick: soundEvent.tick,
+              domain: 'acoustic',
+              affect: 'fear',
+              metadata: {
+                distCells: +dCells.toFixed(2),
+                radius: radiusCells,
+                originX: originX,
+                originY: originY,
+                ...(soundEvent.metadata || {})
+              }
+            });
+            delivered.push({ villager: v, signal: sig, distCells: +dCells.toFixed(2), intensity: finalIntensity });
+          }
+        }
+      }
+      return delivered;
     },
 
     // Compute total pain from body without brain code poking raw fields
@@ -255,6 +401,50 @@
       v.painPatienceAcc = decayIntegrate(v.painPatienceAcc, PAIN_PATIENCE_DECAY, painRate, dt);
       if(v.painPatienceAcc < 0.005) v.painPatienceAcc = 0.0;
       v.painPatienceAcc = clamp(v.painPatienceAcc, 0.0, 1.0);
+
+      // 4. Phase 6E 3B: stressResidue accumulation from chronic acute stress & recovery
+      const maxStress = this.getMaxStress(v);
+      const ceiling = 0.35 * maxStress;
+
+      // Inflow from chronic extreme hunger or severe body stress
+      if(v.hungerStressAcc > 0.35 || (b.stress != null && b.stress > 0.60)){
+        const hungerExcess = Math.max(0.0, (v.hungerStressAcc - 0.35) / 0.65);
+        const stressExcess = b.stress != null ? Math.max(0.0, (b.stress - 0.60) / 0.40) : 0.0;
+        const acuteSevere = Math.max(hungerExcess, stressExcess);
+        v.stressResidue = Math.min(ceiling, (v.stressResidue || 0) + acuteSevere * 0.04 * dt);
+        this.assertCeiling(v);
+      }
+
+      // Peaceful day recovery (-8%/day according to ADR-003)
+      const curTick = (typeof W !== 'undefined' && W.day != null)
+        ? +(W.day * 24 + (W.tod || 0)).toFixed(2)
+        : (v._tick || 0);
+
+      let hasRecentFearPain = false;
+      if(v._recentSignals && v._recentSignals.length){
+        for(let i = 0; i < v._recentSignals.length; i++){
+          const s = v._recentSignals[i];
+          if(curTick > 0 && s.tick != null && (curTick - s.tick) > 1.5) continue;
+          if(s.affect === 'fear' || s.affect === 'pain' || s.affect === 'suffering' || s.domain === 'danger' || s.domain === 'acoustic'){
+            hasRecentFearPain = true;
+            break;
+          }
+        }
+      }
+
+      const isPeaceful = !hasRecentFearPain && !v.downed &&
+                         (this.getPain(v) < 0.10) &&
+                         (v.hungerStressAcc < 0.10) &&
+                         (v.fearFatigueAcc < 0.05) &&
+                         ((v.mood != null ? v.mood : 1.0) > 0.0);
+
+      if(isPeaceful && v.stressResidue > 0){
+        // 8% per day recovery = 0.08 / 24 hours per hour
+        const recoveryRate = 0.08 / 24.0;
+        v.stressResidue = Math.max(0.0, v.stressResidue - recoveryRate * dt);
+        if(v.stressResidue < 0.001) v.stressResidue = 0.0;
+        this.assertCeiling(v);
+      }
     },
 
     // Contract Method 1: feel(v) -> holistic feeling state
@@ -281,6 +471,8 @@
         fearFatigue: acc.fearFatigue,
         painPatience: acc.painPatience,
         patience: patience,
+        // 3B stressResidue
+        stressResidue: this.getStressResidue(v),
         // C3 Emotions list
         emotions: emotions,
         // Scape view
@@ -310,7 +502,8 @@
           hungerStress: acc.hungerStress,
           fearFatigue: acc.fearFatigue,
           painPatience: acc.painPatience,
-          patience: this.getPatience(v)
+          patience: this.getPatience(v),
+          stressResidue: this.getStressResidue(v)
         },
         emotions: (v.emotions || []).map(function(e){ return { tag: e.tag, intensity: e.intensity }; }),
         recentSignals: (v._recentSignals || []).slice()
@@ -396,7 +589,7 @@
           if(s.kind === 'threat_fire' || s.rawKind === 'fire' || s.rawKind === 'wildfire'){
             recentThreatFire = Math.max(recentThreatFire, s.intensity != null ? s.intensity : 0.85);
           }
-          if(s.domain === 'danger' || s.affect === 'fear' || s.kind === 'threat_wolf' || s.kind === 'threat_bear' || s.kind === 'acoustic_scream'){
+          if(s.domain === 'danger' || s.affect === 'fear' || s.domain === 'acoustic' || s.kind === 'threat_wolf' || s.kind === 'threat_bear' || s.kind === 'acoustic_scream' || s.kind === 'acoustic_fire' || s.kind === 'acoustic_wolf' || s.kind === 'acoustic_fight' || s.kind === 'acoustic_thunder'){
             recentThreatDanger = Math.max(recentThreatDanger, s.intensity != null ? s.intensity : 0.75);
           }
           if(s.domain === 'social' && (s.affect === 'anger' || s.kind === 'friction_insult' || s.kind === 'violation_theft' || s.kind === 'friction_dispute')){
@@ -483,9 +676,10 @@
         v.state === 'drown_panic' ? 1.0 : 0.0
       );
 
-      // Quality 6: anxious (stress, hunger stress, threat anticipation, social gossip/distrust)
+      // Quality 6: anxious (stress, hunger stress, threat anticipation, social gossip/distrust, background stress residue)
       let rawAnxious = (b.stress != null && b.stress > 0.35) ? (b.stress - 0.35) / 0.65 : 0.0;
-      rawAnxious = Math.max(rawAnxious, acc.hungerStress || 0, emoAnxious, recentHazardStress, recentSocialDistrust * 0.70);
+      const residueAnxious = (v.stressResidue || 0) * 0.55;
+      rawAnxious = Math.max(rawAnxious, acc.hungerStress || 0, emoAnxious, recentHazardStress, recentSocialDistrust * 0.70, residueAnxious);
 
       // Quality 7: enraged (anger emotion, social friction, pain+impatience)
       let painImpatience = ((1.0 - patience) > 0.35 && (b.injury || 0) > 0.15) ? 0.65 : 0.0;
@@ -495,7 +689,7 @@
       let rawLonely = (v.chatT != null && v.chatT > 8.0) ? clamp((v.chatT - 8.0) / 12.0, 0.1, 1.0) : 0.0;
       rawLonely = Math.max(rawLonely, emoLonely, recentGriefDeath * 0.70);
 
-      // Quality 9: vigilant (hunting, guard watch, post-fear lingering tension, social distrust)
+      // Quality 9: vigilant (hunting, guard watch, post-fear lingering tension, social distrust, background stress residue)
       let isGuardingNight = (v.role === 'guard' && typeof W !== 'undefined' && W.tod != null && (W.tod >= 20 || W.tod < 6));
       let rawVigilant = (v.state === 'hunt' || recentHuntVigilant > 0 || isGuardingNight) ? 0.70 : 0.0;
       if(acc.fearFatigue > 0.05 && acc.fearFatigue <= 0.35){
@@ -504,6 +698,8 @@
       if(recentSocialDistrust > 0){
         rawVigilant = Math.max(rawVigilant, recentSocialDistrust * 0.85);
       }
+      const residueVigilant = (v.stressResidue || 0) * 0.50;
+      rawVigilant = Math.max(rawVigilant, residueVigilant);
 
       // Quality 10: confused (fever delirium, extreme exhaustion microsleep, head trauma, downed crisis)
       let feverDelirium = (b.coreTemp != null && b.coreTemp >= 39.5) ? 0.90 : 0.0;
@@ -523,6 +719,7 @@
                           (b.injury == null || b.injury < 0.15) &&
                           !hasThroatBurn && !hasBurnCondition &&
                           !v.downed &&
+                          (v.stressResidue == null || v.stressResidue < 0.05) &&
                           recentThreatFire === 0 && recentThreatDanger === 0 &&
                           recentGriefDeath === 0 && recentCrisisDowned === 0 &&
                           recentSocialDistrust === 0;

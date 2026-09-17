@@ -41,6 +41,16 @@ function startFight(a, b, cause){
   a.state = 'fight'; b.state = 'fight'; a.moving = b.moving = false;
   logEvent('fight', a.name + ' and ' + b.name + ' are brawling (' + cause + ')');
   showToast('👊 ' + a.name + ' vs ' + b.name + '!');
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.propagateSound === 'function'){
+    FeelingSubstrate.propagateSound({
+      kind: 'brawl_noise',
+      originX: a.x,
+      originY: a.y,
+      source: a,
+      radius: 20,
+      metadata: { fighterA: a.name, fighterB: b.name, cause: cause }
+    });
+  }
   for(const o of VILLAGERS){
     if(o !== a && o !== b && !o.dead && distCells(o, a) < 10)
       witnessEvent(o, 'A fight broke out between ' + a.name + ' and ' + b.name);

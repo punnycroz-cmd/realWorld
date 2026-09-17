@@ -232,6 +232,10 @@ function calcBodyFactors(v){
     wf *= 0.3;
     sf *= 0.2;
   }
+  // Phase 6E 3B (ADR-003): stressResidue reduces workFactor slightly (~10% at max 0.35 ceiling)
+  if(v.stressResidue && v.stressResidue > 0.02){
+    wf *= Math.max(0.85, 1.0 - v.stressResidue * 0.25);
+  }
   b.workFactor = +clamp(wf, 0.05, 1.0).toFixed(3);
   b.speedFactor = +clamp(sf, 0.05, 1.0).toFixed(3);
   v.bodyWorkFactor = b.workFactor;

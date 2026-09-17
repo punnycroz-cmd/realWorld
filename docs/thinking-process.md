@@ -571,3 +571,11 @@ Phase 6D hoàn thành trong 4 task nối tiếp (D1 → D2 → D3 → 27_autotes
 **Quy tắc mới cho mọi brief implementation từ nay:** acceptance phải liệt kê *negative control* (scenario không có stimulus → behavior không đổi) và cấm *hand-injection* cho phần wiring. "Chạy được trên bundle" ≠ "sống trong game".
 
 **A1 eye-read (lead đọc bằng mắt):** lần đầu tiên trong dự án nghiệm thu bằng đọc narrative — arc 24h của Alden liền mạch như người thật (đói→sợ cháy→bỏng họng→uống không hết khát→ngủ→được chữa→khỏe). Đây là bằng chứng định tính mà unit test không cho được; giữ nghi thức này cho các slice cảm giác sau.
+
+## 2026-09-16 — 6E E3: PASS ngay audit đầu — brief tốt thì không cần fix round
+
+**Tương phản E2 vs E3:** E2 FAIL vì brief viết "production-path probe thật" mơ hồ → Robin hiểu sai → mất 1 correction round. E3 brief viết acceptance tường minh từng chữ (negative control 50 cells, cấm hand-inject, công thức đo được) → Robin nộp 10/10 → Examiner probe độc lập 20/20 → PASS ngay attempt đầu, 0 correction. **Chất lượng brief quyết định số correction round, không phải tay nghề dev.**
+
+**Chi tiết đáng ghi:** Examiner lần chạy đầu assert sai (tưởng nạn nhân phải nghe tiếng thét của chính mình) — code đúng vật lý (source exclusion), test sai. Examiner tự sửa test thay vì báo bug giả. Đây là mặt tốt của "verify bằng code tự chạy": cả verifier cũng có thể sai, và việc chạy code bắt được sai lầm của chính verifier.
+
+**Nợ triết lý nhỏ (N-a/N-b):** ADR-003 viết "derived from body/mind" và "8%/ngày" nhưng implement là default 1.0 và linear −0.08/ngày. Cả hai đều thỏa hệ quả kiểm chứng được (ceiling thật, 3 ngày → ≈0). Ghi nhận: spec nên viết theo hệ quả đo được, không viết theo ý định mơ hồ — bài học cho SPEC_PHASE7.

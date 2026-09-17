@@ -465,7 +465,82 @@ runAutoTest = async function(){
     `ctrlDominant=${ctrlScapeBefore.dominant} fireExpDominant=${expScape.dominant} uninjured=${expInjury === 0} witnessDominant=${witnessScape.dominant} downDominant=${downPawnScape.dominant}`);
 
   // ===================================================================
-  // 28.13 (Entity Cleanup)
+  // 28.13 (A2 Hearing Propagation & Distance Falloff)
+  // Production scream propagates to listener within radius with distance falloff;
+  // outside radius receives no signal; nearer listener receives higher intensity.
+  // ===================================================================
+  const tAcousticSource = mk('T_AcousticSource', 100, 100);
+  const tAcousticNear = mk('T_AcousticNear', 105, 100); // 5 cells away
+  const tAcousticMid = mk('T_AcousticMid', 115, 100);   // 15 cells away
+  const tAcousticFar = mk('T_AcousticFar', 150, 100);   // 50 cells away
+
+  FeelingSubstrate.propagateSound({
+    kind: 'scream',
+    originX: tAcousticSource.x,
+    originY: tAcousticSource.y,
+    source: tAcousticSource,
+    radius: 25
+  });
+
+  const sigNear = (tAcousticNear._recentSignals || []).slice().reverse().find(s => s.kind === 'acoustic_scream');
+  const sigMid = (tAcousticMid._recentSignals || []).slice().reverse().find(s => s.kind === 'acoustic_scream');
+  const sigFar = (tAcousticFar._recentSignals || []).slice().reverse().find(s => s.kind === 'acoustic_scream');
+
+  const nearInt = sigNear ? sigNear.intensity : 0;
+  const midInt = sigMid ? sigMid.intensity : 0;
+  const okNearMidFar = (nearInt > 0) && (midInt > 0) && (nearInt > midInt) && (!sigFar);
+  const scapeNearAcoustic = FeelingSubstrate.getFeelingScape(tAcousticNear);
+  const scapeFarAcoustic = FeelingSubstrate.getFeelingScape(tAcousticFar);
+  const okAcousticScape = (scapeNearAcoustic.dominant !== 'content') && (scapeFarAcoustic.dominant === 'content');
+
+  const ok28_13 = okNearMidFar && okAcousticScape;
+  log(ok28_13, 'hearingPropagation28: A2 physical sound propagation with distance falloff and negative control',
+    `nearInt=${nearInt} midInt=${midInt} farReceived=${!!sigFar} nearScape=${scapeNearAcoustic.dominant} farScape=${scapeFarAcoustic.dominant}`);
+
+  // ===================================================================
+  // 28.14 (3B stressResidue Lifecycle: Ceiling, Scape, & 8%/day Recovery)
+  // stressResidue accumulates from trauma, clamped strictly by 0.35 * maxStress;
+  // peaceful day recovers ~8%/day without depression loop; acute fire overrides residue.
+  // ===================================================================
+  const tResiduePawn = mk('T_ResiduePawn', 200, 200);
+  const maxStressVal = FeelingSubstrate.getMaxStress(tResiduePawn);
+  const ceilingVal = 0.35 * maxStressVal;
+
+  // Severe trauma bombardment: multiple days
+  for(let h = 0; h < 72; h += 0.5){
+    tResiduePawn.hungerStressAcc = 1.0;
+    tResiduePawn.body.stress = 1.0;
+    FeelingSubstrate.receiveSignal(tResiduePawn, { kind: 'fear', intensity: 1.0, affect: 'fear', domain: 'danger', tick: h });
+    FeelingSubstrate.update(tResiduePawn, 0.5);
+  }
+
+  const residueAtCeiling = FeelingSubstrate.getStressResidue(tResiduePawn);
+  const okCeiling = (residueAtCeiling <= ceilingVal + 1e-6) && (residueAtCeiling >= ceilingVal - 1e-4);
+
+  // Background unease in peace
+  tResiduePawn.body.satiety = 1.0;
+  tResiduePawn.body.hydration = 1.0;
+  tResiduePawn.body.fatigue = 0.10;
+  tResiduePawn.body.stress = 0.05;
+  tResiduePawn.hungerStressAcc = 0.0;
+  tResiduePawn.fearFatigueAcc = 0.0;
+  tResiduePawn._recentSignals = [];
+  const peaceResidueScape = FeelingSubstrate.getFeelingScape(tResiduePawn);
+  const okPeaceUnease = peaceResidueScape.dominant === 'anxious' || peaceResidueScape.dominant === 'vigilant';
+
+  // 1 peaceful day recovery (-8%/day)
+  const rStartHeal = residueAtCeiling;
+  for(let t = 0; t < 48; t++) FeelingSubstrate.update(tResiduePawn, 0.5);
+  const rAfter1Day = FeelingSubstrate.getStressResidue(tResiduePawn);
+  const loss1Day = rStartHeal - rAfter1Day;
+  const okRecovery = Math.abs(loss1Day - 0.080) < 0.005;
+
+  const ok28_14 = okCeiling && okPeaceUnease && okRecovery;
+  log(ok28_14, 'stressResidueLifecycle28: 3B stressResidue ceiling (0.35*maxStress), background unease, and ~8%/day peaceful recovery',
+    `residue=${residueAtCeiling} ceiling=${ceilingVal} peaceScape=${peaceResidueScape.dominant} 1dayLoss=${loss1Day.toFixed(4)}`);
+
+  // ===================================================================
+  // 28.15 (Entity Cleanup)
   // All test entities cleaned up; canonical settlement untouched.
   // ===================================================================
   const countBefore = madeNames.length;
@@ -473,8 +548,8 @@ runAutoTest = async function(){
   const countAfter = madeNames.length;
   const canonicalUntouched = VILLAGERS.every(v => !v.name.startsWith('T_'));
 
-  const ok28_13 = countBefore > 0 && countAfter === 0 && canonicalUntouched;
-  log(ok28_13, 'cleanup28: All temporary test villagers cleaned up with canonical settlement preserved',
+  const ok28_15 = countBefore > 0 && countAfter === 0 && canonicalUntouched;
+  log(ok28_15, 'cleanup28: All temporary test villagers cleaned up with canonical settlement preserved',
     `cleaned=${countBefore} remaining=${countAfter} canonicalSafe=${canonicalUntouched}`);
 
   // Summary banner for harness parsing

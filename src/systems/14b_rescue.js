@@ -15,6 +15,17 @@ function setDowned(v, kind, cause){
       cause: cause
     }));
   }
+  // Phase 6E E3: Acoustic scream / agony sound propagation with distance falloff
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.propagateSound === 'function'){
+    FeelingSubstrate.propagateSound({
+      kind: 'scream',
+      originX: v.x,
+      originY: v.y,
+      source: v,
+      radius: 25,
+      metadata: { victim: v.name, cause: cause }
+    });
+  }
   for(const o of VILLAGERS){
     if(o === v || o.dead) continue;
     if(distCells(o, v) < 14){

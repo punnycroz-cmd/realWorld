@@ -93,15 +93,20 @@ function shoutForHelp(victim, threat){
       threat: threat && threat.kind
     }));
   }
+  // Phase 6E E3: Physical acoustic sound propagation with distance falloff
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.propagateSound === 'function'){
+    FeelingSubstrate.propagateSound({
+      kind: 'scream',
+      originX: victim.x,
+      originY: victim.y,
+      source: victim,
+      radius: 25,
+      metadata: { victim: victim.name, threat: threat && threat.kind }
+    });
+  }
   for(const o of VILLAGERS){
     if(o === victim || o.dead || o.downed || o.brainControlled) continue;
     if(Math.hypot(o.x - victim.x, o.y - victim.y) > CS * 14) continue;
-    if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
-      FeelingSubstrate.receiveSignal(o, FeelingSubstrate.normalizeEvent('scream', null, {
-        source: 'help_shout',
-        victim: victim.name
-      }));
-    }
     if(o.plan && o.plan.length) continue;
     const bond = (o.bonds && o.bonds[victim.name]) || 0;
     const brave = skillLvl(o, 'hunting') >= 2 || o.name === 'Gareth';
@@ -177,6 +182,16 @@ function wolfBrain(a, dtH){
       const loc = ['arm', 'leg', 'torso'][Math.floor(srand() * 3)];
       addWound(target, loc, ANIMAL_DEFS.wolf.dmg * (0.8 + srand() * 0.4));
       learnDanger(target, 'wolf attack');
+      if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.propagateSound === 'function'){
+        FeelingSubstrate.propagateSound({
+          kind: 'wolf_growl',
+          originX: a.x,
+          originY: a.y,
+          source: a,
+          radius: 20,
+          metadata: { animal: 'wolf', target: target.name }
+        });
+      }
       shoutForHelp(target, a);
       fightBack(target, a);
       // Phase 4 balance: a solid bite satiates (0.2->0.35) — a wolf bites
