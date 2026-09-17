@@ -1,9 +1,0 @@
-{
-  "timestamp": "2026-09-11T13:58:26.880Z",
-  "totalTested": 260,
-  "successful": 260,
-  "failed": 0,
-  "totalElapsedMs": 43,
-  "avgMsPerChar": 0.17,
-  "summary": "260/260 villagers rendered cleanly with zero anatomical collapse."
-}

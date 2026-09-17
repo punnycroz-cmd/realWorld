@@ -1,3 +1,0 @@
-- 2026-09-11 01:09 Lena learned a DANGER: Rain let up by day 4 dawn; hot and clear midday.
-- 2026-09-11 01:10 Joren learned a DANGER: Day 4 afternoon: hunger 0.88, energy 0.32, hp 1 — no food left, carrying only seeds 5; rested by the
-- 2026-09-11 01:12 Lena learned a DANGER: Day 4 night: hunger nearly full and energy gone with only 1 ration left — ate the last ration before
