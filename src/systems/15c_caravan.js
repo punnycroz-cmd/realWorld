@@ -54,7 +54,7 @@ function arriveCaravan(){
   // 2. Genuinely demand-driven stock calculation: baseQty + k * demandQty, capped by capacity (zero RNG)
   CARAVAN.stock = {};
   CARAVAN.sellP = { spice: 12, cloth: 8, knife: 25, salt: 3 };
-  CARAVAN.buyP = { hide: 6, smokedMeat: 5, egg: 2, rawMeat: 3, berries: 1 };
+  CARAVAN.buyP = { hide: 6, smokedMeat: 5, egg: 2, rawMeat: 3, berries: 1, bread: 4 };
 
   for(const item of Object.keys(CARAVAN_BASE_STOCK)){
     const base = CARAVAN_BASE_STOCK[item];
@@ -162,16 +162,34 @@ function doTradeStep(v, step, dtH){
     witnessEvent(v, 'Bought ' + what + ' from the caravan for ' + cost + ' gold');
     logEvent('trade', v.name + ' bought ' + what + ' (' + cost + 'g)');
   } else {
-    const price = CARAVAN.buyP[what];
+    let price = CARAVAN.buyP[what];
+    if(price == null && what === 'bread'){
+      price = 4;
+      CARAVAN.buyP.bread = 4;
+    }
     if(price == null){ v.thoughts = [{ text: 'The traders do not want ' + what, val: -1 }]; return true; }
-    if((v.inv[what] || 0) <= 0){ v.thoughts = [{ text: 'Nothing to sell', val: -1 }]; return true; }
-    const gain = Math.max(1, Math.floor(price * (1 + disc * 0.5)));
+    const qty = (step.qty != null && step.qty > 0) ? Math.floor(step.qty) : 1;
+    if((v.inv[what] || 0) < qty){ v.thoughts = [{ text: 'Nothing to sell', val: -1 }]; return true; }
+
+    let gain = 0, unitPrice = 0;
+    if(typeof getCaravanGuildSellPrice === 'function'){
+      const sellInfo = getCaravanGuildSellPrice(what, v, qty, price, disc);
+      gain = sellInfo.totalPrice;
+      unitPrice = sellInfo.unitPrice;
+    } else {
+      unitPrice = Math.max(1, Math.floor(price * (1 + disc * 0.5)));
+      gain = unitPrice * qty;
+    }
+
     if((m.gold || 0) < gain){ v.thoughts = [{ text: 'The trader cannot afford it', val: -1 }]; return true; }
-    v.inv[what]--; stripItemProvenance(v, what, 1); m.gold -= gain; v.gold = (v.gold || 0) + gain;
-    CARAVAN.stock[what] = (CARAVAN.stock[what] || 0) + 1;
+    v.inv[what] -= qty;
+    stripItemProvenance(v, what, qty);
+    m.gold -= gain;
+    v.gold = (v.gold || 0) + gain;
+    CARAVAN.stock[what] = (CARAVAN.stock[what] || 0) + qty;
     m.memory[v.name] = fam + 1;
-    witnessEvent(v, 'Sold ' + what + ' to the caravan for ' + gain + ' gold');
-    logEvent('trade', v.name + ' sold ' + what + ' (' + gain + 'g)');
+    witnessEvent(v, 'Sold ' + qty + ' ' + what + ' to the caravan for ' + gain + ' gold' + (qty > 1 ? ' (' + unitPrice + 'g/ea)' : ''));
+    logEvent('trade', v.name + ' sold ' + qty + ' ' + what + ' (' + gain + 'g' + (qty > 1 ? ', ' + unitPrice + 'g/ea' : '') + ')');
   }
   return true;
 }

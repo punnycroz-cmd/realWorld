@@ -18,6 +18,9 @@ function gainXP(v, s, amt){
   const weak = v.talents && v.talents.weak && v.talents.weak.indexOf(s) >= 0;
   const strong = v.talents && v.talents.strong && v.talents.strong.indexOf(s) >= 0;
   let a = amt * (weak ? 0.5 : (strong ? 1.6 : 1));
+  if(typeof getGuildApprenticeshipBonus === 'function'){
+    a *= getGuildApprenticeshipBonus(v, s);
+  }
   a *= Math.max(0.25, 1 - sk.lvl / 12);
   const oldLvl = sk.lvl;
   sk.xp += a;

@@ -658,14 +658,21 @@ function doStealStep(v, step, dtH){
           evidence: ['Saw ' + v.name + ' try to steal ' + it.label], source: 'direct' });
       if(typeof witnessEvent === 'function') witnessEvent(s, 'Caught ' + v.name + ' stealing from ' + victim.name);
       if(typeof addBond === 'function') addBond(s, v, s === victim ? -0.3 : -0.1);
-      if(typeof recordNormViolation === 'function'){
-        recordNormViolation(s, v.name, 'theft-witnessed', {
-          weight: -1.0,
-          victim: victim.name,
-          item: it.label,
-          source: 'direct'
-        });
-      }
+    }
+    if(typeof CustomaryCourt !== 'undefined' && typeof CustomaryCourt.holdCourtHearing === 'function'){
+      const isRecidivist = (typeof CustomaryCourt.hasPriorTheftOrVerdict === 'function')
+        ? CustomaryCourt.hasPriorTheftOrVerdict(v.name)
+        : false;
+      CustomaryCourt.holdCourtHearing({
+        protoNorm: 'theft',
+        plaintiff: victim,
+        defendant: v,
+        witnesses: seers,
+        item: it,
+        actualOffender: v.name,
+        lossValue: 10,
+        preferExile: isRecidivist
+      });
     }
     v.thoughts = [{ text: 'Caught trying to steal ' + it.label + '!', val: -4 }];
     if(typeof observe === 'function') observe(v, { targetId: it.id, result: 'caught' },

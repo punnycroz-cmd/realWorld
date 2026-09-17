@@ -112,4 +112,8 @@ function initVillagers(){
   VILLAGERS[0].isNPC = false;
   controlledPawnIdx = 0;
   inspectedPawnIdx = 0;
+
+  // 7A: seed guilds from cultural priors so the guild system is alive in a
+  // real game (masters: Bram→smith, Sella→baker, Marta→farmer).
+  if(typeof seedGuilds === 'function') seedGuilds();
 }

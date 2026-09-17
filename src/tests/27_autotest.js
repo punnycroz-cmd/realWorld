@@ -164,21 +164,58 @@ runAutoTest = async function(){
   log(ok27_1, 'demandCaravan27: T1 salt closed loop (out-of-stock buy -> demand -> caravan brings demand-driven cargo -> stock restored -> price falls -> zero-demand brings base only)', t1Desc);
 
   // ===================================================================
-  // 27.2 (T2 Thief Caught Red-Handed)
-  // Real doStealStep with a conscious witness within 12 cells ->
-  // calculateTrust(witness, thief) <= 0.05 -> isOstracized(thief) true ->
-  // fillRoleVacancy('guard', {candidates:[thief(max hunting lvl 5), honest(lvl 3)]})
-  // elects the HONEST one (winner === honest.name, thief score -1 disqualified).
+  // 27.2 (T2 Thief Caught Red-Handed) — 7A DESIGN CHANGE (2026-09-17):
+  // Automatic proto-norm punishment was REMOVED per SPEC 7A ("KHÔNG phạt
+  // tự động — mở phiên xử"). A caught theft now opens a customary court
+  // hearing through the production path; ONLY the court verdict punishes.
+  // This test was rewritten to assert the new design honestly:
+  //   (a) recidivist thief (prior court-verdict theft reason) -> court opens
+  //       via real doStealStep -> exile verdict -> isOstracized true ->
+  //       guard vacancy elects the honest candidate (thief disqualified).
+  //   (b) NEGATIVE CONTROL (B1): zero automatic 'theft-witnessed' reasons
+  //       exist anywhere after the theft — the old automatic path is gone.
+  //   (c) NEGATIVE CONTROL (B2): first-time thief who can pay restitution
+  //       gets restitution, NOT exile (no more hardcoded preferExile).
   // ===================================================================
   let ok27_2 = false;
   let t2Desc = '';
   let lootItem = null;
+  let lootItem2 = null;
+
+  function findHearingFor(defName, fromIdx){
+    if(typeof COURT_RECORDS === 'undefined') return null;
+    for(let i = COURT_RECORDS.length - 1; i >= fromIdx; i--){
+      const h = COURT_RECORDS[i];
+      if(h && h.defendant === defName) return h;
+    }
+    return null;
+  }
+  function countAutoTheftReasons(targetName){
+    let n = 0;
+    if(typeof VILLAGERS === 'undefined') return 0;
+    for(const v of VILLAGERS){
+      const rs = v && v.reputationReasons && v.reputationReasons[targetName];
+      if(Array.isArray(rs)) for(const r of rs){ if(r && r.kind === 'theft-witnessed') n++; }
+    }
+    return n;
+  }
+  function mintLoot(holderName, hx, hy, tag){
+    const it = (typeof mintIdentifiedItem === 'function')
+      ? mintIdentifiedItem('plank', { creator: holderName, holder: holderName, x: hx, y: hy })
+      : { id: 'test_t27_plank_' + tag, label: 'plank #27' + tag, currentHolder: holderName, holderType: 'villager', status: 'held', actualOwner: holderName };
+    if(typeof ITEMS !== 'undefined') ITEMS[it.id] = it;
+    return it;
+  }
 
   try {
+    const recBefore = (typeof COURT_RECORDS !== 'undefined') ? COURT_RECORDS.length : 0;
+
+    // --- Scenario A: recidivist thief, broke (cannot pay restitution) ---
     const tThief = mk('T27_Thief', 10, 10, { stage: 'adult', role: 'Villager' });
     ensureSkills(tThief);
     tThief.skills.hunting = { lvl: 5, xp: 0 };
     tThief.personality = Object.assign({}, tThief.personality, { brave: 1.2 });
+    tThief.gold = 0; // cannot pay restitution -> ladder reaches exile for recidivist
 
     const tVictim = mk('T27_Victim', 10.2, 10, { stage: 'adult', role: 'Villager' });
     ensureSkills(tVictim);
@@ -191,19 +228,24 @@ runAutoTest = async function(){
     tHonest.skills.hunting = { lvl: 3, xp: 0 };
     tHonest.personality = Object.assign({}, tHonest.personality, { brave: 1.0 });
 
-    // Mint loot held by victim
-    lootItem = (typeof mintIdentifiedItem === 'function')
-      ? mintIdentifiedItem('plank', { creator: tVictim.name, holder: tVictim.name, x: tVictim.x, y: tVictim.y })
-      : { id: 'test_t27_plank', label: 'plank #27', currentHolder: tVictim.name, holderType: 'villager', status: 'held', actualOwner: tVictim.name };
-    if(typeof ITEMS !== 'undefined') ITEMS[lootItem.id] = lootItem;
+    // Seed recidivism: a prior court-verdict theft reason (hasPriorTheftOrVerdict reads these)
+    if(typeof addReputationReason === 'function'){
+      addReputationReason(tWitness, tThief.name, {
+        kind: 'court-verdict', by: tThief.name, day: 0, weight: -0.85,
+        source: 'court', confidence: 0.95, decay: 0.98,
+        verdict: 'public_labor', protoNorm: 'theft'
+      });
+    }
+
+    lootItem = mintLoot(tVictim.name, tVictim.x, tVictim.y, 'a');
 
     // Thief within 1.6 cells of victim, conscious witness within 12 cells
-    const stealStep = { verb: 'steal', itemId: lootItem.id, from: tVictim.name };
-    doStealStep(tThief, stealStep, 0.1);
+    doStealStep(tThief, { verb: 'steal', itemId: lootItem.id, from: tVictim.name }, 0.1);
 
-    // Assert witness trust and ostracism
-    const witnessTrust = calculateTrust(tWitness, tThief);
-    const thiefOstracized = isOstracized(tThief.name);
+    const hearing = findHearingFor('T27_Thief', recBefore);
+    const verdictExile = Boolean(hearing && hearing.isGuilty && hearing.verdict === 'exile');
+    const thiefOstracized = isOstracized('T27_Thief') === true;
+    const autoCount = countAutoTheftReasons('T27_Thief');
 
     // Election for guard role with candidates [thief, honest]
     const vacRes = fillRoleVacancy('guard', { candidates: [tThief, tHonest] });
@@ -211,13 +253,28 @@ runAutoTest = async function(){
     const thiefEntry = vacRes.candidates && vacRes.candidates.find(c => c.name === tThief.name);
     const thiefDisqualified = Boolean(thiefEntry && thiefEntry.score === -1.0 && thiefEntry.disqualified === true);
 
-    ok27_2 = (witnessTrust <= 0.05) && (thiefOstracized === true) && winnerHonest && thiefDisqualified;
-    t2Desc = `witnessTrust=${witnessTrust} thiefOstracized=${thiefOstracized} vacOk=${vacRes.ok} winner=${vacRes.winner} thiefScore=${thiefEntry && thiefEntry.score} thiefDisq=${thiefEntry && thiefEntry.disqualified}`;
+    // --- Scenario C: first-time thief who CAN pay -> restitution, NOT exile ---
+    const tThief2 = mk('T27_Thief2', 20, 20, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tThief2);
+    const tVictim2 = mk('T27_Victim2', 20.2, 20, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tVictim2);
+    const tWitness2 = mk('T27_Witness2', 21, 20, { stage: 'adult', role: 'Villager' });
+    ensureSkills(tWitness2);
+    lootItem2 = mintLoot(tVictim2.name, tVictim2.x, tVictim2.y, 'b');
+    const recBefore2 = (typeof COURT_RECORDS !== 'undefined') ? COURT_RECORDS.length : 0;
+    doStealStep(tThief2, { verb: 'steal', itemId: lootItem2.id, from: tVictim2.name }, 0.1);
+    const hearing2 = findHearingFor('T27_Thief2', recBefore2);
+    const firstTimerVerdict = hearing2 ? hearing2.verdict : 'none';
+    const firstTimerNotExiled = Boolean(hearing2 && hearing2.isGuilty && hearing2.verdict !== 'exile');
+
+    ok27_2 = verdictExile && thiefOstracized && (autoCount === 0) && winnerHonest && thiefDisqualified && firstTimerNotExiled;
+    t2Desc = `verdict=${hearing && hearing.verdict} ostracized=${thiefOstracized} autoReasons=${autoCount} vacOk=${vacRes.ok} winner=${vacRes.winner} thiefScore=${thiefEntry && thiefEntry.score} thiefDisq=${thiefEntry && thiefEntry.disqualified} firstTimerVerdict=${firstTimerVerdict}`;
   } finally {
-    if(typeof ITEMS !== 'undefined' && lootItem && lootItem.id){
-      delete ITEMS[lootItem.id];
+    if(typeof ITEMS !== 'undefined'){
+      if(lootItem && lootItem.id) delete ITEMS[lootItem.id];
+      if(lootItem2 && lootItem2.id) delete ITEMS[lootItem2.id];
     }
-    for(const n of ['T27_Thief', 'T27_Victim', 'T27_Witness', 'T27_Honest']){
+    for(const n of ['T27_Thief', 'T27_Victim', 'T27_Witness', 'T27_Honest', 'T27_Thief2', 'T27_Victim2', 'T27_Witness2']){
       const idx = VILLAGERS.findIndex(v => v && v.name === n);
       if(idx >= 0) VILLAGERS.splice(idx, 1);
       const mIdx = madeNames.indexOf(n);
@@ -225,7 +282,7 @@ runAutoTest = async function(){
     }
   }
 
-  log(ok27_2, 'normVacancy27: T2 caught thief has trust<=0.05 and ostracized -> guard role vacancy elects honest candidate (thief score -1 disqualified)', t2Desc);
+  log(ok27_2, 'normVacancy27: T2 [7A] recidivist thief -> court exile -> ostracized -> guard vacancy elects honest (thief disqualified); zero automatic punishments; first-timer not exiled', t2Desc);
 
   // ===================================================================
   // 27.3 (T3 False Rumor Distortion)
