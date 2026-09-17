@@ -1,5 +1,5 @@
 # willowbrook_natura — Tổng hợp dự án
-_Cập nhật: 2026-09-15. Tài liệu tổng hợp toàn bộ dự án cho chủ dự án._
+_Cập nhật: 2026-09-16. Tài liệu tổng hợp toàn bộ dự án cho chủ dự án._
 
 ---
 
@@ -17,14 +17,15 @@ Dự án ra đời từ việc kết hợp hai hướng:
 
 | Thành phần | File | Ghi chú |
 |---|---|---|
-| Source duy nhất | `scripts/build_willowbrook_natura.py` (6.499 dòng) | Mọi logic game viết ở đây |
-| File chơi | `willowbrook_natura.html` (~406 KB) | Được **generate** từ script, **không sửa tay** |
-| Build | `python3 scripts/build_willowbrook_natura.py` | Chạy lại mỗi khi sửa script |
-| Test | Mở `willowbrook_natura.html?test` trên trình duyệt | Autotest trong trang |
+| Source (modular) | `src/` — 62 modules, thứ tự bundle tại `src/_order.txt` | Logic game viết ở đây, mỗi module một hệ thống |
+| Bundler | `scripts/build_willowbrook_natura.py` | Chỉ là script **gộp** các module thành 1 file, không chứa logic game |
+| File chơi | `willowbrook_natura.html` (~977 KB) | Được **generate** từ `src/`, **không sửa tay** |
+| Build | `python3 scripts/build_willowbrook_natura.py` | Chạy lại mỗi khi sửa `src/` |
+| Test | Harness Node (`?test`, chạy qua Node giả lập DOM) | Autotest tích hợp trong trang, 263 dòng, **0 FAIL** |
 
 **Quy tắc sắt:**
-- Chỉ sửa `scripts/build_willowbrook_natura.py`, không bao giờ sửa tay file HTML.
-- Không gọi LLM/AI trong game. Không có Ask API, không có `soulTick` kiểu Natura.
+- Chỉ sửa modular `src/`, rebuild bundle; không bao giờ sửa tay file HTML.
+- Không gọi LLM/AI trong game. AI brain là phần cắm ngoài sau này qua bridge API.
 - Commit/push do chủ dự án tự làm (không có đường push tự động đã xác thực).
 
 ## 3. Các hệ thống đã hoàn thành
@@ -49,7 +50,7 @@ Dự án ra đời từ việc kết hợp hai hướng:
 ### Hiện thực hóa RimWorld (PART 14)
 - **Y tế trung cổ:** vết thương chi tiết từng vị trí (tay/chân/thân/đầu), mức độ, chảy máu; **máu là tài nguyên thật** (mất máu nặng chết được); vết thương hở không băng → nhiễm trùng → sốt; chế được **thuốc đắp** (thảo dược), **nẹp gỗ** (gỗ+vải), **trà hạ sốt**; động từ `tend` (băng bó theo kỹ năng y thuật); gãy xương cần nẹp + nghỉ + ăn nhiều ngày mới lành. Wren (thầy thuốc) tự đi hái thảo dược chế thuốc.
 - **Downed/rescue như đời thật:** bất tỉnh / chảy máu / gãy chân (chỉ bò được); `rescue` vác người bị nạn về giường (đi chậm 0.45x); người thân tự động cứu khi an toàn.
-- **Thú nguy hiểm:** **sói** đi bầy săn đêm (sợ lửa, sợ đám đông, sợ Gareth), **lợn rừng** húc khi lại gần, **gấu** hiếm nhưng cực nguy, mò mùi thức ăn; dân làng chạy vào nhà, bị dồn thì đánh trả bằng dụng cụ, hô hoán gọi cứu viện; `hunt` → xẻ thịt → thịt + da.
+- **Thú nguy hiểm:** **sói** đi bầy săn đêm (sợ lửa, sợ đám đông), **lợn rừng** húc khi lại gần, **gấu** hiếm nhưng cực nguy, mò mùi thức ăn; dân làng chạy vào nhà, bị dồn thì đánh trả bằng dụng cụ, hô hoán gọi cứu viện; `hunt` → xẻ thịt → thịt + da.
 - **Kỹ năng:** 8 skill 0–10 (trồng trọt, nấu ăn, xây dựng, y thuật, săn bắn, câu cá, hái lượm, may vá), XP từ làm việc thật, **năng khiếu đúng vai** (Wren giỏi thuốc, Finn giỏi câu cá...), level ảnh hưởng tốc độ/năng suất/chất lượng. Bridge `assignWork(name, job, priority)` để AI brain/player phân công.
 - **Xây dựng:** tốn gỗ/đá/rơm thật, thợ non xây chậm + dễ ẩu (độ bền thấp), công trình có độ bền riêng, bão/lửa/sói phá hỏng thì `repair`.
 - **Quần áo:** nhiều lớp (áo trong/áo ngoài/giày), chỉ số giữ ấm, **ướt mất 60% tác dụng**, mặc rách thì lạnh, `mend` vá, thợ may làm đồ mới từ vải/da.
@@ -60,6 +61,17 @@ Dự án ra đời từ việc kết hợp hai hướng:
 - **Caravan lữ hành:** mỗi mùa 3 thương nhân dựng trại ~14 tiếng, hàng và giá khác shop Sella, lính gác đuổi sói, vàng cân đối.
 - **Xã hội mặt tối:** sỉ nhục → bond giảm + hiềm khích; đủ 3 hiềm khích + bond thấp → **thù địch**; đánh nhau bằng tay gây thương tích thật nhưng **dừng ở gục, không giết**; người ngoài can ngăn; xin lỗi qua `speak` thì hoà giải; hiềm khích phai 5%/ngày.
 - **Dập lửa:** dân làng tự xách nước từ giếng/hồ đi dập (`douse`), ưu tiên nhà > người > ruộng > rừng xa; lửa sát người vẫn bỏ chạy trước; khói dày gây ngạt.
+
+### Phase 2–6 (tóm tắt — chi tiết tại `WORK_LOG.md` và `docs/thinking-process.md`)
+- **Phase 2:** 6 đợt hiện thực hóa tiếp (2A–2F) — xây dựng sâu, y tế, xã hội, mùa vụ, kinh tế, sự kiện.
+- **Phase 3:** cân bằng sinh tồn — sau 6A→6D, làng sống sót qua nhiều mùa (không còn chết đói hàng loạt như bản cũ).
+- **Phase 4:** roster thực tế **9 dân làng** (Marta, Bram, Sella, Tobin, Wren, Finn, Alden, Pip, **Clara** — thương nhân tơ lụa).
+- **Phase 5 (Release):** tag `v0.4.0-phase4` — tách riêng, không gộp Phase 6.
+- **Phase 6 "Con người không hoàn hảo" (hoàn tất 6A→6D, commit `05caf95`):**
+  - **6A Senses & Expectations** — attention gates, expectation tuples + TTL + surprise (12/12 test).
+  - **6B Thích ứng & Sinh thái** — dynamic candidates belief-first, cạn kiệt/tái sinh theo mùa, sói đói/sợ, thời tiết → lửa (11/11 test).
+  - **6C Survival Guard trong production `brainThink`** — bản năng sinh tồn Tier-2 override, motivation, emotion, identity (9/9 test; probe adversarial 9/9).
+  - **6D Kinh tế khan hiếm & xã hội** — scarcity pricing (muối hết hàng → giá tăng), caravan đáp ứng demand thật, reputation + gossip (tin đồn sai có thể đổ tội người vô tội), proto-norm chống trộm, lấp chỗ trống theo collective trust (3/3 test Part 27).
 
 ## 4. Bridge API cho AI brain (tương lai)
 
@@ -81,20 +93,20 @@ Game đã sẵn sàng cắm bộ não AI ngoài qua `window.__aiBridge`:
 4. **Nhận thức trung thực:** dân làng không bao giờ biết số liệu "nhìn từ trên xuống".
 5. **Động từ mới thật:** khi cần hành động mới, viết động từ/cơ chế mới — không ép vào động từ gần giống.
 6. **Không thay art AI bằng hình vẽ procedural** (quy tắc từ Character Asset Compiler).
+7. **Mô hình nhu cầu (canonical, theo code):** `brain/utility.js` tính **6 deficit có tên** — `satiety` (đói), `hydration` (khát), `fatigue` (mệt), `injury` (thương tích), `cold` (lạnh), `social` (giao tiếp) — cộng risk modifiers (đe dọa, lửa, thú dữ). Mô phỏng cơ thể theo dõi 7 trạng thái sinh lý: đói/khát/mệt/thân nhiệt/oxy/máu/bệnh. **Không có danh sách "8 needs" chính thức nào trong code** — con số 8 trong `WORK_LOG.md` chỉ là số ca chết vì nhu cầu trong một đợt test cũ.
 
 ## 6. Trạng thái kiểm thử
 
 - `node --check` trên JS của trang: **PASS**
-- Full suite `?test` chạy dưới Node (giả lập DOM): **140/140 pass**, ổn định qua nhiều lần chạy
-- Test logic các PART 14–15: **pass toàn bộ** (y tế, cứu hộ, sói săn, XP kỹ năng, vật liệu xây dựng, giữ ấm quần áo, hạng bữa ăn, thuần hoá, caravan, đánh nhau, dập lửa)
-- Trong lúc test phát hiện và sửa bug thật: dân làng đang làm việc không đi dập lửa; dân gãy chân không được băng bó; rescue kẹt đường đi.
+- Harness `?test` chạy dưới Node (giả lập DOM): **263 dòng, 0 FAIL** — bao phủ PART 12–27 (y tế, cứu hộ, sói săn, XP kỹ năng, vật liệu xây dựng, giữ ấm quần áo, hạng bữa ăn, thuần hoá, caravan, đánh nhau, dập lửa, attention/expectation, sinh thái mùa vụ, survival guard, scarcity pricing, reputation/gossip)
+- Logic game Tier-3 (thay đổi gameplay/shared framework) đều qua **Examiner audit độc lập** (tự chạy code, PASS/FAIL có bằng chứng file:dòng) trước khi commit — áp dụng cho mọi sub-phase 6A→6D
+- Trong lúc test phát hiện và sửa bug thật: dân làng đang làm việc không đi dập lửa; dân gãy chân không được băng bó; rescue kẹt đường đi; survival guard không kích hoạt khi dân làng đang làm việc (test cũ chặn production path).
 - **Chưa chạy `?test` trên trình duyệt thật** — cần chủ dự án mở `willowbrook_natura.html?test` một lần.
 
 ## 7. Trạng thái git
 
-- Repo: `https://github.com/punnycroz-cmd/realWorld.git`, nhánh hiện tại tại commit `4e6fd80`
-- **Chưa commit:** `scripts/build_willowbrook_natura.py` + `willowbrook_natura.html` (~8.975 dòng thêm so với remote)
-- Chưa push — đang chờ chủ dự án xác nhận (cần token mới nếu muốn push có xác thực)
+- Repo: `https://github.com/punnycroz-cmd/realWorld.git`, HEAD tại commit `05caf95` — `feat: Phase 6D 'Con nguoi khong hoan hao' — Examiner PASS` (2026-09-16)
+- Mọi phase 6A→6D đã commit riêng, đầy đủ. **Chưa push** — đang chờ chủ dự án xác nhận (cần token một lần mới nếu muốn push có xác thực)
 
 ## 8. Backlog "xem xét sau" (so với RimWorld)
 
@@ -114,5 +126,5 @@ Chi tiết tại `RIMWORLD_GAPS_BACKLOG.md`. Tóm tắt:
 ## 10. Việc tiếp theo
 
 1. Chủ dự án mở `willowbrook_natura.html?test` trên trình duyệt thật một lần.
-2. Quyết định commit + push (cần token mới).
-3. Chọn món tiếp theo từ backlog — hoặc bắt đầu thiết kế AI brain cắm vào bridge.
+2. Quyết định push Phase 6 (cần token một lần mới).
+3. Spec Phase 6E (feeling substrate / 12 qualities / hearing / stress residue — đã chốt thiết kế 1B/Beta/3B) — chờ chủ dự án cho viết spec.

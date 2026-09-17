@@ -5,7 +5,7 @@ _Tài liệu mô tả nội dung game. Không bàn kỹ thuật. Cập nhật 20
 
 ## 1. Game này là gì
 
-**Willowbrook Natura** là game **mô phỏng cuộc sống của một ngôi làng thời trung cổ**, nơi bạn không điều khiển một nhân vật chính — bạn **chứng kiến và dẫn dắt cả một cộng đồng** 8 dân làng sống, làm việc, yêu thương, cãi vã, ốm đau, già đi và chết.
+**Willowbrook Natura** là game **mô phỏng cuộc sống của một ngôi làng thời trung cổ**, nơi bạn không điều khiển một nhân vật chính — bạn **chứng kiến và dẫn dắt cả một cộng đồng** 9 dân làng sống, làm việc, yêu thương, cãi vã, ốm đau, già đi và chết.
 
 Điểm khác biệt cốt lõi: mọi dân làng đều có **cơ thể sống thật**. Họ đói, khát, mệt, rét, say nắng, đuối nước, chảy máu, nhiễm trùng, gãy xương, ốm sốt — và mọi thứ đó tuân theo quy luật sinh học, không phải thanh máu trừu tượng. Một vết thương không băng bó có thể nhiễm trùng. Một đêm đông không áo ấm có thể giết người. Một đứa trẻ sinh ra cần được cho ăn, sưởi ấm và bảo vệ.
 
@@ -38,7 +38,7 @@ Làng nằm trong một thung lũng, bao quanh bởi rừng, có hồ nước, �
 
 **Thời gian:** ngày/đêm luân chuyển, 4 mùa. Mùa ảnh hưởng mọi thứ: mùa đông lạnh cắt da, ruộng không trồng được, sói đói liều lĩnh hơn; mùa hè nóng có thể say nắng, thịt ôi nhanh.
 
-**Thời tiết:** nắng, mưa, bão, sấm sét. Sét có thể đánh trúng người, nhà, gây cháy. Mưa dập lửa nhưng làm ướt quần áo (mất khả năng giữ ấm).
+**Thời tiết:** nắng, mưa, bão, sấm sét. Sét có thể đánh trúng người, nhà, gây cháy. Mưa dập lửa nhưng làm ướt quần áo (giảm 60% khả năng giữ ấm — quần áo chỉ còn 40% tác dụng cách nhiệt khi độ ướt > 0.4).
 
 ---
 
@@ -94,7 +94,7 @@ Ngoài ngôi làng, cả một vùng thung lũng rộng lớn vận hành theo q
 
 **Vòng thời tiết:**
 - Nắng → Mây → Mưa → Bão → Sét — diễn biến tự nhiên, có thể đoán trước phần nào (nhìn trời, nghe sấm xa).
-- Mưa: dập lửa, đầy giếng, nhưng làm ướt quần áo (mất giữ ấm) và đường lầy lội (đi chậm).
+- Mưa: dập lửa, đầy giếng, nhưng làm ướt quần áo (mất 60% khả năng giữ ấm) và đường lầy lội (đi chậm).
 - Bão: quật đổ cây yếu, tốc mái nhà ọp ẹp.
 - Sét: đánh trúng cây/nhà → cháy; đánh trúng người → bị thương nặng hoặc chết. Sau cơn bão sét, cả làng phải đi kiểm tra xem có đám cháy nào không.
 
@@ -132,7 +132,7 @@ Thung lũng không phải cả thế giới — con đường mòn nối làng v
 
 ---
 
-## 5. Tám dân làng
+## 5. Chín dân làng
 
 Mỗi người có **nghề, kỹ năng mạnh/yếu, tính cách** riêng — không ai thay thế được ai:
 
@@ -146,6 +146,7 @@ Mỗi người có **nghề, kỹ năng mạnh/yếu, tính cách** riêng — k
 | Finn | Ngư dân | Câu cá, bơi lội |
 | Alden | Trưởng làng | Giao tiếp, hòa giải |
 | Pip | Đứa trẻ | Học nhanh, chạy nhanh |
+| Clara | Thương nhân tơ lụa | Buôn bán, giao tiếp |
 
 *(Chi tiết tính cách từng người sẽ được AI brain phát triển thêm về sau — hiện tại mỗi người đã có năng khiếu kỹ năng và vai trò rõ ràng.)*
 
@@ -235,7 +236,7 @@ Dân làng không phải robot làm việc — họ có đời sống xã hội:
 ## 12. Thú hoang & chăn nuôi
 
 **Thú nguy hiểm** — thế giới không chỉ có dân làng:
-- **Sói:** đi bầy, săn đêm, rình người đi lẻ và gà. Sợ lửa, sợ đám đông, sợ chó/Gareth (người can đảm). Đói quá thì liều vào cả làng.
+- **Sói:** đi bầy, săn đêm, rình người đi lẻ và gà. Sợ lửa, sợ đám đông. Đói quá thì liều vào cả làng.
 - **Lợn rừng:** hiền thì thôi, lại gần thì húc.
 - **Gấu:** hiếm gặp nhưng gặp là đại họa — mò theo mùi thức ăn.
 
@@ -260,7 +261,7 @@ Dân làng tự biết sợ: thấy sói thì chạy vào nhà, bị dồn vào 
 **Quần áo:**
 - Nhiều lớp: áo trong, áo khoác, giày ủng, áo choàng mùa đông.
 - Tác dụng duy nhất nhưng sống còn: **giữ ấm**. Mùa đông không áo ấm là chết cóng.
-- Quần áo **ướt thì mất hết tác dụng** (đi mưa, lội nước, dập lửa xong phải thay/hong khô).
+- Quần áo **ướt thì mất 60% tác dụng giữ ấm** (chỉ còn 40% cách nhiệt khi độ ướt > 0.4 — code: `clothingInsul` trong `14a_medical.js`; đi mưa, lội nước, dập lửa xong phải thay/hong khô).
 - Mặc lâu thì **rách** → phải vá (`mend`) hoặc may mới (cần vải mua từ caravan hoặc da thú săn được).
 
 ---
