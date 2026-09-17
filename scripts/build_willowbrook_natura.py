@@ -224,6 +224,7 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
   #pi-why { font-size: 11.5px; color: var(--text); display: flex; flex-direction: column; gap: 3px; }
   .pi-why-winner { font-weight: 700; }
   .pi-why-score { color: var(--muted); font-weight: 400; }
+  .pi-why-feeling { color: #38bdf8; font-weight: 500; }
   .pi-why-why { color: var(--muted); }
   .pi-why-top { color: var(--muted); padding-left: 2px; }
   .pi-why-fail { color: var(--red); }
@@ -360,9 +361,11 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
 
 
 def check_substrate_lint():
-    """S2: Lint rule forbidding direct 'v.body.' accesses in src/brain/**.
+    """S2: Lint rule forbidding direct 'v.body' accesses in src/brain/**.
     Fails build immediately if any un-allowlisted violation is found.
+    (Harden N2: catches bare v.body as well as dot and bracket notation).
     """
+    import re
     brain_dir = os.path.join(SRC_DIR, 'brain')
     # Grandfathered legacy violations in src/brain/** recorded in .phase6e_progress.md
     legacy_allowlist = {
@@ -370,29 +373,30 @@ def check_substrate_lint():
         ('brain/09_bridge.js', 'v.body.satiety = 1.0;'),
     }
     violations = []
+    bare_pattern = re.compile(r'\bv\.body\b|\bv\s*\[\s*[\'"]body[\'"]\s*\]')
     for root, _, files in os.walk(brain_dir):
         for fname in files:
             if not fname.endswith('.js'):
                 continue
             full_path = os.path.join(root, fname)
             rel_path = os.path.relpath(full_path, SRC_DIR).replace('\\', '/')
+            if rel_path == 'brain/14_substrate.js':
+                continue
             with open(full_path, 'r', encoding='utf-8') as f:
                 for line_no, line in enumerate(f, 1):
                     trimmed = line.strip()
                     if trimmed.startswith('//') or trimmed.startswith('*') or trimmed.startswith('/*'):
                         continue
-                    if 'v.body.' in line:
-                        if 'lintBrainCode' in line or '/\\bv\\.body\\./' in line or '/v\\.body\\./' in line:
-                            continue
+                    if bare_pattern.search(line):
                         if (rel_path, trimmed) not in legacy_allowlist:
                             violations.append((rel_path, line_no, trimmed))
     if violations:
         print("\n[LINT FAILURE — S2 SUBSTRATE VIOLATION]")
-        print("Direct 'v.body.' access is strictly prohibited in src/brain/**.")
+        print("Direct 'v.body' access is strictly prohibited in src/brain/**.")
         for v in violations:
             print(f"  --> {v[0]}:{v[1]}: {v[2]}")
         raise SystemExit(1)
-    print("  Substrate lint check passed (0 new 'v.body.' violations in src/brain/**).")
+    print("  Substrate lint check passed (0 new 'v.body' violations in src/brain/**).")
 
 
 def generate():

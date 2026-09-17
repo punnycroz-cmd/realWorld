@@ -368,6 +368,14 @@ function spreadGossip(speaker, listener, forcedRumor){
     witnessEvent(speaker, 'Gossiped with ' + listener.name + ' about ' + targetPerson);
     witnessEvent(listener, 'Heard gossip from ' + speaker.name + ' about ' + targetPerson);
   }
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+    FeelingSubstrate.receiveSignal(listener, FeelingSubstrate.normalizeEvent('gossip', null, {
+      source: speaker.name,
+      target: targetPerson,
+      rumor: distortedKind
+    }));
+  }
+
   if(typeof logEvent === 'function'){
     logEvent('gossip', `${speaker.name} gossiped to ${listener.name} about ${targetPerson} (${distortedKind})`);
   }

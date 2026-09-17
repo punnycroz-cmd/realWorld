@@ -281,7 +281,191 @@ runAutoTest = async function(){
     `acc1h=${tDet1.hungerStressAcc.toFixed(4)} acc0.5h=${tDet2.hungerStressAcc.toFixed(4)} acc0.25h=${tDet3.hungerStressAcc.toFixed(4)} diff12=${diff12.toExponential(2)}`);
 
   // ===================================================================
-  // 28.8 (Entity Cleanup)
+  // 28.8 (A1/D2 Core 12 Qualities Scape Merging)
+  // Evaluates feeling-scape merging across the exact quota of 12 qualities:
+  // hollow, parched, heavy, burning, anxious, terrified, enraged, content, lonely, revered, confused, vigilant.
+  // ===================================================================
+  const tScape = mk('T_Scape', 40 * CS, 40 * CS);
+  tScape.body.satiety = 0.9;
+  tScape.body.hydration = 0.9;
+  tScape.body.fatigue = 0.1;
+  tScape.body.stress = 0.05;
+
+  const eqScape = FeelingSubstrate.getFeelingScape(tScape);
+  const okEq = eqScape.dominant === 'content' && eqScape.tone === 'positive';
+
+  // Test fever -> burning
+  tScape.body.coreTemp = 39.2;
+  const burnScape = FeelingSubstrate.getFeelingScape(tScape);
+  const okBurn = burnScape.dominant === 'burning' && burnScape.tone === 'negative';
+  tScape.body.coreTemp = 37.0;
+
+  // Test hunger -> hollow
+  tScape.body.satiety = 0.15;
+  const hungryScape = FeelingSubstrate.getFeelingScape(tScape);
+  const okHollow = hungryScape.dominant === 'hollow' && hungryScape.tone === 'negative';
+  tScape.body.satiety = 0.9;
+
+  // Test fatigue -> heavy
+  tScape.body.fatigue = 0.85;
+  const tiredScape = FeelingSubstrate.getFeelingScape(tScape);
+  const okHeavy = tiredScape.dominant === 'heavy' && tiredScape.tone === 'negative';
+  tScape.body.fatigue = 0.1;
+
+  const ok28_8 = okEq && okBurn && okHollow && okHeavy;
+  log(ok28_8, 'feelingScape12_28: Core 12 qualities merged deterministically with urgency weights',
+    `eq=${eqScape.dominant} burn=${burnScape.dominant} hollow=${hungryScape.dominant} heavy=${tiredScape.dominant}`);
+
+  // ===================================================================
+  // 28.9 (D2 Burnt-Throat vs Hydration Differential Test)
+  // Control pawn drinks water -> content.
+  // Pawn with conditions[] throat_burn drinks water -> STILL parched!
+  // Wildfire threat event -> terrified (never frozen on content).
+  // ===================================================================
+  const tDrinkCtrl = mk('T_CtrlDrink', 41 * CS, 41 * CS);
+  const tThroat = mk('T_ThroatBurn', 42 * CS, 42 * CS);
+
+  // Both start dehydrated
+  tDrinkCtrl.body.hydration = 0.15;
+  tThroat.body.hydration = 0.15;
+  tThroat.conditions = [{ id: 'throat_burn', blocksAction: 'drink', desc: 'scorched throat' }];
+
+  // Drink water to full hydration
+  tDrinkCtrl.body.hydration = 1.0;
+  tThroat.body.hydration = 1.0;
+
+  const ctrlScape = FeelingSubstrate.getFeelingScape(tDrinkCtrl);
+  const throatScape = FeelingSubstrate.getFeelingScape(tThroat);
+
+  const ctrlDrankOk = ctrlScape.dominant === 'content';
+  const throatBurntOk = throatScape.dominant === 'parched';
+
+  // Wildfire test: fire threat must override content to terrified
+  const tFirePawn = mk('T_FireThreat', 43 * CS, 43 * CS);
+  tFirePawn.body.satiety = 0.9;
+  tFirePawn.body.hydration = 0.9;
+  FeelingSubstrate.receiveSignal(tFirePawn, { kind: 'threat_fire', intensity: 0.9, domain: 'danger', affect: 'fear', tick: 10.0 });
+  const fireScape = FeelingSubstrate.getFeelingScape(tFirePawn);
+  const fireNotContent = fireScape.dominant === 'terrified' && fireScape.dominant !== 'content';
+
+  const ok28_9 = ctrlDrankOk && throatBurntOk && fireNotContent;
+  log(ok28_9, 'burntThroatDifferential28: D2 vocabulary reads conditions[] — burnt throat remains parched after drinking water; fire overrides content',
+    `ctrlAfterDrink=${ctrlScape.dominant} burntThroatAfterDrink=${throatScape.dominant} fireDominant=${fireScape.dominant}`);
+
+  // ===================================================================
+  // 28.10 (WHY HUD Float Purge & Text Display)
+  // WHY HUD displays feeling qualities in words (e.g. 'anxious · heavy'),
+  // zero float numbers for feelings, and explainAction includes feelingScape.
+  // ===================================================================
+  const tWhy = mk('T_WhyHud', 44 * CS, 44 * CS);
+  tWhy.body.satiety = 0.2;
+  tWhy.hungerStressAcc = 0.4;
+  FeelingSubstrate.update(tWhy, 0.5);
+
+  evaluateVillagerUtility(tWhy);
+  const whyTrace = tWhy.__lastDecision;
+  const explainTr = explainAction(tWhy.name);
+
+  // Update HUD and inspect #pi-why HTML
+  updateHUD();
+  const piWhyEl = document.getElementById('pi-why');
+  const whyHtml = piWhyEl ? piWhyEl.innerHTML : '';
+
+  const hasFeelingElement = whyHtml.includes('pi-why-feeling');
+  const feelingWordsOnly = whyHtml.includes('feeling:');
+  const hasNoFloatFeelings = !/stress\s*0\.\d+/i.test(whyHtml) && !/feeling:\s*\d+/i.test(whyHtml);
+  const explainHasScape = explainTr && explainTr.feelingScape && typeof explainTr.feelingScape.dominant === 'string';
+
+  const ok28_10 = hasFeelingElement && feelingWordsOnly && hasNoFloatFeelings && explainHasScape;
+  log(ok28_10, 'whyHudTextQualities28: WHY HUD purges float feelings in favor of feeling quality words and structured feelingScape trace',
+    `hasFeelingEl=${hasFeelingElement} noFloats=${hasNoFloatFeelings} scape=${explainTr && explainTr.feelingScape && explainTr.feelingScape.dominant}`);
+
+  // ===================================================================
+  // 28.11 (Fix B1 Nửa 1 — Live A3 Signals into Scape & Accumulators)
+  // All 5 previously dead signals (death, downed, gossip, birth, marriage)
+  // route to active qualities and never drop to 'content' at high intensity.
+  // ===================================================================
+  const tDeath = mk('T_Sig_Death', 10, 10);
+  FeelingSubstrate.receiveSignal(tDeath, FeelingSubstrate.normalizeEvent('death', null, { intensity: 1.0 }));
+  const scapeDeath = FeelingSubstrate.getFeelingScape(tDeath);
+  const okDeath = scapeDeath.dominant === 'heavy' && scapeDeath.tone === 'negative';
+
+  const tDowned = mk('T_Sig_Downed', 12, 12);
+  FeelingSubstrate.receiveSignal(tDowned, FeelingSubstrate.normalizeEvent('downed', null, { intensity: 0.95 }));
+  const scapeDowned = FeelingSubstrate.getFeelingScape(tDowned);
+  const okDowned = (scapeDowned.dominant === 'terrified' || scapeDowned.dominant === 'heavy') && scapeDowned.tone === 'negative';
+
+  const tGossip = mk('T_Sig_Gossip', 14, 14);
+  FeelingSubstrate.receiveSignal(tGossip, FeelingSubstrate.normalizeEvent('gossip', null, { intensity: 0.85 }));
+  const scapeGossip = FeelingSubstrate.getFeelingScape(tGossip);
+  const okGossip = (scapeGossip.dominant === 'vigilant' || scapeGossip.dominant === 'anxious') && scapeGossip.dominant !== 'content';
+
+  const tBirth = mk('T_Sig_Birth', 16, 16);
+  FeelingSubstrate.receiveSignal(tBirth, FeelingSubstrate.normalizeEvent('birth', null, { intensity: 0.85 }));
+  const scapeBirth = FeelingSubstrate.getFeelingScape(tBirth);
+  const okBirth = scapeBirth.dominant === 'revered' && scapeBirth.tone === 'positive';
+
+  const tMarriage = mk('T_Sig_Marriage', 18, 18);
+  FeelingSubstrate.receiveSignal(tMarriage, FeelingSubstrate.normalizeEvent('marriage', null, { intensity: 0.85 }));
+  const scapeMarriage = FeelingSubstrate.getFeelingScape(tMarriage);
+  const okMarriage = scapeMarriage.dominant === 'revered' && scapeMarriage.tone === 'positive';
+
+  const ok28_11 = okDeath && okDowned && okGossip && okBirth && okMarriage;
+  log(ok28_11, 'liveA3Signals28: All 5 previously dead signals route into active feeling scape without falling into content',
+    `death=${scapeDeath.dominant} downed=${scapeDowned.dominant} gossip=${scapeGossip.dominant} birth=${scapeBirth.dominant} marriage=${scapeMarriage.dominant}`);
+
+  // ===================================================================
+  // 28.12 (Fix B1 Nửa 2 — Real Production Path Wildfire & Event Emission)
+  // Real wildfireTick running through game systems without manual injection
+  // shifts nearby unburned villager out of content; control pawn stays content.
+  // Real killVillager and setDowned emit signals to production callers.
+  // ===================================================================
+  // 1. Wildfire differential probe
+  const tFireCtrl = mk('T_Ctrl_NoFire', 50, 50);
+  const tFireExp = mk('T_Fire_Exp', 50, 50);
+  const origBurning = (typeof BURNING !== 'undefined' && Array.isArray(BURNING)) ? BURNING.slice() : [];
+  if(typeof BURNING !== 'undefined') BURNING.length = 0;
+
+  // Control run: no fire anywhere
+  const ctrlScapeBefore = FeelingSubstrate.getFeelingScape(tFireCtrl);
+  const okCtrlContent = ctrlScapeBefore.dominant === 'content' && ctrlScapeBefore.tone === 'positive';
+
+  // Spawn real burning tile 3 cells away: within sight (16 cells), outside burn injury (< 1.2 cells)
+  const testBurnTile = { wx: 53, wy: 50, t: 5.0 };
+  if(typeof BURNING !== 'undefined') BURNING.push(testBurnTile);
+
+  // Run real production wildfireTick
+  if(typeof wildfireTick === 'function') wildfireTick(0.1);
+
+  const expInjury = tFireExp.body ? tFireExp.body.injury || 0 : 0;
+  const expScape = FeelingSubstrate.getFeelingScape(tFireExp);
+  const okFireShift = expInjury === 0 && expScape.dominant === 'terrified' && expScape.tone === 'negative';
+
+  // Restore BURNING
+  if(typeof BURNING !== 'undefined'){
+    BURNING.length = 0;
+    for(const b of origBurning) BURNING.push(b);
+  }
+
+  // 2. Real killVillager witness emission
+  const tVictim = mk('T_Victim', 20, 20);
+  const tWitness = mk('T_Witness', 22, 20);
+  if(typeof killVillager === 'function') killVillager(tVictim, 'exposure');
+  const witnessScape = FeelingSubstrate.getFeelingScape(tWitness);
+  const okWitnessDeath = witnessScape.dominant === 'heavy' && witnessScape.tone === 'negative';
+
+  // 3. Real setDowned emission
+  const tDownPawn = mk('T_DownPawn', 25, 25);
+  if(typeof setDowned === 'function') setDowned(tDownPawn, 'unconscious', 'fever');
+  const downPawnScape = FeelingSubstrate.getFeelingScape(tDownPawn);
+  const okDownPawn = (downPawnScape.dominant === 'terrified' || downPawnScape.dominant === 'heavy') && downPawnScape.tone === 'negative';
+
+  const ok28_12 = okCtrlContent && okFireShift && okWitnessDeath && okDownPawn;
+  log(ok28_12, 'productionPathEvents28: Real game system callers (wildfire, death, downed) emit live signals without manual injection',
+    `ctrlDominant=${ctrlScapeBefore.dominant} fireExpDominant=${expScape.dominant} uninjured=${expInjury === 0} witnessDominant=${witnessScape.dominant} downDominant=${downPawnScape.dominant}`);
+
+  // ===================================================================
+  // 28.13 (Entity Cleanup)
   // All test entities cleaned up; canonical settlement untouched.
   // ===================================================================
   const countBefore = madeNames.length;
@@ -289,8 +473,8 @@ runAutoTest = async function(){
   const countAfter = madeNames.length;
   const canonicalUntouched = VILLAGERS.every(v => !v.name.startsWith('T_'));
 
-  const ok28_8 = countBefore > 0 && countAfter === 0 && canonicalUntouched;
-  log(ok28_8, 'cleanup28: All temporary test villagers cleaned up with canonical settlement preserved',
+  const ok28_13 = countBefore > 0 && countAfter === 0 && canonicalUntouched;
+  log(ok28_13, 'cleanup28: All temporary test villagers cleaned up with canonical settlement preserved',
     `cleaned=${countBefore} remaining=${countAfter} canonicalSafe=${canonicalUntouched}`);
 
   // Summary banner for harness parsing

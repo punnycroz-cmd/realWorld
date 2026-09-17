@@ -215,6 +215,9 @@ function marryVillagers(a, b){
       if(w === a || w === b || w.dead) continue;
       if(typeof distCells === 'function' && distCells(w, a) < 12){
         if(typeof isConscious === 'function' && !isConscious(w)) continue;
+        if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+          FeelingSubstrate.receiveSignal(w, FeelingSubstrate.normalizeEvent('marriage', null, { couple: [a.name, b.name], witness: true }));
+        }
         observe(w, { spouseA: a.name, spouseB: b.name, status: 'married' }, {
           topic: 'rel_' + a.name + '_' + b.name,
           source: 'direct',
@@ -224,6 +227,11 @@ function marryVillagers(a, b){
         });
       }
     }
+  }
+
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+    FeelingSubstrate.receiveSignal(a, FeelingSubstrate.normalizeEvent('marriage', null, { spouse: b.name }));
+    FeelingSubstrate.receiveSignal(b, FeelingSubstrate.normalizeEvent('marriage', null, { spouse: a.name }));
   }
 
   logEvent('marriage', a.name + ' and ' + b.name + ' are now married!');

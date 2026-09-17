@@ -9,10 +9,24 @@ function setDowned(v, kind, cause){
   v.downed = { kind: kind, t: 0, cause: cause };
   v.state = 'downed'; v.moving = false; v.plan = [];
   logEvent('downed', v.name + ' is down (' + cause + ')');
-  showToast('🤕 ' + v.name + ' is down (' + cause + ')');
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+    FeelingSubstrate.receiveSignal(v, FeelingSubstrate.normalizeEvent('downed', null, {
+      kind: kind,
+      cause: cause
+    }));
+  }
   for(const o of VILLAGERS){
     if(o === v || o.dead) continue;
-    if(distCells(o, v) < 14) witnessEvent(o, 'Saw ' + v.name + ' go down (' + cause + ')');
+    if(distCells(o, v) < 14){
+      witnessEvent(o, 'Saw ' + v.name + ' go down (' + cause + ')');
+      if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+        FeelingSubstrate.receiveSignal(o, FeelingSubstrate.normalizeEvent('fear_event', null, {
+          source: 'witness_downed',
+          who: v.name,
+          cause: cause
+        }));
+      }
+    }
   }
 }
 function downedTick(v, dtH){

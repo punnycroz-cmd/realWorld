@@ -561,3 +561,13 @@ Phase 6D hoàn thành trong 4 task nối tiếp (D1 → D2 → D3 → 27_autotes
 **Nợ phi-blocking Examiner để lại cho E2+:** (1) lint chỉ match literal `v.body.` — bracket access lọt, chưa có code nào dùng; (2) `v.mood` suy từ stress — E2 aware; (3) scape placeholder 4-quality — E2 mở rộng 12; (4) mọi `domain==='danger'` route vào fearFatigueAcc — lựa chọn có chủ ý, ghi nhận.
 
 **Bài học dispatch:** run đầu chết yểu không để lại gì vì checkpoint chưa kịp ghi — từ nay prompt dispatch lưu trong project (`.phase6e_e1_prompt.txt`), brief nhấn mạnh "ghi sớm, ghi thường xuyên". Transient failure không tốn quota (không sinh token), tốn là thời gian lead phải canh.
+
+## 2026-09-16 — 6E E2: Examiner bắt "test xanh gameplay chết" lần thứ hai
+
+**Diễn biến:** Robin nộp E2 (12 qualities, WHY HUD chữ, eye-read) báo 7/7 PASS → Examiner audit round 1: **FAIL blocking B1** — toàn bộ đường A3 signal→scape không có production caller; 5/24 kinds là mũi tên chết; người thân chết vẫn `content`. Đúng pattern 6C ("survival guard không fire trong game thật") tái diễn ở lớp cảm giác.
+
+**Bài học củng cố (lần 2): "probe chạy qua game systems" phải là tiêu chí viết trong brief, không chỉ là cách Examiner kiểm tra.** Brief E2 gốc yêu cầu "production-path probe thật" nhưng Robin hiểu "thật" = chạy trên bundle compiled, còn signal vẫn inject tay. Correction brief lần này viết tường minh: "cháy rừng thật (chạy qua game systems, KHÔNG inject signal bằng tay) + control scenario". Sau khi tiêu chí được viết rõ, Robin fix đúng ngay round 1: wire wildfireTick/survivalGuard/killVillager/setDowned/spreadGossip/birthChild/marryVillagers → 23/23 kinds sống → Examiner re-audit PASS (probe độc lập 16/16, harness 277 lines 0 FAIL).
+
+**Quy tắc mới cho mọi brief implementation từ nay:** acceptance phải liệt kê *negative control* (scenario không có stimulus → behavior không đổi) và cấm *hand-injection* cho phần wiring. "Chạy được trên bundle" ≠ "sống trong game".
+
+**A1 eye-read (lead đọc bằng mắt):** lần đầu tiên trong dự án nghiệm thu bằng đọc narrative — arc 24h của Alden liền mạch như người thật (đói→sợ cháy→bỏng họng→uống không hết khát→ngủ→được chữa→khỏe). Đây là bằng chứng định tính mà unit test không cho được; giữ nghi thức này cho các slice cảm giác sau.

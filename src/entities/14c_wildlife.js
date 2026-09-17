@@ -87,9 +87,21 @@ function fightBack(v, a){
 function shoutForHelp(victim, threat){
   showToast('🆘 ' + victim.name + ' shouts for help!');
   witnessEvent(victim, 'Shouted for help!');
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+    FeelingSubstrate.receiveSignal(victim, FeelingSubstrate.normalizeEvent(threat && threat.kind ? threat.kind : 'wolf', null, {
+      source: 'attacked',
+      threat: threat && threat.kind
+    }));
+  }
   for(const o of VILLAGERS){
     if(o === victim || o.dead || o.downed || o.brainControlled) continue;
     if(Math.hypot(o.x - victim.x, o.y - victim.y) > CS * 14) continue;
+    if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+      FeelingSubstrate.receiveSignal(o, FeelingSubstrate.normalizeEvent('scream', null, {
+        source: 'help_shout',
+        victim: victim.name
+      }));
+    }
     if(o.plan && o.plan.length) continue;
     const bond = (o.bonds && o.bonds[victim.name]) || 0;
     const brave = skillLvl(o, 'hunting') >= 2 || o.name === 'Gareth';

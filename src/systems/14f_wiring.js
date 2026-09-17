@@ -73,9 +73,20 @@ survivalGuard = function(v){
   const cur = v.plan && v.plan.length ? v.plan[0] : null;
   if(cur && cur.guard && !cur.flee) return; // needs plan or fire flight active
   const th = nearestThreat(v);
-  if(th && !(cur && cur.guard)){
+  if(th){
     const d = Math.hypot(th.x - v.x, th.y - v.y) / CS;
-    if(d < 10){
+    if(d < 12){
+      if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+        const sigKind = (th.kind === 'wildfire' || th.kind === 'fire') ? 'wildfire' : (th.kind || 'wolf');
+        const intensity = +clamp(1.0 - (d / 12) * 0.35, 0.65, 0.95).toFixed(3);
+        FeelingSubstrate.receiveSignal(v, FeelingSubstrate.normalizeEvent(sigKind, null, {
+          source: 'threat_guard',
+          intensity: intensity,
+          dist: +d.toFixed(1)
+        }));
+      }
+    }
+    if(!(cur && cur.guard) && d < 10){
       const brave = skillLvl(v, 'hunting') >= 4 || v.name === 'Gareth';
       if(!(brave && countNearbyVillagers(v, 8) >= 2 && th.kind === 'wolf')){
         const bp = nearestBuildingPos(v);

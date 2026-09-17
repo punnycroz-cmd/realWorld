@@ -165,15 +165,26 @@ function wildfireTick(h){
       b.t -= h;
     }
 
-    // Villager burn damage
+    // Villager burn damage & feeling substrate acute threat signal
     for(const v of VILLAGERS){
       if(v.dead) continue;
-      if(Math.hypot(v.x - (b.wx * CS + 16), v.y - (b.wy * CS + 16)) < CS * 1.2){
+      const dCells = Math.hypot(v.x - (b.wx * CS + 16), v.y - (b.wy * CS + 16)) / CS;
+      if(dCells < 1.2){
         const bd = ensureBody(v);
         bd.injury = clamp((bd.injury || 0) + h * 1.5, 0, 1);
         learnDanger(v, 'wildfire');
         witnessEvent(v, 'Burned by wildfire!');
         if(bd.injury >= 1) killVillager(v, 'burned in wildfire');
+      }
+      if(dCells <= 16){
+        if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+          const intensity = +clamp(1.0 - (dCells / 16) * 0.4, 0.60, 0.95).toFixed(3);
+          FeelingSubstrate.receiveSignal(v, FeelingSubstrate.normalizeEvent('wildfire', null, {
+            source: 'wildfire',
+            intensity: intensity,
+            dist: +dCells.toFixed(1)
+          }));
+        }
       }
     }
 

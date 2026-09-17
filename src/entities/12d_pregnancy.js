@@ -67,6 +67,14 @@ function birthChild(m){
   logEvent('birth', m.name + ' gave birth to ' + name + ' (day ' + W.day + ')');
   showToast('👶 ' + m.name + ' gave birth to ' + name + '!');
 
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+    FeelingSubstrate.receiveSignal(m, FeelingSubstrate.normalizeEvent('birth', null, { mother: m.name, child: name }));
+    if(fatherName){
+      const f = VILLAGERS.find(x => x.name === fatherName && !x.dead);
+      if(f) FeelingSubstrate.receiveSignal(f, FeelingSubstrate.normalizeEvent('birth', null, { mother: m.name, child: name, father: true }));
+    }
+  }
+
   // 2D Birth memories
   if(typeof observe === 'function'){
     observe(m, { event: 'birth', child: name }, {
@@ -86,6 +94,9 @@ function birthChild(m){
       if(o === v || o === m || o.dead) continue;
       if(distCells(o, m) < 16){
         witnessEvent(o, m.name + ' gave birth');
+        if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+          FeelingSubstrate.receiveSignal(o, FeelingSubstrate.normalizeEvent('birth', null, { mother: m.name, child: name, witness: true }));
+        }
         observe(o, { event: 'birth', mother: m.name, child: name }, {
           topic: 'birth_' + name, source: 'direct', confidence: 0.95, salience: 0.65,
           evidence: ['Witnessed ' + m.name + ' give birth to ' + name]
@@ -95,7 +106,12 @@ function birthChild(m){
   } else {
     for(const o of VILLAGERS){
       if(o === v || o === m || o.dead) continue;
-      if(distCells(o, m) < 16) witnessEvent(o, m.name + ' gave birth');
+      if(distCells(o, m) < 16){
+        witnessEvent(o, m.name + ' gave birth');
+        if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+          FeelingSubstrate.receiveSignal(o, FeelingSubstrate.normalizeEvent('birth', null, { mother: m.name, child: name, witness: true }));
+        }
+      }
     }
   }
   if(typeof updateHUD === 'function') updateHUD();

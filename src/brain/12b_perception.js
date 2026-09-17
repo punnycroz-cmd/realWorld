@@ -172,7 +172,7 @@ class PerceptionDTO {
 
 function getUrgentNeeds(v){
   if(!v) return [];
-  const b = typeof ensureBody === 'function' ? ensureBody(v) : (v.body || {});
+  const b = (typeof ensureBody === 'function') ? ensureBody(v) : {};
   const urgent = [];
   const sat = b.satiety != null ? b.satiety : 1.0;
   const hyd = b.hydration != null ? b.hydration : 1.0;

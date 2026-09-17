@@ -73,9 +73,20 @@ function killVillager(v, cause){
   showToast('☠ ' + v.name + ' has died (' + cause + ')');
   for(const o of VILLAGERS){
     if(o === v || o.dead) continue;
-    if(distCells(o, v) < 16){
+    const d = distCells(o, v);
+    const isKin = (v.bonds && v.bonds[o.name] > 0.3) || (o.bonds && o.bonds[v.name] > 0.3) || (v.spouse === o.name);
+    if(d < 16 || isKin){
       witnessEvent(o, 'Witnessed ' + v.name + ' die (' + cause + ')');
       learnDanger(o, 'death of ' + v.name);
+      if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.receiveSignal === 'function'){
+        const intensity = isKin ? 1.00 : +clamp(1.0 - (d / 16) * 0.3, 0.70, 1.00).toFixed(2);
+        FeelingSubstrate.receiveSignal(o, FeelingSubstrate.normalizeEvent('death', null, {
+          victim: v.name,
+          cause: cause,
+          kin: isKin,
+          dist: d
+        }));
+      }
     }
   }
   if(v === VILLAGERS[controlledPawnIdx]){

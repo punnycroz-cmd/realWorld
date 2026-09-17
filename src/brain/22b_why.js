@@ -19,7 +19,13 @@ const __evalUtil22why = evaluateVillagerUtility;
 evaluateVillagerUtility = function(v){
   const r = __evalUtil22why(v);
   try{
-    const b = (v && v.body) || {};
+    const feel = (typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.feel === 'function')
+      ? FeelingSubstrate.feel(v)
+      : null;
+    const layers = (typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.getLayers === 'function')
+      ? FeelingSubstrate.getLayers(v)
+      : null;
+    const bodyState = (layers && layers.body) ? layers.body : ((typeof ensureBody === 'function') ? ensureBody(v) : {});
     const p = (v && v.personality) || {};
     const cands = (r && r.candidates) || [];
     const top = [];
@@ -44,6 +50,9 @@ evaluateVillagerUtility = function(v){
       day: W.day,
       tod: +W.tod.toFixed(2),
       nCandidates: cands.length,
+      scape: (typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.getFeelingScape === 'function')
+        ? FeelingSubstrate.getFeelingScape(v)
+        : null,
       winner: r.bestAction ? {
         id: r.bestAction.id || null,
         name: r.bestAction.name || r.bestAction.id || 'action',
@@ -54,11 +63,11 @@ evaluateVillagerUtility = function(v){
       // The inputs that fed the scores (need deficits, personality, time).
       // These are the "because": hungry + close + brave -> chose this.
       inputs: {
-        satietyDeficit: +clamp(1 - (b.satiety || 0), 0, 1).toFixed(3),
-        hydrationDeficit: +clamp(1 - (b.hydration || 0), 0, 1).toFixed(3),
-        fatigueDeficit: +clamp(b.fatigue || 0, 0, 1).toFixed(3),
-        injuryDeficit: +clamp(b.injury || 0, 0, 1).toFixed(3),
-        coldDeficit: +clamp((36.5 - (b.coreTemp || 37)) / 3.0, 0, 1).toFixed(3),
+        satietyDeficit: +clamp(1 - (bodyState.satiety != null ? bodyState.satiety : 1), 0, 1).toFixed(3),
+        hydrationDeficit: +clamp(1 - (bodyState.hydration != null ? bodyState.hydration : 1), 0, 1).toFixed(3),
+        fatigueDeficit: +clamp(bodyState.fatigue != null ? bodyState.fatigue : 0, 0, 1).toFixed(3),
+        injuryDeficit: +clamp(bodyState.injury != null ? bodyState.injury : 0, 0, 1).toFixed(3),
+        coldDeficit: +clamp((36.5 - (bodyState.coreTemp != null ? bodyState.coreTemp : 37)) / 3.0, 0, 1).toFixed(3),
         socialDeficit: +clamp((v.chatT || 0) / 10.0, 0, 1).toFixed(3),
         isNight: (W.tod >= 21 || W.tod < 6),
         brave: (p.brave != null) ? +(+p.brave).toFixed(2) : null,
@@ -110,6 +119,9 @@ function explainAction(name){
     currentAction: v.currentAction ? { id: v.currentAction.id || null, name: v.currentAction.name || v.currentAction.id || null, reason: v.currentAction.reason || null } : null,
     decision: d,
     beliefsActedOn: beliefs,
+    feelingScape: (typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.getFeelingScape === 'function')
+      ? FeelingSubstrate.getFeelingScape(v)
+      : null,
     // Last failure -> observation -> re-evaluation entry (never silent).
     lastFailure: (v.thoughts && v.thoughts.length) ? { text: v.thoughts[0].text || '', val: v.thoughts[0].val || 0 } : null
   };
@@ -128,15 +140,23 @@ updateHUD = function(){
     const d = v.__lastDecision;
     const inp = d.inputs || {};
     const needBits = [];
-    if(inp.satietyDeficit > 0.25) needBits.push('hungry ' + Math.round(inp.satietyDeficit * 100) + '%');
-    if(inp.hydrationDeficit > 0.25) needBits.push('thirsty ' + Math.round(inp.hydrationDeficit * 100) + '%');
-    if(inp.fatigueDeficit > 0.5) needBits.push('tired ' + Math.round(inp.fatigueDeficit * 100) + '%');
+    if(inp.satietyDeficit > 0.25) needBits.push('hungry');
+    if(inp.hydrationDeficit > 0.25) needBits.push('thirsty');
+    if(inp.fatigueDeficit > 0.5) needBits.push('tired');
     if(inp.injuryDeficit > 0.1) needBits.push('hurt');
     if(inp.coldDeficit > 0.2) needBits.push('cold');
     const w = d.winner;
+
+    // Phase 6E Slice E2: Feeling-scape displayed in words (no float feelings!)
+    const scape = (typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.getFeelingScape === 'function')
+      ? FeelingSubstrate.getFeelingScape(v)
+      : (d.scape || { dominant: 'content', secondary: null, tone: 'positive' });
+    const feelingStr = scape.dominant + (scape.secondary ? ' · ' + scape.secondary : '');
+
     let html = '<div class="pi-why-winner">▶ ' + escapeHtml(w ? w.name : '(idle)') +
       (w ? ' <span class="pi-why-score">' + w.score + '</span>' : '') + '</div>';
     if(w && w.reason) html += '<div class="pi-why-reason" style="font-size:11px;color:#94a3b8;margin:2px 0 4px 0;">why: ' + escapeHtml(w.reason) + '</div>';
+    html += '<div class="pi-why-feeling" style="font-size:11px;color:#38bdf8;margin:1px 0 3px 0;">feeling: ' + escapeHtml(feelingStr) + '</div>';
     html += '<div class="pi-why-why">because: ' + escapeHtml(needBits.length ? needBits.join(', ') : 'no pressing need') +
       (inp.isNight ? ' · night' : '') + '</div>';
     html += '<div class="pi-why-top">';
