@@ -5,7 +5,7 @@ _Tài liệu mô tả nội dung game. Không bàn kỹ thuật. Cập nhật 20
 
 ## 1. Game này là gì
 
-**Willowbrook Natura** là game **mô phỏng cuộc sống của một ngôi làng thời trung cổ**, nơi bạn không điều khiển một nhân vật chính — bạn **chứng kiến và dẫn dắt cả một cộng đồng** 9 dân làng sống, làm việc, yêu thương, cãi vã, ốm đau, già đi và chết.
+**Willowbrook Natura** là game **mô phỏng cuộc sống của một ngôi làng thời trung cổ**, nơi bạn không điều khiển một nhân vật chính — bạn **chứng kiến và dẫn dắt cả một cộng đồng** 11 dân làng sống, làm việc, yêu thương, cãi vã, ốm đau, già đi và chết.
 
 Điểm khác biệt cốt lõi: mọi dân làng đều có **cơ thể sống thật**. Họ đói, khát, mệt, rét, say nắng, đuối nước, chảy máu, nhiễm trùng, gãy xương, ốm sốt — và mọi thứ đó tuân theo quy luật sinh học, không phải thanh máu trừu tượng. Một vết thương không băng bó có thể nhiễm trùng. Một đêm đông không áo ấm có thể giết người. Một đứa trẻ sinh ra cần được cho ăn, sưởi ấm và bảo vệ.
 
@@ -132,7 +132,7 @@ Thung lũng không phải cả thế giới — con đường mòn nối làng v
 
 ---
 
-## 5. Chín dân làng
+## 5. Mười một dân làng
 
 Mỗi người có **nghề, kỹ năng mạnh/yếu, tính cách** riêng — không ai thay thế được ai:
 
@@ -146,7 +146,9 @@ Mỗi người có **nghề, kỹ năng mạnh/yếu, tính cách** riêng — k
 | Finn | Ngư dân | Câu cá, bơi lội |
 | Alden | Trưởng làng | Giao tiếp, hòa giải |
 | Pip | Đứa trẻ | Học nhanh, chạy nhanh |
+| Rowan | Nghệ sĩ du ca | Ca hát, thơ ca, du hành |
 | Clara | Thương nhân tơ lụa | Buôn bán, giao tiếp |
+| Gareth | Hiệp sĩ lang thang | Kiếm thuật, săn bắn, dũng cảm |
 
 *(Chi tiết tính cách từng người sẽ được AI brain phát triển thêm về sau — hiện tại mỗi người đã có năng khiếu kỹ năng và vai trò rõ ràng.)*
 

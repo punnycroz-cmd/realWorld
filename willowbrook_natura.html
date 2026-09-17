@@ -24271,10 +24271,10 @@ runAutoTest = async function(){
 };
 
 /* =====================================================================
-   PART 28 AUTOTEST — Phase 6E Slice E1: "Cảm thấy" (Feeling Substrate)
+   PART 28 AUTOTEST — Phase 6E: "Cảm thấy" (Feeling Substrate)
    Automated verification of:
      28.1 (S2 Lint Rule & Bypass Test):
-          - Code with sneaky 'v.body.' -> lint fail.
+          - Code with sneaky 'v.body.' or 'v["body"].' -> lint fail.
           - Clean code -> lint pass.
           - Audits src/brain/** against known legacy allowlist (09_bridge.js:32,35).
      28.2 (S1 FeelingSubstrate Interface Contract):
@@ -24297,8 +24297,29 @@ runAutoTest = async function(){
      28.7 (Determinism across different tick-sizes):
           - Running same elapsed time with dtH=1.0 vs dtH=0.5 vs dtH=0.25
             yields identical accumulator values (analytical dt-scaling).
-     28.8 (Entity Cleanup):
-          - Verifies all test entities removed cleanly, canonical settlement untouched.
+     28.8 (A1/D2 Core 12 Qualities Scape Merging):
+          - Exactly 12 core qualities quota, urgency-weighted composition.
+     28.9 (D2 Burnt-Throat vs Hydration Differential Test):
+          - conditions[] throat_burn stays parched even after drinking to 100% hydration.
+          - Fire threat immediately overrides content to terrified.
+     28.10 (WHY HUD Float Purge & Qualitative Text Display):
+          - Purges all float feelings in favor of descriptive words and feeling scape.
+     28.11 (Fix B1 Nửa 1: Live A3 Signals into Scape & Accumulators):
+          - death, downed, gossip, birth, marriage route to active non-content scape.
+     28.12 (Fix B1 Nửa 2: Real Production Path Wildfire & Event Emission):
+          - wildfireTick, killVillager, setDowned emit live signals without manual injection.
+     28.13 (A2 Hearing Propagation & Distance Falloff):
+          - Physical propagation with linear distance falloff and negative control.
+     28.14 (A2 Sleeping Guard Acoustic Interruption):
+          - Loud acoustic scream wakes sleeping guard within hearing radius; distant sleeper stays asleep.
+     28.15 (3B stressResidue Lifecycle: Ceiling Clamp, Hard Assertion Throw & 3-Day Recovery):
+          - Hard ceiling 0.35*maxStress, assertCeiling throws on breach, 3 days peace recovers to near-zero.
+     28.16 (NN1 Co-Channel Fire Deduplication & 3B WorkFactor Impact):
+          - Same-tick multi-system fire emissions peak-held; stressResidue slightly reduces workFactor.
+     28.17 (Gareth Bravery Parity & Non-Gareth Negative Control in survivalGuard):
+          - Gareth (hunting=3) stands ground vs wolf with 2+ allies; non-Gareth control (hunting=3) flees.
+     28.18 (Entity Cleanup & Canonical Settlement Preservation):
+          - All test entities removed cleanly, canonical settlement untouched.
    ===================================================================== */
 
 function mkTestV28(name, wx, wy, extra){
@@ -24770,15 +24791,45 @@ runAutoTest = async function(){
     `nearInt=${nearInt} midInt=${midInt} farReceived=${!!sigFar} nearScape=${scapeNearAcoustic.dominant} farScape=${scapeFarAcoustic.dominant}`);
 
   // ===================================================================
-  // 28.14 (3B stressResidue Lifecycle: Ceiling, Scape, & 8%/day Recovery)
-  // stressResidue accumulates from trauma, clamped strictly by 0.35 * maxStress;
-  // peaceful day recovers ~8%/day without depression loop; acute fire overrides residue.
+  // 28.14 (A2 Sleeping Guard Acoustic Interruption)
+  // SPEC E3 acceptance scenario: loud acoustic scream jolts sleeping guard awake
+  // (clearing sleep state and plan), while sleeper outside radius remains asleep.
+  // ===================================================================
+  const tSleepGuard = mk('T_SleepGuard', 110, 110, { role: 'guard' });
+  tSleepGuard.state = 'sleep';
+  tSleepGuard.plan = [{ verb: 'sleep', duration: 10 }];
+
+  const tSleepFar = mk('T_SleepFar', 180, 180, { role: 'guard' });
+  tSleepFar.state = 'sleep';
+  tSleepFar.plan = [{ verb: 'sleep', duration: 10 }];
+
+  // Propagate loud scream 6 cells away from tSleepGuard (well within R=25)
+  FeelingSubstrate.propagateSound({
+    kind: 'scream',
+    originX: (116 * CS + 16),
+    originY: (110 * CS + 16),
+    radius: 25,
+    sourceName: 'screamer'
+  });
+
+  const guardWoken = tSleepGuard.state !== 'sleep';
+  const farStillSleeping = tSleepFar.state === 'sleep';
+
+  const ok28_14 = guardWoken && farStillSleeping;
+  log(ok28_14, 'sleepingGuardAcousticInterruption28: A2 loud acoustic scream wakes sleeping guard within radius while distant sleeper stays asleep',
+    `guardState=${tSleepGuard.state} farState=${tSleepFar.state}`);
+
+  // ===================================================================
+  // 28.15 (3B stressResidue Lifecycle: Ceiling Clamp, Hard Assertion Throw & 3-Day Recovery)
+  // Trauma accumulates stressResidue strictly clamped to 0.35 * maxStress;
+  // assertCeiling actively throws error if ceiling breached;
+  // peaceful recovery recovers ~8%/day, dissipating almost completely within 3 days.
   // ===================================================================
   const tResiduePawn = mk('T_ResiduePawn', 200, 200);
   const maxStressVal = FeelingSubstrate.getMaxStress(tResiduePawn);
   const ceilingVal = 0.35 * maxStressVal;
 
-  // Severe trauma bombardment: multiple days
+  // Severe trauma bombardment over 72h
   for(let h = 0; h < 72; h += 0.5){
     tResiduePawn.hungerStressAcc = 1.0;
     tResiduePawn.body.stress = 1.0;
@@ -24788,6 +24839,16 @@ runAutoTest = async function(){
 
   const residueAtCeiling = FeelingSubstrate.getStressResidue(tResiduePawn);
   const okCeiling = (residueAtCeiling <= ceilingVal + 1e-6) && (residueAtCeiling >= ceilingVal - 1e-4);
+
+  // Active hard assertion check: deliberate ceiling violation must throw
+  let threwOnCeilingBreach = false;
+  try {
+    tResiduePawn.stressResidue = ceilingVal + 0.15;
+    FeelingSubstrate.assertCeiling(tResiduePawn);
+  } catch(err) {
+    threwOnCeilingBreach = true;
+  }
+  tResiduePawn.stressResidue = residueAtCeiling; // restore valid value
 
   // Background unease in peace
   tResiduePawn.body.satiety = 1.0;
@@ -24805,14 +24866,147 @@ runAutoTest = async function(){
   for(let t = 0; t < 48; t++) FeelingSubstrate.update(tResiduePawn, 0.5);
   const rAfter1Day = FeelingSubstrate.getStressResidue(tResiduePawn);
   const loss1Day = rStartHeal - rAfter1Day;
-  const okRecovery = Math.abs(loss1Day - 0.080) < 0.005;
+  const okRecovery1Day = Math.abs(loss1Day - 0.080) < 0.005;
 
-  const ok28_14 = okCeiling && okPeaceUnease && okRecovery;
-  log(ok28_14, 'stressResidueLifecycle28: 3B stressResidue ceiling (0.35*maxStress), background unease, and ~8%/day peaceful recovery',
-    `residue=${residueAtCeiling} ceiling=${ceilingVal} peaceScape=${peaceResidueScape.dominant} 1dayLoss=${loss1Day.toFixed(4)}`);
+  // 3-day recovery test: starting at 0.25, 3 peaceful days (72h) reduces residue to near zero
+  tResiduePawn.stressResidue = 0.2500;
+  for(let t = 0; t < 144; t++) FeelingSubstrate.update(tResiduePawn, 0.5); // 72 hours
+  const rAfter3Days = FeelingSubstrate.getStressResidue(tResiduePawn);
+  const okRecovery3Days = rAfter3Days <= 0.015;
+
+  const ok28_15 = okCeiling && threwOnCeilingBreach && okPeaceUnease && okRecovery1Day && okRecovery3Days;
+  log(ok28_15, 'stressResidueLifecycle28: 3B stressResidue ceiling clamp, assertCeiling throw on breach, and 3-day recovery to near-zero',
+    `residue=${residueAtCeiling} ceiling=${ceilingVal} threw=${threwOnCeilingBreach} 1dayLoss=${loss1Day.toFixed(4)} 3dayFinal=${rAfter3Days.toFixed(4)}`);
 
   // ===================================================================
-  // 28.15 (Entity Cleanup)
+  // 28.16 (NN1 Co-Channel Fire Deduplication & 3B WorkFactor Impact)
+  // Multi-system fire emissions in same tick (wildfireTick + survivalGuard)
+  // peak-held without double/triple counting; stressResidue slightly reduces workFactor.
+  // ===================================================================
+  const tMultiFire = mk('T_MultiFire', 60, 60);
+  tMultiFire.fearFatigueAcc = 0.0;
+  tMultiFire.x = 60 * CS + 16;
+  tMultiFire.y = 60 * CS + 16;
+
+  const fireTileMulti = { wx: 66, wy: 60, x: 66 * CS + 16, y: 60 * CS + 16, burnH: 5.0, kind: 'wildfire', t: 5.0 };
+  if(typeof BURNING !== 'undefined') BURNING.push(fireTileMulti);
+
+  // Run wildfireTick (emits threat_fire and propagates acoustic fire_roar)
+  if(typeof wildfireTick === 'function') wildfireTick(0.1);
+  const accAfterWildfire = tMultiFire.fearFatigueAcc;
+
+  // Run survivalGuard (detects same fire threat)
+  if(typeof survivalGuard === 'function') survivalGuard(tMultiFire);
+  const accAfterGuard = tMultiFire.fearFatigueAcc;
+
+  // Clean up burning tile
+  if(typeof BURNING !== 'undefined'){
+    const bIdx = BURNING.indexOf(fireTileMulti);
+    if(bIdx >= 0) BURNING.splice(bIdx, 1);
+  }
+
+  const noMultiCount = accAfterGuard <= 0.95 && (accAfterGuard === accAfterWildfire || accAfterGuard < accAfterWildfire + 0.1);
+
+  // WorkFactor reduction from stressResidue
+  const tWf = mk('T_WfCheck', 80, 80);
+  tWf.stressResidue = 0.0;
+  calcBodyFactors(tWf);
+  const wfBase = tWf.bodyWorkFactor;
+
+  tWf.stressResidue = 0.35; // max ceiling
+  calcBodyFactors(tWf);
+  const wfCeiling = tWf.bodyWorkFactor;
+
+  const wfSlightlyReduced = wfCeiling < wfBase && wfCeiling >= 0.85;
+
+  const ok28_16 = noMultiCount && (accAfterGuard > 0) && wfSlightlyReduced;
+  log(ok28_16, 'fireDedupAndWorkFactor28: NN1 multi-system fire emissions peak-held and stressResidue slightly reduces workFactor',
+    `accWildfire=${accAfterWildfire.toFixed(3)} accGuard=${accAfterGuard.toFixed(3)} wfBase=${wfBase} wfCeiling=${wfCeiling}`);
+
+  // ===================================================================
+  // 28.17 (Gareth Bravery Parity & Non-Gareth Negative Control in survivalGuard)
+  // Production-path behavioral parity test:
+  // Gareth (hunting=3) facing wolf when 2+ villagers are nearby stands ground (brave=true, does not flee);
+  // Negative control: non-Gareth villager with hunting=3 in exact same situation flees.
+  // ===================================================================
+  const garethPawn = VILLAGERS.find(v => v.name === 'Gareth');
+  const garethFound = !!garethPawn;
+  const garethHunting = garethPawn ? skillLvl(garethPawn, 'hunting') : 0;
+
+  let garethStoodGround = false;
+  let nonGarethFled = false;
+  let nonGarethHunting4Stood = false;
+
+  if(garethPawn){
+    // Preserve Gareth's complete state so canonical world remains strictly untouched
+    const origGx = garethPawn.x, origGy = garethPawn.y;
+    const origGPlan = garethPawn.plan ? garethPawn.plan.slice() : [];
+    const origGThoughts = garethPawn.thoughts ? garethPawn.thoughts.slice() : [];
+    const origGDanger = garethPawn.danger ? garethPawn.danger.slice() : [];
+    const origGSignals = garethPawn._recentSignals ? garethPawn._recentSignals.slice() : [];
+    const origGFearAcc = garethPawn.fearFatigueAcc;
+
+    // Place Gareth at test coordinates far from other settlement buildings
+    const twx = 350, twy = 350;
+    garethPawn.x = twx * CS + 16;
+    garethPawn.y = twy * CS + 16;
+    garethPawn.plan = [];
+
+    // Place 2 nearby villagers within 8 cells (e.g. 3 cells away)
+    const tAlly1 = mk('T_GarethAlly1', twx + 3, twy);
+    const tAlly2 = mk('T_GarethAlly2', twx - 3, twy);
+
+    // Spawn wolf 6 cells away (< 10 cells)
+    const tWolf = spawnAnimal('wolf', (twx + 6) * CS + 16, twy * CS + 16);
+
+    // Production-path invocation: survivalGuard on Gareth
+    survivalGuard(garethPawn);
+
+    // Gareth (hunting=3, name === 'Gareth') evaluates brave=true with 2+ allies -> does NOT flee
+    garethStoodGround = (!garethPawn.plan || garethPawn.plan.length === 0 || !garethPawn.plan[0].flee);
+
+    // Negative control: non-Gareth villager with hunting=3 in identical situation
+    const tNonGareth = mk('T_NonGarethControl', twx, twy);
+    ensureSkills(tNonGareth);
+    tNonGareth.skills.hunting.lvl = 3;
+    tNonGareth.plan = [];
+
+    // Production-path invocation: survivalGuard on negative control
+    survivalGuard(tNonGareth);
+
+    // Negative control evaluates brave=false -> flees to shelter with guard:true and flee:true
+    nonGarethFled = (tNonGareth.plan && tNonGareth.plan.length > 0 && tNonGareth.plan[0].flee === true);
+
+    // Positive control confirmation: non-Gareth villager with hunting=4 in identical situation stands ground
+    const tExpertHunter = mk('T_ExpertHunterControl', twx, twy);
+    ensureSkills(tExpertHunter);
+    tExpertHunter.skills.hunting.lvl = 4;
+    tExpertHunter.plan = [];
+    survivalGuard(tExpertHunter);
+    nonGarethHunting4Stood = (!tExpertHunter.plan || tExpertHunter.plan.length === 0 || !tExpertHunter.plan[0].flee);
+
+    // Clean up temporary animal
+    if(typeof ANIMALS !== 'undefined'){
+      const wIdx = ANIMALS.indexOf(tWolf);
+      if(wIdx >= 0) ANIMALS.splice(wIdx, 1);
+    }
+
+    // Fully restore Gareth's original state
+    garethPawn.x = origGx;
+    garethPawn.y = origGy;
+    garethPawn.plan = origGPlan;
+    garethPawn.thoughts = origGThoughts;
+    garethPawn.danger = origGDanger;
+    garethPawn._recentSignals = origGSignals;
+    garethPawn.fearFatigueAcc = origGFearAcc;
+  }
+
+  const ok28_17 = garethFound && (garethHunting === 3) && garethStoodGround && nonGarethFled && nonGarethHunting4Stood;
+  log(ok28_17, 'garethBraveryParity28: Gareth (hunting=3) stands ground vs wolf with 2+ allies while non-Gareth control flees',
+    `found=${garethFound} garethHunting=${garethHunting} garethStood=${garethStoodGround} controlFled=${nonGarethFled} hunter4Stood=${nonGarethHunting4Stood}`);
+
+  // ===================================================================
+  // 28.18 (Entity Cleanup)
   // All test entities cleaned up; canonical settlement untouched.
   // ===================================================================
   const countBefore = madeNames.length;
@@ -24820,8 +25014,8 @@ runAutoTest = async function(){
   const countAfter = madeNames.length;
   const canonicalUntouched = VILLAGERS.every(v => !v.name.startsWith('T_'));
 
-  const ok28_15 = countBefore > 0 && countAfter === 0 && canonicalUntouched;
-  log(ok28_15, 'cleanup28: All temporary test villagers cleaned up with canonical settlement preserved',
+  const ok28_18 = countBefore > 0 && countAfter === 0 && canonicalUntouched;
+  log(ok28_18, 'cleanup28: All temporary test villagers cleaned up with canonical settlement preserved',
     `cleaned=${countBefore} remaining=${countAfter} canonicalSafe=${canonicalUntouched}`);
 
   // Summary banner for harness parsing

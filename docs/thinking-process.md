@@ -579,3 +579,14 @@ Phase 6D hoàn thành trong 4 task nối tiếp (D1 → D2 → D3 → 27_autotes
 **Chi tiết đáng ghi:** Examiner lần chạy đầu assert sai (tưởng nạn nhân phải nghe tiếng thét của chính mình) — code đúng vật lý (source exclusion), test sai. Examiner tự sửa test thay vì báo bug giả. Đây là mặt tốt của "verify bằng code tự chạy": cả verifier cũng có thể sai, và việc chạy code bắt được sai lầm của chính verifier.
 
 **Nợ triết lý nhỏ (N-a/N-b):** ADR-003 viết "derived from body/mind" và "8%/ngày" nhưng implement là default 1.0 và linear −0.08/ngày. Cả hai đều thỏa hệ quả kiểm chứng được (ceiling thật, 3 ngày → ≈0). Ghi nhận: spec nên viết theo hệ quả đo được, không viết theo ý định mơ hồ — bài học cho SPEC_PHASE7.
+
+## 2026-09-16 — 6E E4: verifier cũng có thể sai — và Gareth có thật
+
+**Sự cố:** E4 xóa `|| v.name === 'Gareth'` vì tin "Gareth không tồn tại" — tiền đề từ chính doc fix 782b3ca mà lead duyệt hôm qua. Examiner chạy code: Gareth là Wandering Knight thật từ commit đầu, canonical 11 dân làng không phải 9. Regression: Gareth từ dám chống sói thành bỏ chạy.
+
+**Ba lớp bài học:**
+1. **Verify tiền đề bằng code trước khi xóa.** Không xóa code đặc thù dựa trên trí nhớ/doc — doc cũng có thể sai, và sai lầm của doc hôm qua suýt thành regression hôm nay.
+2. **Verifier cũng sai được.** Ở E3, Examiner assert sai (tưởng nạn nhân phải nghe tiếng thét của chính mình) rồi tự sửa test. Ở E4 re-audit, Examiner lại assert sai (tưởng Gareth đi một mình cũng phải đứng) rồi tự sửa. "Verify bằng code" không có nghĩa verifier bất khả sai — nó có nghĩa sai lầm bị code bắt được, kể cả sai lầm của người verify.
+3. **Doc là claim, không phải bằng chứng.** GAME_DESCRIPTION từng viết "9 dân làng" trong khi code spawn 11. Từ nay doc roster phải được generate/verify từ `03_roster.js`, không viết tay.
+
+**Phase 6E khép lại:** 4 slices, 2 FAIL (E2 wiring chết, E4 Gareth regression) đều bắt được bởi Examiner, đều fix trong attempt budget. Harness cuối 282 lines 0 FAIL.
