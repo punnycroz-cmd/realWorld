@@ -730,3 +730,30 @@ Phase 6D 'Con người không hoàn hảo' done in 4 checkpointed sub-tasks (4h 
 - **Non-blocking debts carried (Examiner flagged, lead corrected in .phase6d_progress.md):** (1) "3 proto-norms" is really theft-only in gameplay — child-harm/neglect + fire-refusal are dead API (spec scoped them as seeds, so acceptance stands; needs real triggers in Phase 7 or explicit descope). (2) Ostracism is instant village-wide, contradicts local-belief principle — Phase 7 design debt. (3) fillRoleVacancy has no production caller (dormant until AI brain). (4) Salt "exclusivity" = caravan introduces NEW salt; doSellStep can recycle existing salt into SHOP.stock (conserved, no arbitrage). (5) Latent: getWeeklyConsumption name filter excludes T24_/T25_/T26_ but not T27_.
 - Pre-existing debts still open: __uvUtilityBase dead capture; test modules bundled into shipped game; pre-existing Math.random in ui/10_controls.js:38; presence-expectation still 0 callers.
 - Bundle 975,955 bytes. Next: remove checkpoint watchdog; Phase 6E per adaptation 1B/Beta/3B (NOT started).
+
+---
+
+## 2026-09-16 — Phase 6E bắt đầu: SPEC + slice E1 (substrate interface + A3 + D1) — Examiner PASS
+
+### SPEC_PHASE6E.md
+- User duyệt "Ok do it" 2026-09-16 sau khi hỏi "6E là gì". Spec viết theo format SPEC_PHASE6.md: E1 (substrate interface + lint + A3 + D1) → E2 (12 qualities + WHY HUD chữ) → E3 (hearing + stressResidue) → E4 (Part 28 + harness). KHÔNG LÀM: smell, voice lines, dream narrative, 12 chemicals, PTSD.
+- Triết lý ranh giới (user hỏi, đã chốt): sim = tín hiệu cơ thể (Tầng 1); AI brain sau này = ý nghĩa/câu chuyện (Tầng 2). Substrate interface là hợp đồng AI brain sẽ đọc.
+
+### E1 — Robin implement
+- `src/brain/14_substrate.js` (mới): `FeelingSubstrate` — `feel(v)`, `getLayers(v)`, `getFeelingScape(v)` (placeholder 4-quality, E2 mở rộng 12). Delegate về body state + D1 couplings. Đăng ký `src/_order.txt`, ghi `src/MANIFEST.md`.
+- S2 lint rule cấm `v.body.` trong `src/brain/**`: check trong `scripts/build_willowbrook_natura.py` (fail build exit 1) + `FeelingSubstrate.lintBrainCode` cho test. Audit codebase: đúng 2 dòng legacy allowlist tại `src/brain/09_bridge.js:32,35`.
+- A3: `WORLD_EVENT_SIGNAL_TABLE` — 22 event kinds → signal `{kind, intensity, source, tick, domain, affect, metadata}`; `normalizeEvent` + `receiveSignal` (ring buffer `_recentSignals` cap 8).
+- D1: 3 decay accumulators dt-scaled (`v.hungerStressAcc`, `v.fearFatigueAcc`, `v.painPatienceAcc`): đói→stress (satiety<0.35, decay 0.5/h), fear→fatigue rate tăng ~3h (decay 0.215/h), pain→patience (pain>0.15, decay 0.5/h → social utility penalty).
+- Dispatch lần 1 chết yểu (không ghi đĩa, không checkpoint — lỗi transient, agy smoke-test OK, không tốn quota); dispatch lại với prompt lưu trong project (`.phase6e_e1_prompt.txt`) thì chạy xong ~7.6 phút.
+
+### Examiner Tier-3 audit — PASS ngay attempt đầu, không cần fix round
+- Tự chạy `node devtools/probe_6e_e1.js`: 9/9 PASS trên production bundle.
+- Bypass-test đối kháng: chèn `v.body.sneaky = 1;` vào `src/brain/utility.js` → `check_substrate_lint()` SystemExit(1) đúng dòng 1505; revert byte-clean.
+- Probe độc lập 14 assertions: đói 6h acc 0.1288→0.2536 đơn điệu, ăn no → đúng 0; wolf signal → fearFatigueAcc=0.900, fatigue rate tăng giờ 1–3, giờ 4 về baseline (<1e-12); wounded patience 0.513 vs 1.0, social penalty 14.61 điểm; khỏi bệnh → patience đúng 1.0.
+- Determinism tick-size: max error 1.11e-16 (< 1e-12). Không `Math.random()` mới. Bundle rebuild byte-identical (md5 `a317a01206d1ff479f948b50fb0d58f7`).
+- Full harness: **272 lines, 0 FAIL**, part28 8/8. Test entities dọn sạch.
+- Non-blocking: N1 lint chỉ match literal `v.body.` (bracket access `v['body']` lọt — chưa có code nào dùng, đề xuất harden slice sau); N2 `v.mood` suy từ stress (khớp derivation cũ ở `02_body.js:180`); N3 scape placeholder 4-quality (đúng spec E1); N4 `domain==='danger'` nào cũng route vào fearFatigueAcc (lựa chọn thiết kế có chủ ý).
+- Lead tự chạy lại probe: 9/9 PASS.
+
+### Bài học
+- **Dispatch chết yểu không checkpoint là mất trắng** — lần 1 mất cả task vì chưa kịp ghi gì. Quy tắc mới: prompt dispatch lưu trong project (không /tmp), checkpoint "ghi sớm, ghi thường xuyên" đã được nhấn mạnh trong brief E1 lần 2.

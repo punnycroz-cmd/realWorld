@@ -781,6 +781,13 @@ function scoreCandidateAction(v, c){
     if(p.traits.includes('sociable') || p.sociable > 1.2) score += 20 * (p.sociable || 1.5);
     if(p.traits.includes('solitary') || p.solitary > 1.2) score -= 20 * (p.solitary || 1.5);
     if(hour >= 17 && hour < 21) score += 15;
+    // Phase 6E (D1 Coupling 3): Pain -> Patience -> Social Utility modifier (C2 explicit conditional)
+    if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.getPatience === 'function'){
+      const patience = FeelingSubstrate.getPatience(v);
+      if(patience < 1.0){
+        score -= (1.0 - patience) * 30.0;
+      }
+    }
     return score;
   }
 

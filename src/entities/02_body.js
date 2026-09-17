@@ -292,4 +292,9 @@ function updateDerivedEmotions(v, dtH){
   if(b.satiety >= 0.55 && b.hydration >= 0.55 && b.fatigue <= 0.45 && totalSuffering < 0.15){
     recordOrUpdateEmotion(v, 'content', 0.6);
   }
+
+  // 5. Phase 6E: FeelingSubstrate & D1 decay accumulators update
+  if(typeof FeelingSubstrate !== 'undefined' && typeof FeelingSubstrate.update === 'function'){
+    FeelingSubstrate.update(v, dt);
+  }
 }

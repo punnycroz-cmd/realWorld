@@ -551,3 +551,13 @@ Phase 6D hoàn thành trong 4 task nối tiếp (D1 → D2 → D3 → 27_autotes
 **Bài học thứ hai: đừng tin worker summary, kể cả khi số liệu đẹp.** Task 3 báo probe 31/31 — lead tự viết probe riêng và phát hiện assert vacancy của mình cũng vacuous (winner undefined vì chưa hiểu API trả `res.winner`). Sửa probe thành case có ý nghĩa (thief hunting 5 vs honest 3 → honest thắng, thief score -1) mới thực sự test T2. Examiner cũng verify lại tất cả bằng probe riêng.
 **Bài học thứ ba: checkpoint phải được sửa khi audit chứng minh nó sai.** Lead từng ghi "child harm → collapse trust" như feature đã chạy; Examiner chứng minh child-harm/fire-refusal là dead API (0 production caller). Sửa checkpoint ngay, không để claim sai tồn tại. Acceptance vẫn đứng vì spec đã scope "gieo mầm" — nhưng hồ sơ phải trung thực.
 **Thiết kế:** reputation = danh sách lý do có decay (không phải số đơn) — đúng khuyến nghị từ bài học Hearth. Ostracism toàn-làng ngay lập tức vi phạm nguyên tắc "villager chỉ biết qua giác quan trung thực" — nợ thiết kế Phase 7 (scope ostracism theo local belief/gossip propagation).
+
+## 2026-09-16 — Phase 6E bắt đầu: E1 PASS ngay audit đầu
+
+**Bối cảnh:** User hỏi "6E là gì" → giải thích 1B/Beta/3B → user hỏi ranh giới triết lý "sim chỉ mô phỏng vật lý/sinh lý, tâm lý/hành động có giao hết cho AI brain không?" → chốt 3 tầng: Tầng 1 sim = tín hiệu cơ thể (deterministic); Tầng 2 AI brain sau này = ý nghĩa/câu chuyện; ranh giới = tín hiệu vs câu chuyện. User: "vậy thì quá trình hiện tại cứ tiếp tục?" → tiếp tục, vì 6E chính là Tầng 1 + hợp đồng AI brain sẽ đọc.
+
+**E1 (substrate interface + A3 + D1):** Robin implement → Examiner Tier-3 PASS ngay attempt đầu (probe độc lập 14 assertions, bypass-test lint đối kháng, determinism 1.11e-16, harness 272 lines 0 FAIL). Không cần fix round — giống 6D, khác 6C (6C cần 2 rounds vì bug "green tests but dead gameplay").
+
+**Nợ phi-blocking Examiner để lại cho E2+:** (1) lint chỉ match literal `v.body.` — bracket access lọt, chưa có code nào dùng; (2) `v.mood` suy từ stress — E2 aware; (3) scape placeholder 4-quality — E2 mở rộng 12; (4) mọi `domain==='danger'` route vào fearFatigueAcc — lựa chọn có chủ ý, ghi nhận.
+
+**Bài học dispatch:** run đầu chết yểu không để lại gì vì checkpoint chưa kịp ghi — từ nay prompt dispatch lưu trong project (`.phase6e_e1_prompt.txt`), brief nhấn mạnh "ghi sớm, ghi thường xuyên". Transient failure không tốn quota (không sinh token), tốn là thời gian lead phải canh.

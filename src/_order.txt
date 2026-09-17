@@ -25,6 +25,7 @@ brain/13a_intent.js
 systems/13b_economy.js
 systems/13c_butcher.js
 tests/13_autotest.js
+brain/14_substrate.js
 systems/14a_medical.js
 systems/14b_rescue.js
 entities/14c_wildlife.js
@@ -60,3 +61,4 @@ tests/24_autotest.js
 tests/25_autotest.js
 tests/26_autotest.js
 tests/27_autotest.js
+tests/28_autotest.js
