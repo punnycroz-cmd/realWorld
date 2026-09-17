@@ -360,8 +360,8 @@ function filterAttention(v, stimulus, details = {}){
 
   if(details.bypassAttention === true) return { attended: true, gate: 0, reason: 'bypassed' };
 
-  // Cổng 1 — Cảm giác đột biến: lửa mất kiểm soát (wildfire), tiếng thét, sói/gấu hostile
-  // -> preemptive interrupt, cướp quyền chú ý ngay lập tức, đặt flag để utility re-plan.
+  // Gate 1 — Sudden sensation: uncontrolled fire (wildfire), screams, hostile wolves/bears
+  // -> preemptive interrupt, seizes attention immediately, sets flag for utility re-plan.
   // Exception: Douse plans are not wiped by the fire being fought.
   if(isGate1Threat(stimulus) || isGate1Threat(details)){
     const isFire = isWildfireStimulus(stimulus) || isWildfireStimulus(details);
@@ -381,15 +381,15 @@ function filterAttention(v, stimulus, details = {}){
     return { attended: true, gate: 1, preemptive: true, reason: 'sudden_threat' };
   }
 
-  // Cổng 2 — Trạng thái khẩn cấp: need sinh học >75%
-  // -> tunnel vision, lọc bỏ mọi vật thể không giải quyết cơn đói/khát/mệt/rét.
+  // Gate 2 — Emergency state: biological need >75%
+  // -> tunnel vision, filters out every object that does not resolve hunger/thirst/fatigue/cold.
   const urgent = getUrgentNeeds(v);
   if(urgent.length > 0){
     const solves = urgent.some(need => stimulusSolvesNeed(stimulus, need));
     if(solves){
       return { attended: true, gate: 2, reason: 'solves_urgent_need', urgentNeeds: urgent };
     } else {
-      // Irrelevant = background noise, KHÔNG ghi memory
+      // Irrelevant = background noise, NOT written to memory
       return { attended: false, gate: 2, reason: 'tunnel_vision_noise', urgentNeeds: urgent };
     }
   }
@@ -403,8 +403,8 @@ function filterAttention(v, stimulus, details = {}){
     return { attended: true, gate: 3, reason: 'identity_high_salience', effectiveSalience, idMult };
   }
 
-  // Cổng 3 — Mục tiêu hiện tại (top-down relevance):
-  // Chỉ vật thể/sự kiện liên quan việc đang làm dở mới được vào interpretation + memory.
+  // Gate 3 — Current goal (top-down relevance):
+  // Only objects/events relevant to the interrupted task enter interpretation + memory.
   if(!isRelevantToCurrentGoal(v, stimulus, details)){
     return { attended: false, gate: 3, reason: 'goal_irrelevant_noise', idMult };
   }

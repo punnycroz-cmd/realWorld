@@ -546,7 +546,7 @@ function checkExpectation(v, subject, attribute, actualValue, context = {}){
     return { match: true, surprise: 0, confidence: exp.confidence };
   }
 
-  // 1. Group 1: Price (nối systems/13b_economy.js)
+  // 1. Group 1: Price (links systems/13b_economy.js)
   if(attribute === 'price'){
     const predPrice = Number(exp.predictedValue);
     const actPrice = Number(actualValue);
@@ -555,12 +555,12 @@ function checkExpectation(v, subject, attribute, actualValue, context = {}){
     const isShock = (diff > 1 && diff >= predPrice * 0.3) || diff >= 5;
 
     if(!isShock){
-      // Tri giác khớp dự đoán -> +confidence, tốn 0 xử lý
+      // Perception matches prediction -> +confidence, costs 0 processing
       exp.confidence = Math.min(1.0, +(exp.confidence + 0.05).toFixed(4));
       return { match: true, surprise: 0, confidence: exp.confidence };
     }
 
-    // Lệch quá ngưỡng -> sự kiện SURPRISE = |thực tế − dự đoán| × confidence
+    // Over threshold -> SURPRISE event = |actual − predicted| × confidence
     const surprise = +(diff * exp.confidence).toFixed(2);
     const emotionTag = actPrice > predPrice ? 'disappointed' : 'pleased';
 
@@ -576,7 +576,7 @@ function checkExpectation(v, subject, attribute, actualValue, context = {}){
       val: actPrice > predPrice ? -3 : 2
     });
 
-    // Ép update Epistemic Store
+    // Force-update Epistemic Store
     observe(v, { subject, attribute, oldPrice: predPrice, newPrice: actPrice, surprise, emotion: emotionTag }, {
       topic: `price_${subject}`,
       source: 'direct',
@@ -589,7 +589,7 @@ function checkExpectation(v, subject, attribute, actualValue, context = {}){
     exp.predictedValue = actPrice;
     exp.learnedTick = now;
 
-    // Gọi re-plan
+    // Trigger re-plan
     v.replanNeeded = true;
     v.interrupted = true;
     v.lastSurprise = { subject, attribute, surprise, emotion: emotionTag, diff, when: now };
@@ -624,7 +624,7 @@ function checkExpectation(v, subject, attribute, actualValue, context = {}){
     v.thoughts = v.thoughts || [];
     v.thoughts.push({ text: `Where is the ${subject}? It was supposed to be here!`, val: -3 });
 
-    // Update epistemic store: supersede old belief có lưu vết lịch sử
+    // Update epistemic store: supersede old belief keeping a history trace
     const topic = context.topic || `stash_${subject}`;
     const oldBelief = v.epistemic.beliefs[topic];
     const newMem = observe(v, { subject, attribute, status: 'missing', empty: true, surprise }, {
@@ -653,7 +653,7 @@ function checkExpectation(v, subject, attribute, actualValue, context = {}){
     return { match: false, surprise, emotion: emotionTag, replan: true, newMemory: newMem };
   }
 
-  // 3. Group 3: Presence (sự hiện diện người thân)
+  // 3. Group 3: Presence (presence of kin)
   if(attribute === 'presence'){
     const predPresence = Boolean(exp.predictedValue);
     const actPresence = Boolean(actualValue);

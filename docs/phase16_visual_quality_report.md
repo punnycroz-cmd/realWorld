@@ -66,7 +66,7 @@ The monolithic `character_generator.js` has been dismantled into **8 dedicated d
 
 ### 5. Mandatory Deliverables Index
 - **Audit**: [docs/phase16_renderer_audit.md](file:///Users/sema/Downloads/realWorld-main/docs/phase16_renderer_audit.md)
-- **Resolution Study**: [docs/phase16_resolution_study.md](file:///Users/sema/Downloads/realWorld-main/docs/phase16_resolution_study.md)
+- **Resolution Study**: [archive/phase16_resolution_study.md](archive/phase16_resolution_study.md)
 - **Interactive Reference Comparison Tool**: [art/showcase/reference_comparison.html](file:///Users/sema/Downloads/realWorld-main/art/showcase/reference_comparison.html)
 - **Silhouette Diversity Sheet**: [art/showcase/silhouette_sheet.png](file:///Users/sema/Downloads/realWorld-main/art/showcase/silhouette_sheet.png)
 - **Face Quality Sheet**: [art/showcase/face_quality_sheet.png](file:///Users/sema/Downloads/realWorld-main/art/showcase/face_quality_sheet.png)

@@ -1,116 +1,116 @@
-# SPEC PHASE 7 — "Xã hội có thể chế"
-_Ngày: 2026-09-17. Trạng thái: SPEC (chờ EP duyệt). Điều kiện tiên quyết: Phase 6E đã close (commit f3a41b7)._
+# SPEC PHASE 7 — "Institutional Society"
+_Date: 2026-09-17. Status: SPEC (awaiting EP approval). Prerequisite: Phase 6E closed (commit f3a41b7)._
 
-## Tài liệu gốc (đọc trước khi implement)
+## Source documents (read before implementing)
 
-- `docs/thinking-process.md` **Phần 4** — 9 nguyên tắc dẫn đường (ràng buộc bắt buộc, tóm tắt bên dưới).
-- `docs/thinking-process.md` **Phần 7** — Adaptation Master Doc + hội đồng 4 persona vòng 3 (12 chemicals, cross-effects, feedback vòng kín, grief bounded).
-- `docs/ADAPT_D1-D4_DETAIL.md` — D1: 12 chất + 17 cặp cross-effects (tên chất, chuỗi nhân quả mẫu).
-- `docs/adr/ADR-001-substrate-interface.md` — rewrite gom vào một implementation, KHÔNG hứa "swap êm".
-- `.phase6e_progress.md` — contract E1→E4 (FeelingSubstrate API, signal table, acoustic falloff, stressResidue).
-- Nợ Phase 6D (WORK_LOG.md): 5 món chưa xong (xem 7E).
+- `docs/PRINCIPLES.md` — 9 guiding principles (mandatory constraints, summarized below; extracted verbatim from Part 4 of `docs/archive/thinking-process.md`).
+- `docs/archive/thinking-process.md` **Part 7** — Adaptation Master Doc + round-3 four-persona council (12 chemicals, cross-effects, closed feedback loops, bounded grief).
+- `docs/archive/ADAPT_D1-D4_DETAIL.md` — D1: 12 chemicals + 17 cross-effect pairs (chemical names, sample causal chains).
+- `docs/adr/ADR-001-substrate-interface.md` — rewrite consolidated into one implementation, NO "smooth swap" promise.
+- `docs/archive/checkpoints/.phase6e_progress.md` — E1→E4 contract (FeelingSubstrate API, signal table, acoustic falloff, stressResidue).
+- Phase 6D debt (WORK_LOG.md): 5 items outstanding (see 7E).
 
-## Ràng buộc bất biến
+## Immutable constraints
 
-**Kế thừa Phase 6 (tóm tắt):** cấm hoàn hảo hóa là luật tối cao — mỗi tính năng phải chứng minh tạo câu chuyện mà hệ cũ không tạo được (điều kiện Ông đồ); hai ngưỡng sinh học (~80% trade-off / ~85–90% override, giữ highest-need-wins); chết ngu phải có logic nội tâm; bảo toàn vật chất tuyệt đối; Belief ≠ truth (3–5 tuples, không pointer tới hidden truth); bounded (không Bayes đầy đủ, không lập pháp dân chủ, không mặc cả/lạm phát/tín dụng — đó là Phase 8); lát cắt mỏng, không waterfall; gieo cultural priors, không đòi 100% emergence.
+**Inheriting Phase 6 (summary):** the no-perfecting rule is the supreme law — every feature must prove it creates a story the old system could not create (the Scholar condition); two biological thresholds (~80% trade-off / ~85–90% override, highest-need-wins preserved); stupid deaths must have inner logic; absolute material conservation; Belief ≠ truth (3–5 tuples, no pointer to hidden truth); bounded (no full Bayes, no democratic legislation, no haggling/inflation/credit — that's Phase 8); thin slices, no waterfall; plant cultural priors, don't demand 100% emergence.
 
-**Bài học 6E thành luật:**
-1. **Không xóa code đặc thù nhân vật khi tiền đề chưa verify bằng code** (vụ Gareth: doc viết "không tồn tại" trong khi code spawn 11 dân làng).
-2. **Doc roster phải verify từ `src/data/03_roster.js`**, không viết tay.
-3. **Spec viết theo hệ quả đo được**, không viết theo ý định mơ hồ ("8%/ngày" mơ hồ → implement linear; phải ghi "giảm 0.08/ngày, 3 ngày → ≈0").
-4. **Brief càng tường minh càng ít correction round** (E3: 0 round; E2: 1 round vì chữ "production-path" mơ hồ).
-5. **Verifier cũng có thể sai** — code chạy là trọng tài cuối, kể cả với sai lầm của người verify.
+**6E lessons become law:**
+1. **Don't delete character-specific code before the premise is verified in code** (the Gareth incident: the doc said "doesn't exist" while the code spawned 11 villagers).
+2. **Doc rosters must be verified from `src/data/03_roster.js`**, never hand-written.
+3. **Write specs as measurable consequences**, not vague intent ("8%/day" is vague → the implementer made it linear; it must say "decreases 0.08/day, 3 days → ≈0").
+4. **The more explicit the brief, the fewer correction rounds** (E3: 0 rounds; E2: 1 round because the word "production-path" was vague).
+5. **The verifier can be wrong too** — running code is the final arbiter, even over the verifier's mistakes.
 
-**Quy trình:** SPEC này EP duyệt → mỗi slice: Robin implement → Examiner Tier-3 audit → tối đa 2 fix rounds → re-audit PASS → commit riêng → slice tiếp.
-
----
-
-## 7A — Tòa án phong tục & Guilds
-
-### LÀM
-- **Customary court:** khi proto-norm bị vi phạm (theft đã wire 6D; child-harm/neglect/fire-refusal sau 7E), KHÔNG phạt tự động — mở phiên xử: nguyên đơn, bị cáo, nhân chứng (chỉ người thực sự chứng kiến qua senses — local belief, nối 7E.2). Trưởng lão chủ trì (lớn tuổi nhất / reputation cao nhất). Phán quyết: bồi thường (restitution), lao động công ích, hoặc trục xuất. Mỗi lời khai là belief tuple có source → có thể sai, thiên vị, quên (fidelity trait).
-- **Guilds:** 3 guild theo nghề (smith, baker, farmer): membership list, apprenticeship (học việc làm cùng master tăng skill nhanh hơn tự học — đo được), bán hàng theo bloc với caravan được giá tốt hơn bán lẻ (nối 6D scarcity pricing).
-
-### KHÔNG LÀM
-Luật thành văn; bỏ phiếu dân chủ; cảnh sát chuyên nghiệp; nhà tù; guild độc quyền ép giá dân làng.
-
-### Tiêu chí nghiệm thu (Examiner Tier-3, production-path, có negative control)
-- Vụ trộm oan: nhân chứng mang belief sai (nhớ nhầm) → tòa phạt nhầm người → nạn nhân oan sinh grievance → câu chuyện trả thù xuất hiện (Ông đồ: hệ cũ không tạo được).
-- Học việc 30 ngày tăng skill hơn tự học (đo số); người ngoài guild không được bonus.
-- Guild bán bloc 10 bánh cho caravan giá/unit cao hơn bán lẻ (đo số).
+**Process:** this SPEC gets EP approval → per slice: Robin implements → Examiner Tier-3 audit → max 2 fix rounds → re-audit PASS → separate commit → next slice.
 
 ---
 
-## 7B — Thừa kế & Tang lễ/Lễ nghi
+## 7A — Customary court & Guilds
 
-### LÀM
-- **Inheritance:** chết → tài sản (inventory, nhà, công cụ) chuyển cho vợ/chồng → con → họ hàng gần nhất → của chung làng. Hai người cùng claim → đưa ra tòa 7A phân xử.
-- **Funeral rite:** tang lễ 1–2 ngày sau khi chết; người tham dự nhận cohesion↑ (oxytocin), người thân nhận grief bounded (nối 7C). Bỏ tang người mình ghét → gossip/reputation consequence.
-- **Harvest festival:** theo mùa, tốn food thật (bảo toàn vật chất), morale↑ cả làng.
-- **Rain ritual khi hạn hán:** belief-only — KHÔNG có hiệu ứng thật lên thời tiết (trung thực: mê tín là belief, không phải mechanic); nhưng cùng làm lễ tăng cohesion vì hoạt động tập thể.
+### DO
+- **Customary court:** when a proto-norm is violated (theft already wired in 6D; child-harm/neglect/fire-refusal after 7E), NO automatic punishment — open a hearing: plaintiff, defendant, witnesses (only people who actually witnessed through their senses — local belief, connects to 7E.2). The elder presides (oldest / highest reputation). Verdict: restitution, community service, or exile. Each testimony is a belief tuple with a source → can be wrong, biased, forgotten (fidelity trait).
+- **Guilds:** 3 guilds by craft (smith, baker, farmer): membership list, apprenticeship (an apprentice working alongside a master gains skill faster than self-study — measurable), selling to caravans as a bloc fetches a better price than retail (connects to 6D scarcity pricing).
 
-### KHÔNG LÀM
-Ma thuật có tác dụng thật; tôn giáo có tổ chức (priest class); cưới hỏi phức tạp (đã có marriage 6E).
+### NOT DOING
+Written law; democratic voting; professional police; prison; guilds squeezing villagers with monopoly pricing.
 
-### Tiêu chí nghiệm thu
-- Tranh chấp di sản (2 claim) → court 7A phân xử, người thua chấp nhận hoặc grievance (có vết).
-- Góa phụ dự tang lễ: grief tan nhanh hơn góa phụ không dự (đo số, bounded — xem 7C).
-- Rain ritual 7 ngày hạn hán → lượng mưa không đổi (negative control) nhưng cohesion attendees tăng.
+### Acceptance criteria (Examiner Tier-3, production-path, with negative control)
+- Wrongful theft case: a witness carrying a wrong belief (misremembered) → the court punishes the wrong person → the wronged victim develops a grievance → a revenge story emerges (the Scholar: the old system could not create it).
+- 30-day apprenticeship raises skill more than self-study (measured numerically); non-guild members get no bonus.
+- Guild bloc sale of 10 loaves to a caravan gets a higher per-unit price than retail (measured numerically).
 
 ---
 
-## 7C — Substrate 12 chemicals (rewrite sau interface)
+## 7B — Inheritance & Funerals/Rituals
 
-### LÀM
-- **Rewrite implementation** sau `FeelingSubstrate` interface (ADR-001): gom vào MỘT implementation mới, 3 accumulator cũ retired. KHÔNG hứa "swap êm" — Thợ cả đã cảnh báo: phân phối tín hiệu sẽ đổi, đây là rewrite có kiểm soát, không phải tráo đổi vô hình.
-- **12 chất:** ghrelin, leptin (đói/no), cortisol, adrenaline (stress/sợ), dopamine, serotonin (thưởng/ổn định), oxytocin (xã hội), substanceP, endorphin (đau/giảm đau), adenosine, melatonin, histamine (ngủ/thức). Mỗi chất: production − decay riêng, dt-scaled, deterministic, bounded (không ratchet — bài học Hearth misery −100).
-- **17 cặp cross-effects** (adrenaline→cortisol+, oxytocin→cortisol−, ...) + **feedback vòng kín** (yêu cầu của Nhà sinh thái): cortisol cao kéo dài đè serotonin; dopamine↑ củng cố habit loop. Không còn "toàn mũi tên một chiều".
-- **Tham số tune từ hành vi quan sát được:** mỗi hằng số phải có comment "tune từ scenario X" — cấm bịa số rồi hy vọng (ADAPT_D1).
-- **Grief bounded (trả lời Ông đồ):** chết người thân → serotonin↓/dopamine↓ kéo dài, hard cap N ngày, decay tự nhiên, tăng tốc hồi phục khi dự tang lễ (7B) + tiếp xúc xã hội (oxytocin). Không vòng lặp vĩnh viễn, không depression system.
-- Output vẫn đúng **12 qualities** vocabulary; AI brain sau này vẫn chỉ đọc qualities (A4) — interface với AI không đổi.
+### DO
+- **Inheritance:** on death → assets (inventory, house, tools) pass to spouse → children → nearest kin → village commons. Two people claiming the same → the 7A court adjudicates.
+- **Funeral rite:** funeral 1–2 days after death; attendees gain cohesion↑ (oxytocin), close kin gain bounded grief (connects to 7C). Skipping the funeral of someone you hated → gossip/reputation consequences.
+- **Harvest festival:** seasonal, costs real food (material conservation), morale↑ for the whole village.
+- **Rain ritual during drought:** belief-only — NO real effect on the weather (honest: superstition is belief, not a mechanic); but performing it together raises cohesion because it's a collective activity.
 
-### KHÔNG LÀM
-Chất thứ 13; depression/PTSD system; organ simulation (D2 đã chốt vocabulary-only); dream narrative.
+### NOT DOING
+Real-effect magic; organized religion (priest class); complex weddings (marriage already in 6E).
 
-### Tiêu chí nghiệm thu
-- 3 chuỗi nhân quả mẫu tái hiện được: đói→stress→cáu; yêu→bình an; sợ→kiệt sức (so từng bước với bảng ADAPT_D1).
-- Grief bounded: góa phụ sau 14 ngày không còn dominant grief quality (đo số); không chất nào chạm cực trị trong soak 30 ngày (chống ratchet).
-- **Parity:** mọi probe 6E (E1/E2/E3/eyeread) chạy lại xanh sau rewrite — qualities quan sát được không vỡ.
-- Mỗi hằng số có comment nguồn tune; hằng số không nguồn = FAIL.
+### Acceptance criteria
+- Inheritance dispute (2 claims) → the 7A court adjudicates; the loser accepts or holds a grievance (with a trace).
+- Widow attending the funeral: grief dissipates faster than a widow who didn't attend (measured numerically, bounded — see 7C).
+- Rain ritual after 7 drought days → rainfall unchanged (negative control) but attendees' cohesion rises.
+
+---
+
+## 7C — Substrate 12 chemicals (post-interface rewrite)
+
+### DO
+- **Rewrite the implementation** behind the `FeelingSubstrate` interface (ADR-001): consolidate into ONE new implementation, retire the 3 old accumulators. NO "smooth swap" promise — the Master Craftsman already warned: the signal distribution will change; this is a controlled rewrite, not an invisible swap.
+- **12 chemicals:** ghrelin, leptin (hunger/satiety), cortisol, adrenaline (stress/fear), dopamine, serotonin (reward/stability), oxytocin (social), substanceP, endorphin (pain/pain relief), adenosine, melatonin, histamine (sleep/wake). Each chemical: own production − decay, dt-scaled, deterministic, bounded (no ratchet — the Hearth misery −100 lesson).
+- **17 cross-effect pairs** (adrenaline→cortisol+, oxytocin→cortisol−, ...) + **closed feedback loops** (the Ecologist's requirement): prolonged high cortisol suppresses serotonin; dopamine↑ reinforces the habit loop. No more "all one-way arrows".
+- **Parameters tuned from observable behavior:** every constant must carry a "tuned from scenario X" comment — no inventing numbers and hoping (ADAPT_D1).
+- **Bounded grief (answering the Scholar):** death of a loved one → prolonged serotonin↓/dopamine↓, hard cap of N days, natural decay, faster recovery when attending the funeral (7B) + social contact (oxytocin). No permanent loops, no depression system.
+- Output still uses the **12 qualities** vocabulary; the future AI brain still only reads qualities (A4) — the AI interface is unchanged.
+
+### NOT DOING
+A 13th chemical; depression/PTSD system; organ simulation (D2 already decided vocabulary-only); dream narrative.
+
+### Acceptance criteria
+- 3 sample causal chains reproducible: hunger→stress→irritability; love→calm; fear→exhaustion (compare each step against the ADAPT_D1 table).
+- Bounded grief: a widow has no dominant grief quality after 14 days (measured numerically); no chemical touches an extreme in a 30-day soak (anti-ratchet).
+- **Parity:** all 6E probes (E1/E2/E3/eyeread) re-run green after the rewrite — the observable qualities don't break.
+- Every constant has a tune-source comment; a constant with no source = FAIL.
 
 ---
 
 ## 7D — Needs-from-body refactor + Labour allocation + Soak test
 
-### LÀM
-- **Needs-from-body refactor** (nợ từ Phase 6): utility deficits suy từ body sim (7 physiological states) thay vì số need chạy song song. Xóa trùng lặp; giữ highest-need-wins ở ngưỡng nguy cấp; mọi decision path vẫn qua `brainThink` (bài học 6C).
-- **Labour allocation** (blind spot Hearth): mỗi sáng, điều phối (elder/reputation cao) gợi ý phân công ("2 người lo nước hôm nay") dựa trên skill + need + mùa. Villager có **quyền từ chối** (autonomy — tinh thần Phase 6); từ chối nhiều → gossip/reputation, không phạt cơ học.
-- **Soak test 30 ngày game** tự động, đo: không chết hàng loạt; tài nguyên trong biên (không bùng nổ/cạn kiệt); không oscillation hành vi; labour coverage — mỗi ngày có người gánh nước/đốn củi (đo % ngày được cover).
+### DO
+- **Needs-from-body refactor** (debt from Phase 6): utility deficits derived from the body sim (7 physiological states) instead of parallel-running need numbers. Remove duplication; keep highest-need-wins at critical thresholds; all decision paths still go through `brainThink` (the 6C lesson).
+- **Labour allocation** (a Hearth blind spot): each morning, a coordinator (elder/high reputation) suggests assignments ("2 people on water duty today") based on skill + need + season. Villagers have the **right to refuse** (autonomy — the Phase 6 spirit); repeated refusals → gossip/reputation, no mechanical punishment.
+- **30-day game soak test**, automated, measuring: no mass death; resources within bounds (no explosions/depletion); no behavioral oscillation; labour coverage — each day someone carries water/chops wood (measured % of days covered).
 
-### KHÔNG LÀM
-Kinh tế kế hoạch tập trung; cưỡng bức lao động; phân công tối ưu toàn cục (không optimizer — chỉ gợi ý + tự nguyện).
+### NOT DOING
+Centrally planned economy; forced labour; globally optimal assignment (no optimizer — suggestions + volunteers only).
 
-### Tiêu chí nghiệm thu
-- Refactor xong: full harness 0 FAIL; probe phân biệt — deficit đói phản ánh đúng body.satiety (không còn 2 nguồn số lệch nhau).
-- Soak 30 ngày: 0 mass-death; grain/wood/water trong biên định trước; coverage nước ≥ 90% ngày.
-- Villager từ chối phân công: không mất resource cơ học, chỉ xuất hiện trong gossip (test phân biệt).
-
----
-
-## 7E — Trả nợ Phase 6D (5 món)
-
-1. **child-harm/neglect/fire-refusal proto-norms:** đang là dead API (0 production caller). Hoặc wire caller thật trong production, hoặc **cắt khỏi spec một cách trung thực** (ghi rõ vào hồ sơ lý do) — cấm để API treo.
-2. **Ostracism → local belief:** chỉ người nghe gossip/trực tiếp chứng kiến mới biết và xa lánh; người xa lạ vẫn đối xử bình thường (test phân biệt có negative control). Hết vi phạm nguyên tắc "villager chỉ biết qua giác quan trung thực".
-3. **fillRoleVacancy():** gắn autonomous caller trong production (role trống quá N ngày → tự tìm người thay).
-4. **Caravan salt:** muối phải được *tạo ra* ở đâu đó (mỏ muối/vùng khác trong lore trade) — không đẻ từ hư không (Nguyên tắc 4); `doSellStep` giữ nguyên chỉ chuyển hàng.
-5. **getWeeklyConsumption:** filter tên `T27_`.
-- **Regression:** peak-hold dedup đa nguồn lửa (NN1/E3) vẫn đúng — không triple-count.
-
-### Tiêu chí nghiệm thu
-Mỗi món có test phân biệt chạy production-path; món nào cắt phải có entry trung thực trong WORK_LOG ("cắt vì X", không phải "đã xong").
+### Acceptance criteria
+- Refactor done: full harness 0 FAIL; discriminating probe — hunger deficit truly reflects body.satiety (no more two disagreeing number sources).
+- 30-day soak: 0 mass-death; grain/wood/water within preset bounds; water coverage ≥ 90% of days.
+- Villager refusing an assignment: no mechanical resource loss, only appears in gossip (discriminating test).
 
 ---
 
-## KHÔNG LÀM (toàn Phase 7)
+## 7E — Pay down Phase 6D debt (5 items)
 
-Tín dụng/lạm phát/mặc cả (Phase 8); dịch tễ tiếp xúc phức tạp (Phase 8); khí hậu khắc nghiệt (Phase 8); AI Brain (Phase 9); Bayes đầy đủ; mô hình hóa mọi thứ — chỉ mô hình hóa cái tạo ra câu chuyện (chỉ đạo EP).
+1. **child-harm/neglect/fire-refusal proto-norms:** currently dead APIs (0 production callers). Either wire a real caller in production, or **cut from the spec honestly** (record the reason in the file) — no hanging APIs allowed.
+2. **Ostracism → local belief:** only people who heard the gossip/witnessed directly know and shun; strangers still treat them normally (discriminating test with negative control). End of the "villagers only know through honest senses" principle violation.
+3. **fillRoleVacancy():** attach an autonomous caller in production (a role empty for N days → automatically finds a replacement).
+4. **Caravan salt:** salt must be *produced* somewhere (salt mine/another region in trade lore) — not spawned from nothing (Principle 4); `doSellStep` stays as pure goods transfer.
+5. **getWeeklyConsumption:** filter the `T27_` name.
+- **Regression:** multi-source fire peak-hold dedup (NN1/E3) still correct — no triple-counting.
+
+### Acceptance criteria
+Each item gets a discriminating test run on the production path; anything cut must have an honest WORK_LOG entry ("cut because X", not "done").
+
+---
+
+## NOT DOING (all of Phase 7)
+
+Credit/inflation/haggling (Phase 8); complex contact epidemiology (Phase 8); harsh climate (Phase 8); AI Brain (Phase 9); full Bayes; modeling everything — only model what creates stories (EP directive).

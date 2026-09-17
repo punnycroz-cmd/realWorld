@@ -367,7 +367,7 @@ def check_substrate_lint():
     """
     import re
     brain_dir = os.path.join(SRC_DIR, 'brain')
-    # Grandfathered legacy violations in src/brain/** recorded in .phase6e_progress.md
+    # Grandfathered legacy violations in src/brain/** recorded in docs/archive/checkpoints/.phase6e_progress.md
     legacy_allowlist = {
         ('brain/09_bridge.js', 'v.body.hydration = 1.0;'),
         ('brain/09_bridge.js', 'v.body.satiety = 1.0;'),

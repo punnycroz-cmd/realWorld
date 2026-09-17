@@ -8,7 +8,7 @@
    getFeelingScape(v) instead of poking raw body fields.
    
    ADR-002: Beta scope (Quota discipline — no state machine for 9 organs).
-   ADAPT_D1-D4_DETAIL: Option 1 — keep C3 body state + explicit decay accumulators.
+   docs/archive/ADAPT_D1-D4_DETAIL: Option 1 — keep C3 body state + explicit decay accumulators.
    ===================================================================== */
 // Top-level declarations (shared script scope)
 

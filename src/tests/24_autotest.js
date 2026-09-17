@@ -1,5 +1,5 @@
 /* =====================================================================
-   PART 24 AUTOTEST — Phase 6A: Senses & Expectations ("Con người không hoàn hảo")
+   PART 24 AUTOTEST — Phase 6A: Senses & Expectations ("Imperfect Humans")
    Automated verification of:
      24.1 (Gate 2): Biological emergency (hunger >75%) creates tunnel vision:
                     non-food objects ignored (no memory created)
@@ -48,7 +48,7 @@ runAutoTest = async function(){
   }
 
   // -------------------------------------------------------------------
-  // 24.1 (Cổng 2): villager đói 80% + vật thể không ăn được trong tầm nhìn -> KHÔNG ghi memory
+  // 24.1 (Gate 2): villager at 80% hunger + inedible object in view -> NOT written to memory
   // -------------------------------------------------------------------
   const t1 = mk('T24_Gate2_Starve', 10, 10);
   const b1 = ensureBody(t1);
@@ -73,7 +73,7 @@ runAutoTest = async function(){
   cleanup();
 
   // -------------------------------------------------------------------
-  // 24.2 (Cổng 1): lửa/sói hostile -> interrupt flag được đặt, re-plan trigger
+  // 24.2 (Gate 1): fire/hostile wolf -> interrupt flag set, re-plan triggered
   // Probe-style check: docile wolf causes NO wipe/interrupt across 40 ticks,
   // travel matches control; hostile wolf interrupts; douse plan preserved.
   // -------------------------------------------------------------------
@@ -169,7 +169,7 @@ runAutoTest = async function(){
   cleanup();
 
   // -------------------------------------------------------------------
-  // 24.3 (Expectation): đặt expectation giá bánh mì -> tăng giá sốc -> surprise event + emotion + re-plan flag
+  // 24.3 (Expectation): set bread price expectation -> price shock -> surprise event + emotion + re-plan flag
   // -------------------------------------------------------------------
   const t3 = mk('T24_Expect_Price', 10, 10);
   t3.gold = 50;
@@ -198,7 +198,7 @@ runAutoTest = async function(){
   cleanup();
 
   // -------------------------------------------------------------------
-  // 24.4 (Stale Stash): belief vị trí đồ 5 ngày trước -> đến nơi trống -> surprise + belief superseded có lịch sử
+  // 24.4 (Stale Stash): 5-day-old item-location belief -> arrive to find it empty -> surprise + belief superseded with history
   // -------------------------------------------------------------------
   const t4 = mk('T24_Stale_Stash', 10, 10);
   const nowDay = (typeof W !== 'undefined' && W.day != null) ? W.day : 10;
@@ -239,7 +239,7 @@ runAutoTest = async function(){
   cleanup();
 
   // -------------------------------------------------------------------
-  // 24.5 (Determinism): cùng seed -> cùng attended set
+  // 24.5 (Determinism): same seed -> same attended set
   // -------------------------------------------------------------------
   const t5A = mk('T24_DetA', 10, 10);
   const t5B = mk('T24_DetB', 10, 10);
@@ -265,7 +265,7 @@ runAutoTest = async function(){
   cleanup();
 
   // -------------------------------------------------------------------
-  // 24.6 (Cổng 3): Goal relevance — villager on task only attends relevant objects
+  // 24.6 (Gate 3): Goal relevance — villager on task only attends relevant objects
   // -------------------------------------------------------------------
   const t6 = mk('T24_Gate3_Goal', 10, 10);
   t6.plan = [{ verb: 'fell', target: 'tree', what: 'tree' }];

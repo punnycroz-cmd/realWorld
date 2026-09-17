@@ -1,408 +1,408 @@
-# WILLOWBROOK NATURA — Mô tả Game
-_Tài liệu mô tả nội dung game. Không bàn kỹ thuật. Cập nhật 2026-09-15._
+# WILLOWBROOK NATURA — Game Description
+_A game-content description document. No technical discussion. Updated 2026-09-15._
 
 ---
 
-## 1. Game này là gì
+## 1. What This Game Is
 
-**Willowbrook Natura** là game **mô phỏng cuộc sống của một ngôi làng thời trung cổ**, nơi bạn không điều khiển một nhân vật chính — bạn **chứng kiến và dẫn dắt cả một cộng đồng** 11 dân làng sống, làm việc, yêu thương, cãi vã, ốm đau, già đi và chết.
+**Willowbrook Natura** is a **medieval village life simulation** game, where you don't control a protagonist — you **witness and guide an entire community** of 11 villagers living, working, loving, quarreling, falling ill, aging, and dying.
 
-Điểm khác biệt cốt lõi: mọi dân làng đều có **cơ thể sống thật**. Họ đói, khát, mệt, rét, say nắng, đuối nước, chảy máu, nhiễm trùng, gãy xương, ốm sốt — và mọi thứ đó tuân theo quy luật sinh học, không phải thanh máu trừu tượng. Một vết thương không băng bó có thể nhiễm trùng. Một đêm đông không áo ấm có thể giết người. Một đứa trẻ sinh ra cần được cho ăn, sưởi ấm và bảo vệ.
+The core differentiator: every villager has a **truly living body**. They hunger, thirst, tire, freeze, suffer heatstroke, drown, bleed, get infected, break bones, fall ill — and all of it follows biological rules, not abstract health bars. An unbandaged wound can become infected. A winter night without warm clothes can kill. A newborn needs to be fed, kept warm, and protected.
 
-Đây là game **chậm, ấm và tàn nhẫn** — ấm vì bạn sẽ gắn bó với từng con người, tàn nhẫn vì thế giới không nương tay: sói về đêm, sét đánh, cháy rừng, mùa đông khắc nghiệt.
-
----
-
-## 2. Tầm nhìn & cảm xúc chủ đạo
-
-- **"Một ngôi làng thật"**: mỗi dân làng có tên, nghề, tính cách, kỹ năng, mối quan hệ, ký ức riêng. Họ không phải NPC đứng chờ bạn đến nói chuyện — họ sống cả khi bạn không nhìn.
-- **"Hậu quả thật"**: mọi quyết định đều có giá. Đi săn đêm có thể bị sói vồ. Bỏ đói gà thì gà bỏ đi. Đánh nhau thì gãy mũi. Không có nút "load lại" trong đầu người chơi — chỉ có thích nghi.
-- **"Vẻ đẹp đời thường"**: niềm vui của game nằm ở những khoảnh khắc nhỏ — Wren hái thảo dược về nấu trà cho người ốm, Finn câu được mẻ cá lớn, đứa trẻ đầu tiên của làng chào đời, cả làng xúm vào dập đám cháy cứu kho thóc.
-- **"Thời trung cổ đúng nghĩa"**: không phép thuật, không công nghệ hiện đại. Mọi giải pháp đều là của người xưa: thuốc đắp thảo dược, nẹp gỗ bó xương, ướp muối giữ thịt, đốt lửa sưởi ấm, rào gỗ chống sói.
+This is a **slow, warm, and cruel** game — warm because you will grow attached to every person, cruel because the world shows no mercy: wolves at night, lightning strikes, wildfires, brutal winters.
 
 ---
 
-## 3. Ngôi làng Willowbrook
+## 2. Vision & Core Emotions
 
-Làng nằm trong một thung lũng, bao quanh bởi rừng, có hồ nước, đồng ruộng và con đường mòn mà caravan lữ hành vẫn đi qua mỗi mùa.
-
-**Các khu vực trong làng:**
-- **Nhà dân** — nơi ngủ, trú rét, trú sói, dưỡng bệnh. Nhà có độ bền, bị bão/lửa/sói phá thì phải sửa.
-- **Ruộng** — trồng trọt theo mùa, 4 giai đoạn sinh trưởng (gieo → nảy mầm → lớn → thu hoạch).
-- **Chuồng trại** — nhốt gà, lợn đã thuần hoá; có rào chống sói.
-- **Kho thóc / đống đồ** — nơi cất lương thực, gỗ, đá, vật liệu.
-- **Giếng & hồ** — nguồn nước uống, nước dập lửa, chỗ câu cá.
-- **Đống lửa trại / bếp** — nấu ăn, sưởi ấm, hun khói thịt, ánh sáng ban đêm xua sói.
-- **Shop của Sella** — cửa hàng trong làng.
-- **Bãi đất trống giữa làng** — nơi caravan dựng trại, nơi dân làng tụ họp, cãi vã, làm lành.
-
-**Thời gian:** ngày/đêm luân chuyển, 4 mùa. Mùa ảnh hưởng mọi thứ: mùa đông lạnh cắt da, ruộng không trồng được, sói đói liều lĩnh hơn; mùa hè nóng có thể say nắng, thịt ôi nhanh.
-
-**Thời tiết:** nắng, mưa, bão, sấm sét. Sét có thể đánh trúng người, nhà, gây cháy. Mưa dập lửa nhưng làm ướt quần áo (giảm 60% khả năng giữ ấm — quần áo chỉ còn 40% tác dụng cách nhiệt khi độ ướt > 0.4).
+- **"A real village"**: every villager has a name, profession, personality, skills, relationships, and private memories. They aren't NPCs standing around waiting for you to talk to them — they live even when you're not watching.
+- **"Real consequences"**: every decision has a price. Hunting at night can get you mauled by wolves. Starve the chickens and the chickens leave. Fight and you break a nose. There's no "reload" button in the player's head — only adaptation.
+- **"Everyday beauty"**: the joy of the game lives in small moments — Wren gathering herbs to brew tea for the sick, Finn landing a big catch, the village's first child being born, everyone rushing in to douse the fire and save the granary.
+- **"Genuinely medieval"**: no magic, no modern technology. Every solution is one the ancients would use: herbal poultices, wooden splints for broken bones, salt-cured meat, fire for warmth, wooden fences against wolves.
 
 ---
 
-## 4. Thế giới: có gì và hoạt động ra sao
+## 3. The Village of Willowbrook
 
-Ngoài ngôi làng, cả một vùng thung lũng rộng lớn vận hành theo quy luật riêng — không cần ai điều khiển.
+The village sits in a valley, ringed by forest, with a lake, farmland, and the trail that traveling caravans pass through each season.
 
-### 4.1. Thế giới có gì
+**Areas within the village:**
+- **Houses** — places to sleep, shelter from cold, shelter from wolves, recover from illness. Houses have durability; damaged by storms/fire/wolves, they must be repaired.
+- **Fields** — seasonal farming, 4 growth stages (sowing → sprouting → growing → harvest).
+- **Livestock pens** — holding tamed chickens and pigs; fenced against wolves.
+- **Granary / stockpile** — storage for food, wood, stone, materials.
+- **Well & lake** — drinking water, firefighting water, fishing spot.
+- **Campfire / kitchen** — cooking, warmth, smoking meat, night light that drives off wolves.
+- **Sella's shop** — the village store.
+- **Open ground at the village center** — where caravans pitch camp, where villagers gather, quarrel, and make up.
 
-**Địa hình:**
-- **Rừng** bao quanh làng — nhiều loại cây: cây lấy gỗ lớn, cây bụi, cây ăn quả dại theo mùa. Rừng là nguồn gỗ, thảo dược, quả dại — nhưng cũng là nơi sói ẩn nấp.
-- **Đồng cỏ** — cỏ dại, hoa, thỏ, gà hoang kiếm ăn.
-- **Hồ nước** — cá, nước uống, nước dập lửa. Cá cắn câu theo giờ (sáng sớm và chiều tối tốt nhất) và theo thời tiết.
-- **Đồi đá** — mỏ đá lộ thiên để đập đá xây nhà.
-- **Con đường mòn** — cắt ngang thung lũng, caravan lữ hành đi qua mỗi mùa.
-- **Bãi đất làng** — khu trung tâm: nhà cửa, ruộng, giếng, đống lửa, nơi caravan dựng trại.
+**Time:** alternating day/night, 4 seasons. Seasons affect everything: winter is bone-chillingly cold, fields can't be planted, hungry wolves grow bolder; summer heat can cause heatstroke, meat spoils 1.5x faster.
 
-**Thực vật:**
-- Cây gỗ (đốn được, mọc lại chậm — đốn trụi thì phải đợi nhiều mùa)
-- Bụi berry (quả dại theo mùa, hái ăn được)
-- Thảo dược (Wren hái làm thuốc — mọc rải rác trong rừng, hái hết thì phải đợi mọc lại)
-- Cỏ dại, hoa đồng
-- Hoa màu trên ruộng (do dân làng trồng, 4 giai đoạn sinh trưởng)
-
-**Động vật hoang:**
-- **Gà hoang** — lang thang kiếm ăn, đẻ trứng (trứng ăn được, ấp được nếu có gà mái ấp)
-- **Thỏ** — nhát, chạy nhanh, săn được thịt nhỏ
-- **Lợn rừng** — hiền thì thôi, lại gần thì húc; lợn con thuần hoá được
-- **Sói** — đi bầy, săn đêm; ban ngày lẩn trong rừng sâu
-- **Gấu** — rất hiếm, sống ở bìa rừng xa, mò theo mùi thức ăn
-- **Cá** — trong hồ, số lượng có hạn theo mùa
-- **Chim** — báo hiệu buổi sáng, bay đi khi có bão (dân làng xưa nhìn chim đoán thời tiết)
-
-**Tài nguyên tái tạo & cạn kiệt:**
-- Gỗ, thảo dược, quả dại: hái/đốn hết thì **mọc lại chậm** — khai thác vô tội vạ là tự sát về lâu dài.
-- Đá: đập hết mỏ gần thì phải đi xa hơn.
-- Cá: câu cạn hồ thì phải đợi đàn mới về.
-- Nước giếng: hạn hán lâu ngày thì cạn — phải ra hồ gánh.
-
-### 4.2. Thế giới hoạt động ra sao — các vòng tuần hoàn
-
-**Vòng ngày/đêm:**
-- Sáng: chim hót, gà gáy, dân làng thức dậy, sương tan.
-- Trưa: nắng gắt mùa hè có thể say nắng nếu làm việc ngoài đồng không nghỉ.
-- Chiều tối: cá cắn câu mạnh, thú rừng bắt đầu động đậy.
-- Đêm: tối đen (chỉ có ánh lửa trại, đèn nhà), dân làng ngủ, **sói đi săn**. Lửa và ánh sáng xua sói — đêm nào tắt lửa là đêm nguy hiểm.
-
-**Vòng 4 mùa:**
-- **Xuân:** ấm dần, gieo trồng, thảo dược non mọc, thú sinh sản. Mùa của hy vọng và công việc.
-- **Hè:** nóng, làm việc trưa dễ say nắng, thịt cá ôi nhanh gấp rưỡi, mưa rào + sấm sét nhiều (nguy cơ cháy rừng).
-- **Thu:** thu hoạch rộ, caravan ghé mua nông sản, tích trữ cho đông. Lá rụng, đêm lạnh dần.
-- **Đông:** tuyết/rét cắt da, ruộng chết, hồ đóng băng (không câu cá được), sói đói **liều lĩnh** mò vào tận làng. Sống sót qua mùa đông = nhờ những gì đã tích trữ từ mùa thu: thịt ướp muối, củi khô, áo ấm, nhà chắc.
-
-**Vòng thời tiết:**
-- Nắng → Mây → Mưa → Bão → Sét — diễn biến tự nhiên, có thể đoán trước phần nào (nhìn trời, nghe sấm xa).
-- Mưa: dập lửa, đầy giếng, nhưng làm ướt quần áo (mất 60% khả năng giữ ấm) và đường lầy lội (đi chậm).
-- Bão: quật đổ cây yếu, tốc mái nhà ọp ẹp.
-- Sét: đánh trúng cây/nhà → cháy; đánh trúng người → bị thương nặng hoặc chết. Sau cơn bão sét, cả làng phải đi kiểm tra xem có đám cháy nào không.
-
-**Vòng lửa:**
-- Lửa cần 3 thứ: chất cháy (cây khô, nhà gỗ, rơm), khô, gió. Mùa hè khô + gió to = cháy rừng lan nhanh như quỷ.
-- Lửa lan từ cây sang cây, sang nhà, sang ruộng. Khói bay theo gió — hít nhiều thì ngạt.
-- Mưa to dập được lửa nhỏ; lửa lớn chỉ có cách chặt cây tạo đường băng cản lửa hoặc dốc sức dập.
-- Đất cháy thành tro — mùa xuân sau cây non mọc lại. Thiên nhiên tự chữa lành, chỉ cần thời gian.
-
-**Vòng sinh thái thú:**
-- Thú ăn, ngủ, sinh sản theo mùa. Gà đẻ trứng → trứng nở (nếu được ấp) → gà con lớn.
-- Sói đói thì liều — mùa đông thức ăn khan, sói mò vào làng thường xuyên hơn.
-- Gấu mò theo **mùi**: đống thịt ôi, xác thú không chôn gần làng là mời gấu đến.
-- Săn quá tay → thú hiếm dần → phải đi xa hơn hoặc chuyển sang chăn nuôi. Đó là lý do chăn nuôi ra đời.
-
-**Vòng nước:**
-- Mưa → suối chảy → hồ đầy → giếng đầy. Hạn lâu → giếng cạn → phải gánh nước từ hồ xa.
-- Nước dùng cho: uống, nấu ăn, tưới ruộng (mùa khô), dập lửa.
-
-**Dấu vết con người để lại trên thế giới:**
-- Cây bị đốn → gốc cây, rồi cây non mọc lại.
-- Nhà cháy → đống đổ nát (có thể dọn và xây lại).
-- Mộ — người chết được chôn ở đồi sau làng; mộ tồn tại mãi, dân làng thỉnh thoảng ra thăm.
-- Đường mòn dân làng hay đi → cỏ mòn thành lối.
-- Nơi từng bị sói vồ → dân làng **nhớ** và tránh đi một mình ban đêm (ký ức nguy hiểm).
-
-### 4.3. Caravan và thế giới bên ngoài
-
-Thung lũng không phải cả thế giới — con đường mòn nối làng với những vùng đất xa:
-- **Mỗi mùa**, một đoàn lữ hành 3 người (1 thương nhân + 2 lính gác) đi ngang, dựng trại giữa làng nửa ngày rồi đi tiếp.
-- Họ mang đến những thứ làng không tự làm được: **muối** (ướp thịt), **vải vóc** (may áo ấm), **gia vị**, **dụng cụ sắt** tốt.
-- Họ thu mua: da thú, thịt hun khói, trứng, nông sản dư.
-- Lính gác của caravan làm sói khiếp vía — những ngày caravan ở lại là những đêm yên bình hiếm hoi.
-- Dân làng nghe thương nhân kể chuyện phương xa — đó là cửa sổ duy nhất của họ ra thế giới rộng lớn. (Sau này AI brain có thể cho thương nhân kể những câu chuyện thật.)
+**Weather:** sun, rain, storms, lightning. Lightning can strike people or houses and start fires. Rain puts out fires but soaks clothing (reduces warmth retention by 60% — clothing keeps only 40% of its insulation when wetness > 0.4).
 
 ---
 
-## 5. Mười một dân làng
+## 4. The World: What's In It and How It Works
 
-Mỗi người có **nghề, kỹ năng mạnh/yếu, tính cách** riêng — không ai thay thế được ai:
+Beyond the village, a whole vast valley operates by its own rules — with no one steering it.
 
-| Tên | Vai trò | Điểm mạnh |
+### 4.1. What's In the World
+
+**Terrain:**
+- **Forest** ringing the village — many tree types: large timber trees, shrubs, seasonal wild fruit trees. The forest is the source of wood, herbs, wild berries — but also where wolves lurk.
+- **Meadows** — wild grass, flowers, rabbits, wild chickens foraging.
+- **Lake** — fish, drinking water, firefighting water. Fish bite by the hour (early morning and late afternoon are best) and by the weather.
+- **Rocky hills** — exposed stone quarry for breaking stone to build houses.
+- **The trail** — cutting across the valley, traveling caravans pass through each season.
+- **Village grounds** — the central area: houses, fields, well, campfire, where caravans pitch camp.
+
+**Plants:**
+- Timber trees (can be felled, regrow slowly — clear-cut and you wait many seasons)
+- Berry bushes (seasonal wild berries, edible when picked)
+- Herbs (Wren gathers them for medicine — scattered sparsely through the forest; pick them clean and you wait for regrowth)
+- Wild grass, meadow flowers
+- Field crops (planted by villagers, 4 growth stages)
+
+**Wild animals:**
+- **Wild chickens** — wandering and foraging, laying eggs (eggs are edible, and can be hatched if there's a brooding hen)
+- **Rabbits** — timid, fast, huntable for small meat
+- **Wild boars** — leave them alone and they leave you alone; approach and they charge; piglets can be tamed
+- **Wolves** — travel in packs, hunt at night; by day they hide in the deep forest
+- **Bears** — very rare, living at the far forest edge, drawn by the smell of food
+- **Fish** — in the lake, limited numbers by season
+- **Birds** — herald the morning, flee before storms (villagers of old read the birds to guess the weather)
+
+**Renewable & depletable resources:**
+- Wood, herbs, wild berries: harvested bare and they **regrow slowly** — reckless exploitation is slow suicide.
+- Stone: break the nearby quarry bare and you must go farther.
+- Fish: fish the lake out and you wait for a new school.
+- Well water: a long drought dries it up — then you must haul water from the lake.
+
+### 4.2. How the World Works — the Cycles
+
+**Day/night cycle:**
+- Morning: birds sing, roosters crow, villagers wake, mist lifts.
+- Midday: the summer sun can cause heatstroke if you work the fields without rest.
+- Evening: fish bite hard, forest animals start moving.
+- Night: pitch dark (only campfire glow and house lamps), villagers sleep, **wolves go hunting**. Fire and light drive wolves away — any night the fires go out is a dangerous night.
+
+**Four seasons:**
+- **Spring:** warming, planting, young herbs sprouting, animals breeding. The season of hope and work.
+- **Summer:** hot, midday work risks heatstroke, meat and fish spoil 1.5x faster, frequent showers + thunderstorms (wildfire risk).
+- **Autumn:** peak harvest, caravans come to buy produce, stockpiling for winter. Leaves fall, nights grow colder.
+- **Winter:** snow/bone-chilling cold, fields dead, lake frozen (no fishing), hungry wolves **boldly** prowling right into the village. Surviving winter = living off what was stockpiled since autumn: salt-cured meat, dry firewood, warm clothes, sturdy houses.
+
+**Weather cycle:**
+- Sun → Clouds → Rain → Storm → Lightning — unfolding naturally, partly predictable (watch the sky, listen for distant thunder).
+- Rain: puts out fires, fills the well, but soaks clothing (loses 60% warmth retention) and turns roads muddy (slower travel).
+- Storms: topple weak trees, rip roofs off shaky houses.
+- Lightning: strikes trees/houses → fire; strikes people → serious injury or death. After a lightning storm, the whole village must check for fires.
+
+**Fire cycle:**
+- Fire needs 3 things: fuel (dry trees, wooden houses, straw), dryness, wind. Dry summer + strong wind = wildfire spreading like a demon.
+- Fire spreads tree to tree, to houses, to fields. Smoke drifts with the wind — breathe too much and you suffocate.
+- Heavy rain can put out small fires; big fires can only be stopped by felling trees to cut firebreaks or by all-out dousing.
+- Burned land turns to ash — saplings regrow the next spring. Nature heals itself, given time.
+
+**Animal ecology cycle:**
+- Animals eat, sleep, and breed by season. Chickens lay eggs → eggs hatch (if incubated) → chicks grow.
+- Hungry wolves grow bold — in winter, food is scarce and wolves prowl into the village more often.
+- Bears follow **scent**: piles of rotting meat, animal carcasses unburied near the village invite bears in.
+- Overhunt → game grows scarce → you must go farther or switch to husbandry. That is why animal husbandry was born.
+
+**Water cycle:**
+- Rain → streams flow → lake fills → well fills. Long drought → well dries → haul water from the distant lake.
+- Water is used for: drinking, cooking, watering fields (dry season), firefighting.
+
+**Human traces left on the world:**
+- Felled trees → stumps, then saplings regrow.
+- Burned houses → rubble piles (can be cleared and rebuilt).
+- Graves — the dead are buried on the hill behind the village; graves last forever, and villagers visit now and then.
+- Paths villagers walk often → grass wears into trails.
+- Places where wolves once struck → villagers **remember** and avoid walking alone at night (danger memories).
+
+### 4.3. Caravans and the Outside World
+
+The valley is not the whole world — the trail connects the village to distant lands:
+- **Each season**, a caravan of 3 (1 merchant + 2 guards) passes through, camping at the village center for half a day, then moving on.
+- They bring what the village can't make itself: **salt** (curing meat), **cloth** (sewing warm clothes), **spices**, good **iron tools**.
+- They buy: animal hides, smoked meat, eggs, surplus produce.
+- The caravan's guards terrify wolves — the days the caravan stays are rare peaceful nights.
+- Villagers hear the merchant's tales of faraway lands — their only window onto the wider world. (Later, the AI brain could have merchants tell real stories.)
+
+---
+
+## 5. The Eleven Villagers
+
+Each person has their own **profession, strong/weak skills, personality** — no one is replaceable:
+
+| Name | Role | Strengths |
 |---|---|---|
-| Marta | Nông dân | Trồng trọt, khỏe mạnh |
-| Bram | Thợ rèn/xây dựng | Xây dựng, sửa chữa, khỏe |
-| Sella | Chủ shop | Buôn bán, tính toán |
-| Tobin | Chủ quán trọ | Nấu ăn (món thịnh soạn) |
-| Wren | Thầy thuốc | Y thuật, hái thảo dược |
-| Finn | Ngư dân | Câu cá, bơi lội |
-| Alden | Trưởng làng | Giao tiếp, hòa giải |
-| Pip | Đứa trẻ | Học nhanh, chạy nhanh |
-| Rowan | Nghệ sĩ du ca | Ca hát, thơ ca, du hành |
-| Clara | Thương nhân tơ lụa | Buôn bán, giao tiếp |
-| Gareth | Hiệp sĩ lang thang | Kiếm thuật, săn bắn, dũng cảm |
+| Marta | Farmer | Farming, strong and healthy |
+| Bram | Blacksmith/builder | Building, repairs, strong |
+| Sella | Shopkeeper | Trading, calculation |
+| Tobin | Innkeeper | Cooking (lavish meals) |
+| Wren | Healer | Medicine, herb gathering |
+| Finn | Fisherman | Fishing, swimming |
+| Alden | Village head | Communication, mediation |
+| Pip | Child | Learns fast, runs fast |
+| Rowan | Traveling bard | Singing, poetry, wandering |
+| Clara | Silk merchant | Trading, communication |
+| Gareth | Wandering knight | Swordsmanship, hunting, bravery |
 
-*(Chi tiết tính cách từng người sẽ được AI brain phát triển thêm về sau — hiện tại mỗi người đã có năng khiếu kỹ năng và vai trò rõ ràng.)*
+*(Each person's personality details will be developed further by the AI brain later — for now everyone has clear skill aptitudes and roles.)*
 
-**Vòng đời một dân làng:** sinh ra → trẻ con (cần cho ăn, bảo vệ, lớn dần theo thời gian, vẽ đúng tỷ lệ trẻ em) → trưởng thành (lao động, yêu đương, sinh con) → già yếu → chết (già, bệnh, tai nạn, thú dữ, chết đói...). Xác phân hủy theo thời gian, được chôn cất có bia mộ — người sống đến viếng, nhớ thương.
-
----
-
-## 6. Cơ thể sống — hệ sinh tồn
-
-Đây là trái tim của game. Mỗi dân làng có một cơ thể mô phỏng thật:
-
-- **Đói:** phải ăn đều đặn. Đói lâu → kiệt sức → chết đói.
-- **Khát:** phải uống nước. Mất nước → choáng → chết.
-- **Mệt:** phải ngủ/nghỉ. Thức quá lâu → gục bất tỉnh.
-- **Thân nhiệt:** rét → run → tê cóng → chết cóng; nóng → say nắng → sốc nhiệt. Quần áo, lửa, nhà cửa, thời tiết đều ảnh hưởng.
-- **Oxy:** đuối nước, ngạt khói.
-- **Máu:** chảy máu là mất máu thật — mất nhiều thì chết. Vết thương phải được băng bó.
-- **Bệnh tật:** cảm sốt (ướt + lạnh lâu), ngộ độc thực phẩm, ăn thịt sống đau bụng, nhiễm trùng vết thương.
-
-**Bản năng sinh tồn:** khi bất kỳ nhu cầu nào chạm ngưỡng nguy hiểm, dân làng **tự động bỏ dở việc đang làm** để cứu mình — chạy khỏi sói, tìm nước uống, vào nhà sưởi ấm. Bạn không cần (và không thể) micromanage từng hơi thở của họ.
+**A villager's life cycle:** birth → childhood (needs feeding, protection, grows over time, rendered at correct child proportions) → adulthood (work, love, children) → old age → death (age, illness, accident, wild beasts, starvation...). Corpses decompose over time and are buried with a headstone — the living come to visit and mourn.
 
 ---
 
-## 7. Y tế thời trung cổ
+## 6. The Living Body — the Survival System
 
-Không có bệnh viện, không có thuốc kháng sinh. Có:
+This is the heart of the game. Each villager has a truly simulated body:
 
-- **Wren thầy thuốc** — đi rừng hái thảo dược, chế thuốc.
-- **Thuốc đắp thảo dược** — cầm máu, chống nhiễm trùng.
-- **Nẹp gỗ + vải** — bó xương gãy. Gãy chân thì chỉ bò được, gãy tay thì không cầm dụng cụ được; muốn lành hẳn phải **nẹp + ăn đủ + nghỉ nhiều ngày**.
-- **Trà hạ sốt** — chữa cảm sốt, cần nghỉ ấm.
-- **Nhiễm trùng** — vết thương hở không băng bó sẽ nhiễm trùng, sốt cao, có thể chết.
-- **Chăm sóc (tend)** — người có kỹ năng y thuật băng bó, cho uống thuốc, chất lượng theo tay nghề.
-- **Cứu hộ (rescue)** — người bị nạn (bất tỉnh, chảy máu, gãy chân) được vác về giường; người thân/bạn bè tự động đi cứu khi an toàn.
+- **Hunger:** must eat regularly. Long hunger → exhaustion → starvation.
+- **Thirst:** must drink water. Dehydration → dizziness → death.
+- **Fatigue:** must sleep/rest. Too long awake → collapse unconscious.
+- **Body temperature:** cold → shivering → frostbite → freezing to death; heat → heatstroke → heat shock. Clothing, fire, shelter, and weather all matter.
+- **Oxygen:** drowning, smoke inhalation.
+- **Blood:** bleeding is real blood loss — lose too much and you die. Wounds must be bandaged.
+- **Illness:** colds/fevers (wet + cold for too long), food poisoning, raw meat upsets the stomach, wound infections.
 
-Người chơi cần: đảm bảo làng luôn có thảo dược dự trữ, có người biết băng bó, có giường bệnh — vì tai nạn đến bất cứ lúc nào.
-
----
-
-## 8. Lao động & kỹ năng
-
-**8 nhóm kỹ năng**, mỗi người có trình độ 0–10, lên level bằng cách **làm việc thật**:
-- Trồng trọt, nấu ăn, xây dựng, y thuật, săn bắn, câu cá, hái lượm, may vá.
-- Mỗi người có **năng khiếu** (học nhanh) đúng với nghề và **điểm yếu** (học chậm).
-- Tay nghề cao → làm nhanh hơn, thu hoạch nhiều hơn, món ăn ngon hơn, nhà chắc hơn, băng bó tốt hơn.
-
-**Công việc trong làng:** cày ruộng, gieo trồng, thu hoạch, đốn gỗ, đập đá, câu cá, săn bắn, hái lượm, nấu ăn, ướp thịt, may vá, xây/sửa nhà, làm rào, chăn nuôi, gánh nước, dập lửa, buôn bán, chăm người bệnh, dạy trẻ con (tương lai).
-
-**Phân công:** người chơi (và sau này là AI) có thể giao việc theo mức ưu tiên cho từng người — ai giỏi việc gì làm việc đó, nhưng ai cũng phải biết làm việc cơ bản để sống sót.
+**Survival instinct:** when any need hits a danger threshold, villagers **automatically drop what they're doing** to save themselves — fleeing wolves, finding water, going inside to warm up. You don't need to (and can't) micromanage their every breath.
 
 ---
 
-## 9. Ăn uống
+## 7. Medieval Medicine
 
-- **3 hạng bữa ăn:** dở / ngon / thịnh soạn — phụ thuộc tay nghề người nấu + độ đa dạng nguyên liệu. Ăn ngon no lâu, ăn dở chỉ no tạm.
-- **Ngộ độc thực phẩm:** đồ ôi, nấu ẩu (tay nghề thấp), thịt sống → nôn mửa, đau bụng, ốm.
-- **Thịt sống gây bệnh** — phải nấu chín.
-- **Đồ ăn ôi theo thời gian**, trời nóng ôi nhanh gấp rưỡi.
-- **Bảo quản:** ướp muối, hun khói bên bếp lửa — thịt để được hàng chục ngày, là chìa khóa sống qua mùa đông.
-- **Nguồn thức ăn:** ruộng (theo mùa), câu cá, săn bắn, hái lượm, trứng gà, mua ở shop Sella, đổi với caravan.
+No hospitals, no antibiotics. Instead:
 
-Người chơi cần tính toán: trồng gì, để dành bao nhiêu cho mùa đông, ai nấu ăn ngon nhất.
+- **Wren the healer** — goes into the forest to gather herbs and brew remedies.
+- **Herbal poultices** — stop bleeding, fight infection.
+- **Wooden splints + cloth** — set broken bones. A broken leg means crawling only; a broken arm means no tools; full healing requires **splint + enough food + many days of rest**.
+- **Fever tea** — cures colds/fevers, needs warm rest.
+- **Infection** — open wounds left unbandaged become infected, run high fevers, and can kill.
+- **Tending (tend)** — someone with medical skill bandages, administers medicine, quality depending on skill.
+- **Rescue (rescue)** — the injured (unconscious, bleeding, broken leg) are carried to bed; kin/friends automatically go rescue when it's safe.
 
----
-
-## 10. Xã hội — yêu thương & thù hận
-
-Dân làng không phải robot làm việc — họ có đời sống xã hội:
-
-- **Kết bạn:** nói chuyện, làm việc cùng, trải qua hoạn nạn cùng nhau → thân thiết dần.
-- **Yêu đương & gia đình:** cặp đôi thân thiết có thể nên duyên, mang thai (~20 ngày), sinh con, nuôi con khôn lớn.
-- **Sỉ nhục & thù địch:** ai cũng có lúc xích mích — chạm mặt người mình ghét, tranh giành đồ ăn... Sỉ nhục làm rạn nứt quan hệ; hiềm khích tích đủ thành **thù địch**: không thèm cứu nhau, không băng bó cho nhau.
-- **Đánh nhau:** ẩu đả bằng tay chân — bầm dập, gãy mũi, gục tại chỗ — nhưng **không bao giờ đánh chết nhau**. Người ngoài can ngăn. Xin lỗi tử tế có thể làm lành; hiềm khích cũng phai dần theo thời gian.
-- **Ký ức:** ai cũng nhớ những gì mình chứng kiến — ai cứu mình, ai đánh mình, nơi nào nguy hiểm (bị sói vồ một lần thì nhớ đời).
+Players must ensure the village always has a herb reserve, someone who can bandage, and sickbeds — because accidents come at any time.
 
 ---
 
-## 11. Kinh tế
+## 8. Labor & Skills
 
-- **Vàng riêng từng người** — ai làm ra thì người đó giữ.
-- **Shop của Sella** — mua bán lương thực, vật liệu hằng ngày trong làng.
-- **Caravan lữ hành** — mỗi mùa có đoàn thương nhân từ phương xa ghé qua, dựng trại giữa làng nửa ngày: bán **gia vị, vải vóc, dụng cụ, muối** (những thứ làng không tự làm được), thu mua **da thú, thịt hun khói, trứng**. Giá cả khác shop Sella — biết mặc cả thì lời.
-- Người chơi cần quyết định: bán gì, mua gì, để dành gì. Muối mua từ caravan chính là thứ để ướp thịt qua mùa đông.
+**8 skill groups**, each rated 0–10, leveled by **doing real work**:
+- Farming, cooking, building, medicine, hunting, fishing, foraging, tailoring.
+- Everyone has **aptitudes** (learn fast) matching their profession and **weaknesses** (learn slow).
+- High skill → work faster, bigger harvests, tastier food, sturdier houses, better bandaging.
 
----
+**Village jobs:** tilling fields, sowing, harvesting, felling timber, breaking stone, fishing, hunting, foraging, cooking, curing meat, sewing, building/repairing houses, making fences, tending livestock, hauling water, firefighting, trading, nursing the sick, teaching children (future).
 
-## 12. Thú hoang & chăn nuôi
-
-**Thú nguy hiểm** — thế giới không chỉ có dân làng:
-- **Sói:** đi bầy, săn đêm, rình người đi lẻ và gà. Sợ lửa, sợ đám đông. Đói quá thì liều vào cả làng.
-- **Lợn rừng:** hiền thì thôi, lại gần thì húc.
-- **Gấu:** hiếm gặp nhưng gặp là đại họa — mò theo mùi thức ăn.
-
-Dân làng tự biết sợ: thấy sói thì chạy vào nhà, bị dồn vào đường cùng thì đánh trả bằng dụng cụ, hô hoán gọi người đến cứu.
-
-**Chăn nuôi** — biến thú hoang thành tài sản:
-- Thuần hoá **gà** và **lợn con** bằng thức ăn (lợn lớn không thuần được).
-- Nhốt chuồng có rào (sói không vào được), cho ăn đều → gà đẻ trứng nhiều, lợn đẻ lứa.
-- Bỏ đói → ốm → bỏ đi hoang. Nuôi là trách nhiệm, không phải đồ trang trí.
-- Săn bắn → thịt + da (da để may quần áo, bán cho caravan).
+**Assignment:** the player (and later the AI) can assign long-term work by priority to each person — whoever's best at a job does it, but everyone must know basic work to survive.
 
 ---
 
-## 13. Xây dựng & quần áo
+## 9. Food
 
-**Xây dựng:**
-- Mọi công trình tốn **vật liệu thật**: gỗ (đốn cây), đá (đập đá), rơm.
-- Thợ giỏi xây nhanh, nhà chắc; thợ non xây chậm, dễ ẩu.
-- Xây được: nhà ở, rào chống sói, chuồng trại, sửa chữa nhà hư.
-- Nhà có **độ bền** — bão, cháy, sói phá thì sập dần, phải sửa.
+- **3 meal tiers:** poor / fine / lavish — depending on the cook's skill + ingredient variety. Good food sates longer; poor food only sates briefly.
+- **Food poisoning:** spoiled food, sloppy cooking (low skill), raw meat → vomiting, stomach pain, illness.
+- **Raw meat causes illness** — it must be cooked through.
+- **Food spoils over time**, spoiling 1.5x faster in hot weather.
+- **Preservation:** salt-curing, smoking by the kitchen fire — meat keeps for dozens of days, the key to surviving winter.
+- **Food sources:** fields (seasonal), fishing, hunting, foraging, chicken eggs, buying from Sella's shop, trading with the caravan.
 
-**Quần áo:**
-- Nhiều lớp: áo trong, áo khoác, giày ủng, áo choàng mùa đông.
-- Tác dụng duy nhất nhưng sống còn: **giữ ấm**. Mùa đông không áo ấm là chết cóng.
-- Quần áo **ướt thì mất 60% tác dụng giữ ấm** (chỉ còn 40% cách nhiệt khi độ ướt > 0.4 — code: `clothingInsul` trong `14a_medical.js`; đi mưa, lội nước, dập lửa xong phải thay/hong khô).
-- Mặc lâu thì **rách** → phải vá (`mend`) hoặc may mới (cần vải mua từ caravan hoặc da thú săn được).
+Players must plan: what to plant, how much to save for winter, who cooks best.
 
 ---
 
-## 14. Thảm họa & lửa
+## 10. Society — Love & Hate
 
-- **Sấm sét:** đánh trúng người (bị thương/nặng), đánh trúng nhà/cây → cháy.
-- **Cháy rừng:** lan theo gió, trời khô cháy dữ. Lửa đe dọa nhà cửa, ruộng vườn, tính mạng.
-- **Dập lửa:** dân làng không còn chỉ biết chạy — người khỏe tự xách nước từ giếng/hồ đi dập, ưu tiên **cứu nhà → cứu người → cứu ruộng**, lửa ở rừng xa thì bỏ. Dập lửa thì ướt hết người, hít nhiều khói thì ngạt.
-- **Bão:** phá nhà yếu, quật đổ cây.
-- **Mùa đông:** kẻ thù lớn nhất — lạnh, đói, sói liều. Sống sót qua mùa đông đầu tiên là thành tựu thật sự.
+Villagers aren't work robots — they have social lives:
 
----
-
-## 15. Người chơi làm gì trong game
-
-Bạn là **người dẫn dắt ngôi làng**, không phải một nhân vật:
-
-- **Quan sát:** xem dân làng sống, bấm vào từng người để xem tình trạng cơ thể, kỹ năng, mối quan hệ, ký ức.
-- **Ra lệnh trực tiếp:** bảo ai đó đi đâu, làm gì, nói gì — bằng cách bấm chọn hoặc gõ ý định ("đi đốn củi cho mùa đông", "nấu một bữa thịnh soạn", "đi cứu Bram").
-- **Phân công lao động:** giao việc dài hạn theo năng khiếu từng người.
-- **Quyết sách:** trồng gì, xây gì, bán gì cho caravan, để dành bao nhiêu lương thực cho mùa đông, có nên thuần hoá con lợn con kia không.
-- **Can thiệp lúc nguy cấp:** cháy nhà, sói vào làng, người bị thương — bạn điều người đi cứu, đi dập lửa, đi đánh sói.
-
-**Thắng/thua:** game là sandbox — không có màn "YOU WIN". Thua là khi làng lụi tàn: hết người, hết lương thực giữa mùa đông. Thắng là do bạn tự định nghĩa: sống sót 10 mùa đông? Xây được ngôi làng thịnh vượng? Nuôi lớn thế hệ thứ hai?
+- **Friendship:** talking, working together, surviving hardship together → growing closer over time.
+- **Love & family:** close couples can wed, pregnancy (~20 days), childbirth, raising children.
+- **Insults & hostility:** everyone clashes sometimes — crossing someone they hate, competing for food... Insults crack relationships; accumulated grudges become **hostility**: refusing to save each other, refusing to bandage each other.
+- **Fighting:** bare-handed brawls — bruises, broken noses, knocked out cold — but **never beating each other to death**. Outsiders intervene. A sincere apology can mend things; grudges also fade with time.
+- **Memory:** everyone remembers what they witness — who saved them, who hit them, which places are dangerous (get mauled by a wolf once and you remember for life).
 
 ---
 
-## 16. Chức năng game cần có (tổng hợp)
+## 11. Economy
 
-**Đã có:**
-1. Mô phỏng cơ thể đầy đủ (đói/khát/mệt/nhiệt/oxy/máu/bệnh) + tử vong + xác phân hủy + chôn cất
-2. Bản năng sinh tồn tự động (survivalGuard)
-3. Nhận thức trung thực (dân làng chỉ biết những gì giác quan cho)
-4. Hệ hành động đa bước (16+ động từ) + ra lệnh bằng lời thường (intent)
-5. Xã hội 2 mặt: kết bạn/yêu/sinh con + sỉ nhục/thù địch/đánh nhau/làm lành
-6. Ký ức (chứng kiến, bài học nguy hiểm, "dreams" — điều muốn mà game chưa làm được)
-7. Y tế trung cổ: vết thương chi tiết, băng bó, nẹp xương, thuốc thảo dược, cứu hộ
-8. Kỹ năng 8 nhóm + XP + năng khiếu + phân công việc
-9. Xây dựng tốn vật liệu + độ bền + sửa chữa
-10. Quần áo nhiều lớp + giữ ấm + ướt/rách + may vá
-11. Ăn uống 3 hạng + ngộ độc + ôi thiu + ướp muối/hun khói
-12. Chăn nuôi: thuần hoá, chuồng trại, cho ăn, sinh sản
-13. Kinh tế: vàng riêng, shop Sella, caravan theo mùa
-14. Thú dữ: sói/lợn/gấu + săn bắn lấy thịt da
-15. Thảm họa: sét, cháy rừng, bão + dân làng tự dập lửa
-16. Trẻ em: sinh ra, lớn lên, render đúng tỷ lệ
-17. Event feed + Pawn Inspector (bảng xem chi tiết từng dân làng)
-
-**Cần thêm (đã lưu backlog, xem xét sau):**
-1. Nấu bia/rượu
-2. Chân tay giả gỗ, y tế sâu hơn (cắt cụt)
-3. Cung tên, giáo, kiếm + giáp da/sắt
-4. Khái niệm phòng: nhiệt độ trong nhà, phòng đẹp/xấu
-5. Huấn luyện thú (canh gác, kéo đồ)
-6. Kho bãi: zone, stockpile, lệnh sản xuất hàng loạt
-7. Độ phì nhiêu đất từng ô
-8. Bản đồ thế giới: caravan của làng đi buôn, nhiều faction, ngoại giao
-9. Storyteller điều tiết drama (kiểu RimWorld)
-10. Kịch bản khởi đầu / điều kiện thắng-thua
-
-**Để AI brain tương lai:**
-- Thought/mood (tâm trạng, suy nghĩ, khủng hoảng tinh thần)
-- Combat người-vs-người, tù binh
-- Nội dung hội thoại, sự kiện xã hội phức tạp
-- (Bridge API đã sẵn sàng: perception, action, intent, dreams, events...)
+- **Personal gold** — whoever earns it keeps it.
+- **Sella's shop** — daily buying and selling of food and materials within the village.
+- **Traveling caravan** — each season a merchant party from far away stops by, camping at the village center for half a day: selling **spices, cloth, tools, salt** (things the village can't make itself), buying **animal hides, smoked meat, eggs**. Prices differ from Sella's shop — bargain well and you profit.
+- Players must decide: what to sell, what to buy, what to save. The salt bought from the caravan is what cures meat through winter.
 
 ---
 
-## 17. Một ngày trong làng (ví dụ)
+## 12. Wild Beasts & Husbandry
 
-*Sáng mùa thu.* Marta ra ruộng thu hoạch lúa mì. Bram đốn gỗ để sửa mái nhà bị bão tốc. Wren vào rừng hái thảo dược — kho thuốc sắp hết. Finn câu cá ở hồ. Pip đuổi theo đàn gà. Sella mở shop. Tobin nấu bữa trưa.
+**Dangerous beasts** — the world holds more than villagers:
+- **Wolves:** travel in packs, hunt at night, stalk lone walkers and chickens. Fear fire, fear crowds. Hungry enough and they'll brave the village itself.
+- **Wild boars:** leave them alone and they leave you alone; approach and they charge.
+- **Bears:** rarely met, but meeting one is disaster — drawn by the smell of food.
 
-*Chiều.* Mây đen kéo đến. Sấm đánh trúng cây cổ thụ bìa rừng — **cháy**. Người làng bỏ việc, xách nước từ giếng chạy đi dập. Alden hô hoán. Lửa được dập trước khi lan tới kho thóc, nhưng Bram bị bỏng tay — Wren băng bó bằng thuốc đắp.
+Villagers know fear: seeing wolves they run indoors, cornered they fight back with tools, shouting for others to come save them.
 
-*Tối.* Cả làng ăn bữa thịnh soạn Tobin nấu. Marta kể chuyện con sói đêm qua lảng vảng ngoài rào. Đêm xuống, bầy sói lại về — nhưng thấy lửa trại và nghe tiếng người, chúng bỏ đi.
+**Husbandry** — turning wild beasts into assets:
+- Tame **chickens** and **piglets** with food (adult pigs can't be tamed).
+- Pen them in fenced enclosures (wolves can't get in), feed regularly → chickens lay more eggs, pigs farrow litters.
+- Starve them → they sicken → go wild again. Raising animals is a responsibility, not decoration.
+- Hunting → meat + hides (hides for sewing clothes, selling to the caravan).
 
-*Đó là Willowbrook Natura: không có rồng, không có phép thuật — chỉ có con người, và việc sống sót đã là một câu chuyện.*
+---
 
-## 18. Đánh giá: game giống thế giới thật bao nhiêu %
+## 13. Building & Clothing
 
-_Đánh giá trung thực, theo từng mặt của đời sống. Thang điểm = mức độ giống đời thật, không phải "hay hay dở"._
+**Building:**
+- Every structure costs **real materials**: wood (felled trees), stone (broken stone), straw.
+- Skilled builders work fast, houses sturdy; novices work slow, prone to shoddy work.
+- Can build: houses, anti-wolf fences, livestock pens, repairing damaged houses.
+- Houses have **durability** — storms, fire, wolves break them down over time; they must be repaired.
 
-### Điểm từng mặt
+**Clothing:**
+- Multiple layers: underclothes, jackets, boots, winter cloaks.
+- One purpose, and it's vital: **warmth**. Winter without warm clothes means freezing to death.
+- Clothes **wet lose 60% of warmth retention** (only 40% insulation left when wetness > 0.4 — code: `clothingInsul` in `14a_medical.js`; after rain, wading, or firefighting, change/hang to dry).
+- Worn long they **tear** → must be mended (`mend`) or sewn new (needs cloth bought from the caravan or hides from hunting).
 
-| Mặt đời sống | Điểm | Nhận xét |
+---
+
+## 14. Disaster & Fire
+
+- **Lightning:** strikes people (injured/severely), strikes houses/trees → fire.
+- **Wildfire:** spreads with the wind, burns fiercely in dry weather. Fire threatens houses, fields, lives.
+- **Firefighting:** villagers no longer just run — the able-bodied fetch water from well/lake to douse it themselves, prioritizing **save houses → save people → save fields**, abandoning fires far in the forest. Firefighters get soaked, breathe too much smoke and they suffocate.
+- **Storms:** wreck weak houses, topple trees.
+- **Winter:** the greatest enemy — cold, hunger, bold wolves. Surviving the first winter is a real achievement.
+
+---
+
+## 15. What the Player Does in the Game
+
+You are the **village's guide**, not a character:
+
+- **Observe:** watch villagers live, click each one to see body status, skills, relationships, memories.
+- **Direct orders:** tell someone to go somewhere, do something, say something — by clicking or typing an intent ("go fell timber for winter", "cook a lavish meal", "go rescue Bram").
+- **Work assignment:** assign long-term work matching each person's aptitudes.
+- **Decisions:** what to plant, what to build, what to sell to the caravan, how much food to save for winter, whether to tame that piglet.
+- **Emergency intervention:** house fire, wolves in the village, injured people — you send people to rescue, douse fires, fight wolves.
+
+**Win/lose:** the game is a sandbox — there's no "YOU WIN" screen. Losing is when the village withers: no people left, no food in midwinter. Winning is yours to define: survive 10 winters? Build a thriving village? Raise the second generation?
+
+---
+
+## 16. Game Features (Summary)
+
+**Already have:**
+1. Full body simulation (hunger/thirst/fatigue/temperature/oxygen/blood/illness) + death + corpse decay + burial
+2. Automatic survival instinct (survivalGuard)
+3. Honest perception (villagers only know what their senses deliver)
+4. Multi-step action system (16+ verbs) + plain-language orders (intent)
+5. Two-sided society: befriend/love/have children + insult/hostility/fight/make up
+6. Memory (witnessed events, danger lessons, "dreams" — things wanted that the game can't do yet)
+7. Medieval medicine: detailed wounds, bandaging, bone splints, herbal remedies, rescue
+8. 8 skill groups + XP + aptitudes + work assignment
+9. Building costs real materials + durability + repairs
+10. Multi-layer clothing + warmth + wet/torn + sewing/mending
+11. 3-tier food + poisoning + spoilage + salt-cure/smoking
+12. Husbandry: taming, pens, feeding, breeding
+13. Economy: personal gold, Sella's shop, seasonal caravan
+14. Wild beasts: wolves/boars/bears + hunting for meat and hides
+15. Disasters: lightning, wildfire, storms + villagers dousing fires themselves
+16. Children: born, grow up, rendered at correct proportions
+17. Event feed + Pawn Inspector (per-villager detail panel)
+
+**Still to add (saved in backlog, to consider later):**
+1. Brewing beer/wine
+2. Wooden prosthetic limbs, deeper medicine (amputation)
+3. Bows, spears, swords + leather/iron armor
+4. Room concept: indoor temperature, beautiful/ugly rooms
+5. Animal training (guarding, hauling)
+6. Stockpiles: zones, stockpiles, batch production orders
+7. Per-tile soil fertility
+8. World map: the village's own trading caravans, multiple factions, diplomacy
+9. Storyteller modulating drama (RimWorld-style)
+10. Starting scenarios / win-lose conditions
+
+**For the future AI brain:**
+- Thought/mood (moods, thoughts, mental crises)
+- Human-vs-human combat, prisoners
+- Dialogue content, complex social events
+- (Bridge API ready: perception, action, intent, dreams, events...)
+
+---
+
+## 17. A Day in the Village (Example)
+
+*An autumn morning.* Marta heads to the fields to harvest wheat. Bram fells timber to repair the storm-torn roof. Wren goes into the forest for herbs — the medicine stock is running low. Finn fishes at the lake. Pip chases the chickens. Sella opens the shop. Tobin cooks lunch.
+
+*Afternoon.* Dark clouds roll in. Lightning strikes the ancient tree at the forest's edge — **fire**. The villagers drop their work, fetch water from the well, and run to douse it. Alden shouts orders. The fire is out before it reaches the granary, but Bram's hand is burned — Wren bandages it with a poultice.
+
+*Evening.* The whole village eats the lavish meal Tobin cooked. Marta tells of the wolf prowling outside the fence last night. Night falls, the pack returns — but seeing the campfire and hearing voices, they slink away.
+
+*That is Willowbrook Natura: no dragons, no magic — only people, and survival itself is a story.*
+
+## 18. Assessment: How Close to the Real World Is the Game, in Percent
+
+_An honest assessment, by facet of life. The scale = how close to real life, not "good or bad"._
+
+### Score by Facet
+
+| Life facet | Score | Notes |
 |---|---|---|
-| Cơ thể sinh học (đói/khát/mệt/nhiệt/oxy/máu) | **85%** | Rất sát. Thiếu: bệnh mãn tính, thương tật vĩnh viễn, biến chứng sinh nở |
-| Y tế thời trung cổ | **70%** | Có thảo dược, nẹp xương, băng bó. Thiếu: cắt cụt, chân tay giả gỗ, đỡ đẻ khó, cách ly dịch |
-| Lao động & kỹ năng | **75%** | 8 skill, XP, năng khiếu. Thiếu: dạy nghề, đẳng cấp công cụ, thương tật ảnh hưởng việc làm |
-| Nông nghiệp | **70%** | Trồng theo mùa, 4 giai đoạn. Thiếu: độ phì đất, luân canh, phân chuồng, sâu bệnh, để giống |
-| Chăn nuôi | **60%** | Thuần hoá, chuồng trại, sinh sản. Thiếu: vắt sữa, xén lông cừu, dịch bệnh gia súc |
-| Xã hội (yêu/ghét/gia đình) | **65%** | Cơ chế đủ. Thiếu chiều sâu: đám cưới, tang lễ, thừa kế, đố kỵ, tin đồn |
-| Kinh tế | **60%** | Vàng, shop, caravan. Thiếu: thuế lãnh chúa, nợ nần, giá cả biến động, đổi chác |
-| Thời tiết & thảm họa | **80%** | Mưa/bão/sét/cháy rừng/mùa đông. Thiếu: lũ lụt, hạn hán, mưa đá, sương mù |
-| Sinh thái thế giới | **65%** | Tài nguyên tái tạo, thú có AI. Thiếu: chuỗi thức ăn đầy đủ, di cư theo mùa |
-| Xây dựng | **70%** | Vật liệu thật, độ bền, sửa chữa. Thiếu: móng/nóc, cách nhiệt nhà, giếng khơi |
-| Quần áo | **70%** | Lớp áo, giữ ấm, ướt/rách. Thiếu: nhuộm vải, cỡ áo, yếu tố địa vị |
-| Chính quyền & luật lệ | **15%** | Gần như chưa có: Alden là trưởng làng nhưng không có luật, phạt, họp làng, thuế |
-| Tôn giáo & tín ngưỡng | **5%** | Chưa có: nhà nguyện, lễ cầu mùa, lễ hội, tang lễ, điềm báo — mà đời trung cổ xoay quanh điều này |
-| Văn hóa & giải trí | **20%** | Chưa có: nhạc, múa, kể chuyện quanh lửa trại, lễ hội, trò chơi |
-| Giáo dục & truyền nghề | **15%** | Trẻ con lớn lên nhưng không ai dạy — kỹ năng chỉ từ tự làm |
-| Tuổi già | **40%** | Có già/chết nhưng chưa có già yếu dần, chưa có chăm người già |
+| Body biology (hunger/thirst/fatigue/temperature/oxygen/blood) | **85%** | Very close. Missing: chronic illness, permanent disability, childbirth complications |
+| Medieval medicine | **70%** | Herbs, bone splints, bandaging. Missing: amputation, wooden prosthetics, difficult childbirth, quarantine |
+| Labor & skills | **75%** | 8 skills, XP, aptitudes. Missing: apprenticeship, tool tiers, disability affecting work |
+| Agriculture | **70%** | Seasonal planting, 4 stages. Missing: soil fertility, crop rotation, manure, pests, seed saving |
+| Husbandry | **60%** | Taming, pens, breeding. Missing: milking, sheep shearing, livestock epidemics |
+| Society (love/hate/family) | **65%** | Mechanisms sufficient. Missing depth: weddings, funerals, inheritance, jealousy, rumors |
+| Economy | **60%** | Gold, shop, caravan. Missing: lord's taxes, debts, fluctuating prices, barter |
+| Weather & disasters | **80%** | Rain/storms/lightning/wildfire/winter. Missing: floods, droughts, hail, fog |
+| World ecology | **65%** | Renewable resources, animal AI. Missing: full food chain, seasonal migration |
+| Building | **70%** | Real materials, durability, repairs. Missing: foundations/roofs, house insulation, dug wells |
+| Clothing | **70%** | Layers, warmth, wet/torn. Missing: dyeing, sizes, status factors |
+| Government & laws | **15%** | Almost nothing: Alden is village head but there are no laws, punishments, village meetings, taxes |
+| Religion & beliefs | **5%** | Nothing yet: no chapel, seasonal rites, harvest festivals, funerals, omens — yet medieval life revolved around this |
+| Culture & entertainment | **20%** | Nothing yet: no music, dance, fireside storytelling, festivals, games |
+| Education & apprenticeship | **15%** | Children grow but no one teaches — skills come only from doing |
+| Old age | **40%** | Aging/death exist but no gradual decline, no elder care |
 
-**Điểm tổng thể: khoảng 60–65%.**
+**Overall score: roughly 60–65%.**
 
-Đọc kỹ sẽ thấy một quy luật: **cái gì thuộc về "cơ thể và vật chất" thì game đã rất giống thật (70–85%)** — đói, rét, bệnh, lửa, sói, mùa màng. **Cái gì thuộc về "con người với nhau" ở tầm cộng đồng thì còn mỏng (5–20%)** — luật lệ, tôn giáo, lễ hội, dạy dỗ, chính quyền. Đó chính là phần làm nên "một xã hội trung cổ thật", chứ không chỉ "một nhóm người sinh tồn".
+Read carefully and a pattern emerges: **what belongs to "body and matter" the game already mirrors closely (70–85%)** — hunger, cold, illness, fire, wolves, harvests. **What belongs to "people with each other" at community level is still thin (5–20%)** — laws, religion, festivals, teaching, governance. That is precisely what makes "a real medieval society", not just "a group of people surviving".
 
-### Còn thiếu gì — danh sách cụ thể
+### What's Still Missing — Concrete List
 
-**A. Xã hội & cộng đồng (thiếu nhiều nhất):**
-1. **Luật lệ & trừng phạt** — trộm cắp thì sao? Đánh nhau thì ai xử? Họp làng, biểu quyết.
-2. **Thuế & nghĩa vụ phong kiến** — làng trung cổ nào cũng có lãnh chúa thu thuế thóc. Không có là thiếu một áp lực sinh tồn lớn.
-3. **Tôn giáo dân gian** — nhà nguyện nhỏ, lễ cầu mùa màng, lễ tạ ơn thu hoạch, tang lễ có nghi thức, điềm báo (chim bay, mây...). Không cần hệ ideology phức tạp, chỉ cần đời sống tâm linh đời thường.
-4. **Lễ hội** — hội mùa xuân, hội thu hoạch: ăn uống, múa hát, trai gái gặp gỡ (đây cũng là nơi tình yêu nảy nở, chứ không chỉ "bond tăng khi làm việc cùng").
-5. **Đám cưới & tang lễ** — nghi thức đánh dấu bước ngoặt đời người, cả làng tham dự.
-6. **Thừa kế** — cha mẹ chết, nhà cửa/vàng bạc về tay ai? Tranh chấp thừa kế là drama thật của đời xưa.
-7. **Tin đồn & danh tiếng** — ai ăn trộm, ai dũng cảm cứu người — cả làng biết và nhớ, ảnh hưởng cách người ta đối xử.
-8. **Dạy dỗ** — người lớn dạy trẻ con: nghề, chữ (nếu có), cách sống. Trẻ học nhanh khi có thầy.
+**A. Society & community (the biggest gap):**
+1. **Laws & punishment** — what happens to thieves? Who judges fights? Village meetings, voting.
+2. **Taxes & feudal obligations** — every medieval village had a lord collecting grain taxes. Without it, a major survival pressure is missing.
+3. **Folk religion** — small chapel, seasonal rites, harvest thanksgiving, ritual funerals, omens (birds, clouds...). No complex ideology system needed, just everyday spiritual life.
+4. **Festivals** — spring festival, harvest festival: feasting, dancing, young people meeting (this is also where love blooms, not just "bond rising when working together").
+5. **Weddings & funerals** — rituals marking life's turning points, the whole village attending.
+6. **Inheritance** — when parents die, who gets the house/gold? Inheritance disputes were real drama in the old days.
+7. **Rumors & reputation** — who stole, who bravely saved someone — the whole village knows and remembers, affecting how people are treated.
+8. **Teaching** — adults teaching children: trades, letters (if any), ways of life. Children learn fast with a teacher.
 
-**B. Sinh tồn sâu hơn:**
-9. **Thương tật vĩnh viễn** — mù một mắt, què chân, sẹo — theo suốt đời, ảnh hưởng việc làm và cách người khác nhìn.
-10. **Bệnh dịch** — dịch lan trong làng (sốt phát ban, dịch hạch nhẹ...), phải cách ly người bệnh, Wren thành nhân vật sống còn.
-11. **Tuổi già** — già yếu dần (làm chậm, hay ốm), được con cháu chăm — hoặc bị bỏ mặc (drama).
-12. **Biến chứng sinh nở** — đẻ khó có thể mất mẹ hoặc con (đời xưa là chuyện thường, game hiện tại đẻ an toàn 100%).
-13. **Thiên tai thêm** — lũ lụt (mưa dài ngày), hạn hán (giếng cạn, ruộng chết), mưa đá (nát hoa màu), sương mù (sói mò gần hơn).
+**B. Deeper survival:**
+9. **Permanent disability** — blind in one eye, lame leg, scars — lasting a lifetime, affecting work and how others see you.
+10. **Epidemics** — disease spreading through the village (rashes, mild plague...), patients must be quarantined, Wren becomes a matter of life and death.
+11. **Old age** — gradual decline (slower work, frequent illness), cared for by children and grandchildren — or neglected (drama).
+12. **Childbirth complications** — difficult labor can take mother or child (commonplace in the old days; the game currently has 100% safe births).
+13. **More disasters** — floods (days of rain), droughts (dry wells, dead fields), hail (ruined crops), fog (wolves creep closer).
 
-**C. Kinh tế & nghề sâu hơn:**
-14. **Vắt sữa & làm phô mai** — bò/dê cho sữa (hiện chăn nuôi chưa có bò/dê/cừu).
-15. **Cừu & len** — xén lông, dệt vải (giảm phụ thuộc vào caravan mua vải).
-16. **Phân chuồng & luân canh** — nông nghiệp khép kín: nuôi thú → có phân → ruộng tốt.
-17. **Thợ chuyên sâu** — thợ rèn làm công cụ nhiều đẳng cấp (cuốc cùn vs cuốc sắc khác nhau thật), thợ mộc, thợ đá.
-18. **Giá cả biến động** — mất mùa thì giá lương thực tăng, caravan ép giá.
+**C. Deeper economy & crafts:**
+14. **Milking & cheese-making** — cows/goats for milk (husbandry currently has no cows/goats/sheep).
+15. **Sheep & wool** — shearing, weaving (reducing dependence on buying cloth from the caravan).
+16. **Manure & crop rotation** — closed-loop farming: raising animals → manure → fertile fields.
+17. **Specialist craftsmen** — blacksmiths making tiered tools (a dull hoe vs a sharp hoe really differ), carpenters, stonemasons.
+18. **Fluctuating prices** — bad harvests raise food prices, caravans squeeze prices.
 
-**D. Thế giới sống động hơn:**
-19. **Chuỗi thức ăn** — sói ăn thỏ, gấu ăn cá, chim ăn sâu — chứ không chỉ thú "tương tác với dân làng".
-20. **Di cư theo mùa** — đàn chim đi về, bầy thú chuyển vùng.
+**D. A more living world:**
+19. **Food chain** — wolves eating rabbits, bears eating fish, birds eating worms — not just animals "interacting with villagers".
+20. **Seasonal migration** — flocks coming and going, herds moving ranges.
 
-### Những cái thiếu này rơi vào đâu
-- **Làm được ngay, không cần AI:** hầu hết mục A, B, C, D (1–20) — đều là cơ chế mô phỏng.
-- **Đã có trong backlog:** nấu bia/rượu (thuộc văn hóa), chân tay giả gỗ (thuộc thương tật), vũ khí/giáp, bản đồ thế giới, storyteller.
-- **Để AI brain:** chiều sâu cảm xúc của các nghi lễ (lời cầu nguyện, bài hát, lời thề) — cơ chế lễ hội làm trước, nội dung do AI viết sau. Thought/mood vẫn là của AI.
+### Where These Gaps Fall
+- **Doable now, no AI needed:** most of items A, B, C, D (1–20) — all simulation mechanics.
+- **Already in backlog:** brewing beer/wine (culture), wooden prosthetics (disability), weapons/armor, world map, storyteller.
+- **For the AI brain:** the emotional depth of rituals (prayers, songs, vows) — build the festival mechanics first, let AI write the content later. Thought/mood remains AI's domain.

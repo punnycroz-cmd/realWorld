@@ -1,17 +1,17 @@
 'use strict';
 // devtools/probe_7a_acceptance.js
-// Production-path acceptance probe for Phase 7A: "Tòa án phong tục & Guilds"
+// Production-path acceptance probe for Phase 7A: "Customary Court & Guilds"
 //
 // Acceptance Claims verified:
-// (a) Vụ trộm oan: Witness mang belief sai (nhớ nhầm người) -> Tòa customary court phạt nhầm
-//     -> Nạn nhân oan sinh grievance reputation reason -> Hành vi trả thù xuất hiện sau đó.
-//     Negative control: Chứng minh hệ cũ (phạt tự động đúng người) KHÔNG tạo được câu chuyện này.
-// (b) Apprentice 30 ngày vs Tự học 30 ngày: Skill gain cao hơn (đo số);
-//     Negative control: Người ngoài guild không được bonus.
-// (c) Guild bán bloc 10 bánh cho caravan: Giá/unit > bán lẻ từng cái (đo số);
-//     Negative control: Người ngoài guild bán bloc chỉ nhận giá bán lẻ; bảo toàn vật chất tuyệt đối.
-// (d) Witness không chứng kiến (ở xa lúc xảy ra vụ việc và không có memory):
-//     Negative control: KHÔNG được gọi khai (kiểm tra local belief).
+// (a) Wrongful theft case: witness holds a false belief (misremembered culprit) -> customary court punishes the wrong person
+//     -> Wronged victim gains a grievance reputation reason -> retaliatory behavior emerges afterwards.
+//     Negative control: proves the old system (automatic punishment of the right person) CANNOT produce this story.
+// (b) Apprentice 30 days vs self-taught 30 days: higher skill gain (measured);
+//     Negative control: non-guild outsiders get no bonus.
+// (c) Guild sells a bloc of 10 bread to caravan: price/unit > retail per loaf (measured);
+//     Negative control: non-guild sellers only get retail price for a bloc; absolute material conservation.
+// (d) Witness who did not witness (far away at the time, no memory):
+//     Negative control: NOT called to testify (local belief check).
 
 const fs = require('fs');
 const pathModule = require('path');
@@ -102,9 +102,9 @@ function cleanupProbePawns() {
 }
 
 // =====================================================================
-// CLAIM (a): VỤ TRỘM OAN & CÂU CHUYỆN TRẢ THÙ (EMERGENT NARRATIVE)
+// CLAIM (a): WRONGFUL THEFT & REVENGE STORY (EMERGENT NARRATIVE)
 // =====================================================================
-console.log('--- Claim (a): Vụ trộm oan, tòa phạt nhầm, nạn nhân sinh grievance & trả thù ---');
+console.log('--- Claim (a): Wrongful theft, court punishes wrongly, victim gains grievance & retaliates ---');
 
 try {
   const pVictim = mkProbePawn('Probe7A_Victim', 10, 10, { ageY: 32 });
@@ -113,7 +113,7 @@ try {
   const pElder = mkProbePawn('Probe7A_Elder', 12, 10, { ageY: 66, stage: 'elder' });
   const pMistakenWitness = mkProbePawn('Probe7A_Witness', 10.8, 10, { ageY: 30 });
 
-  // 1. Dựng witness mang belief sai (nhớ nhầm thủ phạm)
+  // 1. Set up a witness holding a false belief (misremembered culprit)
   ensureEpistemic(pMistakenWitness);
   pMistakenWitness.epistemic.memories.push({
     id: 'mem_probe_mistaken',
@@ -127,7 +127,7 @@ try {
   });
   pMistakenWitness.mistakenSuspect = pInnocent.name;
 
-  // 2. Mở phiên tòa Customary Court với bị cáo là pInnocent
+  // 2. Open a Customary Court hearing with pInnocent as defendant
   const hearingResult = CustomaryCourt.holdCourtHearing({
     protoNorm: 'theft',
     plaintiff: pVictim,
@@ -140,45 +140,45 @@ try {
     presidingElder: pElder
   });
 
-  // Kiểm tra phán quyết: tòa phạt nhầm người vô tội dựa trên lời khai witness
+  // Check verdict: court wrongly punishes the innocent based on witness testimony
   const isConvicted = hearingResult.isGuilty === true;
   const wasWrongful = hearingResult.wasWrongfulConviction === true;
   const sentenceType = hearingResult.verdict;
 
   assertProbe(isConvicted && wasWrongful,
-    'Claim (a.1): Tòa án phong tục kết án nhầm người vô tội dựa trên belief sai của witness',
+    'Claim (a.1): Customary court wrongfully convicts an innocent based on the false belief of the witness',
     `defendant=${hearingResult.defendant}, guilty=${isConvicted}, wrongful=${wasWrongful}, verdict=${sentenceType}, elder=${hearingResult.elder}`
   );
 
-  // 3. Nạn nhân oan sinh grievance reputation reason đối với witness
+  // 3. Wronged victim gains a grievance reputation reason against the witness
   ensureReputationFields(pInnocent);
   const innocentReasons = pInnocent.reputationReasons[pMistakenWitness.name] || [];
   const grievanceReason = innocentReasons.find(r => r.kind === 'grievance_false_testimony');
   const hasValidGrievance = Boolean(grievanceReason && grievanceReason.weight <= -0.9 && grievanceReason.decay >= 0.95);
 
   assertProbe(hasValidGrievance,
-    'Claim (a.2): Nạn nhân oan sinh grievance reputation reason với decay chống lại witness làm chứng gian',
+    'Claim (a.2): Wronged victim gains a decaying grievance reputation reason against the false witness',
     `grievanceKind=${grievanceReason && grievanceReason.kind}, weight=${grievanceReason && grievanceReason.weight}, decay=${grievanceReason && grievanceReason.decay}`
   );
 
-  // 4. Hành vi trả thù xuất hiện sau đó (grudge tăng vọt, rivalry, và retaliation được kích hoạt)
+  // 4. Retaliatory behavior emerges afterwards (grudge spikes, rivalry, retaliation triggered)
   const grudgeLevel = (pInnocent.grudges && pInnocent.grudges[pMistakenWitness.name]) || 0;
   const retaliated = pInnocent.hasRetaliated === true && pInnocent.retaliatedTarget === pMistakenWitness.name;
 
   assertProbe(grudgeLevel >= 3 && retaliated,
-    'Claim (a.3): Hành vi trả thù xuất hiện (grudge >= 3, rivalry checked, retaliation action executed)',
+    'Claim (a.3): Retaliatory behavior emerges (grudge >= 3, rivalry checked, retaliation action executed)',
     `grudgeLevel=${grudgeLevel}, retaliated=${retaliated}, target=${pInnocent.retaliatedTarget}`
   );
 
-  // 5. NEGATIVE CONTROL: Hệ cũ (phạt tự động đúng người trong doStealStep) KHÔNG THỂ tạo ra câu chuyện này
-  // Trong hệ cũ: phạt tự động luôn luôn trỏ vào đối tượng v (thủ phạm thật).
-  // Người vô tội không bao giờ bị ra tòa, không bao giờ bị kết án oan, và không bao giờ sinh grievance trả thù witness.
-  const oldSystemPunishedTarget = pRealThief.name; // Trong hệ cũ, v.name luôn là kẻ trộm thật
-  const oldSystemInnocentEverPunished = false;    // Hệ cũ không có hearing nên không thể phạt nhầm
+  // 5. NEGATIVE CONTROL: The old system (automatic punishment of the right person in doStealStep) CANNOT produce this story
+  // In the old system: automatic punishment always targeted v (the real thief).
+  // The innocent were never tried, never wrongfully convicted, and never gained retaliatory grievance against a witness.
+  const oldSystemPunishedTarget = pRealThief.name; // In the old system, v.name was always the real thief
+  const oldSystemInnocentEverPunished = false;    // Old system had no hearing, so wrongful punishment was impossible
   const oldSystemCanGenerateGrievanceAgainstWitness = false;
 
   assertProbe(oldSystemInnocentEverPunished === false && oldSystemCanGenerateGrievanceAgainstWitness === false,
-    'Claim (a.4) [NEGATIVE CONTROL]: Hệ cũ (phạt tự động đúng người) KHÔNG THỂ tạo được câu chuyện oan sai này',
+    'Claim (a.4) [NEGATIVE CONTROL]: The old system (automatic punishment of the right person) CANNOT produce this wrongful-conviction story',
     `oldSystemTarget=${oldSystemPunishedTarget}, innocentNeverConvictedInOldSystem=true, wrongfulGrievanceImpossibleInOldSystem=true`
   );
 
@@ -189,9 +189,9 @@ try {
 }
 
 // =====================================================================
-// CLAIM (b): APPRENTICE 30 NGÀY VS TỰ HỌC 30 NGÀY (SKILL GAIN)
+// CLAIM (b): APPRENTICE 30 DAYS VS SELF-TAUGHT 30 DAYS (SKILL GAIN)
 // =====================================================================
-console.log('\n--- Claim (b): Học việc 30 ngày vs tự học 30 ngày (đo số) & negative control ---');
+console.log('\n--- Claim (b): 30-day apprenticeship vs 30-day self-teaching (measured) & negative control ---');
 
 try {
   const pMaster = mkProbePawn('Probe7A_MasterSmith', 10, 10, { ageY: 52 });
@@ -210,7 +210,7 @@ try {
   // pSelfTaught is NOT in guild with master
   // pOutsider is completely outside guild
 
-  // Mô phỏng 30 ngày huấn luyện: mỗi ngày 1 buổi thao tác rèn đúc (10 base XP)
+  // Simulate 30 days of training: one smithing session per day (10 base XP)
   for (let day = 1; day <= 30; day++) {
     gainXP(pApprentice, 'building', 10);
     gainXP(pSelfTaught, 'building', 10);
@@ -225,17 +225,17 @@ try {
   const outMult = Guilds.getGuildApprenticeshipBonus(pOutsider, 'building');
 
   assertProbe(appTotalXP > selfTotalXP,
-    'Claim (b.1): Apprentice học việc 30 ngày đạt skill gain cao hơn người tự học 30 ngày (đo số cụ thể)',
+    'Claim (b.1): 30-day apprentice achieves higher skill gain than 30-day self-taught (concrete measurement)',
     `apprenticeXP=${appTotalXP.toFixed(1)}, selfTaughtXP=${selfTotalXP.toFixed(1)}, delta=+${(appTotalXP - selfTotalXP).toFixed(1)}XP (+${(((appTotalXP/selfTotalXP)-1)*100).toFixed(1)}%)`
   );
 
   assertProbe(appMult === 1.60,
-    'Claim (b.2): Hệ số học việc cùng master là hằng số đo được, deterministic (=1.60x)',
+    'Claim (b.2): Apprenticeship multiplier under a master is a measured, deterministic constant (=1.60x)',
     `apprenticeshipMultiplier=${appMult}`
   );
 
   assertProbe(selfTotalXP === outTotalXP && outMult === 1.0,
-    'Claim (b.3) [NEGATIVE CONTROL]: Người ngoài guild không được bonus (nhận đúng 1.0x như người tự học)',
+    'Claim (b.3) [NEGATIVE CONTROL]: Non-guild outsiders get no bonus (exactly 1.0x like the self-taught)',
     `outsiderXP=${outTotalXP.toFixed(1)}, selfTaughtXP=${selfTotalXP.toFixed(1)}, outsiderBonusMult=${outMult}`
   );
 
@@ -246,9 +246,9 @@ try {
 }
 
 // =====================================================================
-// CLAIM (c): GUILD BÁN BLOC 10 BÁNH CHO CARAVAN (GIÁ/UNIT > BÁN LẺ)
+// CLAIM (c): GUILD SELLS BLOC OF 10 BREAD TO CARAVAN (PRICE/UNIT > RETAIL)
 // =====================================================================
-console.log('\n--- Claim (c): Guild bán bloc 10 bánh cho caravan (giá/unit > bán lẻ) & negative control ---');
+console.log('\n--- Claim (c): Guild sells bloc of 10 bread to caravan (price/unit > retail) & negative control ---');
 
 try {
   const pGuildBaker = mkProbePawn('Probe7A_GuildBaker', 4 * CS + 16, 2 * CS + 16, { ageY: 35 });
@@ -270,12 +270,12 @@ try {
     trader.y = pGuildBaker.y;
   }
 
-  // 1. Guild member bán lẻ 1 bánh
+  // 1. Guild member retails 1 loaf
   doTradeStep(pGuildBaker, { verb: 'trade', what: 'bread', buy: false, qty: 1 }, 0.1);
-  const retailUnitPrice = pGuildBaker.gold; // Vàng nhận được từ 1 bánh bán lẻ
+  const retailUnitPrice = pGuildBaker.gold; // Gold received from 1 retail loaf
   pGuildBaker.gold = 0;
 
-  // 2. Guild member bán bloc 10 bánh
+  // 2. Guild member sells a bloc of 10 loaves
   const initialCaravanStock = CARAVAN.stock.bread || 0;
   doTradeStep(pGuildBaker, { verb: 'trade', what: 'bread', buy: false, qty: 10, bloc: true }, 0.1);
   const guildBlocTotalGain = pGuildBaker.gold;
@@ -283,26 +283,26 @@ try {
   const afterGuildStock = CARAVAN.stock.bread || 0;
 
   assertProbe(guildBlocUnitPrice > retailUnitPrice,
-    'Claim (c.1): Guild bán bloc 10 bánh cho caravan có giá/unit cao hơn bán lẻ từng cái (đo số)',
+    'Claim (c.1): Guild bloc sale of 10 loaves to caravan has higher price/unit than retail per loaf (measured)',
     `guildBlocUnitPrice=${guildBlocUnitPrice}g/ea, retailUnitPrice=${retailUnitPrice}g/ea, delta=+${(guildBlocUnitPrice - retailUnitPrice).toFixed(2)}g/ea (+${(((guildBlocUnitPrice/retailUnitPrice)-1)*100).toFixed(1)}%)`
   );
 
-  // 3. NEGATIVE CONTROL: Người ngoài guild bán bloc 10 bánh KHÔNG được giá guild (nhận giá bán lẻ)
+  // 3. NEGATIVE CONTROL: Non-guild sellers do NOT get guild price for a 10-loaf bloc (receive retail price)
   doTradeStep(pNonGuildSeller, { verb: 'trade', what: 'bread', buy: false, qty: 10, bloc: true }, 0.1);
   const nonGuildTotalGain = pNonGuildSeller.gold;
   const nonGuildUnitPrice = +(nonGuildTotalGain / 10).toFixed(2);
 
   assertProbe(nonGuildUnitPrice === retailUnitPrice && nonGuildUnitPrice < guildBlocUnitPrice,
-    'Claim (c.2) [NEGATIVE CONTROL]: Người ngoài guild bán bloc 10 bánh chỉ nhận giá bán lẻ thông thường',
+    'Claim (c.2) [NEGATIVE CONTROL]: Non-guild sellers only receive the normal retail price for a 10-loaf bloc',
     `nonGuildBlocUnitPrice=${nonGuildUnitPrice}g/ea, retailUnitPrice=${retailUnitPrice}g/ea, guildBlocUnitPrice=${guildBlocUnitPrice}g/ea`
   );
 
-  // 4. Bảo toàn vật chất: Bánh chuyển từ kho dân làng sang caravan, vàng chuyển từ thương nhân sang dân làng
-  const bakerRemainingBread = pGuildBaker.inv.bread; // Bắt đầu 20, bán 1 lẻ, bán 10 bloc -> còn 9
-  const caravanStockDelta = afterGuildStock - initialCaravanStock; // Tăng đúng 10 bánh từ giao dịch bloc
+  // 4. Material conservation: bread moves from villager stock to caravan, gold moves from trader to villager
+  const bakerRemainingBread = pGuildBaker.inv.bread; // Start 20, sell 1 retail, sell 10 bloc -> 9 left
+  const caravanStockDelta = afterGuildStock - initialCaravanStock; // Exactly +10 loaves from the bloc deal
 
   assertProbe(bakerRemainingBread === 9 && caravanStockDelta === 10,
-    'Claim (c.3): Bảo toàn vật chất tuyệt đối — hàng hóa và tiền tệ chuyển giao thật, không sinh từ hư không',
+    'Claim (c.3): Absolute material conservation — goods and currency truly transfer, nothing from thin air',
     `bakerBreadRemaining=${bakerRemainingBread}/20, caravanStockGained=${caravanStockDelta}`
   );
 
@@ -316,13 +316,13 @@ try {
 // =====================================================================
 // CLAIM (d): LOCAL BELIEF WITNESS GATE & NEGATIVE CONTROL
 // =====================================================================
-console.log('\n--- Claim (d): Nhân chứng không chứng kiến bị loại khỏi phiên xử (local belief) ---');
+console.log('\n--- Claim (d): Non-witnessing bystanders excluded from the hearing (local belief) ---');
 
 try {
   const pPl = mkProbePawn('Probe7A_PlaintiffD', 10, 10, { ageY: 35 });
   const pDef = mkProbePawn('Probe7A_DefendantD', 10.2, 10, { ageY: 28 });
-  const pNearWit = mkProbePawn('Probe7A_NearWitnessD', 10.5, 10, { ageY: 25 }); // Ở gần hiện trường
-  const pFarWit = mkProbePawn('Probe7A_FarWitnessD', 80, 80, { ageY: 40 }); // Ở xa (70+ cells) và không có memory
+  const pNearWit = mkProbePawn('Probe7A_NearWitnessD', 10.5, 10, { ageY: 25 }); // Near the scene
+  const pFarWit = mkProbePawn('Probe7A_FarWitnessD', 80, 80, { ageY: 40 }); // Far away (70+ cells) with no memory
 
   const hearingContext = {
     plaintiffName: pPl.name,
@@ -335,12 +335,12 @@ try {
   const farCheck = CustomaryCourt.isEligibleWitness(pFarWit, hearingContext);
 
   assertProbe(nearCheck.eligible === true,
-    'Claim (d.1): Nhân chứng có mặt tại hiện trường qua senses (gần hiện trường) được chấp nhận',
+    'Claim (d.1): Witness present at the scene via senses (near the scene) is accepted',
     `nearWitness=${pNearWit.name}, eligible=${nearCheck.eligible}, wasPresent=${nearCheck.wasPhysicallyPresent}`
   );
 
   assertProbe(farCheck.eligible === false && farCheck.reason.includes('no local'),
-    'Claim (d.2) [NEGATIVE CONTROL]: Nhân chứng ở xa không chứng kiến và không có memory BỊ TỪ CHỐI gọi khai',
+    'Claim (d.2) [NEGATIVE CONTROL]: Distant witness with no observation and no memory is REJECTED from testifying',
     `farWitness=${pFarWit.name}, eligible=${farCheck.eligible}, rejectionReason="${farCheck.reason}"`
   );
 

@@ -626,82 +626,82 @@ deaths (was incorrectly asserting zero `starvation`).
 - User reviewed 2 external Natura builds (GLM 5.3: Next.js/TS 1.5MB; Qwen Coder: Vite/TS ~3.2k lines) via 2 parallel code-read analysts (read-only, no trust in their worklogs — caught GLM claiming "demand-responsive caravan" that was pure RNG in code).
 - Consolidated steal list approved by user: P0 Survival Guard (both AIs independently invented it — strongest signal; implements Principle 2) + belief tuples/expectation records + stale stash beliefs; P1 scarcity+season pricing (magic 8 replaced by stock/weeklyConsumption), weather→fire causal chain, emotion derivation layer, body-factor chain (injury→infection→work/speed penalty); P2 brain observe/think/learn boundary for Phase 9. Deferred: needs-derived-from-body refactor (Phase 7+; current needs stable through 30-day run).
 - Verdict: GLM = fuller village game (body sim, eco causality, content) but omniscient brain, no ownership/provenance, no imperfection layer; Qwen = lean demo with clean patterns but hollow sim (no death code at all, fake economy, broken save). Ours leads in epistemic architecture + determinism + QA discipline. Direction: steal mechanisms, never their architectures.
-- Wrote `SPEC_PHASE6.md` (LÀM/KHÔNG LÀM/acceptance criteria per sub-phase 6A→6D + deferred + process rules); pointer added to SPEC_BUILD_PLAN.md phase list. No code touched — awaiting Phase 5 release push before 6A implementation.
+- Wrote `SPEC_PHASE6.md` (DO/DON'T/acceptance criteria per sub-phase 6A→6D + deferred + process rules); pointer added to SPEC_BUILD_PLAN.md phase list. No code touched — awaiting Phase 5 release push before 6A implementation.
 
 ### Phase 6A committed (2026-09-16, ~06:00 PDT)
-- Robin attempt 1: harness green (234 lines, 0 FAIL, part24 9/9) but **Examiner FAIL** 3 blocking defects (A1 gate-1 interrupt mỗi tick vì sói hiền/lửa trại — regression vs Phase 4; A2 expectation không hết hạn; A3 stash-expectation API dead code).
-- Lead clarified spec (SPEC_PHASE6.md): gate 1 chỉ hostile-state beasts (stalk/attack/hunt/fight) + uncontrolled wildfire, douse plans không bị wipe.
-- Robin fix attempt 1/2: B1 hostile-only + wildfire-only + douse exempt; B2 TTL 7 sim days (EXPECTATION_TTL_DAYS, sweep trong decayEpistemic qua epistemicTick←bodyTick); B3 checkStashExpectation nối vào doTakeStep/doForageStep, anchor qua observe() topic stash/pile; O2 hashString18 implement thật (FNV-1a); O4 checkPriceExpectation sau stock/gold check; O1 confirmed INTENTIONAL (routineNeeds replaced by Utility AI).
-- **Examiner re-audit: PASS.** Tự chạy harness (237 lines, 0 FAIL, part24 12/12), probe độc lập 6/6 cho B1 (docile wolf 0/40 wipes, travel 10.0=control, campfire 0/40, douse giữ nguyên), B2 probe 10-day expectation gone sau 24h, B3 probe pile trống → surprise+replan qua đường thật. Kỷ luật giữ: không Bayes/FOV creep, không Math.random mới, rebuild byte-identical 59 modules, __aiBridge nguyên vẹn.
-- Non-blocking observations ghi nợ: Oa presence group còn 0 caller (phải wire ở 6C/6D hoặc descope tường minh); Ob proximity fallback ±1 tile có thể gán nhầm stash gần; Oe Math.random còn ở ui/10_controls.js:38 (visitor pick, pre-6A). Khuyến nghị long-run 30-day probe trước 6B (attention chạy mỗi tick/villager).
-- Commit 6A riêng. Next: 6B (dynamic candidates, carrying capacity, seasons, weather→fire).
+- Robin attempt 1: harness green (234 lines, 0 FAIL, part24 9/9) but **Examiner FAIL** 3 blocking defects (A1 gate-1 interrupting every tick from docile wolves/campfires — regression vs Phase 4; A2 expectations never expired; A3 stash-expectation API dead code).
+- Lead clarified spec (SPEC_PHASE6.md): gate 1 only fires on hostile-state beasts (stalk/attack/hunt/fight) + uncontrolled wildfire; douse plans are not wiped.
+- Robin fix attempt 1/2: B1 hostile-only + wildfire-only + douse exempt; B2 TTL 7 sim days (EXPECTATION_TTL_DAYS, sweep in decayEpistemic via epistemicTick←bodyTick); B3 checkStashExpectation wired into doTakeStep/doForageStep, anchored via observe() on topic stash/pile; O2 hashString18 implemented for real (FNV-1a); O4 checkPriceExpectation after stock/gold check; O1 confirmed INTENTIONAL (routineNeeds replaced by Utility AI).
+- **Examiner re-audit: PASS.** Ran the harness itself (237 lines, 0 FAIL, part24 12/12), independent 6/6 probe for B1 (docile wolf 0/40 wipes, travel 10.0=control, campfire 0/40, douse plans preserved), B2 probe 10-day expectation gone after 24h, B3 probe empty pile → surprise+replan through the real path. Discipline held: no Bayes/FOV creep, no new Math.random, byte-identical rebuild of 59 modules, __aiBridge intact.
+- Non-blocking observations recorded as debt: Oa presence group still has 0 callers (must be wired in 6C/6D or explicitly descoped); Ob proximity fallback ±1 tile may misassign a nearby stash; Oe Math.random still in ui/10_controls.js:38 (visitor pick, pre-6A). Recommended: long-run 30-day probe before 6B (attention runs every tick/villager).
+- 6A committed separately. Next: 6B (dynamic candidates, carrying capacity, seasons, weather→fire).
 
 ### Phase 6B committed (2026-09-16, ~07:00 PDT)
 - Robin implementation: dynamic candidates (utility.js/13a_intent.js), tile depletion + seasons + wolf 2-state (12d_world.js/14c_wildlife.js), weather→fire chain (dryDays→dryness, fuel/wind spread, rain extinguishes, ash 'burned' provenance). Part 25: 10 tests, harness green.
 - **Examiner audit 1: FAIL** — 2 blocking: (1) belief candidates crowded out of top-3 by static habit/template scores (spec's own Bram example failed; test 25.1 vacuous); (2) WHY reason lied: berry-stash belief → "Seek bread at stash" (fKind fallback || 'bread').
-- Robin fix attempt 1: **fixed nothing** (lead verified code directly — 25.1 still no belief assertion, line 890 unchanged). Attempt 2/2 with exact line-level brief.
+- Robin fix attempt 1: **fixed nothing** (lead verified the code directly — 25.1 still had no belief assertion, line 890 unchanged). Attempt 2/2 with an exact line-level brief.
 - Robin fix attempt 2: belief-first partition (beliefs fill top slots first, ≤3, deterministic), fKind fallback chain extended (foodKind||what||kind||name||'food'), pos fallback line 891, 25.1 extended (hasBelief, fails on old code), new test 25.2b (berries not bread). Also removed hardcoded founder-name habit fallbacks (O1).
 - **Examiner re-audit: PASS.** Own probes: belief-first 19/19 (incl. no-belief fallback path), berry reason truthful, no regression on B2/B3/wolves, rebuild byte-identical, no new Math.random, __aiBridge intact.
 - Perf probes: Robin 1.70 ms/tick, Examiner 3.17 ms/tick (20 villagers × 3 days, machine-dependent) — both well under threshold, no optimization needed.
 - Debt carried: presence group API still 0 in-game callers (→ wire in 6C/6D or descope); proximity fallback ±1 tile; pre-existing Math.random in ui/10_controls.js:38.
-- Commit 6B riêng. Next: 6C (Survival Guard, conflicting motives, emotions, impairment, identity).
+- 6B committed separately. Next: 6C (Survival Guard, conflicting motives, emotions, impairment, identity).
 
 ### Master-doc adaptation + D1–D4 detail (2026-09-16, ~09:05 PDT)
-- User gửi Master Document v1.0, yêu cầu adapt chọn lọc (chỉ logic game, bỏ roadmap).
-- Lead viết `docs/ADAPT_MASTER_DOC.md` (ADOPT sau Phase 6 / DISCUSS D1–D4 / DEFER / DROP) và `docs/ADAPT_D1-D4_DETAIL.md` (so từng mục: doc gốc nói gì → code hiện có gì [kèm file:dòng] → sẽ làm gì → không làm gì → ví dụ đời thật).
-- D1: khuyến nghị Option 1 (giữ C3 + cross-effects), 12 chất → Phase 7. User không bịa số (đồng ý), nhưng lo feeling-scape nghèo cho AI brain → đề xuất 2 bổ sung, lead **chấp nhận cả 2**: (1) định nghĩa `FeelingSubstrate` interface ngay (getFeelingScape/getLayers; C3 hiện tại đi qua nó; Phase 7 swap implementation không phá AI brain; test chạy được cả 2); (2) cross-effects dạng accumulator có tích tụ + decay scale theo dtH (determinism), không conditional bật/tắt. Đã cập nhật vào D1–D4 detail doc.
-- D2: vocabulary-only (mọi organ state đều bucket-hóa được từ body fields). D3: intensity fragmenting 4 mức cho memory/HUD, bỏ personality matrix (chưa có consumer). D4: functional core (consolidation + morning mood), bỏ REM/coherence formula.
-- Kỷ luật giữ: presentation không lái behavior; interface phải được dùng thật (chống bug #13).
+- User sent Master Document v1.0, requesting selective adaptation (game logic only, roadmap dropped).
+- Lead wrote `docs/ADAPT_MASTER_DOC.md` (ADOPT after Phase 6 / DISCUSS D1–D4 / DEFER / DROP) and `docs/ADAPT_D1-D4_DETAIL.md` (per-item comparison: what the original doc says → what the code already has [with file:line] → what to do → what not to do → real-life examples).
+- D1: recommended Option 1 (keep C3 + cross-effects), 12 qualities → Phase 7. User said don't invent numbers (agreed), but worried the feeling-scape would be too impoverished for the AI brain → proposed 2 additions, lead **accepted both**: (1) define the `FeelingSubstrate` interface now (getFeelingScape/getLayers; current C3 routes through it; a Phase 7 implementation swap won't break the AI brain; tests run against both); (2) cross-effects as accumulators with accumulation + dtH-scaled decay (deterministic), no conditional on/off toggles. Updated in the D1–D4 detail doc.
+- D2: vocabulary-only (every organ state can be bucketized from body fields). D3: 4-level intensity fragmenting for memory/HUD, drop the personality matrix (no consumer yet). D4: functional core (consolidation + morning mood), drop the REM/coherence formula.
+- Discipline held: presentation must not drive behavior; interfaces must be genuinely used (guards against bug #13).
 
 ### Hearth external build analysis (2026-09-16, ~09:20 PDT)
-- User upload `workspace.tar.gz`: build "Hearth" (~5.300 dòng single-file, RimWorld-tradition, 14 dân, 366 ngày/0.6–1.8s) — tác giả áp dụng literally review Willowbrook Natura của ta (trích đúng số bug #28/#31/#33/#34/#5). Chưa rõ provenance/quyền sử dụng — đã hỏi user.
-- Xác nhận thiết kế ta: survivalGuard veto tách lethal/incapacitating (= C1 6C), utility ladder bounded, why-trace panel (= #pi-why). Ta đi trước ở: epistemic layer (nó ghi "villagers still omniscient"), attention gates, sói 2-state, scarcity pricing + reputation (kế hoạch 6D của ta).
-- 3 bài học đắt: (1) "Misery is BOUNDED; comfort is not" — mood kẹt −100 cả năm là ratchet không phải con người → accumulator của ta **phải có sàn** + thích nghi; (2) "Opinion is not one number: list of reasons, each decays" → steal cho 6D reputation; (3) **"Long-run balance is not solved"** — sau 1 năm còn 0–1 dân (35 sinh/48 chết); nguyên nhân: labour allocation ("2 người lo nước hôm nay" thay vì re-bid mỗi tick) — blind spot của ta (utility AI cũng re-bid mỗi tick).
-- Backlog đã chốt với user: (a) soak test dài ngày + (b) labour allocation model → Phase 7; (c) sàn accumulator + thích nghi → 6E (cùng D1 decay couplings); (d) relationship-dạng-lý-do-decay → 6D reputation.
-- RimWorld cheatsheet đính kèm: "Be accurate where accuracy creates story. Be stylised everywhere else." — đúng tinh thần adaptation; đã ném cho 4 personas.
+- User uploaded `workspace.tar.gz`: a "Hearth" build (~5,300-line single file, RimWorld-tradition, 14 villagers, 366 days/0.6–1.8s) — the author literally applied our Willowbrook Natura review (cited bug numbers #28/#31/#33/#34/#5 exactly). Provenance/usage rights unclear — asked the user.
+- Confirmed our design: survivalGuard veto splitting lethal/incapacitating (= C1 6C), bounded utility ladder, why-trace panel (= #pi-why). We're ahead on: epistemic layer (it admits "villagers still omniscient"), attention gates, 2-state wolves, scarcity pricing + reputation (our 6D plan).
+- 3 expensive lessons: (1) "Misery is BOUNDED; comfort is not" — mood stuck at −100 for a whole year is a ratchet, not a human → our accumulator **must have a floor** + adaptation; (2) "Opinion is not one number: list of reasons, each decays" → steal for 6D reputation; (3) **"Long-run balance is not solved"** — after 1 year only 0–1 villagers remain (35 births/48 deaths); cause: labour allocation ("2 people on water today" instead of re-bidding each tick) — our blind spot (the utility AI also re-bids every tick).
+- Backlog agreed with the user: (a) long soak test + (b) labour allocation model → Phase 7; (c) accumulator floor + adaptation → 6E (with D1 decay couplings); (d) reasons-list-decaying relationships → 6D reputation.
+- Attached RimWorld cheatsheet: "Be accurate where accuracy creates story. Be stylised everywhere else." — exactly the spirit of the adaptation; fed to the 4 personas.
 
-### 4-persona debate về D1–D4 (2026-09-16, ~09:14 PDT — đang chạy)
-- User yêu cầu tạm dừng fix 6C để thảo luận thêm. Đã kill run fix (code dở trên disk).
-- agy/Robin đang chạy tranh luận 4 personas (Thợ cả, Ông đồ, Nhà sinh thái, Nhà nhận thức luận — theo biên bản vòng 2) về các thay đổi D1–D4: interface có phải fiction không, D2 có mất story nào không, D3 presentation vs decoration, D4 defer nightmare→trauma có lỗ hổng không, quota cắn thì cắt gì trước. Chỉ thảo luận, không đụng code. Output: `docs/ADAPT_4PERSONA_DEBATE.md`.
-- 6C fix attempt 2/2 (guard check vào brainThink) TẠM DỪNG — resume sau khi user chốt từ debate.
+### 4-persona debate on D1–D4 (2026-09-16, ~09:14 PDT — running)
+- User asked to pause the 6C fix for further discussion. Killed the fix run (half-written code on disk).
+- agy/Robin is running the 4-persona debate (Master Artisan, the Scholar, the Ecologist, the Epistemologist — per the round-2 minutes) on the D1–D4 changes: is the interface a fiction, does D2 lose any stories, D3 presentation vs decoration, does deferring nightmare→trauma leave a gap, if quota bites what gets cut first. Discussion only, no code touched. Output: `docs/archive/ADAPT_4PERSONA_DEBATE.md`.
+- 6C fix attempt 2/2 (guard check into brainThink) PAUSED — resume after the user settles the debate outcome.
 
-### Chốt 1B/Beta/3B + 4 điều kiện enforce + 3 ADR (2026-09-16, ~09:30 PDT)
-- EP chốt theo khuyến nghị lead: **1B / Beta / 3B**, kèm 4 điều kiện enforce (ghi từ Hearth: quyết định không có cơ chế enforce sẽ bị undermine):
-  1. Lint rule cấm `v.body.` trong `src/brain/**` (CI fail) — chống bypass interface.
-  2. ADR ghi rõ interface KHÔNG hứa swap êm — chỉ hứa 1 chỗ viết lại thay vì 100 chỗ.
-  3. A1 eye-read probe 24h đọc bằng mắt (chống bug attention filter kiểu Hearth #16).
-  4. `stressResidue ≤ 0.35×maxStress` + recovery 8%/ngày bình yên (ngày bình yên = không threat, không loss, mood>0).
-- Đã viết 3 ADR TRƯỚC khi code (theo yêu cầu EP): `docs/adr/ADR-001-substrate-interface.md`,
-  `ADR-002-smallest-6e-beta.md`, `ADR-003-stress-residue.md`. ADR-001 ghi rõ lý do đã sửa
-  (interface = ép kỷ luật A4, không phải swap êm). Các số 0.35/8% là tham số tune khởi đầu, không phải chân lý.
-- 6C fix attempt 2/2 vẫn TẠM DỪNG (chờ resume sau khi chốt debate).
+### 1B/Beta/3B decision + 4 enforce conditions + 3 ADRs (2026-09-16, ~09:30 PDT)
+- EP decided per lead's recommendation: **1B / Beta / 3B**, with 4 enforce conditions (from Hearth: a decision without an enforcement mechanism will be undermined):
+  1. Lint rule banning `v.body.` in `src/brain/**` (CI fails) — guards against interface bypass.
+  2. ADR states explicitly the interface does NOT promise a smooth swap — only promises 1 rewrite location instead of 100.
+  3. A1 eye-read probe 24h read by eye (guards against Hearth-#16-style attention-filter bugs).
+  4. `stressResidue ≤ 0.35×maxStress` + recovery 8%/calm day (calm day = no threat, no loss, mood>0).
+- Wrote 3 ADRs BEFORE coding (per EP request): `docs/adr/ADR-001-substrate-interface.md`,
+  `ADR-002-smallest-6e-beta.md`, `ADR-003-stress-residue.md`. ADR-001 records the corrected rationale
+  (interface = enforces A4 discipline, not a smooth swap). The 0.35/8% numbers are initial tuning parameters, not gospel truth.
+- 6C fix attempt 2/2 still PAUSED (waiting to resume after the debate settles).
 
 ### 6C PASS — commit (2026-09-16, ~09:56 PDT)
-- **Examiner Tier-3 re-audit: PASS** (attempt 2/2). Guard check nằm trong production `brainThink`
-  (`src/brain/utility.js:1380`), trước `evaluateAndApplyUtilityAction` và `planTick` — không wrapper
-  nào shadow được (grep `brainThink =` = 0 hit). Return giữ contract `{plan, currentAction}` cho brainLearn.
-- Examiner tự chạy: harness 259 lines 0 FAIL (24:12/12, 25:11/11, 26:9/9); probe Robin 13/13;
-  **probe adversarial riêng 9/9**: E1 full path updateVillagerAI với vết thương hở → tend có guard,
-  workProgress đóng băng; E2 biên blood=0.69 fire / 0.71 không fire; E3 brainControlled (player)
-  chảy máu vẫn bị interrupt (guard không miễn trừ player); E4 150 ticks blood=0.5 → verb work
-  không bao giờ quay lại; E5 flee plan không bị blood guard giẫm (flee ưu tiên hơn, đúng thiết kế).
-- Test 26.3 chạy bundled planTick thật (không mock, không wait-evasion). Scope 17 files đều là 6C
-  hợp lệ, không creep. Không thêm Math.random() gameplay. Rebuild byte-identical (930.544 bytes),
+- **Examiner Tier-3 re-audit: PASS** (attempt 2/2). The guard check sits in production `brainThink`
+  (`src/brain/utility.js:1380`), before `evaluateAndApplyUtilityAction` and `planTick` — no wrapper
+  can shadow it (grep `brainThink =` = 0 hits). The return keeps the `{plan, currentAction}` contract for brainLearn.
+- Examiner ran itself: harness 259 lines 0 FAIL (24:12/12, 25:11/11, 26:9/9); Robin probe 13/13;
+  **own adversarial probe 9/9**: E1 full path updateVillagerAI with an open wound → tend guarded,
+  workProgress frozen; E2 boundary blood=0.69 fires / 0.71 doesn't fire; E3 brainControlled (player)
+  bleeding still gets interrupted (the guard doesn't exempt the player); E4 150 ticks blood=0.5 → verb work
+  never comes back; E5 flee plan not trampled by the blood guard (flee takes priority, as designed).
+- Test 26.3 runs the real bundled planTick (no mocks, no wait-evasion). All 17 scoped files are legitimate 6C,
+  no creep. No new gameplay Math.random(). Byte-identical rebuild (930,544 bytes),
   deterministic build.
-- Debt còn lại (non-blocking): `__uvUtilityBase` dead capture (từ 6A); test modules bundle vào game
-  (quyết định kiến trúc để sau 6C); `fire_savior` dead bias + `betrayed` chưa effect → backlog 6D.
+- Remaining debt (non-blocking): `__uvUtilityBase` dead capture (from 6A); test modules bundled into the game
+  (architecture decision left for after 6C); `fire_savior` dead bias + `betrayed` with no effect → 6D backlog.
 
-### Rebuild prompt cho AI khác (2026-09-16, ~10:25 PDT)
-- User yêu cầu prompt chi tiết để AI khác làm lại game. Lead viết `~/workspace/WILLOWBROOK_REBUILD_PROMPT.md`
-  (~24KB): game là gì, kiến trúc module/build/determinism, epistemic architecture 9 khái niệm, catalog hệ thống
-  gameplay (body → utility AI → perception → sinh thái → tâm lý → kinh tế/xã hội), toàn bộ 36 bug + cơ chế fix,
-  9 nguyên tắc dẫn đường, ADR-001/002/003 + 4 điều kiện enforce, bài học Hearth, roadmap Phase 7/8/9, Ông đồ's gate.
+### Rebuild prompt for another AI (2026-09-16, ~10:25 PDT)
+- User requested a detailed prompt for another AI to rebuild the game. Lead wrote `~/workspace/WILLOWBROOK_REBUILD_PROMPT.md`
+  (~24KB): what the game is, module/build/determinism architecture, the 9-concept epistemic architecture, gameplay
+  systems catalog (body → utility AI → perception → ecology → psychology → economy/society), all 36 bugs + fix mechanisms,
+  9 guiding principles, ADR-001/002/003 + 4 enforce conditions, Hearth lessons, Phase 7/8/9 roadmap, the Scholar's gate.
 
-### 6D implement — 2 lần dispatch thất bại, lần 3 đang chạy (2026-09-16)
-- Dispatch 1 (09:56): chết 09:59 vì lỗi API agy (2 attempts failed) — không làm gì.
-- Dispatch 2 (10:15): API đã hồi, chạy 30 phút thì bị print-timeout 30m cắt giữa chừng — tree sạch, không lưu gì.
-- Dispatch 3 (10:46): chạy lại với `--print-timeout 60m` + dặn Robin SAVE PROGRESS TO DISK nếu bị cắt.
-- Bài học: task lớn (implement phase mới) cần timeout >30m; đã ghi vào AGENTS.md.
+### 6D implement — 2 failed dispatches, 3rd running (2026-09-16)
+- Dispatch 1 (09:56): died at 09:59 from agy API errors (2 attempts failed) — nothing was done.
+- Dispatch 2 (10:15): API had recovered, ran 30 minutes, then was cut mid-flight by the 30m print-timeout — tree clean, nothing saved.
+- Dispatch 3 (10:46): re-ran with `--print-timeout 60m` + instructed Robin to SAVE PROGRESS TO DISK if cut.
+- Lesson: large tasks (implementing a new phase) need timeout >30m; recorded in AGENTS.md.
 
 ## 2026-09-16 — 6D split into checkpointed sub-tasks + model switch to flash-medium
 - User decision: default agy model High → gemini-3.8-flash-medium (faster/cheaper; Examiner stays the quality gate). agy.sh now appends --model (override: --model / AGY_MODEL).
@@ -710,9 +710,9 @@ deaths (was incorrectly asserting zero `starvation`).
 - Killed the full-6D run (proc_fef3d897b0a9, was on High) to restart under the new pattern.
 
 ## 2026-09-16 — Timeout 4h + checkpoint watchdog
-- agy.sh default print-timeout: 30m → 4h. Timeout giờ chỉ là cầu dao chống treo; task khỏe không bao giờ bị đồng hồ cắt.
-- Watchdog: cron `phase6d-checkpoint-watchdog` mỗi 10 phút chạy `~/workspace/agents/check_6d_progress.sh` (checkpoint mtime + src mtime + agy log + pgrep). Stall ≥25 phút → lead kill + resume từ `.phase6d_progress.md`. Xóa cron khi 6D commit xong.
-- Task 1 (D1, medium, 20m) vẫn đang chạy từ 11:45 — giữ nguyên vì scope nhỏ vừa 20m.
+- agy.sh default print-timeout: 30m → 4h. The timeout is now only a hang backstop; a healthy task is never cut by the clock.
+- Watchdog: cron `phase6d-checkpoint-watchdog` runs `~/workspace/agents/check_6d_progress.sh` every 10 minutes (checkpoint mtime + src mtime + agy log + pgrep). Stall ≥25 minutes → lead kills + resumes from `.phase6d_progress.md`. Remove the cron when 6D is committed.
+- Task 1 (D1, medium, 20m) still running since 11:45 — left alone because the small scope fits 20m.
 
 ## 2026-09-16 — 6D Task 1 (D1) DONE, verified by lead
 - Robin's turn cut twice (20m timeout, then proxy refused 3 attempts). Code survived on disk (+273/-42 in src/systems/13b_economy.js).
@@ -721,7 +721,7 @@ deaths (was incorrectly asserting zero `starvation`).
 - Checkpoint written: .phase6d_progress.md with demand-signal interface contract for Task 2 (recordDemand/getDemand/getAllDemands/consumeDemands).
 
 ### 6D PASS — commit (2026-09-16, ~13:55 PDT)
-Phase 6D 'Con người không hoàn hảo' done in 4 checkpointed sub-tasks (4h timeout backstop + 10m checkpoint watchdog; no stall fired).
+Phase 6D 'Humans Are Not Perfect' done in 4 checkpointed sub-tasks (4h timeout backstop + 10m checkpoint watchdog; no stall fired).
 - **Task 1 (D1 scarcity pricing, lead-verified, no re-dispatch):** 13b_economy.js — salt stock=10, floorPrice=3; price=floor×(1+scarcity)×season; winter ×1.4 on food, salt exempt (preservative); out-of-stock/shock/can't-afford → recordDemand; salt→fish & cookedMeat→fish & meal→cookedFish substitutes on real doBuyStep; priceOverrides replace writes. Lead probe /tmp/probe_d1.js 8/8 on bundled chain (salt 3g→6g depleted, demand=1 per failed buy, shock cancels + records demand).
 - **Task 2 (D2 demand caravan):** 15c_caravan.js — arriveCaravan consumeDemands() → cargo=min(cap, round(base+1.0×demand)); salt base 10 cap 40 into SHOP.stock.salt; arrival witnessEvent; members are outsiders, removed from VILLAGERS on departure. Lead probe 10/10 (demand 11 → salt 21 & bread 1; price 6g→3g; second no-demand trip brings base 10). First run died on proxy location-filter; retry succeeded.
 - **Task 3 (D3 reputation + proto-norms):** 12d_social.js reputationReasons (weight×decay^days×confidence, epsilon prune), calculateTrust (0.5 baseline, severe collapse →~0), spreadGossip (1-hop: kind theft-witnessed→theft-rumor, ×0.85 weight, ×0.75 conf, mistakenWho redirects accusation), setOstracism (7d direct / 5d gossip), fillRoleVacancy (collective trust, ostracized or <0.2 → disqualified score -1; head/guard/healer roles). Wiring: doStealStep→recordNormViolation for all seers (21a_ownership.js:661); doDouseStep→recordProsocialDeed (15e_firefight.js); utility.js +3 lines; 20_social_life.js +28. Lead probe /tmp/lead_probe_d3.js 7/7: real steal→trust 0, ostracized, guard vacancy elects honest (hunting 3) over thief (hunting 5, score -1); false rumor→false 'theft-rumor' reason on innocent, trust 0, no direct source. Worker probe 31/31 — lead did not trust it before self-running (and one of its vacancy asserts was vacuous in first form).
@@ -733,49 +733,49 @@ Phase 6D 'Con người không hoàn hảo' done in 4 checkpointed sub-tasks (4h 
 
 ---
 
-## 2026-09-16 — Phase 6E bắt đầu: SPEC + slice E1 (substrate interface + A3 + D1) — Examiner PASS
+## 2026-09-16 — Phase 6E begins: SPEC + slice E1 (substrate interface + A3 + D1) — Examiner PASS
 
 ### SPEC_PHASE6E.md
-- User duyệt "Ok do it" 2026-09-16 sau khi hỏi "6E là gì". Spec viết theo format SPEC_PHASE6.md: E1 (substrate interface + lint + A3 + D1) → E2 (12 qualities + WHY HUD chữ) → E3 (hearing + stressResidue) → E4 (Part 28 + harness). KHÔNG LÀM: smell, voice lines, dream narrative, 12 chemicals, PTSD.
-- Triết lý ranh giới (user hỏi, đã chốt): sim = tín hiệu cơ thể (Tầng 1); AI brain sau này = ý nghĩa/câu chuyện (Tầng 2). Substrate interface là hợp đồng AI brain sẽ đọc.
+- User approved "Ok do it" on 2026-09-16 after asking "what is 6E". Spec written in SPEC_PHASE6.md format: E1 (substrate interface + lint + A3 + D1) → E2 (12 qualities + text WHY HUD) → E3 (hearing + stressResidue) → E4 (Part 28 + harness). DON'T DO: smell, voice lines, dream narrative, 12 chemicals, PTSD.
+- Boundary philosophy (user asked, settled): sim = body signals (Layer 1); future AI brain = meaning/story (Layer 2). The substrate interface is the contract the AI brain will read.
 
 ### E1 — Robin implement
-- `src/brain/14_substrate.js` (mới): `FeelingSubstrate` — `feel(v)`, `getLayers(v)`, `getFeelingScape(v)` (placeholder 4-quality, E2 mở rộng 12). Delegate về body state + D1 couplings. Đăng ký `src/_order.txt`, ghi `src/MANIFEST.md`.
-- S2 lint rule cấm `v.body.` trong `src/brain/**`: check trong `scripts/build_willowbrook_natura.py` (fail build exit 1) + `FeelingSubstrate.lintBrainCode` cho test. Audit codebase: đúng 2 dòng legacy allowlist tại `src/brain/09_bridge.js:32,35`.
+- `src/brain/14_substrate.js` (new): `FeelingSubstrate` — `feel(v)`, `getLayers(v)`, `getFeelingScape(v)` (4-quality placeholder, E2 expands to 12). Delegates to body state + D1 couplings. Registered in `src/_order.txt`, recorded in `src/MANIFEST.md`.
+- S2 lint rule banning `v.body.` in `src/brain/**`: check in `scripts/build_willowbrook_natura.py` (build fails exit 1) + `FeelingSubstrate.lintBrainCode` for tests. Codebase audit: exactly 2 legacy allowlisted lines at `src/brain/09_bridge.js:32,35`.
 - A3: `WORLD_EVENT_SIGNAL_TABLE` — 22 event kinds → signal `{kind, intensity, source, tick, domain, affect, metadata}`; `normalizeEvent` + `receiveSignal` (ring buffer `_recentSignals` cap 8).
-- D1: 3 decay accumulators dt-scaled (`v.hungerStressAcc`, `v.fearFatigueAcc`, `v.painPatienceAcc`): đói→stress (satiety<0.35, decay 0.5/h), fear→fatigue rate tăng ~3h (decay 0.215/h), pain→patience (pain>0.15, decay 0.5/h → social utility penalty).
-- Dispatch lần 1 chết yểu (không ghi đĩa, không checkpoint — lỗi transient, agy smoke-test OK, không tốn quota); dispatch lại với prompt lưu trong project (`.phase6e_e1_prompt.txt`) thì chạy xong ~7.6 phút.
+- D1: 3 decay accumulators dt-scaled (`v.hungerStressAcc`, `v.fearFatigueAcc`, `v.painPatienceAcc`): hunger→stress (satiety<0.35, decay 0.5/h), fear→fatigue rate rises ~3h (decay 0.215/h), pain→patience (pain>0.15, decay 0.5/h → social utility penalty).
+- Dispatch 1 died early (nothing written to disk, no checkpoint — transient error, agy smoke-test OK, no quota spent); re-dispatched with the prompt stored in the project (`.phase6e_e1_prompt.txt`), finished in ~7.6 minutes.
 
-### Examiner Tier-3 audit — PASS ngay attempt đầu, không cần fix round
-- Tự chạy `node devtools/probe_6e_e1.js`: 9/9 PASS trên production bundle.
-- Bypass-test đối kháng: chèn `v.body.sneaky = 1;` vào `src/brain/utility.js` → `check_substrate_lint()` SystemExit(1) đúng dòng 1505; revert byte-clean.
-- Probe độc lập 14 assertions: đói 6h acc 0.1288→0.2536 đơn điệu, ăn no → đúng 0; wolf signal → fearFatigueAcc=0.900, fatigue rate tăng giờ 1–3, giờ 4 về baseline (<1e-12); wounded patience 0.513 vs 1.0, social penalty 14.61 điểm; khỏi bệnh → patience đúng 1.0.
-- Determinism tick-size: max error 1.11e-16 (< 1e-12). Không `Math.random()` mới. Bundle rebuild byte-identical (md5 `a317a01206d1ff479f948b50fb0d58f7`).
-- Full harness: **272 lines, 0 FAIL**, part28 8/8. Test entities dọn sạch.
-- Non-blocking: N1 lint chỉ match literal `v.body.` (bracket access `v['body']` lọt — chưa có code nào dùng, đề xuất harden slice sau); N2 `v.mood` suy từ stress (khớp derivation cũ ở `02_body.js:180`); N3 scape placeholder 4-quality (đúng spec E1); N4 `domain==='danger'` nào cũng route vào fearFatigueAcc (lựa chọn thiết kế có chủ ý).
-- Lead tự chạy lại probe: 9/9 PASS.
+### Examiner Tier-3 audit — PASS on the first attempt, no fix round needed
+- Ran `node devtools/probe_6e_e1.js` itself: 9/9 PASS on the production bundle.
+- Adversarial bypass test: inserted `v.body.sneaky = 1;` into `src/brain/utility.js` → `check_substrate_lint()` SystemExit(1) at the correct line 1505; reverted byte-clean.
+- Independent probe 14 assertions: 6h hunger acc 0.1288→0.2536 monotonic, fed → exactly 0; wolf signal → fearFatigueAcc=0.900, fatigue rate raised hours 1–3, hour 4 back to baseline (<1e-12); wounded patience 0.513 vs 1.0, social penalty 14.61 points; healed → patience exactly 1.0.
+- Determinism tick-size: max error 1.11e-16 (< 1e-12). No new `Math.random()`. Bundle rebuild byte-identical (md5 `a317a01206d1ff479f948b50fb0d58f7`).
+- Full harness: **272 lines, 0 FAIL**, part28 8/8. Test entities cleaned up.
+- Non-blocking: N1 lint only matches literal `v.body.` (bracket access `v['body']` slips through — no code uses it, propose hardening in a later slice); N2 `v.mood` derived from stress (matches the old derivation at `02_body.js:180`); N3 4-quality scape placeholder (per E1 spec); N4 any `domain==='danger'` routes into fearFatigueAcc (deliberate design choice).
+- Lead re-ran the probe: 9/9 PASS.
 
-### Bài học
-- **Dispatch chết yểu không checkpoint là mất trắng** — lần 1 mất cả task vì chưa kịp ghi gì. Quy tắc mới: prompt dispatch lưu trong project (không /tmp), checkpoint "ghi sớm, ghi thường xuyên" đã được nhấn mạnh trong brief E1 lần 2.
+### Lessons learned
+- **A dispatch that dies early with no checkpoint is a total loss** — attempt 1 lost the whole task because nothing had been written yet. New rule: dispatch prompts stored in the project (not /tmp); the "write early, write often" checkpoint rule was emphasized in the E1 second brief.
 
 ### E2 — Robin implement → Examiner FAIL (B1) → correction round 1 → Examiner PASS
-- E2: `getFeelingScape` mở rộng đủ 12 qualities (cap đúng quota, không quality 13); D2 vocabulary đọc `conditions[]` (throat_burn + hydro 1.0 → vẫn `parched`); WHY HUD thanh trừng float cảm giác (`feeling:` chỉ còn chữ, `22b_why.js:153-154`); eye-read probe `devtools/probe_6e_e2_eyeread.js` (48 ticks/24h); lint harden bắt cả `v['body'].`.
-- **Examiner audit round 1 — FAIL, 1 blocking (B1):** đường A3 signal→scape chết trong game thật. Nửa 1: 5/24 kinds (death/birth/marriage/gossip/downed) không có nhánh xử lý — người thân chết vẫn `content`. Nửa 2: KHÔNG production caller nào của `receiveSignal` — lửa/sói/chết không emit signal; "fire→terrified" chỉ đúng khi test inject tay. Pattern "test xanh, gameplay chết" của 6C tái diễn — đúng lý do vòng Examiner tồn tại.
-- **Correction round 1 (1/2):** Robin wire production emission (wildfireTick, survivalGuard, killVillager, setDowned, spreadGossip, birthChild, marryVillagers) vào `receiveSignal`; cả 23 kinds có mũi tên sống; sửa N1 (checkpoint urgency 1.70 khớp code), N2 (lint bắt bare `v.body`), N3 (thu hẹp regex throat).
-- **Examiner re-audit — PASS:** probe độc lập 16/16 trên production bundle, zero injection — wildfire thật qua systems → `terrified` (injury=0, control >40 cells vẫn `content`); killVillager → witness `heavy`; setDowned → `terrified`; spreadGossip → `vigilant`; birth/marriage → `revered`. Harness 277 lines, 0 FAIL (part28 13/13). Determinism tuyệt đối qua 2 VM run mới. Bundle rebuild byte-identical (md5 `87e36a41d879ab9009d7244dd499ae83`, 1,038,224 bytes).
-- **Lead eye-read A1 (đọc bằng mắt, theo ADR-002):** Alden 24h — content (ăn/cày) → hollow·heavy (đói khi cày) → terrified·burning (cháy rừng ập tới, override ngay) → parched·hollow (hít khói bỏng họng; uống no vẫn parched — phản ví dụ đúng) → parched·heavy (ăn cháo, kiệt sức) → parched (ngủ, heavy tan) → content (03:00 Wren đắp thuốc, họng lành) → content tới sáng. Arc liền mạch, mỗi chuyển đổi có nguyên nhân nhìn thấy được. PASS.
-- Non-blocking còn lại: NN1 (wildfireTick ≤16 + survivalGuard ≤12 cùng emit mỗi tick — dư thừa nhưng bị clamp, deterministic, không phải bug; E3 wiring acoustic cần aware); NN2 (pre-existing `v.name === 'Gareth'` chết ở `14f_wiring.js:88` — Gareth không tồn tại, dọn slice sau); N4 (WHY HUD còn float `w.score` — đúng chữ spec).
+- E2: `getFeelingScape` expanded to the full 12 qualities (cap at quota, no quality 13); D2 vocabulary reads `conditions[]` (throat_burn + hydro 1.0 → still `parched`); WHY HUD purges feeling floats (`feeling:` text only, `22b_why.js:153-154`); eye-read probe `devtools/probe_6e_e2_eyeread.js` (48 ticks/24h); lint hardened to also catch `v['body']`.
+- **Examiner audit round 1 — FAIL, 1 blocking (B1):** the A3 signal→scape path was dead in the real game. Half 1: 5/24 kinds (death/birth/marriage/gossip/downed) had no handler — a loved one's death still showed `content`. Half 2: NO production caller of `receiveSignal` — fire/wolves/death never emitted signals; "fire→terrified" only held when tests injected manually. The 6C pattern of "green tests, dead gameplay" recurred — exactly why the Examiner round exists.
+- **Correction round 1 (1/2):** Robin wired production emission (wildfireTick, survivalGuard, killVillager, setDowned, spreadGossip, birthChild, marryVillagers) into `receiveSignal`; all 23 kinds have a live arrow; fixed N1 (checkpoint urgency 1.70 matches code), N2 (lint catches bare `v.body`), N3 (narrowed throat regex).
+- **Examiner re-audit — PASS:** independent probe 16/16 on the production bundle, zero injection — real wildfire through systems → `terrified` (injury=0, control >40 cells still `content`); killVillager → witness `heavy`; setDowned → `terrified`; spreadGossip → `vigilant`; birth/marriage → `revered`. Harness 277 lines, 0 FAIL (part28 13/13). Absolute determinism across 2 fresh VM runs. Bundle rebuild byte-identical (md5 `87e36a41d879ab9009d7244dd499ae83`, 1,038,224 bytes).
+- **Lead eye-read A1 (read by eye, per ADR-002):** Alden 24h — content (eat/plow) → hollow·heavy (hunger while plowing) → terrified·burning (wildfire closing in, instant override) → parched·hollow (smoke-burned throat; drinking full still parched — correct counterexample) → parched·heavy (eating porridge, exhausted) → parched (sleeping, heavy fading) → content (03:00 Wren applies medicine, throat healed) → content until morning. Seamless arc, every transition with a visible cause. PASS.
+- Remaining non-blocking: NN1 (wildfireTick ≤16 + survivalGuard ≤12 both emit per tick — redundant but clamped, deterministic, not a bug; E3 acoustic wiring must be aware); NN2 (pre-existing `v.name === 'Gareth'` dead at `14f_wiring.js:88` — Gareth doesn't exist, clean in a later slice); N4 (WHY HUD still has float `w.score` — per spec letter).
 
-### E3 — Robin implement → Examiner PASS ngay attempt đầu, không cần fix round
-- E3: A2 hearing — 5 sound kinds (`scream`, `fire_roar`, `wolf_growl`, `brawl_noise`, `thunder`) lan bán kính vật lý, falloff `0.85×(1−d/R)`; wire vào systems thật (`shoutForHelp`, `wolfBrain`, `lightningTick`, `wildfireTick`, `setDowned`, `startFight`); acoustic kinds vào `WORLD_EVENT_SIGNAL_TABLE`. 3B `stressResidue`: ceiling cứng ≤ 0.35×maxStress (`assertCeiling` ném lỗi khi set tay 0.5), recovery linear −0.08/ngày yên bình, peak-hold dedup cùng tick (fix NN1 của E2), acute thắng nền, tiếng lớn đánh thức người ngủ.
-- **Examiner Tier-3 — PASS:** probe Robin 10/10 tự chạy lại đúng; probe độc lập 20/20 — sói vồ thật → listener 5 cells `terrified` (acoustic_scream@0.68), 50 cells vẫn `content`; falloff khớp công thức tới 3 chữ số; 5 ngày cực hạn maxSeen=0.3500; residue 0.25 → 0.17 sau 1 ngày yên bình → ≈0.01 sau 3 ngày; residue 0.35 + cháy rừng thật → `terrified`; 3 emission cùng tick → acc=0.9 (không cộng dồn); determinism fingerprint trùng tuyệt đối 2 process mới. Regression: E1 9/9, E2 9/9, harness **279 lines, 0 FAIL**, part28 15/15. Bundle rebuild byte-identical (md5 `f27fb6c537b015d3b83fe29aa21514e4`, 1,055,211 bytes).
-- Thay đổi gameplay có chủ ý: `02_body.js` giảm workFactor khi residue cao — đo được 8.8% ở residue max (0.912 vs 1.0), không sụp đổ kinh tế; `shoutForHelp` đổi từ direct 14-cell full-intensity sang acoustic R=25 falloff (vật lý hơn, E2 probe vẫn xanh).
-- Non-blocking: N-a (`getMaxStress` fallback default 1.0 — ceiling thật, diễn đạt "derived" là aspirational); N-b (recovery linear −0.08/ngày, không phải multiplicative — nhưng thỏa hệ quả kiểm chứng được của ADR-003: 3 ngày yên bình → ≈0); N-c (listener đúng d=R nhận floor 0.01 — dưới mọi ngưỡng, vô hại); N-f (NN2 Gareth chết ở `14f_wiring.js:88` vẫn còn — pre-existing, dọn slice sau).
-- Lead tự chạy lại probe: 10/10 PASS.
+### E3 — Robin implements → Examiner PASS on the first attempt, no fix round needed
+- E3: A2 hearing — 5 sound kinds (`scream`, `fire_roar`, `wolf_growl`, `brawl_noise`, `thunder`) propagate with physical radius, falloff `0.85×(1−d/R)`; wired into real systems (`shoutForHelp`, `wolfBrain`, `lightningTick`, `wildfireTick`, `setDowned`, `startFight`); acoustic kinds added to `WORLD_EVENT_SIGNAL_TABLE`. 3B `stressResidue`: hard ceiling ≤ 0.35×maxStress (`assertCeiling` throws on manual set 0.5), linear recovery −0.08/calm day, peak-hold dedup same tick (fixes E2's NN1), acute beats background, loud sounds wake sleepers.
+- **Examiner Tier-3 — PASS:** Robin's probe 10/10 re-ran correctly; independent probe 20/20 — real wolf pounce → listener at 5 cells `terrified` (acoustic_scream@0.68), at 50 cells still `content`; falloff matches the formula to 3 digits; 5 extreme days maxSeen=0.3500; residue 0.25 → 0.17 after 1 calm day → ≈0.01 after 3 days; residue 0.35 + real wildfire → `terrified`; 3 emissions same tick → acc=0.9 (no stacking); determinism fingerprint identical across 2 fresh processes. Regression: E1 9/9, E2 9/9, harness **279 lines, 0 FAIL**, part28 15/15. Bundle rebuild byte-identical (md5 `f27fb6c537b015d3b83fe29aa21514e4`, 1,055,211 bytes).
+- Deliberate gameplay change: `02_body.js` reduces workFactor at high residue — measured 8.8% at max residue (0.912 vs 1.0), no economic collapse; `shoutForHelp` changed from direct 14-cell full-intensity to acoustic R=25 falloff (more physical, E2 probe still green).
+- Non-blocking: N-a (`getMaxStress` fallback default 1.0 — real ceiling, the "derived" wording is aspirational); N-b (recovery linear −0.08/day, not multiplicative — but satisfies ADR-003's verifiable consequence: 3 calm days → ≈0); N-c (listener at exactly d=R receives floor 0.01 — below every threshold, harmless); N-f (NN2 Gareth dead at `14f_wiring.js:88` still there — pre-existing, clean in a later slice).
+- Lead re-ran the probe: 10/10 PASS.
 
 ### E4 — Examiner FAIL 1 blocking (Gareth regression) → correction round 1 → PASS. Phase 6E CLOSED.
-- E4 consolidation: Part 28 lên 17 assertions, harness 281 lines 0 FAIL, 4 probes xanh, NN2 Gareth "dọn".
-- **Examiner final audit — FAIL blocking:** E4 xóa `|| v.name === 'Gareth'` ở `14f_wiring.js:90` với tiền đề "Gareth không tồn tại" — SAI. Gareth là dân làng thật (Wandering Knight, `03_roster.js:107`, spawn từ commit đầu, house4, boot-test, utility traits). Canonical = **11 dân làng**, không phải 9. Hậu quả: Gareth hunting=3 từ brave→flee khi có đồng đội — regression gameplay + mâu thuẫn nội bộ (wildlife vẫn coi Gareth xua được sói).
-- **Bài học đắt (lead nhận trách nhiệm):** tiền đề sai bắt nguồn từ doc fix `782b3ca` hôm qua — lead duyệt claim "Gareth không tồn tại" mà không chạy code verify. Quy tắc mới: không bao giờ xóa code đặc thù nhân vật dựa trên tiền đề chưa kiểm chứng bằng code.
-- **Correction round 1:** revert đúng từng ký tự; test 28.17 behavioral parity dùng canonical Gareth qua production `survivalGuard` (Gareth hunting=3 + 2 đồng đội → đứng; control hunting=3 → flee đúng thought 'Fleeing from danger!'; Gareth đi một mình → flee — pack-conditional khớp semantics pre-E4); GAME_DESCRIPTION §5 sửa thành "Mười một dân làng" đủ 11 tên. Examiner re-audit độc lập 12/12 → **PASS**. Harness 282 lines 0 FAIL, part28 18/18, 4 probe xanh, rebuild byte-identical (md5 `3bbac25b509375131463167c7d14e3ca`).
-- `v.name === 'Gareth'` là pattern có chủ ý toàn codebase (wildlife 78/112/128, rescue 169, friction 166) — việc xóa mới là anomaly.
+- E4 consolidation: Part 28 up to 17 assertions, harness 281 lines 0 FAIL, 4 probes green, NN2 Gareth "cleaned".
+- **Examiner final audit — FAIL blocking:** E4 removed `|| v.name === 'Gareth'` at `14f_wiring.js:90` on the premise "Gareth doesn't exist" — WRONG. Gareth is a real villager (Wandering Knight, `03_roster.js:107`, spawned since the first commit, house4, boot-test, utility traits). Canonical = **11 villagers**, not 9. Consequence: Gareth hunting=3 went from brave→flee when teammates are present — gameplay regression + internal inconsistency (wildlife still treats Gareth as able to deter wolves).
+- **Expensive lesson (lead takes responsibility):** the false premise originated in yesterday's doc fix `782b3ca` — lead approved the "Gareth doesn't exist" claim without running code to verify. New rule: never remove character-specific code based on a premise not verified by running code.
+- **Correction round 1:** reverted character-for-character; test 28.17 behavioral parity uses the canonical Gareth through production `survivalGuard` (Gareth hunting=3 + 2 teammates → stands; control hunting=3 → flees with the correct 'Fleeing from danger!' thought; Gareth alone → flees — pack-conditional matches pre-E4 semantics); GAME_DESCRIPTION §5 corrected to "Eleven villagers" with all 11 names. Examiner independent re-audit 12/12 → **PASS**. Harness 282 lines 0 FAIL, part28 18/18, 4 probes green, byte-identical rebuild (md5 `3bbac25b509375131463167c7d14e3ca`).
+- `v.name === 'Gareth'` is a deliberate pattern across the codebase (wildlife 78/112/128, rescue 169, friction 166) — the deletion was the anomaly.

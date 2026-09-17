@@ -1,28 +1,22 @@
-# ADR-001: FeelingSubstrate Interface (quyết định 1B)
+# ADR-001: FeelingSubstrate Interface (decision 1B)
 
 - **Status:** Accepted (2026-09-16)
-- **Deciders:** EP + Lead (sau hội đồng 4 persona vòng 3)
+- **Deciders:** EP + Lead (after the 4-persona council, round 3)
 
 ## Context
-D1 tranh luận Option 1 (giữ C3 + decay accumulators) vs full 12 chemicals. EP đề xuất
-định nghĩa `FeelingSubstrate` interface ngay; hội đồng phản biện:
-- **Thợ cả:** interface hứa "swap êm sang 12 chất" là dối trá lịch thiệp — 3 accumulator
-  tuyến tính vs 12 chất phi tuyến, phân phối tín hiệu sẽ đảo lộn, AI brain hóa điên.
-- **Nhà sinh thái:** Option 1 toàn mũi tên một chiều, thiếu feedback vòng kín.
-- **Nhà nhận thức luận (gỡ):** interface trung thực *iff* là lối đi độc đạo bắt buộc.
+D1 debated Option 1 (keep C3 + decay accumulators) vs the full 12 chemicals. The EP proposed defining a `FeelingSubstrate` interface now; the council countered:
+- **The Artisan:** an interface promising a "smooth swap to 12 chemicals" is polite fiction — 3 linear accumulators vs 12 nonlinear chemicals, the signal distribution would be upended, the AI brain would go mad.
+- **The Ecologist:** Option 1 is all one-way arrows, missing closed-loop feedback.
+- **The Epistemologist (countering):** the interface is honest *iff* it is the single mandatory path through.
 
 ## Decision
-Chọn **1B với lý do đã sửa**: giữ interface KHÔNG phải vì "swap êm" (oversell),
-mà vì nó là **cơ chế ép kỷ luật A4 ngay hôm nay** — mọi code nhận thức đọc cảm giác
-qua `substrate.feel(v)` / `substrate.getLayers(v)`, cấm chọc thẳng `v.body`.
+Chose **1B on revised grounds**: keep the interface NOT because of a "smooth swap" (oversell), but because it is **the mechanism that enforces A4 discipline starting today** — all perception code reads feelings via `substrate.feel(v)` / `substrate.getLayers(v)`; direct pokes into `v.body` are forbidden.
 
 ## Consequences
-- Phase 7 viết lại **một** implementation, không phải 100 chỗ rải rác. Phân phối tín
-  hiệu VẪN sẽ đảo lộn khi swap — đã ghi nhận trung thực, không hứa hẹn.
-- WHY HUD và mọi decision code đọc qua interface.
-- Không thêm state mới ngoài accumulators của D1.
+- Phase 7 rewrites **one** implementation, not 100 scattered call sites. The signal distribution WILL still be upended at swap time — recorded honestly, no promises made.
+- The WHY HUD and all decision code read through the interface.
+- No new state beyond D1's accumulators.
 
 ## Enforcement
-1. **Lint rule (CI fail):** cấm `v.body.` trong `src/brain/**`. Implement trong 6E
-   (Robin), Examiner verify bằng bypass-test cố ý.
-2. ADR này là bằng chứng "không hứa swap êm" — ai hỏi sau này thì chỉ vào đây.
+1. **Lint rule (CI fail):** `v.body.` is forbidden in `src/brain/**`. Implemented in 6E (Robin); the Examiner verifies with a deliberate bypass test.
+2. This ADR is the evidence of "no smooth-swap promise" — point anyone who asks later to this document.
