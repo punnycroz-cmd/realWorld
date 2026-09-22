@@ -16,7 +16,7 @@ This is a **slow, warm, and cruel** game — warm because you will grow attached
 ## 2. Vision & Core Emotions
 
 - **"A real village"**: every villager has a name, profession, personality, skills, relationships, and private memories. They aren't NPCs standing around waiting for you to talk to them — they live even when you're not watching.
-- **"Real consequences"**: every decision has a price. Hunting at night can get you mauled by wolves. Starve the chickens and the chickens leave. Fight and you break a nose. There's no "reload" button in the player's head — only adaptation.
+- **"Real consequences"**: every decision has a price. Hunting at night can get you mauled by wolves. Starve the chickens and the chickens leave. Fight and you break a nose. Wrongs can go to the customary court (witness testimony, restitution, exile — and wrongful convictions breed grudges), and craftsmen organize into guilds with apprenticeships. The world autosaves and reloads deterministically (save/load is a real feature); what villagers can't do is rewind — their consequences persist.
 - **"Everyday beauty"**: the joy of the game lives in small moments — Wren gathering herbs to brew tea for the sick, Finn landing a big catch, the village's first child being born, everyone rushing in to douse the fire and save the granary.
 - **"Genuinely medieval"**: no magic, no modern technology. Every solution is one the ancients would use: herbal poultices, wooden splints for broken bones, salt-cured meat, fire for warmth, wooden fences against wolves.
 

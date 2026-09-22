@@ -85,7 +85,12 @@ function bodyTick(v, dtH){
 
   // Environmental exposure
   const isRainWet = c.rain[i] > 0.15 && !v.inBuilding;
-  const isNearFire = (v.name === 'Bram' && v.state === 'work') || v.inBuilding;
+  let isNearFire = v.inBuilding;
+  if(!isNearFire && typeof FIRES !== 'undefined'){
+    for(const f of FIRES){
+      if(f.burnH > 0 && Math.hypot(v.x - f.x, v.y - f.y) < CS * 3){ isNearFire = true; break; }
+    }
+  }
   const envTemp = c.temp[i];
 
   // Wetness dynamics

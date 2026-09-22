@@ -14,7 +14,7 @@ The core difference from a typical village game: every villager has a **genuinel
 **Origins:** combining "Willowbrook" (an existing web village game: pixel-art, 8 controllable villagers, daily schedules, economy) with the "Natura" philosophy (simulated living bodies, a world that truly reacts, death is real death). The original Natura build (v9, with AI brain via Ask API) is **STOPPED per the user's order** — do not restart it unless asked.
 
 **Technical stack:**
-- Source written in **plain JavaScript** (no framework, no ES modules in the output), split into modules in `src/` (59 modules: `sim/`, `entities/`, `systems/`, `brain/`, `render/`, `ui/`, `data/`, `tests/`).
+- Source written in **plain JavaScript** (no framework, no ES modules in the output), split into modules in `src/` (67 modules (49 game + 18 test): `sim/`, `entities/`, `systems/`, `brain/`, `render/`, `ui/`, `data/`, `tests/`).
 - Build: `python3 scripts/build_willowbrook_natura.py` concatenates the modules **in `src/_order.txt` order** into one `<script>` block in `willowbrook_natura.html`. All modules share one script scope → no duplicate top-level declarations allowed.
 - Art: procedural pixel-art + AI raster (per the current directive: **never replace AI raster art with procedural**).
 - Tests: `node devtools/node_harness.js` (run from project root) + open `willowbrook_natura.html?test` in a browser.
@@ -38,7 +38,7 @@ Villagers only "know" what their senses honestly allow: distances in words ("a f
 
 ### 2.4. Utility AI + intent planner (brain/utility.js, brain/13a_intent.js)
 Replaces rigid routines: each tick, a villager lists **candidate actions** from the verb set (eat, drink, sleep, work, cook, craft/recipe, clean, socialize, flee, douse, trade, warm, rest, leisure...) and scores them multi-factor:
-- 8 need deficits + personality weights (industrious/lazy/sociable/cautious/brave/gluttonous) + distance/proximity cost + risk modifiers (nearby beast +120 flee, fire +80 douse/flee, night) + opportunity bonuses (caravan +55 trade, inn meal +18, fresh bread +18, ripe wheat +20).
+- 6 need deficits (satiety/hydration/fatigue/injury/cold/social) + personality weights (industrious/lazy/sociable/cautious/brave/gluttonous) + distance/proximity cost + risk modifiers (nearby beast +120 flee, fire +80 douse/flee, night) + opportunity bonuses (caravan +55 trade, inn meal +18, fresh bread +18, ripe wheat +20).
 - Deterministic tie-break via **FNV-1a seeded hash (`hashString18`)** — zero `Math.random()`.
 - Honest failure chain: **FAILURE → OBSERVATION (thought records the reason) → INTERPRETATION → NEW KNOWLEDGE (blacklist `v.unreachable` with cooldown) → RE-EVALUATION → NEW ACTION** — never silently dropping an action.
 - Don't know where food is → spawns an `explore_food` candidate (goes foraging) instead of pathing to an omnisciently-known pile (anti-omniscience, fixed from 2D).

@@ -73,6 +73,14 @@ function mkVillager(name, wx, wy, extra){
   return v;
 }
 
+/* Trait-based courage check — replaces the `v.name === 'Gareth'` hacks.
+   Bravery is a roster/traits fact, not a name: it survives renames, births
+   and new characters (the E4 Gareth regression proved the hazard). */
+function isBrave(v){
+  return !!(v && ((v.traits && v.traits.indexOf('brave') >= 0) ||
+    (v.personality && v.personality.brave != null && v.personality.brave > 1.2)));
+}
+
 function initVillagers(){
   VILLAGERS.length = 0;
   function makeV(name, role, homeId, wx, wy, toolKind, toolName, toolIcon, toolDesc, thoughts, canSwim, swimSkill, swimReason){
@@ -129,6 +137,13 @@ function initVillagers(){
   makeV('Gareth', 'Wandering Knight', 'inn', 0, 11, 'sword', 'Silver Longsword', '⚔️',
     'Gleaming castle-forged blade inscribed with vows.', [{text:'A peaceful haven away from royal intrigue', val:6}],
     false, 0.0, 'Heavy iron armor (35kg)');
+  // A knight is brave by vocation — the trait, not the name, drives
+  // wolf-deterrence / stand-ground / rescue-willingness checks.
+  const garethObj = VILLAGERS.find(v => v.name === 'Gareth');
+  if(garethObj){
+    garethObj.traits = ['brave'];
+    garethObj.personality = Object.assign({}, garethObj.personality, { brave: 1.5 });
+  }
 
   // Player controls Marta initially
   VILLAGERS[0].isNPC = false;

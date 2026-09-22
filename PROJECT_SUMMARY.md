@@ -17,11 +17,11 @@ The project was born from merging two directions:
 
 | Component | File | Notes |
 |---|---|---|
-| Source (modular) | `src/` — 62 modules, bundle order at `src/_order.txt` | Game logic lives here, one system per module |
+| Source (modular) | `src/` — 67 modules (49 game + 18 test), bundle order at `src/_order.txt` | Game logic lives here, one system per module |
 | Bundler | `scripts/build_willowbrook_natura.py` | Just a script that **merges** the modules into 1 file, contains no game logic |
-| Playable file | `willowbrook_natura.html` (~977 KB) | **Generated** from `src/`, **never hand-edited** |
+| Playable file | `willowbrook_natura.html` (~845 KB release, no tests) | **Generated** from `src/`, **never hand-edited**; `willowbrook_natura_test.html` is the test bundle |
 | Build | `python3 scripts/build_willowbrook_natura.py` | Re-run whenever `src/` changes |
-| Test | Node harness (`?test`, runs via Node with a simulated DOM) | In-page autotest, 263 lines, **0 FAIL** |
+| Test | Node harness (`?test`, runs via Node with a simulated DOM on `willowbrook_natura_test.html`) | In-page autotest, 289 lines, **0 FAIL** |
 
 **Iron rules:**
 - Only edit modular `src/`, rebuild the bundle; never hand-edit the HTML file.
@@ -65,9 +65,9 @@ The project was born from merging two directions:
 ### Phases 2–6 (summary — details in `WORK_LOG.md` and `docs/archive/thinking-process.md`)
 - **Phase 2:** 6 further realization batches (2A–2F) — deep building, medicine, society, seasons, economy, events.
 - **Phase 3:** survival balance — after 6A→6D, the village survives across seasons (no more mass starvation like the old build).
-- **Phase 4:** real roster of **9 villagers** (Marta, Bram, Sella, Tobin, Wren, Finn, Alden, Pip, **Clara** — silk merchant).
+- **Phase 4→7A roster:** **11 villagers** (Marta, Bram, Sella, Tobin, Wren, Finn, Alden, Pip, plus **Rowan** the bard, **Clara** the silk merchant, **Gareth** the knight). Canonical count verified against `src/data/03_roster.js`.
 - **Phase 5 (Release):** tag `v0.4.0-phase4` — separate, Phase 6 not merged in.
-- **Phase 6 "Imperfect humans" (completed 6A→6D, commit `05caf95`):**
+- **Phase 6 "Imperfect humans" (completed 6A→6E; 6D at `05caf95`, 6E at `f3a41b7`):**
   - **6A Senses & Expectations** — attention gates, expectation tuples + TTL + surprise (12/12 test).
   - **6B Adaptation & Ecology** — dynamic candidates belief-first, seasonal depletion/regeneration, hungry/afraid wolves, weather → fire (11/11 test).
   - **6C Survival Guard in production `brainThink`** — Tier-2 survival-instinct override, motivation, emotion, identity (9/9 test; adversarial probe 9/9).
@@ -98,15 +98,15 @@ The game is ready to plug in an external AI brain via `window.__aiBridge`:
 ## 6. Test status
 
 - `node --check` on the page's JS: **PASS**
-- The `?test` harness runs under Node (simulated DOM): **263 lines, 0 FAIL** — covers PART 12–27 (medicine, rescue, wolf hunts, skill XP, building materials, clothing warmth, meal tiers, taming, caravan, fights, firefighting, attention/expectation, seasonal ecology, survival guard, scarcity pricing, reputation/gossip)
+- The `?test` harness runs under Node (simulated DOM, `willowbrook_natura_test.html`): **289 lines, 0 FAIL** — covers PART 12–29 (medicine, rescue, wolf hunts, skill XP, building materials, clothing warmth, meal tiers, taming, caravan, fights, firefighting, attention/expectation, seasonal ecology, survival guard, scarcity pricing, reputation/gossip)
 - Tier-3 game logic (gameplay/shared-framework changes) all goes through **independent Examiner audit** (runs the code itself, evidence-backed PASS/FAIL file:line) before commit — applied to every 6A→6D sub-phase
 - Real bugs found and fixed during testing: villagers at work wouldn't go fight fires; broken-leg villagers weren't bandaged; rescue got stuck pathfinding; survival guard didn't fire while villagers were working (old test blocked the production path).
-- **`?test` not yet run in a real browser** — needs the project owner to open `willowbrook_natura.html?test` once.
+- **`?test` not yet run in a real browser** — open `willowbrook_natura_test.html?test` once (test bundle).
 
 ## 7. Git status
 
-- Repo: `https://github.com/punnycroz-cmd/realWorld.git`, HEAD at commit `05caf95` — `feat: Phase 6D 'Con nguoi khong hoan hao' — Examiner PASS` (2026-09-16)
-- All 6A→6D phases committed separately, complete. **Not pushed** — waiting for project owner confirmation (needs a fresh one-time token for authenticated push)
+- Repo: `https://github.com/punnycroz-cmd/realWorld.git`, HEAD at commit `a0f5bd9` + review-fix commits (2026-09-22) — Phase 7A (customary court + guilds) committed at `5e970be`, Phase 6E closed at `f3a41b7`
+- All phases 6A→7A committed separately, complete. **Not pushed** — waiting for project owner confirmation (needs a fresh one-time token for authenticated push)
 
 ## 8. "Review later" backlog (vs RimWorld)
 
@@ -125,6 +125,6 @@ Details in `docs/archive/RIMWORLD_GAPS_BACKLOG.md`. Summary:
 
 ## 10. Next steps
 
-1. The project owner opens `willowbrook_natura.html?test` in a real browser once.
-2. Decide on pushing Phase 6 (needs a fresh one-time token).
-3. Phase 6E spec (feeling substrate / 12 qualities / hearing / stress residue — design finalized 1B/Beta/3B) — waiting for the project owner to greenlight writing the spec.
+1. The project owner opens `willowbrook_natura_test.html?test` in a real browser once (test bundle; release build is `willowbrook_natura.html`).
+2. Decide on pushing (needs a fresh one-time token).
+3. **Phase 7B** — inheritance/rituals per `SPEC_PHASE7.md` (7A done; 7E debt resolved 2026-09-22).

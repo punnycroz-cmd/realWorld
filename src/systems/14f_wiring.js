@@ -87,7 +87,7 @@ survivalGuard = function(v){
       }
     }
     if(!(cur && cur.guard) && d < 10){
-      const brave = skillLvl(v, 'hunting') >= 4 || v.name === 'Gareth';
+      const brave = skillLvl(v, 'hunting') >= 4 || isBrave(v);
       if(!(brave && countNearbyVillagers(v, 8) >= 2 && th.kind === 'wolf')){
         const bp = nearestBuildingPos(v);
         if(bp){

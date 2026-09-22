@@ -7,7 +7,7 @@ so the page stays openable from `file://`.
 
 **All modules share one script scope** (as before the split). Treat top-level
 `const`/`let` names as global: do not redeclare a name in two modules, and do
-not reorder modules without checking cross-module references. Within those
+not reorder modules without checking cross-module references — the order IS the onion: outer data/entities layers are visible to inner systems layers, and modules may call any function declared in the same script scope. Within those
 constraints, each module is an independent unit of the simulation.
 
 ## Module map (bundle order)

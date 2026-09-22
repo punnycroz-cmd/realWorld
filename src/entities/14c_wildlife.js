@@ -75,7 +75,7 @@ function killAnimal(a, by){
 function fightBack(v, a){
   if(v.dead || v.downed || a.dead) return;
   const cornered = v.inBuilding;
-  const brave = skillLvl(v, 'hunting') >= 3 || v.name === 'Gareth';
+  const brave = skillLvl(v, 'hunting') >= 3 || isBrave(v);
   if(!cornered && !brave) return; // others rely on fleeing
   const pow = toolPower(v) + skillLvl(v, 'hunting') * 0.35;
   a.hp -= pow;
@@ -109,7 +109,7 @@ function shoutForHelp(victim, threat){
     if(Math.hypot(o.x - victim.x, o.y - victim.y) > CS * 14) continue;
     if(o.plan && o.plan.length) continue;
     const bond = (o.bonds && o.bonds[victim.name]) || 0;
-    const brave = skillLvl(o, 'hunting') >= 2 || o.name === 'Gareth';
+    const brave = skillLvl(o, 'hunting') >= 2 || isBrave(o);
     if(bond > 0.35 || brave){
       o.plan = [{ verb: 'go', tx: victim.x, ty: victim.y }, { verb: 'hunt', kind: threat.kind, targetAnimal: threat }];
       witnessEvent(o, 'Running to help ' + victim.name + '!');
@@ -125,7 +125,7 @@ function wolfBrain(a, dtH){
                     villsNear.some(v => v.hasTorch || v.torch || (v.inv && v.inv.torch > 0) || (v.equippedTool && (v.equippedTool === 'torch' || v.equippedTool.kind === 'torch')));
 
   const isStarving = Boolean(a.starving || a.extremeHunger || (a.hunger != null && a.hunger >= 0.8));
-  const crowdDeterred = villsNear.length >= 3 || villsNear.some(v => v.name === 'Gareth');
+  const crowdDeterred = villsNear.length >= 3 || villsNear.some(isBrave);
   const fireDeterred = fireNear || torchNear;
 
   // 2-state wolf: normally deterred by fire/torch/crowd; EXTREME hunger overrides fear!

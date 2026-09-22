@@ -779,3 +779,16 @@ Phase 6D 'Humans Are Not Perfect' done in 4 checkpointed sub-tasks (4h timeout b
 - **Expensive lesson (lead takes responsibility):** the false premise originated in yesterday's doc fix `782b3ca` — lead approved the "Gareth doesn't exist" claim without running code to verify. New rule: never remove character-specific code based on a premise not verified by running code.
 - **Correction round 1:** reverted character-for-character; test 28.17 behavioral parity uses the canonical Gareth through production `survivalGuard` (Gareth hunting=3 + 2 teammates → stands; control hunting=3 → flees with the correct 'Fleeing from danger!' thought; Gareth alone → flees — pack-conditional matches pre-E4 semantics); GAME_DESCRIPTION §5 corrected to "Eleven villagers" with all 11 names. Examiner independent re-audit 12/12 → **PASS**. Harness 282 lines 0 FAIL, part28 18/18, 4 probes green, byte-identical rebuild (md5 `3bbac25b509375131463167c7d14e3ca`).
 - `v.name === 'Gareth'` is a deliberate pattern across the codebase (wildlife 78/112/128, rescue 169, friction 166) — the deletion was the anomaly.
+
+## Phase 7A — Customary Court & Guilds (commit 5e970be, 2026-09-16; Examiner PASS after 1 fix round)
+- `29a_court.js`: holdCourtHearing — elder selection (age+reputation, party exclusion), local-belief witness gate, testimony tuples {claim,suspect,source,confidence,fidelity}, credibility-weighted deliberation, restitution/labor/exile verdicts, decaying court-verdict reputation reasons, wrongful-conviction→grievance→retaliation chain.
+- `29b_guilds.js`: 3 guilds (smith/baker/farmer), ranks, 1.6x apprenticeship XP, caravan bloc pricing; cultural priors seed masters (Bram/Sella/Marta) at init.
+- Acceptance probe `devtools/probe_7a_acceptance.js` 12/12 with negative controls; harness 288→289 lines.
+
+## Review-fix pass (2026-09-22, commits 7304d33→…) — independent review remediation
+- R1 reachability: gossip misattribution writes real mistaken beliefs; hearsay qualifies witnesses at reduced credibility; missing-item owners petition court against their BELIEVED suspect (wrongful convictions reachable in play); defense plea is a seeded defendant decision (guilty may lie); masters induct chatting lower-skill villagers as apprentices; household presence expectations wired.
+- R2 save completeness: GUILDS, COURT_RECORDS, Economy demand state, CAPABILITY_GAPS now serialized + restored in place; regression test save22.22.
+- R3 7E debt: child-harm + child-neglect proto-norms wired; fire-refusal cut honestly; ostracism per-observer (no global flag; exile = public assembly; save migration); fillRoleVacancy auto-refills held roles vacant ≥3d; salt provenance documented; /^T\d+_/ test-name filter; guild bonus null-master fix; lightning death via injury model.
+- R4 tests split from shipped bundle: release willowbrook_natura.html (845KB, no tests) + willowbrook_natura_test.html; mkVillager factory is production (caravan no longer imports test code).
+- R5 name-hacks removed: Bram-fire → real fire proximity; Gareth → 'brave' trait + isBrave() at all 6 sites.
+- Harness: 289 lines, 0 FAIL; probe 12/12; node --check clean on both bundles.

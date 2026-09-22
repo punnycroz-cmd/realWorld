@@ -4623,7 +4623,12 @@ function bodyTick(v, dtH){
 
   // Environmental exposure
   const isRainWet = c.rain[i] > 0.15 && !v.inBuilding;
-  const isNearFire = (v.name === 'Bram' && v.state === 'work') || v.inBuilding;
+  let isNearFire = v.inBuilding;
+  if(!isNearFire && typeof FIRES !== 'undefined'){
+    for(const f of FIRES){
+      if(f.burnH > 0 && Math.hypot(v.x - f.x, v.y - f.y) < CS * 3){ isNearFire = true; break; }
+    }
+  }
   const envTemp = c.temp[i];
 
   // Wetness dynamics
@@ -4916,6 +4921,14 @@ function mkVillager(name, wx, wy, extra){
   return v;
 }
 
+/* Trait-based courage check — replaces the `v.name === 'Gareth'` hacks.
+   Bravery is a roster/traits fact, not a name: it survives renames, births
+   and new characters (the E4 Gareth regression proved the hazard). */
+function isBrave(v){
+  return !!(v && ((v.traits && v.traits.indexOf('brave') >= 0) ||
+    (v.personality && v.personality.brave != null && v.personality.brave > 1.2)));
+}
+
 function initVillagers(){
   VILLAGERS.length = 0;
   function makeV(name, role, homeId, wx, wy, toolKind, toolName, toolIcon, toolDesc, thoughts, canSwim, swimSkill, swimReason){
@@ -4972,6 +4985,13 @@ function initVillagers(){
   makeV('Gareth', 'Wandering Knight', 'inn', 0, 11, 'sword', 'Silver Longsword', '⚔️',
     'Gleaming castle-forged blade inscribed with vows.', [{text:'A peaceful haven away from royal intrigue', val:6}],
     false, 0.0, 'Heavy iron armor (35kg)');
+  // A knight is brave by vocation — the trait, not the name, drives
+  // wolf-deterrence / stand-ground / rescue-willingness checks.
+  const garethObj = VILLAGERS.find(v => v.name === 'Gareth');
+  if(garethObj){
+    garethObj.traits = ['brave'];
+    garethObj.personality = Object.assign({}, garethObj.personality, { brave: 1.5 });
+  }
 
   // Player controls Marta initially
   VILLAGERS[0].isNPC = false;
@@ -11799,7 +11819,7 @@ function rescueInstinct(v, dtH){
     if(Math.hypot(o.x - v.x, o.y - v.y) > CS * 22) continue;
     if(nearestThreat(v)) continue; // not safe yet
     const bond = (v.bonds && v.bonds[o.name]) || 0;
-    if(bond > 0.4 || skillLvl(v, 'medicine') >= 3 || v.name === 'Gareth'){
+    if(bond > 0.4 || skillLvl(v, 'medicine') >= 3 || isBrave(v)){
       v.plan = [{ verb: 'rescue', person: o.name }];
       witnessEvent(v, 'Going to rescue ' + o.name);
       return;
@@ -11897,7 +11917,7 @@ function killAnimal(a, by){
 function fightBack(v, a){
   if(v.dead || v.downed || a.dead) return;
   const cornered = v.inBuilding;
-  const brave = skillLvl(v, 'hunting') >= 3 || v.name === 'Gareth';
+  const brave = skillLvl(v, 'hunting') >= 3 || isBrave(v);
   if(!cornered && !brave) return; // others rely on fleeing
   const pow = toolPower(v) + skillLvl(v, 'hunting') * 0.35;
   a.hp -= pow;
@@ -11931,7 +11951,7 @@ function shoutForHelp(victim, threat){
     if(Math.hypot(o.x - victim.x, o.y - victim.y) > CS * 14) continue;
     if(o.plan && o.plan.length) continue;
     const bond = (o.bonds && o.bonds[victim.name]) || 0;
-    const brave = skillLvl(o, 'hunting') >= 2 || o.name === 'Gareth';
+    const brave = skillLvl(o, 'hunting') >= 2 || isBrave(o);
     if(bond > 0.35 || brave){
       o.plan = [{ verb: 'go', tx: victim.x, ty: victim.y }, { verb: 'hunt', kind: threat.kind, targetAnimal: threat }];
       witnessEvent(o, 'Running to help ' + victim.name + '!');
@@ -11947,7 +11967,7 @@ function wolfBrain(a, dtH){
                     villsNear.some(v => v.hasTorch || v.torch || (v.inv && v.inv.torch > 0) || (v.equippedTool && (v.equippedTool === 'torch' || v.equippedTool.kind === 'torch')));
 
   const isStarving = Boolean(a.starving || a.extremeHunger || (a.hunger != null && a.hunger >= 0.8));
-  const crowdDeterred = villsNear.length >= 3 || villsNear.some(v => v.name === 'Gareth');
+  const crowdDeterred = villsNear.length >= 3 || villsNear.some(isBrave);
   const fireDeterred = fireNear || torchNear;
 
   // 2-state wolf: normally deterred by fire/torch/crowd; EXTREME hunger overrides fear!
@@ -12481,7 +12501,7 @@ survivalGuard = function(v){
       }
     }
     if(!(cur && cur.guard) && d < 10){
-      const brave = skillLvl(v, 'hunting') >= 4 || v.name === 'Gareth';
+      const brave = skillLvl(v, 'hunting') >= 4 || isBrave(v);
       if(!(brave && countNearbyVillagers(v, 8) >= 2 && th.kind === 'wolf')){
         const bp = nearestBuildingPos(v);
         if(bp){
@@ -13737,7 +13757,7 @@ rescueInstinct = function(v, dtH){
         if(o.downed && !o.dead && !(v.rivals[o.name]) &&
           Math.hypot(o.x - v.x, o.y - v.y) <= CS * 22 && !nearestThreat(v)){
           const bond = (v.bonds && v.bonds[o.name]) || 0;
-          if(bond > 0.4 || skillLvl(v, 'medicine') >= 3 || v.name === 'Gareth'){
+          if(bond > 0.4 || skillLvl(v, 'medicine') >= 3 || isBrave(v)){
             v.plan = [{ verb: 'rescue', person: o.name }];
             witnessEvent(v, 'Going to rescue ' + o.name);
             return;

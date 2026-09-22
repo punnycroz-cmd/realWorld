@@ -1,5 +1,5 @@
 # SPEC PHASE 7 — "Institutional Society"
-_Date: 2026-09-17. Status: SPEC (awaiting EP approval). Prerequisite: Phase 6E closed (commit f3a41b7)._
+_Date: 2026-09-17. Status: 7A DONE (committed 5e970be, Examiner PASS; review-fix hardening 2026-09-22). 7E items resolved 2026-09-22. Next: 7B. Prerequisite: Phase 6E closed (commit f3a41b7)._
 
 ## Source documents (read before implementing)
 

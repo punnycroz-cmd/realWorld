@@ -166,7 +166,7 @@ function rescueInstinct(v, dtH){
     if(Math.hypot(o.x - v.x, o.y - v.y) > CS * 22) continue;
     if(nearestThreat(v)) continue; // not safe yet
     const bond = (v.bonds && v.bonds[o.name]) || 0;
-    if(bond > 0.4 || skillLvl(v, 'medicine') >= 3 || v.name === 'Gareth'){
+    if(bond > 0.4 || skillLvl(v, 'medicine') >= 3 || isBrave(v)){
       v.plan = [{ verb: 'rescue', person: o.name }];
       witnessEvent(v, 'Going to rescue ' + o.name);
       return;
