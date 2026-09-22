@@ -763,7 +763,12 @@ function planTick(v, dtH){
     case 'farm': done = doFarmStep(v, step, dtH); break;
     case 'build': done = doBuildStep(v, step, dtH); break;
     case 'cook': done = doCookStep(v, step, dtH); break;
-    default: v.plan.shift(); return;
+    default:
+      if(VERB_HANDLERS[step.verb]){
+        if(VERB_HANDLERS[step.verb](v, step, dtH)) v.plan.shift();
+        return;
+      }
+      v.plan.shift(); return;
   }
   if(done) v.plan.shift();
 }

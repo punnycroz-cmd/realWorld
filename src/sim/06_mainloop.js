@@ -64,6 +64,8 @@ function simTick(dtH){
   for(const v of VILLAGERS){
     soulTick(v, dtH);
   }
+
+  for(const fn of SIM_TICKS) fn(dtH);
 }
 
 function onDayPass(){

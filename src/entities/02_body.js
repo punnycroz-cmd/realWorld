@@ -197,6 +197,8 @@ function bodyTick(v, dtH){
 
   // Phase 6C: Emotion derivation layer (C3)
   updateDerivedEmotions(v, dtH);
+
+  for(const fn of BODY_TICKS) fn(v, dtH);
 }
 
 /* ---- Phase 6C: Body-factor chain (C4) ----

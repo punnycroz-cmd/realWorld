@@ -24,6 +24,20 @@ function srand(){
 function srandInt(n){ return Math.floor(srand() * n); }
 function srandPick(arr){ return arr.length ? arr[srandInt(arr.length)] : undefined; }
 
+/* ---- Extension registries (Phase 7 review: minimal onion→registry migration).
+   New systems register into these choke points instead of re-wrapping
+   simTick/bodyTick/verb dispatch. Existing wrappers are left in place —
+   migration happens only where later work touches them. ---- */
+const SIM_TICKS = [];
+const BODY_TICKS = [];
+const VERB_HANDLERS = {};
+function registerSimTick(fn){ SIM_TICKS.push(fn); }
+function registerBodyTick(fn){ BODY_TICKS.push(fn); }
+function registerVerbHandler(verb, fn){
+  VERB_HANDLERS[verb] = fn;
+  if(typeof VERBS !== 'undefined' && VERBS.indexOf(verb) === -1) VERBS.push(verb);
+}
+
 /* ---- World Clock & Weather State ---- */
 const W = {
   day: 1,
