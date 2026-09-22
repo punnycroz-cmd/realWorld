@@ -400,9 +400,180 @@ def check_substrate_lint():
     print("  Substrate lint check passed (0 new 'v.body' violations in src/brain/**).")
 
 
+# ---------------------------------------------------------------------------
+# Encapsulation-law lints (docs/ARCHITECTURE.md). All static, regex/AST-lite.
+# ---------------------------------------------------------------------------
+
+def _strip_comments(text):
+    """Remove // and /* */ comments while preserving string/template content.
+    Regex literals are left alone (they never start with '//' or '/*')."""
+    out = []
+    i, n = 0, len(text)
+    state = None  # None | "'" | '"' | '`' | 'line' | 'block'
+    while i < n:
+        c = text[i]
+        nxt = text[i + 1] if i + 1 < n else ''
+        if state == 'line':
+            if c == '\n':
+                state = None
+                out.append(c)
+        elif state == 'block':
+            if c == '*' and nxt == '/':
+                state = None
+                i += 1
+            elif c == '\n':
+                out.append('\n')  # keep line numbers stable
+        elif state in ("'", '"', '`'):
+            out.append(c)
+            if c == '\\':
+                i += 1
+                if i < n:
+                    out.append(text[i])
+            elif c == state:
+                state = None
+        else:
+            if c == '/' and nxt == '/':
+                state = 'line'
+                i += 1
+            elif c == '/' and nxt == '*':
+                state = 'block'
+                i += 1
+            else:
+                out.append(c)
+                if c in ("'", '"', '`'):
+                    state = c
+        i += 1
+    return ''.join(out)
+
+
+def _iter_src_modules():
+    """Yield (rel_path, comment-stripped source) for every module in _order.txt."""
+    with open(os.path.join(SRC_DIR, '_order.txt'), 'r', encoding='utf-8') as f:
+        for rel in (ln.strip() for ln in f if ln.strip()):
+            yield rel, _strip_comments(read_src(rel))
+
+
+def check_no_test_refs():
+    """no-test-refs: production modules must not reference identifiers that are
+    only defined under src/tests/. Tests are stripped from the release bundle,
+    so such a reference either breaks the release or makes test code
+    load-bearing (the boot-hook and mkTestV13 incidents)."""
+    import re
+    decl_re = re.compile(r'^(?:function|const|let|var|class)\s+([A-Za-z_$][\w$]*)', re.M)
+    modules = list(_iter_src_modules())
+    test_defs = set()
+    prod_defs = set()
+    for rel, src in modules:
+        (test_defs if rel.startswith('tests/') else prod_defs).update(decl_re.findall(src))
+    test_only = test_defs - prod_defs
+    # Justified exceptions: (module, identifier). Add only with a WORK_LOG note.
+    allowlist = set()
+    violations = []
+    for rel, src in modules:
+        if rel.startswith('tests/'):
+            continue
+        for ident in sorted(test_only):
+            if (rel, ident) in allowlist:
+                continue
+            for m in re.finditer(r'\b' + re.escape(ident) + r'\b', src):
+                line_no = src.count('\n', 0, m.start()) + 1
+                violations.append((rel, line_no, ident))
+    if violations:
+        print("\n[LINT FAILURE — NO-TEST-REFS VIOLATION]")
+        print("Production code references an identifier defined only in src/tests/.")
+        print("Move the helper into production code (e.g. src/data/) instead.")
+        for rel, line_no, ident in violations:
+            print(f"  --> {rel}:{line_no}: '{ident}'")
+        raise SystemExit(1)
+    print(f"  no-test-refs check passed ({len(test_only)} test-only identifiers, 0 referenced).")
+
+
+def check_no_duplicates():
+    """no-duplicates: a top-level function/const/let/var name may be defined in
+    exactly one src module. All modules share one script scope — a second
+    'function NAME' silently shadows the first (hashString18 precedent)."""
+    import re
+    decl_re = re.compile(r'^(?:function\s+|(?:const|let|var)\s+)([A-Za-z_$][\w$]*)', re.M)
+    seen = {}
+    violations = []
+    for rel, src in _iter_src_modules():
+        for name in decl_re.findall(src):
+            if name in seen:
+                violations.append((name, seen[name], rel))
+            else:
+                seen[name] = rel
+    if violations:
+        print("\n[LINT FAILURE — NO-DUPLICATES VIOLATION]")
+        print("Duplicate top-level definitions across modules (shared script scope).")
+        for name, first, second in violations:
+            print(f"  --> '{name}' defined in {first} and again in {second}")
+        raise SystemExit(1)
+    print(f"  no-duplicates check passed ({len(seen)} top-level names, all unique).")
+
+
+def check_no_new_wraps():
+    """no-new-wraps: planTick/simTick/bodyTick/updateVillagerAI may only be
+    extended via registerSimTick/registerBodyTick/registerVerbHandler
+    (sim/00_core.js). The wraps below predate the registry and are
+    grandfathered; new ones fail the build."""
+    import re
+    # (module, target) -> number of allowed top-level reassignments
+    legacy_wraps = {
+        ('sim/12a_events.js', 'bodyTick'): 1,
+        ('sim/12a_events.js', 'updateVillagerAI'): 1,
+        ('sim/12d_world.js', 'simTick'): 1,
+        ('sim/22a_save.js', 'simTick'): 1,
+        ('brain/knowledge.js', 'planTick'): 1,
+        ('brain/knowledge.js', 'bodyTick'): 1,
+        ('brain/utility.js', 'planTick'): 1,
+        ('brain/utility.js', 'updateVillagerAI'): 1,
+        ('systems/13b_economy.js', 'planTick'): 1,
+        ('systems/14f_wiring.js', 'planTick'): 1,
+        ('systems/14f_wiring.js', 'bodyTick'): 1,
+        ('systems/14f_wiring.js', 'simTick'): 1,
+        ('systems/14f_wiring.js', 'updateVillagerAI'): 1,
+        ('systems/15a_food.js', 'bodyTick'): 1,
+        ('systems/15f_wiring.js', 'planTick'): 1,
+        ('systems/15f_wiring.js', 'simTick'): 1,
+        ('systems/15f_wiring.js', 'updateVillagerAI'): 1,
+        ('systems/16a_recipes.js', 'planTick'): 1,
+        ('systems/17a_buildings.js', 'planTick'): 1,
+        ('systems/17a_buildings.js', 'bodyTick'): 1,
+        ('systems/17a_buildings.js', 'simTick'): 1,
+        ('systems/20_social_life.js', 'planTick'): 1,
+        ('systems/21a_ownership.js', 'planTick'): 1,
+        ('systems/21a_ownership.js', 'simTick'): 1,
+    }
+    wrap_re = re.compile(r'^(planTick|simTick|bodyTick|updateVillagerAI)\s*=(?!=)', re.M)
+    violations = []
+    for rel, src in _iter_src_modules():
+        counts = {}
+        first_line = {}
+        for m in wrap_re.finditer(src):
+            target = m.group(1)
+            counts[target] = counts.get(target, 0) + 1
+            first_line.setdefault(target, src.count('\n', 0, m.start()) + 1)
+        for target, count in counts.items():
+            allowed = legacy_wraps.get((rel, target), 0)
+            if count > allowed:
+                violations.append((rel, first_line[target], target, count, allowed))
+    if violations:
+        print("\n[LINT FAILURE — NO-NEW-WRAPS VIOLATION]")
+        print("Do not reassign planTick/simTick/bodyTick/updateVillagerAI.")
+        print("Use registerSimTick / registerBodyTick / registerVerbHandler (sim/00_core.js).")
+        for rel, line_no, target, count, allowed in violations:
+            print(f"  --> {rel}:{line_no}: '{target} =' x{count} (allowed: {allowed})")
+        raise SystemExit(1)
+    print(f"  no-new-wraps check passed ({len(legacy_wraps)} legacy wraps, 0 new).")
+
+
 def generate():
     print("Running S2 substrate lint check...")
     check_substrate_lint()
+    print("Running encapsulation-law checks (docs/ARCHITECTURE.md)...")
+    check_no_test_refs()
+    check_no_duplicates()
+    check_no_new_wraps()
 
     print("Reading Willowbrook pixel-art dev modules...")
     full_js = [PART1_HEADER]

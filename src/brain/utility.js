@@ -42,15 +42,8 @@ planForVerb = function(v, action){
 };
 
 /* ---- Deterministic String/Seeded Hashing (NO Math.random) ---- */
-function hashString18(str){
-  let h = 0x811c9dc5;
-  for(let i = 0; i < str.length; i++){
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return h >>> 0;
-}
-
+/* hashString18 is defined once in sim/00_core.js (FNV-1a 32-bit); the
+   duplicate here was removed — ARCHITECTURE.md §4, no-duplicates lint. */
 function deterministicTieBreak18(v, a, b){
   const hA = hashString18(`${SEED}:${v.name}:${a.id}`);
   const hB = hashString18(`${SEED}:${v.name}:${b.id}`);
