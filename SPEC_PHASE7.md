@@ -92,7 +92,7 @@ Centrally planned economy; forced labour; globally optimal assignment (no optimi
 
 ### Acceptance criteria
 - Refactor done: full harness 0 FAIL; discriminating probe — hunger deficit truly reflects body.satiety (no more two disagreeing number sources).
-- 30-day soak: 0 mass-death; grain/wood/water within preset bounds; water coverage ≥ 90% of days.
+- 30-day soak: 0 mass-death; grain/wood/water within preset bounds; water coverage ≥ 90% of days. **The 7D acceptance gate is `node devtools/longrun.js d30`** (30-day scenario on the test bundle, 1-hour steps — never `simTick(24)`); scheduled at the start of 7D, per review recommendation 8.
 - Villager refusing an assignment: no mechanical resource loss, only appears in gossip (discriminating test).
 
 ---

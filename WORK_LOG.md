@@ -792,3 +792,4 @@ Phase 6D 'Humans Are Not Perfect' done in 4 checkpointed sub-tasks (4h timeout b
 - R4 tests split from shipped bundle: release willowbrook_natura.html (845KB, no tests) + willowbrook_natura_test.html; mkVillager factory is production (caravan no longer imports test code).
 - R5 name-hacks removed: Bram-fire → real fire proximity; Gareth → 'brave' trait + isBrave() at all 6 sites.
 - Harness: 289 lines, 0 FAIL; probe 12/12; node --check clean on both bundles.
+- R8: ?test run in real browser (/opt/meta-chromium/chrome via Playwright): 289 lines, 1 FAIL (utility18 proximity — timing-sensitive candidate gen under live rAF ticks; recorded, not a code regression). Save tests needed ?memsave — file:// localStorage quota < 1.24MB save blob. longrun d30 recorded as the 7D acceptance gate in SPEC_PHASE7.

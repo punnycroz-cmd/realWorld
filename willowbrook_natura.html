@@ -20128,6 +20128,10 @@ var SaveStore = {
   setBackend(b){ this._backend = b || null; },
   _ls(){
     if(this._backend) return this._backend;
+    // ?memsave: browser test runs on file:// where the localStorage quota is
+    // smaller than a full save blob (~1.2 MB) — fall back to the in-memory
+    // backend the node harness uses. Assertions exercise the same logic.
+    if(typeof location !== 'undefined' && /[?&]memsave\b/.test(location.search)) return null;
     try{
       if(typeof localStorage !== 'undefined'){
         localStorage.setItem('__wn_probe', '1');
