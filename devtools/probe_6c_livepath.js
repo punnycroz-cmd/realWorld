@@ -8,7 +8,7 @@
 // (6) Healthy control villager: blood=1.0, {verb:'work'} progresses normally without false interrupt
 const fs = require('fs');
 const vm = require('vm');
-const path = '/home/hatch/workspace/world-sim/willowbrook_natura.html';
+const path = '/home/hatch/workspace/world-sim/willowbrook_natura_test.html';
 const html = fs.readFileSync(path, 'utf-8');
 const m = html.match(/<script>([\s\S]*)<\/script>/);
 if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }

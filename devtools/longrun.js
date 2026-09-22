@@ -205,7 +205,7 @@ function runScenario(name) {
   const cfg = Object.assign({ name }, SCENARIOS[name]);
   buildStubs();
   global.__lrConfig = cfg;
-  const html = fs.readFileSync('/home/hatch/workspace/world-sim/willowbrook_natura.html', 'utf-8');
+  const html = fs.readFileSync('/home/hatch/workspace/world-sim/willowbrook_natura_test.html', 'utf-8');
   const m = html.match(/<script>([\s\S]*)<\/script>/);
   if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }
   try {

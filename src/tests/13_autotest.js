@@ -1,20 +1,8 @@
-/* ---- PART 13 test factory ---- */
+/* ---- PART 13 test factory ----
+   Thin wrapper over the production mkVillager factory (data/03_roster.js):
+   test pawns default to role 'Test' and brainControlled:true. */
 function mkTestV13(name, wx, wy, extra){
-  const v = Object.assign({
-    name, role:'Test', homeId:'inn',
-    x:wx * CS + 16, y:wy * CS + 16, targetX:null, targetY:null,
-    face:0, state:'idle', moving:false, walkPhase:0, seed:1,
-    isNPC:true, inBuilding:false, canSwim:true, swimSkill:0.5, swimReason:'',
-    workProgress:0, triumphT:0,
-    equippedTool:{ kind:'none', name:'', icon:'', desc:'' },
-    mood:0.9, hunger:0.9, energy:0.9, hydration:0.9, coreTemp:37.0, thoughts:[],
-    sex:'m', ageY:30, adult:true, childScale:1, gold:25, dreams:[],
-    inv:{}, bonds:{}, bondMile:{}, danger:[], events:[], plan:[],
-    brainControlled:true, pregnant:null, chatT:0
-  }, extra || {});
-  ensureBody(v); v.body.injury = 0; v.body.illness = 0;
-  VILLAGERS.push(v);
-  return v;
+  return mkVillager(name, wx, wy, Object.assign({ role:'Test', brainControlled:true }, extra || {}));
 }
 function rmTestV13(v){ const i = VILLAGERS.indexOf(v); if(i >= 0) VILLAGERS.splice(i, 1); }
 /* ---- extended autotest: PART 13 systems ---- */

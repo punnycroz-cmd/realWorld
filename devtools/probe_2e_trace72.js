@@ -2,7 +2,7 @@
 // 2E fix verification: 72h live trace at 1-hour steps.
 // Appends a trace driver INSIDE page scope (eval), so it can see VILLAGERS/simTick.
 const fs = require('fs');
-const path = '/home/hatch/workspace/world-sim/willowbrook_natura.html';
+const path = '/home/hatch/workspace/world-sim/willowbrook_natura_test.html';
 const html = fs.readFileSync(path, 'utf-8');
 const m = html.match(/<script>([\s\S]*)<\/script>/);
 if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }

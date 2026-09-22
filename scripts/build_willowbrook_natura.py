@@ -22,6 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEV_DIR = os.path.join(BASE_DIR, 'willowbrook', 'dev')
 SRC_DIR = os.path.join(BASE_DIR, 'src')
 OUT_FILE = os.path.join(BASE_DIR, 'willowbrook_natura.html')
+TEST_OUT_FILE = os.path.join(BASE_DIR, 'willowbrook_natura_test.html')
 
 # Pixel-art modules, in bundle order (PART 1)
 PA_ORDER = [
@@ -411,25 +412,33 @@ def generate():
     print("Reading src/ game modules...")
     with open(os.path.join(SRC_DIR, '_order.txt'), 'r', encoding='utf-8') as f:
         modules = [ln.strip() for ln in f if ln.strip()]
-    bridge_js = "\n".join(read_src(m) for m in modules)
-    print(f"  {len(modules)} modules")
 
-    print("Compiling willowbrook_natura.html...")
+    # Tests are excluded from the shipped bundle: willowbrook_natura.html is
+    # the release build (game only); willowbrook_natura_test.html carries the
+    # autotest modules and is what devtools/harnesses run.
+    test_modules = [m for m in modules if m.startswith('tests/')]
+    game_modules = [m for m in modules if not m.startswith('tests/')]
+    print(f"  {len(game_modules)} game modules + {len(test_modules)} test modules")
+
     parts = HTML_TEMPLATE.split("<script>\n'use strict';")
     assert len(parts) == 2, "HTML shell script-tag anchor changed"
-    final_output = (
-        parts[0]
-        + "<script>\n'use strict';\n"
-        + "\n".join(full_js)
-        + "\n"
-        + bridge_js
-        + HTML_FOOTER
-    )
 
-    with open(OUT_FILE, 'w', encoding='utf-8') as f:
-        f.write(final_output)
+    def emit(out_path, mods, label):
+        bridge_js = "\n".join(read_src(m) for m in mods)
+        output = (
+            parts[0]
+            + "<script>\n'use strict';\n"
+            + "\n".join(full_js)
+            + "\n"
+            + bridge_js
+            + HTML_FOOTER
+        )
+        with open(out_path, 'w', encoding='utf-8') as f:
+            f.write(output)
+        print(f"Compiled {label}: {out_path} ({len(output)} bytes)")
 
-    print(f"Successfully compiled {OUT_FILE} ({len(final_output)} bytes)!")
+    emit(OUT_FILE, game_modules, 'release (no tests)')
+    emit(TEST_OUT_FILE, modules, 'test bundle (game + autotests)')
 
 
 if __name__ == '__main__':

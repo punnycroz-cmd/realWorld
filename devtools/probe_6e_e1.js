@@ -7,7 +7,7 @@
 const fs = require('fs');
 const pathModule = require('path');
 const vm = require('vm');
-const htmlPath = '/home/hatch/workspace/world-sim/willowbrook_natura.html';
+const htmlPath = '/home/hatch/workspace/world-sim/willowbrook_natura_test.html';
 const html = fs.readFileSync(htmlPath, 'utf-8');
 const m = html.match(/<script>([\s\S]*)<\/script>/);
 if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }
@@ -87,7 +87,7 @@ assertProbe(
 );
 
 // 2. S2: Real src/brain/** static audit
-const brainDir = htmlPath.replace('willowbrook_natura.html', 'src/brain');
+const brainDir = htmlPath.replace(/willowbrook_natura(_test)?.html/, 'src/brain');
 const brainFiles = fs.readdirSync(brainDir).filter(f => f.endsWith('.js'));
 let unwhitelistedCount = 0;
 let legacyCount = 0;

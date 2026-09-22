@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const vm = require('vm');
-const htmlPath = '/home/hatch/workspace/world-sim/willowbrook_natura.html';
+const htmlPath = '/home/hatch/workspace/world-sim/willowbrook_natura_test.html';
 const html = fs.readFileSync(htmlPath, 'utf-8');
 const m = html.match(/<script>([\s\S]*)<\/script>/);
 if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }

@@ -51,6 +51,28 @@ function createVillager(name, role, homeId, wx, wy, options){
   return v;
 }
 
+/* Generic spawn-a-villager factory (production). Used by the caravan system
+   (15c_caravan.js) for outsider traders — previously it called the test-only
+   mkTestV13, which made shipped production code depend on a test module.
+   Test factories (mkTestV13 et al.) are thin wrappers over this. */
+function mkVillager(name, wx, wy, extra){
+  const v = Object.assign({
+    name, role:'Villager', homeId:'inn',
+    x:wx * CS + 16, y:wy * CS + 16, targetX:null, targetY:null,
+    face:0, state:'idle', moving:false, walkPhase:0, seed:1,
+    isNPC:true, inBuilding:false, canSwim:true, swimSkill:0.5, swimReason:'',
+    workProgress:0, triumphT:0,
+    equippedTool:{ kind:'none', name:'', icon:'', desc:'' },
+    mood:0.9, hunger:0.9, energy:0.9, hydration:0.9, coreTemp:37.0, thoughts:[],
+    sex:'m', ageY:30, adult:true, childScale:1, gold:25, dreams:[],
+    inv:{}, bonds:{}, bondMile:{}, danger:[], events:[], plan:[],
+    brainControlled:false, pregnant:null, chatT:0
+  }, extra || {});
+  ensureBody(v); v.body.injury = 0; v.body.illness = 0;
+  VILLAGERS.push(v);
+  return v;
+}
+
 function initVillagers(){
   VILLAGERS.length = 0;
   function makeV(name, role, homeId, wx, wy, toolKind, toolName, toolIcon, toolDesc, thoughts, canSwim, swimSkill, swimReason){

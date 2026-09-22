@@ -8,7 +8,7 @@
 // Modelled on devtools/node_harness.js; boots the world WITHOUT the ?test suite.
 const fs = require('fs');
 const vm = require('vm');
-const path = '/home/hatch/workspace/world-sim/willowbrook_natura.html';
+const path = '/home/hatch/workspace/world-sim/willowbrook_natura_test.html';
 const html = fs.readFileSync(path, 'utf-8');
 const m = html.match(/<script>([\s\S]*)<\/script>/);
 if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }

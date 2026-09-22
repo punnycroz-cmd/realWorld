@@ -28,7 +28,7 @@ const CARAVAN = {
 };
 const TRADER_NAMES = ['Yusuf', 'Petra', 'Dain'];
 function mkCaravanMember(name, role, wx, wy){
-  const v = mkTestV13(name, wx, wy, { role: role, outsider: true, brainControlled: true });
+  const v = mkVillager(name, wx, wy, { role: role, outsider: true, brainControlled: true });
   v.gold = 200; v.grudges = {}; v.rivals = {}; v.invAge = {}; v.taintedMeals = {};
   v.memory = {};
   ensureSkills(v);
