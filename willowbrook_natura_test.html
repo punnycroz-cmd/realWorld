@@ -5578,6 +5578,15 @@ function isNight(){
   return W.tod < 5.5 || W.tod > 20.0;
 }
 
+/* Top-level sprite->canvas resolver. The render-local getCvs() inside
+   renderWorld() is NOT in scope for drawCorpse/drawChildPawn — use this. */
+function resolveSprCvs(spr){
+  if(!spr) return null;
+  if(spr.c) return spr.c;
+  if(spr instanceof HTMLCanvasElement || spr instanceof ImageBitmap) return spr;
+  return null;
+}
+
 function renderChibiPawn(v, cw, ch){
   const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
   const sy = Math.round((v.y - cam.y) * cam.zoom + ch / 2);
@@ -9533,14 +9542,6 @@ runAutoTest = async function(){
 };
 
 
-/* Top-level sprite->canvas resolver. The render-local getCvs() inside
-   renderWorld() is NOT in scope for drawCorpse/drawChildPawn — use this. */
-function resolveSprCvs(spr){
-  if(!spr) return null;
-  if(spr.c) return spr.c;
-  if(spr instanceof HTMLCanvasElement || spr instanceof ImageBitmap) return spr;
-  return null;
-}
 
 /* =====================================================================
    PART 13A: PLAIN-WORD INTENT PLANNER (Natura v8 design)
@@ -20740,10 +20741,9 @@ runAutoTest = async function(){
   el.textContent += '\n==== part15 ' + passed + '/' + res.length + ' passed ====\n';
 };
 
-window.addEventListener('DOMContentLoaded', boot);
 /* =====================================================================
    PART 16 AUTOTEST — Phase 2A: data-driven recipes + provenance.
-   (boot hook stays in 15_autotest.js — no second DOMContentLoaded here)
+   (boot hook lives in sim/11_boot.js — no second DOMContentLoaded here)
    ===================================================================== */
 const __runAutoTest16 = runAutoTest;
 runAutoTest = async function(){
@@ -26668,6 +26668,11 @@ runAutoTest = async function(){
   console.log('==== part29 done ==== 5/5 passed ====');
   if(out) out.textContent += 'part29 done ==== 5/5 passed ====\n';
 };
+
+/* Boot entry hook. Kept in the LAST module of _order.txt so that even a
+   synchronously-firing DOMContentLoaded stub (devtools probes) runs boot()
+   only after every module's top-level bindings are initialized. */
+window.addEventListener('DOMContentLoaded', boot);
 
 </script>
 </body>

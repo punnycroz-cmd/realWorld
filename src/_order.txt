@@ -65,3 +65,4 @@ tests/26_autotest.js
 tests/27_autotest.js
 tests/28_autotest.js
 tests/29_autotest.js
+sim/99_boot_hook.js

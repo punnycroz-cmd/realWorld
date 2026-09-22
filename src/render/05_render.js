@@ -251,6 +251,15 @@ function isNight(){
   return W.tod < 5.5 || W.tod > 20.0;
 }
 
+/* Top-level sprite->canvas resolver. The render-local getCvs() inside
+   renderWorld() is NOT in scope for drawCorpse/drawChildPawn — use this. */
+function resolveSprCvs(spr){
+  if(!spr) return null;
+  if(spr.c) return spr.c;
+  if(spr instanceof HTMLCanvasElement || spr instanceof ImageBitmap) return spr;
+  return null;
+}
+
 function renderChibiPawn(v, cw, ch){
   const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
   const sy = Math.round((v.y - cam.y) * cam.zoom + ch / 2);

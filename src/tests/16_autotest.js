@@ -1,6 +1,6 @@
 /* =====================================================================
    PART 16 AUTOTEST — Phase 2A: data-driven recipes + provenance.
-   (boot hook stays in 15_autotest.js — no second DOMContentLoaded here)
+   (boot hook lives in sim/11_boot.js — no second DOMContentLoaded here)
    ===================================================================== */
 const __runAutoTest16 = runAutoTest;
 runAutoTest = async function(){

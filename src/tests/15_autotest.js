@@ -203,5 +203,3 @@ runAutoTest = async function(){
   const passed = res.filter(r => r.ok).length;
   el.textContent += '\n==== part15 ' + passed + '/' + res.length + ' passed ====\n';
 };
-
-window.addEventListener('DOMContentLoaded', boot);

@@ -116,11 +116,3 @@ runAutoTest = async function(){
 };
 
 
-/* Top-level sprite->canvas resolver. The render-local getCvs() inside
-   renderWorld() is NOT in scope for drawCorpse/drawChildPawn — use this. */
-function resolveSprCvs(spr){
-  if(!spr) return null;
-  if(spr.c) return spr.c;
-  if(spr instanceof HTMLCanvasElement || spr instanceof ImageBitmap) return spr;
-  return null;
-}
