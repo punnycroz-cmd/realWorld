@@ -778,12 +778,14 @@ window.__aiBridge.postAction = function(name, action){
   for(const s of r.steps){ if(action.guard) s.guard = true; }
   v.plan = v.plan.concat(r.steps);
   v.brainControlled = true;
+  v.brainControlledHold = false; // queued control auto-releases when the plan drains
   return { ok: true, queued: r.steps.length };
 };
 window.__aiBridge.setBrainControlled = function(name, on){
   const v = VILLAGERS.find(p => p.name === name);
   if(!v) return false;
   v.brainControlled = !!on;
+  v.brainControlledHold = !!on; // explicit hold survives an empty plan
   if(!on) v.plan = [];
   return true;
 };

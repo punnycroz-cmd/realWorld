@@ -1424,6 +1424,7 @@ function updateVillagerBrain(v, dtH){
   // 2. Brain controlled (player or external bridge interface) -> run plan without utility overriding
   if(v.brainControlled){
     planTick(v, dtH);
+    if(!v.brainControlledHold && (!v.plan || !v.plan.length)) v.brainControlled = false;
     return;
   }
 

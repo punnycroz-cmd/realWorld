@@ -220,7 +220,11 @@ updateVillagerAI = function(v, dtH){
   mortalityTick(v, dtH);
   illnessInjuryTick(v, dtH);
   if(v.dead) return;
-  if(v.brainControlled){ planTick(v, dtH); return; }
+  if(v.brainControlled){
+    planTick(v, dtH);
+    if(!v.brainControlledHold && (!v.plan || !v.plan.length)) v.brainControlled = false;
+    return;
+  }
   routineNeeds(v);
   if(v.plan && v.plan.length){ planTick(v, dtH); if(v.plan && v.plan.length) return; }
   __baseUpdateVillagerAI(v, dtH);
@@ -247,7 +251,7 @@ initVillagers = function(){
     v.childScale = m[1] < 16 ? 0.62 : 1;
     v.inv = {}; v.bonds = {}; v.bondMile = {};
     v.danger = []; v.events = []; v.plan = [];
-    v.brainControlled = false; v.pregnant = null; v.chatT = 0;
+    v.brainControlled = false; v.brainControlledHold = false; v.pregnant = null; v.chatT = 0;
     const b = ensureBody(v); b.injury = 0; b.illness = 0;
   }
   initParityWorld();

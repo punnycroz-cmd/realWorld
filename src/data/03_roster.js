@@ -28,6 +28,9 @@ function createVillager(name, role, homeId, wx, wy, options){
     bondMile: opt.bondMile || {},
     danger: [], events: [], plan: [],
     brainControlled: !!opt.brainControlled,
+    // Construction-time control is an explicit hold (caravan outsiders, test
+    // pawns): it does not auto-release when the plan drains.
+    brainControlledHold: !!opt.brainControlled,
     pregnant: null, chatT: 0,
     motherId: opt.motherId || null,
     fatherId: opt.fatherId || null,

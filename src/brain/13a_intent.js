@@ -109,6 +109,7 @@ window.__aiBridge.postIntent = function(name, text){
   }
   v.plan = v.plan.concat(r.steps);
   v.brainControlled = true;
+  v.brainControlledHold = false; // queued control auto-releases when the plan drains
   witnessEvent(v, 'Decided to: ' + text);
   return { ok:true, queued:r.steps.length, intent:text };
 };

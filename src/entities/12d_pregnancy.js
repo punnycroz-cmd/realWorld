@@ -35,7 +35,7 @@ function birthChild(m){
         mood: 0.9, hunger: 0.9, energy: 0.9, hydration: 0.9, coreTemp: 37.0, thoughts: [],
         sex: babySex, ageY: 0, adult: false, stage: 'child', childScale: 0.55,
         inv: {}, bonds: {}, bondMile: {}, danger: [], events: [], plan: [],
-        brainControlled: false, pregnant: null, chatT: 0, _ci: 7,
+        brainControlled: false, brainControlledHold: false, pregnant: null, chatT: 0, _ci: 7,
         motherId: m.name, fatherId: fatherName, householdId: m.householdId || null
       };
   v.motherId = m.name;

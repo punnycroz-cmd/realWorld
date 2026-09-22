@@ -4876,6 +4876,9 @@ function createVillager(name, role, homeId, wx, wy, options){
     bondMile: opt.bondMile || {},
     danger: [], events: [], plan: [],
     brainControlled: !!opt.brainControlled,
+    // Construction-time control is an explicit hold (caravan outsiders, test
+    // pawns): it does not auto-release when the plan drains.
+    brainControlledHold: !!opt.brainControlled,
     pregnant: null, chatT: 0,
     motherId: opt.motherId || null,
     fatherId: opt.fatherId || null,
@@ -6643,7 +6646,11 @@ updateVillagerAI = function(v, dtH){
   mortalityTick(v, dtH);
   illnessInjuryTick(v, dtH);
   if(v.dead) return;
-  if(v.brainControlled){ planTick(v, dtH); return; }
+  if(v.brainControlled){
+    planTick(v, dtH);
+    if(!v.brainControlledHold && (!v.plan || !v.plan.length)) v.brainControlled = false;
+    return;
+  }
   routineNeeds(v);
   if(v.plan && v.plan.length){ planTick(v, dtH); if(v.plan && v.plan.length) return; }
   __baseUpdateVillagerAI(v, dtH);
@@ -6670,7 +6677,7 @@ initVillagers = function(){
     v.childScale = m[1] < 16 ? 0.62 : 1;
     v.inv = {}; v.bonds = {}; v.bondMile = {};
     v.danger = []; v.events = []; v.plan = [];
-    v.brainControlled = false; v.pregnant = null; v.chatT = 0;
+    v.brainControlled = false; v.brainControlledHold = false; v.pregnant = null; v.chatT = 0;
     const b = ensureBody(v); b.injury = 0; b.illness = 0;
   }
   initParityWorld();
@@ -8078,12 +8085,14 @@ window.__aiBridge.postAction = function(name, action){
   for(const s of r.steps){ if(action.guard) s.guard = true; }
   v.plan = v.plan.concat(r.steps);
   v.brainControlled = true;
+  v.brainControlledHold = false; // queued control auto-releases when the plan drains
   return { ok: true, queued: r.steps.length };
 };
 window.__aiBridge.setBrainControlled = function(name, on){
   const v = VILLAGERS.find(p => p.name === name);
   if(!v) return false;
   v.brainControlled = !!on;
+  v.brainControlledHold = !!on; // explicit hold survives an empty plan
   if(!on) v.plan = [];
   return true;
 };
@@ -8859,7 +8868,7 @@ function birthChild(m){
         mood: 0.9, hunger: 0.9, energy: 0.9, hydration: 0.9, coreTemp: 37.0, thoughts: [],
         sex: babySex, ageY: 0, adult: false, stage: 'child', childScale: 0.55,
         inv: {}, bonds: {}, bondMile: {}, danger: [], events: [], plan: [],
-        brainControlled: false, pregnant: null, chatT: 0, _ci: 7,
+        brainControlled: false, brainControlledHold: false, pregnant: null, chatT: 0, _ci: 7,
         motherId: m.name, fatherId: fatherName, householdId: m.householdId || null
       };
   v.motherId = m.name;
@@ -9494,6 +9503,7 @@ window.__aiBridge.postIntent = function(name, text){
   }
   v.plan = v.plan.concat(r.steps);
   v.brainControlled = true;
+  v.brainControlledHold = false; // queued control auto-releases when the plan drains
   witnessEvent(v, 'Decided to: ' + text);
   return { ok:true, queued:r.steps.length, intent:text };
 };
@@ -16851,6 +16861,7 @@ function updateVillagerBrain(v, dtH){
   // 2. Brain controlled (player or external bridge interface) -> run plan without utility overriding
   if(v.brainControlled){
     planTick(v, dtH);
+    if(!v.brainControlledHold && (!v.plan || !v.plan.length)) v.brainControlled = false;
     return;
   }
 
