@@ -22521,6 +22521,19 @@ function collectSaveState(){
     households: saveClone(HOUSEHOLDS),
     systems: saveClone(systems),
     parityAcc: parityAcc,
+    // Phase 7A registries — previously dropped silently by save/load:
+    // guild membership map, court records, economy demand state, and
+    // capability gaps must survive reload (v.guild alone was saved, which
+    // left GUILDS.members empty and killed bonuses/pricing quietly).
+    guilds: (typeof GUILDS !== 'undefined') ? saveClone(GUILDS) : {},
+    courtRecords: (typeof COURT_RECORDS !== 'undefined') ? saveClone(COURT_RECORDS) : [],
+    economy: (typeof Economy !== 'undefined') ? {
+      demands: saveClone(Economy.demands),
+      demandLog: saveClone(Economy.demandLog),
+      trackedWeeklyConsumption: saveClone(Economy.trackedWeeklyConsumption),
+      recentTransactions: saveClone(Economy.recentTransactions)
+    } : {},
+    capabilityGaps: (typeof CAPABILITY_GAPS !== 'undefined') ? saveClone(CAPABILITY_GAPS) : [],
     epistemicSeq: (typeof _nextEpistemicId !== 'undefined') ? _nextEpistemicId : 0,
     gFrame: (typeof G !== 'undefined' && G) ? (G.frame | 0) : 0,
     ui: { controlledPawnIdx: controlledPawnIdx | 0, inspectedPawnIdx: inspectedPawnIdx | 0 }
@@ -22631,6 +22644,30 @@ function __checkSaveShape(s){
       if(!__isPlainObject(s.transferArchive[i])) return 'field "transferArchive" entry ' + i + ' has wrong shape';
     }
   }
+  // Phase 7A registries are OPTIONAL (absent in pre-7A saves) but when
+  // present must have the right shapes — restore mutates the live
+  // const-bound registries, so a bad shape must be rejected before that.
+  if(s.guilds !== undefined && !__isPlainObject(s.guilds)) return 'field "guilds" has wrong shape';
+  if(s.courtRecords !== undefined){
+    if(!Array.isArray(s.courtRecords)) return 'field "courtRecords" has wrong shape';
+    for(let i = 0; i < s.courtRecords.length; i++){
+      if(!__isPlainObject(s.courtRecords[i])) return 'field "courtRecords" entry ' + i + ' has wrong shape';
+    }
+  }
+  if(s.economy !== undefined){
+    if(!__isPlainObject(s.economy)) return 'field "economy" has wrong shape';
+    if(s.economy.demands !== undefined && !__isPlainObject(s.economy.demands)) return 'field "economy.demands" has wrong shape';
+    if(s.economy.trackedWeeklyConsumption !== undefined && !__isPlainObject(s.economy.trackedWeeklyConsumption)) return 'field "economy.trackedWeeklyConsumption" has wrong shape';
+    for(const lk of ['demandLog', 'recentTransactions']){
+      if(s.economy[lk] !== undefined && !Array.isArray(s.economy[lk])) return 'field "economy.' + lk + '" has wrong shape';
+    }
+  }
+  if(s.capabilityGaps !== undefined){
+    if(!Array.isArray(s.capabilityGaps)) return 'field "capabilityGaps" has wrong shape';
+    for(let i = 0; i < s.capabilityGaps.length; i++){
+      if(typeof s.capabilityGaps[i] !== 'string') return 'field "capabilityGaps" entry ' + i + ' has wrong shape';
+    }
+  }
   return null;
 }
 function applySaveState(s){
@@ -22690,6 +22727,18 @@ function applySaveState(s){
     __restoreArrayInto(HOUSEHOLDS, s.households);
     __restoreArrayInto(systems, s.systems);
     parityAcc = +s.parityAcc || 0;
+    // Phase 7A registries — optional fields; absent (older saves) leaves the
+    // live registries as they are, present restores them IN PLACE so the
+    // const bindings and every module reference stay valid.
+    if(s.guilds && typeof GUILDS !== 'undefined') __restoreObjectInto(GUILDS, s.guilds);
+    if(Array.isArray(s.courtRecords) && typeof COURT_RECORDS !== 'undefined') __restoreArrayInto(COURT_RECORDS, s.courtRecords);
+    if(s.economy && typeof Economy !== 'undefined'){
+      if(s.economy.demands) __restoreObjectInto(Economy.demands, s.economy.demands);
+      if(Array.isArray(s.economy.demandLog)) __restoreArrayInto(Economy.demandLog, s.economy.demandLog);
+      if(s.economy.trackedWeeklyConsumption) __restoreObjectInto(Economy.trackedWeeklyConsumption, s.economy.trackedWeeklyConsumption);
+      if(Array.isArray(s.economy.recentTransactions)) __restoreArrayInto(Economy.recentTransactions, s.economy.recentTransactions);
+    }
+    if(Array.isArray(s.capabilityGaps) && typeof CAPABILITY_GAPS !== 'undefined') __restoreArrayInto(CAPABILITY_GAPS, s.capabilityGaps);
     if(typeof _nextEpistemicId !== 'undefined' && s.epistemicSeq != null) _nextEpistemicId = s.epistemicSeq | 0;
 
     if(typeof G !== 'undefined' && G){
@@ -23389,6 +23438,32 @@ runAutoTest = async function(){
   const protoOk2 = !ldProto2.ok && worldHash() === hPreProto2;
   log(protoOk && protoOk2, 'save22: __proto__ smuggling rejected (items + villagers), world untouched',
     ldProto.reason || '');
+
+  // 22.22 Phase-7A registries survive save/load (regression: GUILDS,
+  // COURT_RECORDS, Economy demand state and CAPABILITY_GAPS were silently
+  // dropped — villagers kept v.guild but the member map was gone, so the
+  // 1.6x apprenticeship bonus and demand-driven caravan pricing died on
+  // reload). Save -> scramble live state -> load -> verify restored.
+  let regOk = false, regDesc = '';
+  try{
+    const gm = mk('TSaveGuild', 44, 30);
+    joinGuild(gm, 'farmer', 'apprentice', 'Marta');
+    Economy.recordDemand('bread', 3);
+    saveGame('t22reg');
+    // scramble the live registries
+    leaveGuild('TSaveGuild', 'farmer');
+    Economy.resetDemand('bread');
+    const ld = loadGame('t22reg');
+    const memAfter = isGuildMember('TSaveGuild', 'farmer');
+    const gv = findPersonSafe('TSaveGuild');
+    const bonusAfter = gv ? getGuildApprenticeshipBonus(gv, 'farming') : -1;
+    const demAfter = Economy.getDemand('bread');
+    const gapsOk = Array.isArray(CAPABILITY_GAPS);
+    regOk = ld.ok && memAfter && bonusAfter === 1.6 && demAfter === 3 && gapsOk;
+    regDesc = 'member=' + memAfter + ' bonus=' + bonusAfter + ' demand=' + demAfter;
+  }catch(e){ regDesc = 'ERR: ' + e.message; }
+  try{ leaveGuild('TSaveGuild', 'farmer'); }catch(e){}
+  log(regOk, 'save22: guild membership + apprenticeship bonus + economy demand survive save/load', regDesc);
 
   cleanup();
 

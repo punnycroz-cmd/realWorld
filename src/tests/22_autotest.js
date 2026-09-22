@@ -245,6 +245,32 @@ runAutoTest = async function(){
   log(protoOk && protoOk2, 'save22: __proto__ smuggling rejected (items + villagers), world untouched',
     ldProto.reason || '');
 
+  // 22.22 Phase-7A registries survive save/load (regression: GUILDS,
+  // COURT_RECORDS, Economy demand state and CAPABILITY_GAPS were silently
+  // dropped — villagers kept v.guild but the member map was gone, so the
+  // 1.6x apprenticeship bonus and demand-driven caravan pricing died on
+  // reload). Save -> scramble live state -> load -> verify restored.
+  let regOk = false, regDesc = '';
+  try{
+    const gm = mk('TSaveGuild', 44, 30);
+    joinGuild(gm, 'farmer', 'apprentice', 'Marta');
+    Economy.recordDemand('bread', 3);
+    saveGame('t22reg');
+    // scramble the live registries
+    leaveGuild('TSaveGuild', 'farmer');
+    Economy.resetDemand('bread');
+    const ld = loadGame('t22reg');
+    const memAfter = isGuildMember('TSaveGuild', 'farmer');
+    const gv = findPersonSafe('TSaveGuild');
+    const bonusAfter = gv ? getGuildApprenticeshipBonus(gv, 'farming') : -1;
+    const demAfter = Economy.getDemand('bread');
+    const gapsOk = Array.isArray(CAPABILITY_GAPS);
+    regOk = ld.ok && memAfter && bonusAfter === 1.6 && demAfter === 3 && gapsOk;
+    regDesc = 'member=' + memAfter + ' bonus=' + bonusAfter + ' demand=' + demAfter;
+  }catch(e){ regDesc = 'ERR: ' + e.message; }
+  try{ leaveGuild('TSaveGuild', 'farmer'); }catch(e){}
+  log(regOk, 'save22: guild membership + apprenticeship bonus + economy demand survive save/load', regDesc);
+
   cleanup();
 
   // 22.17 no test villagers leak past cleanup (regression: loadGame replaces
