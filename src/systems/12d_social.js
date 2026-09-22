@@ -43,6 +43,8 @@ function addReputationReason(observer, targetName, reason){
     source: reason.source || 'direct',
     teller: reason.teller || null,
     victim: reason.victim || null,
+    protoNorm: reason.protoNorm || null,
+    mistakenWho: reason.mistakenWho || null,
     distorted: !!reason.distorted
   };
 
@@ -326,6 +328,36 @@ function spreadGossip(speaker, listener, forcedRumor){
     targetPerson = rumor.mistakenWho;
   }
 
+  // Bounded misattribution (Principle 8 — distorted rumor is a feature):
+  // on a gossip hop the speaker can name the WRONG person as the culprit.
+  // This is the production writer for mistaken belief: a listener who heard
+  // a misattributed rumor genuinely believes an innocent did it, which is
+  // what lets the customary court produce wrongful convictions in real play.
+  // Seeded, single-hop (the stored reason carries mistakenWho so a second
+  // hop just re-tells the same wrong name rather than re-rolling).
+  let mistakenWho = rumor.mistakenWho || null;
+  const NORM_KINDS = { 'theft-witnessed': 1, 'theft-rumor': 1, 'theft': 1,
+                       'court-verdict': 1, 'child-harm': 1, 'child-harm-rumor': 1,
+                       'child-neglect': 1, 'fire-refusal': 1, 'fire-refusal-rumor': 1 };
+  if(!mistakenWho && NORM_KINDS[rumor.kind] && targetPerson &&
+     typeof srand === 'function' && typeof VILLAGERS !== 'undefined' && srand() < 0.2){
+    const candidates = VILLAGERS.filter(o =>
+      o && !o.dead && !o.outsider &&
+      o.name !== targetPerson && o.name !== speaker.name && o.name !== listener.name);
+    if(candidates.length){
+      const pick = candidates[Math.floor(srand() * candidates.length) % candidates.length];
+      if(pick){ mistakenWho = pick.name; targetPerson = pick.name; }
+    }
+  }
+
+  // Norm the rumor is about (for epistemic topic matching in court)
+  const rumorNorm = rumor.protoNorm ||
+    (distortedKind === 'theft-rumor' || distortedKind === 'theft-witnessed' || distortedKind === 'theft' ? 'theft'
+     : distortedKind === 'child-harm-rumor' ? 'child-harm'
+     : distortedKind === 'child-neglect' ? 'child-neglect'
+     : distortedKind === 'fire-refusal-rumor' ? 'fire-refusal'
+     : distortedKind);
+
   const gossipReason = {
     kind: distortedKind,
     by: targetPerson,
@@ -336,6 +368,8 @@ function spreadGossip(speaker, listener, forcedRumor){
     confidence: distortedConf,
     decay: rumor.decay || REPUTATION_DECAY_RATE,
     victim: rumor.victim || null,
+    protoNorm: rumorNorm,
+    mistakenWho: mistakenWho,
     distorted: true
   };
 
@@ -348,12 +382,18 @@ function spreadGossip(speaker, listener, forcedRumor){
     listener.bonds[targetPerson] = Math.min(listener.bonds[targetPerson] || 0.5, 0.05);
   }
 
-  // Record hearsay memory/belief in listener's epistemic store
+  // Record hearsay memory/belief in listener's epistemic store.
+  // content.suspect/mistakenWho is what the court reads at testimony time —
+  // the listener remembers WHO the rumor accused, truthfully or not.
   if(typeof observe === 'function'){
     observe(listener, {
       event: 'gossip',
       about: targetPerson,
       kind: distortedKind,
+      norm: rumorNorm,
+      suspect: targetPerson,
+      mistakenWho: mistakenWho,
+      victim: rumor.victim || null,
       teller: speaker.name
     }, {
       topic: 'gossip_' + targetPerson,
@@ -523,11 +563,46 @@ function socialTick(h){
         if(chatHash % 2 === 0) spreadGossip(a, b);
         else spreadGossip(b, a);
       }
+      // Guild apprenticeship induction (7A production caller for joinGuild):
+      // a guild master who regularly chats with a clearly less-skilled
+      // villager takes them on as apprentice. Requires actual social contact
+      // — the spec's "learning with a master" — not mere XP gain, so pure
+      // self-study (no master contact) never confers membership.
+      if(typeof GUILDS !== 'undefined' && typeof joinGuild === 'function'){
+        for(const gid in GUILDS){
+          const g = GUILDS[gid];
+          if(!g || !g.master) continue;
+          const master = (a.name === g.master) ? a : (b.name === g.master ? b : null);
+          const learner = (master === a) ? b : (master === b ? a : null);
+          if(!master || !learner) continue;
+          if(learner.guild || learner.outsider || learner.stage === 'child') continue;
+          const mLvl = (master.skills && master.skills[g.skill] && master.skills[g.skill].lvl) || 0;
+          const lLvl = (learner.skills && learner.skills[g.skill] && learner.skills[g.skill].lvl) || 0;
+          if(mLvl - lLvl >= 2){
+            joinGuild(learner, gid, 'apprentice', master.name);
+            if(typeof observe === 'function'){
+              observe(learner, { event: 'apprenticed', guild: gid, master: master.name },
+                { topic: 'guild_' + gid, source: 'direct', confidence: 1.0, salience: 0.8,
+                  evidence: [master.name + ' took me on as ' + gid + ' apprentice'] });
+            }
+            break;
+          }
+        }
+      }
     }
   }
   for(const v of VILLAGERS){
     if(v.chatT > 0){ v.chatT -= h; if(v.chatT <= 0 && v.state === 'chat') v.state = 'idle'; }
     decayReputationReasons(v, h / 24);
+    // Presence expectations (Phase 6A group 3, production caller):
+    // a villager tracks whether household members are around; a housemate
+    // who vanishes produces 'worried' surprise and a replan prompt.
+    if(v.householdId && !v.dead && typeof checkPresenceExpectation === 'function' && typeof distCells === 'function'){
+      for(const m of VILLAGERS){
+        if(m === v || m.dead || m.householdId !== v.householdId) continue;
+        checkPresenceExpectation(v, m.name, distCells(v, m) < 8);
+      }
+    }
   }
 }
 

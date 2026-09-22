@@ -76,6 +76,12 @@ function joinGuild(villager, guildId, rank, masterName){
   const vName = typeof villager === 'object' ? villager.name : villager;
   const v = typeof villager === 'object' ? villager : (typeof findPersonSafe === 'function' ? findPersonSafe(villager) : null);
 
+  // One guild per villager: leaving a prior guild keeps both the member map
+  // and v.guild consistent instead of silently orphaning the old entry.
+  if(v && v.guild && v.guild.guildId && v.guild.guildId !== guildId){
+    leaveGuild(v, v.guild.guildId);
+  }
+
   const now = (typeof W !== 'undefined' && W && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
   const memberRecord = {
     name: vName,

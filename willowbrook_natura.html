@@ -8125,6 +8125,8 @@ function addReputationReason(observer, targetName, reason){
     source: reason.source || 'direct',
     teller: reason.teller || null,
     victim: reason.victim || null,
+    protoNorm: reason.protoNorm || null,
+    mistakenWho: reason.mistakenWho || null,
     distorted: !!reason.distorted
   };
 
@@ -8408,6 +8410,36 @@ function spreadGossip(speaker, listener, forcedRumor){
     targetPerson = rumor.mistakenWho;
   }
 
+  // Bounded misattribution (Principle 8 — distorted rumor is a feature):
+  // on a gossip hop the speaker can name the WRONG person as the culprit.
+  // This is the production writer for mistaken belief: a listener who heard
+  // a misattributed rumor genuinely believes an innocent did it, which is
+  // what lets the customary court produce wrongful convictions in real play.
+  // Seeded, single-hop (the stored reason carries mistakenWho so a second
+  // hop just re-tells the same wrong name rather than re-rolling).
+  let mistakenWho = rumor.mistakenWho || null;
+  const NORM_KINDS = { 'theft-witnessed': 1, 'theft-rumor': 1, 'theft': 1,
+                       'court-verdict': 1, 'child-harm': 1, 'child-harm-rumor': 1,
+                       'child-neglect': 1, 'fire-refusal': 1, 'fire-refusal-rumor': 1 };
+  if(!mistakenWho && NORM_KINDS[rumor.kind] && targetPerson &&
+     typeof srand === 'function' && typeof VILLAGERS !== 'undefined' && srand() < 0.2){
+    const candidates = VILLAGERS.filter(o =>
+      o && !o.dead && !o.outsider &&
+      o.name !== targetPerson && o.name !== speaker.name && o.name !== listener.name);
+    if(candidates.length){
+      const pick = candidates[Math.floor(srand() * candidates.length) % candidates.length];
+      if(pick){ mistakenWho = pick.name; targetPerson = pick.name; }
+    }
+  }
+
+  // Norm the rumor is about (for epistemic topic matching in court)
+  const rumorNorm = rumor.protoNorm ||
+    (distortedKind === 'theft-rumor' || distortedKind === 'theft-witnessed' || distortedKind === 'theft' ? 'theft'
+     : distortedKind === 'child-harm-rumor' ? 'child-harm'
+     : distortedKind === 'child-neglect' ? 'child-neglect'
+     : distortedKind === 'fire-refusal-rumor' ? 'fire-refusal'
+     : distortedKind);
+
   const gossipReason = {
     kind: distortedKind,
     by: targetPerson,
@@ -8418,6 +8450,8 @@ function spreadGossip(speaker, listener, forcedRumor){
     confidence: distortedConf,
     decay: rumor.decay || REPUTATION_DECAY_RATE,
     victim: rumor.victim || null,
+    protoNorm: rumorNorm,
+    mistakenWho: mistakenWho,
     distorted: true
   };
 
@@ -8430,12 +8464,18 @@ function spreadGossip(speaker, listener, forcedRumor){
     listener.bonds[targetPerson] = Math.min(listener.bonds[targetPerson] || 0.5, 0.05);
   }
 
-  // Record hearsay memory/belief in listener's epistemic store
+  // Record hearsay memory/belief in listener's epistemic store.
+  // content.suspect/mistakenWho is what the court reads at testimony time —
+  // the listener remembers WHO the rumor accused, truthfully or not.
   if(typeof observe === 'function'){
     observe(listener, {
       event: 'gossip',
       about: targetPerson,
       kind: distortedKind,
+      norm: rumorNorm,
+      suspect: targetPerson,
+      mistakenWho: mistakenWho,
+      victim: rumor.victim || null,
       teller: speaker.name
     }, {
       topic: 'gossip_' + targetPerson,
@@ -8605,11 +8645,46 @@ function socialTick(h){
         if(chatHash % 2 === 0) spreadGossip(a, b);
         else spreadGossip(b, a);
       }
+      // Guild apprenticeship induction (7A production caller for joinGuild):
+      // a guild master who regularly chats with a clearly less-skilled
+      // villager takes them on as apprentice. Requires actual social contact
+      // — the spec's "learning with a master" — not mere XP gain, so pure
+      // self-study (no master contact) never confers membership.
+      if(typeof GUILDS !== 'undefined' && typeof joinGuild === 'function'){
+        for(const gid in GUILDS){
+          const g = GUILDS[gid];
+          if(!g || !g.master) continue;
+          const master = (a.name === g.master) ? a : (b.name === g.master ? b : null);
+          const learner = (master === a) ? b : (master === b ? a : null);
+          if(!master || !learner) continue;
+          if(learner.guild || learner.outsider || learner.stage === 'child') continue;
+          const mLvl = (master.skills && master.skills[g.skill] && master.skills[g.skill].lvl) || 0;
+          const lLvl = (learner.skills && learner.skills[g.skill] && learner.skills[g.skill].lvl) || 0;
+          if(mLvl - lLvl >= 2){
+            joinGuild(learner, gid, 'apprentice', master.name);
+            if(typeof observe === 'function'){
+              observe(learner, { event: 'apprenticed', guild: gid, master: master.name },
+                { topic: 'guild_' + gid, source: 'direct', confidence: 1.0, salience: 0.8,
+                  evidence: [master.name + ' took me on as ' + gid + ' apprentice'] });
+            }
+            break;
+          }
+        }
+      }
     }
   }
   for(const v of VILLAGERS){
     if(v.chatT > 0){ v.chatT -= h; if(v.chatT <= 0 && v.state === 'chat') v.state = 'idle'; }
     decayReputationReasons(v, h / 24);
+    // Presence expectations (Phase 6A group 3, production caller):
+    // a villager tracks whether household members are around; a housemate
+    // who vanishes produces 'worried' surprise and a replan prompt.
+    if(v.householdId && !v.dead && typeof checkPresenceExpectation === 'function' && typeof distCells === 'function'){
+      for(const m of VILLAGERS){
+        if(m === v || m.dead || m.householdId !== v.householdId) continue;
+        checkPresenceExpectation(v, m.name, distCells(v, m) < 8);
+      }
+    }
   }
 }
 
@@ -18867,7 +18942,8 @@ function doStealStep(v, step, dtH){
         witnesses: seers,
         item: it,
         actualOffender: v.name,
-        lossValue: 10,
+        eventLocation: { x: v.x, y: v.y },
+        lossValue: Math.round(5 + (it.quality || 0.5) * 10),
         preferExile: isRecidivist
       });
     }
@@ -19099,6 +19175,10 @@ function ownershipTick(dtH){
         if(typeof recordOwnershipBelief === 'function')
           recordOwnershipBelief(ov, id, { knownOwner: ov.name, suspectedOwner: null, confidence: 0.9, evidence: ['I owned it and it is gone'], source: 'direct' });
         if(typeof witnessEvent === 'function') witnessEvent(ov, 'Noticed ' + it.label + ' missing');
+        // 7A fix: the owner may petition the customary court against the
+        // person they BELIEVE took it (rumor/memory-driven suspect). This is
+        // the production path that can convict the wrong person.
+        if(typeof petitionCourtForMissingItem === 'function') petitionCourtForMissingItem(ov, it, lastEv);
       }
     }
     // overdue borrow notices (lender + borrower)
@@ -19522,10 +19602,13 @@ function isEligibleWitness(villager, hearing){
       const m = villager.epistemic.memories[i];
       if(m.superseded) continue;
       const matchItem = hearing.itemId && (m.topic === 'theft_' + hearing.itemId || (m.content && m.content.targetId === hearing.itemId));
-      const matchNorm = hearing.protoNorm && (m.topic === 'norm_' + hearing.protoNorm || (m.content && m.content.event === hearing.protoNorm) || (m.topic && m.topic.startsWith(hearing.protoNorm)));
+      const matchNorm = hearing.protoNorm && (m.topic === 'norm_' + hearing.protoNorm || (m.content && (m.content.event === hearing.protoNorm || m.content.norm === hearing.protoNorm)) || (m.topic && m.topic.startsWith(hearing.protoNorm)));
       const matchTopic = hearing.topic && m.topic === hearing.topic;
       if(matchItem || matchNorm || matchTopic){
-        if(m.source === 'direct' || m.source === 'memory'){
+        // Direct/memory testimony is full-credibility; hearsay (rumor) can
+        // also qualify a witness but testifies at reduced credibility —
+        // this is what lets a misattributed rumor convict an innocent.
+        if(m.source === 'direct' || m.source === 'memory' || m.source === 'hearsay'){
           relevantMemory = m;
           break;
         }
@@ -19584,6 +19667,81 @@ function produceTestimony(witness, hearing, witnessRecord){
     fidelity: +fidelity.toFixed(3),
     testimonyText: `I saw ${accused} commit ${claim}`
   };
+}
+
+// The defendant — and only the defendant — knows whether they did it (their
+// own memory of the act is legitimate self-knowledge, not a truth-pointer
+// leak). A guilty defendant DECIDES whether to confess or lie; the draw is
+// seeded and modulated by personality (brave defendants brazen it out).
+function decideDefensePlea(defendant, hearing){
+  const guilty = Boolean(hearing.actualOffender) && hearing.actualOffender === defendant.name;
+  if(!guilty) return 'denial';
+  const brave = (defendant.personality && defendant.personality.brave != null) ? defendant.personality.brave : 1.0;
+  const confessionChance = Math.max(0.1, Math.min(0.9, 0.55 - (brave - 1.0) * 0.5));
+  const roll = (typeof srand === 'function') ? srand() : 0.5;
+  return roll < confessionChance ? 'admission' : 'denial';
+}
+
+// Who does the accuser BELIEVE is a thief? Reads only the accuser's own
+// reputation reasons and epistemic memories — never the item's ground-truth
+// history. This is the belief-side of a court petition.
+function findTheftSuspect(accuser){
+  if(!accuser) return null;
+  let bestName = null, bestScore = 0;
+  const reasons = accuser.reputationReasons || {};
+  for(const name in reasons){
+    const list = reasons[name];
+    if(!Array.isArray(list)) continue;
+    for(const r of list){
+      if(!r) continue;
+      const k = r.kind || '';
+      const theftish = k.indexOf('theft') === 0 || (k === 'court-verdict' && r.protoNorm === 'theft');
+      if(!theftish) continue;
+      const sc = Math.abs(r.weight || 0) * (r.confidence != null ? r.confidence : 1.0);
+      if(sc > bestScore){ bestScore = sc; bestName = name; }
+    }
+  }
+  if(accuser.epistemic && Array.isArray(accuser.epistemic.memories)){
+    for(const m of accuser.epistemic.memories){
+      if(!m || m.superseded || !m.content) continue;
+      const suspect = m.content.mistakenWho || m.content.suspect || m.content.thief;
+      if(!suspect || suspect === accuser.name) continue;
+      const sc = (m.confidence != null ? m.confidence : 0.5) * 0.5;
+      if(sc > bestScore){ bestScore = sc; bestName = suspect; }
+    }
+  }
+  if(!bestName || bestName === accuser.name) return null;
+  const pv = (typeof findPersonSafe === 'function') ? findPersonSafe(bestName) : null;
+  return (pv && !pv.dead) ? pv : null;
+}
+
+// Production petition path: a villager who notices an identified item missing
+// accuses the person they BELIEVE took it (rumor/memory-driven suspect), and
+// the customary court convenes. Because beliefs can be wrong, the defendant
+// may be innocent — that is the live wrongful-conviction channel.
+// Returns the hearing outcome or null.
+function petitionCourtForMissingItem(accuser, it, lastEv){
+  if(!accuser || !it || accuser.dead || accuser.downed) return null;
+  if(it.courtPetitioned) return null; // one petition per item per incident
+  if(typeof holdCourtHearing !== 'function') return null;
+  const suspect = findTheftSuspect(accuser);
+  if(!suspect) return null;
+  it.courtPetitioned = true;
+  const isTheft = lastEv && lastEv.type === 'steal';
+  const ex = (lastEv && lastEv.x != null) ? lastEv.x : it.x;
+  const ey = (lastEv && lastEv.y != null) ? lastEv.y : it.y;
+  return holdCourtHearing({
+    protoNorm: 'theft',
+    plaintiff: accuser,
+    defendant: suspect,
+    item: it,
+    // Ground truth for bookkeeping only (grievance bookkeeping, never shown
+    // to witnesses): the real thief for a steal event; a sentinel when the
+    // item was merely found/misplaced so any conviction is wrongful.
+    actualOffender: isTheft ? lastEv.by : '(no theft — item was misplaced)',
+    eventLocation: (ex != null && ey != null) ? { x: ex, y: ey } : null,
+    lossValue: Math.round(5 + (it.quality || 0.5) * 10)
+  });
 }
 
 function holdCourtHearing(params){
@@ -19649,8 +19807,8 @@ function holdCourtHearing(params){
     }
   }
 
-  // Defense plea
-  const defensePlea = params.defendantPlea || (hearingContext.actualOffender === defendant.name ? 'admission' : 'denial');
+  // Defense plea — a defendant DECISION, not a readout of ground truth.
+  const defensePlea = params.defendantPlea || decideDefensePlea(defendant, hearingContext);
   // 4. Elder deliberation
   // Direct eyewitness testimony outweighs bare uncorroborated denial
   const convictionThreshold = (defensePlea === 'admission') ? 0.3
@@ -19901,6 +20059,9 @@ const CustomaryCourt = {
   retaliate: retaliateAgainstWitness,
   getVillagerReputation: getVillagerReputation,
   hasPriorTheftOrVerdict: hasPriorTheftOrVerdict,
+  decideDefensePlea: decideDefensePlea,
+  findTheftSuspect: findTheftSuspect,
+  petitionCourtForMissingItem: petitionCourtForMissingItem,
   getRecords: function(){ return COURT_RECORDS.slice(); },
   clearRecords: function(){ COURT_RECORDS.length = 0; }
 };
@@ -19990,6 +20151,12 @@ function joinGuild(villager, guildId, rank, masterName){
   if(!g || !villager) return false;
   const vName = typeof villager === 'object' ? villager.name : villager;
   const v = typeof villager === 'object' ? villager : (typeof findPersonSafe === 'function' ? findPersonSafe(villager) : null);
+
+  // One guild per villager: leaving a prior guild keeps both the member map
+  // and v.guild consistent instead of silently orphaning the old entry.
+  if(v && v.guild && v.guild.guildId && v.guild.guildId !== guildId){
+    leaveGuild(v, v.guild.guildId);
+  }
 
   const now = (typeof W !== 'undefined' && W && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
   const memberRecord = {

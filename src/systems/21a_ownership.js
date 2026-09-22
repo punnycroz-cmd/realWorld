@@ -670,7 +670,8 @@ function doStealStep(v, step, dtH){
         witnesses: seers,
         item: it,
         actualOffender: v.name,
-        lossValue: 10,
+        eventLocation: { x: v.x, y: v.y },
+        lossValue: Math.round(5 + (it.quality || 0.5) * 10),
         preferExile: isRecidivist
       });
     }
@@ -902,6 +903,10 @@ function ownershipTick(dtH){
         if(typeof recordOwnershipBelief === 'function')
           recordOwnershipBelief(ov, id, { knownOwner: ov.name, suspectedOwner: null, confidence: 0.9, evidence: ['I owned it and it is gone'], source: 'direct' });
         if(typeof witnessEvent === 'function') witnessEvent(ov, 'Noticed ' + it.label + ' missing');
+        // 7A fix: the owner may petition the customary court against the
+        // person they BELIEVE took it (rumor/memory-driven suspect). This is
+        // the production path that can convict the wrong person.
+        if(typeof petitionCourtForMissingItem === 'function') petitionCourtForMissingItem(ov, it, lastEv);
       }
     }
     // overdue borrow notices (lender + borrower)

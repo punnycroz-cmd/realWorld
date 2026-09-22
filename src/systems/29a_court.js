@@ -128,10 +128,13 @@ function isEligibleWitness(villager, hearing){
       const m = villager.epistemic.memories[i];
       if(m.superseded) continue;
       const matchItem = hearing.itemId && (m.topic === 'theft_' + hearing.itemId || (m.content && m.content.targetId === hearing.itemId));
-      const matchNorm = hearing.protoNorm && (m.topic === 'norm_' + hearing.protoNorm || (m.content && m.content.event === hearing.protoNorm) || (m.topic && m.topic.startsWith(hearing.protoNorm)));
+      const matchNorm = hearing.protoNorm && (m.topic === 'norm_' + hearing.protoNorm || (m.content && (m.content.event === hearing.protoNorm || m.content.norm === hearing.protoNorm)) || (m.topic && m.topic.startsWith(hearing.protoNorm)));
       const matchTopic = hearing.topic && m.topic === hearing.topic;
       if(matchItem || matchNorm || matchTopic){
-        if(m.source === 'direct' || m.source === 'memory'){
+        // Direct/memory testimony is full-credibility; hearsay (rumor) can
+        // also qualify a witness but testifies at reduced credibility —
+        // this is what lets a misattributed rumor convict an innocent.
+        if(m.source === 'direct' || m.source === 'memory' || m.source === 'hearsay'){
           relevantMemory = m;
           break;
         }
@@ -190,6 +193,81 @@ function produceTestimony(witness, hearing, witnessRecord){
     fidelity: +fidelity.toFixed(3),
     testimonyText: `I saw ${accused} commit ${claim}`
   };
+}
+
+// The defendant — and only the defendant — knows whether they did it (their
+// own memory of the act is legitimate self-knowledge, not a truth-pointer
+// leak). A guilty defendant DECIDES whether to confess or lie; the draw is
+// seeded and modulated by personality (brave defendants brazen it out).
+function decideDefensePlea(defendant, hearing){
+  const guilty = Boolean(hearing.actualOffender) && hearing.actualOffender === defendant.name;
+  if(!guilty) return 'denial';
+  const brave = (defendant.personality && defendant.personality.brave != null) ? defendant.personality.brave : 1.0;
+  const confessionChance = Math.max(0.1, Math.min(0.9, 0.55 - (brave - 1.0) * 0.5));
+  const roll = (typeof srand === 'function') ? srand() : 0.5;
+  return roll < confessionChance ? 'admission' : 'denial';
+}
+
+// Who does the accuser BELIEVE is a thief? Reads only the accuser's own
+// reputation reasons and epistemic memories — never the item's ground-truth
+// history. This is the belief-side of a court petition.
+function findTheftSuspect(accuser){
+  if(!accuser) return null;
+  let bestName = null, bestScore = 0;
+  const reasons = accuser.reputationReasons || {};
+  for(const name in reasons){
+    const list = reasons[name];
+    if(!Array.isArray(list)) continue;
+    for(const r of list){
+      if(!r) continue;
+      const k = r.kind || '';
+      const theftish = k.indexOf('theft') === 0 || (k === 'court-verdict' && r.protoNorm === 'theft');
+      if(!theftish) continue;
+      const sc = Math.abs(r.weight || 0) * (r.confidence != null ? r.confidence : 1.0);
+      if(sc > bestScore){ bestScore = sc; bestName = name; }
+    }
+  }
+  if(accuser.epistemic && Array.isArray(accuser.epistemic.memories)){
+    for(const m of accuser.epistemic.memories){
+      if(!m || m.superseded || !m.content) continue;
+      const suspect = m.content.mistakenWho || m.content.suspect || m.content.thief;
+      if(!suspect || suspect === accuser.name) continue;
+      const sc = (m.confidence != null ? m.confidence : 0.5) * 0.5;
+      if(sc > bestScore){ bestScore = sc; bestName = suspect; }
+    }
+  }
+  if(!bestName || bestName === accuser.name) return null;
+  const pv = (typeof findPersonSafe === 'function') ? findPersonSafe(bestName) : null;
+  return (pv && !pv.dead) ? pv : null;
+}
+
+// Production petition path: a villager who notices an identified item missing
+// accuses the person they BELIEVE took it (rumor/memory-driven suspect), and
+// the customary court convenes. Because beliefs can be wrong, the defendant
+// may be innocent — that is the live wrongful-conviction channel.
+// Returns the hearing outcome or null.
+function petitionCourtForMissingItem(accuser, it, lastEv){
+  if(!accuser || !it || accuser.dead || accuser.downed) return null;
+  if(it.courtPetitioned) return null; // one petition per item per incident
+  if(typeof holdCourtHearing !== 'function') return null;
+  const suspect = findTheftSuspect(accuser);
+  if(!suspect) return null;
+  it.courtPetitioned = true;
+  const isTheft = lastEv && lastEv.type === 'steal';
+  const ex = (lastEv && lastEv.x != null) ? lastEv.x : it.x;
+  const ey = (lastEv && lastEv.y != null) ? lastEv.y : it.y;
+  return holdCourtHearing({
+    protoNorm: 'theft',
+    plaintiff: accuser,
+    defendant: suspect,
+    item: it,
+    // Ground truth for bookkeeping only (grievance bookkeeping, never shown
+    // to witnesses): the real thief for a steal event; a sentinel when the
+    // item was merely found/misplaced so any conviction is wrongful.
+    actualOffender: isTheft ? lastEv.by : '(no theft — item was misplaced)',
+    eventLocation: (ex != null && ey != null) ? { x: ex, y: ey } : null,
+    lossValue: Math.round(5 + (it.quality || 0.5) * 10)
+  });
 }
 
 function holdCourtHearing(params){
@@ -255,8 +333,8 @@ function holdCourtHearing(params){
     }
   }
 
-  // Defense plea
-  const defensePlea = params.defendantPlea || (hearingContext.actualOffender === defendant.name ? 'admission' : 'denial');
+  // Defense plea — a defendant DECISION, not a readout of ground truth.
+  const defensePlea = params.defendantPlea || decideDefensePlea(defendant, hearingContext);
   // 4. Elder deliberation
   // Direct eyewitness testimony outweighs bare uncorroborated denial
   const convictionThreshold = (defensePlea === 'admission') ? 0.3
@@ -507,6 +585,9 @@ const CustomaryCourt = {
   retaliate: retaliateAgainstWitness,
   getVillagerReputation: getVillagerReputation,
   hasPriorTheftOrVerdict: hasPriorTheftOrVerdict,
+  decideDefensePlea: decideDefensePlea,
+  findTheftSuspect: findTheftSuspect,
+  petitionCourtForMissingItem: petitionCourtForMissingItem,
   getRecords: function(){ return COURT_RECORDS.slice(); },
   clearRecords: function(){ COURT_RECORDS.length = 0; }
 };
