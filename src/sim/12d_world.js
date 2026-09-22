@@ -54,7 +54,10 @@ function lightningTick(h){
       b.injury = clamp((b.injury || 0) + 0.7, 0, 1);
       learnDanger(v, 'lightning strike');
       witnessEvent(v, 'Struck by lightning!');
-      if(d < 0.6 && srand() < 0.5) killVillager(v, 'struck by lightning');
+      // Near-direct strike = lethal trauma via the injury model (same rule
+      // as wildfire: injury >= 1 kills). Principle 3 — no coin-flip deaths.
+      if(d < 0.6) b.injury = 1.0;
+      if(b.injury >= 1) killVillager(v, 'struck by lightning');
     } else if(d < 14){
       learnDanger(v, 'lightning storm');
       witnessEvent(v, 'Saw lightning strike ' + distWords(d) + ' to the ' + compassDir(sx - v.x, sy - v.y));

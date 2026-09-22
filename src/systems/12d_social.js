@@ -176,20 +176,25 @@ function getCollectiveTrust(targetName){
   return +(total / electors.length).toFixed(4);
 }
 
-/* Proto-Norms: Stealing, Protect Children, Fire Mutual Aid */
+/* Proto-Norms: Stealing, Protect Children, Fire Mutual Aid
+
+   7E.1 status: 'child-harm' is wired in startFight (15d_friction.js) and
+   'child-neglect' in socialTick (starving child + living parent + adult
+   witness). 'fire-refusal' is CUT honestly: there is no request/assignment
+   mechanism to refuse (labour allocation is Phase 7D), and punishing
+   instinctive wildfire flight would violate Principle 2 (life-or-death
+   overrides). Revisit if 7D introduces refusable firefighting duties. */
 
 function setOstracism(villagerName, days, observer){
   const vName = typeof villagerName === 'object' ? villagerName.name : villagerName;
   const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
   const until = now + (days || OSTRACISM_DURATION_DAYS);
 
-  if(typeof VILLAGERS !== 'undefined'){
-    const v = VILLAGERS.find(x => x.name === vName);
-    if(v){
-      v.ostracizedUntil = Math.max(v.ostracizedUntil || 0, until);
-    }
-  }
-
+  // Per-observer ostracism only (SPEC 7E.2): shunning is a BELIEF, not a
+  // world flag. Only the observer — someone who witnessed the violation or
+  // heard the gossip — records it. The target's `ostracizedUntil` field is
+  // no longer written; old saves carrying it are migrated on load
+  // (see applySaveState) by converting it into village-wide observer entries.
   if(observer){
     ensureReputationFields(observer);
     observer.ostracizing[vName] = Math.max(observer.ostracizing[vName] || 0, until);
@@ -201,19 +206,30 @@ function isOstracized(villagerName, observer){
   const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
 
   if(observer){
+    // Per-observer belief check: does THIS villager shun the target?
     ensureReputationFields(observer);
     if(observer.ostracizing && (observer.ostracizing[vName] || 0) > now){
       return true;
     }
+    return false;
   }
+  // No observer given = collective view: "is the target generally shunned?"
+  // Computed from individual beliefs (majority of residents shuns them) —
+  // NOT a global flag; a stranger who never heard still answers false
+  // through the observer-scoped call.
+  return isCollectivelyOstracized(vName);
+}
 
-  if(typeof VILLAGERS !== 'undefined'){
-    const v = VILLAGERS.find(x => x.name === vName);
-    if(v && (v.ostracizedUntil || 0) > now){
-      return true;
-    }
-  }
-  return false;
+// Collective view for systems that need "the village shuns them": a target
+// counts as ostracized when at least half of living resident adults shun them.
+function isCollectivelyOstracized(villagerName){
+  const vName = typeof villagerName === 'object' ? villagerName.name : villagerName;
+  if(typeof VILLAGERS === 'undefined') return false;
+  const electors = VILLAGERS.filter(v => !v.dead && !v.outsider && v.name !== vName && (v.adult !== false));
+  if(!electors.length) return false;
+  let shunning = 0;
+  for(const e of electors){ if(isOstracized(vName, e)) shunning++; }
+  return shunning * 2 >= electors.length;
 }
 
 function recordNormViolation(witness, offenderName, normKind, details){
@@ -453,8 +469,8 @@ function fillRoleVacancy(role, options){
     }
     const collectiveTrust = electors.length > 0 ? +(totalTrust / electors.length).toFixed(4) : 0.5;
 
-    // Disqualification: if currently ostracized or collective trust is collapsed (< 0.2)
-    const ostracized = isOstracized(c.name);
+    // Disqualification: if the collective shuns them or collective trust is collapsed (< 0.2)
+    const ostracized = isCollectivelyOstracized(c.name);
     const disqualified = ostracized || (collectiveTrust < 0.2);
 
     // Capability / suitability secondary bonus (breaks ties among honest candidates)
@@ -525,6 +541,44 @@ function fillRoleVacancy(role, options){
   };
 }
 
+/* Autonomous role-vacancy refills (SPEC 7E.3): checked once per sim day from
+   socialTick. Only roles that once had a living holder are refilled — a
+   never-held title stays empty rather than inventing new offices. A role
+   vacant for >= 3 days triggers an election via fillRoleVacancy. */
+const CIVIC_ROLE_TITLES = {
+  'Village Mayor': 'mayor',
+  'Village Head': 'head',
+  'Village Healer': 'healer',
+  'Herbalist & Apothecary': 'healer',
+  'Village Guard': 'guard'
+};
+const _roleVacantSince = {};   // title -> day the vacancy began
+const _roleEverHeld = {};      // title -> true once a living holder existed
+let __roleCheckDay = -1;
+
+function checkRoleVacancies(){
+  if(typeof VILLAGERS === 'undefined' || typeof fillRoleVacancy !== 'function') return;
+  const now = (typeof W !== 'undefined' && W.day != null) ? Math.floor(W.day) : 0;
+  for(const title in CIVIC_ROLE_TITLES){
+    const holder = VILLAGERS.find(v => !v.dead && !v.outsider && v.role === title);
+    if(holder){
+      _roleEverHeld[title] = true;
+      delete _roleVacantSince[title];
+      continue;
+    }
+    if(!_roleEverHeld[title]) continue; // never held — not a vacancy
+    if(_roleVacantSince[title] == null) _roleVacantSince[title] = now;
+    if(now - _roleVacantSince[title] >= 3){
+      const r = fillRoleVacancy(CIVIC_ROLE_TITLES[title]);
+      if(r && r.ok){
+        delete _roleVacantSince[title];
+        _roleEverHeld[title] = true; // elected titles keep getting refilled
+        if(typeof logEvent === 'function') logEvent('role', 'Vacancy filled: ' + r.reasoning);
+      }
+    }
+  }
+}
+
 /* Original Social Systems: Bonds & Autonomous Chat */
 
 function addBond(a, b, amt){
@@ -546,6 +600,12 @@ function addBond(a, b, amt){
 }
 
 function socialTick(h){
+  // Once per sim day: refill civic roles that have been vacant >= 3 days.
+  const dayNow = (typeof W !== 'undefined' && W.day != null) ? Math.floor(W.day) : -1;
+  if(dayNow >= 0 && dayNow !== __roleCheckDay){
+    __roleCheckDay = dayNow;
+    checkRoleVacancies();
+  }
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
@@ -601,6 +661,27 @@ function socialTick(h){
       for(const m of VILLAGERS){
         if(m === v || m.dead || m.householdId !== v.householdId) continue;
         checkPresenceExpectation(v, m.name, distCells(v, m) < 8);
+      }
+    }
+    // Child-neglect proto-norm (production caller for recordNormViolation):
+    // a starving child with a living parent is witnessed by nearby adults —
+    // each witness records a 'child-neglect' reason against the parent once
+    // per child per day. Belief-scoped: only people who see the child shun.
+    if(v.stage === 'child' && !v.dead && v.body && (v.body.satiety || 1) < 0.15 &&
+       typeof recordNormViolation === 'function' && typeof isConscious === 'function'){
+      const parentNames = [v.motherId, v.fatherId].filter(Boolean);
+      for(const pName of parentNames){
+        const parent = findPersonSafe(pName);
+        if(!parent || parent.dead) continue;
+        for(const w of VILLAGERS){
+          if(w === v || w === parent || w.dead || w.downed || w.outsider) continue;
+          if(!isConscious(w) || w.stage === 'child') continue;
+          if(distCells(w, v) > 10) continue;
+          const existing = getReputationReasons(w, parent.name);
+          const today = (typeof W !== 'undefined' && W.day != null) ? Math.floor(W.day) : 0;
+          if(existing.some(r => r && r.kind === 'child-neglect' && r.victim === v.name && r.day === today)) continue;
+          recordNormViolation(w, parent.name, 'child-neglect', { child: v.name, weight: -0.6, days: 3 });
+        }
       }
     }
   }

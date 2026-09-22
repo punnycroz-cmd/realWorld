@@ -410,8 +410,16 @@ function executeCourtVerdict(hearing, elder, plaintiff, defendant, outcome, fals
         plaintiff.gold = (plaintiff.gold || 0) + pay;
       }
     } else if(outcome.verdict === 'exile'){
-      if(typeof setOstracism === 'function'){
-        setOstracism(defendant.name, outcome.sentence.durationDays || 7, elder);
+      // Exile is a PUBLIC sentence — the hearing is a village assembly, so
+      // every living resident witnesses the verdict and shuns the defendant
+      // (each holds their own per-observer belief; SPEC 7E.2 is preserved:
+      // there is still no world flag, only each villager's record).
+      if(typeof setOstracism === 'function' && typeof VILLAGERS !== 'undefined'){
+        const days = outcome.sentence.durationDays || 7;
+        for(const ob of VILLAGERS){
+          if(!ob || ob.dead || ob === defendant || ob.outsider) continue;
+          setOstracism(defendant.name, days, ob);
+        }
       }
     } else if(outcome.verdict === 'public_labor'){
       defendant.courtSentence = {

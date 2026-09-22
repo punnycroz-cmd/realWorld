@@ -8258,20 +8258,25 @@ function getCollectiveTrust(targetName){
   return +(total / electors.length).toFixed(4);
 }
 
-/* Proto-Norms: Stealing, Protect Children, Fire Mutual Aid */
+/* Proto-Norms: Stealing, Protect Children, Fire Mutual Aid
+
+   7E.1 status: 'child-harm' is wired in startFight (15d_friction.js) and
+   'child-neglect' in socialTick (starving child + living parent + adult
+   witness). 'fire-refusal' is CUT honestly: there is no request/assignment
+   mechanism to refuse (labour allocation is Phase 7D), and punishing
+   instinctive wildfire flight would violate Principle 2 (life-or-death
+   overrides). Revisit if 7D introduces refusable firefighting duties. */
 
 function setOstracism(villagerName, days, observer){
   const vName = typeof villagerName === 'object' ? villagerName.name : villagerName;
   const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
   const until = now + (days || OSTRACISM_DURATION_DAYS);
 
-  if(typeof VILLAGERS !== 'undefined'){
-    const v = VILLAGERS.find(x => x.name === vName);
-    if(v){
-      v.ostracizedUntil = Math.max(v.ostracizedUntil || 0, until);
-    }
-  }
-
+  // Per-observer ostracism only (SPEC 7E.2): shunning is a BELIEF, not a
+  // world flag. Only the observer — someone who witnessed the violation or
+  // heard the gossip — records it. The target's `ostracizedUntil` field is
+  // no longer written; old saves carrying it are migrated on load
+  // (see applySaveState) by converting it into village-wide observer entries.
   if(observer){
     ensureReputationFields(observer);
     observer.ostracizing[vName] = Math.max(observer.ostracizing[vName] || 0, until);
@@ -8283,19 +8288,30 @@ function isOstracized(villagerName, observer){
   const now = (typeof W !== 'undefined' && W.day != null) ? (W.day + (W.tod || 0) / 24) : 1.0;
 
   if(observer){
+    // Per-observer belief check: does THIS villager shun the target?
     ensureReputationFields(observer);
     if(observer.ostracizing && (observer.ostracizing[vName] || 0) > now){
       return true;
     }
+    return false;
   }
+  // No observer given = collective view: "is the target generally shunned?"
+  // Computed from individual beliefs (majority of residents shuns them) —
+  // NOT a global flag; a stranger who never heard still answers false
+  // through the observer-scoped call.
+  return isCollectivelyOstracized(vName);
+}
 
-  if(typeof VILLAGERS !== 'undefined'){
-    const v = VILLAGERS.find(x => x.name === vName);
-    if(v && (v.ostracizedUntil || 0) > now){
-      return true;
-    }
-  }
-  return false;
+// Collective view for systems that need "the village shuns them": a target
+// counts as ostracized when at least half of living resident adults shun them.
+function isCollectivelyOstracized(villagerName){
+  const vName = typeof villagerName === 'object' ? villagerName.name : villagerName;
+  if(typeof VILLAGERS === 'undefined') return false;
+  const electors = VILLAGERS.filter(v => !v.dead && !v.outsider && v.name !== vName && (v.adult !== false));
+  if(!electors.length) return false;
+  let shunning = 0;
+  for(const e of electors){ if(isOstracized(vName, e)) shunning++; }
+  return shunning * 2 >= electors.length;
 }
 
 function recordNormViolation(witness, offenderName, normKind, details){
@@ -8535,8 +8551,8 @@ function fillRoleVacancy(role, options){
     }
     const collectiveTrust = electors.length > 0 ? +(totalTrust / electors.length).toFixed(4) : 0.5;
 
-    // Disqualification: if currently ostracized or collective trust is collapsed (< 0.2)
-    const ostracized = isOstracized(c.name);
+    // Disqualification: if the collective shuns them or collective trust is collapsed (< 0.2)
+    const ostracized = isCollectivelyOstracized(c.name);
     const disqualified = ostracized || (collectiveTrust < 0.2);
 
     // Capability / suitability secondary bonus (breaks ties among honest candidates)
@@ -8607,6 +8623,44 @@ function fillRoleVacancy(role, options){
   };
 }
 
+/* Autonomous role-vacancy refills (SPEC 7E.3): checked once per sim day from
+   socialTick. Only roles that once had a living holder are refilled — a
+   never-held title stays empty rather than inventing new offices. A role
+   vacant for >= 3 days triggers an election via fillRoleVacancy. */
+const CIVIC_ROLE_TITLES = {
+  'Village Mayor': 'mayor',
+  'Village Head': 'head',
+  'Village Healer': 'healer',
+  'Herbalist & Apothecary': 'healer',
+  'Village Guard': 'guard'
+};
+const _roleVacantSince = {};   // title -> day the vacancy began
+const _roleEverHeld = {};      // title -> true once a living holder existed
+let __roleCheckDay = -1;
+
+function checkRoleVacancies(){
+  if(typeof VILLAGERS === 'undefined' || typeof fillRoleVacancy !== 'function') return;
+  const now = (typeof W !== 'undefined' && W.day != null) ? Math.floor(W.day) : 0;
+  for(const title in CIVIC_ROLE_TITLES){
+    const holder = VILLAGERS.find(v => !v.dead && !v.outsider && v.role === title);
+    if(holder){
+      _roleEverHeld[title] = true;
+      delete _roleVacantSince[title];
+      continue;
+    }
+    if(!_roleEverHeld[title]) continue; // never held — not a vacancy
+    if(_roleVacantSince[title] == null) _roleVacantSince[title] = now;
+    if(now - _roleVacantSince[title] >= 3){
+      const r = fillRoleVacancy(CIVIC_ROLE_TITLES[title]);
+      if(r && r.ok){
+        delete _roleVacantSince[title];
+        _roleEverHeld[title] = true; // elected titles keep getting refilled
+        if(typeof logEvent === 'function') logEvent('role', 'Vacancy filled: ' + r.reasoning);
+      }
+    }
+  }
+}
+
 /* Original Social Systems: Bonds & Autonomous Chat */
 
 function addBond(a, b, amt){
@@ -8628,6 +8682,12 @@ function addBond(a, b, amt){
 }
 
 function socialTick(h){
+  // Once per sim day: refill civic roles that have been vacant >= 3 days.
+  const dayNow = (typeof W !== 'undefined' && W.day != null) ? Math.floor(W.day) : -1;
+  if(dayNow >= 0 && dayNow !== __roleCheckDay){
+    __roleCheckDay = dayNow;
+    checkRoleVacancies();
+  }
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
@@ -8683,6 +8743,27 @@ function socialTick(h){
       for(const m of VILLAGERS){
         if(m === v || m.dead || m.householdId !== v.householdId) continue;
         checkPresenceExpectation(v, m.name, distCells(v, m) < 8);
+      }
+    }
+    // Child-neglect proto-norm (production caller for recordNormViolation):
+    // a starving child with a living parent is witnessed by nearby adults —
+    // each witness records a 'child-neglect' reason against the parent once
+    // per child per day. Belief-scoped: only people who see the child shun.
+    if(v.stage === 'child' && !v.dead && v.body && (v.body.satiety || 1) < 0.15 &&
+       typeof recordNormViolation === 'function' && typeof isConscious === 'function'){
+      const parentNames = [v.motherId, v.fatherId].filter(Boolean);
+      for(const pName of parentNames){
+        const parent = findPersonSafe(pName);
+        if(!parent || parent.dead) continue;
+        for(const w of VILLAGERS){
+          if(w === v || w === parent || w.dead || w.downed || w.outsider) continue;
+          if(!isConscious(w) || w.stage === 'child') continue;
+          if(distCells(w, v) > 10) continue;
+          const existing = getReputationReasons(w, parent.name);
+          const today = (typeof W !== 'undefined' && W.day != null) ? Math.floor(W.day) : 0;
+          if(existing.some(r => r && r.kind === 'child-neglect' && r.victim === v.name && r.day === today)) continue;
+          recordNormViolation(w, parent.name, 'child-neglect', { child: v.name, weight: -0.6, days: 3 });
+        }
       }
     }
   }
@@ -8963,7 +9044,10 @@ function lightningTick(h){
       b.injury = clamp((b.injury || 0) + 0.7, 0, 1);
       learnDanger(v, 'lightning strike');
       witnessEvent(v, 'Struck by lightning!');
-      if(d < 0.6 && srand() < 0.5) killVillager(v, 'struck by lightning');
+      // Near-direct strike = lethal trauma via the injury model (same rule
+      // as wildfire: injury >= 1 kills). Principle 3 — no coin-flip deaths.
+      if(d < 0.6) b.injury = 1.0;
+      if(b.injury >= 1) killVillager(v, 'struck by lightning');
     } else if(d < 14){
       learnDanger(v, 'lightning storm');
       witnessEvent(v, 'Saw lightning strike ' + distWords(d) + ' to the ' + compassDir(sx - v.x, sy - v.y));
@@ -9676,7 +9760,7 @@ const Economy = {
     }
     let pop = 8;
     if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS) && VILLAGERS.length > 0){
-      const residents = VILLAGERS.filter(v => !v.dead && !v.outsider && v.role !== 'Test' && (!v.name || (!v.name.startsWith('Test') && !v.name.startsWith('T24_') && !v.name.startsWith('T20_') && !v.name.startsWith('T25_') && !v.name.startsWith('T26_'))));
+      const residents = VILLAGERS.filter(v => !v.dead && !v.outsider && v.role !== 'Test' && (!v.name || (!v.name.startsWith('Test') && !/^T\d+_/.test(v.name))));
       if(residents.length > 0){
         let count = 0;
         for(const v of residents){
@@ -13303,7 +13387,12 @@ function arriveCaravan(){
     : {};
   CARAVAN.lastDemands = Object.assign({}, demands);
 
-  // 2. Genuinely demand-driven stock calculation: baseQty + k * demandQty, capped by capacity (zero RNG)
+  // 2. Genuinely demand-driven stock calculation: baseQty + k * demandQty, capped by capacity (zero RNG).
+  // Provenance (SPEC 7E.4): the caravan's stock represents goods bought at
+  // its origin — salt is mined in the eastern region (see 'arrived from the
+  // east') and traded in; it is produced THERE, never spawned inside the
+  // village boundary. Goods villagers sell to the caravan are added to
+  // stock in doTradeStep, so village-side conservation holds exactly.
   CARAVAN.stock = {};
   CARAVAN.sellP = { spice: 12, cloth: 8, knife: 25, salt: 3 };
   CARAVAN.buyP = { hide: 6, smokedMeat: 5, egg: 2, rawMeat: 3, berries: 1, bread: 4 };
@@ -13514,6 +13603,21 @@ function startFight(a, b, cause){
   for(const o of VILLAGERS){
     if(o !== a && o !== b && !o.dead && distCells(o, a) < 10)
       witnessEvent(o, 'A fight broke out between ' + a.name + ' and ' + b.name);
+  }
+  // Child-harm proto-norm (production caller for recordNormViolation): an
+  // adult brawling a child is witnessed by everyone nearby — each witness
+  // records a 'child-harm' reason against the adult (belief-scoped).
+  const childParty = (a.stage === 'child') ? a : (b.stage === 'child' ? b : null);
+  if(childParty && typeof recordNormViolation === 'function' && typeof isConscious === 'function'){
+    const offender = (childParty === a) ? b : a;
+    if(offender.stage !== 'child'){
+      for(const w of VILLAGERS){
+        if(w === a || w === b || w.dead || w.downed || w.outsider) continue;
+        if(!isConscious(w) || w.stage === 'child') continue;
+        if(distCells(w, a) > 10) continue;
+        recordNormViolation(w, offender.name, 'child-harm', { child: childParty.name, weight: -1.0 });
+      }
+    }
   }
 }
 function endFight(a, b, how){
@@ -17958,7 +18062,7 @@ doBuyStep = function(v, step, dtH){
       const r = planMoveToward(v, sx, sy, dtH);
       return r === 'stuck' ? true : false;
     }
-    if(typeof isOstracized === 'function' && isOstracized(v.name)){
+    if(typeof isCollectivelyOstracized === 'function' && isCollectivelyOstracized(v.name)){
       v.thoughts = [{ text: 'The merchant refused to trade with an outcast', val: -3 }];
       return true;
     }
@@ -18121,7 +18225,7 @@ enumerateCandidateActions = function(v){
   // 5. Market stall candidate
   const stall = ensureMarketStall();
   if(stall && Object.keys(stall.stock || {}).some(k => stall.stock[k] > 0)){
-    if(!(typeof isOstracized === 'function' && isOstracized(v.name))){
+    if(!(typeof isCollectivelyOstracized === 'function' && isCollectivelyOstracized(v.name))){
       candidates.push({
         id: 'trade_stall',
         category: 'trade',
@@ -19884,8 +19988,16 @@ function executeCourtVerdict(hearing, elder, plaintiff, defendant, outcome, fals
         plaintiff.gold = (plaintiff.gold || 0) + pay;
       }
     } else if(outcome.verdict === 'exile'){
-      if(typeof setOstracism === 'function'){
-        setOstracism(defendant.name, outcome.sentence.durationDays || 7, elder);
+      // Exile is a PUBLIC sentence — the hearing is a village assembly, so
+      // every living resident witnesses the verdict and shuns the defendant
+      // (each holds their own per-observer belief; SPEC 7E.2 is preserved:
+      // there is still no world flag, only each villager's record).
+      if(typeof setOstracism === 'function' && typeof VILLAGERS !== 'undefined'){
+        const days = outcome.sentence.durationDays || 7;
+        for(const ob of VILLAGERS){
+          if(!ob || ob.dead || ob === defendant || ob.outsider) continue;
+          setOstracism(defendant.name, days, ob);
+        }
       }
     } else if(outcome.verdict === 'public_labor'){
       defendant.courtSentence = {
@@ -20258,8 +20370,8 @@ function getGuildApprenticeshipBonus(villager, skill){
     const masterName = mem.masterName || g.master;
     if(masterName){
       const master = (typeof findPersonSafe === 'function') ? findPersonSafe(masterName) : null;
-      if(!master || !master.dead){
-        return GUILD_APPRENTICE_MULT; // 1.60x bonus
+      if(master && !master.dead){
+        return GUILD_APPRENTICE_MULT; // 1.60x bonus — requires a real, living master
       }
     }
   }
@@ -22727,6 +22839,23 @@ function applySaveState(s){
     __restoreArrayInto(HOUSEHOLDS, s.households);
     __restoreArrayInto(systems, s.systems);
     parityAcc = +s.parityAcc || 0;
+
+    // Migration (7E.2): pre-fix saves may carry the global `ostracizedUntil`
+    // flag on a villager. Ostracism is now per-observer, so convert the flag
+    // into an ostracizing entry on every other living villager — a public
+    // punishment was common knowledge, this preserves its effect honestly.
+    try{
+      const nowD = (W && W.day != null) ? (W.day + (W.tod || 0) / 24) : 0;
+      for(const mv of VILLAGERS){
+        if(!mv || mv.dead || !(mv.ostracizedUntil > nowD)) continue;
+        for(const ob of VILLAGERS){
+          if(!ob || ob === mv || ob.dead) continue;
+          if(typeof ensureReputationFields === 'function') ensureReputationFields(ob);
+          if(ob.ostracizing) ob.ostracizing[mv.name] = Math.max(ob.ostracizing[mv.name] || 0, mv.ostracizedUntil);
+        }
+        mv.ostracizedUntil = 0;
+      }
+    }catch(e){ /* migration must never break a load */ }
     // Phase 7A registries — optional fields; absent (older saves) leaves the
     // live registries as they are, present restores them IN PLACE so the
     // const bindings and every module reference stay valid.

@@ -390,6 +390,23 @@ function applySaveState(s){
     __restoreArrayInto(HOUSEHOLDS, s.households);
     __restoreArrayInto(systems, s.systems);
     parityAcc = +s.parityAcc || 0;
+
+    // Migration (7E.2): pre-fix saves may carry the global `ostracizedUntil`
+    // flag on a villager. Ostracism is now per-observer, so convert the flag
+    // into an ostracizing entry on every other living villager — a public
+    // punishment was common knowledge, this preserves its effect honestly.
+    try{
+      const nowD = (W && W.day != null) ? (W.day + (W.tod || 0) / 24) : 0;
+      for(const mv of VILLAGERS){
+        if(!mv || mv.dead || !(mv.ostracizedUntil > nowD)) continue;
+        for(const ob of VILLAGERS){
+          if(!ob || ob === mv || ob.dead) continue;
+          if(typeof ensureReputationFields === 'function') ensureReputationFields(ob);
+          if(ob.ostracizing) ob.ostracizing[mv.name] = Math.max(ob.ostracizing[mv.name] || 0, mv.ostracizedUntil);
+        }
+        mv.ostracizedUntil = 0;
+      }
+    }catch(e){ /* migration must never break a load */ }
     // Phase 7A registries — optional fields; absent (older saves) leaves the
     // live registries as they are, present restores them IN PLACE so the
     // const bindings and every module reference stay valid.

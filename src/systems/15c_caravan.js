@@ -51,7 +51,12 @@ function arriveCaravan(){
     : {};
   CARAVAN.lastDemands = Object.assign({}, demands);
 
-  // 2. Genuinely demand-driven stock calculation: baseQty + k * demandQty, capped by capacity (zero RNG)
+  // 2. Genuinely demand-driven stock calculation: baseQty + k * demandQty, capped by capacity (zero RNG).
+  // Provenance (SPEC 7E.4): the caravan's stock represents goods bought at
+  // its origin — salt is mined in the eastern region (see 'arrived from the
+  // east') and traded in; it is produced THERE, never spawned inside the
+  // village boundary. Goods villagers sell to the caravan are added to
+  // stock in doTradeStep, so village-side conservation holds exactly.
   CARAVAN.stock = {};
   CARAVAN.sellP = { spice: 12, cloth: 8, knife: 25, salt: 3 };
   CARAVAN.buyP = { hide: 6, smokedMeat: 5, egg: 2, rawMeat: 3, berries: 1, bread: 4 };

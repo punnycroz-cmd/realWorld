@@ -100,6 +100,7 @@ Centrally planned economy; forced labour; globally optimal assignment (no optimi
 ## 7E — Pay down Phase 6D debt (5 items)
 
 1. **child-harm/neglect/fire-refusal proto-norms:** currently dead APIs (0 production callers). Either wire a real caller in production, or **cut from the spec honestly** (record the reason in the file) — no hanging APIs allowed.
+   - RESOLVED 2026-09-22: `child-harm` wired in `startFight` (adult brawling a child, witnessed); `child-neglect` wired in `socialTick` (starving child + living parent + adult witness, once/day). `fire-refusal` **cut**: no request/assignment mechanism exists to refuse (labour allocation is 7D) and punishing instinctive wildfire flight violates Principle 2. Revisit if 7D adds refusable firefighting duties.
 2. **Ostracism → local belief:** only people who heard the gossip/witnessed directly know and shun; strangers still treat them normally (discriminating test with negative control). End of the "villagers only know through honest senses" principle violation.
 3. **fillRoleVacancy():** attach an autonomous caller in production (a role empty for N days → automatically finds a replacement).
 4. **Caravan salt:** salt must be *produced* somewhere (salt mine/another region in trade lore) — not spawned from nothing (Principle 4); `doSellStep` stays as pure goods transfer.

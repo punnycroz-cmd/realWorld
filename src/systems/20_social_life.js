@@ -723,7 +723,7 @@ doBuyStep = function(v, step, dtH){
       const r = planMoveToward(v, sx, sy, dtH);
       return r === 'stuck' ? true : false;
     }
-    if(typeof isOstracized === 'function' && isOstracized(v.name)){
+    if(typeof isCollectivelyOstracized === 'function' && isCollectivelyOstracized(v.name)){
       v.thoughts = [{ text: 'The merchant refused to trade with an outcast', val: -3 }];
       return true;
     }
@@ -886,7 +886,7 @@ enumerateCandidateActions = function(v){
   // 5. Market stall candidate
   const stall = ensureMarketStall();
   if(stall && Object.keys(stall.stock || {}).some(k => stall.stock[k] > 0)){
-    if(!(typeof isOstracized === 'function' && isOstracized(v.name))){
+    if(!(typeof isCollectivelyOstracized === 'function' && isCollectivelyOstracized(v.name))){
       candidates.push({
         id: 'trade_stall',
         category: 'trade',

@@ -55,6 +55,21 @@ function startFight(a, b, cause){
     if(o !== a && o !== b && !o.dead && distCells(o, a) < 10)
       witnessEvent(o, 'A fight broke out between ' + a.name + ' and ' + b.name);
   }
+  // Child-harm proto-norm (production caller for recordNormViolation): an
+  // adult brawling a child is witnessed by everyone nearby — each witness
+  // records a 'child-harm' reason against the adult (belief-scoped).
+  const childParty = (a.stage === 'child') ? a : (b.stage === 'child' ? b : null);
+  if(childParty && typeof recordNormViolation === 'function' && typeof isConscious === 'function'){
+    const offender = (childParty === a) ? b : a;
+    if(offender.stage !== 'child'){
+      for(const w of VILLAGERS){
+        if(w === a || w === b || w.dead || w.downed || w.outsider) continue;
+        if(!isConscious(w) || w.stage === 'child') continue;
+        if(distCells(w, a) > 10) continue;
+        recordNormViolation(w, offender.name, 'child-harm', { child: childParty.name, weight: -1.0 });
+      }
+    }
+  }
 }
 function endFight(a, b, how){
   if(a){ a.fight = null; if(a.state === 'fight') a.state = 'idle'; }

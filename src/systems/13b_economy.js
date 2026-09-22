@@ -100,7 +100,7 @@ const Economy = {
     }
     let pop = 8;
     if(typeof VILLAGERS !== 'undefined' && Array.isArray(VILLAGERS) && VILLAGERS.length > 0){
-      const residents = VILLAGERS.filter(v => !v.dead && !v.outsider && v.role !== 'Test' && (!v.name || (!v.name.startsWith('Test') && !v.name.startsWith('T24_') && !v.name.startsWith('T20_') && !v.name.startsWith('T25_') && !v.name.startsWith('T26_'))));
+      const residents = VILLAGERS.filter(v => !v.dead && !v.outsider && v.role !== 'Test' && (!v.name || (!v.name.startsWith('Test') && !/^T\d+_/.test(v.name))));
       if(residents.length > 0){
         let count = 0;
         for(const v of residents){

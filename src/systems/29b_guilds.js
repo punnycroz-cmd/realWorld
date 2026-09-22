@@ -182,8 +182,8 @@ function getGuildApprenticeshipBonus(villager, skill){
     const masterName = mem.masterName || g.master;
     if(masterName){
       const master = (typeof findPersonSafe === 'function') ? findPersonSafe(masterName) : null;
-      if(!master || !master.dead){
-        return GUILD_APPRENTICE_MULT; // 1.60x bonus
+      if(master && !master.dead){
+        return GUILD_APPRENTICE_MULT; // 1.60x bonus — requires a real, living master
       }
     }
   }
