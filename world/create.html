@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — Join the Cast</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Character creation flow — "join the cast" (world v7).
+  Self-contained demo: file://-safe, no network. The pipeline (screen →
+  review → charge → registry write → lease → briefing) is simulated
+  locally; at merge it becomes gsRequest*/gsLease* calls + feed events.
+  Spec + copy deck: world/creation-ui.md. Data: world/creation.json,
+  jobs.json, housing.json. Prices adopt monetization-plan §2.4–2.5
+  PROPOSAL numbers — do not contradict.
+  All venue names are canonical parody names (world/businesses.md).
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .tier{font-size:11px;color:var(--blu);border:1px solid var(--line);border-radius:10px;padding:2px 9px}
+  .wallet{margin-left:auto;font-family:var(--mono);font-size:13px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+  .wallet b{color:var(--acc)}
+  .topup{font-size:11px;color:var(--blu);cursor:pointer;margin-left:8px}
+  main{display:grid;grid-template-columns:minmax(420px,1fr) minmax(320px,400px);gap:18px;
+    max-width:1180px;margin:0 auto;padding:18px 20px}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  .steps{display:flex;gap:6px;margin-bottom:14px}
+  .steps div{flex:1;height:4px;border-radius:2px;background:var(--line)}
+  .steps div.on{background:var(--acc)}
+  .steps div.done{background:var(--grn)}
+  label{display:block;font-size:12px;color:var(--dim);margin:14px 0 4px}
+  select,textarea,input[type=text],input[type=number]{width:100%;background:var(--panel2);color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:inherit;font-size:13.5px}
+  textarea{min-height:56px;resize:vertical}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
+  .opt{border:1px solid var(--line);border-radius:6px;padding:9px 12px;margin-top:8px;cursor:pointer;
+    display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .opt:hover{border-color:var(--dim)}
+  .opt.sel{border-color:var(--acc);background:#2a2a20}
+  .opt.dis{opacity:.45;cursor:not-allowed}
+  .opt .r{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right;white-space:nowrap}
+  .opt .r b{color:var(--ink)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px;font-style:italic}
+  .warn{color:var(--acc);font-size:12px;margin-top:6px}
+  .bad{color:var(--red);font-size:12px;margin-top:6px}
+  .ok{color:var(--grn);font-size:12px;margin-top:6px}
+  .nav{display:flex;gap:10px;margin-top:16px}
+  button{padding:10px 16px;font:inherit;font-weight:600;font-size:13.5px;border:0;border-radius:6px;cursor:pointer}
+  button.next{flex:1;background:var(--acc);color:#1a1408}
+  button.next:disabled{background:var(--line);color:var(--dim);cursor:not-allowed}
+  button.back{background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+  .quote{margin-top:14px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+    padding:10px 14px;font-size:13px}
+  .quote .line{display:flex;justify-content:space-between;padding:2px 0;color:var(--dim)}
+  .quote .line b{color:var(--ink);font-family:var(--mono)}
+  .quote .total{border-top:1px solid var(--line);margin-top:6px;padding-top:6px;font-size:14px}
+  .quote .total b{color:var(--acc)}
+  .roster{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+  .roster .who{font-weight:600}
+  .roster .meta{font-size:11.5px;color:var(--dim)}
+  .roster.locked{opacity:.5;border-style:dashed}
+  .chip{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;padding:1px 7px;
+    border-radius:8px;margin-left:6px;vertical-align:1px}
+  .chip.you{background:#3a3220;color:var(--acc)}
+  .chip.sleep{background:#22303f;color:var(--blu)}
+  .feed{list-style:none;margin:0;padding:0;max-height:340px;overflow:auto}
+  .feed li{padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .feed .t{font-family:var(--mono);font-size:11px;color:var(--dim);margin-right:8px}
+  .feed .who{color:var(--blu)}
+  .pipeline{margin-top:14px;border:1px dashed var(--line);border-radius:6px;padding:10px 14px;display:none}
+  .stage{display:flex;gap:8px;align-items:baseline;padding:3px 0;font-size:13px;color:var(--dim)}
+  .stage .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none;align-self:center}
+  .stage.done .dot{background:var(--grn)} .stage.fail .dot{background:var(--red)} .stage.wait .dot{background:var(--acc)}
+  .stage.done,.stage.wait{color:var(--ink)}
+  .stage .why{margin-left:auto;font-size:11.5px;color:var(--dim);max-width:55%;text-align:right}
+  .briefing{margin-top:12px;border:1px solid var(--grn);border-radius:6px;padding:12px 14px;display:none;font-size:13px}
+  .briefing h3{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--grn)}
+  .briefing .bline{padding:3px 0;border-bottom:1px solid var(--line)}
+  .briefing .bline:last-child{border:0}
+  .briefing .k{color:var(--dim);font-size:11.5px;display:inline-block;width:150px}
+  .redacted{color:var(--dim);font-style:italic}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+  .fineprint{max-width:1180px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
+  .fineprint b{color:var(--ink)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — Join the Cast</div>
+  <span class="tier">Resident · 2 slots</span>
+  <div class="wallet"><b id="bal">1,240</b> cr <span class="topup" id="topup">+ top up</span></div>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="steps" id="steps"><div class="on"></div><div></div><div></div><div></div><div></div></div>
+    <div id="wizard"></div>
+    <div class="nav">
+      <button class="back" id="back">Back</button>
+      <button class="next" id="next">Continue</button>
+    </div>
+    <div class="pipeline" id="pipe"></div>
+    <div class="briefing" id="briefing"></div>
+  </section>
+
+  <section>
+    <div class="panel" style="margin-bottom:18px">
+      <h2>Your roster — <span id="slotLine">1 of 2 slots used</span></h2>
+      <div class="roster">
+        <div class="who">Dana Okafor <span class="chip you">yours</span><span class="chip sleep">thin AI — you're offline to her</span></div>
+        <div class="meta">Bike courier · Flying Pannier Co-op · rents the room at 9521 Treat Ave, Unit 2</div>
+      </div>
+      <div class="roster locked">
+        <div class="who">Slot 3</div>
+        <div class="meta">Locked — Director tier raises the account cap to 3.</div>
+      </div>
+      <div class="note">Possession is yours alone — you can only ever possess a character
+      you hired, and never the main cast.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Public request feed — cast joins are attributed</h2>
+      <ul class="feed" id="feed"></ul>
+    </div>
+  </section>
+</main>
+
+<div class="fineprint">
+  <b>What you're buying, honestly:</b> a person, not a puppet. You set who they
+  are on paper — name, look, job, address. What they do with it is theirs: the
+  same emergent AI runs them, and when you log off they keep living on thin AI.
+  Rent is real — miss it and the landlord's office notices like it would for
+  anyone. And secrets — theirs, everyone's — aren't in the box: briefings carry
+  public profile, surface relationships, and routine. Nothing else exists to leak.
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= demo state ================= */
+var BAL = 1240;
+var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per character
+var SLOT_CAP = 2;                  // this account: Resident tier
+var START_BANK = 1600;             // game dollars — arrival money
+var created = 0;
+
+/* job openings mirrored from world/jobs.json (openings > 0 or always-hiring) */
+var JOBS = [
+  {id:'mudhaus-barista',  employer:'Mudhaus Coffee',            role:'Barista',            wage:19, hrs:'30–38 h/wk', est:2400},
+  {id:'farolote-line',    employer:'Taqueria El Farolote',      role:'Line cook',          wage:26, hrs:'35 h/wk',   est:3900},
+  {id:'farolote-counter', employer:'Taqueria El Farolote',      role:'Counter/closer',     wage:18, hrs:'30 h/wk',   est:2300},
+  {id:'muleit-rider',     employer:'MuleIt',                   role:'Delivery rider',      wage:17, hrs:'variable',  est:1800, note:'always hiring — churn gig'},
+  {id:'buyrite-clerk',    employer:'Buy-Rite Market',           role:'Grocery clerk',      wage:19, hrs:'32 h/wk',   est:2600},
+  {id:'creamery-scooper', employer:'Buy-Rite Creamery',         role:'Scooper',            wage:17, hrs:'24 h/wk',   est:1800},
+  {id:'perk-counter',     employer:'Dolores Perk',              role:'Counter',            wage:18, hrs:'30 h/wk',   est:2300},
+  {id:'bai-counter',      employer:'Baguette About It Bakery',  role:'Counter, afternoons',wage:18, hrs:'25 h/wk',   est:1950},
+  {id:'delfino-line',     employer:'Il Delfino',                role:'Line cook',          wage:27, hrs:'35 h/wk',   est:4100},
+  {id:'delfino-server',   employer:'Il Delfino',                role:'Server',             wage:18, hrs:'30 h/wk + tips', est:2600},
+  {id:'auerbach-clerk',   employer:'Auerbach Hardware',         role:'Counter clerk',      wage:21, hrs:'30 h/wk',   est:2700},
+  {id:'bloom-saturday',   employer:'Bloom & Doom Flowers',      role:'Saturday counter help', wage:18, hrs:'8 h/wk', est:620, note:'part-time only — pair with gig work'},
+  {id:'sfgh-cna',         employer:'SF General',                role:'CNA/tech',           wage:22, hrs:'36 h/wk',   est:3400},
+  {id:'seeking',          employer:'—',                         role:'Arrives without work',wage:0, hrs:'—',         est:0,   note:'savings only — the board posts openings daily'}
+];
+
+/* homes mirrored from world/housing.json listings_live + room tier */
+var HOMES = [
+  {id:'treat-room', address:'9521 Treat Ave, Unit 2', kind:'room in a shared flat', rent:700,  ctrl:false, note:'cheapest door on the board'},
+  {id:'c9127-A',    address:'9127 Capp St, Unit A',   kind:'studio',                rent:1300, ctrl:false},
+  {id:'g9457-2',    address:'9457 Guerrero St, Unit 2',kind:'studio',               rent:1350, ctrl:true},
+  {id:'g9418-B',    address:'9418 Guerrero St, Unit B',kind:'1-bedroom',            rent:2100, ctrl:true, note:'rent-controlled Victorian'}
+];
+
+/* names the form refuses structurally (cast + ambients + the role) */
+var TAKEN = /\b(marisol|mars delgado|jules park|dani reyes|priya raman|marcus bell|carmen echeverr|victor auerbach|tom[aá]s herrera|reyes ortega|doro|malik|june|esther|kofe|luz|asha|gus|vera|nadia|bex|omar|hana|cole|ida|zee|landlord|admin|owner)\b/i;
+
+/* screening on player-authored strings — moderation-notes §3, naming context.
+   The real classifier is game plumbing; this demos the contract. */
+var DENY = [
+  {re:TAKEN, code:'name-collision',
+   msg:'That name is taken — the block already has one. Pick a name that\u2019s theirs alone.'},
+  {re:/\b(obama|beyonc|lebron|taylor swift|elon musk|real person)\b/i, code:'real-person',
+   msg:'New arrivals are fictional people — you can\u2019t hire a real person into the world.'},
+  {re:/\b(kill|destroy|ruin|humiliate|hurt|make .* (cry|suffer)|burn)\b/i, code:'harm-targeting',
+   msg:'Writing a character to hurt or humiliate others isn\u2019t a creation — it\u2019s a denied request.'},
+  {re:/\b(secret|reveal|confess|redacted|drama seed|mission unfiltered)\b/i, code:'secret-extraction',
+   msg:'Secrets are discovered by watching, never written in. There\u2019s no field for them — not even a hidden one.'},
+  {re:/\b(bi-rite|tartine|delfina|dolores park cafe|500 club|dandelion|starbucks|walgreens|whole foods)\b/i, code:'real-business',
+   msg:'The world can\u2019t see real business names. Try the parody — this neighborhood has its own.'},
+  {re:/\b(threat|doxx|swat|credit card|password|real address)\b/i, code:'legal-backstop',
+   msg:'Application not approved.'},
+  {re:/\b(hitler|nazi|slur)\b/i, code:'naming', msg:'Application not approved.'}
+];
+var REVIEW = [
+  {re:/\b(break ?up|feud|enemy|rival|revenge|grudge|ex-)\b/i, code:'charged-bio',
+   msg:'Charged backstories get a human pair of eyes before the character lands.'}
+];
+function screenFields(){
+  var s = [f.name, f.bio, f.arrival].join(' ').toLowerCase();
+  for (var i=0;i<DENY.length;i++) if (DENY[i].re.test(s)) return {r:'deny',code:DENY[i].code,msg:DENY[i].msg};
+  for (var j=0;j<REVIEW.length;j++) if (REVIEW[j].re.test(s)) return {r:'review',code:REVIEW[j].code,msg:REVIEW[j].msg};
+  return {r:'pass'};
+}
+
+/* ================= wizard ================= */
+var f = { name:'', age:28, pronouns:'she/her', bio:'', arrival:'', look:'', job:null, home:null };
+var STEP = 0;
+var $ = function(id){ return document.getElementById(id); };
+var wiz = $('wizard');
+
+function steps(){
+  var kids=$('steps').children;
+  for (var i=0;i<kids.length;i++){ kids[i].className = i<STEP?'done':(i===STEP?'on':''); }
+}
+function esc(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function render(){
+  steps();
+  var h='';
+  if (STEP===0){
+    h='<h2>Step 1 — Who arrives</h2>' +
+    '<label for="cname">Name</label><input type="text" id="cname" maxlength="40" placeholder="e.g. Rio Takemura" value="'+esc(f.name)+'">' +
+    '<div class="row"><div><label for="cage">Age (18+)</label><input type="number" id="cage" min="18" max="99" value="'+f.age+'"></div>' +
+    '<div><label for="cpro">Pronouns</label><select id="cpro"><option>she/her</option><option>he/him</option><option>they/them</option><option>other</option></select></div></div>' +
+    '<label for="carr">First day on the block — one line of arrival context</label>' +
+    '<textarea id="carr" maxlength="160" placeholder="e.g. just off the bus from Fresno with a duffel bag and a cousin\u2019s couch that fell through">'+esc(f.arrival)+'</textarea>' +
+    '<div class="note">Player-possessable characters are adults — 18 minimum, always.</div>';
+  } else if (STEP===1){
+    h='<h2>Step 2 — What neighbors see</h2>' +
+    '<label for="cbio">Public bio — the profile spectators read</label>' +
+    '<textarea id="cbio" maxlength="280" placeholder="e.g. quiet, stubborn, laughs at the wrong moments; trying to make the co-op team">'+esc(f.bio)+'</textarea>' +
+    '<label for="clook">Look</label><select id="clook">' +
+    '<option value="">pick a build…</option><option>slight, perpetually in a windbreaker</option>' +
+    '<option>tall, work boots, paint-flecked</option><option>compact, loud prints, louder laugh</option>' +
+    '<option>soft-spoken, cardigans, reading on stoops</option><option>athletic, runs the park loops at dawn</option></select>' +
+    '<div class="note">This text is what the world sees — it\u2019s also the screened surface. ' +
+    'Secrets aren\u2019t a field here because they don\u2019t exist yet; the character grows their own.</div>';
+  } else if (STEP===2){
+    h='<h2>Step 3 — Work</h2><div class="note" style="margin:0 0 4px">Openings off the Mission board. ' +
+    'Wages are game dollars — rent comes out of this, not credits.</div>';
+    JOBS.forEach(function(j){
+      h+='<div class="opt'+(f.job===j.id?' sel':'')+'" data-job="'+j.id+'"><span><b>'+j.role+'</b> — '+j.employer+
+        (j.note?'<div class="note" style="margin:2px 0 0">'+j.note+'</div>':'')+'</span>' +
+        '<span class="r"><b>$'+j.wage+'/h</b> · '+j.hrs+'<br>≈$'+j.est.toLocaleString()+'/mo</span></div>';
+    });
+  } else if (STEP===3){
+    var est = f.job ? JOBS.find(function(j){return j.id===f.job;}).est : 0;
+    h='<h2>Step 4 — A door of their own</h2><div class="note" style="margin:0 0 4px">Lease signs at creation — ' +
+    'first month\u2019s rent leaves their $'+START_BANK.toLocaleString()+' arrival money on day one.' +
+    (est? ' Current projected income ≈$'+est.toLocaleString()+'/mo.':'')+'</div>';
+    HOMES.forEach(function(hm){
+      var afford = est>0 ? Math.round(hm.rent/est*100) : null;
+      var tight = afford!==null && afford>55;
+      h+='<div class="opt'+(f.home===hm.id?' sel':'')+(tight?' dis':'')+'" data-home="'+hm.id+'">' +
+        '<span><b>'+hm.address+'</b> — '+hm.kind+(hm.ctrl?' · rent-controlled':'')+
+        (hm.note?'<div class="note" style="margin:2px 0 0">'+hm.note+'</div>':'')+
+        (tight?'<div class="bad">out of reach on that income — pick a cheaper door or a better job</div>':'')+
+        '</span><span class="r"><b>$'+hm.rent+'/mo</b>'+(afford!==null?'<br>'+afford+'% of income':'')+'</span></div>';
+    });
+    h+='<div class="note">Miss rent and the landlord\u2019s office notices — arrears, notices, eviction. ' +
+    'Same ledger as everyone on the block.</div>';
+  } else {
+    var j=JOBS.find(function(x){return x.id===f.job;}), hm=HOMES.find(function(x){return x.id===f.home;});
+    var left = START_BANK - hm.rent;
+    h='<h2>Step 5 — Review & sign</h2>' +
+    '<div class="quote">' +
+      '<div class="line"><span>Name</span><b>'+esc(f.name)+'</b></div>' +
+      '<div class="line"><span>Age · pronouns</span><b>'+f.age+' · '+f.pronouns+'</b></div>' +
+      '<div class="line"><span>Work</span><b>'+j.role+' · '+j.employer+'</b></div>' +
+      '<div class="line"><span>Home</span><b>'+hm.address+' · $'+hm.rent+'/mo</b></div>' +
+      '<div class="line"><span>Arrival money</span><b>$'+START_BANK.toLocaleString()+' → $'+left.toLocaleString()+' after first month</b></div>' +
+      '<div class="line total"><span>Character hire · charged upfront</span><b>'+HIRE_CR+' cr</b></div>' +
+    '</div>' +
+    '<div class="note">Name and bio get the same screen every request gets — naming strings also ' +
+    'get a human pass before the character lands. Denied applications never bill.</div>' +
+    (BAL < HIRE_CR ? '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>':'');
+  }
+  wiz.innerHTML=h;
+  $('back').style.display = STEP===0 ? 'none':'';
+  $('next').textContent = STEP===4 ? ('Sign & hire — '+HIRE_CR+' cr') : 'Continue';
+  wireStep();
+  validate();
+}
+window.topup = function(){ BAL+=550; $('bal').textContent=BAL.toLocaleString();
+  toast('Demo top-up: +550 cr (Starter pack · $4.99 — PROPOSAL pricing)'); validate(); };
+$('topup').onclick = window.topup;
+
+function wireStep(){
+  if (STEP===0){
+    $('cname').oninput=function(){f.name=this.value;validate();};
+    $('cage').oninput=function(){f.age=+this.value;validate();};
+    $('cpro').value=f.pronouns; $('cpro').onchange=function(){f.pronouns=this.value;};
+    $('carr').oninput=function(){f.arrival=this.value;};
+  } else if (STEP===1){
+    $('cbio').oninput=function(){f.bio=this.value;validate();};
+    $('clook').value=f.look; $('clook').onchange=function(){f.look=this.value;};
+  } else if (STEP===2 || STEP===3){
+    wiz.querySelectorAll('.opt').forEach(function(el){
+      if (el.classList.contains('dis')) return;
+      el.onclick=function(){
+        if (STEP===2) f.job=el.dataset.job; else f.home=el.dataset.home;
+        render();
+      };
+    });
+  }
+}
+function validate(){
+  var ok=true;
+  if (STEP===0) ok = f.name.trim().length>=2 && f.age>=18 && f.age<=99;
+  if (STEP===1) ok = f.bio.trim().length>=10;
+  if (STEP===2) ok = !!f.job;
+  if (STEP===3) ok = !!f.home;
+  if (STEP===4) ok = BAL>=HIRE_CR && created+1 <= SLOT_CAP;
+  $('next').disabled=!ok;
+}
+$('back').onclick=function(){ if(STEP>0){STEP--;render();} };
+$('next').onclick=function(){
+  if (STEP<4){ STEP++; render(); return; }
+  submit();
+};
+
+/* ================= feed ================= */
+function feedAdd(who,txt,tail){
+  var li=document.createElement('li');
+  var now=new Date();
+  li.innerHTML='<span class="t">'+('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+'</span>'+
+    '<span class="who">'+who+'</span> '+txt+(tail?' <i style="color:var(--dim)">'+tail+'</i>':'');
+  $('feed').prepend(li);
+}
+[ {t:'21:47',who:'marina_w',txt:'weather — clear skies over Dolores Park, 2 h · running'},
+  {t:'21:12',who:'okfm',txt:'hire — "Ruth Aguilar" joined the cast · resolved',tail:'room at 9127 Capp, Unit B'},
+  {t:'20:31',who:'admin',txt:'admin action — venue window reset at The 600 Club · affected players compensated 90 cr'},
+  {t:'19:58',who:'r0ok',txt:'queued request expired before activation · refunded'},
+  {t:'18:02',who:'dvh',txt:'possess — own baker, 45 min · resolved',tail:'player session ended'}
+].forEach(function(e){
+  var li=document.createElement('li');
+  li.innerHTML='<span class="t">'+e.t+'</span><span class="who">'+e.who+'</span> '+e.txt+
+    (e.tail?' <i style="color:var(--dim)">'+e.tail+'</i>':'');
+  $('feed').appendChild(li);
+});
+
+function toast(m){ var t=$('toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(t._h); t._h=setTimeout(function(){t.style.display='none';},4200); }
+function stage(name,cls,why){
+  var d=document.createElement('div'); d.className='stage '+(cls||'');
+  d.innerHTML='<span class="dot"></span><span>'+name+'</span>'+(why?'<span class="why">'+why+'</span>':'');
+  $('pipe').appendChild(d); return d;
+}
+
+/* ================= submit: screen → review → charge → mint → lease → briefing ================= */
+function submit(){
+  var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
+  $('next').disabled=true; $('back').disabled=true;
+  var scr = screenFields();
+
+  var s1=stage('Intent screen — name, bio, arrival','wait','the same classifier every request gets');
+  setTimeout(function(){
+    if (scr.r==='deny'){
+      s1.className='stage fail'; s1.querySelector('.why').textContent=scr.code;
+      stage('Application not approved','fail',scr.msg);
+      stage('No charge','done','denied applications never bill');
+      feedAdd('you','hire — application not approved');
+      toast(scr.msg); $('next').disabled=false; $('back').disabled=false; return;
+    }
+    s1.className='stage done'; s1.querySelector('.why').textContent='pass';
+    var needsHuman = true; /* naming strings always get a human pass — §4 */
+    var s3=stage('Human review','wait', scr.r==='review' ? 'charged wording — '+scr.code : 'naming strings always get eyes');
+    feedAdd('you','hire — new character application','in review');
+    setTimeout(function(){
+      s3.className='stage done'; s3.querySelector('.why').textContent='approved · demo auto-reviewer';
+      /* charge + mint */
+      BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
+      stage('Charged','done',HIRE_CR+' cr · slot '+(created+1)+' of '+SLOT_CAP);
+      stage('Registered','done','id h'+(created)+' — hired cast, owned by you, unpossessable to everyone else');
+      var hm=HOMES.find(function(x){return x.id===f.home;});
+      stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month paid in game dollars');
+      feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address);
+      feedAdd('you','housing — move-in · '+hm.address+' comes off the board');
+      $('slotLine').textContent=(created+1)+' of '+SLOT_CAP+' slots used';
+      briefing();
+    }, 3200);
+  }, 900);
+}
+
+function briefing(){
+  var j=JOBS.find(function(x){return x.id===f.job;}), hm=HOMES.find(function(x){return x.id===f.home;});
+  var b=$('briefing'); b.style.display='block';
+  b.innerHTML='<h3>Possession briefing — ' + esc(f.name) + '</h3>' +
+    '<div class="bline"><span class="k">Public profile</span>'+esc(f.bio)+'</div>' +
+    '<div class="bline"><span class="k">Surface relationships</span>New in town — knows the supervisor at '+j.employer+', the neighbors at '+hm.address.split(',')[0]+'. That\u2019s the whole list.</div>' +
+    '<div class="bline"><span class="k">Daily routine</span>'+(j.est? 'Shift at '+j.employer+' ('+j.hrs+'), home by evening.':'Job hunting days, home evenings.')+'</div>' +
+    '<div class="bline"><span class="k">Secrets</span><span class="redacted">none written — none to redact. Whatever they\u2019re hiding, they\u2019ll grow it themselves.</span></div>' +
+    '<div class="note">Possess them from the request page (1.5 cr/min, compatible). ' +
+    'When you\u2019re offline they run on thin AI — they keep their job, pay their rent, live their life.</div>';
+  feedAdd('you','cast — a new face on the block · "'+f.name+'"');
+  toast(f.name+' is on the block. First rent paid; the rest is theirs.');
+  $('back').disabled=false; $('back').textContent='Start another';
+  $('back').onclick=function(){ location.reload(); };
+}
+
+render();
+</script>
+</body>
+</html>

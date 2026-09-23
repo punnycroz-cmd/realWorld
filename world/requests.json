@@ -18,7 +18,11 @@
     { "id": "event",    "label": "Event trigger", "class": "exclusive", "billing": "flat", "cr": 200,
       "claims": ["venue:*", "openair"], "note": "Drama-manager-mediated; one per resource per 24 h." },
     { "id": "camera",   "label": "Camera director", "class": "compatible", "billing": "flat", "cr_per_30min": 10,
-      "note": "Spectator-side only; changes nothing in-world." }
+      "note": "Spectator-side only; changes nothing in-world." },
+    { "id": "hire",     "label": "Character hire", "class": "compatible", "billing": "flat", "cr": 500,
+      "review": "human (naming strings always queued — moderation §4)",
+      "note": "One-time per character, slot-capped per account (creation.json). Includes starter wardrobe + apartment hunt; housing costs game dollars. Denied applications never bill.",
+      "spec": "world/creation-ui.md" }
   ],
   "feed_vocabulary": ["requested", "in_review", "approved", "running", "queued", "resolved", "refunded", "not approved", "admin action", "player session ended"],
   "fairness_invariants": [

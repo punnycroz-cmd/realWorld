@@ -1,0 +1,52 @@
+{
+  "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
+  "version": 7,
+  "price": {
+    "hire_cr": 500,
+    "billing": "flat, one-time, charged upfront after screening passes",
+    "includes": ["character slot", "basic wardrobe", "starter apartment hunt"],
+    "refund_rule": "denied applications never bill; a post-review denial auto-refunds in full",
+    "slot_cap": { "base": 1, "resident_sub": 2, "director_sub": 3, "hard_max_per_account": 3 }
+  },
+  "record_schema": {
+    "id": "h## — hired-character ids, disjoint from C1–C8 mains and A01–A20 ambients",
+    "owner": "player handle — the only account that may ever possess this character",
+    "name": "screened string; never a cast/ambient name, never a real person, never slurs",
+    "age": "integer >= 18 — player-possessable characters are adults, always",
+    "pronouns": "free pick",
+    "bio": "public profile text — screened; this IS the briefing-safe surface",
+    "look": "structured pickers (build/palette/style) — rendering data, not text",
+    "arrival": "one-line 'first day on the block' context — screened text",
+    "job_id": "jobs.json row with openings, or 'seeking'",
+    "unit_id": "housing.json listings_live unit, or a room tier",
+    "bank_game_dollars": "starting balance — rent comes out of this, not credits",
+    "brain": "full LLM when possessed or ambient-active; thin AI when owner offline"
+  },
+  "screening": {
+    "surface": ["name", "bio", "arrival"],
+    "rules": "world/moderation-notes.md §3 verbatim — naming strings always get a human review pass (§4)",
+    "deny_codes": ["name-collision", "real-person", "harm-targeting", "secret-extraction", "real-business", "legal-backstop", "underage"],
+    "note": "Screening covers what the player WROTE. Once created, the character's emergent behavior is inviolable — no moderation, ever."
+  },
+  "what_the_player_authors": [
+    "initial conditions only: identity surface, look, job application, lease",
+    "the character's inner life, secrets, and decisions emerge — players never write scripts, triggers, or loyalties",
+    "a hired character may decline a nudge like any main; possession is session-scoped"
+  ],
+  "sim_obligations": [
+    "pays rent monthly in game dollars — arrears and eviction apply like anyone else",
+    "works their job; thin-AI auto-shifts pay baseline wages",
+    "possession during a shift earns the same wage + small session bonus (never pay-to-earn-better)",
+    "offline owner → character drops to thin AI (cheap), wakes to full brain on return"
+  ],
+  "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
+  "feed_events": {
+    "request": "hire — '<name>' joined the cast (attributed, status resolved)",
+    "housing": "move-in — <address> comes off the board",
+    "cast": "a new face on the block — <name>, <public bio one-liner> (bio text only post-screen)"
+  },
+  "progression_hooks": [
+    "tenant → owner: purchase listings use the same 9xxx addresses; deed fee in credits after the earned game-dollar grind",
+    "owner → landlord: landlord license gates on earned in-world standing"
+  ]
+}

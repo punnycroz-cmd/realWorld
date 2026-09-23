@@ -19,6 +19,7 @@
     "admin",     "owner/admin action, always attributed, always with compensation note",
     "press",     "Mission Unfiltered blog post — the blog is public; the author is a secret and never named",
     "housing",   "public registry events: move-in, listing posted/filled (never terms beyond posted rent)",
+    "cast",      "a hired character joins the block — attributed to the hiring player; bio text only post-screen",
     "quiet"      ,"honest-empty marker for dead dayparts — the feed may go quiet and says so"
   ],
   "request_status": ["requested", "in_review", "approved", "running", "queued", "resolved", "refunded", "not approved", "player session ended"],
