@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v12)
+# Lease Flow — spec & copy deck (world v26; v12 base + v26 depth pass)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,8 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book"), file://-safe; every
-  state below is reachable in it via the day-stepper.
+- `world/lease.html` — working demo ("The Rent Book" v2), file://-safe; every
+  state below is reachable in it via the day-stepper. Four viewer modes:
+  spectator / tenant (h01) / licensed landlord (h02, capped tools on
+  9088-5 only) / admin. localStorage `rw_lease_v26`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -204,8 +206,148 @@ texture — neighbors half-know, the feed doesn't announce it.
   is the content contract — state names, day-numbers, and feed wording in
   `leases.json` should land verbatim at merge.
 - `lease.html` simulates the ledger client-side; it is a surface demo,
-  not the system of record. localStorage key `rw_lease_v12`.
+  not the system of record. localStorage key `rw_lease_v26` (was
+  `rw_lease_v12` — seed shape changed: +`deposit`, `rentNext`, `plan`,
+  `med`, `ownedBy` fields and the h02-owned `bld-f9088-5` row).
 - New feed vocabulary is confined to `housing`/`admin` kinds — feed.json
   unchanged; the wording table above is the contract.
 - 9457-3's dispute is demoed in its *current* ambiguous state — content
-  never resolves it (index rule + drama-notes S3).
+  never resolves it (index rule + drama-notes S3). The mediation-accept
+  button exists to teach the mechanic on *other* leases; on 9457-3 the
+  accepted offer still leaves the passthrough question deliberately
+  half-open in copy.
+
+## 12. Application → screening → signing (the front door)
+
+A listing states its screening conditions *on the listing* — the same
+conditions the engine evaluates. Nothing hidden, nothing random.
+
+| Step | What happens |
+|---|---|
+| Apply | One click from the board; the application doc lists the published conditions verbatim |
+| Screen | Admin-side checklist: income ~2.5× rent (verified against the job board — wages are registry facts), two references, roommate interview where the unit shares a wall. **First qualified application approves.** No auctions, no vibe denials, no holding a listing to shop applicants |
+| Offer | `APPROVED` state — the lease waits for the tenant's signature, never auto-signed |
+| Sign | Atomic: lease row written + first month + deposit (1× rent; 0.5× room share) leave the bank + listing off the board + `housing` feed event. If any leg fails, nothing lands |
+
+- Screening is admin-only work, but the *criteria* are player-facing —
+  a tenant can always see why they did or didn't make the number.
+- A declined application posts nothing to the feed. Rejection is
+  private mail with the failed criterion named — the block doesn't
+  get to watch someone not qualify.
+- Demo: `applyLease()` → `applied`; `screenApp()` (admin) → `approved`;
+  `signLease()` deducts `2× rent` and flips the unit live.
+
+## 13. Raises on controlled units (the stated-basis rule)
+
+Every raise posts to the ledger with a **basis** — that's the whole rule.
+
+| Basis | Cap | Notes |
+|---|---|---|
+| Annual band | ≤ **4%/yr** on rent-controlled units (house rule; unbanked — use it or lose it, no stacking years) | routine; still a ledger line + dated notice |
+| Passthrough claim | uncapped | must be itemized math in the ledger (the claimed cost, the allocation). The claim is what a dispute examines — 9457-3's `$2,600→$3,200` lives here |
+| Market (uncontrolled) | no cap | 60-day window over +10%; still a ledger line |
+
+- A posted raise stores `rent_next`; the charge on the 1st bills the new
+  number. A filed dispute before the 1st freezes the raise too — the
+  old rent bills until ruling/mediation.
+- Copy always names the basis in plain words: "annual raise inside the
+  band (4%)" vs "passthrough claim — itemized below."
+
+## 14. Payment plans (the humane middle rung)
+
+Between "paid" and "noticed" there's a documented arrangement:
+
+- Tenant proposes a plan while `arrears`/`noticed`: the balance split
+  across stated installments (demo: two paydays). The plan is a **ledger
+  document** — proposed, dated, itemized.
+- An honored plan **pauses late-fee accrual** (the day-6 fee check
+  skips) and holds the ladder where it stands. The balance still owes;
+  the plan doesn't forgive, it schedules.
+- A missed installment resumes the ladder exactly where it froze — no
+  reset to day 6, no surprise eviction. Breach is itself a ledger line.
+- Plans are private mail, never feed events. Spectators see at most the
+  `arrears`/`noticed` status word.
+
+## 15. Deposits, itemized
+
+- Held amount: 1× rent (0.5× room share) + simple interest (~1%/yr
+  texture line — the registry tracks principal; interest is flavor the
+  ledger computes at return).
+- Return window: within **21 days** of move-out.
+- Deduction whitelist — anything deducted is a ledger line with a reason
+  from this list:
+  - unpaid rent or fees owed at move-out
+  - damage beyond ordinary wear (named per item, e.g. "repaint scuffed wall")
+  - cleaning to move-in condition (only if returned worse)
+- Never deductible: ordinary wear, pre-existing damage on the move-in
+  record, "vibes," or retaliation for a filed dispute. A deduction the
+  tenant disputes goes to the board like anything else (`deposit_deductions`
+  ground).
+
+## 16. Roommates, joint leases, sublets
+
+- Co-tenants on one lease are jointly liable — 9457-3 is the working
+  example: Marcus's share being chronically late is a *household* fact
+  the ledger records as one balance, while the fiction knows whose half
+  it was. The ledger doesn't adjudicate roommate splits.
+- Roommate swap = a lease amendment doc + deposit pro-rata line; the
+  remaining tenant's record carries the continuity.
+- Sublets: owner-tier unlock (progression §8); approval "not
+  unreasonably withheld"; a live sublet posts a listing-shaped board
+  entry marked sublet. Informal occupants (Jules's room, Dani's share)
+  stay person-to-person and off-ledger — §6 stands.
+
+## 17. Mediation (the offer before the ruling)
+
+Inside `disputed`, either side may state a mediation offer — a concrete
+proposal in the file, e.g. "raise at band rate, heater fixed in 7 days,
+filing withdrawn."
+
+- An accepted offer amends the ledger directly (new rent line, scheduled
+  repair, filing withdrawn → `active`) and posts the same neutral
+  `rent-board ruling` feed line — the feed doesn't distinguish a deal
+  from a decision.
+- A declined offer costs nothing but the week it took; the ruling clock
+  resumes. Either side can walk — that's stated on the offer doc.
+- Mediation is a mechanic, not a personality test: offers are
+  ledger-shaped proposals, never dialogue scripts.
+
+## 18. Licensed player-landlord (capped tools, own doors only)
+
+The §8 license buys a real but small toolbox — deliberately weaker than
+the owner's desk:
+
+| Tool | Licensed landlord | Owner/admin |
+|---|---|---|
+| View ledgers | own units only | all |
+| Late reminder / formal notice / cure-or-quit | yes, own units, cooldown per unit | yes |
+| Raise | band ≤4% or itemized passthrough, own units | same rules, all units |
+| Payment plan | accept/decline on own units | same |
+| Mediation offer | yes, own units | yes |
+| **Eviction** | **file only** — brings the paper; the owner's review decides | review + confirm |
+| Mint addresses | no — landlord character (clerk) + admin only | yes |
+
+- Every licensed-landlord action is public-record the same as admin —
+  the feed wording doesn't change with the hat.
+- A licensed landlord touching another's unit gets a refusal that names
+  the cap ("not your unit"), not an error.
+- The demo's h02 owns 9088-5 (a paying ambient tenant, day-1 balance
+  outstanding) so every cap is exercisable in one click.
+
+## 19. Copy deck additions (v26)
+
+| Moment | Copy |
+|---|---|
+| Screening pass | "Approved — income verified via job board, references returned. Sign and it's yours on the 1st." |
+| Screening fail | "Out of reach on that income — pick a cheaper door or a better job." (private; no feed line) |
+| Sign button | "Sign — $N (first month + deposit)" |
+| Partial pay | "Partial applied oldest-charge-first. The balance keeps its clock." |
+| Plan proposed | "Plan filed. Fees pause while it's honored — the ladder remembers." |
+| Plan honored (day 6) | "Grace lapsed but no fee — payment plan is being honored. The balance still owes." |
+| Mediation offer | "Either side can walk; a declined offer just resumes the ruling clock." |
+| Mediation accepted | "Ledger amended; both sides signed the offer, not a ruling." |
+| Raise, banded | "Annual raise inside the band (4%): $X → $Y, effective the 1st." |
+| Raise, passthrough | "Passthrough claim — itemized below. The claim is what a dispute examines." |
+| Deposit return | "Deposit returned — $N of $M + interest. Deductions itemized; wear and tear is never a deduction." |
+| Licensed cap | "Licensed landlords can bring the paper; only the owner's desk can end a tenancy." |
+| Not-your-unit refusal | "Not your unit — licensed tools reach your own doors only." |

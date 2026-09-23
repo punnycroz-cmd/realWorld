@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 25,
+ "version": 26,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -1168,6 +1168,64 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT24",
+   "title": "The Rent Book v2 — four hats, the whole file",
+   "minutes": 20,
+   "persona": "facilitator cycling spectator → tenant → licensed landlord → admin",
+   "goal": "Verify the v26 depth pass: atomic signing, partial pay, payment plans, mediation offers, itemized deposits, and the licensed-landlord caps that stop one step short of the owner's desk.",
+   "surfaces": [
+    "lease",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "In Tenant mode, apply for a listed unit. Switch to Admin, run screening, switch back and sign.",
+     "expect": "Apply posts the published conditions (2.5× income, references, interview); approval is a checklist not a lottery; signing is atomic — bank drops by exactly first month + deposit, the listing leaves the board, one 'Listing filled' feed line lands.",
+     "checkpoints": [
+      "Application doc names the criteria verbatim — nothing hidden",
+      "Approval waits for the tenant's signature; admin cannot sign for them",
+      "Sign debits 2× rent in game dollars and posts the neutral feed event — no credit option anywhere"
+     ]
+    },
+    {
+     "do": "Back on h01's lease: make a partial payment, then propose a payment plan and step days across the 6th/10th/24th.",
+     "expect": "Partial applies oldest-first with the ledger line labeled; an honored plan pauses the late-fee accrual and holds the ladder — 'the balance still owes' copy stays honest.",
+     "checkpoints": [
+      "Plan doc is a ledger document (proposed, dated, itemized) — never a feed event",
+      "Day-6 step on an honored plan writes 'plan honored' instead of a late fee",
+      "Cure clears the plan flag and returns to active standing"
+     ]
+    },
+    {
+     "do": "File a dispute on h01's lease, make a mediation offer as the tenant, then accept it wearing the admin hat. Then try the same on 9457-3.",
+     "expect": "The offer is a concrete ledger-shaped proposal; accepting on h01's lease amends the ledger (band-rate rent, repair scheduled, filing withdrawn → active) and posts the neutral 'rent-board ruling' feed line. On 9457-3 the offer is declined on the record — that filing never resolves.",
+     "checkpoints": [
+      "Offer copy says either side can walk — declined offers resume the ruling clock",
+      "Accepted mediation amends the ledger, not just the story",
+      "9457-3's mediation lands as a declined doc — the passthrough question stays open"
+     ]
+    },
+    {
+     "do": "Switch to Landlord · h02. On 9088-5: post a notice, post a raise, try to evict, then click any other unit.",
+     "expect": "Licensed tools work on the owned unit only — notices climb to cure-or-quit, raises post inside the ≤4% band with a stated basis; eviction is file-only ('the owner's desk decides'); other units render the not-your-file view.",
+     "checkpoints": [
+      "Cap card lists the licensed caps verbatim (own units / band / file-only eviction / public record)",
+      "'File for eviction review' writes a filing doc — the lease state never reaches evict_review from this mode",
+      "Not-your-unit refusal names the cap, not an error; no ledger depth on other units"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the lease gate.",
+     "expect": "lease gate passes: storage key agrees with the page, demo states ⊆ declared states, honesty strings present, every wire push matches a neutral feed template, evictConfirm has no licensed-landlord path.",
+     "checkpoints": [
+      "Gate reports 'schema v26 · 13 states · key rw_lease_v26'",
+      "A '$' figure or a reason word inside a tx: template would FAIL the gate — spot-check by reading the feed-wording check",
+      "Removing the landlord mode button or adding a landlord evictConfirm path would FAIL"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1175,7 +1233,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v25 local",
+   "build": "world v26 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },

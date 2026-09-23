@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v25)
+# Playtest Harness — "Real World / The Mission" (world v26)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -39,8 +39,8 @@ One person can wear every hat; four real testers is the intended shape.
 - **Player** — PT2, PT3 (first half), PT4, PT5, PT9, PT23. Files requests, hires a character.
 - **Reviewer** — PT3 (second half), PT4. Wears the mod hat; judges queue honesty.
 - **Facilitator** — PT7 + session stewardship. Owns the boundary checklist,
-  runs the machine audit (PT21), merges cohort reports (PT22), clocks
-  time-to-first-request, and harvests findings.
+  runs the machine audit (PT21, PT24 last step), merges cohort reports (PT22),
+  clocks time-to-first-request, and harvests findings.
 
 ## 3. Running a session
 
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Nine gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Eleven gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -91,7 +91,10 @@ never-ship marker), **mirror** (playtest.html inline data == playtest.json,
 field-level drift reported as `PT# drifted: <fields>`), **coverage** (every
 surface file exists; no untracked demo pages), **drama** (seed-registry
 invariants + internal-only), **onboard** (onboarding.json ↔ onboarding.html
-mirror, required honesty strings, dark-pattern vocabulary sweep).
+mirror, required honesty strings, dark-pattern vocabulary sweep), **lease**
+(leases.json ↔ lease.html: storage key, demo states ⊆ declared states,
+honesty strings, every wire push on a neutral feed template, licensed-landlord
+eviction is file-only — no evictConfirm path from the landlord mode).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

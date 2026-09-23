@@ -1,9 +1,10 @@
 {
   "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
-  "version": 12,
+  "version": 26,
   "power_map": {
-    "player_own_character": ["apply", "sign", "pay_rent", "repair_request", "file_dispute", "give_notice", "offer_to_buy"],
+    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "propose_payment_plan", "repair_request", "file_dispute", "make_mediation_offer", "give_notice", "offer_to_buy"],
     "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
+    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "make_mediation_offers", "file_for_eviction_review"], "never": ["confirm_eviction", "mint_addresses", "act_off_public_record", "touch_other_units"] },
     "admin_only": ["raise_rent", "issue_notices", "approvals", "evictions", "rulings", "mint_addresses"],
     "requests_pipeline": "admin-domain deny — lease/rent/eviction asks are unreachable by request (moderation.json v8)",
     "currency_wall": "credits never pay rent/deposits/fees — game dollars only"
@@ -34,8 +35,27 @@
     "frozen_while": "disputed (any rung) — no eviction while a board ruling is open",
     "rent_control": {
       "flag": "per unit (registry)",
-      "raise_rule": "controlled-unit raises need a stated basis in the ledger (annual pct or claimed passthrough); the claim is what a dispute examines"
+      "raise_rule": "every raise posts with a stated basis; the claim is what a dispute examines",
+      "bases": {
+        "annual_band": { "cap_pct": 4, "note": "house rule, unbanked — use it or lose it; ledger line + dated notice" },
+        "passthrough_claim": { "cap": "uncapped", "note": "itemized math required in ledger; the claim is what a dispute examines" },
+        "market_uncontrolled": { "cap": "none", "note": "60-day window over +10%" }
+      },
+      "raise_storage": "posted raise stores rent_next; the 1st bills the new number; a filed dispute before the 1st freezes the raise (old rent bills until ruling/mediation)"
+    },
+    "payment_plans": {
+      "proposable_when": ["arrears", "noticed"],
+      "effect": "honored plan pauses late-fee accrual and holds the ladder where it stands; balance still owes",
+      "breach": "missed installment resumes the ladder at the frozen rung; breach is a ledger line",
+      "visibility": "private mail — never a feed event",
+      "doc": "the plan is a ledger document: proposed, dated, itemized installments"
     }
+  },
+  "screening": {
+    "published_conditions": ["income ~2.5x rent (verified vs job board wages)", "two references", "roommate interview where the unit shares a wall"],
+    "rule": "first qualified application approves — no auctions, no vibe denials, no holding a listing to shop applicants",
+    "decline_visibility": "private mail naming the failed criterion; no feed event",
+    "sign_atomic": ["lease row written", "first month + deposit leave the bank", "listing off the board", "housing feed event"]
   },
   "notices": [
     { "n": 1, "name": "late_reminder",       "trigger": "day 6 unpaid",  "window_d": 0,  "visibility": "tenant + player inbox" },
@@ -46,6 +66,10 @@
   "deposits": {
     "flat": "1x monthly rent",
     "room_share": "0.5x",
+    "interest": "simple ~1%/yr texture line — registry tracks principal, ledger computes at return",
+    "return_window_d": 21,
+    "deduction_whitelist": ["unpaid rent or fees owed", "damage beyond ordinary wear (named per item)", "cleaning to move-in condition (only if returned worse)"],
+    "never_deductible": ["ordinary wear", "pre-existing damage on move-in record", "retaliation for a filed dispute", "unitemized vibes"],
     "return_rule": "minus itemized deductions only — every deduction is a ledger line with a reason",
     "informal_occupants": "room shares (c2-jules, c3-dani) are person-to-person — never ledger objects"
   },
@@ -59,6 +83,12 @@
     "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions"],
     "flow": ["filed", "evidence_window_7d", "mediation_week", "ruling"],
     "rulings": ["uphold", "reduce", "repair_credit"],
+    "mediation": {
+      "offer": "either side states a concrete ledger-shaped proposal during mediation_week; documented on the file",
+      "accept": "amends the ledger directly (new rent line, repair scheduled, filing withdrawn → active); posts the same neutral 'rent-board ruling' feed line — a deal reads like a decision",
+      "decline": "costs the week it took; ruling clock resumes; either side can walk",
+      "never": "dialogue scripts — offers are proposals, not performed conversations"
+    },
     "evidence": "ledger objects only — repair requests, payment lines, claimed passthrough math; no testimony mechanics",
     "feed": "rulings are housing events, neutral wording; amounts stay in the file",
     "live_example": "bld-g9457-3 (c4-priya+c5-marcus): raise 2600->3200 contested on passthrough claim + dead heater; keep ambiguous, never resolve in content"
@@ -75,6 +105,7 @@
     "landlord":{ "license_cr": 2000, "gates": ["own >= 30 days", "reputation threshold", "clean record"], "caps": ["rent-control band on owned units", "all actions public-record", "cooldowns", "own units only"] }
   },
   "feed_wording": {
+    "filing":          "rent-board filing — <address>",
     "listing_posted":  "Listed — <address> (<type>)",
     "listing_filled":  "Listing filled — <address> comes off the board",
     "notice_3":        "housing notice posted — <address>",
@@ -86,7 +117,9 @@
   },
   "demo_seed": {
     "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
+    "storage_key": "rw_lease_v26",
     "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2)",
+    "licensed_landlord": "h02 (demo; owns bld-f9088-5, studio rented to an ambient tenant, balance outstanding day 1)",
     "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open"
   }
 }

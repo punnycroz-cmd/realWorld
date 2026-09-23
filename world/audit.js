@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v25).
+/* world/audit.js — RW boundary audit (world v26).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -26,6 +26,8 @@
                  leaks into spectator contracts; drama files never public
      onboard   — onboarding.json ↔ onboarding.html agreement; honesty
                  strings present; dark-pattern vocabulary absent
+     lease     — leases.json ↔ lease.html agreement; licensed-landlord
+                 caps (file-only eviction); neutral feed wording only
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -379,13 +381,70 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }
 
+/* ============ G11 lease ============ */
+{
+  const g = gate('lease', 'lease contract (leases.json ↔ lease.html, power boundaries, feed wording)');
+  try {
+    const LJ = JSONF('leases.json');
+    const html = rd('lease.html');
+    /* storage key agreement */
+    if (!html.includes(LJ.demo_seed.storage_key))
+      add(g, 'fail', 'lease.html', null, `storage_key "${LJ.demo_seed.storage_key}" not found in lease.html`);
+    /* state machine: demo STEPS array ⊆ declared states */
+    const declared = new Set(LJ.states.map(s => s.id));
+    const ms = html.match(/var STEPS=\[([^\]]+)\]/);
+    if (!ms) add(g, 'fail', 'lease.html', null, 'STEPS array not found');
+    else for (const m of ms[1].matchAll(/'([^']+)'/g))
+      if (!declared.has(m[1])) add(g, 'fail', 'lease.html', null, `demo state "${m[1]}" not in leases.json states`);
+    /* honesty strings the page MUST carry */
+    const MUST = [
+      [/game dollars/i, 'currency wall ("game dollars")'],
+      [/admin-only/i, 'admin-domain statement ("admin-only")'],
+      [/human decides|never auto/i, 'eviction is a human decision'],
+      [/spectator/i, 'spectator depth-gating copy'],
+      [/no request can touch a lease/i, 'request-pipeline exclusion']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'lease.html', null, `missing required copy: ${label}`);
+    /* feed wording: every wire push uses a neutral template from the table */
+    const allowed = ['Listing filled —', 'Listed —', 'housing notice posted —',
+      'rent-board filing —', 'rent-board ruling —', 'Unit turning over —',
+      'Sold —', 'admin action — tenancy ended at'];
+    html.split('\n').forEach((ln, i) => {
+      for (const m of ln.matchAll(/tx:'([^']+)'/g)) {
+        const tx = m[1];
+        if (!allowed.some(p => tx.startsWith(p) || tx.includes("'+" + "l.addr")))
+          add(g, 'fail', 'lease.html', i + 1, `feed text off-template: "${tx.slice(0, 80)}"`);
+        if (/\$\d|bal|amount|reason|late fee/i.test(tx.replace(/l\.addr/, '')))
+          add(g, 'fail', 'lease.html', i + 1, `feed text may leak an amount/reason: "${tx.slice(0, 80)}"`);
+      }
+    });
+    /* licensed-landlord caps: h02 mode exists; evictConfirm gated to admin;
+       landlord path can only FILE (evictFile), never confirm */
+    if (!html.includes('data-m="landlord"')) add(g, 'fail', 'lease.html', null, 'licensed-landlord mode missing');
+    if (!/evictFile/.test(html)) add(g, 'fail', 'lease.html', null, 'licensed-landlord eviction path missing (file-only)');
+    const ec = html.match(/window\.evictConfirm=function[\s\S]*?^\};/m);
+    if (!ec || /isLand|ownedBy/.test(ec[0]))
+      add(g, 'fail', 'lease.html', null, 'evictConfirm reachable from licensed-landlord mode — eviction must stay admin-only');
+    /* rent-run numbers agree: fee cap, notice days, income multiple, band */
+    const rr = LJ.rent_run;
+    for (const [want, label] of [
+      ['cap $50', 'late-fee cap'], ['the 10th', 'formal-notice day'],
+      ['14 days', 'cure window'], ['2.5', 'income multiple'], ['4', 'raise band %']
+    ]) if (!html.includes(want)) add(g, 'fail', 'lease.html', null, `rent-run figure "${label}" (${want}) absent from page`);
+    if (rr.late_fee.cap !== 50 || rr.formal_notice_day !== 10 || rr.cure_window_d !== 14)
+      add(g, 'fail', 'leases.json', null, 'rent-run numbers drifted from the locked ladder (50/10/14)');
+    g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
+  } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v25 local';
+out.build = 'world v26 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {
