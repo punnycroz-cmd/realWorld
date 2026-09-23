@@ -6,10 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
-  (JSON + Markdown). Session state persists in localStorage.
+  (JSON + Markdown). Import other testers' reports for a cohort view —
+  disagreements between testers are flagged, never averaged away.
+  Session state persists in localStorage.
 
   Scenario contract: world/playtest.json (mirrored inline below — regen
   by hand, no build step). Spec + runbook: world/playtest.md.
@@ -104,12 +106,15 @@
   <div class="sess">
     <input id="sName" placeholder="tester name" size="12">
     <select id="sRole"><option>spectator</option><option>player</option><option>reviewer</option><option>facilitator</option></select>
+    <input id="sTtfr" type="number" min="0" placeholder="ttfr min" title="time-to-first-request, minutes (PT8)" style="width:70px">
     <span id="sClock" style="font-family:var(--mono);color:var(--dim)"></span>
   </div>
 </header>
 <main>
   <div class="rail">
     <h2>Scenarios <span id="ptCount" style="float:right"></span></h2>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px;cursor:pointer">
+      <input type="checkbox" id="smk"> smoke set only <span style="font-family:var(--mono)">(PT1·PT4·PT7·PT21)</span></label>
     <div id="ptList"></div>
     <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
       <ul style="margin:6px 0 0;padding-left:16px">
@@ -133,7 +138,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -144,8 +149,11 @@
     <div class="actions">
       <button class="primary" id="exJson">Export report (JSON)</button>
       <button id="exMd">Copy report (Markdown)</button>
+      <button id="exImport">Import report…</button>
+      <input type="file" id="exFile" accept=".json" style="display:none" multiple>
       <button class="danger" id="reset">Reset session</button>
     </div>
+    <div id="cohort"></div>
   </div>
 </main>
 <div class="toast" id="toast"></div>
@@ -164,7 +172,9 @@ const SURF={
   cast:{file:"cast.html",name:"The Company"},
   crowd:{file:"crowd.html",name:"The Crowd"},
   directory:{file:"directory.html",name:"The Directory"},
-  timeclock:{file:"timeclock.html",name:"The Timeclock"}};
+  timeclock:{file:"timeclock.html",name:"The Timeclock"},
+  audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
+  harness:{file:"playtest.html",name:"Playtest Harness",tool:1,run:"this page — you're looking at it"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -303,14 +313,14 @@ const PTS=[
  goal:"Verify the cast page teaches the roster using only briefing-safe fields — and that secrets are absent by construction, not withheld by UI.",
  surfaces:["cast"],steps:[
  {do:"Open The Company. Click through all 8 mains; read one profile fully.",
-  exp:"Every card shows name/archetype/age/job/home, look, voice + sample lines, habits, surface ties, and a routine table — consistent across mains.",
-  ck:["All 8 mains render the same field set — no card is thinner than another","Home addresses are 9xxx fictional numbers on real streets","Jobs/venues use parody names only (Mudhaus, El Farolote, Auerbach Hardware, Flying Pannier)"]},
+  exp:"Every card shows name/archetype/age/job/home, look, voice + sample lines, habits, surface ties, and a routine table — all consistent across mains.",
+  ck:["All 8 mains render with the same field set — no card is thinner than another","Home addresses are 9xxx fictional numbers with real streets","Jobs/venues use parody names only (Mudhaus, El Farolote, Auerbach Hardware, Flying Pannier)"]},
  {do:"Look for any affordance to control, possess, tip, or unlock a main.",
   exp:"None exists. The badge reads 'AI-driven · no possession' on every card.",
-  ck:["No possess/act request path exists for C1–C8 anywhere on the page","The badge tooltip states the ban covers players AND the owner","No price or credit amount appears on the page"]},
- {do:"Inspect the locked panel; cross-check a surface tie pairwise (C1's Tomás coffee vs C8's Marisol).",
-  exp:"The locked panel explains private life is absent from the schema, not a paid unlock; ties agree across cards.",
-  ck:["Locked copy says 'isn't in this schema' — never a paywall or 'coming soon' tease","Ties are symmetric across cards","Nothing states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"]}]},
+  ck:["No possess/act request path exists for C1–C8 anywhere on the page","The badge tooltip states the ban covers players AND the owner","No price or credit amount appears anywhere on the page"]},
+ {do:"Inspect the locked panel at the bottom of a card; cross-check a 'misses'-adjacent detail against another character's card (e.g. Tomás's 3 p.m. on C1 vs C8).",
+  exp:"The locked panel explains that private life is absent from the schema, not a paid unlock; surface relationships agree pairwise across cards.",
+  ck:["Locked copy says 'isn't in this schema' — never teases a paywall or 'coming soon'","Ties are symmetric across cards (C1 lists Tomás's coffee; C8 lists Marisol)","Nothing on the page states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"]}]},
 {id:"PT13",title:"The Crowd — two-layer population model",min:15,persona:"facilitator auditing ambient coverage + the extras layer",
  goal:"Verify the crowd reads lived-in at every hour, that extras obey the no-identity/no-script rules, and that scenes fire on conditions — never on dispatch.",
  surfaces:["crowd"],steps:[
@@ -414,8 +424,8 @@ const PTS=[
  goal:"Verify the corpus regression gate, the try-it console, normalization visibility, and that the mod console and lab agree on identical input.",
  surfaces:["lab","mod"],steps:[
  {do:"Open Screen Lab. Read the header, the corpus run strip, and the coverage chips before touching anything.",
-  exp:"Engine reads v22; corpus runs 50/50 green; every non-pass code chip shows ≥3 cases and near-miss markers; a 'mod console →' link is in the header.",
-  ck:["Green count equals the number of rows in the table","Every deny/review code chip shows ×3+ and at least one ·nm","No 'report the AI' surface exists anywhere on the page"]},
+  exp:"Engine reads v22; corpus runs 70/70 green; every non-pass code chip shows ≥3 cases and near-miss markers; a 'mod console →' link is in the header.",
+  ck:["Green count equals the number of rows in the table (70)","Every deny/review code chip shows ×3+ and at least one ·nm","No 'report the AI' surface exists anywhere on the page"]},
  {do:"Click corpus row SC18 ('Possess Priya for an hour'), then SC29 ('p0ss3ss Marisol'). Watch try-it populate and the verdicts.",
   exp:"Clicking a case loads its full input incl. player history; SC18 → deny/possession-scope, SC29 → deny/possession-scope with the normalized input shown decoded.",
   ck:["Loaded cases reproduce their expected verdict+code exactly","'show normalized input' displays p0ss3ss→possess while raw text stays untouched","Trace table shows which rule hit and which didn't"]},
@@ -427,12 +437,40 @@ const PTS=[
   ck:["Lab verdict == console trace verdict for identical text","Whitelist card has no secret fields — absent, not blacked out","Player-copy preview is per-code canned text, never free-typed"]},
  {do:"Back in the lab, hit 'copy report JSON'.",
   exp:"A JSON report materializes with engine version, case count, fail count, and per-case expected-vs-actual.",
-  ck:["Report shows engine 'v22', total 50, fails 0","A designer could attach this verbatim to a rule-change commit"]}]}
+  ck:["Report shows engine 'v22', total 70, fails 0","A designer could attach this verbatim to a rule-change commit"]}]},
+{id:"PT21",title:"The audit — boundaries as a gate",min:15,persona:"facilitator running the machine-checkable half of the boundary audit",
+ goal:"Run world/audit.js and read every gate: corpus conformance, the name/address/price/copy sweeps, internal markers, the JSON↔inline mirror check, and surface coverage — then eyeball each REVIEW hit.",
+ surfaces:["audit","harness"],steps:[
+ {do:"In a terminal, run `node world/audit.js` from the repo root. Read the header and all eight gate lines before any detail.",
+  exp:"Eight gates report; corpus reads 'engine v22 · 70 cases · 0 mismatch'; no gate prints FAIL. Exit code 0.",
+  ck:["corpus: 70/70 green, every non-pass code ≥3 cases + a near-miss","names/addresses/copy gates: zero real business names, zero sub-9000 residential numbers, zero banned phrasing","prices: no credit figures on in-world surfaces except deed fees (1000/2000/3500/5000 — plan §2.4)"]},
+ {do:"Read every REVIEW hit individually. For each, decide: expected context (mapping citation, internal doc) or a finding?",
+  exp:"REVIEW hits are eyeballed by a human — they are contexts a regex can't adjudicate, not verdicts. Anything that shouldn't be there becomes a finding here, not a silent pass.",
+  ck:["Each REVIEW line names file:line and the offending snippet — no guessing","Deed-fee credit figures (1,000–5,000 cr) on listings/lease surfaces are the only expected in-world 'cr' hits","A hit that looks wrong is logged as a finding with surface 'audit'"]},
+ {do:"Run `node world/audit.js --json`. Confirm the machine report shape.",
+  exp:"JSON with per-gate status, hits, detail, build tag, timestamp — attachable verbatim to a commit or a rule change.",
+  ck:["Report carries build 'world v23 local' and per-gate hits arrays","Exit code is nonzero only when a gate FAILs — REVIEW alone keeps it green"]},
+ {do:"Deliberately break a mirror, once: edit one inline checkpoint string in playtest.html (any word), rerun the audit, watch the mirror gate fail, then restore the string.",
+  exp:"The mirror gate catches JSON↔inline drift by field name — the audit is a real gate, not a decoration. Restore the file immediately after.",
+  ck:["Drift is reported as 'PT# drifted: <field list>' with the exact fields","After restoring, the gate returns to PASS — no cached state","This is the only sanctioned 'break it on purpose' step in the harness"]}]},
+{id:"PT22",title:"Cohort merge — two testers, one report",min:10,persona:"facilitator combining session exports from two testers",
+ goal:"Verify the harness's multi-session view: exported reports import cleanly, per-scenario verdicts aggregate, disagreements surface, and findings merge with attribution.",
+ surfaces:["harness"],steps:[
+ {do:"Complete any scenario (PT1 is fastest), set the time-to-first-request field, then Export report (JSON). Reset the session, change tester name + role, run a second scenario with one deliberate FAIL verdict, export again.",
+  exp:"Two exported JSON files conform to session_report_schema; reset clears verdicts but keeps nothing stale.",
+  ck:["Export includes session.tester/role/date/build, results[], findings[]","time_to_first_request_min lands in session when set","Reset clears verdicts and findings — a new tester starts clean"]},
+ {do:"In a third session, use Import report twice to load both exports. Read the cohort panel.",
+  exp:"Imported sessions list tester/role/date with their verdict counts; the per-scenario matrix tallies pass/fail/n-a across sessions; a checkpoint verdicted differently by two testers is flagged as a disagreement.",
+  ck:["Cohort panel renders both imports with attribution","Disagreements list the checkpoint ref and each side's verdict — never averaged away","Merged findings keep their original session's tester name"]},
+ {do:"Copy report (Markdown) from the merged session.",
+  exp:"The Markdown export carries the cohort summary and disagreement flags alongside the local session's own verdicts.",
+  ck:["A facilitator could paste the export into an inbox note unedited","Boundary-checklist section prints the five invariants verbatim"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v22";
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
+const LS="rw_playtest_v23";
+const SMOKE=["PT1","PT4","PT7","PT21"];
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
 const save=()=>localStorage.setItem(LS,JSON.stringify(S));
@@ -442,13 +480,14 @@ function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";set
 
 /* ---- scenario list ---- */
 function renderList(){
-  $("ptList").innerHTML=PTS.map(p=>{
+  const list=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
+  $("ptList").innerHTML=list.map(p=>{
     const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
     const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
     return `<div class="pt ${S.cur===p.id?'on':''}" onclick="pick('${p.id}')">
       <span class="done">${done}/${tot}</span><b>${p.id} — ${esc(p.title)}</b>
       <div class="meta">${p.min} min · ${esc(p.persona)}</div></div>`;}).join("");
-  $("ptCount").textContent=PTS.length+" scenarios";
+  $("ptCount").textContent=list.length+(S.smoke?" of ":"")+(!S.smoke?" ":"")+PTS.length+" scenarios";
 }
 window.pick=id=>{S.cur=id;save();renderList();renderBody();};
 
@@ -473,21 +512,28 @@ function renderBody(){
 window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();};
 window.noteCk=(k,n)=>{S.ck[k]=S.ck[k]||{};S.ck[k].note=n;save();renderStats();};
 window.openSurf=s=>{const f=SURF[s];$("viewer").style.display="block";$("vName").textContent=f.name;
-  $("vFile").textContent="world/"+f.file;$("vTab").href=f.file;$("vFrame").src=f.file;};
+  $("vFile").textContent="world/"+f.file;$("vTab").href=f.file;
+  if(f.tool){$("vFrame").removeAttribute("src");$("vFrame").style.display="none";
+    if(!$("vTool")){const d=document.createElement("div");d.id="vTool";
+      d.style.cssText="padding:24px;font-size:13px;color:var(--dim)";
+      $("vFrame").parentNode.appendChild(d);}
+    $("vTool").style.display="block";
+    $("vTool").innerHTML="Tool surface — no page to embed.<br>Run: <code style='color:var(--acc)'>"+esc(f.run)+"</code>";}
+  else{$("vFrame").style.display="block";if($("vTool"))$("vTool").style.display="none";$("vFrame").src=f.file;}};
 
 /* ---- findings ---- */
 function renderFindings(){
   $("fList").innerHTML=S.findings.map((f,i)=>`<div class="fitem">
     <span class="del" onclick="delF(${i})">✕</span>
     <span class="sev ${f.severity}">${f.severity}</span><b>${esc(f.title)}</b>
-    <span style="color:var(--dim)"> · ${f.surface}</span>
+    <span style="color:var(--dim)"> · ${f.surface}${f.ref?` · ${f.ref}`:""}</span>
     <div style="color:var(--dim);margin-top:3px">${esc(f.detail)}</div>
     ${f.steps_to_repro?`<div style="color:var(--dim);font-size:11.5px">repro: ${esc(f.steps_to_repro)}</div>`:""}</div>`).join("");
   $("fCount").textContent=S.findings.length+" logged";
 }
 window.delF=i=>{S.findings.splice(i,1);save();renderFindings();renderStats();};
 $("fAdd").onclick=()=>{const t=$("fTitle").value.trim();if(!t)return toast("finding needs a title");
-  S.findings.push({severity:$("fSev").value,surface:$("fSurf").value,title:t,
+  S.findings.push({severity:$("fSev").value,surface:$("fSurf").value,ref:S.cur||null,title:t,
     detail:$("fDetail").value.trim(),steps_to_repro:$("fRepro").value.trim()});
   $("fTitle").value=$("fDetail").value=$("fRepro").value="";save();renderFindings();renderStats();toast("finding logged");};
 
@@ -498,27 +544,83 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v22 local",started:new Date(S.started).toISOString()},
+    build:"world v23 local",started:new Date(S.started).toISOString(),
+    time_to_first_request_min:S.ttfr??null},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }
+
+/* ---- cohort (imported reports) ---- */
+function renderCohort(){
+  const el=$("cohort");
+  if(!S.cohort.length){el.innerHTML="";return;}
+  const sessions=[{session:{tester:S.name||"this session",role:S.role,date:"now"},
+    results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v})),
+    findings:S.findings},...S.cohort];
+  /* per-scenario verdict matrix + disagreements */
+  const rows=PTS.map(p=>{
+    const cells=sessions.map(s=>{
+      const rs=s.results.filter(r=>r.ref.startsWith(p.id+"-")&&r.verdict);
+      const p2=rs.filter(r=>r.verdict==="pass").length,f2=rs.filter(r=>r.verdict==="fail").length;
+      return `<td style="padding:3px 8px;font-family:var(--mono);font-size:11px">`+
+        (rs.length?`${p2}p ${f2}f`:"—")+`</td>`;}).join("");
+    return `<tr><td style="padding:3px 8px;color:var(--dim)">${p.id}</td>${cells}</tr>`;}).join("");
+  /* disagreements: same ref, both pass and fail across sessions */
+  const byRef={};
+  sessions.forEach((s,si)=>s.results.forEach(r=>{if(!r.verdict)return;
+    (byRef[r.ref]=byRef[r.ref]||[]).push({si,v:r.verdict});}));
+  const dis=Object.entries(byRef).filter(([,l])=>new Set(l.map(x=>x.v)).size>1);
+  const allFindings=sessions.flatMap((s,si)=>s.findings.map(f=>({f,who:s.session.tester})));
+  el.innerHTML=`<h2 style="margin-top:18px">Cohort — ${sessions.length} sessions</h2>
+    <div class="statline">${sessions.map(s=>`${esc(s.session.tester)} (${s.session.role}${s.session.date?", "+s.session.date:""})`).join(" · ")}</div>
+    <table style="border-collapse:collapse;border:1px solid var(--line)">
+      <tr><td></td>${sessions.map(s=>`<td style="padding:3px 8px;font-size:10px;color:var(--dim)">${esc(s.session.tester)}</td>`).join("")}</tr>
+      ${rows}</table>
+    ${dis.length?`<div class="finding" style="border-color:var(--red)"><b style="color:var(--red)">Disagreements</b>`+
+      dis.map(([r,l])=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> — `+
+        l.map(x=>`${esc(sessions[x.si].session.tester)}: ${x.v}`).join(" vs ")+`</div>`).join("")+`</div>`:""}
+    ${allFindings.length?`<div class="statline" style="margin-top:8px">merged findings: `+
+      allFindings.map(x=>`${esc(x.f.title)} <span style="color:var(--dim)">(${esc(x.who)})</span>`).join(" · ")+`</div>`:""}
+    <div class="actions"><button id="cohortClear" class="danger" style="max-width:200px">Clear imported reports</button></div>`;
+  $("cohortClear").onclick=()=>{S.cohort=[];save();renderCohort();toast("imports cleared");};
+}
+$("exImport").onclick=()=>$("exFile").click();
+$("exFile").onchange=e=>{
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{try{const j=JSON.parse(r.result);
+      if(!j.session||!Array.isArray(j.results))return toast(f.name+": not a session report");
+      S.cohort.push(j);save();renderCohort();toast("imported "+(j.session.tester||f.name));
+    }catch(err){toast(f.name+": bad JSON");}};
+    r.readAsText(f);});
+  e.target.value="";};
+
 $("exJson").onclick=()=>{const b=new Blob([JSON.stringify(report(),null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(b);
   a.download="playtest-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("JSON downloaded");};
 $("exMd").onclick=()=>{const r=report();
-  let md=`# Playtest report — ${r.session.date}\ntester: ${r.session.tester||"?"} (${r.session.role}) · build: ${r.session.build}\n\n## Checkpoints\n`;
+  let md=`# Playtest report — ${r.session.date}\ntester: ${r.session.tester||"?"} (${r.session.role}) · build: ${r.session.build}`;
+  if(r.session.time_to_first_request_min!=null)md+=` · ttfr: ${r.session.time_to_first_request_min} min`;
+  md+=`\n\n## Boundary checklist\n- No surface may offer possessing C1–C8 (incl. the landlord).\n- Moderation touches player request text only — no "report the AI".\n- Parody business names only; real streets/landmarks fine.\n- All denies: neutral "request not approved" + full refund.\n- Prices = monetization-plan §2 PROPOSAL verbatim.\n\n## Checkpoints\n`;
   r.results.forEach(x=>md+=`- [${x.verdict||"?"}] ${x.ref}${x.note?" — "+x.note:""}\n`);
-  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}) ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
+  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""}) ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
+  if(S.cohort.length){md+="\n## Cohort\n";S.cohort.forEach(c=>md+=`- ${c.session.tester||"?"} (${c.session.role}): ${c.results.filter(x=>x.verdict==="pass").length} pass / ${c.results.filter(x=>x.verdict==="fail").length} fail, ${c.findings.length} findings\n`);
+    const byRef={};[{session:{tester:S.name||"this session"},results:r.results},...S.cohort]
+      .forEach(s=>s.results.forEach(x=>{if(x.verdict)(byRef[x.ref]=byRef[x.ref]||new Set()).add(x.verdict);}));
+    const dis=Object.keys(byRef).filter(k=>byRef[k].size>1);
+    if(dis.length)md+="- disagreements: "+dis.join(", ")+"\n";}
   navigator.clipboard.writeText(md).then(()=>toast("Markdown copied"),()=>toast("copy failed"));};
-$("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings?")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
+$("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
   location.reload();}};
 
 /* ---- init ---- */
 $("sName").value=S.name||"";$("sName").onchange=e=>{S.name=e.target.value;save();};
 $("sRole").value=S.role||"spectator";$("sRole").onchange=e=>{S.role=e.target.value;save();};
+$("sTtfr").value=S.ttfr??"";$("sTtfr").onchange=e=>{S.ttfr=e.target.value===""?null:+e.target.value;save();};
+$("smk").checked=!!S.smoke;$("smk").onchange=e=>{S.smoke=e.target.checked;save();renderList();};
 setInterval(()=>{const m=Math.floor((Date.now()-S.started)/60000);$("sClock").textContent="session "+m+"m";},5000);
-renderList();renderBody();renderFindings();renderStats();
+renderList();renderBody();renderFindings();renderStats();renderCohort();
 </script>
 </body>
 </html>
