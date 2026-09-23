@@ -28,3 +28,5 @@ T19 (day 23 16:59, run 3): rest did not stick — found myself walking near NTR 
 T20 (day 23 17:03, run 3): fatigue eased to 0.61 — walking back to Auerbach to finish the day.
 T21 (day 23 17:05, run 3): still on the block, kept walking toward Auerbach.
 T22 (day 23 17:13, run 3): paused on the block to idle — walk home kept stretching, caught my breath.
+T23 (day 23 17:13, run 3): resting on the block — too tired to keep trudging, fatigue 0.69, hunger 0.40.
+T24 (day 23 17:19, run 3): kept resting to end the day — a long, wandering afternoon for Victor.

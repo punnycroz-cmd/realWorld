@@ -27,3 +27,5 @@ turn 19 (day 23, 16:59): longest walk in the Mission; hunger at 0.41 and still n
 turn 20 (day 23, 17:03): passed Clarion Alley again off the clock; kept marching to El Farolito — 0.39 and dropping.
 turn 21 (day 23, 17:07): ran into Marcus resting on the block; teased him about the refill — told him burrito calls.
 turn 22 (day 23, 17:13): walking alone, hunger at 0.36 — the El Farolito pilgrimage continues.
+turn 23 (day 23, 17:13): hunger eased but fatigue hit 0.62 — sat down to rest next to Marcus on the block.
+turn 24 (day 23, 17:19): Marcus asked me to walk with him — said yes, Farolito's on me if he keeps me awake.

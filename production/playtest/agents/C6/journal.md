@@ -27,3 +27,5 @@ run3 turn 19 (day 23, 17:00): hungry with a thin cupboard — walked to Bi-Rite 
 run3 turn 20 (day 23, 17:02): market run didn't move me either and I'm tiring — rested at home.
 run3 turn 21 (day 23, 17:06): tired and homebound — kept resting.
 run3 turn 22 (day 23, 17:12): hydration recovered, still tired — rested on toward bedtime.
+run3 turn 23 (day 23, 17:14): fatigue hit 0.9 — worn out, lay down to rest properly.
+run3 turn 24 (day 23, 17:16): fatigue 0.95, fully spent — sleeping it off at home.

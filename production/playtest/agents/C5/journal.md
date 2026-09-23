@@ -27,3 +27,5 @@ turn 19 (day 23 16:58): walking got me nowhere and fatigue hit 0.56 — sat down
 turn 20 (day 23 17:02): stayed resting on the block — order field said rest, needs still low.
 turn 21 (day 23 17:09): Dani showed up off the clock hunting a burrito — told her my Farolito saga and tagged along.
 turn 22 (day 23 17:12): Dani gone from the block — betting she went to Farolito, following.
+turn 23 (day 23 17:12): Dani still on the block repeating her burrito hunt — nudged her to actually walk with me.
+turn 24 (day 23 17:17): Dani sat down nearby and my fatigue hit 0.64 — joined her resting on the curb.

@@ -25,3 +25,5 @@ T19* day23 16:59 — Second wind (fatigue down to 0.68); back on the plancha.
 T20* day23 17:01 — Working steady; thirst creeping up (0.35) but holding the line.
 T21* day23 17:06 — Grinding through a quiet evening; hydration recovered, fatigue stubborn.
 T22* day23 17:13 — Fatigue 0.81; sitting out back again while the street stays quiet.
+T23* day23 17:12 — Break paid off (fatigue 0.64); cooking again with the camera on me.
+T24* day23 17:18 — Closed out the evening on the line; quiet day, tired but steady.

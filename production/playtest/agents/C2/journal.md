@@ -25,3 +25,5 @@ turn 19 (day 23 16:59): wiped out from exploring all afternoon — started the s
 turn 20 (day 23 17:02): somehow ended up in a scuffle on the walk home — ducked out, kept going to g744.
 turn 21 (day 23 17:06): still tangled up in it — called a truce to Reyes, just want to get home.
 turn 22 (day 23 17:12): got knocked down anyway — sitting on the curb catching my breath. Rough welcome to the Mission.
+turn 23 (day 23 17:12): Reyes came back around — truce didn't hold, limping home to g744 for real this time.
+turn 24 (day 23 17:18): finally clear of Reyes — collapsed and rested. Met Carmen and Victor, tried Tartine, got in a fight. Quite a first day.

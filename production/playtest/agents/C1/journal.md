@@ -27,3 +27,5 @@ Turn 19 (day 23, ~17:00): arrived at Haus tired and hungry — started working e
 Turn 20 (day 23, 17:03): kept working at Haus — quiet shop, prepping for the evening shift.
 Turn 21 (day 23, 17:06): still working at Haus — ate something behind the counter, energy coming back.
 Turn 22 (day 23, 17:13): my barista Reyes (A01) is serving — told them to help stock the pastry case before six.
+Turn 23 (day 23, 17:13): alone at Haus, nearly six — clocked back in for the evening shift.
+Turn 24 (day 23, 17:17): evening shift running with Reyes on the counter — working through the rush.

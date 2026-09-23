@@ -32959,8 +32959,12 @@ function sfNpcTick(v, dtH){
   if(dist > CS * 1.2){
     v.inBuilding = false;
     if(!v.sfPath || !v.sfPath.length){
-      if(v._sfRepathT == null || (G.frame - v._sfRepathT) > 90){
-        v._sfRepathT = G.frame;
+      // repath cooldown keys on the sim clock, not G.frame — headless
+      // drivers call simTick() without loop(), so a frame-keyed cooldown
+      // would freeze the pawn forever after one failed sfGoTo.
+      const simNow = W.day * 24 + W.tod;
+      if(v._sfRepathT == null || (simNow - v._sfRepathT) > 0.05){
+        v._sfRepathT = simNow;
         sfGoTo(v, cell.wx, cell.wy);
       }
       if(!v.sfPath){ v.state = 'idle'; v.moving = false; return; }

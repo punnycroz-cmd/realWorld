@@ -72,14 +72,21 @@ used only by the playtest driver (127.0.0.1:8797, per-run, never shipped).
 ## Playtest artifacts
 
 `production/playtest/` — 24-turn run, 8 independent `devin` sessions
-(one per main, persistent per-dir under `agents/`), one shared world:
+(one per main, persistent per-dir under `agents/`), one shared world.
+**192/192 actions accepted, 0 failures, 0 missed turns.** Verb mix:
+89 moves, 29 talks (several two-way conversations), 23 rests, 18 works,
+6 idles. Cameras rotated across street-level, park overlook, rooftop,
+and follow views.
 
-- `video/*.webm` — full session recording
+- `video/playtest-24turn.webm` — full session recording (~1600s)
 - `turns/turnNN.png` — per-turn screenshots, rotating cameras
 - `turns.jsonl` — every action + reason + result + positions + wire tail
 - `replay.html` — scrubbable replay (visuals + per-agent actions/reasons)
 - `transcripts/Cn.atif.json` + `Cn.md` — independent agent transcripts
 - `evaluation.md` — objective evaluation (routines, interactions, bugs)
+
+Run: `python3 production/playtest/driver.py` (needs `devin` on PATH,
+Playwright Chromium, ~50min wall-clock at 24 turns).
 
 ## Pinned source SHAs
 
@@ -111,6 +118,12 @@ Honest note: the merged tree actually carries world-track commits through
   staffed moderation surface; here it's the same window.
 - `talk` speech bubbles persist ~21 sim-minutes and never interrupt a
   walk mid-stride; agents' `request` verb is public-goods only.
+- The proto harness's schedule check is wall-clock sensitive (W.tod
+  syncs to real LA time at boot; the check lands 4.8 sim-h later — a
+  mid-commute landing can read as "late"). While verifying this cut it
+  caught a real headless freeze — the NPC repath cooldown was keyed on
+  `G.frame`, which only advances in the render loop; fixed to the sim
+  clock (`33_sf_cast.js`).
 - Marketing site pages live under `marketing/site/` separately; the
   production front door (`production/index.html`) reuses their copy but
   doesn't ship the whole site.

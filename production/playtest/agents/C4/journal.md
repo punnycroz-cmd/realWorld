@@ -27,3 +27,5 @@ Turn 19 (day 23, 16:58): aimed for g750 again — sim keeps pulling me to work, 
 Turn 20 (day 23, 17:02): rested near SF General — stuck in a loop, taking rest where I can.
 Turn 21 (day 23, 17:05): kept resting near SF General — fatigue stuck at 0.73, staying put.
 Turn 22 (day 23, 17:12): walked to Dolores Park — swapped the hospital bench for grass.
+Turn 23 (day 23, 17:13): kept walking to Dolores Park — fatigue 0.82, need to sit in the sun.
+Turn 24 (day 23, 17:18): still walking to Dolores Park — fatigue 0.83, determined to make the grass.

@@ -5212,12 +5212,294 @@
           "operation": "inference"
         }
       }
+    },
+    {
+      "step_id": 158,
+      "timestamp": "2026-09-23T21:54:11.905537212+00:00",
+      "source": "user",
+      "message": "Turn 23 of 24. Do the ritual in BRIEF.md: check state, act once, journal one line, stop.",
+      "extra": {
+        "telemetry": {
+          "source": "user",
+          "operation": "unknown"
+        }
+      }
+    },
+    {
+      "step_id": 159,
+      "timestamp": "2026-09-23T21:54:14.933926122+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_d5aca72c51784f57b58e9ede#11bbb10004ca49d487639c771eb48bf9",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s http://127.0.0.1:8797/state/C8"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_d5aca72c51784f57b58e9ede#11bbb10004ca49d487639c771eb48bf9",
+            "content": "Output from command in shell 29e55a:\n{\"you\": {\"id\": \"C8\", \"name\": \"Tom\\u00e1s\", \"role\": \"lead cook at El Farolito\"}, \"time\": \"day 23 17:12\", \"place\": \"near Taqueria El Farolito\", \"state\": \"work\", \"needs\": {\"satiety\": 0.43, \"hydration\": 0.48, \"fatigue\": 0.64}, \"nearby\": [], \"wire\": [], \"order\": null, \"routine\": [\"0:00-9:00 around\", \"9:00-14.5:00 around\", \"14.5:00-16:00 Haus Coffee\", \"16:00-24:00 Taqueria El Farolito\"], \"turn\": 23, \"camera\": \"follow C8\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 36746,
+        "completion_tokens": 65,
+        "cached_tokens": 34575
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 160,
+      "timestamp": "2026-09-23T21:54:19.113033831+00:00",
+      "source": "agent",
+      "message": "Fatigue down to 0.64 — break worked. Camera's on me; back to cooking.",
+      "model_name": "swe-2-max",
+      "reasoning_content": "Wait, fatigue actually improved to 0.64 — rest helped this time. The camera is following me again, and my state is 'work'. I should keep working.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_e14ab38664e7426db9217cb8#e169df34127a434cb9fc806711e8321c",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s -X POST http://127.0.0.1:8797/act -H 'Content-Type: application/json' -d '{\"cid\":\"C8\",\"act\":{\"verb\":\"work\"},\"reason\":\"Break finally took the edge off; back on the plancha with the camera watching.\"}'"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_e14ab38664e7426db9217cb8#e169df34127a434cb9fc806711e8321c",
+            "content": "Output from command in shell b50b59:\n{\"ok\": true, \"state\": \"work\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37033,
+        "completion_tokens": 157,
+        "cached_tokens": 36745
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 161,
+      "timestamp": "2026-09-23T21:54:29.887216385+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_4e882e25e3db4928be54baea#3b61770a33e14c00a86f792c232531b9",
+          "function_name": "exec",
+          "arguments": {
+            "command": "echo \"T23* day23 17:12 — Break paid off (fatigue 0.64); cooking again with the camera on me.\" >> /home/hatch/workspace/world-sim-production/production/playtest/agents/C8/journal.md"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_4e882e25e3db4928be54baea#3b61770a33e14c00a86f792c232531b9",
+            "content": "Output from command in shell 83c136:\n\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37245,
+        "completion_tokens": 99,
+        "cached_tokens": 37032
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 162,
+      "timestamp": "2026-09-23T21:54:32.917540179+00:00",
+      "source": "agent",
+      "message": "Done. Turn 23: rested and back at the plancha, journaled. Stopping.",
+      "model_name": "swe-2-max",
+      "tool_calls": [],
+      "metrics": {
+        "prompt_tokens": 37388,
+        "completion_tokens": 34,
+        "cached_tokens": 37244
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 163,
+      "timestamp": "2026-09-23T21:55:18.446040876+00:00",
+      "source": "user",
+      "message": "Turn 24 of 24. Do the ritual in BRIEF.md: check state, act once, journal one line, stop.",
+      "extra": {
+        "telemetry": {
+          "source": "user",
+          "operation": "unknown"
+        }
+      }
+    },
+    {
+      "step_id": 164,
+      "timestamp": "2026-09-23T21:55:24.857719607+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_3ca8ec68dfe84bce9365eeb4#135671a56a3d48e097231a29da0594a5",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s http://127.0.0.1:8797/state/C8"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_3ca8ec68dfe84bce9365eeb4#135671a56a3d48e097231a29da0594a5",
+            "content": "Output from command in shell 48e393:\n{\"you\": {\"id\": \"C8\", \"name\": \"Tom\\u00e1s\", \"role\": \"lead cook at El Farolito\"}, \"time\": \"day 23 17:18\", \"place\": \"near Taqueria El Farolito\", \"state\": \"work\", \"needs\": {\"satiety\": 0.4, \"hydration\": 0.46, \"fatigue\": 0.68}, \"nearby\": [], \"wire\": [], \"order\": \"work \", \"routine\": [\"0:00-9:00 around\", \"9:00-14.5:00 around\", \"14.5:00-16:00 Haus Coffee\", \"16:00-24:00 Taqueria El Farolito\"], \"turn\": 24, \"camera\": \"roof\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37471,
+        "completion_tokens": 65,
+        "cached_tokens": 10471
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 165,
+      "timestamp": "2026-09-23T21:55:29.273462016+00:00",
+      "source": "agent",
+      "message": "Last turn — closing out the session doing what Tomás does: working the line.",
+      "model_name": "swe-2-max",
+      "reasoning_content": "It's the last turn of the session, and I'm still working. My fatigue is manageable, so I'll finish this turn by focusing on my job.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_fb20d735128740c88a92a7cd#3be5a6c6c3e44928bbcd310298c2f333",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s -X POST http://127.0.0.1:8797/act -H 'Content-Type: application/json' -d '{\"cid\":\"C8\",\"act\":{\"verb\":\"work\"},\"reason\":\"Ending the evening where I belong — on the line at El Farolito.\"}'"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_fb20d735128740c88a92a7cd#3be5a6c6c3e44928bbcd310298c2f333",
+            "content": "Output from command in shell aad574:\n{\"ok\": true, \"state\": \"work\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37756,
+        "completion_tokens": 158,
+        "cached_tokens": 37470
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 166,
+      "timestamp": "2026-09-23T21:55:32.693275068+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_7f5169ca05e748dba61d98ca#534affc561994d99853a8df89f58fd3f",
+          "function_name": "exec",
+          "arguments": {
+            "command": "echo \"T24* day23 17:18 — Closed out the evening on the line; quiet day, tired but steady.\" >> /home/hatch/workspace/world-sim-production/production/playtest/agents/C8/journal.md"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_7f5169ca05e748dba61d98ca#534affc561994d99853a8df89f58fd3f",
+            "content": "Output from command in shell 24cb11:\n\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37968,
+        "completion_tokens": 95,
+        "cached_tokens": 37755
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 167,
+      "timestamp": "2026-09-23T21:55:35.305432427+00:00",
+      "source": "agent",
+      "message": "Done. Turn 24 (final): working the line at El Farolito, journaled. Session complete — stopping.",
+      "model_name": "swe-2-max",
+      "tool_calls": [],
+      "metrics": {
+        "prompt_tokens": 38107,
+        "completion_tokens": 39,
+        "cached_tokens": 37967
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
     }
   ],
   "final_metrics": {
-    "total_prompt_tokens": 3024539,
-    "total_completion_tokens": 12217,
-    "total_cached_tokens": 2592804,
-    "total_steps": 157
+    "total_prompt_tokens": 3324253,
+    "total_completion_tokens": 12929,
+    "total_cached_tokens": 2862063,
+    "total_steps": 167
   }
 }

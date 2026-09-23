@@ -5181,12 +5181,298 @@
           "operation": "inference"
         }
       }
+    },
+    {
+      "step_id": 156,
+      "timestamp": "2026-09-23T21:54:11.864546968+00:00",
+      "source": "user",
+      "message": "Turn 23 of 24. Do the ritual in BRIEF.md: check state, act once, journal one line, stop.",
+      "extra": {
+        "telemetry": {
+          "source": "user",
+          "operation": "unknown"
+        }
+      }
+    },
+    {
+      "step_id": 157,
+      "timestamp": "2026-09-23T21:54:15.715915808+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "reasoning_content": "I'm on turn 23 and checking the current state.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_57b88d626f574c5486d84203#baaed899f9f9456994bead8b48c9e3fc",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s http://127.0.0.1:8797/state/C1"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_57b88d626f574c5486d84203#baaed899f9f9456994bead8b48c9e3fc",
+            "content": "Output from command in shell a9511b:\n{\"you\": {\"id\": \"C1\", \"name\": \"Marisol\", \"role\": \"caf\\u00e9 manager \\u2014 the hub\"}, \"time\": \"day 23 17:13\", \"place\": \"near Haus Coffee\", \"state\": \"idle\", \"needs\": {\"satiety\": 0.52, \"hydration\": 0.51, \"fatigue\": 0.72}, \"nearby\": [], \"wire\": [], \"order\": null, \"routine\": [\"0:00-5.5:00 around\", \"5.5:00-14:00 Haus Coffee\", \"14:00-18:00 around\", \"18:00-21.5:00 Haus Coffee\", \"21.5:00-24:00 around\"], \"turn\": 23, \"camera\": \"follow C8\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 36222,
+        "completion_tokens": 72,
+        "cached_tokens": 9339
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 158,
+      "timestamp": "2026-09-23T21:54:23.757310713+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "reasoning_content": "I'm still at Haus Coffee, but my evening shift starts soon. I should head back to work now, since it's almost time anyway.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_e245688dee534a7c885c8c53#6c7249a2be8f4083a2ebb9916f33a646",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s -X POST http://127.0.0.1:8797/act -H 'Content-Type: application/json' -d '{\"cid\":\"C1\",\"act\":{\"verb\":\"work\"},\"reason\":\"Almost six — getting back on the clock for the evening shift.\"}'"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_e245688dee534a7c885c8c53#6c7249a2be8f4083a2ebb9916f33a646",
+            "content": "Output from command in shell 1d58fe:\n{\"ok\": true, \"state\": \"work\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 36520,
+        "completion_tokens": 137,
+        "cached_tokens": 36221
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 159,
+      "timestamp": "2026-09-23T21:54:30.107640026+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_ff4ad7a7f346453280ae7206#c2e2c9d7506848699414b4785817b3f8",
+          "function_name": "exec",
+          "arguments": {
+            "command": "printf 'Turn 23 (day 23, 17:13): alone at Haus, nearly six — clocked back in for the evening shift.\\n' >> /home/hatch/workspace/world-sim-production/production/playtest/agents/C1/journal.md"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_ff4ad7a7f346453280ae7206#c2e2c9d7506848699414b4785817b3f8",
+            "content": "Output from command in shell 644583:\n\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 36713,
+        "completion_tokens": 101,
+        "cached_tokens": 36519
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 160,
+      "timestamp": "2026-09-23T21:54:33.248227353+00:00",
+      "source": "agent",
+      "message": "Turn done. Back on shift at Haus, journaled. Stopping.",
+      "model_name": "swe-2-max",
+      "reasoning_content": "Done.",
+      "tool_calls": [],
+      "metrics": {
+        "prompt_tokens": 36857,
+        "completion_tokens": 31,
+        "cached_tokens": 36712
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 161,
+      "timestamp": "2026-09-23T21:55:19.023599812+00:00",
+      "source": "user",
+      "message": "Turn 24 of 24. Do the ritual in BRIEF.md: check state, act once, journal one line, stop.",
+      "extra": {
+        "telemetry": {
+          "source": "user",
+          "operation": "unknown"
+        }
+      }
+    },
+    {
+      "step_id": 162,
+      "timestamp": "2026-09-23T21:55:23.775847666+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "reasoning_content": "This is the final turn. I'm checking the current state to see if everything is correct before finishing.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_a267d78380324eca89f466ea#7634a76426974b3bb4905bfe6162d6c6",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s http://127.0.0.1:8797/state/C1"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_a267d78380324eca89f466ea#7634a76426974b3bb4905bfe6162d6c6",
+            "content": "Output from command in shell c6ec91:\n{\"you\": {\"id\": \"C1\", \"name\": \"Marisol\", \"role\": \"caf\\u00e9 manager \\u2014 the hub\"}, \"time\": \"day 23 17:17\", \"place\": \"near Haus Coffee\", \"state\": \"work\", \"needs\": {\"satiety\": 0.49, \"hydration\": 0.49, \"fatigue\": 0.75}, \"nearby\": [{\"id\": \"A01\", \"name\": \"Reyes\", \"dist\": \"0m\", \"doing\": \"serve\", \"says\": null}], \"wire\": [], \"order\": \"work \", \"routine\": [\"0:00-5.5:00 around\", \"5.5:00-14:00 Haus Coffee\", \"14:00-18:00 around\", \"18:00-21.5:00 Haus Coffee\", \"21.5:00-24:00 around\"], \"turn\": 24, \"camera\": \"roof\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 36937,
+        "completion_tokens": 75,
+        "cached_tokens": 10069
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 163,
+      "timestamp": "2026-09-23T21:55:26.866856330+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "reasoning_content": "I'm working the evening shift at Haus with Reyes. Fatigue is high, at 0.75, but I think this is still the right call for the shift.",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_d6aadff732634a2999d07883#c95312fea392414c8a09362bda8fd563",
+          "function_name": "exec",
+          "arguments": {
+            "command": "curl -s -X POST http://127.0.0.1:8797/act -H 'Content-Type: application/json' -d '{\"cid\":\"C1\",\"act\":{\"verb\":\"work\"},\"reason\":\"Evening shift underway with Reyes on the counter — settling in to run the shop.\"}'"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_d6aadff732634a2999d07883#c95312fea392414c8a09362bda8fd563",
+            "content": "Output from command in shell e75ecc:\n{\"ok\": true, \"state\": \"work\"}\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37269,
+        "completion_tokens": 147,
+        "cached_tokens": 36936
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 164,
+      "timestamp": "2026-09-23T21:55:32.057915420+00:00",
+      "source": "agent",
+      "message": "",
+      "model_name": "swe-2-max",
+      "tool_calls": [
+        {
+          "tool_call_id": "call_6d54ecf873944f4eb92aea34#2aadd09adc4248318ba0a97ee02c65e1",
+          "function_name": "exec",
+          "arguments": {
+            "command": "printf 'Turn 24 (day 23, 17:17): evening shift running with Reyes on the counter — working through the rush.\\n' >> /home/hatch/workspace/world-sim-production/production/playtest/agents/C1/journal.md"
+          }
+        }
+      ],
+      "observation": {
+        "results": [
+          {
+            "source_call_id": "call_6d54ecf873944f4eb92aea34#2aadd09adc4248318ba0a97ee02c65e1",
+            "content": "Output from command in shell 5c8344:\n\n\nExit code: 0"
+          }
+        ]
+      },
+      "metrics": {
+        "prompt_tokens": 37470,
+        "completion_tokens": 99,
+        "cached_tokens": 37268
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
+    },
+    {
+      "step_id": 165,
+      "timestamp": "2026-09-23T21:55:35.680516818+00:00",
+      "source": "agent",
+      "message": "Final turn done. Working the evening shift at Haus with Reyes, journaled. Session complete — stopping.",
+      "model_name": "swe-2-max",
+      "reasoning_content": "The final turn is complete.",
+      "tool_calls": [],
+      "metrics": {
+        "prompt_tokens": 37614,
+        "completion_tokens": 39,
+        "cached_tokens": 37469
+      },
+      "extra": {
+        "generation_model": "swe-2-max",
+        "telemetry": {
+          "source": "assistant",
+          "operation": "inference"
+        }
+      }
     }
   ],
   "final_metrics": {
-    "total_prompt_tokens": 2925538,
-    "total_completion_tokens": 11886,
-    "total_cached_tokens": 2505530,
-    "total_steps": 155
+    "total_prompt_tokens": 3221140,
+    "total_completion_tokens": 12587,
+    "total_cached_tokens": 2746063,
+    "total_steps": 165
   }
 }
