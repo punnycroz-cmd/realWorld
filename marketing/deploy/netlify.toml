@@ -1,0 +1,49 @@
+# netlify.toml — zero-ops alternative host config (also adaptable to
+# Cloudflare Pages via a _headers file; header values identical).
+# Publish dir = marketing/site. No build step.
+# PLACEHOLDER domain inside CSP — swap like Caddyfile before launch.
+
+[build]
+  publish = "site"          # set base = "marketing" in the UI, or copy file to repo root
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://stats.realworld-game.example; frame-src https://play.realworld-game.example; frame-ancestors 'self'; base-uri 'self'; form-action 'none'"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+[[headers]]
+  for = "/shots/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[redirects]]
+  from = "https://www.realworld-game.example/*"   # PLACEHOLDER domain
+  to = "https://realworld-game.example/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

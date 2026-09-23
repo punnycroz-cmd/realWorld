@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" role="img" aria-label="Real World — The Mission, monochrome lockup">
+  <!-- Single-ink horizontal lockup for one-color print, engraving, fax,
+       watermarking. Uses currentColor: set CSS color (or fill) to recolor.
+       The lit window is the only filled shape — the brand reads in one ink. -->
+  <g color="#ece7dc">
+    <g fill="none" stroke="currentColor">
+      <rect x="43" y="53" width="374" height="374" rx="82" stroke-width="8"/>
+      <rect x="108" y="130" width="244" height="18" fill="currentColor" stroke="none"/>
+      <rect x="118" y="145" width="222" height="222" stroke-width="6"/>
+      <rect x="192" y="145" width="3" height="222" fill="currentColor" stroke="none"/>
+      <rect x="266" y="145" width="3" height="222" fill="currentColor" stroke="none"/>
+      <rect x="131" y="167" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="131" y="241" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="131" y="315" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="205" y="167" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="205" y="315" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="279" y="167" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="279" y="241" width="48" height="54" rx="6" stroke-width="6"/>
+      <rect x="279" y="315" width="48" height="54" rx="6" stroke-width="6"/>
+    </g>
+    <rect x="205" y="241" width="48" height="54" rx="6" fill="currentColor"/>
+    <text x="470" y="252" font-family="DejaVu Sans, system-ui, sans-serif"
+          font-weight="700" font-size="148" letter-spacing="4"
+          fill="currentColor">REAL WORLD</text>
+    <rect x="474" y="292" width="772" height="10" fill="currentColor"/>
+    <text x="474" y="366" font-family="DejaVu Sans, system-ui, sans-serif"
+          font-weight="700" font-size="44" letter-spacing="14"
+          fill="currentColor">THE MISSION</text>
+  </g>
+</svg>

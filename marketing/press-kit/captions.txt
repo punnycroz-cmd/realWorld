@@ -1,0 +1,68 @@
+REAL WORLD — "THE MISSION" — CAPTIONS & CREDITS
+================================================
+
+Credit line for all images:  "Real World (in development) — [STUDIO NAME]"
+Replace [STUDIO NAME] at launch. Keep the "in development" wording.
+
+keyart/keyart-16x9.png      1920x1080
+  Key art: a development-build capture of the Mission block at golden
+  hour under the Real World title. Hero image for articles and listings.
+
+keyart/keyart-square.png    1080x1080
+  Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
+  reach in."
+
+screenshots/v48-A.png       1440x900 (approx)
+  The Mission block at 24th and Mission from overhead as Karl — the
+  marine layer — rolls in: fog sheets pool over the rooftops while a
+  sunbreak lane keeps the street grid lit below. The character panel
+  shows Jules, a hired resident, mid-routine; the harness UI is
+  development chrome, not part of the shipped spectator view.
+
+screenshots/v48-B.png       1440x900 (approx)
+  Street-level inside the fog: Jules stands mid-block while facades,
+  stoops and parked cars dissolve into the marine layer. Neighbors' name
+  tags (Dani, Priya) hold at their doors.
+
+screenshots/v48-C.png       1440x900 (approx)
+  Dolores Park from above under the fog tongue — the palm allée lines the
+  paths, worn desire-lines cut the grass where residents actually walk,
+  and mature crowns show through the marine layer. The neighborhood's
+  back yard, gone quiet gray-green.
+
+screenshots/v48-D.png       1440x900 (approx)
+  Director mode under a broken-cumulus evening sky: REC cluster and
+  DIRECTOR badge up top, crepuscular shafts raking the roofline, pastel
+  facades stepping with the slope of the block, Mission ficus street
+  trees over the sidewalk, a named resident (Carme) on the corner. The
+  camera treats the neighborhood like a film set.
+
+screenshots/v16-int-cafe.png
+  Interior vignette: inside the corner café — interiors render behind the
+  storefront glass.
+
+screenshots/v16-int-flat.png
+  Interior vignette: a residential flat — where the residents actually live.
+
+screenshots/v1-A.png / v1-B.png
+  First art pass, for before/after coverage. Pair with v48-A / v48-B.
+
+logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
+logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.
+logos/logo-icon.svg/.png       The lit-window mark, square.
+logos/logo-icon-mono.svg       Single-ink version (inherits text color).
+logos/favicon.svg              Site favicon.
+logos/logo-stacked.svg         Stacked lockup — vertical spaces.
+logos/logo-icon-animated.svg   Animated lit-window icon (SMIL; motion for
+                               feeds/video bumpers where SVG animation plays).
+logos/pattern-windows.svg      Repeating lit-window pattern — backgrounds.
+
+banners/banner-x-1500x500.png        X/Twitter header.
+banners/banner-youtube-2560x1440.png YouTube channel art (safe-zone padded).
+banners/banner-discord-960x540.png   Discord banner.
+banners/banner-linkedin-1584x396.png LinkedIn banner.
+  All banners: darkened development-build capture + lockup, tagline
+  "Watch free. Pay to reach in." Center content sits in crop-safe zones.
+
+Do not recolor, stretch, or redraw the lit-window mark. Do not imply
+endorsement. Do not present placeholder contact fields as real contact info.

@@ -1,0 +1,42 @@
+# monitoring.example — uptime/alert spec for the marketing surface.
+# Feed this to whichever external monitor the owner picks (free tier is fine:
+# BetterStack, UptimeRobot, HetrixTools, …) OR self-host the stopgap:
+#   */5 * * * * /path/to/tools/uptime_probe.sh https://<domain>
+# (cron MAILTO=owner@… turns probe failures into email.)
+#
+# Replace <domain> everywhere. Nothing here is provisioned yet — G14.
+
+# ── HTTP probes ─────────────────────────────────────────────────────
+# name                     url                              interval  expect
+# apex-home                 https://<domain>/                 5 min     200, keyword "Real World"
+# apex-pricing              https://<domain>/pricing.html     5 min     200
+# apex-demo                 https://<domain>/demo.html        5 min     200   # funnel front door
+# apex-sitemap              https://<domain>/sitemap.xml     30 min     200
+# play-health               https://play.<domain>/            5 min     200   # game track owns the app;
+#                                                                              # monitor catches origin-down
+# stats-health              https://stats.<domain>/          30 min     200   # analytics backend
+
+# ── TLS/domain expiry ───────────────────────────────────────────────
+# monitor cert expiry on <domain> + play.<domain> + stats.<domain>:
+#   alert at 14 days. Caddy auto-renews ~30d out, so a 14d alert means
+#   renewal already failed once — investigate, don't wait for 0.
+# domain registration expiry: registrar alert + calendar entry at 30d.
+
+# ── Alert routing ───────────────────────────────────────────────────
+#   severity 1 (apex-home or apex-demo down >2 checks): SMS/push + email → owner
+#   severity 2 (any other probe, or cert <14d):        email → owner
+# On-call = owner at launch. No paging rotation exists; severity 1 is the
+# only interrupt-worthy class.
+
+# ── Response playbook (short) ───────────────────────────────────────
+# apex down, box up      → caddy reload; check `caddy` service status
+# apex down, box down    → VPS console; worst case = maintenance Caddyfile
+#                          block + rebuild host from deploy-site.sh
+# play. down             → game-track scope; site stays up by design
+#                          (separate origin). If prolonged, demo.html
+#                          already degrades to the fallback gallery when
+#                          data-demo-src is pulled — one-attribute revert.
+# bad deploy (200s but   → symlink rollback printed by deploy-site.sh, or
+#  wrong content)          maintenance mode (Caddyfile comment flip)
+# cert expiry alert      → `caddy reload`; check LE rate-limit/firewall
+#                          on 80/443 before it reaches 0d

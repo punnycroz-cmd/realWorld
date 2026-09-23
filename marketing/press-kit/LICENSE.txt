@@ -1,0 +1,31 @@
+REAL WORLD — "THE MISSION" — PRESS ASSET USAGE TERMS
+=====================================================
+
+The images, logos, and text in this kit are provided for editorial use
+(press coverage, reviews, previews, streams/videos about the game).
+
+You MAY:
+  - Publish the screenshots, key art, and logos in coverage of Real World.
+  - Crop screenshots for layout; overlay your own captions.
+  - Quote the boilerplate and fact sheet verbatim.
+
+You MUST:
+  - Credit "Real World (in development) — [STUDIO NAME]".
+  - Keep the "in development" label on screenshots and key art — they show
+    a pre-release build.
+  - Use logo-primary (light text) only on dark backgrounds; use
+    logo-primary-dark on light backgrounds.
+
+You MAY NOT:
+  - Recolor, stretch, redraw, or animate the lit-window logo mark.
+  - Imply endorsement by, or affiliation with, the developer.
+  - Use the assets to promote an unrelated product, or in paid advertising,
+    without written permission.
+  - Present fictional residents as real people, or generated addresses as
+    real households.
+  - Present placeholder contact fields as real contact information.
+
+All characters are fictional. The neighborhood is real geography; business
+names are parody. Nothing in this kit grants rights to the game itself.
+
+Questions: [press@ — placeholder, set at launch]
