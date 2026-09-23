@@ -1,7 +1,7 @@
 {
   "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
-  "version": 25,
-  "storage_key": "rw_onboard_v25",
+  "version": 39,
+  "storage_key": "rw_onboard_v39",
   "stages": [
     { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
     { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
@@ -11,7 +11,10 @@
     { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever" },
     { "id": "S4_first_ask","tier": "paid", "gate": "requires balance > 0; recommends camera director 10 cr/30 min (view-layer, zero in-world risk); optional second guided ask demonstrates a DECLINED nudge + 50% auto-refund" },
     { "id": "S4b_declined","tier": "paid", "gate": "optional teaching beat — a fixed-safe nudge scripted to be declined so the player watches the refund land" },
-    { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight" }
+    { "id": "S4c_review",  "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask (40 cr, exclusive class) scripted to return 'not approved — refunded' so the player sees human review + auto-refund" },
+    { "id": "lowbal_sim",  "tier": "paid", "gate": "opt-in affordance on the running-ask card only — simulates the wallet hitting zero inside the cap: warning toast → 'player session ended' feed line → AI resumes, no debt" },
+    { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight" },
+    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership" }
   ],
   "persona_fork": {
     "where": "welcome card, before the tour offer",
@@ -82,6 +85,25 @@
     "copy_promise": "you pay for the ask, never the outcome",
     "feed_result": "request event resolves 'resolved' with neutral declined wording + refund amount"
   },
+  "review_lesson": {
+    "action": "weather", "block": "60 min", "cr": 40, "class": "exclusive",
+    "why": "cheapest exclusive request — demonstrates the human-review path (design §11 step 4) that compatible asks never show",
+    "scripted_outcome": "not approved — fixed in the demo so every tester sees neutral wording + full auto-refund; real review outcomes are never scripted",
+    "feed_result": "request event lands 'in review' (charge held), resolves 'not approved' + 'refunded' — feed vocabulary verbatim from requests.json",
+    "copy_promise": "exclusive asks get a human look before they run; a 'not approved' costs you nothing — the refund is automatic",
+    "never": "no reason shown on the card (reason codes live in the moderation contract), no appeal affordance, no approval-rate framing, no derived queued figure quoted (queued = −15% stated as a rate only)"
+  },
+  "low_balance_lesson": {
+    "where": "running-ask card only — hidden when no session is live",
+    "trigger": "opt-in 'simulate low balance' click — never fires uninvited",
+    "sequence": "toast warning at ~15 min funded time remaining → balance 0 → feed logs 'player session ended' → AI resumes mid-motion",
+    "honesty": "no debt, no overrun, no shaming wording; unused minutes inside the cap are not refunded"
+  },
+  "hired_return": {
+    "deep_link": "?hired=1 — demo affordance; at merge create.html redirects here post-approval",
+    "card": "one-time 'first day' card: briefing = public profile + surface relationships + routine only (secrets redacted even for the hirer); rent owed in game dollars; possession = compatible 1.5 cr/min, a visit not ownership",
+    "rule": "dismisses into the checklist — never a second funnel; renders fine with no handle set"
+  },
   "exit_states": {
     "completed": "all chosen items done — collapses permanently",
     "dismissed": "one-click don't-show; no confirm-shame, no snooze timer",
@@ -89,7 +111,8 @@
     "returning": "session 2+ with state (or ?returning=1): no welcome card; a quiet 'welcome back' line at most; footer link only"
   },
   "deep_links": {
-    "?returning=1": "demo affordance simulating a returning session — suppresses the welcome card"
+    "?returning=1": "demo affordance simulating a returning session — suppresses the welcome card",
+    "?hired=1": "demo affordance for the post-approval return — opens the S6 first-day card"
   },
   "never": [
     "gate/dim/delay/nag the free feed; no paywall copy",
@@ -98,13 +121,18 @@
     "auto-play the tour on return visits, after dismissal, or mid-request",
     "describe requests as guaranteed outcomes — declined asks are a feature, taught up front",
     "completion rewards of any kind",
-    "let a spectator handle impersonate a resident"
+    "let a spectator handle impersonate a resident",
+    "show a denial reason, an appeal button, or approval-rate framing inside onboarding",
+    "fire the low-balance lesson without the player's click",
+    "deep-link into a paid step (deep links are returning/hired only)"
   ],
   "analytics_hooks": [
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
     "persona_chosen (watch|play)", "handle_set", "handle_taken_shown",
     "wallet_explained", "topup_shown", "first_request_filed",
     "decline_lesson_shown", "onboard_dismissed", "returning_session",
+    "review_lesson_shown", "review_outcome_seen", "low_balance_simulated",
+    "handoff_seen", "hired_return",
     "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
   ],
   "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + wallet + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline — real nudge outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"

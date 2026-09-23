@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v38).
+/* world/audit.js — RW boundary audit (world v39).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -503,6 +503,34 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'onboarding.html', null, `persona fork option '${k}' has no handler`);
     for (const st of ['dismissed', 'parked', 'returning'])
       if (!html.includes(st)) add(g, 'fail', 'onboarding.html', null, `exit state "${st}" not implemented`);
+    /* ---- v39 blocks ---- */
+    if (OB.version >= 39) {
+      /* declared stages must be reachable in the demo */
+      for (const s of OB.stages || []) {
+        const sid = s.id.split('_')[0]; // 'S4c_review' → 'S4c'
+        if (!/^S\d/.test(sid)) continue; // affordance entries aren't navigable stages
+        if (!html.includes(`'${sid}'`))
+          add(g, 'fail', 'onboarding.html', null, `stage "${s.id}" (${sid}) not reachable in page source`);
+      }
+      /* the two systemic "no"s must be taught with real feed vocabulary */
+      const MUST39 = [
+        [/not approved/i, 'neutral review wording ("not approved")'],
+        [/in review/i, 'human-review status shown on the feed'],
+        [/player session ended/i, 'graceful-handoff feed wording'],
+        [/refunded|refund/i, 'auto-refund honesty'],
+        [/hired=1/, 'post-hire return deep link']
+      ];
+      for (const [re, label] of MUST39)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v39 honesty copy: ${label}`);
+      /* onboarding must never surface denial reasons or appeal mechanics */
+      if (/\bappeal\b/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'appeal affordance on the onboarding surface — appeals live in request.html');
+      if (/reason code|denial reason/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'denial-reason copy on the onboarding surface');
+      /* storage key must have rolled with the version */
+      if (OB.storage_key === 'rw_onboard_v25')
+        add(g, 'fail', 'onboarding.json', null, 'v39 schema still on the v25 storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }
@@ -1532,7 +1560,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v38 local';
+out.build = 'world v39 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

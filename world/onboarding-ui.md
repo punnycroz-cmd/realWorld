@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -262,3 +262,103 @@ the session with nothing billed past it.
 - New analytics hooks (v25): `persona_chosen`, `handle_taken_shown`,
   `decline_lesson_shown`, `returning_session` — same envelope, stage +
   opted_out props only.
+
+---
+
+## v39 — the third pass
+
+v25 taught the honest "no" a character can give. v39 teaches the two "no"s
+the *system* can give — human review on exclusive asks, and the wallet
+running out mid-session — plus the handoff that waits for players who
+hired a character and came back.
+
+### 18. The ask that waits (S4c) — human review, taught
+
+Compatible requests auto-clear; **exclusive** ones go to human review
+before they run (design §11 step 4). A player whose first exclusive ask
+silently sat in a queue would learn the wrong lesson — so onboarding makes
+the path explicit with one more optional guided ask:
+
+- A fixed-safe **weather request** — "fog for the evening block, 60 min,
+  40 cr" (the cheapest exclusive in requests.json; flat per block). Filed,
+  it lands on the demo feed as `in review` — the real feed vocabulary —
+  with the charge held, not spent.
+- Scripted in the demo to come back **`not approved — refunded`**: every
+  tester watches the neutral wording (never "denied," never a reason
+  invented on the card) and the full 40 cr return to the wallet. Appeal
+  exists per moderation.json but is deliberately not taught here — the
+  lesson is "review is real," not "here's how to fight it."
+- Copy promise, verbatim: *"Exclusive asks get a human look before they
+  run. A 'not approved' costs you nothing — the refund is automatic."*
+- The card also states what review is *not*: it screens the request's
+  intent, never previews the AI's rendering; it can never be skipped,
+  paid around, or sped up. Queued requests (−15%) are mentioned in one
+  line as the patient option — no derived figure quoted.
+
+### 19. The wallet running dry (S4d) — low balance + graceful handoff
+
+The second systemic "no": sessions have a hard cap, and a wallet can hit
+zero *inside* the cap. Taught during the running camera session:
+
+- A **"simulate low balance"** demo affordance on the running-ask card
+  drops the balance under the warning threshold (~15 min of funded time).
+  The player sees the actual sequence: toast warning → at zero, the feed
+  logs **"player session ended"** (neutral wording — no shaming, no
+  "kicked out"), the AI view resumes, nothing is billed past the cap,
+  and unused minutes inside the cap are not refunded.
+- Copy, verbatim: *"When the wallet empties mid-session the world doesn't
+  stop — your character (or your camera) just hands back to the AI,
+  mid-motion. No debt, no overrun, no shame line on the feed."*
+
+### 20. Coming back hired (S6) — the post-create return
+
+`create.html` is the hire flow's home; onboarding's job ends at the S5
+fork. But a player who hires and returns deserves a landing that isn't
+the S0 welcome card — so `?hired=1` (the demo affordance; at merge,
+create.html redirects here after approval) opens a one-time **"first day"
+card**:
+
+- What a hired character *isn't*: the briefing card you previewed before
+  payment is all you get — public profile, surface relationships, daily
+  routine. Secrets are redacted for everyone, including you. You learn
+  the block by playing, same as a viewer learns it by watching.
+- What day one costs: they arrived owing rent like everyone (game
+  dollars, earned by working); possessing them is the compatible rate
+  (1.5 cr/min, 15-min minimum). Possession is a visit, not ownership —
+  release or timeout hands them back to their own brain mid-motion.
+- The card dismisses into the checklist, never into a second funnel.
+
+### 21. Edge cases (v39 additions)
+
+|| Case | Behavior |
+||------|----------|
+|| Balance < 40 at the weather ask | "Balance too low" toast; nothing filed |
+|| Exclusive ask parked mid-review | the `in review` feed entry persists; card can be ✕-parked, the ask still resolves |
+|| `?hired=1` with no handle | card still renders — the hire carries its own name; handle copy gently re-offered, skippable |
+|| Low-balance sim while not running | affordance hidden — it only exists on the running-ask card |
+|| Review "not approved" twice in a session | identical neutral wording every time; the feed never editorializes |
+
+### 22. v39 merge notes
+
+- `storage_key` → `rw_onboard_v39` (state shape grew again; v25/v39 states
+  coexist harmlessly but the demo reads only its own key).
+- New feed-vocabulary dependencies the demo now renders: `in review`,
+  `not approved`, `refunded`, `player session ended` — all already in
+  `requests.json.feed_vocabulary`; no new vocabulary invented.
+- New analytics hooks (v39): `review_lesson_shown`, `review_outcome_seen`
+  (approved|not_approved — demo is always not_approved),
+  `low_balance_simulated`, `handoff_seen`, `hired_return` — same envelope,
+  stage + opted_out props only.
+- At merge: `?hired=1` becomes create.html's post-approval redirect
+  target; the demo keeps it as a URL affordance.
+
+### 23. What v39 still must never do
+
+- Never reveal why a request was not approved on the public surface —
+  the reason code lives in the moderation contract, not the feed card.
+- Never offer an appeal button inside onboarding — appeals live in the
+  request flow; teaching dispute mechanics in minute one is funnel-think.
+- Never frame review as a barrier to "beat" — no tips for getting
+  approved, no success-rate numbers.
+- Never let the low-balance lesson fire without the player's click —
+  simulated or real, it is always opt-in.
