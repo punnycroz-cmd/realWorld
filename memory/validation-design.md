@@ -3919,3 +3919,100 @@ Registry: P1–P524. v50 suite: P513–P524 (6 MUST, 6 SHOULD).
   alternates in older adults); Maylor 1990; James & Burke 2000.
 - Bjork 1970/1972; MacLeod 1998; Golding & MacLeod 1998
   (rehearsal-starvation DF — soft version adopted).
+
+## 89. New probes P525–P534 (v51 suite — age-development V,
+## the wall has doors)
+
+Suite: profiles across the child/teen/adult span; cohorts with
+seeded backstory events (sibling_birth, move, death_family,
+hospitalization at known encodeAges); bilingual profile variants;
+a scripted public_scale=1 neighborhood event and one
+public_scale=2 epochal event.
+
+- **P525 pierce (MUST):** sibling_birth + hospitalization records
+  encoded at encodeAge 2.5 retrievable at retrieval-age 20 while
+  matched move/death_family and neutral records at the same
+  encodeAge are latent/absent; a `told_by`-only account at
+  encodeAge 2 never passes the gate regardless of hearCount.
+- **P526 school tail (MUST, sign-locked):** matched-strength
+  neutral records encoded at encodeAge 7–9 show lower 4-year
+  retention than encodeAge 12+ records; coherentUnit-linked
+  school-age records lose ≤half the gap vs un-narrated.
+- **P527 language lock (MUST):** l1_until=14 profile queried in
+  L2 surfaces materially fewer L1-era records than the identical
+  L1 query; L1-matched reprimand-class records emit higher
+  arousal_tag_eff; early-bilingual control (l1_until<6) shows NO
+  L1 emotional advantage (locked null).
+- **P528 culture/gender (SHOULD):** high culture_env +
+  self_focused profile reports earlier + denser earliest memory
+  than low + relational at identical seed; female profile emits
+  ~10% more detail fields per earliest report.
+- **P529 puberty overlay (SHOULD, DEBATED-flagged):** socially-
+  evaluative records inside pub_window encode higher S than
+  matched outside; θ elevated inside only; all legs revert at
+  window close (records carry regime tag only). If this probe
+  destabilizes unrelated adolescent suites, the overlay is too
+  wide — narrow it, don't delete it.
+- **P530 cohort imprint (MUST, sign-locked):** negative-valence
+  public_scale=1 record at encodeAge 16 encodes with bump_gain
+  (valence gate waived) while a matched PRIVATE negative record
+  does not; public_scale=2 record at encodeAge 35 (outside
+  window) still encodes elevated; both mint `chapter:true`.
+- **P531 anchor query (SHOULD):** dateEstimate sigma shrinks for
+  post-anchor records when the query names the anchor vs not; a
+  6–10yo character's reported age for an earliest_candidate
+  record exceeds true age on average (postdate sign-locked).
+- **P532 moving earliest (MUST):** same profile queried
+  "earliest memory" at retrieval ages 5 and 7 yields different
+  records with p>0.5 under seed variation; at 11 and 13 yields
+  the same record with p>0.7.
+- **P533 child latency (SHOULD):** latency_ms at age 7 ≥ 1.3×
+  age 20 on matched records; latency never enters drive
+  (invariant holds under the new child knots).
+- **P534 v4.9 regression (MUST — structure):** all v4.9 params
+  at defaults reproduce v4.8 outputs on the standard battery
+  except the sign-locked differences above; monolingual
+  profiles execute identically (lang legs dead code).
+
+Registry: P1–P534. v51 suite: P525–P534 (5 MUST, 5 SHOULD —
+P529 DEBATED-flagged).
+
+## 90. Sources verified this version (P525–P534 backing)
+
+- Usher & Neisser 1993 (*JEP:General* 122:155 — verified: offset
+  2y hospitalization/sibling-birth, 3y death/move; external
+  sources negative at 2–3, positive at 4–5).
+- Bauer & Larkina 2014 (*JEP:General* 143:597 — verified:
+  exponential childhood vs power adult distributions); Bauer &
+  Larkina 2014 (*Memory* 22:907 — 8–9yos <40% vs ≥60% at 5–7);
+  Bauer 2015 4-year prospective (*Memory* — 4>6>8>adult,
+  coherence predicts survival).
+- Marian & Neisser 2000 (*JEP:General* 129:361 — verified:
+  era-partitioned recall, ambient-language effect); Schrauf &
+  Rubin 1998/2000/2004 (bilingual lifespan distributions by
+  language); Javier, Barroso & Muñoz 1993.
+- Harris, Ayçiçeği & Gleason 2003 (*Appl. Psycholing.* 24:561 —
+  verified: L1 reprimands/taboo SCR advantage, late learners
+  only); Harris 2004 (early-learner null).
+- MacDonald, Uesiliana & Hayne 2000 (*Memory* 8:365 — verified:
+  Māori ≈2.7 / European ≈3.5 / Asian ≈4.9, Asian-female driven);
+  Wang 2001 (*JPSP* 81:220 — ~6mo US–China gap, self-focused vs
+  collective style); Mullen 1994 (*Cognition* 52:55); Wang &
+  Peterson 2014 (*Psych. Sci.* — earliest-memory postdate).
+- Murty, Calabro & Luna 2016 (*Neurosci. Biobehav. Rev.* 70:46 —
+  verified review); Spielberg et al. 2014/2015 (pubertal amygdala
+  reactivity); Romeo 2010 (*Horm. Behav.* 58 — pubertal stress);
+  Ghetti & Fandakova 2020 (*Annu. Rev. Dev. Psych.* — adolescent
+  inconsistency caveat, basis for DEBATED flag).
+- Schuman & Scott 1989 (*Amer. Sociol. Rev.* 54:359 — verified:
+  critical-period generational memory); Corning & Schuman 2015
+  (*Generations and Collective Memory* — epochal-event age
+  flattening); Brown et al. 2009 (*Memory Studies* 2 — living
+  in history); Schuman & Corning 2012 ICPSR 33001.
+- Loftus & Marburger 1983 (*Mem. Cogn.* 11:114 — verified:
+  landmark-bounded queries cut forward telescoping; personal =
+  public landmarks).
+- Peterson, Warren & Short 2011 (*Child Dev.* 82:1092 —
+  verified: 4–7 disjoint earliest sets at 2y retest, ≥10 stable).
+- Kail 1991 (*Dev. Psych.* 27:259 — exponential speed
+  development); Kail & Salthouse 1994.

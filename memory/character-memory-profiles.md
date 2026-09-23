@@ -566,6 +566,17 @@ never copying raw.
 | tot_age_k / tot_res_age_loss / tot_alt_age_loss | 0 / 0 / 0 | 1.5 / 0.8 / 0.9 | TOT age legs (v4.8) |
 | df_pen / df_rehearse_pen | 0.0 / 0.3 | 0.2 / 0.9 | directed-forget soft legs (v4.8) |
 | planStyle | 0.0 | 1.0 | bible trait — spontaneous if-then planning (v4.8) |
+| school_leak / coherent_leak_rescue | 0.0 / 0.0 | 1.0 / 0.8 | school-age β tail legs (v4.9) |
+| l1_lock / l1_emo_gain | 0.0 / 0.0 | 0.8 / 0.25 | era-depth language legs (v4.9) |
+| pub_emo_gain / pub_theta / pub_stress_gain | 0.0 / 0.0 / 0.0 | 0.3 / 0.15 / 0.3 | puberty overlay legs (v4.9) |
+| epochal_gain / chapter_tell | 1.0 / 0.0 | 1.8 / 0.25 | cohort-imprint legs (v4.9) |
+| anchor_query_gain / earliest_tele_gain / earliest_stab | 0.0 / 0.0 / 6 | 0.7 / 2.5 / 12 | query-landmark / postdate / earliest-stability (v4.9) |
+| culture_env | 0.0 | 1.0 | bible prior on reminiscence_env (v4.9) |
+| culture_exit_off | −0.5 | +0.5 | residual amnesia-exit offset yrs (v4.9) |
+| auto_style | — | — | enum {self_focused, relational} (v4.9) |
+| detail_emit_gain | 0.8 | 1.2 | report-detail density (v4.9; female +0.1) |
+| l1_until | 0 | — | bilingual ambient-switch encodeAge (v4.9; absent = monolingual) |
+| pub_timing | −2 | +2 | bible puberty-onset offset yrs (v4.9) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -2186,3 +2197,57 @@ should actually touch:
   `hyper_*` (schedule physics), `sdr_gain`, `arousal_*`,
   `lifecue_gain`, `impl_bind_gain`/`impl_focal_lift`/
   `impl_cost_mult` (mechanism constants).
+
+## 34. v4.9 note (age-development V — the wall has doors)
+
+Clamp rows added in §0 for the v4.9 params. What bible authors
+should actually touch:
+
+- **`l1_until` + ambient-lang-per-era (bible, bilingual chars
+  only):** the one new roster-relevant pin. Give the immigrant
+  character `langs:[{l1:"es", until:14},{l2:"en"}]` (or zh/tl) —
+  records encode with the ambient language of their era, and the
+  era-depth lock does the rest: childhood surfaces in L1
+  conversation and goes quiet in L2 (Marian & Neisser 2000;
+  Harris 2003 — the L1 emotional premium exists only for
+  `l1_until ≥ 6`; an early bilingual gets NO L1 advantage, that
+  null is locked). Do not pin for monolingual characters —
+  dead code.
+- **`culture_env` / `culture_exit_off` / `auto_style`
+  (background-level):** the family-reminiscence prior by
+  cultural background — Māori-class ~0.8, mainstream-US ~0.5,
+  low-elaborative collectivist ~0.3 (MacDonald et al. 2000;
+  Wang 2001). `auto_style` sets report register: self_focused
+  = specific, emotional, first-person tellings; relational =
+  shorter, routine-and-others-centered. Both are PRIORS —
+  the actual family style the bible specifies still rules;
+  combined excursion on amnesia_exit clamps at ±2y. Mission
+  cast note: pair immigrant profiles' culture_env with their
+  family story, not a stereotype — the dial is environment,
+  not ethnicity.
+- **`pub_timing` (optional, ±2y):** pin only for characters
+  whose pubertal timing is story-relevant (early-maturing teen
+  whose bump window arguably opens early). Population knots
+  cover everyone else.
+- **`detail_emit_gain`:** default 1.0; female profiles +0.1
+  (MacDonald 2000 — women's earliest reports carry more
+  information). Keep small; it's a report-density dial, not a
+  memory-quality halo.
+- **Event-side, not traits:** `amnesia_pierce` lives on
+  eventClass definitions (sibling_birth/hospitalization=2,
+  move/death_family/new_school=1, everything else 0);
+  `public_scale` lives on events (neighborhood fire=1,
+  epochal=2). Bibles tag these in backstory event lists; the
+  substrate tags live events.
+- **Never pin (mechanism constants / age-driven):**
+  `school_leak`, `coherent_leak_rescue`, `l1_lock`,
+  `l1_emo_gain`, `pub_*` legs, `epochal_gain`, `chapter_tell`,
+  `anchor_query_gain`, `earliest_tele_gain`, `earliest_stab`,
+  `lat_age_mult` child knots. A precocious or delayed child is
+  expressed through `reserve`, `reminiscence_env`, and
+  `pub_timing` — never by bending the forgetting tail.
+- **`earliest` is an output:** nothing to author. A child
+  bible gains `earliest_candidate` records automatically via
+  pierce-class backstory events (a sibling born when they
+  were 2½ is the right kind of backstory detail — and now it
+  matters mechanically).

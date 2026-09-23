@@ -1,4 +1,41 @@
-# Memory Model Spec v4.8 — implementable human-like memory for RW characters
+# Memory Model Spec v4.9 — implementable human-like memory for RW characters
+
+> **v4.9 note (age-development V — the wall has doors, the school
+> years still leak, the archive is language-locked):**
+> `memory/age-development.md` Part V (§§48–60) prices what the
+> earlier passes left unpriced: **event-class amnesia pierce** —
+> `amnesia_pierce` {0,1,2} per eventClass lets sibling-birth /
+> hospitalization records (2y) and move / death records (3y)
+> surface below `amnesia_exit_eff`, and told_by can't substitute
+> below the pierce (Usher & Neisser 1993) — §4.1; **school-age
+> forgetting tail** — `school_beta_mult(encodeAge)` keeps β
+> elevated 7→11 with `coherent_leak_rescue` on narrated records
+> (Bauer & Larkina 2014: childhood distributions are exponential,
+> forgetting is manufactured during the school years) — §4.1;
+> **language-locked childhood** — `l1_until` per bilingual
+> profile; `lang` mints from the ambient language at encodeAge;
+> mismatch deepens with era depth (`l1_lock`), L1 match boosts
+> arousal_tag (`l1_emo_gain`, late-learner gated, early-null
+> locked) (Marian & Neisser 2000; Harris et al. 2003) — §5.2;
+> **culture/gender move the wall** — `culture_env` prior +
+> `culture_exit_off` ±0.5y + `auto_style` report dial + female
+> `detail_emit_gain` (MacDonald et al. 2000; Wang 2001; Mullen
+> 1994) — §4.1/profiles; **puberty overlay** — reversible
+> physiological teen regime (pub_emo_gain/pub_theta/
+> pub_stress_gain), distinct from the social-teen mechanics
+> (Murty et al. 2016; Romeo 2010 — DEBATED, deliberately narrow)
+> — §4.17; **cohort imprinting** — `public_scale`/`epochal`/
+> `chapter` event fields: public events in the bump window waive
+> the valence gate, epochal events imprint all ages (Schuman &
+> Scott 1989; Corning & Schuman 2015) — §4.1; **query-side
+> landmark dating + child postdate** — `anchor_query_gain` and
+> `earliest_tele_gain` (Loftus & Marburger 1983; Wang & Peterson
+> 2014) — §6.15; **earliest is an output, not a field** —
+> `earliest_stab` redraws the answer below ~9, sticky above
+> (Peterson et al. 2011) — §6.15; **child-side latency** —
+> `lat_age_mult` knots 1.4@6→1.0@16 (Kail 1991) — §5.25.
+> +20 params in §7; probes P525–P534. All optional,
+> default-neutral.
 
 > **v4.8 note (retrieval-cues V — the cue's plan, rival, and
 > reach):** `memory/retrieval-cues.md` Part V (§§46–56) prices
@@ -1130,6 +1167,12 @@ MemoryRecord = {
                                       // starvation only (§5.48)
   "accessLog": []                     // optional debug; may be capped
 }
+// v4.9 additions (age-development V — event/record fields):
+//   eventClass.amnesia_pierce {0,1,2} + event public_scale {0,1,2}
+//   (world tags); record flags earliest_candidate (minted by the
+//   §4.1 pierce), chapter:true (public_scale≥1 mint), lang minted
+//   from ambient-at-encodeAge (v1.9 field, now era-keyed),
+//   regime:puberty on overlay-era records. All C-tier visible.
 // v4.7 derived channel weights (not stored): recol_w = mean surviving
 // verbatim-field strength (0 on persSem/semantic); fam_w = gist leg ×
 // (1 + impl_fam_w·impl_str). Report gate at rk_thresh (§4.23).
@@ -2048,6 +2091,18 @@ t_eff = Δt_days + ev_time_w · (n_events_since / ev_day_norm)   // v2.5
     meaning" + settlement-interference-release account). No life events
     → the single default window, behavior unchanged. Cast with windows:
     C6 [10,30]+[27,37], C8 [10,30]+[10,20] (cast-profiles.md §1.1).
+    **v4.9d — cohort imprinting (AD§53):** events carry
+    `public_scale` {0,1,2} (1 = neighborhood-scale, 2 = epochal).
+    A `public_scale ≥ 1` record encoded inside a bump window
+    WAIVES `bump_valence_gate` — the generation-defining event
+    imprints whatever its valence (Schuman & Scott 1989: critical
+    period = adolescence/early adulthood). `public_scale = 2`
+    ignores the window: `epochal_gain` (1.3) on E at any
+    encodeAge ≥ 5 (Corning & Schuman 2015: epochal events flatten
+    the age gradient). Such records mint `chapter: true` (C-tier
+    flag) — retell ecology += `chapter_tell` (0.1) and §6.15 uses
+    them as before/after brackets (Brown et al. 2009, "living in
+    history": private memory organizes around the public event).
   - *Childhood records (v1.3: step → ramp + survivorship):* if
     `encodeAge < amnesia_exit` (7), permanently
     `β *= 1 + amnesia_slope·(1 − encodeAge/amnesia_exit)`
@@ -2067,6 +2122,34 @@ t_eff = Δt_days + ev_time_w · (n_events_since / ev_day_norm)   // v2.5
     effective boundary is `amnesia_exit_eff = amnesia_exit −
     3·(reminiscence_env − 0.5)` — caregiver reminiscing style moves the
     amnesia window itself (Reese & Newcombe 2007).
+    **v4.9a — the wall has doors (AD§48):** `eventClass` gains
+    `amnesia_pierce` ∈ {0,1,2} (0 default; 2 = sibling_birth,
+    hospitalization, injury; 1 = move, death_family, new_school).
+    The consolidation gate and §4.14 latent transition evaluate
+    against `amnesia_exit_eff − amnesia_pierce` — Usher & Neisser
+    1993: earliest reliable recall is 2y for hospitalization and
+    sibling birth, 3y for death and move. Records surfacing only
+    via pierce mint `earliest_candidate: true`. Below
+    `pierce_age + 1`, `told_by`/`hearCount` cannot lift a record
+    over the gate — being told about it is not having been there
+    (Usher & Neisser: external sources correlate negatively below
+    3, positively 4–5).
+    **v4.9b — culture/gender move the wall (AD§51):**
+    `amnesia_exit_eff` additionally += `culture_exit_off`
+    (±0.5y, bible) where `reminiscence_env` gets a
+    `culture_env` prior (multiply, cap 1.0) — MacDonald,
+    Uesiliana & Hayne 2000 (Māori ≈2.7 / NZ European ≈3.5 /
+    Asian ≈4.9, driven by Asian women); Wang 2001 (~6mo US–China
+    gap); Mullen 1994 (gender). Total excursion clamp ±2y.
+    **v4.9c — the school-age tail (AD§49):** for
+    `encodeAge ∈ [amnesia_exit_eff, 11]`, β additionally ×=
+    `school_beta_mult(a) = 1 + school_leak·(1 − (a−amnesia_exit_eff)/4)`
+    (`school_leak` 0.5 → β×1.5 at 7 → 1.0 at 11) — the elevated
+    forgetting rate outlives the encoding ramp (Bauer & Larkina
+    2014: childhood distributions exponential vs adult power;
+    Bauer 2015: 4>6>8>adult forgetting). coherentUnit/linked
+    records take only half the increment (`coherent_leak_rescue`
+    0.5) — thematic coherence predicts survival.
 - **Modality slopes (v3.6):** verbatim fields carry `mod` ∈
   olf|vis|verb|aud (default verb); per-field β multiplies by
   `k_mod`: `k_olf` 0.6, `k_vis` 1.0, `k_verb` 1.25, `k_aud` 1.1 —
@@ -2563,6 +2646,22 @@ Both overlays: no new stores, no permanent marks — records encoded
 inside carry only the ordinary `regime` tag. P261/P262 test
 reversibility and the practice-stall signature.
 
+- **`puberty` overlay** (all characters; window
+  `pub_window` = [pub_onset, pub_onset+5y], pub_onset ~N(11.5,1)
+  female / ~N(12.5,1) male, bible pin `pub_timing` ±2y — AD§52):
+  `pub_emo_gain` (+0.15 on arousal_tag of socially-evaluative
+  records — amygdala window, Spielberg et al. 2014), `pub_theta`
+  (+0.05 — noisier consolidation during hippocampal–prefrontal
+  reorganization, Murty, Calabro & Luna 2016), `pub_stress_gain`
+  (+0.15 on stress-record E — Romeo's prolonged pubertal HPA
+  response; stacks with §43 `child_stress_gain` only below
+  `stress_flip_age`). Physiological, not social — the social-teen
+  mechanics (social_eval_gain, coruminate_gain, narr_window) are
+  separate and additive. All legs revert at window close; records
+  keep only `regime:puberty`. Flagged DEBATED — the human
+  episodic × puberty literature is inconsistent; legs kept narrow
+  on purpose.
+
 **v2.8 additions (age-decline.md §§40, 44):**
 
 - **`isolation` overlay** (any character; elder-weighted): rolling
@@ -2804,6 +2903,17 @@ language match (v1.9):  if C.lang && m.lang && C.lang != m.lang:
                     // — balanced bilinguals cross-retrieve nearly free
                     // (Schrauf & Rubin 1998; Marian & Neisser 2000) —
                     // attenuates, never gates
+                    // v4.9 — era-depth lock (AD§50): profiles carry
+                    // langs[].l1_until (ambient-language switch age);
+                    // m.lang mints from ambient at encodeAge. For
+                    // l1-era records the mismatch is deeper:
+                    if m.encodeAge < m.l1_until:
+                       lang_mismatch_eff ×= (1 − l1_lock·
+                           (1 − m.encodeAge/m.l1_until))  // l1_lock .5
+                    // match side: C.lang == m.lang == l1 && l1_until ≥ 6:
+                    arousal_tag_eff += l1_emo_gain (0.1)   // Harris 2003
+                    // — L1 reprimands carry the voltage. Early
+                    // bilinguals (l1_until < 6): gain = 0, locked null.
 cueMatch_ext = 1 − Π_j (1 − min(c_j, 1))                         // saturates at 1
 place reinstate:    if C.place == m.cueVector.place:
                     cueMatch_ext += place_reinstate · (1 + log1p(m.ageDays/30))
@@ -3675,6 +3785,12 @@ retrieval-time DA tax lives here, not in accuracy (RC§34).
 **v3.9:** `latency_ms ×= lat_age_mult(age_eff)` — knots 1.0 ≤50 →
 1.3 at 70 → 1.6 at 85 (Salthouse speed; AD§57). Display only —
 latency still never feeds θ.
+
+**v4.9 — child knots (AD§56):** the same curve's low flank:
+1.4 at 6 → 1.2 at 10 → 1.0 at 16 (Kail 1991; Kail & Salthouse
+1994 — one exponential speed function fits childhood→adult).
+Children's truncated recall IS the slow search, not different
+storage. Display-only rule unchanged.
 
 ### 5.26 Forward testing — remembering primes learning (new in v3.7)
 
@@ -4717,6 +4833,27 @@ either was.
 `P(correct) = logistic(k_order·(S_n − S_m)·sgn(createdDay_n −
 createdDay_m))`, k_order ≈ 4 [pop]. Same-week pairs coin-flip; distant
 pairs order correctly while both dates are wrong.
+
+**v4.9 — query-side landmarks + the child postdate + earliest as
+output (AD§§54–55):**
+
+- `anchor_query_gain` (0.4): when a recall context supplies a
+  `public_scale ≥ 1` or milestone/`chapter` record as temporal
+  bound ("since the fire"), post-bound candidates get
+  `date_sigma ×= (1 − anchor_query_gain)` — the query-side twin of
+  `landmark_gain` (Loftus & Marburger 1983: bounding the question
+  with a dated landmark cut forward telescoping; personal
+  landmarks work as well as public).
+- `earliest_tele_gain` (1.5): `earliest_candidate` records carry
+  forward-telescoping ×1.5 when retrieval age < 12 — children
+  systematically postdate their earliest memories at retest
+  (Wang & Peterson 2014). Sign-locked: forward only.
+- `earliest` is an OUTPUT, never a field: `recall("earliest")`
+  scores `earliest_candidate` records by (encodeAge asc, S desc).
+  Below `earliest_stab` (9, phasing ±1.5y) the top-3 are sampled
+  per query — young children's "earliest" is re-derived each time
+  and comes out different (Peterson, Warren & Short 2011); above,
+  ordinary S dynamics make the winner sticky.
 
 **v4.0 — subjective temporal distance (emotional-memory.md §46):**
 a *report-layer* transform alongside `reported_age` — how far the
@@ -6803,6 +6940,27 @@ MemoryParams = {
 //   params declared AGE-FLAT cite-guarded (crosscue_* is dyad-
 //   property, not age; enact_* claimed age-flat by Roberts 2022
 //   patient arms).
+// v4.9 additions (age-development V — AD§§48–56)
+"school_leak": 0.5, "coherent_leak_rescue": 0.5,   // §4.1 β tail 7→11
+"l1_lock": 0.5, "l1_emo_gain": 0.1,                // §5.2 era-depth
+"pub_emo_gain": 0.15, "pub_theta": 0.05,
+"pub_stress_gain": 0.15, "pub_years": 5,           // §4.17 overlay
+"epochal_gain": 1.3, "chapter_tell": 0.1,          // §4.1 cohort
+"anchor_query_gain": 0.4, "earliest_tele_gain": 1.5, // §6.15
+"earliest_stab": 9.0,                              // §6.15 output gate
+// v4.9 locked nulls: l1_emo_gain = 0 when l1_until < 6 (Harris
+//   2003: early bilinguals show no L1 advantage); told_by/
+//   hearCount = 0 lift below pierce_age+1 (Usher & Neisser 1993);
+//   latency never feeds θ (unchanged invariant, now incl. child
+//   knots); milestone/public_scale never alter accuracy
+//   (retrieval privilege only — extends the v4.8 milestone null);
+//   earliest is never a stored field (output only).
+// v4.9 knot notes: school_beta_mult/lat_age_mult child knots
+//   carry curves inline (keyed encodeAge / age_eff); pub_*
+//   legs are overlay-scoped (revert at window close);
+//   culture_exit_off/culture_env/auto_style/detail_emit_gain/
+//   pub_timing/l1_until live on the PROFILE, not MemoryParams —
+//   bible fields per profiles doc §34.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7724,6 +7882,27 @@ not resolved (DEBATED magnitude). P509/P511.
     transitional firsts; `df` set by the dialogue layer's
     secrecy/avoidance bookkeeping. All snapshot-additive,
     absent = legacy.
+- v4.9 additions (age-development.md Part V §§48–56):
+  - Event fields: `amnesia_pierce` ∈{0,1,2} on eventClass;
+    `public_scale` ∈{0,1,2} on events (world tags both).
+  - Record fields: `earliest_candidate:true` (pierce-minted),
+    `chapter:true` (public_scale≥1-minted) — both C-tier;
+    `lang` minted from ambient-at-encodeAge for bilingual
+    profiles (was: static profile lang); `regime:puberty`.
+  - Profile fields: `langs[].l1_until`, `culture_env`,
+    `culture_exit_off`, `auto_style`, `pub_timing` — bible-side,
+    not MemoryParams.
+  - `recall("earliest")` returns a scored draw, not a field:
+    sampled below `earliest_stab`, sticky above (§6.15 v4.9).
+  - `dateEstimate` honors query-side anchors
+    (`anchor_query_gain`) when the context supplies a
+    chapter/milestone bound.
+  - World-builder hooks: bilingual profiles get `l1_until` +
+    ambient-lang-per-era; `culture_env`/`auto_style` per
+    background; `pub_timing` optional; `amnesia_pierce` +
+    `public_scale` tags on eventClass/event definitions.
+    All snapshot-additive, absent = legacy (monolingual
+    profiles make the lang legs dead code, as before).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
