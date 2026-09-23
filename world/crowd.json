@@ -1,0 +1,1957 @@
+{
+ "version": 57,
+ "updated": "2026-09-23",
+ "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on.",
+ "conventions": {
+  "hours": "game-local decimal; dayparts are half-open [h0,h1) wrapping at 24",
+  "budget": "extras headcount range [lo,hi] the spawner maintains per zone, off-camera only",
+  "bands": {
+   "deserted": [
+    0,
+    0
+   ],
+   "thin": [
+    1,
+    3
+   ],
+   "steady": [
+    4,
+    8
+   ],
+   "busy": [
+    9,
+    15
+   ],
+   "packed": [
+    16,
+    99
+   ]
+  },
+  "ambients": "world/ambients.json — A01..A20, thin AI, routines + reflexes",
+  "extras": "no identity/state/ledger/feed name; reflexes limited to yield|queue|shelter|rubberneck",
+  "ambient_resources": "claimable sub-venue resources (v43) — a request claims the resource, not the venue; extras budget inside the resource radius → 0 for the window, staff ambient stays on routine",
+  "work_zones": "v43 zones for ambient workplaces; small budgets — most of the crowd inside is staff, not extras"
+ },
+ "dayparts": [
+  {
+   "id": "overnight",
+   "h0": 0,
+   "h1": 4,
+   "allow_deserted": true
+  },
+  {
+   "id": "predawn",
+   "h0": 4,
+   "h1": 6
+  },
+  {
+   "id": "commute",
+   "h0": 6,
+   "h1": 8
+  },
+  {
+   "id": "rush",
+   "h0": 8,
+   "h1": 10
+  },
+  {
+   "id": "midday",
+   "h0": 10,
+   "h1": 13
+  },
+  {
+   "id": "lunch",
+   "h0": 13,
+   "h1": 15
+  },
+  {
+   "id": "afternoon",
+   "h0": 15,
+   "h1": 19
+  },
+  {
+   "id": "evening",
+   "h0": 19,
+   "h1": 21
+  },
+  {
+   "id": "night",
+   "h0": 21,
+   "h1": 24
+  }
+ ],
+ "zones": {
+  "mudhaus": {
+   "label": "Mudhaus Coffee",
+   "kind": "cafe",
+   "open": [
+    6.5,
+    19
+   ],
+   "weekday": {
+    "overnight": [
+     0,
+     0
+    ],
+    "predawn": [
+     0,
+     0
+    ],
+    "commute": [
+     2,
+     4
+    ],
+    "rush": [
+     8,
+     12
+    ],
+    "midday": [
+     4,
+     7
+    ],
+    "lunch": [
+     5,
+     8
+    ],
+    "afternoon": [
+     6,
+     10
+    ],
+    "evening": [
+     0,
+     0
+    ],
+    "night": [
+     0,
+     0
+    ]
+   },
+   "weekend": {
+    "commute": [
+     1,
+     3
+    ],
+    "rush": [
+     9,
+     14
+    ],
+    "midday": [
+     7,
+     11
+    ],
+    "afternoon": [
+     5,
+     9
+    ]
+   }
+  },
+  "park": {
+   "label": "Dolores Park",
+   "kind": "open_air",
+   "weekday": {
+    "overnight": [
+     0,
+     0
+    ],
+    "predawn": [
+     1,
+     3
+    ],
+    "commute": [
+     4,
+     8
+    ],
+    "rush": [
+     5,
+     9
+    ],
+    "midday": [
+     6,
+     11
+    ],
+    "lunch": [
+     8,
+     13
+    ],
+    "afternoon": [
+     12,
+     20
+    ],
+    "evening": [
+     5,
+     10
+    ],
+    "night": [
+     1,
+     3
+    ]
+   },
+   "weekend": {
+    "commute": [
+     4,
+     7
+    ],
+    "rush": [
+     8,
+     14
+    ],
+    "midday": [
+     14,
+     24
+    ],
+    "lunch": [
+     16,
+     26
+    ],
+    "afternoon": [
+     18,
+     30
+    ],
+    "evening": [
+     7,
+     13
+    ],
+    "night": [
+     1,
+     4
+    ]
+   }
+  },
+  "club600": {
+   "label": "The 600 Club",
+   "kind": "bar",
+   "open": [
+    17,
+    26
+   ],
+   "weekday": {
+    "evening": [
+     4,
+     8
+    ],
+    "night": [
+     8,
+     15
+    ]
+   },
+   "weekend": {
+    "evening": [
+     6,
+     11
+    ],
+    "night": [
+     12,
+     20
+    ]
+   }
+  },
+  "minimart": {
+   "label": "Malik's Mini Mart",
+   "kind": "shop",
+   "open": [
+    7.5,
+    20
+   ],
+   "weekday": {
+    "commute": [
+     2,
+     4
+    ],
+    "rush": [
+     4,
+     6
+    ],
+    "midday": [
+     2,
+     4
+    ],
+    "lunch": [
+     3,
+     5
+    ],
+    "afternoon": [
+     3,
+     6
+    ],
+    "evening": [
+     2,
+     4
+    ],
+    "night": [
+     0,
+     1
+    ]
+   },
+   "weekend": {
+    "rush": [
+     3,
+     6
+    ],
+    "midday": [
+     3,
+     5
+    ],
+    "afternoon": [
+     4,
+     7
+    ],
+    "evening": [
+     2,
+     4
+    ]
+   }
+  },
+  "fruteria": {
+   "label": "Frutería Las Palmas",
+   "kind": "stand",
+   "open": [
+    7,
+    18
+   ],
+   "weekday": {
+    "commute": [
+     1,
+     2
+    ],
+    "rush": [
+     2,
+     4
+    ],
+    "midday": [
+     2,
+     4
+    ],
+    "lunch": [
+     3,
+     6
+    ],
+    "afternoon": [
+     3,
+     5
+    ]
+   },
+   "weekend": {
+    "rush": [
+     2,
+     5
+    ],
+    "midday": [
+     4,
+     7
+    ],
+    "afternoon": [
+     4,
+     6
+    ]
+   }
+  },
+  "elfarolote": {
+   "label": "Taqueria El Farolote",
+   "kind": "restaurant",
+   "open": [
+    11,
+    24
+   ],
+   "weekday": {
+    "lunch": [
+     6,
+     11
+    ],
+    "afternoon": [
+     3,
+     6
+    ],
+    "evening": [
+     7,
+     12
+    ],
+    "night": [
+     5,
+     10
+    ]
+   },
+   "weekend": {
+    "lunch": [
+     8,
+     14
+    ],
+    "afternoon": [
+     5,
+     9
+    ],
+    "evening": [
+     9,
+     15
+    ],
+    "night": [
+     8,
+     14
+    ]
+   }
+  },
+  "library": {
+   "label": "Mission Branch Library",
+   "kind": "civic",
+   "open": [
+    9,
+    17.5
+   ],
+   "weekday": {
+    "rush": [
+     2,
+     4
+    ],
+    "midday": [
+     4,
+     7
+    ],
+    "lunch": [
+     4,
+     7
+    ],
+    "afternoon": [
+     5,
+     9
+    ]
+   },
+   "weekend": {
+    "midday": [
+     3,
+     6
+    ],
+    "afternoon": [
+     4,
+     7
+    ]
+   },
+   "closed_days": [
+    "sun",
+    "mon"
+   ]
+  },
+  "clarion": {
+   "label": "Clarion Alley",
+   "kind": "open_air",
+   "weekday": {
+    "midday": [
+     1,
+     3
+    ],
+    "lunch": [
+     2,
+     4
+    ],
+    "afternoon": [
+     3,
+     6
+    ],
+    "evening": [
+     1,
+     3
+    ],
+    "night": [
+     0,
+     2
+    ]
+   },
+   "weekend": {
+    "midday": [
+     3,
+     6
+    ],
+    "lunch": [
+     4,
+     8
+    ],
+    "afternoon": [
+     5,
+     9
+    ],
+    "evening": [
+     2,
+     4
+    ]
+   }
+  },
+  "bakery": {
+   "label": "Baguette About It Bakery",
+   "kind": "cafe",
+   "open": [
+    6,
+    13
+   ],
+   "weekday": {
+    "predawn": [
+     0,
+     1
+    ],
+    "commute": [
+     3,
+     6
+    ],
+    "rush": [
+     5,
+     9
+    ],
+    "midday": [
+     3,
+     6
+    ]
+   },
+   "weekend": {
+    "commute": [
+     4,
+     7
+    ],
+    "rush": [
+     6,
+     10
+    ],
+    "midday": [
+     4,
+     7
+    ]
+   },
+   "closed_days": [
+    "mon"
+   ]
+  },
+  "bloomdoom": {
+   "label": "Bloom & Doom Flowers",
+   "kind": "shop",
+   "open": [
+    7.5,
+    18
+   ],
+   "weekday": {
+    "commute": [
+     1,
+     2
+    ],
+    "rush": [
+     2,
+     4
+    ],
+    "midday": [
+     1,
+     3
+    ],
+    "lunch": [
+     2,
+     4
+    ],
+    "afternoon": [
+     2,
+     4
+    ]
+   },
+   "weekend": {
+    "rush": [
+     2,
+     4
+    ],
+    "midday": [
+     2,
+     4
+    ],
+    "afternoon": [
+     1,
+     3
+    ]
+   },
+   "closed_days": [
+    "mon"
+   ]
+  },
+  "school": {
+   "label": "Mission High School",
+   "kind": "civic",
+   "open": [
+    7.5,
+    15.5
+   ],
+   "weekday": {
+    "commute": [
+     3,
+     7
+    ],
+    "rush": [
+     6,
+     12
+    ],
+    "midday": [
+     4,
+     8
+    ],
+    "lunch": [
+     5,
+     10
+    ]
+   },
+   "weekend": {},
+   "closed_days": [
+    "sat",
+    "sun"
+   ]
+  },
+  "sfgeneral": {
+   "label": "SF General",
+   "kind": "civic",
+   "weekday": {
+    "overnight": [
+     1,
+     2
+    ],
+    "predawn": [
+     1,
+     3
+    ],
+    "commute": [
+     3,
+     6
+    ],
+    "rush": [
+     4,
+     8
+    ],
+    "midday": [
+     4,
+     8
+    ],
+    "lunch": [
+     4,
+     8
+    ],
+    "afternoon": [
+     5,
+     9
+    ],
+    "evening": [
+     3,
+     7
+    ],
+    "night": [
+     2,
+     4
+    ]
+   },
+   "weekend": {
+    "commute": [
+     2,
+     5
+    ],
+    "rush": [
+     3,
+     6
+    ],
+    "midday": [
+     4,
+     7
+    ],
+    "lunch": [
+     4,
+     7
+    ],
+    "afternoon": [
+     4,
+     8
+    ],
+    "evening": [
+     3,
+     6
+    ],
+    "night": [
+     2,
+     4
+    ]
+   }
+  },
+  "folsom": {
+   "label": "Folsom Auto & Sons",
+   "kind": "shop",
+   "open": [
+    6.5,
+    16
+   ],
+   "weekday": {
+    "commute": [
+     1,
+     3
+    ],
+    "rush": [
+     2,
+     4
+    ],
+    "midday": [
+     1,
+     3
+    ],
+    "lunch": [
+     2,
+     4
+    ],
+    "afternoon": [
+     1,
+     2
+    ]
+   },
+   "weekend": {
+    "commute": [
+     0,
+     2
+    ],
+    "rush": [
+     1,
+     3
+    ],
+    "midday": [
+     1,
+     2
+    ]
+   },
+   "closed_days": [
+    "sun"
+   ]
+  },
+  "auerbach": {
+   "label": "Auerbach Hardware",
+   "kind": "shop",
+   "open": [
+    8,
+    18
+   ],
+   "weekday": {
+    "commute": [
+     0,
+     1
+    ],
+    "rush": [
+     2,
+     5
+    ],
+    "midday": [
+     2,
+     4
+    ],
+    "lunch": [
+     2,
+     5
+    ],
+    "afternoon": [
+     3,
+     6
+    ],
+    "evening": [
+     0,
+     2
+    ]
+   },
+   "weekend": {
+    "rush": [
+     2,
+     5
+    ],
+    "midday": [
+     3,
+     6
+    ],
+    "lunch": [
+     3,
+     6
+    ],
+    "afternoon": [
+     3,
+     6
+    ]
+   }
+  },
+  "needlepointe": {
+   "label": "Needlepointe Tattoo",
+   "kind": "shop",
+   "open": [
+    11,
+    19
+   ],
+   "weekday": {
+    "midday": [
+     0,
+     2
+    ],
+    "lunch": [
+     1,
+     3
+    ],
+    "afternoon": [
+     1,
+     4
+    ],
+    "evening": [
+     1,
+     3
+    ],
+    "night": [
+     0,
+     1
+    ]
+   },
+   "weekend": {
+    "midday": [
+     1,
+     3
+    ],
+    "lunch": [
+     2,
+     4
+    ],
+    "afternoon": [
+     2,
+     5
+    ],
+    "evening": [
+     1,
+     3
+    ]
+   },
+   "closed_days": [
+    "mon"
+   ]
+  },
+  "doloresperk": {
+   "label": "Dolores Perk",
+   "kind": "cafe",
+   "open": [
+    7,
+    17
+   ],
+   "weekday": {
+    "commute": [
+     2,
+     4
+    ],
+    "rush": [
+     3,
+     6
+    ],
+    "midday": [
+     3,
+     5
+    ],
+    "lunch": [
+     3,
+     6
+    ],
+    "afternoon": [
+     2,
+     5
+    ]
+   },
+   "weekend": {
+    "commute": [
+     3,
+     5
+    ],
+    "rush": [
+     4,
+     7
+    ],
+    "midday": [
+     4,
+     7
+    ],
+    "lunch": [
+     4,
+     7
+    ],
+    "afternoon": [
+     3,
+     6
+    ]
+   }
+  },
+  "streets": {
+   "label": "sidewalks & crossings",
+   "kind": "open_air",
+   "weekday": {
+    "overnight": [
+     0,
+     1
+    ],
+    "predawn": [
+     1,
+     3
+    ],
+    "commute": [
+     6,
+     10
+    ],
+    "rush": [
+     6,
+     10
+    ],
+    "midday": [
+     5,
+     9
+    ],
+    "lunch": [
+     7,
+     11
+    ],
+    "afternoon": [
+     8,
+     13
+    ],
+    "evening": [
+     5,
+     9
+    ],
+    "night": [
+     3,
+     6
+    ]
+   },
+   "weekend": {
+    "commute": [
+     3,
+     6
+    ],
+    "rush": [
+     5,
+     9
+    ],
+    "midday": [
+     8,
+     13
+    ],
+    "lunch": [
+     9,
+     14
+    ],
+    "afternoon": [
+     10,
+     16
+    ],
+    "evening": [
+     6,
+     11
+    ],
+    "night": [
+     4,
+     8
+    ]
+   }
+  }
+ },
+ "weather_multipliers": {
+  "clear": {
+   "open_air": 1.0,
+   "cafe": 1.0,
+   "shop": 1.0,
+   "stand": 1.0,
+   "restaurant": 1.0,
+   "bar": 1.0,
+   "civic": 1.0
+  },
+  "rain": {
+   "open_air": 0.15,
+   "cafe": 1.4,
+   "shop": 1.2,
+   "stand": 0.4,
+   "restaurant": 1.2,
+   "bar": 1.1,
+   "civic": 1.5
+  },
+  "storm": {
+   "open_air": 0.05,
+   "cafe": 1.2,
+   "shop": 1.1,
+   "stand": 0.0,
+   "restaurant": 1.1,
+   "bar": 0.9,
+   "civic": 1.3
+  },
+  "heat": {
+   "open_air": 1.4,
+   "cafe": 0.9,
+   "shop": 1.0,
+   "stand": 1.3,
+   "restaurant": 1.0,
+   "bar": 1.2,
+   "civic": 1.2
+  },
+  "fog": {
+   "open_air": 0.55,
+   "cafe": 1.15,
+   "shop": 1.0,
+   "stand": 0.8,
+   "restaurant": 1.0,
+   "bar": 1.05,
+   "civic": 1.1
+  },
+  "wind": {
+   "open_air": 0.75,
+   "cafe": 1.05,
+   "shop": 1.0,
+   "stand": 0.7,
+   "restaurant": 1.0,
+   "bar": 1.0,
+   "civic": 1.0
+  }
+ },
+ "fog_model": {
+  "rule": "the marine layer is a depth profile, not a binary — it pours over Twin Peaks, dies at the park's west edge, and burns off mid-morning most days; roughly one fog day in four never lifts",
+  "stages": [
+   "deep",
+   "patchy",
+   "burned"
+  ],
+  "day_profile": {
+   "overnight": "deep",
+   "predawn": "deep",
+   "commute": "deep",
+   "rush": "patchy",
+   "midday": "burned",
+   "lunch": "burned",
+   "afternoon": "burned",
+   "evening": "patchy",
+   "night": "deep"
+  },
+  "burn_hour": 10.5,
+  "fog_line": "the park's west edge — extras thin there first; the east sidewalks keep their sun. A spectator reads the line, never the word",
+  "all_day": {
+   "share": "~1 fog day in 4, heavier May–Aug",
+   "profile": "patchy holds midday/lunch/afternoon",
+   "effect": "park stays thin; the bench parliament defects to Dolores Perk — same displacement as rain, different reason"
+  },
+  "reflexes": "no new reflex — fog is not wet, so shelter never fires; gaits unchanged. Fog is a gray read, not an empty one"
+ },
+ "wind_model": {
+  "rule": "afternoon westerlies, strongest 14–18 — felt on stands, stoops, and anyone holding paper",
+  "peak_hours": [
+   14,
+   18
+  ],
+  "effects": {
+   "stand_mult": 0.7,
+   "open_air_mult": 0.75,
+   "gait": "lean-in",
+   "note": "Luz ties the tarps or packs early; Ray's crumb bag stays shut till the gusts pass"
+  }
+ },
+ "season_shades": {
+  "rule": "climate baseline — resolved BEFORE day shades and weather, stacks with both (a shade is a day, a season is the month it lands in). Calendar-keyed by month; budget arithmetic only — no ambient routine changes",
+  "shades": [
+   {
+    "id": "fog_season",
+    "when": {
+     "months": [
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "zone_mult": {
+     "park": 0.9,
+     "clarion": 0.9
+    },
+    "daypart_zone_mult": {
+     "commute": {
+      "park": 0.8
+     },
+     "rush": {
+      "park": 0.85
+     }
+    },
+    "note": "summer is the gray season — the park's quiet months"
+   },
+   {
+    "id": "indian_summer",
+    "when": {
+     "months": [
+      9,
+      10
+     ]
+    },
+    "zone_mult": {
+     "park": 1.1
+    },
+    "daypart_zone_mult": {
+     "afternoon": {
+      "park": 1.15,
+      "clarion": 1.1
+     },
+     "evening": {
+      "park": 1.1
+     }
+    },
+    "note": "the Mission's real summer — September and October run warm and clear"
+   },
+   {
+    "id": "wet_season",
+    "when": {
+     "months": [
+      11,
+      12,
+      1,
+      2,
+      3
+     ]
+    },
+    "zone_mult": {
+     "park": 0.95
+    },
+    "note": "the rainy months — fog matters less than the storms between them"
+   }
+  ]
+ },
+ "event_modifiers": {
+  "player_event": {
+   "draw_radius_blocks": 1,
+   "source_zones_mult": 0.7,
+   "target_zone_band": "packed",
+   "linger_minutes": [
+    10,
+    20
+   ]
+  },
+  "exclusive_lock": {
+   "target_zone_budget": [
+    0,
+    0
+   ],
+   "note": "claims-matrix venue lock clears extras; staff ambients stay on routine"
+  }
+ },
+ "density_caps": {
+  "around_main_or_player": 3,
+  "frame_total_extras": 40,
+  "per_spawn_burst": 2
+ },
+ "spawner": {
+  "spawn_rule": "only at points where !onScreen; despawn oldest-first when over budget; reload repopulates from budgets (extras excluded from save state)",
+  "variety": "hash(day, zone, spawnIndex) over silhouette/gait palette — variety without identity",
+  "collision": "respect SF_PROP_RAD + crosswalk cells; never enter poi:null interiors or claimed space",
+  "v57": "crowdBudget gains a season arg (resolved before shades/weather); fogStage(hour, all_day) -> deep|patchy|burned from fog_model.day_profile — all_day holds 'patchy' through midday/lunch/afternoon"
+ },
+ "scenes": [
+  {
+   "id": "handoff-4am",
+   "label": "The 4 a.m. handoff",
+   "when": {
+    "dayparts": [
+     "predawn"
+    ],
+    "named": [
+     "A16",
+     "A06"
+    ],
+    "weather_not": [
+     "storm"
+    ]
+   }
+  },
+  {
+   "id": "mudhaus-rush",
+   "label": "Rush hour at Mudhaus",
+   "when": {
+    "dayparts": [
+     "rush"
+    ],
+    "zone": "mudhaus",
+    "band_at_least": "busy"
+   }
+  },
+  {
+   "id": "bench-parliament",
+   "label": "Bench parliament",
+   "when": {
+    "dayparts": [
+     "midday",
+     "lunch",
+     "afternoon"
+    ],
+    "named": [
+     "A05",
+     "A19"
+    ],
+    "weather_not": [
+     "rain",
+     "storm"
+    ]
+   }
+  },
+  {
+   "id": "wordless-race",
+   "label": "The wordless race",
+   "when": {
+    "dayparts": [
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon"
+    ],
+    "named": [
+     "A15"
+    ],
+    "note": "fires when Omar's loop crosses C5 Marcus's route — proximity condition, not a schedule"
+   }
+  },
+  {
+   "id": "release-1500",
+   "label": "The 15:00 release",
+   "when": {
+    "dayparts": [
+     "afternoon"
+    ],
+    "hours": [
+     15,
+     16.5
+    ],
+    "named": [
+     "A04",
+     "A20"
+    ],
+    "weekday_only": true
+   }
+  },
+  {
+   "id": "evening-nurse",
+   "label": "The evening nurse",
+   "when": {
+    "dayparts": [
+     "evening"
+    ],
+    "named": [
+     "A09"
+    ],
+    "zone": "mudhaus"
+   }
+  },
+  {
+   "id": "victor-pickup",
+   "label": "Victor's pickup at Gus's",
+   "when": {
+    "dayparts": [
+     "lunch",
+     "afternoon"
+    ],
+    "named": [
+     "A10"
+    ],
+    "weekly": "fri"
+   }
+  },
+  {
+   "id": "doorway-sets",
+   "label": "Doorway sets",
+   "when": {
+    "named": [
+     "A08"
+    ],
+    "weather": [
+     "rain"
+    ],
+    "note": "Sam under the 600 Club awning — rain is the trigger"
+   }
+  },
+  {
+   "id": "parliament-in-exile",
+   "label": "Parliament in exile",
+   "when": {
+    "named": [
+     "A05",
+     "A19"
+    ],
+    "zone": "doloresperk"
+   },
+   "note": "fires whenever the bench parliament is displaced — rain, storm, or an all-day fog. Same table by the window, same argument"
+  }
+ ],
+ "day_shades": {
+  "rule": "named shades multiply zone budgets on calendar conditions; first match wins (first_of_month beats fri); stack with weather, never with each other; budget arithmetic only — no ambient routine changes",
+  "shades": [
+   {
+    "id": "first_of_month",
+    "when": {
+     "dom": 1
+    },
+    "zone_mult": {
+     "fruteria": 1.5,
+     "minimart": 1.3
+    },
+    "scene_weight": {
+     "bench-parliament": 1.3
+    },
+    "note": "the block's payroll rhythm — Luz's busiest day"
+   },
+   {
+    "id": "fri",
+    "when": {
+     "dow": "fri"
+    },
+    "zone_mult": {
+     "club600": 1.15,
+     "elfarolote": 1.1,
+     "mudhaus": 0.85
+    },
+    "daypart_zone_mult": {
+     "evening": {
+      "streets": 1.2
+     }
+    },
+    "note": "evening swell; nobody lingers at Mudhaus Friday afternoon"
+   },
+   {
+    "id": "sun",
+    "when": {
+     "dow": "sun"
+    },
+    "daypart_zone_mult": {
+     "commute": {
+      "streets": 0.5,
+      "minimart": 0.7
+     },
+     "rush": {
+      "streets": 0.5,
+      "minimart": 0.7
+     }
+    },
+    "note": "morning hush; the park owns the day"
+   },
+   {
+    "id": "mon",
+    "when": {
+     "dow": "mon"
+    },
+    "kind_mult": {
+     "cafe": 0.8
+    },
+    "note": "the closed-sign shade — bakery/bloomdoom closed_days already bite; the block exhales"
+   }
+  ]
+ },
+ "flow_edges": {
+  "rule": "ordered zone-pair pedestrian currents; bodies in transit, distinct from zone budgets; 60–80% of a rising zone's deficit arrives via the strongest live edge; transit extras dwell ≤90 s per crossed zone; rain halves flow and speeds gait, storm applies its zone mult",
+  "endpoints": [
+   "edge"
+  ],
+  "edges": [
+   {
+    "id": "f-edge-mudhaus",
+    "a": "edge",
+    "b": "mudhaus",
+    "dayparts": [
+     "commute",
+     "rush",
+     "lunch",
+     "afternoon"
+    ],
+    "flow": {
+     "weekday": [
+      3,
+      7
+     ],
+     "weekend": [
+      4,
+      9
+     ]
+    },
+    "note": "the morning approach — the crossing fills before the door does"
+   },
+   {
+    "id": "f-mudhaus-park",
+    "a": "mudhaus",
+    "b": "park",
+    "dayparts": [
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon"
+    ],
+    "flow": {
+     "weekday": [
+      2,
+      5
+     ],
+     "weekend": [
+      3,
+      7
+     ]
+    },
+    "note": "coffee-to-grass drift"
+   },
+   {
+    "id": "f-school-park",
+    "a": "edge",
+    "b": "park",
+    "dayparts": [
+     "afternoon"
+    ],
+    "hours": [
+     15,
+     16.5
+    ],
+    "flow": {
+     "weekday": [
+      4,
+      8
+     ]
+    },
+    "micro": "school-bell",
+    "note": "the release current; weekday only"
+   },
+   {
+    "id": "f-streets-elfarolote",
+    "a": "streets",
+    "b": "elfarolote",
+    "dayparts": [
+     "lunch",
+     "evening",
+     "night"
+    ],
+    "flow": {
+     "weekday": [
+      3,
+      6
+     ],
+     "weekend": [
+      4,
+      8
+     ]
+    },
+    "note": "dinner approach"
+   },
+   {
+    "id": "f-club600-edge",
+    "a": "club600",
+    "b": "edge",
+    "dayparts": [
+     "night"
+    ],
+    "hours": [
+     23,
+     26
+    ],
+    "flow": {
+     "weekday": [
+      4,
+      8
+     ],
+     "weekend": [
+      7,
+      12
+     ]
+    },
+    "micro": "last-call-drift",
+    "note": "the way home"
+   },
+   {
+    "id": "f-park-minimart",
+    "a": "park",
+    "b": "minimart",
+    "dayparts": [
+     "midday",
+     "lunch",
+     "afternoon",
+     "evening"
+    ],
+    "flow": {
+     "weekday": [
+      1,
+      3
+     ],
+     "weekend": [
+      2,
+      4
+     ]
+    },
+    "note": "beer-and-ice run"
+   },
+   {
+    "id": "f-edge-streets",
+    "a": "edge",
+    "b": "streets",
+    "dayparts": [
+     "predawn",
+     "commute",
+     "rush",
+     "night"
+    ],
+    "flow": {
+     "weekday": [
+      2,
+      6
+     ],
+     "weekend": [
+      1,
+      4
+     ]
+    },
+    "note": "transit spill — the block absorbs the city's commute"
+   }
+  ]
+ },
+ "micro_events": {
+  "rule": "named mundane deformations — conditions evaluated per tick (microActive), never scheduled, never feed events; internal vocabulary only",
+  "events": [
+   {
+    "id": "sweep-tue",
+    "when": {
+     "dow": "tue",
+     "dayparts": [
+      "rush",
+      "midday"
+     ]
+    },
+    "edge_mult": {
+     "f-edge-streets": 0.8
+    },
+    "zone_mult": {
+     "streets": 0.9
+    },
+    "note": "street sweeping — curb lanes clear on the swept side"
+   },
+   {
+    "id": "school-bell",
+    "when": {
+     "dow_not": [
+      "sat",
+      "sun"
+     ],
+     "hours": [
+      15,
+      16.5
+     ]
+    },
+    "edge_mult": {
+     "f-school-park": 2.0
+    },
+    "zone_floor": {
+     "park": {
+      "afternoon": 2
+     }
+    },
+    "note": "the release is audible before it's visible"
+   },
+   {
+    "id": "delivery-window",
+    "when": {
+     "dayparts": [
+      "commute",
+      "rush"
+     ]
+    },
+    "dwell": {
+     "zones": [
+      "bakery",
+      "streets"
+     ],
+     "extras": [
+      1,
+      2
+     ],
+     "gait": "handtruck"
+    },
+    "note": "commerce texture, not a scene"
+   },
+   {
+    "id": "last-call-drift",
+    "when": {
+     "hours": [
+      23,
+      26
+     ]
+    },
+    "edge_mult": {
+     "f-club600-edge": 1.6
+    },
+    "zone_mult": {
+     "elfarolote": 1.15
+    },
+    "note": "post-bar tail at the taqueria"
+   },
+   {
+    "id": "sunday-stoop",
+    "when": {
+     "dow": "sun",
+     "dayparts": [
+      "midday",
+      "lunch",
+      "afternoon",
+      "evening"
+     ]
+    },
+    "static_extras": {
+     "where": "residential doorways",
+     "count": [
+      1,
+      3
+     ],
+     "flow": 0
+    },
+    "note": "stoops read occupied; zero transit"
+   },
+   {
+    "id": "fog-burn",
+    "when": {
+     "wx": "fog",
+     "hours": [
+      10.5,
+      12.5
+     ]
+    },
+    "edge_mult": {
+     "f-mudhaus-park": 1.5
+    },
+    "zone_floor": {
+     "park": {
+      "midday": 6
+     }
+    },
+    "note": "the burn-off hour — the park fills in twenty minutes when the gray lifts"
+   },
+   {
+    "id": "west-wind",
+    "when": {
+     "wx": "wind",
+     "hours": [
+      14,
+      18
+     ]
+    },
+    "edge_mult": {
+     "f-park-minimart": 0.7
+    },
+    "zone_mult": {
+     "clarion": 0.8,
+     "streets": 0.9
+    },
+    "note": "gusts shorten loitering — the alley and the sidewalks thin in the afternoon blow"
+   }
+  ]
+ },
+ "persistence": {
+  "walk_chain_window_min": 20,
+  "walk_chain_max_zones": 2,
+  "camera_jump": "keep extras whose last heading points into the new frame; deficits fill at edges",
+  "save_state": "extras excluded — reload repopulates from budgets",
+  "rule": "silhouette reuse is costume continuity, not identity — no id, no name, no ledger presence; a chain is indistinguishable from coincidence by construction"
+ },
+ "appearance_palette": {
+  "rule": "extraLook(day, zone, spawnIndex) — deterministic hash pick; variety without identity; reused under walk-chain windows",
+  "silhouettes": [
+   "commuter-bag",
+   "hoodie-hands-pouched",
+   "dog-lead",
+   "stroller",
+   "bike-shoulder",
+   "toolbelt",
+   "scrubs",
+   "apron",
+   "messenger-sling",
+   "tote-stack",
+   "jogger",
+   "hiker-pack",
+   "suit-loose-tie",
+   "workboots",
+   "skater-carry",
+   "guitar-case",
+   "laundry-bag",
+   "grocery-two-bags",
+   "camera-tourist",
+   "elder-cane",
+   "delivery-hotbox",
+   "flat-cap",
+   "headphones-big",
+   "umbrella-furled"
+  ],
+  "gaits": [
+   "purposeful",
+   "amble",
+   "hurry",
+   "meander",
+   "dog-paced",
+   "loaded"
+  ],
+  "note": "24 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face"
+ },
+ "greeting_matrix": {
+  "rule": "familiarity weights between named ambients (mains noted where a routine crosses); a 'hi' weight = likely ≤15 s visual beat on same-zone collision, gated on greetable states; never moves a routine; observable-safe — no seed content; minors greet in public groups only",
+  "weights": {
+   "hi": "likely on collision",
+   "lo": "rare — a beat worth noticing",
+   "none": "by design — passes through"
+  },
+  "pairs": [
+   {
+    "a": "A05",
+    "b": "A19",
+    "weight": "hi",
+    "form": "bench-parliament nod — the day's argument resumed mid-sentence",
+    "zones": [
+     "park"
+    ]
+   },
+   {
+    "a": "A01",
+    "b": "A13",
+    "weight": "hi",
+    "form": "barista-regular nod, cup already started",
+    "zones": [
+     "mudhaus"
+    ]
+   },
+   {
+    "a": "A09",
+    "b": "A01",
+    "weight": "hi",
+    "form": "quiet counter recognition — scrubs acknowledged, not discussed",
+    "zones": [
+     "mudhaus"
+    ]
+   },
+   {
+    "a": "A06",
+    "b": "A15",
+    "weight": "lo",
+    "form": "chin-raise at speed — couriers don't stop",
+    "zones": [
+     "streets"
+    ]
+   },
+   {
+    "a": "A07",
+    "b": "A04",
+    "weight": "hi",
+    "form": "kid-mango — a slice handed over without a transaction",
+    "zones": [
+     "fruteria",
+     "park"
+    ],
+    "minor_pack": true
+   },
+   {
+    "a": "A07",
+    "b": "A20",
+    "weight": "hi",
+    "form": "kid-mango",
+    "zones": [
+     "fruteria",
+     "park"
+    ],
+    "minor_pack": true
+   },
+   {
+    "a": "A03",
+    "b": "A05",
+    "weight": "hi",
+    "form": "the counter tab nod — decades of small transactions",
+    "zones": [
+     "minimart"
+    ]
+   },
+   {
+    "a": "A14",
+    "b": "A08",
+    "weight": "hi",
+    "form": "late-corner pause — smoke break meets pack-up",
+    "zones": [
+     "club600",
+     "park"
+    ]
+   },
+   {
+    "a": "A11",
+    "b": "A05",
+    "weight": "lo",
+    "form": "library-regular wave across the park",
+    "zones": [
+     "park",
+     "library"
+    ]
+   },
+   {
+    "a": "A16",
+    "b": "A02",
+    "weight": "hi",
+    "form": "6 a.m. wave — warm bread smells, leashes tangled",
+    "zones": [
+     "park",
+     "bakery"
+    ]
+   },
+   {
+    "a": "A02",
+    "b": "A08",
+    "weight": "lo",
+    "form": "pitch-side dog sniff — the dogs know Sam",
+    "zones": [
+     "park"
+    ]
+   },
+   {
+    "a": "A17",
+    "b": "A10",
+    "weight": "hi",
+    "form": "hardware-counter mornings — job talk over coffee",
+    "zones": [
+     "auerbach",
+     "minimart"
+    ]
+   },
+   {
+    "a": "A14",
+    "b": "A18",
+    "weight": "lo",
+    "form": "Clarion neighbors — flowers and flash sheets",
+    "zones": [
+     "clarion",
+     "bloomdoom"
+    ]
+   },
+   {
+    "a": "A12",
+    "b": "A19",
+    "weight": "none",
+    "form": "the metronome doesn't stop — Ray doesn't expect it to",
+    "zones": [
+     "park"
+    ]
+   },
+   {
+    "a": "A12",
+    "b": "A05",
+    "weight": "none",
+    "form": "laps don't pause",
+    "zones": [
+     "park"
+    ]
+   },
+   {
+    "a": "A04",
+    "b": "A20",
+    "weight": "hi",
+    "form": "pack adjacency — school-release orbit",
+    "zones": [
+     "park",
+     "mudhaus"
+    ],
+    "minor_pack": true
+   },
+   {
+    "a": "A10",
+    "b": "C7",
+    "weight": "hi",
+    "form": "the truck argument, continued from last week",
+    "zones": [
+     "folsom"
+    ],
+    "main_crossing": true,
+    "note": "same collision the victor-pickup scene detects"
+   },
+   {
+    "a": "A15",
+    "b": "C5",
+    "weight": "lo",
+    "form": "the wordless race — one block at full pace, no greeting",
+    "zones": [
+     "streets"
+    ],
+    "main_crossing": true
+   }
+  ]
+ },
+ "feed_wording": {
+  "venue_band_event": {
+   "kind": "venue",
+   "rate_limit": "once per venue per hour, on band change only",
+   "format": "<venue>: <band word>"
+  },
+  "scene_event": {
+   "kind": "scene",
+   "rule": "label only when a band change accompanies the scene; otherwise the frame simply is the scene"
+  },
+  "extras_in_text": "never named, never counted exactly — venue reads show '+N' tail on named faces only"
+ },
+ "boundaries": {
+  "extras_never": [
+   "identity",
+   "ledger entry",
+   "feed attribution",
+   "request target",
+   "dialogue",
+   "memory encoding",
+   "archive row",
+   "promotion path"
+  ],
+  "overnight_honesty": "allow_deserted is protected — no system pads 00–04 to look alive",
+  "scripts": "budgets and conditions only; no pawn is ever told where a scene should happen",
+  "resources": "a resource claim never touches the staff ambient's routine and never turns an ambient into a protagonist; minors have no claimable resources",
+  "weather_vocab": "fog/wind/season ids are internal vocabulary — the wire still says band words and scene labels; a spectator sees a gray morning, never 'fog_season'"
+ },
+ "ambient_resources": {
+  "rule": "sub-venue resources a player request can claim for a declared window without locking the venue (design §11 compatible/exclusive classes still apply — a resource claim is an exclusive-class request on the resource, human-reviewed like any exclusive). The claim zeros the extras budget inside the resource radius for the window; the staff ambient keeps their routine — the venue works, the people stay background. Minors never staff or neighbor a claimable resource.",
+  "resources": [
+   {
+    "id": "res-mudhaus-table",
+    "zone": "mudhaus",
+    "label": "the neighbor table",
+    "staff": "A01",
+    "capacity": "seats 6",
+    "window_min": [
+     15,
+     60
+    ],
+    "note": "the big corner table — a declared-window reservation; the café keeps serving around it"
+   },
+   {
+    "id": "res-600-mic",
+    "zone": "club600",
+    "label": "the open-mic slot",
+    "staff": "A08",
+    "capacity": "one 15-minute set",
+    "window_min": [
+     15,
+     15
+    ],
+    "note": "books a performance window on the corner rig — the bar stays open, Sam plays the edge or doesn't"
+   },
+   {
+    "id": "res-park-pitch",
+    "zone": "park",
+    "label": "the north pitch",
+    "staff": "A08",
+    "capacity": "one busker pitch",
+    "window_min": [
+     30,
+     120
+    ],
+    "note": "the raised patch by the north path — a claim holds the pitch, not the grass around it"
+   },
+   {
+    "id": "res-fruteria-firstbox",
+    "zone": "fruteria",
+    "label": "the first box",
+    "staff": "A07",
+    "capacity": "one preorder crate",
+    "window_min": [
+     30,
+     30
+    ],
+    "note": "Luz's first crate of the day — claimed by preorder, gone by 9; the stand sells around it"
+   },
+   {
+    "id": "res-needlepointe-chair",
+    "zone": "needlepointe",
+    "label": "the walk-in chair",
+    "staff": "A14",
+    "capacity": "one chair slot",
+    "window_min": [
+     60,
+     180
+    ],
+    "note": "Bex's walk-in chair — a claim holds the slot; flash only, nothing the sheet doesn't already show"
+   }
+  ]
+ }
+}

@@ -1,0 +1,115 @@
+{
+  "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
+  "version": 23,
+  "price": {
+    "hire_cr": 500,
+    "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
+    "includes": ["character slot", "basic wardrobe", "starter apartment hunt"],
+    "refund_rule": "denied applications never bill; a post-review denial auto-refunds in full",
+    "slot_cap": { "base": 1, "resident_sub": 2, "director_sub": 3, "hard_max_per_account": 3 }
+  },
+  "record_schema": {
+    "id": "h## — hired-character ids, disjoint from C1–C8 mains and A01–A20 ambients",
+    "owner": "player handle — the only account that may ever possess this character",
+    "name": "screened string; never a cast/ambient name, never a real person, never slurs",
+    "age": "integer >= 18 — player-possessable characters are adults, always",
+    "pronouns": "free pick",
+    "bio": "public profile text — screened; this IS the briefing-safe surface",
+    "look": {
+      "doc": "structured pickers only — rendering data, not text; no free-text look field exists, so nothing here needs screening",
+      "build": ["slight", "compact", "tall", "broad", "angular"],
+      "palette": ["fog grey", "mission mural", "moss", "midnight", "ochre", "plum"],
+      "signature": ["windbreaker, always", "paint-flecked work boots", "loud prints, louder laugh", "cardigans and a paperback", "running gear at dawn", "denim jacket, pins on the collar"]
+    },
+    "arrival": "one-line 'first day on the block' context — screened text",
+    "job_id": "jobs.json row with openings, or 'seeking'",
+    "unit_id": "housing.json listings_live unit, or a room tier",
+    "bank_game_dollars": "starting balance — rent comes out of this, not credits",
+    "brain": "full LLM when possessed or ambient-active; thin AI when owner offline"
+  },
+  "screening": {
+    "surface": ["name", "bio", "arrival"],
+    "engine": "world/screen.js RWScreen.screenRequest — the SHARED engine, same code path as request.html + mod-console.html; creation adds only the name-collision registry check (not an intent class). If the engine is unavailable the application cannot be billed — never fall back to private rules.",
+    "resubmit_rule": "denied applications may be edited and resubmitted; resubmissions carry resubmit_n and route to a DIFFERENT reviewer (moderation.json appeal-resubmit). No resubmit fee.",
+    "rules": "world/moderation-notes.md §3 verbatim — naming strings always get a human review pass (§4)",
+    "deny_codes": ["name-collision", "real-person", "harm-targeting", "secret-extraction", "real-business", "legal-backstop", "underage"],
+    "note": "Screening covers what the player WROTE. Once created, the character's emergent behavior is inviolable — no moderation, ever."
+  },
+  "what_the_player_authors": [
+    "initial conditions only: identity surface, look, job application, lease",
+    "the character's inner life, secrets, and decisions emerge — players never write scripts, triggers, or loyalties",
+    "a hired character may decline a nudge like any main; possession is session-scoped"
+  ],
+  "sim_obligations": [
+    "pays rent monthly in game dollars — arrears and eviction apply like anyone else",
+    "works their job; thin-AI auto-shifts pay baseline wages",
+    "possession during a shift earns the same wage + small session bonus (never pay-to-earn-better)",
+    "offline owner → character drops to thin AI (cheap), wakes to full brain on return"
+  ],
+  "economics_shown_before_signing": {
+    "arrival_bank_game_dollars": 1600,
+    "rent_to_income_ceiling_pct": 55,
+    "ceiling_rule": "units above the ceiling are visible but unselectable — the honest 'out of reach' state at pick time, never a surprise denial after payment",
+    "runway_rule": "if projected income < rent, the UI shows months-until-broke on post-move-in cash (+wages); 'arrives without work' is allowed but the runway is displayed verbatim",
+    "currency_wall": "rent is game dollars only — credits are never offered for it anywhere in the flow"
+  },
+  "move_in_math": {
+    "doc": "v35 — signing is atomic per leases.json sign_atomic: first month + deposit leave the bank together. The flow must show this before signing, never quietly ignore it.",
+    "deposit_flat": "1x monthly rent",
+    "deposit_room_share": "0.5x monthly rent",
+    "shortfall_rule": "if arrival bank < first month + deposit, the deposit rides a stated payment plan against the first paychecks — shown verbatim, never a waived deposit presented as paid",
+    "day_one_cash": "arrival bank − first month − deposit (or − first month only when the plan applies)"
+  },
+  "payday": {
+    "doc": "shifts.md cadence rendered per job row and in the first-week step",
+    "weekly": "entry + informal roles — Friday, end of day; the first true paycheck lands the Friday after the 5th",
+    "biweekly": "mid/top roles — every other Friday"
+  },
+  "job_board": {
+    "doc": "the whole posted board renders — open and filled. jobs.json is canonical.",
+    "openings": "finite counts shown verbatim (n openings); -1 = always hiring (churn gig)",
+    "filled": "openings=0 rows stay visible behind a fold, unselectable — the board reads honestly instead of showing only open doors",
+    "channels": "word-of-mouth posts (market.json channel) carry the label — never a posted card, ask at the counter",
+    "seeking": "'arrives without work' is always selectable — savings only"
+  },
+  "live_seam": {
+    "doc": "create.html reads game-v8 bridge surfaces when __aiBridge is present; mirrors otherwise. Read-only — the demo never calls a mutation.",
+    "reads": ["gsJobBoard()", "gsHireNameCheck(name)", "gsHireQuote(spec)", "gsHireSlots(pid)"],
+    "never": ["gsRequestSubmit", "gsHireActivate", "gsHiredTakeJob", "gsApplyForLease", "gsSignLease", "fetch", "XHR"],
+    "badge": "header shows 'live board' | 'demo board' — the page never pretends to be live"
+  },
+  "people_layer": {
+    "doc": "v49 — the block's actual names, mirrored from characters.json (cast, k:'cast') and ambients.json (faces, k:'face'). Every row re-verified by the audit gate: w employer tokens resolve into the person's job/venue field, b building prefixes resolve into cast home fields, owns prefixes resolve into the landlord's job field. Ambient homes are not addresses, so faces never carry b.",
+    "fields": { "n": "display name (cast full name / ambient full name)", "k": "cast | face", "w": "job-board employer strings — crew card source", "b": "building prefix '9xxx Street' — neighbor card source (cast only)", "owns": "buildings where the registry names this person landlord of record", "note": "public-observable one-liner, briefing-safe" },
+    "renders": ["taken-names fold (step 1)", "'you'd work alongside' card (step 3)", "'the building you'd land in' card + landlord-of-record line (step 4)", "FACES row (step 5)", "named surface relationships in the briefing"],
+    "honesty": "empty states are stated, not padded — 'no regulars on the card yet — the crew introduces itself on shift'; names shown are surface ties, never claimed friendships"
+  },
+  "names_registry": {
+    "doc": "v49 — the complete taken list rendered on the table (fold on step 1): 8 cast names, 20 ambient first names, 3 role words. Every listed string must match the TAKEN regex — the audit gate checks both directions' agreement.",
+    "groups": ["cast", "faces", "roles"]
+  },
+  "arrival_window": {
+    "doc": "v49 — a declared landing window rides the hire, like every request declares its action upfront. Part of the 500 cr, never priced separately.",
+    "options": ["lands tonight", "tomorrow morning", "Saturday morning"],
+    "default": "tomorrow morning",
+    "feed": "the cast event carries it — 'lands <window>' — so the block sees the arrival on The Wire"
+  },
+  "registry_entry": {
+    "doc": "v49 — after the briefing, the minted h## record renders field-for-field per record_schema: id/owner, name/age/pronouns, look, arrival+landing, job_id, unit_id, bank after move-in (game dollars), brain mode. Honesty line: 'the whole file — no secret fields exist on it.'",
+    "rule": "renders exactly the record_schema fields — nothing the player can't see is written on the card"
+  },
+  "draft": {
+    "storage": "localStorage rw_create_draft_v23 — fields + step + resubmit count + landing pick",
+    "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
+  },
+  "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
+  "feed_events": {
+    "request": "hire — '<name>' joined the cast (attributed, status resolved)",
+    "housing": "move-in — <address> comes off the board",
+    "cast": "a new face on the block — <name>, <public bio one-liner> (bio text only post-screen)"
+  },
+  "progression_hooks": [
+    "tenant → owner: purchase listings use the same 9xxx addresses; deed fee in credits after the earned game-dollar grind",
+    "owner → landlord: landlord license gates on earned in-world standing"
+  ]
+}

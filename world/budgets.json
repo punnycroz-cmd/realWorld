@@ -1,0 +1,40 @@
+{
+  "doc": "Envelopes — machine mirror of world/budgets.md (v17). INTERNAL tier: spectator surfaces show texture only, never a named person's numbers. All game dollars, gross monthly estimates (wage × h/wk × 4.33); variable/informal flagged. Canonical wages/rents remain jobs-housing.md §2/§3 — on conflict those win.",
+  "version": 17,
+  "nut_baseline": { "groceries": 320, "transit": 80, "utilities_share": 90, "total": 490 },
+  "stress_levels": ["fragile", "tight", "steady", "comfortable"],
+  "households": [
+    { "id": "c1-marisol", "income": [ { "source": "Mudhaus manager", "monthly": 5190 } ], "housing": 1150, "housing_ref": "bld-c9127-C", "nut": 520, "cushion": 3500, "stress": "steady", "note": "most banked on the block; everyone's unspoken emergency fund" },
+    { "id": "c2-jules", "income": [ { "source": "Mudhaus barista", "monthly": 2800, "variable": true } ], "housing": 700, "housing_ref": "bld-g9418-A (informal room share)", "nut": 480, "cushion": 1600, "stress": "steady", "note": "cash room share to tenant of record; unrecorded" },
+    { "id": "c3-dani", "income": [ { "source": "Mudhaus barista", "monthly": 2700, "variable": true } ], "housing": 700, "housing_ref": "bld-g9263-4 (informal room share)", "nut": 460, "cushion": 1400, "stress": "steady", "note": "sends small amounts home, untracked" },
+    { "id": "c4-priya", "income": [ { "source": "RN med-surg, SF General", "monthly": 7490 } ], "housing": 1600, "housing_ref": "bld-g9457-3 (share)", "nut": 560, "cushion": 5300, "stress": "comfortable", "note": "the contested raise isn't about her money" },
+    { "id": "c5-marcus", "income": [ { "source": "bike courier, Flying Pannier", "monthly": 2600, "variable": true } ], "housing": 1600, "housing_ref": "bld-g9457-3 (share)", "nut": 520, "cushion": 480, "stress": "fragile", "note": "share runs ~62-70% of income; chronically ~1mo late — structural" },
+    { "id": "c6-carmen", "income": [ { "source": "pension/SSI", "monthly": 1650 }, { "source": "hemming (informal)", "monthly": 300, "variable": true }, { "source": "room share (cash)", "monthly": 700 } ], "housing": 950, "housing_ref": "bld-g9418-A", "nut": 520, "cushion": 230, "stress": "fragile", "note": "controlled rent since 1989; margin managed like weather" },
+    { "id": "c7-victor", "income": [ { "source": "owner draw, Auerbach Hardware", "monthly": 5500, "variable": true } ], "housing": 0, "housing_ref": "bld-m9102-2 (owner-occupied)", "nut": 600, "cushion": 4900, "stress": "comfortable", "note": "asset-rich, illiquid where it counts" },
+    { "id": "c8-tomas", "income": [ { "source": "lead cook, El Farolote", "monthly": 5190 } ], "housing": 1275, "housing_ref": "bld-f9344-1", "nut": 450, "cushion": 3400, "stress": "steady", "note": "eats at the restaurant; saves with unexplained discipline" }
+  ],
+  "ambient_texture": [
+    { "id": "a01-reyes", "monthly": 3900, "variable": true, "housing": 700, "cushion": 2700, "stress": "tight", "note": "sends most of it home" },
+    { "id": "a02-doro", "monthly": 2600, "housing": 700, "cushion": 1400, "stress": "steady" },
+    { "id": "a03-malik", "monthly": 3100, "variable": true, "housing": 700, "cushion": 1900, "stress": "tight" },
+    { "id": "a05-esther", "monthly": 1600, "housing": 700, "cushion": 400, "stress": "fragile" },
+    { "id": "a06-kofe", "monthly": 2200, "variable": true, "housing": 700, "cushion": 1100, "stress": "tight" },
+    { "id": "a07-luz", "monthly": 4000, "variable": true, "housing": null, "housing_ref": "family arrangement", "cushion": null, "stress": "tight" },
+    { "id": "a08-sam", "monthly": 1800, "variable": true, "housing": 700, "cushion": 600, "stress": "fragile" },
+    { "id": "a09-asha", "monthly": 7490, "housing": 700, "cushion": 6300, "stress": "comfortable" },
+    { "id": "a10-gus", "monthly": 5880, "housing": 700, "cushion": 4700, "stress": "comfortable" },
+    { "id": "a11-vera", "monthly": 5360, "housing": 700, "cushion": 4100, "stress": "comfortable" },
+    { "id": "a13-nadia", "monthly": 8650, "housing": 700, "cushion": 7400, "stress": "comfortable" },
+    { "id": "a14-bex", "monthly": 4500, "variable": true, "housing": 700, "cushion": 3300, "stress": "steady" },
+    { "id": "a16-hana", "monthly": 5070, "housing": 700, "cushion": 3900, "stress": "steady" },
+    { "id": "a17-cole", "monthly": 6230, "housing": 700, "cushion": 5000, "stress": "comfortable" },
+    { "id": "a18-ida", "monthly": 4330, "housing": 700, "cushion": 3100, "stress": "steady" },
+    { "id": "a19-ray", "monthly": 1700, "housing": 700, "cushion": 500, "stress": "tight" }
+  ],
+  "unpriced": ["a04-june", "a20-zee", "a12-tom", "a15-omar"],
+  "hire_flow_sanity": {
+    "entry_job_monthly": [2300, 2800],
+    "room_tier": 700,
+    "verdict": "a new h## lands at Jules's position — cozy-but-real start per jobs-housing §4"
+  }
+}

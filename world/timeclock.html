@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Timeclock — shift &amp; envelope model (internal)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<!--
+  The Timeclock — INTERNAL design surface (world v17). Renders the working
+  week: per-employer shift grids from world/shifts.json + household
+  envelopes from world/budgets.json. Self-contained, file://-safe (data
+  inlined; mirrors the JSONs by hand — regen when they change).
+  INTERNAL like drama/thinai/directory: budgets are direction content —
+  spectators get texture, never a named person's numbers. Conditions only;
+  no scripts, no secrets, all parody names.
+-->
+<style>
+  :root{--ink:#20242c;--paper:#f6f7f9;--line:#d4d8e0;--card:#fff;--dim:#6b7280;
+        --accent:#3b5d8c;--warn:#a3542a;--good:#3e6b4f;--mono:ui-monospace,Menlo,monospace}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 -apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--paper)}
+  header{padding:18px 22px 12px;border-bottom:1px solid var(--line);background:var(--card)}
+  h1{margin:0;font-size:19px;letter-spacing:.02em}
+  .sub{color:var(--dim);font-size:12px;margin-top:3px}
+  .pill{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+        border:1px solid var(--warn);color:var(--warn);border-radius:3px;padding:1px 7px;margin-left:8px;vertical-align:2px}
+  nav{display:flex;gap:8px;padding:10px 22px;background:var(--card);border-bottom:1px solid var(--line)}
+  nav button{font:inherit;font-size:13px;padding:5px 14px;border:1px solid var(--line);border-radius:16px;
+             background:var(--paper);cursor:pointer}
+  nav button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{max-width:1100px;margin:0 auto;padding:18px 22px 40px}
+  h2{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
+     border-bottom:1px solid var(--line);padding-bottom:4px;margin:26px 0 12px}
+  .note{color:var(--dim);font-size:12px;font-style:italic;margin:6px 0 12px}
+  table{border-collapse:collapse;width:100%;background:var(--card);border:1px solid var(--line);font-size:12.5px}
+  th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+  th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  .who{font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+  .who.open{color:var(--warn);font-weight:600}
+  .bar{position:relative;height:14px;background:var(--paper);border-radius:2px;min-width:90px}
+  .bar i{position:absolute;top:2px;bottom:2px;left:0;right:0;background:var(--accent);border-radius:2px;opacity:.85}
+  .bar.win i{background:repeating-linear-gradient(45deg,var(--accent) 0 5px,#9db3cc 5px 10px)}
+  .hrs{color:var(--dim);font-size:11px;white-space:nowrap}
+  .gap{font-size:12px;color:var(--dim);margin-top:8px;font-style:italic}
+  .env{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .ecard{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:12px 14px}
+  .ecard h3{margin:0 0 2px;font-size:14px}
+  .ecard .src{font-size:12px;color:var(--dim)}
+  .ecard .flow{margin:8px 0;font-size:12.5px}
+  .ecard .flow b{float:right}
+  .cushion{border-top:1px dashed var(--line);padding-top:6px;font-weight:600}
+  .stress{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;
+          padding:1px 6px;margin-top:6px;border:1px solid var(--line);color:var(--dim)}
+  .stress.fragile{color:var(--warn);border-color:var(--warn)}
+  .stress.comfortable{color:var(--good);border-color:var(--good)}
+  .stress.steady{color:var(--accent);border-color:var(--accent)}
+  .cal{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+  .cal span{font-size:11px;border:1px solid var(--line);border-radius:3px;padding:3px 8px;background:var(--card)}
+  .cal span.pay{border-color:var(--good);color:var(--good)}
+  .cal span.rent{border-color:var(--warn);color:var(--warn)}
+  footer{max-width:1100px;margin:0 auto;padding:14px 22px 30px;color:var(--dim);font-size:11.5px;font-style:italic}
+</style>
+</head>
+<body>
+<header>
+  <h1>The Timeclock <span class="pill">internal</span></h1>
+  <div class="sub">Working week + household envelopes · world/shifts.json + world/budgets.json · conditions, not scripts · amounts never leave internal surfaces</div>
+</header>
+<nav>
+  <button id="tabGrid" class="on" onclick="show('grid')">Shift grids</button>
+  <button id="tabEnv" onclick="show('env')">Envelopes</button>
+  <button id="tabCal" onclick="show('cal')">Money calendar</button>
+</nav>
+<main>
+  <section id="vGrid"></section>
+  <section id="vEnv" style="display:none"></section>
+  <section id="vCal" style="display:none"></section>
+</main>
+<footer>Internal posture demo — exclude from spectator nav/press-kit lists. Mirrors shifts.json/budgets.json by hand (same convention as history.html/playtest.html).</footer>
+<script>
+const DAYS=["mon","tue","wed","thu","fri","sat","sun"];
+const DNAME={mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",sun:"Sun"};
+const NAMES={"c1-marisol":"Marisol","c2-jules":"Jules","c3-dani":"Dani","c4-priya":"Priya","c5-marcus":"Marcus","c6-carmen":"Carmen","c7-victor":"Victor","c8-tomas":"Tomás","a01-reyes":"Reyes","a03-malik":"Malik","a06-kofe":"Kofe","a07-luz":"Luz","a08-sam":"Sam","a09-asha":"Asha","a10-gus":"Gus","a11-vera":"Vera","a13-nadia":"Nadia","a14-bex":"Bex","a16-hana":"Hana","a17-cole":"Cole","a18-ida":"Ida","owner":"owner","family":"family","open":"OPEN SLOT"};
+/* mirrors world/shifts.json */
+const EMP=[
+ {e:"Mudhaus Coffee",hrs:"wk 6:30–19 · wknd 7–20",grid:[
+   {w:"c1-marisol",r:"manager/open",d:"wk",h:[5.5,14],n:"one wk day floats to paperwork"},
+   {w:"c1-marisol",r:"manager/open",d:["sat"],h:[6.5,14]},
+   {w:"c3-dani",r:"barista/mid-close",d:"wk",h:[8,17]},
+   {w:"c3-dani",r:"barista/mid-close",d:["sat"],h:[9,18]},
+   {w:"c2-jules",r:"barista/mid",d:"wk",h:[8,15]},
+   {w:"c2-jules",r:"barista/mid",d:["sat"],h:[9,16]},
+   {w:"a01-reyes",r:"barista",d:["mon","tue","wed","thu","fri","sat"],h:[7.5,18]},
+   {w:"open",r:"barista/closes",d:"wk",h:[14,19]},
+   {w:"open",r:"barista/weekend floor",d:["sat","sun"],h:[10,18]}],
+  gap:"Sunday: no Reyes, no Jules — Marisol + open slot. Weekday 13–15 can run one-deep."},
+ {e:"Taqueria El Farolote",hrs:"wk 10–25:30 · wknd to 26:30",grid:[
+   {w:"c8-tomas",r:"lead cook",d:["tue","wed","thu","fri","sat"],h:[16,24],n:"off Monday; mornings = supplier loop"},
+   {w:"open",r:"line cook",d:["tue","wed","thu","fri","sat"],h:[11,18]},
+   {w:"open",r:"counter/closer",d:"wk",h:[18,25.5]},
+   {w:"open",r:"counter/closer",d:["sat","sun"],h:[18,26.5]},
+   {w:"owner",r:"cook (unposted)",d:["mon"],h:[10,22],n:"known weak spot"}],
+  gap:"Monday is owner-cooked; no posted lead before 16:00 Tue–Sat."},
+ {e:"Buy-Rite Market + Creamery",hrs:"8–21 daily · creamery 11–22/23",grid:[
+   {w:"open",r:"grocery clerk",d:["mon","wed","fri"],h:[8,16]},
+   {w:"open",r:"grocery clerk",d:["tue","thu"],h:[13,21]},
+   {w:"open",r:"scooper",d:["thu","fri","sat","sun"],h:[15,21]}],
+  gap:"Deliveries Tue/Fri mornings land on the opener; Fri 13–21 absorbs pre-stock."},
+ {e:"Dolores Perk",hrs:"wk 7–17 · wknd 7–18",grid:[
+   {w:"open",r:"counter",d:"wk",h:[7,14]}],
+  gap:"Afternoons one-deep by design."},
+ {e:"Baguette About It Bakery",hrs:"wk 7–15 · wknd 7–16",grid:[
+   {w:"a16-hana",r:"baker",d:["tue","wed","thu","fri","sat"],h:[4,13]},
+   {w:"open",r:"counter, afternoons",d:["wed","thu","fri"],h:[11.5,15.5]},
+   {w:"open",r:"counter, afternoons",d:["sat","sun"],h:[8,16]}],
+  gap:"Off Monday — day-old case only. Mudhaus pastry ~6:20, always 4 min late."},
+ {e:"Il Delfino",hrs:"wk 17:30–22:30 · wknd to 23 · dark Mon",grid:[
+   {w:"open",r:"line cook",d:["tue","wed","thu","fri","sat"],h:[16.5,23]},
+   {w:"open",r:"server",d:["tue","wed","thu","sun"],h:[17,22.5]},
+   {w:"open",r:"server",d:["wed","thu","fri","sat"],h:[17,23]}],
+  gap:"Two-server floor Fri/Sat; one callout = visible strain."},
+ {e:"Auerbach Hardware",hrs:"wk 8–18 · wknd 9–17",grid:[
+   {w:"c7-victor",r:"owner/counter",d:["mon","wed","thu","fri","sat","sun"],h:[8,18]},
+   {w:"c7-victor",r:"repair loop (off-site)",d:["tue"],h:[9,17],n:"Guerrero buildings — shop half-staffed by his choice"},
+   {w:"open",r:"counter clerk",d:"wk",h:[10,16]}],
+  gap:"Tuesday is Victor-or-nobody; clerk slot unfilled ~1 yr."},
+ {e:"Folsom Auto & Sons",hrs:"wk 8–17:30 · closed wknd",grid:[
+   {w:"a10-gus",r:"mechanic",d:"wk",h:[6.5,16],n:"opens early, gone before close"}],
+  gap:"Closed weekends."},
+ {e:"Needlepointe Tattoo",hrs:"12–20 daily · dark Mon",grid:[
+   {w:"a14-bex",r:"artist (appointment)",d:["tue","wed","thu","fri","sat","sun"],h:[12,20]}],
+  gap:"Dark Mondays; Bex unreachable."},
+ {e:"Bloom & Doom Flowers",hrs:"wk 9–18 · wknd 10–16",grid:[
+   {w:"a18-ida",r:"florist",d:["tue","wed","thu","fri","sat"],h:[7.5,18]},
+   {w:"open",r:"saturday counter help",d:["sat"],h:[9.5,17.5]}],
+  gap:"Off Sun/Mon; Saturday is market-load day."},
+ {e:"Malik's Mini Mart",hrs:"wk 7–23 · wknd 8–24",grid:[
+   {w:"a03-malik",r:"owner-clerk",d:"all",h:[7.5,18]},
+   {w:"family",r:"evening counter (off-registry)",d:"all",h:[18,23],n:"nephew, cash"}],
+  gap:"Seven days; the counter never closes early anyway."},
+ {e:"Frutería Las Palmas",hrs:"8–18 daily",grid:[
+   {w:"a07-luz",r:"vendor",d:"all",h:[7,18],n:"cash; rain cuts the day"}],
+  gap:"Weather-dependent."},
+ {e:"Mission Branch Library",hrs:"wk 9–17:30 · Sat monthly",grid:[
+   {w:"a11-vera",r:"librarian",d:"wk",h:[7.5,17.5],n:"city schedule"}],
+  gap:"Only real sick days on the block."},
+ {e:"SF General",hrs:"24/7",grid:[
+   {w:"c4-priya",r:"RN 3×12",d:["mon","tue","fri"],h:[7,19.5]},
+   {w:"a09-asha",r:"RN 3×12",d:["wed","thu","sat"],h:[7,19.5]},
+   {w:"open",r:"CNA/tech",d:"wk",h:[7,19.5],n:"2 openings"}],
+  gap:"Real staffing office — callouts get backfilled."},
+ {e:"Flying Pannier Courier Co-op",hrs:"wk 7–19 · wknd 9–17",grid:[
+   {w:"c5-marcus",r:"bike courier",d:"wk",win:[[10.5,14],[16.5,20.5]],n:"self-selects both windows most days"}],
+  gap:"Variable by dispatch; rain pays more and costs more."},
+ {e:"MuleIt",hrs:"24/7",grid:[
+   {w:"a06-kofe",r:"delivery rider",d:"all",win:[[11,14],[17,21]],n:"paid hours cluster in windows"}],
+  gap:"Always hiring, always churning."},
+ {e:"Independent / informal",hrs:"—",grid:[
+   {w:"a02-doro",r:"dog-walker",d:"all",win:[[7,11],[16,20]]},
+   {w:"a17-cole",r:"construction",d:"wk",h:[6.5,16],n:"Folsom lot; rain-short"},
+   {w:"a13-nadia",r:"tech (remote)",d:"wk",h:[9,17]},
+   {w:"a08-sam",r:"busker",d:"all",h:[10,18],n:"weather-permitting"},
+   {w:"c6-carmen",r:"hemming (word of mouth)",d:"wk",h:[9,12]}],
+  gap:"No coverage obligations — the work exists when the worker shows up."}];
+/* mirrors world/budgets.json (households + ambient_texture) */
+const HH=[
+ {id:"c1-marisol",src:"Mudhaus manager · $30×40",inc:5190,hous:1150,nut:520,cush:3500,st:"steady",n:"most banked on the block"},
+ {id:"c2-jules",src:"Mudhaus barista · $19×~34",inc:2800,hous:700,nut:480,cush:1600,st:"steady",n:"cash room share, unrecorded"},
+ {id:"c3-dani",src:"Mudhaus barista · $19×~33",inc:2700,hous:700,nut:460,cush:1400,st:"steady",n:"sends small amounts home"},
+ {id:"c4-priya",src:"RN, SF General · $48×36",inc:7490,hous:1600,nut:560,cush:5300,st:"comfortable",n:"the raise isn't about her money"},
+ {id:"c5-marcus",src:"courier · ~$2,600 var",inc:2600,hous:1600,nut:520,cush:480,st:"fragile",n:"~62–70% to rent; structural arrears"},
+ {id:"c6-carmen",src:"pension+hemming+room · $2,650",inc:2650,hous:950,nut:520,cush:230,st:"fragile",n:"managed like weather, 30 yrs"},
+ {id:"c7-victor",src:"owner draw · ~$5,500 lumpy",inc:5500,hous:0,nut:600,cush:4900,st:"comfortable",n:"asset-rich, illiquid"},
+ {id:"c8-tomas",src:"lead cook · $30×40",inc:5190,hous:1275,nut:450,cush:3400,st:"steady",n:"saves with unexplained discipline"}];
+const AMB=[
+ ["a01-reyes",3900,700,2700,"tight"],["a02-doro",2600,700,1400,"steady"],
+ ["a03-malik",3100,700,1900,"tight"],["a05-esther",1600,700,400,"fragile"],
+ ["a06-kofe",2200,700,1100,"tight"],["a07-luz",4000,null,null,"tight"],
+ ["a08-sam",1800,700,600,"fragile"],["a09-asha",7490,700,6300,"comfortable"],
+ ["a10-gus",5880,700,4700,"comfortable"],["a11-vera",5360,700,4100,"comfortable"],
+ ["a13-nadia",8650,700,7400,"comfortable"],["a14-bex",4500,700,3300,"steady"],
+ ["a16-hana",5070,700,3900,"steady"],["a17-cole",6230,700,5000,"comfortable"],
+ ["a18-ida",4330,700,3100,"steady"],["a19-ray",1700,700,500,"tight"]];
+function fmt(h){let H=Math.floor(h),M=Math.round((h-H)*60);return H+":"+String(M).padStart(2,"0")}
+function daysOf(d){return d==="all"?DAYS.slice():d==="wk"?DAYS.slice(0,5):d}
+function show(t){for(const s of["grid","env","cal"])document.getElementById("v"+s[0].toUpperCase()+s.slice(1)).style.display=s===t?"":"none";
+ for(const b of document.querySelectorAll("nav button"))b.classList.remove("on");
+ document.getElementById("tab"+t[0].toUpperCase()+t.slice(1)).classList.add("on")}
+/* grid view */
+let g="";
+for(const emp of EMP){
+ g+=`<h2>${emp.e} <span style="color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">· ${emp.hrs}</span></h2><table><tr><th style="width:130px">who</th><th style="width:150px">role</th>${DAYS.map(d=>`<th>${DNAME[d]}</th>`).join("")}</tr>`;
+ for(const s of emp.grid){
+  const on=daysOf(s.d);
+  g+=`<tr><td class="who${s.w==="open"?" open":""}">${NAMES[s.w]||s.w}</td><td>${s.r}${s.n?` <span class="hrs">— ${s.n}</span>`:""}</td>`;
+  for(const d of DAYS){
+   if(!on.includes(d)){g+="<td></td>";continue}
+   const w=s.win?s.win:[s.h];
+   g+=`<td>${w.map(x=>`<div class="bar${s.win?" win":""}"><i style="left:${x[0]/24*100}%;right:${100-x[1]/24*100}%" title="${fmt(x[0])}–${fmt(x[1])}"></i></div><div class="hrs">${fmt(x[0])}–${fmt(x[1])}</div>`).join("")}</td>`;
+  }
+  g+="</tr>";
+ }
+ g+=`</table><div class="gap">gap: ${emp.gap}</div>`;
+}
+document.getElementById("vGrid").innerHTML=g;
+/* envelopes view */
+let e=`<div class="note">INTERNAL — direction content. Spectators see texture, never these numbers. All game dollars, gross estimates.</div><h2>The eight mains</h2><div class="env">`;
+for(const h of HH){
+ e+=`<div class="ecard"><h3>${NAMES[h.id]}</h3><div class="src">${h.src}</div>
+ <div class="flow">income<b>$${h.inc.toLocaleString()}</b></div>
+ <div class="flow">housing<b>$${h.hous.toLocaleString()}</b></div>
+ <div class="flow">the nut<b>$${h.nut.toLocaleString()}</b></div>
+ <div class="flow cushion">cushion<b>$${h.cush.toLocaleString()}/mo</b></div>
+ <span class="stress ${h.st}">${h.st}</span> <span class="hrs">${h.n}</span></div>`;
+}
+e+=`</div><h2>Ambient texture (room-tier assumed)</h2><table><tr><th>who</th><th>≈ income</th><th>housing</th><th>cushion</th><th>stress</th></tr>`;
+for(const a of AMB)e+=`<tr><td class="who">${NAMES[a[0]]}</td><td>$${a[1].toLocaleString()}</td><td>${a[2]==null?"family":"$"+a[2]}</td><td>${a[3]==null?"varies":"$"+a[3].toLocaleString()}</td><td><span class="stress ${a[4]}">${a[4]}</span></td></tr>`;
+e+="</table>";
+document.getElementById("vEnv").innerHTML=e;
+/* money calendar */
+document.getElementById("vCal").innerHTML=`
+<div class="note">The block's money rhythm — feed-legible, amounts never public.</div>
+<h2>Weekly</h2><div class="cal">
+<span>Fri · weekly payday — entry + informal (baristas, clerks, couriers, vendors)</span>
+<span class="pay">Fri · biweekly payday — mid/top (managers, trades, library, nurses)</span></div>
+<h2>Monthly</h2><div class="cal">
+<span class="rent">1st · rent due</span><span class="rent">5th · grace ends — late fee 5% (cap $50)</span>
+<span>Fri after the 5th · first paycheck that's fully theirs — the block runs quieter</span>
+<span>irregular · owner draws (Victor, Malik) after the month's bills</span></div>
+<h2>Rules that hold everywhere</h2><div class="cal">
+<span>game dollars only — credits never appear in a household envelope</span>
+<span>swaps informal everywhere except SF General + library</span>
+<span>no benefits outside hospital/city work — sick days unpaid</span></div>`;
+</script>
+</body>
+</html>

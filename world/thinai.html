@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Understudy (thin-AI fallback)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Thin-AI fallback demo — "The Understudy" v4 (world v55).
+  Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
+  Machine mirror: world/thinai.json. INTERNAL builder tool —
+  never-ship, not a player surface; mode badges and seam lines are
+  diagnostics, invisible in-world by design.
+  Four pawns, four brain modes: A01 Reyes (ambient — always thin),
+  h01 a hired courier (thin ↔ full ↔ possessed on the owner's
+  presence), C2 Jules and C6 Carmen (mains — full, with the degraded
+  posture for brain-service stalls; the ladder degrades lowest
+  scene-salience first, so Carmen alone at home thins before Jules
+  mid-scene at a crowded venue). A clock stepper + event buttons drive
+  the transitions; a service-capacity slider drives the degrade ladder;
+  needs meters, a baseline-wage ledger, a compute ledger (llm_min /
+  thin_min / player_min), an owner report, a handoff-note archive, and
+  the authored phrase kit show what thin actually runs; the log splits
+  feed-public lines from seam-internal ones.
+  v55 — the coverage layer: routine resolution is a total function
+  (every pawn, every minute → a cell; the floor is home · idle, a
+  pawn never freezes), and the degrade ladder carries a flap guard —
+  deadband (thin below 60%, recover at ≥70%) + a 30-min minimum
+  dwell, one step per beat, so a flapping service never churns the
+  seam. "Corrupt C6 routine" drops rungs live; each pawn card shows
+  which rung its cell resolved from.
+  LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
+  surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
+  gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
+  otherwise it runs on the mirrors below. The badge says which.
+  gsHandoffRead is never called — the one-time read belongs to the
+  receiving brain; the demo mirrors notes instead.
+  Boundaries: the seam is invisible in-world (no feed line for mode
+  swaps); thin has no seed/secret access at all; ambients are never
+  possessable; co-star declines keep the 50% auto-refund; possessed
+  pawns are unaffected by brownouts (the player is the compute);
+  possession requires the owner online — deny code 'owner_offline'.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .badge{font-size:10px;font-weight:700;letter-spacing:.08em;border:1px solid var(--line);border-radius:9px;padding:2px 10px;color:var(--dim)}
+  .badge.live{color:var(--grn);border-color:var(--grn)}
+  .clock{font-family:var(--mono);font-size:12.5px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 12px}
+  .clock small{color:var(--dim)}
+  .ev{display:flex;gap:6px;flex-wrap:wrap}
+  .ev button{font:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--line);border-radius:10px;
+    padding:4px 12px;background:var(--panel2);color:var(--blu);cursor:pointer}
+  .ev button:hover{border-color:var(--blu)}
+  .ev button.warn{color:var(--acc)} .ev button.warn:hover{border-color:var(--acc)}
+  .ev button.bad{color:var(--red)} .ev button.bad:hover{border-color:var(--red)}
+  .capbox{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+  .capbox b{color:var(--ink);font-family:var(--mono)}
+  .step{margin-left:auto;display:flex;gap:6px}
+  .step button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;
+    padding:6px 13px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  main{display:grid;grid-template-columns:minmax(300px,1.4fr) minmax(300px,1fr);gap:16px;
+    max-width:1180px;margin:0 auto;padding:16px 18px}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+  h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+  .pawn{border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-bottom:10px;background:var(--panel2)}
+  .pawn .top{display:flex;align-items:baseline;gap:9px}
+  .pawn .who{font-weight:700;font-size:14px}
+  .pawn .kind{font-size:10.5px;color:var(--dim)}
+  .mode{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:9px;padding:1px 9px;color:var(--dim)}
+  .mode.thin{color:var(--dim);border-color:var(--dim)}
+  .mode.full{color:var(--grn);border-color:var(--grn)}
+  .mode.possessed{color:var(--pink);border-color:var(--pink)}
+  .mode.degraded{color:var(--acc);border-color:var(--acc)}
+  .mode.handoff{color:var(--blu);border-color:var(--blu)}
+  .sal{font-size:10px;color:var(--dim);font-family:var(--mono)}
+  .doing{font-size:12.5px;margin:6px 0 2px}
+  .cell{font-size:11.5px;color:var(--dim)}
+  .needs{display:flex;gap:14px;margin-top:7px;font-size:10px;color:var(--dim)}
+  .needs .bar{width:90px;height:6px;background:var(--bg);border:1px solid var(--line);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:5px}
+  .needs .bar i{display:block;height:100%;background:var(--blu)}
+  .needs .bar.r i{background:var(--grn)}
+  .rx{display:inline-block;font-size:10px;font-weight:700;border:1px solid var(--acc);color:var(--acc);
+    border-radius:8px;padding:0 8px;margin:5px 5px 0 0}
+  .costar{display:inline-block;font-size:10px;font-weight:700;border:1px solid var(--pink);color:var(--pink);
+    border-radius:8px;padding:0 8px;margin:5px 5px 0 0}
+  .notebox{font-family:var(--mono);font-size:10.5px;color:var(--dim);background:var(--bg);
+    border:1px dashed var(--line);border-radius:6px;padding:7px 10px;margin-top:8px;white-space:pre-wrap}
+  .notebox b{color:var(--blu);font-family:inherit;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
+  .notebox .age{color:var(--acc)}
+  .ledger{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .ledger b{color:var(--ink)}
+  .kit{font-size:11.5px;color:var(--dim);columns:2}
+  .kit b{color:var(--ink);font-weight:600}
+  .kit .cat{margin-bottom:5px;break-inside:avoid}
+  .wiretag,.seamtag{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    border-radius:3px;padding:0 5px;margin-right:6px;border:1px solid}
+  .wiretag{color:var(--grn);border-color:var(--grn)} .seamtag{color:var(--dim);border-color:var(--dim)}
+  .log{list-style:none;margin:0;padding:0;max-height:560px;overflow:auto}
+  .log li{padding:5px 0;border-bottom:1px solid var(--line);font-size:12px}
+  .log .t{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-right:6px}
+  .cant li{font-size:12px;margin:4px 0;color:var(--dim)}
+  .cant b{color:var(--ink);font-weight:600}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:8px}
+  .arch{font-family:var(--mono);font-size:10.5px;color:var(--dim);max-height:150px;overflow:auto}
+  .arch div{border-bottom:1px dashed var(--line);padding:4px 0}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:8px;padding:8px 18px;font-size:12.5px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Understudy</div>
+  <span class="badge" id="seam">MIRROR</span>
+  <div class="clock" id="clock"></div>
+  <div class="capbox">brain service <b id="cap">100%</b></div>
+  <div class="ev" id="ev"></div>
+  <div class="step">
+    <button id="m15">+15 min</button><button id="h1">+1 h</button><button id="h24">+24 h</button><button id="rst">reset</button>
+  </div>
+</header>
+<main>
+  <section>
+    <div class="panel"><h2>Pawns &amp; brain modes</h2><div id="pawns"></div>
+      <div class="fine">Badges are for you, the builder — in-world, the seam is invisible. The feed only ever says "running" / "player session ended". Salience scores drive the degrade ladder: lowest scene-salience thins first.</div>
+    </div>
+    <div class="panel"><h2>Thin ledger — game dollars only</h2><div class="ledger" id="ledger"></div>
+      <div class="fine">Baseline rates only — possessed play can earn bonuses, thin never can. A shortfall lapses into the normal late-fee ladder; fallback is never a shield.</div>
+    </div>
+    <div class="panel"><h2>Compute ledger — the honest split</h2><div class="ledger" id="comp"></div>
+      <div class="fine">llm_min is paid compute; thin_min and player_min are ~free. Possession minutes are nearly cost-free to serve — the human is the compute. Degraded mains count as thin_min.</div>
+    </div>
+    <div class="panel"><h2>Coverage &amp; the flap guard</h2><div class="ledger" id="cov"></div>
+      <div class="fine">Routine resolution is a total function — every pawn, every minute lands on a cell; the floor is <b>home · idle</b> and a pawn never freezes. The degrade ladder has a <b>deadband</b>: thin below 60%, recover at ≥70%, plus a 30-min minimum dwell — a flapping service can't churn the seam.</div>
+    </div>
+    <div class="panel"><h2>Owner report — h01 (own pawns only)</h2><div class="ledger" id="orep"></div>
+      <div class="fine">A ledger, not a diary: place, doing, wages since last visit, obligations met/lapsed. Never the handoff note verbatim, never another character's state.</div>
+    </div>
+    <div class="panel"><h2>Phrase kit — the whole vocabulary</h2><div class="kit" id="kit"></div>
+      <div class="fine">Cap 3 bubbles/hr, then silence. Interchangeable across characters — a line only Reyes could say does not belong. Direct questions get a deflect, never an answer.</div>
+    </div>
+    <div class="panel"><h2>Thin can / can't</h2>
+      <ul class="cant">
+        <li><b>Can:</b> routine schedule, reflexes, needs, baseline auto-shift wages, scheduled payments, phrase-kit small talk (cap 3/hr), time-boxed co-star turns.</li>
+        <li><b>Can't:</b> touch drama seeds (no seed state exists), write relationship changes, make commitments, improvise dialogue, be possessed (ambients), hold admin power.</li>
+        <li><b>Worst case:</b> the neighborhood gets quieter — never wronger.</li>
+      </ul>
+    </div>
+  </section>
+  <section>
+    <div class="panel"><h2>Log — feed vs seam</h2><ul class="log" id="log"></ul>
+      <div class="fine"><span class="wiretag">wire</span> public feed line &nbsp; <span class="seamtag">seam</span> internal transition — spectators never see these.</div>
+    </div>
+    <div class="panel"><h2>Handoff-note archive — stale ≥ 24 h</h2><div class="arch" id="arch"></div>
+      <div class="fine">A stale note is a yesterday, not a loose end — archived for audit/replay, read-only, never feed.</div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+/* mirror of thinai.json demo scenario (schema v55) */
+var LS='rw_thinai_v55';
+var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
+var KIT={
+  greeting:['morning','hey',"how's it"],
+  queue:['big line today',"they're backed up again",'worth the wait, probably'],
+  weather:['fog came in early','sun finally burned through','supposed to clear up later','cold for September'],
+  game:['heard the game last night','they blew it in the ninth','big one this weekend'],
+  closing:['take it easy','see you around','have a good one'],
+  deflect:["can't complain",'you know how it is',"we'll see"],
+  silence:['a nod','a half-wave','a shrug and a smile']
+};
+/* live seam (game-v9 offline surfaces) — read-only getters only */
+var BRIDGE=(typeof __aiBridge!=="undefined"&&__aiBridge)?__aiBridge:null;
+var seamReads=['gsBrainMode','gsThinScheduleView','gsNeedsView','gsObligations','gsComputeStats','gsServiceEval','gsOfflineReport'];
+var LIVE=BRIDGE&&seamReads.every(function(f){return typeof BRIDGE[f]==='function';});
+function hhmm(m){return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+Math.floor(m%60)).slice(-2);}
+function seed(){return {
+  min:13*60+7, day:4, rain:false, cap:100, linger:0, possessLeft:0, handoffBeat:0,
+  coStar:0, bubHour:-1, bubN:0, paidToday:false, c6src:'authored',
+  ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
+  comp:{llm:0,thin:0,player:0},
+  needs:{a01:{hunger:40,rest:70},h01:{hunger:40,rest:70},c2:{hunger:40,rest:70},c6:{hunger:40,rest:70}},
+  pawns:{
+    a01:{id:'A01',name:'Reyes',kind:'ambient',mode:'thin',venue:'Mudhaus Coffee'},
+    h01:{id:'h01',name:'the courier (hired)',kind:'hired',mode:'thin',owner:'offline',venue:'Flying Pannier loop',note:null},
+    c2:{id:'C2',name:'Jules',kind:'main',mode:'full',venue:'park / cafe circuit',degradedAt:0},
+    c6:{id:'C6',name:'Carmen',kind:'main',mode:'full',venue:'her stoop / her palm / home',degradedAt:0}
+  }, log:[]
+};}
+var S; try{S=JSON.parse(localStorage.getItem(LS))||seed();}catch(e){S=seed();}
+var $=function(id){return document.getElementById(id);};
+function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none';},2400);}
+function log(tag,tx){S.log.push({m:S.min,d:S.day,tag:tag,tx:tx});if(S.log.length>100)S.log.shift();}
+function wire(tx){log('wire',tx);} function seam(tx){log('seam',tx);}
+
+/* routine cells — condensed from ambients.json + bible routines;
+   kind drives needs (sleep restores, work burns, meal resets hunger) */
+function cell(id,h){
+  if(id==='a01'){
+    if(h<7.5)return ['home — asleep','sleep'];
+    if(h<12)return ['Mudhaus Coffee — pulling the shift','serve'];
+    if(h<12.5)return ['counter lunch','meal'];
+    if(h<18)return ['Mudhaus Coffee — pulling the shift','serve'];
+    if(h<22)return ['home — evening idle','idle'];
+    return ['home — asleep','sleep'];
+  }
+  if(id==='h01'){
+    if(h<8)return ['home — asleep','sleep'];
+    if(h<12)return ['Flying Pannier loop — paper run','carry'];
+    if(h<12.5)return ['slice at the usual stop','meal'];
+    if(h<19)return ['Flying Pannier loop — paper run','carry'];
+    return ['home — off the clock','idle'];
+  }
+  if(id==='c6'){
+    /* v55 coverage ladder: authored routine → role template → home·idle.
+       S.c6src is dropped live by the "Corrupt C6 routine" event. */
+    if(S.c6src==='gone')return ['9418 Guerrero, Unit A — quiet day in','idle'];
+    if(S.c6src==='template'){
+      if(h<8)return ['9418 Guerrero, Unit A — asleep','sleep'];
+      if(h<18)return ['the park — sitting out','sit'];
+      return ['9418 Guerrero, Unit A — evening in','idle'];
+    }
+    if(h<7)return ['9418 Guerrero, Unit A — asleep','sleep'];
+    if(h<10)return ['her stoop — cafecito, watching the block','sit'];
+    if(h<16.5)return ['Dolores Park, her palm — sewing, receiving','sit'];
+    if(h<21)return ['home — dinner, telenovelas, sewing','idle'];
+    return ['9418 Guerrero, Unit A — asleep','sleep'];
+  }
+  if(h<6)return ['home — asleep','sleep'];
+  if(h<8)return ['park north path — morning run','run'];
+  if(h<13)return ['cafe circuit — working','work'];
+  if(h<13.5)return ['usual lunch counter','meal'];
+  if(h<17)return ['cafe circuit — working','work'];
+  if(h<20)return ['park — evening sit','sit'];
+  return ['home — night in','idle'];
+}
+/* scene salience — watchers on the venue + live scene; deterministic,
+   lowest degrades first. Demo scores: home cells 0, stoop/park sit 1,
+   work/serve in a venue 2, mid-scene (co-star present) +1. */
+function salience(id){
+  var kind=cell(id,S.min/60)[1];
+  var s=(kind==='sleep'||kind==='idle')?0:(kind==='serve'||kind==='work'||kind==='carry')?2:1;
+  if(id==='a01'&&S.coStar)s+=1;
+  return s;
+}
+function reflexes(id){
+  var r=[];
+  if(S.rain){
+    if(id==='a01')r.push('rush-tempo','counter-circle-tell');
+    if(id==='h01')r.push('rain-covered-routes');
+    if(id==='c2')r.push('shortens the run, never skips it');
+    if(id==='c6')r.push('cafecito moves inside — weather-gated day');
+    r.push('shared: rain-shelter');
+  }
+  if(id==='c6'&&S.min>=19*60)r.push('shared: dusk-home — evening cells tighten');
+  if((id==='c2'||id==='c6')&&S.cap<60)r.push('public-routine only — no seed access');
+  if(id==='a01'&&S.min>=7.5*60&&S.min<9*60)r.push('morning rush double tempo');
+  var n=S.needs[id];
+  if(n.rest<25)r.push('low rest — evening cells cut short');
+  if(n.hunger>80&&cell(id,S.min/60)[1]!=='meal')r.push('hungry — routine food stop on the way home');
+  return r;
+}
+/* which ladder rung the cell resolved from (v55 coverage contract) */
+function srcLabel(id){
+  if(id==='c6')return S.c6src==='authored'?'authored (registry mirror)':(S.c6src==='template'?'role template — rung 2':'home · idle — the floor');
+  if(id==='a01')return 'authored (card routine)';
+  if(id==='h01')return 'authored (created routine)';
+  return 'authored (registry mirror)';
+}
+function modeLabel(p){
+  if(S.handoffBeat&&p.id==='h01')return 'handoff';
+  return p.mode;
+}
+function noteAge(p){
+  if(!p.note)return 0;
+  return (S.day-p.note.day)*1440+(S.min-p.note.at_min);
+}
+function render(){
+  $('seam').textContent=LIVE?'LIVE · __aiBridge':'MIRROR — no bridge';
+  $('seam').className='badge'+(LIVE?' live':'');
+  $('clock').innerHTML='Day '+S.day+' · '+hhmm(S.min)+' <small>block time</small>'+(S.rain?' · rain':'')+(S.cap<100?' · <span style="color:var(--acc)">service '+S.cap+'%</span>':'');
+  $('cap').textContent=S.cap+'%';
+  var h=S.min/60;
+  $('pawns').innerHTML=['a01','h01','c2','c6'].map(function(id){
+    var p=S.pawns[id],c=cell(id,h),rx=reflexes(id),n=S.needs[id];
+    var out='<div class="pawn"><div class="top"><span class="who">'+p.name+'</span>'+
+      '<span class="kind">'+p.id+' · '+p.kind+(p.owner?' · owner '+p.owner:'')+'</span>'+
+      '<span class="mode '+modeLabel(p)+'">'+modeLabel(p)+'</span></div>'+
+      '<div class="doing">'+c[0]+'</div><div class="cell">schedule cell: '+c[1]+' · venue: '+p.venue+
+      (p.kind==='main'?' · <span class="sal">salience '+salience(id)+'</span>':'')+
+      ' · <span class="sal">routine: '+srcLabel(id)+'</span></div>'+
+      '<div class="needs">hunger <span class="bar"><i style="width:'+Math.min(100,n.hunger)+'%"></i></span>'+
+      ' rest <span class="bar r"><i style="width:'+Math.min(100,n.rest)+'%"></i></span></div>';
+    if(S.coStar&&id==='a01')out+='<span class="costar">co-star window live</span>';
+    if(rx.length)out+='<div>'+rx.map(function(r){return '<span class="rx">'+r+'</span>';}).join('')+'</div>';
+    if(p.note){var age=noteAge(p);
+      out+='<div class="notebox"><b>handoff note</b> <span class="age">'+(age>=1440?'stale — archives at 24 h':'age '+Math.floor(age/60)+'h'+('0'+age%60).slice(-2)+'m')+'</span>\n'+JSON.stringify({char:p.note.char,from:p.note.from,to:p.note.to,at_min:p.note.at_min,place:p.note.place,doing:p.note.doing,pending:p.note.pending,near:p.note.near,mood_hint:p.note.mood_hint},null,1)+'</div>';}
+    return out+'</div>';
+  }).join('');
+  $('ledger').innerHTML='auto-shift wages accrued (baseline $18/h): <b>A01 $'+S.ledger.a01.toFixed(2)+'</b> · <b>h01 $'+S.ledger.h01.toFixed(2)+'</b><br>'+
+    'scheduled obligations drafted: <b>'+S.rentDrafts+'</b> <small>(rent autopay at day boundary — thin keeps standing commitments on autopilot)</small>';
+  $('comp').innerHTML='llm_min <b>'+S.comp.llm+'</b> · thin_min <b>'+S.comp.thin+'</b> · player_min <b>'+S.comp.player+'</b><br>'+
+    '<small>full-brain minutes are the paid bucket; thin/degraded and possessed minutes are ~free — this split is the cost story</small>';
+  var band=(S.cap<60?'below the degrade line':S.cap<70?'inside the deadband — posture held':'healthy');
+  $('cov').innerHTML='service <b>'+S.cap+'%</b> — '+band+'<br>'+
+    ['c2','c6'].map(function(id){
+      var p=S.pawns[id];
+      if(p.mode==='degraded'){
+        var left=30-((S.day*1440+S.min)-(p.degradedAt||0));
+        return id.toUpperCase()+' degraded · dwell '+(left>0?left+' min left':'elapsed — eligible to recover ≥70%');
+      }
+      return id.toUpperCase()+' '+p.mode+' · salience '+salience(id);
+    }).join('<br>')+'<br>'+
+    '<small>deadband: thin &lt;60%, recover ≥70% · min dwell 30 min · one step per beat · ambients + possessed never on the ladder</small>';
+  var hp=S.pawns.h01,hc=cell('h01',h);
+  $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
+    'wages since last visit: <b>$'+S.ledger.h01.toFixed(2)+'</b> · obligations drafted: <b>'+S.rentDrafts+'</b>'+
+    (hp.note?' · one loose end pending':' · no open threads')+
+    '<br><small>own pawns only · mode-agnostic · never the note verbatim, never another character\'s state</small>';
+  $('kit').innerHTML=Object.keys(KIT).map(function(k){
+    return '<div class="cat"><b>'+k+'</b> — '+KIT[k].join(' · ')+'</div>';
+  }).join('');
+  $('log').innerHTML=S.log.slice().reverse().map(function(e){
+    return '<li><span class="t">d'+e.d+' '+hhmm(e.m)+'</span><span class="'+(e.tag==='wire'?'wiretag':'seamtag')+'">'+e.tag+'</span>'+e.tx+'</li>';
+  }).join('')||'<li style="color:var(--dim)">Nothing yet — step the clock or fire an event.</li>';
+  $('arch').innerHTML=S.arch.slice().reverse().map(function(n){
+    return '<div>d'+n.day+' '+hhmm(n.at_min)+' — '+n.char+' '+n.from+'→'+n.to+' · '+n.place+' · "'+n.doing+'"'+(n.pending?' · pending: '+n.pending:'')+'</div>';
+  }).join('')||'<div>No archived notes yet — a note goes stale after 24 h of game time.</div>';
+  save();
+}
+function writeNote(p,from,to,doing,pending){
+  var near=[]; if(p.id==='h01')near=['A01','A15']; if(p.kind==='main')near=['A05'];
+  p.note={char:p.id,from:from,to:to,at_min:S.min,day:S.day,place:p.venue,doing:doing,pending:pending,near:near,mood_hint:'tired, fine'};
+}
+
+/* ---------- events ---------- */
+var EV=[
+ ['Owner logs off',function(){
+   var p=S.pawns.h01;
+   if(p.mode==='possessed'){toast('A live session holds the connection open — disconnect ends the session first.');return;}
+   if(p.mode!=='full'){toast('h01 is already on thin — owner was never here.');return;}
+   p.owner='leaving';S.linger=2; /* ticks ≈ 90 s grace */
+   seam('owner connection lost — linger grace 90 s starts (refresh-safe)');}],
+ ['Owner returns',function(){
+   var p=S.pawns.h01; p.owner='online';S.linger=0;
+   if(p.mode==='thin'){p.mode='full';seam('h01 thin → full — brain resumes on the handoff note; the day was theirs the whole time');}
+   else seam('owner returns during possession — brain stays suspended, session continues');}],
+ ['Possess h01 · 30 min',function(){
+   var p=S.pawns.h01;
+   if(p.mode==='possessed'){toast('Already driving.');return;}
+   if(p.owner!=='online'){toast('owner_offline — nobody to bill, nobody to drive. Denied at file AND at promote.');return;}
+   var was=p.mode;p.mode='possessed';S.possessLeft=2; /* 2 demo ticks */
+   wire('request — possess own courier, 30 min — running (okfm)');
+   seam('h01 '+was+' → possessed — brain suspended for the session');}],
+ ['Cap hits',function(){
+   var p=S.pawns.h01;
+   if(p.mode!=='possessed'){toast('No live session to cap.');return;}
+   S.possessLeft=0;S.handoffBeat=1;
+   seam('hard cap — graceful handoff: current micro-beat finishes first (≤90 s), no mid-stride swap');}],
+ ['Rain rolls in / clears',function(){
+   S.rain=!S.rain;
+   if(S.rain){wire('weather — rain over the Mission');seam('reflexes fire: rush-tempo, covered routes, shortened run, cafecito inside — condition→posture, not scripts');}
+   else wire('weather — rain clears off the park');}],
+ ['Press A01 (small talk)',function(){
+   var h=S.min/60,hr=Math.floor(h);
+   if(S.bubHour!==hr){S.bubHour=hr;S.bubN=0;}
+   if(cell('a01',h)[1]==='sleep'){seam('pressed while asleep — no response; thin doesn\'t perform off-schedule');return;}
+   if(S.bubN>=3){seam('phrase cap reached (3/hr) — thin goes quiet: '+KIT.silence[S.bubN%3]+'. Silence is cheaper than a fourth generic line.');return;}
+   var cats=['greeting','queue','weather','game','closing'];
+   var cat=cats[(hr+S.bubN)%cats.length],lines=KIT[cat];
+   S.bubN++;
+   seam('bubble '+S.bubN+'/3 ('+cat+'): "'+lines[(hr+S.bubN)%lines.length]+'" — phrase-kit small talk, interchangeable across characters');}],
+ ['Ask A01 a direct question',function(){
+   var d=KIT.deflect[S.day%KIT.deflect.length];
+   seam('direct question → generic deflect: "'+d+'" — thin never answers; the full brain\'s memory logs a non-conversation');}],
+ ['Co-star A01 · 20 min',function(){
+   var h=S.min/60;
+   if(S.coStar){toast('A co-star window is already live.');return;}
+   if(h>=7.5&&h<18){
+     S.coStar=2; /* 20 min ≈ 2 demo ticks */
+     wire('request — ambient co-star, 20 min — running (leaf)');
+     seam('A01 bounded compliance: ask fits barista role-card, no reflex veto → accepts, time-boxed to the request');}
+   else{
+     wire('request — ambient co-star — resolved · declined (50% auto-refund)');
+     seam('A01 declines — off-shift + routine obligations win; nothing persists');}}],
+ ['Service 100%',function(){setCap(100);}],
+ ['Service 70%',function(){setCap(70);}],
+ ['Service 60%',function(){setCap(60);}],
+ ['Service 55%',function(){setCap(55);}],
+ ['Service 30%',function(){setCap(30);}],
+ ['Corrupt C6 routine',function(){
+   if(S.c6src==='authored'){S.c6src='template';
+     seam('C6 authored routine dropped mid-day — resolver falls a rung: role template at the next seam. Finish the beat, then follow the fallback cell — the pawn never freezes.');}
+   else if(S.c6src==='template'){S.c6src='gone';
+     seam('C6 template row bad too — the ladder lands on the floor: home · idle. Boring, not wrong.');}
+   else toast('C6 is already on the floor (home · idle) — reset restores the authored routine.');}]
+];
+function setCap(v){
+  if(S.cap===v)return;
+  var was=S.cap;S.cap=v;
+  ladderStep(true,was);
+}
+/* v55 flap guard — degrade <60%, recover ≥70% (deadband 60–69 holds
+   posture), min dwell 30 game-min before recovery, one pawn step per
+   evaluation in each direction. Possessed pawns + ambients never on
+   the ladder. verbose=true on a capacity change; ticks call it quiet. */
+function ladderStep(verbose,was){
+  var mains=['c2','c6'].sort(function(a,b){return salience(b)-salience(a);}); /* high→low salience */
+  var budget=(S.cap>=60)?2:(S.cap>=30)?1:0; /* mains allowed full */
+  var fulls=mains.filter(function(id){return S.pawns[id].mode==='full';});
+  var degs=mains.slice().reverse().filter(function(id){return S.pawns[id].mode==='degraded';}); /* low-salience first */
+  var now=S.day*1440+S.min;
+  if(S.cap<60&&fulls.length>budget){
+    var id=fulls[fulls.length-1],p=S.pawns[id]; /* lowest-salience full pawn */
+    seam('service '+(was!==undefined?was+'→':'')+S.cap+'% — '+id.toUpperCase()+' full → degraded (salience '+salience(id)+', lowest first; one step per beat)');
+    writeNote(p,'full','degraded','finishing the current beat','the evening continues on public routine');
+    p.mode='degraded';p.degradedAt=now;
+  }else if(S.cap>=70&&degs.length){
+    var id2=degs[0],p2=S.pawns[id2],left=30-(now-(p2.degradedAt||0));
+    if(left>0){if(verbose)seam('service '+was+'→'+S.cap+'% — '+id2.toUpperCase()+' recovery queued: '+left+' min of the 30-min degrade dwell left — the guard never churns a seam');}
+    else{seam(id2.toUpperCase()+' degraded → full — dwell elapsed; recovery walks back up in the same order');p2.mode='full';}
+  }else if(verbose){
+    if(S.cap>=60&&S.cap<70&&was<60)seam('service '+was+'→'+S.cap+'% — inside the deadband (60–69%): the ladder holds posture, no churn');
+    else if(S.cap>=70&&!degs.length&&was<70)seam('service '+was+'→'+S.cap+'% — recovery complete; all mains full');
+    else if(S.cap<60)seam('service '+was+'→'+S.cap+'% — degrade ladder, one step per beat; ambients + possessed pawns unaffected; no feed line');
+  }
+}
+EV.forEach(function(e){
+  var b=document.createElement('button');b.textContent=e[0];
+  if(/Service/.test(e[0]))b.className='warn'; if(/Cap/.test(e[0]))b.className='bad';
+  b.onclick=function(){e[1]();render();};$('ev').appendChild(b);
+});
+
+/* ---------- clock ---------- */
+function needsTick(id,kind){
+  var n=S.needs[id];
+  if(kind==='sleep'){n.rest=Math.min(100,n.rest+12);n.hunger=Math.min(100,n.hunger+1);}
+  else if(kind==='meal'){n.hunger=15;n.rest=Math.max(0,n.rest-1);}
+  else{
+    var burn=(kind==='serve'||kind==='carry'||kind==='work'||kind==='run')?5:2.5;
+    n.hunger=Math.min(100,n.hunger+burn);n.rest=Math.max(0,n.rest-2);
+  }
+}
+function tick(mins){
+  for(var i=0;i<mins;i+=15){
+    var pm=S.min;
+    S.min+=15;
+    if(S.min>=1440){S.min-=1440;S.day++;S.paidToday=false;pm-=1440;}
+    /* hourly bubble-cap window already keyed on clock hour */
+    var h=S.min/60;
+    for(var id in S.pawns){
+      var p=S.pawns[id],kind=cell(id,h)[1];
+      needsTick(id,kind);
+      /* compute ledger — the honest split */
+      if(p.mode==='possessed')S.comp.player+=15;
+      else if(p.mode==='full')S.comp.llm+=15;
+      else S.comp.thin+=15;
+      /* baseline auto-shift wages: work cells pay $18/h → $4.50/15min */
+      if((kind==='serve'||kind==='carry')&&(id==='a01'||id==='h01')){
+        S.ledger[id]+=4.5;
+        if(Math.floor(pm/60)!==Math.floor(S.min/60))seam(id.toUpperCase()+' auto-shift wages +$18 (baseline rate, game dollars — possessed play could bonus, thin never can)');
+      }
+    }
+    /* scheduled obligation: rent-share autopay drafts at 09:00 */
+    if(pm<9*60&&S.min>=9*60&&!S.paidToday){S.paidToday=true;S.rentDrafts++;
+      seam('scheduled obligation: h01 rent-share autopay drafted — offline doesn\'t mean the lease lapses');}
+    /* linger → offline drop */
+    if(S.linger>0&&--S.linger===0){
+      var q=S.pawns.h01;q.owner='offline';
+      writeNote(q,'full','thin','finishing a delivery handoff','owed Omar a favor-trade reply');
+      q.mode='thin';
+      seam('h01 full → thin — offline drop after linger grace; handoff note written. No feed line: the seam stays invisible.');
+    }
+    /* possession cap */
+    if(S.possessLeft>0&&--S.possessLeft===0){
+      S.handoffBeat=1;
+      seam('session cap reached — graceful handoff queued behind the current beat');
+    }
+    if(S.handoffBeat&&i>=15){
+      var r=S.pawns.h01;S.handoffBeat=0;
+      var back=(r.owner==='online')?'full':'thin';
+      writeNote(r,'possessed',back,'finishing a shift side-work list','a half-remembered errand near the park');
+      r.mode=back;
+      wire('request — player session ended');
+      seam('h01 possessed → '+back+' — AI resumes seamlessly on the note');
+    }
+    /* co-star time-box */
+    if(S.coStar>0&&--S.coStar===0)
+      seam('co-star window ended — role card released mid-beat-clean; A01 returns to schedule, nothing persists');
+    /* stale notes archive at 24 h */
+    ['a01','h01','c2','c6'].forEach(function(k){
+      var q=S.pawns[k];
+      if(q.note&&noteAge(q)>=1440){S.arch.push(q.note);q.note=null;seam(k.toUpperCase()+' handoff note archived — stale after 24 h; yesterday\'s loose ends belong to memory, not the seam');}
+    });
+    /* v55 — the ladder evaluates once per beat: converges a crash
+       stepwise and lets dwell-bound recoveries land as time passes */
+    ladderStep(false);
+  }
+  render();
+}
+$('m15').onclick=function(){tick(15);};
+$('h1').onclick=function(){tick(60);};
+$('h24').onclick=function(){tick(1440);};
+$('rst').onclick=function(){S=seed();seam('demo reset — baseline: A01 thin (always), h01 thin (owner away), C2 + C6 full (healthy brain service)');render();};
+
+if(!S.log.length)seam('baseline: A01 thin (always), h01 thin (owner away), C2 + C6 full (healthy brain service)');
+render();
+</script>
+</body>
+</html>

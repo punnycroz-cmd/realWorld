@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Archive (history browser)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  The Archive v4 — the full history-browser application (world v48,
+  on the v20 shell, v3 feature pass in v34). Supersedes history.html (v6)
+  as the primary "every day the wire ever showed" surface; history.html
+  stays as the lightweight day-browser variant.
+  v3 additions (all projections — arrangement, never new information):
+    - THREADS  — named storylines across days, built from event.thread
+      tags; a thread only ever chains events that were already public
+    - LEDGER payer lens — one chip per handle, verbatim attribution
+    - whole-record search — the day view's search can widen to all days
+    - copy transcript — the day as plain text, badge line included
+  v4 additions (same rule — counted, never curated):
+    - THE WEEK — the whole record at a glance: day x filter-count grid,
+      per-day busiest corner, open threads strip. Every figure is the
+      archive's own rows counted; the copy says so.
+    - day-to-day walk — ‹ prev / next › controls + left/right arrow keys
+      move between adjacent archived days (inert while typing).
+    - "around that time" — the record detail shows the same day's
+      immediate neighbors, clickable. Same rows, smaller window.
+    - rumor "settled by" — outcome.by (optional event id) links the talk
+      to the public record that settled it, when one exists.
+
+  File://-safe, no network. Two data sources, one schema
+  (world/history.json):
+    - LIVE  — if window.__aiBridge exposes the wire archive
+      (gsWireDays()/gsWireArchiveDay(d) per game-v6), we render it.
+    - DEMO  — otherwise the seed week below (mirrors history.json
+      `days`; regen by hand, no build step). Header badge reads
+      `demo archive` — the demo never impersonates live data.
+  Views (spec: world/archive-ui.md):
+    - DAY    — one block day: hour-density strip, filters, honest gaps
+    - PERSON — a character's public trail across days (who + mentions[],
+               structural — never string-matched into private text)
+    - VENUE  — a venue's public record across days
+    - WORD   — the rumor board: all word-on-the-block entries + how each
+               landed (open / debunked / faded / stood)
+    - LEDGER — every paid intervention + admin action, attributed. The
+               archive does not sanitize who paid for what.
+  Permalinks: #e=<event id> resolves its day automatically; #d=<date>,
+  #v=<view>&who=<id>|venue=<id>. Ids are stable live→archive.
+  Boundaries: identical scope to the live wire, replayed. Homes are
+  walls; secrets are absent by construction (no field can carry one);
+  rumors are place-sourced talk, always UNCONFIRMED, and may only
+  distort events that were already public. Watching history costs
+  nothing and always will.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0; --rum:#c9a35a;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);
+    background:var(--panel);flex-wrap:wrap;position:sticky;top:0;z-index:5}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .tag{font-size:11px;color:var(--grn);border:1px solid var(--grn);border-radius:10px;padding:2px 10px;font-weight:700;letter-spacing:.08em}
+  .src{font-size:10px;font-weight:700;letter-spacing:.08em;border-radius:8px;padding:2px 8px;
+    border:1px solid var(--line);color:var(--dim)}
+  .src.demo{color:var(--acc);border-color:var(--acc)}
+  .navlink{margin-left:auto;font-size:12.5px;color:var(--blu);text-decoration:none}
+  .navlink:hover{text-decoration:underline}
+  .scope{font-size:12px;color:var(--dim);max-width:400px}
+
+  main{display:grid;grid-template-columns:minmax(230px,280px) minmax(420px,1fr) minmax(250px,310px);
+    gap:16px;max-width:1380px;margin:0 auto;padding:16px 20px;align-items:start}
+  @media(max-width:1150px){main{grid-template-columns:minmax(220px,270px) 1fr}.railR{display:none}}
+  @media(max-width:820px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+  h2{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  h2 .free{color:var(--grn);letter-spacing:.05em;text-transform:none;font-weight:400}
+
+  /* ---- day list ---- */
+  .drow{display:flex;align-items:baseline;gap:8px;padding:6px 8px;border-bottom:1px solid var(--line);
+    cursor:pointer;border-radius:4px;font-size:12.5px}
+  .drow:last-child{border-bottom:0}
+  .drow:hover{background:var(--panel2)}
+  .drow.on{background:#2a2618;box-shadow:inset 2px 0 0 var(--acc)}
+  .drow .dn{font-weight:600}
+  .drow .dc{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .drow .tod{font-size:9px;color:var(--grn);letter-spacing:.06em}
+
+  /* ---- view switcher ---- */
+  .vchips{display:flex;flex-direction:column;gap:6px}
+  .vchip{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 11px;
+    cursor:pointer;color:var(--dim);background:var(--panel2);text-align:left}
+  .vchip.on{color:var(--ink);border-color:var(--acc);background:#2a2618}
+  .vchip small{display:block;font-size:10px;color:var(--dim)}
+  select.pick{width:100%;margin-top:8px;font:inherit;font-size:12.5px;background:var(--panel2);
+    color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+
+  /* ---- controls ---- */
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+  .search{flex:1;min-width:150px;font:inherit;font-size:12.5px;background:var(--panel2);color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+  .chiprow{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 0}
+  .chip{font-size:11px;border:1px solid var(--line);border-radius:12px;padding:3px 11px;
+    cursor:pointer;color:var(--dim);background:var(--panel2)}
+  .chip.on{color:var(--ink);border-color:var(--acc);background:#2a2618}
+  .chip .n{color:var(--acc);font-family:var(--mono);font-size:10px}
+
+  /* ---- hour strip ---- */
+  .hours{display:flex;gap:2px;margin:12px 0 4px;height:34px;align-items:flex-end}
+  .hr{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:3px 3px 0 0;
+    cursor:pointer;min-height:3px}
+  .hr:hover{border-color:var(--blu)}
+  .hr.sel{border-color:var(--acc);background:#2a2618}
+  .hr.off{opacity:.32;cursor:default}
+  .hrlabels{display:flex;gap:2px;font-family:var(--mono);font-size:9.5px;color:var(--dim)}
+  .hrlabels span{flex:1;text-align:left}
+  .hrlabels span:nth-child(odd){visibility:hidden}
+
+  /* ---- day header ---- */
+  .dayhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);
+    padding-bottom:10px;margin-bottom:6px}
+  .dayhead h3{margin:0;font-size:17px;font-weight:600}
+  .dayhead .meta{font-size:12px;color:var(--dim)}
+  .writing{font-size:11px;color:var(--grn);border:1px dashed var(--grn);border-radius:8px;padding:2px 10px}
+
+  /* ---- event list ---- */
+  .evs{list-style:none;margin:0;padding:0}
+  .hoursep{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--dim);
+    text-transform:uppercase;padding:14px 0 4px;border-bottom:1px solid var(--line)}
+  .daysep{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--dim);
+    font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+  .daysep::before,.daysep::after{content:"";flex:1;border-top:1px solid var(--line)}
+  .daysep a{color:var(--blu);cursor:pointer;text-transform:none;letter-spacing:0;font-size:11px}
+  .evs li.ev{display:flex;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line);
+    font-size:13px;align-items:baseline;cursor:pointer;border-radius:4px}
+  .evs li.ev:hover{background:var(--panel2)}
+  .evs li.ev.sel{background:#242a20;box-shadow:inset 2px 0 0 var(--acc)}
+  .ev .t{font-family:var(--mono);font-size:11px;color:var(--dim);flex:none;width:44px}
+  .ev .k{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border-radius:8px;padding:1px 7px;flex:none;width:64px;text-align:center}
+  .k.move{background:#22303f;color:var(--blu)} .k.scene{background:#2b2b28;color:var(--dim)}
+  .k.venue{background:#262b22;color:var(--grn)} .k.weather{background:#202833;color:#8fb8d4}
+  .k.request{background:#33261e;color:var(--acc)} .k.admin{background:#33222c;color:var(--pink)}
+  .k.press{background:#2c2438;color:#b9a0e0} .k.housing{background:#22301f;color:#9fc47f}
+  .k.cast{background:#1f3038;color:#7fc4c4} .k.quiet{background:#1c2129;color:var(--dim)}
+  .k.rumor{background:#2f2817;color:var(--rum)}
+  .ev .who{color:var(--blu)}
+  .unc{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--rum);
+    border:1px dashed var(--rum);border-radius:8px;padding:0 6px;margin-left:6px}
+  .st{font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
+    margin-left:6px;white-space:nowrap}
+  .st.running{background:#1e3a2c;color:var(--grn)} .st.queued{background:#22303f;color:var(--blu)}
+  .st.resolved,.st.refunded,.st.approved,.st.player_session_ended{background:#2b2b28;color:var(--dim)}
+  .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
+  .st.not_approved{background:#33222c;color:var(--pink)}
+  .empty{padding:18px 4px;color:var(--dim);font-style:italic;font-size:13px}
+
+  /* ---- person/venue heads ---- */
+  .subhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);
+    padding-bottom:10px;margin-bottom:6px}
+  .subhead h3{margin:0;font-size:17px;font-weight:600}
+  .subhead .meta{font-size:12px;color:var(--dim)}
+  .pubonly{font-size:10.5px;color:var(--dim);border:1px solid var(--line);border-radius:8px;padding:1px 8px}
+
+  /* ---- threads ---- */
+  .thcard{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:10px;cursor:pointer}
+  .thcard:hover{background:var(--panel2)}
+  .thcard .thl{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .thcard .thb{font-size:12px;color:var(--dim);margin-top:4px}
+  .thcard .thm{font-size:11px;color:var(--dim);margin-top:6px;font-family:var(--mono)}
+  .thcard .thm .stt{color:var(--acc)}
+  .thback{font-size:11.5px;color:var(--blu);cursor:pointer;margin-bottom:10px;display:inline-block}
+  .thback:hover{text-decoration:underline}
+  .thchip{font-size:10px;border:1px solid var(--line);border-radius:10px;padding:1px 9px;
+    cursor:pointer;color:var(--acc);background:var(--panel2);margin-right:5px}
+  .thchip:hover{border-color:var(--acc)}
+
+  /* ---- the week ---- */
+  .wksum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .wksum .rs{flex:1;min-width:96px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:8px 10px;text-align:center}
+  .wksum b{display:block;font-family:var(--mono);font-size:18px;color:var(--acc)}
+  .wksum span{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+  table.wkgrid{border-collapse:collapse;width:100%;margin:4px 0 14px}
+  .wkgrid th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+    font-weight:600;padding:4px 6px;text-align:right;border-bottom:1px solid var(--line)}
+  .wkgrid th:first-child{text-align:left}
+  .wkgrid td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;
+    font-family:var(--mono);font-size:11.5px}
+  .wkgrid td:first-child{text-align:left;font-family:inherit;font-size:12px;white-space:nowrap}
+  .wkgrid td.cell{cursor:pointer;color:var(--dim)}
+  .wkgrid td.cell:hover{background:var(--panel2);color:var(--ink)}
+  .wkgrid td.cell.hot{color:var(--ink)}
+  .wkgrid tr.today td:first-child{color:var(--grn)}
+  .wkrow{display:flex;align-items:baseline;gap:10px;padding:6px 8px;border-bottom:1px solid var(--line);
+    cursor:pointer;border-radius:4px;font-size:12.5px}
+  .wkrow:hover{background:var(--panel2)}
+  .wkrow .wn{font-weight:600;flex:none;width:110px}
+  .wkrow .wm{color:var(--dim);font-size:11.5px}
+  .wkrow .wc{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .dnav{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--blu);cursor:pointer}
+  .dnav:disabled{opacity:.35;cursor:default}
+  .keyhint{font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:6px;
+    padding:1px 8px;font-family:var(--mono)}
+
+  /* ---- rumor board ---- */
+  .rstat{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .rstat .rs{flex:1;min-width:88px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+    padding:8px 10px;text-align:center}
+  .rs b{display:block;font-family:var(--mono);font-size:18px}
+  .rs.open b{color:var(--acc)} .rs.debunked b{color:var(--red)} .rs.faded b{color:var(--dim)} .rs.stood b{color:var(--grn)}
+  .rs span{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+  .rumcard{border:1px dashed var(--rum);border-radius:8px;padding:10px 14px;margin-bottom:10px;cursor:pointer}
+  .rumcard:hover{background:var(--panel2)}
+  .rumcard .rt{font-size:13px}
+  .rumcard .rm{font-size:11.5px;color:var(--dim);margin-top:5px}
+  .outcome-debunked{color:var(--red)} .outcome-stood{color:var(--grn)} .outcome-faded{color:var(--dim)}
+  .outcome-open{color:var(--acc)}
+
+  /* ---- ledger ---- */
+  .ledsum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .ledsum .rs{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+    padding:8px 10px;text-align:center}
+  .ledsum b{display:block;font-family:var(--mono);font-size:18px;color:var(--acc)}
+  .ledsum span{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+  .payer{font-family:var(--mono);color:var(--acc);font-size:11.5px}
+
+  /* ---- detail panel ---- */
+  .det .k{margin-right:8px}
+  .det .dt{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .det .dtext{font-size:13.5px;margin:8px 0}
+  .det .meta{font-size:11.5px;color:var(--dim);margin:4px 0}
+  .det .meta b{color:var(--ink);font-weight:600}
+  .trail{margin:10px 0;padding-left:0;list-style:none;border-left:2px solid var(--line)}
+  .trail li{padding:3px 0 3px 12px;position:relative;font-size:12px;color:var(--dim);cursor:pointer}
+  .trail li::before{content:"";position:absolute;left:-5px;top:9px;width:8px;height:8px;
+    border-radius:50%;background:var(--line)}
+  .trail li.cur{color:var(--ink)} .trail li.cur::before{background:var(--acc)}
+  .trail li:hover{color:var(--ink)}
+  .plink{display:flex;gap:6px;margin-top:10px}
+  .plink input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+    color:var(--dim);font-family:var(--mono);font-size:10.5px;padding:4px 8px}
+  .plink button,.det .daylink{font:inherit;font-size:11px;padding:3px 10px;border-radius:6px;
+    border:1px solid var(--line);background:var(--panel2);color:var(--blu);cursor:pointer}
+  .detempty{color:var(--dim);font-size:12.5px;font-style:italic}
+
+  .scopepanel{font-size:11.5px;color:var(--dim);border:1px dashed var(--line);border-radius:6px;
+    padding:10px 12px}
+  .scopepanel b{color:var(--ink)}
+  .fineprint{max-width:1380px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
+  .fineprint b{color:var(--ink)}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Archive</div>
+  <span class="tag">FREE</span>
+  <span class="src demo" id="srcBadge">demo archive</span>
+  <div class="scope">Every day the wire ever showed — replayed exactly as a
+    spectator saw it. Not a director's cut.</div>
+  <a class="navlink" href="wire.html">→ The Wire (live today)</a>
+</header>
+
+<main>
+  <div class="railL">
+    <section class="panel">
+      <h2>Browse <span class="free">— free forever</span></h2>
+      <div class="vchips" id="vchips">
+        <div class="vchip" data-v="week">the week<small>the whole record at a glance — counted, not curated</small></div>
+        <div class="vchip on" data-v="day">by day<small>one block day, hour by hour</small></div>
+        <div class="vchip" data-v="person">by person<small>a public trail across days</small></div>
+        <div class="vchip" data-v="venue">by venue<small>one corner's whole record</small></div>
+        <div class="vchip" data-v="threads">threads<small>storylines the public record already tells</small></div>
+        <div class="vchip" data-v="word">word on the block<small>the rumor board — all of it marked</small></div>
+        <div class="vchip" data-v="ledger">the ledger<small>every paid reach-in, attributed</small></div>
+      </div>
+      <select class="pick" id="pickWho" style="display:none"></select>
+      <select class="pick" id="pickVenue" style="display:none"></select>
+    </section>
+    <section class="panel">
+      <h2>Days on record</h2>
+      <div id="daylist"></div>
+    </section>
+    <div class="scopepanel"><b>Scope:</b> the spectator layer only — the same
+      coverage as the live wire, one day later. Homes are walls; secrets
+      aren't hidden here, they were never written.</div>
+  </div>
+
+  <section class="panel" style="margin-bottom:0" id="mainPanel">
+    <div id="viewBody"></div>
+  </section>
+
+  <div class="railR">
+    <section class="panel det" id="det">
+      <h2>Record</h2>
+      <div id="detBody"><div class="detempty">Select any line for its record —
+        stable id, permalink, and (for requests) the whole status trail.</div></div>
+    </section>
+    <section class="panel">
+      <h2>Reading the archive</h2>
+      <div style="font-size:12px;color:var(--dim)">
+        <p style="margin:0 0 8px"><b style="color:var(--ink)">Word on the block</b>
+          entries are talk overheard in public — always UNCONFIRMED, sourced to a
+          place, never a person. When the talk resolves, the archive shows how
+          it landed.</p>
+        <p style="margin:0 0 8px"><b style="color:var(--ink)">Gaps are honest.</b>
+          Hours with no public events stay empty; the archive doesn't fill
+          dead air. Today holds through the last completed hour.</p>
+        <p style="margin:0"><b style="color:var(--ink)">Attribution is verbatim.</b>
+          The ledger shows who paid for what, exactly as the live wire showed
+          it — admin actions included.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="fineprint">
+  <b>What the archive is:</b> the same spectator layer the live wire shows —
+  arrivals, crowds, weather, attributed requests, word on the block. Nothing
+  was added in hindsight and nothing was cut. Homes are walls — "headed home"
+  is where coverage ends. A rumor can only ever be a distorted retelling of
+  something already public; denied request text was never written anywhere,
+  so it can't be found here either. Event ids are stable: a permalink that
+  worked on the wire resolves here tomorrow, unchanged.
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================= source: live bridge or local demo =================
+   Live contract (game-v6): __aiBridge.gsWireDays() -> [dateStr,...],
+   __aiBridge.gsWireArchiveDay(dateStr) -> history.json-shaped day object
+   ({date, events:[...]} or a bare array — both accepted). */
+var BRIDGE = (typeof __aiBridge!=="undefined" && __aiBridge && __aiBridge.gsWireDays && __aiBridge.gsWireArchiveDay) ? __aiBridge : null;
+
+/* ================= demo days — mirror of world/history.json ================= */
+var DEMO_DAYS = {
+"2026-09-17": [
+ {id:"d0917-01",t:371,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0917-02",t:395,kind:"move",who:"C1",venue:"mudhaus",text:"Mars in early at Mudhaus — opening, counter"},
+ {id:"d0917-03",t:462,kind:"scene",venue:"mudhaus",mentions:["A01"],text:"Rush hour at Mudhaus — Reyes at double tempo, line to the door"},
+ {id:"d0917-04",t:489,kind:"move",who:"C4",venue:null,text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0917-05",t:540,kind:"venue",venue:"park",mentions:["A05", "A19"],text:"Bench parliament in session — Esther and Ray, adjacent sections"},
+ {id:"d0917-06",t:598,kind:"weather",text:"Fog burned off over the park — full sun by ten"},
+ {id:"d0917-07",t:692,kind:"scene",venue:"block",mentions:["C5", "A15"],text:"The wordless race — Marcus and Omar, one block at full pace"},
+ {id:"d0917-08",t:783,kind:"rumor",venue:"farolote",text:"Word on the block — someone says El Farolote is about to do breakfast",src:"farolote",outcome:{"state": "debunked", "note": "no breakfast menu ever appeared; by Friday the talk had moved on"}},
+ {id:"d0917-09",t:840,kind:"move",who:"C1",venue:"block",text:"Mars started her afternoon rounds"},
+ {id:"d0917-10",t:905,kind:"scene",venue:"park",mentions:["A04", "A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0917-11",t:1021,kind:"request",who:"dvh",text:"possess — own baker, 45 min",status:"resolved",req:"rq-0917-1"},
+ {id:"d0917-12",t:1147,kind:"request",who:"pt",text:"nudge — an ask to Mars Delgado · declined by character, 50% refunded",status:"refunded",req:"rq-0917-2",thread:["t-carmen-asks"]},
+ {id:"d0917-13",t:1178,kind:"scene",venue:"mudhaus",mentions:["A09"],text:"The evening nurse — Asha's counter seat, phone face-down"},
+ {id:"d0917-14",t:1262,kind:"quiet",venue:"block",text:"Close-down. Bar stragglers, the late kitchen, last courier runs."}
+],
+"2026-09-18": [
+ {id:"d0918-01",t:368,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0918-02",t:459,kind:"scene",venue:"mudhaus",mentions:["A01"],text:"Rush hour at Mudhaus — Reyes at double tempo, line to the door"},
+ {id:"d0918-03",t:512,kind:"rumor",venue:"maliks",text:"Word on the block — someone's cousin heard Mudhaus fired a barista",src:"maliks",outcome:{"state": "debunked", "note": "all three baristas on shift by 08:00 — the talk died on sight"}},
+ {id:"d0918-04",t:604,kind:"move",who:"C6",venue:"park",text:"Carmen under her palm in the park — sewing, receiving"},
+ {id:"d0918-05",t:661,kind:"venue",venue:"buyrite",text:"Buy-Rite restocking the good bread — the word will travel",thread:["t-bread"]},
+ {id:"d0918-06",t:733,kind:"press",text:"Mission Unfiltered posted: “Two Receipts, One Counter” — anonymous, as always"},
+ {id:"d0918-07",t:787,kind:"scene",venue:"farolote",mentions:["C8"],text:"Lunch rush at El Farolote — the salsa bar's midday refill"},
+ {id:"d0918-08",t:904,kind:"scene",venue:"park",mentions:["A04", "A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0918-09",t:1033,kind:"request",who:"kes",text:"camera director — 30 min",status:"resolved",req:"rq-0918-1"},
+ {id:"d0918-10",t:1124,kind:"scene",venue:"club600",mentions:["A08"],text:"Doorway set — Sam under the 600 Club awning, better acoustics anyway"},
+ {id:"d0918-11",t:1205,kind:"venue",venue:"club600",mentions:["A08", "A14"],text:"Friday crowd at the 600 Club — Sam and Bex drifted in",thread:["t-license"]},
+ {id:"d0918-12",t:1291,kind:"quiet",venue:"block",text:"The honestest hour — a cat on a stoop, the laundromat hum."}
+],
+"2026-09-19": [
+ {id:"d0919-01",t:420,kind:"venue",venue:"park",mentions:["A02"],text:"Saturday — Doro's pack did the north loop early, seven dogs, one system"},
+ {id:"d0919-02",t:478,kind:"move",who:"C8",venue:"block",text:"Tomás on the supplier loop — hardware, market, greenmarket"},
+ {id:"d0919-03",t:552,kind:"request",who:"leaf",text:"event — park cleanup at Dolores Park",status:"running",req:"rq-0919-1",thread:["t-cleanup"]},
+ {id:"d0919-04",t:588,kind:"scene",venue:"park",text:"Park cleanup underway — gloves, bags, a drone overhead nobody asked for",thread:["t-cleanup"]},
+ {id:"d0919-05",t:640,kind:"venue",venue:"clarion",mentions:["A14"],text:"A photo crew in Clarion Alley; Bex pretending not to watch",thread:["t-crew"]},
+ {id:"d0919-06",t:651,kind:"request",who:"leaf",text:"event — park cleanup at Dolores Park",status:"resolved",req:"rq-0919-1",thread:["t-cleanup"]},
+ {id:"d0919-07",t:702,kind:"rumor",venue:"clarion",text:"Word on the block — a film crew is scouting Clarion for something",src:"clarion",outcome:{"state": "faded", "note": "no crew came back; chalked up to a wedding shoot"},thread:["t-crew"]},
+ {id:"d0919-08",t:794,kind:"venue",venue:"park",text:"The park is doing a full Saturday — blankets edge to edge"},
+ {id:"d0919-09",t:871,kind:"move",who:"C8",venue:"mudhaus",text:"Tomás at Mudhaus — the 3 p.m. coffee, late today"},
+ {id:"d0919-10",t:990,kind:"venue",venue:"maliks",mentions:["A03"],text:"Steady drip through Malik's — lottery tickets and gossip"},
+ {id:"d0919-11",t:1180,kind:"venue",venue:"farolote",text:"Post-bar pickup line forming at El Farolote"},
+ {id:"d0919-12",t:1330,kind:"quiet",venue:"block",text:"Late Saturday — the last line at Farolote, then nothing."}
+],
+"2026-09-20": [
+ {id:"d0920-01",t:421,kind:"move",who:"C6",venue:"block",text:"Carmen out on the stoop — cafecito in hand, Sunday edition"},
+ {id:"d0920-02",t:505,kind:"weather",who:"marina_w",text:"Drizzle over the park, 2 h — called by marina_w",attrs:{"credits": 70},thread:["t-drizzle"]},
+ {id:"d0920-03",t:510,kind:"request",who:"marina_w",text:"weather — drizzle over Dolores Park, 2 h",status:"running",req:"rq-0920-1",thread:["t-drizzle"]},
+ {id:"d0920-04",t:622,kind:"venue",venue:"park",mentions:["A05", "A19"],text:"Bench parliament under umbrellas — Esther and Ray, unmoved",thread:["t-drizzle"]},
+ {id:"d0920-05",t:714,kind:"housing",venue:"block",text:"Move-in at 9263 Geneva Ave, Unit 2 — the block absorbs another",thread:["t-moveins"]},
+ {id:"d0920-06",t:793,kind:"venue",venue:"mudhaus",text:"Slow Sunday at Mudhaus — the corner table claimed early"},
+ {id:"d0920-07",t:890,kind:"rumor",venue:"block",text:"Word on the block — parking control swept Guerrero this morning, nobody caught it",src:"block",outcome:{"state": "debunked", "note": "the meter man was reading, not ticketing — block exhaled"}},
+ {id:"d0920-08",t:1012,kind:"move",who:"C4",venue:"mudhaus",text:"Priya at Mudhaus — the decompression seat after a twelves"},
+ {id:"d0920-09",t:1150,kind:"quiet",venue:"block",text:"Sunday night — windows lit, nobody performing."}
+],
+"2026-09-21": [
+ {id:"d0921-01",t:362,kind:"weather",text:"Karl came in low overnight — the block in grayscale till noon"},
+ {id:"d0921-02",t:374,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops, fog-pale"},
+ {id:"d0921-03",t:455,kind:"scene",venue:"mudhaus",mentions:["A01", "A13"],text:"Rush hour at Mudhaus — Reyes at double tempo; Nadia claimed the corner table early"},
+ {id:"d0921-04",t:492,kind:"move",who:"C4",venue:null,text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0921-05",t:540,kind:"move",who:"C8",venue:"block",text:"Tomás on the supplier loop — hardware, market, greenmarket"},
+ {id:"d0921-06",t:601,kind:"venue",venue:"library",mentions:["A11", "A04"],text:"Library quiet hour — Vera reshelving, June's exam books stacked"},
+ {id:"d0921-07",t:655,kind:"request",who:"pt",text:"nudge — an ask to Carmen Echeverría · declined by character, 50% refunded",status:"refunded",req:"rq-0921-1",thread:["t-carmen-asks"]},
+ {id:"d0921-08",t:703,kind:"weather",text:"The fog tore open over Dolores — hard shadows by 11:45"},
+ {id:"d0921-09",t:782,kind:"rumor",venue:"club600",text:"Word on the block — somebody's saying the 600 Club lost its license",src:"club600",outcome:{"state": "debunked", "note": "the doorway set ran on schedule that same night", "by": "d0921-12"},thread:["t-license"]},
+ {id:"d0921-10",t:905,kind:"scene",venue:"park",mentions:["A04", "A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0921-11",t:1020,kind:"move",who:"C3",venue:null,text:"Dani went off the feed — her own business"},
+ {id:"d0921-12",t:1120,kind:"scene",venue:"club600",mentions:["A08"],text:"Doorway set — Sam under the 600 Club awning, license talk notwithstanding",thread:["t-license"]},
+ {id:"d0921-13",t:1265,kind:"quiet",venue:"block",text:"Close-down. Bar stragglers, the late kitchen, last courier runs."}
+],
+"2026-09-22": [
+ {id:"d0922-01",t:375,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0922-02",t:452,kind:"scene",venue:"mudhaus",mentions:["A01"],text:"Rush hour at Mudhaus — Reyes at double tempo, line to the door"},
+ {id:"d0922-03",t:487,kind:"move",who:"C4",venue:null,text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0922-04",t:540,kind:"venue",venue:"park",mentions:["A05", "A19"],text:"Bench parliament in session — Esther and Ray, adjacent sections"},
+ {id:"d0922-05",t:566,kind:"request",who:"okfm",text:"possess — own courier, 30 min",status:"resolved",req:"rq-0922-1"},
+ {id:"d0922-06",t:601,kind:"weather",text:"Fog burned off over the park — full sun"},
+ {id:"d0922-07",t:647,kind:"press",text:"Mission Unfiltered posted: “The Salsa-Bar Ledger” — anonymous, as always"},
+ {id:"d0922-08",t:690,kind:"request",who:"marina_w",text:"weather — clear skies over Dolores Park, 2 h",status:"resolved",req:"rq-0922-2"},
+ {id:"d0922-09",t:720,kind:"scene",venue:"farolote",mentions:["C8"],text:"Lunch rush at El Farolote — the salsa bar's midday refill"},
+ {id:"d0922-10",t:783,kind:"request",who:"leaf",text:"event — park cleanup at Dolores Park",status:"queued",req:"rq-0922-3",thread:["t-cleanup"]},
+ {id:"d0922-11",t:812,kind:"housing",venue:"block",text:"Listing filled — 9457 Guerrero St, Unit 2 comes off the board",thread:["t-moveins"]},
+ {id:"d0922-12",t:841,kind:"admin",who:"admin",venue:"club600",text:"admin action — venue window reset at The 600 Club",attrs:{"compensated_cr": 90},thread:["t-license"]},
+ {id:"d0922-13",t:900,kind:"scene",venue:"park",mentions:["A04", "A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0922-14",t:1077,kind:"request",who:"r0ok",text:"queued request expired before activation",status:"refunded",req:"rq-0922-4"},
+ {id:"d0922-15",t:1175,kind:"scene",venue:"mudhaus",mentions:["A09"],text:"The evening nurse — Asha's counter seat, phone face-down"},
+ {id:"d0922-16",t:1260,kind:"venue",venue:"farolote",text:"Post-bar pickup line forming at El Farolote"},
+ {id:"d0922-17",t:1298,kind:"quiet",venue:"block",text:"The honestest hour — don't fill it."}
+],
+"2026-09-23": [
+ {id:"d0923-01",t:369,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0923-02",t:398,kind:"move",who:"C1",venue:"mudhaus",text:"Mars in early at Mudhaus — opening, counter"},
+ {id:"d0923-03",t:458,kind:"scene",venue:"mudhaus",mentions:["A01", "A13"],text:"Rush hour at Mudhaus — Reyes at double tempo; Nadia on the corner table"},
+ {id:"d0923-04",t:486,kind:"move",who:"C4",venue:null,text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0923-05",t:539,kind:"venue",venue:"park",mentions:["A05", "A19"],text:"Bench parliament in session — Esther and Ray, adjacent sections"},
+ {id:"d0923-06",t:612,kind:"venue",venue:"auerbach",mentions:["C7", "A17"],text:"Victor's counter steady; Cole's site next door on second shift"},
+ {id:"d0923-07",t:676,kind:"rumor",venue:"buyrite",text:"Word on the block — Buy-Rite is about to raise the price of the good bread",src:"buyrite",outcome:null,thread:["t-bread"]},
+ {id:"d0923-08",t:704,kind:"request",who:"juno_",text:"nudge — an ask to Tomás Herrera",status:"in_review",req:"rq-0923-1"}
+]
+};
+var DEMO_TODAY = "2026-09-23";
+var THREADS = {
+ "t-bread": {
+  "label": "the good-bread ledger",
+  "blurb": "Buy-Rite keeps restocking the good bread; the block is now pricing it in advance. Still open — today's talk hasn't settled."
+ },
+ "t-cleanup": {
+  "label": "leaf's park cleanups",
+  "blurb": "One player keeps paying for park cleanups at Dolores — ran Saturday, queued again Tuesday. The ledger keeps the receipts."
+ },
+ "t-license": {
+  "label": "the 600 Club license talk",
+  "blurb": "Somebody said the club lost its license; the doorway set ran anyway and the venue got an admin window reset after. Debunked, on the record."
+ },
+ "t-crew": {
+  "label": "the film crew that wasn't",
+  "blurb": "A photo crew in Clarion became 'a film crew scouting something' by evening. It faded — chalked up to a wedding shoot."
+ },
+ "t-carmen-asks": {
+  "label": "the asks Carmen declined",
+  "blurb": "Two paid nudges aimed at Carmen Echeverría, two declines, two partial refunds. The character decides; the ledger shows it."
+ },
+ "t-drizzle": {
+  "label": "the drizzle nobody wanted",
+  "blurb": "marina_w paid for two hours of drizzle on a Sunday. Bench parliament sat under umbrellas, unmoved. Credits spent, benches dry-ish."
+ },
+ "t-moveins": {
+  "label": "the block absorbs another",
+  "blurb": "A move-in on Geneva and a filled listing on Guerrero — the housing churn a spectator could watch from the street."
+ }
+};
+
+/* ================= reference data ================= */
+var NAMES = {C1:"Mars Delgado",C2:"Jules Park",C3:"Dani Reyes",C4:"Priya Raman",
+  C5:"Marcus Bell",C6:"Carmen Echeverría",C7:"Victor Auerbach",C8:"Tomás Herrera",
+  A01:"Reyes",A02:"Doro",A03:"Malik",A04:"June",A05:"Esther",A08:"Sam",A09:"Asha",
+  A11:"Vera",A13:"Nadia",A14:"Bex",A15:"Omar",A17:"Cole",A19:"Ray",A20:"Zee"};
+var ROLES = {C1:"manager, Mudhaus",C2:"barista, Mudhaus",C3:"barista, Mudhaus",
+  C4:"RN, SF General",C5:"courier, Flying Pannier",C6:"retired seamstress",
+  C7:"owner, Auerbach Hardware",C8:"lead cook, El Farolote"};
+var VENUES = {mudhaus:"Mudhaus Coffee",park:"Dolores Park",farolote:"Taqueria El Farolote",
+  club600:"The 600 Club",auerbach:"Auerbach Hardware",perk:"Dolores Perk",
+  maliks:"Malik's Mini Mart",clarion:"Clarion Alley",library:"Mission Branch Library",
+  buyrite:"Buy-Rite Market",block:"the block"};
+var WDAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+/* ================= archive store ================= */
+var DAYS = {};           // date -> [events] (chronological)
+var TODAY = DEMO_TODAY;
+var LIVE = false;
+
+function normDay(dateStr, obj){
+  var evs = Array.isArray(obj) ? obj : (obj && obj.events) || [];
+  return evs.filter(function(e){return e && typeof e.t==="number";})
+            .sort(function(a,b){return a.t-b.t;});
+}
+function loadArchive(){
+  if (BRIDGE){
+    try{
+      var days = BRIDGE.gsWireDays() || [];
+      if (days.length){
+        days.forEach(function(d){
+          var obj=BRIDGE.gsWireArchiveDay(d);
+          if (obj && obj.threads) Object.keys(obj.threads).forEach(function(k){ THREADS[k]=obj.threads[k]; });
+          DAYS[d]=normDay(d, obj);
+        });
+        if (Object.keys(DAYS).length){ LIVE=true; TODAY=days[days.length-1]; return; }
+      }
+    }catch(e){}
+  }
+  DAYS = {}; Object.keys(DEMO_DAYS).forEach(function(d){ DAYS[d]=DEMO_DAYS[d].slice(); });
+  TODAY = DEMO_TODAY;
+}
+loadArchive();
+if (LIVE){ var b=document.getElementById('srcBadge'); b.textContent='live archive'; b.className='src'; }
+
+/* ================= state + hash routing ================= */
+var view="day", day=TODAY, selHour=-1, kindF="all", q="", who="", venue="", selId=null;
+var selTh=null, searchScope="day", payer="";
+
+function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function stKey(s){ return String(s).replace(/[ ()]/g,'_').toLowerCase(); }
+function dateOfId(id){ var m=/^d(\d{2})(\d{2})-/.exec(id||""); return m ? "2026-"+m[1]+"-"+m[2] : null; }
+function allEvents(){ var out=[]; Object.keys(DAYS).sort().forEach(function(d){
+  DAYS[d].forEach(function(e){ out.push(e); }); }); return out; }
+function findEvent(id){
+  var d=dateOfId(id);
+  var pool = d&&DAYS[d] ? DAYS[d] : allEvents();
+  for (var i=0;i<pool.length;i++) if(pool[i].id===id) return {e:pool[i], day:d||null};
+  return null;
+}
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.style.display='block';
+  setTimeout(function(){t.style.display='none';},1900); }
+function stepDay(dir){
+  var ks=Object.keys(DAYS).sort(), i=ks.indexOf(day)+dir;
+  if (i<0||i>=ks.length) return;
+  day=ks[i]; selHour=-1; selId=null; view='day'; renderAll();
+}
+
+function setHash(){
+  var h = view==='day' ? '#d='+day
+        : view==='person' ? '#v=person&who='+who
+        : view==='venue' ? '#v=venue&venue='+venue
+        : '#v='+view;
+  if (view==='threads' && selTh) h+='&th='+selTh;
+  if (selId) h += (h.indexOf('&')>=0||view!=='day'?'&':'&')+'e='+selId;
+  if (history.replaceState) history.replaceState(null,'',h); else location.hash=h;
+}
+function readHash(){
+  var h=location.hash.replace(/^#/,''), kv={};
+  h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
+  if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
+  if (kv.d && DAYS[kv.d]) day=kv.d;
+  if (kv.v && ['day','person','venue','threads','word','ledger','week'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.who && NAMES[kv.who]){ who=kv.who; view='person'; }
+  if (kv.venue && VENUES[kv.venue]){ venue=kv.venue; view='venue'; }
+  if (kv.th && THREADS[kv.th]){ selTh=kv.th; view='threads'; }
+  if (kv.e && !kv.v && !kv.who && !kv.venue) view='day';
+}
+readHash();
+
+/* ================= left rail: days + view switcher ================= */
+function renderDayList(){
+  var box=document.getElementById('daylist'); box.innerHTML='';
+  Object.keys(DAYS).sort().reverse().forEach(function(d){
+    var dt=new Date(d+'T12:00:00');
+    var r=document.createElement('div'); r.className='drow'+(view==='day'&&d===day?' on':'');
+    r.innerHTML='<span class="dn">'+WDAYS[dt.getDay()].slice(0,3)+' '+d.slice(5)+'</span>'+
+      (d===TODAY?'<span class="tod">● today</span>':'')+
+      '<span class="dc">'+DAYS[d].length+'</span>';
+    r.onclick=function(){ view='day'; day=d; selHour=-1; renderAll(); };
+    box.appendChild(r);
+  });
+}
+document.querySelectorAll('#vchips .vchip').forEach(function(ch){
+  ch.onclick=function(){ view=ch.dataset.v; selId=null; selTh=null; payer=''; renderAll(); };
+});
+function renderViewChips(){
+  document.querySelectorAll('#vchips .vchip').forEach(function(c){
+    c.classList.toggle('on', c.dataset.v===view); });
+  document.getElementById('pickWho').style.display = view==='person'?'':'none';
+  document.getElementById('pickVenue').style.display = view==='venue'?'':'none';
+}
+function buildPickers(){
+  var cs=document.getElementById('pickWho'); cs.innerHTML='<option value="">pick someone…</option>';
+  Object.keys(NAMES).sort(function(a,b){return (a[0]===b[0])?NAMES[a].localeCompare(NAMES[b]):(a[0]==='C'?-1:1);})
+    .forEach(function(id){ var o=document.createElement('option'); o.value=id;
+      o.textContent=NAMES[id]+(id[0]==='C'?' (main)':''); cs.appendChild(o); });
+  cs.value=who; cs.onchange=function(){ who=cs.value; selId=null; renderAll(); };
+  var vs=document.getElementById('pickVenue'); vs.innerHTML='<option value="">pick a place…</option>';
+  Object.keys(VENUES).forEach(function(id){ var o=document.createElement('option');
+    o.value=id; o.textContent=VENUES[id]; vs.appendChild(o); });
+  vs.value=venue; vs.onchange=function(){ venue=vs.value; selId=null; renderAll(); };
+}
+
+/* ================= shared event row ================= */
+function evRow(e, d){
+  var li=document.createElement('li'); li.className='ev'+(e.id===selId?' sel':'');
+  var txt=esc(e.text);
+  if ((e.kind==='request')&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
+  if (e.kind==='admin'&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
+  if (e.status) txt+=' <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span>';
+  if (e.kind==='rumor') txt+=' <span class="unc">unconfirmed</span>';
+  li.innerHTML='<span class="t">'+fmt(e.t)+'</span><span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span>';
+  li.onclick=function(){ selId=e.id; if(d) day=d; markSel(li); renderDet(); setHash(); };
+  return li;
+}
+function markSel(row){
+  document.querySelectorAll('.ev').forEach(function(li){ li.classList.remove('sel'); });
+  if (row) row.classList.add('sel');
+}
+function daySepLabel(d){
+  var dt=new Date(d+'T12:00:00');
+  return (d===TODAY?'today — ':'')+WDAYS[dt.getDay()].toLowerCase()+', '+
+    d.slice(5).replace('-','/') ;
+}
+
+/* ================= VIEW: day ================= */
+function renderDayView(){
+  var body=document.getElementById('viewBody');
+  var evs=(DAYS[day]||[]);
+  var counts=new Array(24).fill(0); evs.forEach(function(e){counts[Math.floor(e.t/60)]++;});
+  var max=Math.max.apply(null,counts.concat([1]));
+  var lastT = evs.length?evs[evs.length-1].t:0;
+  var isToday = day===TODAY;
+
+  var ks=Object.keys(DAYS).sort(), di=ks.indexOf(day);
+  var html='<div class="dayhead"><button class="dnav" id="dprev" '+(di<=0?'disabled':'')+'>&lsaquo; prev day</button>'+
+    '<h3>'+WDAYS[new Date(day+'T12:00:00').getDay()]+', '+day+'</h3>'+
+    '<button class="dnav" id="dnext" '+(di<0||di>=ks.length-1?'disabled':'')+'>next day &rsaquo;</button>'+
+    '<span class="keyhint">&larr; &rarr;</span>'+
+    '<span class="meta">'+evs.length+' entries'+
+    (evs.filter(function(e){return e.kind==='rumor';}).length?' · '+evs.filter(function(e){return e.kind==='rumor';}).length+' word-on-the-block':'')+
+    ' · coverage: street-level only</span>'+
+    (isToday?'<span class="writing">still being written — archive holds through the last completed hour</span>':'')+
+    '</div>'+
+    '<div class="hours" id="hours"></div><div class="hrlabels" id="hrlabels"></div>'+
+    '<div class="chiprow" id="kinds">'+
+      '<span class="chip'+(kindF==='all'?' on':'')+'" data-k="all">all</span>'+
+      '<span class="chip'+(kindF==='block'?' on':'')+'" data-k="block">the block</span>'+
+      '<span class="chip'+(kindF==='rumor'?' on':'')+'" data-k="rumor">word on the block</span>'+
+      '<span class="chip'+(kindF==='request'?' on':'')+'" data-k="request">requests</span>'+
+      '<span class="chip'+(kindF==='admin'?' on':'')+'" data-k="admin">admin</span>'+
+      '<span class="chip'+(kindF==='press'?' on':'')+'" data-k="press">Mission Unfiltered</span>'+
+    '</div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search this day — names, places, \u201ccleanup\u201d, \u201cfog\u201d\u2026" value="'+esc(q)+'">'+
+      '<span class="chip'+(searchScope==='all'?' on':'')+'" id="scopetgl" title="widen the search to every archived day">whole record</span>'+
+      '<button class="chip" id="txbtn" style="cursor:pointer" title="the day as plain text — badge line included">copy transcript</button></div>'+
+    '<div class="evs" id="evs"></div>';
+  body.innerHTML=html;
+
+  var hb=document.getElementById('hours'), lb=document.getElementById('hrlabels');
+  for(var h=0;h<24;h++){
+    var s=document.createElement('div');
+    var off = isToday && h>Math.floor(lastT/60);
+    s.className='hr'+(h===selHour?' sel':'')+(off?' off':'');
+    s.style.height=Math.max(3,counts[h]/max*32)+'px';
+    s.title=('0'+h).slice(-2)+':00 — '+(off?'not written yet':counts[h]+' event'+(counts[h]===1?'':'s'));
+    if(!off)(function(hh){ s.onclick=function(){ selHour=(selHour===hh?-1:hh); renderAll(); }; })(h);
+    hb.appendChild(s);
+    var l=document.createElement('span'); l.textContent=('0'+h).slice(-2); lb.appendChild(l);
+  }
+  document.querySelectorAll('#kinds .chip').forEach(function(ch){
+    ch.onclick=function(){ kindF=ch.dataset.k; renderAll(); };
+  });
+  var dp=document.getElementById('dprev'), dn=document.getElementById('dnext');
+  if (dp) dp.onclick=function(){ stepDay(-1); };
+  if (dn) dn.onclick=function(){ stepDay(1); };
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderDayList_rows(); };
+  document.getElementById('scopetgl').onclick=function(){
+    searchScope=(searchScope==='all'?'day':'all'); renderAll();
+    toast(searchScope==='all'?'searching the whole record':'searching this day only'); };
+  document.getElementById('txbtn').onclick=function(){ copyTranscript(); };
+
+  renderDayList_rows();
+}
+/* plain-text transcript of the selected day — exactly what the page
+   shows, header carries the source badge so a pasted transcript can
+   never impersonate live. */
+function padK(s){ s=String(s); while(s.length<7) s+=' '; return s; }
+function copyTranscript(){
+  var evs=(DAYS[day]||[]);
+  var lines=['real world — the archive — '+
+    WDAYS[new Date(day+'T12:00:00').getDay()].toLowerCase()+', '+day+
+    ' ('+(LIVE?'live archive':'demo archive')+')',
+    'spectator-layer record only — homes are walls; gaps are honest'];
+  var prev=null;
+  evs.forEach(function(e){
+    if (prev!==null && e.t-prev>=120) lines.push('       -- off the feed ('+fmt(prev)+' -> '+fmt(e.t)+') --');
+    prev=e.t;
+    var txt=e.text;
+    if (e.kind==='rumor') txt='[unconfirmed] '+txt;
+    if (e.status) txt=txt+' ['+e.status+']';
+    lines.push(fmt(e.t)+'  '+padK(e.kind)+'  '+txt);
+  });
+  var txt=lines.join('\n');
+  var done=function(){ toast('transcript copied — '+evs.length+' lines'); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done,function(){ legacyCopy(txt); done(); });
+  } else { legacyCopy(txt); done(); }
+}
+function legacyCopy(txt){
+  var ta=document.createElement('textarea'); ta.value=txt;
+  ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+}
+function haystack(e){
+  return (e.text+' '+(NAMES[e.who]||e.who||'')+' '+(VENUES[e.venue]||'')+
+    (e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase();
+}
+function dayPass(e){
+  if (selHour>=0 && Math.floor(e.t/60)!==selHour) return false;
+  if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
+  if (kindF==='rumor' && e.kind!=='rumor') return false;
+  if (kindF==='request' && e.kind!=='request') return false;
+  if (kindF==='admin' && e.kind!=='admin') return false;
+  if (kindF==='press' && e.kind!=='press') return false;
+  if (q && haystack(e).indexOf(q.toLowerCase())<0) return false;
+  return true;
+}
+function renderDayList_rows(){
+  var ul=document.getElementById('evs'); if(!ul) return; ul.innerHTML='';
+  /* whole-record scope: same match, every archived day, grouped like trails */
+  if (searchScope==='all' && q){
+    var hits=allEvents().filter(function(e){
+      if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
+      if (kindF==='rumor' && e.kind!=='rumor') return false;
+      if (kindF==='request' && e.kind!=='request') return false;
+      if (kindF==='admin' && e.kind!=='admin') return false;
+      if (kindF==='press' && e.kind!=='press') return false;
+      return haystack(e).indexOf(q.toLowerCase())>=0;
+    });
+    var hd=document.createElement('li'); hd.className='hoursep';
+    var hdDays=Object.keys(hits.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+    hd.textContent='whole record — '+hits.length+' hit'+(hits.length===1?'':'s')+' across '+hdDays+' day'+(hdDays===1?'':'s');
+    ul.appendChild(hd);
+    if (!hits.length){
+      var e0=document.createElement('li'); e0.className='empty';
+      e0.textContent='Nothing in the public record matches — the archive only indexes what a spectator could have seen.';
+      ul.appendChild(e0); return;
+    }
+    var holder=document.createElement('li'); holder.style.listStyle='none';
+    holder.innerHTML=renderTrailDays(hits);
+    ul.appendChild(holder); mountTrailDays(); return;
+  }
+  var evs=(DAYS[day]||[]).filter(dayPass), lastH=-1, prevT=null;
+  evs.forEach(function(e){
+    var h=Math.floor(e.t/60);
+    if (h!==lastH){ lastH=h;
+      var s=document.createElement('li'); s.className='hoursep';
+      s.textContent=('0'+h).slice(-2)+':00 hour'; ul.appendChild(s); }
+    if (prevT!==null && e.t-prevT>=120 && selHour<0){
+      var g=document.createElement('li'); g.className='hoursep'; g.style.borderBottom='0';
+      g.style.fontStyle='italic'; g.style.textTransform='none'; g.style.letterSpacing='0';
+      g.textContent='— off the feed ('+fmt(prevT)+' → '+fmt(e.t)+') —';
+      ul.appendChild(g);
+    }
+    prevT=e.t;
+    ul.appendChild(evRow(e, day));
+  });
+  if (!evs.length){
+    var li=document.createElement('li'); li.className='empty';
+    li.textContent='No entries on this slice — the block was quiet, uncovered, or the hour hasn\u2019t completed. The archive doesn\u2019t fill dead air.';
+    ul.appendChild(li);
+  }
+}
+
+/* ================= VIEW: person / venue ================= */
+function charEvents(id){
+  return allEvents().filter(function(e){
+    return e.who===id || (e.mentions&&e.mentions.indexOf(id)>=0);
+  });
+}
+function venueEvents(id){
+  return allEvents().filter(function(e){ return e.venue===id || (e.venue==null&&id==='block'); });
+}
+function renderTrailDays(list){
+  var byDay={}; list.forEach(function(e){ var d=dateOfId(e.id)||TODAY; (byDay[d]=byDay[d]||[]).push(e); });
+  var days=Object.keys(byDay).sort().reverse();
+  if (!days.length) return '<div class="empty">Nothing public on record — the archive only holds what a spectator could have seen.</div>';
+  var html='';
+  days.forEach(function(d){
+    html+='<div class="daysep">'+daySepLabel(d)+' <a data-day="'+d+'">open day →</a></div><ul class="evs">';
+    /* rows appended after innerHTML for handlers — placeholder markers */
+    byDay[d].forEach(function(e){ html+='<li class="evrow-slot" data-eid="'+e.id+'" data-day="'+d+'"></li>'; });
+    html+='</ul>';
+  });
+  return html;
+}
+function mountTrailDays(){
+  document.querySelectorAll('.evrow-slot').forEach(function(slot){
+    var f=findEvent(slot.dataset.eid); if(!f) return;
+    var row=evRow(f.e, slot.dataset.day);
+    slot.parentNode.replaceChild(row, slot);
+  });
+  document.querySelectorAll('.daysep a[data-day]').forEach(function(a){
+    a.onclick=function(){ view='day'; day=a.dataset.day; selHour=-1; renderAll(); };
+  });
+}
+function renderPersonView(){
+  var body=document.getElementById('viewBody');
+  if(!who){ body.innerHTML='<div class="empty">Pick someone on the left — mains, ambients, anyone the camera has ever named.</div>'; return; }
+  var evs=charEvents(who);
+  var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  body.innerHTML='<div class="subhead"><h3>'+esc(NAMES[who]||who)+'</h3>'+
+    (ROLES[who]?'<span class="meta">'+esc(ROLES[who])+'</span>':'')+
+    '<span class="pubonly">public whereabouts only</span>'+
+    '<span class="meta">'+evs.length+' sightings · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search this trail…" value="'+esc(q)+'"></div>'+
+    renderTrailDays(evs.filter(function(e){
+      if(!q) return true;
+      return (e.text+' '+(VENUES[e.venue]||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
+    }));
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  mountTrailDays();
+}
+function renderVenueView(){
+  var body=document.getElementById('viewBody');
+  if(!venue){ body.innerHTML='<div class="empty">Pick a place on the left — any corner the wire has ever written about.</div>'; return; }
+  var evs=venueEvents(venue);
+  var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  body.innerHTML='<div class="subhead"><h3>'+esc(VENUES[venue]||venue)+'</h3>'+
+    '<span class="meta">'+evs.length+' entries · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search this record…" value="'+esc(q)+'"></div>'+
+    renderTrailDays(evs.filter(function(e){
+      if(!q) return true;
+      return (e.text+' '+(NAMES[e.who]||e.who||'')+(e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase().indexOf(q.toLowerCase())>=0;
+    }));
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  mountTrailDays();
+}
+
+/* ================= VIEW: the week =================
+   The whole record at a glance. Every figure is the archive's own rows
+   counted — the grid cells are exactly what the day view's matching
+   filter would show (press posts ride under "the block" there, so they
+   count in both columns here). No editorial pick, no ranking. */
+var WKCOLS=[['block','the block'],['rumor','word'],['request','requests'],
+  ['admin','admin'],['press','press']];
+function wkCount(evs,k){
+  return evs.filter(function(e){
+    if (k==='block') return e.kind!=='request'&&e.kind!=='admin'&&e.kind!=='rumor';
+    return e.kind===k;
+  }).length;
+}
+function busiestCorner(evs){
+  var c={}, last={};
+  evs.forEach(function(e){ var v=e.venue||'block'; c[v]=(c[v]||0)+1; last[v]=e.t; });
+  var best=null, bn=0, bt=Infinity;
+  Object.keys(c).forEach(function(v){
+    if (c[v]>bn || (c[v]===bn && last[v]<bt)){ best=v; bn=c[v]; bt=last[v]; }
+  });
+  return best ? {v:best, n:bn} : null;
+}
+function renderWeekView(){
+  var body=document.getElementById('viewBody');
+  var days=Object.keys(DAYS).sort(), evs=allEvents();
+  var reqs=evs.filter(function(e){return e.kind==='request';});
+  var reqIds={}; reqs.forEach(function(e){ reqIds[e.req||e.id]=1; });
+  var adminN=evs.filter(function(e){return e.kind==='admin';}).length;
+  var rumors=evs.filter(function(e){return e.kind==='rumor';});
+  var openRum=rumors.filter(function(e){return !e.outcome;}).length;
+  var cr=0, comp=0;
+  evs.forEach(function(e){ if(e.attrs){ if(e.attrs.credits)cr+=e.attrs.credits;
+    if(e.attrs.compensated_cr)comp+=e.attrs.compensated_cr; } });
+  var html='<div class="dayhead"><h3>The week on record</h3>'+
+    '<span class="meta">'+days.length+' day'+(days.length===1?'':'s')+
+    ' · counted from the wire\u2019s own events — no editorial pick, no ranking</span></div>'+
+    '<div class="wksum">'+
+    '<div class="rs"><b>'+days.length+'</b><span>days on record</span></div>'+
+    '<div class="rs"><b>'+evs.length+'</b><span>entries</span></div>'+
+    '<div class="rs"><b>'+Object.keys(reqIds).length+'</b><span>requests filed</span></div>'+
+    '<div class="rs"><b>'+adminN+'</b><span>admin action'+(adminN===1?'':'s')+'</span></div>'+
+    '<div class="rs"><b>'+rumors.length+'</b><span>word on the block'+(openRum?' · '+openRum+' open':'')+'</span></div>'+
+    (cr?'<div class="rs"><b>'+cr+' cr</b><span>declared credits</span></div>':'')+
+    (comp?'<div class="rs"><b>'+comp+' cr</b><span>compensated</span></div>':'')+
+    '</div>'+
+    '<h2 style="margin-top:4px">the grid <span class="free">— each cell is what that day\u2019s filter would show; press posts also count under \u201cthe block\u201d</span></h2>'+
+    '<table class="wkgrid"><tr><th>day</th>'+
+    WKCOLS.map(function(c){return '<th>'+c[1]+'</th>';}).join('')+'<th>entries</th></tr>';
+  days.slice().reverse().forEach(function(d){
+    var de=DAYS[d]||[];
+    html+='<tr'+(d===TODAY?' class="today"':'')+'><td>'+daySepLabel(d)+'</td>'+
+      WKCOLS.map(function(c){
+        var n=wkCount(de,c[0]);
+        return '<td class="cell'+(n?' hot':'')+'" data-d="'+d+'" data-k="'+c[0]+'">'+n+'</td>';
+      }).join('')+'<td>'+de.length+'</td></tr>';
+  });
+  html+='</table>'+
+    '<h2>day by day <span class="free">— busiest corner = the most-tagged public venue; ties break to whichever peaked earlier</span></h2>'+
+    '<div id="wkrows"></div>'+
+    '<h2 style="margin-top:14px">still open <span class="free">— threads whose public record hasn\u2019t settled</span></h2>'+
+    '<div id="wkthreads" class="chiprow"></div>';
+  body.innerHTML=html;
+  body.querySelectorAll('.wkgrid td.cell').forEach(function(td){
+    td.onclick=function(){
+      day=td.dataset.d; view='day'; selHour=-1; selId=null;
+      kindF=td.dataset.k; renderAll();
+    };
+  });
+  var wr=document.getElementById('wkrows');
+  days.slice().reverse().forEach(function(d){
+    var de=DAYS[d]||[]; if(!de.length) return;
+    var bc=busiestCorner(de);
+    var r=document.createElement('div'); r.className='wkrow';
+    r.innerHTML='<span class="wn">'+(d===TODAY?'● ':'')+daySepLabel(d)+'</span>'+
+      '<span class="wm">'+fmt(de[0].t)+' → '+fmt(de[de.length-1].t)+
+      (bc?' · busiest: '+esc(VENUES[bc.v]||bc.v)+' ('+bc.n+')':'')+
+      (d===TODAY?' · still being written':'')+'</span>'+
+      '<span class="wc">'+de.length+'</span>';
+    r.onclick=function(){ view='day'; day=d; selHour=-1; selId=null; kindF='all'; renderAll(); };
+    wr.appendChild(r);
+  });
+  var wt=document.getElementById('wkthreads'), openN=0;
+  Object.keys(THREADS).forEach(function(tid){
+    var mems=threadMembers(tid);
+    if (!mems.length || !threadOpen(mems)) return;
+    openN++;
+    var s=document.createElement('span'); s.className='chip';
+    s.textContent=THREADS[tid].label;
+    s.onclick=function(){ selTh=tid; view='threads'; renderAll(); };
+    wt.appendChild(s);
+  });
+  if (!openN) wt.innerHTML='<span class="meta" style="font-size:11.5px;color:var(--dim)">every thread on record has settled — for now</span>';
+}
+
+/* ================= VIEW: threads =================
+   Named chains of already-public events. A thread asserts nothing
+   beyond its member rows — the label is archive chrome, not narration.
+   Thread tags live on the events (event.thread[]); the registry
+   (history.json `threads`, mirrored as THREADS) carries label+blurb. */
+function threadMembers(tid){
+  return allEvents().filter(function(e){ return e.thread && e.thread.indexOf(tid)>=0; });
+}
+function threadOpen(mems){
+  var openSt={requested:1,in_review:1,approved:1,queued:1,running:1};
+  for (var i=0;i<mems.length;i++){ var e=mems[i];
+    if (e.kind==='rumor' && !e.outcome) return true;
+    if (e.status && openSt[e.status]) return true;
+  }
+  return false;
+}
+function threadDays(mems){
+  var m={}; mems.forEach(function(e){ var d=dateOfId(e.id); if(d) m[d]=1; });
+  return Object.keys(m).sort();
+}
+function renderThreadsView(){
+  var body=document.getElementById('viewBody');
+  if (selTh && THREADS[selTh] && threadMembers(selTh).length){ renderThreadView(selTh); return; }
+  selTh=null;
+  var html='<div class="dayhead"><h3>Threads</h3>'+
+    '<span class="meta">storylines the public record already tells — arrangement only, nothing here wasn\u2019t on the wire</span></div>'+
+    '<div id="thlist"></div>';
+  body.innerHTML=html;
+  var list=document.getElementById('thlist');
+  Object.keys(THREADS).forEach(function(tid){
+    var th=THREADS[tid], mems=threadMembers(tid);
+    if (!mems.length) return;
+    var ds=threadDays(mems), open=threadOpen(mems);
+    var c=document.createElement('div'); c.className='thcard';
+    c.innerHTML='<div class="thl">'+esc(th.label)+'</div>'+
+      '<div class="thb">'+esc(th.blurb)+'</div>'+
+      '<div class="thm">'+mems.length+' events · '+daySepLabel(ds[0])+' → '+daySepLabel(ds[ds.length-1])+
+      ' · <span class="stt">'+(open?'still open':'settled')+'</span></div>';
+    c.onclick=function(){ selTh=tid; selId=null; renderAll(); };
+    list.appendChild(c);
+  });
+  if (!list.children.length) list.innerHTML='<div class="empty">No threads on record yet — the block hasn\u2019t repeated itself enough.</div>';
+}
+function renderThreadView(tid){
+  var body=document.getElementById('viewBody');
+  var th=THREADS[tid], mems=threadMembers(tid);
+  var ds=threadDays(mems), open=threadOpen(mems);
+  body.innerHTML='<span class="thback" id="thback">← all threads</span>'+
+    '<div class="subhead"><h3>'+esc(th.label)+'</h3>'+
+    '<span class="meta">'+mems.length+' public events · '+ds.length+' day'+(ds.length===1?'':'s')+
+    ' · '+(open?'still open':'settled')+'</span>'+
+    '<span class="pubonly">arrangement only — every line was already public</span></div>'+
+    '<div class="meta" style="font-size:12px;color:var(--dim);margin-bottom:8px">'+esc(th.blurb)+'</div>'+
+    renderTrailDays(mems);
+  document.getElementById('thback').onclick=function(){ selTh=null; renderAll(); };
+  mountTrailDays();
+}
+
+/* ================= VIEW: word on the block ================= */
+function renderWordView(){
+  var body=document.getElementById('viewBody');
+  var rumors=allEvents().filter(function(e){return e.kind==='rumor';});
+  var tally={open:0,debunked:0,faded:0,stood:0};
+  rumors.forEach(function(e){ tally[e.outcome?e.outcome.state:'open']++; });
+  var html='<div class="dayhead"><h3>Word on the block</h3>'+
+    '<span class="meta">talk overheard in public — place-sourced, never person-sourced, always marked</span></div>'+
+    '<div class="rstat">'+
+    '<div class="rs open"><b>'+tally.open+'</b><span>still open</span></div>'+
+    '<div class="rs debunked"><b>'+tally.debunked+'</b><span>debunked</span></div>'+
+    '<div class="rs faded"><b>'+tally.faded+'</b><span>faded</span></div>'+
+    '<div class="rs stood"><b>'+tally.stood+'</b><span>stood</span></div></div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search the talk…" value="'+esc(q)+'"></div><div id="rumlist"></div>';
+  body.innerHTML=html;
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  var list=document.getElementById('rumlist');
+  rumors.slice().reverse().forEach(function(e){
+    if (q && e.text.toLowerCase().indexOf(q.toLowerCase())<0) return;
+    var d=dateOfId(e.id)||TODAY;
+    var c=document.createElement('div'); c.className='rumcard';
+    var state = e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
+                          : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>';
+    c.innerHTML='<div class="rt">'+esc(e.text)+' <span class="unc">unconfirmed</span></div>'+
+      '<div class="rm">'+fmt(e.t)+' · '+daySepLabel(d)+' · overheard near '+esc(VENUES[e.src]||'the block')+' · '+state+'</div>';
+    c.onclick=function(){ selId=e.id; view='day'; day=d; kindF='all'; renderAll();
+      renderDet(); };
+    list.appendChild(c);
+  });
+  if(!list.children.length){ list.innerHTML='<div class="empty">No talk on this slice — unusual for this block.</div>'; }
+}
+
+/* ================= VIEW: the ledger ================= */
+function renderLedgerView(){
+  var body=document.getElementById('viewBody');
+  var paid=allEvents().filter(function(e){return e.kind==='request'||e.kind==='admin';});
+  var reqs=paid.filter(function(e){return e.kind==='request';});
+  var payers={}; reqs.forEach(function(e){ if(e.who&&e.who!=='admin') payers[e.who]=1; });
+  var cr=0; paid.forEach(function(e){ if(e.attrs&&e.attrs.credits) cr+=e.attrs.credits; });
+  var html='<div class="dayhead"><h3>The ledger</h3>'+
+    '<span class="meta">every paid intervention and admin action, attributed — the archive doesn\u2019t sanitize who paid</span></div>'+
+    '<div class="ledsum">'+
+    '<div class="rs"><b>'+reqs.length+'</b><span>request events</span></div>'+
+    '<div class="rs"><b>'+Object.keys(payers).length+'</b><span>players reached in</span></div>'+
+    '<div class="rs"><b>'+paid.filter(function(e){return e.kind==='admin';}).length+'</b><span>admin actions</span></div>'+
+    (cr?'<div class="rs"><b>'+cr+' cr</b><span>declared credits</span></div>':'')+
+    '</div>'+
+    '<div class="chiprow" id="paychips"></div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search handles, actions…" value="'+esc(q)+'"></div>'+
+    '<div id="payline"></div>'+
+    renderTrailDays(paid.slice().reverse().filter(function(e){
+      if (payer==='admin' && e.kind!=='admin') return false;
+      if (payer && payer!=='admin' && e.who!==payer) return false;
+      if(!q) return true;
+      return (e.text+' '+(e.who||'')+' '+(e.status||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
+    }));
+  body.innerHTML=html;
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  /* payer lens — one chip per handle, verbatim; 'admin' rides as its own chip */
+  var pc=document.getElementById('paychips');
+  var mkChip=function(label, val){
+    var s=document.createElement('span');
+    s.className='chip'+(payer===val?' on':''); s.textContent=label;
+    s.onclick=function(){ payer=(payer===val?'':val); renderAll(); };
+    pc.appendChild(s);
+  };
+  mkChip('everyone','');
+  Object.keys(payers).sort().forEach(function(h){ mkChip(h,h); });
+  if (paid.some(function(e){return e.kind==='admin';})) mkChip('admin','admin');
+  if (payer){
+    var mine=paid.filter(function(e){ return payer==='admin'?e.kind==='admin':e.who===payer; });
+    var mcr=0; mine.forEach(function(e){ if(e.attrs&&e.attrs.credits) mcr+=e.attrs.credits; });
+    document.getElementById('payline').innerHTML='<div class="meta" style="font-size:11.5px;color:var(--dim);margin:8px 0 2px">'+
+      esc(payer)+' — '+mine.length+' event'+(mine.length===1?'':'s')+
+      (mcr?' · '+mcr+' cr declared':' · no credits declared on record')+'</div>';
+  }
+  mountTrailDays();
+}
+
+/* ================= detail panel ================= */
+function renderDet(){
+  var det=document.getElementById('detBody');
+  var f = selId ? findEvent(selId) : null;
+  if (!f){ det.innerHTML='<div class="detempty">Select any line for its record — stable id, permalink, and (for requests) the whole status trail.</div>'; return; }
+  var e=f.e, d=f.day||day;
+  var bits=[];
+  var html='<div><span class="k '+e.kind+'">'+e.kind+'</span><span class="dt">'+fmt(e.t)+' · '+daySepLabel(d)+'</span></div>'+
+    '<div class="dtext">'+esc(e.text)+'</div>';
+  if (e.venue) bits.push('at <b>'+esc(VENUES[e.venue]||e.venue)+'</b>');
+  if (e.who && NAMES[e.who]) bits.push('who: <b>'+esc(NAMES[e.who])+'</b>');
+  else if (e.who) bits.push(e.kind==='admin'?'by <b>admin</b>':'player: <b>'+esc(e.who)+'</b>');
+  if (e.mentions&&e.mentions.length) bits.push('seen: '+e.mentions.map(function(m){return '<b>'+esc(NAMES[m]||m)+'</b>';}).join(', '));
+  if (e.status) bits.push('status: <b>'+esc(e.status)+'</b>');
+  if (e.reason_code) bits.push('why-class — <b>'+esc(e.reason_code)+'</b> (the screened text is never public)');
+  if (e.kind==='rumor'){
+    bits.push('overheard near <b>'+esc(VENUES[e.src]||'the block')+'</b> — never sourced to a person');
+    bits.push(e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
+                        : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>');
+    if (e.outcome && e.outcome.by && findEvent(e.outcome.by)){
+      var be=findEvent(e.outcome.by).e;
+      bits.push('settled by the public record — <span class="thchip" data-ev="'+e.outcome.by+'">'+
+        fmt(be.t)+' · '+esc(be.kind)+'</span>');
+    }
+  }
+  if (e.attrs&&e.attrs.compensated_cr) bits.push('affected players compensated <b>'+e.attrs.compensated_cr+' cr</b>');
+  if (e.attrs&&e.attrs.credits) bits.push('declared <b>'+e.attrs.credits+' cr</b>');
+  bits.forEach(function(x){ html+='<div class="meta">'+x+'</div>'; });
+  if (e.thread&&e.thread.length){
+    html+='<div class="meta" style="margin-top:8px"><b>on thread'+(e.thread.length>1?'s':'')+':</b> '+
+      e.thread.map(function(tid){
+        return THREADS[tid]?'<span class="thchip" data-th="'+tid+'">'+esc(THREADS[tid].label)+'</span>':'';
+      }).join('')+'</div>';
+  }
+  /* request lifecycle trail */
+  if (e.req){
+    var trail=allEvents().filter(function(x){return x.req===e.req;}).sort(function(a,b){return a.t-b.t;});
+    if (trail.length>1){
+      html+='<div class="meta"><b>this request\u2019s trail</b></div><ul class="trail">';
+      trail.forEach(function(x){
+        var xd=dateOfId(x.id)||d;
+        html+='<li class="'+(x.id===e.id?'cur':'')+'" data-tid="'+x.id+'">'+fmt(x.t)+' · '+
+          (xd!==d?daySepLabel(xd)+' · ':'')+esc(x.status||x.kind)+'</li>';
+      });
+      html+='</ul>';
+    }
+  }
+  /* around that time — the same day's immediate neighbors, same rows */
+  var dayEvs=DAYS[d]||[], ei=-1;
+  for (var ni=0;ni<dayEvs.length;ni++) if(dayEvs[ni].id===e.id){ ei=ni; break; }
+  if (ei>=0 && dayEvs.length>1){
+    var lo=Math.max(0,ei-2), hi=Math.min(dayEvs.length-1,ei+2);
+    if (lo<ei || hi>ei){
+      html+='<div class="meta" style="margin-top:8px"><b>around that time</b> — same day, the wire\u2019s own rows</div><ul class="trail">';
+      for (var ci=lo;ci<=hi;ci++){ var ne=dayEvs[ci];
+        html+='<li class="'+(ne.id===e.id?'cur':'')+'" data-tid="'+ne.id+'">'+fmt(ne.t)+' · '+esc(ne.kind)+'</li>';
+      }
+      html+='</ul>';
+    }
+  }
+  html+='<div class="plink"><input readonly value="archive.html#e='+e.id+'" id="plinkIn">'+
+    '<button id="plinkBtn">copy link</button>'+
+    '<button class="daylink" id="daylink">open day</button></div>'+
+    '<div class="meta" style="margin-top:8px">id <b>'+esc(e.id)+'</b> — stable; this event sat on the wire under the same id.</div>';
+  det.innerHTML=html;
+  document.getElementById('plinkBtn').onclick=function(){
+    var inp=document.getElementById('plinkIn'); inp.select();
+    try{ document.execCommand('copy'); toast('link copied'); }catch(err){
+      if(navigator.clipboard) navigator.clipboard.writeText(inp.value).then(function(){toast('link copied');});
+    }
+  };
+  document.getElementById('daylink').onclick=function(){ view='day'; day=d; selHour=-1; kindF='all'; renderAll(); };
+  det.querySelectorAll('.trail li[data-tid]').forEach(function(li){
+    li.onclick=function(){ selId=li.dataset.tid; var ff=findEvent(selId); if(ff&&ff.day)day=ff.day; renderDet(); renderView(); setHash(); };
+  });
+  det.querySelectorAll('.thchip[data-th]').forEach(function(c){
+    c.onclick=function(){ selTh=c.dataset.th; view='threads'; renderAll(); };
+  });
+  det.querySelectorAll('[data-ev]').forEach(function(c){
+    c.onclick=function(){ var ff=findEvent(c.dataset.ev); if(!ff) return;
+      selId=ff.e.id; if(ff.day)day=ff.day; renderDet(); renderView(); setHash(); };
+  });
+}
+
+/* ---- keyboard: arrow keys walk adjacent archived days ---- */
+document.addEventListener('keydown',function(ev){
+  var tag=(ev.target&&ev.target.tagName)||'';
+  if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  if (view!=='day') return;
+  if (ev.key==='ArrowLeft') stepDay(-1);
+  else if (ev.key==='ArrowRight') stepDay(1);
+});
+
+/* ================= render root ================= */
+function renderView(){
+  if (view==='week') renderWeekView();
+  else if (view==='day') renderDayView();
+  else if (view==='person') renderPersonView();
+  else if (view==='venue') renderVenueView();
+  else if (view==='threads') renderThreadsView();
+  else if (view==='word') renderWordView();
+  else if (view==='ledger') renderLedgerView();
+}
+function renderAll(){
+  renderViewChips(); renderDayList(); renderView(); renderDet(); setHash();
+}
+buildPickers();
+renderAll();
+if (selId) renderDet();
+</script>
+</body>
+</html>

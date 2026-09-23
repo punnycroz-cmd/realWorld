@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mission Housing &amp; Jobs Board</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  In-world corkboard: the listings a hired character scrolls on the
+  apartment hunt (world v6 flow) + the job board openings. Self-contained,
+  file://-safe (data inlined below). Data mirrors world/jobs.json and
+  world/housing.json — the .md files are canonical; if they disagree,
+  fix this page.
+  All addresses fictional 9xxx (address spec). All money = game dollars.
+  No real business names — canonical parody names only.
+-->
+<style>
+  :root{
+    --ink:#2b2620; --paper:#f4ecdd; --pin:#b3422e; --card:#fffaf0;
+    --line:#d8cbb2; --accent:#3e5c4b; --dim:#7a6f5c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 Georgia,'Times New Roman',serif;color:var(--ink);
+    background:var(--paper);
+    background-image:repeating-linear-gradient(0deg,transparent 0 26px,rgba(0,0,0,.02) 26px 27px);}
+  header{padding:28px 20px 14px;border-bottom:3px double var(--line);text-align:center}
+  h1{margin:0;font-size:26px;letter-spacing:.12em;text-transform:uppercase}
+  .sub{color:var(--dim);font-style:italic;margin-top:4px}
+  nav{display:flex;justify-content:center;gap:18px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  nav a{color:var(--accent)}
+  main{max-width:960px;margin:0 auto;padding:20px}
+  h2{font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+     border-bottom:1px solid var(--line);padding-bottom:4px;margin:34px 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:3px;
+        padding:14px 16px 12px;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .card::before{content:"";position:absolute;top:7px;left:50%;width:9px;height:9px;
+        border-radius:50%;background:var(--pin);box-shadow:0 1px 1px rgba(0,0,0,.4)}
+  .card h3{margin:8px 0 2px;font-size:16px}
+  .meta{color:var(--dim);font-size:12.5px;margin-bottom:6px}
+  .price{font-weight:bold;font-size:17px}
+  .price small{font-weight:normal;color:var(--dim)}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.05em;border:1px solid var(--line);
+       border-radius:2px;padding:1px 6px;margin:2px 4px 0 0;color:var(--dim)}
+  .tag.rc{color:var(--accent);border-color:var(--accent)}
+  .blurb{font-size:13.5px;font-style:italic;color:#4a4438}
+  .apply{font-size:12px;color:var(--dim);margin-top:8px;border-top:1px dotted var(--line);padding-top:6px}
+  footer{max-width:960px;margin:30px auto;padding:16px 20px;border-top:1px solid var(--line);
+     color:var(--dim);font-size:12px;font-style:italic}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mission Housing &amp; Jobs Board</h1>
+  <div class="sub">Posted by the block, for the block — Dolores Park neighborhood, San Francisco</div>
+</header>
+<nav>
+  <a href="#housing">Housing</a> · <a href="#jobs">Help wanted</a> ·
+  <a href="#howto">How it works</a>
+</nav>
+<main>
+<section id="housing">
+  <h2>Housing — live listings</h2>
+  <div class="grid" id="housing-grid"></div>
+  <h2>Housing — standing stock</h2>
+  <div class="grid" id="ladder-grid"></div>
+</section>
+<section id="jobs">
+  <h2>Help wanted</h2>
+  <div class="grid" id="jobs-grid"></div>
+</section>
+<section id="howto">
+  <h2>How it works</h2>
+  <div class="card" style="padding-top:16px">
+    <div class="blurb">
+      Apartments: first month + deposit, references checked, no application
+      fees beyond screening. Rooms in shares: the roommates pick the person,
+      not the paperwork. Jobs: show up for the trial shift — everyone on
+      this board hires by watching you work, not by reading a résumé.
+      Wages posted are what they actually pay; tips and overtime vary.
+      Listings come down when they're filled — pin yours up at Mudhaus.
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  All addresses on this board are within the Dolores Park neighborhood.
+  In-game dollars; deed fees where listed are paid separately at the
+  registry office.
+</footer>
+<script>
+// Mirror of world/housing.json + world/jobs.json (openings only). v3.
+var LIVE = [
+  {addr:"9418 Guerrero St, Unit B", kind:"1BR upper flat", rent:2100, rc:true,
+   blurb:"Sunny upper flat in a two-unit Victorian. Bay window, hardwood, shared entry stair. Quiet building; downstairs neighbor has been here thirty years. No smoking, cats negotiable.",
+   apply:"First + deposit, references checked. Text to view Saturday 11–1."},
+  {addr:"9457 Guerrero St, Unit 2", kind:"Studio, middle flat", rent:1350, rc:true,
+   blurb:"Studio in the pink Victorian. Cheapest legal rent near the park. Backs the stair — the building's sounds are part of the deal. Private bath down the hall.",
+   apply:"First + deposit. Landlord lives close by."},
+  {addr:"9127 Capp St, Unit A", kind:"Studio, top floor", rent:1300, rc:false,
+   blurb:"Best light in the building, street-facing — city sounds, great sky. Coin laundry in basement. Buzzer is temperamental; keys work, guests call up.",
+   apply:"First + deposit + screening. Available the 1st."}
+];
+var LADDER = [
+  {addr:"9521 Treat Ave, Unit 2 (room)", kind:"Room in shared flat", rent:700,
+   blurb:"Room in a 3BR shared flat. Two working roommates, house spreadsheet for chores. Window and a door that locks.",
+   apply:"First month + $350 deposit. Roommate interview."},
+  {addr:"9088 Folsom St, Unit 5", kind:"Studio", rent:1300, buy:90000, fee:1000,
+   blurb:"Clean 4th-floor walk-up studio. Newish appliances, Murphy bed hardware included. Rent or buy — the building sells units one at a time.",
+   apply:"First + deposit; sale inquiries get the HOA packet."},
+  {addr:"9476 Dolores St, Unit B", kind:"1BR apartment", rent:2100, buy:160000, fee:2000,
+   blurb:"One bedroom half a block from the park — that view, from the fire-escape landing. Period details, radiator heat, shared garden.",
+   apply:"Rent or own; dogs by interview."},
+  {addr:"9560 Guerrero St, Unit 2", kind:"Victorian upper flat", rent:3200, buy:280000, fee:3500,
+   blurb:"Full upper flat of a 1906 Victorian — two real bedrooms, bay windows, pocket doors, in-unit laundry (rare, know what you have).",
+   apply:"Two-person household math or a very good job. Goes fast."},
+  {addr:"9812 Church St", kind:"Whole Victorian house", rent:5500, buy:550000, fee:5000,
+   blurb:"Entire house — three beds, parlor, garage, the yard with the plum tree. Buy it and become the block's newest landmark owner.",
+   apply:"Shown by appointment. Owner may carry a note for the right tenant-buyer."}
+];
+var JOBS = [
+  {emp:"Mudhaus Coffee", role:"Barista", wage:19, hrs:"30–38 h/wk",
+   blurb:"Counter + machine on the neighborhood's busiest café line. Trial shift is a real Saturday rush.",
+   apply:"Ask for Marisol, mornings."},
+  {emp:"Taqueria El Farolote", role:"Line cook", wage:26, hrs:"35 h/wk, nights",
+   blurb:"Plancha station on the late line. Knife safety and you taste the salsa before it goes out — Doña watches one service.",
+   apply:"Bring your own knives or admit it."},
+  {emp:"Taqueria El Farolote", role:"Counter / closer", wage:18, hrs:"30 h/wk",
+   blurb:"Register, salsa bar, mop. Real Spanish and patience with the 2 a.m. crowd.",
+   apply:"Ask at the counter after 21:00."},
+  {emp:"Buy-Rite Market", role:"Grocery clerk", wage:19, hrs:"32 h/wk",
+   blurb:"Stock, counter, the clipboard schedule. Lasting six months gets the good shifts.",
+   apply:"Office door, back of the store."},
+  {emp:"Baguette About It Bakery", role:"Counter temp, holiday", wage:18, hrs:"~20 h/wk, Nov 15–Dec 24",
+   blurb:"Seasonal counter help for the holiday bake crush. Sell-down list, gift boxes, patience.",
+   apply:"Posted ~Nov 1. Two trial shifts before Thanksgiving.", seasonal:true},
+  {emp:"Buy-Rite Creamery", role:"Scooper", wage:17, hrs:"24 h/wk",
+   blurb:"Walk-up window, park spillover line. The whole job is sunny weekends.",
+   apply:"Apply at the window, weekdays."},
+  {emp:"Dolores Perk", role:"Counter", wage:18, hrs:"30 h/wk",
+   blurb:"Park-pace café. Learn the regulars' dogs' names first.",
+   apply:"Mornings, ask the counter."},
+  {emp:"Baguette About It Bakery", role:"Counter, afternoons", wage:18, hrs:"25 h/wk",
+   blurb:"Sell down the day's bake, half-price at 18:30. No fragrance on shift — it kills the bread smell.",
+   apply:"13:00–17:00, ask for the baker."},
+  {emp:"Il Delfino", role:"Line cook", wage:27, hrs:"35 h/wk",
+   blurb:"Sauté station, dinner only. Needs real line time somewhere.",
+   apply:"Stage on a Tuesday."},
+  {emp:"Il Delfino", role:"Server (2 openings)", wage:18, hrs:"30 h/wk + tips",
+   blurb:"Floor of a fifty-seat room. Can you carry a slow Tuesday without checking your phone?",
+   apply:"Résumé not required; a Tuesday is."},
+  {emp:"Auerbach Hardware", role:"Counter clerk", wage:21, hrs:"30 h/wk",
+   blurb:"Counter, ladder, the Tuesday repair pile. Knowing what a trap is helps; admitting you don't helps more.",
+   apply:"Ask Victor. He'll hand you a bin of screws."},
+  {emp:"Bloom & Doom Flowers", role:"Saturday counter help", wage:18, hrs:"8 h/wk",
+   blurb:"Weddings and funerals, same workbench. Saturdays only.",
+   apply:"Ask Ida, weekday mornings."},
+  {emp:"Golden Hour Laundromat", role:"Evening attendant", wage:17, hrs:"15 h/wk, 3 evenings",
+   blurb:"Machines, the soap shelf, the bulletin board. The real job is being kind at 22:45.",
+   apply:"Ask at the counter any evening."},
+  {emp:"SF General", role:"CNA / tech (2 openings)", wage:22, hrs:"36 h/wk, 3×12",
+   blurb:"Med-surg floor. Cert + fingerprints; the interview asks about a shift that went badly — honesty wins.",
+   apply:"Hospital HR portal."}
+];
+function card(h){return '<div class="card">'+h+'</div>';}
+function money(n){return '$'+n.toLocaleString()+'<small>/mo</small>';}
+document.getElementById('housing-grid').innerHTML = LIVE.map(function(l){
+  return card('<h3>'+l.addr+'</h3><div class="meta">'+l.kind+'</div>'+
+    '<div class="price">'+money(l.rent)+'</div>'+
+    (l.rc?'<span class="tag rc">rent-controlled</span>':'<span class="tag">market rate</span>')+
+    '<div class="blurb">'+l.blurb+'</div><div class="apply">'+l.apply+'</div>');
+}).join('');
+document.getElementById('ladder-grid').innerHTML = LADDER.map(function(l){
+  var buy = l.buy ? '<div class="meta">for sale '+l.buy.toLocaleString()+' · deed fee '+l.fee+' cr</div>' : '';
+  return card('<h3>'+l.addr+'</h3><div class="meta">'+l.kind+'</div>'+
+    '<div class="price">'+money(l.rent)+'</div>'+buy+
+    '<div class="blurb">'+l.blurb+'</div><div class="apply">'+l.apply+'</div>');
+}).join('');
+document.getElementById('jobs-grid').innerHTML = JOBS.map(function(j){
+  return card('<h3>'+j.role+'</h3><div class="meta">'+j.emp+' · '+j.hrs+'</div>'+
+    '<div class="price">$'+j.wage+'<small>/h baseline</small></div>'+
+    (j.seasonal?'<span class="tag">seasonal</span>':'')+
+    '<div class="blurb">'+j.blurb+'</div><div class="apply">'+j.apply+'</div>');
+}).join('');
+</script>
+</body>
+</html>

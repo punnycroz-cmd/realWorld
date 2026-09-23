@@ -363,6 +363,11 @@ function doSpeakStep(v, step, dtH){
   if(!step.said){
     step.said = true;
     const text = step.text || '...';
+    // production-1: the spoken line gets a visible bubble (sfSayBubble in
+    // the SF renderer reads these three props; also set by sfSay)
+    v.sayText = String(text).slice(0, 90);
+    v.sayUntil = W.tod + 0.35;
+    v.sayAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     for(const o of VILLAGERS){
       if(o === v || o.dead) continue;
       if(distCells(v, o) <= 12){

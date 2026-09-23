@@ -61,7 +61,15 @@ const api = eval(m[1] + `
     sfPathfind, sfFindPOI, sfPoiDoor, sfEnterPOI, sfExitPOI, sfTile,
     sfFollowPath, sfGoTo, sfNpcTick, canMoveTo, paActFrame, paStateAnim,
     VILLAGERS, PA, W, SF_M, SF_DOORS, SF_DOOR_OF, SF_POIS, SF_MAP,
-    SF_INTERIORS, SF_BLD, CS, G })`);
+    SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol,
+    sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
+    SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
+    sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
+    sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
+    sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
+    sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
+    sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
+    sfWireShadow, sfPalmRow, SF_DECALS })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -146,6 +154,335 @@ const api = eval(m[1] + `
   // one sim tick of the schedule system doesn't throw
   try { api.VILLAGERS.forEach(v => api.sfNpcTick(v, 0.016)); pass++; }
   catch(e){ fail++; console.log('FAIL sfNpcTick threw:', e.message); }
+
+  // v25 wet-world pack: puddles gate hardscape deterministically,
+  // umbrellas come out only in rain
+  let pud = null, pudCell = null, grassClear = true;
+  for(let gy = 0; gy < api.SF_M.gh && !pud; gy++)
+    for(let gx = 0; gx < api.SF_M.gw; gx++){
+      if(api.sfTile(gx, gy) !== 10) continue;
+      const pu = api.sfPuddleAt(gx, gy);
+      if(pu){ pud = pu; pudCell = [gx, gy]; break; }
+    }
+  ok(!!pud, 'puddle field produces pools on roadway cells');
+  if(pud)
+    ok(JSON.stringify(api.sfPuddleAt(pudCell[0], pudCell[1])) === JSON.stringify(pud),
+       'puddles deterministic per cell');
+  for(let gy = 0; gy < api.SF_M.gh; gy++)
+    for(let gx = 0; gx < api.SF_M.gw; gx++)
+      if(api.sfTile(gx, gy) === 13 && api.sfPuddleAt(gx, gy)){ grassClear = false; break; }
+  ok(grassClear, 'no puddles on park grass');
+  api.W.rain = 0;
+  ok(!api.VILLAGERS.some(v => api.sfUmbrellaCol(v)), 'no umbrellas when dry');
+  api.W.rain = 0.8;
+  ok(api.VILLAGERS.some(v => !v.inBuilding && api.sfUmbrellaCol(v)),
+     'umbrellas come out in rain');
+  api.W.rain = 0;
+
+  // v27 cutaway camera: sightlines through real footprints, not bboxes
+  const cmid = { x: b744.x / api.SF_PXM, y: b744.y / api.SF_PXM };
+  const gset = api.sfGhostSet(cmid.x - 60, cmid.y, cmid.x + 60, cmid.y);
+  ok(gset.has(g744.bld), 'ghost set ghosts a building on the sightline');
+  const gfar = api.sfGhostSet(cmid.x - 60, cmid.y + 400, cmid.x + 60, cmid.y + 400);
+  ok(!gfar.has(g744.bld), 'off-sightline building not ghosted');
+  ok(api.sfSegHit(0,0, 10,0, 5,-5, 5,5) && !api.sfSegHit(0,0, 10,0, 20,-5, 20,5),
+     'sfSegHit segment intersection');
+  // director marks round-trip
+  api.SF_CAM.x = 111; api.SF_CAM.y = 222; api.SF_CAM.h = 7;
+  api.sfCamMarkSave(3);
+  api.SF_CAM.x = 0; api.SF_CAM.y = 0; api.SF_CAM.h = 1;
+  api.sfCamMarkGo(3);
+  ok(api.SF_CAM.x === 111 && api.SF_CAM.y === 222 && api.SF_CAM.h === 7,
+     'director mark save/recall round-trip');
+  ok(api.SF_CUT.on === true && api.SF_LENS.on === true,
+     'cutaway + lens rig on by default');
+
+  // v28 curb height: sidewalk slab is real geometry
+  ok(api.SF_CURB_H > 0.1 && api.SF_CURB_H < 0.2, 'curb height ~15cm');
+  let swCell = null, rdCell = null;
+  for(let gy = 1; gy < api.SF_M.gh - 1 && !swCell; gy++)
+    for(let gx = 1; gx < api.SF_M.gw - 1; gx++){
+      if(api.sfTile(gx, gy) === 11 && api.sfTile(gx, gy - 1) === 10)
+        { swCell = [gx, gy]; rdCell = [gx, gy - 1]; break; }
+    }
+  ok(!!swCell, 'found a sidewalk/road adjacency');
+  if(swCell){
+    const cm2 = api.SF_M.cell_m;
+    // v37: sfGroundZ is now ABSOLUTE (terrain + curb) — the curb step is
+    // the difference between adjacent walkway and roadway cells
+    const zSw = api.sfGroundZ((swCell[0] + 0.5) * cm2, (swCell[1] + 0.5) * cm2),
+          zRd = api.sfGroundZ((rdCell[0] + 0.5) * cm2, (rdCell[1] + 0.5) * cm2);
+    ok(Math.abs(zSw - zRd - api.SF_CURB_H) < 0.1,
+       'sidewalk sits curb-height above the roadway (step ' +
+       (zSw - zRd).toFixed(2) + 'm)');
+    ok(zRd > -30 && zRd < 90, 'roadway grade is plausible (' + zRd.toFixed(1) + 'm)');
+  }
+  ok(/^#|^rgb/.test(api.sfCurbFaceCol(0, -1)),
+     'curb riser face returns a shaded color');
+
+  // v29 ground-pass infrastructure
+  const nbm = api.sfNbMasks();
+  ok(nbm && nbm.length === api.SF_M.gw * api.SF_M.gh,
+     'neighbor mask covers the whole grid');
+  if(swCell){
+    const mi = swCell[1] * api.SF_M.gw + swCell[0];
+    ok((nbm[mi] & 1) === 1, 'mask bit0: road to the north');
+    ok((nbm[mi] & (2 << 0)) === 0, 'mask bit1: north neighbor not sidewalk');
+  }
+  const ovn = api.sfOvrNums();
+  ok(ovn && ovn.size === api.SF_GROUND_OVR.size,
+     'numeric ground-override map mirrors string map 1:1');
+  ok(api.sfOvrNums() === ovn, 'override map is cached (same instance)');
+
+  // v30 facade grammar: gable fronts + raised-basement garage gates are
+  // pure deterministic functions over the real map
+  let gables = 0, garages = 0, edges = 0;
+  for(const b of api.SF_BLD){
+    const nP = b.px.length, isShop = !!b.name;
+    const floors = Math.max(1, Math.round(b.hPx / 12.6));
+    for(let e = 0; e < nP; e++){
+      const a = b.px[e], c = b.px[(e + 1) % nP];
+      const Lm = Math.hypot(c[0] - a[0], c[1] - a[1]) / api.SF_PXM;
+      edges++;
+      gables += api.sfGableFront(b.i, e, Lm, isShop, floors) > 0 ? 1 : 0;
+      garages += api.sfGarageU(b.i, e, Lm, isShop, 0, false, 0.5) > 0 ? 1 : 0;
+    }
+  }
+  ok(gables > 20 && gables < edges * 0.5,
+     'gable fronts on a plausible share of edges (' + gables + '/' + edges + ')');
+  ok(garages > 20 && garages < edges * 0.5,
+     'garage bays on a plausible share of edges (' + garages + ')');
+  ok(api.sfGableFront(3, 0, 12, false, 3) === api.sfGableFront(3, 0, 12, false, 3),
+     'sfGableFront deterministic');
+  ok(api.sfGableFront(3, 0, 12, true, 3) === 0 && api.sfGarageU(3, 0, 12, true, 0, false, 0.5) === -1,
+     'shops never get gables or garages');
+
+  // v31 urban forest: elevation sprites baked for every tree kind,
+  // park groves produce mature crowns, pit-tree coverage thickened
+  const VG = api.PA.sfVeg;
+  ok(VG.sideTree.length === 3 && VG.sidePalm.length === 2 &&
+     VG.sideStreet.length === 3 && VG.sideCypress.length === 2 &&
+     VG.bigTree.length === 3, 'v31 vegetation sprite sets baked');
+  ok(api.sfVegSideSpr('palm', 0).c.height === 190 &&
+     api.sfVegSideSpr('street', 1).c.width === 64,
+     'v31 side sprites deterministic sizes');
+  ok(api.sfBigTreeSpr(0).c.width === 128, 'v31 big-tree sprite 128px');
+  const bigs = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfTree' && o.big).length;
+  const trees = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfTree').length;
+  ok(bigs > 10 && bigs < trees, 'v31 park groves carry mature crowns (' + bigs + '/' + trees + ')');
+  const pits = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfStreetTree').length;
+  ok(pits > 600, 'v31 street pit coverage raised (' + pits + ')');
+
+  // v32 turf calendar: dryness is a month-of-year curve (Sept peak),
+  // per-cell cure is deterministic, bounded, and patchy
+  ok(api.PA.sf && api.PA.sf.parkDry && api.PA.sf.parkDry.length === 3,
+     'v32 cured-grass tile set baked');
+  const mo0 = api.W.month;
+  api.W.month = 9;
+  ok(api.sfDrySeason() > 0.7, 'September turf is cured (got ' + api.sfDrySeason() + ')');
+  api.W.month = 2;
+  ok(api.sfDrySeason() < 0.2, 'February turf is green (got ' + api.sfDrySeason() + ')');
+  api.W.month = 9;
+  let gold = 0, grassCells = 0;
+  for(let gy = 0; gy < api.SF_M.gh; gy++)
+    for(let gx = 0; gx < api.SF_M.gw; gx++){
+      if(api.sfTile(gx, gy) !== 13) continue;
+      grassCells++;
+      if(api.sfGrassDry(gx, gy) > 0.5) gold++;
+    }
+  ok(grassCells > 0 && gold > grassCells * 0.15 && gold < grassCells * 0.95,
+     'September cure lands in drifts (' + gold + '/' + grassCells + ')');
+  const d9 = api.sfGrassDry(1, 1);
+  ok(api.sfGrassDry(1, 1) === d9, 'sfGrassDry deterministic');
+  ok(d9 >= 0 && d9 <= 1, 'sfGrassDry bounded 0..1');
+  api.W.month = mo0;
+
+  // v33 forward scatter & canyon bounce: the Mie lobe swells toward the
+  // sun and dies behind it; bounce uplight only exists when the wall is
+  // sun-shy AND the canyon floor in front is lit
+  const day0 = api.SF_SUN.day;
+  api.SF_SUN.day = 0.8;
+  ok(api.sfSkyLobeA(1) > api.sfSkyLobeA(0.2) && api.sfSkyLobeA(-1) === 0,
+     'sky lobe peaks at the sun bearing, none anti-solar');
+  ok(api.sfBounceK(-0.6, 0) > 0.02, 'shaded wall over lit street bounces');
+  ok(api.sfBounceK(0.5, 0) === 0, 'sunlit wall needs no bounce');
+  ok(api.sfBounceK(-0.6, 2.5) === 0, 'shadowed street gives no bounce');
+  ok(api.sfBounceK(-0.6, 0) === api.sfBounceK(-0.6, 0),
+     'sfBounceK deterministic');
+  ok(api.sfCanyonShade(1, 1, -1) >= 0, 'canyon probe bounded');
+  // v39: shaped parapets + wire-shadow solver
+  ok(['flat', 'gable', 'mission'].includes(
+       api.sfParapetKind(3, 0, 12, false, 3)), 'parapet kind in enum');
+  ok(api.sfParapetKind(3, 0, 12, false, 3) ===
+     api.sfParapetKind(3, 0, 12, false, 3), 'parapet kind deterministic');
+  ok(api.sfParapetKind(5, 1, 5, false, 1) === 'flat',
+     'narrow single-story never gets a shaped parapet');
+  ok(api.sfMissionH(3, 0) > 0.8 && api.sfMissionH(3, 0) < 1.7,
+     'espanada rise bounded');
+  {
+    // wall through the origin with n̂ = toSun, û ⟂ n̂; wire 8m out
+    // along the normal so its ray lands back on the wall plane
+    const sx = api.SF_SUN.toX, sy = api.SF_SUN.toY;
+    const hit = api.sfWireShadow(8 * sx, 8 * sy, 7,
+                                 0, 0, -sy, sx, sx, sy, 20);
+    if(api.SF_SUN.day > 0.1){
+      ok(!!hit && hit.u > -0.2 && hit.u < 1.2 && hit.z < 7 && hit.s > 0,
+         'wire shadow lands below conductor height');
+      ok(api.sfWireShadow(0, -8, 7, -10, 0, 1, 0, -sx, -sy, 20) === null,
+         'shadow never lands on the sun-shy face');
+    } else ok(true, 'wire shadow gate skipped (sun down)');
+  }
+  api.SF_SUN.day = day0;
+
+  // v34 Karl's front: intrusion strength is a bounded pure function of the
+  // live weather state — diurnal-gated (burns off midday, evening push),
+  // humidity-fed, wind-carried; the map clip produces a real polygon whose
+  // front edge sits deepest downwind
+  const t0 = api.W.tod, h0 = api.W.hum, ws0 = api.W.windSpd, wa0 = api.W.windAng;
+  let bounded = true;
+  for(let tt = 0; tt < 24; tt += 3){
+    api.W.tod = tt;
+    const k = api.sfKarlK();
+    if(!(k >= 0 && k <= 1)) bounded = false;
+  }
+  ok(bounded, 'sfKarlK bounded 0..1 across the day');
+  api.W.tod = 8; api.W.hum = 0.9;
+  const kWet = api.sfKarlK();
+  api.W.hum = 0.3;
+  const kDry = api.sfKarlK();
+  ok(kWet > kDry, 'humid morning intrudes harder than dry (' +
+     kWet.toFixed(2) + ' vs ' + kDry.toFixed(2) + ')');
+  api.W.hum = 0.9;
+  api.W.tod = 13; const kMid = api.sfKarlK();
+  api.W.tod = 17.5; const kEve = api.sfKarlK();
+  ok(kEve > kMid, 'evening push beats midday burn-off (' +
+     kEve.toFixed(2) + ' vs ' + kMid.toFixed(2) + ')');
+  ok(api.sfKarlK() === api.sfKarlK(), 'sfKarlK deterministic');
+  const kp = api.sfKarlPoly(0.4);
+  ok(kp.length >= 3 && kp.length <= 6,
+     'karl poly clips map rect to a polygon (' + kp.length + ' verts)');
+  const mw2 = api.SF_M.gw * api.SF_M.cell_m, mh2 = api.SF_M.gh * api.SF_M.cell_m;
+  ok(kp.every(p => p[0] >= -0.01 && p[0] <= mw2 + 0.01 &&
+                   p[1] >= -0.01 && p[1] <= mh2 + 0.01),
+     'karl poly stays inside the map bounds');
+  const kf = api.sfKarlFront(kp);
+  ok(kf && kf.length === 2, 'karl front edge resolves');
+  ok(api.sfKarlPoly(0).length === 0, 'no front, no polygon');
+
+  // v35: interior archetypes resolve per venue name/label
+  ok(api.sfIntArch('Taqueria El Farolito', 'the line, the salsa bar') === 'taqueria',
+     'farolito reads as taqueria');
+  ok(api.sfIntArch('Auerbach Hardware', 'aisles of bins') === 'hardware',
+     'auerbach reads as hardware');
+  ok(api.sfIntArch('Haus Coffee', 'café counter') === 'cafe',
+     'haus reads as cafe');
+  ok(api.sfIntArch('744 Guerrero', "Carmen's front room") === 'flat',
+     'guerrero flat reads as flat');
+  ok(api.sfIntArch('Haus Coffee', '') === api.sfIntArch('Haus Coffee', ''),
+     'sfIntArch deterministic');
+  // every registered interior renders without throwing
+  {
+    ok(typeof api.sfRenderInterior === 'function', 'sfRenderInterior exported');
+    const prevV = api.VILLAGERS[0];
+    const hadInside = prevV.inside;
+    for(const nm of Object.keys(api.SF_INTERIORS)){
+      prevV.inside = nm;
+      try { api.sfRenderInterior(640, 400, prevV); pass++; }
+      catch(e){ fail++; console.log('FAIL interior render', nm, e.message); }
+    }
+    prevV.inside = hadInside;
+  }
+  api.W.tod = t0; api.W.hum = h0; api.W.windSpd = ws0; api.W.windAng = wa0;
+
+  // v36 boom arm: the follow rig's pull-back is physical — it clips
+  // against real footprints taller than the lens, stands off the wall
+  // face, clears rooflines when the camera flies high, and never treats
+  // the subject's own building as an occluder
+  {
+    const pm = b744.px.map(q => [q[0] / api.SF_PXM, q[1] / api.SF_PXM]);
+    let wx0 = 1e9, wx1 = -1e9, wy0 = 1e9, wy1 = -1e9;
+    for(const q of pm){
+      if(q[0] < wx0) wx0 = q[0]; if(q[0] > wx1) wx1 = q[0];
+      if(q[1] < wy0) wy0 = q[1]; if(q[1] > wy1) wy1 = q[1];
+    }
+    const midY = (wy0 + wy1) / 2, span = wx1 - wx0;
+    const sx0 = wx0 - 6, back = span + 12;
+    const clipD = api.sfBoomClip(sx0, midY, 1, 0, back, 1.7);
+    ok(clipD < back && clipD >= 1.4,
+       'boom clips before entering a tall facade (' + clipD.toFixed(1) + '/' + back.toFixed(1) + 'm)');
+    ok(api.sfBoomClip(sx0, midY, 1, 0, back, 1.7) === clipD,
+       'sfBoomClip deterministic');
+    let pkx = 0, pky = 0, pkn = 0;
+    for(let gy = 0; gy < api.SF_M.gh; gy++)
+      for(let gx = 0; gx < api.SF_M.gw; gx++)
+        if(api.sfTile(gx, gy) === 13){ pkx += gx; pky += gy; pkn++; }
+    pkx = pkx / pkn * api.SF_M.cell_m; pky = pky / pkn * api.SF_M.cell_m;
+    ok(api.sfBoomClip(pkx, pky, 1, 0, 15, 1.7) === 15,
+       'boom over open park grass keeps full length');
+    ok(api.sfBoomClip(sx0, midY, 1, 0, back, 60) === back,
+       'lens above the roofline never clips');
+    ok(api.sfSegHitT(0, 0, 10, 0, 5, -5, 5, 5) > 0 &&
+       api.sfSegHitT(0, 0, 10, 0, 20, -5, 20, 5) === -1,
+       'sfSegHitT returns the hit parameter');
+    // subject inside the footprint: the boom still reaches out through
+    // the door side — the arm clips only against OTHER buildings
+    const inD = api.sfBoomClip(cmid.x, cmid.y, 1, 0, back, 1.7);
+    ok(inD >= 1.4 && inD <= back, 'boom from inside a footprint bounded');
+  }
+
+  // v37 landform: the elevation field is pure, finite, climbs south and
+  // west like the real Mission, puts Dolores Park in a true bowl, and
+  // keeps street grades drivable
+  {
+    ok(isFinite(api.sfElevM(0, 0)) && isFinite(api.sfElevM(1500, 1600)) &&
+       isFinite(api.sfElevM(-50, -50)), 'sfElevM finite even off-map');
+    ok(api.sfElevM(700, 500) === api.sfElevM(700, 500), 'sfElevM deterministic');
+    let nSum = 0, sSum = 0, wSum = 0, eSum = 0, nn = 0;
+    for(let gx = 0; gx < api.SF_M.gw; gx += 17){
+      nSum += api.sfElevM(gx * 2, 4);
+      sSum += api.sfElevM(gx * 2, api.SF_M.gh * 2 - 4);
+      wSum += api.sfElevM(4, gx % api.SF_M.gh * 2);
+      eSum += api.sfElevM(api.SF_M.gw * 2 - 4, gx % api.SF_M.gh * 2);
+      nn++;
+    }
+    ok(sSum > nSum + nn * 10,
+       'terrain climbs south (+' + ((sSum - nSum) / nn).toFixed(1) + 'm avg)');
+    ok(wSum > eSum + nn * 5,
+       'terrain climbs west (+' + ((wSum - eSum) / nn).toFixed(1) + 'm avg)');
+    let pkx = 0, pky = 0, pkn = 0;
+    for(let gy = 0; gy < api.SF_M.gh; gy++)
+      for(let gx = 0; gx < api.SF_M.gw; gx++)
+        if(api.sfTile(gx, gy) === 13){ pkx += gx; pky += gy; pkn++; }
+    pkx = pkx / pkn * api.SF_M.cell_m; pky = pky / pkn * api.SF_M.cell_m;
+    const eP = api.sfElevM(pkx, pky), eE = api.sfElevM(pkx + 220, pky);
+    ok(eE > eP + 2, 'Dolores Park sits in a real bowl (rim +' +
+       (eE - eP).toFixed(1) + 'm)');
+    let gmax = 0;
+    for(let gy = 0; gy < api.SF_M.gh; gy += 11)
+      for(let gx = 0; gx < api.SF_M.gw; gx += 11){
+        const x0 = gx * 2, y0 = gy * 2;
+        const gg = Math.hypot(api.sfElevM(x0 + 4, y0) - api.sfElevM(x0, y0),
+                              api.sfElevM(x0, y0 + 4) - api.sfElevM(x0, y0)) / 4;
+        if(gg > gmax) gmax = gg;
+      }
+    ok(gmax > 0.005 && gmax < 0.13,
+       'street grades real but drivable (' + (gmax * 100).toFixed(1) + '% max)');
+  }
+
+  // v40 canopy architecture: perimeter palm allée is deterministic and
+  // beats exactly one residue class per row; desire-line decals exist
+  {
+    ok(typeof api.sfPalmRow === 'function', 'sfPalmRow exported');
+    ok(api.sfPalmRow(10, 10) === api.sfPalmRow(10, 10),
+       'sfPalmRow deterministic');
+    const palms = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfPalm').length;
+    ok(palms >= 40, 'palm allees planted (' + palms + ' palms)');
+    const fic = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfStreetTree' && o.v === 0).length;
+    ok(fic >= 50, 'ficus street trees planted (' + fic + ')');
+    let nWorn = 0;
+    for(const d of api.SF_DECALS) if(d.kind === 'worn') nWorn += d.cells.length;
+    ok(nWorn > 40, 'desire lines worn across the lawn (' + nWorn + ' cells)');
+  }
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');
