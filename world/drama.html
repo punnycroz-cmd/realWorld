@@ -5,7 +5,7 @@
 <title>INTERNAL — Drama Direction Board (The Mission)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38. NOT a spectator surface.
+  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38 + v52. NOT a spectator surface.
   This board renders every secret on the block (world/drama.json mirror).
   It must never be linked, embedded, screenshotted for marketing, or
   reachable from any player-facing surface (feed.html, history.html,
@@ -68,7 +68,7 @@
 <header>
   <div><span class="logo">Drama Direction <span>Board</span></span>
     <span class="warn">Internal — secrets present — never ship</span></div>
-  <div class="sub">The Mission · world v38 · mirrors <code>world/drama.json</code> (schema drama-v3) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+  <div class="sub">The Mission · world v52 · mirrors <code>world/drama.json</code> (schema drama-v3) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
 </header>
 <main>
   <h2>Season fuse map</h2>
@@ -97,6 +97,10 @@
   <table id="tellers"><thead><tr><th>Ambient</th><th>Bias</th><th>Never</th></tr></thead><tbody></tbody></table>
   <h2>Stall &amp; season boundary <span style="text-transform:none;color:var(--dim)">(§25 — a stall is not a failure; no finale is owed)</span></h2>
   <div class="knobs" id="stall"></div>
+  <h2>Tell ladders <span style="text-transform:none;color:var(--dim)">(§28 — graded legible shadows; rungs are a display ceiling, not a to-do list)</span></h2>
+  <div class="seedgrid" id="ladders"></div>
+  <h2>Venue dramaturgy <span style="text-transform:none;color:var(--dim)">(§29 — where shadows may land; home venues first)</span></h2>
+  <table id="venues"><thead><tr><th>Venue</th><th>Fuses</th><th>Shadows that land here</th><th>Never</th></tr></thead><tbody></tbody></table>
   <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
   <ul class="never" id="legal"></ul>
   <h2>Never list</h2>
@@ -252,6 +256,26 @@ const REQW=[
  ["Hired character moves in","new-neighbor texture; staffing shifts","a hire carries no seed knowledge"],
  ["NPC nudge (screened)","the ask itself, not pressure","a nudge naming a seed fact = upstream screening failure"],
  ["Camera director","none — view layer","zero world effect"]];
+const LADDERS=[
+ {id:"S1",w:"the flyer as an object — folded page changing pockets · counter five minutes late",p:"missed Tuesday repairs · free fixes · clipboard stranger · notice-shaped mail",b:"rehearsed counter sentences that die early · both buildings in one errand, twice · flyer reaching hands that don't fold it"},
+ {id:"S2",w:"post cadence regular · rounds questions as small talk",p:"press silence where a post was expected · questions that answer themselves · draft on a closed laptop",b:"café quiet about exactly one topic · a question answered with its own question twice in a shift"},
+ {id:"S3",w:"doodles drifting · sketch framed 'for a friend'",p:"simultaneous absences · chalkboard figure converging · undisclosed 17:00–21:00 stops",b:"held glance in a shared kitchen · arrivals ninety seconds apart · sharp where she's usually funny at Priya's name"},
+ {id:"S4",w:"cash envelopes · a name on no doorbell",p:"sketchbook at 9418 at odd hours · mail for no one the building knows",b:"gone before any knock finishes · Carmen answering doors meant for the whole house"},
+ {id:"S5",w:"stoop occupied like a claim · thirty years of plants",p:"hemming volume up · stoop empty once at cafecito hour · a declined walk",b:"a letter read twice then moved out of Jules's sight · the son's call taken inside, low"},
+ {id:"S6",w:"notebook present, closed, guarded · supplier-loop linger",p:"catalog linger lengthening · prices from memory · notebook almost opened in company",b:"notebook on the table, unopened · 'if the building—' abandoned"},
+ {id:"S7",w:"the 3 p.m. coffee as fixed point",p:"duration creep past 3:40 · cooked vs. said · ingredients 'going to waste'",b:"a plan in the conditional with her name inside · coffee gone cold on a waiting sentence"},
+ {id:"S8",w:"latte art · a recurring sketchbook figure",p:"eye contact a beat long · 19:30 coinciding with closing · one question too many",b:"the figure recognizably Priya to viewers · a narrated goodbye that doesn't include leaving"},
+ {id:"S9",w:"Sunday cooking · the near-the-first errand",p:"envelope math at the counter · hike live in the ledger · generosity with the last $20",b:"a number said aloud to no one · Priya covering a gap without looking at him"},
+ {id:"S10",w:"shared labor done visibly · dead heater",p:"a pause before 'you two good?' · check-ins that are also audits",b:"a refusal to absorb — legible because it's unlike her · the heater named as a flat fact"}];
+const VENUES=[
+ ["Mudhaus Coffee counter","F6 · F4 · F2","Mars's deliberation · the 3 p.m. coffee · chalkboards, wrong-hour absences","a seed fact spoken at the counter — shadows, not facts"],
+ ["Auerbach Hardware counter","F1","irregular hours · free fixes · closed-door time","the offer letter on camera — objects show, contents don't"],
+ ["The 9418 stoop","F5 · F1-adjacent","Carmen's rituals and their absences · who visits","a health event staged for the stoop"],
+ ["The 9457 flat (door + kitchen)","F2 · F3","compression · Sunday cooking · the tally · Jules's alibis","an engineered walk-in — doors are the sim's business"],
+ ["Dolores Park benches (Esther + Ray)","all (echo)","the chorus notices bench math","first knower of anything — rumor, never seed fact"],
+ ["Supplier loop (Las Palmas, Valencia Growers)","F1 · F4 via S6","Tomás pricing his dream in public","new stops invented for pressure"],
+ ["Mission Unfiltered (press surface)","F6","where a private fact can become a block fact","a post sourced beyond what Mars could have learned"],
+ ["Ordinary-life venues (Golden Hour, Buy-Rite, courier loop)","all","the quiet floor — contrast","drama staging; these carry P-10"]];
 const LEGAL=[
  "Is it a disposition, condition, weight, or protection?",
  "Could the feed falsify it in a week? (outcome claim → rewrite)",
@@ -287,6 +311,13 @@ document.getElementById('hires').innerHTML=HIRES.map(h=>`<li>${h}</li>`).join(''
 document.querySelector('#tellers tbody').innerHTML=TELLERS.map(r=>
  `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
 document.getElementById('stall').innerHTML=STALL.map(k=>`<div class="knob"><b>${k[0]}</b>${k[1]}</div>`).join('');
+document.getElementById('ladders').innerHTML=LADDERS.map(l=>
+ `<div class="seed"><h4>${l.id} <span class="state st-dormant">whisper→brink</span></h4>
+  <dl><dt>whisper (any state)</dt><dd>${l.w}</dd>
+  <dt>pressure (pressured+)</dt><dd>${l.p}</dd>
+  <dt>brink (pressured + live reveal vector — never the fact)</dt><dd>${l.b}</dd></dl></div>`).join('');
+document.querySelector('#venues tbody').innerHTML=VENUES.map(v=>
+ `<tr><td><b>${v[0]}</b></td><td class="c">${v[1]}</td><td>${v[2]}</td><td>${v[3]}</td></tr>`).join('');
 document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
 document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
 </script>

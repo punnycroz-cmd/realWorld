@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v50).
+/* world/audit.js — RW boundary audit (world v52).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -432,7 +432,7 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'drama.json', null, 'note_grammar.legal_forms must be exactly the four legal forms');
       if ((D.note_legality_checklist || []).length !== 6)
         add(g, 'fail', 'drama.json', null, 'note_legality_checklist must keep its six questions');
-      /* pressure rows need producer + shadow + exhaustion (§27 rule) */
+      /* pressure rows need producer + shadow + exhaustion (§30 rule) */
       const seenP = new Set();
       for (const p of D.pressure_catalog || []) {
         if (!/^P-\d+$/.test(p.id)) add(g, 'fail', 'drama.json', null, `pressure id "${p.id}" off-format`);
@@ -444,14 +444,38 @@ const PUB = Object.values(PT.surfaces)
       /* request absorption rows must carry the watch field */
       for (const r of D.request_absorption || [])
         if (!r.watch) add(g, 'fail', 'drama.json', null, `request_absorption "${r.request_class}": missing watch`);
+      /* v52: every seed carries a three-rung tell ladder (§28) */
+      for (const s of D.seeds || []) {
+        const TL = s.tell_ladder || {};
+        for (const rung of ['whisper', 'pressure', 'brink'])
+          if (!(TL[rung] || []).length)
+            add(g, 'fail', 'drama.json', null, `${s.id}.tell_ladder.${rung} missing or empty — a rung without shadows is a leak risk, not a ceiling`);
+      }
+      const TLR = D.tell_ladder_rules || {};
+      if (!TLR.rungs || !TLR.rungs.whisper || !TLR.rungs.pressure || !TLR.rungs.brink)
+        add(g, 'fail', 'drama.json', null, 'tell_ladder_rules.rungs must define whisper/pressure/brink');
+      if (!(TLR.rules || []).some(r => /never contains the fact|tops out/i.test(r)))
+        add(g, 'fail', 'drama.json', null, 'tell_ladder_rules must fence the brink rung off the fact itself');
+      /* v52: venue dramaturgy rows need venue + fuses + shadows + never (§29) */
+      const seenV = new Set();
+      for (const v of D.venue_dramaturgy || []) {
+        if (!v.venue || seenV.has(v.venue)) add(g, 'fail', 'drama.json', null, `venue_dramaturgy: missing/duplicate venue "${v.venue}"`);
+        seenV.add(v.venue);
+        for (const k of ['shadows_land', 'never'])
+          if (!v[k]) add(g, 'fail', 'drama.json', null, `venue "${v.venue}": missing ${k}`);
+        for (const f of v.fuses || [])
+          if (!fuses.has(f) && f !== 'all') add(g, 'fail', 'drama.json', null, `venue "${v.venue}": unknown fuse "${f}"`);
+      }
+      if (!seenV.size) add(g, 'fail', 'drama.json', null, 'venue_dramaturgy empty');
       /* drama.html mirror: new sections render, row counts agree */
       const H = rd('drama.html');
-      for (const id of ['evid', 'drift', 'hires', 'tellers', 'stall'])
+      for (const id of ['evid', 'drift', 'hires', 'tellers', 'stall', 'ladders', 'venues'])
         if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
       const grab = n => { const m = H.match(new RegExp('const ' + n + '=(\\[[\\s\\S]*?\\]);'));
                           return m ? eval(m[1]) : null; };
       const TL = grab('TELLERS'), HI = grab('HIRES'), DRF = grab('DRIFT'),
-            EVI = grab('EVID'), STL = grab('STALL');
+            EVI = grab('EVID'), STL = grab('STALL'), LAD = grab('LADDERS'),
+            VEN = grab('VENUES');
       /* teller rows may combine pairs (Esther+Ray) — every json id must appear */
       if (!TL) add(g, 'fail', 'drama.html', null, 'TELLERS block not found');
       else {
@@ -465,6 +489,12 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'drama.html', null, 'DRIFT count != drift_review.steps');
       if (!EVI || EVI.length !== 4) add(g, 'fail', 'drama.html', null, 'EVID must mirror the four transitions');
       if (!STL || STL.length < 3) add(g, 'fail', 'drama.html', null, 'STALL missing stall/boundary rows');
+      if (!LAD || LAD.length !== (D.seeds || []).length)
+        add(g, 'fail', 'drama.html', null, 'LADDERS count != seeds — every seed mirrors its tell ladder');
+      else for (const l of LAD)
+        if (!l.w || !l.p || !l.b) add(g, 'fail', 'drama.html', null, `LADDERS ${l.id}: whisper/pressure/brink field empty`);
+      if (!VEN || VEN.length !== (D.venue_dramaturgy || []).length)
+        add(g, 'fail', 'drama.html', null, 'VENUES count != venue_dramaturgy rows');
     }
     /* seeds must never be reachable from spectator contracts */
     for (const f of ['feed.json', 'history.json', 'requests.json', 'moderation.json', 'creation.json'])
@@ -1970,7 +2000,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v51 local';
+out.build = 'world v52 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

@@ -1,9 +1,10 @@
-# Drama Direction Notes — "The Mission" (world v38)
+# Drama Direction Notes — "The Mission" (world v52)
 
 *v10 origin; v24 added the note grammar, pressure catalog, residue playbook,
-week shapes, and substrate handoff; v38 adds evidence standards, drift review,
+week shapes, and substrate handoff; v38 added evidence standards, drift review,
 hire integration, teller biases, stall/season-boundary policy, and pressure
-catalog second tranche.*
+catalog second tranche; v52 adds tell ladders (graded legible shadows per
+seed) and venue dramaturgy (where each fuse's shadows may land).*
 
 **Audience:** the character AI brains (via their system context), the future
 drama-pacing manager (game-systems substrate item 9), reviewers of this
@@ -690,7 +691,125 @@ Same legality as §14: each row is something the world already produces.
 | P-14 | The son's monthly call | C6's family contact routine | F5 | Carmen quieter after the phone; the call she steps inside for | Monthly; F5's gentle-and-rare cap still governs |
 | P-15 | Blog-post expectation cycle | F6's own cadence — regulars expect a Mission Unfiltered post | F6 | Ambient chatter: "anything new on Unfiltered?" | Expectation decays naturally; can't be forced, only noticed |
 
-## 27. Maintenance
+## 28. Tell ladders — graded legible shadows
+
+§12 says every dramatic movement casts a visible shadow. This section grades
+those shadows. Each seed carries a **three-rung tell ladder** (`drama.json`
+mirrors it as `tell_ladder`); the rungs are the pacing layer's display ceiling,
+not its to-do list — a rung describes how loud the shadow is *allowed* to get,
+never that it must appear.
+
+| Rung | Meaning | When it's legal |
+|---|---|---|
+| `whisper` | The faint always-available texture — visible on a careful rewatch, deniable in the moment | Any state, including dormant. Whisper tells are ordinary life wearing the seed's color |
+| `pressure` | A visible pattern — a spectator watching the week live can start suspecting correctly | Seed is `pressured` or later |
+| `brink` | The loud shadow — the fact is legibly *approaching* the surface, still never the fact itself | Seed is `pressured` AND a listed reveal vector is live (a route produced a real event recently per §21). Never on dormant; never as a substitute for the surface event |
+
+Standing rules:
+
+- **No rung-skipping.** A dormant seed may show whisper texture; it may never
+  show a pressure- or brink-rung shadow — that's a leak wearing a shadow's
+  clothes. A brink tell on a seed whose reveal vectors are cold is coincidence
+  engineering by another name (§11.2).
+- **Tells are conditions, not events.** "The notebook set on the table" is a
+  permitted shadow; "the notebook is left where Priya finds it" is a scripted
+  beat. Same object — the difference is who the sim lets do the finding.
+- **Exhaustion still governs.** A brink tell is expensive texture: one per
+  pressured seed per drift-review window. Two brink tells on the same seed in
+  the same week reads as a countdown, and we don't do countdowns (§3-F1).
+- **The brink rung never contains the fact.** If a brink shadow would let a
+  viewer *name* the secret outright rather than suspect it, it is off-ladder —
+  the ladder tops out at "the audience is fairly sure," never "the audience
+  knows." The surface event does the knowing.
+- **Quieting is allowed, silencing isn't.** When a seed's state drops, its
+  upper rungs simply stop appearing — nobody scrubs a shadow retroactively.
+  The archive keeps what it saw.
+
+The ladders, per seed:
+
+- **S1 (the offer)** — *whisper:* the flyer as an object (a folded page
+  changing pockets); counter hours drifting five minutes late. *pressure:*
+  missed Tuesday repairs; uncharacteristic free fixes; a clipboard stranger
+  near the Guerrero buildings; notice-shaped mail. *brink:* Victor rehearsing
+  sentences at the counter that end before they start; the two buildings
+  named in the same errand twice in a day; the flyer reaching hands that
+  don't fold it away.
+- **S2 (Unfiltered + the draft)** — *whisper:* post cadence regular; rounds
+  questions that pass for small talk. *pressure:* `press` silence where a
+  post was expected; pointed questions that answer themselves; the draft
+  open on a closed laptop. *brink:* the café's nervous system going quiet
+  about exactly one topic; Mars answering a question with its own question
+  twice in one shift.
+- **S3 (Dani + Marcus)** — *whisper:* chalkboard doodles drifting; an
+  unclaimed sketch framed "for a friend." *pressure:* simultaneous
+  unexplained absences; the chalkboard figure converging; Dani's 17:00–21:00
+  undisclosed stops. *brink:* a held glance a beat too long in a shared
+  kitchen; two arrivals separated by ninety seconds; Dani sharp where she's
+  usually funny when Priya's name comes up.
+- **S4 (Jules's tenancy)** — *whisper:* cash envelopes; a name on no
+  doorbell. *pressure:* the sketchbook at 9418 at odd hours; mail addressed
+  to no one the building knows. *brink:* Jules gone before any knock
+  finishes; Carmen answering doors meant for the whole house.
+- **S5 (Carmen's exposure)** — *whisper:* the stoop occupied like a claim;
+  thirty years of plants. *pressure:* hemming volume up; the stoop empty once
+  at cafecito hour; a declined walk. *brink:* a letter read twice then moved
+  to the side of the house Jules doesn't see; the son's call taken inside,
+  voice low. *(F5's gentle-and-rare cap applies to the whole ladder.)*
+- **S6 (the loan + the plan)** — *whisper:* the notebook present, closed,
+  guarded; supplier-loop linger. *pressure:* catalog linger lengthening;
+  prices recited from memory; the notebook almost opened in company.
+  *brink:* the notebook set on the table between two people and not opened;
+  a sentence beginning "if the building—" abandoned.
+- **S7 (Tomás → Mars)** — *whisper:* the 3 p.m. coffee as fixed point.
+  *pressure:* duration creep past 3:40; what he cooks versus what he says;
+  ingredients "that were going to waste." *brink:* a plan spoken in the
+  conditional with her name inside it; the coffee going cold while a
+  sentence waits.
+- **S8 (Jules → Priya)** — *whisper:* latte art; a recurring figure in the
+  sketchbook. *pressure:* eye contact a beat too long; the 19:30
+  decompression coinciding with closing; one question too many. *brink:* the
+  sketchbook's figure recognizably Priya to any viewer; Jules narrating a
+  goodbye to Portland friends that doesn't include leaving.
+- **S9 (Marcus's arrears)** — *whisper:* Sunday cooking; the errand that
+  always appears near the first. *pressure:* envelope math at the counter;
+  the hike dispute live in the ledger; generosity with his last $20.
+  *brink:* a number said out loud to no one; Priya covering a ledger gap in
+  public without looking at him.
+- **S10 (Priya's tally)** — *whisper:* shared labor done visibly; the dead
+  heater unfixed. *pressure:* a pause before "you two good?"; check-ins that
+  are also audits. *brink:* a refusal to absorb — legible because it's
+  unlike her; the heater named out loud as a fact about the flat.
+
+## 29. Venue dramaturgy — where shadows may land
+
+The block's venues are not neutral: each fuse's shadows have natural homes
+and forbidden ones. This map is a *permission structure* for the renderer
+and the pacing layer — it says where a tell may show up, never that it must.
+`drama.json` mirrors it as `venue_dramaturgy`.
+
+| Venue | Whose shadows land here | The never |
+|---|---|---|
+| Mudhaus Coffee counter | F6 (Mars's deliberation), F4 (the 3 p.m. coffee), F2 (chalkboards, wrong-hour absences) | A seed fact spoken at the counter — the counter hears shadows, not facts |
+| Auerbach Hardware counter | F1 (Victor's irregular hours, the free fixes) | The offer letter on camera — objects show, contents don't (P-03) |
+| The 9418 stoop | F5 (Carmen's rituals and their absences), F1-adjacent (who visits the building) | A health event staged for the stoop — F5 ticks happen in life, not on display |
+| The 9457 flat (door + kitchen) | F2 (compression, the Sunday cooking, the tally), F3 (Jules's proximity alibis) | An engineered walk-in — doors are the sim's business, never the direction's |
+| Dolores Park benches (Esther + Ray's row) | Every fuse's *echo* — the chorus notices bench math, never first | Being a first knower of anything; the benches carry rumor, never seed fact (§7) |
+| The supplier loop (Las Palmas, Valencia Growers, the wholesale rows) | F1/F4 via S6 (Tomás pricing his dream in public) | New stops invented for pressure — the loop is his character (P-08) |
+| Mission Unfiltered (the press surface) | F6 — the only place a private fact can become a block fact | A post sourced beyond what Mars could plausibly have learned (§3-F6) |
+| Ordinary-life venues (Golden Hour Laundromat, Buy-Rite, the courier loop) | The quiet floor — contrast for everything | Drama staging; these venues carry P-10 and that's the point |
+
+Two corollaries:
+
+- **Cross-venue shadows are how viewers triangulate.** The correct spectator
+  experience of a pressured fuse is a whisper at one venue and an ordinary
+  day everywhere else — the map exists so no venue becomes a dedicated
+  drama stage and no shadow follows a character home unearned.
+- **A venue's own drama beats a visitor's.** A tell that lands where the
+  secret-holder *lives their life* (Victor at his counter, Carmen on her
+  stoop) is always stronger direction than the same tell staged in a
+  neutral space. Home venues first; borrowed venues are for echoes.
+
+## 30. Maintenance
 
 - This file and `world/drama.json` are mirrors (JSON = machine contract,
   MD = direction). `world/drama.html` renders the JSON's inline mirror.
@@ -700,6 +819,9 @@ Same legality as §14: each row is something the world already produces.
 - New pressure-catalog rows need: a producing system that already exists,
   a legible shadow, and an exhaustion rule. If any of the three is
   missing, the row is a wish, not a pressure.
+- Tell-ladder edits (§28) and venue-map edits (§29) sync across all three
+  artifacts the same way; a brink tell that names its fact gets deleted,
+  not moved down a rung.
 - `world/audit.js` gate `drama` checks the JSON's structural invariants
   (states in enum, fuse ids valid, holders/suspects/must_not_know
   pairwise disjoint). It cannot check legality of *notes* — §19 is human.
