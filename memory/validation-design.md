@@ -3711,3 +3711,89 @@ structure-MUST counted above).
   2021 (*Psych. Sci.* 32:640 — replication, mode null); Morehead,
   Dunlosky & Rawson 2019 (*Educ. Psych. Rev.* 31:753); Kobayashi
   2005 (*Contemp. Educ. Psych.* 30:242).
+
+## 85. New probes P503–P512 (v49 suite — forgetting-curves V, the
+## channel curves; forgetting-curves.md Part V, spec v4.7)
+
+- **P503 persSem minting (MUST):** episodic record with selfRel 0.7,
+  retrievalCount 3 archives → persSem record exists at ~0.5·gistS,
+  survives to 365d, carries NO verbatim fields; `sdam` profile mints
+  the same count (identity infrastructure is semantic); non-selfRelevant
+  records never mint. Constrains ps_gate, ps_recount, ps_transf.
+- **P504 remember→know conversion (MUST):** a live record emits
+  `remember` flavor while recol_w ≥ rk_thresh; below it, emissions are
+  `know` — detail thin, latency LOW; `selfdef` records never flip; a
+  visual-mod record re-encountered at 365d reports fam_w ≥
+  vis_fam_floor (Standing bound). Constrains rk_thresh, vis_fam_floor.
+- **P505 channel interference asymmetry (SHOULD, DEBATED-flagged):**
+  equal-R records, dense vs sparse n_sim bucket — `know`-mode hits drop
+  ~1.8× more than `remember`-mode. If TOST-fails, collapse
+  fam/recol_interf_mult to 1.0 and re-run P504 (the gate must survive
+  either way). Constrains both mults.
+- **P506 order decay (MUST):** two live same-period records at 30d —
+  encode gap 0.1d orders at script level (~0.5, sign-locked reversal on
+  atypical order); gap 5d ≥0.85 correct; both contents intact while
+  order fails — the dissociation is the test. Constrains order_sigma,
+  order_decay, order_script_p.
+- **P507 dream lifecycle (SHOULD):** ≥80% of minted dream records
+  archive by wake+1h; wake-encoded ones decay on the ordinary low-E
+  schedule; emitted dream content carries `source:"dream"` + conf ≤0.4;
+  high-`fantasy` profiles show occasional dream→real source slips,
+  bounded ≤5% of dream recalls.
+- **P508 skill split (MUST):** cog-kind skill unused 365d loses ~half
+  its level (Arthur d ≈ −1.0 analog band); cont-kind flat;
+  `skill_overlearn` halves the cog loss; relearn after loss <50% naive
+  cost either kind. Constrains beta_proc_cog/cont, skill_overlearn.
+- **P509 sleep-consolidated intention (SHOULD):** matched armed
+  intentions, 12h sleep vs 12h wake — the slept one fires ≥15% more on
+  a nonfocal cue; benefit gone at sleepQuality 0.3. Constrains
+  pm_sleep_gain.
+- **P510 unethical-amnesia bound (SHOULD — sign-locked null):** transg
+  records' reported vividness decays ~1.3× vs matched negatives while
+  verbatim accuracy is TOST-equivalent (SESOI 0.1); defens 0 → no
+  vividness effect; persSem minting unaffected. Registered in the §78
+  null ledger (accuracy leg).
+- **P511 fired-intention split (SHOULD):** resolved intention R@30d <
+  still-armed twin; its trigger cue still misfires within deact_window
+  — both findings coexist. Constrains beta_pm_fired.
+- **P512 v4.7 regression (MUST — structure):** `persSem`/`transg`/
+  `cueBind`/`dream` pass the P457 non-interference pattern (steer
+  nothing outside their channels); §12.2 commutativity holds;
+  orderRecall never reads createdDay; zero dream content surfaces
+  without a wake-encode event.
+
+Registry: P1–P512. v49 suite: P503–P512 (4 MUST, 5 SHOULD, 1
+structure-MUST counted above).
+
+## 86. Sources new to this version
+
+- Renoult, Davidson, Palombo, Moscovitch & Levine 2012 (*TiCS* 16:550,
+  PMID 23040159 — personal semantics); Grilli & Verfaellie 2014/2016;
+  Cermak & O'Connor 1983 (patient SS, semanticized autobiography);
+  Conway & Pleydell-Pearce 2000 (PS as retrieval scaffold).
+- Yonelinas & Levy 2002 (*Psychon. Bull. Rev.* 9:575 — differential
+  recollection/familiarity forgetting); Sadeh, Ozubko, Winocur &
+  Moscovitch 2013 (*TiCS* 18:26), 2014 (*Psych. Sci.* 25:2090 —
+  representation-dependent forgetting); Gardiner & Java
+  (remember/know); Wixted single-process rejoinder (DEBATED flag).
+- Friedman 1993 (*Psych. Bull.* 114:44 — time-of-past-events review);
+  Friedman 2004; Underwood 1977 (recency discrimination decay).
+- Koukkou & Lehmann 1983 (*Br. J. Psychiatry* 142:221 — functional
+  state-shift); Koulack & Goodenough 1976 (*Psych. Bull.* 83:975 —
+  arousal-retrieval); Butler & Watson 1985 (*Percept. Mot. Skills*
+  61:823 — dream recall as cognitive trait); Schredl dream-recall-
+  frequency surveys; dream-vs-waking diary paradigms.
+- Arthur, Bennett, Stanush & McNelly 1998 (*Human Performance* 11:57 —
+  verified: d −0.01 → −1.4 over >365d nonuse; physical/natural/speed
+  < cognitive/artificial/accuracy; overlearning protects). Corrects
+  Part II C19's blanket claim.
+- Scullin & McDaniel 2010 (*Psych. Sci.* 21:1028 — sleep-on-it PM);
+  Diekelmann et al. 2013 (*SLEEP* 36:1177 — SWS arm); Scullin et al.
+  2019 (*SLEEP* zsz003 — SWS spontaneous retrieval).
+- Kouchaki & Gino 2016 (*PNAS* 113:6166, PMID 27185941 — unethical
+  amnesia); Stanley, Yang & De Brigard 2018 (*Mem. Cogn.* 46:963 —
+  failed replication, accuracy null; phenomenology arm only adopted).
+- Marsh, Hicks & Bink 1998 (*JEP:LMC* 24:350 — intention
+  deactivation); Bugg & Scullin 2013 (commission-error aftereffects).
+- Standing, Conezio & Haber 1970 (*Percept. Psychophys.* 8:73);
+  Standing 1973 (*LM&C* 1:757 — 10k-picture recognition).

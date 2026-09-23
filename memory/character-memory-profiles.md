@@ -541,6 +541,17 @@ never copying raw.
 | motiv_narrow | 0 | 0.4 | high-approach positive narrowing (v4.6) |
 | lie_enc_gain / lie_src_weak | 0 / 0 | 0.3 / 0.5 | deceptive-effort encode + weak source tag (v4.6) |
 | note_gen_gain | 0 | 0.25 | generative-note elaboration; verbatim null (v4.6) |
+| ps_gate / ps_recount / ps_transf | 0.3 / 1 / 0.2 | 0.8 / 5 / 0.9 | personal-semantics mint thresholds (v4.7) |
+| rk_thresh | 0.15 | 0.5 | remember↔know report gate (v4.7) |
+| fam_interf_mult / recol_interf_mult | 0.8 / 0.3 | 2.0 / 1.5 | channel interference asymmetry, DEBATED (v4.7) |
+| order_sigma / order_decay / order_script_p | 0.15 / 0.5 / 0.3 | 0.8 / 3.0 / 0.8 | orderRecall reconstruction (v4.7) |
+| dream_mint / tau_dream / beta_dream | 0 / 0.001 / 0.5 | 4 / 0.02 / 2.0 | dream class; dream_mint 0 = dreamless (v4.7) |
+| dream_recall_p / dream_cond_mult | 0.02 / 0 | 0.5 / 0.8 | wake-gate base rate × dreamRecall; affect residue (v4.7) |
+| beta_proc_cont / beta_proc_cog / skill_overlearn | 0 / 0.05 / 0.2 | 0.1 / 0.4 / 0.8 | skill split — cog skills DO decay (v4.7) |
+| cueBind_init / pm_sleep_gain | 0.1 / 0 | 0.8 / 0.5 | intention cue-bind + sleep consolidation (v4.7) |
+| beta_pm_fired | 0.2 | 1.5 | post-resolution intention decay (v4.7) |
+| transg_vivid_mult | 1.0 | 2.0 | own-violation vividness decay; accuracy locked null (v4.7) |
+| vis_fam_floor | 0.0 | 0.3 | Standing recognition bound on visual records (v4.7) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -2080,3 +2091,45 @@ dials:
 - **Ecology-only, never pin:** `animacy_*` (content property),
   `ownname_tail` (physics of the shift), `note_mode_null` (locked —
   no device romance).
+
+## 32. v4.7 note (forgetting-curves V — the channel curves)
+
+Clamp rows added in §0 for the v4.7 params. The split that matters to
+bible authors: this pass separates *what a character relives* from
+*what they know* — and pins the difference to trait dials:
+
+- **`dreamRecall` (trait, 0.02–0.5):** the one new bible trait this
+  pass. Load on `vivid`/`fantasy`/`open` — the dreamer who wakes up
+  talking about it vs the one who never remembers a dream
+  (`dream_mint` 0 is legal for a literally dreamless bible). Pair a
+  high dreamRecall + high `confab_fill` profile with the rare
+  dream→reality source slip (P507 caps it at 5% of dream recalls —
+  spice, not a lifestyle). `dream_cond_mult` is ecology: nightmares
+  about the fire can mark the body without a record.
+- **`ps_*` (persSem minting):** do NOT pin per-character — the gates
+  are population constants. What the bible controls is upstream:
+  `selfRelevance` density and retell ecology determine which episodes
+  semanticize. A `sdam`-modified profile mints persSem normally —
+  that's the phenotype (knows the facts of their life, doesn't
+  relive them).
+- **`rk_thresh` / interference mults:** flat population defaults;
+  `fam_interf_mult`/`recol_interf_mult` are DEBATED-flagged (P505
+  may collapse them) — never build a bible's identity on the
+  asymmetry surviving.
+- **`beta_proc_cog`:** this is a correction — cognitive/discrete
+  skills DO decay (Arthur 1998). Job-skills content should tag
+  `kind` honestly: the bartender's floor presence is `cont`, the
+  POS workflow is `cog`. A character retired from a craft for a
+  year should *fumble the paperwork*, not the hands.
+- **`transg_vivid_mult`:** scales with `defens`/`mnem_neg` by
+  construction (×(0.5+0.5·defens)) — the self-forgiving transgressor
+  remembers his swindle as a smudge. Accuracy is a LOCKED NULL:
+  bibles may not use this to make liars forget what they did — the
+  phenomenology dims, the record stays true.
+- **`beta_pm_fired` / `cueBind` / `pm_sleep_gain`:** ecology +
+  sleepQuality, not traits. The chronic insomniac profile gets
+  leaking errands for free via `sleepFactor` — do not double-dip
+  with a bible pin.
+- **Ecology-only, never pin:** `order_*` (reconstruction physics),
+  `vis_fam_floor` (Standing bound), `dream_cond_mult` (residue
+  physics).

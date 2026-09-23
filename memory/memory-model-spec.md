@@ -1,4 +1,29 @@
-# Memory Model Spec v4.6 — implementable human-like memory for RW characters
+# Memory Model Spec v4.7 — implementable human-like memory for RW characters
+
+> **v4.7 note (forgetting-curves V — the channel curves):**
+> `memory/forgetting-curves.md` Part V (§§22–26) splits the decay
+> composite into its channels — each with its own clock and its own
+> failure cause: **personal semantics** — repeatedly-retrieved
+> self-relevant episodes mint a semantic-tier `persSem` copy on
+> archive/permastore ("skeleton autobiography," Renoult et al. 2012;
+> what SDAM keeps) — §4.23; **recollect/familiar split** — derived
+> `recol_w`/`fam_w`, remember↔know report gate at `rk_thresh`, and
+> Sadeh's DEBATED interference asymmetry (`fam_interf_mult` /
+> `recol_interf_mult`) — §4.23; **order recall** — order is never
+> stored, reconstructed from drifted times + script priors, dies
+> before content (Friedman 1993; Underwood 1977) — §5.40 `orderRecall`;
+> **dreams** — minutes-scale class gated by wake encoding (Koulack &
+> Goodenough arousal-retrieval), deferred from emotional §25 — §4.24;
+> **skill decay correction** — procedural splits `cont`/`cog` (Arthur
+> et al. 1998 meta: cognitive skills DO decay, d≈−1.4/yr) — §1;
+> **sleep→intentions** — `cueBind` consolidates at the sleep tick
+> (Scullin & McDaniel 2010) — §9; **unethical amnesia** — `transg`
+> records lose vividness ×1.3, accuracy null locked (Kouchaki & Gino
+> 2016 vs Stanley et al. 2018 failed replication) — §4.23; **fired
+> intentions** decay at `beta_pm_fired` (Marsh, Hicks & Bink 1998) —
+> §9; **Standing bound** — visual records keep `vis_fam_floor` on
+> fam_w — §5.28. +22 params in §7; probes P503–P512. All optional,
+> default-neutral.
 
 > **v4.6 note (encoding-mechanics IV — the gate's exceptions and the
 > social cast):** `memory/encoding-mechanics.md` Part IV (§§44–57)
@@ -1043,15 +1068,36 @@ MemoryRecord = {
                                       // reinstatable only via compound
                                       // sensory cues (§4.14, §5.20;
                                       // Travaglia 2016) — hidden
+  // v4.7 additions (forgetting-curves V — channel curves):
+  "persSem": false,                   // semanticized self-fact minted
+                                      // from an archived episode
+                                      // (§4.23, Renoult 2012) — rides
+                                      // beta_semantic, merge/amnesia
+                                      // exempt
+  "transg": false,                    // own-norm-violation record —
+                                      // vividness decays ×transg_
+                                      // vivid_mult, accuracy UNCHANGED
+                                      // (locked null, §4.23)
+  "source": "event",                  // event|told|imagined|dream —
+                                      // dream minted at sleep tick,
+                                      // wake-gated (§4.24)
   "accessLog": []                     // optional debug; may be capped
 }
-```
+// v4.7 derived channel weights (not stored): recol_w = mean surviving
+// verbatim-field strength (0 on persSem/semantic); fam_w = gist leg ×
+// (1 + impl_fam_w·impl_str). Report gate at rk_thresh (§4.23).
 
 - **Episodic** records: specific events (what/where/when). Most records.
 - **Semantic** records: decontextualized facts ("Mara is the landlord's friend").
-  No `verbatim`; slower decay. Often created by gist abstraction (§7.4).
+  No `verbatim`; slower decay. Often created by gist abstraction (§7.4)
+  or by §4.23 persSem minting (self-facts — v4.7).
 - **Procedural**: not stored as records — a small skill/affinity map
-  (`{skill: level}`) with near-zero decay (R§1). Out of scope for v0 dynamics.
+  (`{skill: {level, kind, uses}}`); **v4.7 split:** `kind:"cont"` decays
+  at `beta_proc_cont` (0.02 — motor/continuous), `kind:"cog"` at
+  `beta_proc_cog` (0.12 — discrete/accuracy-based procedures; Arthur et
+  al. 1998 — cognitive skills DO decay, correcting the v1.3 blanket).
+  `skill_overlearn` (level ≥0.8 or uses ≥50) → β×0.5; `relearn_gain`
+  applies to both. Out of scope for v0 dynamics.
 - **Emotional**: affect tags live ON records (above) plus a per-character
   conditioned-associations table that can survive the episodic source
   (Bechara split, R§1): a character can feel dread at a doorway without
@@ -2593,6 +2639,71 @@ more slowly (AD§52). Two consequences:
   2017 — spacing benefit fully preserved): distributed retells are
   the elder's best rehearsal economics; no knots added. P402.
 
+### 4.23 Channel split — recol vs fam, persSem minting, transg vividness (new in v4.7)
+
+A record's observable forgetting curve is a composite of channels on
+different clocks (forgetting-curves.md §22):
+
+- **`recol_w` / `fam_w` (derived, never stored):** `recol_w` = mean
+  strength of surviving verbatim fields ×(episodic?1:0); `fam_w` = gist
+  leg strength ×(1 + `impl_fam_w`·`impl_str`). The phenomenology gate:
+  a Reconstruction emits `reportMode:"remember"` iff `recol_w ≥
+  rk_thresh` (0.3), else `"know"` — fluent content, thin detail, LOW
+  latency (familiarity responds fast; substitute recol_w for R in
+  §5.25's search term). Gardiner & Java remember→know conversion;
+  Yonelinas & Levy 2002 rate split [CONSENSUS]. `selfdef` records never
+  emit `know` — the anchor floor keeps recol_w up by definition.
+- **Interference asymmetry [DEBATED — Sadeh et al. 2013/2014 vs Wixted
+  single-process]:** §4.2 pairwise suppression reads the channel —
+  ×`fam_interf_mult` (1.3) on fam_w, ×`recol_interf_mult` (0.7) on
+  recol_w. Crowded cue buckets kill "sorta familiar" first; the
+  vivid recollection is immune to neighbors, not to time. TOST-gated
+  by P505 — collapse both to 1.0 if the asymmetry fails.
+- **`persSem` minting (Renoult et al. 2012):** when an episodic record
+  with `selfRelevance ≥ ps_gate` (0.5) AND `retrievalCount ≥ ps_recount`
+  (2) archives or reaches `permastore_age`, mint a `persSem:true`
+  semantic record carrying {topic, place, people, period, gist} at
+  strength `ps_transf` (0.5)·gistS — no verbatim, no intrude_w, conf
+  high. β_semantic; exempt from §4.3 merge and the amnesia ramp;
+  permastore-eligible. The episode dies; the self-fact survives —
+  "I don't remember the wedding, but I know it was at City Hall."
+  `sdam` profiles mint normally (their deficit is the recol channel
+  only). The minted fact inherits the episode's distortions.
+- **`transg` vividness-only decay (Kouchaki & Gino 2016, bounded by
+  Stanley, Yang & De Brigard 2018 failed replication):** records
+  tagged `transg:true` (own norm violation — `deceptive`/`harmOther`
+  + selfRelevance ≥0.5 + self-model dissonance; world tagger supplies)
+  decay vividness ×`transg_vivid_mult` (1.3)·(0.5+0.5·`defens`).
+  **Locked nulls:** verbatim accuracy, gist, storageS, and persSem
+  minting all UNTOUCHED — phenomenology dims, content does not
+  falsify. P510.
+
+### 4.24 Dream records — the minutes-scale class (new in v4.7)
+
+Koulack & Goodenough 1976 arousal-retrieval model + Koukkou & Lehmann
+1983 state-shift hypothesis: dream content stores ONLY through wakeful
+arousal; unretrieved content is gone within minutes (deferred from
+emotional-memory §25 — priced here, forgetting-curves.md §22.4):
+
+```
+each dailyMemoryTick (sleep): mint Poisson(dream_mint) ≈1–2 records,
+    source:"dream", E = dream_salience·0.15 (world/story supplies
+    salience), tau_dream 0.004d (~6min), beta_dream 1.2, verbatim thin
+wake tick: each live dream rolls dream_recall_p = dreamRecall
+    (trait 0.02–0.5, default 0.1) · (1 + 0.5·dream_salience)
+    success → re-encode as ordinary low-E episodic; source:"dream"
+        retained; conf ceiling 0.4; plausibility-flagged
+    failure → archives; unreachable below resurrect_thresh, even for
+        olfactory cues (§17.5's lowered archive reach does not apply)
+emotional residue: dream arousal can feed §4.9 CondEntry acquisition
+    at dream_cond_mult (0.3) — the nightmare marks the body, not the
+    record
+```
+
+Wake-encoded dream records join normal machinery — including §6.9
+reality-monitoring slips under high `fantasy`/`confab_fill` (bounded
+≤5% of dream recalls — P507). [CONSENSUS gate; magnitudes HYPOTHESIS]
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -3517,6 +3628,10 @@ Distinct from §5.10's person-cascade `familiar_only` (same return
 shape, different trigger — this one is scene/context-level and
 requires a FAILED bout). Never fires with content; a familiar_only
 return that later resolves re-enters normal scoring. P383.
+**v4.7:** records carrying visual-`mod` fields hold `fam_w` ≥
+`vis_fam_floor` (0.1) while live — the Standing bound (1970/1973:
+~90% picture recognition at 10k items for days); visual recallable
+detail still dies on `k_vis`, what survives is recognition. P504.
 
 ### 5.29 The doorway — boundary crossing sheds cues (new in v3.7)
 
@@ -3735,6 +3850,31 @@ unchanged; later drift runs through ordinary operators. Guided
 reinstatement (`interviewMode`, §5.30) may pass `context.persp:
 "field"` to pull emission back toward field — that pull IS the
 instruction's mechanism. P437/P438.
+
+### 5.40 orderRecall — order is reconstructed, never stored (new in v4.7)
+
+Temporal order is the fastest-dying relational information
+(forgetting-curves.md §22.3; Underwood 1977; Friedman 1993/2004 — order
+is *inferred* from distance impressions, landmarks, and scripts, not
+retrieved). No record stores an orderable timestamp for the character;
+`createdDay` is ground truth for the ledger only. Order claims in
+dialogue must route through:
+
+```
+orderRecall(charId, a, b):
+    t̂_i = reconstructed encodeDay of i (existing when-drift machinery)
+    σ_pair = order_sigma·(1 + order_decay·mean(1−R_a, 1−R_b))
+        // order_sigma 0.35, order_decay 1.5 — decayed pairs blur
+        // toward chance while both contents stay live
+    same-period AND same-day pair → P = order_script_p (0.5) directed
+        by the event-type script prior — atypical orders are
+        systematically REVERSED, not merely noised
+    else → P(correct) = Φ((t̂_b − t̂_a)/σ_pair)
+```
+
+Emergent: "did she quit before or after the lease fight?" is a
+schema-shaped coin flip at distance even with both memories live.
+P506 requires the dissociation — content intact, order lost.
 
 ---
 
@@ -6346,6 +6486,32 @@ MemoryParams = {
 //   (schema reliance rises — HYPOTHESIS); ownname_*, humor_*,
 //   animacy_*, impress_*, motiv_narrow, lie_*, note_gen_gain declared
 //   AGE-FLAT cite-guarded.
+// v4.7 additions (forgetting-curves V — channel curves,
+//   forgetting-curves.md §§22–26)
+"ps_gate": 0.5, "ps_recount": 2, "ps_transf": 0.5, // persSem mint (§4.23)
+"rk_thresh": 0.3,                                 // remember↔know gate (§4.23)
+"fam_interf_mult": 1.3, "recol_interf_mult": 0.7, // channel asymmetry (DEBATED)
+"order_sigma": 0.35, "order_decay": 1.5, "order_script_p": 0.5, // §5.40
+"dream_mint": 1.5, "tau_dream": 0.004, "beta_dream": 1.2, // §4.24
+"dream_recall_p": 0.1, "dream_cond_mult": 0.3,
+"beta_proc_cont": 0.02, "beta_proc_cog": 0.12,   // §1 skill split (C42)
+"skill_overlearn": 0.5,                           // β× at level≥0.8/uses≥50
+"cueBind_init": 0.4, "pm_sleep_gain": 0.2,       // §9 sleep consolidation
+"beta_pm_fired": 0.5,                            // §9 post-resolution decay
+"transg_vivid_mult": 1.3,                        // §4.23 phenomenology only
+"vis_fam_floor": 0.1,                            // §5.28 Standing bound
+// v4.7 locked nulls: transg → verbatim accuracy/gist/storageS/persSem
+//   = 0 (Stanley 2018 arm — phenomenology dims, content never falsifies);
+//   dream → θ-drive/ordinary recall path = 0 until wake-encoded;
+//   order_sigma reads no E (slope-invariance §12.2); recol_w/fam_w are
+//   derived — no independent stores to desync.
+// v4.7 knot notes: beta_proc_cog ×(1+0.1·age_eff/70) (older workers lose
+//   unused cognitive procedures faster — Arthur moderator, HYPOTHESIS);
+//   dream_recall_p rides trait `dreamRecall` (Butler & Watson 1985),
+//   not age; ps_*, rk_thresh, order_*, cueBind_init, pm_sleep_gain,
+//   beta_pm_fired, transg_vivid_mult, vis_fam_floor declared AGE-FLAT
+//   cite-guarded (dream decline with age is handled via dreamRecall
+//   trait jitter + sleepQuality, not a knot).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -6448,6 +6614,18 @@ waiting — they barely fade because retention is tested *at the cue*
 (Einstein & McDaniel 1990); on trigger-fire the intention resolves into
 an ordinary episodic record and decays normally. The v1.2 doorway
 penalty still applies — PM failure is a cue problem, not a decay problem.
+**v4.7 (forgetting-curves.md §22.6/§22.8):** Intentions gain `cueBind` ∈
+[0,1] (init 0.4·(focal?1.2:1)) — the intention–cue association
+consolidates across sleep: armed intentions take `cueBind +=
+pm_sleep_gain·sleepQuality·(1−cueBind)` (0.2) at each sleep tick, and the
+§5.14 monitor/clock fire rolls multiply by `cueBind` (Scullin & McDaniel
+2010 — "sleep on it" literally works; the insomniac's errands leak). On
+fire/cancel the resolved record's decay class switches to
+`beta_pm_fired` (0.5): the armed representation was maintained, the
+fired one releases (Marsh, Hicks & Bink 1998). The §5.33 `deact_window`
+residual-firing channel is UNCHANGED — record fades fast while its
+trigger cue still misfires ~7 days; the literature's tension is kept,
+not resolved (DEBATED magnitude). P509/P511.
 
 ## 10. Interface contract for game-systems
 
@@ -6478,6 +6656,11 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   `retract_p` while content keeps `cie_residual` inference weight).
   `hearCount` on the content hash increments regardless of speaker —
   repetition, not variety, is the fluency mechanism (§6.3)
+- `orderRecall(charId, a, b) -> {order, p}` (v4.7, §5.40) — pairwise
+  temporal-order judgment, reconstructed from drifted times + script
+  priors; dialogue must route order claims through this, never read
+  `createdDay`. Reconstructions carry `reportMode:"remember"|"know"`
+  (v4.7, §4.23 — `know` = fluent content, thin detail, low latency)
 - `imagineEvent(charId, scenario)` (v0.6, §6.9) → writes/strengthens an
   `imagined`-source record gated by `plaus_min`; used for daydreams,
   rehearsed lies, and guided probing; records can later flip to
@@ -7208,6 +7391,26 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     lie bookkeeping (pairs with bible `truth`/`lie_freq` pins);
     `note` marks journaling/transcription activity.
     All snapshot-additive, absent = legacy.
+- v4.7 additions (forgetting-curves.md Part V §§22–26):
+  - Record fields: `persSem:true` (§4.23 semanticized self-fact),
+    `transg:true` (§4.23 own-violation vividness channel),
+    `source:"dream"` value (§4.24). Derived, never stored:
+    `recol_w`/`fam_w`; Reconstruction gains
+    `reportMode:"remember"|"know"`.
+  - Intention field: `cueBind` ∈[0,1] (§9, sleep-consolidated).
+  - Skill-map field: `kind:"cont"|"cog"` + `uses` (§1, Arthur 1998).
+  - Event fields: `dream_salience` ∈[0,1] on sleep-tick mints;
+    `transg:true` on own-norm-violation events (world tagger —
+    dissonance vs the §6.34 self-model); `order_script:true` on
+    event types with canonical order (script prior for §5.40).
+  - New contract op: `orderRecall(charId, a, b)` (§5.40) — order
+    claims never read `createdDay`.
+  - World-builder hooks: `dreamRecall` trait (0.02–0.5, vivid/
+    fantasy-loaded profiles high) on bibles; `dream_salience` comes
+    from the story layer (nightmares high); `transg` tagging needs
+    the event layer to flag own-violation acts; skill `kind` tags on
+    the jobs content (bartending floor-presence=cont, POS
+    workflow=cog). All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
