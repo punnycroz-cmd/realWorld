@@ -25686,26 +25686,94 @@ function sfKarlFront(poly){
   return [poly[i0], poly[i1]];
 }
 
-/* v41: fog shade — Karl's intrusion sheet is an OCCLUDER, not just a
+/* ---------------- v50: the canyon front ------------------------------
+   Karl's leading edge used to be a STRAIGHT half-plane line with soft
+   blobs sprinkled on it — fog that ignores the city it's invading. Real
+   Mission fog does no such thing: the afternoon push pours through the
+   street grid, running 100+ m farther down the avenues than over the
+   solid block faces between them, so the front arrives as a row of
+   fingers aligned with the streets, not a wall. sfKarlFrontField()
+   samples the REAL map: for each cross-wind column it marches downwind
+   through SF_GRID and counts street/plaza cells — corridors that line
+   up with the wind vent the fog deeper (canyon bonus), solid blocks
+   stall it (recessed fingers). The profile is cached per wind bearing;
+   karlK only slides the whole front bodily downwind. One field feeds
+   the tongue silhouette, the pavement/facade shade scalar and the
+   tendril leaks — every consumer agrees on where the fog edge is. */
+let SF_KARL_FIELD = null;
+function sfKarlFrontField(){
+  const aB = Math.round(W.windAng * 60) + (SEED & 0);   // re-lay on veer
+  if(SF_KARL_FIELD && SF_KARL_FIELD.aB === aB) return SF_KARL_FIELD;
+  const wxv = Math.cos(W.windAng), wyv = Math.sin(W.windAng);
+  const nxv = -wyv, nyv = wxv;
+  const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
+  const rp = [[0, 0], [mw, 0], [mw, mh], [0, mh]];
+  let lo = Infinity, hi = -Infinity, vLo = Infinity, vHi = -Infinity;
+  for(const c of rp){
+    const u = c[0] * wxv + c[1] * wyv, v = c[0] * nxv + c[1] * nyv;
+    if(u < lo) lo = u; if(u > hi) hi = u;
+    if(v < vLo) vLo = v; if(v > vHi) vHi = v;
+  }
+  const N = 34, marg = (vHi - vLo) * 0.16;
+  const vs = new Float32Array(N + 1), dv = new Float32Array(N + 1),
+        cf = new Float32Array(N + 1);
+  const cm = SF_M.cell_m, lim0 = lo + 0.45 * (hi - lo);   // probe depth
+  for(let i = 0; i <= N; i++){
+    const v = vLo - marg + (vHi - vLo + 2 * marg) * i / N;
+    vs[i] = v;
+    let hits = 0, tot = 0;
+    for(let s = 0; s < 230; s += cm){
+      const gx = Math.floor((wxv * (lim0 + s) + nxv * v) / cm),
+            gy = Math.floor((wyv * (lim0 + s) + nyv * v) / cm);
+      if(gx < 0 || gy < 0 || gx >= SF_M.gw || gy >= SF_M.gh) break;
+      const t = SF_GRID[gy * SF_M.gw + gx];
+      if(t === 10 || t === 11 || t === 14 || t === 16) hits++;
+      tot++;
+    }
+    const f = tot ? hits / tot : 0;
+    cf[i] = f;
+    /* finger shape = slow multi-sine + per-column jitter + canyon bonus
+       (squared so genuine street corridors pop against courtyard noise) */
+    dv[i] = Math.sin(v * 0.021 + 1.7) * 58 + Math.sin(v * 0.0081 + 0.4) * 84 +
+            (phash(i, 91, 5201) - 0.5) * 110 + f * f * 300 - f * 60;
+  }
+  SF_KARL_FIELD = { aB, vLo: vLo - marg, vHi: vHi + marg,
+                    vs, dv, cf, N, lo, hi, wxv, wyv, nxv, nyv };
+  return SF_KARL_FIELD;
+}
+/* along-wind depth (m) of the modulated front at cross-wind coord v */
+function sfKarlDepthAt(v){
+  const F = sfKarlFrontField(), kk = sfKarlK();
+  const lim = F.lo + kk * 0.9 * (F.hi - F.lo);
+  const x = clamp((v - F.vLo) / (F.vHi - F.vLo), 0, 1) * F.N;
+  const i = Math.min(F.N - 1, Math.floor(x)), fx = x - i;
+  const mod = F.dv[i] + (F.dv[i + 1] - F.dv[i]) * fx;
+  // fingertips breathe on a slow ~minute-scale cycle
+  return lim + mod + Math.sin(SF_WX.t * 0.10 + v * 0.013) * 9;
+}
+/* world-meter polyline of the modulated front edge (cross-wind order) */
+function sfKarlFrontPts(){
+  const F = sfKarlFrontField(), out = [], N2 = F.N * 2;
+  for(let i = 0; i <= N2; i++){
+    const v = F.vLo + (F.vHi - F.vLo) * i / N2;
+    const u = Math.min(sfKarlDepthAt(v), F.hi + 60);
+    out.push([F.wxv * u + F.nxv * v, F.wyv * u + F.nyv * v]);
+  }
+  return out;
+}
+/* v41+v50: fog shade — Karl's intrusion sheet is an OCCLUDER, not just a
    whitening layer: inside it the sun is gone, and its shadow bleeds
    ~110m past the ragged front where the thinning edge still filters
-   direct light. One scalar feeds facade dimming, pavement shading and
-   the tongue's own under-shadow so every consumer agrees on where the
-   dark is. */
+   direct light. v50: the occlusion boundary is the canyon-channelled
+   front (sfKarlDepthAt), so a facade dimmed by the sheet is dimmed by
+   the SAME finger the top view draws pouring down its street. */
 function sfKarlShade(mx, my){
   const kk = sfKarlK();
   if(kk <= 0.03 || isNight()) return 0;
-  const wxv = Math.cos(W.windAng), wyv = Math.sin(W.windAng);
-  const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
-  const rp = [[0, 0], [mw, 0], [mw, mh], [0, mh]];
-  let lo = Infinity, hi = -Infinity;
-  for(const c of rp){
-    const p = c[0] * wxv + c[1] * wyv;
-    if(p < lo) lo = p; if(p > hi) hi = p;
-  }
-  const lim = lo + kk * 0.9 * (hi - lo);         // same front as the tongue
-  const p = mx * wxv + my * wyv;
-  return clamp(kk * 1.25 * (1 - (p - lim) / 110), 0, 1);
+  const F = sfKarlFrontField();
+  const u = mx * F.wxv + my * F.wyv, v = mx * F.nxv + my * F.nyv;
+  if(v < F.vLo || v > F.vHi) return 0;
+  return clamp(kk * 1.25 * (1 - (u - sfKarlDepthAt(v)) / 110), 0, 1);
 }
 
 /* ---------------- v44: SKYLINE — the city doesn't end at the map edge
@@ -27195,73 +27263,61 @@ function sfRenderWorld(cw, ch){
     }
   }
 
-  // 2e2. v34: Karl's tongue — the marine layer pouring over the upwind
-  //   (ocean-side) edge of the map on the afternoon push: a soft sheet
-  //   clipped to the real map rect, ragged lobes drifting along its
-  //   leading edge. The same front the street view draws as a wall.
+  // 2e2. v34+v50: Karl's tongue — the marine layer pouring over the
+  //   upwind (ocean-side) edge of the map on the afternoon push. v50:
+  //   the edge is the canyon-channelled front (sfKarlFrontPts) — a row
+  //   of fingers aligned with the real streets — instead of a clipped
+  //   half-plane. The same field drives sfKarlShade, so the shade under
+  //   each finger lands exactly where the finger is drawn.
   if(karlK > 0.04 && !isNight()){
-    const kpoly = sfKarlPoly(karlK * 0.9);
-    const kfront = sfKarlFront(kpoly);
-    if(kpoly.length >= 3 && kfront){
+    const kf = sfKarlFrontField(), fpts = sfKarlFrontPts();
+    if(fpts.length >= 3){
       const toS = p => [ (p[0] * SF_PXM - cam.x) * cam.zoom + cw / 2,
                          sfSY(p[1] * SF_PXM, ch) ];
-      const pts = kpoly.map(toS);
-      const fa = toS(kfront[0]), fb = toS(kfront[1]);
-      // gradient runs from the upwind corner (deep fog) toward the front
-      const wvx = Math.cos(W.windAng), wvy = Math.sin(W.windAng);
-      let up = pts[0], upP = Infinity;
-      for(let i = 0; i < pts.length; i++){
-        const p = kpoly[i][0] * wvx + kpoly[i][1] * wvy;
-        if(p < upP){ upP = p; up = pts[i]; }
-      }
-      const fmx = (fa[0] + fb[0]) / 2, fmy = (fa[1] + fb[1]) / 2;
-      // v41: the tongue is an occluder — the ground beneath sits in the
-      // fog's own broad shadow, deepest at the upwind edge, fading out
-      // where the front thins (same half-plane sfKarlShade measures)
-      const sg2 = ctx.createLinearGradient(up[0], up[1], fmx, fmy);
+      const pts = fpts.map(toS);
+      // deep-fog anchor: a point well upwind of the whole front
+      const up = [ pts[0][0] - kf.wxv * 900 * SF_PXM * cam.zoom,
+                   pts[0][1] - kf.wyv * 900 * SF_PXM * cam.zoom * SF_TILT ];
+      // front midpoint for the gradient aim
+      const fm = pts[Math.floor(pts.length / 2)];
+      // fog band polygon: modulated front + closure pushed far upwind
+      const path = () => {
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        const pe = pts[pts.length - 1];
+        ctx.lineTo(pe[0] - kf.wxv * 4000, pe[1] - kf.wyv * 4000);
+        ctx.lineTo(pts[0][0] - kf.wxv * 4000, pts[0][1] - kf.wyv * 4000);
+        ctx.closePath();
+      };
+      // the tongue's own cast shade on the ground beneath
+      const sg2 = ctx.createLinearGradient(up[0], up[1], fm[0], fm[1]);
       sg2.addColorStop(0, `rgba(52,66,90,${0.18 + karlK * 0.46})`);
       sg2.addColorStop(0.8, `rgba(52,66,90,${0.09 + karlK * 0.22})`);
       sg2.addColorStop(1, 'rgba(52,66,90,0)');
-      ctx.fillStyle = sg2;
-      ctx.beginPath();
-      ctx.moveTo(pts[0][0], pts[0][1]);
-      for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = sg2; path(); ctx.fill();
+      // the fog body: dense milky deck upwind, thinning at the fingers
       const kg = ctx.createLinearGradient(up[0], up[1],
-                                          fmx + (fmx - up[0]) * 0.25,
-                                          fmy + (fmy - up[1]) * 0.25);
+                                          fm[0] + (fm[0] - up[0]) * 0.25,
+                                          fm[1] + (fm[1] - up[1]) * 0.25);
       kg.addColorStop(0, `rgba(230,236,243,${0.34 + karlK * 0.55})`);
       kg.addColorStop(0.75, `rgba(228,234,240,${0.16 + karlK * 0.34})`);
       kg.addColorStop(1, 'rgba(228,234,240,0)');
-      ctx.fillStyle = kg;
-      ctx.beginPath();
-      ctx.moveTo(pts[0][0], pts[0][1]);
-      for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-      ctx.closePath(); ctx.fill();
-      // ragged leading edge: soft lobes spaced along the front line,
-      // creeping downwind on the gust envelope
-      const segLen = Math.hypot(fb[0] - fa[0], fb[1] - fa[1]);
-      const nb = Math.max(4, Math.min(14, Math.round(segLen / 90)));
-      const tx = (fb[0] - fa[0]) / (segLen || 1),
-            ty = (fb[1] - fa[1]) / (segLen || 1),
-            nx = -ty, ny = tx;                        // screen normal
-      const push = SF_WX.gust * 14;
-      for(let k = 0; k < nb; k++){
-        const u = (k + 0.5) / nb;
-        const jx = (phash(k, 72, 3861) - 0.5) * segLen / nb * 0.9;
-        const jy = (phash(k, 73, 3862) - 0.5) * 60 +
-                   Math.sin(SF_WX.t * 0.21 + k * 1.9) * 8 + push;
-        const bx = fa[0] + (fb[0] - fa[0]) * u + tx * jx + nx * jy;
-        const by = fa[1] + (fb[1] - fa[1]) * u + ty * jx + ny * jy;
-        const rr = (60 + phash(k, 74, 3863) * 80) * (0.6 + cam.zoom);
+      ctx.fillStyle = kg; path(); ctx.fill();
+      /* billow lobes ON the polyline: each fingertip of the canyon front
+         gets its own soft dome — the fog reads as separate pouring
+         fingers, not one smeared wall. Lobes ride the breathing front. */
+      const step = Math.max(2, Math.floor(pts.length / 14));
+      for(let k = 0; k < pts.length; k += step){
+        const bx = pts[k][0], by = pts[k][1];
+        const rr = (52 + phash(k, 74, 3863) * 70) * (0.6 + cam.zoom);
         const rg = ctx.createRadialGradient(bx, by, 0, bx, by, rr);
-        rg.addColorStop(0, `rgba(232,238,244,${karlK * 0.55})`);
-        rg.addColorStop(0.62, `rgba(230,236,242,${karlK * 0.34})`);
+        rg.addColorStop(0, `rgba(232,238,244,${karlK * 0.5})`);
+        rg.addColorStop(0.62, `rgba(230,236,242,${karlK * 0.3})`);
         rg.addColorStop(1, 'rgba(230,236,242,0)');
         ctx.fillStyle = rg;
         ctx.beginPath(); ctx.arc(bx, by, rr, 0, Math.PI * 2); ctx.fill();
-        // sunlit crown: the top of each billow catches the real sun while
-        // the deck's underside shades the ground — warm rim on the sun side
+        // sunlit crown on the sunward shoulder of each billow
         const hx = bx - SF_SUN.toX * rr * 0.4,
               hy = by - SF_SUN.toY * rr * 0.4 * SF_TILT;
         const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, rr * 0.6);
@@ -27269,6 +27325,48 @@ function sfRenderWorld(cw, ch){
         hg.addColorStop(1, 'rgba(255,240,214,0)');
         ctx.fillStyle = hg;
         ctx.beginPath(); ctx.arc(hx, hy, rr * 0.6, 0, Math.PI * 2); ctx.fill();
+      }
+      const wrot0 = Math.atan2(Math.sin(W.windAng) * SF_TILT, Math.cos(W.windAng));
+      /* deck veins: the sheet's interior isn't uniform — gravity
+         currents hugging the same street corridors carve slightly
+         clearer lanes just behind the front, so the fog reads as
+         FLOWING down the grid, not parked on it */
+      for(let i = 1; i < kf.N; i += 2){
+        const v = kf.vs[i], u0 = sfKarlDepthAt(v) - 85;
+        const bx = (kf.wxv * u0 + kf.nxv * v) * SF_PXM,
+              by = (kf.wyv * u0 + kf.nyv * v) * SF_PXM;
+        const sx = (bx - cam.x) * cam.zoom + cw / 2, sy = sfSY(by, ch);
+        const len = (90 + phash(i, 95, 5204) * 140) * SF_PXM * cam.zoom;
+        if(sx + len < 0 || sx - len > cw || sy + len < 0 || sy - len > ch) continue;
+        const vg = ctx.createRadialGradient(sx, sy, 0, sx, sy, len);
+        vg.addColorStop(0, `rgba(196,206,220,${karlK * 0.26})`);
+        vg.addColorStop(1, 'rgba(196,206,220,0)');
+        ctx.fillStyle = vg;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, len, len * 0.13 * SF_TILT + 3, wrot0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      /* tendril leaks: where the canyon probe found a real street, thin
+         streamers of fog run ahead of the front down the corridor —
+         the first wisps a Mission resident actually sees coming */
+      let leaks = 0;
+      for(let i = 0; i <= kf.N && leaks < 9; i++){
+        if(kf.cf[i] < 0.42 || phash(i, 93, 5202) < 0.30) continue;
+        leaks++;
+        const v = kf.vs[i], u0 = sfKarlDepthAt(v);
+        const drift = (SF_WX.gust * 30 + Math.sin(SF_WX.t * 0.4 + i) * 8);
+        const bx = (kf.wxv * (u0 + 60 + drift) + kf.nxv * v) * SF_PXM,
+              by = (kf.wyv * (u0 + 60 + drift) + kf.nyv * v) * SF_PXM;
+        const sx = (bx - cam.x) * cam.zoom + cw / 2, sy = sfSY(by, ch);
+        const len = (70 + phash(i, 94, 5203) * 120) * SF_PXM * cam.zoom;
+        if(sx + len < 0 || sx - len > cw || sy + len < 0 || sy - len > ch) continue;
+        const tg = ctx.createRadialGradient(sx, sy, 0, sx, sy, len);
+        tg.addColorStop(0, `rgba(228,234,241,${karlK * 0.30})`);
+        tg.addColorStop(1, 'rgba(228,234,241,0)');
+        ctx.fillStyle = tg;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, len, len * 0.16 * SF_TILT + 4, wrot0, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
   }
@@ -29510,26 +29608,41 @@ function sfRenderStreet(cw, ch){
       }
       ctx.lineCap = 'butt';
     }
-    // v7: crepuscular sun shafts — translucent light wedges fanning down
-    // from the sun disc whenever it hangs in front of the camera
+    // v7+v50: crepuscular sun shafts — the v7 hard arc wedges read as
+    // glitch triangles whenever the disc sat off-frame (art-feedback).
+    // v50 rebuilds them as volumetric light LANES: each lane is a chain
+    // of overlapping radial-gradient billows descending along its ray,
+    // warm late-afternoon tone, thinning with distance from the disc.
+    // Every boundary is a gradient falloff — no polygon edges at all.
     if(sunFwd > 0.15 && W.rain < 0.4 && cover < 0.8){
       const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
       const sy3 = horizon - sunUp * F * 0.72;
-      // v47: brighter, wider fan — the sunbreak lanes overhead are real
-      // openings in the deck, so the shafts that drop through them carry
-      // more light and wander slowly with the gaps
-      const shaftA = 0.10 * (1 - cover * 0.55);
-      ctx.save();
-      ctx.translate(sx3, sy3);
-      ctx.fillStyle = `rgba(255,246,214,${shaftA})`;
+      // v47 physics kept: sunbreak lanes overhead are real gaps in the
+      // deck, so lane strength follows cover and drifts with the gaps
+      const shaftA = 0.16 * (1 - cover * 0.55);
       for(let k = 0; k < 7; k++){
         const ang = 0.42 + k * 0.24 + Math.sin(SF_WX.t * 0.2 + k) * 0.03;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, F * 1.15, ang, ang + 0.11);
-        ctx.closePath(); ctx.fill();
+        const dx = Math.cos(ang), dy = Math.sin(ang);
+        const laneA = shaftA * (0.45 + phash(k, 96, 5301) * 0.75);
+        for(let s = 0; s < 7; s++){
+          const t = 0.10 + s * 0.15;                  // fraction along the ray
+          const bx = sx3 + dx * F * 1.1 * t,
+                by = sy3 + dy * F * 1.1 * t;
+          if(bx < -F || bx > cw + F || by > ch + 40) break;
+          const rad = (0.020 + t * 0.085) * F *
+                      (0.75 + phash(k * 7 + s, 97, 5302) * 0.5);
+          const a = laneA * (1 - t * 0.72);
+          if(a < 0.004 || rad < 3) continue;
+          const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
+          g.addColorStop(0, `rgba(255,238,196,${a})`);
+          g.addColorStop(0.55, `rgba(255,234,186,${a * 0.5})`);
+          g.addColorStop(1, 'rgba(255,232,180,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.ellipse(bx, by, rad, rad * 0.42, ang, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
-      ctx.restore();
     }
     // v7: stratus deck — when the marine layer wins, the whole sky greys out
     if(cover > 0.55){
@@ -29777,6 +29890,15 @@ function sfRenderStreet(cw, ch){
   const qP = (style, p1, p2, p3, p4) => {
     let s = fills.get(style);
     if(!s){ s = []; fills.set(style, s); }
+    // v50: same horizon/guard clamps as the base quad — a curb lip or
+    // riser crossing the near plane or riding above the horizon shears
+    // into the same sky wedge otherwise
+    const XLQ = Math.max(cw, ch) * 6;
+    for(const p of [p1, p2, p3, p4]){
+      if(p[1] < horizon) p[1] = horizon;
+      if(p[0] > XLQ) p[0] = XLQ; else if(p[0] < -XLQ) p[0] = -XLQ;
+      if(p[1] > XLQ) p[1] = XLQ;
+    }
     s.push(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
   };
   const FAR_D = 130;
@@ -29791,6 +29913,18 @@ function sfRenderStreet(cw, ch){
     const p1 = pr(wxm, wym, e1), p2 = pr(wxm + c, wym, e2),
           p3 = pr(wxm + c, wym + c, e3), p4 = pr(wxm, wym + c, e4);
     if(!p1 || !p2 || !p3 || !p4) continue;
+    /* v50: near-field gate — a cell whose nearest corner sits within the
+       hidden under-lens distance (closer than the ground the frame's own
+       bottom edge can resolve) projects that corner to tens of thousands
+       of px and the quad shears into a giant wedge smeared across the
+       SKY (art-feedback v49-D; worst in director mode, where near cells
+       on the uphill side rise above the horizon line). Dropping it loses
+       nothing the lens could have shown. */
+    {
+      const fN = camH * F / Math.max(1, ch - horizon) * 0.55;
+      if(Math.min(p1[2], p2[2], p3[2], p4[2]) < Math.max(1.2, fN))
+        continue;
+    }
     P[0] = p1[0]; P[1] = p1[1]; P[2] = p2[0]; P[3] = p2[1];
     P[4] = p3[0]; P[5] = p3[1]; P[6] = p4[0]; P[7] = p4[1];
     // slab top: pr() is linear in z — top corner = z0 corner lifted by gz*F/fwd
@@ -29801,6 +29935,21 @@ function sfRenderStreet(cw, ch){
       P[10] = P[2]; P[11] = P[3] - gz * F / p2[2];
       P[12] = P[4]; P[13] = P[5] - gz * F / p3[2];
       P[14] = P[6]; P[15] = P[7] - gz * F / p4[2];
+    }
+    /* v50: horizon guard — the diorama has no terrain mesh, so a ground
+       cell on a hill higher than the lens (or straddling the near plane)
+       projects ABOVE the horizon line as a hard slate wedge fanned over
+       the sky (art-feedback v49-D). The skyline pass owns everything
+       above the horizon: pin the quad's top edge to it, which reads as
+       a clean ridge silhouette instead of floating triangles. Corners
+       also clamp to a guard box so a near-plane blowup can't smear a
+       100k-px triangle across the frame. */
+    {
+      const XLQ = Math.max(cw, ch) * 6;
+      for(let qi = 0; qi < (gz ? 16 : 8); qi++){
+        if(qi & 1){ if(P[qi] < horizon) P[qi] = horizon; }
+        if(P[qi] > XLQ) P[qi] = XLQ; else if(P[qi] < -XLQ) P[qi] = -XLQ;
+      }
     }
     const ovr = ovrN.get(gy * SF_M.gw + gx);
     const qb = Math.round(sfHazeA(cfwd) * 24);
@@ -30149,16 +30298,41 @@ function sfRenderStreet(cw, ch){
                           0.02 + sfElevM(ax + ox, ay + oy));
             if(base[e + 4] === false || base[e + 6] === false ||
                !q3 || !q4) continue;
-            ctx.moveTo(base[e + 4], base[e + 5]);
-            ctx.lineTo(base[e + 6], base[e + 7]);
+            /* v50: horizon/guard clamp — a displaced shadow tip that
+               lands near the camera film plane projects to tens of
+               thousands of px, turning one quad into a giant dark wedge
+               smeared across the sky (art-feedback v49-D). Shadow
+               sweeps lie ON the ground, so the same rule as the ground
+               pass applies: nothing below the skyline — pin stray
+               vertices to the horizon and bound them to a guard box. */
+            const XL = Math.max(cw, ch) * 5;
+            const gc = (p, bi) => {
+              if(p[1] < horizon) p[1] = horizon;
+              if(p[0] > XL) p[0] = XL; else if(p[0] < -XL) p[0] = -XL;
+              if(p[1] > XL) p[1] = XL;
+              if(bi !== undefined){ base[bi] = p[0]; base[bi + 1] = p[1]; }
+            };
+            const b1 = [base[e + 4], base[e + 5]],
+                  b2 = [base[e + 6], base[e + 7]];
+            gc(b1, e + 4); gc(b2, e + 6); gc(q3); gc(q4);
+            ctx.moveTo(b1[0], b1[1]);
+            ctx.lineTo(b2[0], b2[1]);
             ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]);
             ctx.closePath();
           }
           // displaced cap fills the silhouette interior past the far edge
           let st = false;
+          const XL2 = Math.max(cw, ch) * 5, capPts = [];
           for(const q of P2){
             const qx = q[0] + ox, qy = q[1] + oy;
             const p = pr(qx, qy, 0.02 + sfElevM(qx, qy));
+            if(!p){ capPts.push(null); continue; }
+            if(p[1] < horizon) p[1] = horizon;
+            if(p[0] > XL2) p[0] = XL2; else if(p[0] < -XL2) p[0] = -XL2;
+            if(p[1] > XL2) p[1] = XL2;
+            capPts.push(p);
+          }
+          for(const p of capPts){
             if(!p){ st = false; continue; }
             st ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
             st = true;
