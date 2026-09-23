@@ -43,6 +43,18 @@ else
   ok "seo audit: $SEOLINE"
 fi
 
+# ── 1c. Brand audit (asset/palette/icon parity + site-copy language lint) ──
+echo "[1c] brand audit"
+BR=$(./tools/brand_audit.py 2>&1)
+echo "$BR" | grep -E '^\s*FAIL' || true
+BRLINE=$(echo "$BR" | tail -1)
+echo "       $BRLINE"
+if echo "$BRLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "brand audit has failures (above)"
+else
+  ok "brand audit: $BRLINE"
+fi
+
 # ── 2. Secret scan — nothing key-shaped may ship in the static site ──
 echo "[2] secret scan (site/ + deploy/)"
 SECRETS=0

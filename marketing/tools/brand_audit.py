@@ -10,6 +10,12 @@ Checks:
   4. press-kit/logos copies are byte-identical to the site/assets masters.
   5. Every site/*.html page links the full icon set: favicon.svg,
      favicon-32.png, apple-touch-icon.png, site.webmanifest, mask-icon.
+  6. Site-copy language lint — the mechanical subset of BRAND.md §2 (naming),
+     §4 (voice bans), and §10 (accuracy guardrails) applied to every
+     site/*.html page: banned product-name forms, hype words, real SF
+     business names (parody-only rule), unambiguous control claims, and
+     cut-feature promises. brand.html is exempt — it quotes banned forms
+     deliberately in the "Never" row.
 
 Exit 0 = clean, 1 = failures. Warnings print but don't fail.
 Run: python3 marketing/tools/brand_audit.py
@@ -45,6 +51,67 @@ def ok(msg):
 
 def sha(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
+
+
+# ── Check 6 tables (BRAND.md §2/§4/§10 in lint form) ──────────────────────
+# Keep synced with BRAND.md and with tools/social_check.py, which applies
+# the same bans to social drafts.
+
+# §2 naming — banned product-name forms. Case-sensitive on purpose:
+# the placeholder domain "realworld-game.example" and lowercase
+# data-rw-* hooks are legitimate and stay untouched.
+BANNED_NAMING = [
+    (re.compile(r"\bThe Real World\b"),
+     '"The Real World" — leading "The" is banned (MTV trademark collision)'),
+    (re.compile(r"\bRealWorld\b"),
+     '"RealWorld" — the product is always two words'),
+    (re.compile(r"(?<![-\w])RW(?![-\w])"),
+     '"RW" — the abbreviation is banned; write "Real World"'),
+]
+
+# §4 voice — hype words that must never appear in shipped copy.
+BANNED_VOICE = [
+    r"\brevolutionary\b", r"\bimmersive\b", r"\bgroundbreaking\b",
+    r"\bnext[- ]gen\b", r"\bgame[- ]changer\b", r"\bAI-powered\b",
+]
+
+# §10 — famous real Mission/SF businesses (parody names only).
+# Synced with social_check.py / world/businesses.md parody targets.
+REAL_BUSINESSES = [
+    "Philz", "Tartine", "La Taqueria", "Bi-Rite", "Ritual Coffee",
+    "Four Barrel", "Delfina", "Foreign Cinema", "Mission Chinese",
+    "El Farolito", "Trick Dog", "Papalote", "Puerto Alegre",
+    "Pancho Villa", "Taqueria Cancun", "Gracias Madre", "Precita Eyes",
+    "La Victoria", "Arinell", "Dolores Park Cafe",
+]
+
+# §10 — only unambiguous control claims; legitimate copy says
+# "can't be possessed by anyone", "possess your resident", "Can I
+# possess the main characters? (No.)" — none of these patterns match those.
+CONTROL_CLAIMS = [
+    r"\bpossess anyone\b", r"\bcontrol anyone\b", r"\btake control of\b",
+    r"\bplay as any\b", r"\bbe anyone\b",
+]
+
+# §10 — cut features / banned monetization promises. These legitimately
+# appear in NEGATED or QUESTION copy ("No loot boxes", "Can I cash out?
+# (No.)", "the rule that blocks trading, cash-out…") — that copy is core
+# brand honesty, so a match only fails when no negation/question cue sits
+# nearby (70 chars before, 90 after — covers "not for sale" table cells
+# and "No …" card bodies following a heading).
+CUT_FEATURES = [
+    r"\bvoice (chat|acting)\b", r"\bTTS\b", r"\btext-to-speech\b",
+    r"\bcash[- ]?out\b", r"\breal money (out|earn|payout)\b",
+    r"\bloot ?box", r"\bplay[- ]to[- ]earn\b", r"\bNFT\b",
+]
+NEGATION_CUE = re.compile(
+    r"\b(no|never|not|n't|none|nor|without|blocks?|aren't|isn't|don't|"
+    r"can't|won't|off-limits|than)\b|\bcan i\b|\bare there\b|"
+    r"\bis (this|it|there)\b", re.I)
+
+# brand.html quotes banned forms deliberately ("Never" row, boilerplate
+# examples). Every other page is held to the lint.
+LINT_EXEMPT = {"brand.html"}
 
 
 def main():
@@ -114,6 +181,39 @@ def main():
             fail(f"{rel} missing icon links: {', '.join(missing)}")
         else:
             ok(f"{rel} links full icon set")
+
+    # 6. site-copy language lint (BRAND.md §2/§4/§10, mechanical subset)
+    pages = [p for p in sorted(glob.glob(os.path.join(SITE, "*.html")))
+             if os.path.basename(p) not in LINT_EXEMPT]
+    hits = 0
+    for page in pages:
+        html = open(page).read()
+        rel = os.path.relpath(page, SITE)
+        for rx, why in BANNED_NAMING:
+            for m in rx.finditer(html):
+                hits += 1
+                fail(f"{rel}: banned naming {m.group(0)!r} — {why}")
+        for pat in BANNED_VOICE + CONTROL_CLAIMS:
+            for m in re.finditer(pat, html, re.I):
+                hits += 1
+                fail(f"{rel}: banned language /{pat}/ "
+                     f"({m.group(0)!r}) — BRAND.md §4/§10")
+        for pat in CUT_FEATURES:
+            for m in re.finditer(pat, html, re.I):
+                window = html[max(0, m.start() - 70):m.start()] + \
+                         html[m.end():m.end() + 90]
+                if NEGATION_CUE.search(window):
+                    continue
+                hits += 1
+                fail(f"{rel}: cut-feature mention /{pat}/ "
+                     f"({m.group(0)!r}) without negation — BRAND.md §10")
+        for biz in REAL_BUSINESSES:
+            if re.search(r"\b" + re.escape(biz) + r"\b", html):
+                hits += 1
+                fail(f"{rel}: real SF business {biz!r} — parody names only")
+    if hits == 0:
+        ok(f"language lint clean across {len(pages)} pages "
+           f"(exempt: {', '.join(sorted(LINT_EXEMPT))})")
 
     print(f"\n{len(fails)} fail / {len(warns)} warn")
     sys.exit(1 if fails else 0)

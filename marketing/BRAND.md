@@ -1,6 +1,6 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v55 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+**Version:** v70 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
 The public-facing subset of this file now ships as `site/brand.html` (the
 brand book page) — keep the two in sync when rules change.
 **Scope:** positioning, naming, voice, palette, type, logo system, art direction,
@@ -61,6 +61,19 @@ Auerbach Hardware, Buy-Rite Market, The 600 Club, …). Prefer canonical names
 over generic descriptors in all new copy; site and social drafts were swept
 to them in v22/v27. Real street/landmark names (Dolores Park, Valencia St)
 are allowed and encouraged.
+
+**Product surfaces** also have canonical names — unlike the product, these
+*do* take a leading "The":
+
+| Form | Use |
+|---|---|
+| **The Wire** | The live spectator feed surface (`wire.html`). Never "the feed page", never "Real World Wire". Lowercase "the wire" is acceptable inside a sentence after first mention. |
+| **The Archive** | The public history browser (`wire-archive.html`; `archive.html` is its marketing page). Never "the history page". |
+| **the block** | The neighborhood itself, in voice. Lowercase, no capitals — it's how neighbors talk, not a trademark. |
+
+These names are owned by the world track's app shells; marketing copy uses
+them verbatim and never coins new surface names without a world-track
+artifact to point at.
 
 ---
 
@@ -406,8 +419,11 @@ When a commissioned key-art piece replaces the dev-capture art:
   `site/assets/brand-tokens.json` (machine-readable source for
   `css/tokens.css` via `tools/make_tokens.py`), and
   `tools/make_brand_assets.py` — change all four together.
-  `tools/brand_audit.py` enforces parity mechanically: run it after any
-  brand change (exit 0 = clean).
+  `tools/brand_audit.py` enforces parity mechanically — plus a site-copy
+  language lint (check 6: §2 naming forms, §4 hype bans, §10 real-business
+  and control/cut-feature claims, negation-aware) — and runs inside
+  `tools/preflight.sh` step 1c. Run it after any brand change (exit 0 =
+  clean).
 - New taglines/claims need a line citing the design doc section that permits
   them.
 - Every shipped page/post is accountable to §10. The dry-run script checks
