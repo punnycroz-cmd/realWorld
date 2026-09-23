@@ -1024,3 +1024,502 @@ invented, but it cannot be *defended against and then unleashed*.
 - The valence paradox is the cleanest part: three dissociable
   channels with sign-locked probes; if P170 fails, suspect a
   channel mix-up before touching magnitudes.
+
+---
+---
+
+# PART III (v30) — the passive channels: distortion nobody commits
+
+**Scope:** Parts I–II covered what *accounts and interrogators* do to a
+record. Part III covers the channels where the distortion is generated
+by the rememberer's own ordinary acts — describing, recognizing,
+confusing similar episodes, glancing at a photo — plus three
+refinements that sharpen the calibration: the reactivation window,
+the phantom-recollection/familiarity split, and the
+central-peripheral gradient with real numbers.
+
+## 26. Verbal overshadowing — describing it corrupts it
+
+- **Schooler & Engstler-Schooler 1990** (Cognitive Psychology):
+  witnesses who wrote a face description were **25% worse** at later
+  lineup identification than controls who listed capitals. Registered
+  Replication Report (Alogna et al. 2014, 31+22 labs): the effect is
+  robust but timing-conditional — **−4%** correct-ID when description
+  immediately followed the event, **−16%** when description was
+  delayed 20 min and sat just before the test. Overshadowing is
+  *proximal*: the verbal description is freshest at test and
+  outcompetes the perceptual trace.
+- **Meissner & Brigham 2001 meta** (29 effects, N=2018): Zr = −0.12 —
+  small, real, worst under *elaborative* description instructions.
+  Verbalization does not merely fail to help; the generated
+  description **becomes a competing representation** — witnesses
+  identify the face they *described*, not the face they saw (the
+  description captures whatever confabulated features the teller
+  added, §6.2 machinery).
+- Mechanism consensus (recoding/interference account, Schooler 2002;
+  transfer-inappropriate processing): verbal description forces a
+  low-precision verbal code over a high-precision perceptual one; at
+  test the verbal code wins the retrieval competition. Applies to
+  hard-to-verbalize content: faces, colors, spatial layout, taste —
+  NOT to already-verbal content (names, numbers, plots), where
+  retell normally *helps* (testing effect stays, §4.11).
+
+**[CONSENSUS effect, modest; RRR timing gradient solid]**
+
+**Spec consequence (new §6.25):** `retell` (§6.11) gains a
+`verbalize:true` mode for records dominated by nonverbal fields —
+describing a face, a room, a scene to someone:
+
+```
+on retell(verbalize) of record m where nonverbal field mass > 0.5:
+    write a candidate into each verbalized field:
+        value = the emitted description (with normal §6.2 fills),
+        provenance:"claimed", candStrength = vo_cand (0.5)
+    the description candidate is CONTENT-FREE of the visual original —
+        it wins later retrievals by recency (it is fresh), producing
+        the RRR timing gradient for free: identification minutes
+        after describing is hardest-hit (vo decay is verbatim-rate)
+    nonverbal fields' verbatim decay ×= (1 + vo_loss)   // ~0.15,
+        one shot per verbalize, not per word
+    verbalizable fields unaffected — retell boost applies normally
+identification calls (§5.10 cascade) reading a recently-verbalized
+    person record sample from candidates ∝ candStrength — the
+    described-face candidate often wins (the witness "recognizes"
+    their own words)
+```
+
+RW hook: a character who gives a detailed description of a stranger
+to a friend measurably *degrades* her ability to pick him out next
+week — and the degradation is in the description's direction.
+
+## 27. Unconscious transference — the familiar face migrates
+
+- **Loftus 1976** ("Unconscious transference"): a bystander seen in
+  an innocent context is later misidentified as the perpetrator.
+  **Ross, Ceci, Dunning & Toglia 1994** (J. Applied Psych.):
+  transference-condition witnesses were **nearly 3×** more likely to
+  misidentify the innocent bystander than controls; most
+  misidentifiers had *inferred* the bystander and culprit were the
+  same person; telling them explicitly they were different people
+  eliminated the effect.
+- Real-world stakes: mistaken eyewitness ID contributed to ~69–75%
+  of US DNA exonerations (Innocence Project; Gross & Shaffer
+  registry analysis 76% of 873).
+- **DEBATED boundary:** Read et al. 1990 five field studies found UT
+  only under narrow bystander-perpetrator similarity conditions —
+  the *familiarity* account is contested; some misIDs are inference,
+  not familiarity confusion (Ross's "conscious inference" subjects).
+  Both paths are modeled below.
+- **Own-group amplifier (ORB):** Meissner & Brigham 2001 meta
+  (39 articles, ~5000 participants): own-race faces 1.40× more
+  hits, 1.56× fewer false alarms than other-race; effect grows
+  with retention interval; robust in the 2022 three-level
+  re-meta (159 articles). Generalizes beyond race: any
+  identity-category the perceiver differentiates poorly (age band,
+  subculture, uniform) compresses within-category discrimination.
+
+**[CONSENSUS on ORB magnitudes; UT itself CONSENSUS-as-phenomenon,
+DEBATED-as-mechanism]**
+
+**Spec consequence (new §6.26):** person-fields of records get a
+*transplant* path — a high-familiarity person drifts into a role
+they never held:
+
+```
+on reconstruct of m, for each person-slot whose verbatim candidate
+    died (no surviving witnessed candidate):
+    candidates P over known persons, weight ∝
+        PersonModel[p].familiarity · simOp(cueContext_of_slot,
+        contexts where p was actually seen, "sim_person")
+        · (p shares categoryTags with slot's stereotype ?
+           (ingroup(p) ? 1 : 1 + orb_gain) : cat_resist)
+    P(transplant) = transplant_gain (0.1) · top weight
+                    · (1 + react... no: · discrim_mult)   // older
+                    // adults transplant more (source decay)
+    transplanted person gets provenance:"inferred" candidate —
+    emits as confident "he was there"; §6.20 corroboration can
+    push it to fact
+explicit-inoculation path: if told "the regular wasn't there",
+    the inferred candidate takes warn_mult — the ONLY transplant
+    defense, matching Ross et al.'s elimination result
+```
+
+`orb_gain` ≈ 0.5 on outgroup-vs-perceiver category tags; ingroup is
+the reference. The character who "definitely saw the new barista at
+the scene" because the barista is the only unfamiliar-category face
+they know — that's transference, not lying.
+
+## 28. Memory conjunction errors — two true episodes, one false detail
+
+- **Reinitz, Lammers & Cochran 1992** (M&C): subjects false-alarm to
+  *conjunction* stimuli (features recombined across two studied
+  items) far more than to *feature* lures — stored features retain
+  independence and recombine. Robust across words, pseudowords,
+  faces, sentences.
+- **Odegard & Lampinen 2004** (Memory, two diary studies):
+  conjunction errors occur for **autobiographical events** — and
+  participants gave "remember" judgments to a large share. This is
+  the ecological version: two real days at the café recombine into
+  one that never happened, *with* recollective feel.
+- Proximity/attention switching: simultaneous or alternating
+  attention to two items drives miscombination (Reinitz & Hannigan
+  2001); older adults produce MORE conjunction errors with preserved
+  "remember" phenomenology (Reinitz et al. 1994; Burt et al. 2004).
+
+**[CONSENSUS]**
+
+**Spec consequence (new §6.27):** cross-record candidate migration —
+distinct from §4.3 genericization (records merge and die) and §6.2
+confab fill (schema supplies the value). Here a *specific detail
+from a real sibling record* is transplanted while both records
+survive:
+
+```
+daily, for record pairs (a,b) with simOp(a,b,"sim_interf") >
+    conj_thresh (0.65) — near-miss episodes (same place, same
+    people, different day):
+for each field populated in a but empty/decayed in b:
+    P(migrate) = conj_migrate_p (0.05) · discrim_mult
+                 · (encoded same week ? 1.5 : 1)   // proximity
+    if migrate: b gains candidate {value: a's value,
+        candStrength: 0.5·a's candStrength,
+        provenance:"inferred", day: worldDay}
+accuracy bookkeeping: migrated candidates are TRUE facts in the
+    WRONG episode — hidden accuracy penalizes b, not the fact;
+    both records persist (P288 checks coexistence)
+```
+
+The signature: "the broken glass was Tuesday" — the glass is real,
+Tuesday is real, the pairing is false. Distinctive and common.
+
+## 29. Boundary extension — remembering past the edges
+
+- **Intraub & Richardson 1989** (JEP:LMC): 95% of participants'
+  drawings of remembered photographs included content that would
+  plausibly have existed *just outside* the frame; at recognition,
+  extended-boundary distractors were mistaken for the originals —
+  scenes are remembered "wider" than seen.
+- All ages susceptible (Seamon et al. 2002: children, young and
+  older adults all show BE); preschoolers show *larger* BE at coarse
+  zoom levels (Intraub 2012 multisource model, developmental study);
+  older adults show equal or greater BE — it is a *preserved*
+  distortion, one of the few errors aging does not reduce.
+- Mechanism (multisource model, Intraub & Dickinson 2008): scene
+  representation bundles bottom-up input with top-down spatial
+  extrapolation; at test the extrapolated surround is
+  source-misattributed to vision — an internal-external source
+  error (same family as §6.10), committed at *encoding*, not just
+  retrieval.
+
+**[CONSENSUS]**
+
+**Spec consequence (new §6.28):** spatial/extent fields get a
+*directional* bias, not noise — the only distortion operator that
+systematically overshoots in one direction:
+
+```
+on encode: scene records' spatial/extent verbatim fields are born
+    already extended: stored extent = actual · (1 + be_gain),
+    be_gain ~0.12 (the surround was never seen but is stored as if
+    seen — BE is measurable within seconds)
+on reconstruct: no further pull — the extension was encoded
+recognition-style probes (does a depicted view match?): penalize
+    match score by |Δextent| as usual — extended originals reject
+    veridical copies as "closer than I remember" (the Intraub
+    asymmetry: same picture looks MORE zoomed at test)
+age: knots ×1.0 child ≈ ×1.0 adult → ×1.2 at 75 (preserved-to-
+    amplified; one of the few non-declining biases)
+```
+
+RW use: crowd sizes, room sizes, distances, "the whole street was
+watching" — every scene memory is a bit bigger than the scene.
+Cheap, always-on, invisible to the character.
+
+## 30. Denial backfire — "that is not true" plants "that"
+
+- **Skurnik, Yoon, Park & Schwarz 2005** (J. Consumer Research):
+  identifying a claim as *false* works short-term, but after a
+  **3-day delay** older adults misremembered denied claims as true —
+  and MORE repetition made it worse: **28%** false-as-true when the
+  denial was heard once, **40%** when heard three times. The denial
+  frame decays; the claim's familiarity does not. Younger adults
+  show the effect weaker and need the delay too.
+- The mechanism is source-memory loss plus the fluency→truth
+  inference (Jacoby 1999; familiarity without context reads as
+  truth) — i.e., it is §6.4 source decay applied to the *truth
+  frame itself*.
+- Parallel: negation processing — "the suspect did not wear red"
+  encodes the affirmed core ("red") plus a fragile negation tag
+  (Mayo, Schul & Burnstein 2004; Kaup); negative suggestions can be
+  as misleading as positive ones (Eakin et al. line; Lewandowsky et
+  al. 2010 note denials feed CIE too).
+
+**[CONSENSUS direction; magnitude single-cohort — replicate-flagged]**
+
+**Spec consequence (new §6.29):** `hearAccount` gains
+`negated:true` — denials, retractions-in-passing, "no honestly it
+wasn't him":
+
+```
+a negated account writes the AFFIRMED content as a candidate:
+    candStrength = neg_cand (0.35) · sourceCredibility
+                   · (1 + rep_gain·log1p(hearCount))  // repetition
+                                                     // backfires!
+                   · (1 + neg_age_gain·(age_eff>65))  // ~1.4 old
+    plus a tag: frame:"denied", frameStrength = 1.0
+frame decays at beta_source·neg_frame_mult (2.0) — the "denied"
+    wrapper dies ~2× faster than ordinary source tags
+at retrieval: if frame dead and the affirmed candidate survives,
+    believe_p computes as if affirmed — familiarity without the
+    "false" context reads as true (the Skurnik signature);
+    believe_p gets the w_fluency bump from hearCount either way
+immediate window: while frame alive, candidate is correctly read
+    as denied — denials DO work short-term (rate-locked P290)
+```
+
+Design consequence: a correction issued *once* protects; a denial
+repeated at every retelling is a slow-acting rumor. Matches §6.6 —
+CIE handles explicit corrections of REMEMBERED content; §6.29
+handles denials of content the listener may never have held.
+
+## 31. The reactivation window — recall opens the door to rumor
+
+- **Chan, Thomas & Bulevich 2009** (Psych. Sci.): an immediate cued
+  recall of a witnessed event **increased** later misinformation
+  acceptance — the "reversed testing effect," in both younger and
+  older adults. Two mechanisms: recall potentiated learning of the
+  subsequent misinformation, and the just-recalled details were
+  *preferentially* interfered with — consistent with a
+  reconsolidation window (Hupbach et al. 2007 episodic updating:
+  reactivation makes the trace labile).
+- **DEBATED direction:** testing sometimes protects (interim-test
+  literature; Potts & Shanks 2012 found testing reduced
+  suggestibility under their conditions; Chan, Wilford & Hughes
+  2012 — the moderators are whether the misinfo is *about tested
+  vs untested* material and whether recall was successful). The
+  robust core: recently-recalled DETAILS are the ones that absorb
+  contradiction — the door opens on exactly what you just said.
+
+**Spec consequence (§6.3 moderator):**
+
+```
+p_adopt additionally:
+  · (worldDay − m.lastRecallDay < react_window ? react_suscept_mult
+     : 1)                       // react_window ~0.5d (12h),
+                                // react_suscept_mult ~1.3
+  applies ONLY to fields that surfaced in that last recall —
+    untested details are not in the window (Chan et al. Exp 3 —
+    the lability is on the retrieved content)
+AGE-FLAT (Chan found it in both cohorts — cite-guarded null)
+```
+
+Consequence: the most dangerous moment to hear a rumor is right
+after telling your own version — a retelling is a vulnerability
+window, not just a strengthener. §5.9's reconsolidation machinery
+already destabilizes; this prices the exposure.
+
+## 32. Phantom recollection vs phantom familiarity
+
+- **Brainerd, Wright, Reyna & Mojardin 2001** (JEP:LMC, conjoint
+  recognition): false recognition of gist-consistent lures decomposes
+  into **familiarity** and **phantom recollection** — an illusory
+  *vivid* experience of the non-event — and phantom recollection is
+  the **larger** contributor. The 2022 conjoint-recognition
+  meta-analysis (537 datasets) confirms the dual-recollection
+  interpretation: gist retrieval can support recollective
+  phenomenology via "ersatz verbatim traces" assembled at retrieval.
+- Odegard & Lampinen 2004 (§28): conjunction errors carry
+  "remember" judgments — vivid falsity is not a lab artifact.
+
+**Spec consequence (amends §6.7/§6.8 output):** phantomized and
+conjunction-inherited content enters the derived pair through TWO
+gates instead of one:
+
+```
+phantom/inferred content with verbatim richness ≥ rm_rich_thresh:
+    feeds recollect_q AND believe_p — "remembered" vividly
+    (phantom recollection; prob of crossing = phantom_recoll
+     ≈ 0.35 given the gate is met — gist is strong but the
+     ersatz assembly doesn't always reach vivid)
+below the gate: feeds believe_p only — the false-but-felt-familiar
+    mode; the character says "sounds right" not "I see it"
+diagnostic for validation: false records should split into a
+    vivid-false cluster and a believed-unfelt cluster, not a
+    continuum (bimodality check, P292)
+```
+
+## 33. Central vs peripheral — the gradient quantified; dyads beat groups
+
+- **Dalton & Daneman 2006** (Memory): co-witness discussion —
+  peripheral misinformation accepted **82%**, central **35%**,
+  unmentioned central control **10%**; one-on-one discussion
+  acceptance **68%** vs group discussion **49%**. Central errors,
+  when they occur, carry *high* confidence (Ibabe & Sporer 2004:
+  "legally serious" — central misinformation that lands is believed
+  hard).
+- The gradient is attentional: central fields get stronger verbatim
+  (§2's attention weights already do this); peripheral fields are
+  born weak or unwritten, so `(1−fieldStrength)` ≈ 1 — §6.3's
+  per-field rule *already produces* a gradient. What's missing is
+  (a) the group-size moderation of §6.5 and (b) the confidence
+  asymmetry.
+
+**Spec consequence:**
+- §6.5 gains `group_damp` (0.75): conformity `p_adopt` on dyad
+  discussions is the reference; each additional discussant beyond 2
+  damps adoption multiplicatively (audience diffusion — more
+  witnesses = more potential disagreement = less per-source uptake;
+  68→49 over +2–4 people ≈ 0.75–0.85 per extra).
+- §3 confidence note: adopted candidates on *central* fields inherit
+  higher emitted confidence than peripheral adoptees (+conf
+  ≈ 0.1) — wrong-but-central is confidently wrong.
+- No new param for the gradient itself — it is emergent from
+  fieldStrength; P293 is the quantification check (target band:
+  peripheral adoption ≈ 2–3× central under matched accounts).
+
+## 34. Truthiness — dressing that isn't evidence
+
+- **Newman, Garry, Bernstein, Kantner & Lindsay 2012** (PBR):
+  a *nonprobative* photo — related to a claim but proving nothing —
+  raises truth ratings for the SAME claim in both directions
+  ("alive" AND "dead"); verbal dressing works identically;
+  generalizes to trivia claims. Effect = processing fluency read as
+  truth (Alter & Oppenheimer 2009).
+- Distinct from §16's `evid_boost`: evidence is *probative* —
+  depicts the claimed event itself (doctored photo of YOU there).
+  Truthiness is decorative — a photo of the place, an easy font, a
+  vivid adjective. Evidence bends plausibility; truthiness pumps
+  fluency directly.
+
+**Spec consequence (§6.7 believe_p + hearAccount):**
+
+```
+hearAccount gains `dressing:true` (nonprobative decoration — a
+    related image, fluent phrasing, a vivid detail off-claim):
+    corroboration += truthy_gain (0.1) for that account —
+    a pseudo-corroborator that counts like a weak second source
+    but ISN'T one (P295 checks dressing ≠ evidence: dressing does
+    NOT satisfy rm_rich_thresh, does NOT lift plaus)
+account phrased disfluently (hedged, awkward): fluency term ×0.85
+```
+
+RW: the rumor that comes with a photo of the *street* (not the
+event) spreads like it has a second witness. It doesn't.
+
+## 35. Spec changes in v3.0 (summary)
+
+- **§6.3** gains `react_window`/`react_suscept_mult` (retrieval-
+  restricted, §31) — AGE-FLAT.
+- **§6.5** gains `group_damp` per discussant >2 (Dalton & Daneman
+  68→49).
+- **New §6.25** verbal overshadowing (`vo_cand`, `vo_loss` — verbal
+  recodes compete; timing gradient emergent).
+- **New §6.26** unconscious transference (`transplant_gain`,
+  `orb_gain`, `cat_resist`; inoculation-by-informant path).
+- **New §6.27** conjunction migration (`conj_thresh`,
+  `conj_migrate_p`, proximity boost; discrim_mult-scaled).
+- **New §6.28** boundary extension (`be_gain` at ENCODE; age knots
+  ×1.2 at 75).
+- **New §6.29** denial backfire (`neg_cand`, `neg_frame_mult`,
+  `neg_age_gain`; frame-outlives-content inversion).
+- **New §6.30** phantom recollection split (`phantom_recoll`
+  vivid-gate crossing prob; bimodal false-memory output).
+- **§6.7/§10** `hearAccount` +`negated`/`dressing`/`groupSize`;
+  `retell` +`verbalize`; Reconstruction candidates may carry
+  `provenance:"inferred"` (transplant/conjunction — hidden like
+  phantom).
+- **§7** +16 params; knot updates: `be_gain` ×1.0→×1.2 at 75;
+  `neg_age_gain` old-side; `conj_migrate_p`/`transplant_gain` ride
+  `discrim_mult`; `react_suscept_mult`, `vo_*` declared AGE-FLAT
+  (cite-guarded).
+
+## 36. Parameter guidance and probes
+
+| param | default | meaning |
+|---|---|---|
+| vo_cand / vo_loss | 0.5 / 0.15 | description candidate strength + verbatim cost (§6.25) |
+| transplant_gain | 0.10 | familiar-person migration into dead person-slots (§6.26) |
+| orb_gain / cat_resist | 0.5 / 0.4 | outgroup-category transplant amplifier / cross-category resistance (§6.26) |
+| conj_thresh / conj_migrate_p | 0.65 / 0.05 | episode-pair gate + per-field migration rate (§6.27) |
+| be_gain | 0.12 | encoded spatial overshoot (§6.28) |
+| neg_cand / neg_frame_mult / neg_age_gain | 0.35 / 2.0 / 0.4 | affirmed-core candidate + frame-decay multiplier + old-age amplifier (§6.29) |
+| react_window / react_suscept_mult | 0.5d / 1.3 | post-recall susceptibility window (§6.3) |
+| phantom_recoll | 0.35 | vivid-gate crossing prob (§6.30) |
+| group_damp | 0.75 | per-extra-discussant conformity damping (§6.5) |
+| truthy_gain | 0.10 | nonprobative dressing corroboration (§6.7) |
+
+**Probes P286–P297** (extends registry P1–P285):
+
+- **P286 verbal overshadow (MUST — sign-locked):** verbalize-then-
+  identify minutes later identifies WORSE than no-description;
+  delay-inserted description hits harder than immediate (RRR
+  −4%/−16% ordering). FAIL if describing helps nonverbal ID.
+- **P287 transference (SHOULD):** dead person-slots fill with
+  high-familiarity cue-plausible persons at ~5–15%; an explicit
+  "he wasn't there" blocks (Ross elimination). Outgroup-category
+  persons transplant more than ingroup at matched familiarity.
+- **P288 conjunction (MUST):** two high-sim records swap a specific
+  field while BOTH records and the true values persist; migrated
+  candidate carries inferred provenance; old profile > young.
+- **P289 boundary extension (MUST — directional):** reconstructed
+  spatial extents overshoot (never systematically undershoot);
+  veridical scenes judged "closer than remembered."
+- **P290 denial backfire (MUST — rate-locked):** denied claim reads
+  denied at T+0, affirmed at T+3d in old profiles; 3× denial
+  outperforms 1× denial as a *planting* tool at delay (28→40
+  direction). FAIL if frame never dies or content never flips.
+- **P291 reactivation window (SHOULD):** account heard within
+  react_window of a recall adopts more on the just-recalled fields
+  than on unrecalled fields of the same record; outside window,
+  no boost. FAIL if boost is record-wide.
+- **P292 phantom bimodality (SHOULD):** phantomized records split
+  into vivid-recollect vs familiar-only clusters at ~35/65 given
+  gate met; not a continuum.
+- **P293 central-peripheral (MUST — quantified):** matched accounts
+  adopt ~2–3× more on peripheral than central fields; adopted
+  central errors carry higher confidence (Ibabe & Sporer).
+- **P294 dyad > group (SHOULD):** same misinfo in a 2-person vs
+  4-person discussion → dyadic adoption materially higher
+  (target ratio ≈ 68:49).
+- **P295 truthiness ≠ evidence (MUST):** dressed accounts raise
+  believe_p but never satisfy rm_rich_thresh or plaus — a
+  nonprobative photo cannot flip an imagined record to
+  "witnessed," only a probative one can.
+- **P296 transplant provenance audit (MUST — hidden):** all
+  transplanted/conjunction content keeps `inferred` provenance and
+  hidden accuracy bookkeeping; no path lets inferred provenance
+  relabel itself witnessed — only §6.9/§6.10 flip gates may.
+- **P297 portfolio anti-Goodhart (OBSERVE):** over a 30d free run, the
+  false-memory *rate* should decompose across ≥4 channels (misinfo,
+  phantom, transplant, conjunction, denial) — FAIL if one channel
+  produces >70% of false content (the system is a portfolio).
+
+## 37. Honest limits (Part III)
+
+- **Verbal overshadowing's applied size is genuinely uncertain** —
+  meta Zr=−0.12, RRR −4 to −16 points; we implement the mechanism
+  (verbal candidate competition) and let the size emerge, flag to
+  game-systems as tunable.
+- **UT's mechanism is contested** (Read et al. null-field results;
+  Ross's conscious-inference subjects). Our transplant op
+  implements the *outcome* — familiar people drift into episodes —
+  which both mechanisms produce; the familiarity-vs-inference split
+  is not modeled separately.
+- **Conjunction ecology:** diary-study rates exist but not clean
+  probabilities; conj_migrate_p is OBSERVE-tier.
+- **Denial backfire** is two experiments in one domain (consumer
+  claims); the 28→40 number is older-adults-only and single-cohort.
+  We implement the frame-decays-faster asymmetry — the mechanism is
+  on solid §6.4 ground even if the point estimates are thin.
+- **Reactivation susceptibility** is DEBATED-head-on (reversed
+  testing effect vs interim-test protection). We implement the
+  retrieval-restricted version — the claim both sides' data permit:
+  lability concentrates on the just-retrieved content.
+- **Phantom recollection's** conjoint-recognition parameter isn't a
+  probability we can port; phantom_recoll 0.35 is calibrated to
+  "larger contributor than familiarity" at strong gist — tunable.
+- BE is the one distortion that is *age-preserved and directional*;
+  it's also the only operator that writes distortion at encode
+  rather than retrieve — watch for double-counting with §2's
+  schema-driven encoding fills (P289's direction check is the
+  guard).

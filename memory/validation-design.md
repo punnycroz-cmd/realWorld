@@ -1651,3 +1651,78 @@ repair, weapon focus, recall→mood feedback, hot-cold report gaps.
   signature — the phenotype must distribute over ≥3 mechanisms.
 
 Registry now P1–P285; numbering stable.
+
+## 39. New probes P286–P297 (v30, false-memory III suite)
+
+Full spec of each probe is in `false-memory.md` §36; registry entries
+below. Suite exercises the v3.0 layer: verbal overshadowing, unconscious
+transference + outgroup amplifier, conjunction migration, boundary
+extension, denial backfire, reactivation susceptibility, phantom
+recollection bimodality, central-peripheral gradient, dyad>group
+conformity, truthiness.
+
+- **P286 verbal overshadow (MUST — sign-locked):** verbalize-then-
+  identify performs WORSE than no-description control; delayed-
+  adjacent description hits harder than immediate (RRR ordering).
+  FAIL if describing helps nonverbal identification.
+- **P287 transference (SHOULD):** dead person-slots fill with
+  familiar cue-plausible persons (~5–15%); explicit "wasn't there"
+  blocks; outgroup-category transplants > ingroup at matched
+  familiarity (ORB direction).
+- **P288 conjunction (MUST):** high-sim record pair swaps a field;
+  BOTH records and true values persist; migrated candidate keeps
+  `inferred` provenance; old > young.
+- **P289 boundary extension (MUST — direction-locked):** spatial
+  extents overshoot, never systematically undershoot; veridical
+  scene judged "closer than remembered."
+- **P290 denial backfire (MUST — rate-locked):** denied claim reads
+  denied at T+0, affirmed at T+3d in old profiles; 3× denial >
+  1× denial as planting tool at delay. FAIL if frame never dies.
+- **P291 reactivation window (SHOULD):** account inside react_window
+  of a recall adopts more on just-recalled fields than unrecalled
+  fields of the same record; no record-wide boost.
+- **P292 phantom bimodality (SHOULD):** phantomized records split
+  vivid-recollect vs familiar-only (~35/65 at gate); not a
+  continuum.
+- **P293 central-peripheral (MUST — quantified):** matched accounts
+  adopt ~2–3× more on peripheral than central; adopted central
+  errors emit higher confidence.
+- **P294 dyad > group (SHOULD):** same misinfo, 2- vs 4-person
+  discussion → dyadic adoption higher (target ≈ 68:49).
+- **P295 truthiness ≠ evidence (MUST):** dressing raises believe_p
+  but never satisfies rm_rich_thresh or plaus — nonprobative
+  dressing cannot flip imagined→witnessed.
+- **P296 provenance audit (MUST — hidden):** all transplant/
+  conjunction candidates keep `inferred`; no relabel-to-witnessed
+  path except §6.9/§6.10 flip gates.
+- **P297 false-memory portfolio (OBSERVE — anti-Goodhart):** over
+  30d free runs, false content decomposes across ≥4 channels
+  (misinfo/phantom/transplant/conjunction/denial); FAIL if any
+  channel produces >70%.
+
+Registry now P1–P297; numbering stable.
+
+### Sources new to this version
+
+Schooler & Engstler-Schooler 1990 (Cognitive Psychology 22:36–71);
+Meissner & Brigham 2001 (Appl. Cogn. Psych. 15:603–616, VO meta
+Zr=−0.12); Alogna et al. 2014 (Registered Replication Report,
+Persp. Psych. Sci. — −4%/−16% timing); Loftus 1976; Ross, Ceci,
+Dunning & Toglia 1994 (J. Applied Psych. 79:918–930); Read et al.
+1990 (UT field nulls); Meissner & Brigham 2001 (Psych. Pub. Pol.
+Law 7:3–35, ORB meta: 1.40× hits / 1.56× FA mirror); three-level
+ORB re-meta 2022 (Appl. Cogn. Psych., 159 articles); Innocence
+Project / Gross & Shaffer exoneration statistics (~69–76%);
+Reinitz, Lammers & Cochran 1992 (M&C); Odegard & Lampinen 2004
+(Memory — autobiographical conjunction); Reinitz & Hannigan 2001;
+Intraub & Richardson 1989 (JEP:LMC 15:179–187); Seamon et al. 2002;
+Intraub & Dickinson 2008 / Intraub 2012 multisource model; Skurnik,
+Yoon, Park & Schwarz 2005 (J. Consumer Research 31:713–724);
+Mayo, Schul & Burnstein 2004; Jacoby 1999; Chan, Thomas & Bulevich
+2009 (Psych. Sci. 20:66–73 — reversed testing effect); Potts &
+Shanks 2012 (opposing interim-test result); Brainerd, Wright,
+Reyna & Mojardin 2001 (JEP:LMC 27:307–327); Brainerd & Bialer /
+Chang 2022 conjoint-recognition meta (JEP:LMC, 537 datasets);
+Dalton & Daneman 2006 (Memory 14:486–501); Ibabe & Sporer 2004;
+Newman, Garry, Bernstein, Kantner & Lindsay 2012 (PBR 19:969–974);
+Alter & Oppenheimer 2009.

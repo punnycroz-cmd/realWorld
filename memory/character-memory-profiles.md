@@ -367,6 +367,22 @@ never copying raw.
 | nostalgia_gain | 0.0 | 0.3 | restorative pull, qualifying records (v2.9) |
 | hc_gap_loss | 0.0 | 0.6 | cold-state arousal-report compression (v2.9) |
 | hc_gap_thresh | 0.2 | 0.9 | mood−valence mismatch gate (v2.9) |
+| vo_cand | 0.2 | 0.8 | description candidate strength (v3.0, §6.25) |
+| vo_loss | 0.0 | 0.4 | nonverbal verbatim cost per describe (v3.0) |
+| transplant_gain | 0.0 | 0.3 | familiar-person slot-fill rate (v3.0) |
+| orb_gain | 0.0 | 1.0 | outgroup-category amplifier (v3.0) |
+| cat_resist | 0.1 | 0.8 | cross-category transplant resistance (v3.0) |
+| conj_thresh | 0.4 | 0.9 | episode-pair migration gate (v3.0) |
+| conj_migrate_p | 0.0 | 0.2 | per-field cross-episode migration (v3.0) |
+| be_gain | 0.0 | 0.3 | boundary-extension encode overshoot (v3.0) |
+| neg_cand | 0.1 | 0.7 | affirmed-core candidate from denial (v3.0) |
+| neg_frame_mult | 1.0 | 4.0 | denial-frame decay multiplier (v3.0) |
+| neg_age_gain | 0.0 | 1.0 | old-age denial amplifier >65 (v3.0) |
+| react_window | 0.1 | 2.0 | days; post-recall susceptibility (v3.0) |
+| react_suscept_mult | 1.0 | 2.0 | p_adopt boost inside window (v3.0) |
+| phantom_recoll | 0.0 | 0.7 | vivid-gate crossing prob (v3.0) |
+| group_damp | 0.5 | 1.0 | per-extra-discussant damping (v3.0) |
+| truthy_gain | 0.0 | 0.3 | nonprobative dressing corroboration (v3.0) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -1184,3 +1200,41 @@ variation enters through traits, records, and context instead:
 - **Deliberate nulls:** discrete-emotion multipliers, `emo_update_k`,
   `odor_*`, `anniv_*`, `wf_*` carry NO age knots (spec §7) — touching
   them breaks P274/P276/P277/P278/P281.
+
+## 18. v3.0 note — false-memory III: which dials are personality
+
+- **`transplant_gain`/`orb_gain`** — the one genuinely bible-relevant
+  dial this pass. A lifelong-Mission local (dense familiar-person
+  store, narrow category exposure) transplants MORE within his own
+  milieu and misidentifies MORE across unfamiliar categories —
+  `orb_gain` 0.5–0.9 for low-diversity bibles, 0.1–0.3 for a
+  cosmopolitan one. Do NOT pin `transplant_gain` by "gullibility" —
+  it rides `discrim_mult` and PersonModel density; a sociable
+  character transplants more because she KNOWS more people, not
+  because her knob is bigger.
+- **`conj_migrate_p`/`conj_thresh`** — machinery. Variation is
+  emergent (a creature-of-routine generates more near-miss episode
+  pairs → more migrations at identical params). Routine-heavy
+  bibles supply the substrate; don't also raise the param.
+- **`be_gain`** — machinery, age-knotted. The hipster who sketches
+  and the accountant both overshoot scenes ~12%; visual-training
+  bibles do NOT earn a discount (BE resists expertise in the
+  literature — Intraub's perceptual-schema claim).
+- **`neg_cand`/`neg_frame_mult`/`neg_age_gain`** — machinery.
+  Whether a character *issues* denials is world content; how the
+  denial corrupts the listener is spec. `neg_age_gain` fires >65
+  only — do not extend downward for "fuzzy" younger profiles.
+- **`vo_*`** — machinery, AGE-FLAT by cite-guard. The rambling
+  storyteller describes faces *more often* (retell frequency —
+  world content), which is how VO reaches him; his `vo_cand` stays
+  default.
+- **`react_*`, `phantom_recoll`, `group_damp`, `truthy_gain`** —
+  machinery, AGE-FLAT by cite-guard (Chan 2009 both cohorts; VO/
+  truthiness lack age-gradient evidence). `truthy_gain` may take a
+  modest trait load on `distrust` (suspicious −, credulous +, keep
+  within ±0.05) — fluency-sensitivity is the softest personality
+  hook here.
+- **Deliberate nulls (spec §7):** `vo_cand`, `vo_loss`,
+  `react_suscept_mult`, `phantom_recoll`, `group_damp`,
+  `truthy_gain`, `conj_thresh`, `cat_resist` carry NO age knots —
+  P286/P291/P295 guards.

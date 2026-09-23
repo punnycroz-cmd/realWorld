@@ -1377,3 +1377,45 @@ Levine 1997, Morgan 1998/1999, Chu & Downes 2000, Foa 1995 incl. the
 mixed-replication caveat).
 
 Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 30. v30 — false-memory III (the passive channels)
+
+Third pass on distortion. New primary-source territory: verbal
+overshadowing (Schooler & Engstler-Schooler 1990; Meissner & Brigham
+2001 ACP meta Zr=−0.12; Alogna et al. 2014 RRR −4% immediate / −16%
+delayed-adjacent description — timing-conditional, robust); unconscious
+transference and own-group bias (Loftus 1976; Ross, Ceci, Dunning &
+Toglia 1994 ~3× misID + elimination-by-informant; Read et al. 1990
+boundary-condition nulls; Meissner & Brigham 2001 PPPL meta — own-group
+1.40× hits / 1.56× fewer FAs; 2022 three-level re-meta; Innocence
+Project ~69–75% of DNA exonerations involve misID); memory conjunction
+errors (Reinitz, Lammers & Cochran 1992; Reinitz & Hannigan 2001
+proximity/attention-switching; Odegard & Lampinen 2004 — autobiographical,
+"remember" judgments; Burt et al. 2004 aging); boundary extension
+(Intraub & Richardson 1989 — 95% of drawings extended; Seamon et al.
+2002 all-ages; Intraub & Dickinson 2008 source-monitoring account;
+age-preserved-to-amplified); denial backfire / negation familiarity
+(Skurnik, Yoon, Park & Schwarz 2005 JCR — older adults 28%→40%
+false-as-true at 3d, repetition worsens; Mayo, Schul & Burnstein 2004;
+Jacoby 1999 fluency→truth); reactivation susceptibility (Chan, Thomas
+& Bulevich 2009 Psych. Sci. reversed testing effect — both cohorts;
+Hupbach et al. 2007; DEBATED vs Potts & Shanks 2012 / interim-test
+protection); phantom recollection (Brainerd, Wright, Reyna & Mojardin
+2001 conjoint recognition — PR > familiarity contributor; 2022 CRM
+meta 537 sets, dual-recollection); central-peripheral gradient +
+dyad>group (Dalton & Daneman 2006 — peripheral 82% / central 35% /
+unmentioned 10%; dyad 68% vs group 49%; Ibabe & Sporer 2004
+high-confidence central errors); truthiness (Newman et al. 2012 PBR —
+nonprobative photo inflates BOTH poles of a claim; Alter & Oppenheimer
+2009 fluency).
+
+Spec → v3.0 (+13 params; new §§6.25–6.30; §6.3 reactivation clause;
+§6.5 group_damp; §6.7 dressing; contract: hearAccount +negated/
+dressing/groupSize, retell +verbalize, field-level lastRecallDay,
+provenance:"inferred", PersonModel categoryTags/ingroup). Profiles
++16 clamp rows + §18 dials note. Validation → P1–P297
+(P286/P288/P289/P290/P293/P295/P296 MUSTs; P286 sign-, P289 direction-,
+P290 rate-locked; P297 portfolio anti-Goodhart). All sources verified
+via web (DOIs and effect sizes confirmed).
+
+Boundaries kept: research only, no code, no narratives, no push/merge.

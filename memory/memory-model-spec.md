@@ -1,4 +1,36 @@
-# Memory Model Spec v2.9 — implementable human-like memory for RW characters
+# Memory Model Spec v3.0 — implementable human-like memory for RW characters
+
+> **v3.0 note (false-memory III — the passive channels, distortion
+> nobody commits):** `memory/false-memory.md` Part III (§§26–37)
+> adds the channels where the rememberer's own ordinary acts do the
+> corrupting: **verbal overshadowing** — describing a face writes a
+> verbal candidate that outcompetes the perceptual trace
+> (Schooler & Engstler-Schooler 1990; Meissner & Brigham 2001;
+> RRR Alogna et al. 2014 −4%/−16% timing gradient) — §6.25;
+> **unconscious transference** — dead person-slots fill with
+> familiar cue-plausible people; `orb_gain` own-group amplifier
+> (Loftus 1976; Ross, Ceci, Dunning & Toglia 1994 ~3× misID;
+> Meissner & Brigham 2001: 1.40× hits / 1.56× fewer FAs) — §6.26;
+> **conjunction errors** — fields migrate between near-miss episode
+> pairs while both survive (Reinitz et al. 1992; Odegard & Lampinen
+> 2004, autobiographical + "remember" judgments) — §6.27;
+> **boundary extension** — scenes encoded already-extended
+> (`be_gain`, directional, age-preserved; Intraub & Richardson
+> 1989) — §6.28; **denial backfire** — negated accounts write the
+> affirmed candidate under a fast-decaying "denied" frame (Skurnik
+> et al. 2005: 28%→40% false-as-true at 3d in older adults) —
+> §6.29; **reactivation susceptibility** — just-recalled fields
+> absorb misinformation at `react_suscept_mult` inside a short
+> window (Chan, Thomas & Bulevich 2009 reversed testing effect;
+> DEBATED vs interim-test protection) — §6.3; **phantom
+> recollection** — false content splits vivid-remembered vs
+> familiar-only at the richness gate (Brainerd et al. 2001; 2022
+> conjoint-recognition meta) — §6.30; **dyad > group conformity**
+> (`group_damp`, Dalton & Daneman 2006: 68% vs 49%) — §6.5;
+> **truthiness** — nonprobative dressing feeds corroboration
+> without touching plausibility (Newman et al. 2012) — §6.7.
+> +16 params in §7; probes P286–P297 in validation-design.md.
+> All optional, default-neutral.
 
 > **v2.9 note (emotional-memory III — the feeling's grammar):**
 > `memory/emotional-memory.md` Part III (§§26–39) deepens the affect
@@ -2434,6 +2466,30 @@ p_adopt additionally:
       // inoculation after being burned; refutational-different works
       // ≈ same (Banas & Rains 2010), decays ~14d (inoc_days)
 ```
+**v3.0 — reactivation susceptibility (false-memory.md §31):**
+```
+p_adopt additionally, PER FIELD:
+  · (worldDay − lastRecallDay(field) < react_window
+     ? react_suscept_mult : 1)   // ~0.5d window, ~1.3 boost —
+                                // recalling an event OPENS it to
+                                // misinformation (Chan, Thomas &
+                                // Bulevich 2009 reversed testing
+                                // effect; DEBATED vs interim-test
+                                // protection — retrieval-restricted
+                                // version implemented: only fields
+                                // that surfaced in that recall are
+                                // labile). AGE-FLAT (found in both
+                                // younger and older adults)
+```
+
+**v3.0 — negated accounts (false-memory.md §30, §6.29):** an account
+may carry `negated:true` (a denial — "it wasn't him", "that never
+happened"). It writes the AFFIRMED content as a candidate at
+`neg_cand` strength, tagged `frame:"denied"`; the frame decays at
+`beta_source·neg_frame_mult` and once dead the affirmed candidate
+reads as affirmed (denials backfire at delay — Skurnik et al. 2005).
+Repeated denials compound hearCount like any account — repetition
+plants, it does not scrub. See §6.29.
 **Hearsay carries heat (v1.7):** a `told_by` record's affect tag is
 `arousal = source_arousal · contagion_k · speaker_express ·
 (0.5 + 0.5·empathy_trait)` — contagion_k≈0.5 (secondhand is half as
@@ -2481,6 +2537,14 @@ that field drops to `dispute_mult` this round (Wade et al. 2018
 multilab: co-witness errors concentrated in undisputed reports).
 Relative power between speakers enters through `sourceCredibility`
 (Carol et al. 2013).
+
+**v3.0 — dyads conform harder than groups (false-memory.md §33):**
+adoption `p_adopt` on the contested field ×= `group_damp`
+^(max(0, groupSize−2)) — each discussant beyond the second damps
+per-source uptake (~0.75 each; Dalton & Daneman 2006: one-on-one
+acceptance 68% vs group 49% — more witnesses mean more latent
+disagreement and diffused credibility). `groupSize` comes from the
+dialogue layer; default 2 (no damping — backward compatible).
 
 ### 6.6 Corrections and the continued-influence effect (new in v0.6)
 
@@ -3002,6 +3066,143 @@ S-growth per §4.11 continues but R-side content stops rewriting —
 Double-edged and falsifiable (P189): canonization locks in whatever
 the teller had converged to AND armors it against later correction.
 
+### 6.25 Verbal overshadowing — describing it corrupts it (new in v3.0)
+
+On `retell(..., verbalize:true)` of a record dominated by nonverbal
+fields (faces, colors, spatial layout — `vivid_detail`-written
+sensory fields, not names/numbers/plots): the emitted description is
+written as a candidate with `provenance:"claimed"` and
+`candStrength = vo_cand` (0.5) into each verbalized field, and the
+nonverbal verbatim takes a one-shot ×(1+vo_loss) decay hit
+(Schooler & Engstler-Schooler 1990; recoding account, Schooler
+2002). The description candidate is fresh, so it outcompetes the
+perceptual original *most strongly right after describing* — the
+RRR timing gradient (Alogna et al. 2014: −4% correct-ID for
+immediate description, −16% for delayed description adjacent to
+test) falls out of ordinary candidate decay, no extra machinery.
+Verbalizable fields get the normal retell boost instead — words
+help words, hurt pictures (Meissner & Brigham 2001 meta Zr = −0.12;
+elaborative descriptions worst). `verbalize` flag comes from the
+dialogue layer when a character is asked to *describe* rather than
+recount; identification probes (§5.10) then sample the
+self-description candidate as often as the face — the witness
+"recognizes" their own words. AGE-FLAT (cite-guarded null — no
+solid age-gradient evidence; mark for re-check if VO-aging
+literature lands).
+
+### 6.26 Unconscious transference — the familiar face migrates (new in v3.0)
+
+When a person-slot's witnessed candidate has died (source decay
+§6.4 / verbatim decay), reconstruction does not leave it empty —
+it *fills* with the most cue-plausible known person:
+
+```
+P(transplant) = transplant_gain (0.10) · discrim_mult
+                · max_p [ PersonModel[p].familiarity
+                  · simOp(contexts(p), slot.cueContext, "sim_person")
+                  · (slot.categoryTags ∩ p.categoryTags nonempty
+                     ? (ingroup(p) ? 1 : 1 + orb_gain)
+                     : cat_resist) ]
+transplanted p written as candidate provenance:"inferred",
+    candStrength 0.5 — emits as confident presence ("he was
+    definitely there")
+```
+
+Loftus 1976; Ross, Ceci, Dunning & Toglia 1994 (transference
+subjects ~3× more likely to misidentify the familiar bystander;
+telling them the bystander ≠ culprit ELIMINATED it — an explicit
+`disputed`-style informant kills the inferred candidate).
+`orb_gain` ≈ 0.5 generalizes the own-race/other-race bias
+(Meissner & Brigham 2001 meta: own-group 1.40× hits, 1.56× fewer
+false alarms; robust in the 2022 three-level re-meta) to any
+poorly-differentiated identity category — outgroup faces are both
+less discriminable at §5.10 (treat as `lure_accept` ×(1+orb_gain)
+on person-recognition of that category) and more transplantable.
+`cat_resist` ≈ 0.4: cross-category transplants need weak
+competition. Mistaken identity is the leading known cause of
+wrongful conviction (~69–75% of DNA exonerations, Innocence
+Project/Gross & Shaffer) — this channel carries real weight;
+DEBATED whether familiarity or inference drives it (Read et al.
+1990 nulls); the op produces the outcome either way.
+
+### 6.27 Conjunction errors — cross-episode field migration (new in v3.0)
+
+Features of stored episodes stay independently recombinable
+(Reinitz, Lammers & Cochran 1992; Odegard & Lampinen 2004 —
+autobiographical conjunction errors carry "remember" judgments;
+older adults produce more). Daily tick, over record pairs with
+`simOp(a,b,"sim_interf") > conj_thresh` (0.65 — same place, same
+people, different day):
+
+```
+per field populated in a, empty/decayed in b:
+    P(migrate) = conj_migrate_p (0.05) · discrim_mult
+                 · (same encode-week ? 1.5 : 1)   // proximity
+        → b gains candidate {value: a's, candStrength: 0.5·a's,
+           provenance:"inferred"}
+```
+
+Both records survive (≠ §4.3 merge, which kills one); the migrated
+fact is TRUE but its pairing is FALSE — "the glass was Tuesday."
+accuracy bookkeeping penalizes b only. Rehearsing b's version
+suppresses a's candidate via §5.13 as usual.
+
+### 6.28 Boundary extension — scenes are born too big (new in v3.0)
+
+Spatial/extent verbatim fields (crowd size, room scale, distances,
+frame edges) are written at encoding ALREADY extended:
+`stored = actual·(1 + be_gain)`, `be_gain` ≈ 0.12 — measurable
+within seconds (Intraub & Richardson 1989: 95% of drawings included
+never-presented surround; recognition errors are asymmetric —
+veridical pictures are judged "closer than remembered"). The only
+encode-time distortion operator and the only systematically
+DIRECTIONAL one — always outward, never inward; preserved or
+amplified across the lifespan (children show it, older adults equal
+or more — Seamon et al. 2002; Intraub & Dickinson 2008). Knots:
+×1.0 ≤60 → ×1.2 at 75. Guard against double-counting with §2
+schema-fills: be_gain applies to *extent* fields only, not content
+fields (P289 direction-checks).
+
+### 6.29 Denial backfire — negations plant the affirmed core (new in v3.0)
+
+A `negated:true` account writes the AFFIRMED content as a candidate
+(candStrength `neg_cand` 0.35 · sourceCredibility · rep term ·
+(1 + neg_age_gain·(age_eff>65))) tagged `frame:"denied"`. The frame
+is a source-class tag and decays at `beta_source·neg_frame_mult`
+(2.0 — the "it was denied" wrapper dies ~2× faster than the
+content). While the frame lives, the candidate correctly reads as
+denied; once dead, familiarity alone remains and the claim reads
+true (Skurnik, Yoon, Park & Schwarz 2005: older adults 28%→40%
+false-as-true at 3d, worse with repetition; Mayo et al. 2004
+negation processing; Jacoby 1999 fluency→truth). Repetition counts
+hearCount normally — *denying a rumor more often spreads it* once
+the frame is gone. Distinct from §6.6 corrections (which retract
+content the listener already holds); §6.29 handles denials of
+content the listener may never have encoded as true.
+
+### 6.30 Phantom recollection — false content splits into two phenomenologies (new in v3.0)
+
+False content emitted by §6.8/§6.9/§6.27 enters the §6.7 derived
+pair through a binary gate, not a continuum (Brainerd, Wright,
+Reyna & Mojardin 2001 — phantom recollection is the LARGER false-
+recognition contributor; 2022 conjoint-recognition meta, 537 sets,
+dual-recollection confirmed; Odegard & Lampinen 2004 — conjunction
+errors feel remembered):
+
+```
+if generated verbatim richness ≥ rm_rich_thresh:
+    with prob phantom_recoll (0.35): feeds recollect_q AND
+        believe_p — "ersatz verbatim" assembles at retrieval;
+        emits as vivid reliving ("I can see it")
+    else: familiarity mode
+below gate: familiarity only — feeds believe_p ("sounds right"),
+    never recollect_q
+```
+
+Validation signature: false records form a vivid-false cluster and
+a believed-unfelt cluster (bimodality, P292). AGE-scaled via the
+§6.8 phantom machinery's existing discrim_mult path — no new knot.
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -3435,6 +3636,19 @@ MemoryParams = {
   "nostalgia_gain": 0.1,     // restorative pull on qualifying records (§5.5)
   "hc_gap_loss": 0.3,        // cold-state arousal-report compression (§8)
   "hc_gap_thresh": 0.5,      // |Δ mood−valence| gating the gap (§8)
+  // v3.0 additions (false-memory III — the passive channels,
+  // false-memory.md Part III §§26–36)
+  "vo_cand": 0.5, "vo_loss": 0.15,  // verbal overshadowing (§6.25)
+  "transplant_gain": 0.10,   // familiar-person slot fill (§6.26)
+  "orb_gain": 0.5,           // outgroup-category transplant/lure amp (§6.26)
+  "cat_resist": 0.4,         // cross-category transplant resistance (§6.26)
+  "conj_thresh": 0.65, "conj_migrate_p": 0.05, // episode-pair gate (§6.27)
+  "be_gain": 0.12,           // boundary extension at encode (§6.28)
+  "neg_cand": 0.35, "neg_frame_mult": 2.0, "neg_age_gain": 0.4, // §6.29
+  "react_window": 0.5, "react_suscept_mult": 1.3, // reactivation (§6.3)
+  "phantom_recoll": 0.35,    // vivid-gate crossing prob (§6.30)
+  "group_damp": 0.75,        // per-extra-discussant damping (§6.5)
+  "truthy_gain": 0.10,       // nonprobative dressing → corroboration (§6.7)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -3510,6 +3724,15 @@ MemoryParams = {
 //   below the OGM gate (narrative coherence needs the faculty);
 //   discrete-emotion multipliers, emo_update_k, odor_*, anniv_*,
 //   wf_* declared AGE-FLAT (P274–P285 guards, emotional-memory.md §37)
+// v3.0 knot-table updates (false-memory.md Part III §§26–36):
+//   be_gain: ×1.0 ≤60 → ×1.2 at 75 (§6.28, preserved-to-amplified);
+//   transplant_gain, conj_migrate_p, orb_gain ride discrim_mult
+//   (source-decay scaling — no separate knots); neg_age_gain fires
+//   only >65 (§6.29); vo_cand, vo_loss, react_window,
+//   react_suscept_mult, phantom_recoll, group_damp, truthy_gain,
+//   conj_thresh, cat_resist declared AGE-FLAT (cite-guarded —
+//   Chan 2009 found reversed-testing in both cohorts; VO and
+//   truthiness lack age-gradient evidence; P286/P291/P295 guards)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -4068,6 +4291,29 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     unchanged.
   - record schema: trauma records gain `coherence` (init 0.25);
     all records may gain `emotion` tag. Snapshot-additive, both
+    default-neutral.
+- v3.0 additions (false-memory.md Part III §§26–36):
+  - `hearAccount` gains optional `negated` (denial — writes the
+    affirmed candidate under a `frame:"denied"` tag, §6.29),
+    `dressing` (nonprobative decoration → truthy_gain, §6.7),
+    `groupSize` (drives §6.5 group_damp; default 2).
+  - `retell`/`discussEvent` gain optional `verbalize:true` — marks a
+    describe-not-recount act; triggers §6.25 on nonverbal-dominant
+    records. Dialogue layer decides; default absent.
+  - Record fields now track `lastRecallDay` per-field (or per-field
+    bucket) — §6.3's react_window needs it; a record-level map is
+    sufficient (fields that surfaced in the recall get the stamp).
+  - Reconstruction candidates may carry `provenance:"inferred"`
+    (§6.26 transplant, §6.27 conjunction) — hidden like `phantom`;
+    NEVER rendered to the character as inferred, and no path may
+    relabel it `witnessed` except the §6.9/§6.10 flip gates (P296).
+  - `PersonModel[p]` gains `familiarity` (already implicit via
+    directory strength — reuse it) and `categoryTags` matching
+    (§6.26 ingroup/outgroup); `ingroup(p)` = shares the perceiver's
+    primary category cluster — the bible supplies tags, the
+    mechanic is spec.
+  - Snapshot-additive: `frame` tags on candidates, `verbalized`
+    flag on records, field-level `lastRecallDay` — all
     default-neutral.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
