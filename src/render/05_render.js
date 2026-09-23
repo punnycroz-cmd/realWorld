@@ -24,7 +24,10 @@ function setupCanvas(){
     const clickY = (e.clientY - rect.top);
     const cw = cv.width / dpr, ch = cv.height / dpr;
     const worldX = (clickX - cw / 2) / cam.zoom + cam.x;
-    const worldY = (clickY - ch / 2) / cam.zoom + cam.y;
+    const worldY = (clickY - ch / 2) / cam.zoom /
+                   (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                    typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top'
+                    ? SF_TILT : 1) + cam.y;
 
     // Check if clicked near a villager
     let clickedV = null, clickedDist = 36;
@@ -271,8 +274,13 @@ function resolveSprCvs(spr){
 }
 
 function renderChibiPawn(v, cw, ch){
+  // v8: SF diorama camera squashes the ground plane — pawns anchor at the
+  // tilted ground point but keep full-height sprites (true axonometric)
+  const tilt = (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top')
+               ? SF_TILT : 1;
   const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
-  const sy = Math.round((v.y - cam.y) * cam.zoom + ch / 2);
+  const sy = Math.round((v.y - cam.y) * cam.zoom * tilt + ch / 2);
 
   // Water depth at character feet
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);

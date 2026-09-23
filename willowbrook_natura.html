@@ -5958,7 +5958,10 @@ function setupCanvas(){
     const clickY = (e.clientY - rect.top);
     const cw = cv.width / dpr, ch = cv.height / dpr;
     const worldX = (clickX - cw / 2) / cam.zoom + cam.x;
-    const worldY = (clickY - ch / 2) / cam.zoom + cam.y;
+    const worldY = (clickY - ch / 2) / cam.zoom /
+                   (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                    typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top'
+                    ? SF_TILT : 1) + cam.y;
 
     // Check if clicked near a villager
     let clickedV = null, clickedDist = 36;
@@ -6205,8 +6208,13 @@ function resolveSprCvs(spr){
 }
 
 function renderChibiPawn(v, cw, ch){
+  // v8: SF diorama camera squashes the ground plane — pawns anchor at the
+  // tilted ground point but keep full-height sprites (true axonometric)
+  const tilt = (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top')
+               ? SF_TILT : 1;
   const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
-  const sy = Math.round((v.y - cam.y) * cam.zoom + ch / 2);
+  const sy = Math.round((v.y - cam.y) * cam.zoom * tilt + ch / 2);
 
   // Water depth at character feet
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);
@@ -22879,10 +22887,19 @@ const SF_CAM = {
   yaw: Math.PI / 2,  // radians; 0 = +x, PI/2 = +y (matches face->DV mapping)
   pitch: 0,          // + looks up, - looks down
   h: 1.7,            // camera height, meters (0.5 - 30)
+  back: 6.5,         // v8: third-person pull-back, meters behind the subject
   director: false,
   x: 0, y: 0,        // director position, meters
   _lastPawn: -1,
 };
+
+/* v8: DIORAMA camera — the top view is a tilted axonometric projection.
+   The ground plane is squashed by SF_TILT around screen-center while
+   buildings, trees and pawns keep their full vertical sprites: the city
+   reads as a miniature model with real facades instead of a flat map.
+   sfSY() is the one projection every ground point passes through. */
+const SF_TILT = 0.62;
+function sfSY(wyPx, ch){ return (wyPx - cam.y) * cam.zoom * SF_TILT + ch / 2; }
 function sfCamYawOf(v){
   const DV = [[0, 1], [0, -1], [-1, 0], [1, 0]][v ? v.face : 0] || [0, 1];
   return Math.atan2(DV[1], DV[0]);
@@ -22922,7 +22939,12 @@ if(SF_MODE && typeof window !== 'undefined'){
   window.addEventListener('pointerup', () => { sfDrag = null; });
   window.addEventListener('wheel', e => {
     if(SF_VIEW !== 'street') return;
-    SF_CAM.h = clamp(SF_CAM.h * (e.deltaY > 0 ? 1.12 : 0.89), 0.5, 30);
+    // v8: scroll dollies the rig — lens height in director mode,
+    // follow distance in third-person mode
+    if(SF_CAM.director)
+      SF_CAM.h = clamp(SF_CAM.h * (e.deltaY > 0 ? 1.12 : 0.89), 0.5, 30);
+    else
+      SF_CAM.back = clamp(SF_CAM.back * (e.deltaY > 0 ? 1.12 : 0.89), 2.5, 24);
     e.preventDefault();
   }, { passive: false });
 }
@@ -22932,8 +22954,8 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>V</kbd> Top/Street</span>' +
     '<span><kbd>Drag</kbd> Look</span>' +
     '<span><kbd>Q</kbd>/<kbd>E</kbd> Rotate</span>' +
-    '<span><kbd>Scroll</kbd> Height</span>' +
     '<span><kbd>C</kbd> Director</span>' +
+    '<span><kbd>Scroll</kbd> Dolly</span>' +
     '<span><kbd>WASD</kbd> Fly</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>';
 }
@@ -23125,10 +23147,11 @@ function sfRenderWorld(cw, ch){
   const sfDappleOn = !isNight();
   const sfDappleCover = 0.25 + 0.75 * sfCloudCover();
   const cs = CS * cam.zoom;
+  const csT = cs * SF_TILT;   // v8: squashed ground-plane cell height
   const wx0 = Math.floor((cam.x - cw / 2 / cam.zoom) / CS) - 1;
   const wx1 = Math.floor((cam.x + cw / 2 / cam.zoom) / CS) + 1;
-  const wy0 = Math.floor((cam.y - ch / 2 / cam.zoom) / CS) - 1;
-  const wy1 = Math.floor((cam.y + ch / 2 / cam.zoom) / CS) + 1;
+  const wy0 = Math.floor((cam.y - ch / 2 / cam.zoom / SF_TILT) / CS) - 1;
+  const wy1 = Math.floor((cam.y + ch / 2 / cam.zoom / SF_TILT) / CS) + 1;
 
   // 1. terrain
   for(let wy = wy0; wy <= wy1; wy++){
@@ -23137,18 +23160,18 @@ function sfRenderWorld(cw, ch){
       const tt = c.tileType[i];
       const spr = sfTerrainTile(wx, wy, tt);
       const sx = Math.round((wx * CS - cam.x) * cam.zoom + cw / 2);
-      const sy = Math.round((wy * CS - cam.y) * cam.zoom + ch / 2);
-      if(spr && spr.c) ctx.drawImage(spr.c, sx, sy, cs, cs);
+      const sy = Math.round(sfSY(wy * CS, ch));
+      if(spr && spr.c) ctx.drawImage(spr.c, sx, sy, cs, csT);
       // v7: wetness memory — soaked hardscape darkens, puddles glint sky-blue
       if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
         const wv = SF_WX.wet;
         ctx.fillStyle = `rgba(24,32,48,${wv * 0.2})`;
-        ctx.fillRect(sx, sy, cs, cs);
+        ctx.fillRect(sx, sy, cs, csT);
         if(wv > 0.25 && hash2(wx, wy, SEED + 1810) < wv * 0.5){
           const pw = cs * (0.16 + hash2(wx, wy, SEED + 1811) * 0.2);
           ctx.fillStyle = `rgba(170,200,230,${wv * 0.34})`;
           ctx.beginPath();
-          ctx.ellipse(sx + cs * 0.5, sy + cs * 0.56, pw, pw * 0.6, 0, 0, Math.PI * 2);
+          ctx.ellipse(sx + cs * 0.5, sy + csT * 0.56, pw, pw * 0.6 * SF_TILT, 0, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -23159,7 +23182,7 @@ function sfRenderWorld(cw, ch){
         const a2 = clamp((dap - 0.44) * 1.15, 0, 0.45) * sfDappleCover;
         if(a2 > 0.015){
           ctx.fillStyle = `rgba(30,38,62,${a2})`;
-          ctx.fillRect(sx - 1, sy - 1, cs + 2, cs + 2);
+          ctx.fillRect(sx - 1, sy - 1, cs + 2, csT + 2);
         }
       }
     }
@@ -23177,14 +23200,15 @@ function sfRenderWorld(cw, ch){
         seen.add(bi);
         const b = SF_BLD[bi];
         if(b.bx1 < cam.x - cw / 2 / cam.zoom - 64 || b.bx0 > cam.x + cw / 2 / cam.zoom + 64) continue;
-        if(b.by1 - b.hPx < cam.y - ch / 2 / cam.zoom - 220 || b.by0 > cam.y + ch / 2 / cam.zoom + 64) continue;
+        if(b.by1 - b.hPx / SF_TILT < cam.y - ch / 2 / cam.zoom / SF_TILT - 220 ||
+           b.by0 > cam.y + ch / 2 / cam.zoom / SF_TILT + 64) continue;
         drawables.push({ kind: 'bld', y: b.by1, b });
       }
     }
   }
   for(const o of VILLAGE_OBJECTS){
     if(o.x < cam.x - cw / 2 / cam.zoom - 64 || o.x > cam.x + cw / 2 / cam.zoom + 64) continue;
-    if(o.y < cam.y - ch / 2 / cam.zoom - 128 || o.y > cam.y + ch / 2 / cam.zoom + 32) continue;
+    if(o.y < cam.y - ch / 2 / cam.zoom / SF_TILT - 200 || o.y > cam.y + ch / 2 / cam.zoom / SF_TILT + 32) continue;
     drawables.push({ kind: 'prop', y: o.y, o });
   }
   for(const v of VILLAGERS){
@@ -23198,13 +23222,16 @@ function sfRenderWorld(cw, ch){
       const b = d.b;
       const art = getSfBldArt(b.i);
       const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom);
-      const sy = Math.round((b.by0 - cam.y) * cam.zoom + ch / 2 - art.oy * cam.zoom);
+      // v8 diorama: anchor the sprite's SOUTH footprint edge to the tilted
+      // ground so facades stand on the correct pavement line; the roof plane
+      // visually deepens toward the tilted north edge.
+      const sy = Math.round(sfSY(b.by1, ch) - (art.oy + (b.by1 - b.by0)) * cam.zoom);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       if(cam.zoom >= 0.9 && b.name){
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
         const lx = Math.round((b.x - cam.x) * cam.zoom + cw / 2);
-        const ly = Math.round((b.by0 - b.hPx - cam.y) * cam.zoom + ch / 2 - 8);
+        const ly = Math.round(sfSY(b.by0, ch) - b.hPx * cam.zoom - 8);
         const tw = ctx.measureText(b.name).width;
         ctx.fillStyle = 'rgba(15,23,42,0.85)';
         ctx.fillRect(lx - tw / 2 - 4, ly - 11, tw + 8, 14);
@@ -23226,13 +23253,13 @@ function sfRenderWorld(cw, ch){
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
-        const sy = Math.round((o.y - cam.y) * cam.zoom + ch / 2);
+        const sy = Math.round(sfSY(o.y, ch));
         // v5: canopy cast shadow pushed down-right like the building sun
         if(shadeR && !isNight()){
           ctx.fillStyle = 'rgba(20,26,12,0.22)';
           ctx.beginPath();
-          ctx.ellipse(sx + shadeR * 0.5 * cam.zoom, sy + shadeR * 0.28 * cam.zoom,
-                      shadeR * cam.zoom, shadeR * 0.42 * cam.zoom, 0, 0, Math.PI * 2);
+          ctx.ellipse(sx + shadeR * 0.5 * cam.zoom, sy + shadeR * 0.28 * cam.zoom * SF_TILT,
+                      shadeR * cam.zoom, shadeR * 0.42 * cam.zoom * SF_TILT, 0, 0, Math.PI * 2);
           ctx.fill();
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
@@ -23264,7 +23291,7 @@ function sfRenderWorld(cw, ch){
       const gx = (cxm - SF_SUN.x * SF_CLOUD_ALT) * SF_PXM;
       const gy = (cym - SF_SUN.y * SF_CLOUD_ALT) * SF_PXM;
       const sx = (gx - cam.x) * cam.zoom + cw / 2;
-      const sy = (gy - cam.y) * cam.zoom + ch / 2;
+      const sy = sfSY(gy, ch);
       const rr = c.r * SF_PXM * cam.zoom * 1.5;
       if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
       const a = Math.min(0.4, 0.42 * c.a * (0.35 + 0.65 * cover));
@@ -23273,7 +23300,7 @@ function sfRenderWorld(cw, ch){
       g.addColorStop(1, 'rgba(28,36,58,0)');
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.ellipse(sx, sy, rr, rr * 0.72, 0.35, 0, Math.PI * 2);
+      ctx.ellipse(sx, sy, rr, rr * 0.72 * SF_TILT, 0.35, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -23328,7 +23355,7 @@ function sfRenderWorld(cw, ch){
         ox = ((ox % 320) + 320) % 320 - 160;
         oy = ((oy % 240) + 240) % 240 - 120;
         const sx = ((pcx + ox) * SF_PXM - cam.x) * cam.zoom + cw / 2;
-        const sy = ((pcy + oy) * SF_PXM - cam.y) * cam.zoom + ch / 2;
+        const sy = sfSY((pcy + oy) * SF_PXM, ch);
         const rr = (10 + phash(k, 23, 1722) * 16) * SF_PXM * cam.zoom;
         if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
         const fg2 = ctx.createRadialGradient(sx, sy, 0, sx, sy, rr);
@@ -23336,7 +23363,7 @@ function sfRenderWorld(cw, ch){
         fg2.addColorStop(1, 'rgba(226,232,238,0)');
         ctx.fillStyle = fg2;
         ctx.beginPath();
-        ctx.ellipse(sx, sy, rr, rr * 0.4, W.windAng * 0.3, 0, Math.PI * 2);
+        ctx.ellipse(sx, sy, rr, rr * 0.4 * SF_TILT, W.windAng * 0.3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -23351,12 +23378,14 @@ function sfRenderWorld(cw, ch){
     for(const r of SF_MAP.roads){
       const px = r.x * SF_PXM, py = r.y * SF_PXM;
       if(px < cam.x - cw / 2 / cam.zoom || px > cam.x + cw / 2 / cam.zoom) continue;
-      if(py < cam.y - ch / 2 / cam.zoom || py > cam.y + ch / 2 / cam.zoom) continue;
+      if(py < cam.y - ch / 2 / cam.zoom / SF_TILT || py > cam.y + ch / 2 / cam.zoom / SF_TILT) continue;
       const sx = Math.round((px - cam.x) * cam.zoom + cw / 2);
-      const sy = Math.round((py - cam.y) * cam.zoom + ch / 2);
+      const sy = Math.round(sfSY(py, ch));
       ctx.save();
       ctx.translate(sx, sy);
-      ctx.rotate(r.angle * Math.PI / 180);
+      // v8: road angle re-projected through the tilted ground plane
+      const ra = r.angle * Math.PI / 180;
+      ctx.rotate(Math.atan2(Math.sin(ra) * SF_TILT, Math.cos(ra)));
       ctx.font = '600 9px sans-serif';
       ctx.strokeStyle = 'rgba(20,20,24,0.8)'; ctx.lineWidth = 3;
       ctx.strokeText(r.name, 0, 0);
@@ -23725,12 +23754,22 @@ function sfRenderStreet(cw, ch){
     }
   }
 
-  const camX = SF_CAM.director ? SF_CAM.x : (v ? v.x / SF_PXM : 600);
-  const camY = SF_CAM.director ? SF_CAM.y : (v ? v.y / SF_PXM : 400);
-  const camH = SF_CAM.h;
+  // v8: third-person follow rig — the camera rides SF_CAM.back meters
+  // BEHIND the subject instead of sitting inside their head, and the lens
+  // auto-pitches to keep the pawn framed on the lower third line.
   const DX = Math.cos(SF_CAM.yaw), DY = Math.sin(SF_CAM.yaw);
+  const camH = SF_CAM.h;
+  let camX, camY, pitchEff = SF_CAM.pitch;
+  if(SF_CAM.director){
+    camX = SF_CAM.x; camY = SF_CAM.y;
+  } else {
+    const px = v ? v.x / SF_PXM : 600, py = v ? v.y / SF_PXM : 400;
+    camX = px - DX * SF_CAM.back;
+    camY = py - DY * SF_CAM.back;
+    pitchEff = SF_CAM.pitch - Math.atan2(Math.max(0, camH - 1.05), Math.max(2, SF_CAM.back)) * 0.85;
+  }
   const F = Math.max(400, ch * 1.1);
-  const horizon = ch * 0.42 + Math.tan(SF_CAM.pitch) * F;
+  const horizon = ch * 0.42 + Math.tan(pitchEff) * F;
   const pr = (x, y, z) => {
     const dx = x - camX, dy = y - camY;
     const fwd = dx * DX + dy * DY;
@@ -24198,17 +24237,51 @@ function sfRenderStreet(cw, ch){
   // v7: lightning wash over everything
   sfFlashOverlay(cw, ch);
 
+  // v8: lens grade — vignette + faint grain on every street-view frame,
+  // full anamorphic letterbox bars while the director camera is live.
+  {
+    const vg = ctx.createRadialGradient(cw / 2, ch / 2, ch * 0.42,
+                                        cw / 2, ch / 2, ch * 0.95);
+    vg.addColorStop(0, 'rgba(10,8,14,0)');
+    vg.addColorStop(1, `rgba(10,8,14,${night ? 0.5 : 0.34})`);
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, cw, ch);
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    const bucket = Math.floor(SF_WX.t * 12);
+    for(let k = 0; k < 60; k++){
+      const gx = hash2(k, bucket, SEED + 1900) * cw;
+      const gy = hash2(k, bucket + 31, SEED + 1901) * ch;
+      ctx.fillRect(gx, gy, 1.4, 1.4);
+    }
+    if(SF_CAM.director){
+      const bar = Math.round(ch * 0.085);
+      ctx.fillStyle = '#06070c';
+      ctx.fillRect(0, 0, cw, bar);
+      ctx.fillRect(0, ch - bar, cw, bar);
+      // record-dot + timecode burn-in, like a live camera feed
+      ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+      ctx.fillStyle = `rgba(255,70,60,${0.6 + 0.4 * Math.sin(SF_WX.t * 4)})`;
+      ctx.beginPath(); ctx.arc(cw * 0.04, bar * 0.5, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(240,240,235,0.85)';
+      ctx.fillText('REC', cw * 0.04 + 10, bar * 0.5 + 4);
+      const hh = String(Math.floor(W.tod)).padStart(2, '0');
+      const mm = String(Math.floor((W.tod % 1) * 60)).padStart(2, '0');
+      ctx.textAlign = 'right';
+      ctx.fillText(`DOLORES CAM ${hh}:${mm}`, cw * 0.96, ch - bar * 0.4);
+    }
+  }
+
   // DIRECTOR badge while free-fly camera is active
   if(SF_CAM.director){
     ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
     const label = '◉ DIRECTOR';
     const bw = ctx.measureText(label).width + 22;
+    const by = Math.round(ch * 0.085) + 8;
     ctx.fillStyle = 'rgba(120,20,20,0.85)';
-    ctx.fillRect(cw / 2 - bw / 2, 12, bw, 22);
+    ctx.fillRect(cw / 2 - bw / 2, by, bw, 22);
     ctx.strokeStyle = 'rgba(255,180,120,0.8)'; ctx.lineWidth = 1;
-    ctx.strokeRect(cw / 2 - bw / 2, 12, bw, 22);
+    ctx.strokeRect(cw / 2 - bw / 2, by, bw, 22);
     ctx.fillStyle = '#ffe9c9';
-    ctx.fillText(label, cw / 2, 27);
+    ctx.fillText(label, cw / 2, by + 15);
   }
 }
 
