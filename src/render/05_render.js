@@ -310,7 +310,11 @@ function renderChibiPawn(v, cw, ch){
   }
 
   // Ground Shadow (only when on land or wading; when swimming in deep water, foam replaces shadow)
-  if(!isDeepWater){
+  // v19: in the SF top view the diorama renderer draws a physically-lit
+  // contact core + sun-thrown shadow itself — skip the static blob there.
+  const sfTopGround = typeof SF_MODE !== 'undefined' && SF_MODE &&
+                      typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top';
+  if(!isDeepWater && !sfTopGround){
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.beginPath();
     ctx.ellipse(sx, sy + 2, 11*cam.zoom, 4.5*cam.zoom, 0, 0, Math.PI*2);

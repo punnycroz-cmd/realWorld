@@ -853,16 +853,18 @@ function sfRenderWorld(cw, ch){
       }
     } else if(d.kind === 'prop'){
       const o = d.o, V = PA.sfVeg;
-      let spr = null, shadeR = 0;
-      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; shadeR = 15; }
-      else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; }
-      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; shadeR = 11; }
-      else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; shadeR = 8; }
-      else if(o.kind === 'sfBench') spr = V.bench;
-      else if(o.kind === 'sfLamp') spr = sfLampsLit() ? V.lampOn : V.lampOff; // v15: civil dusk
-      else if(o.kind === 'sfShrub') spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0];
-      else if(o.kind === 'sfFlowerBed') spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0];
-      else if(o.kind === 'sfPlanter') spr = V.planter;
+      // v19: propM = real height in meters (drives sun throw), footM =
+      // ground-contact radius in meters (drives the always-on AO disc)
+      let spr = null, shadeR = 0, propM = 0, footM = 0;
+      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; shadeR = 15; footM = 0.55; }
+      else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
+      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; shadeR = 11; footM = 0.45; }
+      else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; shadeR = 8; footM = 0.5; }
+      else if(o.kind === 'sfBench'){ spr = V.bench; propM = 0.9; footM = 0.8; }
+      else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; propM = 4.5; footM = 0.4; } // v15: civil dusk
+      else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; propM = 0.8; footM = 0.7; }
+      else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; propM = 0.35; footM = 0.9; }
+      else if(o.kind === 'sfPlanter'){ spr = V.planter; propM = 0.7; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
       const sprC = spr && (spr.c || spr);
       if(o.kind === 'sfCar' && sprC){
@@ -907,6 +909,27 @@ function sfRenderWorld(cw, ch){
                         0.26 * Math.min(1, SF_SUN.day + 0.3),
                         sfUmbra(Math.hypot(shx, shy)));
         }
+        // v19: grounding pass — every prop sits in a tight ambient-occlusion
+        // disc at its footprint (also the only shade under overcast/night),
+        // and low street furniture throws a short real-sun shadow scaled by
+        // its true height (benches/lamps/planters used to float shadowless)
+        if(footM){
+          const fr = footM * SF_PXM * cam.zoom;
+          ctx.fillStyle = `rgba(16,13,9,${isNight() ? 0.3 : 0.19})`;
+          ctx.beginPath();
+          ctx.ellipse(sx, sy + 1 * cam.zoom, fr, Math.max(1.5, fr * SF_TILT), 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if(propM && !isNight() && SF_SUN.day > 0.08){
+          const hmPx = propM * SF_PXM * cam.zoom;
+          const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
+          const len = Math.hypot(shx, shy);
+          sfSoftEllipse(sx + shx, sy + shy,
+                        footM * SF_PXM * cam.zoom + len * 0.45,
+                        Math.max(2 * cam.zoom, footM * SF_PXM * cam.zoom * 0.7),
+                        Math.atan2(shy, shx),
+                        0.24 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+        }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         // v6: canopy sway on the wind (trees only; storms rock harder)
         // v7: modulated by the gust envelope — canopies breathe in waves
@@ -925,6 +948,26 @@ function sfRenderWorld(cw, ch){
           sfLampPool(sx, sy, 3.4 * SF_PXM * cam.zoom);
       }
     } else {
+      // v19: pawns ground like everything else — a tight contact core at
+      // the feet plus a penumbral shadow thrown along the real sun vector
+      // (1.6m occluder; length shortens/lengthens with solar elevation)
+      const v = d.v;
+      const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
+      const sy = Math.round((v.y - cam.y) * cam.zoom * SF_TILT + ch / 2);
+      ctx.fillStyle = `rgba(16,13,9,${isNight() ? 0.3 : 0.24})`;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy + 2 * cam.zoom, 9 * cam.zoom, 4 * cam.zoom, 0, 0, Math.PI * 2);
+      ctx.fill();
+      if(!isNight() && SF_SUN.day > 0.08){
+        const hmPx = 1.6 * SF_PXM * cam.zoom;
+        const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
+        const len = Math.hypot(shx, shy);
+        sfSoftEllipse(sx + shx, sy + shy,
+                      9 * cam.zoom + len * 0.5,
+                      Math.max(3 * cam.zoom, 4.5 * cam.zoom + len * 0.12),
+                      Math.atan2(shy, shx),
+                      0.28 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+      }
       renderChibiPawn(d.v, cw, ch);
     }
   }
@@ -2765,14 +2808,21 @@ function sfRenderStreet(cw, ch){
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; hm = 6.4; shadowR = 1.1; }
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; hm = 3.6; shadowR = 1.2; }
       else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; hm = 6.0; shadowR = 0.9; }
-      else if(o.kind === 'sfBench'){ spr = V.bench; hm = 0.9; }
-      else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; hm = 4.5; }
+      else if(o.kind === 'sfBench'){ spr = V.bench; hm = 0.9; shadowR = 0.55; }
+      else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; hm = 4.5; shadowR = 0.3; }
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
-      else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; }
-      else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; }
+      else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; shadowR = 0.6; }
+      else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; shadowR = 0.45; }
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const ph = hm * sc, pw = ph * (sprC.width / sprC.height);
+        // v19: contact AO — every prop presses a tight dark disc into the
+        // pavement at its feet, so nothing floats when the sun is buried
+        const fr = (shadowR || Math.max(0.3, hm * 0.3)) * sc;
+        ctx.fillStyle = `rgba(14,12,8,${night ? 0.3 : 0.2})`;
+        ctx.beginPath();
+        ctx.ellipse(p[0], p[1], fr, Math.max(1.2, fr * 0.32), 0, 0, Math.PI * 2);
+        ctx.fill();
         // v14: shadow thrown along the true sun vector — tip projected
         // through pr so length/direction track the solar elevation
         if(shadowR && !night && SF_SUN.day > 0.08){
@@ -2819,6 +2869,12 @@ function sfRenderStreet(cw, ch){
       if(F2 && F2[dir]) fr = paActFrame(F2, dir, pv, G.frame);
       if(fr){
         const ph = 1.7 * F / p[2], pw = ph * 0.75;
+        // v19: contact core under the feet — persists through dusk/overcast
+        // when the cast shadow fades, so the pawn never floats
+        ctx.fillStyle = `rgba(14,12,8,${night ? 0.34 : 0.22})`;
+        ctx.beginPath();
+        ctx.ellipse(p[0], p[1], pw * 0.32, pw * 0.1, 0, 0, Math.PI * 2);
+        ctx.fill();
         // v14: ground shadow cast along the real sun vector
         const vtip = (!night && SF_SUN.day > 0.08)
           ? pr(pv.x / SF_PXM + SF_SUN.x * 1.7, pv.y / SF_PXM + SF_SUN.y * 1.7, 0)
