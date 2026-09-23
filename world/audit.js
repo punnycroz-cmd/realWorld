@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v49).
+/* world/audit.js — RW boundary audit (world v50).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -12,7 +12,7 @@
    (e.g. a doc that legitimately cites the parody mapping), not verdicts.
 
    Gates:
-     corpus    — screen.js run against screen-corpus.json (80/80 contract)
+     corpus    — screen.js run against screen-corpus.json (94/94 contract)
      names     — no real SF business names outside mapping contexts
      addresses — residential streets carry 9xxx numbers only
      prices    — credit amounts/rates match the monetization PROPOSAL set;
@@ -1740,7 +1740,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G21 mod ============ */
 {
-  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36 affordances)');
+  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50 affordances)');
   try {
     const MJ = JSONF('moderation.json');
     const window = {};
@@ -1775,7 +1775,7 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'screen-lab.html', null, `case ${c.id} content drifted between lab and json`);
     }
     /* 3. engine version agreement */
-    if (RS.VERSION !== 'v36' || !(MJ.testing.engine_version || '').includes('v36'))
+    if (RS.VERSION !== 'v50' || !(MJ.testing.engine_version || '').includes('v50'))
       add(g, 'fail', 'screen.js', null, `engine version drift: screen.js ${RS.VERSION} vs moderation.json "${MJ.testing.engine_version}"`);
     /* 4. mod-console: honesty strings + CHARS whitelist + v36 affordances */
     const mc = rd('mod-console.html');

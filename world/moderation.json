@@ -28,7 +28,7 @@
       { "code": "appeal-resubmit",     "flag_w": 0, "appealable": false, "feed": "in_review", "note": "re-submission of a denied request — different-reviewer rule" },
       { "code": "first-time-exclusive","flag_w": 0, "appealable": true,  "feed": "in_review", "note": "acct_age_d < 3 with an exclusive attempt" },
       { "code": "obfuscation-attempt","flag_w": 0, "appealable": true,  "feed": "in_review",
-        "note": "added v36 — spaced-letter runs (>=3 single-letter tokens) collapse in place before matching; a run no rule can read is itself the flag and routes to a human, who sees the collapsed text in the trace" }
+        "note": "added v36, generalized v50 — separated-letter runs (>=3 single-letter tokens joined by spaces/hyphens/underscores/asterisks/slashes, mixed allowed) collapse in place before matching; a run no rule can read is itself the flag and routes to a human, who sees the collapsed text in the trace" }
     ],
     "player_wording": "per-code canned copy lives in screen.js REASON_CODES.player_msg — reviewers pick a code, never free-type player copy",
     "public_wording": "always the neutral 'request not approved' regardless of code; the reason CODE may attach to the feed entry so the public sees the why-class, never the screened text"
@@ -91,13 +91,13 @@
   },
   "metrics": ["queue depth", "oldest wait", "median decision vs 15-min SLA", "decisions per shift", "denial rate by reason code", "appeal reversal count", "compensation paid (cr)", "corpus green (screen-lab)"],
   "testing": {
-    "engine_version": "screen.js RWScreen.VERSION (v36)",
-    "corpus": "world/screen-corpus.json — golden labeled cases (80), mirrored inline in world/screen-lab.html; the audit 'mod' gate diffs the two case-for-case",
+    "engine_version": "screen.js RWScreen.VERSION (v50)",
+    "corpus": "world/screen-corpus.json — golden labeled cases (94), mirrored inline in world/screen-lab.html; the audit 'mod' gate diffs the two case-for-case",
     "runner": "world/screen-lab.html — try-it console + corpus regression run + per-code coverage + JSON report export + reviewer calibration mode",
     "rule_change_workflow": "edit a rule → run the corpus → corpus goes green in the same commit or the expectations change with it; every new rule ships with its cases",
     "coverage_rule": "every non-pass reason code needs >= 3 cases including at least one near-miss that must NOT trip it",
     "drift_gate": "the game-track classifier may be STRICTER on identical input, never more permissive; the corpus is the conformance suite for any port",
-    "normalization": "v22 leet + dotted-letter; v36 spaced-letter runs collapse IN PLACE (p o s s e s s → possess) and runs no rule can read route to review as obfuscation-attempt. Real text like '9457 Guerrero'/'Unit 3B'/'a, b, and c' is untouched. Trace hits report the normalized span.",
+    "normalization": "v22 leet + dotted-letter; v36 spaced-letter runs collapse IN PLACE (p o s s e s s → possess) and runs no rule can read route to review as obfuscation-attempt; v50 generalizes the run to any separator (hyphen/underscore/asterisk/slash, mixed allowed — 'p-o-s-s-e-s s' → possess) and folds accents before matching ('pósséss' → possess, 'bí-rite' → bi-rite). Real text like '9457 Guerrero'/'Unit 3B'/'co-op'/'e-mail'/'a, b, and c' is untouched. Trace hits report the normalized span.",
     "precedence": "first-match-wins in RULES order: legal-backstop > harm > secret > possession > admin > fraud > business > gray > relationship > venue > person; rules beat obfuscation, which beats history flags",
     "calibration": "screen-lab deals 12 blind corpus cases; reviewer calls verdict + code; scorecard reports verdict agreement / code agreement / per-case diffs against the contract; export JSON. New reviewers run it before the live queue; everyone re-runs after a rule change."
   },

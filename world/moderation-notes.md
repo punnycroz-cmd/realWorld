@@ -242,3 +242,24 @@ the bar for touching the world is deliberately unreachable by drama.)
   (the drift hole is now gated), whitelist-field check on the console's
   CHARS block, calibration/report affordances, no mutation calls on
   internal surfaces.
+
+## 11. World-track tooling (v50 — evasion round three)
+
+- `world/screen.js` — v50: separated-letter runs generalize from spaces to
+  any separator (hyphen/underscore/asterisk/slash, mixed allowed) and still
+  collapse in place, so `p-o-s-s-e-s-s Victor` hits possession-scope; runs
+  no rule can read route to `obfuscation-attempt` as before. New accent
+  fold (NFD strip + ø/æ/œ/ß/ł/đ/þ/ð map) before matching — `pósséss`,
+  `crý`, `bí-rite` decode; `Tomás`/`Echeverría` fold harmlessly. The
+  real-business rule now also reads `birite` unhyphenated.
+- `world/screen-corpus.json` — 80 → 94 cases: separator-evasion denies
+  across six codes, one unreadable-run route, near-misses (`co-op`,
+  `e-mail`, `Unit 3-B`), accent-fold denies, observe-is-free near-miss.
+- `world/screen-lab.html` — corpus mirror resynced; header/report metadata
+  at v50.
+- `world/mod-console.html` — NEW seed `rq-1044`: a hyphenated admin-domain
+  ask whose live trace shows the collapse landing the real charge.
+- `world/moderation.json` — testing block v50 (corpus 94, normalization
+  note); obfuscation-attempt note generalized to separators.
+- `world/moderation-tooling.md` — §11 spec.
+- `world/audit.js` — mod gate engine-version pin v36 → v50.

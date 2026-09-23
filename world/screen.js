@@ -1,7 +1,10 @@
 /* world/screen.js — RW intent-screening engine (world v8; v22 adds input
    normalization — leetspeak + dotted-letter evasion — and VERSION; v36 adds
    spaced-letter evasion: runs of single letters collapse in place, and a
-   spaced run that no rule can read routes to a human as obfuscation-attempt).
+   spaced run that no rule can read routes to a human as obfuscation-attempt;
+   v50 generalizes the run to any separator — hyphen/underscore/asterisk/
+   slash/mixed — and folds accents before matching, so 'pósséss' and
+   'p-o-s-s-e-s-s' read exactly like 'possess').
    Shared by request.html (player side), create.html (naming strings),
    mod-console.html (reviewer side), and screen-lab.html (corpus runner).
    Implements the moderation-notes.md §3 contract as DATA + a pure function.
@@ -18,7 +21,7 @@
 */
 window.RWScreen = (function () {
 
-  var VERSION = 'v36';
+  var VERSION = 'v50';
 
   /* ---------- reason-code taxonomy (mirror of moderation.json) ---------- */
   var REASON_CODES = {
@@ -90,7 +93,7 @@ window.RWScreen = (function () {
     { code:'identity-fraud',
       re:/\b(i am|i'm|as) (the )?(owner|admin|landlord|developer|devin)\b|\bimpersonat|\bpretend(ing)? to be\b|\bon behalf of\b/i },
     { code:'real-business',
-      re:/\b(bi-rite|tartine|delfina|dolores park caf[eé]|500 club|dandelion|ritual coffee|four barrel|philz|la taqueria|el farolito|foreign cinema|mission chinese|wise sons|sightglass)\b/i },
+      re:/\b(bi[- ]?rite|tartine|delfina|dolores park caf[eé]|500 club|dandelion|ritual coffee|four barrel|philz|la taqueria|el farolito|foreign cinema|mission chinese|wise sons|sightglass)\b/i },
     /* --- review tier --- */
     { code:'gray-zone',
       re:/\b(break ?up|dump\w*|confront\w*|quit|fire[drs]?\b|yell\w*|insult\w*|argu\w*|fight\w*|accus\w*|demand\w*|threaten\w*|pressure\w*|convince .{0,30}?to (leave|quit|dump))\b/i },
@@ -120,25 +123,40 @@ window.RWScreen = (function () {
      ("p.a.y") collapse to the word ("pay"). Original text is still what
      reviewers see; the trace reports the normalized hit. */
   var LEET = { '0':'o', '1':'i', '3':'e', '4':'a', '5':'s', '7':'t', '@':'a', '$':'s', '!':'i' };
-  /* spaced-letter runs (v36): >=3 single-letter tokens joined by single spaces
-     are an evasion surface. Each run collapses IN PLACE to one token, so a
-     decodable evasion still hits the real rules ("p o s s e s s Victor" ->
-     "possess Victor" -> possession-scope). A run no rule can read is itself
-     the signal -> obfuscation-attempt -> human. SPACED_RE doubles as the
-     detector (screenRequest tests it on the raw hay before matching). */
-  var SPACED_RE = /(?:\b[a-z]\b ){2,}\b[a-z]\b/g;
+  /* accent fold (v50): diacritics are a free evasion ('pósséss', 'bí-rite',
+     'crý'). NFD strips combining marks; a small map handles the letters that
+     don't decompose (ø æ œ ß ł đ þ ð). Legit names fold too — 'Tomás' and
+     'Echeverría' read as tomas/echeverria, which the rules already match. */
+  var FOLD = { 'ø':'o', 'æ':'ae', 'œ':'oe', 'ß':'ss', 'ł':'l', 'đ':'d', 'þ':'th', 'ð':'d' };
+  /* separated-letter runs (v36 spaces; v50 any separator): >=3 single-letter
+     tokens joined by spaces, hyphens, underscores, asterisks, or slashes
+     (mixed allowed) are an evasion surface. Each run collapses IN PLACE to
+     one token, so a decodable evasion still hits the real rules
+     ("p-o-s-s-e-s-s Victor" -> "possess Victor" -> possession-scope). A run
+     no rule can read is itself the signal -> obfuscation-attempt -> human.
+     Multi-letter chunks are never a run: 'co-op', 'e-mail', 'Unit 3-B',
+     'bi-rite' are untouched. SEP_RE doubles as the detector (screenRequest
+     tests it on the raw hay before matching). Underscores are word chars,
+     so '_'-joined runs can't rely on \b — UND_RE covers them with
+     lookarounds instead. */
+  var SEP_RE = /(?:\b[a-z]\b[ \-_*\/]){2,}\b[a-z]\b/g;
+  var UND_RE = /(?<![a-z0-9_])(?:[a-z]_){2,}[a-z](?![a-z0-9_])/g;
   function norm(s) {
     return s.toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[øæœßłđþð]/g, function (c) { return FOLD[c]; })
       .replace(/[013457@$!](?=[a-z])|(?<=[a-z])[013457@$!]/g, function (c) { return LEET[c]; })
       .replace(/\b(?:[a-z]\.){2,}[a-z](?=\b|\.)/g, function (m) { return m.replace(/\./g, ''); })
-      .replace(SPACED_RE, function (m) { return m.replace(/ /g, ''); })
+      .replace(SEP_RE, function (m) { return m.replace(/[ \-_*\/]/g, ''); })
+      .replace(UND_RE, function (m) { return m.replace(/_/g, ''); })
       .replace(/ {2,}/g, ' ');
   }
 
   /* screenRequest(req) — pure. Never mutates. Never predicts AI rendering. */
   function screenRequest(req) {
     var raw = ((req.action || '') + ' ' + (req.target_label || '') + ' ' + (req.text || '')).toLowerCase();
-    var spaced = !!raw.match(SPACED_RE);
+    var spaced = !!raw.match(SEP_RE) || !!raw.match(UND_RE);
     var hay = norm(raw);
     var trace = [];
     for (var i = 0; i < RULES.length; i++) {
@@ -152,7 +170,7 @@ window.RWScreen = (function () {
                  flag_w: c.flag_w, appealable: c.appealable, trace: trace };
       }
     }
-    /* a spaced-letter run no rule could read is itself the flag — the
+    /* a separated-letter run no rule could read is itself the flag — the
        reviewer gets the collapsed text in the trace and decides */
     if (spaced) {
       var co = REASON_CODES['obfuscation-attempt'];

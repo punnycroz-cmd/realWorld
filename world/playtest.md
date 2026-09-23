@@ -65,6 +65,9 @@ One person can wear every hat; four real testers is the intended shape.
   audit — the taken-names fold agreeing with the live check, the crew
   card and building card resolving real cast/ambient rows, the named
   landlord of record, the landing window, and the registry entry.
+  PT46 (moderation v50) is a reviewer + facilitator audit — separator
+  evasion landing the real charge, the accent fold, hyphenated-text
+  near-misses, corpus 94/94, and the console's rq-1044 live trace.
 
 ## 3. Running a session
 

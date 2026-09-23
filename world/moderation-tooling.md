@@ -182,3 +182,34 @@ session decisions folded in; exports JSON. Rule: never request text,
 handles, or individual appeals — `appeal_flow.feed_visibility` is
 "aggregate only", and this is the studio-side source for the monthly
 public recap marketing's transparency template expects.
+
+## 11. v50 — evasion round three: separators + accent fold
+
+**Separator-generalized runs (engine v50).** v36 caught letters spaced out;
+the same trick with any other separator was still open. Runs of ≥3
+single-letter tokens joined by hyphens, underscores, asterisks, slashes, or
+spaces — mixed allowed — now collapse in place exactly like v36 spaces:
+`p-o-s-s-e-s-s Victor` → `possess Victor` → possession-scope deny, not a
+lesser charge. A run no rule can read still routes to a human as
+`obfuscation-attempt`. Multi-letter chunks never form a run — `co-op`,
+`e-mail`, `Unit 3-B`, and `bi-rite` itself are untouched (pinned by
+near-miss cases SC88/SC89). The real-business rule also learned the
+unhyphenated collapse: `bi[- ]?rite` reads `birite` the same as `bi-rite`.
+
+**Accent fold (engine v50).** Diacritics were a free evasion —
+`pósséss`, `crý`, `bí-rite`. The normalizer now NFD-strips combining marks
+and maps the letters that don't decompose (ø æ œ ß ł đ þ ð) before leet
+and run handling. Legit names fold harmlessly — `Tomás`/`Echeverría` read
+as `tomas`/`echeverria`, which the rules already matched.
+
+**Corpus 80 → 94.** Fourteen cases: six separator-evasion denies across
+possession/harm/admin/legal/secret/real-business, one unreadable-run
+obfuscation route, two near-misses, two accent-fold denies, one leet
+re-pin, one review-tier separator case, one observe-is-free near-miss.
+The audit's mod gate diffs the lab mirror case-for-case as before.
+
+**Console seed.** `rq-1044` (sable_r, review lane) carries the hyphenated
+admin-domain ask `k-i-c-k Jules out of her unit` — the live trace shows
+the collapse landing the real `admin-domain` charge, the teaching point
+of the whole normalization layer: the evasion changes the typography,
+never the charge.

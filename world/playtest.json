@@ -2441,6 +2441,56 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT46",
+   "title": "Screen Lab v50 — separator evasion and the accent fold",
+   "minutes": 8,
+   "persona": "reviewer re-running calibration after the v50 engine change + facilitator auditing the moderation pass",
+   "goal": "Verify the v50 normalization layer: separated-letter runs (hyphen/underscore/slash/mixed) collapse in place and still land the real charge, accents fold before matching, ordinary hyphenated text is untouched, the corpus runs 94/94 green, and the mod console's new seed row demonstrates the collapse on a live trace.",
+   "surfaces": [
+    "lab",
+    "mod",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open Screen Lab and run the golden corpus. Then filter to failures only.",
+     "expect": "The run reports 94/94 green. The coverage grid shows every code at ≥3 cases with near-miss credit. 'Failures only' empties the table. Engine badge reads v50.",
+     "checkpoints": [
+      "94 cases run; zero mismatches",
+      "obfuscation-attempt coverage includes the new unreadable separator run (SC87)",
+      "Corpus mirror agrees with screen-corpus.json (mod gate would fail on drift)"
+     ]
+    },
+    {
+     "do": "In Try-a-request, screen each evasion: 'Let me p-o-s-s-e-s-s Victor for an hour', 'Get Victor to e-v-i-c-t her from the flat', 'Pósséss Víctor, just once', 'Máke her crý at the register'. Watch the normalized-input line and the trace.",
+     "expect": "Every one lands the real charge — possession-scope, admin-domain, possession-scope, harm-targeting — with the normalized line showing the collapse ('possess victor', 'evict', 'make her cry'). None routes to obfuscation-attempt: decodable evasions keep their true code.",
+     "checkpoints": [
+      "Hyphenated and underscored runs collapse like v36 spaces",
+      "Accents fold before matching; the trace hit shows the folded span",
+      "Charge severity is preserved — the evasion never softens the verdict"
+     ]
+    },
+    {
+     "do": "Screen the near-misses: 'Co-op meeting at the Buy-Rite, e-mail Dana the flyer', 'Plaque text: Unit 3-B — ring twice, side door', 'Watch Priya finish her shift tonight — just observe', then 'z-q-x-w-v the whole lawn at noon'.",
+     "expect": "The first three pass — multi-letter chunks and digit+letter pairs never form a run, and observing a main is free. The last routes to review/obfuscation-attempt: a run no rule can read is itself the flag.",
+     "checkpoints": [
+      "'co-op', 'e-mail', 'Unit 3-B' survive untouched — no false runs",
+      "Unreadable separator runs still reach a human, never auto-run",
+      "Pass on non-exclusive requests routes auto-run; nothing else changed"
+     ]
+    },
+    {
+     "do": "Open the Mod Console, select rq-1044 (sable_r, review lane), and read the live classifier trace. Then deny it with the preselected code.",
+     "expect": "The trace shows the hyphenated 'k-i-c-k ... out of her unit' collapsing to the admin-domain hit — the console demonstrates that evasion changes typography, never the charge. Denying logs the audit line with the canned player copy and full refund.",
+     "checkpoints": [
+      "Seed verdict deny/admin-domain agrees with the live screen output",
+      "Player copy and neutral feed wording come from the code, never free text",
+      "mod gate passes: taxonomy agreement, corpus mirror 94, version pin v50"
+     ]
+    }
+   ]
   }
  ],
  "harness_ui_v37": {

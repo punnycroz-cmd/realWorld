@@ -7,7 +7,8 @@
 <!--
   Mod Console — the human-review surface for the request pipeline (world v8;
   v36 adds the account-flag ledger, the aggregate shift report, and an
-  obfuscation-attempt seed row).
+  obfuscation-attempt seed row; v50 adds a separator-evasion seed row that
+  still lands the real charge after normalization).
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -262,6 +263,12 @@ var QUEUE = [
     claims:'none',
     text:'Have her m a k e  a  s c e n e at the register during the morning rush.',
     submitted:ago(8), verdict:{v:'review', code:'obfuscation-attempt'} },
+
+  { id:'rq-1044', lane:'review', player:'sable_r', action:'nudge', target:'c2',
+    target_label:'Jules Park', dur:'one-shot', credits:40, cls:'compatible',
+    claims:'none',
+    text:'Have the landlord k-i-c-k Jules out of her unit — nicely, if that matters.',
+    submitted:ago(5), verdict:{v:'deny', code:'admin-domain'} },
 
   { id:'rq-1034', lane:'exclusive', player:'pt', action:'weather', target:'sky',
     target_label:'Sky over the Mission', dur:'60 min', credits:60, cls:'exclusive',
@@ -525,7 +532,7 @@ function renderReport(){
     html+='<div class="kv"><span>'+k+'</span><b>'+s.by_code[k]+'</b></div>';
   });
   html+='<div class="foot" style="color:var(--dim);font-size:11px;margin-top:10px">'+
-    'Screening corpus: 80/80 green at engine '+RWScreen.VERSION+' — see Screen Lab. '+
+    'Screening corpus: 94/94 green at engine '+RWScreen.VERSION+' — see Screen Lab. '+
     'This report is the studio-side source for the monthly transparency recap; '+
     'it contains no request text, no handles, no secrets — there is nothing to leak.</div>';
   $('reportBody').innerHTML=html;

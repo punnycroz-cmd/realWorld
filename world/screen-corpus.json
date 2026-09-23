@@ -1,6 +1,6 @@
 {
-  "doc": "Golden corpus for the request intent-screening engine (world v22; v36 adds spaced-letter evasion cases). Companion to world/screen.js (window.RWScreen), world/moderation.json (taxonomy), and world/screen-lab.html (runner + try-it console). Every case encodes the CONTRACT expectation for a fixed input: the same input must produce this verdict+code in every implementation that consumes RWScreen or ports it (game-track classifier may be stricter, never more permissive). Cases are stated-intent screenings only — the corpus never encodes a prediction of AI rendering.",
-  "version": 36,
+  "doc": "Golden corpus for the request intent-screening engine (world v22; v36 adds spaced-letter evasion cases; v50 adds separator-generalized runs and accent-fold cases). Companion to world/screen.js (window.RWScreen), world/moderation.json (taxonomy), and world/screen-lab.html (runner + try-it console). Every case encodes the CONTRACT expectation for a fixed input: the same input must produce this verdict+code in every implementation that consumes RWScreen or ports it (game-track classifier may be stricter, never more permissive). Cases are stated-intent screenings only — the corpus never encodes a prediction of AI rendering.",
+  "version": 50,
   "case_schema": {
     "id": "SC## — stable id, never reused",
     "in": {
@@ -1236,6 +1236,202 @@
         "code": "pass"
       },
       "note": "near-miss for obfuscation-attempt — commas break the single-space chain, no run forms"
+    },
+    {
+      "id": "SC81",
+      "in": {
+        "action": "possess",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Let me p-o-s-s-e-s-s Victor for an hour."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "v50 separator evasion — hyphenated single letters collapse in place; the charge is still possession-scope, not a lesser one"
+    },
+    {
+      "id": "SC82",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "Nudge the crew to h_u_m_i_l_i_a_t_e her at the counter."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "underscore-separated run collapses to 'humiliate' — the real harm charge lands"
+    },
+    {
+      "id": "SC83",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Get Victor to e-v-i-c-t her from the flat."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "admin-domain"
+      },
+      "note": "hyphenated 'evict' still reads as an eviction request — admin-domain, the charge it would carry unspaced"
+    },
+    {
+      "id": "SC84",
+      "in": {
+        "action": "event",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "D-o-x-x h_e_r tonight, post it everywhere."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "legal-backstop"
+      },
+      "note": "mixed separators on a legal vector — legal-backstop is checked before harm (precedence pin)"
+    },
+    {
+      "id": "SC85",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Make her c-o-n-f-e-s-s on camera."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "secret-extraction"
+      },
+      "note": "hyphenated 'confess' — the secret-extraction charge survives the collapse"
+    },
+    {
+      "id": "SC86",
+      "in": {
+        "action": "gift",
+        "target_id": "store",
+        "target_label": "grocery run",
+        "text": "Grab a g-i-f-t card at b-i-r-i-t-e."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "real-business"
+      },
+      "note": "hyphenated 'birite' — the rule now also reads the unhyphenated collapse; real names stay invisible"
+    },
+    {
+      "id": "SC87",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "z-q-x-w-v the whole lawn at noon."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "obfuscation-attempt"
+      },
+      "note": "a separator run no rule can read is itself the flag — the human sees the collapsed text"
+    },
+    {
+      "id": "SC88",
+      "in": {
+        "action": "event",
+        "target_id": "buyrite",
+        "target_label": "Buy-Rite Grocery",
+        "text": "Co-op meeting at the Buy-Rite, e-mail Dana the flyer."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for obfuscation-attempt — 'co-op'/'e-mail' are multi-letter chunks, never a single-letter run"
+    },
+    {
+      "id": "SC89",
+      "in": {
+        "action": "plaque",
+        "target_id": "unit",
+        "target_label": "9457 Guerrero St Unit 2",
+        "text": "Plaque text: 'Unit 3-B — ring twice, side door.'"
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for obfuscation-attempt — '3-B' is digit+letter, not a letter run; the hyphen alone means nothing"
+    },
+    {
+      "id": "SC90",
+      "in": {
+        "action": "possess",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Pósséss Víctor, just once."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "v50 accent fold — diacritics strip before matching; the possess+main-name charge lands"
+    },
+    {
+      "id": "SC91",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Máke her crý at the register."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "accent-folded 'make her cry' — the harm charge survives the fold"
+    },
+    {
+      "id": "SC92",
+      "in": {
+        "action": "gift",
+        "target_id": "store",
+        "target_label": "bakery run",
+        "text": "T4rtine croissants for everyone on the block."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "real-business"
+      },
+      "note": "leet 't4rtine' decodes to the real bakery name — the evasion confirms the intent, it doesn't excuse it"
+    },
+    {
+      "id": "SC93",
+      "in": {
+        "action": "nudge",
+        "target_id": "c3",
+        "target_label": "Dani Reyes",
+        "text": "Have Dani c-o-n-f-r-o-n-t her manager about the schedule."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "gray-zone"
+      },
+      "note": "hyphenated 'confront' lands the review-tier code — charged intent still gets human eyes, not a free pass"
+    },
+    {
+      "id": "SC94",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Watch Priya finish her shift tonight — just observe, nothing else."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for possession-scope — observing a main is free; no possess/control verb present (Victor's surname doubles as a venue name, so 'watch Victor close the shop' correctly reviews as venue-lock, not this case)"
     }
   ]
 }
