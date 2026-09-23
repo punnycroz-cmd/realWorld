@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -79,16 +79,17 @@ A small persistent card, collapsible to a chip, ordered by the journey:
 
 ## 4. Tour beats (S1, coach-mark copy)
 
-Five beats, each anchored to a real element of The Wire. "Next / Skip tour"
+Six beats (beat 3 added in v25), each anchored to a real element of The Wire. "Next / Skip tour"
 on every card; Skip ends the whole tour, not just the beat.
 
 | # | Anchor | Copy |
 |---|--------|------|
 | 1 | live clock + weather | "This is the block's real clock. It runs whether you're here or not — the neighborhood doesn't wait for viewers." |
 | 2 | venue occupancy list | "Who's where, right now. Names you see are the main cast — eight people with full lives, plus twenty neighbors." |
-| 3 | a request event in the stream | "Everything a player does is public. This line is someone paying to reach in — attributed, priced, and visible to everyone." |
-| 4 | a follow pin | "Follow a face to filter the stream. Watching closer is always free — following is a lens, never a leash." |
-| 5 | the 'Reach in' entry point | "Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else." |
+| 3 | the cast strip (v25) | "One honest limit up front: the eight mains can't be possessed — not by you, not by the people who run this. Their lives are theirs. If you want a person in the world, you hire a new one." |
+| 4 | a request event in the stream | "Everything a player does is public. This line is someone paying to reach in — attributed, priced, and visible to everyone." |
+| 5 | a follow pin | "Follow a face to filter the stream. Watching closer is always free — following is a lens, never a leash." |
+| 6 | the 'Reach in' entry point | "Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else." |
 
 ## 5. Copy deck — onboarding-specific moments
 
@@ -151,3 +152,113 @@ guided requests use fixed safe text; free-text screening is request.html's
 job and onboarding deliberately doesn't duplicate it. At merge the tour
 anchors to real feed.html element ids; checklist completion subscribes to
 `gsViewerState` events.
+
+---
+
+## v25 — the second pass
+
+v11 built the spine; v25 fills in the honest parts a stranger actually trips
+on: *what name can I have, what does each pack cost, what happens when the
+world says no, and what does this page do the second time I visit.*
+
+### 10. The persona fork (S0.5)
+
+The welcome card now asks one question with two equal-weight answers:
+**"I'm just watching"** or **"I might reach in."**
+
+- `watch` → after the tour, a "That's the whole job" card (S1w): you're set,
+  watching is the product, setup stays reachable but unpushed. Checklist
+  optional items relabel to *"only if you ever want to act."*
+- `play` → the standard S1→S5 sequence unchanged.
+- The fork changes **emphasis and labeling only**. It never unlocks, hides,
+  or prices anything. A watch-fork viewer who later picks up setup sees
+  identical prices and steps — the fork is a reading aid, not a funnel.
+
+### 11. Handle rules (S2)
+
+Handles are **not request text** — §11 intent screening does not apply to
+them (character *names* in the hire flow still go through the real screen per
+`creation.json`). What does apply:
+
+- **Format:** `^[a-zA-Z][a-zA-Z0-9_-]{2,19}$` — starts with a letter, 3–20
+  chars, letters/digits/dash/underscore.
+- **Reserved:** every main + ambient character name and surname
+  (`characters.json` + `ambients.json` are the source lists; the demo carries
+  an inline copy) plus system words (admin, mod, landlord, system, support,
+  owner, realworld, thewire, rw, staff). The feed attributes requests by
+  handle — a spectator named "Victor" would read as the resident.
+  Impersonation is blocked **at input**, not by moderation after the fact.
+- **On taken/invalid:** inline message + suggested variants
+  (`x_sf`, `x-watch`, `ax`). Never an error page, never a strike.
+
+### 12. The wallet shows the whole ladder (S3)
+
+The wallet card now renders the full six-pack ladder from plan §2.1 verbatim —
+Pocket 100 cr/$0.99 through Mogul 14,000 cr/$99.99 — with no "best value"
+highlight, no decoy styling, and the **+50% first-purchase bonus disclosed on
+the card**, not at checkout. The currency wall sentence stays one line:
+credits buy agency, game dollars are rent and wages, the two never convert
+in either direction. The demo top-up remains Starter-only (550 cr/$4.99).
+
+### 13. Teaching the honest "no" (S4b)
+
+The single most important thing a new player can learn about requests is
+that they can be **declined** — and that the game is honest about it. So the
+first-ask stage gains an optional second guided ask:
+
+- A fixed-safe nudge (40 cr) aimed at Doña at El Farolote, **scripted in the
+  demo to be declined** so every tester sees the path: the feed entry
+  resolves with neutral declined wording and **20 cr returns to the wallet
+  automatically** (refund-on-decline per requests.json).
+- Copy promise, verbatim: *"You pay for the ask, never the outcome."*
+- The demo labels this as scripted; real nudge outcomes are never scripted —
+  the AI decides, per design §11 step 5 (inject as opportunity, never
+  mind-control).
+
+The camera ask also gained a lifecycle view: filed → `running` on the feed →
+a "jump ahead" affordance resolves it so the player watches the hard cap end
+the session with nothing billed past it.
+
+### 14. Returning, parked, and deep links
+
+- **Returning** (session 2+ with state, or `?returning=1`): no welcome card.
+  At most a quiet "welcome back" line that dismisses itself into the footer
+  link. The checklist, if unfinished, stays collapsed.
+- **Parked** (new exit state): the card's ✕ sets `parked` — closed mid-way,
+  reopens only via the footer link, never auto-resurfaces on a timer. This is
+  distinct from `dismissed` (explicit don't-show) in state only; both render
+  the same collapsed surface.
+- **Deep links:** `?returning=1` is a demo affordance for playtesting the
+  return path; no other URL parameters exist — onboarding is never
+  deep-linked into a paid step.
+
+### 15. Accessibility & motion
+
+- `prefers-reduced-motion` strips the coach-mark anchor pulse; the tour is
+  click-driven and needs no animation, hover, or drag.
+- Every stage is reachable by buttons alone; the checklist is a plain list,
+  not a progress bar.
+- The fork cards and coach marks are real `<button>`s — keyboard focusable,
+  no divs-as-buttons.
+
+### 16. Edge cases (decided, not deferred)
+
+| Case | Behavior |
+|------|----------|
+| Balance < 40 at the nudge step | "Balance too low" toast; no hidden charge, no debt |
+| Handle left empty | "Pick a handle, or skip" — empty is never an error, skipping is free |
+| Request filed mid-tour (returning user) | tour never auto-plays mid-request; the card stays parked |
+| Dismissed then reopened via footer | full S0 fork returns — dismissal is forgiven, not remembered as a penalty |
+| Onboarding finished | thanks once, collapses permanently; nothing is granted |
+| `localStorage` blocked | journey still works for the session; state just doesn't persist — no nag |
+
+### 17. v25 merge notes
+
+- `storage_key` → `rw_onboard_v25` (schema grew; old v11 state is ignored).
+- New anchors required on the real Wire at merge: `feed-cast` (the cast
+  strip) joins clock/venues/request/follow/reach-in.
+- Reserved-name list at merge = generated from `characters.json` +
+  `ambients.json`, not the demo's inline copy.
+- New analytics hooks (v25): `persona_chosen`, `handle_taken_shown`,
+  `decline_lesson_shown`, `returning_session` — same envelope, stage +
+  opted_out props only.

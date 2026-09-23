@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v24).
+/* world/audit.js — RW boundary audit (world v25).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -24,6 +24,8 @@
      drama     — drama.json structural invariants (state enum, fuse ids,
                  knowledge-matrix disjointness); seed vocabulary never
                  leaks into spectator contracts; drama files never public
+     onboard   — onboarding.json ↔ onboarding.html agreement; honesty
+                 strings present; dark-pattern vocabulary absent
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -163,10 +165,10 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('prices', 'credit pricing sweep (plan §2 PROPOSAL set; currency wall)');
   /* Canonical credit figures — monetization plan §2 + derived session math.
      Everything else is listed for a human eyeball. */
-  const OK_CR = new Set(['1.5', '6', '6.0', '10', '22', '22.5', '30', '40', '45', '50',
+  const OK_CR = new Set(['1.5', '6', '6.0', '10', '20', '22', '22.5', '30', '40', '45', '50',
     '60', '70', '90', '100', '120', '150', '200', '240', '250', '300', '360', '400',
     '500', '550', '600', '750', '800', '900', '1000', '1150', '1200', '1240', '1500',
-    '2000', '2500', '3500', '5000', '6750', '14000']);
+    '2000', '2500', '3500', '5000', '6750', '14000']); // '20' = 50% decline-refund on a 40 cr nudge (requests.json)
   const OK_RATE = new Set(['1.5', '6', '6.0', '1.275', '5.1']);
   /* in-world surfaces: game dollars only — a bare "N cr" figure is a wall breach */
   const INWORLD = new Set(['board.html', 'lease.html', 'timeclock.html',
@@ -326,13 +328,64 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'drama.json', null, 'parse/schema failure: ' + e.message); }
 }
 
+/* ============ G10 onboarding ============ */
+{
+  const g = gate('onboard', 'onboarding contract (json↔html mirror, honesty strings, dark-pattern sweep)');
+  try {
+    const OB = JSONF('onboarding.json');
+    const html = rd('onboarding.html');
+    /* storage key agreement */
+    if (!html.includes(OB.storage_key))
+      add(g, 'fail', 'onboarding.html', null, `storage_key "${OB.storage_key}" not found in onboarding.html`);
+    /* every tour-beat anchor must resolve to a real element id in the demo
+       (ids may be emitted literally or generated — match the quoted anchor
+       string either way) */
+    for (const b of OB.tour_beats || []) {
+      if (!new RegExp(`["']${b.anchor}["']`).test(html))
+        add(g, 'fail', 'onboarding.html', null, `tour beat ${b.n} anchor "${b.anchor}" not found in page source`);
+    }
+    /* honesty strings the page MUST carry (locked promises made visible) */
+    const MUST = [
+      [/never convert/i, 'currency wall sentence ("never convert")'],
+      [/may decline/i, 'nudge honesty ("the character may decline")'],
+      [/\+50%/, 'first-purchase bonus disclosure (+50%)'],
+      [/unpossessable/i, 'possession ban stated out loud ("unpossessable")'],
+      [/free/i, 'free-tier statement']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing required honesty copy: ${label}`);
+    /* dark-pattern vocabulary must never appear on the onboarding surface.
+       Searched on the player-facing html only — the .md/.json legitimately
+       name the banned behaviors in the never-list. */
+    const DARK = [
+      /\bcountdown\b/i, /limited[- ]time/i, /\bexpires?\b/i, /\bstreak/i,
+      /only \d+ left/i, /\bhurry\b/i, /act now/i, /don'?t miss/i, /\bfomo\b/i,
+      /\boffer ends\b/i, /\bclaim your\b/i, /\bfree credits\b/i
+    ];
+    html.split('\n').forEach((ln, i) => {
+      for (const re of DARK)
+        if (re.test(ln)) add(g, 'fail', 'onboarding.html', i + 1,
+          `dark-pattern vocabulary ${re}: ${ln.trim().slice(0, 100)}`);
+      if (/\breward\b/i.test(ln) && !/no .{0,20}reward|grants no|never a reward|nothing is granted/i.test(ln))
+        add(g, 'review', 'onboarding.html', i + 1, `"reward" language — confirm it's a denial of rewards: ${ln.trim().slice(0, 90)}`);
+    });
+    /* persona fork + exit states exist in both files */
+    for (const k of ['watch', 'play'])
+      if (!new RegExp(`fork\\(\\\\?["']${k}`).test(html))
+        add(g, 'fail', 'onboarding.html', null, `persona fork option '${k}' has no handler`);
+    for (const st of ['dismissed', 'parked', 'returning'])
+      if (!html.includes(st)) add(g, 'fail', 'onboarding.html', null, `exit state "${st}" not implemented`);
+    g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
+  } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v24 local';
+out.build = 'world v25 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

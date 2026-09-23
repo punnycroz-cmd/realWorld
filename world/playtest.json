@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 23,
+ "version": 25,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -88,7 +88,7 @@
   },
   "onboard": {
    "file": "onboarding.html",
-   "name": "Onboarding (first session)",
+   "name": "Onboarding (v2)",
    "tier": "free"
   },
   "lease": {
@@ -139,7 +139,12 @@
    "tier": "internal"
   }
  },
- "smoke_set": ["PT1", "PT4", "PT7", "PT21"],
+ "smoke_set": [
+  "PT1",
+  "PT4",
+  "PT7",
+  "PT21"
+ ],
  "severity_rubric": [
   {
    "id": "blocker",
@@ -1114,6 +1119,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT23",
+   "title": "Onboarding v2 — the fork, the reserved name, the honest no",
+   "minutes": 20,
+   "persona": "returning-curious visitor + facilitator checking honesty edges",
+   "goal": "Verify the v25 additions: the watch/play fork changes emphasis only, cast names can't be taken as handles, the declined nudge visibly refunds, and return visits stay quiet.",
+   "surfaces": [
+    "onboard"
+   ],
+   "steps": [
+    {
+     "do": "Open the page cold. On the welcome card, choose 'I'm just watching', take the tour, and land on the 'you're set' card. Reload with ?returning=1 to simulate session 2.",
+     "expect": "The fork changes emphasis and checklist labels only — nothing is hidden or priced differently; the watch path ends in a settle card, not a funnel; return visits show no welcome card.",
+     "checkpoints": [
+      "Both fork options are equal-weight; neither darkens or gates the feed",
+      "Watch-path checklist marks money steps 'only if you ever want to act' — never as failures",
+      "?returning=1 suppresses the welcome card entirely; footer link is the only re-entry"
+     ]
+    },
+    {
+     "do": "Reset. Choose 'I might reach in', tour, then at the handle step try a resident's name ('Victor'), a malformed handle ('x'), and a free one.",
+     "expect": "Reserved cast/ambient names are rejected inline with a plain explanation (impersonation, not moderation); malformed input explains the format; suggestions are offered; a valid handle passes.",
+     "checkpoints": [
+      "Reserved-name rejection says why (can't impersonate a resident) — no 'banned' vocabulary",
+      "Suggestions (x_sf / x-watch / ax) are clickable and valid",
+      "Skipped handle stays free — watching never requires it"
+     ]
+    },
+    {
+     "do": "Fund via the demo top-up, file the camera ask, hit 'jump ahead', then file the guided nudge and watch it decline.",
+     "expect": "Pack ladder shows all six PROPOSAL prices with the +50% bonus disclosed on the card; camera request runs then resolves at its hard cap with nothing billed past; the nudge resolves 'declined' and 20 cr returns automatically.",
+     "checkpoints": [
+      "All six pack prices match plan §2.1 verbatim (100/550/1150/2500/6750/14000 cr)",
+      "'+50% first purchase' is disclosed on the wallet card, not sprung later",
+      "Declined nudge copy reads 'you pay for the ask, never the outcome' — refund lands without any click",
+      "Lifecycle uses feed vocabulary only (running → resolved)"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the onboard gate.",
+     "expect": "onboard gate passes: storage key agrees with the page, all six tour anchors resolve, honesty strings present, zero dark-pattern vocabulary.",
+     "checkpoints": [
+      "Gate reports 'schema v25 · 6 beats · key rw_onboard_v25'",
+      "No FAIL on onboard; any REVIEW 'reward' hit is confirmed to be a denial-of-reward line",
+      "A deleted anchor id or a 'limited-time' string in onboarding.html would fail the gate — spot-check by reading the gate code"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1121,7 +1175,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v23 local",
+   "build": "world v25 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -166,7 +166,7 @@ const SURF={
   lab:{file:"screen-lab.html",name:"Screen Lab"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive (lite)"},
   archive:{file:"archive.html",name:"The Archive"},
-  onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
+  onboard:{file:"onboarding.html",name:"Onboarding (v2)"},
   lease:{file:"lease.html",name:"The Rent Book"},
   thinai:{file:"thinai.html",name:"The Understudy"},
   cast:{file:"cast.html",name:"The Company"},
@@ -464,11 +464,26 @@ const PTS=[
   ck:["Cohort panel renders both imports with attribution","Disagreements list the checkpoint ref and each side's verdict — never averaged away","Merged findings keep their original session's tester name"]},
  {do:"Copy report (Markdown) from the merged session.",
   exp:"The Markdown export carries the cohort summary and disagreement flags alongside the local session's own verdicts.",
-  ck:["A facilitator could paste the export into an inbox note unedited","Boundary-checklist section prints the five invariants verbatim"]}]}
+  ck:["A facilitator could paste the export into an inbox note unedited","Boundary-checklist section prints the five invariants verbatim"]}]},
+{id:"PT23",title:"Onboarding v2 — the fork, the reserved name, the honest no",min:20,persona:"returning-curious visitor + facilitator checking honesty edges",
+ goal:"Verify the v25 additions: the watch/play fork changes emphasis only, cast names can't be taken as handles, the declined nudge visibly refunds, and return visits stay quiet.",
+ surfaces:["onboard"],steps:[
+ {do:"Open the page cold. On the welcome card, choose 'I'm just watching', take the tour, and land on the 'you're set' card. Reload with ?returning=1 to simulate session 2.",
+  exp:"The fork changes emphasis and checklist labels only — nothing is hidden or priced differently; the watch path ends in a settle card, not a funnel; return visits show no welcome card.",
+  ck:["Both fork options are equal-weight; neither darkens or gates the feed","Watch-path checklist marks money steps 'only if you ever want to act' — never as failures","?returning=1 suppresses the welcome card entirely; footer link is the only re-entry"]},
+ {do:"Reset. Choose 'I might reach in', tour, then at the handle step try a resident's name ('Victor'), a malformed handle ('x'), and a free one.",
+  exp:"Reserved cast/ambient names are rejected inline with a plain explanation (impersonation, not moderation); malformed input explains the format; suggestions are offered; a valid handle passes.",
+  ck:["Reserved-name rejection says why (can't impersonate a resident) — no 'banned' vocabulary","Suggestions (x_sf / x-watch / ax) are clickable and valid","Skipped handle stays free — watching never requires it"]},
+ {do:"Fund via the demo top-up, file the camera ask, hit 'jump ahead', then file the guided nudge and watch it decline.",
+  exp:"Pack ladder shows all six PROPOSAL prices with the +50% bonus disclosed on the card; camera request runs then resolves at its hard cap with nothing billed past; the nudge resolves 'declined' and 20 cr returns automatically.",
+  ck:["All six pack prices match plan §2.1 verbatim (100/550/1150/2500/6750/14000 cr)","'+50% first purchase' is disclosed on the wallet card, not sprung later","Declined nudge copy reads 'you pay for the ask, never the outcome' — refund lands without any click","Lifecycle uses feed vocabulary only (running → resolved)"]},
+ {do:"Run `node world/audit.js` and read the onboard gate.",
+  exp:"onboard gate passes: storage key agrees with the page, all six tour anchors resolve, honesty strings present, zero dark-pattern vocabulary.",
+  ck:["Gate reports 'schema v25 · 6 beats · key rw_onboard_v25'","No FAIL on onboard; any REVIEW 'reward' hit is confirmed to be a denial-of-reward line","A deleted anchor id or a 'limited-time' string in onboarding.html would fail the gate — spot-check by reading the gate code"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v23";
+const LS="rw_playtest_v25";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
@@ -544,7 +559,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v23 local",started:new Date(S.started).toISOString(),
+    build:"world v25 local",started:new Date(S.started).toISOString(),
     time_to_first_request_min:S.ttfr??null},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
