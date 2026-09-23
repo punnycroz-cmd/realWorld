@@ -95,6 +95,19 @@ never copying raw.
 | mood_bleed / mood_arousal_bleed | 0.0 | 0.35 | reconstruction mood shift (v0.5) |
 | stress_retrieve_thresh / stress_retrieve_loss | 0.4 / 0.0 | 0.9 / 0.3 | acute retrieval impairment (v0.5) |
 | rumin_k | 0.0 | 1.5 | valence-selective rehearsal gain (v0.5) |
+| warn_mult | 0.2 | 0.8 | post-warning suppression of p_adopt (v0.6) |
+| rep_gain / rep_cap | 0.1 / 1.2 | 0.8 / 3.0 | log-fluency on hearCount (v0.6) |
+| dispute_mult | 0.0 | 0.2 | live-dispute adoption floor (v0.6) |
+| retract_p / cie_residual | 0.3 / 0.1 | 0.9 / 0.6 | correction believability / leak (v0.6) |
+| w_plaus / w_corr / w_fluency | 0.1 | 0.8 | believe_p weights; plaus leads (v0.6) |
+| sleepdep_misinfo_gain | 1.0 | 1.6 | encoding-time sleep-dep susceptibility (v0.6) |
+| sleep_gist_boost | 0.0 | 0.15 | sleep tick edge for gist/phantom (v0.6) |
+| gist_lure_gain | 0.0 | 0.6 | phantom detail write-in (v0.6) |
+| phantom_p / phantom_fan_min | 0.0 / 2 | 0.08 / 8 | whole-episode phantom cap/fan (v0.6) |
+| rm_rich_thresh | 0.3 | 0.8 | richness gate for imagined→witnessed (v0.6) |
+| plaus_min / imagine_gain | 0.15 / 0.0 | 0.6 / 0.4 | implantation gate + gain (v0.6) |
+| source_confuse_flip | 0.0 | 0.4 | imagined→witnessed flip per check (v0.6) |
+| source_confuse | 0.0 | 0.3 | external-source reassignment (v0.6) |
 
 **v0.3 continuous-curves note:** the archetypes below are now *named knots*
 on the piecewise-linear age curves in `age-development.md` §6 — the runtime
@@ -122,6 +135,19 @@ adult raises w_emo_pos/w_emo_neg split (already), mood_bleed ×1.3, and
 keeps a deep conditioned-association table (decades of cond entries).
 All v0.5 params have spec defaults — profiles only override where a
 character's affect style differs.
+
+**v0.6 false-memory note:** the new distortion params split by the two
+existing channels — `gist_lure_gain`, `phantom_p`, `sleep_gist_boost`
+scale with `confab_fill` (monotonic gist channel); `warn_mult`,
+`dispute_mult`, `retract_p`, `sleepdep_misinfo_gain` ride the
+suggestion side (U-shaped `misinfo_suscept`); `source_confuse`/
+`source_confuse_flip`/`rm_rich_thresh` scale with `discrim_mult`
+(source monitoring is discrimination machinery — older adults confuse
+sources more). `imagine_gain` is personality-flavored (ruminators,
+daydreamers); `plaus_min` should be near-flat across age — children and
+adults both reject bizarre content, children differ in what counts as
+bizarre. Emergent check: a co-witness pair discussing a field neither
+holds verbatim should converge ~70% of the time (Gabbert 2003 anchor).
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -151,6 +177,9 @@ forget_thresh 0.10 · neg_affect_decay 1.1
 theta 0.40 · w_state 0.45 (strong mood-congruence) · w_sensory 0.25
 rif_k 0.03 · retell_boost 0.35
 drift_p 0.12 · misinfo_suscept 0.60 · confab_fill 0.75
+gist_lure_gain 0.45 · phantom_p 0.04 · imagine_gain 0.25
+  (v0.6: children phantomize freely and imagination-inflate fast —
+  Ceci & Bruck suggestibility + immature reality monitoring)
 ```
 Emergent: vivid but scrambled; adopts adults' versions of events easily;
 confidently wrong.
@@ -228,6 +257,10 @@ sensory_age_slope 1.3 · intrusion_thresh 0.65 (drifts into the past often)
 plist_suppress 0.08 (easily steered by what others said)
 rif_k 0.08 · retell_boost 0.35 (much-retold old stories stay sharp — and drifted)
 drift_p 0.14 · misinfo_suscept 0.50 · confab_fill 0.8 · bump_beta_mult 0.5
+gist_lure_gain 0.45 · phantom_p 0.03 · source_confuse 0.2
+source_confuse_flip 0.25 · rm_rich_thresh 0.4
+  (v0.6: weak verbatim + faded source tags → invented detail and
+  misattributed sources; the polished-and-partly-false old story)
 link_p 0.45 (associative deficit — knows *that*, not *with whom/where*)
 w_emo_pos 1.25 · w_emo_neg 0.85 (positivity at encoding, SST)
 pm_self 0.45 (event-cued intentions fine; bare deadlines slip)
@@ -251,9 +284,9 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 |---|---|---|
 | **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core); intrusion_thresh −0.15 for threat-cued records (intrusive recall). **v0.5:** seed ≥1 `trauma:true` backstory record + cond_thresh ×0.9, cond_gain ×1.3 (lowered acquisition bar, faster conditioning) — the intrusion discount and fragmented timeline are now record properties (spec §5.7, emotional-memory.md §7) | hyper-encoded threat core, fragmented context; conditioned dread outlives the record (R§5, R§8; RC§5; Bouton 2004) |
 | **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15 | cortisol impairs encode+retrieve (R§8) |
-| **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2 | consolidation failure (R§2, R§8) |
-| **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion) |
-| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5 | overgeneral memory, mood-congruence, negative rehearsal loop (R§8; emotional-memory.md §8) |
+| **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2; **v0.6:** sleepFactor 0.7 < 0.75 → `sleepdep_flag` fires on most new records → permanently higher misinfo adoption on them (Frenda 2014 — the underslept are the gullible) | consolidation failure (R§2, R§8; false-memory.md §3) |
+| **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15; **v0.6:** rumor `hearCount` accumulates faster (more exposures per rumor — repetition, not variety, is the mechanism); rep_gain ×1.1 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion; illusory truth g≈0.37) |
+| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5; **v0.6:** imagine_gain ×1.5 on negative-valence scenarios only — rehearsed fears can flip into remembered ones via §6.9 | overgeneral memory, mood-congruence, negative rehearsal loop, feared→remembered drift (R§8; emotional-memory.md §8; Garry 1996) |
 | **Domain expert** (per domain tag) | enc_base +0.1 for events matching domain cue; k_verbatim ×0.7 in-domain | expertise deepens encoding (R§8) |
 | **Routine-heavy life** | merge_thresh ×0.9; interf_k ×1.3 | commutes blur together (R§3) |
 | **Isolation / few retellings** | retell_boost ×0.6; memories fade without rehearsal | — |

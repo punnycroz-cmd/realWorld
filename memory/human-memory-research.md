@@ -266,6 +266,38 @@ sometimes*, believably.
 drift toward gist, adopt post-event information, lose source tags, and inflate
 with rehearsal. Confidence and accuracy are separate fields.
 
+**v6 calibration (full derivations in `false-memory.md`):** the
+misinformation effect is calibrated against the 50-year meta (g=0.735,
+480 studies) with moderators formalized — post-warnings halve it
+(`warn_mult` 0.45; Blank-line post-warning meta, 155 effect sizes),
+repetition compounds logarithmically while source *variability* is a
+null moderator (`hearCount` content-hash, `rep_gain·log1p`; Paterson-
+line meta k=8 + illusory-truth meta g=0.37), live dispute near-blocks
+(`dispute_mult` 0.05; Wade et al. 2018 multilab N=486), and per-field
+`fieldStrength` replaces record-level accuracy as the absorption gate
+(retention-interval moderator). Continued influence: corrections flip
+beliefStatus at trust-gated `retract_p` but content keeps `cie_residual`
+inference weight (Johnson & Seifert 1994; Ecker 2010/2011/2017 —
+reminder-corrections help). Sleep is double-edged: Frenda et al. 2014
+→ permanent `sleepdep_flag` only when deprivation covers ENCODING;
+Payne et al. 2009 → `sleep_gist_boost` preserves gist/phantom over
+verbatim (2025 preregistered partial replication noted). New phantom
+machinery: DRM 40–55% false recall / FA≈hits (Roediger & McDermott
+1995) + fuzzy-trace verbatim-suppresses-false (Reyna & Brainerd) →
+`gist_lure_gain`/`phantom_p`/`phantom_fan_min` minting. Imagination
+inflation (Garry 1996; implantation rates Loftus & Pickrell 25% →
+Murphy 2023 35%; Brewin & Andrews 2017: 47% some experience / 15% full;
+plausibility gate Scoboria 2004/Pezdek) → `imagineEvent` +
+`source_confuse_flip` reality-monitoring failures (Johnson & Raye).
+Source monitoring becomes retrieval-time inference (`sourceInfer`,
+Johnson et al. 1993). Belief/recollection dissociation (Scoboria 2014;
+Mazzoni 2010 ~20% nonbelieved; Rubin, Schrauf & Greenberg 2003) →
+derived `believe_p`/`recollect_q` pair under `beliefStatus`.
+Conformity anchors: Gabbert 2003 (71%), Wright 2000 (79%), Carol 2013
+(power asymmetry). Spec v0.6: record +phantom/retracted/hearCount/
+sleepdep_flag; §6.3 rewritten; new §§6.6–6.10; +16 params; probes
+P39–P47.
+
 ---
 
 ## 7. Age effects (the lifespan curve)

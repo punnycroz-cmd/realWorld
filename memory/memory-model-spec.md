@@ -1,4 +1,4 @@
-# Memory Model Spec v0.5 — implementable human-like memory for RW characters
+# Memory Model Spec v0.6 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -62,6 +62,17 @@ MemoryRecord = {
                                       // arousal ≥ trauma_thresh — record-
                                       // level phenotype, see §7 of
                                       // emotional-memory.md
+  "phantom": false,                   // v0.6: event never happened (gist-
+                                      // lure or planted, §6.8/6.9) —
+                                      // hidden from the character
+  "retracted": false,                 // v0.6: corrected content; still
+                                      // leaks via cie_residual (§6.6)
+  "hearCount": 0,                     // v0.6: times this content reached
+                                      // the character from ANY source —
+                                      // repetition, not variety (§6.3)
+  "sleepdep_flag": false,             // v0.6: encodeDay sleepFactor was
+                                      // <0.75 — permanent susceptibility
+                                      // marker (Frenda 2014, §2/§6.3)
   "accessLog": []                     // optional debug; may be capped
 }
 ```
@@ -165,6 +176,12 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   `strength += post_stress_gain·(1−strength)` (≈0.15) — post-learning
   arousal strengthens prior congruent traces (Cahill et al. 2003;
   emotional-memory.md §2.3).
+- **Sleep-deprivation susceptibility flag (v0.6):** if the character's
+  `sleepFactor` on the record's `createdDay` was < 0.75, set
+  `sleepdep_flag: true` — a PERMANENT marker raising that record's later
+  misinformation adoption (§6.3, `sleepdep_misinfo_gain`). Deprivation
+  *at encoding* is what matters; poor sleep on later days does nothing
+  (Frenda et al. 2014; false-memory.md §3).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -282,6 +299,13 @@ normally) but decays only during the sleep tick, at
 `consol_beta_mult` (0.5) × its normal β. Effect: day-1 survival is bimodal —
 events that reach the sleep tick keep most of their strength; same-day
 interference before sleep is what kills them. See `forgetting-curves.md` §2.8.
+**v0.6 — gist edge at sleep:** at the daily tick, `generic:true` records
+and `phantom:true` records (§6.8) get
+`strength += sleep_gist_boost·(1−strength)` (≈0.05) — sleep consolidates
+gist over verbatim, preferentially preserving exactly the content that
+drives false recall (Payne et al. 2009; partially debated — a 2025
+preregistered replication found the effect conditional on intrusion-
+adjusted memory level; false-memory.md §3).
 
 ### 4.7 Permastore transition (new in v0.1)
 
@@ -568,24 +592,37 @@ records (>0.3) confabulate at `confab_fill·pos_gist_drift` — positive
 affect recruits conceptual/gist processing (Storbeck & Clore 2005;
 emotional-memory.md §3).
 
-### 6.3 Misinformation merge (rumor interface)
+### 6.3 Misinformation merge (rumor interface) — calibrated in v0.6
 
 When character hears an account of an event they have a memory of:
 ```
 if similarity(myMemory, heardAccount) > 0.4:
-    for each conflicting detail:
-        p_adopt = misinfo_suscept (param) · sourceCredibility · (1 - myMemory.accuracy·0.5)
-        // v0.5: core fields (who/what/where) of negative high-arousal
-        // records (valence < −0.3 AND arousal > 0.6) get
-        // p_adopt *= neg_core_resist (0.7) — reality-monitoring advantage
-        // of negative detail; PERIPHERAL fields of the same record adopt
-        // at normal rate (Kensinger & Schacter 2006; emotional-memory.md §3)
-        if rand < p_adopt: overwrite field, accuracy -= 0.15, confidence unchanged
+    for each conflicting detail field:
+        p_adopt = misinfo_suscept · sourceCredibility
+                · (1 − fieldStrength)              // v0.6: per-field
+                                                   // verbatim survival —
+                                                   // weak traces absorb,
+                                                   // strong resist
+                · (1 + rep_gain·log1p(hearCount))  // fluency; capped rep_cap
+                · (warned ? warn_mult : 1)         // post-warning ≈halves
+                                                   // (Blank meta, FM§1)
+                · (disputed ? dispute_mult : 1)    // ~0.05 — live dispute
+                                                   // blocks (Wade 2018)
+                · (sleepdep_flag ? sleepdep_misinfo_gain : 1)  // Frenda 2014
+                · (neg_core_resist if valence<−0.3 & arousal>0.6 core field)
+                                                   // v0.5, kept
+        if rand < p_adopt: overwrite field, accuracy -= 0.15,
+                           confidence unchanged
+    hearCount++ on the rumor-content hash (shared across speakers —
+        source VARIABILITY adds nothing; only repetition count matters,
+        Paterson-line meta k=8; false-memory.md §1)
     heardAccount may merge into myMemory.source ("told_by" contamination)
 ```
 This is THE rumor-propagation hook: a rumor is a `beliefStatus:"rumor"` record
 that can contaminate witnessed memories it resembles. (R§6 misinformation
-effect — the most replicated result in memory science.)
+effect — the most replicated result in memory science; 2025 meta
+g=0.735 across 480 studies — see false-memory.md §1 for moderator
+calibration.)
 
 **Two distortion channels, opposite age gradients (v0.3):**
 `misinfo_suscept` is the *suggestion* channel — U-shaped over the lifespan
@@ -607,7 +644,122 @@ how episodic events crystallize into the belief-vs-fact layer (R§6, R§9).
 
 When two characters discuss a shared event, run misinformation merge **both
 ways** with asymmetric susceptibility — the pair drifts toward a shared
-(possibly false) version (social contagion, R§6).
+(possibly false) version (social contagion, R§6). **v0.6 calibration:**
+adoption is near-total only where the listener holds NO verbatim on the
+contested field (Gabbert et al. 2003: 71% adoption on uniquely-seen
+items; Wright et al. 2000: 79% conformity). Fields with surviving
+verbatim resist at `fieldStrength` (§6.3). If the listener's
+reconstruction surfaced a conflicting field and the dialogue layer
+registers live disagreement, mark the account `disputed` — adoption for
+that field drops to `dispute_mult` this round (Wade et al. 2018
+multilab: co-witness errors concentrated in undisputed reports).
+Relative power between speakers enters through `sourceCredibility`
+(Carol et al. 2013).
+
+### 6.6 Corrections and the continued-influence effect (new in v0.6)
+
+A `correction` account (`account.type == "correction"`, trusted source
+asserting the earlier content was false) never deletes or overwrites the
+field — misinformation once encoded keeps influencing inference even
+when the retraction is itself remembered (Johnson & Seifert 1994; Ecker
+et al. 2010/2011; false-memory.md §2):
+
+```
+retract_p = correction_strength · sourceCredibility_trust
+            // trustworthiness gates, NOT expertise — low-trust
+            // retractions are entirely ineffective (Ecker & Antonio 2021)
+            // default ≈0.6 for a trusted corrector
+            // ×1.2 if the correction repeats the original content
+            // (reminder corrections work BETTER — Ecker et al. 2017)
+if rand < retract_p: record.retracted = true, beliefStatus → "doubted"
+either way: retracted fields keep feeding gist reconstruction and
+    §6.4 trait abstraction at weight cie_residual (≈0.3) — the
+    correction is known; the misinformation still leaks
+```
+
+### 6.7 Believe vs recollect — nonbelieved memories (new in v0.6)
+
+`beliefStatus` is a discretization of a derived pair evaluated at
+retrieval (Scoboria et al. 2014; Otgaar, Scoboria & Mazzoni 2014;
+Rubin, Schrauf & Greenberg 2003; false-memory.md §7):
+
+```
+recollect_q = verbatimStrength·(1 + sensoryRichness)      // reliving
+believe_p   = w_plaus·plausibility + w_corr·corroboration
+              + w_fluency·fluency(retrievalCount + hearCount)
+beliefStatus: >0.8 fact · 0.45–0.8 belief · 0.2–0.45 rumor ·
+              <0.2 doubted (regardless of recollect_q)
+```
+
+- **Nonbelieved memory** = high recollect_q + believe_p < 0.2 — vivid,
+  disbelieved ("I can see it, but it can't have happened"; ~20% of
+  adults hold one, Mazzoni et al. 2010). Trauma records after a trusted
+  correction can land here.
+- **Believed-not-remembered** = high believe_p + ~zero recollect_q —
+  fluent corroborated hearsay ("everyone says the fire was arson") —
+  the natural state of a `told_by` record with high hearCount.
+
+### 6.8 Phantom / gist-lure records (new in v0.6)
+
+The model can invent records, not just corrupt them — DRM mechanism
+(Deese 1959; Roediger & McDermott 1995: 40–55% false recall, false-alarm
+recognition ≈ hit rate; fuzzy-trace theory, Reyna & Brainerd 1995:
+verbatim suppresses falsity, gist supports it; false-memory.md §4):
+
+```
+During reconstruction of m (§5.5), for a schema-typical lure
+field/episode converged on by ≥ phantom_fan_min (≈4) linked records:
+P(phantomize) = gist_lure_gain (≈0.3) · confab_fill · gistStrength
+              · (1 − verbatimStrength)      // FTT suppression
+              · discrim_mult                // age: separation deficit
+              · (valence<0 ? neg_fidelity : pos_gist_drift)
+field-level: write schema-typical detail into verbatim
+             (accuracy→0 on that field, confidence += 0.02 fluency)
+episode-level (rare, cap phantom_p ≈ 0.02 per recall):
+             mint a phantom record — accuracy=0 hidden,
+             source.kind:"self", verbatim schema-generated,
+             phantom:true; decays and reconsolidates normally,
+             gets sleep_gist_boost at the daily tick (§4.6)
+```
+
+### 6.9 Imagination inflation — imagineEvent (new in v0.6)
+
+Daydreams, rehearsed lies, what-ifs, and guided probing write
+`source.kind:"imagined"` records that can later be misattributed as real
+(Garry et al. 1996; Loftus & Pickrell 1995 → Murphy et al. 2023: ~35%
+report planted childhood events; Brewin & Andrews 2017: ~47% some
+recollective experience, ~15% full memory; false-memory.md §5):
+
+```
+imagineEvent(charId, scenario):
+  plaus = plausibility(scenario, char)     // schema fit + world model
+  if plaus < plaus_min (0.35):             // Pezdek/Scoboria gate —
+        refresh as fantasy only; can NEVER flip to witnessed
+  else: create/update imagined record: encodingE ~0.25·plaus, verbatim
+        schema-generated, source.kind:"imagined"
+  per call: strength += imagine_gain·(1−strength) (~0.15);
+        confidence += 0.05
+  source flip (reality-monitoring failure, Johnson & Raye 1981): when
+        source.confidenceInSource decays <0.3 (§6.4) AND verbatim
+        richness > rm_rich_thresh (0.5), flip source.kind to
+        "witnessed" with prob source_confuse_flip (≈0.15/check)
+```
+
+### 6.10 Source monitoring is inference (new in v0.6)
+
+Replaces the "attribution gone" dead end in §6.4 (Johnson, Hashtroudi &
+Lindsay 1993 — source attribution is a retrieval-time inference;
+false-memory.md §6):
+
+```
+sourceInfer(m): if source.confidenceInSource < 0.3:
+  external-external: with prob source_confuse (≈0.1, ·discrim_mult for
+      age), reassign source.who to the most cue-overlapping plausible
+      source s: P(s) ∝ sim(m.source.cueContext, s)·sourceCredibility(s)
+      — and confidence += 0.02 (a filled source reads better than blank)
+  internal-external: source.kind "imagined"→"witnessed" per §6.9 flip
+      rule (gate on verbatim richness, not confidence)
+```
 
 ---
 
@@ -699,7 +851,20 @@ MemoryParams = {
   "neg_core_resist": 0.7,      // misinfo resistance of neg-core fields
   "mood_bleed": 0.10, "mood_arousal_bleed": 0.1,// reconstruction mood shift
   "stress_retrieve_thresh": 0.6, "stress_retrieve_loss": 0.12, // glucocorticoid
-  "rumin_k": 0.5               // valence-selective rehearsal (depressive mod.)
+  "rumin_k": 0.5,              // valence-selective rehearsal (depressive mod.)
+  // v0.6 additions (false-memory calibration, false-memory.md §§9–10)
+  "warn_mult": 0.45,           // post-warning suppression of p_adopt (§6.3)
+  "rep_gain": 0.4, "rep_cap": 2.0,   // log-fluency on hearCount (§6.3)
+  "dispute_mult": 0.05,        // live-dispute adoption floor (§6.3, §6.5)
+  "retract_p": 0.6, "cie_residual": 0.3,   // corrections/CIE (§6.6)
+  "w_plaus": 0.5, "w_corr": 0.3, "w_fluency": 0.2,   // believe_p (§6.7)
+  "sleepdep_misinfo_gain": 1.25,   // poor sleep AT ENCODING (§2, §6.3)
+  "sleep_gist_boost": 0.05,    // sleep tick edge for gist/phantom (§4.6)
+  "gist_lure_gain": 0.3, "phantom_p": 0.02, "phantom_fan_min": 4, // §6.8
+  "rm_rich_thresh": 0.5,       // richness gate for imagined→witnessed (§6.9)
+  "plaus_min": 0.35, "imagine_gain": 0.15, // plausibility gate + gain (§6.9)
+  "source_confuse_flip": 0.15, // imagined→witnessed flip rate (§6.9)
+  "source_confuse": 0.10       // external source reassignment (§6.10)
 }
 ```
 
@@ -764,20 +929,39 @@ the age-PM paradox for free. See `age-development.md` §7.
   (v0.4, §5.5) — dialogue should render it as feeling-of-knowing
   ("…the woman from Mudhaus, name's right there"). v0.5: `cueContext` may
   carry `stress` (0..1 — acute retrieval impairment, §5.4) and `mood`
-  (drives mood_bleed on the reported affect tag, §5.5)
+  (drives mood_bleed on the reported affect tag, §5.5). v0.6: a
+  Reconstruction may originate from a `phantom:true` record (§6.8) —
+  the flag is NEVER exposed to the character; it exists for the
+  history browser and validation probes only
 - `conditionedAffect(charId, cue) -> {valence, arousal}|null` (v0.5, §4.9)
   — read the conditioned-association response to a cue; dialogue/
   behavior layer uses it for avoidances and attractions that outlive the
   episodic source
 - `ambientMemoryScan(charId, context) -> [Reconstruction]` — involuntary
   recall for unfocused ticks (v0.2, §5.7)
-- `hearAccount(charId, speakerId, account)` → misinformation merge
+- `hearAccount(charId, speakerId, account)` → misinformation merge.
+  v0.6: `account` may carry `warned: true` (listener flagged the source
+  as unreliable — halves adoption, §6.3), `disputed: true` (listener
+  contradicted live — near-immunity, §6.5), `type: "correction"`
+  (retraction path — §6.6, flips beliefStatus→"doubted" at
+  `retract_p` while content keeps `cie_residual` inference weight).
+  `hearCount` on the content hash increments regardless of speaker —
+  repetition, not variety, is the fluency mechanism (§6.3)
+- `imagineEvent(charId, scenario)` (v0.6, §6.9) → writes/strengthens an
+  `imagined`-source record gated by `plaus_min`; used for daydreams,
+  rehearsed lies, and guided probing; records can later flip to
+  `witnessed` via source decay + richness gate (reality-monitoring
+  failure)
 - `discussEvent(charA, charB, eventRef)` → bidirectional merge + part-list
-  suppression of unspoken fields (v0.2, §5.8)
+  suppression of unspoken fields (v0.2, §5.8); v0.6: emit `disputed`
+  on hearAccount when a listener's reconstruction contradicted a field
+  during the discussion (§6.5)
 - `dailyMemoryTick(charId, sleepQuality)` → decay/interference/consolidation
   + v0.5: selective emotional consolidation and retrograde stress
   enhancement on the first sleep tick, affect-tag decay split, conditioned
-  -affect decay/recovery (§4.9)
+  -affect decay/recovery (§4.9); v0.6: `sleep_gist_boost` on generic +
+  phantom records (§4.6), source-decay check feeding `sourceInfer`
+  (§6.10)
 - `memorySnapshot/Load(charId)` → serialize the two stores + params
 - `rememberIntention(charId, intention)` → optional PM extension (§9, v0.3)
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors
