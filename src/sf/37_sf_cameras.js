@@ -32,7 +32,9 @@ const SF_CAM_PRESETS = {
     cam: { x: 303 * CS, y: 213 * CS, zoom: 0.5 } },
   mission_street: { label: 'Street level — 18th & Guerrero',
     mode: 'street', free: true,
-    sfCam: { director: true, x: 1300, y: 1230, h: 1.7, yaw: 0.77,
+    // on the 18th St sidewalk, ~63m east of Haus Coffee's door (1332,1258),
+    // looking west down the storefront row
+    sfCam: { director: true, x: 1395, y: 1266, h: 1.7, yaw: -3.02,
              pitch: 0.02, fov: 1 } },
   rooftop_park: { label: 'Rooftop — over Dolores Park',
     mode: 'street', free: true,

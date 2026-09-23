@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real World — A Living Neighborhood You Can Watch</title>
+<meta name="description" content="A persistent AI neighborhood in San Francisco's Mission District. 28 fictional characters live here 24/7. Watching is free — pay only to reach in. Local production build — no accounts, no payments, no deploy.">
+<style>
+  :root{ --bg:#0d1017; --panel:#141923; --line:#2c3440; --ink:#ece7db;
+         --mut:#a89f8a; --amber:#e8a04c; --blue:#6ea8d4; --green:#5fae7f; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.6 'Segoe UI',system-ui,sans-serif}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);background:#10141c}
+  .nav{display:flex;align-items:center;gap:18px;padding:14px 0}
+  .brand{font-weight:800;letter-spacing:.16em;color:var(--ink);text-decoration:none}
+  .brand small{display:block;font-size:10px;color:var(--amber);letter-spacing:.3em}
+  .nav a{color:var(--mut);text-decoration:none;font-size:13.5px}
+  .nav a:hover{color:var(--ink)}
+  .hero{padding:64px 0 40px}
+  .eyebrow{color:var(--amber);text-transform:uppercase;letter-spacing:.2em;
+           font-size:12px;font-weight:700}
+  h1{font-size:44px;line-height:1.15;margin:10px 0 16px;max-width:640px}
+  .lede{color:var(--mut);font-size:18px;max-width:560px}
+  .btn-row{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:12px 22px;border-radius:8px;font-weight:600;
+       text-decoration:none;font-size:15px}
+  .btn-primary{background:var(--amber);color:#1a1408}
+  .btn-ghost{border:1px solid var(--line);color:var(--ink)}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:40px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:18px}
+  .stat .big{font-size:34px;font-weight:800;color:var(--amber)}
+  .stat .lbl{font-size:12.5px;color:var(--mut)}
+  section{padding:26px 0}
+  h2{font-size:28px;margin:0 0 14px}
+  h3{margin:0 0 8px;color:var(--amber)}
+  p{color:var(--mut);max-width:70ch}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .cols .card p{font-size:14px}
+  .foot{border-top:1px solid var(--line);margin-top:40px;padding:20px 0;
+        font-size:12.5px;color:var(--mut)}
+  code{background:#1c2129;padding:2px 7px;border-radius:5px;color:var(--green);
+       font-size:12.5px}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+  <a class="brand" href="index.html">REAL WORLD<small>THE MISSION</small></a>
+  <a href="hub.html">Watch</a><a href="hub.html#wire">The Wire</a>
+  <a href="hub.html#cast">Cast</a><a href="hub.html#house">Housing</a>
+  <a href="playtest/replay.html" style="margin-left:auto">Playtest replay</a>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <p class="eyebrow">Local production build · world-sim-production</p>
+  <h1>The Truman Show you can visit.</h1>
+  <p class="lede">Eight main characters — baristas, a nurse, a courier, a cook,
+    a seamstress, a hardware-store landlord — run on full AI minds with memory,
+    jobs, relationships, and secrets of their own. Twenty more neighbors fill
+    the sidewalks on lightweight AI. All of them are fictional; the streets,
+    the park, and the skyline are real San Francisco.</p>
+  <p class="lede">Watching costs nothing. Reaching in is what you pay for —
+    and the cast can never be possessed. Not by other players, not by us.</p>
+  <div class="btn-row">
+    <a class="btn btn-primary" href="hub.html">Open the hub — watch the block</a>
+    <a class="btn btn-ghost" href="hub.html#req">File a request</a>
+  </div>
+</div></section>
+
+<section><div class="wrap grid-4">
+  <div class="card stat"><div class="big">28</div><div class="lbl">fictional residents on one real block</div></div>
+  <div class="card stat"><div class="big">8</div><div class="lbl">main characters with full AI minds</div></div>
+  <div class="card stat"><div class="big">24/7</div><div class="lbl">the world runs whether you watch or not</div></div>
+  <div class="card stat"><div class="big">$0</div><div class="lbl">to watch — observation is free, always</div></div>
+</div></section>
+
+<section><div class="wrap cols">
+  <div class="card"><h3>Watch</h3>
+    <p>Per-viewer cameras: follow any resident, hold the Dolores Park
+    overlook, the street lens on 18th &amp; Guerrero, or the rooftop over
+    the park. The spectator feed narrates the block in real time.</p></div>
+  <div class="card"><h3>Reach in</h3>
+    <p>File requests into the real pipeline — weather, street events, a
+    hire of your own. Everything is screened, billed in credits, reviewed
+    by the desk, and resolved in public on the Wire.</p></div>
+  <div class="card"><h3>Move in</h3>
+    <p>Create a character, sign a lease on a real Mission address, pay
+    rent in game dollars that never mix with credits. The ledger keeps
+    the books; the Wire keeps the story.</p></div>
+</div></section>
+
+<section><div class="wrap foot">
+  <p><b>Build note:</b> this is the local production cut — no accounts, no
+  payments, no deploy. Credits enter through the demo grant or the honest
+  ad trickle. Open <code>production/hub.html</code> for the world; see
+  <code>PRODUCTION.md</code> for run instructions and pinned SHAs.</p>
+</div></section>
+</body>
+</html>
