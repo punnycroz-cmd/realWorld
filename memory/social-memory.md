@@ -491,3 +491,432 @@ audience tuning (no evidence smarter speakers escape SIB).
   model a shared public memory store — Hirst & Echterhoff 2012's
   collective-memory frame says that's right: collective memory lives in
   individuals' aligned memories, not a hive store.
+
+---
+
+# Part II (v20) — the talk ecology: sharing drives, confidence by consensus, secrets on a timer
+
+Part I added *person* representations and the listener-side machinery
+(SS-RIF, audience tuning, serial reproduction, credibility learning).
+Part II deepens the *ecology* — why records enter talk at all, what
+repeated talk does to them over months, and the channels that are still
+missing: social validation of confidence, common-ground bookkeeping,
+confidentiality as a decaying tag, gossip priming perception, shared
+attention, and partner-as-memory. Every mechanism lands in spec v2.0.
+
+Citations author/year; tiers as in Part I.
+
+## 18. Social sharing of emotion — the retell engine's missing trigger **[CONSENSUS existence; parameter estimates ROBUST]**
+
+§4.13 fires retells from `retell_base·E_adj·(1+retell_social·sharedCue)`
+— a flat ecology with no *motive*. The motive exists and is measured:
+**social sharing of emotion** (Rimé, Mesquita, Philippot & Boca 1991;
+Rimé, Finkenauer, Luminet, Zech & Philippot 1998 review; Rimé 2009).
+~80–95% of emotional episodes are socially shared, typically within
+days; sharing frequency and repetition scale with emotional *intensity*
+(regardless of valence); sharing is age-robust (children share from
+preschool; Rimé et al. 1998 §). The one robust suppressor is
+**shame/social-risk content** — events whose telling threatens the
+teller are shared less and later (Finkenauer & Rimé 1998).
+
+Critical boundary — **the recovery illusion**: talking does NOT
+extinguish the emotion. Zech & Rimé 2005 (bereavement): sharing
+frequency did NOT predict emotional recovery; perceived benefit yes,
+measured recovery no. Christophe & Rimé 1997 — emotional arousal is
+reactivated, not vented. So sharing buys *storage strength* (rehearsal,
+§4.11) and buys nothing on the affect tag beyond the §6.11
+`verbal_dampen` term — the two effects must stay separate: a character
+who talks constantly about the breakup keeps the pain AND the memory.
+
+Implement: replace the flat daily draw with an affect-weighted one:
+
+```
+p_retell = retell_base·E_adj·(1 + retell_social·sharedCue
+           + share_k·|affect|)·(1 − share_shame_pen·shameFlag)
+share_k ≈ 0.8;  share_shame_pen ≈ 0.5 (shameFlag = negative
+  self-relevance, selfRelevance>0.6 & valence<−0.4 & self-as-agent
+  fault — world/behavior layer supplies the flag or the rule)
+on each retell: affect tag decays by verbal_dampen only (§6.11);
+  NO additional relief — share_relief = 0 is the default, not a knob
+```
+
+Emergent: the neighborhood's most-told records are exactly the
+high-arousal ones — disasters and scandals rehearse themselves to
+permastore while routines die in days; the shamed clerk never mentions
+the firing but can't stop replaying it (intrusion machinery does the
+replaying, §5.7).
+
+## 19. The speaker's floor — own-turn advantage + facilitation **[CONSENSUS on components]**
+
+v1.2 already prices the components: `prod_gain` (said-aloud bonus,
+recognition-weighted — MacLeod et al. 2010), `gen_gain` (self-generated
+content, Bertsch et al. 2007 d=0.40), `enact_gain` (performed actions,
+Roberts et al. 2022 g=1.23). Part II adds the *dialogue bookkeeping*
+that makes them fire correctly in conversation, plus one missing
+counterweight:
+
+- **Own-turn mapping:** in a conversation event, fields the character
+  produced (their utterances, their arguments) encode with
+  `prod_gain`/`gen_gain` automatically; co-participants' utterances
+  encode under listener attention (which §2.4 `next_in_line` taxes
+  pre-turn). Emergent and documented: people remember conversations
+  asymmetrically, centered on their own contributions (Ross & Sicoly
+  1979 self-serving recall asymmetry — memory privileges one's own
+  role; also Fischer et al. on own-argument advantage).
+- **Retrieval-induced facilitation (the SS-RIF counterweight):**
+  retrieval practice *facilitates* related material when the practiced
+  and non-practiced items are integrated into one coherent episode —
+  suppression needs competition, integration flips the sign (Chan,
+  McDermott & Roediger 2006 — initially untested but related material
+  improves after retrieval practice; further boundary: facilitation at
+  longer delays and with integrative encoding). Implement in §5.8:
+  unsurfaced same-event records with `links` into the surfaced record
+  (integration, not mere similarity) get `strength *= (1 +
+  rif_facil_k)` (≈0.03) instead of the ss_rif/plist suppress. Switch
+  rule: `integrated` = shares an event id or `links` edge;
+  `competitor` = cue-similar but no link — the two populations get
+  opposite signs, which is exactly what the literature shows.
+
+## 20. Corroboration inflates confidence — social validation **[ROBUST]**
+
+Eyewitness post-identification feedback: confirming feedback ("good,
+you identified the suspect") inflates retrospective confidence,
+attention, and even recollection of view quality — disconfirming
+feedback depresses it less (Wells & Bradfield 1998; Bradfield, Wells &
+Olson 2002 — the inflation persists when feedback follows the ID by
+days, and survives warnings). Co-witness information likewise shifts
+confidence beyond its informational value (Skagerberg & Wright 2008;
+Luus & Wells 1994). Crucially the shift is to *confidence*, not
+accuracy — §6.5 already handles content convergence; this is the
+confidence channel. Feedback effect is **asymmetric in persistence**:
+inflation from confirming feedback survives later discrediting of the
+feedback source more than the depression does.
+
+Implement in `hearAccount`/`discussEvent` when accounts are compared:
+
+```
+match on core fields (who/what/where within sim(·,·)>merge_thresh):
+  listener conf += corroborate_conf (≈0.15) on BOTH records
+  speaker's own record likewise inflated (mutual validation is real —
+  both parties leave more certain, whoever was right)
+contradiction (listener reconstructed field conflicts):
+  conf −= disagree_conf (≈0.10) — magnitude smaller than the
+  confirming bump, per the asymmetry
+persistence: once applied, corroborate_conf deltas do not unwind when
+  sourceCredibility later drops (the confidence stays even when the
+  corroborator is exposed — Wells & Bradfield boundary)
+```
+
+Emergent: consensus does not mean truth — a dyad that mutually confirms
+a shared confabulation ends MORE confident than either was alone;
+"everyone agrees it happened that way" and "it happened that way"
+decouple (binds to §6.7 believe/recollect split).
+
+## 21. Common-ground overreach — the copresence assumption **[ROBUST direction; params HYPOTHESIS]**
+
+Speakers systematically overestimate what others know — egocentric
+anchoring on one's own knowledge (curse of knowledge: Birch & Bloom
+2007; Nickerson 1999 "how we know what others know"; Keysar's
+audience-design work — listeners assumed to share speaker context;
+Wu & Keysar 2007 — the overestimate is *stronger* for close/similar
+others). Applied to memory bookkeeping: people encode "X knows this"
+from mere co-presence, without tracking whether X was attending.
+
+Implement: on `encodeEvent`, all characters in `context.present` get
+appended to the record's `shared_with` list with probability
+`copresent_assume_p` (≈0.9) — NO check on their actual attention
+(that's the error, humans skip it too). Query "would X know about
+this?" resolves `shared_with` membership at high confidence
+(`common_ground_conf` ≈ 0.8). The result is a genuine false-positive
+channel: "but you were standing right there!" disputes when the
+co-present character (next_in_line-taxed, lapse, low attention) never
+encoded it. `shared_with` decays like source metadata (beta_source).
+`toldTo` (v1.6) stays the explicit channel; `shared_with` is the
+inferred, wrong-able one — a character can believe you know something
+you never heard AND forget telling you something you were told; both
+bugs coexist, as in humans.
+
+## 22. The person model primes perception — interpret bias **[ROBUST mechanism; gain HYPOTHESIS]**
+
+Part I made new *surprising* behavior memorable (incongruity_gain,
+§2.3). The complement: genuinely **ambiguous** behavior is *interpreted*
+through the existing impression before encoding — assimilation at the
+input stage, not the retrieval stage (Srull & Wyer 1989 — ambiguous
+behaviors assimilate to the prior impression; Hastie & Kumar
+disambiguation). Anderson, Siegel, Bliss-Moreau & Barrett 2011
+(Science): negative *gossip* about a person biases subsequent visual
+processing of their face — reputation literally changes what you
+perceive, not just what you recall.
+
+Implement at encoding: when an observed behavior's trait implication is
+ambiguous (|impliedTrait| < `ambig_band` ≈0.3) and the actor's
+`PersonModel.traits[trait]` exceeds ±0.4, the encoded implication pulls
+toward the model: `implied += interpret_bias·sign(model)·(1−|implied|)`
+(interpret_bias ≈ 0.3). Clearly-contrary acts (|implied| ≥ ambig_band)
+are untouched — they still get incongruity_gain. Both effects coexist
+at different ambiguity bands: reputation absorbs the gray zone and
+*amplifies* the clear violation. Emergent: a known-cheapskate's
+ambiguous tip reads stingy; the rumor engine manufactures evidence for
+its own priors — confirmation without a confirmation-bias operator.
+
+## 23. Confidentiality is a tag, and tags decay — secrets leak on a schedule **[HYPOTHESIS on mechanism; decay asymmetry CONSENSUS-grounded]**
+
+"Don't tell anyone" is an instruction attached to content — source/
+context-class metadata, not content. Source and context decay faster
+than content (source amnesia: Schacter, Harbluk & McLachlan 1984 —
+facts persist while acquisition context dies; our own beta_source >
+beta_content asymmetry, §4.1). So a character retains the secret
+content while the *prohibition tag* fades — the deep human
+"wait, was that a secret?" failure. Direct experimental literature on
+confidentiality-tag decay is thin [HYPOTHESIS]; the mechanism is the
+documented source-memory asymmetry applied to one more field.
+
+Implement: `encodeEvent`/`hearAccount` may carry `confidential: true`
+(also set by a later "keep this between us" event — a `tagEvent`).
+The flag has its own `secret_str` strength (birth = record E) decaying
+at `beta_source·secret_tag_mult` (≈1.3 — slightly faster than ordinary
+source, since the instruction is a single utterance). At `retell`/
+transmission of a `confidential` record:
+
+```
+P(respect) = min(1, secret_str·2)·(0.5 + 0.5·PersonModel[teller]
+             .credibility of the secret-holder? — simpler:
+             ·(0.5 + 0.5·consc trait loading))
+if respect roll fails: content transmits WITHOUT the flag — the
+  leak is silent; no "breaking confidence" event unless the game
+  emits one
+```
+
+Emergent: fresh secrets hold; month-old secrets leak at content-fresh
+rates — gossip propagates not because characters choose betrayal but
+because the DO-NOT-TELL bit rots faster than the juicy bit. Probes the
+deep asymmetry: leak rate rises with secret age *holding content
+strength constant*.
+
+## 24. Canonization — the oft-told story freezes **[ROBUST direction; threshold HYPOTHESIS]**
+
+Bartlett's repeated reproduction showed convergence to a conventional
+form; Marsh & Tversky 2004 ("spinning the stories of our lives")
+documented that told-life stories drift toward narrative convention
+(exaggeration/minification serving the story's function) AND that the
+story becomes the stable version — the performed narrative is what
+survives. Mechanistically for us: beyond a retell count, the record
+stops being rewritten — the character recites the *story*, a cached
+surface, not the event. Rote retrieval isn't elaborative retrieval
+(§4.11 massed-retell logic — easy retrievals barely grow S and, per
+this section, barely rewrite R-side content either).
+
+Implement: records carry `retellCount` (increments on retell §6.11 and
+§4.13 fires). At `retellCount ≥ canon_thresh` (≈5): §6.1 drift and
+§6.11 audience tuning apply at `canon_drift_mult` (≈0.2); verbatim
+candidate edits freeze (field-level §6.1 writes suppressed);
+reconstruction content draws from the *accumulated* drifted state —
+frozen warts and all. The freezing is double-edged and falsifiable:
+early distortions become permanent (the scandal version she always
+tells IS now her memory — saying-is-believing reaches its fixed point),
+but late corruption (fresh misinformation) bounces off the canonized
+version — old, well-told stories resist §6.3 adoption at
+`(1−canon_resist)` ≈ 0.6 for contested fields. That last clause is the
+documented "well-rehearsed accounts resist misinformation" finding
+(e.g. rehearsEd memories show lower misinformation uptake — consistent
+with the S-strength resistance already in §6.3 via fieldStrength; the
+canon term makes it explicit).
+
+## 25. Shared attention amplifies encoding — the "we both saw it" boost **[ROBUST, small]**
+
+Joint attention is not just co-presence: *mutually aware* attending
+amplifies experience and encoding. Boothby, Clark & Bargh 2014
+(Psych. Science): shared experiences are amplified — pleasant more
+pleasant, unpleasant more unpleasant (valence-symmetric intensity
+gain); Shteynberg 2015/2018 collective-attention review — attended-together
+stimuli are better remembered and judged more intense;
+Shteynberg & Apfelbaum 2013 — threatening information especially
+benefits under collective attention.
+
+Implement: `context.coAttending` (a known other present AND mutually
+engaged — stricter than `present`; the event layer must supply it)
+gives `E *= (1 + joint_attn_gain)` (≈0.12) and amplifies the stored
+affect magnitude: `|valence_tag| += joint_affect_amp·sign(valence)`
+(≈0.1 — symmetric: shared fun is funner, shared dread is dreadful).
+Distinct from §21: coAttending is about *encoding depth*, shared_with
+is about *common-ground bookkeeping* — both can fire on the same event.
+Emergent: the concert everyone attended together is better remembered
+than the same show watched alone; first-hand shared disasters out-encode
+equally-arousing solo ones.
+
+## 26. Absorption — others' stories become quasi-autobiographical **[ROBUST that it occurs; rate HYPOTHESIS]**
+
+Repeated, vivid, self-relevant narration from others can be re-sourced
+to the self — false autobiographical memories via suggestion are among
+the best-documented false-memory results (Hyman, Husband & Billings
+1995 — false childhood events for ~20-25% of participants under
+repeated suggestion; Loftus & Pickrell 1995 lost-in-the-mall; Pillemer
+et al. 2015 — "vicarious memories": people consciously hold memories
+of events they only heard, sometimes with rich sensory character;
+couples borrow each other's stories — "you remember when WE…" adopted
+across partners). This is the social pathway into §6.9/§6.10 machinery
+— distinct from imagination (nobody imagined it) and cryptomnesia
+(forgot the source but keeps the content): here the *provenance* flips
+told_by → experienced.
+
+Implement (rare pathway): a `told_by` record meeting ALL of
+`hearCount ≥ 3`, `selfRelevance > 0.5`, verbatim richness >
+`rm_rich_thresh`, and the §6.9 plausibility gate — draws `absorb_p`
+(≈0.02) per subsequent hear/retell to flip `kind` toward `experienced`
+with source re-tagged `witnessed` at reduced confidence and reduced
+verbatim ceiling (absorbed memories are thinner than real ones —
+Pillemer: vicarious memories are real but lower-detailed). Never fires
+while the source tag is intact (fresh stories can't absorb — the
+mechanism needs source decay, §6.10 precondition). Emergent: a
+character can genuinely "remember" the wedding her partner described
+forty times — and will argue she was there.
+
+## 27. Transactive dependence — the partner as external store, and its loss **[CONSENSUS existence; loss params HYPOTHESIS]**
+
+§8's transactive directory knows who knows what. Part II adds the
+dependence and the grief: long-term partners off-load memory onto each
+other so completely that the partner becomes part of the storage
+medium (Wegner 1987; Hollingshead 1998; Harris, Barnier, Sutton &
+Keil 2014 — couples who recall together remember more, and estranged
+pairs lose the benefit; Harris et al. 2011 — intimate partners serve as
+each other's external memory for decades). The flip side is documented
+clinically though not lab-quantified: bereaved older adults report
+"half my memory is gone" — losing the directory's referent, not the
+directory [HYPOTHESIS on magnitude].
+
+Implement: recall on a topic where `PersonModel[partner].knowsTopics`
+has the topic AND partner availability flag is false (dead/moved/
+estranged — the world layer knows) takes `θ += transact_loss` (≈0.12)
+on records the partner would have supplied — the directory entry
+survives ("Jules would remember") while the content it pointed to is
+unreachable; pointer-rot as grief. `collab_partner_gain` (v1.6) is the
+positive mirror and stays. Emergent: the widow who keeps saying "ask
+Marta — oh" and then can't answer; household knowledge visibly decays
+after a departure beyond what individual decay predicts.
+
+## 28. Age and trait loadings (extends §§12–13)
+
+| Param | Primary loadings | Age note |
+|---|---|---|
+| share_k | +extra · +neurot(intensity sharing) | flat; children share too |
+| share_shame_pen | +consc · +distrust | flat |
+| rif_facil_k | +wmc (integration) | mild decline with link_p |
+| corroborate_conf | −distrust (mild), +meta_conf? keep meta_conf null — inflation is about feedback not self-view | ×1.2 @70 (older eyewitnesses more feedback-sensitive — HYPOTHESIS direction consistent w/ suggestibility) |
+| copresent_assume_p | −wmc (poorer tracking of who attended) | rides source decline: ×(1+0.3·age_eff/60) |
+| interpret_bias | +distrust for negative targets (schema-driven reading) | flat [HYPOTHESIS] |
+| secret_tag_mult | −consc (respect for the flag is partly trait) | rides beta_source — older secrets leak more |
+| canon_thresh | flat | flat — canonization is a count, not a capacity |
+| joint_attn_gain | +social (attends WITH others) | flat [HYPOTHESIS] |
+| absorb_p | +fantasy · −wmc | ×discrim_mult side (source-loss scaling) |
+| transact_loss | +social depth (directory depth = dependence) | larger in long-bonded older pairs [HYPOTHESIS] |
+
+Explicit nulls preserved: `g_mem` does not exempt corroboration
+inflation (smart people are confidence-validated too); `vivid` does not
+feed absorb_p (vicarious memories need repetition+relevance, not
+imagery); `meta_cal` does not undo corroborate_conf (the inflation is
+to stored confidence, not the report calibration).
+
+## 29. Spec changes in v2.0 (summary)
+
+- §2: `joint_attn_gain`/`joint_affect_amp` on `coAttending` events;
+  `interpret_bias` on ambiguous trait implications; `confidential`
+  tag + `secret_str` on encode/hear.
+- §4.13: retell draw gains `share_k·|affect|` motive term and
+  `share_shame_pen` suppression — the Rimé engine.
+- §5.8: `rif_facil_k` — linked/integrated unsurfaced records are
+  facilitated, not suppressed (Chan et al. 2006 switch rule).
+- §6.20 NEW: corroboration confidence channel (corroborate_conf/
+  disagree_conf, persistent inflation).
+- §6.21 NEW: common-ground bookkeeping — `shared_with`,
+  `copresent_assume_p`, `common_ground_conf`.
+- §6.22 NEW: confidentiality decay — `secret_str` at
+  `beta_source·secret_tag_mult`; silent leak on failed respect roll.
+- §6.23 NEW: absorption — told_by→experienced provenance flip at
+  `absorb_p` under the hearCount/relevance/plausibility gates.
+- §6.24 NEW: canonization — `canon_thresh`/`canon_drift_mult`/
+  `canon_resist`; frozen warts, late misinfo resistance.
+- §6.14 ext: `transact_loss` θ penalty when a directory-listed
+  partner is unavailable.
+- §7: +16 params (below); §10: contract additions (shared_with,
+  confidential/secret_str, retellCount, absorb flips, coAttending,
+  tagEvent, partner availability).
+
+### Parameter guidance (defaults; ranges in profiles §0)
+
+| param | default | range | source |
+|---|---|---|---|
+| share_k | 0.8 | 0.3–1.5 | Rimé et al. 1998 |
+| share_shame_pen | 0.5 | 0.0–0.9 | Finkenauer & Rimé 1998 |
+| rif_facil_k | 0.03 | 0.0–0.1 | Chan, McDermott & Roediger 2006 |
+| corroborate_conf | 0.15 | 0.05–0.3 | Wells & Bradfield 1998 |
+| disagree_conf | 0.10 | 0.0–0.25 | Bradfield et al. 2002 asymmetry |
+| copresent_assume_p | 0.9 | 0.6–1.0 | Keysar; Birch & Bloom 2007 |
+| common_ground_conf | 0.8 | 0.5–0.95 | Nickerson 1999 |
+| interpret_bias | 0.3 | 0.0–0.6 | Srull & Wyer; Anderson et al. 2011 |
+| ambig_band | 0.3 | 0.1–0.5 | — |
+| secret_tag_mult | 1.3 | 1.0–2.0 | source-amnesia asymmetry (HYPOTHESIS) |
+| absorb_p | 0.02 | 0.0–0.08 | Hyman et al. 1995; Pillemer et al. 2015 |
+| canon_thresh | 5 | 3–9 | Marsh & Tversky 2004 (HYPOTHESIS threshold) |
+| canon_drift_mult | 0.2 | 0.0–0.5 | Bartlett conventionalization |
+| canon_resist | 0.6 | 0.3–0.9 | rehearsed-account misinfo resistance |
+| joint_attn_gain | 0.12 | 0.0–0.3 | Boothby et al. 2014 |
+| joint_affect_amp | 0.1 | 0.0–0.3 | Boothby et al. 2014 (symmetric) |
+| transact_loss | 0.12 | 0.0–0.3 | Harris et al. 2014 (loss = HYPOTHESIS) |
+
+## 30. Validation probes (P183–P192)
+
+- **P183 sharing propensity (MUST):** across a cohort, per-record
+  retell probability rises monotonically with |affect| (~3× across
+  range); shame-flagged negative-self records suppressed ~half.
+- **P184 recovery illusion (MUST — sign-locked):** N retells of a
+  high-arousal record raise S measurably while `arousal_tag` declines
+  only by `verbal_dampen`·n — talk never extinguishes affect. FAIL if
+  sharing reduces arousal beyond dampen.
+- **P185 corroboration asymmetry (SHOULD):** matched accounts raise
+  both parties' conf by ~corroborate_conf; inflation persists after
+  the corroborator's credibility drops below 0.2; contradiction
+  depresses less than confirmation inflates.
+- **P186 copresence overreach (SHOULD):** "would X know" queries
+  return true for inattentive co-present X at ~copresent_assume_p —
+  false-positive knowledge attribution exists and scales with age.
+- **P187 interpret-bias band (MUST — structure):** ambiguous acts
+  assimilate to PersonModel at ~interpret_bias rate; clearly-contrary
+  acts still get incongruity_gain; FAIL if either effect eats the
+  other.
+- **P188 secret leak (MUST — emergent):** holding content strength
+  fixed, leak probability rises with secret age; old secrets leak at
+  near-baseline rates. FAIL if secrets never leak or always leak.
+- **P189 canonization (SHOULD):** drift variance across verbatim
+  fields saturates after canon_thresh retells; pre-threshold
+  distortions persist (frozen); late misinformation adoption drops on
+  canonized records.
+- **P190 joint attention (SHOULD):** coAttending events beat
+  matched solo events on E and |valence_tag| symmetrically (both
+  valences amplified).
+- **P191 absorption (OBSERVE):** high-hearCount self-relevant told_by
+  records flip kind at low rate, only after source decay; absorbed
+  records carry lower verbatim richness than matched witnessed ones.
+- **P192 transactive loss (SHOULD):** partner-unavailable retrieval on
+  directory-listed topics degrades while the directory entry itself
+  survives — "I know who would know, and they're gone."
+
+## 31. Honest limits (Part II)
+
+- **share_k estimates** come from diary/self-report sharing rates —
+  real-world sharing propensity includes instrumental motives
+  (bonding, warning, recruiting allies) we collapse into one scalar;
+  the game may want motive-tagged shares later.
+- **The respect roll for secrets is our invention** — the literature
+  gives tag-decay asymmetry, not a leak law; secret_tag_mult and the
+  gate shape are tunables, flagged HYPOTHESIS.
+- **Absorption rate** is anchored to false-childhood-memory induction
+  paradigms (strong suggestion, repeated probing) — natural
+  conversational absorption is rarer; absorb_p errs low.
+- **canon_thresh** is a count threshold with no direct empirical
+  anchor — Bartlett's participants converged by reproduction ~3–4, but
+  real "my standard story" counts are unmeasured; treat as a tunable.
+- **Corroboration persistence** direction is Wells & Bradfield's, but
+  magnitude varies by design; the asymmetric-undo rule is hypothesis.
+- **Common-ground bookkeeping** is a record-level approximation of a
+  real inferential system — we model the characteristic error, not the
+  inference itself.

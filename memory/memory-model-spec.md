@@ -1,4 +1,29 @@
-# Memory Model Spec v1.9 — implementable human-like memory for RW characters
+# Memory Model Spec v2.0 — implementable human-like memory for RW characters
+
+> **v2.0 note (social-memory II — the talk ecology):**
+> `memory/social-memory.md` Part II (§§18–31) deepens the social layer:
+> **sharing motive** — retell propensity driven by |affect| with a shame
+> suppressor, and talk never extinguishes emotion (Rimé 1998; Zech &
+> Rimé 2005 recovery illusion) — §4.13; **retrieval-induced
+> facilitation** — integrated unsurfaced material is boosted, not
+> suppressed (Chan, McDermott & Roediger 2006) — §5.8; **corroboration
+> inflates confidence** asymmetrically and irreversibly (Wells &
+> Bradfield 1998) — §6.20; **common-ground overreach** — co-presence
+> mints assumed-knowledge entries that are wrong at trait rates
+> (Keysar; Birch & Bloom 2007) — §6.21; **interpret bias** — ambiguous
+> behavior assimilates to the person model at encoding while contrary
+> behavior still gets incongruity_gain (Anderson et al. 2011) — §2;
+> **confidentiality decays faster than content** — secrets leak on a
+> schedule, silently (source-amnesia asymmetry) — §2/§6.22;
+> **absorption** — repeated rich told_by narratives can flip
+> provenance to experienced (Hyman et al. 1995; Pillemer et al. 2015)
+> — §6.23; **canonization** — the oft-told story freezes, warts and
+> all, and then resists late misinformation (Marsh & Tversky 2004) —
+> §6.24; **joint attention** amplifies encoding valence-symmetrically
+> (Boothby et al. 2014) — §2; **transactive loss** — an absent
+> directory-partner leaves pointer-rot grief (Harris et al. 2014) —
+> §6.14. +17 params in §7; probes P183–P192 in
+> validation-design.md §19. All optional, default-neutral.
 
 > **v1.9 note (individual-differences II — state noise, language,
 > culture, metacognition):** `memory/individual-differences.md` Part II
@@ -667,6 +692,27 @@ Postman 1964; Hyde & Jenkins 1973).
   - `familiarity`/`identityStrength`/`nameStrength` accrue across
     encounters: second+ meetings bypass `face_ceiling` for the
     familiarity tier only — appearance verbatim stays capped.
+  - **v2.0 additions** (social-memory.md Part II):
+    - *Interpret bias:* ambiguous trait implications (|implied| <
+      `ambig_band` ≈0.3) from an actor whose `PersonModel.traits[trait]`
+      exceeds ±0.4 are pulled toward the model at encoding:
+      `implied += interpret_bias·sign(model)·(1−|implied|)` (≈0.3) —
+      reputation assimilates the gray zone while clearly-contrary acts
+      (outside the band) still earn incongruity_gain; assimilation at
+      perception, not just retrieval (Srull & Wyer 1989; Anderson,
+      Siegel, Bliss-Moreau & Barrett 2011 — gossip biases face
+      processing itself).
+    - *Joint attention:* `context.coAttending` (a known other present
+      AND mutually engaged — stricter than `present`) → `E *= (1 +
+      joint_attn_gain)` (≈0.12) and stored affect amplified
+      valence-symmetrically: `|valence_tag| += joint_affect_amp`
+      (≈0.1, sign-preserving — shared fun is funner, shared dread is
+      dreadful; Boothby, Clark & Bargh 2014; Shteynberg 2015).
+    - *Confidential tag:* event may carry `confidential: true` (or a
+      later `tagEvent` sets it — "keep this between us"); writes a
+      `secret_str` field (birth = E) decaying at
+      `beta_source·secret_tag_mult` (≈1.3) — the DO-NOT-TELL bit rots
+      faster than the juicy bit (source-amnesia asymmetry; §6.22).
 - **Negative mood protects surface detail (v1.8):** when
   `context.mood < −0.3`, verbatim-field birth strength gains
   `negmood_verbatim_gain` (0.1) — the context half of the
@@ -1058,9 +1104,20 @@ al. 2021). forgetting-curves.md §7.7. This is a leak, not a delete key.
 ### 4.13 Retell ecology — rehearsal emerges (new in v1.3)
 
 Once per daily tick, each live episodic record draws
-`p_retell = retell_base·E_adj·(1 + retell_social·sharedCue)`
+`p_retell = retell_base·E_adj·(1 + retell_social·sharedCue
++ share_k·|affect|)·(1 − share_shame_pen·shameFlag)`
 (`retell_base` 0.015/day; `retell_social` 1.0 when a co-present
-participant/topic cue is in context). On fire: §5.9 reboost + §4.11
+participant/topic cue is in context). **v2.0 — the Rimé motive terms
+(social-memory.md §18):** `share_k` ≈ 0.8 makes sharing propensity
+scale with emotional intensity (Rimé et al. 1998: ~80–95% of emotional
+episodes are socially shared, frequency ∝ intensity, valence-agnostic);
+`shameFlag` (negative self-as-agent content, selfRelevance>0.6 &
+valence<−0.4 — behavior layer may supply the flag directly) suppresses
+sharing by `share_shame_pen` ≈ 0.5 (Finkenauer & Rimé 1998). Retells
+grow S via §4.11 and dampen arousal only via `verbal_dampen` — there is
+NO additional affect relief (`share_relief` is frozen at 0): talking
+about it preserves the memory without healing it (Zech & Rimé 2005 —
+the recovery illusion; guarded by P184). On fire: §5.9 reboost + §4.11
 S-growth at `s_gain_recall` + §6.1 drift. This is the mechanism behind
 the flat autobiographical curves (Linton; Wagenaar): the top few percent
 of records get rehearsed toward permanence while the rest ride the
@@ -1351,6 +1408,15 @@ autobiographical extension Stone, Barnier, Sutton & Hirst 2010/2013;
 social-memory.md §6). Shared silences: a speaker who always tells one
 version makes listeners progressively unable to recall what she omits.
 Same trauma exemption as plist_suppress.
+**v2.0 — the facilitation switch:** unsurfaced records that are
+*integrated* with the surfaced one (same event id or a `links` edge —
+not merely cue-similar) flip sign: `strength *= (1 + rif_facil_k)`
+(≈0.03) for both speaker and listener (Chan, McDermott & Roediger 2006
+— retrieval practice facilitates related material under integrative
+encoding; suppression is for competitors, facilitation for
+co-members). The switch rule: `links` edge or shared event id →
+facilitate; cue-similar but unlinked → suppress as before
+(social-memory.md §19).
 
 ### 5.9 Reconsolidation on recall
 
@@ -1962,6 +2028,14 @@ gain was older-couples-only). Stranger pairs keep inhibition
   `PersonModel[X].knowsTopics[T]`; failed referrals decrement. Serves
   the §5.10 `"directory"` retrieval mode — "who would know" is itself
   remembered (Wegner 1987; Wegner, Erber & Raymond 1991 couples).
+- **Transactive loss (v2.0):** recall on a topic directory-listed to a
+  partner who is now unavailable (dead/moved/estranged — world layer
+  supplies `available:false` on the PersonModel) takes
+  `θ += transact_loss` (≈0.12) on the records the partner would have
+  supplied — the directory survives while its referent is unreachable;
+  pointer-rot as grief (Harris, Barnier, Sutton & Keil 2014; magnitude
+  HYPOTHESIS — social-memory.md §27). `collab_partner_gain` (v1.6) is
+  the positive mirror.
 
 ### 6.15 Temporal localization — dateEstimate (v0.9 deepening)
 
@@ -2085,6 +2159,96 @@ the model: §4.12 bounded suppression (leaky, θ-side only), §4.14
 latent-route reinstatement, §6.9 source-confused imagined content,
 §6.8 phantom minting. A character's past can be lost, confused, or
 invented — never defended-against and unleashed. Guarded by P172.
+
+### 6.20 Corroboration confidence — social validation (new in v2.0)
+
+Distinct from §6.5 (content convergence): this is the **confidence**
+channel. When two accounts are compared in `hearAccount`/`discussEvent`:
+
+```
+core fields match (sim(·,·) > merge_thresh on who/what/where):
+  BOTH parties' records: conf += corroborate_conf (≈0.15) — mutual
+      validation; whoever was right, both leave more certain
+      (Wells & Bradfield 1998 — post-ID feedback inflates confidence,
+      even recollection of view quality)
+listener's reconstructed field contradicts:
+  conf −= disagree_conf (≈0.10) — asymmetric magnitude, depression <
+  inflation (Bradfield, Wells & Olson 2002)
+persistence: corroborate_conf deltas do NOT unwind when the
+  corroborator's PersonModel.credibility later drops — known
+  discrediting does not refund the confidence (Wells & Bradfield
+  boundary; Skagerberg & Wright 2008)
+```
+
+Accuracy untouched — consensus and truth decouple. Age knot:
+`corroborate_conf ×(1 + 0.2·(age_eff−65)/20)` above 65 [HYPOTHESIS,
+consistent with older-adult suggestibility; social-memory.md §20, §28].
+
+### 6.21 Common-ground overreach — shared_with (new in v2.0)
+
+On `encodeEvent`, every character in `context.present` is appended to
+the record's `shared_with` list with probability `copresent_assume_p`
+(≈0.9), scaled by `×(1 + 0.3·age_eff/60)` — **no check on their actual
+attention** (the egocentric-anchor skip IS the error: Keysar audience-
+design work; Birch & Bloom 2007 curse of knowledge; Nickerson 1999).
+Queries "would X know this?" answer `shared_with` membership at
+`common_ground_conf` (≈0.8). `shared_with` decays at `beta_source`
+(metadata, not content). Coexists with `toldTo` (v1.6) as the inferred
+wrong-able channel — a character can believe you know what you never
+heard AND forget telling you what you were told (social-memory.md §21).
+
+### 6.22 Confidentiality decay — secrets leak (new in v2.0)
+
+`confidential` records carry `secret_str` (born at record E — §2)
+decaying at `beta_source·secret_tag_mult` (≈1.3) — the prohibition is
+single-utterance source-class metadata and rots faster than the juicy
+content it guards (source-amnesia asymmetry, Schacter et al. 1984 —
+HYPOTHESIS applied). At `retell`/transmission of a confidential record:
+
+```
+P(respect) = min(1, secret_str·2) · (0.5 + 0.5·consc_trait)
+if respect fails: content transmits WITHOUT the flag — silent leak;
+  no breach event is minted unless the game emits one
+```
+
+Fresh secrets hold; old secrets leak at content-fresh rates — "wait,
+was that a secret?" is the emergent failure mode (social-memory.md
+§23). Guarded by P188.
+
+### 6.23 Absorption — told_by → experienced (new in v2.0)
+
+A `told_by` record meeting ALL of `hearCount ≥ 3`,
+`selfRelevance > 0.5`, verbatim richness > `rm_rich_thresh`, the §6.9
+plausibility gate, AND a decayed source tag draws `absorb_p` (≈0.02)
+per subsequent hear/retell to flip provenance to `witnessed` at
+reduced verbatim ceiling and reduced confidence — others' stories
+become quasi-autobiographical (Hyman, Husband & Billings 1995;
+Pillemer et al. 2015 vicarious memories). Never fires while the source
+tag is intact; never exceeds the detail of real witnessed records —
+absorbed memories are thinner (social-memory.md §26). The social
+route into false-autobiographical memory: distinct from §6.9
+imagination (nothing was imagined) and from cryptomnesia (content
+kept, source lost — here the *kind* flips).
+
+### 6.24 Canonization — the oft-told story freezes (new in v2.0)
+
+Records carry `retellCount` (increments on §6.11 retell and §4.13
+fires). At `retellCount ≥ canon_thresh` (≈5) the story has
+conventionalized (Bartlett repeated reproduction; Marsh & Tversky
+2004):
+
+```
+§6.1 drift and §6.11 audience tuning ×= canon_drift_mult (≈0.2)
+verbatim candidate edits freeze — the accumulated state, warts and
+    all, IS the memory now (early distortions become permanent)
+§6.3 adoption on contested fields ×= (1 − canon_resist) (≈0.6) —
+    well-rehearsed accounts resist late misinformation
+S-growth per §4.11 continues but R-side content stops rewriting —
+    rote recitation is not elaborative retrieval
+```
+
+Double-edged and falsifiable (P189): canonization locks in whatever
+the teller had converged to AND armors it against later correction.
 
 ---
 
@@ -2378,6 +2542,23 @@ MemoryParams = {
   "neg_gist_gain": 0.15,     // negative-CONTENT distortion boost (§6.3/§6.8)
   "negmood_verbatim_gain": 0.1, // negative-MOOD verbatim protection (§2)
   "prewarn_mult": 0.7, "inoc_mult": 0.75, "inoc_days": 14, // §6.3 timing
+  // v2.0 additions (social-memory II — the talk ecology,
+  // social-memory.md Part II §§18–29)
+  "share_k": 0.8,            // |affect|-driven retell propensity (§4.13)
+  "share_shame_pen": 0.5,    // shame suppression on sharing (§4.13)
+  "rif_facil_k": 0.03,       // integrated-material facilitation (§5.8)
+  "corroborate_conf": 0.15,  // mutual-validation conf bump (§6.20)
+  "disagree_conf": 0.10,     // contradiction conf decrement (§6.20)
+  "copresent_assume_p": 0.9, // copresence→assumed-knowledge rate (§6.21)
+  "common_ground_conf": 0.8, // confidence on "would X know" (§6.21)
+  "interpret_bias": 0.3,     // ambiguous-behavior assimilation (§2)
+  "ambig_band": 0.3,         // |implied| bound for interpret bias (§2)
+  "secret_tag_mult": 1.3,    // confidentiality decay vs content (§6.22)
+  "absorb_p": 0.02,          // told_by→experienced flip rate (§6.23)
+  "canon_thresh": 5, "canon_drift_mult": 0.2, "canon_resist": 0.6,
+                             // story canonization (§6.24)
+  "joint_attn_gain": 0.12, "joint_affect_amp": 0.1, // §2 coAttending
+  "transact_loss": 0.12,     // absent-partner θ penalty (§6.14)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -2409,6 +2590,14 @@ MemoryParams = {
 // v1.8 knot-table updates (existing params, new age knots):
 //   choice_support_gain: ×1.0 ≤50 → ×1.4 at 80 (Mather & Johnson 2000)
 //   crypto_p: rides discrim_mult — old-side scaling, no separate knots
+// v2.0 frozen constants (social-memory.md Part II):
+//   share_relief = 0 (talk never extinguishes affect — Zech & Rimé
+//   2005; guarded by P184); the §5.8 facilitate/suppress switch rule
+//   (links/shared-event → +rif_facil_k, cue-similar → suppress)
+// v2.0 knot-table updates (existing params, new age knots):
+//   corroborate_conf: ×(1 + 0.2·(age_eff−65)/20) above 65 (§6.20)
+//   copresent_assume_p: ×(1 + 0.3·age_eff/60) (§6.21)
+//   absorb_p: rides discrim_mult (source-decay scaling, §6.23)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -2788,3 +2977,33 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     pulls `distrust`/`checker`/`stress` upward automatically.
   - lure/adoption paths honor `expert_lure` when the content matches
     a profile domain (§5.6/§6.3/§6.8) — expertise is double-edged.
+- v2.0 additions (social-memory.md Part II §§18–29 — the talk ecology):
+  - `encodeEvent`/`hearAccount` events may carry `confidential: true`,
+    `coAttending: true` (stricter than `present` — mutually engaged),
+    and `shame: true` on self- culpable content (§4.13 suppressor);
+    `tagEvent(charId, recordRef, {confidential:true})` marks an
+    already-encoded record ("keep this between us" after the fact).
+    `confidential`/`secret_str`/`shared_with`/`retellCount` are hidden
+    record fields — snapshot-additive, harness-readable, never in
+    briefings/feed; `shame` and `coAttending` are context inputs.
+  - `retell`/`discussEvent`/`hearAccount` now additionally run: the
+    §6.20 corroboration confidence update (conf writes to BOTH
+    parties' records — callers should expect hearAccount to mutate
+    the listener's conf, not just content); the §6.22 respect roll on
+    `confidential` records (a failed roll transmits content without
+    the flag — silent leak); the §6.23 absorb_p draw on qualifying
+    told_by records; and §6.24 canon checks (post-threshold records
+    take canon_drift_mult and gain canon_resist vs adoption).
+  - `context.present` now also drives §6.21 `shared_with` writes
+    (copresent_assume_p) — a false-positive channel by design; the
+    world layer should NOT gate it on the co-present character's
+    attention (that gate would remove the error we're modeling).
+  - `"directory"` recall mode (§5.10) reads
+    `PersonModel[X].available` — when false, topic-listed recall pays
+    `transact_loss` (§6.14); the world layer flips `available` on
+    death/move/estrangement, and `groupRecall`/`discussEvent` with an
+    unavailable partner simply cannot be called (the loss shows up in
+    solo recall instead).
+  - record schema gains `shared_with` (list), `confidential`,
+    `secret_str`, `retellCount`, `absorbed` (hidden flag set on the
+    §6.23 flip — harness-readable provenance change marker).

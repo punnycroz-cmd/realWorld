@@ -823,3 +823,56 @@ language, culture, metacognition, knowledge.
   phenomenology). Report-only, not a gate.
 
 Registry now P1–P182; numbering stable.
+
+## 19. New probes P183–P192 (v20, social-memory II suite)
+
+Normative definitions in `social-memory.md` Part II (§§18–30);
+constrained params named there. The "talk ecology" layer — sharing
+drives, social validation of confidence, secrets, canonization.
+
+- **P183 sharing propensity (MUST):** per-record retell probability
+  rises monotonically with |affect| (≥3× across the range);
+  shame-flagged negative-self records suppressed ~half.
+  Constrains `share_k`, `share_shame_pen`.
+- **P184 recovery illusion (MUST — sign-locked):** N retells of a
+  high-arousal record raise storageS measurably while `arousal_tag`
+  declines only by `verbal_dampen`·n — talk never extinguishes
+  affect. FAIL if sharing reduces arousal beyond dampen. Constrains
+  the frozen `share_relief = 0`.
+- **P185 corroboration asymmetry (SHOULD):** matched accounts raise
+  both parties' conf ≈`corroborate_conf`; the inflation persists after
+  the corroborator's `credibility` drops below 0.2; contradiction
+  depresses less than confirmation inflates (disagree_conf <
+  corroborate_conf). Constrains §6.20.
+- **P186 copresence overreach (SHOULD):** "would X know" queries
+  return true for inattentive co-present X at ≈`copresent_assume_p`,
+  scaled up with age_eff — false-positive knowledge attribution is a
+  designed error, not a bug. Constrains §6.21.
+- **P187 interpret-bias band (MUST — structure):** ambiguous acts
+  (|implied| < ambig_band) encode assimilated toward PersonModel at
+  ~interpret_bias rate; clearly-contrary acts still earn
+  incongruity_gain. FAIL if either effect eats the other — the band
+  structure is the probe. Constrains `interpret_bias`/`ambig_band`.
+- **P188 secret leak (MUST — emergent):** holding content strength
+  fixed, leak probability rises with secret age; fresh secrets hold,
+  old secrets leak at near-baseline rates; a failed respect roll
+  transmits content WITHOUT the flag (silent). FAIL if secrets never
+  leak or always leak. Constrains `secret_tag_mult`.
+- **P189 canonization (SHOULD):** drift variance across verbatim
+  fields saturates after `canon_thresh` retells; pre-threshold
+  distortions persist frozen; late misinformation adoption on
+  canonized records drops by ~`canon_resist`. Constrains §6.24.
+- **P190 joint attention (SHOULD):** `coAttending` events beat matched
+  solo events on E AND on |valence_tag| symmetrically (positive and
+  negative both amplified). Constrains `joint_attn_gain`/
+  `joint_affect_amp`.
+- **P191 absorption (OBSERVE):** high-hearCount self-relevant told_by
+  records flip kind at low rate only after source decay; absorbed
+  records carry lower verbatim richness than matched witnessed ones;
+  flagged `absorbed:true` for the harness. Constrains `absorb_p`.
+- **P192 transactive loss (SHOULD):** partner-unavailable recall on
+  directory-listed topics degrades (~`transact_loss` θ) while the
+  directory entry itself survives — "I know who would know, and
+  they're gone." Constrains `transact_loss`.
+
+Registry now P1–P192; numbering stable.

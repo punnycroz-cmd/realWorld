@@ -253,6 +253,20 @@ never copying raw.
 | contagion_k | 0.1 | 0.8 | hearsay arousal transmission (v1.7) |
 | verbal_dampen | 0.0 | 0.15 | per-social-retell arousal decay (v1.7) |
 | fab_self_gate | 0.1 | 0.7 | selfRelevance floor for FAB (v1.7) |
+| share_k | 0.3 | 1.5 | affect-driven sharing propensity (v2.0) |
+| share_shame_pen | 0.0 | 0.9 | shame suppression on sharing (v2.0) |
+| rif_facil_k | 0.0 | 0.10 | integrated-material facilitation (v2.0) |
+| corroborate_conf | 0.05 | 0.3 | mutual-validation conf bump (v2.0) |
+| disagree_conf | 0.0 | 0.25 | contradiction conf decrement; < corroborate (v2.0) |
+| copresent_assume_p | 0.6 | 1.0 | copresence→assumed-knowledge (v2.0) |
+| common_ground_conf | 0.5 | 0.95 | "would X know" confidence (v2.0) |
+| interpret_bias / ambig_band | 0.0 / 0.1 | 0.6 / 0.5 | person-model assimilation of ambiguous acts (v2.0) |
+| secret_tag_mult | 1.0 | 2.0 | confidentiality decay vs content (v2.0) |
+| absorb_p | 0.0 | 0.08 | told_by→experienced flip; ×discrim_mult (v2.0) |
+| canon_thresh | 3 | 9 | retell count to canonize (v2.0) |
+| canon_drift_mult / canon_resist | 0.0 / 0.3 | 0.5 / 0.9 | post-canon drift cut + misinfo armor (v2.0) |
+| joint_attn_gain / joint_affect_amp | 0.0 / 0.0 | 0.3 / 0.3 | co-attended encoding boost + symmetric affect amp (v2.0) |
+| transact_loss | 0.0 | 0.3 | absent-partner θ penalty on directory topics (v2.0) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -761,3 +775,39 @@ layer; archetype deltas:
 - **Trait-drift note:** yearly maturity drift (Roberts 2006) is
   OPTIONAL; when enabled, bibles should pin late-life trait values,
   not early ones, to avoid double-counting.
+
+## 9. v2.0 note — social-memory II: new modifiers & sensitivity
+
+The v2.0 params (social-memory.md Part II) are mostly trait-ridden
+rather than age-curved; archetype deltas:
+
+- **Teen archetype:** `share_k` up (≈1.2 — social world over-shared at
+  peak intensity), `canon_thresh` lower (≈4 — adolescent stories
+  conventionalize fast), `corroborate_conf` up (peer consensus is the
+  confidence currency of adolescence).
+- **Older-adult archetype:** `corroborate_conf` rides the §6.20 knot
+  (×~1.2 at 80); `copresent_assume_p` age-scaled up (source decline);
+  `absorb_p` ×`discrim_mult` (older partners borrow each other's
+  stories); `transact_loss` most visible here — long-bonded pairs have
+  the deepest directories and the biggest gaps when one is gone;
+  `secret_tag_mult` effective rate up via beta_source — older secrets
+  leak more.
+- **Child archetype:** `share_k` flat (children share too — Rimé);
+  `copresent_assume_p` high (0.95 — worst common-ground tracking);
+  `absorb_p` elevated under repeated suggestion (Hyman & Billings 1998
+  developmental gradient).
+- **Gossip modifier:** `share_k` up + `share_shame_pen` DOWN (the
+  gossip shares what others suppress — shame is the whole commodity);
+  `canon_thresh` low (their stories are told until they set).
+- **The secret-keeper** | consc = +1.5σ → respect-roll trait term up,
+  `secret_tag_mult` 1.0 floor — secrets die only with the content.
+- **The blabbermouth** | consc = −1.0σ + extra = +1.0 →
+  `share_shame_pen` ·0.3, `secret_tag_mult` 1.8 — secrets leak young.
+- **Distrust trait:** `corroborate_conf` ·0.6 (less confidence-validated
+  by agreement), `interpret_bias` up for negative targets.
+- **Repressor/dysphoric:** unchanged — mnemic machinery handles them;
+  `share_shame_pen` ·1.3 for the repressor.
+- **Deliberate nulls:** no `g_mem` → `corroborate_conf` (smart people
+  are social-validated too); no `vivid` → `absorb_p` (repetition and
+  relevance do it, not imagery); `meta_cal` does not undo corroboration
+  (inflation is to stored confidence, not report calibration).
