@@ -12,7 +12,7 @@
    (e.g. a doc that legitimately cites the parody mapping), not verdicts.
 
    Gates:
-     corpus    — screen.js run against screen-corpus.json (50/50 contract)
+     corpus    — screen.js run against screen-corpus.json (80/80 contract)
      names     — no real SF business names outside mapping contexts
      addresses — residential streets carry 9xxx numbers only
      prices    — credit amounts/rates match the monetization PROPOSAL set;
@@ -63,6 +63,11 @@
                 move-in math (deposit + payment plan), payday cadence,
                 bill-on-approval, live-seam reads present and no mutation
                 call on the surface; draft key + deny codes agree
+    mod       — moderation tooling: taxonomy agreement between
+                moderation.json and screen.js REASON_CODES; corpus↔lab
+                content mirror case-for-case; console CHARS whitelist;
+                flag-ledger/shift-report/calibration affordances; no
+                mutation calls on internal surfaces
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -1295,13 +1300,97 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'creation.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G21 mod ============ */
+{
+  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36 affordances)');
+  try {
+    const MJ = JSONF('moderation.json');
+    const window = {};
+    eval(rd('screen.js'));
+    const RS = window.RWScreen;
+    /* 1. taxonomy agreement: every moderation.json code exists in the engine
+          and vice versa (minus 'pass') */
+    const mjCodes = new Set(
+      MJ.reason_codes.deny_tier.concat(MJ.reason_codes.review_tier).map(c => c.code));
+    const engCodes = new Set(Object.keys(RS.REASON_CODES).filter(k => k !== 'pass'));
+    for (const c of mjCodes) if (!engCodes.has(c))
+      add(g, 'fail', 'screen.js', null, `moderation.json code "${c}" missing from REASON_CODES`);
+    for (const c of engCodes) if (!mjCodes.has(c))
+      add(g, 'fail', 'moderation.json', null, `engine code "${c}" missing from the taxonomy`);
+    /* flag_w agreement per code */
+    for (const c of MJ.reason_codes.deny_tier.concat(MJ.reason_codes.review_tier))
+      if (engCodes.has(c.code) && RS.REASON_CODES[c.code].flag_w !== c.flag_w)
+        add(g, 'fail', 'moderation.json', null, `${c.code}: flag_w ${c.flag_w} != engine ${RS.REASON_CODES[c.code].flag_w}`);
+    /* 2. corpus ↔ lab content mirror (the old hand-sync drift hole) */
+    const lab = rd('screen-lab.html');
+    const cm = /var CORPUS = (\[[\s\S]*?\]);/.exec(lab);
+    if (!cm) add(g, 'fail', 'screen-lab.html', null, 'inline CORPUS block not found');
+    const LC = cm ? JSON.parse(cm[1]) : [];
+    const JC = JSONF('screen-corpus.json').cases;
+    if (LC.length !== JC.length)
+      add(g, 'fail', 'screen-lab.html', null, `inline corpus ${LC.length} cases != json ${JC.length}`);
+    const jBy = Object.fromEntries(JC.map(c => [c.id, c]));
+    for (const c of LC) {
+      const j = jBy[c.id];
+      if (!j) { add(g, 'fail', 'screen-lab.html', null, `inline case ${c.id} absent from screen-corpus.json`); continue; }
+      if (JSON.stringify(c.in) !== JSON.stringify(j.in) || JSON.stringify(c.expect) !== JSON.stringify(j.expect))
+        add(g, 'fail', 'screen-lab.html', null, `case ${c.id} content drifted between lab and json`);
+    }
+    /* 3. engine version agreement */
+    if (RS.VERSION !== 'v36' || !(MJ.testing.engine_version || '').includes('v36'))
+      add(g, 'fail', 'screen.js', null, `engine version drift: screen.js ${RS.VERSION} vs moderation.json "${MJ.testing.engine_version}"`);
+    /* 4. mod-console: honesty strings + CHARS whitelist + v36 affordances */
+    const mc = rd('mod-console.html');
+    const MUST = [
+      [/request not approved/i, 'neutral deny wording'],
+      [/Not redacted — absent|not redacted — absent/i, 'whitelist absent-not-redacted note'],
+      [/must not be them|different reviewer/i, 'different-reviewer appeal copy'],
+      [/aggregate only/i, 'shift-report aggregate-only rule'],
+      [/flag_score/, 'flag ledger fields'],
+      [/bumpFlag/, 'flag ledger mechanism'],
+      [/shiftStats/, 'shift report mechanism'],
+      [/obfuscation-attempt/, 'v36 code present in seeds/copy'],
+      [/screen\.js/, 'shared engine script tag'],
+      [/RWScreen\.screenRequest/, 'shared engine call']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(mc)) add(g, 'fail', 'mod-console.html', null, `missing required copy/affordance: ${label}`);
+    const chm = /var CHARS = (\{[\s\S]*?\n\});/.exec(mc);
+    if (!chm) add(g, 'fail', 'mod-console.html', null, 'CHARS block not found');
+    const CHARS = chm ? eval('(' + chm[1].replace(/;$/, '') + ')') : {};
+    const WL = new Set(['name', 'age', 'job', 'home', 'profile', 'surface', 'routine']);
+    for (const [id, ch] of Object.entries(CHARS))
+      for (const k of Object.keys(ch))
+        if (!WL.has(k)) add(g, 'fail', 'mod-console.html', null,
+          `CHARS.${id}.${k} outside the reviewer whitelist (${[...WL].join('/')}) — secrets must be absent, not renamed`);
+    /* 5. screen-lab v36 affordances */
+    const LMUST = [
+      [/Reviewer calibration/, 'calibration section'],
+      [/startCal/, 'calibration run'],
+      [/id="calC"/, 'verdict+code inputs'],
+      [/scorecard|agreement/i, 'agreement scoring copy'],
+      [/show normalized input|normalized:/, 'normalized-input view intact']
+    ];
+    for (const [re, label] of LMUST)
+      if (!re.test(lab)) add(g, 'fail', 'screen-lab.html', null, `missing required affordance: ${label}`);
+    /* 6. internal surfaces make no world-mutation calls */
+    for (const [f, src] of [['mod-console.html', mc], ['screen-lab.html', lab]])
+      src.split('\n').forEach((ln, i) => {
+        if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsHire(Submit|Activate)/i.test(ln))
+          add(g, 'fail', f, i + 1, `world-mutation call on an internal surface: ${ln.trim().slice(0, 100)}`);
+      });
+    g.detail = `${mjCodes.size} taxonomy codes · ${LC.length} mirrored cases · ` +
+      `engine ${RS.VERSION} · ${Object.keys(CHARS).length} whitelist cards`;
+  } catch (e) { add(g, 'fail', 'moderation.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v35 local';
+out.build = 'world v36 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

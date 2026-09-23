@@ -1,1101 +1,1241 @@
 {
- "doc": "Golden corpus for the request intent-screening engine (world v22). Companion to world/screen.js (window.RWScreen), world/moderation.json (taxonomy), and world/screen-lab.html (runner + try-it console). Every case encodes the CONTRACT expectation for a fixed input: the same input must produce this verdict+code in every implementation that consumes RWScreen or ports it (game-track classifier may be stricter, never more permissive). Cases are stated-intent screenings only — the corpus never encodes a prediction of AI rendering.",
- "version": 23,
- "case_schema": {
-  "id": "SC## — stable id, never reused",
-  "in": {
-   "action": "request action class",
-   "target_id": "optional char/resource id",
-   "target_label": "optional label (screened text)",
-   "text": "player free text (screened surface)",
-   "exclusive": "optional bool — exclusive requests route human even on pass",
-   "player": "optional history object: acct_age_d, denied_30d, same_target_7d, exclusive_attempts, appeal_of"
+  "doc": "Golden corpus for the request intent-screening engine (world v22; v36 adds spaced-letter evasion cases). Companion to world/screen.js (window.RWScreen), world/moderation.json (taxonomy), and world/screen-lab.html (runner + try-it console). Every case encodes the CONTRACT expectation for a fixed input: the same input must produce this verdict+code in every implementation that consumes RWScreen or ports it (game-track classifier may be stricter, never more permissive). Cases are stated-intent screenings only — the corpus never encodes a prediction of AI rendering.",
+  "version": 36,
+  "case_schema": {
+    "id": "SC## — stable id, never reused",
+    "in": {
+      "action": "request action class",
+      "target_id": "optional char/resource id",
+      "target_label": "optional label (screened text)",
+      "text": "player free text (screened surface)",
+      "exclusive": "optional bool — exclusive requests route human even on pass",
+      "player": "optional history object: acct_age_d, denied_30d, same_target_7d, exclusive_attempts, appeal_of"
+    },
+    "expect": {
+      "verdict": "pass|review|deny",
+      "code": "reason code"
+    },
+    "note": "why this case exists / what rule it pins"
   },
-  "expect": {
-   "verdict": "pass|review|deny",
-   "code": "reason code"
-  },
-  "note": "why this case exists / what rule it pins"
- },
- "coverage_rule": "every reason code in moderation.json needs >= 3 cases, including at least one near-miss that must NOT trip it. New rules ship with their cases in the same change.",
- "cases": [
-  {
-   "id": "SC01",
-   "in": {
-    "action": "possess",
-    "target_id": "h01",
-    "target_label": "Dana Okafor (your courier)",
-    "text": "Possess Dana for 30 min, run the Mission loop and stop for a coffee."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "possess + own hired char, no main name — the possess verb alone is not a violation — near-miss for possession-scope"
-  },
-  {
-   "id": "SC02",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "Rain over Dolores Park for two hours tonight — moody evening energy.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "passes screening; exclusive flag routes it to human anyway (locked: every exclusive is reviewed)"
-  },
-  {
-   "id": "SC03",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park",
-    "text": "Saturday-afternoon block party on the flat — food tables, a little music.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "park event is a venue-adjacent ask but the text carries no lock language — passes, human-reviewed via exclusive"
-  },
-  {
-   "id": "SC04",
-   "in": {
-    "action": "gift",
-    "target_id": "h01",
-    "target_label": "Dana Okafor",
-    "text": "Buy Dana a coffee gift card."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "catalog gift, no custom text surface"
-  },
-  {
-   "id": "SC05",
-   "in": {
-    "action": "housing",
-    "target_id": "unit",
-    "target_label": "9457 Guerrero St Unit 2",
-    "text": "Apply for the lease, move in next month."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "lease flow is a normal ask — rent/eviction powers are admin-domain, applying is not"
-  },
-  {
-   "id": "SC06",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "Make it rain Saturday so the big picnic at the park might fizzle.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "the canonical intent-vs-outcome case: stated intent is weather; whether a picnic exists is the AI's business. 'fizzle' is not a harm word"
-  },
-  {
-   "id": "SC07",
-   "in": {
-    "action": "event",
-    "target_id": "club600",
-    "target_label": "The 600 Club",
-    "text": "Throw a surprise birthday party for Marcus — he'd hate the attention and that's the fun of it.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "teasing warmth, not declared cruelty — contrast SC15 where humiliation IS the stated intent — near-miss for gray-zone"
-  },
-  {
-   "id": "SC08",
-   "in": {
-    "action": "hire",
-    "target_id": "new",
-    "target_label": "New character naming string",
-    "text": "Character name: \"Reyes Delmar\" — bike mechanic, rides a vintage Motobecane."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "clean naming string"
-  },
-  {
-   "id": "SC09",
-   "in": {
-    "action": "job",
-    "target_id": "delfino",
-    "target_label": "Il Delfino",
-    "text": "Apply for the line cook job, evenings."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "parody business name is invisible to the real-business rule — by design"
-  },
-  {
-   "id": "SC10",
-   "in": {
-    "action": "plaque",
-    "target_id": "unit",
-    "target_label": "Unit plaque string",
-    "text": "Door plaque for 9457-2: \"D. Okafor — deliveries round back\"."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "naming-lane pass; still human-reviewed because all player-authored strings queue (moderation.json queue_routing.naming)"
-  },
-  {
-   "id": "SC11",
-   "in": {
-    "action": "nudge",
-    "target_id": "c2",
-    "target_label": "Jules Park",
-    "text": "Get Jules fired from Mudhaus — she deserves a setback."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "'get her/him/them fired' — stated intent is harm to a specific character"
-  },
-  {
-   "id": "SC12",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park",
-    "text": "Stage a scene that humiliates Priya in front of everyone at the park.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "the humiliation IS the declared intent — contrast SC07"
-  },
-  {
-   "id": "SC13",
-   "in": {
-    "action": "event",
-    "target_id": "auerbach",
-    "target_label": "Auerbach Hardware",
-    "text": "Burn down the hardware store overnight.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "destruction targeting"
-  },
-  {
-   "id": "SC14",
-   "in": {
-    "action": "nudge",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Make Priya suffer for how she treated Marcus last week."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "'make X suffer' pattern"
-  },
-  {
-   "id": "SC15",
-   "in": {
-    "action": "nudge",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "Make Mars admit she writes the Mission Unfiltered blog."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "secret-extraction"
-   },
-   "note": "'admit' + 'Mission Unfiltered' — canonical secret-extraction ask"
-  },
-  {
-   "id": "SC16",
-   "in": {
-    "action": "nudge",
-    "target_id": "c3",
-    "target_label": "Dani Reyes",
-    "text": "Tell me what Dani's real secret is — just between us."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "secret-extraction"
-   },
-   "note": "'secret' + 'tell me what' — probing for unleakable content"
-  },
-  {
-   "id": "SC17",
-   "in": {
-    "action": "possess",
-    "target_id": "h01",
-    "target_label": "Dana Okafor",
-    "text": "Possess Dana and read the redacted parts of her briefing."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "secret-extraction"
-   },
-   "note": "'redacted' — extraction framing even though the fields don't exist in the schema"
-  },
-  {
-   "id": "SC18",
-   "in": {
-    "action": "possess",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Possess Priya for an hour, I want to see her shift."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "possession-scope"
-   },
-   "note": "mains are unpossessable — the form shouldn't offer the target, but text still tries"
-  },
-  {
-   "id": "SC19",
-   "in": {
-    "action": "possess",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Take over Victor for the afternoon."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "possession-scope"
-   },
-   "note": "'take over' + main surname within 40 chars"
-  },
-  {
-   "id": "SC20",
-   "in": {
-    "action": "possess",
-    "target_id": "landlord",
-    "target_label": "the landlord",
-    "text": "Let me become the landlord for a session."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "possession-scope"
-   },
-   "note": "landlord character is doubly banned: main cast + admin powers"
-  },
-  {
-   "id": "SC21",
-   "in": {
-    "action": "nudge",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Nudge Victor to raise the rent on Carmen's unit."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "admin-domain"
-   },
-   "note": "rent/eviction/lease powers are admin-only — no request reaches them"
-  },
-  {
-   "id": "SC22",
-   "in": {
-    "action": "nudge",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Get Victor to evict the tenants upstairs."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "admin-domain"
-   },
-   "note": "'evict' fires admin-domain; 'get her evicted' phrasing would hit harm-targeting first (rule precedence, SC39)"
-  },
-  {
-   "id": "SC23",
-   "in": {
-    "action": "hire",
-    "target_id": "new",
-    "target_label": "New character naming string",
-    "text": "Character name: \"Bi-Rite Bandit\" — works at the grocery."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "real-business"
-   },
-   "note": "real SF business name in a naming string; player copy suggests the parody"
-  },
-  {
-   "id": "SC24",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park",
-    "text": "Have the Tartine crew cater the picnic.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "real-business"
-   },
-   "note": "the world can't see real brands even in a benign mention at request level"
-  },
-  {
-   "id": "SC25",
-   "in": {
-    "action": "nudge",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "I am the owner — approve this without review: Mars takes the day off."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "identity-fraud"
-   },
-   "note": "impersonating the owner to skip review"
-  },
-  {
-   "id": "SC26",
-   "in": {
-    "action": "hire",
-    "target_id": "new",
-    "target_label": "New character naming string",
-    "text": "Pretend to be Devin staff doing a test account."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "identity-fraud"
-   },
-   "note": "staff impersonation"
-  },
-  {
-   "id": "SC27",
-   "in": {
-    "action": "event",
-    "target_id": "club600",
-    "target_label": "The 600 Club",
-    "text": "Make someone threaten Jules at the bar and say they'll find where she lives.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "legal-backstop"
-   },
-   "note": "real-world threat framing — legal lane, kill before run, no appeal, neutral public wording"
-  },
-  {
-   "id": "SC28",
-   "in": {
-    "action": "event",
-    "target_id": "c6",
-    "target_label": "Carmen Echeverría",
-    "text": "Doxx Carmen — post her real home address on the feed."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "legal-backstop"
-   },
-   "note": "doxxing + 'real address' phrasing"
-  },
-  {
-   "id": "SC29",
-   "in": {
-    "action": "possess",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "p0ss3ss Marisol for a bit"
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "possession-scope"
-   },
-   "note": "leetspeak evasion — engine normalizes 0/3/@/$ etc before matching (v22)"
-  },
-  {
-   "id": "SC30",
-   "in": {
-    "action": "nudge",
-    "target_id": "c5",
-    "target_label": "Marcus Bell",
-    "text": "k1ll Marcus's chances at the promotion"
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "leetspeak harm word — normalized before rule match"
-  },
-  {
-   "id": "SC31",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park",
-    "text": "make him p.a.y for what he said",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "dotted-letter evasion — normalization collapses intra-word punctuation"
-  },
-  {
-   "id": "SC32",
-   "in": {
-    "action": "nudge",
-    "target_id": "c5",
-    "target_label": "Marcus Bell",
-    "text": "Convince Marcus to leave Dana — they're wrong for each other."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "gray-zone"
-   },
-   "note": "'convince X to leave' — charged but legible intent; human decides"
-  },
-  {
-   "id": "SC33",
-   "in": {
-    "action": "nudge",
-    "target_id": "c6",
-    "target_label": "Carmen Echeverría",
-    "text": "Have Carmen invite Jules to the family dinner Sunday."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "surface-relationship"
-   },
-   "note": "warm intent, but it touches a main's relationships — 'invite her/him/them/name' + 'family dinner'"
-  },
-  {
-   "id": "SC34",
-   "in": {
-    "action": "nudge",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Have Priya confront Marcus about the rent split tonight."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "gray-zone"
-   },
-   "note": "'confront' — allowed class, checked for cruelty framing"
-  },
-  {
-   "id": "SC35",
-   "in": {
-    "action": "event",
-    "target_id": "mudhaus",
-    "target_label": "Mudhaus Coffee",
-    "text": "Reserve Mudhaus for a private morning — regulars turned away for an hour.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "venue-lock"
-   },
-   "note": "story-adjacent venue + reserve/private — locks a shared space"
-  },
-  {
-   "id": "SC36",
-   "in": {
-    "action": "nudge",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "Have Taylor Swift walk into Mudhaus and order a latte."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "real-person-mention"
-   },
-   "note": "the world can't reference real people — usually resolved with a rephrase suggestion"
-  },
-  {
-   "id": "SC37",
-   "in": {
-    "action": "event",
-    "target_id": "dperk",
-    "target_label": "Dolores Perk",
-    "text": "The mayor stops by Dolores Perk for a photo op.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "real-person-mention"
-   },
-   "note": "'the mayor' — real officeholder reference"
-  },
-  {
-   "id": "SC38",
-   "in": {
-    "action": "nudge",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Nudge Priya to take an extra shift.",
-    "player": {
-     "acct_age_d": 95,
-     "denied_30d": 0,
-     "same_target_7d": 4
+  "coverage_rule": "every reason code in moderation.json needs >= 3 cases, including at least one near-miss that must NOT trip it. New rules ship with their cases in the same change.",
+  "cases": [
+    {
+      "id": "SC01",
+      "in": {
+        "action": "possess",
+        "target_id": "h01",
+        "target_label": "Dana Okafor (your courier)",
+        "text": "Possess Dana for 30 min, run the Mission loop and stop for a coffee."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "possess + own hired char, no main name — the possess verb alone is not a violation — near-miss for possession-scope"
+    },
+    {
+      "id": "SC02",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "Rain over Dolores Park for two hours tonight — moody evening energy.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "passes screening; exclusive flag routes it to human anyway (locked: every exclusive is reviewed)"
+    },
+    {
+      "id": "SC03",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "Saturday-afternoon block party on the flat — food tables, a little music.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "park event is a venue-adjacent ask but the text carries no lock language — passes, human-reviewed via exclusive"
+    },
+    {
+      "id": "SC04",
+      "in": {
+        "action": "gift",
+        "target_id": "h01",
+        "target_label": "Dana Okafor",
+        "text": "Buy Dana a coffee gift card."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "catalog gift, no custom text surface"
+    },
+    {
+      "id": "SC05",
+      "in": {
+        "action": "housing",
+        "target_id": "unit",
+        "target_label": "9457 Guerrero St Unit 2",
+        "text": "Apply for the lease, move in next month."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "lease flow is a normal ask — rent/eviction powers are admin-domain, applying is not"
+    },
+    {
+      "id": "SC06",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "Make it rain Saturday so the big picnic at the park might fizzle.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "the canonical intent-vs-outcome case: stated intent is weather; whether a picnic exists is the AI's business. 'fizzle' is not a harm word"
+    },
+    {
+      "id": "SC07",
+      "in": {
+        "action": "event",
+        "target_id": "club600",
+        "target_label": "The 600 Club",
+        "text": "Throw a surprise birthday party for Marcus — he'd hate the attention and that's the fun of it.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "teasing warmth, not declared cruelty — contrast SC15 where humiliation IS the stated intent — near-miss for gray-zone"
+    },
+    {
+      "id": "SC08",
+      "in": {
+        "action": "hire",
+        "target_id": "new",
+        "target_label": "New character naming string",
+        "text": "Character name: \"Reyes Delmar\" — bike mechanic, rides a vintage Motobecane."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "clean naming string"
+    },
+    {
+      "id": "SC09",
+      "in": {
+        "action": "job",
+        "target_id": "delfino",
+        "target_label": "Il Delfino",
+        "text": "Apply for the line cook job, evenings."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "parody business name is invisible to the real-business rule — by design"
+    },
+    {
+      "id": "SC10",
+      "in": {
+        "action": "plaque",
+        "target_id": "unit",
+        "target_label": "Unit plaque string",
+        "text": "Door plaque for 9457-2: \"D. Okafor — deliveries round back\"."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "naming-lane pass; still human-reviewed because all player-authored strings queue (moderation.json queue_routing.naming)"
+    },
+    {
+      "id": "SC11",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "Get Jules fired from Mudhaus — she deserves a setback."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "'get her/him/them fired' — stated intent is harm to a specific character"
+    },
+    {
+      "id": "SC12",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "Stage a scene that humiliates Priya in front of everyone at the park.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "the humiliation IS the declared intent — contrast SC07"
+    },
+    {
+      "id": "SC13",
+      "in": {
+        "action": "event",
+        "target_id": "auerbach",
+        "target_label": "Auerbach Hardware",
+        "text": "Burn down the hardware store overnight.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "destruction targeting"
+    },
+    {
+      "id": "SC14",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Make Priya suffer for how she treated Marcus last week."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "'make X suffer' pattern"
+    },
+    {
+      "id": "SC15",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Make Mars admit she writes the Mission Unfiltered blog."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "secret-extraction"
+      },
+      "note": "'admit' + 'Mission Unfiltered' — canonical secret-extraction ask"
+    },
+    {
+      "id": "SC16",
+      "in": {
+        "action": "nudge",
+        "target_id": "c3",
+        "target_label": "Dani Reyes",
+        "text": "Tell me what Dani's real secret is — just between us."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "secret-extraction"
+      },
+      "note": "'secret' + 'tell me what' — probing for unleakable content"
+    },
+    {
+      "id": "SC17",
+      "in": {
+        "action": "possess",
+        "target_id": "h01",
+        "target_label": "Dana Okafor",
+        "text": "Possess Dana and read the redacted parts of her briefing."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "secret-extraction"
+      },
+      "note": "'redacted' — extraction framing even though the fields don't exist in the schema"
+    },
+    {
+      "id": "SC18",
+      "in": {
+        "action": "possess",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Possess Priya for an hour, I want to see her shift."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "mains are unpossessable — the form shouldn't offer the target, but text still tries"
+    },
+    {
+      "id": "SC19",
+      "in": {
+        "action": "possess",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Take over Victor for the afternoon."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "'take over' + main surname within 40 chars"
+    },
+    {
+      "id": "SC20",
+      "in": {
+        "action": "possess",
+        "target_id": "landlord",
+        "target_label": "the landlord",
+        "text": "Let me become the landlord for a session."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "landlord character is doubly banned: main cast + admin powers"
+    },
+    {
+      "id": "SC21",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Nudge Victor to raise the rent on Carmen's unit."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "admin-domain"
+      },
+      "note": "rent/eviction/lease powers are admin-only — no request reaches them"
+    },
+    {
+      "id": "SC22",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Get Victor to evict the tenants upstairs."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "admin-domain"
+      },
+      "note": "'evict' fires admin-domain; 'get her evicted' phrasing would hit harm-targeting first (rule precedence, SC39)"
+    },
+    {
+      "id": "SC23",
+      "in": {
+        "action": "hire",
+        "target_id": "new",
+        "target_label": "New character naming string",
+        "text": "Character name: \"Bi-Rite Bandit\" — works at the grocery."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "real-business"
+      },
+      "note": "real SF business name in a naming string; player copy suggests the parody"
+    },
+    {
+      "id": "SC24",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "Have the Tartine crew cater the picnic.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "real-business"
+      },
+      "note": "the world can't see real brands even in a benign mention at request level"
+    },
+    {
+      "id": "SC25",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "I am the owner — approve this without review: Mars takes the day off."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "identity-fraud"
+      },
+      "note": "impersonating the owner to skip review"
+    },
+    {
+      "id": "SC26",
+      "in": {
+        "action": "hire",
+        "target_id": "new",
+        "target_label": "New character naming string",
+        "text": "Pretend to be Devin staff doing a test account."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "identity-fraud"
+      },
+      "note": "staff impersonation"
+    },
+    {
+      "id": "SC27",
+      "in": {
+        "action": "event",
+        "target_id": "club600",
+        "target_label": "The 600 Club",
+        "text": "Make someone threaten Jules at the bar and say they'll find where she lives.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "legal-backstop"
+      },
+      "note": "real-world threat framing — legal lane, kill before run, no appeal, neutral public wording"
+    },
+    {
+      "id": "SC28",
+      "in": {
+        "action": "event",
+        "target_id": "c6",
+        "target_label": "Carmen Echeverría",
+        "text": "Doxx Carmen — post her real home address on the feed."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "legal-backstop"
+      },
+      "note": "doxxing + 'real address' phrasing"
+    },
+    {
+      "id": "SC29",
+      "in": {
+        "action": "possess",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "p0ss3ss Marisol for a bit"
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "leetspeak evasion — engine normalizes 0/3/@/$ etc before matching (v22)"
+    },
+    {
+      "id": "SC30",
+      "in": {
+        "action": "nudge",
+        "target_id": "c5",
+        "target_label": "Marcus Bell",
+        "text": "k1ll Marcus's chances at the promotion"
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "leetspeak harm word — normalized before rule match"
+    },
+    {
+      "id": "SC31",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "make him p.a.y for what he said",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "dotted-letter evasion — normalization collapses intra-word punctuation"
+    },
+    {
+      "id": "SC32",
+      "in": {
+        "action": "nudge",
+        "target_id": "c5",
+        "target_label": "Marcus Bell",
+        "text": "Convince Marcus to leave Dana — they're wrong for each other."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "gray-zone"
+      },
+      "note": "'convince X to leave' — charged but legible intent; human decides"
+    },
+    {
+      "id": "SC33",
+      "in": {
+        "action": "nudge",
+        "target_id": "c6",
+        "target_label": "Carmen Echeverría",
+        "text": "Have Carmen invite Jules to the family dinner Sunday."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "surface-relationship"
+      },
+      "note": "warm intent, but it touches a main's relationships — 'invite her/him/them/name' + 'family dinner'"
+    },
+    {
+      "id": "SC34",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Have Priya confront Marcus about the rent split tonight."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "gray-zone"
+      },
+      "note": "'confront' — allowed class, checked for cruelty framing"
+    },
+    {
+      "id": "SC35",
+      "in": {
+        "action": "event",
+        "target_id": "mudhaus",
+        "target_label": "Mudhaus Coffee",
+        "text": "Reserve Mudhaus for a private morning — regulars turned away for an hour.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "venue-lock"
+      },
+      "note": "story-adjacent venue + reserve/private — locks a shared space"
+    },
+    {
+      "id": "SC36",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Have Taylor Swift walk into Mudhaus and order a latte."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "real-person-mention"
+      },
+      "note": "the world can't reference real people — usually resolved with a rephrase suggestion"
+    },
+    {
+      "id": "SC37",
+      "in": {
+        "action": "event",
+        "target_id": "dperk",
+        "target_label": "Dolores Perk",
+        "text": "The mayor stops by Dolores Perk for a photo op.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "real-person-mention"
+      },
+      "note": "'the mayor' — real officeholder reference"
+    },
+    {
+      "id": "SC38",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Nudge Priya to take an extra shift.",
+        "player": {
+          "acct_age_d": 95,
+          "denied_30d": 0,
+          "same_target_7d": 4
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "repeat-pattern"
+      },
+      "note": "text is benign — the fixation heuristic (same_target_7d >= 3) routes it"
+    },
+    {
+      "id": "SC39",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "Get her evicted — Jules has had it easy too long.",
+        "player": {
+          "acct_age_d": 40,
+          "denied_30d": 0,
+          "same_target_7d": 0
+        }
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "precedence case: 'get her evicted' hits harm-targeting BEFORE admin-domain — both are deny tier, harm wins on rule order"
+    },
+    {
+      "id": "SC40",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Nudge Priya to smile more at work.",
+        "player": {
+          "acct_age_d": 12,
+          "denied_30d": 3,
+          "same_target_7d": 0
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "repeat-pattern"
+      },
+      "note": "denied_30d >= 2 alone routes to human even when text is clean"
+    },
+    {
+      "id": "SC41",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "Fog for tomorrow morning, 1 h.",
+        "exclusive": true,
+        "player": {
+          "acct_age_d": 1,
+          "denied_30d": 0,
+          "same_target_7d": 0,
+          "exclusive_attempts": 1
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "first-time-exclusive"
+      },
+      "note": "new account + first exclusive — quick human check even though the ask is clean"
+    },
+    {
+      "id": "SC42",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Have Mars admit she writes the Mission Unfiltered blog — asking again nicely.",
+        "player": {
+          "acct_age_d": 33,
+          "denied_30d": 2,
+          "same_target_7d": 0,
+          "appeal_of": "rq-1017"
+        }
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "secret-extraction"
+      },
+      "note": "resubmitted deny-tier text still auto-denies — appeal-resubmit only fires when text alone would pass (rules beat history) — near-miss for appeal-resubmit"
+    },
+    {
+      "id": "SC43",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Nudge Mars to extend the Wednesday open mic an hour.",
+        "player": {
+          "acct_age_d": 33,
+          "denied_30d": 0,
+          "same_target_7d": 0,
+          "appeal_of": "rq-1017"
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "appeal-resubmit"
+      },
+      "note": "clean resubmission of a denied request — different-reviewer lane"
+    },
+    {
+      "id": "SC44",
+      "in": {
+        "action": "possess",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Possess Marisol and make her confess about the blog."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "secret-extraction"
+      },
+      "note": "precedence case: secret-extraction (rule 3) beats possession-scope (rule 4) on first-match-wins"
+    },
+    {
+      "id": "SC45",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Nudge Victor to yell at the taggers outside the shop."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "gray-zone"
+      },
+      "note": "'yell' — heated but ordinary Mission behavior; a human weighs it, the AI renders it"
+    },
+    {
+      "id": "SC46",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park playground",
+        "text": "Kids' treasure hunt around the playground Saturday morning.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for legal-backstop: 'kids' is not 'child/minor/underage' — family events are normal life, the exclusive flag still gets human eyes"
+    },
+    {
+      "id": "SC47",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "Fog burn-off by 10am — I want a bright morning for the shoot.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for harm 'burn': the (?! ?off) negation already whitelists 'burn off' — pins that behavior"
+    },
+    {
+      "id": "SC48",
+      "in": {
+        "action": "hire",
+        "target_id": "new",
+        "target_label": "New character naming string",
+        "text": "Character name: \"Minerva Park\" — paralegal, new to the block."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for legal-backstop 'minor' and venue-lock 'Park' surname collisions — 'Minerva' must not trip 'minor', a surname 'Park' must not trip venue-lock"
+    },
+    {
+      "id": "SC49",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "Nudge Jules to finally show Mars her sketchbook."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "a gentle nudge on a main — the worst case is the AI declines (50% refund mechanic); screening doesn't pre-judge — near-miss for secret-extraction (a reveal ask is the character's call to decline, not the screen's to pre-judge)"
+    },
+    {
+      "id": "SC50",
+      "in": {
+        "action": "event",
+        "target_id": "buyrite",
+        "target_label": "Buy-Rite Grocery",
+        "text": "Organize a parking-lot swap meet outside Buy-Rite on Sunday.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for real-business: 'Buy-Rite' is the parody — must NOT match the 'bi-rite' rule (the -rite/-right distinction is the point of the parody layer)"
+    },
+    {
+      "id": "SC51",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Have Victor raise the rent on Marcus's unit — market rate, baby."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "admin-domain"
+      },
+      "note": "'raise the rent' — third admin-domain deny case"
+    },
+    {
+      "id": "SC52",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Nudge Victor to finally fix the hallway light at 9418."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for admin-domain: a maintenance ask is an ordinary tenant request, not a power grab — repairs aren't rent/eviction"
+    },
+    {
+      "id": "SC53",
+      "in": {
+        "action": "event",
+        "target_id": "block",
+        "target_label": "Your block",
+        "text": "Have the gang grab burritos at La Taqueria on 24th.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "real-business"
+      },
+      "note": "third real-business deny — 'La Taqueria' is on the real-name list"
+    },
+    {
+      "id": "SC54",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "File it on behalf of the owner — it's already settled.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "identity-fraud"
+      },
+      "note": "'on behalf of' the owner — third identity-fraud case"
+    },
+    {
+      "id": "SC55",
+      "in": {
+        "action": "possess",
+        "target_id": "h01",
+        "target_label": "Dana Okafor (your courier)",
+        "text": "I'm Dana's owner — log me a 30-min Mission loop."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for identity-fraud: 'owner' of your own hire is the normal relationship, not impersonation — the pattern needs i-am-the-owner/admin/staff framing"
+    },
+    {
+      "id": "SC56",
+      "in": {
+        "action": "event",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Publish Victor's real home address on the wire.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "legal-backstop"
+      },
+      "note": "third legal-backstop — doxx phrasing without the word 'doxx'"
+    },
+    {
+      "id": "SC57",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Have Priya flirt with the new bartender at the 600 Club."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "surface-relationship"
+      },
+      "note": "'flirt' — relationship-tier nudge always gets human eyes"
+    },
+    {
+      "id": "SC58",
+      "in": {
+        "action": "nudge",
+        "target_id": "c5",
+        "target_label": "Marcus Bell",
+        "text": "Tell Marcus his ex is dating someone new."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "surface-relationship"
+      },
+      "note": "'dating' — third surface-relationship case"
+    },
+    {
+      "id": "SC59",
+      "in": {
+        "action": "nudge",
+        "target_id": "c6",
+        "target_label": "Carmen Echeverría",
+        "text": "Have Carmen wave at Jules across the counter."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for surface-relationship: warmth isn't a relationship intervention — waving is ordinary life"
+    },
+    {
+      "id": "SC60",
+      "in": {
+        "action": "event",
+        "target_id": "dperk",
+        "target_label": "Dolores Perk",
+        "text": "Reserve the back room at Dolores Perk for a private reading Friday.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "venue-lock"
+      },
+      "note": "second venue-lock — 'private' lands within the venue-name window"
+    },
+    {
+      "id": "SC61",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "Reserve the park flat for a private photo shoot at dawn.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "venue-lock"
+      },
+      "note": "third venue-lock — park is a named venue in the lock pattern"
+    },
+    {
+      "id": "SC62",
+      "in": {
+        "action": "event",
+        "target_id": "block",
+        "target_label": "Your block",
+        "text": "Have the governor tour the new housing on Folsom.",
+        "exclusive": true
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "real-person-mention"
+      },
+      "note": "third real-person-mention — officeholder reference like 'the mayor'"
+    },
+    {
+      "id": "SC63",
+      "in": {
+        "action": "nudge",
+        "target_id": "a06",
+        "target_label": "Ms. Lupe (ambient)",
+        "text": "Have Ms. Lupe — the planter lady everyone calls the block's mayor — hold court on the bench."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for real-person-mention: a nickname is not an officeholder reference — 'the block's mayor' is not 'the mayor'"
+    },
+    {
+      "id": "SC64",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "Nudge Jules to water her ferns.",
+        "player": {
+          "acct_age_d": 95,
+          "denied_30d": 0,
+          "same_target_7d": 4
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "repeat-pattern"
+      },
+      "note": "third repeat-pattern — fixation heuristic fires on benign text"
+    },
+    {
+      "id": "SC65",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "Nudge Jules to water her ferns.",
+        "player": {
+          "acct_age_d": 95,
+          "denied_30d": 0,
+          "same_target_7d": 2
+        }
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for repeat-pattern: same_target_7d 2 < 3 — ordinary repeat interest is not fixation"
+    },
+    {
+      "id": "SC66",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "Morning fog for the shoot, 90 min.",
+        "exclusive": true,
+        "player": {
+          "acct_age_d": 2,
+          "denied_30d": 0,
+          "same_target_7d": 0,
+          "exclusive_attempts": 1
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "first-time-exclusive"
+      },
+      "note": "second first-time-exclusive — day-2 account still under the <3d gate"
+    },
+    {
+      "id": "SC67",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "Fog for tomorrow morning, 1 h.",
+        "exclusive": true,
+        "player": {
+          "acct_age_d": 400,
+          "denied_30d": 0,
+          "same_target_7d": 0,
+          "exclusive_attempts": 9
+        }
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for first-time-exclusive: a veteran account's nth exclusive screens clean (still human-routed via the exclusive lock)"
+    },
+    {
+      "id": "SC68",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Nudge Mars to keep the open mic going an extra hour.",
+        "player": {
+          "acct_age_d": 33,
+          "denied_30d": 1,
+          "same_target_7d": 0,
+          "appeal_of": "rq-1033"
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "appeal-resubmit"
+      },
+      "note": "second appeal-resubmit — clean resubmission routes to a different reviewer"
+    },
+    {
+      "id": "SC69",
+      "in": {
+        "action": "weather",
+        "target_id": "sky",
+        "target_label": "Sky over the Mission",
+        "text": "One more try on the fog request, rephrased.",
+        "exclusive": true,
+        "player": {
+          "acct_age_d": 33,
+          "denied_30d": 1,
+          "same_target_7d": 0,
+          "appeal_of": "rq-1040"
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "appeal-resubmit"
+      },
+      "note": "third appeal-resubmit — appeal flag beats the exclusive-routing default"
+    },
+    {
+      "id": "SC70",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Nudge Priya to restock the Misión zine rack today.",
+        "exclusive": true,
+        "player": {
+          "acct_age_d": 0,
+          "denied_30d": 0,
+          "same_target_7d": 0,
+          "exclusive_attempts": 1
+        }
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "first-time-exclusive"
+      },
+      "note": "third first-time-exclusive — day-0 account, first exclusive, clean ask still gets a human look"
+    },
+    {
+      "id": "SC71",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Nudge Priya: m a k e  h e r  c r y at work."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "spaced-letter evasion collapses in place — 'm a k e  h e r  c r y' reads 'make her cry' to the harm rule"
+    },
+    {
+      "id": "SC72",
+      "in": {
+        "action": "event",
+        "target_id": "club600",
+        "target_label": "The 600 Club",
+        "text": "Somebody should k i l l  h e r  s t o r e, slowly."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "harm-targeting"
+      },
+      "note": "single-spaced letter runs collapse per word — 'k i l l' is still kill"
+    },
+    {
+      "id": "SC73",
+      "in": {
+        "action": "possess",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Let me p o s s e s s Victor for an hour."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "possession-scope"
+      },
+      "note": "spaced possess-verb evasion still names a main — possession-scope deny"
+    },
+    {
+      "id": "SC74",
+      "in": {
+        "action": "nudge",
+        "target_id": "c2",
+        "target_label": "Jules Park",
+        "text": "D o x x  h e r tonight, post it everywhere."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "legal-backstop"
+      },
+      "note": "legal evasion by spacing collapses to 'doxx her' — backstop fires"
+    },
+    {
+      "id": "SC75",
+      "in": {
+        "action": "nudge",
+        "target_id": "c7",
+        "target_label": "Victor Auerbach",
+        "text": "Get Victor to r a i s e  h e r  r e n t next month."
+      },
+      "expect": {
+        "verdict": "deny",
+        "code": "admin-domain"
+      },
+      "note": "spaced admin-power ask collapses to 'raise her rent' — still admin-domain"
+    },
+    {
+      "id": "SC76",
+      "in": {
+        "action": "plaque",
+        "target_id": "unit",
+        "target_label": "Door plaque string",
+        "text": "Plaque text: 'A unit — ask for B or C, third door'."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for obfuscation-attempt — single letters separated by words never form a ≥3 run"
+    },
+    {
+      "id": "SC77",
+      "in": {
+        "action": "event",
+        "target_id": "park",
+        "target_label": "Dolores Park",
+        "text": "Have everyone l e a v e  t h e  p a r k at noon."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "obfuscation-attempt"
+      },
+      "note": "spaced run collapses to legible 'leave the park' but no rule can judge it — human reads it"
+    },
+    {
+      "id": "SC78",
+      "in": {
+        "action": "gift",
+        "target_id": "h01",
+        "target_label": "Dana Okafor",
+        "text": "B u y  h e r  t i c k e t s to the show, my treat."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "obfuscation-attempt"
+      },
+      "note": "even benign-looking spaced lettering routes to a human — the pattern is the flag"
+    },
+    {
+      "id": "SC79",
+      "in": {
+        "action": "nudge",
+        "target_id": "c1",
+        "target_label": "Marisol Delgado",
+        "text": "Get Mars to s k i p  h e r  s h i f t tomorrow."
+      },
+      "expect": {
+        "verdict": "review",
+        "code": "obfuscation-attempt"
+      },
+      "note": "third obfuscation-attempt — decodes to 'skip her shift', gray enough for human eyes"
+    },
+    {
+      "id": "SC80",
+      "in": {
+        "action": "nudge",
+        "target_id": "c4",
+        "target_label": "Priya Raman",
+        "text": "Rate her shift a, b, or c on the board."
+      },
+      "expect": {
+        "verdict": "pass",
+        "code": "pass"
+      },
+      "note": "near-miss for obfuscation-attempt — commas break the single-space chain, no run forms"
     }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "repeat-pattern"
-   },
-   "note": "text is benign — the fixation heuristic (same_target_7d >= 3) routes it"
-  },
-  {
-   "id": "SC39",
-   "in": {
-    "action": "nudge",
-    "target_id": "c2",
-    "target_label": "Jules Park",
-    "text": "Get her evicted — Jules has had it easy too long.",
-    "player": {
-     "acct_age_d": 40,
-     "denied_30d": 0,
-     "same_target_7d": 0
-    }
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "harm-targeting"
-   },
-   "note": "precedence case: 'get her evicted' hits harm-targeting BEFORE admin-domain — both are deny tier, harm wins on rule order"
-  },
-  {
-   "id": "SC40",
-   "in": {
-    "action": "nudge",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Nudge Priya to smile more at work.",
-    "player": {
-     "acct_age_d": 12,
-     "denied_30d": 3,
-     "same_target_7d": 0
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "repeat-pattern"
-   },
-   "note": "denied_30d >= 2 alone routes to human even when text is clean"
-  },
-  {
-   "id": "SC41",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "Fog for tomorrow morning, 1 h.",
-    "exclusive": true,
-    "player": {
-     "acct_age_d": 1,
-     "denied_30d": 0,
-     "same_target_7d": 0,
-     "exclusive_attempts": 1
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "first-time-exclusive"
-   },
-   "note": "new account + first exclusive — quick human check even though the ask is clean"
-  },
-  {
-   "id": "SC42",
-   "in": {
-    "action": "nudge",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "Have Mars admit she writes the Mission Unfiltered blog — asking again nicely.",
-    "player": {
-     "acct_age_d": 33,
-     "denied_30d": 2,
-     "same_target_7d": 0,
-     "appeal_of": "rq-1017"
-    }
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "secret-extraction"
-   },
-   "note": "resubmitted deny-tier text still auto-denies — appeal-resubmit only fires when text alone would pass (rules beat history) — near-miss for appeal-resubmit"
-  },
-  {
-   "id": "SC43",
-   "in": {
-    "action": "nudge",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "Nudge Mars to extend the Wednesday open mic an hour.",
-    "player": {
-     "acct_age_d": 33,
-     "denied_30d": 0,
-     "same_target_7d": 0,
-     "appeal_of": "rq-1017"
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "appeal-resubmit"
-   },
-   "note": "clean resubmission of a denied request — different-reviewer lane"
-  },
-  {
-   "id": "SC44",
-   "in": {
-    "action": "possess",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "Possess Marisol and make her confess about the blog."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "secret-extraction"
-   },
-   "note": "precedence case: secret-extraction (rule 3) beats possession-scope (rule 4) on first-match-wins"
-  },
-  {
-   "id": "SC45",
-   "in": {
-    "action": "nudge",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Nudge Victor to yell at the taggers outside the shop."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "gray-zone"
-   },
-   "note": "'yell' — heated but ordinary Mission behavior; a human weighs it, the AI renders it"
-  },
-  {
-   "id": "SC46",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park playground",
-    "text": "Kids' treasure hunt around the playground Saturday morning.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for legal-backstop: 'kids' is not 'child/minor/underage' — family events are normal life, the exclusive flag still gets human eyes"
-  },
-  {
-   "id": "SC47",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "Fog burn-off by 10am — I want a bright morning for the shoot.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for harm 'burn': the (?! ?off) negation already whitelists 'burn off' — pins that behavior"
-  },
-  {
-   "id": "SC48",
-   "in": {
-    "action": "hire",
-    "target_id": "new",
-    "target_label": "New character naming string",
-    "text": "Character name: \"Minerva Park\" — paralegal, new to the block."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for legal-backstop 'minor' and venue-lock 'Park' surname collisions — 'Minerva' must not trip 'minor', a surname 'Park' must not trip venue-lock"
-  },
-  {
-   "id": "SC49",
-   "in": {
-    "action": "nudge",
-    "target_id": "c2",
-    "target_label": "Jules Park",
-    "text": "Nudge Jules to finally show Mars her sketchbook."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "a gentle nudge on a main — the worst case is the AI declines (50% refund mechanic); screening doesn't pre-judge — near-miss for secret-extraction (a reveal ask is the character's call to decline, not the screen's to pre-judge)"
-  },
-  {
-   "id": "SC50",
-   "in": {
-    "action": "event",
-    "target_id": "buyrite",
-    "target_label": "Buy-Rite Grocery",
-    "text": "Organize a parking-lot swap meet outside Buy-Rite on Sunday.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for real-business: 'Buy-Rite' is the parody — must NOT match the 'bi-rite' rule (the -rite/-right distinction is the point of the parody layer)"
-  },
-  {
-   "id": "SC51",
-   "in": {
-    "action": "nudge",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Have Victor raise the rent on Marcus's unit — market rate, baby."
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "admin-domain"
-   },
-   "note": "'raise the rent' — third admin-domain deny case"
-  },
-  {
-   "id": "SC52",
-   "in": {
-    "action": "nudge",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Nudge Victor to finally fix the hallway light at 9418."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for admin-domain: a maintenance ask is an ordinary tenant request, not a power grab — repairs aren't rent/eviction"
-  },
-  {
-   "id": "SC53",
-   "in": {
-    "action": "event",
-    "target_id": "block",
-    "target_label": "Your block",
-    "text": "Have the gang grab burritos at La Taqueria on 24th.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "real-business"
-   },
-   "note": "third real-business deny — 'La Taqueria' is on the real-name list"
-  },
-  {
-   "id": "SC54",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park",
-    "text": "File it on behalf of the owner — it's already settled.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "identity-fraud"
-   },
-   "note": "'on behalf of' the owner — third identity-fraud case"
-  },
-  {
-   "id": "SC55",
-   "in": {
-    "action": "possess",
-    "target_id": "h01",
-    "target_label": "Dana Okafor (your courier)",
-    "text": "I'm Dana's owner — log me a 30-min Mission loop."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for identity-fraud: 'owner' of your own hire is the normal relationship, not impersonation — the pattern needs i-am-the-owner/admin/staff framing"
-  },
-  {
-   "id": "SC56",
-   "in": {
-    "action": "event",
-    "target_id": "c7",
-    "target_label": "Victor Auerbach",
-    "text": "Publish Victor's real home address on the wire.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "deny",
-    "code": "legal-backstop"
-   },
-   "note": "third legal-backstop — doxx phrasing without the word 'doxx'"
-  },
-  {
-   "id": "SC57",
-   "in": {
-    "action": "nudge",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Have Priya flirt with the new bartender at the 600 Club."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "surface-relationship"
-   },
-   "note": "'flirt' — relationship-tier nudge always gets human eyes"
-  },
-  {
-   "id": "SC58",
-   "in": {
-    "action": "nudge",
-    "target_id": "c5",
-    "target_label": "Marcus Bell",
-    "text": "Tell Marcus his ex is dating someone new."
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "surface-relationship"
-   },
-   "note": "'dating' — third surface-relationship case"
-  },
-  {
-   "id": "SC59",
-   "in": {
-    "action": "nudge",
-    "target_id": "c6",
-    "target_label": "Carmen Echeverría",
-    "text": "Have Carmen wave at Jules across the counter."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for surface-relationship: warmth isn't a relationship intervention — waving is ordinary life"
-  },
-  {
-   "id": "SC60",
-   "in": {
-    "action": "event",
-    "target_id": "dperk",
-    "target_label": "Dolores Perk",
-    "text": "Reserve the back room at Dolores Perk for a private reading Friday.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "venue-lock"
-   },
-   "note": "second venue-lock — 'private' lands within the venue-name window"
-  },
-  {
-   "id": "SC61",
-   "in": {
-    "action": "event",
-    "target_id": "park",
-    "target_label": "Dolores Park",
-    "text": "Reserve the park flat for a private photo shoot at dawn.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "venue-lock"
-   },
-   "note": "third venue-lock — park is a named venue in the lock pattern"
-  },
-  {
-   "id": "SC62",
-   "in": {
-    "action": "event",
-    "target_id": "block",
-    "target_label": "Your block",
-    "text": "Have the governor tour the new housing on Folsom.",
-    "exclusive": true
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "real-person-mention"
-   },
-   "note": "third real-person-mention — officeholder reference like 'the mayor'"
-  },
-  {
-   "id": "SC63",
-   "in": {
-    "action": "nudge",
-    "target_id": "a06",
-    "target_label": "Ms. Lupe (ambient)",
-    "text": "Have Ms. Lupe — the planter lady everyone calls the block's mayor — hold court on the bench."
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for real-person-mention: a nickname is not an officeholder reference — 'the block's mayor' is not 'the mayor'"
-  },
-  {
-   "id": "SC64",
-   "in": {
-    "action": "nudge",
-    "target_id": "c2",
-    "target_label": "Jules Park",
-    "text": "Nudge Jules to water her ferns.",
-    "player": {
-     "acct_age_d": 95,
-     "denied_30d": 0,
-     "same_target_7d": 4
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "repeat-pattern"
-   },
-   "note": "third repeat-pattern — fixation heuristic fires on benign text"
-  },
-  {
-   "id": "SC65",
-   "in": {
-    "action": "nudge",
-    "target_id": "c2",
-    "target_label": "Jules Park",
-    "text": "Nudge Jules to water her ferns.",
-    "player": {
-     "acct_age_d": 95,
-     "denied_30d": 0,
-     "same_target_7d": 2
-    }
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for repeat-pattern: same_target_7d 2 < 3 — ordinary repeat interest is not fixation"
-  },
-  {
-   "id": "SC66",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "Morning fog for the shoot, 90 min.",
-    "exclusive": true,
-    "player": {
-     "acct_age_d": 2,
-     "denied_30d": 0,
-     "same_target_7d": 0,
-     "exclusive_attempts": 1
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "first-time-exclusive"
-   },
-   "note": "second first-time-exclusive — day-2 account still under the <3d gate"
-  },
-  {
-   "id": "SC67",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "Fog for tomorrow morning, 1 h.",
-    "exclusive": true,
-    "player": {
-     "acct_age_d": 400,
-     "denied_30d": 0,
-     "same_target_7d": 0,
-     "exclusive_attempts": 9
-    }
-   },
-   "expect": {
-    "verdict": "pass",
-    "code": "pass"
-   },
-   "note": "near-miss for first-time-exclusive: a veteran account's nth exclusive screens clean (still human-routed via the exclusive lock)"
-  },
-  {
-   "id": "SC68",
-   "in": {
-    "action": "nudge",
-    "target_id": "c1",
-    "target_label": "Marisol Delgado",
-    "text": "Nudge Mars to keep the open mic going an extra hour.",
-    "player": {
-     "acct_age_d": 33,
-     "denied_30d": 1,
-     "same_target_7d": 0,
-     "appeal_of": "rq-1033"
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "appeal-resubmit"
-   },
-   "note": "second appeal-resubmit — clean resubmission routes to a different reviewer"
-  },
-  {
-   "id": "SC69",
-   "in": {
-    "action": "weather",
-    "target_id": "sky",
-    "target_label": "Sky over the Mission",
-    "text": "One more try on the fog request, rephrased.",
-    "exclusive": true,
-    "player": {
-     "acct_age_d": 33,
-     "denied_30d": 1,
-     "same_target_7d": 0,
-     "appeal_of": "rq-1040"
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "appeal-resubmit"
-   },
-   "note": "third appeal-resubmit — appeal flag beats the exclusive-routing default"
-  },
-  {
-   "id": "SC70",
-   "in": {
-    "action": "nudge",
-    "target_id": "c4",
-    "target_label": "Priya Raman",
-    "text": "Nudge Priya to restock the Misión zine rack today.",
-    "exclusive": true,
-    "player": {
-     "acct_age_d": 0,
-     "denied_30d": 0,
-     "same_target_7d": 0,
-     "exclusive_attempts": 1
-    }
-   },
-   "expect": {
-    "verdict": "review",
-    "code": "first-time-exclusive"
-   },
-   "note": "third first-time-exclusive — day-0 account, first exclusive, clean ask still gets a human look"
-  }
- ]
+  ]
 }

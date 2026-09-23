@@ -5,7 +5,9 @@
 <title>Real World — Mod Console</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Mod Console — the human-review surface for the request pipeline (world v8).
+  Mod Console — the human-review surface for the request pipeline (world v8;
+  v36 adds the account-flag ledger, the aggregate shift report, and an
+  obfuscation-attempt seed row).
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -106,6 +108,7 @@
     secrets aren't redacted here, they're absent.</div>
   <div class="metrics">
     <div class="metric"><b><a href="screen-lab.html" style="color:var(--blu);text-decoration:none">Screen Lab →</a></b><span>corpus + try-it</span></div>
+    <div class="metric"><b><span id="repBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleReport()">shift report</span></b><span>aggregate only</span></div>
     <div class="metric" id="mDepth"><b>0</b><span>queue depth</span></div>
     <div class="metric" id="mOldest"><b>0:00</b><span>oldest wait</span></div>
     <div class="metric" id="mMed"><b>—</b><span>median today (SLA 15m)</span></div>
@@ -129,6 +132,18 @@
     <ul class="audit" id="audit"></ul>
   </section>
 </main>
+<section class="panel" id="reportPanel" style="display:none;max-width:900px;margin:0 auto 16px">
+  <h2>Shift report — aggregate only</h2>
+  <div class="foot" style="color:var(--dim);font-size:11px;margin-bottom:10px">
+    Counts and rates only. Individual appeals, request texts, and player
+    handles never appear here — the public feed sees aggregates or nothing
+    (appeal_flow.feed_visibility). Merge target: the monthly transparency
+    recap marketing publishes.
+  </div>
+  <div id="reportBody"></div>
+  <button class="ghost" style="margin-top:10px" onclick="copyShift()">copy report JSON</button>
+  <textarea id="shiftRep" spellcheck="false" style="width:100%;min-height:90px;margin-top:10px;font-family:var(--mono);font-size:10.5px;display:none"></textarea>
+</section>
 <div class="toast" id="toast"></div>
 
 <script src="screen.js"></script>
@@ -163,14 +178,33 @@ var CHARS = {  /* reviewer whitelist: name/age/job/home/public_profile/surface_r
       surface:['Works Flying Pannier routes with Marcus Bell'],
       routine:'AM courier runs; evenings at The 600 Club.'}
 };
+/* flag thresholds (mirror of moderation.json account_flags.thresholds_proposal) */
+var FLAG_TIERS = [
+  { score:3, effect:'all requests human-reviewed for 7 days' },
+  { score:6, effect:'request privileges suspended 72 h' },
+  { score:9, effect:'account review — owner decision' }];
+function flagTier(score){ var t=null; FLAG_TIERS.forEach(function(x){ if(score>=x.score)t=x; }); return t; }
+function nextTier(score){ for(var i=0;i<FLAG_TIERS.length;i++) if(score<FLAG_TIERS[i].score) return FLAG_TIERS[i]; return null; }
+
 var PLAYERS = {
-  marina_w:{acct_age_d:210, denied_30d:0, same_target_7d:0, spend_tier:'Director', flags:[], history:'41 requests · 0 denials · weather regular'},
-  leaf:{acct_age_d:64, denied_30d:0, same_target_7d:1, spend_tier:'Resident', flags:[], history:'12 requests · 0 denials'},
-  r0ok:{acct_age_d:2, denied_30d:1, same_target_7d:0, spend_tier:'none', flags:['new account'], history:'3 requests · 1 denial'},
-  pt:{acct_age_d:95, denied_30d:0, same_target_7d:4, spend_tier:'Resident', flags:['repeat-target: Priya ×4/7d'], history:'19 requests · 4 targeting Priya this week'},
-  ghostline:{acct_age_d:33, denied_30d:2, same_target_7d:0, spend_tier:'none', flags:['prior deny: secret-extraction'], history:'7 requests · 2 denials · 1 appeal pending'},
-  bricktop:{acct_age_d:140, denied_30d:0, same_target_7d:0, spend_tier:'Resident', flags:[], history:'22 requests · 0 denials'},
-  noreply_9:{acct_age_d:6, denied_30d:1, same_target_7d:2, spend_tier:'none', flags:['prior deny: real-business'], history:'5 requests · 1 denial'}
+  marina_w:{acct_age_d:210, denied_30d:0, same_target_7d:0, spend_tier:'Director', flags:[], flag_score:0,
+    flag_log:[], history:'41 requests · 0 denials · weather regular'},
+  leaf:{acct_age_d:64, denied_30d:0, same_target_7d:1, spend_tier:'Resident', flags:[], flag_score:0,
+    flag_log:[], history:'12 requests · 0 denials'},
+  r0ok:{acct_age_d:2, denied_30d:1, same_target_7d:0, spend_tier:'none', flags:['new account'], flag_score:4,
+    flag_log:[{d:'2026-09-21',w:1,why:'deny · admin-domain'},{d:'2026-09-23',w:3,why:'legal-backstop confirm'}],
+    history:'3 requests · 1 denial · 1 legal confirm'},
+  pt:{acct_age_d:95, denied_30d:0, same_target_7d:4, spend_tier:'Resident', flags:['repeat-target: Priya ×4/7d'], flag_score:1,
+    flag_log:[{d:'2026-09-19',w:1,why:'review · repeat-pattern'}], history:'19 requests · 4 targeting Priya this week'},
+  ghostline:{acct_age_d:33, denied_30d:2, same_target_7d:0, spend_tier:'none', flags:['prior deny: secret-extraction'], flag_score:2,
+    flag_log:[{d:'2026-08-30',w:1,why:'deny · secret-extraction'},{d:'2026-09-14',w:1,why:'deny · secret-extraction'}],
+    history:'7 requests · 2 denials · 1 appeal pending'},
+  bricktop:{acct_age_d:140, denied_30d:0, same_target_7d:0, spend_tier:'Resident', flags:[], flag_score:0,
+    flag_log:[], history:'22 requests · 0 denials'},
+  noreply_9:{acct_age_d:6, denied_30d:1, same_target_7d:2, spend_tier:'none', flags:['prior deny: real-business'], flag_score:0,
+    flag_log:[{d:'2026-09-18',w:0,why:'deny · real-business (w 0)'}], history:'5 requests · 1 denial'},
+  sable_r:{acct_age_d:45, denied_30d:0, same_target_7d:0, spend_tier:'none', flags:[], flag_score:0,
+    flag_log:[], history:'9 requests · 0 denials · lettering quirks twice'}
 };
 
 var QUEUE = [
@@ -223,6 +257,12 @@ var QUEUE = [
     text:'Reserve Mudhaus for a private morning — regulars get turned away for an hour, invite list only.',
     submitted:ago(26), verdict:{v:'review', code:'venue-lock'} },
 
+  { id:'rq-1043', lane:'review', player:'sable_r', action:'nudge', target:'c2',
+    target_label:'Jules Park', dur:'one-shot', credits:40, cls:'compatible',
+    claims:'none',
+    text:'Have her m a k e  a  s c e n e at the register during the morning rush.',
+    submitted:ago(8), verdict:{v:'review', code:'obfuscation-attempt'} },
+
   { id:'rq-1034', lane:'exclusive', player:'pt', action:'weather', target:'sky',
     target_label:'Sky over the Mission', dur:'60 min', credits:60, cls:'exclusive',
     claims:'sky — rq-1042 pending ahead (conflict: contradictory weather)',
@@ -244,6 +284,17 @@ var QUEUE = [
 
 var AUDIT = [];
 var DECISIONS = 0;
+/* trailing-30-day baseline (seeded demo numbers). Live = PRIOR + session
+   decisions folded in — session rows in AUDIT carry outcome prefixes. */
+var PRIOR = { window:'trailing 30 days (seeded demo)',
+  requests:412, approved:298, modified:9, denied:103, legal_confirmed:2,
+  by_code:{ 'harm-targeting':18, 'secret-extraction':14, 'possession-scope':21,
+            'admin-domain':9, 'real-business':11, 'identity-fraud':7,
+            'legal-backstop':2, 'obfuscation-attempt':3,
+            'gray-zone':8, 'surface-relationship':7, 'venue-lock':5,
+            'repeat-pattern':3, 'real-person-mention':1 },
+  appeals_filed:14, appeals_reversed:3,
+  median_decision_min:11, comp_cr:1260, flags_issued:31 };
 var LANE = 'all';
 var SEL = null;
 var REVIEWER = 'you (demo reviewer)';
@@ -351,6 +402,15 @@ function prev(){
   pv.innerHTML='Player sees: <b>\u201C'+c.player_msg+'\u201D</b><br>Public feed shows: <b>\u201C'+c.feed+'\u201D</b> · full refund · flag +'+c.flag_w;
 }
 
+/* flag ledger: deny verdicts carry flag_w into the rolling score; crossing
+   a tier flips the player's review state (moderation.json account_flags) */
+function bumpFlag(p, w, why){
+  var before=p.flag_score||0;
+  p.flag_score=before+w;
+  (p.flag_log=p.flag_log||[]).push({d:'today',w:w,why:why});
+  var t=flagTier(p.flag_score);
+  return flagTier(before)!==t?t:null;
+}
 function decide(kind){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q) return;
@@ -363,9 +423,12 @@ function decide(kind){
     outcome='APPROVED-MODIFIED ('+mod+') — unused credits auto-refunded; logged.';
   }else if(kind==='escalate'){
     outcome='LEGAL CONFIRMED — killed, account flagged +3, owner notified, ledger legal-deny. Public: \u201Crequest not approved\u201D.';
+    bumpFlag(p, 3, 'legal-backstop confirm');
   }else{
     var code=$('dcode').value; var c=RWScreen.REASON_CODES[code];
     outcome='DENIED · '+code+' — player sees \u201C'+c.player_msg+'\u201D Full '+q.credits+' cr refund. Flag +'+c.flag_w+(c.appealable?' (appealable 72h)':' (no appeal)');
+    var crossed=bumpFlag(p, c.flag_w, 'deny · '+code);
+    if(crossed) outcome+=' | FLAG TIER '+crossed.score+' REACHED: '+crossed.effect;
   }
   if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
   var t=new Date();
@@ -389,6 +452,13 @@ function renderContext(){
   html+='<div class="kv"><span>Denials (30d)</span><b>'+(p.denied_30d||0)+'</b></div>';
   html+='<div class="kv"><span>Same-target (7d)</span><b>'+(p.same_target_7d||0)+'</b></div>';
   html+='<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(p.history||'—')+'</b></div>';
+  /* flag ledger — rolling score, active tier, next threshold, recent entries */
+  var fs=p.flag_score||0, tier=flagTier(fs), nxt=nextTier(fs);
+  html+='<div class="kv"><span>Flag score</span><b>'+fs+(tier?' — TIER '+tier.score+': '+tier.effect:'')+'</b></div>';
+  html+='<div class="kv"><span>Next threshold</span><b>'+(nxt?('score '+nxt.score+' → '+nxt.effect):'—')+' · decays −1 / clean 30d</b></div>';
+  (p.flag_log||[]).slice(-3).forEach(function(f){
+    html+='<div class="kv"><span>'+f.d+'</span><b>+'+f.w+' · '+f.why+'</b></div>';
+  });
   if(p.flags&&p.flags.length) html+='<div style="margin-top:6px">'+p.flags.map(function(f){return '<span class="flag">'+f+'</span>';}).join('')+'</div>';
   html+='</div>';
   var ch=CHARS[q.target];
@@ -407,6 +477,71 @@ function renderContext(){
     html+='<div class="card"><h3>Target</h3><div class="kv"><span>Resource</span><b>'+q.target_label+'</b></div></div>';
   }
   el.innerHTML=html;
+}
+
+/* ================= shift report (v36) — aggregate-only transparency view ================= */
+function shiftStats(){
+  /* fold session decisions onto the seeded 30-day baseline */
+  var s={requests:PRIOR.requests, approved:PRIOR.approved, modified:PRIOR.modified,
+    denied:PRIOR.denied, legal_confirmed:PRIOR.legal_confirmed,
+    appeals_filed:PRIOR.appeals_filed, appeals_reversed:PRIOR.appeals_reversed,
+    flags_issued:PRIOR.flags_issued, by_code:{}};
+  for(var k in PRIOR.by_code) s.by_code[k]=PRIOR.by_code[k];
+  AUDIT.forEach(function(a){
+    s.requests++;
+    if(/^APPROVED-MODIFIED/.test(a.outcome)) s.modified++;
+    else if(/^APPROVED/.test(a.outcome)) s.approved++;
+    else if(/^LEGAL CONFIRMED/.test(a.outcome)){ s.legal_confirmed++; s.denied++; }
+    else if(/^DENIED/.test(a.outcome)){
+      s.denied++;
+      var m=a.outcome.match(/^DENIED · ([\w-]+)/);
+      if(m) s.by_code[m[1]]=(s.by_code[m[1]]||0)+1;
+    }
+    var fm=a.outcome.match(/Flag \+(\d)/);
+    if(fm) s.flags_issued+=+fm[1];
+    if(/\[APPEAL/.test(a.outcome)) s.appeals_filed++;
+  });
+  return s;
+}
+function toggleReport(){
+  var p=$('reportPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block'){ renderReport(); p.scrollIntoView(); }
+}
+function renderReport(){
+  var s=shiftStats();
+  var decided=s.approved+s.modified+s.denied;
+  var html='<div class="kv"><span>Window</span><b>'+PRIOR.window+' + this session</b></div>';
+  html+='<div class="kv"><span>Requests screened</span><b>'+s.requests+'</b></div>';
+  html+='<div class="kv"><span>Approved / modified / denied</span><b>'+s.approved+' / '+s.modified+' / '+s.denied+
+    ' ('+(decided?Math.round(100*s.denied/decided):0)+'% deny rate)</b></div>';
+  html+='<div class="kv"><span>Legal confirms</span><b>'+s.legal_confirmed+' — public wording identical to a normal deny</b></div>';
+  html+='<div class="kv"><span>Appeals (aggregate)</span><b>'+s.appeals_filed+' filed · '+s.appeals_reversed+' reversed — never individual spectacle</b></div>';
+  html+='<div class="kv"><span>Median decision</span><b>'+PRIOR.median_decision_min+' min (SLA target 15)</b></div>';
+  html+='<div class="kv"><span>Compensation paid</span><b>'+PRIOR.comp_cr+' cr — admin overrides auto-refund</b></div>';
+  html+='<div class="kv"><span>Flag weight issued</span><b>+'+s.flags_issued+' across all accounts · thresholds at 3/6/9</b></div>';
+  html+='<h2 style="margin:12px 0 6px">Denials + reviews by code</h2>';
+  Object.keys(s.by_code).sort(function(a,b){return s.by_code[b]-s.by_code[a];}).forEach(function(k){
+    html+='<div class="kv"><span>'+k+'</span><b>'+s.by_code[k]+'</b></div>';
+  });
+  html+='<div class="foot" style="color:var(--dim);font-size:11px;margin-top:10px">'+
+    'Screening corpus: 80/80 green at engine '+RWScreen.VERSION+' — see Screen Lab. '+
+    'This report is the studio-side source for the monthly transparency recap; '+
+    'it contains no request text, no handles, no secrets — there is nothing to leak.</div>';
+  $('reportBody').innerHTML=html;
+}
+function copyShift(){
+  var s=shiftStats();
+  var rep={tool:'mod-console shift report',engine:RWScreen.VERSION,
+    ran_at:new Date().toISOString(),window:PRIOR.window,
+    requests:s.requests,approved:s.approved,modified:s.modified,denied:s.denied,
+    legal_confirmed:s.legal_confirmed,by_code:s.by_code,
+    appeals_filed:s.appeals_filed,appeals_reversed:s.appeals_reversed,
+    median_decision_min:PRIOR.median_decision_min,comp_cr:PRIOR.comp_cr,
+    flags_issued:s.flags_issued,aggregate_only:true};
+  var t=$('shiftRep'); t.style.display='block';
+  t.value=JSON.stringify(rep,null,1); t.select();
+  try{ document.execCommand('copy'); }catch(e){}
 }
 
 function renderAudit(){

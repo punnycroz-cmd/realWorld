@@ -182,8 +182,9 @@ shared inbox after each session with blockers/majors only.
   block (same convention as history.html/history.json). The `mirror` gate in
   `audit.js` enforces this — run it after any scenario edit.
 - `screen-corpus.json` and screen-lab.html's inline `CORPUS` are likewise
-  hand-synced; the corpus gate catches case-count drift but not content drift —
-  when adding a case, update both.
+  hand-synced; since v36 the `mod` gate diffs them case-for-case (inputs +
+  expectations), so content drift fails the audit — when adding a case,
+  update both.
 - New surfaces get a `surfaces` entry + at least one scenario step that touches
   them. A surface no scenario touches is untested by definition. Tool surfaces
   (no HTML to embed) declare `tool` + a `run` string — see `audit` in SURF.

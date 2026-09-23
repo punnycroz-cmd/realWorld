@@ -138,3 +138,47 @@ v22 engine hardening (found BY the corpus, kept honest by it): word-form
 stems (`humiliates`, `confesses`, `k1ll`), `get <name> fired/evicted`
 patterns, leet/dotted-letter evasion. All 50 cases green; v8 mod-console
 seed texts verified unchanged.
+
+## 10. v36 — evasion round two, calibration, flags, transparency
+
+**Spaced-letter evasion (engine v36).** The cheapest remaining evasion was
+spacing letters out: `p o s s e s s Victor`, `m a k e  h e r  c r y`. The
+normalizer now collapses runs of ≥3 single-letter tokens **in place**, so a
+decodable evasion still hits the real rule (`p o s s e s s Victor` →
+`possess Victor` → possession-scope deny — not a lesser charge). A run no
+rule can read is itself the signal: new review-tier code
+`obfuscation-attempt` routes it to a human, who sees the collapsed text in
+the trace. `Unit 3B`, `a, b, and c`, and comma-separated singles never form
+a run — pinned by near-miss cases.
+
+**Corpus 70 → 80.** Ten cases: five evasion-deny pins (harm ×2, possession,
+legal, admin-domain), three obfuscation-attempt routes, two near-misses.
+The audit's new `mod` gate diffs the inline corpus in screen-lab.html
+against `screen-corpus.json` case-for-case — the hand-sync convention is
+now enforced, closing the drift hole the maintenance notes called out.
+
+**Reviewer calibration (Screen Lab v2).** A training surface under the
+corpus runner: the corpus deals 12 shuffled cases blind — no expected
+verdicts — and the trainee calls verdict + code on each. The scorecard
+reports verdict agreement, code agreement, and a per-case diff table with
+each case's "why it exists" note; exports JSON. Scoring is agreement with
+the contract, not judgment: new reviewers run it before touching the live
+queue; everyone re-runs after a rule change. Persistent disagreement is a
+coaching item, never a player-facing one.
+
+**Flag ledger (Mod Console v2).** `PLAYERS` now carries `flag_score` +
+`flag_log`; the context card shows the rolling score, the active tier
+(3 → human-review 7 d · 6 → suspend 72 h · 9 → owner review), the next
+threshold, and the −1/30 d decay rule. `decide()` routes deny flag_w
+through `bumpFlag()` — crossing a tier is called out in the audit line.
+Thresholds mirror `moderation.json account_flags`, no numbers invented.
+
+**Shift report (Mod Console v2).** A header "shift report" toggle opens an
+**aggregate-only** transparency panel: requests screened, approve/modified/
+denied + deny rate, per-code counts, appeals filed/reversed as counts only,
+median decision vs the 15-min target, compensation cr paid, flag weight
+issued, corpus green at engine version. Seeded 30-day baseline + live
+session decisions folded in; exports JSON. Rule: never request text,
+handles, or individual appeals — `appeal_flow.feed_visibility` is
+"aggregate only", and this is the studio-side source for the monthly
+public recap marketing's transparency template expects.

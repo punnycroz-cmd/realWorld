@@ -216,3 +216,29 @@ the bar for touching the world is deliberately unreachable by drama.)
   more permissive = bug), precedence note.
 - Rule-change workflow is now mechanical: edit rule → run corpus → same
   commit. New rules ship with their cases.
+
+## 10. World-track tooling (v36 — evasion round two + reviewer ops)
+
+- `world/screen.js` — v36: spaced-letter runs (≥3 single-letter tokens)
+  collapse in place before matching, so `p o s s e s s Victor` still hits
+  possession-scope; runs no rule can read route to review as the new
+  `obfuscation-attempt` code. Leet/dotted normalization unchanged.
+- `world/screen-corpus.json` — 70 → 80 cases: evasion-deny pins across
+  harm/possession/legal/admin-domain, three obfuscation-attempt routes,
+  near-misses (`a, b, and c`, `Unit 3B`-style singles).
+- `world/screen-lab.html` — corpus mirror updated + NEW reviewer
+  calibration mode: 12 blind cases, verdict+code calls, agreement
+  scorecard with per-case diffs and JSON export.
+- `world/mod-console.html` — NEW flag ledger (score, active tier, next
+  threshold, decay note on the player card; `bumpFlag()` on deny/legal
+  with tier-crossing callouts) + NEW aggregate-only shift report
+  (transparency panel + JSON export) + obfuscation-attempt seed row.
+- `world/moderation.json` — `obfuscation-attempt` in the review tier;
+  testing block v36 (normalization, precedence, calibration); new
+  `transparency_report` contract block (aggregate-only, studio-side
+  source for the public monthly recap).
+- `world/audit.js` — NEW `mod` gate: taxonomy agreement between
+  moderation.json and screen.js REASON_CODES, corpus↔lab content mirror
+  (the drift hole is now gated), whitelist-field check on the console's
+  CHARS block, calibration/report affordances, no mutation calls on
+  internal surfaces.

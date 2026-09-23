@@ -1,5 +1,7 @@
 /* world/screen.js — RW intent-screening engine (world v8; v22 adds input
-   normalization — leetspeak + dotted-letter evasion — and VERSION).
+   normalization — leetspeak + dotted-letter evasion — and VERSION; v36 adds
+   spaced-letter evasion: runs of single letters collapse in place, and a
+   spaced run that no rule can read routes to a human as obfuscation-attempt).
    Shared by request.html (player side), create.html (naming strings),
    mod-console.html (reviewer side), and screen-lab.html (corpus runner).
    Implements the moderation-notes.md §3 contract as DATA + a pure function.
@@ -15,7 +17,7 @@
 */
 window.RWScreen = (function () {
 
-  var VERSION = 'v22';
+  var VERSION = 'v36';
 
   /* ---------- reason-code taxonomy (mirror of moderation.json) ---------- */
   var REASON_CODES = {
@@ -62,6 +64,9 @@ window.RWScreen = (function () {
       feed:'in_review' },
     'first-time-exclusive':{ tier:'review', flag_w:0, appealable:true,
       player_msg:'First exclusive requests get a quick human check.',
+      feed:'in_review' },
+    'obfuscation-attempt':{ tier:'review', flag_w:0, appealable:true,
+      player_msg:'Unusual lettering gets a human pair of eyes first.',
       feed:'in_review' },
     /* pass */
     'pass':              { tier:'pass', flag_w:0, appealable:false, player_msg:null, feed:null }
@@ -114,15 +119,26 @@ window.RWScreen = (function () {
      ("p.a.y") collapse to the word ("pay"). Original text is still what
      reviewers see; the trace reports the normalized hit. */
   var LEET = { '0':'o', '1':'i', '3':'e', '4':'a', '5':'s', '7':'t', '@':'a', '$':'s', '!':'i' };
+  /* spaced-letter runs (v36): >=3 single-letter tokens joined by single spaces
+     are an evasion surface. Each run collapses IN PLACE to one token, so a
+     decodable evasion still hits the real rules ("p o s s e s s Victor" ->
+     "possess Victor" -> possession-scope). A run no rule can read is itself
+     the signal -> obfuscation-attempt -> human. SPACED_RE doubles as the
+     detector (screenRequest tests it on the raw hay before matching). */
+  var SPACED_RE = /(?:\b[a-z]\b ){2,}\b[a-z]\b/g;
   function norm(s) {
     return s.toLowerCase()
       .replace(/[013457@$!](?=[a-z])|(?<=[a-z])[013457@$!]/g, function (c) { return LEET[c]; })
-      .replace(/\b(?:[a-z]\.){2,}[a-z](?=\b|\.)/g, function (m) { return m.replace(/\./g, ''); });
+      .replace(/\b(?:[a-z]\.){2,}[a-z](?=\b|\.)/g, function (m) { return m.replace(/\./g, ''); })
+      .replace(SPACED_RE, function (m) { return m.replace(/ /g, ''); })
+      .replace(/ {2,}/g, ' ');
   }
 
   /* screenRequest(req) — pure. Never mutates. Never predicts AI rendering. */
   function screenRequest(req) {
-    var hay = norm((req.action || '') + ' ' + (req.target_label || '') + ' ' + (req.text || ''));
+    var raw = ((req.action || '') + ' ' + (req.target_label || '') + ' ' + (req.text || '')).toLowerCase();
+    var spaced = !!raw.match(SPACED_RE);
+    var hay = norm(raw);
     var trace = [];
     for (var i = 0; i < RULES.length; i++) {
       var m = hay.match(RULES[i].re);
@@ -134,6 +150,13 @@ window.RWScreen = (function () {
                  route: c.legal ? 'legal' : (c.tier === 'deny' ? 'auto-deny' : 'human'),
                  flag_w: c.flag_w, appealable: c.appealable, trace: trace };
       }
+    }
+    /* a spaced-letter run no rule could read is itself the flag — the
+       reviewer gets the collapsed text in the trace and decides */
+    if (spaced) {
+      var co = REASON_CODES['obfuscation-attempt'];
+      return { verdict: 'review', code: 'obfuscation-attempt', player_msg: co.player_msg,
+               route: 'human', flag_w: co.flag_w, appealable: co.appealable, trace: trace };
     }
     var hf = historyFlags(req.player || {}, req.target_id);
     if (hf.length) {

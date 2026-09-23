@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32, PT31 + wire v3 / wire gate v33, PT32 + archive v3 / archive gate v34, PT33 + create v3 / creation gate v35). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32, PT31 + wire v3 / wire gate v33, PT32 + archive v3 / archive gate v34, PT33 + create v3 / creation gate v35, PT34 + moderation v36 / mod gate v36). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -666,11 +666,34 @@ const PTS=[
   ck:["No 'charged upfront' wording survives — billing is on approval only","'denied applications never bill' still on the review footnote","On the bridge, gsHireQuote's extra disclosure lines append as a second card; off-bridge the local card stands alone"]},
  {do:"Run `node world/audit.js` and read the creation gate.",
   exp:"creation gate passes: JOBS eval'd and field-compared to jobs.json (30 rows · 13 filled), HOMES to housing.json (4), LOOK to record_schema, draft key rw_create_draft_v22 agrees, deposit rule + payment-plan honesty present, bill-on-approval + live-seam reads present, and no world-mutation call on the surface.",
-  ck:["Gate reports '30 board rows (13 filled) · 4 homes · schema v22'","A drifted wage/openings count, a missing deposit line, or a gsSubmit/fetch call would FAIL — spot-check","Twenty gates total; overall 0 fail"]}]}
+  ck:["Gate reports '30 board rows (13 filled) · 4 homes · schema v22'","A drifted wage/openings count, a missing deposit line, or a gsSubmit/fetch call would FAIL — spot-check","Twenty gates total; overall 0 fail"]}]},
+{id:"PT34",title:"Moderation round two — evasion, calibration, flag ledger, shift report",min:15,
+ persona:"reviewer on day two of training + facilitator auditing that new tooling adds no world-touching surface",
+ goal:"Verify the v36 moderation additions: spaced-letter evasion collapses to the real rule or routes to a human as obfuscation-attempt, the corpus is 80 green with the new code covered, calibration scores reviewer agreement blind, the flag ledger tracks tiers on the player card, and the shift report is aggregate-only.",
+ surfaces:["lab", "mod", "audit"],steps:[
+ {do:"Open Screen Lab. In try-it, screen 'p o s s e s s Victor for an hour' (nudge → Victor Auerbach), then 'Have her m a k e  h e r  c r y at work' (nudge → Priya Raman), then 'b u y  h e r  t i c k e t s please' (gift → Dana Okafor).",
+  exp:"The first two collapse in place and hit the REAL rules — deny/possession-scope and deny/harm-targeting, never a lesser charge. The third decodes to nothing a rule can judge and routes review/obfuscation-attempt. The normalized view shows the collapsed text.",
+  ck:["Evasion never downgrades a verdict — decodable spaced text hits the same rule as plain text", "Unreadable spaced runs flag obfuscation-attempt → human, not pass", "'a, b, and c' and 'Unit 3B' never form a run — try both as near-misses"]},
+ {do:"Read the golden corpus run. Check the coverage chips and the newest rows (SC71–SC80).",
+  exp:"80/80 green. The covgrid shows obfuscation-attempt ×3 with a near-miss marker; SC71–SC75 show spaced evasions denying through real rules; SC76/SC80 are pass near-misses.",
+  ck:["Every reason code still has ≥3 cases", "The corpus table loads a case into try-it on click", "Report JSON export still works"]},
+ {do:"Start a reviewer calibration run. Call verdict + code on all 12 blind cases, then read the scorecard.",
+  exp:"Cases deal shuffled with expected verdicts hidden. The scorecard reports verdict agreement (N/12), code agreement, and a per-case diff table carrying each case's 'why it exists' note; scorecard JSON exports.",
+  ck:["Expected verdicts are never visible during the run", "A disagreement row shows expected vs called side by side", "Scoring is agreement-with-contract — no 'judgment' framing anywhere"]},
+ {do:"Open the Mod Console and select rq-1043 (sable_r → Jules Park). Read the trace, then open r0ok's rq-1036 in the legal lane and confirm the legal flag.",
+  exp:"rq-1043 traces review/obfuscation-attempt — the classifier read the spaced lettering, decoded 'make a scene', and routed it to a human. r0ok's player card shows flag score 4 (TIER 3 active: all requests human-reviewed) with dated flag_log rows; confirming legal adds +3 and the audit line calls out FLAG TIER 6 REACHED.",
+  ck:["Flag score, active tier, next threshold, and the decay note all render on the player card", "bumpFlag runs on deny AND legal-confirm — the ledger is mechanical, not memory", "The appeal card still names the original reviewer ('you must not be them')"]},
+ {do:"Click 'shift report' in the header. Read the panel, then copy the report JSON.",
+  exp:"Aggregate rows only: requests screened, approve/modified/deny-rate, per-code counts, appeals filed/reversed as counts, median decision vs the 15-min target, compensation cr, flag weight issued, corpus green at engine v36. Session decisions fold onto the 30-day baseline live.",
+  ck:["No request text, handles, or individual appeals anywhere in the report", "Appeals appear as counts only — 'never individual spectacle'", "The report names itself as the studio-side source for the monthly public recap"]},
+ {do:"Run `node world/audit.js` and read the mod gate.",
+  exp:"mod gate passes: taxonomy agreement between moderation.json and the engine (15 codes incl. obfuscation-attempt, flag_w agreement), the inline corpus diffs case-for-case against screen-corpus.json (80), console CHARS whitelist enforced, v36 affordances present, no mutation calls on internal surfaces.",
+  ck:["Gate reports '15 taxonomy codes · 80 mirrored cases · engine v36 · 6 whitelist cards'", "A drifted corpus case, a renamed whitelist field, or a fetch/post on either internal page would FAIL — spot-check", "Twenty-one gates total; overall 0 fail"]}]}
 ];
 
+
 /* ---- state ---- */
-const LS="rw_playtest_v35";
+const LS="rw_playtest_v36";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
