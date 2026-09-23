@@ -82,6 +82,11 @@
                 present; scenario integrity (unique PT ids, declared
                 surfaces, ≥1 checkpoint per step, every surface touched);
                 finding-surface dropdown ⊆ declared surfaces
+    apply     — applications.json ↔ apply.html deep mirror (APPS eval'd);
+                every job_app covers a live jobs.json opening (bidirectional)
+                and its channel agrees with the market.json churn row;
+                housing keys ⊆ live unit_ids ∪ ladder tiers; no credit
+                figures; decline wording present; unpaid trials flagged
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -229,7 +234,8 @@ const PUB = Object.values(PT.surfaces)
   /* in-world surfaces: game dollars only — a bare "N cr" figure is a wall breach */
   const INWORLD = new Set(['board.html', 'lease.html', 'timeclock.html',
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
-    'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html']);
+    'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
+    'applications.json', 'apply.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -1743,13 +1749,99 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'playtest.html', null, 'harness gate failure: ' + e.message); }
 }
 
+/* ============ G23 apply ============ */
+{
+  const g = gate('apply', 'application layer contract (applications.json ↔ apply.html; live-opening coverage; channel agreement; game dollars only)');
+  try {
+    const AJ = JSONF('applications.json');
+    const JJ = JSONF('jobs.json');
+    const HJ = JSONF('housing.json');
+    const MJ = JSONF('market.json');
+    const html = rd('apply.html');
+    /* deep mirror: inline APPS == applications.json (doc line exempt) */
+    const m = html.match(/const APPS = (\{[\s\S]*?\n\});/);
+    if (!m) throw new Error('inline APPS block not found');
+    const INL = eval('(' + m[1] + ')');
+    const strip = o => { const c = JSON.parse(JSON.stringify(o)); delete c.doc; return c; };
+    if (JSON.stringify(strip(INL)) !== JSON.stringify(strip(AJ)))
+      add(g, 'fail', 'apply.html', null, 'inline APPS != applications.json (hand-sync drift)');
+    if (AJ.schema !== 'apps-v1')
+      add(g, 'fail', 'applications.json', null, `schema "${AJ.schema}" != apps-v1`);
+    /* no credit figures anywhere in this layer */
+    for (const [f, txt] of [['applications.json', rd('applications.json')], ['apply.html', html]])
+      for (const mm of txt.matchAll(/\b\d[\d,]*\s*cr\b/gi))
+        add(g, 'fail', f, null, `credit figure in application layer: "${mm[0]}"`);
+    /* bidirectional coverage: job_apps == live openings (openings !== 0) */
+    const openJobs = JJ.jobs.filter(j => j.openings !== 0);
+    const chans = new Set(Object.keys(MJ.channels));
+    const seen = new Set();
+    for (const a of AJ.job_apps) {
+      const key = a.employer + '|' + a.role;
+      if (seen.has(key)) add(g, 'fail', 'applications.json', null, `duplicate job_app ${key}`);
+      seen.add(key);
+      const job = openJobs.find(j => j.employer === a.employer && j.role === a.role);
+      if (!job) { add(g, 'fail', 'applications.json', null, `job_app ${key} has no live jobs.json opening`); continue; }
+      if (!chans.has(a.channel))
+        add(g, 'fail', 'applications.json', null, `${key}: channel "${a.channel}" not declared in market.json`);
+      const churn = MJ.churn.find(c => c.employer === a.employer && c.role === a.role);
+      if (churn && churn.channel !== a.channel)
+        add(g, 'fail', 'applications.json', null, `${key}: channel "${a.channel}" disagrees with churn "${churn.channel}"`);
+      if (a.trial && a.trial.wage !== job.wage)
+        add(g, 'fail', 'applications.json', null, `${key}: trial wage ${a.trial.wage} != jobs.json ${job.wage}`);
+      for (const fld of ['apply', 'days'])
+        if (!a[fld]) add(g, 'fail', 'applications.json', null, `${key}: missing "${fld}"`);
+      if (!a.screen || !a.screen.who || !a.screen.watches)
+        add(g, 'fail', 'applications.json', null, `${key}: screen needs who + watches`);
+      if (!a.trial || !a.trial.shape || !a.trial.passes_on || !a.trial.fails_on)
+        add(g, 'fail', 'applications.json', null, `${key}: trial needs shape + passes_on + fails_on`);
+      if (a.trial && a.trial.paid === false && !/unpaid/i.test(a.trial.shape))
+        add(g, 'fail', 'applications.json', null, `${key}: unpaid trial must say so plainly in shape`);
+      if (!a.decline || !a.decline.voiced)
+        add(g, 'fail', 'applications.json', null, `${key}: decline.voiced missing`);
+    }
+    for (const j of openJobs)
+      if (!AJ.job_apps.find(a => a.employer === j.employer && a.role === j.role))
+        add(g, 'fail', 'applications.json', null, `live opening ${j.employer} — ${j.role} has no job_app row`);
+    /* housing keys ⊆ live unit_ids ∪ tier-* ladder keys */
+    const hKeys = new Set(HJ.listings_live.map(l => l.unit_id)
+      .concat(HJ.listings_ladder.map(t => 'tier-' + t.tier)));
+    for (const h of AJ.housing_apps) {
+      if (!hKeys.has(h.key))
+        add(g, 'fail', 'applications.json', null, `housing_app key "${h.key}" is not a live unit or ladder tier`);
+      for (const fld of ['label', 'viewing', 'shown_by', 'watches', 'fee', 'decision'])
+        if (!h[fld]) add(g, 'fail', 'applications.json', null, `${h.key}: missing "${fld}"`);
+      if (!Array.isArray(h.packet) || !h.packet.length)
+        add(g, 'fail', 'applications.json', null, `${h.key}: packet must be a non-empty list`);
+      if (!h.decline || !h.decline.voiced)
+        add(g, 'fail', 'applications.json', null, `${h.key}: decline.voiced missing`);
+    }
+    /* decline bank covers every channel + voice used */
+    const bank = AJ.decline_bank || {};
+    for (const c of chans)
+      if (!bank[c]) add(g, 'fail', 'applications.json', null, `decline_bank missing channel "${c}"`);
+    for (const v of ['owner_direct', 'manager', 'roommates', 'spectator_note'])
+      if (!bank[v]) add(g, 'fail', 'applications.json', null, `decline_bank missing "${v}"`);
+    /* demo surface honesty: badge + never-spectate rule + no mutation calls */
+    for (const [re, label] of [
+      [/DEMO/, 'demo badge'],
+      [/never carries an applicant/i, 'applicant privacy copy'],
+      [/conditions, not scripts|Conditions, not scripts/, 'conditions-not-scripts copy']
+    ]) if (!re.test(html)) add(g, 'fail', 'apply.html', null, `missing required copy: ${label}`);
+    html.split('\n').forEach((ln, i) => {
+      if (/\bXMLHttpRequest\b|\bfetch\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsApply/i.test(ln))
+        add(g, 'fail', 'apply.html', i + 1, `world-mutation call on the surface: ${ln.trim().slice(0, 100)}`);
+    });
+    g.detail = `schema ${AJ.schema} · ${AJ.job_apps.length} job rows · ${AJ.housing_apps.length} housing rows · ${Object.keys(bank).length - 1} decline voices`;
+  } catch (e) { add(g, 'fail', 'applications.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v43 local';
+out.build = 'world v45 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

@@ -1,4 +1,4 @@
-# Jobs & Housing — "The Mission" (world v0, index updated v31)
+# Jobs & Housing — "The Mission" (world v0, index updated v45)
 
 > **v3 depth layer:** the tables below remain canonical for numbers.
 > `world/jobs/` holds per-workplace cards (shift shape, culture, hiring
@@ -18,6 +18,11 @@
 > skill ladders, seasonal labor calendar, housing vacancy lifecycle,
 > the word-of-mouth room channel, the off-registry ambient ring, move-in
 > math). INTERNAL tier. Internal demo: `world/market.html`.
+>
+> **v45 depth layer:** `world/applications.md` + `world/applications.json`
+> — the actor-facing application layer (how a character asks for each live
+> opening or listing, who screens, what the trial/viewing tests, how a no
+> sounds). Player-facing demo: `world/apply.html` ("The Tryout").
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).

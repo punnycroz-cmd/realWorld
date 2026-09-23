@@ -51,6 +51,9 @@ One person can wear every hat; four real testers is the intended shape.
   PT40 (storefront layer, v44) is a facilitator audit — 20 door-tier
   storefronts, condition-resolved A-frames, flyer boards as rumor surfaces,
   and the extended biz gate.
+  PT41 (application layer, v45) is a hired player + facilitator audit —
+  16 live openings' ask/screen/trial/decline cards, 8 housing rows,
+  channel agreement with the market layer, and the new apply gate.
 
 ## 3. Running a session
 

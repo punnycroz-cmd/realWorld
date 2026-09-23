@@ -34,7 +34,10 @@
    "world/market.md",
    "world/storefront.html",
    "world/storefronts.json",
-   "world/storefronts.md"
+   "world/storefronts.md",
+   "world/apply.html",
+   "world/applications.json",
+   "world/applications.md"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -160,6 +163,11 @@
    "file": "storefront.html",
    "name": "The Storefront",
    "tier": "internal"
+  },
+  "apply": {
+   "file": "apply.html",
+   "name": "The Tryout",
+   "tier": "in-world"
   }
  },
  "smoke_set": [
@@ -2211,6 +2219,48 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT41",
+   "title": "The Tryout — applying for work and a room",
+   "minutes": 12,
+   "persona": "newly hired player character (h02) job-hunting + facilitator auditing the v45 application layer",
+   "goal": "Verify every live opening and listing now carries authored ask-screen-trial/viewing content: channels agree with the board's metabolism, trial wages match the job board, declines stay private, and the layer holds the standing walls (game dollars only, conditions never scripts, no applicant on the feed).",
+   "surfaces": [
+    "apply",
+    "board",
+    "market",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Tryout. Filter channels: board, word of mouth, app, hr portal. Cross-read three cards against the Housing & Jobs Board.",
+     "expect": "16 work cards — one per live opening. Channel chips partition them exactly (board 9, word of mouth 5, app 1, hr portal 1). Wages and days-to-fill match the board: Mudhaus barista $19/h 1–3 wks, MuleIt 'always hiring' shows no decider at all.",
+     "checkpoints": [
+      "Card count = 16, matching the live openings on the board",
+      "Every card carries apply / screen(who+watches) / trial(shape, paid flag, passes_on, fails_on) / decline",
+      "The Il Delfino stage is flagged unpaid in plain words — the only unpaid trial on the page"
+     ]
+    },
+    {
+     "do": "Read the housing half: the three live listings plus the five tier rows. Compare deposits and packet fields against The Board's Metabolism.",
+     "expect": "8 housing rows. Victor's listings read owner-direct (he shows it, calls references, texts the no); Capp St reads manager-run (paper moves, silence is the answer). Room tier shows the kitchen-table interview and the $700 + half-deposit math consistent with move-in norms.",
+     "checkpoints": [
+      "Owner-direct vs manager voice difference is visible, not asserted",
+      "No row charges an application fee above disclosed screening cost — the never-list holds",
+      "Every decline has a voiced line; spectator cells say 'listing delisted' or nothing public"
+     ]
+    },
+    {
+     "do": "Hunt the walls: search the page for credit figures, applicant names, and any mutation affordance. Then run `node world/audit.js` and read the apply gate.",
+     "expect": "Zero 'cr' figures — deposits and wages are plain dollars. Declines render in-voice but the spectator column is null or 'listing delisted'; no button or script calls a gs* mutator. apply gate passes: APPS mirror clean, bidirectional coverage vs jobs.json, channels agree with market.json churn, decline bank covers all channels.",
+     "checkpoints": [
+      "Game dollars only — no credit figure anywhere on the page",
+      "'never carries an applicant' copy present; declines never name the applicant on any public tell",
+      "Gate reports schema apps-v1 · 16 job rows · 8 housing rows · decline voices counted"
+     ]
+    }
+   ]
   }
  ],
  "harness_ui_v37": {
@@ -2261,7 +2311,7 @@
   "findings": [
    {
     "severity": "blocker|major|minor|nit|question",
-    "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|storefront|harness",
+    "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|storefront|apply|harness",
     "ref": "PT#, PT#·sN, or null — auto-tagged with the open scenario at log time; ·sN added when a step is picked in the fStep dropdown (v37)",
     "title": "string",
     "detail": "string",

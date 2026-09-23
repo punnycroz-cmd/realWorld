@@ -1,6 +1,12 @@
 {
  "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
- "version": 31,
+ "version": 45,
+ "application_layer": {
+  "spec": "applications.md",
+  "mirror": "applications.json",
+  "demo": "apply.html",
+  "note": "v45 — actor-facing ask/screen/trial/decline per live opening; channels agree with market.json churn"
+ },
  "shift_layer": {
   "spec": "shifts.md",
   "mirror": "shifts.json",
