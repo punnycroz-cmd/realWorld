@@ -5,14 +5,14 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v30)
+## Published shots (`site/shots/`, development build v31)
 
 | File | Alt text |
 |---|---|
-| `v30-A` | Top-down view of a sunlit Mission District block: gabled rooftops, a corner taqueria, tiny figures on the sidewalks. Development build. |
-| `v30-B` | Street-level view down a Mission block at golden hour — bay windows, parked cars, residents walking. Development build. |
-| `v30-C` | The block in afternoon canyon shadow: one facade lit warm, the far side in blue shade, a pigeon on a parapet. Development build. |
-| `v30-D` | Evening on the block: sodium lamps pooling on wet pavement, windows lit, fog softening the rooftops. Development build. |
+| `v31-A` | Top-down view of a sunlit Mission District block: gabled rooftops, a corner taqueria, tiny figures on the sidewalks. Development build. |
+| `v31-B` | Street-level view down a Mission block at golden hour — bay windows, parked cars, residents walking. Development build. |
+| `v31-C` | The block in afternoon canyon shadow: one facade lit warm, the far side in blue shade, a pigeon on a parapet. Development build. |
+| `v31-D` | Evening on the block: sodium lamps pooling on wet pavement, windows lit, fog softening the rooftops. Development build. |
 | `v16-int-cafe` | Interior still: a corner cafe — counter, chalk menu, two residents mid-conversation. Development build. |
 | `v16-int-flat` | Interior still: a small apartment — sofa, window over the street, one resident reading. Development build. |
 | `v1-A` / `v1-B` | Earliest surviving build of the block — flat lighting, simple facades. Kept for before/after posts only; always paired with a current shot. |

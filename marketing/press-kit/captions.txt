@@ -12,21 +12,24 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v30-A.png       1440x900 (approx)
+screenshots/v31-A.png       1440x900 (approx)
   The Mudhaus block from overhead — real Mission street grid, parody
   storefront signage, mural walls, generated addresses. False-front
-  gables and raised basements give the roofline its sawtooth.
+  gables and raised basements give the roofline its sawtooth; street
+  trees now leaf out of their sidewalk pits.
 
-screenshots/v30-B.png       1440x900 (approx)
+screenshots/v31-B.png       1440x900 (approx)
   Street-level follow camera: polychrome Victorian trim, cast-iron fire
   escapes, six-tread stoops and ribbed garage bays on the raised-basement
-  ground floors, a resident on an afternoon routine.
+  ground floors, side-elevation trees swaying at real heights, a resident
+  on an afternoon routine.
 
-screenshots/v30-C.png       1440x900 (approx)
-  Dolores Park from above — the neighborhood's back yard, with court and
-  path decals baked into the terrain.
+screenshots/v31-C.png       1440x900 (approx)
+  Dolores Park from above — the neighborhood's back yard under mature
+  clustered crowns, leaf litter and shadow dapple, court and path decals
+  baked into the terrain.
 
-screenshots/v30-D.png       1440x900 (approx)
+screenshots/v31-D.png       1440x900 (approx)
   Director mode: the camera treats the neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
@@ -37,7 +40,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v30-A / v30-B.
+  First art pass, for before/after coverage. Pair with v31-A / v31-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

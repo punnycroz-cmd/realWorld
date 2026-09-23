@@ -35,9 +35,10 @@ Contents
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
   screenshots/       Real captures of the current development build.
-                     v30-* = current renderer (murals, parody signage,
+                     v31-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, stoops, garage bays,
-                     false-front gables, parked cars);
+                     false-front gables, mature park crowns + street
+                     trees, parked cars);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

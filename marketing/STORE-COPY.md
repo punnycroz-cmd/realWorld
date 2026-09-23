@@ -1,6 +1,8 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v33 — canonical-contract sync + submission packet, 2026-09-23.**
+**Status: v48 — launch-surface expansion (Product Hunt card, itch theme,
+Steam sysreqs, A/B short descriptions, claim ledger) + v31 art rebase,
+2026-09-24.** Supersedes v33.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — the only outstanding art dependency is the
@@ -46,7 +48,7 @@ allows ~256; keep under 256 to serve both)*
 > residents live around the clock — watch free, forever. Ready to reach in?
 > Buy a time-boxed request or move in yourself: rent, work, own the block.
 
-(226 chars incl. spaces. Fits itch.io and Steam.)
+(222 chars incl. spaces. Fits itch.io and Steam.)
 
 ### 1.3 Long description
 *(Steam "about this game" body / itch.io page body — Markdown-safe)*
@@ -175,7 +177,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v30-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v31-A..D.png` (4 ready, grounded-shadow build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -189,9 +191,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v30-D (director view — the hook), v30-B
-(street level), v30-C (Dolores Park), v16-int-cafe (interior vignette),
-then v30-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v31-D (director view — the hook), v31-B
+(street level), v31-C (Dolores Park), v16-int-cafe (interior vignette),
+then v31-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -204,7 +206,7 @@ CEF/native shell) — copy below assumes the same product.
 
 | Field | Value |
 |---|---|
-| Short description | §1.2 verbatim (226 ≤ 300) |
+| Short description | §1.2 verbatim (222 ≤ 300) |
 | About this game | §1.3 verbatim + system-requirements honesty line: "Real World is a browser-native simulation; the Steam version runs the same live world in a desktop shell." |
 | Type | Simulation |
 | Players | MMO? **No** — it's a single shared shard with spectator + limited actor slots. Steam requires "Massively Multiplayer" honesty; use `Single-player` + `Shared/split screen: no`; describe as "one shared world, many viewers" |
@@ -250,7 +252,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v30-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v31-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -318,7 +320,7 @@ capsules (Steam policy).
 |---|---|---|---|
 | Title | itch ~50 / Steam ~128 | 24 | ✓ |
 | itch tagline | ~256 | 160 | ✓ |
-| Steam short desc | 300 | 226 | ✓ |
+| Steam short desc | 300 | 222 | ✓ |
 | Steam about | ~unlimited (keep <8k) | ~2.4k | ✓ |
 | Feature bullets | ~140 ea | ≤140 | ✓ |
 | Tags (itch) | ~10 shown | 10 | ✓ |
@@ -347,10 +349,10 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v30-D "director view" → "Aerial view
+`press-kit/captions.txt` as canonical): v31-D "director view" → "Aerial view
 of the Mission block at golden hour — the spectator camera's home position.";
-v30-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v30-C park → "Dolores Park edge — palms, lawn,
+v31-B street level → "Street-level view: facades, parody storefront signage,
+a resident mid-errand."; v31-C park → "Dolores Park edge — palms, lawn,
 residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
 the before/after that anchors the devlog series."
@@ -364,7 +366,123 @@ never a reason in public.
 
 ---
 
-## 10. Versioning note
+## 10. Product Hunt launch card (conditional — owner decides launch-day roster)
+
+Product Hunt is a launch-day surface, not a storefront — but its field
+limits are stricter than itch's, so the copy lives here. All fields
+drafted; submission is owner-gated like everything else.
+
+| Field | Limit | Draft |
+|---|---|---|
+| Name | ~60 | `Real World — The Mission` |
+| Tagline | 60 | `A neighborhood that never stops performing.` (44) |
+| Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
+| Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
+| Media | — | gallery: `keyart-16x9.png` + `v31-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
+
+**Maker's first comment** (posted at launch, from the dev account — no
+testimonials, no fake third parties):
+
+> We built Real World because we wanted to watch a neighborhood the way
+> you watch a street from a café window — and occasionally tap the glass.
+> Watching is free forever; the sim doesn't pause when you leave. If you
+> want in, you can file a time-boxed request or hire a character onto the
+> cast and climb tenant → owner → landlord. The eight mains can't be
+> possessed by anyone, including us. Happy to answer anything — the
+> request feed is public, so the moderation model is too.
+
+---
+
+## 11. itch.io page theme (brand palette, paste-in values)
+
+itch lets creators recolor the project page without custom CSS. Values
+from `site/assets/brand-tokens.json` (canonical: BRAND.md) — keep the
+page visually identical to the site so store→site→game reads as one
+product.
+
+| itch field | Value | Token |
+|---|---|---|
+| Background | `#14161c` | Asphalt |
+| Secondary bg / panels | `#1d2029` | Facade |
+| Text | `#ece7dc` | Paper |
+| Subtext / secondary | `#9aa0ae` | Fog |
+| Links & buttons | `#e8a04c` | Café-light amber |
+| Borders / dividers | `#2c303c` | Cornice |
+| Page header image | `banners/banner-x-1500x500.png` (scaled) | — |
+| Font | system stack (`system-ui, -apple-system, "Segoe UI", Roboto`) | matches site |
+
+Never recolor to match a sale/holiday — the lit-window amber is the brand.
+
+---
+
+## 12. Steam system requirements (conditional — only if the wrapper ships)
+
+Real World is browser-native; the Steam build would run the same live
+world in a desktop shell. Requirements stay honest and minimal —
+PROVISIONAL until the wrapper exists.
+
+| | Minimum | Recommended |
+|---|---|---|
+| OS | Windows 10 / macOS 12 / Ubuntu 20.04+ | same |
+| Processor | any 64-bit dual-core | quad-core |
+| Memory | 4 GB RAM | 8 GB RAM |
+| Graphics | integrated GPU, WebGL-capable | same |
+| Network | broadband — the world is a persistent shared shard; **always online** | broadband |
+| Storage | 500 MB | 1 GB |
+
+Steam "additional notes" field: `Requires a free account for paid actions;
+watching the neighborhood does not. See the disclosure matrix (§5).`
+
+---
+
+## 13. Short-description A/B variants (test before locking §1.2)
+
+Three field-length-safe variants (all ≤256, itch + Steam compatible).
+Rotate on the itch page post-launch; measure CTR via the UTM + analytics
+conventions in ANALYTICS.md. Do not promise anything §1.3 can't back up.
+
+| Variant | Hook | Text | Chars |
+|---|---|---|---|
+| A (current, §1.2) | spectator-first | A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Ready to reach in? Buy a time-boxed request or move in yourself: rent, work, own the block. | 222 |
+| B | agency-first | Watch a real Mission District block where 28 fictional residents never stop living. Then reach in: possess your character for thirty minutes, call for rain, nudge a neighbor — every request priced upfront, refunded if it never fires. Watching stays free. | 254 |
+| C | drama-first | Rent is due on the block, and everybody knows it. A persistent AI neighborhood in San Francisco's Mission — eight unpossessable mains, twenty ambient neighbors, one public feed of every intervention anyone buys. Free to watch. Yours to change. | 243 |
+
+---
+
+## 14. Claim ledger — every store claim mapped to its source
+
+Pre-submission fact-check gate (§9 step 9 expands into this table). If a
+source contract changes, the claim changes — never the reverse.
+"PROPOSAL" rows must not harden into promises until pricing is final.
+
+| Claim used in §1–§3 copy | Source | Status |
+|---|---|---|
+| 28 residents = 8 mains + 20 ambients | `world/ambients.json` + cast bibles | shipped contract |
+| Watching is free forever | design doc participation model | design |
+| Requests: action + duration declared, priced upfront | `world/requests.json` actions/classes | shipped contract |
+| Possess own character 1.5 cr/min, 15–120 min | `requests.json` classes.compatible | contract (rate = PROPOSAL) |
+| Camera director 10 cr / 30 min, spectator-side only | `requests.json` actions.camera | shipped contract |
+| Nudge 40 cr, 50% back on decline | `requests.json` actions.nudge (`refund_on_decline: 0.5`) | shipped contract |
+| Weather 40/70/100 cr for 1/2/4 h, global cooldown | `requests.json` actions.weather blocks | shipped contract |
+| Event trigger 200 cr, venue/openair claims | `requests.json` actions.event | shipped contract |
+| Hire 500 cr, human name review, slot-capped | `requests.json` actions.hire + `world/creation.json` | shipped contract |
+| Queued −15%, 24 h hold, expiry auto-refund | `requests.json` classes.queued | shipped contract |
+| Exclusive = human review; surge ×1.5–2.5 shown pre-pay | `requests.json` classes.exclusive + surge | shipped contract |
+| Cooldowns never purchasable; FCFS; admin compensation | `requests.json` fairness_invariants | shipped contract |
+| Mains + landlord unpossessable (incl. dev) | design doc possession ban + `requests.json` possess note | design + contract |
+| Tenant → owner → landlord ladder; eviction possible | `world/leases.json` / lease-ui.md + monetization plan | shipped contract + design |
+| Two walled currencies, no conversion, no cash-out | design doc credits/dollars + monetization plan | design |
+| Credit ladder $0.99–$99.99, subs $4.99/$11.99, ads 2 cr/view cap 5/day | monetization plan §2 (PROPOSAL) | **PROPOSAL — label as such** |
+| Request text + names screened (classifier + human review) | `world/moderation.json` + `screen.js` taxonomy | shipped contract |
+| Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
+| Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
+| LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
+| Screenshots = real development-build captures | `site/shots/` (art-v31 build) | shipped |
+
+---
+
+## 15. Versioning note
 
 This file supersedes the v0 DRAFT (single generic template). Changes:
 platform split (itch primary / Steam conditional), capsule spec sheet,
@@ -382,4 +500,8 @@ in the long description, disclosure matrix gains moderated-UGC + AI-content
 rows, new §9 submission packet + caption/alt-text set + feed-vocabulary
 rule. Update when: monetization numbers finalize, Steam wrapper decision
 made, the library hero lands, or the request catalog/feed vocabulary changes
-(grep this file for the old rates).
+(grep this file for the old rates). **v48 changes:** new §10 Product Hunt
+launch card, §11 itch page theme palette (from brand tokens), §12 Steam
+system-requirements block, §13 A/B short-description variants, §14 claim
+ledger mapping every store claim to its source contract; gallery/capsules/
+keyart rebased to the art-v31 build; §1.2 char count corrected (226→222).
