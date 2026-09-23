@@ -1,7 +1,8 @@
 {
   "doc": "Housing — machine-readable mirror of world/jobs-housing.md §3 + world/housing/. The registry seed in jobs-housing.md is canonical JSON per address spec §4; this file adds listing copy + building card links. Money is game dollars; deed fees are credits (PROPOSAL per monetization §2.4). Lifecycle (application → rent run → notices → disputes → turnover/purchase) lives in world/leases.json + world/lease-ui.md (v12); demo: world/lease.html.",
-  "version": 12,
+  "version": 17,
   "lease_flow": { "spec": "lease-ui.md", "mirror": "leases.json", "demo": "lease.html" },
+  "budget_layer": { "spec": "budgets.md", "mirror": "budgets.json", "note": "v17 — INTERNAL household envelopes keyed to unit ids; spectator surfaces never render named numbers" },
   "listings_live": [
     { "address": "9418 Guerrero St, Unit B", "unit_id": "bld-g9418-B", "bedrooms": 1, "rent": 2100, "rent_controlled": true, "card": "housing/9418-guerrero.md", "voice": "owner-direct" },
     { "address": "9457 Guerrero St, Unit 2", "unit_id": "bld-g9457-2", "bedrooms": 0, "rent": 1350, "rent_controlled": true, "card": "housing/9457-guerrero.md", "voice": "owner-direct" },

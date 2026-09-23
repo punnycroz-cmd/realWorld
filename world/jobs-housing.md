@@ -1,4 +1,4 @@
-# Jobs & Housing — "The Mission" (world v0, index updated v3)
+# Jobs & Housing — "The Mission" (world v0, index updated v17)
 
 > **v3 depth layer:** the tables below remain canonical for numbers.
 > `world/jobs/` holds per-workplace cards (shift shape, culture, hiring
@@ -6,6 +6,12 @@
 > `housing/listings.md` (player-facing listing copy). Machine-readable
 > mirrors: `world/jobs.json`, `world/housing.json`. In-world render:
 > `world/board.html` (file://-safe corkboard page).
+>
+> **v17 depth layer:** `world/shifts.md` + `world/shifts.json` — the
+> weekly time grid (who's on the clock when, coverage floors, payday
+> calendar); `world/budgets.md` + `world/budgets.json` — per-household
+> money envelopes (INTERNAL tier; spectators get texture, never named
+> numbers). Internal demo for both: `world/timeclock.html`.
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).

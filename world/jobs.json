@@ -1,6 +1,8 @@
 {
   "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
-  "version": 3,
+  "version": 17,
+  "shift_layer": { "spec": "shifts.md", "mirror": "shifts.json", "demo": "timeclock.html", "note": "v17 — weekly grids + coverage floors; 'open' grid slots correspond to this file's openings" },
+  "budget_layer": { "spec": "budgets.md", "mirror": "budgets.json", "note": "v17 — INTERNAL household envelopes; never render named numbers on spectator surfaces" },
   "bands": { "entry": [16, 20], "mid": [25, 35], "top": [40, 50] },
   "jobs": [
     { "employer": "Mudhaus Coffee", "role": "Manager", "wage": 30, "hours_per_week": 40, "held_by": "c1-marisol", "openings": 0, "card": "jobs/mudhaus.md" },

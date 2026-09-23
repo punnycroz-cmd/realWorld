@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -160,7 +160,8 @@ const SURF={
   thinai:{file:"thinai.html",name:"The Understudy"},
   cast:{file:"cast.html",name:"The Company"},
   crowd:{file:"crowd.html",name:"The Crowd"},
-  directory:{file:"directory.html",name:"The Directory"}};
+  directory:{file:"directory.html",name:"The Directory"},
+  timeclock:{file:"timeclock.html",name:"The Timeclock"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -333,11 +334,23 @@ const PTS=[
   ck:["02:00 — nearly everything reads closed; the badge never pads","Growers market reads closed on weekday AND weekend toggles, open on Saturday","Folsom Auto reads closed all weekend (M–F shop)"]},
  {do:"Flip clearance to public. Re-read Mudhaus, El Farolote, Auerbach, Mission Unfiltered, La Esperanza.",
   exp:"Secret-adjacent hooks (the blog laptop, the notebook, the handshake ledger, the loan, the author) collapse to a redaction line — visible as a deliberate absence.",
-  ck:["No card states the Mission Unfiltered author at either clearance","The La Esperanza card never offers a 'fund it / open it' affordance","Redaction lines label themselves internal — nothing just vanishes silently"]}]}
+  ck:["No card states the Mission Unfiltered author at either clearance","The La Esperanza card never offers a 'fund it / open it' affordance","Redaction lines label themselves internal — nothing just vanishes silently"]}]},
+{id:"PT15",title:"The Timeclock — shift grids & envelopes",min:10,persona:"reviewer auditing the working-week layer",
+ goal:"Verify the grids agree with routines and the job board, openings render as open slots, envelopes stay internal, and nothing leaks a secret or a real business.",
+ surfaces:["timeclock"],steps:[
+ {do:"Open The Timeclock, Shift grids tab. Spot-check Mudhaus, El Farolote, and Auerbach against the bibles/ambients.",
+  exp:"Cast shifts match routines (Reyes six days 7:30–18 off Sunday; Tomás Tue–Sat nights; Victor off-site Tuesdays); open slots appear where jobs.json has openings.",
+  ck:["Every 'OPEN SLOT' row corresponds to a jobs.json opening (counts agree)","Shaded window bars (Marcus, Kofe, Doro) mark self-selected windows, not fixed shifts","No grid cell contradicts an ambients.json routine or a bible routine table"]},
+ {do:"Switch to Envelopes. Read Marcus's card, then Carmen's, then check the ambient table.",
+  exp:"Envelopes carry the INTERNAL marker; numbers track jobs-housing §2/§4 math; stress labels sort fragile→comfortable honestly.",
+  ck:["The page is marked internal and states amounts never leave internal surfaces","Marcus's cushion (~$480) and Carmen's (~$230) read fragile; no card names a secret","Game dollars only — no credit or USD figure appears anywhere"]},
+ {do:"Open the Money calendar tab. Cross-check the payday/rent rules against leases.json and jobs-housing §5.",
+  exp:"Weekly Friday / biweekly Friday cadence, rent due 1st grace through 5th, late fee 5% cap $50 — identical wording to leases.json.",
+  ck:["Late fee terms match leases.json verbatim (5%, $50 cap)","Owner draws are listed irregular — never a promised payday","No surface on the page offers any way to act on a shift or a budget"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v16";
+const LS="rw_playtest_v17";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);

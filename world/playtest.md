@@ -7,7 +7,8 @@ scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html
 ## 1. What this harness is (and is not)
 
 The demo surfaces (`feed`, `request`, `mod-console`, `create`, `board`,
-`history`, `onboarding`, `lease`, `thinai`, `cast`, `crowd`, `directory`)
+`history`, `onboarding`, `lease`, `thinai`, `cast`, `crowd`, `directory`,
+`timeclock`)
 plus `screen.js` are **local simulations of the product contracts** —
 the request pipeline, the moderation queue, the spectator feed vocabulary. A
 playtest here validates *content, copy, flow, and the locked boundary rules*.

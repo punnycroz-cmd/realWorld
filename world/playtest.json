@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 16,
+ "version": 17,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -19,7 +19,10 @@
    "world/crowd.json",
    "world/directory.html",
    "world/businesses.json",
-   "world/businesses/"
+   "world/businesses/",
+   "world/timeclock.html",
+   "world/shifts.json",
+   "world/budgets.json"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -95,6 +98,11 @@
   "directory": {
    "file": "directory.html",
    "name": "The Directory",
+   "tier": "internal"
+  },
+  "timeclock": {
+   "file": "timeclock.html",
+   "name": "The Timeclock",
    "tier": "internal"
   }
  },
@@ -697,6 +705,45 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT15",
+   "title": "The Timeclock — shift grids & envelopes",
+   "minutes": 10,
+   "persona": "reviewer auditing the working-week layer",
+   "goal": "Verify the grids agree with routines and the job board, openings render as open slots, envelopes stay internal, and nothing leaks a secret or a real business.",
+   "surfaces": [
+    "timeclock"
+   ],
+   "steps": [
+    {
+     "do": "Open The Timeclock, Shift grids tab. Spot-check Mudhaus, El Farolote, and Auerbach against the bibles/ambients.",
+     "expect": "Cast shifts match routines (Reyes six days 7:30–18 off Sunday; Tomás Tue–Sat nights; Victor off-site Tuesdays); open slots appear where jobs.json has openings.",
+     "checkpoints": [
+      "Every 'OPEN SLOT' row corresponds to a jobs.json opening (counts agree)",
+      "Shaded window bars (Marcus, Kofe, Doro) mark self-selected windows, not fixed shifts",
+      "No grid cell contradicts an ambients.json routine or a bible routine table"
+     ]
+    },
+    {
+     "do": "Switch to Envelopes. Read Marcus's card, then Carmen's, then check the ambient table.",
+     "expect": "Envelopes carry the INTERNAL marker; numbers track jobs-housing §2/§4 math; stress labels sort fragile→comfortable honestly.",
+     "checkpoints": [
+      "The page is marked internal and states amounts never leave internal surfaces",
+      "Marcus's cushion (~$480) and Carmen's (~$230) read fragile; no card names a secret",
+      "Game dollars only — no credit or USD figure appears anywhere"
+     ]
+    },
+    {
+     "do": "Open the Money calendar tab. Cross-check the payday/rent rules against leases.json and jobs-housing §5.",
+     "expect": "Weekly Friday / biweekly Friday cadence, rent due 1st grace through 5th, late fee 5% cap $50 — identical wording to leases.json.",
+     "checkpoints": [
+      "Late fee terms match leases.json verbatim (5%, $50 cap)",
+      "Owner draws are listed irregular — never a promised payday",
+      "No surface on the page offers any way to act on a shift or a budget"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -704,7 +751,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v15 local",
+   "build": "world v17 local",
    "notes": "string"
   },
   "results": [
@@ -719,7 +766,7 @@
   "findings": [
    {
     "severity": "blocker|major|minor|nit|question",
-    "surface": "feed|request|mod|create|board|history|onboard|lease|thinai|cast|crowd|screen",
+    "surface": "feed|request|mod|create|board|history|onboard|lease|thinai|cast|crowd|directory|timeclock|screen",
     "title": "string",
     "detail": "string",
     "steps_to_repro": "string"
