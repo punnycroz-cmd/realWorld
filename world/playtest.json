@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 53,
+ "version": 54,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2541,9 +2541,9 @@
     },
     {
      "do": "Run `node world/audit.js` and read the harness gate.",
-     "expect": "harness gate passes: LS key rw_playtest_v53 + build tag agree with playtest.json v53, every v53 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
+     "expect": "harness gate passes: LS key rw_playtest_v54 + build tag agree with playtest.json v54, every v54 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
      "checkpoints": [
-      "Gate reports '48 scenarios · N checkpoints · key rw_playtest_v53'",
+      "Gate reports '49 scenarios · N checkpoints · key rw_playtest_v54'",
       "A missing owner select, a dropped debrief id, or the old LS key would FAIL — spot-check",
       "All gates green; overall 0 fail"
      ]
@@ -2592,8 +2592,56 @@
      "expect": "The card states offline = thin AI (thinner but present) with the no-'miss you' clause; the onboard gate reports 'schema v53 · 7 beats · key rw_onboard_v53' with zero fails.",
      "checkpoints": [
       "Thin-AI line and no-nag clause appear together",
-      "Onboard gate passes; harness gate passes at key rw_playtest_v53 / build 'world v53 local'",
+      "Onboard gate passes; harness gate passes at key rw_playtest_v54 / build 'world v54 local'",
       "All gates green; overall 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT49",
+   "title": "The Rent Book v4 — the paper layer (proration, break fee, repair SLA, amendments, deposit clock)",
+   "persona": "hired-player tester wearing tenant + admin hats — funded bank, day 6 of the month",
+   "minutes": 12,
+   "surfaces": ["lease"],
+   "goal": "Verify the v54 lease pass: mid-month signing prorates the first month, a roommate addition is a real amendment doc, repairs run two honest clocks with an SLA breach line, notice inside a fixed term posts a break fee, and the deposit return is a separate itemized event on a 21-day clock.",
+   "steps": [
+    {
+     "do": "On 9457-2 (your lease) click 'Add a roommate (amendment)', then switch to Admin and approve it.",
+     "expect": "The request lands as a doc; approval writes a lease-amendment doc, a deposit pro-rata ledger line, and a joint-lease note naming the co-tenant — jointly liable, one balance.",
+     "checkpoints": [
+      "The request doc states the incoming name is screened like any applicant",
+      "Approval writes 'lease amendment — co-tenant' + a $0 'deposit pro-rata' ledger line",
+      "The detail view reads 'Joint lease — co-tenant A. Reyes, jointly liable'"
+     ]
+    },
+    {
+     "do": "Apply to 9127 Capp St, Unit A (listed studio) as the tenant, run screening as Admin, then sign on day 6.",
+     "expect": "The sign button and the ledger charge a prorated first month, not the full $1,300 — deposit stays 1× rent; the atomic feed line still posts.",
+     "checkpoints": [
+      "Sign button reads 'first month, prorated to day 6 + deposit' with the reduced total",
+      "Ledger line reads 'first month — prorated to day 6' at the prorated amount",
+      "Deposit held line is the full 1× rent — proration never touches it"
+     ]
+    },
+    {
+     "do": "On 9457-2 file 'Request repair' and 'Report habitability issue (no heat)', then step days forward and watch the statuses.",
+     "expect": "Two different clocks: habitability is acknowledged the same day and scheduled ~2 days out; routine takes ~3 days to acknowledge. Past the 7-day target the habitability item writes an SLA-breach ledger line before closing.",
+     "checkpoints": [
+      "Habitability row shows 'acknowledged' at filing + the '≤ 7-day target' chip",
+      "Day +2: habitability 'scheduled' while the routine item is still 'requested'",
+      "Past day +7 unfixed: 'SLA breach on file' chip + a dated ledger line + doc",
+      "Both items close 'done' with dated docs — the breach stays on the file"
+     ]
+    },
+    {
+     "do": "Give 30-day notice on 9457-2 (still inside its fixed term), then as Admin post 'Return deposit — itemized'; finally run `node world/audit.js`.",
+     "expect": "Notice posts an itemized break fee (one month's rent) as a ledger line and starts the deposit clock; the itemized return lists the latch deduction, the break fee, and the refused pre-existing repaint claim; the lease gate reports schema v54 / key rw_lease_v54.",
+     "checkpoints": [
+      "Break-fee ledger line reads one month's rent, 'early end inside fixed term'",
+      "Deposit clock renders 'due back by day N (21-day window)' before the return posts",
+      "Return doc lists break fee + latch as itemized deductions and the refused pre-existing claim",
+      "Lease gate passes at schema v54 · key rw_lease_v54; all gates green, 0 fail"
      ]
     }
    ]
@@ -2604,7 +2652,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v53 local",
+   "build": "world v54 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "debrief": "object — {prompt_id: {v: n/a|clear|stumbled|blocker, note}} — the §6 watch-list answered per session (v51)",
    "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
@@ -2638,9 +2686,9 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "harness_ui_v53": {
-  "storage_key": "rw_playtest_v53",
-  "build_tag_prefix": "world v53 local",
+ "harness_ui_v54": {
+  "storage_key": "rw_playtest_v54",
+  "build_tag_prefix": "world v54 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -2659,7 +2707,7 @@
   "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
   "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
   "required_marks": [
-   "rw_playtest_v53",
+   "rw_playtest_v54",
    "id=\"prog\"",
    "id=\"keyCard\"",
    "id=\"exInbox\"",

@@ -5,7 +5,7 @@
 <title>Real World — The Rent Book (lease flow)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Lease-flow demo — "The Rent Book" (world v40, v3).
+  Lease-flow demo — "The Rent Book" (world v54, v4).
   Self-contained: file://-safe, no network. Spec + copy deck:
   world/lease-ui.md. Machine mirror: world/leases.json.
   Registry numbers: world/jobs-housing.md §3 (canonical).
@@ -27,6 +27,13 @@
   its four fields; the no-fault path (sale / owner move-in — 60-day
   window, mandatory relocation credit, NOFAULT ledger code); tenant
   sublet requests with approval; arrears scars retained on the file.
+  v54 adds (the paper layer): mid-month signing prorates the first
+  month; ending inside a fixed term posts an itemized break fee at
+  deposit return; repairs run a real clock (habitability acknowledged
+  same-day, SLA breach documented); roommate swaps are lease-amendment
+  docs with a deposit pro-rata line; move-out starts a 21-day deposit
+  clock — the return is posted separately and an overdue return is
+  itself a ledger line.
   Boundaries: game dollars only (credits never touch rent); eviction is
   admin-only and never automatic; 9457-3's dispute stays ambiguous;
   no surface offers possession or request-based lease powers.
@@ -152,7 +159,7 @@
 
 <script>
 /* ================= mirror of leases.json + jobs-housing §3 ================= */
-var LS='rw_lease_v40';
+var LS='rw_lease_v54';
 var STEPS=['listed','applied','approved','active','arrears','noticed','cured','disputed','evict_review','evicted','move_out','turnover','owner_occupied'];
 var RAISE_BAND=0.04; /* controlled-unit annual raise band (house rule, lease-ui §13) */
 var SCREEN_INCOME_X=2.5; /* published screening condition */
@@ -218,6 +225,8 @@ function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';setTi
 function money(n){return '$'+Math.abs(n).toLocaleString();}
 function L(){return S.leases.find(function(l){return l.uid===S.sel;});}
 function fee(rent){return Math.min(50,Math.round(rent*0.05));}
+function firstMonth(rent){ /* mid-month signing prorates — lease-ui §29 */
+  return S.day<=1?rent:Math.round(rent*(31-S.day)/30);}
 function isLand(){return S.mode==='landlord';}
 function myUnit(l){return l.ownedBy==='h02';}
 
@@ -283,7 +292,12 @@ function renderDetail(){
          l.movein.map(function(m){return '· '+m;}).join('<br>')+'</div>';
     if(depth && l.hist && l.hist.length)
       h+='<div class="note">File history (the scar stays): '+l.hist.join(' · ')+'. Visible to landlords on this unit; never a feed event.</div>';
-    if(depth && l.repair.length) h+='<div class="notice"><b>repair on file</b>'+l.repair.map(function(r){return r.item+' — '+r.st+' · '+r.age;}).join('<br>')+'</div>';
+    if(depth && l.repair.length) h+='<div class="notice"><b>repair on file</b>'+l.repair.map(function(r){
+      return r.item+' — '+r.st+' · '+(r.age||('filed day '+(r.filed||'?')))+
+        (r.kind==='habitability'?' <b style="color:var(--red)">habitability · ≤7-day target</b>':'')+
+        (r.breach?' <b style="color:var(--red)">SLA breach on file</b>':'');}).join('<br>')+'</div>';
+    if(depth && l.roommate) h+='<div class="note">Joint lease — co-tenant '+l.roommate+', jointly liable. The ledger records one balance; it doesn\u2019t adjudicate roommate splits.</div>';
+    if(depth && l.depPending) h+='<div class="notice"><b>deposit clock running</b>Deposit '+money(l.deposit)+' + interest due back by day '+l.depDue+' (21-day window). Deductions itemized against the move-in record — anything pre-existing is refused, not argued.</div>';
     if(depth && l.plan && l.planInst)
       h+='<div class="notice plan"><b>payment plan — installments</b>'+l.planInst.map(function(i){
         return 'day '+i.d+': '+money(i.amt)+(i.paid?' <b style="color:var(--grn)">paid</b>':' <b style="color:var(--acc)">due</b>');}).join('<br>')+
@@ -308,15 +322,18 @@ function renderDetail(){
         var due=l.planInst.find(function(i){return !i.paid;});
         if(due) h+='<button class="ghost" onclick="payInst()">Pay installment — '+money(due.amt)+' (due day '+due.d+')</button>';
       }
-      h+='<button class="ghost" onclick="repairReq()">Request repair</button>'+
+      h+='<button class="ghost" onclick="repairReq(\'routine\')">Request repair</button>'+
+         '<button class="ghost" onclick="repairReq(\'hab\')">Report habitability issue (no heat)</button>'+
          '<button class="ghost" onclick="fileDispute()">File a dispute</button>'+
          '<button class="ghost" onclick="reqSublet()">Request sublet approval</button>'+
+         '<button class="ghost" onclick="reqRoom()">Add a roommate (amendment)</button>'+
          '<button class="ghost" onclick="giveNotice()">Give 30-day notice</button>';
       if(l.state==='disputed'&&!l.med)
         h+='<button class="ghost" onclick="mediate(\'tenant\')">Make a mediation offer</button>';
     }
     if(S.mode==='tenant' && l.state==='approved' && !l.mine)
-      h+='<button onclick="signLease()">Sign — '+money(l.rent*2)+' (first month + deposit)</button>';
+      h+='<button onclick="signLease()">Sign — '+money(firstMonth(l.rent)+l.rent)+
+         ' (first month'+(S.day>1?', prorated to day '+S.day:'')+' + deposit)</button>';
     if(S.mode==='tenant' && l.forsale)
       h+='<button onclick="offerBuy()">Offer at asking — $'+l.price.toLocaleString()+' + '+l.deed_cr.toLocaleString()+' cr deed fee</button>';
     if(S.mode==='tenant' && l.state==='listed' && !l.forsale)
@@ -333,6 +350,11 @@ function renderDetail(){
       if(l.subReq)
         h+='<button class="ghost" onclick="subDecide(true)">Approve sublet</button>'+
            '<button class="ghost" onclick="subDecide(false)">Decline sublet</button>';
+      if(l.roomReq)
+        h+='<button class="ghost" onclick="roomDecide(true)">Approve roommate amendment</button>'+
+           '<button class="ghost" onclick="roomDecide(false)">Decline amendment</button>';
+      if(l.state==='move_out'&&l.depPending)
+        h+='<button class="ghost" onclick="returnDeposit()">Return deposit — itemized (due day '+l.depDue+')</button>';
       if(l.state==='disputed'){
         h+='<button class="ghost" onclick="ruling()">Open ruling card</button>';
         if(l.med) h+='<button class="ghost" onclick="acceptMed()">Accept mediation offer</button>';
@@ -354,6 +376,11 @@ function renderDetail(){
       if(l.subReq)
         h+='<button class="ghost" onclick="subDecide(true)">Approve sublet</button>'+
            '<button class="ghost" onclick="subDecide(false)">Decline sublet</button>';
+      if(l.roomReq)
+        h+='<button class="ghost" onclick="roomDecide(true)">Approve roommate amendment</button>'+
+           '<button class="ghost" onclick="roomDecide(false)">Decline amendment</button>';
+      if(l.state==='move_out'&&l.depPending)
+        h+='<button class="ghost" onclick="returnDeposit()">Return deposit — itemized (due day '+l.depDue+')</button>';
       if(l.state==='noticed')
         h+='<button class="danger" onclick="evictFile()">File for eviction review</button>';
       if(l.state==='disputed'&&!l.med)
@@ -461,9 +488,37 @@ window.subDecide=function(yes){
   }
   renderAll();
 };
-window.repairReq=function(){
-  var l=L(); l.repair.push({item:'(describe the problem)',st:'requested',age:'new — acknowledged same-day if habitability'});
-  toast('Repair request filed — habitability items expedite.');
+window.repairReq=function(kind){
+  var l=L(), hab=kind==='hab';
+  l.repair.push({item:hab?'no heat — reported':'dripping kitchen tap — reported',
+    kind:hab?'habitability':'routine', st:hab?'acknowledged':'requested', filed:S.day});
+  l.docs.push({n:hab?'repair — habitability':'repair request',
+    t:hab?'Habitability item — acknowledged same-day, target fix ≤ 7 days. Past that the breach is a ledger line, and an open habitability item strengthens a dispute.'
+        :'Repair request filed — routine items acknowledge within 3 days and schedule inside the week. Every status change is dated.'});
+  toast(hab?'Same-day acknowledgment — the 7-day target is on the file.':'Filed — the request is a dated ledger object.');
+  renderAll();
+};
+window.reqRoom=function(){
+  var l=L();
+  if(l.roomReq||l.roommate){toast('Amendment already on file.');return;}
+  l.roomReq=true;
+  l.docs.push({n:'roommate amendment — requested',t:'Co-tenant amendment filed — incoming roommate (A. Reyes) screened like any applicant: income, references. An approved addition is a lease-amendment doc with a deposit pro-rata line; the file keeps continuity.'});
+  toast('Amendment filed — the landlord file answers it.');
+  renderAll();
+};
+window.roomDecide=function(yes){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit — licensed tools reach your own doors only.');return;}
+  l.roomReq=false;
+  if(yes){
+    l.roommate='A. Reyes';
+    l.ledger.push({d:S.day,t:'deposit pro-rata — co-tenant amendment',a:0});
+    l.docs.push({n:'lease amendment — co-tenant',t:'Amendment signed — A. Reyes joins the lease, jointly liable from day '+S.day+'. Deposit pro-rata recorded on the ledger; the file keeps continuity. The ledger doesn\u2019t adjudicate roommate splits.'});
+    toast('Amendment on file — both names carry the lease now.');
+  } else {
+    l.docs.push({n:'roommate amendment — declined',t:'Declined — reason stated on the file (income screen on the incoming name). A declined amendment is a document, not a door closing — a new one can be filed.'});
+    toast('Declined on the record.');
+  }
   renderAll();
 };
 window.fileDispute=function(){
@@ -487,8 +542,15 @@ window.mediate=function(who){
   renderAll();
 };
 window.giveNotice=function(){
-  var l=L(); l.state='move_out';
-  l.docs.push({n:'notice given',t:'30-day notice. Deposit ('+money(l.deposit||l.rent)+' + interest) returns minus itemized deductions — every deduction a ledger line with a reason.'});
+  var l=L(); l.state='move_out'; l.turnWire=true;
+  if(l.deposit){l.depPending=true; l.depDue=S.day+21;}
+  var fee='';
+  if(/fixed/i.test(l.term)){
+    l.breakFee=l.rent;
+    fee=' Ending inside your fixed term posts an itemized break fee — one month\u2019s rent ('+money(l.rent)+'), deducted at deposit return. Once the term flips to month-to-month, plain 30-day notice is the whole cost.';
+    l.ledger.push({d:S.day,t:'break fee — early end inside fixed term',a:l.rent});
+  }
+  l.docs.push({n:'notice given',t:'30-day notice. Deposit ('+money(l.deposit||l.rent)+' + interest) returns within 21 days minus itemized deductions — every deduction a ledger line with a reason.'+fee});
   S.wires.push({d:S.day,k:'housing',tx:'Unit turning over — '+l.addr+' back on the board'});
   renderAll();
 };
@@ -508,14 +570,17 @@ window.screenApp=function(){
   renderAll();
 };
 window.signLease=function(){
-  var l=L(), cost=l.rent*2;
+  var l=L(), first=firstMonth(l.rent), cost=first+l.rent;
   if(S.bank<cost){toast('Bank can\u2019t cover first month + deposit ('+money(cost)+').');return;}
   S.bank-=cost;
   l.state='active'; l.tenant='h01 (your character)'; l.mine=true; l.deposit=l.rent;
-  l.ledger.push({d:S.day,t:'first month',a:l.rent},{d:S.day,t:'deposit held',a:l.rent});
+  l.ledger.push({d:S.day,t:S.day>1?('first month — prorated to day '+S.day):'first month',a:first},
+                {d:S.day,t:'deposit held',a:l.rent});
   l.term='fixed 12 mo \u2192 month-to-month';
   l.movein=['walkthrough day '+S.day+' — walls clean','appliances working','window latches intact'];
-  l.docs.push({n:'lease signed',t:'Lease signed — '+l.addr+' · '+money(l.rent)+'/mo · fixed 12 mo then month-to-month · first month + deposit paid in game dollars. Move-in condition recorded the same day — it\u2019s the baseline every deposit deduction is measured against. Deposit earns simple interest; move-out deductions must be itemized.'});
+  l.docs.push({n:'lease signed',t:'Lease signed — '+l.addr+' · '+money(l.rent)+'/mo · fixed 12 mo then month-to-month · '+
+    (S.day>1?('first month prorated to day '+S.day+' ('+money(first)+') + deposit '):'first month + deposit ')+
+    'paid in game dollars. Move-in condition recorded the same day — it\u2019s the baseline every deposit deduction is measured against. Deposit earns simple interest; move-out deductions must be itemized.'});
   S.wires.push({d:S.day,k:'housing',tx:'Listing filled — '+l.addr+' comes off the board'});
   toast('Signed. The lease, the money, and the feed line land together.');
   renderAll();
@@ -614,24 +679,45 @@ window.evictConfirm=function(yes){
   renderAll();
 };
 window.recordMoveOut=function(){
-  var l=L(); l.state='turnover';
+  var l=L();
+  if(l.deposit){
+    /* move-out starts the deposit clock — the return is posted
+       separately, itemized, inside a 21-day window (lease-ui §33) */
+    l.state='move_out'; l.depPending=true; l.depDue=S.day+21;
+    l.docs.push({n:'move-out recorded',t:'Keys in, walkthrough done. Deposit '+money(l.deposit)+' + interest is due back within 21 days (by day '+l.depDue+') — deductions itemized against the move-in record. The clock is a ledger line, not a promise.'});
+  } else {
+    l.state='turnover';
+    l.docs.push({n:'move-out',t:'Unit vacated — no deposit on file. Flips to the board.'});
+  }
+  l.turnWire=true;
+  S.wires.push({d:S.day,k:'housing',tx:'Unit turning over — '+l.addr+' back on the board'});
+  renderAll();
+};
+window.returnDeposit=function(){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit — licensed tools reach your own doors only.');return;}
   var dep=l.deposit||0;
   /* deductions are gated by the move-in record: anything marked
      pre-existing is refused outright — the record settles it, not
      an argument */
   var pre=(l.movein||[]).filter(function(m){return /pre-existing/i.test(m);});
   var refused=pre.length?pre[0]:null;
-  var ded=dep?90:0;
-  if(dep){
-    l.ledger.push({d:S.day,t:'deduction — broken window latch (not on move-in record)',a:ded},
-                 {d:S.day,t:'deposit returned (+ interest $'+Math.round(dep*0.01)+')',a:-(dep-ded)});
-    l.docs.push({n:'deposit returned',t:'Deposit returned — '+money(dep-ded)+' of '+money(dep)+' + interest. One itemized deduction: broken window latch, '+money(ded)+'.'+
-      (refused?' A second claim — repaint "'+refused.replace(/\s*—\s*pre-existing/i,'')+'" — was refused outright: it\u2019s on the move-in record as pre-existing.':'')+
-      ' Wear and tear is never a deduction; "cleaning fee: vibes" is not a reason.'});
-  } else {
-    l.docs.push({n:'move-out',t:'Deposit returned minus itemized deductions. Unit flips to the board.'});
+  var ded=90, items=['broken window latch — '+money(90)+' (not on the move-in record)'];
+  l.ledger.push({d:S.day,t:'deduction — broken window latch (not on move-in record)',a:90});
+  if(l.breakFee){
+    ded+=l.breakFee;
+    items.push('break fee — '+money(l.breakFee)+' (early end inside fixed term)');
+    l.ledger.push({d:S.day,t:'deduction — break fee (fixed-term early end)',a:l.breakFee});
   }
-  S.wires.push({d:S.day,k:'housing',tx:'Unit turning over — '+l.addr+' back on the board'});
+  l.ledger.push({d:S.day,t:'deposit returned (+ interest $'+Math.round(dep*0.01)+')',a:-(dep-ded)});
+  l.docs.push({n:'deposit returned',t:'Deposit returned — '+money(dep-ded)+' of '+money(dep)+' + interest, day '+S.day+
+    (l.depLate?' (past the 21-day window — the lateness stays on the file)':'')+
+    '. Itemized deductions: '+items.join(' · ')+'.'+
+    (refused?' A further claim — repaint "'+refused.replace(/\s*—\s*pre-existing/i,'')+'" — was refused outright: it\u2019s on the move-in record as pre-existing.':'')+
+    ' Wear and tear is never a deduction; "cleaning fee: vibes" is not a reason.'});
+  l.depPending=false; l.depDue=null; l.breakFee=null; l.state='turnover';
+  if(!l.turnWire){S.wires.push({d:S.day,k:'housing',tx:'Unit turning over — '+l.addr+' back on the board'});l.turnWire=true;}
+  toast('Returned, itemized — the move-in record did the arguing.');
   renderAll();
 };
 window.nofaultNotice=function(){
@@ -639,6 +725,7 @@ window.nofaultNotice=function(){
   if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
   if(l.state==='disputed'){toast('Frozen — a board filing is open on this lease.');return;}
   l.state='move_out';
+  if(l.deposit){l.depPending=true; l.depDue=S.day+21;}
   l.ledger.push({d:S.day,t:'relocation credit — NOFAULT (mandatory)',a:-l.rent});
   l.docs.push({n:'no-fault notice',t:'No-fault termination — sale / owner move-in. 60-day window, not the 14-day ladder; a relocation credit of one month\u2019s rent ('+money(l.rent)+') posts mandatory, coded NOFAULT so abuse is legible in the ledger. Deposit returns separately, itemized.'});
   S.wires.push({d:S.day,k:'housing',tx:'no-fault notice posted — '+l.addr});
@@ -680,6 +767,40 @@ $('nextDay').onclick=function(){
       l.state='noticed';
       l.docs.push({n:'cure-or-quit',t:'Cure within 14 days or the tenancy is reviewed. Filing a dispute pauses this clock.'});
       S.wires.push({d:S.day,k:'housing',tx:'housing notice posted — '+l.addr});
+    }
+    /* repair clock (v54): habitability acknowledges same-day, schedules
+       day+2, fixes inside the 7-day target — past it, the breach is a
+       ledger line; routine runs 3d ack / 7d scheduled / 14d done */
+    (l.repair||[]).forEach(function(r){
+      if(r.st==='done'||r.age||r.filed==null)return;
+      var age=S.day-r.filed;
+      if(r.kind==='habitability'){
+        if(age>=2&&r.st==='acknowledged')r.st='scheduled';
+        if(age>7&&r.st!=='done'&&!r.breach){
+          r.breach=true;
+          l.ledger.push({d:S.day,t:'habitability SLA breach — repair open past 7 days',a:0});
+          l.docs.push({n:'repair SLA breach',t:r.item+' is open past the 7-day habitability target — the breach is a ledger line now. An open habitability item is legal weight: it strengthens a dispute and a ruling can order repair + rent credit.'});
+        }
+        if(age>=9&&r.st!=='done'){
+          r.st='done';
+          l.docs.push({n:'repair done',t:'Heat restored — habitability item closed'+(r.breach?' (after the SLA breach — the breach stays on the file)':' inside the 7-day target')+'.'});
+        }
+      } else {
+        if(age>=3&&r.st==='requested')r.st='acknowledged';
+        if(age>=7&&r.st==='acknowledged')r.st='scheduled';
+        if(age>=14&&r.st!=='done'){
+          r.st='done';
+          l.docs.push({n:'repair done',t:r.item+' — closed day '+S.day+'. Routine item, dated end to end.'});
+        }
+      }
+    });
+    /* deposit clock (v54): move-out starts a 21-day return window;
+       an overdue return is itself a documented ledger line */
+    if(l.state==='move_out'&&l.depPending&&l.depDue!=null&&S.day>l.depDue&&!l.depLate){
+      l.depLate=true;
+      l.ledger.push({d:S.day,t:'deposit return overdue — past the 21-day window',a:0});
+      l.docs.push({n:'deposit overdue',t:'Past the 21-day return window — the delay is itself a ledger line. An overdue deposit is board-able grounds; the file keeps the dates.'});
+      if(l.mine)toast('Deposit past the 21-day window — the delay is on the record.');
     }
     /* installment due-day: a missed installment breaches the plan and
        resumes the ladder at the rung it froze at — no reset to day 6 */

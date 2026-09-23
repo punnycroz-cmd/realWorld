@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v51)
+# Playtest Harness — "Real World / The Mission" (world v54)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -75,6 +75,10 @@ One person can wear every hat; four real testers is the intended shape.
   the Archive as tour beat 7, the queued ask filed at −15% and lapsing
   to 'queued request expired before activation' + full auto-refund, the
   watch-path rhythm line, and the hired-return thin-AI / no-nag clause.
+  PT49 (lease v4 paper layer, v54) is a hired player + facilitator
+  audit — mid-month proration at signing, the roommate amendment doc,
+  the two repair clocks with an SLA-breach line, the fixed-term break
+  fee, and the 21-day deposit clock as a separate itemized event.
 
 ## 3. Running a session
 

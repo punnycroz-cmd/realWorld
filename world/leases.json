@@ -1,10 +1,10 @@
 {
   "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
-  "version": 40,
+  "version": 54,
   "power_map": {
-    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "file_dispute", "make_mediation_offer", "request_sublet", "give_notice", "offer_to_buy"],
+    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "give_notice", "offer_to_buy"],
     "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
-    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "decide_sublet_requests", "make_mediation_offers", "file_for_eviction_review"], "never": ["confirm_eviction", "issue_no_fault_notices", "mint_addresses", "act_off_public_record", "touch_other_units"] },
+    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "decide_sublet_requests", "decide_roommate_amendments", "post_itemized_deposit_returns", "make_mediation_offers", "file_for_eviction_review"], "never": ["confirm_eviction", "issue_no_fault_notices", "mint_addresses", "act_off_public_record", "touch_other_units"] },
     "admin_only": ["raise_rent", "issue_notices", "approvals", "evictions", "no_fault_notices", "rulings", "mint_addresses"],
     "requests_pipeline": "admin-domain deny — lease/rent/eviction asks are unreachable by request (moderation.json v8)",
     "currency_wall": "credits never pay rent/deposits/fees — game dollars only"
@@ -28,7 +28,8 @@
     "initial": "fixed 12 mo",
     "then": "month-to-month — no renewal paperwork, no rent bump for staying",
     "rule": "term stated on every lease file; ending a fixed term early is the tenant's break-fee conversation, month-to-month ends on 30-day notice",
-    "demo_field": "term — one line per lease row"
+    "break_fee": "notice inside the fixed term posts an itemized break fee — one month's rent, a ledger line deducted at deposit return; month-to-month ends on plain 30-day notice",
+    "demo_field": "term — one line per lease row; breakFee flag + depPending/depDue on the lease"
   },
   "rent_run": {
     "charge_day": 1,
@@ -64,7 +65,8 @@
     "published_conditions": ["income ~2.5x rent (verified vs job board wages)", "two references", "roommate interview where the unit shares a wall"],
     "rule": "first qualified application approves — no auctions, no vibe denials, no holding a listing to shop applicants",
     "decline_visibility": "private mail naming the failed criterion; no feed event",
-    "sign_atomic": ["lease row written", "first month + deposit leave the bank", "move-in condition record filed", "listing off the board", "housing feed event"]
+    "sign_atomic": ["lease row written", "first month + deposit leave the bank", "move-in condition record filed", "listing off the board", "housing feed event"],
+    "proration": "signing after the 1st prorates the first month — round(rent × days-remaining / 30); the deposit stays 1× rent; the prorated line is itemized on the ledger"
   },
   "move_in_record": {
     "written_at": "signing — same atomic moment",
@@ -84,6 +86,7 @@
     "room_share": "0.5x",
     "interest": "simple ~1%/yr texture line — registry tracks principal, ledger computes at return",
     "return_window_d": 21,
+    "return_clock": "move-out starts the clock — depPending + depDue (move-out day + 21); the return posts as a separate itemized event by admin or the unit's licensed landlord; an overdue return writes a 'deposit return overdue' ledger line (board-able grounds) and the lateness stays on the file",
     "deduction_whitelist": ["unpaid rent or fees owed", "damage beyond ordinary wear (named per item)", "cleaning to move-in condition (only if returned worse)"],
     "never_deductible": ["ordinary wear", "pre-existing damage on move-in record", "retaliation for a filed dispute", "unitemized vibes"],
     "move_in_gate": "deductions are checked against the move-in record; a pre-existing item is refused, not argued",
@@ -92,9 +95,18 @@
   },
   "repairs": {
     "flow": ["requested", "acknowledged", "scheduled", "done"],
+    "kinds": {
+      "habitability": { "items": ["heat", "hot_water", "water_intrusion", "lock_failure"], "sla": "acknowledged same-day, scheduled ~2 days, target fix <= 7 days", "breach": "open past the target writes an SLA-breach ledger line — legal weight that strengthens a dispute; the breach stays on the file after the fix" },
+      "routine": { "sla": "acknowledged ~3 days, scheduled ~7, done ~14; every status change is a dated ledger object" }
+    },
     "habitability_items": ["heat", "hot_water", "water_intrusion", "lock_failure"],
     "habitability_sla": "acknowledged same-day, target fix <= 7 days",
     "dispute_weight": "open habitability item strengthens a dispute; rulings may order repair + rent credit"
+  },
+  "amendments": {
+    "roommate_swap": "co-tenant add/remove is a lease-amendment doc + deposit pro-rata ledger line; the incoming name is screened like any applicant; the remaining tenant's file keeps continuity; joint liability, one balance — the ledger doesn't adjudicate splits",
+    "decline": "a declined amendment names the reason on the file; a new amendment can be filed",
+    "demo_fields": "roomReq (pending decision), roommate (approved co-tenant name)"
   },
   "disputes": {
     "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions"],
@@ -147,9 +159,10 @@
   },
   "demo_seed": {
     "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
-    "storage_key": "rw_lease_v40",
+    "storage_key": "rw_lease_v54",
     "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2)",
     "licensed_landlord": "h02 (demo; owns bld-f9088-5, studio rented to an ambient tenant, balance outstanding day 1)",
-    "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open with its raise frozen"
+    "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open with its raise frozen",
+    "v54_surfaces": "prorated first month on mid-month signing; break fee inside a fixed term; repair clock (habitability ≤7-day SLA + breach line); roommate amendments; 21-day deposit clock with overdue line"
   }
 }

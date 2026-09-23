@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v40; v12 base + v26/v40 depth passes)
+# Lease Flow — spec & copy deck (world v54; v12 base + v26/v40 depth passes + v54 paper layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v3), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v4), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v40`.
+  9088-5 only) / admin. localStorage `rw_lease_v54`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -471,4 +471,116 @@ the screening checklist (§12) is the whole checklist.
   preserve it verbatim.
 - `node world/audit.js` G11 now also requires the v40 surfaces (move-in
   record, installments, relocation credit, sublet, month-to-month) and
+  fails on the old storage key.
+
+## 29. Prorated first month (signing mid-month)
+
+A lease signed after the 1st doesn't bill a full month it didn't use:
+
+- First-month charge = `round(rent × days-remaining / 30)`, itemized on
+  the ledger as `first month — prorated to day N`. The deposit stays 1×
+  rent — proration never touches it.
+- The sign button shows the real number before money moves: "Sign —
+  $X (first month, prorated to day 6 + deposit)". Day-1 signings read
+  the ordinary line — no special case copy.
+- Atomicity unchanged (§12): prorated first month + deposit + lease row
+  + move-in record + feed event land together or not at all.
+
+## 30. Break fee inside a fixed term
+
+The §20 term line has teeth, stated up front:
+
+- 30-day notice inside the fixed 12-mo term posts an itemized **break
+  fee — one month's rent** as a ledger line, deducted at deposit return
+  (not a new charge to pay down — it rides the deposit clock, §33).
+- Once the term flips to month-to-month, plain 30-day notice is the
+  whole cost. Carmen's file would show no break fee — her paper's been
+  month-to-month since 1989.
+- The fee is a contract term, never a penalty vibe: same ledger, same
+  itemization, same dispute rights (`deposit_deductions` ground).
+
+## 31. Repairs with a clock (habitability SLA)
+
+Repair requests are dated ledger objects with real statuses — the demo
+runs two clocks:
+
+|| Kind | Acknowledge | Scheduled | Done | Past SLA |
+|---|---|---|---|---|
+|| Routine (dripping tap) | ~3 days | ~7 | ~14 | dated, no breach |
+|| Habitability (no heat) | **same day** | ~2 | **≤ 7-day target** | **SLA breach — ledger line** |
+
+- A habitability item open past its target writes a `habitability SLA
+  breach` ledger line and a doc — the breach stays on the file *after*
+  the fix lands. That is the legal weight §4 promised: breach + open
+  item strengthens a dispute; a ruling can order repair + rent credit.
+- Tenant files two ways: "Request repair" (routine) and "Report
+  habitability issue" — the second is acknowledged same-day by
+  construction, not by courtesy.
+- 9457-3's dead heater predates the clock — its file keeps its standing
+  `open 5 mo` line; content never resolves it (§11 stands).
+
+## 32. Roommate amendments (the swap doc)
+
+§16's roommate swap is a real document flow:
+
+```
+tenant files (named incoming roommate — screened like any applicant)
+  → approved | declined (landlord file / admin; licensed on own units)
+  → approved: lease-amendment doc + deposit pro-rata ledger line,
+    co-tenant jointly liable from signing day; the file keeps continuity
+```
+
+- One balance, joint liability — the ledger records the household's
+  number; it never adjudicates who owes which half (9457-3 rule).
+- A decline names the reason on the file; a new amendment can be filed
+  — a document, not a door closing.
+- Informal room shares (Jules, Dani) stay person-to-person and
+  off-ledger — §6 stands; discovery stays emergent.
+
+## 33. The deposit clock (21 days, documented)
+
+Move-out now *starts* something instead of settling everything at once:
+
+- `depPending` + `depDue = move-out day + 21` — the detail view shows
+  the clock running ("due back by day N"); the return posts as a
+  separate itemized event by admin or the unit's licensed landlord.
+- An overdue return writes a `deposit return overdue` ledger line —
+  board-able grounds, and the lateness stays on the file even after
+  the money lands ("returned day 26 (past the 21-day window)").
+- Deduction rules unchanged (§15, §21): itemized lines only, move-in
+  record refuses pre-existing claims outright, wear is never a
+  deduction. Break fees (§30) deduct here.
+- Tenant notice, recorded move-out, and no-fault notice all start the
+  same clock — the paper is the same whichever door it left through.
+
+## 34. Copy deck additions (v54)
+
+|| Moment | Copy |
+|---|---|---|
+|| Sign, mid-month | "Sign — $X (first month, prorated to day N + deposit)" |
+|| Break fee | "Ending inside your fixed term posts an itemized break fee — one month's rent, deducted at deposit return." |
+|| Habitability filed | "Habitability item — acknowledged same-day, target fix ≤ 7 days." |
+|| SLA breach | "Open past the 7-day target — the breach is a ledger line now." |
+|| Roommate filed | "Amendment filed — the incoming name screens like any applicant." |
+|| Amendment signed | "Jointly liable from day N. Deposit pro-rata recorded; the file keeps continuity." |
+|| Deposit clock | "Deposit $N + interest due back by day N (21-day window)." |
+|| Deposit overdue | "Past the 21-day window — the delay is itself a ledger line." |
+|| Deposit returned late | "Returned day N (past the 21-day window — the lateness stays on the file)." |
+
+## 35. Merge notes (v54)
+
+- New demo fields: `roomReq`, `roommate`, `breakFee`, `depPending`,
+  `depDue`, `depLate`, `turnWire`; repair rows gain `kind`, `filed`,
+  `breach`. All optional, all documented above. LS key rolled
+  `rw_lease_v40` → `rw_lease_v54` (old saves ignored by design).
+- leases.json v54 adds: `screening.proration`, `lease_terms.break_fee`,
+  `repairs.kinds` (habitability vs routine clocks), `deposits.return_clock`,
+  `amendments` (roommate swap), licensed-landlord `may` +
+  `decide_roommate_amendments` / `post_itemized_deposit_returns`.
+- Engine contract at merge: proration math (`round(rent ×
+  days-remaining / 30)`), the 21-day depDue, and the SLA-breach ledger
+  line should land verbatim; the overdue line is evidence, not a feed
+  event. Feed vocabulary unchanged — no new templates.
+- `node world/audit.js` G11 now also requires the v54 surfaces
+  (proration, break fee, repair SLA, amendment, deposit clock) and
   fails on the old storage key.

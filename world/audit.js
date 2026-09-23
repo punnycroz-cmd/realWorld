@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v53).
+/* world/audit.js — RW boundary audit (world v54).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -681,6 +681,29 @@ const PUB = Object.values(PT.surfaces)
       if (!nf) add(g, 'fail', 'lease.html', null, 'nofaultNotice missing');
       else if (!/myUnit/.test(nf[0]))
         add(g, 'fail', 'lease.html', null, 'nofaultNotice lacks the own-unit guard');
+    }
+    /* v54 additions — the paper layer: proration, break fee, repair
+       SLA clock, roommate amendments, 21-day deposit clock */
+    if (LJ.version >= 54) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v54')
+        add(g, 'fail', 'leases.json', null, 'v54 schema on an old storage key');
+      for (const [re, label] of [
+        [/prorat/i, 'prorated first month'],
+        [/break fee/i, 'fixed-term break fee'],
+        [/habitability/i, 'habitability repair kind'],
+        [/SLA breach/i, 'repair SLA breach line'],
+        [/amendment/i, 'roommate amendment flow'],
+        [/depPending|depDue/, 'deposit clock fields'],
+        [/overdue/i, 'overdue deposit line']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v54 surface missing: ${label}`);
+      if (!LJ.screening.proration || !LJ.lease_terms.break_fee ||
+          !LJ.deposits.return_clock || !LJ.amendments || !LJ.repairs.kinds)
+        add(g, 'fail', 'leases.json', null, 'v54 blocks missing (proration/break_fee/return_clock/amendments/repairs.kinds)');
+      /* licensed landlord may return deposits on own units only */
+      const rd2 = html.match(/window\.returnDeposit=function[\s\S]*?^\};/m);
+      if (!rd2) add(g, 'fail', 'lease.html', null, 'returnDeposit missing');
+      else if (!/myUnit/.test(rd2[0]))
+        add(g, 'fail', 'lease.html', null, 'returnDeposit lacks the own-unit guard');
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
@@ -1877,7 +1900,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v53 || {};
+    const H = PT.harness_ui_v54 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2020,7 +2043,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v53 local';
+out.build = 'world v54 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {
