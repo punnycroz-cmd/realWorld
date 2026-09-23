@@ -5,13 +5,22 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "join the cast" (world v7).
+  Character creation flow — "Join the Cast" v2 (world v21; wizard v1 was v7).
   Self-contained demo: file://-safe, no network. The pipeline (screen →
-  review → charge → registry write → lease → briefing) is simulated
+  human review → charge → registry write → lease → briefing) is simulated
   locally; at merge it becomes gsRequest*/gsLease* calls + feed events.
-  Spec + copy deck: world/creation-ui.md. Data: world/creation.json,
-  jobs.json, housing.json. Prices adopt monetization-plan §2.4–2.5
-  PROPOSAL numbers — do not contradict.
+
+  v21 changes: screening now runs the SHARED engine (world/screen.js —
+  RWScreen, same code request.html + mod-console.html execute) instead of
+  a private regex set; look becomes structured pickers per creation.json
+  record_schema; draft autosaves to localStorage; deny → edit & resubmit
+  keeps the application and routes resubmissions to a different reviewer;
+  runway economics shown before signing; post-hire next-steps card.
+
+  Spec + copy deck: world/creation-ui.md. Contract: world/creation.json.
+  Data mirrors: world/jobs.json (openings > 0 / always-hiring),
+  world/housing.json (listings_live + room tier). Prices adopt
+  monetization-plan §2.4–2.5 PROPOSAL verbatim — never contradict.
   All venue names are canonical parody names (world/businesses.md).
 -->
 <style>
@@ -22,23 +31,28 @@
   }
   *{box-sizing:border-box}
   body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
-  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
   .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
   .logo span{color:var(--acc)}
   .tier{font-size:11px;color:var(--blu);border:1px solid var(--line);border-radius:10px;padding:2px 9px}
+  .draftchip{font-size:11px;color:var(--dim);border:1px dashed var(--line);border-radius:10px;padding:2px 9px}
+  .draftchip a{color:var(--blu);cursor:pointer}
   .wallet{margin-left:auto;font-family:var(--mono);font-size:13px;background:var(--panel2);
     border:1px solid var(--line);border-radius:6px;padding:6px 12px}
   .wallet b{color:var(--acc)}
   .topup{font-size:11px;color:var(--blu);cursor:pointer;margin-left:8px}
-  main{display:grid;grid-template-columns:minmax(420px,1fr) minmax(320px,400px);gap:18px;
+  main{display:grid;grid-template-columns:minmax(430px,1fr) minmax(320px,400px);gap:18px;
     max-width:1180px;margin:0 auto;padding:18px 20px}
   @media(max-width:900px){main{grid-template-columns:1fr}}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
   h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
-  .steps{display:flex;gap:6px;margin-bottom:14px}
+  .steps{display:flex;gap:6px;margin-bottom:4px}
   .steps div{flex:1;height:4px;border-radius:2px;background:var(--line)}
   .steps div.on{background:var(--acc)}
   .steps div.done{background:var(--grn)}
+  .stepnames{display:flex;gap:6px;margin-bottom:14px}
+  .stepnames span{flex:1;font-size:9.5px;color:var(--dim);text-align:center;letter-spacing:.04em;text-transform:uppercase}
+  .stepnames span.on{color:var(--acc)}
   label{display:block;font-size:12px;color:var(--dim);margin:14px 0 4px}
   select,textarea,input[type=text],input[type=number]{width:100%;background:var(--panel2);color:var(--ink);
     border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:inherit;font-size:13.5px}
@@ -52,6 +66,19 @@
   .opt.dis{opacity:.45;cursor:not-allowed}
   .opt .r{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right;white-space:nowrap}
   .opt .r b{color:var(--ink)}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;position:relative}
+  .sw.sel{border-color:var(--acc)}
+  .sw.sel:after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;text-shadow:0 1px 2px #000}
+  .pickrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .pick{border:1px solid var(--line);border-radius:14px;padding:4px 12px;font-size:12.5px;cursor:pointer;color:var(--dim)}
+  .pick.sel{border-color:var(--acc);color:var(--ink);background:#2a2a20}
+  .namecheck{font-size:12px;margin-top:6px;min-height:18px}
+  .namecheck.ok{color:var(--grn)} .namecheck.bad{color:var(--red)} .namecheck.warn{color:var(--acc)}
+  .runway{margin-top:10px;border:1px solid var(--line);border-radius:6px;padding:9px 12px;background:var(--panel2);font-size:12.5px}
+  .runway .bar{height:6px;border-radius:3px;background:var(--line);margin:7px 0 4px;overflow:hidden}
+  .runway .bar i{display:block;height:100%;border-radius:3px}
   .note{font-size:11.5px;color:var(--dim);margin-top:8px;font-style:italic}
   .warn{color:var(--acc);font-size:12px;margin-top:6px}
   .bad{color:var(--red);font-size:12px;margin-top:6px}
@@ -64,9 +91,11 @@
   .quote{margin-top:14px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
     padding:10px 14px;font-size:13px}
   .quote .line{display:flex;justify-content:space-between;padding:2px 0;color:var(--dim)}
-  .quote .line b{color:var(--ink);font-family:var(--mono)}
+  .quote .line b{color:var(--ink);font-family:var(--mono);font-weight:400}
   .quote .total{border-top:1px solid var(--line);margin-top:6px;padding-top:6px;font-size:14px}
-  .quote .total b{color:var(--acc)}
+  .quote .total b{color:var(--acc);font-weight:600}
+  .week{display:grid;grid-template-columns:64px 1fr;gap:4px 12px;margin-top:10px;font-size:12.5px}
+  .week .d{color:var(--dim);font-family:var(--mono);font-size:11px;padding-top:1px}
   .roster{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:10px;font-size:13px}
   .roster .who{font-weight:600}
   .roster .meta{font-size:11.5px;color:var(--dim)}
@@ -75,6 +104,7 @@
     border-radius:8px;margin-left:6px;vertical-align:1px}
   .chip.you{background:#3a3220;color:var(--acc)}
   .chip.sleep{background:#22303f;color:var(--blu)}
+  .chip.new{background:#1f3325;color:var(--grn)}
   .feed{list-style:none;margin:0;padding:0;max-height:340px;overflow:auto}
   .feed li{padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
   .feed .t{font-family:var(--mono);font-size:11px;color:var(--dim);margin-right:8px}
@@ -91,9 +121,14 @@
   .briefing .bline:last-child{border:0}
   .briefing .k{color:var(--dim);font-size:11.5px;display:inline-block;width:150px}
   .redacted{color:var(--dim);font-style:italic}
+  .nextsteps{margin-top:12px;border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:none;font-size:13px}
+  .nextsteps h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--blu)}
+  .nextsteps a{color:var(--blu)}
+  .denybox{margin-top:12px;border:1px solid var(--red);border-radius:6px;padding:10px 14px;display:none;font-size:13px}
+  .denybox b{color:var(--red)}
   .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
     border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
-    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
   .fineprint{max-width:1180px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
   .fineprint b{color:var(--ink)}
 </style>
@@ -102,34 +137,45 @@
 <header>
   <div class="logo">Real <span>World</span> — Join the Cast</div>
   <span class="tier">Resident · 2 slots</span>
+  <span class="draftchip" id="draftchip" style="display:none">draft saved · <a id="clearDraft">discard</a></span>
   <div class="wallet"><b id="bal">1,240</b> cr <span class="topup" id="topup">+ top up</span></div>
 </header>
 
 <main>
   <section class="panel">
-    <div class="steps" id="steps"><div class="on"></div><div></div><div></div><div></div><div></div></div>
+    <div class="steps" id="steps"><div class="on"></div><div></div><div></div><div></div><div></div><div></div></div>
+    <div class="stepnames" id="stepnames"><span>arrival</span><span>appearance</span><span>work</span><span>home</span><span>first week</span><span>sign</span></div>
     <div id="wizard"></div>
     <div class="nav">
       <button class="back" id="back">Back</button>
       <button class="next" id="next">Continue</button>
     </div>
+    <div class="denybox" id="denybox"></div>
     <div class="pipeline" id="pipe"></div>
     <div class="briefing" id="briefing"></div>
+    <div class="nextsteps" id="nextsteps"></div>
   </section>
 
   <section>
     <div class="panel" style="margin-bottom:18px">
       <h2>Your roster — <span id="slotLine">1 of 2 slots used</span></h2>
-      <div class="roster">
-        <div class="who">Dana Okafor <span class="chip you">yours</span><span class="chip sleep">thin AI — you're offline to her</span></div>
-        <div class="meta">Bike courier · Flying Pannier Co-op · rents the room at 9521 Treat Ave, Unit 2</div>
-      </div>
-      <div class="roster locked">
+      <div id="roster"></div>
+      <div class="roster locked" id="rosterLocked">
         <div class="who">Slot 3</div>
         <div class="meta">Locked — Director tier raises the account cap to 3.</div>
       </div>
       <div class="note">Possession is yours alone — you can only ever possess a character
       you hired, and never the main cast.</div>
+    </div>
+
+    <div class="panel" style="margin-bottom:18px">
+      <h2>The honest deal</h2>
+      <div style="font-size:12.5px;color:var(--dim)">
+        <div style="padding:3px 0"><b style="color:var(--ink)">500 cr</b> once, per character — never a subscription to a person.</div>
+        <div style="padding:3px 0">Denied applications <b style="color:var(--ink)">never bill</b>. A post-review denial auto-refunds in full.</div>
+        <div style="padding:3px 0">Rent is in <b style="color:var(--ink)">game dollars</b> — credits can't touch it, by design.</div>
+        <div style="padding:3px 0">You write <b style="color:var(--ink)">initial conditions</b>. Personality, secrets, and choices emerge — there are no script fields to fill.</div>
+      </div>
     </div>
 
     <div class="panel">
@@ -150,104 +196,163 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="screen.js"></script>
 <script>
 /* ================= demo state ================= */
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
 var BAL = 1240;
 var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per character
 var SLOT_CAP = 2;                  // this account: Resident tier
 var START_BANK = 1600;             // game dollars — arrival money
+var RENT_PCT_MAX = 55;             // rent-to-income ceiling shown honestly
+var DRAFT_KEY = 'rw_create_draft_v21';
 var created = 0;
+var submits = 0;                   // resubmissions route to a different reviewer
 
 /* job openings mirrored from world/jobs.json (openings > 0 or always-hiring) */
 var JOBS = [
-  {id:'mudhaus-barista',  employer:'Mudhaus Coffee',            role:'Barista',            wage:19, hrs:'30–38 h/wk', est:2400},
-  {id:'farolote-line',    employer:'Taqueria El Farolote',      role:'Line cook',          wage:26, hrs:'35 h/wk',   est:3900},
-  {id:'farolote-counter', employer:'Taqueria El Farolote',      role:'Counter/closer',     wage:18, hrs:'30 h/wk',   est:2300},
-  {id:'muleit-rider',     employer:'MuleIt',                   role:'Delivery rider',      wage:17, hrs:'variable',  est:1800, note:'always hiring — churn gig'},
-  {id:'buyrite-clerk',    employer:'Buy-Rite Market',           role:'Grocery clerk',      wage:19, hrs:'32 h/wk',   est:2600},
-  {id:'creamery-scooper', employer:'Buy-Rite Creamery',         role:'Scooper',            wage:17, hrs:'24 h/wk',   est:1800},
-  {id:'perk-counter',     employer:'Dolores Perk',              role:'Counter',            wage:18, hrs:'30 h/wk',   est:2300},
-  {id:'bai-counter',      employer:'Baguette About It Bakery',  role:'Counter, afternoons',wage:18, hrs:'25 h/wk',   est:1950},
-  {id:'delfino-line',     employer:'Il Delfino',                role:'Line cook',          wage:27, hrs:'35 h/wk',   est:4100},
-  {id:'delfino-server',   employer:'Il Delfino',                role:'Server',             wage:18, hrs:'30 h/wk + tips', est:2600},
-  {id:'auerbach-clerk',   employer:'Auerbach Hardware',         role:'Counter clerk',      wage:21, hrs:'30 h/wk',   est:2700},
-  {id:'bloom-saturday',   employer:'Bloom & Doom Flowers',      role:'Saturday counter help', wage:18, hrs:'8 h/wk', est:620, note:'part-time only — pair with gig work'},
-  {id:'sfgh-cna',         employer:'SF General',                role:'CNA/tech',           wage:22, hrs:'36 h/wk',   est:3400},
-  {id:'seeking',          employer:'—',                         role:'Arrives without work',wage:0, hrs:'—',         est:0,   note:'savings only — the board posts openings daily'}
+  {id:'mudhaus-barista',  employer:'Mudhaus Coffee',            role:'Barista',            wage:19, hrs:'30–38 h/wk', est:2400, shift:'mornings, some weekends'},
+  {id:'farolote-line',    employer:'Taqueria El Farolote',      role:'Line cook',          wage:26, hrs:'35 h/wk',   est:3900, shift:'dinners, late Fridays'},
+  {id:'farolote-counter', employer:'Taqueria El Farolote',      role:'Counter/closer',     wage:18, hrs:'30 h/wk',   est:2300, shift:'evenings'},
+  {id:'muleit-rider',     employer:'MuleIt',                   role:'Delivery rider',      wage:17, hrs:'variable',  est:1800, note:'always hiring — churn gig', shift:'whenever they log in'},
+  {id:'buyrite-clerk',    employer:'Buy-Rite Market',           role:'Grocery clerk',      wage:19, hrs:'32 h/wk',   est:2600, shift:'weekday days'},
+  {id:'creamery-scooper', employer:'Buy-Rite Creamery',         role:'Scooper',            wage:17, hrs:'24 h/wk',   est:1800, shift:'afternoons'},
+  {id:'perk-counter',     employer:'Dolores Perk',              role:'Counter',            wage:18, hrs:'30 h/wk',   est:2300, shift:'early mornings'},
+  {id:'bai-counter',      employer:'Baguette About It Bakery',  role:'Counter, afternoons',wage:18, hrs:'25 h/wk',   est:1950, shift:'after the lunch rush'},
+  {id:'delfino-line',     employer:'Il Delfino',                role:'Line cook',          wage:27, hrs:'35 h/wk',   est:4100, shift:'dinners'},
+  {id:'delfino-server',   employer:'Il Delfino',                role:'Server',             wage:18, hrs:'30 h/wk + tips', est:2600, shift:'evenings'},
+  {id:'auerbach-clerk',   employer:'Auerbach Hardware',         role:'Counter clerk',      wage:21, hrs:'30 h/wk',   est:2700, shift:'daytime, keys at close'},
+  {id:'bloom-saturday',   employer:'Bloom & Doom Flowers',      role:'Saturday counter help', wage:18, hrs:'8 h/wk', est:620, note:'part-time only — pair with gig work', shift:'Saturdays'},
+  {id:'sfgh-cna',         employer:'SF General',                role:'CNA/tech',           wage:22, hrs:'36 h/wk',   est:3400, shift:'rotating, incl. nights'},
+  {id:'seeking',          employer:'—',                         role:'Arrives without work',wage:0, hrs:'—',         est:0,   note:'savings only — the board posts openings daily', shift:'job hunting'}
 ];
 
 /* homes mirrored from world/housing.json listings_live + room tier */
 var HOMES = [
-  {id:'treat-room', address:'9521 Treat Ave, Unit 2', kind:'room in a shared flat', rent:700,  ctrl:false, note:'cheapest door on the board'},
-  {id:'c9127-A',    address:'9127 Capp St, Unit A',   kind:'studio',                rent:1300, ctrl:false},
-  {id:'g9457-2',    address:'9457 Guerrero St, Unit 2',kind:'studio',               rent:1350, ctrl:true},
-  {id:'g9418-B',    address:'9418 Guerrero St, Unit B',kind:'1-bedroom',            rent:2100, ctrl:true, note:'rent-controlled Victorian'}
+  {id:'treat-room', address:'9521 Treat Ave, Unit 2', kind:'room in a shared flat', rent:700,  ctrl:false, note:'cheapest door on the board', near:'Dolores Perk, two blocks to the park'},
+  {id:'c9127-A',    address:'9127 Capp St, Unit A',   kind:'studio',                rent:1300, ctrl:false, near:'Buy-Rite on the corner'},
+  {id:'g9457-2',    address:'9457 Guerrero St, Unit 2',kind:'studio',               rent:1350, ctrl:true,  near:'Mudhaus downstairs-adjacent'},
+  {id:'g9418-B',    address:'9418 Guerrero St, Unit B',kind:'1-bedroom',            rent:2100, ctrl:true,  note:'rent-controlled Victorian', near:'park-facing block'}
 ];
 
 /* names the form refuses structurally (cast + ambients + the role) */
 var TAKEN = /\b(marisol|mars delgado|jules park|dani reyes|priya raman|marcus bell|carmen echeverr|victor auerbach|tom[aá]s herrera|reyes ortega|doro|malik|june|esther|kofe|luz|asha|gus|vera|nadia|bex|omar|hana|cole|ida|zee|landlord|admin|owner)\b/i;
 
-/* screening on player-authored strings — moderation-notes §3, naming context.
-   The real classifier is game plumbing; this demos the contract. */
-var DENY = [
-  {re:TAKEN, code:'name-collision',
-   msg:'That name is taken — the block already has one. Pick a name that\u2019s theirs alone.'},
-  {re:/\b(obama|beyonc|lebron|taylor swift|elon musk|real person)\b/i, code:'real-person',
-   msg:'New arrivals are fictional people — you can\u2019t hire a real person into the world.'},
-  {re:/\b(kill|destroy|ruin|humiliate|hurt|make .* (cry|suffer)|burn)\b/i, code:'harm-targeting',
-   msg:'Writing a character to hurt or humiliate others isn\u2019t a creation — it\u2019s a denied request.'},
-  {re:/\b(secret|reveal|confess|redacted|drama seed|mission unfiltered)\b/i, code:'secret-extraction',
-   msg:'Secrets are discovered by watching, never written in. There\u2019s no field for them — not even a hidden one.'},
-  {re:/\b(bi-rite|tartine|delfina|dolores park cafe|500 club|dandelion|starbucks|walgreens|whole foods)\b/i, code:'real-business',
-   msg:'The world can\u2019t see real business names. Try the parody — this neighborhood has its own.'},
-  {re:/\b(threat|doxx|swat|credit card|password|real address)\b/i, code:'legal-backstop',
-   msg:'Application not approved.'},
-  {re:/\b(hitler|nazi|slur)\b/i, code:'naming', msg:'Application not approved.'}
-];
-var REVIEW = [
-  {re:/\b(break ?up|feud|enemy|rival|revenge|grudge|ex-)\b/i, code:'charged-bio',
-   msg:'Charged backstories get a human pair of eyes before the character lands.'}
-];
+/* structured look pickers — creation.json record_schema look field:
+   rendering data, not text. No free text here = nothing to screen. */
+var LOOK = {
+  build:['slight','compact','tall','broad','angular'],
+  palette:[{n:'fog grey',c:'#8b95a1'},{n:'mission mural',c:'#c46a4e'},{n:'moss',c:'#5f7a5a'},
+           {n:'midnight',c:'#3d4d6b'},{n:'ochre',c:'#c99a3c'},{n:'plum',c:'#7d5a7a'}],
+  signature:['windbreaker, always','paint-flecked work boots','loud prints, louder laugh',
+             'cardigans and a paperback','running gear at dawn','denim jacket, pins on the collar']
+};
+
+/* ================= screening — shared engine (world v8 contract) =================
+   create.html no longer keeps a private regex set: name/bio/arrival go through
+   RWScreen.screenRequest exactly like a request. The only creation-local rule
+   is name-collision (a registry check, not an intent class). If screen.js is
+   absent the demo refuses to screen rather than silently using drifted rules. */
 function screenFields(){
-  var s = [f.name, f.bio, f.arrival].join(' ').toLowerCase();
-  for (var i=0;i<DENY.length;i++) if (DENY[i].re.test(s)) return {r:'deny',code:DENY[i].code,msg:DENY[i].msg};
-  for (var j=0;j<REVIEW.length;j++) if (REVIEW[j].re.test(s)) return {r:'review',code:REVIEW[j].code,msg:REVIEW[j].msg};
+  if (!window.RWScreen || !RWScreen.screenRequest)
+    return {r:'deny',code:'engine-missing',
+            msg:'The screening engine didn\u2019t load — the application can\u2019t be checked, so it can\u2019t be billed.'};
+  if (TAKEN.test(f.name))
+    return {r:'deny',code:'name-collision',field:'name',
+            msg:'That name is taken — the block already has one. Pick a name that\u2019s theirs alone.'};
+  var res = RWScreen.screenRequest({
+    action:'hire', target_label:f.name,
+    text:[f.name,f.bio,f.arrival].join(' '),
+    player:{ resubmit_n: submits, appeal_of: submits>0 ? 'creation' : null }
+  });
+  if (res.verdict==='deny')
+    return {r:'deny',code:res.code,msg:res.player_msg};
+  if (res.verdict==='review')
+    return {r:'review',code:res.code,msg:res.player_msg};
   return {r:'pass'};
 }
 
-/* ================= wizard ================= */
-var f = { name:'', age:28, pronouns:'she/her', bio:'', arrival:'', look:'', job:null, home:null };
-var STEP = 0;
-var $ = function(id){ return document.getElementById(id); };
-var wiz = $('wizard');
-
-function steps(){
-  var kids=$('steps').children;
-  for (var i=0;i<kids.length;i++){ kids[i].className = i<STEP?'done':(i===STEP?'on':''); }
+/* live name availability — registry check only, instant, before the pipeline */
+function nameStatus(n){
+  n=(n||'').trim();
+  if (!n) return {cls:'',txt:''};
+  if (n.length<2) return {cls:'warn',txt:'too short — neighbors need something to call them'};
+  if (TAKEN.test(n)) return {cls:'bad',txt:'taken — the block already has one'};
+  return {cls:'ok',txt:'available on the block'};
 }
-function esc(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
+/* ================= draft autosave ================= */
+var f = { name:'', age:28, pronouns:'she/her', bio:'', arrival:'',
+          look:{build:'',palette:'',signature:''}, job:null, home:null };
+var STEP = 0, STEPS = 6;
+function saveDraft(){
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify({f:f,step:STEP,submits:submits}));
+       $('draftchip').style.display=''; }catch(e){}
+}
+function loadDraft(){
+  try{
+    var d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+    if (d && d.f){ f=d.f; if(!f.look) f.look={build:'',palette:'',signature:''};
+      submits=d.submits||0; STEP=Math.min(d.step||0,STEPS-1);
+      $('draftchip').style.display=''; }
+  }catch(e){}
+}
+function clearDraft(){ try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
+  $('draftchip').style.display='none'; }
+$('clearDraft').onclick=function(){ clearDraft(); location.reload(); };
+
+var wiz = $('wizard');
+function steps(){
+  var kids=$('steps').children, nm=$('stepnames').children;
+  for (var i=0;i<kids.length;i++){ kids[i].className=i<STEP?'done':(i===STEP?'on':''); nm[i].className=i===STEP?'on':''; }
+}
+function job(){ return JOBS.find(function(x){return x.id===f.job;}); }
+function home(){ return HOMES.find(function(x){return x.id===f.home;}); }
+function runwayMonths(rent){
+  var est = job()?job().est:0;
+  if (est>=rent) return null; /* sustainable — income covers it */
+  /* burn = rent - est per month; arrival bank + income covers how long */
+  var burn = rent - est;
+  return burn>0 ? (START_BANK/burn) : null;
+}
+function runwayBar(rent){
+  var est=job()?job().est:0, m=runwayMonths(rent);
+  var pct = est>=rent ? 100 : Math.min(100, Math.round(est/rent*100));
+  var col = est>=rent ? 'var(--grn)' : (pct>50?'var(--acc)':'var(--red)');
+  var cap = est>=rent ? 'income covers the rent — sustainable'
+          : 'runs dry in ≈'+Math.floor(m)+' month'+(Math.floor(m)===1?'':'s')+' on arrival money'+(est>0?' + wages':' alone');
+  return '<div class="runway"><b style="font-family:var(--mono)">$'+rent+'/mo</b> vs ≈$'+est.toLocaleString()+'/mo income'+
+    '<div class="bar"><i style="width:'+pct+'%;background:'+col+'"></i></div>'+cap+'</div>';
+}
+
+/* ================= wizard ================= */
 function render(){
-  steps();
+  steps(); saveDraft();
   var h='';
   if (STEP===0){
     h='<h2>Step 1 — Who arrives</h2>' +
     '<label for="cname">Name</label><input type="text" id="cname" maxlength="40" placeholder="e.g. Rio Takemura" value="'+esc(f.name)+'">' +
+    '<div class="namecheck" id="namecheck"></div>' +
     '<div class="row"><div><label for="cage">Age (18+)</label><input type="number" id="cage" min="18" max="99" value="'+f.age+'"></div>' +
     '<div><label for="cpro">Pronouns</label><select id="cpro"><option>she/her</option><option>he/him</option><option>they/them</option><option>other</option></select></div></div>' +
     '<label for="carr">First day on the block — one line of arrival context</label>' +
     '<textarea id="carr" maxlength="160" placeholder="e.g. just off the bus from Fresno with a duffel bag and a cousin\u2019s couch that fell through">'+esc(f.arrival)+'</textarea>' +
-    '<div class="note">Player-possessable characters are adults — 18 minimum, always.</div>';
+    '<div class="note">Player-possessable characters are adults — 18 minimum, always. ' +
+    'This is an arrival circumstance, not a backstory contract — who they become is theirs.</div>';
   } else if (STEP===1){
     h='<h2>Step 2 — What neighbors see</h2>' +
     '<label for="cbio">Public bio — the profile spectators read</label>' +
     '<textarea id="cbio" maxlength="280" placeholder="e.g. quiet, stubborn, laughs at the wrong moments; trying to make the co-op team">'+esc(f.bio)+'</textarea>' +
-    '<label for="clook">Look</label><select id="clook">' +
-    '<option value="">pick a build…</option><option>slight, perpetually in a windbreaker</option>' +
-    '<option>tall, work boots, paint-flecked</option><option>compact, loud prints, louder laugh</option>' +
-    '<option>soft-spoken, cardigans, reading on stoops</option><option>athletic, runs the park loops at dawn</option></select>' +
-    '<div class="note">This text is what the world sees — it\u2019s also the screened surface. ' +
-    'Secrets aren\u2019t a field here because they don\u2019t exist yet; the character grows their own.</div>';
+    '<label>Build</label><div class="pickrow" id="pbuild">' +
+      LOOK.build.map(function(b){return '<span class="pick'+(f.look.build===b?' sel':'')+'" data-k="build" data-v="'+b+'">'+b+'</span>';}).join('')+'</div>' +
+    '<label>Palette</label><div class="swatches" id="ppal">' +
+      LOOK.palette.map(function(p){return '<span class="sw'+(f.look.palette===p.n.trim()?' sel':'')+'" data-k="palette" data-v="'+p.n.trim()+'" title="'+p.n.trim()+'" style="background:'+p.c+'"></span>';}).join('')+'</div>' +
+    '<label>Signature</label><div class="pickrow" id="psig">' +
+      LOOK.signature.map(function(s){return '<span class="pick'+(f.look.signature===s?' sel':'')+'" data-k="signature" data-v="'+s+'">'+s+'</span>';}).join('')+'</div>' +
+    '<div class="note">This is what the world sees — it\u2019s also the screened surface. ' +
+    'Secrets aren\u2019t a field here because they don\u2019t exist yet; the character grows their own. ' +
+    'Look pickers are structured (build / palette / signature) — rendering data, not more text to screen.</div>';
   } else if (STEP===2){
     h='<h2>Step 3 — Work</h2><div class="note" style="margin:0 0 4px">Openings off the Mission board. ' +
     'Wages are game dollars — rent comes out of this, not credits.</div>';
@@ -256,41 +361,61 @@ function render(){
         (j.note?'<div class="note" style="margin:2px 0 0">'+j.note+'</div>':'')+'</span>' +
         '<span class="r"><b>$'+j.wage+'/h</b> · '+j.hrs+'<br>≈$'+j.est.toLocaleString()+'/mo</span></div>';
     });
+    if (f.job==='seeking')
+      h+='<div class="warn">Arriving without work is allowed — but rent doesn\u2019t wait. ' +
+         'The runway meter on the next step will show exactly how long savings last.</div>';
   } else if (STEP===3){
-    var est = f.job ? JOBS.find(function(j){return j.id===f.job;}).est : 0;
+    var est = job()?job().est:0;
     h='<h2>Step 4 — A door of their own</h2><div class="note" style="margin:0 0 4px">Lease signs at creation — ' +
     'first month\u2019s rent leaves their $'+START_BANK.toLocaleString()+' arrival money on day one.' +
     (est? ' Current projected income ≈$'+est.toLocaleString()+'/mo.':'')+'</div>';
     HOMES.forEach(function(hm){
       var afford = est>0 ? Math.round(hm.rent/est*100) : null;
-      var tight = afford!==null && afford>55;
+      var tight = afford!==null && afford>RENT_PCT_MAX;
       h+='<div class="opt'+(f.home===hm.id?' sel':'')+(tight?' dis':'')+'" data-home="'+hm.id+'">' +
         '<span><b>'+hm.address+'</b> — '+hm.kind+(hm.ctrl?' · rent-controlled':'')+
-        (hm.note?'<div class="note" style="margin:2px 0 0">'+hm.note+'</div>':'')+
+        '<div class="note" style="margin:2px 0 0">'+hm.near+(hm.note?' · '+hm.note:'')+'</div>'+
         (tight?'<div class="bad">out of reach on that income — pick a cheaper door or a better job</div>':'')+
         '</span><span class="r"><b>$'+hm.rent+'/mo</b>'+(afford!==null?'<br>'+afford+'% of income':'')+'</span></div>';
     });
+    if (f.home) h+=runwayBar(home().rent);
     h+='<div class="note">Miss rent and the landlord\u2019s office notices — arrears, notices, eviction. ' +
-    'Same ledger as everyone on the block.</div>';
+    'Same ledger as everyone on the block; rent control flags are real lease terms, not decoration.</div>';
+  } else if (STEP===4){
+    var j=job(), hm=home();
+    h='<h2>Step 5 — The first week</h2>' +
+    '<div class="note" style="margin:0">A starting rhythm derived from the job and address you picked — ' +
+    'not a script. From day two onward the character improvises; thin AI keeps the routine when you\u2019re offline.</div>' +
+    '<div class="week">' +
+      '<span class="d">MORNINGS</span><span>'+(j&&j.est? j.shift+' at '+j.employer : 'job hunting — board postings, applications, coffee money watched closely')+'</span>' +
+      '<span class="d">ERRANDS</span><span>groceries at Buy-Rite'+(hm&&hm.near?'; '+hm.near.toLowerCase():'')+'</span>' +
+      '<span class="d">EVENINGS</span><span>'+(j&&j.est? 'home to '+hm.address.split(',')[0]+' — or a shift meal if the kitchen feeds them' : 'home to '+hm.address.split(',')[0]+', counting the runway')+'</span>' +
+      '<span class="d">WEEKEND</span><span>Dolores Park, like everyone else — where new faces get noticed</span>' +
+      '<span class="d">THE 1ST</span><span>rent due — $'+hm.rent+' in game dollars, same ledger as every tenant</span>' +
+    '</div>' +
+    '<div class="note">Who they meet, what they hide, who they become — none of that is in this form. ' +
+    'It happens on the feed, in front of everyone.</div>';
   } else {
-    var j=JOBS.find(function(x){return x.id===f.job;}), hm=HOMES.find(function(x){return x.id===f.home;});
+    var j=job(), hm=home();
     var left = START_BANK - hm.rent;
-    h='<h2>Step 5 — Review & sign</h2>' +
+    h='<h2>Step 6 — Review & sign</h2>' +
     '<div class="quote">' +
       '<div class="line"><span>Name</span><b>'+esc(f.name)+'</b></div>' +
       '<div class="line"><span>Age · pronouns</span><b>'+f.age+' · '+f.pronouns+'</b></div>' +
+      '<div class="line"><span>Look</span><b>'+esc([f.look.build,f.look.palette,f.look.signature].filter(Boolean).join(' · '))+'</b></div>' +
       '<div class="line"><span>Work</span><b>'+j.role+' · '+j.employer+'</b></div>' +
-      '<div class="line"><span>Home</span><b>'+hm.address+' · $'+hm.rent+'/mo</b></div>' +
+      '<div class="line"><span>Home</span><b>'+hm.address+' · $'+hm.rent+'/mo'+(hm.ctrl?' · rent-controlled':'')+'</b></div>' +
       '<div class="line"><span>Arrival money</span><b>$'+START_BANK.toLocaleString()+' → $'+left.toLocaleString()+' after first month</b></div>' +
       '<div class="line total"><span>Character hire · charged upfront</span><b>'+HIRE_CR+' cr</b></div>' +
     '</div>' +
-    '<div class="note">Name and bio get the same screen every request gets — naming strings also ' +
-    'get a human pass before the character lands. Denied applications never bill.</div>' +
+    '<div class="note">Name, bio, and arrival line get the same screen every request gets — ' +
+    'the shared engine, then a human pass before the character lands. Denied applications never bill.' +
+    (submits>0 ? ' This is submission #'+(submits+1)+' — resubmissions go to a different reviewer.' : '')+'</div>' +
     (BAL < HIRE_CR ? '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>':'');
   }
   wiz.innerHTML=h;
   $('back').style.display = STEP===0 ? 'none':'';
-  $('next').textContent = STEP===4 ? ('Sign & hire — '+HIRE_CR+' cr') : 'Continue';
+  $('next').textContent = STEP===STEPS-1 ? ('Sign & hire — '+HIRE_CR+' cr') : 'Continue';
   wireStep();
   validate();
 }
@@ -300,13 +425,18 @@ $('topup').onclick = window.topup;
 
 function wireStep(){
   if (STEP===0){
-    $('cname').oninput=function(){f.name=this.value;validate();};
+    $('cname').oninput=function(){f.name=this.value;
+      var s=nameStatus(f.name), nc=$('namecheck');
+      nc.className='namecheck '+s.cls; nc.textContent=s.txt; validate();};
+    var s0=nameStatus(f.name); $('namecheck').className='namecheck '+s0.cls; $('namecheck').textContent=s0.txt;
     $('cage').oninput=function(){f.age=+this.value;validate();};
     $('cpro').value=f.pronouns; $('cpro').onchange=function(){f.pronouns=this.value;};
     $('carr').oninput=function(){f.arrival=this.value;};
   } else if (STEP===1){
     $('cbio').oninput=function(){f.bio=this.value;validate();};
-    $('clook').value=f.look; $('clook').onchange=function(){f.look=this.value;};
+    wiz.querySelectorAll('.pick,.sw').forEach(function(el){
+      el.onclick=function(){ f.look[el.dataset.k]=el.dataset.v; render(); };
+    });
   } else if (STEP===2 || STEP===3){
     wiz.querySelectorAll('.opt').forEach(function(el){
       if (el.classList.contains('dis')) return;
@@ -319,18 +449,27 @@ function wireStep(){
 }
 function validate(){
   var ok=true;
-  if (STEP===0) ok = f.name.trim().length>=2 && f.age>=18 && f.age<=99;
-  if (STEP===1) ok = f.bio.trim().length>=10;
+  if (STEP===0) ok = f.name.trim().length>=2 && !TAKEN.test(f.name) && f.age>=18 && f.age<=99;
+  if (STEP===1) ok = f.bio.trim().length>=10 && f.look.build && f.look.palette && f.look.signature;
   if (STEP===2) ok = !!f.job;
   if (STEP===3) ok = !!f.home;
-  if (STEP===4) ok = BAL>=HIRE_CR && created+1 <= SLOT_CAP;
+  if (STEP===5) ok = BAL>=HIRE_CR && created+1 <= SLOT_CAP;
   $('next').disabled=!ok;
 }
 $('back').onclick=function(){ if(STEP>0){STEP--;render();} };
 $('next').onclick=function(){
-  if (STEP<4){ STEP++; render(); return; }
+  if (STEP<STEPS-1){ STEP++; render(); return; }
   submit();
 };
+
+/* ================= roster ================= */
+function rosterCard(name,meta,chips){
+  var d=document.createElement('div'); d.className='roster';
+  d.innerHTML='<div class="who">'+esc(name)+chips+'</div><div class="meta">'+esc(meta)+'</div>';
+  $('roster').appendChild(d);
+}
+rosterCard('Dana Okafor','Bike courier · Flying Pannier Co-op · rents the room at 9521 Treat Ave, Unit 2',
+  ' <span class="chip you">yours</span><span class="chip sleep">thin AI — you\u2019re offline to her</span>');
 
 /* ================= feed ================= */
 function feedAdd(who,txt,tail){
@@ -363,54 +502,74 @@ function stage(name,cls,why){
 /* ================= submit: screen → review → charge → mint → lease → briefing ================= */
 function submit(){
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
+  $('denybox').style.display='none';
   $('next').disabled=true; $('back').disabled=true;
   var scr = screenFields();
+  var isResubmit = submits>0;
 
-  var s1=stage('Intent screen — name, bio, arrival','wait','the same classifier every request gets');
+  var s1=stage('Intent screen — name, bio, arrival','wait','shared engine — same screen every request gets');
   setTimeout(function(){
     if (scr.r==='deny'){
       s1.className='stage fail'; s1.querySelector('.why').textContent=scr.code;
       stage('Application not approved','fail',scr.msg);
       stage('No charge','done','denied applications never bill');
       feedAdd('you','hire — application not approved');
-      toast(scr.msg); $('next').disabled=false; $('back').disabled=false; return;
+      var db=$('denybox'); db.style.display='block';
+      db.innerHTML='<b>Not approved — '+esc(scr.code)+'.</b> '+esc(scr.msg)+
+        '<div class="note" style="font-style:normal">Nothing was charged. Edit the flagged fields and resubmit — ' +
+        'resubmissions land with a different reviewer, so fix it rather than resend it.</div>';
+      toast(scr.msg);
+      $('next').disabled=false; $('back').disabled=false;
+      return;
     }
     s1.className='stage done'; s1.querySelector('.why').textContent='pass';
-    var needsHuman = true; /* naming strings always get a human pass — §4 */
-    var s3=stage('Human review','wait', scr.r==='review' ? 'charged wording — '+scr.code : 'naming strings always get eyes');
+    var s3=stage('Human review','wait',
+      scr.r==='review' ? 'flagged — '+scr.code :
+      (isResubmit ? 'resubmission #'+submits+' — different reviewer, per appeal rule' : 'naming strings always get eyes'));
     feedAdd('you','hire — new character application','in review');
     setTimeout(function(){
       s3.className='stage done'; s3.querySelector('.why').textContent='approved · demo auto-reviewer';
-      /* charge + mint */
+      submits++;
       BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
       stage('Charged','done',HIRE_CR+' cr · slot '+(created+1)+' of '+SLOT_CAP);
       stage('Registered','done','id h'+(created)+' — hired cast, owned by you, unpossessable to everyone else');
-      var hm=HOMES.find(function(x){return x.id===f.home;});
+      var hm=home();
       stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month paid in game dollars');
       feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address);
       feedAdd('you','housing — move-in · '+hm.address+' comes off the board');
       $('slotLine').textContent=(created+1)+' of '+SLOT_CAP+' slots used';
+      var j=job();
+      rosterCard(f.name, j.role+' · '+j.employer+' · rents '+hm.address,
+        ' <span class="chip you">yours</span><span class="chip new">day one</span>');
+      clearDraft();
       briefing();
     }, 3200);
   }, 900);
 }
 
 function briefing(){
-  var j=JOBS.find(function(x){return x.id===f.job;}), hm=HOMES.find(function(x){return x.id===f.home;});
+  var j=job(), hm=home();
   var b=$('briefing'); b.style.display='block';
   b.innerHTML='<h3>Possession briefing — ' + esc(f.name) + '</h3>' +
     '<div class="bline"><span class="k">Public profile</span>'+esc(f.bio)+'</div>' +
     '<div class="bline"><span class="k">Surface relationships</span>New in town — knows the supervisor at '+j.employer+', the neighbors at '+hm.address.split(',')[0]+'. That\u2019s the whole list.</div>' +
     '<div class="bline"><span class="k">Daily routine</span>'+(j.est? 'Shift at '+j.employer+' ('+j.hrs+'), home by evening.':'Job hunting days, home evenings.')+'</div>' +
-    '<div class="bline"><span class="k">Secrets</span><span class="redacted">none written — none to redact. Whatever they\u2019re hiding, they\u2019ll grow it themselves.</span></div>' +
-    '<div class="note">Possess them from the request page (1.5 cr/min, compatible). ' +
-    'When you\u2019re offline they run on thin AI — they keep their job, pay their rent, live their life.</div>';
+    '<div class="bline"><span class="k">Secrets</span><span class="redacted">none written — none to redact. Whatever they\u2019re hiding, they\u2019ll grow it themselves.</span></div>';
+
+  var n=$('nextsteps'); n.style.display='block';
+  n.innerHTML='<h3>Day one — what now</h3>' +
+    '<div style="padding:3px 0">Watch them land: their first hours are on <a href="wire.html">The Wire</a>, free like everything you watch.</div>' +
+    '<div style="padding:3px 0">Reach in when you want: <a href="request.html">possess them</a> — 1.5 cr/min compatible, declared duration, hard cap, graceful handoff.</div>' +
+    '<div style="padding:3px 0">Rent is due on the 1st in game dollars — see it on <a href="lease.html">The Rent Book</a>. You can\u2019t pay it with credits; they can\u2019t skip it with charm.</div>' +
+    '<div style="padding:3px 0">Offline? They drop to thin AI — job kept, rent paid, life lived. They wake to a full brain when you return.</div>';
+
   feedAdd('you','cast — a new face on the block · "'+f.name+'"');
   toast(f.name+' is on the block. First rent paid; the rest is theirs.');
   $('back').disabled=false; $('back').textContent='Start another';
   $('back').onclick=function(){ location.reload(); };
 }
 
+loadDraft();
 render();
 </script>
 </body>

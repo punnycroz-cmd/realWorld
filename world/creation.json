@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 7,
+  "version": 21,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged upfront after screening passes",
@@ -15,7 +15,12 @@
     "age": "integer >= 18 — player-possessable characters are adults, always",
     "pronouns": "free pick",
     "bio": "public profile text — screened; this IS the briefing-safe surface",
-    "look": "structured pickers (build/palette/style) — rendering data, not text",
+    "look": {
+      "doc": "structured pickers only — rendering data, not text; no free-text look field exists, so nothing here needs screening",
+      "build": ["slight", "compact", "tall", "broad", "angular"],
+      "palette": ["fog grey", "mission mural", "moss", "midnight", "ochre", "plum"],
+      "signature": ["windbreaker, always", "paint-flecked work boots", "loud prints, louder laugh", "cardigans and a paperback", "running gear at dawn", "denim jacket, pins on the collar"]
+    },
     "arrival": "one-line 'first day on the block' context — screened text",
     "job_id": "jobs.json row with openings, or 'seeking'",
     "unit_id": "housing.json listings_live unit, or a room tier",
@@ -24,6 +29,8 @@
   },
   "screening": {
     "surface": ["name", "bio", "arrival"],
+    "engine": "world/screen.js RWScreen.screenRequest — the SHARED engine, same code path as request.html + mod-console.html; creation adds only the name-collision registry check (not an intent class). If the engine is unavailable the application cannot be billed — never fall back to private rules.",
+    "resubmit_rule": "denied applications may be edited and resubmitted; resubmissions carry resubmit_n and route to a DIFFERENT reviewer (moderation.json appeal-resubmit). No resubmit fee.",
     "rules": "world/moderation-notes.md §3 verbatim — naming strings always get a human review pass (§4)",
     "deny_codes": ["name-collision", "real-person", "harm-targeting", "secret-extraction", "real-business", "legal-backstop", "underage"],
     "note": "Screening covers what the player WROTE. Once created, the character's emergent behavior is inviolable — no moderation, ever."
@@ -39,6 +46,17 @@
     "possession during a shift earns the same wage + small session bonus (never pay-to-earn-better)",
     "offline owner → character drops to thin AI (cheap), wakes to full brain on return"
   ],
+  "economics_shown_before_signing": {
+    "arrival_bank_game_dollars": 1600,
+    "rent_to_income_ceiling_pct": 55,
+    "ceiling_rule": "units above the ceiling are visible but unselectable — the honest 'out of reach' state at pick time, never a surprise denial after payment",
+    "runway_rule": "if projected income < rent, the UI shows months-until-broke on arrival money (+wages); 'arrives without work' is allowed but the runway is displayed verbatim",
+    "currency_wall": "rent is game dollars only — credits are never offered for it anywhere in the flow"
+  },
+  "draft": {
+    "storage": "localStorage rw_create_draft_v21 — fields + step + resubmit count",
+    "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
+  },
   "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
   "feed_events": {
     "request": "hire — '<name>' joined the cast (attributed, status resolved)",

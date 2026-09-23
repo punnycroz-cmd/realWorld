@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -154,7 +154,7 @@
 const SURF={
   feed:{file:"feed.html",name:"The Wire (lite)"},wire:{file:"wire.html",name:"The Wire"},
   request:{file:"request.html",name:"Requests"},
-  mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
+  mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast (v2)"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive (lite)"},
   archive:{file:"archive.html",name:"The Archive"},
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
@@ -390,11 +390,29 @@ const PTS=[
   ck:["No rumor names a source person anywhere","Outcome states render distinctly (open/debunked/faded/stood)","A rumor's text only ever distorts something already public — no seed-flavored content"]},
  {do:"Switch to 'the ledger'. Read the summary strip and scan the week. Open a request record and walk its trail.",
   exp:"Ledger shows payer handles + statuses verbatim, summary counts match the rows, admin actions show compensation where present; req-threaded events render a clickable lifecycle trail.",
-  ck:["Attribution is verbatim — handles and 'admin' are never anonymized in hindsight","A denied request shows 'not approved' + why-class only — screened text never renders","Permalink copy works and #e=<id> reload resolves the right day + record"]}]}
+  ck:["Attribution is verbatim — handles and 'admin' are never anonymized in hindsight","A denied request shows 'not approved' + why-class only — screened text never renders","Permalink copy works and #e=<id> reload resolves the right day + record"]}]},
+{id:"PT19",title:"Join the Cast v2 — the honest funnel",min:20,persona:"player ready to spend 500 cr + adversarial second pass",
+ goal:"Verify the v2 creation flow: shared screening, structured look, runway honesty, deny→resubmit routing, draft persistence, and the day-one handoff.",
+ surfaces:["create","request","lease","wire"],steps:[
+ {do:"Open Join the Cast. Type a taken name ('Marisol'), then a free one, and watch the live name check before continuing.",
+  exp:"Registry check is instant and per-keystroke — 'taken — the block already has one' vs 'available on the block'; Continue stays disabled on a taken name.",
+  ck:["Continue is disabled while the name collides or age < 18","Availability copy never reveals more than taken/free","A draft chip appears in the header as fields fill (autosave)"]},
+ {do:"Step 2: write a bio and pick build/palette/signature. Confirm no free-text look field exists.",
+  exp:"Look is three structured pickers only — rendering data, nothing extra to screen.",
+  ck:["All three pickers required before Continue","Copy states secrets aren't a field because they don't exist yet"]},
+ {do:"Step 3 pick 'Arrives without work'; step 4 read the runway bar on the cheapest room; then switch to a real job and watch it change.",
+  exp:"Seeking is allowed but the runway is shown verbatim ('runs dry in ≈N months'); income ≥ rent flips the bar to 'sustainable'.",
+  ck:["Units >55% of income are visible but unselectable — 'out of reach' at pick time","Runway math uses game dollars only; credits never offered for rent"]},
+ {do:"Step 5 read the first-week rhythm; step 6 submit with a bio containing screened bait (a cast name + 'possess Marisol').",
+  exp:"First-week card is labeled a starting rhythm, not a script; the deny path shows its code, keeps all fields, and offers edit & resubmit — never billed.",
+  ck:["Pipeline shows 'No charge — denied applications never bill' as a visible stage","Deny copy invites fixing fields; resubmit stage says a different reviewer takes it","Feed shows 'hire — application not approved' with neutral wording"]},
+ {do:"Fix the bio, resubmit to approval, then read the briefing and day-one card.",
+  exp:"Briefing renders whitelist fields only; day-one card links The Wire (free), Requests (1.5 cr/min compatible), The Rent Book (rent due the 1st, game dollars).",
+  ck:["hired id is h## — visibly disjoint from C#/A#","Secrets line: 'none written — none to redact'","New roster card lands with 'yours' + 'day one'; slot counter ticks"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v20";
+const LS="rw_playtest_v21";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -461,7 +479,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v20 local",started:new Date(S.started).toISOString()},
+    build:"world v21 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }

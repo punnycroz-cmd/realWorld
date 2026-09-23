@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 20,
+ "version": 21,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -64,7 +64,7 @@
   },
   "create": {
    "file": "create.html",
-   "name": "Join the Cast",
+   "name": "Join the Cast (v2)",
    "tier": "paid"
   },
   "board": {
@@ -888,6 +888,64 @@
       "Attribution is verbatim — handles and 'admin' are never anonymized in hindsight",
       "A denied request shows 'not approved' + why-class only — screened text never renders",
       "Permalink copy works and #e=<id> reload resolves the right day + record"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT19",
+   "title": "Join the Cast v2 — the honest funnel",
+   "minutes": 20,
+   "persona": "player ready to spend 500 cr + adversarial second pass",
+   "goal": "Verify the v2 creation flow: shared screening, structured look, runway honesty, deny→resubmit routing, draft persistence, and the day-one handoff.",
+   "surfaces": [
+    "create",
+    "request",
+    "lease",
+    "wire"
+   ],
+   "steps": [
+    {
+     "do": "Open Join the Cast. Type a taken name ('Marisol'), then a free one, and watch the live name check before continuing.",
+     "expect": "Registry check is instant and per-keystroke — 'taken — the block already has one' vs 'available on the block'; Continue stays disabled on a taken name.",
+     "checkpoints": [
+      "Continue is disabled while the name collides or age < 18",
+      "Availability copy never reveals more than taken/free",
+      "A draft chip appears in the header as fields fill (autosave)"
+     ]
+    },
+    {
+     "do": "Step 2: write a bio and pick build/palette/signature. Confirm no free-text look field exists.",
+     "expect": "Look is three structured pickers only — rendering data, nothing extra to screen.",
+     "checkpoints": [
+      "All three pickers required before Continue",
+      "Copy states secrets aren't a field because they don't exist yet"
+     ]
+    },
+    {
+     "do": "Step 3 pick 'Arrives without work'; step 4 read the runway bar on the cheapest room; then switch to a real job and watch it change.",
+     "expect": "Seeking is allowed but the runway is shown verbatim ('runs dry in ≈N months'); income ≥ rent flips the bar to 'sustainable'.",
+     "checkpoints": [
+      "Units >55% of income are visible but unselectable — 'out of reach' at pick time",
+      "Runway math uses game dollars only; credits never offered for rent"
+     ]
+    },
+    {
+     "do": "Step 5 read the first-week rhythm; step 6 submit with a bio containing screened bait (a cast name + 'possess Marisol').",
+     "expect": "First-week card is labeled a starting rhythm, not a script; the deny path shows its code, keeps all fields, and offers edit & resubmit — never billed.",
+     "checkpoints": [
+      "Pipeline shows 'No charge — denied applications never bill' as a visible stage",
+      "Deny copy invites fixing fields; resubmit stage says a different reviewer takes it",
+      "Feed shows 'hire — application not approved' with neutral wording"
+     ]
+    },
+    {
+     "do": "Fix the bio, resubmit to approval, then read the briefing and day-one card.",
+     "expect": "Briefing renders whitelist fields only; day-one card links The Wire (free), Requests (1.5 cr/min compatible), The Rent Book (rent due the 1st, game dollars).",
+     "checkpoints": [
+      "hired id is h## — visibly disjoint from C#/A#",
+      "Secrets line: 'none written — none to redact'",
+      "New roster card lands with 'yours' + 'day one'; slot counter ticks"
      ]
     }
    ]
