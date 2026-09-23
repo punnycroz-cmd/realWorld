@@ -2568,6 +2568,15 @@ function buildBuildingArt(){
 function cR(g,x,y,w,h,col){ paR(g,x,y,w,h,col); }
 function cP(g,x,y,col){ paPX(g,x,y,col); }
 function cBlob(g,cx,cy,r,col){ paBlob(g,cx,cy,r,col); }
+/* upscale a logical canvas 2x (24x32 -> 48x64 game frame) */
+function cUp(L){
+  const s=paMk(L.c.width*2, L.c.height*2), g2=s.g;
+  g2.imageSmoothingEnabled=false;
+  g2.drawImage(L.c,0,0,s.c.width,s.c.height);
+  return s.c;
+}
+/* auto dark outline around all opaque pixels */
+function cAutoOutline(c,col){ paOutline(c, col||N_OUTL); }
 
 /* shared v8 style language */
 const N_OUTL='#14100c';   /* pure black outline for everyone */
@@ -2634,7 +2643,23 @@ function nvSwing(fr){ return fr===0?-1:(fr===2?1:0); }
 /* legs + boots for standing poses; framework-drawn so every walk matches */
 function nvLegsBoots(g,dir,act,fr,dy,pal){
   let l1=25,l2=25;
-  if(act==='walk'){ if(fr===0)l1=24; else if(fr===2)l2=24; }
+  if(act==='walk'||act==='carry'){ if(fr===0)l1=24; else if(fr===2)l2=24; }
+  else if(act==='run'){ if(fr===0||fr===1){l1=22;l2=26;} else {l1=26;l2=22;} }
+  else if(act==='stalk'){ l1=26; l2=26; }
+  else if(act==='panic'){ if(fr===0)l1=24; else l2=24; }
+  if(act==='fight'||act==='argue'){
+    /* wide combat stance */
+    if(dir===2){
+      paR(g,7,l1+dy,2,3,pal.pants); paR(g,13,l2+dy,2,3,pal.pants);
+      nvBootP(g,4,l1+3+dy,pal.boots,pal.bootsD);
+      nvBootP(g,12,l2+3+dy,pal.boots,pal.bootsD);
+    } else {
+      paR(g,8,l1+dy,2,3,pal.pants); paR(g,15,l2+dy,2,3,pal.pants);
+      nvBoot(g,6,l1+3+dy,pal.boots,pal.bootsD);
+      nvBoot(g,14,l2+3+dy,pal.boots,pal.bootsD);
+    }
+    return;
+  }
   if(dir===2){
     paR(g,8,l1+dy,2,3,pal.pants); paR(g,11,l2+dy,2,3,pal.pants);
     nvBootP(g,5,l1+3+dy,pal.boots,pal.bootsD);
@@ -3536,6 +3561,237 @@ function garethTorso(g,dir,act,fr,dy){
   }
 }
 
+/* =====================================================================
+   ANIMATION STATE MACHINE (2026-09-22)
+   Every sim-side v.state maps through PA_STATE_ANIM to a named animation
+   clip (act). Data-side table so a future low-angle/street-level renderer
+   can reuse the same mapping. act names index F[dir][act] frame lists.
+   Fields: act = clip name, wp = frame driven by v.walkPhase,
+   wpm = walkPhase multiplier, tick = G.frame ticks per frame (0 = hold
+   frame 0), desc = human-readable summary for docs/gallery labels.
+   ===================================================================== */
+const PA_STATE_ANIM = {
+  idle:        {act:'idle',  tick:0,  desc:'standing, occasional blink'},
+  walk:        {act:'walk',  wp:1, wpm:4, desc:'walk cycle, arm swing'},
+  wander:      {act:'walk',  wp:1, wpm:4, desc:'stroll = walk cycle'},
+  run:         {act:'run',   wp:1, wpm:6, desc:'run cycle, big stride + bounce'},
+  flee:        {act:'run',   wp:1, wpm:6, desc:'fleeing = run cycle'},
+  wade:        {act:'walk',  wp:1, wpm:4, desc:'wading = walk + water fx'},
+  swim:        {act:'walk',  wp:1, wpm:4, desc:'swim = walk + submerged clip'},
+  drown_panic: {act:'panic', tick:6,  desc:'arms flailing overhead, kicking'},
+  work:        {act:'work',  tick:16, desc:'work swing (tool/prop arc)'},
+  serve:       {act:'serve', tick:18, desc:'behind counter, handing items'},
+  chat:        {act:'talk',  tick:18, desc:'talking gesture + open mouth'},
+  talk:        {act:'talk',  tick:18, desc:'talking gesture + open mouth'},
+  teach:       {act:'talk',  tick:18, desc:'teaching = talking gesture'},
+  claim:       {act:'talk',  tick:18, desc:'claiming = talking gesture'},
+  greet:       {act:'wave',  tick:16, desc:'raised waving arm'},
+  wave:        {act:'wave',  tick:16, desc:'raised waving arm'},
+  eat:         {act:'eat',   tick:16, desc:'hand-to-mouth eating cycle'},
+  drink:       {act:'drink', tick:20, desc:'head back, cup at mouth'},
+  phone:       {act:'phone', tick:40, desc:'head down at phone in both hands'},
+  sleep:       {act:'sleep', tick:90, desc:'lying in bed, Zzz'},
+  rest:        {act:'sit',   tick:120,desc:'seated rest'},
+  sit:         {act:'sit',   tick:120,desc:'seated'},
+  bathe:       {act:'bathe', tick:30, desc:'seated in water, splashing'},
+  play:        {act:'play',  tick:14, desc:'jumping, arms up'},
+  argue:       {act:'argue', tick:14, desc:'leaning jab gestures, anger mark'},
+  fight:       {act:'fight', tick:12, desc:'alternating punches + impact'},
+  brawl:       {act:'fight', tick:12, desc:'brawl = punches'},
+  attack:      {act:'fight', tick:12, desc:'attacking = punches'},
+  hunt:        {act:'stalk', tick:30, desc:'crouched stalking'},
+  stalk:       {act:'stalk', tick:30, desc:'crouched stalking'},
+  sad:         {act:'sad',   tick:40, desc:'slumped, head bowed, tears'},
+  cry:         {act:'sad',   tick:40, desc:'crying = slumped + tears'},
+  laugh:       {act:'laugh', tick:12, desc:'head back, open laugh, shaking'},
+  carry:       {act:'carry', wp:1, wpm:3, desc:'walking, box/bag in arms'},
+  downed:      {act:'downed',tick:60, desc:'collapsed on ground, breathing'},
+  dead:        {act:'downed',tick:0,  desc:'corpse uses downed base frame'},
+};
+function paStateAnim(state){ return PA_STATE_ANIM[state] || PA_STATE_ANIM.idle; }
+/* pick the frame canvas for a villager's current state */
+function paActFrame(F, dir, v, t){
+  const A = paStateAnim(v.state);
+  const arr = (F[dir] && F[dir][A.act]) || F[dir].idle;
+  let fi = 0;
+  if(A.wp) fi = Math.floor(v.walkPhase * (A.wpm || 4)) % arr.length;
+  else if(A.tick) fi = Math.floor((t || 0) / A.tick) % arr.length;
+  return arr[fi % arr.length];
+}
+
+/* clips built for every character (in addition to idle/walk/talk/work/sit/sleep) */
+const NV_ACTS = [
+  ['idle',2],['walk',4],['talk',2],['work',3],['sit',2],
+  ['run',4],['wave',2],['eat',3],['drink',2],['phone',2],
+  ['argue',2],['fight',2],['sad',2],['laugh',2],['carry',4],
+  ['serve',3],['bathe',2],['play',2],['panic',2],['stalk',2],['downed',2],
+];
+const NV_NEW_ACTS = {};
+['run','wave','eat','drink','phone','argue','fight','sad','laugh','carry','serve','play','panic','stalk']
+  .forEach(a=>{ NV_NEW_ACTS[a]=true; });
+
+/* ---------- generic arm helpers for pose clips ---------- */
+function nvArmDn(g,x,y,shirt,skin){ paR(g,x,y,3,7,shirt); paR(g,x,y+5,3,2,skin); }   /* arm hanging down */
+function nvArmUp(g,x,y,shirt,skin){ paR(g,x,y,3,6,shirt); paR(g,x,y-1,3,2,skin); }   /* arm raised */
+function nvArmFw(g,x,y,shirt,skin){ paR(g,x,y,6,3,shirt); paR(g,x+6,y,2,3,skin); }   /* arm forward (right) */
+function nvArmFwL(g,x,y,shirt,skin){ paR(g,x,y,6,3,shirt); paR(g,x-2,y,2,3,skin); }  /* arm forward (left) */
+function nvArmBent(g,x,y,shirt,skin){ paR(g,x,y,4,4,shirt); paR(g,x,y-2,4,3,skin); } /* bent up to face */
+
+/* hand props for the modern pose clips (24x32 logical canvas) */
+function nvPropPhone(g,x,y){ paR(g,x,y,4,5,'#1c1c22'); paR(g,x+1,y+1,2,3,'#7dd3fc'); }
+function nvPropCup(g,x,y){ paR(g,x,y,4,4,'#f4f0e8'); paR(g,x,y,4,1,'#c27829'); }
+function nvPropFood(g,x,y){ paBlob(g,x+1,y+1,2,'#c27829'); paPX(g,x,y,'#f5c369'); }
+function nvPropBox(g,x,y){ paR(g,x,y,9,6,'#b07a45'); paR(g,x,y,9,1,'#8a5c30'); paR(g,x+4,y,1,6,'#8a5c30'); }
+function nvAngerMark(g,x,y){ paR(g,x,y,1,4,'#ef4444'); paR(g,x+2,y,1,4,'#ef4444'); paR(g,x-1,y+1,4,1,'#ef4444'); paR(g,x-1,y+2,4,1,'#ef4444'); }
+function nvStar(g,x,y){ paPX(g,x,y,'#fde047'); paPX(g,x-2,y,'#fde047'); paPX(g,x+2,y,'#fde047'); paPX(g,x,y-2,'#fde047'); paPX(g,x,y+2,'#fde047'); paPX(g,x-1,y-1,'#f97316'); paPX(g,x+1,y+1,'#f97316'); }
+function nvTear(g,x,y){ paPX(g,x,y,'#7dd3fc'); paPX(g,x,y+1,'#38bdf8'); }
+
+/* ---------- generic pose torso for the new clips ----------
+   Draws a base torso + per-clip arms/props for ANY design via D.pal.
+   Optional D.mid(g,dir,dy) paints outfit detail between torso and arms. */
+function nvPoseTorso(g,dir,act,fr,dy,D){
+  const P=D.pal, SH=P.shirt, SHD=P.shirtD, SK=P.skin;
+  const mir=dir===2;
+  const R=(x,y,w,h,c)=>{ if(mir) paR(g,24-x-w,y+dy,w,h,c); else paR(g,x,y+dy,w,h,c); };
+  const RX=(x)=>mir?24-x-4:x;      /* x of a 4-wide arm on the character's right */
+  const OX=(x)=>mir?24-x-4:x;
+  /* base torso */
+  R(8,18,9,8,SH); R(15,18,2,8,SHD);
+  if(P.apron){ R(9,20,7,6,P.apron); R(14,20,2,6,P.apronD); }
+  if(D.mid) D.mid(g,dir,dy);
+  const hx=mir?6:17, ox=mir?15:5, osh=mir?SHD:SH; /* hx=right arm x, ox=left arm x */
+  switch(act){
+    case 'run':{
+      /* pumping arms, opposite to stride */
+      if(fr===0||fr===1){ nvArmBent(g,ox+dy*0,15,osh,SK); nvArmDn(g,hx,19,SH,SK); }
+      else { nvArmDn(g,ox,19,osh,SK); nvArmBent(g,hx-1,15,SH,SK); }
+      break;
+    }
+    case 'wave':{
+      nvArmDn(g,ox,18,osh,SK);
+      const wx = fr? hx-2 : hx;
+      paR(g,wx,11+dy,3,7,SH); paR(g,wx-1,9+dy,4,2,SK);   /* waving forearm */
+      break;
+    }
+    case 'eat':{
+      nvArmDn(g,ox,18,osh,SK);
+      if(fr===0){ nvArmDn(g,hx,18,SH,SK); nvPropFood(g,hx-1,24+dy); }
+      else { nvArmBent(g,hx-1,17,SH,SK); nvPropFood(g,hx-1,13+dy); }
+      break;
+    }
+    case 'drink':{
+      nvArmDn(g,ox,18,osh,SK);
+      nvArmBent(g,hx-1,16,SH,SK); nvPropCup(g,hx-1,12+dy);
+      break;
+    }
+    case 'phone':{
+      /* both hands forward at chest, phone between them */
+      R(5,19,5,3,osh); R(15,19,5,3,SH);
+      R(9,20,2,2,SK); R(14,20,2,2,SK);
+      nvPropPhone(g,mir?12:11,18+dy);
+      break;
+    }
+    case 'argue':{
+      if(fr===0){ nvArmFw(g,14,16,SH,SK); nvArmDn(g,ox,18,osh,SK); }
+      else { nvArmDn(g,hx,18,SH,SK); nvArmDn(g,ox,18,osh,SK); R(10,18,2,2,SK); }
+      nvAngerMark(g,mir?3:20,3+dy);
+      break;
+    }
+    case 'fight':{
+      if(fr===0){ nvArmFw(g,14,16,SH,SK); nvStar(g,mir?2:21,16+dy); nvArmDn(g,ox,18,osh,SK); }
+      else { nvArmDn(g,hx,18,SH,SK); nvArmFwL(g,4,17,osh,SK); nvStar(g,mir?20:2,17+dy); }
+      break;
+    }
+    case 'sad':{
+      nvArmDn(g,ox,19,osh,SK); nvArmDn(g,hx,19,SH,SK);
+      /* tears under the eyes (front view only) */
+      if(dir===0){ nvTear(g,9,16+dy+1); if(fr===1) nvTear(g,15,17+dy); }
+      break;
+    }
+    case 'laugh':{
+      paR(g,ox-1,16+dy,4,4,osh); paR(g,ox-1,15+dy,2,2,SK);
+      paR(g,hx,16+dy,4,4,SH); paR(g,hx+2,15+dy,2,2,SK);
+      if(fr===1){ paPX(g,mir?3:20,10+dy,'#f4f0e8'); paPX(g,mir?2:21,12+dy,'#f4f0e8'); }
+      break;
+    }
+    case 'carry':{
+      /* box held in front with both hands */
+      nvPropBox(g,8,19+dy);
+      R(5,19,4,3,osh); R(5,21,2,2,SK);
+      R(16,19,4,3,SH); R(17,21,2,2,SK);
+      break;
+    }
+    case 'serve':{
+      nvArmDn(g,ox,18,osh,SK);
+      if(fr===0){ nvArmFw(g,14,17,SH,SK); nvPropCup(g,mir?3:19,14+dy); }
+      else if(fr===1){ nvArmDn(g,hx,18,SH,SK); }
+      else { nvArmFw(g,14,17,SH,SK); nvPropFood(g,mir?3:19,14+dy); }
+      /* counter across the front */
+      paR(g,3,27,18,4,'#7a5230'); paR(g,3,27,18,1,'#a37b4f');
+      break;
+    }
+    case 'play':{
+      nvArmUp(g,ox,13,osh,SK); nvArmUp(g,hx,13,SH,SK);
+      break;
+    }
+    case 'panic':{
+      const j1=fr?-1:0, j2=fr?1:0;
+      paR(g,ox+j1,11+dy,3,8,osh); paR(g,ox+j1,9+dy,3,2,SK);
+      paR(g,hx+j2,11+dy,3,8,SH); paR(g,hx+j2,9+dy,3,2,SK);
+      paPX(g,mir?20:3,8+dy,'#f4f0e8'); paPX(g,mir?21:2,10+dy,'#f4f0e8');
+      break;
+    }
+    case 'stalk':{
+      /* arms forward and low, sneaking */
+      R(5,21,5,3,osh); R(8,22,2,2,SK);
+      R(15,21,5,3,SH); R(14,22,2,2,SK);
+      break;
+    }
+    default:{
+      nvArmDn(g,ox,18,osh,SK); nvArmDn(g,hx,18,SH,SK);
+    }
+  }
+}
+
+/* collapsed on the ground, shared; breathes faintly on fr===1 */
+function nvDownedPaint(g,pal,fr){
+  const up=fr===1?-1:0;
+  paR(g,3,26,5,4,'#7a6a55');                 /* ground shadow blob */
+  paEllipse(g,7,24,4,4,pal.skin);            /* head on the ground */
+  paR(g,3,21,8,3,pal.hair);                  /* hair cap */
+  paR(g,3,23,2,3,pal.hairD);
+  paR(g,5,24,2,1,N_EYE); paR(g,8,25,2,1,N_EYE); /* closed eyes */
+  paR(g,11,22+up,9,5,pal.shirt);             /* torso (breathing) */
+  paR(g,11,26,9,2,pal.shirtD);
+  paR(g,12,20+up,4,3,pal.shirt);             /* arm flopped over chest */
+  paR(g,12,20+up,2,2,pal.skin);
+  paR(g,20,23,3,5,pal.pants);                /* legs */
+  paR(g,21,27,4,2,pal.pants);
+  paR(g,20,29,4,2,pal.boots);                /* boot soles */
+  paR(g,22,29,2,1,pal.bootsD);
+}
+
+/* seated in water (bathe), shared */
+function nvBathePaint(g,pal,fr){
+  const blink=fr===1;
+  paR(g,8,17,8,7,pal.skin);                  /* bare shoulders/chest */
+  paR(g,8,17,8,1,pal.skinD);
+  paR(g,5,19,3,3,pal.skin); paR(g,16,19,3,3,pal.skin); /* arms on water */
+  paEllipse(g,12,25,10,4,'#6fa8dc');         /* water */
+  paEllipse(g,12,25,10,2,'#3f7fc4');
+  paEllipse(g,8,24,3,1,'#eaf6ff');           /* foam */
+  if(fr===1){ paPX(g,18,21,'#eaf6ff'); paPX(g,4,22,'#eaf6ff'); paPX(g,19,23,'#6fa8dc'); }
+  /* head */
+  paR(g,6,7,12,10,pal.skin);
+  paR(g,6,7,12,3,pal.hair);
+  paR(g,6,7,2,6,pal.hair); paR(g,16,7,2,6,pal.hair);
+  if(blink){ paR(g,8,11,1,1,N_EYE); paR(g,14,11,1,1,N_EYE); }
+  else { paR(g,8,10,1,2,N_EYE); paR(g,14,10,1,2,N_EYE); }
+  paR(g,6,12,1,1,N_BLUSH); paR(g,17,12,1,1,N_BLUSH);
+  paR(g,10,13,3,1,N_MOUTH);
+  paR(g,7,6,10,2,'#e8e0d0');                 /* towel wrap */
+}
+
 /* ---------------- per-villager design registry ----------------
    Each entry: { pal, head(g,dir,dy,blink,open), torso(g,dir,act,fr,dy) }
    pal keys: skin,skinD,hair,hairD,shirt,shirtD,pants,pantsD,boots,bootsD,
@@ -3554,18 +3810,301 @@ const DESIGNS = {
   Gareth:{pal:garethPal,head:garethHead,torso:garethTorso},
 };
 
+/* =====================================================================
+   MODERN CAST — 28 parameterized characters for the Mission District
+   ("Truman Show") scenario. 8 CORE placeholders (C1..C8, names arrive
+   with the cast bible) + 20 AMBIENT named roles. Each entry is a full
+   parameter set; nvCastHead/nvCastTorso compile them into DESIGNS so the
+   same state machine, frame builder and renderer serve everyone.
+   hairStyle: buzz|short|bob|long|bun|ponytail|mohawk|afro|curly|bald|hijab
+   hat: none|cap|beanie|bandana|hardhat    acc: none|glasses|headphones|
+   beard|stache|headband
+   outfit: tee|hoodie|apron|dress|overalls|jacket|vest|sweater|scrubs
+   prop: tool key drawn in hand (see workFor/buildTools)
+   ===================================================================== */
+const NV_CAST = [
+  /* ---- CORE (placeholder ids; cast bible supplies names/personality) ---- */
+  {id:'C1', tier:'core', skin:'#8a5a3b', skinD:'#6e452c', hair:'#1c1a18', hairD:'#0e0d0c',
+   hairStyle:'afro', hat:'none', acc:'headphones', accCol:'#e8542f',
+   shirt:'#0e7c7b', shirtD:'#0a5d5c', pants:'#2b2d42', pantsD:'#1f2130',
+   boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'hoodie', prop:'phone'},
+  {id:'C2', tier:'core', skin:'#c98a5e', skinD:'#a86a44', hair:'#3a2214', hairD:'#281709',
+   hairStyle:'long', hat:'none', acc:'none',
+   shirt:'#c33c54', shirtD:'#962a3e', pants:'#3b6ea5', pantsD:'#2c4f7d',
+   boots:'#5a4028', bootsD:'#402c1c', outfit:'jacket', prop:'tote'},
+  {id:'C3', tier:'core', skin:'#e8b88a', skinD:'#c69868', hair:'#9a9a98', hairD:'#76746f',
+   hairStyle:'short', hat:'none', acc:'glasses', accCol:'#2b2b33',
+   shirt:'#8a7a5c', shirtD:'#6b5e45', pants:'#4a4a52', pantsD:'#36363d',
+   boots:'#4a3524', bootsD:'#33241a', outfit:'vest', prop:'coffee'},
+  {id:'C4', tier:'core', skin:'#6e452c', skinD:'#54341f', hair:'#14100c', hairD:'#000000',
+   hairStyle:'bun', hat:'none', acc:'none',
+   shirt:'#e8b830', shirtD:'#bd9322', pants:'#5c3a52', pantsD:'#422a3c',
+   boots:'#33241a', bootsD:'#241a10', outfit:'dress', prop:'coffee'},
+  {id:'C5', tier:'core', skin:'#f0c49a', skinD:'#d6a06c', hair:'#7a4a24', hairD:'#5a3519',
+   hairStyle:'short', hat:'beanie', hatCol:'#9a3a3a', acc:'beard',
+   shirt:'#7a3040', shirtD:'#5c2330', pants:'#37474f', pantsD:'#263238',
+   boots:'#4e3319', bootsD:'#38250f', outfit:'sweater', prop:'tote'},
+  {id:'C6', tier:'core', skin:'#d6a878', skinD:'#b3855a', hair:'#2c2118', hairD:'#1c1410',
+   hairStyle:'hijab', hat:'none', acc:'none', accCol:'#5a6e8c',
+   shirt:'#5a6e8c', shirtD:'#44546c', pants:'#3c3a44', pantsD:'#2c2a32',
+   boots:'#3a2a1a', bootsD:'#241a10', outfit:'dress', prop:'phone'},
+  {id:'C7', tier:'core', skin:'#f5cfa0', skinD:'#dfa878', hair:'#e8c35a', hairD:'#c79a3f',
+   hairStyle:'buzz', hat:'cap', hatCol:'#2f6b4f', acc:'none',
+   shirt:'#e8e2d4', shirtD:'#bdb5a4', pants:'#c94f32', pantsD:'#a03a24',
+   boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'tee', prop:'skate'},
+  {id:'C8', tier:'core', skin:'#eab088', skinD:'#cf8f66', hair:'#b33ac9', hairD:'#84279a',
+   hairStyle:'mohawk', hat:'none', acc:'none',
+   shirt:'#23232a', shirtD:'#141418', pants:'#23232a', pantsD:'#141418',
+   boots:'#14100c', bootsD:'#000000', outfit:'jacket', prop:'phone'},
+  /* ---- AMBIENT: name + one-line role + distinct look ---- */
+  {id:'A01', tier:'ambient', name:'Reyes', role:'barista pulling espresso shifts',
+   skin:'#c98a5e', skinD:'#a86a44', hair:'#2a1c10', hairD:'#1a1008', hairStyle:'bun',
+   hat:'none', acc:'none', shirt:'#3f8a7a', shirtD:'#2e6559', pants:'#2b2b33', pantsD:'#1d1d22',
+   boots:'#33241a', bootsD:'#241a10', outfit:'apron', prop:'coffee'},
+  {id:'A02', tier:'ambient', name:'Doro', role:'dog-walker with a leash hand',
+   skin:'#f0b880', skinD:'#d6945e', hair:'#c94f32', hairD:'#a03a24', hairStyle:'ponytail',
+   hat:'none', acc:'none', shirt:'#4a7ec2', shirtD:'#36609a', pants:'#3a3a44', pantsD:'#2a2a32',
+   boots:'#6b4a26', bootsD:'#4e3319', outfit:'tee', prop:'leash'},
+  {id:'A03', tier:'ambient', name:'Malik', role:'corner-shop keeper',
+   skin:'#a86a44', skinD:'#8a5230', hair:'#1c1a18', hairD:'#0e0d0c', hairStyle:'buzz',
+   hat:'none', acc:'stache', shirt:'#e8e2d4', shirtD:'#bdb5a4', pants:'#4a4a52', pantsD:'#36363d',
+   boots:'#4a3524', bootsD:'#33241a', outfit:'apron', prop:'box'},
+  {id:'A04', tier:'ambient', name:'June', role:'student hauling a tote of books',
+   skin:'#f5cfa0', skinD:'#dfa878', hair:'#23201c', hairD:'#171412', hairStyle:'bob',
+   hat:'none', acc:'glasses', accCol:'#5a3020', shirt:'#d4a94a', shirtD:'#a8823a',
+   pants:'#3b6ea5', pantsD:'#2c4f7d', boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'sweater', prop:'tote'},
+  {id:'A05', tier:'ambient', name:'Esther', role:'retiree on a stoop, watching the block',
+   skin:'#e8b88a', skinD:'#c69868', hair:'#c9c9c6', hairD:'#a0a09c', hairStyle:'bun',
+   hat:'none', acc:'glasses', accCol:'#3a3a44', shirt:'#8a5a8c', shirtD:'#6b456d',
+   pants:'#4a4a52', pantsD:'#36363d', boots:'#3a2a1a', bootsD:'#241a10', outfit:'sweater', prop:'coffee'},
+  {id:'A06', tier:'ambient', name:'Kofe', role:'delivery rider with a hot box',
+   skin:'#54341f', skinD:'#402818', hair:'#14100c', hairD:'#000000', hairStyle:'buzz',
+   hat:'cap', hatCol:'#d4a017', acc:'none', shirt:'#d4a017', shirtD:'#a87c10',
+   pants:'#2b2b33', pantsD:'#1d1d22', boots:'#14100c', bootsD:'#000000', outfit:'jacket', prop:'box'},
+  {id:'A07', tier:'ambient', name:'Luz', role:'street vendor at a fruit stand',
+   skin:'#c98a5e', skinD:'#a86a44', hair:'#3a2214', hairD:'#281709', hairStyle:'long',
+   hat:'bandana', hatCol:'#c94f32', acc:'none', shirt:'#e86a8a', shirtD:'#c04e6c',
+   pants:'#3c3a44', pantsD:'#2c2a32', boots:'#5a4028', bootsD:'#402c1c', outfit:'apron', prop:'box'},
+  {id:'A08', tier:'ambient', name:'Sam', role:'busker with a guitar on the corner',
+   skin:'#eab088', skinD:'#cf8f66', hair:'#6b4423', hairD:'#4e3018', hairStyle:'curly',
+   hat:'none', acc:'beard', shirt:'#5a4a8c', shirtD:'#443a6d', pants:'#3a3a44', pantsD:'#2a2a32',
+   boots:'#4a3524', bootsD:'#33241a', outfit:'vest', prop:'lute'},
+  {id:'A09', tier:'ambient', name:'Priya', role:'nurse in scrubs off a shift',
+   skin:'#a86a44', skinD:'#8a5230', hair:'#1c1a18', hairD:'#0e0d0c', hairStyle:'ponytail',
+   hat:'none', acc:'none', shirt:'#3a8a9e', shirtD:'#2c6b7b', pants:'#3a8a9e', pantsD:'#2c6b7b',
+   boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'scrubs', prop:'phone'},
+  {id:'A10', tier:'ambient', name:'Gus', role:'mechanic in oil-stained overalls',
+   skin:'#f2c294', skinD:'#d69c66', hair:'#4a4a4a', hairD:'#303030', hairStyle:'bald',
+   hat:'none', acc:'stache', shirt:'#4a5a6e', shirtD:'#384556', pants:'#3a4a5e', pantsD:'#2b3847',
+   boots:'#33241a', bootsD:'#241a10', outfit:'overalls', prop:'hammer'},
+  {id:'A11', tier:'ambient', name:'Vera', role:'librarian shelving returns',
+   skin:'#f0c49a', skinD:'#d6a06c', hair:'#8a5a3b', hairD:'#6e452c', hairStyle:'bob',
+   hat:'none', acc:'glasses', accCol:'#14100c', shirt:'#6e5a44', shirtD:'#55452f',
+   pants:'#5c3a52', pantsD:'#422a3c', boots:'#4a3524', bootsD:'#33241a', outfit:'sweater', prop:'box'},
+  {id:'A12', tier:'ambient', name:'Tom', role:'jogger doing laps around the park',
+   skin:'#f5cfa0', skinD:'#dfa878', hair:'#d4a94a', hairD:'#a8823a', hairStyle:'short',
+   hat:'none', acc:'headband', accCol:'#e8542f', shirt:'#e8542f', shirtD:'#b8401f',
+   pants:'#2b2d42', pantsD:'#1f2130', boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'tee', prop:'none'},
+  {id:'A13', tier:'ambient', name:'Nadia', role:'tech worker doom-scrolling on the curb',
+   skin:'#d6a878', skinD:'#b3855a', hair:'#23201c', hairD:'#171412', hairStyle:'long',
+   hat:'none', acc:'headphones', accCol:'#14100c', shirt:'#4a4a52', shirtD:'#36363d',
+   pants:'#23232a', pantsD:'#141418', boots:'#14100c', bootsD:'#000000', outfit:'hoodie', prop:'laptop'},
+  {id:'A14', tier:'ambient', name:'Bex', role:'tattoo artist on a smoke break',
+   skin:'#eab088', skinD:'#cf8f66', hair:'#2a9e8f', hairD:'#1e7a6e', hairStyle:'buzz',
+   hat:'none', acc:'none', shirt:'#23232a', shirtD:'#141418', pants:'#4a4a52', pantsD:'#36363d',
+   boots:'#14100c', bootsD:'#000000', outfit:'jacket', prop:'coffee'},
+  {id:'A15', tier:'ambient', name:'Omar', role:'bike courier with a messenger bag',
+   skin:'#8a5a3b', skinD:'#6e452c', hair:'#14100c', hairD:'#000000', hairStyle:'short',
+   hat:'beanie', hatCol:'#2f6b4f', acc:'none', shirt:'#2f6b4f', shirtD:'#23523c',
+   pants:'#3a3a44', pantsD:'#2a2a32', boots:'#33241a', bootsD:'#241a10', outfit:'hoodie', prop:'tote'},
+  {id:'A16', tier:'ambient', name:'Hana', role:'baker carrying warm trays',
+   skin:'#f0b880', skinD:'#d6945e', hair:'#5e4028', hairD:'#46301c', hairStyle:'bun',
+   hat:'bandana', hatCol:'#e8e2d4', acc:'none', shirt:'#e8e2d4', shirtD:'#bdb5a4',
+   pants:'#8a5a3b', pantsD:'#6e452c', boots:'#4a3524', bootsD:'#33241a', outfit:'apron', prop:'rollingpin'},
+  {id:'A17', tier:'ambient', name:'Cole', role:'construction worker on a scaffold',
+   skin:'#c98a5e', skinD:'#a86a44', hair:'#3a2214', hairD:'#281709', hairStyle:'buzz',
+   hat:'hardhat', hatCol:'#e8c35a', acc:'none', shirt:'#e8782f', shirtD:'#b85c1f',
+   pants:'#4a4a52', pantsD:'#36363d', boots:'#4e3319', bootsD:'#38250f', outfit:'vest', prop:'hammer'},
+  {id:'A18', tier:'ambient', name:'Ida', role:'florist with a basket of bouquets',
+   skin:'#f2c294', skinD:'#d69c66', hair:'#b8b4ac', hairD:'#8f8b83', hairStyle:'curly',
+   hat:'none', acc:'none', shirt:'#7a9e5a', shirtD:'#5e7d45', pants:'#6b4a26', pantsD:'#4e3319',
+   boots:'#4a3524', bootsD:'#33241a', outfit:'dress', prop:'basket'},
+  {id:'A19', tier:'ambient', name:'Ray', role:'retired longshoreman feeding pigeons',
+   skin:'#e8b88a', skinD:'#c69868', hair:'#8f8b83', hairD:'#6b685f', hairStyle:'bald',
+   hat:'none', acc:'beard', shirt:'#5d6b7d', shirtD:'#455061', pants:'#3c3a44', pantsD:'#2c2a32',
+   boots:'#33241a', bootsD:'#241a10', outfit:'sweater', prop:'coffee'},
+  {id:'A20', tier:'ambient', name:'Zee', role:'teenager glued to a phone',
+   skin:'#f5cfa0', skinD:'#dfa878', hair:'#4a2e6e', hairD:'#362152', hairStyle:'bob',
+   hat:'cap', hatCol:'#e86a8a', acc:'none', shirt:'#e86a8a', shirtD:'#c04e6c',
+   pants:'#3b6ea5', pantsD:'#2c4f7d', boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'hoodie', prop:'phone'},
+];
+
+/* palette object in the same shape every design uses */
+function nvCastPal(c){
+  return {skin:c.skin, skinD:c.skinD, hair:c.hair, hairD:c.hairD,
+    shirt:c.shirt, shirtD:c.shirtD, pants:c.pants, pantsD:c.pantsD,
+    boots:c.boots, bootsD:c.bootsD, apron:c.outfit==='apron'?'#efe6d0':null,
+    apronD:c.outfit==='apron'?'#d3c6a8':null};
+}
+
+/* parameterized head painter for cast members */
+function nvCastHead(c){
+  const P=nvCastPal(c);
+  const SK=P.skin,SKD=P.skinD,HR=P.hair,HRD=P.hairD;
+  const hs=c.hairStyle, hat=c.hat, hc=c.hatCol||'#3a3a44';
+  return function(g,dir,dy,blink,open,opt){
+    const R=(x,y,w,h,col)=>paR(g,x,y+dy,w,h,col);
+    const noHat=opt&&(opt.sit||opt.noHat);
+    if(dir===1){ /* back */
+      switch(hs){
+        case 'bald': case 'buzz': R(4,6,17,13,SK); R(4,6,17,4,hs==='buzz'?HR:SKD); break;
+        case 'hijab': R(3,4,19,15,c.accCol||'#5a6e8c'); R(3,16,19,3,shade(c.accCol||'#5a6e8c',0.8)); break;
+        case 'afro': paEllipse(g,12,7+dy,9,6,HR); R(4,13,17,6,SK); break;
+        case 'mohawk': R(4,6,17,13,SK); R(11,2,3,9,HR); R(11,2,3,2,HRD); break;
+        case 'ponytail': R(4,6,17,13,HR); R(16,12,5,9,HR); R(16,19,5,2,HRD); break;
+        case 'bun': R(4,6,17,13,HR); paEllipse(g,12,4+dy,3,2,HR); paPX(g,12,3+dy,HRD); break;
+        case 'long': R(4,6,17,14,HR); R(4,17,17,3,HRD); break;
+        case 'bob': R(4,6,17,12,HR); R(4,15,17,3,HRD); break;
+        case 'curly': R(4,5,17,13,HR); for(let i=0;i<6;i++) paPX(g,4+i*3,5+dy+(i%2),HRD); break;
+        default: R(4,6,17,13,HR); R(4,6,17,2,HRD);
+      }
+      if(hat==='cap'&&!noHat){ R(5,4,15,4,hc); R(5,7,15,1,shade(hc,0.75)); }
+      else if(hat==='beanie'&&!noHat){ R(5,3,15,5,hc); R(5,7,15,1,shade(hc,0.75)); }
+      else if(hat==='bandana'&&!noHat){ R(4,5,17,3,hc); R(18,7,3,2,hc); }
+      else if(hat==='hardhat'&&!noHat){ paEllipse(g,12,5+dy,9,4,hc); R(3,7,19,2,shade(hc,0.8)); }
+      return;
+    }
+    R(4,6,17,13,SK); R(19,8,2,10,SKD);
+    if(dir===0){
+      switch(hs){
+        case 'bald': R(5,6,15,1,SKD); break;
+        case 'buzz': R(5,6,15,3,HR); R(5,6,15,1,HRD); break;
+        case 'hijab': R(3,4,19,15,c.accCol||'#5a6e8c'); R(4,6,17,13,SK); R(19,8,2,10,SKD);
+                      R(4,6,17,2,shade(c.accCol||'#5a6e8c',0.8)); break;
+        case 'afro': paEllipse(g,12,5+dy,9,5,HR); paEllipse(g,12,4+dy,7,3,HRD); break;
+        case 'mohawk': R(5,6,15,3,HR); R(11,1,3,7,HR); R(11,1,3,2,HRD); break;
+        case 'ponytail': R(5,6,15,3,HR); R(4,7,3,6,HR); R(18,7,3,6,HR); R(19,12,2,7,HR); break;
+        case 'bun': R(5,6,15,3,HR); R(4,7,3,6,HR); R(18,7,3,6,HR); paEllipse(g,12,3+dy,3,2,HR); break;
+        case 'long': R(5,6,15,3,HR); R(4,7,3,12,HR); R(18,7,3,12,HR); R(4,7,1,12,HRD); R(20,7,1,12,HRD); break;
+        case 'bob': R(5,6,15,3,HR); R(4,7,3,9,HR); R(18,7,3,9,HR); R(4,14,3,2,HRD); R(18,14,3,2,HRD); break;
+        case 'curly': R(4,5,17,4,HR); R(4,7,3,7,HR); R(18,7,3,7,HR);
+                      for(let i=0;i<5;i++) paPX(g,5+i*3,5+dy,HRD); break;
+        default: R(5,6,15,3,HR); R(4,8,2,4,HR); R(19,8,2,4,HR);
+      }
+    } else {
+      switch(hs){
+        case 'bald': case 'buzz': R(11,6,10,4,hs==='buzz'?HR:SK); R(12,6,9,2,hs==='buzz'?HRD:SKD); break;
+        case 'hijab': R(4,4,18,15,c.accCol||'#5a6e8c'); R(4,7,10,12,SK); R(13,6,8,13,shade(c.accCol||'#5a6e8c',0.9)); break;
+        case 'afro': paEllipse(g,12,5+dy,9,5,HR); break;
+        case 'mohawk': R(11,6,10,3,HR); R(9,1,3,7,HR); R(9,1,3,2,HRD); break;
+        case 'ponytail': R(11,6,10,3,HR); R(16,9,5,10,HR); R(17,17,4,2,HRD); break;
+        case 'bun': R(11,6,10,3,HR); R(13,7,8,6,HR); paEllipse(g,17,4+dy,3,2,HR); break;
+        case 'long': case 'bob': R(11,6,10,4,HR); R(17,8,4,hs==='long'?12:9,HR); R(19,8,2,hs==='long'?12:9,HRD); break;
+        case 'curly': R(10,5,11,4,HR); R(16,7,5,8,HR); break;
+        default: R(11,6,10,4,HR); R(12,6,8,2,HRD); R(19,8,2,4,HR);
+      }
+    }
+    if(!noHat){
+      if(hat==='cap'){ paEllipse(g,12,4+dy,8,3,hc); R(dir===0?3:16,6,dir===0?8:6,2,hc); R(5,7,14,1,shade(hc,0.75)); }
+      else if(hat==='beanie'){ R(4,3,17,5,hc); R(4,7,17,1,shade(hc,0.75)); paPX(g,12,2+dy,shade(hc,1.2)); }
+      else if(hat==='bandana'){ R(4,5,17,3,hc); R(dir===0?18:16,7,3,3,hc); }
+      else if(hat==='hardhat'){ paEllipse(g,12,4+dy,9,4,hc); R(3,6,19,2,shade(hc,0.8)); paR(g,11,1+dy,3,2,shade(hc,1.15)); }
+    }
+    if(dir===0) nvFaceFront(g,dy,blink,open); else nvFaceProfile(g,dy,blink,open);
+    /* accessories over the face */
+    if(c.acc==='glasses'&&dir===0){ R(8,11,3,1,c.accCol||'#2b2b33'); R(14,11,3,1,c.accCol||'#2b2b33'); R(11,11,2,1,c.accCol||'#2b2b33'); }
+    else if(c.acc==='glasses'){ R(3,11,3,1,c.accCol||'#2b2b33'); }
+    if(c.acc==='headphones'){ R(3,9,2,4,c.accCol||'#14100c'); R(20,9,2,4,c.accCol||'#14100c'); R(4,4,17,1,c.accCol||'#14100c'); }
+    if(c.acc==='headband'){ R(4,8,17,1,c.accCol||'#e8542f'); }
+    if(c.acc==='beard'&&dir===0){ R(6,15,13,4,HR); R(6,17,13,2,HRD); R(9,14,7,1,HR); }
+    else if(c.acc==='beard'&&dir===2){ R(3,14,9,5,HR); R(3,17,9,2,HRD); }
+    if(c.acc==='stache'&&dir===0){ R(9,14,7,1,HR); }
+    else if(c.acc==='stache'&&dir===2){ R(3,14,4,1,HR); }
+  };
+}
+
+/* parameterized torso painter: outfit detail + standard arms + hand prop */
+function nvCastTorso(c){
+  const P=nvCastPal(c);
+  const SH=P.shirt,SHD=P.shirtD,SK=P.skin;
+  return function(g,dir,act,fr,dy){
+    const R=(x,y,w,h,col)=>paR(g,x,y+dy,w,h,col);
+    const mir=dir===2;
+    const rR=(x,y,w,h,col)=>{ if(mir) paR(g,24-x-w,y+dy,w,h,col); else paR(g,x,y+dy,w,h,col); };
+    R(8,18,9,8,SH); R(15,18,2,8,SHD);
+    const o=c.outfit;
+    if(o==='hoodie'){ R(9,18,7,1,SHD); R(10,23,5,3,SHD); R(8,17,9,2,SHD); }
+    else if(o==='apron'){ R(9,19,7,7,'#efe6d0'); R(14,19,2,7,'#d3c6a8'); R(10,18,1,2,'#d3c6a8'); R(15,18,1,2,'#d3c6a8'); }
+    else if(o==='dress'){ R(7,24,11,4,SH); R(7,27,11,1,SHD); }
+    else if(o==='overalls'){ R(9,18,2,8,P.pants); R(14,18,2,8,P.pants); R(9,22,7,4,P.pants); R(9,18,1,1,'#d9a441'); R(15,18,1,1,'#d9a441'); }
+    else if(o==='jacket'){ R(11,18,3,8,'#efe6d0'); R(11,18,3,1,SHD); R(8,18,9,1,SHD); }
+    else if(o==='vest'){ R(8,18,9,8,c.accCol&&c.outfit==='vest'&&c.hat==='hardhat'?'#e8782f':SHD); R(11,18,3,8,SH); }
+    else if(o==='sweater'){ R(8,20,9,1,SHD); R(8,23,9,1,SHD); }
+    else if(o==='scrubs'){ R(11,18,3,3,SHD); rR(9,19,2,2,'#f4f0e8'); }
+    /* arms */
+    const sw=(act==='walk')?nvSwing(fr):0;
+    const oT=mir?sw:-sw, oO=mir?-sw:sw;
+    const HX=mir?6:17, OX=mir?14:5, OSH=mir?SHD:SH;
+    const propX=mir?3:18;
+    if(act==='talk'&&fr===1){
+      paR(g,OX,12+dy,4,7,OSH); paR(g,OX,12+dy,2,2,SK);
+      paR(g,HX-1,18+dy,4,7,SH); paR(g,HX,23+dy,2,2,SK);
+    } else if(act==='work'){
+      paR(g,OX,18+dy,4,7,OSH); paR(g,OX,23+dy,2,2,SK);
+      if(fr===0){ paR(g,HX-1,12+dy,4,7,SH); paR(g,HX,12+dy,2,2,SK); }
+      else if(fr===1){ paR(g,HX-1,16+dy,4,7,SH); paR(g,HX,20+dy,2,2,SK); }
+      else { paR(g,HX-1,18+dy,4,7,SH); paR(g,HX,23+dy,2,2,SK); }
+    } else {
+      paR(g,OX,18+dy+oO,4,7,OSH); paR(g,OX,23+dy+oO,2,2,SK);
+      paR(g,HX-1,18+dy+oT,4,7,SH); paR(g,HX,23+dy+oT,2,2,SK);
+    }
+    /* hand prop (not while gesturing) */
+    if(act!=='work'&&act!=='talk'){
+      const py=22+dy+oT;
+      if(c.prop==='coffee'){ paR(g,propX,py,3,4,'#f4f0e8'); paR(g,propX,py,3,1,'#c27829'); }
+      else if(c.prop==='phone'){ paR(g,propX,py,3,4,'#1c1c22'); paPX(g,propX+1,py+1,'#7dd3fc'); }
+      else if(c.prop==='tote'){ paR(g,propX-1,py+2,5,5,'#c9b08a'); paR(g,propX,py,3,1,'#8a6a45'); }
+      else if(c.prop==='box'){ paR(g,propX-2,py-1,7,6,'#b07a45'); paR(g,propX-2,py-1,7,1,'#8a5c30'); }
+      else if(c.prop==='laptop'){ paR(g,propX-2,py,6,4,'#3a3a44'); paR(g,propX-1,py+1,4,2,'#7dd3fc'); }
+      else if(c.prop==='leash'){ paR(g,propX,py,2,2,SK); paLine(g,propX+1,py+2,propX+3,py+9,'#8a5c30'); paBlob(g,propX+4,py+10,2,'#6b4a26'); }
+      else if(c.prop==='skate'){ paR(g,propX-2,py,7,2,'#5a4028'); paPX(g,propX,py+3,'#23232a'); paPX(g,propX+3,py+3,'#23232a'); }
+    }
+  };
+}
+
+/* register cast designs so spec.name='C1' etc. resolves in nvFrame */
+NV_CAST.forEach(c=>{
+  DESIGNS[c.id]={pal:nvCastPal(c),head:nvCastHead(c),torso:nvCastTorso(c)};
+  if(c.name) DESIGNS[c.name]=DESIGNS[c.id];
+});
+
 /* ---------------- frame composer: logical -> 48x64 ---------------- */
 function nvFrame(spec,dir,act,fr){
   const D=DESIGNS[spec.name]||DESIGNS.Marta;
   const L=paMk(24,32), g=L.g;
   if(act==='sit') nvSit(g,D.pal,D.head,fr);
+  else if(act==='downed') nvDownedPaint(g,D.pal,fr);
+  else if(act==='bathe') nvBathePaint(g,D.pal,fr);
   else {
-    const dy=(act==='walk'&&(fr===1||fr===3))?1:0;
-    const blink=act==='idle'&&fr===1;
-    const open=act==='talk'&&fr===1;
+    let dy=0, hdy=0, blink=false, open=false;
+    if(act==='walk'&&(fr===1||fr===3)) dy=1;
+    else if(act==='run'&&(fr===1||fr===3)) dy=2;
+    else if(act==='play'&&fr===1) dy=-2;
+    else if(act==='stalk') dy=2;              /* crouch */
+    else if(act==='laugh'&&fr===1) dy=-1;
+    if(act==='idle') blink=fr===1;
+    else if(act==='talk') open=fr===1;
+    else if(act==='phone') hdy=2;             /* chin down at the screen */
+    else if(act==='sad'){ hdy=1; blink=fr===1; }
+    else if(act==='laugh'){ hdy=-1; open=true; }
+    else if(act==='eat') open=fr===2;
+    else if(act==='drink'){ hdy=-1; open=true; }
+    else if(act==='argue'||act==='fight'||act==='panic') open=true;
+    else if(act==='wave') open=fr===1;
     nvLegsBoots(g,dir,act,fr,dy,D.pal);
-    D.torso(g,dir,act,fr,dy);
-    D.head(g,dir,dy,blink,open);
+    if(NV_NEW_ACTS[act]) nvPoseTorso(g,dir,act,fr,dy,D);
+    else D.torso(g,dir,act,fr,dy);
+    D.head(g,dir,dy+hdy,blink,open);
   }
   paOutline(L.c,N_OUTL);
   const s=paMk(48,64), g2=s.g;
@@ -3593,9 +4132,12 @@ function nvSleepFrame(spec,fr){
 
 /* ---------------- BUILD ALL + DRAW ---------------- */
 function workFor(name){
-  return {Marta:'hoe',Bram:'hammer',Sella:'rollingpin',Tobin:'mug',Wren:'broom',
+  const legacy={Marta:'hoe',Bram:'hammer',Sella:'rollingpin',Tobin:'mug',Wren:'broom',
           Finn:'rod',Alden:'scroll',Pip:'ball',
-          Rowan:'lute',Clara:'basket',Gareth:'sword'}[name]||'idle';
+          Rowan:'lute',Clara:'basket',Gareth:'sword'};
+  if(legacy[name]) return legacy[name];
+  const c=NV_CAST.find(cc=>cc.id===name||cc.name===name);
+  return (c && c.prop && c.prop!=='none') ? c.prop : 'idle';
 }
 
 function paLine(g,x0,y0,x1,y1,col){
@@ -3688,6 +4230,36 @@ function buildTools(){
     cR(g,1,12,2,2,'#451a03'); /* grip */
     cP(g,1,13,'#fbbf24'); /* pommel */
   });
+
+  /* modern props for the Mission District cast */
+  PA.tools.coffee = mkTool(g=>{
+    cR(g,4,4,6,7,'#f4f0e8'); cR(g,4,4,6,2,'#c27829'); /* sleeve */
+    cR(g,5,2,4,2,'#e8e2d4'); cR(g,10,6,2,3,'#f4f0e8'); /* lid + handle */
+  });
+  PA.tools.phone = mkTool(g=>{
+    cR(g,5,3,5,9,'#1c1c22'); cR(g,6,4,3,6,'#7dd3fc'); cP(g,7,11,'#f4f0e8');
+  });
+  PA.tools.tote = mkTool(g=>{
+    cR(g,3,6,9,7,'#c9b08a'); cR(g,4,7,7,5,'#b39a74');
+    paLine(g,5,6,5,3,'#8a6a45'); paLine(g,10,6,10,3,'#8a6a45');
+    paLine(g,5,3,10,3,'#8a6a45');
+  });
+  PA.tools.box = mkTool(g=>{
+    cR(g,2,4,11,8,'#b07a45'); cR(g,2,4,11,1,'#8a5c30'); cR(g,7,4,1,8,'#8a5c30');
+    cP(g,3,6,'#8a5c30'); cP(g,11,6,'#8a5c30');
+  });
+  PA.tools.laptop = mkTool(g=>{
+    cR(g,3,3,9,7,'#3a3a44'); cR(g,4,4,7,5,'#7dd3fc');
+    cR(g,2,10,11,2,'#54585f'); cR(g,6,10,3,1,'#2b2b33');
+  });
+  PA.tools.leash = mkTool(g=>{
+    paLine(g,3,3,10,10,'#8a5c30'); cBlob(g,11,11,2,'#6b4a26'); cP(g,12,10,'#f4f0e8');
+  });
+  PA.tools.skate = mkTool(g=>{
+    cR(g,2,6,11,2,'#5a4028'); cR(g,3,5,9,1,'#8a6a45');
+    cP(g,4,9,'#23232a'); cP(g,11,9,'#23232a');
+    paLine(g,4,8,4,9,'#54585f'); paLine(g,11,8,11,9,'#54585f');
+  });
 }
 
 function buildThoughtBubbles(){
@@ -3732,28 +4304,40 @@ function buildThoughtBubbles(){
   PA.fx.bubble = PA.fx.bubbles.talk;
 }
 
+/* full frame table for one character spec: F[dir][act] = [canvas,...] */
+function nvBuildFrameSet(spec){
+  const F={};
+  for(const dir of [0,1,2]){
+    F[dir]={};
+    for(const [act,n] of NV_ACTS){
+      F[dir][act]=[];
+      for(let f=0;f<n;f++) F[dir][act].push(nvFrame(spec,dir,act,f));
+    }
+    F[dir].sleep=[nvSleepFrame(spec,0), nvSleepFrame(spec,1)];
+  }
+  return F;
+}
+
 function buildChars(){
   PA.chars=[];
   for(let i=0;i<G.villagers.length;i++){
     const v=G.villagers[i];
     const D=DESIGNS[v.name]||DESIGNS.Marta;
     const spec={name:v.name, work:workFor(v.name), kid:v.name==='Pip', pal:D.pal};
-    const F={};
-    for(const dir of [0,1,2]){
-      F[dir]={idle:[],walk:[],talk:[],work:[],sit:[],sleep:[]};
-      for(let f=0;f<2;f++) F[dir].idle.push(nvFrame(spec,dir,'idle',f));
-      for(let f=0;f<4;f++) F[dir].walk.push(nvFrame(spec,dir,'walk',f));
-      for(let f=0;f<2;f++) F[dir].talk.push(nvFrame(spec,dir,'talk',f));
-      for(let f=0;f<3;f++) F[dir].work.push(nvFrame(spec,dir,'work',f));
-      for(let f=0;f<2;f++) F[dir].sit.push(nvFrame(spec,dir,'sit',f));
-      F[dir].sleep.push(nvSleepFrame(spec,0));
-      F[dir].sleep.push(nvSleepFrame(spec,1));
-    }
-    PA.chars.push(F);
+    PA.chars.push(nvBuildFrameSet(spec));
     v._ci=i;
   }
   buildTools();
   buildThoughtBubbles();
+}
+
+/* build frame tables for the 28-member modern cast; PA.cast[id] = frameset */
+function buildCastChars(){
+  PA.cast={};
+  for(const c of NV_CAST){
+    PA.cast[c.id]=nvBuildFrameSet({name:c.id, work:workFor(c.id), kid:false, pal:nvCastPal(c)});
+  }
+  return PA.cast;
 }
 
 function paCharDraw(g,v){
@@ -3768,12 +4352,15 @@ function paCharDraw(g,v){
     return;
   }
   let dir = st==='sit' ? 0 : (v.face===1?1:((v.face===2||v.face===3)?2:0));
+  const A=paStateAnim(st);
   let arr, fi=0;
   if(st==='walk'){ arr=F[dir].walk; fi=Math.floor(v.walkPhase*6.366)%4; }
-  else if(st==='talk'){ arr=F[dir].talk; fi=Math.floor(t/18)%2; }
-  else if(st==='work'){ arr=F[dir].work; fi=Math.floor(t/16)%3; }
-  else if(st==='sit'){ arr=F[dir].sit; fi=Math.floor(t/120)%2; }
-  else { arr=F[dir].idle; fi=(((t+Math.floor(v.seed*10))%210)<14)?1:0; }
+  else if(A.act==='idle'){ arr=F[dir].idle; fi=(((t+Math.floor(v.seed*10))%210)<14)?1:0; }
+  else {
+    arr=F[dir][A.act]||F[dir].idle;
+    fi=A.wp ? Math.floor(v.walkPhase*(A.wpm||4))%arr.length
+            : Math.floor(t/(A.tick||18))%arr.length;
+  }
   const fr=arr[fi%arr.length];
   let dyOffset = 0;
   if(v.triumphT > 0){
@@ -5661,9 +6248,11 @@ function renderChibiPawn(v, cw, ch){
   const dir = v.face === 1 ? 1 : ((v.face === 2 || v.face === 3) ? 2 : 0);
 
   if(F && F[dir]){
-    const act = (v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? 'walk' : (v.state === 'work' ? 'work' : 'idle');
-    const arr = F[dir][act] || F[dir].idle;
-    const fi = (v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? Math.floor(v.walkPhase * 4) % arr.length : 0;
+    const A = (typeof paStateAnim === 'function') ? paStateAnim(v.state)
+      : {act:(v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? 'walk' : (v.state === 'work' ? 'work' : 'idle'), wp:v.state==='walk'||v.state==='wade'||v.state==='swim', wpm:4};
+    const arr = F[dir][A.act] || F[dir].idle;
+    const fi = A.wp ? Math.floor(v.walkPhase * (A.wpm || 4)) % arr.length
+                    : (A.tick ? Math.floor(G.frame / A.tick) % arr.length : 0);
     fr = arr[fi % arr.length];
   }
 
@@ -10407,9 +10996,11 @@ function drawChildPawn(v, cw, ch){
   let fr = null;
   const dir = v.face === 1 ? 1 : ((v.face === 2 || v.face === 3) ? 2 : 0);
   if(F && F[dir]){
-    const act = (v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? 'walk' : (v.state === 'work' ? 'work' : 'idle');
-    const arr = F[dir][act] || F[dir].idle;
-    const fi = (v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? Math.floor(v.walkPhase * 4) % arr.length : 0;
+    const A = (typeof paStateAnim === 'function') ? paStateAnim(v.state)
+      : {act:(v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? 'walk' : (v.state === 'work' ? 'work' : 'idle'), wp:v.state==='walk'||v.state==='wade'||v.state==='swim', wpm:4};
+    const arr = F[dir][A.act] || F[dir].idle;
+    const fi = A.wp ? Math.floor(v.walkPhase * (A.wpm || 4)) % arr.length
+                    : (A.tick ? Math.floor(G.frame / A.tick) % arr.length : 0);
     fr = arr[fi % arr.length];
   }
   if(!fr) return;

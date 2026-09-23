@@ -334,9 +334,11 @@ function renderChibiPawn(v, cw, ch){
   const dir = v.face === 1 ? 1 : ((v.face === 2 || v.face === 3) ? 2 : 0);
 
   if(F && F[dir]){
-    const act = (v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? 'walk' : (v.state === 'work' ? 'work' : 'idle');
-    const arr = F[dir][act] || F[dir].idle;
-    const fi = (v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? Math.floor(v.walkPhase * 4) % arr.length : 0;
+    const A = (typeof paStateAnim === 'function') ? paStateAnim(v.state)
+      : {act:(v.state === 'walk' || v.state === 'wade' || v.state === 'swim') ? 'walk' : (v.state === 'work' ? 'work' : 'idle'), wp:v.state==='walk'||v.state==='wade'||v.state==='swim', wpm:4};
+    const arr = F[dir][A.act] || F[dir].idle;
+    const fi = A.wp ? Math.floor(v.walkPhase * (A.wpm || 4)) % arr.length
+                    : (A.tick ? Math.floor(G.frame / A.tick) % arr.length : 0);
     fr = arr[fi % arr.length];
   }
 
