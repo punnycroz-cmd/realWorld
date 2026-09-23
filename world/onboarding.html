@@ -2,30 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — Onboarding (first session, v3)</title>
+<title>Real World — Onboarding (first session, v4)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Onboarding flow — first-session journey (world v39, v3 of the v11 demo).
+  Onboarding flow — first-session journey (world v53, v4 of the v11 demo).
   Self-contained demo: file://-safe, no network. A mini Wire replica
   (subset of feed.json seeds) hosts the tour so every stage is reachable:
 
     S0 watch → S0.5 persona fork (just watching / might reach in)
-    → S1 tour (6 beats) → S2 handle (live availability, cast names reserved)
+    → S1 tour (7 beats — v53 adds the Archive) → S2 handle (live
+      availability, cast names reserved)
     → S3 wallet (full pack ladder, first-purchase +50% disclosed)
     → S4 first ask (guided camera pass; optional guided nudge that is
       DECLINED on purpose — the "we sell the ask, not the outcome" lesson)
     → S4c the ask that waits (guided weather ask, exclusive class, lands
-      "in review", scripted to come back "not approved — refunded" so the
-      human-review path + auto-refund are seen once, honestly)
+      "in review", scripted to come back "not approved — refunded")
     → S4d the wallet runs dry (opt-in low-balance simulation on the
       running-ask card → "player session ended" → AI resumes; no debt)
+    → S4e the patient ask (guided queued request at tier −15%, scripted
+      to lapse unactivated → "queued request expired before activation"
+      + full auto-refund — the queue is a real path, not a consolation)
     → S5 settle → S6 hired return (?hired=1 first-day card)
 
-  New in v39: exclusive/human-review lesson, low-balance + graceful
-  handoff lesson, post-hire return card. Feed vocabulary verbatim from
-  requests.json (in review / not approved / refunded / player session
-  ended) — no new wording invented; review internals stay in the
-  moderation layer, off this surface.
+  New in v53 — the time layer: the Archive joins the tour (catching up
+  is free), the queued class gets its own honest lesson (hold ≤24 h,
+  −15%, expiry auto-refunds), the watch path names the block's human
+  rhythm without urgency framing, and the hired-return card says what
+  happens when you close the tab (thin AI, no "miss you" nag).
+  Feed vocabulary verbatim from requests.json (queued / refunded /
+  player session ended / queued request expired before activation) —
+  no new wording invented; queue depth is a count, never a position.
   Spec + copy deck: world/onboarding-ui.md.
   Mirror: world/onboarding.json. Prices adopt monetization-plan §2 PROPOSAL —
   do not contradict. Boundaries: watching is free + ungated; nothing is
@@ -165,6 +171,8 @@
     <div class="panel">
       <h2>The Wire — public feed <span style="color:var(--grn);text-transform:none;letter-spacing:.03em">(free, always)</span></h2>
       <ul class="feed" id="stream"></ul>
+      <div class="note" style="margin-top:8px"><a id="feed-archive" href="archive.html"
+        style="color:var(--blu)">Yesterday on the block → the Archive</a></div>
     </div>
   </section>
 
@@ -227,7 +235,7 @@ function feedAdd(k, html, st){
 }
 
 /* ================= onboarding state ================= */
-var LS='rw_onboard_v39';
+var LS='rw_onboard_v53';
 var S={stage:'S0',beat:0,persona:null,handle:'',bal:0,spentFirst:false,
   ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},
   skipped:{},dismissed:false,parked:false,done:false,returning:false,req:null,hired:false};
@@ -259,7 +267,7 @@ function renderCk(){
     S.done=true; save(); toast('Settled. The block keeps running — see you around.');
   }
 }
-var ANCHORS=['feed-clock','feed-venues','feed-request','feed-follow','feed-reachin','feed-cast'];
+var ANCHORS=['feed-clock','feed-venues','feed-request','feed-follow','feed-reachin','feed-cast','feed-archive'];
 function anchor(id){ ANCHORS.forEach(function(a){
   var el=$(a); if(el) el.classList.toggle('anchored', a===id); }); }
 
@@ -278,7 +286,8 @@ var BEATS=[
   ['feed-cast',"One honest limit up front: the eight mains can't be possessed — not by you, not by the people who run this. Their lives are theirs. If you want a person in the world, you hire a new one."],
   ['feed-request',"Everything a player does is public. This line is someone paying to reach in — attributed, priced, and visible to everyone."],
   ['feed-follow',"Follow a face to filter the stream. Watching closer is always free — following is a lens, never a leash."],
-  ['feed-reachin',"Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else."]
+  ['feed-reachin',"Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else."],
+  ['feed-archive',"Nobody can watch twenty-four hours a day — you're not meant to. The Archive keeps the block's week: every public event, every thread, scrubbed by day. Catching up is free, always."]
 ];
 
 /* ================= handle rules ================= */
@@ -365,7 +374,10 @@ function render(){
   } else if(S.stage==='S1w'){ /* watcher fork landing */
     h=card('That\u2019s the whole job',
       '<p>You\u2019re set. Watching is the product — everything on this page stays free, '+
-      'forever. The setup steps below exist only if you ever want to reach in.</p>',
+      'forever. The setup steps below exist only if you ever want to reach in.</p>'+
+      '<p class="note">The block keeps human hours — the morning rush at Mudhaus, '+
+      'the bench parliament toward dusk. Come back whenever; the Archive keeps '+
+      'the rest. Nothing here is on a timer for you.</p>',
       '<button class="go" onclick="settle()">Just keep watching</button>'+
       '<button class="ghost" onclick="stage(\'S2\')">Set up anyway — no commitment</button>', true);
     anchor(null);
@@ -463,6 +475,32 @@ function render(){
         'are never scripted, and the card never shows a reason — that lives in the '+
         'moderation layer, not the feed.</p>',
         '<button class="go" onclick="fileWeather()">File the weather ask — 40 cr</button>'+
+        '<button class="ghost" onclick="stage(\'S4e\')">One more: the patient ask</button>'+
+        '<button class="ghost" onclick="stage(\'S5\')">Skip to settling in</button>');
+    }
+  } else if(S.stage==='S4e'){
+    if(S.req==='queued'){
+      h=card('Your ask is queued',
+        '<p>The sky is spoken for tonight, so your rain ask holds a queue slot — '+
+        '<b>34 cr held</b>, not spent (tier rate \u221215%). The feed shows '+
+        '<i>queued</i>, same as everyone else\u2019s.</p>'+
+        '<p class="note">A slot holds for up to 24 hours, first-come first-served. '+
+        'Queue depth shows as a count — never a position you can buy. If it never '+
+        'starts, the hold refunds on its own.</p>',
+        '<button class="go" onclick="resolveQueue()">Jump ahead — the slot lapses</button>'+
+        '<button class="ghost" onclick="stage(\'S5\')">Skip to settling in</button>');
+    } else {
+      h=card('The patient ask — optional',
+        '<p>Last lesson. When a resource is claimed — the sky, a venue window — you '+
+        'can <b>queue</b> instead of walking away: tier rate \u221215%, a slot held '+
+        'up to 24 h, first-come first-served. If it never activates, every credit '+
+        'comes back automatically.</p>'+
+        '<p class="note">Guided demo: rain for tomorrow evening, 60 min — the sky is '+
+        'booked tonight, so this files as <b>queued</b> at 34 cr instead of 40. '+
+        'This one is scripted to lapse unactivated so you can watch the expiry '+
+        'line and the refund land. Real queues activate on a first-come basis — '+
+        'queueing is a real path, not a consolation.</p>',
+        (S.bal>0?'<button class="go" onclick="fileQueue()">File the queued ask — 34 cr</button>':'')+
         '<button class="ghost" onclick="stage(\'S5\')">Skip to settling in</button>');
     }
   } else if(S.stage==='S6'){
@@ -474,6 +512,9 @@ function render(){
       '<p>They arrived owing rent like everyone — game dollars, earned by working. '+
       'Possessing them runs at the compatible rate, 1.5 cr/min, 15-min minimum — and '+
       'release or timeout hands them back to their own brain, mid-motion.</p>'+
+      '<p>And when you close the tab, they don\u2019t wait — they go back to their '+
+      'own brain, thinner but present, and wake to full when you return. The block '+
+      'sends no \u201cmiss you\u201d notes. It\u2019s just here when you come back.</p>'+
       (S.handle?'':'<p class="note">No handle yet — requests attribute by it, so it\u2019s '+
       'worth picking one. Skippable, as always.</p>'),
       (S.handle?'':'<button class="ghost" onclick="stage(\'S2\');S.hired=false">Pick a handle</button>')+
@@ -556,6 +597,25 @@ window.resolveReview=function(){
   feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — weather: fog, evening block','not approved · refunded 40 cr');
   render();
   toast('Not approved — and all 40 cr came back on its own.');
+};
+window.fileQueue=function(){
+  if(S.bal<34){toast('Balance too low — the queued ask is 34 cr.');return;}
+  S.bal-=34; S.req='queued'; save();
+  $('bal').textContent=S.bal.toLocaleString();
+  feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — weather: rain, tomorrow evening, 60 min','queued');
+  render();
+  toast('Queued. The hold is 34 cr — \u221215% for waiting.');
+};
+window.resolveQueue=function(){
+  /* demo scripts this one to lapse unactivated so every tester sees the
+     locked expiry line + the full auto-refund; real queued requests
+     activate FCFS when the resource frees */
+  S.bal+=34; S.req=null; save();
+  $('bal').textContent=S.bal.toLocaleString();
+  feedMin+=4;
+  feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — weather: rain, tomorrow evening · queued request expired before activation','refunded 34 cr');
+  render();
+  toast('The slot lapsed — all 34 cr came back on its own.');
 };
 window.lowBal=function(){
   /* opt-in only, and only while a session is live: drop the balance under

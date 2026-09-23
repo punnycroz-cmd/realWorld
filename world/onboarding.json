@@ -1,7 +1,7 @@
 {
   "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
-  "version": 39,
-  "storage_key": "rw_onboard_v39",
+  "version": 53,
+  "storage_key": "rw_onboard_v53",
   "stages": [
     { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
     { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
@@ -13,8 +13,9 @@
     { "id": "S4b_declined","tier": "paid", "gate": "optional teaching beat — a fixed-safe nudge scripted to be declined so the player watches the refund land" },
     { "id": "S4c_review",  "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask (40 cr, exclusive class) scripted to return 'not approved — refunded' so the player sees human review + auto-refund" },
     { "id": "lowbal_sim",  "tier": "paid", "gate": "opt-in affordance on the running-ask card only — simulates the wallet hitting zero inside the cap: warning toast → 'player session ended' feed line → AI resumes, no debt" },
+    { "id": "S4e_queue",   "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask filed while the sky is claimed, lands 'queued' at tier −15% (34 cr held); scripted to lapse unactivated → 'queued request expired before activation' + full auto-refund" },
     { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight" },
-    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership" }
+    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" }
   ],
   "persona_fork": {
     "where": "welcome card, before the tour offer",
@@ -29,7 +30,8 @@
     { "n": 3, "anchor": "feed-cast",    "copy_key": "tour.possession_ban", "note": "v25 beat — the honest limit up front: mains unpossessable by anyone, at any tier" },
     { "n": 4, "anchor": "feed-request", "copy_key": "tour.public_agency" },
     { "n": 5, "anchor": "feed-follow",  "copy_key": "tour.follow" },
-    { "n": 6, "anchor": "feed-reachin", "copy_key": "tour.reach_in" }
+    { "n": 6, "anchor": "feed-reachin", "copy_key": "tour.reach_in" },
+    { "n": 7, "anchor": "feed-archive", "copy_key": "tour.archive", "note": "v53 beat — the time layer: nobody can watch 24/7; the Archive keeps the block's week and catching up is free" }
   ],
   "tour_rules": {
     "skippable": "every beat — Skip ends the whole tour",
@@ -99,9 +101,22 @@
     "sequence": "toast warning at ~15 min funded time remaining → balance 0 → feed logs 'player session ended' → AI resumes mid-motion",
     "honesty": "no debt, no overrun, no shaming wording; unused minutes inside the cap are not refunded"
   },
+  "queue_lesson": {
+    "action": "weather", "block": "60 min", "tier_cr": 40, "queued_cr": 34, "class": "queued",
+    "why": "the third ask class a stranger meets — a claimed resource doesn't mean 'no', it means 'wait'. Teaches FCFS, the −15% hold, the ≤24 h slot, and the auto-refund on lapse",
+    "scripted_outcome": "lapses unactivated — fixed in the demo so every tester sees 'queued request expired before activation' + the full refund; real queued requests activate FCFS when the resource frees",
+    "feed_result": "request event lands 'queued' (charge held), resolves 'queued request expired before activation' + 'refunded' — feed vocabulary verbatim from requests.json",
+    "copy_promise": "queueing is the patient option, not a consolation — −15% off the tier rate, and a lapsed slot refunds every credit on its own",
+    "never": "queue depth shown as a count, never a position; never a position auction or pay-to-jump; the −15% is shown as a rate + the held amount, nothing derived beyond it"
+  },
+  "archive_beat": {
+    "where": "tour beat 7, anchored to the 'Yesterday on the block' link under the stream",
+    "copy_promise": "nobody can watch 24/7 — the Archive keeps the block's week and catching up is free, always",
+    "watch_path_note": "the S1w landing names the block's human rhythm (morning rush, dusk bench parliament) as texture — explicitly 'nothing is on a timer for you', never urgency framing"
+  },
   "hired_return": {
     "deep_link": "?hired=1 — demo affordance; at merge create.html redirects here post-approval",
-    "card": "one-time 'first day' card: briefing = public profile + surface relationships + routine only (secrets redacted even for the hirer); rent owed in game dollars; possession = compatible 1.5 cr/min, a visit not ownership",
+    "card": "one-time 'first day' card: briefing = public profile + surface relationships + routine only (secrets redacted even for the hirer); rent owed in game dollars; possession = compatible 1.5 cr/min, a visit not ownership; closing the tab drops the character to thin AI — present but sleeping — with no 'miss you' nag",
     "rule": "dismisses into the checklist — never a second funnel; renders fine with no handle set"
   },
   "exit_states": {
@@ -124,7 +139,10 @@
     "let a spectator handle impersonate a resident",
     "show a denial reason, an appeal button, or approval-rate framing inside onboarding",
     "fire the low-balance lesson without the player's click",
-    "deep-link into a paid step (deep links are returning/hired only)"
+    "deep-link into a paid step (deep links are returning/hired only)",
+    "show queue position or sell queue priority — depth is a count, FCFS is the rule",
+    "frame the Archive, the block's rhythm, or catching up as urgency — the world waits, nothing is on a timer for the viewer",
+    "imply a hired character suffers, waits, or misses the player while offline — thin AI is stated as fact, never as guilt"
   ],
   "analytics_hooks": [
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
@@ -133,7 +151,8 @@
     "decline_lesson_shown", "onboard_dismissed", "returning_session",
     "review_lesson_shown", "review_outcome_seen", "low_balance_simulated",
     "handoff_seen", "hired_return",
+    "queue_lesson_shown", "queue_outcome_seen", "archive_beat_seen",
     "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
   ],
-  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + wallet + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline — real nudge outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"
+  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + wallet + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', and the queued ask is scripted to lapse — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"
 }

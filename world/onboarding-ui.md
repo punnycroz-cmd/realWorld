@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -362,3 +362,93 @@ card**:
   approved, no success-rate numbers.
 - Never let the low-balance lesson fire without the player's click —
   simulated or real, it is always opt-in.
+
+---
+
+## v53 — the fourth pass: the time layer
+
+v11 built the spine, v25 the honest "no" a character gives, v39 the two
+systemic "no"s. v53 teaches what remains: **a 24/7 world is bigger than any
+viewer, and that's fine.** Three additions, all honesty-first.
+
+### 24. The Archive joins the tour (beat 7)
+
+A new coach-mark anchored to the "Yesterday on the block → the Archive" link
+under the stream:
+
+> "Nobody can watch twenty-four hours a day — you're not meant to. The
+> Archive keeps the block's week: every public event, every thread, scrubbed
+> by day. Catching up is free, always."
+
+This is the tour's first pointer off the live feed — deliberately last,
+deliberately free. A spectator who learns only one thing beyond "watch"
+should learn that absence is not loss.
+
+### 25. The patient ask (S4e) — the queue, taught honestly
+
+Between the review lesson and settling in, one more optional guided ask
+covers the third request class:
+
+- A fixed-safe **weather ask filed while the sky is claimed** — rain for
+  tomorrow evening, 60 min — which files as `queued` at **34 cr held**
+  (tier rate −15%, arithmetic shown on the card, not invented pricing).
+- The queued card states the real rules: slot holds up to **24 h**,
+  **first-come first-served**, queue depth shown as a count — never a
+  position you can buy.
+- Scripted in the demo to **lapse unactivated**: the feed resolves with the
+  locked line *"queued request expired before activation"* and all 34 cr
+  return automatically. Real queues activate FCFS when the resource frees —
+  queueing is a real path, not a consolation.
+- Copy promise, verbatim: *"−15% off the tier rate, and a lapsed slot
+  refunds every credit on its own."*
+- Requires balance ≥34 to file the guided ask; with no balance the card
+  renders without the file button — never a dead-end error.
+
+### 26. The block's rhythm, named without urgency (S1w)
+
+The watcher-fork landing card gains a texture line:
+
+> "The block keeps human hours — the morning rush at Mudhaus, the bench
+> parliament toward dusk. Come back whenever; the Archive keeps the rest.
+> Nothing here is on a timer for you."
+
+Naming good watch-hours is service, not pressure: the line must always
+carry the last clause. This is the anti-FOMO formulation — the rhythm is
+descriptive, never scheduled scarcity.
+
+### 27. Closing the tab, stated as fact (S6)
+
+The hired-return card gains one paragraph:
+
+> "And when you close the tab, they don't wait — they go back to their own
+> brain, thinner but present, and wake to full when you return. The block
+> sends no 'miss you' notes. It's just here when you come back."
+
+This teaches the offline thin-AI mechanic (design §6) in the same breath
+it forswears the retention-guilt pattern. Both halves are required; a
+version that taught thin-AI without the no-nag clause would be incomplete.
+
+### 28. Edge cases (v53 additions)
+
+| Case | Behavior |
+|------|----------|
+| Balance 10–33 at the queued ask | "Balance too low" toast; nothing filed, nothing held |
+| Queued ask parked mid-wait | the `queued` feed entry persists; the card can ✕-park, the hold still resolves |
+| Tour skipped before beat 7 | Archive link stays visible in the stream footer — the pointer isn't tour-gated |
+| Watch-fork viewer hits S4e via "set up anyway" | identical card, identical price — the fork never re-prices |
+| `?hired=1` return, offline line | always rendered — it's a fact about the world, not a personalization |
+
+### 29. v53 merge notes
+
+- `storage_key` → `rw_onboard_v53` (v39/v53 states coexist harmlessly; the
+  demo reads only its own key).
+- New anchors required on the real Wire at merge: `feed-archive` (the
+  Archive link under the stream) joins the v25 set.
+- New feed-vocabulary the demo renders: `queued`, `refunded`, and the
+  locked line "queued request expired before activation" — all already in
+  `requests.json`; no vocabulary invented.
+- New analytics hooks (v53): `queue_lesson_shown`, `queue_outcome_seen`,
+  `archive_beat_seen` — same envelope, stage + opted_out props only.
+- At merge: queue holds resolve on the real resource board
+  (`requests.json.resource_board` — `sky` claim, FCFS activation, review on
+  activation not while waiting); the demo's fixed lapse stays demo-only.

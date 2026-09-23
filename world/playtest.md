@@ -71,6 +71,10 @@ One person can wear every hat; four real testers is the intended shape.
   PT47 (harness v51) is a facilitator audit — the session debrief card,
   cohort coverage + never-verdicted list, owner-routed inbox notes,
   the [ / ] scenario walk, and the harness gate's v51 marks.
+  PT48 (onboarding v4, v53) is a returning tester + facilitator audit —
+  the Archive as tour beat 7, the queued ask filed at −15% and lapsing
+  to 'queued request expired before activation' + full auto-refund, the
+  watch-path rhythm line, and the hired-return thin-AI / no-nag clause.
 
 ## 3. Running a session
 

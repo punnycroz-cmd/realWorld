@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v52).
+/* world/audit.js — RW boundary audit (world v53).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -578,6 +578,26 @@ const PUB = Object.values(PT.surfaces)
       /* storage key must have rolled with the version */
       if (OB.storage_key === 'rw_onboard_v25')
         add(g, 'fail', 'onboarding.json', null, 'v39 schema still on the v25 storage key');
+    }
+    /* ---- v53 blocks: the time layer ---- */
+    if (OB.version >= 53) {
+      const MUST53 = [
+        [/queued/, 'queued feed status rendered'],
+        [/queued request expired before activation/i, 'locked queue-expiry feed line'],
+        [/first-come first-served|FCFS/i, 'queue fairness rule stated'],
+        [/archive/i, 'Archive catch-up taught (tour beat / watch path)'],
+        [/24 h|24 hours/i, 'queue slot hold window stated']
+      ];
+      for (const [re, label] of MUST53)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v53 honesty copy: ${label}`);
+      /* the queue must never read as a purchasable position */
+      if (/position auction|skip the queue|jump the queue|queue priority for sale/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'queue-position-for-sale framing on the onboarding surface');
+      /* thin-AI offline honesty must carry the no-nag clause */
+      if (/thin|thinner but present/i.test(html) && !/miss you/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'offline thin-AI copy without the no-"miss you" clause');
+      if (['rw_onboard_v25', 'rw_onboard_v39'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v53 schema still on an old storage key');
     }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
@@ -1857,7 +1877,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v51 || {};
+    const H = PT.harness_ui_v53 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2000,7 +2020,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v52 local';
+out.build = 'world v53 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 51,
+ "version": 53,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2541,58 +2541,70 @@
     },
     {
      "do": "Run `node world/audit.js` and read the harness gate.",
-     "expect": "harness gate passes: LS key rw_playtest_v51 + build tag agree with playtest.json v51, every v51 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
+     "expect": "harness gate passes: LS key rw_playtest_v53 + build tag agree with playtest.json v53, every v53 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
      "checkpoints": [
-      "Gate reports '47 scenarios · N checkpoints · key rw_playtest_v51'",
+      "Gate reports '48 scenarios · N checkpoints · key rw_playtest_v53'",
       "A missing owner select, a dropped debrief id, or the old LS key would FAIL — spot-check",
+      "All gates green; overall 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT48",
+   "title": "Onboarding v4 — the time layer (Archive beat, the patient ask, closing the tab)",
+   "minutes": 12,
+   "persona": "returning tester on the play path — funded wallet, tour already seen",
+   "goal": "Verify the v53 onboarding pass: the Archive joins the tour as beat 7, the queued ask class is taught with real feed vocabulary and a full auto-refund on lapse, the watch path names the block's rhythm without urgency, and the hired-return card states thin-AI offline honestly.",
+   "surfaces": [
+    "onboard"
+   ],
+   "steps": [
+    {
+     "do": "Reset onboarding (footer link), pick 'I might reach in', and walk the tour to the end.",
+     "expect": "The tour runs 7 beats; the last anchors the 'Yesterday on the block' link under the stream and teaches that catching up via the Archive is free.",
+     "checkpoints": [
+      "Beat counter reads '7 of 7' on the Archive beat",
+      "The feed-archive element is a real link under the stream, visible even if the tour is skipped",
+      "Beat copy carries no urgency framing — 'catching up is free, always'"
+     ]
+    },
+    {
+     "do": "Reach S4e via the review lesson ('One more: the patient ask') and file the queued weather ask — 34 cr.",
+     "expect": "The wallet drops by 34 (not 40); the feed shows the ask with status 'queued'; the card states −15%, the ≤24 h slot, first-come first-served, and depth-as-count.",
+     "checkpoints": [
+      "34 cr held, not 40 — the −15% arithmetic is shown on the card",
+      "Feed entry status is 'queued' (locked vocabulary), charge described as held",
+      "No queue position or pay-to-jump framing anywhere"
+     ]
+    },
+    {
+     "do": "Click 'Jump ahead — the slot lapses' and read the feed.",
+     "expect": "The feed resolves with 'queued request expired before activation' and 'refunded 34 cr'; the wallet returns the full 34 with no action needed.",
+     "checkpoints": [
+      "Expiry wording matches the locked feed line verbatim",
+      "Full refund lands automatically — nothing billed for a lapsed slot",
+      "Copy frames queueing as a real path, not a consolation prize"
+     ]
+    },
+    {
+     "do": "Reload with ?hired=1 and read the first-day card's new paragraph; then run `node world/audit.js` and read the onboard gate.",
+     "expect": "The card states offline = thin AI (thinner but present) with the no-'miss you' clause; the onboard gate reports 'schema v53 · 7 beats · key rw_onboard_v53' with zero fails.",
+     "checkpoints": [
+      "Thin-AI line and no-nag clause appear together",
+      "Onboard gate passes; harness gate passes at key rw_playtest_v53 / build 'world v53 local'",
       "All gates green; overall 0 fail"
      ]
     }
    ]
   }
  ],
- "harness_ui_v51": {
-  "storage_key": "rw_playtest_v51",
-  "build_tag_prefix": "world v51 local",
-  "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
-  "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
-  "keyboard": {
-   "?": "toggle the key card",
-   "j / k": "move the checkpoint cursor (clamped, no wrap)",
-   "p / f / n": "verdict the selected checkpoint pass / fail / n-a",
-   "[ / ]": "prev / next scenario in the (smoke-filtered) rail — clamped, no wrap (v51)",
-   "o": "open the first listed surface in the embedded viewer",
-   "esc": "close the key card, then clear the checkpoint cursor",
-   "note": "all keys inert while focus is in an input/textarea/select"
-  },
-  "finding_step_ref": "fStep dropdown offers 'whole scenario' + one entry per step; refs are 'PT#' or 'PT#·sN'",
-  "finding_owner": "fOwner dropdown (world|game-systems|art|marketing) routes each finding to an owning track; defaults world; rides the JSON + Markdown exports and the inbox note (v51)",
-  "repro_link": "every finding row carries a 'link' button copying 'playtest.html#pt=PT#' — the deep link back to the scenario it was logged from (v51)",
-  "debrief": "five fixed prompts mirroring playtest.md §6 — verdict chip (n/a|clear|stumbled|blocker) + one line each; persisted in S.debrief; exported as session.debrief + a Markdown '## Debrief' section (v51)",
-  "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
-  "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
-  "required_marks": [
-   "rw_playtest_v51",
-   "id=\"prog\"",
-   "id=\"keyCard\"",
-   "id=\"exInbox\"",
-   "id=\"fStep\"",
-   "id=\"fOwner\"",
-   "id=\"debrief\"",
-   "id=\"covg\"",
-   "copyRef",
-   "time_per_scenario",
-   "S.times",
-   "S.debrief",
-   "#pt="
-  ]
- },
  "session_report_schema": {
   "session": {
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v51 local",
+   "build": "world v53 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "debrief": "object — {prompt_id: {v: n/a|clear|stumbled|blocker, note}} — the §6 watch-list answered per session (v51)",
    "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
@@ -2625,5 +2637,41 @@
    "art": "rendering of the neighborhood build (out of scope for these demos)",
    "marketing": "public-facing copy inconsistencies once flagged"
   }
+ },
+ "harness_ui_v53": {
+  "storage_key": "rw_playtest_v53",
+  "build_tag_prefix": "world v53 local",
+  "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
+  "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
+  "keyboard": {
+   "?": "toggle the key card",
+   "j / k": "move the checkpoint cursor (clamped, no wrap)",
+   "p / f / n": "verdict the selected checkpoint pass / fail / n-a",
+   "[ / ]": "prev / next scenario in the (smoke-filtered) rail — clamped, no wrap (v51)",
+   "o": "open the first listed surface in the embedded viewer",
+   "esc": "close the key card, then clear the checkpoint cursor",
+   "note": "all keys inert while focus is in an input/textarea/select"
+  },
+  "finding_step_ref": "fStep dropdown offers 'whole scenario' + one entry per step; refs are 'PT#' or 'PT#·sN'",
+  "finding_owner": "fOwner dropdown (world|game-systems|art|marketing) routes each finding to an owning track; defaults world; rides the JSON + Markdown exports and the inbox note (v51)",
+  "repro_link": "every finding row carries a 'link' button copying 'playtest.html#pt=PT#' — the deep link back to the scenario it was logged from (v51)",
+  "debrief": "five fixed prompts mirroring playtest.md §6 — verdict chip (n/a|clear|stumbled|blocker) + one line each; persisted in S.debrief; exported as session.debrief + a Markdown '## Debrief' section (v51)",
+  "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
+  "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
+  "required_marks": [
+   "rw_playtest_v53",
+   "id=\"prog\"",
+   "id=\"keyCard\"",
+   "id=\"exInbox\"",
+   "id=\"fStep\"",
+   "id=\"fOwner\"",
+   "id=\"debrief\"",
+   "id=\"covg\"",
+   "copyRef",
+   "time_per_scenario",
+   "S.times",
+   "S.debrief",
+   "#pt="
+  ]
  }
 }
