@@ -618,6 +618,33 @@ body[data-pricing="final"] .prov-only { display: none !important; }
 .sv-row.sv-best b::after { content: " · cheapest"; color: var(--accent); font-weight: 700; }
 @media (max-width: 560px) { .sv-row { flex-direction: column; gap: 2px; } }
 
+/* ---------- pricing page v97: per-hour bars + scene share ---------- */
+.cph { display: grid; gap: 10px; margin: 18px 0; }
+.cph-row {
+  display: grid; grid-template-columns: 180px 1fr 170px; gap: 14px;
+  align-items: center;
+}
+.cph-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.cph-track {
+  height: 18px; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 999px; overflow: hidden;
+}
+.cph-bar { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.cph-bar.cph-free { background: var(--accent-2); }
+.cph-ref .cph-bar { background: var(--muted); opacity: .55; }
+.cph-usd { font-size: 13.5px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.cph-usd .muted { font-weight: 500; }
+@media (max-width: 640px) {
+  .cph-row { grid-template-columns: 1fr; gap: 4px; }
+  .cph-usd { font-size: 13px; }
+}
+.scene-share {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+  margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 14px;
+}
+.scene-share .muted { font-size: 12.5px; }
+.scene-share .copied { color: var(--accent-2); font-weight: 700; }
+
 /* Print: an honest price list should print clean. Interactive widgets and
    nav drop out; tables and (auto-opened) details carry the full math. */
 @media print {

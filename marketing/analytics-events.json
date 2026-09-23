@@ -57,8 +57,11 @@
       "funnel_stage": "engaged"
     },
     "share_click": {
-      "when": "demo.html share button completes (v22)",
-      "props": { "method": "web-share|clipboard|manual" },
+      "when": "a share button completes — demo.html share button (v22); pricing.html scene-builder 'Copy a link to this scene' (v97)",
+      "props": {
+        "method": "web-share|clipboard|manual",
+        "surface": "demo|scene — which share surface; only present on v97+ emitters (demo.js predates it)"
+      },
       "funnel_stage": "engaged → viral"
     },
     "price_calc": {
@@ -79,7 +82,7 @@
         "items": "csv of item:qty pairs, e.g. 'compatible:4,event:1'; 'empty' when cleared",
         "queued": "bool — sessions queued at −15%",
         "surge": "bool — surge-window preview on",
-        "preset": "fog|hour|party|movein|reset|none — last preset tapped, or 'none' for manual edits"
+        "preset": "fog|hour|party|movein|reset|link|none — last preset tapped, 'link' when state arrived via #scene= share hash (v97), or 'none' for manual edits"
       },
       "funnel_stage": "engaged → purchase intent",
       "note": "carries NO credit/USD amounts — item mix and quantities only; reveals which bundled scenes visitors reach for"

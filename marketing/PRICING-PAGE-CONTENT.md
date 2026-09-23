@@ -98,8 +98,8 @@ drift shows as wrong math, not wrong claims).
   ladder, PPP-adjusted local prices, published table; no arbitrage because
   credits are non-transferable; EU/UK tax-inclusive). No invented local
   numbers — the table itself publishes at launch. Replaces the old bullet.
-- **Quick answers** (`#quick`) — six pricing-specific `<details>` plus a
-  **FAQPage JSON-LD** block in `<head>` (same six questions, verbatim-faithful
+- **Quick answers** (`#quick`) — pricing-specific `<details>` plus a
+  **FAQPage JSON-LD** block in `<head>` (same questions, verbatim-faithful
   wording). Scoped to money questions so it doesn't duplicate faq.html's
   broader FAQPage.
 - **Estimator "First pack" toggle** (`#cc-first` + `FIRST_BONUS = 1.5` in
@@ -155,6 +155,37 @@ drift shows as wrong math, not wrong claims).
 - **Quick answers +1** — "Is a subscription worth it?" pointing at the
   widget (deliberately not in the FAQPage JSON-LD — the answer is
   interactive, not a fixed text answer).
+
+## 1f. Page components (v97)
+
+- **Per-hour comparison** (`#hourly`, `.cph`) — a pure-CSS proportional bar
+  strip pricing ONE HOUR four ways: watching $0, compatible ~$0.85 (90 cr),
+  exclusive ~$3.30 (360 cr), and one external scale anchor (a typical US
+  movie ticket ~$11/2 hr ≈ $5.50/hr — hedged in copy as "for scale, not a
+  claim about anyone else's product"). All RW figures derive from §2 rates;
+  the whole block is `role="img"` with a full-text `aria-label` since the
+  bars are decorative proportions. No JS.
+- **Shareable scene links** (`#sc-share` in the scene builder, same IIFE in
+  `js/pricing.js`) — the builder's state serializes to a URL hash
+  (`#scene=<item>:<qty>,...|<q><s>`): ingredient picks + queued/surge flags
+  only, never amounts or identity. "Copy a link to this scene" writes the
+  full URL via `navigator.clipboard` and falls back to `history.replaceState`
+  + an "in the address bar" note. On load, `#scene=` hashes restore picks
+  (clamped to item maxima; unknown items ignored) and set `preset:"link"` on
+  the `scene_calc` event. Share completion emits `share_click` with the new
+  `surface:"scene"` prop (demo.js keeps emitting without it — spec allows
+  the subset). No price math lives in the hash, so a shared link stays true
+  even if the ladder changes — it re-prices from the current constants.
+- **Who pays for the free channel** (`#whopays`) — a three-card business-model
+  explainer placed between "a month, priced" and regional pricing: watchers
+  ($0, no ad breaks — rewarded ads are opt-in for players and pay credits),
+  players (à-la-carte agency purchases fund the world, posted publicly),
+  subscribers (the predictable floor). Deliberately carries no conversion
+  percentages — qualitative only, nothing invented.
+- **Quick answers +1** — "What does an hour inside the world cost?" (~90 cr
+  ≈$0.85 compatible / ~76 cr queued / 360 cr ≈$3.38 exclusive, pointing at
+  `#hourly`), added to BOTH the visible `<details>` list and the FAQPage
+  JSON-LD so they stay verbatim-faithful.
 
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 

@@ -85,6 +85,14 @@
         "@type": "Answer",
         "text": "No — credits are non-transferable by design. It's the same rule that blocks trading, cash-out, and every gray market around them."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What does an hour inside the world cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "About 90 credits — roughly $0.85 — for an hour of compatible play inside your own character (~76 credits queued). An exclusive hour runs 360 credits, about $3.38 before any surge, and the session cap means that is the most it can ever cost."
+      }
     }
   ]
 }
@@ -148,6 +156,7 @@
       <a href="#packs">Packs</a>
       <a href="#requests">Requests</a>
       <a href="#receipt">A receipt</a>
+      <a href="#hourly">Per hour</a>
       <a href="#refunds">Refunds</a>
       <a href="#oneshots">One-shots</a>
       <a href="#scenes">Price a scene</a>
@@ -156,6 +165,7 @@
       <a href="#compare">Compare tiers</a>
       <a href="#cast">Joining the cast</a>
       <a href="#month">A month, priced</a>
+      <a href="#whopays">Who pays</a>
       <a href="#regional">Regional pricing</a>
       <a href="#promise">The promise</a>
       <a href="#history">Price ledger</a>
@@ -360,6 +370,44 @@
   </div>
 </section>
 
+<!-- COST PER HOUR -->
+<section id="hourly">
+  <div class="wrap">
+    <h2>What an hour costs, for scale</h2>
+    <p class="muted">Agency is priced per minute, which makes it easy to
+    compare like-for-like — one hour, four ways. Bars are proportional to
+    dollars per hour; the last row is a typical US movie ticket (~$11 for
+    ~2 hours of runtime) shown for scale, not as a claim about anyone
+    else's product <span class="prov-only">(our rows provisional)</span>.</p>
+    <div class="cph" role="img" aria-label="Dollars per hour of entertainment: watching Real World is free, a compatible session is about $0.85 per hour, an exclusive session about $3.30 per hour, and a typical US movie ticket about $5.50 per hour of runtime">
+      <div class="cph-row">
+        <span class="cph-name">Watching, all cameras</span>
+        <span class="cph-track"><span class="cph-bar cph-free" style="width:1%"></span></span>
+        <span class="cph-usd">$0/hr — always</span>
+      </div>
+      <div class="cph-row">
+        <span class="cph-name">Compatible session</span>
+        <span class="cph-track"><span class="cph-bar" style="width:15.5%"></span></span>
+        <span class="cph-usd">~$0.85/hr <span class="muted">(90 cr)</span></span>
+      </div>
+      <div class="cph-row">
+        <span class="cph-name">Exclusive session</span>
+        <span class="cph-track"><span class="cph-bar" style="width:60%"></span></span>
+        <span class="cph-usd">~$3.30/hr <span class="muted">(360 cr)</span></span>
+      </div>
+      <div class="cph-row cph-ref">
+        <span class="cph-name">A movie ticket <span class="muted">(typical US)</span></span>
+        <span class="cph-track"><span class="cph-bar" style="width:100%"></span></span>
+        <span class="cph-usd">~$5.50/hr of runtime</span>
+      </div>
+    </div>
+    <p class="muted">The honest read: an hour inside your own character costs
+    about what the tip on a coffee costs. Queued, the same hour is ~76 cr —
+    ≈72¢. And the top row is why this page exists at all: the spectator game
+    is the product, and it's free.</p>
+  </div>
+</section>
+
 <!-- REFUNDS -->
 <section id="refunds">
   <div class="wrap">
@@ -497,6 +545,10 @@
           <span class="cc-usd" id="sc-usd">add ingredients to price a scene</span>
           <span class="cc-pack" id="sc-pack"></span>
           <span class="cc-note" id="sc-note"></span>
+        </div>
+        <div class="scene-share">
+          <button type="button" class="scene-chip" id="sc-share">Copy a link to this scene</button>
+          <span class="muted" id="sc-share-note">The link encodes your picks in the address — no amounts, no tracking. Send it to whoever's splitting the night.</span>
         </div>
       </fieldset>
       <noscript><p class="muted" style="margin-top:14px">The scene builder needs JavaScript — the four worked scenes above are priced with the same tables.</p></noscript>
@@ -712,6 +764,35 @@
   </div>
 </section>
 
+<!-- WHO PAYS -->
+<section id="whopays">
+  <div class="wrap">
+    <h2>Who pays for the free channel</h2>
+    <p class="muted">Fair question — a 24/7 simulated neighborhood isn't free
+    to run. Here's the whole business model in three cards, because "how does
+    the free thing make money" deserves a straight answer:</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>Watchers — $0</h3><p>Most visitors will only ever
+      watch, and the model is built for that. The spectator feed carries no
+      ad breaks and no paywall — rewarded ads exist, but only for players who
+      opt in, and they pay out in credits, never interrupt the show.</p></div>
+      <div class="card"><h3>Players — à la carte</h3><p>Requests, one-shots,
+      and character slots are the revenue. Buying a foggy morning or an hour
+      as yourself funds the world everyone else watches — and every purchase
+      posts publicly, so the funding is as visible as the show.</p></div>
+      <div class="card"><h3>Subscribers — the floor</h3><p>Resident and
+      Director stipends are the predictable base that keeps the lights on
+      between big nights. Both are optional, both are cancellable, and neither
+      buys anything a free account can't reach on its own time.</p></div>
+    </div>
+    <p class="muted">What the model never does: sell the cast, sell outcomes,
+    sell a cash-out, or put a coin slot on the watch button. If the free tier
+    ever needs to shrink to keep the lights on, that decision will be argued
+    here in public — the <a href="#history">price ledger</a> is where it
+    would be written down.</p>
+  </div>
+</section>
+
 <!-- REGIONAL PRICING -->
 <section id="regional">
   <div class="wrap">
@@ -836,6 +917,14 @@
         <summary>Can I gift credits to a friend?</summary>
         <p>No — credits are non-transferable by design. It's the same rule that
         blocks trading, cash-out, and every gray market around them.</p>
+      </details>
+      <details>
+        <summary>What does an hour inside the world cost?</summary>
+        <p>About 90 credits — ≈$0.85 — for an hour of compatible play inside
+        your own character (~76 cr ≈72¢ if you queue it). An exclusive hour
+        runs 360 cr ≈ $3.38 before any surge, and the cap means that's the
+        most that hour can ever cost. The <a href="#hourly">per-hour chart</a>
+        puts it next to a movie ticket.</p>
       </details>
     </div>
   </div>
