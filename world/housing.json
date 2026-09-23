@@ -1,0 +1,24 @@
+{
+  "doc": "Housing — machine-readable mirror of world/jobs-housing.md §3 + world/housing/. The registry seed in jobs-housing.md is canonical JSON per address spec §4; this file adds listing copy + building card links. Money is game dollars; deed fees are credits (PROPOSAL per monetization §2.4).",
+  "version": 3,
+  "listings_live": [
+    { "address": "9418 Guerrero St, Unit B", "unit_id": "bld-g9418-B", "bedrooms": 1, "rent": 2100, "rent_controlled": true, "card": "housing/9418-guerrero.md", "voice": "owner-direct" },
+    { "address": "9457 Guerrero St, Unit 2", "unit_id": "bld-g9457-2", "bedrooms": 0, "rent": 1350, "rent_controlled": true, "card": "housing/9457-guerrero.md", "voice": "owner-direct" },
+    { "address": "9127 Capp St, Unit A", "unit_id": "bld-c9127-A", "bedrooms": 0, "rent": 1300, "rent_controlled": false, "card": "housing/9127-capp.md", "voice": "manager" }
+  ],
+  "listings_ladder": [
+    { "tier": "room", "address": "9521 Treat Ave, Unit 2 (room)", "rent": 700, "purchase": null, "deed_fee_cr": null },
+    { "tier": "studio", "address": "9088 Folsom St, Unit 5", "rent": 1300, "purchase": 90000, "deed_fee_cr": 1000 },
+    { "tier": "1br", "address": "9476 Dolores St, Unit B", "rent": 2100, "purchase": 160000, "deed_fee_cr": 2000 },
+    { "tier": "flat", "address": "9560 Guerrero St, Unit 2", "rent": 3200, "purchase": 280000, "deed_fee_cr": 3500 },
+    { "tier": "house", "address": "9812 Church St", "rent": 5500, "purchase": 550000, "deed_fee_cr": 5000 }
+  ],
+  "building_cards": {
+    "bld-g9418": "housing/9418-guerrero.md",
+    "bld-g9457": "housing/9457-guerrero.md",
+    "bld-c9127": "housing/9127-capp.md",
+    "bld-g9263": "housing/9263-geneva.md",
+    "bld-f9344": "housing/9344-folsom.md",
+    "bld-m9102": "housing/9102-mission.md"
+  }
+}

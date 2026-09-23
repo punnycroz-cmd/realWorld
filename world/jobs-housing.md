@@ -1,4 +1,11 @@
-# Jobs & Housing — "The Mission" (world v0)
+# Jobs & Housing — "The Mission" (world v0, index updated v3)
+
+> **v3 depth layer:** the tables below remain canonical for numbers.
+> `world/jobs/` holds per-workplace cards (shift shape, culture, hiring
+> bar, play texture); `world/housing/` holds per-building cards and
+> `housing/listings.md` (player-facing listing copy). Machine-readable
+> mirrors: `world/jobs.json`, `world/housing.json`. In-world render:
+> `world/board.html` (file://-safe corkboard page).
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).
