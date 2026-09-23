@@ -196,6 +196,35 @@
     }
   }
 
+  // "Give me an idea" — cycles canned asks so a visitor can feel the screen
+  // answer differently: clean, human-review, and outright-deny examples are
+  // all real outcomes of the toy screen. The button's data-rw-event emits
+  // cta_click{cta:"demo-example"}; this just fills the fields.
+  var EXAMPLES = [
+    { action: "possess", text: "take my courier on the long way past the park",
+      note: "Clean — compatible requests run alongside everyone else's." },
+    { action: "venue",   text: "reserve the back room at The 600 Club for a poetry night",
+      note: "Exclusive — every exclusive goes to human review first." },
+    { action: "event",   text: "a block party on the street with a string quartet",
+      note: "Clean — one-shot public events land on the feed with your name." },
+    { action: "possess", text: "have them confess what they are hiding",
+      note: "Denied — secrets are absent from every player-facing schema." }
+  ];
+  var elExample = root.querySelector("#rs-example");
+  var exIdx = 0;
+  if (elExample) {
+    elExample.addEventListener("click", function () {
+      var ex = EXAMPLES[exIdx % EXAMPLES.length];
+      exIdx++;
+      elAction.value = ex.action;
+      elText.value = ex.text;
+      sync();
+      elResult.innerHTML = '<p class="muted">Loaded: <i>&ldquo;' + ex.text +
+        '&rdquo;</i> — ' + ex.note + ' File it to see the verdict card.</p>';
+      elText.focus();
+    });
+  }
+
   elAction.addEventListener("change", sync);
   elDur.addEventListener("input", sync);
   elFile.addEventListener("click", file);

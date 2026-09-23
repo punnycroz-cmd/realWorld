@@ -655,3 +655,26 @@ body[data-pricing="final"] .prov-only { display: none !important; }
   section { padding: 14px 0 !important; }
   .card, .sv-row, tr, .receipt { break-inside: avoid; }
 }
+
+/* v101 — demo page: first-watch field card + sim action row */
+.fieldcard {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.fieldcard-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px 26px;
+}
+.fieldcard-list label {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14.5px; line-height: 1.5; cursor: pointer;
+}
+.fieldcard-list input { accent-color: var(--accent); margin-top: 3px; flex: none; }
+.fieldcard-list li:has(input:checked) { color: var(--muted); }
+.fieldcard-status {
+  display: flex; align-items: center; gap: 14px;
+  margin: 14px 0 0; padding-top: 14px; border-top: 1px dashed var(--border);
+}
+.fieldcard-status span { font-weight: 700; font-variant-numeric: tabular-nums; }
+.sim-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 700px) { .fieldcard-list { grid-template-columns: 1fr; } }

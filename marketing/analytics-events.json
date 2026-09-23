@@ -26,10 +26,12 @@
     "cta_click": {
       "when": "click on any element carrying data-rw-event=\"cta_click\"",
       "props": {
-        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-tour|demo-tour-done|demo-wire|demo-cam|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer",
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer",
         "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive",
         "href": "raw href (same-site)",
-        "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)"
+        "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)",
+        "item": "field-card item key — only on cta=demo-fieldcard (v101): deck|parody|routine|fog|wire|quiet|theater|sim",
+        "checked": "bool — only on cta=demo-fieldcard (v101)"
       },
       "funnel_stage": "visit → engaged"
     },

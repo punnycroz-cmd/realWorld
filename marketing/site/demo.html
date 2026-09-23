@@ -298,8 +298,12 @@
             <input type="checkbox" id="rs-surge"> Prime-time slot <span class="muted">(surge ×1.5–2.5, shown before you pay)</span>
           </label>
         </div>
-        <button class="btn btn-primary" id="rs-file" type="button"
-                data-rw-event="cta_click" data-rw-props='{"cta":"demo-sim"}'>File it — simulated</button>
+        <div class="sim-actions">
+          <button class="btn btn-primary" id="rs-file" type="button"
+                  data-rw-event="cta_click" data-rw-props='{"cta":"demo-sim"}'>File it — simulated</button>
+          <button class="btn btn-ghost btn-sm" id="rs-example" type="button"
+                  data-rw-event="cta_click" data-rw-props='{"cta":"demo-example"}'>Give me an idea</button>
+        </div>
       </div>
 
       <div class="sim-result" id="rs-result" aria-live="polite">
@@ -340,6 +344,33 @@
       <a class="cast-chip" href="cast.html" data-from="10" data-to="16"><span class="watch-now" hidden>usually out now</span><b>Carmen Echeverría</b><span>744 Guerrero since &rsquo;89 — the block&rsquo;s memory</span></a>
       <a class="cast-chip" href="cast.html" data-from="9" data-to="17.5"><span class="watch-now" hidden>usually out now</span><b>Victor Auerbach</b><span>hardware counter by day; landlord of two Victorians</span></a>
       <a class="cast-chip" href="cast.html" data-from="4.5" data-to="8"><span class="watch-now" hidden>usually out now</span><b>Tomás Herrera</b><span>lead cook at Taqueria El Farolote, supplier loop at dawn</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FIRST-WATCH FIELD CARD -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Your first watch</p>
+    <h2>A field card for the first hour.</h2>
+    <p class="muted">Eight things worth doing on a first visit — every one
+    works today on this page&rsquo;s real surfaces (the capture deck, the
+    Wire&rsquo;s demo stream, the simulator below). Checks save on this
+    device only; nothing leaves your browser.</p>
+    <div class="fieldcard" id="fieldcard">
+      <ul class="fieldcard-list">
+        <li><label><input type="checkbox" data-fc="deck"> Flip the capture deck with ← → (or the camera chips) — that&rsquo;s the same surface the live presets will drive.</label></li>
+        <li><label><input type="checkbox" data-fc="parody"> Spot a parody storefront sign — every business on the block is fictional by design.</label></li>
+        <li><label><input type="checkbox" data-fc="routine"> Catch a lit <i>usually out now</i> chip above — that&rsquo;s a published routine, not a tracker.</label></li>
+        <li><label><input type="checkbox" data-fc="fog"> Watch Karl&rsquo;s fog pool at the park&rsquo;s edges — the weather edges in; it never just appears.</label></li>
+        <li><label><input type="checkbox" data-fc="wire"> Scroll the Wire&rsquo;s demo stream until a request resolves — denials and refunds are public too.</label></li>
+        <li><label><input type="checkbox" data-fc="quiet"> Find the <i>quiet</i> marker — the feed admits the block is asleep instead of padding itself.</label></li>
+        <li><label><input type="checkbox" data-fc="theater"> Open theater mode once — it works on the captures today and the live frame at launch.</label></li>
+        <li><label><input type="checkbox" data-fc="sim"> File one simulated request below and read the verdict card end to end.</label></li>
+      </ul>
+      <p class="fieldcard-status"><span id="fc-count">0 / 8</span>
+        <button class="btn btn-ghost btn-sm" id="fc-reset" type="button">Reset the card</button>
+      </p>
     </div>
   </div>
 </section>

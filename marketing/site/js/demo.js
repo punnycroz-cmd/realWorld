@@ -62,12 +62,13 @@
     btn.addEventListener("click", function () {
       var shareUrl = location.origin === "null" || location.protocol === "file:"
         ? "https://realworld-game.example/demo.html" // placeholder until launch domain
-        : location.href.split("#")[0];
+        : location.href.split("#")[0] +
+          (typeof idx === "number" && idx > 0 ? "#shot=" + (idx + 1) : "");
       var done = function (msg) {
         if (status) { status.textContent = msg; setTimeout(function () { status.textContent = ""; }, 4000); }
       };
       var t = function (method) {
-        if (window.rw && window.rw.track) window.rw.track("share_click", { method: method });
+        if (window.rw && window.rw.track) window.rw.track("share_click", { method: method, surface: "demo" });
       };
       if (navigator.share) {
         navigator.share({
@@ -208,11 +209,20 @@
   // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
-      ["shots/v50-A", "the block from overhead under the marine layer"],
-      ["shots/v50-B", "street-level follow-cam inside the fog"],
-      ["shots/v50-C", "Dolores Park under a drifting fog tongue"],
-      ["shots/v50-D", "director mode — pastel rowhouses on the sloped block"]
+      ["shots/v53-A", "the block from overhead — Jules selected, needs and mood readable"],
+      ["shots/v53-B", "street level — names over heads, leaves in the air"],
+      ["shots/v53-C", "Dolores Park — blankets on the lawns, Karl's fog edging in"],
+      ["shots/v53-D", "director mode — the neighborhood reads like a set"]
     ];
+    // Deep link: #shot=1..4 pins the deck (and its cam chip) on load, so a
+    // shared "this view" link lands on the same capture. The live embed
+    // ignores the hash — live cameras live inside the frame.
+    var hashShot = (function () {
+      var m = /[#&]shot=(\d)/.exec(location.hash || "");
+      if (!m) return -1;
+      var n = parseInt(m[1], 10) - 1;
+      return (n >= 0 && n < SHOTS.length) ? n : -1;
+    })();
     var screen = stage.querySelector(".demo-fallback-screen");
     var img = screen && screen.querySelector("img");
     var srcEl = screen && screen.querySelector("source");
@@ -321,6 +331,7 @@
     }
 
     if (screen && img) {
+      if (hashShot >= 0) show(hashShot, false);
       if (!reduced) startAuto();
       if (tourBtn) {
         tourBtn.addEventListener("click", function () {
@@ -357,5 +368,54 @@
     if (kh) kh.hidden = true;
     var cb = document.getElementById("cam-bar");
     if (cb) cb.hidden = true;
+  }
+
+  // First-watch field card — a local checklist for a first visit. State is
+  // stored in localStorage on this device only (key rw_watchcard_v1);
+  // storage failures degrade to a session-only card. Works in both modes.
+  var card = document.getElementById("fieldcard");
+  if (card) {
+    var FC_KEY = "rw_watchcard_v1";
+    var boxes = card.querySelectorAll("input[data-fc]");
+    var count = document.getElementById("fc-count");
+    var reset = document.getElementById("fc-reset");
+    var fcLoad = function () {
+      try { return JSON.parse(localStorage.getItem(FC_KEY) || "{}"); }
+      catch (e) { return {}; }
+    };
+    var fcSave = function (state) {
+      try { localStorage.setItem(FC_KEY, JSON.stringify(state)); } catch (e) {}
+    };
+    var fcState = fcLoad();
+    var fcSync = function () {
+      var done = 0;
+      for (var i = 0; i < boxes.length; i++) {
+        var k = boxes[i].getAttribute("data-fc");
+        boxes[i].checked = !!fcState[k];
+        if (fcState[k]) done++;
+      }
+      if (count) count.textContent = done + " / " + boxes.length;
+    };
+    for (var bi = 0; bi < boxes.length; bi++) {
+      (function (box) {
+        box.addEventListener("change", function () {
+          fcState[box.getAttribute("data-fc")] = box.checked;
+          fcSave(fcState);
+          fcSync();
+          if (window.rw && window.rw.track) {
+            window.rw.track("cta_click", { cta: "demo-fieldcard",
+              item: box.getAttribute("data-fc"), checked: box.checked });
+          }
+        });
+      })(boxes[bi]);
+    }
+    if (reset) {
+      reset.addEventListener("click", function () {
+        fcState = {};
+        fcSave(fcState);
+        fcSync();
+      });
+    }
+    fcSync();
   }
 })();

@@ -5,12 +5,13 @@ block clock + theater mode + canonical-vocabulary feed preview (v41) +
 rotating dev captures + time-aware viewing guide + cast strip (v56) +
 real app embeds (v61) + guided watch, routine-aware cast chips,
 keyboard deck control, today-vs-launch block (v71) + clickable camera
-presets (v86); live
+presets (v86) + #shot deep links, first-watch field card, sim example
+cycler (v101); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
 to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
-seventh pass v86.
+seventh pass v86; eighth pass v101.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -178,6 +179,29 @@ spectator game build; the wire embed is a separate, already-real surface.
   took the wheel); auto-cycle restarts after a manual pick so the deck
   doesn't yank the chosen shot away.
 
+## 4a-vi. v101 — shot deep links, field card, sim examples
+
+- **Deck fix** — `SHOTS` in demo.js still pointed at `v50-*` captures
+  deleted in the v100 gallery rebase (deck 404'd). Rebased to `v53-A..D`
+  with captions matching gallery.html's canonical text.
+- **`#shot=N` deep links** — `demo.html#shot=1..4` pins the fallback deck
+  (and the matching cam chip) on load. "Share this view" appends the
+  current shot's hash so a shared link lands on the same capture. Live
+  embed ignores the hash — live cameras live inside the frame.
+- **First-watch field card** (`#fieldcard`) — eight-item first-visit
+  checklist between the cast strip and the day strip; every item is
+  doable today on the page's real surfaces (deck, Wire demo stream,
+  theater mode, simulator). State persists in `localStorage
+  rw_watchcard_v1` (device-only, copy says so); storage failure degrades
+  to session-only. Emits `cta_click{cta:"demo-fieldcard",item,checked}`
+  per toggle.
+- **"Give me an idea"** (`#rs-example`) — cycles four canned asks through
+  the simulator so visitors see the screen answer differently: clean
+  compatible, exclusive→human-review, clean event, and a
+  secret-extraction deny. All four map to real SCREEN/pipeline outcomes.
+- **share_click** on demo.html now carries `surface:"demo"` (spec'd since
+  v97; demo.js predated the prop).
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -248,5 +272,11 @@ analytics-events.json.
 - [x] Camera presets drive the deck (click + keys 1–4), track the active
   shot across every navigation path, hide when the live embed resolves,
   and promise only contract-verified live cameras (v86).
+- [x] `#shot=N` deep link pins deck + chip on load; share URL carries the
+  current shot (v101).
+- [x] Field card is device-local only, degrades without localStorage, and
+  every item is completable on today's surfaces (v101).
+- [x] Sim example cycler only loads asks the toy screen + pipeline actually
+  produce (clean / in_review / deny) (v101).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).
