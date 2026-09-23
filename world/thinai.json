@@ -1,6 +1,6 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract, thin capability bounds, and feed visibility. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 13,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle, degrade ladder, needs model, phrase-kit contract, co-star bounds, scheduled obligations, feed visibility. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 27,
   "brain_modes": {
     "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
     "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
@@ -25,6 +25,49 @@
     "pending": "one open thread or null", "near": ["char ids"], "mood_hint": "one phrase",
     "forbidden_fields": ["secrets", "seeds", "relationship_deltas"]
   },
+  "note_lifecycle": {
+    "write": "on every exit into thin|full — one note per pawn, newest wins",
+    "read": "once by the receiving brain, then held as recent context",
+    "stale_after_h": 24,
+    "stale": "archives silently (seam line in demo; nothing in-world)"
+  },
+  "degrade_ladder": {
+    "metric": "brain-service capacity %",
+    "tiers": [
+      { "min_pct": 60, "posture": "all mains full" },
+      { "min_pct": 30, "posture": "mains degrade lowest scene-salience first" },
+      { "min_pct": 0,  "posture": "all mains degraded" }
+    ],
+    "order": "salience-ranked (watchers/live scene), never alphabetic, never player-visible",
+    "unaffected": ["ambients (never on the service)", "possessed pawns (the player is the compute)"],
+    "feed": null
+  },
+  "needs_model": {
+    "hunger": "rises while awake, faster on work cells; resets on routine meal windows; hungry → detour to a routine food stop, never a new place",
+    "rest": "falls while awake, restores on sleep cells; depleted → evening cells cut short; sleep never skipped (that would be a beat)",
+    "rule": "needs are posture inputs — no complaint vocabulary, never override a schedule obligation unless a reflex says so"
+  },
+  "phrase_kit": {
+    "cap_per_hour": 3,
+    "register": "weather / queues / the game on the bar TV / generic greetings",
+    "rule": "interchangeable across characters — a line only Reyes could say does not belong",
+    "never": ["character-voice catchphrases", "opinions on named characters", "references to events not on the public feed", "answers to direct questions — generic deflect instead"],
+    "at_cap": "thin goes quiet — nod, gesture, silence"
+  },
+  "co_star": {
+    "who": ["ambients", "offline hired pawns"],
+    "check": "bounded compliance — accept iff ask fits the role card AND no reflex vetoes; routine obligations win",
+    "time_box": "bounded to the request window; role card releases mid-beat-clean at expiry; nothing persists",
+    "decline": "feed reads 'resolved · declined' + 50% auto-refund (plan §2.3)",
+    "not": "possession — player directs a situation, never dialogue or limbs"
+  },
+  "scheduled_obligations": {
+    "work_shift": "attends per schedule; auto-shift wage at baseline rate (plan §2.4)",
+    "rent": "autopay drafts on due date, game dollars",
+    "standing_tab": "settles at the routine stop, posted price",
+    "cannot_originate": "thin never incurs a new obligation — no purchases beyond routine needs, no commitments",
+    "shortfall": "lapses into the normal ledger path (late-fee ladder) as if online; fallback is never a shield"
+  },
   "thin_can": [
     "run routine schedule cells (ambients.json / bible public routine)",
     "fire shared + per-card reflexes (condition → posture, never scripts)",
@@ -45,11 +88,12 @@
     "rule": "brain-mode transitions are not admin actions; the seam stays invisible to spectators"
   },
   "demo": {
+    "storage_key": "rw_thinai_v27",
     "pawns": [
       { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
       { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
       { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" }
     ],
-    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "brownout", "nudge"]
+    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "co_star_a01", "service_100", "service_60", "service_30", "reset"]
   }
 }

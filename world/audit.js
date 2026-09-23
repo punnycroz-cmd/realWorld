@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v26).
+/* world/audit.js — RW boundary audit (world v27).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -28,6 +28,9 @@
                  strings present; dark-pattern vocabulary absent
      lease     — leases.json ↔ lease.html agreement; licensed-landlord
                  caps (file-only eviction); neutral feed wording only
+     thinai    — thinai.json ↔ thinai.html agreement; locked feed
+                 vocabulary only on the wire; handoff note forbidden
+                 fields absent by construction; mode-allowance matrix
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -438,13 +441,75 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G12 thin-ai ============ */
+{
+  const g = gate('thinai', 'thin-AI contract (thinai.json ↔ thinai.html, seam vocabulary, mode matrix)');
+  try {
+    const TJ = JSONF('thinai.json');
+    const html = rd('thinai.html');
+    /* storage key agreement */
+    if (!html.includes(TJ.demo.storage_key))
+      add(g, 'fail', 'thinai.html', null, `storage_key "${TJ.demo.storage_key}" not found in thinai.html`);
+    /* mode-allowance matrix: inline MODES == json demo pawn modes */
+    const mm = html.match(/var MODES=(\{[\s\S]*?\});/);
+    if (!mm) add(g, 'fail', 'thinai.html', null, 'MODES block not found');
+    else {
+      const MODES = eval('(' + mm[1] + ')');
+      for (const p of TJ.demo.pawns) {
+        const id = p.id.toLowerCase(), want = JSON.stringify(p.modes);
+        if (!MODES[id]) add(g, 'fail', 'thinai.html', null, `pawn ${p.id} missing from inline MODES`);
+        else if (JSON.stringify(MODES[id]) !== want)
+          add(g, 'fail', 'thinai.html', null, `MODES.${id} ${JSON.stringify(MODES[id])} != ${want}`);
+      }
+    }
+    /* every wire() push uses locked feed vocabulary only */
+    html.split('\n').forEach((ln, i) => {
+      for (const m of ln.matchAll(/wire\('([^']+)'/g)) {
+        const tx = m[1];
+        if (!/^(request — |weather — )/.test(tx))
+          add(g, 'fail', 'thinai.html', i + 1, `wire line off-vocabulary: "${tx.slice(0, 80)}"`);
+      }
+    });
+    /* handoff note: forbidden fields absent by construction — the writer
+       must not carry secrets/seeds/relationship_deltas keys */
+    const wn = html.match(/function writeNote[\s\S]*?\n\}/);
+    if (!wn) add(g, 'fail', 'thinai.html', null, 'writeNote not found');
+    else for (const f of TJ.handoff_note_schema.forbidden_fields)
+      if (wn[0].includes(f))
+        add(g, 'fail', 'thinai.html', null, `handoff note carries forbidden field "${f}"`);
+    /* honesty strings the page MUST carry */
+    const MUST = [
+      [/seam is invisible|stays invisible/i, 'seam-invisibility statement'],
+      [/50% auto-refund/, 'declined-ask refund (50% auto-refund)'],
+      [/no seed access/i, 'degraded posture: no seed access'],
+      [/90 ?s/i, 'linger/beat budget figure (90 s)'],
+      [/never-ship|internal/i, 'internal/never-ship marker'],
+      [/baseline/i, 'baseline-rate wage statement']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing required copy: ${label}`);
+    /* ambients never possessable, degrade is mains-only: no code path may
+       assign those modes to the wrong pawn */
+    if (/pawns\.a01[\s\S]{0,80}mode='(possessed|degraded|full)'/.test(html))
+      add(g, 'fail', 'thinai.html', null, 'a01 can leave thin — ambients are always thin');
+    if (/pawns\.c2[\s\S]{0,80}mode='possessed'/.test(html))
+      add(g, 'fail', 'thinai.html', null, 'c2 possessable — mains are never possessable');
+    if (/pawns\.(a01|h01)[\s\S]{0,80}mode='degraded'/.test(html))
+      add(g, 'fail', 'thinai.html', null, 'non-main pawn degraded — degrade is mains-only');
+    /* linger grace figure agrees */
+    if (TJ.transitions.find(t => t.id === 'offline_drop').grace_s !== 90)
+      add(g, 'fail', 'thinai.json', null, 'linger grace drifted from 90 s');
+    g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
+  } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v26 local';
+out.build = 'world v27 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

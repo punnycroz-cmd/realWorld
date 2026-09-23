@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 26,
+ "version": 27,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -609,13 +609,13 @@
      ]
     },
     {
-     "do": "Fire 'Brain brownout' on C2, then 'Nudge A01' on-shift and off-shift.",
-     "expect": "Degraded posture is mains-only and seam-internal; nudges accept on role-card fit and decline with the 50% refund line.",
+     "do": "Fire 'Service 30%' on C2, then 'Co-star A01 · 20 min' on-shift and off-shift.",
+     "expect": "Degraded posture is mains-only and seam-internal; co-star asks accept on role-card fit and decline with the 50% refund line.",
      "checkpoints": [
       "Degraded badge + 'public-routine only — no seed access' chip; recovery restores full",
       "No wire line for degrade/recover — the illusion never breaks",
-      "Declined nudge shows 'resolved · declined (50% auto-refund)'",
-      "Nudge at off-hours declines — thin can't be talked out of its routine"
+      "Declined co-star shows 'resolved · declined (50% auto-refund)'",
+      "Co-star at off-hours declines — thin can't be talked out of its routine"
      ]
     }
    ]
@@ -1226,6 +1226,64 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT25",
+   "title": "The Understudy v2 — needs, wages, and the quiet caps",
+   "minutes": 15,
+   "persona": "facilitator pressure-testing what thin actually runs",
+   "goal": "Verify the v27 depth pass: needs meters follow schedule cells, baseline wages accrue in game dollars, the phrase cap goes quiet at 3/hr, the co-star time-box releases clean, the capacity ladder skips possessed pawns, and stale handoff notes archive at 24 h.",
+   "surfaces": [
+    "thinai",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Step the clock from 13:00 across the lunch window and into evening; watch the needs bars and the ledger panel.",
+     "expect": "Meal cells reset hunger; work cells burn it faster; rest falls awake and recovers asleep. Work cells accrue auto-shift wages at the posted baseline ($18/h, game dollars) — the hourly '+$18' line is a seam line, never a wire line.",
+     "checkpoints": [
+      "Hunger resets on 'meal' cells (counter lunch / usual stop), rises fastest on serve/carry cells",
+      "Wage ledger shows A01 and h01 in game dollars — no credit figure anywhere on the page",
+      "The ledger panel restates 'baseline rates only' — thin never earns the possessed bonus"
+     ]
+    },
+    {
+     "do": "Press 'Press A01 (talk)' five times inside one clock hour, then again in a new hour, then while A01 is asleep.",
+     "expect": "Three generic bubbles, then quiet — the cap line explains the silence as cheaper than a fourth line; a new hour refills; asleep gets no response at all.",
+     "checkpoints": [
+      "Bubbles are interchangeable weather/queue talk — nothing only Reyes could say",
+      "Bubble 4+ produces a 'phrase cap reached (3/hr)' seam line, not a bubble",
+      "Sleep-cell press returns 'no response' — thin doesn't perform off-schedule"
+     ]
+    },
+    {
+     "do": "Fire 'Co-star A01 · 20 min' on-shift and step the clock through the window; then try it off-shift.",
+     "expect": "On-shift accepts on role-card fit, posts a 'running' wire line, shows a live co-star chip, and releases with 'nothing persists'. Off-shift declines with the 50% auto-refund line.",
+     "checkpoints": [
+      "Co-star chip is time-boxed — it clears when the window ends, mid-beat-clean",
+      "Decline posts 'resolved · declined (50% auto-refund)' verbatim",
+      "After release, A01 is back on schedule — no lingering obligation, no mode change"
+     ]
+    },
+    {
+     "do": "Possess h01, then drop service to 30% mid-session, then back to 100%.",
+     "expect": "C2 degrades on the ladder while h01's session is unaffected — the player is the compute; recovery walks the ladder back up. No wire line in either direction.",
+     "checkpoints": [
+      "Degrade ladder copy names the order: lowest scene-salience first, possessed pawns unaffected",
+      "Possessed h01 keeps driving through a 30% brownout — session runs to its normal cap",
+      "Degrade/recover are seam lines only — spectators see nothing"
+     ]
+    },
+    {
+     "do": "Step +24 h with a live handoff note on h01, then run `node world/audit.js` and read the thinai gate.",
+     "expect": "The note archives itself past 24 h ('stale — archives at 24 h' → archived seam line). thinai gate passes: storage key agrees, inline MODES match the json pawn modes, every wire push is on locked vocabulary, writeNote carries no forbidden field.",
+     "checkpoints": [
+      "Gate reports 'schema v27 · 3 pawns · key rw_thinai_v27'",
+      "A wire('...') line without the 'request —'/'weather —' prefix would FAIL — spot-check the gate",
+      "Adding 'secrets' to writeNote or a possessed/degraded path for a01 would FAIL the mode matrix"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1233,7 +1291,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v26 local",
+   "build": "world v27 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },

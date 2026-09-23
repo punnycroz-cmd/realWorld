@@ -137,9 +137,160 @@ serve."
 
 ## 8. Demo & playtest
 
-`world/thinai.html` — "The Understudy": three pawns (A01 always thin,
-h01 cycling thin→possessed→handoff, C2 showing the degraded path), a
-clock stepper, event buttons (log off / return / possess / cap / rain /
-brownout / nudge), the live handoff note, and a split log marking which
-lines are feed-public vs seam-internal. Playtest: PT11 in
-`world/playtest.json`.
+`world/thinai.html` — "The Understudy" (v2, world v27): three pawns
+(A01 always thin, h01 cycling thin→possessed→handoff, C2 showing the
+degraded path), a clock stepper, a service-capacity slider, event
+buttons (log off / return / possess / cap / rain / press / co-star),
+needs meters, a baseline-wage ledger, the live handoff note with
+staleness, and a split log marking which lines are feed-public vs
+seam-internal. Playtests: PT11 + PT25 in `world/playtest.json`.
+
+## 9. Degrade ladder (mains, brain-service capacity)
+
+`degraded` isn't a switch, it's a ladder keyed on brain-service
+capacity — the share of LLM tick budget currently available:
+
+| capacity | posture |
+|----------|---------|
+| 100–60% | all mains `full` |
+| <60% | mains degrade **lowest scene-salience first** (a main alone at home thins before a main mid-scene at a crowded venue) |
+| <30% | all mains degraded |
+
+- Order is salience-ranked, never alphabetic, never player-visible.
+  Salience = is anyone watching / is a scene live — the same signal the
+  camera director would use.
+- **Ambients are unaffected** — they were never on the service.
+- **Possessed pawns are unaffected** — the player IS the brain; a
+  brownout cannot interrupt a paid session. If the service stalls during
+  a possession, the session runs to its normal cap.
+- Recovery walks the ladder back up in the same order. Every step is
+  seam-internal: no feed line, no badge, no spectator tell (§2).
+- A degraded main still fires reflexes and still writes a handoff note
+  when it drops back to `full` or the pawn goes home — the note is how
+  the returning brain inherits the evening.
+
+## 10. Needs model (what thin actually runs)
+
+Thin isn't a pose; it runs a minimal homeostatic loop so the pawn still
+makes sense on camera hour over hour:
+
+- **hunger** — rises while awake, faster on work cells; resets on the
+  character's routine meal windows. A hungry thin pawn detours to a
+  routine food stop on the way home, never to a new place.
+- **rest** — falls while awake, restores on `sleep` cells. A depleted
+  pawn cuts evening cells short; it never skips sleep entirely (that
+  would be a story beat, and story beats are the full brain's job).
+- **routine obligations** — the thin layer keeps the character's
+  standing commitments on autopilot: auto-shift wages at **baseline
+  rate** (plan §2.4 — possessed play can earn bonuses, thin never can),
+  scheduled payments (rent autopay, standing tabs) draft on schedule in
+  game dollars. An offline tenant's ledger is indistinguishable from an
+  online one's — that's the point.
+- Needs are posture inputs only. Thin never *complains* about a need in
+  dialogue (phrase kit has no vocabulary for it) and never lets a need
+  override a schedule obligation unless the reflex table says so.
+
+## 11. Phrase-kit contract
+
+Thin small talk exists so a scene doesn't go silent when an ambient is
+in frame. The kit is deliberately impoverished:
+
+- **Cap:** ≤3 bubbles per character per hour. When the cap hits, thin
+  goes quiet — a nod, a gesture, silence. Silence is cheaper than a
+  fourth generic line and less uncanny.
+- **Register:** weather, queues, the game on the bar TV, "morning",
+  "big line today". Bubbles are interchangeable across characters —
+  if a line could only come from Reyes, it doesn't belong in the kit.
+- **Never:** character-voice catchphrases, opinions about named
+  characters, references to events that aren't on the public feed, any
+  answer to a direct question. A direct question gets a generic deflect
+  ("can't complain", shrug) — the full brain's memory logs it as an
+  ordinary non-conversation.
+- The kit is a shared resource, not a personality. Per-card reflexes
+  (§5) shape posture, not speech.
+
+## 12. Handoff-note lifecycle
+
+- **Written** on every exit into `thin` or `full` (from `possessed`,
+  `full`, or `degraded`). One note per pawn — newest wins.
+- **Read once** by the receiving brain as "what I was just doing", then
+  held as recent context only. A wake does not re-read a note the brain
+  already consumed.
+- **Stale after 24 h of game time** — a note older than a day describes
+  a yesterday, and yesterday's loose ends are the full brain's memory
+  problem, not the seam's. Stale notes archive silently (seam line in
+  the demo; nothing in-world).
+- The schema's forbidden fields (`secrets`, `seeds`,
+  `relationship_deltas`) are absent *by construction*: the note writer
+  has no access to seed state, so there is nothing to withhold.
+
+## 13. Co-star bounds (screened requests on thin pawns)
+
+A screened request may summon an ambient or offline hired pawn as scene
+support (the "NPC nudge"/co-star path of the request matrix). Thin-side
+rules:
+
+- **Bounded compliance check:** accept iff the ask fits the role card
+  *and* no reflex vetoes it (off-shift + sleep cell → decline; a
+  request to "stay" past shift end → decline; routine obligations win).
+- **Time-boxed to the request window.** When the window ends the role
+  card is released mid-beat-clean — the pawn returns to schedule at the
+  next seam. Nothing persists: no obligation, no relationship write, no
+  memory the thin layer could carry.
+- **Decline keeps the 50% auto-refund** (plan §2.3 — we sell the ask,
+  not the outcome). The feed line reads `resolved · declined`, verbatim.
+- A co-star turn is not possession: the player directs a *situation*,
+  never the pawn's dialogue or limbs. Same rule as mains, cheaper brain.
+
+## 14. Scheduled obligations ledger
+
+Everything thin does that touches game dollars lands on the same
+ledger the full brain would use — baseline rates, scheduled dates, no
+surprises:
+
+| obligation | thin behavior | rate |
+|-----------|---------------|------|
+| work shift | attends per schedule; auto-shift wage | baseline $/h (plan §2.4) |
+| rent | autopay drafts on due date | lease amount, game dollars |
+| standing tab | settles at the routine stop | posted price |
+| possessions/fines/fees | **cannot originate** — thin never incurs a new obligation | — |
+
+If an obligation can't be met (balance short), thin does not improvise:
+the obligation lapses into the normal ledger path (late fee ladder,
+plan §2.4 / lease rules) exactly as if the player had been online and
+chose not to pay. Fallback is never a shield.
+
+## 15. Edge cases (decided, not deferred)
+
+- **Owner logs off mid-possession:** impossible by construction — a
+  live session holds the connection open; disconnect ends the session
+  first (cap semantics), then linger applies to the now-`full` brain.
+- **Brownout during possession:** session unaffected; the player is the
+  compute. Degrade queue skips `possessed` pawns.
+- **Request lands on a thin hired char (owner offline):** co-star rules
+  apply — the pawn can be summoned, never possessed (possession needs
+  the owner online to bill and to drive).
+- **Request lands on an ambient:** same co-star path; ambients are
+  never possessable and the request UI never offers it.
+- **Thin pawn addressed by a main mid-scene:** generic deflect; the
+  main's full brain records a non-conversation. No memory write on the
+  thin side (thin has no memory to write).
+- **Admin action on a thin char** (eviction filing, ledger correction):
+  unaffected — admin tools act on the lease/registry layer, not the
+  brain layer. The pawn's day continues; the paperwork lands where it
+  lands.
+- **Clock rollover / day boundary:** scheduled obligations tick once at
+  their scheduled minute; needs continue; nothing resets that shouldn't.
+
+## 16. What the demo proves
+
+The Understudy v2 exercises, with a DOM stub or a human hand: linger →
+offline drop with note; wake on note; possess → cap → graceful handoff
+with the wire pair `running` / `player session ended`; the capacity
+ladder degrading C2 while a possessed h01 keeps driving; rain reflexes;
+the 3/hr phrase cap going quiet; an on-shift co-star accept with
+time-box release and an off-shift decline with the 50% refund line;
+baseline wage accrual and a scheduled rent draft on the day boundary;
+and a 24-h-old handoff note archiving itself. Every one of those lines
+is seam-internal except the locked feed vocabulary — which is the whole
+argument of this file.
