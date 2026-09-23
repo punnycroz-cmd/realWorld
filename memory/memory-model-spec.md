@@ -1,5 +1,35 @@
-# Memory Model Spec v3.9 — implementable human-like memory for RW characters
+# Memory Model Spec v4.0 — implementable human-like memory for RW characters
 
+> **v4.0 note (emotional-memory IV — the social life of leftover
+> affect):** `memory/emotional-memory.md` Part IV (§§40–55) prices
+> what the tag layer still ignored: **residual arousal crosses event
+> boundaries** — `carryArous` character state (`carry_frac`/`carry_tau`
+> ~20min half-life) feeds `misattrib_k` into the next event's tag and
+> E, with a small gated valence rotation toward salient co-present
+> targets (Zillmann 1971; Dutton & Aron 1974, Szczucka 2012 caveat)
+> — §2; **audience tuning's mediator is epistemic trust** and
+> **inverts under status** — `aud_status_mult`, `aud_tune_arous`
+> (Echterhoff 2005/2008/2017) — §6.11 addendum; **venting is
+> rumination not release** — `vent:true` routes to rumin-draws,
+> frozen `catharsis_relief=0` (Bushman 2002) — §6.39; **positive
+> regulation traits** — `savor`/`dampen` (Bryant & Veroff 2007;
+> Feldman 2008) — §6.40; **secure-base attenuation** — co-present
+> high-trust dampens `arousal_tag` only (`secure_damp`, tier_mult,
+> relQuality-scaled — Coan 2006) — §2; **arousal dilates remembered
+> duration** (`dur_dil`, valence-blind — Droit-Volet & Gil 2009) —
+> §2; **failure feels farther** — `tdist_val`/`tdist_self` report-layer
+> subjective distance, self-esteem-moderated, personal-only (Ross &
+> Wilson 2002) — §6.15; **`w_emo` splits** into `w_emo_arous` +
+> `w_emo_dist·(1−emo_rate)` — dramatic lives habituate their own
+> dramas (Schmidt & Saari 2007; Talmi 2007 pure-list) — §2;
+> **`emo_sex_gain`** +0.07 small (Canli 2002) — §2; **`emo_gran`**
+> granularity trait gates discrete-tag precision and scales
+> reappraisal (Barrett 2004; Kashdan 2015) — §2/§26; **impact bias**
+> `forecast_int_bias`/`forecast_dur_bias` on imagineEvent (Wilson &
+> Gilbert 2003) — §6.41; **jukebox cue** `cue_music_w` +
+> `music_era_gain` era-indexed, `nostalgic:true` flag (Janata 2007)
+> — §5.37. +18 params; §10 contract adds. Probes P409–P420.
+>
 > **v3.9 note (age-decline V — the residual channels):**
 > `memory/age-decline.md` Part IV (§§49–62) prices what survives
 > intact, what silently repeats, and what misattributes its own
@@ -899,10 +929,14 @@ strength **E ∈ [0,1]** as a weighted geometric-ish blend — multiplicative wh
 the literature demands a gate, additive elsewhere (R§2):
 
 ```
-E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance_eff
+E = E0 · attention · (1 + w_emo·arousal_eff + w_self·selfRelevance_eff
                       + w_nov·novelty + w_pred·predictionError)
     + elab_gain·elaboration + spacingBonus
 ```
+
+(**v4.0:** `arousal_eff` = event arousal + `misattrib_k·carryArous` —
+excitation carryover, see below; `w_emo` = `w_emo_arous +
+w_emo_dist·(1 − emo_rate)` — the split, see below.)
 
 **v1.2 — processing terms:** `selfRelevance_eff = selfRelevance^0.7`
 (saturating — the self-reference meta's compressed high end; Symons &
@@ -919,8 +953,34 @@ Postman 1964; Hyde & Jenkins 1973).
 - `attention ∈ [0,1]` — is the event in focus? Ambient/background events get
   attention ≈ 0.1–0.3; inattentional gate: if `attention < att_min` (param),
   **no record is created at all** (R§2 gorilla result).
-- `arousal` = event emotional intensity 0..1; `w_emo` param. **v0.5 —
-  arousal-biased competition (ABC), replaces one-sided peripheralLoss:**
+- `arousal` = event emotional intensity 0..1; `w_emo` param.
+  **v4.0 — the split (emotional-memory.md §47):**
+  `w_emo = w_emo_arous + w_emo_dist_eff` where `w_emo_arous ≈ 0.55`
+  is the consolidation-linked term (delay-growing advantage, carries
+  the §27 inverted-U and §48 sex modulation) and
+  `w_emo_dist_eff = w_emo_dist·(1 − emo_rate)` (w_emo_dist ≈ 0.35)
+  is the immediate-test distinctiveness component — `emo_rate` is
+  the character's running mean share of arousal≥0.5 encodings
+  (init 0.15, update α 0.01/day). Chronically dramatic lives lose
+  the distinctiveness boost — Talmi et al. 2007 pure-list
+  elimination is the between-person version of the same math
+  (Schmidt & Saari 2007). `w_emo` remains the derived sum for
+  backward compatibility; loaders reject configs setting all three.
+  **v4.0 — excitation carryover (emotional-memory.md §40):**
+  effective arousal for the E-term and tag mint is
+  `arousal_eff = arousal + misattrib_k·carryArous` where
+  `carryArous` is character state: `carryArous :=
+  max(carryArous, carry_frac·arousal_tag)` on each event
+  (carry_frac ≈ 0.35) decaying `exp(−Δt/carry_tau)`, carry_tau ≈
+  0.014 day (~20 min — Zillmann 1971; Dutton & Aron 1974, mechanism
+  DEBATED per Szczucka 2012). Below `carry_min` (0.05): ignored.
+  Salient reappraisal cue on the source ("that was terrifying")
+  discounts the residue by `attrib_rescue` (0.5) — Schachter &
+  Singer 1962 informed arm. Valence rotation toward a co-present
+  salient person when the new event's |valence| < 0.3: `valence_tag
+  += misattr_rot_k·carryArous·sign(appraisal)` — misattr_rot_k ≈
+  0.15, small and gated (P409).
+  **v0.5 — arousal-biased competition (ABC), replaces one-sided peripheralLoss:**
   sort the event's verbatim/cueVector fields by priority (attention ×
   selfRelevance per field; top ~40% = central). Then
   `central_f *= (1 + abc_gain·arousal)` (abc_gain≈0.25 — central content is
@@ -967,6 +1027,37 @@ Postman 1964; Hyde & Jenkins 1973).
   (0.6), each encoded cueVector key gets/updates a CondEntry:
   `strength = min(1, strength + cond_gain·arousal)` (cond_gain≈0.5 —
   single-trial acquisition, §4.9).
+- **Secure-base attenuation (v4.0, emotional-memory.md §44):** on
+  threat-band events (`arousal ≥ cond_thresh`) with a co-present
+  person at `PersonModel.trust ≥ secure_trust` (0.7):
+  `arousal_tag *= (1 − secure_damp·tier_mult·relQuality)` —
+  secure_damp ≈ 0.25, tier_mult {partner 1.0, close friend 0.6,
+  acquaintance/stranger 0.2}, relQuality = relationship warmth
+  (Coan, Schaefer & Davidson 2006: spousal hand-holding pervasively
+  attenuated threat response, stranger's hand limited, marital
+  quality moderated). **Tag only** — E, verbatim fields and ABC are
+  untouched; the event happened at full intensity and is encoded
+  less scorching. The trusted person is a safety signal — no fear
+  CondEntry mints on them (P414).
+- **Sex gain (v4.0, emotional-memory.md §48):**
+  `w_emo_arous` and `emo_consol_gain` get `×(1 + emo_sex_gain)`,
+  emo_sex_gain ≈ 0.07 for female characters — Canli et al. 2002
+  (women better on most-arousing items at equal rated arousal);
+  Andreano & Cahill 2009 — reliable but modest; deliberately below
+  trait jitter. Direction CONSENSUS, magnitude DEBATED → small clamp.
+- **Granularity (v4.0, emotional-memory.md §49):** trait
+  `emo_gran ∈ [0,1]` (loads open/verbal, anti-neurot). Below
+  `gran_thresh` (0.4) records mint `emotion:"mixed"` (valence-only);
+  reappraisal efficacy scales `reg_reappraise_k·(0.5 + 0.5·emo_gran)`;
+  low-gran records take `+(1−emo_gran)·0.5` on §28 outcome-rewrite
+  and §6.11 audience-tune k's (Kashdan et al. 2015 regulation chain;
+  the rewrite susceptibility is our HYPOTHESIS extension).
+- **Duration dilation (v4.0, emotional-memory.md §45):**
+  `verbatim.duration` mints at `true_duration·(1 + dur_dil·arousal_tag)`,
+  dur_dil ≈ 0.4 — arousal speeds the internal clock, remembered
+  duration inflates valence-blind (Droit-Volet & Meck 2007;
+  Droit-Volet & Gil 2009). Distinct from duration NEGLECT (§13):
+  the tag ignores duration, the field inflates it.
 - `selfRelevance` 0..1 — event touches the character's goals/identity/people.
   Strongest single booster (self-reference effect).
 - **Stress penalty (new in v0.1; v3.8 child inversion):** if `arousal >
@@ -3316,6 +3407,23 @@ Criterion/θ untouched — Rhodes & Anastasi 2012 meta (Psych Bull
 (null). NOT reserve-shifted — contact/expertise, follows exposure
 history. P403 fails any criterion-shaped implementation.
 
+### 5.37 The jukebox cue — music-evoked recall (new in v4.0)
+
+Cue vectors gain a `music` key: `c_music = cue_music_w · overlap ·
+(1 + music_era_gain·era_match)` — cue_music_w ≈ 0.35 (below the
+odor channel's pricing, above `w_when`), `music_era_gain` ≈ 1.5 when
+the cue song falls inside the character's bump window
+(`encodeAge`-indexed era tag, world supplies `era_song:true` on the
+cue). Janata, Tomic & Rakowski 2007 (Memory 15:845): ~30% of
+familiar excerpts evoked autobiographical memories, predominantly
+positive, nostalgia the third most common emotion. Channels differ
+in *what they index*: odor reaches age (deeper into childhood —
+§29/RC§3), music reaches era (densest in the bump). On era-matched
+hits with valence>0.3 the emission may carry `nostalgic:true`
+(report-layer flag; §34 `nostalgia_gain` supplies the mood effect).
+The ambient scan treats `c_music` like `c_sensory` — involuntary.
+P420.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -3720,6 +3828,20 @@ No tuning to distrusted audiences: compliance is performance, not
 memory. Requires the dialogue layer to supply `audienceStance`; absent
 stance → no-op (social-memory.md §5).
 
+**v4.0 deepening (emotional-memory.md §41):** the gate's trust read
+is *epistemic* — use the social-judgment facet of
+`PersonModel[aud].credibility`, not domain expertise (Echterhoff,
+Higgins & Groll 2005: mediated by trust in the audience's judgment
+about people, persisting ≥2 weeks). **Status inversion:** when
+`audience.status > speaker.status` (world-supplied), multiply
+`audience_tune` by `aud_status_mult` ≈ 0.3 — tuning the message for
+a superior is performance; the peer audience is who rewrites the
+memory (Echterhoff et al. 2017: memory bias for equal-status, not
+higher-status, audiences). **Arousal co-drift:** evaluation
+*intensity* tunes too —
+`m.emotional.arousal += aud_tune_arous·audience_tune·
+sign(toldArousal − m.arousal)`, aud_tune_arous ≈ 0.5.
+
 **v1.6 — destination memory:** the record carries a hidden `toldTo:
 {personId: day}` map, written on every retell. Before emitting, the
 audience check succeeds with probability `dest_mem(age_eff)` (knots
@@ -3901,6 +4023,23 @@ either was.
 `P(correct) = logistic(k_order·(S_n − S_m)·sgn(createdDay_n −
 createdDay_m))`, k_order ≈ 4 [pop]. Same-week pairs coin-flip; distant
 pairs order correctly while both dates are wrong.
+
+**v4.0 — subjective temporal distance (emotional-memory.md §46):**
+a *report-layer* transform alongside `reported_age` — how far the
+event FEELS, decoupled from the decay clock (t_eff untouched):
+
+```
+subjDist = reported_age · (1 + tdist_val·(−valence_tag)·(0.5 + self_est))
+           // tdist_val ≈ 0.3; only if selfRelevance ≥ 0.4, else ×1;
+           // acquaintance-topic records: ×1 (null boundary)
+```
+
+Negative self-relevant pasts feel farther; positive ones feel like
+yesterday; the bias is *stronger at high self-esteem* (Ross & Wilson
+2002, 3 studies, randomized assignment — motivational, not mnemonic:
+rehearsal/ease didn't mediate). Feeds the §6.34 narrative-self layer
+and any "how long ago does that feel" dialogue surface. P415 locks
+the personal-only boundary.
 
 ### 6.16 Hindsight — learnOutcome (v0.9 deepening)
 
@@ -4450,6 +4589,61 @@ may carry `attribution:"known_around"` with probability
 `deja_prop` instead). Rumor consequence: repeated gossip exposure
 manufactures notability for elders — fluency inflates reputation
 salience without any source. P405.
+
+### 6.39 Venting is rehearsal — the catharsis null (new in v4.0)
+
+Retells/expressions flagged `vent:true` (dialogue layer tags
+expressive-anger tells — yelling about the provoker, punching the
+metaphorical bag) route to the **rumination channel**: they draw
+`rumin_k` heat-maintenance on the affect tag and explicitly do NOT
+receive §16 `verbal_damp`. Frozen null `catharsis_relief = 0` —
+there is no purge term anywhere. Bushman 2002 (PSPB 28:724):
+venting-with-rumination left subjects angrier AND more aggressive
+than distraction AND than doing nothing; Bushman, Baumeister &
+Stack 1999: belief in catharsis itself licensed aggression. The
+asymmetry is the point — talking it through cools the tag, letting
+it out stokes it (emotional-memory.md §42). P411 fails any
+implementation where venting lowers `arousal_tag` faster than
+silence.
+
+### 6.40 The positive regulators — savoring and dampening (new in v4.0)
+
+Two traits manage positive affect in opposite directions
+(emotional-memory.md §43):
+
+- `savor ∈ [0,1]` (loads extra/open): retells and elaborative
+  replays of `valence > savor_thresh` (0.4) records apply
+  `valence_tag += savor_gain·savor` (savor_gain ≈ 0.2, bounded) and
+  discount the next positive-fade tick ×(1 − 0.5·savor) — savoring
+  literally slows the FAB for positive events (Bryant & Veroff
+  2007).
+- `dampen ∈ [0,1]` (loads neurot, anti-extra): positive-tag fade
+  multiplier ×(1 + dampen_mult·dampen), dampen_mult ≈ 0.5 —
+  dampeners' positive affect decays up to ~1.5× faster (Feldman,
+  Joormann & Johnson 2008 — dampening predicts depressive symptoms
+  over and above negative rumination). High-dampen + high-rumin_k
+  is the depressive profile: negative heat maintained, positive
+  heat bled.
+
+### 6.41 Forecasting from memory — the impact bias (new in v4.0)
+
+`imagineEvent`/`anticipatedEvent` outputs for future scenarios carry
+predicted affect (emotional-memory.md §50):
+
+```
+forecast_valence = valence_estimate · forecast_int_bias   // ≈1.15
+forecast_dur     = duration_estimate · forecast_dur_bias  // ≈1.6
+```
+
+Overestimation of intensity and especially duration is the impact
+bias (Wilson & Gilbert 2003; Gilbert et al. 1998); **immune
+neglect** is locked: the character's own §32 narrative-repair
+capacity does NOT shrink the forecast — the repair mechanism is
+invisible prospectively (Gilbert et al. 1998). Focalism (Wilson et
+al. 2000) is free: the scenario only contains its focal content.
+Behavioral consequence: avoidance/pursuit decisions run on inflated
+forecasts — dreading the confrontation more than it will hurt.
+P419.
 
 ---
 
@@ -5154,6 +5348,44 @@ MemoryParams = {
 //   reaffirmed. Record fields: impl_str; versioned pair {old_v,new_v,
 //   supplantDay}; attribution:"known_around" on familiar_only;
 //   commission:true on intention fires.
+// v4.0 additions (emotional-memory IV — leftover affect,
+//   emotional-memory.md §§40–51)
+"carry_frac": 0.35,        // residue share of arousal_tag that persists (§40)
+"carry_tau": 0.014,        // residue half-life, days (~20 min)
+"misattrib_k": 0.4,        // residue → next event's arousal_eff (§2)
+"misattr_rot_k": 0.15,     // gated valence rotation, ambiguous next events
+"carry_min": 0.05, "attrib_rescue": 0.5,  // jitter floor; naming-the-source discount
+"aud_status_mult": 0.3,    // audience_tune when audience outranks speaker (§6.11)
+"aud_tune_arous": 0.5,     // arousal co-drift share of valence tune (§6.11)
+"savor_gain": 0.2, "savor_thresh": 0.4, "dampen_mult": 0.5, // §6.40
+"secure_trust": 0.7, "secure_damp": 0.25, // co-present trust → tag damp (§2)
+"dur_dil": 0.4,            // verbatim.duration birth dilation (§2)
+"tdist_val": 0.3, "tdist_self": 0.5,      // subjective distance, report-only (§6.15)
+"w_emo_arous": 0.55, "w_emo_dist": 0.35,  // w_emo split (§2; w_emo = derived sum)
+"emo_sex_gain": 0.07,      // female multiplier on w_emo_arous/emo_consol_gain
+"emo_gran": 0.6,           // trait: discrete-tag precision (§2/§26)
+"gran_thresh": 0.4,        // below → emotion:"mixed"
+"forecast_int_bias": 1.15, "forecast_dur_bias": 1.6, // imagineEvent (§6.41)
+"cue_music_w": 0.35, "music_era_gain": 1.5,          // jukebox cue (§5.37)
+// v4.0 frozen constants: catharsis_relief = 0 (vent routes to rumin_k,
+//   never verbal_damp — §6.39); emo_rate init 0.15, update α 0.01/day;
+//   tier_mult {partner 1.0, close friend 0.6, stranger 0.2};
+//   secure_damp rides attach_avoid (~×0.5 avoidant); immune neglect
+//   lock — forecast biases never reduced by coh_gain/emo_gran.
+// v4.0 explicit nulls: acquaintance-topic subjDist (Ross & Wilson
+//   boundary); valence rotation only below |valence| 0.3 + salient
+//   co-present target; music cue never below w_sensory pricing.
+// Char state: carryArous, emo_rate (snapshot fields). Record:
+//   emotion:"mixed" permitted; retell accepts vent:true;
+//   Reconstructions may carry nostalgic:true; dateEstimate gains
+//   subjDist — all snapshot-additive, absent=legacy.
+// v4.0 knot-table updates (emotional-memory.md §53):
+//   savor ×1.15@65, dampen ×0.8@65 (positivity-adjacent, HYPOTHESIS);
+//   tdist_val ×0.8@70; emo_gran ×0.9@70 + child knot ×0.5 below 10;
+//   secure_damp rides attach_avoid (trait axis, not age);
+//   emo_sex_gain, w_emo_arous/dist, dur_dil, cue_music_w,
+//   forecast_*, carry_*, aud_status_mult declared AGE-FLAT
+//   (P412/P416/P418 guards — no lifespan evidence, deliberate).
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -5916,6 +6148,24 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     sample per `new_v_share`; all snapshot-additive, absent=legacy.
   - `latency_ms` now scales with `lat_age_mult` — longer hesitations
     are a normal-aging display channel, not a bug.
+- v4.0 additions (emotional-memory.md Part IV §§40–51):
+  - `encodeEvent` reads character state `carryArous` (excitation
+    carryover, §2) and co-present `PersonModel.trust ≥ secure_trust`
+    for the secure-base tag damp; `verbatim.duration` mints
+    `dur_dil`-inflated; low-`emo_gran` records mint
+    `emotion:"mixed"`.
+  - `retell` accepts `vent:true` (rumin-channel, no verbal_damp —
+    §6.39) and reads `audience.status` for `aud_status_mult` (§6.11);
+    savor/dampen traits fire on positive-tag records (§6.40).
+  - `imagineEvent`/`anticipatedEvent` outputs gain `forecast_valence`
+    /`forecast_dur` fields (impact-biased, §6.41) — downstream
+    planning reads them as the character's own predictions.
+  - `dateEstimate`/describe surfaces gain `subjDist` — felt distance,
+    NOT the decay clock (§6.15); Reconstructions may carry
+    `nostalgic:true` on era-matched music-cue hits (§5.37); cueVector
+    gains `music` key (world tags `era_song:true`).
+  - Char state `carryArous` + `emo_rate` are snapshot fields; all
+    additions snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

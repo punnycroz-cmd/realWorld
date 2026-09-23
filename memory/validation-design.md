@@ -2802,3 +2802,105 @@ Fulton 1991 (Mem Cogn 19:348 — false fame/recency elevated in
 old); Dywan & Jacoby 1990 (fluency misattribution); Tombaugh,
 Kozak & Rees 1999 (fluency norms — access declines, vocabulary
 holds); Salthouse 1996 (processing speed).
+
+## 65. New probes P409–P420 (v41 suite — emotional-memory IV)
+
+- **P409 excitation transfer (MUST — sign + window):** arousal-0.8
+  event then ambiguous (|v|<0.3) event at Δt ∈ {5, 25, 90} min:
+  second tag elevated at 5 and 25 min, gone at 90 (~4.5×carry_tau);
+  `attrib_rescue` cue halves it. Fails if carryover is
+  event-boundary-clean or valence rotates on a clearly-valenced
+  next event.
+- **P410 status inversion (MUST):** same speaker+record retold to
+  peer vs higher-status audience: peer drifts at `audience_tune`,
+  superior arm ≤0.4× despite identical slant (Echterhoff 2017).
+- **P411 catharsis null (MUST — explicit null):** anger record;
+  3 `vent:true` retells vs 3 silence days → arousal_tag under
+  venting ≥ silence, `verbal_damp` never fires on vent flags.
+  Any "venting relieved it" path fails.
+- **P412 savor/dampen split (MUST):** matched positive record:
+  high-`savor` elevates after 2 retells + fades slower at 30d;
+  high-`dampen` fades ≥1.3× faster. Same record, diverging tags.
+- **P413 duration dilation (MUST — valence-blind):** arousal-0.8
+  events at valence ±0.6: `verbatim.duration` ~1.3× BOTH arms;
+  tag untouched by duration (peak-end intact).
+- **P414 secure base (MUST):** identical threat event solo vs
+  co-present trusted partner: tag ~0.75–0.8× solo, verbatim/E
+  identical; low-relQuality partner ≈ stranger ≈ ×0.95; no fear
+  CondEntry mints on the trusted person.
+- **P415 subjective distance (MUST — motivational sign):** two
+  personal records, same true_age, valence ±0.5, high self_est:
+  negative reports ~1.15× farther `subjDist`; `reported_age`/decay
+  unchanged; acquaintance-topic records: no effect.
+- **P416 distinctiveness habituation (SHOULD — emergent):**
+  emo_rate forced 0.1 vs 0.5: identical arousal-0.7 event →
+  quiet-life higher immediate E; gap shrinks at 30d (Talmi
+  crossover — w_emo_dist fades fast, w_emo_arous persists).
+- **P417 sex-gain bounds (SHOULD):** profiles differing only in
+  `sex`: female advantage present but < ±1σ neurot swing — bounds
+  check, not magnitude target.
+- **P418 granularity gate (MUST):** emo_gran 0.9 vs 0.2: high
+  mints discrete `emotion` + full reappraisal; low mints `"mixed"`
+  ≥60%, ≤0.75× reappraisal damping, ≥1.25× §28/§6.11 rewrite
+  acceptance.
+- **P419 impact bias (SHOULD — immune-neglect lock):**
+  `imagineEvent` on dreaded confrontation: forecast fields
+  overshoot the eventual encoded tag by the bias factors EVEN for
+  a high-coherence/high-gran character — repair capacity must not
+  shrink the forecast.
+- **P420 music era-cue (SHOULD):** bump-era vs post-bump song sole
+  cue: era match ≥1.5× hits, `nostalgic:true` permitted;
+  mismatched-era familiar song still beats a neutral-sound cue.
+
+Registry now P1–P420; numbering stable.
+
+## 66. Sources new to this version
+
+Zillmann 1971 / Zillmann, Katcher & Milavsky 1972 / Zillmann &
+Bryant 1974 (excitation transfer — sympathetic residue timescale,
+transfer to unrelated subsequent response); Cantor, Zillmann &
+Bryant 1975 (residue intensifies either sign); Schachter & Singer
+1962 (epinephrine misinformed vs informed — attribution rescue);
+Dutton & Aron 1974 (JPSP 30:510 — verified: Capilano bridge,
+sexual imagery + callback rates, shock-anticipation replication)
+with Szczucka 2012 (Curr Issues Pers Psych — verified reanalysis:
+misattribution interpretation contested, DEBATED flag on
+misattr_rot_k); Echterhoff, Higgins & Groll 2005 (JPSP 89:257 —
+verified: shared-reality mediation, in-group gate, epistemic trust
+mediator, 2-week persistence); Echterhoff, Higgins, Kopietz &
+Groll 2008 (JEP:G 137:3 — goal dependence: no bias under
+politeness/incentive/compliance); Echterhoff et al. 2017
+(audience-status arm — equal-status produces memory bias,
+higher-status doesn't); Higgins & Rholes 1978 (saying-is-believing);
+Bushman, Baumeister & Stack 1999 (JPSP 76:367 — catharsis belief
+licenses aggression); Bushman 2002 (PSPB 28:724 — verified:
+rumination+venting angrier AND more aggressive than distraction
+and control; doing nothing beats venting); Rusting &
+Nolen-Hoeksema 1998 (rumination sustains anger); Bryant & Veroff
+2007 (savoring); Feldman, Joormann & Johnson 2008 (Cogn Ther Res
+32:507 — dampening predicts depression over and above rumination);
+Coan, Schaefer & Davidson 2006 (Psych Sci 17:1032 — verified:
+n=16, spousal hand-hold pervasive attenuation, stranger limited,
+marital-quality moderation); Beckes & Coan 2011 (social baseline);
+Droit-Volet & Meck 2007 + Droit-Volet & Gil 2009 (arousal dilates
+judged duration, valence-blind, child replication); Ornstein 1969
+(storage-size retrospective duration); Ross & Wilson 2002 (JPSP
+82:792 — verified: 3 studies, unfavorable pasts feel farther,
+stronger at high self-esteem, personal-only); Wilson & Ross 2003;
+Schmidt 1991 + Schmidt & Saari 2007 (Mem Cogn 35:1905 — verified:
+attention/elaboration/distinctiveness three routes); Talmi, Luk,
+McGarry & Moscovitch 2007 (JML 56:555 — verified: pure-list
+elimination of immediate advantage, DEBATED vs consolidation);
+Canli, Desmond, Zhao & Gabrieli 2002 (PNAS 99:10789 — verified:
+female advantage at equal rated arousal, left-amygdala
+lateralization); Cahill et al. 2001 + Cahill 2003 (lateralization);
+Andreano & Cahill 2009 (Neurosci Biobehav Rev — hormonal
+modulation, modest size); Barrett 2004 + Lindquist & Barrett 2008
+(emotional granularity); Kashdan, Barrett & McKnight 2015
+(granularity → regulation chain); Gilbert et al. 1998 (immune
+neglect); Wilson & Gilbert 2003 (impact bias review); Wilson et
+al. 2000 (focalism); Janata, Tomic & Rakowski 2007 (Memory 15:845
+— verified: ~30% of songs evoke AMs, nostalgia third most common);
+Krumhansl 2017 (music bump); El Haj, Fasotti & Allain 2012 (MEAM
+vividness); PLOS One 2025 acoustic-feature replication (low-energy
+songs → slower/vivid/unique AMs).

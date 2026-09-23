@@ -485,6 +485,38 @@ never copying raw.
 | update_resist | 0 | 0.5 | superseded-version leak-back rate (v3.9) |
 | fame_fluency | 0 | 0.3 | sourceless-fluency→prominence attribution (v3.9) |
 | sem_search_tax / lat_age_mult | 0 / 1.0 | 0.12 / 2.0 | semantic-list θ tax / latency age scale (v3.9) |
+| carry_frac / carry_tau / misattrib_k | 0.1 / 0.005 / 0.1 | 0.6 / 0.04 / 0.7 | excitation carryover: residue share, half-life days, next-event leak (v4.0) |
+| misattr_rot_k / attrib_rescue | 0 / 0 | 0.4 / 0.8 | valence rotation on ambiguous next events / named-source discount (v4.0) |
+| aud_status_mult / aud_tune_arous | 0 | 1.0 / 1.0 | status-inversion of tuning / arousal co-drift share (v4.0) |
+| savor_gain / savor_thresh / dampen_mult | 0 / 0.2 / 0 | 0.5 / 0.6 / 1.0 | positive-regulation pair (v4.0) |
+| savor / dampen (traits) | 0 | 1 | bible-set IndivTraits-adjacent (v4.0) |
+| secure_trust / secure_damp | 0.5 / 0 | 0.9 / 0.5 | co-present trust gate / tag damp (v4.0) |
+| dur_dil | 0 | 0.8 | verbatim.duration birth dilation (v4.0) |
+| tdist_val / tdist_self | 0 | 0.6 / 1.0 | subjective-distance valence/self-esteem terms, report-only (v4.0) |
+| w_emo_arous / w_emo_dist | 0.1 | 1.4 / 0.8 | w_emo split; sum must stay in w_emo clamp (v4.0) |
+| emo_sex_gain | 0 | 0.15 | female multiplier on arousal-channel terms; keep below jitter (v4.0) |
+| emo_gran / gran_thresh | 0 / 0.2 | 1.0 / 0.6 | discrete-tag precision trait / "mixed" mint gate (v4.0) |
+| forecast_int_bias / forecast_dur_bias | 1.0 | 1.5 / 2.5 | impact bias on imagineEvent outputs; ≥1.0 always (v4.0) |
+| cue_music_w / music_era_gain | 0.1 / 0 | 0.7 / 3.0 | jukebox cue weight / bump-era multiplier (v4.0) |
+
+**v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
+the bible's positive-affect dials — a savorer keeps good days warm,
+a dampener can't (pair `dampen` high with `rumin_k` high for the
+depressive profile: negative maintained, positive bled). `emo_gran`
+low = the character who "just felt bad" — their records can't carry
+discrete tags and their reappraisal is weak; do not confuse with low
+intelligence, granularity is orthogonal to `g_mem`. `secure_damp`
+reads the relationship matrix — an isolated character physically
+cannot get the attenuation; write companionship into backstory or it
+never fires. `carry_*` are mostly population constants, but a
+high-`misattrib_k` + low-`attrib_rescue` character is the one who
+falls in love on the shaky bridge / comes home still shaking.
+`emo_rate` is store-side state, not a dial — but a character whose
+bible scripts constant drama will *emergently* lose the
+distinctiveness boost (w_emo_dist → 0 as emo_rate → 1): quiet lives
+remember their rare fights forever. `forecast_*` below 1.0 is a
+spec violation — nobody under-predicts. `tdist_val` only reads on
+personal records; gossip about others never gets the distance bias.
 
 **v3.9 age-decline note (residual channels):** all v3.9 params are
 reserve-shifted capacity dials EXCEPT `own_age_gain` (expertise —
