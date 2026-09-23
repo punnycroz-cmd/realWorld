@@ -1910,3 +1910,66 @@ Clark 1996 (lexical entrainment); Clark (common ground); Hatfield,
 Cacioppo & Rapson 1994 (emotional contagion); Peters & Kashima 2007
 (social sharing → listener emotion); Hess 1990 (older-adult schema
 reliance).
+
+## 42. New probes P322–P333 (v33, formal-model IV suite)
+
+Machinery probes — they test the multi-agent substrate, the cache
+discipline, and the fitting protocol rather than a psychological
+phenomenon (full semantics in `memory/formal-model.md` Part IV).
+
+- **P322 broadcast independence (MUST — structure):** one ledger
+  event with n participants produces per-participant records whose
+  E/verbatim differences follow each participant's attention and
+  params; identical-records-modulo-order = FAIL.
+- **P323 dyadic causal order (MUST — structure):** the transmitted
+  account in `retell` reflects the speaker's post-drift record;
+  pre-drift transmission = FAIL.
+- **P324 tick atomicity (MUST — determinism):** dyadic ops inside a
+  tick window never expose a partially-ticked counterparty; replay
+  bit-identical.
+- **P325 society snapshot (MUST):** societySnapshot at a ledger
+  boundary → resume → identical states at t+10 across all stores.
+- **P326 status hysteresis (SHOULD):** believe_p oscillating ±0.02
+  across a boundary produces ≤1 status change; retracted records
+  hold "doubted" ≈doubt_persist days then re-derive. Constrains
+  belief_hyst and doubt_persist.
+- **P327 truth-default (SHOULD — sign):** untriggered told_by
+  fields adopt at ≥ truth_default_w−0.1; triggered identical
+  fields below 0.3 (Levine 2014 direction).
+- **P328 session termination (MUST — bound):** no session exceeds
+  session_scan_cap scans; anchor chains never revisit visited
+  records; anchors never cross sessions.
+- **P329 age-continuity (MUST — invariant):** day-over-day
+  |Δparam| bounded by knot-curve slope + declared jitter; the
+  era-vs-capacity mutation test (advance worldDay on frozen
+  records → encodeAge immutable).
+- **P330 parameter recovery (SHOULD — falsification gate):**
+  recoveryRun: all §21 composites within recov_tol; per-char
+  params with named observables within 20%; twice-failing params
+  get frozen per formal-model §32.1.
+- **P331 probe statistics (MUST — meta):** every proportion probe
+  declares n ≥ class minimum (384 cheap / 100 expensive) and
+  reports Wilson CIs; BH at bh_q applied per probe family; the
+  flaky-probe rerun protocol documented.
+- **P332 degradation equivalence (SHOULD):** L1–L3 preserve §21
+  composite means within recov_tol; L4 preserves P68/P70 only.
+- **P333 malformed-input fuzz (MUST — safety):** fuzzed malformed
+  events → no NaN/range escape downstream (extends P70), skip/
+  clamp logs match, ledger uncorrupted.
+
+Registry now P1–P333; numbering stable.
+
+### Sources new to this version
+
+Levine 2014 (J. Language & Social Psychology — Truth-Default
+Theory; doubt requires triggers); Street & Masip 2015 (lie
+detection within TDT); Alchourrón, Gärdenfors & Makinson 1985
+(AGM belief revision — cited as REJECTED alternative); Nilsson,
+Rieskamp & Wagenmakers 2011 (J. Math. Psych. 55:84 — hierarchical
+Bayesian parameter recovery); Palminteri, Wyart & Koechlin 2017
+(TICS 21:425 — simulation+recovery as falsification discipline);
+Morris 1991 (Technometrics 33:161 — elementary-effects screening);
+Wilson 1927 (score interval); Benjamini & Hochberg 1995 (JRSS-B
+57:289 — FDR); Gutenkunst et al. 2007 (sloppy-model priors, reuse);
+Loftus 1979 (eyewitness divergence, reuse); Gabbert, Memon & Allan
+2003 (co-witness conformity, reuse); Bartlett 1932 (reuse).

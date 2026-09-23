@@ -415,6 +415,15 @@ never copying raw.
 | transference_thresh / transference_seed / transference_fill / transference_pool | 0.4 / 0.0 / 0.0 / 2 | 0.9 / 0.6 / 0.4 / 10 | schema projection onto new persons (v3.2) |
 | novel_pick_w / told_pen | 1.0 / 0.1 | 6.0 / 1.0 | retell novelty gate / repeat-tell penalty (v3.2) |
 | phrase_surv_base / phrase_distinct_mult | 0.3 / 1.0 | 1.0 / 2.5 | phrasing hop survival / distinctive boost (v3.2) |
+| doubt_persist | 3 | 180 | days a retraction holds "doubted"; high = can't unhear it (v3.3) |
+
+**v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
+only new per-char dial — how long a trusted correction keeps a record
+flagged untrusted after the evidence fades (the grudge-on-corrections
+trait; bible writers: suspicious characters get high values but so do
+burned ones — pair with backstory, not just distrust). `belief_hyst`,
+`truth_default_w`, `session_scan_cap_base` are population constants;
+`recov_tol`/`bh_q`/`probe_n_*` live in the harness, never in profiles.
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,

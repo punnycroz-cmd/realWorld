@@ -1075,3 +1075,438 @@ both hidden/harness-readable), one retry gate on the recall loop,
 eight composite observables to publish, five distribution axioms to
 honor. Daily-tick added cost: two logistics per failed recall and one
 per encode — nil. Whole layer flag-gateable; diff probes P193–P200.
+
+---
+
+# Part IV — v33 deepening pass: the society layer, the cache discipline, and the fitting layer (P322–P333)
+
+Part I pinned order/units/budget, Part II formalized mechanisms,
+Part III closed the measurement/numerics holes. What remains informal
+is everything that happens *between* characters and everything that
+happens *to the spec itself* as it is implemented, fitted, and run
+under budget pressure. Concretely: (a) the spec's ops are all
+single-character — the world runs 28 at once, and nothing yet says
+who encodes a shared event, in what order a dyadic op mutates two
+stores, or what "the same day" means when A's tick has run and B's
+hasn't; (b) recall inside conversation is a sequential session, not a
+function call — anchors chain, common ground accumulates, and nothing
+bounds the loop; (c) `beliefStatus` is simultaneously a derived
+discretization (§6.7) and a stored field that ops write directly
+(§6.6) — a cache without a discipline; (d) the age curves move every
+tick, and nothing prevents a param from jumping at a re-anchor in a
+way humans don't; (e) nothing says what the substrate does with
+malformed input, what to shed when compute runs short, or how anyone
+would ever *fit* the ~70 free params. This pass formalizes all of it.
+Spec refs are to spec v3.2.
+
+## 26. Society semantics — multi-agent operation order
+
+The spec is written as if memory ops happen one character at a time.
+The world executes 28. Missing semantics, now pinned:
+
+### 26.1 Shared-event broadcast — one ledger event, N divergent records
+
+A canonical-ledger event with `participants = [c1..cn]` produces **one
+independent `encodeEvent` call per participant**, each with that
+participant's own attention/context (self-as-agent vs periphery,
+position in the venue, `preparing` state). There is no shared record
+and no shared draw — the divergence of witnesses' memories is the
+mechanism the whole rumor engine is built on (Loftus 1979 eyewitness
+program: same-event reports differ systematically before any
+contamination; Bartlett 1932 — the "story" each teller carries was
+already their own). Ordering:
+
+- The broadcast batch is **atomic with respect to daily ticks**: no
+  `dailyMemoryTick` may interleave inside one event's broadcast. All
+  participants encode the event at the same `worldDay`; their first
+  consolidation happens at each one's own next sleep tick (sleep
+  timing differs — good, that's Jenkins & Dallenbach's variance).
+- Character order inside the batch is **sorted charId** — arbitrary
+  but fixed, so replay is exact (P68/P324). RNG draws are already
+  namespaced per charId (§22 axiom 4), so order affects nothing
+  except determinism bookkeeping.
+- Non-participant witnesses get the same treatment with
+  `attention` from the §2 derivation (0.4 periphery / 0.1 ambient) —
+  the "crowd saw it" channel that feeds §6.26 transplants and §6.5
+  co-witness conformity.
+
+**Cross-tick reads (the "same day" problem).** When A's daily tick has
+run for day t and B's hasn't, ops touching both (B's recall cued by
+A's retell at tod 0.9) must read **post-tick state for A, pre-tick
+for B — each store as it stands**. No read-your-neighbor's-future:
+an op may never trigger another character's daily tick as a side
+effect. Consequence: `hearAccount` at 23:50 lands on B's day-t store;
+B's first decay of that heard content happens at B's own tick —
+hearsay gets one free night of pre-consolidation vulnerability like
+everything else [HYPOTHESIS — bookkeeping rule, not a claim].
+
+### 26.2 Dyadic transaction order — who mutates first
+
+`retell(A, B, m)` is the only op that writes two stores in one call.
+§3.4 already fixed the causal order (speaker's own drift first —
+what the speaker now believes is what gets transmitted); this pins
+the transaction:
+
+```
+retell(A, B, m):
+  1. A-side: §6.11 audience tuning mutates m_A (drift, toldTo edge,
+     shared_with write, phrasing select) — COMMIT before step 2
+  2. §6.12 transmission operators produce account_B (leveling,
+     stereotype convergence, phrasing survival)
+  3. B-side: hearAccount(B, A, account_B) — adoption, hearCount,
+     plist_suppress, SS-RIF on B's records
+  4. B-side: disclosure-trust writeback on PersonModel[A] (§6.14)
+```
+
+A crash between steps is legal (the story was told, the listener's
+encoding may be lost — people mishear), so the substrate must commit
+step 1 before attempting step 3; rolling back step 1 on a step-3
+failure is a spec violation (A did experience the retell). For
+determinism, steps 1–4 all draw under their own charId+opTag
+namespaces — `retell` is not one RNG stream, it is two characters'
+streams sequenced.
+
+`discussEvent(A,B,ref)` = `retell(A,B,·)` then `retell(B,A,·)` with
+the groupSize both sides see, `group_damp` applied per §6.5. The
+second speaker's account reads A's *post-step-3* state — A may already
+have adopted a B-field inside one exchange [HYPOTHESIS — models
+within-conversation convergence, Gabbert et al. 2004].
+
+### 26.3 Society snapshot — a cut across 28 stores
+
+`memorySnapshot` is per-character; the society-level save is
+
+```
+societySnapshot = { ledgerDay, ledgerSeq,
+                    [charId -> memorySnapshot] sorted by charId }
+```
+
+Legal only at a **ledger boundary** — never inside a broadcast batch
+or a dyadic transaction (§26.2 step boundary is the finest legal cut).
+On load, the world resumes from `ledgerSeq`; per-character `opSeq`
+continuation values make the RNG continue exactly (P69 per character
+⇒ P325 for the society). Ambient characters may snapshot lazily
+(their stores change only on their own ticks — a stale ambient
+snapshot IS current until they tick).
+
+## 27. The dialogue-time session loop
+
+`recall` returns reconstructions; conversation is a *sequence* of
+recalls coupled by anchors, common ground, and retell selection —
+the spec's most-used path and least-specified control flow.
+
+```
+conversationSession(members):
+  session = { id: rngTag, anchor: null, visited: {}, scansUsed: 0 }
+  per turn (speaker S, cue C):
+    1. C.temporalAnchor = session.anchor           // contiguity §5.4
+    2. recall(S, C, k) → reconstructions; scansUsed++
+    3. failed recall with fok > fok_retry → ONE retry scan at
+       search_breadth/2; scansUsed++ (§19.1)
+    4. anchor ← last successful m.createdDay; visited ∪= {m.id}
+    5. if S chooses to retell: §26.2 per listener
+    6. session ends when members part OR scansUsed hits
+       session_scan_cap (default 2·|members|+2)
+  invariants:
+    - contiguity never revisits `visited` records — a chain
+      A→B→A is impossible; reminiscence walks forward
+      (asymmetric as specified, §14)
+    - temporalAnchor is session-scoped — never leaks into the
+      next conversation or the ambient scan
+    - session RNG draws carry opTag = hash("session", session.id)
+      — adding a draw inside the session loop never perturbs
+      daily-tick streams (§22 axiom 4)
+```
+
+Termination is structural: bounded scans per session + the visited
+set + anchor monotonicity give a hard loop bound [HYPOTHESIS —
+implementation guarantee, psychologically reads as "the conversation
+moved on"]. Group attention derivation: each member's `attention` on
+an utterance = §2 table (0.8 direct addressee / 0.4 present / 0.1
+also-present-and-distracted) × (1 − next_in_line) if preparing —
+so in a group of five, the two people not in the conversational
+dyad encode the story at periphery quality, and their later
+retellings diverge more. That's the microstructure of co-witness
+disagreement (Gabbert, Memon & Allan 2003) falling out of the
+attention table, not a new mechanism.
+
+## 28. beliefStatus — the cache discipline and the truth-default FSM
+
+§6.7 derives `beliefStatus` at retrieval from `(recollect_q,
+believe_p)`; §6.6/§6.3 write it directly. Both are right and they
+conflict unless the semantics are pinned:
+
+- **The stored field is a cache, not the authority.** The derived
+  pair is authoritative; the stored `beliefStatus` is a
+  *write-time cache* consulted by cheap paths (retell selection,
+  rumor tagging) that can't afford the derivation. Any op that
+  mutates `believe_p` inputs (hearCount, corroboration, verbatim
+  strength, source decay) **dirties** the cache: mark `bs_stale`,
+  recompute lazily on next read of the status.
+- **Hysteresis.** Recomputed status crosses a §6.7 boundary only
+  when the new value clears the boundary by `belief_hyst` (0.05)
+  — a rumor hovering at believe_p ≈ 0.45 does not flicker
+  rumor↔belief across adjacent recalls [HYPOTHESIS; flicker would
+  read as instability to the history browser and produces no
+  observable human correlate either way].
+- **Doubted is sticky.** `beliefStatus:"doubted"` written by the
+  §6.6 retraction path is *not* recomputed by the normal
+  derivation for `doubt_persist` expected-days — truth-default
+  literature (Levine 2014, Truth-Default Theory; Street & Masip
+  2015) says doubt, once triggered, is a state with its own
+  persistence, not merely low belief. When `doubt_persist`
+  elapses, the record re-enters normal derivation — a retracted
+  rumor CAN crawl back to "belief" through enough corroboration
+  (continued influence meets recovery; cie_residual keeps feeding
+  gist meanwhile, unchanged). `doubt_persist` is per-character —
+  the "can't unhear it" trait; observable P326.
+- **Truth-default at adoption.** A `told_by` field absent any
+  trigger (disputed, warned, prior contradiction, implausibility
+  < plaus_min) adopts at `truth_default_w` (0.75) — Levine 2014's
+  central claim: communication is believed by default and doubt
+  requires a trigger; the §6.3 moderator stack *is* the trigger
+  list. This relocates the adoption baseline from "suspect then
+  maybe adopt" to "adopt unless flagged" — same moderators,
+  different null [CONSENSUS for the direction; the 0.75 level is
+  HYPOTHESIS calibrated to Gabbert 2003's ~71%].
+- **Rejected alternative (for the record):** AGM-style belief
+  revision (Alchourrón, Gärdenfors & Makinson 1985) — rational
+  contraction/revision operators assume consistency maintenance
+  humans demonstrably lack (Johnson & Seifert 1994 continued
+  influence). Kept as a design note: the FSM above is deliberately
+  *sub*-rational.
+
+Transitions: `rumor → belief|fact` via corroboration-driven
+believe_p crossing + hysteresis; `any → doubted` via retraction,
+authoritative negativeFeedback (§6.3 Shift), or believe_p < 0.2;
+`doubted → derivation` via doubt_persist expiry; `fact` is never
+written directly — only the derivation grants it (no op may
+assert certainty; even witnessed truth decays through
+confidenceInSource first).
+
+## 29. Age-continuity and overlay discipline
+
+`age_eff` moves every tick; params evaluated on it move too. Three
+rules, all invariants:
+
+1. **Continuity:** every age-dependent param must be a continuous
+   (piecewise-linear at worst) function of `age_eff`. A step
+   discontinuity in a param = a bug or an unmodelled event, never
+   a curve edge. Knot tables already comply; new knots must too.
+   Day-over-day param drift bounded by the curve's own slope —
+   probe P329.
+2. **States ≠ params:** time-scoped conditions (meno/preg/intox/
+   sleepdep/isolation/terminal) enter through `context` overlays
+   or event tags, which load multiplicatively ON param outputs.
+   They may switch on/off discontinuously (that's what a state is)
+   but their *exit* restores the param surface exactly — no
+   hysteresis in the parameter layer itself.
+3. **Era vs capacity:** era terms (amnesia ramp, bump window) read
+   `encodeAge` frozen at record birth; capacity terms (β, θ,
+   search_breadth, misinfo_suscept…) read `age_eff` at op time.
+   A function reading the wrong one is a spec violation even if
+   numerically plausible — P329 mutation-tests this by advancing
+   only `worldDay` on a fixed record set.
+
+Rationale: a 70th birthday does not make a character forget
+differently at midnight than at 23:59; a menopause overlay ending
+does not leave residue on the parameter surface (the SWAN rebound
+is *return to trajectory*, Greendale 2009, not a new phenotype).
+
+## 30. Input validation, failure semantics, schema versioning
+
+The substrate sees events from systems it doesn't control. Rules:
+
+- **Scalar out-of-range → clamp to declared domain, log once per
+  (field, charId) pair.** Arousal 1.4 encodes as 1.0. Silent
+  clamping everywhere would hide world bugs; rejecting would
+  corrupt the ledger — clamp+dedup-log is the compromise
+  [HYPOTHESIS].
+- **NaN/±Inf anywhere → reject the whole op, log, return null.**
+  NaN propagation is the one failure mode that silently poisons
+  every downstream invariant (P70). Better a dropped memory than
+  a NaN rumor that outlives the world.
+- **Missing required fields** (event.day, participants on dyadic
+  ops, account content) → skip op + log. Missing optional fields
+  → defaults per §2 derivation defaults; the substrate never
+  invents participant lists.
+- **Unknown enum values** → treat as the null/absent case
+  (forward-compat: a v4 event field a v3.3 substrate doesn't know
+  must degrade, not crash).
+- **Schema versioning:** every snapshot carries `specVersion`
+  ("3.3"). Migration is a pure function
+  `migrate(snap, fromVersion)`: additive fields get their
+  defaults (this is why every contract entry says
+  "snapshot-additive, default-neutral"), removed fields are
+  archived verbatim under `legacy` (never dropped — the history
+  browser reads them), changed semantics get a named migration
+  branch. An op may never read `legacy` — it's forensic storage.
+
+## 31. Graceful degradation ladder
+
+§5 sized the budget for mains; nothing says what to shed when a
+scene spikes (a block-party event with 20 participants and 5
+overheard dyads). Shed in order, restore in reverse; each level
+names which probes still hold — degradation must never change
+*expected* values, only variance and coverage:
+
+| level | shed | probes still required |
+|---|---|---|
+| L0 | nothing | all |
+| L1 | §5.7 involuntary scan for characters not on-screen; FOK retry | all except intrusion-rate probes |
+| L2 | interference buckets sampled (catch-up semantics §6) instead of enumerated | P70, P71; PI/merge probes degrade to sampled-tolerance |
+| L3 | ambient cadence for off-screen mains (ambient_tick_mult) | census P197 relaxes ×tick_mult |
+| L4 | decay+consolidation only — no mints (phantom/transplant/conjunction), no sourceInfer, no merge | boundedness P70, determinism P68 only |
+
+The ladder is *visibility-scoped*: the camera's neighborhood runs
+L0–L1, the far block runs L3. A character walking on-screen mid-tick
+finishes the tick at its current level and upgrades next tick —
+mid-tick level changes would break tick-granularity invariance
+(P71). **Rule:** degradation chooses among *documented* modes only;
+improvised shortcuts (skipping decay entirely) are spec violations —
+the worst a degraded world may do is forget on schedule, never
+remember forever for free.
+
+## 32. The fitting layer — parameter recovery, probe statistics, sensitivity
+
+The spec carries ~70 free per-character params and 321+ probes; no
+one will ever hand-tune it. This section defines the protocol that
+makes it *fittable* — and falsifiable in the technical sense, not
+just the vibe.
+
+### 32.1 Parameter-recovery protocol (a probe, not a hope)
+
+A model whose parameters cannot be recovered from its own output is
+unfittable — the standard test is parameter recovery on synthetic
+data (Nilsson, Rieskamp & Wagenmakers 2011, J. Math. Psychology 55:84
+— hierarchical recovery of CPT parameters; Palminteri, Wyart &
+Koechlin 2017, TICS 21:425 — model simulation + recovery as the
+minimum falsification discipline for computational models).
+
+```
+recoveryRun(params_true):
+  1. deriveParams → params_true for a test character
+  2. scripted 200-day event diet (the P68 script family)
+  3. measure the §21 composite observables + probe-level rates
+  4. fit params_hat by matching composites (moment matching on the
+     8 stiff directions — NOT per-param regression)
+  5. PASS if every composite within recov_tol (0.10) of true AND
+     each per-char param whose observable is a named probe
+     recovers within 20%
+```
+
+The sloppy-model audit (§4) predicts step 5 fails for sloppy
+directions — that's the point: **params that fail recovery get
+frozen to population constants** at the next version, shrinking the
+free set to what data can actually see (Gutenkunst et al. 2007).
+
+### 32.2 Probe statistics — n, tolerance, multiple comparisons
+
+Probes assert proportions and orderings; each needs a declared n
+and CI rule or the suite is unfalsifiable mush:
+
+- **Proportion probes** report Wilson score intervals (Wilson 1927)
+  at 95%; required n: ≥384 draws for ±5% at worst-case p=0.5 —
+  cheap probes run ≥400 draws, expensive dyadic probes ≥100 at
+  ±10% tolerance and must say so.
+- **Sign-locked probes** (MUST — sign) need only n ≥ 60 with
+  one-sided binomial rejection of the null direction.
+- **Multiple comparisons:** with ~330 assertions, expected false
+  positives at nominal α=0.05 ≈ 16 — intolerable for regression
+  gating. The suite applies Benjamini–Hochberg at `bh_q` = 0.1
+  across each probe *family* (per-version blocks); a probe that
+  only fails under BH is flagged flaky, not failed — rerun at 4× n
+  before opening a bug (BH 1995, JRSS-B 57:289 — controls FDR
+  under arbitrary dependence, the right choice for probes sharing
+  a substrate).
+- **Golden runs:** P68's deterministic seed family doubles as the
+  regression golden; composite fingerprints (§21) are the diff
+  surface — refactor equivalence = same fingerprints, not same
+  raw params (Palminteri et al. 2017's "fit the behavior, not the
+  parameters").
+
+### 32.3 Sensitivity screening — the sloppy-model map, operationalized
+
+Publish which params matter: **Morris-method elementary-effects
+screening** (Morris 1991, Technometrics 33:161) over all free
+params × the 8 §21 composites — r ≈ 10 trajectories per param is
+enough to rank μ* (mean |effect|) against σ (interaction). Expected
+output per spec design: ~15–20 stiff params dominate every
+composite (β classes, enc_base/att_min, drift_p, misinfo_suscept,
+fan_k, level_frac); the long tail is sloppy. Guidance for
+world-builder bibles and future memory versions: **new per-char
+variance should be allocated to stiff params** — variance spent on
+sloppy params is invisible and unverifiable. The screening is a
+harness tool, not a runtime cost (P332).
+
+## 33. New params (spec §7 v3.3 block) — audit-compliant
+
+| param | default | free? | observable |
+|---|---|---|---|
+| belief_hyst | 0.05 | pop | P326 flicker band |
+| doubt_persist | 30 (days) | per-char | P326b doubt stickiness — "can't unhear it" |
+| truth_default_w | 0.75 | pop | P327 adoption baseline |
+| session_scan_cap_base | 2 | pop | P328 turn budget (×members+2) |
+| recov_tol | 0.10 | harness | P330 |
+| bh_q | 0.10 | harness | P331 |
+| probe_n_prop / probe_n_sign | 384 / 60 | harness | P331 |
+
+7 entries, 1 per-character — the society/fitting layer is almost
+all population machinery and protocol. `doubt_persist` is the only
+trait-shaped dial: how long a trusted correction keeps a record
+marked "don't trust this" after the evidence fades.
+
+## 34. Formal/consistency probes (P322–P333)
+
+- **P322 broadcast independence (MUST — structure):** one ledger
+  event, n participants → records differ in E/verbatim in
+  directions predicted by each participant's attention+params;
+  a shared draw (identical records modulo order) is a FAIL.
+- **P323 dyadic causal order (MUST — structure):** instrumented
+  retell → the transmitted account reflects the speaker's
+  *post-drift* record; a pre-drift transmission is a FAIL.
+- **P324 tick atomicity (MUST — determinism):** scripted dyadic op
+  inside a tick window; no observer ever sees a partially-ticked
+  counterparty; replay bit-identical.
+- **P325 society snapshot (MUST):** societySnapshot at a ledger
+  boundary → resume → same states at t+10 across all 28 stores.
+- **P326 status hysteresis (SHOULD):** believe_p oscillating
+  ±0.02 across the 0.45 boundary produces ≤1 status change;
+  retracted records stay "doubted" for ≈doubt_persist days then
+  re-derive.
+- **P327 truth-default (SHOULD — sign):** untriggered told_by
+  fields adopt at ≥ truth_default_w−0.1; identical fields with a
+  trigger adopt below 0.3. Level constrains truth_default_w.
+- **P328 session termination (MUST — bound):** no session exceeds
+  session_scan_cap scans; anchor chains never revisit `visited`;
+  anchor never crosses sessions.
+- **P329 age-continuity (MUST — invariant):** over a 10-year
+  scripted life, day-over-day |Δparam| bounded by the knot-curve
+  slope (+ declared jitter); era-vs-capacity mutation test:
+  advancing worldDay on frozen records must not move encodeAge.
+- **P330 parameter recovery (SHOULD — falsification gate):**
+  recoveryRun passes for all §21 composites within recov_tol;
+  per-char params with named-observable probes recover within
+  20%; params failing twice get frozen (§32.1 rule).
+- **P331 probe statistics (MUST — meta):** every proportion probe
+  declares n ≥ its class minimum and reports Wilson CIs; BH at
+  bh_q applied per family; flaky-probe protocol documented.
+- **P332 degradation equivalence (SHOULD):** L1–L3 runs preserve
+  all §21 composite means within recov_tol (variance may grow);
+  L4 preserves P68/P70 only — documented, not silent.
+- **P333 malformed-input fuzz (MUST — safety):** fuzzed events
+  (NaN, out-of-range, missing required, unknown enums) → no NaN
+  or range escape anywhere downstream (extends P70), skip/clamp
+  log counts match expectations, ledger uncorrupted.
+
+## 35. Summary for game-systems
+
+Nothing new to store, one new stored cache flag (`bs_stale` on
+records — or recompute-at-read if cheaper), one new hidden field
+(`specVersion` on snapshots, `legacy` archive block), three new
+per-op disciplines (broadcast atomicity, dyadic commit order,
+session loop bound), one state-machine discipline on beliefStatus,
+one validation contract, one degradation ladder, and the fitting
+protocol that keeps every future version honest. Runtime cost: a
+boolean + lazy recompute — nil. The fitting layer costs harness
+time, not game time.

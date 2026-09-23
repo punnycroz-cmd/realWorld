@@ -1,4 +1,29 @@
-# Memory Model Spec v3.2 — implementable human-like memory for RW characters
+# Memory Model Spec v3.3 — implementable human-like memory for RW characters
+
+> **v3.3 note (formal-model IV — the society layer, the cache
+> discipline, the fitting layer):** `memory/formal-model.md` Part IV
+> (§§26–35) pins everything *between* characters and everything that
+> happens *to the spec itself*: **shared-event broadcast** — one
+> ledger event, one independent encodeEvent per participant, atomic
+> vs ticks, sorted-charId order (Loftus; Bartlett) — §26;
+> **dyadic transaction order** — speaker drift commits before
+> transmission, crash-legal step boundary, per-charId RNG streams —
+> §26.2; **societySnapshot** at ledger boundaries only — §26.3;
+> **conversationSession loop** — anchor chaining, visited-set, FOK
+> retry, session_scan_cap termination — §27; **beliefStatus cache
+> discipline** — derived pair authoritative, stored field a dirty-
+> flagged cache, `belief_hyst` hysteresis, sticky `doubted` with
+> `doubt_persist`, truth-default adoption baseline `truth_default_w`
+> (Levine 2014; AGM rejected as too rational — §28); **age-continuity
+> invariants** — params Lipschitz in age_eff, states via overlays,
+> era-vs-capacity discipline — §29; **input validation** — clamp+log /
+> NaN-reject / unknown-enum-degrades / `specVersion`+`migrate` schema
+> versioning — §30; **degradation ladder L0–L4** — documented modes
+> only, visibility-scoped — §31; **fitting layer** — parameter-
+> recovery protocol (Nilsson et al. 2011; Palminteri et al. 2017),
+> Wilson-CI/Benjamini–Hochberg probe statistics, Morris sensitivity
+> screening of the sloppy-model map — §32. +7 params in §7; probes
+> P322–P333. All optional, default-neutral.
 
 > **v3.2 note (social-memory III — the other person's ledger):**
 > `memory/social-memory.md` Part III (§§32–47) adds the dyadic
@@ -2782,6 +2807,18 @@ beliefStatus: >0.8 fact · 0.45–0.8 belief · 0.2–0.45 rumor ·
   fluency — the Fazio et al. 2015 knowledge-neglect direction
   *inverts* with age; `rep_gain` stays age-flat — the fluency channel
   itself doesn't weaken). P268 requires both arms.
+- **v3.3 — cache discipline + truth-default (formal-model.md §28):**
+  the stored `beliefStatus` is a write-time **cache** of the derived
+  pair, consulted by cheap paths (retell selection, rumor tagging);
+  any op mutating believe_p inputs marks `bs_stale` and the status
+  recomputes lazily on next read. Transitions clear a boundary only
+  by `belief_hyst` (no recall-to-recall flicker); `"doubted"` written
+  by §6.6 retraction is sticky for `doubt_persist` days, then the
+  record re-enters normal derivation. Untriggered `told_by` fields
+  adopt at baseline `truth_default_w` — Levine (2014) truth-default:
+  doubt requires a trigger; the §6.3 moderator stack IS the trigger
+  list. `fact` is never written directly — only the derivation
+  grants it.
 
 ### 6.8 Phantom / gist-lure records (new in v0.6)
 
@@ -3970,6 +4007,12 @@ MemoryParams = {
   "transference_fill": 0.15, "transference_pool": 5, // §6.32
   "novel_pick_w": 3.0, "told_pen": 0.5, // retell novelty gate (§6.11)
   "phrase_surv_base": 0.7, "phrase_distinct_mult": 1.4, // §6.12
+  // v3.3 additions (formal-model IV — society/cache/fitting layer,
+  // formal-model.md Part IV §§26–35)
+  "belief_hyst": 0.05,       // status-boundary hysteresis (§6.7 cache)
+  "doubt_persist": 30,       // days a retraction holds "doubted" (§6.7)
+  "truth_default_w": 0.75,   // untriggered told_by adoption baseline (§6.3)
+  "session_scan_cap_base": 2,// scans/session = base·|members|+2 (§27)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -4054,6 +4097,10 @@ MemoryParams = {
 //   conj_thresh, cat_resist declared AGE-FLAT (cite-guarded —
 //   Chan 2009 found reversed-testing in both cohorts; VO and
 //   truthiness lack age-gradient evidence; P286/P291/P295 guards)
+// v3.3 frozen constants (formal-model.md Part IV):
+//   recov_tol = 0.10, bh_q = 0.10, probe_n_prop = 384, probe_n_sign = 60
+//   (harness-level — live in the probe harness, not MemoryParams);
+//   degradation ladder L0–L4 is a documented-modes contract, not params
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -4674,6 +4721,29 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     `exposureCount` — no episode record is created.
   - Snapshot-additive: all PersonModel fields default-neutral;
     `phrasing`/`sitConstraint`/`status` absent = legacy behavior.
+- v3.3 additions (formal-model.md Part IV §§26–35):
+  - `broadcastEvent(event)` → one `encodeEvent` per participant,
+    atomic vs daily ticks, sorted-charId order; cross-tick reads use
+    each store as it stands (formal-model §26.1).
+  - `retell` is a two-store transaction: speaker drift commits before
+    the transmission operators run; crash between speaker-commit and
+    listener-encode is legal (formal-model §26.2).
+  - `societySnapshot()` → {ledgerDay, ledgerSeq, per-char snapshots};
+    legal only at a ledger boundary (§26.3).
+  - `conversationSession(members)` wraps recall/retell sequences:
+    session-scoped `temporalAnchor`, `visited` set, `session_scan_cap`
+    bound (§27).
+  - Records gain `bs_stale` cache flag; snapshots gain `specVersion`
+    + `legacy` archive block; `migrate(snap, fromVersion)` is the
+    versioning contract (§§28, 30).
+  - Input validation contract: clamp+log for range violations,
+    reject-on-NaN, skip-on-missing-required, degrade-on-unknown-enum
+    (§30).
+  - `dailyMemoryTick`/`ambientMemoryScan` accept `level` ∈ L0–L4 per
+    the degradation ladder; levels are visibility-scoped (§31).
+  - Harness contract (no runtime cost): parameter-recovery runs,
+    Wilson-CI/BH probe statistics, Morris sensitivity screening —
+    probe numbers P322–P333 (§32).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
@@ -4704,3 +4774,14 @@ Truncated-Gaussian draws (±3σ then domain-clamp); drift steps
 probe harnesses refactor-safe; correlated draws share the first
 uniform where the mechanism is causal (one distracted moment → bad
 encode AND bad retrieval).
+### 11.3 Society and session semantics (new in v3.3, formal-model.md §§26–27)
+
+`broadcastEvent` = sorted-charId independent encodeEvents, atomic vs
+daily ticks; dyadic ops commit speaker-side before listener-side;
+`societySnapshot` only at ledger boundaries; `conversationSession`
+bounds anchor chains (visited set) and scans (session_scan_cap);
+`beliefStatus` is a dirty-flagged cache of the §6.7 derivation with
+`belief_hyst` hysteresis and `doubt_persist` sticky retraction;
+validation = clamp+log | reject-NaN | skip-missing | degrade-unknown;
+snapshots carry `specVersion`, migrate() is additive-only with a
+`legacy` archive; degradation = documented L0–L4 modes only.

@@ -1538,3 +1538,37 @@ adds beyond the v8 person layer and v20 talk ecology:
   structure-locked MUSTs). 15+ sources verified via web (Gopie DOIs,
   Ratcliff PSPB, Collins & Miller Psych. Bull., Andersen & Chen
   Psych. Rev., Gilbert JPSP, Brambilla EJSP — all confirmed).
+
+## 33. v33 — formal-model IV: what the society layer borrows from the literature
+
+Fourth formal-model pass (`memory/formal-model.md` Part IV,
+§§26–35). Methodological grounding, not new memory mechanisms:
+
+- **Truth-default as the adoption prior.** Levine (2014, J. Lang.
+  Soc. Psych.) — communication is believed unless a trigger fires;
+  Street & Masip (2015) situate lie-detection inside it. RW
+  consequence: `told_by` adoption flips from suspect-then-maybe
+  to adopt-unless-flagged, with the §6.3 moderator stack AS the
+  trigger list. AGM belief revision (Alchourrón, Gärdenfors &
+  Makinson 1985) documented as a REJECTED alternative — rational
+  consistency maintenance is empirically false for humans
+  (Johnson & Seifert 1994 continued influence).
+- **Parameter recovery = the falsification gate.** Nilsson,
+  Rieskamp & Wagenmakers (2011, J. Math. Psych. 55:84) and
+  Palminteri, Wyart & Koechlin (2017, TICS 21:425): a model whose
+  parameters can't be recovered from its own simulations is
+  unfittable. recoveryRun + the freeze rule turns §4's sloppy-
+  model audit into a convergent loop — params that fail recovery
+  twice become population constants.
+- **Probe statistics.** Wilson (1927) intervals on proportion
+  probes; Benjamini–Hochberg (1995) FDR at q=0.1 across ~330
+  assertions — nominal α would yield ~16 false-positive failures;
+  flaky-probe 4×n rerun protocol.
+- **Sensitivity screening.** Morris (1991, Technometrics 33:161)
+  elementary-effects map over free params × the §21 composites —
+  publishes which params the bible authors should actually vary.
+- **Society semantics** (broadcast atomicity, dyadic commit order,
+  session bounds, snapshot cuts, validation contract, degradation
+  ladder) are engineering law — no literature claim; the
+  psychological content they carry is witness divergence (Loftus
+  1979) and co-witness conformity (Gabbert, Memon & Allan 2003).
