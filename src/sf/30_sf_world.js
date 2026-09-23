@@ -95,12 +95,16 @@ function sfGenChunk(cx, cy){
 
 /* ---- collision: buildings block, door thresholds pass ---- */
 const SF_PROP_CELL = new Map(); // "wx,wy" -> [objs] spatial index (v5)
+const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       sfStreetTree: 6, sfCypress: 7, sfPlanter: 5 };
 function sfPropIndex(o){
   const k = o.wx + ',' + o.wy;
   if(!SF_PROP_CELL.has(k)) SF_PROP_CELL.set(k, []);
   SF_PROP_CELL.get(k).push(o);
+  const ck = Math.floor(o.wx / CHN) + ',' + Math.floor(o.wy / CHN);
+  if(!SF_PROP_DRAW.has(ck)) SF_PROP_DRAW.set(ck, []);
+  SF_PROP_DRAW.get(ck).push(o);
 }
 function sfCanMoveTo(x, y, v){
   const r = 8;
@@ -386,6 +390,7 @@ function sfInitWorld(){
   // street furniture props
   VILLAGE_OBJECTS.length = 0;
   SF_PROP_CELL.clear();
+  SF_PROP_DRAW.clear();
   const occ = new Set(); // occupied cells (any prop) for spacing checks
   for(const p of SF_MAP.props){
     const kind = p.k === 'tree' ? 'sfTree' : p.k === 'palm' ? 'sfPalm'

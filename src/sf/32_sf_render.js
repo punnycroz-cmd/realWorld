@@ -206,6 +206,20 @@ function sfCloudShadow(mx, my){
   }
   return Math.min(1, sh * (0.4 + 0.6 * sfCloudCover()));
 }
+/* v11: ground-projected cloud blobs resolved ONCE per frame — the street
+   ground pass used to re-run sfCloudPos (wrap/mod math) for every cell x
+   every cloud. Same shadow field, a fraction of the arithmetic. */
+function sfShadowBlobs(){
+  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
+  const out = [];
+  for(let i = 0; i < n; i++){
+    const c = cs[i];
+    const [cx, cy] = sfCloudPos(c);
+    out.push([cx - SF_SUN.x * SF_CLOUD_ALT, cy - SF_SUN.y * SF_CLOUD_ALT,
+              c.r * c.r, c.a]);
+  }
+  return out;
+}
 /* screen-space rain shared by both SF views */
 function sfRainOverlay(cw, ch, slant){
   ctx.fillStyle = `rgba(60,72,96,${W.rain * 0.14})`;
@@ -285,17 +299,18 @@ function sfParkCenterM(){
       drawn in both views, and facade micro-detail (dentils, brackets,
       ivy, flower boxes) is distance-tiered so far walls cost far less.
    Physically: same sun, same wind, same wet streets — just cheaper. */
-const SF_PERF = { ms: 0, fps: 60, t0: 0, last: 0 };
+const SF_PERF = { ms: 0, fps: 60, t0: 0, last: 0, info: '' };
 function sfPerfBegin(){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   if(SF_PERF.last) SF_PERF.fps += (1000 / Math.max(1, now - SF_PERF.last) - SF_PERF.fps) * 0.06;
-  SF_PERF.last = now; SF_PERF.t0 = now;
+  SF_PERF.last = now; SF_PERF.t0 = now; SF_PERF.info = '';
 }
 function sfPerfHud(cw, ch){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   SF_PERF.ms += (now - SF_PERF.t0 - SF_PERF.ms) * 0.1;
   const ms = SF_PERF.ms, fps = Math.min(240, SF_PERF.fps);
-  const lab = `PERF ${fps.toFixed(0)}fps ${ms.toFixed(1)}ms`;
+  const lab = `PERF ${fps.toFixed(0)}fps ${ms.toFixed(1)}ms` +
+              (SF_PERF.info ? ' ' + SF_PERF.info : '');
   ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
   const tw = ctx.measureText(lab).width;
   const x = cw - tw - 30, y = ch - 14;
@@ -306,7 +321,57 @@ function sfPerfHud(cw, ch){
   ctx.fillStyle = ms < 16.7 ? '#8fe6a0' : (ms < 33 ? '#f0d060' : '#f08a6a');
   ctx.fillText(lab, x, y);
 }
-const SF_TERR = { c: null, g: null, key: '' };
+/* ---------------- v11: chunked terrain atlas ----------------
+   The v10 viewport bake re-rendered the whole visible tile field (~13k
+   tile ops) every time the pixel-quantized camera moved — i.e. on every
+   frame of a pan. v11 instead bakes each 16x16-cell chunk (512x512px of
+   world) ONCE into a persistent offscreen canvas at canonical scale and
+   keeps it in an LRU map keyed by chunk + wetness bucket. A camera pan
+   is then ~40 canvas blits and ZERO tile re-renders; only a wetness
+   bucket crossing re-renders the visible chunks. Row/column spans use
+   round-to-round extents so chunks abut seamlessly at any zoom. */
+const SF_TERR = { cache: new Map(), max: 96 };
+function sfTerrChunk(cx, cy, wetQ){
+  const key = cx + ',' + cy + ',' + wetQ;
+  const hit = SF_TERR.cache.get(key);
+  if(hit){ // LRU touch
+    SF_TERR.cache.delete(key); SF_TERR.cache.set(key, hit); return hit;
+  }
+  if(typeof document === 'undefined') return null;
+  const csz = CS, cszT = CS * SF_TILT;   // canonical scale = zoom 1
+  const c = document.createElement('canvas');
+  c.width = CHN * csz;
+  c.height = Math.round(CHN * cszT);
+  const g = c.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  for(let iy = 0; iy < CHN; iy++){
+    const sy = Math.round(iy * cszT), sh = Math.round((iy + 1) * cszT) - sy;
+    for(let ix = 0; ix < CHN; ix++){
+      const wx = cx * CHN + ix, wy = cy * CHN + iy;
+      const tt = sfTile(wx, wy);
+      const spr = sfTerrainTile(wx, wy, tt);
+      const sx = ix * csz;
+      if(spr && spr.c) g.drawImage(spr.c, sx, sy, csz, sh);
+      // v7: wetness memory — soaked hardscape darkens, puddles glint
+      if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
+        const wv = SF_WX.wet;
+        g.fillStyle = `rgba(24,32,48,${wv * 0.2})`;
+        g.fillRect(sx, sy, csz, sh);
+        if(wv > 0.25 && hash2(wx, wy, SEED + 1810) < wv * 0.5){
+          const pw = csz * (0.16 + hash2(wx, wy, SEED + 1811) * 0.2);
+          g.fillStyle = `rgba(170,200,230,${wv * 0.34})`;
+          g.beginPath();
+          g.ellipse(sx + csz * 0.5, sy + cszT * 0.56, pw, pw * 0.6 * SF_TILT, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+      }
+    }
+  }
+  SF_TERR.cache.set(key, c);
+  while(SF_TERR.cache.size > SF_TERR.max)
+    SF_TERR.cache.delete(SF_TERR.cache.keys().next().value);
+  return c;
+}
 /* v10: temporal frame cache — a frozen camera + static scene redraws
    identical output 60x a second. We hash everything that can change the
    picture (rig pose, pawn positions, weather buckets, 2Hz wind clock)
@@ -429,57 +494,29 @@ function sfRenderWorld(cw, ch){
   const cs = CS * cam.zoom;
   const csT = cs * SF_TILT;   // v8: squashed ground-plane cell height
 
-  // 1. terrain — v10: baked into a cached viewport-sized layer. The
-  //    camera is quantized to output pixels so a re-bake is bit-exact;
-  //    wetness enters as a coarse bucket (it changes over many seconds).
-  const qx = Math.round(cam.x * cam.zoom);
-  const qy = Math.round(cam.y * cam.zoom * SF_TILT);
+  const wx0 = Math.floor((cam.x - cw / 2 / cam.zoom) / CS) - 1;
+  const wx1 = Math.floor((cam.x + cw / 2 / cam.zoom) / CS) + 1;
+  const wy0 = Math.floor((cam.y - ch / 2 / cam.zoom / SF_TILT) / CS) - 1;
+  const wy1 = Math.floor((cam.y + ch / 2 / cam.zoom / SF_TILT) / CS) + 1;
+
+  // 1. terrain — v11: chunked atlas. Each visible 16x16-cell chunk is one
+  //    persistent canvas blit; camera pans never re-render tiles. Wetness
+  //    is part of the chunk key (it changes over many seconds). A 0.75px
+  //    draw overlap hides hairline seams at fractional zooms.
   const wetQ = Math.round(SF_WX.wet * 8);
-  const tkey = qx + ',' + qy + ',' + cam.zoom + ',' + cw + ',' + ch + ',' + wetQ;
-  if(SF_TERR.key !== tkey){
-    if(!SF_TERR.c && typeof document !== 'undefined'){
-      SF_TERR.c = document.createElement('canvas');
-      SF_TERR.g = SF_TERR.c.getContext('2d');
-    }
-    if(SF_TERR.c){
-      if(SF_TERR.c.width !== cw || SF_TERR.c.height !== ch){
-        SF_TERR.c.width = cw; SF_TERR.c.height = ch;
-      }
-      const g = SF_TERR.g;
-      g.imageSmoothingEnabled = false;
-      g.clearRect(0, 0, cw, ch);
-      const ecx = qx / cam.zoom, ecy = qy / (cam.zoom * SF_TILT);
-      const wx0 = Math.floor((ecx - cw / 2 / cam.zoom) / CS) - 1;
-      const wx1 = Math.floor((ecx + cw / 2 / cam.zoom) / CS) + 1;
-      const wy0 = Math.floor((ecy - ch / 2 / cam.zoom / SF_TILT) / CS) - 1;
-      const wy1 = Math.floor((ecy + ch / 2 / cam.zoom / SF_TILT) / CS) + 1;
-      for(let wy = wy0; wy <= wy1; wy++){
-        for(let wx = wx0; wx <= wx1; wx++){
-          const { c, i } = cellChunk(wx, wy);
-          const tt = c.tileType[i];
-          const spr = sfTerrainTile(wx, wy, tt);
-          const sx = Math.round((wx * CS - ecx) * cam.zoom + cw / 2);
-          const sy = Math.round((wy * CS - ecy) * cam.zoom * SF_TILT + ch / 2);
-          if(spr && spr.c) g.drawImage(spr.c, sx, sy, cs, csT);
-          // v7: wetness memory — soaked hardscape darkens, puddles glint
-          if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
-            const wv = SF_WX.wet;
-            g.fillStyle = `rgba(24,32,48,${wv * 0.2})`;
-            g.fillRect(sx, sy, cs, csT);
-            if(wv > 0.25 && hash2(wx, wy, SEED + 1810) < wv * 0.5){
-              const pw = cs * (0.16 + hash2(wx, wy, SEED + 1811) * 0.2);
-              g.fillStyle = `rgba(170,200,230,${wv * 0.34})`;
-              g.beginPath();
-              g.ellipse(sx + cs * 0.5, sy + csT * 0.56, pw, pw * 0.6 * SF_TILT, 0, 0, Math.PI * 2);
-              g.fill();
-            }
-          }
-        }
-      }
-      SF_TERR.key = tkey;
+  let nChunks = 0;
+  for(let cy = Math.floor(wy0 / CHN); cy <= Math.floor(wy1 / CHN); cy++){
+    for(let cx = Math.floor(wx0 / CHN); cx <= Math.floor(wx1 / CHN); cx++){
+      const tc = sfTerrChunk(cx, cy, wetQ);
+      if(!tc) continue;
+      nChunks++;
+      ctx.drawImage(tc,
+        (cx * CHN * CS - cam.x) * cam.zoom + cw / 2,
+        (cy * CHN * CS - cam.y) * cam.zoom * SF_TILT + ch / 2,
+        CHN * CS * cam.zoom + 0.75, CHN * CS * cam.zoom * SF_TILT + 0.75);
     }
   }
-  if(SF_TERR.c) ctx.drawImage(SF_TERR.c, 0, 0);
+  SF_PERF.info = nChunks + 'chk';
 
   // v10: dappled cloud light — one seamless blob texture scrolled on the
   // wind vector instead of per-tile fbm; same cause (drifting cumulus),
@@ -495,10 +532,6 @@ function sfRenderWorld(cw, ch){
         ctx.drawImage(tex, tx, ty);
     ctx.globalAlpha = 1;
   }
-  const wx0 = Math.floor((cam.x - cw / 2 / cam.zoom) / CS) - 1;
-  const wx1 = Math.floor((cam.x + cw / 2 / cam.zoom) / CS) + 1;
-  const wy0 = Math.floor((cam.y - ch / 2 / cam.zoom / SF_TILT) / CS) - 1;
-  const wy1 = Math.floor((cam.y + ch / 2 / cam.zoom / SF_TILT) / CS) + 1;
 
   // 2. collect drawables: buildings in view + props + pawns, y-sorted
   const drawables = [];
@@ -518,10 +551,24 @@ function sfRenderWorld(cw, ch){
       }
     }
   }
-  for(const o of VILLAGE_OBJECTS){
-    if(o.x < cam.x - cw / 2 / cam.zoom - 64 || o.x > cam.x + cw / 2 / cam.zoom + 64) continue;
-    if(o.y < cam.y - ch / 2 / cam.zoom / SF_TILT - 200 || o.y > cam.y + ch / 2 / cam.zoom / SF_TILT + 32) continue;
-    drawables.push({ kind: 'prop', y: o.y, o });
+  // v11: props come from the chunk index — only chunks overlapping the
+  // view rect (padded by the same pixel margins the per-prop test uses,
+  // plus one cell of sub-cell jitter) are walked. The emitted set is
+  // identical to the old full-map scan.
+  const px0 = Math.floor((cam.x - cw / 2 / cam.zoom - 64 - CS) / CS);
+  const px1 = Math.floor((cam.x + cw / 2 / cam.zoom + 64 + CS) / CS);
+  const py0 = Math.floor((cam.y - ch / 2 / cam.zoom / SF_TILT - 200 - CS) / CS);
+  const py1 = Math.floor((cam.y + ch / 2 / cam.zoom / SF_TILT + 32 + CS) / CS);
+  for(let cy = Math.floor(py0 / CHN); cy <= Math.floor(py1 / CHN); cy++){
+    for(let cx = Math.floor(px0 / CHN); cx <= Math.floor(px1 / CHN); cx++){
+      const lst = SF_PROP_DRAW.get(cx + ',' + cy);
+      if(!lst) continue;
+      for(const o of lst){
+        if(o.x < cam.x - cw / 2 / cam.zoom - 64 || o.x > cam.x + cw / 2 / cam.zoom + 64) continue;
+        if(o.y < cam.y - ch / 2 / cam.zoom / SF_TILT - 200 || o.y > cam.y + ch / 2 / cam.zoom / SF_TILT + 32) continue;
+        drawables.push({ kind: 'prop', y: o.y, o });
+      }
+    }
   }
   for(const v of VILLAGERS){
     if(v.inBuilding && v !== VILLAGERS[controlledPawnIdx]) continue;
@@ -1361,63 +1408,96 @@ function sfRenderStreet(cw, ch){
     }
   }
   cells.sort((a, b) => b[2] - a[2]);
+  /* v11: batched ground fills. The old pass issued up to 4 beginPath/fill
+     pairs per cell (base + haze + cloud shadow + wet film) — thousands of
+     canvas state changes per frame. Ground quads tile the plane without
+     overlapping, so they are bucketed by fill style into flat coordinate
+     arrays and flushed as paths of ~48 quads each (measured sweet spot:
+     big enough to amortize fill dispatch, small enough for fast
+     rasterization). Overlay alphas are quantized to 1/24 — an invisible
+     step — so they share buckets. Sparse extras (zebra hints, puddle
+     glints) keep their own shapes in a post list. */
+  const fills = new Map();   // style -> [x1,y1,x2,y2,x3,y3,x4,y4, ...]
+  const post = [];           // [0 zebra|1 puddle, p1,p2,p3,p4, wv?]
+  const shBlobs = night ? null : sfShadowBlobs();
+  const qEmit = (style, p1, p2, p3, p4) => {
+    let a = fills.get(style);
+    if(!a){ a = []; fills.set(style, a); }
+    a.push(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+  };
   for(const [wxm, wym, cfwd, t] of cells){
     const c = cm;
     const p1 = pr(wxm, wym, 0), p2 = pr(wxm + c, wym, 0),
           p3 = pr(wxm + c, wym + c, 0), p4 = pr(wxm, wym + c, 0);
     if(!p1 || !p2 || !p3 || !p4) continue;
-    ctx.fillStyle = COLS[t] || '#a8977a';
-    ctx.beginPath();
-    ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-    ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
-    ctx.closePath(); ctx.fill();
+    qEmit(COLS[t] || '#a8977a', p1, p2, p3, p4);
     // v9: aerial perspective — far pavement dissolves into the marine layer
     const cHz = sfHazeA(cfwd);
     if(cHz > 0.02){
-      ctx.fillStyle = `rgba(${SF_WX.hazeRGB},${cHz})`;
-      ctx.beginPath();
-      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
-      ctx.closePath(); ctx.fill();
+      const qb = Math.round(cHz * 24);
+      if(qb > 0) qEmit(`rgba(${SF_WX.hazeRGB},${qb / 24})`, p1, p2, p3, p4);
     }
-    // v6: cloud shadow sliding over the pavement
-    const csh = !night ? sfCloudShadow(wxm + cm / 2, wym + cm / 2) : 0;
+    // v6: cloud shadow sliding over the pavement (v11: blobs hoisted)
+    let csh = 0;
+    if(shBlobs){
+      const mx2 = wxm + cm / 2, my2 = wym + cm / 2;
+      for(const sc of shBlobs){
+        const dx2 = mx2 - sc[0], dy2 = my2 - sc[1];
+        const d2 = dx2 * dx2 + dy2 * dy2;
+        if(d2 < sc[2] * 4) csh += sc[3] * Math.exp(-d2 / sc[2]);
+      }
+      csh = Math.min(1, csh * (0.4 + 0.6 * cover));
+    }
     if(csh > 0.04){
-      ctx.fillStyle = `rgba(28,36,60,${csh * 0.34})`;
-      ctx.beginPath();
-      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
-      ctx.closePath(); ctx.fill();
+      const qa = Math.round(csh * 0.34 * 24);
+      if(qa > 0) qEmit(`rgba(28,36,60,${qa / 24})`, p1, p2, p3, p4);
     }
     // v7: wetness memory — hardscape darkens, puddles mirror the sky
     if(SF_WX.wet > 0.05 && (t === 10 || t === 11 || t === 14 || t === 16)){
       const wv = SF_WX.wet;
-      ctx.fillStyle = `rgba(26,34,52,${wv * 0.2})`;
-      ctx.beginPath();
-      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
-      ctx.closePath(); ctx.fill();
-      if(wv > 0.3 && hash2(wxm | 0, wym | 0, SEED + 1820) < wv * 0.45){
-        const cxp = (p1[0] + p2[0] + p3[0] + p4[0]) / 4,
-              cyp = (p1[1] + p2[1] + p3[1] + p4[1]) / 4;
-        const prw = Math.max(2, Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) * 0.28);
-        ctx.fillStyle = `rgba(172,202,232,${wv * 0.4})`;
-        ctx.beginPath();
-        ctx.ellipse(cxp, cyp, prw * 1.5, prw * 0.45, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = `rgba(230,240,252,${wv * 0.3})`;
-        ctx.beginPath();
-        ctx.ellipse(cxp - prw * 0.3, cyp - prw * 0.1, prw * 0.6, prw * 0.16, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      qEmit(`rgba(26,34,52,${wv * 0.2})`, p1, p2, p3, p4);
+      if(wv > 0.3 && hash2(wxm | 0, wym | 0, SEED + 1820) < wv * 0.45)
+        post.push([1, p1, p2, p3, p4, wv]);
     }
-    if(t === 16){ // zebra hint in perspective
+    if(t === 16) post.push([0, p1, p2, p3, p4]); // zebra hint in perspective
+  }
+  const QUAD_BATCH = 48 * 8;   // coords per fill() — ~48 quads per path
+  for(const [style, a] of fills){
+    ctx.fillStyle = style;
+    for(let base = 0; base < a.length; base += QUAD_BATCH){
+      const end = Math.min(base + QUAD_BATCH, a.length);
+      ctx.beginPath();
+      for(let i = base; i < end; i += 8){
+        ctx.moveTo(a[i], a[i + 1]); ctx.lineTo(a[i + 2], a[i + 3]);
+        ctx.lineTo(a[i + 4], a[i + 5]); ctx.lineTo(a[i + 6], a[i + 7]);
+        ctx.closePath();
+      }
+      ctx.fill();
+    }
+  }
+  for(const q of post){
+    const p1 = q[1], p2 = q[2], p3 = q[3], p4 = q[4];
+    if(q[0] === 0){
       ctx.fillStyle = 'rgba(232,230,223,0.55)';
       ctx.beginPath();
       ctx.moveTo((p1[0] + p2[0]) / 2, p1[1]); ctx.lineTo((p3[0] + p4[0]) / 2, p3[1]);
       ctx.lineTo(p4[0], p4[1]); ctx.lineTo(p1[0], p1[1]); ctx.fill();
+    } else {
+      const wv = q[5];
+      const cxp = (p1[0] + p2[0] + p3[0] + p4[0]) / 4,
+            cyp = (p1[1] + p2[1] + p3[1] + p4[1]) / 4;
+      const prw = Math.max(2, Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) * 0.28);
+      ctx.fillStyle = `rgba(172,202,232,${wv * 0.4})`;
+      ctx.beginPath();
+      ctx.ellipse(cxp, cyp, prw * 1.5, prw * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(230,240,252,${wv * 0.3})`;
+      ctx.beginPath();
+      ctx.ellipse(cxp - prw * 0.3, cyp - prw * 0.1, prw * 0.6, prw * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
+  SF_PERF.info = cells.length + 'cl/' + fills.size + 'fl';
 
   // drawables: buildings, props, pawns — far -> near
   const ds = [];
@@ -1427,11 +1507,28 @@ function sfRenderStreet(cw, ch){
     const fwd = ddx * DX + ddy * DY, side = Math.abs(ddx * DY - ddy * DX);
     if(fwd > 0.3 && fwd < 260 && side < fwd * 1.6 + 60) ds.push({ k: 'b', fwd, b });
   }
-  for(const o of VILLAGE_OBJECTS){
-    const ox = o.x / SF_PXM, oy = o.y / SF_PXM;
-    const ddx = ox - camX, ddy = oy - camY;
-    const fwd = ddx * DX + ddy * DY, side = Math.abs(ddx * DY - ddy * DX);
-    if(fwd > 0.5 && fwd < 120 && side < fwd * 1.4 + 20) ds.push({ k: 'p', fwd, o });
+  // v11: props via the chunk index — walk only the chunks under the view
+  // cone's bounding box (reach 120m, lateral 1.4*fwd+20, plus a cell of
+  // sub-cell jitter) instead of every prop on the map. Same cone test,
+  // same emitted set.
+  {
+    const reach = 120, lat = reach * 1.4 + 20 + cm;
+    const fxm = camX + DX * reach, fym = camY + DY * reach;
+    const xA = Math.min(camX, fxm) - lat, xB = Math.max(camX, fxm) + lat;
+    const yA = Math.min(camY, fym) - lat, yB = Math.max(camY, fym) + lat;
+    const cmCh = CHN * cm;
+    for(let cy = Math.floor(yA / cmCh); cy <= Math.floor(yB / cmCh); cy++){
+      for(let cx = Math.floor(xA / cmCh); cx <= Math.floor(xB / cmCh); cx++){
+        const lst = SF_PROP_DRAW.get(cx + ',' + cy);
+        if(!lst) continue;
+        for(const o of lst){
+          const ox = o.x / SF_PXM, oy = o.y / SF_PXM;
+          const ddx = ox - camX, ddy = oy - camY;
+          const fwd = ddx * DX + ddy * DY, side = Math.abs(ddx * DY - ddy * DX);
+          if(fwd > 0.5 && fwd < 120 && side < fwd * 1.4 + 20) ds.push({ k: 'p', fwd, o });
+        }
+      }
+    }
   }
   for(const pv of VILLAGERS){
     if(pv.inBuilding) continue;
