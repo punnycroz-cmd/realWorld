@@ -920,3 +920,557 @@ to stored confidence, not the report calibration).
 - **Common-ground bookkeeping** is a record-level approximation of a
   real inferential system — we model the characteristic error, not the
   inference itself.
+
+---
+
+# Part III (v32) — the other person's ledger: what talk costs, whom we tell, and who we become to each other
+
+Parts I–II built the person store and the talk ecology. Part III
+deepens the *diadic bookkeeping* — the machinery by which a character
+tracks who they told, whom they trust, and what they *owe* each other
+— plus the two biggest unmodeled forces on person memory: **status**
+and **the receiver's own update of the speaker**. Twelve mechanisms,
+all landing in spec v3.2.
+
+Citations author/year; tiers as in Parts I–II.
+
+## 32. Two-dimensional trait space — morality and competence update by different rules **[CONSENSUS on dimensionality; ROBUST on asymmetry]**
+
+Person perception runs on two semi-independent channels:
+communion/morality ("can I trust them") and agency/competence ("can
+they get it done") — Wojciszke, Bazinska & Jaworski 1998; Fiske,
+Cuddy & Glick 2007 SCM; Abele & Wojciszke 2007. Morality information
+is sought first, weighted heaviest in global evaluation, and
+disconfirmed asymmetrically (Brambilla, Sacchi, Rusconi & Goodwin
+2021 EJSP — participants preferentially sought morality info;
+Brambilla et al. 2019 — moral (not competence) information drives
+impression *revision*; Reeder & Coovert 1986 — immoral impressions
+resist positive counterevidence). Competence shows the mirror-image
+diagnosticity (already in `diag_ability_pos`, §2.2): brilliant acts
+update strongly, mediocre acts barely.
+
+Implement: tag every `PersonModel.traits` key `dim:"moral"|"social"|
+"compet"` (the mapping table is world-builder vocabulary; spec only
+needs the tag). Trait updates keep §2.2 diagnosticity but gain:
+
+- `PersonModel.eval` — a scalar global evaluation recomputed as
+  `eval = moral_primacy·mean(moral traits) + (1−moral_primacy)·
+  mean(other traits)`; `moral_primacy` ≈ 0.65 (Brambilla et al.
+  2012 — morality dominates global impression). `eval` is what
+  `ingroup_factor` (§5 audience tuning) and §37 tell-selection
+  should read — cheap, and it gives the rumor layer a real
+  "how much do I like them" without inventing a relationship
+  system.
+- Moral-negative evidence resists revision asymmetrically —
+  already emergent from `diag_moral_neg`; add the documented
+  complement: counter-moral-positive evidence updates at
+  `moral_rehab` (≈0.4) — redemption is slow, documented
+  (Skowronski & Carlston; "it takes many good deeds to rebuild").
+- Competence traits get no rehab penalty — ability impressions
+  update fluidly in both directions (Wojciszke 1998 asymmetry:
+  competence judgments follow performance; morality judgments
+  are sticky).
+
+Emergent: one witnessed theft writes a durable `eval` crater the
+neighborhood can talk about for months; a bad haircut (competence
+domain) barely registers — reputation heterogeneity across
+characters without any global reputation store.
+
+## 33. Attribution correction under load — the FAE is a resource problem **[CONSENSUS]**
+
+Gilbert, Pelham & Krull 1988 (JPSP): person perception =
+categorization → characterization → **correction**, and only the
+correction stage needs resources — cognitively busy observers infer
+traits *as if* situational constraint didn't exist (the constrained-
+essay effect: they rated the speech-writer as holding the speech's
+position). Trope 1986; Krull 1993 — correction is optional, effortful,
+late. This is the single most important realism rule for social
+memory: **witnesses of constrained behavior store the trait, not the
+context.**
+
+Implement inside the §2.1 STI write: observed behaviors may carry
+`sitConstraint` ∈ [0,1] (event layer supplies: acting under orders,
+stressed, scripted, provoked). The trait delta becomes:
+
+```
+delta = sti_gain · implication · diag_weight ·
+        (1 − sit_credit·sitConstraint·correction_avail)
+correction_avail = min(1, attention / correct_gate)   // gate ≈ 0.6
+sit_credit ≈ 0.7
+```
+
+Busy observers (low attention, `next_in_line` taxed, distracted)
+encode the raw implication — "she was rude" — with the constraint
+field itself at ordinary (weak) verbatim strength, so days later the
+trait survives while the excuse doesn't (β_source > β_content does
+the rest). Emergent and deeply human: characters who witness the
+landlord's curt reply during a fire alarm remember her as cold.
+
+## 34. Status asymmetric person memory — we remember up **[ROBUST]**
+
+Ratcliff, Hugenberg, Shriver & Bernstein 2011 (PSPB, 3 experiments):
+high-status faces are better recognized, draw more attention, get
+stronger identity–location binding, and receive more *holistic*
+(expert-style) face processing. Complement: power dampens
+individuating attention to subordinates — high-power perceivers
+stereotype more and attend less to the low-power other's unique
+attributes (Guinote 2007 review; Fiske 1993 power-as-control:
+the powerful needn't attend, the powerless must). Direction is
+stable across paradigms; effect sizes modest [ROBUST, moderate].
+
+Implement on `PersonModel` accrual and §2 person-event encoding:
+
+```
+status_gap = perceivedStatus(target) − perceivedStatus(self)
+if target != self:
+    E              *= (1 + status_encode_gain·max(0, +gap))
+    familiarity += gain·(1 + status_encode_gain·max(0, +gap))
+    sti delta      *= (1 − power_encode_loss·max(0, −gap))
+```
+
+`status_encode_gain` ≈ 0.15, `power_encode_loss` ≈ 0.2. Status must
+come from the world layer (role/wealth/title tag — the address
+system and landlord role give it for free); absent a tag, gap = 0
+and nothing fires. Emergent: tenants remember the landlord's face
+and habits; the landlord learns tenants' faces slowly and tags them
+category-first (§40) — the classic real-world asymmetry, and a
+reason drama propagates differently up and down the hierarchy.
+
+## 35. Destination memory — remembering whom you told **[CONSENSUS existence; age gradient ROBUST]**
+
+Gopie & MacLeod 2009 (Psych. Science, "Stop Me If I've Told You
+This Before"): memory for *whom you told* is reliably WORSE than
+source memory for *who told you* — telling is self-focused
+production, and the destination is the unattended slot. Gopie,
+Craik & Hasher 2010 (Psych. Aging): older adults disproportionately
+impaired on destination vs. item memory; critically, their
+high-confidence error direction is the **miss** — believing they had
+NOT told someone they had (→ repeats). The teller's own production
+effort crowds out destination encoding — the mechanism is the
+§19 own-turn advantage eating the address field.
+
+Implement: `retell`/`tell` events already log `toldTo`. Give each
+toldTo edge its own strength decaying at `beta_source·
+dest_decay_mult` (≈1.5 — the destination is the weakest link in the
+episode, weaker even than ordinary source). At tell-selection and
+repetition checks:
+
+```
+P(recall told-to X) = toldTo_str vs θ_dest (≈ familiar_thresh)
+miss side  → retell proceeds (repeat telling — same story twice)
+false "already told" → rare (dest_fa ≈ 0.05), rises with age;
+  the confident miss, not the confident false alarm, is the
+  dominant older-adult signature (Gopie et al. 2010)
+```
+
+Age loading: `dest_decay_mult` ×(1 + 0.5·age_eff/60) — the strongest
+age effect in this document; an 80-year-old's telling-ledger is
+nearly a write-only store. Emergent: grandparents retell, liars lose
+track of who heard which version, secrets' tell-history rots
+*independently* of both content (§23) and the secret tag — three
+different decay rates on one utterance, which is exactly why real
+social bookkeeping fails.
+
+## 36. Mere-exposure familiarity inflation — "haven't we met?" **[CONSENSUS direction]**
+
+Familiarity accrues from any repeated encounter *including ambient
+ones* — and familiarity without identity produces confident
+misattribution of acquaintance (the mechanism behind Jacoby,
+Woloshyn & Kelley 1989 "famous overnight": prior exposure inflates
+fame judgments; the butler-on-the-bus literature — Maylor; and
+unconscious transference §6.26 which is the criminal-justice
+expression of the same channel). A neighborhood is a perpetual
+exposure machine: the barista's face accrues familiarity from
+hundreds of sightings with zero identity work.
+
+Implement: `PersonModel.exposureCount` increments on any
+same-place co-presence sighting (ambient events where the person
+is merely `present`, below attention thresholds — records that
+don't even encode as episodes). `familiarity` gains
+`exposure_fam_gain` (≈0.02) per exposure, capped by the §4.7
+face permastore rules — but `identityStrength` gains ~0. Result:
+the tier-1/tier-2 gap grows with neighborhood tenure, and the
+`familiar_only` cascade output is *dominated* by exposure-
+generated models — "I know that face" is statistically true and
+socially false. Adds a new false-positive channel to §6.10
+sourceInfer: high-exposure-low-identity persons are the preferred
+unconscious-transference targets (feeds `transplant_gain`
+candidate scoring with an `exposureCount` term — the transplant
+draws from the most familiar empty shells).
+
+## 37. Gossip as evidence — secondhand trait updates at a discount **[ROBUST direction; weight HYPOTHESIS]**
+
+Gossip functions as reputation data — indirect reciprocity theory
+shows people act on it (Sommerfeld, Krambeck, Semmann & Milinski
+2007 PNAS: gossip substitutes for direct observation in partner
+choice; Feinberg, Willer, Stellar & Keltner 2012 JPSP: prosocial
+gossip deters exploitation and drives ostracism). The receiver-side
+rule our spec needs: trait-implying content arriving `told_by`
+should update `PersonModel.traits` — but at a discount for
+indirectness, never equal to witnessed. Findlay? — no direct
+fitted law; treat the discount as tunable [HYPOTHESIS on weight].
+
+Implement on `hearAccount` when adopted content carries a trait
+implication about a third party (target ≠ speaker, target ≠ listener):
+
+```
+PersonModel[target].traits[t] += sti_gain · implication ·
+    diag_weight · heard_update_w · PersonModel[speaker].credibility
+heard_update_w ≈ 0.4   // vs. witnessed sti delta = 1.0 baseline
+```
+
+The `eval` scalar (§32) moves with it — gossip moves liking, which
+feeds §5 audience tuning and §42 tell selection. Asymmetry to keep
+(unforced by the formula): negative gossip weighs more via
+`diag_moral_neg` already; and the speaker's own `PersonModel.eval`
+can *fall* when the gossip later fails verification (§9 cred_step)
+— shooting the messenger is the documented correction channel.
+
+## 38. Emotional contagion at retell — secondhand arousal **[CONSENSUS existence; gain HYPOTHESIS]**
+
+Arousal transmits through retelling — listeners catch the speaker's
+affective state (Hatfield, Cacioppo & Rapson 1994 emotional
+contagion; Rimé 2009 — sharing reactivates arousal in both parties;
+Peters & Kashima 2007 — talk about emotional events makes the
+listener feel the emotion). `contagion_k` already exists in the
+params (§6.3 hearsay arousal transmission, v1.7) — Part III
+formalizes the *person-mediated* path and the boundary: contagion
+scales with the speaker's arousal at retell-time (which has decayed
+per §4.5), not the record's birth arousal, and with listener
+`empathy` (existing trait, unused here until now).
+
+Implement: on `retell`/`hearAccount`, the listener's stored copy's
+`affect_tag` gains `contagion_k · speaker_now_arousal ·
+(0.5 + 0.5·empathy)` — where `speaker_now_arousal` is the speaker's
+retrieval-time arousal report (§5.5), already bounded by
+`hc_gap_loss`. Emergent: rumors carry heat proportional to how
+worked up the teller still is *today* — month-old scandals arrive
+lukewarm, fresh ones arrive hot; a phlegmatic teller cools the
+neighborhood's version of events.
+
+## 39. Self-disclosure buys trust — the credibility prior has a history **[CONSENSUS effects; mapping HYPOTHESIS]**
+
+Collins & Miller 1994 meta (Psych. Bull. 116:457, 94 studies):
+three distinct disclosure–liking effects all significant — (a)
+intimate disclosers are liked more; (b) people disclose more to
+targets they already like; (c) disclosing *makes the discloser
+like the recipient more*. Jourard's reciprocity and Laurenceau's
+SSM work say the channel is intimacy, not information.
+
+Implement — disclosure events (a `tell` whose record carries
+`confidential:true` or `selfRelevance>0.6`) update BOTH
+PersonModels:
+
+```
+listener.model[speaker].eval        += disclose_eval_gain (0.08)
+listener.model[speaker].credibility += disclose_trust_gain·0.5
+speaker.model[listener].eval        += disclose_eval_gain      // (c)
+speaker.model[listener].credibility += disclose_trust_gain     // (a,b)
+disclose_trust_gain ≈ 0.10
+```
+
+This closes a loop Part I left open: `shared_reality_gate` and
+`sourceCredibility` now have a *formation mechanism*, not just a
+verification update. Emergent: confidants are believed more,
+trusted with more, and tuned to — the friendship is the epistemology.
+Boundary [HYPOTHESIS]: disclosure to a *disliked* listener still
+raises speaker trust (effect c is robust), so confiding in an
+enemy is a real, documented way to soften the enemy — at the cost
+of the §23 leak risk.
+
+## 40. Category-first impressions, individuation on credit **[CONSENSUS continuum; params HYPOTHESIS]**
+
+Fiske & Neuberg 1990 continuum model: impressions start
+category-based and individuate only under motivation+attention;
+Brewer 1988 dual-process version — person-based impressions require
+processing investment. Without it, our `PersonModel` is born
+individuated, which real impressions never are.
+
+Implement: `PersonModel.individuation` ∈ [0,1], init 0.2
+(birth = category shell), growing `individ_rate` (≈0.15) per
+individuating encounter — encounters where attention > gate AND
+behavior carries person-diagnostic content (the §2.1/§33 writes).
+Trait queries against the model interpolate:
+
+```
+reportedTrait[t] = (1−individuation)·catPrior[t] + individuation·traits[t]
+```
+
+`catPrior` = category schema defaults (age/role/gender tags the
+world-builder already supplies for §11). Low-individuation models
+return the category's answer — "she's a landlord type, they all…"
+— which is ALSO the §11 source-confusion substrate: same-category
+confusions are worst between two low-individuation targets (the
+mechanism the category literature implies; make `source_cat_share`
+scale with `(2 − indiv_a − indiv_b)/2` — [HYPOTHESIS coupling,
+direction consensus]). Emergent: new neighbors are types before
+they're people; the ambient NPCs stay types to most mains forever
+— which is *correct*, that's what 20 ambient humans are.
+
+## 41. Motivated transference — new people inherit old schemas **[ROBUST]**
+
+Andersen & Baum 1994; Andersen, Glassman, Chen & Cole 1995;
+Andersen & Chen 2002 relational-self theory (Psych. Rev.): a new
+person who resembles a significant other triggers transference —
+schema-triggered evaluation, trait inferences *beyond the given
+information*, false recognition of traits the significant other
+has but the target never displayed (the memory effect: participants
+"remembered" descriptors never presented, schema-consistent with
+their own significant other). Distinct from §6.26 unconscious
+transference (face-slot migration): this is *schema projection*,
+not slot-filling — the new person inherits an emotional grammar.
+
+Implement: on `PersonModel` creation, compute similarity of the
+new person's observed surface (traits seen so far + categoryTags)
+against existing high-strength models (top-`transference_pool` ≈ 5
+by familiarity·eval-magnitude). If `sim > transference_thresh`
+(≈0.6):
+
+```
+new.traits seeded toward donor.traits at transference_seed (0.3)
+new.eval   seeded toward donor.eval   at transference_seed
+false-fill: subsequent reconstruction of new-person episodes
+  draws confab candidates from donor's trait space at
+  transference_fill (0.15) — schema-consistent traits "remembered"
+  never displayed (the Andersen & Baum memory effect)
+decay: individuation growth (§40) shrinks seed influence at
+  (1−individuation) — transference is a first-impression device
+```
+
+Emergent: "he reminds me of my brother" is a memory operation with
+observable consequences — instant warm/distrustful priors and
+confabulated shared history, that decay as the real person accrues
+evidence. This is the first spec'd mechanism for *immediate,
+motivated* social bias (all prior social biases were statistical).
+
+## 42. Novelty-gated retell — you tell them what they don't know **[ROBUST mechanism; params HYPOTHESIS]**
+
+Speakers design messages for the audience's presumed knowledge —
+Grice's maxim of quantity; Clark's common ground; Brennan & Clark
+1996 lexical entrainment. Applied to gossip selection: a teller
+chooses fields/records the audience *doesn't already have* —
+"did you hear about…" presupposes novelty. §21 gives us the
+bookkeeping (`shared_with`, `toldTo`) to make the check real —
+and its documented errors make the check human.
+
+Implement in `retell` field selection (before §6.12 chain ops):
+
+```
+P(field selected) ∝ salience ·
+    (audience.shared_with ∌ field ? novel_pick_w : 1)
+    · (audience.toldTo ∌ (record,field) ? novel_pick_w : told_pen)
+novel_pick_w ≈ 3.0, told_pen ≈ 0.5   // "new to you" bias
+```
+
+because `shared_with` over-assumes (copresent_assume_p) and
+`toldTo` under-remembers (§35), the selection itself is wrong at
+documented rates — characters repeat stories AND withhold ones the
+audience never heard, both bugs flowing from one ledger. Emergent:
+per-audience retell divergence — the same event exists in
+*different subsets* across the neighborhood's dyads, which is the
+microstructure real rumor networks show and no flat-broadcast
+model produces.
+
+## 43. The phrasing fingerprint — wording survives as provenance **[ROBUST direction; params HYPOTHESIS]**
+
+Interactive alignment: interlocutors reuse each other's lexical
+choices (Pickering & Garrod 2004 BBS; Garrod & Anderson 1987 —
+maze-description conventions propagate within dyads; Brennan &
+Clark 1996 entrainment). At chain level, Bartlett's operators
+apply: *distinctive* phrasing is sharpened early, conventionalized
+late — a rumor's surviving idiosyncratic word is a fossil of its
+path ("trebuchet" again).
+
+Implement: verbatim fields may carry `phrasing` (a token or short
+string — the dialogue layer's actual words; spec only requires a
+hashable surface). Per §6.12 hop:
+
+```
+P(phrasing survives hop) = phrase_surv_base ·
+    (distinctive ? phrase_distinct_mult : 1) · exp(−chainPos/5)
+phrase_surv_base ≈ 0.7, phrase_distinct_mult ≈ 1.4
+```
+
+Surviving phrasing tags then serve the history browser and
+§6.10 source inference as *lineage markers* — two characters
+telling the same rumor with the same odd word is evidence of a
+shared link in the chain (a falsifiable forensic tool the
+history-browser feature can expose). Emergent: the neighborhood
+develops idiolect drift on hot rumors — "the trebuchet story"
+vs "the catapult story" mark different chains from the same
+event.
+
+## 44. Age and trait loadings (extends §§12, 28)
+
+| Param | Primary loadings | Age note |
+|---|---|---|
+| moral_primacy | flat — population constant flavor | flat [HYPOTHESIS] |
+| moral_rehab | −distrust (forgiveness), +consc | ×0.7 @65+ (older positivity aids rehabilitation — HYPOTHESIS consistent with SST) |
+| sit_credit | +wmc · +open (perspective work) | rides link_p decline — correction is the resource stage |
+| correct_gate | flat | flat — it's the attention floor, not the trait |
+| status_encode_gain | +social · +distrust(−) — deferents attend up | flat [HYPOTHESIS] |
+| power_encode_loss | −empathy (the empathic powerful still attend down) | flat [HYPOTHESIS] |
+| dest_decay_mult | −wmc (production bookkeeping) | ×(1+0.5·age_eff/60) — strongest age term in Part III |
+| dest_fa | flat | rides lure_accept old-side knots |
+| exposure_fam_gain | flat | flat — exposure is environmental, not dispositional |
+| heard_update_w | −distrust (skeptic discounts hearsay) | ×(1+0.3·age_eff/60) — older listeners update more from trusted talk [HYPOTHESIS] |
+| disclose_eval_gain / disclose_trust_gain | +social · −distrust | flat — disclosure works at all ages [HYPOTHESIS] |
+| individ_rate | +wmc · +social (pays individuating attention) | mild decline with link_p |
+| cat_prior_pull | +distrust? null — category reliance is resource, not suspicion | ×(1+0.4·age_eff/60) — older perceivers lean on schema (Hess 1990 schema reliance) |
+| transference_thresh | +vivid? null — resemblance detection is perceptual | flat |
+| transference_seed/fill | +fantasy (richer schema projection) | ×discrim_mult side |
+| novel_pick_w | +social · +wmc (audience design) | flat [HYPOTHESIS] |
+| phrase_surv_base / phrase_distinct_mult | +verbal (wording retention) | mild decline with beta_verbatim |
+
+Explicit nulls to preserve: `g_mem` does not exempt the FAE —
+intelligence doesn't buy correction resources at encoding (the
+Gilbert result is about *busyness*, not ability); `meta_cal` does
+not fix destination memory (tellers can't calibrate what they never
+encoded); `vivid` does not seed transference (schema projection is
+evaluative, not imaginal); `face_ability` does not change
+`exposure_fam_gain` — DP shows *attenuated* familiarity accrual,
+which rides the existing `fam_gain` load instead.
+
+## 45. Spec changes in v3.2 (summary)
+
+- §1 PersonModel gains fields: `eval`, `individuation`,
+  `exposureCount`; traits keys carry `dim` tags.
+- §2: STI correction stage (sit_constraint × correction_avail);
+  status gains on E and familiarity accrual (`status_gap` from
+  world-layer status tags); `exposure_fam_gain` accrual on
+  sub-threshold co-presence sightings.
+- §4: `dest_decay_mult` on toldTo edges; `moral_rehab` on
+  positive-counter-moral trait updates.
+- §5.8/§5.10: `source_cat_share` scaled by low-individuation
+  coupling [HYPOTHESIS]; `familiar_only` outputs dominated by
+  exposure-generated models (no code change — emergent).
+- §6.11 retell gains: audience-stance read from `eval`; field
+  selection novelty gate (`novel_pick_w`, `told_pen`); `phrasing`
+  tokens propagate per §43.
+- §6.12 chain ops: `phrasing` survival formula added.
+- §6.14 credibility/disclosure: `disclose_*` updates on
+  confidential/self-relevant tells, both directions.
+- §6.26: transplant candidate scoring gains `exposureCount` term.
+- §6.31 NEW: gossip-as-evidence trait writeback (`heard_update_w`).
+- §6.32 NEW: transference seeding on PersonModel creation.
+- §6.33 NEW: contagion path formalized — listener affect_tag +=
+  contagion_k·speaker_now_arousal·(0.5+0.5·empathy).
+- §7: +22 params (table below); §10: contract additions
+  (status tags, sitConstraint, phrasing, exposureCount,
+  speaker_now_arousal, confidential-tell flag semantics).
+
+### Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| param | default | range | source |
+|---|---|---|---|
+| moral_primacy | 0.65 | 0.4–0.85 | Brambilla et al. 2012/2019 |
+| moral_rehab | 0.4 | 0.0–0.8 | Skowronski & Carlston 1989 |
+| sit_credit | 0.7 | 0.3–1.0 | Gilbert et al. 1988 |
+| correct_gate | 0.6 | 0.3–0.9 | Gilbert et al. 1988 (resource stage) |
+| status_encode_gain | 0.15 | 0.0–0.4 | Ratcliff et al. 2011 |
+| power_encode_loss | 0.2 | 0.0–0.5 | Guinote 2007; Fiske 1993 |
+| dest_decay_mult | 1.5 | 1.0–2.5 | Gopie & MacLeod 2009 |
+| dest_fa | 0.05 | 0.0–0.2 | Gopie et al. 2010 |
+| exposure_fam_gain | 0.02 | 0.0–0.08 | Jacoby et al. 1989 analog |
+| heard_update_w | 0.4 | 0.1–0.8 | Sommerfeld et al. 2007 (HYPOTHESIS wt) |
+| disclose_eval_gain | 0.08 | 0.0–0.25 | Collins & Miller 1994 |
+| disclose_trust_gain | 0.10 | 0.0–0.3 | Collins & Miller 1994 |
+| individ_rate | 0.15 | 0.05–0.4 | Fiske & Neuberg 1990 |
+| cat_prior_pull | 1.0 | 0.0–1.0 | Brewer 1988 (weight, not prob) |
+| transference_thresh | 0.6 | 0.4–0.9 | Andersen & Baum 1994 |
+| transference_seed | 0.3 | 0.0–0.6 | Andersen & Chen 2002 |
+| transference_fill | 0.15 | 0.0–0.4 | Andersen & Baum 1994 memory effect |
+| transference_pool | 5 | 2–10 | HYPOTHESIS |
+| novel_pick_w | 3.0 | 1.0–6.0 | Clark; Brennan & Clark 1996 |
+| told_pen | 0.5 | 0.1–1.0 | quantity maxim (HYPOTHESIS) |
+| phrase_surv_base | 0.7 | 0.3–1.0 | Pickering & Garrod 2004 |
+| phrase_distinct_mult | 1.4 | 1.0–2.5 | Bartlett sharpening (HYPOTHESIS) |
+
+## 46. Validation probes (P310–P321)
+
+- **P310 morality primacy (MUST — sign-locked):** matched negative
+  acts in moral vs competence dims — moral act moves `eval` ≥1.5×
+  more; positive counterevidence repairs competence impressions
+  ~2.5× faster than moral ones (moral_rehab). FAIL if eval moves
+  equally across dims.
+- **P311 FAE under load (MUST — sign-locked):** constrained-
+  behavior observation at attention 0.9 vs 0.4 — busy observers'
+  trait delta ≥1.5× rawer (situation discounted less); the
+  constraint field itself equally weak in both conditions (it's
+  the inference that differs, not the record).
+- **P312 status asymmetry (SHOULD):** equal-frequency dyads up and
+  down a status ladder — lower-status member's PersonModel
+  accrues familiarity/identity faster; the higher-status member's
+  model stays category-dominated longer.
+- **P313 destination decay (MUST — sign-locked):** toldTo recall
+  accuracy < source (who-told-me) recall on matched content at
+  equal delay; the dominant error in ≥65+ profiles is the
+  confident miss → measured repeat-tell rate rises with age
+  (Gopie 2010 direction, not a hard number).
+- **P314 exposure overreach (SHOULD):** ambient-only co-presence
+  (no episodes) produces `familiar_only` cascade outputs and
+  elevates that person's weight in §6.26 transplant scoring;
+  identity stays near zero.
+- **P315 gossip-evidence discount (MUST — structure):** the same
+  trait-implying act witnessed vs told_by updates `traits[t]` at
+  ~heard_update_w ratio, scaled by speaker credibility; a zero-
+  credibility speaker moves traits ~0 even when believed at
+  report time — believability and trait-update are decoupled
+  channels. FAIL if hearsay and witness move traits equally.
+- **P316 disclosure trust loop (SHOULD):** confidential tell →
+  speaker.credibility up for the listener AND listener.eval up
+  for the speaker (three Collins & Miller effects as two writes);
+  subsequent audience tuning crosses shared_reality_gate sooner.
+- **P317 individuation slope (SHOULD):** trait queries on a fresh
+  PersonModel return ≥60% catPrior; after ~5 diagnostic
+  encounters ≤20% catPrior. FAIL if models are born individuated.
+- **P318 transference fill (MUST — falsifiable):** new person at
+  sim≥thresh of a high-eval donor shows schema-consistent false
+  fills at ≥transference_fill rate in early reconstructions,
+  declining with individuation; below thresh → none. FAIL if
+  fill persists at full rate after individuation ≥0.8.
+- **P319 novelty-gated retell (SHOULD):** audience with
+  shared_with⊃fields A,B hears field C ≥novel_pick_w more often;
+  toldTo-decayed audiences re-hear old fields (repeat-tell
+  channel meets P313).
+- **P320 phrasing lineage (OBSERVE — forensic):** two-chain rumor
+  split retains ≥50% of hop-1 distinctive phrasing after 3 hops;
+  chain-mates share phrasing tokens above base-rate — usable as
+  a lineage marker by the history browser.
+- **P321 contagion heat (SHOULD):** listener affect_tag after
+  retell tracks speaker_now_arousal (not record birth arousal)
+  and empathy loading; a cooled teller's month-old rumor arrives
+  at lower affect than a hot teller's same-age rumor.
+
+## 47. Honest limits (Part III)
+
+- **Status is supplied, not computed** — the spec reads a
+  world-layer status tag; real status perception is itself
+  inferential and biased (overweighting wealth/role cues). If the
+  world layer tags only landlord/tenant, the asymmetry still
+  fires correctly on the game's most important axis.
+- **heard_update_w has no fitted literature value** — indirect-
+  reciprocity studies show *use*, not weights. 0.4 errs
+  conservative (hearsay moves traits less than witness); range
+  covers the plausible space.
+- **`eval` is a scalar compression** — real liking is multidim;
+  moral_primacy weighting is our approximation of the dominance
+  finding, not a fitted model.
+- **Transference similarity** uses our flat surface (traits+tags);
+  real resemblance cues include appearance, voice, relational
+  pattern — the pool/threshold params absorb some of this.
+- **Phrasing tokens** presuppose the dialogue layer produces
+  stable surface forms to hash; where dialogue is generated
+  per-tell, `phrasing` can be seeded from the content fields
+  instead (degraded but still lineage-informative).
+- **Destination memory age function** is our interpolation —
+  Gopie gives the qualitative gradient and the miss-direction,
+  not a curve; the 0.5·age_eff/60 slope is a tunable.
+- **cat_prior_pull↔source_cat_share coupling** is a modeling
+  hypothesis: the who-said-what literature implies it but never
+  manipulated individuation directly.
+- Part III still does not model **relationship rupture** —
+  betrayal's asymmetric signature is in trait/cond machinery
+  (§32 moral_rehab, §4.9 trust_neg_gain), but "no longer
+  speaking" is a world-layer relationship state our memory
+  spec can read but not set.

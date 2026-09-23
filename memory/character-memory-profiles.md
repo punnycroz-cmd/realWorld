@@ -402,6 +402,19 @@ never copying raw.
 | preg_trim3_mult | 0.7 | 1.0 | trimester-3 E multiplier (v3.1) |
 | cann_misinfo_gain | 0.0 | 0.4 | acute cannabis misinfo add (v3.1) |
 | cann_lure_gain | 0.0 | 0.3 | acute cannabis lure add (v3.1) |
+| moral_primacy | 0.4 | 0.85 | moral share of PersonModel.eval (v3.2) |
+| moral_rehab | 0.0 | 0.8 | moral-dim counter-evidence weight; low = unforgiving (v3.2) |
+| sit_credit / correct_gate | 0.3 / 0.3 | 1.0 / 0.9 | FAE correction strength / attention gate (v3.2) |
+| status_encode_gain | 0.0 | 0.4 | remember-up encoding asymmetry (v3.2) |
+| power_encode_loss | 0.0 | 0.5 | stereotype-down STI discount (v3.2) |
+| dest_decay_mult / dest_fa | 1.0 / 0.0 | 2.5 / 0.2 | toldTo edge decay / false "already told" (v3.2) |
+| exposure_fam_gain | 0.0 | 0.08 | ambient familiarity accrual per sighting (v3.2) |
+| heard_update_w | 0.1 | 0.8 | gossip trait-writeback weight; < witnessed (v3.2) |
+| disclose_eval_gain / disclose_trust_gain | 0.0 / 0.0 | 0.25 / 0.3 | disclosure→eval / disclosure→credibility (v3.2) |
+| individ_rate / cat_prior_pull | 0.05 / 0.0 | 0.4 / 1.0 | individuation rate / category-schema weight (v3.2) |
+| transference_thresh / transference_seed / transference_fill / transference_pool | 0.4 / 0.0 / 0.0 / 2 | 0.9 / 0.6 / 0.4 / 10 | schema projection onto new persons (v3.2) |
+| novel_pick_w / told_pen | 1.0 / 0.1 | 6.0 / 1.0 | retell novelty gate / repeat-tell penalty (v3.2) |
+| phrase_surv_base / phrase_distinct_mult | 0.3 / 1.0 | 1.0 / 2.5 | phrasing hop survival / distinctive boost (v3.2) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -1319,3 +1332,66 @@ params the literature holds flat.
   The bartender blanks names at default params; the recluse doesn't.
   Do not pin `name_fan_k` to make a character "bad with names" — give
   her a bigger world instead.
+
+## 20. v3.2 note — social-memory III: the dyadic dials and who reads them
+
+Eleven new mechanisms (social-memory.md §§32–47). The bible-facing
+rule this pass: **a character's social-memory signature is mostly in
+WHOSE ledger they keep well, not whether they're "good with people."**
+
+- **`PersonModel.eval`** is the new dial everything reads — world-
+  builder's relationship matrix can mirror it but shouldn't replace
+  it: eval is *memory's* opinion (recomputed from traits, moral-
+  primary), so it lags, distorts, and disagrees with any ground-truth
+  affection score. Pin `moral_primacy` high for judgmental characters
+  (moral info is all they weight) and `moral_rehab` LOW for the
+  unforgiving profile — one moral-negative act and they never update
+  back. The landlord with `moral_rehab` 0.15 + `sit_credit` 0.9 is the
+  interesting one: they hold the grudge forever AND correctly blame
+  the situation, so their coldness is *accurate*, not petty.
+- **FAE dial pair:** `sit_credit`/`correct_gate` is "do they make
+  excuses for people." High-WMC social characters get high sit_credit
+  — they're the ones who say "she was having a bad day." Low-wmc +
+  low-attention profiles infer raw traits: the gossip who saw one
+  stressed moment and filed "rude." P311 sign-locks the attention
+  gate — do NOT pin sit_credit low to make someone judgmental; pin
+  their attention/wmc and let the mechanism do it.
+- **Status params need world tags.** `status_encode_gain`/
+  `power_encode_loss` are dormant without a `status` tag — the
+  landlord/tenant axis is the game's built-in case. Bible guidance:
+  pin `power_encode_loss` HIGH on a status-insulated character
+  (remembers "types" of tenants, not tenants) and pair `individ_rate`
+  low — the two params compose into "never learns the help."
+- **`dest_decay_mult`** is the "do they remember telling YOU" dial —
+  flat for most profiles; the age loading does the work at 65+. For a
+  non-elderly character who repeats stories anyway, pin
+  `dest_decay_mult` ~2.0 + `told_pen` ~0.3 (doesn't even try to avoid
+  repeats) rather than touching `dest_mem` knots — the edge-decay
+  mechanism is the v3.2 path, `dest_mem` is the legacy fallback.
+- **`heard_update_w`** is the gullibility-of-impressions dial,
+  distinct from `misinfo_suscept` (which is about facts): a character
+  can be skeptical of claims yet have their *opinion of a neighbor*
+  moved by gossip — pin heard_update_w high + misinfo_suscept low for
+  "trusts facts, absorbs vibes" (P315 guards the decoupling).
+- **Disclosure pair** (`disclose_eval_gain`/`disclose_trust_gain`)
+  is the intimacy dial: high-social characters both disclose more
+  (world behavior) AND update more per disclosure — the friendship
+  IS the epistemology. For a guarded profile pin both near 0 AND
+  `shared_reality_gate` high: secrets stay secrets and so does trust.
+- **`transference_*`** is for characters with one dominant
+  relationship schema — "everyone's either my brother or my ex."
+  Pin `transference_seed` ~0.5 + `transference_pool` 2 on such a
+  bible: new acquaintances inherit the archetype and the confabulated
+  history fades only as `individ_rate` accrues. Null default for the
+  other seven mains — transference is a signature, not a spice.
+- **`novel_pick_w`/`told_pen`/`phrase_*`** mostly stay default —
+  they're ecology params, not personality. Exception: the one
+  character famous for telling the same story verbatim gets
+  `phrase_distinct_mult` ~2.0 + `told_pen` ~0.8 (their catchphrase
+  survives every hop — which is how the history browser will trace
+  their rumors back to them).
+
+Explicit nulls preserved: `g_mem` doesn't buy FAE exemption (the
+correction stage is resource-gated, not ability-gated — P311);
+`face_ability` doesn't change `exposure_fam_gain` (DP accrual rides
+`fam_gain` instead); `meta_cal` doesn't fix destination memory.

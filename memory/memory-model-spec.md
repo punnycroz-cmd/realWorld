@@ -1,4 +1,38 @@
-# Memory Model Spec v3.1 — implementable human-like memory for RW characters
+# Memory Model Spec v3.2 — implementable human-like memory for RW characters
+
+> **v3.2 note (social-memory III — the other person's ledger):**
+> `memory/social-memory.md` Part III (§§32–47) adds the dyadic
+> bookkeeping layer plus the two biggest unmodeled forces on person
+> memory: **two-dimensional trait space** — `PersonModel.eval`
+  computed moral-primary (morality drives global evaluation and
+> resists positive rehabilitation; Brambilla et al. 2019;
+> Wojciszke 1998) — §1/§4; **FAE under load** — the STI write now
+> runs Gilbert's correction stage gated by attention, so busy
+> witnesses store the trait and lose the excuse (Gilbert, Pelham &
+> Krull 1988) — §2; **status-asymmetric person memory** — we encode
+> UP the hierarchy and stereotype down (Ratcliff et al. 2011;
+> Guinote 2007) — §2; **destination memory** — toldTo edges decay
+> faster than source edges and the confident miss grows with age
+> (Gopie & MacLeod 2009; Gopie et al. 2010) — §4; **exposure
+> familiarity** — ambient co-presence mints familiar-only person
+> shells that feed transplant scoring (Jacoby et al. 1989 analog)
+> — §2/§6.26; **gossip as evidence** — adopted told_by trait
+> content writes back to the target's PersonModel at
+> `heard_update_w·credibility` (Sommerfeld et al. 2007) — §6.31;
+> **disclosure trust loop** — confidential/self-relevant tells
+> raise eval+credibility BOTH directions (Collins & Miller 1994) —
+> §6.14; **category-first individuation** — PersonModels born as
+> category shells, individuating on diagnostic encounters (Fiske &
+> Neuberg 1990) — §1/§5.10; **motivated transference** — new people
+> resembling high-eval donors inherit schema-seeded traits and
+> false fills (Andersen & Chen 2002) — §6.32; **novelty-gated
+> retell** — field selection reads the audience's shared_with/
+> toldTo ledgers (Clark common ground), errors included — §6.11;
+> **phrasing lineage** — verbatim phrasing tokens survive hops as
+> rumor forensics (Pickering & Garrod 2004) — §6.12; **contagion**
+> formalized — listener affect tracks the speaker's *current*
+> arousal (Hatfield 1994; Rimé 2009) — §6.33. +22 params in §7;
+> probes P310–P321. All optional, default-neutral.
 
 > **v3.1 note (individual-differences III — which store, which
 > phenotype, whose pressure):** `memory/individual-differences.md`
@@ -641,7 +675,17 @@ PersonModel = {
   "categoryTags": ["tenant", "woman", "40s"],  // for §6.10 in-category
                            // source confusion — supplied by world-builder;
                            // absent → operator falls back to cue overlap
-  "lastSeenDay": 430
+  "lastSeenDay": 430,
+  // v3.2 additions (social-memory.md Part III §§32, 36, 40):
+  "eval": 0.1,              // global evaluation = moral_primacy·mean(moral
+                           // traits) + (1−moral_primacy)·mean(rest); what
+                           // ingroup_factor and tell-selection read (§32)
+  "individuation": 0.2,     // 0=category shell → 1=person-based; grows
+                           // individ_rate per diagnostic encounter (§40);
+                           // trait queries interpolate catPrior↔traits
+  "exposureCount": 34       // ambient co-presence sightings; drives
+                           // familiarity-only accrual (§36) + transplant
+                           // candidate weight (§6.26)
 }
 ```
 
@@ -949,6 +993,26 @@ Postman 1964; Hyde & Jenkins 1973).
     one betrayal outweighs months of reliability (Skowronski & Carlston
     1987/1989). Morality-negative updates also add to
     `PersonModel.cheaterLoad`.
+  - *Correction stage (v3.2):* if the event carries `sitConstraint` ∈
+    [0,1] (actor under orders/stress/script — event layer supplies),
+    the trait delta is discounted `×(1 − sit_credit·sitConstraint·
+    correction_avail)` where `correction_avail = min(1, attention/
+    correct_gate)` — correction is the effortful, disruptable stage
+    (Gilbert, Pelham & Krull 1988; social-memory.md §33). Busy
+    witnesses store the raw trait.
+  - *Status asymmetry (v3.2):* if the event layer supplies relative
+    status, `status_gap = perceivedStatus(agent) − perceivedStatus
+    (self)` scales E by `(1 + status_encode_gain·max(0,+gap))` and
+    familiarity accrual likewise; STI deltas on lower-status targets
+    scale `×(1 − power_encode_loss·max(0,−gap))` — memory for people
+    is asymmetric across the hierarchy (Ratcliff et al. 2011; Guinote
+    2007; social-memory.md §34). Untagged → gap 0, nothing fires.
+  - *Exposure familiarity (v3.2):* sub-threshold co-presence
+    sightings (person merely `present`, below attention gate —
+    records that never encode as episodes) increment
+    `PersonModel.exposureCount` and add `exposure_fam_gain` (0.02) to
+    `familiarity` only — familiar-only shells accrue without
+    identity work (Jacoby et al. 1989 analog; §36).
   - *Incongruity bonus:* if the behavior's implied trait diverges from
     the existing model (|implied − model.traits[trait]| > 0.4),
     `E += incongruity_gain·|Δ|` (0.25) — expectancy-violating behavior is
@@ -1511,6 +1575,15 @@ King 1983; Bouton 2004; emotional-memory.md §6):
   deficit applies), `nameStrength` at `beta_source·1.2`;
   `cheaterLoad` decays at `cond_decay·0.3` (moral reputation is sticky);
   `credibility` and `knowsTopics` do not decay (semantic directory).
+- **Moral-rehab asymmetry (v3.2):** positive trait-implying updates
+  against `dim:"moral"` traits currently negative apply at
+  `×moral_rehab` (0.4) — redemption is slow (Skowronski & Carlston;
+  social-memory.md §32). Competence dims update symmetrically; `eval`
+  recomputes from traits each write.
+- **toldTo edge decay (v3.2):** destination edges decay at
+  `beta_source·dest_decay_mult` (1.5; ×(1+0.5·age_eff/60)) — see
+  §6.11. Destination < source < content is the documented ordering
+  (Gopie & MacLeod 2009; social-memory.md §35).
 
 ### 4.11 Storage strength — the S/R split (v0.9 deepening)
 
@@ -2142,6 +2215,16 @@ tier3 name:         roll vs name_thresh (0.55) on nameStrength
   returns candidate persons ranked by `knowsTopics[topic]` strength —
   "I don't know, but Jules would" (transactive memory, §6.14;
   Wegner 1987).
+- **Individuation interpolation (v3.2):** trait/eval queries against a
+  PersonModel interpolate category prior and learned traits by
+  `individuation` — `reported = (1−individuation)·catPrior·cat_prior_pull
+  + individuation·traits` (Fiske & Neuberg 1990 continuum; Brewer
+  1988). Fresh models answer as the category; `individ_rate` (0.15)
+  accrual needs a diagnostic encounter (attention above gate + §2.1
+  write). `source_cat_share` (§6.10) scales ×(2−indiv_a−indiv_b)/2
+  between two candidates — category confusions are worst between
+  unindividuated persons [HYPOTHESIS coupling, direction consensus —
+  social-memory.md §40].
 
 ### 5.11 Reminiscence across attempts (new in v1.3)
 
@@ -2857,6 +2940,24 @@ Allain 2012). On a MISS the retell proceeds and emits
 characters repeat stories to the same listener far more than they
 wrongly withhold (age-decline.md §20).
 
+**v3.2 — toldTo as a decaying edge:** the flat `dest_mem` roll is
+refined into per-edge strength: each `toldTo` entry decays at
+`beta_source·dest_decay_mult` (1.5; ×(1+0.5·age_eff/60)) — the
+destination is the weakest slot in the episode, weaker than
+ordinary source (Gopie & MacLeod 2009; social-memory.md §35).
+`dest_mem(age_eff)` remains the fallback when no edge record exists;
+`dest_fa` (0.05, riding `lure_accept` knots) is the rare false
+"already told" — withholding to the wrong person. Three decay rates
+now coexist on one utterance: content, source, destination.
+
+**v3.2 — novelty-gated field selection:** `retell` field selection
+reads the audience's ledgers — `P(field selected) ∝ salience ·
+(shared_with ∌ field ? novel_pick_w (3.0) : 1) · (toldTo ∌
+(record,field) ? novel_pick_w : told_pen (0.5))` — audience design
+on the speaker's own, documented-as-wrong, bookkeeping (Clark
+common ground; §6.21/§35 errors included — repeat stories AND
+unheard omissions both emerge). social-memory.md §42.
+
 **v1.7 — verbal dampening:** on retell with an audience,
 `m.emotional.arousal *= (1 − verbal_dampen)` (≈0.05 per telling;
 valence untouched; `trauma:true` exempt — §7's re-stamping owns
@@ -2884,6 +2985,13 @@ per verbatim field transmitted:
                 : si_dropoff · exp(−chainPos/chain_sc_thresh))
                // si_dropoff 0.75, chain_sc_thresh 4 — the crossover
 gist pulled assimilation_gain (≈0.05) toward speaker schema per hop
+// v3.2 — phrasing lineage (social-memory.md §43): verbatim fields
+// may carry `phrasing` (surface-token hash from the dialogue layer);
+// per hop it survives at phrase_surv_base (0.7)·(distinctive ?
+// phrase_distinct_mult (1.4) : 1)·exp(−chainPos/5) — surviving
+// idiosyncratic wording is a rumor-lineage marker the history
+// browser can expose (Pickering & Garrod 2004 alignment +
+// Bartlett conventionalization)
 ```
 
 The §2 incongruity bonus makes odd details survive hop 1; §6.12's
@@ -2926,14 +3034,23 @@ gain was older-couples-only). Stranger pairs keep inhibition
   `PersonModel[X].knowsTopics[T]`; failed referrals decrement. Serves
   the §5.10 `"directory"` retrieval mode — "who would know" is itself
   remembered (Wegner 1987; Wegner, Erber & Raymond 1991 couples).
-- **Transactive loss (v2.0):** recall on a topic directory-listed to a
-  partner who is now unavailable (dead/moved/estranged — world layer
+- **Transactive loss (v2.0):** recall on a topic directory-listed to
+  a partner who is now unavailable (dead/moved/estranged — world layer
   supplies `available:false` on the PersonModel) takes
   `θ += transact_loss` (≈0.12) on the records the partner would have
   supplied — the directory survives while its referent is unreachable;
   pointer-rot as grief (Harris, Barnier, Sutton & Keil 2014; magnitude
   HYPOTHESIS — social-memory.md §27). `collab_partner_gain` (v1.6) is
   the positive mirror.
+- **Disclosure trust loop (v3.2):** a `tell`/`retell` of a record
+  carrying `confidential:true` or `selfRelevance>0.6` updates BOTH
+  PersonModels — listener's model[speaker]: `eval += disclose_eval_gain
+  (0.08)`, `credibility += disclose_trust_gain·0.5`; speaker's
+  model[listener]: `eval += disclose_eval_gain`, `credibility +=
+  disclose_trust_gain (0.10)` — the three Collins & Miller 1994
+  disclosure–liking effects as two writes; gives `shared_reality_gate`
+  and `sourceCredibility` a formation mechanism, not just a
+  verification update (social-memory.md §39).
 
 ### 6.15 Temporal localization — dateEstimate (v0.9 deepening)
 
@@ -3198,7 +3315,8 @@ it *fills* with the most cue-plausible known person:
 
 ```
 P(transplant) = transplant_gain (0.10) · discrim_mult
-                · max_p [ PersonModel[p].familiarity
+                · max_p [ (PersonModel[p].familiarity
+                  + 0.5·exposure_fam_gain·PersonModel[p].exposureCount)
                   · simOp(contexts(p), slot.cueContext, "sim_person")
                   · (slot.categoryTags ∩ p.categoryTags nonempty
                      ? (ingroup(p) ? 1 : 1 + orb_gain)
@@ -3302,6 +3420,74 @@ below gate: familiarity only — feeds believe_p ("sounds right"),
 Validation signature: false records form a vivid-false cluster and
 a believed-unfelt cluster (bimodality, P292). AGE-scaled via the
 §6.8 phantom machinery's existing discrim_mult path — no new knot.
+
+### 6.31 Gossip as evidence — trait writeback at a discount (new in v3.2)
+
+Adopted `told_by` content carrying a trait implication about a
+third party updates the target's `PersonModel` — hearsay moves
+impressions, discounted and credibility-scaled (Sommerfeld,
+Krambeck, Semmann & Milinski 2007 — gossip substitutes for
+observation; Feinberg et al. 2012 — prosocial gossip drives
+ostracism; weight is HYPOTHESIS, direction ROBUST):
+
+```
+PersonModel[target].traits[t] += sti_gain · implication ·
+    diag_weight(dim) · heard_update_w (0.4) ·
+    PersonModel[speaker].credibility
+```
+
+`eval` (§1) recomputes with the trait write. Two decouplings are
+the signature (P315): (a) report-time believability and trait-
+update are separate channels — a zero-credibility speaker can be
+believed about THIS claim yet move the trait ~0; (b) negative
+gossip outweighs positive via `diag_moral_neg` already — the
+formula inherits the asymmetry for free. Speaker-side consequence:
+failed verification later drops `PersonModel[speaker].credibility`
+(§6.14) — shooting the messenger is the correction channel.
+
+### 6.32 Motivated transference — schema projection onto new persons (new in v3.2)
+
+On `PersonModel` creation, if the new person's observed surface
+(traits-seen + categoryTags) matches an existing high-strength
+model at `sim > transference_thresh` (0.6, searched over the
+top-`transference_pool` (5) donors by familiarity·|eval|), the
+new model is schema-seeded (Andersen & Baum 1994 — participants
+falsely recognized significant-other-consistent traits never
+presented; Andersen & Chen 2002 relational-self theory):
+
+```
+new.traits[t] += transference_seed (0.3)·donor.traits[t]
+new.eval       += transference_seed·donor.eval
+subsequent reconstruction of new-person episodes: confab
+    candidates drawn from donor trait space at transference_fill
+    (0.15), weighted (1−individuation) — first-impression device,
+    decays as real evidence accrues (§1 individuation)
+```
+
+Distinct from §6.26 unconscious transference (slot-filling a DEAD
+person slot): this seeds a LIVE new model with projected schema —
+"he reminds me of my brother" is a memory operation with a
+confidence tag, not a misidentification.
+
+### 6.33 Emotional contagion at retell — secondhand arousal (new in v3.2)
+
+The v1.7 `contagion_k` hearsay channel formalized person-mediated:
+on `retell`/`hearAccount`, the listener's stored `affect_tag`
+gains (Hatfield, Cacioppo & Rapson 1994; Peters & Kashima 2007;
+Rimé 2009 — sharing reactivates arousal in BOTH parties):
+
+```
+affect_tag += contagion_k · speaker_now_arousal ·
+              (0.5 + 0.5·empathy)
+speaker_now_arousal = the speaker's retrieval-time arousal report
+    (§5.5, already hc_gap_loss-bounded) — NOT the record's birth
+    arousal: cooled tellers ship cooled rumors
+```
+
+Emergent and falsifiable (P321): month-old scandal arrives
+lukewarm from a phlegmatic teller, hot from a still-angry one —
+the neighborhood's emotional version of events tracks who is
+*currently* upset, not what originally happened.
 
 ---
 
@@ -3765,6 +3951,25 @@ MemoryParams = {
   "handmix_ret_gain": 0.015, // theta offset, episodic recall only
   "meno_learn_pen": 0.15, "preg_trim3_mult": 0.9, // §2 overlays
   "cann_misinfo_gain": 0.20, "cann_lure_gain": 0.15, // §2/§6.3
+  // v3.2 additions (social-memory III — the other person's ledger,
+  // social-memory.md Part III §§32–45)
+  "moral_primacy": 0.65,     // moral share of PersonModel.eval (§32)
+  "moral_rehab": 0.4,        // counter-evidence update on moral dims (§32)
+  "sit_credit": 0.7, "correct_gate": 0.6, // FAE correction stage (§2)
+  "status_encode_gain": 0.15,// remember-up asymmetry (§2)
+  "power_encode_loss": 0.2,  // stereotype-down STI discount (§2)
+  "dest_decay_mult": 1.5,    // toldTo edge decay vs source (§4, §35)
+  "dest_fa": 0.05,           // false "already told" base rate (§35)
+  "exposure_fam_gain": 0.02, // ambient familiarity accrual (§2, §36)
+  "heard_update_w": 0.4,     // gossip trait-writeback weight (§6.31)
+  "disclose_eval_gain": 0.08,// disclosure→liking, both dirs (§6.14)
+  "disclose_trust_gain": 0.10,// disclosure→credibility, both dirs (§6.14)
+  "individ_rate": 0.15,      // per-diagnostic-encounter growth (§40)
+  "cat_prior_pull": 1.0,     // category-schema interpolation weight (§40)
+  "transference_thresh": 0.6,"transference_seed": 0.3,
+  "transference_fill": 0.15, "transference_pool": 5, // §6.32
+  "novel_pick_w": 3.0, "told_pen": 0.5, // retell novelty gate (§6.11)
+  "phrase_surv_base": 0.7, "phrase_distinct_mult": 1.4, // §6.12
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -4449,6 +4654,26 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     default 0.
   - Snapshot-additive: `intox.kind` on records (default
     "alcohol"), `socialThreat` tag on records — default-neutral.
+- v3.2 additions (social-memory.md Part III §§32–45):
+  - `encodeEvent`/`Event` gains optional `sitConstraint` ∈ [0,1]
+    (actor under orders/stress/script — feeds the §2 correction
+    stage) and optional `status` tag on characters (world layer
+    supplies relative status for `status_gap`; untagged → flat).
+  - `PersonModel` gains `eval`, `individuation`, `exposureCount`
+    (§1); traits keys may carry `dim` ("moral"|"social"|"compet" —
+    untagged dims default neutral weight 1.0, exclude from the
+    moral_primacy share).
+  - `retell`/`hearAccount` gains optional `speakerArousal` (the
+    teller's current arousal report — §6.33 contagion) and
+    `audienceId` already required for §6.11; verbatim fields may
+    carry `phrasing` (§6.12 lineage).
+  - `toldTo` entries become decaying edges (§6.11 v3.2) — stored
+    strength, not just day; `dest_mem` remains fallback.
+  - Ambient sub-threshold co-presence sightings may be emitted as
+    lightweight `exposure` events (personId + place only) to accrue
+    `exposureCount` — no episode record is created.
+  - Snapshot-additive: all PersonModel fields default-neutral;
+    `phrasing`/`sitConstraint`/`status` absent = legacy behavior.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

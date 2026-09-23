@@ -1816,3 +1816,97 @@ memory, 1-week null); Greendale et al. 2009 (SWAN, n=2362 —
 perimenopausal practice-gain loss + rebound); Epperson et al. 2013
 (Penn Ovarian, n=403, 14y); Davies et al. 2018 (MJA 208:35–40 —
 pregnancy meta SMD 0.52/1.47-t3).
+
+## 41. New probes P310–P321 (v32, social-memory III suite)
+
+- **P310 morality primacy (MUST — sign-locked):** matched negative
+  acts in moral vs competence dims — the moral act moves `eval`
+  ≥1.5× more; positive counterevidence repairs competence
+  impressions ~2.5× faster than moral ones (moral_rehab). FAIL if
+  eval moves equally across dims (Brambilla 2019; Wojciszke 1998).
+- **P311 FAE under load (MUST — sign-locked):** constrained-behavior
+  observation at attention 0.9 vs 0.4 — busy observers' trait delta
+  ≥1.5× rawer (situation discounted less); the constraint field
+  itself is equally weak in both conditions (the inference differs,
+  not the record). FAIL if `g_mem` partially exempts — correction is
+  resource-gated, not ability-gated (Gilbert et al. 1988).
+- **P312 status asymmetry (SHOULD):** equal-frequency dyads up and
+  down a status ladder — the lower-status member's PersonModel
+  accrues familiarity/identity faster; the higher-status member's
+  model stays category-dominated longer (Ratcliff 2011; Guinote 2007).
+- **P313 destination decay (MUST — sign-locked):** toldTo recall
+  accuracy < source (who-told-me) recall on matched content at equal
+  delay; dominant error in ≥65+ profiles is the confident miss →
+  measured repeat-tell rate rises with age (Gopie 2009/2010
+  direction, not a hard number).
+- **P314 exposure overreach (SHOULD):** ambient-only co-presence
+  (exposure events, no episodes) produces `familiar_only` cascade
+  outputs and elevates that person's weight in §6.26 transplant
+  scoring; identity stays ≈0 (Jacoby 1989 analog).
+- **P315 gossip-evidence discount (MUST — structure):** the same
+  trait-implying act witnessed vs told_by updates `traits[t]` at
+  ~`heard_update_w` ratio scaled by speaker credibility; a
+  zero-credibility speaker moves traits ~0 even when the claim is
+  adopted at report time — believability and trait-update decoupled.
+  FAIL if hearsay and witness move traits equally.
+- **P316 disclosure trust loop (SHOULD):** a confidential tell →
+  listener's model[speaker].credibility AND speaker's
+  model[listener].eval both rise (two Collins & Miller effects as
+  two writes); subsequent retell crosses shared_reality_gate sooner.
+- **P317 individuation slope (SHOULD):** trait queries on a fresh
+  PersonModel return ≥60% catPrior; after ~5 diagnostic encounters
+  ≤20% catPrior. FAIL if models are born individuated (Fiske &
+  Neuberg 1990).
+- **P318 transference fill (MUST — falsifiable):** a new person at
+  sim≥thresh of a high-eval donor shows schema-consistent false
+  fills at ≥transference_fill rate in early reconstructions,
+  declining with individuation; below thresh → none; FAIL if fill
+  persists at full rate after individuation ≥0.8 (Andersen & Baum
+  1994 memory effect).
+- **P319 novelty-gated retell (SHOULD):** an audience whose
+  shared_with⊃fields A,B hears field C ≥novel_pick_w more often;
+  toldTo-decayed audiences re-hear old fields — the repeat-tell
+  channel meets P313 (Clark common ground on error-prone ledgers).
+- **P320 phrasing lineage (OBSERVE — forensic):** a two-chain rumor
+  split retains ≥50% of hop-1 distinctive phrasing after 3 hops;
+  chain-mates share phrasing tokens above base rate — usable as a
+  lineage marker by the history browser (Pickering & Garrod 2004).
+- **P321 contagion heat (SHOULD):** listener affect_tag after retell
+  tracks `speakerArousal` (not record birth arousal) and empathy
+  loading; a cooled teller's month-old rumor arrives at lower affect
+  than a hot teller's same-age rumor (Hatfield 1994; Rimé 2009).
+
+Registry now P1–P321; numbering stable.
+
+### Sources new to this version
+
+Gopie & MacLeod 2009 (Psych. Science 20:1492 — destination memory
+weaker than source memory, self-focus mechanism); Gopie, Craik &
+Hasher 2010 (Psych. Aging — disproportionate destination impairment,
+confident-miss direction → repeats); El Haj, Fasotti & Allain 2012
+(destination memory review); Ratcliff, Hugenberg, Shriver &
+Bernstein 2011 (PSPB 37:1003 — high-status faces privileged:
+recognition, attentional bias, sociospatial binding, holistic
+processing); Guinote 2007 (power dampens individuating attention);
+Fiske 1993 (power-as-control); Gilbert, Pelham & Krull 1988 (JPSP
+54:733 — categorization→characterization→correction, correction
+resource-gated); Trope 1986; Krull 1993; Wojciszke, Bazinska &
+Jaworski 1998 (morality/competence dimensional primacy); Fiske,
+Cuddy & Glick 2007 (SCM); Brambilla, Sacchi, Rusconi & Goodwin 2021
+(EJSP — morality sought first); Brambilla et al. 2019 (moral info
+drives impression REVISION); Reeder & Coovert 1986 (immoral
+impressions resist counterevidence); Collins & Miller 1994 (Psych.
+Bull. 116:457 — three disclosure–liking effects, meta); Sommerfeld,
+Krambeck, Semmann & Milinski 2007 (PNAS — gossip substitutes for
+observation, indirect reciprocity); Feinberg, Willer, Stellar &
+Keltner 2012 (JPSP — prosocial gossip, ostracism); Jacoby, Woloshyn
+& Kelley 1989 (famous-overnight familiarity misattribution); Fiske &
+Neuberg 1990 (category→individuation continuum); Brewer 1988 (dual-
+process person perception); Andersen & Baum 1994; Andersen, Glassman,
+Chen & Cole 1995; Andersen & Chen 2002 (Psych. Rev. 109:619 —
+relational self, transference memory effect); Pickering & Garrod
+2004 (BBS interactive alignment); Garrod & Anderson 1987; Brennan &
+Clark 1996 (lexical entrainment); Clark (common ground); Hatfield,
+Cacioppo & Rapson 1994 (emotional contagion); Peters & Kashima 2007
+(social sharing → listener emotion); Hess 1990 (older-adult schema
+reliance).

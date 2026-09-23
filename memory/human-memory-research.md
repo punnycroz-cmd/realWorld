@@ -1461,3 +1461,80 @@ this version adds beyond the v7 trait layer and v19 second axis:
   hearAccount negativeFeedback + intox.kind contract); validation
   → P1–P309. 15+ sources verified via web (prevalence figures,
   meta-analytic effect sizes, the Kloft acute-vs-1-week pattern).
+
+## 32. v32 calibration summary — social-memory III (the dyadic ledger)
+
+Third pass on social-memory.md (Part III, §§32–47). What this version
+adds beyond the v8 person layer and v20 talk ecology:
+
+- **The impression is two-dimensional, finally.** PersonModel.traits
+  now carry `dim` tags and a scalar `eval` recomputed moral-primary
+  (moral_primacy 0.65 — Brambilla 2019 showed moral info drives
+  impression REVISION, not just formation; Reeder & Coovert's
+  asymmetric resistance becomes `moral_rehab`). This is the first
+  spec'd answer to "how much does a character LIKE someone" that is
+  a memory output rather than a relationship input — rumor
+  believability, audience tuning, and tell-selection all read it.
+- **The FAE becomes a resource mechanic.** Gilbert et al. 1988's
+  three-stage model gives the STI write its missing correction stage:
+  `sitConstraint` only discounts the trait inference when
+  `correction_avail` clears the attention gate. Encoding the excuse
+  and discounting it are separate events — the trait survives the
+  context by ordinary source decay. This converts "fundamental
+  attribution error" from a phenomenon we cite into a checkable
+  compute path, and gives the vigilance/business traits a new handle.
+- **Status enters as an asymmetry, not a score.** Ratcliff et al.
+  2011 (verified: high-status faces get better recognition, attention,
+  sociospatial binding, holistic processing) + Guinote's power-
+  dampens-attention literature compose into `status_encode_gain`/
+  `power_encode_loss` — memory for people is hierarchical, and the
+  hierarchy is read off a world-supplied tag so the landlord axis
+  works out of the box.
+- **Destination memory refines the v1.6 flat roll into edge decay.**
+  Gopie & MacLeod 2009 verified: toldTo is weaker than source; Gopie
+  et al. 2010 verified the older-adult confident-MISS direction
+  (withholding error = repeats). The doc's strongest age gradient
+  (0.5·age_eff/60) is flagged interpolation — the literature gives
+  direction, not a curve. Three decay rates now coexist on one
+  utterance: content, source, destination — which is why real social
+  bookkeeping fails in the characteristic ways.
+- **Exposure mints person shells.** `exposureCount` accrues on
+  sub-threshold co-presence — records that never become episodes —
+  feeding both `familiar_only` outputs and the §6.26 transplant
+  candidate pool (the new `exposureCount` term makes ambient
+  familiarity the preferred dead-slot filler). The Jacoby
+  famous-overnight mechanism, running on a neighborhood.
+- **Gossip gets its second channel.** §6.3 adoption was about the
+  CLAIM; §6.31 `heard_update_w` is about the TARGET — impressions
+  update at a credibility-discounted rate decoupled from claim
+  believability (P315 structure-lock). Disclosure closes the trust
+  loop the other direction: Collins & Miller 1994's three
+  disclosure–liking effects become two writes, and
+  `shared_reality_gate` finally has a formation mechanism.
+- **Impressions start categorical.** `individuation` (0→1 over
+  diagnostic encounters) interpolates catPrior↔traits and couples
+  `source_cat_share` to individuation depth [HYPOTHESIS coupling] —
+  the ambient 20 staying "types" to most mains is now the correct
+  emergent default, not a modeling failure.
+- **Transference is the first motivated social bias.** Andersen &
+  Chen's schema projection (verified: false recognition of
+  significant-other-consistent traits never presented) gives RW
+  "he reminds me of my brother" as a memory operation with
+  observable false-fill consequences, decaying with individuation.
+- **Retell reads the audience's ledger.** `novel_pick_w`/`told_pen`
+  make field selection audience-aware on documented-as-wrong
+  bookkeeping (shared_with over-assumes, toldTo under-remembers) —
+  per-audience content divergence is the microstructure real rumor
+  networks show. `phrasing` tokens (Pickering & Garrod alignment)
+  survive hops as lineage markers — a forensic tool the history
+  browser can expose.
+- **Contagion tracks the teller's present.** §6.33 formalizes the
+  person-mediated arousal channel on `speakerArousal` — cooled
+  tellers ship cooled rumors regardless of birth arousal.
+- Spec → v3.2 (+22 params, PersonModel +3 fields, §§6.31–6.33 +
+  clause updates in §§1/2/4.10/5.10/6.11/6.12/6.14/6.26; contract:
+  `sitConstraint`/`status`/`speakerArousal`/`phrasing`/`exposure`
+  events); validation → P1–P321 (P310/P311/P313/P315/P318 sign- or
+  structure-locked MUSTs). 15+ sources verified via web (Gopie DOIs,
+  Ratcliff PSPB, Collins & Miller Psych. Bull., Andersen & Chen
+  Psych. Rev., Gilbert JPSP, Brambilla EJSP — all confirmed).
