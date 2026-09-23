@@ -28574,10 +28574,23 @@ const SF_CAM = {
   pitch: 0,          // + looks up, - looks down
   h: 1.7,            // camera height, meters (0.5 - 30)
   back: 6.5,         // v8: third-person pull-back, meters behind the subject
+  fov: 1,            // v9: lens multiplier — 1 = 50mm, 0.55 wide, 2.4 tele
+  orbit: false,      // v9: slow auto-orbit around the subject
   director: false,
   x: 0, y: 0,        // director position, meters
   _lastPawn: -1,
+  _snap: true,       // v9: jump smoothed rig to targets next frame
 };
+/* v9: smoothed rig state lives outside the target fields so every source
+   of input (keys, drag, script) stays instantaneous and the spring does
+   the easing. _sx/_sy world meters, _syaw/_spitch radians, _sh meters. */
+function sfAngLerp(a, b, k){
+  let d = b - a;
+  while(d > Math.PI) d -= Math.PI * 2;
+  while(d < -Math.PI) d += Math.PI * 2;
+  return a + d * k;
+}
+function sfCamSnap(){ SF_CAM._snap = true; }
 
 /* v8: DIORAMA camera — the top view is a tilted axonometric projection.
    The ground plane is squashed by SF_TILT around screen-center while
@@ -28598,6 +28611,7 @@ window.addEventListener('keydown', e => {
       const v = VILLAGERS[inspectedPawnIdx];
       SF_CAM.yaw = sfCamYawOf(v); SF_CAM.pitch = 0; SF_CAM.h = 1.7;
       SF_CAM._lastPawn = inspectedPawnIdx;
+      sfCamSnap();
     }
   }
   if(e.code === 'KeyC' && SF_VIEW === 'street'){
@@ -28606,8 +28620,20 @@ window.addEventListener('keydown', e => {
       const v = VILLAGERS[inspectedPawnIdx];
       SF_CAM.x = v ? v.x / SF_PXM : 600;
       SF_CAM.y = v ? v.y / SF_PXM : 400;
+      sfCamSnap();
       if(typeof showToast === 'function') showToast('🎬 DIRECTOR camera — WASD fly · R/F up/down · drag look');
-    } else if(typeof showToast === 'function') showToast('Follow-cam');
+    } else { sfCamSnap(); if(typeof showToast === 'function') showToast('Follow-cam'); }
+  }
+  // v9: O = slow orbit around the subject; Z/X = lens (wider / longer)
+  if(e.code === 'KeyO' && SF_VIEW === 'street' && !SF_CAM.director){
+    SF_CAM.orbit = !SF_CAM.orbit;
+    if(typeof showToast === 'function')
+      showToast(SF_CAM.orbit ? '◌ ORBIT — circling the subject' : 'Orbit off');
+  }
+  if((e.code === 'KeyZ' || e.code === 'KeyX') && SF_VIEW === 'street'){
+    SF_CAM.fov = clamp(SF_CAM.fov * (e.code === 'KeyZ' ? 1.12 : 0.89), 0.55, 2.4);
+    if(typeof showToast === 'function')
+      showToast(`Lens ${Math.round(50 * SF_CAM.fov)}mm`);
   }
 });
 if(SF_MODE && typeof window !== 'undefined'){
@@ -28626,8 +28652,10 @@ if(SF_MODE && typeof window !== 'undefined'){
   window.addEventListener('wheel', e => {
     if(SF_VIEW !== 'street') return;
     // v8: scroll dollies the rig — lens height in director mode,
-    // follow distance in third-person mode
-    if(SF_CAM.director)
+    // follow distance in third-person mode; v9: Shift+scroll zooms the lens
+    if(e.shiftKey)
+      SF_CAM.fov = clamp(SF_CAM.fov * (e.deltaY > 0 ? 0.9 : 1.11), 0.55, 2.4);
+    else if(SF_CAM.director)
       SF_CAM.h = clamp(SF_CAM.h * (e.deltaY > 0 ? 1.12 : 0.89), 0.5, 30);
     else
       SF_CAM.back = clamp(SF_CAM.back * (e.deltaY > 0 ? 1.12 : 0.89), 2.5, 24);
@@ -28641,6 +28669,8 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>Drag</kbd> Look</span>' +
     '<span><kbd>Q</kbd>/<kbd>E</kbd> Rotate</span>' +
     '<span><kbd>C</kbd> Director</span>' +
+    '<span><kbd>O</kbd> Orbit</span>' +
+    '<span><kbd>Z</kbd>/<kbd>X</kbd> Lens</span>' +
     '<span><kbd>Scroll</kbd> Dolly</span>' +
     '<span><kbd>WASD</kbd> Fly</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>';
@@ -28662,7 +28692,14 @@ const SF_WX = {
   gust: 0.5,           // v7: wind gust envelope — trees breathe, debris surges
   flash: 0, nextFlash: 5, // v7: lightning driver
   leaves: null,        // v7: wind-blown leaf/litter particle field
+  hazeK: 0.3,          // v9: aerial-perspective strength (humidity + cover)
+  hazeRGB: '188,212,230', // v9: haze tint — matches horizon sky, day/night
 };
+/* v9: shared aerial-perspective falloff — light scattered by the marine
+   layer washes distant geometry toward the horizon color. */
+function sfHazeA(fwd){
+  return Math.min(0.62, Math.max(0, (fwd - 45) / 240) * SF_WX.hazeK);
+}
 const SF_SUN = { x: 0.26, y: 0.16 }; // ground shadow dir per meter of height
 const SF_CLOUD_ALT = 130;            // meters
 
@@ -29395,10 +29432,10 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
-  // distance haze toward the sky color
-  const hz = night ? 0 : Math.min(0.4, Math.max(0, (fwd - 70) / 300));
+  // v9: distance haze toward the horizon color, driven by live humidity
+  const hz = sfHazeA(fwd);
   if(hz > 0.02){
-    ctx.globalAlpha = hz; ctx.fillStyle = '#bcd4e6';
+    ctx.globalAlpha = hz; ctx.fillStyle = `rgb(${SF_WX.hazeRGB})`;
     ctx.beginPath();
     ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
     ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
@@ -29435,27 +29472,61 @@ function sfRenderStreet(cw, ch){
       if(keysDown['KeyR'] || keysDown['PageUp']) SF_CAM.h = clamp(SF_CAM.h + 0.35, 0.5, 30);
       if(keysDown['KeyF'] || keysDown['PageDown']) SF_CAM.h = clamp(SF_CAM.h - 0.35, 0.5, 30);
     } else if(inspectedPawnIdx !== SF_CAM._lastPawn){
-      // pawn switched while in street view: recenter yaw on the new subject
+      // v9: pawn switched — glide to the new subject instead of cutting
       SF_CAM.yaw = sfCamYawOf(v); SF_CAM._lastPawn = inspectedPawnIdx;
     }
   }
+  // v9: O-orbit — the lens circles the subject on its own
+  if(SF_CAM.orbit && !SF_CAM.director) SF_CAM.yaw += SF_WX.dt * 0.26;
+
+  // v9: velocity lead — the lens frames where the subject is GOING,
+  // not where they stand. Pawn velocity is estimated from position delta.
+  const px = v ? v.x / SF_PXM : 600, py = v ? v.y / SF_PXM : 400;
+  const dtC = Math.max(0.008, Math.min(0.2, SF_WX.dt || 0.016));
+  if(SF_CAM._pvx == null){ SF_CAM._pvx = px; SF_CAM._pvy = py; SF_CAM._leadX = 0; SF_CAM._leadY = 0; }
+  let lvx = (px - SF_CAM._pvx) / dtC, lvy = (py - SF_CAM._pvy) / dtC;
+  const vl = Math.hypot(lvx, lvy);
+  if(vl > 9){ lvx = lvx / vl * 9; lvy = lvy / vl * 9; }
+  if(!v || !v.moving){ lvx = 0; lvy = 0; }
+  SF_CAM._pvx = px; SF_CAM._pvy = py;
+  const kLead = Math.min(1, dtC * 3);
+  SF_CAM._leadX += (lvx * 0.45 - SF_CAM._leadX) * kLead;
+  SF_CAM._leadY += (lvy * 0.45 - SF_CAM._leadY) * kLead;
 
   // v8: third-person follow rig — the camera rides SF_CAM.back meters
   // BEHIND the subject instead of sitting inside their head, and the lens
   // auto-pitches to keep the pawn framed on the lower third line.
-  const DX = Math.cos(SF_CAM.yaw), DY = Math.sin(SF_CAM.yaw);
-  const camH = SF_CAM.h;
-  let camX, camY, pitchEff = SF_CAM.pitch;
+  // v9: all of it is now the TARGET for a spring-damped rig.
+  const TDX = Math.cos(SF_CAM.yaw), TDY = Math.sin(SF_CAM.yaw);
+  let tX, tY, tPitch = SF_CAM.pitch;
   if(SF_CAM.director){
-    camX = SF_CAM.x; camY = SF_CAM.y;
+    tX = SF_CAM.x; tY = SF_CAM.y;
   } else {
-    const px = v ? v.x / SF_PXM : 600, py = v ? v.y / SF_PXM : 400;
-    camX = px - DX * SF_CAM.back;
-    camY = py - DY * SF_CAM.back;
-    pitchEff = SF_CAM.pitch - Math.atan2(Math.max(0, camH - 1.05), Math.max(2, SF_CAM.back)) * 0.85;
+    tX = px + SF_CAM._leadX - TDX * SF_CAM.back;
+    tY = py + SF_CAM._leadY - TDY * SF_CAM.back;
+    tPitch = SF_CAM.pitch - Math.atan2(Math.max(0, SF_CAM.h - 1.05), Math.max(2, SF_CAM.back)) * 0.85;
   }
-  const F = Math.max(400, ch * 1.1);
-  const horizon = ch * 0.42 + Math.tan(pitchEff) * F;
+  if(SF_CAM._snap || SF_CAM._sx == null){
+    SF_CAM._sx = tX; SF_CAM._sy = tY; SF_CAM._syaw = SF_CAM.yaw;
+    SF_CAM._spitch = tPitch; SF_CAM._sh = SF_CAM.h; SF_CAM._snap = false;
+  }
+  const kRig = 1 - Math.exp(-dtC * 6.5);
+  SF_CAM._sx += (tX - SF_CAM._sx) * kRig;
+  SF_CAM._sy += (tY - SF_CAM._sy) * kRig;
+  SF_CAM._syaw = sfAngLerp(SF_CAM._syaw, SF_CAM.yaw, kRig);
+  SF_CAM._spitch += (tPitch - SF_CAM._spitch) * kRig;
+  SF_CAM._sh += (SF_CAM.h - SF_CAM._sh) * kRig;
+  // v9: handheld breath — a whisper of operator movement while flying
+  // the director rig (invisible in stills, alive in motion)
+  let useYaw = SF_CAM._syaw, usePitch = SF_CAM._spitch;
+  if(SF_CAM.director){
+    useYaw += Math.sin(SF_WX.t * 0.6) * 0.004 + Math.sin(SF_WX.t * 1.7) * 0.0015;
+    usePitch += Math.sin(SF_WX.t * 0.83 + 1.2) * 0.003;
+  }
+  const DX = Math.cos(useYaw), DY = Math.sin(useYaw);
+  const camX = SF_CAM._sx, camY = SF_CAM._sy, camH = SF_CAM._sh;
+  const F = Math.max(400, ch * 1.1) * SF_CAM.fov;
+  const horizon = ch * 0.42 + Math.tan(usePitch) * F;
   const pr = (x, y, z) => {
     const dx = x - camX, dy = y - camY;
     const fwd = dx * DX + dy * DY;
@@ -29472,6 +29543,12 @@ function sfRenderStreet(cw, ch){
   else { sky.addColorStop(0, '#5b8fc9'); sky.addColorStop(1, '#cfe3f2'); }
   ctx.fillStyle = sky; ctx.fillRect(0, 0, cw, horizon);
   const cover = sfCloudCover();
+  // v9: aerial perspective strength for this frame — the marine layer's
+  // moisture scatters light, so distant blocks melt toward the horizon
+  // color. Driven by the same humidity/cloud physics as Karl himself.
+  const fogAFrame = night ? 0.3 : clamp(0.16 + (W.hum - 0.55) * 1.7 + W.rain * 0.5, 0.1, 0.9);
+  SF_WX.hazeK = clamp((night ? 0.10 : 0.15) + fogAFrame * 0.55 + cover * 0.15, 0.1, 0.8);
+  SF_WX.hazeRGB = night ? '52,62,92' : '188,212,230';
   if(!night){
     // v6: sun disc at the real tod azimuth, halo + glare
     const az = Math.PI * (W.tod - 6) / 12;
@@ -29632,7 +29709,7 @@ function sfRenderStreet(cw, ch){
     }
   }
   cells.sort((a, b) => b[2] - a[2]);
-  for(const [wxm, wym, , t] of cells){
+  for(const [wxm, wym, cfwd, t] of cells){
     const c = cm;
     const p1 = pr(wxm, wym, 0), p2 = pr(wxm + c, wym, 0),
           p3 = pr(wxm + c, wym + c, 0), p4 = pr(wxm, wym + c, 0);
@@ -29642,6 +29719,15 @@ function sfRenderStreet(cw, ch){
     ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
     ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
     ctx.closePath(); ctx.fill();
+    // v9: aerial perspective — far pavement dissolves into the marine layer
+    const cHz = sfHazeA(cfwd);
+    if(cHz > 0.02){
+      ctx.fillStyle = `rgba(${SF_WX.hazeRGB},${cHz})`;
+      ctx.beginPath();
+      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
+      ctx.closePath(); ctx.fill();
+    }
     // v6: cloud shadow sliding over the pavement
     const csh = !night ? sfCloudShadow(wxm + cm / 2, wym + cm / 2) : 0;
     if(csh > 0.04){
@@ -29744,6 +29830,12 @@ function sfRenderStreet(cw, ch){
         ctx.closePath(); ctx.fill();
         ctx.strokeStyle = night ? '#1a1816' : shade(ROOF[1], 0.85);
         ctx.lineWidth = 1; ctx.stroke();
+        // v9: aerial perspective — far roofs sink into the marine layer
+        const rHz = sfHazeA(d.fwd);
+        if(rHz > 0.02){
+          ctx.fillStyle = `rgba(${SF_WX.hazeRGB},${rHz})`;
+          ctx.fill();
+        }
         // faint tar-paper seams across the roof plane
         if(!night && rpts.length >= 3){
           ctx.save(); ctx.clip();
@@ -29954,6 +30046,23 @@ function sfRenderStreet(cw, ch){
       ctx.textAlign = 'right';
       ctx.fillText(`DOLORES CAM ${hh}:${mm}`, cw * 0.96, ch - bar * 0.4);
     }
+  }
+
+  // v9: rig readout — mode + focal length, bottom-left, like a viewfinder
+  {
+    const mm = Math.round(50 * SF_CAM.fov);
+    const mode = SF_CAM.director ? 'DIRECTOR' : (SF_CAM.orbit ? 'ORBIT' : 'FOLLOW');
+    const lab = `◉ ${mode}  ${mm}mm`;
+    ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+    const tw2 = ctx.measureText(lab).width;
+    const barH = SF_CAM.director ? Math.round(ch * 0.085) : 0;
+    const ly = ch - barH - 12;
+    ctx.fillStyle = 'rgba(8,10,16,0.55)';
+    ctx.fillRect(10, ly - 15, tw2 + 18, 20);
+    ctx.strokeStyle = 'rgba(200,220,240,0.25)'; ctx.lineWidth = 1;
+    ctx.strokeRect(10, ly - 15, tw2 + 18, 20);
+    ctx.fillStyle = 'rgba(225,235,245,0.9)';
+    ctx.fillText(lab, 19, ly);
   }
 
   // DIRECTOR badge while free-fly camera is active
