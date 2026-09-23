@@ -1,4 +1,32 @@
-# Memory Model Spec v2.7 — implementable human-like memory for RW characters
+# Memory Model Spec v2.8 — implementable human-like memory for RW characters
+
+> **v2.8 note (age-decline III — the paradox layer, where aging
+> inverts the deficit):** `memory/age-decline.md` Part III (§§34–48)
+> adds the channels where old age *reverses* the naive expectation:
+> **PM paradox** — focal PM stays age-flat (env-supported), habitual
+> intentions gain `pm_habit_gain` with repetition, `ii_age_gate`
+> rescues young-old then fails old-old (Rendell & Craik 2000; Rose
+> et al. 2009; Chasteen et al. 2001; Kretschmer-Trendowicz et al.
+> 2009) — §5.14; **antipeak lures** — `sync_lure_gain` lifts
+> `lure_accept` off-peak in old only (Intons-Peterson et al. 1999)
+> — §5.6; **errorful cost** — `potent_gain` halves in old age and
+> needs a feedback window (Tse, Balota & Roediger 2010) — §4.11;
+> **knowledge shield** — `know_corr_gain` lets dense semantic stores
+> defeat fluent falsehoods; elders are *less* gullible on home turf
+> (Brashier et al. 2017 correcting Fazio et al. 2015) — §6.7;
+> **imagined-vs-done** — `rm_self_confuse` similarity-gated source
+> flips (Henkel et al. 1998) — §6.10; **effortful listening** —
+> `hearing` trait + `noise_cost` on verbal encoding (Rabbitt; Lin
+> et al. 2011) — §2; **isolation & medication overlays** —
+> `isolation` (Wilson et al. 2007) and `med_antichol` (Gray et al.
+> 2015) join §4.17; **metamemory split** — `self_est_bias` drifts
+> negative, `complaint_k` rises while monitoring stays accurate
+> (Pearman & Storandt 2004) — §3/§10; **involuntary highway** —
+> `invol_pos_gain`/`invol_remote_gain` on the ambient scan
+> (Schlagman et al. 2009) — §5.7; **crystallized growth** —
+> `enc_sem_mult` semantic encoding bump 45–60 — §2. +17 params in
+> §7; probes P263–P273 in validation-design.md. All optional,
+> default-neutral.
 
 > **v2.7 note (age-development III — the bump's fuel, the adolescent
 > regime, and the gates that never were):** `memory/age-development.md`
@@ -732,6 +760,22 @@ Postman 1964; Hyde & Jenkins 1973).
   correct it is (Dawes et al. 2022 aphantasia: fewer episodic details,
   individual-differences.md §2.7). Missing fields are confabulation
   surface at reconstruction (§5.5); vividness never changes accuracy.
+- **Effortful listening (v2.8):** for verbal-channel events
+  (conversations, spoken instructions) in contexts carrying
+  `noise_level` > 0.3, `E *= 1 − noise_cost·(1 − hearing)·noise_level`
+  (`noise_cost` ≈ 0.4; `hearing` trait ∈[0,1], population mean ~0.95
+  at 50 → ~0.7 at 85, trait-jittered). Comprehending degraded speech
+  spends the resource that would have encoded it (Rabbitt channel
+  capacity; Pichora-Fuller effortfulness; Lin et al. 2011 — we model
+  the encoding channel only, not the dementia hazard). Encoding-side
+  only: unheard detail is absent, never wrong. HYPOTHESIS wiring:
+  `hearing < 0.6` halves social-contact accrual for the §4.17
+  `isolation` ledger.
+- **Crystallized accretion (v2.8):** semantic-record encoding gets
+  `enc_sem_mult(age_now)` — 1.0 ≤40 → 1.05 at 55 → 1.0 at 70, the
+  only encoding term that rises with age (Park et al. 2002;
+  Verhaeghen 2003 vocabulary growth). Feeds `know_density` (§6.7):
+  the old store is the best truth-checker and the deepest archive.
 - **Inconsistency and lapses (v1.9):** each dailyMemoryTick draws
   `day_mult = exp(N(0, iiv_sigma))` multiplying that day's encoding E
   (retrieval-side θ noise in §5.4) — intraindividual variability is a
@@ -1357,7 +1401,13 @@ Theory of Disuse; formal-model.md §10):
   re-encoding/re-exposure of matching content gets
   `E_new *= (1 + potent_gain)` (0.3) and consumes the flag (Kornell,
   Hays & Bjork 2009 — struggling to recall, then hearing it, beats never
-  trying).
+  trying). **v2.8 — the Tse boundary:** `potent_gain` gains old-side
+  knots (1.0 ≤50 → 0.75 at 70 → 0.55 at 85) and the flag expires if
+  no successful recall or corrective re-exposure lands within
+  `potent_window` (≈2 days) — errorful practice without feedback pays
+  the old nothing (Tse, Balota & Roediger 2010: testing beats restudy
+  for elders only with feedback; `reexp_ratio` untouched — restudy is
+  their spared channel).
 - **Decay:** `S *= (1 − s_decay)` daily, s_decay ≈ 0.0008 — near-
   permanent; under the §4.8 terminal ramp s_decay is a capacity param
   (`*= (1 + terminal_gain·t_frac)`).
@@ -1539,6 +1589,25 @@ the window flags; profiles doc §0 carries the clamps.
 Both overlays: no new stores, no permanent marks — records encoded
 inside carry only the ordinary `regime` tag. P261/P262 test
 reversibility and the practice-stall signature.
+
+**v2.8 additions (age-decline.md §§40, 44):**
+
+- **`isolation` overlay** (any character; elder-weighted): rolling
+  14-day social-contact mean < `iso_floor` (≈1.5/day) sustained for
+  `iso_onset` (≈30d) → ON: `beta_episodic += iso_beta` (0.1),
+  `enc_base − 0.05`, `positivity_gain × 0.5`, nonfocal PM −0.1.
+  OFF after 14d ≥ floor, recovering linearly over `iso_recovery`
+  (≈60d) — slower to heal than to wound. Wilson et al. 2007:
+  perceived loneliness doubled AD risk and tracked *no* AD pathology
+  at autopsy → a state channel, so modeled reversible. `partnerDeath`
+  events jump the ledger (widowhood = memory intervention; pairs
+  with §6.13 `collab_partner_gain` loss).
+- **`med_antichol` overlay** (any adult; elder-typical): while
+  active — `theta + med_theta_up` (0.05), `enc_base − med_enc_loss`
+  (0.05), `ret_noise + 0.03`, nonfocal PM −0.1; fully removed on
+  stop. Gray et al. 2015: cumulative anticholinergic → dementia
+  association (DEBATED, protopathic); we model the acute reversible
+  impairment only — it does not feed `age_eff`.
 
 ---
 
@@ -1764,6 +1833,12 @@ Not the record — a **reconstruction**:
   MORE domain-consistent material (Castel, McCabe, Roediger & Heitman
   2007; Baird 2003). Same term applies to §6.3/§6.8 adoption of
   domain-consistent misinformation and phantom content.
+  **v2.8 — the antipeak breeds lures:** if `peak_hour` is set and
+  `Δh = |tod − peak_hour| > 6`, then `lure_accept *= (1 +
+  sync_lure_gain·lure_sync_gate(age_now))` — `lure_sync_gate` is 0
+  below 50 ramping to 1 by 70 (frozen shape). Intons-Peterson et al.
+  1999: nonoptimal-time testing inflated false memory in old adults
+  only — the inhibitory gate is the circadian-sensitive resource.
 
 ### 5.7 Involuntary retrieval (new in v0.2)
 
@@ -1777,6 +1852,17 @@ if character attention state == "unfocused":
         if cueMatch_ext(m) > intrusion_thresh (≈0.75):
             m surfaces spontaneously → normal reconsolidation §5.8 applies
 ```
+**v2.8 — the involuntary highway (age-decline.md §42):** ambient-scan
+emission rate stays age-flat (v2.6 rule reaffirmed — Schlagman et al.
+2009: involuntary frequency preserved while voluntary declines), but
+emitted records are biased: positive valence preferred with prob
+`invol_pos_gain(age_eff)` (knots → 0.15 at 85; Schlagman et al. 2006
+content finding — elders' involuntary AMs skew positive), and the
+record-age prior tilts remote via `invol_remote_gain(age_eff)` (≈0.2
+at 75+) — involuntary recall disproportionately surfaces bump-era and
+remote records in old characters. Involuntary recalls earn full §5.9
+reboost: ambient recall IS the elder's rehearsal economy.
+
 `intrusion_thresh` drops ~0.15 under active stress and for trauma-tagged
 records — **v0.5: the −0.15 discount is a property of `trauma:true`
 records themselves** (not only the character modifier). **v2.2:**
@@ -1999,6 +2085,24 @@ re-encountering the cue inside the tail:
 
 A refire is a commission — the act or the reach ("I already gave you
 this, didn't I?"), never a fresh recall. P247.
+
+**v2.8 — the PM paradox (age-decline.md §34):**
+
+- `pm_focal_hit` reaffirmed age-FLAT — focal PM is env-supported and
+  stays spared (Rendell & Thomson 1999: elders *beat* the young in
+  the real week while losing in the lab; cue density is the
+  moderator). P263 sign-locks the three arms.
+- `pm_habit_gain(age_eff)` — an intention that has fired ≥1 times on
+  the same cue class gains `+pm_habit_gain·min(1, fires/5)` on its
+  fire roll (knots → 0.35 at 85): repetition makes old routines MORE
+  reliable (Rose et al. 2009 — regular/focal tasks improve over the
+  week and shed their WM dependence).
+- `impl_intent_gain` × `ii_age_gate(age_now)`: 1.0 ≤60 → 1.4 at
+  65–75 → 0.8 ≥76 — implementation intentions rescue young-old
+  event-based PM (Chasteen, Park & Schwarz 2001, >2× self-initiation;
+  Schnitzspahn et al. 2009) but fail the old-old
+  (Kretschmer-Trendowicz et al. 2009 — no benefit ≥76, event arm
+  impaired). P264.
 
 **v2.7 — the child end (age-development.md §31):** event-based PM is
 present by age 4 but interruption-fragile (Kvavilashvili, Messer &
@@ -2374,7 +2478,8 @@ Rubin, Schrauf & Greenberg 2003; false-memory.md §7):
 
 ```
 recollect_q = verbatimStrength·(1 + sensoryRichness)      // reliving
-believe_p   = w_plaus·plausibility + w_corr·corroboration
+believe_p   = w_plaus·plausibility
+              + w_corr·corroboration·(1 + know_corr_gain·know_density)
               + w_fluency·fluency(retrievalCount + hearCount)
 beliefStatus: >0.8 fact · 0.45–0.8 belief · 0.2–0.45 rumor ·
               <0.2 doubted (regardless of recollect_q)
@@ -2387,6 +2492,16 @@ beliefStatus: >0.8 fact · 0.45–0.8 belief · 0.2–0.45 rumor ·
 - **Believed-not-remembered** = high believe_p + ~zero recollect_q —
   fluent corroborated hearsay ("everyone says the fire was arson") —
   the natural state of a `told_by` record with high hearCount.
+- **v2.8 — the knowledge shield (age-decline.md §37):** `know_density`
+  = share of the claim's topic tags covered by the character's own
+  semantic records at strength ≥ `know_protect_thresh` (§6.3 reuse).
+  `know_corr_gain` ≈ 0.5 grows on old-side knots — elders check
+  repeated claims against a lifetime's store and reject them on home
+  turf while remaining fluency-vulnerable off it (Brashier, Umanath,
+  Cabeza & Marsh 2017: older adults rely on KNOWLEDGE in the face of
+  fluency — the Fazio et al. 2015 knowledge-neglect direction
+  *inverts* with age; `rep_gain` stays age-flat — the fluency channel
+  itself doesn't weaken). P268 requires both arms.
 
 ### 6.8 Phantom / gist-lure records (new in v0.6)
 
@@ -2502,6 +2617,17 @@ below ~age 9 — children over-confuse their own thoughts and deeds
 (external — wrong speaker/channel) rides the existing old-side knots
 (~1.8× at 75 — Henkel, Johnson & De Leonardis 1998). Same failure
 umbrella, opposite channel by age; P144 checks the split.
+
+**v2.8 — imagined-vs-done (age-decline.md §38):** when source
+resolution pits a self-action record against an
+intention/simulation record (`imagined`, armed intention, or
+`imagineEvent` product) with similarity ≥ `interf_thresh`, flip
+`imagined→did` with `p = rm_self_confuse(age_eff)·sim` (knots 0.03
+≤50 → 0.18 at 85); `did→imagined` at half rate. Henkel et al. 1998:
+the misattribution is similarity-gated — old adults confuse only
+what resembles the real thing. Powers the absent-mindedness beat
+("did I lock the door, or just decide to?") and feeds verify-mode
+checks (`check_conf_loss` economy).
 
 ### 6.11 Audience tuning — saying is believing (new in v0.8)
 
@@ -3226,6 +3352,24 @@ MemoryParams = {
   "script_date_pull": 0.3,   // script_age pull in dateEstimate (§6.15)
   "pm_interrupt_mult": 1.5,  // interruption cost, child knots (§5.14)
   "pm_scaffold_gain": 0.2,   // caregiver co-present PM bonus (§5.14)
+  // v2.8 additions (age-decline III — the paradox layer,
+  // age-decline.md Part III §§34–45)
+  "pm_habit_gain": 0.0,      // repeated-cue-class PM rescue (§5.14)
+  "ii_age_gate": 1.0,        // impl-intent benefit gate (§5.14)
+  "sync_lure_gain": 0.0,     // antipeak lure multiplier (§5.6)
+  "potent_window": 2.0,      // days; feedback gate on potent_gain (§4.11)
+  "know_corr_gain": 0.5,     // knowledge-density × w_corr (§6.7)
+  "rm_self_confuse": 0.03,   // imagined↔done flip rate (§6.10)
+  "hearing": 1.0,            // trait 0..1, age-declining mean (§2)
+  "noise_cost": 0.4,         // max E cut, verbal events in noise (§2)
+  "invol_pos_gain": 0.0,     // ambient-scan positive bias (§5.7)
+  "invol_remote_gain": 0.0,  // ambient-scan remote-age prior (§5.7)
+  "enc_sem_mult": 1.0,       // semantic encoding bump 45–60 (§2)
+  "iso_floor": 1.5,          // contacts/day; isolation ledger floor (§4.17)
+  "iso_onset": 30.0,         // days below floor before overlay on (§4.17)
+  "iso_beta": 0.1,           // β_episodic lift under isolation (§4.17)
+  "iso_recovery": 60.0,      // days to heal after contact resumes (§4.17)
+  "med_theta_up": 0.05, "med_enc_loss": 0.05, // med_antichol (§4.17)
   "preg_theta_up": 0.10,     // θ lift inside preg window (§4.17)
   "preg_enc_loss": 0.08,     // enc_base cut inside preg window (§4.17)
   "preg_pm_loss": 0.2,       // nonfocal-PM penalty, preg window (§4.17)
@@ -3290,6 +3434,15 @@ MemoryParams = {
 //   lure_accept child knots ~1.6@5 → 1.0@10 (§5.6 — item channel,
 //   phantom_p untouched); peak_hour +1.5h @13–19 (§2); off-script
 //   date_sigma multiplier = 1.3 fixed (§6.15)
+// v2.8 frozen constants + knot-table updates (age-decline.md III):
+//   lure_sync_gate shape frozen (0 below 50 → 1 by 70; §5.6);
+//   potent_gain old knots ×1.0 ≤50 → ×0.55@85 + potent_window gate
+//   (§4.11); self_est_bias drift extends: −0.05@70 → −0.12@85 (§3);
+//   complaint_k ×1.0@30 → ×1.5@85 + 0.2·depress_state (§10);
+//   pm_focal_hit, enact_gain, rep_gain, involuntary scan rate,
+//   metamem_r, warn_mult declared AGE-FLAT nulls (P263/P266/P268
+//   guards — deliberate non-changes, cite-guarded in
+//   age-decline.md §45)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -3299,7 +3452,7 @@ correlated latent trait vector `IndivTraits` (g_mem, wmc, neurot, extra,
 consc, open, vivid, distrust, fantasy, sleep, stress, social, sex,
 chronotype — plus the v1.9 block: inattn, verbal, gc, meta_conf,
 checker, culture_self, fitness, aging_rate, dissoc, empathy, langs,
-iiv) — sampled MVN(0, R) with the sparse correlation matrix in
+iiv; v2.8 adds `hearing` — age-correlated, trait-jittered) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -3806,6 +3959,25 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     default false); `stream` tag optional (same-stream link bonus).
   - Amnesia gate (§4.14) is episodic-only — semantic/procedural
     encodes bypass `amnesia_ramp`/`latent` entirely; no caller action.
+- v2.8 additions (age-decline.md Part III §§34–45):
+  - `encodeEvent` context may carry `noise_level` ∈[0,1] — gates the
+    `hearing`/`noise_cost` verbal-encoding tax (§2).
+  - `setOverlay` gains `"isolation"` and `"med_antichol"` (§4.17);
+    `isolation` is normally self-triggered from the contact ledger —
+    callers may also set it directly; `partnerDeath` event type is
+    recognized (jumps the ledger, zeroes collab_partner_gain channel).
+  - `rememberIntention` records track `fires` per cue class
+    (pm_habit_gain, §5.14); `impl_intent_gain` auto-applies
+    `ii_age_gate` — no caller action.
+  - `recall` recognition mode applies `sync_lure_gain` automatically
+    when `peak_hour` set and off-peak (§5.6); `ambientMemoryScan`
+    applies `invol_pos_gain`/`invol_remote_gain` automatically (§5.7).
+  - `hearAccount`/`believe_p` compute `know_density` from the
+    character's own semantic store — no caller action.
+  - `selfReport`/`complaint_k` channel: callers may pass
+    `depress_state` ∈[0,1] (§10) — complaints ride mood.
+  - record schema: intention records gain `fires` counter (hidden);
+    nothing else snapshot-visible.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

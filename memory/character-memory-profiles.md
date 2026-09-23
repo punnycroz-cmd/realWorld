@@ -326,6 +326,23 @@ never copying raw.
 | perim_enc_loss | 0.0 | 0.15 | enc_base cut, perim overlay (v2.7) |
 | perim_s_gain_mult | 0.0 | 0.5 | practice-gain mult, perim overlay (v2.7) |
 | perim_years | 2 | 8 | overlay duration (v2.7) |
+| pm_habit_gain | 0.0 | 0.5 | repeated-cue-class PM rescue (v2.8) |
+| ii_age_gate | 0.0 | 1.6 | impl-intent benefit gate, curve param (v2.8) |
+| sync_lure_gain | 0.0 | 1.5 | antipeak lure multiplier (v2.8) |
+| potent_window | 0.5 | 5.0 | days; feedback gate on potent_gain (v2.8) |
+| know_corr_gain | 0.0 | 1.0 | knowledge-density × w_corr (v2.8) |
+| rm_self_confuse | 0.0 | 0.3 | imagined↔done flip base (v2.8) |
+| hearing | 0.3 | 1.0 | trait; age-correlated mean drift (v2.8) |
+| noise_cost | 0.0 | 0.7 | max verbal-E cut in noise (v2.8) |
+| invol_pos_gain | 0.0 | 0.3 | ambient-scan positive bias (v2.8) |
+| invol_remote_gain | 0.0 | 0.4 | ambient-scan remote prior (v2.8) |
+| enc_sem_mult | 0.8 | 1.15 | semantic encoding bump 45–60 (v2.8) |
+| iso_floor | 0.5 | 4.0 | contacts/day isolation ledger floor (v2.8) |
+| iso_onset | 10 | 90 | days below floor → overlay on (v2.8) |
+| iso_beta | 0.0 | 0.3 | β_episodic lift under isolation (v2.8) |
+| iso_recovery | 20 | 180 | days to heal after contact resumes (v2.8) |
+| med_theta_up | 0.0 | 0.15 | θ lift, med_antichol overlay (v2.8) |
+| med_enc_loss | 0.0 | 0.15 | enc_base cut, med_antichol overlay (v2.8) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -1081,3 +1098,34 @@ variation enters through traits, records, and context instead:
   gist channel), `pm_interrupt_mult` 1.5, `pi_child_mult` applies;
   teen archetype — `peak_hour` +1.5h, `adolesc_sleep_loss` active,
   `social_eval_gain` ×1.3, `coruminate_gain` ×1.5, narr_window open.
+
+## 16. v2.8 note — age-decline III: the paradox layer dials
+
+- **`hearing`** — the one genuine trait this pass: bible-level sensory
+  history (occupational noise, genetics), age-correlated mean drift
+  (~0.95 at 50 → ~0.7 at 85) with trait jitter; a 75yo dance-club
+  veteran can pin 0.5 against the mean. Feeds `noise_cost` (scene
+  texture, not a deficit dial) and the `isolation` ledger — wiring a
+  hard-of-hearing elder to a noisy workplace IS how the overlay
+  triggers, which is the point.
+- **`pm_habit_gain`, `ii_age_gate`, `sync_lure_gain`, `potent_window`,
+  `rm_self_confuse`, `invol_*`, `enc_sem_mult`, `iso_*`,
+  `med_*`** — decline machinery; age knots do the work. Never pin
+  per-character beyond the clamp; world supplies triggers
+  (noise_level, overlays, partnerDeath), not magnitudes.
+- **`know_corr_gain`** — flat machinery; per-character variation is
+  EMERGENT from semantic-store density (a scholar's `know_density` is
+  high because her semantic records are many and strong, not because
+  her gain is bigger). Do not pin it high on "smart" characters —
+  that's double-counting. The bible dial is what she knows, not how
+  well she checks.
+- **Deliberate nulls (cite-guarded, spec §7):** `pm_focal_hit`,
+  `enact_gain`, `rep_gain`, involuntary-scan rate, `metamem_r`,
+  `warn_mult` get NO age knots — these are the spared channels;
+  touching them breaks P263/P266/P268.
+- **Archetype deltas (older adult, archetype E):** `pm_habit_gain`
+  knot active, `rm_self_confuse` 0.10–0.18, `hearing` ~0.7–0.85,
+  `invol_pos_gain`/`invol_remote_gain` on, `self_est_bias` drifted
+  negative — she underestimates a monitoring system that still works.
+  The loneliness-prone elder (widowed, low `social`) is a *roster*
+  fact feeding the `isolation` overlay, not a params fact.

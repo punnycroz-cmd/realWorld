@@ -1538,3 +1538,72 @@ the reversible overlays.
   anywhere (stalled growth, not loss — Greendale 2009 signature).
 
 Registry now P1–P262; numbering stable.
+
+## 37. New probes P263–P273 (v28, age-decline III suite)
+
+The paradox layer — each probe targets an *inversion* or *dissociation*,
+which is why most are sign-locked (the finding is the direction, not
+the magnitude).
+
+- **P263 PM paradox (MUST — sign):** one 78yo, three arms: focal
+  cue-present intention ≥90% of the 25yo rate; nonfocal/time-based
+  ≤60%; a cue-class-repeated (≥5 fires) habitual intention ≥ young
+  rate. The paradox is the *shape* — all three in one character.
+- **P264 impl-intent gate (SHOULD):** `impl_intent`-encoded event-based
+  PM: gain at 70 ≥1.3× the gain at 25; at 82 gain ≤ young
+  (Kretschmer-Trendowicz boundary — the rescue needs residual
+  resources).
+- **P265 antipeak lures (SHOULD — sign):** 75yo `lure_accept` at
+  antipeak ≥1.5× her at-peak rate; 25yo peak/antipeak ratio <1.2.
+  Recognition mode only — recall's own synchrony channel is separate.
+- **P266 enactment flat (SHOULD):** SPT-vs-verbal encoding benefit
+  within 10% at 30 vs 80 while absolute recall differs — parallel
+  decline (Rönnlund 2003); guards the deliberate `enact_gain` null.
+- **P267 errorful cost (SHOULD):** `attempted`-flagged records at 80
+  show ≤60% of the 30yo potentiation without feedback; identical
+  failure + corrective re-exposure inside `potent_window` restores
+  ≥90% (Tse feedback arm).
+- **P268 knowledge shield (MUST — sign):** repeated false claim on a
+  dense-knowledge topic: 75yo `believe_p` BELOW 25yo; same claim on a
+  novel topic: adoption equal. Both arms required — guards both the
+  `rep_gain` flat null and `know_corr_gain`.
+- **P269 imagined-vs-done (SHOULD):** planned-but-unexecuted action
+  with a similar executed sibling: `imagined→did` flip rate rises ~3×
+  from 30→85; dissimilar candidates unaffected (Henkel similarity
+  gate).
+- **P270 noisy-room tax (SHOULD):** identical conversation at
+  `noise_level` 0.8 vs 0.1: `hearing` 0.5 elder encodes ≥30% weaker;
+  hearing 1.0 control flat. Encoding-side only.
+- **P271 isolation overlay (MUST):** contact < `iso_floor` sustained
+  `iso_onset` days → measured β_episodic rise; contact restored →
+  recovery over ~`iso_recovery`; `partnerDeath` jumps the ledger.
+  Reversible, no record marks.
+- **P272 complaint split (MUST):** `self_est` drifts negative and
+  `complaint_k` rises 30→85 faster than measured recall declines;
+  complaint rate responds to `depress_state`, not to a β lesion —
+  metamemory dissociation, not modesty.
+- **P273 involuntary highway (SHOULD):** ambient-scan emission rate
+  flat 30→85 while voluntary recall falls; emitted records skew
+  positive and remote in the old cohort (Schlagman double asymmetry).
+
+Registry now P1–P273; numbering stable.
+
+### Sources new to this version
+
+Rendell & Thomson 1999 (J Gerontol B 54B:P256); Rendell & Craik 2000
+(Appl Cogn Psychol 14:S43, Virtual/Actual Week); Rose et al. 2009
+(Psychol Aging, doi 10.1037/a0019771); Chasteen, Park & Schwarz 2001
+(Psychol Sci 12:457); Schnitzspahn et al. 2009 (Appl Cogn Psychol,
+10.1002/acp.1576); Kretschmer-Trendowicz et al. 2009 (Eur J Ageing,
+10.1007/s10433-009-0116-x); Intons-Peterson, Rocchi, West, McLellan &
+Hackney 1999 (JEP:LMC 25:23); Rönnlund, Nyberg, Bäckman & Nilsson
+2003 (Aging Neuropsychol Cogn 10:182, Betula n=1000); Tse, Balota &
+Roediger 2010 (Psychol Aging, doi 10.1037/a0019933); Fazio, Brashier,
+Payne & Marsh 2015 (JEP:G 144:993); Brashier, Umanath, Cabeza & Marsh
+2017 (Psychol Aging 32:308, doi 10.1037/pag0000156); Henkel, Johnson
+& De Leonardis 1998 (JEP:G 127:251); Lin et al. 2011 (Arch Neurol
+68:214); Wilson et al. 2007 (Arch Gen Psychiatry 64:234); Gray et al.
+2015 (JAMA Intern Med 175:401); Schlagman, Kliegel, Schulz &
+Kvavilashvili 2009 (Psychol Aging, doi 10.1037/a0015785); Schlagman,
+Schulz & Kvavilashvili 2006 (Memory, content analysis); O'Connor et
+al. 1990; Pearman & Storandt 2004; Verhaeghen 2003 (vocabulary meta).

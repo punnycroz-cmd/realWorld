@@ -1307,3 +1307,38 @@ Lo et al. 2016 SLEEP 39:687 + Lo et al. 2017 J Sleep Res
 Bull 126:748; Robinson 1992 (Springer NATO ASI 65); Kvavilashvili,
 Messer & Ebdon 2001 Dev Psychol 37:418; Rose 2002 Child Dev 73:1830.
 Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 28. v28 — age-decline III (the paradox layer)
+
+New primary-source territory this pass: prospective memory's
+lab-vs-life inversion (Rendell & Thomson 1999; Rendell & Craik 2000
+Virtual/Actual Week; Rose et al. 2009 WM moderators); strategy
+rescues with age boundaries (Chasteen et al. 2001 implementation
+intentions >2× in old only; Kretschmer-Trendowicz et al. 2009 old-old
+failure); synchrony × false memory (Intons-Peterson et al. 1999 —
+nonoptimal-time testing inflates elder lures only); enactment's
+parallel decline (Rönnlund et al. 2003, Betula n=1000 — SPT advantage
+preserved, not a rescue); errorful-vs-feedback testing in old age
+(Tse, Balota & Roediger 2010 crossover); illusory truth inverted —
+elders shielded by knowledge density (Brashier et al. 2017 reversing
+the Fazio et al. 2015 default); reality monitoring of self-actions
+(Henkel et al. 1998 similarity-gated imagined→perceived); effortful
+listening and hearing-loss association (Rabbitt channel capacity;
+Lin et al. 2011 HR 1.89/3.00/4.94); loneliness as state not pathology
+(Wilson et al. 2007 — doubled AD risk, no pathology correlate →
+reversible-overlay justification); memory complaints decouple from
+performance (O'Connor 1990; Pearman & Storandt 2004; SAGE ρ=−.12 vs
+.44 depression); involuntary AM preserved while voluntary declines
+(Schlagman et al. 2009 — frequency flat, specificity spared,
+valence positive); crystallized growth to ~60 (Park 2002; Verhaeghen
+2003); anticholinergic burden (Gray et al. 2015, causality DEBATED —
+modeled acute-reversible only).
+
+Spec → v2.8 (+17 params, 1 frozen constant `lure_sync_gate`, knot
+updates to potent_gain/self_est_bias/complaint_k, six cite-guarded
+AGE-FLAT nulls: pm_focal_hit, enact_gain, rep_gain, involuntary scan
+rate, metamem_r, warn_mult; contract additions: noise_level context
+field, isolation/med_antichol overlays, partnerDeath event,
+depress_state report input, intention `fires` counter). Profiles +17
+clamp rows + §16 note. Validation → P1–P273 (P263/P268/P271/P272
+MUSTs; P263/P265/P268 sign-locked).

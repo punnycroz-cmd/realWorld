@@ -809,3 +809,382 @@ shape (0 below 50 → 1 by 70).
   leave to world-builder.
 - None of Part II rescues terminal decline — the §9 ramp still
   overrides all compensations (dedifferentiation is the floor).
+
+---
+
+# Part III — v28: the paradox layer (where aging inverts the deficit)
+
+Parts I–II built the deficit and compensation machinery. Part III takes
+the findings where age *reverses* or *dissociates* the expected effect:
+prospective memory spared in the wild, knowledge that shields elders
+against fluent falsehoods, involuntary recall holding while voluntary
+dies, complaints that outrun the deficit. Every section lands in spec
+v2.8 params (§45 knot rows), a probe (P263–P273), or a cited
+non-change. Tagging: [CONSENSUS] / [DEBATED] / [HYPOTHESIS].
+
+## 34. The prospective-memory paradox — lab deficit, life spared
+
+- Rendell & Thomson 1999 (J Gerontol B 54B:P256, n=380): same
+  participants — 60s/80+ *superior* to young on a naturalistic
+  week-long PM task while showing the standard deficit on lab
+  event-based and time-based PM. Rendell & Craik 2000 (Virtual Week /
+  Actual Week, Appl Cogn Psychol 14:S43): the board-game version keeps
+  the young advantage; the real-life week flips it.
+  **[CONSENSUS phenomenon — the "age-PM paradox"]**
+- Rose et al. 2009 (Psychol Aging, a0019771): within Virtual Week,
+  age differences concentrate on *irregular, nonfocal* tasks; regular
+  and focally-cued tasks show reduced age differences and improve over
+  the week — WM predicts exactly the irregular-nonfocal cell.
+  **[CONSENSUS moderator structure]**
+- The paradox resolves to machinery we already have: naturalistic PM
+  is cue-rich (the pill bottle on the counter, the standing Tuesday
+  coffee) — environmental support (§1) applied to intentions. Lab PM
+  is deliberately cue-sparse — the self-initiation tax (§5.4) applied
+  prospectively.
+
+**Spec consequence (v2.8):** split the intention channel by cue
+support, mirroring the retrospective asymmetry:
+
+- `pm_focal` — focal intentions (cue arrives inside the ongoing task's
+  own cue field): **no age knots — explicit null.** Focal PM rides the
+  §5.14 hit rule, which is env-supported. Guarded by P263.
+- Nonfocal/time-based: `pm_self` old knots stand (declines — this IS
+  the lab deficit).
+- `pm_habit_gain` (new, knots 0 ≤40 → 0.2 at 70 → 0.35 at 85): an
+  intention that has fired before on the same cue class gains
+  `+pm_habit_gain·min(1, fires/5)` on its next fire probability —
+  repeated errands become *more* reliable for old characters, not less
+  (Virtual Week over-the-week improvement; habitual-PM sparing,
+  Einstein & McDaniel tradition). Routine is the elder's prosthesis.
+- `impl_intent_gain` gains an age gate `ii_age_gate`: 1.0 ≤60 →
+  1.4 at 65–75 → 0.8 ≥76. Chasteen, Park & Schwarz 2001 (>2×
+  self-initiation gain, older adults only); Schnitzspahn et al. 2009
+  lifespan (benefit old, not young); Kretschmer-Trendowicz et al.
+  2009 (old-old 76–90: no benefit, event-based arm impaired — the
+  rescue itself needs residual resources). **[CONSENSUS that II helps
+  young-old; old-old boundary CONSENSUS-ish single-study]**
+
+## 35. Synchrony II — the antipeak breeds false memories
+
+- Intons-Peterson, Rocchi, West, McLellan & Hackney 1999 (JEP:LMC
+  25:23, 3 experiments): at *nonoptimal* times of day, older adults —
+  and only they — show elevated false memory for thematically related
+  lures; recall drops but recognition accuracy is matched.
+  **[CONSENSUS pattern]**
+- Mechanism reads cleanly off §3 (Part I): inhibition is the
+  circadian-sensitive resource — off-peak, the gate that rejects
+  similar-but-wrong candidates is weakest, in exactly the population
+  whose `discrim_mult` is already low.
+
+**Spec consequence (v2.8):** `lure_accept` and `gist_lure_gain` gain a
+synchrony multiplier: at retrieval, if `peak_hour` set and
+`Δh = |tod − peak_hour| > 6`, then
+`lure_accept *= (1 + sync_lure_gain·lure_sync_gate(age_now))` with
+`sync_lure_gain` ≈ 1.0 and `lure_sync_gate` = 0 below 50 ramping to 1
+by 70 (same shape as `stereo_age_gate`, separate frozen function —
+the mechanisms differ). Grandma's confident misidentifications cluster
+at 9pm, not 9am. Recognition mode only (recall has its own θ tax via
+`synchrony_gain` already).
+
+## 36. The residual learning channels — enactment flat, errorful costly
+
+- Rönnlund, Nyberg, Bäckman & Nilsson 2003 (Betula, n=1000, 35–80):
+  subject-performed tasks and verbal tasks decline **in parallel** —
+  the SPT advantage survives to 80 unchanged while the baseline falls.
+  Enactment does not rescue aging; it just never stops working.
+  **[CONSENSUS]**
+- Tse, Balota & Roediger 2010 (Psychol Aging a0019933): face–name
+  pairs — middle-aged benefit from repeated testing over restudy;
+  older adults benefit only **with feedback**; without feedback,
+  restudy beats testing for the old. Meyer & Logan 2013: testing
+  effect intact for prose in young-old. **[CONSENSUS pattern:
+  retrieval practice works for elders *when it succeeds*; errorful
+  practice doesn't pay]**
+
+**Spec consequence (v2.8):** two changes, one deliberate non-change:
+
+- `enact_gain` gets **no old-side knots — explicit null** (the boost is
+  flat; the baseline it rides on declines). P266.
+- `potent_gain` (failed-recall potentiation, §4.11) gains old-side
+  knots: 1.0 ≤50 → 0.75 at 70 → 0.55 at 85 — the Tse crossover,
+  parameterized. But the potentiation fires only if a subsequent
+  *successful* recall or correction (feedback channel: retell
+  listener, re-encounter) lands within `potent_window` ≈ 2 days;
+  unfed failures in old age consolidate nothing.
+- `reexp_ratio` untouched — re-exposure learning is the spared channel
+  for the old, matching Tse's restudy arm.
+
+## 37. Illusory truth in aging — knowledge shields where knowledge exists
+
+- Fazio, Brashier, Payne & Marsh 2015 (JEP:G 144:993): repetition
+  inflates truth ratings *even for known-false statements* — young
+  adults show "knowledge neglect," relying on fluency with knowledge
+  in hand. **[CONSENSUS]**
+- Brashier, Umanath, Cabeza & Marsh 2017 (Psychol Aging 32:308): the
+  age interaction *reverses* the naive prediction — **older adults
+  rely on knowledge in the face of fluency**; protected against the
+  illusion where their (larger) knowledge store contradicts the claim,
+  vulnerable where it doesn't. Parks & Toth 2006: with knowledge
+  absent, fluency drives the illusion in elders normally.
+  **[CONSENSUS — and a correction to the lazy "elders believe
+  everything repeated" model]**
+
+**Spec consequence (v2.8):** the rumor engine's `believe_p` (§6.7)
+gains a knowledge channel: `w_corr_eff = w_corr·(1 +
+know_corr_gain·know_density)` where `know_corr_gain` ≈ 0.5 and
+`know_density` = share of the claim's topic tags covered by semantic
+records at strength ≥ `know_protect_thresh` (reuse). Elders accumulate
+density over a life → truth-checking *improves* on familiar ground
+while `rep_gain` stays **age-flat (explicit null)** — the fluency
+channel is unchanged. Net: an old character is *harder* to fool on
+home turf (their neighborhood, their trade) and exactly as gullible
+off it — the honest version of "set in their ways." P268 sign-locks
+both arms.
+
+## 38. Reality monitoring — "did I do it, or just decide to?"
+
+- Henkel, Johnson & De Leonardis 1998 (JEP:G 127:251): older adults
+  falsely claim *imagined* items were perceived — selectively for
+  items **similar** to actually-seen ones; the phenomenal features of
+  their true and misattributed memories overlap more than young
+  adults'. Hashtroudi, Johnson & Chrosniak 1989: internal/external
+  source confusion ages harder than item memory. **[CONSENSUS]**
+- Cohen & Faulkner 1989: imagined vs *performed* self-actions —
+  elders confuse intentions with executions (planned ≠ done).
+
+**Spec consequence (v2.8):** `rm_self_confuse(age_eff)` — knots
+0.03 ≤50 → 0.10 at 70 → 0.18 at 85 — applied when a source
+resolution involves a self-action record vs an
+intention/simulation record with similarity ≥ `interf_thresh`:
+`P(flip imagined→done) = rm_self_confuse·sim`, half rate the other
+direction. This powers the absent-mindedness beat: "I can't remember
+if I locked the door or just meant to" — and feeds the existing
+verify-mode (`check_conf_loss`) economy. Combines with §20
+destination memory: old characters misremember *which version of
+themselves* acted.
+
+## 39. Effortful listening — the sensory tax on encoding
+
+- Rabbitt 1968/1991 channel-capacity finding: comprehending degraded
+  speech consumes the resources that would have encoded it — recall
+  for heard material suffers even when comprehension succeeds.
+  Pichora-Fuller effortfulness hypothesis. **[CONSENSUS mechanism]**
+- Lin et al. 2011 (Arch Neurol 68:214, BLSA n=639): incident dementia
+  HR 1.89 mild / 3.00 moderate / 4.94 severe hearing loss; ~1.27 per
+  10 dB. Marker-vs-cause unresolved. **[CONSENSUS association; causal
+  status DEBATED — we model the encoding channel only]**
+
+**Spec consequence (v2.8):** `hearing` trait ∈[0,1] (population mean
+drifts ~0.95 → ~0.7 across 50→85, trait-jittered per profile);
+`noise_cost` ≈ 0.4: for verbal-channel events (conversations, spoken
+instructions) in contexts flagged `noise_level` > 0.3,
+`E *= 1 − noise_cost·(1 − hearing)·noise_level`. Encoding-side only —
+what was never heard can't be retrieved. Long-run wiring
+**[HYPOTHESIS]**: `hearing < 0.6` halves effective social-contact
+accrual → feeds the §40 isolation overlay. The crowded-bar scene is a
+memory-writing tax for exactly one character in it.
+
+## 40. The isolation overlay — perceived loneliness erodes, slowly reversible
+
+- Wilson et al. 2007 (Arch Gen Psychiatry 64:234, n=823): loneliness —
+  *perceived* isolation, controlling for social network size — doubled
+  AD risk and steepened cognitive decline; crucially, unrelated to AD
+  pathology at autopsy. Whatever loneliness does, it does not write on
+  the plaques — it writes on the state. **[CONSENSUS association;
+  pathway DEBATED; reversibility HYPOTHESIS]**
+
+**Spec consequence (v2.8):** `isolation` joins the §4.17 overlay
+family. Rolling 14-day social-contact mean < `iso_floor` (≈1.5
+meaningful interactions/day) sustained for `iso_onset` (≈30 days) →
+overlay ON: `beta_episodic += iso_beta` (0.1), `enc_base − 0.05`,
+`positivity_gain × 0.5`, nonfocal PM −0.1. Overlay OFF when contact
+≥ floor for 14 days; params recover linearly over `iso_recovery`
+(≈60 days) — slower to heal than to wound. Bereavement link:
+`partnerDeath` event zeroes the `collab_partner_gain` channel (§26)
+*and* jumps the contact ledger — widowhood is a memory intervention,
+which is what Part II §26 already implied at the dyad level.
+**[Overlay structure HYPOTHESIS built on CONSENSUS association]**
+
+## 41. Metamemory split — the complaint outruns the deficit
+
+- O'Connor et al. 1990 (Arch Neurol — memory complaints associate
+  with depressed mood more than test performance); Pearman &
+  Storandt 2004: only the self-efficacy factors discriminate
+  complainers from non-complainers — not ability. SAGE baseline
+  (n=1000): complaints vs objective ρ ≈ −.12; vs depression ρ ≈ .44.
+  **[CONSENSUS — complaints track mood and self-efficacy, not
+  performance]**
+- FOK/monitoring accuracy by contrast is roughly spared (Hertzog &
+  Dunlosky review; consistent with our `fok_age_noise` being small).
+
+**Spec consequence (v2.8):** report-side only. `self_est_bias` gains
+old-side knots: 0 → −0.06 at 70 → −0.12 at 85 (systematic
+under-estimation), and `complaint_k` knots up ~1.5× by 85, plus
+`complaint_k += 0.2·depress_state` (complaints ride mood, not
+memory). `metamem_r` and FOK machinery get an **explicit null** —
+no additional age knots: the elder knows *which* items are gone
+(accurate monitoring) while believing the whole system is worse than
+it is (deflated self-efficacy). The sentence "my memory isn't what it
+was" is itself evidence *for* working metamemory. P272.
+
+## 42. The involuntary highway — ambient recall holds while search fails
+
+- Schlagman, Kvavilashvili & Schulz 2007; Schlagman, Schulz &
+  Kvavilashvili 2006: involuntary AMs show **no age deficit in
+  specificity** while voluntary AMs do; elders' involuntary memories
+  skew more positive (content analysis). Schlagman, Kliegel, Schulz &
+  Kvavilashvili 2009 (Psychol Aging, a0015785): involuntary
+  *frequency* roughly preserved; voluntary slower and less specific.
+  **[CONSENSUS pattern — the voluntary/involuntary asymmetry is the
+  cleanest spared/impaired contrast in the aging literature]**
+
+**Spec consequence (v2.8):** the §5.7 ambient scan gets an
+**explicit null** on rate (already age-flat by v2.6 rule — now
+doubly anchored) plus `invol_pos_gain` knots 0 ≤50 → 0.08 at 70 →
+0.15 at 85 — a valence bias on *emitted* involuntary recalls,
+compounding `positivity_gain` at the emission layer (Schlagman
+content finding). And involuntary recalls earn full §5.9 reboost:
+for old characters the ambient channel is the main rehearsal
+economy — the past keeps itself alive through the senses while
+deliberate search atrophies. `invol_remote_gain` (≈0.2 at 75+)
+nudges the ambient scan's record-age prior upward — involuntary
+recall skews bump-era/remote in elders (Schlagman 2009
+distribution).
+
+## 43. Crystallized keeps accreting — the semantic plateau is positive
+
+- Park et al. 2002; Verhaeghen 2003 vocabulary meta: semantic/verbal
+  knowledge grows into the 50s–60s before flattening. Rönnlund 2005
+  (§11): semantic rises to ~55, mild decline after.
+  **[CONSENSUS]**
+
+**Spec consequence (v2.8):** knot-table update on semantic encoding:
+`enc_sem_mult` — 1.0 ≤40 → 1.05 at 55 → 1.0 at 70 (the only
+encoding term that ever goes *up* with age). Pairs with §37's
+`know_density`: the old knowledge base is simultaneously the best
+truth-checker and the deepest permastore. Small by design — this is
+a slope, not a rescue.
+
+## 44. Medication burden — the reversible clouding overlay
+
+- Gray et al. 2015 (JAMA Intern Med 175:401, n=3434): cumulative
+  strong-anticholinergic exposure → incident dementia HR up to ~1.5
+  in the highest tertile; causality **DEBATED** (protopathic bias —
+  prodromal prescribing). Acute anticholinergic impairment is the
+  reversible part. **[CONSENSUS acute effect; chronic link DEBATED]**
+
+**Spec consequence (v2.8):** `med_antichol` overlay (§4.17 family):
+while active — `theta +0.05`, `enc_base −0.05`, `ret_noise +0.03`,
+nonfocal PM −0.1; fully removed on stop (no permanent marks, matching
+the acute-reversibility finding). Deliberately does NOT feed
+`age_eff` — we model the state, not the hazard ratio. This gives
+world-builder a cheap "the medication fogs her" dial that undoes
+cleanly.
+
+## 45. Part III knot rows (extends §30; age_eff unless noted)
+
+| param | 30 | 50 | 60 | 70 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| pm_habit_gain | 0.0 | 0.05 | 0.1 | 0.2 | 0.3 | 0.35 | Rose 2009; Virtual Week |
+| ii_age_gate (×impl_intent_gain) | 1.0 | 1.0 | 1.2 | 1.4 | 1.0 | 0.8 | Chasteen 2001; K-T 2009 |
+| sync_lure_gain (antipeak ×) | 0.0 | 0.0 | 0.3 | 0.7 | 0.9 | 1.0 | Intons-Peterson 1999 |
+| potent_gain (×, knot update) | 1.0 | 1.0 | 0.9 | 0.75 | 0.6 | 0.55 | Tse 2010 no-feedback arm |
+| rm_self_confuse | 0.03 | 0.04 | 0.06 | 0.1 | 0.15 | 0.18 | Henkel 1998; Cohen 1989 |
+| know_corr_gain (×w_corr, ×density) | 0.2 | 0.3 | 0.4 | 0.5 | 0.5 | 0.5 | Brashier 2017 |
+| hearing (trait mean) | 0.98 | 0.95 | 0.9 | 0.82 | 0.74 | 0.7 | Lin 2011 severity mix |
+| noise_cost (max E cut) | — | — | — | — | — | 0.4 | Rabbitt; Pichora-Fuller |
+| invol_pos_gain | 0.0 | 0.0 | 0.04 | 0.08 | 0.12 | 0.15 | Schlagman 2006/2009 |
+| invol_remote_gain | 0.0 | 0.0 | 0.05 | 0.12 | 0.18 | 0.2 | Schlagman 2009 |
+| enc_sem_mult | 1.0 | 1.03 | 1.05 | 1.02 | 1.0 | 1.0 | Park 2002; Verhaeghen 2003 |
+| self_est_bias (mean drift) | 0.0 | −0.02 | −0.04 | −0.06 | −0.1 | −0.12 | Pearman 2004; SAGE |
+| complaint_k (×) | 1.0 | 1.1 | 1.2 | 1.35 | 1.5 | 1.5 | O'Connor 1990 |
+| iso_beta / iso_recovery | — | — | — | — | — | 0.1 / 60d | Wilson 2007 |
+| med_theta_up / med_enc_loss | — | — | — | — | — | .05/.05 | Gray 2015 (acute) |
+
+**Explicit nulls this pass (cite-guarded non-changes):** `pm_focal`
+(age-flat — env-supported PM); `enact_gain` (parallel decline —
+Rönnlund 2003); `rep_gain` (fluency channel flat — Brashier 2017);
+involuntary scan rate (age-flat — Schlagman 2009); `metamem_r`/FOK
+(monitoring spared — Pearman 2004); `warn_mult` stays flat (v16 §28
+stands).
+
+## 46. Spec changes v2.7 → v2.8 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| G1 | §5.14: `pm_habit_gain` repetition rescue; `ii_age_gate` on impl_intent_gain; `pm_focal` declared env-supported (age-flat) | §34 |
+| G2 | §5.6: `sync_lure_gain` antipeak multiplier on `lure_accept` (recognition only) | §35 |
+| G3 | §4.11: `potent_gain` old knots + `potent_window` feedback gate | §36 |
+| G4 | §6.7: `know_corr_gain` — knowledge density multiplies the corroboration/accuracy channel | §37 |
+| G5 | §6.10/source resolution: `rm_self_confuse` imagined↔done flips ∝ similarity | §38 |
+| G6 | §2: `hearing` trait + `noise_cost` on verbal-channel encoding | §39 |
+| G7 | §4.17: `isolation` overlay (iso_floor/iso_onset/iso_beta/iso_recovery) + `med_antichol` overlay | §§40, 44 |
+| G8 | §3/§10 report layer: `self_est_bias` negative drift, `complaint_k` age knots + depress coupling | §41 |
+| G9 | §5.7: `invol_pos_gain` valence bias + `invol_remote_gain` age prior on the ambient scan | §42 |
+| G10 | knot table: `enc_sem_mult` semantic encoding bump 45–60 | §43 |
+
+New params: `pm_habit_gain`, `ii_age_gate`, `sync_lure_gain`,
+`potent_window`, `know_corr_gain`, `rm_self_confuse`, `hearing`,
+`noise_cost`, `invol_pos_gain`, `invol_remote_gain`, `enc_sem_mult`,
+`iso_floor`, `iso_onset`, `iso_beta`, `iso_recovery`, `med_theta_up`,
+`med_enc_loss`. New frozen constant: `lure_sync_gate` shape
+(0 below 50 → 1 by 70). Knot updates: `potent_gain`,
+`self_est_bias`, `complaint_k`. Event/context field: `noise_level`.
+
+## 47. Validation probes P263–P273
+
+- **P263 PM paradox (MUST — sign):** same 78yo: focal cue-present
+  intention fires ≥90% of the 25yo rate; nonfocal/time-based ≤60%;
+  a 5×-repeated habitual intention fires at ≥ the young rate. Three
+  arms, one character.
+- **P264 impl-intent gate (SHOULD):** II-encoded event-based
+  intentions gain a 70yo ≥1.3× more than a 25yo; at 82 the gain
+  collapses to ≤ young (Kretschmer-Trendowicz boundary).
+- **P265 antipeak lures (SHOULD — sign):** 75yo lure acceptance at
+  antipeak ≥1.5× her own at-peak rate; 25yo's peak/antipeak ratio
+  <1.2. Recognition only.
+- **P266 enactment flat (SHOULD):** SPT-vs-verbal benefit identical
+  at 30 and 80 (within 10%) while absolute recall differs — parallel
+  decline, not rescue.
+- **P267 errorful cost (SHOULD):** failed-recall potentiation halves
+  at 80; identical failure followed by feedback restores young-level
+  potentiation.
+- **P268 knowledge shield (MUST — sign):** repeated false claim on a
+  dense-knowledge topic: 75yo believe_p *below* 25yo; same claim on a
+  novel topic: equal adoption. Both arms required.
+- **P269 imagined-vs-done (SHOULD):** planned-but-unexecuted action,
+  similarity ≥ interf_thresh: flip-to-"did" rate rises ~3× from 30→85;
+  unaffected for dissimilar candidates.
+- **P270 noisy-room tax (SHOULD):** identical conversation at
+  noise_level 0.8: hearing 0.5 elder encodes ≥30% weaker than at
+  noise 0.1; young-hearing control flat.
+- **P271 isolation overlay (MUST):** contact below iso_floor for
+  iso_onset → measurable β_episodic rise; contact restored → params
+  recover over iso_recovery; partnerDeath triggers the ledger drop.
+- **P272 complaint split (MUST):** self_est drifts negative and
+  complaint_k rises 30→85 faster than measured recall declines;
+  complaint rate responds to depress_state, not to a β lesion.
+- **P273 involuntary highway (SHOULD):** ambient-scan emission rate
+  flat 30→85 while voluntary recall falls; emitted records skew
+  positive and remote in the old cohort.
+
+## 48. Part III honest limits
+
+- The PM paradox is *ecological*: our focal/nonfocal split assumes the
+  sim's cue density is real-life-dense. A sparse synthetic world could
+  starve the focal channel and falsify the "spared" prediction — the
+  paradox is a property of cue ecology, not of brains.
+- `iso_beta`'s magnitude is calibrated to *feel* of the Wilson HR
+  (~doubled risk over years), not to a measured β shift — flagged
+  HYPOTHESIS scaling; the causal pathway is itself unresolved.
+- `hearing` collapses a real audiogram into one scalar; the
+  Lin association is modeled only through the encoding channel
+  (we take no position on marker-vs-cause).
+- `rm_self_confuse` reuses generic similarity rather than the
+  phenomenal-feature overlap Henkel measured — adequate for the
+  behavior, not the mechanism.
+- `know_density` is computed against the character's own semantic
+  store — a young expert can out-shield an elder on her domain; the
+  age effect is population-average, not law.
+- None of Part III touches `deathDay` machinery — the §9 ramp still
+  overrides every rescue listed here.
