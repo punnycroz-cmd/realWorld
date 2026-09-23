@@ -20,7 +20,7 @@ flags (G3/G4/G8/G12 + uncommitted work-in-progress).
 **One-command gate worksheet:** `./tools/gonogo.sh` prints all 16 gates with
 live AUTO status for the mechanical ones and a pre-filled §6 block for the
 owner decision thread. Last run **2026-09-24 (v53): 2/16 auto-green** (G5
-gallery + G9 zip freshness after the v36 refresh) — the rest await their
+gallery + G9 zip freshness after the v37 refresh) — the rest await their
 owner/track triggers, as expected pre-launch.
 
 **Change control:** after any content edit to `site/`, re-run the dry-run and
@@ -36,7 +36,7 @@ log the result in §10 before the checklist may cite it.
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced in all 15 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = **v36 dev build** — refreshed v53 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = **v37 dev build** — refreshed v55 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
@@ -233,6 +233,9 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | gallery refresh v31→v32 (v50) + trailer-plan upgrade | shots + press-kit screenshots swapped, webp regen, captions/alt-text updated for v32 (cured Sept turf, bougainvillea), keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v32 + NEW 6s bumper program, --thumbs renderer, --verify accuracy check; all animatics + boards rebuilt, dist zip rebuilt |
 | 2026-09-24 | gallery refresh v32→v36 (v53) + checklist third pass | shots + press-kit screenshots swapped (v34 then v36 — art published twice mid-version), webp regen, captions/alt-text rewritten for the Karl marine-layer set, keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v36, all 4 animatics + 3 thumbnails rebuilt; dist zip rebuilt (41 files); NEW gate G16 (world-v25 onboarding contract + 4 hooks), NEW §11 rehearsal coverage matrix, never-do → §12 |
 | 2026-09-24 | staging_dryrun.sh (v53, shots v36) | 34 pass / 2 warn / 0 fail — warns: domain ×2 only |
+| 2026-09-24 | gallery refresh v36→v37 (v55) | shots + press-kit screenshots swapped (stale v36 purged from kit dir — cp doesn't clean), webp regen, captions verified fog-accurate + terrain note added, keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v37, all 4 animatics + boards + 3 thumbnails rebuilt; dist zip rebuilt (41 files); NEW BRAND §12 motion + §13 sonic identity, brand.html mirror |
+| 2026-09-24 | tools/brand_audit.py (v55) | 0 fail / 0 warn — assets, palette parity, kit copies, icon links |
+| 2026-09-24 | staging_dryrun.sh (v55, shots v37) | 34 pass / 2 warn / 0 fail — warns: domain ×2 only; seo_audit 64/24/0 |
 | 2026-09-24 | tools/preflight.sh (v53) | 5 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
 | 2026-09-24 | tools/gonogo.sh (v53, 16 gates) | 2/16 auto-green (G5, G9) — G16 added as TRACK gate |
 

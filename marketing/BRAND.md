@@ -1,10 +1,10 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v2 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v55 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
 The public-facing subset of this file now ships as `site/brand.html` (the
 brand book page) — keep the two in sync when rules change.
 **Scope:** positioning, naming, voice, palette, type, logo system, art direction,
-social specs, and accuracy guardrails for every public artifact this track
+motion/sonic identity, social specs, and accuracy guardrails for every public artifact this track
 produces. When a doc and this file disagree on a *number*, the monetization
 plan / design doc wins; on *how we talk*, this file wins.
 
@@ -123,6 +123,17 @@ Second person for the player ("you"), third for residents (by name).
 - ❌ "Take control of anyone in the city!" (possession ban violation)
 - ❌ "The most realistic AI experience ever made." (unverifiable + hype)
 
+**UI microcopy (interface strings, buttons, empty states):** the same voice
+at smaller scale. Buttons are verbs, two words max ("Watch the block", "File
+a request", "Join the cast"). Empty states admit the truth warmly ("Quiet
+hour on the block. The residents are asleep — they're people, not uptime.").
+Errors state what happened and what the user keeps ("Not approved — your
+credits are already back."). Never blame the resident for a system limit
+("Tomás declined" only if the feed says so verbatim); never use error
+theater ("Oops!", "Something went wrong!" with no facts). Declined-request
+wording is fixed by the feed vocabulary — `resolved · declined`,
+`not approved` — reuse it verbatim, don't soften it into marketing.
+
 ---
 
 ## 5. Palette
@@ -240,7 +251,7 @@ capture unless it ships. Never use competitor or stock imagery.
 transparent), vignette, wordmark bottom-left, amber rule, subtitle, one
 tagline, "IN DEVELOPMENT" line. Recipe is executable:
 `tools/make_brand_assets.py` (swap `SHOT` when the art track publishes a
-better build — currently `v36-D.png`).
+better build — currently `v37-D.png`).
 
 **Motifs available to layouts:** the 3×3 window grid (section dividers,
 empty states), the cornice line (hairlines), long dusk shadows, fog haze.
@@ -323,7 +334,55 @@ Three lengths, all claims checkable against the design doc. These also ship on
 
 ---
 
-## 12. Key-art commission brief (for a future artist)
+## 12. Motion identity
+
+The brand watches calmly — motion follows the same rule. Applies to the
+trailer cuts (`marketing/trailer/edl.json`), social clips, site animation,
+and any commissioned video.
+
+**Editing vocabulary:**
+- Transitions are **cut** or **dip** (short fade through `--bg`) only. No
+  whip-pans, zoom-punches, glitch/flash frames, or speed-ramps — those say
+  "action game"; we're an observation.
+- Camera moves are slow and motivated: push-ins (Ken Burns on stills),
+  follows, and holds. Default shot length ≥ 3 s; the block sets the pace,
+  not the edit.
+- The only sanctioned *logo* animation is the breathing window
+  (`logo-icon-animated.svg`, ~9 s, `prefers-reduced-motion` aware). UI
+  elements may fade or slide on a ≤ 200 ms ease; nothing bounces or spins.
+- Text cards set in the system stack: Paper `#ece7dc` on `--bg`, sentence
+  case, one idea per card, held ≥ 2 s. The amber accent appears at most
+  once per card (a rule, a name, a status chip).
+- **End card (canonical):** the icon or breathing icon centered on `--bg`,
+  one approved tagline under it ("Watch free. Pay to reach in."), held
+  ≥ 1.5 s. No URL-stuffing, no subscribe-animation, no second tagline.
+- **Lower thirds / labels:** Cornice `#2c303c` hairline + Paper text,
+  bottom-left, ≤ 2 lines. Name residents by their cast-bible name only —
+  never debug handles or harness labels. HUD/REC chrome from dev captures
+  must be blurred or cropped per the EDL `redact` specs.
+
+**Never:** lens-flare transitions, meme zooms, countdown stickers,
+"possession meter" graphics that imply control over mains, motion that
+implies the feed is scripted.
+
+## 13. Sonic identity
+
+Audio is diegetic-first: the block is the soundtrack.
+
+- **Bed:** room tone and street ambience (muffled traffic, gulls, a bus,
+  café murmur, rain when Karl is in). Music enters sparingly — one warm,
+  unhurried cue per piece; licensing notes live in TRAILER-PLAN §5.
+- **No narrator hype.** If voice is ever used, it reads feed lines or the
+  boilerplate flatly — a documentarian, not a trailer voice.
+- **No sonic logo / jingle** and no notification-style dings in brand
+  assets. A single soft event tick for feed moments is allowed (the
+  trailer scratch bed's `ticks` preset is the reference).
+- **Silence is on-brand:** dead-hour and quiet-event stretches stay quiet.
+  Never wallpaper over a calm block with a beat drop.
+- Loudness target for shipped video: −16 LUFS stereo (social) / −14 LUFS
+  (store caps). Captions ship with every cut (`.srt` from the EDL).
+
+## 14. Key-art commission brief (for a future artist)
 
 When a commissioned key-art piece replaces the dev-capture art:
 
@@ -340,7 +399,7 @@ When a commissioned key-art piece replaces the dev-capture art:
 
 ---
 
-## 13. Governance
+## 15. Governance
 
 - Changes to palette/type/logo/taglines = edit this file + regenerate assets +
   inbox note. Palette hexes are also hardcoded in `site/css/style.css`,

@@ -34,7 +34,7 @@ trim to 15–45s ◄── caption card + end card ◄── review vs §8 check
 |---|---|---|
 | Spectator view (`demo.html` embed → live build) | Primary footage — the block, pawns, weather, interiors | Pending game build (`data-demo-src` slot) |
 | Public request feed | Attribution text for captions + the "feed as content" screenshots | Pending; vocabulary in INFRASTRUCTURE §3 |
-| `site/shots/` stills | Cards, end cards, thumbnails, fallback when feed is quiet | Ready (v36 captures) |
+| `site/shots/` stills | Cards, end cards, thumbnails, fallback when feed is quiet | Ready (v37 captures) |
 | Journal / "This Week on the Block" | Long-form source material for clip scripts | Ready (template) |
 
 ## 3. Clip-worthy moment taxonomy
