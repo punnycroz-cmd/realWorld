@@ -3386,3 +3386,246 @@ Registry: P1–P480. v46 suite: P469–P480 (6 MUST, 4 SHOULD, 1 OBSERVE,
 - Wegner 1987 (*Psych Rev* 94:186); Wegner, Erber & Raymond 1991
   (*JPSP* 61:923) — transactive memory (reused anchor).
 - Butler 1963 (*Psychiatry* 26:65) — life review.
+
+## 77. Hold-out paradigm validation (VA-PRED) — calibrated once, predicted elsewhere
+
+The battery's deepest structural risk is not a wrong parameter; it is a
+*comfortable* one — a parameter that was tuned inside the same paradigm it
+is later "validated" on. Every L2 analog (E1–E11) shares mechanisms, so a
+model can pass all eleven by refitting between them and still be wrong as
+a life. The remedy is the **generalization criterion** (Busemeyer & Wang
+2000, *J Math Psych* 44:171–189): split the paradigm set into a
+calibration subset and a prediction subset; parameters are frozen on the
+first and scored a priori on the second. This differs from
+cross-validation — the test set is not a replication sample but a
+*different design*, and predictions are made before observing the
+criterion data (the hallmark test, per Busemeyer & Wang). Yarkoni &
+Westfall (2017, *Perspect Psych Sci* 12:1100) make the same point at the
+field level: explanation without out-of-design prediction is a model that
+cannot be falsified by the world it claims to describe.
+
+### 77.1 The paradigm split (pre-registered)
+
+| calibration set (fit allowed) | prediction set (frozen eval) |
+|---|---|
+| E1 Ebbinghaus, E2 Jenkins-Dallenbach, E5 Loftus | E3 Bahrick, E6 DRM, E8 Bartlett |
+| E4 Wagenaar, E9 OAB, E10 age-PM | E7 Kashima, E11 involuntary-day |
+
+Rules:
+
+- The split is by **mechanism family**, not randomly — the prediction set
+  must contain a mechanism the calibration set touches only through
+  shared parameters (permastore is absent from the calibration side;
+  serial-reproduction form is; involuntary retrieval is). A split where
+  the held-out paradigm exercises only already-pinned parameters is a
+  self-congratulation, not a test.
+- **Freeze protocol:** after calibration, the parameter vector is hashed
+  and committed with the release. Prediction-set runs may report
+  failures but may not re-fit; a miss triggers §30 triage (mechanism
+  gap vs miscalibration vs probe bug), and repair lands in the NEXT
+  release's calibration round — never retroactively in the same one.
+- **Scoring:** each prediction probe keeps its normal T-point/T-diff
+  form, but the allowed band widens by a fixed ×1.25 factor (held-out
+  predictions are honestly noisier). Passing bands are pre-registered in
+  the probe definition; the ×1.25 is declared so a post-hoc "close
+  enough" is impossible.
+- **Rotation:** every release rotates one paradigm across the boundary
+  (round-robin), so over many releases every paradigm is both calibrated
+  on and predicted onto. The rotation order is fixed in advance:
+  E3→cal, E5→pred, E8→cal, E6→pred, … (schedule stored with goldens).
+
+### 77.2 What VA-PRED catches that VA-SBC does not
+
+VA-SBC (§28) proves parameters are *recoverable from* the data that
+generated them — an internal-consistency property. VA-PRED proves
+parameters *transfer across paradigms* — an external-consistency
+property. A model can be perfectly recoverable and still fail
+generalization (overfit mechanisms recover fine). Both are required;
+neither substitutes.
+
+## 78. The null ledger (VA-NULL) — every equivalence claim in one place
+
+Null results are scattered across ten focus docs ("no g_mem→misinfo
+path", "vivid↔accuracy independent", "omission register fires nothing").
+Scattered nulls rot: a code change can silently create the forbidden
+path and no probe fails because nobody owns the assertion. VA-NULL
+consolidates every TOST-able claim in the spec into one auditable table.
+A null missing from the ledger is a spec-coverage failure under VA-COV
+(§47); a ledger row with no runnable probe is dead paper.
+
+| null id | claim (mechanism must NOT…) | SESOI | scoring cohort | probe(s) |
+|---|---|---|---|---|
+| N1 | let g_mem load on misinfo_suscept | r = .1 | mixed, n=60 | P53, P99 |
+| N2 | let wmc reduce cie_residual | r = .1 | midlife_adult | P54, P99 |
+| N3 | couple vividness to accuracy | 5pp on hit–phantom gap | genWitness cohort | P55, E5 |
+| N4 | let maintenance (non-elaborative) rehearsal raise S | r = .05 | midlife_adult | P111 |
+| N5 | let intention alone raise PM success absent cue overlap | 5pp | PM arms, E10 cohort | P112, P127 |
+| N6 | let omission-register fabrications flip or deflate | exact zero flips | omitter profile | P470 |
+| N7 | let TALE func_* change θ, E, or retrieval thresholds | r = .05 | 8 mains recompiled | P474 |
+| N8 | let degraded-mode ambients differ on within-mode dynamics | r = .1 | ambient cohort | P97 |
+| N9 | let M-tier or E-tier fields reach §10 output surface | structural: field audit | any | P457, P479 |
+| N10 | let jointRecall exceed pooled solo output (inhibition leg) | direction only — must be strictly below | dyad cohort | P476 |
+| N11 | let fab_dir=−1 profiles inflate at any lie_freq | 5pp adoption-of-own-fabrication | deflator cohort | P469 |
+| N12 | let chrono sync alter implicit memory in the controlled direction | sign-flip required, not zero | morning/evening cohorts | P472 |
+
+Ledger rules: (1) every SESOI is declared *in the table*, not per-run;
+(2) a null that fails twice consecutively is promoted from "modeled
+absence" to "mechanism bug" and blocks the release like a MUST miss;
+(3) new spec sections must register their nulls here in the same commit
+that adds the mechanism — a mechanism without registered nulls is
+unfalsifiable in the dangerous direction (it can only fail to appear,
+never wrongly appear).
+
+## 79. Trajectory validation (VA-TRAJ) — test the shape, not the snapshot
+
+Most probes score an endpoint ("day-30 recall ∈ band"). Humans are
+recognized by *how they get there*: confidence falls slower than
+accuracy, leveling is monotone, crossovers happen in a window. Endpoint
+probes can be passed by a model whose path is wrong everywhere between.
+VA-TRAJ adds three canonical trajectory tests; each requires a probe to
+assert a **functional form**, not a value:
+
+- **T-ORDER — lag-ordered peaks.** When a mechanism predicts an
+  ordering of peaks in time (e.g., schema-inconsistent items advantage
+  early, schema-consistent items dominate late — Kashima 2000), the
+  probe samples ≥4 timepoints and asserts the crossing index lies in a
+  pre-registered window. A model that reaches the right endpoint by
+  crossing at hop 1 or hop 20 fails.
+- **T-SHAPE — monotone/bounded-curvature claims.** For claims like
+  "compression never reverses" (E8) or "concern weight halves per 7d"
+  (P475), assert on the full sampled curve: no interval may increase
+  (monotone), or the discrete half-life estimate must lie in the stated
+  band at *every* fitted window, not just the endpoints.
+- **T-GAP — divergence trajectories.** For claims about two curves
+  separating (confidence vs accuracy, S vs R under spacing), assert the
+  gap function is monotone-widening over the measurement window with a
+  slope sign fixed in advance (Koriat, Sheffer & Ma'ayan 2002 show
+  confidence and accuracy can dissociate over delay; our widening-gap
+  claim is a HYPOTHESIS band pending a direct anchor).
+
+Trajectory probes emit one JSONL row per (probe, member, timepoint);
+analyzers fit the asserted form per member and aggregate — never fit the
+cohort-mean curve, which hides individual non-conformers (the classic
+aggregated-learning-curve trap, Estes 1956).
+
+## 80. The LLM seam (VA-SEAM) — construct validity at the render boundary
+
+Everything above measures latent state through §10 calls. But players
+never see latent state — they see LLM-rendered dialogue. A character's
+*memory* can be perfectly modeled while its *reported* memory is
+unfaithful in either direction: the narrator can **over-report** (utter
+details the latent record doesn't license — narrator confabulation) or
+**under-report** (never let a well-encoded memory surface — dead memory
+system to the audience). This is a construct-validity problem in the
+classical sense (Cronbach & Meehl 1955; Messick 1989): the instrument
+(rendered transcript) must measure the construct (latent memory), not
+the narrator's priors. Verbal reports are data only under explicit
+fidelity assumptions (Ericsson & Simon 1993); we must verify, not
+assume, those assumptions.
+
+Rules for the seam:
+
+- **Latent-first.** All P-probes score latent state via §10 + the
+  ground-truth tap (§2.4). Rendered text is NEVER admissible evidence
+  for L0–L3 probes — an LLM paraphrase is not a measurement of storageS.
+- **Seam audit is a separate layer (L5).** N=10 recall transcripts per
+  main are scored against the latent Reconstruction they render:
+  (a) *licensing* — every verifiable detail in the transcript must map
+    to a record field the retrieval actually returned; unlicensed
+    details are narrator confabulations and count against a budget
+    (target: <2% of verifiable detail tokens);
+  (b) *hedge fidelity* — rendered confidence markers ("I think…",
+    "definitely") must rank-correlate with latent conf_out (Spearman
+    ρ ≥ .6 target band; HYPOTHESIS — no human anchor, set by pilot);
+  (c) *omission honesty* — a failed latent recall may render as
+    hesitation/TOT/absence, never as fluent correct detail.
+- **Reveal-rate bound.** Per-scene, memories may steer dialogue without
+  being narrated (a character acting wary of someone they misremember
+  is memory working). Assert a band: fraction of decision-relevant
+  retrievals that surface as any behavioral trace ∈ [.3, .9] —
+  below .3 the audience can't perceive the memory system at all; above
+  .9 characters narrate their heads, which reads robotic.
+- **Narrator isolation.** The renderer sees only the Reconstruction
+  object + briefing fields (C-tier), never storageS/accuracy — enforced
+  by the same field-tier audit as N9. If the narrator could read
+  ground truth, licensing checks become vacuous.
+
+L5 failures are classified like §30: narrator-confabulation excess is a
+*rendering-pipeline* bug (world/game-systems), not a memory-model bug —
+the seam audit exists precisely to keep that boundary visible.
+
+## 81. New probes P481–P492 (v47 suite — validation-design II)
+
+- **P481 generalization pass (MUST):** with parameters frozen on the
+  §77.1 calibration set, prediction-set bands hold for E3, E6, E8, E7,
+  E11 at the ×1.25 widened bands — a priori predictions committed
+  pre-run. First run of a new release cycle is the canonical instance.
+- **P482 null-ledger completeness (MUST — structure):** automated scan —
+  every "no path"/"independent"/"never" claim in the spec text maps to a
+  VA-NULL row with SESOI and ≥1 probe; every ledger row maps to a
+  runnable probe. Both directions required.
+- **P483 confidence–accuracy divergence shape (MUST):** genEvent
+  battery, conf_out and ground-truth accuracy sampled at {0,1,3,7,14,30}d:
+  gap function monotone-widening, slope sign positive, per-member fits
+  aggregated (not cohort mean). T-GAP form.
+- **P484 crossover windows (MUST):** Kashima crossover hop ∈ [3,6]
+  (E7 instrumented, T-ORDER); age-PM paradox onset — uncued deficit
+  absent at 25/45, present at 65/75 (T-ORDER on age knots).
+- **P485 seam licensing (MUST):** rendered recall transcripts: ≥98% of
+  verifiable detail tokens trace to returned record fields; hedge
+  markers rank-correlate with conf_out at ρ ≥ .6.
+- **P486 seam non-invention (MUST, TOST):** narrator introduces
+  verifiable-but-unlicensed facts at rate within SESOI of zero
+  (SESOI 2% of detail tokens) — phantom facts in dialogue must originate
+  in phantom *records*, never in prose.
+- **P487 reveal-rate band (SHOULD):** decision-relevant retrievals
+  surface as behavioral trace in [.3, .9] of scenes per main, measured
+  over a 30-day slice.
+- **P488 golden drift budget (MUST — meta):** per release, cumulative
+  signed drift on the §3.4 golden vector ≤ declared budget (default:
+  2× Monte-Carlo error per component, summed Manhattan drift ≤ 0.15);
+  drift beyond budget requires a named mechanism change in the version
+  log — silent accumulation is the failure mode.
+- **P489 SESOI discipline audit (MUST — meta):** every active MUST
+  T-diff/T-equiv probe names its SESOI or minimum-meaningful bound;
+  registry scan, zero unbound probes allowed.
+- **P490 cohort-shift transfer (MUST):** parameters calibrated on
+  midlife_adult applied to child (8) and older-adult (75) cohorts with
+  ONLY the age-knot layer changing — predictions land in band without
+  re-fit on ≥80% of that cohort's probes. Knot tables must carry the
+  whole age translation; per-age tuning is cheating.
+- **P491 oracle sensitivity floor (MUST):** across the §46 mutation
+  operator set, ≥95% of seeded mechanism-breaking mutations are caught
+  by ≥1 MUST probe within its stated n — a battery that can't see a
+  broken mechanism certifies nothing.
+- **P492 degraded-tier believability (SHOULD):** L4 rubric applied to
+  ambient-mode transcripts: median ≥3/5 on selective + reconstructive
+  lines with α ≥ .4 — thin AI may be shallower, not implausible.
+
+Registry: P1–P492. v47 suite: P481–P492 (8 MUST, 3 SHOULD, 1 meta split
+as MUST-structure counted above).
+
+## 82. Sources new to this version
+
+- Busemeyer & Wang 2000 (*J Math Psych* 44:171–189) — generalization
+  criterion; parameters calibrated on one design must predict a new
+  design a priori (verified via journal record/PubMed PMID 10733863).
+- Yarkoni & Westfall 2017 (*Perspect Psych Sci* 12:1100–1122) —
+  prediction vs explanation; out-of-design generalization as the
+  falsification surface (verified via DOI record).
+- Cronbach & Meehl 1955 (*Psych Bull* 52:281) — construct validity;
+  Messick 1989 (in Linn, *Educational Measurement* 3rd ed.) — validity
+  as a property of inferences, not instruments (the seam argument).
+- Ericsson & Simon 1993 (*Protocol Analysis*, rev. ed., MIT Press) —
+  verbal reports as data only under fidelity constraints; reused as the
+  seam-audit warrant.
+- Estes 1956 (*Psych Rev* 63) — the aggregated-curve trap: cohort-mean
+  trajectories need not resemble any individual's; per-member fits
+  required in T-GAP/T-ORDER/T-SHAPE.
+- Koriat, Sheffer & Ma'ayan 2002 (*JEP:G* 131:238) — confidence and
+  accuracy dissociate over delay; anchor for the T-GAP divergence claim
+  (band marked HYPOTHESIS pending direct anchor on widening rate).
+- Lakens, Scheel & Isager 2018 — TOST/SESOI machinery (reused anchor,
+  now consolidated by VA-NULL).
+- Kashima 2000; Jenkins & Dallenbach 1924; Roediger & McDermott 1995;
+  Bartlett 1932; Bahrick — reused anchors for the paradigm split.
