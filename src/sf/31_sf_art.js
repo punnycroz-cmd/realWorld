@@ -980,13 +980,34 @@ function sfBldCanvas(b, wet){
       g.moveTo(w.x1, w.y1 - hPx - 1); g.lineTo(w.x2, w.y2 - hPx - 1);
       g.stroke();
     }
-    // v30: false-front gable cap — same gate as the street view
-    // (sfGableFront takes meters; the wall strip runs 4.2px per meter),
-    // drawn as a shingled triangle rising over the cornice line so the
-    // top-down silhouette carries the same sawtooth.
+    // v30/v39: shaped parapet caps — same gates as the street view
+    // (sfGableFront / sfParapetKind take meters; the wall strip runs
+    // 4.2px per meter). The gable bakes a shingled triangle, the
+    // Mission-Revival espanada bakes a smooth arched crown — the
+    // top-down silhouette carries the same shaped parapet.
     {
       const gh = sfGableFront(b.i, w.i, w.len / SF_PXM, isShop,
                               Math.max(1, Math.round(b.hPx / 12.6)));
+      if(gh <= 0 &&
+         sfParapetKind(b.i, w.i, w.len / SF_PXM, isShop,
+                       Math.max(1, Math.round(b.hPx / 12.6))) === 'mission'){
+        const mhP = sfMissionH(b.i, w.i) * 4.2,
+              uA = 0.24, uB = 0.76;
+        const [ax, ay] = wallAt(w.x1, w.y1, w.x2, w.y2, uA, 1),
+              [bx2, by2] = wallAt(w.x1, w.y1, w.x2, w.y2, uB, 1),
+              [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);
+        g.fillStyle = sfSunWallCol(shade(wallBase, 0.92), sunK);
+        g.beginPath();
+        g.moveTo(ax, ay); g.lineTo(bx2, by2);
+        g.quadraticCurveTo(mx, my - mhP * 2, ax, ay);
+        g.closePath(); g.fill();
+        g.strokeStyle = ACC; g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(ax, ay);
+        g.quadraticCurveTo(mx, my - mhP * 2, bx2, by2);
+        g.stroke();
+        paEllipse(g, mx, my - mhP * 0.55, 1.8, 1.8, shade(ACC, 0.85));
+      }
       if(gh > 0){
         const ghP = gh * 4.2;
         const [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);

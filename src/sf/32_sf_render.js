@@ -505,14 +505,35 @@ function sfCanyonShade(xm, ym, selfI){
   if(SF_SUN.day < 0.08) return 0;
   const tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
   const maxD = Math.min(80, 30 / tanEl);   // a 30m mass caps the reach
+  // v39: occluder tops are ABSOLUTE heights — a mass sitting uphill on
+  // the landform throws a taller shadow over a downhill probe, and a
+  // downhill mass throws less. Same physics the landform pass claims.
+  const zProbe = sfElevM(xm, ym);
   let zs = 0;
   for(let s = 3; s < maxD; s += 3){
-    const bi = sfBldAtM(xm + SF_SUN.toX * s, ym + SF_SUN.toY * s);
+    const ox = xm + SF_SUN.toX * s, oy = ym + SF_SUN.toY * s;
+    const bi = sfBldAtM(ox, oy);
     if(bi < 0 || bi === selfI) continue;
-    const z = SF_BLD[bi].hPx / 4.2 - s * tanEl;
+    const z = SF_BLD[bi].hPx / 4.2 + (sfElevM(ox, oy) - zProbe) - s * tanEl;
     if(z > zs){ zs = z; if(zs > 26) break; }
   }
   return zs;
+}
+/* v39: wire -> facade shadow solver. A conductor point W at height wz
+   (the v20 catenary spans ride ~7m) casts along the sun ray; where that
+   ray lands on a wall plane — segment A + u·û over L meters, outward
+   normal n̂ — it leaves the thin line every Mission facade wears under
+   the pole runs. Returns {u, z, s} (wall param, shadow height, throw)
+   or null when the ray misses the wall or the wall faces away. */
+function sfWireShadow(wx, wy, wz, x1, y1, ux, uy, nx, ny, L){
+  const dn = -(SF_SUN.toX * nx + SF_SUN.toY * ny);
+  if(dn > -0.02) return null;               // wall faces away from sun
+  const s = ((x1 - wx) * nx + (y1 - wy) * ny) / dn;
+  if(s < 0.3 || s > 60) return null;        // wall sits on the lit side
+  const hx = wx - SF_SUN.toX * s, hy = wy - SF_SUN.toY * s;
+  const u = ((hx - x1) * ux + (hy - y1) * uy) / L;
+  const z = wz - s * Math.tan(Math.max(0.02, SF_SUN.el));
+  return { u, z, s };
 }
 /* ---------------- v15: penumbra & twilight ----------------
    sfSoftEllipse — a contact shadow with a real umbra/penumbra profile:
@@ -2270,6 +2291,20 @@ function sfGarageU(i, ei, L, isShop, style, mural, doorT){
      phash(i, ei, 3302) >= 0.5) return -1;
   return doorT + (phash(i, ei, 3303) < 0.5 ? -0.30 : 0.30);
 }
+/* v39: shaped parapet tops. 'gable' is the v30 triangular false front;
+   'mission' is the curved Mission-Revival espanada pediment the
+   commercial rows around Dolores wear over their signboards — a smooth
+   arched crown centered on the front, sometimes with a round medallion.
+   Like the gable it stands IN the wall plane (false front): zero
+   footprint, invisible to collision and cast-shadow math. */
+function sfParapetKind(i, ei, L, isShop, floors){
+  if(sfGableFront(i, ei, L, isShop, floors) > 0) return 'gable';
+  if(isShop && L > 9 && phash(i, ei, 3900) < 0.26) return 'mission';
+  if(!isShop && floors >= 2 && L > 10 && phash(i, ei, 3901) < 0.07)
+    return 'mission';
+  return 'flat';
+}
+function sfMissionH(i, ei){ return 0.9 + phash(i, ei, 3902) * 0.7; }
 
 function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, fwd){
   const i = b.i;
@@ -2602,6 +2637,80 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.beginPath();
         ctx.moveTo(ga[0], ga[1]); ctx.lineTo(gb[0], gb[1]);
         ctx.lineTo(gm[0], gm[1]); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  /* v39: Mission-Revival espanada — a smooth arched pediment rises over
+     the parapet on a quarter of wide storefronts (the grammar the old
+     Mission theaters and churches wear). Same false-front physics as
+     the gable: it stands in the wall plane, sun-keyed, with a stepped
+     shoulder at each side and a round medallion under the crown when
+     the lens is near. Drawn before the det-0 return so the far skyline
+     keeps its arches. */
+  if(gableH <= 0 && sfParapetKind(i, ei, L, isShop, Math.max(1, Math.round(hm / 3))) === 'mission'){
+    const mh = sfMissionH(i, ei),
+          gz0 = hm + para * 0.5, gz1 = hm + para + mh,
+          uA = 0.24, uB = 0.76, uM = 0.5;
+    // the crown curve samples a smooth arch in wall space; the pediment
+    // face is the fan between that curve and the parapet base line
+    const NARC = 8, arc = [], base = [];
+    let ok2 = true;
+    for(let k = 0; k <= NARC; k++){
+      const u = uA + (uB - uA) * k / NARC;
+      const zc = gz0 + mh * Math.sin(Math.PI * k / NARC); // 0->1->0 arch
+      const pq = pr(x1 + ex * u, y1 + ey * u, Math.min(zc, gz1));
+      const bq = pr(x1 + ex * u, y1 + ey * u, gz0);
+      if(!pq || !bq){ ok2 = false; break; }
+      arc.push(pq); base.push(bq);
+    }
+    if(ok2){
+      const mcol = sfSunWallCol(shade(wallBase, 0.92), sunK);
+      // stepped shoulders: small squared ears where the arch springs
+      quad([[x1 + ex * (uA - 0.03), y1 + ey * (uA - 0.03), gz0],
+            [x1 + ex * uA, y1 + ey * uA, gz0],
+            [x1 + ex * uA, y1 + ey * uA, gz0 + mh * 0.28],
+            [x1 + ex * (uA - 0.03), y1 + ey * (uA - 0.03), gz0 + mh * 0.28]],
+           shade(mcol, 0.96));
+      quad([[x1 + ex * uB, y1 + ey * uB, gz0],
+            [x1 + ex * (uB + 0.03), y1 + ey * (uB + 0.03), gz0],
+            [x1 + ex * (uB + 0.03), y1 + ey * (uB + 0.03), gz0 + mh * 0.28],
+            [x1 + ex * uB, y1 + ey * uB, gz0 + mh * 0.28]],
+           shade(mcol, 0.96));
+      ctx.fillStyle = mcol;
+      ctx.beginPath();
+      ctx.moveTo(base[0][0], base[0][1]);
+      for(let k = 0; k <= NARC; k++) ctx.lineTo(arc[k][0], arc[k][1]);
+      ctx.lineTo(base[NARC][0], base[NARC][1]);
+      ctx.closePath(); ctx.fill();
+      // crown trim follows the arch; a short coping band caps the peak
+      ctx.strokeStyle = shade(ACC, 1.08);
+      ctx.lineWidth = Math.max(1.2, F * 0.03 / arc[0][2]);
+      ctx.beginPath();
+      ctx.moveTo(arc[0][0], arc[0][1]);
+      for(let k = 1; k <= NARC; k++) ctx.lineTo(arc[k][0], arc[k][1]);
+      ctx.stroke();
+      if(det === 2){
+        // round medallion under the crown — the espanada's bullseye
+        const vc = pr(x1 + ex * uM, y1 + ey * uM, gz0 + mh * 0.55);
+        if(vc){
+          const vr = Math.max(1.6, F * 0.13 / vc[2]);
+          ctx.fillStyle = shade(ACC, 0.85);
+          ctx.beginPath(); ctx.arc(vc[0], vc[1], vr, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = shade(ACC, 1.12); ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(vc[0], vc[1], vr, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+      // marine haze on the pediment, same as the gable's
+      const mhz2 = sfHazeA(fwd);
+      if(mhz2 > 0.02){
+        ctx.globalAlpha = mhz2; ctx.fillStyle = `rgb(${SF_WX.hazeRGB})`;
+        ctx.beginPath();
+        ctx.moveTo(base[0][0], base[0][1]);
+        for(let k = 0; k <= NARC; k++) ctx.lineTo(arc[k][0], arc[k][1]);
+        ctx.lineTo(base[NARC][0], base[NARC][1]);
+        ctx.closePath(); ctx.fill();
         ctx.globalAlpha = 1;
       }
     }
@@ -4544,39 +4653,60 @@ function sfRenderStreet(cw, ch){
             continue;
         }
         sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
-        /* v23: canyon shade band — the row across the street steals the
-           low sun: a ray toward the sun from each end of this wall finds
-           the occluding mass, and everything below the shade line sits in
-           cool sky light while the crown stays golden. The line slopes
-           with the block (corner lots cut real diagonals). */
+        /* v23/v39: canyon shade band — the row across the street steals
+           the low sun. v39: the shade line is now PROBED, not guessed —
+           sfCanyonShade marches the sun ray at N points along the wall,
+           so the light that pours through gaps between opposite masses
+           (street crossings, narrow lots, a low shopfront between tall
+           flats) lands on the facade as real gold stripes instead of a
+           single diagonal. Occluder heights are absolute (terrain-aware),
+           and a 0.55m penumbra skirt feathers the edge — the sun's disc
+           is ~0.5°, so a hard line is the lie. */
+        const ux2 = ex / L, uy2 = ey / L;
+        let zsA = null;
         if(!night && SF_SUN.day > 0.08 &&
            nx * SF_SUN.toX + ny * SF_SUN.toY > 0.04){
-          const zm1 = Math.min(hm, sfCanyonShade(x1 + nx * 0.5, y1 + ny * 0.5, b.i)),
-                zm2 = Math.min(hm, sfCanyonShade(x2 + nx * 0.5, y2 + ny * 0.5, b.i));
-          if(zm1 > 0.3 || zm2 > 0.3){
-            const q1 = pr(x1, y1, 0), q2 = pr(x2, y2, 0),
-                  q3 = pr(x2, y2, zm2), q4 = pr(x1, y1, zm1);
-            if(q1 && q2 && q3 && q4){
-              const topY = Math.min(q3[1], q4[1]),
-                    softPx = Math.min(Math.max(4, Math.max(q1[1], q2[1]) - topY),
-                                      1.8 * F / Math.max(1, q1[2])),
-                    a0 = (0.52 + 0.12 * SF_SUN.warm) * Math.min(1, SF_SUN.day + 0.2) *
-                         (1 - cover * 0.5);
-              const grd = ctx.createLinearGradient(0, topY - softPx, 0,
-                                                   Math.max(q1[1], q2[1]));
-              grd.addColorStop(0, 'rgba(26,34,60,0)');
-              grd.addColorStop(clamp(softPx / Math.max(1, Math.max(q1[1], q2[1]) - topY + softPx), 0.05, 0.9),
-                               `rgba(26,34,60,${a0})`);
-              grd.addColorStop(1, `rgba(24,30,52,${a0})`);
-              ctx.fillStyle = grd;
-              ctx.beginPath();
-              ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]);
-              ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]);
-              ctx.closePath(); ctx.fill();
+          const NS = d.fwd > 140 ? 3 : 8;
+          zsA = new Array(NS + 1); let zMax = 0;
+          for(let k = 0; k <= NS; k++){
+            const u = k / NS;
+            zsA[k] = Math.min(hm, sfCanyonShade(
+              x1 + ex * u + nx * 0.5, y1 + ey * u + ny * 0.5, b.i));
+            if(zsA[k] > zMax) zMax = zsA[k];
+          }
+          if(zMax > 0.3){
+            // project base + umbra edge + penumbra edge once
+            const qB = [], qT = [], qP = [];
+            let ok3 = true;
+            for(let k = 0; k <= NS; k++){
+              const u = k / NS;
+              qB.push(pr(x1 + ex * u, y1 + ey * u, 0));
+              qT.push(pr(x1 + ex * u, y1 + ey * u, zsA[k]));
+              qP.push(pr(x1 + ex * u, y1 + ey * u,
+                        Math.min(hm, zsA[k] + 0.55)));
+              if(!qB[k] || !qT[k] || !qP[k]){ ok3 = false; break; }
+            }
+            if(ok3){
+              const a0 = (0.52 + 0.12 * SF_SUN.warm) *
+                         Math.min(1, SF_SUN.day + 0.2) * (1 - cover * 0.5);
+              const shadePoly = (tops, alpha) => {
+                ctx.fillStyle = `rgba(24,30,52,${alpha})`;
+                ctx.beginPath();
+                ctx.moveTo(qB[0][0], qB[0][1]);
+                for(let k = 1; k <= NS; k++)
+                  ctx.lineTo(qB[k][0], qB[k][1]);
+                for(let k = NS; k >= 0; k--)
+                  ctx.lineTo(tops[k][0], tops[k][1]);
+                ctx.closePath(); ctx.fill();
+              };
+              shadePoly(qP, a0 * 0.35);   // penumbra skirt above the line
+              shadePoly(qT, a0);          // umbra core below it
               // warm bounce: the lit facade opposite kicks a whisper of
               // reflected gold back into the shade near the pavement
+              const zm1 = zsA[0], zm2 = zsA[NS];
               const bA = pr(x1, y1, Math.min(1.4, zm1)),
-                    bB = pr(x2, y2, Math.min(1.4, zm2));
+                    bB = pr(x2, y2, Math.min(1.4, zm2)),
+                    q1 = qB[0], q2 = qB[NS];
               if(bA && bB){
                 const bg = ctx.createLinearGradient(0, Math.min(bA[1], bB[1]),
                                                     0, Math.max(q1[1], q2[1]));
@@ -4589,6 +4719,67 @@ function sfRenderStreet(cw, ch){
                 ctx.closePath(); ctx.fill();
               }
             }
+          }
+        }
+        /* v39: pole-wire shadows — the v20 catenary spans hang ~7m up in
+           front of these facades; their sun rays land on the wall as the
+           thin wandering lines every Mission block carries. Solved per
+           conductor (two heights, same drops as the wire pass), clipped
+           to the wall quad, skipped where the canyon umbra already owns
+           the pixel — a shadow inside a shadow casts nothing. */
+        if(!night && SF_SUN.day > 0.12 && d.fwd < 150 &&
+           nx * SF_SUN.toX + ny * SF_SUN.toY > 0.15 && SF_WIRES.length){
+          const c0 = pr(x1, y1, 0), c1 = pr(x2, y2, 0),
+                c2 = pr(x2, y2, hm + 1.2), c3 = pr(x1, y1, hm + 1.2);
+          if(c0 && c1 && c2 && c3){
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]);
+            ctx.lineTo(c2[0], c2[1]); ctx.lineTo(c3[0], c3[1]);
+            ctx.closePath(); ctx.clip();
+            ctx.strokeStyle = `rgba(22,28,48,${(0.10 + 0.09 * SF_SUN.day) * (1 - cover * 0.6)})`;
+            for(const wg of SF_WIRES){
+              const wmx = (wg.x1 + wg.x2) / 2 / SF_PXM,
+                    wmy = (wg.y1 + wg.y2) / 2 / SF_PXM;
+              // cheap reject: midpoint must throw toward this wall
+              const tM = sfWireShadow(wmx, wmy, 7, x1, y1, ux2, uy2, nx, ny, L);
+              if(!tM || tM.u < -0.7 || tM.u > 1.7 || tM.z < -2 || tM.z > hm + 3)
+                continue;
+              for(const [wz, drop] of [[7.15, 0.55], [6.8, 0.8]]){
+                const h0 = sfWireShadow(wg.x1 / SF_PXM, wg.y1 / SF_PXM, wz,
+                                        x1, y1, ux2, uy2, nx, ny, L),
+                      h1 = sfWireShadow(wg.x2 / SF_PXM, wg.y2 / SF_PXM, wz,
+                                        x1, y1, ux2, uy2, nx, ny, L),
+                      hM = sfWireShadow(wmx, wmy, wz - drop,
+                                        x1, y1, ux2, uy2, nx, ny, L);
+                if(!h0 || !h1 || !hM) continue;
+                if((h0.u < -0.15 || h0.u > 1.15) &&
+                   (h1.u < -0.15 || h1.u > 1.15) &&
+                   (hM.u < -0.15 || hM.u > 1.15)) continue;
+                // the umbra swallows thin shadows — skip buried segments
+                if(zsA && hM.u >= 0 && hM.u <= 1){
+                  const zi = Math.round(hM.u * (zsA.length - 1));
+                  if(hM.z < zsA[zi] - 0.15) continue;
+                }
+                const q0 = pr(wg.x1 / SF_PXM - SF_SUN.toX * h0.s,
+                              wg.y1 / SF_PXM - SF_SUN.toY * h0.s, h0.z),
+                      q1 = pr(wg.x2 / SF_PXM - SF_SUN.toX * h1.s,
+                              wg.y2 / SF_PXM - SF_SUN.toY * h1.s, h1.z),
+                      qM = pr(wmx - SF_SUN.toX * hM.s,
+                              wmy - SF_SUN.toY * hM.s, hM.z);
+                if(!q0 || !q1 || !qM) continue;
+                ctx.lineWidth = Math.max(0.7, 0.05 * F / Math.max(1, qM[2]));
+                ctx.beginPath();
+                ctx.moveTo(q0[0], q0[1]);
+                // quadratic through the true midpoint shadow
+                ctx.quadraticCurveTo(
+                  2 * qM[0] - (q0[0] + q1[0]) / 2,
+                  2 * qM[1] - (q0[1] + q1[1]) / 2,
+                  q1[0], q1[1]);
+                ctx.stroke();
+              }
+            }
+            ctx.restore();
           }
         }
       }

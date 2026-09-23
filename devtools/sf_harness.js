@@ -68,7 +68,8 @@ const api = eval(m[1] + `
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
-    sfBoomClip, sfSegHitT, sfElevM })`);
+    sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
+    sfWireShadow })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -309,6 +310,28 @@ const api = eval(m[1] + `
   ok(api.sfBounceK(-0.6, 0) === api.sfBounceK(-0.6, 0),
      'sfBounceK deterministic');
   ok(api.sfCanyonShade(1, 1, -1) >= 0, 'canyon probe bounded');
+  // v39: shaped parapets + wire-shadow solver
+  ok(['flat', 'gable', 'mission'].includes(
+       api.sfParapetKind(3, 0, 12, false, 3)), 'parapet kind in enum');
+  ok(api.sfParapetKind(3, 0, 12, false, 3) ===
+     api.sfParapetKind(3, 0, 12, false, 3), 'parapet kind deterministic');
+  ok(api.sfParapetKind(5, 1, 5, false, 1) === 'flat',
+     'narrow single-story never gets a shaped parapet');
+  ok(api.sfMissionH(3, 0) > 0.8 && api.sfMissionH(3, 0) < 1.7,
+     'espanada rise bounded');
+  {
+    // wall through the origin with n̂ = toSun, û ⟂ n̂; wire 8m out
+    // along the normal so its ray lands back on the wall plane
+    const sx = api.SF_SUN.toX, sy = api.SF_SUN.toY;
+    const hit = api.sfWireShadow(8 * sx, 8 * sy, 7,
+                                 0, 0, -sy, sx, sx, sy, 20);
+    if(api.SF_SUN.day > 0.1){
+      ok(!!hit && hit.u > -0.2 && hit.u < 1.2 && hit.z < 7 && hit.s > 0,
+         'wire shadow lands below conductor height');
+      ok(api.sfWireShadow(0, -8, 7, -10, 0, 1, 0, -sx, -sy, 20) === null,
+         'shadow never lands on the sun-shy face');
+    } else ok(true, 'wire shadow gate skipped (sun down)');
+  }
   api.SF_SUN.day = day0;
 
   // v34 Karl's front: intrusion strength is a bounded pure function of the
