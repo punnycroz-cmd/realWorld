@@ -1,6 +1,9 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v9 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v24 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+(v9 wrote the pipeline; v24 wired the recap engine to the world track's
+canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
+and shipped `tools/build_recap.py`.)
 **Scope:** spectator → community → player pipeline: surfaces, content strategy,
 moderation, creator outreach, feedback loop, launch infrastructure.
 **Authority:** design doc `rw-game-design-2026-09-22.md` (esp. §5 participation,
@@ -52,8 +55,10 @@ Visitor → Watcher  →  Community  →  Requester  →  Resident    →  Advoc
 |---|---|---|
 | `site/` landing pages | Stage 0→1: explain, show real captures | BUILT |
 | `site/community.html` | Stage 1→2: describe the community offer honestly pre-launch | BUILT (v9) |
-| `site/demo.html` (future, roadmap v12) | Stage 0→1 front door: live spectator view | SPEC — needs game build |
-| Weekly recap post | Stage 1→2 retention engine | TEMPLATE EXISTS (`social/drafts/recap-format.md`) |
+| `site/demo.html` | Stage 0→1 front door: spectator view stub + fallback | BUILT (v11) — go-live is one `data-demo-src` attribute |
+| The Wire — `world/feed.html` (world track) | Stage 1 surface: live spectator feed UI demo | EXISTS on sf/world — borrow as contract, not as an asset |
+| The Archive — `world/history.html` + `world/history.json` (world track) | Stage 1→2: free back-catalog; recap source data | EXISTS on sf/world — `history.json` is the recap input format |
+| Weekly recap post | Stage 1→2 retention engine | TEMPLATE + GENERATOR BUILT (`tools/build_recap.py`, §5a) |
 | Discord server | Stage 2 home: feed discussion, watch parties | OWNER-GATED (create at go) |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
@@ -151,7 +156,7 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 
 | Cadence | Item | Source material | Template |
 |---|---|---|---|
-| Weekly (Sun) | "This Week on the Block" recap | public feed + observed events | `social/drafts/recap-format.md` |
+| Weekly (Sun) | "This Week on the Block" recap | `world/history.json`-conforming archive | `social/drafts/recap-format.md` + `tools/build_recap.py` (§5a) |
 | Bi-weekly | Devlog post (itch devlog + blog slot) | track inbox entries, sanitized | `templates/` devlog template (v4 backlog — see §9) |
 | Bi-weekly (offset) | Cast spotlight card | cast bible (public-profile fields only — never secrets) | `social/drafts/cast-spotlights.md` |
 | Event-driven | Request-feed highlights clip | live captures during notable requests | `social/drafts/devlog-clips.md` |
@@ -173,6 +178,29 @@ quiet week on the block" is itself content and reinforces the honesty brand.
   (Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware);
   `world/businesses.md` becomes the authority when published.
 - No fake testimonials, no invented community quotes, ever.
+
+### 5a. Recap automation (v24)
+
+`tools/build_recap.py` turns a `world/history.json`-conforming archive (or a
+flat feed.json-style event list) into a draft recap following the template
+beats: headline (player-called weather > admin action > biggest crowd beat),
+attributed request beats, resident beats (mains only, `who`/`mentions` C1–C8),
+the numbers line (deduped request cases by lifecycle, never estimates), an
+open-rumor hook, and the watch footer.
+
+```
+python3 marketing/tools/build_recap.py \
+  --archive world/history.json --from YYYY-MM-DD --to YYYY-MM-DD \
+  --out social/drafts/recap-YYYY-MM-DD.md
+```
+
+The tool is a *drafter*, not an autoposter: output carries a review banner
+and the owner edits before anything ships (approval gate, §4.1). Structural
+honesty: only input events are reported; refunded/expired requests are
+counted, not hidden; open rumors stay labeled unconfirmed. A verified sample
+generated from the world track's seed archive lives at
+`social/drafts/recap-sample-2026-09-17_23.md` — it is DEMO DATA, clearly
+marked, never for posting.
 
 ---
 
@@ -246,8 +274,9 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 ## 9. Day-0 / day-7 / day-30 community tasks
 
 - **Day-0:** run §3 checklist; pin rules + feedback asks; post welcome note;
-  publish first recap only if a pre-launch feed existed (else "week zero"
-  post). Verify `community.html` invite link swap (placeholder → real).
+  generate first recap with `build_recap.py` against the live archive if a
+  pre-launch feed existed (else "week zero" post). Verify `community.html`
+  invite link swap (placeholder → real).
 - **Day-7:** first full recap; creator-variant outreach draft; triage first
   `#feedback` batch into shared inbox; assess #the-feed manual-mirror load.
 - **Day-30:** mod recruitment decision; cadence retro (did weekly hold?);
@@ -255,11 +284,11 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 
 ## 10. Open dependencies
 
-- Parody business-name list (world track, `world/businesses.md`) — four
-  canonical names already in use via the cast index (Mudhaus Coffee, El
-  Farolote, Flying Pannier, Auerbach Hardware); sweep remaining generic
-  descriptors when the full list publishes.
-- Live public feed (game-systems) — `#the-feed` mirror and recaps are manual
-  captures until then.
-- Spectator build / demo page (roadmap v12) — funnel Stage 1 depends on it.
+- Parody business-name list — LANDED (world-v2 `world/parody-names.json` +
+  `world/businesses.md`); canonical names in use throughout.
+- Feed/archive contract — LANDED (world-v5 `feed.json`, world-v6
+  `history.json`); `build_recap.py` consumes the archive schema today.
+  Still open: the LIVE feed from the game build — recaps run on seeded
+  archives until `gsViewerState`/ledger events exist in production.
 - Display-side feed text filter decision (§4.2) — owner, at game build time.
+- Real request volume — recap numbers are only as real as the feed.
