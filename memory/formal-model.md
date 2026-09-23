@@ -724,3 +724,354 @@ CueContext, `searchCost` on Reconstruction), one rewritten update
 (§5.9), three additive terms (§5.4 contiguity, §3 overconfidence,
 resurrect floor). Daily-tick added cost ≈ nil — S updates ride the same
 loops as R. Whole layer is flag-gateable: diff probes P76–P85.
+
+---
+
+# Part III — v21 deepening pass: the measurement layer and numerics (P193–P200)
+
+Part I pinned order/units/budget; Part II formalized five mechanisms.
+This pass closes the three remaining informal holes — (a) `similarity`,
+invoked in nine places with nine different intended meanings and one
+undefined formula; (b) metamemory — the spec produces records and
+reconstructions but the character has no instrument for *sensing* its
+own memory (FOK, JOL), which is where "I know it but can't say it,"
+"I'll never forget this" (wrongly), and "you'd remember better than me"
+come from; (c) numerics — the spec's caps and constants have never been
+checked against the closed-form steady state they imply. Plus the
+distribution semantics every stochastic draw silently assumes, and a
+composite-observable table that turns §4's sloppy-model audit into
+concrete regression targets.
+
+## 18. The similarity operator — one equation, nine call sites
+
+`similarity` currently appears as `jaccard(cueVector a, cueVector b)`
+(§4.2) and as bare `sim(·,·)` at: interference pairs (§4.2), merges
+(§4.3), relearning match (§4.11), conditioned-affect generalization
+(§4.9), RIF competitors (§5.8), misinformation gate (§6.3), source
+reassignment (§6.10), core-field match for absorption (§6.23), and
+reminding chains (§5.17). One undifferentiated Jaccard cannot serve all
+of them — interference should fire on *temporal-topic* neighbors (the
+same-venue-same-week collisions proactive interference is made of,
+Underwood 1957; Keppel & Underwood 1962) while merge should require
+*content* overlap (same event, different retelling). This is not a
+taste call: Tversky's contrast model (1977) establishes that similarity
+is feature-set matching whose weights are *task-relative* — the same
+stimuli are "similar" or not depending on which features the judgment
+context makes diagnostic [CONSENSUS at the level of principle; the
+weight tables below are HYPOTHESIS]. Nosofsky's generalized context
+model (1986) supplies the gradient shape — similarity falls
+exponentially with psychological distance, which is exactly what §4.9's
+`gen_width` already assumes.
+
+**Formalization (new spec §11.1, `simOp(a, b, mask)`):**
+
+```
+simOp(a, b, mask) = Σ_f w_f(mask)·match_f(a_f, b_f) / Σ_f w_f(mask)
+
+match_f over cueVector fields:
+  people, topics, sensory:  jaccard(set_a, set_b)
+  place:                    1 if equal; place_adj if world-supplied
+                            adjacency (same block/venue family); else 0
+  mood:                     1 − |mood_a − mood_b|/2
+  era/when:                 exp(−|createdDay_a − createdDay_b|/sim_tau_time)
+                            — temporal distance is a feature, not a tag
+                            (Friedman 1993); sim_tau_time ≈ 14d
+  names (PersonModel tier): phonological key match —
+                            equal 1.0, same metaphone 0.7,
+                            same onset+length class 0.4, else 0
+                            (phonological confusability is the dominant
+                            error channel: Conrad & Hull 1964; Baddeley
+                            1966 — "Mara"→"Marta" beats "Mara"→"Dolores"
+                            at equal featural overlap)
+```
+
+**Callsite masks** (rows = operator, columns = field weights; all rows
+Σw = 1 after masking — same normalization rule as w_plaus/w_corr):
+
+| mask | people | topics | sensory | place | mood | when | names |
+|---|---|---|---|---|---|---|---|
+| `sim_interf` (§4.2) | .15 | .25 | .10 | .10 | .05 | .35 | 0 |
+| `sim_merge` (§4.3) | .25 | .30 | .10 | .20 | 0 | .15 | 0 |
+| `sim_cond` (§4.9) | .10 | .20 | .30 | .25 | .15 | 0 | 0 |
+| `sim_rif` (§5.8) | .20 | .35 | .10 | .15 | 0 | .20 | 0 |
+| `sim_misinfo` (§6.3) | .25 | .30 | .05 | .25 | 0 | .15 | 0 |
+| `sim_source` (§6.10) | .10 | .15 | .20 | .15 | .20 | .20 | 0 |
+| `sim_remind` (§5.17) | .30 | .25 | .15 | .15 | .05 | .10 | 0 |
+| `sim_person` (name confusions, §5.10/§6.10) | .30 | .15 | 0 | .10 | 0 | .05 | .40 |
+
+Behavioral yields that the bare Jaccard could not produce: proactive
+interference concentrated on same-week similar events (the "which
+lunch" problem); sensory-weighted conditioned-affect generalization
+(the Proust route §5.20 rides on `sim_cond`'s sensory column); source
+confusion between mood-matched contexts (§6.10 now confused in the
+right direction); and name-tier confusions that are *phonological*
+(Conrad & Hull) not semantic — the game never has to fake a
+"Marisol/Marta" mix-up again, it falls out of the mask.
+
+Identifying observable: P193 (mask-sensitivity + phonological contrast).
+
+## 19. Metamemory — the character's instrument panel (FOK, JOL)
+
+The spec's one metamemory surface is `selfReport` (trait-level, v1.9)
+and `tot` flags (field-level, v1.4). Missing is the *moment-level*
+signal that humans use to allocate search effort and make claims about
+their own memory. Two instruments, both grounded:
+
+### 19.1 Feeling-of-knowing — `fok(m, C)` on failed retrieval
+
+**CONSENSUS.** Koriat's accessibility model (Koriat 1993; Koriat &
+Levy-Sadot 2001): FOK is computed from **cue familiarity + the amount
+and intensity of partial information retrieved**, NOT from trace
+strength — hence the signature dissociations: high FOK on unrecallable
+items (familiar cue, fluent fragments, dead target), FOK tracking
+partial output rather than correctness, and FOK being *positively
+correlated with wrong answers* when the fragments are wrong
+(accessibility is blind to accuracy). Aging splits it: semantic FOK
+preserved, episodic FOK degrades to near-chance in older adults —
+executive/frontal-linked (Souchay, Isingrini & Espagnet 2000;
+meta-analysis g = 0.53 episodic deficit vs −0.10 semantic, Sacher et
+al. 2023 — Scientific Reports 13:17204).
+
+**Formalization (new spec §5.21, output on Reconstruction and on
+failed searches):**
+
+```
+On recall failure or TOT:
+  partialScore = (# verbatim fields retrieved above candStrength floor)
+                 / (# encoded fields)
+  fok = logistic(k_fok·(a_cue·cueMatch_ext + a_part·partialScore
+        + a_fam·familiarity(targetPerson, if any) − θ_fok))
+        + N(0, fok_noise)                       // fok_noise ≈ 0.08
+  episodic records only, older characters:
+        fok += N(0, fok_age_noise·(age_eff/70)) // fok_age_noise ≈ 0.25
+        — noise injection, not bias: accuracy degrades to chance
+        (Souchay), confidence in the feeling does not
+```
+
+Then the behavior hook: a failed recall with `fok > fok_retry` (0.6)
+triggers ONE follow-up scan at `search_breadth/2` — characters keep
+digging exactly when fragments flowed. `fok` is returned on the
+Reconstruction for the dialogue layer ("it's right there — the tall
+guy, the landlord thing — give me a second"). **Critical null:**
+`fok` must never be clamped by `accuracy` — a phantom record with
+rich confabulated candidates yields high FOK and the character will
+insist it happened (P194; this is the documented phenomenon, Koriat
+1995 — FOK is high on items that turn out wrong because the fragments
+that generated the feeling are the same fragments that generate the
+error).
+
+### 19.2 Judgment-of-learning — `jol` at encode time
+
+**CONSENSUS.** JOLs predict future recall poorly when made immediately
+after encoding and well when delayed (Nelson & Dunlosky 1991 — gamma
+0.45 immediate vs 0.93 delayed; the "delayed-JOL effect", robust at
+meta level: Rhodes & Castel 2008, Psych Bulletin 134:117, g = 0.93).
+The mechanism per the monitoring-dual-memories account (Dunlosky &
+Nelson 1992): immediate JOLs read short-term accessibility — fluent,
+still-warm content *feels* learned — while delayed JOLs read actual
+retrieval products. Consequence for RW: characters are most confident
+they'll remember exactly when encoding was fluent-but-shallow — the
+"we had such a good talk, I'll never forget it" error.
+
+**Formalization (spec §5.21):**
+
+```
+encodeEvent returns jol on the record (hidden, harness-readable):
+  jol = logistic(k_jol·(E + jol_fluency·fluencyNow − θ_jol))
+  where fluencyNow = attention·(1 − lapse) — the still-warm signal
+  (immediate-JOL inflation lives in the fluency term: E and
+  fluencyNow dissociate under lapse/DA/intox — high fluency, low E)
+At §4.13 ecology fire or first natural retrieval (>1 day):
+  jol_delayed = logistic(k_jol·(drive_achieved − θ_jol))
+  SelfModel merges: self_est moves toward jol_delayed at rate
+  metamem_r — delayed judgments are the accurate ones
+```
+
+`jol` drives `strategy_use` (v1.0): `P(write-it-down/ask-reminder)`
+rises when `jol` is low on a *high-stakes* record (open loop, intention)
+— the character who knows they won't remember is the character who
+writes the list. Identifying observable: P196 (immediate-JOL
+overconfidence on fluent-shallow encodings; jol→strategy_use gradient).
+
+**Budget:** both instruments are O(1) bookkeeping on values already
+computed — `partialScore`, `cueMatch_ext`, `drive_achieved` all exist
+in the recall path. No new stores.
+
+## 20. Steady-state numerics — the census workbook
+
+Part I asserted caps from Landauer's order-of-magnitude budget; here is
+the first check against the model's own closed forms. A record dies
+(archives) when `R(t) < forget_thresh`:
+
+```
+t_death(E) = τ·((E/thresh)^(1/β) − 1)     [power-law inversion, exact]
+```
+
+With spec defaults (τ=1.2, β=0.5, thresh=0.08), E from the §2 derivation
+defaults (enc_base=0.35 · attention · (1+extras)):
+
+| attention class | typical E | t_death (β=.5) | β=.6 (midlife) | β=.7 (older) |
+|---|---|---|---|---|
+| ambient 0.1 | 0.045–0.091 | 0–0.4d | 0–0.3d | 0–0.2d |
+| periphery 0.4 | 0.18–0.36 | 5–24d | 3.5–14d | 2.7–9d |
+| participant 0.8 | 0.36–0.73 | 24–98d | 14–46d | 9–27d |
+| self-agent 1.0 | 0.46–0.91 | 38–154d | 20–68d | 13–38d |
+
+**Ambient-attention records die same-day at every age** — the §5
+Landauer budget claim ("hundreds of record-equivalents/day, most die
+same-day") is confirmed by the model's own arithmetic, not asserted.
+
+**Census steady state.** With an attention mix
+(50% ambient / 25% periphery / 20% participant / 5% self-agent) and
+λ records/day surviving the encode quota, E[t_death] ≈ 19 days →
+`N_live ≈ λ·19`:
+
+| λ | N_live (no retells) | vs cap_episodic=2000 |
+|---|---|---|
+| 10/day | ~191 | never binds |
+| 20/day | ~381 | never binds |
+| 40/day (quota) | ~763 | 2.6× headroom |
+
+Retells and consolidations push the tail up (reboosted records re-enter
+at higher R), but the equilibrium is self-limiting: more live records →
+more interference pairs → more suppression. cap_episodic=2000 is
+correctly sized as a *burst* bound, not a population regulator — the
+regulator is the forgetting curve itself. **Correction to Part I §5:**
+the cap should never visibly bind in normal play; if a run hits it, the
+encode rate is wrong, not the cap. Flagged as P197.
+
+**Canonization timescale.** §4.13 ecology draws alone:
+`p/day = retell_base·E·(1+share_k·|affect|)` → expected days to
+canon_thresh=5 range 215d (E=0.9, |affect|=0.9) to 1667d (E=0.2,
+flat). Ecology-only canonization is therefore a multi-season event for
+all but the hottest records — but `retellCount` also increments on real
+§6.11 retells in conversation, which for gossiped events run far above
+the Bernoulli rate. **Deliberate consequence:** canonization tracks
+*talk*, not time; a secret everyone discusses freezes in weeks, a
+private triumph takes years. This is the right semantics and is now
+measured, not hoped (P198).
+
+**Chain attrition.** Verbatim-field survival across serial reproduction:
+`(1−level_frac)^n` → hop 2: 49%, hop 3: 34%, hop 5: 17%. Fifth-hand
+accounts carry roughly one-sixth of original verbatim content — the
+rest is gist + confabulation. Matches the Bartlett/Kashima qualitative
+picture; the number is now in the registry as P199.
+
+## 21. Composite observables — the stiff directions made concrete
+
+§4's sloppy-model audit said behavior constrains stiff *combinations*.
+Here they are, named, closed-form where possible — implementers tune
+these, not the raw params:
+
+| composite | formula | spec defaults | what it IS |
+|---|---|---|---|
+| episodic half-life | `t½ = τ(2^(1/β)−1)` | 3.6d | one number per decay class; if t½ is right, the curve is right at every horizon (power-law self-similarity) |
+| semantic half-life | same | 930d | ~2.5 years — semantic outlives the sim |
+| archive half-life | `t_arch = τ((thresh·2/E)^(−1/β)−1)`·… — just `t_death(E)/2` | ~33d at E=0.6 | days until the median record is unrecoverable |
+| rumor hop-half-life | `n½ = ln .5 / ln(1−level_frac)` | 1.94 hops | hops until half the verbatim is gone |
+| rehearsal rate | `r_day = retell_base·E·(1+share_k·|affect|)` | ≤0.023/d | the only path to permanence for episodic records |
+| canonization lag | `T_canon = canon_thresh / r_day` | 215–1667d | measured, see §20 |
+| FOK calibration gap | `E[fok] − P(success)` | ≈ +0.1–0.2 | the "I should know this" surplus — positive by design |
+| encoding throughput | `λ_surv = Σ P(E>att_min·…)` | ≤40/d | records surviving to first sleep |
+
+These eight numbers ARE the model's behavior for an outside reader;
+two implementations with equal composites are behaviorally equivalent
+even if raw params differ. The probe harness should report all eight.
+
+## 22. Noise and distribution semantics — the missing axioms
+
+Every stochastic draw in the spec says `N(0,σ)` or "rolls" without
+defining the distribution class. Axioms, all HYPOTHESIS (implementation
+law, not psychological claim):
+
+1. **Normal draws are truncated Gaussians.** `N(0,σ)` means sample then
+   clamp to ±3σ, then clamp to the field's declared domain. The spec
+   never intends a 4σ event; bounded noise keeps P70's invariant
+   honest by construction.
+2. **Drift step sizes are scaled uniforms**, not normals: each drifted
+   field moves by `drift_k·U(0.5,1.5)` toward the schema/prior —
+   bounded mutations, mean = drift_k. (A normal step distribution
+   would occasionally produce 5σ teleports — "the rent was $4000" —
+   that read as bugs, not distortion.)
+3. **The RNG is integer-based** (splitmix64 or equivalent): floats are
+   derived as `u = int/2^64` — transcendental-free, bit-identical
+   across platforms (P68/P69 need this; IEEE exp() is *not*
+   guaranteed cross-platform identical but is required nowhere on the
+   draw path — exp() appears only in deterministic formula
+   evaluation, where ±1ulp differences are below every probe
+   tolerance).
+4. **opSeq namespace:** `rand(seed_base, charId, worldDay, opTag, i)`
+   where opTag is a stable hash of the operator name — adding a draw
+   to operator A must not shift every downstream draw of operator B
+   (that's what makes probes addable without invalidating goldens).
+5. **Correlated draws** (day_mult, encode/retrieval coherence within an
+   event) share the first uniform: one draw drives E and θ in the same
+   direction — a distracted moment is bad at both ends, per the §2
+   attention gate's causal claim.
+
+## 23. New params (spec §7 v2.1 block) — audit-compliant
+
+| param | default | free? | observable |
+|---|---|---|---|
+| sim_tau_time | 14 | pop | P193 temporal-gradient width |
+| place_adj | 0.3 | pop | P193 place-gradient |
+| a_cue / a_part / a_fam | 0.4 / 0.45 / 0.15 | pop | P194 decomposition |
+| θ_fok / k_fok | 0.5 / 6 | pop | P194 level |
+| fok_noise | 0.08 | pop | P194 |
+| fok_age_noise | 0.25 | per-char | P195 — "knows less than they feel" trait |
+| fok_retry | 0.6 | pop | retry gate |
+| jol_fluency | 0.5 | pop | P196 fluency term |
+| θ_jol / k_jol | 0.5 / 6 | pop | P196 level |
+| jol_bias | 0.0 | per-char | P196 — the chronic under/over-estimator |
+
+11 params, 2 per-character — the metamemory instruments are mostly
+population machinery (they're *perceptual* organs; individual variance
+lives in calibration, matching the FOK-aging finding that the deficit
+is sensitivity, not bias).
+
+## 24. Formal/consistency probes (P193–P200)
+
+- **P193 similarity-mask sensitivity (MUST — structure):** a
+  same-week/same-topic/different-people record pair scores above
+  `interf_thresh` under `sim_interf` but below `merge_thresh` under
+  `sim_merge` — interference without fusion. Name-tier: "Mara"/"Marta"
+  beats "Mara"/"Dolores" under `sim_person` at equal featural overlap.
+  FAIL if any mask is a no-op.
+- **P194 FOK accessibility dissociation (MUST — sign):** across failed
+  recalls, `fok` correlates with `partialScore` and `cueMatch_ext` and
+  NOT with `accuracy`; phantom/confabulated records produce fok ≥ the
+  median of true records. FAIL if fok tracks correctness — that would
+  be an oracle, not a feeling.
+- **P195 FOK aging split (SHOULD):** older characters' episodic
+  `fok`→recognition gamma ≈ chance while semantic-domain fok stays
+  calibrated (Souchay 2000; Sacher 2023 meta). Constrains fok_age_noise.
+- **P196 JOL inflation (SHOULD):** fluent-but-shallow encodings
+  (high attention, low E — lapse/DA/intox) yield `jol − P(recall@30d)`
+  > 0.15 while matched unfluent encodings sit near zero; low-jol
+  high-stakes records raise `strategy_use` outputs. Constrains
+  jol_fluency.
+- **P197 census band (MUST — regression):** steady-state N_live ∈
+  [0.5, 2]·λ·E[t_death] over 200 sim-days at scripted λ; cap_episodic
+  never binds below λ=40. FAIL = caps silently regulating (the
+  forgetfulness is supposed to do it).
+- **P198 canonization ordering (SHOULD):** T_canon orders by
+  talk-frequency not record age: two same-age records, one retold
+  weekly, one never — the retold one canonizes; the never-retold one
+  stays driftable. Constrains retellCount semantics.
+- **P199 chain attrition rate (SHOULD):** verbatim survival across
+  n hops ∈ [(1−level_frac−0.05)^n, (1−level_frac+0.05)^n] for n≤5.
+  Constrains level_frac.
+- **P200 composite conformance (MUST — regression golden):** measured
+  t½ per decay class ∈ [0.8, 1.25]·τ(2^(1/β)−1); hop-half-life within
+  15% of n½. The eight §21 numbers are the published fingerprint —
+  diff against them on any refactor.
+
+## 25. Summary for game-systems
+
+One new pure function (`simOp` + the mask table — replaces nine ad-hoc
+call sites, strictly more expressible and no slower), two new output
+fields (`fok` on failed/TOT reconstructions, `jol` on encodeEvent —
+both hidden/harness-readable), one retry gate on the recall loop,
+eight composite observables to publish, five distribution axioms to
+honor. Daily-tick added cost: two logistics per failed recall and one
+per encode — nil. Whole layer flag-gateable; diff probes P193–P200.

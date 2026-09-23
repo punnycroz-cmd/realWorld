@@ -1,4 +1,20 @@
-# Memory Model Spec v2.0 — implementable human-like memory for RW characters
+# Memory Model Spec v2.1 — implementable human-like memory for RW characters
+
+> **v2.1 note (formal-model III — the measurement layer):**
+> `memory/formal-model.md` Part III (§§18–25) closes the last informal
+> holes: **the similarity operator** — `simOp(a,b,mask)` with a
+> per-callsite field-weight table replaces nine ad-hoc sim uses; names
+> match phonologically (Conrad & Hull 1964), when-distance is a
+> gradient feature (Friedman 1993) — §11.1 + §4.2; **metamemory
+> instruments** — `fok` on failed/TOT recall built from accessibility,
+> not accuracy (Koriat 1993; episodic-only age deficit, Souchay et al.
+> 2000) and `jol` at encode with immediate-JOL fluency inflation
+> (Nelson & Dunlosky 1991) — §5.21; **steady-state numerics** — the
+> closed-form census says caps are burst bounds, forgetting is the
+> regulator (formal-model §20); **distribution axioms** — truncated
+> Gaussians, uniform drift steps, integer RNG, namespaced opSeq
+> (formal-model §22). +11 params in §7; probes P193–P200 in
+> validation-design.md §20. All default-neutral.
 
 > **v2.0 note (social-memory II — the talk ecology):**
 > `memory/social-memory.md` Part II (§§18–31) deepens the social layer:
@@ -853,7 +869,9 @@ When two episodic records share high cue overlap (same place+people+topic,
 within Δt window):
 
 ```
-similarity(a,b) = jaccard(cueVector a, cueVector b)
+similarity(a,b) = simOp(a, b, "sim_interf")   // v2.1: weighted-mask
+   operator, §11.1 — temporal proximity is a first-class feature here
+   (the "which lunch" collisions proactive interference is made of)
 if similarity > interf_thresh·discrim_mult (param, ~0.6):
     each suppresses the other: strength *= (1 - interf_k · similarity)
 ```
@@ -877,7 +895,7 @@ age-decline.md §4). Knots: 1.0 ≤50 → 0.72 at 85.
 
 ### 4.3 Genericization (schema merging)
 
-If `similarity(a,b) > merge_thresh·discrim_mult` (~0.8) AND both below
+If `simOp(a,b,"sim_merge") > merge_thresh·discrim_mult` (~0.8) AND both below
 salience threshold:
 merge into one **generic memory** — keep shared gist ("my morning commute"),
 drop both verbatims, `type` stays episodic but flag `"generic": true`.
@@ -1005,7 +1023,7 @@ King 1983; Bouton 2004; emotional-memory.md §6):
   cue resets `safeCount = 0` and re-adds `cond_gain·arousal` to strength.
 - **Generalization gradient (v1.7):** firing is similarity-keyed, not
   exact-match — `emit = valence·strength·sim` whenever
-  `sim(cue, C cues) ≥ 1 − gen_width` (gen_width ≈ 0.25). Effective
+  `simOp(cue, C cues, "sim_cond") ≥ 1 − gen_width` (gen_width ≈ 0.25). Effective
   width widens with trauma load: `gen_width_eff = min(0.6, gen_width +
   0.15·n_trauma_records)` — anxiety flattens the gradient (Dunsmoor et
   al. 2009; Lissek et al. 2005/2010; Dunsmoor, Martin & LaBar 2012
@@ -1079,7 +1097,7 @@ Theory of Disuse; formal-model.md §10):
   resurrect_R ≈ 0.35 — high-S "forgotten" records return nearly
   functional.
 - **Savings/relearn:** re-encoded content matching an archived record
-  (similarity > merge_thresh) merges rather than duplicating, with
+  (simOp(·,·,"sim_merge") > merge_thresh) merges rather than duplicating, with
   `E_new *= (1 + relearn_gain·S_old)`, relearn_gain ≈ 0.8 (Ebbinghaus
   savings; Nelson 1985).
 - **Permastore:** §4.7 gates on `S ≥ permastore_thresh`.
@@ -1389,7 +1407,7 @@ main character (validation probe P14, RC§8).
 ### 5.8 Retrieval-induced forgetting and part-list cuing
 
 On successful recall of `m`: for each linked/competing record `n` with
-similarity > 0.5 that was NOT recalled, `n.strength *= (1 - rif_k)` (rif_k≈0.05).
+simOp(·,·,"sim_rif") > 0.5 that was NOT recalled, `n.strength *= (1 - rif_k)` (rif_k≈0.05).
 Retelling a story forgets the details you skipped (R§3).
 
 **Part-list cuing (v0.2):** in `discussEvent`, the speaker's narration IS a
@@ -1634,6 +1652,47 @@ and `tell-me-about` prompts can NEVER reach latent records — the
 childhood-home-scene cue pattern is the only door (P136 sign-locks the
 cue requirement).
 
+### 5.21 Metamemory instruments — FOK and JOL (new in v2.1)
+
+The character's sense of its own memory, computed from retrieval
+*products*, never from the trace itself (Koriat's accessibility model,
+Koriat 1993; Koriat & Levy-Sadot 2001). Full grounding and rationale:
+formal-model.md §19.
+
+**Feeling-of-knowing** — computed on recall failure and TOT returns:
+
+```
+partialScore = (# verbatim fields above candStrength floor)/(# encoded)
+fok = logistic(k_fok·(a_cue·cueMatch_ext + a_part·partialScore
+      + a_fam·familiarity(targetPerson) − θ_fok)) + N(0, fok_noise)
+episodic records, older characters: fok += N(0, fok_age_noise·age_eff/70)
+   — episodic-only sensitivity loss (Souchay et al. 2000; meta g=0.53
+     episodic / ~0 semantic, Sacher et al. 2023); semantic FOK intact
+```
+
+`fok` is returned on the Reconstruction (hidden — it steers dialogue
+and effort, it is not content). `fok > fok_retry` (0.6) triggers one
+follow-up scan at `search_breadth/2` — fragments beget digging. FOK is
+accuracy-blind BY DESIGN: confabulated and phantom records produce high
+fok (P194 sign-locks the dissociation — an oracle that tracks
+correctness is not a feeling).
+
+**Judgment-of-learning** — `encodeEvent` stamps hidden `jol`:
+
+```
+jol = logistic(k_jol·(E + jol_fluency·fluencyNow − θ_jol)),
+fluencyNow = attention·(1 − lapse)
+```
+
+The `jol_fluency` term is the immediate-JOL bias: still-warm fluent
+content feels learned even when E is low — immediate JOL gamma ≈ .45
+vs .93 delayed (Nelson & Dunlosky 1991; Rhodes & Castel 2008 meta
+g = 0.93). On the first retrieval/ecology fire past 1 day, the
+delayed product (`drive_achieved`) feeds the SelfModel via `metamem_r`.
+`jol` modulates `strategy_use` (v1.0): low jol × high stakes (open
+loop, intention) → write-it-down/ask-someone behavior. Per-character
+`jol_bias` offsets the intercept — the chronic under/over-estimator.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -1665,7 +1724,7 @@ emotional-memory.md §3).
 
 When character hears an account of an event they have a memory of:
 ```
-if similarity(myMemory, heardAccount) > 0.4:
+if simOp(myMemory, heardAccount, "sim_misinfo") > 0.4:
     for each conflicting detail field:
         p_adopt = misinfo_suscept · sourceCredibility
                 · (1 − fieldStrength)              // v0.6: per-field
@@ -1901,7 +1960,7 @@ false-memory.md §6):
 sourceInfer(m): if source.confidenceInSource < 0.3:
   external-external: with prob source_confuse (≈0.1, ·discrim_mult for
       age), reassign source.who to the most cue-overlapping plausible
-      source s: P(s) ∝ sim(m.source.cueContext, s)·credibility(s)
+      source s: P(s) ∝ simOp(m.source.cueContext, s, "sim_source")·credibility(s)
       — and confidence += 0.02 (a filled source reads better than blank)
       v0.8: weight candidates by social category — ~source_cat_share
       (0.65) of external confusions land on candidates sharing
@@ -2166,7 +2225,7 @@ Distinct from §6.5 (content convergence): this is the **confidence**
 channel. When two accounts are compared in `hearAccount`/`discussEvent`:
 
 ```
-core fields match (sim(·,·) > merge_thresh on who/what/where):
+core fields match (simOp(·,·,"sim_merge") > merge_thresh on who/what/where):
   BOTH parties' records: conf += corroborate_conf (≈0.15) — mutual
       validation; whoever was right, both leave more certain
       (Wells & Bradfield 1998 — post-ID feedback inflates confidence,
@@ -2417,9 +2476,19 @@ MemoryParams = {
   "intox_encode_mult": 0.3,  // E floor at intox=1 — anterograde (White 2003)
   "intox_state_dep": 0.05,   // encode/retrieval intox-match cue (DEBATED)
   "aging_rate": 0.0,         // trait passthrough: age_eff slope N(0,1)
-  "fitness": 0.0             // trait passthrough: age_eff offset −0.15·fitness
+  "fitness": 0.0,            // trait passthrough: age_eff offset −0.15·fitness
   "open_loop_gain": 0.12,    // intrusion/drive boost on open:true records
   "open_self_gate": 0.4,     // selfRelevance floor for open tagging
+  // v2.1 additions (formal-model III — measurement layer,
+  // formal-model.md §§18–23; free/frozen per the §23 audit table)
+  "sim_tau_time": 14.0,      // when-distance feature scale, days (§11.1)
+  "place_adj": 0.3,          // adjacent-venue partial match (§11.1)
+  "a_cue": 0.4, "a_part": 0.45, "a_fam": 0.15,  // FOK accessibility (§5.21)
+  "theta_fok": 0.5, "k_fok": 6.0, "fok_noise": 0.08,
+  "fok_age_noise": 0.25,     // episodic FOK sensitivity loss w/ age (§5.21)
+  "fok_retry": 0.6,          // failed-recall rescan gate (§5.21)
+  "jol_fluency": 0.5,        // immediate-JOL fluency inflation (§5.21)
+  "theta_jol": 0.5, "k_jol": 6.0, "jol_bias": 0.0
   // v1.2 additions (encoding-mechanics calibration,
   // encoding-mechanics.md §11)
   "elab_gain": 0.25,         // deep/elaborative processing term (LoP)
@@ -3007,3 +3076,47 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - record schema gains `shared_with` (list), `confidential`,
     `secret_str`, `retellCount`, `absorbed` (hidden flag set on the
     §6.23 flip — harness-readable provenance change marker).
+- v2.1 additions (formal-model.md Part III §§18–25 — measurement layer):
+  - all `similarity`/`sim` call sites now resolve through
+    `simOp(a, b, mask)` (§11.1) with the mask table in formal-model.md
+    §18 — the operator is pure and free to call anywhere; the masks are
+    part of the spec (change a mask, change a probe).
+  - `recall` failures and TOT returns carry `fok` (hidden,
+    harness-readable) + one optional rescan when `fok > fok_retry`
+    (§5.21). Dialogue uses it for "it's right there…" effort and for
+    deciding whether to dig; it is NOT exposed as a number.
+  - `encodeEvent` returns/stamps hidden `jol` (§5.21); delayed
+    judgments feed `selfReport`'s SelfModel via `metamem_r`.
+  - stochastic draws obey the §22 axioms: truncated Gaussians, uniform
+    drift steps, integer RNG, `rand(seed, charId, day, opTag, i)`
+    namespaced sequencing — probe-safe refactors.
+
+## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
+
+### 11.1 `simOp(a, b, mask)` — the only similarity function
+
+```
+simOp(a,b,mask) = Σ_f w_f(mask)·match_f(a_f,b_f) / Σ_f w_f(mask)
+match_f: people/topics/sensory = jaccard; place = 1|place_adj|0;
+         mood = 1−|Δ|/2; when = exp(−|Δday|/sim_tau_time);
+         names = {1.0 equal, 0.7 same phonological key,
+                  0.4 same onset+length class, 0 else}
+```
+
+Masks (weight vectors, normalized per row): `sim_interf`,
+`sim_merge`, `sim_cond`, `sim_rif`, `sim_misinfo`, `sim_source`,
+`sim_remind`, `sim_person` — table and per-mask rationale in
+formal-model.md §18. Call sites: §4.2 → sim_interf; §4.3/§4.11/§6.23
+→ sim_merge; §4.9 → sim_cond; §5.8 → sim_rif; §6.3 → sim_misinfo;
+§6.10 → sim_source; §5.17 → sim_remind; §5.10/§6.10 name tier →
+sim_person. A callsite running a custom weight vector instead of its
+mask is a spec violation (P193 probes mask distinctness).
+
+### 11.2 Distribution axioms (normative, formal-model.md §22)
+
+Truncated-Gaussian draws (±3σ then domain-clamp); drift steps
+`drift_k·U(0.5,1.5)`; integer RNG (splitmix64-class) with
+`rand(seed_base, charId, worldDay, opTag, i)` — opTag namespaces make
+probe harnesses refactor-safe; correlated draws share the first
+uniform where the mechanism is causal (one distracted moment → bad
+encode AND bad retrieval).

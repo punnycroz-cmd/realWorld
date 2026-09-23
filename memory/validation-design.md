@@ -876,3 +876,46 @@ drives, social validation of confidence, secrets, canonization.
   they're gone." Constrains `transact_loss`.
 
 Registry now P1–P192; numbering stable.
+
+## 20. New probes P193–P200 (v21, formal-model III suite)
+
+The measurement layer: the similarity operator, metamemory
+instruments, steady-state census, and composite conformance.
+
+- **P193 similarity-mask sensitivity (MUST — structure):** a
+  same-week/same-topic/different-people pair scores above
+  `interf_thresh` under `sim_interf` but below `merge_thresh` under
+  `sim_merge` — interference without fusion. Name tier:
+  "Mara"/"Marta" beats "Mara"/"Dolores" under `sim_person` at equal
+  featural overlap (phonological confusability, Conrad & Hull 1964).
+  FAIL if any mask is a no-op. Constrains the §18 mask table.
+- **P194 FOK accessibility dissociation (MUST — sign):** across failed
+  recalls, `fok` correlates with `partialScore`/`cueMatch_ext`, NOT
+  `accuracy`; phantom/confabulated records yield fok ≥ median of true
+  records (Koriat 1993 — accessibility, not correctness). FAIL if fok
+  tracks accuracy — that's an oracle, not a feeling.
+- **P195 FOK aging split (SHOULD):** episodic fok→recognition gamma
+  ≈ chance in older characters while semantic fok stays calibrated
+  (Souchay et al. 2000; Sacher et al. 2023 meta g=0.53/−0.10).
+  Constrains `fok_age_noise`.
+- **P196 JOL inflation (SHOULD):** fluent-shallow encodings (high
+  attention, low E — lapse/DA/intox) yield `jol − P(recall@30d)` > 0.15
+  while matched unfluent encodings sit near zero (Nelson & Dunlosky
+  1991; Rhodes & Castel 2008). Low-jol high-stakes records raise
+  strategy_use outputs. Constrains `jol_fluency`.
+- **P197 census band (MUST — regression):** steady-state N_live ∈
+  [0.5, 2]·λ·E[t_death] over 200 scripted sim-days at λ ∈ {10,20,40};
+  cap_episodic never binds below λ=40 — forgetting regulates
+  population, caps only bound bursts.
+- **P198 canonization ordering (SHOULD):** T_canon orders by
+  talk-frequency not age — matched-age records, weekly-retold vs
+  never-retold: only the retold one canonizes. Constrains retellCount.
+- **P199 chain attrition (SHOULD):** verbatim survival across n hops ∈
+  [(1−level_frac−0.05)^n, (1−level_frac+0.05)^n], n ≤ 5 (~17% at
+  hop 5). Constrains `level_frac`.
+- **P200 composite conformance (MUST — regression golden):** measured
+  episodic/semantic t½ ∈ [0.8,1.25]·τ(2^(1/β)−1); hop half-life within
+  15% of n½ = ln.5/ln(1−level_frac). The eight formal-model §21
+  composites are the model's published fingerprint.
+
+Registry now P1–P200; numbering stable.

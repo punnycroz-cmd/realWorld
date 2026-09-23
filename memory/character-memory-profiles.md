@@ -811,3 +811,27 @@ rather than age-curved; archetype deltas:
   are social-validated too); no `vivid` → `absorb_p` (repetition and
   relevance do it, not imagery); `meta_cal` does not undo corroboration
   (inflation is to stored confidence, not report calibration).
+
+## 10. v2.1 note — formal-model III: metamemory instruments & sim masks
+
+The v2.1 additions are mostly population machinery (simOp masks, FOK
+weights, JOL weights are frozen constants). Per-character surface is
+small by design — metamemory variance is calibration, not organ
+difference:
+
+- **`fok_age_noise`** (clamp 0–0.5): the "knows less than they feel"
+  trait. Older-adult archetype rides the age_eff formula (no manual
+  bump needed); a midlife bible may pin it up for a genuinely
+  declining character (frontal-linked deficit, Souchay 2000).
+- **`jol_bias`** (clamp −0.3..+0.3): chronic self-under/over-estimator.
+  The anxious bible modifier (neurot high) → −0.15; the confident
+  modifier → +0.15. Deliberate null: jol_bias does NOT touch accuracy.
+- **Modifiers:** "checker" bible modifier now also lowers fok_retry
+  behaviorally (keeps digging — verify-mode callers consume fok);
+  "absent-minded" raises jol_fluency sensitivity implicitly via lower
+  E/fluency dissociation under lapse_p — no extra param.
+- **Deliberate nulls:** no trait → sim masks (similarity is physics,
+  not personality); no `vivid` → fok (imagery-rich people get higher
+  partialScore through verbatim survival, which is the correct causal
+  path); `meta_cal` does not correct fok (calibration is at report,
+  the feeling is upstream).
