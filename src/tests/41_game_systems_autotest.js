@@ -194,6 +194,41 @@ runAutoTest = async function(){
         mig.rows.find(r => r.cid === 'C2').via === 'unpermitted' &&
         mig.rows.find(r => r.cid === 'C3').via === 'unpermitted',
         'gs: v4 bible migration — every HOUSEHOLD matches its canonical address');
+
+    /* ---- v10: the deed office seed — the live board + the drama ----
+       housing.json listings_live verbatim: three public rent cards, and
+       Victor's two Guerrero buildings quietly shopped — pocket listings
+       that exist for the deal flow but never reach the board or wire. */
+    if(typeof gsListingsBoard === 'function'){
+      const brd = gsListingsBoard();
+      log(brd.length === 3 &&
+          brd.some(c => /9418 Guerrero Street/.test(c.address) &&
+              c.kind === 'rent' && c.ask === 2100) &&
+          brd.some(c => /9457 Guerrero Street/.test(c.address) &&
+              c.kind === 'rent' && c.ask === 1350) &&
+          brd.some(c => /9127 Capp Street/.test(c.address) &&
+              c.kind === 'rent' && c.ask === 1300),
+          'gs: v10 the seed board carries the world\'s three live cards');
+      const b9418 = GS_REG.buildings.find(b => b.canon === 'home-c6');
+      const b9457s = GS_REG.buildings.find(b => b.canon === 'home-c4c5');
+      log(b9418 && b9457s &&
+          gsQuietListings().indexOf(b9418.id) >= 0 &&
+          gsQuietListings().indexOf(b9457s.id) >= 0 &&
+          gsListingsPublic()[b9418.id] === undefined &&
+          gsViewerState().listings[b9457s.id] === undefined &&
+          gsListingCard(b9418.id) === null &&
+          gsListingCard(b9418.id, { internal: true }) !== null &&
+          gsListingCard(b9418.id, { internal: true }).carriesNote === true,
+          'gs: v10 Victor\'s two buildings are pocket listings — ' +
+          'invisible publicly, real internally');
+      log(!gsWire({ limit: 300 }).some(e =>
+            /9418 Guerrero|9457 Guerrero|9127 Capp/.test(e.text) &&
+            /Listed|Sold/.test(e.text)),
+          'gs: v10 seed stock never posts a wire line');
+      log(gsListingAudit().ok === true,
+          'gs: v10 the listing audit is clean on the live seed',
+          gsListingAudit().issues.slice(0, 3).join('; ') || 'clean');
+    }
   }
 
   /* ---------- isolated unit tests on reset state ---------- */
@@ -3036,6 +3071,467 @@ runAutoTest = async function(){
     gsPlayerOnline('p9', 88200);
     gsPlayerOnline('hQ', 88200);
     gsOffTick(88200);
+
+    /* ==================== v10: THE DEED OFFICE ====================
+       listings, escrow, deeds, obligations, license — the
+       tenant->owner arc end to end on fresh stock. Bare block keeps
+       v10 names out of the shared suite scope. */
+    {
+      gsCreditGrant('p10', 90000, 'v10 stake');
+      gsCreditGrant('p11', 90000, 'v10 stake');
+      gsCreditGrant('p12', 30000, 'v10 stake');
+      gsCreditGrant('p13', 100, 'v10 lean stake');
+      gsMarkHired('H80', 'p10'); gsMarkHired('H82', 'p10');
+      gsMarkHired('H81', 'p11'); gsMarkHired('H83', 'p11');
+      gsMarkHired('H84', 'p12'); gsMarkHired('H85', 'p13');
+      const bA = gsRegisterBuilding({ street: 'Escrow Street',
+        owner_id: 'landlord' });
+      const bN = gsRegisterBuilding({ street: 'Note Street',
+        owner_id: 'landlord' });
+      const bW = gsRegisterBuilding({ street: 'Wholesale Street',
+        owner_id: 'landlord' });
+      const uA = gsRegisterUnit(bA.id, { unit_code: 'A', bedrooms: 1,
+        base_rent: 1500 });
+      const uB = gsRegisterUnit(bA.id, { unit_code: 'B', bedrooms: 2,
+        base_rent: 2100 });
+      const uC = gsRegisterUnit(bA.id, { unit_code: 'C', bedrooms: 0,
+        base_rent: 1200 });
+      const uD = gsRegisterUnit(bN.id, { unit_code: 'D', bedrooms: 1,
+        base_rent: 1600 });
+      const uN = gsRegisterUnit(bN.id, { unit_code: 'N', bedrooms: 3,
+        base_rent: 3200 });
+      const uF = gsRegisterUnit(bN.id, { unit_code: 'F', bedrooms: 1,
+        base_rent: 1500 });
+      const uG = gsRegisterUnit(bN.id, { unit_code: 'G', bedrooms: 0,
+        base_rent: 1100 });
+      const uH = gsRegisterUnit(bN.id, { unit_code: 'H', bedrooms: 1,
+        base_rent: 1300 });
+      const wA = gsRegisterUnit(bW.id, { unit_code: '1', bedrooms: 1,
+        base_rent: 1400 });
+      const wB = gsRegisterUnit(bW.id, { unit_code: '2', bedrooms: 1,
+        base_rent: 1400 });
+      const wC = gsRegisterUnit(bW.id, { unit_code: '3', bedrooms: 0,
+        base_rent: 1100 });
+
+      /* -- the vacancy wheel: a move-out posts the card, a signature
+            fills it -- */
+      gsSignLease(uA.id, 'T-A', { start: '2020-01-01', monthly_rent: 1500 });
+      log(!GS_LISTINGS[uA.id],
+          'gs: v10 an occupied unit carries no card');
+      gsVacate(uA.id, { date: '2026-09-01' });
+      const cardA = GS_LISTINGS[uA.id];
+      log(cardA && cardA.kind === 'rent' && cardA.auto === true &&
+          !cardA.quiet && cardA.address === gsAddressOfUnit(uA.id) &&
+          cardA.ask === 1500 &&
+          gsListingsBoard().some(c => c.id === uA.id) &&
+          gsListingCard(uA.id).rent === 1500,
+          'gs: v10 a move-out posts the unit\'s rent card itself');
+      gsSignLease(uA.id, 'T-B', { start: '2026-10-01', monthly_rent: 1500 });
+      log(!GS_LISTINGS[uA.id] &&
+          gsWire({ limit: 60 }).some(e =>
+            /comes off the board/.test(e.text)),
+          'gs: v10 a new signature fills the card — board + wire update');
+
+      /* -- listing filings: ownership, structure, one card per door -- */
+      const lNoOwn = gsSubmitRequest({ playerId: 'p10', kind: 'listing',
+        target: uB.id, durationMin: 60,
+        params: { kind: 'sale', ask: 300000 } }, 90000);
+      const lOcc = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+        target: uA.id, durationMin: 60,
+        params: { kind: 'rent', ask: 1500 } }, 90000);
+      const lBad = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+        target: 'unit-nope', durationMin: 60, params: { ask: 1 } }, 90000);
+      log(lNoOwn.reason === 'not_owner' && lOcc.reason === 'unit_occupied' &&
+          lBad.reason === 'unknown_unit',
+          'gs: v10 listing checks ownership, vacancy, and a real door');
+      const lSale = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+        target: uB.id, durationMin: 60,
+        params: { kind: 'sale', ask: 300000,
+                  note: 'Seller motivated — bring your inspector.' } },
+        90001);
+      const lDup = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+        target: uB.id, durationMin: 60,
+        params: { kind: 'sale', ask: 300000 } }, 90002);
+      const cardB = gsListingCard(uB.id);
+      log(lSale.status === 'active' && lDup.reason === 'already_listed' &&
+          cardB && cardB.kind === 'sale' && cardB.ask === 300000 &&
+          cardB.sellerLine === 'Seller motivated — bring your inspector.' &&
+          cardB.deedFeeCr === 3500 &&
+          /Honest flaw:/.test(cardB.copy) &&
+          !/hash|addr_idx|9000\s*\+|%\s*900|generation rule|generated by|formula|deterministic/i
+            .test(cardB.copy),
+          'gs: v10 a sale card posts with seller line + honest copy — ' +
+          'the mint rule is never text');
+
+      /* -- the buy gauntlet: asking only, hired buyer, real money --
+         (denials are spread across targets + players so no pair trips
+         the v7 repeat-pattern review lane before the real buy) */
+      gsListUnit(uC.id, { kind: 'rent', ask: 1200, by: 'landlord' });
+      const buyRent = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: uC.id, durationMin: 1, params: { buyerId: 'H80' } }, 90010);
+      const buyGhost = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: 'unit-nope', durationMin: 1,
+        params: { buyerId: 'H80' } }, 90010);
+      const buyStranger = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uB.id, durationMin: 1, params: { buyerId: 'H80' } }, 90010);
+      const buyLow = gsSubmitRequest({ playerId: 'p13', kind: 'buy',
+        target: uB.id, durationMin: 1,
+        params: { buyerId: 'H85', offer: 299999 } }, 90010);
+      const buyFin0 = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uB.id, durationMin: 1,
+        params: { buyerId: 'H81', finance: { downPct: 20 } } }, 90010);
+      const buyBroke = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: uB.id, durationMin: 1, params: { buyerId: 'H80' } }, 90010);
+      gsDollarGrant('H85', 500000, 'v10 savings');
+      const buyPoorCr = gsSubmitRequest({ playerId: 'p13', kind: 'buy',
+        target: uB.id, durationMin: 1, params: { buyerId: 'H85' } }, 90010);
+      log(buyRent.reason === 'not_for_sale' &&
+          buyGhost.reason === 'not_listed' &&
+          buyStranger.reason === 'buyer_not_hired' &&
+          buyLow.reason === 'at_asking_only' &&
+          buyFin0.reason === 'cash_only' &&
+          buyBroke.reason === 'insufficient_dollars' &&
+          buyPoorCr.reason === 'insufficient_credits',
+          'gs: v10 the buy lane refuses everything but asking price, a ' +
+          'hired buyer, real dollars, and the deed fee in credits');
+
+      /* -- a cash buy: dollars to the seller, fee in credits, title -- */
+      gsDollarGrant('H80', 300000, 'v10 savings');
+      const landB4 = gsDollarBalance('landlord');
+      const crB4 = gsCreditBalance('p10');
+      const buyB = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: uB.id, durationMin: 1,
+        params: { buyerId: 'H80', date: '2019-01-01' } }, 90011);
+      const deedB = gsDeedOf(uB.id);
+      log(buyB.status === 'active' && buyB.billed === 25 &&
+          gsUnitById(uB.id).owner_id === 'H80' &&
+          gsDollarBalance('H80') === 0 &&
+          gsDollarBalance('landlord') === landB4 + 300000 &&
+          gsCreditBalance('p10') === crB4 - 25 - 3500 &&
+          !GS_LISTINGS[uB.id] &&
+          deedB && deedB.scope === 'unit' && deedB.owner === 'H80' &&
+          deedB.seller === 'landlord' && deedB.mortgage === null &&
+          deedB.taxMo === Math.round(300000 * 0.0118 / 12) &&
+          deedB.hoaMo === 480 &&
+          gsActiveLease(uB.id) === null &&
+          gsDeedLog().some(e => e.id === uB.id && e.to === 'H80' &&
+            e.from === 'landlord' && e.price === 300000),
+          'gs: v10 a cash buy moves dollars, bills credits once, writes ' +
+          'owner_id + a deed — never a lease',
+          JSON.stringify({ st: buyB.status, rsn: buyB.reason,
+            frsn: buyB.failReason, billed: buyB.billed,
+            own: gsUnitById(uB.id).owner_id,
+            h80: gsDollarBalance('H80'), cr: gsCreditBalance('p10'),
+            crB4: crB4, deed: !!deedB,
+            lst: !!GS_LISTINGS[uB.id] }));
+      log(gsWire({ limit: 40 }).some(e =>
+            /Sold — .*Escrow Street.*changes hands/.test(e.text)) &&
+          !gsWire({ limit: 40 }).some(e =>
+            /Sold/.test(e.text) && /300,?000/.test(e.text)),
+          'gs: v10 the sale line prints the address, never the price');
+      log(gsRequestById(lSale.id).status === 'completed',
+          'gs: v10 the seller\'s filing wraps when the deal closes');
+
+      /* -- seller-carried financing: real amortization, real rules -- */
+      const mm = gsMortgageMath(400000, 20, 30);
+      const mmExp = Math.round(320000 * (0.068 / 12) *
+        Math.pow(1 + 0.068 / 12, 360) / (Math.pow(1 + 0.068 / 12, 360) - 1));
+      log(mm.down === 80000 && mm.principal === 320000 &&
+          mm.monthly === mmExp && mm.rate === 0.068 && mm.termM === 360,
+          'gs: v10 gsMortgageMath is the real amortization formula');
+      gsQuietShop(uN.id, { ask: 800000, by: 'landlord' });
+      const cardN = gsListingCard(uN.id, { internal: true });
+      log(gsListingCard(uN.id) === null &&
+          gsQuietListings().indexOf(uN.id) >= 0 &&
+          gsListingsPublic()[uN.id] === undefined &&
+          gsViewerState().listings[uN.id] === undefined &&
+          cardN && cardN.quiet === true && cardN.carriesNote === true &&
+          cardN.financePreview.down === 160000 &&
+          cardN.financePreview.rate === 0.068,
+          'gs: v10 a pocket listing is invisible everywhere but the ' +
+          'deal — with the financing spelled out for the buyer');
+      const finLow = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: uN.id, durationMin: 1,
+        params: { buyerId: 'H82', finance: { downPct: 10 } } }, 90020);
+      const finTerm = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: uN.id, durationMin: 1,
+        params: { buyerId: 'H82', finance: { downPct: 20, years: 40 } } },
+        90020);
+      log(finLow.reason === 'low_down' && finTerm.reason === 'bad_term',
+          'gs: v10 the note demands 20% down inside a 5–30 year term');
+      gsDollarGrant('H82', 200000, 'v10 savings');
+      const finN = gsMortgageMath(800000, 25, 20);
+      const landB5 = gsDollarBalance('landlord');
+      const buyN = gsSubmitRequest({ playerId: 'p10', kind: 'buy',
+        target: uN.id, durationMin: 1,
+        params: { buyerId: 'H82', finance: { downPct: 25, years: 20 },
+                  date: '2026-09-20' } }, 90021);
+      const deedN = gsDeedOf(uN.id);
+      log(buyN.status === 'active' &&
+          gsUnitById(uN.id).owner_id === 'H82' &&
+          gsDollarBalance('H82') === 0 &&
+          gsDollarBalance('landlord') === landB5 + finN.down &&
+          deedN.mortgage && deedN.mortgage.holder === 'landlord' &&
+          deedN.mortgage.remaining === finN.principal &&
+          deedN.mortgage.monthly === finN.monthly &&
+          deedN.mortgage.paidN === 0,
+          'gs: v10 seller-carried escrow — the down payment lands, the ' +
+          'note rides the deed at 6.8%');
+      log(!GS_LISTINGS[uN.id] &&
+          gsWire({ limit: 40 }).some(e =>
+            /Sold — .*Note Street.*changes hands/.test(e.text)),
+          'gs: v10 the quiet sale surfaces the day it closes');
+      /* the closed buy's claim rests at its endMin — tick the bus so the
+         next escrow on the same door isn't stuck behind it */
+      gsBusTick(90030);
+
+      /* -- escrow honesty: the seller's own note settles first -- */
+      const reList = gsSubmitRequest({ playerId: 'p10', kind: 'listing',
+        target: uN.id, durationMin: 60,
+        params: { kind: 'sale', ask: 550000 } }, 90040);
+      log(reList.status === 'active',
+          'gs: v10 the new owner can re-list — p10 holds H82\'s deed');
+      gsDollarGrant('H81', 600000, 'v10 savings');
+      const under = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uN.id, durationMin: 1, params: { buyerId: 'H81' } }, 90041);
+      log(under.status === 'failed' &&
+          under.failReason === 'seller_underwater',
+          'gs: v10 an underwater sale cannot close — the carried note ' +
+          'outlives the asking price');
+      gsDelist(uN.id);
+      gsListUnit(uN.id, { kind: 'sale', ask: 900000, by: 'H82' });
+      gsDollarGrant('H81', 300000, 'v10 savings');
+      const landB6 = gsDollarBalance('landlord');
+      const buyRe = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uN.id, durationMin: 1,
+        params: { buyerId: 'H81', date: '2026-09-20' } }, 90042);
+      log(buyRe.status === 'active' &&
+          gsUnitById(uN.id).owner_id === 'H81' &&
+          gsDollarBalance('H81') === 0 &&
+          gsDollarBalance('landlord') === landB6 + 600000 &&
+          gsDollarBalance('H82') === 300000 &&
+          deedN.status === 'sold' && deedN.mortgage.status === 'closed' &&
+          gsDeedOf(uN.id).owner === 'H81' && !gsDeedOf(uN.id).mortgage &&
+          gsDeedLog().some(e => e.id === uN.id && e.to === 'H81' &&
+            e.price === 900000),
+          'gs: v10 escrow pays the carried note out of proceeds, the ' +
+          'seller keeps the rest, the deed moves');
+
+      /* -- the tenant->owner turn: buying your own door stops the rent -- */
+      gsSignLease(uD.id, 'H83', { start: '2025-01-01', monthly_rent: 1600 });
+      gsListUnit(uD.id, { kind: 'sale', ask: 220000, by: 'landlord' });
+      gsDollarGrant('H83', 250000, 'v10 savings');
+      const buyOcc = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uD.id, durationMin: 1,
+        params: { buyerId: 'H83', date: '2026-09-20' } }, 90050);
+      const leaseOcc = gsActiveLease(uD.id);
+      log(buyOcc.status === 'active' &&
+          gsUnitById(uD.id).owner_id === 'H83' &&
+          leaseOcc && leaseOcc.status === 'owner-occupied' &&
+          leaseOcc.monthly_rent === 0 && leaseOcc.wasRent === 1600 &&
+          gsDeedOf(uD.id).owner === 'H83',
+          'gs: v10 the buying tenant becomes owner-occupant — the lease ' +
+          'keeps its history, rent stops');
+      log(gsCollectRent(uD.id, {}).ok === false,
+          'gs: v10 no rent run can bill an owner-occupied door');
+
+      /* -- the whole-deed sale: Victor's move, in miniature -- */
+      gsSignLease(wA.id, 'T-W', { start: '2021-03-01', monthly_rent: 1400 });
+      gsListUnit(wB.id, { kind: 'rent', ask: 1400, by: 'landlord' });
+      gsListUnit(wC.id, { kind: 'sale', ask: 150000, by: 'landlord' });
+      const bldBlocked = gsQuietShop(bW.id, { ask: 400000 });
+      log(bldBlocked.reason === 'unit_listed',
+          'gs: v10 a unit\'s sale card blocks the whole-deed filing');
+      gsDelist(wC.id);
+      const wN = gsWire({ limit: 999 }).length;
+      gsQuietShop(bW.id, { ask: 400000, by: 'landlord' });
+      log(GS_BLD_LISTINGS[bW.id] &&
+          gsQuietListings().indexOf(bW.id) >= 0 &&
+          gsListingsBoard().every(c => c.id !== bW.id) &&
+          gsViewerState().listings[bW.id] === undefined &&
+          gsWire({ limit: 999 }).length === wN &&
+          gsListingsBoard().some(c => c.id === wB.id),
+          'gs: v10 a pocket building listing is invisible — the ' +
+          'members\' rent cards stay public');
+      const unitSaleBlocked = gsListUnit(wC.id,
+        { kind: 'sale', ask: 150000 });
+      const unitRentOk = gsListUnit(wC.id,
+        { kind: 'rent', ask: 1100, by: 'landlord' });
+      log(unitSaleBlocked.reason === 'bld_listed' && unitRentOk.ok === true,
+          'gs: v10 a shopped building blocks member sale cards but not ' +
+          'rent cards');
+      gsDollarGrant('H81', 450000, 'v10 savings');
+      const buyBld = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: bW.id, durationMin: 1,
+        params: { buyerId: 'H81', date: '2026-09-14' } }, 90060);
+      const deedW = gsDeedOf(bW.id);
+      log(buyBld.status === 'active' &&
+          gsBldById(bW.id).owner_id === 'H81' &&
+          !GS_BLD_LISTINGS[bW.id] &&
+          !GS_LISTINGS[wB.id] && !GS_LISTINGS[wC.id] &&
+          deedW && deedW.scope === 'building' && deedW.hoaMo === 0 &&
+          deedW.owner === 'H81' &&
+          gsActiveLease(wA.id).tenant_id === 'T-W',
+          'gs: v10 a building sale writes the deed, pulls every member ' +
+          'card, and leaves the tenants alone');
+      log(gsWire({ limit: 40 }).some(e =>
+            /Sold — .*Wholesale Street.*changes hands/.test(e.text)),
+          'gs: v10 the pocket listing\'s sale is the day the block ' +
+          'finds out');
+
+      /* -- the monthly book: mortgage, county, association -- */
+      gsListUnit(uF.id, { kind: 'sale', ask: 100000, by: 'landlord',
+                          carriesNote: true });
+      const moF = gsMortgageMath(100000, 20, 30);
+      const taxF = Math.round(100000 * 0.0118 / 12);
+      const buyF = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uF.id, durationMin: 1,
+        params: { buyerId: 'H83', finance: { downPct: 20, years: 30 },
+                  date: '2026-09-01' } }, 90070);
+      /* leave exactly 300 on the books — a short month on purpose */
+      gsDollarPay('H83', 'landlord', gsDollarBalance('H83') - 300, 'v10');
+      const tick1 = gsDeedTick('2026-10-01');
+      const ob1 = gsObligationsOf(uF.id);
+      log(buyF.status === 'active' && tick1 &&
+          tick1.due.indexOf(uF.id) >= 0 &&
+          ob1.owed.mortgage === moF.monthly - 300 &&
+          ob1.owed.tax === taxF && ob1.owed.hoa === 320 &&
+          ob1.missedN === 1 && ob1.mortgage.remaining === 80000 &&
+          gsDollarBalance('H83') === 0,
+          'gs: v10 a short month pays what it can — arrears land in ' +
+          'the right buckets, principal untouched under the interest');
+      const arrearsF = moF.monthly - 300 + taxF + 320;
+      gsDollarGrant('H83', 2000, 'v10 cure');
+      const cure = gsPayDeed(uF.id, 2000, '2026-10-02');
+      log(cure.ok === true && cure.remaining === 0 &&
+          cure.paid.mortgage === moF.monthly - 300 &&
+          cure.paid.tax === taxF && cure.paid.hoa === 320 &&
+          gsObligationsOf(uF.id).missedN === 0 &&
+          gsDollarBalance('H83') === 2000 - arrearsF,
+          'gs: v10 arrears pay down in book order — a full cure resets ' +
+          'the miss clock');
+
+      /* -- two missed months: foreclosable, then the admin transfer -- */
+      gsListUnit(uG.id, { kind: 'sale', ask: 60000, by: 'landlord' });
+      gsDollarGrant('H83', 70000, 'v10 savings');
+      const buyG = gsSubmitRequest({ playerId: 'p11', kind: 'buy',
+        target: uG.id, durationMin: 1,
+        params: { buyerId: 'H83', date: '2026-09-01' } }, 90080);
+      gsDollarPay('H83', 'landlord', gsDollarBalance('H83'), 'v10 drain');
+      gsDeedTick('2026-11-01');
+      const tick3 = gsDeedTick('2026-12-01');
+      const obG = gsObligationsOf(uG.id);
+      const fcNo = gsAdminForeclose(uD.id);   // clean deed — refused
+      const fc = gsAdminForeclose(uG.id);
+      log(buyG.status === 'active' && obG.missedN >= 2 &&
+          tick3.foreclosable.indexOf(uG.id) >= 0 &&
+          fcNo.reason === 'not_delinquent' &&
+          fc.ok === true && fc.to === 'landlord' &&
+          gsUnitById(uG.id).owner_id === 'landlord' &&
+          gsDeedOf(uG.id).status === 'foreclosed' &&
+          gsWire({ limit: 60 }).some(e =>
+            /title transferred/.test(e.text) && /Note Street/.test(e.text)),
+          'gs: v10 two missed months make a deed foreclosable — the ' +
+          'admin reverts title to the note holder, on the record');
+
+      /* -- the landlord license: earned, scoped, capped -- */
+      const licNoDeed = gsSubmitRequest({ playerId: 'p13', kind: 'license',
+        durationMin: 1 }, 90090);
+      gsListUnit(uH.id, { kind: 'sale', ask: 80000, by: 'landlord' });
+      gsDollarGrant('H84', 80000, 'v10 savings');
+      const buyH = gsSubmitRequest({ playerId: 'p12', kind: 'buy',
+        target: uH.id, durationMin: 1,
+        params: { buyerId: 'H84' } }, 90091);   // no date -> deed today
+      const licEarly = gsSubmitRequest({ playerId: 'p12', kind: 'license',
+        durationMin: 1 }, 90092);
+      const licOk = gsSubmitRequest({ playerId: 'p10', kind: 'license',
+        durationMin: 1 }, 90093);
+      const licDup = gsSubmitRequest({ playerId: 'p10', kind: 'license',
+        durationMin: 1 }, 90094);
+      log(licNoDeed.reason === 'no_deed' && buyH.status === 'active' &&
+          licEarly.reason === 'own_30_days' &&
+          licOk.status === 'active' && licOk.billed === 2000 &&
+          gsLicensed('p10') === true &&
+          licDup.reason === 'already_licensed' &&
+          gsWire({ limit: 60 }).some(e =>
+            /landlord license was issued/.test(e.text)),
+          'gs: v10 the license is earned — 30 days of deed, a clean ' +
+          'record, 2000cr, once');
+      gsSignLease(uB.id, 'T-L', { start: '2020-01-01', monthly_rent: 2000 });
+      const stNo = gsLandlordStatement('p11', uB.id);
+      const stOwn = gsLandlordStatement('p10', uA.id);
+      const stOk = gsLandlordStatement('p10', uB.id);
+      log(gsLandlordUnits('p10').indexOf(uB.id) >= 0 &&
+          gsLandlordUnits('p10').indexOf(uA.id) < 0 &&
+          stNo.reason === 'not_licensed' &&
+          stOwn.reason === 'not_your_unit' &&
+          stOk.ok === true && stOk.statement.tenant === 'T-L',
+          'gs: v10 the toolbox sees only the player\'s own doors');
+      const rOver = gsLandlordRaise('p10', uB.id, 2500,
+        { date: '2026-09-15' });
+      const rOk = gsLandlordRaise('p10', uB.id, 2140,
+        { date: '2026-09-15' });
+      const nBad = gsLandlordNotice('p10', uB.id, 'pay_or_quit',
+        { date: '2026-09-15' });
+      /* the license never issues no-fault paper — the 30-day
+         termination stays an owner instrument (power_map.never) */
+      const nNoFault = gsLandlordNotice('p10', uB.id, 'termination',
+        { date: '2026-09-15' });
+      gsRecordViolation(uB.id, { kind: 'unpermitted_occupant',
+        who: 'T-L-sub', since: '2026-09-01', discovered: true });
+      const nOk = gsLandlordNotice('p10', uB.id, 'cure_or_quit',
+        { date: '2026-09-15' });
+      const evF = gsLandlordEvictFile('p10', uB.id, { date: '2026-09-15' });
+      log(rOver.reason === 'raise_over_cap' && rOk.ok === true &&
+          rOk.effectiveOn === '2026-10-15' &&
+          nBad.reason === 'nothing_owed' &&
+          nNoFault.reason === 'admin_only' && nOk.ok === true &&
+          evF.ok === true && gsActiveLease(uB.id).evictFiled &&
+          gsWire({ limit: 60 }).some(e =>
+            /eviction filing/.test(e.text)),
+          'gs: v10 notices follow the real ladder — for-cause paper ' +
+          'only, the review still evicts');
+
+      /* -- demolition pulls every card and refunds the filing -- */
+      const bX = gsRegisterBuilding({ street: 'Condemned Alley',
+        owner_id: 'landlord' });
+      const uX = gsRegisterUnit(bX.id, { unit_code: 'A', bedrooms: 1,
+        base_rent: 1400 });
+      const lReq = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+        target: uX.id, durationMin: 60,
+        params: { kind: 'rent', ask: 1400 } }, 90100);
+      log(lReq.status === 'active' && !!GS_LISTINGS[uX.id],
+          'gs: v10 a request-posted card rides the request record');
+      gsRetireBuilding(bX.id, { reason: 'seismic work' });
+      log(!GS_LISTINGS[uX.id] &&
+          gsRequestById(lReq.id).status === 'cancelled' &&
+          gsWire({ limit: 60 }).some(e =>
+            /Delisted — .*Condemned Alley/.test(e.text)),
+          'gs: v10 demolition pulls the card and refunds the filing');
+
+      /* -- the office rides the bus snapshot -- */
+      const snap10 = gsBusSnapshot();
+      const nDeeds10 = Object.keys(GS_DEEDS).length;
+      const nLog10 = gsDeedLog().length;
+      gsBusReset();
+      const wiped = Object.keys(GS_DEEDS).length === 0 &&
+                    gsQuietListings().length === 0 &&
+                    !gsLicensed('p10') &&
+                    Object.keys(GS_LISTINGS).length === 0;
+      gsBusLoad(snap10);
+      log(wiped && Object.keys(GS_DEEDS).length === nDeeds10 &&
+          gsDeedLog().length === nLog10 &&
+          (gsDeedOf(uF.id) || {}).owner === 'H83' &&
+          (gsDeedOf(uG.id) || {}).status === 'foreclosed' &&
+          (gsDeedOf(bW.id) || {}).scope === 'building' &&
+          gsLicensed('p10') === true &&
+          !!GS_LISTINGS[uC.id],
+          'gs: v10 deeds, cards, the transfer book, and licenses ' +
+          'survive the bus snapshot');
+      log(gsListingAudit().ok === true,
+          'gs: v10 the audit is clean after the whole arc',
+          gsListingAudit().issues.slice(0, 3).join('; ') || 'clean');
+    }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

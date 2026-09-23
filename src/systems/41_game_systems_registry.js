@@ -219,6 +219,10 @@ function gsRegisterUnit(bldId, spec){
     rent_controlled: !!(spec && spec.rent_controlled),
     status: 'active',                 // split|merged|retired when withdrawn
     origin: (spec && spec.origin) || 'seed',
+    /* v10: a unit may carry an authored seed listing (world/housing.json
+       listings_live) — the ambient auto-assign in gsLeaseSeedSF steps
+       around it so the card still posts at boot */
+    listing: (spec && spec.listing) || null,
   };
   GS_REG.units.push(u);
   GS_REG_UNIT.set(u.id, u);
@@ -273,6 +277,9 @@ function gsSignLease(unitId, tenantId, spec){
   /* lifecycle enrichment lives in 41_game_systems_leases.js (loads later);
      the typeof guard keeps signing legal before it exists */
   if(typeof gsLeaseInit === 'function') gsLeaseInit(l, spec);
+  /* v10: a signature fills the vacancy's board card (the deed office,
+     loads later still) */
+  if(typeof gsListingFulfilled === 'function') gsListingFulfilled(unitId);
   return l;
 }
 function gsEndLease(unitId, endStamp){
@@ -332,6 +339,15 @@ function gsUnitClaimed(u){
   if(typeof GS_HIRED !== 'undefined')
     for(const cid in GS_HIRED)
       if(GS_HIRED[cid] && GS_HIRED[cid].unitId === u.id) return true;
+  /* v10: a listed door can't be split, merged, or retired out from
+     under the card — delist first (a forced building retire pulls the
+     cards itself). A building-level sale listing binds its units too.
+     GS_LST_ARMED is a var (falsey before the deed office module runs),
+     so this guard is safe even during the load-time seed. */
+  if(typeof GS_LST_ARMED !== 'undefined' && GS_LST_ARMED === true){
+    if(GS_LISTINGS[u.id]) return true;
+    if(GS_BLD_LISTINGS[u.bld_id]) return true;
+  }
   return false;
 }
 /* split a vacant unit into n flats under the SAME building address.
@@ -456,6 +472,12 @@ function gsRetireBuilding(bldId, opts){
       if(occupied) u.retireReason = 'demolished';
     }
   }
+  /* v10: demolition pulls every card the doors carried — the deed
+     office's withdraw cancels live listing requests with refunds */
+  if(typeof gsListingWithdraw === 'function'){
+    for(const uid of b.units) gsListingWithdraw(uid, 'building retired');
+    gsListingWithdraw(bldId, 'building retired');
+  }
   b.status = 'retired';
   GS_REG.retired.push(bldId);
   gsMintLogAdd('retired: ' + (opts.reason || ''), b, { action: 'retire' });
@@ -525,18 +547,23 @@ const GS_CANON_HOMES = [
   { canon: 'home-c6',    anchor: 'g744',  street: 'Guerrero Street',
     hn: 9418, owner: 'C7', style: 'Victorian duplex', units: [
       { unit_code: 'A', bedrooms: 2, base_rent: 950,  rent_controlled: true },
-      { unit_code: 'B', bedrooms: 1, base_rent: 2100, rent_controlled: true } ] },
+      /* housing.json listings_live: this door is a live rent card at
+         boot — the ambient auto-assign must not take it */
+      { unit_code: 'B', bedrooms: 1, base_rent: 2100, rent_controlled: true,
+        listing: { kind: 'rent', ask: 2100, voice: 'owner-direct' } } ] },
   { canon: 'home-c4c5',  anchor: 'g750',  street: 'Guerrero Street',
     hn: 9457, owner: 'C7', style: 'Victorian 3-flat', units: [
       { unit_code: '1', bedrooms: 1, base_rent: 1950, rent_controlled: true },
-      { unit_code: '2', bedrooms: 0, base_rent: 1350, rent_controlled: true },
+      { unit_code: '2', bedrooms: 0, base_rent: 1350, rent_controlled: true,
+        listing: { kind: 'rent', ask: 1350, voice: 'owner-direct' } },
       { unit_code: '3', bedrooms: 2, base_rent: 3200, rent_controlled: true } ] },
   { canon: 'home-c7',    anchor: 'auerbach', street: 'Mission Street',
     hn: 9102, owner: 'C7', style: 'mixed-use storefront + flat', units: [
       { unit_code: '2', bedrooms: 1, base_rent: 0, rent_controlled: false } ] },
   { canon: 'home-c1',    pickOn: 'Capp Street', street: 'Capp Street',
     hn: 9127, owner: 'landlord', style: 'Edwardian flats', units: [
-      { unit_code: 'A', bedrooms: 0, base_rent: 1300, rent_controlled: false },
+      { unit_code: 'A', bedrooms: 0, base_rent: 1300, rent_controlled: false,
+        listing: { kind: 'rent', ask: 1300, voice: 'manager' } },
       { unit_code: 'B', bedrooms: 0, base_rent: 1250, rent_controlled: true },
       { unit_code: 'C', bedrooms: 0, base_rent: 1150, rent_controlled: true },
       { unit_code: 'D', bedrooms: 0, base_rent: 1200, rent_controlled: true } ] },

@@ -331,6 +331,8 @@ function gsFxListOn(r, now){
 function gsFxListOff(r){
   const l = GS_LISTINGS[r.target];
   if(l && l.reqId === r.id) delete GS_LISTINGS[r.target];
+  /* v10: building-scope cards live in the deed office's own map */
+  if(typeof gsListingOff === 'function') gsListingOff(r);
 }
 
 /* purchase: once-effect — title moves to the buyer's hired character,
@@ -454,38 +456,62 @@ gsDefineAction('listing', {
   scope: 'target', exclusive: true, ratePerMin: 1,
   minMin: 30, maxMin: 4320, ttlMin: 60,
   effect: 'maintained',
-  allow: (r) => {
-    const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
-    if(!u) return 'unknown_unit';
-    if(!gsUnitLivable(u)) return 'unit_not_livable';
-    const b = gsBldById(u.bld_id);
-    if(b && b.offmap) return 'unit_offmap';      // listings are on-map stock
-    const owner = u.owner_id || (b && b.owner_id);
-    if(owner !== r.playerId && !(gsIsAdmin(r.playerId) && owner === 'landlord'))
-      return 'not_owner';
-    if(GS_LISTINGS[u.id]) return 'already_listed';
-    return true;
-  },
-  activate: gsFxListOn, deactivate: gsFxListOff,
+  /* v10: the deed office (41J) owns listing validation — sale AND rent
+     cards, quiet pocket listings, and whole-building filings. The
+     fallback keeps a module-less build legal (sale-only, unit-only). */
+  allow: (r, now) => (typeof gsListingAllow === 'function')
+    ? gsListingAllow(r, now)
+    : (() => {
+        const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
+        if(!u) return 'unknown_unit';
+        if(!gsUnitLivable(u)) return 'unit_not_livable';
+        const b = gsBldById(u.bld_id);
+        if(b && b.offmap) return 'unit_offmap'; // listings are on-map stock
+        const owner = u.owner_id || (b && b.owner_id);
+        if(owner !== r.playerId &&
+           !(gsIsAdmin(r.playerId) && owner === 'landlord'))
+          return 'not_owner';
+        if(GS_LISTINGS[u.id]) return 'already_listed';
+        return true;
+      })(),
+  activate: (r, now) => (typeof gsListingActivate === 'function')
+    ? gsListingActivate(r, now) : gsFxListOn(r, now),
+  deactivate: gsFxListOff,
   claims: (r) => [{ cls: 'listing', res: 'listing:' + r.target }],
 });
 gsDefineAction('buy', {
   scope: 'target', exclusive: true, ratePerMin: 25,
   minMin: 1, maxMin: 1, ttlMin: 15,
   effect: 'once',
-  allow: (r) => {
-    const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
-    if(!u) return 'unknown_unit';
-    const l = GS_LISTINGS[u.id];
-    if(!l) return 'not_listed';
-    const buyer = r.params && r.params.buyerId;
-    if(!buyer || gsHiredOwner(buyer) !== r.playerId) return 'buyer_not_hired';
-    if(gsHiredOwner(buyer) === l.by) return 'self_deal';
-    if(gsDollarBalance(buyer) < l.ask) return 'insufficient_dollars';
-    return true;
+  /* v10: the deed office runs the escrow — offer at asking (no
+     bidding), deed fee in credits, seller-carried financing when the
+     card offers it, title written as owner_id (never a lease). The
+     fallback is the v1 cash path. */
+  allow: (r, now) => (typeof gsBuyAllow === 'function')
+    ? gsBuyAllow(r, now)
+    : (() => {
+        const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
+        if(!u) return 'unknown_unit';
+        const l = GS_LISTINGS[u.id];
+        if(!l) return 'not_listed';
+        const buyer = r.params && r.params.buyerId;
+        if(!buyer || gsHiredOwner(buyer) !== r.playerId)
+          return 'buyer_not_hired';
+        if(gsHiredOwner(buyer) === l.by) return 'self_deal';
+        if(gsDollarBalance(buyer) < l.ask) return 'insufficient_dollars';
+        return true;
+      })(),
+  activate: (r, now) => (typeof gsListingBuy === 'function')
+    ? gsListingBuy(r, now) : gsFxBuy(r, now),
+  claims: (r) => {
+    /* a whole-building escrow touches every door's paperwork — it
+       serializes against hires and buys on any member unit */
+    const b = (typeof gsBldById === 'function') && gsBldById(r.target);
+    if(b && !(typeof gsUnitById === 'function' && gsUnitById(r.target)))
+      return b.units.map(u => ({ cls: 'paper', res: 'paper:' + u }))
+           .concat([{ cls: 'paper', res: 'paper:' + b.id }]);
+    return [{ cls: 'paper', res: 'paper:' + r.target }];
   },
-  activate: gsFxBuy,
-  claims: (r) => [{ cls: 'paper', res: 'paper:' + r.target }],
 });
 
 function gsResourceKey(kind, target){
@@ -1277,7 +1303,10 @@ function gsViewerState(nowMin){
         ? +(r.reviewExpireMin - now).toFixed(1) : null })),
     driving: (typeof gsPossessDriving === 'function')
       ? gsPossessDriving(now) : [],
-    listings: JSON.parse(JSON.stringify(GS_LISTINGS)),
+    /* v10: the public board — quiet pocket listings are absent, not
+       redacted; building-scope sale cards ride the same projection */
+    listings: (typeof gsListingsPublic === 'function')
+      ? gsListingsPublic() : JSON.parse(JSON.stringify(GS_LISTINGS)),
     events: GS_EVENTS.map(e => Object.assign({}, e)),
     sessions: gsCoSessions(),
     weather: GS_WX_OVR.wx ? { wx: GS_WX_OVR.wx, untilMin: GS_WX_OVR.untilMin,
@@ -1347,7 +1376,9 @@ function gsBusSnapshot(){
     hiring: (typeof gsHireSnapshot === 'function')
             ? gsHireSnapshot() : null,             // v8 personnel office
     offline: (typeof gsOffSnapshot === 'function')
-             ? gsOffSnapshot() : null });          // v9 quiet hours
+             ? gsOffSnapshot() : null,             // v9 quiet hours
+    deeds: (typeof gsListingSnapshot === 'function')
+           ? gsListingSnapshot() : null });        // v10 title office
 }
 function gsBusLoad(json){
   try{
@@ -1383,6 +1414,8 @@ function gsBusLoad(json){
     if(typeof gsHireLoad === 'function') gsHireLoad(d.hiring);
     /* v9: presence, degrade set, notes, needs, co-star + compute */
     if(typeof gsOffLoad === 'function') gsOffLoad(d.offline);
+    /* v10: building listings, deeds, the transfer book, licenses */
+    if(typeof gsListingLoad === 'function') gsListingLoad(d.deeds);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1417,6 +1450,7 @@ function gsBusReset(){
   if(typeof gsGriefReset === 'function') gsGriefReset();     // v7
   if(typeof gsHireReset === 'function') gsHireReset();       // v8
   if(typeof gsOffReset === 'function') gsOffReset();         // v9
+  if(typeof gsListingReset === 'function') gsListingReset(); // v10
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */

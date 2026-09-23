@@ -591,6 +591,8 @@ function gsAdminEvict(unitId, opts){
     for(const cid of displaced) if(GS_HIRED[cid]) GS_HIRED[cid].unitId = null;
   gsLeaseFeed('evict', l, { reason: l.evictReason, noFault: l.noFault,
     notice: exec && exec.id, displaced, day: opts.date || null });
+  /* v10: the vacancy wheel turns — an emptied door posts its rent card */
+  if(typeof gsListingTurnover === 'function') gsListingTurnover(unitId);
   return { ok: true, tenant: l.tenant_id, unit: l.unit_id,
            address: gsAddressOfUnit(l.unit_id), noFault: l.noFault,
            displaced };
@@ -604,6 +606,8 @@ function gsVacate(unitId, opts){
   l.status = 'ended'; l.end = (opts && opts.date) || null; l.vacatedBy = who;
   for(const n of l.notices) if(n.status === 'open') n.status = 'moot';
   gsLeaseFeed('vacate', l, { by: who, day: l.end });
+  /* v10: the vacancy wheel turns — an emptied door posts its rent card */
+  if(typeof gsListingTurnover === 'function') gsListingTurnover(unitId);
   return { ok: true };
 }
 
@@ -833,7 +837,11 @@ function gsLeaseSeedSF(){
     for(const c of NV_CAST){
       if(c.tier !== 'ambient' || gsHomeOf(c.id)) continue;
       const b = gsNearestFreeBld(gsAmbientHomeCell(c.id));
-      const u = b && gsUnitsOf(b.id).find(x => gsUnitVacant(x));
+      /* v10: a door carrying an authored seed listing (housing.json
+         listings_live) is already on the board — the ambient move-in
+         picks the next vacant unit instead */
+      const u = b && gsUnitsOf(b.id)
+        .find(x => gsUnitVacant(x) && !x.listing);
       if(!u) continue;
       gsSignLease(u.id, c.id, { start: gsAmbientStart(c.id),
         monthly_rent: u.base_rent, occupants: [c.id] });

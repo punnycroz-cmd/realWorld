@@ -96,6 +96,10 @@ const GS_WIRE_LEASE = {
   rent_raise_served: 'rent_notice', notice: 'notice',
   notice_cured: 'resolved', inspection: 'inspection',
   violation: 'violation', violation_cured: 'cleared', evict: 'eviction',
+  /* v10: the board's own beats — a clerk-posted card, a pulled card,
+     a filled vacancy, and a licensed landlord's eviction filing */
+  listed: 'listed', delisted: 'delisted', filled: 'filled',
+  evict_filed: 'filed',
 };
 
 const GS_WIRE_EVENT_LABEL = {
@@ -123,6 +127,8 @@ const GS_WIRE_ADMIN_LABEL = {
   retire_unit: 'a unit was retired',
   retire_bld: 'a building was retired',
   registry: 'registry paperwork moved',
+  foreclose: 'title transferred',          /* v10: holder takes the deed */
+  license: 'a landlord license was issued',
 };
 
 /* player-authored text may name a real business; on the wire those names
@@ -297,15 +303,25 @@ function gsWireReqSummary(evt, r){
     }
     case 'hire': return 'hire — a new face joins the block';
     case 'listing': {
+      /* v10: a quietly shopped listing never names its door — the
+         pocket card exists for the deal flow, not the audience */
+      if(p.quiet) return 'listing — quietly shopped';
       const ad = (r && typeof gsAddressOfUnit === 'function')
-        ? gsAddressOfUnit(r.target) : null;
+        ? (gsAddressOfUnit(r.target) ||
+           ((typeof gsBldById === 'function' &&
+             gsBldById(r.target) || {}).address))
+        : null;
       return 'listing — ' + (ad || 'a unit on the board');
     }
     case 'buy': {
       const ad = (r && typeof gsAddressOfUnit === 'function')
-        ? gsAddressOfUnit(r.target) : null;
+        ? (gsAddressOfUnit(r.target) ||
+           ((typeof gsBldById === 'function' &&
+             gsBldById(r.target) || {}).address))
+        : null;
       return 'purchase — ' + (ad || 'a unit');
     }
+    case 'license': return 'landlord license filing';
     default:
       return (evt.kind || 'request') + dTxt;
   }
@@ -360,6 +376,21 @@ function gsWireLeaseLines(evt, mk){
       return [mk('housing', 'a housing inspector logged a note — ' + addr)];
     case 'cleared':
       return [mk('housing', 'a housing note cleared — ' + addr)];
+    case 'listed':
+      /* a clerk-posted card (auto listings, world stock) — request-bus
+         listings already printed their own 'Listed —' at approval */
+      return [mk('housing', 'Listed — ' + addr +
+        (evt.tier ? ' (' + evt.tier +
+          (evt.lkind === 'rent' ? ', for rent' : '') + ')' : ''))];
+    case 'delisted':
+      return [mk('housing', 'Delisted — ' + addr + ' — owner holds')];
+    case 'filled':
+      return [mk('housing', 'Listing filled — ' + addr +
+        ' comes off the board')];
+    case 'filed':
+      /* a licensed landlord brings the paper; the review decides */
+      return [mk('housing', 'an eviction filing at ' + addr +
+        ' — review pending', { who: evt.player })];
     case 'eviction':
       /* verbatim contract — never the debt, never the reason text */
       return [mk('admin', 'admin action — tenancy ended at ' + addr,
@@ -421,12 +452,23 @@ function gsWireFormat(evt){
         out.push(mk('weather', wl + ' over the Mission — called by ' +
           gsWireWho(evt.player), { who: evt.player }));
       }
-      /* a listing going live is a housing beat, contract wording */
-      if(evt.kind === 'listing' && r &&
+      /* a listing going live is a housing beat, contract wording —
+         tier-labeled (leases.json feed templates). A quietly shopped
+         card prints nothing here: pocket listings stay off the wire
+         until the day they sell. */
+      if(evt.kind === 'listing' && r && !(r.params && r.params.quiet) &&
          typeof gsAddressOfUnit === 'function'){
-        const ad = gsAddressOfUnit(r.target);
-        if(ad) out.push(mk('housing', 'Listed — ' + ad,
-          { who: evt.player }));
+        const ad = gsAddressOfUnit(r.target) ||
+          ((typeof gsBldById === 'function' &&
+            gsBldById(r.target) || {}).address);
+        if(ad){
+          const tier = (typeof gsListingTier === 'function')
+            ? gsListingTier(r.target) : null;
+          const forRent = r.params && r.params.kind === 'rent';
+          out.push(mk('housing', 'Listed — ' + ad + (tier
+            ? ' (' + tier + (forRent ? ', for rent' : '') + ')' : ''),
+            { who: evt.player }));
+        }
       }
       return out;
     }
