@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v54).
+/* world/audit.js — RW boundary audit (world v55).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -799,6 +799,64 @@ const PUB = Object.values(PT.surfaces)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v41 copy: ${label}`);
     if (/BRIDGE\.gs\w+\s*\(/.test(html))
       add(g, 'fail', 'thinai.html', null, 'demo calls a bridge function — mirror only, never a driver');
+    /* ---- v55 coverage + flap-guard pass ---- */
+    for (const blk of ['coverage', 'flap_guard', 'main_routines'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v55 block "${blk}" missing`);
+    if (TJ.coverage) {
+      for (const cls of ['ambient', 'main', 'hired'])
+        if (!(TJ.coverage.ladders || {})[cls])
+          add(g, 'fail', 'thinai.json', null, `coverage.ladders.${cls} missing`);
+      if (!/idle/.test((TJ.coverage.ladders?.main || []).join(' ')))
+        add(g, 'fail', 'thinai.json', null, 'main ladder lost the home·idle floor');
+    }
+    if (TJ.flap_guard) {
+      const d = TJ.flap_guard.deadband || {};
+      if (d.degrade_below_pct !== 60 || d.recover_at_or_above_pct !== 70)
+        add(g, 'fail', 'thinai.json', null, 'flap_guard deadband drifted from <60 / ≥70');
+      if (TJ.flap_guard.min_dwell_min !== 30)
+        add(g, 'fail', 'thinai.json', null, 'flap_guard.min_dwell_min drifted from 30');
+    }
+    /* mains registry: all 8 mains, each routine covering 0–24 contiguously */
+    if (TJ.main_routines) {
+      for (let n = 1; n <= 8; n++) {
+        const cid = 'C' + n, m = TJ.main_routines[cid];
+        if (!m) { add(g, 'fail', 'thinai.json', null, `main_routines.${cid} missing — a degraded main has no public routine`); continue; }
+        const rows = m.rows || [];
+        let t = 0, ok = rows.length > 0;
+        for (const r of rows) { if (r.h0 !== t || !(r.h1 > r.h0)) { ok = false; break; } t = r.h1; }
+        if (!ok || t !== 24)
+          add(g, 'fail', 'thinai.json', null, `main_routines.${cid} does not cover 0–24 contiguously (coverage contract §25)`);
+      }
+    }
+    /* ambient routines: same contiguous-coverage contract, incl. variants */
+    try {
+      const AJ = JSONF('ambients.json');
+      const covRows = (rows, tag) => {
+        let t = 0, ok = rows.length > 0;
+        for (const r of rows) { if (r.h0 !== t || !(r.h1 > r.h0)) { ok = false; break; } t = r.h1; }
+        if (!ok || t !== 24)
+          add(g, 'fail', 'ambients.json', null, `${tag} does not cover 0–24 contiguously (thin coverage contract)`);
+      };
+      for (const a of AJ.ambients || []) {
+        covRows(a.routine || [], `${a.id}.routine`);
+        for (const [k, v] of Object.entries(a.week || {}))
+          covRows(v.rows || [], `${a.id}.week.${k}`);
+        for (const [k, v] of Object.entries(a.weather || {}))
+          covRows(v.rows || [], `${a.id}.weather.${k}`);
+        /* `personal` rows are condition flags, not 24h row sets — not swept */
+      }
+    } catch (e) { add(g, 'fail', 'ambients.json', null, 'coverage sweep failed: ' + e.message); }
+    /* html mirror: v55 surfaces */
+    const MUST55 = [
+      [/deadband/i, 'flap-guard deadband copy'],
+      [/dwell/i, '30-min degrade dwell copy'],
+      [/never freeze|never freezes/i, 'coverage never-freeze statement'],
+      [/home · idle|home · idle/i, 'home·idle floor copy'],
+      [/ladderStep/, 'flap-guard ladder stepper'],
+      [/c6src/, 'live coverage-rung drop (corrupt routine demo)']
+    ];
+    for (const [re, label] of MUST55)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v55 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
@@ -1900,7 +1958,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v54 || {};
+    const H = PT.harness_ui_v55 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2043,7 +2101,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v54 local';
+out.build = 'world v55 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

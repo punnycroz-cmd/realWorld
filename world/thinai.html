@@ -5,7 +5,7 @@
 <title>Real World — The Understudy (thin-AI fallback)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Thin-AI fallback demo — "The Understudy" v3 (world v41).
+  Thin-AI fallback demo — "The Understudy" v4 (world v55).
   Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
   Machine mirror: world/thinai.json. INTERNAL builder tool —
   never-ship, not a player surface; mode badges and seam lines are
@@ -21,6 +21,13 @@
   thin_min / player_min), an owner report, a handoff-note archive, and
   the authored phrase kit show what thin actually runs; the log splits
   feed-public lines from seam-internal ones.
+  v55 — the coverage layer: routine resolution is a total function
+  (every pawn, every minute → a cell; the floor is home · idle, a
+  pawn never freezes), and the degrade ladder carries a flap guard —
+  deadband (thin below 60%, recover at ≥70%) + a 30-min minimum
+  dwell, one step per beat, so a flapping service never churns the
+  seam. "Corrupt C6 routine" drops rungs live; each pawn card shows
+  which rung its cell resolved from.
   LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
   surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
   gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
@@ -133,6 +140,9 @@
     <div class="panel"><h2>Compute ledger — the honest split</h2><div class="ledger" id="comp"></div>
       <div class="fine">llm_min is paid compute; thin_min and player_min are ~free. Possession minutes are nearly cost-free to serve — the human is the compute. Degraded mains count as thin_min.</div>
     </div>
+    <div class="panel"><h2>Coverage &amp; the flap guard</h2><div class="ledger" id="cov"></div>
+      <div class="fine">Routine resolution is a total function — every pawn, every minute lands on a cell; the floor is <b>home · idle</b> and a pawn never freezes. The degrade ladder has a <b>deadband</b>: thin below 60%, recover at ≥70%, plus a 30-min minimum dwell — a flapping service can't churn the seam.</div>
+    </div>
     <div class="panel"><h2>Owner report — h01 (own pawns only)</h2><div class="ledger" id="orep"></div>
       <div class="fine">A ledger, not a diary: place, doing, wages since last visit, obligations met/lapsed. Never the handoff note verbatim, never another character's state.</div>
     </div>
@@ -158,8 +168,8 @@
 </main>
 <div class="toast" id="toast"></div>
 <script>
-/* mirror of thinai.json demo scenario (schema v41) */
-var LS='rw_thinai_v41';
+/* mirror of thinai.json demo scenario (schema v55) */
+var LS='rw_thinai_v55';
 var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
 var KIT={
   greeting:['morning','hey',"how's it"],
@@ -177,15 +187,15 @@ var LIVE=BRIDGE&&seamReads.every(function(f){return typeof BRIDGE[f]==='function
 function hhmm(m){return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+Math.floor(m%60)).slice(-2);}
 function seed(){return {
   min:13*60+7, day:4, rain:false, cap:100, linger:0, possessLeft:0, handoffBeat:0,
-  coStar:0, bubHour:-1, bubN:0, paidToday:false,
+  coStar:0, bubHour:-1, bubN:0, paidToday:false, c6src:'authored',
   ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
   comp:{llm:0,thin:0,player:0},
   needs:{a01:{hunger:40,rest:70},h01:{hunger:40,rest:70},c2:{hunger:40,rest:70},c6:{hunger:40,rest:70}},
   pawns:{
     a01:{id:'A01',name:'Reyes',kind:'ambient',mode:'thin',venue:'Mudhaus Coffee'},
     h01:{id:'h01',name:'the courier (hired)',kind:'hired',mode:'thin',owner:'offline',venue:'Flying Pannier loop',note:null},
-    c2:{id:'C2',name:'Jules',kind:'main',mode:'full',venue:'park / cafe circuit'},
-    c6:{id:'C6',name:'Carmen',kind:'main',mode:'full',venue:'her stoop / her palm / home'}
+    c2:{id:'C2',name:'Jules',kind:'main',mode:'full',venue:'park / cafe circuit',degradedAt:0},
+    c6:{id:'C6',name:'Carmen',kind:'main',mode:'full',venue:'her stoop / her palm / home',degradedAt:0}
   }, log:[]
 };}
 var S; try{S=JSON.parse(localStorage.getItem(LS))||seed();}catch(e){S=seed();}
@@ -214,6 +224,14 @@ function cell(id,h){
     return ['home — off the clock','idle'];
   }
   if(id==='c6'){
+    /* v55 coverage ladder: authored routine → role template → home·idle.
+       S.c6src is dropped live by the "Corrupt C6 routine" event. */
+    if(S.c6src==='gone')return ['9418 Guerrero, Unit A — quiet day in','idle'];
+    if(S.c6src==='template'){
+      if(h<8)return ['9418 Guerrero, Unit A — asleep','sleep'];
+      if(h<18)return ['the park — sitting out','sit'];
+      return ['9418 Guerrero, Unit A — evening in','idle'];
+    }
     if(h<7)return ['9418 Guerrero, Unit A — asleep','sleep'];
     if(h<10)return ['her stoop — cafecito, watching the block','sit'];
     if(h<16.5)return ['Dolores Park, her palm — sewing, receiving','sit'];
@@ -254,6 +272,13 @@ function reflexes(id){
   if(n.hunger>80&&cell(id,S.min/60)[1]!=='meal')r.push('hungry — routine food stop on the way home');
   return r;
 }
+/* which ladder rung the cell resolved from (v55 coverage contract) */
+function srcLabel(id){
+  if(id==='c6')return S.c6src==='authored'?'authored (registry mirror)':(S.c6src==='template'?'role template — rung 2':'home · idle — the floor');
+  if(id==='a01')return 'authored (card routine)';
+  if(id==='h01')return 'authored (created routine)';
+  return 'authored (registry mirror)';
+}
 function modeLabel(p){
   if(S.handoffBeat&&p.id==='h01')return 'handoff';
   return p.mode;
@@ -274,7 +299,8 @@ function render(){
       '<span class="kind">'+p.id+' · '+p.kind+(p.owner?' · owner '+p.owner:'')+'</span>'+
       '<span class="mode '+modeLabel(p)+'">'+modeLabel(p)+'</span></div>'+
       '<div class="doing">'+c[0]+'</div><div class="cell">schedule cell: '+c[1]+' · venue: '+p.venue+
-      (p.kind==='main'?' · <span class="sal">salience '+salience(id)+'</span>':'')+'</div>'+
+      (p.kind==='main'?' · <span class="sal">salience '+salience(id)+'</span>':'')+
+      ' · <span class="sal">routine: '+srcLabel(id)+'</span></div>'+
       '<div class="needs">hunger <span class="bar"><i style="width:'+Math.min(100,n.hunger)+'%"></i></span>'+
       ' rest <span class="bar r"><i style="width:'+Math.min(100,n.rest)+'%"></i></span></div>';
     if(S.coStar&&id==='a01')out+='<span class="costar">co-star window live</span>';
@@ -287,6 +313,17 @@ function render(){
     'scheduled obligations drafted: <b>'+S.rentDrafts+'</b> <small>(rent autopay at day boundary — thin keeps standing commitments on autopilot)</small>';
   $('comp').innerHTML='llm_min <b>'+S.comp.llm+'</b> · thin_min <b>'+S.comp.thin+'</b> · player_min <b>'+S.comp.player+'</b><br>'+
     '<small>full-brain minutes are the paid bucket; thin/degraded and possessed minutes are ~free — this split is the cost story</small>';
+  var band=(S.cap<60?'below the degrade line':S.cap<70?'inside the deadband — posture held':'healthy');
+  $('cov').innerHTML='service <b>'+S.cap+'%</b> — '+band+'<br>'+
+    ['c2','c6'].map(function(id){
+      var p=S.pawns[id];
+      if(p.mode==='degraded'){
+        var left=30-((S.day*1440+S.min)-(p.degradedAt||0));
+        return id.toUpperCase()+' degraded · dwell '+(left>0?left+' min left':'elapsed — eligible to recover ≥70%');
+      }
+      return id.toUpperCase()+' '+p.mode+' · salience '+salience(id);
+    }).join('<br>')+'<br>'+
+    '<small>deadband: thin &lt;60%, recover ≥70% · min dwell 30 min · one step per beat · ambients + possessed never on the ladder</small>';
   var hp=S.pawns.h01,hc=cell('h01',h);
   $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
     'wages since last visit: <b>$'+S.ledger.h01.toFixed(2)+'</b> · obligations drafted: <b>'+S.rentDrafts+'</b>'+
@@ -359,29 +396,46 @@ var EV=[
      wire('request — ambient co-star — resolved · declined (50% auto-refund)');
      seam('A01 declines — off-shift + routine obligations win; nothing persists');}}],
  ['Service 100%',function(){setCap(100);}],
+ ['Service 70%',function(){setCap(70);}],
  ['Service 60%',function(){setCap(60);}],
- ['Service 30%',function(){setCap(30);}]
+ ['Service 55%',function(){setCap(55);}],
+ ['Service 30%',function(){setCap(30);}],
+ ['Corrupt C6 routine',function(){
+   if(S.c6src==='authored'){S.c6src='template';
+     seam('C6 authored routine dropped mid-day — resolver falls a rung: role template at the next seam. Finish the beat, then follow the fallback cell — the pawn never freezes.');}
+   else if(S.c6src==='template'){S.c6src='gone';
+     seam('C6 template row bad too — the ladder lands on the floor: home · idle. Boring, not wrong.');}
+   else toast('C6 is already on the floor (home · idle) — reset restores the authored routine.');}]
 ];
 function setCap(v){
   if(S.cap===v)return;
   var was=S.cap;S.cap=v;
-  /* degrade ladder: at <60 the lowest-salience main thins; at <30 all
-     mains; recovery restores in the same order. Possessed pawns and
-     ambients are never on the queue. */
-  var mains=['c2','c6'].sort(function(a,b){return salience(b)-salience(a);}); /* high→low */
-  /* 100% → all full; 30–60% band → lowest-salience mains thin first
-     (with two demo mains: one degrades); <30% → all degraded */
-  var budget=(v>=100)?2:(v>=60)?1:0; /* mains allowed full */
-  mains.forEach(function(id,rank){
-    var p=S.pawns[id],want=(rank<budget)?'full':'degraded';
-    if(p.mode!==want){
-      seam('service '+was+'→'+v+'% — '+p.id.toUpperCase()+' '+p.mode+' → '+want+' (salience '+salience(id)+', '+(want==='degraded'?'thins':'recovers')+')');
-      if(want==='degraded')writeNote(p,'full','degraded','finishing the current beat','the evening continues on public routine');
-      p.mode=want;
-    }
-  });
-  if(v<60)seam('degrade ladder — lowest scene-salience first; ambients unaffected, possessed pawns unaffected; no feed line');
-  else if(was<60)seam('service '+was+'→'+v+'% — recovery walks the ladder back up in the same order');
+  ladderStep(true,was);
+}
+/* v55 flap guard — degrade <60%, recover ≥70% (deadband 60–69 holds
+   posture), min dwell 30 game-min before recovery, one pawn step per
+   evaluation in each direction. Possessed pawns + ambients never on
+   the ladder. verbose=true on a capacity change; ticks call it quiet. */
+function ladderStep(verbose,was){
+  var mains=['c2','c6'].sort(function(a,b){return salience(b)-salience(a);}); /* high→low salience */
+  var budget=(S.cap>=60)?2:(S.cap>=30)?1:0; /* mains allowed full */
+  var fulls=mains.filter(function(id){return S.pawns[id].mode==='full';});
+  var degs=mains.slice().reverse().filter(function(id){return S.pawns[id].mode==='degraded';}); /* low-salience first */
+  var now=S.day*1440+S.min;
+  if(S.cap<60&&fulls.length>budget){
+    var id=fulls[fulls.length-1],p=S.pawns[id]; /* lowest-salience full pawn */
+    seam('service '+(was!==undefined?was+'→':'')+S.cap+'% — '+id.toUpperCase()+' full → degraded (salience '+salience(id)+', lowest first; one step per beat)');
+    writeNote(p,'full','degraded','finishing the current beat','the evening continues on public routine');
+    p.mode='degraded';p.degradedAt=now;
+  }else if(S.cap>=70&&degs.length){
+    var id2=degs[0],p2=S.pawns[id2],left=30-(now-(p2.degradedAt||0));
+    if(left>0){if(verbose)seam('service '+was+'→'+S.cap+'% — '+id2.toUpperCase()+' recovery queued: '+left+' min of the 30-min degrade dwell left — the guard never churns a seam');}
+    else{seam(id2.toUpperCase()+' degraded → full — dwell elapsed; recovery walks back up in the same order');p2.mode='full';}
+  }else if(verbose){
+    if(S.cap>=60&&S.cap<70&&was<60)seam('service '+was+'→'+S.cap+'% — inside the deadband (60–69%): the ladder holds posture, no churn');
+    else if(S.cap>=70&&!degs.length&&was<70)seam('service '+was+'→'+S.cap+'% — recovery complete; all mains full');
+    else if(S.cap<60)seam('service '+was+'→'+S.cap+'% — degrade ladder, one step per beat; ambients + possessed pawns unaffected; no feed line');
+  }
 }
 EV.forEach(function(e){
   var b=document.createElement('button');b.textContent=e[0];
@@ -450,6 +504,9 @@ function tick(mins){
       var q=S.pawns[k];
       if(q.note&&noteAge(q)>=1440){S.arch.push(q.note);q.note=null;seam(k.toUpperCase()+' handoff note archived — stale after 24 h; yesterday\'s loose ends belong to memory, not the seam');}
     });
+    /* v55 — the ladder evaluates once per beat: converges a crash
+       stepwise and lets dwell-bound recoveries land as time passes */
+    ladderStep(false);
   }
   render();
 }

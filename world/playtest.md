@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v54)
+# Playtest Harness — "Real World / The Mission" (world v55)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -79,6 +79,10 @@ One person can wear every hat; four real testers is the intended shape.
   audit — mid-month proration at signing, the roommate amendment doc,
   the two repair clocks with an SLA-breach line, the fixed-term break
   fee, and the 21-day deposit clock as a separate itemized event.
+  PT50 (thinai v4 coverage layer, v55) is an ops-minded facilitator
+  audit — the never-freeze routine ladder dropping rungs live
+  (authored → template → home·idle), the flap-guard deadband
+  (<60/≥70), the 30-min degrade dwell, and the extended thinai gate.
 
 ## 3. Running a session
 

@@ -1,6 +1,6 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering, needs model, authored phrase kit, reflex registry, co-star bounds, scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 41,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit, reflex registry, co-star bounds, scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 55,
   "brain_modes": {
     "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
     "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
@@ -140,14 +140,91 @@
     "never_public": ["offline_drop", "wake", "degrade", "recover", "handoff internals"],
     "rule": "brain-mode transitions are not admin actions; the seam stays invisible to spectators"
   },
+  "coverage": {
+    "rule": "thin resolution is a total function — every character, every game minute resolves to a routine cell; the floor is 'home · idle', never a freeze",
+    "ladders": {
+      "ambient": ["today's variant row set (week/weather/personal on the card)", "base routine rows", "role template", "home · idle"],
+      "main":    ["main_routines registry (SF_CORE_ROUTINES mirror)", "home · idle"],
+      "hired":   ["creation-authored routine", "owner's last-set routine", "role template", "home · idle"]
+    },
+    "variant_contract": "a variant row set covers the full 24 h or is ignored whole — never spliced mid-cell; a partial variant is a build error (coverage gate fails it)",
+    "corrupt_row": "malformed row / unknown venue / unresolvable anchor falls to the next rung at the next seam — finish the micro-beat, then follow the fallback cell; seam line only",
+    "contiguous_check": "every routine must cover 0–24 contiguously: first h0 = 0, each h0 = prior h1, last h1 = 24 — the audit gate enforces it",
+    "hired_offline": "a hired pawn keeps its created routine while offline — offline is a brain-mode change, never a schedule change"
+  },
+  "flap_guard": {
+    "why": "real services flap; without hysteresis the degrade ladder would churn mode transitions, and churn is how seams show",
+    "deadband": { "degrade_below_pct": 60, "recover_at_or_above_pct": 70, "inside_band": "60–69% holds current posture — no re-evaluation" },
+    "min_dwell_min": 30,
+    "dwell_rule": "a degraded main stays degraded ≥30 game-min before it is eligible to recover, even at healthy capacity",
+    "step_per_beat": "one pawn per evaluation tick in each direction — degrade lowest-salience-first, recover in the same order (§20)",
+    "skipped": ["possessed pawns (the player is the compute)", "ambients (never on the service)"],
+    "feed": null
+  },
+  "main_routines": {
+    "canonical": "readable mirror of SF_CORE_ROUTINES (src/sf/33_sf_cast.js) — the public routine a degraded main runs; edit implementation + mirror + the bible's 'Daily routine' section together",
+    "naming": "parody names only — venues resolve via parody-names.json; anchors (g744/g750/park_*) resolve via the address registry (9418/9457 Guerrero St)",
+    "ceiling": "degraded means public — the registry is also the ceiling; no seed state exists at thin level",
+    "C1": { "name": "Marisol", "rows": [
+      { "h0": 0,    "h1": 5.5,  "state": "sleep", "where": "home — 9127 Capp St, Unit C", "inside": true },
+      { "h0": 5.5,  "h1": 14,   "state": "serve", "where": "Mudhaus Coffee — opens the café" },
+      { "h0": 14,   "h1": 18,   "state": "walk",  "where": "afternoon rounds", "stops": ["Taqueria El Farolote", "9418 Guerrero St", "park_center", "Buy-Rite Market"] },
+      { "h0": 18,   "h1": 21.5, "state": "chat",  "where": "Mudhaus Coffee — holds the counter" },
+      { "h0": 21.5, "h1": 24,   "state": "sleep", "where": "home — 9127 Capp St, Unit C", "inside": true } ],
+      "degrade_reflexes": ["counter-wipe tell when idle", "afternoon rounds shorten in rain — covered stops only"] },
+    "C2": { "name": "Jules", "rows": [
+      { "h0": 0,    "h1": 6.5,  "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true },
+      { "h0": 6.5,  "h1": 8,    "state": "run",   "where": "morning run", "stops": ["park_north", "park_center"] },
+      { "h0": 8,    "h1": 15,   "state": "serve", "where": "Mudhaus Coffee — shift" },
+      { "h0": 15,   "h1": 19,   "state": "sit",   "where": "park — sketching", "stops": ["park_center", "9418 Guerrero St"] },
+      { "h0": 19,   "h1": 24,   "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true } ],
+      "degrade_reflexes": ["shortens the run in rain, never skips it"] },
+    "C3": { "name": "Dani", "rows": [
+      { "h0": 0,    "h1": 8,    "state": "sleep", "where": "home — 9263 Geneva Ave, Unit 4", "inside": true },
+      { "h0": 8,    "h1": 17,   "state": "serve", "where": "Mudhaus Coffee — shift + chalkboards" },
+      { "h0": 17,   "h1": 21,   "state": "walk",  "where": "evening wander", "stops": ["park_center", "9457 Guerrero St", "Clarion Alley"] },
+      { "h0": 21,   "h1": 24,   "state": "idle",  "where": "home — 9263 Geneva Ave, Unit 4", "inside": true } ],
+      "degrade_reflexes": ["evening wander drops Clarion Alley in rain — park awning instead"] },
+    "C4": { "name": "Priya", "rows": [
+      { "h0": 0,    "h1": 6.5,  "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true },
+      { "h0": 6.5,  "h1": 19.5, "state": "work",  "where": "SF General — three twelves", "stops": ["SF General", "Mudhaus Coffee"] },
+      { "h0": 19.5, "h1": 21,   "state": "drink", "where": "Mudhaus Coffee — decompresses, same seat" },
+      { "h0": 21,   "h1": 24,   "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true } ],
+      "degrade_reflexes": ["off-shift days are the card's week-variant — the registry row is a shift day"] },
+    "C5": { "name": "Marcus", "rows": [
+      { "h0": 0,    "h1": 8,    "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true },
+      { "h0": 8,    "h1": 18,   "state": "carry", "where": "courier loop", "stops": ["Buy-Rite Market", "Dolores Perk", "Baguette About It Bakery", "The 600 Club", "Dandy Lion Chocolate Co."] },
+      { "h0": 18,   "h1": 21,   "state": "play",  "where": "park_center — drum circle nights" },
+      { "h0": 21,   "h1": 24,   "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true } ],
+      "degrade_reflexes": ["rain covers the loop — awnings and doorways, parcels stay dry"] },
+    "C6": { "name": "Carmen", "rows": [
+      { "h0": 0,    "h1": 7,    "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true },
+      { "h0": 7,    "h1": 10,   "state": "sit",   "where": "her stoop — cafecito, watching the block" },
+      { "h0": 10,   "h1": 16.5, "state": "sit",   "where": "Dolores Park, her palm — sewing, receiving" },
+      { "h0": 16.5, "h1": 21,   "state": "idle",  "where": "home — dinner, telenovelas, sewing" },
+      { "h0": 21,   "h1": 24,   "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true } ],
+      "degrade_reflexes": ["weather-gated day — cafecito moves inside in rain", "dusk-home — evening cells tighten when the lights come on"] },
+    "C7": { "name": "Victor", "rows": [
+      { "h0": 0,  "h1": 8,  "state": "sleep", "where": "home — 9102 Mission St, Unit 2 (above the shop)", "inside": true },
+      { "h0": 8,  "h1": 18, "state": "work",  "where": "Auerbach Hardware — counter 9–6; Tuesdays the buildings", "stops": ["Auerbach Hardware", "9418 Guerrero St", "9457 Guerrero St"] },
+      { "h0": 18, "h1": 22, "state": "idle",  "where": "Auerbach Hardware — back office", "inside": true },
+      { "h0": 22, "h1": 24, "state": "sleep", "where": "home — 9102 Mission St, Unit 2 (above the shop)", "inside": true } ],
+      "degrade_reflexes": ["Tuesday repair rounds move indoor-first in rain"] },
+    "C8": { "name": "Tomás", "rows": [
+      { "h0": 0,    "h1": 9,    "state": "sleep", "where": "home — 9344 Folsom St, Unit 1", "inside": true },
+      { "h0": 9,    "h1": 14.5, "state": "walk",  "where": "supplier loop", "stops": ["Auerbach Hardware", "Buy-Rite Market", "Valencia Growers Market"] },
+      { "h0": 14.5, "h1": 16,   "state": "drink", "where": "Mudhaus Coffee — the 3 p.m. coffee" },
+      { "h0": 16,   "h1": 24,   "state": "work",  "where": "Taqueria El Farolote — the line" } ],
+      "degrade_reflexes": ["supplier loop keeps to awnings in rain — the 3 p.m. coffee never moves"] }
+  },
   "demo": {
-    "storage_key": "rw_thinai_v41",
+    "storage_key": "rw_thinai_v55",
     "pawns": [
       { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
       { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
       { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" },
       { "id": "C6",  "name": "Carmen", "kind": "main", "modes": ["full", "degraded"], "venue": "her stoop / her palm / home" }
     ],
-    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "service_100", "service_60", "service_30", "reset"]
+    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "service_100", "service_70", "service_60", "service_55", "service_30", "corrupt_c6", "reset"]
   }
 }

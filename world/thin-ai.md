@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13; second pass v41)
+# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -421,3 +421,121 @@ Two hard rules: **`gsHandoffRead` is never called** (the one-time read
 belongs to the receiving brain — the demo mirrors notes instead) and
 **no `gs*` mutator is ever invoked** (the demo is a mirror, never a
 driver). Off-bridge, the inline mirror runs and the badge says MIRROR.
+
+## 25. Coverage contract — the never-freeze ladder (v55)
+
+Thin resolution is a **total function**: for every character, every
+game minute resolves to a routine cell. There is no "no cell" state —
+the worst cell in the world is `home · idle`, and it is always
+reachable. Resolution walks a ladder, first hit wins:
+
+| class | ladder |
+|-------|--------|
+| ambient (A##) | variant row for today (`week`/`weather`/`personal` on the card) → base `routine` rows → role template → `home · idle` |
+| main (C#) | the main thin-routine registry (§27, mirror of `SF_CORE_ROUTINES`) → `home · idle` |
+| hired (h##) | the routine authored at creation → owner's last-set routine → role template → `home · idle` |
+
+Rules:
+
+- **A variant row set covers the full 24 h when present** — variants
+  replace the day whole, never splice mid-cell (ambients.json
+  `variant_rows` convention). A partial variant is a build error, not
+  a runtime case.
+- **Corrupt or missing data falls, never freezes.** A malformed row,
+  an unknown venue key, a gap between `h1` and the next `h0` — all
+  resolve to the next rung, and the fall is a seam line, never a
+  world event. A pawn standing somewhere its ladder no longer covers
+  finishes the current micro-beat, then walks home — the seam rule
+  (§2) still governs the transition.
+- **`home · idle` is the floor, not a failure.** If every rung is
+  missing, the pawn lives a quiet day at home. Boring, not wrong —
+  the same guarantee as §6.
+- **Coverage is checkable.** The audit gate verifies every ambient
+  routine and every registry row covers 0–24 contiguously (first
+  `h0` = 0, each `h0` = prior `h1`, last `h1` = 24). A character
+  whose ladder can't reach a cell is a build failure, caught before
+  it ever runs.
+- Hired pawns keep their created routine when the owner is offline —
+  offline is a brain-mode change, never a schedule change.
+
+## 26. Flap guard — the degrade deadband (v55)
+
+§9's ladder gets hysteresis, because real services flap:
+
+- **Deadband:** degrade when capacity drops **below 60%**; recover
+  only when it holds **≥ 70%**. Between 60–69% the ladder holds its
+  current posture — a main who thinned at 55% does not bounce back at
+  62% and thin again at 58%.
+- **Minimum dwell:** a degraded main stays degraded for at least
+  **30 min of game time** before it is eligible to recover, even if
+  capacity is healthy. Recovery is a mode transition; mode
+  transitions cost a handoff beat, and churning them is how seams
+  show.
+- **One step per beat:** the ladder walks one pawn per evaluation
+  tick in each direction — degrade lowest-salience-first, recover in
+  the same order (§20). A deep crash still converges, just beat by
+  beat; nothing teleports, nothing skips the seam.
+- **Skipped as always:** `possessed` pawns and ambients are not on
+  the ladder at all — the guard can't reach them (§9).
+- The guard is seam-internal like the rest of the ladder: no feed
+  line, no badge, no spectator tell. Its only visible product is the
+  *absence* of mode churn on the pawn badges in the demo.
+
+## 27. Mains thin-routine registry (v55)
+
+A degraded main runs their **public routine** — the same schedule a
+briefing would show (§1). That routine is now concrete:
+`thinai.json → main_routines` mirrors `SF_CORE_ROUTINES` (the
+implementation in `src/sf/33_sf_cast.js`) into world-readable spec,
+one cell set per main, each covering 0–24 contiguously.
+
+- **Canonical order:** `src/sf/33_sf_cast.js` is the implementation;
+  `thinai.json → main_routines` is the readable mirror; each bible's
+  "Daily routine" section is the prose. Edit them together — the
+  audit gate checks the mirror's coverage and the bibles carry the
+  matching section header.
+- **Parody names only.** The mirror writes venue references in their
+  canonical parody names — Mudhaus Coffee (parody of Haus Coffee),
+  Buy-Rite Market (parody of Bi-Rite Market), Taqueria El Farolote
+  (parody of Taqueria El Farolito), Baguette About It Bakery (parody
+  of Tartine Bakery), The 600 Club (parody of 500 Club), Dandy Lion
+  Chocolate Co. (parody of Dandelion Chocolate), Dolores Perk (parody
+  of Dolores Park Cafe), Valencia Growers Market (parody of Valencia
+  Farmers Market). Anchors (`g744`, `g750`, `park_center` …) resolve
+  through the address registry — 9418 Guerrero St, 9457 Guerrero St.
+- **Degraded means public.** A main on this registry can only do
+  what a stranger could already watch them do — open the café, run
+  the park path, sit on the stoop. No seed state exists at this
+  layer (§5), so the registry is also the *ceiling*: nothing a
+  degraded main does can advance or hint a storyline.
+- **Personal weather rules still apply.** Carmen's cafecito moves
+  inside in rain (her card's `weather-gated-day`); the registry
+  carries each main's degrade-time reflexes alongside the cells.
+
+## 28. Failure matrix — coverage cases (v55)
+
+Extends §15. Decided, not deferred:
+
+- **Corrupt row mid-day** (bad `h1`, unknown venue, unresolvable
+  anchor): the row falls to the next rung at the next seam — the pawn
+  finishes the micro-beat, then follows the fallback cell. Seam line;
+  nothing in-world.
+- **Whole authored routine missing:** straight to role template /
+  `home · idle`. The pawn has a boring day, not a broken one.
+- **Variant set partial** (covers 14 h, not 24): build error — the
+  coverage gate fails it before it ships. At runtime, a partial
+  variant is ignored whole (base routine wins), never spliced.
+- **Capacity flapping around the band** (55% ↔ 65% ↔ 58%): the
+  deadband holds posture (§26); the ladder does not re-evaluate
+  inside the band.
+- **Recovery queued during dwell:** a healthy service at minute 10 of
+  a 30-min dwell waits. The pawn recovers on the first evaluation
+  tick after dwell elapses — recovery still walks lowest-salience
+  last-degraded first (§20 order).
+- **Degrade lands while a handoff beat is open:** the beat completes
+  first (§2 is older and outranks); the degrade posture applies to
+  the mode the pawn lands in.
+- **Coverage gap in a hired pawn's owner-set routine:** treated like
+  a partial variant — ignored whole, role template wins, and the
+  owner report flags "routine repaired to template" on next visit
+  (mechanics, not narration — §19 tone).

@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 54,
+ "version": 55,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2541,9 +2541,9 @@
     },
     {
      "do": "Run `node world/audit.js` and read the harness gate.",
-     "expect": "harness gate passes: LS key rw_playtest_v54 + build tag agree with playtest.json v54, every v54 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
+     "expect": "harness gate passes: LS key rw_playtest_v55 + build tag agree with playtest.json v55, every v55 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
      "checkpoints": [
-      "Gate reports '49 scenarios · N checkpoints · key rw_playtest_v54'",
+      "Gate reports '50 scenarios · N checkpoints · key rw_playtest_v55'",
       "A missing owner select, a dropped debrief id, or the old LS key would FAIL — spot-check",
       "All gates green; overall 0 fail"
      ]
@@ -2592,7 +2592,7 @@
      "expect": "The card states offline = thin AI (thinner but present) with the no-'miss you' clause; the onboard gate reports 'schema v53 · 7 beats · key rw_onboard_v53' with zero fails.",
      "checkpoints": [
       "Thin-AI line and no-nag clause appear together",
-      "Onboard gate passes; harness gate passes at key rw_playtest_v54 / build 'world v54 local'",
+      "Onboard gate passes; harness gate passes at key rw_playtest_v55 / build 'world v55 local'",
       "All gates green; overall 0 fail"
      ]
     }
@@ -2603,7 +2603,9 @@
    "title": "The Rent Book v4 — the paper layer (proration, break fee, repair SLA, amendments, deposit clock)",
    "persona": "hired-player tester wearing tenant + admin hats — funded bank, day 6 of the month",
    "minutes": 12,
-   "surfaces": ["lease"],
+   "surfaces": [
+    "lease"
+   ],
    "goal": "Verify the v54 lease pass: mid-month signing prorates the first month, a roommate addition is a real amendment doc, repairs run two honest clocks with an SLA breach line, notice inside a fixed term posts a break fee, and the deposit return is a separate itemized event on a 21-day clock.",
    "steps": [
     {
@@ -2642,6 +2644,56 @@
       "Deposit clock renders 'due back by day N (21-day window)' before the return posts",
       "Return doc lists break fee + latch as itemized deductions and the refused pre-existing claim",
       "Lease gate passes at schema v54 · key rw_lease_v54; all gates green, 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT50",
+   "title": "The Understudy v4 — the coverage layer (never-freeze ladder, flap-guard deadband + dwell)",
+   "persona": "ops-minded tester running a fake brownout — service capacity yo-yoing while watching the pawn badges and the seam log",
+   "minutes": 10,
+   "surfaces": [
+    "thinai",
+    "audit"
+   ],
+   "goal": "Verify the v55 thin-AI pass: routine resolution is a total function (corrupt data falls a rung, never freezes), and the degrade ladder carries a deadband — thin below 60%, recover at ≥70%, 30-min minimum dwell, one step per beat — so a flapping service can't churn mode badges.",
+   "steps": [
+    {
+     "do": "Fire 'Corrupt C6 routine' once, step +15 min, and read Carmen's card and the seam log.",
+     "expect": "Carmen falls one rung — her card now reads 'routine: role template — rung 2' and she sits out a generic park day instead of her palm. The seam log narrates the fall; no wire line, no freeze, no teleport.",
+     "checkpoints": [
+      "Seam line: 'authored routine dropped mid-day — resolver falls a rung: role template'",
+      "Carmen's card shows 'routine: role template — rung 2' and a park sit cell",
+      "No wire line appears — a coverage fall is seam-internal only"
+     ]
+    },
+    {
+     "do": "Fire 'Corrupt C6 routine' a second time, then step the clock.",
+     "expect": "The ladder lands on the floor: Carmen's card reads 'routine: home · idle — the floor' and she takes a quiet day at 9418 Guerrero. Boring, not wrong — and the pawn never freezes.",
+     "checkpoints": [
+      "Seam line lands on 'the floor: home · idle. Boring, not wrong.'",
+      "Card reads 'home · idle — the floor' with an idle cell at any hour",
+      "Needs still tick on the floor — the coverage contract is a total function"
+     ]
+    },
+    {
+     "do": "Reset, then walk the flap guard: Service 55% → watch Carmen thin → Service 60% → Service 65% → Service 70% without stepping the clock.",
+     "expect": "At 55% the lowest-salience main (Carmen at home) degrades one step. At 60% and 65% nothing moves — the deadband holds posture. At 70% her recovery is QUEUED, not instant: 'N min of the 30-min degrade dwell left'.",
+     "checkpoints": [
+      "55%: 'C6 full → degraded (salience 0, lowest first; one step per beat)' + a handoff note written",
+      "60% then 65%: 'inside the deadband (60–69%): the ladder holds posture, no churn'",
+      "70%: 'recovery queued: N min of the 30-min degrade dwell left' — the guard never churns a seam",
+      "The Coverage panel shows 'inside the deadband — posture held' between 60–69%"
+     ]
+    },
+    {
+     "do": "With C6 degraded and service at 70%, step +15 min twice, then read the seam log; finally run `node world/audit.js`.",
+     "expect": "After the 30-min dwell elapses, the next evaluation tick recovers C6 ('degraded → full — dwell elapsed'). The thinai gate reports schema v55 and the new coverage/flap-guard checks pass.",
+     "checkpoints": [
+      "After two +15-min steps: 'C6 degraded → full — dwell elapsed; recovery walks back up in the same order'",
+      "No feed line at any point — degrade, dwell, and recovery are all seam-internal",
+      "thinai gate passes: schema v55, main_routines C1–C8 contiguous 0–24, deadband <60/≥70, dwell 30"
      ]
     }
    ]
@@ -2686,9 +2738,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "harness_ui_v54": {
-  "storage_key": "rw_playtest_v54",
-  "build_tag_prefix": "world v54 local",
+ "build": "world v55 local",
+ "harness_ui_v55": {
+  "storage_key": "rw_playtest_v55",
+  "build_tag_prefix": "world v55 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -2707,7 +2760,7 @@
   "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
   "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
   "required_marks": [
-   "rw_playtest_v54",
+   "rw_playtest_v55",
    "id=\"prog\"",
    "id=\"keyCard\"",
    "id=\"exInbox\"",
