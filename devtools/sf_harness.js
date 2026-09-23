@@ -67,7 +67,7 @@ const api = eval(m[1] + `
     sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
-    sfKarlK, sfKarlPoly, sfKarlFront })`);
+    sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -340,6 +340,30 @@ const api = eval(m[1] + `
   const kf = api.sfKarlFront(kp);
   ok(kf && kf.length === 2, 'karl front edge resolves');
   ok(api.sfKarlPoly(0).length === 0, 'no front, no polygon');
+
+  // v35: interior archetypes resolve per venue name/label
+  ok(api.sfIntArch('Taqueria El Farolito', 'the line, the salsa bar') === 'taqueria',
+     'farolito reads as taqueria');
+  ok(api.sfIntArch('Auerbach Hardware', 'aisles of bins') === 'hardware',
+     'auerbach reads as hardware');
+  ok(api.sfIntArch('Haus Coffee', 'café counter') === 'cafe',
+     'haus reads as cafe');
+  ok(api.sfIntArch('744 Guerrero', "Carmen's front room") === 'flat',
+     'guerrero flat reads as flat');
+  ok(api.sfIntArch('Haus Coffee', '') === api.sfIntArch('Haus Coffee', ''),
+     'sfIntArch deterministic');
+  // every registered interior renders without throwing
+  {
+    ok(typeof api.sfRenderInterior === 'function', 'sfRenderInterior exported');
+    const prevV = api.VILLAGERS[0];
+    const hadInside = prevV.inside;
+    for(const nm of Object.keys(api.SF_INTERIORS)){
+      prevV.inside = nm;
+      try { api.sfRenderInterior(640, 400, prevV); pass++; }
+      catch(e){ fail++; console.log('FAIL interior render', nm, e.message); }
+    }
+    prevV.inside = hadInside;
+  }
   api.W.tod = t0; api.W.hum = h0; api.W.windSpd = ws0; api.W.windAng = wa0;
 
   console.log('---');

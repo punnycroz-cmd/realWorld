@@ -29238,6 +29238,27 @@ function sfIntSeed(name){
   }
   return SF_INT_SEED[name];
 }
+/* v35: venue archetype drives the room's palette, floor and signature
+   fixtures. Pure name/label lookup — no world state, safe to export. */
+function sfIntArch(name, lab){
+  const s = (name + ' ' + (lab || '')).toLowerCase();
+  if(/taqueria|salsa|farolito/.test(s)) return 'taqueria';
+  if(/hardware|aisle|bins|auerbach/.test(s)) return 'hardware';
+  if(/caf|coffee|counter|park-edge/.test(s)) return 'cafe';
+  return 'flat';
+}
+const SF_INT_WALL = {
+  cafe:     ['#6d5a44', '#8a7458'],
+  taqueria: ['#7c4630', '#a4643e'],
+  hardware: ['#565a52', '#74796e'],
+  flat:     ['#7a6a58', '#9a8874'],
+};
+const SF_INT_FLOOR = {
+  cafe:     ['#9a7448', '#6b4a2c'],
+  taqueria: ['#8a6a50', '#5e4530'],
+  hardware: ['#7a7c78', '#54565a'],
+  flat:     ['#9a7448', '#6b4a2c'],
+};
 function sfRenderInterior(cw, ch, v){
   const name = v.inside || 'inside';
   const rec = SF_INTERIORS[name];
@@ -29245,14 +29266,16 @@ function sfRenderInterior(cw, ch, v){
   const seed = sfIntSeed(name);
   // venue interiors are registered POIs; flats are anchor rooms (poi:null)
   const shop = rec ? !!rec.poi : /caf|coffee|counter|aisle|salsa|park-edge|bins/i.test(lab + ' ' + name);
+  const arch = shop ? sfIntArch(name, lab) : 'flat';
   const night = isNight();
   const lamps = sfLampsLit();
+  const karlK = sfKarlK();
 
   /* --- room shell: one vanishing point centered on the back wall --- */
   const vpx = cw * 0.5, vpy = ch * 0.40;
   const bL = cw * 0.24, bR = cw * 0.76, bT = ch * 0.15, bB = ch * 0.60;
-  const wallB = shop ? '#6d5a44' : '#7a6a58';
-  const wallT = shop ? '#8a7458' : '#9a8874';
+  const wallB = SF_INT_WALL[arch][0];
+  const wallT = SF_INT_WALL[arch][1];
   // ceiling
   const cg = ctx.createLinearGradient(0, 0, 0, bT);
   cg.addColorStop(0, shade(wallT, 0.5)); cg.addColorStop(1, shade(wallT, 0.78));
@@ -29284,31 +29307,58 @@ function sfRenderInterior(cw, ch, v){
   ctx.beginPath(); ctx.moveTo(bL, bT + (bB - bT) * 0.14);
   ctx.lineTo(bR, bT + (bB - bT) * 0.14); ctx.stroke();
   // floor — planks converge on the vanishing point, cross-seams get
-  // denser with depth (perspective foreshortening)
+  // denser with depth (perspective foreshortening). v35: taqueria gets
+  // checkerboard tile, hardware gets sealed concrete.
   const fg = ctx.createLinearGradient(0, bB, 0, ch);
-  fg.addColorStop(0, '#9a7448'); fg.addColorStop(1, '#6b4a2c');
+  fg.addColorStop(0, SF_INT_FLOOR[arch][0]); fg.addColorStop(1, SF_INT_FLOOR[arch][1]);
   ctx.fillStyle = fg;
   ctx.beginPath();
   ctx.moveTo(bL, bB); ctx.lineTo(bR, bB); ctx.lineTo(cw, ch); ctx.lineTo(0, ch);
   ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(52,34,18,0.5)'; ctx.lineWidth = 1;
-  ctx.beginPath();
-  for(let k = 0; k <= 14; k++){
-    const x0 = bL + (bR - bL) * k / 14;
-    const x1 = (x0 - vpx) * (ch / Math.max(1, bB - vpy)) + vpx;
-    ctx.moveTo(x0, bB); ctx.lineTo(x1, ch);
+  if(arch === 'taqueria'){
+    // checkerboard rows on the same foreshortened spacing as the seams
+    for(let k = 0; k < 6; k++){
+      const t0 = Math.pow(k / 6, 1.55), t1 = Math.pow((k + 1) / 6, 1.55);
+      const y0 = bB + (ch - bB) * t0, y1 = bB + (ch - bB) * t1;
+      const xl = bL + (0 - bL) * (t0 + t1) / 2, xr = bR + (cw - bR) * (t0 + t1) / 2;
+      const n2 = 12;
+      for(let c = 0; c < n2; c++){
+        if((c + k) % 2) continue;
+        ctx.fillStyle = 'rgba(196,182,158,0.30)';
+        ctx.fillRect(xl + (xr - xl) * c / n2, y0, (xr - xl) / n2 + 1, y1 - y0);
+      }
+    }
+  } else {
+    ctx.strokeStyle = arch === 'hardware' ? 'rgba(30,32,34,0.45)' : 'rgba(52,34,18,0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let k = 0; k <= 14; k++){
+      const x0 = bL + (bR - bL) * k / 14;
+      const x1 = (x0 - vpx) * (ch / Math.max(1, bB - vpy)) + vpx;
+      ctx.moveTo(x0, bB); ctx.lineTo(x1, ch);
+    }
+    for(let k = 1; k <= 6; k++){
+      const t = Math.pow(k / 6, 1.55);
+      const y = bB + (ch - bB) * t;
+      const xl = bL + (0 - bL) * t, xr = bR + (cw - bR) * t;
+      ctx.moveTo(xl, y); ctx.lineTo(xr, y);
+    }
+    ctx.stroke();
   }
-  for(let k = 1; k <= 6; k++){
-    const t = Math.pow(k / 6, 1.55);
-    const y = bB + (ch - bB) * t;
-    const xl = bL + (0 - bL) * t, xr = bR + (cw - bR) * t;
-    ctx.moveTo(xl, y); ctx.lineTo(xr, y);
-  }
-  ctx.stroke();
   // baseboards + crown molding
   ctx.strokeStyle = shade('#e8dcc8', 0.85); ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(bL, bB); ctx.lineTo(bR, bB); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(bL, bT); ctx.lineTo(bR, bT); ctx.stroke();
+  // v35: corner ambient occlusion — the room's deepest corners hold the
+  // least bounced light, so each wall junction gets a soft dark lobe
+  for(const [ax, ay, ar] of [[bL, bT, 130], [bR, bT, 130], [bL, bB, 150], [bR, bB, 150],
+                             [0, 0, 170], [cw, 0, 170], [0, ch, 200], [cw, ch, 200]]){
+    const ao = ctx.createRadialGradient(ax, ay, ar * 0.15, ax, ay, ar);
+    ao.addColorStop(0, 'rgba(16,10,6,0.34)');
+    ao.addColorStop(1, 'rgba(16,10,6,0)');
+    ctx.fillStyle = ao;
+    ctx.fillRect(ax - ar, ay - ar, ar * 2, ar * 2);
+  }
 
   /* --- windows on the back wall: real sky outside, real sun in --- */
   // sky grade mirrors sfRenderStreet's gradient, same tod/weather
@@ -29325,8 +29375,10 @@ function sfRenderInterior(cw, ch, v){
   };
   // sun shafts pour in while direct sun is up; slant follows the sun's
   // world-space east/west bearing so it always agrees with the shadows
-  // outside (east sun pushes the beam toward the room's west side)
-  const sunIn = !night && SF_SUN.day > 0.22;
+  // outside (east sun pushes the beam toward the room's west side).
+  // v35: Karl's marine layer eats direct sun — same physics as outside.
+  const sunK = SF_SUN.day * (1 - karlK * 0.75);
+  const sunIn = !night && sunK > 0.22;
   const winRects = [];
   if(shop){
     // storefront glass: one wide front window — you're looking back out
@@ -29373,6 +29425,24 @@ function sfRenderInterior(cw, ch, v){
       }
       ctx.stroke();
     }
+    // v35: weather on the pane — Karl's marine layer milks the whole view,
+    // rain beads streak down the outside of the glass with the wind slant
+    if(karlK > 0.12 && !night){
+      ctx.fillStyle = `rgba(206,214,216,${karlK * 0.55})`;
+      ctx.fillRect(wx0, wy0, wx1 - wx0, wy1 - wy0);
+    }
+    if(W.rain > 0.15 && !night){
+      ctx.strokeStyle = `rgba(220,232,240,${0.35 + W.rain * 0.3})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const wdrift = clamp(Math.cos(W.windAng) * W.windSpd * 0.4, -1, 1) * 6;
+      for(let k = 0; k < 14; k++){
+        const rx = wx0 + phash(k, seed, 3870) * (wx1 - wx0);
+        const ry = wy0 + ((phash(k, seed, 3871) + SF_WX.t * (0.05 + phash(k, seed, 3872) * 0.08)) % 1) * (wy1 - wy0);
+        ctx.moveTo(rx, ry); ctx.lineTo(rx + wdrift, ry + 7 + phash(k, seed, 3873) * 9);
+      }
+      ctx.stroke();
+    }
     // curtain panels on flat windows
     if(!shop){
       ctx.fillStyle = `rgba(226,214,190,${night ? 0.9 : 0.75})`;
@@ -29385,15 +29455,42 @@ function sfRenderInterior(cw, ch, v){
       const slant = clamp(SF_SUN.toX, -1, 1) * (wx1 - wx0) * 0.9;
       const drop = (ch - wy1) * 0.6;
       const sg = ctx.createLinearGradient(0, wy1, 0, wy1 + drop);
-      sg.addColorStop(0, `rgba(255,238,190,${0.42 * SF_SUN.day})`);
+      sg.addColorStop(0, `rgba(255,238,190,${0.42 * sunK})`);
       sg.addColorStop(1, 'rgba(255,238,190,0)');
       ctx.fillStyle = sg;
       ctx.beginPath();
       ctx.moveTo(wx0, wy1); ctx.lineTo(wx1, wy1);
       ctx.lineTo(wx1 + slant, wy1 + drop); ctx.lineTo(wx0 + slant, wy1 + drop);
       ctx.closePath(); ctx.fill();
+      // v35: the frame shadows the beam — dark slats where mullions block
+      // the sun, so the shaft reads as light THROUGH a window, not a glow
+      const nSlat = shop ? 3 : 1;
+      ctx.fillStyle = `rgba(52,36,20,${0.30 * sunK})`;
+      for(let k = 1; k <= nSlat; k++){
+        const mx = wx0 + (wx1 - wx0) * k / (nSlat + 1);
+        ctx.beginPath();
+        ctx.moveTo(mx - 1.5, wy1); ctx.lineTo(mx + 1.5, wy1);
+        ctx.lineTo(mx + slant + 3, wy1 + drop); ctx.lineTo(mx + slant - 3, wy1 + drop);
+        ctx.closePath(); ctx.fill();
+      }
+      // the beam lands as a bright pool on the floorboards
+      const pool = ctx.createRadialGradient((wx0 + wx1) / 2 + slant, wy1 + drop, 4,
+                                            (wx0 + wx1) / 2 + slant, wy1 + drop, (wx1 - wx0) * 0.7);
+      pool.addColorStop(0, `rgba(255,240,200,${0.30 * sunK})`);
+      pool.addColorStop(1, 'rgba(255,240,200,0)');
+      ctx.fillStyle = pool;
+      ctx.beginPath();
+      ctx.ellipse((wx0 + wx1) / 2 + slant, wy1 + drop * 0.92,
+                  (wx1 - wx0) * 0.62, drop * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // and bounces a soft warm band onto the ceiling above the window
+      const cb = ctx.createLinearGradient(0, wy0, 0, Math.max(0, wy0 - (wy1 - wy0) * 0.5));
+      cb.addColorStop(0, `rgba(255,230,170,${0.16 * sunK})`);
+      cb.addColorStop(1, 'rgba(255,230,170,0)');
+      ctx.fillStyle = cb;
+      ctx.fillRect(wx0, Math.max(0, wy0 - (wy1 - wy0) * 0.5), wx1 - wx0, (wy1 - wy0) * 0.5);
       // dust motes hanging in the beam
-      ctx.fillStyle = `rgba(255,244,210,${0.5 * SF_SUN.day})`;
+      ctx.fillStyle = `rgba(255,244,210,${0.5 * sunK})`;
       const bucket = Math.floor(SF_WX.t * 6);
       for(let k = 0; k < 10; k++){
         const mx = wx0 + hash2(k, bucket, seed + 1905) * (wx1 - wx0) +
@@ -29446,6 +29543,67 @@ function sfRenderInterior(cw, ch, v){
     ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 20, 30, 14, 0, Math.PI, 0); ctx.fill();
     ctx.fillStyle = '#e0b060';
     ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 22, 22, 8, 0, Math.PI, 0); ctx.fill();
+    // v35: espresso machine breathes steam while the café is open
+    if(arch === 'cafe' && !night){
+      ctx.strokeStyle = 'rgba(240,240,235,0.4)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      const ph = Math.floor(SF_WX.t * 2);
+      for(let k = 0; k < 3; k++){
+        const sx2 = cx0 + 30 + k * 9, sy2 = cy0 - 48;
+        const w = Math.sin(ph + k * 2.1) * 5;
+        ctx.moveTo(sx2, sy2);
+        ctx.quadraticCurveTo(sx2 + w, sy2 - 12, sx2 + w * 0.4, sy2 - 24);
+      }
+      ctx.stroke();
+    }
+    // v35: taqueria — salsa bar along the left wall, papel picado overhead
+    if(arch === 'taqueria'){
+      const sbx = cw * 0.06, sby = ch * 0.60, sbw = cw * 0.16, sbh = ch * 0.16;
+      ctx.fillStyle = 'rgba(20,14,8,0.35)';
+      ctx.beginPath(); ctx.ellipse(sbx + sbw / 2, sby + sbh + 6, sbw * 0.62, 10, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8a2f24'; ctx.fillRect(sbx, sby, sbw, sbh);
+      ctx.fillStyle = '#c8b490'; ctx.fillRect(sbx - 4, sby - 8, sbw + 8, 10);
+      for(let k = 0; k < 3; k++){ // salsa bowls: roja, verde, crema
+        ctx.fillStyle = ['#b03020', '#4a7a2e', '#e8d8b0'][k];
+        ctx.beginPath(); ctx.ellipse(sbx + 16 + k * (sbw - 32) / 2, sby - 12, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      for(const [y0, sag] of [[ch * 0.06, 26], [ch * 0.13, 20]]){ // papel picado strings
+        ctx.strokeStyle = 'rgba(40,30,20,0.8)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cw * 0.10, y0);
+        ctx.quadraticCurveTo(cw * 0.5, y0 + sag * 2, cw * 0.90, y0); ctx.stroke();
+        for(let k = 0; k < 9; k++){
+          const t = k / 8, px2 = cw * (0.10 + t * 0.80);
+          const py2 = y0 + sag * 2 * (1 - Math.pow(2 * t - 1, 2)) - sag * 0.4;
+          ctx.fillStyle = ['#e04030', '#f0a020', '#30a0b0', '#d84a90', '#60a030'][k % 5];
+          ctx.beginPath(); ctx.moveTo(px2 - 7, py2); ctx.lineTo(px2 + 7, py2);
+          ctx.lineTo(px2 + 5, py2 + 12); ctx.lineTo(px2 - 5, py2 + 12);
+          ctx.closePath(); ctx.fill();
+        }
+      }
+    }
+    // v35: hardware — a tall aisle shelf silhouette right of center and a
+    // pegboard square on the back wall hung with tool shadows
+    if(arch === 'hardware'){
+      const axx = cw * 0.10, axy = ch * 0.44, axw = cw * 0.11, axh = ch * 0.42;
+      ctx.fillStyle = 'rgba(20,14,8,0.4)';
+      ctx.beginPath(); ctx.ellipse(axx + axw / 2, axy + axh + 4, axw * 0.7, 9, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#3c4048'; ctx.fillRect(axx, axy, axw, axh);
+      for(let s = 0; s < 5; s++){
+        const sy = axy + 8 + s * (axh - 16) / 5;
+        ctx.fillStyle = '#5a6068'; ctx.fillRect(axx + 3, sy, axw - 6, 3);
+        for(let k = 0; k < 5; k++){
+          ctx.fillStyle = ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80', '#4a6a4a'][Math.floor(phash(k, s, seed + 3880) * 5)];
+          ctx.fillRect(axx + 6 + k * (axw - 12) / 5, sy - 9, (axw - 12) / 6, 9);
+        }
+      }
+      const pgx = bL + (bR - bL) * 0.06, pgy = bT + (bB - bT) * 0.12;
+      const pgw = (bR - bL) * 0.22, pgh = (bB - bT) * 0.30;
+      ctx.fillStyle = '#8a7a5a'; ctx.fillRect(pgx, pgy, pgw, pgh);
+      ctx.fillStyle = 'rgba(40,30,18,0.5)';
+      for(let k = 0; k < 8; k++)
+        ctx.fillRect(pgx + 6 + phash(k, seed, 3881) * (pgw - 18),
+                     pgy + 6 + phash(k, seed, 3882) * (pgh - 18), 4, 10 + phash(k, seed, 3883) * 8);
+    }
     // cafe tables + chairs between camera and counter
     for(let k = 0; k < 2; k++){
       const tx = cw * (0.16 + k * 0.18), ty = ch * (0.78 + k * 0.06);
@@ -29534,6 +29692,14 @@ function sfRenderInterior(cw, ch, v){
       ctx.fillStyle = lg; ctx.fillRect(px - 60, py - 30, 120, 150);
       ctx.fillStyle = `rgba(255,230,170,${a + 0.2})`;
       ctx.beginPath(); ctx.arc(px, py + 3, 3.5, 0, Math.PI * 2); ctx.fill();
+      // v35: each lamp throws a matching warm pool on the floor below
+      if(lampGlow){
+        const pg = ctx.createRadialGradient(px, ch * 0.82, 6, px, ch * 0.82, 95);
+        pg.addColorStop(0, 'rgba(255,208,130,0.16)');
+        pg.addColorStop(1, 'rgba(255,208,130,0)');
+        ctx.fillStyle = pg;
+        ctx.beginPath(); ctx.ellipse(px, ch * 0.82, 95, 26, 0, 0, Math.PI * 2); ctx.fill();
+      }
     }
   }
 
