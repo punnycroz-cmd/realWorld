@@ -1,11 +1,18 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v13 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v28 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+(v13: first canonical plan; v28: aligned to the world track's shipped
+moderation contract — see §2.0.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
-user-locked). Community scope spec'd in COMMUNITY-FUNNEL.md §4, which this
-document now supersedes as the canonical reference (§4 there summarizes and
-points here).
+user-locked). Machine-readable contract shipped by world-v8:
+`world/moderation.json` + `world/screen.js` (reference classifier,
+`window.RWScreen.screenRequest`) + `world/mod-console.html` (working review
+console demo) + `world/moderation-tooling.md` (reviewer runbook). This plan is
+the policy/marketing layer; those files are the build contract — where wording
+differs, `moderation.json` wins. Community scope spec'd in
+COMMUNITY-FUNNEL.md §4, which this document supersedes as the canonical
+reference (§4 there summarizes and points here).
 **Scope statement:** moderation in Real World has exactly two surfaces —
 (1) the paid **request pipeline** and its public feed, and (2) the **community
 spaces** around the game. There is no third surface: emergent AI behavior is
@@ -45,6 +52,26 @@ Anti-patterns we explicitly refuse (and why):
 
 ## 2. Surface 1 — request pipeline moderation (design §11)
 
+### 2.0 What the world track already built (world-v8)
+
+Spec is no longer speculative. Delivered on `sf/world` (read-only for us):
+
+- **`world/screen.js`** — the shared intent-screening engine, plain script-tag
+  and file://-safe. `request.html` and `mod-console.html` both call it, so
+  player-side and reviewer-side verdicts can never drift. Merge rule for the
+  game track: the shipped classifier must never be *more permissive* than
+  `RWScreen.screenRequest` on identical inputs.
+- **`world/moderation.json`** — the machine-readable contract this plan now
+  defers to: 7 deny + 7 review reason codes (with flag weights, refund rules,
+  feed wording), 5 queue lanes, SLA target, account-flag thresholds,
+  reviewer whitelist, appeal flow, display-filter options A/B/C.
+- **`world/mod-console.html`** — working review-queue demo (lanes, live
+  classifier trace, whitelist context card, decisions/appeals/audit log,
+  metrics strip). Screenshot-safe: parody names only, secrets render as
+  "Not redacted — absent" bars. Usable for press-kit captures.
+- **`world/moderation-tooling.md`** — reviewer runbook (the 90-second version
+  is §7 there; our canned responses in `templates/mod-responses.md` comply).
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -57,49 +84,73 @@ The locked pipeline, with the moderation decision at each stage spelled out:
 | 6. Execute + feed | Hard cap, graceful AI handoff; public feed shows intervention + attribution | Display-side text filter before render (§2.3) | LOCKED feed; filter OWNER-DECISION |
 | 7. Post-hoc | Ledger + world reacts; legal backstop for extreme remainder | Owner legal review equivalent; invisible to players | LOCKED |
 
-### 2.1 Blocked-category definitions (moderator-facing)
+### 2.1 Reason-code taxonomy (canonical: `world/moderation.json`)
 
-The classifier and human reviewers apply these definitions — deliberately
-written so "is this targeting harm?" is decidable in under a minute:
+v13 invented four codes (`harm-targeting`, `legal-backstop`,
+`secret-extraction`, `policy-other`). world-v8 shipped the real taxonomy —
+this section now defers to it. **Deny tier** (hard block, auto-refund, feed
+shows the neutral `request not approved`):
 
-- **Targeting harm/humiliation/destruction** — the request's *stated intent*
-  is to make a specific character suffer, be humiliated, or have their life
-  destroyed. "Rain on the block party" passes (weather is world-scale).
-  "Make Jules's landlord evict her" fails (targeting + the landlord is an
-  admin function anyway). Test: would the reasonable reader call this
-  bullying a fictional person as the point of the request?
-- **Legal backstop** — threats of real-world harm, CSAM or sexual-content
-  requests (characters are adults; the category is still zero-tolerance),
-  defamation of *real* persons (the address system exists precisely so no
-  fictional address maps to a real door — requests trying to break that
-  mapping, e.g. "put a fake business at <real home address>", fail here).
-- **Secret extraction** — any request whose text aims to surface drama seeds
-  or redacted briefing content ("tell me what Sanna is hiding"). Always
-  denied; secrets are learned by watching, like any viewer.
+| Code | What it catches | flag_w |
+|---|---|---|
+| `harm-targeting` | Stated intent is a specific character's suffering/humiliation/destruction. "Rain on the block party" passes (world-scale); "make Jules's landlord evict her" fails twice over (targeting + admin-domain). Test: is bullying a fictional person the *point*? | 2 |
+| `secret-extraction` | Text fishing for drama seeds or redacted briefing content ("tell me what Sanna is hiding"). Secrets are learned by watching, never bought. | 1 |
+| `possession-scope` | Asks to possess someone the requester didn't hire — a main, another player's tenant, the landlord. | 1 |
+| `admin-domain` | Rent/eviction/lease nudges — admin-only powers (world-v8 addition). "Nudge Victor to raise her rent" dies here, not in review. | 1 |
+| `real-business` | Names a real-world business; player copy always suggests the parody name (`world/parody-names.json`). | 0 |
+| `identity-fraud` | Impersonating a real person, or naming a hire after one to deceive. | 2 |
+| `legal-backstop` | Real-world threats, CSAM/sexual content, defamation of real persons, breaking the address-mapping guarantee. Not appealable; account flag +3, owner notified, ledger `legal-deny`. Public wording identical to a normal deny — no spectacle. | 3 |
+
+**Review tier** (human queue, feed shows `in_review`): `gray-zone` ·
+`surface-relationship` (touches a main's job/marriage/friendship) ·
+`venue-lock` · `repeat-pattern` (same_target_7d ≥ 3 or denied_30d ≥ 2 — the
+fixation heuristic) · `real-person-mention` · `appeal-resubmit` ·
+`first-time-exclusive` (acct < 3 days old filing an exclusive).
+
+Player-facing wording is per-code canned copy in `screen.js`
+`REASON_CODES.player_msg` — reviewers pick a code, never free-type player
+copy. Public feed wording is always `request not approved` regardless of
+code; the reason *code* may attach so the public sees the why-class, never
+the screened text.
 
 **Not moderated (LOCKED):** compatible requests auto-run on classifier pass —
 a request to buy two characters dinner together is the best multiplayer in the
 game and must never wait on a human. Emergent outcomes: if an approved request
 produces an ugly scene, that scene is canon; the remedy was upstream.
 
-### 2.2 Human review queue — owner tooling spec (SPEC)
+### 2.2 Human review queue — tooling status (world-v8 DELIVERED demo; game plumbing PENDING)
 
 At launch the owner *is* the review queue (28 characters, indie scale — a
-single reviewer is honest, not a weakness; we say so publicly). Tooling needed
-from game-systems, in priority order:
+single reviewer is honest, not a weakness; we say so publicly). The v13
+shopping list is now mostly built by world-v8:
 
-1. **Review inbox** — pending exclusive/gray-zone requests, sorted by paid-at
-   timestamp. One-screen decision: approve / deny+refund / deny-no-refund
-   (deny-no-refund reserved for repeated blocked-category submissions; first
-   offense always refunds).
-2. **Context panel** — requester's history (approved/denied ratio), resource
-   contested, cooldown state, surge multiplier applied.
-3. **Decision reason codes** — a fixed enum (`harm-targeting`,
-   `legal-backstop`, `secret-extraction`, `policy-other`) attached to the
-   feed's denial entry so the public sees *why* class, not just that.
-4. **Queue depth alert** — if pending reviews exceed a threshold the owner
-   sets, the site/pricing copy already warns that exclusive requests take
-   review; never auto-approve to drain a queue.
+1. **Review inbox — DELIVERED as `mod-console.html` demo.** Five lanes:
+   Exclusive / Gray-zone / Appeals / Naming / Legal, oldest-first FCFS (no
+   priority for spend, no auctions). Decisions: approve / approve-modified
+   (trim only, never expand, unused credits refund) / deny / escalate-legal.
+   Note: the v13 "deny-no-refund" option is GONE from the shipped contract —
+   every deny refunds; repeat abuse is handled by account flags (§2.4a), not
+   by keeping money.
+2. **Context panel — DELIVERED.** Player card (history, deny count,
+   same-target count, flags, tier) + character card built from the reviewer
+   whitelist — the SAME schema as possession briefings (`name, age, job,
+   home_address, public_profile, surface_relationships, routine`). Secrets
+   aren't redacted; they're absent from the schema entirely.
+3. **Reason codes — DELIVERED, expanded.** Canonical taxonomy in §2.1
+   (7 deny + 7 review codes) replaces the v13 four-code enum. `policy-other`
+   is retired — if a deny doesn't fit a code, the code list is wrong, not
+   the request.
+4. **Queue depth alert — DELIVERED as spec.** Threshold 20 pending → owner
+   alert; wait display amber >15 min, red >30 min; **never auto-approve to
+   drain a queue** (in `moderation.json`, not just convention).
+5. **Audit — DELIVERED as spec.** Every decision logs timestamp, reviewer,
+   request id, outcome, code; merge target is canonical-ledger
+   `mod_decision` records (game-systems owns the ledger writes).
+
+Still PENDING (game-systems plumbing at merge): the live queue data model,
+classifier wiring into `41_game_systems_requests.js`, SLA timers, ledger
+writes. The console demo defines expected behavior; `RWScreen` verdicts are
+the reference outputs.
 
 **Honest-SLA rule:** copy may say "exclusive requests are reviewed by a
 human before they run." Copy must never promise a review *time* — a queue
@@ -148,6 +199,24 @@ design. In order of when they engage:
 
 What moderators do NOT have: a tool to alter, delete, or retcon an event that
 already executed. That tool does not exist; do not build it, do not imply it.
+
+### 2.4a Account flags — the repeat-offender mechanism (world-v8 contract)
+
+Denied verdicts carry `flag_w` (0–3 per §2.1) summed into a rolling score —
+this replaces the v13 deny-no-refund idea entirely. Thresholds (PROPOSAL,
+in `moderation.json`):
+
+| Score | Effect |
+|---|---|
+| 3 | All requests human-reviewed for 7 days |
+| 6 | Request privileges suspended 72 h |
+| 9 | Account review — owner decision |
+
+Decay: −1 per clean 30 days. Rules: flags are never shown publicly, never
+monetized around, never appear on the feed. The marketing-relevant property:
+**repeat grief costs the griefer privileges, not refunds** — a cleaner story
+than "we keep your money," and it removes the worst possible headline
+("game fines players for denied requests").
 
 ### 2.5 Possession-specific guarantees (design §7 — marketable promises)
 
@@ -219,35 +288,48 @@ not policy discretion.
 
 | Incident | Signal | Response | Owner call needed? |
 |---|---|---|---|
-| Grief request wave | Review queue fills with same-target requests | Cooldowns engage automatically; deny category-matching requests with refund; note on feed is public | No — ladder runs itself |
+| Grief request wave | Review queue fills with same-target requests | Cooldowns engage automatically; deny with `harm-targeting`/`repeat-pattern`, full refunds; account flags accumulate; note on feed is public | No — ladder runs itself |
+| Rent/eviction grief wave | Queue fills with "raise her rent" style asks | All die on `admin-domain` (deny, refund, flag +1); recap may note the attempt class in aggregate | No |
+| Naming-lane abuse | Offensive hire name / plaque string | Naming lane deny via `identity-fraud`/`legal-backstop` as applicable; string never reaches the world | No |
 | Credit scam in Discord | "selling credits" posts | Instant ban + pinned PSA reminder credits are non-transferable | No |
 | Doxxing attempt (mapping fiction → real door) | Member posts real-address guesses | Instant ban, delete content, note in #mod-log | Owner informed after |
-| CSAM/illegal request text | Classifier flags legal-backstop | Deny no-refund, preserve record, owner decides legal reporting | Yes — immediately |
+| CSAM/illegal request text | Classifier flags legal-backstop | Escalate-legal: kill pre-run or mid-flight, account flag +3, owner notified, ledger legal-deny; public wording identical to a normal deny; owner decides legal reporting | Yes — immediately |
 | Review queue collapse (owner AFK) | Pending exclusive requests expire+refund | Working as designed — refunds are the backstop; no emergency tooling needed | Post-hoc only |
 | Feed text-filter bypass | Profanity/PII renders on public feed | Option-A redact retroactively if supported; else owner hide; fix filter | Yes |
 | Coordinated raid on Discord | Mass join + spam | Verification gate (pre-approved addition), timeouts, recap honesty next post | No |
 | Press asks "can players do anything horrible?" | Interview question | Answer with the pipeline: screened intent, human review, attribution, hard caps — pitch is transparency, not promises | Prepared quote in PRESS-OUTREACH.md |
 
-## 5. Appeals & refunds (requests)
+## 5. Appeals & refunds (requests) — aligned to `moderation.json` appeal_flow
 
-- Denied at screening/review → **always refunded** (credits never move on a
-  denial), except `deny-no-refund` for repeated blocked-category abuse
-  (second+ offense only, reason-coded).
+- Denied at screening/review → **always refunded, every deny** (credits never
+  move on a denial). The v13 deny-no-refund carve-out is retired; repeat
+  abuse is deterred by account flags (§2.4a), which cost privileges rather
+  than money.
 - Queued-and-expired → auto-refunded (design §5, LOCKED).
+- Approve-modified → unused credits auto-refund; trim-only, logged.
 - Admin override of an active request → affected players compensated (§3).
+- **Appeal window 72 h**, routed to a **different reviewer** — the console
+  shows the original reviewer id on the appeal card so the rule is checkable.
+  Overturned requests re-enter the pipeline post-review at no re-charge; a
+  second denial is final for that request text. Not appealable:
+  `legal-backstop`, `appeal-resubmit` (a resubmitted denial goes through the
+  appeal lane, not a new appeal).
 - A denied requester may refile with different text — the feed will show both
-  attempts. One appeal per denial to the owner; outcome is final and public
-  in aggregate only ("3 denials appealed this month, 0 reversed" — a recap
-  stat, not a per-person thread).
+  attempts. Appeals surface in public as aggregate stats only ("3 denials
+  appealed this month, 0 reversed" — a recap line, not a per-person thread).
 
 ## 6. Metrics (feeds ANALYTICS.md weekly report)
 
 | Metric | Source | Healthy direction |
 |---|---|---|
-| Review queue depth + median decision age | review inbox | depth < owner's daily capacity |
-| Denial rate by reason code | feed `denied` entries | stable; spikes = copy is promising wrongly |
+| Queue depth + oldest wait | mod-console metrics strip | depth < 20 alert threshold |
+| Median decision time | mod-console vs 15-min internal target | < 15 min (internal target only — never a public SLA) |
+| Decisions per shift | mod-console audit | within owner capacity |
+| Denial rate by reason code | feed `not approved` entries + `reason_code` | stable; spikes = copy is promising wrongly |
+| Appeal reversal count | appeal lane | low; high = reviewer drift |
+| Compensation paid (cr) | ledger | low; spikes = admin overrides misfiring |
 | Refund rate (queued-expired) | ledger | low; high = queue/classification oversubscribed |
-| Deny-no-refund count | #mod-log | near zero |
+| Account-flag distribution | flag store | most flags decay; score-9 reviews rare |
 | Community ladder actions | #mod-log | warns >> timeouts >> bans |
 | Feed-filter flag rate | display filter | low; spikes = coordinated test or broken filter |
 
@@ -258,7 +340,9 @@ not policy discretion.
 | "Every request is screened for intent before it can run" | "Safe community" (absolute) |
 | "Exclusive requests get human review" | "Reviewed within X hours" / any SLA |
 | "Every paid intervention is attributed on a public feed" | "Grief-free" / "toxicity-free" |
-| "Denied and expired requests refund automatically" | "We can undo events" — no retcon exists |
+| "Denied and expired requests refund automatically — every denial refunds in full" | "We can undo events" — no retcon exists |
+| "Every denial can be appealed once within 72 hours, to a different reviewer" | "Appeals get a public hearing" — aggregate stats only |
+| "A reviewer sees the same character info a possession briefing does — secrets aren't hidden, they're absent" | "Reviewers can check what the character is hiding" |
 | "The 8 main characters can't be possessed by anyone, including us" | "AI characters are supervised" — they aren't, by design |
 | "Request text is filtered before appearing on the public feed" | Naming the filter option until owner decides (§2.3) |
 
@@ -279,9 +363,14 @@ pages + this table update in the same commit.
 
 ## 9. Open dependencies
 
-- Review-inbox tooling (§2.2) — game-systems build item; until then the
-  owner reviews via whatever feed view exists.
-- Feed display filter option (§2.3) — OWNER-DECISION.
-- Denial reason codes on feed entries (§2.2 item 3) — game-systems; recaps
-  want them for aggregate stats.
+- ~~Review-inbox tooling~~ — DELIVERED by world-v8 as `mod-console.html`
+  demo + `moderation.json` contract; remaining work is game-systems
+  plumbing (queue data model, classifier wiring, SLA timers, ledger writes).
+- Feed display filter option (§2.3) — OWNER-DECISION, still open;
+  `moderation.json.display_filter` mirrors our A/B/C options verbatim.
+- ~~Denial reason codes on feed entries~~ — DELIVERED: `feed.json` carries
+  `reason_code`; public wording is the neutral "request not approved".
 - Contact address for appeals — part of G6 account registration.
+- Naming-lane enforcement for `world/creation.json` hire names (500 cr hire
+  flow from world-v7 routes through the naming lane — confirm game plumbing
+  wires it at merge).

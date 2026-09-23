@@ -8,13 +8,20 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
 ## A. Request-pipeline responses (posted by the system / owner, attributed on feed)
 
 **Denied — intent screening (auto or review):**
-> Request [#ID] denied under our request rules (reason: [harm-targeting /
-> legal-backstop / secret-extraction]). Your credits were never charged — the
-> hold released automatically. You're welcome to refile a different request.
+> Request [#ID] was not approved under our request rules (reason code:
+> [harm-targeting / secret-extraction / possession-scope / admin-domain /
+> real-business / identity-fraud / legal-backstop]). Your credits were never
+> charged — the hold released automatically. You're welcome to refile a
+> different request, and there's a 72-hour appeal window if you think we
+> misread it. (On the public feed this shows the neutral line "request not
+> approved" — the code goes to you, not to spectators.)
 
-**Denied — repeat abuse (no refund, second+ offense):**
-> Request [#ID] denied. Because this repeats a previously denied category, the
-> filing charge stands per the request rules. Details: [one line].
+**Denied — repeat filings (account flags, never withheld refunds):**
+> Request [#ID] was not approved — same category as previous denials. Every
+> denial still refunds in full; what repeats cost is trust, not credits.
+> Continued filings in blocked categories add account flags that put all
+> future requests through human review, then suspend request privileges.
+> The clean way back is clean requests.
 
 **Expired in queue (auto-refund):**
 > Request [#ID] expired before activation — a human never reached it in time.
