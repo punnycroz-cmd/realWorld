@@ -998,6 +998,16 @@ needs both.
 | grace_floor | 0.02 | 0.15 | worst-case recall floor at θ cap (v5.18) |
 | ctx_tau | 10 | 90 | sim-min context-field persistence (v5.18) |
 | att_span_ctx | 3 | 8 | cueContext cardinality bound (v5.18, HYPOTHESIS) |
+| tp_pastneg / tp_pastpos / tp_preshed / tp_presfat / tp_future | 0.0 | 1.0 | trait pins — ZTPI subscales, independent (v5.19) |
+| narr_agency / narr_comm | 0.0 | 1.0 | trait pins — thematic field-depth (v5.19) |
+| autobio_k | 0.0 | 1.0 | trait pin — lesson-mint rate (v5.19) |
+| narr_coh_k | 0.0 | 1.0 | trait pin — narr_link_gain multiplier (v5.19) |
+| period_sal | 0.0 | 1.0 | trait pin — chapter-wall strength (v5.19) |
+| epi_future_k | 0.15 | 0.95 | trait pin — computed prior, override w/ reason (v5.19) |
+| tp_arrival_k | 0.15 | 0.5 | mechanism — arrival-sampler gain (v5.19) |
+| theme_sel_k | 0.1 | 0.35 | mechanism — field-depth modulation (v5.19) |
+| era_surf_p | 0.05 | 0.3 | mechanism — base era-wording rate (v5.19) |
+| sdm_tension_intr | 0.05 | 0.3 | mechanism — anchor re-access gain (v5.19) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3371,3 +3381,68 @@ is about what it *guarantees* writers:
   bible authors: nothing you pin can silently do nothing — if a
   trait loading doesn't move a declared observable, the harness
   says so.
+
+## 53. v5.19 note (character-profiles VI — the narrator's compass)
+
+Fifteen clamp rows added in §0. This pass is the bible-richest one
+yet: eleven of the fifteen are trait pins. What bible authors should
+actually touch:
+
+- **`tp_vec` (five pins, independent — NOT normalized):** the
+  strongest single "where does the mind rest" dial set. Pin from the
+  bible's temporal register, not from mood: a character can be
+  cheerful AND past-negative (Victor reads warm-present, arrives
+  cold). **Do NOT use tp_pastneg as a proxy for `depr`** — depression
+  is a phenotype with OGM and consolidation consequences;
+  tp_pastneg is only an arrival weight. They co-load in the cast
+  (Victor carries both) because they co-occur in life, but a
+  tp_pastneg pin without depr is legal and reads differently
+  (nostalgic melancholy ≠ clinical flatness — P745 null-locks any
+  generator that lets tp weights touch record content).
+- **`narr_agency`/`narr_comm`:** what the stories are ABOUT. Pin
+  from the bible's telling style: "she tells it as a plan" →
+  agency; "he tells it as a table of people" → communion. The
+  mechanic is field DEPTH — the same event lands differently
+  (P747), but `theme_fabricate_null` means the unfavored theme's
+  fields exist thin, never missing. Do not confuse with `extra`
+  (sociability) or `consc` (planfulness) — narr_comm is about
+  what the ENCODING privileges, not how sociable the character is.
+- **`autobio_k`:** the experience→residue conversion rate. The
+  most outcome-bearing dial in the pass: at 0.2 a character lives
+  the same year three times (Marcus); at 0.7 every stoop story
+  mints a proposition (Carmen). Pair guidance: autobio_k +
+  script_redeem is the wisdom axis (lessons + redemption-telling
+  compound); autobio_k low + rumin high is the treadmill (re-runs
+  problems, extracts nothing — Victor's slot).
+- **`narr_coh_k`:** wiring, not rooms. Distinct from
+  `self_complex` (structure) — a two-room self can still be
+  tightly linked; a seven-room self can be a junk drawer. Low
+  narr_coh_k + high vivid_detail = the album-of-brilliant-
+  snapshots phenotype.
+- **`period_sal`:** pin by biography — a life with a literal
+  before/after (immigration, widowhood, the move) wants 0.7–0.9;
+  a continuous-life profile wants ≤0.3. Side effect writers
+  should EXPECT: high period_sal + era_surf_p makes the
+  character spontaneously date their own past in dialogue ("in
+  the Miami years") — the surface mark is free color, use it.
+- **`epi_future_k`:** usually DERIVED — the prior couples to
+  vivid_detail and the OGM terms (Williams 1996: generic past ↔
+  generic future is one style). Pin explicitly only for the
+  dreamer-on-thin-archive case (Dani 0.8). `future_leak_null`
+  keeps rich imagined futures from becoming fake memories —
+  the flip needs §6.9 imagination inflation.
+- **`tension` (record field, not a trait):** bible seeds it on
+  selfdef anchors — the unfinishedness. Tense anchors knock
+  more (`sdm_tension_intr`) without weakening — a tense anchor
+  is a STRONG record, not a damaged one (`tension_fate_null`).
+- **Never pin (mechanism constants):** `tp_arrival_k`,
+  `theme_sel_k`, `era_surf_p`, `sdm_tension_intr` — population
+  scales; the per-character surfaces all live on the trait side.
+- **Emergent cast shadow:** (a) Victor's archive visits HIM —
+  past-negative arrivals + fatalistic quiet + the steepest wall;
+  (b) Marcus has the least-narrated archive in the cast — sunny,
+  shallow, lesson-free; (c) Carmen's stoop mints propositions —
+  her memory literally editorializes; (d) Jules's Portland wall
+  is the sharpest under-30 boundary; (e) Dani's futures are
+  thicker than most people's pasts — and can never accidentally
+  become one.

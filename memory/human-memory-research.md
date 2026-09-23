@@ -2330,3 +2330,76 @@ effects.
 - **Capacity note.** Miller 1956 (*Psych Rev* 63:81 — 7±2) —
   conservative basis for `att_span_ctx` ≈ 5 as a *cue-set*
   bound; flagged HYPOTHESIS (cue admission ≠ chunk capacity).
+
+## 48. Addendum — v70 anchors (character-profiles VI, spec v5.19)
+
+The narrator-compass layer: time perspective, narrative themes,
+lesson-minting, coherence, chapter salience, future thickness,
+anchor tension.
+
+- **Time perspective is a stable trait.** Zimbardo & Boyd 1999
+  (*JPSP* 77:1271 — verified): ZTPI five subscales
+  (past-negative, past-positive, present-hedonistic,
+  present-fatalistic, future), intercorrelations weak-to-
+  moderate → five independent pins, not a simplex. Stolarski,
+  Fieulaine & van Beek 2015 (Springer volume) consolidates the
+  theory. The MEMORY-side mapping (arrival weighting by
+  era/valence, future-reach scaling) is our HYPOTHESIS — ZTPI
+  measures orientation, and orientation predicts what
+  spontaneously arrives; we formalize the direction, not the
+  effect size. D'Argembeau & Mathy 2011 (*J Cogn Psychol* 23 —
+  verified): future-thinking frequency tracks goals — the
+  tp_future → goal-rehearsal link.
+- **Stories are ABOUT agency or communion.** McAdams 2001
+  (*Rev Gen Psychol* 5:100 — verified) — the two thematic
+  lines; McAdams & McLean 2013 (*Curr Dir Psychol Sci* 22:233 —
+  verified) — narrative identity review. Adler 2012 (*JPSP*
+  102:367 — verified): agency in narratives rose BEFORE
+  wellbeing did across psychotherapy — agency is a narrative
+  habit, not a mood readout. Adler, Lodi-Smith, Philippe &
+  Houle 2016 (*PSPR* 20:142 — verified): narrative identity
+  predicts wellbeing incrementally over Big Five traits —
+  warrant for trait-level narr_* pins. The field-depth tuning
+  mechanism is our HYPOTHESIS (attentional theming at encode).
+- **Reasoning turns events into selves.** Pasupathi & Mansour
+  2006 (*Dev Psychol* 42:798 — verified): self-event
+  connections in narratives; McLean, Pasupathi & Pals 2007
+  (*PSPR* 11:262 — verified): stories create selves and selves
+  create stories; McLean & Thorne 2003 (*Dev Psychol* 39:635 —
+  verified): self-defining memories yield lessons and insights.
+  The `lesson` persSem subtype + `origin:"derived"` lock is
+  our formalization — the literature says these connections
+  are REVISIONS of self-knowledge, not new facts.
+- **Coherence is a measurable property of told lives.** Reese
+  et al. 2011 (*Memory* 19:688 — verified): causal-motivational
+  + thematic coherence predict wellbeing. narr_coh_k models the
+  link-minting side; the retrieval-route benefit is ours.
+- **Lives vary in chapteredness.** Thomsen 2009 (*Memory* 17 —
+  verified): life stories differ in number and closure of
+  chapters; Brown 2016 transition theory (reused, §4.18).
+  `period_sal` = the individual-difference formalization of
+  the chaptered life.
+- **Future imagination rides the episodic machinery.**
+  Williams, Ellis, Tyers, Healy, Rose & MacLeod 1996 (*Memory*
+  4:115 — verified): suicidal/depressed respondents produce
+  generic futures AND generic pasts — specificity is ONE
+  style → `epi_future_k` prior couples to vivid_detail/OGM.
+  Schacter & Addis 2007 (*Phil Trans R Soc B* 362:773 —
+  verified): constructive episodic simulation; Hassabis,
+  Kumaran, Vann & Maguire 2007 (*PNAS* 104:1726 — verified):
+  hippocampal amnesics cannot imagine coherent futures —
+  grounding for `future_leak_null` (the channel that makes
+  futures is episodic, and rich ≠ remembered).
+- **Anchors carry tension.** Singer, Blagov, Berry & Oost 2013
+  (*JPSP* 105:262 — verified): self-defining memories vary on
+  tension; high-tension anchors predict distress. The
+  intrusion-only mapping (tension raises re-access, never
+  damages the record) is our HYPOTHESIS — Singer's tension
+  correlates with rumination in the literature.
+- **Established vs hypothesis summary:** ZTPI structure,
+  agency/communion themes, lesson/self-event connections,
+  coherence×wellbeing, chapter variation, past↔future
+  specificity coupling, SDM tension — CONSENSUS/adjacent.
+  Arrival weighting, field-depth tuning, lesson-as-persSem,
+  link-mint rate, wall-scaling, prior formula, intrusion-only
+  tension — all RW modeling HYPOTHESES on consensus bases.

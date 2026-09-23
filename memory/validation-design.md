@@ -6187,3 +6187,89 @@ psychological effect size.
 Registry: P1–P744. v69 suite: P733–P744 — 7 MUST (P733–P739,
 P742; P733/P734/P739/P742 carry locked nulls; P736/P738 sign-
 locked) and 5 SHOULD (P740–P744; P743/P744 meta).
+
+## 135. v70 character-profiles probes — the narrator's compass (P745–P756)
+
+Probes for spec §6.145–6.151 / cast-profiles.md Part III. Six of
+twelve carry locked nulls — the compass moves selection, depth,
+and wording; existence, provenance, and content are out of bounds.
+
+- **P745** tp arrival-only (MUST — locked null): two identical
+  archives (one old positive + one old negative record); run
+  tp_pastpos-high and tp_pastneg-high twins; spontaneous-arrival
+  ranking must swap, record fields identical bitwise.
+  `tp_fate_null = 0`.
+- **P746** perspective sign-lock (MUST — sign-locked): across the
+  trait joint, spontaneous arrivals of old records must be
+  monotone non-decreasing in tp_pastpos for valence>0 records and
+  in tp_pastneg for valence<0 records; tp_preshed monotone
+  non-increasing for all is_old records. Any inversion = FAIL.
+- **P747** thematic depth split (MUST — sign-locked): same
+  mixed-theme event encoded by narr_agency-high vs narr_comm-high
+  twins → goal/obstacle field depth higher under agency,
+  affiliative field depth higher under communion; total field
+  mass equal within noise. Swap of sign = FAIL.
+- **P748** theme never mints (MUST — locked null): event with no
+  obstacle fields + narr_agency = 1 → emitted record carries zero
+  goal/obstacle content over 10⁴ encodes.
+  `theme_fabricate_null = 0`.
+- **P749** lesson minting (SHOULD): autobio_k = 1, retell of a
+  meaning ≥ 0.4 selfdef record → `lesson` persSem exists with
+  `origin:"derived"` and `sources` back-linked; autobio_k = 0 →
+  zero lessons over matched retell counts.
+- **P750** lesson boundary (MUST — locked null): lessons
+  rehearsed/retold ≥ 50 times keep `origin:"derived"` and never
+  edit source-record fields. `lesson_truth_null = 0`.
+- **P751** coherence linking (SHOULD): narr_coh_k 0 vs 1 twins,
+  matched retell counts → link degree on told records diverges
+  (≈0 vs >2); existing-link decay unaffected (control: kill new
+  mints → link mass equalizes at baseline).
+- **P752** chaptered walls (MUST — sign-locked): identical
+  transition history, period_sal 0 vs 1 → cross-period cueMatch
+  cost ratio ≈ (0.3 + 1.4·ps) scaling; monotone in period_sal.
+- **P753** era wording is surface (MUST — locked null): period_sal
+  sweep changes emission era-wording rate but record content and
+  valence identical; `period_identity_null = 0`.
+- **P754** future thickness (SHOULD): matched-age twins,
+  epi_future_k 0.15 vs 0.9 → imagineEvent verbatim counts scale;
+  sim_detail_mult age knot unchanged (age and trait orthogonal).
+- **P755** rich futures stay futures (MUST — locked null):
+  epi_future_k = 1, imagineEvent at max richness, no §6.9 flip
+  path enabled → recall of the imagined event AS past = 0 over
+  10⁴ draws. `future_leak_null = 0`.
+- **P756** tension knocks, doesn't damage (MUST — locked null):
+  selfdef twins tension 0 vs 1 → re-access rate differs
+  (×1 + sdm_tension_intr), strength/valence/content identical.
+  `tension_fate_null = 0`.
+
+## 136. Sources verified this version (P745–P756 backing)
+
+- Zimbardo & Boyd 1999 (*JPSP* 77:1271 — verified): ZTPI
+  orthogonality → five independent pins, not a normalized
+  simplex; D'Argembeau & Mathy 2011 (*J Cogn Psychol* 23 —
+  verified): future-TP ↔ goal rehearsal.
+- McAdams 2001 (*Rev Gen Psychol* 5:100); Adler 2012 (*JPSP*
+  102:367); Adler, Lodi-Smith, Philippe & Houle 2016 (*PSPR*
+  20:142) — thematic depth/retell emphasis; the FIELD-DEPTH
+  mechanism mapping is our HYPOTHESIS.
+- Pasupathi & Mansour 2006 (*Dev Psychol* 42:798); McLean,
+  Pasupathi & Pals 2007 (*PSPR* 11:262); McLean & Thorne 2003
+  (*Dev Psychol* 39:635) — lesson/self-event connections; the
+  persSem `lesson` subtype is our formalization.
+- Reese et al. 2011 (*Memory* 19:688) — coherence dimensions;
+  narr_coh_k's link-mint role is our HYPOTHESIS.
+- Thomsen 2009 (*Memory* 17) — chapter count/closure vary;
+  period_sal is the per-character formalization of §4.18.
+- Williams et al. 1996 (*Memory* 4:115 — verified): past↔future
+  specificity coupling → epi_future_k prior; Schacter & Addis
+  2007; Hassabis et al. 2007 — simulation needs the episodic
+  machinery (locked null basis).
+- Singer, Blagov, Berry & Oost 2013 (*JPSP* 105:262) — tension
+  as a selfdef dimension; intrusion-only mapping is our
+  HYPOTHESIS (tension→distress is established; tension→re-access
+  is the plausible read).
+
+Registry: P1–P756. v70 suite: P745–P756 — 9 MUST (P745–P748,
+P750, P752, P753, P755, P756 — locked-null carriers: P745/P748/
+P750/P753/P755/P756; sign-locked: P746/P747/P752) and 3 SHOULD
+(P749, P751, P754).

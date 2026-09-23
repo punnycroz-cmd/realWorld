@@ -1,4 +1,4 @@
-# Cast Memory Profiles — the 8 mains, compiled (v22)
+# Cast Memory Profiles — the 8 mains, compiled (v70)
 
 **Track:** memory-research (sf/memory) · **Inputs:** world track character
 bibles `world/characters/c1–c8` (world-v14, read-only), the v1.0 compiler
@@ -1307,3 +1307,236 @@ P602–P614 → validation-design.md §103.
 - Fivush & Fromhoff 1988; Reese, Haden & Fivush 1993 — elaborative
   reminiscing style (developmental base; adult extension is our
   HYPOTHESIS, flagged §6.107).
+
+# Part III — v70 pass: the narrator's compass
+
+Spec refs: v5.19 §6.145–6.151. Probes P745–P756 filed to
+validation-design.md §135. This pass adds WHERE in time a
+character's mind rests (time perspective), WHAT their stories
+are about (agency/communion themes), and the machinery that
+turns a life into a book: lesson-minting, coherence-linking,
+chapter salience, future thickness, anchor tension.
+
+## 19. New mechanisms (→ spec v5.19 §6.145–6.151)
+
+### 19.1 Time perspective — `tp_vec` (§6.145)
+
+ZTPI five subscales as independent bible pins. Past-negative =
+the mind wanders to old wounds uninvited; past-positive = the
+sweet old days walk up; present-hedonistic = the past stays put
+unless fetched; present-fatalistic = mind-wandering itself runs
+quiet; future = goals rehearse and imagineEvent fires more.
+Arrival-side ONLY — `tp_fate_null` locks it off record
+existence/content. Distinct from `remin_style` (which is a
+55+ reminiscence FUNCTION taxonomy — what retelling does to
+the archive) and from `script_redeem` (the transform on meaning,
+not the selection). A past-negative elder can still reminisce
+transmissively — she teaches from the wound.
+
+### 19.2 Narrative themes — `narr_agency`/`narr_comm` (§6.146)
+
+McAdams's two thematic axes as field-depth dials at encoding
+and emphasis dials at retell. `theme_fabricate_null` locks the
+tuning to depth — the communion-tuned witness of a solo event
+does not hallucinate a co-actor. Orthogonal to `elabor`
+(which draws stories OUT of others — the interview) and to
+`script_redeem` (the valence transform on meaning).
+
+### 19.3 Autobiographical reasoning — `autobio_k` (§6.147)
+
+The lesson-minting rate. High autobio_k characters convert
+meaning-bearing retellings into `lesson` persSem records —
+self-beliefs with `origin:"derived"`, permanently barred from
+event-source status (`lesson_truth_null`). This is the axis
+that separates "has experience" from "has learned": C5 Marcus
+at 0.2 lives the same year three times; C6 Carmen at 0.7 has
+a stoop-full of derived propositions ("people forgive slower
+than they forget"). Lessons link back to sources — both
+directions are retrieval routes.
+
+### 19.4 Narrative coherence — `narr_coh_k` (§6.148)
+
+Multiplier on `narr_link_gain` at retell. The coherent
+narrator's archive gains connective tissue — causal and
+thematic links that double as retrieval routes. The
+low-coherence archive is a drawer of snapshots: records exist,
+are retrievable, but nothing leads anywhere. Distinct from
+`self_complex` (how many rooms the self has — structural);
+narr_coh is how well the rooms are WIRED.
+
+### 19.5 Period salience — `period_sal` (§6.149)
+
+Per-character scaling of §4.18's chapter walls. At 0 the life
+reads continuous — boundaries barely cost; at 1 every era is
+a closed room and transitions land hard. Era wording
+("in the Miami years") surfaces at `era_surf_p +
+0.5·period_sal` — the chaptered character spontaneously dates
+their own past. `period_identity_null` keeps `period` pure
+metadata — the wall is a cueing cost, never a content edit.
+
+### 19.6 Episodic-future trait — `epi_future_k` (§6.150)
+
+Trait multiplier on `sim_detail_mult` — how thick a
+character's imagined futures run, with a computed prior from
+vivid_detail × OGM terms (Williams 1996: generic past ↔
+generic future is ONE style, not two). `future_leak_null`
+locks the boundary: a richly imagined future never becomes a
+remembered past through detail alone — the flip needs §6.9
+imagination inflation.
+
+### 19.7 Anchor tension — `tension` + `sdm_tension_intr` (§6.151)
+
+selfdef records carry bible-seeded `tension` — the
+unfinishedness of the anchor. Tension raises re-access rate
+(knocking, not damage — `tension_fate_null`). A character can
+hold an anchor that is vivid, positive, AND unresolved — it
+returns to her more often, intact.
+
+## 20. Per-main delta blocks (v70)
+
+All prior pins stand. tp_vec listed as {pn/pp/ph/pf/f}.
+
+### C1 Mars, 29 — tp_vec {0.3/0.5/0.5/0.2/0.5} · `narr_agency 0.5`
+· `narr_comm 0.7` (the manager keeps PEOPLE's books — her
+encoding runs deep on who felt what, thin on who won) ·
+`autobio_k 0.5` · `narr_coh_k 0.6` · `period_sal 0.4` ·
+`epi_future_k 0.7`. Net: her past arrives warm when it arrives;
+the store is a communion archive. With self_complex 6 and
+narr_coh 0.6, her six rooms are wired — one bad day routes
+around itself.
+
+### C2 Jules, 26 — tp_vec {0.4/0.3/0.6/0.3/0.4} ·
+`narr_agency 0.4` · `narr_comm 0.6` · `autobio_k 0.4` (still
+collecting raw material — the newcomer hasn't finished a first
+edition) · `narr_coh_k 0.5` · **`period_sal 0.7`** (her life IS
+a transition — the move to the Mission is her operative wall;
+"back in Portland" wording on emissions at ~0.5 rate) ·
+`epi_future_k 0.6`. Net: two-room self + high period_sal =
+the sharpest before/after in the cast under thirty.
+
+### C3 Dani, 24 — tp_vec {0.2/0.4/**0.8**/0.1/0.3} ·
+`narr_agency 0.6` (maker-stories: what got made, what failed)
+· `narr_comm 0.5` · `autobio_k 0.5` · `narr_coh_k 0.4`
+(notebook mind — fragments that land, not arcs) ·
+`period_sal 0.3` · **`epi_future_k 0.8`** (the artist's
+simulation channel is the cast's thickest — her imagined
+murals have more verbatim detail than most people's
+memories). Net: present-hedonist arrival profile + savorer =
+the past is a sketchbook she rarely opens unprompted.
+
+### C4 Priya, 31 — tp_vec {0.3/0.4/0.4/0.2/**0.7**} ·
+`narr_agency 0.8` (clinical debrief culture = agency-trained
+narration: the plan, the miss, the protocol) · `narr_comm 0.6`
+· `autobio_k 0.6` (the debrief IS autobiographical reasoning —
+occupational lesson-minting) · `narr_coh_k 0.7` ·
+`period_sal 0.5` · `epi_future_k 0.6`. Net: future-weighted +
+coherent + agentic — her archive has a through-line and the
+through-line has a plan. The hospital-wall compartmentalization
+(self_comp 0.8) now reads as chapters that DO open, on
+schedule, at home.
+
+### C5 Marcus, 34 — tp_vec {0.2/0.4/**0.8**/0.2/0.2} ·
+`narr_agency 0.4` · `narr_comm 0.5` · **`autobio_k 0.2`** (the
+cast's lowest — he lives the same year three times; events
+without residue is WHY he repeats) · `narr_coh_k 0.3` ·
+`period_sal 0.2` (the courier's life is one continuous route)
+· `epi_future_k 0.4`. Net: present-max + coherence-min +
+lesson-min = the sunniest shallow archive — mnemic neglect at
+full strength protects a view with no through-line.
+
+### C6 Carmen, 74 — tp_vec {0.2/**0.75**/0.2/0.1/0.3} ·
+`narr_agency 0.4` · `narr_comm 0.8` · **`autobio_k 0.7`** (the
+transmissive reminiscer IS a lesson-minting machine — the
+stoop is a derived-proposition factory) · `narr_coh_k 0.8`
+(integrative + transmissive = the wired life) ·
+**`period_sal 0.8`** (Havana / Miami / the shop / the marriage
+/ the stoop — literal chapters, era-worded emissions ~0.55)
+· `epi_future_k 0.4`. Net: the cast's most narrated archive —
+thick positive arrivals, dense links, lessons everywhere, and
+every memory wearing its era.
+
+### C7 Victor, 58 — tp_vec {**0.6**/0.3/0.2/**0.5**/0.3} ·
+`narr_agency 0.7` (the self-made-store story is agency-native)
+· `narr_comm 0.3` · **`autobio_k 0.2`** (he does not extract
+lessons — he re-runs problems; instrumental remin_style at
+the narrative layer) · `narr_coh_k 0.3` · **`period_sal 0.9`**
+(before/after the wife is THE wall — the steepest boundary in
+the cast; crossing it in recall is a flinch) ·
+`epi_future_k 0.3`. Net: past-negative arrivals + fatalistic
+quiet + the great wall = an archive that answers summons
+correctly but visits on its own terms, always from the wrong
+side of 1994. `tension` seeded 0.8 on the widow anchors.
+
+### C8 Tomás, 36 — tp_vec {0.3/0.5/0.5/0.2/0.6} ·
+`narr_agency 0.6` · `narr_comm 0.7` (kitchen talk is both —
+the line AND the crew) · `autobio_k 0.6` (mentorship stories
+mint lessons — "never let the pan tell you twice") ·
+`narr_coh_k 0.6` · `period_sal 0.7` (San Miguel / Miami / SF —
+the aspect set is cross-language AND cross-era; chapters split
+at the lang boundary the lang_mismatch machinery already
+respects) · `epi_future_k 0.6`. Net: warm, wired, two-era —
+the kitchen mentor whose past arrives in chapters and leaves
+as lessons.
+
+## 21. Distinctness — fourth-pass notes
+
+The compass axes are orthogonal to the v5.6 self-book layer:
+Jules and Victor are BOTH past-tilted, but Jules's tilt is
+past-negative-with-high-walls (the Portland wound stays in
+Portland) while Victor's is past-negative-with-fatalistic
+quiet (the archive summons HIM). Carmen and Mars both arrive
+warm; Carmen's warmth is wired into chapters and lessons,
+Mars's is flat-present and people-keyed. C3 and C4 share
+future thickness but C4's futures are plans (agency + tp_f)
+and C3's are murals (epi_future_k + imagery). Marcus remains
+the diagnostic case: highest present-hedonism, lowest
+coherence — the profile least likely to generate a "lesson
+learned" beat on its own.
+
+## 22. Probes filed
+
+P745–P756 → validation-design.md §135. Headline guards:
+tp_fate_null (arrival-only), theme_fabricate_null (depth not
+content), lesson_truth_null (derived stays derived),
+period_identity_null (metadata not content),
+future_leak_null (rich ≠ remembered), tension_fate_null
+(knocking ≠ damage).
+
+## 23. Sources added this version
+
+- Zimbardo & Boyd 1999 (*JPSP* 77:1271 — verified): ZTPI five
+  subscales; Stolarski, Fieulaine & van Beek 2015 (Springer —
+  review volume): time-perspective theory consolidation.
+- D'Argembeau & Mathy 2011 (*J Cogn Psychol* 23 — verified):
+  future-thinking individual differences; goal rehearsal as
+  the future-TP signature.
+- McAdams 2001 (*Rev Gen Psychol* 5:100 — verified): thematic
+  lines agency/communion; McAdams & McLean 2013 (*Curr Dir
+  Psychol Sci* 22:233 — verified): narrative identity review.
+- Adler 2012 (*JPSP* 102:367 — verified): agency ↑ precedes
+  wellbeing ↑ over therapy; Adler, Lodi-Smith, Philippe &
+  Houle 2016 (*PSPR* 20:142 — verified): incremental validity
+  of narrative identity over traits.
+- Pasupathi & Mansour 2006 (*Dev Psychol* 42:798 — verified):
+  autobiographical reasoning links; McLean, Pasupathi & Pals
+  2007 (*PSPR* 11:262 — verified): selves-creating-stories
+  model; McLean & Thorne 2003 (*Dev Psychol* 39:635 —
+  verified): self-defining memories yield lessons.
+- Reese et al. 2011 (*Memory* 19:688 — verified): narrative
+  coherence dimensions × wellbeing.
+- Thomsen 2009 (*Memory* 17 — verified): life-story chapters
+  vary in number and closure — individual-differences basis
+  for `period_sal`; Brown 2016 transition theory (reused §4.18).
+- Williams, Ellis, Tyers, Healy, Rose & MacLeod 1996 (*Memory*
+  4:115 — verified): future-image specificity tracks past
+  specificity; generic past ↔ generic future in depression.
+- Schacter & Addis 2007 (*Phil Trans R Soc B* 362:773 —
+  verified): constructive episodic simulation hypothesis;
+  Hassabis, Kumaran, Vann & Maguire 2007 (*PNAS* 104:1726 —
+  verified): hippocampal amnesics cannot imagine futures.
+- Singer, Blagov, Berry & Oost 2013 (*JPSP* 105:262 —
+  verified): self-defining memory tension dimension;
+  Blagov & Singer 2004 (reused).
+- Garry, Manning, Loftus & Sherman 1996 (*Psychonom Bull Rev*
+  3:208 — reused): imagination inflation — the ONLY licensed
+  future→past flip path.

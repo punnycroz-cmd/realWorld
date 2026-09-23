@@ -1,4 +1,39 @@
-# Memory Model Spec v5.18 — implementable human-like memory for RW characters
+# Memory Model Spec v5.19 — implementable human-like memory for RW characters
+
+> **v5.19 note (character-profiles VI — the narrator's compass):
+> `memory/cast-profiles.md` Part III (§§19–23) adds the missing
+> narrator-side axes: WHERE in time a character's mind rests and WHAT
+> their stories are about. **Time perspective** — trait vector
+> `tp_vec` {tp_pastneg, tp_pastpos, tp_preshed, tp_presfat,
+> tp_future} (Zimbardo & Boyd 1999) weights spontaneous-arrival
+> sampling by record era/valence and scales future-reach; LOCKED
+> `tp_fate_null` — perspective selects arrivals, never deletes,
+> mints, or distorts records — §6.145. **Narrative themes** —
+> `narr_agency`/`narr_comm` tune field DEPTH at encoding
+> (goal/obstacle vs affiliative fields) and retell emphasis
+> (McAdams 2001; Adler 2012); LOCKED `theme_fabricate_null` —
+> tuning deepens existing fields, never mints missing ones — §6.146.
+> **Autobiographical reasoning** — `autobio_k` mints `lesson`
+> persSem records (origin:"derived") on retell/cluster-recall of
+> meaning-bearing events (Pasupathi & Mansour 2006; McLean,
+> Pasupathi & Pals 2007); LOCKED `lesson_truth_null` — lessons are
+> self-beliefs, never promoted to event-source status — §6.147.
+> **Narrative coherence** — `narr_coh_k` multiplies narr_link_gain
+> on retell; links are extra retrieval routes (Reese et al. 2011;
+> Adler 2012) — §6.148. **Period salience** — `period_sal` scales
+> `xperiod_pen`/`trans_bound_gain` per character (chaptered vs
+> continuous life-feel; Thomsen 2009) + `era_surf_p` era-wording on
+> emissions; LOCKED `period_identity_null` — period is metadata,
+> never rewrites content — §6.149. **Episodic-future trait** —
+> `epi_future_k` multiplies `sim_detail_mult` (Williams et al. 1996:
+> future specificity tracks past specificity; Schacter & Addis 2007;
+> Hassabis et al. 2007); LOCKED `future_leak_null` — richness alone
+> never gives an imagined future a past — §6.150. **Anchor
+> tension** — selfdef records carry `tension` (Singer et al. 2013);
+> tension raises re-access rate via `sdm_tension_intr`, never
+> direction — §6.151. +15 params (11 bible pins + 4 mechanism
+> constants), +6 locked nulls; §10 contract adds lesson origin +
+> tension field + era wording. Registry P745–P756.**
 
 > **v5.18 note (formal-model VII — the composition algebra, the
 > context lifecycle, the surface contract):**
@@ -8772,6 +8807,187 @@ exceed the proximal speaker's credibility — lost middle
 links can't launder hearsay into eyewitness (P732).
 (HYPOTHESIS composite on §4 leveling + source decay.)
 
+### 6.145 Time perspective — where the mind rests (new in v5.19)
+
+Zimbardo & Boyd 1999 (*JPSP* 77:1271 — ZTPI; Stolarski,
+Fieulaine & van Beek 2015 review): people differ stably in
+which temporal frame dominates thought — past-negative,
+past-positive, present-hedonistic, present-fatalistic, future.
+Trait vector `tp_vec` = {tp_pastneg, tp_pastpos, tp_preshed,
+tp_presfat, tp_future} ∈ [0,1]^5, bible-pinned per character
+(not summed to 1 — the five are independent subscales; ZTPI
+factors are orthogonal-ish, mean |r| ≈ 0.2).
+
+Effects — arrival-side only, on the spontaneous/involuntary
+sampler (the free-roam path that emits "what comes to mind"):
+
+```
+arrivalW(r) = base_arrival(r) ·
+    (1 + tp_arrival_k·(tp_pastneg·neg_old(r)
+                     + tp_pastpos·pos_old(r)
+                     − tp_preshed·is_old(r)
+                     + tp_future·0                // future
+                     − tp_presfat·any(r)))        // adds nothing
+```
+
+where `neg_old`/`pos_old`/`is_old` gate on
+`(worldDay − createdDay) > remin_lo` and valence sign, and
+`tp_arrival_k` (0.3) is the mechanism gain. tp_future does NOT
+raise old-record arrival; instead it scales future-channel
+rates: `imagineEvent`/`pself_mint` call frequency ×(0.5 +
+tp_future) and prospective-goal record rehearsal ×(1 +
+0.3·tp_future) (goal-rehearsal is the future-TP memory
+signature — D'Argembeau & Mathy 2011). tp_preshed suppresses
+dwelling on old records (is_old negative term above) without
+touching deliberate recall. tp_presfat is the flat weight —
+it reduces total spontaneous-arrival rate ×(1 −
+0.3·tp_presfat) (the fatalist's mind wanders less, and less
+anywhere — Carstensen-flavored; HYPOTHESIS mapping, the
+scale factor is ours).
+
+`tp_fate_null` LOCKED: tp_vec changes arrival *probability*
+and retell *selection* only — never record existence,
+strength, or content (P745). A past-negative character's
+happy memories exist and recall fine when cued; they just
+don't walk up uninvited. P745/P746.
+
+### 6.146 Narrative themes — what the stories are about (new in v5.19)
+
+McAdams 2001 (*Rev Gen Psychol* 5:100 — thematic lines);
+Adler 2012 (*JPSP* 102:367 — agency ↑ precedes wellbeing ↑);
+Adler, Lodi-Smith, Philippe & Houle 2016 (*PSPR* 20:142 —
+incremental validity over traits). Two independent bible pins
+`narr_agency`, `narr_comm` ∈ [0,1] — what the character's
+story-form is ABOUT:
+
+- **Encoding — field-depth tuning.** Within the §2 field
+  sampler, goal/obstacle/outcome fields (goalRelevance,
+  intention links, success/failure tags) get depth
+  ×(1 + theme_sel_k·narr_agency) and affiliative fields
+  (people, other's-affect, joint-activity tags) get depth
+  ×(1 + theme_sel_k·narr_comm); `theme_sel_k` = 0.2.
+  Non-themed fields unchanged. Same event, different book:
+  the agency-tuned character encodes the plan and the miss;
+  the communion-tuned encodes who was there and how they felt.
+- **Retell — emphasis.** retell field-weight re-normalizes
+  toward the dominant theme (×(1 + theme_sel_k) on matching
+  field classes) — the same record is told through different
+  doors.
+
+`theme_fabricate_null` LOCKED: theme tuning scales the depth
+of fields the event actually carried — it never mints an
+obstacle, goal, or co-actor the event lacked (P748). A
+communion-tuned character at a solo event does not encode a
+phantom companion. P747/P748.
+
+### 6.147 Autobiographical reasoning — the lesson mints (new in v5.19)
+
+Pasupathi & Mansour 2006 (*Dev Psychol* 42:798 — age
+differences in reasoning links); McLean, Pasupathi & Pals
+2007 (*PSPR* 11:262 — selves creating stories creating
+selves); McLean & Thorne 2003 (*Dev Psychol* 39:635 —
+self-defining relationship memories yield lessons/insights).
+
+Trait `autobio_k` ∈ [0,1]. On retell of a record with
+`meaning ≥ 0.4` (or on cluster-recall of ≥3 records sharing a
+theme), the character may mint a `lesson` record — a persSem
+node:
+
+```
+P(lesson_mint) = autobio_k · meaning · |valence| · retell
+lesson = { kind:"persSem", lesson:true,
+           origin:"derived", sources:[recordIds],
+           content: self-trait or world-rule proposition }
+```
+
+The lesson links back to its source records (extra retrieval
+routes both ways) and reads into SelfModel as evidence. A
+character low on autobio_k lives the same events and draws
+nothing — experience without residue (Marcus's failure mode).
+`lesson_truth_null` LOCKED: lessons mint at `origin:"derived"`
+and can never acquire `origin:"event"` no matter how often
+rehearsed — they are beliefs about the self, not facts about
+the world; nor may they edit their source records' fields
+(P750). P749/P750.
+
+### 6.148 Narrative coherence — the linking hand (new in v5.19)
+
+Reese et al. 2011 (*Memory* 19:688 — coherence dimensions
+predict wellbeing); Adler 2012 (coherence = the unity aim);
+McAdams & McLean 2013 (*Curr Dir Psychol Sci* 22:233).
+
+Trait `narr_coh_k` ∈ [0,1] multiplies `narr_link_gain`
+(effective `narr_link_gain·(0.5 + narr_coh_k)`) on retell —
+the coherent narrator mints causal/thematic links between
+the told record and same-period or cross-era neighbors.
+Links are retrieval routes (cueMatch_ext follows them at
+half weight) and the raw material of a story-shaped archive.
+At the low end the archive stays a drawer of snapshots —
+events exist, the through-line doesn't. Effect is on link
+CREATION only; existing links decay normally. P751.
+
+### 6.149 Period salience — the chaptered life (new in v5.19)
+
+§4.18's `period` machinery is population-flat; lives differ
+in how chaptered they FEEL (Thomsen 2009, *Memory* 17 —
+life-story chapters vary in number and closure; Brown
+transition theory). Trait `period_sal` ∈ [0,1]:
+
+- `xperiod_pen_eff = xperiod_pen·(0.3 + 1.4·period_sal)` —
+  at 0 the boundaries barely cost anything (one continuous
+  life); at 1 the wall is steep (every era is a closed room).
+- `trans_bound_gain_eff = trans_bound_gain·(1 +
+  0.5·period_sal)` — transitions land harder on the
+  chaptered.
+- `era_surf_p` = 0.15 + 0.5·period_sal — probability an
+  emission surfaces the period as era wording ("back in the
+  Miami years") via the §6.55-equivalent surface layer; era
+  wording is a surface mark, not content.
+
+`period_identity_null` LOCKED: `period` is retrieval
+metadata — crossing a boundary changes cueing cost and
+wording, never record valence/content (P753). P752/P753.
+
+### 6.150 Episodic-future trait — how thick the imagination runs (new in v5.19)
+
+Williams et al. 1996 (*Memory* 4:115 — future-image
+specificity tracks past specificity; suicidal/depressed
+respondents give generic futures AND generic pasts);
+Schacter & Addis 2007 (*Phil Trans R Soc B* 362:773 —
+constructive episodic simulation); Hassabis et al. 2007
+(*PNAS* 104:1726 — amnesics can't imagine futures).
+
+Trait `epi_future_k` ∈ [0,1] scales the §5.34 imagineEvent
+detail term: `verbatim_count × sim_detail_mult(age_eff) ×
+epi_future_k`, and (the Williams coupling) takes a computed
+prior from the OGM machinery — `epi_future_k_prior =
+clamp(vivid_detail·(1 − pos_spec_loss·depr − neg_ogm·ptsd),
+0.15, 0.95)` — a profile that retrieves generic pasts should
+imagine generic futures. Bible pins override the prior only
+for explicit cases (the vivid dreamer on a thin archive).
+`future_leak_null` LOCKED: detail richness never gives an
+imagined future a past tense — `owner:"future-self"` records
+flip only through §6.9's imagination-inflation machinery
+(Garry 1996); `epi_future_k` high does not raise flip rate
+(P755). P754/P755.
+
+### 6.151 Anchor tension — the unresolved anchor keeps knocking (new in v5.19)
+
+Singer, Blagov, Berry & Oost 2013 (*JPSP* 105:262 —
+self-defining memories vary on tension; high-tension anchors
+predict distress); Blagov & Singer 2004.
+
+selfdef records gain a `tension` field ∈ [0,1] (bible seeds
+it; `sdmCat` selects the topic, tension selects the
+unfinishedness). Mechanism constant `sdm_tension_intr` = 0.15:
+anchor re-access rate gains `×(1 + sdm_tension_intr·tension)`
+per sampling — unresolved anchors knock more often.
+`tension_fate_null` LOCKED: tension raises re-access rate
+only — it never inverts valence, never blocks the
+selfdef_cue_gain polish, and never degrades the anchor's
+strength (tension ≠ damage; a tense anchor is a strong
+record, not a weak one) (P756). P756.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -10080,6 +10296,28 @@ MemoryParams = {
 //   never serialized); C gains admission provenance + persistence
 //   state; emission→surface consumes closed `surfMap` (unknown
 //   combination = contract violation).
+// v5.19 additions (character-profiles VI — CP Part III §§19–23;
+//   bible pins = traits, constants = mechanism)
+//   bible pins (IndivTraits — see trait layer note):
+//   tp_pastneg, tp_pastpos, tp_preshed, tp_presfat, tp_future ∈[0,1]
+//   narr_agency, narr_comm, autobio_k, narr_coh_k, period_sal,
+//   epi_future_k ∈[0,1]
+"tp_arrival_k": 0.3,      // §6.145 arrival-sampler gain (mechanism)
+"theme_sel_k": 0.2,       // §6.146 field-depth modulation (mechanism)
+"era_surf_p": 0.15,       // §6.149 base era-wording rate (mechanism;
+                          //   effective = era_surf_p + 0.5·period_sal)
+"sdm_tension_intr": 0.15, // §6.151 anchor re-access gain (mechanism)
+// v5.19 locked nulls: tp_fate_null (P745 — perspective selects
+//   arrivals, never record existence/content); theme_fabricate_null
+//   (P748 — tuning deepens, never mints); lesson_truth_null
+//   (P750 — lessons stay origin:"derived", never edit sources);
+//   period_identity_null (P753 — period is metadata);
+//   future_leak_null (P755 — rich futures don't become pasts);
+//   tension_fate_null (P756 — tension ≠ damage).
+// v5.19 fields: record `tension` on selfdef (bible-seeded);
+//   persSem subtype `lesson:true` + `origin:"derived"` +
+//   `sources:[ids]`; emissions may carry era wording (surface
+//   mark, not content).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -10102,7 +10340,10 @@ EM§76; v5.14 adds `imagery` — imagery vividness/ability, loads the
 imagination stack (imagine_gain, imagined/dream verbatim richness,
 source_confuse, dream_flip_mult — FM§72); v5.15 adds hsam, sdam,
 nfc, mnemic, tbi, apoe, synesth, rumin, and the locked-null
-learn_style — ID Part VI §73) — sampled MVN(0, R) with the sparse correlation matrix in
+learn_style — ID Part VI §73; v5.19 adds the narrator-compass
+pins tp_pastneg, tp_pastpos, tp_preshed, tp_presfat, tp_future,
+narr_agency, narr_comm, autobio_k, narr_coh_k, period_sal,
+epi_future_k — cast-profiles.md Part III §20) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60/§73 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -11454,6 +11695,30 @@ not resolved (DEBATED magnitude). P509/P511.
     paramDecl (§56); `deriveParams` refuses undeclared keys when
     `identi_gate:"enforce"`.
   - All snapshot-additive; no new traits, no new storage classes.
+- v5.19 additions (cast-profiles.md Part III §§19–23 — the
+  narrator's compass):
+  - **11 new trait pins** (IndivTraits): `tp_pastneg`,
+    `tp_pastpos`, `tp_preshed`, `tp_presfat`, `tp_future`,
+    `narr_agency`, `narr_comm`, `autobio_k`, `narr_coh_k`,
+    `period_sal`, `epi_future_k` — bible-pin-able per main;
+    `epi_future_k` carries a computed prior
+    (`clamp(vivid_detail·(1 − pos_spec_loss·depr −
+    neg_ogm·ptsd), 0.15, 0.95)` — §6.150).
+  - **Record fields:** `tension` on selfdef anchors
+    (bible-seeded, [0,1] — §6.151); persSem subtype
+    `lesson:true` with `origin:"derived"` and
+    `sources:[recordIds]` (§6.147 — lessons are self-beliefs;
+    locked `lesson_truth_null`).
+  - **Emissions:** may carry era wording ("in the Miami
+    years") at `era_surf_p + 0.5·period_sal` (§6.149) — a
+    surface mark resolved through surfMap, never content.
+  - **Locked nulls** (P745/P748/P750/P753/P755/P756):
+    `tp_fate_null`, `theme_fabricate_null`,
+    `lesson_truth_null`, `period_identity_null`,
+    `future_leak_null`, `tension_fate_null` — the compass
+    moves selection, depth, and wording; existence,
+    provenance, and content are out of bounds.
+  - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
