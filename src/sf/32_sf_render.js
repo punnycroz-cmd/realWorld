@@ -2801,13 +2801,13 @@ function sfRenderStreet(cw, ch){
           : 0;
         const kind = pitched
           ? (phash(b.i, k, 1511) < 0.7 ? 5 : 2)
-          : Math.floor(phash(b.i, k, 1507) * 7); // v13: +solar, +roof garden
+          : Math.floor(phash(b.i, k, 1507) * 9); // v22: +bulkhead, +planters
         const base = pr(fx, fy, hm + zR);
         if(!base || base[2] > 200) continue;
         const sc = F / base[2];
         ctx.strokeStyle = night ? '#1c1a18' : '#4a4540';
         ctx.fillStyle = night ? '#262220' : '#6a5f52';
-        if(kind === 5){ // v12 brick chimney + terracotta pot on the ridge
+        if(pitched && kind === 5){ // v12 brick chimney + terracotta pot on the ridge
           const bw2 = Math.max(3, 0.8 * sc), bh2 = Math.max(4, 1.4 * sc);
           ctx.fillStyle = night ? '#241d1a' : '#8a5a48';
           ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, bh2);
@@ -2862,6 +2862,7 @@ function sfRenderStreet(cw, ch){
           ctx.fillStyle = night ? '#1c1a18' : shade(ROOF[1], 0.9);
           ctx.beginPath(); ctx.ellipse(base[0], base[1] - bh2 / 2, bw2 * 0.28, bh2 * 0.3, 0, 0, Math.PI * 2); ctx.fill();
         } else if(kind === 5){ // v13 solar array: slab tilted toward the sun
+          // (v22: reachable again — the chimney branch is pitched-only now)
           // sun sits toward (-SF_SUN.x,-SF_SUN.y); the high edge of each
           // panel points that way, so the glass flashes the sky
           const tx2 = -SF_SUN.x, ty2 = -SF_SUN.y;
@@ -2905,6 +2906,31 @@ function sfRenderStreet(cw, ch){
                      ctx.beginPath(); ctx.arc(q[0], q[1], Math.max(1, 0.22 * sc), 0, Math.PI * 2); ctx.fill(); }
             }
           }
+        } else if(kind === 7){ // v22 stair bulkhead: the box housing the
+          // roof stairs — slab sides, lit cap, dark door on the shade side
+          const bw2 = Math.max(3.5, 1.3 * sc), bh2 = Math.max(4, 1.6 * sc);
+          ctx.fillStyle = night ? '#262220' : shade(ROOF[3], 1.1);
+          ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, bh2);
+          ctx.fillStyle = night ? '#2e2a27' : shade(ROOF[5], 0.9);
+          ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, Math.max(1, bh2 * 0.12));
+          ctx.fillStyle = night ? '#181614' : '#3a342e';
+          const dox = SF_SUN.x > 0 ? -1 : 1; // door on the shade side
+          ctx.fillRect(base[0] + dox * bw2 * 0.22 - bw2 * 0.1,
+                       base[1] - bh2 * 0.55, bw2 * 0.2, bh2 * 0.55);
+        } else if(kind === 8){ // v22 container garden: pots along the
+          // parapet edge — greenery peeking over the roofline
+          const nPt = 3 + Math.floor(phash(b.i, k, 3212) * 3);
+          for(let p3 = 0; p3 < nPt; p3++){
+            const q = pr(fx + (p3 - nPt / 2) * 0.45, fy, hm + zR);
+            if(!q) continue;
+            ctx.fillStyle = night ? '#241f1c' : '#a05a38';
+            ctx.fillRect(q[0] - Math.max(1, 0.16 * sc), q[1] - Math.max(1, 0.2 * sc),
+                         Math.max(2, 0.32 * sc), Math.max(1.5, 0.2 * sc));
+            ctx.fillStyle = night ? '#1e2818' : '#4e7a44';
+            ctx.beginPath();
+            ctx.arc(q[0], q[1] - Math.max(1.5, 0.3 * sc), Math.max(1.2, 0.24 * sc), 0, Math.PI * 2);
+            ctx.fill();
+          }
         } else { // satellite dish
           const pt2 = pr(fx, fy, hm + zR + 1.2);
           if(!pt2) continue;
@@ -2914,6 +2940,42 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath();
           ctx.ellipse(pt2[0], pt2[1], Math.max(2, 0.55 * sc), Math.max(1.2, 0.3 * sc), -0.5, 0, Math.PI * 2);
           ctx.fill();
+        }
+      }
+      /* v22: roof-deck railing over the parapet — same gates as the baked
+         sprite (shop deck salts 1370 / residential deck salts 3200), so the
+         rail you see from the street belongs to the deck you see from
+         above. Posts + a top rail stand on the roof plane (z = hm). */
+      const roofPx2 = roofAreaM * SF_PXM * SF_PXM;
+      const deckGate = !pitched && rpts.length > 2 &&
+        ((isShopR && roofPx2 > 2400 && phash(b.i, 2, 1370) < 0.6) ||
+         (!isShopR && roofPx2 > 1900 && phash(b.i, 12, 3200) < 0.5));
+      if(deckGate){
+        for(let e2 = 0; e2 < n; e2++){
+          const a = P[e2], bq = P[(e2 + 1) % n];
+          const ex2 = bq[0] - a[0], ey2 = bq[1] - a[1];
+          const L2 = Math.hypot(ex2, ey2) || 1;
+          let nx2 = ey2 / L2, ny2 = -ex2 / L2;
+          if(b._ccw){ nx2 = -nx2; ny2 = -ny2; }
+          if(nx2 * -DX + ny2 * -DY <= 0.05) continue; // only rails we can see
+          const mx0 = a[0] + ex2 * 0.15, my0 = a[1] + ey2 * 0.15;
+          const mx1 = a[0] + ex2 * 0.85, my1 = a[1] + ey2 * 0.85;
+          const r0 = pr(mx0, my0, hm + 0.95), r1 = pr(mx1, my1, hm + 0.95);
+          const b0 = pr(mx0, my0, hm + 0.12), b1 = pr(mx1, my1, hm + 0.12);
+          if(!r0 || !r1 || !b0 || !b1) continue;
+          const sc2 = F / r0[2];
+          ctx.strokeStyle = night ? '#2a2725' : '#5a4c3e';
+          ctx.lineWidth = Math.max(0.8, 0.07 * sc2);
+          ctx.beginPath(); ctx.moveTo(r0[0], r0[1]); ctx.lineTo(r1[0], r1[1]); ctx.stroke();
+          ctx.lineWidth = Math.max(0.6, 0.05 * sc2);
+          const nPost = Math.max(2, Math.floor(L2 * 0.7 / 1.2));
+          for(let p3 = 0; p3 <= nPost; p3++){
+            const t2 = p3 / nPost;
+            ctx.beginPath();
+            ctx.moveTo(b0[0] + (b1[0] - b0[0]) * t2, b0[1] + (b1[1] - b0[1]) * t2);
+            ctx.lineTo(r0[0] + (r1[0] - r0[0]) * t2, r0[1] + (r1[1] - r0[1]) * t2);
+            ctx.stroke();
+          }
         }
       }
       if(b.name){
