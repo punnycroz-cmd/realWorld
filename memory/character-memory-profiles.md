@@ -284,6 +284,13 @@ never copying raw.
 | expert_encode_gain | 0.0 | 0.4 | in-domain encoding bonus (v2.4) |
 | expert_detail_w | 1.0 | 1.5 | in-domain record width multiplier (v2.4) |
 | df_loss | 0.0 | 0.6 | forget-instruction rehearsal cut (v2.4) |
+| ev_time_w | 0.0 | 1.0 | event-load weight in decay age t_eff (v2.5) |
+| ev_day_norm | 10 | 60 | typical daily encodes; ambients ~10 (v2.5) |
+| affect_sleep_frac | 0.0 | 0.8 | valence-fade share run at the sleep tick (v2.5) |
+| face_perma_thresh | 0.05 | 0.30 | familiar-face permastore bar (v2.5) |
+| fam_recog_gate | 0.3 | 0.8 | familiarity gate for face permastore (v2.5) |
+| transf_gain | 0.0 | 0.15 | verbatim-death → gist S boost (v2.5) |
+| state_ctx_hl | 7 | 60 | internal-state cue drift half-life, days (v2.5) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -670,6 +677,8 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 
 | **Stoic / suppressor** (NEW v1.7) | `regulate_style` →0.15; `reg_suppress_cost` →0.3; intrusion_thresh +0.05 (held-in feelings intrude more, not less); verbal_dampen ×0.7 — they retell rarely and flatly | suppression taxes encoding — remembers less of hard days, stays hotter longer (Richards & Gross 2000; emotional-memory.md §17) |
 | **Vicarious absorber / high-empath** (NEW v1.7) | `empathy_trait` →0.9; `contagion_k` ×1.4; `gen_width` +0.05 | hearsay scars them too — secondhand conditioning (Olsson & Phelps 2007) |
+| **HSAM** (NEW v2.5 — population tail, ≤1% incidence; roster dial, unassigned by default) | beta_episodic ×0.15 on selfRelevance≥0.5 records ONLY; §4.3 merge disabled for those records; retell ecology not needed for flat curves; **misinfo_suscept, phantom_p, drift_p, confab_fill UNCHANGED** — Patihis 2013: HSAM is not suggestion- or false-memory-immune, storage is extraordinary, reconstruction is ordinary | decades-old personal events stay dateable and vivid; still gets the details wrong (LePort et al. 2012/2017) |
+| **SDAM** (NEW v2.5 — opposite tail) | beta_episodic +0.4 on selfRelevance≥0.5 records; w_self ×0.7; ret_noise +; specificity −0.2; semantic/procedural params untouched; report-side: `conf` low on own-past episodic, normal on facts | knows the facts of their life without re-living them — "I know it happened, I don't remember it" (Palombo et al. 2015; surfaces as §6.7 nonbelieved memory) |
 
 Optional derived param `specificity ∈ [0,1]` (default 1): on reconstruction,
 with probability `1−specificity` return the generic/merged memory instead of
@@ -923,3 +932,34 @@ identically on everyone. What bibles and modifiers should know:
   `name_penalty` (people KNOW names are hard — the deficit is real, not
   metacognitive); no positive-mood → teach_expect interaction (the
   effect is organizational, not hedonic).
+
+## 13. v2.5 note — forgetting-curves III: calibration axioms and the tails
+
+- **`ev_day_norm` is the only v2.5 param that differs by role tier** —
+  30 for mains, ~10 for ambients (they encode fewer records). It is a
+  load normalizer, not a personality dial; do not pin it per character.
+- **`ev_time_w`** can drift mildly per character (busier inner lives feel
+  time faster) but keep it in the lower half of the clamp for most —
+  0.5 is the fitted default.
+- **`affect_sleep_frac`** rides sleepQuality automatically — a bible that
+  says "bad sleeper" sets `sleepFactor`/sleep flags, never this param.
+- **`face_perma_thresh`/`fam_recog_gate`** are population-flat; the
+  personality-level variation lives in PersonModel `familiarity`
+  accrual (`owngroup_loss`, contact_share), not the freeze bar.
+- **`transf_gain`** is machinery, not personality — no trait loading.
+  If anything, low-`vivid` characters show its *effect* sooner because
+  their verbatim fields die earlier, not because the gain differs.
+- **`state_ctx_hl`** is population-flat (context fluctuation is
+  physiology, not temperament).
+- **Slope-invariance contract:** when compiling profiles, never express
+  "remembers things better" as a lower β — use enc_base/w_* loadings
+  (intercept) or retell ecology (clock). β differences are reserved for
+  age curves, era terms, content class, and the hsam/sdam tails. This is
+  now a probe-enforced axiom (P231).
+- **HSAM/SDAM** (§2 modifiers): unassigned by default; they exist so the
+  roster can express the real population tails. If a main is ever cast
+  with either, recompile — the modifier touches β_autobio only, and the
+  Patihis guard (distortion params untouched) is non-negotiable.
+- **Reuse calibration (P239)** is a world-health metric, not a profile
+  constraint — if it fails, tune the class defaults in spec §7, not the
+  profiles.

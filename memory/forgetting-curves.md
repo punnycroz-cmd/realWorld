@@ -582,3 +582,338 @@ the flat autobiographical curve emerging from ecology, not fiat (§7.9).
   functional form; we refuse it for spec economy — the ramp +
   consolidation gate reproduces the observable (graded adult survival)
   with one function. Flagged as the approximation it is.
+
+---
+
+# Part III — v25 deepening: what the curves are FOR — adaptive calibration, event time, and the tails
+
+Parts I–II fitted the curve's shape and its modifiers. This pass asks the
+two questions that remained qualitative: **why** forgetting looks like this
+(rational analysis — the curve tracks the world's reuse statistics), and
+**whose** curve it is at the population extremes (HSAM/SDAM tails). Plus
+three mechanisms that were implied but never priced: event-time vs
+clock-time, verbatim→gist transformation, and state-context drift.
+
+Claims tagged [CONSENSUS] / [DEBATED] / [HYPOTHESIS] as before.
+
+## 12. New primary sources
+
+### 12.1 Rational analysis — forgetting tracks environmental need — Anderson & Schooler 1991
+
+Anderson & Schooler 1991 (*Psychological Science*, "Reflections of the
+environment in memory") measured the statistics of *need* for information
+in real environments — word occurrence in headlines/child-directed speech,
+library book circulation, file/email retrievals — and found the probability
+that an item will be needed again decays as a **power function of time
+since last use** (exponents ≈1–2 depending on the source) [CONSENSUS as
+empirical regularity; the rational-adaptation interpretation is their
+framework, widely cited]. Human forgetting has the same functional family
+because memory is *calibrated to the environment's reuse statistics* —
+you forget at the rate the world makes old information stale.
+
+**Spec consequence — the reuse-calibration rule.** This upgrades the power
+law from "fits the data" to "is the right answer": a well-formed character's
+retention should be *economical*, not maximal. Formalize as a design axiom
+plus a validation probe:
+
+```
+reuse-calibration axiom: for each content class c, let g_med(c) be the
+median gap between successive accesses of records of class c in sim logs.
+A calibrated model satisfies  R(g_med) ∈ [0.4, 0.7]  per class.
+```
+
+A class whose records are always long dead before reuse is over-decaying
+(wasted relearning); a class retained far beyond any reuse is wasted
+maintenance. This is probe P239 — the first probe that constrains the
+model against *its own world's statistics* rather than lab tables, and it
+is how the β set stays honest as the world content drifts. Anderson &
+Milson 1989 and the ACT-R base-level equation (B = ln Σ t_j^−d, d≈0.5 —
+Anderson & Schooler 1991's companion formalization) are the same power-law
+family: independent support for the §4.1 form.
+
+### 12.2 Slope independence — rate vs level — Slamecka & McElree 1983
+
+Slamecka & McElree 1983 (*JEP:LMC*, "Normal forgetting of verbal lists")
+found the **rate** of forgetting largely independent of initial degree of
+learning: stronger learning raises the intercept, not the slope. Loftus
+1985 argued the opposite under certain measures (higher learning slower by
+recognition); Wixted 2004's review treats "rate ~independent of strength"
+as the modal finding with real exceptions [DEBATED in detail; the broad
+pattern — encoding quality mostly moves where the curve starts, not how
+fast it falls — is CONSENSUS-enough to adopt as a constraint].
+
+**Spec consequence — the slope-invariance axiom.** Our §4.1 already does
+this structurally: `E_adj` is an intercept multiplier and β is per-class,
+never E-dependent. v25 promotes this from accident to contract: **β must
+not depend on E, arousal, or rehearsal count** — durability differences
+enter through the intercept (E), the clock (retell resets t), the floor,
+and the S layer (§4.11), never through β itself. Probe P231 enforces it:
+fit per-record β across E bins; slopes must agree within noise. The one
+sanctioned β modulators remain age (§4.8), era (bump/amnesia, §4.1),
+content class (k_verbatim etc.), and the HSAM/SDAM tails (§12.8) — all
+*who/when/what* variables, none *how-strong*.
+
+### 12.3 Familiar faces are permastore — Bahrick, Bahrick & Wittlinger 1975
+
+The famous 50-year study: 392 alumni tested on high-school classmates —
+**identification and matching of classmate names/faces stay ~90%
+correct for at least 15 years** and remain near-flat out to ~48 years,
+while free recall of names declines ~60% over the same span
+[CONSENSUS — one of the most-cited long-term-retention results;
+"permastore" for recognition of well-known faces]. This is a
+second, *person-domain* permastore beyond Bahrick's 1984 semantic one, and
+it dissociates recognition from recall exactly as §5.6's mode split does.
+
+**Spec consequence:** §4.7's permastore check extends to PersonModel
+records: the **face-recognition component** (the §5.10 cascade's first
+leg) qualifies for permastore at a lower bar — `face_perma_thresh` 0.15
+vs `permastore_thresh` 0.25 — once the person was genuinely familiar
+(`familiarity ≥ fam_recog_gate` 0.5 at last contact). Names explicitly do
+NOT get this: name retrieval decays normally on top of the existing
+`name_penalty` (Cohen 1990) — "I know that face, I was in school with
+them, and I cannot produce the name" is the human datum, not a bug.
+Probe P232.
+
+### 12.4 Event time vs clock time — Wixted 2004; Howard & Kahana 2002
+
+Two converging lines: (a) interference analyses (Wixted 2004, *Annual
+Review*; Underwood's tradition) — forgetting is better predicted by
+**what happened between** encoding and test than by elapsed time per se;
+(b) retrieved-context models (Howard & Kahana 2002 temporal context
+model; Glenberg's component-levels tradition) — a memory's "age" is its
+distance along a context vector that advances with *experienced events*,
+not wall-clock ticks. Event-segmentation work (Radvansky; Zacks) adds the
+phenomenology: a busy week subjectively "pushes" last Monday further away
+than an idle week does [CONSENSUS direction; the quantitative weighting
+is open — our parameterization is HYPOTHESIS].
+
+**Spec consequence — event-adjusted age.** §4.1's decay argument becomes
+
+```
+t_eff = Δt_days + ev_time_w · (n_events_since / ev_day_norm)
+```
+
+where `n_events_since` counts events encoded by this character since
+`lastAccessDay` (already tracked for interference bookkeeping — bucket
+counts suffice, no new stores needed) and `ev_day_norm` is the class's
+typical daily event load (30 for mains, ~10 for ambients). `ev_time_w`
+≈ 0.5: a character living 3× average days ages memories ~1.5 days per
+day. This does double duty: it is *the* mechanism that makes a hectic
+fortnight blur ("feels like months") while a quiet one leaves the same
+calendar span crisp, and it explains why the interference-dominated
+calibration table (Part I §4) is not too fast in a rich world — part of
+the richness is already inside t_eff. Probe P233.
+
+### 12.5 Verbatim→gist transformation — McClelland et al. 1995; Winocur & Moscovitch 2010
+
+Systems consolidation says episodic memories reorganize over weeks–months
+into schema-compatible, neocortical form. The two live theories disagree
+on mechanism — standard consolidation (transfer to cortex; McClelland,
+McNaughton & O'Reilly 1995) vs multiple-trace theory (hippocampal
+contextual detail needed forever; Nadel & Moscovitch 1997) — but both
+predict, and the data show, the observable: **remote memories retain
+fewer contextual details and a proportionally stronger schematic core**
+[CONSENSUS observable; mechanism DEBATED]. Winocur & Moscovitch 2010's
+"transformation hypothesis" names the active version: episodic → semantic
+conversion, not just episodic loss. Fuzzy-trace theory (Brainerd & Reyna)
+supplies the same asymmetry at shorter scales: verbatim traces die fast,
+gist endures and is *re-derived*.
+
+**Spec consequence — transformation gain.** Currently a verbatim field's
+death is pure loss. Make it generative: when a verbatim field of an
+episodic record archives (crosses `forget_thresh`) or is consumed by a
+§4.3 merge, the record's **gist leg gets a one-time S boost**
+`+transf_gain` (0.05, once per field, flag `transf_done[field]`). The
+record that loses its frame doesn't just fade — it becomes more *story*:
+"the fight at El Farolote" survives as a compact, schema-consistent gist
+precisely *because* its particulars were shed. This is the passive half
+of what canonization (§6.24) does socially; it also gives genericization
+a payoff consistent with the data (merging builds durable scripts).
+Probe P234.
+
+### 12.6 Internal context drifts — Estes 1955; Mensink & Raaijmakers 1988
+
+Stimulus-fluctuation and context-drift models (Estes 1955; Mensink &
+Raaijmakers 1988; Bower 1972) hold that *internal* context — mood,
+physiological state, train of thought — decorrelates from its
+encoding-time value on a timescale of hours-to-days, while external
+context (place, people) is stable across the same span. This is why
+state-dependent retrieval has a short shelf life: the *match* decays even
+when the record doesn't [CONSENSUS as mechanism; specific half-life is
+our fit — HYPOTHESIS].
+
+**Spec consequence — state-context drift.** §5.3's `moodStateDep` match
+term and any state/sensory-internal cue overlap are multiplied by
+`exp(−ageDays / state_ctx_hl)` with `state_ctx_hl` ≈ 21 days. Place and
+people cues are exempt (stable external context). Consequence: mood-state
+reinstatement works for yesterday's fight, not last year's — while mood
+*congruence* (valence match, no drift) keeps working forever, exactly the
+split the meta-analyses show. Probe P235.
+
+### 12.7 Sleep-to-forget — REM depotentiation of affect — van der Helm & Walker 2009
+
+"Sleep to remember, sleep to forget" (Walker & van der Helm 2009,
+*Psychological Bulletin*): REM sleep is proposed to depotentiate the
+emotional charge of consolidated memories — you keep the event, lose the
+sting. Overnight reductions in emotional reactivity to re-presented
+stimuli were demonstrated (van der Helm et al. 2011) [effect direction
+CONSENSUS-ish; the REM-specific mechanism is DEBATED — replication
+record is mixed and the 2020s literature is unkind to strong versions].
+We already have `sleep_affect_strip` (v1.7, per-sleep arousal-tag decay,
+DEBATED-flagged). v25 completes the circuit for **valence**: a fraction
+of §4.5's daily affect fade is executed *inside* the sleep tick, scaled
+by sleep quality.
+
+**Spec consequence:** §4.5 gains `affect_sleep_frac` (0.4): 40% of each
+day's valence-fade budget applies at `dailyMemoryTick` × `sleepQuality`,
+the remaining 60% accrues continuously. Trauma records remain exempt via
+`trauma` flag (they resist depotentiation — van der Helm & Walker's own
+boundary). Behavior: a bad night's sleep literally leaves yesterday's
+hurt sharper — a free, sourced coupling between the sleep system and the
+mood layer. Probe P236.
+
+### 12.8 The tails — HSAM and SDAM — LePort et al. 2012; Palombo et al. 2015
+
+Both ends of the autobiographical-retention distribution are real
+phenotypes, and the model should be able to express them:
+
+- **HSAM** (highly superior autobiographical memory; LePort et al. 2012,
+  *Neurobiology of Learning & Memory*; 2017 follow-up): individuals date
+  and describe arbitrary personal events from decades back at near-ceiling
+  accuracy. Critically, they are **not** immune to misinformation or DRM
+  false memories (Patihis et al. 2013) — storage is extraordinary,
+  reconstruction is ordinary. Estimated incidence well under 1%.
+- **SDAM** (severely deficient autobiographical memory; Palombo et al.
+  2015): lifelong near-absence of episodic re-experiencing with **normal
+  semantic knowledge, working memory, and functioning** — they know the
+  facts of their lives without re-living them.
+
+**Spec consequence — two new profile modifiers** (character-memory-
+profiles §2, not spec params): `hsam` — β_episodic_autobio ×0.15,
+§4.3 merging disabled for selfRelevance≥0.5 records, retell ecology not
+required for flat curves, `misinfo_suscept`/`phantom_p`/`drift_p`
+**unchanged** (Patihis constraint — the modifier may not touch distortion
+dials); `sdam` — β_episodic_autobio +0.4, w_self −0.3, retrieval noise +,
+semantic/procedural params untouched, `conf` on own-past reports low but
+accurate on semantic facts (they say "I know it happened, I don't
+remember it" — §6.7 nonbelieved-memory surface). Neither is assigned to
+a main by default — they're roster dials for future ambient/cast
+diversity; a Mission full of average forgers is its own tell. Probe P237.
+
+### 12.9 Availability census — the lifespan retrieval curve — Crovitz & Schiffman 1974; Rubin & Schulkind 1997
+
+Word-cued autobiographical retrieval produces a frequency-vs-remoteness
+curve that is itself a power decline over the lifespan, elevated in the
+reminiscence-bump window and (for older adults) by recency (Crovitz &
+Schiffman 1974; Rubin & Schulkind 1997) [CONSENSUS shape]. This is an
+*integrated* observable — the whole memory system's steady state, not a
+single record — and it is directly measurable in sim: histogram the
+`encodeAge` distribution of live self-relevant records for a character.
+Probe P238: the census must be power-decaying with a detectable bump-
+window elevation for bump-aged cohorts — the first probe that fails if
+any of encoding, decay, era terms, or archival is wrong simultaneously
+(a cheap system-level canary alongside §28 SBC).
+
+### 12.10 Supporting citations (no new mechanism)
+
+- **Mozer, Pashler, Cepeda, Lindsey & Vul 2009** (multiscale context
+  model): independent derivation of spacing-curve optima from context
+  drift — supports the §7.1 lag_mult log-normal's shape and the §12.6
+  drift machinery sharing one cause.
+- **Nørby 2015** ("Why forget?") and **Bjork's** new-theory-of-disuse:
+  forgetting as adaptive function — design rationale for the §12.1 axiom,
+  not a parameter.
+- **Storm & Levy 2012** (RIF as adaptive): retrieval-induced forgetting
+  is the mechanism's *purpose* — already priced at §5.8.
+
+## 13. Spec deltas (v2.4 → v2.5)
+
+| # | Change | Grounding |
+|---|---|---|
+| C20 | §4.1: decay argument becomes event-adjusted `t_eff`; new params `ev_time_w` 0.5, `ev_day_norm` 30/10 | §12.4 |
+| C21 | §4.5: `affect_sleep_frac` 0.4 — 40% of daily valence fade executes in the sleep tick × sleepQuality; trauma-exempt | §12.7 |
+| C22 | §4.7: PersonModel face-recognition permastore at `face_perma_thresh` 0.15 under `fam_recog_gate` 0.5; names excluded | §12.3 |
+| C23 | NEW §4.16 transformation gain: verbatim-field death → `+transf_gain` 0.05 gist S, once per field | §12.5 |
+| C24 | §5.3: `moodStateDep` and internal-state cue overlap × `exp(−ageDays/state_ctx_hl)`, `state_ctx_hl` 21d | §12.6 |
+| C25 | §4.1 contract: **slope-invariance axiom** — β may never depend on E/arousal/rehearsal; enforced by P231 | §12.2 |
+| C26 | §4.1/§10: **reuse-calibration axiom** — R(g_med) ∈ [0.4,0.7] per class against world reuse logs; P239 | §12.1 |
+| C27 | profiles: `hsam`/`sdam` modifiers + 4 clamp rows (no new spec params — profile layer only) | §12.8 |
+
+New MemoryParams (all optional, defaults above): `ev_time_w`,
+`ev_day_norm`, `affect_sleep_frac`, `face_perma_thresh`,
+`fam_recog_gate`, `transf_gain`, `state_ctx_hl`.
+
+## 14. Retention table — added rows (defaults, game days)
+
+| record class | half-life | R@1d | R@7d | R@30d | R@365d |
+|---|---|---|---|---|---|
+| gist, busy character (3× ev load) | 3.6d | .30 | .15 | .08 | .02 |
+| → same record, idle character (⅓ load) | 3.6d | .35 | .24 | .13 | .05 |
+| familiar face recognition (PersonModel) | permastore | .9 | .9 | .9 | .9* |
+| stranger verbatim (contrast, unchanged) | 0.9d | .42 | .08 | .02 | ~0 |
+| mood-state cue benefit | — | 1.0× | .7× | .24× | ~0 |
+| HSAM autobio gist (modifier) | ~∞ | .9 | .88 | .85 | .8 |
+| SDAM autobio gist (modifier) | ~1.2d | .45 | .18 | .06 | .01 |
+
+*Post-permastore freeze. Event-time rows assume equal wall-clock Δt —
+the busy character's t_eff runs ~1.5× faster (ev_time_w 0.5 × 3× load).
+
+## 15. New probes P231–P240
+
+- **P231 slope invariance (MUST):** cohort of records spanning E ∈
+  [0.3, 0.95], same class, no retells; per-record fitted β agrees within
+  ±0.05 across E terciles. Fail ⇒ a durability term leaked into β.
+- **P232 face permastore (MUST):** familiar PersonModel (familiarity
+  0.7) survives 365d at recognition ≥ 0.8× of plateau while a matched
+  stranger verbatim archives by day ~30; name recall of the same
+  familiar person decays on the ordinary verbatim schedule.
+- **P233 event time (MUST):** identical records, two characters, same
+  Δt_days, n_events_since differing 3× — high-load character's R lower
+  by ≥15%. Constrains ev_time_w, ev_day_norm.
+- **P234 transformation (SHOULD):** a verbatim field crossing
+  forget_thresh raises its record's gist S by ~transf_gain (once);
+  merged records (§4.3) show the same boost. Fail ⇒ verbatim death is
+  silent loss.
+- **P235 state-ctx drift (SHOULD):** mood-state-dependent recall benefit
+  vs mismatched-mood baseline decays to ~e⁻¹ by 21d and ~0 by 60d;
+  mood-congruence benefit unchanged at 60d.
+- **P236 sleep-coupled affect (SHOULD):** |valence| drop across a
+  sleepQuality-1.0 boundary ≥ 1.5× the drop across a matched waking span;
+  sleepQuality 0.3 boundary ≈ continuous-only rate; trauma records exempt.
+- **P237 tails (SHOULD):** hsam-modified profile: autobio census nearly
+  flat over 365d, misinfo_suscept UNCHANGED vs baseline (Patihis guard);
+  sdam-modified: autobio availability steeply decayed, semantic R intact.
+- **P238 availability census (SHOULD):** live self-record encodeAge
+  histogram for a bump-aged character is power-decaying overall with a
+  measurable elevation inside bump_windows (Crovitz–Schiffman/Rubin
+  analog).
+- **P239 reuse calibration (MUST):** run ≥90 sim-days; for each content
+  class with ≥50 accesses, R at the class's median reuse gap lands in
+  [0.4, 0.7]. The anti-waste audit — fails toward over-retention too.
+- **P240 zero-E bound (SHOULD):** E→0 records (attention-gated strays
+  that slipped in) archive on the ordinary schedule regardless of
+  modifiers — no class is immortal by construction.
+
+## 16. Honest limits (additions)
+
+- The reuse-calibration axiom assumes the world's access statistics are
+  stationary; a world whose reuse gaps shift (new venue opens, cast
+  turnover) makes P239 a moving target — by design, that's what it's for,
+  but treat it as a health metric, not a hard gate, in the first
+  calibration passes.
+- t_eff conflates "many events" with "many *encoded* events" — a
+  character in a sensory-rich but personally-uninvolving crowd doesn't
+  encode much. n_events_since counts records, which is the right proxy
+  for context drift but understates raw stimulation.
+- transformation_gain is the strongest functional liberty this pass:
+  the data show remote memories are *relatively* more schematic; that
+  gist actively gains storage strength when verbatim dies is our
+  compression-efficient reading (a memory that survives verbatim loss
+  has effectively been re-encoded as gist). Flagged HYPOTHESIS; P234's
+  SHOULD tier reflects this.
+- HSAM/SDAM incidence and mechanism are thin literatures (dozens of
+  cases); we use them only as profile-space boundary markers, not as
+  fitted parameters.
+- state_ctx_hl 21d is a guess bounded by lab paradigms (weeks); Morris
+  screening (validation §24) should check it's not load-bearing before
+  trusting probes that depend on it.

@@ -1386,3 +1386,47 @@ Encoding-state and content-class probes; spec v2.4 terms. Tiers per
   ≤0.02 E, else reinstate a dedicated param.
 
 Registry now P1–P230; numbering stable.
+
+## 34. New probes P231–P240 (v25, forgetting-curves III suite)
+
+Source: `memory/forgetting-curves.md` Part III (§§12–15). Spec v2.5.
+This suite tests the decay engine's *purpose* (calibration axioms) and
+the population tails — several probes constrain the model against the
+world's own statistics rather than lab tables (new probe family).
+
+- **P231 slope invariance (MUST):** records spanning E ∈ [0.3, 0.95],
+  same class, no retells; per-record fitted β within ±0.05 across E
+  terciles. Guards the §4.1 axiom (Slamecka & McElree 1983). Fail ⇒ a
+  durability term leaked into β.
+- **P232 face permastore (MUST):** PersonModel familiarity 0.7 →
+  recognition leg ≥0.8× of plateau at 365d; matched stranger verbatim
+  archives ~day 30; name recall of the SAME person decays normally
+  (Bahrick et al. 1975 dissociation).
+- **P233 event time (MUST):** identical records, equal Δt_days,
+  n_events_since differing 3× → high-load R lower ≥15%. Constrains
+  ev_time_w / ev_day_norm.
+- **P234 transformation (SHOULD):** verbatim-field death raises gist S
+  ≈transf_gain once per field; §4.3 merges show the same boost.
+- **P235 state-ctx drift (SHOULD):** mood-state benefit → ~e⁻¹ at 21d,
+  ~0 at 60d; mood-congruence unchanged at 60d (drift hits state only).
+- **P236 sleep-coupled affect (SHOULD):** |valence| drop across a
+  sleepQuality-1.0 boundary ≥1.5× matched waking span; sleepQuality 0.3
+  ≈ continuous rate; trauma exempt.
+- **P237 tails (SHOULD):** hsam → autobio census ~flat at 365d with
+  misinfo_suscept UNCHANGED (Patihis guard); sdam → autobio steeply
+  decayed, semantic R intact, low conf on own-past reports.
+- **P238 availability census (SHOULD):** encodeAge histogram of live
+  self-records is power-decaying with bump-window elevation for
+  bump-aged cohorts (Crovitz & Schiffman / Rubin & Schulkind analog) —
+  system-level canary: fails if encode, decay, era terms, or archival
+  break simultaneously.
+- **P239 reuse calibration (MUST — new probe family):** ≥90 sim-days;
+  per content class with ≥50 accesses, R at the class's median reuse
+  gap ∈ [0.4, 0.7]. Fails toward over-retention as well as over-decay —
+  the Anderson & Schooler economy audit. Requires §10 v2.5 access-gap
+  logging. Treat as health metric during first calibration passes.
+- **P240 zero-E bound (SHOULD):** E→0 strays archive on the ordinary
+  schedule under every modifier combination — no class is immortal by
+  construction.
+
+Registry now P1–P240; numbering stable.

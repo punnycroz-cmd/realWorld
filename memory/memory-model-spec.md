@@ -1,4 +1,25 @@
-# Memory Model Spec v2.4 — implementable human-like memory for RW characters
+# Memory Model Spec v2.5 — implementable human-like memory for RW characters
+
+> **v2.5 note (forgetting-curves III — what the curves are for):**
+> `memory/forgetting-curves.md` Part III (§§12–16) grounds the decay
+> engine's *purpose* and its tails: **rational calibration** — forgetting
+> should track the world's reuse statistics (Anderson & Schooler 1991),
+> formalized as the reuse-calibration axiom `R(g_med) ∈ [0.4,0.7]` per
+> content class (§4.1, P239); **slope-invariance axiom** — β may never
+> depend on E/arousal/rehearsal, intercept carries durability (Slamecka &
+> McElree 1983, DEBATED but adopted; §4.1, P231); **event time** — decay
+> argument becomes `t_eff` mixing wall-clock with intervening event load
+> (Wixted 2004; Howard & Kahana 2002) — §4.1; **face permastore** —
+> familiar faces survive ~flat for decades (Bahrick et al. 1975) — §4.7;
+> **transformation gain** — verbatim-field death feeds gist S
+> (Winocur & Moscovitch 2010, DEBATED mechanism) — NEW §4.16;
+> **state-context drift** — internal-state cues decorrelate with a 21d
+> half-life (Estes; Mensink & Raaijmakers) — §5.3; **sleep-coupled affect**
+> — 40% of valence fade executes at the sleep tick (van der Helm & Walker
+> 2009, DEBATED) — §4.5; **HSAM/SDAM tails** — profile-layer modifiers for
+> the population extremes (LePort 2012; Palombo 2015), distortion dials
+> untouched (Patihis 2013). +7 params in §7; probes P231–P240 in
+> validation-design.md. All optional, default-neutral.
 
 > **v2.4 note (encoding-mechanics II — motivational state and content
 > class):** `memory/encoding-mechanics.md` Part II (§§15–29) prices the
@@ -923,10 +944,29 @@ schedule; everything in §4.1–4.3 acts on R only.
 Power-law with asymptote (R§3):
 
 ```
-R(t) = E_adj · (1 + t/τ)^(-β) + floor
+R(t) = E_adj · (1 + t_eff/τ)^(-β) + floor
+t_eff = Δt_days + ev_time_w · (n_events_since / ev_day_norm)   // v2.5
 ```
 
 - `t` = days since lastAccessDay (retrieval refreshes the clock).
+- **Event time (v2.5):** the decay argument is `t_eff`, not raw days —
+  `n_events_since` = this character's record-encodes since lastAccessDay
+  (reuse the §4.2 cue-bucket counts, no new stores), `ev_day_norm` =
+  typical daily load (30 mains / ~10 ambients), `ev_time_w` ≈ 0.5.
+  Subjective memory age advances with *lived events*, not just calendar —
+  a hectic fortnight blurs, an idle one stays crisp (Wixted 2004;
+  Howard & Kahana 2002; forgetting-curves.md §12.4).
+- **Slope-invariance axiom (v2.5):** β may never depend on E, arousal,
+  or rehearsal count — durability enters through the intercept (E_adj),
+  the clock (retell resets t), the floor, and §4.11's S layer, never
+  through β (Slamecka & McElree 1983; forgetting-curves.md §12.2).
+  Sanctioned β modulators: age (§4.8), era terms (below), content class
+  (k_verbatim etc.), profile tails (hsam/sdam). P231 enforces.
+- **Reuse-calibration axiom (v2.5):** retention should be economical —
+  per content class, R at the class's median reuse gap should land in
+  [0.4, 0.7] against world access logs (Anderson & Schooler 1991 —
+  forgetting tracks environmental need statistics). Health metric, not
+  hard gate; probe P239; forgetting-curves.md §12.1.
 - `τ` (scale) and `β` (rate) are params per memory **type** and per character:
   episodic τ≈1.2, β≈0.5; semantic τ≈30, β≈0.2; verbatim fields decay at
   `β·k_verbatim` (k≈2.5) relative to gist.
@@ -1052,6 +1092,13 @@ record's `selfRelevance_eff ≥ fab_self_gate` (0.4); below the gate,
 negative affect decays at the POSITIVE baseline rate — the bias is
 self-referential repair, not a general solvent (Walker, Skowronski &
 Thompson 2003; Ritchie et al. 2006/2015; emotional-memory.md §19).
+**v2.5 — sleep-coupled affect:** `affect_sleep_frac` (0.4) of each day's
+valence-fade budget executes inside `dailyMemoryTick`, scaled by
+`sleepQuality`; the remainder accrues continuously. `trauma` records are
+exempt. A sleepless night literally leaves yesterday's hurt sharper
+("sleep to remember, sleep to forget" — van der Helm & Walker 2009;
+DEBATED mechanism, direction supported; forgetting-curves.md §12.7).
+Complements `sleep_affect_strip` (arousal channel); this one is valence.
 Emergent: personal slights cool; witnessed wrongs done to others keep
 their charge — collective memory of a public injustice outlasts
 private hurt.
@@ -1085,6 +1132,16 @@ facts still decay normally. See `forgetting-curves.md` §2.3.
 **v0.9:** the permastore gate tests `storageS ≥ permastore_thresh`
 instead of `strength` — permanence is a property of how well-stored the
 record is, not of how retrievable it happens to be today (§4.11).
+**v2.5 — face permastore:** PersonModel records whose `familiarity ≥
+fam_recog_gate` (0.5) at last contact qualify their *face-recognition
+leg* (the §5.10 cascade's first step) for permastore at the lower
+`face_perma_thresh` (0.15) — familiar-face recognition is essentially
+flat over decades while names and details collapse (Bahrick, Bahrick &
+Wittlinger 1975: ~90% identification/matching at ≥15 years, near-flat
+to ~48y; free name recall declines ~60%). Names are
+explicitly excluded — they keep the ordinary verbatim schedule on top of
+`name_penalty`. "I know that face, we went to school together, and I
+can't produce the name" is the human datum, not a bug. P232.
 
 ### 4.8 Lifespan decline layer — reserve and terminal decline (new in v0.4)
 
@@ -1311,6 +1368,29 @@ Two changes:
   records take `strength *= (1 − nap_loss)` (0.1) at the night tick —
   the loss is permanent (Kurdziel: overnight sleep does not recover it).
 
+### 4.16 Transformation gain — verbatim death feeds gist (new in v2.5)
+
+Systems consolidation converts episodes into schema-compatible form —
+remote memories retain proportionally stronger schematic cores
+(McClelland, McNaughton & O'Reilly 1995; the "transformation" reading is
+Winocur & Moscovitch 2010 vs Nadel & Moscovitch's MTT — mechanism
+DEBATED, the *observable* is consensus; forgetting-curves.md §12.5).
+
+When a verbatim field of an episodic record crosses `forget_thresh`, or
+is consumed by a §4.3 merge, that record's gist leg gains a one-time
+storage boost:
+
+```
+storageS_gist += transf_gain · (1 − storageS_gist)    // ≈0.05
+flag transf_done[field] = true                      // once per field
+```
+
+The record that sheds its particulars becomes *more story* — "the fight
+at El Farolote" endures as compact, schema-consistent gist because its
+frame was shed. This is the passive half of canonization (§6.24) and it
+gives genericization a payoff consistent with the data. [HYPOTHESIS
+implementation of a consensus observable — P234, SHOULD tier.]
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -1366,8 +1446,16 @@ moodCongruence = w_state · (1 − |m.emotional.valence − C.mood|)/2
                  // event valence × current mood — CONSENSUS, larger effect
 moodStateDep   = w_msd · (1 − |m.encodeMood − C.mood|)/2
                  · (1 − cueMatch_ext)
+                 · exp(−m.ageDays / state_ctx_hl)          // v2.5
                  // encoder mood match — small, and ERASED by strong
                  // external cues (Eich meta; Mecklenbräuker & Hager)
+                 // v2.5: internal context itself decorrelates —
+                 // state_ctx_hl ≈ 21d (Estes fluctuation; Mensink &
+                 // Raaijmakers 1988; forgetting-curves.md §12.6).
+                 // Applies to ALL internal-state cue overlap (mood,
+                 // physiological state); place/people cues exempt —
+                 // external context is stable. Mood CONGRUENCE (above)
+                 // never drifts — that's the meta-analytic split.
 ```
 
 ### 5.4 Retrieval probability
@@ -2792,6 +2880,15 @@ MemoryParams = {
   "expert_encode_gain": 0.15,// in-domain E bonus (§2; Chase & Simon)
   "expert_detail_w": 1.2,    // in-domain record width mult (§2)
   "df_loss": 0.3,            // item-method forget-instruction cost (§2)
+  // v2.5 additions (forgetting-curves III — adaptive calibration, event
+  // time, tails; forgetting-curves.md Part III §§12–13)
+  "ev_time_w": 0.5,          // event-load weight in t_eff (§4.1)
+  "ev_day_norm": 30.0,       // typical daily encodes; ambients ~10 (§4.1)
+  "affect_sleep_frac": 0.4,  // valence-fade share executed at sleep tick (§4.5)
+  "face_perma_thresh": 0.15, // familiar-face permastore bar (§4.7)
+  "fam_recog_gate": 0.5,     // familiarity required for face permastore (§4.7)
+  "transf_gain": 0.05,       // verbatim-death → gist S boost (§4.16)
+  "state_ctx_hl": 21.0,      // internal-state cue drift half-life, days (§5.3)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -3295,6 +3392,23 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - `context.pain`/`hunger`/`fatigue` (0..1) map to `daLoad` at the
     frozen §2 v2.4 weights — callers supply raw state, never pre-
     composed daLoad (the mapping is spec, not caller judgment).
+- v2.5 additions (forgetting-curves.md Part III §§12–13):
+  - Decay is evaluated on `t_eff` (§4.1): callers must keep a per-
+    character count of record-encodes since each record's lastAccessDay
+    (the §4.2 cue-bucket counts suffice — no new stores). `ev_day_norm`
+    differs mains/ambients.
+  - `dailyMemoryTick` now executes `affect_sleep_frac` of the day's
+    valence fade × `sleepQuality` (§4.5) — sleepQuality=0 nights fade
+    affect only at the continuous 60% share.
+  - PersonModel `familiarity` is consumed by §4.7 face permastore;
+    world/character data should keep updating it on contact.
+  - Records gain per-verbatim-field `transf_done` flags (§4.16) —
+    snapshot schema +1 field-class bitmask; absent flags default false.
+  - New read-only health metric expectation: probe P239 requires access-
+    gap logging per content class (record class + day on every
+    encodeEvent/recall/hearAccount hit — cheap counter, not a store).
+  - Profile layer gains `hsam`/`sdam` modifier names (character-memory-
+    profiles.md §13) — they map to existing params, no new spec params.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

@@ -1126,3 +1126,52 @@ All sources verified via web on 2026-09-23.
 - Spec → v2.4 (+12 params, 5 frozen constants, 2 knot rows, contract
   additions); profiles +12 clamp rows + §12; probes P221–P230.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 25. v25 — forgetting-curves III (what the curves are FOR: adaptive calibration, event time, the tails)
+
+Part III of `forgetting-curves.md`. The decay engine's shape was fitted
+in Parts I–II; this pass grounds its purpose and its extremes.
+
+- **Rational calibration** (Anderson & Schooler 1991 — P(need) decays as
+  a power law of time-since-use across headlines, library loans, email;
+  ACT-R base-level is the same family): forgetting is *economical*, not
+  broken — retention should track the world's reuse statistics. →
+  reuse-calibration axiom `R(g_med) ∈ [0.4,0.7]` per class + probe P239
+  (fails toward over-retention too — the first world-statistics probe).
+- **Slope invariance** (Slamecka & McElree 1983; Loftus 1985 counter;
+  Wixted 2004 review — DEBATED in detail, adopted): learning level moves
+  the intercept, not the slope. → contract: β never depends on E/arousal/
+  rehearsal; P231 enforces. Who/when/what modulate β; strength never does.
+- **Familiar-face permastore** (Bahrick, Bahrick & Wittlinger 1975 —
+  classmate identification ~90% at ≥15y, near-flat to ~48y, while free
+  name recall declines ~60%): a second
+  permastore, person-domain, at a lower bar (`face_perma_thresh` 0.15,
+  `fam_recog_gate` 0.5). Names explicitly excluded — "I know that face,
+  can't produce the name" is the datum, not a bug.
+- **Event time** (Wixted 2004 interference; Howard & Kahana 2002 TCM;
+  event segmentation): subjective memory age advances with intervening
+  events → `t_eff = Δt + ev_time_w·(n_ev/ev_day_norm)`. A hectic fortnight
+  blurs; an idle one stays crisp.
+- **Transformation gain** (McClelland et al. 1995; Winocur & Moscovitch
+  2010 transformation hypothesis — mechanism DEBATED vs MTT, observable
+  CONSENSUS): verbatim-field death feeds gist S (`transf_gain` 0.05) —
+  remote memories become more schematic, not just weaker. Passive half of
+  canonization.
+- **State-context drift** (Estes 1955 fluctuation; Mensink & Raaijmakers
+  1988): internal-state cues decorrelate on a ~21d half-life →
+  `moodStateDep` × `exp(−ageDays/state_ctx_hl)`; place/people exempt;
+  mood-congruence never drifts (the meta-analytic split).
+- **Sleep-coupled affect** (van der Helm & Walker 2009 "sleep to forget" —
+  DEBATED mechanism, direction supported): `affect_sleep_frac` 0.4 of
+  daily valence fade executes at the sleep tick × sleepQuality; trauma
+  exempt. A sleepless night leaves yesterday's hurt sharper.
+- **Population tails** (LePort et al. 2012/2017 HSAM; Palombo et al. 2015
+  SDAM): profile-layer modifiers for the extreme ends. Patihis 2013
+  guard: HSAM is NOT suggestion- or false-memory-immune — storage is
+  extraordinary, reconstruction ordinary. Both unassigned by default.
+- **Availability census** (Crovitz & Schiffman 1974; Rubin & Schulkind
+  1997): lifespan word-cued AM availability is power-decaying with bump
+  elevation → P238, a system-level canary probe.
+- Spec → v2.5 (+7 params, 2 axioms, §4.16 new, contract additions);
+  profiles +7 clamp rows + 2 modifiers + §13; probes P231–P240.
+- Boundaries kept: research only, no code, no narratives, no push/merge.
