@@ -513,6 +513,19 @@ never copying raw.
 | smoker_pm_loss / nic_dep_pm | 0 / 0 | 0.25 / 0.35 | objective PM deficit (self-report blind) / deprivation cut (v4.2) |
 | caff_consol_gain | 0 | 0.2 | post-encoding caffeine → next-day lure discrimination only (v4.2) |
 | depr / ptsd / attach_anx / attach_avoid / persp_obs / supp / reap / pspeed / mindful / scc / smoker | −2 or 0 | +2 or 1 | new IndivTraits; depr/ptsd/smoker 0..1 pinned, rest N(0,1); reap is a NULL trait (v4.2) |
+| stt_gain / stt_stigma | 0 / 0 | 0.15 / 0.25 | messenger smear + gossip stigma, listener-local (v4.3) |
+| fam_permastore_exp / fam_permastore_mult | 20 / 0.1 | 200 / 0.5 | Bahrick exposure gate + decay floor (v4.3) |
+| edge_sym_p | 0.3 | 1.0 | sentiment-edge symmetry assumption (v4.3) |
+| balance_pull / balance_flip_p | 0 / 0 | 0.2 / 0.3 | unbalanced-triad decay tax / retrieval flips (v4.3) |
+| own_share_bias / blame_deflect | 0 / 0.3 | 0.5 / 1.0 | >100% dyads; blame arm reverses (v4.3) |
+| same_source_pen / voices_k | 0.4 / 2 | 1.0 / 10 | one repeater ≈ chorus; consensus scale (v4.3) |
+| retell_conf_gain / retell_conf_cap | 0 / 0.8 | 0.1 / 1.0 | telling inflates certainty, never accuracy (v4.3) |
+| conform_gate / conform_norm_p | 0.2 / 0 | 0.7 / 0.7 | informational↔normative switch (v4.3) |
+| gossip_neg_gain / gossip_known_w | 1.0 / 0.1 | 2.0 / 1.0 | scandal tell-selection; shared-referent gate (v4.3) |
+| discredit_mult | 1.0 | 2.0 | sleeper effect — discount decays faster than claim (v4.3) |
+| pep_k / pep_days / pep_neg_drift | 0 / 2 / 0 | 0.5 / 30 / 0.1 | post-event processing; neurot·supp gated (v4.3) |
+| partner_eval_pull | 0 | 0.4 | current eval repaints partner history (v4.3) |
+| overhear_w / overhear_person_gain | 0.2 / 1.0 | 0.8 / 1.6 | eavesdropped encoding, person-content bonus (v4.3) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -1874,3 +1887,69 @@ them uncertain.
   makes observer mode *more* detailed than field mode; no profile
   gains above-baseline memory from nicotine or caffeine; reap
   stays zero-loaded; attach effects stay inside `attach:true`.
+
+## 28. v4.3 note — social-memory IV: the ledger's failure-mode dials
+
+- **`stt_*` are listener-local reputation physics.** Bibles should NOT
+  pin "the gossip" as a low-credibility character — credibility is the
+  §9 verification channel. The gossip phenotype is: high `share_k` +
+  high `sti_prob` + high `stt_gain` sensitivity is flat (associative) —
+  what makes a character *marked* is what they habitually retell. A
+  character who always carries negative moral content accumulates
+  `stt_stigma` eval losses in every listener's model — the world never
+  flags them. Pair with `gossip_neg_gain` on the tell side.
+- **`fam_permastore_*` are ecological, not dispositional.** The
+  exposure gate (50) means tenure beats talent: a dull 20-year
+  resident's PersonModels are permastored; a sharp newcomer's aren't.
+  Do not raise the gate for "good with faces" characters — that's
+  `face_ability`/`fam_gain`'s job; the floor is about exposure count.
+- **`edge_sym_p`/`balance_*` write the character's *model of the
+  network*, not the network.** A high-`edge_sym_p` bible entry is the
+  character who assumes affection is mutual — not the one it's true
+  for. `balance_pull` high + `distrust` low = the peacemaker who keeps
+  "remembering" that feuding neighbors patched things up.
+- **`own_share_bias`/`blame_deflect` are the conflict-generating
+  pair.** Every coAgents dyad legitimately recalls >100% combined
+  contribution; housemate/roommate bibles should expect chore disputes
+  to be structurally unresolvable. `blame_deflect` rides `defens` —
+  a defensive character claims the wins and disowns the failures.
+- **`same_source_pen` high (→1.0) is the gullible-consensus profile** —
+  the character who hears one neighbor's daily monomania as "everyone
+  thinks." Low (→0.4) + high `wmc` is the source-counter.
+- **`retell_conf_*` are invisible to characters.** No bible can write
+  "humble storyteller" via these — the inflation is reflexive
+  (meta_cal explicit null). Storytelling-heavy bibles just reach the
+  cap faster.
+- **`conform_gate`/`conform_norm_p` split the public/private
+  personality.** High conform_norm_p + high distrust = the character
+  who nods along and stores the asterisk; low conform_norm_p + high
+  consc = the one who argues on the spot. `dissent_mark` retrievals
+  are the late-arriving "actually, I saw it differently" — dialogue
+  should let them surface.
+- **`pep_*` is the social-anxiety proxy until a `soc_anx` trait
+  exists.** neurot·supp gating means the poker-faced anxious character
+  gets the worst of both worlds: §6.53's encoding tax at the party,
+  pep_k's darkening replay after it. pep_neg_drift is the dial that
+  makes the replay *worsen* — don't zero it on any profile meant to
+  feel socially anxious.
+- **`partner_eval_pull` needs familiarity to fire** — it is a
+  close-relationship operator. On a fresh acquaintance it does
+  nothing; on a decades-long bond it continuously repaints history.
+  Bibles with scripted relationship reversals (breakup, estrangement,
+  reconciliation) get the strongest signature — P455's eval-reversal
+  probe is the design check.
+- **`overhear_*` + `vigil`/`hearing` write the eavesdropper.**
+  High overhear_w + high vigil = the character who knows things they
+  were never told and can't place the source — feed §6.10 source
+  inference its weakest tags. Deafness-adjacent profiles (v2.8
+  `hearing`) cut overhear_w, not attention.
+- **Population-flat:** stt_*, fam_permastore_*, edge_sym_p,
+  balance_*, own_share_bias, blame_deflect, same_source_pen,
+  voices_k, retell_conf_*, gossip_*, discredit_mult, pep_*,
+  partner_eval_pull, overhear_* — coefficients are constants; the
+  traits and the exposure history do the differentiating.
+- **Explicit nulls a bible cannot override:** no trait exempts STT
+  (g_mem included — smart gossips wear the message); meta_cal never
+  undoes retell confidence inflation; wmc never gates the symmetry
+  assumption; distrust never blocks the sleeper effect (temporal,
+  not dispositional).

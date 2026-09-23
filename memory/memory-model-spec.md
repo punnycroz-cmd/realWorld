@@ -1,4 +1,39 @@
-# Memory Model Spec v4.2 — implementable human-like memory for RW characters
+# Memory Model Spec v4.3 — implementable human-like memory for RW characters
+
+> **v4.3 note (social-memory IV — the ledger's failure modes):**
+> `memory/social-memory.md` Part IV (§§48–64) closes the social
+> layer's remaining lies: **spontaneous trait transference** —
+> the messenger wears the described trait, associative not
+> inferential (Skowronski, Carlston, Mae & Crawford 1998) —
+> §6.54; **Bahrick floors** — the person cascade's tiers get
+> their quantified permastore: ~90% recognition at 15y while
+> name free-recall falls 60% over 48y (Bahrick, Bahrick &
+> Wittlinger 1975) — §5.10 addendum; **RelEdge + balance warp**
+> — a per-observer store for others' relationships, symmetry-
+> assumed for sentiment, decay-taxed when unbalanced (De Soto
+> 1960; De Soto & Kuethe 1959; De Soto, Henley & London 1968)
+> — §1/§6.55; **own-share inflation** — every dyad member recalls
+> doing most of the work, blame arm reversed (Ross & Sicoly
+> 1979; Campbell & Sedikides 1999) — §6.56; **single-voice
+> consensus** — one repeater reads as a chorus (Weaver, Garcia,
+> Schwarz & Miller 2007) — §6.57; **retell confidence
+> inflation** — telling raises certainty not accuracy (Shaw &
+> McClure 1996; Odinot et al. 2009) — §6.58; **conformity
+> split** — public assent decouples from private belief,
+> `dissent_mark` (Gabbert et al. 2003/2004; Wright et al. 2000)
+> — §6.59; **gossip tell-selection** — moral-negative content on
+> known cheaters preferred, gossip needs a shared referent
+> (McAndrew et al. 2007; Feinberg et al. 2012) — §6.60;
+> **sleeper effect** — the discrediting tag rots faster than
+> the claim (Kumkale & Albarracín 2004 meta) — §6.61;
+> **post-event processing** — social-evaluative negatives replay
+> and darken for the anxious (Clark & Wells 1995; Brozovich &
+> Heimberg 2008) — §6.62; **partner-eval pull** — current
+> evaluation repaints a partner's remembered past (McFarland &
+> Ross 1987) — §6.63; **overheard channel** — eavesdropped
+> content encodes thin with weak source binding (Emberson et al.
+> 2010) — §6.64. +24 params in §7; probes P445–P456. All
+> optional, default-neutral.
 
 > **v4.2 note (individual-differences IV — the clinical phenotypes
 > and the everyday pharmacopeia):** `memory/individual-differences.md`
@@ -992,6 +1027,18 @@ PersonModel = {
                            // familiarity-only accrual (§36) + transplant
                            // candidate weight (§6.26)
 }
+```
+
+**Edge store (v4.3):** one `RelEdge` per observed alter–alter
+relation — memory for *other people's relationships* is a separate
+per-observer store, schema-warped by balance (De Soto 1960;
+social-memory.md §50):
+
+```json
+RelEdge = {"a": "mara", "b": "jules",   // ordered pair, observer-local
+           "kind": "sentiment",          // "sentiment"|"unit" — balance
+                                         // ops apply to sentiment only
+           "sign": +1, "str": 0.6, "dayObserved": 401}
 ```
 
 ---
@@ -2893,6 +2940,15 @@ tier3 name:         roll vs name_thresh (0.55) on nameStrength
   between two candidates — category confusions are worst between
   unindividuated persons [HYPOTHESIS coupling, direction consensus —
   social-memory.md §40].
+- **Bahrick floors (v4.3):** once `exposureCount + encounters` ≥
+  `fam_permastore_exp` (50), `familiarity` decays at
+  beta_semantic·`fam_permastore_mult` (0.25) — the ~90%-
+  recognition-at-15-years plateau (Bahrick, Bahrick & Wittlinger
+  1975). The same floor applies to `nameStrength` for tier-3 rolls
+  in **recognition mode only** (copy cue present — "is that
+  Mara's name?"); free-recall name production keeps the full
+  β_source schedule (~60% loss over 48y). The recall/recognition
+  split on the name tier IS the reunion signature (P446).
 
 ### 5.11 Reminiscence across attempts (new in v1.3)
 
@@ -4958,6 +5014,200 @@ reap loading is a spec violation (P439). Composes, never merges,
 with §5.4's acute-stress encoding loss: masking a calm lie costs
 the tax without any arousal spike.
 
+### 6.54 Spontaneous trait transference — the messenger wears the message (new in v4.3)
+
+On `retell`/`hearAccount` where the content carries a trait
+implication about a third party (target ≠ speaker), the SPEAKER's
+model absorbs a smear of it (Skowronski, Carlston, Mae & Crawford
+1998 — 4 experiments, associative not inferential; Mae, Carlston &
+Skowronski 1999 — transfers via familiar communications; social-
+memory.md §48):
+
+```
+PersonModel[speaker].traits[t] += stt_gain (0.05) · implication
+    // no diagnosticity gate, no sit_credit — mindless association
+if content is moral-negative about an absent target:
+    PersonModel[speaker].eval -= stt_stigma (0.08)   // gossip
+    // stigma — the habitual detractor's own eval pays (Farley 2011)
+```
+
+Both writes are listener-local and per-hearing — the world marks
+no gossips; each listener's memory does (P445).
+
+### 6.55 RelEdge mechanics — balance warps the social map (new in v4.3)
+
+`RelEdge` (§1) mints on witnessed alter–alter interaction or
+adopted `told_by` relational content. Three operators (De Soto
+1960 — schema-consistent structures learn faster; De Soto &
+Kuethe 1959 — symmetry attributed to "likes"/"confides", asymmetry
+to "influences"; De Soto, Henley & London 1968 — unbalanced
+SENTIMENT structures learned poorly, unit relations exempt):
+
+```
+mint: kind:"sentiment" edges also write the REVERSE edge at
+    edge_sym_p (0.75)·str — "he adores her" mints weak
+    "she adores him"; kind:"unit"/influence edges mint none
+daily tick: sentiment edges whose enclosing triads are unbalanced
+    (sign product −1) decay ×(1 + balance_pull·0.06 per edge —
+    scaled so the weakest unbalanced edge carries the tax)
+retrieval: unbalanced sentiment edge at str < 0.4 flips sign at
+    balance_flip_p (0.1) — remembered as resolved
+```
+
+Emergent: the believed social map is systematically more balanced
+than the real one — enemies-of-friends get edited out (P447).
+
+### 6.56 Own-share inflation — the >100% dyad (new in v4.3)
+
+Records tagged `coAgents` (joint action — chores, projects,
+fights both parties joined) store `own_share` ≈
+actual·(1 + own_share_bias·(0.5 + 0.5·delayYr)),
+`own_share_bias` 0.25 — mature claims ≈0.55–0.65 mean share, dyad
+sums ≈110–130% (Ross & Sicoly 1979 — availability-driven, grows
+with delay; Burger & Rodman 1983 — delay flips early other-credit
+to self-credit). On negative-outcome coAgents records, reported
+own_share ×= (1 − blame_deflect) (0.7, ×(1+0.3·max(0,defens)) —
+Campbell & Sedikides 1999 threat-dependence). Housemates' chore
+memories are irreconcilable by construction (P448).
+
+### 6.57 Single-voice consensus — one repeater reads as a chorus (new in v4.3)
+
+`consensusEstimate(charId, claim)` returns the character's
+inferred prevalence of an opinion in the neighborhood (Weaver,
+Garcia, Schwarz & Miller 2007 — one communicator's repetition
+inflates perceived consensus nearly like distinct voices; opinion
+accessibility, not deliberate source counting):
+
+```
+effectiveVoices = nDistinctSources + same_source_pen·(hearCount −
+                  nDistinctSources)        // same_source_pen 0.7
+consensusEst = effectiveVoices/(effectiveVoices + voices_k)  // 4
+```
+
+Retell emission may tag `norm:"everyone knows"` when
+consensusEst > 0.6 — characters assert consensus hallucinated
+from one relentless repeater (P449). Read-only: feeds rumor
+salience and the history browser, never edits fields.
+
+### 6.58 Retell confidence inflation — telling makes you sure (new in v4.3)
+
+On each `retell`/`discussEvent` surfacing, the speaker's record
+gains `conf += retell_conf_gain·(1 − conf)` (0.03, hard cap
+`retell_conf_cap` 0.95) — accuracy untouched (Shaw & McClure 1996
+— repeated postevent questioning inflates confidence; Odinot,
+Wolters & van Koppen 2009 — repeated attempts degrade accuracy
+while confidence climbs; Kelley & Lindsay 1993 fluency→confidence
+pathway). Stacks with §24 canonization: oft-told stories are
+maximally certain AND frozen at their young distortions — the
+most confident witnesses are the most frequent tellers (P450).
+Distinct from §6.20 corroborate_conf — this needs no audience.
+
+### 6.59 The conformity split — public assent, private dissent (new in v4.3)
+
+When a listener's own reconstructed field CONFLICTS with a
+speaker's account, §6.5's merge now routes on own-field strength
+(Gabbert, Memon & Allan 2003 — informational conformity dominates
+when own memory is weak; Wright, Self & Justice 2000; Gabbert et
+al. 2004 — normative compliance under pressure leaves private
+recall intact):
+
+```
+ownFieldStrength < conform_gate (0.4): informational — the
+    existing §6.5 merge proceeds (private change)
+ownFieldStrength ≥ gate: normative arm — with prob
+    conform_norm_p·(1 + max(0,status_gap_speaker)) (0.3) the
+    listener's EMITTED report aligns publicly; the stored field
+    keeps its value and gains `dissent_mark` (private dissent on
+    file, retrievable later); beliefStatus unchanged
+```
+
+Disputes resolve publicly and persist privately (P451) — the
+asterisk is what gets retold to confidants months later.
+
+### 6.60 Gossip tell-selection — scandal picks its audience (new in v4.3)
+
+Inside `retell` field/record selection (before §42's novelty
+gate), third-party person content is reweighted (McAndrew, Bell &
+Garcia 2007 — negative gossip told to allies about targets the
+audience can act on; Feinberg et al. 2012 — prosocial warning
+gossip; Eder & Enke 1991 — gossip needs a mutually-known
+referent; Dunbar et al. 1997 — social content is the retell
+engine's main load):
+
+```
+if record.verbatim.who is a third party:
+    salience *= gossip_neg_gain (1.4) when trait implication is
+        moral-negative AND PersonModel[target].cheaterLoad > 0
+    salience *= gossip_known_w (0.5) if audience holds NO
+        PersonModel for target
+    salience *= (1 + 0.3·max(0, PersonModel[audience].eval))
+        — prefer allies
+```
+
+Rumor flow concentrates on friendship edges and dies at graph
+margins — the rumor network is the relationship network, filtered
+(P452).
+
+### 6.61 The sleeper effect — discrediting rots faster than the claim (new in v4.3)
+
+`hearAccount`/`feedback` may tag a record `discredited` (the
+claim's acceptance was undermined post-adoption — "turns out he
+made it up"). `discredit_str` births at 1.0 and decays at
+β_source·`discredit_mult` (1.4); while alive, the record's
+content fields weight inference at ×(1 − discredit_str); below
+0.3, content resumes normal weight (Hovland & Weiss 1951;
+Kumkale & Albarracín 2004 meta — sleeper effect real but
+conditional: discounting cue must postdate message encoding;
+mechanism = message–source dissociation, our β_source > β_content
+asymmetry does the work). Distinct from §6.6 retraction (marks
+CONTENT doubted) and §9 credibility (marks the PERSON) — this is
+the claim-level discount rotting. Fires only when the discredit
+postdates the record (Kumkale boundary). Retracted rumors recover
+in belief weeks after the correction is forgotten (P453).
+
+### 6.62 Post-event processing — the social failure replays itself (new in v4.3)
+
+Records tagged `social_eval:true` (performances, embarrassments,
+judgment-under-eyes — event layer supplies) with valence < −0.2
+draw covert-retrieval ticks for `pep_days` (7) at rate
+`pep_k·(0.5 + 0.5·neurot + 0.3·supp)`; each tick applies normal
+§4.11 storage growth AND valence drift `−pep_neg_drift` (0.03)
+(Clark & Wells 1995 maintaining process; Rachman, Grüter-Andrew &
+Shafran 2000; Brozovich & Heimberg 2008 review; Dannahy & Stopa
+2007 — replay worsens the appraisal). Content-gated to social-
+evaluative events — distinct from rumin_k's broad depressive
+rehearsal (P454). The anxious character's awkward Tuesday is
+stronger and darker a week later — memory worsened after the
+event ended.
+
+### 6.63 Partner-eval pull — the present repaints the partner's past (new in v4.3)
+
+Reconstruction of records about a person with a PersonModel at
+familiarity ≥ identity_thresh drifts valence-relevant gist fields
+toward sign(model.eval)·`partner_eval_pull`·(0.5 +
+0.5·familiarity) (0.15) — current evaluation reconstructs the
+relationship's remembered history (McFarland & Ross 1987 — dating
+partners' recall of earlier evaluations biases toward current
+feeling; Karney & Coombs 2000; Holmberg & Holmes 1994).
+Familiarity scaling is the documented boundary: strangers' pasts
+aren't revised — there is no present to reconcile them with.
+Post-breakup the good years gray; post-reconciliation the
+betrayal softens; long marriages self-maintain (P455).
+
+### 6.64 The overhear channel — eavesdropped and thin (new in v4.3)
+
+Events may arrive `kind:"overheard"` (speaker present, this
+character not the addressee): encode with `E *= overhear_w`
+(0.5), person-topic content `*= overhear_person_gain` (1.2 —
+Emberson, Lupyan, Goldstein & Spivey 2010 attentional capture by
+overheard speech; Dunbar et al. 1997 social-content attentional
+bias); `source.who` binding ×= 0.6 — born weak; no prod/gen
+gains, no toldTo write, NO shared_with write (overheard ≠ common
+ground). Feeds §6.10 source inference with its weakest
+provenance — characters know things they were never told and
+cannot place (P456). `overhear_w` rides the v2.8 `hearing`
+trait (×(1−hearing_loss)).
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -5758,6 +6008,32 @@ MemoryParams = {
 //   weighted bible pins, not free MVN draws (§45); all v4.2
 //   coefficients declared AGE-FLAT except pspeed (no lifespan
 //   evidence — P443/P444 guards).
+// v4.3 additions (social-memory IV — the ledger's failure modes,
+//   social-memory.md §§48–64)
+"stt_gain": 0.05, "stt_stigma": 0.08, // messenger smear + gossip stigma (§6.54)
+"fam_permastore_exp": 50, "fam_permastore_mult": 0.25, // Bahrick floors (§5.10)
+"edge_sym_p": 0.75, "balance_pull": 0.06, "balance_flip_p": 0.1, // §6.55
+"own_share_bias": 0.25, "blame_deflect": 0.7, // >100% dyads (§6.56)
+"same_source_pen": 0.7, "voices_k": 4,      // single-voice consensus (§6.57)
+"retell_conf_gain": 0.03, "retell_conf_cap": 0.95, // §6.58
+"conform_gate": 0.4, "conform_norm_p": 0.3, // informational/normative (§6.59)
+"gossip_neg_gain": 1.4, "gossip_known_w": 0.5, // tell-selection (§6.60)
+"discredit_mult": 1.4,                      // sleeper-effect tag decay (§6.61)
+"pep_k": 0.15, "pep_days": 7, "pep_neg_drift": 0.03, // PEP (§6.62)
+"partner_eval_pull": 0.15,                  // present repaints past (§6.63)
+"overhear_w": 0.5, "overhear_person_gain": 1.2,    // eavesdrop (§6.64)
+// v4.3 explicit nulls: g_mem → no STT exemption (associative,
+//   ability-blind); meta_cal → no retell_conf_gain undo (fluency
+//   writes conf before calibration reads it); wmc → no edge_sym_p
+//   gate (schema prior, not computation); distrust → no sleeper
+//   block (discount rots at source rate regardless).
+// v4.3 knot notes: balance_pull/balance_flip_p, same_source_pen,
+//   conform_norm_p ×(1+0.2–0.3·age_eff/60) — schema reliance and
+//   source-tracking decline; pep_k ×(1−0.2·age_eff/60) — PEP
+//   attenuates with positivity shift (HYPOTHESIS); overhear_w
+//   ×(1−hearing_loss) rides the v2.8 hearing trait; discredit_mult,
+//   stt_*, fam_permastore_*, own_share_bias, retell_conf_*,
+//   gossip_*, partner_eval_pull declared AGE-FLAT (cite-guarded).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -6576,6 +6852,31 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - World-builder hooks: nightly deprivation/suppression bookkeeping
     sets `depleted` and `nic_dep`; the suppression tax needs
     dialogue-layer masking state (`suppressing:true`) to fire.
+- v4.3 additions (social-memory.md Part IV §§48–64):
+  - New record type `RelEdge{a,b,kind,sign,str,dayObserved}` —
+    per-observer edge store in snapshots; minted on witnessed
+    alter–alter interaction or adopted relational `told_by`
+    content; sentiment edges reverse-mint at `edge_sym_p` (§6.55).
+  - `encodeEvent`/`hearAccount` accept `kind:"overheard"` (§6.64)
+    and `social_eval:true` (§6.62); records may carry `coAgents`
+    (§6.56 — stores `own_share`), `discredited` + `discredit_str`
+    (§6.61), `dissent_mark` (§6.59 private-dissent flag).
+  - New read `consensusEstimate(charId, claim) -> 0..1` (§6.57) —
+    retell emissions may carry `norm:"everyone knows"`; read-only,
+    never edits fields.
+  - `retell`/`discussEvent` now apply §6.58 `retell_conf_gain` to
+    the speaker's record (no audience needed) in addition to the
+    §6.20 corroboration channel; §6.59 routes contested fields by
+    `conform_gate` — informational merge vs public-assent +
+    `dissent_mark`.
+  - Reconstructions of records about modeled persons apply
+    §6.63 `partner_eval_pull` — callers see eval-consistent gist
+    drift; nothing is written back to the record.
+  - World-builder hooks: `social_eval` tags (performances,
+    embarrassments) power §6.62; `coAgents` needs joint-action
+    bookkeeping at the event layer; `RelEdge` minting needs
+    alter–alter interaction visibility in `context.present`.
+    All additions snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

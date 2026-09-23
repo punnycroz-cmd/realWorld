@@ -3121,3 +3121,109 @@ alertness-mediated review); Jansari et al. (JEF — nicotine gum
 restores deprived smokers' PM, no never-smoker benefit);
 Heffernan, O'Neill & Moss 2010/2011 (Drug Alcohol Depend —
 objective PM deficits in smokers, self-report unchanged).
+
+## 71. New probes P445–P456 (v44 suite — social-memory IV, social-memory.md §63)
+
+- **P445 STT double write (MUST — sign-locked):** a character who
+  retells N moral-negative items about targets shows own-`eval` and
+  own-trait drift toward the described traits at ≥stt_gain rate;
+  a matched praise-teller drifts positive. FAIL if speakers are
+  unaffected by their own content.
+- **P446 reunion split (MUST — Bahrick sign-locked):** at
+  exposure ≥ fam_permastore_exp and 15-y simulated delay,
+  recognition-mode cascade pass ≥85% tier-1 and tier-3
+  recognition ≥80%, while free-recall name production ≤60% of
+  its early plateau. FAIL if recall and recognition decay
+  together.
+- **P447 balance warp (SHOULD):** unbalanced sentiment edges are
+  recalled worse than balanced matched edges at equal delay;
+  sign-flip errors concentrate on unbalanced triads; unit edges
+  show no differential. FAIL if unit edges warp equally.
+- **P448 own-share (SHOULD):** both members of coAgents dyads
+  report mean own_share > 0.5 (dyad sums > 1.0); negative-outcome
+  records reverse the sign. FAIL if shares sum to 1.0.
+- **P449 single-voice consensus (MUST):** three hearings from ONE
+  speaker produce consensusEst ≥ 0.6× the three-speaker value —
+  and ≥2× the single-hearing value. FAIL if consensus requires
+  distinct sources.
+- **P450 retell confidence inflation (SHOULD):** conf rises
+  monotonically with retellCount toward cap while measured field
+  accuracy is flat-to-declining — the conf–accuracy divergence
+  is the probe, not the conf alone.
+- **P451 conformity split (MUST — two arms):** weak-own-field
+  conflicts show stored-field change (informational); strong-own-
+  field + high-status-speaker conflicts show public assent +
+  `dissent_mark` with beliefStatus unchanged. FAIL if the two
+  arms collapse to one outcome.
+- **P452 gossip ecology (SHOULD):** moral-negative third-party
+  content on cheaterLoad>0 targets is retold ≥1.4× matched
+  neutral; content about targets the audience has no PersonModel
+  for is suppressed ~half; rumor flow concentrates on
+  friendship edges.
+- **P453 sleeper (MUST — sign-locked):** a claim adopted then
+  discredited shows suppressed inference while discredit_str is
+  high, recovering toward baseline as the tag decays — content
+  strength held constant. FAIL if discrediting is permanent OR
+  never suppresses.
+- **P454 PEP (SHOULD):** neurot-high profiles show covert
+  rehearsal of social_eval-negative records above matched
+  non-social negatives, with valence drift negative over pep_days;
+  low-neurot profiles show neither.
+- **P455 partner-eval pull (MUST — sign-locked):** after a
+  scripted eval reversal on a high-familiarity partner,
+  reconstructions of pre-reversal records shift valence toward
+  the new eval; low-familiarity targets show no pull. FAIL on
+  eval-neutral reconstruction.
+- **P456 overhear channel (SHOULD):** overheard person-content
+  encodes at ~0.5× addressed-tell strength with weak source
+  binding (source_infer failures elevated), but above matched
+  non-person overheard content; no shared_with write.
+
+Registry: P1–P456. v44 suite: P445–P456 (6 MUST, 6 SHOULD).
+
+## 72. Sources new to this version
+
+Skowronski, Carlston, Mae & Crawford 1998 (JPSP 74:837 —
+spontaneous trait transference, 4 experiments, associative basis);
+Mae, Carlston & Skowronski 1999 (JPSP 77:233 — STT to familiar
+communications); Crawford, Skowronski & Stiff 2006 (associative
+vs attributional bases of STT/STI); Farley 2011 (negative
+gossip costs teller power/liking); Bahrick, Bahrick & Wittlinger
+1975 (JEP:G 104:54 — ~90% name/face recognition+matching at 15y,
+free name recall −60% over 48y); Bruck & Cavanagh (Fortysomething
+— 25th-reunion recognition); De Soto 1960 (J Abnorm Soc Psych
+60:417 — schema-consistent social structures learn faster);
+De Soto & Kuethe 1959 (symmetry attributed to likes/confides,
+asymmetry+transitivity to influences); De Soto, Henley & London
+1968 (JPSP 8:1 — unbalanced sentiment structures hard to learn,
+unit relations exempt); Heider 1946; Cartwright & Harary 1956;
+Brashears & Quintane 2015 (Social Networks — compression priors
+in network recall); Ross & Sicoly 1979 (JPSP 37:322 — egocentric
+availability/attribution, dyad sums >100%); Burger & Rodman 1983
+(JPSP 45:1232 — delay flips other-credit to self-credit);
+Campbell & Sedikides 1999 (Psych Bull 125:23 — self-serving
+bias meta, threat amplification); Weaver, Garcia, Schwarz &
+Miller 2007 (JPSP 92:821 — one repetitive voice ≈ chorus, 6
+experiments); Shaw & McClure 1996 (repeated postevent questioning
+inflates confidence); Odinot, Wolters & van Koppen 2009 (repeated
+identification: accuracy down, confidence up); Kelley & Lindsay
+1993 (fluency→confidence); Gabbert, Memon & Allan 2003 (memory
+conformity, informational); Wright, Self & Justice 2000 (memory
+conformity meta); Gabbert, Memon, Allan & Wright 2004 (normative
+vs informational split); McAndrew, Bell & Garcia 2007 (gossip
+target/recipient selection); Feinberg, Willer, Stellar & Keltner
+2012 (JPSP — prosocial gossip deters exploitation); Dunbar,
+Marriott & Duncan 1997 (~2/3 of conversation is social);
+Eder & Enke 1991 (gossip structure, shared referent); Hovland &
+Weiss 1951 (sleeper effect); Kumkale & Albarracín 2004 (Psych
+Bull 130:143 — sleeper-effect meta, conditions specified);
+Clark & Wells 1995 (social-phobia model, PEP as maintaining
+process); Rachman, Grüter-Andrew & Shafran 2000 (BRT 38:611 —
+post-event processing); Brozovich & Heimberg 2008 (Clin Psych
+Rev — PEP review); Dannahy & Stopa 2007 (PEP worsens appraisal);
+Mellings & Alden 2000 (PEP predicts worse social-event recall);
+McFarland & Ross 1987 (JPSP 53:934 — current evaluation biases
+recall of partner's past); Karney & Coombs 2000 (memory bias in
+early marriage); Holmberg & Holmes 1994 (relationship-memory
+review); Emberson, Lupyan, Goldstein & Spivey 2010 (Psych Sci —
+overheard halfalogues capture attention).
