@@ -76,11 +76,21 @@
     <div class="notice green final-only"><b>Final pricing.</b> These are the
     launch prices. If they ever change, this page changes first — and any
     purchase made before a change keeps the terms it was bought on.</div>
+    <nav class="page-toc" aria-label="On this page">
+      <a href="#packs">Packs</a>
+      <a href="#requests">Requests</a>
+      <a href="#receipt">A receipt</a>
+      <a href="#oneshots">One-shots</a>
+      <a href="#subs">Subscriptions</a>
+      <a href="#cast">Joining the cast</a>
+      <a href="#month">A month, priced</a>
+      <a href="#never">Never for sale</a>
+    </nav>
   </div>
 </section>
 
 <!-- CREDIT PACKS -->
-<section>
+<section id="packs">
   <div class="wrap">
     <h2>Credit packs</h2>
     <p class="muted">Credits are spent on requests, world changes, and character
@@ -93,6 +103,7 @@
         <div class="pcr">100</div>
         <div class="pusd">$0.99</div>
         <div class="pmeta">$0.0099/cr</div>
+        <div class="pcover">≈ 4 fifteen-minute sessions</div>
         <div class="pbest">Try a first request</div>
       </div>
       <div class="pack-card">
@@ -100,6 +111,7 @@
         <div class="pcr">550</div>
         <div class="pusd">$4.99</div>
         <div class="pmeta">+10% bonus · $0.0091/cr</div>
+        <div class="pcover">≈ 25 fifteen-minute sessions</div>
         <div class="pbest">One evening of agency</div>
       </div>
       <div class="pack-card popular">
@@ -108,6 +120,7 @@
         <div class="pcr">1,150</div>
         <div class="pusd">$9.99</div>
         <div class="pmeta">+15% bonus · $0.0087/cr</div>
+        <div class="pcover">≈ 52 fifteen-minute sessions</div>
         <div class="pbest">A character slot + change</div>
       </div>
       <div class="pack-card">
@@ -115,6 +128,7 @@
         <div class="pcr">2,500</div>
         <div class="pusd">$19.99</div>
         <div class="pmeta">+25% bonus · $0.0080/cr</div>
+        <div class="pcover">≈ 113 fifteen-minute sessions</div>
         <div class="pbest">Events &amp; deed fees</div>
       </div>
       <div class="pack-card">
@@ -122,6 +136,7 @@
         <div class="pcr">6,750</div>
         <div class="pusd">$49.99</div>
         <div class="pmeta">+35% bonus · $0.0074/cr</div>
+        <div class="pcover">≈ 306 fifteen-minute sessions</div>
         <div class="pbest">Seasoned residents</div>
       </div>
       <div class="pack-card">
@@ -129,6 +144,7 @@
         <div class="pcr">14,000</div>
         <div class="pusd">$99.99</div>
         <div class="pmeta">+40% bonus · $0.0071/cr</div>
+        <div class="pcover">≈ 636 fifteen-minute sessions</div>
         <div class="pbest">Future landlords</div>
       </div>
     </div>
@@ -168,7 +184,7 @@
 </section>
 
 <!-- REQUEST PRICING -->
-<section>
+<section id="requests">
   <div class="wrap">
     <h2>What requests cost</h2>
     <p class="muted">Every request declares its action and exact duration upfront
@@ -235,8 +251,40 @@
   </div>
 </section>
 
+<!-- THE RECEIPT -->
+<section id="receipt">
+  <div class="wrap">
+    <h2>Every purchase gets a receipt like this</h2>
+    <p class="muted">This is the actual math the request form shows you before
+    you confirm — a worked example, not an ad. Worst-case Friday-night pricing,
+    deliberately:</p>
+    <div class="receipt" role="img" aria-label="Sample request receipt: an exclusive 30-minute venue hold at double surge totals 360 credits, about $3.38">
+      <div class="r-head">
+        <span class="r-logo">REAL WORLD</span>
+        <span class="r-tag">Request receipt — sample</span>
+      </div>
+      <div class="r-line r-dim"><span>Request</span><span>"Hold the bandshell for a 30-minute set"</span></div>
+      <div class="r-line"><span>Class</span><span>Exclusive · venue lock</span></div>
+      <div class="r-line"><span>Duration</span><span>30 min (cap 60)</span></div>
+      <div class="r-line"><span>Base</span><span>6 cr/min × 30 = 180 cr</span></div>
+      <div class="r-line"><span>Surge</span><span>×2.0 prime-time = +180 cr</span></div>
+      <div class="r-line r-dim"><span>Queued −15%</span><span>not applied — fired now</span></div>
+      <div class="r-line r-total"><span>Total</span><span>360 cr ≈ $3.38</span></div>
+      <div class="r-fine">
+        <p>Denied in review → auto-refund in full.</p>
+        <p>Admin override ends it early → pro-rated credit refund.</p>
+        <p>Posted to the public feed → with your handle attached.</p>
+      </div>
+      <div class="r-foot">No charge appears that wasn't on this screen.</div>
+    </div>
+    <p class="muted">Same request at a quiet hour: 180 cr ≈ $1.69. Queued for
+    next weekend: 153 cr ≈ $1.44 — and if the slot never frees, you pay
+    nothing at all.</p>
+  </div>
+</section>
+
 <!-- ONE-SHOT ACTIONS -->
-<section>
+<section id="oneshots">
   <div class="wrap">
     <h2>One-shot actions</h2>
     <p class="muted">Not every intervention is a session. Flat prices, declared
@@ -257,7 +305,7 @@
 </section>
 
 <!-- SUBSCRIPTIONS -->
-<section>
+<section id="subs">
   <div class="wrap">
     <h2>Subscriptions <span class="provisional prov-only">(provisional)</span></h2>
     <p class="muted">Optional, monthly, cancelable. Perks are discounted currency,
@@ -294,7 +342,7 @@
 </section>
 
 <!-- CHARACTER CREATION -->
-<section>
+<section id="cast">
   <div class="wrap">
     <h2>Joining the cast</h2>
     <div class="grid grid-2">
@@ -346,8 +394,48 @@
   </div>
 </section>
 
+<!-- A MONTH, PRICED -->
+<section id="month">
+  <div class="wrap">
+    <h2>What a month can cost</h2>
+    <p class="muted">Four honest playstyles, priced with the numbers above.
+    No engagement traps, no daily-login tax — spend only tracks how much
+    agency you actually want.</p>
+    <div class="grid grid-4">
+      <div class="card">
+        <h3>The Watcher</h3>
+        <p class="mprice">$0<span>/forever</span></p>
+        <p>The full spectator game: live views, the public feed, recaps,
+        the cast's whole drama. Watching never costs, never will.</p>
+      </div>
+      <div class="card">
+        <h3>The Tourist</h3>
+        <p class="mprice">$1–5<span>/mo</span></p>
+        <p>A Pocket or Starter pack now and then: a few quarter-hours inside
+        your character, a nudge, one foggy morning credited to you.</p>
+      </div>
+      <div class="card">
+        <h3>The Resident</h3>
+        <p class="mprice">$4.99<span>/mo</span></p>
+        <p>The subscription. Its 600-cr stipend alone covers ~27
+        fifteen-minute sessions — plus a second slot and the weekly digest.</p>
+      </div>
+      <div class="card">
+        <h3>The Landlord-track</h3>
+        <p class="mprice">$10–20<span>/mo ramp</span></p>
+        <p>Regular or Plus packs while saving toward a deed (1,000–5,000 cr)
+        and the license (2,000 cr). The gates — tenure, reputation — still
+        have to be earned in-world.</p>
+      </div>
+    </div>
+    <p class="muted">None of these is a target we engineer toward. There are
+    no streaks, no expiring credits, no spend-to-win dials — the $0 column is
+    a complete product.</p>
+  </div>
+</section>
+
 <!-- PRINCIPLES -->
-<section>
+<section id="never">
   <div class="wrap">
     <h2>What money can never do here</h2>
     <div class="grid grid-3">

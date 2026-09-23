@@ -60,6 +60,26 @@ drift shows as wrong math, not wrong claims).
   Emits `price_calc` analytics events (debounced; class/minutes/flags only,
   never amounts).
 
+## 1b. Page components (v37)
+
+- **In-page TOC** (`.page-toc` chips in the hero) — anchor nav to all eight
+  sections; pure HTML, no JS.
+- **Pack coverage lines** (`.pcover` on each `.pack-card`) — translate each
+  pack into compatible-session equivalents at the canonical 15-min ≈ 22 cr
+  (floor of 1.5 cr/min × 15): 100→4, 550→25, 1,150→52, 2,500→113,
+  6,750→306, 14,000→636. If rates change, recompute these too.
+- **The receipt** (`#receipt`, `.receipt`) — a monospace mock of the
+  pre-payment receipt: worked exclusive example (30 min, surge ×2.0 →
+  360 cr ≈ $3.38) with the quiet-hour (180 cr ≈ $1.69) and queued
+  (153 cr ≈ $1.44) alternates in copy below it. USD conversions use the
+  ~$0.0094/cr blended rate from pricing.js. Copy promise: "No charge
+  appears that wasn't on this screen" — that is a product requirement,
+  keep it true.
+- **"What a month can cost"** (`#month`, four persona cards) — Watcher $0 /
+  Tourist $1–5 / Resident $4.99 (600 cr ≈ 27 quarter-hour sessions) /
+  Landlord-track $10–20 ramp. All figures derived from §2; nothing new is
+  priced here.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
