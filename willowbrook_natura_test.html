@@ -30017,6 +30017,61 @@ function sfParkCenterM(){
   return SF_PARK_C;
 }
 
+/* ---------------- v25: the wet-world pack -------------------------
+   Rain used to be a screen-space streak overlay over dry geometry — the
+   world itself never got wet beyond a dark tint. Now water has a body:
+   a deterministic puddle field on hardscape (each pool mirrors the sky
+   color, catches a sun glint on the sunward rim, and rings with live
+   raindrop ripples), every drop lands as an expanding splash, cornices
+   weep drip-lines down the facades, wet asphalt throws the sun and the
+   streetlamps back at the camera as smeared reflections, and pawns
+   caught outside put up hashed-color umbrellas tilted into the wind.
+   Everything keys on the same state — W.rain for what's falling,
+   SF_WX.wet (the soaking memory) for what stays wet after it stops. */
+/* deterministic puddle on a hardscape cell -> [mx, my, rMeters] | null */
+function sfPuddleAt(gx, gy){
+  const t = sfTile(gx, gy);
+  if(t !== 10 && t !== 11 && t !== 14 && t !== 16) return null;
+  if(hash2(gx, gy, SEED + 1850) > 0.085) return null;
+  const cm = SF_M.cell_m;
+  return [(gx + 0.2 + hash2(gx, gy, SEED + 1851) * 0.6) * cm,
+          (gy + 0.2 + hash2(gy, gx, SEED + 1852) * 0.6) * cm,
+          0.7 + hash2(gx, gy, SEED + 1853) * 1.9];
+}
+/* umbrella canopy color for a pawn caught in the rain — ~72% of the cast
+   carries one (SF: the rest just get wet), color hashed per character */
+const SF_UMB_COLS = ['#c9483c', '#2e5a9a', '#3a7a4a', '#e0a832',
+                     '#7a4a8a', '#20242c', '#d8642a', '#3a8a8a'];
+function sfUmbrellaCol(v){
+  if(W.rain < 0.15 || !v || v.inBuilding) return null;
+  const ci = v._ci != null ? v._ci : 0;
+  if(hash2(ci, 5, SEED + 1871) > 0.72) return null;
+  return SF_UMB_COLS[Math.floor(hash2(ci, 6, SEED + 1872) * SF_UMB_COLS.length)];
+}
+/* expanding impact rings where drops land — screen-space, bounded to a
+   ground band so street view splashes stay on the pavement */
+function sfSplashOverlay(cw, yTop, yBot){
+  const n = Math.floor(30 + W.rain * 90);
+  const bucket = Math.floor(SF_WX.t * 9);
+  const rainK = Math.min(1, W.rain * 2);
+  ctx.lineWidth = 1;
+  for(let i = 0; i < n; i++){
+    const ph = hash2(i, bucket, SEED + 1860);          // ring phase 0..1
+    const sx = hash2(i, bucket + 131, SEED + 1861) * cw;
+    const sy = yTop + hash2(i, bucket + 77, SEED + 1862) * (yBot - yTop);
+    const depth = (sy - yTop) / Math.max(1, yBot - yTop); // near = bigger
+    const rr = (2 + ph * 9) * (0.4 + 0.6 * depth) * (0.6 + W.rain);
+    ctx.strokeStyle = `rgba(210,228,246,${(1 - ph) * 0.4 * rainK})`;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, rr, rr * 0.4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    if(ph < 0.25){ // the crown: a bright tick right at impact
+      ctx.fillStyle = `rgba(230,242,255,${(0.25 - ph) * 2 * rainK})`;
+      ctx.fillRect(sx - 0.5, sy - 2.5 * (0.4 + depth), 1, 2.5 * (0.4 + depth));
+    }
+  }
+}
+
 /* ---------------- v10: renderer performance pass ----------------
    Four real architectural changes (SF views only — medieval untouched):
    1. SF_TERR — the top-view terrain layer (up to ~13k tiles/frame) is
@@ -30431,6 +30486,52 @@ function sfRenderWorld(cw, ch){
     ctx.globalAlpha = 1;
   }
 
+  // 1b. v25: live puddle field — pools on hardscape mirror the sky, grow
+  //     with the wetness memory, glint sunward, and ring with raindrop
+  //     ripples while it's actually raining. Drawn over the terrain
+  //     chunks so buildings/pawns still occlude them correctly.
+  if(SF_WX.wet > 0.08){
+    const wv = SF_WX.wet;
+    const rip = W.rain > 0.08 ? Math.min(1, W.rain * 2) : 0;
+    for(let wy = wy0; wy <= wy1; wy++){
+      for(let wx = wx0; wx <= wx1; wx++){
+        const pu = sfPuddleAt(wx, wy);
+        if(!pu) continue;
+        const sx = (pu[0] * SF_PXM - cam.x) * cam.zoom + cw / 2;
+        const sy = sfSY(pu[1] * SF_PXM, ch);
+        const rr = pu[2] * SF_PXM * cam.zoom;
+        if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
+        const R = rr * clamp((wv - 0.08) / 0.5, 0.15, 1); // pools fill slowly
+        ctx.fillStyle = `rgba(${SF_WX.hazeRGB},${0.28 + wv * 0.3})`;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, R, R * 0.6 * SF_TILT + 1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // sunward glint — the water throws the sun back at the camera
+        if(!isNight() && SF_SUN.day > 0.15){
+          ctx.fillStyle = `rgba(255,250,235,${0.35 * SF_SUN.day * wv})`;
+          ctx.beginPath();
+          ctx.ellipse(sx + SF_SUN.toX * R * 0.4, sy + SF_SUN.toY * R * 0.4 * SF_TILT,
+                      Math.max(1, R * 0.16), Math.max(0.8, R * 0.09),
+                      0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if(rip && R > 3){
+          for(let k = 0; k < 2; k++){
+            const ph = (SF_WX.t * (0.9 + k * 0.4) +
+                        hash2(wx, wy, SEED + 1854 + k)) % 1;
+            const rr2 = R * (0.15 + ph * 0.8);
+            ctx.strokeStyle = `rgba(220,235,250,${(1 - ph) * 0.5 * rip})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(sx, sy, rr2, rr2 * 0.6 * SF_TILT + 0.5,
+                        0, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+  }
+
   // 2. collect drawables: buildings in view + props + pawns, y-sorted
   const drawables = [];
   const seen = new Set();
@@ -30614,6 +30715,32 @@ function sfRenderWorld(cw, ch){
                       0.28 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
       }
       renderChibiPawn(d.v, cw, ch);
+      // v25: umbrella — seen from above the canopy IS what you see;
+      // it hides the pawn, tilts into the wind, seams + lee-side shade
+      const uc = sfUmbrellaCol(v);
+      if(uc){
+        const ur = 10 * cam.zoom;
+        const wdx = Math.cos(W.windAng), wdy = Math.sin(W.windAng);
+        const tilt = Math.min(4, 1 + SF_WX.gust * 3) * cam.zoom;
+        const ux2 = sx + wdx * tilt, uy2 = sy + wdy * tilt * SF_TILT - 5 * cam.zoom;
+        ctx.fillStyle = uc;
+        ctx.beginPath();
+        ctx.ellipse(ux2, uy2, ur, ur * SF_TILT, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let k = 0; k < 4; k++){
+          const a = k * Math.PI / 2 + 0.4;
+          ctx.moveTo(ux2, uy2);
+          ctx.lineTo(ux2 + Math.cos(a) * ur, uy2 + Math.sin(a) * ur * SF_TILT);
+        }
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(0,0,0,0.16)';
+        ctx.beginPath();
+        ctx.ellipse(ux2 - wdx * ur * 0.45, uy2 - wdy * ur * 0.45 * SF_TILT,
+                    ur * 0.62, ur * 0.62 * SF_TILT, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
@@ -30693,7 +30820,11 @@ function sfRenderWorld(cw, ch){
   }
 
   // 2c. v6: rain streaks + gloom over the neighborhood
-  if(W.rain > 0.08) sfRainOverlay(cw, ch, Math.sin(W.windAng) * 0.6);
+  //     v25: + impact rings where the streaks land
+  if(W.rain > 0.08){
+    sfRainOverlay(cw, ch, Math.sin(W.windAng) * 0.6);
+    sfSplashOverlay(cw, 0, ch);
+  }
 
   // 2d. v7: wind-blown leaves & litter skittering across the map —
   // screen-space drift along the wind vector so gusts are always felt
@@ -31623,6 +31754,34 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  // v25: rain weeps off the cornice — drops fall from the parapet edge,
+  // accelerating as they go, and burst on the sidewalk. Only near
+  // facades resolve drips; beyond ~90m the rain field itself carries it.
+  if(W.rain > 0.1 && fwd < 90){
+    const nD = Math.min(4, Math.max(1, Math.floor(L / 6)));
+    for(let k = 0; k < nD; k++){
+      const u = 0.15 + phash(i, ei * 7 + k, 1880) * 0.7;
+      const dxx = x1 + ex * u, dyy = y1 + ey * u;
+      const phase = (SF_WX.t * (1.2 + phash(k, i, 1881) * 0.9) +
+                     phash(i, k, 1882)) % 1;
+      const z = (hm - 0.1) * (1 - phase * phase);   // accelerating fall
+      const dp = pr(dxx, dyy, z), db = pr(dxx, dyy, 0.02);
+      if(!dp || !db) continue;
+      const streak = Math.max(2, 0.5 * F / dp[2]);
+      ctx.strokeStyle = `rgba(200,220,240,${clamp(W.rain, 0, 0.5)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(dp[0], dp[1] - streak); ctx.lineTo(dp[0], dp[1]);
+      ctx.stroke();
+      if(phase > 0.92){ // splash star as the drop lands
+        ctx.fillStyle = `rgba(220,235,250,${(phase - 0.92) * 6})`;
+        ctx.beginPath();
+        ctx.arc(db[0], db[1], Math.max(1, 0.25 * F / db[2]), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
   // v9: distance haze toward the horizon color, driven by live humidity
   const hz = sfHazeA(fwd);
   if(hz > 0.02){
@@ -31882,6 +32041,22 @@ function sfRenderStreet(cw, ch){
         sg.addColorStop(0.07, `rgba(255,${236 - Math.round(wK * 70)},${190 - Math.round(wK * 100)},0.5)`);
         sg.addColorStop(1, 'rgba(255,210,140,0)');
         ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, horizon + 40);
+      }
+    }
+    // v25: 22° halo — thin cirrus (the cirrus streaks below exist on
+    // exactly these days) refracts a faint ring around the sun, warm on
+    // the inner edge, cool outside. Radius = tan(22°) of view focal.
+    if(sunFwd > 0.15 && W.rain < 0.2 && cover > 0.14 && cover < 0.72){
+      const sxh = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
+      const syh = horizon - sunUp * F * 0.72;
+      const hr = Math.tan(22 * Math.PI / 180) * F * 0.9;
+      const ha = 0.12 * (1 - cover) * (0.4 + 0.6 * SF_SUN.day);
+      if(ha > 0.02){
+        ctx.strokeStyle = `rgba(255,228,205,${ha})`;
+        ctx.lineWidth = Math.max(2, hr * 0.035);
+        ctx.beginPath(); ctx.arc(sxh, syh, hr, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = `rgba(190,210,255,${ha * 0.7})`;
+        ctx.beginPath(); ctx.arc(sxh, syh, hr * 1.05, 0, Math.PI * 2); ctx.stroke();
       }
     }
     // v24: the SAME cloud field, projected at 130m altitude — now drawn as
@@ -32187,6 +32362,30 @@ function sfRenderStreet(cw, ch){
     }
   }
   SF_PERF.info = cells.length + 'cl/' + fills.size + 'fl';
+
+  /* v25: wet-mirror sun glare — wet asphalt is a horizontal mirror, so
+     when the sun hangs ahead of the camera the roadway throws a bright
+     smeared column back at the viewer, widening toward the lens */
+  if(SF_WX.wet > 0.12 && !night && SF_SUN.day > 0.2){
+    const sunFwd2 = SF_SUN.toX * DX + SF_SUN.toY * DY;
+    if(sunFwd2 > 0.1){
+      const sunSide2 = SF_SUN.toX * DY - SF_SUN.toY * DX;
+      const sxr = cw / 2 + (sunSide2 / Math.max(0.4, sunFwd2)) * F * 0.9;
+      if(sxr > -100 && sxr < cw + 100){
+        const wv2 = SF_WX.wet;
+        const gg = ctx.createLinearGradient(0, horizon, 0, ch);
+        gg.addColorStop(0, `rgba(255,240,205,${clamp(0.22 * wv2 * SF_SUN.day, 0, 0.3)})`);
+        gg.addColorStop(1, 'rgba(255,240,205,0)');
+        ctx.fillStyle = gg;
+        const hw2 = F * 0.10 * (0.6 + wv2);
+        ctx.beginPath();
+        ctx.moveTo(sxr - hw2 * 0.35, horizon);
+        ctx.lineTo(sxr + hw2 * 0.35, horizon);
+        ctx.lineTo(sxr + hw2, ch); ctx.lineTo(sxr - hw2, ch);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+  }
 
   /* v23: street-canyon cast shadows — each building's footprint swept
      along the real sun vector pools across the pavement as one mass of
@@ -32863,6 +33062,17 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath();
           ctx.ellipse(p[0], p[1], 3.1 * sc, 1.1 * sc, 0, 0, Math.PI * 2);
           ctx.fill();
+          // v25: wet asphalt mirrors the lamp — a sodium streak smeared
+          // straight down toward the camera (mirror images stretch along
+          // the view axis, never sideways)
+          if(SF_WX.wet > 0.15){
+            const sl = 2.8 * sc * (0.4 + SF_WX.wet);
+            const sg3 = ctx.createLinearGradient(0, p[1], 0, p[1] + sl);
+            sg3.addColorStop(0, `rgba(255,200,120,${0.24 * SF_WX.wet})`);
+            sg3.addColorStop(1, 'rgba(255,200,120,0)');
+            ctx.fillStyle = sg3;
+            ctx.fillRect(p[0] - 0.3 * sc, p[1], 0.6 * sc, sl);
+          }
         }
       }
     } else {
@@ -32903,6 +33113,36 @@ function sfRenderStreet(cw, ch){
           ctx.fill();
         }
         ctx.drawImage(fr, p[0] - pw / 2, p[1] - ph, pw, ph);
+        // v25: umbrella over rain-caught pawns — canopy arc tilted into
+        // the wind's lateral component, shaft down to the hand
+        const uc2 = sfUmbrellaCol(pv);
+        if(uc2){
+          const ur = pw * 0.85;
+          const tl2 = clamp(Math.sin(W.windAng - SF_CAM.yaw), -1, 1) *
+                      SF_WX.gust * ur * 0.35;
+          const uy3 = p[1] - ph * 1.04;
+          ctx.strokeStyle = 'rgba(30,28,24,0.85)'; ctx.lineWidth = Math.max(1, ur * 0.05);
+          ctx.beginPath(); ctx.moveTo(p[0] + tl2 * 0.4, uy3);
+          ctx.lineTo(p[0] + pw * 0.1, p[1] - ph * 0.42); ctx.stroke();
+          ctx.fillStyle = uc2;
+          ctx.beginPath();
+          ctx.moveTo(p[0] - ur + tl2, uy3);
+          ctx.quadraticCurveTo(p[0] + tl2, uy3 - ur * 0.9, p[0] + ur + tl2, uy3);
+          ctx.quadraticCurveTo(p[0] + ur * 0.5 + tl2, uy3 + ur * 0.14,
+                               p[0] + tl2, uy3);
+          ctx.quadraticCurveTo(p[0] - ur * 0.5 + tl2, uy3 + ur * 0.14,
+                               p[0] - ur + tl2, uy3);
+          ctx.closePath(); ctx.fill();
+          // canopy ribs from the ferrule to the scalloped rim
+          ctx.strokeStyle = 'rgba(0,0,0,0.22)'; ctx.lineWidth = 1;
+          ctx.beginPath();
+          for(const fr2 of [-0.5, 0, 0.5]){
+            ctx.moveTo(p[0] + tl2, uy3 - ur * 0.78);
+            ctx.quadraticCurveTo(p[0] + tl2 + fr2 * ur, uy3 - ur * 0.3,
+                                 p[0] + tl2 + fr2 * ur * 1.8, uy3 + ur * 0.05);
+          }
+          ctx.stroke();
+        }
         if(pvShade > 1.2){
           ctx.fillStyle = `rgba(28,36,62,${0.3 * Math.min(1, pvShade / 4)})`;
           ctx.fillRect(p[0] - pw / 2, p[1] - ph, pw, ph);
@@ -32967,8 +33207,10 @@ function sfRenderStreet(cw, ch){
   }
 
   // v6: rain — wind-slanted streaks + wet sheen rising from the pavement
+  // v25: + impact rings on the ground band where the streaks land
   if(W.rain > 0.08){
     sfRainOverlay(cw, ch, Math.sin(W.windAng - SF_CAM.yaw) * 0.9);
+    sfSplashOverlay(cw, horizon + 8, ch);
     const wg = ctx.createLinearGradient(0, horizon, 0, ch);
     wg.addColorStop(0, 'rgba(120,140,165,0)');
     wg.addColorStop(1, `rgba(140,160,185,${W.rain * 0.22})`);

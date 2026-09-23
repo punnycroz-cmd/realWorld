@@ -61,7 +61,7 @@ const api = eval(m[1] + `
     sfPathfind, sfFindPOI, sfPoiDoor, sfEnterPOI, sfExitPOI, sfTile,
     sfFollowPath, sfGoTo, sfNpcTick, canMoveTo, paActFrame, paStateAnim,
     VILLAGERS, PA, W, SF_M, SF_DOORS, SF_DOOR_OF, SF_POIS, SF_MAP,
-    SF_INTERIORS, SF_BLD, CS, G })`);
+    SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -146,6 +146,30 @@ const api = eval(m[1] + `
   // one sim tick of the schedule system doesn't throw
   try { api.VILLAGERS.forEach(v => api.sfNpcTick(v, 0.016)); pass++; }
   catch(e){ fail++; console.log('FAIL sfNpcTick threw:', e.message); }
+
+  // v25 wet-world pack: puddles gate hardscape deterministically,
+  // umbrellas come out only in rain
+  let pud = null, pudCell = null, grassClear = true;
+  for(let gy = 0; gy < api.SF_M.gh && !pud; gy++)
+    for(let gx = 0; gx < api.SF_M.gw; gx++){
+      if(api.sfTile(gx, gy) !== 10) continue;
+      const pu = api.sfPuddleAt(gx, gy);
+      if(pu){ pud = pu; pudCell = [gx, gy]; break; }
+    }
+  ok(!!pud, 'puddle field produces pools on roadway cells');
+  if(pud)
+    ok(JSON.stringify(api.sfPuddleAt(pudCell[0], pudCell[1])) === JSON.stringify(pud),
+       'puddles deterministic per cell');
+  for(let gy = 0; gy < api.SF_M.gh; gy++)
+    for(let gx = 0; gx < api.SF_M.gw; gx++)
+      if(api.sfTile(gx, gy) === 13 && api.sfPuddleAt(gx, gy)){ grassClear = false; break; }
+  ok(grassClear, 'no puddles on park grass');
+  api.W.rain = 0;
+  ok(!api.VILLAGERS.some(v => api.sfUmbrellaCol(v)), 'no umbrellas when dry');
+  api.W.rain = 0.8;
+  ok(api.VILLAGERS.some(v => !v.inBuilding && api.sfUmbrellaCol(v)),
+     'umbrellas come out in rain');
+  api.W.rain = 0;
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');
