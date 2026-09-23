@@ -5,6 +5,8 @@
 // and drops every event. To enable, set ONE of:
 //   <script src="js/analytics.js" defer data-endpoint="/e" data-site="realworld">
 //   window.RW_ANALYTICS = { endpoint: "https://stats.example.com/e", site: "realworld" };
+//   ?rw_endpoint=<url> — dev-only override, honored ONLY on localhost/
+//     127.0.0.1/::1/file: pages so a deployed URL can never be steered.
 // The endpoint accepts a JSON body (see marketing/analytics-events.json).
 // A local capture sink for testing: marketing/tools/analytics_sink.py
 //
@@ -24,6 +26,17 @@
   var cfg = window.RW_ANALYTICS || {};
   var ENDPOINT = cfg.endpoint || (me.dataset ? me.dataset.endpoint : null) || null;
   var SITE = cfg.site || (me.dataset ? me.dataset.site : null) || "realworld";
+
+  // Dev-only endpoint override: ?rw_endpoint=<url> works only when the page
+  // itself is local — never on a deployed host.
+  (function () {
+    try {
+      var local = location.protocol === "file:" ||
+        /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(location.host);
+      var q = new URLSearchParams(location.search).get("rw_endpoint");
+      if (local && q) ENDPOINT = q;
+    } catch (e) { /* no override */ }
+  })();
 
   // --- Opt-out gates -------------------------------------------------------
   function optedOut() {
@@ -138,6 +151,51 @@
     var img = e.target && e.target.closest ? e.target.closest(".gallery img") : null;
     if (img) track("screenshot_view", { shot: img.getAttribute("src"), alt: (img.alt || "").slice(0, 80) });
   });
+
+  // --- Scroll depth (25/50/75/100, once each per page) ---------------------
+  var depthMarks = { 25: false, 50: false, 75: false, 100: false };
+  function scrollDepth() {
+    if (!ENDPOINT) return;
+    try {
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight || document.body.scrollHeight) - window.innerHeight;
+      if (max <= 0) return;
+      var pct = Math.min(100, Math.round(((window.pageYOffset || doc.scrollTop) / max) * 100));
+      [25, 50, 75, 100].forEach(function (m) {
+        if (!depthMarks[m] && pct >= m) {
+          depthMarks[m] = true;
+          track("scroll_depth", { depth: m, page: pageSlug() });
+        }
+      });
+    } catch (e) {}
+  }
+  var scrollTick = false;
+  window.addEventListener("scroll", function () {
+    if (scrollTick) return;
+    scrollTick = true;
+    setTimeout(function () { scrollTick = false; scrollDepth(); }, 400);
+  }, { passive: true });
+
+  // --- Engaged time (seconds the page was actually visible) ----------------
+  var visibleMs = 0, visibleSince = document.visibilityState === "visible" ? Date.now() : 0;
+  function flushEngaged(final) {
+    if (visibleSince) { visibleMs += Date.now() - visibleSince; visibleSince = 0; }
+    if (final && visibleMs >= 1000) {
+      track("engaged_time", { seconds: Math.round(visibleMs / 1000), page: pageSlug() });
+    }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") {
+      if (!visibleSince) visibleSince = Date.now();
+    } else {
+      flushEngaged(false);
+    }
+  });
+  window.addEventListener("pagehide", function () { flushEngaged(true); });
+
+  function pageSlug() {
+    return document.body ? document.body.getAttribute("data-page") : null;
+  }
 
   // --- Outbound links ------------------------------------------------------
   document.addEventListener("click", function (e) {

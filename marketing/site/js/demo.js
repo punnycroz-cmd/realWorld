@@ -66,18 +66,22 @@
       var done = function (msg) {
         if (status) { status.textContent = msg; setTimeout(function () { status.textContent = ""; }, 4000); }
       };
+      var t = function (method) {
+        if (window.rw && window.rw.track) window.rw.track("share_click", { method: method });
+      };
       if (navigator.share) {
         navigator.share({
           title: document.title,
           text: "Watch a live AI neighborhood on a real SF block — free.",
           url: shareUrl
-        }).then(function () { done(""); }, function () { /* user cancelled */ });
+        }).then(function () { t("web-share"); done(""); }, function () { /* user cancelled */ });
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(shareUrl).then(
-          function () { done("Link copied."); },
+          function () { t("clipboard"); done("Link copied."); },
           function () { done("Copy failed — grab the URL from the address bar."); }
         );
       } else {
+        t("manual");
         done("Copy the URL from your address bar to share.");
       }
     });

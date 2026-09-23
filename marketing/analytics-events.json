@@ -17,7 +17,7 @@
       "when": "once per page load, auto",
       "props": {
         "title": "document.title",
-        "page": "body[data-page] slug: index|features|how-it-works|pricing|faq|press-kit|404",
+        "page": "body[data-page] slug: index|features|how-it-works|demo|cast|journal|community|rules|pricing|faq|press-kit|404",
         "vw": "viewport width (for layout QA)",
         "lang": "navigator.language"
       },
@@ -44,6 +44,21 @@
       "when": "click on an external link not otherwise instrumented",
       "props": { "href": "full outbound URL" },
       "funnel_stage": "exit"
+    },
+    "scroll_depth": {
+      "when": "page scroll crosses 25/50/75/100% — fires once per mark per page (v21)",
+      "props": { "depth": "25|50|75|100", "page": "data-page slug" },
+      "funnel_stage": "engaged"
+    },
+    "engaged_time": {
+      "when": "pagehide — total seconds the page was actually visible (v21)",
+      "props": { "seconds": "int, visible time only", "page": "data-page slug" },
+      "funnel_stage": "engaged"
+    },
+    "share_click": {
+      "when": "demo.html share button completes (v21)",
+      "props": { "method": "web-share|clipboard|manual" },
+      "funnel_stage": "engaged → viral"
     },
     "press_kit_download": {
       "when": "click on the kit zip link (data-rw-event on press-kit.html)",

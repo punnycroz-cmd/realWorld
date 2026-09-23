@@ -1,8 +1,9 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v6 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
-**Status:** implemented + tested locally. **Inert until an endpoint is configured** —
-the site ships with analytics wired but emitting nothing.
+**Version:** v21 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
+**Inert until an endpoint is configured** — the site ships with analytics
+wired but emitting nothing.
 
 The product is free to *watch* and paid to *act*. Marketing analytics exist to
 answer one question: **does watching convert to acting?** Everything below serves
@@ -66,10 +67,15 @@ per-event props + privacy contract). Site-side events already wired:
 
 - `pageview` — auto on every page; props: title, `data-page` slug, viewport, lang.
 - `cta_click` — on every primary/ghost CTA (`data-rw-event="cta_click"`,
-  `data-rw-props` = slot + destination). Currently instrumented: hero buttons,
-  mid-page walkthrough, footer CTAs on all 7 pages, 404 recovery links.
+  `data-rw-props` = slot + destination). Instrumented across all 12 pages.
 - `screenshot_view` — auto on gallery lightbox opens (which shot, by filename).
 - `outbound_click` — any external link not otherwise tagged.
+- `scroll_depth` (v21) — auto at 25/50/75/100% marks, once each per page;
+  tells us which pages actually get read.
+- `engaged_time` (v21) — on `pagehide`, total **visible** seconds (background
+  tabs don't count); the honest attention metric.
+- `share_click` (v21) — demo-page share button, `method` = web-share /
+  clipboard / manual. Feeds the viral loop panel.
 
 Add an event = add `data-rw-event` + optional `data-rw-props` JSON to the
 element. No JS changes needed for click events.
@@ -85,25 +91,54 @@ The shim is **inert** — it emits nothing until an endpoint exists:
 
 <!-- Option B: before the script loads -->
 <script>window.RW_ANALYTICS = { endpoint: "https://stats.example.com/e" };</script>
+
+<!-- Option C (v21): dev-only query override, for local/staging testing -->
+http://127.0.0.1:8080/?rw_endpoint=http://127.0.0.1:8970/e
 ```
+
+`?rw_endpoint=` is honored **only** when the page itself is on localhost /
+127.0.0.1 / [::1] / file: — a deployed URL can never be steered to another
+collector by link.
 
 Events are POSTed as JSON via `sendBeacon` (fetch keepalive fallback). The sink
 must send CORS headers if hosted on another origin (`Access-Control-Allow-Origin`).
 
-## 5. Local test runbook (verified this version)
+## 5. Local test runbook (v21 — one command)
+
+```bash
+./marketing/tools/analytics_e2e.sh
+```
+
+Generates a synthetic week (`tools/make_analytics_fixture.py`), starts the
+sink on :8970, POSTs every event through the real HTTP path, runs
+`tools/analytics_report.py` on what was captured, asserts the funnel appears,
+then serves the site on :8080 with a printed `?rw_endpoint=` URL for a real-
+browser check. Ctrl-C frees both ports; artifacts land in /tmp/rw-analytics-e2e.*.
+
+Manual equivalent:
 
 ```bash
 # terminal 1 — the capture sink
 python3 marketing/tools/analytics_sink.py --port 8970 --out /tmp/rw-events.ndjson
 
-# terminal 2 — serve the site with analytics pointed at the sink
+# terminal 2 — serve the site
 cd marketing/site && python3 -m http.server 8080
-# then in any page: analytics.js needs data-endpoint — for a quick local test,
-# set it in devtools console BEFORE load, or temporarily add:
-#   data-endpoint="http://localhost:8970/e"  on the script tag
+# open http://127.0.0.1:8080/?rw_endpoint=http://127.0.0.1:8970/e
+# (the override only works on localhost pages)
 ```
 
-Each event appends one NDJSON line and prints a console line in the sink.
+### Reporting on captured data
+
+```bash
+python3 marketing/tools/analytics_report.py /tmp/rw-events.ndjson --week 2026-W39
+```
+
+Prints the §8 weekly block pre-filled (sessions, sources, funnel with
+session-joined conversion, top shots, 404 radar) plus a detail section —
+drop it straight into MARKETINGLOG.md once live. `--json` dumps raw
+aggregates. Committed reference output: `marketing/analytics/sample-report.md`
+(generated from `sample-week.ndjson`, both synthetic).
+
 Smoke test without a browser:
 
 ```bash
@@ -135,7 +170,9 @@ One dashboard, four panels — everything derivable from the event spec:
 1. **Acquisition:** unique visitors/day (server-side daily hash), top referrer
    hosts, sessions by `utm_source`/`utm_campaign`.
 2. **Site engagement:** `cta_click` rate by `cta` slot; `screenshot_view` by
-   shot (tells art which captures sell the game); `outbound_click` targets.
+   shot (tells art which captures sell the game); `scroll_depth` reach per
+   page (which pages get read); `engaged_time` medians (attention quality);
+   `share_click` by method (viral loop health); `outbound_click` targets.
 3. **Funnel:** visit → engaged → watch → request → create, session-joined by
    `sid` + same-day window. First three stages live at launch; last two turn on
    when the game embed emits.
@@ -164,7 +201,8 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 ## 9. Launch-readiness checklist additions
 
 - [ ] Owner picks backend (Umami / Plausible CE / first-party sink) — owner-gated
-- [ ] `data-endpoint` set on the analytics script tag (all 7 pages)
+- [ ] `data-endpoint` set on the analytics script tag (all 12 pages)
+- [ ] `tools/analytics_e2e.sh` re-run against staging after endpoint is set
 - [ ] Privacy line added to FAQ/footer when collection goes live
 - [ ] `press_kit_download` hook added when the kit zip gets a public link
 - [ ] Game embed emits `watch_start` / `request_submitted` / `character_created`
