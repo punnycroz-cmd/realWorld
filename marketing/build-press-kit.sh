@@ -17,8 +17,8 @@ cp site/assets/logo-primary.svg site/assets/logo-primary.png \
    site/assets/logo-icon.svg site/assets/logo-icon.png \
    site/assets/logo-icon-mono.svg \
    site/assets/favicon.svg "$KIT/logos/"
-cp site/shots/v16-A.png site/shots/v16-B.png site/shots/v16-C.png \
-   site/shots/v16-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
+cp site/shots/v17-A.png site/shots/v17-B.png site/shots/v17-C.png \
+   site/shots/v17-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \
    "$KIT/screenshots/"
 

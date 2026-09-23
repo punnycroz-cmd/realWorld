@@ -8,57 +8,66 @@
     <lastmod>2026-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v16-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v16-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v16-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v16-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v17-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v17-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v17-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v17-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-cafe.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-flat.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/features.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/how-it-works.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/demo.html</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v16-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v17-A.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/community.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/journal.html</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/pricing.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/faq.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/rules.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/press-kit.html</loc>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-09-23</lastmod>
+<changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
 </urlset>

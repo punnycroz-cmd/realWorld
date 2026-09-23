@@ -1,131 +1,218 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v0 bootstrap · 2026-09-22
-**Status:** LOCAL DRAFT — keyword targets and plans, nothing published.
-**Sources:** `rw-game-design-2026-09-22.md` (product truth), market/monetization research report of 2026-09-23 (positioning), competitor set: InZOI, The Sims 4, Paralives, Second Life, GTA RP/FiveM, AI Town, Twitch Plays Pokémon.
+**Version:** v15 · 2026-09-23
+**Status:** LOCAL — site is launch-ready markup against a placeholder domain
+(`realworld-game.example`). Nothing published; no accounts registered.
+**Truth sources:** `devin-reviews/rw-game-design-2026-09-22.md` (product truth),
+`research_notes/.../report.md` (market), `devin-reviews/rw-monetization-plan-2026-09-22.md`
+(pricing authority). Competitor set: InZOI, The Sims 4, Paralives, Second Life,
+GTA RP/FiveM, AI Town, Twitch Plays Pokémon.
 
 ---
 
-## 1. Positioning (one paragraph, reuse everywhere)
+## 1. Positioning (the paragraph every page and post reuses)
 
-*Real World* is a persistent, browser-based "Truman Show" life simulation set in a
-real San Francisco Mission District neighborhood around Dolores Park. 28 fictional
-characters live there around the clock — 8 main characters with full AI minds whose
-stories can never be taken over by anyone, and 20 ambient neighbors. Watching is
-free, always. Players who want to reach into the world — possess their own hired
-character, request a weather change, join the cast — pay for **agency**, never for
-access.
+*Real World* is a persistent, browser-based "Truman Show" life simulation set in
+a real San Francisco Mission District neighborhood around Dolores Park. 28
+fictional characters live there around the clock — 8 main characters with full
+AI minds whose stories can never be taken over by anyone, and 20 ambient
+neighbors. Watching is free, always. Players who want to reach into the world —
+file a time-boxed request, possess their own hired character, join the cast —
+pay for **agency**, never for access.
 
-Search niche we can actually win: "AI life sim you watch", "Truman Show game",
-"persistent AI world". We cannot win generic "life sim" / "Sims alternative" head
-terms against EA/Krafton budgets — we flank them with the *spectator* angle, which
-nobody else sells (research report §2: nobody has shipped paid, time-boxed agency
-into a persistent AI society).
+**Search strategy:** we flank, we don't charge head terms. "Life sim" / "Sims
+alternative" belong to EA/Krafton budgets. Nobody owns "Truman Show game",
+"watch AI villagers", or "persistent AI world" — and nobody else sells
+spectator-first agency into a persistent AI society (research §2). Every tier
+below maps to a page we already have or a journal slot already templated.
 
-## 2. Keyword research
+## 2. Keyword map
 
-Volumes are directional estimates (no keyword tool access in this environment) —
-validate with real tooling (Search Console, Ahrefs/Keyword Planner) before launch.
+Volumes are directional estimates — no keyword-tool access in this environment.
+Validate with Search Console + one real tool (Ahrefs/Keyword Planner) inside the
+first week post-launch; re-score tiers at day-30.
 
-### Tier 1 — niche head terms (our category, low competition, high intent)
+### Tier 1 — niche head terms (we can win these)
 
-| Keyword | Est. intent | Target page | Notes |
+| Keyword | Intent | Landing page | Why we win |
 |---|---|---|---|
-| truman show game | High — exactly our pitch | index | Nobody owns this; the phrase does our explaining for us |
-| AI life sim / AI life simulation game | High | index, features | InZOI made the term mainstream; we ride its wake |
-| watch AI villagers / AI villagers game | High | index, features | Smallville/AI Town interest never got a product — we are it |
+| truman show game | High — the pitch itself | index | Phrase does our explaining; zero incumbents |
+| AI life sim / AI life simulation game | High | index, features | InZOI mainstreamed the term; ride the wake |
+| watch AI villagers / AI villagers game | High | demo, features | Smallville/AI-Town interest never got a product |
 | persistent AI world | Medium | features, how-it-works | "Runs 24/7 whether you watch or not" |
-| AI characters you can't control | Medium-high | features | The possession ban IS the differentiator — own it |
-| real time life sim browser | Medium | how-it-works | Browser = zero-install watchability |
+| AI characters you can't control | Medium-high | features, faq | The possession ban IS the differentiator — own it |
+| browser life sim / life sim in browser | Medium | demo, how-it-works | Zero-install watchability |
 
 ### Tier 2 — comparison & adjacent (steal dissatisfied demand)
 
-| Keyword | Est. intent | Target page | Notes |
+| Keyword | Intent | Landing page | Angle |
 |---|---|---|---|
-| InZOI alternative | Medium | faq (comparison section) + devlog post | InZOI retention complaints = "sterile citizens"; our answer: a written cast with secrets |
-| Sims alternative free | Medium | faq + devlog | Careful: we are NOT a Sims clone — pitch "watch, don't decorate" |
-| games like Twitch Plays Pokémon | Low-medium | devlog post | Collective agency ancestry — honest lineage post |
-| GTA RP browser game | Low | devlog post | "Live a second life with job and rent" is proven demand (FiveM) |
-| cozy life sim 2026 | Medium | index copy support | Tone match; pair with "but with stakes" |
+| InZOI alternative | Medium | faq + journal essay | "Sterile citizens" complaint → a written cast with secrets |
+| Sims alternative free | Medium | faq + journal essay | NOT a Sims clone — pitch "watch, don't decorate" |
+| games like Twitch Plays Pokémon | Low-med | journal essay | Collective-agency ancestry — honest lineage post |
+| GTA RP browser game | Low | journal essay | "Second life with job and rent" is proven demand (FiveM) |
+| Paralives release / Paralives alternative | Medium | faq comparison block | Waiting-audience capture; never disparage |
+| cozy life sim 2026 | Medium | index support copy | Tone match, "but with stakes" |
 
-### Tier 3 — mechanic & place terms (long tail, cheap wins)
+### Tier 3 — mechanic & place long tail (cheap wins, journal fodder)
 
-| Keyword | Target page |
+| Keyword | Landing page |
 |---|---|
 | possess an AI character | how-it-works, faq |
-| dolores park game / mission district game | index, features (real map hook — press loves it, report §2.5) |
-| AI character drama / AI soap opera | devlog recaps |
-| virtual neighborhood you can watch | index |
-| rent controlled apartment game | devlog (municipal realism posts) |
+| dolores park game / mission district game | index, features (real-map hook; press loves it) |
+| AI character drama / AI soap opera | journal recaps |
+| virtual neighborhood you can watch | index, demo |
 | public request feed game | how-it-works |
+| rent controlled apartment game | journal (municipal realism post) |
+| AI NPC with memory game | journal + features (memory-model angle once sf/memory lands) |
+| NPC daily schedule simulation | features |
 
-### Negative/avoid list
-- Do NOT target "voice AI characters", "AI girlfriend/boyfriend" — voice/TTS is cut,
-  and the companion-app lane is a different (and hostile) audience.
-- Do NOT target "earn money playing", "cash out game" — no RMT/cash-out, ever.
-- Do NOT target "loot box", "gacha" — we sell direct purchases only; say so.
+### Avoid list (never target, never imply)
 
-## 3. Page-by-page title & meta plan
+- "voice AI characters", "AI girlfriend/boyfriend" — voice/TTS cut; wrong audience.
+- "earn money playing", "cash out", "play to earn" — no RMT/cash-out, ever.
+- "loot box", "gacha" — direct purchases only; say so.
+- Real SF business names — parody names only (world/businesses.md canon:
+  Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware).
 
-Every page: one H1, title ≤60 chars, meta description ≤155 chars, canonical URL,
-Open Graph + Twitter card tags, VideoGame schema on index only.
+## 3. Page-by-page spec (all 11 URLs, as shipped)
 
-| Page | Title tag | Meta description | Primary keyword |
+Title ≤60 chars, meta ≤155 chars, one H1, canonical, OG+Twitter cards. ✔ = live
+in markup today.
+
+| Page | Title (shipped) | Primary keyword | Schema | Notes |
+|---|---|---|---|---|
+| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero shot `v17-D` w/ fetchpriority=high |
+| `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
+| `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
+| `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
+| `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
+| `/faq.html` | FAQ — Real World | AI life sim questions | ✔ FAQPage | Snippet bait; keep JSON-LD synced to visible Qs |
+| `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
+| `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
+| `/community.html` | Community — Real World | game community (soft) | — | Discord spec is owner-gated pre-launch |
+| `/rules.html` | Rules & Safety — Real World | (trust signal) | — | Moderation transparency = E-E-A-T asset |
+| `/404.html` | 404 — This corner isn't on the map \| Real World | — | — | noindex-equivalent UX; keeps brand voice |
+
+**URL rules:** lowercase-hyphen, flat, no dates in URLs. Journal posts live as
+cards on `/journal.html`; reserve `/journal/<slug>/` for when weekly volume
+justifies (post-launch decision). Placeholder domain must be replaced in
+`sitemap.xml`, `robots.txt`, canonicals, OG URLs at launch — one sed, listed in
+LAUNCH-CHECKLIST G-gate.
+
+## 4. Meta A/B variants (draft bank — test post-launch)
+
+Swap only after Search Console gives a baseline CTR (≥2 weeks or ~1k impressions).
+One variable at a time: title OR description, never both.
+
+| Page | Variant B title | Variant B description angle |
+|---|---|---|
+| index | Real World — The Truman Show You Can Visit | Lead with the hook instead of the genre |
+| index | 28 Neighbors. None Know You're Watching. | Mystery/serial framing |
+| demo | Watch Free — A Live AI Neighborhood | "Free" first |
+| features | The Cast Can't Be Controlled — Features | Differentiator-first |
+| pricing | Pay for Agency, Never Access — Pricing | Values framing vs. price framing |
+| faq | Real World FAQ — Watch Free, Possess Nobody | Curiosity gap |
+| how-it-works | Watch. Request. Move In. — How It Works | Staccato step names |
+
+**Rules:** never A/B into exaggeration (no "control anyone" bait — the ban is
+the brand); log every variant flip + dates in MARKETINGLOG.
+
+## 5. Structured data inventory & roadmap
+
+| Type | Where | Status |
+|---|---|---|
+| VideoGame | index | ✔ shipped (genre, platform, free offer, author) |
+| WebPage + isAccessibleForFree | demo | ✔ shipped |
+| FAQPage | faq | ✔ shipped — MUST mirror visible questions; sync on every edit |
+| Article | journal posts | PENDING — add when posts get their own URLs |
+| BreadcrumbList | all | SKIP — flat 11-page site, no breadcrumbs rendered |
+| Organization | index | PENDING — add with real studio name/logo at domain flip |
+| VideoObject | demo | PENDING — when a trailer/clip file exists locally |
+
+Accuracy rule: schema must describe what exists today. No aggregateRating,
+no reviewCount — we have neither and never fake them.
+
+## 6. Internal linking
+
+Current architecture: global nav (9 links) + footer (full map) on every page —
+every page is ≤2 clicks from everywhere, which is right at 11 pages.
+
+Contextual-link rules (apply to every new page/post):
+
+1. Every journal post links ≥1 of demo/how-it-works/features (template enforces).
+2. demo.html links "from viewer to resident" → how-it-works (already shipped).
+3. pricing.html links faq for refund/request questions and vice versa.
+4. Anchor text = the target's keyword phrase where natural
+   ("how requests work" → how-it-works), never "click here".
+5. No orphan pages: staging_dryrun.sh fails if a page isn't in nav+sitemap.
+
+## 7. Content engine (the unfair advantage)
+
+The world generates content for free: public request feed + history browser =
+built-in content marketing (research §2.4). Cadence: 1 devlog + 1 recap/week,
+plus cast spotlights and comparison essays.
+
+### 12-week calendar (fill-in-the-blank via `templates/`)
+
+| Wk | Sun recap | Wed devlog | Fri spotlight |
 |---|---|---|---|
-| `/index.html` | Real World — A Living Neighborhood You Can Watch | A persistent AI neighborhood in SF's Mission District. 28 characters live here 24/7. Watch free; pay only to reach in. | truman show game, AI life sim |
-| `/features.html` | Features — The Cast, The Rules, The Economy | Eight AI main characters nobody can possess. Time-boxed requests. A public feed of every intervention. Meet the world. | AI villagers game, AI life sim |
-| `/how-it-works.html` | How It Works — Watch, Request, Move In | Watch free. Buy or earn credits. File a time-boxed request. Create a character, rent a room, climb to landlord. | persistent AI world, possess an AI character |
-| `/pricing.html` | Credits & Pricing — Real World | What agency costs: credit packs, request pricing, the Resident subscription. All figures provisional pre-launch. | AI life sim pricing (low comp.) |
-| `/faq.html` | FAQ — Real World | Can you possess the main cast? (No.) Is it free to watch? (Yes.) Credits, refunds, ads, moderation — honest answers. | AI life sim questions (snippet bait) |
-| `/press-kit.html` | Press Kit — Real World | Facts, boilerplate, screenshots, and key art for Real World, the persistent AI neighborhood set in the Mission. | (press utility, not ranked) |
-| `/demo.html` | Watch the Neighborhood — Real World | Watch a living Mission block: residents on schedule, weather on the hour, every viewer request on the public feed. | watch AI villagers |
-| `/journal.html` | The Dispatch — Real World Journal | Devlogs from the build now; a weekly recap of the public feed after launch. Only real events — a quiet week gets reported as a quiet week. | long-tail recaps, AI life sim devlog |
-| Future: `/the-mission/` | The Mission — Season One Cast & Map | — | dolores park game, cast names |
+| 1 | format preview post (done: journal.html) | Why the main cast can never be possessed | Marisol |
+| 2 | — | Watching a neighborhood is a game now (TPP ancestry) | (cast #2) |
+| 3 | — | How a request works: 30 minutes of rain | (cast #3) |
+| 4 | — | The Mission, mapped: real streets, fictional people | Mudhaus Coffee (venue) |
+| 5 | — | Two currencies, one wall: why you can never cash out | (cast #4) |
+| 6 | — | What the public request feed is for (sunlight as design) | (cast #5) |
+| 7 | — | How AI memory should work (cite memory-track spec) | (cast #6) |
+| 8 | — | What we cut and why — voice, loot boxes, cash-out | (cast #7) |
+| 9 | — | Real World vs. life sims: watch, don't decorate | (cast #8) |
+| 10 | — | The lease ledger: stakes without scripts | ambient-neighbor set |
+| 11 | — | Launch-week announcement (see checklist) | recap of launch wk 1 |
+| 12 | — | First post-launch numbers, honestly reported | community highlights |
 
-**URL naming:** lowercase-hyphen, flat structure, no dates in URLs (journal posts
-live on `/journal.html` as dated cards pre-launch; a `/journal/slug/` per-post
-URL scheme is reserved for when volume justifies it). Placeholder domain
-`realworld-game.example` until the user picks a real one — replace in
-`sitemap.xml`, `robots.txt`, canonical/OG tags at launch.
+Pre-launch, "Sun recap" slots run as format previews only — never fabricate
+in-world events. Post-launch they pull from the real feed; a quiet week gets
+reported as a quiet week.
 
-## 4. Content calendar skeleton
+## 8. Technical SEO — reconciled checklist
 
-Cadence target: 1 devlog post/week + 1 in-world recap/week. The recap is our
-unfair advantage — the world generates content for free (public request feed +
-history browser = built-in content marketing, per research §2.4).
+Done in markup (verified by `tools/staging_dryrun.sh`, 29 pass / 3 warn):
+- [x] Semantic HTML, one H1/page, alt text on every shot
+- [x] `sitemap.xml` (all 10 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 10 pages; og:image 1200×630; og:site_name (v15)
+- [x] Canonical URLs on every page
+- [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
+- [x] webp companions + lazy-loading + width/height attrs (no CLS)
+- [x] Hand-rolled HTML/CSS/JS — no framework, ~35KB code per page
+- [x] Analytics shim inert-by-default (no endpoint, no keys)
 
-| Slot | Series | Format | SEO job |
-|---|---|---|---|
-| Sun | "This Week on the Block" | In-world recap: what the cast did, pulled from the event feed | Freshness signal; long-tail drama queries; the TPP-style "watch collective life" hook |
-| Wed | Devlog | Build progress, design decisions, honest postmortems | Developer-brand queries; earns links from gamedev communities |
-| Fri | "Meet the Cast" | Character spotlight (no drama-seed spoilers — surface profiles only) | Character-name queries once fans search them |
-| Ad hoc | Comparison essays | "Real World vs. life sims", "why the cast can't be possessed" | Tier-2 comparison terms |
-| Launch | Announcement posts | See LAUNCH-CHECKLIST.md | Launch spike capture |
+Pending (owner-gated, launch):
+- [ ] PENDING — real domain: sed `realworld-game.example` everywhere (one command)
+- [ ] PENDING — Search Console + Bing Webmaster registration + sitemap submit
+- [ ] PENDING — OG card validation (Twitter/FB debuggers) post-deploy
+- [ ] PENDING — Core Web Vitals baseline on real hosting (expect green: static)
+- [ ] PENDING — English only; no hreflang, no localization claims
 
-**First 8 devlog topics (queue):**
-1. Why the main cast can never be possessed (the Truman Show contract)
-2. Watching a neighborhood is a game now — the Twitch Plays ancestry
-3. How a request works: 30 minutes of rain, explained
-4. The Mission, mapped: real streets, fictional people
-5. Two currencies, one wall: why you can never cash out
-6. What the public request feed is for (sunlight as design)
-7. Meet Marisol (cast spotlight #1)
-8. What we cut and why (voice, loot boxes, cash-out) — honesty post
+Performance budget: page payload <3MB excluding gallery (gallery is lazy webp);
+one PNG fallback (v17-C, 2.1MB) exceeds 2MB — accepted, it only loads on
+browsers without webp.
 
-## 5. Technical SEO checklist (for launch, not yet)
+## 9. Measurement plan
 
-- [ ] PENDING — semantic HTML, one H1/page, alt text on every shot (done in v0 markup)
-- [ ] PENDING — `sitemap.xml` + `robots.txt` live at domain root (files exist, placeholder domain)
-- [ ] PENDING — OG/Twitter cards validated (og:image = real screenshot, ≥1200×630)
-- [ ] PENDING — Core Web Vitals: static site, no frameworks — keep it that way
-- [ ] PENDING — Search Console + Bing Webmaster registration (needs real domain + user approval)
-- [ ] PENDING — FAQ schema (FAQPage JSON-LD) on faq.html at launch
-- [ ] PENDING — hreflang: English only at launch; no localization claimed
+- **Search Console** (post-domain): track Tier-1 queries weekly; CTR ≥3% on
+  "truman show game" variants is the day-30 health bar; re-score tiers monthly.
+- **Site analytics** (`analytics-events.json`): `page_view` → `watch_start` →
+  `request_submitted`/`character_created` funnel; UTM conventions per
+  ANALYTICS.md; cookieless, inert until endpoint configured.
+- **Log line:** every variant change + every ranking milestone goes in
+  MARKETINGLOG with dates, so the next iteration sees causality.
 
-## 6. Link earning (earned only — never buy, never spam)
+## 10. Link earning (earned only — never buy, never spam, never post unapproved)
 
-- Press hook #1: "a real Mission block, fictional residents" — SF local press angle.
-- Press hook #2: "the AI show where the stars can't be controlled" — games/AI press.
-- Community seeding (post-launch, user-approved): r/aiwars-adjacent sim communities,
-  life-sim Discords, gamedev/AI-Twitter. Draft posts live in the social-launch
-  focus (roadmap v5). Nothing is posted without explicit approval.
+- **Press hook 1:** "a real Mission block, fictional residents" — SF local press.
+- **Press hook 2:** "the AI show where the stars can't be controlled" — games/AI press.
+- **Press hook 3:** "the game whose devlog is written by its NPCs" — recap format.
+- Community seeding post-launch (owner-approved only): life-sim Discords,
+  gamedev/AI communities. Draft posts already in `social/drafts/`.
+- Asset hooks that earn embeds: before/after v1→v17 gallery, the public request
+  feed screenshot, the "same angle, seventeen iterations later" image pair.

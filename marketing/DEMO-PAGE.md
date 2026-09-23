@@ -27,7 +27,7 @@ same-origin path) in demo.html. One attribute; no other page changes required.
 
 ## 2. Fallback state (pre-build)
 
-- Real development capture (`shots/v16-A.*`) behind a gradient overlay labeled
+- Real development capture (`shots/v17-A.*`) behind a gradient overlay labeled
   "Spectator build not wired in yet" — honest, never fakes liveness.
 - `noscript` notice routing to the static gallery.
 - Falls back gracefully on `file://`, blocked JS, and rejected embed schemes.
@@ -64,7 +64,7 @@ endpoint is configured — see ANALYTICS.md and analytics-events.json.
 
 - **Game-systems/world:** needs the spectator build URL + embed permission
   (same-origin or CSP `frame-ancestors`). Until then `data-demo-src` stays empty.
-- **Art:** fallback capture is `shots/v16-A.*`; swap when a better canonical
+- **Art:** fallback capture is `shots/v17-A.*`; swap when a better canonical
   shot is published (same filename convention).
 - Feed row labels must mirror the live feed's real vocabulary at launch —
   sync with `gsViewerState` feed events before flipping the switch.
