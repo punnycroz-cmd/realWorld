@@ -2077,7 +2077,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G21 mod ============ */
 {
-  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50 affordances)');
+  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50+v64 affordances)');
   try {
     const MJ = JSONF('moderation.json');
     const window = {};
@@ -2125,6 +2125,11 @@ const PUB = Object.values(PT.surfaces)
       [/bumpFlag/, 'flag ledger mechanism'],
       [/shiftStats/, 'shift report mechanism'],
       [/obfuscation-attempt/, 'v36 code present in seeds/copy'],
+      [/flag roster/, 'v64 flag roster affordance'],
+      [/Owner docket|owner docket/, 'v64 owner-docket block'],
+      [/never monetized around/, 'v64 flags-never-public rule copy'],
+      [/exportLedger|export ledger records/, 'v64 ledger export affordance'],
+      [/mod_decision/, 'v64 canonical ledger record shape'],
       [/screen\.js/, 'shared engine script tag'],
       [/RWScreen\.screenRequest/, 'shared engine call']
     ];
@@ -2164,7 +2169,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v63 || {};
+    const H = PT.harness_ui_v64 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

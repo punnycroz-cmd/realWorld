@@ -213,3 +213,30 @@ admin-domain ask `k-i-c-k Jules out of her unit` — the live trace shows
 the collapse landing the real `admin-domain` charge, the teaching point
 of the whole normalization layer: the evasion changes the typography,
 never the charge.
+
+## 12. v64 — the roster & record layer
+
+**Flag roster (Mod Console v3).** The flag ledger existed only inside
+per-request context cards — a reviewer could see one player's score but
+never the standing of the whole book. The new header "flag roster" toggle
+opens an internal panel listing every account carrying flag weight, sorted
+by rolling score: active tier + effect, next threshold, next decay date
+(−1 per clean 30 d counted from the last `flag_log` entry), and the log
+tail. Accounts at score ≥ 9 lift into a red-bordered **owner docket**
+block at the top — "account review — owner decision" — with the full flag
+log inline. The console recommends; it never executes an account action.
+Seed `wren_404` (score 9, suspension lapsing) keeps the docket reachable
+in the demo. Visibility rule is the locked one: internal only, never
+shown publicly, never monetized around. Live `bumpFlag()` writes during
+the session re-sort the roster on the next render.
+
+**Ledger export.** The audit log gained "export ledger records": every
+session decision emits a canonical-ledger `mod_decision` record —
+`{rec, ts, reviewer, request_id, player, decision, code, flag_w,
+appeal_of, feed_line}` — shaped per `moderation.json ledger_records`.
+`feed_line` is always the neutral taxonomy wording (`request not
+approved` on every deny class including legal; attributed wording on
+approvals) — never reviewer free text. `decide()` now stores structured
+decision fields on audit entries instead of the export re-parsing prose.
+The seeded 30-day baseline stays aggregate and is never exported as
+records.

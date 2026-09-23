@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v63)
+# Playtest Harness — "Real World / The Mission" (world v64)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -121,6 +121,12 @@ One person can wear every hat; four real testers is the intended shape.
   withdraw as a real never-billed path, the optional 'goes by' block
   name (screened + collision-checked), and the keys card's day-one
   logistics that never script the day.
+  PT59 (Mod Console v3 — the roster & record layer, v64) is a reviewer
+  audit — the flag roster's whole-book account standing (tier effects,
+  next decay dates, the score-9+ owner docket that recommends and never
+  executes), live re-sort on a tier-crossing legal confirm, and the
+  'export ledger records' flow that emits canonical mod_decision records
+  with neutral feed lines while the seeded baseline stays aggregate.
 
 ## 3. Running a session
 

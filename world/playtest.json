@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 63,
+ "version": 64,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -3103,6 +3103,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT59",
+   "title": "Mod Console v3 — the roster & record layer (v64)",
+   "minutes": 10,
+   "persona": "shift reviewer — mid-queue, wants to know which accounts are carrying flag weight and whether the session's decisions will survive the merge",
+   "goal": "Verify the v64 moderation pass: the flag roster gives whole-book account standing (tiers, decay, owner docket at score 9+, internal-only rule copy), and 'export ledger records' turns session decisions into canonical mod_decision records with neutral feed lines.",
+   "surfaces": [
+    "mod",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open mod-console.html and hit 'flag roster' in the header metrics. Read the panel top to bottom.",
+     "expect": "Every account carrying flag weight lists sorted by rolling score — wren_404 (score 9) leads inside a red-bordered 'Owner docket' block reading 'account review — owner decision', with its full flag log inline. Each card shows active tier + effect, next threshold, next decay date (−1 per clean 30 d from the last flag entry), and the log tail. The header carries 'internal only — never shown publicly, never monetized around'.",
+     "checkpoints": [
+      "Owner docket block renders at top with 'account review — owner decision' and 'The console recommends; it never executes an account action'",
+      "wren_404's next-decay date is 30 days after its last flag_log entry (2026-09-20 → 2026-10-20)",
+      "Header rule copy states flags are 'internal only — never shown publicly, never monetized around'"
+     ]
+    },
+    {
+     "do": "Pick rq-1036 (legal lane, r0ok) and hit 'Confirm legal flag'. Reopen the flag roster.",
+     "expect": "The audit line reads 'LEGAL CONFIRMED — killed, account flagged +3, owner notified, ledger legal-deny. Public: “request not approved”.' plus a 'FLAG TIER 6 REACHED: request privileges suspended 72 h' callout (r0ok was at 4). The roster re-sorts: r0ok now shows score 7 with the tier-6 effect line.",
+     "checkpoints": [
+      "Tier-crossing callout appears inline in the audit outcome, not as a separate prompt",
+      "Roster reflects the bump immediately — r0ok score 7, 'TIER 6: request privileges suspended 72 h'",
+      "Legal confirm keeps public wording identical to a normal deny — no spectacle"
+     ]
+    },
+    {
+     "do": "Deny rq-1044 (confirm the pre-selected admin-domain code), approve rq-1042, then hit 'export ledger records' under the audit log.",
+     "expect": "The textarea fills with a JSON object: a records array where each entry is {rec:'mod_decision', ts, reviewer, request_id, player, decision, code, flag_w, appeal_of, feed_line} — the deny carries code 'admin-domain', flag_w 1, feed_line 'request not approved'; the approve carries 'request approved (attributed)'. The seeded 30-day baseline is NOT in the records — the note field says it stays aggregate.",
+     "checkpoints": [
+      "Every record has rec 'mod_decision' and a feed_line drawn from the taxonomy, never reviewer free text",
+      "Deny and legal records both show feed_line 'request not approved' — the reason code is metadata, not spectacle",
+      "The export covers session decisions only; the PRIOR baseline stays aggregate"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the mod + harness gates.",
+     "expect": "The mod gate passes including the v64 affordance marks (flag roster, owner docket, never-monetized copy, exportLedger, mod_decision record shape); its detail line still reports the taxonomy count, 94 mirrored corpus cases, engine v50, whitelist cards. Harness gate reports 59 scenarios at the v64 key.",
+     "checkpoints": [
+      "Mod gate: 0 fail; v64 marks all present in mod-console.html",
+      "Harness gate: '59 scenarios · N checkpoints · key rw_playtest_v64'; 0 fail overall",
+      "No world-mutation call (fetch/XHR/gsRequest*/gsAdmin) appears on mod-console.html — internal surfaces stay read-only"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -3144,10 +3193,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v63 local",
- "harness_ui_v63": {
-  "storage_key": "rw_playtest_v63",
-  "build_tag_prefix": "world v63 local",
+ "build": "world v64 local",
+ "harness_ui_v64": {
+  "storage_key": "rw_playtest_v64",
+  "build_tag_prefix": "world v64 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3180,7 +3229,8 @@
    "S.times",
    "S.debrief",
    "#pt=",
-   "rw_playtest_v63"
+   "rw_playtest_v63",
+   "rw_playtest_v64"
   ]
  }
 }

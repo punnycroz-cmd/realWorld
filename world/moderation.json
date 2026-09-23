@@ -107,6 +107,18 @@
     "fields": ["requests screened", "approved/modified/denied + deny rate", "per-code denial counts", "appeals filed/reversed (aggregate)", "median decision vs 15-min target", "compensation cr paid", "flag weight issued", "corpus green at engine version"],
     "merge_target": "studio-side source for the monthly public transparency recap (marketing transparency-report template)"
   },
+  "flag_roster": {
+    "surface": "mod-console 'flag roster' panel (v64) — every account carrying flag weight, sorted by rolling score",
+    "per_account": ["handle", "flag_score", "active tier + effect", "next threshold", "next decay date (−1 per clean 30 d from the last flag_log entry)", "flag_log tail", "history line"],
+    "owner_docket": "score ≥ 9 lifts the account into a docket block at the top — 'account review — owner decision'. The console recommends; it never executes an account action. The owner reads the log and decides.",
+    "visibility": "internal only — flags are never shown publicly and never monetized around (account_flags.rules)"
+  },
+  "ledger_records": {
+    "surface": "mod-console audit log 'export ledger records' (v64)",
+    "record": { "rec": "mod_decision", "ts": "YYYY-MM-DD HH:MM", "reviewer": "handle", "request_id": "rq-*", "player": "handle", "decision": "approve|modify|deny|escalate", "code": "reason code or null", "flag_w": "0–3", "appeal_of": "rq-* or null", "feed_line": "public wording — 'request not approved' on every deny class incl. legal; attributed wording on approvals" },
+    "rules": ["one record per human decision, session-scoped", "feed_line is always the neutral reason_codes.*.feed wording — never reviewer free text", "the seeded 30-day baseline is aggregate and is never exported as records"],
+    "merge_target": "canonical ledger mod_decision records — the post-hoc record the world reacts to (design §11.7)"
+  },
   "audit": "every decision logged: timestamp, reviewer, request id, outcome, code — merge target is canonical-ledger mod_decision records",
   "feed_contract": "feed wording comes from reason_codes.*.feed — never reviewer free text; reason_code attaches to 'not approved' entries (world/feed.json request events)"
 }

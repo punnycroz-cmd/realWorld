@@ -8,7 +8,9 @@
   Mod Console — the human-review surface for the request pipeline (world v8;
   v36 adds the account-flag ledger, the aggregate shift report, and an
   obfuscation-attempt seed row; v50 adds a separator-evasion seed row that
-  still lands the real charge after normalization).
+  still lands the real charge after normalization; v64 adds the flag roster
+  — per-account flag standing + the owner docket — and the ledger export
+  that turns session decisions into canonical mod_decision records).
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -110,6 +112,7 @@
   <div class="metrics">
     <div class="metric"><b><a href="screen-lab.html" style="color:var(--blu);text-decoration:none">Screen Lab →</a></b><span>corpus + try-it</span></div>
     <div class="metric"><b><span id="repBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleReport()">shift report</span></b><span>aggregate only</span></div>
+    <div class="metric"><b><span id="rosBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleRoster()">flag roster</span></b><span id="rosSub">internal only</span></div>
     <div class="metric" id="mDepth"><b>0</b><span>queue depth</span></div>
     <div class="metric" id="mOldest"><b>0:00</b><span>oldest wait</span></div>
     <div class="metric" id="mMed"><b>—</b><span>median today (SLA 15m)</span></div>
@@ -129,8 +132,10 @@
   <section class="panel">
     <h2>Context</h2>
     <div id="context"><div class="empty">Player + involved characters appear here.</div></div>
-    <h2 style="margin-top:14px">Audit log — this session</h2>
+    <h2 style="margin-top:14px">Audit log — this session
+      <button class="ghost" style="float:right;padding:2px 9px;font-size:10.5px" onclick="exportLedger()">export ledger records</button></h2>
     <ul class="audit" id="audit"></ul>
+    <textarea id="ledgerOut" spellcheck="false" style="width:100%;min-height:90px;margin-top:8px;font-family:var(--mono);font-size:10.5px;display:none"></textarea>
   </section>
 </main>
 <section class="panel" id="reportPanel" style="display:none;max-width:900px;margin:0 auto 16px">
@@ -144,6 +149,18 @@
   <div id="reportBody"></div>
   <button class="ghost" style="margin-top:10px" onclick="copyShift()">copy report JSON</button>
   <textarea id="shiftRep" spellcheck="false" style="width:100%;min-height:90px;margin-top:10px;font-family:var(--mono);font-size:10.5px;display:none"></textarea>
+</section>
+<section class="panel" id="rosterPanel" style="display:none;max-width:900px;margin:0 auto 16px">
+  <h2>Flag roster — account standing</h2>
+  <div class="foot" style="color:var(--dim);font-size:11px;margin-bottom:10px">
+    Every account carrying flag weight, sorted by rolling score. Tiers per
+    moderation.json account_flags: 3 → all requests human-reviewed 7 d ·
+    6 → request privileges suspended 72 h · 9 → owner docket. Decay is
+    −1 per clean 30 days. Flags are internal only — never shown publicly,
+    never monetized around. A score of 9+ lands on the owner docket below;
+    the console recommends, it never executes an account action.
+  </div>
+  <div id="rosterBody"></div>
 </section>
 <div class="toast" id="toast"></div>
 
@@ -205,7 +222,11 @@ var PLAYERS = {
   noreply_9:{acct_age_d:6, denied_30d:1, same_target_7d:2, spend_tier:'none', flags:['prior deny: real-business'], flag_score:0,
     flag_log:[{d:'2026-09-18',w:0,why:'deny · real-business (w 0)'}], history:'5 requests · 1 denial'},
   sable_r:{acct_age_d:45, denied_30d:0, same_target_7d:0, spend_tier:'none', flags:[], flag_score:0,
-    flag_log:[], history:'9 requests · 0 denials · lettering quirks twice'}
+    flag_log:[], history:'9 requests · 0 denials · lettering quirks twice'},
+  wren_404:{acct_age_d:18, denied_30d:5, same_target_7d:6, spend_tier:'none', flags:['suspended 72 h — lapses today'], flag_score:9,
+    flag_log:[{d:'2026-09-04',w:2,why:'deny · harm-targeting'},{d:'2026-09-09',w:2,why:'deny · identity-fraud'},
+      {d:'2026-09-15',w:2,why:'deny · harm-targeting'},{d:'2026-09-20',w:3,why:'legal-backstop confirm'}],
+    history:'14 requests · 5 denials · 1 legal confirm · suspension lapsing'}
 };
 
 var QUEUE = [
@@ -422,25 +443,32 @@ function decide(kind){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q) return;
   var p=PLAYERS[q.player]||{};
-  var note='', outcome;
+  var outcome, rec={decision:kind, code:null, flag_w:0, feed:null};
   if(kind==='approve'){
     outcome='APPROVED — injects as opportunity; the character\u2019s AI decides how. Feed: attributed.';
+    rec.feed='request approved (attributed)';
   }else if(kind==='modify'){
     var mod=$('modto').value||'scope trimmed';
     outcome='APPROVED-MODIFIED ('+mod+') — unused credits auto-refunded; logged.';
+    rec.feed='request approved — modified terms';
   }else if(kind==='escalate'){
     outcome='LEGAL CONFIRMED — killed, account flagged +3, owner notified, ledger legal-deny. Public: \u201Crequest not approved\u201D.';
-    bumpFlag(p, 3, 'legal-backstop confirm');
+    var x=bumpFlag(p, 3, 'legal-backstop confirm');
+    if(x) outcome+=' | FLAG TIER '+x.score+' REACHED: '+x.effect;
+    rec.code='legal-backstop'; rec.flag_w=3; rec.feed='request not approved';
   }else{
     var code=$('dcode').value; var c=RWScreen.REASON_CODES[code];
     outcome='DENIED · '+code+' — player sees \u201C'+c.player_msg+'\u201D Full '+q.credits+' cr refund. Flag +'+c.flag_w+(c.appealable?' (appealable 72h)':' (no appeal)');
     var crossed=bumpFlag(p, c.flag_w, 'deny · '+code);
     if(crossed) outcome+=' | FLAG TIER '+crossed.score+' REACHED: '+crossed.effect;
+    rec.code=code; rec.flag_w=c.flag_w; rec.feed=c.feed;
   }
   if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
   var t=new Date();
   AUDIT.unshift({t:('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),
-    who:REVIEWER, id:q.id, outcome:outcome});
+    who:REVIEWER, id:q.id, outcome:outcome,
+    decision:rec.decision, code:rec.code, flag_w:rec.flag_w, feed:rec.feed,
+    appeal_of:q.appeal_of||null, player:q.player});
   QUEUE=QUEUE.filter(function(x){return x.id!==SEL;});
   SEL=null; DECISIONS++;
   toast(q.id+' decided — '+kind+'. Logged to audit trail.');
@@ -551,6 +579,68 @@ function copyShift(){
   try{ document.execCommand('copy'); }catch(e){}
 }
 
+/* ================= flag roster (v64) — account standing, owner docket ================= */
+function decayDate(p){
+  /* −1 per clean 30 days — counts from the most recent flag_log entry */
+  var log=p.flag_log||[]; if(!log.length) return '—';
+  var last=log[log.length-1].d;
+  var base = last==='today' ? new Date() : new Date(last+'T12:00:00');
+  if(isNaN(base)) return '—';
+  base.setDate(base.getDate()+30);
+  return base.toISOString().slice(0,10);
+}
+function toggleRoster(){
+  var p=$('rosterPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block'){ renderRoster(); p.scrollIntoView(); }
+}
+function renderRoster(){
+  var rows=Object.keys(PLAYERS).map(function(h){
+    var p=PLAYERS[h]; return {h:h, p:p, s:p.flag_score||0};
+  }).filter(function(r){return r.s>0 || (r.p.flag_log||[]).length;});
+  rows.sort(function(a,b){return b.s-a.s;});
+  var docket=rows.filter(function(r){return r.s>=9;});
+  var html='';
+  if(docket.length){
+    html+='<h2 style="margin:0 0 8px;color:var(--red)">Owner docket — score 9+, owner decision required</h2>';
+    docket.forEach(function(r){
+      html+='<div class="card" style="border-color:var(--red)"><h3>'+r.h+' — score '+r.s+'</h3>'+
+        '<div class="kv"><span>Standing</span><b>account review — owner decision</b></div>'+
+        '<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(r.p.history||'—')+'</b></div>'+
+        '<div class="kv"><span>Flag log</span><b style="max-width:60%;text-align:right">'+(r.p.flag_log||[]).map(function(f){return f.d+' +'+f.w+' '+f.why;}).join(' · ')+'</b></div>'+
+        '<div class="redact-note">The console recommends; it never executes an account action. The owner reads the log and decides.</div></div>';
+    });
+  }
+  if(!rows.length){ html+='<div class="empty">No accounts carry flag weight.</div>'; }
+  rows.forEach(function(r){
+    var tier=flagTier(r.s), nxt=nextTier(r.s);
+    html+='<div class="card"><h3>'+r.h+'</h3>'+
+      '<div class="kv"><span>Flag score</span><b>'+r.s+(tier?' — TIER '+tier.score+': '+tier.effect:'')+'</b></div>'+
+      '<div class="kv"><span>Next threshold</span><b>'+(nxt?('score '+nxt.score+' → '+nxt.effect):'—')+'</b></div>'+
+      '<div class="kv"><span>Next decay</span><b>'+decayDate(r.p)+' (−1 per clean 30 d)</b></div>'+
+      '<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(r.p.history||'—')+'</b></div>';
+    (r.p.flag_log||[]).slice(-3).forEach(function(f){
+      html+='<div class="kv"><span>'+f.d+'</span><b>+'+f.w+' · '+f.why+'</b></div>';
+    });
+    html+='</div>';
+  });
+  $('rosterBody').innerHTML=html;
+  $('rosSub').textContent=rows.length+' flagged · '+docket.length+' on docket';
+}
+/* ================= ledger export (v64) — session decisions as mod_decision records ================= */
+function exportLedger(){
+  var recs=AUDIT.slice().reverse().map(function(a){
+    return { rec:'mod_decision', ts:new Date().toISOString().slice(0,10)+' '+a.t,
+      reviewer:a.who, request_id:a.id, player:a.player, decision:a.decision,
+      code:a.code, flag_w:a.flag_w, appeal_of:a.appeal_of, feed_line:a.feed };
+  });
+  var t=$('ledgerOut'); t.style.display='block';
+  t.value=JSON.stringify({records:recs, contract:'moderation.json ledger_records',
+    note:'session decisions only — the seeded 30-day baseline is aggregate and stays that way'},null,1);
+  t.select(); try{ document.execCommand('copy'); }catch(e){}
+  toast(recs.length+' mod_decision record(s) — canonical-ledger shape, feed lines neutral.');
+}
+
 function renderAudit(){
   var el=$('audit'); el.innerHTML='';
   if(!AUDIT.length){ el.innerHTML='<li>No decisions yet this session.</li>'; return; }
@@ -561,7 +651,7 @@ function renderAudit(){
   });
 }
 
-function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); }
+function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); renderRoster(); }
 renderAll();
 /* demo clock so wait times tick */
 setInterval(function(){ NOW+=30000; renderQueue(); renderMetrics(); }, 30000);
