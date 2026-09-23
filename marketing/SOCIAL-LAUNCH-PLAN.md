@@ -1,10 +1,12 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v79 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v94 — launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
 community playtest night + Move-In Week arc + Limits arc + Parrot Watch
-arc + automated pre-send checker
-(`tools/social_check.py`), 2026-09-24.
+arc + Counter arc (request receipts) + automated pre-send checker
+(`tools/social_check.py`) + machine-readable calendar
+(`social/schedule.json` → `tools/social_schedule.py` CSV/ICS export),
+2026-09-23.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -97,6 +99,7 @@ its channel, timing slot, required asset, and character-count check.
 | `move-in-arc.md` | 6-post "Move-In Week" series on hiring a character onto the cast — the funnel's last step (v64; canon: world-v35 creation.json/creation-ui.md, design doc possession ban) | 6 |
 | `offline-and-limits.md` | 5-post evergreen "the rules are the pitch" series — possession ban, attributed feed, no money out, the Understudy fallback (world-v55), the session cap (v79) | 5 |
 | `parrot-watch.md` | 3-post mini-arc on the wild parakeets (art-v49 render feature + real local lore; `{{PARROT_CLIP}}` is the bank's only unfilled asset) (v79) | 3 |
+| `counter-arc.md` | 4-post "every request leaves a receipt" series on the Counter — the board, the free wording check, the `rq-` receipt, co-sponsoring (v94; post-launch only, canon: world-v60 request-ui.md/requests.json live_seam) | 4 |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v40) | full asset set |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
@@ -146,6 +149,9 @@ Sustainable rhythm, fed by the product itself.
 - **Devlog clips:** remaining 3 drip over weeks 1–3; then clip whatever the
   feed produces — the live-capture pipeline and the clip-worthy moment
   taxonomy are specced in `social/capture-plan.md`.
+- **Counter arc:** T+7 → T+13, the "every request leaves a receipt"
+  series (`counter-arc.md`) — runs parallel to Rent Week; that one is
+  the story, this one is the system. Post-launch only (live seam).
 - **Rent Week arc:** T+7 → T+13, the first in-world rent cycle gets its
   own 7-post series (`rent-week-arc.md`) — the most legible systems
   story the game tells; every post degrades gracefully if the feed is
@@ -171,7 +177,11 @@ Sustainable rhythm, fed by the product itself.
 ## 6. Launch-day runbook (operational)
 
 1. **T-1 evening:** owner confirms staging URL, loads `launch-thread.md`,
-   fills `{{URL}}`/`{{DATE}}` placeholders, queues or pre-drafts all T-0 posts.
+   fills `{{URL}}`/`{{DATE}}` placeholders, queues or pre-drafts all T-0
+   posts. The whole calendar is machine-readable: set `launch_date` in
+   `social/schedule.json` and run `python3 tools/social_schedule.py` to
+   emit `dist/social-queue.csv` (per-channel rows with UTMs baked) and
+   `dist/social-calendar.ics`.
 2. **09:00 go/no-go:** site loads, spectator view renders, request feed
    public. If any fails → post the *delay variant* in `launch-thread.md`,
    not silence.

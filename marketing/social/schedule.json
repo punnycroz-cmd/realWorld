@@ -1,0 +1,58 @@
+{
+  "version": 94,
+  "schema": "social-schedule/v1",
+  "notes": "Canonical content calendar for SOCIAL-LAUNCH-PLAN.md §5. All times are owner-set; `launch_date` stays null until the owner picks a date — tools/social_schedule.py resolves offsets at export time. LOCAL ONLY: this file schedules nothing by itself.",
+  "launch_date": null,
+  "default_time_pt": "10:00",
+  "timezone": "America/Los_Angeles",
+  "site_url": "{{SITE_URL}}",
+  "phases": [
+    {
+      "id": "phase-a-prelaunch",
+      "name": "Phase A — Pre-launch",
+      "goal": "Make the concept legible before asking for attention.",
+      "posts": [
+        {"id": "A14-teaser", "day": -14, "time": "10:00", "channels": ["tiktok", "x", "youtube-shorts"], "draft": "devlog-clips.md", "medium": "clip", "campaign": "launch", "summary": "Teaser: 'Somewhere in the Mission, it's always Tuesday for somebody' (evening shot, slow zoom)"},
+        {"id": "A12-jules", "day": -12, "time": "11:00", "channels": ["x", "bluesky"], "draft": "cast-spotlights.md", "medium": "spotlight", "campaign": "launch", "summary": "Cast spotlight 1: Jules Park (the newcomer = viewer's stand-in)"},
+        {"id": "A10-shared-block", "day": -10, "time": "10:00", "channels": ["tiktok", "x"], "draft": "devlog-clips.md", "medium": "clip", "campaign": "launch", "summary": "Devlog clip: 'How 28 characters share one block'"},
+        {"id": "A08-marisol", "day": -8, "time": "11:00", "channels": ["x", "bluesky"], "draft": "cast-spotlights.md", "medium": "spotlight", "campaign": "launch", "summary": "Cast spotlight 2: Marisol (tease, don't confirm — spoiler rule)"},
+        {"id": "A07-oneweek", "day": -7, "time": "09:00", "channels": ["x", "bluesky", "tiktok", "youtube-shorts"], "draft": "launch-thread.md", "medium": "organic", "campaign": "launch", "summary": "One week out: launch date + 'watch free, forever'; optional playtest-night invite (playtest-night.md)"},
+        {"id": "A05-requestfeed", "day": -5, "time": "10:00", "channels": ["tiktok", "x"], "draft": "devlog-clips.md", "medium": "clip", "campaign": "launch", "summary": "Devlog clip: the public request feed — 'every intervention is visible'"},
+        {"id": "A04-victor", "day": -4, "time": "11:00", "channels": ["x", "bluesky"], "draft": "cast-spotlights.md", "medium": "spotlight", "campaign": "launch", "summary": "Cast spotlight 3: Victor"},
+        {"id": "A03-embargo", "day": -3, "time": "09:00", "channels": ["x", "bluesky", "tiktok"], "draft": null, "medium": "organic", "campaign": "launch", "summary": "Press embargo lifts (PRESS-OUTREACH); reshare coverage — no dedicated draft, quote-post real coverage only"},
+        {"id": "A02-rain", "day": -2, "time": "10:00", "channels": ["tiktok", "x"], "draft": "devlog-clips.md", "medium": "clip", "campaign": "launch", "summary": "Devlog clip: rain on Dolores (weather requests)"},
+        {"id": "A01-tomorrow", "day": -1, "time": "18:00", "channels": ["x", "bluesky", "tiktok", "youtube-shorts"], "draft": "launch-thread.md", "medium": "organic", "campaign": "launch", "summary": "'Tomorrow.' + 15s teaser"}
+      ]
+    },
+    {
+      "id": "phase-b-launchday",
+      "name": "Phase B — Launch day",
+      "goal": "Full timeline in launch-thread.md; this is the skeleton.",
+      "posts": [
+        {"id": "B0900-thread", "day": 0, "time": "09:00", "channels": ["x", "bluesky", "youtube"], "draft": "launch-thread.md", "medium": "thread", "campaign": "launch", "summary": "Announcement thread (X) + condensed (Bluesky) + trailer (YouTube)"},
+        {"id": "B0930-clip", "day": 0, "time": "09:30", "channels": ["tiktok", "youtube-shorts"], "draft": "devlog-clips.md", "medium": "clip", "campaign": "launch", "summary": "TikTok clip 1 + Shorts mirror"},
+        {"id": "B1100-shots", "day": 0, "time": "11:00", "channels": ["x", "bluesky"], "draft": null, "medium": "organic", "campaign": "launch", "summary": "Screenshot set: the block at launch hour (site/shots/, 'development build' label)"},
+        {"id": "B1300-jules", "day": 0, "time": "13:00", "channels": ["x", "bluesky"], "draft": "cast-spotlights.md", "medium": "spotlight", "campaign": "launch", "summary": "First cast spotlight rerun (Jules) + watch-now link"},
+        {"id": "B1500-feed", "day": 0, "time": "15:00", "channels": ["x"], "draft": null, "medium": "organic", "campaign": "launch", "summary": "Request-feed screenshot: first real player request — or 'the feed is empty, be the first' (feed-honesty rule)"},
+        {"id": "B1800-evening", "day": 0, "time": "18:00", "channels": ["x", "bluesky", "tiktok"], "draft": null, "medium": "clip", "campaign": "launch", "summary": "Evening shot + 'the block doesn't sleep'"},
+        {"id": "B2100-recap", "day": 0, "time": "21:00", "channels": ["x", "bluesky"], "draft": "recap-format.md", "medium": "recap", "campaign": "launch", "summary": "Day-one recap: first 'This Week on the Block' — real events only"}
+      ]
+    },
+    {
+      "id": "phase-c-postlaunch",
+      "name": "Phase C — Post-launch arcs",
+      "goal": "Sustainable rhythm fed by the product itself. Arcs, not fixed days.",
+      "posts": [
+        {"id": "C-weekly-recap", "day_range": [1, 30], "recurrence": "weekly-sunday", "channels": ["x", "bluesky"], "draft": "recap-format.md", "medium": "recap", "campaign": "ongoing", "summary": "Weekly anchor: 'This Week on the Block' from the public feed"},
+        {"id": "C-spotlights-drip", "day_range": [1, 14], "recurrence": "every-2-3-days", "channels": ["x", "bluesky"], "draft": "cast-spotlights.md", "medium": "spotlight", "campaign": "week1", "summary": "Remaining 5 main-cast spotlights drip over weeks 1–2"},
+        {"id": "C-devlog-drip", "day_range": [1, 21], "recurrence": "weekly", "channels": ["tiktok", "x", "youtube-shorts"], "draft": "devlog-clips.md", "medium": "clip", "campaign": "ongoing", "summary": "Remaining devlog clips, then clip whatever the feed produces (capture-plan.md)"},
+        {"id": "C-counter-arc", "day_range": [7, 13], "recurrence": "arc-mon-thu", "channels": ["x", "bluesky"], "draft": "counter-arc.md", "medium": "organic", "campaign": "week1", "summary": "Counter arc (v94): 4 posts — the counter, the free check, the receipt, co-sponsoring. Post-launch only."},
+        {"id": "C-rent-week", "day_range": [7, 13], "recurrence": "arc-daily", "channels": ["x", "bluesky"], "draft": "rent-week-arc.md", "medium": "organic", "campaign": "week1", "summary": "Rent Week arc: 7-post series on the first in-world rent cycle"},
+        {"id": "C-archive-arc", "day_range": [14, 20], "recurrence": "arc-mon-fri", "channels": ["x", "bluesky"], "draft": "archive-arc.md", "medium": "organic", "campaign": "ongoing", "summary": "Archive arc: 5 posts — 'the block keeps receipts'. Post-launch only; demo badge pre-live."},
+        {"id": "C-parrot-watch", "day_range": [14, 16], "recurrence": "arc-weekend", "channels": ["x", "bluesky", "tiktok"], "draft": "parrot-watch.md", "medium": "clip", "campaign": "ongoing", "summary": "Parrot Watch mini-arc (3 posts) — prefers live PARROT_CLIP, degrades to stills"},
+        {"id": "C-move-in", "day_range": [21, 27], "recurrence": "arc-daily", "channels": ["x", "bluesky"], "draft": "move-in-arc.md", "medium": "organic", "campaign": "ongoing", "summary": "Move-In Week arc: 6 posts on hiring a character onto the cast"},
+        {"id": "C-limits", "day_range": [28, 30], "recurrence": "evergreen", "channels": ["x", "bluesky"], "draft": "offline-and-limits.md", "medium": "organic", "campaign": "ongoing", "summary": "Limits arc (evergreen from T+28): 'the rules are the pitch' — bank for quiet weeks"}
+      ]
+    }
+  ]
+}
