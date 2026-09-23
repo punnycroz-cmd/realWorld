@@ -919,3 +919,51 @@ instruments, steady-state census, and composite conformance.
   composites are the model's published fingerprint.
 
 Registry now P1–P200; numbering stable.
+
+## 21. New probes P201–P210 (v22, cast-profiles suite)
+
+- **P201 immigration bump (MUST):** seeded stores for C6/C8 profiles
+  (lifeEvents immigration at age a) show a second record-density peak
+  over encodeAge ∈ [a−2, a+8] vs a matched non-immigrant control; C6's
+  distribution is measurably bimodal (Schrauf & Rubin 2001).
+  Constrains `mig_bump_gain`, `bump_windows` emission.
+- **P202 crossover retrieval (SHOULD):** `lang:"es"`-tagged records
+  retrieve better under `cueContext.lang:"es"`; 20–40% of immigrant-era
+  retrievals under neutral cues return crossover-flagged content
+  (Schrauf & Rubin 2000). Constrains `lang_mismatch` + lang field use.
+- **P203 secrecy asymmetry (MUST — sign-locked):** `confidential`
+  records surface on ambient scans at ≥1.5× the rate they face
+  concealment-situation suppression; wellbeing-proxy cost correlates
+  with intrusion count, not concealment count (Slepian et al. 2017).
+  Constrains `secret_mindwander`.
+- **P204 self-concealment split (MUST — structure):** raising
+  `self_share_pen` suppresses transmission only of selfRelevance≥0.6
+  records; `share_k` on other-focused content is untouched (Larson &
+  Chastain 1990). The two channels must remain separable.
+- **P205 avoidant boundary (MUST — sign-locked):** high `attach_avoid`
+  profile shows an E deficit on `attachment:true` records and a NULL
+  deficit on matched non-attachment emotional records (Edelstein 2006);
+  a motivational/verify cue does not rescue recall (Fraley et al. 2000).
+  Constrains `attach_encode_loss`, `attach_ret_cost`.
+- **P206 cast distinctness (MUST):** the 8 compiled mains' free-param
+  vectors pairwise-exceed the P98 Mahalanobis floor; a blind classifier
+  matching forgetting-phenotype batteries to profiles recovers ≥6/8
+  identities (cast-profiles.md §4 lists the confusable pairs).
+- **P207 procedural preservation (SHOULD):** C6's `type:procedural`
+  domain records (sewing-craft) decay ~0 across a simulated year while
+  her episodic archive declines on the E-band curve — aging splits
+  stores, not people.
+- **P208 transactive widowhood (SHOULD):** C7 shows `transact_loss` θ
+  penalty on bookkeeping/warmth topics while PersonModel(wife).available
+  =false; C6 analog on husband-linked topics; penalty partially lifts
+  if a surrogate directory PersonModel forms (Harris et al. 2014).
+- **P209 intention-completion confusion (OBSERVE — HYPOTHESIS):**
+  heavily rehearsed `open` intentions mint low-rate false-completion
+  candidates via imagineEvent-on-plans (C5 rent, C8 notebook). Modeling
+  hypothesis — no literature claim; watch rate, don't constrain it yet.
+- **P210 secret-load ordering (SHOULD):** an identical `confidential`
+  record seeded into all 8 mains produces ambient intrusion counts
+  ordered by `secret_mindwander`×(1+0.4·selfconceal): C3 > C2 > C7
+  (floor). Same secret, different digestions.
+
+Registry now P1–P210; numbering stable.

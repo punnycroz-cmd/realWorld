@@ -267,6 +267,11 @@ never copying raw.
 | canon_drift_mult / canon_resist | 0.0 / 0.3 | 0.5 / 0.9 | post-canon drift cut + misinfo armor (v2.0) |
 | joint_attn_gain / joint_affect_amp | 0.0 / 0.0 | 0.3 / 0.3 | co-attended encoding boost + symmetric affect amp (v2.0) |
 | transact_loss | 0.0 | 0.3 | absent-partner θ penalty on directory topics (v2.0) |
+| mig_bump_gain | 0.0 | 1.0 | immigration-window bump strength (v2.2) |
+| attach_encode_loss | 0.0 | 0.5 | preemptive E loss, attachment:true records (v2.2) |
+| attach_ret_cost | 0.0 | 0.4 | searchCost add on attachment records (v2.2) |
+| self_share_pen | 0.0 | 0.9 | transmission cut on selfRelevance≥0.6 (v2.2) |
+| secret_mindwander | 0.0 | 0.3 | confidential-record intrusion boost (v2.2) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -835,3 +840,33 @@ difference:
   partialScore through verbatim survival, which is the correct causal
   path); `meta_cal` does not correct fok (calibration is at report,
   the feeling is upstream).
+
+## 11. v2.2 note — cast profiles: new trait, new bible dials, the 8 mains
+
+`memory/cast-profiles.md` now compiles all 8 mains from the world-v14
+bibles — that file is the per-character deliverable this doc always
+promised. This note covers only what bibles/mods must know:
+
+- **New IndivTraits axis `attach_avoid`** (trait 15; r(extra)≈−0.3,
+  r(neurot)≈0 — Edelstein 2006 anxiety-axis null). Bible language that
+  maps to it: "keeps her own life under lock and key," "filed in
+  different drawers," "never stated," "reads silence as peace."
+  Mechanism is PREEMPTIVE — `attach_encode_loss`/`attach_ret_cost` on
+  `attachment:true` records only; the character is normal on everything
+  except closeness. Five mains carry it at distinct σ (C7 +1.2, C8 +0.9,
+  C4 +0.8, C5 +0.6, C1 implicit) — same trait, different phenotypes.
+- **New trait `selfconceal`** (σ; loads `self_share_pen` +, and
+  `secret_mindwander` ×(1+0.4σ) — Larson & Chastain 1990; Slepian 2017).
+  Distinct from introversion: extraverts can self-conceal (C3 Dani).
+- **New bible field `lifeEvents`** (ProfileInput): `{type:"immigration",
+  age}` → `bump_windows` list (Schrauf & Rubin 2001) +
+  `{type:"bereavement", age}` → regime overlay + PersonModel availability
+  flip. C6 gets the bimodal bump; C8 gets the bilingual bump.
+- **Modifier additions:** none — secrecy/avoidance ride traits+records,
+  not modifier slots (the ≤3 rule stays enforceable).
+- **Deliberate nulls:** `self_share_pen` does NOT touch `share_k`
+  (curators exist); `attach_avoid` does NOT touch non-attachment
+  emotional encoding (Edelstein boundary is the falsifiable core);
+  `secret_mindwander` does NOT depend on concealment opportunities
+  (Slepian: mind-wandering ≫ concealment, and only mind-wandering
+  predicts the cost).

@@ -1,4 +1,21 @@
-# Memory Model Spec v2.1 — implementable human-like memory for RW characters
+# Memory Model Spec v2.2 — implementable human-like memory for RW characters
+
+> **v2.2 note (character-profiles II — the cast pass):**
+> `memory/cast-profiles.md` compiles the 8 mains from the world-track
+> bibles and forced three sourced mechanisms into the spec.
+> **Migration bump** — the §4.1 bump term evaluates over a per-character
+> `bump_windows` list compiled from `ProfileInput.lifeEvents`
+> (immigration shifts/doubles the bump, Schrauf & Rubin 1998/2001) —
+> §4.1. **Secrecy is mind-wandering** — `confidential` records intrude
+> on the ambient scan via `secret_mindwander`, ~2× concealment rate
+> (Slepian et al. 2017) — §5.7/§6.22. **Attachment avoidance** — new
+> IndivTraits axis `attach_avoid` with preemptive `attach_encode_loss`
+> on `attachment:true` events + `attach_ret_cost` on retrieval,
+> non-attachment emotional records untouched (Edelstein 2006; Fraley
+> et al. 2000) — §2. **Self-concealment** — `self_share_pen` splits
+> self-relevant transmission from `share_k` (Larson & Chastain 1990) —
+> §4.13/§6.22. +6 params in §7; probes P201–P210 in
+> validation-design.md §21. All optional, default-neutral.
 
 > **v2.1 note (formal-model III — the measurement layer):**
 > `memory/formal-model.md` Part III (§§18–25) closes the last informal
@@ -729,6 +746,15 @@ Postman 1964; Hyde & Jenkins 1973).
       `secret_str` field (birth = E) decaying at
       `beta_source·secret_tag_mult` (≈1.3) — the DO-NOT-TELL bit rots
       faster than the juicy bit (source-amnesia asymmetry; §6.22).
+    - *Attachment exclusion (v2.2):* event may carry `attachment: true`
+      (relational content — bids, confessions, comfort, dependency; the
+      event layer tags it); for characters with `attach_avoid` trait σ,
+      `E *= (1 − attach_encode_loss·max(0, attach_avoid)/1.5)` — a
+      PREEMPTIVE deficit: avoidants encode attachment material thin at
+      the door, and motivational cues do not rescue it (Edelstein 2006 —
+      boundary-locked: non-attachment emotional records untouched;
+      Fraley, Garner & Shaver 2000; Mikulincer & Orbach 1995). Retrieval
+      pays `attach_ret_cost` on searchCost for the same tag.
 - **Negative mood protects surface detail (v1.8):** when
   `context.mood < −0.3`, verbatim-field birth strength gains
   `negmood_verbatim_gain` (0.1) — the context half of the
@@ -832,6 +858,15 @@ R(t) = E_adj · (1 + t/τ)^(-β) + floor
     is for positive/important memories; sad memories show no bump
     (Berntsen & Rubin 2004; Rubin & Berntsen 2003). Per-character
     `bump_peak` jitter ±3y (Janssen et al. 2005: earlier for women).
+    **v2.2:** the window generalizes to a per-character
+    `bump_windows: [{lo, hi, mult}]` list emitted by the profile
+    compiler from `ProfileInput.lifeEvents` — an immigration at age
+    `a` mints `[a−2, a+8]` at `mig_bump_gain`·bump_beta_mult
+    (Schrauf & Rubin 1998, 2001: the bump follows migration age, and
+    goes bimodal when migration falls inside 10–30; the "effort after
+    meaning" + settlement-interference-release account). No life events
+    → the single default window, behavior unchanged. Cast with windows:
+    C6 [10,30]+[27,37], C8 [10,30]+[10,20] (cast-profiles.md §1.1).
   - *Childhood records (v1.3: step → ramp + survivorship):* if
     `encodeAge < amnesia_exit` (7), permanently
     `β *= 1 + amnesia_slope·(1 − encodeAge/amnesia_exit)`
@@ -1397,7 +1432,13 @@ if character attention state == "unfocused":
 ```
 `intrusion_thresh` drops ~0.15 under active stress and for trauma-tagged
 records — **v0.5: the −0.15 discount is a property of `trauma:true`
-records themselves** (not only the character modifier), and each
+records themselves** (not only the character modifier). **v2.2:**
+`confidential` records get an independent intrusion channel —
+`cueMatch_ext` threshold effectively `intrusion_thresh − secret_mindwander`
+(≈0.08, ×(1+0.4·selfconceal trait)) — secrets mind-wander in at ~2× their
+concealment-situation rate (Slepian, Chun & Mason 2017: the burden of
+secrecy is spontaneous thought, not social hiding; the wellbeing cost
+tracks intrusion frequency, not concealment frequency), and each
 intrusive resurfacing re-stamps `emotional.arousal` to ≥0.7 — intrusions
 rehearse the affect, which is why flashbacks don't fade (reconsolidation,
 §5.9; emotional-memory.md §7). Intrusive memory is the same machinery at
@@ -2274,6 +2315,15 @@ Fresh secrets hold; old secrets leak at content-fresh rates — "wait,
 was that a secret?" is the emergent failure mode (social-memory.md
 §23). Guarded by P188.
 
+**v2.2 self-concealment split:** the §4.13 share-motive draw multiplies
+by `(1 − self_share_pen)` (0–0.9) when the candidate record has
+`selfRelevance ≥ 0.6` — transmission of *one's own* distressing content
+is a separate channel from sharing generally (Larson & Chastain 1990:
+self-concealment ≠ low self-disclosure; it predicts distress
+incrementally). This is the Marisol parameter: `share_k` high on others'
+business, `self_share_pen` high on her own — the curator who never
+opens her own file.
+
 ### 6.23 Absorption — told_by → experienced (new in v2.0)
 
 A `told_by` record meeting ALL of `hearCount ≥ 3`,
@@ -2628,6 +2678,14 @@ MemoryParams = {
                              // story canonization (§6.24)
   "joint_attn_gain": 0.12, "joint_affect_amp": 0.1, // §2 coAttending
   "transact_loss": 0.12,     // absent-partner θ penalty (§6.14)
+  // v2.2 additions (cast profiles, cast-profiles.md §1)
+  "mig_bump_gain": 0.6,      // immigration-window bump strength (§4.1)
+  "attach_encode_loss": 0.3, // preemptive E loss on attachment:true (§2)
+  "attach_ret_cost": 0.15,   // searchCost add on attachment records (§2)
+  "self_share_pen": 0.5,     // transmission cut on selfRelevance≥0.6 (§6.22)
+  "secret_mindwander": 0.08, // confidential-record intrusion boost (§5.7)
+  // IndivTraits gains axis 15: attach_avoid (σ, r(extra)≈−0.3,
+  // r(neurot)≈0 — avoidance carries the memory deficit, anxiety doesn't)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in

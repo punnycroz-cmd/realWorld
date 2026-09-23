@@ -1042,3 +1042,37 @@ born, how it cools, how it spreads.
   (stoic/suppressor, high-empath), trauma & depressive modifier
   updates, v1.7 note.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 23. v22 summary — character-profiles II (the cast pass)
+
+The bibles (world-v14) forced three sourced mechanisms and one trait
+into the spec; the 8 mains were then compiled into
+`memory/cast-profiles.md`.
+
+- **Immigration bump** (Schrauf & Rubin 1998 JML; Schrauf & Rubin 2001
+  ACP): immigrants' autobiographical density follows immigration age —
+  bimodal when migration falls inside the 10–30 window. Companion:
+  20–40% crossover memories (Schrauf & Rubin 2000) — drives `lang`
+  field use. → spec `bump_windows` list + `mig_bump_gain`.
+- **Secrecy = mind-wandering** (Slepian, Chun & Mason 2017 JPSP, 10
+  studies, >13k secrets): spontaneous thought about secrets ~2×
+  concealment episodes; only the former predicts wellbeing cost.
+  → `secret_mindwander` intrusion channel on `confidential` records.
+- **Self-concealment** (Larson & Chastain 1990): concealment of
+  self-negative info is distinct from low disclosure, predicts
+  distress incrementally. → `self_share_pen` splits self-relevant
+  transmission from `share_k`.
+- **Attachment avoidance** (Edelstein 2006 Emotion; Fraley, Garner &
+  Shaver 2000 JPSP; Mikulincer & Orbach 1995): preemptive encoding
+  deficit on attachment-relevant material only; incentive doesn't
+  rescue; anxiety axis null. → IndivTraits axis 15 `attach_avoid` +
+  `attach_encode_loss`/`attach_ret_cost`.
+- Cast signatures: C1 archive-that-forgets-itself; C2 dense newcomer;
+  C3 compartments; C4 precise-others/vague-self; C5 spatial-giant/
+  temporal-sieve; C6 bimodal archive + transactive widowhood; C7
+  ledger-with-a-heart (attach_avoid max); C8 plan-canonizing bilingual
+  bump. Distinctness formalized in P206.
+- Spec → v2.2 (+6 params, `bump_windows`, `attachment:true` event tag,
+  `lifeEvents` ProfileInput field); profiles +5 clamp rows + §11;
+  probes P201–P210.
+- Boundaries kept: research only, no code, no narratives, no push/merge.
