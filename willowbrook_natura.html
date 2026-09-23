@@ -22337,7 +22337,7 @@ const SF_ROOF_COLS = ['#6b6560', '#7a7268', '#5d5a55', '#84786a',
                       '#8a6a52', '#74584a', '#5f6e62', '#707a84'];
 
 function sfBldCanvas(b){
-  const pad = 8;
+  const pad = 16;
   const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
   const hBase = Math.ceil(b.by1 - b.by0);
   const hPx = Math.ceil(b.hPx);
@@ -22370,6 +22370,17 @@ function sfBldCanvas(b){
   }
   const wallAt = (x1, y1, x2, y2, t, f) =>
     [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t - hPx * f];
+
+  // pass 0: cast shadow on the pavement — footprint pushed away from the sun
+  const shx = hPx * 0.20, shy = hPx * 0.12;
+  for(const [mul, al] of [[1.6, 0.10], [1.0, 0.18]]){
+    g.fillStyle = `rgba(26,19,10,${al})`;
+    g.beginPath();
+    P.forEach(([x, y], i2) => i2
+      ? g.lineTo(x + shx * mul, y + shy * mul)
+      : g.moveTo(x + shx * mul, y + shy * mul));
+    g.closePath(); g.fill();
+  }
 
   // pass 1: walls (south + side), far(north) walls skipped
   const wallFaces = [];
@@ -22520,7 +22531,7 @@ function sfBldCanvas(b){
     for(let k = 0; k < Math.min(6, roofArea / 1300); k++){
       const t1 = phash(b.i, k, 1360), t2 = phash(k, b.i, 1361);
       const cx = pad + (wPx - pad * 2) * t1, cy = pad + hBase * t2;
-      const kind = Math.floor(phash(b.i, k, 1369) * 3);
+      const kind = Math.floor(phash(b.i, k, 1369) * 4);
       if(kind === 0){ // mushroom vent
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
         paEllipse(g, cx, cy - 1.5, 2, 1.4, ROOF[5]);
@@ -22528,9 +22539,14 @@ function sfBldCanvas(b){
         paBlob(g, cx, cy, 3.2, shade(ROOF[3], 1.15));
         paBlob(g, cx, cy - 1, 2.4, ROOF[5]);
         paPX(g, cx, cy - 1, ROOF[1]);
-      } else { // pipe stack
+      } else if(kind === 2){ // pipe stack
         paR(g, cx - 1, cy - 4, 2, 5, ROOF[1]);
         paEllipse(g, cx, cy - 4, 1.6, 1, ROOF[5]);
+      } else { // brick chimney + cap + drip shadow
+        paR(g, cx - 2, cy - 7, 5, 8, '#8a5a48');
+        paR(g, cx - 2, cy - 7, 5, 1, '#c89078');
+        paR(g, cx - 3, cy - 9, 7, 2, '#6a4034');
+        paR(g, cx + 2, cy + 1, 4, 2, 'rgba(20,14,8,0.3)');
       }
     }
   }
@@ -22764,6 +22780,294 @@ function sfRenderWorld(cw, ch){
   }
 }
 
+/* ---------------- v3 facade detail pass ----------------
+   sfStreetWall() renders one camera-facing wall edge with full Victorian
+   dressing: gradient wall, parapet + coping, bracketed cornice, string
+   courses, hooded capsule windows, projecting bay windows, and a styled
+   ground floor (storefront / stoop / garage). All in world-space meters,
+   projected through pr(). */
+function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, fwd){
+  const i = b.i;
+  const wallBase = SF_WALL_COLS[Math.floor(phash(i, 7, 1300) * SF_WALL_COLS.length)];
+  const TRIM = SF_TRIM_COLS[Math.floor(phash(i, 9, 1301) * SF_TRIM_COLS.length)];
+  const isShop = !!b.name || phash(i, 5, 1303) < 0.12;
+  const style = Math.floor(phash(i, 13, 1405) * 3); // 0 italianate 1 stick 2 marina
+  const dim = night ? 0.4 : 1;
+  const lit = (0.55 + 0.45 * Math.max(0, nx * -0.5 + ny * -0.85)) * dim;
+  const para = 0.5 + phash(i, 17, 1406) * 0.35;
+  const ux = ex / L, uy = ey / L;
+  const quad = (pts, fill) => {
+    let started = false;
+    ctx.beginPath();
+    for(const [qx, qy, qz] of pts){
+      const p = pr(qx, qy, qz);
+      if(!p) return null;
+      started ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+      started = true;
+    }
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+    return true;
+  };
+
+  const g1 = pr(x1, y1, 0), g2 = pr(x2, y2, 0),
+        t1 = pr(x1, y1, hm), t2 = pr(x2, y2, hm),
+        p1 = pr(x1, y1, hm + para), p2 = pr(x2, y2, hm + para);
+  if(!g1 || !g2 || !t1 || !t2 || !p1 || !p2) return;
+
+  // cast shadow: base edge extruded on the ground away from the sun
+  quad([[x1, y1, 0.02], [x2, y2, 0.02],
+        [x2 - hm * 0.26, y2 - hm * 0.16, 0.02],
+        [x1 - hm * 0.26, y1 - hm * 0.16, 0.02]], 'rgba(15,12,8,0.18)');
+
+  // wall face: vertical gradient — sky-lit top, AO near the pavement
+  const wgr = ctx.createLinearGradient(0, Math.min(p1[1], p2[1]), 0, Math.max(g1[1], g2[1]));
+  wgr.addColorStop(0, shade(wallBase, Math.min(1.3, lit * 1.14)));
+  wgr.addColorStop(0.7, shade(wallBase, lit));
+  wgr.addColorStop(1, shade(wallBase, lit * 0.68));
+  ctx.fillStyle = wgr;
+  ctx.beginPath();
+  ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+  ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(20,16,12,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+
+  // parapet coping + bracketed cornice
+  ctx.strokeStyle = shade(TRIM, 1.05);
+  ctx.lineWidth = Math.max(1, F * 0.022 / g1[2]);
+  ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+  const cA = pr(x1, y1, hm - 0.45), cB = pr(x2, y2, hm - 0.45);
+  if(cA && cB){
+    ctx.strokeStyle = TRIM;
+    ctx.lineWidth = Math.max(1.5, F * 0.05 / g1[2]);
+    ctx.beginPath(); ctx.moveTo(cA[0], cA[1]); ctx.lineTo(cB[0], cB[1]); ctx.stroke();
+    // dentil row under the cornice band
+    const dA = pr(x1, y1, hm - 0.72), dB = pr(x2, y2, hm - 0.72);
+    if(dA && dB){
+      const nD = Math.max(2, Math.floor(Math.hypot(cB[0] - cA[0], cB[1] - cA[1]) / 7));
+      ctx.fillStyle = shade(TRIM, 0.8);
+      for(let k = 0; k <= nD; k++){
+        const u = k / nD;
+        ctx.fillRect(dA[0] + (dB[0] - dA[0]) * u - 1.2,
+                     dA[1] + (dB[1] - dA[1]) * u, 2.4,
+                     Math.max(2, Math.abs(cA[1] - dA[1]) * 0.8));
+      }
+    }
+    // scrolled brackets every ~3m
+    const nB = Math.max(1, Math.floor(L / 3));
+    for(let k = 0; k < nB; k++){
+      const u = (k + 0.5) / nB;
+      const pb2 = pr(x1 + ex * u, y1 + ey * u, hm - 1.2),
+            pt2 = pr(x1 + ex * u, y1 + ey * u, hm - 0.42);
+      if(!pb2 || !pt2) continue;
+      ctx.fillStyle = TRIM;
+      ctx.fillRect(pb2[0] - 1.6, pt2[1], 3.2, pb2[1] - pt2[1]);
+      ctx.fillRect(pb2[0] - 2.6, pt2[1], 5.2, Math.max(1.5, (pb2[1] - pt2[1]) * 0.25));
+    }
+  }
+
+  const floors = Math.max(1, Math.round(hm / 3));
+  // string courses between floors
+  for(let f = 1; f < floors; f++){
+    const sA = pr(x1, y1, hm * f / floors), sB = pr(x2, y2, hm * f / floors);
+    if(!sA || !sB) continue;
+    ctx.globalAlpha = 0.5;
+    ctx.strokeStyle = shade(TRIM, 1.05);
+    ctx.lineWidth = Math.max(0.6, F * 0.012 / g1[2]);
+    ctx.beginPath(); ctx.moveTo(sA[0], sA[1]); ctx.lineTo(sB[0], sB[1]); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  // capsule window: trim frame + sky-reflection glass + sill + lintel
+  const drawWin = (wx, wy, zB, zT, wm) => {
+    const pb = pr(wx, wy, zB), pt = pr(wx, wy, zT);
+    if(!pb || !pt) return;
+    const wh = pb[1] - pt[1], ww = wm * F / pb[2];
+    if(ww < 2 || wh < 2.5) return;
+    const r = ww / 2;
+    ctx.fillStyle = TRIM;
+    ctx.beginPath();
+    ctx.moveTo(pb[0] - r - 1, pb[1]); ctx.lineTo(pb[0] - r - 1, pt[1] + r + 1);
+    ctx.arc(pb[0], pt[1] + r + 1, r + 1, Math.PI, 0, true);
+    ctx.lineTo(pb[0] + r + 1, pb[1]); ctx.closePath(); ctx.fill();
+    const gg = ctx.createLinearGradient(0, pt[1], 0, pb[1]);
+    if(night && phash(wx * 7 | 0, zB * 13 | 0, i) < 0.5){
+      gg.addColorStop(0, '#ffe9b0'); gg.addColorStop(1, '#c9862e');
+    } else {
+      gg.addColorStop(0, '#5d7d92'); gg.addColorStop(0.55, '#8fb0c6');
+      gg.addColorStop(1, '#a9c6da');
+    }
+    ctx.fillStyle = gg;
+    ctx.beginPath();
+    ctx.moveTo(pb[0] - r, pb[1]); ctx.lineTo(pb[0] - r, pt[1] + r);
+    ctx.arc(pb[0], pt[1] + r, r, Math.PI, 0, true);
+    ctx.lineTo(pb[0] + r, pb[1]); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = shade(TRIM, 0.9); ctx.lineWidth = Math.max(0.5, ww * 0.06);
+    ctx.beginPath();
+    ctx.moveTo(pb[0] - r, pt[1] + wh * 0.45); ctx.lineTo(pb[0] + r, pt[1] + wh * 0.45);
+    ctx.stroke();
+    ctx.fillStyle = shade(TRIM, 1.05);
+    ctx.fillRect(pb[0] - r - 2, pb[1], ww + 4, Math.max(1.5, wh * 0.08));
+    if(style === 0){ // italianate hood moulding + keystone
+      ctx.fillRect(pb[0] - r - 2, pt[1] - 1, ww + 4, Math.max(1, wh * 0.05));
+      ctx.fillRect(pb[0] - 1, pt[1] - wh * 0.06, 2, wh * 0.08);
+    }
+  };
+
+  // upper-floor window grid
+  const bays = Math.max(1, Math.floor(L / 3.2));
+  const doorT = style === 2 ? 0.68 : 0.5;
+  for(let f = isShop ? 1 : 0; f < floors; f++){
+    const zB = hm * f / floors + 0.55, zT = hm * (f + 1) / floors - 0.5;
+    for(let k = 0; k < bays; k++){
+      const t = (k + 0.5) / bays;
+      if(f === 0 && Math.abs(t - doorT) < 0.14) continue;
+      drawWin(x1 + ex * t, y1 + ey * t, zB, zT, 1.15);
+    }
+  }
+
+  // projecting Victorian bay windows on tall street-facing fronts
+  if(floors >= 2 && L > 7.5 && ny > 0.2 && style !== 2 && phash(i, ei, 1410) < 0.85){
+    const nBay = L > 13 ? 2 : 1;
+    const zLo = 2.6, zHi = hm - 0.9;
+    for(let k = 0; k < nBay; k++){
+      const tb = nBay === 1 ? 0.5 : 0.28 + 0.44 * k;
+      const hw = Math.min(1.7, L * 0.16), pd = 0.8;
+      const ax = x1 + ex * tb - ux * hw, ay = y1 + ey * tb - uy * hw;
+      const bx = x1 + ex * tb + ux * hw, by = y1 + ey * tb + uy * hw;
+      const a2x = ax + nx * pd, a2y = ay + ny * pd;
+      const b2x = bx + nx * pd, b2y = by + ny * pd;
+      quad([[ax, ay, zLo], [ax, ay, zHi], [a2x, a2y, zHi], [a2x, a2y, zLo]],
+           shade(wallBase, lit * 0.78));
+      quad([[b2x, b2y, zLo], [b2x, b2y, zHi], [bx, by, zHi], [bx, by, zLo]],
+           shade(wallBase, lit * 0.78));
+      quad([[a2x, a2y, zLo], [b2x, b2y, zLo], [b2x, b2y, zHi], [a2x, a2y, zHi]],
+           shade(wallBase, Math.min(1.25, lit * 1.06)));
+      const bayFl = floors - 1;
+      for(let f = 0; f < bayFl; f++){
+        const zz = zLo + (zHi - zLo) * (f + 0.5) / bayFl;
+        for(const uu of [0.3, 0.7]){
+          const wx = a2x + (b2x - a2x) * uu, wy = a2y + (b2y - a2y) * uu;
+          drawWin(wx, wy, zz - 0.55, zz + 0.55, 0.6);
+        }
+      }
+      // bay cornice + hipped cap
+      const hA = pr(a2x, a2y, zHi), hB = pr(b2x, b2y, zHi),
+            hM = pr((a2x + b2x) / 2, (a2y + b2y) / 2, zHi + 0.55);
+      if(hA && hB && hM){
+        ctx.fillStyle = shade(TRIM, 0.9);
+        ctx.beginPath();
+        ctx.moveTo(hA[0], hA[1]); ctx.lineTo(hB[0], hB[1]); ctx.lineTo(hM[0], hM[1]);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+
+  // ---- ground floor ----
+  if(isShop && L > 6){
+    const s0 = 0.16, s1 = 0.84;
+    const sx0 = x1 + ex * s0, sy0 = y1 + ey * s0;
+    const sx1 = x1 + ex * s1, sy1 = y1 + ey * s1;
+    // recessed plate-glass storefront + mullions + bulkhead + fascia
+    quad([[sx0, sy0, 0.55], [sx1, sy1, 0.55], [sx1, sy1, 2.6], [sx0, sy0, 2.6]],
+         night ? '#4a3a20' : '#2e3a44');
+    for(let k = 0; k <= 3; k++){
+      const u = s0 + (s1 - s0) * k / 3;
+      const pb = pr(x1 + ex * u, y1 + ey * u, 0.55),
+            pt = pr(x1 + ex * u, y1 + ey * u, 2.6);
+      if(!pb || !pt) continue;
+      ctx.strokeStyle = '#1c242c'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(pb[0], pb[1]); ctx.lineTo(pt[0], pt[1]); ctx.stroke();
+    }
+    quad([[sx0, sy0, 0], [sx1, sy1, 0], [sx1, sy1, 0.55], [sx0, sy0, 0.55]],
+         shade(wallBase, lit * 0.55));
+    quad([[sx0, sy0, 2.6], [sx1, sy1, 2.6], [sx1, sy1, 3.4], [sx0, sy0, 3.4]],
+         shade(TRIM, 0.9));
+    // striped awning: sloped band from wall (z 3.9) to lip (+n*1.0, z 3.05)
+    const awn = rampOf(['#c9483c', '#3a7a5a', '#3a5a8a', '#c98a2e'][Math.floor(phash(i, 3, 1340) * 4)]);
+    const nStripe = Math.max(3, Math.floor((s1 - s0) * L / 1.1));
+    for(let k = 0; k < nStripe; k++){
+      const u0 = s0 - 0.04 + (s1 - s0 + 0.08) * k / nStripe;
+      const u1 = s0 - 0.04 + (s1 - s0 + 0.08) * (k + 1) / nStripe;
+      quad([[x1 + ex * u0, y1 + ey * u0, 3.9], [x1 + ex * u1, y1 + ey * u1, 3.9],
+            [x1 + ex * u1 + nx, y1 + ey * u1 + ny, 3.05],
+            [x1 + ex * u0 + nx, y1 + ey * u0 + ny, 3.05]],
+           awn[k % 2 ? 4 : 3]);
+    }
+    if(b.name){
+      const mp = pr(x1 + ex * 0.5, y1 + ey * 0.5, 3.0);
+      if(mp){
+        ctx.font = `bold ${Math.max(8, 0.55 * F / mp[2])}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#f8f4e8';
+        ctx.fillText(b.name.slice(0, 20), mp[0], mp[1]);
+      }
+    }
+  } else if(L > 5){
+    // residential ground floor: stoop + arched door (+ garage on marina rows)
+    if(style === 2){
+      const gx = x1 + ex * 0.3, gy = y1 + ey * 0.3;
+      quad([[gx - ux * 1.4, gy - uy * 1.4, 0.05], [gx + ux * 1.4, gy + uy * 1.4, 0.05],
+            [gx + ux * 1.4, gy + uy * 1.4, 2.3], [gx - ux * 1.4, gy - uy * 1.4, 2.3]],
+           shade('#9a9088', lit));
+      for(let s = 0; s < 4; s++){
+        const z = 0.5 + s * 0.55;
+        const lA = pr(gx - ux * 1.4, gy - uy * 1.4, z),
+              lB = pr(gx + ux * 1.4, gy + uy * 1.4, z);
+        if(!lA || !lB) continue;
+        ctx.strokeStyle = 'rgba(30,26,22,0.5)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(lA[0], lA[1]); ctx.lineTo(lB[0], lB[1]); ctx.stroke();
+      }
+    }
+    const dx = x1 + ex * doorT, dy = y1 + ey * doorT;
+    // stoop steps projecting onto the pavement
+    quad([[dx - ux * 1.1, dy - uy * 1.1, 0.03], [dx + ux * 1.1, dy + uy * 1.1, 0.03],
+          [dx + ux * 1.1 + nx * 1.2, dy + uy * 1.1 + ny * 1.2, 0.03],
+          [dx - ux * 1.1 + nx * 1.2, dy - uy * 1.1 + ny * 1.2, 0.03]],
+         shade('#8a8478', lit));
+    quad([[dx - ux * 0.9, dy - uy * 0.9, 0.05], [dx + ux * 0.9, dy + uy * 0.9, 0.05],
+          [dx + ux * 0.9 + nx * 0.7, dy + uy * 0.9 + ny * 0.7, 0.35],
+          [dx - ux * 0.9 + nx * 0.7, dy - uy * 0.9 + ny * 0.7, 0.35]],
+         shade('#a39c8e', lit));
+    // arched door + pediment
+    const db = pr(dx + nx * 0.15, dy + ny * 0.15, 0.35),
+          dt = pr(dx + nx * 0.15, dy + ny * 0.15, 2.5);
+    if(db && dt){
+      const dw = 0.55 * F / db[2], dh = db[1] - dt[1];
+      if(dw > 2){
+        ctx.fillStyle = TRIM;
+        ctx.beginPath();
+        ctx.moveTo(db[0] - dw - 1, db[1]); ctx.lineTo(db[0] - dw - 1, dt[1] + dw);
+        ctx.arc(db[0], dt[1] + dw, dw + 1, Math.PI, 0, true);
+        ctx.lineTo(db[0] + dw + 1, db[1]); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#5a3a28';
+        ctx.beginPath();
+        ctx.moveTo(db[0] - dw, db[1]); ctx.lineTo(db[0] - dw, dt[1] + dw);
+        ctx.arc(db[0], dt[1] + dw, dw, Math.PI, 0, true);
+        ctx.lineTo(db[0] + dw, db[1]); ctx.closePath(); ctx.fill();
+        const pm = pr(dx, dy, 2.9);
+        if(pm){
+          ctx.fillStyle = shade(TRIM, 0.95);
+          ctx.beginPath();
+          ctx.moveTo(dt[0] - dw - 2, dt[1]); ctx.lineTo(dt[0] + dw + 2, dt[1]);
+          ctx.lineTo(pm[0], pm[1]); ctx.closePath(); ctx.fill();
+        }
+      }
+    }
+  }
+
+  // distance haze toward the sky color
+  const hz = night ? 0 : Math.min(0.4, Math.max(0, (fwd - 70) / 300));
+  if(hz > 0.02){
+    ctx.globalAlpha = hz; ctx.fillStyle = '#bcd4e6';
+    ctx.beginPath();
+    ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+    ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
 /* ---------------- street-level "Truman camera" ---------------- */
 function sfRenderStreet(cw, ch){
   const v = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
@@ -22817,6 +23121,26 @@ function sfRenderStreet(cw, ch){
   else if(W.rain > 0.2){ sky.addColorStop(0, '#6a7688'); sky.addColorStop(1, '#a8b2bc'); }
   else { sky.addColorStop(0, '#5b8fc9'); sky.addColorStop(1, '#cfe3f2'); }
   ctx.fillStyle = sky; ctx.fillRect(0, 0, cw, horizon);
+  // v3: sun glow + drifting cumulus on clear days
+  if(!night && W.rain <= 0.2){
+    const sg = ctx.createRadialGradient(cw * 0.72, horizon * 0.18, 4,
+                                        cw * 0.72, horizon * 0.18, cw * 0.3);
+    sg.addColorStop(0, 'rgba(255,248,220,0.5)');
+    sg.addColorStop(1, 'rgba(255,248,220,0)');
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, horizon);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    for(let k = 0; k < 4; k++){
+      let cx = (phash(k, 3, 1500) * cw * 1.4 - SF_CAM.yaw * 160) % (cw * 1.2);
+      if(cx < -120) cx += cw * 1.2;
+      const cy = horizon * (0.10 + phash(k, 5, 1501) * 0.4);
+      const cw2 = 40 + phash(k, 7, 1502) * 70;
+      for(const [ox, oy, s] of [[0, 0, 1], [-0.5, 0.15, 0.7], [0.55, 0.1, 0.75], [0.15, -0.3, 0.6]]){
+        ctx.beginPath();
+        ctx.ellipse(cx + ox * cw2, cy + oy * cw2 * 0.35, cw2 * s, cw2 * s * 0.32, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
   ctx.fillStyle = night ? '#2e2a28' : '#7d8a70';
   ctx.fillRect(0, horizon, cw, ch - horizon);
 
@@ -22881,11 +23205,7 @@ function sfRenderStreet(cw, ch){
   for(const d of ds){
     if(d.k === 'b'){
       const b = d.b;
-      const i = b.i;
-      const wallBase = SF_WALL_COLS[Math.floor(phash(i, 7, 1300) * SF_WALL_COLS.length)];
-      const TRIM = SF_TRIM_COLS[Math.floor(phash(i, 9, 1301) * SF_TRIM_COLS.length)];
-      const h = b.hPx / SF_PXM * (SF_PXM / 4.2) / SF_PXM; // meters: hPx/4.2
-      const hm = b.hPx / 4.2;
+      const hm = b.hPx / 4.2; // meters
       const n = b.px.length;
       const P = b.px.map(q => [q[0] / SF_PXM, q[1] / SF_PXM]);
       let area = 0;
@@ -22901,69 +23221,7 @@ function sfRenderStreet(cw, ch){
         if(ccw){ nx = -nx; ny = -ny; }
         const facingCam = (nx * -DX + ny * -DY) > 0.05; // wall faces camera
         if(!facingCam) continue;
-        const g1 = pr(x1, y1, 0), g2 = pr(x2, y2, 0),
-              t1 = pr(x1, y1, hm), t2 = pr(x2, y2, hm);
-        if(!g1 || !g2 || !t1 || !t2) continue;
-        const lit = 0.55 + 0.45 * Math.max(0, nx * -0.5 + ny * -0.85);
-        const wallC = shade(wallBase, lit * (night ? 0.4 : 1));
-        ctx.fillStyle = wallC;
-        ctx.beginPath();
-        ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
-        ctx.lineTo(t2[0], t2[1]); ctx.lineTo(t1[0], t1[1]);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = 'rgba(20,16,12,0.5)'; ctx.lineWidth = 1; ctx.stroke();
-        // cornice line at top
-        ctx.strokeStyle = TRIM; ctx.lineWidth = Math.max(1, F * 0.02 / g1[2]);
-        ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]); ctx.stroke();
-        // windows: spaced along the wall, per floor
-        const floors = Math.max(1, Math.round(hm / 3));
-        const bays = Math.max(1, Math.floor(L / 2.6));
-        for(let f = 0; f < floors; f++){
-          const z = hm * (f + 0.62) / (floors + 0.3);
-          for(let k = 0; k < bays; k++){
-            const tt = (k + 0.5) / bays;
-            const wxm = x1 + ex * tt, wym = y1 + ey * tt;
-            const pb = pr(wxm, wym, z - 0.6), pt = pr(wxm, wym, z + 0.9);
-            if(!pb || !pt) continue;
-            const wh = pb[1] - pt[1], ww = wh * 0.55;
-            if(ww < 1.5) continue;
-            ctx.fillStyle = night && phash(k, f, i) < 0.5 ? '#ffd98a' : '#6a8494';
-            // capsule window
-            ctx.beginPath();
-            const r = ww / 2;
-            ctx.moveTo(pb[0] - r, pb[1]);
-            ctx.lineTo(pb[0] - r, pt[1] + r);
-            ctx.arc(pb[0], pt[1] + r, r, Math.PI, 0, true);
-            ctx.lineTo(pb[0] + r, pb[1]);
-            ctx.closePath(); ctx.fill();
-            ctx.strokeStyle = TRIM; ctx.lineWidth = Math.max(0.5, ww * 0.12);
-            ctx.stroke();
-          }
-        }
-        // door + awning on ground floor of named shops
-        if(b.name){
-          const mt = 0.5;
-          const dxm = x1 + ex * mt, dym = y1 + ey * mt;
-          const db = pr(dxm, dym, 0), dt = pr(dxm, dym, 2.4);
-          if(db && dt){
-            const dw = (db[1] - dt[1]) * 0.45;
-            ctx.fillStyle = '#3a2a20';
-            ctx.fillRect(db[0] - dw / 2, dt[1], dw, db[1] - dt[1]);
-            const ab = pr(dxm, dym, 2.6);
-            if(ab){
-              ctx.fillStyle = '#c9483c';
-              ctx.beginPath();
-              ctx.moveTo(ab[0] - dw, ab[1]); ctx.lineTo(ab[0] + dw, ab[1]);
-              ctx.lineTo(ab[0] + dw * 1.15, ab[1] + dw * 0.3);
-              ctx.lineTo(ab[0] - dw * 1.15, ab[1] + dw * 0.3);
-              ctx.closePath(); ctx.fill();
-              ctx.fillStyle = '#f8f4e8';
-              ctx.font = `bold ${Math.max(7, dw * 0.32)}px sans-serif`;
-              ctx.textAlign = 'center';
-              ctx.fillText(b.name.slice(0, 20), ab[0], ab[1] - 2);
-            }
-          }
-        }
+        sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
       }
       // roof cap
       ctx.fillStyle = night ? '#2a2624' : '#5d5850';

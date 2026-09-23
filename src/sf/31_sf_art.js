@@ -283,7 +283,7 @@ const SF_ROOF_COLS = ['#6b6560', '#7a7268', '#5d5a55', '#84786a',
                       '#8a6a52', '#74584a', '#5f6e62', '#707a84'];
 
 function sfBldCanvas(b){
-  const pad = 8;
+  const pad = 16;
   const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
   const hBase = Math.ceil(b.by1 - b.by0);
   const hPx = Math.ceil(b.hPx);
@@ -316,6 +316,17 @@ function sfBldCanvas(b){
   }
   const wallAt = (x1, y1, x2, y2, t, f) =>
     [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t - hPx * f];
+
+  // pass 0: cast shadow on the pavement — footprint pushed away from the sun
+  const shx = hPx * 0.20, shy = hPx * 0.12;
+  for(const [mul, al] of [[1.6, 0.10], [1.0, 0.18]]){
+    g.fillStyle = `rgba(26,19,10,${al})`;
+    g.beginPath();
+    P.forEach(([x, y], i2) => i2
+      ? g.lineTo(x + shx * mul, y + shy * mul)
+      : g.moveTo(x + shx * mul, y + shy * mul));
+    g.closePath(); g.fill();
+  }
 
   // pass 1: walls (south + side), far(north) walls skipped
   const wallFaces = [];
@@ -466,7 +477,7 @@ function sfBldCanvas(b){
     for(let k = 0; k < Math.min(6, roofArea / 1300); k++){
       const t1 = phash(b.i, k, 1360), t2 = phash(k, b.i, 1361);
       const cx = pad + (wPx - pad * 2) * t1, cy = pad + hBase * t2;
-      const kind = Math.floor(phash(b.i, k, 1369) * 3);
+      const kind = Math.floor(phash(b.i, k, 1369) * 4);
       if(kind === 0){ // mushroom vent
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
         paEllipse(g, cx, cy - 1.5, 2, 1.4, ROOF[5]);
@@ -474,9 +485,14 @@ function sfBldCanvas(b){
         paBlob(g, cx, cy, 3.2, shade(ROOF[3], 1.15));
         paBlob(g, cx, cy - 1, 2.4, ROOF[5]);
         paPX(g, cx, cy - 1, ROOF[1]);
-      } else { // pipe stack
+      } else if(kind === 2){ // pipe stack
         paR(g, cx - 1, cy - 4, 2, 5, ROOF[1]);
         paEllipse(g, cx, cy - 4, 1.6, 1, ROOF[5]);
+      } else { // brick chimney + cap + drip shadow
+        paR(g, cx - 2, cy - 7, 5, 8, '#8a5a48');
+        paR(g, cx - 2, cy - 7, 5, 1, '#c89078');
+        paR(g, cx - 3, cy - 9, 7, 2, '#6a4034');
+        paR(g, cx + 2, cy + 1, 4, 2, 'rgba(20,14,8,0.3)');
       }
     }
   }
