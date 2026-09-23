@@ -1,8 +1,10 @@
 # Demo page spec — `site/demo.html` ("Watch the block")
 
-**Owner:** marketing track. **Status:** stub + fallback shipped (v11); live
-embed pending a shippable spectator build (game-systems/world track dependency).
-**Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward to v11.
+**Owner:** marketing track. **Status:** fallback + request simulator + day
+strip shipped (v26); live embed pending a shippable spectator build
+(game-systems/world track dependency).
+**Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
+to v11; second pass v26.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -27,7 +29,7 @@ same-origin path) in demo.html. One attribute; no other page changes required.
 
 ## 2. Fallback state (pre-build)
 
-- Real development capture (`shots/v21-A.*`) behind a gradient overlay labeled
+- Real development capture (`shots/v22-A.*`) behind a gradient overlay labeled
   "Spectator build not wired in yet" — honest, never fakes liveness.
 - `noscript` notice routing to the static gallery.
 - Falls back gracefully on `file://`, blocked JS, and rejected embed schemes.
@@ -45,26 +47,48 @@ graceful AI handoff, public attribution. Do not present it as live data.
 otherwise, address-bar instruction as last resort. Emits `cta_click{cta:"demo-share"}`.
 OG/Twitter cards on the page point at `assets/og-card.png`.
 
+## 4a. Request simulator (v26)
+
+`#request-sim` + `js/demo-sim.js` — a **local-only simulation** of the
+request pipeline. Three actions: possess your resident (compatible,
+1.5 cr/min, 120-min cap), reserve a venue (exclusive, 6 cr/min, 60-min cap),
+call the weather (flat 40–100 cr by duration block; the sim's fixed example
+is the 2 h fog block at 100 cr). Filing renders a verdict card
+(classification chip + credit quote + the four real pipeline steps:
+declared → screened → runs-or-queues → attributed) and appends a labeled
+"simulated" row to a personal feed strip. Rates MUST stay in sync with
+`js/pricing.js` and PRICING-PAGE-CONTENT.md §2.
+
+Honesty rules: the widget never claims to file anything, the result card
+says "Simulation only," and simulated feed rows are marked "filed by you
+(simulated)". Emits `request_simulated` (see analytics-events.json).
+
+## 4b. Day strip (v26)
+
+Static "A day on the block" cards (06:10 / 12:30 / 16:30 / 23:40). All copy
+restates design-doc facts — real-sun schedule, jobs/routines, lamps at dusk,
+persistent world. No liveness implied.
+
 ## 5. Performance budget
 
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 4 KB.
-- Game build itself should target the same-origin host at launch to keep
-  the sandbox simple.
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 4 KB,
+  `demo-sim.js` < 5 KB.
 
 ## 6. Analytics hooks
 
-`watch_start` (live|fallback), `cta_click` on hero/share/ladder CTAs,
-`screenshot_view` via the shared gallery handler. All inert until an
-endpoint is configured — see ANALYTICS.md and analytics-events.json.
+`watch_start` (live|fallback), `cta_click` on hero/share/ladder/sim CTAs,
+`request_simulated` from the request widget (v26), `screenshot_view` via the
+shared gallery handler. All inert until an endpoint is configured — see
+ANALYTICS.md and analytics-events.json.
 
 ## 7. Dependencies on other tracks
 
 - **Game-systems/world:** needs the spectator build URL + embed permission
   (same-origin or CSP `frame-ancestors`). Until then `data-demo-src` stays empty.
-- **Art:** fallback capture is `shots/v21-A.*`; swap when a better canonical
+- **Art:** fallback capture is `shots/v22-A.*`; swap when a better canonical
   shot is published (same filename convention).
 - Feed row labels must mirror the live feed's real vocabulary at launch —
   sync with `gsViewerState` feed events before flipping the switch.
@@ -75,5 +99,8 @@ endpoint is configured — see ANALYTICS.md and analytics-events.json.
 - [x] `?embed=` override works for staging (e.g. `demo.html?embed=/features.html`).
 - [x] Fallback never claims to be live.
 - [x] All CTAs instrumented; page listed in sitemap + dry-run page list.
+- [x] Simulator labels itself a simulation in control, result, and feed row
+  (v26); rates match pricing.js constants.
+- [x] Feed preview includes the `cast` arrival kind (world-v7 contract).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).

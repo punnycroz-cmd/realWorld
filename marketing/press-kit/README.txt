@@ -21,7 +21,7 @@ Contents
   keyart/            1920x1080 and 1080x1080 key art (built on a real
                      development-build capture)
   screenshots/       Real captures of the current development build.
-                     v21-* = current renderer (murals, parody signage,
+                     v22-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, parked cars);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.

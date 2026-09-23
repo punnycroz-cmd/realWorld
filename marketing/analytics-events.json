@@ -46,17 +46,17 @@
       "funnel_stage": "exit"
     },
     "scroll_depth": {
-      "when": "page scroll crosses 25/50/75/100% — fires once per mark per page (v21)",
+      "when": "page scroll crosses 25/50/75/100% — fires once per mark per page (v22)",
       "props": { "depth": "25|50|75|100", "page": "data-page slug" },
       "funnel_stage": "engaged"
     },
     "engaged_time": {
-      "when": "pagehide — total seconds the page was actually visible (v21)",
+      "when": "pagehide — total seconds the page was actually visible (v22)",
       "props": { "seconds": "int, visible time only", "page": "data-page slug" },
       "funnel_stage": "engaged"
     },
     "share_click": {
-      "when": "demo.html share button completes (v21)",
+      "when": "demo.html share button completes (v22)",
       "props": { "method": "web-share|clipboard|manual" },
       "funnel_stage": "engaged → viral"
     },
@@ -70,6 +70,17 @@
       },
       "funnel_stage": "engaged → purchase intent",
       "note": "carries NO amounts — only which knobs visitors touch; reveals demand for class/duration before checkout exists"
+    },
+    "request_simulated": {
+      "when": "demo.html request simulator 'File it — simulated' completes (v26)",
+      "props": {
+        "action": "possess|venue|weather",
+        "class": "compatible|exclusive|flat",
+        "minutes": "int — duration simulated",
+        "credits": "int — quoted cost"
+      },
+      "funnel_stage": "engaged → request intent",
+      "note": "local simulation only — no real request is filed; reveals which request types visitors reach for"
     },
     "press_kit_download": {
       "when": "click on the kit zip link (data-rw-event on press-kit.html)",

@@ -89,8 +89,8 @@
       <div class="demo-fallback">
         <div class="demo-fallback-screen">
           <picture>
-            <source srcset="shots/v21-A.webp" type="image/webp">
-            <img src="shots/v21-A.png" alt="Street-level development capture of the Mission block at golden hour — sunlit facades, long shadows, a resident on the sidewalk." loading="lazy">
+            <source srcset="shots/v22-A.webp" type="image/webp">
+            <img src="shots/v22-A.png" alt="Street-level development capture of the Mission block at golden hour — sunlit facades, long shadows, a resident on the sidewalk." loading="lazy">
           </picture>
           <div class="demo-fallback-overlay">
             <p class="demo-status"><span class="dot" aria-hidden="true"></span> Spectator build not wired in yet</p>
@@ -158,8 +158,91 @@
       <div class="feed-row"><span class="feed-time">18:14</span><span class="feed-tag tag-queue">queued</span><p>Possession request on a resident already booked until 19:00 — queued first-come, auto-refunds if it expires.</p></div>
       <div class="feed-row"><span class="feed-time">18:31</span><span class="feed-tag tag-done">resolved</span><p>A 30-minute possession ended on schedule — graceful handoff back to the character&rsquo;s AI.</p></div>
       <div class="feed-row"><span class="feed-time">18:44</span><span class="feed-tag tag-refund">refunded</span><p>A queued request expired before its slot opened — credits returned automatically, logged publicly.</p></div>
+      <div class="feed-row"><span class="feed-time">19:03</span><span class="feed-tag tag-cast">cast</span><p>A new resident joined the block — hired by a viewer, screened, signed a lease, moved into a real unit.</p></div>
     </div>
-    <p class="muted" style="font-size:13px">Entry labels shown are illustrative; the live feed uses the request classes in the design — compatible, exclusive, queued.</p>
+    <p class="muted" style="font-size:13px">Entry labels shown are illustrative; the live feed uses the request classes in the design — compatible, exclusive, queued — plus arrivals, weather, and admin notices.</p>
+  </div>
+</section>
+
+<!-- TRY A REQUEST — local simulation of the real pipeline -->
+<section id="try">
+  <div class="wrap">
+    <p class="eyebrow">Try it — a simulation</p>
+    <h2>File a request. Watch the pipeline answer.</h2>
+    <p class="muted">Nothing here is filed and no credits exist yet — this widget
+    runs the request rules locally so you can feel the shape of the thing.
+    The rates and classes are the real ones from the
+    <a href="pricing.html">pricing page</a>.</p>
+
+    <div class="sim" id="request-sim">
+      <div class="sim-controls">
+        <label class="sim-field" for="rs-action">What do you want to do?
+          <select id="rs-action">
+            <option value="possess">Possess your resident — walk the block as them</option>
+            <option value="venue">Reserve a venue — the bar&rsquo;s back room for a scene</option>
+            <option value="weather">Call the weather — evening fog over the park</option>
+          </select>
+        </label>
+        <label class="sim-field" for="rs-duration" id="rs-dur-field">For how long?
+          <span class="sim-dur-row">
+            <input type="range" id="rs-duration" min="15" max="120" step="5" value="30">
+            <output id="rs-duration-out" for="rs-duration">30 min</output>
+          </span>
+        </label>
+        <button class="btn btn-primary" id="rs-file" type="button"
+                data-rw-event="cta_click" data-rw-props='{"cta":"demo-sim"}'>File it — simulated</button>
+      </div>
+
+      <div class="sim-result" id="rs-result" aria-live="polite">
+        <p class="muted">Pick an action and file it. The simulation classifies the
+        request the way the real pipeline does — declared upfront, screened,
+        priced by duration, attributed publicly on the feed.</p>
+      </div>
+
+      <div class="sim-feed" id="rs-feed" hidden>
+        <p class="sim-feed-label">Your simulated feed entries</p>
+        <div id="rs-feed-rows"></div>
+      </div>
+    </div>
+
+    <noscript><p class="notice">The request simulator needs JavaScript. The
+    <a href="pricing.html">pricing page</a> lists the same rates as a table.</p></noscript>
+  </div>
+</section>
+
+<!-- A DAY ON THE BLOCK -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">A day on the block</p>
+    <h2>The world keeps its own hours.</h2>
+    <p class="muted">The block runs on the real sun — light, weather, and
+    routines follow the clock whether or not anyone is watching.</p>
+    <div class="grid grid-4 day-strip">
+      <div class="card">
+        <span class="day-time">06:10</span>
+        <h3>Fog first</h3>
+        <p>Gray over the rooftops. Early shifts leave for work; the café
+        lights come on before the sun does.</p>
+      </div>
+      <div class="card">
+        <span class="day-time">12:30</span>
+        <h3>Lunch rush</h3>
+        <p>Counter seats fill, somebody&rsquo;s late for a shift, somebody
+        else is very publicly not speaking to somebody.</p>
+      </div>
+      <div class="card">
+        <span class="day-time">16:30</span>
+        <h3>Golden hour</h3>
+        <p>Long shadows down the hill, decks and rooftops in use — the
+        hour the block is most itself.</p>
+      </div>
+      <div class="card">
+        <span class="day-time">23:40</span>
+        <h3>Windows dark</h3>
+        <p>Sodium lamps on, the bar winds down. The block sleeps — but it
+        never pauses, and it&rsquo;s still there at 4 a.m.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -232,5 +315,6 @@
 <script src="js/analytics.js" defer></script><!-- inert until data-endpoint is set; see marketing/ANALYTICS.md -->
 <script src="js/main.js"></script>
 <script src="js/demo.js"></script>
+<script src="js/demo-sim.js"></script>
 </body>
 </html>

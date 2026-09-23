@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v21 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v22 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -70,16 +70,20 @@ per-event props + privacy contract). Site-side events already wired:
   `data-rw-props` = slot + destination). Instrumented across all 12 pages.
 - `screenshot_view` — auto on gallery lightbox opens (which shot, by filename).
 - `outbound_click` — any external link not otherwise tagged.
-- `scroll_depth` (v21) — auto at 25/50/75/100% marks, once each per page;
+- `scroll_depth` (v22) — auto at 25/50/75/100% marks, once each per page;
   tells us which pages actually get read.
-- `engaged_time` (v21) — on `pagehide`, total **visible** seconds (background
+- `engaged_time` (v22) — on `pagehide`, total **visible** seconds (background
   tabs don't count); the honest attention metric.
-- `share_click` (v21) — demo-page share button, `method` = web-share /
+- `share_click` (v22) — demo-page share button, `method` = web-share /
   clipboard / manual. Feeds the viral loop panel.
 - `price_calc` (v22) — pricing-page estimator (`js/pricing.js`), debounced
   900 ms; props = class / minutes / queued / surge only — **no amounts**.
   Pre-checkout demand signal: which request class and duration visitors
   actually price out.
+- `request_simulated` (v26) — demo-page request simulator
+  (`js/demo-sim.js`), fires once per simulated filing; props = action /
+  class / minutes / credits quoted. Pre-launch demand signal for *which
+  request type* visitors try first — complements `price_calc`.
 
 Add an event = add `data-rw-event` + optional `data-rw-props` JSON to the
 element. No JS changes needed for click events.
@@ -96,7 +100,7 @@ The shim is **inert** — it emits nothing until an endpoint exists:
 <!-- Option B: before the script loads -->
 <script>window.RW_ANALYTICS = { endpoint: "https://stats.example.com/e" };</script>
 
-<!-- Option C (v21): dev-only query override, for local/staging testing -->
+<!-- Option C (v22): dev-only query override, for local/staging testing -->
 http://127.0.0.1:8080/?rw_endpoint=http://127.0.0.1:8970/e
 ```
 
@@ -107,7 +111,7 @@ collector by link.
 Events are POSTed as JSON via `sendBeacon` (fetch keepalive fallback). The sink
 must send CORS headers if hosted on another origin (`Access-Control-Allow-Origin`).
 
-## 5. Local test runbook (v21 — one command)
+## 5. Local test runbook (v22 — one command)
 
 ```bash
 ./marketing/tools/analytics_e2e.sh

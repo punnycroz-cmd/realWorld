@@ -1,6 +1,6 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v21 — launch-ready drafts + reply bank + capture plan, 2026-09-23.
+**Status: v22 — launch-ready drafts + reply bank + capture plan, 2026-09-23.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -10,7 +10,7 @@ runbook they flip it with. All copy verified against the locked design doc
 
 Companion files:
 - `social/drafts/` — the post bank (copy-paste ready, placeholders marked)
-- `social/capture-plan.md` — which live moments to clip and how (v21)
+- `social/capture-plan.md` — which live moments to clip and how (v22)
 - `STORE-COPY.md` — canonical taglines and descriptions (do not fork wording)
 - `PRESS-OUTREACH.md` — press runs parallel to social; same embargo rules
 - `BRAND.md` — canonical voice/palette; §8 here is the social-specific subset
@@ -79,12 +79,12 @@ its channel, timing slot, required asset, and character-count check.
 |---|---|---|
 | `launch-thread.md` | X announcement thread (8 posts) + Bluesky condensed version + pinned-post variant | 3 |
 | `cast-spotlights.md` | 8 cards, one per main character, built from the cast bible — spoiler-safe (see note) | 8 |
-| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v21 captures | 6 |
+| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v22 captures | 6 |
 | `recap-format.md` | "This Week on the Block" template — the weekly retention post, filled from the public feed (site long-form version: `templates/weekly-recap.md` on `journal.html`) | 1 template + 1 example |
 | `pricing-post.md` | The honesty post: "what a dollar buys" — turns the credit model into a trust signal | 1 |
 | `seeded-questions.md` | 10 discussion starters for Discord/Reddit after launch | 10 |
-| `reply-bank.md` | Pre-approved answers to the 15 predictable comment types (v21) | 15 |
-| `profile-copy.md` | Per-platform bios, pinned posts, video descriptions, tag sets (v21) | 5 platforms |
+| `reply-bank.md` | Pre-approved answers to the 15 predictable comment types (v22) | 15 |
+| `profile-copy.md` | Per-platform bios, pinned posts, video descriptions, tag sets (v22) | 5 platforms |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
 author of "Mission Unfiltered") is *load-bearing season-one material*. Cards
@@ -99,7 +99,7 @@ Goal: make the concept legible before asking for attention.
 
 | Day | Post | Channel |
 |---|---|---|
-| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v21-D evening shot, slow zoom) | TikTok, X, Shorts |
+| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v22-D evening shot, slow zoom) | TikTok, X, Shorts |
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |
@@ -221,7 +221,7 @@ MARKETINGLOG.md (template pending ANALYTICS.md, focus v9).
   the possession ban protects the mains' storylines, not feelings. Honest
   beats cute.
 - **Empty-feed risk at launch:** covered in §7 — an empty feed is content.
-- **Parody-name dependency:** RESOLVED (v21). The world track published
+- **Parody-name dependency:** RESOLVED (v22). The world track published
   `world/parody-names.json` (89 canonical mappings, generated from
   `world/businesses.md`); drafts were swept — the last generic descriptors
   in `recap-format.md` and `devlog-clips.md` now use canonical names, and

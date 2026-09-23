@@ -2,7 +2,7 @@
 
 Generated capsule art for store submissions. **Local only — nothing
 submitted.** All files are produced by `tools/make_brand_assets.py` from the
-current hero shot (`site/shots/v21-D.png`); rerun that script after any art
+current hero shot (`site/shots/v22-D.png`); rerun that script after any art
 refresh to re-bake the whole set. Copy text lives in `../STORE-COPY.md`.
 
 ## capsules/
@@ -21,6 +21,6 @@ refresh to re-bake the whole set. Copy text lives in `../STORE-COPY.md`.
 NOT generated (flagged in STORE-COPY.md §4): Steam library hero 3840×1240 —
 needs a commission or upscale pass.
 
-Screenshots for store pages: `../press-kit/screenshots/` (v21 series + two
+Screenshots for store pages: `../press-kit/screenshots/` (v22 series + two
 v16 interior vignettes + v1 before/after pair). OG/social card:
 `../site/assets/og-card.png`. Avatar: `../site/assets/logo-icon.png`.

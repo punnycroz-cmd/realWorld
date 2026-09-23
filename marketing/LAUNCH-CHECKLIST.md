@@ -27,7 +27,7 @@ log the result in §10 before the checklist may cite it.
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced in all 14 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = v21 dev build + v16 interior vignettes + v1 early-pass pair) | mkt, needs art publish | `[ ] PENDING` — refresh procedure documented in inbox v3/v5 |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = v22 dev build + v16 interior vignettes + v1 early-pass pair) | mkt, needs art publish | `[ ] PENDING` — refresh procedure documented in inbox v3/v5 |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
@@ -173,9 +173,9 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-22 | staging_dryrun.sh (v8) | 25 pass / 3 warn / 0 fail |
 | 2026-09-22 | build-press-kit.sh | zip rebuilt, manifest verified |
 | 2026-09-22 | analytics shim inert check | PASS — no endpoint configured |
-| 2026-09-23 | analytics_e2e.sh (v21) | PASS — 1057/1057 fixture events through sink→report |
-| 2026-09-23 | staging_dryrun.sh (v23, shots v21) | 31 pass / 3 warn / 0 fail — warns: domain ×2, 1 PNG weight |
-| 2026-09-23 | build-press-kit.sh (v23, shots v21) | zip rebuilt — 32 files, 8.6 MB |
+| 2026-09-23 | analytics_e2e.sh (v22) | PASS — 1057/1057 fixture events through sink→report |
+| 2026-09-23 | staging_dryrun.sh (v23, shots v22) | 31 pass / 3 warn / 0 fail — warns: domain ×2, 1 PNG weight |
+| 2026-09-23 | build-press-kit.sh (v23, shots v22) | zip rebuilt — 32 files, 8.6 MB |
 
 ## §11 Never-do list (load-bearing)
 

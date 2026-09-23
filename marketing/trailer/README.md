@@ -37,7 +37,7 @@ never drift from the picture.
 - **Stills stand in for motion.** Every shot with `"recapture": true` in the
   EDL must be re-cut from live game footage before ship — the animatic is an
   edit-timing reference, not the trailer.
-- **HUD is cropped out** of the v21 stills (region `[330,100,1440,794]`);
+- **HUD is cropped out** of the v22 stills (region `[330,100,1440,794]`);
   the shipped trailer should capture with UI hidden per TRAILER-PLAN §4.
 - **Pawn name labels remain in frame** on street shots — mains' public names
   only, no secrets. The ship cut must show a *hired* character in the

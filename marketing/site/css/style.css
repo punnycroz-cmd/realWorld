@@ -239,9 +239,55 @@ ul.clean li { margin: 6px 0; }
 .tag-queue { color: var(--accent); border-color: var(--accent); }
 .tag-done { color: var(--muted); }
 .tag-refund { color: var(--accent-3); border-color: var(--accent-3); }
+.tag-cast { color: var(--text); border-color: var(--muted); }
 @media (max-width: 620px) {
   .feed-row { grid-template-columns: 44px 1fr; }
   .feed-row p { grid-column: 1 / -1; }
+}
+
+/* demo page v26: request simulator + day strip */
+.sim {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--panel); padding: 20px 22px; margin: 16px 0 10px;
+}
+.sim-controls {
+  display: grid; grid-template-columns: 1.4fr 1.4fr auto; gap: 16px;
+  align-items: end;
+}
+.sim-field { display: block; font-size: 13.5px; color: var(--muted); font-weight: 600; }
+.sim-field select, .sim-field input[type="range"] {
+  display: block; width: 100%; margin-top: 6px;
+}
+.sim-field select {
+  background: var(--bg-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14.5px;
+}
+.sim-dur-row { display: flex; align-items: center; gap: 12px; }
+.sim-dur-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+.sim-dur-row output {
+  font-variant-numeric: tabular-nums; color: var(--text);
+  font-size: 14px; min-width: 64px; text-align: right;
+}
+.sim-result {
+  margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px;
+}
+.sim-verdict { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.sim-verdict strong { font-size: 20px; }
+.sim-steps { margin: 10px 0 0; padding-left: 22px; color: var(--muted); font-size: 14.5px; }
+.sim-steps li { margin: 3px 0; }
+.sim-feed { margin-top: 16px; }
+.sim-feed-label {
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 6px;
+}
+.sim-feed .feed-row { border: 1px solid var(--border); border-bottom: 0; }
+.sim-feed .feed-row:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); }
+.sim-feed .feed-row:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+@media (max-width: 860px) { .sim-controls { grid-template-columns: 1fr; } }
+.day-strip .card { padding-top: 16px; }
+.day-time {
+  font-variant-numeric: tabular-nums; font-weight: 700; font-size: 13px;
+  color: var(--accent); letter-spacing: .06em;
 }
 
 /* ---------- journal (journal.html) ---------- */
