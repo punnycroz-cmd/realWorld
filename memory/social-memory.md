@@ -2746,3 +2746,1205 @@ PM (it's a role allocation, not a general capacity).
   the neighborhood ritual that *deliberately* rehearses an
   anchor (anniversary gatherings) is world-layer content, not a
   memory mechanism; noted for world-builder, not spec'd here.
+
+# Part VI (v68) — the conversation's holes: turn-taking, schemas that bite back, and the wounds people carry unevenly
+
+Parts I–V built the person store, the talk ecology, the other
+person's ledger, the failure modes, and who keeps whom. Part VI
+goes at the residue that remains: what conversation STRUCTURE
+does to encoding (who was about to speak when you talked), what
+the strength of an impression does to the incongruity rule,
+what implication does to "said," and the oldest asymmetry of
+all — the victim and the perpetrator do not share a memory.
+
+## 81. Next-in-line — turn-taking cuts holes in the record **[CONSENSUS]**
+
+Brenner 1973 (J Exp Psychol 98:120, N=88 — turn-taking
+read-aloud): recall craters for the material presented
+immediately BEFORE and just after one's own turn; the window
+is roughly two positions back and one forward. Bond 1985
+(JPSP 48:853) isolated the locus: semantic cues don't rescue
+the deficit, post-hoc "try to remember" instructions don't
+rescue it, but PRE-instruction to attend reverses it into an
+advantage — it is an ENCODING failure, specifically a failure
+of elaborative rehearsal (Bond & Kirkpatrick 1982 showed eye
+contact isn't the mediator; Bond 1991, PSPB 17:174 — verbal
+elaboration eliminates the effect, eye contact doesn't).
+
+Mechanism: anticipating your own turn consumes the elaboration
+budget. The person rehearsing what they're about to say does
+not encode what you just said. In every multi-party
+conversation the record has systematic holes positioned at
+each participant's pre-turn window — and the holes are
+INVISIBLE (low encoding, not flagged uncertainty).
+
+**Formalization.** During a `conversationSession` (spec §11.3)
+with declared turn order or a `willSpeak` flag on the
+participant, records minted from utterances at positions
+`[own_turn − nil_win, own_turn]` take
+`E ×(1 − nil_loss)` (nil_win=2 positions, nil_loss=0.5);
+the position `[own_turn + 1]` takes half the cut (the
+post-turn hangover — "it may be difficult, at first, to pay
+attention to the answer," Brenner 1973). When the context
+carries `pre_attend:true` (the character was told to listen
+first — a rare deliberate posture), the cut inverts to
+`+nil_pre_gain` (0.3) on the pre-turn window — Bond's
+reversal arm, kept so the mechanism is bidirectional, not a
+fixed penalty.
+
+LOCKED `nil_retrieve_null`: retrieval-side rescue is
+impossible — no cue strength, no context reinstatement, no
+post-hoc instruction recovers a nil-window hole (Bond Exp. 1:
+strong semantic cues did NOT moderate the deficit). The hole
+can only be filled by reconstruction (normal confab_fill
+rules) or by hearing a co-participant's account (§6.5 merge)
+— which is why people who attended the same meeting disagree
+about it in a patterned, predictable way.
+
+## 82. The schema's revenge — incongruity reverses under strong expectancies **[CONSENSUS — the reversal; magnitudes meta]**
+
+§2.3 gives every expectancy-violating act `incongruity_gain`
+(0.25) — surprises stick. Stangor & McMillan 1992 (Psych
+Bull 111:42, 54 experiments — VERIFIED) complicate the rule
+in both directions:
+
+- **Recall:** the incongruity advantage holds for WEAK/
+  newly-formed expectancies. Under STRONG, well-established
+  expectancies the advantage attenuates and can flip —
+  strongly-schematized targets produce congruent-biased
+  recall (the established schema absorbs or reinterprets the
+  violation instead of letting it pop out).
+- **Recognition:** the sign is OPPOSITE — expectancy-
+  CONGRUENT items are recognized better (false alarms to
+  congruent lures rise). Sherman et al. 1998's modeling
+  comparison: only "integration theory" (expected items +
+  studied items both feed the familiarity signal) fit the
+  meta's pattern.
+
+The human picture: a first meeting's surprises are what you
+remember; a thirty-year friendship's surprises get explained
+away. Same violation, opposite fates — and the gate is the
+schema's strength, not the violation's size.
+
+**Formalization.** PersonModel gains no new store — the
+existing trait/eval accumulators already carry strength:
+`exp_str` = |personModel.traits[trait]| normalized, or
+schema-commitment `personModel.committed` for long-dyad
+targets. The §2.3 write becomes:
+
+```
+weak arm (exp_str < exp_str_thresh, 0.7):
+  E += incongruity_gain·|Δ|                     // §2.3 unchanged
+strong arm (exp_str ≥ thresh):
+  E += incongruity_gain·|Δ|·(1 − exp_str·strong_exp_congr)
+  reconstruction: gist-fill toward expectancy at
+    strong_exp_congr (0.3) on ambiguous fields
+recognition-mode cueContext (any exp_str):
+  congruent items gain familiarity, incongruent pay
+  −incong_recog_flip (0.15) — the Stangor reversal
+```
+
+Locked null: `incong_encode_null` — the reversal NEVER makes
+incongruent encoding NEGATIVE; strong schemas dampen the
+bonus and reshape reconstruction, they do not delete the
+surprise at birth (the meta's congruent-recall bias is a
+retrieval/reconstruction phenomenon — expectancy-guided
+reconstruction, not expectancy-blind encoding; P710 arm
+locks this).
+
+## 83. Pragmatic implication — implied becomes said **[CONSENSUS direction; adoption rate HYPOTHESIS]**
+
+Harris & Monaco 1978 (JEP:G 107:1, "Psychology of pragmatic
+implication: information processing between the lines") —
+verified: hearers later report pragmatically-IMPLIED content
+as explicitly asserted; the classic result (implied
+inferences recalled as presented facts) replicates across
+advertising and conversation paradigms. Brewer 1977's
+converging work on linguistic inference shows the intrusion
+is constructive — the hearer computes the implicature at
+hearing, and the COMPUTED proposition is what stores; the
+surface distinction (said vs implied) is exactly the kind of
+source detail that beta_source rots first.
+
+For a gossip-dense neighborhood this is the quiet distortion
+engine: "she didn't deny it," "he said he'd 'try' to be
+there," "they're 'just' friends" — every hedged or ironic
+utterance leaves a hearer-side record that will be retold
+flat. The legal system's interest is the same: implication
+carries deniability in court and none in memory.
+
+**Formalization.** `hearAccount` gains an `implied` field
+list — world/dialogue tags utterance-level implicatures
+with `implied:{field, content}` when the pragmatic content
+differs from the verbatim. At the listener's ingest, each
+implied item mints a gist-tier candidate at
+`implied_adopt_p` (0.5) with source-strength
+×`implied_src_weak` (0.6 — born with weak source tags, so
+its "who said" decays faster than an explicit assertion's).
+The minted record carries NO `implied` provenance flag on
+the C-tier — the hearer cannot report "it was only implied"
+because that distinction is M-tier bookkeeping by design;
+what they remember is the content.
+
+Hedge asymmetry: explicit hedges ("maybe," "I think")
+attach to the implied content at `implied_src_weak`
+strength — they usually die with the source tag. The
+flattened retell ("she said he was cheating") is the
+default outcome, not an edge case.
+
+## 84. The accessible construct — recent words disambiguate strangers **[CONSENSUS effect; boundary conditions DEBATED]**
+
+Higgins, Rholes & Jones 1977 (JESP 13:141): priming trait
+constructs (subtle "adventurous" vs "reckless" words in a
+prior task) assimilates interpretation of ambiguous behavior
+descriptions — the SAME parasailing anecdote reads brave or
+stupid depending on which construct was recently active.
+Srull & Wyer 1979 (JPSP 37:1660) replicated and extended;
+Bargh, Bond, Lombardi & Tota 1986 showed chronically
+accessible constructs (the trait dimensions a person
+habitually thinks in) do the same job without any priming —
+a chronically "hostility-accessible" perceiver reads
+ambiguous acts as hostile by default. Boundary conditions
+(DEBATED): contrast effects appear when the behavior is
+unambiguous or the prime is consciously noticed (Martin
+1986 set/reset); suppression rebounds amplify primed
+categories (Macrae et al. 1994).
+
+**Formalization.** Each character carries
+`accessibleConstructs` — a decaying accumulator over trait
+dimensions, fed by (a) recent salient use (hearing or using
+a trait word in the last `prime_persist_hr`=48h, +
+per-activation), and (b) a chronic baseline from IndivTraits
+(distrust→hostility/duplicity, consc→reliability,
+open→unconventionality — the dimensions the character's
+personality keeps warm). On an ambiguous social act
+(|implied trait − model| inside ambig_band — §22's band),
+the interpretation draws toward the most accessible matching
+construct with prob `ambig_assim_p` (0.3) instead of toward
+the target's prior — interpret_bias is overridden when an
+accessible construct is present. `trait_access_gain` (0.25)
+scales how much a fresh activation moves the accumulator.
+
+This gives the block its texture: the character who spent
+the morning hearing "dishonest" gossip about Carmen now
+encodes Carmen's ambiguous joke differently — not because
+Carmen changed, but because the perceiver's lens did.
+
+## 85. Outcome dependency — you'll need them, so you actually look **[CONSENSUS]**
+
+Erber & Fiske 1984 (JPSP 47:709): perceivers who are
+outcome-dependent on a target (the target controls rewards
+they need) attend to and remember MORE of the target's
+expectancy-INCONSISTENT attributes — dependency buys
+individuation, not stereotyping. Neuberg & Fiske 1987
+(JPSP 53:431): dependency increases attention to
+inconsistent info AND produces more accurate, less
+stereotyped impressions. Fiske & Dépret 1996 (in Mackie &
+Hamilton eds.): power asymmetry direction — the LOW-power
+party individuates the high-power party; the powerful
+stereotype the dependent (attention is expensive; spend it
+up the dependency gradient). Consistent with §34's
+remembering-up asymmetry — that finding now gets its
+mechanism.
+
+**Formalization.** PersonModel gains `outcome_dep` ∈[0,1]
+(world-maintained: the target controls something the
+character wants — landlord→tenant, boss→worker, crush,
+creditor). On target-referent events: E
+×(1 + `odep_gain`·outcome_dep) (0.4), and the §82
+incongruity weight multiplies ×(1 + `odep_incong_w`·
+outcome_dep) (1.5 — the dependent perceiver's bonus lands
+specifically on the violations). The dependent's schema is
+kept deliberately weak — dependency suppresses
+`personModel.committed` growth by the same factor, which
+keeps them on §82's weak arm (violations keep popping out
+because the dependent never stops updating).
+
+Locked null: `odep_favor_null` — dependency does NOT bias
+valence of interpretation (it buys attention, not
+flattery); the direction of the remembered facts stays
+veridical. The tenant remembers the landlord's cruelty AND
+kindness more vividly; what dependency buys is resolution.
+
+## 86. The magnitude gap — victim and perpetrator keep different books **[ROBUST direction; mechanism composite]**
+
+Baumeister, Stillwell & Wotman 1990 (JPSP 59:994 —
+autobiographical victim/perpetrator narratives of angering
+incidents): victims' accounts emphasize lasting harm,
+injustice, and the perpetrator's arbitrary malice;
+perpetrators' accounts emphasize context, provocation, and
+mitigation — and FADE faster. Stillwell & Baumeister 1997
+(Psych Sci 8:219 — the "magnitude gap" named): victims
+recall the transgression as more severe and less justified
+than perpetrators recall the same event; the gap is
+self-serving in both directions but asymmetric in shape —
+victims' records stay hot longer (harm is a continuing cue),
+perpetrators' records get systematically softened on
+reconstruction (motivated mitigation). Kearns & Fincham
+2005 add the dyadic consequence: the gap predicts
+unforgiveness — the two parties aren't arguing about the
+same memory, they're arguing about two different records.
+
+**Formalization.** On transgression events (negative
+social, victim≠perpetrator — world tags `harmed:{victim,
+perpetrator}`), the two ingest paths diverge:
+
+```
+victim record:  severity field ×(1 + mag_victim_sev) (0.3);
+  neg_affect_decay rate ×(1 − mag_victim_sev) — the wound's
+  affect channel decays slower (harm cues persist);
+  perpetrator-intent fields drift toward arbitrary/malicious
+  at mag_arb_drift (0.2) per retell-less year
+perpetrator record: detail/verbatim decay +
+  mag_perp_decay (0.3) — thins faster; reconstruction adds
+  provocation/mitigation fields at self_srv-scaled rate;
+  severity field drifts DOWN per retell (each telling is
+  softer)
+```
+
+Locked nulls: `mag_encode_null` — the gap is entirely a
+decay+reconstruction asymmetry; at encoding the two records
+differ only by normal self_relevance, never by a
+severity-encode flip (same observed event, same birth).
+`mag_converge_null` — the two records never converge with
+time; telling it to each other moves them FURTHER apart
+(the victim's rehearsal is hot, the perpetrator's is
+softening — retell asymmetry, §6.4's drift applies with
+opposite signs).
+
+## 87. Forgiveness detaches the sting, never the record **[CONSENSUS on components; composite HYPOTHESIS]**
+
+Worthington's forgiveness literature (Worthington 2003;
+Exline et al. 2003) distinguishes DECISIONAL forgiveness
+(intent to treat the other better, chosen once) from
+EMOTIONAL forgiveness (the resentment actually cooling —
+slower, partial, and revisitable). McCullough et al. 2003
+(JPSP 85:321) — forgiveness is a change in motivation
+toward the transgressor (avoidance/revenge motivations
+decline), NOT a change in the memory; the offended party
+still recalls the event, often vividly. vanOyen Witvliet et
+al. 2001 (Psych Sci 12:117) — the physiological correlates
+of the offense drop under forgiving imagery while the
+episode remains fully reportable. What the literature never
+shows: forgiven harms forgotten. The record persists; its
+charge is what gets rewired.
+
+**Formalization.** New op `forgiveEvent(record, mode)`
+with mode ∈ {decisional, emotional}: mints `forgiven:true`
++ `forg_day` tags on the transgression record and lowers
+its revenge/avoidance valence contribution to PersonModel
+eval at once (decisional) — then `neg_affect_decay` on the
+record accelerates ×(1 + `forg_aff_mult`, 0.6) so the
+emotional arm catches up over weeks (emotional
+forgiveness's lag is `forg_lag` — set by decisional→
+emotional gap, default decay still runs at the faster
+rate). On retrieval, the record emits normally — content
+intact, sting reduced; the emission may carry
+`forgiven:true` so dialogue renders "I've forgiven her —
+but yes, it happened, exactly like that."
+
+LOCKED `forg_erase_null`: forgiveness touches the affect
+channel and eval contribution ONLY — strength, verbatim,
+gist, and storageS are untouched (a forgiven wound you
+can't recount isn't forgiveness, it's amnesia; P715 locks
+it). Composes with §6.110 grief oscillation — a forgiven
+harm can still re-sting on cues (the tag reduces the
+charge, never zeroes it; emotional forgiveness is
+revisitable by design).
+
+## 88. The returning story — hearing your own tale back, bent **[HYPOTHESIS composite; components ROBUST]**
+
+A rumor chain (§4) can carry a character's own story back
+to them — distorted by serial reproduction — with the
+provenance "I heard it from M." Gabbert et al. 2003's
+memory-conformity numbers (71% adoption of co-witness
+items) describe OTHER people's accounts; what happens when
+the account is a warped version of your own episode?
+Components: (a) source monitoring should protect — the
+hearer holds a verbatim candidate of the original;
+(b) but the returning version arrives with social
+corroboration weight (§20) and, at chain distance ≥2, no
+longer parses as self-derived; (c) documented self-
+suggestion loops (people who lied later believing the lie —
+Otgaar's DIF/fabrication work, §6.95) show self-derivative
+content CAN be adopted. This is a modeling HYPOTHESIS on
+the literature's edge — the composite is ours, the
+mechanics aren't.
+
+**Formalization.** When `hearAccount` ingests a record
+whose chain (world-supplied `viaChain`) contains SELF at
+distance ≥2 — the hearer's own prior emission returned —
+the conformity merge runs with `echo_adopt_p` (0.3) as the
+adoption gate instead of the §6.5 default, AND the merged
+result pays `echo_conf_bonus` (0.1) — hearing your own
+story back inflated feels like independent confirmation
+("so it IS true — M said so too"). Below distance 2 the
+account parses as direct quotation — normal §6.5 rules,
+no echo path.
+
+Locked bounds: `echo_full_null` — echo adoption is capped
+at 0.3, strictly below the 0.71 co-witness anchor; your
+own story's surviving verbatim is the one source
+self-derivation can't fully overwhelm (P716 checks the
+cap, not the existence). If the original verbatim has
+dropped below theta — the story is fully orphaned — the
+echo arm runs UNGATED at conform rates: the teller who
+forgot their own story is as adoptable as anyone.
+
+## 89. Public commitments — witnesses bind both ends **[ROBUST direction; magnitudes HYPOTHESIS]**
+
+§6.90's promise ledger minted creditor/debtor arms for
+private commitments. The commitment-consistency literature
+(Kiesler 1971, *The Psychology of Commitment* — public
+declaration increases binding and resistance to change;
+Cialdini's consistency principle — commitments made before
+others are felt as more binding) adds the social arm: a
+promise made IN FRONT OF others is remembered better by
+both parties AND carries reputational charge — the
+witnesses are themselves a record (they hold creditor-clone
+records of someone else's promise). The Mission's "you
+promised — in front of everyone" is a real data structure:
+the audience is a distributed creditor.
+
+**Formalization.** `commitment` Intentions gain optional
+`witnessed:[charIds]` (world tags who heard it).
+Witnessed commitments: creditor arm `promise_cred_w`
+×(1 + `wit_cred_boost`, 0.2); debtor arm `promise_debt_w`
+×(1 + `wit_debt_boost`, 0.2) — publicity closes the
+asymmetry from BOTH sides (the debtor can't quietly
+forget what everyone heard). Each witness mints a
+third-party creditor-clone at half `promise_cred_w`
+strength — they will notice the breach too. On breach
+mint (§6.90), witnessed breaches carry `shame:true` and
+the breach record's confidence +`wit_breach_conf` (0.3 —
+everyone saw it fail).
+
+## 90. Provenance and the "we've met" ledger — where relationships come from, and the offense of being new twice **[HYPOTHESIS — thin direct evidence]**
+
+Two small social-store phenomena the parts so far left
+unspec'd:
+
+**(a) Relational provenance.** People reliably retain HOW
+they know someone — "Mira introduced us at the picnic,"
+"she's the landlord's sister" — often long after the
+person's name and even face-channel details have degraded.
+The introduction is usually a single weak episode, yet the
+provenance fact survives: it behaves like a personSEM-tier
+field (semantic, not episodic — it's a fact ABOUT the
+relationship, rehearsed every time the relationship is
+re-indexed). Spec: PersonModel gains `metVia` (free text/
+relational edge) + `metContext` minted at first-contact;
+both write to the personSEM tier directly (not the episodic
+record — a semantic field born semantic), decaying at the
+per- tier's near-flat rate (`metvia_perma` 0.9 retention
+anchor). Every subsequent personModel access re-touches
+it — provenance rides the re-consolidation the way the
+relationship does.
+
+**(b) The re-meeting offense.** When A's personModel for B
+is live and B's for A is absent/thin, a second
+"introduction" mints an offense candidate on A's side:
+being forgotten by someone you remember reads as a
+small-status insult (the spotlight asymmetry §66 predicts
+A overestimates the salience of the prior meeting; mere
+exposure §36 predicts A's familiarity inflated beyond
+symmetry). `remet_offense_p` (0.4), scaled by the
+familiarity gap (A's familiarity − B's) and by
+attach_anx — rejection-sensitive characters mint at the
+ceiling. Both halves are HYPOTHESIS composites over
+established mechanics; the probes assert the behavior, not
+a literature number.
+
+## 91. Trait and age loadings (extends §§12, 28, 44, 60, 76)
+
+| Param | Primary loadings | Age note |
+|---|---|---|
+| nil_win / nil_loss | nil_loss ×(1 + 0.2·neurot⁺) — anxiety at the turn worsens the hole; −wmc·0.2 (more budget to spare) | nil_loss ×(1 + 0.2·age_eff/60) — elaboration budget shrinks (HYPOTHESIS direction, consistent with divided-attention findings) |
+| nil_pre_gain | +consc·+meta (deliberate listeners) | flat |
+| exp_str_thresh | flat — structural | flat |
+| strong_exp_congr | +gc (gist-reconstructors absorb more); +distrust on negative targets | ×(1 + 0.3·age_eff/60) — schema reliance grows (Hess — same loading as copres_schema_fill) |
+| incong_recog_flip | flat — mechanism-level | flat |
+| implied_adopt_p | +suggs (suggestible hearers adopt implicatures); −verbal (precision listeners keep the hedge) | ×(1 + 0.2·age_eff/60) — pragmatic enrichment grows with gist reliance |
+| implied_src_weak | flat — born weak | rides beta_source |
+| trait_access_gain | +open (more construct-space); chronic baselines per trait as §84 | flat [HYPOTHESIS] |
+| ambig_assim_p | +distrust (hostile constructs chronically warm); −vigil on low-affect contexts | flat |
+| odep_gain / odep_incong_w | +attach_anx (dependency hypervigilance); −extra? weak | flat [HYPOTHESIS] — the dependency calculus doesn't age, the power distribution does (world's data) |
+| mag_victim_sev / mag_arb_drift | +neurot·+attach_anx on victim arm; mag_arb_drift +self_srv on BOTH arms (victims drift toward malice, perpetrators toward justification) | flat |
+| mag_perp_decay | +self_srv (motivated softening); +supp | ×(1 + 0.15·age_eff/60) — self-protective reconstruction strengthens |
+| forg_aff_mult | +reap (reappraisers detach faster); −neurot·−attach_anx (the sting resists) | ×(1 + 0.15·age_eff/60) — older adults' positivity effect assists the emotional arm |
+| echo_adopt_p | −distrust (suspicious of the returned version); +suggs | ×(1 + 0.2·age_eff/60) — source monitoring thins |
+| echo_conf_bonus | +self_srv (own story confirmed = extra weight) | flat |
+| wit_cred_boost / wit_debt_boost / wit_breach_conf | +consc on debt_boost (publicity binds the conscientious most); wit_breach_conf +vigil | flat |
+| metvia_perma | flat — personSEM tier is the mechanism | flat — semantic tier is the aging-robust one |
+| remet_offense_p | +attach_anx·+neurot (rejection sensitivity); −scc? (self-clarity blunts) | flat |
+
+Explicit nulls preserved: `nil_loss` is encoding-only —
+no retrieval parameter may reopen the hole
+(`nil_retrieve_null`); `odep_gain` buys resolution, never
+favorable valence (`odep_favor_null`); `mag_*` moves
+decay/reconstruction, never encoding severity
+(`mag_encode_null`); `forg_aff_mult` moves the affect
+channel only (`forg_erase_null`); `echo_adopt_p` is
+capped below co-witness rates while the original verbatim
+lives (`echo_full_null`); `incong_recog_flip` never
+touches encoding (`incong_encode_null`).
+
+## 92. Spec changes in v5.16 (summary)
+
+- §6.125 NEW: next-in-line — `nil_win`/`nil_loss`/
+  `nil_pre_gain`, `willSpeak`/`pre_attend` context fields,
+  `nil_retrieve_null` locked.
+- §6.126 NEW: expectancy-strength incongruity reversal —
+  `exp_str`/`committed` read, `exp_str_thresh`,
+  `strong_exp_congr`, `incong_recog_flip` (recognition-mode
+  only), `incong_encode_null` locked.
+- §6.127 NEW: pragmatic implication — `implied:{field,
+  content}` on accounts, `implied_adopt_p`,
+  `implied_src_weak`; implied provenance is M-tier only.
+- §6.128 NEW: accessible constructs —
+  `accessibleConstructs` accumulator, `trait_access_gain`,
+  `prime_persist_hr`, `ambig_assim_p`.
+- §6.129 NEW: outcome dependency — PersonModel
+  `outcome_dep`, `odep_gain`, `odep_incong_w`,
+  `committed`-growth suppression, `odep_favor_null` locked.
+- §6.130 NEW: magnitude gap — `harmed:{victim,perpetrator}`
+  tag, `mag_victim_sev`, `mag_arb_drift`, `mag_perp_decay`,
+  `mag_encode_null`/`mag_converge_null` locked.
+- §6.131 NEW: forgiveness — `forgiveEvent` op,
+  `forgiven:true`/`forg_day`/`forg_lag`, `forg_aff_mult`,
+  `forg_erase_null` locked.
+- §6.132 NEW: the returning story — `viaChain` field,
+  `echo_adopt_p`, `echo_conf_bonus`, `echo_full_null`
+  locked.
+- §6.133 NEW: public commitments — `witnessed:[ids]` on
+  commitments, `wit_cred_boost`/`wit_debt_boost`/
+  `wit_breach_conf`, third-party creditor clones.
+- §6.134 NEW: provenance + re-meeting — `metVia`/
+  `metContext` personSEM fields, `metvia_perma`;
+  `remet_offense_p` on familiarity-gap second
+  introductions.
+- §7: +20 params, +6 locked nulls, no new traits (all
+  loadings ride existing traits); §10: contract additions
+  (`willSpeak`/`pre_attend`/`implied`/`viaChain`/
+  `witnessed`/`harmed`/`forgiveEvent`/`metVia`/
+  `accessibleConstructs`/`outcome_dep`/`forgiven`).
+
+## 93. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| param | default | range | source |
+|---|---|---|---|
+| nil_win | 2 | 1–3 | Brenner 1973 (~2 before, 1 after) |
+| nil_loss | 0.5 | 0.2–0.8 | Bond 1985 |
+| nil_pre_gain | 0.3 | 0.0–0.6 | Bond 1985 Exp. 2 (pre-instruction reversal) |
+| exp_str_thresh | 0.7 | 0.5–0.9 | Stangor & McMillan 1992 (weak/strong split) |
+| strong_exp_congr | 0.3 | 0.0–0.6 | Stangor & McMillan 1992 |
+| incong_recog_flip | 0.15 | 0.0–0.4 | Stangor & McMillan 1992 (recognition arm) |
+| implied_adopt_p | 0.5 | 0.2–0.8 | Harris & Monaco 1978 (HYPOTHESIS rate) |
+| implied_src_weak | 0.6 | 0.3–0.9 | Brewer 1977; source-tier convention |
+| trait_access_gain | 0.25 | 0.0–0.6 | Higgins, Rholes & Jones 1977 |
+| prime_persist_hr | 48 | 12–96 | Bargh et al. 1986 (decay window HYPOTHESIS) |
+| ambig_assim_p | 0.3 | 0.0–0.6 | Srull & Wyer 1979 |
+| odep_gain | 0.4 | 0.1–0.8 | Erber & Fiske 1984; Neuberg & Fiske 1987 |
+| odep_incong_w | 1.5 | 0.5–2.5 | Erber & Fiske 1984 (inconsistency focus) |
+| mag_victim_sev | 0.3 | 0.0–0.6 | Baumeister et al. 1990; Stillwell & Baumeister 1997 |
+| mag_arb_drift | 0.2 | 0.0–0.5 | Baumeister et al. 1990 (arbitrariness emphasis) |
+| mag_perp_decay | 0.3 | 0.0–0.6 | Stillwell & Baumeister 1997 (fading perpetrator accounts) |
+| forg_aff_mult | 0.6 | 0.2–1.0 | McCullough et al. 2003; vanOyen Witvliet 2001 |
+| forg_lag | 14d | 3–60d | Worthington 2003 (decisional→emotional lag, HYPOTHESIS) |
+| echo_adopt_p | 0.3 | 0.0–0.45 (cap) | HYPOTHESIS — bounded below Gabbert 0.71 |
+| echo_conf_bonus | 0.1 | 0.0–0.3 | HYPOTHESIS |
+| wit_cred_boost / wit_debt_boost | 0.2 / 0.2 | 0.0–0.5 | Kiesler 1971 (HYPOTHESIS magnitudes) |
+| wit_breach_conf | 0.3 | 0.0–0.6 | HYPOTHESIS |
+| metvia_perma | 0.9 | 0.7–1.0 | HYPOTHESIS (personSEM-tier anchor) |
+| remet_offense_p | 0.4 | 0.0–0.7 | HYPOTHESIS |
+
+## 94. Validation probes (P709–P720)
+
+- **P709 next-in-line holes (MUST — encoding lock):** in a
+  5-speaker scripted conversation with declared turn order,
+  each participant's recall shows a ≥40% deficit in the
+  −2..0 window relative to non-turn-adjacent utterances at
+  matched salience; maximal cue reinstatement and
+  post-hoc "attend" retrieval postures recover NOTHING
+  (nil_retrieve_null); `pre_attend:true` context converts
+  the window deficit to a surplus. FAIL if any retrieval
+  manipulation rescues the hole.
+- **P710 schema's revenge (MUST — two-arm sign lock):**
+  weak-impression targets (exp_str < thresh) show the §2.3
+  incongruity recall advantage; strong-expectancy targets
+  (established dyads) show attenuated-to-reversed recall
+  AND congruent-false-alarm elevation in recognition mode;
+  incongruent ENCODING stays ≥ neutral in both arms
+  (incong_encode_null). FAIL if encoding goes negative or
+  the recall arm never reverses.
+- **P711 implied becomes said (MUST):** hearers of hedged/
+  implied accounts mint the implied content at
+  ~implied_adopt_p with weak source tags; at delay the
+  content surfaces without hedge/provenance ≥60% of
+  adoptions; the C-tier emission never carries "it was
+  implied" metadata. FAIL if implied content stores with
+  assertion-strength source or is reportable as implied.
+- **P712 accessible construct (SHOULD):** after a scripted
+  prime episode using hostile-trait vocabulary,
+  ambiguous-behavior encodings on unrelated targets shift
+  interpretation toward hostility at ≥ambig_assim_p; the
+  shift decays over ~prime_persist_hr; chronically warm
+  constructs (distrust+1.5) show the shift without any
+  prime. FAIL if interpretation never moves.
+- **P713 outcome dependency (MUST — sign-locked):**
+  outcome_dep=1 targets show elevated E on inconsistent
+  acts specifically (incongruity weight ×~2.5), faster
+  individuation (committed growth suppressed), and NO
+  valence shift (odep_favor_null); the dependency-free
+  direction shows the §34 remembering-up baseline. FAIL if
+  dependency flatters.
+- **P714 magnitude gap (MUST — sign-locked, two books):**
+  scripted transgression with tagged victim/perpetrator —
+  at encode, severity fields match within jitter
+  (mag_encode_null); at +60d the victim record's severity
+  is HIGHER and the perpetrator's LOWER, victim affect
+  channel decayed less, perpetrator detail thinner;
+  mutual retelling widens the gap (mag_converge_null).
+  FAIL if the gap exists at encode or closes with talk.
+- **P715 forgiveness is not amnesia (MUST — locked
+  null):** `forgiveEvent` reduces eval contribution and
+  accelerates affect decay but leaves strength/verbatim/
+  gist identical to matched unforgiven records at encode+30d;
+  cue-triggered re-sting remains possible at reduced rate;
+  emotional arm lags decisional by ~forg_lag. FAIL if any
+  content field attenuates.
+- **P716 the returned story (SHOULD — cap-locked):** a
+  character's emitted story returned via 2-hop chain with
+  distortion shows adoption ≤0.3 while their original
+  verbatim survives (echo_full_null); with the original
+  archived (theta-dropped), adoption rises toward normal
+  conform rates; echo merges carry the confidence bonus.
+  FAIL if echo adoption exceeds the cap with live
+  verbatim.
+- **P717 witnesses bind (SHOULD):** witnessed commitments
+  show elevated creditor AND debtor resolution vs matched
+  private commitments; witnesses themselves mint
+  half-strength creditor clones (third-party breach
+  detection fires); breach records carry shame:true +
+  confidence bonus. FAIL if publicity moves only one arm.
+- **P718 provenance persists (SHOULD):** `metVia`/
+  `metContext` survive name-tier and face-tier decay —
+  at long delay a character who fails name production can
+  still emit "we met through Mira" at ≥metvia_perma;
+  FAIL if provenance dies with the episodic record.
+- **P719 we've met (SHOULD):** asymmetric-familiarity
+  second introductions mint offense candidates on the
+  remembering side at ~remet_offense_p scaled by the gap;
+  symmetric-forgetting and symmetric-remembering mint
+  nothing; attach_anx+1.5 hits the ceiling. FAIL if the
+  forgotten side mints offense (wrong party).
+- **P720 turn-taking compound (SHOULD — mechanism
+  audit):** a full dinner-party sim (6 participants,
+  40 utterances) produces per-participant records whose
+  hole positions correlate with turn adjacency —
+  ablating nil_loss destroys the correlation while leaving
+  total recall unchanged. FAIL if holes distribute
+  uniformly.
+
+## 95. Honest limits (Part VI)
+
+- **nil_win=2 imports a lab artifact** — Brenner/Bond used
+  formal turn-taking (reading aloud, seminar questions);
+  natural conversation has interruptions, overlaps, no
+  declared order. The `willSpeak` flag is the world's
+  honest approximation; chaotic cross-talk sessions should
+  emit partial windows, and the spec leaves that to
+  world-tagging judgment.
+- **The expectancy-strength reversal compresses a
+  continuum** — Stangor & McMillan's weak/strong split is
+  real but the threshold (0.7) and the recognition-arm
+  magnitude (0.15) are our calibration; the meta reports
+  moderators (dual-process goals, individuation set) we
+  collapse into one gate.
+- **Implied-content rates are imported from persuasion
+  paradigms** — Harris & Monaco measured advertising-style
+  assertions; conversational implicature in a live
+  neighborhood is richer (irony, shared context). The 0.5
+  default is deliberately mid-range; world can tag
+  `implied` strength.
+- **Outcome dependency treats "dependency" as a scalar** —
+  Fiske's continuum involves reward-dependency,
+  co-dependency, and legitimacy judgments; `outcome_dep`
+  flattens all of them. The locked valence null is the
+  important commitment: dependency buys eyes, not loyalty.
+- **The magnitude gap's perpetrator arm leans on
+  self-report narratives** — Baumeister 1990 collected
+  remembered incidents, which already contain the
+  reconstruction; the sign is robust but the decomposition
+  into decay vs drift (mag_perp_decay vs self_srv) is our
+  modeling split, not measured.
+- **Forgiveness parameters are the loosest in the part** —
+  the component findings are solid (motivation change ≠
+  erasure; decisional precedes emotional) but
+  forg_aff_mult/forg_lag are calibrated to the
+  phenomenology, not fitted; P715's value is the NULL it
+  locks.
+- **The returned story is a constructed composite** — no
+  single study isolates "your own story distorted back at
+  you"; it's Gabbert-conformity + source-monitoring +
+  canonization composed. The cap below 0.71 is the only
+  literature-anchored number; P716 exists to catch
+  runaway.
+- **metVia's near-permanence is asserted, not measured** —
+  the design argument (provenance is personSEM, rehearsed
+  at every re-index) is clean, but no study tracks
+  "how we met" retention against name decay directly.
+  Treat as a modeling convenience with plausible human
+  face validity — P718 makes it falsifiable.
+- Part VI still leaves **conversation repair** (the
+  "sorry, what?" — a detected encoding hole prompting
+  re-ask within the session) unmodeled: it's a behavior
+  (world emits the re-ask event), not a memory mechanism —
+  noted for world-builder, who may want `willSpeak` holes
+  to occasionally trigger visible "wait, run that by me
+  again" beats.
+
+---
+
+# Part VII — the ledger nobody keeps: evaluation outlives evidence, favors run asymmetric, sides get taken (v68)
+
+Part VI covered the conversation's encoding holes. Part VII
+covers what survives AFTER the episodes die — free-floating
+likes and dislikes, asymmetric ledgers of favors, the
+coalition re-sort of who-gets-confused-with-whom, and the
+records that exist precisely because someone *didn't* show
+or a story came home flattened. Ten mechanisms, §§96–105;
+loadings §106; spec summary §107; params §108; probes
+P721–P732 §109; limits §110. Spec version target v5.17.
+
+## 96. The orphan impression — the eval outlives its evidence **[CONSENSUS that eval and memory dissociate; residual magnitude HYPOTHESIS]**
+
+Johnson, Kim & Risse 1985 (*J. Exp. Psychol.: Learning,
+Memory & Cognition* 11:22 — Korsakoff amnesics shown faces
+paired with good/bad biographies) is the cleanest possible
+demonstration: patients with NO retrievable memory of the
+person or the biography still showed shifted preference —
+"I don't know why, I just don't like him" is not a
+narrative pose, it's the memory system's normal output.
+Evaluative conditioning replicates the dissociation at
+scale (De Houwer, Thomas & Baeyens 2001 meta: attitude
+transfer survives when the pairing episode is forgotten);
+Srull & Wyer 1989's online model predicted exactly this —
+impressions are stored *separately* from the behaviors that
+generated them, and survive their loss.
+
+Implement: PersonModel trait/eval entries get a
+`support: [recordIds]` backpointer list, maintained lazily
+on access. When the last supporting record drops below
+`forget_thresh` (or archives), the trait value does NOT
+die — it floors at `orphan_eval_resid` (0.3) of its
+last-computed value and continues decaying at the slow
+personSEM rate instead of `beta_source`. PersonModel access
+that returns an eval with empty support emits
+`orphan_eval:true` on the reconstruction — dialogue can
+render "can't put my finger on it, something about her"
+as an honest state, not a confabulation. LOCKED:
+`orphan_reason_null` — orphan eval never mints a verbatim
+episode to justify itself (the existing confab_fill may
+still produce *gist-level* rationalization at tell-time,
+which is itself human — but no event record is written;
+P721/P722). Emergent: the neighborhood accumulates
+reputations nobody can source — which IS reputation.
+
+## 97. The favor ledger — the giver forgets, the receiver keeps **[ROBUST direction; split magnitudes HYPOTHESIS]**
+
+Greenberg's indebtedness work (Greenberg 1980; Greenberg &
+Westcott 1983 in *Basic Group Processes*) established that
+receiving help creates a felt debt that decays slowly and
+tracks obligation, while giving help produces no symmetric
+burden — and the self-serving availability asymmetry
+(Ross & Sicoly 1979, already §51) means one's own
+generosity is simply less rehearsed. Gratitude research
+adds the receiver-side retention mechanism: benefit-
+received episodes are positive, self-relevant, and get
+rehearsed in counting-blessings style recall (Emmons &
+McCullough 2003; Watkins et al. 2003 — grateful
+disposition predicts richer positive autobiographical
+recall). Composite direction: **received favors outlast
+given favors** at matched magnitude — nobody forgets who
+helped them move; the mover forgets by spring.
+
+Implement: events tagged `favor:{giver, receiver}` split
+on encode like `harmed:` (§6.130): receiver-side record
+gets `favor_recv_bonus` (+0.2 E, self-relevant positive —
+w_self applies) and writes `owed` on
+PersonModel[giver] (+favor_debt, slow-decay semantic);
+giver-side record decays at `beta_episodic ×(1+
+favor_give_decay)` (0.4) — kindness done is forgettable,
+kindness received is infrastructure. `owed` feeds the
+promise-ledger machinery (§67) as a soft creditor edge:
+repayment events decrement; a recalled `owed` with no
+repayment biases interpretation of the giver's later
+requests (they're *collecting*, not asking — small
+negativity on request records, HYPOTHESIS). LOCKED:
+`favor_sym_null` — the asymmetry never runs symmetric;
+giving-side encoding receives zero retention bonus
+(P723). Emergent: the chronic helper is owed by everyone
+and remembers none of it; the helped feel the ledger
+forever — real neighborhoods run on exactly this
+imbalance.
+
+## 98. Coalition overwrites category — the confusion matrix re-sorts **[CONSENSUS effect; trigger thresholds HYPOTHESIS]**
+
+Kurzban, Tooby & Cosmides 2001 (*PNAS* 98:15387 — "Can
+race be erased?") used the who-said-what paradigm (§11) to
+show that ~4 minutes of exposure to an alternate alliance
+structure deflates demographic categorization and replaces
+it with coalitional: people encode *who is allied with
+whom* as the primary person-sorting dimension when
+coalition cues are live; demographic categories are the
+default only when alliance information is thin
+(Pietraszewski, Cosmides & Tooby 2014 — alliance cues
+regulate categorization; sex/age encoding is NOT
+suppressed the same way — those stay). Pietraszewski
+2021-type follow-ups locate the effect at encoding.
+
+Implement: conflict events (any record with
+`participants:[A,B]` and `conflict:true`) mint per-witness
+coalition edges — `sided_with:[supporter]`/
+`sided_against:[opposed]` on the witness's PersonModels of
+the participants, written at `coal_tag_p` (0.6) per
+observed alignment act (public agreement, defense,
+proximity in the conflict). When `count(sided_with edges
+involving person X) ≥ coal_overwrite_thresh` (3), the §11
+`sourceInfer` category weight for candidates sharing X's
+coalition re-anchors: `sharesCategory` now evaluates
+coalition-first (`coal_cat_overwrite` 0.7 of the category
+weight), demographic tags residual. Consequence: in a
+neighborhood with a live feud, "who said what" errors
+concentrate *within factions* — characters confuse two
+members of the same camp even across demographics, and
+stop confusing across the feud line. LOCKED:
+`coal_recolor_null` — coalition tags never rewrite the
+valence of pre-conflict records; knowing whose side
+someone took changes *confusion structure*, not the
+stored past (P724 tests the re-sort, not a recoloring).
+
+## 99. The relationship bump — the first ninety days keep disproportionate shelf space **[ROBUST direction for early-relationship salience; window params HYPOTHESIS]**
+
+Couples' oral histories are dominated by beginnings — how
+we met, the courtship, the early crises — and the *quality*
+of that narration predicts the relationship's future
+(Buehlman, Gottman & Katz 1992: oral-history coding
+predicted divorce/stability at ~94%, and the predictive
+variables were about the narrated *bond*, not current
+satisfaction alone). The life-narrative reminiscence bump
+(§v0.3, Rubin & Schulkind) already concentrates
+autobiographical memory in identity-forming windows; a
+relationship is a micro-life-story — its formation window
+inherits the same machinery. Kintner-style "first"
+privilege applies per-dyad: first meeting, first fight,
+first repair are landmark-dated (§74 machinery) and
+rehearsed at every retelling of "how we got here."
+
+Implement: PersonModel gains `relStartDay` (first sustained
+contact — bible-seeded or minted when encounters exceed a
+threshold). Records co-tagged with person P and
+`worldDay ∈ [relStartDay, relStartDay + rel_bump_win]`
+(90 days) get `E += rel_bump_gain` (0.15) and index into
+the personSEM landmark table — they retrieve with
+`landmark_pull` semantics (§6.116) when the relationship
+itself is the cue ("tell me about you two"). After
+`rel_bump_win`, normal encoding resumes; the bump is
+bounded so a 3-month acquaintance isn't ALL bump.
+Emergent: long friendships narrate their origin richly and
+the middle thinly; bibles get the realistic "we've known
+each other forever — met at the blackout party" without
+fabricating mid-history.
+
+## 100. The noticed absence — the empty chair is a record **[HYPOTHESIS composite; components CONSENSUS]**
+
+You remember who *didn't* come to the wedding, not
+propositionally but as a felt gap — expectation-violation
+encoding (§2.3 machinery: the expected-but-absent is
+maximally incongruent against a confirmed-attendance
+schema) plus ostracism/social-monitoring salience
+(exclusion-relevant cues encode hot, §73; and absence at
+a self-relevant event IS socially diagnostic — it signals
+distance, disapproval, or snub). No study isolates
+"remembered non-attendance" directly; the composite is
+grounded and the rate is ours.
+
+Implement: events with an `expected:[charIds]` guest field
+(world tags invitations/standing plans) mint, for each
+expected-but-absent member, a thin record
+`type:"noticed_absence"` at `absence_p` (0.5, scaled by
+selfRelevance of the event and PersonModel familiarity —
+you notice YOUR person's empty chair, not a stranger's).
+Fields: who, the event, inferred valence `abs_val`
+(−0.15 default — absences read slightly negative absent
+excuse; `excused:true` flips to neutral). These records
+are retrieval-fodder for "X didn't even show" sentiment
+and feed PersonModel trait updates through normal STI
+(§2.1 — flakiness attribution). LOCKED:
+`absence_ghost_null` — a noticed-absence record NEVER
+mints co-presence, `sided_with`, or any person-episode
+binding for the absentee; the person wasn't there, and
+the system may not leak attendance it doesn't have
+(P726 — the ghost-null is the important test: memory
+invents plenty, but it does not attend people to events
+they missed).
+
+## 101. The blunder asymmetry — your embarrassment keeps house, theirs moves out **[CONSENSUS on the overestimate; decay split HYPOTHESIS]**
+
+Gilovich, Medvec & Savitsky 2000 (*JPSP* 78:211 — the
+spotlight-effect series): people overestimate how many
+others notice their blunders by roughly 2×; Savitsky,
+Epley & Gilovich 2001 add the retention arm — the actor
+estimates others' memory for the embarrassment as far more
+durable than it is. Combine with §66's expected-others'-
+recall inflation and the self-relevance encoding boost:
+the same spill encodes self-side hot (self_relevance high,
+arousal, rumination-prone — feeds §57 post-event
+processing) and observer-side thin (mildly amusing
+peripheral detail, no arousal, decays normally).
+
+Implement: events tagged `blunder:true` (world or the
+arousal/social-failure path tags it) split by `agent`:
+self-side `neg_affect_decay ×= blunder_self_keep` (0.5 —
+halved decay, plus `rumin`-trait rehearsal eligibility),
+observer-side `beta_episodic ×= blunder_other_decay` (1.5).
+`expected_recall` for own blunders inflates by
+`aud_recall_over` (×2.0 — the spotlight multiplier; the
+character *acts* as if everyone logged it). LOCKED:
+`blunder_audit_null` — another person's blunder never
+mints a self-side hot record via the observed-action
+channel (§6.117 flips routine actions, not shame; P728).
+Emergent: characters carry years-old private mortifications
+the witnesses dropped the same week — and behave as though
+the neighborhood remembers (avoidance, over-apology) while
+the neighborhood, correctly, does not.
+
+## 102. Central-speaker convergence — the neighborhood's memory aligns to whoever's account travels **[CONSENSUS mechanism; network-propagation params HYPOTHESIS]**
+
+Coman, Manier & Hirst 2016 (*PNAS* 113:8171 — fourteen
+10-person lab communities): mnemonic convergence — measured
+overlap of what members retain — emerges from dyadic
+conversational alignment propagated through the network
+structure; both individual updating AND topology matter.
+Yamashiro & Hirst 2020 (*JEP:G* 149:1000): a *central*
+speaker (high-connectivity/high-status node) induces
+SS-RIF and practice effects across the whole listener
+group, and communicational remembering in chains AMPLIFIES
+the central speaker's suppression when the speaker is
+in-group — out-group chains attenuate it. Coman & Hirst
+2015: propagation is transitive — practice and suppression
+effects travel beyond the original conversation.
+
+Implement on `groupRecall`/`retell`: the speaker-side
+practice effect and listener-side `ss_rif_k` (§6) now
+scale with the speaker's local centrality —
+`mult = 1 + central_speaker_mult·(speakerStatus +
+ingroup_bonus)` (central_speaker_mult 0.5; ingroup per
+the existing group tag). And propagation gains a second
+hop: when listener L later retells related content to M,
+M's unmentioned-related records suppress at
+`ss_rif_k·net_hop_decay` (0.4) — convergence travels one
+degree of separation beyond the room. Emergent: the cast
+member who narrates loudest literally edits what the
+block remembers; peripheral characters' versions fade
+unheard. This is the engine under "everyone remembers it
+the landlord's way."
+
+## 103. Dyad idioms — the shared reference nobody else can cash **[CONSENSUS existence; mint/decay params HYPOTHESIS]**
+
+Hopper, Knapp & Scott 1981 (*Communication Monographs*
+48:23 — couples' personal idioms) documented that intimate
+dyads mint private vocabulary — nicknames, catchphrases,
+coded references to shared episodes — which function as
+high-efficiency mutual cues and relationship markers;
+idiom density tracks closeness and decays with the
+relationship (Bruess & Pearson 1997). Memory-theoretically
+an idiom is a *dyad-locked cue structure*: maximally
+diagnostic for the partner (only one other person holds
+the key), useless-to-confusing for anyone else.
+
+Implement: repeated co-experienced distinctive events
+(`distinct_expect` high, both parties present) mint
+`idiom` records at `idiom_mint_p` (0.3) — tag
+`dyad:[A,B]`, content = a compressed reference token.
+Retrieval: `cueMatch` for an idiom record is maximal ONLY
+in the dyad context (partner present or partner-cued);
+outside the dyad the record is near-unreachable
+(`idiom_dyad_gate` 0.9 — that IS the phenomenon: the
+joke lands only between them). Retelling inside the dyad
+gets `idiom_retell_gain` (0.2 — shared-reference retrieval
+is the relationship's maintenance behavior). On dyad
+dissolution (`relationship:end`), idioms take
+`idiom_orphan_loss` (0.4 strength cut + retrieval penalty
+— the private language of an ex is exactly the knowledge
+you'd rather not have, and it aches precisely because the
+cue still works). Emergent: dialogue can write
+recognizable "you had to be there" texture; breakups and
+falling-outs carry a specific, nameable memory cost.
+
+## 104. Rival watch — threat cues to a valued bond resist attentional disengagement **[ROBUST in committed relationships; asymmetry direction DEBATED]**
+
+Schützwohl's series (Schützwohl & Koch 2004, *EHB*
+25:249; Schützwohl 2005 *EHB* 26:288; 2008 *PAID* 44:633):
+in people currently in a committed relationship, cues to
+partner infidelity are processed differently — the
+relevant cue class (sexual vs emotional infidelity, with
+the documented sex-linked split — men harder to disengage
+from sexual-infidelity cues, women from emotional) is
+harder to withdraw attention from, and shows better
+incidental recall of the cue material. The mechanism claim
+(dedicated jealousy module) is contested (Harris 2000) —
+treat as threat-monitoring of a valued relationship, not
+a module; the attentional/recall asymmetry itself is the
+usable finding. Boundary: effects concentrate in currently
+committed characters — singles show much weaker splits.
+
+Implement: when the character has a `committed`
+relationship edge (PersonModel flag from §6.129 usage,
+reused), events co-tagged partner×third-party with
+`threat:{sexual|emotional}` (world tags flirtation,
+confidences, exclusionary intimacy) get
+`E += rival_cue_gain` (0.25) and resist the nil_loss/
+attention cuts (`rival_disengage_loss` 0.3 — attention
+won't leave). Which cue class dominates loads on the
+`sex` trait (documented split) scaled by `jealous`
+(v5.13 trait) and `attach_anx`. LOCKED:
+`rival_certainty_null` — rival-watch records carry
+enhanced ENCODING only; beliefStatus stays "witnessed"
+not "confirmed" — vigilance remembers the glance, it does
+not certify the affair (P731 tests retention, never a
+verdict upgrade; inference to betrayal is the confab
+layer's problem, §6.9, and stays there).
+
+## 105. Flattened provenance — "A heard from B who saw C" collapses a layer per telling **[HYPOTHESIS composite; decay mechanics CONSENSUS]**
+
+Nested attribution is the rumor chain's internal
+structure: real gossip arrives as "Mara told me that Jules
+said she saw…" — embedded source stacks. Source memory
+decays fastest at the weakest links (beta_source, §1;
+destination memory, §35), and serial reproduction
+leveling (§4) drops structural detail first — the
+predictable composite: each retransmission flattens one
+layer of the stack, and attribution migrates toward the
+most *proximal* credible link ("Jules said") or the most
+*content-anchored* one ("it was about the landlord").
+Nobody retains the full "A heard from B who saw C do D"
+stack past hop two.
+
+Implement: accounts carry `prov_chain:[witnessId, ...,
+speakerId]` (deepest = claimed origin). At each `retell`,
+each intermediate node drops at `prov_flat_p` (0.35);
+surviving nodes re-anchor the account's `source.who` —
+preferring the chain's LAST surviving node proximal to
+the speaker. When the chain empties, the record's source
+collapses to `kind:"rumor"` with `who:null` — the orphan
+rumor (feeds §9 credibility discount and §96's
+unsourced-eval emission). Content is unaffected — only
+the attribution lattice thins. LOCKED:
+`prov_upgrade_null` — flattening never upgrades
+credibility; a record whose origin node dropped cannot
+gain sourceCredibility beyond the speaker's own
+credibility rating (you can't launder hearsay into
+eyewitness by losing the middle links — P732).
+
+## 106. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91)
+
+| loading | effect |
+|---|---|
+| `distrust` | `orphan_eval_resid` + for negative evals (suspicion outlives evidence); `coal_tag_p` +; `rival_cue_gain` + |
+| `attach_anx` | `absence_p` ceiling-ward (their empty chair is always noticed); `rival_cue_gain` +; `idiom_orphan_loss` + (abandoned idioms ache more) |
+| `jealous` | `rival_cue_gain` +, `rival_disengage_loss` + |
+| `rumin` | `blunder_self_keep` more extreme (decay 0.3); post-blunder intrusions + |
+| `extra`/`social` | `coal_tag_p` + (tracks alliance landscape); `idiom_mint_p` + |
+| `consc` | `owed` decrement tracking + (repayment conscience); `favor_give_decay` − slightly (rehearses own obligations) |
+| `neurot` | `abs_val` more negative (absence reads as snub); `blunder` records hotter |
+| `self_srv` | `favor_give_decay` − / `favor_recv` unaltered — the self-serving edge keeps OWN generosity accessible (§67 boundary: creditor memory already loads here; give-side still weaker than receive-side, null holds) |
+| `nfc` (v5.15) | `ambig`/`implied` flattening faster; `prov_flat_p` + (closure wants a clean chain) |
+| age 65+ | `orphan_eval` intact (semantic eval preserved — matches preserved-semantics profile); `prov_flat_p` + (source stack thins first, canonical age effect); `coal_cat_overwrite` intact (alliance tracking is preserved — social-evaluative cognition ages well); `rel_bump` unchanged (bump is life-story machinery, not capacity) |
+
+No new traits this part — `jealous` (v5.13), `rumin`,
+`attach_*`, `distrust`, `self_srv`, `nfc` carry all
+loadings; `sex` trait parameterizes the §104 split.
+
+## 107. Spec changes in v5.17 (summary)
+
+- §6.135 NEW: orphan impression — PersonModel `support`
+  backpointers, `orphan_eval_resid` floor at personSEM
+  rate, `orphan_eval:true` emission, `orphan_reason_null`
+  locked.
+- §6.136 NEW: favor ledger — `favor:{giver,receiver}`
+  encode split, `favor_recv_bonus`/`favor_give_decay`,
+  PersonModel `owed` soft-creditor edge,
+  `favor_sym_null` locked.
+- §6.137 NEW: coalition overwrite — `sided_with`/
+  `sided_against` minting at `coal_tag_p`,
+  `coal_overwrite_thresh` + `coal_cat_overwrite` re-sort
+  of §11 sourceInfer categories, `coal_recolor_null`
+  locked.
+- §6.138 NEW: relationship bump — PersonModel
+  `relStartDay`, `rel_bump_win`/`rel_bump_gain`,
+  landmark-pull retrieval on relationship-cued recall.
+- §6.139 NEW: noticed absence — `expected:[ids]` guest
+  field mints `noticed_absence` records at `absence_p`
+  with `abs_val`, `excused` flip; `absence_ghost_null`
+  locked.
+- §6.140 NEW: blunder asymmetry — `blunder:true` tag,
+  self/observer decay split (`blunder_self_keep`/
+  `blunder_other_decay`), `aud_recall_over` expected-
+  recall inflation, `blunder_audit_null` locked.
+- §6.141 NEW: central-speaker convergence —
+  `central_speaker_mult` on §6 SS-RIF/practice,
+  `net_hop_decay` one-degree propagation.
+- §6.142 NEW: dyad idioms — `dyad:[A,B]` locked cue
+  structure, `idiom_mint_p`/`idiom_dyad_gate`/
+  `idiom_retell_gain`/`idiom_orphan_loss`.
+- §6.143 NEW: rival watch — `threat:{sexual|emotional}`
+  on committed-relationship events, `rival_cue_gain`/
+  `rival_disengage_loss`, sex×jealous×attach_anx
+  loadings, `rival_certainty_null` locked.
+- §6.144 NEW: flattened provenance — `prov_chain`
+  field, `prov_flat_p` per-retell node drop, proximal
+  re-anchor, `kind:"rumor"` collapse,
+  `prov_upgrade_null` locked.
+- §7: +23 params, +7 locked nulls, +0 traits; §10:
+  contract additions (`support`/`orphan_eval`,
+  `favor`/`owed`, `sided_with`/`sided_against`,
+  `relStartDay`, `expected`/`noticed_absence`/`excused`,
+  `blunder`, `dyad`/`idiom`, `threat`, `prov_chain`).
+
+## 108. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| param | default | range | source |
+|---|---|---|---|
+| orphan_eval_resid | 0.3 | 0.1–0.5 | Johnson, Kim & Risse 1985 (dissociation, magnitude HYPOTHESIS) |
+| favor_recv_bonus | 0.2 | 0.0–0.4 | Emmons & McCullough 2003; Watkins 2003 (composite) |
+| favor_give_decay | 0.4 | 0.1–0.8 | Greenberg & Westcott 1983; Ross & Sicoly 1979 (composite) |
+| coal_tag_p | 0.6 | 0.2–0.9 | Kurzban et al. 2001 (alignment-act encoding, HYPOTHESIS rate) |
+| coal_overwrite_thresh | 3 | 2–6 | Kurzban 2001 rapid-resort (~4min) → few observations |
+| coal_cat_overwrite | 0.7 | 0.3–1.0 | Pietraszewski et al. 2014 |
+| rel_bump_win | 90d | 30–180d | HYPOTHESIS (bump machinery on relAge) |
+| rel_bump_gain | 0.15 | 0.0–0.4 | Buehlman et al. 1992 (early-period dominance, HYPOTHESIS) |
+| absence_p | 0.5 | 0.2–0.8 | HYPOTHESIS (expectancy-violation composite) |
+| abs_val | −0.15 | −0.4–0.0 | HYPOTHESIS |
+| blunder_self_keep | 0.5 | 0.2–0.8 | Gilovich et al. 2000 (self-side durability, decay mult) |
+| blunder_other_decay | 1.5 | 1.0–2.5 | Savitsky et al. 2001 (observer-side, decay mult) |
+| aud_recall_over | 2.0 | 1.2–3.0 | Gilovich et al. 2000 (~2× notice overestimate) |
+| central_speaker_mult | 0.5 | 0.0–1.0 | Yamashiro & Hirst 2020 |
+| net_hop_decay | 0.4 | 0.1–0.8 | Coman, Manier & Hirst 2016; Coman & Hirst 2015 |
+| idiom_mint_p | 0.3 | 0.1–0.6 | Hopper et al. 1981 (HYPOTHESIS rate) |
+| idiom_dyad_gate | 0.9 | 0.6–1.0 | Hopper 1981 (dyad-locked cue, strong) |
+| idiom_retell_gain | 0.2 | 0.0–0.5 | Bruess & Pearson 1997 |
+| idiom_orphan_loss | 0.4 | 0.1–0.8 | HYPOTHESIS (dissolution cost) |
+| rival_cue_gain | 0.25 | 0.0–0.6 | Schützwohl 2005 |
+| rival_disengage_loss | 0.3 | 0.1–0.6 | Schützwohl 2008 |
+| prov_flat_p | 0.35 | 0.1–0.7 | HYPOTHESIS (serial-reproduction leveling on the stack) |
+
+## 109. Validation probes (P721–P732)
+
+- **P721 orphan impression (MUST):** encode behaviors
+  implying trait T on person X; let all supporting
+  records decay below `forget_thresh`. PersonModel[X].T
+  retains ≥`orphan_eval_resid` of last value and
+  personModel access emits `orphan_eval:true`. FAIL if
+  eval dies with its evidence.
+- **P722 orphan no-episode (MUST — locked null):** no
+  prompt, cue, or drift roll mints a verbatim episode
+  supporting an orphan eval. FAIL on any fabricated
+  support record (gist rationalization at tell-time is
+  permitted output, never a record).
+- **P723 favor ledger (MUST — sign-locked asymmetry):**
+  matched favors given vs received by the same character:
+  received outlast given at every horizon;
+  `favor_give_decay` set 0 (symmetric) MUST fail the
+  clamp — the asymmetry is structural.
+- **P724 coalition overwrite (SHOULD):** after ≥3
+  alignment acts, external–external source confusions
+  concentrate ≥`coal_cat_overwrite`·100% within-faction
+  even across demographics; pre-conflict record valence
+  unchanged (`coal_recolor_null`).
+- **P725 relationship bump (SHOULD):** recall density
+  over relationship-age shows a window-0 peak then
+  baseline — a 3-month friendship is not ALL bump;
+  relationship-cued recall lands landmark-dated reports.
+- **P726 noticed absence + ghost null (MUST):**
+  expected-but-absent mints `noticed_absence` at
+  ~`absence_p` with `abs_val` valence; the record NEVER
+  produces co-presence, `sided_with`, or attendance for
+  the absentee under any retrieval mode.
+- **P727 blunder asymmetry (MUST):** matched blunder
+  self vs observer: self-side retains hot/durable
+  (`blunder_self_keep` + rumin eligibility),
+  observer-side fades ≥`blunder_other_decay`;
+  `expected_recall` self-side ≈ `aud_recall_over`×
+  observer-side actual.
+- **P728 blunder audit (MUST — locked null):** watching
+  another's blunder never mints a self-side shame/hot
+  record even under observed-action flip conditions —
+  the §6.117 motor bonus does not transfer shame.
+- **P729 central-speaker convergence (SHOULD):** in a
+  scripted neighborhood recall round, member-memory
+  overlap with the most-central speaker's selective
+  version exceeds overlap with a peripheral speaker's
+  by the `central_speaker_mult` margin; one-hop
+  indirect pairs converge at `net_hop_decay` of direct.
+- **P730 dyad idioms (SHOULD):** idiom-cued recall
+  succeeds in-dyad, fails at `idiom_dyad_gate` outside
+  it; after `relationship:end` the cue still works but
+  at `idiom_orphan_loss` strength — the ache is the
+  test.
+- **P731 rival watch (SHOULD — certainty lock):**
+  committed-relationship characters show `rival_cue_gain`
+  retention and disengagement resistance on threat-tagged
+  partner×third-party events; beliefStatus never
+  auto-upgrades to "confirmed" (`rival_certainty_null`).
+- **P732 provenance flatten (SHOULD — upgrade lock):**
+  a 3-node `prov_chain` loses ~`prov_flat_p` of
+  intermediate nodes per retell, re-anchoring to
+  proximal survivor; emptied chains collapse to
+  `kind:"rumor"`/`who:null`; credibility NEVER exceeds
+  the proximal speaker's rating at any flattening depth.
+
+## 110. Honest limits (Part VII)
+
+- **The orphan-residual magnitude is the loosest number
+  in the part.** Johnson, Kim & Risse proves eval survives
+  memory loss in amnesia; it does not size the residual
+  in healthy adults. 0.3 is chosen so the phenomenon
+  reads ("something about her") without making reputations
+  immortal — P721 enforces sign and floor, not truth.
+- **The favor asymmetry is a composite.** Indebtedness
+  decay (Greenberg) + egocentric availability (Ross &
+  Sicoly) + gratitude rehearsal (Emmons & McCullough)
+  all point the same direction, but no study times
+  giver-vs-receiver forgetting directly; the split ratio
+  is ours, the sign is locked.
+- **Coalition overwrite imports a lab microcosm.**
+  Kurzban's 4-minute resort was engineered clarity
+  (uniforms, consistent cues); a neighborhood's alliance
+  signal is noisier, so `coal_overwrite_thresh`=3 is a
+  proxy. The locked null is what matters: alliance
+  re-sorts CONFUSION, never rewrites history.
+- **`noticed_absence` has no direct citation.** It's
+  expectancy-violation + exclusion-salience composed;
+  `absence_p` and `abs_val` are free parameters pending
+  evidence. The ghost-null is the defensible half —
+  whatever absences mint, they cannot manufacture
+  presence.
+- **Rival-watch sex asymmetry is DEBATED** (Harris 2000
+  challenged the module; cue-recall asymmetry replicates
+  better than the jealousy-decision literature). The
+  spec exposes the split via `sex`×`jealous` loadings but
+  keeps it shallow — bibles may weight it to taste.
+- **Provenance flattening is asserted, not measured** —
+  serial-reproduction leveling is consensus, but nobody
+  has timed embedded-attribution decay per hop.
+  `prov_flat_p` is our modeling choice; `prov_upgrade_null`
+  is the honest commitment: thinning the stack can lose
+  the truth, never launder it.
+- Part VII still leaves **reputation transfer** (liking
+  X biases first impressions of X's friends — evaluative
+  spillover across RelEdge) unmodeled; and **narrative
+  co-ownership disputes** (whose story is it to tell —
+  the "that's MY story" offense) is behavior-layer
+  territory noted for world-builder.

@@ -973,6 +973,26 @@ needs both.
 | syn_gain | 0.0 | 0.2 | pervasive episodic gain, ordinary-bound (v5.15) |
 | rumin_sel / rumin_refl_gain | 0.0 / 0.0 | 0.8 / 0.15 | negative-rehearsal bias + reflection leg (v5.15) |
 | hsam / sdam / nfc / mnemic / tbi / apoe / synesth / rumin / learn_style (traits) | 0 / 0 / −2 / −2 / 0 / e2 / 0 / −2 / — | 1 / 1 / +2 / +2 / 2 / e4 / 2 / +2 / — | new IndivTraits (v5.15); hsam·sdam exclusive; apoe hidden enum; learn_style all-0 lock |
+| nil_win / nil_loss / nil_pre_gain | 1 / 0.2 / 0.0 | 3 / 0.8 / 0.6 | pre-turn encoding hole window/depth/reversal (v5.16) |
+| exp_str_thresh / strong_exp_congr / incong_recog_flip | 0.5 / 0.0 / 0.0 | 0.9 / 0.6 / 0.4 | expectancy-strength incongruity reversal (v5.16) |
+| implied_adopt_p / implied_src_weak | 0.2 / 0.3 | 0.8 / 0.9 | implicature mint + born-weak source (v5.16) |
+| trait_access_gain / prime_persist_hr / ambig_assim_p | 0.0 / 12 / 0.0 | 0.6 / 96 / 0.6 | accessible-construct feed/decay/assimilation (v5.16) |
+| odep_gain / odep_incong_w | 0.1 / 0.5 | 0.8 / 2.5 | dependency attention + incongruity focus (v5.16) |
+| mag_victim_sev / mag_arb_drift / mag_perp_decay | 0.0 / 0.0 / 0.0 | 0.6 / 0.5 / 0.6 | magnitude-gap victim/perp arms (v5.16) |
+| forg_aff_mult / forg_lag | 0.2 / 3 | 1.0 / 60 | forgiveness affect-detach + decisional→emotional lag (v5.16) |
+| echo_adopt_p / echo_conf_bonus | 0.0 / 0.0 | 0.45 / 0.3 | own-story echo adoption cap + conf bonus (v5.16) |
+| wit_cred_boost / wit_debt_boost / wit_breach_conf | 0.0 / 0.0 / 0.0 | 0.5 / 0.5 / 0.6 | witnessed-commitment arms + breach shame conf (v5.16) |
+| metvia_perma / remet_offense_p | 0.7 / 0.0 | 1.0 / 0.7 | provenance anchor + re-meeting offense (v5.16) |
+| orphan_eval_resid | 0.1 | 0.5 | eval floor after evidence dies (v5.17) |
+| favor_recv_bonus / favor_give_decay | 0.0 / 0.1 | 0.4 / 0.8 | favor-ledger receive bonus + give decay (v5.17) |
+| coal_tag_p / coal_overwrite_thresh / coal_cat_overwrite | 0.2 / 2 / 0.3 | 0.9 / 6 / 1.0 | alliance-edge mint + category re-sort (v5.17) |
+| rel_bump_win / rel_bump_gain | 30 / 0.0 | 180 / 0.4 | relationship-onset window + E gain (v5.17) |
+| absence_p / abs_val | 0.2 / −0.4 | 0.8 / 0.0 | noticed-absence mint + valence (v5.17) |
+| blunder_self_keep / blunder_other_decay / aud_recall_over | 0.2 / 1.0 / 1.2 | 0.8 / 2.5 / 3.0 | blunder split + audience-retention overestimate (v5.17) |
+| central_speaker_mult / net_hop_decay | 0.0 / 0.1 | 1.0 / 0.8 | convergence scaling + one-hop propagation (v5.17) |
+| idiom_mint_p / idiom_dyad_gate / idiom_retell_gain / idiom_orphan_loss | 0.1 / 0.6 / 0.0 / 0.1 | 0.6 / 1.0 / 0.5 / 0.8 | dyad-locked cues + dissolution cost (v5.17) |
+| rival_cue_gain / rival_disengage_loss | 0.0 / 0.1 | 0.6 / 0.6 | threat-cue encoding + attention lock (v5.17) |
+| prov_flat_p | 0.1 | 0.7 | provenance-stack thinning per retell (v5.17) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3166,3 +3186,146 @@ Ten clamp rows added in §0 plus nine TRAITS (`hsam`, `sdam`,
   can write that belief — but every loading is locked 0.0.
   Do not wire instruction modality to it; Pashler 2008 says
   it does nothing, and P705 enforces the nothing.
+
+## 50. v5.16 note (social-memory VI — the conversation's holes)
+
+Ten clamp rows added in §0, ZERO new traits — every new
+mechanism is situational (world-tagged) or rides existing
+traits. Bible-facing guidance:
+
+- **The talk-holes are invisible.** `nil_loss` cuts encoding
+  just before a character's own speaking turn — but the
+  record carries no "I wasn't listening" flag. Write
+  post-conversation disagreement as patterned confusion
+  about whoever spoke just before each character talked,
+  never as a character reporting the gap (P709 locks
+  retrieval rescue — nobody "thinks harder" their way back
+  to it; they reconstruct or borrow someone's account).
+- **Established impressions reinterpret surprises.** A
+  new acquaintance's shocking act encodes hot (§2.3
+  incongruity); the same act from a 20-year friend gets
+  absorbed toward the schema — `strong_exp_congr` does the
+  bending. Bible consequence: long relationships drift
+  toward mutual confirmation — the surprise stops being
+  data and becomes the exception that "wasn't really her."
+- **Implications don't stay hedged.** World tags
+  `implied` on an account → hearers store the implication
+  as near-asserted gist with weak source. The retell a week
+  later is flat ("she said he was cheating"), and the
+  hearer CANNOT report that it was only implied — that
+  provenance is M-tier. Bibles should write the flattening,
+  not the nuance, downstream.
+- **This morning's words are this afternoon's lens.**
+  `accessibleConstructs` + `ambig_assim_p` mean a character
+  who spent breakfast hearing "dishonest" gossip encodes
+  the suspect's noon ambiguity through it. High-distrust
+  bibles get chronically warm hostile constructs for free —
+  they read ambiguity as threat by default, no priming
+  needed.
+- **`outcome_dep` is a world field, not a trait.** Tenant→
+  landlord, employee→boss, lover→crush: the dependent party
+  individuates — deeper encoding, sharper on violations,
+  slower to commit to a fixed schema. Locked: dependency
+  never flatters — the tenant remembers the landlord's
+  cruelty AND kindness more vividly; resolution, not
+  loyalty.
+- **Two books, one event.** `harmed:{victim,perpetrator}`
+  transgressions encode identically (locked — no birth
+  difference) then diverge: the victim's stays hotter and
+  drifts toward malice, the perpetrator's thins and softens
+  each retell. Mutual retelling WIDENS the gap (locked) —
+  write the fight about "what happened" as two people
+  defending different records, not one truth.
+- **Forgiveness is not amnesia.** `forgiveEvent` detaches
+  the sting (decisional now, emotional over `forg_lag`) but
+  the record is untouched — locked. A forgiven harm is
+  fully recountable, cue-re-stingable at reduced charge.
+  Never write post-forgiveness blankness; write "I've
+  forgiven her — but yes, it happened, exactly like that."
+- **The story that comes home.** `viaChain` distance ≥2
+  lets a character's own distorted tale return as apparent
+  corroboration (echo_adopt_p capped 0.45 while the
+  original lives). Bible payoff: a canonized story fed
+  back through the neighborhood lands as independent
+  confirmation — "M said so too."
+- **Promises in public bind both sides.** `witnessed`
+  commitments strengthen creditor AND debtor arms and mint
+  third-party clones — the audience itself remembers who
+  owes what. A public promise broken emits `shame:true` —
+  the block watched it fail.
+- **`metVia` outlives names.** "We met through Mira at the
+  picnic" is personSEM — it survives when the name is gone.
+  And asymmetric re-introductions mint offense ONLY on the
+  remembering side: being forgotten by someone you remember
+  is the insult, and attach_anx characters mint at ceiling.
+  Never mint offense on the forgetting side (P719).
+
+## 51. v5.17 note (social-memory VII — the ledger nobody keeps)
+
+Ten clamp rows added in §0, ZERO new traits — all loadings
+ride jealous/rumin/attach_*/distrust/self_srv/nfc/sex.
+Bible-facing guidance:
+
+- **Dislike without a why is a first-class state.** When
+  every episode backing an impression has decayed out, the
+  eval floors at `orphan_eval_resid` and emissions carry
+  `orphan_eval:true`. Write it honestly — "can't put my
+  finger on it, something about her" — never invent the
+  justifying scene (locked: orphan evals mint no episodes,
+  P722). Reputation in the cast is partly *unsourced* by
+  design.
+- **The helper forgets; the helped keep the book.**
+  `favor:{giver,receiver}` splits one kindness into a
+  durable received record (+`owed` on the giver's
+  PersonModel) and a fast-fading given record — the split
+  is locked asymmetric (P723). Bible consequence: the
+  cast's generous characters accumulate invisible credit;
+  beneficiaries feel the debt long after the giver moved
+  on. Both read true.
+- **Feuds re-sort who-gets-confused-with-whom.** Three
+  observed alignments flip source-confusion to
+  coalition-first (Kurzban 2001) — during a live feud,
+  bibles should write members of the same camp blurring
+  together across demographics. Locked: the alliance
+  re-sort never recolors pre-conflict records.
+- **Origins get shelf space, middles get thin.** Inside
+  `rel_bump_win` (90d) co-tagged records encode +15% and
+  landmark-index — "how we met" retells rich forever,
+  year-two Tuesday fades. Seed `relStartDay` in the bible
+  or let sustained contact mint it.
+- **The empty chair mints a record.** `expected:[ids]`
+  makes a no-show a thin negative memory — attach_anx
+  characters notice every absence at ceiling, and the
+  record can NEVER leak co-presence for the absentee
+  (ghost-null, P726). Nobody remembers a guest who wasn't
+  there as having been there.
+- **Everyone else forgot your blunder; you didn't.**
+  Self-side embarrassment decays half-rate and feeds
+  rumination; observers fade 1.5×; `aud_recall_over` ~2×
+  means characters act as though the block logged it
+  (spotlight). Write avoidance and over-apology — the
+  audience's actual record is long gone.
+- **The loudest narrator edits the neighborhood.**
+  SS-RIF/practice scale with speaker centrality and
+  propagate one hop — convergence follows the well-
+  connected, not the accurate. Pair with the bible's
+  status field; the quiet character's version dies
+  unheard.
+- **Inside jokes are real memory structures.** `idiom`
+  records retrieve only inside the dyad
+  (`idiom_dyad_gate`) — write "you had to be there"
+  texture; on `relationship:end` they take
+  `idiom_orphan_loss` but keep working, which is exactly
+  the ache of an ex's private language.
+- **Rival watch encodes, never convicts.** Committed-edge
+  `threat` cues encode hot and resist attention cuts
+  (jealous×attach_anx loadings; the sex-linked split is
+  real but shallow — weight it lightly). Locked: vigilance
+  remembers the glance; it never auto-confirms the affair
+  (P731).
+- **"A heard from B who saw C" flattens to "B said."**
+  `prov_chain` loses ~35% of middle links per retell and
+  collapses to bare `rumor` when emptied — write gossip
+  arriving unmoored. Locked: a thinned chain can never
+  exceed the last teller's credibility — hearsay doesn't
+  launder into eyewitness (P732).

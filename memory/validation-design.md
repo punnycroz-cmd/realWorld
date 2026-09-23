@@ -5916,3 +5916,184 @@ Registry: P1–P708. v67 suite: P697–P708 — 8 MUST (P697–P702,
 P704–P706; P697/P698/P700–P702 carry locked nulls, P705 is an
 honesty lock) and 4 SHOULD (P703 ceiling-locked, P707
 mechanism audit, P708 compound audit).
+
+## 129. v68 probes — social-memory VI (P709–P720)
+
+Probe specs in social-memory.md §94; summary contract here.
+Scripted-conversation and scripted-transgression fixtures
+extend the §73/P-series harness vocabulary — new fixture
+kinds: `turnOrderedConversation` (declared `willSpeak`/
+positions), `impliedAccount` (account payloads with
+`implied` fields), `transgressionPair` (`harmed:`-tagged
+dyadic event), `viaChain` rumor loops, `witnessed`
+commitments, and asymmetric-familiarity re-introductions.
+
+- **P709** next-in-line (MUST — encoding lock):
+  `nil_retrieve_null` enforced; `pre_attend` inversion arm.
+- **P710** schema's revenge (MUST — two-arm sign lock):
+  weak→incongruent-recall advantage, strong→reversal +
+  congruent recognition; `incong_encode_null` floor.
+- **P711** implied-becomes-said (MUST): mint rate, weak
+  source, unreportable provenance.
+- **P712** accessible construct (SHOULD): prime shift,
+  decay window, chronic-baseline arm.
+- **P713** outcome dependency (MUST — sign-locked):
+  incongruity-focused resolution gain; `odep_favor_null`.
+- **P714** magnitude gap (MUST — sign-locked, two books):
+  `mag_encode_null` at birth; divergence +60d;
+  `mag_converge_null` under mutual retell.
+- **P715** forgiveness ≠ amnesia (MUST — locked null):
+  `forg_erase_null`; decisional→emotional `forg_lag`;
+  reduced-rate re-sting.
+- **P716** returned story (SHOULD — cap-locked):
+  `echo_full_null` while verbatim lives; ungated arm after
+  archival; confidence bonus present.
+- **P717** witnesses bind (SHOULD): both promise arms +
+  third-party clones + shame mint.
+- **P718** provenance persists (SHOULD): metVia survives
+  name-tier death at ≥metvia_perma.
+- **P719** we've met (SHOULD): offense mints on the
+  remembering side only; gap- and attach_anx-scaled.
+- **P720** turn-taking compound (SHOULD — mechanism
+  audit): hole positions correlate with turn adjacency;
+  ablating nil_loss kills the correlation, not the recall.
+
+## 130. Sources verified this version (P709–P720 backing)
+
+- Brenner 1973 (*J. Exp. Psychol.* 98:120 — verified via
+  full-text scan: N=88 turn-taking recall, ~2-before/1-after
+  window, "waiting to ask a question" phenomenology); Bond
+  1985 (*JPSP* 48:853 — verified abstract: encoding not
+  retrieval; semantic cues don't moderate, post-hoc
+  instruction doesn't, PRE-instruction reverses); Bond &
+  Kirkpatrick 1982 (*JESP* 18:307); Bond 1991 (*PSPB*
+  17:174 — elaborative rehearsal eliminates; eye contact
+  does not).
+- Stangor & McMillan 1992 (*Psych. Bull.* 111:42 — verified:
+  54-experiment meta, incongruity advantage under weak/
+  formed expectancies, congruent advantage under strong
+  established schemas and in recognition); Sherman et al.
+  1998 (*Psych. Sci.* — integration-theory model fit).
+- Harris & Monaco 1978 (*JEP:G* 107:1 — pragmatic
+  implication recalled as asserted); Brewer 1977 (linguistic
+  inference constructivism).
+- Higgins, Rholes & Jones 1977 (*JESP* 13:141 — trait-
+  construct priming assimilates ambiguous behavior); Srull &
+  Wyer 1979 (*JPSP* 37:1660); Bargh, Bond, Lombardi & Tota
+  1986 (*JPSP* 50:869 — chronic accessibility); Martin 1986
+  (set/reset — contrast boundary conditions); Macrae et al.
+  1994 (suppression rebound amplifies primed categories).
+- Erber & Fiske 1984 (*JPSP* 47:709 — outcome dependency →
+  attention to inconsistency); Neuberg & Fiske 1987
+  (*JPSP* 53:431 — dependency → individuation); Fiske &
+  Dépret 1996 (power asymmetry: dependent individuates up).
+- Baumeister, Stillwell & Wotman 1990 (*JPSP* 59:994 —
+  victim/perpetrator narrative asymmetry); Stillwell &
+  Baumeister 1997 (*Psych. Sci.* 8:219 — magnitude gap);
+  Kearns & Fincham 2005 (gap → unforgiveness).
+- McCullough et al. 2003 (*JPSP* 85:321 — forgiveness =
+  motivation change); Worthington 2003 (decisional vs
+  emotional); vanOyen Witvliet et al. 2001 (*Psych. Sci.*
+  12:117 — physiology drops, episode intact); Exline et al.
+  2003.
+- Kiesler 1971 (*The Psychology of Commitment* — public
+  declaration binds); Cialdini (consistency principle).
+- Gabbert, Memon & Allan 2003 (71% co-witness adoption —
+  the cap anchor for `echo_adopt_p`; reuse from FM§8).
+
+## 131. v69 probes — social-memory VII (P721–P732)
+
+- **P721** orphan impression (MUST — persistence):
+  encode trait-implying behaviors on person X, decay all
+  supporting records out; PersonModel[X] eval floors at
+  ≥`orphan_eval_resid` and emits `orphan_eval:true`.
+- **P722** orphan no-episode (MUST — locked null): no
+  retrieval/drift path mints verbatim support for an
+  orphan eval; tell-time gist rationalization allowed,
+  record minting fails the battery.
+- **P723** favor ledger (MUST — sign-locked asymmetry):
+  matched give/receive favors — received outlasts given at
+  every horizon; `favor_give_decay=0` fails the clamp
+  (`favor_sym_null` structural).
+- **P724** coalition overwrite (SHOULD): after ≥3
+  alignment acts, external confusions concentrate
+  ≥`coal_cat_overwrite`×100% within-faction across
+  demographics; pre-conflict valence untouched
+  (`coal_recolor_null` arm).
+- **P725** relationship bump (SHOULD): recall density vs
+  relationship-age peaks in `rel_bump_win` then baselines;
+  relationship-cued recall returns landmark-dated reports.
+- **P726** noticed absence + ghost null (MUST):
+  expected-but-absent mints `noticed_absence` at
+  ~`absence_p`/`abs_val`; under EVERY retrieval mode the
+  record produces zero co-presence/siding/attendance for
+  the absentee.
+- **P727** blunder asymmetry (MUST): matched blunder
+  self/observer — self hot+durable + rumin-eligible,
+  observer fades ≥1.5×; `expected_recall` ≈
+  `aud_recall_over`× observer actual.
+- **P728** blunder audit (MUST — locked null): witnessed
+  blunders never mint self-side shame/hot records even
+  under observed-action flip conditions.
+- **P729** central-speaker convergence (SHOULD):
+  member-memory overlap with central speaker's selective
+  version exceeds peripheral speaker's by
+  `central_speaker_mult` margin; one-hop pairs converge at
+  `net_hop_decay` of direct; out-group chains attenuate.
+- **P730** dyad idioms (SHOULD): idiom cue succeeds
+  in-dyad, fails at `idiom_dyad_gate` outside; post-
+  `relationship:end` cue still fires at
+  `idiom_orphan_loss` strength.
+- **P731** rival watch (SHOULD — certainty lock):
+  committed-edge threat cues retain at `rival_cue_gain`
+  and resist disengagement; beliefStatus never auto-
+  upgrades to "confirmed" (`rival_certainty_null`).
+- **P732** provenance flatten (SHOULD — upgrade lock):
+  3-node `prov_chain` loses ~`prov_flat_p` intermediate
+  nodes/retell, re-anchors proximally, empties to
+  `kind:"rumor"`; credibility never exceeds proximal
+  speaker at any depth (`prov_upgrade_null`).
+
+## 132. Sources verified this version (P721–P732 backing)
+
+- Johnson, Kim & Risse 1985 (*JEP:LMC* 11:22 — Korsakoff
+  affective reactions without retrievable person memory);
+  De Houwer, Thomas & Baeyens 2001 (evaluative
+  conditioning meta); Srull & Wyer 1989 (online
+  impressions stored apart from behaviors).
+- Greenberg 1980 / Greenberg & Westcott 1983
+  (indebtedness — receiver-side obligation ledger);
+  Ross & Sicoly 1979 (egocentric availability); Emmons &
+  McCullough 2003; Watkins et al. 2003 (gratitude
+  rehearsal retains benefits).
+- Kurzban, Tooby & Cosmides 2001 (*PNAS* 98:15387 —
+  coalitional encoding deflates race categorization in
+  ~4 min); Pietraszewski, Cosmides & Tooby 2014 (*PLoS
+  ONE* 9:e88534 — alliance cues regulate; sex/age
+  persist).
+- Buehlman, Gottman & Katz 1992 (*J. Fam. Psychol.*
+  5:295 — oral-history bond variables predict stability
+  ~94%; beginnings dominate narration).
+- Gilovich, Medvec & Savitsky 2000 (*JPSP* 78:211 —
+  spotlight ~2× overestimate); Savitsky, Epley &
+  Gilovich 2001 (audience-retention overestimate).
+- Coman, Manier & Hirst 2016 (*PNAS* 113:8171 —
+  mnemonic convergence in 10-member networks); Yamashiro
+  & Hirst 2020 (*JEP:G* 149:1000 — central speakers,
+  ingroup amplification); Coman & Hirst 2015
+  (transitive propagation).
+- Hopper, Knapp & Scott 1981 (*Comm. Monogr.* 48:23 —
+  couples' personal idioms); Bruess & Pearson 1997.
+- Schützwohl & Koch 2004 (*EHB* 25:249); Schützwohl
+  2005 (*EHB* 26:288 — cue recall); 2008 (*PAID* 44:633 —
+  disengagement resistance, committed-only); Harris 2000
+  (mechanism challenge — DEBATED tier).
+- Provenance flattening: HYPOTHESIS composite — §4
+  serial-reproduction leveling (Bartlett 1932; Allport &
+  Postman 1947; Kashima 2000) + beta_source decay;
+  `prov_upgrade_null` is the honesty commitment.
+
+Registry: P1–P732. v69 suite: P721–P732 — 5 MUST
+(P721–P723, P726–P728; P722/P723/P726/P728 carry locked
+nulls) and 7 SHOULD (P724/P725/P729–P732; P731/P732
+carry lock arms).

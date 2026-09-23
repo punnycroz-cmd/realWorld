@@ -2154,3 +2154,143 @@ claims (full grounding in retrieval-cues.md §§60–69):
   `learn_style` joins `birth_order` as a mandated null —
   the trait layer's honesty depends on being able to
   represent "no effect."
+
+## 45. v68 addendum — social-memory VI anchors (verified)
+
+Part VI of social-memory.md (the conversation's holes).
+Anchors web-verified this version; spec §§6.125–6.134.
+
+- **Waiting to speak deafens the speaker before you.**
+  Brenner 1973 (*J. Exp. Psychol.* 98:120 — verified
+  full-text): turn-taking read-aloud, N=88; recall craters
+  ~2 positions before and 1 after one's own turn; the
+  seminar phenomenology is in the paper ("unaware of
+  anything else happening in the room"). Bond 1985
+  (*JPSP* 48:853 — verified abstract): ENCODING failure —
+  strong semantic cues don't rescue, post-hoc instruction
+  doesn't, PRE-instruction reverses into advantage. Bond
+  1991 (*PSPB* 17:174): elaborative rehearsal is the
+  mediator, eye contact is not. → `nil_*` params with a
+  locked retrieval-rescue null.
+- **Incongruity advantage has a schema-strength gate — and
+  recognition flips the sign.** Stangor & McMillan 1992
+  (*Psych. Bull.* 111:42 — verified: 54 experiments): weak/
+  newly-formed expectancies → incongruent recall wins;
+  strong established expectancies → congruent recall bias;
+  recognition favors congruent items throughout (Sherman
+  et al. 1998 integration-theory fit). → §2.3 gated by
+  `exp_str`, recognition arm sign-flipped via
+  `incong_recog_flip`, encoding floor locked.
+- **Implied becomes said.** Harris & Monaco 1978
+  (*JEP:G* 107:1 — "between the lines"): hearers report
+  pragmatically implied content as asserted; Brewer 1977 —
+  the implicature is computed at hearing and the computed
+  proposition stores. → `implied` fields mint weak-sourced
+  gist; the said/implied distinction is M-tier.
+- **The lens, not the target.** Higgins, Rholes & Jones
+  1977 (*JESP* 13:141): recently-primed trait constructs
+  assimilate ambiguous behavior descriptions; Bargh, Bond,
+  Lombardi & Tota 1986 (*JPSP* 50:869): chronically
+  accessible constructs do it unprimed; Martin 1986:
+  contrast under unambiguous behavior — the boundary case.
+- **Dependency buys resolution, not loyalty.** Erber &
+  Fiske 1984 (*JPSP* 47:709) + Neuberg & Fiske 1987
+  (*JPSP* 53:431): outcome-dependent perceivers remember
+  MORE expectancy-inconsistent attributes; Fiske & Dépret
+  1996: individuation runs up the dependency gradient —
+  the §34 remember-up asymmetry's mechanism.
+- **Two books, one harm.** Baumeister, Stillwell & Wotman
+  1990 (*JPSP* 59:994) + Stillwell & Baumeister 1997
+  (*Psych. Sci.* 8:219): victim narratives emphasize
+  severity/arbitrariness and persist; perpetrator accounts
+  fade and soften — the magnitude gap. Kearns & Fincham
+  2005: the gap feeds unforgiveness. → `harmed:` tag splits
+  decay/reconstruction arms; encode-side identical (locked).
+- **Forgiveness rewires the charge, not the record.**
+  McCullough et al. 2003 (*JPSP* 85:321): forgiveness =
+  motivation change (avoidance/revenge decline), memory
+  intact; Worthington 2003: decisional precedes emotional;
+  vanOyen Witvliet 2001 (*Psych. Sci.* 12:117): physiology
+  drops, episode reportable. → `forgiveEvent` moves the
+  affect channel only — `forg_erase_null` locked.
+- **Public promises bind both ends.** Kiesler 1971 (*The
+  Psychology of Commitment*): public declaration increases
+  binding; witnesses are distributed creditors. →
+  `witnessed` on commitments strengthens both arms and
+  mints third-party clones.
+- **Your own story, back bent (composite hypothesis).** No
+  single study isolates self-derivative echo adoption;
+  composed from Gabbert 2003 conformity (0.71 anchor →
+  capped 0.3 arm), source monitoring, and §24 canonization.
+  P716 cap-locks it. `metVia`/`remet_offense_p` similarly
+  flagged HYPOTHESIS composites.
+
+## 46. v69 addendum — social-memory VII anchors (verified)
+
+Anchors for spec v5.17 / SM Part VII (§§96–105). All
+checked against primary sources this version.
+
+- **Eval survives memory.** Johnson, Kim & Risse 1985
+  (*J. Exp. Psychol.: Learn. Mem. Cogn.* 11:22): Korsakoff
+  amnesics formed affective preferences for people they
+  could not retrieve. De Houwer, Thomas & Baeyens 2001
+  (evaluative-conditioning meta — attitude outlives the
+  pairing episode). Srull & Wyer 1989 (impressions stored
+  separately from generating behaviors). → `orphan_eval_resid`
+  floor + `orphan_eval` emission; `orphan_reason_null`
+  locked (no fabricated support episode).
+- **Favor asymmetry (composite).** Greenberg 1980;
+  Greenberg & Westcott 1983 (*Basic Group Processes* —
+  indebtedness as a slow-decaying receiver-side state);
+  Ross & Sicoly 1979 (egocentric availability — own
+  contributions over-rehearsed); Emmons & McCullough 2003;
+  Watkins, Woodward, Stone & Kolts 2003 (gratitude
+  rehearsal retains benefits). Direction locked
+  (`favor_sym_null`); split magnitudes HYPOTHESIS.
+- **Coalition beats demographics.** Kurzban, Tooby &
+  Cosmides 2001 (*PNAS* 98:15387 — who-said-what
+  paradigm; ~4 min of live alliance cues deflates race
+  categorization); Pietraszewski, Cosmides & Tooby 2014
+  (*PLoS ONE* 9:e88534 — alliance regulation; sex/age
+  persist). → `sided_with`/`sided_against` edges +
+  `coal_cat_overwrite` re-sort of §11 sourceInfer;
+  `coal_recolor_null` locked.
+- **Beginnings dominate dyad history.** Buehlman, Gottman
+  & Katz 1992 (*J. Fam. Psychol.* 5:295 — oral-history
+  bond coding predicts 3-yr stability ~94%; how-we-met/
+  courtship narration is the diagnostic content). →
+  `relStartDay` + `rel_bump_win`/`rel_bump_gain` reusing
+  bump + landmark machinery.
+- **Noticed absence (composite HYPOTHESIS).** No direct
+  study; composed of expectancy-violation encoding
+  (§2.3/Stangor & McMillan) + exclusion-salience
+  (§73/ostracism detection). `absence_ghost_null` is the
+  defensible commitment — no manufactured co-presence.
+- **Spotlight + retention overestimate.** Gilovich,
+  Medvec & Savitsky 2000 (*JPSP* 78:211 — ~2× notice
+  overestimate); Savitsky, Epley & Gilovich 2001 —
+  audience memory overestimated. → self/observer decay
+  split + `aud_recall_over`; `blunder_audit_null` keeps
+  witnessed shame off the self channel.
+- **Networks converge on central speakers.** Coman,
+  Manier & Hirst 2016 (*PNAS* 113:8171 — convergence from
+  dyadic alignment × topology); Yamashiro & Hirst 2020
+  (*JEP:G* 149:1000 — central speakers amplify SS-RIF/
+  practice when ingroup, attenuate when outgroup); Coman
+  & Hirst 2015 (transitive propagation). →
+  `central_speaker_mult` + `net_hop_decay`.
+- **Dyad idioms.** Hopper, Knapp & Scott 1981 (*Comm.
+  Monogr.* 48:23 — couples' personal idioms track
+  intimacy); Bruess & Pearson 1997 (idioms decay with the
+  relationship). → `idiom`/`dyad` locked cues +
+  `idiom_orphan_loss` on dissolution.
+- **Rival watch.** Schützwohl & Koch 2004 (*EHB* 25:249);
+  Schützwohl 2005 (*EHB* 26:288 — infidelity-cue recall);
+  2008 (*PAID* 44:633 — disengagement resistance,
+  committed-relationship bound). Module claim contested —
+  Harris 2000 (*JPSP* 78:1082). → encoding/disengagement
+  only; `rival_certainty_null` locked.
+- **Provenance flattening (composite HYPOTHESIS).**
+  Bartlett 1932 leveling + §4 chain work + beta_source
+  decay on embedded attribution stacks. `prov_upgrade_null`
+  locked — flattening loses truth, never launders it.
