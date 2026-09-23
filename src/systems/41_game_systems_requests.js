@@ -821,6 +821,8 @@ function gsBusTick(nowMin){
   gsPromoteAll(now);
   /* v5: wind-down warnings + the orphan sweep ride the same bus beat */
   if(typeof gsPossessTick === 'function') gsPossessTick(now);
+  /* v6: the wire's honest-empty marker rides the same beat */
+  if(typeof gsWireTick === 'function') gsWireTick(now);
 }
 
 /* cancel a queued/active request.
@@ -866,7 +868,8 @@ function gsAdminRevoke(id, reason, nowMin){
   if(!r || (r.status !== 'queued' && r.status !== 'active' &&
             r.status !== 'in_review')) return false;
   gsBusEmit('admin', { playerId: 'owner', kind: 'admin', id: null, _now: now },
-            { action: 'revoke', target: id, reason: reason || 'revoked' });
+            { action: 'revoke', target: id, reason: reason || 'revoked',
+              compensated_cr: r.billed });
   return gsCancelRequest(id, now, 'admin');
 }
 
@@ -980,7 +983,12 @@ function gsViewerState(nowMin){
   }
   return {
     nowMin: now,
-    feed: GS_FEED.slice(-50),
+    /* v6: the public feed surface is THE WIRE — formatted, display-safe
+       entries (world/feed.json schema). feedRaw keeps the raw lifecycle
+       rows for the console/debug; nothing private reaches `feed`. */
+    feed: (typeof gsWireTail === 'function') ? gsWireTail(50)
+                                           : GS_FEED.slice(-50),
+    feedRaw: GS_FEED.slice(-50),
     active: gsActiveSessions(now),
     queues,
     review: gsReviewQueue().map(r => ({ id: r.id, player: r.playerId,
@@ -1047,7 +1055,9 @@ function gsBusSnapshot(){
     possess: GS_POSSESS, events: GS_EVENTS,
     listings: GS_LISTINGS, wxOvr: GS_WX_OVR, fxSeq: GS_FX_SEQ.n,
     plog: (typeof gsPossessSnapshot === 'function')
-          ? gsPossessSnapshot() : null });          // v5 driving record
+          ? gsPossessSnapshot() : null,             // v5 driving record
+    wire: (typeof gsWireSnapshot === 'function')
+          ? gsWireSnapshot() : null });             // v6 formatted feed
 }
 function gsBusLoad(json){
   try{
@@ -1073,6 +1083,9 @@ function gsBusLoad(json){
         ? { [GS_WX_OVR.reqId]: GS_WX_OVR.untilMin } : {};
     GS_FX_SEQ.n = d.fxSeq || 0;
     if(typeof gsPossessLoad === 'function') gsPossessLoad(d.plog);
+    /* v6: restore the formatted wire verbatim; a snapshot without one
+       leaves the cursor at 0 and the wire rebuilds from the feed */
+    if(typeof gsWireLoad === 'function') gsWireLoad(d.wire);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1102,6 +1115,7 @@ function gsBusReset(){
   GS_WX_OVR.baseHum = null; GS_WX_OVR.sponsors = {};
   GS_FX_SEQ.n = 0;
   if(typeof gsPossessReset === 'function') gsPossessReset();
+  if(typeof gsWireReset === 'function') gsWireReset();       // v6
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */

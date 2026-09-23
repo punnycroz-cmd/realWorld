@@ -1688,6 +1688,216 @@ runAutoTest = async function(){
           GS_HIRED[h5id].spawned === false,
           'gs: v5 hire works in medieval mode but spawns no Mission pawn');
     }
+
+    // ================= v6: THE WIRE (public spectator feed) =================
+    /* every lifecycle event so far should have landed as a formatted,
+       display-safe wire line — the bus kept running under us. */
+    gsCreditGrant('pW', 5000, 'wire stake'); gsMarkHired('H90', 'pW',
+      { name: 'Wire Wendy' });
+    const wReq = gsSubmitRequest({ playerId: 'pW', kind: 'possess',
+      target: 'H90', durationMin: 10 }, 60000);
+    log(wReq.status === 'active' &&
+        GS_WIRE.some(e => e.req === wReq.id && e.kind === 'request' &&
+          e.status === 'running' && /possess — Wire Wendy/.test(e.text) &&
+          e.mentions && e.mentions.indexOf('H90') >= 0 &&
+          /^[dw][\w-]*-\d/.test(e.id) && e.t != null && e.day != null),
+        'gs: v6 a running request posts a canonical wire line');
+    log(GS_WIRE.some(e => e.req === wReq.id && /takes the wheel/.test(e.text)),
+        'gs: v6 possession begin is its own attributed beat');
+    gsBusTick(60070);                        // past endMin — session wraps
+    log(GS_WIRE.some(e => e.req === wReq.id &&
+          e.status === 'player session ended' &&
+          /back on their own two feet/.test(e.text)) &&
+        GS_WIRE.some(e => e.req === wReq.id && e.status === 'resolved'),
+        'gs: v6 session end lands as "player session ended" + resolved');
+
+    /* ---- weather: attributed sky lines, queue -> refund ---- */
+    gsCreditGrant('pQ', 500, 'wire stake');
+    const wWx = gsSubmitRequest({ playerId: 'pQ', kind: 'weather',
+      durationMin: 20, params: { wx: 'rain' } }, 60080);
+    const wWx2 = gsSubmitRequest({ playerId: 'pW', kind: 'weather',
+      durationMin: 20, params: { wx: 'clear' } }, 60081);
+    log(wWx.status === 'active' && wWx2.status === 'queued' &&
+        GS_WIRE.some(e => e.req === wWx2.id && e.status === 'queued' &&
+          /weather — clear/.test(e.text)) &&
+        GS_WIRE.some(e => e.kind === 'weather' &&
+          /Rain over the Mission — called by pQ/.test(e.text)),
+        'gs: v6 queue posts queued; the sky change is attributed weather');
+    gsBusTick(60142);                        // wx done @60100, wx2 TTL lapses
+    log(wWx2.status === 'expired' && wWx2.refunded === wWx2.billed &&
+        GS_WIRE.some(e => e.req === wWx2.id && e.status === 'refunded' &&
+          /lapsed/.test(e.text)) &&
+        GS_WIRE.some(e => e.kind === 'weather' && /sky drifts back/.test(e.text)),
+        'gs: v6 expiry is a refunded line; the sky returning is weather');
+
+    /* ---- denials: verbatim contract text, codes, never the note ---- */
+    const wDeny = gsSubmitRequest({ playerId: 'pQ', kind: 'possess',
+      target: 'C1', durationMin: 10,
+      params: { note: 'take over Mars at the counter' } }, 60200);
+    log(wDeny.status === 'denied' &&
+        GS_WIRE.some(e => e.req === wDeny.id && e.status === 'not approved' &&
+          e.text === 'request not approved' &&
+          e.reason_code === 'possession-scope') &&
+        !GS_WIRE.some(e => /take over Mars/.test(e.text)),
+        'gs: v6 denied requests print the class, never the ask');
+    const wHarm = gsSubmitRequest({ playerId: 'pQ', kind: 'possess',
+      target: 'H90', durationMin: 10,
+      params: { note: 'make them cry on stream' } }, 60201);
+    log(wHarm.status === 'denied' && wHarm.reason === 'harm-targeting' &&
+        GS_WIRE.some(e => e.req === wHarm.id &&
+          e.reason_code === 'harm-targeting' && e.attempt === 'possess') &&
+        !GS_WIRE.some(e => /make them cry/.test(e.text)),
+        'gs: v6 moderation codes publish as reason_code, never the note');
+
+    /* ---- the review lane is a public arc: in_review -> approved ->
+       running, note quarantined until the request actually runs ---- */
+    gsMarkHired('H91', 'pQ', { name: 'Queue Quinn' });
+    const wRev = gsSubmitRequest({ playerId: 'pQ', kind: 'possess',
+      target: 'H91', durationMin: 10,
+      params: { note: 'confront the noisy neighbors' } }, 60210);
+    const revInReview = GS_WIRE.find(e => e.req === wRev.id &&
+      e.status === 'in_review');
+    log(wRev.status === 'in_review' && !!revInReview &&
+        /in human review/.test(revInReview.text) &&
+        revInReview.text.indexOf('confront') < 0,
+        'gs: v6 parked requests post in_review with the note quarantined');
+    gsReviewResolve(wRev.id, true, { nowMin: 60211 });
+    const revOK = GS_WIRE.find(e => e.req === wRev.id &&
+      e.status === 'approved');
+    const revRun = GS_WIRE.find(e => e.req === wRev.id &&
+      e.status === 'running');
+    /* the 'cleared review' beat keeps the note quarantined; it debuts on
+       the running line, once the request is actually live */
+    log(wRev.status === 'active' && !!revOK &&
+        /cleared review/.test(revOK.text) &&
+        revOK.text.indexOf('confront') < 0 && !!revRun &&
+        revRun.text.indexOf('confront the noisy neighbors') >= 0,
+        'gs: v6 review approval publishes cleared review -> running');
+    gsCancelRequest(wRev.id, 60212, 'player');
+
+    /* ---- admin overrides are attributed AND compensated on the wire -- */
+    const wAdm = gsSubmitRequest({ playerId: 'pW', kind: 'possess',
+      target: 'H90', durationMin: 30 }, 60220);
+    gsAdminRevoke(wAdm.id, 'wire test sweep', 60221);
+    log(GS_WIRE.some(e => e.kind === 'admin' &&
+          /running request was ended/.test(e.text) &&
+          e.who === 'admin' && e.attrs &&
+          e.attrs.compensated_cr === wAdm.billed) &&
+        GS_WIRE.some(e => e.req === wAdm.id && e.status === 'refunded' &&
+          /player compensated/.test(e.text) &&
+          e.attrs.compensated_cr === wAdm.billed),
+        'gs: v6 admin overrides post public lines with compensation in attrs');
+
+    /* ---- lease privacy: the never-list is structural ---- */
+    const wBld = gsRegisterBuilding({ street: 'Wire Lane',
+      owner_id: 'landlord' });
+    const wUnit = gsRegisterUnit(wBld.id, { unit_code: 'A',
+      base_rent: 1500 });
+    const wLeaseAddr = gsAddressOfUnit(wUnit.id);
+    gsDollarGrant('T20', 6000, 'wire stake');   // tenant can actually pay
+    const wApp = gsApplyForLease(wUnit.id, 'T20',
+      { date: '2026-09-01' });
+    gsApproveApplication(wApp.id, { date: '2026-09-01' });
+    gsRentTick('2026-09-01');        // first-month charge + any payments
+    const wSign = GS_WIRE.filter(e => e.kind === 'housing' &&
+      /new tenancy/.test(e.text)).pop();
+    log(!!wSign && wSign.text.indexOf(wLeaseAddr) >= 0 &&
+        !/\$|\d{3,}/.test(wSign.text.replace(/\d{4} Wire Lane/, '')),
+        'gs: v6 a signed lease posts a housing line with no money detail');
+    log(!GS_WIRE.some(e => /rent_paid|deposit_paid|\$1500/.test(e.text)) &&
+        GS_WIRE_SUP.n > 0 && GS_WIRE_SUP.by['lease:rent_paid'] >= 0,
+        'gs: v6 individual rent payments are withheld by policy, counted');
+    /* cure-or-quit is the one feed-visible notice rung */
+    gsRecordViolation(wUnit.id, { kind: 'unpermitted_occupant', who: 'T21',
+      discovered: true });
+    gsServeNotice(wUnit.id, 'cure_or_quit', { date: '2026-09-10' });
+    log(GS_WIRE.some(e => e.kind === 'housing' &&
+          e.text === 'housing notice posted — ' + wLeaseAddr) &&
+        !GS_WIRE.some(e => /unpermitted_occupant|T21/.test(e.text)),
+        'gs: v6 a posted notice is neutral — address only, no violator');
+    gsAdminEvict(wUnit.id, { override: true, reason: 'owner move-in',
+      date: '2026-09-20' });
+    const wEv = GS_WIRE.filter(e => e.kind === 'admin' &&
+      /tenancy ended/.test(e.text)).pop();
+    log(!!wEv && wEv.text === 'admin action — tenancy ended at ' +
+        wLeaseAddr && !/owner move-in|reason|\$/.test(wEv.text),
+        'gs: v6 eviction wording is verbatim contract — never the reason');
+    /* ---- reads: filters, cursors, follow pins, archive ---- */
+    const wOnlyReq = gsWire({ kind: 'request' });
+    log(wOnlyReq.length > 0 && wOnlyReq.every(e => e.kind === 'request') &&
+        gsWire({ status: 'not approved' }).every(e =>
+          e.status === 'not approved') &&
+        gsWireSince(wReq.n - 1).some(e => e.req === wReq.id),
+        'gs: v6 filtered reads + since-cursors work');
+    gsWireFollow('m:H90', true);
+    const wFollowed = gsWire({ followedOnly: true });
+    log(wFollowed.length > 0 &&
+        wFollowed.every(e => (e.mentions || []).indexOf('H90') >= 0 ||
+          e.who === 'H90'),
+        'gs: v6 follow pins filter the wire by character');
+    gsWireFollow('m:H90', false);
+    const wPage = gsWirePage({ before: 999999, limit: 5 });
+    log(wPage.entries.length === 5 && wPage.next != null &&
+        gsWirePage({ before: wPage.next, limit: 5 }).entries.every(e =>
+          e.n < wPage.entries[0].n),
+        'gs: v6 paged history walks backward without repeating');
+    const wDay = gsWireDays()[0];
+    const wArch = gsWireArchiveDay(wDay);
+    log(wArch.day === wDay && wArch.events.length > 0 &&
+        wArch.events.every(e => e.day === wDay && e.id),
+        'gs: v6 the archive materializes day-objects with stable ids');
+    /* ---- display filter modes + parody names ---- */
+    log(gsWireRedact('meet me at Bi-Rite then Dolores Park Cafe') ===
+        'meet me at Buy-Rite then Dolores Perk',
+        'gs: v6 player text renders parody-first');
+    gsWireSetFilter('B');
+    const wQuietNote = gsSubmitRequest({ playerId: 'pW', kind: 'possess',
+      target: 'H90', durationMin: 5,
+      params: { note: 'wave at the camera' } }, 60300);
+    const wQLine = GS_WIRE.filter(e => e.req === wQuietNote.id).pop();
+    gsWireSetFilter('A');
+    log(!!wQLine && wQLine.text.indexOf('wave at the camera') < 0 &&
+        gsWireSetFilter('C') === true && gsWireSetFilter('A') === true &&
+        gsWireSetFilter('Z') === false,
+        'gs: v6 display filter B withholds notes; modes are owner-set');
+    gsCancelRequest(wQuietNote.id, 60301, 'player');
+    /* ---- the quiet marker is honest and deduped per stretch ----
+       (lease events above carry no bus minute, so pin the quiet clock
+       rather than let wall time in) */
+    const wQn0 = GS_WIRE.filter(e => e.kind === 'quiet').length;
+    GS_WIRE_META.lastMin = 60300;
+    gsBusTick(60300 + GS_WIRE_CFG.quietMin + 1);
+    const wQn1 = GS_WIRE.filter(e => e.kind === 'quiet').length;
+    gsBusTick(60300 + GS_WIRE_CFG.quietMin + 500);
+    const wQn2 = GS_WIRE.filter(e => e.kind === 'quiet').length;
+    log(wQn1 === wQn0 + 1 && wQn2 === wQn1 &&
+        GS_WIRE.filter(e => e.kind === 'quiet').pop().text
+          .indexOf('quiet') >= 0,
+        'gs: v6 dead air posts one honest quiet marker per stretch');
+    /* ---- the audit is green on a fully-lived wire ---- */
+    const wAudit = gsWireAudit();
+    log(wAudit.ok, 'gs: v6 wire audit — ' +
+        (wAudit.ok ? 'schema, ordering, privacy all clean'
+                   : wAudit.issues.slice(0, 3).join(' | ')));
+    log(gsWireVocabulary().statuses.indexOf('player session ended') >= 0 &&
+        gsWireVocabulary().reasonCodes.indexOf('legal-backstop') >= 0 &&
+        gsWireStats().byKind.request > 0 &&
+        gsWireStats().suppressed > 0,
+        'gs: v6 vocabulary + stats mirror the world contracts');
+    /* ---- the wire rides the bus snapshot ---- */
+    const wSnap = gsBusSnapshot();
+    const wIds = GS_WIRE.map(e => e.id);
+    gsBusReset();
+    log(GS_WIRE.length === 0 && gsBusLoad(wSnap) &&
+        GS_WIRE.length === wIds.length &&
+        GS_WIRE.every((e, i) => e.id === wIds[i]),
+        'gs: v6 the wire survives snapshot/load with identical ids');
+    /* ---- gsViewerState exposes the formatted feed, not raw rows ---- */
+    const wVS = gsViewerState(60400);
+    log(Array.isArray(wVS.feed) && Array.isArray(wVS.feedRaw) &&
+        wVS.feed.every(e => typeof e.text === 'string' && e.kind) &&
+        wVS.feedRaw.every(e => e.type && e.n != null),
+        'gs: v6 viewerState.feed is the display-safe wire; feedRaw is raw');
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{
