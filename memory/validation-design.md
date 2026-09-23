@@ -5347,3 +5347,94 @@ Registry: P1–P656. v62 suite: P647–P656 (4 MUST — P647/P652
 sign-locked, P650 two-arm with locked null, P649/P656 behavioral;
 6 SHOULD incl. one DEBATED-flagged split anchor at P650's Barasch
 leg).
+
+## 119. Probes P657–P666 (v63 suite — age-development VI)
+
+- **P657 infant clock (MUST, sign-locked):** matched-S records
+  encoded at encodeAge 0.5 / 2 / 5 / 20 show monotonically
+  increasing time-to-latent under `infant_beta_mult`; the 0.5y
+  record falls below `forget_thresh` within infant-scaled days
+  absent reminders. Asserts ordering AND that no separate
+  infant-erasure rule fires (the wall is emergent decay).
+- **P658 reinstate channel (MUST + locked null):** a latent
+  below-wall record re-encountered via a context-overlapping
+  Event (place/persons/objLink ≥ `reinstate_bar`) gains S and
+  can surface; the same content delivered via `hearAccount`
+  produces EXACTLY zero S change on the latent record —
+  `told_reinstate_null` asserted, any nonzero lift fails.
+- **P659 observer channel (SHOULD):** `role:"observer"` events
+  at encodeAge 2 mint retrievable records only under strong
+  contextual cues and carry no self-field tier; at encodeAge 6
+  they mint ordinary records at the `obs_gain` discount; at
+  encodeAge 2 below pierce, sub-arousal_thresh observer events
+  mint nothing.
+- **P660 heritage bump (MUST):** kin `told_by` records whose
+  `era` falls in the teller's bump window, heard at age 12,
+  show higher S per hearCount than the same teller's age-45-era
+  accounts; a matched non-kin teller shows ≤40% of the gain;
+  hearer at age 5 or 35 shows no heritage leg.
+- **P661 cue floor (MUST, sign-locked):** at retrievalAge 6 a
+  zero-channel voluntary query fails at ≥2× the one-weak-channel
+  rate; `interviewMode`/`asker`-scaffolded queries exempt; an
+  adult profile shows no cue_floor effect.
+- **P662 order by strength (SHOULD):** at retrievalAge 7, two
+  same-era records differing only in S are ordered higher-S =
+  "later" at p>0.55; at retrievalAge 14 ordering follows time
+  fields; the bias direction is locked (stronger→later, never
+  stronger→earlier).
+- **P663 strategy tiers (MUST + locked null):** `studied`
+  events at encodeAge 6 gain nothing vs matched plain
+  re-exposure; at 8 rote-studied gains `study_mult`; at 11
+  categorized-studied gains; a pre-onset studied record queried
+  at 12 shows NO retroactive bonus — `strategy_retro_null`.
+- **P664 schooling (SHOULD, HYPOTHESIS-flagged):**
+  `schooled:none` profile delays all three §4.31d onsets by
+  ~0.5y and shows a larger post-8 metamemory overconfidence gap
+  vs `schooled:full` at identical seed.
+- **P665 pub reward (SHOULD, DEBATED-lite):** `reward:true`
+  events inside `pub_window` encode elevated vs outside;
+  neutral events inside the window unchanged — a diffuse
+  pub-window lift FAILS this probe (narrowness is the contract).
+- **P666 v5.11 regression (MUST — structure):** all v5.11 params
+  at defaults reproduce v5.10 outputs on the standard battery
+  except the sign-locked differences above; snapshot round-trip
+  preserves the new record/event fields.
+
+## 120. Sources verified this version (P657–P666 backing)
+
+- Hartshorn & Rovee-Collier 1997; Hartshorn, Rovee-Collier et
+  al. 1998 (*Dev. Psychobiol.* 33:1 — the infant-retention
+  monograph: retention interval grows ~linearly, doubling
+  ~monthly); Rovee-Collier 1999 (*Curr. Dir. Psych. Sci.* 8:33
+  — time-window table); Rovee-Collier et al. 1980 (reactivation
+  paradigm — perceptual reminder restores flagging infant
+  memory).
+- Frankland, Köhler & Josselyn 2013 (*Science* 341:1047747 —
+  neurogenesis causes infant forgetting, rodent); Josselyn &
+  Frankland 2018 — DEBATED mechanism note, no params.
+- Barr & Hayne 1999 (*Dev. Psychobiol.* 34:159 — deferred
+  imitation 12–24mo, multi-week retention); Bauer 2002 (*Dev.
+  Rev.* 22:235 — long-term ordered recall of observed sequences).
+- Svob & Brown 2012 (*Memory* 20:737 — intergenerational
+  reminiscence bump); Krumhansl & Zupnick 2013 (*Psych. Sci.*
+  24:2059 — cascading music bump).
+- Kobasigawa 1974 (*Child Dev.* 45:190 — retrieval-cue
+  production deficiency); Flavell, Beach & Chinsky 1966 (*Child
+  Dev.* 37:283 — rehearsal emergence ~7).
+- Friedman 1991 (*Dev. Rev.* 11:139 — strength-based recency);
+  Friedman & Kemp 1998 (*Cog. Dev.* 13:335).
+- Ornstein, Haden & Hedrick 2004 (strategy-emergence schedule);
+  Schneider & Pressley 1997 (*Memory Development Between 2 and
+  20* — rehearsal ~7–8, organization ~9–10, elaboration ~13+).
+- Morrison, Smith & Dow-Ehrensberger 1995 (*Child Dev.*
+  66:1399 — birthday-cutoff design: grade > age effects);
+  Rogoff 1981 schooling corroboration — extension to encode-side
+  onsets flagged HYPOTHESIS.
+- Davidow, Foerde, Galván & Shohamy 2016 (*Neuron* 91:182 —
+  adolescent reward-related episodic enhancement); Murty,
+  Calabro & Luna 2018.
+
+Registry: P1–P666. v63 suite: P657–P666 (4 MUST — P657/P661
+sign-locked, P658/P663 carry locked nulls; 5 SHOULD incl.
+HYPOTHESIS P664 and DEBATED-lite P665; 1 structural regression
+P666).

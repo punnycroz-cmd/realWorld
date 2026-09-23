@@ -907,6 +907,17 @@ needs both.
 | forced_floor / rapport_gain | 0.1 / 0.0 | 0.4 / 0.25 | asker license floor + trust breadth (v5.10) |
 | route_gain / route_cap / route_hl | 0.0 / 1.1 / 10 | 0.15 / 2.0 / 90 | worn-path rate, cap, half-life (v5.10) |
 | restart_overlap | 0.2 | 0.7 | fresh-angle restart gate (v5.10) |
+| infant_beta_lo / infant_beta_mid | 4.0 / 2.0 | 12.0 / 6.0 | infant-clock β multiplier endpoints (v5.11) |
+| reinstate_gain / reinstate_bar | 0.0 / 0.4 | 0.8 / 0.85 | perceptual reinstatement below wall (v5.11) |
+| obs_gain_lo | 0.1 | 0.6 | observer-channel 1y knot (v5.11) |
+| heritage_gain / heritage_kin_atten | 0.0 / 0.2 | 0.7 / 0.8 | intergenerational bump legs (v5.11) |
+| free_recall_tax | 1.0 | 3.0 | child no-cue θ multiplier at 5 (v5.11) |
+| order_strength_bias / order_strength_until | 0.0 / 6 | 0.9 / 12 | order-by-strength branch (v5.11) |
+| study_mult | 0.0 | 0.5 | studied-event bonus, tier-gated (v5.11) |
+| rehearsal_on / org_on / elab_on | 5 / 8 / 10 | 9 / 12 / 16 | strategy-tier onsets yrs (v5.11) |
+| school_strat_adv / meta_school_gain | 0.0 / 0.0 | 1.5 / 0.15 | schooling onset-delay + meta gap (v5.11) |
+| pub_reward_gain | 0.0 | 0.3 | adolescent reward overlay leg (v5.11) |
+| schooled | — | — | bible enum {full,partial,none}, mains all full (v5.11) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2853,3 +2864,46 @@ entering through existing channels:
   contract: after a failed account, change the angle (order,
   perspective, era) or the counters persist — identical re-asks
   are the worst probe.
+
+## 45. v5.11 note (age-development VI — infant clock, seen reminder, observer channel, heritage bump)
+
+Eleven clamp rows added in §0 for the v5.11 machinery. **No new
+trait pins** — the diversity this pass adds enters through the
+PROFILE (`schooled` enum) and through the EVENT layer
+(`role:"observer"`, `studied`, `reward`, `era` on accounts), not
+through per-character constants:
+
+- **`schooled` is a backstory fact, not a dial.** All 8 mains are
+  `full`; use `partial`/`none` only where a bible says so
+  (unschooled upbringing, interrupted schooling). Its effects are
+  narrow — strategy onsets +0.5y and a persisting metamemory gap
+  — do not stack it onto `g_mem` (schooling reorganizes memory
+  skills, not raw capacity; Morrison 1995 is a grade-vs-age
+  finding, not an IQ claim).
+- **`infant_beta_*`/`obs_gain`/`free_recall_tax`/`order_strength_*`
+  are age-keyed curves, evaluated inline** — a bible never pins
+  "infant forgetting" because the encoder's age IS the pin. The
+  visible consequence for bibles: a character's childhood
+  backstory seeded with observer events (watched the fight,
+  watched the ritual) mints real but self-field-thin records —
+  write backstory beats as participation OR observation
+  deliberately; they differ.
+- **The heritage leg wants family-story content.** `heritage_gain`
+  fires only when kin tells their OWN bump-era story to a hearer
+  aged 8–30 — world-builder should tag family-anecdote content
+  with `era` (the teller's era) or the leg can't evaluate. A
+  bible note like "raised on her grandmother's Resistance
+  stories" is exactly the input this param prices; without the
+  tag it's a null op.
+- **`told_reinstate_null` is load-bearing.** Below-wall latent
+  records respond to re-ENCOUNTER only. Dialogue must not let a
+  character's earliest memory get "unlocked by being told about
+  it" — the grandmother's retelling mints a NEW told_by record
+  (which §48 gates), it never revives the latent one. The
+  unlock-by-return scene (going back to the house) is legal; the
+  unlock-by-story scene is not.
+- **`pub_reward_gain` stays narrow by construction.** Reward-
+  valenced only, window-scoped only. A bible that wants a teen's
+  memory to be generally hot already has `pub_emo_gain`;
+  `pub_reward_gain` is specifically the-wins-stick — don't route
+  humiliations through it (that's `pub_emo_gain`/`social_eval`).

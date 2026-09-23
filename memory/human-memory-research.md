@@ -1862,3 +1862,45 @@ claims (full grounding in retrieval-cues.md §§60–69):
   Memon, Meissner & Fraser 2010 (Psych Bull 136:340 — CI meta,
   d≈1.2 correct-detail): varied retrieval paths recover what the
   first pass dropped; identical re-asks inherit the damage.
+
+## 40. v63 addendum — age-development VI anchors (verified)
+
+- **The infant's clock is a different clock.** Hartshorn et al.
+  1998 + Rovee-Collier 1999: retention doubles roughly monthly
+  through infancy (~1d @2mo → ~2wk @6mo → ~13wk @18mo). The
+  amnesia wall is emergent decay on a fast schedule, not a
+  special erasure rule.
+- **A reminder must be seen, not told.** Rovee-Collier's
+  reactivation paradigm: a flagging infant memory is restored by
+  perceptual re-encounter — verbal accounts cannot reach
+  below-wall records (locked null in the spec).
+- **Neurogenesis may be the eraser — DEBATED.** Frankland et
+  al. 2013 (Science): infant-magnitude neurogenesis actively
+  induces forgetting; suppressing it preserves infant memory.
+  Rodent data; coexists with retrieval-failure accounts.
+- **Toddlers record other people's events.** Barr & Hayne 1999;
+  Bauer 2002: deferred imitation — observed action sequences
+  reproduced after weeks, from ~12mo. The watched-not-done
+  channel is real but self-field-thin.
+- **The bump cascades.** Svob & Brown 2012: parent-told memories
+  bump at the PARENTS' era. Krumhansl & Zupnick 2013: a second
+  music bump at the parents' young-adult years. Family archives
+  transmit their teller's adolescence.
+- **The child can't supply the cue.** Kobasigawa 1974: the
+  retrieval deficit is generation, not use — provided cues work,
+  self-generated ones don't arrive until ~10–12. Scaffolding is
+  the fix, not a crutch.
+- **Children order by strength.** Friedman 1991: lacking
+  temporal codes, young children report the STRONGER memory as
+  the more recent — the vivid old thing is "yesterday."
+- **Strategies arrive on a schedule.** Ornstein et al. 2004 /
+  Schneider & Pressley: rehearsal ~7–8, organization ~9–10,
+  elaboration ~13+ — before onset, repetition is just
+  re-exposure.
+- **Schooling is an operator.** Morrison et al. 1995
+  (birthday-cutoff): memory gains are GRADE effects > age
+  effects — instruction itself reorganizes; extension to
+  encode-side onsets is our flagged hypothesis.
+- **The teen win sticks.** Davidow et al. 2016: reward-
+  associated episodic memory peaks in adolescence — the bump's
+  fuel includes a reward circuit, not just firsts.

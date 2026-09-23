@@ -1822,3 +1822,358 @@ shallow sample is all there is.
 - `epochal_gain` applied to encodeAge ≥ 5 keeps infant records
   exempt — the literature doesn't test epochal imprinting in
   toddlers; we set the floor at the pierce boundary.
+
+---
+
+# Part VI — v63 deepening (2026-09-23): the infant clock, the reminder that must be seen, the watched-not-done channel, grandparents' bump, the cue the child can't generate, ordering by strength, the strategy schedule, schooling as the operator, and the adolescent win that sticks
+
+## 61. Below the wall the clock runs faster — the infant retention function
+
+[CONSENSUS, best-quantified age effect in the entire doc] The wall
+(§48, amnesia_exit_eff) marks which records SURVIVE to adulthood —
+but inside the infant's own life, forgetting is a different machine
+entirely. Rovee-Collier's mobile-conjugate program (Hartshorn &
+Rovee-Collier 1997; Hartshorn et al. 1998, *Dev. Psychobiol.*
+33:1 — verified, the development-of-forgetting monograph;
+Rovee-Collier 1999, *Curr. Dir. Psych. Sci.* 8:33 — the "time
+window" table): retention grows roughly LINEARLY with age in
+infancy — ~1–2 days at 2 months, ~1 week at 3–4 months, ~2 weeks
+at 6 months, ~8–13 weeks at 18 months — a doubling time of about
+one month of life. The infant isn't amnesic in the adult sense;
+every trace exists, just on a clock ~10–50× faster than the
+adult's. This supplies the missing mechanism under the wall:
+below-wall records aren't merely "weak versions" — they decay on
+an infant schedule and die to latency within days-weeks unless
+something else intervenes.
+
+**Spec consequence (v5.11):** `beta_episodic` gains an
+`infant_beta_mult(encodeAge)` knot column, applied only when
+`encodeAge < amnesia_exit_eff` and stacked multiplicatively with
+`amnesia_slope`: 8.0@0.2y → 6.0@1y → 4.0@2y → 2.5@3y → 1.0@exit.
+The numbers compress the empirical ratio (2mo infant ≈ days vs
+adult ≈ weeks-months) into a tractable multiplier; the probe
+tests ordering, not the exact constants. Effect: a baby's morning
+is gone by the weekend; a toddler's week persists about a month.
+This finally makes the wall *emergent* — infant records don't
+need a special erasure rule, they just decay on the fast clock
+and fall under `forget_thresh` before any consolidation can
+catch them.
+
+## 62. The reminder must be seen — reinstatement below the wall
+
+[CONSENSUS] The same Rovee-Collier program's second finding is
+more consequential for RW: a flagging infant memory is fully
+RESTORED by a single brief re-exposure to part of the original
+context — seeing the mobile again, the room again (the
+"reactivation" paradigm; Rovee-Collier et al. 1980; reviewed
+Rovee-Collier 1999). Crucially the reminder is PERCEPTUAL —
+re-encounter, not narration (the infant can't be told about it).
+Combined with §48's `told_by` zeroing: below the pierce, a verbal
+account mints nothing and reinstates nothing; a re-encounter
+reinstates almost everything. This is the cleanest mechanistic
+split the doc has: same record, two reminder channels, one works
+and one doesn't — and WHICH works flips at the wall.
+
+**Spec consequence (v5.11):** new op leg inside
+`dailyMemoryTick`/event encoding: a new Event whose context
+fields (place, object, persons) overlap a latent record's
+cueVector above `reinstate_bar` (0.6) applies `S *= (1 +
+reinstate_gain)` with `reinstate_gain` 0.4 for encodeAge<exit
+records (vs the adult-scale `mental_reinstate` 0.09 — infants
+benefit MORE). **Locked null `told_reinstate_null`:** `hearAccount`
+NEVER triggers reinstatement on below-wall records — the channel
+is re-encounter only. Game-systems note: this is the "going back
+to grandma's house smells/rooms unlock it" mechanism — it
+formally explains why place-cue retrieval (§5.20 latent
+reinstatement) is the only door under the wall.
+
+## 63. Mechanism note — why the infant clock is fast (DEBATED)
+
+Frankland, Köhler & Josselyn 2013 (*Science* 341:1047747 —
+verified, rodent): postnatal hippocampal neurogenesis — which is
+maximal in infancy — actively CAUSES forgetting; suppressing
+neurogenesis in infant mice preserves memory, elevating it in
+adults induces infant-like forgetting (Josselyn & Frankland 2018
+for review). If true in humans, the wall isn't a storage failure
+or a retrieval lock — it's turnover: the infant brain writes over
+itself. **[DEBATED]** — animal data, and the alternative
+retrieval-failure accounts (§11 latent-trace, §48 pierce classes)
+coexist with it. **No params** — this section justifies why
+`infant_beta_mult` exists at all and why reinstatement is
+re-encounter-shaped (new neurons disrupt the engram; a matching
+percept can still reactivate what's left). Modeling license: if a
+future probe shows below-wall records SHOULD recover verbally,
+the null `told_reinstate_null` is the load-bearing claim to break
+— cite it in the fix.
+
+## 64. Watched, not done — the deferred-imitation channel
+
+[CONSENSUS] Toddlers encode and reproduce OBSERVED action
+sequences — no participation, no language: Barr & Hayne 1999
+(*Dev. Psychobiol.* 34:159 — 12–24mo reproduce target acts after
+weeks); Bauer 2002 (*Dev. Rev.* 22:235 — ordered recall of
+observed event sequences robust from ~13–20mo, surviving months).
+The preverbal child is recording OTHER PEOPLE'S events, not just
+its own — and observation records are thinner (first-person
+sensory fields absent) but real. This matters for RW below the
+pierce: §4.29 already mints `secondhand_fear` from witnessed
+threat; the general channel is `role:"observer"`.
+
+**Spec consequence (v5.11):** Event schema gains
+`role:"participant"|"observer"` (default participant). Encode:
+`E *= obs_gain(encodeAge)` — knots 0.3@1y → 0.8@4y → 1.0@8y
+(observation is asymptotically as good as participation for
+gist by school age; verbatim/self-field density stays lower —
+observer records mint WITHOUT self-referential field tiers).
+Below `amnesia_exit_eff − pierce`, only `role:"observer"` records
+with arousal ≥ arousal_thresh mint at all (the watched alarm is
+the infant's strongest kept thing — secondhand fear §4.29 is the
+formal instance). Adult observer records unchanged (already
+"witnessed" semantics).
+
+## 65. The bump cascades — grandparents' era lives in the child
+
+[CONSENSUS, two independent demonstrations] Svob & Brown 2012
+(*Memory* 20:737 — verified: young adults asked for parent-told
+memories produce a reminiscence bump for THEIR PARENTS' young-
+adulthood era — the bump transmits through stories); Krumhansl &
+Zupnick 2013 (*Psych. Sci.* 24:2059 — verified: music ratings
+show the listener's own bump ~13 AND a second bump at the
+parents' young-adult era — "cascading"). A household's bump-era
+stories are its most-told stories (§6.24 canonization), and
+hearers encode them disproportionately — the child of a
+22-year-old-era family archive carries a phantom adolescence.
+
+**Spec consequence (v5.11):** `hearAccount` gains the
+`heritage` leg: when the speaker is kin (`rel ∈
+{parent,grandparent,sibling}` from PersonModel) AND the account's
+content era falls inside the SPEAKER's bump window (teller's
+encodeAge 10–30) AND hearer age ∈ `heritage_hearer` [8,30], the
+minted `told_by` record gets `S *= (1 + heritage_gain)`,
+`heritage_gain` 0.35. Non-kin speakers attenuate ×0.4
+(acquaintance anecdotes carry less). Interacts with §53
+`cohort_imprint` on the teller's side (epochal public events
+survive best in the teller, so they're the most-told, so they
+inherit the most). World-builder hook: family-bible "story"
+content should carry `era` tags so the window test is
+computable; a character raised on grandparent war stories is
+formally different from one who wasn't.
+
+## 66. The cue the child can't generate — production deficiency at retrieval
+
+[CONSENSUS] Kobasigawa 1974 (*Child Dev.* 45:190 — verified:
+4th-graders given category cues recalled more, but didn't deploy
+the available cue structure SPONTANEOUSLY; the deficit is
+generation, not use); Flavell, Beach & Chinsky 1966 (*Child Dev.*
+37:283 — spontaneous verbal rehearsal emerges ~7). §13 covered
+encode-side production deficiency; the retrieval side is
+symmetric and sharper: the child's free recall fails not because
+the record is gone but because nobody supplied the cue. The
+interview-operator finding (§40) is the same fact seen from the
+asker's side — the child needs the search scaffolded from outside.
+
+**Spec consequence (v5.11):** voluntary recall computes
+`nCues` = count of nonempty cueVector channels in the query.
+When `nCues < cue_floor` (1), θ_eff multiplies by
+`free_recall_tax(retrievalAge)`: 2.0@5 → 1.5@8 → 1.0@12. Any
+nonempty channel (even a weak `w_when`) waives the tax — the
+bar is "one cue exists," not "good cues." Sign-locked
+consequence: children retrieve WORSE on open questions than on
+narrowed ones by a factor adults don't show; scaffolding
+(interviewer cues, `interviewMode`, a parent saying "at the
+lake, remember?") restores access. This is the mechanism behind
+§56's low-latency "I don't know" — it's not slowness alone; the
+search never starts.
+
+## 67. Ordering by strength — the child calls the vivid old thing "yesterday"
+
+[CONSENSUS] Friedman 1991 (*Dev. Rev.* 11:139 — children's
+memory for time of past events: young children lack temporal
+codes and reconstruct recency from trace strength/familiarity —
+stronger = more recent); Friedman & Kemp 1998 (*Cog. Dev.*
+13:335 — distance-based scale judgments mature through ~8–10).
+Adults order by temporal fields and anchors (§6.15); children
+order by how it FEELS. The signature error is directional: a
+vivid year-old event reports as more recent than a bland
+last-month one — strength inverts the truth.
+
+**Spec consequence (v5.11):** `orderRecall(a,b)` gains a child
+branch: when retrievalAge < `order_strength_until` (9, ±1
+phase), emit `order = argmax(S_a, S_b)` with probability
+`order_strength_bias` 0.6, else use the adult path. Below ~5
+the bias is near-total (no temporal reconstruction exists);
+by 12 adult weighting dominates. Sign-locked: child order
+errors systematically place STRONGER records later —
+falsifiable in either direction. Note the interaction with
+§62: a recently reinstated infant record carries fresh S — a
+child may order grandma's-house from 3y ago as last week. That
+is the datum.
+
+## 68. Strategies arrive on a schedule — three onsets, not one
+
+[CONSENSUS] The strategy-development literature is a ladder,
+not a switch (Ornstein, Haden & Hedrick 2004; Schneider &
+Pressley 1997 for review): spontaneous rehearsal ~7–8,
+categorical organization ~9–10, elaboration ~13+. Each tier
+changes what REPETITION buys: before the onset, the same
+repetition is plain re-exposure (strength only); after it, the
+repetition is a strategy — the child is now DOING something to
+the trace. RW events flagged `studied`/`practiced` (reciting a
+part, drilling vocabulary, practicing the piano piece) should
+pay off only past the relevant tier.
+
+**Spec consequence (v5.11):** `studied:true` events gain
+`E *= (1 + study_mult)` where `study_mult` 0.25 is gated by
+tier: below `rehearsal_on` (7) the flag pays 0 — the
+repetition encodes but buys no bonus; at 7–10 the flag pays
+`study_mult` on rote-repeat content only; `org_on` (10) extends
+it to categorized/structured content; `elab_on` (13) to
+self-explanatory material. **Locked null
+`strategy_retro_null`:** pre-onset studied records do NOT
+retroactively gain the bonus when the tier arrives — the
+strategy operated at encode, not on the archive.
+
+## 69. Schooling is an operator, not a birthday — the grade effect
+
+[CONSENSUS for the existence of the effect; magnitude ours]
+Morrison, Smith & Dow-Ehrensberger 1995 (*Child Dev.* 66:1399 —
+verified, the birthday-cutoff regression-discontinuity design:
+children separated by weeks but split across grades show
+GRADE effects exceeding AGE effects on memory measures —
+schooling itself does the reorganizing); Rogoff 1981 /
+Rogoff & Mistry for the cross-cultural corroboration. Memory
+"development" is partly instruction — formal schooling teaches
+rehearsal, deliberate retrieval, and self-testing as skills.
+
+**Spec consequence (v5.11):** profile field `schooled` ∈
+{full, partial, none} (bible-set; all 8 mains full — this
+differentiates AMBIENT backstories and any unschooled
+upbringing). Effect is small and specific:
+`schooled:none` delays all three §68 onsets by
+`school_strat_adv` (0.5y each) and adds `meta_school_gain`
+0.05 to the §18 overconfidence gap persisting past 8 (the
+metamemory calibration itself is partly taught). Mapping is
+HYPOTHESIS-tier: Morrison's effects are on test performance,
+not autobiographical encoding directly — we extend
+directionally, flagged in the probe.
+
+## 70. The adolescent win sticks — reward memory inside the window
+
+[CONSENSUS for the existence; magnitude moderate] Davidow,
+Foerde, Galván & Shohamy 2016 (*Neuron* 91:182 — verified:
+adolescents show enhanced episodic memory for reward-associated
+material relative to both children and adults — the
+reward-sensitivity literature's memory leg); Murty, Calabro &
+Luna 2018 for the systems framing. §52's pub overlay covers
+arousal/θ/social-eval; the reward valence leg was missing: a
+teen's WINS encode hot — the victory, the applause, the first
+paycheck, the risk that paid off.
+
+**Spec consequence (v5.11):** the §4.17 `pub` overlay gains one
+leg: inside `pub_window`, events with `reward:true` (positive-
+valence achievement/recognition content — world tags) gain
+`E *= (1 + pub_reward_gain)`, `pub_reward_gain` 0.12. Stays
+narrow: reward-valenced only, window-scoped only, reverts at
+close like the other pub legs. The bump asymmetry this
+produces — the teen years' disproportionate roster of triumphs
+— is a component of §3's bump fuel that runs on reward
+circuits, not just firsts/transitions.
+
+## 71. Knot-table revision summary (v5.11)
+
+| curve | change | source |
+|---|---|---|
+| β_episodic below wall | `infant_beta_mult` 8@0.2y→1@exit | Hartshorn et al. 1998; Rovee-Collier 1999 |
+| latent below-wall S | `reinstate_gain` 0.4 on context re-encounter; told_by null locked | Rovee-Collier et al. 1980/1999 |
+| Event.role | `observer` + `obs_gain` 0.3@1y→1.0@8y | Barr & Hayne 1999; Bauer 2002 |
+| hearAccount | `heritage_gain` 0.35 kin × teller-bump-era × hearer∈[8,30] | Svob & Brown 2012; Krumhansl & Zupnick 2013 |
+| θ voluntary | `free_recall_tax` 2.0@5→1.0@12 under cue_floor | Kobasigawa 1974; Flavell et al. 1966 |
+| orderRecall | `order_strength_bias` 0.6 below 9±1 | Friedman 1991; Friedman & Kemp 1998 |
+| studied events | `study_mult` 0.25 tier-gated 7/10/13 | Ornstein et al. 2004; Schneider & Pressley 1997 |
+| profile | `schooled` flag; onsets +0.5y + meta gap on `none` | Morrison et al. 1995 [HYPOTHESIS map] |
+| pub overlay | +`pub_reward_gain` 0.12 on reward events | Davidow et al. 2016 |
+
+## 72. Spec changes (v5.10 → v5.11) — delta table
+
+| # | change | where (source) |
+|---|---|---|
+| I1 | `infant_beta_mult` knots on β below amnesia_exit_eff | §61 (Hartshorn 1998) |
+| I2 | reinstatement leg — `reinstate_gain`/`reinstate_bar`; `told_reinstate_null` locked | §62 (Rovee-Collier 1980) |
+| I3 | `role:"observer"` + `obs_gain` + below-pierce observer arousal gate | §64 (Barr & Hayne; Bauer 2002) |
+| I4 | `heritage` leg on hearAccount | §65 (Svob & Brown 2012; Krumhansl & Zupnick 2013) |
+| I5 | `cue_floor`/`free_recall_tax` child knots | §66 (Kobasigawa 1974) |
+| I6 | `orderRecall` strength branch | §67 (Friedman 1991) |
+| I7 | `study_mult` tier gating + `strategy_retro_null` | §68 (Ornstein 2004) |
+| I8 | `schooled` profile field + `school_strat_adv`/`meta_school_gain` | §69 (Morrison 1995) |
+| I9 | `pub_reward_gain` overlay leg | §70 (Davidow 2016) |
+
+## 73. Validation probes (P657–P666; registry continues P1–P656)
+
+- **P657 infant clock (MUST, sign-locked):** matched-S records
+  encoded at 0.5y / 2y / 5y / 20y show monotonically increasing
+  time-to-latent; the 0.5y record falls below forget_thresh
+  within `infant_beta_mult`-scaled days absent any reminder.
+- **P658 reinstate channel (MUST + locked null):** a latent
+  below-wall record re-encountered via overlapping context Event
+  surfaces and gains S; the same content delivered via
+  `hearAccount` produces NO S change on the latent record
+  (told_reinstate_null — assert exactly zero lift).
+- **P659 observer channel (SHOULD):** role:observer events at
+  encodeAge 2 mint retrievable records only under strong
+  contextual cues and carry no self-field tier; at encodeAge 6
+  they mint ordinary records at obs_gain discount.
+- **P660 heritage bump (MUST):** kin-told_by records about the
+  teller's bump-window era, heard at age 12, show higher S per
+  hearCount than the same teller's age-45-era accounts; non-kin
+  control shows ≤40% of the gain.
+- **P661 cue floor (MUST, sign-locked):** at retrievalAge 6 a
+  zero-channel query fails at ≥2× the one-weak-channel rate;
+  adult profile shows no cue_floor effect.
+- **P662 order by strength (SHOULD):** at retrievalAge 7, two
+  same-era records differing only in S are ordered with the
+  higher-S record reported "later" at p>0.55; at 14 ordering
+  follows time fields.
+- **P663 strategy tiers (MUST):** studied-flag events at 6 gain
+  nothing vs matched plain repeats; at 8 rote-studied gains; at
+  11 categorized-studied gains; a pre-onset record queried at 12
+  shows NO retroactive bonus (strategy_retro_null).
+- **P664 schooling (SHOULD, HYPOTHESIS-flagged):** schooled:none
+  profile shows §68 onsets delayed ~0.5y and a larger
+  post-8 metamemory overconfidence gap vs schooled:full at
+  identical seed.
+- **P665 pub reward (SHOULD, DEBATED-lite):** reward-flagged
+  events inside pub_window encode elevated vs outside; neutral
+  events inside the window unchanged (overlay stays narrow —
+  a diffuse pub-window lift FAILS this probe).
+- **P666 v5.11 regression (MUST — structure):** all v5.11 params
+  at defaults reproduce v5.10 outputs on the standard battery
+  except the sign-locked differences above.
+
+## 74. Honest limits, sixth pass
+
+- `infant_beta_mult` compresses a developmental doubling-time
+  into a β multiplier — Hartshorn gives retention intervals
+  for a MOTOR task (mobile conjugate); autobiographical records
+  are extrapolated. The probe tests ordering, never the curve.
+- Reinstatement is measured on infants' own motor memories;
+  extending it to place/object overlap for latent records is
+  our mapping — `reinstate_bar` 0.6 is fitted.
+- Deferred imitation produces behavioral reproduction, which is
+  procedural-adjacent; we treat observed episodes as episodic
+  records with missing self-fields — Bauer's ordered-recall
+  results support the episodic read, but the field-tier split is
+  ours.
+- The heritage bump is measured on content CLASS (parents' era
+  stories, parents' era music) not on per-record salience —
+  `heritage_gain` 0.35 is a fitted midrange; the kinship and
+  window gates are the load-bearing claims.
+- `free_recall_tax`'s 2.0@5 is Kobasigawa-shaped but the exact
+  magnitude is fitted; the sign-lock (any-one-cue waives it) is
+  the datum the probe enforces.
+- Morrison's schooling effect is on memory TEST performance —
+  extending it to encode-side strategy onsets is the weakest
+  mapping in this pass; flagged HYPOTHESIS and SHOULD-tier only.
+- pub_reward_gain is the narrowest leg deliberately: the
+  adolescent reward-memory literature is young (single-digit
+  core papers) — keep it window-scoped and reward-only; do not
+  widen without new sources.

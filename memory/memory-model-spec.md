@@ -1,5 +1,38 @@
-# Memory Model Spec v5.10 — implementable human-like memory for RW characters
+# Memory Model Spec v5.11 — implementable human-like memory for RW characters
 
+> **v5.11 note (age-development VI — the infant clock, the seen
+> reminder, the watched channel, the inherited bump, the
+> ungenerable cue):** `memory/age-development.md` Part VI
+> (§§61–74). **Infant retention clock** — below
+> `amnesia_exit_eff`, β runs on `infant_beta_mult(encodeAge)`
+> 8.0@0.2y→1.0@exit (Hartshorn et al. 1998: retention doubles
+> ~monthly through infancy — the wall becomes emergent decay,
+> not a special rule). **Perceptual reinstatement** — a context-
+> overlapping Event re-encounter lifts a latent below-wall record
+> at `reinstate_gain` 0.4; `told_reinstate_null` locks verbal
+> accounts OUT of that channel (Rovee-Collier reactivation — the
+> reminder must be seen, not told). **Observer channel** — Event
+> `role:"observer"` mints watched-not-done records at
+> `obs_gain(encodeAge)` 0.3@1y→1.0@8y, no self-field tier
+> (Barr & Hayne 1999; Bauer 2002 deferred imitation). **Heritage
+> bump** — `hearAccount` gains `heritage_gain` 0.35 when kin
+> tells their bump-era story to a hearer ∈[8,30] (Svob & Brown
+> 2012; Krumhansl & Zupnick 2013 — the bump cascades through
+> generations). **Cue-generation deficit** — voluntary recall
+> with <`cue_floor` nonempty channels pays
+> `free_recall_tax(retrievalAge)` 2.0@5→1.0@12 (Kobasigawa 1974 —
+> the child can't self-supply the cue). **Order by strength** —
+> `orderRecall` below `order_strength_until` 9±1 picks the
+> higher-S record as "later" at `order_strength_bias` 0.6
+> (Friedman 1991 — the vivid old thing reports as yesterday).
+> **Strategy tiers** — `studied` events pay `study_mult` 0.25
+> only at/after tier onsets 7/10/13; `strategy_retro_null` locks
+> retroactive credit (Ornstein 2004). **Schooling** — profile
+> `schooled` delays onsets 0.5y on `none` (Morrison 1995,
+> HYPOTHESIS map). **Adolescent reward** — `pub_reward_gain`
+> 0.12 inside `pub_window` (Davidow et al. 2016). +16 params,
+> 2 locked nulls, probes P657–P666.
+>
 > **v5.10 note (retrieval-cues VI — the cue's direction, echo, and
 > keeper):** `memory/retrieval-cues.md` Part VI (§§60–69).
 > **Directional cues** — cueVector links mint forward
@@ -3385,6 +3418,51 @@ healthy-aging arm DEBATED). Intercept intact, tail steepens: sharp on
 the week, gone by the month. Disabled under dementia modifiers (the
 age-decline machinery already covers pathological loss).
 
+### 4.31 The infant clock, the seen reminder, the watched event (new in v5.11)
+
+**4.31a Infant retention clock** (AD§61; Hartshorn et al. 1998 —
+verified; Rovee-Collier 1999): when `encodeAge <
+amnesia_exit_eff`, β additionally ×= `infant_beta_mult(encodeAge)`
+— knots 8.0@0.2y → 6.0@1y → 4.0@2y → 2.5@3y → 1.0@exit,
+stacking multiplicatively on `amnesia_slope`. Infant traces decay
+on an infant schedule and fall to latency in days-to-weeks; the
+amnesia wall is emergent, not a separate rule.
+
+**4.31b Perceptual reinstatement** (AD§62; Rovee-Collier et al.
+1980/1999): on `encodeEvent`, if the new Event's context fields
+(place, objLink, persons) overlap a latent record's cueVector ≥
+`reinstate_bar` (0.6), apply `S *= (1 + reinstate_gain)` —
+`reinstate_gain` 0.4 for encodeAge<exit records (vs adult-scale
+`mental_reinstate` 0.09 — infants benefit MORE). **Locked null
+`told_reinstate_null`:** `hearAccount` never reinstantiates
+below-wall records — the channel is re-encounter only.
+
+**4.31c Observer channel** (AD§64; Barr & Hayne 1999; Bauer
+2002): Event field `role:"participant"|"observer"` (default
+participant). Observer events encode `E *= obs_gain(encodeAge)`
+— knots 0.3@1y → 0.8@4y → 1.0@8y — and mint WITHOUT the
+self-referential field tier (watched, not done). Below
+`amnesia_exit_eff − amnesia_pierce`, observer records mint only
+when arousal ≥ arousal_thresh (§4.29 secondhand-fear is the
+canonical case).
+
+**4.31d Strategy tiers** (AD§68; Ornstein, Haden & Hedrick 2004;
+Schneider & Pressley 1997): `studied:true` events pay
+`E *= (1 + study_mult)` (0.25) only at/after the matching tier
+onset — `rehearsal_on` 7 (rote), `org_on` 10 (structured),
+`elab_on` 13 (elaborative); before onset the repetition encodes
+as plain re-exposure. **Locked null `strategy_retro_null`:**
+pre-onset records never gain the bonus retroactively. Profile
+`schooled` ∈ {full,partial,none} (default full) delays all three
+onsets by `school_strat_adv` 0.5y on `none` (AD§69; Morrison et
+al. 1995 — HYPOTHESIS map).
+
+**4.31e Adolescent reward leg** (AD§70; Davidow et al. 2016 —
+verified): the §4.17 `pub` overlay gains one leg — inside
+`pub_window`, `reward:true` events gain `E *= (1 +
+pub_reward_gain)`, `pub_reward_gain` 0.12. Window-scoped,
+reward-only, reverts at close like all pub legs.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -5003,6 +5081,26 @@ overlap(C_new.keys, C_fail.keys) < restart_overlap (0.4):
 ```
 
 P655 shape-locks restart > continuation on identical stores.
+
+### 5.63 Child retrieval — the ungenerable cue and order by strength (new in v5.11)
+
+**Cue floor** (AD§66; Kobasigawa 1974 — verified; Flavell, Beach
+& Chinsky 1966): voluntary recall counts `nCues` = nonempty
+cueVector channels in the query. When `nCues < cue_floor` (1),
+θ_eff ×= `free_recall_tax(retrievalAge)` — knots 2.0@5 →
+1.5@8 → 1.0@12. Any single nonempty channel waives the tax;
+scaffolded paths (`interviewMode`, `asker` context, inherited
+temporalAnchor) supply cues externally and are exempt — the
+deficit is generation, not use. Sign-locked: children fail open
+questions MORE than narrowed ones by a factor adults don't show.
+
+**Order by strength** (AD§67; Friedman 1991 *Dev. Rev.* 11:139;
+Friedman & Kemp 1998): `orderRecall(a,b)` below
+`order_strength_until` (9, ±1 phase) emits `order =
+argmax(S)` with probability `order_strength_bias` (0.6), else
+the adult path; near-total below ~5. Sign-locked failure: child
+order errors systematically place the STRONGER record later —
+a reinstated (§4.31b) infant record can report as last week.
 
 ---
 
@@ -7541,6 +7639,24 @@ with `collab_inhib` (§6.69): collaboration still costs the raw-list
 recall while buying the detail — the elaborator's dyad knows fewer
 items but knows them deeper. P611.
 
+### 6.108 The heritage bump — the teller's era sticks to the hearer (new in v5.11)
+
+**[CONSENSUS — two independent demonstrations]** Svob & Brown
+2012 (*Memory* 20:737 — young adults' parent-told memories bump
+at the PARENTS' young-adult era); Krumhansl & Zupnick 2013
+(*Psych. Sci.* 24:2059 — music preferences show the listener's
+own bump ~13 plus a second bump at the parents' bump era — the
+"cascading" bump). `hearAccount` gains the heritage leg: when
+the speaker is kin (`rel ∈ {parent, grandparent, sibling}` on
+PersonModel) AND the account's content era falls inside the
+SPEAKER's bump window (teller encodeAge 10–30) AND hearer age
+∈ `heritage_hearer` [8,30], the minted `told_by` record gains
+`S *= (1 + heritage_gain)`, `heritage_gain` 0.35; non-kin
+speakers attenuate ×0.4. Interacts with §4.1 `cohort_imprint`
+on the teller side (epochal events are the most-told, so they
+inherit the most) and §6.24 canonization (the family archive is
+self-selecting). P660.
+
 
 
 All weights live in one per-character params object. Profiles doc assigns
@@ -8658,6 +8774,28 @@ MemoryParams = {
 "restart_overlap": 0.4,                       // fresh-angle gate, §5.62
 // v5.10 locked null: photo_detail_null = 0 (Henkel 2014 — detail-mode
 //   photographing carries no deficit; a build that shows one fails P650).
+// v5.11 additions (age-development VI — AD§§61–70)
+"infant_beta_lo": 8.0, "infant_beta_mid": 4.0, // infant clock, §4.31a
+//   knots: 8.0@0.2y → 6.0@1y → 4.0@2y → 2.5@3y → 1.0@exit
+"reinstate_gain": 0.4, "reinstate_bar": 0.6,   // seen reminder, §4.31b
+"told_reinstate_null": 0.0,                    // LOCKED — verbal never
+"obs_gain_lo": 0.3,                            // 0.3@1y→0.8@4y→1.0@8y, §4.31c
+"heritage_gain": 0.35, "heritage_kin_atten": 0.4, // §6.108
+"cue_floor": 1, "free_recall_tax": 2.0,        // 2.0@5→1.0@12, §5.63
+"order_strength_bias": 0.6,
+"order_strength_until": 9.0,                   // order-by-S, §5.63
+"study_mult": 0.25,                            // tier-gated, §4.31d
+"rehearsal_on": 7, "org_on": 10, "elab_on": 13,
+"school_strat_adv": 0.5, "meta_school_gain": 0.05, // §4.31d/AD§69
+"pub_reward_gain": 0.12,                       // §4.31e overlay leg
+// v5.11 locked nulls: told_reinstate_null = 0 (P658 asserts exactly
+//   zero below-wall lift from hearAccount — the reminder is
+//   perceptual); strategy_retro_null = 0 (P663 asserts pre-onset
+//   studied records gain nothing when the tier arrives).
+// v5.11 profile fields: schooled ∈ {full,partial,none} (default
+//   full); knot notes — infant_beta_*/obs_gain/free_recall_tax/
+//   order_strength_* are age-keyed curves evaluated on encodeAge /
+//   retrievalAge inline; pub_reward_gain reverts at pub_window close.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -9816,6 +9954,31 @@ not resolved (DEBATED magnitude). P509/P511.
   - Direction weighting (§5.57) is query-side: callers pass the
     query direction implicitly via which cue fields are set —
     no API change, scoring change only.
+  - All snapshot-additive, absent = legacy.
+- v5.11 additions (age-development.md Part VI §§61–74):
+  - Event fields (optional, default-neutral): `role:"observer"`
+    (§4.31c — watched-not-done; mints without self-field tier),
+    `studied:true` (§4.31d — deliberate-practice content; pays
+    `study_mult` only at/after the matching strategy onset),
+    `reward:true` (§4.31e — positive achievement/recognition
+    content; only read inside `pub_window`).
+  - `hearAccount` gains the §6.108 heritage leg — account objects
+    may carry `era` (the teller's encodeAge-window tag —
+    world-builder mints it on family-bible story content); kin
+    `rel` resolves via PersonModel.
+  - `encodeEvent` runs the §4.31b reinstatement check: context
+    overlap ≥ `reinstate_bar` with a latent record lifts its S —
+    `hearAccount` is NOT a reinstatement path
+    (`told_reinstate_null`, P658).
+  - `orderRecall`/`dateEstimate` callers: below
+    `order_strength_until` the order answer may follow record
+    strength, not dates (§5.63 — dialogue should not "correct" a
+    child's inverted ordering).
+  - `recall` with <`cue_floor` nonempty channels on a
+    <12-retrievalAge character pays `free_recall_tax` — callers
+    supplying ANY cue channel (even a weak `when`) waive it.
+  - Profile field `schooled` (§4.31d) is bible-set; all 8 mains
+    `full` — it differentiates ambient backstories.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
