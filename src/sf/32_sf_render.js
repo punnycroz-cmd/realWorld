@@ -6,9 +6,72 @@
    toggled with the V key or ?view=street.
    ===================================================================== */
 let SF_VIEW = 'top';   // 'top' | 'street'
+
+/* Street camera state (v2 "director camera"):
+   follow mode  = camera anchored to inspected pawn, free yaw/pitch/height
+   director mode (C) = detached free-fly camera clamped to map bounds */
+const SF_CAM = {
+  yaw: Math.PI / 2,  // radians; 0 = +x, PI/2 = +y (matches face->DV mapping)
+  pitch: 0,          // + looks up, - looks down
+  h: 1.7,            // camera height, meters (0.5 - 30)
+  director: false,
+  x: 0, y: 0,        // director position, meters
+  _lastPawn: -1,
+};
+function sfCamYawOf(v){
+  const DV = [[0, 1], [0, -1], [-1, 0], [1, 0]][v ? v.face : 0] || [0, 1];
+  return Math.atan2(DV[1], DV[0]);
+}
 window.addEventListener('keydown', e => {
-  if(SF_MODE && e.code === 'KeyV') SF_VIEW = SF_VIEW === 'top' ? 'street' : 'top';
+  if(!SF_MODE) return;
+  if(e.code === 'KeyV'){
+    SF_VIEW = SF_VIEW === 'top' ? 'street' : 'top';
+    if(SF_VIEW === 'street'){
+      const v = VILLAGERS[inspectedPawnIdx];
+      SF_CAM.yaw = sfCamYawOf(v); SF_CAM.pitch = 0; SF_CAM.h = 1.7;
+      SF_CAM._lastPawn = inspectedPawnIdx;
+    }
+  }
+  if(e.code === 'KeyC' && SF_VIEW === 'street'){
+    SF_CAM.director = !SF_CAM.director;
+    if(SF_CAM.director){
+      const v = VILLAGERS[inspectedPawnIdx];
+      SF_CAM.x = v ? v.x / SF_PXM : 600;
+      SF_CAM.y = v ? v.y / SF_PXM : 400;
+      if(typeof showToast === 'function') showToast('🎬 DIRECTOR camera — WASD fly · R/F up/down · drag look');
+    } else if(typeof showToast === 'function') showToast('Follow-cam');
+  }
 });
+if(SF_MODE && typeof window !== 'undefined'){
+  let sfDrag = null;
+  window.addEventListener('pointerdown', e => {
+    if(SF_VIEW !== 'street' || !cv || e.target !== cv) return;
+    sfDrag = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('pointermove', e => {
+    if(!sfDrag) return;
+    SF_CAM.yaw += (e.clientX - sfDrag.x) * 0.006;
+    SF_CAM.pitch = clamp(SF_CAM.pitch - (e.clientY - sfDrag.y) * 0.004, -0.9, 0.9);
+    sfDrag = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('pointerup', () => { sfDrag = null; });
+  window.addEventListener('wheel', e => {
+    if(SF_VIEW !== 'street') return;
+    SF_CAM.h = clamp(SF_CAM.h * (e.deltaY > 0 ? 1.12 : 0.89), 0.5, 30);
+    e.preventDefault();
+  }, { passive: false });
+}
+if(SF_MODE && typeof document !== 'undefined'){
+  const hb = document.getElementById('help-bar');
+  if(hb) hb.innerHTML =
+    '<span><kbd>V</kbd> Top/Street</span>' +
+    '<span><kbd>Drag</kbd> Look</span>' +
+    '<span><kbd>Q</kbd>/<kbd>E</kbd> Rotate</span>' +
+    '<span><kbd>Scroll</kbd> Height</span>' +
+    '<span><kbd>C</kbd> Director</span>' +
+    '<span><kbd>WASD</kbd> Fly</span>' +
+    '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>';
+}
 
 function sfTerrainTile(wx, wy, tt){
   const T = PA.sf;
@@ -157,15 +220,41 @@ function sfRenderWorld(cw, ch){
 /* ---------------- street-level "Truman camera" ---------------- */
 function sfRenderStreet(cw, ch){
   const v = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
-  if(v && v.inBuilding){ sfRenderInterior(cw, ch, v); return; }
+  if(v && v.inBuilding && !SF_CAM.director){ sfRenderInterior(cw, ch, v); return; }
   const cm = SF_M.cell_m;
-  const camX = v ? v.x / SF_PXM : 600, camY = v ? v.y / SF_PXM : 400;
-  const camH = 1.7;
-  const face = v ? v.face : 0;
-  const DV = [[0, 1], [0, -1], [-1, 0], [1, 0]][face] || [0, 1];
-  const DX = DV[0], DY = DV[1];
+
+  // v2 camera input: Q/E yaw fallback, director WASD/arrows + R/F/PgUp/PgDn
+  if(typeof keysDown !== 'undefined'){
+    if(keysDown['KeyQ']) SF_CAM.yaw += 0.03;
+    if(keysDown['KeyE']) SF_CAM.yaw -= 0.03;
+    if(SF_CAM.director){
+      const spd = 0.4 + SF_CAM.h * 0.18;
+      const c = Math.cos(SF_CAM.yaw), s = Math.sin(SF_CAM.yaw);
+      let mx = 0, my = 0;
+      if(keysDown['KeyW'] || keysDown['ArrowUp']){ mx += c; my += s; }
+      if(keysDown['KeyS'] || keysDown['ArrowDown']){ mx -= c; my -= s; }
+      if(keysDown['KeyA'] || keysDown['ArrowLeft']){ mx += s; my -= c; }
+      if(keysDown['KeyD'] || keysDown['ArrowRight']){ mx -= s; my += c; }
+      const L = Math.hypot(mx, my);
+      if(L > 0){
+        SF_CAM.x += mx / L * spd; SF_CAM.y += my / L * spd;
+        SF_CAM.x = clamp(SF_CAM.x, 0, SF_M.gw * cm);
+        SF_CAM.y = clamp(SF_CAM.y, 0, SF_M.gh * cm);
+      }
+      if(keysDown['KeyR'] || keysDown['PageUp']) SF_CAM.h = clamp(SF_CAM.h + 0.35, 0.5, 30);
+      if(keysDown['KeyF'] || keysDown['PageDown']) SF_CAM.h = clamp(SF_CAM.h - 0.35, 0.5, 30);
+    } else if(inspectedPawnIdx !== SF_CAM._lastPawn){
+      // pawn switched while in street view: recenter yaw on the new subject
+      SF_CAM.yaw = sfCamYawOf(v); SF_CAM._lastPawn = inspectedPawnIdx;
+    }
+  }
+
+  const camX = SF_CAM.director ? SF_CAM.x : (v ? v.x / SF_PXM : 600);
+  const camY = SF_CAM.director ? SF_CAM.y : (v ? v.y / SF_PXM : 400);
+  const camH = SF_CAM.h;
+  const DX = Math.cos(SF_CAM.yaw), DY = Math.sin(SF_CAM.yaw);
   const F = Math.max(400, ch * 1.1);
-  const horizon = ch * 0.42;
+  const horizon = ch * 0.42 + Math.tan(SF_CAM.pitch) * F;
   const pr = (x, y, z) => {
     const dx = x - camX, dy = y - camY;
     const fwd = dx * DX + dy * DY;
@@ -388,6 +477,19 @@ function sfRenderStreet(cw, ch){
         }
       }
     }
+  }
+
+  // DIRECTOR badge while free-fly camera is active
+  if(SF_CAM.director){
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+    const label = '◉ DIRECTOR';
+    const bw = ctx.measureText(label).width + 22;
+    ctx.fillStyle = 'rgba(120,20,20,0.85)';
+    ctx.fillRect(cw / 2 - bw / 2, 12, bw, 22);
+    ctx.strokeStyle = 'rgba(255,180,120,0.8)'; ctx.lineWidth = 1;
+    ctx.strokeRect(cw / 2 - bw / 2, 12, bw, 22);
+    ctx.fillStyle = '#ffe9c9';
+    ctx.fillText(label, cw / 2, 27);
   }
 }
 

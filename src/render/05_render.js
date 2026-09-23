@@ -17,6 +17,8 @@ function setupCanvas(){
 
   // Interactive Canvas Pointer: Select Villager / Click-to-Move
   cv.addEventListener('pointerdown', (e) => {
+    // SF street view: pointer drags drive the camera, not select/move
+    if(typeof SF_MODE !== 'undefined' && SF_MODE && SF_VIEW === 'street') return;
     const rect = cv.getBoundingClientRect();
     const clickX = (e.clientX - rect.left);
     const clickY = (e.clientY - rect.top);
