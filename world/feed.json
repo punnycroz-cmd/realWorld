@@ -10,7 +10,7 @@
     "status": "request events only: one of request_status",
     "req": "optional, request events: shared request id — every lifecycle event of one paid intervention carries it; detail views group the status trail on it",
     "reason_code": "optional, denied requests only: fixed enum from world/moderation.json (public sees the why-class, never the screened text beyond the display filter)",
-    "attrs": "optional: { surge, credits, compensated_cr, sponsors[], mentions[] } for transparency lines and follow matching"
+    "attrs": "optional: { surge, credits, minutes, compensated_cr, sponsors[], mentions[] } for transparency lines and follow matching; credits+minutes = the declared cost/duration shown at filing (design §11: action + duration declared upfront)"
   },
   "spectator_ui": {
     "doc": "world v19 — the full spectator surface (world/wire.html, spec world/wire-ui.md). feed.html remains the lightweight variant.",
@@ -36,6 +36,14 @@
       "mentions_ui": "attrs.mentions[] render as pinnable chips in the detail panel; event who/venue get 'pin' buttons (view-layer follows only)",
       "density": "cozy/compact row toggle, persisted (rw_wire_density)",
       "reduced_motion": "prefers-reduced-motion disables the live-dot blink"
+    },
+    "spectator_ui_v47": {
+      "doc": "world v47 — the recap layer on wire.html (v4). Still strictly view-layer: every number below is the feed's own events counted, never invented and never editorial.",
+      "day_so_far": "collapsible card ('the day so far' bar / `d` key) — window covered, event count, busiest venue, requests filed/open/closed, weather changes, admin actions + total compensated credits; footer note states it is the wire counted, not a ranking",
+      "missed_bar": "on join, a dismissible 'earlier today' bar summarizes everything already on the wire (count, requests, admin actions, latest sky) + 'catch me up' scrolls to the oldest pre-join event; pre-join timestamps render dimmed. No persistence, no fabricated personalization — it describes the feed as it stood at arrival",
+      "declared_costs": "request rows carry 'N cr · M min' and the detail panel adds 'declared — N cr · M min (paid upfront, hard cap — shown at filing)' from attrs.credits/minutes; the price was public at filing and the wire repeats it",
+      "wx_follows_feed": "the header weather line is set by the newest `weather` event (icon guessed from the event's own words — fog/rain/sun/wind/cloud); no fabricated temperature. Applies in demo and live modes alike",
+      "keyboard": "adds `d` — toggle the day-so-far card"
     }
   },
   "event_kinds": [
@@ -78,16 +86,16 @@
     { "t": 452,  "kind": "scene",   "venue": "mudhaus",  "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
     { "t": 487,  "kind": "move",    "who": "C4", "venue": "buyrite",  "text": "Priya headed in to SF General — a twelves day" },
     { "t": 540,  "kind": "venue",   "venue": "park",     "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
-    { "t": 566,  "kind": "request", "who": "okfm",       "req": "rq-1033", "text": "possess — own courier, 30 min", "status": "resolved" },
+    { "t": 566,  "kind": "request", "who": "okfm",       "req": "rq-1033", "text": "possess — own courier, 30 min", "status": "resolved", "attrs": { "credits": 45, "minutes": 30 } },
     { "t": 601,  "kind": "weather", "text": "Fog burned off over the park — full sun" },
     { "t": 647,  "kind": "press",   "text": "Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always" },
     { "t": 720,  "kind": "scene",   "venue": "farolote", "text": "Lunch prep at El Farolote — the salsa bar gets its midday refill" },
-    { "t": 783,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "event — park cleanup at Dolores Park", "status": "queued" },
+    { "t": 783,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "event — park cleanup at Dolores Park", "status": "queued", "attrs": { "credits": 178 } },
     { "t": 806,  "kind": "cast",    "who": "okfm",       "venue": "block",  "text": "a new face on the block — Dana Okafor, a hired resident, settling in" },
     { "t": 812,  "kind": "housing", "venue": "block",    "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board" },
     { "t": 841,  "kind": "admin",   "venue": "club600",  "text": "admin action — venue window reset at The 600 Club", "attrs": { "compensated_cr": 90 } },
     { "t": 852,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "queued request expired before activation — refunded", "status": "refunded" },
-    { "t": 878,  "kind": "request", "who": "tide_9",     "req": "rq-1039", "text": "weather — evening fog return, 1 h", "status": "running", "attrs": { "sponsors": ["tide_9", "loam", "marina_w"], "surge": true } },
+    { "t": 878,  "kind": "request", "who": "tide_9",     "req": "rq-1039", "text": "weather — evening fog return, 1 h", "status": "running", "attrs": { "sponsors": ["tide_9", "loam", "marina_w"], "surge": true, "credits": 120, "minutes": 60 } },
     { "t": 900,  "kind": "scene",   "venue": "park",     "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter", "attrs": { "mentions": ["A04", "A20"] } }
   ]
 }

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32, PT31 + wire v3 / wire gate v33, PT32 + archive v3 / archive gate v34, PT33 + create v3 / creation gate v35, PT34 + moderation v36 / mod gate v36, PT35 + harness depth pass v37 / harness gate v37, PT36 + lease v3 / lease gate v40, PT37 + thinai v3 / thinai gate v41, PT38 + bible v42 / bible gate v42, PT39 + crowd v4 ambient week / crowd gate v43, PT40 + storefront layer / biz gate v44, PT41 + application layer / apply gate v45, PT42 + request v46). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32, PT31 + wire v3 / wire gate v33, PT32 + archive v3 / archive gate v34, PT33 + create v3 / creation gate v35, PT34 + moderation v36 / mod gate v36, PT35 + harness depth pass v37 / harness gate v37, PT36 + lease v3 / lease gate v40, PT37 + thinai v3 / thinai gate v41, PT38 + bible v42 / bible gate v42, PT39 + crowd v4 ambient week / crowd gate v43, PT40 + storefront layer / biz gate v44, PT41 + application layer / apply gate v45, PT42 + request v46, PT43 + wire v4 recap layer v47). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -847,7 +847,26 @@ const PTS=[
   ck:["Declining costs nothing — 'the trim was an offer, not a bill'","Accepting refunds the upfront difference, never charges more than re-quoted","Approved flat exclusives fire on the feed (running → resolved) with the filer's handle"]},
  {do:"Queue an exclusive on The 600 Club while it is locked; watch the hold clock. Select 'Hire a character'. Deny a request (e.g. possess a main) and read the ledger. Run node world/audit.js.",
   exp:"The queued card ticks 'hold N h M min left of 24 h'; if the hold runs out it expires with an auto-refund and the seeded 'expired before activation' feed vocabulary. Hire never files — the submit button reads 'File in The Registry →' and opens create.html. The deny path shows a real ledger credit. request gate covers approve-modified, upfront charge, hold clock, hire route, and demo hooks.",
-  ck:["Hold countdown is visible on the queued card; expiry auto-refunds in view","Hire a character routes to The Registry — 500 cr, billed only on approval","request gate reports approve-modified + feed vocabulary check; window.RW_DEMO_EVENTS collects the five named hooks"]}]}
+  ck:["Hold countdown is visible on the queued card; expiry auto-refunds in view","Hire a character routes to The Registry — 500 cr, billed only on approval","request gate reports approve-modified + feed vocabulary check; window.RW_DEMO_EVENTS collects the five named hooks"]}]},
+{id:"PT43",title:"The recap layer \u2014 the day so far, earlier today, declared costs",min:10,
+ persona:"spectator (free tier) + facilitator auditing the v47 wire pass",
+ goal:"Verify the wire's new recap layer is honest and view-layer-only: the day-so-far card counts the feed's own events (no editorial picks), the earlier-today bar summarizes what was on the wire at join with a real catch-me-up, declared credits/minutes appear on request rows and detail, and the header weather follows the newest weather event.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Open The Wire fresh (demo stream). Read the 'earlier today' bar and the collapsed 'the day so far' bar before touching anything.",
+  exp:"The missed bar reports the seed set honestly: '15 events were already on the wire \u2014 3 requests \u00b7 1 admin action \u00b7 latest sky: Fog burned off over the park \u2014 full sun'. Pre-join event timestamps render dimmed. The day bar reads '15 events \u00b7 Dolores Park busiest \u00b7 1 request open'.",
+  ck:["Missed-bar counts match the visible stream exactly \u2014 nothing summarized that isn't a row",
+    "'catch me up' scrolls to and focuses the oldest pre-join event, then dismisses the bar",
+    "Dimmed timestamps mark exactly the events that ran before the stated tune-in time"]},
+ {do:"Toggle the day-so-far card with the 'd' key and the bar itself; compare every stat row against the stream by hand. Open a request event's record and read the declared-cost line.",
+  exp:"Window reads 06:15 \u2192 latest; busiest venue is Dolores Park (3); requests 3 filed \u00b7 1 open \u00b7 2 closed; admin 1 \u00b7 90 cr compensated. Request rows carry '\u00b7 45 cr \u00b7 30 min' style chips; the detail panel adds 'declared \u2014 N cr \u00b7 M min (paid upfront, hard cap \u2014 shown at filing)'.",
+  ck:["Every day-card figure is verifiable against the stream \u2014 it is the feed counted, not ranked",
+    "Card footer states the no-editorial contract ('no editorial pick, no ranking')",
+    "Declared costs show on both the row chip and the detail meta line; denied/redacted requests show no cost body"]},
+ {do:"Let the demo tick run ~2 minutes (or reload). Watch the header weather line, the reaching-in strip, and the day bar as new request and weather events land. Then run node world/audit.js.",
+  exp:"The header sky line is set by the newest weather event's own words (icon guessed from the text \u2014 \u2600 after the burn-off seed, \ud83c\udf2b if fog rolls in). The day bar's counts climb live; new request threads mint with declared cr/min. wire gate passes with v47 keys and the credits-seed check.",
+  ck:["Header weather never shows a fabricated temperature \u2014 it repeats the event text",
+    "Day bar numbers update on the same render as new rows (no stale recap)",
+    "wire gate reports v47 keys day_so_far/missed_bar/declared_costs/wx_follows_feed/keyboard and \u22651 seed carrying credits"]}]}
 ];
 
 

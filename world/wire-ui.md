@@ -1,4 +1,4 @@
-# The Wire v2 — spectator feed application spec & copy deck (world v19)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
@@ -195,3 +195,65 @@ The Archive, not a silent dead end.
 | Co-sponsor line | "co-sponsors — \<handles\> (same world event, not a discount)" |
 | Surge line | "surge — priced at surge (contested resource, disclosed at filing)" |
 | Key-card footer | "Everything here is view-layer. No key, button, or pin on this page can touch the world." |
+
+## 10. v47 — the recap layer (world v47)
+
+Still strictly view-layer. The additions answer the two questions a
+leaning-back viewer actually asks — *"what kind of day is it?"* and
+*"what did I miss?"* — using nothing but the feed's own events. There is
+no editorial layer: every figure is the wire counted, and the UI says so.
+
+### "the day so far" — the feed, counted
+
+- A slim bar under the filters (`#daybar`, `d` key) always shows the live
+  one-liner: `N events · <busiest venue> busiest · M requests open`.
+- Opening it renders stat rows computed from `FEED` on every render:
+  window covered (first → latest event time), busiest venue by event
+  count, requests filed / open / closed (open = the v33 `LIVE_STATUSES`
+  set), weather changes, admin actions + total compensated credits, and
+  the viewer's own join time.
+- The card's footer is part of the contract: *"these are the wire's own
+  events counted — no editorial pick, no ranking, nothing extra a camera
+  couldn't see."* It can never become a "trending" module — a ranking of
+  content would invent salience the feed doesn't have.
+
+### "earlier today" — the missed bar
+
+- On join, everything already on the wire (seq ≤ join snapshot) is
+  summarized in one dismissible bar (`#missedbar`): event count, request
+  count, admin count, and the latest weather line verbatim.
+- **catch me up** scrolls to the *oldest* pre-join event — the honest
+  starting point for reading forward — and focuses it.
+- Events with `t < join time` get a dimmed timestamp (`.early`) so the
+  boundary stays visible while scrolling. There is no persistence and no
+  fabricated personalization: the bar describes the feed as it stood at
+  arrival, not a guess about the viewer.
+
+### Declared-cost transparency
+
+- `attrs.credits` / `attrs.minutes` (in the schema since v19's attrs bag,
+  now emitted by demo requests and mirrored in feed.json seeds) render
+  inline on request rows as `· N cr · M min`, and in the detail panel as
+  *"declared — N cr · M min (paid upfront, hard cap — shown at filing)"*.
+- Design §11 declares action + duration + upfront credits; the wire
+  repeats them because the price was already public at filing — this is
+  disclosure, not metering.
+
+### Header weather follows the wire
+
+- The header sky line is set by the newest `weather` event's own text
+  (icon guessed from its words: fog/rain/sun/wind/cloud, else neutral).
+  No fabricated temperature. Demo and live modes behave identically; a
+  quiet sky keeps the last honest line.
+
+### Copy deck — v47 strings
+
+| Moment | Copy |
+|---|---|
+| Day bar (collapsed) | "the day so far — N events · \<venue\> busiest · M requests open" |
+| Day card footer | "these are the wire's own events counted — no editorial pick, no ranking, nothing extra a camera couldn't see." |
+| Missed bar label | "earlier today" |
+| Missed bar body | "N events were already on the wire — K requests · J admin actions · latest sky: \<text\>" |
+| Missed bar action | "catch me up" |
+| Declared cost (detail) | "declared — N cr · M min (paid upfront, hard cap — shown at filing)" |
+| Join marker | "you tuned in \<HH:MM\> — dimmed timestamps ran earlier" |

@@ -2302,6 +2302,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT43",
+   "title": "The recap layer — the day so far, earlier today, declared costs",
+   "minutes": 10,
+   "persona": "spectator (free tier) + facilitator auditing the v47 wire pass",
+   "goal": "Verify the wire's new recap layer is honest and view-layer-only: the day-so-far card counts the feed's own events (no editorial picks), the earlier-today bar summarizes what was on the wire at join with a real catch-me-up, declared credits/minutes appear on request rows and detail, and the header weather follows the newest weather event.",
+   "surfaces": [
+    "wire",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Wire fresh (demo stream). Read the 'earlier today' bar and the collapsed 'the day so far' bar before touching anything.",
+     "expect": "The missed bar reports the seed set honestly: '15 events were already on the wire — 3 requests · 1 admin action · latest sky: Fog burned off over the park — full sun'. Pre-join event timestamps render dimmed. The day bar reads '15 events · Dolores Park busiest · 1 request open'.",
+     "checkpoints": [
+      "Missed-bar counts match the visible stream exactly — nothing summarized that isn't a row",
+      "'catch me up' scrolls to and focuses the oldest pre-join event, then dismisses the bar",
+      "Dimmed timestamps mark exactly the events that ran before the stated tune-in time"
+     ]
+    },
+    {
+     "do": "Toggle the day-so-far card with the 'd' key and the bar itself; compare every stat row against the stream by hand. Open a request event's record and read the declared-cost line.",
+     "expect": "Window reads 06:15 → latest; busiest venue is Dolores Park (3); requests 3 filed · 1 open · 2 closed; admin 1 · 90 cr compensated. Request rows carry '· 45 cr · 30 min' style chips; the detail panel adds 'declared — N cr · M min (paid upfront, hard cap — shown at filing)'.",
+     "checkpoints": [
+      "Every day-card figure is verifiable against the stream — it is the feed counted, not ranked",
+      "Card footer states the no-editorial contract ('no editorial pick, no ranking')",
+      "Declared costs show on both the row chip and the detail meta line; denied/redacted requests show no cost body"
+     ]
+    },
+    {
+     "do": "Let the demo tick run ~2 minutes (or reload). Watch the header weather line, the reaching-in strip, and the day bar as new request and weather events land. Then run node world/audit.js.",
+     "expect": "The header sky line is set by the newest weather event's own words (icon guessed from the text — ☀ after the burn-off seed, 🌫 if fog rolls in). The day bar's counts climb live; new request threads mint with declared cr/min. wire gate passes with v47 keys and the credits-seed check.",
+     "checkpoints": [
+      "Header weather never shows a fabricated temperature — it repeats the event text",
+      "Day bar numbers update on the same render as new rows (no stale recap)",
+      "wire gate reports v47 keys day_so_far/missed_bar/declared_costs/wx_follows_feed/keyboard and ≥1 seed carrying credits"
+     ]
+    }
+   ]
   }
  ],
  "harness_ui_v37": {

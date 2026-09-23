@@ -33,6 +33,20 @@
       z zen · ? help · esc back out
     - #r=<req> request permalink; mentions chips; pin-from-detail
     - density toggle (cozy/compact, persisted); reduced-motion honored
+  New in v4 (world v47) — the recap layer:
+    - "the day so far" card — live counts computed from the wire itself
+      (window, busiest venue, requests open/closed, weather calls, admin
+      actions + compensated credits). `d` key or the bar toggles it.
+      No editorial picks: it is the feed, counted.
+    - "earlier today" catch-up bar — one honest summary of everything
+      that was already on the wire when you arrived, plus "catch me up"
+      which scrolls to the oldest of it. Timestamps of pre-join events
+      render dimmed.
+    - declared-cost transparency — request rows/detail show the filed
+      credits + minutes (attrs.credits/minutes) with "paid upfront,
+      hard cap". The price was public at filing; the wire says so.
+    - header weather follows the wire — the newest `weather` event sets
+      the header line (demo and live alike), never a fabricated temp.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -200,6 +214,28 @@
   .keycard td.k{font-family:var(--mono);color:var(--acc);white-space:nowrap}
   .wire li:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   @media (prefers-reduced-motion:reduce){.live::before{animation:none}}
+
+  /* ---- v47: the recap layer ---- */
+  .wire li.early .t{opacity:.45}
+  .wire .cr{font-style:normal;color:var(--dim);font-size:10.5px;margin-left:6px;white-space:nowrap}
+  .missed{display:none;align-items:center;gap:8px;margin:0 0 10px;border:1px solid var(--blu);
+    border-radius:8px;background:#1a2430;font-size:12px;padding:6px 12px;flex-wrap:wrap}
+  .missed .grow{flex:1;min-width:220px;color:var(--ink)}
+  .missed button{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel);color:var(--blu)}
+  .daybar{display:none;align-items:center;gap:8px;margin:0 0 10px;border:1px solid var(--line);
+    border-radius:8px;padding:5px 12px;font-size:11.5px;color:var(--dim);cursor:pointer;
+    background:var(--panel2)}
+  .daybar b{color:var(--ink);letter-spacing:.06em;text-transform:uppercase;font-size:10.5px}
+  .daybar .arrow{margin-left:auto;color:var(--acc)}
+  .daycard{display:none;margin:0 0 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel2);padding:10px 14px;font-size:12.5px}
+  .daycard.open{display:block}
+  .daycard .stat{display:flex;justify-content:space-between;gap:12px;padding:2px 0;
+    border-bottom:1px solid var(--line)}
+  .daycard .stat:last-of-type{border-bottom:0}
+  .daycard .stat b{color:var(--ink);font-weight:600;text-align:right}
+  .daycard .fnote{margin-top:8px;color:var(--dim);font-size:11px}
 </style>
 </head>
 <body>
@@ -243,6 +279,9 @@
       <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
     </div>
     <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
+    <div class="missed" id="missedbar" aria-label="what was on the wire before you tuned in"></div>
+    <div class="daybar" id="daybar" role="button" tabindex="0" aria-label="toggle the day-so-far recap"></div>
+    <div class="daycard" id="daycard"></div>
     <div class="holdbar" id="holdbar"></div>
     <div class="newpill" id="newpill"></div>
     <ul class="wire" id="wire" role="log" aria-live="polite" aria-label="the wire — public feed"></ul>
@@ -291,6 +330,7 @@
       <tr><td class="k">f</td><td>filter to followed venues + characters</td></tr>
       <tr><td class="k">z</td><td>zen — lean-back view (esc or z again to leave)</td></tr>
       <tr><td class="k">h</td><td>hold the display — the world keeps running</td></tr>
+      <tr><td class="k">d</td><td>the day so far — the wire, counted</td></tr>
       <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
       <tr><td class="k">?</td><td>this card</td></tr>
     </table>
@@ -430,8 +470,11 @@ function rowHtml(e){
   var txt = esc(e.text);
   if (e.kind==='request' && e.who) txt = '<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.status) txt += ' <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span>';
+  if (e.attrs && e.attrs.credits) txt += ' <span class="cr">'+e.attrs.credits+' cr'+
+    (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</span>';
   if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
-  var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'');
+  var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'')+
+    (e.t<joinT?' early':'');
   return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
     '<span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span></li>';
 }
@@ -462,7 +505,7 @@ function renderWire(){
     li.onclick=function(){ select(li.dataset.id); };
     li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
   });
-  renderLiveNow();
+  renderLiveNow(); renderDayBar();
 }
 
 /* ================= reaching-in-now strip =================
@@ -517,9 +560,112 @@ document.getElementById('newpill').onclick=function(){
   pendingNew=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
 };
 function ingest(e){
-  push(e);
+  push(e); applyWx(e);
   if (held){ heldCount++; updateHoldBar(); return; }
   if (stickTop || selId) renderWire(); else { pendingNew++; updatePill(); }
+}
+
+/* ================= v47: the recap layer =================
+   Everything below reads the wire, never the world. The day card is the
+   feed counted; the missed bar is the feed as it stood at join. Neither
+   invents content — an empty wire shows an honest empty recap. */
+var joinT = T;                 /* block-minute at page load */
+var joinSeq = 0;               /* feedN when join snapshot is taken (boot) */
+var dayOpen = false;
+
+function dayStats(){
+  var venueCt={}, reqs={}, admin=0, comp=0, wxN=0, first=null, last=null;
+  FEED.forEach(function(e){
+    if (e.venue) venueCt[e.venue]=(venueCt[e.venue]||0)+1;
+    if (e.kind==='request' && e.req){
+      if (!reqs[e.req]) reqs[e.req]={latest:e.status, who:e.who};
+    }
+    if (e.kind==='admin'){ admin++; if(e.attrs&&e.attrs.compensated_cr) comp+=e.attrs.compensated_cr; }
+    if (e.kind==='weather') wxN++;
+    if (!first||e.t<first.t) first=e;
+    if (!last ||e.t> last.t) last =e;
+  });
+  var open=0, closed=0, ids=Object.keys(reqs);
+  ids.forEach(function(r){ if(LIVE_STATUSES[reqs[r].latest]) open++; else closed++; });
+  var bv=null, bn=0; for (var v in venueCt) if(venueCt[v]>bn){ bn=venueCt[v]; bv=v; }
+  return {n:FEED.length, first:first, last:last, busiest:bv, busiestN:bn,
+          reqTotal:ids.length, reqOpen:open, reqClosed:closed,
+          admin:admin, comp:comp, wx:wxN};
+}
+function renderDayBar(){
+  var bar=document.getElementById('daybar'), card=document.getElementById('daycard');
+  if (!FEED.length){ bar.style.display='none'; card.className='daycard'; return; }
+  var s=dayStats();
+  bar.style.display='flex';
+  bar.innerHTML='<b>the day so far</b><span>'+s.n+' events · '+
+    (s.busiest?esc(VENUE_NAME[s.busiest]||s.busiest):'—')+' busiest · '+
+    s.reqOpen+' request'+(s.reqOpen===1?'':'s')+' open</span>'+
+    '<span class="arrow">'+(dayOpen?'▾':'▸')+'</span>';
+  if (dayOpen){
+    var h='';
+    h+='<div class="stat"><span>window on the wire</span><b>'+fmt(s.first.t)+' → '+fmt(s.last.t)+
+      ' · '+s.n+' events</b></div>';
+    h+='<div class="stat"><span>busiest venue</span><b>'+esc(VENUE_NAME[s.busiest]||s.busiest)+
+      ' · '+s.busiestN+' events</b></div>';
+    h+='<div class="stat"><span>requests</span><b>'+s.reqTotal+' filed · '+s.reqOpen+' open · '+
+      s.reqClosed+' closed — all attributed above</b></div>';
+    h+='<div class="stat"><span>weather changes</span><b>'+s.wx+'</b></div>';
+    h+='<div class="stat"><span>admin actions</span><b>'+s.admin+
+      (s.comp?' · '+s.comp+' cr compensated to affected players':'')+'</b></div>';
+    h+='<div class="stat"><span>you tuned in</span><b>'+fmt(joinT)+
+      ' — dimmed timestamps ran earlier</b></div>';
+    h+='<div class="fnote">these are the wire’s own events counted — no editorial pick, '+
+      'no ranking, nothing extra a camera couldn’t see.</div>';
+    card.innerHTML=h; card.classList.add('open');
+  } else card.classList.remove('open');
+}
+function toggleDay(){ dayOpen=!dayOpen; renderDayBar(); }
+document.getElementById('daybar').onclick=toggleDay;
+document.getElementById('daybar').onkeydown=function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); toggleDay(); } };
+
+/* "earlier today" — one honest summary of what was already on the wire
+   when the viewer arrived. Dismissible; the day card can recount it. */
+function renderMissed(){
+  var bar=document.getElementById('missedbar');
+  var missed=FEED.filter(function(e){ return e.seq<=joinSeq; });
+  if (!missed.length){ bar.style.display='none'; return; }
+  var reqs={}, admin=0, wxLatest=null;
+  missed.forEach(function(e){
+    if (e.kind==='request' && e.req && !reqs[e.req]) reqs[e.req]=e.status;
+    if (e.kind==='admin') admin++;
+    if (e.kind==='weather' && (!wxLatest||e.t>wxLatest.t)) wxLatest=e;
+  });
+  var rids=Object.keys(reqs);
+  var summary = missed.length+' event'+(missed.length===1?'':'s')+' were already on the wire';
+  var bits=[];
+  if (rids.length) bits.push(rids.length+' request'+(rids.length===1?'':'s'));
+  if (admin) bits.push(admin+' admin action'+(admin===1?'':'s'));
+  if (wxLatest) bits.push('latest sky: '+wxLatest.text);
+  bar.innerHTML='<span style="font-size:10.5px;color:var(--blu);letter-spacing:.08em;'+
+    'text-transform:uppercase;flex:none">earlier today</span>'+
+    '<span class="grow">'+esc(summary)+(bits.length?' — '+esc(bits.join(' · ')):'')+'</span>'+
+    '<button id="missedGo">catch me up</button><button id="missedX" title="dismiss">✕</button>';
+  bar.style.display='flex';
+  document.getElementById('missedGo').onclick=function(){
+    /* oldest missed row = where today's wire picked up before join */
+    var oldest=null;
+    missed.forEach(function(e){ if(!oldest||e.seq<oldest.seq) oldest=e; });
+    var el=oldest && document.querySelector('#wire .ev[data-id="'+oldest.id+'"]');
+    if (el){ el.scrollIntoView({block:'center'}); el.focus(); }
+    bar.style.display='none';
+  };
+  document.getElementById('missedX').onclick=function(){ bar.style.display='none'; };
+}
+
+/* header weather follows the wire — the newest weather event is the sky.
+   No fabricated temperature; the icon is a guess from the text's own words. */
+var WX_ICON=[[/sun|clear|burned off/i,'☀'],[/rain|drizzle|shower/i,'🌧'],
+  [/fog|karl/i,'🌫'],[/wind|breeze|gust/i,'🌬'],[/cloud|overcast|grey|gray/i,'☁']];
+function applyWx(e){
+  if (e.kind!=='weather') return;
+  var ic='🌡';
+  for (var i=0;i<WX_ICON.length;i++) if (WX_ICON[i][0].test(e.text)){ ic=WX_ICON[i][1]; break; }
+  document.getElementById('wx').textContent=ic+' '+e.text;
 }
 
 /* hold — freezes the DISPLAY only. Events keep accruing; the bar
@@ -559,6 +705,9 @@ function renderDetail(){
   if (e.venue) h+='<div class="meta">venue — <b>'+esc(VENUE_NAME[e.venue]||e.venue)+'</b></div>';
   if (e.who) h+='<div class="meta">'+((e.kind==='request'||e.kind==='cast')?'filed by':'who')+' — <b>'+esc(CHAR_NAME[e.who]||e.who)+'</b></div>';
   if (e.status) h+='<div class="meta">status — <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span></div>';
+  if (e.attrs && e.attrs.credits) h+='<div class="meta">declared — <b>'+e.attrs.credits+' cr'+
+    (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</b>'+
+    ' <span style="color:var(--dim)">(paid upfront, hard cap — shown at filing)</span></div>';
   if (e.reason_code) h+='<div class="meta">why-class — <b>'+esc(e.reason_code)+'</b> <span style="color:var(--dim)">(the screened text is never public)</span></div>';
   if (e.attrs && e.attrs.compensated_cr) h+='<div class="meta">compensation — <b>'+e.attrs.compensated_cr+' cr</b> credited to affected players</div>';
   if (e.attrs && e.attrs.sponsors && e.attrs.sponsors.length)
@@ -720,12 +869,12 @@ var texI=0;
    every few ticks so the lifecycle trail has something to show */
 var reqSeq = 1040;
 var REQ_NEW = [
-  {who:'marina_w', text:'weather — clear skies over Dolores Park, 2 h', path:['requested','approved','running','resolved']},
-  {who:'r0ok',     text:'event — stoop-sale window on Guerrero',        path:['requested','queued','refunded'], refundNote:'queued request expired before activation'},
-  {who:'pt',       text:'nudge — an ask to Carmen Echeverría',          path:['requested','in_review','not approved'], reason:'admin-domain'},
-  {who:'leaf',     text:'event — park cleanup at Dolores Park',         path:['requested','approved','running','resolved']},
-  {who:'kes',      text:'camera director — 30 min',                     path:['running','player session ended']},
-  {who:'juno_',    text:'nudge — an ask to Tomás Herrera',              path:['requested','in_review','approved (modified)','running','resolved']},
+  {who:'marina_w', text:'weather — clear skies over Dolores Park, 2 h', path:['requested','approved','running','resolved'], credits:80, minutes:120},
+  {who:'r0ok',     text:'event — stoop-sale window on Guerrero',        path:['requested','queued','refunded'], refundNote:'queued request expired before activation', credits:170},
+  {who:'pt',       text:'nudge — an ask to Carmen Echeverría',          path:['requested','in_review','not approved'], reason:'admin-domain', credits:45},
+  {who:'leaf',     text:'event — park cleanup at Dolores Park',         path:['requested','approved','running','resolved'], credits:210},
+  {who:'kes',      text:'camera director — 30 min',                     path:['running','player session ended'], credits:10, minutes:30},
+  {who:'juno_',    text:'nudge — an ask to Tomás Herrera',              path:['requested','in_review','approved (modified)','running','resolved'], credits:40},
   {who:'ghostline',text:'a request',                                    path:['requested','not approved'], redacted:true}
 ];
 var reqQueue=[], reqClock=0;
@@ -740,6 +889,7 @@ function reqTick(){
       e.text = r.def.redacted && st==='not approved' ? 'request not approved'
              : (r.def.refundNote && st==='refunded' ? r.def.refundNote+' — refunded' : r.def.text);
       if (r.def.reason && st==='not approved') e.reason_code=r.def.reason;
+      if (r.def.credits) e.attrs={credits:r.def.credits, minutes:r.def.minutes};
       ingest(e);
       if (r.step>=r.def.path.length-1) reqQueue.splice(i,1);
       return;
@@ -751,7 +901,9 @@ function reqTick(){
     var id='rq-'+(++reqSeq);
     var e2={t:T, kind:'request', who:def.who, req:id, status:def.path[0],
             text:(def.path[0]==='not approved')?'request not approved':def.text};
-    if (def.sponsors) e2.attrs={sponsors:def.sponsors};
+    if (def.sponsors || def.credits){ e2.attrs={};
+      if (def.sponsors) e2.attrs.sponsors=def.sponsors;
+      if (def.credits){ e2.attrs.credits=def.credits; e2.attrs.minutes=def.minutes; } }
     ingest(e2);
     if (def.path.length>1) reqQueue.push({id:id,def:def,step:0});
   }
@@ -765,16 +917,16 @@ function seedFeed(){
     {t:452, kind:'scene',   venue:'mudhaus', text:'Rush hour at Mudhaus — Reyes at double tempo, line to the door'},
     {t:487, kind:'move',    who:'C4', venue:'buyrite', text:'Priya headed in to SF General — a twelves day'},
     {t:540, kind:'venue',   venue:'park',    text:'Bench parliament in session — Esther and Ray, adjacent sections'},
-    {t:566, kind:'request', who:'okfm', req:'rq-1033', text:'possess — own courier, 30 min', status:'resolved'},
+    {t:566, kind:'request', who:'okfm', req:'rq-1033', text:'possess — own courier, 30 min', status:'resolved', attrs:{credits:45, minutes:30}},
     {t:601, kind:'weather', text:'Fog burned off over the park — full sun'},
     {t:647, kind:'press',   text:'Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always'},
     {t:720, kind:'scene',   venue:'farolote', text:'Lunch prep at El Farolote — the salsa bar gets its midday refill'},
-    {t:783, kind:'request', who:'leaf', req:'rq-1038', text:'event — park cleanup at Dolores Park', status:'queued'},
+    {t:783, kind:'request', who:'leaf', req:'rq-1038', text:'event — park cleanup at Dolores Park', status:'queued', attrs:{credits:178}},
     {t:806, kind:'cast',    who:'okfm', venue:'block',   text:'a new face on the block — Dana Okafor, a hired resident, settling in'},
     {t:812, kind:'housing', venue:'block',   text:'Listing filled — 9457 Guerrero St, Unit 2 comes off the board'},
     {t:841, kind:'admin',   venue:'club600', text:'admin action — venue window reset at The 600 Club', attrs:{compensated_cr:90}},
     {t:878, kind:'request', who:'tide_9', req:'rq-1039', text:'weather — evening fog return, 1 h', status:'running',
-      attrs:{sponsors:['tide_9','loam','marina_w'], surge:true}},
+      attrs:{sponsors:['tide_9','loam','marina_w'], surge:true, credits:120, minutes:60}},
     {t:900, kind:'scene',   venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter', attrs:{mentions:['A04','A20']}}
   ].forEach(function(e){ push(e); });
   /* give the queued seed its follow-up so the trail reads honestly */
@@ -790,7 +942,7 @@ function livePoll(){
     var feed = (vs && vs.feed) || [];
     /* feed entries already match feed.json schema — normalize + dedupe */
     feed.forEach(function(e){
-      if (!liveSeen[e.id]){ liveSeen[e.id]=true; push(e); }
+      if (!liveSeen[e.id]){ liveSeen[e.id]=true; push(e); applyWx(e); }
     });
     FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
     renderWire();
@@ -874,6 +1026,7 @@ document.addEventListener('keydown', function(ev){
   else if (ev.key==='f'){ var c=document.getElementById('chipf'); if (c.style.display!=='none'){ c.click(); } }
   else if (ev.key==='z'){ setZen(!zen); }
   else if (ev.key==='h'){ toggleHold(); }
+  else if (ev.key==='d'){ toggleDay(); }
   else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
   else if (ev.key==='Escape'){
     if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
@@ -886,9 +1039,14 @@ function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.st
 /* ================= boot ================= */
 renderFollows();
 if (LIVE){
-  livePoll(); setInterval(livePoll, 1500);
+  livePoll();
+  joinSeq=feedN; renderMissed();
+  setInterval(livePoll, 1500);
 } else {
   seedFeed(); renderWire(); renderVenues(); renderCast(); renderClock();
+  joinSeq=feedN; renderMissed();
+  /* header weather starts from the newest weather event already on the wire */
+  for (var wi=0; wi<FEED.length; wi++) if (FEED[wi].kind==='weather'){ applyWx(FEED[wi]); break; }
   setInterval(tick, TICK_MS);
 }
 var deep = location.hash.match(/^#e=(.+)$/);

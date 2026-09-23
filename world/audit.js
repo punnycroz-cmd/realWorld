@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v46).
+/* world/audit.js — RW boundary audit (world v47).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -1366,7 +1366,11 @@ const PUB = Object.values(PT.surfaces)
       [/jump to top/, 'new-events pill'],
       [/didn(\\u2019|')t pause/i, 'hold honesty copy'],
       [/reaching in now/, 'live-request strip label'],
-      [/same world event, not a discount/, 'co-sponsor attribution copy']
+      [/same world event, not a discount/, 'co-sponsor attribution copy'],
+      [/the day so far/, 'v47 day recap bar'],
+      [/earlier today/, 'v47 missed-bar label'],
+      [/paid upfront, hard cap/, 'v47 declared-cost disclosure'],
+      [/no editorial pick/, 'v47 no-ranking honesty note']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'wire.html', null, `missing required copy: ${label}`);
@@ -1379,6 +1383,17 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['zen', 'hold', 'reaching_in_now', 'keyboard',
       'request_permalink', 'mentions_ui', 'density', 'reduced_motion'])
       if (!V33[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v33.${k} missing`);
+    /* v47 affordances + contract keys (the recap layer) */
+    for (const s of ['id="missedbar"', 'id="daybar"', 'id="daycard"',
+      'catch me up', 'joinSeq', 'applyWx', 'renderDayBar', "'d'"])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v47 affordance "${s}" absent`);
+    const V47 = (FJ.spectator_ui || {}).spectator_ui_v47 || {};
+    for (const k of ['day_so_far', 'missed_bar', 'declared_costs',
+      'wx_follows_feed', 'keyboard'])
+      if (!V47[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v47.${k} missing`);
+    /* declared-cost attrs must be exercised: ≥1 seed carries credits */
+    if (!(FJ.demo_seeds || []).some(e => e.attrs && e.attrs.credits))
+      add(g, 'fail', 'feed.json', null, 'no demo seed exercises attrs.credits — declared-cost display untested');
     /* demo seed mirror: every feed.json seed renders in the demo (text match) */
     for (const e of FJ.demo_seeds || []) {
       const norm = s => s
@@ -1403,7 +1418,8 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'wire.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
     });
     g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
-      `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'}`;
+      `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
+      `v47 keys: ${Object.keys(V47).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 
