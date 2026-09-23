@@ -1,38 +1,352 @@
 {
-  "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
-  "version": 17,
-  "shift_layer": { "spec": "shifts.md", "mirror": "shifts.json", "demo": "timeclock.html", "note": "v17 — weekly grids + coverage floors; 'open' grid slots correspond to this file's openings" },
-  "budget_layer": { "spec": "budgets.md", "mirror": "budgets.json", "note": "v17 — INTERNAL household envelopes; never render named numbers on spectator surfaces" },
-  "bands": { "entry": [16, 20], "mid": [25, 35], "top": [40, 50] },
-  "jobs": [
-    { "employer": "Mudhaus Coffee", "role": "Manager", "wage": 30, "hours_per_week": 40, "held_by": "c1-marisol", "openings": 0, "card": "jobs/mudhaus.md" },
-    { "employer": "Mudhaus Coffee", "role": "Barista", "wage": 19, "hours_per_week": [30, 38], "held_by": ["c2-jules", "c3-dani", "a01-reyes"], "openings": 1, "card": "jobs/mudhaus.md" },
-    { "employer": "Taqueria El Farolote", "role": "Lead cook", "wage": 30, "hours_per_week": 40, "held_by": "c8-tomas", "openings": 0, "card": "jobs/el-farolote.md" },
-    { "employer": "Taqueria El Farolote", "role": "Line cook", "wage": 26, "hours_per_week": 35, "held_by": null, "openings": 1, "card": "jobs/el-farolote.md" },
-    { "employer": "Taqueria El Farolote", "role": "Counter/closer", "wage": 18, "hours_per_week": 30, "held_by": null, "openings": 1, "card": "jobs/el-farolote.md" },
-    { "employer": "Flying Pannier Courier Co-op", "role": "Bike courier", "wage": 18, "hours_per_week": 30, "variable": true, "held_by": "c5-marcus", "openings": 0, "openings_note": "intermittent — co-op intake twice a year", "card": "jobs/courier-work.md" },
-    { "employer": "MuleIt", "role": "Delivery rider", "wage": 17, "hours_per_week": null, "variable": true, "held_by": "a06-kofe", "openings": -1, "openings_note": "always hiring (churn)", "card": "jobs/courier-work.md" },
-    { "employer": "Buy-Rite Market", "role": "Grocery clerk", "wage": 19, "hours_per_week": 32, "held_by": null, "openings": 1, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Buy-Rite Creamery", "role": "Scooper", "wage": 17, "hours_per_week": 24, "held_by": null, "openings": 1, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Dolores Perk", "role": "Counter", "wage": 18, "hours_per_week": 30, "held_by": null, "openings": 1, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Baguette About It Bakery", "role": "Baker", "wage": 26, "hours_per_week": 45, "shift": "4:00–13:00", "held_by": "a16-hana", "openings": 0, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Baguette About It Bakery", "role": "Counter, afternoons", "wage": 18, "hours_per_week": 25, "held_by": null, "openings": 1, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Il Delfino", "role": "Line cook", "wage": 27, "hours_per_week": 35, "held_by": null, "openings": 1, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Il Delfino", "role": "Server", "wage": 18, "hours_per_week": 30, "tips": true, "held_by": null, "openings": 2, "card": "jobs/food-and-grocery.md" },
-    { "employer": "Auerbach Hardware", "role": "Counter clerk", "wage": 21, "hours_per_week": 30, "held_by": null, "openings": 1, "card": "jobs/auerbach.md" },
-    { "employer": "Folsom Auto & Sons", "role": "Mechanic", "wage": 34, "hours_per_week": 40, "held_by": "a10-gus", "openings": 0, "card": "jobs/shop-and-trade.md" },
-    { "employer": "Needlepointe Tattoo", "role": "Artist", "wage": 30, "hours_per_week": null, "variable": true, "held_by": "a14-bex", "openings": 0, "card": "jobs/shop-and-trade.md" },
-    { "employer": "Bloom & Doom Flowers", "role": "Florist", "wage": 25, "hours_per_week": 40, "held_by": "a18-ida", "openings": 0, "card": "jobs/shop-and-trade.md" },
-    { "employer": "Bloom & Doom Flowers", "role": "Saturday counter help", "wage": 18, "hours_per_week": 8, "held_by": null, "openings": 1, "card": "jobs/shop-and-trade.md" },
-    { "employer": "Malik's Mini Mart", "role": "Clerk", "wage": 18, "hours_per_week": 40, "held_by": "a03-malik", "openings": 0, "card": "jobs/shop-and-trade.md" },
-    { "employer": "Frutería Las Palmas", "role": "Vendor", "wage": 18, "hours_per_week": 55, "informal": true, "held_by": "a07-luz", "openings": 0, "card": "jobs/shop-and-trade.md" },
-    { "employer": "Mission Branch Library", "role": "Librarian", "wage": 31, "hours_per_week": 40, "held_by": "a11-vera", "openings": 0, "card": "jobs/public-and-independent.md" },
-    { "employer": "SF General", "role": "RN, med-surg", "wage": 48, "hours_per_week": 36, "shift": "3×12", "held_by": ["c4-priya", "a09-asha"], "openings": 0, "card": "jobs/public-and-independent.md" },
-    { "employer": "SF General", "role": "CNA/tech", "wage": 22, "hours_per_week": 36, "held_by": null, "openings": 2, "card": "jobs/public-and-independent.md" },
-    { "employer": "Dog-walking (independent)", "role": "Walker", "wage": 20, "hours_per_week": 30, "held_by": "a02-doro", "openings": 0, "card": "jobs/public-and-independent.md" },
-    { "employer": "Construction (Folsom lot)", "role": "Laborer", "wage": 36, "hours_per_week": 40, "held_by": "a17-cole", "openings": 0, "card": "jobs/public-and-independent.md" },
-    { "employer": "Nimbus9 (remote)", "role": "Tech worker", "wage": 50, "hours_per_week": 40, "held_by": "a13-nadia", "openings": 0, "openings_note": "remote employer — never on the board", "card": "jobs/public-and-independent.md" },
-    { "employer": "Busking (park corners)", "role": "Musician", "wage": 13, "hours_per_week": null, "informal": true, "variable": true, "held_by": "a08-sam", "openings": 0, "card": "jobs/public-and-independent.md" },
-    { "employer": "Hemming (word of mouth)", "role": "Seamstress", "wage": 15, "hours_per_week": null, "informal": true, "held_by": "c6-carmen", "openings": 0, "card": "jobs/public-and-independent.md" }
+ "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
+ "version": 31,
+ "shift_layer": {
+  "spec": "shifts.md",
+  "mirror": "shifts.json",
+  "demo": "timeclock.html",
+  "note": "v17 — weekly grids + coverage floors; 'open' grid slots correspond to this file's openings"
+ },
+ "budget_layer": {
+  "spec": "budgets.md",
+  "mirror": "budgets.json",
+  "note": "v17 — INTERNAL household envelopes; never render named numbers on spectator surfaces"
+ },
+ "market_layer": {
+  "spec": "market.md",
+  "mirror": "market.json",
+  "demo": "market.html",
+  "note": "v31 — opening churn, hiring channels, ladders, seasonal rhythm; INTERNAL tier"
+ },
+ "bands": {
+  "entry": [
+   16,
+   20
+  ],
+  "mid": [
+   25,
+   35
+  ],
+  "top": [
+   40,
+   50
   ]
+ },
+ "jobs": [
+  {
+   "employer": "Mudhaus Coffee",
+   "role": "Manager",
+   "wage": 30,
+   "hours_per_week": 40,
+   "held_by": "c1-marisol",
+   "openings": 0,
+   "card": "jobs/mudhaus.md"
+  },
+  {
+   "employer": "Mudhaus Coffee",
+   "role": "Barista",
+   "wage": 19,
+   "hours_per_week": [
+    30,
+    38
+   ],
+   "held_by": [
+    "c2-jules",
+    "c3-dani",
+    "a01-reyes"
+   ],
+   "openings": 1,
+   "card": "jobs/mudhaus.md"
+  },
+  {
+   "employer": "Taqueria El Farolote",
+   "role": "Lead cook",
+   "wage": 30,
+   "hours_per_week": 40,
+   "held_by": "c8-tomas",
+   "openings": 0,
+   "card": "jobs/el-farolote.md"
+  },
+  {
+   "employer": "Taqueria El Farolote",
+   "role": "Line cook",
+   "wage": 26,
+   "hours_per_week": 35,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/el-farolote.md"
+  },
+  {
+   "employer": "Taqueria El Farolote",
+   "role": "Counter/closer",
+   "wage": 18,
+   "hours_per_week": 30,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/el-farolote.md"
+  },
+  {
+   "employer": "Flying Pannier Courier Co-op",
+   "role": "Bike courier",
+   "wage": 18,
+   "hours_per_week": 30,
+   "variable": true,
+   "held_by": "c5-marcus",
+   "openings": 0,
+   "openings_note": "intermittent — co-op intake twice a year",
+   "card": "jobs/courier-work.md"
+  },
+  {
+   "employer": "MuleIt",
+   "role": "Delivery rider",
+   "wage": 17,
+   "hours_per_week": null,
+   "variable": true,
+   "held_by": "a06-kofe",
+   "openings": -1,
+   "openings_note": "always hiring (churn)",
+   "card": "jobs/courier-work.md"
+  },
+  {
+   "employer": "Buy-Rite Market",
+   "role": "Grocery clerk",
+   "wage": 19,
+   "hours_per_week": 32,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Buy-Rite Creamery",
+   "role": "Scooper",
+   "wage": 17,
+   "hours_per_week": 24,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Dolores Perk",
+   "role": "Counter",
+   "wage": 18,
+   "hours_per_week": 30,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Baguette About It Bakery",
+   "role": "Baker",
+   "wage": 26,
+   "hours_per_week": 45,
+   "shift": "4:00–13:00",
+   "held_by": "a16-hana",
+   "openings": 0,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Baguette About It Bakery",
+   "role": "Counter, afternoons",
+   "wage": 18,
+   "hours_per_week": 25,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Baguette About It Bakery",
+   "role": "Counter temp, holiday",
+   "wage": 18,
+   "hours_per_week": 20,
+   "seasonal": "nov15–dec24",
+   "held_by": null,
+   "openings": 1,
+   "openings_note": "seasonal — posted ~Nov 1, ends Dec 24",
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Il Delfino",
+   "role": "Line cook",
+   "wage": 27,
+   "hours_per_week": 35,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Il Delfino",
+   "role": "Server",
+   "wage": 18,
+   "hours_per_week": 30,
+   "tips": true,
+   "held_by": null,
+   "openings": 2,
+   "card": "jobs/food-and-grocery.md"
+  },
+  {
+   "employer": "Auerbach Hardware",
+   "role": "Counter clerk",
+   "wage": 21,
+   "hours_per_week": 30,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/auerbach.md"
+  },
+  {
+   "employer": "Marooned Records",
+   "role": "Weekend counter",
+   "wage": 17,
+   "hours_per_week": 12,
+   "shift": "Sat–Sun",
+   "held_by": null,
+   "openings": 1,
+   "openings_note": "word-of-mouth only — never a posted card",
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Golden Hour Laundromat",
+   "role": "Evening attendant",
+   "wage": 17,
+   "hours_per_week": 15,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Folsom Auto & Sons",
+   "role": "Mechanic",
+   "wage": 34,
+   "hours_per_week": 40,
+   "held_by": "a10-gus",
+   "openings": 0,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Needlepointe Tattoo",
+   "role": "Artist",
+   "wage": 30,
+   "hours_per_week": null,
+   "variable": true,
+   "held_by": "a14-bex",
+   "openings": 0,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Bloom & Doom Flowers",
+   "role": "Florist",
+   "wage": 25,
+   "hours_per_week": 40,
+   "held_by": "a18-ida",
+   "openings": 0,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Bloom & Doom Flowers",
+   "role": "Saturday counter help",
+   "wage": 18,
+   "hours_per_week": 8,
+   "held_by": null,
+   "openings": 1,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Malik's Mini Mart",
+   "role": "Clerk",
+   "wage": 18,
+   "hours_per_week": 40,
+   "held_by": "a03-malik",
+   "openings": 0,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Frutería Las Palmas",
+   "role": "Vendor",
+   "wage": 18,
+   "hours_per_week": 55,
+   "informal": true,
+   "held_by": "a07-luz",
+   "openings": 0,
+   "card": "jobs/shop-and-trade.md"
+  },
+  {
+   "employer": "Mission Branch Library",
+   "role": "Librarian",
+   "wage": 31,
+   "hours_per_week": 40,
+   "held_by": "a11-vera",
+   "openings": 0,
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "SF General",
+   "role": "RN, med-surg",
+   "wage": 48,
+   "hours_per_week": 36,
+   "shift": "3×12",
+   "held_by": [
+    "c4-priya",
+    "a09-asha"
+   ],
+   "openings": 0,
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "SF General",
+   "role": "CNA/tech",
+   "wage": 22,
+   "hours_per_week": 36,
+   "held_by": null,
+   "openings": 2,
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "Dog-walking (independent)",
+   "role": "Walker",
+   "wage": 20,
+   "hours_per_week": 30,
+   "held_by": "a02-doro",
+   "openings": 0,
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "Construction (Folsom lot)",
+   "role": "Laborer",
+   "wage": 36,
+   "hours_per_week": 40,
+   "held_by": "a17-cole",
+   "openings": 0,
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "Nimbus9 (remote)",
+   "role": "Tech worker",
+   "wage": 50,
+   "hours_per_week": 40,
+   "held_by": "a13-nadia",
+   "openings": 0,
+   "openings_note": "remote employer — never on the board",
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "Busking (park corners)",
+   "role": "Musician",
+   "wage": 13,
+   "hours_per_week": null,
+   "informal": true,
+   "variable": true,
+   "held_by": "a08-sam",
+   "openings": 0,
+   "card": "jobs/public-and-independent.md"
+  },
+  {
+   "employer": "Hemming (word of mouth)",
+   "role": "Seamstress",
+   "wage": 15,
+   "hours_per_week": null,
+   "informal": true,
+   "held_by": "c6-carmen",
+   "openings": 0,
+   "card": "jobs/public-and-independent.md"
+  }
+ ]
 }

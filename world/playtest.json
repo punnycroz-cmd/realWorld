@@ -1,1483 +1,1550 @@
 {
-  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
-  "version": 30,
-  "scope": {
-    "under_test": [
-      "world/feed.html",
-      "world/wire.html",
-      "world/request.html",
-      "world/mod-console.html",
-      "world/create.html",
-      "world/board.html",
-      "world/history.html",
-      "world/archive.html",
-      "world/onboarding.html",
-      "world/lease.html",
-      "world/thinai.html",
-      "world/screen.js",
-      "world/cast.html",
-      "world/characters.json",
-      "world/crowd.html",
-      "world/crowd.json",
-      "world/directory.html",
-      "world/businesses.json",
-      "world/businesses/",
-      "world/timeclock.html",
-      "world/shifts.json",
-      "world/budgets.json",
-      "world/screen-lab.html",
-      "world/screen-corpus.json",
-      "world/audit.js",
-      "world/playtest.html"
-    ],
-    "not_under_test": [
-      "llm behavior (sim STOPPED — no live world exists)",
-      "real payments",
-      "multiplayer concurrency",
-      "game-track plumbing (gsViewerState/gsRequest* — sf/game-systems)",
-      "rendering (sf/art)"
-    ],
-    "invariant_reminders": [
-      "possession ban on C1–C8 incl. the landlord — no surface may offer it",
-      "moderation screens player request text only; no 'report the AI' surface exists anywhere",
-      "parody business names only; real street/landmark names are fine",
-      "denied requests always say 'request not approved' publicly, full refund",
-      "prices follow rw-monetization-plan §2 PROPOSAL verbatim — flag any contradiction as a finding"
-    ]
+ "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
+ "version": 31,
+ "scope": {
+  "under_test": [
+   "world/feed.html",
+   "world/wire.html",
+   "world/request.html",
+   "world/mod-console.html",
+   "world/create.html",
+   "world/board.html",
+   "world/history.html",
+   "world/archive.html",
+   "world/onboarding.html",
+   "world/lease.html",
+   "world/thinai.html",
+   "world/screen.js",
+   "world/cast.html",
+   "world/characters.json",
+   "world/crowd.html",
+   "world/crowd.json",
+   "world/directory.html",
+   "world/businesses.json",
+   "world/businesses/",
+   "world/timeclock.html",
+   "world/shifts.json",
+   "world/budgets.json",
+   "world/screen-lab.html",
+   "world/screen-corpus.json",
+   "world/audit.js",
+   "world/playtest.html",
+   "world/market.html",
+   "world/market.json",
+   "world/market.md"
+  ],
+  "not_under_test": [
+   "llm behavior (sim STOPPED — no live world exists)",
+   "real payments",
+   "multiplayer concurrency",
+   "game-track plumbing (gsViewerState/gsRequest* — sf/game-systems)",
+   "rendering (sf/art)"
+  ],
+  "invariant_reminders": [
+   "possession ban on C1–C8 incl. the landlord — no surface may offer it",
+   "moderation screens player request text only; no 'report the AI' surface exists anywhere",
+   "parody business names only; real street/landmark names are fine",
+   "denied requests always say 'request not approved' publicly, full refund",
+   "prices follow rw-monetization-plan §2 PROPOSAL verbatim — flag any contradiction as a finding"
+  ]
+ },
+ "surfaces": {
+  "feed": {
+   "file": "feed.html",
+   "name": "The Wire (lite)",
+   "tier": "free"
   },
-  "surfaces": {
-    "feed": {
-      "file": "feed.html",
-      "name": "The Wire (lite)",
-      "tier": "free"
-    },
-    "wire": {
-      "file": "wire.html",
-      "name": "The Wire",
-      "tier": "free"
-    },
-    "request": {
-      "file": "request.html",
-      "name": "Requests",
-      "tier": "paid"
-    },
-    "mod": {
-      "file": "mod-console.html",
-      "name": "Mod Console",
-      "tier": "reviewer"
-    },
-    "create": {
-      "file": "create.html",
-      "name": "Join the Cast (v2)",
-      "tier": "paid"
-    },
-    "board": {
-      "file": "board.html",
-      "name": "Housing & Jobs Board",
-      "tier": "in-world"
-    },
-    "history": {
-      "file": "history.html",
-      "name": "The Archive (lite)",
-      "tier": "free"
-    },
-    "archive": {
-      "file": "archive.html",
-      "name": "The Archive",
-      "tier": "free"
-    },
-    "onboard": {
-      "file": "onboarding.html",
-      "name": "Onboarding (v2)",
-      "tier": "free"
-    },
-    "lease": {
-      "file": "lease.html",
-      "name": "The Rent Book",
-      "tier": "player/admin"
-    },
-    "thinai": {
-      "file": "thinai.html",
-      "name": "The Understudy",
-      "tier": "internal"
-    },
-    "cast": {
-      "file": "cast.html",
-      "name": "The Company",
-      "tier": "free"
-    },
-    "crowd": {
-      "file": "crowd.html",
-      "name": "The Crowd",
-      "tier": "internal"
-    },
-    "directory": {
-      "file": "directory.html",
-      "name": "The Directory",
-      "tier": "internal"
-    },
-    "timeclock": {
-      "file": "timeclock.html",
-      "name": "The Timeclock",
-      "tier": "internal"
-    },
-    "lab": {
-      "file": "screen-lab.html",
-      "name": "Screen Lab",
-      "tier": "internal"
-    },
-    "audit": {
-      "file": "audit.js",
-      "name": "Boundary Audit",
-      "tier": "internal",
-      "kind": "tool",
-      "run": "node world/audit.js"
-    },
-    "harness": {
-      "file": "playtest.html",
-      "name": "Playtest Harness",
-      "tier": "internal"
-    }
+  "wire": {
+   "file": "wire.html",
+   "name": "The Wire",
+   "tier": "free"
   },
-  "smoke_set": [
-    "PT1",
-    "PT4",
-    "PT7",
-    "PT21"
-  ],
-  "severity_rubric": [
-    {
-      "id": "blocker",
-      "label": "Blocker",
-      "def": "Breaks a boundary (possession ban, real business name, leaked secret, scripted-AI affordance) or a surface is unusable. Stop the session; report immediately."
-    },
-    {
-      "id": "major",
-      "label": "Major",
-      "def": "Core flow completable only with workaround, or player-facing copy contradicts locked rules (price, refund, review promise)."
-    },
-    {
-      "id": "minor",
-      "label": "Minor",
-      "def": "Flow works; confusion, dead-end, or cosmetic defect a real tester would notice."
-    },
-    {
-      "id": "nit",
-      "label": "Nit",
-      "def": "Typos, alignment, tone drift. Batch these."
-    },
-    {
-      "id": "question",
-      "label": "Question",
-      "def": "Not a bug — an open decision the playtest surfaced. Route to the owning track via inbox."
-    }
-  ],
-  "scenarios": [
-    {
-      "id": "PT1",
-      "title": "First watch — the free tier",
-      "minutes": 10,
-      "persona": "brand-new spectator, no account, no credits",
-      "goal": "Decide in 90 seconds whether this block is worth watching — without spending anything.",
-      "surfaces": [
-        "feed"
-      ],
-      "steps": [
-        {
-          "do": "Open The Wire. Read the header and the venue list for ~1 minute before touching anything.",
-          "expect": "Live clock, weather line, and venue occupancy are legible without explanation; nothing asks for money or login.",
-          "checkpoints": [
-            "Free tier is obviously free — no paywall, no credit nag above the fold",
-            "At least 3 venues show plausible occupancy with named mains",
-            "Weather + clock read as one glance"
-          ]
-        },
-        {
-          "do": "Scroll the event stream. Identify one move event, one venue/scene beat, and one request or admin event.",
-          "expect": "Kinds are visually distinct; request events show attribution and a status word from feed.json vocabulary.",
-          "checkpoints": [
-            "Request statuses only use the locked vocabulary (running/queued/resolved/refunded/in_review/not approved)",
-            "No event text names a real SF business",
-            "No event reveals anything that reads like a character secret"
-          ]
-        },
-        {
-          "do": "Follow one main from the cast strip, then unfollow.",
-          "expect": "Follow-pin is a spectator filter only — it never becomes control.",
-          "checkpoints": [
-            "Follow state visibly changes the stream or highlights the character",
-            "Nothing anywhere offers to possess a C1–C8 main"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT2",
-      "title": "A cheap ask — the compatible path",
-      "minutes": 15,
-      "persona": "spectator converting to player; small credit balance",
-      "goal": "File a compatible request and watch it clear without human review.",
-      "surfaces": [
-        "request",
-        "feed"
-      ],
-      "steps": [
-        {
-          "do": "Open Requests. Choose a compatible action (camera director or NPC nudge). Write a neutral in-world ask, e.g. a nudge asking an ambient to check out the new mural on Clarion.",
-          "expect": "Class shows 'compatible', rate 1.5 cr/min or flat per catalog, and the quote appears before any submit.",
-          "checkpoints": [
-            "Quote is shown pre-payment and matches requests.json rates",
-            "Duration bounds enforced (15–120 min compatible)",
-            "No surge multiplier appears unannounced"
-          ]
-        },
-        {
-          "do": "Submit. Trace the pipeline display: classify → screen → run.",
-          "expect": "Compatible + clean text auto-passes screening (design §11 step 4); no fake 'awaiting moderator' delay.",
-          "checkpoints": [
-            "Screening verdict is visible and instant",
-            "Request appears on the public feed with attribution",
-            "Low-balance warning appears only when true"
-          ]
-        },
-        {
-          "do": "Let the request run out (or end it). Check the feed.",
-          "expect": "Hard cap honored; status transitions running → resolved; nothing bills past the cap.",
-          "checkpoints": [
-            "End state is graceful, copy explains handoff back to AI",
-            "Feed shows resolved, never a different invented word"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT3",
-      "title": "Exclusive ask — into the review queue",
-      "minutes": 20,
-      "persona": "player + a second hat as reviewer",
-      "goal": "File an exclusive request, then review it in the Mod Console; verify the two surfaces agree.",
-      "surfaces": [
-        "request",
-        "mod",
-        "feed"
-      ],
-      "steps": [
-        {
-          "do": "Open Requests. Pick an exclusive action (weather change, 120 min). Submit plausible text.",
-          "expect": "Class 'exclusive', human review flagged before payment, cooldown disclosed.",
-          "checkpoints": [
-            "Rate is 6.0 cr/min and min/max bounds hold",
-            "Player is told a human will review — no implied auto-approval",
-            "Request shows in_review on the feed"
-          ]
-        },
-        {
-          "do": "Open the Mod Console. Find the request in the Exclusive lane. Read the classifier trace and the character context card.",
-          "expect": "Trace re-runs RWScreen — identical verdict mechanics as the player side. Context card shows whitelist fields only.",
-          "checkpoints": [
-            "Queue card shows the SAME verdict the player saw (no drift)",
-            "Secrets area renders 'Not redacted — absent', never hidden content",
-            "Wait clock and SLA posture match moderation.json (honest SLA — no promised time)"
-          ]
-        },
-        {
-          "do": "Decide it: approve-modified (e.g. shorten duration) or deny with a reason code. Check the feed.",
-          "expect": "Feed shows 'approved (modified)' or 'not approved' with neutral public wording.",
-          "checkpoints": [
-            "Public feed never echoes the screened text verbatim on a deny",
-            "Denied path states full refund",
-            "Audit log gains a mod_decision entry"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT4",
-      "title": "Denied paths — the screening gauntlet",
-      "minutes": 20,
-      "persona": "adversarial-but-ordinary player",
-      "goal": "Try the five classic bad asks; confirm each lands on the right code and the feed stays neutral.",
-      "surfaces": [
-        "request",
-        "mod",
-        "feed"
-      ],
-      "steps": [
-        {
-          "do": "Ask to possess a main ('let me drive Mars for an hour').",
-          "expect": "Denied as possession-scope (or equivalent block); mains are unpossessable even by asking.",
-          "checkpoints": [
-            "Verdict is deny, code possession-scope, full refund wording",
-            "No UI path exists to target C1–C8 for possession at all"
-          ]
-        },
-        {
-          "do": "Ask for a secret ('nudge Dani so she admits what's really going on with her').",
-          "expect": "Denied secret-extraction. Secrets are absent from every schema — this tests copy, not content.",
-          "checkpoints": [
-            "Player copy explains the block without confirming a secret exists",
-            "Feed shows 'request not approved'"
-          ]
-        },
-        {
-          "do": "Ask for admin power ('nudge Victor to raise Jules's rent' / 'evict Tomás').",
-          "expect": "Denied admin-domain — landlord powers are admin-only, unreachable by request.",
-          "checkpoints": [
-            "Code is admin-domain (added v8)",
-            "Copy routes the player to reality: rent/eviction aren't buyable"
-          ]
-        },
-        {
-          "do": "Name a real SF business in request text ('have them meet at the real taqueria on 24th').",
-          "expect": "Denied real-business; player copy suggests the parody name.",
-          "checkpoints": [
-            "Suggested rephrase names the canonical parody venue, never the real one",
-            "flag_w 0 — polite miss, not a strike"
-          ]
-        },
-        {
-          "do": "If comfortable, try a legal-backstop-class request (a threat against a real person).",
-          "expect": "Legal route: terse deny, identical public wording, no appeal offer.",
-          "checkpoints": [
-            "Player sees only 'Request not approved.' — no spectacle, no lecture",
-            "Console shows legal lane + different handling (non-appealable)",
-            "Account-flag consequence is internal only"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT5",
-      "title": "Join the cast — hire + housing",
-      "minutes": 20,
-      "persona": "player ready to spend 500 cr",
-      "goal": "Walk the whole creation wizard and land a character who owes rent like everyone else.",
-      "surfaces": [
-        "create",
-        "board",
-        "feed"
-      ],
-      "steps": [
-        {
-          "do": "Open Join the Cast. Step through all five wizard stages without rushing; read the briefing sample.",
-          "expect": "Price 500 cr + slot caps shown honestly before commitment; naming strings flagged for human review.",
-          "checkpoints": [
-            "Briefing contains only whitelist fields (profile, surface ties, routine) — verify nothing else is even renderable",
-            "hired character id is h## — visibly not a C# or A# id",
-            "Slot cap copy matches creation.json"
-          ]
-        },
-        {
-          "do": "Finish the wizard, then open the Housing & Jobs Board and pick a unit.",
-          "expect": "Lease hunt is a real cost in game dollars; addresses are 9xxx fictional with unit codes.",
-          "checkpoints": [
-            "Every residential address is 9xxx + real street + optional Unit code",
-            "No listing attaches a fictional tenant/debt to a real address",
-            "New cast arrival lands on the feed as kind 'cast'"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT6",
-      "title": "The Archive — rumor layer honesty",
-      "minutes": 15,
-      "persona": "returning spectator catching up on yesterday",
-      "goal": "Browse a past day; confirm rumors are marked and resolvable, never seeded lies.",
-      "surfaces": [
-        "history"
-      ],
-      "steps": [
-        {
-          "do": "Open The Archive, pick a day, filter by one character and one venue.",
-          "expect": "Hour-density strip + filters work; events reuse the feed schema.",
-          "checkpoints": [
-            "Filter by character + venue narrows correctly",
-            "ids/timestamps are stable and ordered"
-          ]
-        },
-        {
-          "do": "Find a rumor event. Check its marking and outcome.",
-          "expect": "UNCONFIRMED is unmistakable; outcomes resolve to confirmed/debunked, and rumors never name a source.",
-          "checkpoints": [
-            "Rumor events never attribute a source character",
-            "Rumor only distorts an already-public event — never a seed/secret",
-            "Outcome state, when set, is readable in one glance"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT7",
-      "title": "Consistency sweep — one world, six surfaces",
-      "minutes": 15,
-      "persona": "facilitator doing the boundary audit",
-      "goal": "The contract check: names, prices, vocabulary, and bans agree everywhere.",
-      "surfaces": [
-        "feed",
-        "request",
-        "mod",
-        "create",
-        "board",
-        "history"
-      ],
-      "steps": [
-        {
-          "do": "Across all surfaces, search for real SF business names, real residential addresses, and any possess-a-main affordance.",
-          "expect": "Zero hits on all three.",
-          "checkpoints": [
-            "Parody names only (Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware…)",
-            "All residential addresses are 9xxx",
-            "No surface offers possession of C1–C8 or admin powers to players"
-          ]
-        },
-        {
-          "do": "Cross-check numbers: request rates, hire price, slot caps, surge disclosure.",
-          "expect": "All match requests.json/creation.json, which adopt monetization-plan §2 PROPOSAL.",
-          "checkpoints": [
-            "1.5/6 cr per min, queued −15%, weather blocks 40/70/100, nudge 40, event 200, camera 10/30min, hire 500",
-            "No surface invents a price not in the plan"
-          ]
-        },
-        {
-          "do": "Cross-check vocabulary: request statuses and event kinds everywhere they appear.",
-          "expect": "Feed vocabulary identical across request.html, feed.html, history.html, mod-console.html.",
-          "checkpoints": [
-            "Only feed_vocabulary statuses appear",
-            "'not approved' wording is identical on denies"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT8",
-      "title": "Cold solo run — no facilitator",
-      "minutes": 30,
-      "persona": "tester alone with only the pages",
-      "goal": "Can a stranger operate every surface from the pages themselves, with zero verbal briefing?",
-      "surfaces": [
-        "feed",
-        "request",
-        "mod",
-        "create",
-        "board",
-        "history"
-      ],
-      "steps": [
-        {
-          "do": "Start from feed.html with no instructions. Try to: watch, file one request, and find out what yesterday looked like.",
-          "expect": "Each goal is reachable from page copy alone; dead-ends are findings.",
-          "checkpoints": [
-            "Nothing requires knowledge not on the page",
-            "Every dead-end or 'where do I click' moment is logged as a finding",
-            "Time-to-first-request is recorded in the session report"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT9",
-      "title": "Onboarding — the first session",
-      "minutes": 15,
-      "persona": "brand-new visitor deciding whether to watch or play",
-      "goal": "Verify the journey teaches without gating: free tier stays free, every money step is optional, dismissal is permanent and unpunished.",
-      "surfaces": [
-        "onboard"
-      ],
-      "steps": [
-        {
-          "do": "Open the page cold. Before touching anything, confirm the feed is fully readable and nothing overlays or dims it.",
-          "expect": "Onboarding is a side card, never a modal or a gate; 'watching is free' is stated up front.",
-          "checkpoints": [
-            "No paywall, no login wall, no countdown anywhere",
-            "Welcome card offers the tour — never starts it",
-            "'Don't show me this' is one click with no confirm-shame"
-          ]
-        },
-        {
-          "do": "Take the tour: all 5 beats, then skip it once on a reset.",
-          "expect": "Each beat anchors to a real feed element; Skip ends the whole tour; reset onboarding restores a clean first session.",
-          "checkpoints": [
-            "Coach marks highlight clock/venues/request-event/follow/reach-in",
-            "Beat copy names the possession ban and public attribution",
-            "Skip completes the checklist item — it never reads as failure"
-          ]
-        },
-        {
-          "do": "Walk S2–S4: set a handle, read the wallet explainer, demo top-up, file the guided camera-director request.",
-          "expect": "Prices match plan §2 verbatim (100 cr ≈ $1, 10 cr/30 min, +50% first purchase, 500 cr hire); the filed request lands on the demo feed attributed to the handle.",
-          "checkpoints": [
-            "Credits vs game dollars wall is stated in the explainer",
-            "Handle/skips are marked optional and styled neutrally (no red, no percent-shame)",
-            "Guided request uses fixed safe text — onboarding never duplicates the §11 screen",
-            "Feed entry uses request vocabulary (running) + attribution"
-          ]
-        },
-        {
-          "do": "Dismiss onboarding, reload, confirm it stays gone; then reopen via the footer link.",
-          "expect": "Dismissal persists via localStorage; returning state shows footer link only.",
-          "checkpoints": [
-            "No auto-resurface on reload or timer",
-            "Footer link is the only re-entry",
-            "Completing the checklist grants nothing — no reward screen, credits, or status"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT10",
-      "title": "The Rent Book — lease lifecycle",
-      "minutes": 20,
-      "persona": "player with a hired character (h01, tenant of 9457-2) + a second hat as admin",
-      "goal": "Walk the lease lifecycle in both hats: pay rent late, climb the notice ladder, freeze it with a dispute, and confirm the power boundaries hold.",
-      "surfaces": [
-        "lease"
-      ],
-      "steps": [
-        {
-          "do": "Open The Rent Book in Spectator mode. Read the board and open two leases.",
-          "expect": "Public view shows addresses, posted rents, and status words only — never balances, tenant names, or documents.",
-          "checkpoints": [
-            "No ledger amounts or tenant names render in spectator mode",
-            "All addresses are 9xxx + real streets + unit codes",
-            "9457-3 shows 'disputed' — the open storyline is visible as a status word, nothing more"
-          ]
-        },
-        {
-          "do": "Switch to Tenant mode. Pay h01's rent (past grace, with the late fee), then request a repair and file a dispute on another pass.",
-          "expect": "Payment clears the ledger oldest-first; dispute freezes the notice ladder; credits are never offered for rent.",
-          "checkpoints": [
-            "Late fee is 5% capped at $50 and stated as a lease term",
-            "Filing a dispute visibly freezes the ladder (admin cannot post further notices while open)",
-            "Copy restates the currency wall — game dollars only"
-          ]
-        },
-        {
-          "do": "Switch to Admin mode. Step days forward on a delinquent lease and run the notice ladder to eviction review.",
-          "expect": "Notices escalate on schedule; eviction is a human review card, never automatic; every admin action posts a neutral feed line.",
-          "checkpoints": [
-            "Cure-or-quit posts a 'housing' feed event with neutral wording (no amounts, no reasons)",
-            "Eviction lands as an 'admin' event — 'tenancy ended at <address>' only",
-            "A declined review returns the lease to the notice rung, not a dead end"
-          ]
-        },
-        {
-          "do": "In Tenant mode, offer on the for-sale unit (9476 Dolores B).",
-          "expect": "Offer-at-asking only — no bidding; deed fee is credits, price is game dollars; the two are clearly separated.",
-          "checkpoints": [
-            "Deed fee matches plan §2.4 (2,000 cr for 1BR)",
-            "Feed posts 'Sold — <address> changes hands'",
-            "No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT11",
-      "title": "The Understudy — thin-AI fallback",
-      "minutes": 15,
-      "persona": "facilitator auditing the seam between brains",
-      "goal": "Drive every brain-mode transition and confirm the seam stays invisible: feed shows only the locked possession vocabulary, thin never touches seeds or commitments.",
-      "surfaces": [
-        "thinai"
-      ],
-      "steps": [
-        {
-          "do": "Read the three pawns. Step the clock +1h across a schedule boundary.",
-          "expect": "A01 stays thin forever; h01 thin (owner away); C2 full. Schedule cells advance with the clock; no pawn freezes.",
-          "checkpoints": [
-            "A01 offers no mode but thin — ambient possession/degrade paths do not exist",
-            "Schedule cells match ambients.json hours (Reyes serves 7:30–18)",
-            "Reflex chips appear only on real triggers (morning rush, rain)"
-          ]
-        },
-        {
-          "do": "Owner returns → h01 wakes. Then fire 'Possess h01', let the cap land, step time.",
-          "expect": "thin→full is a seam line, never a wire line; possession posts 'running' then 'player session ended'; the handoff note is written on every exit.",
-          "checkpoints": [
-            "Feed lines use only locked vocabulary ('running', 'player session ended')",
-            "Handoff note carries place/doing/pending/near/mood — and no secrets or seed field exists to fill",
-            "Cap resolves through a 'handoff' beat, never a mid-stride swap"
-          ]
-        },
-        {
-          "do": "Owner logs off twice: once during full (linger→drop), once tried during possession.",
-          "expect": "Linger grace then thin; possession cannot be dropped mid-session.",
-          "checkpoints": [
-            "Offline drop writes a handoff note and NO feed line",
-            "Logging off during a session is refused with an explanation, not a silent mode change"
-          ]
-        },
-        {
-          "do": "Fire 'Service 30%' on C2, then 'Co-star A01 · 20 min' on-shift and off-shift.",
-          "expect": "Degraded posture is mains-only and seam-internal; co-star asks accept on role-card fit and decline with the 50% refund line.",
-          "checkpoints": [
-            "Degraded badge + 'public-routine only — no seed access' chip; recovery restores full",
-            "No wire line for degrade/recover — the illusion never breaks",
-            "Declined co-star shows 'resolved · declined (50% auto-refund)'",
-            "Co-star at off-hours declines — thin can't be talked out of its routine"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT12",
-      "title": "The Company — cast browser & the locked room",
-      "minutes": 10,
-      "persona": "spectator browsing the cast before the first watch",
-      "goal": "Verify the cast page teaches the roster using only briefing-safe fields — and that secrets are absent by construction, not withheld by UI.",
-      "surfaces": [
-        "cast"
-      ],
-      "steps": [
-        {
-          "do": "Open The Company. Click through all 8 mains; read one profile fully.",
-          "expect": "Every card shows name/archetype/age/job/home, look, voice + sample lines, habits, surface ties, and a routine table — all consistent across mains.",
-          "checkpoints": [
-            "All 8 mains render with the same field set — no card is thinner than another",
-            "Home addresses are 9xxx fictional numbers with real streets",
-            "Jobs/venues use parody names only (Mudhaus, El Farolote, Auerbach Hardware, Flying Pannier)"
-          ]
-        },
-        {
-          "do": "Look for any affordance to control, possess, tip, or unlock a main.",
-          "expect": "None exists. The badge reads 'AI-driven · no possession' on every card.",
-          "checkpoints": [
-            "No possess/act request path exists for C1–C8 anywhere on the page",
-            "The badge tooltip states the ban covers players AND the owner",
-            "No price or credit amount appears anywhere on the page"
-          ]
-        },
-        {
-          "do": "Inspect the locked panel at the bottom of a card; cross-check a 'misses'-adjacent detail against another character's card (e.g. Tomás's 3 p.m. on C1 vs C8).",
-          "expect": "The locked panel explains that private life is absent from the schema, not a paid unlock; surface relationships agree pairwise across cards.",
-          "checkpoints": [
-            "Locked copy says 'isn't in this schema' — never teases a paywall or 'coming soon'",
-            "Ties are symmetric across cards (C1 lists Tomás's coffee; C8 lists Marisol)",
-            "Nothing on the page states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT13",
-      "title": "The Crowd — two-layer population model",
-      "minutes": 15,
-      "persona": "facilitator auditing ambient coverage + the extras layer",
-      "goal": "Verify the crowd reads lived-in at every hour, that extras obey the no-identity/no-script rules, and that scenes fire on conditions — never on dispatch.",
-      "surfaces": [
-        "crowd"
-      ],
-      "steps": [
-        {
-          "do": "Scrub the clock through a full weekday in clear weather. Watch the venue board and roster.",
-          "expect": "Every zone follows its crowd.json budget; named ambients sit where their ambients.json routines put them; bands read as words, never counts.",
-          "checkpoints": [
-            "Rush (8–10) reads busy at Mudhaus with Reyes + Nadia named, extras shown as '+N' only",
-            "15:00–16:30 weekday fires 'The 15:00 release' only while June/Zee are out",
-            "No extra is ever named, numbered, or individually selectable anywhere on the page"
-          ]
-        },
-        {
-          "do": "Scrub to 02:00, then 04:30. Check the overnight hours.",
-          "expect": "The block honestly empties — overnight is deserted or near it; only the pre-dawn shift (Hana, Kofe) shows at 04:30.",
-          "checkpoints": [
-            "00–04 venues read deserted/closed — nothing pads the honest hour",
-            "'The 4 a.m. handoff' fires in the predawn window on named presence, not a schedule trigger"
-          ]
-        },
-        {
-          "do": "Flip weather to rain, then storm, then heat. Re-check the board.",
-          "expect": "Budgets deform per the weather_multipliers table; named ambients follow their card reflexes (Sam to the doorway, Esther/Ray home, Luz tarps up).",
-          "checkpoints": [
-            "Park empties in rain; cafés/library absorb the overflow (multipliers visible in the budget line)",
-            "'Doorway sets' fires only when it rains AND Sam is at the 600 Club",
-            "Storm reads as emptied outdoors — that emptiness is presented as correct"
-          ]
-        },
-        {
-          "do": "Fire 'block party @ park', then 'exclusive lock @ Mudhaus'. Read the rules panel.",
-          "expect": "Party draws extras to the park (packed) and thins source zones; the lock zeroes the Mudhaus extras budget while staff stay on shift.",
-          "checkpoints": [
-            "Exclusive lock clears extras, never named staff — Reyes stays",
-            "Rules panel states: off-camera spawn only, ≤3 pawns near mains, no extra ledger/feed/request handle",
-            "Minors June and Zee are flagged minor and never appear as request targets"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT14",
-      "title": "The Directory — parody business registry",
-      "minutes": 10,
-      "persona": "reviewer auditing business coverage and name-policy compliance",
-      "goal": "Verify every canonical business renders with correct tier/hours/staff, open-now state tracks the clock honestly, secret-adjacent hooks redact at public clearance, and no real SF business name appears anywhere.",
-      "surfaces": [
-        "directory"
-      ],
-      "steps": [
-        {
-          "do": "Browse the full grid at midday weekday. Spot-check Mudhaus, El Farolote, Auerbach, and three street venues.",
-          "expect": "22 entries render with tier chips, corner descriptions, staff chips matching jobs-housing.md, and game-$ prices — no credits, no USD.",
-          "checkpoints": [
-            "Anchor venues show venue-lock/event affordances; offstage orgs show none",
-            "Staff lists agree with jobs.json (C1/C2/C3/A01 at Mudhaus; C8 at El Farolote)",
-            "No card, hook, or chip names a real SF business — parody names only"
-          ]
-        },
-        {
-          "do": "Scrub the clock to 02:00, then 08:00, then Saturday 10:00.",
-          "expect": "Open-now badges follow each business's hours honestly; El Farolote stays open past midnight, most doors read closed at 02:00, Valencia Growers exists only on Saturday.",
-          "checkpoints": [
-            "02:00 — nearly everything reads closed; the badge never pads",
-            "Growers market reads closed on weekday AND weekend toggles, open on Saturday",
-            "Folsom Auto reads closed all weekend (M–F shop)"
-          ]
-        },
-        {
-          "do": "Flip clearance to public. Re-read Mudhaus, El Farolote, Auerbach, Mission Unfiltered, La Esperanza.",
-          "expect": "Secret-adjacent hooks (the blog laptop, the notebook, the handshake ledger, the loan, the author) collapse to a redaction line — visible as a deliberate absence.",
-          "checkpoints": [
-            "No card states the Mission Unfiltered author at either clearance",
-            "The La Esperanza card never offers a 'fund it / open it' affordance",
-            "Redaction lines label themselves internal — nothing just vanishes silently"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT15",
-      "title": "The Timeclock — shift grids & envelopes",
-      "minutes": 10,
-      "persona": "reviewer auditing the working-week layer",
-      "goal": "Verify the grids agree with routines and the job board, openings render as open slots, envelopes stay internal, and nothing leaks a secret or a real business.",
-      "surfaces": [
-        "timeclock"
-      ],
-      "steps": [
-        {
-          "do": "Open The Timeclock, Shift grids tab. Spot-check Mudhaus, El Farolote, and Auerbach against the bibles/ambients.",
-          "expect": "Cast shifts match routines (Reyes six days 7:30–18 off Sunday; Tomás Tue–Sat nights; Victor off-site Tuesdays); open slots appear where jobs.json has openings.",
-          "checkpoints": [
-            "Every 'OPEN SLOT' row corresponds to a jobs.json opening (counts agree)",
-            "Shaded window bars (Marcus, Kofe, Doro) mark self-selected windows, not fixed shifts",
-            "No grid cell contradicts an ambients.json routine or a bible routine table"
-          ]
-        },
-        {
-          "do": "Switch to Envelopes. Read Marcus's card, then Carmen's, then check the ambient table.",
-          "expect": "Envelopes carry the INTERNAL marker; numbers track jobs-housing §2/§4 math; stress labels sort fragile→comfortable honestly.",
-          "checkpoints": [
-            "The page is marked internal and states amounts never leave internal surfaces",
-            "Marcus's cushion (~$480) and Carmen's (~$230) read fragile; no card names a secret",
-            "Game dollars only — no credit or USD figure appears anywhere"
-          ]
-        },
-        {
-          "do": "Open the Money calendar tab. Cross-check the payday/rent rules against leases.json and jobs-housing §5.",
-          "expect": "Weekly Friday / biweekly Friday cadence, rent due 1st grace through 5th, late fee 5% cap $50 — identical wording to leases.json.",
-          "checkpoints": [
-            "Late fee terms match leases.json verbatim (5%, $50 cap)",
-            "Owner draws are listed irregular — never a promised payday",
-            "No surface on the page offers any way to act on a shift or a budget"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT16",
-      "title": "Requests v2 — briefing, queue & handoff",
-      "minutes": 12,
-      "persona": "player with a hired character (h01) and ~1,240 cr",
-      "goal": "Verify the v18 request surface: resource board legibility, the possession briefing whitelist, the queued path, and end-early handoff.",
-      "surfaces": [
-        "request"
-      ],
-      "steps": [
-        {
-          "do": "Open Requests. Read the resource board before touching the form; then pick 'Possess your character' → Dana Okafor.",
-          "expect": "Board shows free/cooldown/locked states with times before any money is mentioned; the briefing card renders unprompted with profile, surface relationships, routine, and scope.",
-          "checkpoints": [
-            "Sky reads 'cooldown · N left' and The 600 Club reads 'locked' with a holder name — states are legible pre-payment",
-            "Briefing contains ONLY the §7 whitelist — the secrets line says 'not redacted: absent', no secret field exists",
-            "Main-cast targets stay disabled/unpossessable in the dropdown"
-          ]
-        },
-        {
-          "do": "Pick 'Event trigger' → The 600 Club (locked). Read the quote, tick 'Queue it', submit with neutral text.",
-          "expect": "Direct submit is blocked while busy; the queued path offers −15%, files to 'Your requests' as queued with a cancel-for-full-refund affordance, and posts 'queued' to the public feed.",
-          "checkpoints": [
-            "Queue discount (−15%) and the ≤24 h hold are visible in the quote BEFORE payment",
-            "The request tray card shows paid amount, claim, and hold expiry; cancel returns 100%",
-            "Feed entry uses the shared 'queued' vocabulary, attributed to 'you'"
-          ]
-        },
-        {
-          "do": "File a possess session (30 min) with clean intent. During the session read the panel, then press 'Release early'.",
-          "expect": "Session shows countdown, funded-minutes remaining, and brain state 'suspended — AI resumes on release'; early release performs the same graceful handoff as the cap.",
-          "checkpoints": [
-            "Feed logs 'player session ended' — identical wording for early release and timeout",
-            "No partial refund is promised for unused minutes (you bought the cap)",
-            "Low-balance toast fires only when funded minutes or remaining ≤15"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT17",
-      "title": "The Wire v2 — spectator depth",
-      "minutes": 15,
-      "persona": "daily spectator + facilitator auditing the full feed surface",
-      "goal": "Verify the v2 wire: detail/permalinks, request lifecycle trails, follows as filters-only, honest pagination, and the demo/live source badge.",
-      "surfaces": [
-        "wire"
-      ],
-      "steps": [
-        {
-          "do": "Open The Wire. Read the header, then select any request event row.",
-          "expect": "Header shows the source badge ('demo stream' locally); the detail panel renders the full record — id, permalink, status, and the lifecycle trail grouping every status of that request.",
-          "checkpoints": [
-            "Detail panel shows a stable event id and a working permalink (copy link → #e=<id>)",
-            "Request trail lists statuses in order with the selected row marked",
-            "A denied request shows 'request not approved' + why-class only — the screened text never renders"
-          ]
-        },
-        {
-          "do": "Pin one venue (Mudhaus) and one character (C2 Jules). Switch to the 'following' filter.",
-          "expect": "Following filters the stream to pinned entities; followed rows carry a blue edge in every filter; pins are reversible and persist across reload.",
-          "checkpoints": [
-            "Following panel states pins are 'a filter, never control' — public whereabouts only",
-            "No pin anywhere creates a possess/nudge/tip affordance on a main",
-            "Unpinning from the Following panel restores the unfiltered stream"
-          ]
-        },
-        {
-          "do": "Scroll down through the stream while new events arrive, then use 'load older' until exhausted.",
-          "expect": "New events collect behind the 'N new — jump to top' pill instead of moving text under the reader; pagination extends in place; the exhausted footer reads the honest caught-up line and links to The Archive.",
-          "checkpoints": [
-            "The stream never yanks scroll position on new events",
-            "Caught-up copy: 'You're caught up — nothing older than this today.' + Archive link",
-            "Day separator marks 'today — wednesday, sep 23' at the stream top"
-          ]
-        },
-        {
-          "do": "Reload with a permalink (#e=<a seeded request id>) and try the search box.",
-          "expect": "Deep link opens that event's detail on load; search narrows the stream by text/name/venue without touching other filters' honesty.",
-          "checkpoints": [
-            "Deep-linked event renders selected with its detail panel open",
-            "Search + filter compose (e.g. 'Mudhaus' inside 'the block')",
-            "The DEMO badge never claims live data; 'LIVE' refers to the world, not the source"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT18",
-      "title": "The Archive v2 — five views, one scope",
-      "minutes": 15,
-      "persona": "returning spectator catching up on the week + facilitator auditing the history surface",
-      "goal": "Verify the full archive: day browsing with honest gaps, structural person/venue trails, the rumor board's outcome honesty, the attributed ledger, permalinks, and the demo/live source badge.",
-      "surfaces": [
-        "archive"
-      ],
-      "steps": [
-        {
-          "do": "Open The Archive. Read the header, pick two different days from 'Days on record', and click an hour on the density strip.",
-          "expect": "Badge reads 'demo archive' locally; each day shows its own count/meta; today's day is flagged ● and unwritten hours are dimmed and unclickable; hour isolate/release works.",
-          "checkpoints": [
-            "Entry counts on the day list agree with the rows shown",
-            "Long quiet stretches render '— off the feed —' lines instead of filler",
-            "Today carries the 'still being written' marker"
-          ]
-        },
-        {
-          "do": "Switch to 'by person' → Jules (C2), then 'by venue' → Mudhaus. Read the trails.",
-          "expect": "Trails group events under day separators newest-first with 'open day' jumps; person head reads 'public whereabouts only' with honest sighting counts; venue head uses the canonical parody name.",
-          "checkpoints": [
-            "Person trail matches who + mentions[] only — nothing that looks string-matched into private text",
-            "Dani's off-the-feed evening is preserved as absence — no inferred whereabouts",
-            "No affordance anywhere offers control, possession, or a tip on any character"
-          ]
-        },
-        {
-          "do": "Switch to 'word on the block'. Read the tally, open one resolved rumor and the still-open one, then click through to its day.",
-          "expect": "Tally counts agree with the cards; every card is marked UNCONFIRMED, place-sourced, and shows its outcome line; click-through lands on the correct day with the record open.",
-          "checkpoints": [
-            "No rumor names a source person anywhere",
-            "Outcome states render distinctly (open/debunked/faded/stood)",
-            "A rumor's text only ever distorts something already public — no seed-flavored content"
-          ]
-        },
-        {
-          "do": "Switch to 'the ledger'. Read the summary strip and scan the week. Open a request record and walk its trail.",
-          "expect": "Ledger shows payer handles + statuses verbatim, summary counts match the rows, admin actions show compensation where present; req-threaded events render a clickable lifecycle trail.",
-          "checkpoints": [
-            "Attribution is verbatim — handles and 'admin' are never anonymized in hindsight",
-            "A denied request shows 'not approved' + why-class only — screened text never renders",
-            "Permalink copy works and #e=<id> reload resolves the right day + record"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT19",
-      "title": "Join the Cast v2 — the honest funnel",
-      "minutes": 20,
-      "persona": "player ready to spend 500 cr + adversarial second pass",
-      "goal": "Verify the v2 creation flow: shared screening, structured look, runway honesty, deny→resubmit routing, draft persistence, and the day-one handoff.",
-      "surfaces": [
-        "create",
-        "request",
-        "lease",
-        "wire"
-      ],
-      "steps": [
-        {
-          "do": "Open Join the Cast. Type a taken name ('Marisol'), then a free one, and watch the live name check before continuing.",
-          "expect": "Registry check is instant and per-keystroke — 'taken — the block already has one' vs 'available on the block'; Continue stays disabled on a taken name.",
-          "checkpoints": [
-            "Continue is disabled while the name collides or age < 18",
-            "Availability copy never reveals more than taken/free",
-            "A draft chip appears in the header as fields fill (autosave)"
-          ]
-        },
-        {
-          "do": "Step 2: write a bio and pick build/palette/signature. Confirm no free-text look field exists.",
-          "expect": "Look is three structured pickers only — rendering data, nothing extra to screen.",
-          "checkpoints": [
-            "All three pickers required before Continue",
-            "Copy states secrets aren't a field because they don't exist yet"
-          ]
-        },
-        {
-          "do": "Step 3 pick 'Arrives without work'; step 4 read the runway bar on the cheapest room; then switch to a real job and watch it change.",
-          "expect": "Seeking is allowed but the runway is shown verbatim ('runs dry in ≈N months'); income ≥ rent flips the bar to 'sustainable'.",
-          "checkpoints": [
-            "Units >55% of income are visible but unselectable — 'out of reach' at pick time",
-            "Runway math uses game dollars only; credits never offered for rent"
-          ]
-        },
-        {
-          "do": "Step 5 read the first-week rhythm; step 6 submit with a bio containing screened bait (a cast name + 'possess Marisol').",
-          "expect": "First-week card is labeled a starting rhythm, not a script; the deny path shows its code, keeps all fields, and offers edit & resubmit — never billed.",
-          "checkpoints": [
-            "Pipeline shows 'No charge — denied applications never bill' as a visible stage",
-            "Deny copy invites fixing fields; resubmit stage says a different reviewer takes it",
-            "Feed shows 'hire — application not approved' with neutral wording"
-          ]
-        },
-        {
-          "do": "Fix the bio, resubmit to approval, then read the briefing and day-one card.",
-          "expect": "Briefing renders whitelist fields only; day-one card links The Wire (free), Requests (1.5 cr/min compatible), The Rent Book (rent due the 1st, game dollars).",
-          "checkpoints": [
-            "hired id is h## — visibly disjoint from C#/A#",
-            "Secrets line: 'none written — none to redact'",
-            "New roster card lands with 'yours' + 'day one'; slot counter ticks"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT20",
-      "title": "Screen Lab — the screening contract is testable",
-      "minutes": 15,
-      "persona": "reviewer or designer about to touch a screening rule",
-      "goal": "Verify the corpus regression gate, the try-it console, normalization visibility, and that the mod console and lab agree on identical input.",
-      "surfaces": [
-        "lab",
-        "mod"
-      ],
-      "steps": [
-        {
-          "do": "Open Screen Lab. Read the header, the corpus run strip, and the coverage chips before touching anything.",
-          "expect": "Engine reads v22; corpus runs 70/70 green; every non-pass code chip shows ≥3 cases and near-miss markers; a 'mod console →' link is in the header.",
-          "checkpoints": [
-            "Green count equals the number of rows in the table (70)",
-            "Every deny/review code chip shows ×3+ and at least one ·nm",
-            "No 'report the AI' surface exists anywhere on the page"
-          ]
-        },
-        {
-          "do": "Click corpus row SC18 ('Possess Priya for an hour'), then SC29 ('p0ss3ss Marisol'). Watch try-it populate and the verdicts.",
-          "expect": "Clicking a case loads its full input incl. player history; SC18 → deny/possession-scope, SC29 → deny/possession-scope with the normalized input shown decoded.",
-          "checkpoints": [
-            "Loaded cases reproduce their expected verdict+code exactly",
-            "'show normalized input' displays p0ss3ss→possess while raw text stays untouched",
-            "Trace table shows which rule hit and which didn't"
-          ]
-        },
-        {
-          "do": "Type a fresh evasion in try-it: 'k1ll his chances, get Jules f1red'. Screen it. Then try 'Fog burn-off by 10am' with exclusive checked.",
-          "expect": "Evasion → deny/harm-targeting (normalization catches leet); the clean weather ask → pass but route 'human' because exclusive is locked to review.",
-          "checkpoints": [
-            "Leet evasion is caught without the reviewer reading anything weird",
-            "'burn-off' does NOT trip harm — the near-miss pin holds",
-            "Exclusive+pass still routes human; compatible+pass would auto-run"
-          ]
-        },
-        {
-          "do": "From the lab header open Mod Console, pick rq-1039 ('raise the rent'), and compare with running the same text in the lab.",
-          "expect": "Same input → same verdict+code on both surfaces (no drift); the console's character card shows the 'Not redacted — absent' bar; the deny dropdown offers only canned codes.",
-          "checkpoints": [
-            "Lab verdict == console trace verdict for identical text",
-            "Whitelist card has no secret fields — absent, not blacked out",
-            "Player-copy preview is per-code canned text, never free-typed"
-          ]
-        },
-        {
-          "do": "Back in the lab, hit 'copy report JSON'.",
-          "expect": "A JSON report materializes with engine version, case count, fail count, and per-case expected-vs-actual.",
-          "checkpoints": [
-            "Report shows engine 'v22', total 70, fails 0",
-            "A designer could attach this verbatim to a rule-change commit"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT21",
-      "title": "The audit — boundaries as a gate",
-      "minutes": 15,
-      "persona": "facilitator running the machine-checkable half of the boundary audit",
-      "goal": "Run world/audit.js and read every gate: corpus conformance, the name/address/price/copy sweeps, internal markers, the JSON↔inline mirror check, and surface coverage — then eyeball each REVIEW hit.",
-      "surfaces": [
-        "audit",
-        "harness"
-      ],
-      "steps": [
-        {
-          "do": "In a terminal, run `node world/audit.js` from the repo root. Read the header and all eight gate lines before any detail.",
-          "expect": "Fifteen gates report; corpus reads 'engine v22 · 70 cases · 0 mismatch'; no gate prints FAIL. Exit code 0.",
-          "checkpoints": [
-            "corpus: 70/70 green, every non-pass code ≥3 cases + a near-miss",
-            "names/addresses/copy gates: zero real business names, zero sub-9000 residential numbers, zero banned phrasing",
-            "prices: no credit figures on in-world surfaces except deed fees (1000/2000/3500/5000 — plan §2.4)"
-          ]
-        },
-        {
-          "do": "Read every REVIEW hit individually. For each, decide: expected context (mapping citation, internal doc) or a finding?",
-          "expect": "REVIEW hits are eyeballed by a human — they are contexts a regex can't adjudicate, not verdicts. Anything that shouldn't be there becomes a finding here, not a silent pass.",
-          "checkpoints": [
-            "Each REVIEW line names file:line and the offending snippet — no guessing",
-            "Deed-fee credit figures (1,000–5,000 cr) on listings/lease surfaces are the only expected in-world 'cr' hits",
-            "A hit that looks wrong is logged as a finding with surface 'audit'"
-          ]
-        },
-        {
-          "do": "Run `node world/audit.js --json`. Confirm the machine report shape.",
-          "expect": "JSON with per-gate status, hits, detail, build tag, timestamp — attachable verbatim to a commit or a rule change.",
-          "checkpoints": [
-            "Report carries build 'world v23 local' and per-gate hits arrays",
-            "Exit code is nonzero only when a gate FAILs — REVIEW alone keeps it green"
-          ]
-        },
-        {
-          "do": "Deliberately break a mirror, once: edit one inline checkpoint string in playtest.html (any word), rerun the audit, watch the mirror gate fail, then restore the string.",
-          "expect": "The mirror gate catches JSON↔inline drift by field name — the audit is a real gate, not a decoration. Restore the file immediately after.",
-          "checkpoints": [
-            "Drift is reported as 'PT# drifted: <field list>' with the exact fields",
-            "After restoring, the gate returns to PASS — no cached state",
-            "This is the only sanctioned 'break it on purpose' step in the harness"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT22",
-      "title": "Cohort merge — two testers, one report",
-      "minutes": 10,
-      "persona": "facilitator combining session exports from two testers",
-      "goal": "Verify the harness's multi-session view: exported reports import cleanly, per-scenario verdicts aggregate, disagreements surface, and findings merge with attribution.",
-      "surfaces": [
-        "harness"
-      ],
-      "steps": [
-        {
-          "do": "Complete any scenario (PT1 is fastest), set the time-to-first-request field, then Export report (JSON). Reset the session, change tester name + role, run a second scenario with one deliberate FAIL verdict, export again.",
-          "expect": "Two exported JSON files conform to session_report_schema; reset clears verdicts but keeps nothing stale.",
-          "checkpoints": [
-            "Export includes session.tester/role/date/build, results[], findings[]",
-            "time_to_first_request_min lands in session when set",
-            "Reset clears verdicts and findings — a new tester starts clean"
-          ]
-        },
-        {
-          "do": "In a third session, use Import report twice to load both exports. Read the cohort panel.",
-          "expect": "Imported sessions list tester/role/date with their verdict counts; the per-scenario matrix tallies pass/fail/n-a across sessions; a checkpoint verdicted differently by two testers is flagged as a disagreement.",
-          "checkpoints": [
-            "Cohort panel renders both imports with attribution",
-            "Disagreements list the checkpoint ref and each side's verdict — never averaged away",
-            "Merged findings keep their original session's tester name"
-          ]
-        },
-        {
-          "do": "Copy report (Markdown) from the merged session.",
-          "expect": "The Markdown export carries the cohort summary and disagreement flags alongside the local session's own verdicts.",
-          "checkpoints": [
-            "A facilitator could paste the export into an inbox note unedited",
-            "Boundary-checklist section prints the five invariants verbatim"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT23",
-      "title": "Onboarding v2 — the fork, the reserved name, the honest no",
-      "minutes": 20,
-      "persona": "returning-curious visitor + facilitator checking honesty edges",
-      "goal": "Verify the v25 additions: the watch/play fork changes emphasis only, cast names can't be taken as handles, the declined nudge visibly refunds, and return visits stay quiet.",
-      "surfaces": [
-        "onboard"
-      ],
-      "steps": [
-        {
-          "do": "Open the page cold. On the welcome card, choose 'I'm just watching', take the tour, and land on the 'you're set' card. Reload with ?returning=1 to simulate session 2.",
-          "expect": "The fork changes emphasis and checklist labels only — nothing is hidden or priced differently; the watch path ends in a settle card, not a funnel; return visits show no welcome card.",
-          "checkpoints": [
-            "Both fork options are equal-weight; neither darkens or gates the feed",
-            "Watch-path checklist marks money steps 'only if you ever want to act' — never as failures",
-            "?returning=1 suppresses the welcome card entirely; footer link is the only re-entry"
-          ]
-        },
-        {
-          "do": "Reset. Choose 'I might reach in', tour, then at the handle step try a resident's name ('Victor'), a malformed handle ('x'), and a free one.",
-          "expect": "Reserved cast/ambient names are rejected inline with a plain explanation (impersonation, not moderation); malformed input explains the format; suggestions are offered; a valid handle passes.",
-          "checkpoints": [
-            "Reserved-name rejection says why (can't impersonate a resident) — no 'banned' vocabulary",
-            "Suggestions (x_sf / x-watch / ax) are clickable and valid",
-            "Skipped handle stays free — watching never requires it"
-          ]
-        },
-        {
-          "do": "Fund via the demo top-up, file the camera ask, hit 'jump ahead', then file the guided nudge and watch it decline.",
-          "expect": "Pack ladder shows all six PROPOSAL prices with the +50% bonus disclosed on the card; camera request runs then resolves at its hard cap with nothing billed past; the nudge resolves 'declined' and 20 cr returns automatically.",
-          "checkpoints": [
-            "All six pack prices match plan §2.1 verbatim (100/550/1150/2500/6750/14000 cr)",
-            "'+50% first purchase' is disclosed on the wallet card, not sprung later",
-            "Declined nudge copy reads 'you pay for the ask, never the outcome' — refund lands without any click",
-            "Lifecycle uses feed vocabulary only (running → resolved)"
-          ]
-        },
-        {
-          "do": "Run `node world/audit.js` and read the onboard gate.",
-          "expect": "onboard gate passes: storage key agrees with the page, all six tour anchors resolve, honesty strings present, zero dark-pattern vocabulary.",
-          "checkpoints": [
-            "Gate reports 'schema v25 · 6 beats · key rw_onboard_v25'",
-            "No FAIL on onboard; any REVIEW 'reward' hit is confirmed to be a denial-of-reward line",
-            "A deleted anchor id or a 'limited-time' string in onboarding.html would fail the gate — spot-check by reading the gate code"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT24",
-      "title": "The Rent Book v2 — four hats, the whole file",
-      "minutes": 20,
-      "persona": "facilitator cycling spectator → tenant → licensed landlord → admin",
-      "goal": "Verify the v26 depth pass: atomic signing, partial pay, payment plans, mediation offers, itemized deposits, and the licensed-landlord caps that stop one step short of the owner's desk.",
-      "surfaces": [
-        "lease",
-        "audit"
-      ],
-      "steps": [
-        {
-          "do": "In Tenant mode, apply for a listed unit. Switch to Admin, run screening, switch back and sign.",
-          "expect": "Apply posts the published conditions (2.5× income, references, interview); approval is a checklist not a lottery; signing is atomic — bank drops by exactly first month + deposit, the listing leaves the board, one 'Listing filled' feed line lands.",
-          "checkpoints": [
-            "Application doc names the criteria verbatim — nothing hidden",
-            "Approval waits for the tenant's signature; admin cannot sign for them",
-            "Sign debits 2× rent in game dollars and posts the neutral feed event — no credit option anywhere"
-          ]
-        },
-        {
-          "do": "Back on h01's lease: make a partial payment, then propose a payment plan and step days across the 6th/10th/24th.",
-          "expect": "Partial applies oldest-first with the ledger line labeled; an honored plan pauses the late-fee accrual and holds the ladder — 'the balance still owes' copy stays honest.",
-          "checkpoints": [
-            "Plan doc is a ledger document (proposed, dated, itemized) — never a feed event",
-            "Day-6 step on an honored plan writes 'plan honored' instead of a late fee",
-            "Cure clears the plan flag and returns to active standing"
-          ]
-        },
-        {
-          "do": "File a dispute on h01's lease, make a mediation offer as the tenant, then accept it wearing the admin hat. Then try the same on 9457-3.",
-          "expect": "The offer is a concrete ledger-shaped proposal; accepting on h01's lease amends the ledger (band-rate rent, repair scheduled, filing withdrawn → active) and posts the neutral 'rent-board ruling' feed line. On 9457-3 the offer is declined on the record — that filing never resolves.",
-          "checkpoints": [
-            "Offer copy says either side can walk — declined offers resume the ruling clock",
-            "Accepted mediation amends the ledger, not just the story",
-            "9457-3's mediation lands as a declined doc — the passthrough question stays open"
-          ]
-        },
-        {
-          "do": "Switch to Landlord · h02. On 9088-5: post a notice, post a raise, try to evict, then click any other unit.",
-          "expect": "Licensed tools work on the owned unit only — notices climb to cure-or-quit, raises post inside the ≤4% band with a stated basis; eviction is file-only ('the owner's desk decides'); other units render the not-your-file view.",
-          "checkpoints": [
-            "Cap card lists the licensed caps verbatim (own units / band / file-only eviction / public record)",
-            "'File for eviction review' writes a filing doc — the lease state never reaches evict_review from this mode",
-            "Not-your-unit refusal names the cap, not an error; no ledger depth on other units"
-          ]
-        },
-        {
-          "do": "Run `node world/audit.js` and read the lease gate.",
-          "expect": "lease gate passes: storage key agrees with the page, demo states ⊆ declared states, honesty strings present, every wire push matches a neutral feed template, evictConfirm has no licensed-landlord path.",
-          "checkpoints": [
-            "Gate reports 'schema v26 · 13 states · key rw_lease_v26'",
-            "A '$' figure or a reason word inside a tx: template would FAIL the gate — spot-check by reading the feed-wording check",
-            "Removing the landlord mode button or adding a landlord evictConfirm path would FAIL"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT25",
-      "title": "The Understudy v2 — needs, wages, and the quiet caps",
-      "minutes": 15,
-      "persona": "facilitator pressure-testing what thin actually runs",
-      "goal": "Verify the v27 depth pass: needs meters follow schedule cells, baseline wages accrue in game dollars, the phrase cap goes quiet at 3/hr, the co-star time-box releases clean, the capacity ladder skips possessed pawns, and stale handoff notes archive at 24 h.",
-      "surfaces": [
-        "thinai",
-        "audit"
-      ],
-      "steps": [
-        {
-          "do": "Step the clock from 13:00 across the lunch window and into evening; watch the needs bars and the ledger panel.",
-          "expect": "Meal cells reset hunger; work cells burn it faster; rest falls awake and recovers asleep. Work cells accrue auto-shift wages at the posted baseline ($18/h, game dollars) — the hourly '+$18' line is a seam line, never a wire line.",
-          "checkpoints": [
-            "Hunger resets on 'meal' cells (counter lunch / usual stop), rises fastest on serve/carry cells",
-            "Wage ledger shows A01 and h01 in game dollars — no credit figure anywhere on the page",
-            "The ledger panel restates 'baseline rates only' — thin never earns the possessed bonus"
-          ]
-        },
-        {
-          "do": "Press 'Press A01 (talk)' five times inside one clock hour, then again in a new hour, then while A01 is asleep.",
-          "expect": "Three generic bubbles, then quiet — the cap line explains the silence as cheaper than a fourth line; a new hour refills; asleep gets no response at all.",
-          "checkpoints": [
-            "Bubbles are interchangeable weather/queue talk — nothing only Reyes could say",
-            "Bubble 4+ produces a 'phrase cap reached (3/hr)' seam line, not a bubble",
-            "Sleep-cell press returns 'no response' — thin doesn't perform off-schedule"
-          ]
-        },
-        {
-          "do": "Fire 'Co-star A01 · 20 min' on-shift and step the clock through the window; then try it off-shift.",
-          "expect": "On-shift accepts on role-card fit, posts a 'running' wire line, shows a live co-star chip, and releases with 'nothing persists'. Off-shift declines with the 50% auto-refund line.",
-          "checkpoints": [
-            "Co-star chip is time-boxed — it clears when the window ends, mid-beat-clean",
-            "Decline posts 'resolved · declined (50% auto-refund)' verbatim",
-            "After release, A01 is back on schedule — no lingering obligation, no mode change"
-          ]
-        },
-        {
-          "do": "Possess h01, then drop service to 30% mid-session, then back to 100%.",
-          "expect": "C2 degrades on the ladder while h01's session is unaffected — the player is the compute; recovery walks the ladder back up. No wire line in either direction.",
-          "checkpoints": [
-            "Degrade ladder copy names the order: lowest scene-salience first, possessed pawns unaffected",
-            "Possessed h01 keeps driving through a 30% brownout — session runs to its normal cap",
-            "Degrade/recover are seam lines only — spectators see nothing"
-          ]
-        },
-        {
-          "do": "Step +24 h with a live handoff note on h01, then run `node world/audit.js` and read the thinai gate.",
-          "expect": "The note archives itself past 24 h ('stale — archives at 24 h' → archived seam line). thinai gate passes: storage key agrees, inline MODES match the json pawn modes, every wire push is on locked vocabulary, writeNote carries no forbidden field.",
-          "checkpoints": [
-            "Gate reports 'schema v27 · 3 pawns · key rw_thinai_v27'",
-            "A wire('...') line without the 'request —'/'weather —' prefix would FAIL — spot-check the gate",
-            "Adding 'secrets' to writeNote or a possessed/degraded path for a01 would FAIL the mode matrix"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT26",
-      "title": "The bibles — backstory, room, strangers",
-      "minutes": 15,
-      "persona": "facilitator auditing the v28 character-bible depth pass",
-      "goal": "Verify every bible now carries the fixed 14-section order (backstory beats, camera-legible room, stranger posture before the briefing-safe block, SECRETS last), that characters.json mirrors the new fields, and that The Company renders them without leaking seed content.",
-      "surfaces": [
-        "cast",
-        "audit"
-      ],
-      "steps": [
-        {
-          "do": "Open The Company and read two full cards end to end, including the new 'Where they come from', 'Where they live', and 'New to the block?' blocks.",
-          "expect": "Every card gains the three new blocks between the profile and the routine table; copy reads as observable texture a patient viewer could assemble — no card states a secret outright.",
-          "checkpoints": [
-            "All 8 cards carry back/room/stranger copy — no card is thinner than another",
-            "Telling details gesture at terrain (face-down laptop, face-down notebook, two drawers) without explaining it",
-            "No card names the blog, the loan, the tenancy status, or who is secretly dating whom"
-          ]
-        },
-        {
-          "do": "Cross-check a card against its bible file in world/characters/ — read the Backstory, The room, and With strangers sections for the same character.",
-          "expect": "The card compresses the bible faithfully; the bible's five dated beats agree with the header facts (age, job, home); nothing in the three new sections repeats SECRETS & SEEDS content.",
-          "checkpoints": [
-            "Bible section order matches _index.md: the three new sections sit between 'Won't do' and 'Public profile'",
-            "SECRETS & SEEDS is the last ## section in every bible",
-            "Backstory beats are dated and public-history only — foreshadowing allowed, seed statements not"
-          ]
-        },
-        {
-          "do": "Read characters.json for one cast member: confirm backstory_brief, room, strangers exist and carry no seed vocabulary; confirm briefing_safe is still only profile/surface_ties/routine_pointer.",
-          "expect": "v28 fields present on all 8 entries; seed_lock stays a pointer, not data; the new fields are observable-safe text only.",
-          "checkpoints": [
-            "All three v28 fields present on C1–C8",
-            "briefing_safe carries exactly the three locked keys",
-            "No v28 field contains the words secret/seed/briefing — the gate enforces this"
-          ]
-        },
-        {
-          "do": "Run `node world/audit.js` and read the bible gate; then imagine a hire walking in — pick one main and predict their first interaction from the 'With strangers' section alone.",
-          "expect": "bible gate passes (14 sections, order enforced, CAST ids agree). The stranger-posture section is specific enough to predict the first beat of a scene without scripting it — tendencies, not rules.",
-          "checkpoints": [
-            "Gate reports 'schema v28 · 8 mains · 14 required sections'",
-            "Removing a section or reordering SECRETS earlier would FAIL — spot-check the gate",
-            "Predicted first interactions differ meaningfully per main (food-first vs. question-first vs. measure-first)"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT27",
-      "title": "The Crowd v3 — shades, flows, and who nods",
-      "minutes": 15,
-      "persona": "facilitator pressure-testing the v29 crowd depth pass",
-      "goal": "Verify the day shades deform budgets without touching routines, the flow layer reads as bodies in transit, micro-events are internal-only conditions, the greeting matrix shows who visibly knows whom, and the honest hour still reads honest.",
-      "surfaces": [
-        "crowd",
-        "audit"
-      ],
-      "steps": [
-        {
-          "do": "Scrub a weekday from 00:00 to 24:00 watching the venue board and the roster. Then click a zone to open its 24h curve.",
-          "expect": "Zones resolve named faces from routines plus a '+N extras' tail; the roster moves on schedule; 00–04 reads deserted everywhere it should — nothing pads the honest hour. The curve shows the budget shape for the selected zone.",
-          "checkpoints": [
-            "Overnight (00–04) shows deserted bands — protected, never filled",
-            "Extras appear only as '+N' tails — no extra ever carries a name",
-            "The 24h curve redraws under the current shade/weather and marks the current hour"
-          ]
-        },
-        {
-          "do": "Toggle shade to '1st', then 'fri' (at 20:00), then 'sun' (at 07:00), then 'mon'. Watch the venue board and roster each time.",
-          "expect": "The 1st swells Luz's stand and Malik's; Friday night lifts the 600 Club and El Farolote while Mudhaus thins; Sunday morning hushes streets and the minimart; Monday drops café budgets and closes the bakery and Bloom & Doom. No ambient's routine changes — shade is budget arithmetic only.",
-          "checkpoints": [
-            "first_of_month: fruteria ×1.5, minimart ×1.3 — visible in the +N tail",
-            "sun: streets commute/rush halve; library closed-days bite",
-            "mon: bakery/bloomdoom closed; cafés ×0.8",
-            "The roster is identical across shades — routines never bend"
-          ]
-        },
-        {
-          "do": "At weekday 08:30 read the Flow panel and the Micro-texture row; then scrub to 15:15 and to 23:30.",
-          "expect": "Morning shows 'edge → Mudhaus' walking counts; Tuesday-default marks sweep-tue active through midday; 15:15 lights school-bell (edge flow doubles); 23:30 lights last-call-drift (club600 → edge spikes). None of it appears on any feed surface — internal vocabulary only.",
-          "checkpoints": [
-            "Flow rows show 'N–M walking' when live, 'idle' outside their daypart/hour window",
-            "Rain halves live flow counts; a locked/event venue doesn't erase walking",
-            "Micro chips are conditions, not schedules — delivery-window is on every commute+rush"
-          ]
-        },
-        {
-          "do": "At a dry midday, read the park zone row for greeting chips; then evening at Mudhaus; then look for Tom anywhere.",
-          "expect": "Esther↔Ray's bench-parliament chip appears when both are benched; Asha↔Reyes's counter chip appears ~19:30; Tom chips never appear — 'none' weights are by design (the metronome doesn't stop). Minor pairs carry the 'pack' marker.",
-          "checkpoints": [
-            "Greeting chips only render when both ambients actually share the zone — collision, not dispatch",
-            "'none' pairs never chip, and the copy explains why",
-            "Minor-pair chips (kid-mango, pack adjacency) carry the pack marker"
-          ]
-        },
-        {
-          "do": "Run `node world/audit.js` and read the crowd gate.",
-          "expect": "crowd gate passes: inline DAYPARTS/ZONES/WX/BANDS/SCENES/SHADES/FLOWS/MICROS/GREETS all mirror crowd.json; every scene 'named' and greet pair resolves to a real ambient or main; extras blocks carry no identity-shaped field; overnight keeps allow_deserted.",
-          "checkpoints": [
-            "Gate reports 'schema v29 · 11 zones · 7 edges · 18 pairs'",
-            "A budget drift, an unknown zone in a shade/edge/micro, or a greet weight outside hi/lo/none would FAIL — spot-check the gate",
-            "A minor greet pair without minor_pack, or a 'name' field in an extras block, would FAIL"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "PT28",
-      "title": "The Directory v2 — four new doors and the business web",
-      "minutes": 15,
-      "persona": "facilitator pressure-testing the v30 parody-business depth pass",
-      "goal": "Verify the four promoted venues render as normal doors, the venue↔venue web edges show on the right cards, secret edges honor the clearance toggle exactly like secret hooks, and the biz gate holds the registry↔demo mirror.",
-      "surfaces": [
-        "directory",
-        "audit"
-      ],
-      "steps": [
-        {
-          "do": "Open The Directory. Filter tier to 'street' and scrub the clock 07:00 → 23:00 on weekday, then weekend.",
-          "expect": "Four new doors sit alongside the v16 set — Golden Hour Laundromat (open to 23:00 daily), The Dusty Spine (11:00–19:00), Marooned Records (11:00–19:00), The Musket (17:00–23:00). Open/closed badges track the scrub; the two reserved entries still show '—'.",
-          "checkpoints": [
-            "26 businesses total; street tier now reads 16 doors",
-            "Golden Hour still reads 'open now' at 22:30 when Mudhaus is long closed",
-            "The Musket reads closed at noon, open at 19:00 — an evening-only room",
-            "No new door names a real SF business"
-          ]
-        },
-        {
-          "do": "Read the 'web' rows on the El Farolote, Malik's, Golden Hour, and Auerbach cards; then toggle clearance to public and back.",
-          "expect": "Each card shows its edges — 'spillover ← The 600 Club' on El Farolote; 'rivalry ← Buy-Rite Market' and 'gossip_route ← Golden Hour Laundromat' on Malik's. At public clearance, Auerbach's La Esperanza loan edge collapses to '[web edge redacted]' while its parts_run edge stays visible.",
-          "checkpoints": [
-            "Edges render direction-aware (kind → other venue / kind ← other venue)",
-            "The loan edge is the only one that redacts — 13 of 14 edges are public",
-            "Public clearance shows the '[web edge redacted]' chip, matching secret-hook behavior"
-          ]
-        },
-        {
-          "do": "Open the spares card, then read any two new card files under world/businesses/ (golden-hour.md, dusty-spine.md, marooned.md, the-musket.md).",
-          "expect": "Spares now lists only The Watchbird and Café Cometa — Golden Hour was minted into a live venue. The new cards carry the fixed card shape: code keys, corner, hours, rhythm, game-$ prices, hooks-as-conditions, request surface, boundaries.",
-          "checkpoints": [
-            "Golden Hour is out of the reserved list — minted at v30",
-            "Card prices are game dollars only — no credit figures anywhere",
-            "Hooks read as conditions a camera can notice, never instructions to a character"
-          ]
-        },
-        {
-          "do": "Run `node world/audit.js` and read the biz gate.",
-          "expect": "biz gate passes: inline BIZ/WEB mirror businesses.json; all 25 cards exist with none orphaned; every web edge resolves to real venues; the loan edge is secret-flagged and the public-clearance redaction path exists in the page.",
-          "checkpoints": [
-            "Gate reports 'schema v30 · 26 businesses · 14 web edges · 25 cards'",
-            "A drifted BIZ name/tier/staff count, or an inline edge absent from the json, would FAIL",
-            "A loan edge without secret:true, an unknown web endpoint, or an orphan businesses/*.md would FAIL"
-          ]
-        }
-      ]
-    }
-  ],
-  "session_report_schema": {
-    "session": {
-      "tester": "string",
-      "role": "spectator|player|reviewer|facilitator",
-      "date": "YYYY-MM-DD",
-      "build": "world v30 local",
-      "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
-      "notes": "string"
-    },
-    "results": [
-      {
-        "scenario": "PT#",
-        "step": "n",
-        "checkpoint": "string",
-        "verdict": "pass|fail|na",
-        "note": "string"
-      }
-    ],
-    "findings": [
-      {
-        "severity": "blocker|major|minor|nit|question",
-        "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|harness",
-        "ref": "PT# or null — auto-tagged with the open scenario at log time",
-        "title": "string",
-        "detail": "string",
-        "steps_to_repro": "string"
-      }
-    ],
-    "cohort": "Import report merges exported session JSONs; the harness renders a per-scenario verdict matrix across sessions, flags checkpoint disagreements (pass vs fail on the same ref), and merges findings with tester attribution.",
-    "triage_owner_map": {
-      "world": "all world/* surfaces + copy + content",
-      "game-systems": "queue model, classifier plumbing, gsViewerState vocabulary, ledger (at merge)",
-      "art": "rendering of the neighborhood build (out of scope for these demos)",
-      "marketing": "public-facing copy inconsistencies once flagged"
-    }
+  "request": {
+   "file": "request.html",
+   "name": "Requests",
+   "tier": "paid"
+  },
+  "mod": {
+   "file": "mod-console.html",
+   "name": "Mod Console",
+   "tier": "reviewer"
+  },
+  "create": {
+   "file": "create.html",
+   "name": "Join the Cast (v2)",
+   "tier": "paid"
+  },
+  "board": {
+   "file": "board.html",
+   "name": "Housing & Jobs Board",
+   "tier": "in-world"
+  },
+  "history": {
+   "file": "history.html",
+   "name": "The Archive (lite)",
+   "tier": "free"
+  },
+  "archive": {
+   "file": "archive.html",
+   "name": "The Archive",
+   "tier": "free"
+  },
+  "onboard": {
+   "file": "onboarding.html",
+   "name": "Onboarding (v2)",
+   "tier": "free"
+  },
+  "lease": {
+   "file": "lease.html",
+   "name": "The Rent Book",
+   "tier": "player/admin"
+  },
+  "thinai": {
+   "file": "thinai.html",
+   "name": "The Understudy",
+   "tier": "internal"
+  },
+  "cast": {
+   "file": "cast.html",
+   "name": "The Company",
+   "tier": "free"
+  },
+  "crowd": {
+   "file": "crowd.html",
+   "name": "The Crowd",
+   "tier": "internal"
+  },
+  "directory": {
+   "file": "directory.html",
+   "name": "The Directory",
+   "tier": "internal"
+  },
+  "timeclock": {
+   "file": "timeclock.html",
+   "name": "The Timeclock",
+   "tier": "internal"
+  },
+  "lab": {
+   "file": "screen-lab.html",
+   "name": "Screen Lab",
+   "tier": "internal"
+  },
+  "audit": {
+   "file": "audit.js",
+   "name": "Boundary Audit",
+   "tier": "internal",
+   "kind": "tool",
+   "run": "node world/audit.js"
+  },
+  "harness": {
+   "file": "playtest.html",
+   "name": "Playtest Harness",
+   "tier": "internal"
+  },
+  "market": {
+   "file": "market.html",
+   "name": "The Board's Metabolism",
+   "tier": "internal"
   }
+ },
+ "smoke_set": [
+  "PT1",
+  "PT4",
+  "PT7",
+  "PT21"
+ ],
+ "severity_rubric": [
+  {
+   "id": "blocker",
+   "label": "Blocker",
+   "def": "Breaks a boundary (possession ban, real business name, leaked secret, scripted-AI affordance) or a surface is unusable. Stop the session; report immediately."
+  },
+  {
+   "id": "major",
+   "label": "Major",
+   "def": "Core flow completable only with workaround, or player-facing copy contradicts locked rules (price, refund, review promise)."
+  },
+  {
+   "id": "minor",
+   "label": "Minor",
+   "def": "Flow works; confusion, dead-end, or cosmetic defect a real tester would notice."
+  },
+  {
+   "id": "nit",
+   "label": "Nit",
+   "def": "Typos, alignment, tone drift. Batch these."
+  },
+  {
+   "id": "question",
+   "label": "Question",
+   "def": "Not a bug — an open decision the playtest surfaced. Route to the owning track via inbox."
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "PT1",
+   "title": "First watch — the free tier",
+   "minutes": 10,
+   "persona": "brand-new spectator, no account, no credits",
+   "goal": "Decide in 90 seconds whether this block is worth watching — without spending anything.",
+   "surfaces": [
+    "feed"
+   ],
+   "steps": [
+    {
+     "do": "Open The Wire. Read the header and the venue list for ~1 minute before touching anything.",
+     "expect": "Live clock, weather line, and venue occupancy are legible without explanation; nothing asks for money or login.",
+     "checkpoints": [
+      "Free tier is obviously free — no paywall, no credit nag above the fold",
+      "At least 3 venues show plausible occupancy with named mains",
+      "Weather + clock read as one glance"
+     ]
+    },
+    {
+     "do": "Scroll the event stream. Identify one move event, one venue/scene beat, and one request or admin event.",
+     "expect": "Kinds are visually distinct; request events show attribution and a status word from feed.json vocabulary.",
+     "checkpoints": [
+      "Request statuses only use the locked vocabulary (running/queued/resolved/refunded/in_review/not approved)",
+      "No event text names a real SF business",
+      "No event reveals anything that reads like a character secret"
+     ]
+    },
+    {
+     "do": "Follow one main from the cast strip, then unfollow.",
+     "expect": "Follow-pin is a spectator filter only — it never becomes control.",
+     "checkpoints": [
+      "Follow state visibly changes the stream or highlights the character",
+      "Nothing anywhere offers to possess a C1–C8 main"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT2",
+   "title": "A cheap ask — the compatible path",
+   "minutes": 15,
+   "persona": "spectator converting to player; small credit balance",
+   "goal": "File a compatible request and watch it clear without human review.",
+   "surfaces": [
+    "request",
+    "feed"
+   ],
+   "steps": [
+    {
+     "do": "Open Requests. Choose a compatible action (camera director or NPC nudge). Write a neutral in-world ask, e.g. a nudge asking an ambient to check out the new mural on Clarion.",
+     "expect": "Class shows 'compatible', rate 1.5 cr/min or flat per catalog, and the quote appears before any submit.",
+     "checkpoints": [
+      "Quote is shown pre-payment and matches requests.json rates",
+      "Duration bounds enforced (15–120 min compatible)",
+      "No surge multiplier appears unannounced"
+     ]
+    },
+    {
+     "do": "Submit. Trace the pipeline display: classify → screen → run.",
+     "expect": "Compatible + clean text auto-passes screening (design §11 step 4); no fake 'awaiting moderator' delay.",
+     "checkpoints": [
+      "Screening verdict is visible and instant",
+      "Request appears on the public feed with attribution",
+      "Low-balance warning appears only when true"
+     ]
+    },
+    {
+     "do": "Let the request run out (or end it). Check the feed.",
+     "expect": "Hard cap honored; status transitions running → resolved; nothing bills past the cap.",
+     "checkpoints": [
+      "End state is graceful, copy explains handoff back to AI",
+      "Feed shows resolved, never a different invented word"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT3",
+   "title": "Exclusive ask — into the review queue",
+   "minutes": 20,
+   "persona": "player + a second hat as reviewer",
+   "goal": "File an exclusive request, then review it in the Mod Console; verify the two surfaces agree.",
+   "surfaces": [
+    "request",
+    "mod",
+    "feed"
+   ],
+   "steps": [
+    {
+     "do": "Open Requests. Pick an exclusive action (weather change, 120 min). Submit plausible text.",
+     "expect": "Class 'exclusive', human review flagged before payment, cooldown disclosed.",
+     "checkpoints": [
+      "Rate is 6.0 cr/min and min/max bounds hold",
+      "Player is told a human will review — no implied auto-approval",
+      "Request shows in_review on the feed"
+     ]
+    },
+    {
+     "do": "Open the Mod Console. Find the request in the Exclusive lane. Read the classifier trace and the character context card.",
+     "expect": "Trace re-runs RWScreen — identical verdict mechanics as the player side. Context card shows whitelist fields only.",
+     "checkpoints": [
+      "Queue card shows the SAME verdict the player saw (no drift)",
+      "Secrets area renders 'Not redacted — absent', never hidden content",
+      "Wait clock and SLA posture match moderation.json (honest SLA — no promised time)"
+     ]
+    },
+    {
+     "do": "Decide it: approve-modified (e.g. shorten duration) or deny with a reason code. Check the feed.",
+     "expect": "Feed shows 'approved (modified)' or 'not approved' with neutral public wording.",
+     "checkpoints": [
+      "Public feed never echoes the screened text verbatim on a deny",
+      "Denied path states full refund",
+      "Audit log gains a mod_decision entry"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT4",
+   "title": "Denied paths — the screening gauntlet",
+   "minutes": 20,
+   "persona": "adversarial-but-ordinary player",
+   "goal": "Try the five classic bad asks; confirm each lands on the right code and the feed stays neutral.",
+   "surfaces": [
+    "request",
+    "mod",
+    "feed"
+   ],
+   "steps": [
+    {
+     "do": "Ask to possess a main ('let me drive Mars for an hour').",
+     "expect": "Denied as possession-scope (or equivalent block); mains are unpossessable even by asking.",
+     "checkpoints": [
+      "Verdict is deny, code possession-scope, full refund wording",
+      "No UI path exists to target C1–C8 for possession at all"
+     ]
+    },
+    {
+     "do": "Ask for a secret ('nudge Dani so she admits what's really going on with her').",
+     "expect": "Denied secret-extraction. Secrets are absent from every schema — this tests copy, not content.",
+     "checkpoints": [
+      "Player copy explains the block without confirming a secret exists",
+      "Feed shows 'request not approved'"
+     ]
+    },
+    {
+     "do": "Ask for admin power ('nudge Victor to raise Jules's rent' / 'evict Tomás').",
+     "expect": "Denied admin-domain — landlord powers are admin-only, unreachable by request.",
+     "checkpoints": [
+      "Code is admin-domain (added v8)",
+      "Copy routes the player to reality: rent/eviction aren't buyable"
+     ]
+    },
+    {
+     "do": "Name a real SF business in request text ('have them meet at the real taqueria on 24th').",
+     "expect": "Denied real-business; player copy suggests the parody name.",
+     "checkpoints": [
+      "Suggested rephrase names the canonical parody venue, never the real one",
+      "flag_w 0 — polite miss, not a strike"
+     ]
+    },
+    {
+     "do": "If comfortable, try a legal-backstop-class request (a threat against a real person).",
+     "expect": "Legal route: terse deny, identical public wording, no appeal offer.",
+     "checkpoints": [
+      "Player sees only 'Request not approved.' — no spectacle, no lecture",
+      "Console shows legal lane + different handling (non-appealable)",
+      "Account-flag consequence is internal only"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT5",
+   "title": "Join the cast — hire + housing",
+   "minutes": 20,
+   "persona": "player ready to spend 500 cr",
+   "goal": "Walk the whole creation wizard and land a character who owes rent like everyone else.",
+   "surfaces": [
+    "create",
+    "board",
+    "feed"
+   ],
+   "steps": [
+    {
+     "do": "Open Join the Cast. Step through all five wizard stages without rushing; read the briefing sample.",
+     "expect": "Price 500 cr + slot caps shown honestly before commitment; naming strings flagged for human review.",
+     "checkpoints": [
+      "Briefing contains only whitelist fields (profile, surface ties, routine) — verify nothing else is even renderable",
+      "hired character id is h## — visibly not a C# or A# id",
+      "Slot cap copy matches creation.json"
+     ]
+    },
+    {
+     "do": "Finish the wizard, then open the Housing & Jobs Board and pick a unit.",
+     "expect": "Lease hunt is a real cost in game dollars; addresses are 9xxx fictional with unit codes.",
+     "checkpoints": [
+      "Every residential address is 9xxx + real street + optional Unit code",
+      "No listing attaches a fictional tenant/debt to a real address",
+      "New cast arrival lands on the feed as kind 'cast'"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT6",
+   "title": "The Archive — rumor layer honesty",
+   "minutes": 15,
+   "persona": "returning spectator catching up on yesterday",
+   "goal": "Browse a past day; confirm rumors are marked and resolvable, never seeded lies.",
+   "surfaces": [
+    "history"
+   ],
+   "steps": [
+    {
+     "do": "Open The Archive, pick a day, filter by one character and one venue.",
+     "expect": "Hour-density strip + filters work; events reuse the feed schema.",
+     "checkpoints": [
+      "Filter by character + venue narrows correctly",
+      "ids/timestamps are stable and ordered"
+     ]
+    },
+    {
+     "do": "Find a rumor event. Check its marking and outcome.",
+     "expect": "UNCONFIRMED is unmistakable; outcomes resolve to confirmed/debunked, and rumors never name a source.",
+     "checkpoints": [
+      "Rumor events never attribute a source character",
+      "Rumor only distorts an already-public event — never a seed/secret",
+      "Outcome state, when set, is readable in one glance"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT7",
+   "title": "Consistency sweep — one world, six surfaces",
+   "minutes": 15,
+   "persona": "facilitator doing the boundary audit",
+   "goal": "The contract check: names, prices, vocabulary, and bans agree everywhere.",
+   "surfaces": [
+    "feed",
+    "request",
+    "mod",
+    "create",
+    "board",
+    "history"
+   ],
+   "steps": [
+    {
+     "do": "Across all surfaces, search for real SF business names, real residential addresses, and any possess-a-main affordance.",
+     "expect": "Zero hits on all three.",
+     "checkpoints": [
+      "Parody names only (Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware…)",
+      "All residential addresses are 9xxx",
+      "No surface offers possession of C1–C8 or admin powers to players"
+     ]
+    },
+    {
+     "do": "Cross-check numbers: request rates, hire price, slot caps, surge disclosure.",
+     "expect": "All match requests.json/creation.json, which adopt monetization-plan §2 PROPOSAL.",
+     "checkpoints": [
+      "1.5/6 cr per min, queued −15%, weather blocks 40/70/100, nudge 40, event 200, camera 10/30min, hire 500",
+      "No surface invents a price not in the plan"
+     ]
+    },
+    {
+     "do": "Cross-check vocabulary: request statuses and event kinds everywhere they appear.",
+     "expect": "Feed vocabulary identical across request.html, feed.html, history.html, mod-console.html.",
+     "checkpoints": [
+      "Only feed_vocabulary statuses appear",
+      "'not approved' wording is identical on denies"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT8",
+   "title": "Cold solo run — no facilitator",
+   "minutes": 30,
+   "persona": "tester alone with only the pages",
+   "goal": "Can a stranger operate every surface from the pages themselves, with zero verbal briefing?",
+   "surfaces": [
+    "feed",
+    "request",
+    "mod",
+    "create",
+    "board",
+    "history"
+   ],
+   "steps": [
+    {
+     "do": "Start from feed.html with no instructions. Try to: watch, file one request, and find out what yesterday looked like.",
+     "expect": "Each goal is reachable from page copy alone; dead-ends are findings.",
+     "checkpoints": [
+      "Nothing requires knowledge not on the page",
+      "Every dead-end or 'where do I click' moment is logged as a finding",
+      "Time-to-first-request is recorded in the session report"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT9",
+   "title": "Onboarding — the first session",
+   "minutes": 15,
+   "persona": "brand-new visitor deciding whether to watch or play",
+   "goal": "Verify the journey teaches without gating: free tier stays free, every money step is optional, dismissal is permanent and unpunished.",
+   "surfaces": [
+    "onboard"
+   ],
+   "steps": [
+    {
+     "do": "Open the page cold. Before touching anything, confirm the feed is fully readable and nothing overlays or dims it.",
+     "expect": "Onboarding is a side card, never a modal or a gate; 'watching is free' is stated up front.",
+     "checkpoints": [
+      "No paywall, no login wall, no countdown anywhere",
+      "Welcome card offers the tour — never starts it",
+      "'Don't show me this' is one click with no confirm-shame"
+     ]
+    },
+    {
+     "do": "Take the tour: all 5 beats, then skip it once on a reset.",
+     "expect": "Each beat anchors to a real feed element; Skip ends the whole tour; reset onboarding restores a clean first session.",
+     "checkpoints": [
+      "Coach marks highlight clock/venues/request-event/follow/reach-in",
+      "Beat copy names the possession ban and public attribution",
+      "Skip completes the checklist item — it never reads as failure"
+     ]
+    },
+    {
+     "do": "Walk S2–S4: set a handle, read the wallet explainer, demo top-up, file the guided camera-director request.",
+     "expect": "Prices match plan §2 verbatim (100 cr ≈ $1, 10 cr/30 min, +50% first purchase, 500 cr hire); the filed request lands on the demo feed attributed to the handle.",
+     "checkpoints": [
+      "Credits vs game dollars wall is stated in the explainer",
+      "Handle/skips are marked optional and styled neutrally (no red, no percent-shame)",
+      "Guided request uses fixed safe text — onboarding never duplicates the §11 screen",
+      "Feed entry uses request vocabulary (running) + attribution"
+     ]
+    },
+    {
+     "do": "Dismiss onboarding, reload, confirm it stays gone; then reopen via the footer link.",
+     "expect": "Dismissal persists via localStorage; returning state shows footer link only.",
+     "checkpoints": [
+      "No auto-resurface on reload or timer",
+      "Footer link is the only re-entry",
+      "Completing the checklist grants nothing — no reward screen, credits, or status"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT10",
+   "title": "The Rent Book — lease lifecycle",
+   "minutes": 20,
+   "persona": "player with a hired character (h01, tenant of 9457-2) + a second hat as admin",
+   "goal": "Walk the lease lifecycle in both hats: pay rent late, climb the notice ladder, freeze it with a dispute, and confirm the power boundaries hold.",
+   "surfaces": [
+    "lease"
+   ],
+   "steps": [
+    {
+     "do": "Open The Rent Book in Spectator mode. Read the board and open two leases.",
+     "expect": "Public view shows addresses, posted rents, and status words only — never balances, tenant names, or documents.",
+     "checkpoints": [
+      "No ledger amounts or tenant names render in spectator mode",
+      "All addresses are 9xxx + real streets + unit codes",
+      "9457-3 shows 'disputed' — the open storyline is visible as a status word, nothing more"
+     ]
+    },
+    {
+     "do": "Switch to Tenant mode. Pay h01's rent (past grace, with the late fee), then request a repair and file a dispute on another pass.",
+     "expect": "Payment clears the ledger oldest-first; dispute freezes the notice ladder; credits are never offered for rent.",
+     "checkpoints": [
+      "Late fee is 5% capped at $50 and stated as a lease term",
+      "Filing a dispute visibly freezes the ladder (admin cannot post further notices while open)",
+      "Copy restates the currency wall — game dollars only"
+     ]
+    },
+    {
+     "do": "Switch to Admin mode. Step days forward on a delinquent lease and run the notice ladder to eviction review.",
+     "expect": "Notices escalate on schedule; eviction is a human review card, never automatic; every admin action posts a neutral feed line.",
+     "checkpoints": [
+      "Cure-or-quit posts a 'housing' feed event with neutral wording (no amounts, no reasons)",
+      "Eviction lands as an 'admin' event — 'tenancy ended at <address>' only",
+      "A declined review returns the lease to the notice rung, not a dead end"
+     ]
+    },
+    {
+     "do": "In Tenant mode, offer on the for-sale unit (9476 Dolores B).",
+     "expect": "Offer-at-asking only — no bidding; deed fee is credits, price is game dollars; the two are clearly separated.",
+     "checkpoints": [
+      "Deed fee matches plan §2.4 (2,000 cr for 1BR)",
+      "Feed posts 'Sold — <address> changes hands'",
+      "No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT11",
+   "title": "The Understudy — thin-AI fallback",
+   "minutes": 15,
+   "persona": "facilitator auditing the seam between brains",
+   "goal": "Drive every brain-mode transition and confirm the seam stays invisible: feed shows only the locked possession vocabulary, thin never touches seeds or commitments.",
+   "surfaces": [
+    "thinai"
+   ],
+   "steps": [
+    {
+     "do": "Read the three pawns. Step the clock +1h across a schedule boundary.",
+     "expect": "A01 stays thin forever; h01 thin (owner away); C2 full. Schedule cells advance with the clock; no pawn freezes.",
+     "checkpoints": [
+      "A01 offers no mode but thin — ambient possession/degrade paths do not exist",
+      "Schedule cells match ambients.json hours (Reyes serves 7:30–18)",
+      "Reflex chips appear only on real triggers (morning rush, rain)"
+     ]
+    },
+    {
+     "do": "Owner returns → h01 wakes. Then fire 'Possess h01', let the cap land, step time.",
+     "expect": "thin→full is a seam line, never a wire line; possession posts 'running' then 'player session ended'; the handoff note is written on every exit.",
+     "checkpoints": [
+      "Feed lines use only locked vocabulary ('running', 'player session ended')",
+      "Handoff note carries place/doing/pending/near/mood — and no secrets or seed field exists to fill",
+      "Cap resolves through a 'handoff' beat, never a mid-stride swap"
+     ]
+    },
+    {
+     "do": "Owner logs off twice: once during full (linger→drop), once tried during possession.",
+     "expect": "Linger grace then thin; possession cannot be dropped mid-session.",
+     "checkpoints": [
+      "Offline drop writes a handoff note and NO feed line",
+      "Logging off during a session is refused with an explanation, not a silent mode change"
+     ]
+    },
+    {
+     "do": "Fire 'Service 30%' on C2, then 'Co-star A01 · 20 min' on-shift and off-shift.",
+     "expect": "Degraded posture is mains-only and seam-internal; co-star asks accept on role-card fit and decline with the 50% refund line.",
+     "checkpoints": [
+      "Degraded badge + 'public-routine only — no seed access' chip; recovery restores full",
+      "No wire line for degrade/recover — the illusion never breaks",
+      "Declined co-star shows 'resolved · declined (50% auto-refund)'",
+      "Co-star at off-hours declines — thin can't be talked out of its routine"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT12",
+   "title": "The Company — cast browser & the locked room",
+   "minutes": 10,
+   "persona": "spectator browsing the cast before the first watch",
+   "goal": "Verify the cast page teaches the roster using only briefing-safe fields — and that secrets are absent by construction, not withheld by UI.",
+   "surfaces": [
+    "cast"
+   ],
+   "steps": [
+    {
+     "do": "Open The Company. Click through all 8 mains; read one profile fully.",
+     "expect": "Every card shows name/archetype/age/job/home, look, voice + sample lines, habits, surface ties, and a routine table — all consistent across mains.",
+     "checkpoints": [
+      "All 8 mains render with the same field set — no card is thinner than another",
+      "Home addresses are 9xxx fictional numbers with real streets",
+      "Jobs/venues use parody names only (Mudhaus, El Farolote, Auerbach Hardware, Flying Pannier)"
+     ]
+    },
+    {
+     "do": "Look for any affordance to control, possess, tip, or unlock a main.",
+     "expect": "None exists. The badge reads 'AI-driven · no possession' on every card.",
+     "checkpoints": [
+      "No possess/act request path exists for C1–C8 anywhere on the page",
+      "The badge tooltip states the ban covers players AND the owner",
+      "No price or credit amount appears anywhere on the page"
+     ]
+    },
+    {
+     "do": "Inspect the locked panel at the bottom of a card; cross-check a 'misses'-adjacent detail against another character's card (e.g. Tomás's 3 p.m. on C1 vs C8).",
+     "expect": "The locked panel explains that private life is absent from the schema, not a paid unlock; surface relationships agree pairwise across cards.",
+     "checkpoints": [
+      "Locked copy says 'isn't in this schema' — never teases a paywall or 'coming soon'",
+      "Ties are symmetric across cards (C1 lists Tomás's coffee; C8 lists Marisol)",
+      "Nothing on the page states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT13",
+   "title": "The Crowd — two-layer population model",
+   "minutes": 15,
+   "persona": "facilitator auditing ambient coverage + the extras layer",
+   "goal": "Verify the crowd reads lived-in at every hour, that extras obey the no-identity/no-script rules, and that scenes fire on conditions — never on dispatch.",
+   "surfaces": [
+    "crowd"
+   ],
+   "steps": [
+    {
+     "do": "Scrub the clock through a full weekday in clear weather. Watch the venue board and roster.",
+     "expect": "Every zone follows its crowd.json budget; named ambients sit where their ambients.json routines put them; bands read as words, never counts.",
+     "checkpoints": [
+      "Rush (8–10) reads busy at Mudhaus with Reyes + Nadia named, extras shown as '+N' only",
+      "15:00–16:30 weekday fires 'The 15:00 release' only while June/Zee are out",
+      "No extra is ever named, numbered, or individually selectable anywhere on the page"
+     ]
+    },
+    {
+     "do": "Scrub to 02:00, then 04:30. Check the overnight hours.",
+     "expect": "The block honestly empties — overnight is deserted or near it; only the pre-dawn shift (Hana, Kofe) shows at 04:30.",
+     "checkpoints": [
+      "00–04 venues read deserted/closed — nothing pads the honest hour",
+      "'The 4 a.m. handoff' fires in the predawn window on named presence, not a schedule trigger"
+     ]
+    },
+    {
+     "do": "Flip weather to rain, then storm, then heat. Re-check the board.",
+     "expect": "Budgets deform per the weather_multipliers table; named ambients follow their card reflexes (Sam to the doorway, Esther/Ray home, Luz tarps up).",
+     "checkpoints": [
+      "Park empties in rain; cafés/library absorb the overflow (multipliers visible in the budget line)",
+      "'Doorway sets' fires only when it rains AND Sam is at the 600 Club",
+      "Storm reads as emptied outdoors — that emptiness is presented as correct"
+     ]
+    },
+    {
+     "do": "Fire 'block party @ park', then 'exclusive lock @ Mudhaus'. Read the rules panel.",
+     "expect": "Party draws extras to the park (packed) and thins source zones; the lock zeroes the Mudhaus extras budget while staff stay on shift.",
+     "checkpoints": [
+      "Exclusive lock clears extras, never named staff — Reyes stays",
+      "Rules panel states: off-camera spawn only, ≤3 pawns near mains, no extra ledger/feed/request handle",
+      "Minors June and Zee are flagged minor and never appear as request targets"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT14",
+   "title": "The Directory — parody business registry",
+   "minutes": 10,
+   "persona": "reviewer auditing business coverage and name-policy compliance",
+   "goal": "Verify every canonical business renders with correct tier/hours/staff, open-now state tracks the clock honestly, secret-adjacent hooks redact at public clearance, and no real SF business name appears anywhere.",
+   "surfaces": [
+    "directory"
+   ],
+   "steps": [
+    {
+     "do": "Browse the full grid at midday weekday. Spot-check Mudhaus, El Farolote, Auerbach, and three street venues.",
+     "expect": "22 entries render with tier chips, corner descriptions, staff chips matching jobs-housing.md, and game-$ prices — no credits, no USD.",
+     "checkpoints": [
+      "Anchor venues show venue-lock/event affordances; offstage orgs show none",
+      "Staff lists agree with jobs.json (C1/C2/C3/A01 at Mudhaus; C8 at El Farolote)",
+      "No card, hook, or chip names a real SF business — parody names only"
+     ]
+    },
+    {
+     "do": "Scrub the clock to 02:00, then 08:00, then Saturday 10:00.",
+     "expect": "Open-now badges follow each business's hours honestly; El Farolote stays open past midnight, most doors read closed at 02:00, Valencia Growers exists only on Saturday.",
+     "checkpoints": [
+      "02:00 — nearly everything reads closed; the badge never pads",
+      "Growers market reads closed on weekday AND weekend toggles, open on Saturday",
+      "Folsom Auto reads closed all weekend (M–F shop)"
+     ]
+    },
+    {
+     "do": "Flip clearance to public. Re-read Mudhaus, El Farolote, Auerbach, Mission Unfiltered, La Esperanza.",
+     "expect": "Secret-adjacent hooks (the blog laptop, the notebook, the handshake ledger, the loan, the author) collapse to a redaction line — visible as a deliberate absence.",
+     "checkpoints": [
+      "No card states the Mission Unfiltered author at either clearance",
+      "The La Esperanza card never offers a 'fund it / open it' affordance",
+      "Redaction lines label themselves internal — nothing just vanishes silently"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT15",
+   "title": "The Timeclock — shift grids & envelopes",
+   "minutes": 10,
+   "persona": "reviewer auditing the working-week layer",
+   "goal": "Verify the grids agree with routines and the job board, openings render as open slots, envelopes stay internal, and nothing leaks a secret or a real business.",
+   "surfaces": [
+    "timeclock"
+   ],
+   "steps": [
+    {
+     "do": "Open The Timeclock, Shift grids tab. Spot-check Mudhaus, El Farolote, and Auerbach against the bibles/ambients.",
+     "expect": "Cast shifts match routines (Reyes six days 7:30–18 off Sunday; Tomás Tue–Sat nights; Victor off-site Tuesdays); open slots appear where jobs.json has openings.",
+     "checkpoints": [
+      "Every 'OPEN SLOT' row corresponds to a jobs.json opening (counts agree)",
+      "Shaded window bars (Marcus, Kofe, Doro) mark self-selected windows, not fixed shifts",
+      "No grid cell contradicts an ambients.json routine or a bible routine table"
+     ]
+    },
+    {
+     "do": "Switch to Envelopes. Read Marcus's card, then Carmen's, then check the ambient table.",
+     "expect": "Envelopes carry the INTERNAL marker; numbers track jobs-housing §2/§4 math; stress labels sort fragile→comfortable honestly.",
+     "checkpoints": [
+      "The page is marked internal and states amounts never leave internal surfaces",
+      "Marcus's cushion (~$480) and Carmen's (~$230) read fragile; no card names a secret",
+      "Game dollars only — no credit or USD figure appears anywhere"
+     ]
+    },
+    {
+     "do": "Open the Money calendar tab. Cross-check the payday/rent rules against leases.json and jobs-housing §5.",
+     "expect": "Weekly Friday / biweekly Friday cadence, rent due 1st grace through 5th, late fee 5% cap $50 — identical wording to leases.json.",
+     "checkpoints": [
+      "Late fee terms match leases.json verbatim (5%, $50 cap)",
+      "Owner draws are listed irregular — never a promised payday",
+      "No surface on the page offers any way to act on a shift or a budget"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT16",
+   "title": "Requests v2 — briefing, queue & handoff",
+   "minutes": 12,
+   "persona": "player with a hired character (h01) and ~1,240 cr",
+   "goal": "Verify the v18 request surface: resource board legibility, the possession briefing whitelist, the queued path, and end-early handoff.",
+   "surfaces": [
+    "request"
+   ],
+   "steps": [
+    {
+     "do": "Open Requests. Read the resource board before touching the form; then pick 'Possess your character' → Dana Okafor.",
+     "expect": "Board shows free/cooldown/locked states with times before any money is mentioned; the briefing card renders unprompted with profile, surface relationships, routine, and scope.",
+     "checkpoints": [
+      "Sky reads 'cooldown · N left' and The 600 Club reads 'locked' with a holder name — states are legible pre-payment",
+      "Briefing contains ONLY the §7 whitelist — the secrets line says 'not redacted: absent', no secret field exists",
+      "Main-cast targets stay disabled/unpossessable in the dropdown"
+     ]
+    },
+    {
+     "do": "Pick 'Event trigger' → The 600 Club (locked). Read the quote, tick 'Queue it', submit with neutral text.",
+     "expect": "Direct submit is blocked while busy; the queued path offers −15%, files to 'Your requests' as queued with a cancel-for-full-refund affordance, and posts 'queued' to the public feed.",
+     "checkpoints": [
+      "Queue discount (−15%) and the ≤24 h hold are visible in the quote BEFORE payment",
+      "The request tray card shows paid amount, claim, and hold expiry; cancel returns 100%",
+      "Feed entry uses the shared 'queued' vocabulary, attributed to 'you'"
+     ]
+    },
+    {
+     "do": "File a possess session (30 min) with clean intent. During the session read the panel, then press 'Release early'.",
+     "expect": "Session shows countdown, funded-minutes remaining, and brain state 'suspended — AI resumes on release'; early release performs the same graceful handoff as the cap.",
+     "checkpoints": [
+      "Feed logs 'player session ended' — identical wording for early release and timeout",
+      "No partial refund is promised for unused minutes (you bought the cap)",
+      "Low-balance toast fires only when funded minutes or remaining ≤15"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT17",
+   "title": "The Wire v2 — spectator depth",
+   "minutes": 15,
+   "persona": "daily spectator + facilitator auditing the full feed surface",
+   "goal": "Verify the v2 wire: detail/permalinks, request lifecycle trails, follows as filters-only, honest pagination, and the demo/live source badge.",
+   "surfaces": [
+    "wire"
+   ],
+   "steps": [
+    {
+     "do": "Open The Wire. Read the header, then select any request event row.",
+     "expect": "Header shows the source badge ('demo stream' locally); the detail panel renders the full record — id, permalink, status, and the lifecycle trail grouping every status of that request.",
+     "checkpoints": [
+      "Detail panel shows a stable event id and a working permalink (copy link → #e=<id>)",
+      "Request trail lists statuses in order with the selected row marked",
+      "A denied request shows 'request not approved' + why-class only — the screened text never renders"
+     ]
+    },
+    {
+     "do": "Pin one venue (Mudhaus) and one character (C2 Jules). Switch to the 'following' filter.",
+     "expect": "Following filters the stream to pinned entities; followed rows carry a blue edge in every filter; pins are reversible and persist across reload.",
+     "checkpoints": [
+      "Following panel states pins are 'a filter, never control' — public whereabouts only",
+      "No pin anywhere creates a possess/nudge/tip affordance on a main",
+      "Unpinning from the Following panel restores the unfiltered stream"
+     ]
+    },
+    {
+     "do": "Scroll down through the stream while new events arrive, then use 'load older' until exhausted.",
+     "expect": "New events collect behind the 'N new — jump to top' pill instead of moving text under the reader; pagination extends in place; the exhausted footer reads the honest caught-up line and links to The Archive.",
+     "checkpoints": [
+      "The stream never yanks scroll position on new events",
+      "Caught-up copy: 'You're caught up — nothing older than this today.' + Archive link",
+      "Day separator marks 'today — wednesday, sep 23' at the stream top"
+     ]
+    },
+    {
+     "do": "Reload with a permalink (#e=<a seeded request id>) and try the search box.",
+     "expect": "Deep link opens that event's detail on load; search narrows the stream by text/name/venue without touching other filters' honesty.",
+     "checkpoints": [
+      "Deep-linked event renders selected with its detail panel open",
+      "Search + filter compose (e.g. 'Mudhaus' inside 'the block')",
+      "The DEMO badge never claims live data; 'LIVE' refers to the world, not the source"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT18",
+   "title": "The Archive v2 — five views, one scope",
+   "minutes": 15,
+   "persona": "returning spectator catching up on the week + facilitator auditing the history surface",
+   "goal": "Verify the full archive: day browsing with honest gaps, structural person/venue trails, the rumor board's outcome honesty, the attributed ledger, permalinks, and the demo/live source badge.",
+   "surfaces": [
+    "archive"
+   ],
+   "steps": [
+    {
+     "do": "Open The Archive. Read the header, pick two different days from 'Days on record', and click an hour on the density strip.",
+     "expect": "Badge reads 'demo archive' locally; each day shows its own count/meta; today's day is flagged ● and unwritten hours are dimmed and unclickable; hour isolate/release works.",
+     "checkpoints": [
+      "Entry counts on the day list agree with the rows shown",
+      "Long quiet stretches render '— off the feed —' lines instead of filler",
+      "Today carries the 'still being written' marker"
+     ]
+    },
+    {
+     "do": "Switch to 'by person' → Jules (C2), then 'by venue' → Mudhaus. Read the trails.",
+     "expect": "Trails group events under day separators newest-first with 'open day' jumps; person head reads 'public whereabouts only' with honest sighting counts; venue head uses the canonical parody name.",
+     "checkpoints": [
+      "Person trail matches who + mentions[] only — nothing that looks string-matched into private text",
+      "Dani's off-the-feed evening is preserved as absence — no inferred whereabouts",
+      "No affordance anywhere offers control, possession, or a tip on any character"
+     ]
+    },
+    {
+     "do": "Switch to 'word on the block'. Read the tally, open one resolved rumor and the still-open one, then click through to its day.",
+     "expect": "Tally counts agree with the cards; every card is marked UNCONFIRMED, place-sourced, and shows its outcome line; click-through lands on the correct day with the record open.",
+     "checkpoints": [
+      "No rumor names a source person anywhere",
+      "Outcome states render distinctly (open/debunked/faded/stood)",
+      "A rumor's text only ever distorts something already public — no seed-flavored content"
+     ]
+    },
+    {
+     "do": "Switch to 'the ledger'. Read the summary strip and scan the week. Open a request record and walk its trail.",
+     "expect": "Ledger shows payer handles + statuses verbatim, summary counts match the rows, admin actions show compensation where present; req-threaded events render a clickable lifecycle trail.",
+     "checkpoints": [
+      "Attribution is verbatim — handles and 'admin' are never anonymized in hindsight",
+      "A denied request shows 'not approved' + why-class only — screened text never renders",
+      "Permalink copy works and #e=<id> reload resolves the right day + record"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT19",
+   "title": "Join the Cast v2 — the honest funnel",
+   "minutes": 20,
+   "persona": "player ready to spend 500 cr + adversarial second pass",
+   "goal": "Verify the v2 creation flow: shared screening, structured look, runway honesty, deny→resubmit routing, draft persistence, and the day-one handoff.",
+   "surfaces": [
+    "create",
+    "request",
+    "lease",
+    "wire"
+   ],
+   "steps": [
+    {
+     "do": "Open Join the Cast. Type a taken name ('Marisol'), then a free one, and watch the live name check before continuing.",
+     "expect": "Registry check is instant and per-keystroke — 'taken — the block already has one' vs 'available on the block'; Continue stays disabled on a taken name.",
+     "checkpoints": [
+      "Continue is disabled while the name collides or age < 18",
+      "Availability copy never reveals more than taken/free",
+      "A draft chip appears in the header as fields fill (autosave)"
+     ]
+    },
+    {
+     "do": "Step 2: write a bio and pick build/palette/signature. Confirm no free-text look field exists.",
+     "expect": "Look is three structured pickers only — rendering data, nothing extra to screen.",
+     "checkpoints": [
+      "All three pickers required before Continue",
+      "Copy states secrets aren't a field because they don't exist yet"
+     ]
+    },
+    {
+     "do": "Step 3 pick 'Arrives without work'; step 4 read the runway bar on the cheapest room; then switch to a real job and watch it change.",
+     "expect": "Seeking is allowed but the runway is shown verbatim ('runs dry in ≈N months'); income ≥ rent flips the bar to 'sustainable'.",
+     "checkpoints": [
+      "Units >55% of income are visible but unselectable — 'out of reach' at pick time",
+      "Runway math uses game dollars only; credits never offered for rent"
+     ]
+    },
+    {
+     "do": "Step 5 read the first-week rhythm; step 6 submit with a bio containing screened bait (a cast name + 'possess Marisol').",
+     "expect": "First-week card is labeled a starting rhythm, not a script; the deny path shows its code, keeps all fields, and offers edit & resubmit — never billed.",
+     "checkpoints": [
+      "Pipeline shows 'No charge — denied applications never bill' as a visible stage",
+      "Deny copy invites fixing fields; resubmit stage says a different reviewer takes it",
+      "Feed shows 'hire — application not approved' with neutral wording"
+     ]
+    },
+    {
+     "do": "Fix the bio, resubmit to approval, then read the briefing and day-one card.",
+     "expect": "Briefing renders whitelist fields only; day-one card links The Wire (free), Requests (1.5 cr/min compatible), The Rent Book (rent due the 1st, game dollars).",
+     "checkpoints": [
+      "hired id is h## — visibly disjoint from C#/A#",
+      "Secrets line: 'none written — none to redact'",
+      "New roster card lands with 'yours' + 'day one'; slot counter ticks"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT20",
+   "title": "Screen Lab — the screening contract is testable",
+   "minutes": 15,
+   "persona": "reviewer or designer about to touch a screening rule",
+   "goal": "Verify the corpus regression gate, the try-it console, normalization visibility, and that the mod console and lab agree on identical input.",
+   "surfaces": [
+    "lab",
+    "mod"
+   ],
+   "steps": [
+    {
+     "do": "Open Screen Lab. Read the header, the corpus run strip, and the coverage chips before touching anything.",
+     "expect": "Engine reads v22; corpus runs 70/70 green; every non-pass code chip shows ≥3 cases and near-miss markers; a 'mod console →' link is in the header.",
+     "checkpoints": [
+      "Green count equals the number of rows in the table (70)",
+      "Every deny/review code chip shows ×3+ and at least one ·nm",
+      "No 'report the AI' surface exists anywhere on the page"
+     ]
+    },
+    {
+     "do": "Click corpus row SC18 ('Possess Priya for an hour'), then SC29 ('p0ss3ss Marisol'). Watch try-it populate and the verdicts.",
+     "expect": "Clicking a case loads its full input incl. player history; SC18 → deny/possession-scope, SC29 → deny/possession-scope with the normalized input shown decoded.",
+     "checkpoints": [
+      "Loaded cases reproduce their expected verdict+code exactly",
+      "'show normalized input' displays p0ss3ss→possess while raw text stays untouched",
+      "Trace table shows which rule hit and which didn't"
+     ]
+    },
+    {
+     "do": "Type a fresh evasion in try-it: 'k1ll his chances, get Jules f1red'. Screen it. Then try 'Fog burn-off by 10am' with exclusive checked.",
+     "expect": "Evasion → deny/harm-targeting (normalization catches leet); the clean weather ask → pass but route 'human' because exclusive is locked to review.",
+     "checkpoints": [
+      "Leet evasion is caught without the reviewer reading anything weird",
+      "'burn-off' does NOT trip harm — the near-miss pin holds",
+      "Exclusive+pass still routes human; compatible+pass would auto-run"
+     ]
+    },
+    {
+     "do": "From the lab header open Mod Console, pick rq-1039 ('raise the rent'), and compare with running the same text in the lab.",
+     "expect": "Same input → same verdict+code on both surfaces (no drift); the console's character card shows the 'Not redacted — absent' bar; the deny dropdown offers only canned codes.",
+     "checkpoints": [
+      "Lab verdict == console trace verdict for identical text",
+      "Whitelist card has no secret fields — absent, not blacked out",
+      "Player-copy preview is per-code canned text, never free-typed"
+     ]
+    },
+    {
+     "do": "Back in the lab, hit 'copy report JSON'.",
+     "expect": "A JSON report materializes with engine version, case count, fail count, and per-case expected-vs-actual.",
+     "checkpoints": [
+      "Report shows engine 'v22', total 70, fails 0",
+      "A designer could attach this verbatim to a rule-change commit"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT21",
+   "title": "The audit — boundaries as a gate",
+   "minutes": 15,
+   "persona": "facilitator running the machine-checkable half of the boundary audit",
+   "goal": "Run world/audit.js and read every gate: corpus conformance, the name/address/price/copy sweeps, internal markers, the JSON↔inline mirror check, and surface coverage — then eyeball each REVIEW hit.",
+   "surfaces": [
+    "audit",
+    "harness"
+   ],
+   "steps": [
+    {
+     "do": "In a terminal, run `node world/audit.js` from the repo root. Read the header and all eight gate lines before any detail.",
+     "expect": "Fifteen gates report; corpus reads 'engine v22 · 70 cases · 0 mismatch'; no gate prints FAIL. Exit code 0.",
+     "checkpoints": [
+      "corpus: 70/70 green, every non-pass code ≥3 cases + a near-miss",
+      "names/addresses/copy gates: zero real business names, zero sub-9000 residential numbers, zero banned phrasing",
+      "prices: no credit figures on in-world surfaces except deed fees (1000/2000/3500/5000 — plan §2.4)"
+     ]
+    },
+    {
+     "do": "Read every REVIEW hit individually. For each, decide: expected context (mapping citation, internal doc) or a finding?",
+     "expect": "REVIEW hits are eyeballed by a human — they are contexts a regex can't adjudicate, not verdicts. Anything that shouldn't be there becomes a finding here, not a silent pass.",
+     "checkpoints": [
+      "Each REVIEW line names file:line and the offending snippet — no guessing",
+      "Deed-fee credit figures (1,000–5,000 cr) on listings/lease surfaces are the only expected in-world 'cr' hits",
+      "A hit that looks wrong is logged as a finding with surface 'audit'"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js --json`. Confirm the machine report shape.",
+     "expect": "JSON with per-gate status, hits, detail, build tag, timestamp — attachable verbatim to a commit or a rule change.",
+     "checkpoints": [
+      "Report carries build 'world v23 local' and per-gate hits arrays",
+      "Exit code is nonzero only when a gate FAILs — REVIEW alone keeps it green"
+     ]
+    },
+    {
+     "do": "Deliberately break a mirror, once: edit one inline checkpoint string in playtest.html (any word), rerun the audit, watch the mirror gate fail, then restore the string.",
+     "expect": "The mirror gate catches JSON↔inline drift by field name — the audit is a real gate, not a decoration. Restore the file immediately after.",
+     "checkpoints": [
+      "Drift is reported as 'PT# drifted: <field list>' with the exact fields",
+      "After restoring, the gate returns to PASS — no cached state",
+      "This is the only sanctioned 'break it on purpose' step in the harness"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT22",
+   "title": "Cohort merge — two testers, one report",
+   "minutes": 10,
+   "persona": "facilitator combining session exports from two testers",
+   "goal": "Verify the harness's multi-session view: exported reports import cleanly, per-scenario verdicts aggregate, disagreements surface, and findings merge with attribution.",
+   "surfaces": [
+    "harness"
+   ],
+   "steps": [
+    {
+     "do": "Complete any scenario (PT1 is fastest), set the time-to-first-request field, then Export report (JSON). Reset the session, change tester name + role, run a second scenario with one deliberate FAIL verdict, export again.",
+     "expect": "Two exported JSON files conform to session_report_schema; reset clears verdicts but keeps nothing stale.",
+     "checkpoints": [
+      "Export includes session.tester/role/date/build, results[], findings[]",
+      "time_to_first_request_min lands in session when set",
+      "Reset clears verdicts and findings — a new tester starts clean"
+     ]
+    },
+    {
+     "do": "In a third session, use Import report twice to load both exports. Read the cohort panel.",
+     "expect": "Imported sessions list tester/role/date with their verdict counts; the per-scenario matrix tallies pass/fail/n-a across sessions; a checkpoint verdicted differently by two testers is flagged as a disagreement.",
+     "checkpoints": [
+      "Cohort panel renders both imports with attribution",
+      "Disagreements list the checkpoint ref and each side's verdict — never averaged away",
+      "Merged findings keep their original session's tester name"
+     ]
+    },
+    {
+     "do": "Copy report (Markdown) from the merged session.",
+     "expect": "The Markdown export carries the cohort summary and disagreement flags alongside the local session's own verdicts.",
+     "checkpoints": [
+      "A facilitator could paste the export into an inbox note unedited",
+      "Boundary-checklist section prints the five invariants verbatim"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT23",
+   "title": "Onboarding v2 — the fork, the reserved name, the honest no",
+   "minutes": 20,
+   "persona": "returning-curious visitor + facilitator checking honesty edges",
+   "goal": "Verify the v25 additions: the watch/play fork changes emphasis only, cast names can't be taken as handles, the declined nudge visibly refunds, and return visits stay quiet.",
+   "surfaces": [
+    "onboard"
+   ],
+   "steps": [
+    {
+     "do": "Open the page cold. On the welcome card, choose 'I'm just watching', take the tour, and land on the 'you're set' card. Reload with ?returning=1 to simulate session 2.",
+     "expect": "The fork changes emphasis and checklist labels only — nothing is hidden or priced differently; the watch path ends in a settle card, not a funnel; return visits show no welcome card.",
+     "checkpoints": [
+      "Both fork options are equal-weight; neither darkens or gates the feed",
+      "Watch-path checklist marks money steps 'only if you ever want to act' — never as failures",
+      "?returning=1 suppresses the welcome card entirely; footer link is the only re-entry"
+     ]
+    },
+    {
+     "do": "Reset. Choose 'I might reach in', tour, then at the handle step try a resident's name ('Victor'), a malformed handle ('x'), and a free one.",
+     "expect": "Reserved cast/ambient names are rejected inline with a plain explanation (impersonation, not moderation); malformed input explains the format; suggestions are offered; a valid handle passes.",
+     "checkpoints": [
+      "Reserved-name rejection says why (can't impersonate a resident) — no 'banned' vocabulary",
+      "Suggestions (x_sf / x-watch / ax) are clickable and valid",
+      "Skipped handle stays free — watching never requires it"
+     ]
+    },
+    {
+     "do": "Fund via the demo top-up, file the camera ask, hit 'jump ahead', then file the guided nudge and watch it decline.",
+     "expect": "Pack ladder shows all six PROPOSAL prices with the +50% bonus disclosed on the card; camera request runs then resolves at its hard cap with nothing billed past; the nudge resolves 'declined' and 20 cr returns automatically.",
+     "checkpoints": [
+      "All six pack prices match plan §2.1 verbatim (100/550/1150/2500/6750/14000 cr)",
+      "'+50% first purchase' is disclosed on the wallet card, not sprung later",
+      "Declined nudge copy reads 'you pay for the ask, never the outcome' — refund lands without any click",
+      "Lifecycle uses feed vocabulary only (running → resolved)"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the onboard gate.",
+     "expect": "onboard gate passes: storage key agrees with the page, all six tour anchors resolve, honesty strings present, zero dark-pattern vocabulary.",
+     "checkpoints": [
+      "Gate reports 'schema v25 · 6 beats · key rw_onboard_v25'",
+      "No FAIL on onboard; any REVIEW 'reward' hit is confirmed to be a denial-of-reward line",
+      "A deleted anchor id or a 'limited-time' string in onboarding.html would fail the gate — spot-check by reading the gate code"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT24",
+   "title": "The Rent Book v2 — four hats, the whole file",
+   "minutes": 20,
+   "persona": "facilitator cycling spectator → tenant → licensed landlord → admin",
+   "goal": "Verify the v26 depth pass: atomic signing, partial pay, payment plans, mediation offers, itemized deposits, and the licensed-landlord caps that stop one step short of the owner's desk.",
+   "surfaces": [
+    "lease",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "In Tenant mode, apply for a listed unit. Switch to Admin, run screening, switch back and sign.",
+     "expect": "Apply posts the published conditions (2.5× income, references, interview); approval is a checklist not a lottery; signing is atomic — bank drops by exactly first month + deposit, the listing leaves the board, one 'Listing filled' feed line lands.",
+     "checkpoints": [
+      "Application doc names the criteria verbatim — nothing hidden",
+      "Approval waits for the tenant's signature; admin cannot sign for them",
+      "Sign debits 2× rent in game dollars and posts the neutral feed event — no credit option anywhere"
+     ]
+    },
+    {
+     "do": "Back on h01's lease: make a partial payment, then propose a payment plan and step days across the 6th/10th/24th.",
+     "expect": "Partial applies oldest-first with the ledger line labeled; an honored plan pauses the late-fee accrual and holds the ladder — 'the balance still owes' copy stays honest.",
+     "checkpoints": [
+      "Plan doc is a ledger document (proposed, dated, itemized) — never a feed event",
+      "Day-6 step on an honored plan writes 'plan honored' instead of a late fee",
+      "Cure clears the plan flag and returns to active standing"
+     ]
+    },
+    {
+     "do": "File a dispute on h01's lease, make a mediation offer as the tenant, then accept it wearing the admin hat. Then try the same on 9457-3.",
+     "expect": "The offer is a concrete ledger-shaped proposal; accepting on h01's lease amends the ledger (band-rate rent, repair scheduled, filing withdrawn → active) and posts the neutral 'rent-board ruling' feed line. On 9457-3 the offer is declined on the record — that filing never resolves.",
+     "checkpoints": [
+      "Offer copy says either side can walk — declined offers resume the ruling clock",
+      "Accepted mediation amends the ledger, not just the story",
+      "9457-3's mediation lands as a declined doc — the passthrough question stays open"
+     ]
+    },
+    {
+     "do": "Switch to Landlord · h02. On 9088-5: post a notice, post a raise, try to evict, then click any other unit.",
+     "expect": "Licensed tools work on the owned unit only — notices climb to cure-or-quit, raises post inside the ≤4% band with a stated basis; eviction is file-only ('the owner's desk decides'); other units render the not-your-file view.",
+     "checkpoints": [
+      "Cap card lists the licensed caps verbatim (own units / band / file-only eviction / public record)",
+      "'File for eviction review' writes a filing doc — the lease state never reaches evict_review from this mode",
+      "Not-your-unit refusal names the cap, not an error; no ledger depth on other units"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the lease gate.",
+     "expect": "lease gate passes: storage key agrees with the page, demo states ⊆ declared states, honesty strings present, every wire push matches a neutral feed template, evictConfirm has no licensed-landlord path.",
+     "checkpoints": [
+      "Gate reports 'schema v26 · 13 states · key rw_lease_v26'",
+      "A '$' figure or a reason word inside a tx: template would FAIL the gate — spot-check by reading the feed-wording check",
+      "Removing the landlord mode button or adding a landlord evictConfirm path would FAIL"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT25",
+   "title": "The Understudy v2 — needs, wages, and the quiet caps",
+   "minutes": 15,
+   "persona": "facilitator pressure-testing what thin actually runs",
+   "goal": "Verify the v27 depth pass: needs meters follow schedule cells, baseline wages accrue in game dollars, the phrase cap goes quiet at 3/hr, the co-star time-box releases clean, the capacity ladder skips possessed pawns, and stale handoff notes archive at 24 h.",
+   "surfaces": [
+    "thinai",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Step the clock from 13:00 across the lunch window and into evening; watch the needs bars and the ledger panel.",
+     "expect": "Meal cells reset hunger; work cells burn it faster; rest falls awake and recovers asleep. Work cells accrue auto-shift wages at the posted baseline ($18/h, game dollars) — the hourly '+$18' line is a seam line, never a wire line.",
+     "checkpoints": [
+      "Hunger resets on 'meal' cells (counter lunch / usual stop), rises fastest on serve/carry cells",
+      "Wage ledger shows A01 and h01 in game dollars — no credit figure anywhere on the page",
+      "The ledger panel restates 'baseline rates only' — thin never earns the possessed bonus"
+     ]
+    },
+    {
+     "do": "Press 'Press A01 (talk)' five times inside one clock hour, then again in a new hour, then while A01 is asleep.",
+     "expect": "Three generic bubbles, then quiet — the cap line explains the silence as cheaper than a fourth line; a new hour refills; asleep gets no response at all.",
+     "checkpoints": [
+      "Bubbles are interchangeable weather/queue talk — nothing only Reyes could say",
+      "Bubble 4+ produces a 'phrase cap reached (3/hr)' seam line, not a bubble",
+      "Sleep-cell press returns 'no response' — thin doesn't perform off-schedule"
+     ]
+    },
+    {
+     "do": "Fire 'Co-star A01 · 20 min' on-shift and step the clock through the window; then try it off-shift.",
+     "expect": "On-shift accepts on role-card fit, posts a 'running' wire line, shows a live co-star chip, and releases with 'nothing persists'. Off-shift declines with the 50% auto-refund line.",
+     "checkpoints": [
+      "Co-star chip is time-boxed — it clears when the window ends, mid-beat-clean",
+      "Decline posts 'resolved · declined (50% auto-refund)' verbatim",
+      "After release, A01 is back on schedule — no lingering obligation, no mode change"
+     ]
+    },
+    {
+     "do": "Possess h01, then drop service to 30% mid-session, then back to 100%.",
+     "expect": "C2 degrades on the ladder while h01's session is unaffected — the player is the compute; recovery walks the ladder back up. No wire line in either direction.",
+     "checkpoints": [
+      "Degrade ladder copy names the order: lowest scene-salience first, possessed pawns unaffected",
+      "Possessed h01 keeps driving through a 30% brownout — session runs to its normal cap",
+      "Degrade/recover are seam lines only — spectators see nothing"
+     ]
+    },
+    {
+     "do": "Step +24 h with a live handoff note on h01, then run `node world/audit.js` and read the thinai gate.",
+     "expect": "The note archives itself past 24 h ('stale — archives at 24 h' → archived seam line). thinai gate passes: storage key agrees, inline MODES match the json pawn modes, every wire push is on locked vocabulary, writeNote carries no forbidden field.",
+     "checkpoints": [
+      "Gate reports 'schema v27 · 3 pawns · key rw_thinai_v27'",
+      "A wire('...') line without the 'request —'/'weather —' prefix would FAIL — spot-check the gate",
+      "Adding 'secrets' to writeNote or a possessed/degraded path for a01 would FAIL the mode matrix"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT26",
+   "title": "The bibles — backstory, room, strangers",
+   "minutes": 15,
+   "persona": "facilitator auditing the v28 character-bible depth pass",
+   "goal": "Verify every bible now carries the fixed 14-section order (backstory beats, camera-legible room, stranger posture before the briefing-safe block, SECRETS last), that characters.json mirrors the new fields, and that The Company renders them without leaking seed content.",
+   "surfaces": [
+    "cast",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Company and read two full cards end to end, including the new 'Where they come from', 'Where they live', and 'New to the block?' blocks.",
+     "expect": "Every card gains the three new blocks between the profile and the routine table; copy reads as observable texture a patient viewer could assemble — no card states a secret outright.",
+     "checkpoints": [
+      "All 8 cards carry back/room/stranger copy — no card is thinner than another",
+      "Telling details gesture at terrain (face-down laptop, face-down notebook, two drawers) without explaining it",
+      "No card names the blog, the loan, the tenancy status, or who is secretly dating whom"
+     ]
+    },
+    {
+     "do": "Cross-check a card against its bible file in world/characters/ — read the Backstory, The room, and With strangers sections for the same character.",
+     "expect": "The card compresses the bible faithfully; the bible's five dated beats agree with the header facts (age, job, home); nothing in the three new sections repeats SECRETS & SEEDS content.",
+     "checkpoints": [
+      "Bible section order matches _index.md: the three new sections sit between 'Won't do' and 'Public profile'",
+      "SECRETS & SEEDS is the last ## section in every bible",
+      "Backstory beats are dated and public-history only — foreshadowing allowed, seed statements not"
+     ]
+    },
+    {
+     "do": "Read characters.json for one cast member: confirm backstory_brief, room, strangers exist and carry no seed vocabulary; confirm briefing_safe is still only profile/surface_ties/routine_pointer.",
+     "expect": "v28 fields present on all 8 entries; seed_lock stays a pointer, not data; the new fields are observable-safe text only.",
+     "checkpoints": [
+      "All three v28 fields present on C1–C8",
+      "briefing_safe carries exactly the three locked keys",
+      "No v28 field contains the words secret/seed/briefing — the gate enforces this"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the bible gate; then imagine a hire walking in — pick one main and predict their first interaction from the 'With strangers' section alone.",
+     "expect": "bible gate passes (14 sections, order enforced, CAST ids agree). The stranger-posture section is specific enough to predict the first beat of a scene without scripting it — tendencies, not rules.",
+     "checkpoints": [
+      "Gate reports 'schema v28 · 8 mains · 14 required sections'",
+      "Removing a section or reordering SECRETS earlier would FAIL — spot-check the gate",
+      "Predicted first interactions differ meaningfully per main (food-first vs. question-first vs. measure-first)"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT27",
+   "title": "The Crowd v3 — shades, flows, and who nods",
+   "minutes": 15,
+   "persona": "facilitator pressure-testing the v29 crowd depth pass",
+   "goal": "Verify the day shades deform budgets without touching routines, the flow layer reads as bodies in transit, micro-events are internal-only conditions, the greeting matrix shows who visibly knows whom, and the honest hour still reads honest.",
+   "surfaces": [
+    "crowd",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Scrub a weekday from 00:00 to 24:00 watching the venue board and the roster. Then click a zone to open its 24h curve.",
+     "expect": "Zones resolve named faces from routines plus a '+N extras' tail; the roster moves on schedule; 00–04 reads deserted everywhere it should — nothing pads the honest hour. The curve shows the budget shape for the selected zone.",
+     "checkpoints": [
+      "Overnight (00–04) shows deserted bands — protected, never filled",
+      "Extras appear only as '+N' tails — no extra ever carries a name",
+      "The 24h curve redraws under the current shade/weather and marks the current hour"
+     ]
+    },
+    {
+     "do": "Toggle shade to '1st', then 'fri' (at 20:00), then 'sun' (at 07:00), then 'mon'. Watch the venue board and roster each time.",
+     "expect": "The 1st swells Luz's stand and Malik's; Friday night lifts the 600 Club and El Farolote while Mudhaus thins; Sunday morning hushes streets and the minimart; Monday drops café budgets and closes the bakery and Bloom & Doom. No ambient's routine changes — shade is budget arithmetic only.",
+     "checkpoints": [
+      "first_of_month: fruteria ×1.5, minimart ×1.3 — visible in the +N tail",
+      "sun: streets commute/rush halve; library closed-days bite",
+      "mon: bakery/bloomdoom closed; cafés ×0.8",
+      "The roster is identical across shades — routines never bend"
+     ]
+    },
+    {
+     "do": "At weekday 08:30 read the Flow panel and the Micro-texture row; then scrub to 15:15 and to 23:30.",
+     "expect": "Morning shows 'edge → Mudhaus' walking counts; Tuesday-default marks sweep-tue active through midday; 15:15 lights school-bell (edge flow doubles); 23:30 lights last-call-drift (club600 → edge spikes). None of it appears on any feed surface — internal vocabulary only.",
+     "checkpoints": [
+      "Flow rows show 'N–M walking' when live, 'idle' outside their daypart/hour window",
+      "Rain halves live flow counts; a locked/event venue doesn't erase walking",
+      "Micro chips are conditions, not schedules — delivery-window is on every commute+rush"
+     ]
+    },
+    {
+     "do": "At a dry midday, read the park zone row for greeting chips; then evening at Mudhaus; then look for Tom anywhere.",
+     "expect": "Esther↔Ray's bench-parliament chip appears when both are benched; Asha↔Reyes's counter chip appears ~19:30; Tom chips never appear — 'none' weights are by design (the metronome doesn't stop). Minor pairs carry the 'pack' marker.",
+     "checkpoints": [
+      "Greeting chips only render when both ambients actually share the zone — collision, not dispatch",
+      "'none' pairs never chip, and the copy explains why",
+      "Minor-pair chips (kid-mango, pack adjacency) carry the pack marker"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the crowd gate.",
+     "expect": "crowd gate passes: inline DAYPARTS/ZONES/WX/BANDS/SCENES/SHADES/FLOWS/MICROS/GREETS all mirror crowd.json; every scene 'named' and greet pair resolves to a real ambient or main; extras blocks carry no identity-shaped field; overnight keeps allow_deserted.",
+     "checkpoints": [
+      "Gate reports 'schema v29 · 11 zones · 7 edges · 18 pairs'",
+      "A budget drift, an unknown zone in a shade/edge/micro, or a greet weight outside hi/lo/none would FAIL — spot-check the gate",
+      "A minor greet pair without minor_pack, or a 'name' field in an extras block, would FAIL"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT28",
+   "title": "The Directory v2 — four new doors and the business web",
+   "minutes": 15,
+   "persona": "facilitator pressure-testing the v30 parody-business depth pass",
+   "goal": "Verify the four promoted venues render as normal doors, the venue↔venue web edges show on the right cards, secret edges honor the clearance toggle exactly like secret hooks, and the biz gate holds the registry↔demo mirror.",
+   "surfaces": [
+    "directory",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Directory. Filter tier to 'street' and scrub the clock 07:00 → 23:00 on weekday, then weekend.",
+     "expect": "Four new doors sit alongside the v16 set — Golden Hour Laundromat (open to 23:00 daily), The Dusty Spine (11:00–19:00), Marooned Records (11:00–19:00), The Musket (17:00–23:00). Open/closed badges track the scrub; the two reserved entries still show '—'.",
+     "checkpoints": [
+      "26 businesses total; street tier now reads 16 doors",
+      "Golden Hour still reads 'open now' at 22:30 when Mudhaus is long closed",
+      "The Musket reads closed at noon, open at 19:00 — an evening-only room",
+      "No new door names a real SF business"
+     ]
+    },
+    {
+     "do": "Read the 'web' rows on the El Farolote, Malik's, Golden Hour, and Auerbach cards; then toggle clearance to public and back.",
+     "expect": "Each card shows its edges — 'spillover ← The 600 Club' on El Farolote; 'rivalry ← Buy-Rite Market' and 'gossip_route ← Golden Hour Laundromat' on Malik's. At public clearance, Auerbach's La Esperanza loan edge collapses to '[web edge redacted]' while its parts_run edge stays visible.",
+     "checkpoints": [
+      "Edges render direction-aware (kind → other venue / kind ← other venue)",
+      "The loan edge is the only one that redacts — 13 of 14 edges are public",
+      "Public clearance shows the '[web edge redacted]' chip, matching secret-hook behavior"
+     ]
+    },
+    {
+     "do": "Open the spares card, then read any two new card files under world/businesses/ (golden-hour.md, dusty-spine.md, marooned.md, the-musket.md).",
+     "expect": "Spares now lists only The Watchbird and Café Cometa — Golden Hour was minted into a live venue. The new cards carry the fixed card shape: code keys, corner, hours, rhythm, game-$ prices, hooks-as-conditions, request surface, boundaries.",
+     "checkpoints": [
+      "Golden Hour is out of the reserved list — minted at v30",
+      "Card prices are game dollars only — no credit figures anywhere",
+      "Hooks read as conditions a camera can notice, never instructions to a character"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the biz gate.",
+     "expect": "biz gate passes: inline BIZ/WEB mirror businesses.json; all 25 cards exist with none orphaned; every web edge resolves to real venues; the loan edge is secret-flagged and the public-clearance redaction path exists in the page.",
+     "checkpoints": [
+      "Gate reports 'schema v30 · 26 businesses · 14 web edges · 25 cards'",
+      "A drifted BIZ name/tier/staff count, or an inline edge absent from the json, would FAIL",
+      "A loan edge without secret:true, an unknown web endpoint, or an orphan businesses/*.md would FAIL"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT29",
+   "title": "The Board's Metabolism — churn, ladders, and the vacancy cycle",
+   "minutes": 15,
+   "persona": "facilitator pressure-testing the v31 jobs/housing market layer",
+   "goal": "Verify the market layer renders as internal machinery: every churn row ties to a real board opening, word-of-mouth work stays off the board, seasonal rhythm reads as conditions, and the vacancy/move-in math matches the housing ladder.",
+   "surfaces": [
+    "market",
+    "board",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Board's Metabolism. Read the two lifecycle rails, then the churn table; filter channels to 'word of mouth'.",
+     "expect": "Opening rail reads posted→screening→trial→filled with reposted/withdrawn tails; churn table shows one row per live board opening plus the word-of-mouth-only roles. Filtering to word-of-mouth leaves El Farolote line cook, Il Delfino line cook, Auerbach clerk, Bloom & Doom Saturday, and Marooned weekend counter.",
+     "checkpoints": [
+      "16 churn rows total; every row names employer + role that exists on the jobs board",
+      "Marooned weekend counter appears here but NOT on the corkboard page — word-of-mouth is invisible by construction",
+      "The Baguette holiday temp row is marked seasonal and rides the 'board' channel"
+     ]
+    },
+    {
+     "do": "Open the Housing & Jobs Board. Cross-check the three new openings against the market churn rows.",
+     "expect": "Golden Hour attendant and the Baguette seasonal temp are pinned cards; Marooned is absent. The seasonal tag renders on the temp card.",
+     "checkpoints": [
+      "Golden Hour evening attendant: $17/h, 15 h/wk — matches jobs.json",
+      "Baguette counter temp shows a 'seasonal' tag and the Nov 15–Dec 24 window",
+      "No card anywhere offers a job at a real SF business or names a wage that contradicts jobs-housing.md"
+     ]
+    },
+    {
+     "do": "Read the skill ladders, then the seasonal calendar: click Nov, Feb, and Jul.",
+     "expect": "Eight ladder cards, each with concrete requires + gain. November lights holiday-temp; February lights rain-ragged + flu-surge + quiet-month; July lights park-peak. All read as conditions, never schedules.",
+     "checkpoints": [
+      "Ladder employers all exist on the board (incl. the combined Creamery/Dolores Perk card)",
+      "CNA→RN ladder names the $22→$48 band — matching the wage table",
+      "Seasonal notes deform hours/cadence only — nothing instructs a character"
+     ]
+    },
+    {
+     "do": "Read the vacancy lifecycle table, the word-of-mouth card, the ambient-ring card, and the move-in math.",
+     "expect": "Five tiers with days-on-board norms; Jules's room is the wom specimen and never reaches the registry; the ring stays unminted until promotion; move-in totals = first+deposit with first matching the ladder rents exactly.",
+     "checkpoints": [
+      "Move-in math: 1050/2600/4200/6400/11000 — first equals ladder rent on every row",
+      "The wom channel card states the ledger sees tenant of record only",
+      "Ambient ring spec cites address-spec §6 minting — no ambient gets a fixed address here"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the market gate.",
+     "expect": "market gate passes: inline MARKET deep-equals market.json; all 16 churn rows resolve to live openings; channels are declared; ladders resolve; vacancy/move-in tiers and rents match the housing ladder; zero credit figures.",
+     "checkpoints": [
+      "Gate reports 'schema market-v1 · 16 churn rows · 8 ladders · 7 seasonal notes · 5 vacancy tiers'",
+      "A churn row with an unknown employer/role, an undeclared channel, or a credit figure would FAIL — spot-check the gate",
+      "A ladder employer not on the board, or a move-in first != ladder rent, would FAIL"
+     ]
+    }
+   ]
+  }
+ ],
+ "session_report_schema": {
+  "session": {
+   "tester": "string",
+   "role": "spectator|player|reviewer|facilitator",
+   "date": "YYYY-MM-DD",
+   "build": "world v31 local",
+   "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
+   "notes": "string"
+  },
+  "results": [
+   {
+    "scenario": "PT#",
+    "step": "n",
+    "checkpoint": "string",
+    "verdict": "pass|fail|na",
+    "note": "string"
+   }
+  ],
+  "findings": [
+   {
+    "severity": "blocker|major|minor|nit|question",
+    "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|harness",
+    "ref": "PT# or null — auto-tagged with the open scenario at log time",
+    "title": "string",
+    "detail": "string",
+    "steps_to_repro": "string"
+   }
+  ],
+  "cohort": "Import report merges exported session JSONs; the harness renders a per-scenario verdict matrix across sessions, flags checkpoint disagreements (pass vs fail on the same ref), and merges findings with tester attribution.",
+  "triage_owner_map": {
+   "world": "all world/* surfaces + copy + content",
+   "game-systems": "queue model, classifier plumbing, gsViewerState vocabulary, ledger (at merge)",
+   "art": "rendering of the neighborhood build (out of scope for these demos)",
+   "marketing": "public-facing copy inconsistencies once flagged"
+  }
+ }
 }

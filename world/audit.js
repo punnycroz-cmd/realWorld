@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v30).
+/* world/audit.js — RW boundary audit (world v31).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -42,6 +42,10 @@
                 cards exist and none orphaned; tier/affordance/hours/staff
                 sanity; web edges resolve to real venues, loan edges are
                 secret-flagged, reserved entries stay empty
+    market    — market.json ↔ market.html deep mirror; every churn row
+                resolves to a live jobs.json opening; channels declared;
+                ladders resolve to real employers; vacancy/move-in tiers
+                and rents match housing.json ladder; no credit figures
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -809,13 +813,96 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'businesses.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G16 market ============ */
+{
+  const g = gate('market', 'market layer contract (market.json ↔ market.html; churn resolves to live openings; no credit figures)');
+  try {
+    const MJ = JSONF('market.json');
+    const JJ = JSONF('jobs.json');
+    const HJ = JSONF('housing.json');
+    const html = rd('market.html');
+    const m = html.match(/const MARKET\s*=\s*(\{[\s\S]*?\});\s*\n/);
+    if (!m) throw new Error('inline MARKET block not found');
+    const INL = eval('(' + m[1] + ')');
+    if (JSON.stringify(INL) !== JSON.stringify(MJ))
+      add(g, 'fail', 'market.html', null, 'inline MARKET != market.json (hand-sync drift)');
+    if (MJ.schema !== 'market-v1')
+      add(g, 'fail', 'market.json', null, `schema "${MJ.schema}" != market-v1`);
+    /* no credit figures anywhere in this layer */
+    const mtxt = rd('market.json');
+    for (const mm of mtxt.matchAll(/\b\d[\d,]*\s*cr\b/gi))
+      add(g, 'fail', 'market.json', null, `credit figure in market layer: "${mm[0]}"`);
+    /* channels + lifecycle states declared */
+    const chans = new Set(Object.keys(MJ.channels));
+    for (const s of MJ.opening_lifecycle.states)
+      if (!/^[a-z_]+$/.test(s)) add(g, 'fail', 'market.json', null, `bad lifecycle state "${s}"`);
+    /* every churn row resolves to a jobs.json entry with openings != 0 */
+    const openJobs = JJ.jobs.filter(j => j.openings !== 0);
+    const seen = new Set();
+    for (const c of MJ.churn) {
+      const key = c.employer + '|' + c.role;
+      if (seen.has(key)) add(g, 'fail', 'market.json', null, `duplicate churn row ${key}`);
+      seen.add(key);
+      if (!chans.has(c.channel))
+        add(g, 'fail', 'market.json', null, `${key}: channel "${c.channel}" not declared`);
+      const job = openJobs.find(j => j.employer === c.employer && j.role === c.role);
+      if (!job) add(g, 'fail', 'market.json', null, `churn row ${key} has no live jobs.json opening`);
+      const tok = String(c.decider).match(/^([a-zA-Z])(\d+)/);
+      if (tok) {
+        const cid = tok[1].toLowerCase() + tok[2];
+        if (!/^c[1-8]$|^a(0[1-9]|1[0-9]|20)$/.test(cid))
+          add(g, 'fail', 'market.json', null, `${key}: decider "${c.decider}" is not a cast id`);
+      }
+      if (c.seasonal === true) {
+        const sj = openJobs.find(j => j.employer === c.employer && j.role === c.role && j.seasonal);
+        if (!sj) add(g, 'fail', 'market.json', null, `${key}: seasonal churn row but jobs.json opening is not seasonal`);
+      }
+    }
+    /* live openings with no churn row are drift the other way
+       (informal/always-hiring rows may legitimately skip — flag review) */
+    for (const j of openJobs)
+      if (!MJ.churn.find(c => c.employer === j.employer && c.role === j.role))
+        add(g, 'review', 'jobs.json', null, `live opening ${j.employer} — ${j.role} has no churn row`);
+    /* ladders resolve to real employers */
+    const employers = new Set(JJ.jobs.map(j => j.employer));
+    for (const l of MJ.ladders)
+      for (const part of l.at.split(' / '))
+        if (!employers.has(part) && ![...employers].some(e => e.startsWith(part) || part.startsWith(e)))
+          add(g, 'fail', 'market.json', null, `ladder ${l.from}→${l.to}: employer "${part}" unknown`);
+    /* seasonal months sane, ids unique */
+    const sids = new Set();
+    for (const s of MJ.seasonal) {
+      if (sids.has(s.id)) add(g, 'fail', 'market.json', null, `duplicate seasonal id "${s.id}"`);
+      sids.add(s.id);
+      for (const mo of s.months)
+        if (mo < 1 || mo > 12) add(g, 'fail', 'market.json', null, `seasonal ${s.id}: month ${mo} out of range`);
+    }
+    /* vacancy + move-in tiers match housing ladder; move-in first == rent */
+    const tiers = new Map(HJ.listings_ladder.map(t => [t.tier, t.rent]));
+    for (const t of MJ.vacancy_lifecycle.tiers)
+      if (!tiers.has(t.tier)) add(g, 'fail', 'market.json', null, `vacancy tier "${t.tier}" not in housing ladder`);
+    for (const t of MJ.move_in_math) {
+      if (!tiers.has(t.tier)) { add(g, 'fail', 'market.json', null, `move-in tier "${t.tier}" not in housing ladder`); continue; }
+      if (t.first !== tiers.get(t.tier))
+        add(g, 'fail', 'market.json', null, `move-in ${t.tier}: first ${t.first} != ladder rent ${tiers.get(t.tier)}`);
+      if (t.total !== t.first + t.deposit)
+        add(g, 'fail', 'market.json', null, `move-in ${t.tier}: total ${t.total} != first+deposit`);
+    }
+    /* room deposit is the one sub-month deposit — assert the norm held */
+    const room = MJ.move_in_math.find(t => t.tier === 'room');
+    if (room && room.deposit >= room.first)
+      add(g, 'fail', 'market.json', null, 'room deposit should be sub-month (share norm)');
+    g.detail = `schema ${MJ.schema} · ${MJ.churn.length} churn rows · ${MJ.ladders.length} ladders · ${MJ.seasonal.length} seasonal notes · ${MJ.vacancy_lifecycle.tiers.length} vacancy tiers`;
+  } catch (e) { add(g, 'fail', 'market.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v30 local';
+out.build = 'world v31 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

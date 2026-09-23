@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v30)
+# Playtest Harness — "Real World / The Mission" (world v31)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -9,7 +9,7 @@ gate: `node world/audit.js` (see §3a).
 
 The demo surfaces (`feed`, `request`, `mod-console`, `create`, `board`,
 `history`, `onboarding`, `lease`, `thinai`, `cast`, `crowd`, `directory`,
-`timeclock`, `screen-lab`)
+`timeclock`, `market`, `screen-lab`)
 plus `screen.js` are **local simulations of the product contracts** —
 the request pipeline, the moderation queue, the spectator feed vocabulary. A
 playtest here validates *content, copy, flow, and the locked boundary rules*.
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Fifteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Sixteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -108,7 +108,11 @@ allow_deserted protected), **biz** (businesses.json ↔ directory.html:
 BIZ/WEB blocks mirrored, every card exists and none orphaned,
 tier/affordance/hours/staff sanity, web edges resolve to real venues,
 loan edges always secret-flagged, reserved entries stay empty, the
-public-clearance redaction path exists for secret edges).
+public-clearance redaction path exists for secret edges), **market**
+(market.json ↔ market.html deep mirror; every churn row resolves to a
+live jobs.json opening; channels declared; ladders resolve to real
+employers; vacancy/move-in tiers and rents match the housing ladder;
+no credit figures in the layer).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

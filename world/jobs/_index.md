@@ -26,7 +26,7 @@ Card discipline, same as the ambient cards:
 | `food-and-grocery.md` | Buy-Rite Market, Buy-Rite Creamery, Dolores Perk, Baguette About It, Il Delfino |
 | `courier-work.md` | Flying Pannier Courier Co-op (C5), MuleIt app work (A06) |
 | `auerbach.md` | Auerbach Hardware (C7 owner) |
-| `shop-and-trade.md` | Folsom Auto & Sons, Needlepointe Tattoo, Bloom & Doom, Malik's Mini Mart, Frutería Las Palmas |
+| `shop-and-trade.md` | Folsom Auto & Sons, Needlepointe Tattoo, Bloom & Doom, Malik's Mini Mart, Frutería Las Palmas, Marooned Records, Golden Hour Laundromat |
 | `public-and-independent.md` | SF General, Mission Branch Library, construction site, Nimbus9 remote, dog-walking, busking, Carmen's hemming |
 
 ## Hiring rules of the world (apply everywhere)

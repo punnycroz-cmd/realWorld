@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -173,6 +173,7 @@ const SURF={
   crowd:{file:"crowd.html",name:"The Crowd"},
   directory:{file:"directory.html",name:"The Directory"},
   timeclock:{file:"timeclock.html",name:"The Timeclock"},
+  market:{file:"market.html",name:"The Board's Metabolism"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   harness:{file:"playtest.html",name:"Playtest Harness",tool:1,run:"this page — you're looking at it"}};
 const PTS=[
@@ -563,11 +564,29 @@ const PTS=[
   ck:["Golden Hour is out of the reserved list — minted at v30","Card prices are game dollars only — no credit figures anywhere","Hooks read as conditions a camera can notice, never instructions to a character"]},
  {do:"Run `node world/audit.js` and read the biz gate.",
   exp:"biz gate passes: inline BIZ/WEB mirror businesses.json; all 25 cards exist with none orphaned; every web edge resolves to real venues; the loan edge is secret-flagged and the public-clearance redaction path exists in the page.",
-  ck:["Gate reports 'schema v30 · 26 businesses · 14 web edges · 25 cards'","A drifted BIZ name/tier/staff count, or an inline edge absent from the json, would FAIL","A loan edge without secret:true, an unknown web endpoint, or an orphan businesses/*.md would FAIL"]}]}
+  ck:["Gate reports 'schema v30 · 26 businesses · 14 web edges · 25 cards'","A drifted BIZ name/tier/staff count, or an inline edge absent from the json, would FAIL","A loan edge without secret:true, an unknown web endpoint, or an orphan businesses/*.md would FAIL"]}]},
+{id:"PT29",title:"The Board's Metabolism — churn, ladders, and the vacancy cycle",min:15,persona:"facilitator pressure-testing the v31 jobs/housing market layer",
+ goal:"Verify the market layer renders as internal machinery: every churn row ties to a real board opening, word-of-mouth work stays off the board, seasonal rhythm reads as conditions, and the vacancy/move-in math matches the housing ladder.",
+ surfaces:["market","board","audit"],steps:[
+ {do:"Open The Board's Metabolism. Read the two lifecycle rails, then the churn table; filter channels to 'word of mouth'.",
+  exp:"Opening rail reads posted→screening→trial→filled with reposted/withdrawn tails; churn table shows one row per live board opening plus the word-of-mouth-only roles. Filtering to word-of-mouth leaves El Farolote line cook, Il Delfino line cook, Auerbach clerk, Bloom & Doom Saturday, and Marooned weekend counter.",
+  ck:["16 churn rows total; every row names employer + role that exists on the jobs board","Marooned weekend counter appears here but NOT on the corkboard page — word-of-mouth is invisible by construction","The Baguette holiday temp row is marked seasonal and rides the 'board' channel"]},
+ {do:"Open the Housing & Jobs Board. Cross-check the three new openings against the market churn rows.",
+  exp:"Golden Hour attendant and the Baguette seasonal temp are pinned cards; Marooned is absent. The seasonal tag renders on the temp card.",
+  ck:["Golden Hour evening attendant: $17/h, 15 h/wk — matches jobs.json","Baguette counter temp shows a 'seasonal' tag and the Nov 15–Dec 24 window","No card anywhere offers a job at a real SF business or names a wage that contradicts jobs-housing.md"]},
+ {do:"Read the skill ladders, then the seasonal calendar: click Nov, Feb, and Jul.",
+  exp:"Eight ladder cards, each with concrete requires + gain. November lights holiday-temp; February lights rain-ragged + flu-surge + quiet-month; July lights park-peak. All read as conditions, never schedules.",
+  ck:["Ladder employers all exist on the board (incl. the combined Creamery/Dolores Perk card)","CNA→RN ladder names the $22→$48 band — matching the wage table","Seasonal notes deform hours/cadence only — nothing instructs a character"]},
+ {do:"Read the vacancy lifecycle table, the word-of-mouth card, the ambient-ring card, and the move-in math.",
+  exp:"Five tiers with days-on-board norms; Jules's room is the wom specimen and never reaches the registry; the ring stays unminted until promotion; move-in totals = first+deposit with first matching the ladder rents exactly.",
+  ck:["Move-in math: 1050/2600/4200/6400/11000 — first equals ladder rent on every row","The wom channel card states the ledger sees tenant of record only","Ambient ring spec cites address-spec §6 minting — no ambient gets a fixed address here"]},
+ {do:"Run `node world/audit.js` and read the market gate.",
+  exp:"market gate passes: inline MARKET deep-equals market.json; all 16 churn rows resolve to live openings; channels are declared; ladders resolve; vacancy/move-in tiers and rents match the housing ladder; zero credit figures.",
+  ck:["Gate reports 'schema market-v1 · 16 churn rows · 8 ladders · 7 seasonal notes · 5 vacancy tiers'","A churn row with an unknown employer/role, an undeclared channel, or a credit figure would FAIL — spot-check the gate","A ladder employer not on the board, or a move-in first != ladder rent, would FAIL"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v30";
+const LS="rw_playtest_v31";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
@@ -643,7 +662,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v29 local",started:new Date(S.started).toISOString(),
+    build:"world v31 local",started:new Date(S.started).toISOString(),
     time_to_first_request_min:S.ttfr??null},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};

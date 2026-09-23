@@ -1,8 +1,9 @@
 # Shops & trades — combined card
 
 Folsom Auto & Sons, Needlepointe Tattoo, Bloom & Doom Flowers, Malik's
-Mini Mart, Frutería Las Palmas. Mostly cast-staffed; the open roles are
-thin — these files exist so the workplaces are playable, not just named.
+Mini Mart, Frutería Las Palmas, Marooned Records, Golden Hour
+Laundromat. Mostly cast-staffed; the open roles are thin — these files
+exist so the workplaces are playable, not just named.
 
 ---
 
@@ -83,3 +84,43 @@ visits family.
 - **Texture:** the stand is a social anchor — Luz knows the park crowd
   by face and order. She holds people's change, watches people's bags,
   feeds the guy who sleeps near the tennis courts. Surface texture only.
+
+## Marooned Records — used-vinyl shop
+
+**Cast job:** none — owner-run. Sam (a08) is a Sunday regular, not staff.
+**Open role:** weekend counter, $17/h, 12 h (Sat–Sun). **Word-of-mouth
+only** — there is no card; the way you hear about it is Sam mentioning
+it at the counter while he flips a crate.
+
+- **The place:** bins by era, a counter turntable that is the room's
+  public mood readout, a hold-shelf behind the desk. Jules's sell-back
+  cycle lives here (she sells, regrets, buys back off the hold-shelf).
+- **Shift shape:** 11:00–19:00 weekends — slow mornings, crate-digger
+  afternoons, the Sunday 45 crowd. The job is half retail, half being
+  the person someone talks music at.
+- **Culture:** paid-in-knowledge shop. The interview is "what do you
+  listen to" and the wrong answer is lying about it. Pricing a crate by
+  flipping it once is the skill that eventually buys you the desk.
+- **Texture:** the hold-shelf is a small economy of regrets; who asked
+  for what back is surface gossip, not a secret channel.
+
+## Golden Hour Laundromat — wash-and-fold + machines
+
+**Cast job:** none — owner-run. Esther (a05) has a standing Thursday
+claim on the corner machines; Friday nights are date-night-by-obligation.
+**Open role:** evening attendant, $17/h, 15 h (roughly 17:00–23:00,
+three nights a week).
+
+- **The place:** two rows of machines, a folding counter, the bulletin
+  board that functions as the block's second rumor node (lost cats,
+  room shares, questionable services). Change machine eats quarters
+  with taste.
+- **Shift shape:** the evening attendant's real job is 90 minutes of
+  forced adjacency management — people who would never share a room
+  share a folding counter here. Friday evenings are the crowd scene.
+- **Culture:** the owner's hiring screen is one question — can you be
+  kind at 22:45. The binder (machine log + quarters + soap inventory)
+  is the whole bookkeeping; keep it balanced three months straight and
+  the keys are yours.
+- **Texture:** bulletin-board pins are conditions a camera can notice —
+  the board skews honest because the attendant pulls scams, kindly.

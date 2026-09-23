@@ -130,6 +130,9 @@ var JOBS = [
   {emp:"Buy-Rite Market", role:"Grocery clerk", wage:19, hrs:"32 h/wk",
    blurb:"Stock, counter, the clipboard schedule. Lasting six months gets the good shifts.",
    apply:"Office door, back of the store."},
+  {emp:"Baguette About It Bakery", role:"Counter temp, holiday", wage:18, hrs:"~20 h/wk, Nov 15–Dec 24",
+   blurb:"Seasonal counter help for the holiday bake crush. Sell-down list, gift boxes, patience.",
+   apply:"Posted ~Nov 1. Two trial shifts before Thanksgiving.", seasonal:true},
   {emp:"Buy-Rite Creamery", role:"Scooper", wage:17, hrs:"24 h/wk",
    blurb:"Walk-up window, park spillover line. The whole job is sunny weekends.",
    apply:"Apply at the window, weekdays."},
@@ -151,6 +154,9 @@ var JOBS = [
   {emp:"Bloom & Doom Flowers", role:"Saturday counter help", wage:18, hrs:"8 h/wk",
    blurb:"Weddings and funerals, same workbench. Saturdays only.",
    apply:"Ask Ida, weekday mornings."},
+  {emp:"Golden Hour Laundromat", role:"Evening attendant", wage:17, hrs:"15 h/wk, 3 evenings",
+   blurb:"Machines, the soap shelf, the bulletin board. The real job is being kind at 22:45.",
+   apply:"Ask at the counter any evening."},
   {emp:"SF General", role:"CNA / tech (2 openings)", wage:22, hrs:"36 h/wk, 3×12",
    blurb:"Med-surg floor. Cert + fingerprints; the interview asks about a shift that went badly — honesty wins.",
    apply:"Hospital HR portal."}
@@ -172,6 +178,7 @@ document.getElementById('ladder-grid').innerHTML = LADDER.map(function(l){
 document.getElementById('jobs-grid').innerHTML = JOBS.map(function(j){
   return card('<h3>'+j.role+'</h3><div class="meta">'+j.emp+' · '+j.hrs+'</div>'+
     '<div class="price">$'+j.wage+'<small>/h baseline</small></div>'+
+    (j.seasonal?'<span class="tag">seasonal</span>':'')+
     '<div class="blurb">'+j.blurb+'</div><div class="apply">'+j.apply+'</div>');
 }).join('');
 </script>

@@ -1,4 +1,4 @@
-# Jobs & Housing — "The Mission" (world v0, index updated v17)
+# Jobs & Housing — "The Mission" (world v0, index updated v31)
 
 > **v3 depth layer:** the tables below remain canonical for numbers.
 > `world/jobs/` holds per-workplace cards (shift shape, culture, hiring
@@ -12,6 +12,12 @@
 > calendar); `world/budgets.md` + `world/budgets.json` — per-household
 > money envelopes (INTERNAL tier; spectators get texture, never named
 > numbers). Internal demo for both: `world/timeclock.html`.
+>
+> **v31 depth layer:** `world/market.md` + `world/market.json` — the
+> board's metabolism (opening lifecycle + churn table, hiring channels,
+> skill ladders, seasonal labor calendar, housing vacancy lifecycle,
+> the word-of-mouth room channel, the off-registry ambient ring, move-in
+> math). INTERNAL tier. Internal demo: `world/market.html`.
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).
@@ -58,9 +64,12 @@ characters can apply for (v6 character-creation flow consumes this list).
 | Dolores Perk | Counter | $18 | 30 | $2,340 | 1 opening |
 | Baguette About It Bakery | Baker | $26 | 45 (4–13 shift) | $5,070 | **A16 Hana** |
 | Baguette About It Bakery | Counter, afternoons | $18 | 25 | $1,950 | 1 opening |
+| Baguette About It Bakery | Counter temp, holiday | $18 | ~20 | ~$1,560/mo during window | 1 opening — **seasonal, Nov 15–Dec 24** |
 | Il Delfino | Line cook | $27 | 35 | $4,090 | 1 opening |
 | Il Delfino | Server | $18 | 30 | $2,340 + tips | 2 openings |
 | Auerbach Hardware | Counter clerk | $21 | 30 | $2,730 | 1 opening (Victor runs it alone mostly) |
+| Marooned Records | Weekend counter | $17 | 12 (Sat–Sun) | ~$880 | 1 opening — word-of-mouth only |
+| Golden Hour Laundromat | Evening attendant | $17 | 15 | ~$1,100 | 1 opening |
 | Folsom Auto & Sons | Mechanic | $34 | 40 | $5,880 | **A10 Gus** |
 | Needlepointe Tattoo | Artist | $30 | commission-weighted | ~$4,500 | **A14 Bex** |
 | Bloom & Doom Flowers | Florist | $25 | 40 | $4,330 | **A18 Ida** |
