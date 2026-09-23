@@ -1,0 +1,111 @@
+# Press Kit — Real World ("The Mission")
+
+**Version:** v0 bootstrap · 2026-09-22 · **Status:** LOCAL DRAFT — pre-launch.
+Contact fields are placeholders; no public channels exist yet. HTML mirror:
+`marketing/site/press-kit.html`.
+
+---
+
+## One-pager
+
+**What it is:** *Real World* is a persistent, browser-based "Truman Show" life
+simulation set on real streets around Dolores Park in San Francisco's Mission
+District. Twenty-eight fictional residents — eight main characters with full AI
+minds plus twenty ambient neighbors — live, work, feud, and reconcile around the
+clock. Watching is free, always. Players pay only for **agency**: time-boxed
+requests into the world, and characters of their own who rent, work, and climb
+from tenant to landlord.
+
+**The hook:** the eight main characters can **never** be possessed — not by
+players, not by the game's owner. Their storylines stay authorial and their
+secrets stay theirs. The audience trusts the world because nobody can break it.
+
+**Tagline options:**
+- "A neighborhood that's alive whether you're watching or not."
+- "The Truman Show you can visit."
+- "Watch free. Pay to reach in."
+
+## Fact sheet
+
+| Item | Detail |
+|---|---|
+| Title | **Real World** — first neighborhood: "The Mission" |
+| Genre | Persistent life simulation / spectator sim |
+| Platform | Web browser (desktop-first) |
+| Status | In active development — no public build yet |
+| Price model | Free to watch; paid requests, character slots, subscription (all provisional) |
+| Currencies | Credits (meta, real-money/ad-earned, non-transferable) + game dollars (in-world, earned only) |
+| Setting | Real Mission District street geometry around Dolores Park; all residents and house numbers fictional |
+| Cast | 8 mains (full AI minds, unpossessable) + 20 ambient NPCs (lightweight AI) |
+| Key systems | Time-boxed paid requests w/ auto-classification (exclusive/compatible/queued), public request feed, two-currency economy, tenant→owner→landlord progression |
+| Deliberate cuts | No voice/TTS, no loot boxes, no cash-out/RMT, no crypto |
+| Developer | [STUDIO NAME — placeholder] |
+| Release | TBD |
+| Contact | [press@ — placeholder, set at launch] |
+
+## Boilerplate
+
+**Short (50 words):**
+
+> Real World is a persistent life sim set on a real Mission District block,
+> where 28 fictional residents live 24/7 on AI. Watching is free. Players pay
+> only for agency — time-boxed requests and characters of their own — while the
+> eight main characters can never be possessed by anyone.
+
+**Long (150 words):**
+
+> Real World is a browser-based "Truman Show": a persistent life simulation set
+> on real streets around Dolores Park in San Francisco's Mission District.
+> Twenty-eight fictional residents — eight main characters with full AI minds
+> and twenty ambient neighbors — live, work, feud, and make up around the clock,
+> whether anyone is watching or not. Watching is free, always. Players who want
+> to reach in buy agency, not access: a request declares an action and duration
+> upfront, prices it in credits, caps it hard, and posts it to a public feed
+> everyone can read. The eight mains can never be possessed — by players or by
+> the game's own owner — and every secret stays theirs to leak. Players who move
+> in rent, work, and climb the neighborhood's oldest ladder: tenant, owner,
+> landlord.
+
+## Quotes policy
+
+No testimonials or review quotes exist yet. **Never invent one.** When real
+press/players respond post-launch, quotes get added here with name + outlet +
+date. The founder quote slot below stays empty until the user writes one:
+
+> [FOUNDER QUOTE — placeholder]
+
+## Assets
+
+| Asset | Status | File reference |
+|---|---|---|
+| Logo — primary | **Pending** brand-identity pass (roadmap) | `site/assets/logo-primary.svg` (slot) |
+| Logo — icon/mono | **Pending** | `site/assets/logo-icon.svg` (slot) |
+| Key art 16:9 | **Pending** key-art commission | `site/assets/keyart-16x9.png` (slot) |
+| Screenshots | **Available** — 4 current-build shots + 2 early-pass shots, real captures | `site/shots/v11-*.png`, `site/shots/v1-*.png` |
+| Trailer | **Not yet produced** — see trailer-plan on roadmap | — |
+
+Screenshot usage: free to use with attribution and the "in development" label —
+they show a pre-release build with placeholder UI (dev-build header visible).
+
+## Story angles for press
+
+1. **The possession ban** — an AI show whose stars can't be controlled by anyone,
+   including its owner. Trust as a design pillar.
+2. **A real Mission block** — real streets, real park, generated addresses that
+   can never be a real door. Local-press angle (SF media, Mission locals).
+3. **Agency by the minute** — requests priced like coffee, hard-capped,
+   publicly logged; an anti-whale, anti-gacha monetization stance.
+4. **Free to watch** — the spectator product *is* the funnel; the public request
+   feed doubles as a serialized drama feed.
+5. **Honest economics** — LLM inference for the cast costs cents per character
+   per day at current API prices; the design's real cost is moderation and
+   writing, not tokens. (See internal research report for sourced figures.)
+
+## Contact
+
+- Press: [press@ — placeholder]
+- General: [hello@ — placeholder]
+- Social: [handles — none registered yet; requires explicit owner approval]
+
+*Nothing on this page has been published. Registering accounts, sending
+pitches, or posting requires the owner's explicit go.*
