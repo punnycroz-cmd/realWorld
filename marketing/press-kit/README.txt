@@ -10,6 +10,13 @@ Contents
                      (links all assets/documents; needs no server)
   fact-sheet.html    Print-ready fact sheet (open in a browser, Print → PDF)
   press-release-launch.md  Launch press release — draft with fill-in slots
+  media-alert.md     120-word launch-day "it's live" notice — send once,
+                     day-of, after go-gates pass
+  interview-prep.md  Spokesperson sheet for live interviews: five talking
+                     points, bridges, red lines (internal — not for
+                     distribution)
+  CHANGELOG.md       Kit freshness record — which renderer build the
+                     screenshots are from, what changed when
   press-qa.md        Anticipated press Q&A with approved answers
   copy-deck.md       Approved taglines/headlines/phrases + words to avoid —
                      verbatim-safe copy for articles, thumbnails, broadcast
@@ -37,8 +44,9 @@ Contents
   banners/           Pre-sized channel headers: X 1500x500, YouTube
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
-  screenshots/       Real captures of the current development build.
-                     v40-* = current renderer (murals, parody signage,
+  screenshots/       Real captures of the current development build
+                     (.png + .webp companions).
+                     v47-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, stoops, garage bays,
                      false-front gables, Mission ficus street trees,
                      Dolores palm allée + worn desire-lines, parked cars);

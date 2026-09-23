@@ -2,11 +2,14 @@
   "kit": "Real World — The Mission — press kit",
   "status": "pre-launch draft (local build only)",
   "generated_by": "marketing/build-press-kit.sh",
-  "art_build": "v40 (+ v16 interior vignettes, v1 early-pass shots)",
+  "art_build": "v47 (+ v16 interior vignettes, v1 early-pass shots)",
   "files": {
     "index.html": "self-contained offline press hub — open this first",
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
     "press-release-launch.md": "launch press release draft, slots marked",
+    "media-alert.md": "120-word launch-day 'it's live' notice + send rules",
+    "interview-prep.md": "spokesperson sheet — talking points, bridges, red lines (internal)",
+    "CHANGELOG.md": "kit freshness record — which renderer build shots are from",
     "press-qa.md": "anticipated press Q&A, approved answers",
     "copy-deck.md": "approved taglines/headlines/phrases + words to avoid",
     "creator-notes.md": "streamer & creator coverage guide + embargo stance",
@@ -28,8 +31,8 @@
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
     "screenshots/": [
-      "v46-A.png", "v46-B.png", "v46-C.png", "v46-D.png",
-      "v46-A.webp", "v46-B.webp", "v46-C.webp", "v46-D.webp",
+      "v47-A.png", "v47-B.png", "v47-C.png", "v47-D.png",
+      "v47-A.webp", "v47-B.webp", "v47-C.webp", "v47-D.webp",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
     ]
   },
