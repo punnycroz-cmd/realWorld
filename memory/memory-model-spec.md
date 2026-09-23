@@ -1,4 +1,4 @@
-# Memory Model Spec v0.4 — implementable human-like memory for RW characters
+# Memory Model Spec v0.5 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -58,6 +58,10 @@ MemoryRecord = {
                  "mood": -0.4, "era": "current" },
   "links": ["m_other1", "m_other2"],  // associative edges (schema/episode chains)
   "retrievalCount": 3,
+  "trauma": false,                    // v0.5: set at birth if
+                                      // arousal ≥ trauma_thresh — record-
+                                      // level phenotype, see §7 of
+                                      // emotional-memory.md
   "accessLog": []                     // optional debug; may be capped
 }
 ```
@@ -68,9 +72,15 @@ MemoryRecord = {
 - **Procedural**: not stored as records — a small skill/affinity map
   (`{skill: level}`) with near-zero decay (R§1). Out of scope for v0 dynamics.
 - **Emotional**: affect tags live ON records (above) plus a per-character
-  conditioned-associations table `{cue: {valence, arousal}}` that can survive
-  the episodic source (Bechara split, R§1): a character can feel dread at a
-  doorway without remembering why.
+  conditioned-associations table that can survive the episodic source
+  (Bechara split, R§1): a character can feel dread at a doorway without
+  remembering why. **v0.5** gives it real dynamics (§4.9,
+  emotional-memory.md §6):
+
+```json
+CondEntry = { "cue": "mudhaus", "valence": -0.6, "arousal": 0.7,
+              "strength": 0.5, "safeCount": 0, "lastFireDay": 500 }
+```
 
 ---
 
@@ -90,9 +100,27 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
 - `attention ∈ [0,1]` — is the event in focus? Ambient/background events get
   attention ≈ 0.1–0.3; inattentional gate: if `attention < att_min` (param),
   **no record is created at all** (R§2 gorilla result).
-- `arousal` = event emotional intensity 0..1; `w_emo` param. High arousal also
-  sets `peripheralLoss = clamp(arousal · arousal_narrowing)` — verbatim fields
-  are thinned at birth (weapon focus, R§2): drop peripheral cueVector entries.
+- `arousal` = event emotional intensity 0..1; `w_emo` param. **v0.5 —
+  arousal-biased competition (ABC), replaces one-sided peripheralLoss:**
+  sort the event's verbatim/cueVector fields by priority (attention ×
+  selfRelevance per field; top ~40% = central). Then
+  `central_f *= (1 + abc_gain·arousal)` (abc_gain≈0.25 — central content is
+  encoded *better* than neutral, Kensinger et al. 2006) and
+  `peripheral_f *= (1 − arousal_narrowing·arousal)` (weapon-focus loss as
+  before, Mather & Sutherland 2011; emotional-memory.md §2.1).
+- **Emotional blink (v0.5):** if `arousal ≥ emo_blink_thresh` (0.7), each
+  cue-*unrelated* record created within ±`emo_blink_window` (0.03 day)
+  takes `encodingE *= (1 − emo_blink_loss)` (≈0.3) — retro- and
+  antero-grade amnesia for neighbors (Strange et al. 2003; Hurlemann et
+  al. 2005). Neighbors sharing ≥1 cue field (predictive items) are EXEMPT
+  (Knight & Mather 2009 reconciliation; emotional-memory.md §2.2).
+- **Trauma tag (v0.5):** if `arousal ≥ trauma_thresh` (0.9), set
+  `trauma: true` — the record-level phenotype in §4.9/§5.5–5.8/
+  emotional-memory.md §7.
+- **Conditioned-affect acquisition (v0.5):** if `arousal ≥ cond_thresh`
+  (0.6), each encoded cueVector key gets/updates a CondEntry:
+  `strength = min(1, strength + cond_gain·arousal)` (cond_gain≈0.5 —
+  single-trial acquisition, §4.9).
 - `selfRelevance` 0..1 — event touches the character's goals/identity/people.
   Strongest single booster (self-reference effect).
 - **Stress penalty (new in v0.1):** if `arousal > stress_thresh` (0.8),
@@ -125,6 +153,18 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   sws_mult(age_eff)` applied to **episodic** records only — slow-wave-sleep
   decline selectively impairs episodic consolidation in old age (Mander et
   al. 2013; age-decline.md §7). Semantic records keep unscaled `sleepFactor`.
+- **Selective emotional consolidation (v0.5):** at the FIRST sleep tick,
+  episodic records get `strength += emo_consol_gain·arousal·(1−strength)`
+  (emo_consol_gain≈0.25). The emotional-memory advantage grows over delay
+  via consolidation rather than being fully priced at birth (Sharot &
+  Phelps 2004; Ritchey et al. 2008; Nishida et al. 2009;
+  emotional-memory.md §1).
+- **Retrograde stress enhancement (v0.5):** at the same tick, records
+  created within `post_stress_window` (0.05 day) before a same-day
+  `arousal ≥ emo_blink_thresh` event AND sharing ≥1 cue field with it get
+  `strength += post_stress_gain·(1−strength)` (≈0.15) — post-learning
+  arousal strengthens prior congruent traces (Cahill et al. 2003;
+  emotional-memory.md §2.3).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -132,10 +172,17 @@ Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 
 
 ## 3. Confidence vs accuracy
 
-Two separate fields, always (R§6). `confidence` starts ~E and is raised by
-retellings (+0.05 each, cap 0.98) and by emotional arousal at encoding;
-`accuracy` only moves via distortion operators (§7). A character can sit at
-`confidence 0.95, accuracy 0.4` — flashbulb pattern.
+Two separate fields, always (R§6). `confidence` starts
+`base_conf(E) + conf_emo_gain·arousal²` (v0.5: conf_emo_gain≈0.15,
+quadratic — only strong arousal inflates felt certainty; the amygdala-
+fluency "feeling of remembering," Sharot et al. 2004) and is raised by
+retellings (+0.05 each, cap 0.98); `accuracy` only moves via distortion
+operators (§6). A character can sit at `confidence 0.95, accuracy 0.4` —
+flashbulb pattern. **v0.5 floor:** records with `arousal ≥
+flashbulb_thresh` (0.85) never let `confidence` fall below
+`flashbulb_conf_floor` (0.9) — flashbulb detail decays at ordinary rates
+while certainty stays pinned (Talarico & Rubin 2003; emotional-memory.md
+§5).
 
 ---
 
@@ -157,6 +204,13 @@ R(t) = E_adj · (1 + t/τ)^(-β) + floor
   zero (they never fully die, they go quiet). NOTE (Talarico & Rubin 2003):
   high arousal does NOT change β — flashbulb details decay on the same curve
   as ordinary ones; arousal only raises floor and confidence.
+- **Emotional narrowing over time (v0.5):** records with `arousal ≥ 0.6`
+  get gist β ×`emo_gist_beta` (0.85 — emotional gist is preserved) while
+  verbatim fields decay at an EXTRA `emo_verbatim_k` (×1.5) — the memory
+  keeps its emotional core and sheds its frame even faster than a neutral
+  record would (emotional-memory.md §2.1 time-course). **Trauma records
+  additionally** set `floor := max(floor, trauma_floor)` (0.30) — vivid
+  forever (Brewin et al. 1996; §7 of emotional-memory.md).
 - **Era terms (v0.3 — keyed on `encodeAge`, see age-development.md §§2–3):**
   - *Reminiscence bump:* `β *= bump_gain(encodeAge)` permanently, where
     `bump_gain(a) = bump_beta_mult + (1−bump_beta_mult)·(1−cos(π·clamp((a−bump_lo)/(bump_hi−bump_lo))))`
@@ -212,7 +266,11 @@ narrates the event back). Emotional associations (§1) may outlive the record.
 
 `emotional.valence` magnitude decays toward 0; **negative valence decays
 ~1.3× faster than positive** (fading affect bias, R§5). Older-adult profiles
-raise the asymmetry (positivity effect).
+raise the asymmetry (positivity effect). **v0.5:** the arousal component of
+the affect tag decays at `arousal_affect_decay` (×1.4 vs valence) — felt
+intensity quiets faster than felt sign [HYPOTHESIS — emotional-memory.md
+§12]. Dysphoria disrupts FAB (Walker et al. 2003): the depressive modifier's
+`neg_affect_decay ×0.7` already encodes this.
 
 ### 4.6 Consolidation window (new in v0.1)
 
@@ -266,6 +324,30 @@ Two global modifiers wrap all age-declining capacity params
   everything falls together (Wilson et al. 2012). Reserve does NOT
   delay the terminal window (Wilson et al. 2008: not modified by
   education). Most characters never set `deathDay` — absent = off.
+
+### 4.9 Conditioned affect dynamics (new in v0.5)
+
+The CondEntry table (§1) lives by extinction-era rules — extinction is
+new, context-bound learning, not erasure (Bouton & Bolles 1979; Bouton &
+King 1983; Bouton 2004; emotional-memory.md §6):
+
+- **Fire:** on context construction / ambient ticks, entries whose `cue`
+  matches the current context contribute `C.affect += valence·strength`
+  (scaled by the suppressor below). Sets `lastFireDay`.
+- **Decay:** `strength *= (1 − cond_decay)` daily, `cond_decay ≈ 0.005` —
+  fear/preference associations outlive their episodic sources by design.
+- **Extinction (suppression, not deletion):** each time a cue fires on a
+  safe day (no matching-arousal event), `safeCount++`; emitted strength
+  is `strength·max(0.2, 1 − extinct_suppress·safeCount)`
+  (extinct_suppress ≈ 0.08) — the response attenuates but never dies.
+- **Renewal:** the suppressor is context-bound — apply it only when the
+  cue fires in the place context where the safe exposures accrued; a
+  different place waives suppression entirely.
+- **Spontaneous recovery:** if `now − lastFireDay > recovery_days` (30),
+  `safeCount *= (1 − recovery_frac)` (0.5) — old dread resurfaces after
+  quiet months.
+- **Reinstatement:** a new event with `arousal ≥ cond_thresh` sharing the
+  cue resets `safeCount = 0` and re-adds `cond_gain·arousal` to strength.
 
 ---
 
@@ -335,6 +417,13 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
   integration abolishes fan cost (Radvansky et al. 1993). Log divisor per
   ACT-R fits (Anderson & Reder 1999); `fan_k` ≈ 0.4.
 - `θ` = retrieval threshold param; `k` = sharpness (~8). Dice roll, not lookup.
+  **v0.5 — acute stress impairs retrieval:** if the context carries
+  `C.stress > stress_retrieve_thresh` (0.6), add
+  `stress_retrieve_loss·C.stress` (≈0.12) to θ for this call —
+  glucocorticoids impair retrieval of even well-learned material while
+  sparing encoding/consolidation (de Quervain et al. 1998/2000; requires
+  concurrent arousal, Roozendaal et al. 2004; emotional-memory.md §4).
+  Retrieval-side only; never touches decay.
 - `recencyBump` = `rec_k · exp(−(now − createdDay)/rec_τ)`, rec_τ≈2 days.
 - **Archived records** (strength < forget_thresh, §4.4) are reachable only if
   `cueMatch_ext > resurrect_thresh` (≈0.85) — a near-total context
@@ -378,6 +467,17 @@ Not the record — a **reconstruction**:
    feeling-of-knowing state, not a missing memory (Burke et al. 1991;
    age-decline.md §6). A subsequent recognition-mode cue resolves it at
    near-young rates (resolution spared with age).
+6. **v0.5 — mood bleeds into the telling:** the returned affect tag is
+   shifted toward current mood —
+   `reported_valence = m.valence·(1−mood_bleed) + C.mood·mood_bleed`
+   (mood_bleed≈0.10; Matt et al. 1992 meta d≈0.4) and
+   `reported_arousal = m.arousal·(1 + mood_arousal_bleed·|C.mood|)` (≈0.1).
+   The stored tag is unchanged — bias accrues only through §5.9
+   reconsolidation drift on retellings (emotional-memory.md §8).
+7. **v0.5 — trauma reconstruction:** for `trauma: true` records, return
+   gist + core verbatim but blank/drift `verbatim.when` and ordering
+   fields (encoded at half strength per §7 of emotional-memory.md) —
+   vivid event, fragmented timeline (Brewin et al. 1996).
 
 ### 5.6 Recognition vs recall modes (new in v0.2)
 
@@ -411,7 +511,11 @@ if character attention state == "unfocused":
             m surfaces spontaneously → normal reconsolidation §5.8 applies
 ```
 `intrusion_thresh` drops ~0.15 under active stress and for trauma-tagged
-records (trauma modifier) — intrusive memory is the same machinery at
+records — **v0.5: the −0.15 discount is a property of `trauma:true`
+records themselves** (not only the character modifier), and each
+intrusive resurfacing re-stamps `emotional.arousal` to ≥0.7 — intrusions
+rehearse the affect, which is why flashbacks don't fade (reconsolidation,
+§5.9; emotional-memory.md §7). Intrusive memory is the same machinery at
 pathological gain. Tune so a quiet day yields 2–5 spontaneous recalls per
 main character (validation probe P14, RC§8).
 
@@ -426,7 +530,9 @@ part-list cue for the listener (Roediger 1973; RC§6). Fields the speaker
 covered → misinformation merge §6.3 as before; fields the speaker *omitted*
 → `plist_suppress` (≈0.05 strength + one-day retrievability penalty via
 temporary θ bump). Effect attenuates for old memories — bounded per Bäuml's
-long-delay findings (RC§6).
+long-delay findings (RC§6). **v0.5:** `trauma:true` records are EXEMPT from
+plist_suppress — you cannot talk a character out of parts of a trauma by
+narrating the other parts (emotional-memory.md §7).
 
 ### 5.9 Reconsolidation on recall
 
@@ -442,7 +548,12 @@ small deltas into it (§7.1). Memory is rewritten on every telling (R§4).
 ### 6.1 Reconsolidation drift
 
 On each retrieval, each verbatim field mutates with probability
-`drift_p` (param ~0.08, higher under stress/low confidence):
+`drift_p` (param ~0.08, higher under stress/low confidence). **v0.5 —
+valence-conditioned drift** (emotional-memory.md §3):
+`drift_p_eff = drift_p·neg_fidelity` (0.85) for valence < −0.3 records —
+negative events keep veridical detail (Kensinger & Schacter 2006;
+Kensinger 2007) — and `drift_p·pos_gist_drift` (1.15) for valence > 0.3 —
+positive memories drift toward gist.
 - detail swapped toward schema-typical value ("espresso" → "coffee"),
 - `accuracy -= drift_k` (0.02),
 - gist never mutates on a single recall, drifts slowly via gist-shift (§6.4).
@@ -452,7 +563,10 @@ On each retrieval, each verbatim field mutates with probability
 When reconstructing with missing verbatim fields (decayed): fill from the
 character's schema for the event type + their beliefs. Each filled field
 lowers `accuracy` by 0.03 but **raises confidence by 0.02** (fluency, R§4) —
-the better the story flows, the surer they feel.
+the better the story flows, the surer they feel. **v0.5:** positive-valence
+records (>0.3) confabulate at `confab_fill·pos_gist_drift` — positive
+affect recruits conceptual/gist processing (Storbeck & Clore 2005;
+emotional-memory.md §3).
 
 ### 6.3 Misinformation merge (rumor interface)
 
@@ -461,6 +575,11 @@ When character hears an account of an event they have a memory of:
 if similarity(myMemory, heardAccount) > 0.4:
     for each conflicting detail:
         p_adopt = misinfo_suscept (param) · sourceCredibility · (1 - myMemory.accuracy·0.5)
+        // v0.5: core fields (who/what/where) of negative high-arousal
+        // records (valence < −0.3 AND arousal > 0.6) get
+        // p_adopt *= neg_core_resist (0.7) — reality-monitoring advantage
+        // of negative detail; PERIPHERAL fields of the same record adopt
+        // at normal rate (Kensinger & Schacter 2006; emotional-memory.md §3)
         if rand < p_adopt: overwrite field, accuracy -= 0.15, confidence unchanged
     heardAccount may merge into myMemory.source ("told_by" contamination)
 ```
@@ -559,7 +678,28 @@ MemoryParams = {
   "reserve_shift": 10.0,       // years of effective-age offset at reserve=1
   "deathDay": null,            // optional scripted-death day → terminal ramp
   "terminal_window": 1100,     // game days; Wilson 2003 ≈43 months
-  "terminal_gain": 2.0, "terminal_loss": 0.5
+  "terminal_gain": 2.0, "terminal_loss": 0.5,
+  // v0.5 additions (emotional-memory calibration, emotional-memory.md §9)
+  "emo_consol_gain": 0.25,     // first-sleep bonus ∝ arousal (selective consol.)
+  "abc_gain": 0.25,            // central-field encoding boost under arousal
+  "emo_blink_thresh": 0.7,     // arousal level that suppresses neighbors
+  "emo_blink_window": 0.03,    // days; ±~45min scene window
+  "emo_blink_loss": 0.3,       // encodingE multiplier on cue-unrelated neighbors
+  "post_stress_window": 0.05,  // days; retrograde enhancement reach
+  "post_stress_gain": 0.15,    // retrograde boost for congruent predecessors
+  "conf_emo_gain": 0.15,       // arousal² confidence inflation at birth
+  "flashbulb_thresh": 0.85, "flashbulb_conf_floor": 0.9,
+  "trauma_thresh": 0.9, "trauma_floor": 0.30,   // record-level trauma phenotype
+  "cond_thresh": 0.6, "cond_gain": 0.5,         // conditioned-affect acquisition
+  "cond_decay": 0.005, "extinct_suppress": 0.08,
+  "recovery_days": 30, "recovery_frac": 0.5,    // Bouton: renewal/recovery
+  "emo_gist_beta": 0.85, "emo_verbatim_k": 1.5, // emotional narrowing over time
+  "arousal_affect_decay": 1.4, // arousal tag fades faster than valence tag
+  "neg_fidelity": 0.85, "pos_gist_drift": 1.15, // valence-conditioned distortion
+  "neg_core_resist": 0.7,      // misinfo resistance of neg-core fields
+  "mood_bleed": 0.10, "mood_arousal_bleed": 0.1,// reconstruction mood shift
+  "stress_retrieve_thresh": 0.6, "stress_retrieve_loss": 0.12, // glucocorticoid
+  "rumin_k": 0.5               // valence-selective rehearsal (depressive mod.)
 }
 ```
 
@@ -575,7 +715,12 @@ modifiers ⊕ jitter, unchanged. **v0.4:** decline-side capacity params
 evaluate at `age_eff = age_now − reserve·reserve_shift` (§4.8); the
 age-decline knot rows are in `age-decline.md` §13 (search_breadth,
 env_support_gain, discrim_mult, lure_accept, specificity, tot_rate,
-sws_mult, ret_noise — decline curves, ≥30 side).
+sws_mult, ret_noise — decline curves, ≥30 side). **v0.5:** the emotional
+params (`w_emo`, `emo_consol_gain`, `abc_gain`, `conf_emo_gain`,
+`neg_fidelity`, `neg_core_resist`) are deliberately NOT on the decline
+curve — emotional-memory enhancement is preserved in aging, so its
+proportional advantage grows as the neutral baseline falls (Kensinger et
+al. 2007; emotional-memory.md §10).
 
 Suggested clamp ranges are in `character-memory-profiles.md` §0 — implementers
 should validate params into those ranges at load.
@@ -610,18 +755,29 @@ the age-PM paradox for free. See `age-development.md` §7.
 
 ## 10. Interface contract for game-systems
 
-- `encodeEvent(charId, event, context) -> MemoryRecord|null`
+- `encodeEvent(charId, event, context) -> MemoryRecord|null` — event may
+  carry `arousal`/`valence`; v0.5 triggers the emotional blink, trauma
+  tagging, ABC reallocation, and conditioned-affect acquisition internally
 - `recall(charId, cueContext, k) -> [Reconstruction]` (with confidence,
   beliefStatus); `cueContext.mode` ∈ `"recall" | "recognition"` (v0.2, §5.6);
   a Reconstruction may carry `tot: true` with blanked name fields
   (v0.4, §5.5) — dialogue should render it as feeling-of-knowing
-  ("…the woman from Mudhaus, name's right there")
+  ("…the woman from Mudhaus, name's right there"). v0.5: `cueContext` may
+  carry `stress` (0..1 — acute retrieval impairment, §5.4) and `mood`
+  (drives mood_bleed on the reported affect tag, §5.5)
+- `conditionedAffect(charId, cue) -> {valence, arousal}|null` (v0.5, §4.9)
+  — read the conditioned-association response to a cue; dialogue/
+  behavior layer uses it for avoidances and attractions that outlive the
+  episodic source
 - `ambientMemoryScan(charId, context) -> [Reconstruction]` — involuntary
   recall for unfocused ticks (v0.2, §5.7)
 - `hearAccount(charId, speakerId, account)` → misinformation merge
 - `discussEvent(charA, charB, eventRef)` → bidirectional merge + part-list
   suppression of unspoken fields (v0.2, §5.8)
 - `dailyMemoryTick(charId, sleepQuality)` → decay/interference/consolidation
+  + v0.5: selective emotional consolidation and retrograde stress
+  enhancement on the first sleep tick, affect-tag decay split, conditioned
+  -affect decay/recovery (§4.9)
 - `memorySnapshot/Load(charId)` → serialize the two stores + params
 - `rememberIntention(charId, intention)` → optional PM extension (§9, v0.3)
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors

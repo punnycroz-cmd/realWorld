@@ -74,6 +74,27 @@ never copying raw.
 | reserve_shift | 4 | 15 | years offset at reserve=1 (v0.4) |
 | terminal_window | 500 | 2200 | game days before deathDay (v0.4, optional) |
 | terminal_gain / terminal_loss | 0 / 0 | 4 / 0.9 | terminal ramp magnitudes (v0.4) |
+| emo_consol_gain | 0.0 | 0.6 | first-sleep arousal bonus; FLAT across age (v0.5) |
+| abc_gain | 0.0 | 0.6 | central-field boost under arousal (v0.5) |
+| emo_blink_thresh | 0.5 | 0.95 | arousal that suppresses neighbors (v0.5) |
+| emo_blink_window | 0.01 | 0.1 | days; scene window (v0.5) |
+| emo_blink_loss | 0.1 | 0.6 | neighbor encodingE loss (v0.5) |
+| post_stress_window / post_stress_gain | 0.01 / 0.0 | 0.15 / 0.4 | retrograde enhancement (v0.5) |
+| conf_emo_gain | 0.0 | 0.4 | arousal² confidence inflation (v0.5) |
+| flashbulb_thresh / flashbulb_conf_floor | 0.7 / 0.7 | 0.95 / 0.99 | permanent certainty floor (v0.5) |
+| trauma_thresh / trauma_floor | 0.8 / 0.1 | 0.98 / 0.5 | record-level trauma phenotype (v0.5) |
+| cond_thresh / cond_gain | 0.4 / 0.2 | 0.9 / 1.0 | conditioned-affect acquisition (v0.5) |
+| cond_decay | 0.0 | 0.03 | daily; keep very small — outlives episodes (v0.5) |
+| extinct_suppress | 0.0 | 0.2 | per-safe-day suppression (v0.5) |
+| recovery_days / recovery_frac | 7 / 0.0 | 120 / 0.9 | spontaneous recovery (v0.5) |
+| emo_gist_beta | 0.5 | 1.0 | gist β multiplier for arousal ≥0.6 records (v0.5) |
+| emo_verbatim_k | 1.0 | 2.5 | extra verbatim decay on emotional records (v0.5) |
+| arousal_affect_decay | 1.0 | 2.5 | arousal-tag vs valence-tag decay ratio (v0.5) |
+| neg_fidelity / pos_gist_drift | 0.5 / 1.0 | 1.0 / 1.5 | valence-conditioned drift (v0.5) |
+| neg_core_resist | 0.3 | 1.0 | misinfo resistance, negative core fields (v0.5) |
+| mood_bleed / mood_arousal_bleed | 0.0 | 0.35 | reconstruction mood shift (v0.5) |
+| stress_retrieve_thresh / stress_retrieve_loss | 0.4 / 0.0 | 0.9 / 0.3 | acute retrieval impairment (v0.5) |
+| rumin_k | 0.0 | 1.5 | valence-selective rehearsal gain (v0.5) |
 
 **v0.3 continuous-curves note:** the archetypes below are now *named knots*
 on the piecewise-linear age curves in `age-development.md` §6 — the runtime
@@ -90,6 +111,17 @@ opposite age gradients (suggestion U-shaped, gist monotonic — see
 (terminal ramp off). Midlife knots flattened per Rönnlund 2005
 longitudinal plateau 35–60 (age-decline.md §11); decline-curve knot rows
 in `age-decline.md` §13.
+
+**v0.5 emotional-layer note:** the emotional params (w_emo, emo_consol_gain,
+abc_gain, conf_emo_gain, neg_fidelity, neg_core_resist) stay FLAT across age
+— emotional enhancement is preserved in aging, so its proportional advantage
+grows as neutral encoding falls (Kensinger et al. 2007; emotional-memory.md
+§10). Archetype deltas that DO vary: teen raises w_emo/arousal_narrowing/
+emo_blink_loss (limbic-dominant encoding, everything is a scene); older
+adult raises w_emo_pos/w_emo_neg split (already), mood_bleed ×1.3, and
+keeps a deep conditioned-association table (decades of cond entries).
+All v0.5 params have spec defaults — profiles only override where a
+character's affect style differs.
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -217,11 +249,11 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 
 | Modifier | Deltas | Rationale |
 |---|---|---|
-| **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core); intrusion_thresh −0.15 for threat-cued records (intrusive recall) | hyper-encoded threat core, fragmented context (R§5, R§8; RC§5) |
+| **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core); intrusion_thresh −0.15 for threat-cued records (intrusive recall). **v0.5:** seed ≥1 `trauma:true` backstory record + cond_thresh ×0.9, cond_gain ×1.3 (lowered acquisition bar, faster conditioning) — the intrusion discount and fragmented timeline are now record properties (spec §5.7, emotional-memory.md §7) | hyper-encoded threat core, fragmented context; conditioned dread outlives the record (R§5, R§8; RC§5; Bouton 2004) |
 | **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15 | cortisol impairs encode+retrieve (R§8) |
 | **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2 | consolidation failure (R§2, R§8) |
 | **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion) |
-| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers); add `specificity 0.4` → recall returns generic summaries ("I always mess up") | overgeneral memory, mood-congruence (R§8) |
+| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5 | overgeneral memory, mood-congruence, negative rehearsal loop (R§8; emotional-memory.md §8) |
 | **Domain expert** (per domain tag) | enc_base +0.1 for events matching domain cue; k_verbatim ×0.7 in-domain | expertise deepens encoding (R§8) |
 | **Routine-heavy life** | merge_thresh ×0.9; interf_k ×1.3 | commutes blur together (R§3) |
 | **Isolation / few retellings** | retell_boost ×0.6; memories fade without rehearsal | — |

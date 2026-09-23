@@ -195,6 +195,31 @@ unspoken fields in discussEvent.
   (§4) and how they're reconstructed — a character having a bad day should
   recall the same event more negatively.
 
+**v5 calibration (full derivations in `emotional-memory.md`):** Sharot &
+Phelps 2004 + Ritchey et al. 2008 + Nishida et al. 2009 → the emotional
+advantage is consolidation-bought and grows with delay →
+`emo_consol_gain` first-sleep bonus. Mather & Sutherland 2011 ABC →
+one-sided peripheralLoss replaced by two-sided reallocation
+(`abc_gain` central boost). Strange et al. 2003 + Hurlemann 2005 +
+Knight & Mather 2009 → emotional blink (neighbor encodingE suppression,
+predictive neighbors exempt) + Cahill et al. 2003 `post_stress_gain`
+retrograde enhancement. Kensinger & Schacter 2006 (Red Sox) + Kensinger
+2007 + Storbeck & Clore 2005 + Booker et al. 2021 → valence-conditioned
+distortion (`neg_fidelity`/`pos_gist_drift`/`neg_core_resist`). de
+Quervain et al. 1998/2000 + Roozendaal 2004 → stress impairs RETRIEVAL
+(`stress_retrieve_loss` on θ) while enhancing consolidation — timing
+split (Joëls 2006/2011). Sharot et al. 2004 + Talarico & Rubin 2003 →
+`conf_emo_gain` arousal² + `flashbulb_conf_floor` permanent certainty.
+Bouton & Bolles 1979 / Bouton & King 1983 / Bouton 2004 → conditioned-
+affect table dynamics (acquire/fire/extinct/renewal/spontaneous
+recovery/reinstatement — extinction is suppression, never erasure).
+Brewin et al. 1996 → `trauma:true` record phenotype (floor, fragmented
+`when`, intrusion discount, plist exemption, misinfo-resistant core).
+Matt et al. 1992 (d≈0.4) → `mood_bleed` reconstruction shift.
+Walker et al. 2003 → dysphoria disrupts FAB (depressive modifier).
+Kensinger et al. 2007 → emotional enhancement PRESERVED in aging →
+emotional params stay off the decline curve. Probes P31–P38 (spec v0.5).
+
 ---
 
 ## 6. False memory: the system lies
