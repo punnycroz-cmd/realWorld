@@ -10,7 +10,7 @@
     "status": "request events only: one of request_status",
     "req": "optional, request events: shared request id — every lifecycle event of one paid intervention carries it; detail views group the status trail on it",
     "reason_code": "optional, denied requests only: fixed enum from world/moderation.json (public sees the why-class, never the screened text beyond the display filter)",
-    "attrs": "optional: { surge, credits, compensated_cr, mentions[] } for transparency lines and follow matching"
+    "attrs": "optional: { surge, credits, compensated_cr, sponsors[], mentions[] } for transparency lines and follow matching"
   },
   "spectator_ui": {
     "doc": "world v19 — the full spectator surface (world/wire.html, spec world/wire-ui.md). feed.html remains the lightweight variant.",
@@ -25,6 +25,17 @@
       "older": "'load older' extends the page in place — never a scroll jump",
       "caught_up": "'You're caught up — nothing older than this today.'; earlier days route to The Archive",
       "new_events": "scrolled-away viewers see 'N new — jump to top'; the stream never moves text under a reader"
+    },
+    "spectator_ui_v33": {
+      "doc": "world v33 — lean-back + control polish on wire.html. Everything is view-layer only; no key, button, or pin can touch the world.",
+      "zen": "lean-back theater view (button, `z` key, `#z=1`) — rails/upsell off, stream enlarged; view-layer only",
+      "hold": "freezes the DISPLAY, never the world — events keep accruing behind an honest backlog bar ('the world didn't pause; the display did'); click or `h` releases",
+      "reaching_in_now": "strip of live request cards (latest status ∈ requested/in_review/approved/queued/running) + recent admin actions, all attributed; a card opens the request's trail",
+      "keyboard": "j/k select · enter detail · / search · f following · z zen · h hold · esc back out · ? help card",
+      "request_permalink": "#r=<req> deep-links a request — resolves to the newest event in its lifecycle trail",
+      "mentions_ui": "attrs.mentions[] render as pinnable chips in the detail panel; event who/venue get 'pin' buttons (view-layer follows only)",
+      "density": "cozy/compact row toggle, persisted (rw_wire_density)",
+      "reduced_motion": "prefers-reduced-motion disables the live-dot blink"
     }
   },
   "event_kinds": [
@@ -72,9 +83,11 @@
     { "t": 647,  "kind": "press",   "text": "Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always" },
     { "t": 720,  "kind": "scene",   "venue": "farolote", "text": "Lunch prep at El Farolote — the salsa bar gets its midday refill" },
     { "t": 783,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "event — park cleanup at Dolores Park", "status": "queued" },
+    { "t": 806,  "kind": "cast",    "who": "okfm",       "venue": "block",  "text": "a new face on the block — Dana Okafor, a hired resident, settling in" },
     { "t": 812,  "kind": "housing", "venue": "block",    "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board" },
     { "t": 841,  "kind": "admin",   "venue": "club600",  "text": "admin action — venue window reset at The 600 Club", "attrs": { "compensated_cr": 90 } },
     { "t": 852,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "queued request expired before activation — refunded", "status": "refunded" },
-    { "t": 900,  "kind": "scene",   "venue": "park",     "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" }
+    { "t": 878,  "kind": "request", "who": "tide_9",     "req": "rq-1039", "text": "weather — evening fog return, 1 h", "status": "running", "attrs": { "sponsors": ["tide_9", "loam", "marina_w"], "surge": true } },
+    { "t": 900,  "kind": "scene",   "venue": "park",     "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter", "attrs": { "mentions": ["A04", "A20"] } }
   ]
 }

@@ -50,6 +50,9 @@
                 ad caps verbatim from the plan PROPOSAL; appeal rules honor
                 the not-appealable list; co-sponsor is same-price compatible;
                 dark-pattern vocabulary absent
+    wire      — feed.json ↔ wire.html: every event kind/status has a chip
+                style; honesty strings + live seam + v33 affordances present;
+                demo seeds mirrored; NO button offers a world-touching verb
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -984,13 +987,83 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G18 wire ============ */
+{
+  const g = gate('wire', 'spectator feed contract (feed.json ↔ wire.html; view-layer-only affordances; seed mirror)');
+  try {
+    const FJ = JSONF('feed.json');
+    const html = rd('wire.html');
+    /* every event kind has a chip style */
+    const kinds = FJ.event_kinds.filter((v, i) => i % 2 === 0);
+    for (const k of kinds)
+      if (!new RegExp('\\.k\\.' + k + '\\b').test(html))
+        add(g, 'fail', 'wire.html', null, `event kind "${k}" has no .k.${k} chip style`);
+    /* every request status has a chip style (stKey transform mirrors the page) */
+    const stKey = s => s.replace(/[ ()]/g, '_').toLowerCase();
+    for (const s of FJ.request_status)
+      if (!new RegExp('\\.st\\.' + stKey(s) + '\\b').test(html))
+        add(g, 'fail', 'wire.html', null, `status "${s}" has no .st.${stKey(s)} style`);
+    /* honesty strings + merge seam must exist on the surface */
+    const MUST = [
+      [/demo stream/, 'demo badge'],
+      [/request not approved/i, 'neutral deny wording'],
+      [/UNPOSSESSABLE/, 'possession-ban badge'],
+      [/compensated/i, 'admin compensation line'],
+      [/gsViewerState/, 'live bridge seam'],
+      [/The Archive/i, 'archive pointer'],
+      [/load older/, 'pagination affordance'],
+      [/role="log"/, 'a11y log role'],
+      [/jump to top/, 'new-events pill'],
+      [/didn(\\u2019|')t pause/i, 'hold honesty copy'],
+      [/reaching in now/, 'live-request strip label'],
+      [/same world event, not a discount/, 'co-sponsor attribution copy']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'wire.html', null, `missing required copy: ${label}`);
+    /* v33 affordances + contract keys */
+    for (const s of ['id="livenow"', 'id="holdbar"', 'id="hold"', 'id="zen"',
+      'id="keypop"', 'id="dens"', 'id="keys"', '#r=', 'rw_wire_density',
+      'keydown', 'prefers-reduced-motion'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v33 affordance "${s}" absent`);
+    const V33 = (FJ.spectator_ui || {}).spectator_ui_v33 || {};
+    for (const k of ['zen', 'hold', 'reaching_in_now', 'keyboard',
+      'request_permalink', 'mentions_ui', 'density', 'reduced_motion'])
+      if (!V33[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v33.${k} missing`);
+    /* demo seed mirror: every feed.json seed renders in the demo (text match) */
+    for (const e of FJ.demo_seeds || []) {
+      const norm = s => s
+        .replace(/[\u2018\u2019']/g, '\\u2019')
+        .replace(/\u201c/g, '\\u201c').replace(/\u201d/g, '\\u201d');
+      if (!html.includes(e.text) && !html.includes(norm(e.text)))
+        add(g, 'fail', 'wire.html', null, `demo seed t${e.t} text not mirrored: "${e.text.slice(0, 70)}"`);
+      if (e.req && !html.includes(e.req))
+        add(g, 'fail', 'wire.html', null, `demo seed req "${e.req}" not mirrored`);
+    }
+    /* NO button may offer a world-touching verb. The wire is view-layer:
+       pins filter, copy-link copies, preview toasts — nothing else. */
+    html.split('\n').forEach((ln, i) => {
+      for (const m of ln.matchAll(/<button[^>]*>([^<]*)<\/button>/g)) {
+        const t = m[1].replace(/<[^>]+>/g, '');
+        if (/\b(possess|nudge|tip|evict|hire|buy|pay|report|send)\b/i.test(t))
+          add(g, 'fail', 'wire.html', i + 1, `button offers a world-touching verb: "${t.trim()}"`);
+      }
+      /* onclick handlers may only ever open view-layer actions — spot the
+         wire for fetch/XHR verbs that would imply a real mutation */
+      if (/\bXMLHttpRequest\b|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin/i.test(ln))
+        add(g, 'fail', 'wire.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
+    });
+    g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
+      `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'}`;
+  } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v32 local';
+out.build = 'world v33 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

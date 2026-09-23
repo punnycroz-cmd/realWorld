@@ -24,6 +24,15 @@
     - pagination ("load older") + honest caught-up marker
     - "N new" pill when scrolled away — the stream never yanks scroll
     - day boundary separators; archive link for older days
+  New in v3 (world v33):
+    - zen mode (lean-back theater view — rails off, view-layer only)
+    - hold — freezes the DISPLAY, never the world; honest backlog count
+    - "reaching in now" strip — live request cards (running / in_review /
+      queued), every one attributed; admin actions join it
+    - keyboard: j/k select · enter detail · / search · f following ·
+      z zen · ? help · esc back out
+    - #r=<req> request permalink; mentions chips; pin-from-detail
+    - density toggle (cozy/compact, persisted); reduced-motion honored
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -111,7 +120,7 @@
   .wire .st{font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
     margin-left:6px;white-space:nowrap}
   .st.running{background:#1e3a2c;color:var(--grn)} .st.queued{background:#22303f;color:var(--blu)}
-  .st.resolved,.st.refunded,.st.approved,.st.player_session_ended{background:#2b2b28;color:var(--dim)}
+  .st.resolved,.st.refunded,.st.approved,.st.approved__modified_,.st.player_session_ended{background:#2b2b28;color:var(--dim)}
   .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
   .st.not_approved{background:#33222c;color:var(--pink)}
   .daysep{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--dim);
@@ -157,6 +166,40 @@
   .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
     border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
     display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
+
+  /* ---- v33: zen / hold / live-now / keys / density ---- */
+  .hbtn{font:inherit;font-size:11px;padding:4px 12px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+  .hbtn.on{color:var(--acc);border-color:var(--acc)}
+  body.zen .railL,body.zen .railR,body.zen .fineprint{display:none}
+  body.zen main{grid-template-columns:minmax(0,1fr);max-width:860px}
+  body.zen .wire li{font-size:15.5px;padding:11px 8px}
+  body.zen .panel{border-width:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+  body.compact .wire li{padding:3px 6px;font-size:12px}
+  .livenow{display:none;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .lncard{display:flex;align-items:baseline;gap:7px;border:1px solid var(--line);border-radius:8px;
+    padding:4px 10px;font-size:11.5px;cursor:pointer;background:var(--panel2)}
+  .lncard:hover{border-color:var(--acc)}
+  .lncard .who{color:var(--blu)}
+  .lncard .st{margin-left:0}
+  .lncard.admin{border-color:var(--pink)}
+  .holdbar{display:none;margin:0 0 10px;border:1px solid var(--acc);border-radius:8px;
+    background:#2a2618;color:var(--ink);font-size:12px;padding:6px 12px;cursor:pointer}
+  .mchip{display:inline-block;font-size:10.5px;border:1px solid var(--line);border-radius:10px;
+    padding:1px 9px;margin:2px 4px 0 0;cursor:pointer;color:var(--blu);background:var(--panel2)}
+  .mchip.on{color:var(--acc);border-color:var(--acc)}
+  .dbtn{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--blu)}
+  .dbtn.on{color:var(--acc);border-color:var(--acc)}
+  .keypop{position:fixed;inset:0;display:none;background:rgba(10,12,15,.72);z-index:8}
+  .keycard{max-width:380px;margin:12vh auto 0;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:20px 24px}
+  .keycard h2{margin-bottom:10px}
+  .keycard table{border-collapse:collapse;font-size:12.5px}
+  .keycard td{padding:3px 14px 3px 0;color:var(--dim)}
+  .keycard td.k{font-family:var(--mono);color:var(--acc);white-space:nowrap}
+  .wire li:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+  @media (prefers-reduced-motion:reduce){.live::before{animation:none}}
 </style>
 </head>
 <body>
@@ -166,6 +209,8 @@
   <span class="src demo" id="srcBadge">demo stream</span>
   <div class="clock"><span id="clock">15:04</span> <small id="daypart">the after-school hour</small></div>
   <div class="wx" id="wx">☀ clear · 68°F · light breeze off the bay</div>
+  <button class="hbtn" id="hold" title="freeze the display — the world keeps running">hold</button>
+  <button class="hbtn" id="zen" title="lean-back view — just the stream">zen</button>
   <div class="viewers"><b id="vcount">1,412</b> watching</div>
 </header>
 
@@ -195,12 +240,16 @@
       <button class="chip" data-f="admin">admin</button>
       <button class="chip" data-f="followed" id="chipf" style="display:none">following <span class="n" id="fn"></span></button>
       <input class="search" id="q" placeholder="search the wire…" aria-label="search the wire">
+      <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
     </div>
+    <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
+    <div class="holdbar" id="holdbar"></div>
     <div class="newpill" id="newpill"></div>
     <ul class="wire" id="wire" role="log" aria-live="polite" aria-label="the wire — public feed"></ul>
     <div class="streamfoot">
       <button id="older">load older</button>
       <span id="foot" class="caughtup"></span>
+      <button id="keys" title="keyboard shortcuts">keys</button>
       <a href="archive.html" style="margin-left:auto">earlier days → The Archive</a>
     </div>
   </section>
@@ -230,6 +279,24 @@
   The Archive tomorrow. The cast's private lives are not a tier: secrets
   aren't hidden behind a paywall, they're not in the building. Watching costs
   nothing and always will.
+</div>
+
+<div class="keypop" id="keypop" role="dialog" aria-label="keyboard shortcuts">
+  <div class="keycard">
+    <h2>Keys — the wire, hands off the mouse</h2>
+    <table>
+      <tr><td class="k">j / k</td><td>move selection down / up the stream</td></tr>
+      <tr><td class="k">enter</td><td>open / close the event record</td></tr>
+      <tr><td class="k">/</td><td>search the wire</td></tr>
+      <tr><td class="k">f</td><td>filter to followed venues + characters</td></tr>
+      <tr><td class="k">z</td><td>zen — lean-back view (esc or z again to leave)</td></tr>
+      <tr><td class="k">h</td><td>hold the display — the world keeps running</td></tr>
+      <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
+      <tr><td class="k">?</td><td>this card</td></tr>
+    </table>
+    <div style="margin-top:12px;font-size:11.5px;color:var(--dim)">Everything here is
+      view-layer. No key, button, or pin on this page can touch the world.</div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -321,6 +388,11 @@ var follows = {};         // 'v:<venue>' | 'c:<charId>' -> true
 try{ follows = JSON.parse(localStorage.getItem('rw_wire_follows')||'{}'); }catch(e){}
 function saveFollows(){ try{ localStorage.setItem('rw_wire_follows',JSON.stringify(follows)); }catch(e){} }
 var filter='all', query='', selId=null, page=1, PAGE=60, pendingNew=0;
+var held=false, heldCount=0;          /* display hold — the world never pauses */
+var zen=false;
+var density='cozy';
+try{ density = localStorage.getItem('rw_wire_density')||'cozy'; }catch(e){}
+if (density==='compact') document.body.classList.add('compact');
 
 function eid(){ return 'd0923-'+(++feedN); }   // demo ids; live feed supplies its own
 function push(e){ e.id = e.id || eid(); e.seq = feedN; FEED.unshift(e); return e; }
@@ -390,6 +462,43 @@ function renderWire(){
     li.onclick=function(){ select(li.dataset.id); };
     li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
   });
+  renderLiveNow();
+}
+
+/* ================= reaching-in-now strip =================
+   The public request feed's live edge: every request whose latest
+   status is still open (requested / in_review / approved / queued /
+   running), plus recent admin actions. Attribution is the point —
+   the strip answers "who is reaching into the world right now?"
+   without the viewer digging for it. Never shows denied text. */
+var LIVE_STATUSES = {requested:1, in_review:1, approved:1, 'approved (modified)':1, queued:1, running:1};
+function renderLiveNow(){
+  var box=document.getElementById('livenow');
+  var latest={}, order=[];
+  FEED.forEach(function(e){
+    if (e.kind!=='request' || !e.req) return;
+    if (!(e.req in latest)){ latest[e.req]={status:e.status, who:e.who, req:e.req, id:e.id}; order.push(e.req); }
+  });
+  var cards = order.filter(function(r){ return LIVE_STATUSES[latest[r].status]; })
+                   .slice(0,6).map(function(r){
+    var l=latest[r];
+    return '<span class="lncard" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
+      '<span class="who">'+esc(l.who||'?')+'</span>'+
+      '<span class="st '+stKey(l.status)+'">'+esc(l.status)+'</span></span>';
+  });
+  /* admin actions from the last ~45 block-minutes ride the same strip */
+  FEED.forEach(function(e){
+    if (e.kind==='admin' && (T - e.t) <= 45)
+      cards.unshift('<span class="lncard admin" data-id="'+e.id+'" title="admin action — always attributed">'+
+        '<span class="who">admin</span><span>⚙</span></span>');
+  });
+  if (!cards.length){ box.style.display='none'; return; }
+  box.style.display='flex';
+  box.innerHTML='<span style="font-size:10.5px;color:var(--dim);letter-spacing:.08em;'+
+    'text-transform:uppercase;align-self:center">reaching in now</span>'+cards.join('');
+  box.querySelectorAll('.lncard').forEach(function(c){
+    c.onclick=function(){ select(c.dataset.id); };
+  });
 }
 
 /* new-events pill: never yank scroll */
@@ -409,7 +518,26 @@ document.getElementById('newpill').onclick=function(){
 };
 function ingest(e){
   push(e);
+  if (held){ heldCount++; updateHoldBar(); return; }
   if (stickTop || selId) renderWire(); else { pendingNew++; updatePill(); }
+}
+
+/* hold — freezes the DISPLAY only. Events keep accruing; the bar
+   reports the honest backlog. The world never pauses for a viewer. */
+function updateHoldBar(){
+  var b=document.getElementById('holdbar');
+  if (!held){ b.style.display='none'; return; }
+  b.style.display='block';
+  b.textContent = heldCount
+    ? 'display held — ' + heldCount + ' new event' + (heldCount===1?'':'s') +
+      ' behind this bar. The world didn\u2019t pause; the display did. Click to catch up.'
+    : 'display held — the world keeps running. Click to catch up.';
+}
+function toggleHold(){
+  held=!held;
+  document.getElementById('hold').classList.toggle('on',held);
+  if (!held){ heldCount=0; updateHoldBar(); renderWire(); }
+  else updateHoldBar();
 }
 
 /* ================= detail panel + permalink ================= */
@@ -433,6 +561,29 @@ function renderDetail(){
   if (e.status) h+='<div class="meta">status — <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span></div>';
   if (e.reason_code) h+='<div class="meta">why-class — <b>'+esc(e.reason_code)+'</b> <span style="color:var(--dim)">(the screened text is never public)</span></div>';
   if (e.attrs && e.attrs.compensated_cr) h+='<div class="meta">compensation — <b>'+e.attrs.compensated_cr+' cr</b> credited to affected players</div>';
+  if (e.attrs && e.attrs.sponsors && e.attrs.sponsors.length)
+    h+='<div class="meta">co-sponsors — <b>'+e.attrs.sponsors.map(esc).join(', ')+'</b>'+
+       ' <span style="color:var(--dim)">(same world event, not a discount)</span></div>';
+  if (e.attrs && e.attrs.surge)
+    h+='<div class="meta">surge — <b>priced at surge</b> <span style="color:var(--dim)">(contested resource, disclosed at filing)</span></div>';
+  if (e.attrs && e.attrs.mentions && e.attrs.mentions.length){
+    h+='<div class="meta">also seen — ' + e.attrs.mentions.map(function(c){
+      var k='c:'+c, on=follows[k];
+      return '<span class="mchip'+(on?' on':'')+'" data-k="'+k+'">'+
+        esc(CHAR_NAME[c]||c)+(on?' · pinned':'')+'</span>';
+    }).join('') + '</div>';
+  }
+  /* pin-from-detail: who + venue get inline follow buttons (view-layer only) */
+  var pins=[];
+  if (e.venue && VENUE_NAME[e.venue]) pins.push({k:'v:'+e.venue, label:VENUE_NAME[e.venue]});
+  if (e.who && CHAR_NAME[e.who] && /^[CAh]/.test(e.who))
+    pins.push({k:'c:'+e.who, label:CHAR_NAME[e.who]+' (public whereabouts only)'});
+  if (pins.length){
+    h+='<div class="meta" style="margin-top:8px">pin — ' + pins.map(function(p){
+      return '<button class="dbtn'+(follows[p.k]?' on':'')+'" data-k="'+p.k+'">'+
+        (follows[p.k]?'pinned':'pin')+' '+esc(p.label)+'</button>';
+    }).join(' ') + '</div>';
+  }
   if (e.req){
     var tr=trailFor(e.req);
     h+='<div class="meta" style="margin-top:8px">request '+esc(e.req)+' — lifecycle:</div><ul class="trail">';
@@ -450,6 +601,9 @@ function renderDetail(){
     try{ document.execCommand('copy'); toast('link copied'); }
     catch(_){ toast('permalink: '+permalink(e)); }
   };
+  box.querySelectorAll('.mchip,.dbtn').forEach(function(c){
+    c.onclick=function(){ toggleFollow(c.dataset.k); renderDetail(); };
+  });
 }
 
 /* ================= follows ================= */
@@ -597,6 +751,7 @@ function reqTick(){
     var id='rq-'+(++reqSeq);
     var e2={t:T, kind:'request', who:def.who, req:id, status:def.path[0],
             text:(def.path[0]==='not approved')?'request not approved':def.text};
+    if (def.sponsors) e2.attrs={sponsors:def.sponsors};
     ingest(e2);
     if (def.path.length>1) reqQueue.push({id:id,def:def,step:0});
   }
@@ -615,9 +770,12 @@ function seedFeed(){
     {t:647, kind:'press',   text:'Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always'},
     {t:720, kind:'scene',   venue:'farolote', text:'Lunch prep at El Farolote — the salsa bar gets its midday refill'},
     {t:783, kind:'request', who:'leaf', req:'rq-1038', text:'event — park cleanup at Dolores Park', status:'queued'},
+    {t:806, kind:'cast',    who:'okfm', venue:'block',   text:'a new face on the block — Dana Okafor, a hired resident, settling in'},
     {t:812, kind:'housing', venue:'block',   text:'Listing filled — 9457 Guerrero St, Unit 2 comes off the board'},
     {t:841, kind:'admin',   venue:'club600', text:'admin action — venue window reset at The 600 Club', attrs:{compensated_cr:90}},
-    {t:900, kind:'scene',   venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter'}
+    {t:878, kind:'request', who:'tide_9', req:'rq-1039', text:'weather — evening fog return, 1 h', status:'running',
+      attrs:{sponsors:['tide_9','loam','marina_w'], surge:true}},
+    {t:900, kind:'scene',   venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter', attrs:{mentions:['A04','A20']}}
   ].forEach(function(e){ push(e); });
   /* give the queued seed its follow-up so the trail reads honestly */
   push({t:812+40, kind:'request', who:'leaf', req:'rq-1038',
@@ -674,6 +832,55 @@ document.getElementById('filters').addEventListener('click', function(ev){
 document.getElementById('q').addEventListener('input', function(ev){ query=ev.target.value.trim(); page=1; renderWire(); });
 document.getElementById('older').onclick=function(){ page++; renderWire(); };
 document.getElementById('dir').onclick=function(){ toast('View-layer only; the world doesn\u2019t notice.'); };
+document.getElementById('hold').onclick=toggleHold;
+document.getElementById('holdbar').onclick=toggleHold;
+document.getElementById('zen').onclick=function(){ setZen(!zen); };
+document.getElementById('dens').onclick=function(){
+  density = (density==='compact')?'cozy':'compact';
+  document.body.classList.toggle('compact',density==='compact');
+  document.getElementById('dens').classList.toggle('on',density==='compact');
+  try{ localStorage.setItem('rw_wire_density',density); }catch(e){}
+};
+document.getElementById('dens').classList.toggle('on',density==='compact');
+document.getElementById('keys').onclick=function(){ toggleKeys(true); };
+document.getElementById('keypop').onclick=function(ev){ if(ev.target.id==='keypop') toggleKeys(false); };
+function toggleKeys(on){ document.getElementById('keypop').style.display=on?'block':'none'; }
+function setZen(on){
+  zen=!!on;
+  document.body.classList.toggle('zen',zen);
+  document.getElementById('zen').classList.toggle('on',zen);
+}
+/* j/k move the selection through the currently visible rows */
+function stepSel(dir){
+  var rows=[].slice.call(document.querySelectorAll('#wire .ev'));
+  if (!rows.length) return;
+  var i = selId ? rows.findIndex(function(r){return r.dataset.id===selId;}) : -1;
+  i = (i<0) ? (dir>0?0:rows.length-1) : Math.max(0,Math.min(rows.length-1,i+dir));
+  selId=rows[i].dataset.id;
+  renderWire(); renderDetail();
+  history.replaceState(null,'','#e='+selId);
+  var el=document.querySelector('#wire .ev[data-id="'+selId+'"]');
+  if (el) el.scrollIntoView({block:'nearest'});
+}
+document.addEventListener('keydown', function(ev){
+  var tag=(ev.target.tagName||'').toLowerCase();
+  if (tag==='input'||tag==='textarea'){
+    if (ev.key==='Escape'){ ev.target.value=''; query=''; page=1; renderWire(); ev.target.blur(); }
+    return;
+  }
+  if (ev.key==='j'){ stepSel(1); ev.preventDefault(); }
+  else if (ev.key==='k'){ stepSel(-1); ev.preventDefault(); }
+  else if (ev.key==='/'){ ev.preventDefault(); document.getElementById('q').focus(); }
+  else if (ev.key==='f'){ var c=document.getElementById('chipf'); if (c.style.display!=='none'){ c.click(); } }
+  else if (ev.key==='z'){ setZen(!zen); }
+  else if (ev.key==='h'){ toggleHold(); }
+  else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
+  else if (ev.key==='Escape'){
+    if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
+    else if (zen) setZen(false);
+    else if (selId){ selId=null; renderWire(); renderDetail(); history.replaceState(null,'','#'); }
+  }
+});
 function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(function(){t.style.display='none';},2000); }
 
 /* ================= boot ================= */
@@ -686,6 +893,16 @@ if (LIVE){
 }
 var deep = location.hash.match(/^#e=(.+)$/);
 if (deep){ selId=deep[1]; renderDetail(); renderWire(); }
+var deepR = location.hash.match(/^#r=(.+)$/);
+if (deepR){
+  /* request permalink — resolve to the newest event in the trail */
+  var rid=deepR[1], hit=null;
+  for (var i=0;i<FEED.length;i++) if (FEED[i].req===rid){ hit=FEED[i]; break; }
+  if (hit){ selId=hit.id; renderWire(); renderDetail(); }
+  else toast('request '+rid+' isn\u2019t on today\u2019s wire — try The Archive');
+}
+var deepZ = location.hash.match(/#z=1/);
+if (deepZ) setZen(true);
 </script>
 </body>
 </html>

@@ -12,9 +12,10 @@ Companion artifacts:
   below is reachable in it.
 - `world/feed.json` — machine-readable event schema, event vocabulary,
   display rules, and the demo seed set.
-- `world/wire-ui.md` + `world/wire.html` — **v2 (world v19):** the full
+- `world/wire-ui.md` + `world/wire.html` — **v3 (world v33):** the full
   spectator application (detail panel, permalinks, request lifecycle
-  trails, follows, pagination). feed.html stays the lightweight variant.
+  trails, follows, pagination, zen/hold/keys/live-now strip — spec §9).
+  feed.html stays the lightweight variant.
 - Policy: `world/moderation-notes.md` (§11 scope). Request surface:
   `world/request-ui.md` + `world/requests.json` (status vocabulary is
   shared verbatim).

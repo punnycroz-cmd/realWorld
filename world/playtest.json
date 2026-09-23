@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 32,
+ "version": 33,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -56,7 +56,7 @@
   },
   "wire": {
    "file": "wire.html",
-   "name": "The Wire",
+   "name": "The Wire (v3)",
    "tier": "free"
   },
   "request": {
@@ -1578,6 +1578,73 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT31",
+   "title": "The lean-back Wire — zen, hold, keys, reaching-in-now",
+   "minutes": 15,
+   "persona": "regular spectator who watches with coffee, keyboard, and zero patience for clicking",
+   "goal": "Verify the v33 spectator surface stays honest while becoming livable: zen mode is a display mode (never a tier), hold pauses the display and says so, the keyboard map works end to end, the live-request strip shows who is reaching into the world right now, and no new affordance can touch the world.",
+   "surfaces": [
+    "wire",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Wire. Press z (or the header 'zen' button). Watch for a minute; then press z again to leave.",
+     "expect": "Rails, upsell, and fine print collapse; the stream widens and its type steps up. The LIVE badge, source badge (demo stream), clock, and stream are still there. Leaving restores everything exactly.",
+     "checkpoints": [
+      "Zen hides chrome only — no event, venue, or request becomes invisible in zen",
+      "The demo badge is still visible in zen — the lean-back view never impersonates live",
+      "esc also exits zen; #z=1 boots straight into it"
+     ]
+    },
+    {
+     "do": "Press h (or 'hold') and let ~1 minute pass. Read the hold bar, then release.",
+     "expect": "Rendering freezes while events keep accruing; the bar counts them honestly ('display held — N new events behind this bar. The world didn't pause; the display did.'). Releasing catches the stream up in place.",
+     "checkpoints": [
+      "Copy says the display — not the world — paused; nowhere suggests the world waits",
+      "The backlog count is real (matches events that arrived during the hold)",
+      "No event is lost on release; scroll position is not yanked"
+     ]
+    },
+    {
+     "do": "Use the keyboard only: press ? to read the key card, j/k to walk three rows, enter to open a record, / to search 'mudhaus', esc to clear, f to toggle the following filter.",
+     "expect": "Every key does what the card says; selection visibly moves; detail opens; search filters; escape walks out in layers (popover → zen → selection → search).",
+     "checkpoints": [
+      "j/k selection wraps nowhere — it clamps at stream ends and scrolls the row into view",
+      "Enter toggles the detail record for the selected row",
+      "Escape inside the search box clears and blurs it instead of eating the key"
+     ]
+    },
+    {
+     "do": "Find the 'reaching in now' strip above the stream. Open a live request card; check its trail. Then deep-link it via #r=<req>.",
+     "expect": "The strip lists requests whose latest status is still open (requested/in_review/approved/queued/running) with filer handle + status chip; recent admin actions ride it. A card opens the lifecycle trail. #r=<req> resolves to the newest event in the trail; a made-up req id gets an honest toast, not a dead end.",
+     "checkpoints": [
+      "Every card is attributed (handle or 'admin') — nothing anonymous reaches in",
+      "A resolved/refunded/not-approved request drops off the strip",
+      "Denied request text never appears — the strip and detail show neutral wording only"
+     ]
+    },
+    {
+     "do": "Open an event with mentions (the 15:00 release scene). Click a mention chip to pin June, then open a request event and check its meta lines.",
+     "expect": "Mention chips pin/unpin the character (June A04 lands in Following); the co-sponsored weather request shows a 'co-sponsors' line naming all sponsors and a surge line — attribution never folded into body text.",
+     "checkpoints": [
+      "Mention pinning is identical to left-rail pinning — free, reversible, filter-only",
+      "Co-sponsors are all named; 'same world event, not a discount' copy is present",
+      "Nothing on the detail panel offers any world-touching action"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the wire gate.",
+     "expect": "wire gate passes: every feed.json event kind has a .k style, every request_status has a .st style, honesty strings present (demo stream / request not approved / UNPOSSESSABLE / compensated), live-now/zen/hold/keys affordances present, demo seeds mirror feed.json, and no button offers a world-touching verb.",
+     "checkpoints": [
+      "Gate reports kind/status coverage and the spectator_ui_v33 contract keys",
+      "A removed badge, an invented status, or a possess/nudge button would FAIL — spot-check",
+      "Eighteen gates total; overall 0 fail"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1585,7 +1652,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v32 local",
+   "build": "world v33 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },

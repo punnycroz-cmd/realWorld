@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v32)
+# Playtest Harness — "Real World / The Mission" (world v33)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -35,7 +35,7 @@ What IS under test — the five invariants, checked on every scenario:
 
 One person can wear every hat; four real testers is the intended shape.
 
-- **Spectator** — PT1, PT6, PT8. Free-tier only; never touches a wallet.
+- **Spectator** — PT1, PT6, PT8, PT31. Free-tier only; never touches a wallet.
 - **Player** — PT2, PT3 (first half), PT4, PT5, PT9, PT23, PT30. Files requests, hires a character.
 - **Reviewer** — PT3 (second half), PT4. Wears the mod hat; judges queue honesty.
 - **Facilitator** — PT7 + session stewardship. Owns the boundary checklist,
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Seventeen gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Eighteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -118,7 +118,10 @@ bonus + $200 cap + 2/5/25 ad numbers verbatim from the plan PROPOSAL,
 72 h appeal window with the not-appealable list honored and aggregate-
 only feed visibility, co-sponsor cap 4 / compatible / same-price,
 required honesty strings, dark-pattern vocabulary absent, screening
-routed through screen.js — never a stub).
+routed through screen.js — never a stub), **wire** (feed.json ↔
+wire.html: every event kind/status has a chip style, honesty strings +
+live seam + v33 affordances present, demo seeds mirrored, no button
+offers a world-touching verb).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and
