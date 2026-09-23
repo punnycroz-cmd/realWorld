@@ -474,6 +474,24 @@ function sfClipHalf(P, F, keepPos){
 /* sunlit? — the sun sits upper-left (SF_SUN shadows fall +x,+y), so a slope
    face whose outward normal has negative screen x/y catches the light */
 function sfRoofFaceLit(nx, ny){ return (nx + ny) < 0; }
+/* v13: even-odd point-in-polygon test in the caller's coordinate space.
+   Roof furniture uses it so nothing lands over a courtyard or lot-line
+   notch in non-rectangular footprints. */
+function sfPtInPoly(P, x, y){
+  let c = false;
+  for(let i = 0, j = P.length - 1; i < P.length; j = i++){
+    const xi = P[i][0], yi = P[i][1], xj = P[j][0], yj = P[j][1];
+    if((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+/* v13: sun-cast shadow blob for rooftop clutter. The building's own shadow
+   slides the footprint by (hPx*0.20, hPx*0.12), so a prop h px tall slides
+   its contact shadow by the same ratio — one sun, one direction. */
+function sfPropShadow(g, x, y, h, r){
+  paEllipse(g, x + h * 0.20 + r * 0.4, y + h * 0.12, r * 1.5, r * 0.55,
+            'rgba(20,14,8,0.28)');
+}
 
 function sfBldCanvas(b, wet){
   const pad = 26; // v12: ridge + chimney height needs more headroom
@@ -718,6 +736,10 @@ function sfBldCanvas(b, wet){
       const dw = Math.round((wPx - pad * 2) * 0.4), dh = Math.round(hBase * 0.42);
       const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 4, 1371));
       const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 6, 1372));
+      // v13: deck must sit fully inside the footprint, not over a notch
+      const deckIn = [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
+        .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx));
+      if(deckIn){
       paR(g, dx0, dy0, dw, dh, shade(ROOF[3], 1.18));
       for(let px2 = dx0 + 3; px2 < dx0 + dw; px2 += 4)
         rl(px2, dy0 + 1, px2, dy0 + dh - 1, shade(ROOF[3], 1.02));
@@ -735,31 +757,42 @@ function sfBldCanvas(b, wet){
         paEllipse(g, tx2, ty2, 2.4, 1.6, '#7a5a3a');
         paEllipse(g, tx2, ty2 - 0.5, 1.8, 1.1, '#9a7a55');
       }
+      }
     }
-    const nItem = Math.min(8, Math.floor(roofArea / 1100) + 1);
+    const nItem = Math.min(9, Math.floor(roofArea / 950) + 1);
     for(let k = 0; k < nItem; k++){
-      const t1 = phash(b.i, k, 1360), t2 = phash(k, b.i, 1361);
-      const cx = Math.round(pad + (wPx - pad * 2) * t1), cy = Math.round(pad + hBase * t2);
-      const kind = Math.floor(phash(b.i, k, 1369) * 9);
+      // v13: items must sit INSIDE the footprint — retry the hash a few
+      // times, skip if the roof keeps refusing (narrow/L-shaped lots)
+      let cx = 0, cy = 0, inside = false;
+      for(let a2 = 0; a2 < 6 && !inside; a2++){
+        cx = Math.round(pad + (wPx - pad * 2) * phash(b.i, k + a2 * 31, 1360));
+        cy = Math.round(pad + hBase * phash(k + a2 * 31, b.i, 1361));
+        inside = sfPtInPoly(P, cx, cy + hPx);
+      }
+      if(!inside) continue;
+      const kind = Math.floor(phash(b.i, k, 1369) * 13);
       if(kind === 0){ // mushroom vent
+        sfPropShadow(g, cx, cy, 2, 2.2);
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
         paEllipse(g, cx, cy - 1.5, 2, 1.4, ROOF[5]);
       } else if(kind === 1){ // AC unit: box + fan ring + grille
+        sfPropShadow(g, cx, cy, 3, 3.4);
         paR(g, cx - 3, cy - 2, 7, 5, shade(ROOF[3], 1.15));
         paR(g, cx - 3, cy - 2, 7, 1, ROOF[5]);
         paEllipse(g, cx, cy, 2, 1.6, ROOF[1]);
         paEllipse(g, cx, cy - 0.5, 1.3, 1, ROOF[2]);
         paPX(g, cx, cy - 1, ROOF[5]);
       } else if(kind === 2){ // pipe stack
+        sfPropShadow(g, cx, cy, 5, 1.6);
         paR(g, cx - 1, cy - 4, 2, 5, ROOF[1]);
         paEllipse(g, cx, cy - 4, 1.6, 1, ROOF[5]);
-      } else if(kind === 3){ // brick chimney + cap + drip shadow
+      } else if(kind === 3){ // brick chimney + cap + sun-cast shadow
+        sfPropShadow(g, cx, cy, 9, 2.6);
         paR(g, cx - 2, cy - 7, 5, 8, '#8a5a48');
         paR(g, cx - 2, cy - 7, 5, 1, '#c89078');
         paR(g, cx - 3, cy - 9, 7, 2, '#6a4034');
-        paR(g, cx + 2, cy + 1, 4, 2, 'rgba(20,14,8,0.3)');
       } else if(kind === 4){ // rooftop water tank — the SF skyline icon
-        paEllipse(g, cx + 3, cy + 3, 5, 2, 'rgba(20,14,8,0.3)');
+        sfPropShadow(g, cx, cy, 8, 4.5);
         for(const lx of [-3, 3]) rl(cx + lx, cy + 2, cx + lx * 0.6, cy - 2, '#5a4a3a');
         paEllipse(g, cx, cy - 3, 4.5, 3, '#7a5f45');
         paR(g, cx - 4.5, cy - 6, 9, 4, '#8a6f52');
@@ -768,7 +801,7 @@ function sfBldCanvas(b, wet){
         paEllipse(g, cx, cy - 8, 2, 1.4, '#6a5440');
       } else if(kind === 5){ // solar panel array: tilted dark glass + grid
         const pw2 = 12, ph2 = 6;
-        paR(g, cx - pw2 / 2 + 1, cy - ph2 / 2 + 3, pw2, ph2, 'rgba(20,14,8,0.25)');
+        sfPropShadow(g, cx, cy + 1, 3, 5);
         paR(g, cx - pw2 / 2, cy - ph2 / 2, pw2, ph2, '#1e3450');
         paR(g, cx - pw2 / 2, cy - ph2 / 2, pw2, 1, '#4a7ab0');
         for(let gx2 = 1; gx2 < 3; gx2++)
@@ -777,19 +810,66 @@ function sfBldCanvas(b, wet){
         rl(cx - 3, cy + ph2 / 2, cx - 3, cy + ph2 / 2 + 2, '#5a5a55');
         rl(cx + 3, cy + ph2 / 2, cx + 3, cy + ph2 / 2 + 2, '#5a5a55');
       } else if(kind === 6){ // roof hatch box
+        sfPropShadow(g, cx, cy, 4, 2.6);
         paR(g, cx - 2.5, cy - 3, 5, 4, shade(ROOF[3], 0.9));
         paR(g, cx - 2.5, cy - 3, 5, 1, ROOF[5]);
         paR(g, cx - 2, cy - 4, 4, 1, shade(ROOF[5], 0.9));
       } else if(kind === 7){ // antenna mast + crossbars
+        sfPropShadow(g, cx, cy + 1, 9, 1.4);
         rl(cx, cy + 2, cx, cy - 9, '#4a4a48');
         rl(cx - 3, cy - 5, cx + 3, cy - 5, '#4a4a48');
         rl(cx - 2, cy - 7, cx + 2, cy - 7, '#4a4a48');
         paPX(g, cx, cy - 9, '#c94040');
-      } else { // satellite dish on a stub pole
+      } else if(kind === 8){ // satellite dish on a stub pole
+        sfPropShadow(g, cx, cy, 4, 1.8);
         rl(cx, cy + 1, cx, cy - 3, '#6a6a66');
         paEllipse(g, cx - 1.5, cy - 4, 3, 2, '#d8d8d0');
         paEllipse(g, cx - 1.5, cy - 4.5, 2, 1.2, '#f0f0e8');
         rl(cx - 1.5, cy - 4, cx + 2, cy - 5.5, '#6a6a66');
+      } else if(kind === 9){ // pigeon flock pecking around a vent
+        const nB = 3 + Math.floor(phash(b.i, k, 1701) * 3);
+        for(let b2 = 0; b2 < nB; b2++){
+          const bx3 = Math.round(cx + (phash(b2, k, 1702) - 0.5) * 12);
+          const by3 = Math.round(cy + (phash(k, b2, 1703) - 0.5) * 8);
+          paPX(g, bx3 + 1, by3 + 1, 'rgba(20,14,8,0.25)'); // micro shadow
+          paPX(g, bx3, by3, phash(b2, k, 1704) < 0.2 ? '#c8c8c0' : '#4a4a52');
+          if(phash(b2, k, 1705) < 0.5) paPX(g, bx3 + 1, by3, '#3a3a42'); // wing
+        }
+      } else if(kind === 10){ // clothesline: posts + sagging line + laundry
+        const lx0 = cx - 7, lx1 = cx + 7, lyy = cy - 4;
+        sfPropShadow(g, cx, cy, 5, 4);
+        rl(lx0, cy, lx0, lyy - 2, '#6a6a66');
+        rl(lx1, cy, lx1, lyy - 2, '#6a6a66');
+        for(let s2 = 0; s2 <= 10; s2++){ // sag curve
+          const t2 = s2 / 10, sx3 = lx0 + (lx1 - lx0) * t2;
+          const sy3 = lyy - 2 + Math.round(Math.sin(t2 * Math.PI) * 1.6);
+          paPX(g, Math.round(sx3), sy3, '#3a3a38');
+        }
+        const cloth = ['#e8e0d0', '#7a94b8', '#c86a6a', '#e8e8f0'];
+        for(let c3 = 0; c3 < 3; c3++){
+          const t2 = 0.22 + c3 * 0.28;
+          const sx3 = Math.round(lx0 + (lx1 - lx0) * t2);
+          const sy3 = lyy - 1 + Math.round(Math.sin(t2 * Math.PI) * 1.6);
+          paR(g, sx3 - 1, sy3, 3, 3, cloth[Math.floor(phash(b.i, c3 + k, 1706) * 4)]);
+          paPX(g, sx3 - 1, sy3, '#f8f8f0'); // pin
+        }
+      } else if(kind === 11){ // roof garden: soil beds + green rows
+        const gw2 = Math.min(16, 8 + Math.floor(phash(b.i, k, 1707) * 8));
+        sfPropShadow(g, cx, cy, 1.5, gw2 * 0.4);
+        paR(g, cx - gw2 / 2, cy - 3, gw2, 7, '#6a5138');
+        paR(g, cx - gw2 / 2, cy - 3, gw2, 1, '#8a6f52');
+        for(let gx2 = 0; gx2 < Math.floor(gw2 / 4); gx2++){
+          const px4 = cx - gw2 / 2 + 2 + gx2 * 4;
+          paBlob(g, px4, cy - 1, 1.8, MAT.leaf[2]);
+          paBlob(g, px4, cy - 2, 1.3, MAT.leaf[3]);
+          if(phash(gx2, k, 1708) < 0.3) paPX(g, px4, cy - 3, '#d05040');
+        }
+      } else { // exhaust fan: curb + spinning dome + highlight
+        sfPropShadow(g, cx, cy, 3, 2.4);
+        paR(g, cx - 2, cy - 1, 5, 3, shade(ROOF[3], 1.1));
+        paEllipse(g, cx, cy - 2, 2.6, 2, '#9aa0a4');
+        paEllipse(g, cx - 0.5, cy - 2.5, 1.6, 1.2, '#c8ccd0');
+        paPX(g, cx - 1, cy - 3, '#eef0f2');
       }
     }
   }
@@ -1008,6 +1088,57 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
         paR(g, px3 + 2, ly3 + 1, 5, 2, 'rgba(20,14,8,0.28)'); // drip shadow
+      }
+    }
+
+    /* v13: gable dormers — little rooms punched through the slope. The
+       cheek wall is grounded on the lifted surface at its front line and
+       the mini gable cap climbs toward the main ridge; lit/shaded cheeks
+       follow the same sun as the roof faces. */
+    if(rk === 'gable' && roofArea > 1400){
+      const nDor = Math.min(3, Math.floor(roofArea / 2600) +
+        (phash(b.i, 31, 1710) < 0.45 ? 1 : 0));
+      const spanU = (RF.alongX ? wPx - pad * 2 : hBase) * 0.6;
+      for(const sgn of [-1, 1]){
+        for(let d2 = 0; d2 < nDor; d2++){
+          const u = (phash(b.i, d2 + (sgn > 0 ? 9 : 0), 1711) - 0.5) * spanU;
+          const w0 = sgn * RF.wMax * (0.3 + phash(d2, b.i + sgn * 3, 1712) * 0.22);
+          const dx5 = RF.alongX ? RF.cx + u : RF.cx + w0;
+          const dy5 = RF.alongX ? RF.cy + w0 : RF.cy + u;
+          if(!sfPtInPoly(P, dx5, dy5)) continue;
+          const gy5 = dy5 - hPx - sfRoofLift(RF, 'gable', dx5, dy5) * rise;
+          const lit5 = sgn < 0; // w<0 cheek faces the sun
+          const wc = shade(wallBase, lit5 ? 1.02 : 0.7);
+          sfPropShadow(g, dx5, gy5, 6, 3.2);
+          paR(g, dx5 - 3.5, gy5 - 5, 7, 6, wc);                    // cheek wall
+          paR(g, dx5 - 3.5, gy5 - 5, 7, 1, TRIM);                 // cap flashing
+          paEllipse(g, dx5, gy5 - 2.5, 1.8, 1.8, TRIM);           // arched sash
+          paR(g, dx5 - 1.8, gy5 - 2.5, 3.6, 3, TRIM);
+          paEllipse(g, dx5, gy5 - 2.5, 1.2, 1.2, '#7a94a8');
+          paR(g, dx5 - 1.2, gy5 - 2.5, 2.4, 2.6, '#7a94a8');
+          g.fillStyle = shade(lit5 ? shingle[4] : shingle[2], wetF);
+          g.beginPath();                                         // dormer gable
+          g.moveTo(dx5 - 4.5, gy5 - 5); g.lineTo(dx5 + 4.5, gy5 - 5);
+          g.lineTo(dx5, gy5 - 8.5); g.closePath(); g.fill();
+          rl(dx5 - 4.5, gy5 - 5, dx5, gy5 - 8.5, shingle[5]);
+          rl(dx5 + 4.5, gy5 - 5, dx5, gy5 - 8.5, shingle[5]);
+        }
+      }
+    }
+    // v13: skylight glass flashing on the sunward slope of gable/hip roofs
+    if(rk !== 'mansard'){
+      const nSk = Math.min(3, Math.floor(roofArea / 2400));
+      for(let s2 = 0; s2 < nSk; s2++){
+        const sx5 = pad + (wPx - pad * 2) * phash(b.i, s2, 1720);
+        const py5 = pad + hBase * phash(s2, b.i, 1721) + hPx; // P-space y
+        if(!sfPtInPoly(P, sx5, py5)) continue;
+        const w5 = RF.alongX ? py5 - RF.cy : sx5 - RF.cx;
+        if(rk === 'gable' && w5 >= -2) continue; // lit side only
+        const gy5 = py5 - hPx - sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', sx5, py5) * rise;
+        sfPropShadow(g, sx5, gy5, 1, 2.4);
+        paR(g, sx5 - 3, gy5 - 1, 6, 3.4, shade(shingle[1], 0.9)); // curb
+        paR(g, sx5 - 2.4, gy5 - 0.6, 4.8, 2.2, '#9ab4c4');        // glass
+        paPX(g, sx5 - 1, gy5, '#d8e8f0');                          // glint
       }
     }
   }

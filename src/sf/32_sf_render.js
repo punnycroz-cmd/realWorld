@@ -1675,6 +1675,56 @@ function sfRenderStreet(cw, ch){
           rpts.forEach((p, i2) => i2 ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
           ctx.closePath(); ctx.fill();
         }
+        // v13: gable dormers on the camera-facing slope — same hash recipe
+        // as the baked sprite, so top-down and street agree. Cheek wall
+        // stands on the lifted surface, gable cap climbs toward the ridge.
+        if(rk === 'gable'){
+          const roofAreaPx2 = b._area * SF_PXM * SF_PXM;
+          if(roofAreaPx2 > 1400){
+            const nDor = Math.min(3, Math.floor(roofAreaPx2 / 2600) +
+              (phash(b.i, 31, 1710) < 0.45 ? 1 : 0));
+            const aU = RFm.alongX ? [1, 0] : [0, 1];   // ridge axis
+            const wU = RFm.alongX ? [0, 1] : [1, 0];   // perpendicular
+            let uLo = 1e9, uHi = -1e9;
+            for(const p2 of P){
+              const u2 = RFm.alongX ? p2[0] : p2[1];
+              if(u2 < uLo) uLo = u2; if(u2 > uHi) uHi = u2;
+            }
+            for(const sgn of [-1, 1]){
+              // this slope's outward normal: does it face the camera?
+              const nwx = wU[0] * sgn, nwy = wU[1] * sgn;
+              if(nwx * -DX + nwy * -DY <= 0.05) continue;
+              const litD = sgn < 0;
+              for(let d2 = 0; d2 < nDor; d2++){
+                const u = (phash(b.i, d2 + (sgn > 0 ? 9 : 0), 1711) - 0.5) * (uHi - uLo) * 0.6;
+                const w0 = sgn * RFm.wMax * (0.3 + phash(d2, b.i + sgn * 3, 1712) * 0.22);
+                const dx5 = RFm.cx + aU[0] * u + wU[0] * w0;
+                const dy5 = RFm.cy + aU[1] * u + wU[1] * w0;
+                const zB = hm + liftM(dx5, dy5) * riseM;
+                const hw = 0.7, dh = 1.5;
+                const p1 = [dx5 - aU[0] * hw, dy5 - aU[1] * hw];
+                const p2 = [dx5 + aU[0] * hw, dy5 + aU[1] * hw];
+                fillProj([[p1[0], p1[1], zB], [p2[0], p2[1], zB],
+                          [p2[0], p2[1], zB + dh], [p1[0], p1[1], zB + dh]],
+                         night ? '#262220'
+                           : shade(SF_WALL_COLS[Math.floor(phash(b.i, 7, 1300) * SF_WALL_COLS.length)],
+                                   litD ? 1.02 : 0.7));
+                // dormer gable cap: triangle peaking toward the main ridge
+                fillProj([[p1[0], p1[1], zB + dh], [p2[0], p2[1], zB + dh],
+                          [dx5 - wU[0] * sgn * 1.1, dy5 - wU[1] * sgn * 1.1, zB + dh + 0.8]],
+                         night ? '#241f1c'
+                           : shade(litD ? shingR[4] : shingR[2], wetG ? 0.78 : 1));
+                // sash window on the cheek, kept proud of the wall plane
+                const wo = 0.05 * sgn;
+                fillProj([[dx5 - aU[0] * 0.3 - wU[0] * wo, dy5 - aU[1] * 0.3 - wU[1] * wo, zB + 0.45],
+                          [dx5 + aU[0] * 0.3 - wU[0] * wo, dy5 + aU[1] * 0.3 - wU[1] * wo, zB + 0.45],
+                          [dx5 + aU[0] * 0.3 - wU[0] * wo, dy5 + aU[1] * 0.3 - wU[1] * wo, zB + 1.15],
+                          [dx5 - aU[0] * 0.3 - wU[0] * wo, dy5 - aU[1] * 0.3 - wU[1] * wo, zB + 1.15]],
+                         night ? '#1c2a34' : '#7a94a8');
+              }
+            }
+          }
+        }
       } else if(rpts.length > 2){
         let yMin = Infinity, yMax = -Infinity;
         for(const p of rpts){ yMin = Math.min(yMin, p[1]); yMax = Math.max(yMax, p[1]); }
@@ -1732,7 +1782,7 @@ function sfRenderStreet(cw, ch){
           : 0;
         const kind = pitched
           ? (phash(b.i, k, 1511) < 0.7 ? 5 : 2)
-          : Math.floor(phash(b.i, k, 1507) * 5);
+          : Math.floor(phash(b.i, k, 1507) * 7); // v13: +solar, +roof garden
         const base = pr(fx, fy, hm + zR);
         if(!base || base[2] > 200) continue;
         const sc = F / base[2];
@@ -1792,6 +1842,50 @@ function sfRenderStreet(cw, ch){
           ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, bh2);
           ctx.fillStyle = night ? '#1c1a18' : shade(ROOF[1], 0.9);
           ctx.beginPath(); ctx.ellipse(base[0], base[1] - bh2 / 2, bw2 * 0.28, bh2 * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+        } else if(kind === 5){ // v13 solar array: slab tilted toward the sun
+          // sun sits toward (-SF_SUN.x,-SF_SUN.y); the high edge of each
+          // panel points that way, so the glass flashes the sky
+          const tx2 = -SF_SUN.x, ty2 = -SF_SUN.y;
+          const tl = Math.hypot(tx2, ty2) || 1;
+          const ax2 = tx2 / tl, ay2 = ty2 / tl;      // tilt axis (upslope)
+          const px2 = -ay2, py2 = ax2;               // across the panel
+          const c4 = [[-1.1, -0.8, 0.15], [1.1, -0.8, 0.15],
+                      [1.1, 0.8, 0.6], [-1.1, 0.8, 0.6]];
+          ctx.beginPath();
+          let ok = true, st = false;
+          for(const [e1, e2, dz] of c4){
+            const q = pr(fx + px2 * e1 + ax2 * e2, fy + py2 * e1 + ay2 * e2, hm + zR + dz);
+            if(!q){ ok = false; break; }
+            st ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); st = true;
+          }
+          if(ok){
+            ctx.closePath();
+            ctx.fillStyle = night ? '#141c26' : '#1e3450'; ctx.fill();
+            ctx.strokeStyle = night ? '#1e2c3c' : '#4a7ab0';
+            ctx.lineWidth = Math.max(1, 0.06 * sc); ctx.stroke();
+            // mid rail line
+            const m1 = pr(fx + px2 * -1.1, fy + py2 * -1.1, hm + zR + 0.37),
+                  m2 = pr(fx + px2 * 1.1, fy + py2 * 1.1, hm + zR + 0.37);
+            if(m1 && m2){ ctx.beginPath(); ctx.moveTo(m1[0], m1[1]); ctx.lineTo(m2[0], m2[1]); ctx.stroke(); }
+          }
+        } else if(kind === 6){ // v13 roof garden bed: soil + leaf rows
+          const gq = [[-0.9, -0.6], [0.9, -0.6], [0.9, 0.6], [-0.9, 0.6]];
+          ctx.beginPath();
+          let ok = true, st = false;
+          for(const [e1, e2] of gq){
+            const q = pr(fx + e1, fy + e2, hm + zR + 0.12);
+            if(!q){ ok = false; break; }
+            st ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); st = true;
+          }
+          if(ok){
+            ctx.closePath();
+            ctx.fillStyle = night ? '#1c2018' : '#5a4632'; ctx.fill();
+            for(let g2 = -1; g2 <= 1; g2++){
+              const q = pr(fx + g2 * 0.5, fy, hm + zR + 0.3);
+              if(q){ ctx.fillStyle = night ? '#243020' : '#4e7a44';
+                     ctx.beginPath(); ctx.arc(q[0], q[1], Math.max(1, 0.22 * sc), 0, Math.PI * 2); ctx.fill(); }
+            }
+          }
         } else { // satellite dish
           const pt2 = pr(fx, fy, hm + zR + 1.2);
           if(!pt2) continue;
