@@ -1,4 +1,4 @@
-# Memory Model Spec v0.2 — implementable human-like memory for RW characters
+# Memory Model Spec v0.3 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -26,6 +26,10 @@ MemoryRecord = {
   "id": "m_<uuid>",
   "type": "episodic" | "semantic",
   "createdDay": 412,                  // world day index
+  "encodeAge": 34.6,                  // v0.3: character's age AT ENCODING —
+                                      // era effects (amnesia ramp, bump
+                                      // window) key on this; capacity
+                                      // effects key on age_now
   "lastAccessDay": 418,
 
   // CONTENT
@@ -104,6 +108,17 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
 - `predictionError` — |expected − actual| outcome surprise.
 - `spacingBonus` — if this event re-activates an existing memory beyond
   `spacing_min_gap` days, boost THAT record (§6.4), don't duplicate.
+- **Childhood-amnesia ramp (v0.3):** `E *= amnesia_ramp(encodeAge)` where
+  `amnesia_ramp(a) = clamp(a/7, 0.05, 1)` — immature encoding machinery
+  produces weak traces before ~7 (Rubin 2000; Bauer & Larkina 2014). Such
+  records also keep a permanent `amnesia_decay_mult` on their β (§4.1):
+  early memories exist in childhood but are erased *by* childhood.
+- **Associative binding (v0.3):** each `links` edge and each cross-field
+  cueVector binding (event↔place, event↔person pairings) is formed with
+  probability `link_p · assoc_mult(age_now)` — associative-deficit
+  hypothesis (Naveh-Benjamin 2000): older characters encode items fine
+  but bind them weakly, mechanically producing source/context loss and
+  cross-episode grafting downstream.
 - **Sleep modifier:** at end of each world day, consolidation pass multiplies
   all same-day `encodingE` by `sleepFactor` (param; poor sleep ≈ 0.7–0.85,
   good ≈ 1.0–1.1). (R§2, R§8.)
@@ -139,9 +154,18 @@ R(t) = E_adj · (1 + t/τ)^(-β) + floor
   zero (they never fully die, they go quiet). NOTE (Talarico & Rubin 2003):
   high arousal does NOT change β — flashbulb details decay on the same curve
   as ordinary ones; arousal only raises floor and confidence.
-- **Era bonus:** memories whose `cueVector.era` falls in the character's
-  reminiscence-bump window (formed at character age 15–25) use `β·0.6`
-  permanently (R§7).
+- **Era terms (v0.3 — keyed on `encodeAge`, see age-development.md §§2–3):**
+  - *Reminiscence bump:* `β *= bump_gain(encodeAge)` permanently, where
+    `bump_gain(a) = bump_beta_mult + (1−bump_beta_mult)·(1−cos(π·clamp((a−bump_lo)/(bump_hi−bump_lo))))`
+    — a raised cosine over [bump_lo 10, bump_hi 30] peaked near
+    `bump_peak` (~15). Applied **only if** `bump_valence_gate` passes:
+    `valence > 0 OR selfRelevance > bump_self_thresh` — the empirical bump
+    is for positive/important memories; sad memories show no bump
+    (Berntsen & Rubin 2004; Rubin & Berntsen 2003). Per-character
+    `bump_peak` jitter ±3y (Janssen et al. 2005: earlier for women).
+  - *Childhood records:* if `encodeAge < amnesia_exit` (7), permanently
+    `β *= amnesia_decay_mult` (1.8) — the exponential forgetting regime
+    of childhood (Bauer & Larkina 2013), erased by ~adulthood.
 - **β_episodic ≈ 0.5 is calibrated**: τ=1.2d, β≈0.47 reproduces Ebbinghaus
   1885 / Murre & Dros 2015 (21% savings @ 31d) for meaningless unrehearsed
   material — the decay floor for episodic content. See
@@ -365,6 +389,14 @@ This is THE rumor-propagation hook: a rumor is a `beliefStatus:"rumor"` record
 that can contaminate witnessed memories it resembles. (R§6 misinformation
 effect — the most replicated result in memory science.)
 
+**Two distortion channels, opposite age gradients (v0.3):**
+`misinfo_suscept` is the *suggestion* channel — U-shaped over the lifespan
+(high in children, low in adults, high again in the old). `confab_fill` is
+the *gist* channel — monotonic rise from childhood into old age, because
+meaning-connection machinery strengthens with development (Brainerd &
+Reyna developmental reversal; Koutstaal & Schacter 1997). Do not couple the
+two params — they must be free to diverge (age-development.md §4, P19).
+
 ### 6.4 Source-tag decay and gist abstraction
 
 `source.confidenceInSource` decays at β_source (fast, ~2× episodic gist rate).
@@ -423,9 +455,29 @@ MemoryParams = {
   // v0.1 additions (forgetting-curve calibration, forgetting-curves.md §3)
   "consol_window_days": 1.0, "consol_beta_mult": 0.5,
   "permastore_age": 180, "permastore_thresh": 0.25,
-  "face_ceiling": 0.67, "stress_thresh": 0.8, "stress_encode_loss": 0.31
+  "face_ceiling": 0.67, "stress_thresh": 0.8, "stress_encode_loss": 0.31,
+  // v0.3 additions (age-development calibration, age-development.md §§6–8)
+  "amnesia_exit": 7.0,         // encodeAge below → amnesia_decay_mult forever
+  "amnesia_decay_mult": 1.8,   // permanent β mult on childhood records
+  "bump_lo": 10, "bump_hi": 30, "bump_peak": 16,   // encodeAge window (±3y jitter)
+  "bump_valence_gate": true,   // bump only for positive/self-relevant records
+  "bump_self_thresh": 0.6,
+  "link_p": 0.75,              // prob an associative edge forms at encoding
+  "w_emo_pos": 1.0, "w_emo_neg": 1.0,   // valence-asymmetric arousal weight
+                                       // (older: pos 1.25 / neg 0.85)
+  "pm_self": 0.8               // self-initiated intention recall (optional §9)
 }
 ```
+
+**Continuous age evaluation (v0.3):** age-sensitive params are no longer
+fixed per archetype — each is a piecewise-linear function of `age_now =
+(worldDay − birthWorldDay)/365` (capacity params: enc_base, beta_*,
+theta, misinfo_suscept, drift_p, confab_fill, neg_affect_decay, link_p,
+intrusion_thresh, w_emo, w_self, att_min, pm_self) with the knot table in
+`age-development.md` §6, evaluated at runtime and re-anchored yearly. Era
+params use `encodeAge` on the record instead. The profile archetypes are
+named knots on these curves — individual profiles = curve value ⊕
+modifiers ⊕ jitter, unchanged.
 
 Suggested clamp ranges are in `character-memory-profiles.md` §0 — implementers
 should validate params into those ranges at load.
@@ -450,9 +502,13 @@ should validate params into those ranges at load.
 
 ## 9. Non-goals for v0
 
-No procedural-skill dynamics, no prospective memory (remembering intentions) —
-flagged for the roadmap. No language-level rumor simulation; distortion is
-field-level. No neural plausibility — functional equivalence only.
+No procedural-skill dynamics. No language-level rumor simulation; distortion
+is field-level. No neural plausibility — functional equivalence only.
+Prospective memory moved from non-goal to **optional extension** in v0.3:
+`Intention = {action, triggerCues, dueDay}` — event-cued intentions resolve
+through the ordinary §5 formula (older adults unimpaired); uncued deadlines
+resolve via `pm_self` probability (older adults impaired). This reproduces
+the age-PM paradox for free. See `age-development.md` §7.
 
 ## 10. Interface contract for game-systems
 
@@ -466,5 +522,6 @@ field-level. No neural plausibility — functional equivalence only.
   suppression of unspoken fields (v0.2, §5.8)
 - `dailyMemoryTick(charId, sleepQuality)` → decay/interference/consolidation
 - `memorySnapshot/Load(charId)` → serialize the two stores + params
+- `rememberIntention(charId, intention)` → optional PM extension (§9, v0.3)
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors
   are just records with `source.kind:"told_by"` + `beliefStatus:"rumor"`.

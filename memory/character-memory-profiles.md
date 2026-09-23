@@ -53,6 +53,23 @@ never copying raw.
 | intrusion_thresh | 0.5 | 0.95 | lower = more spontaneous recalls (v0.2) |
 | resurrect_thresh | 0.7 | 0.95 | cue level to un-archive records (v0.2) |
 | plist_suppress | 0.0 | 0.15 | part-list cuing suppression (v0.2) |
+| amnesia_exit | 5 | 9 | encodeAge below → permanent amnesia_decay_mult (v0.3) |
+| amnesia_decay_mult | 1.2 | 3.0 | childhood exponential-regime β mult (v0.3) |
+| bump_lo / bump_hi | 8 / 20 | 15 / 40 | encodeAge window edges (v0.3) |
+| bump_peak | 12 | 22 | ±3y per-character jitter (v0.3) |
+| bump_self_thresh | 0.4 | 0.8 | valence-gate fallback for bump (v0.3) |
+| link_p | 0.3 | 0.95 | associative-edge formation prob (v0.3) |
+| w_emo_pos / w_emo_neg | 0.3 | 2.0 | valence-split arousal weight (v0.3) |
+| pm_self | 0.2 | 0.95 | self-initiated intention recall (v0.3, optional) |
+
+**v0.3 continuous-curves note:** the archetypes below are now *named knots*
+on the piecewise-linear age curves in `age-development.md` §6 — the runtime
+evaluates capacity params at the character's actual `age_now`, not the band
+label. The block values are the curve's values at the archetype's central
+age; era effects (amnesia ramp, bump window) are applied per-record from
+`encodeAge`, not from the profile. The two distortion channels now have
+opposite age gradients (suggestion U-shaped, gist monotonic — see
+`age-development.md` §4).
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -69,7 +86,8 @@ decline while β_semantic stays flat.
 High encoding of emotionally/self-relevant events, poor source monitoring,
 very high suggestibility, weak metamemory (R§7 childhood). Childhood-amnesia
 window: memories formed before character-age ~5 start with accuracy·0.3 and
-decay at 2× (usually gone by adulthood).
+decay at 2× (usually gone by adulthood). [v0.3 supersedes: implemented as
+`amnesia_ramp(encodeAge)` on E + permanent `amnesia_decay_mult` — age-development.md §2]
 
 ```
 enc_base 0.30 · att_min 0.20 (distractible — less is gated in)
@@ -158,9 +176,15 @@ sensory_age_slope 1.3 · intrusion_thresh 0.65 (drifts into the past often)
 plist_suppress 0.08 (easily steered by what others said)
 rif_k 0.08 · retell_boost 0.35 (much-retold old stories stay sharp — and drifted)
 drift_p 0.14 · misinfo_suscept 0.50 · confab_fill 0.8 · bump_beta_mult 0.5
+link_p 0.45 (associative deficit — knows *that*, not *with whom/where*)
+w_emo_pos 1.25 · w_emo_neg 0.85 (positivity at encoding, SST)
+pm_self 0.45 (event-cued intentions fine; bare deadlines slip)
 ```
 Emergent: recent events evaporate; youth-era memories are vivid, polished by
 retelling, and partly invented; warm memories outlast grievances.
+[v0.3: the v0 numbers above read as knots — a 70-year-old evaluates
+`beta_episodic`, `theta`, `misinfo_suscept` etc. from the §6 curve in
+age-development.md, which lands near these values at age ~70.]
 
 ## 2. Cross-cutting modifiers (add/multiply onto the archetype)
 

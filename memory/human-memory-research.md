@@ -282,6 +282,24 @@ The single largest individual-difference variable for RW's cast.
 **Model consequence:** age bands change *parameter values*, not the model.
 Same equations; different weights. See profiles doc.
 
+**v3 calibration (full derivations in `age-development.md`):** two-age
+split — capacity params key on age_now, era params (amnesia ramp, bump)
+on encodeAge. Rubin 2000 (11k memories): density rises from birth to ~7,
+first-memory mean ≈3.5. Bauer & Larkina 2013/2014: children fit an
+exponential, adults a power law; 5–7y recall >60% of early events, 8–9y
+<40% → `amnesia_ramp` on E + permanent `amnesia_decay_mult`. Rubin 1986 /
+Janssen et al. 2005 / Berntsen & Rubin 2004: bump window 10–30 peaked
+~15 (earlier for women), and **valence-gated** — positive/important
+memories bump, sad ones don't → `bump_gain` raised-cosine +
+`bump_valence_gate`. Naveh-Benjamin 2000 associative deficit → `link_p`·
+`assoc_mult(age)` on edge/binding formation. Brainerd & Reyna
+developmental reversal → split suggestion (U: misinfo_suscept) from gist
+(monotonic: confab_fill) channels. Spencer & Raz 1995 → source fragility
+U-shaped. Phillips et al. 2008 + 2024 meta → prospective-memory paradox,
+optional `Intention`/`pm_self` extension. Mather & Carstensen 2005 →
+`w_emo_pos`/`w_emo_neg` split. Continuous knot table replaces band
+lookup (spec v0.3).
+
 ---
 
 ## 8. Individual differences (within-age variation)
