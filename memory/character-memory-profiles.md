@@ -343,6 +343,30 @@ never copying raw.
 | iso_recovery | 20 | 180 | days to heal after contact resumes (v2.8) |
 | med_theta_up | 0.0 | 0.15 | θ lift, med_antichol overlay (v2.8) |
 | med_enc_loss | 0.0 | 0.15 | enc_base cut, med_antichol overlay (v2.8) |
+| fear_detail_gain | 0.0 | 0.4 | fear → extra veridicality (v2.9) |
+| anger_gist_bias | 0.0 | 0.4 | anger → gist/heuristic lean (v2.9) |
+| disgust_gain | 0.0 | 0.4 | disgust cond-speed/extinct-resist (v2.9) |
+| arousal_opt | 0.4 | 0.9 | inverted-U peak, assoc fields (v2.9) |
+| arousal_curv | 0.0 | 2.0 | quadratic downturn past optimum (v2.9) |
+| emo_update_k | 0.0 | 0.5 | outcome-appraisal valence rewrite (v2.9) |
+| odor_cue_gain | 1.0 | 2.5 | smell-cue drive multiplier (v2.9) |
+| odor_emo_gain | 0.0 | 0.4 | smell-cued reported-arousal bonus (v2.9) |
+| odor_age_relief | 0.0 | 1.0 | smell recency-term relief (v2.9) |
+| anniv_gain | 0.0 | 0.5 | date-match intrusion drive (v2.9) |
+| anniv_window | 3 | 45 | days ± around day-of-year (v2.9) |
+| anniv_thresh | 0.3 | 0.9 | arousal floor for date-cued records (v2.9) |
+| trust_neg_gain | 0.2 | 0.9 | person-cue neg acquisition (v2.9) |
+| trust_pos_gain | 0.05 | 0.6 | person-cue pos acquisition; ≤ trust_neg (v2.9) |
+| person_cond_decay_mult | 0.2 | 1.0 | person entries decay slower (v2.9) |
+| coh_gain | 0.0 | 0.15 | coherence per structured retell (v2.9) |
+| coh_intrusion_k | 0.0 | 1.0 | coherence→intrusion scaling (v2.9) |
+| coh_strip_gate | 0.3 | 0.8 | coherence needed for trauma strip (v2.9) |
+| wf_gain | 0.0 | 1.0 | threat-object field boost (v2.9) |
+| wf_loss | 0.0 | 0.6 | central-field capture cost (v2.9) |
+| recall_mood_pull | 0.0 | 0.15 | retrieved valence nudges mood (v2.9) |
+| nostalgia_gain | 0.0 | 0.3 | restorative pull, qualifying records (v2.9) |
+| hc_gap_loss | 0.0 | 0.6 | cold-state arousal-report compression (v2.9) |
+| hc_gap_thresh | 0.2 | 0.9 | mood−valence mismatch gate (v2.9) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -1129,3 +1153,34 @@ variation enters through traits, records, and context instead:
   negative — she underestimates a monitoring system that still works.
   The loneliness-prone elder (widowed, low `social`) is a *roster*
   fact feeding the `isolation` overlay, not a params fact.
+
+## 17. v2.9 note — emotional-memory III: which dials are personality
+
+- **`emotion` is a record tag, not a param** — world-builder bibles can
+  bias which emotions a character *experiences* (event-side), but the
+  memory consequences (`fear_detail_gain`, `anger_gist_bias`,
+  `disgust_gain`) are machinery — keep at defaults unless a bible
+  explicitly describes an atypical appraisal style (e.g., a
+  chronically angry character might push `anger_gist_bias` to 0.25:
+  his grievances are reconstructed, not kept).
+- **`trust_*` is the cast-relevant dial.** `trust_neg_gain`/
+  `trust_pos_gain`/`person_cond_decay_mult` are where personality
+  legitimately enters: the suspicious landlord pins trust_neg_gain
+  high AND trust_pos_gain low (trust arrives on foot, leaves on
+  horseback — harder); the gregarious barman flips the ratio modestly
+  (never above parity — the asymmetry is human, not cynicism). Loads
+  on `distrust`/`neurot` traits where present.
+- **`coh_gain`/`coh_intrusion_k`** — machinery; per-character variation
+  is emergent (who tells their story, to whom, how fully). A secretive
+  bible character heals slower because she retells less, not because
+  her coh_gain is pinned low — do not double-count.
+- **`anniv_*`, `odor_*`, `wf_*`, `arousal_opt/curv`, `hc_gap_*`,
+  `emo_update_k`** — machinery with age knots only (spec §7 note);
+  never pin per-character.
+- **`recall_mood_pull`/`nostalgia_gain`** — mild personality latitude:
+  a sentimental bible character may take nostalgia_gain 0.2; a
+  stoic takes recall_mood_pull 0.02. Keep small — these are feedback
+  edges; large values create mood spirals.
+- **Deliberate nulls:** discrete-emotion multipliers, `emo_update_k`,
+  `odor_*`, `anniv_*`, `wf_*` carry NO age knots (spec §7) — touching
+  them breaks P274/P276/P277/P278/P281.

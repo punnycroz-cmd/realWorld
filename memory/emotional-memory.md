@@ -1004,3 +1004,670 @@ cheap, timing-based, and falsifiable. (P162)
 - Nothing here models *anticipatory* affect (dread of a future event
   altering encoding of the wait) — Intention records (§9) could carry
   an affect tag; flagged as open loop for a future version.
+
+---
+
+# Part III — v29: the feeling's grammar (2026-09-23, third pass)
+
+Part I built the record machinery (consolidation, blink, valence-fidelity,
+stress timing, conditioned affect, trauma phenotype, mood bleed). Part II
+built the tag layer (peak-end birth, sleep stripping, item-context
+tradeoff, verbal dampening, regulation traits, generalization, FAB
+boundary, contagion, reconsolidation extinction). Part III deepens what
+both left flat: **the tag was a valence-arousal pair** — real feeling is
+*discrete* (§26), **the arousal curve was linear** — it is an inverted-U
+whose two halves are different mechanisms (§27), **the tag was frozen at
+birth** — later outcomes rewrite remembered emotion (§28), **cues were
+modality-blind** — smell is privileged (§29), **the calendar was inert** —
+dates themselves are cues (§30), **persons were ordinary cues** — trust
+conditions asymmetrically (§31), **trauma could never heal** — narrative
+coherence repairs it (§32), **threat had no object** — weapon focus (§33),
+**retrieval was one-way** — recall feeds back into mood (§34), and
+**self-report assumed felt access** — hot-cold gaps compress it (§35).
+Then spec delta (§36), age guidance (§37), probes P274–P285 (§38), honest
+limits (§39).
+
+Tag convention unchanged: **[CONSENSUS] / [DEBATED] / [HYPOTHESIS]**.
+
+---
+
+## 26. Valence-arousal is not enough — the discrete-emotion tag
+
+Two events can share `valence −0.7, arousal 0.7` and be remembered
+differently: being *afraid* of the landlord and being *furious* at him are
+different records. The appraisal-tendency framework:
+
+- Lerner & Keltner 2000, 2001 (JPSP): emotions differ on appraisal
+  dimensions — **certainty** and **control** — and carry their appraisal
+  into downstream cognition. Fear = high uncertainty, situational
+  control → vigilant, detail-preserving processing. Anger = high
+  certainty, individual control → heuristic, gist-leaning processing —
+  anger behaves cognitively like happiness despite being negative.
+- Kensinger & Schacter's valence-fidelity split (§3) is largely an
+  appraisal effect in disguise: the "negative = veridical" advantage is
+  strongest for *fear/sadness*; anger drifts toward the positive/gist
+  pattern (Levine & Pizarro 2004, J. Exp. Soc. Psychol. review;
+  Levine & Burgess 1997 — appraisals at encoding mediate which details
+  survive).
+- Disgust is its own channel: disgust enhances memory for the
+  disgusting object specifically and resists extinction longer than
+  matched fear (Chapman, Johannes, Poppenk, Moscovitch & Anderson 2013
+  — disgust boosts recognition; Olatunji's contamination literature —
+  disgust conditioned responses are extinction-resistant).
+
+**[CONSENSUS]** on appraisal-dimension differences;
+**[DEBATED]** exact memory consequence per emotion beyond the
+fear↔anger contrast.
+
+**Spec consequence (§2 — optional discrete tag, additive on
+valence/arousal):**
+
+```
+event may carry emotion ∈ {fear, anger, sadness, joy, disgust, shame,
+                           pride, neutral}  // absent → infer from
+                           valence/arousal (neg+high arousal → fear
+                           default); tag is stored, not recomputed
+on encode (emotion-specific multipliers on existing terms):
+    fear:    neg_fidelity path strengthened —
+             neg_fidelity_eff = neg_fidelity·(1 − fear_detail_gain)
+             // fear_detail_gain ≈ 0.15 — more veridical than
+             // generic-negative
+    anger:   pos-gist direction — drift_p_eff and lure_accept use
+             (1 + anger_gist_bias)   // ≈0.15 — the certain, heuristic
+             // negative: remembered mean, remembered loosely
+    disgust: cond_gain_eff = cond_gain·(1 + disgust_gain) AND
+             extinct_suppress_eff = extinct_suppress·(1 − disgust_gain)
+             // disgust_gain ≈ 0.15 — disgust conditions faster and
+             // extinguishes slower
+    shame:   treated as negative + selfRelevance floor ≥0.7 (it is the
+             self-conscious emotion — mnemic-neglect interactions
+             already in §4.10)
+```
+
+Emergent and gameplay-legible: two characters leave the same rent
+meeting — the frightened one keeps the room's details and the exact
+words; the furious one keeps *a conviction* ("he threatened me") that
+is confidently reconstructed. Their stories diverge in different
+directions from the same fact base — which is what witness
+disagreement actually looks like. (P274)
+
+---
+
+## 27. The arousal curve bends — inverted-U on the hippocampal channel
+
+`w_emo·arousal` has been linear since v0, plus threshold effects at
+`emo_blink_thresh`/`trauma_thresh`. The dose-response is curved:
+
+- Yerkes & Dodson 1908; Diamond, Campbell, Park, Halonen & Zoladz 2007
+  (Brain Res. Rev.): hippocampal/prefrontal-dependent memory follows an
+  **inverted-U** in glucocorticoid/catecholamine load — moderate arousal
+  helps, extreme arousal impairs the *associative/contextual* channel.
+- The amygdala item-channel does NOT share the downturn: at extreme
+  arousal, core/item memory is still enhanced while context collapses
+  (Payne, Jackson et al. 2007 — stress at encoding: central item spared,
+  peripheral/context impaired; consistent with §15's graded tradeoff).
+- Andreano & Cahill 2006: the curve's peak and the size of the
+  post-peak downturn differ by sex and hormonal state — keep this as
+  trait scatter, not a sex constant (modifier-delta business).
+
+**[CONSENSUS]** on the inverted-U shape for associative/contextual
+memory; the resolution "item channel exempt, context channel bends" is
+the standard reconciliation and is what we implement.
+
+**Spec consequence (§2 — replace the linear arousal term inside E for
+*contextual fields only*):**
+
+```
+arousal_eff(field) =
+    arousal                                          // core/item fields:
+                                                     //   who/what, tags
+    arousal·(1 − arousal_curv·max(0, arousal − arousal_opt)²)
+                                                     // associative fields:
+                                                     //   when, links,
+                                                     //   source, place-detail
+arousal_opt ≈ 0.65;  arousal_curv ≈ 0.5
+```
+
+At arousal 1.0 the associative term is `1 − 0.5·(0.35)² ≈ 0.94·` —
+deliberately gentle *at the top of the range*: the literature's strong
+downturn sits beyond the sim's calibrated arousal scale, and §15's
+`emo_assoc_loss` already carries most of the graded damage. This term
+exists to make the *shape* non-monotonic (P275) and to cap the absurd
+corner case (arousal-1.0 event encoding perfect context). If a build
+wants the strong downturn, raise `arousal_curv` toward 2.0 — the clamp
+allows it.
+
+---
+
+## 28. Later outcomes rewrite remembered emotion
+
+The affect tag has been written at birth and only faded since. Levine's
+program shows remembered emotion is *reconstructed* — and the
+reconstruction is pulled by what you believe about the event NOW:
+
+- Levine 1997 (J. Exp. Psychol. Gen., Ross Perot supporters): after
+  Perot re-entered the race and the election resolved, supporters'
+  recall of their *July emotions* was distorted toward their *current
+  appraisal* of him — those who had forgiven him remembered being less
+  angry than they had reported feeling at the time.
+- Levine, Prohaska, Burgess, Rice & Laulhere 2001 (Cogn. & Emot., O.J.
+  verdict): same design, same result at 2 months and >1 year —
+  remembered happiness/anger tracked appraisal *change*, and the
+  greater the appraisal shift the less stable the emotion memory.
+- Levine & Bluck 1997 (Psych. Aging): the effect is age-moderated —
+  older adults who disengaged from the thwarted goal showed reduced
+  remembered sadness; current appraisal, not past feeling, is what was
+  retrieved.
+- Related but distinct: §6.16's `hindsight_k` rewrites the remembered
+  *belief* ("I knew it all along"); this clause rewrites the remembered
+  *feeling*.
+
+**[CONSENSUS]** — appraisal-driven reconstruction of past emotion is
+replicated across event classes.
+
+**Spec consequence (§5.9 reconsolidation amendment + §6.17):**
+
+```
+when an outcome event o resolves record r (linked via §4.13/§6.16
+    resolution edges, or same people+topic with o.valence tag and
+    r flagged open_outcome):
+    on next retrieval of r:  r.valence += emo_update_k·(v_current −
+        r.valence) where v_current = appraised valence of the resolved
+        arc (o.valence for self-relevant r; attenuated by fab_self_gate
+        as in §19)
+    emo_update_k ≈ 0.2 per qualifying retrieval — slow creep, not a
+    snap; arousal tag untouched (the intensity is remembered truer
+    than the sign — Levine 1997 found sign/intensity drift asymmetric)
+```
+
+Emergent: she remembers being *devastated* by the breakup — except the
+breakup turned out fine, so the memory quietly re-colors to "upset."
+Characters' accounts of their own emotional history drift toward the
+present without any record-level distortion of facts. The divorcee who
+thrived genuinely misremembers how bad it felt. (P276)
+
+---
+
+## 29. Smell is a privileged cue — the Proust channel
+
+`sensory_age_slope` (v0.2) already lets sensory cues reach older
+memories; the modality split inside "sensory" is real:
+
+- Chu & Downes 2000a (Chem. Senses) review; 2000b (Cognition, "Long
+  live Proust"): odor-cued autobiographical memories peak at **age
+  6–10** — earlier than the word/label-cued bump (11–25). Odor reaches
+  *childhood* that other cues don't.
+- Chu & Downes 2002 (Mem. Cogn., "Proust nose best"): odors are better
+  cues than matched verbal/visual cues — more emotional, more vivid,
+  less rehearsed (odor-evoked AMs feel like time travel partly because
+  they haven't been retold to death).
+- Willander & Larsson 2006, 2007: odor-cued memories are older and more
+  emotional; the effect survives controlling for cue specificity.
+- Herz & Schooler 2002; Herz 2004: odor-evoked memories are rated more
+  emotional than visually-evoked ones of the same event — the amygdala
+  sits ~two synapses from the olfactory bulb; the affect tag arrives
+  before the narrative does.
+- Mechanistic rider: odors are poorly named — `sensory_mismatch_pen`
+  already handles wrong-sensory cues; the naming poverty means odor
+  cues are *low-fan* (§5.4 fan effect): one smell tends to point at one
+  episode, which is half the diagnosticity story (§5.2).
+
+**[CONSENSUS]** that odor cues skew older, more emotional, less
+rehearsed; **[DEBATED]** whether odors are *more accurate* — probably
+not (Herz: emotional, not veridical).
+
+**Spec consequence (§5.2/§5.7 — modality field on sensory cues):**
+
+```
+cueVector sensory fields may carry modality ∈ {smell, sound, sight,
+    touch, taste}  (world-side tag; default sight)
+smell cues:  drive weight ×= odor_cue_gain (1.5);
+             encodeAge prior shifted earlier — when sampling the
+             ambient scan, smell cues can reach records below the
+             label-cued accessibility floor: treat cueMatch for smell
+             as if record age were computed from a 6–10y-weighted prior
+             (implement: smell cues ignore half the age-based drive
+             penalty — odor_age_relief = 0.5 multiplier on recency term)
+retrieved affect: a smell-cued retrieval returns reported_arousal
+             with +odor_emo_gain (0.15) on the §8 mood_bleed output —
+             the smell makes it *feel* closer than the picture does
+```
+
+Emergent: the smell of cilantro drops a character back twenty years to
+a kitchen the verbal cue "home" never reaches; the intrusive memory
+arrives already warm. Ambient NPCs can trigger this with a single tag
+on their schedule. (P277)
+
+---
+
+## 30. The calendar is a cue — anniversary intrusions
+
+`when` has only ever decayed or been estimated. Clinically, dates
+*retrieve*:
+
+- Morgan, Kingham, Nicolaou & Southwick 1998 (J. Trauma Stress): 2-year
+  follow-up, Gulf War veterans — 31% named their worst month as the
+  month of their war trauma; all PTSD cases showed anniversary
+  reactions.
+- Morgan, Hill, Fox, Kingham & Southwick 1999 (Am. J. Psychiatry):
+  6-year follow-up — anniversary reactions persisted above chance,
+  correlated with trauma exposure count; spouse reports corroborated
+  (and sometimes *detected reactions the veteran denied* — the date
+  moves mood before the person can say why).
+- Broader clinical consensus (VA National Center for PTSD): anniversary
+  reactions are real, typically transient, and include intrusive memory
+  + avoidance + numbing — i.e. a *retrieval* signature, not just a mood.
+- Mechanism framing for the sim: the calendar is an *implicit cue* —
+  day-of-year match drives retrieval drive without source awareness;
+  the character feels bad in March and only optionally connects it.
+
+**[CONSENSUS]** (rare for a clinical phenomenon — two prospective-ish
+longitudinal studies plus clinical observation).
+
+**Spec consequence (§5.7 ambient scan — a second involuntary trigger
+besides cue-overlap):**
+
+```
+for records with emotional.arousal ≥ anniv_thresh (0.6):
+    date_match = circular distance between now.day-of-year and
+                 record.when.day-of-year
+    if date_match ≤ anniv_window (14 days):
+        drive += anniv_gain·(1 − date_match/anniv_window)·arousal
+        anniv_gain ≈ 0.2 — fires even if no cue field matches C
+        (bypasses the ordinary cueMatch gate; this IS the cue)
+returned record: reconstruction runs normally, BUT the retrieval is
+    flagged cue_source:"date" — the character gets the feeling and the
+    content; whether they can attribute it to the anniversary is a
+    source-monitoring question (§6.10 machinery decides, unaided)
+```
+
+Emergent: the same week every year the character is brittle and
+doesn't know why; a roommate who knows the date can say it for them —
+the Morgan spouse effect, free. Positive anniversaries work too —
+where the record's valence is positive the same machinery produces the
+warm memorial mood (the first-day-we-met effect). (P278)
+
+---
+
+## 31. Trust conditions asymmetrically — persons as CondEntries
+
+CondEntries have been cue-generic. Persons deserve their own entry
+shape because person-perception valence is famously asymmetric:
+
+- Skowronski & Carlston 1989 (Psychol. Bull.): negativity bias in
+  impression formation — immoral behaviors are more diagnostic of
+  character than moral ones; one betrayal outweighs a ledger of
+  kindnesses in trait attribution.
+- Baumeister, Bratslavsky, Finkenauer & Vohs 2001 (Rev. Gen. Psychol.,
+  "Bad is stronger than good"): the broad review — bad events have
+  larger, longer-lasting psychological impact than matched good ones.
+- Reeder & Brewer attribution asymmetry: moral impressions update fast
+  negatively, slowly positively — a one-trial learning asymmetry.
+- The reverse-direction data exist too (positive impressions resist
+  revision less than negative ones do — i.e., negative person-tags are
+  stickier), which is what we model.
+
+**[CONSENSUS]** on the asymmetry direction; magnitudes are calibrated
+guesses **[HYPOTHESIS]**.
+
+**Spec consequence (§4.9 — person-cue CondEntries get their own
+rates):**
+
+```
+entries whose cue is a person (people-field match):
+    acquisition:  negative events → cond_gain_eff = trust_neg_gain (0.6,
+                  one betrayal nearly maxes the entry);
+                  positive events → cond_gain_eff = trust_pos_gain
+                  (0.2 — liking is built by repetition)
+    decay:        cond_decay_eff = cond_decay·person_cond_decay_mult
+                  (0.5) — person associations outlive place
+                  associations; you forgive the room before the man
+    extinction:   unchanged mechanics, but note that safeCount accrual
+                  on person cues = "repeatedly having fine interactions"
+                  — the natural repair loop for a broken trust tag
+    the emitted valence feeds BOTH C.affect (ambient dread/warmth)
+                  and PersonModel evaluation drift — the memory system
+                  supplies the affective tag; the social substrate
+                  decides what it means
+```
+
+Emergent: trust arrives on foot and leaves on horseback — a single
+arousal-0.8 betrayal writes a person-tag that months of decent
+behavior only partially suppress, and renewal means seeing him *in the
+old context* recharges it. The mechanic also quietly generates grudges
+and crushes without any social-system special-casing. (P279)
+
+---
+
+## 32. Trauma can heal — narrative coherence as the repair variable
+
+The §7 trauma phenotype is permanent by construction (floor, intrusion
+discount, re-stamped arousal). Clinically, what changes in recovery is
+*organization*, not strength:
+
+- Foa, Molnar & Cashman 1995 (J. Trauma Stress): rape narratives
+  across exposure therapy — organized thoughts increased, and
+  fragmentation-decrease correlated with symptom reduction.
+  **[DEBATED]** replication is mixed (Zoellner & Bittinger 2004
+  review; O'Kearney & Perrott 2006) — fragmentation-outcome
+  correlations are real but inconsistent; we model the consensus
+  *direction* with a modest gain.
+- Pennebaker & Seagal 1999: forming a coherent story is the proposed
+  active ingredient of expressive writing — converting the
+  sensory-bound trace into a narratable one.
+- Brewin et al. dual-representation framing (§7): therapy doesn't
+  delete the hot trace; it builds a competing contextualized
+  representation that wins at retrieval — a *suppression/competition*
+  model, same shape as §4.9 extinction. Consistent architecture.
+- Boals, Murrell & Berntsen complicate ("event centrality") — a trauma
+  that becomes identity-central stays hot; `coherence` growth should
+  be slower on high-selfRelevance trauma records.
+
+**Spec consequence (trauma records gain `coherence ∈ [0,1]`, init
+0.25; §4.13/§6.11 amendments):**
+
+```
+growth:  each structured retell — audience present AND the recount
+         covers ≥60% of the record's surviving core fields — adds
+         coh_gain (0.05); selfRelevance ≥0.8 records accrue at half
+         rate (event-centrality brake, Boals)
+effect 1 (intrusions):  intrusion drive for the record scales
+         (1 − coh_intrusion_k·coherence), coh_intrusion_k ≈ 0.6 —
+         a coherent trauma still intrudes, but the highway narrows
+effect 2 (sleep strip): §14's sleep_affect_strip is GATED on
+         trauma records — applies only if coherence > coh_strip_gate
+         (0.5). Unprocessed trauma stays hot over sleep; processed
+         trauma finally cools — the mechanistic version of "you have
+         to be able to tell it before it can fade"
+effect 3 (report): reconstruction of a high-coherence trauma record
+         restores verbatim.when and ordering normally — the timeline
+         gets rebuilt by narration, not recovered from the trace
+```
+
+Emergent: the difference between a wound and a story — the veteran who
+has told it a hundred times has a scar with a narrative; the one who
+never has has a weather system. This is also the sim's therapy
+mechanic: repeated structured disclosure measurably domesticates the
+record while leaving its facts intact. (P280)
+
+---
+
+## 33. Threat has an object — weapon focus as capture, not narrowing
+
+§2.1's ABC splits fields central/peripheral by priority. The weapon-
+focus literature isolates the sharpest version:
+
+- Steblay 1992 (J. Appl. Psychol. meta-analysis): presence of a weapon
+  reduces identification accuracy and feature recall for the rest of
+  the scene — effect is real, moderate size.
+- Fawcett, Russell, Peace & Christie 2013 (Psychol. Crime & Law
+  review): meta-analytic confirmation; the object captures attention
+  and the surrounding *person* detail suffers — it's the wielder's face
+  that dies, not the room.
+- The effect is object-specific capture, separable from general
+  arousal narrowing: matched-arousal scenes without a focal threat
+  object don't show the same face/ID loss.
+
+**[CONSENSUS]** direction; **[DEBATED]** mechanism (attentional
+capture vs unusualness — in RW, threat objects are also rare, so the
+confound is inherited honestly).
+
+**Spec consequence (§2 — optional `threat_object` field on
+encodeEvent):**
+
+```
+event may carry threat_object: <field-id>  (world supplies when a
+    focal threat object exists — a knife, a raised fist, a gun on
+    the counter)
+if present AND arousal ≥ reg_thresh (0.6):
+    that field:        strength ×= (1 + wf_gain)     // wf_gain ≈ 0.5
+    other fields that WOULD be central under ABC:
+                       strength ×= (1 − wf_loss)     // wf_loss ≈ 0.3
+    peripheral fields unchanged (arousal_narrowing already kills them)
+```
+
+Emergent: "all I remember is the knife" — the record has a vivid
+verbatim weapon field, a degraded `who`, and an ordinary-arousal
+bystander's account contradicts the victim's precisely where weapon
+focus predicts. Eyewitness disagreement gets a second generator
+(distinct from §3 valence-fidelity). (P281)
+
+---
+
+## 34. Retrieval changes the retriever — recall→mood feedback
+
+Retrieval has been one-directional: C.mood biases selection (§5.4) and
+reconstruction (§8), but the retrieved record never moves C.mood.
+Closing the loop:
+
+- Mood induction by recall is the oldest manipulation in the
+  literature (Velten 1968; Westermann et al. 1996 meta): recalling
+  emotional material measurably shifts current affect.
+- Wildschut, Sedikides, Arndt & Routledge 2006 (JPSP): nostalgia —
+  self-relevant, social, usually positive-but-bittersweet recall —
+  *restores* mood, belonging, and meaning; triggered most by low mood
+  and loneliness (the psyche reaching for the warm record).
+- Sedikides et al. reviews: nostalgia's restorative function is
+  [CONSENSUS] for direction; its net hedonic sign is debated
+  (bittersweet — can co-occur with loneliness).
+
+**Spec consequence (§5.5 — feedback term on context):**
+
+```
+after any successful recall/ambient hit:
+    C.mood += recall_mood_pull · reported_valence · arousal_tag
+              // recall_mood_pull ≈ 0.05 — small; a memory nudges
+              // the day, it doesn't drive it
+nostalgia subtype (valence > 0.3 AND selfRelevance ≥ 0.6 AND record
+    age > 365d AND people-field non-empty):
+    when C.mood < 0: pull ×= (1 + nostalgia_gain)  // nostalgia_gain
+              ≈ 0.1 — the sad character reaches for the warm past
+              AND it works a little harder
+```
+
+Emergent: bidirectional spiral in both directions — bad mood selects
+bad records (§5.4), bad records deepen the mood (this), which selects
+worse records; the rumination loop (§8) finally has its feedback edge.
+And the counter-loop: lonely evening → the ambient scan surfaces the
+warm summer → the evening lifts slightly. This is the cheapest version
+of "a character's inner weather has memory." (P282, P284)
+
+---
+
+## 35. Cold states can't feel hot ones — the empathy gap on self-report
+
+§8's `mood_bleed` shifts reported affect toward current mood
+proportionally. The stronger phenomenon is *compression*: a person in a
+cold state systematically cannot re-access the intensity of a hot
+state, even their own:
+
+- Loewenstein 2005 (J. Econom. Lit. review; Loewenstein & Schkade
+  1999): hot-cold empathy gaps — people in calm states underestimate
+  past hunger/pain/fear/craving; the remembered *fact* of the feeling
+  survives, the felt intensity does not report.
+- Robinson & Clore 2002 (Psychol. Bull.): episodic emotion reports
+  under ~hours are experience-near; beyond that, reports are
+  reconstructed from beliefs about the emotion class — which is the
+  cognitive version of the same compression.
+- Direction rider: the gap is symmetric (hot states can't imagine
+  cold) but the sim-relevant direction is cold-reading-hot, since most
+  retrieval contexts are calmer than trauma contexts.
+
+**[CONSENSUS]** for the gap; the specific implementation as a
+mismatch-gated compressor is **[HYPOTHESIS]** (the literature gives
+the phenomenon, not the function).
+
+**Spec consequence (§8 amendment — gated compressor after
+mood_bleed):**
+
+```
+if |C.mood − m.emotional.valence| > hc_gap_thresh (0.5) AND
+   |C.mood| < |m.emotional.valence|:      // colder than the record
+    reported_arousal *= (1 − hc_gap_loss)   // hc_gap_loss ≈ 0.3
+// stored tag untouched — compression is report-side only
+```
+
+Emergent: the calm landlord reports the eviction scene as "unpleasant,
+maybe 4 out of 10" while the record still sits at 0.9 — and when the
+next crisis heats him up, the old reports become available again
+(state-dependent access to *feeling*, the affective twin of §5.3's
+state-cue drift). Characters systematically under-sell their own past
+terror at calm distances — which is why "it wasn't that bad" is
+always said on a good day. (P283)
+
+---
+
+## 36. Spec delta (v2.8 → v2.9)
+
+| § | Change |
+|---|---|
+| §2 | `emotion` enum tag (inferable default); per-emotion multipliers `fear_detail_gain`, `anger_gist_bias`, `disgust_gain`; inverted-U `arousal_opt`/`arousal_curv` on associative fields; `threat_object` field + `wf_gain`/`wf_loss` weapon-focus capture |
+| §4.5 | unchanged (§28's rewrite is a §5.9/§6.17 clause, not decay) |
+| §4.9 | person-cue CondEntries: `trust_neg_gain`, `trust_pos_gain`, `person_cond_decay_mult` |
+| §4.13/§6.11 | trauma records gain `coherence` field; structured retells add `coh_gain`; `coh_intrusion_k` intrusion scaling; `coh_strip_gate` gates sleep_affect_strip on trauma records |
+| §5.5 | `recall_mood_pull` feedback; `nostalgia_gain` on qualifying records |
+| §5.7 | anniversary trigger: `anniv_gain`, `anniv_window`, `anniv_thresh` — date-match drive that bypasses cueMatch; retrieved records flagged `cue_source:"date"` |
+| §5.9/§6.17 | `emo_update_k` — outcome-resolution rewrites retrieved valence tag |
+| §5.2/§5.7 | cue modality field; `odor_cue_gain`, `odor_emo_gain`, `odor_age_relief` |
+| §8 | `hc_gap_thresh`/`hc_gap_loss` hot-cold compressor on reported_arousal |
+| §7 | +20 params (all optional, default-neutral): fear_detail_gain, anger_gist_bias, disgust_gain, arousal_opt, arousal_curv, emo_update_k, odor_cue_gain, odor_emo_gain, odor_age_relief, anniv_gain, anniv_window, anniv_thresh, trust_neg_gain, trust_pos_gain, person_cond_decay_mult, coh_gain, coh_intrusion_k, coh_strip_gate, wf_gain, wf_loss, recall_mood_pull, nostalgia_gain, hc_gap_loss, hc_gap_thresh |
+| §10 | encodeEvent accepts `emotion`, `threat_object`, `open_outcome`; cueVector sensory fields accept `modality`; recall output gains `cue_source`; trauma records gain `coherence` |
+
+## 37. Age guidance (extends §10/§23)
+
+- Discrete-emotion multipliers: flat — the appraisal structure of
+  emotion is preserved in aging (SST changes *regulation*, not the
+  fear↔anger cognitive split) [HYPOTHESIS — thin literature].
+- `arousal_opt`: shifts slightly *lower* in old age — older adults show
+  emotional-memory benefits at moderate arousal and more cost at
+  extremes (consistent with the §10 preserved-channel framing; mark
+  [HYPOTHESIS], −0.05 knot at 70).
+- `emo_update_k`: preserved — appraisal-driven reconstruction is
+  exactly what Levine & Bluck 1997 measured in 71–84yos; flat.
+- `odor_*`: the Proust advantage is *preserved or amplified* in aging —
+  olfactory decline is offset by the reach-into-childhood effect
+  (Willander & Larsson tested young adults; [HYPOTHESIS] keep flat,
+  flag for revision if elder olfaction data demands).
+- `anniv_gain`: flat — anniversary reactions persist 6+ years in the
+  Morgan data; no reason to age-gate a calendar cue.
+- `trust_*`: negative acquisition preserved; positivity effect may
+  reduce `trust_neg_gain` slightly in old profiles (×0.8 at 70 —
+  consistent with `w_emo_neg` direction, mark [HYPOTHESIS]).
+- `coh_gain`: flat — narrative repair doesn't require youth; if
+  anything, narration is the old character's native economy (§4.13
+  ecology already gives elders more retell draws).
+- `wf_*`: flat — weapon-focus data in older eyewitnesses show the
+  effect persists (O'Rourke et al.).
+- `recall_mood_pull`/`nostalgia_gain`: nostalgia is *more* available
+  and more used in older adults — nostalgia_gain +0.05 knot at 65
+  [HYPOTHESIS].
+- `hc_gap_loss`: possibly larger in old (less physiological arousal
+  experience to re-instantiate) — +0.05 at 70 [HYPOTHESIS].
+- Children: `arousal_opt` higher (~0.75 — children's baselines run
+  hot), `coh_gain` near-zero below OGM gate (narrative coherence
+  requires the narrative faculty — Habermas); `anniv_*` flat.
+
+## 38. Validation probes P274–P285
+
+- **P274 discrete-emotion split (MUST — sign-locked):** two records,
+  same valence −0.7 / arousal 0.7, `emotion:fear` vs `emotion:anger`.
+  At day 20: the fear record retains higher core-field accuracy; the
+  anger record shows higher gist-lure acceptance and schema-drift —
+  opposite drift directions from identical scalars. FAIL if the tag
+  changes nothing.
+- **P275 inverted-U (MUST — non-monotonicity):** encode associative
+  detail (when/place/source fields) at arousal {0.3, 0.65, 0.95}:
+  strength must peak at ~0.65 and decline at 0.95 for associative
+  fields while who/what fields still rise. FAIL if associative strength
+  is monotone in arousal.
+- **P276 outcome rewrite (MUST — sign):** record r (open_outcome,
+  selfRelevance 0.8) with valence −0.6; resolution event o with
+  valence +0.6. After 5 retrievals of r post-resolution, r.valence must
+  have drifted ≥0.15 toward positive while r's factual fields and
+  arousal tag are unchanged. FAIL if valence doesn't move or arousal
+  does.
+- **P277 Proust channel (SHOULD):** identical cueVector with sensory
+  modality smell vs sight: smell-cued scan surfaces older records (mean
+  age ×1.5+) and reports higher arousal; accuracy NOT improved (odor
+  is emotional, not veridical — Herz).
+- **P278 anniversary intrusion (MUST):** trauma-tagged record dated
+  March 12; on March 12±7d of a later year the ambient scan emits it
+  with `cue_source:"date"` even with zero field match to C; on a random
+  other date with same C, it does not. FAIL if date match contributes
+  nothing or if it requires field overlap.
+- **P279 trust asymmetry (MUST — rate-locked):** one betrayal event
+  (arousal 0.8) vs five kind events (arousal 0.3) on the same person
+  cue: the negative entry's emitted strength exceeds the positive
+  entry's; after 60 quiet days the negative entry retains more
+  fractional strength (person_cond_decay_mult). FAIL if symmetric.
+- **P280 coherence repair (SHOULD):** trauma record retold structured-
+  to-audience ×10 vs never-retold control: retold record intrudes
+  ≤50% as often at matched cues, sleep_affect_strip engages (arousal
+  tag decays), core fields intact. Control stays hot. FAIL if retells
+  weaken the core fields — repair must be orthogonal to strength.
+- **P281 weapon focus (SHOULD):** same arousal-0.8 scene with and
+  without threat_object: with-object version retains the object field
+  at higher accuracy and `who` at lower accuracy than the no-object
+  control; total field mass similar (capture, not suppression).
+- **P282 recall→mood loop (SHOULD):** negative-mood context +
+  negative-valence record retrieval: C.mood after recall is lower than
+  before by ~recall_mood_pull·|valence|·arousal; three sequential
+  negative recalls compound measurably.
+- **P283 hot-cold gap (SHOULD):** arousal-0.85 record reported from
+  C.mood=0 vs C.mood=−0.8: cold report's arousal compressed by
+  ~hc_gap_loss; hot-state report uncompressed. Stored tag identical
+  after both — report-side only.
+- **P284 nostalgia restoration (SHOULD):** qualifying nostalgic record
+  (positive, self-relevant, old, social) retrieved in C.mood<0 lifts
+  mood more than an equally-positive recent record; the boost scales
+  with loneliness/low mood.
+- **P285 integration — the one-year battery (MUST):** an arousal-0.9
+  event vs matched 0.2 event, both run 365 days with naturalistic
+  sleep/retell/ambient ticks: the emotional record must show ALL of —
+  higher strength, fragmented `when`, intact core fields, cooled-but-
+  present arousal (if retold socially), and intact confidence — while
+  the neutral record may have archived. FAIL if any single parameter
+  alone reproduces the whole signature (anti-Goodhart: the phenotype
+  must be distributed across ≥3 mechanisms).
+
+## 39. Honest limits (Part III)
+
+- **The emotion enum is coarse** — seven labels for a continuous
+  appraisal space. The literature's reliable memory contrasts are
+  fear↔anger↔positive; disgust is thinner, shame/pride thinner still.
+  Profiles should treat non-fear/anger multipliers as priors, not
+  findings.
+- **`emo_update_k` applies at retrieval, so unretrieved records keep
+  their original tag** — probably correct (reconstruction is
+  retrieval-side) but untested; a stored-tag version would drift
+  records nobody ever re-accesses, which seems wrong.
+- **Anniversary firing without awareness** models the Morgan spouse
+  effect only if the source-monitoring layer can fail — implementers
+  should NOT auto-narrate "because it's the anniversary"; the
+  attribution is a reconstruction outcome.
+- **`coherence` conflates narrative organization with processing** —
+  the literature's mixed replication (§32) means `coh_intrusion_k`
+  should stay modest; the mechanism is defensible, the effect size
+  isn't settled.
+- **Weapon focus vs unusualness** confound is inherited: a rare bright
+  object might produce the same capture without threat. The spec
+  exposes `threat_object` but a world could tag `salient_object` the
+  same way — acceptable, since the sim doesn't distinguish the lab's
+  confound either.
+- **`recall_mood_pull` creates a genuine feedback loop** — a
+  pathological character could spiral (mood→congruent recall→worse
+  mood). This is a feature (real depression loops this way) but
+  implementations need the pull small enough that one good day can
+  break the chain — hence 0.05, and it is exactly what `rumin_k`
+  profiles are for.
+- **Odor-cue reach into childhood** interacts with the §4.14
+  latent-infancy layer in a way the literature doesn't fully
+  disambiguate: odor cues reaching sub-amnesia-exit records is
+  [HYPOTHESIS] — the Chu & Downes bump peaked at 6–10, above the
+  classic amnesia boundary but below the verbal bump; keep
+  `odor_age_relief` gated to post-amnesia records unless evidence
+  demands otherwise.
+- Nothing here models **anticipatory affect** still (open loop from
+  §25), nor **emotion in dreams** — the sleep tick manipulates tags,
+  not dream-content; flagged for a future version alongside the
+  intention-affect loop.

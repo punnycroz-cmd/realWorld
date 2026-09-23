@@ -1342,3 +1342,38 @@ field, isolation/med_antichol overlays, partnerDeath event,
 depress_state report input, intention `fires` counter). Profiles +17
 clamp rows + §16 note. Validation → P1–P273 (P263/P268/P271/P272
 MUSTs; P263/P265/P268 sign-locked).
+
+## 29. v29 — emotional-memory III (the feeling's grammar)
+
+Third pass on the affect layer. New primary-source territory:
+appraisal-tendency discrete emotions (Lerner & Keltner 2000/2001 JPSP
+— fear↔anger certainty/control split; Levine & Pizarro 2004; Chapman
+et al. 2013 disgust); arousal inverted-U on the associative channel
+(Yerkes & Dodson 1908; Diamond et al. 2007; Payne et al. 2007;
+Andreano & Cahill 2006); appraisal-driven emotion reconstruction —
+outcomes rewrite remembered feeling (Levine 1997 Perot; Levine et al.
+2001 OJ; Levine & Bluck 1997 aging); the Proust channel (Chu & Downes
+2000 Chem Senses + Cognition — odor-cued bump peaks 6–10y; Chu &
+Downes 2002; Willander & Larsson 2006/2007; Herz & Schooler 2002 —
+emotional not veridical); calendar-cued intrusion (Morgan et al. 1998
+J Trauma Stress 31% anniversary reactions; Morgan et al. 1999 AJP
+6-year persistence, spouse-corroborated; VA National Center PTSD);
+negativity asymmetry in person impressions (Skowronski & Carlston
+1989; Baumeister et al. 2001 "bad is stronger"); narrative coherence
+as trauma repair (Foa, Molnar & Cashman 1995; Pennebaker & Seagal
+1999; DEBATED replication — Zoellner & Bittinger 2004; Boals event
+centrality); weapon focus (Steblay 1992 meta; Fawcett et al. 2013);
+recall→mood feedback and nostalgia (Velten 1968; Westermann et al.
+1996 meta; Wildschut et al. 2006 JPSP); hot-cold empathy gaps
+(Loewenstein 2005; Robinson & Clore 2002).
+
+Spec → v2.9 (+20 params; record schema gains `emotion` tag and trauma
+`coherence`; cueVector gains `modality`; recall output gains
+`cue_source`; recall writes back to C.mood). Profiles +24 clamp rows +
+§17 dials note. Validation → P1–P285 (P274/P275/P276/P278/P279/P285
+MUSTs; P274/P276/P279 sign- or rate-locked; P285 anti-Goodhart
+integration battery). Sources verified via web (DOIs confirmed for
+Levine 1997, Morgan 1998/1999, Chu & Downes 2000, Foa 1995 incl. the
+mixed-replication caveat).
+
+Boundaries kept: research only, no code, no narratives, no push/merge.

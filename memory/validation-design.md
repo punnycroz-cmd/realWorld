@@ -1607,3 +1607,47 @@ Payne & Marsh 2015 (JEP:G 144:993); Brashier, Umanath, Cabeza & Marsh
 Kvavilashvili 2009 (Psychol Aging, doi 10.1037/a0015785); Schlagman,
 Schulz & Kvavilashvili 2006 (Memory, content analysis); O'Connor et
 al. 1990; Pearman & Storandt 2004; Verhaeghen 2003 (vocabulary meta).
+
+## 38. New probes P274–P285 (v29, emotional-memory III suite)
+
+Full spec of each probe is in `emotional-memory.md` §38; registry
+entries below. Suite exercises the v2.9 layer: discrete-emotion tags,
+inverted-U arousal, appraisal-driven emotion reconstruction, privileged
+cues (odor/date), person-conditioning asymmetry, trauma coherence
+repair, weapon focus, recall→mood feedback, hot-cold report gaps.
+
+- **P274 discrete-emotion split (MUST — sign-locked):** fear vs anger
+  at matched valence/arousal diverge — fear keeps detail, anger drifts
+  to gist. FAIL if tag is inert.
+- **P275 inverted-U (MUST — non-monotonicity):** associative-field
+  strength peaks near arousal_opt and declines at 0.95 while item
+  fields still rise. FAIL if monotone.
+- **P276 outcome rewrite (MUST — sign):** resolved-arc valence drifts
+  toward current appraisal at retrieval; arousal tag and facts
+  untouched. FAIL if valence static or arousal moves.
+- **P277 Proust channel (SHOULD):** smell-cued scans surface older,
+  more emotional records than sight-cued; accuracy NOT improved.
+- **P278 anniversary intrusion (MUST):** day-of-year match fires
+  high-arousal records with `cue_source:"date"` absent any field
+  overlap; no fire off-date. FAIL if field match required.
+- **P279 trust asymmetry (MUST — rate-locked):** one betrayal beats
+  five kindnesses on a person-cue entry; negative entry outlasts.
+  FAIL if symmetric.
+- **P280 coherence repair (SHOULD):** structured retells cut intrusion
+  rate and engage sleep stripping while leaving core fields intact —
+  repair orthogonal to strength.
+- **P281 weapon focus (SHOULD):** threat-object field up, `who` down,
+  total field mass ~constant (capture, not suppression).
+- **P282 recall→mood loop (SHOULD):** retrieved valence measurably
+  moves C.mood; sequential same-sign recalls compound.
+- **P283 hot-cold gap (SHOULD):** cold-context arousal reports
+  compress; stored tag unchanged (report-side only).
+- **P284 nostalgia restoration (SHOULD):** qualifying old positive
+  social records lift low mood more than recent positives.
+- **P285 one-year battery (MUST — anti-Goodhart):** emotional vs
+  neutral event at 365d under naturalistic ticks must jointly show
+  consolidated core, fragmented `when`, cooled arousal, intact
+  confidence; FAIL if any single parameter produces the whole
+  signature — the phenotype must distribute over ≥3 mechanisms.
+
+Registry now P1–P285; numbering stable.

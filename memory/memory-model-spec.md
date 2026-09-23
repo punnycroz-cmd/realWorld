@@ -1,4 +1,30 @@
-# Memory Model Spec v2.8 — implementable human-like memory for RW characters
+# Memory Model Spec v2.9 — implementable human-like memory for RW characters
+
+> **v2.9 note (emotional-memory III — the feeling's grammar):**
+> `memory/emotional-memory.md` Part III (§§26–39) deepens the affect
+> layer in several directions: **discrete emotion tags** — `emotion` enum
+> with appraisal-split consequences (fear→detail, anger→gist/heuristic,
+> disgust→conditioning-resistant; Lerner & Keltner 2000/2001; Levine &
+> Pizarro 2004; Chapman et al. 2013) — §2; **inverted-U encoding** —
+> `arousal_opt`/`arousal_curv` bend the associative channel at extreme
+> arousal while the item channel keeps rising (Diamond et al. 2007) —
+> §2; **outcome rewrites feeling** — `emo_update_k` drifts remembered
+> valence toward current appraisal at retrieval (Levine 1997/2001) —
+> §5.9/§6.17; **privileged cues** — `odor_*` Proust channel (Chu &
+> Downes 2000/2002; Willander & Larsson 2006) and `anniv_*` calendar
+> intrusions (Morgan et al. 1998/1999) — §5.2/§5.7; **person
+> conditioning** — `trust_neg_gain`/`trust_pos_gain` asymmetric
+> person-CondEntries (Skowronski & Carlston 1989; Baumeister et al.
+> 2001) — §4.9; **trauma repair** — `coherence` field grows by
+> structured retells, gates intrusions and sleep stripping (Foa et al.
+> 1995, DEBATED replication; Pennebaker & Seagal 1999) — §4.13/§6.11;
+> **weapon focus** — `wf_gain`/`wf_loss` object capture (Steblay 1992;
+> Fawcett et al. 2013) — §2; **recall→mood feedback** —
+> `recall_mood_pull`/`nostalgia_gain` close the mood loop (Westermann
+> 1996; Wildschut et al. 2006) — §5.5; **hot-cold gap** —
+> `hc_gap_thresh`/`hc_gap_loss` compress cold-state arousal reports
+> (Loewenstein 2005) — §8. +20 params in §7; probes P274–P285 in
+> validation-design.md. All optional, default-neutral.
 
 > **v2.8 note (age-decline III — the paradox layer, where aging
 > inverts the deficit):** `memory/age-decline.md` Part III (§§34–48)
@@ -1350,6 +1376,13 @@ King 1983; Bouton 2004; emotional-memory.md §6):
   spontaneous recovery does NOT erode deep suppressors (Schiller et
   al. 2010; fragile in replication — Chalkia et al. 2020; treat as
   the sim's exposure-therapy mechanic, emotional-memory.md §21).
+- **Person-cue asymmetry (v2.9):** entries whose cue is a person
+  (people-field match) use `trust_neg_gain` (0.6) for negative-event
+  acquisition and `trust_pos_gain` (0.2) for positive, and decay at
+  `cond_decay·person_cond_decay_mult` (0.5) — one betrayal mints a
+  durable tag; liking is built by repetition (Skowronski & Carlston
+  1989; Baumeister et al. 2001; emotional-memory.md §31). Emitted
+  valence feeds both C.affect and PersonModel evaluation drift.
 
 ### 4.10 Social-source decay modifiers (new in v0.8)
 
@@ -3376,6 +3409,32 @@ MemoryParams = {
   "perim_enc_loss": 0.05,    // enc_base cut, perimenopause (§4.17)
   "perim_s_gain_mult": 0.0,  // practice-gain multiplier, perim (§4.17)
   "perim_years": 4.0,        // overlay duration (§4.17)
+  // v2.9 additions (emotional-memory III — the feeling's grammar,
+  // emotional-memory.md Part III §§26–35)
+  "fear_detail_gain": 0.15,  // fear records: extra veridicality (§2)
+  "anger_gist_bias": 0.15,   // anger records: gist/heuristic lean (§2)
+  "disgust_gain": 0.15,      // disgust: faster cond, slower extinct (§2/§4.9)
+  "arousal_opt": 0.65,       // inverted-U peak, assoc fields (§2)
+  "arousal_curv": 0.5,       // quadratic downturn past optimum (§2)
+  "emo_update_k": 0.2,       // outcome-appraisal valence rewrite (§6.17)
+  "odor_cue_gain": 1.5,      // smell-cue drive multiplier (§5.2)
+  "odor_emo_gain": 0.15,     // smell-cued reported-arousal bonus (§5.5)
+  "odor_age_relief": 0.5,    // smell ignores half the recency term (§5.7)
+  "anniv_gain": 0.2,         // date-match intrusion drive (§5.7)
+  "anniv_window": 14,        // days ± around day-of-year (§5.7)
+  "anniv_thresh": 0.6,       // arousal floor for date-cued records (§5.7)
+  "trust_neg_gain": 0.6,     // person-cue neg acquisition (§4.9)
+  "trust_pos_gain": 0.2,     // person-cue pos acquisition (§4.9)
+  "person_cond_decay_mult": 0.5, // person entries decay slower (§4.9)
+  "coh_gain": 0.05,          // coherence per structured retell (§4.13)
+  "coh_intrusion_k": 0.6,    // coherence→intrusion scaling (§5.7)
+  "coh_strip_gate": 0.5,     // coherence needed for trauma sleep-strip (§2)
+  "wf_gain": 0.5,            // threat-object field boost (§2)
+  "wf_loss": 0.3,            // non-object central-field capture cost (§2)
+  "recall_mood_pull": 0.05,  // retrieved valence nudges C.mood (§5.5)
+  "nostalgia_gain": 0.1,     // restorative pull on qualifying records (§5.5)
+  "hc_gap_loss": 0.3,        // cold-state arousal-report compression (§8)
+  "hc_gap_thresh": 0.5,      // |Δ mood−valence| gating the gap (§8)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -3443,6 +3502,14 @@ MemoryParams = {
 //   metamem_r, warn_mult declared AGE-FLAT nulls (P263/P266/P268
 //   guards — deliberate non-changes, cite-guarded in
 //   age-decline.md §45)
+// v2.9 knot-table updates (emotional-memory.md III §37):
+//   arousal_opt: −0.05 knot at 70 (older benefit peaks earlier);
+//   trust_neg_gain: ×0.8 at 70 (positivity direction, HYPOTHESIS);
+//   nostalgia_gain: +0.05 knot at 65; hc_gap_loss: +0.05 at 70;
+//   arousal_opt child knot +0.10 (hotter baseline); coh_gain ≈0
+//   below the OGM gate (narrative coherence needs the faculty);
+//   discrete-emotion multipliers, emo_update_k, odor_*, anniv_*,
+//   wf_* declared AGE-FLAT (P274–P285 guards, emotional-memory.md §37)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -3978,6 +4045,30 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     `depress_state` ∈[0,1] (§10) — complaints ride mood.
   - record schema: intention records gain `fires` counter (hidden);
     nothing else snapshot-visible.
+- v2.9 additions (emotional-memory.md Part III §§26–35):
+  - `encodeEvent` Event fields: `emotion` (enum — absent → inferred
+    from valence/arousal), `threat_object` (field-id of focal threat
+    object, §2 weapon-focus), `open_outcome` (unresolved-arc flag
+    feeding §6.17 emo_update_k). All optional, default absent.
+  - cueVector sensory fields may carry `modality` ∈
+    {smell,sound,sight,touch,taste} (default sight) — drives the
+    §5.2/§5.7 odor channel.
+  - `ambientMemoryScan`/`recall` outputs gain `cue_source` ∈
+    {field,date} — date-cued (anniversary) retrievals are flagged so
+    the caller can leave attribution to reconstruction, not narration.
+  - `retell`/`discussEvent` on trauma records accrue `coherence`
+    (structured retells only — audience present + ≥60% surviving core
+    fields covered); `coherence` gates intrusions and trauma
+    sleep_affect_strip automatically — no caller action.
+  - `recall` now writes back `C.mood` (recall_mood_pull) — callers
+    must treat the cue context's mood as mutable across a recall
+    sequence.
+  - person-cue CondEntries acquire/decay on the asymmetric schedule —
+    no caller action; `conditionedAffect(charId, personId)` works
+    unchanged.
+  - record schema: trauma records gain `coherence` (init 0.25);
+    all records may gain `emotion` tag. Snapshot-additive, both
+    default-neutral.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
