@@ -66,9 +66,11 @@ function renderWorld(){
   ctx.fillStyle = '#07090e';
   ctx.fillRect(0, 0, cw, ch);
 
-  // Camera smooth follow
+  // Camera smooth follow (skipped while a production-1 spectator view
+  // holds a free/preset framing — SF_CAM_FREE is set per-view by the
+  // multi-camera rig in production/hub_overlay.html)
   const targetPawn = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
-  if(targetPawn){
+  if(targetPawn && !(typeof SF_CAM_FREE !== 'undefined' && SF_CAM_FREE)){
     cam.x += (targetPawn.x - cam.x) * 0.1;
     cam.y += (targetPawn.y - cam.y) * 0.1;
   }

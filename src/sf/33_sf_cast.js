@@ -281,6 +281,9 @@ function sfInitCast(){
     });
     v._ci = i;
     v._castId = c.id;
+    // production-1: compiled memory profile (35_sf_memory.js) — wired into
+    // decayEpistemic/observe where the sim has a real mechanism
+    if(typeof sfMemProfileFor === 'function') v.memProfile = sfMemProfileFor(c.id);
     v.sfSched = sched || [];
     v.sfStopIdx = 0;
     v.sfStopT = 0;
