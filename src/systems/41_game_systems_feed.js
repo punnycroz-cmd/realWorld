@@ -224,7 +224,12 @@ function gsWireDispName(name){
   }
   return String(name);
 }
-function gsWireWho(pid){ return pid || 'a player'; }
+function gsWireWho(pid){
+  /* v12: the feed attributes by the spectator's chosen handle when one
+     exists — a handle is attribution, not identity (onboarding S2) */
+  const h = (typeof gsHandleOf === 'function') ? gsHandleOf(pid) : null;
+  return h || pid || 'a player';
+}
 function gsWireReason(code){
   if(!code) return null;
   const m = GS_WIRE_REASON[code];
@@ -326,6 +331,9 @@ function gsWireReqSummary(evt, r){
       return 'purchase — ' + (ad || 'a unit');
     }
     case 'license': return 'landlord license filing';
+    case 'camera':
+      /* v12: the director's view — a compatible, view-layer-only pass */
+      return 'camera — a directed view' + dTxt;
     default:
       return (evt.kind || 'request') + dTxt;
   }
@@ -433,7 +441,9 @@ function gsWireFormat(evt){
       n: evt.n, t: clock.t, day: clock.day,
       kind: kind, text: text,
       venue: o.venue || null,
-      who: o.who != null ? o.who : null,
+      /* v12: attribution is the player's handle when they have one —
+         the wire never prints raw ids for named spectators */
+      who: o.who != null ? gsWireWho(o.who) : null,
     };
     sub++;
     if(evt.req) e.req = evt.req;   // request correlation (internal id)
@@ -566,7 +576,8 @@ function gsWireFormat(evt){
 
     case 'session':
       return [mk('request', 'two players, one scene — ' +
-        (evt.players || []).join(' + ') + ' sharing the block',
+        (evt.players || []).map(gsWireWho).join(' + ') +
+        ' sharing the block',
         { who: (evt.players || [])[0] || null,
           mentions: evt.chars || null })];
 

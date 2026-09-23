@@ -3813,6 +3813,347 @@ runAutoTest = async function(){
       log(GS_HIRED['H-REP'].unitId === null,
           'gs: v11 a hire who gives notice is honestly un-homed');
     }
+
+    /* ==================== v12 — THE WELCOME WAGON ====================
+       the viewer→player path end-to-end through the real bus: free
+       observe, persona fork, tour, handle, wallet, the camera first
+       ask, the honest "no" lessons, the hire walkthrough, the first-
+       day card — and the never-list audit proving nothing leaked. */
+    if(typeof gsOnbState === 'function'){
+      /* the suite's earlier arcs leave live requests + a full hired
+         roster behind — sweep the bus past every leftover TTL so the
+         sky is honestly clear, and free a cast seat the public way */
+      gsBusTick(99999);
+      const T0 = 100000;
+      /* -- free observe: a fresh id is a viewer, not a record -------- */
+      const st0 = gsOnbState('pOnb', T0);
+      log(st0.fresh === true && st0.stage === 'S0_watch' &&
+          GS_ONB.players['pOnb'] === undefined &&
+          gsCreditBalance('pOnb') === 0,
+          'gs: v12 a fresh id watches free — no record, no credits, ' +
+          'no gate');
+      log(gsOnbDeepLink('pNoLink', '?utm=x').ok === false &&
+          GS_ONB.players['pNoLink'] === undefined,
+          'gs: v12 a plain visit creates no journey record');
+
+      /* -- persona fork + the seven-beat tour ------------------------ */
+      const card0 = gsOnbStart('pOnb', T0);
+      log(!!card0 && card0.kind === 'welcome' && card0.equalWeight === true &&
+          card0.fork.length === 2,
+          'gs: v12 the welcome card forks watch/play at equal weight');
+      log(gsOnbFork('pOnb', 'bogus', T0).ok === false &&
+          gsOnbFork('pOnb', 'play', T0).stage === 'S1_orient',
+          'gs: v12 the persona fork validates + lands on the tour offer');
+      const anchors = [];
+      let b = gsOnbTourStart('pOnb', T0);
+      while(b && b.ok && !b.done){ anchors.push(b.anchor);
+                                    b = gsOnbTourBeat('pOnb', T0); }
+      const stAftTour = gsOnbState('pOnb', T0);
+      log(anchors.length === 7 && anchors[6] === 'feed-archive' &&
+          b.done === true && stAftTour.stage === 'S2_name' &&
+          GS_ONB.players['pOnb'].signals.archiveSeen === true,
+          'gs: v12 the tour runs exactly seven beats, anchored, ending ' +
+          'on the Archive');
+      /* -- skip-anywhere: every optional step yields to a click ------ */
+      gsOnbStart('pSkip', T0); gsOnbFork('pSkip', 'play', T0);
+      gsOnbTourStart('pSkip', T0);
+      const sk1 = gsOnbSkip('pSkip', T0);          // mid-tour skip
+      const sk2 = gsOnbSkip('pSkip', T0);          // handle
+      const sk3 = gsOnbSkip('pSkip', T0);          // wallet
+      const sk4 = gsOnbSkip('pSkip', T0);          // first ask
+      const sk5 = gsOnbSkip('pSkip', T0);          // nothing left
+      log(sk1.ok && sk2.ok && sk3.ok && sk4.ok && sk5.ok === false &&
+          gsOnbState('pSkip', T0).stage === 'S5_resident',
+          'gs: v12 skipping is free at every step; at the fork there ' +
+          'is nothing left to skip');
+      /* -- the watch persona path lands, not funnels ----------------- */
+      gsOnbStart('pWatch', T0); gsOnbFork('pWatch', 'watch', T0);
+      gsOnbSkip('pWatch', T0);                     // tour offer skipped
+      const stWatch = gsOnbState('pWatch', T0);
+      const settleW = gsOnbSettle('pWatch', 'watch', T0);
+      log(stWatch.stage === 'S1w_watch_done' && settleW.exit === 'completed' &&
+          gsOnbCard('pWatch', T0) === null,
+          'gs: v12 the watch path ends on a landing, then settles ' +
+          'with nothing granted');
+
+      /* -- handles: format, reservation, taken, attribution ---------- */
+      const hcBad = gsHandleCheck('1x'), hcCast = gsHandleCheck('Victor'),
+            hcAmb = gsHandleCheck('Reyes'), hcSys = gsHandleCheck('admin');
+      log(!hcBad.ok && hcBad.reason === 'handle_format' &&
+          !hcCast.ok && hcCast.reason === 'handle_reserved' &&
+          !hcAmb.ok && hcAmb.reason === 'handle_reserved' &&
+          hcCast.suggest.length > 0 &&
+          !hcSys.ok && hcSys.reason === 'handle_reserved',
+          'gs: v12 handles reject bad format, cast names, ambient ' +
+          'names, and system words — with inline suggestions');
+      const hSet = gsSetHandle('pOnb', 'OnbWatcher', T0);
+      const hDup = gsSetHandle('pSkip', 'OnbWatcher', T0);
+      log(hSet.ok === true && gsHandleOf('pOnb') === 'OnbWatcher' &&
+          gsPlayerOfHandle('onbwatcher') === 'pOnb' &&
+          !hDup.ok && hDup.reason === 'handle_taken' &&
+          hDup.suggest.length > 0,
+          'gs: v12 a handle reserves, attributes, and offers variants ' +
+          'when taken');
+
+      /* -- the wallet: ladder verbatim, first-buy bonus, spend cap --- */
+      const w0 = gsWallet('pOnb', T0);
+      log(w0.packs.length === 6 && w0.packs[0].id === 'pocket' &&
+          w0.packs[5].id === 'mogul' && w0.bonusLeft === 0.5 &&
+          w0.capUsd === 200 && /never convert/.test(w0.honesty),
+          'gs: v12 the wallet shows the six-pack ladder, the +50% ' +
+          'first-buy bonus, the $200 day cap, and the two-currency ' +
+          'rule');
+      const bp1 = gsBuyPack('pOnb', 'starter', T0);
+      log(bp1.ok && bp1.credits === 825 && bp1.bonusCr === 275 &&
+          gsCreditBalance('pOnb') === 825 &&
+          gsBuyPack('pOnb', 'nonesuch', T0).reason === 'unknown_pack',
+          'gs: v12 the first pack credits +50% once, disclosed — ' +
+          'starter lands 825 for $4.99');
+      gsBuyPack('pOnb', 'mogul', T0); gsBuyPack('pOnb', 'pro', T0);
+      gsBuyPack('pOnb', 'plus', T0);  gsBuyPack('pOnb', 'regular', T0);
+      const capHit = gsBuyPack('pOnb', 'plus', T0);
+      log(capHit.ok === false && capHit.reason === 'spend_cap' &&
+          Math.abs(gsWallet('pOnb', T0).spentTodayUsd - 184.95) < 0.01,
+          'gs: v12 the disclosed $200/day spend cap bites honestly',
+          capHit.spentTodayUsd);
+      const ad1 = gsWatchAd('pOnb', T0);
+      const led = gsWalletLedger('pOnb');
+      log(ad1.ok && ad1.credits === 2 &&
+          led.some(t => /pack:starter.*\+50%/.test(t.reason)) &&
+          led.some(t => t.reason === 'ad view'),
+          'gs: v12 ads remain the non-purchase mint and the ledger ' +
+          'itemizes every credit');
+
+      /* -- S4: the camera pass — a real request, claims nothing ------ */
+      const camQ = gsPriceQuote({ playerId: 'pOnb', kind: 'camera',
+                                durationMin: 30 }, T0);
+      const fa = gsOnbFirstAsk('pOnb', T0);
+      const camR = fa.req && gsRequestById(fa.req);
+      log(fa.ok && camR && camR.kind === 'camera' && camR.status === 'active' &&
+          camR.billed === 10 && camQ.total === 10 &&
+          gsCameraSessions(T0).some(s => s.req === fa.req) &&
+          GS_REQ.actions.camera.claims(camR).length === 0,
+          'gs: v12 the camera pass files through the bus — 10 cr / ' +
+          '30 min, active, claiming no in-world resource');
+      const wireCam = gsWire({ limit: 400 }).filter(e =>
+        e.req === fa.req || /camera — a directed view/.test(e.text));
+      log(wireCam.some(e => e.who === 'OnbWatcher' &&
+          e.status === 'running'),
+          'gs: v12 the wire attributes the ask to the handle, not ' +
+          'the id');
+      /* -- the low-balance lesson: opt-in, reads the meter only ------ */
+      const balLB = gsCreditBalance('pOnb');
+      const lb = gsOnbLowBal('pOnb', fa.req, T0 + 5);
+      log(lb.ok && lb.simulated === true && lb.debt === false &&
+          lb.fundedMinLeft > 0 &&
+          gsCreditBalance('pOnb') === balLB &&
+          gsOnbLowBal('pOnb', 'no-such', T0).reason === 'no_live_session' &&
+          gsOnbLowBal('pSkip', fa.req, T0).reason === 'no_live_session',
+          'gs: v12 the low-balance preview is opt-in, moves nothing, ' +
+          'and refuses anyone else\'s session');
+      /* -- the hand-back: an early release refunds whole minutes ----- */
+      const endAsk = gsOnbEndAsk('pOnb', fa.req, T0 + 10);
+      log(endAsk.ok === true && endAsk.refunded === 6 &&
+          camR.status === 'cancelled' &&
+          gsCameraSessions(T0 + 10).length === 0 &&
+          gsOnbEndAsk('pSkip', fa.req, T0).reason === 'not_your_ask',
+          'gs: v12 handing the camera back early refunds the unused ' +
+          'minutes — 6 cr home',
+          'refunded ' + (endAsk.refunded != null ? endAsk.refunded : '?'));
+
+      /* -- the honest "no"s: decline / review / queue ---------------- */
+      let ambId = null;
+      if(typeof NV_CAST !== 'undefined'){
+        const amb = NV_CAST.find(c => c.tier === 'ambient');
+        if(amb) ambId = amb.id;
+      }
+      let decMin = null;
+      if(ambId && typeof gsCoStarCheck === 'function')
+        for(let m = T0; m < T0 + 2880 && decMin == null; m += 15)
+          if(!gsCoStarCheck(ambId, 'greet', m, 5).ok) decMin = m;
+      const dl = ambId && decMin != null
+        ? gsOnbLesson('pOnb', 'decline', decMin) : null;
+      const dlR = dl && dl.req && gsRequestById(dl.req);
+      const dlL = GS_ONB.players['pOnb'].lessons.decline;
+      const dlHalf = dlR && dlR.billed - Math.ceil(dlR.billed * 0.5);
+      log(!!dl && dl.ok === true && dlR && dlR.status === 'completed' &&
+          dlR.declined && dlR.refunded === dlHalf &&
+          dlL && dlL.outcome === 'declined' && dlL.refund === dlR.refunded,
+          'gs: v12 the decline lesson files a real co-star ask — the ' +
+          'pawn says no and half the bill comes home',
+          dl && dlR ? dlR.status + ' ' + dlR.refunded : 'no thin window');
+      const rv = gsOnbLesson('pOnb', 'review', T0 + 3000);
+      const rvR = rv.req && gsRequestById(rv.req);
+      const rvParked = rvR.status === 'in_review' && rvR.billed > 0;
+      const rvBal = gsCreditBalance('pOnb');
+      gsReviewResolve(rv.req, false, { nowMin: T0 + 3001 });
+      const rvL = GS_ONB.players['pOnb'].lessons.review;
+      log(rv.ok === true && rvParked && rvR.status === 'denied' &&
+          rvR.refunded === rvR.billed &&
+          gsCreditBalance('pOnb') === rvBal + rvR.billed &&
+          rvL.outcome === 'not approved',
+          'gs: v12 a "not approved" parks billed, then refunds every ' +
+          'credit on the human\'s word',
+          rvR ? rvR.status + ' billed ' + rvR.billed : 'no req');
+      /* the queue lesson needs a real sky hold — a second player's
+         approved weather call supplies it honestly */
+      gsCreditGrant('pBlock', 5000, 'test stake');
+      const blk = gsSubmitRequest({ playerId: 'pBlock', kind: 'weather',
+        durationMin: 120, params: { wx: 'rain' } }, T0 + 3010);
+      gsReviewResolve(blk.id, true, { nowMin: T0 + 3010 });
+      const qy = gsOnbLesson('pOnb', 'queue', T0 + 3011);
+      const qyR = qy.req && gsRequestById(qy.req);
+      const qyBal = gsCreditBalance('pOnb');
+      gsBusTick(T0 + 3011 + 61);                  // past the queued TTL
+      const qyL = GS_ONB.players['pOnb'].lessons.queue;
+      log(blk.status === 'active' && qy.ok === true &&
+          qyR.status === 'expired' && qyR.discount === 0.15 &&
+          qyR.refunded === qyR.billed &&
+          gsCreditBalance('pOnb') === qyBal + qyR.billed &&
+          qyL.outcome === 'lapsed',
+          'gs: v12 the queue lesson holds at −15% behind a real sky ' +
+          'and a lapsed slot refunds in full',
+          qyR ? ('status ' + qyR.status + ' disc ' + qyR.discount)
+              : (qy && qy.reason));
+      log(gsOnbLesson('pOnb', 'bogus', T0).reason === 'unknown_lesson' &&
+          gsOnbLesson('pLeak2', 'decline', decMin || T0)
+            .reason === 'insufficient_credits',
+          'gs: v12 lessons validate kind and file nothing the wallet ' +
+          'can\'t cover');
+      /* the sky-free refusal is honest, not a faked queue — tick past
+         the blocker's end so its claim releases first */
+      gsBusTick(T0 + 3200);
+      const sf = gsOnbLesson('pOnb', 'queue', T0 + 6000);
+      log(sf.ok === false && sf.reason === 'sky_free',
+          'gs: v12 with the sky clear the queue lesson says so — ' +
+          'it never fakes a line');
+
+      /* -- S5/S6: the hire walkthrough rides the real hire lane ------ */
+      const obB = gsRegisterBuilding({ street: 'Welcome Lane' });
+      const obU = gsRegisterUnit(obB.id, { unit_code: 'A', bedrooms: 1,
+                                           base_rent: 900 });
+      /* earlier arcs filled the hired roster — release enough seats the
+         public way so the walkthrough can file a real application */
+      while(Object.keys(GS_HIRED).length >= GS_MAX_HIRED_TOTAL)
+        gsReleaseHired(Object.keys(GS_HIRED)[0], 'v12 seat check');
+      const hp = gsOnbHirePath('pOnb', T0 + 7000);
+      log(hp.fee === 500 && /after screening/.test(hp.billing) &&
+          hp.jobs.some(j => j.id === 'seeking') &&
+          hp.vacancies.some(v => v.id === obU.id) &&
+          hp.truth.length === 4,
+          'gs: v12 the hire card quotes the real lane — 500 cr after ' +
+          'screening, live jobs, live vacancies');
+      const balH = gsCreditBalance('pOnb');
+      const hr = gsSubmitRequest({ playerId: 'pOnb', kind: 'hire',
+        target: obU.id, durationMin: 5,
+        params: { name: 'Onboard Walker', age: 34, pronouns: 'they/them',
+          bio: 'new to the block', arrival: 'came for the light',
+          look: { build: 'compact', palette: 'moss',
+                  signature: 'cardigans and a paperback' },
+          job: 'seeking', moveInDate: '2026-09-23' } }, T0 + 7001);
+      const newHires = () => Object.keys(GS_HIRED).filter(id =>
+        GS_HIRED[id].playerId === 'pOnb');
+      log(hr.status === 'in_review' && hr.billed === 0 &&
+          gsCreditBalance('pOnb') === balH,
+          'gs: v12 a hire parks for human review and bills nothing ' +
+          'while it waits');
+      gsReviewResolve(hr.id, true, { nowMin: T0 + 7002 });
+      const hiredId = newHires()[0];
+      const hLease = hiredId && gsLeasesFor(hiredId)
+        .find(l => l.status === 'active');
+      log(!!hiredId && gsCreditBalance('pOnb') === balH - 500 &&
+          !!hLease && hLease.unit_id === obU.id &&
+          hLease.hirePackage === true &&
+          GS_ONB.players['pOnb'].hires.indexOf(hiredId) >= 0,
+          'gs: v12 approval bills 500 and walks a real hire into a ' +
+          'real lease — no step bypassed the bus');
+      const fdc = gsOnbHiredReturn('pOnb', hiredId, T0 + 7003);
+      const fdcBrief = fdc.briefing || {};
+      log(fdc.ok === true && fdc.kind === 'first_day' &&
+          fdc.char === hiredId && fdcBrief.redacted != null &&
+          fdc.costs.rent && fdc.costs.rent.currency === 'game dollars' &&
+          /never ownership|a visit/.test(fdc.costs.possess) &&
+          /own brain|thinner/.test(fdc.offline) &&
+          /no "miss you"/.test(fdc.offline),
+          'gs: v12 the first-day card is the redacted briefing — ' +
+          'rent in dollars, possession a visit, thin AI a fact');
+      log(gsOnbState('pOnb', T0 + 7004).hires.length === 1 &&
+          gsOnbDeepLink('pOnb', '?hired=1').card.ok === true &&
+          gsOnbDeepLink('pOnb', '?returning=1').link === 'returning',
+          'gs: v12 the two deep links land — ?hired=1 raises the ' +
+          'first-day card, ?returning=1 the quiet hello');
+
+      /* -- checklist truth + exits ------------------------------------ */
+      gsOnbSignal('pOnb', 'watch_min', T0);
+      gsOnbSignal('pOnb', 'feed_scroll', T0);
+      gsOnbSettle('pOnb', 'watch', T0 + 8000);
+      const cl = gsOnbChecklist('pOnb', T0 + 8001);
+      log(cl.items.length === 6 && cl.pct === 100 && cl.done === true &&
+          cl.items[0].done === true && cl.items[4].done === true,
+          'gs: v12 the checklist tells the truth — six items, ' +
+          'percent counts only chosen steps');
+      const clWatch = gsOnbChecklist('pWatch', T0);
+      log(clWatch.items.filter(i => i.optional)
+            .every(i => i.label === 'only if you ever want to act'),
+          'gs: v12 the watch path relabels optional steps honestly');
+      log(gsOnbDismiss('pDis', T0).exit === 'dismissed' &&
+          gsOnbCard('pDis', T0) === null &&
+          gsOnbReopen('pDis', T0).ok === true &&
+          gsOnbPark('pPark', T0).exit === 'parked' &&
+          gsOnbCard('pPark', T0) === null,
+          'gs: v12 dismiss and park collapse to the footer link; ' +
+          'reopen forgives');
+
+      /* -- no free agency: a broke id files nothing ------------------- */
+      const leakCam = gsOnbFirstAsk('pLeak', T0);
+      const leakAny = GS_REQ.reqs.some(r => r.playerId === 'pLeak' &&
+        r.status !== 'denied');
+      log(leakCam.ok === false && leakCam.reason === 'insufficient_credits' &&
+          !leakAny && gsCreditBalance('pLeak') === 0,
+          'gs: v12 no free agency — a zero wallet files nothing and ' +
+          'nothing reaches the feed');
+
+      /* -- analytics: the whitelist holds ----------------------------- */
+      const evs = gsOnbEvents('pOnb');
+      const hooks = new Set(evs.map(e => e.hook));
+      log(hooks.has('watch_start') && hooks.has('persona_chosen') &&
+          hooks.has('tour_started') && hooks.has('archive_beat_seen') &&
+          hooks.has('handle_set') && hooks.has('wallet_explained') &&
+          hooks.has('topup_shown') && hooks.has('request_submitted') &&
+          hooks.has('first_request_filed') &&
+          hooks.has('review_outcome_seen') &&
+          hooks.has('queue_outcome_seen') &&
+          hooks.has('low_balance_simulated') &&
+          hooks.has('character_created') && hooks.has('hired_return') &&
+          evs.every(e => GS_ONB_HOOKS[e.hook]),
+          'gs: v12 the analytics ledger carries only whitelisted ' +
+          'hooks — every contract beat fired');
+
+      /* -- persistence: journeys ride the bus snapshot ---------------- */
+      const snap12 = gsBusSnapshot();
+      gsBusReset();
+      const wiped12 = Object.keys(GS_ONB.players).length === 0 &&
+                      gsHandleOf('pOnb') === null;
+      gsBusLoad(snap12);
+      const stBack = gsOnbState('pOnb', T0 + 9000);
+      log(wiped12 && stBack.fresh === false &&
+          gsHandleOf('pOnb') === 'OnbWatcher' &&
+          gsOnbEvents('pOnb').length === evs.length &&
+          stBack.hires.length === 1,
+          'gs: v12 journeys, handles, and the analytics ledger ' +
+          'survive the bus snapshot');
+
+      /* -- the never-list audit --------------------------------------- */
+      const onbAud = gsOnbAudit();
+      log(onbAud.ok === true,
+          'gs: v12 the onboarding audit is clean after the whole ' +
+          'journey', onbAud.issues.slice(0, 3).join('; ') || 'clean');
+      log(typeof gsPossessDeny === 'function' &&
+          gsPossessDeny('C1', 'pOnb') === 'possession_ban' &&
+          gsPossessDeny('C8', 'owner') === 'possession_ban',
+          'gs: v12 the ban holds through onboarding — the welcome ' +
+          'never offers the mains');
+    }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{
