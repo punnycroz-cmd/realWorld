@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watch the block — Real World</title>
+<meta name="description" content="Watch Real World free — a live AI neighborhood on a real Mission District block. No account, no download: open the spectator view, follow the public request feed, reach in when you're ready.">
+<link rel="canonical" href="https://realworld-game.example/demo.html"><!-- PLACEHOLDER domain: replace at launch -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Real World — Watch the block live">
+<meta property="og:description" content="28 AI residents on a real SF block, running around the clock. Watching is free — always.">
+<meta property="og:url" content="https://realworld-game.example/demo.html"><!-- PLACEHOLDER domain -->
+<meta property="og:image" content="assets/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Real World — Watch the block live">
+<meta name="twitter:description" content="The Truman Show you can visit. Free to watch, no account, no download.">
+<meta name="twitter:image" content="assets/og-card.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Watch the block — Real World",
+  "description": "Free spectator view of a persistent AI neighborhood on a real San Francisco block.",
+  "isPartOf": { "@type": "VideoGame", "name": "Real World", "applicationCategory": "Game" },
+  "isAccessibleForFree": true
+}
+</script>
+</head>
+<body data-page="demo">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><img src="assets/favicon.svg" width="34" height="34" alt="" style="border-radius:8px"><span>REAL WORLD<small>The Mission</small></span></a>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html" class="active" aria-current="page">Watch</a>
+      <a href="community.html">Community</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+      <a href="press-kit.html">Press kit</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="pill">Free to watch — no account, no download</div>
+    <h1>Watch the block.</h1>
+    <p class="lead">
+      This is the front door. One real San Francisco neighborhood, 28 fictional
+      residents, running around the clock whether anyone tunes in or not.
+      Open the spectator view and it&rsquo;s just&hellip; on. Reach in when —
+      and only when — you want to.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="#watch" data-rw-event="cta_click" data-rw-props='{"cta":"demo-hero","dest":"watch"}'>Open the spectator view</a>
+      <a class="btn btn-ghost" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"demo-hero","dest":"how-it-works"}'>How watching works</a>
+    </div>
+  </div>
+</section>
+
+<!-- THE STAGE — live embed when a build is configured, honest fallback until then -->
+<section id="watch">
+  <div class="wrap">
+    <p class="eyebrow">The spectator view</p>
+    <h2>One window onto the neighborhood.</h2>
+
+    <!-- demo.js reads data-demo-src. Empty = pre-launch fallback state.
+         At launch: set data-demo-src to the spectator build URL, or serve
+         this page with ?embed=<url>. See marketing/DEMO-PAGE.md. -->
+    <div class="demo-stage" id="demo-stage" data-demo-src=""
+         data-rw-event-root="demo_stage">
+      <div class="demo-fallback">
+        <div class="demo-fallback-screen">
+          <picture>
+            <source srcset="shots/v15-A.webp" type="image/webp">
+            <img src="shots/v15-A.png" alt="Street-level development capture of the Mission block at golden hour — sunlit facades, long shadows, a resident on the sidewalk." loading="lazy">
+          </picture>
+          <div class="demo-fallback-overlay">
+            <p class="demo-status"><span class="dot" aria-hidden="true"></span> Spectator build not wired in yet</p>
+            <p class="muted">What you&rsquo;re looking at is a real capture of the
+            development build. At launch this frame is the live world — same
+            view, but it never stops moving.</p>
+            <a class="btn btn-ghost" href="index.html#gallery" data-rw-event="cta_click" data-rw-props='{"cta":"demo-fallback","dest":"gallery"}'>Browse the captures</a>
+          </div>
+        </div>
+        <noscript>
+          <p class="notice">The spectator view needs JavaScript. The
+          <a href="index.html#gallery">screenshot gallery</a> shows real
+          captures of the development build.</p>
+        </noscript>
+      </div>
+    </div>
+
+    <div class="demo-toolbar">
+      <button class="btn btn-ghost btn-sm" id="demo-share" type="button"
+              data-rw-event="cta_click" data-rw-props='{"cta":"demo-share"}'>Share this view</button>
+      <span class="muted demo-toolbar-note" id="demo-share-status" role="status" aria-live="polite"></span>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU'RE LOOKING AT -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Reading the view</p>
+    <h2>What&rsquo;s on screen when the world is live.</h2>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>The neighborhood</h3>
+        <p>Street level or rooftop view of the block — real Mission District
+        geography, parody storefronts, weather and light on the actual sun&rsquo;s
+        schedule. Residents go to work, cook, argue, nap. Nobody performs for
+        the camera.</p>
+      </div>
+      <div class="card">
+        <h3>The public request feed</h3>
+        <p>Every intervention any viewer files — approved, queued, expired,
+        refunded — appears on a public feed with the requester&rsquo;s name
+        attached. Watching the feed is half the show: you see who is
+        <i>trying</i> to do what, not just what happens.</p>
+      </div>
+      <div class="card">
+        <h3>The residents</h3>
+        <p>Each of the 28 residents is a fictional person with a job, a lease,
+        and an AI mind. Select anyone to see who they are — the spectator view
+        is read-only by design. Reaching in is a separate, paid act.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ILLUSTRATIVE FEED PREVIEW -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The feed, previewed</p>
+    <h2>What the request feed looks like.</h2>
+    <p class="muted">An illustrative preview of feed entries — the real feed
+    writes itself at launch, and quiet weeks get reported as quiet weeks.</p>
+    <div class="feed-preview" aria-label="Illustrative preview of the public request feed">
+      <div class="feed-row"><span class="feed-time">18:02</span><span class="feed-tag tag-run">running</span><p>A viewer requested evening fog rolling in over Dolores Park — 2 h, compatible.</p></div>
+      <div class="feed-row"><span class="feed-time">18:14</span><span class="feed-tag tag-queue">queued</span><p>Possession request on a resident already booked until 19:00 — queued first-come, auto-refunds if it expires.</p></div>
+      <div class="feed-row"><span class="feed-time">18:31</span><span class="feed-tag tag-done">resolved</span><p>A 30-minute possession ended on schedule — graceful handoff back to the character&rsquo;s AI.</p></div>
+      <div class="feed-row"><span class="feed-time">18:44</span><span class="feed-tag tag-refund">refunded</span><p>A queued request expired before its slot opened — credits returned automatically, logged publicly.</p></div>
+    </div>
+    <p class="muted" style="font-size:13px">Entry labels shown are illustrative; the live feed uses the request classes in the design — compatible, exclusive, queued.</p>
+  </div>
+</section>
+
+<!-- FROM VIEWER TO RESIDENT -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">From viewer to resident</p>
+    <h2>Watching is free forever. Reaching in is the upgrade.</h2>
+    <div class="grid grid-3 steps">
+      <div class="card">
+        <span class="num">1</span>
+        <h3>Watch</h3>
+        <p>This page. Free, always, no account — observation is the product&rsquo;s
+        free core, not a trial.</p>
+      </div>
+      <div class="card">
+        <span class="num">2</span>
+        <h3>Request</h3>
+        <p>File a time-boxed request — possess a resident, change the weather,
+        trigger an event. Declared upfront, classified automatically, priced by
+        the minute, attributed publicly on the feed.</p>
+      </div>
+      <div class="card">
+        <span class="num">3</span>
+        <h3>Move in</h3>
+        <p>Create a character and join the cast. New residents need real in-game
+        housing and pay rent in game dollars like everyone else — no exemptions.</p>
+      </div>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"demo-ladder","dest":"how-it-works"}'>The full walkthrough</a>
+      <a class="btn btn-ghost" href="pricing.html" data-rw-event="cta_click" data-rw-props='{"cta":"demo-ladder","dest":"pricing"}'>What requests cost</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot-grid">
+    <div>
+      <h4>Real World</h4>
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="community.html">Community</a>
+    </div>
+    <div>
+      <h4>Buy</h4>
+      <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div>
+      <h4>Press</h4>
+      <a href="press-kit.html">Press kit</a>
+      <a href="index.html#gallery">Screenshots</a>
+    </div>
+  </div>
+  <div class="wrap foot-note">
+    © <span id="year"></span> Real World team. All characters are fictional; the neighborhood is real geography.
+    This is a pre-launch draft site — no live game is implied.
+  </div>
+</footer>
+
+<script src="js/analytics.js" defer></script><!-- inert until data-endpoint is set; see marketing/ANALYTICS.md -->
+<script src="js/main.js"></script>
+<script src="js/demo.js"></script>
+</body>
+</html>

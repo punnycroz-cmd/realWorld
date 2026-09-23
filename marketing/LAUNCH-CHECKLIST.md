@@ -11,7 +11,7 @@ exists locally, unpublished.
 
 **One-command rehearsal:** `./tools/staging_dryrun.sh` — serves `site/` on
 127.0.0.1, checks every page/asset/meta/budget item, prints pass/warn/fail.
-Last run **2026-09-22 22:39 PDT: 21 pass / 3 warn / 0 fail** (warns =
+Last run **2026-09-22 22:52 PDT: 25 pass / 3 warn / 0 fail** (warns =
 placeholder domain not yet swapped + 1 PNG >2 MB — both expected pre-launch).
 
 ---
@@ -31,6 +31,7 @@ placeholder domain not yet swapped + 1 PNG >2 MB — both expected pre-launch).
 | G9 | Press kit zip rebuilt after G3/G4/G5 land: `./build-press-kit.sh` | mkt | `[x] REHEARSED` — one-command rebuild verified |
 | G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 23/3/0, warns = G3 + 1 PNG weight |
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
+| G12 | Demo page live: set `data-demo-src` on `demo.html` `#demo-stage` to the spectator build URL; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels with the real feed's vocabulary (DEMO-PAGE.md §7) | owner + game track | `[ ] PENDING` — fallback verified; one-attribute flip at launch |
 
 ## §2 Day 0 — launch day (in order)
 
@@ -42,6 +43,7 @@ DNS/CDN latency only.
 | D0.1 | Deploy `marketing/site/` to production hosting at real domain | ~15 min | `[ ] PENDING` |
 | D0.2 | Run production smoke pass (same checks as dry-run, against live URL): all pages 200, sitemap+robots reachable, JSON-LD parses, OG card renders in a share validator | ~10 min | `[x] REHEARSED` locally — 0.001s TTFB/page |
 | D0.3 | Flip "in development" labels → launch copy; CTA → live watch URL | ~20 min | `[ ] PENDING` |
+| D0.3b | Demo page flip: set `data-demo-src` on `demo.html`, reload, confirm iframe mounts and `watch_start` fires with `mode:"live"`; confirm feed-preview labels match the live feed | ~10 min | `[ ] PENDING` — gated on G12 |
 | D0.4 | Submit `sitemap.xml` to Search Console + Bing Webmaster | ~10 min | `[ ] PENDING` (owner accounts) |
 | D0.5 | Publish launch devlog post ("the door is open") | ~15 min | `[~] DRAFTED` — social/drafts/launch-thread.md |
 | D0.6 | Post launch announcement on registered channels (owner approves each post) | ~30 min | `[~] DRAFTED` — SOCIAL-LAUNCH-PLAN.md timeline |
