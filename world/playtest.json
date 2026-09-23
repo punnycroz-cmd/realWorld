@@ -2261,6 +2261,47 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT42",
+   "title": "The reviewed request — trims, holds, and the firing event",
+   "minutes": 12,
+   "persona": "player with credits + facilitator auditing the v46 request pass",
+   "goal": "Verify the player side of approve-modified (trim-only offer, decline = full refund), the honest upfront charge, the queued hold clock and its expiry, scheduled exclusives firing on the feed, and the hire action routing to The Registry.",
+   "surfaces": [
+    "request",
+    "mod",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "File a weather request — 4 h block, intent 'keep it sunny all day over the whole neighborhood'. Watch the pipeline and the ledger.",
+     "expect": "Credits leave at declare ('(upfront)' ledger line) before screening. Human review returns 'approved (modified)': an offer card shows the trim (4 h → 2 h) and both prices. The feed line reads 'approved (modified)'.",
+     "checkpoints": [
+      "Upfront debit lands in the credits ledger at declare, not at run time",
+      "Offer card says trimmed only, never expanded — with accept and decline affordances",
+      "Feed status renders the canonical vocabulary 'approved (modified)'"
+     ]
+    },
+    {
+     "do": "Decline the trim. Refile the same 4 h weather with tame text; then decline a second modified offer vs accept it — cover both exits.",
+     "expect": "Decline refunds the full upfront charge — the ledger shows the credit back and the feed logs a refunded line. Accept refunds the difference and the event fires later on the feed as running → resolved, attributed, '(trimmed terms)' when modified.",
+     "checkpoints": [
+      "Declining costs nothing — 'the trim was an offer, not a bill'",
+      "Accepting refunds the upfront difference, never charges more than re-quoted",
+      "Approved flat exclusives fire on the feed (running → resolved) with the filer's handle"
+     ]
+    },
+    {
+     "do": "Queue an exclusive on The 600 Club while it is locked; watch the hold clock. Select 'Hire a character'. Deny a request (e.g. possess a main) and read the ledger. Run node world/audit.js.",
+     "expect": "The queued card ticks 'hold N h M min left of 24 h'; if the hold runs out it expires with an auto-refund and the seeded 'expired before activation' feed vocabulary. Hire never files — the submit button reads 'File in The Registry →' and opens create.html. The deny path shows a real ledger credit. request gate covers approve-modified, upfront charge, hold clock, hire route, and demo hooks.",
+     "checkpoints": [
+      "Hold countdown is visible on the queued card; expiry auto-refunds in view",
+      "Hire a character routes to The Registry — 500 cr, billed only on approval",
+      "request gate reports approve-modified + feed vocabulary check; window.RW_DEMO_EVENTS collects the five named hooks"
+     ]
+    }
+   ]
   }
  ],
  "harness_ui_v37": {

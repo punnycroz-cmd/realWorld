@@ -54,6 +54,9 @@ One person can wear every hat; four real testers is the intended shape.
   PT41 (application layer, v45) is a hired player + facilitator audit —
   16 live openings' ask/screen/trial/decline cards, 8 housing rows,
   channel agreement with the market layer, and the new apply gate.
+  PT42 (request v46) is a player + facilitator audit — the approve-modified
+  offer (trim-only, decline = full refund), honest upfront charge, queued
+  hold clock + expiry, scheduled exclusives firing, and the hire route.
 
 ## 3. Running a session
 

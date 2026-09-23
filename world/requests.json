@@ -77,6 +77,29 @@
     "cap": 4,
     "scope": "declared intents only — weather overrides ship in v32; venue events can adopt the same rule later"
   },
+  "approve_modified": {
+    "doc": "v46 — the player side of moderation.json approve-modified: the reviewer returns a trimmed request, the player accepts or declines",
+    "rule": "duration/scope trimmed only, never expanded; unused credits auto-refund; ambiguity resolves against the player",
+    "feed_status": "approved (modified)",
+    "decline": "full refund — the trim is an offer, not a bill; declining costs nothing",
+    "accept": "runs the trimmed terms at the re-quoted total; the upfront-charge difference refunds on accept",
+    "player_affordance": "the offer card shows old → new terms and both prices before any choice"
+  },
+  "queue_hold": {
+    "doc": "v46 — the ≤24 h hold is visible on the queued card as a countdown, not just a promise",
+    "display": "hold H h M min left of 24 h · expiry auto-refunds",
+    "expiry": "auto-refund at zero — 'queued request expired before activation' on the feed (locked)",
+    "on_activation": "review happens on activation; the hold clock stops the moment the slot is reached"
+  },
+  "scheduled_events": {
+    "doc": "v46 — approved flat exclusives (weather, event triggers, activated queued requests) fire on schedule and show it",
+    "feed": "'running' when the event fires, 'resolved' when it ends — attribution (the filer's handle) stays on both lines",
+    "trimmed": "events running under modified terms say so on the fire line"
+  },
+  "demo_hooks": {
+    "doc": "v46 — merge points for the analytics spec (marketing analytics-events.json PENDING hooks); local-only in-page array window.RW_DEMO_EVENTS, nothing leaves the file",
+    "emitted": ["request_submitted", "review_lesson_shown", "review_outcome_seen", "low_balance_simulated", "handoff_seen"]
+  },
   "session_extend": {
     "doc": "v32 — a running session may buy more minutes at its own rate while the class cap allows",
     "rates": "session class rate — compatible 1.5 cr/min; camera 10 cr per +30 min",

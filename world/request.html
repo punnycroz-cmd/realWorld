@@ -17,6 +17,15 @@
   weather co-sponsorship (join a running identical call at the same flat
   price — compatible class, every sponsor named), and session extend
   (buy more minutes at session rate inside the class cap).
+  v46 adds: the player side of approve-modified — human review can return a
+  trimmed version (duration/scope only, never expanded; unused credits
+  auto-refund; decline = full refund, ambiguity against the player) and the
+  feed shows "approved (modified)". The upfront charge now really lands at
+  declare time (deny refunds are real ledger entries, not theater). Queued
+  requests carry a visible hold clock (≤24 h, expiry auto-refunds), scheduled
+  exclusives actually fire on the feed, and Hire a character routes to
+  create.html (The Registry) instead of filing here. Demo event hooks
+  (window.RW_DEMO_EVENTS) mark the merge points for analytics.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -159,6 +168,13 @@
     border:1px solid var(--grn);border-radius:6px;color:var(--grn);cursor:pointer}
   .session .ext:disabled{border-color:var(--line);color:var(--dim);cursor:not-allowed}
   .st.appeal{background:#332a1e;color:var(--acc)}
+  .st.modified{background:#3a3220;color:var(--acc)}
+  .myreq .acc{color:var(--grn);cursor:pointer}
+  .myreq .dec{color:var(--dim);cursor:pointer}
+  .myreq .acc:hover,.myreq .dec:hover{color:var(--ink)}
+  .modcard{margin-top:10px;border:1px solid var(--acc);border-radius:6px;padding:9px 12px;font-size:12.5px;display:none}
+  .modcard .mtitle{color:var(--acc);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .hirecard{margin-top:10px;border:1px solid var(--blu);border-radius:6px;padding:10px 12px;font-size:12.5px;display:none}
 </style>
 </head>
 <body>
@@ -210,6 +226,7 @@
     <button class="submit" id="go">Submit request</button>
 
     <div class="pipeline" id="pipe"></div>
+    <div class="modcard" id="modcard"></div>
     <div class="session" id="sess"></div>
 
     <div class="note">
@@ -257,7 +274,8 @@
   never after. Admin actions appear here with automatic compensation to anyone affected.
   The main cast is never possessable — not by you, not by anyone. Possession briefings show
   public profile, surface relationships, and routine. Secrets are not for sale because they
-  are not in the building.
+  are not in the building. A reviewer can approve a <b>trimmed</b> version of your request —
+  never an expanded one — and declining the trim refunds you in full.
 </div>
 
 <div class="toast" id="toast"></div>
@@ -313,7 +331,10 @@ var ACTIONS = [
     note:'One event per place per 24 h. The world decides what the event becomes.' },
   { id:'camera', label:'Camera director', cls:'compatible', per:'flat', cr:10, perN:'/30 min',
     targets:[ {id:'self',label:'Your spectator view (multi-cam, follow, replay)'} ],
-    note:'View-layer only — changes nothing in the world.' }
+    note:'View-layer only — changes nothing in the world.' },
+  { id:'hire', label:'Hire a character (join the cast)', cls:'compatible', per:'route', cr:500,
+    targets:[ {id:'create',label:'The Registry — new resident intake'} ],
+    note:'One-time per character slot · naming strings always get human review · billed only on approval. Housing is game dollars, earned in-world.' }
 ];
 
 /* resource board — demo claims state (mirrors the game's claims matrix:
@@ -360,8 +381,19 @@ var FEED = [
   {t:'18:02', who:'dvh', txt:'possess — own baker, 45 min', st:'resolved', tail:'player session ended'}
 ];
 
-var MYREQ = [];   // {id, action, label, status, detail, claim, canCancel, timer}
+var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin}
 var reqSeq = 100;
+
+/* status chip labels — feed vocabulary (requests.json feed_vocabulary) */
+var STLBL = { modified: 'approved (modified)' };
+
+/* demo event hooks — merge points for the analytics spec (marketing
+   analytics-events.json PENDING hooks). Local-only: an in-page array the
+   playtest harness can inspect; nothing leaves the file. */
+function rwEmit(name, props){
+  (window.RW_DEMO_EVENTS = window.RW_DEMO_EVENTS || [])
+    .push({ ev: name, at: new Date().toISOString(), props: props || {} });
+}
 
 /* ================= helpers ================= */
 var $ = function(id){ return document.getElementById(id); };
@@ -443,7 +475,10 @@ function renderBoard(){
   }
   $('board').innerHTML=html;
 }
-/* demo tick — drain cooldowns/locks (1 s ≈ 1 min) */
+/* demo tick — drain cooldowns/locks (1 tick ≈ 1 min of resource time) and
+   queued-request hold clocks (1 tick ≈ 48 min of the 24 h hold, so the
+   expiry path is reachable in a demo without waiting a day) */
+var HOLD_TICK_MIN = 48;
 setInterval(function(){
   for (var k in CLAIMS){ var c=CLAIMS[k];
     if ((c.state==='cool'||c.state==='locked') && c.left>0){ c.left--;
@@ -453,7 +488,23 @@ setInterval(function(){
           toast(c.name+' is cooling down — cooldowns are never for sale.');
         } else { c.state='free'; toast(c.name+' is free again — queued requests activate in order.'); promoteQueued(k); }
       } } }
-  renderBoard(); refreshQuote();
+  var qChanged=false;
+  MYREQ.forEach(function(r){
+    if (r.st!=='queued' || !r.holdMin) return;
+    r.holdMin -= HOLD_TICK_MIN; qChanged=true;
+    if (r.holdMin<=0){
+      r.holdMin=0; r.st='refunded'; r.canCancel=false;
+      if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
+      chg(r.paid, 'queued hold expired — '+r.label+' (auto-refund)');
+      r.sub+=' · hold expired before activation — '+r.paid+' cr auto-refunded';
+      r.mini='expired — queued requests never keep your money';
+      feedAdd('you', r.label+' — queued request expired before activation','refunded');
+      toast('Queued request expired before activation — refunded.');
+    } else {
+      r.mini='hold '+fmtMin(r.holdMin)+' left of 24 h · expiry auto-refunds';
+    }
+  });
+  renderBoard(); refreshQuote(); if (qChanged) renderMine();
 }, 3000);
 
 /* running co-sponsors resolve with the override they bought into */
@@ -569,6 +620,18 @@ function refreshQuote(){
   var dm = durMin(a);
   if (a.per==='min') durLbl.textContent = dm+' min';
   else if (a.per==='block') durLbl.textContent = a.blocks[+durIn.value].lbl;
+  coopt.style.display='none'; qopt.style.display='none';
+  if (a.per==='route'){          /* hire routes to The Registry, never files here */
+    quoteBox.innerHTML =
+      '<div class="line"><span>Classification</span><span><span class="badge compatible">compatible</span> <span class="badge">human review on naming</span></span></div>'+
+      '<div class="line"><span>Fee</span><b>500 cr · one-time per character slot</b></div>'+
+      '<div class="line"><span>Billing</span><b>billed only on approval — denied applications never charge</b></div>'+
+      '<div class="warn" style="color:var(--dim)">'+a.note+'</div>'+
+      '<div class="note">New residents file in The Registry — the intake surface with the wardrobe, job hunt, and apartment paperwork.</div>';
+    go.disabled=false;
+    go.textContent='File in The Registry →';
+    return;
+  }
   var ck = claimOf(a,t), busy = claimBusy(ck);
   var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
   var co = coOK && coMe.checked;
@@ -617,7 +680,7 @@ function feedAdd(who, txt, st, tail){
   li.innerHTML = '<span class="t">'+('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+'</span>' +
     '<span class="who">'+who+'</span> '+ txt +
     (tail ? ' <i style="color:var(--dim)">'+tail+'</i>' : '') +
-    ' <span class="st '+st+'">'+st+'</span>';
+    ' <span class="st '+st+'">'+(STLBL[st]||st)+'</span>';
   $('feed').prepend(li);
 }
 FEED.slice().reverse().forEach(function(f){
@@ -634,9 +697,11 @@ function renderMine(){
   ul.innerHTML='';
   MYREQ.forEach(function(r){
     var li=document.createElement('li');
-    li.innerHTML='<div class="rt"><b>'+r.label+'</b><span class="st '+r.st+'">'+r.st+'</span></div>'+
+    li.innerHTML='<div class="rt"><b>'+r.label+'</b><span class="st '+r.st+'">'+(STLBL[r.st]||r.st)+'</span></div>'+
       '<div class="sub">'+r.sub+'</div>'+
       (r.mini?'<div class="mini">'+r.mini+'</div>':'')+
+      (r.modOffer?'<span class="mbtn acc" data-ok="'+r.id+'">accept the trimmed version — '+r.modOffer.refund+' cr back</span>'+
+                 '<span class="mbtn dec" data-no="'+r.id+'">decline — '+r.paid+' cr full refund</span>':'')+
       (r.canCancel?'<span class="xbtn" data-rq="'+r.id+'">cancel — auto-refund</span>':'')+
       (r.canAppeal?'<span class="abtn" data-ap="'+r.id+'">appeal — different reviewer, ≤'+APPEAL_H+' h</span>':'')+
       (r.needsFunds?'<span class="abtn" data-fund="'+r.id+'">top up to run — '+r.paid+' cr</span>':'');
@@ -644,6 +709,12 @@ function renderMine(){
   });
   ul.querySelectorAll('.xbtn').forEach(function(x){
     x.onclick=function(){ cancelReq(+x.dataset.rq); };
+  });
+  ul.querySelectorAll('.mbtn.acc').forEach(function(x){
+    x.onclick=function(){ acceptMod(+x.dataset.ok); };
+  });
+  ul.querySelectorAll('.mbtn.dec').forEach(function(x){
+    x.onclick=function(){ declineMod(+x.dataset.no); };
   });
   ul.querySelectorAll('.abtn[data-ap]').forEach(function(x){
     x.onclick=function(){ appealReq(+x.dataset.ap); };
@@ -712,7 +783,7 @@ function promoteQueued(ck){
   /* demo: your queued request on a freed resource activates after review beat */
   for (var i=0;i<MYREQ.length;i++){ var r=MYREQ[i];
     if (r.claim===ck && r.st==='queued'){
-      r.st='review'; r.sub+=' · slot reached — human review on activation';
+      r.st='review'; r.holdMin=0; r.sub+=' · slot reached — human review on activation';
       feedAdd('you', r.label+' — slot reached, in review','review');
       setTimeout(function(rr){ return function(){
         rr.st='resolved'; rr.canCancel=false;
@@ -720,6 +791,10 @@ function promoteQueued(ck){
         feedAdd('you', rr.label+' approved · scheduled','resolved');
         toast('Your queued request activated: '+rr.label);
         renderMine();
+        setTimeout(function(){
+          feedAdd('you','event — '+rr.label+' fired','running');
+          rr.sub+=' · fired — the world rendered it'; renderMine();
+        }, 12000);
       };}(r), 4000);
       renderMine();
       return;
@@ -734,18 +809,81 @@ function stage(name, cls, why){
   $('pipe').appendChild(d); return d;
 }
 
-var sessTimer=null, activeSess=null;
+/* approve-modified (moderation.json): duration/scope trimmed only, never
+   expanded; unused credits auto-refund; ambiguity resolves against the
+   player — declining costs nothing. Rare: the demo reviewer trims only
+   when the declared intent overreaches ("all day", "everywhere", …). */
+var MOD_RE = /all day|all night|all week|everywhere|whole (city|neighborhood|mission|park)|forever|nonstop|non-stop|24 ?h|everyone/i;
+function modPlan(a, dm, text){
+  if (a.cls!=='exclusive' || !MOD_RE.test(text||'')) return null;
+  if (a.id==='weather'){
+    var bi=0; for (var i=0;i<a.blocks.length;i++) if (a.blocks[i].min===dm) bi=i;
+    var nb = a.blocks[Math.max(0, bi-1)];
+    if (nb.min===dm) nb = a.blocks[0];
+    return { kind:'duration', desc:'duration trimmed '+a.blocks[bi].lbl+' → '+nb.lbl,
+             dm:nb.min, unitTotal:nb.cr };
+  }
+  if (a.id==='event')
+    return { kind:'scope', desc:'scope trimmed — one venue window, not the whole neighborhood',
+             dm:dm, unitTotal:a.cr };
+  return null;
+}
+function showModOffer(a, t, q, dm, text, label, mine, mod){
+  var total = Math.ceil(mod.unitTotal * (q.surge||1));
+  var refund = q.total - total;
+  mine.st='modified';
+  mine.modOffer={ desc:mod.desc, dm:mod.dm, total:total, refund:refund,
+                  run:{a:a,t:t,q:{cls:a.cls,surge:q.surge||1,total:total,lines:[]},text:text,label:label} };
+  mine.sub+=' · approved (modified): '+mod.desc+(refund>0?' · '+refund+' cr back on accept':' · same flat price');
+  mine.mini='paid '+q.total+' cr upfront · trimmed only, never expanded · decline = full refund';
+  feedAdd('you', label+' approved (modified) — '+mod.desc, 'modified');
+  rwEmit('review_outcome_seen',{outcome:'modified'});
+  var mc=$('modcard'); mc.style.display='block';
+  mc.innerHTML='<div class="mtitle">Approved with changes</div>'+
+    'The reviewer approved a trimmed version: <b>'+mod.desc+'</b>. '+
+    'You paid '+q.total+' cr upfront — accept and it runs at '+total+' cr'+
+    (refund>0?' ('+refund+' cr comes back)':'')+', or decline for a full refund. '+
+    '<span class="note" style="display:inline">Trimmed only, never expanded — ambiguity resolves against you.</span>'+
+    '<div class="row" style="margin-top:8px"><button class="ext" id="mok" style="border-color:var(--grn);color:var(--grn)">accept the trimmed version</button>'+
+    '<button class="ghost" id="mno" style="margin-top:0">decline — '+q.total+' cr full refund</button></div>';
+  $('mok').onclick=function(){ acceptMod(mine.id); };
+  $('mno').onclick=function(){ declineMod(mine.id); };
+  toast('Approved with changes — the reviewer trimmed it, never expanded it.');
+  renderMine(); go.disabled=false;
+}
+function acceptMod(id){
+  var r=findReq(id); if(!r||!r.modOffer) return;
+  var off=r.modOffer; r.modOffer=null; $('modcard').style.display='none';
+  if (off.refund>0) chg(off.refund,'approve-modified — unused credits auto-refund');
+  r.sub+=' · accepted';
+  stage('Accepted modified terms','done',off.total+' cr'+(off.refund>0?' · '+off.refund+' cr refunded':''));
+  run(off.run.a, off.run.t, off.run.q, off.dm, off.run.text, off.run.label, r);
+}
+function declineMod(id){
+  var r=findReq(id); if(!r||!r.modOffer) return;
+  r.modOffer=null; $('modcard').style.display='none';
+  chg(r.paid,'declined modified terms — full refund');
+  r.st='refunded'; r.sub+=' · declined the modified terms — '+r.paid+' cr refunded in full';
+  feedAdd('you', r.label+' — modified terms declined, refunded in full','refunded');
+  stage('Declined','done','full refund — the trim was an offer, not a bill');
+  toast('Declined — '+r.paid+' cr back. The modified version was an offer, not a bill.');
+  renderMine();
+}
+
+var sessTimer=null, activeSess=null, lessonShown=false;
 go.onclick = function(){
   var a = ACTIONS[actSel.selectedIndex];
   var t = curTarget();
   var dm = durMin(a);
   var text = $('intent').value.trim();
+  if (a.per==='route'){ location.href='create.html'; return; }
   var ck = claimOf(a,t), busy = claimBusy(ck);
   var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
   var co = coOK && coMe.checked;
   var queued = busy && a.cls==='exclusive' && !co && queueMe.checked;
   var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, queued);
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
+  $('modcard').style.display='none';
   go.disabled = true;
 
   var label = a.label.toLowerCase()+' — '+(text||t.label);
@@ -754,10 +892,17 @@ go.onclick = function(){
     claim:ck, canCancel:false, mini:'declared '+new Date().toTimeString().slice(0,5) };
   MYREQ.unshift(mine); renderMine();
 
+  /* the upfront charge is real — credits leave at declare time, and every
+     refund path below (deny, queue expiry, modified decline, nudge 50%) is
+     an honest ledger credit, not a promise */
+  chg(-q.total, (co?'co-sponsor':q.cls)+' request — '+label+' (upfront)');
+  rwEmit('request_submitted',{action:a.id, cls:q.cls, cr:q.total});
+
   /* 1 — classify (mechanical) */
   stage('Classified: '+q.cls, 'done',
     queued ? 'resource busy — queued at −15%' :
     q.cls==='exclusive' ? 'locks a shared resource' : 'coexists with other sessions');
+  stage('Paid upfront', 'done', q.total+' cr held · hard cap · no overrun');
 
   /* 2 — intent screening on request text only */
   var s2 = stage('Intent screen', 'wait', 'reading your text, never the AI\u2019s rendering');
@@ -766,18 +911,19 @@ go.onclick = function(){
     if (scr.r === 'deny'){
       s2.className='stage fail'; s2.querySelector('.why').textContent = scr.code;
       stage('Not approved', 'fail', scr.msg);
+      chg(q.total, 'deny refund — '+label);
       stage('Refund', 'done', q.total + ' cr returned — denied requests never bill');
       mine.st='resolved'; mine.sub+=' · not approved ('+scr.code+') · refunded in full';
       if (!NONAPPEAL[scr.code]) mine.canAppeal=true;
       else mine.sub+=' · this denial class is not appealable';
       feedAdd('you', label+' — request not approved', 'resolved');
+      rwEmit('review_outcome_seen',{outcome:'deny', code:scr.code});
       toast(scr.msg + ' (refunded ' + q.total + ' cr)');
       renderMine(); go.disabled=false; return;
     }
     s2.className='stage done'; s2.querySelector('.why').textContent='pass';
 
     if (co){
-      chg(-q.total, 'weather co-sponsor — "'+CLAIMS[ck].wx.what+'"');
       CLAIMS[ck].wx.sponsors.push('you');
       stage('Co-sponsor filed','done','joins the running call — auto-run on pass');
       mine.st='running'; mine.co=true; mine.claim=ck;
@@ -788,10 +934,10 @@ go.onclick = function(){
     }
 
     if (queued){
-      chg(-q.total, 'queued — '+label+' (slot held ≤'+QUEUE_HOLD_H+' h)');
       stage('Queued', 'done', 'slot held ≤'+QUEUE_HOLD_H+' h · expires → auto-refund · review on activation');
-      mine.st='queued'; mine.canCancel=true; mine.sub+=' · waiting on '+CLAIMS[ck].name;
-      mine.mini='hold expires +'+QUEUE_HOLD_H+' h · paid '+q.total+' cr (−15%)';
+      mine.st='queued'; mine.canCancel=true; mine.holdMin=QUEUE_HOLD_H*60;
+      mine.sub+=' · waiting on '+CLAIMS[ck].name;
+      mine.mini='hold '+fmtMin(mine.holdMin)+' left · expiry auto-refunds';
       if (CLAIMS[ck]) CLAIMS[ck].qa=(CLAIMS[ck].qa||0)+1;
       feedAdd('you', label, 'queued');
       toast('Queued — slot held up to 24 h. Cancel anytime for a full refund.');
@@ -802,9 +948,17 @@ go.onclick = function(){
     var needsHuman = (q.cls==='exclusive' || scr.r==='review');
     if (needsHuman){
       var s3 = stage('Human review', 'wait', scr.r==='review'?'gray-zone wording':'all exclusive requests get eyes');
+      if (!lessonShown){ lessonShown=true; rwEmit('review_lesson_shown',{trigger:'first_review'}); }
       mine.st='review'; feedAdd('you', label, 'review'); renderMine();
       setTimeout(function(){
+        var mod = modPlan(a, dm, text);
+        if (mod){
+          s3.className='stage done'; s3.querySelector('.why').textContent='approved (modified) · demo auto-reviewer';
+          showModOffer(a, t, q, dm, text, label, mine, mod);
+          return;
+        }
         s3.className='stage done'; s3.querySelector('.why').textContent='approved · demo auto-reviewer';
+        rwEmit('review_outcome_seen',{outcome:'approved'});
         run(a, t, q, dm, text, label, mine);
       }, 4000);
     } else run(a, t, q, dm, text, label, mine);
@@ -814,7 +968,7 @@ go.onclick = function(){
 function run(a, t, q, dm, text, label, mine){
   var nudgeDeclined = (a.id==='nudge' && /decline|refuse|no thanks/i.test($('intent').value)) ||
                       (a.id==='nudge' && Math.random() < 0.3);
-  chg(-q.total, a.label.toLowerCase()+' — '+t.label);
+  /* credits already left at declare — see the upfront charge in the ledger */
   mine.st='running'; feedAdd('you', label+' ('+(a.per==='min'?dm+' min':a.per==='block'?(dm/60)+' h':'one-shot')+')', 'running');
   renderMine();
 
@@ -842,8 +996,18 @@ function run(a, t, q, dm, text, label, mine){
     stage('Scheduled into world calendar','done','appears on feed when it fires');
     mine.st='resolved'; mine.sub+=' · approved · scheduled';
     feedAdd('you', label+' approved · scheduled','resolved');
+    /* demo: the scheduled exclusive actually fires — attribution stays on */
+    var kind = a.id==='weather' ? 'weather' : 'event';
+    setTimeout(function(){
+      feedAdd('you', kind+' — '+(text||t.label)+' fired'+(modAdj(mine)?' (trimmed terms)':''), 'running');
+      mine.sub+=' · fired — the world rendered it'; renderMine();
+      setTimeout(function(){
+        feedAdd('you', kind+' ended — '+(text||t.label), 'resolved');
+      }, 9000);
+    }, 14000);
     renderMine(); go.disabled=false; return;
   }
+  function modAdj(m){ return /approved \(modified\)/.test(m.sub); }
 
   /* session: possession or camera — countdown + hard cap + end-early */
   var mins = a.per==='min' ? dm : 30;
@@ -892,6 +1056,7 @@ function run(a, t, q, dm, text, label, mine){
     $('fundline').textContent = fundedLeft+' funded min on balance';
     if (!lowWarned && (left <= LOW_WARN_MIN || fundedLeft <= LOW_WARN_MIN)){
       lowWarned = true;
+      rwEmit('low_balance_simulated',{action:a.id, funded_min:fundedLeft});
       toast('Heads up — about '+Math.min(left,fundedLeft)+' min left on this session. Top up to extend.');
     }
     if (left <= 0) endSession(a, t, mine, 0, false);
@@ -900,6 +1065,7 @@ function run(a, t, q, dm, text, label, mine){
 function endSession(a, t, mine, left, early){
   clearInterval(sessTimer); activeSess=null;
   $('sess').style.display='none';
+  rwEmit('handoff_seen',{action:a.id, early:!!early});
   mine.st='resolved'; mine.sub+= early ? ' · released early ('+left+' min unused — you paid the cap, no more)' : ' · ran to cap';
   feedAdd('you', a.label.toLowerCase()+' session','resolved','player session ended');
   stage('Handoff','done',(early?'released early · ':'')+'AI resumed mid-action · player session ended');

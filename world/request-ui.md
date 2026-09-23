@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -189,7 +189,68 @@ Extends are ledger entries; the feed sees no extra noise.
 || Co-sponsor limit | "Only for an identical call; a different forecast queues." |
 || Extend at cap | "the cap is the cap" (disabled-button title) |
 
-## 9. Demo limits (what's simulated)
+## 9. v46 — the reviewed request: approve-modified, honest upfront charge, hold clock, firing events, hire route, demo hooks
+
+**Approve-modified, player side.** `moderation.json` has always carried the
+reviewer outcome `approve-modified` — duration/scope trimmed only, never
+expanded, unused credits auto-refund, ambiguity resolves against the player —
+and `feed.json` carries the status `approved (modified)`. v46 builds the
+player's half: when human review returns a trim, the pipeline shows
+"approved (modified)" and the request card becomes an **offer**, not a bill.
+The offer card states old → new terms and both prices; **accept** runs the
+trimmed version at the re-quoted total (the upfront-charge difference is
+refunded on accept), **decline** refunds the full upfront charge. Declining
+costs nothing — that is "ambiguity against the player" rendered as UI. In the
+demo the auto-reviewer trims only when declared intent overreaches
+("all day", "everywhere", "the whole neighborhood", "forever" …) — weather
+blocks step down one tier, event scopes narrow to one window.
+
+**Honest upfront charge.** The spec has always said credits are paid upfront
+at declare; before v46 the demo actually charged at run time, which made deny
+refunds fictional. Now the charge lands at submit (ledger: "(upfront)") and
+every refund path — deny, queued cancel/expiry, modified decline, nudge 50% —
+is a real ledger credit. "Denied requests never bill" stays literally true:
+charge out, charge back, net zero.
+
+**Queued hold clock.** A queued card now shows the hold live: `hold 22 h 24
+min left of 24 h · expiry auto-refunds`. At zero the request expires in view —
+auto-refund, feed line "queued request expired before activation". Activation
+(slot reached) stops the clock; review happens on activation, never while
+waiting. Demo compresses the hold (~1 tick ≈ 48 min) so the path is reachable.
+
+**Scheduled exclusives fire.** An approved weather change or event trigger
+used to resolve at "scheduled" and vanish. It now fires on the feed —
+`running` when it starts, `resolved` when it ends — with the filer's handle
+on both lines (attribution is the payoff, plan §2.3). Events running under
+trimmed terms say "(trimmed terms)" on the fire line. Activated queued
+requests fire the same way.
+
+**Hire routes to The Registry.** "Hire a character" is in the action catalog
+(500 cr, naming strings always human-reviewed, billed only on approval) but it
+is not a request — it is an intake. The form now shows its terms and the
+submit button reads "File in The Registry →" and opens `create.html`.
+
+**Demo event hooks.** `window.RW_DEMO_EVENTS` collects `{ev, at, props}` for
+the analytics spec's pending hooks: `request_submitted`,
+`review_lesson_shown` (first time the human-review stage renders),
+`review_outcome_seen`, `low_balance_simulated`, `handoff_seen`. In-page only —
+nothing leaves the file; it exists so the merge can conformance-check event
+names against `analytics-events.json` before wiring the real bus.
+
+### v46 copy deck additions
+
+|| Moment | Copy |
+|---|---|---|
+|| Modified offer | "The reviewer approved a trimmed version: <old → new>. Accept and it runs at N cr (K cr comes back), or decline for a full refund." |
+|| Modified rule line | "Trimmed only, never expanded — ambiguity resolves against you." |
+|| Modified accept | "Accepted modified terms — N cr · K cr refunded" |
+|| Modified decline | "Declined — N cr back. The modified version was an offer, not a bill." |
+|| Hold clock | "hold 22 h 24 min left of 24 h · expiry auto-refunds" |
+|| Hold expiry | "Queued request expired before activation — refunded." |
+|| Event fires | "<event> fired" (feed `running`), "<event> ended" (feed `resolved`) |
+|| Hire route | "File in The Registry →" (button); "billed only on approval — denied applications never charge" |
+
+## 10. Demo limits (what's simulated)
 
 `request.html` ships without the game request bus (it lives on
 `sf/game-systems`): classification, review, sessions, and feed are local

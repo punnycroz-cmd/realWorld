@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v44).
+/* world/audit.js — RW boundary audit (world v46).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -58,6 +58,9 @@
     request   — requests.json ↔ request.html mirror; pack ladder + rates +
                 ad caps verbatim from the plan PROPOSAL; appeal rules honor
                 the not-appealable list; co-sponsor is same-price compatible;
+                v46: approve-modified offer (trim-only, decline = full refund),
+                honest upfront charge, queue hold clock + expiry, scheduled
+                events fire, hire routes to create.html, demo hooks;
                 dark-pattern vocabulary absent
     wire      — feed.json ↔ wire.html: every event kind/status has a chip
                 style; honesty strings + live seam + v33 affordances present;
@@ -1307,7 +1310,30 @@ const PUB = Object.values(PT.surfaces)
     /* screening is the shared engine, never a stub */
     if (!html.includes('screen.js') || !html.includes('RWScreen.screenRequest'))
       add(g, 'fail', 'request.html', null, 'demo must screen through world/screen.js, not a stub');
-    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap}`;
+    /* v46 — the reviewed request */
+    const am = RJ.approve_modified || {};
+    if (!/never expanded/.test(am.rule || '') || am.feed_status !== 'approved (modified)')
+      add(g, 'fail', 'requests.json', null, 'approve_modified contract drifted (trim-only / feed status)');
+    if (!RJ.feed_vocabulary.includes('approved (modified)'))
+      add(g, 'fail', 'requests.json', null, 'feed_vocabulary missing "approved (modified)"');
+    for (const s of ['approved (modified)', 'never expanded', 'full refund',
+                     'accept the trimmed version', 'approve-modified'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `approve-modified surface missing "${s}"`);
+    /* honest upfront charge — declare-time debit, real deny refund */
+    if (!/\(upfront\)/.test(html) || !/deny refund/.test(html))
+      add(g, 'fail', 'request.html', null, 'upfront charge / real deny refund missing');
+    /* queue hold clock + expiry */
+    if (!/holdMin/.test(html) || !/left of 24 h|of 24 h/.test(html))
+      add(g, 'fail', 'request.html', null, 'queued hold clock missing');
+    if (!RJ.queue_hold || !/auto-refund/.test(RJ.queue_hold.expiry || ''))
+      add(g, 'fail', 'requests.json', null, 'queue_hold expiry contract missing');
+    /* scheduled events fire; hire routes to The Registry; demo hooks */
+    if (!/fired/.test(html)) add(g, 'fail', 'request.html', null, 'scheduled events never fire');
+    if (!/per:'route'/.test(html) || !html.includes("location.href='create.html'"))
+      add(g, 'fail', 'request.html', null, 'hire must route to create.html, not file a request');
+    if (!html.includes('RW_DEMO_EVENTS'))
+      add(g, 'fail', 'request.html', null, 'demo event hooks (RW_DEMO_EVENTS) missing');
+    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'}`;
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }
 
