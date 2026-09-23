@@ -2593,3 +2593,462 @@ rescue: monitoring THE ACT at encode (att ≥ att_min+0.1 — you
 - **intent_done sizes are lab-bound** — Albarracín's mundane-
   decision paradigm is the right shape for RW chores but young;
   comm_err ~25% is a lab cohort under specific cue conditions.
+
+
+---
+---
+
+# PART VI (v66) — the residual channels: when it happened,
+# whose hands did it, the dream, and the guards nobody posted
+
+**Scope:** Parts I–V covered adoption (misinformation, conformity,
+correction), minting (phantoms, implants, claims, coerced answers,
+intentions, schema-fills), attribution (source inference,
+cryptomnesia, evidence), and the belief layer. What remains is the
+set of channels that distort records *without any second voice* and
+without imagination: the calendar itself (§66), other people's
+bodies (§67), sleep's own content (§68), and the two retrieval-side
+guards — one that humans actually carry (§69 distinctiveness), one
+that fires silently at ingest (§71 detection) — plus the fluency
+channel that makes strangers familiar (§70) and the trait that
+feeds all the imagery channels (§72). Six new spec sections
+(§6.116–6.121), +17 params, 5 locked nulls, probes P687–P696.
+
+## 65. What Parts I–V left unmodeled
+
+1. **`day` fields decay but never *err*.** §5.63 covers order
+   estimation and the model stores `day` as a decaying scalar —
+   but real date recall is *biased*, not just noisy: events migrate
+   toward the middle of the recall window, toward round dates, and
+   toward landmark anchors, and the bias has a measured slope
+   (~0.4 days of error per day of delay; Rubin & Baddeley 1989).
+   A character who is merely *uncertain* about a date is wrong in
+   a different way than a human, who is *systematically* wrong.
+2. **Watching is treated as perception, not simulation.** The
+   model knows `witnessed` vs `enacted` (§4.32b) — but watching a
+   housemate do a thing is action simulation, and the literature
+   says it plants "I did it" memories even under warning
+   (Lindner et al. 2010). Unmodeled.
+3. **Dreams have no source channel.** v5.1 noted dream content
+   biases; but dream→reality confusion — a documented, survey-
+   measurable false-memory channel correlated with dissociation
+   (Rassin, Merckelbach & Spaan 2001; Mazzoni & Loftus 1996) —
+   has no provenance to hang on.
+4. **The guards are asymmetric.** We model warning (`warned`),
+   dispute (`disputed`), and correction (`retract_p`) — all
+   *externally supplied* resistance. Humans also resist with
+   *internally supplied* scrutiny: the distinctiveness heuristic
+   (demand vivid detail or reject — Schacter, Israel & Racine
+   1999) and silent discrepancy detection (Tousignant, Hall &
+   Loftus 1986) — the latter is the mediating variable the whole
+   misinformation literature converges on, and our §6.3 has no
+   slot for it.
+5. **Fluency without a record misattributes.** `hearCount` pumps
+   believe_p, but bare name-familiarity with *no* episodic
+   record still does work in humans — it surfaces as "they're
+   somebody" or "we've met" (Jacoby, Kelley, Brown & Jasechko
+   1989). PersonModel familiarity currently dead-ends.
+6. **Imagery ability is a proven moderator we never traited.**
+   Imagination inflation scales with imagery ability
+   (Horselenberg et al. 2000); high imagers are *worse* at
+   source discrimination (Dobson & Markham 1993). The model's
+   imagination channels have no per-character gain knob.
+
+## 66. The calendar lies — telescoping and landmark dating
+
+**[CONSENSUS on error growth and boundary pull; the existence of a
+signed "forward telescoping" bias beyond boundary+guessing
+artifacts is DEBATED — the honest model is unbiased error +
+bounded pull, which produces apparent telescoping for free.]**
+
+- **Rubin & Baddeley 1989** (*J. Exp. Psychol.: General* 118 —
+  colloquium dating): dating-error magnitude grows ~**0.4 days
+  per day of delay**; error direction is toward the **middle of
+  the recall interval**; apparent "telescoping" falls out of
+  retention + bounded errors + the impossibility of intruding
+  from the future. Their model needs no systematic bias term.
+- **Thompson, Skowronski & Lee 1988** (diary method, exact dates):
+  substantial telescoping from **~8 weeks** out; slight,
+  unreliable *time-expansion* (dated-older) for recent events;
+  not explained by memory clarity or guessing.
+- **Boundary effects** (Lee & Brown 2003; Huttenlocher, Hedges &
+  Prohaska 1988/1990 hierarchical model): estimates regress
+  toward the middle of the *elicited window* — change the
+  question's bounds and the bias direction follows the bounds,
+  not the event. Guessing contributes to backward telescoping;
+  forward telescoping survives guess-removal — two mechanisms,
+  not one.
+- **Coarse beats fine** (Friedman 1993 line): when the exact date
+  is lost, season, month, day-of-week and time-of-day survive
+  much better — temporal knowledge is hierarchical, not a point
+  estimate that blurs.
+- **Landmarks anchor** (Shum 1998 review; Loftus & Marburger
+  1983 — eruption-date anchoring): personally salient events
+  serve as reference points; events dated relative to a landmark
+  show smaller errors — the anchor supplies the bound.
+
+**Spec consequence (new §6.116 — `whenEstimate` operator):**
+`day` fields stop being point scalars at retrieval. On any
+emission or comparison that reads the day:
+
+```
+day_err ~ N(0, tele_slope·Δ) , Δ = days since the record's true day
+        (tele_slope ≈ 0.4 — Rubin & Baddeley, per-day error growth)
+reported = true_day + day_err
+        + mid_pull·(midpoint(elicitWindow) − true_day)
+            · (1 − dayConf)            // Huttenlocher bound pull
+        + round_bias·(nearestRound(reported) − reported)
+            · (1 − dayConf)            // weekend/holiday/hour prototypes
+        + landmark_pull·(nearestLandmark.day − true_day)
+            · (1 − dayConf)            // landmark anchoring, capped
+dayConf = verbatim survival of the `day` field (weak = drifts more)
+Coarse fields (season, month, weekday, tod) decay as SEPARATE
+  coarse-grained fields at ~0.4× the day field's decay —
+  a character loses "March 14th" while keeping "early spring."
+teles_when_immune (§6.111) exempts the hot record's own `when`
+  from mid_pull/landmark_pull (Palombo 2021) — not from noise.
+LOCKED: order of two records both within landmark_pull range of
+  REAL landmarks is preserved (order_preserve_null) — telescoping
+  shifts estimates, it does not permute anchored sequences.
+```
+
+Apparent forward-telescoping now emerges for remote events
+(bounded errors + future-side floor) — we implement the
+*mechanism* the best-supported model proposes, not a signed
+drift hack.
+
+## 67. Watching is half of doing — observation inflation
+
+- **Lindner, Echterhoff, Davidson & Brand 2010** (*Psych. Sci.*
+  21:1291): participants who merely *watched a video* of another
+  person performing simple actions later showed robust false
+  memories of **having performed those actions themselves** —
+  persisting despite explicit warnings immediately before test
+  and despite removal of sensory overlap. The authors' account is
+  interpersonal **motor simulation**, not ordinary source
+  monitoring — which is exactly why warnings fail.
+- **Lindner & Davidson 2013** (*Aging, Neuropsych. & Cogn.*):
+  false action memories in older adults relate to executive
+  function — the age leg rides `discrim_mult`.
+- Fits the enacted/observed split §4.32b introduced: `enacted`
+  and observed records share motor content; the difference lives
+  in the provenance tag, which decays.
+
+**Spec consequence (new §6.117):** an `observedAction` record
+(Event tag `observed_action:true` — the world tags routine
+co-present actions: watched a housemate cook, fix, clean) is
+written with `enacted:false`, provenance `witnessed`, but gets a
+**motor-content bonus** `obs_inflate_gain` (0.35) on the action
+field's verbatim strength — simulation is real encoding. The
+flip: when the observation record's source decays below 0.3
+(§6.4) AND the action is self-plausible (schema fit, routine),
+the record's agency field may rewrite `actor:self` at
+`obs_flip_mult`·source_confuse_flip per check — **warnings do
+not apply** (locked `obs_warn_resist`: warn_mult is bypassed on
+this channel, Lindner Exp. 3). Flip rate ×`discrim_mult` for
+age. The result: a character can come to "remember" having done
+the chore they only watched — cheap, common, and a ready-made
+gaslight vector for the rumor layer.
+
+## 68. The dream leaks — dream-reality confusion
+
+- **Rassin, Merckelbach & Spaan 2001** (*J. Nerv. Ment. Dis.*
+  189:478): a nontrivial minority — **11.8% and 25.9%** across
+  two general samples — report having confused dream content
+  with reality; reporters score higher on dissociation and
+  fantasy proneness.
+- **Mazzoni & Loftus 1996** (*Conscious. Cogn.* 5:442): dream
+  content can be implanted→recalled as real in a suggestion
+  paradigm; the dream is a *manufacturable* false source.
+- **Kemp, Burt & Sheen 2003** (*Appl. Cogn. Psychol.* 17:577):
+  dreamt vs actual experiences carry distinguishable
+  phenomenology (dreams thinner on sensory/contextual detail) —
+  the reality-monitoring features are there, just weak.
+- Clinical extreme: **Wamsley et al. 2014** (*Sleep* 37:419) —
+  narcolepsy "dream delusions," sustained false beliefs from
+  vivid dreams; the population channel writ pathological.
+- **[CONSENSUS the confusion exists and correlates with
+  dissociation/absorption; rate and mechanism thin — treat as
+  small-channel.]**
+
+**Spec consequence (new §6.118):** new provenance
+`source.kind:"dream"`. The world's dream system (or a scripted
+`dreamEvent` op) mints records at `dream_strength` (0.15) —
+real records, low strength, schema-loose verbatim. Reality-
+monitoring features are thin by construction (Kemp et al.), so
+the §6.9 flip gate applies with a trait-scaled rate:
+`dream_flip_mult` (0.5) · source_confuse_flip, ×(1 +
+dissoc)·(1 + fantasy/2) — the Rassin correlate set already lives
+in the trait vector. **Locked `dream_content_null`:** the flip
+moves the provenance tag only; dreaming about an event can
+become "it happened" but cannot mint new verbatim fields — the
+dream contributes existence, not detail (confab §6.2 may still
+fill afterward on its own rules). Plausibility gate (§5) still
+applies — a flying dream doesn't flip (Pezdek).
+
+## 69. Demand the detail — the distinctiveness heuristic
+
+- **Schacter, Israel & Racine 1999** (*JML* 40:1): false
+  recognition of semantic associates collapses when items were
+  encoded in a distinctive format (pictures) — because subjects
+  adopt a response mode demanding **diagnostic recollection**:
+  "if I'd really seen it, I'd remember the picture." When the
+  encoding manipulation makes the expectation useless, the
+  suppression vanishes — it's a retrieval *strategy*, not an
+  encoding effect.
+- **Gallo, Cendan, Dodson et al. / Gallo 2006** (*Memory*
+  14:730): two recollection-based monitors — the distinctiveness
+  heuristic AND recall-to-reject; older adults deploy both when
+  the encoding supports them — the guard is available to old
+  characters *if* their encoding was distinctive.
+- **Koutstaal & Schacter 1999**: retrieval scrutiny reduces
+  gist-false recognition in older adults but never erases the
+  age gap — the guard is weaker, not absent.
+
+**Spec consequence (new §6.119):** retrieval posture flag
+`demand_detail:true` (caller-set: cross-examination, a pedant
+character, any context where the character *expects* vivid
+recall). Under it:
+
+```
+phantomize (§6.8) and lure endorsement pay:
+   endorse_mult = 1 − distinct_expect·distinctiveness(encoding)
+where distinctiveness(encoding) = fraction of the record's
+  channels that would have carried diagnostic verbatim
+  (was the event SEEABLE in detail? an attended face-to-face
+  scene: high; an overheard summary: ~0 — you can't demand a
+  picture of a rumor)
+distinct_expect ≈ 0.5 baseline; ×1.2 for `checker` trait;
+  falls to ×(1 − distinct_age_loss·age_eff/80) when the record's
+  own encoding was gist-dominant (the heuristic needs a
+  distinctive encoding to lean on — Schacter 1999 Exp. 2 gate)
+```
+
+This gives the cautious character a *usable* defense — and
+correctly makes it useless against false memories for content
+that never had a distinctive encoding to expect.
+
+## 70. Familiar means known — fluency misattribution to persons
+
+- **Jacoby, Kelley, Brown & Jasechko 1989** (*JPSP* 56:326):
+  nonfamous names read once are judged **famous 24h later** —
+  but not immediately. Familiarity survives; recollection of the
+  source doesn't; fluent processing is misattributed to
+  prominence. The delayed-only signature is the design: the flip
+  needs source decay, exactly like §6.9/§6.10.
+- **Jacoby, Woloshyn & Kelley 1989**: dividing attention at test
+  increases the effect — familiarity operates when recollection
+  is suppressed.
+
+**Spec consequence (new §6.120):** PersonModel gains an implicit
+`nameFluency` accumulator — every name exposure (heard, seen,
+gossiped) adds `hearCount`-style increments *independent of any
+episodic record*. When `nameFluency > fame_thresh` (0.4) AND no
+live episodic record explains the familiarity:
+
+```
+P(attribute "known person / public figure") = fame_p (0.12)
+  — scaled ×(1 + hearCount saturation) and ×(1 + divided-attention
+    state penalty)
+P(attribute "we've met / acquaintance") = acquaint_p (0.10)
+  — only when the person is place-consistent (same street, same
+    circle — the schema-plausible resolution of unexplained
+    familiarity); stronger than fame_p for neighborhood-scale
+    names, weaker for distant ones
+LOCKED `fame_episode_null`: unexplained familiarity emits a
+  relational/feeling attribution ONLY — it never mints a shared
+  episode record. "I'm sure I know them" is the ceiling;
+  fabricating the meeting is §6.2/§6.8's job on its own gates.
+```
+
+The rumor layer's repetition channel now has a person-level
+expression: a name repeated enough becomes a *somebody*, which
+is exactly how ambient NPCs should acquire unearned reputations.
+
+## 71. Silent detection — the guard at ingest
+
+- **Tousignant, Hall & Loftus 1986** (*Mem. & Cogn.* 14:329,
+  N=570 across 4 exps): slower, more scrutinizing readers detect
+  discrepancies between their memory and postevent narratives;
+  **detected discrepancies resist misinformation** — detection
+  is the mediating variable that explains warning, interval, and
+  blatancy effects across the literature.
+- **Recollection rejection** (Chan's group, *Appl. Cogn.
+  Psychol.* 2017): subjects spontaneously reject contradictory
+  misinformation by recollecting the original — more for
+  contradictory than additive content, decaying with the
+  event→misinformation delay.
+- **RES qualification** (2017 *Memory* line): retrieval-enhanced
+  suggestibility accrues only to those who *failed to detect*
+  discrepancies — detection status, not the act of recall,
+  carries the risk.
+
+**Spec consequence (new §6.121 — detection gate inside
+hearAccount, before p_adopt):** when the account conflicts with
+a surviving verbatim candidate on the same field:
+
+```
+detect_p = detect_gain (0.5)
+         · verbatimStrength(field)         // nothing to compare → no detect
+         · scrutiny                         // read-time proxy:
+                                            // warned? ×1.4; rushed ×0.6;
+                                            // checker trait ×1.2
+         · (contradictory ? 1 : 0.5)        // additive content half-detects
+if detected → this exposure pays dispute_mult (same ~0.05 floor
+  as a spoken dispute — silently); emit `noticed_discrepancy` to
+  the dialogue layer (available as a suspicion tell)
+LOCKED `detect_boost_null`: detection does NOT strengthen the
+  original candidate — it suppresses adoption only (no study
+  shows noticing protects the original's subsequent decay;
+  keep the survival machinery honest)
+```
+
+This subsumes §1's retention-interval result *mechanistically*:
+long delay → weak verbatim → nothing to detect against →
+susceptible. `warned` now has two teeth — the warn_mult leg
+(external) and the doubled scrutiny leg (internal).
+
+## 72. The vivid imager — `imagery` loads the imagination stack
+
+- **Horselenberg et al. 2000** (*Appl. Cogn. Psychol.* —
+  Maastricht): imagery ability is the one personality measure
+  that predicted imagination inflation — better imagers inflate
+  more. Dissociation predicts in some paradigms (Heaps & Nash
+  1999 — DES scores predicted inflation in N=94).
+- **Dobson & Markham 1993** (*Brit. J. Psychol.* 84): high
+  imagers were *worse* at discriminating which of two external
+  sources produced an item — vivid internal generation blurs the
+  external/external boundary too.
+- Marks 1993 reality-monitoring line: vividness interacts with
+  the perceived/imagined frequency judgment — the mechanistic
+  substrate.
+
+**Spec consequence:** new IndivTraits entry `imagery` ∈ N(0,1),
+loading: `imagine_gain` ×(1 + 0.5·imagery), verbatim richness of
+imagined/claimed/dream records +0.3·imagery (so high imagers
+cross `rm_rich_thresh` sooner), `source_confuse` and
+`dream_flip_mult` ×(1 + 0.4·imagery), §6.10 external-external
+confusion +0.3·imagery (Dobson & Markham). `fantasy` and
+`dissoc` keep their own legs (dream channel §68, §6.9 rate).
+RW payoff: the daydreaming poet and the concrete-minded clerk
+now differ on every self-authored false-memory channel, not just
+in prose style.
+
+## 73. Spec changes in v5.14 (summary)
+
+- **§6.116** `whenEstimate` — day-field reconstruction with
+  noise growth, window/midpoint pull, rounding pull, landmark
+  anchoring, coarse-field preservation. `order_preserve_null`
+  locked.
+- **§6.117** `observedAction` — motor-simulation encoding bonus
+  + agency-field flip; `obs_warn_resist` locked (warnings don't
+  apply).
+- **§6.118** `source.kind:"dream"` — dream provenance, trait-
+  scaled flip, `dream_content_null` locked.
+- **§6.119** `demand_detail` posture + `distinct_expect` —
+  endorsement suppression scaled by encoding distinctiveness.
+- **§6.120** `nameFluency` — unexplained-familiarity
+  attributions (fame/acquaintance); `fame_episode_null` locked.
+- **§6.121** detection gate in `hearAccount` — silent
+  discrepancy detection suppresses adoption;
+  `detect_boost_null` locked.
+- **§7** +17 params, +1 trait (`imagery`), +5 locked nulls.
+- **§10** contract: `observed_action` event tag, `dreamEvent`
+  op, `demand_detail` retrieval flag, `noticed_discrepancy`
+  emission, `whenEstimate` op, PersonModel `nameFluency`.
+
+## 74. Parameter guidance and probes
+
+| param | default | meaning |
+|---|---|---|
+| tele_slope | 0.4 | day-error σ growth per day of delay (R&B 1989) |
+| mid_pull | 0.15 | pull toward elicited-window midpoint |
+| round_bias | 0.1 | pull toward round dates/times |
+| landmark_pull | 0.3 | pull toward nearest landmark day |
+| coarse_when_mult | 0.4 | decay mult on season/month/weekday fields |
+| obs_inflate_gain | 0.35 | observed-action motor encoding bonus |
+| obs_flip_mult | 1.0 | agency flip rate mult on source_confuse_flip |
+| obs_warn_resist | — | LOCKED: warn_mult bypassed on obs flips |
+| dream_strength | 0.15 | dream-record encoding strength |
+| dream_flip_mult | 0.5 | dream→witnessed flip scaling |
+| dream_content_null | — | LOCKED: flip moves provenance only |
+| distinct_expect | 0.5 | endorsement suppression under demand_detail |
+| distinct_age_loss | 0.5 | age penalty when encoding gist-dominant |
+| fame_thresh | 0.4 | nameFluency needed for attribution attempt |
+| fame_p / acquaint_p | 0.12 / 0.10 | attribution emission rates |
+| fame_episode_null | — | LOCKED: no shared-episode mint from fluency |
+| detect_gain | 0.5 | base detection probability |
+| detect_boost_null | — | LOCKED: detection doesn't strengthen original |
+| order_preserve_null | — | LOCKED: anchored sequences never permute |
+
+- **P687 telescoping (MUST):** date estimates on records at
+  Δ∈{7,30,90,180}d — error σ must grow ≈linearly (slope
+  ~0.3–0.5); remote events show net forward bias inside a
+  bounded window; direction flips with the elicited window's
+  midpoint, not the event (Huttenlocher signature).
+- **P688 landmark anchoring (MUST):** matched records, one
+  within landmark_pull range of a landmark, one not — anchored
+  error smaller; landmark's own day exempt mid/landmark pulls.
+- **P689 coarse preservation (MUST):** records whose dayConf has
+  collapsed still answer season/month correctly ≥2× more often
+  than exact day — coarse fields outlive fine ones.
+- **P690 order preservation (MUST — locked null):** two records
+  each landmarked — reported days may err but the emitted ORDER
+  never inverts. FAIL on permutation.
+- **P691 observation inflation (MUST):** `observed_action` on a
+  routine partner action, decayed past source thresh → some
+  profiles emit actor:self; `warned` context does NOT suppress
+  it (obs_warn_resist); flip scales with discrim_mult.
+- **P692 dream channel (MUST):** dreamEvent mints source.dream
+  at dream_strength; flips only via decay gate, rate ∝ dissoc/
+  fantasy/imagery; verbatim field count identical pre/post flip
+  (dream_content_null); implausible dream never flips.
+- **P693 distinctiveness heuristic (MUST):** same lure, recall
+  with vs without demand_detail — endorsement suppressed ∝
+  distinct_expect ONLY when the record had distinctive encoding
+  channels; gist-only encodings show no protection at any age.
+- **P694 false familiarity (SHOULD):** name seen/heard 6×, no
+  episodic record → fame/acquaintance attributions emerge;
+  NEVER a shared-episode record (fame_episode_null);
+  place-inconsistent names skew fame_p.
+- **P695 silent detection (MUST):** conflicting account vs
+  surviving verbatim — adoption ≈dispute_mult without any
+  `disputed` flag; verbatim candidate strength identical
+  pre/post detection (detect_boost_null); weak-verbatim arm
+  detects rarely.
+- **P696 imagery trait (SHOULD):** imagineEvent×5 on imagery
+  ±1.5σ profiles — high arm reaches rm_rich_thresh and flips;
+  low arm doesn't; source_confuse scales similarly.
+
+## 75. Honest limits (Part VI)
+
+- **Telescoping mechanism is deliberately conservative** — we
+  implement the Rubin & Baddeley bounded-error account, which
+  produces apparent telescoping without a signed bias. If a
+  probe demands a *residual* forward bias beyond boundary
+  effects (some news-event studies claim one), `mid_pull` has
+  room — but the burden of proof is on the bias, per the
+  boundary-model literature.
+- **Observation inflation's mechanism is simulation, not source
+  confusion** — we implement it through the existing
+  provenance-decay gate (which IS a source-monitoring account)
+  plus the locked warning-resistance. A purist reading wants a
+  separate motor-merge channel; ours is the cheaper
+  approximation that reproduces both observable signatures
+  (warning-immune, discrim_mult-scaled).
+- **Dream→reality rates are survey numbers** (11.8%/25.9%
+  lifetime endorsement — people who *report having experienced
+  it*), not per-dream flip rates; our `dream_flip_mult` 0.5 is a
+  conservative guess scaled by the right traits.
+- **Distinctiveness heuristic needs `distinctiveness(encoding)`**
+  — a derived quantity the substrate must approximate from
+  channel coverage; characters encoding mostly gist can't lean
+  on the guard, which is the intended failure mode (Koutstaal
+  & Schacter's residual gap).
+- **False fame is name-level** — Jacoby's effect is on *names*,
+  not faces or people-in-context; extending it to `acquaint_p`
+  ("we've met") is our neighborhood-scale extrapolation, gated
+  on place-consistency to keep it bounded.
+- **Detection's scrutiny proxy** (warned ×1.4, rushed ×0.6,
+  checker ×1.2) is assembled from Tousignant's reading-time
+  result — a fair mechanization, but the multipliers are ours.

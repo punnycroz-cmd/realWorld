@@ -2008,3 +2008,71 @@ claims (full grounding in retrieval-cues.md §§60–69):
   direction: presence suppresses the CONDITIONED RESPONSE at
   expression; the association is untouched — inhibition, never
   unlearning (our locked null).
+
+## 43. v66 addendum — false-memory VI anchors (verified)
+
+- **The calendar drifts, bounded and biased.** Rubin & Baddeley
+  1989 (*JEP:G* 118): dating-error magnitude grows ~0.4 days per
+  day of delay, direction toward the middle of the recall
+  interval — apparent telescoping falls out of retention +
+  bounded errors + the impossibility of future intrusions; no
+  systematic bias term needed. Thompson, Skowronski & Lee 1988
+  (diary/exact-date method): telescoping measurable from ~8
+  weeks; slight unreliable time-expansion for recent events.
+  Lee & Brown 2003: moving the elicited window moves the bias
+  (boundary model); forward telescoping survives guess-removal —
+  two mechanisms. Huttenlocher, Hedges & Prohaska 1988/1990:
+  hierarchical/category model — estimates regress toward bounds
+  and prototypes. Friedman 1993: coarse temporal attributes
+  (season, month, weekday, time-of-day) survive exact-date loss.
+  Landmark anchoring: Shum 1998 review; Loftus & Marburger 1983.
+- **Watching is half of doing.** Lindner, Echterhoff, Davidson &
+  Brand 2010 (*Psych. Sci.* 21:1291): mere observation of
+  another's actions → robust false self-performance memories,
+  persisting despite immediate warnings and despite eliminated
+  sensory overlap — the authors invoke interpersonal motor
+  simulation, not source monitoring. Lindner & Davidson 2013:
+  older adults, executive-function moderation.
+- **Dreams leak into the record.** Rassin, Merckelbach & Spaan
+  2001 (*JNMD* 189:478): 11.8%/25.9% of two general samples
+  report dream-reality confusion; correlates dissociation +
+  fantasy proneness. Mazzoni & Loftus 1996 (*Conscious. Cogn.*):
+  dream content can be implanted→recalled as real. Kemp, Burt &
+  Sheen 2003: dreamt experiences carry thinner sensory/contextual
+  phenomenology than lived ones — the discriminative features
+  exist but are weak. Wamsley et al. 2014 (*Sleep*): narcolepsy
+  "dream delusions" — sustained false beliefs from vivid dreams;
+  the clinical ceiling of the population channel.
+- **Demanding detail protects — when there was detail to get.**
+  Schacter, Israel & Racine 1999 (*JML* 40:1): the
+  distinctiveness heuristic — a response mode demanding
+  diagnostic recollection — suppresses gist-false recognition,
+  and disappears when encoding offered nothing distinctive to
+  expect. Gallo, Bell, Beier & Schacter 2006: two co-existing
+  recollection monitors (distinctiveness + recall-to-reject),
+  both deployable by older adults given supportive encoding.
+  Koutstaal & Schacter 1999: scrutiny reduces but never erases
+  the older-adult gist-false gap.
+- **Fluency without source misattributes.** Jacoby, Kelley,
+  Brown & Jasechko 1989 (*JPSP* 56:326): nonfamous names judged
+  famous 24h after exposure, not immediately — familiarity
+  outlives source recollection; divided attention amplifies
+  (Jacoby, Woloshyn & Kelley 1989). Our neighborhood-scale
+  extension (familiar name → "we've met") is extrapolation,
+  gated on place-consistency.
+- **Detection is the mediator — silently.** Tousignant, Hall &
+  Loftus 1986 (*Mem. & Cogn.* 14:329, N=570): scrutiny (slow
+  reading) → discrepancy detection → misinformation resistance;
+  detection mediates warning, interval, and blatancy effects.
+  Recollection-rejection work (*Appl. Cogn. Psychol.* 2017):
+  spontaneous rejection of contradictory misinformation,
+  decaying with delay; RES qualification (*Memory* 2017):
+  retrieval-enhanced suggestibility accrues only to non-
+  detectors — detection status, not the recall act, is the risk.
+- **Imagers hallucinate better.** Horselenberg et al. 2000:
+  imagery ability was the sole individual-difference predictor
+  of imagination inflation; Heaps & Nash 1999: dissociation
+  (DES) predicts too. Dobson & Markham 1993 (*Brit. J. Psychol.*
+  84): high imagers are *worse* at external-external source
+  discrimination — vivid internal generation blurs boundaries
+  on both sides.

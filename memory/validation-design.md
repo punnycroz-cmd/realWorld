@@ -5673,3 +5673,121 @@ Registry: P1–P686. v65 suite: P677–P686 — 8 MUST (P678 sign-
 locked; P677/P679/P680/P682/P685/P686 each carry a locked null
 or locked exemption) and 2 SHOULD (P683 trait gate, P684 the
 awe HYPOTHESIS arm).
+
+## 125. Probes P687–P696 (v66 suite — false-memory VI, the
+residual channels)
+
+- **P687 telescoping shape (MUST):** whenEstimate on records at
+  Δ ∈ {7, 30, 90, 180}d inside a bounded elicit window — error
+  σ grows ≈linearly with slope 0.3–0.5 (R&B anchor); remote
+  events net-forward inside the window; flipping the window's
+  midpoint flips the pull direction (Huttenlocher signature —
+  bias tracks the question's bounds, not the event).
+- **P688 landmark anchoring (MUST):** two matched records, one
+  within landmark_pull range of a landmark day, one isolated —
+  anchored |error| reliably smaller; the landmark record's own
+  day skips mid/landmark pulls; teles_when_immune records skip
+  both pulls but keep σ noise.
+- **P689 coarse preservation (MUST):** drive dayConf below
+  threshold — season/month/weekday answers remain ≥2× more
+  accurate than exact-day answers (coarse_when_mult); emitted
+  dialogue takes the coarse form, not a guessed date.
+- **P690 order preservation (MUST — locked null):** two records
+  each landmarked — reported days may err arbitrarily but
+  emitted order NEVER inverts (order_preserve_null). FAIL on
+  any permutation across 1e4 jittered draws.
+- **P691 observation inflation (MUST — locked resist):**
+  `observed_action` on a routine partner action, source decayed
+  <0.3 → a nonzero share of profiles emit `actor:self`; adding
+  `warned` to the context does NOT reduce the flip rate
+  (obs_warn_resist); flip scales with discrim_mult (older >
+  younger at matched exposure).
+- **P692 dream channel (MUST — locked null):** dreamEvent mints
+  at dream_strength with source.dream; flip only via the decay
+  gate, rate rising with dissoc/fantasy/imagery; verbatim field
+  count IDENTICAL pre/post flip (dream_content_null);
+  plausibility-failing dreams never flip at any trait level.
+- **P693 distinctiveness heuristic (MUST):** identical lure,
+  recall with vs without demand_detail — endorsement suppressed
+  ∝ distinct_expect only when the record's encoding had
+  diagnostic channels; gist-only encodings show zero protection
+  at ANY age; veridical recall probability unchanged (the guard
+  never costs true hits).
+- **P694 false familiarity (SHOULD — locked null):** name
+  exposed 6× with no episodic record → fame/acquaintance
+  attributions emit; place-inconsistent names skew fame_p,
+  place-consistent skew acquaint_p; NO shared-episode record is
+  ever minted from fluency alone (fame_episode_null); immediate
+  (non-decayed) exposures attribute less than delayed (Jacoby
+  signature).
+- **P695 silent detection (MUST — locked null):** conflicting
+  account vs surviving verbatim → adoption ≈ dispute_mult with
+  NO disputed flag set; verbatim candidate strength identical
+  pre/post detection (detect_boost_null); weak-verbatim arm
+  detects rarely and adopts normally; contradictory content
+  detects ≥2× additive content.
+- **P696 imagery trait (SHOULD):** imagineEvent ×5 on
+  imagery ±1.5σ profiles — high arm reaches rm_rich_thresh and
+  flips earlier; low arm rarely crosses; source_confuse and
+  dream_flip scale the same direction; `vivid` held constant —
+  the two traits must show independent variance (orthogonality
+  check).
+
+## 126. Sources verified this version (P687–P696 backing)
+
+- Rubin & Baddeley 1989 (*JEP:G* 118 — dating-error growth
+  ~0.4 d/day, direction toward interval middle; apparent
+  telescoping from retention+bounded error, no systematic bias
+  needed); Thompson, Skowronski & Lee 1988 (diary method —
+  telescoping from ~8 weeks, slight nonsignificant time-
+  expansion for recent); Lee & Brown 2003 (boundary constraints
+  move the bias; forward telescoping survives guess-removal —
+  two mechanisms); Huttenlocher, Hedges & Prohaska 1988/1990
+  (hierarchical/category model — estimates migrate toward
+  bounds and prototypes); Friedman 1993 (coarse temporal
+  attributes outlive exact dates); Shum 1998 / Loftus &
+  Marburger 1983 (landmark anchoring).
+- Lindner, Echterhoff, Davidson & Brand 2010 (*Psych. Sci.*
+  21:1291 — observation inflation: false self-performance after
+  mere observation; persists despite warnings and removed
+  sensory overlap; action-simulation account); Lindner &
+  Davidson 2013 (*Aging Neuropsych. Cogn.* — false action
+  memories in older adults, executive-function linked).
+- Rassin, Merckelbach & Spaan 2001 (*J. Nerv. Ment. Dis.*
+  189:478 — dream-reality confusion reported by 11.8%/25.9% of
+  two samples; correlates dissociation + fantasy proneness);
+  Mazzoni & Loftus 1996 (*Conscious. Cogn.* 5:442 — dream
+  content implanted→recalled as real); Kemp, Burt & Sheen 2003
+  (*Appl. Cogn. Psychol.* 17:577 — dreamt experiences carry
+  thinner phenomenology); Wamsley et al. 2014 (*Sleep* 37:419 —
+  narcolepsy dream delusions, sustained false beliefs; clinical
+  ceiling).
+- Schacter, Israel & Racine 1999 (*JML* 40:1 — distinctiveness
+  heuristic: diagnostic-recollection demand suppresses false
+  recognition, gated on distinctive encoding); Gallo, Bell,
+  Beier & Schacter 2006 (*Memory* 14:730 — recall-to-reject +
+  distinctiveness heuristic, both available to older adults when
+  encoding supports); Koutstaal & Schacter 1999 (scrutiny
+  reduces gist-false recognition in the old, residual gap
+  remains); Dodson & Schacter 2002 (metacognition framing).
+- Jacoby, Kelley, Brown & Jasechko 1989 (*JPSP* 56:326 —
+  becoming famous overnight: delayed-only false fame, familiarity
+  survives source recollection); Jacoby, Woloshyn & Kelley 1989
+  (*JEP:G* 118:115 — divided attention at test amplifies).
+- Tousignant, Hall & Loftus 1986 (*Mem. & Cogn.* 14:329, N=570 —
+  slower/scrutinizing readers detect discrepancies and resist;
+  detection is the mediating variable); recollection-rejection
+  line (*Appl. Cogn. Psychol.* 2017 — spontaneous rejection of
+  contradictory > additive misinformation, decaying with delay);
+  retrieval-enhanced-suggestibility discrepancy work (*Memory*
+  2017 — RES accrues to non-detectors only).
+- Horselenberg et al. 2000 (*Appl. Cogn. Psychol.* — imagery
+  ability the sole predictor of imagination inflation); Heaps &
+  Nash 1999 (dissociation predicts inflation, N=94); Dobson &
+  Markham 1993 (*Brit. J. Psychol.* 84 — high imagers worse at
+  external-external source discrimination); Marks 1993 (imagery
+  vividness × reality-monitoring frequency judgments).
+
+Registry: P1–P696. v66 suite: P687–P696 — 7 MUST (P687–P693,
+P695; P690–P692 and P695 each carry a locked null/resist) and
+3 SHOULD (P694 locked-null-bearing, P696 trait orthogonality).

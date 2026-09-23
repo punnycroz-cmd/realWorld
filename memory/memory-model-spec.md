@@ -1,5 +1,43 @@
-# Memory Model Spec v5.13 — implementable human-like memory for RW characters
+# Memory Model Spec v5.14 — implementable human-like memory for RW characters
 
+> **v5.14 note (false-memory VI — the residual channels: the
+> calendar lies, watching is half of doing, dreams leak, and the
+> two silent guards):** `memory/false-memory.md` Part VI
+> (§§65–75). **Telescoping** — `whenEstimate` reconstructs the
+> `day` field: σ grows `tele_slope`·Δ (~0.4 d/d, Rubin & Baddeley
+> 1989) plus bounded pulls to the elicited-window midpoint,
+> round dates, and landmarks, all ×(1−dayConf); coarse fields
+> (season/month/weekday) decay separately at `coarse_when_mult`
+> (Friedman 1993). Locked `order_preserve_null` — anchored
+> sequences never permute. **Observation inflation** —
+> `observed_action` events get a motor-simulation encoding bonus
+> (`obs_inflate_gain`) and may flip `actor:self` after source
+> decay (Lindner et al. 2010 — locked `obs_warn_resist`:
+> warnings do NOT suppress this channel). **Dreams** —
+> `source.kind:"dream"` mints low-strength records whose flip
+> scales with `dissoc`/`fantasy`/`imagery` (Rassin et al. 2001:
+> 11.8–25.9% lifetime DRC); locked `dream_content_null` — the
+> flip moves provenance, never writes detail. **Distinctiveness
+> heuristic** — `demand_detail` retrieval posture suppresses
+> phantom/lure endorsement ∝ `distinct_expect`·encoding
+> distinctiveness (Schacter, Israel & Racine 1999; useless
+> against gist-only encodings — the intended failure).
+> **Fluency misattribution** — PersonModel `nameFluency`
+> accumulates on bare name exposure; past `fame_thresh` with no
+> episodic anchor it emits fame/acquaintance attributions
+> (Jacoby et al. 1989 — delayed-only); locked
+> `fame_episode_null` — familiarity never mints a shared
+> episode. **Silent detection** — `hearAccount` runs a
+> discrepancy-detection gate (`detect_gain`·verbatimStrength·
+> scrutiny) before p_adopt: detected conflicts pay
+> `dispute_mult` without any spoken dispute (Tousignant et al.
+> 1986 — detection is the literature's mediating variable);
+> locked `detect_boost_null` — detection never strengthens the
+> original. **`imagery` trait** — loads imagine_gain, rm-richness
+> of imagined/dream records, and source_confuse (Horselenberg
+> 2000; Dobson & Markham 1993). +17 params, 5 locked nulls,
+> probes P687–P696.
+>
 > **v5.13 note (emotional-memory VI — the afterlife of feeling:
 > the tone outlives the words, the dead keep their cues, and
 > safety has a face):** `memory/emotional-memory.md` Part VI
@@ -8000,6 +8038,128 @@ records ignore dforget entirely (flag stored, inert). Under
 `cueContext.suppress:true` the resistance halves — strategy
 matters (van Schie arm).
 
+### 6.116 The calendar lies — telescoping and landmark dating
+(new in v5.14)
+
+(FM§66; Rubin & Baddeley 1989 — error σ ≈0.4 d/d delay,
+direction toward interval middle; Thompson et al. 1988 — onset
+~8 weeks; Huttenlocher hierarchical/boundary model; Friedman
+1993 coarse preservation.) Any emission or comparison reading
+a `day` field runs `whenEstimate`:
+
+```
+day_err ~ N(0, tele_slope·Δ)                  // Δ = delay, days
+reported = true_day + day_err
+         + mid_pull·(midpoint(elicitWindow) − true_day)·(1−dayConf)
+         + round_bias·(nearestRound(reported) − reported)·(1−dayConf)
+         + landmark_pull·(nearestLandmark.day − true_day)·(1−dayConf)
+dayConf = day-field verbatim survival; coarse fields
+  (season/month/weekday/tod) are separate fields decaying at
+  coarse_when_mult — "early spring" outlives "March 14th".
+teles_when_immune records skip mid/landmark pulls (§6.111).
+LOCKED order_preserve_null: two records each within
+  landmark_pull range of real landmarks never emit in inverted
+  order — estimates shift, anchored sequences don't permute.
+```
+
+### 6.117 Watching is half of doing — observation inflation
+(new in v5.14)
+
+(FM§67; Lindner, Echterhoff, Davidson & Brand 2010 — robust
+false self-performance from mere observation, warning-immune;
+Lindner & Davidson 2013 — older adults, executive-linked.)
+Events tagged `observed_action:true` (world-side: co-present
+routine actions) encode with `enacted:false`, provenance
+`witnessed`, plus `obs_inflate_gain` (0.35) on the action
+field's verbatim — motor simulation is real encoding. After
+source decay (<0.3, §6.4) AND self-plausibility, the agency
+field may rewrite to `actor:self` at
+`obs_flip_mult`·source_confuse_flip per check, ×`discrim_mult`.
+LOCKED `obs_warn_resist`: `warn_mult`/`warned` does not apply
+to this channel (Lindner Exp. 3 — warnings failed).
+
+### 6.118 The dream leaks — dream-reality confusion (new in
+v5.14)
+
+(FM§68; Rassin, Merckelbach & Spaan 2001 — 11.8%/25.9% lifetime
+DRC, dissociation/fantasy-correlated; Mazzoni & Loftus 1996;
+Kemp, Burt & Sheen 2003 — dreams phenomenologically thin;
+Wamsley et al. 2014 — narcolepsy dream delusions, clinical
+extreme.) `dreamEvent` mints records at `dream_strength` (0.15)
+with `source.kind:"dream"`, thin sensory/contextual verbatim.
+The §6.9 flip gate applies at `dream_flip_mult` (0.5)·
+source_confuse_flip·(1+dissoc)·(1+fantasy/2)·(1+0.4·imagery);
+the §5 plausibility gate still binds (impossible dreams never
+flip). LOCKED `dream_content_null`: the flip moves provenance
+only — dream records never gain verbatim fields on flipping
+(§6.2 confab fill may act afterward on its own rules).
+
+### 6.119 Demand the detail — the distinctiveness heuristic
+(new in v5.14)
+
+(FM§69; Schacter, Israel & Racine 1999 — diagnostic-recollection
+demand suppresses false recognition, only when encoding was
+distinctive; Gallo et al. 2006 — recall-to-reject co-monitor;
+Koutstaal & Schacter 1999 — older adults benefit, residual gap
+remains.) Retrieval posture `demand_detail:true` (caller-set —
+cross-examination, pedants):
+
+```
+endorse_mult = 1 − distinct_expect·distinctiveness(encoding)
+distinctiveness(encoding) = fraction of channels that would have
+  carried diagnostic verbatim; ~0 for overheard/gist-only
+  encodings — the guard needs something to expect
+distinct_expect ≈0.5, ×1.2 checker; ×(1 −
+  distinct_age_loss·age_eff/80) when the record's own encoding
+  was gist-dominant.
+Applies to §6.8 phantomize and lure endorsement only — never
+to veridical recall probability.
+```
+
+### 6.120 Familiar means known — fluency misattribution to
+persons (new in v5.14)
+
+(FM§70; Jacoby, Kelley, Brown & Jasechko 1989 — nonfamous names
+judged famous after 24h, not immediately: familiarity survives
+source recollection; Jacoby, Woloshyn & Kelley 1989 — divided
+attention worsens it.) PersonModel gains `nameFluency`:
+increments on every name exposure, independent of any episodic
+record. When nameFluency > `fame_thresh` (0.4) and no live
+record explains it:
+
+```
+emit attribution ∝ hearCount-saturated fluency:
+  "public figure / somebody" at fame_p (0.12);
+  "we've met / acquaintance" at acquaint_p (0.10) — only when
+  place-consistent (same streets/circles); ×(1+DA penalty).
+LOCKED fame_episode_null: emits relational attribution ONLY;
+  never mints a shared-episode record (fabricating the meeting
+  is §6.2/§6.8's job on its own gates).
+```
+
+### 6.121 Silent detection — the guard at ingest (new in v5.14)
+
+(FM§71; Tousignant, Hall & Loftus 1986 — detection is the
+mediating variable behind warning/interval/blatancy; Chan
+group 2017 — spontaneous recollection-rejection, contradictory
+> additive, decaying with delay; RES 2017 — only non-detectors
+pay the retrieval-enhanced cost.) Inside `hearAccount`, before
+p_adopt, when the account conflicts with a surviving verbatim
+candidate on the same field:
+
+```
+detect_p = detect_gain (0.5) · verbatimStrength(field)
+         · scrutiny · (contradictory ? 1 : 0.5)
+scrutiny = warned? ×1.4 : 1; rushed context ×0.6;
+           checker trait ×1.2
+detected → this exposure pays dispute_mult (~0.05) and emits
+  `noticed_discrepancy` to the dialogue layer (a suspicion tell)
+LOCKED detect_boost_null: detection suppresses adoption only —
+  it never strengthens the original candidate.
+```
+
+This mechanizes §1's interval result: weak verbatim → nothing
+to detect against → susceptible.
 
 
 All weights live in one per-character params object. Profiles doc assigns
@@ -9168,6 +9328,25 @@ MemoryParams = {
 // v5.13 trait/state fields: IndivTraits + `jealous` (loads
 //   attach_anx/distrust); char state `grief` {mode, modeDay,
 //   bond_strength}; PersonModel `deceased`/`deathDay`.
+// v5.14 additions (false-memory VI — FM§§65–75)
+"tele_slope": 0.4, "mid_pull": 0.15, "round_bias": 0.1,
+"landmark_pull": 0.3, "coarse_when_mult": 0.4,   // §6.116
+"obs_inflate_gain": 0.35, "obs_flip_mult": 1.0,  // §6.117
+"dream_strength": 0.15, "dream_flip_mult": 0.5,  // §6.118
+"distinct_expect": 0.5, "distinct_age_loss": 0.5,// §6.119
+"fame_thresh": 0.4, "fame_p": 0.12, "acquaint_p": 0.10,// §6.120
+"detect_gain": 0.5,                              // §6.121
+// v5.14 locked nulls: order_preserve_null (P690 — anchored
+//   sequences never permute under whenEstimate);
+//   obs_warn_resist (P691 — warn_mult bypassed on observed-
+//   action flips); dream_content_null (P692 — dream flip moves
+//   provenance only, no verbatim write); fame_episode_null
+//   (P694 — unexplained fluency never mints a shared episode);
+//   detect_boost_null (P695 — detection suppresses adoption,
+//   never strengthens the original).
+// v5.14 trait: IndivTraits + `imagery` (loads imagine_gain,
+//   imagined/dream verbatim richness, source_confuse,
+//   dream_flip_mult); PersonModel + `nameFluency` accumulator.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -9186,7 +9365,9 @@ P614 null-locks the confusion), `elabor` (co-narration style), and
 `neurot_report` (self-reported distress — diverges from `neurot` only
 under defensiveness, the §6.102 repressor divergence); v5.13 adds
 `jealous` — romantic-rival vigilance, loads attach_anx/distrust,
-EM§76) — sampled MVN(0, R) with the sparse correlation matrix in
+EM§76; v5.14 adds `imagery` — imagery vividness/ability, loads the
+imagination stack (imagine_gain, imagined/dream verbatim richness,
+source_confuse, dream_flip_mult — FM§72)) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -10402,6 +10583,32 @@ not resolved (DEBATED magnitude). P509/P511.
     (`aff_flash_verbatim` locked).
   - Record flags: `rival:true`, `schema_gap:true`,
     `teles_when_immune` (§6.111), verbatim field `prosody`.
+  - All snapshot-additive, absent = legacy.
+- v5.14 additions (false-memory.md Part VI §§65–75):
+  - New ops: `whenEstimate` (§6.116 — mandatory on any emission
+    reading a `day` field; callers get `reported`, `dayConf`,
+    plus the coarse fields season/month/weekday when dayConf
+    collapses — dialogue should say "early spring," not guess a
+    date) and `dreamEvent` (§6.118 — mints
+    `source.kind:"dream"` records; the world's dream source).
+  - Event tag `observed_action:true` (§6.117 — world marks
+    co-present routine actions the character watched; distinct
+    from `enacted:true`, which stays self-performance).
+  - Retrieval posture flag `demand_detail:true` on recall
+    (§6.119 — callers set it for cross-examination/pedant
+    contexts; suppresses phantom/lure endorsement only, never
+    veridical recall).
+  - `hearAccount` now runs the §6.121 detection gate internally
+    — callers may observe emission `noticed_discrepancy:true`
+    (a silent suspicion tell; do NOT render as spoken dispute —
+    the character noticed, they didn't necessarily say so).
+  - PersonModel field `nameFluency` (§6.120 — bare-exposure
+    accumulator; attributions emit as `fame_attribution` /
+    `acquaintance_attribution`, never as episodes —
+    `fame_episode_null` locked).
+  - Record/provenance additions: `source.kind:"dream"`;
+    agency-field rewrites log `actor:self` flips from
+    `observed_action` records.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)

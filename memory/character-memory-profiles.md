@@ -607,6 +607,19 @@ never copying raw.
 | sug_age_mult | 1.0 | 1.7 | §6.83 shift-leg age amplifier; yield exempt (v5.12) |
 | fitness_shift | 0 | 3 | max fitness→age_eff years (v5.12; rf_cap 12y combined) |
 | fitness_drift_hl | 0.3 | 3.0 | behavior-drift half-life, years (v5.12, HYPOTHESIS) |
+| tele_slope | 0.2 | 0.6 | day-error σ growth per day of delay (v5.14; R&B 0.4 anchor) |
+| mid_pull / round_bias / landmark_pull | 0.05 / 0.0 / 0.1 | 0.3 / 0.25 / 0.5 | whenEstimate bounded pulls (v5.14) |
+| coarse_when_mult | 0.2 | 0.6 | coarse temporal-field decay mult (v5.14) |
+| obs_inflate_gain | 0.1 | 0.6 | observed-action motor encoding bonus (v5.14) |
+| obs_flip_mult | 0.3 | 2.0 | agency-flip rate on source_confuse_flip (v5.14) |
+| dream_strength | 0.05 | 0.3 | dream-record encoding strength (v5.14) |
+| dream_flip_mult | 0.2 | 1.0 | dream→witnessed flip scaling × dissoc/fantasy/imagery (v5.14) |
+| distinct_expect | 0.2 | 0.8 | demand_detail endorsement suppression (v5.14) |
+| distinct_age_loss | 0.2 | 0.8 | gist-encoding penalty on the guard (v5.14) |
+| fame_thresh | 0.25 | 0.6 | nameFluency attribution threshold (v5.14) |
+| fame_p / acquaint_p | 0.04 / 0.04 | 0.25 / 0.25 | unexplained-familiarity emit rates (v5.14) |
+| detect_gain | 0.25 | 0.8 | silent discrepancy-detection base (v5.14) |
+| imagery | — | — | IndivTraits entry, N(0,1): loads imagine/richness/source_confuse/dream_flip (v5.14) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -3034,3 +3047,49 @@ guidance:
   character whose best-trusted person is also low-relQuality
   gets the stranger's-hand residue — check the relationship
   matrix, not the cast list.
+
+## 48. v5.14 note (false-memory VI — the calendar, the watcher,
+the dream, and the quiet guards)
+
+Fourteen clamp rows added in §0 plus one TRAIT (`imagery`), one
+new op pair (`whenEstimate`, `dreamEvent`), one event tag
+(`observed_action`), one retrieval posture (`demand_detail`),
+one emission (`noticed_discrepancy`), one PersonModel field
+(`nameFluency`). Bible-visible guidance:
+
+- **`imagery` is not `vivid`.** `vivid` (v0.7) controls how much
+  peripheral detail gets written at encoding; `imagery` controls
+  how *world-like* internally generated content is — daydreams,
+  rehearsed lies, dreams. A low-vivid/high-imagery character
+  takes thin notes but hallucinates beautifully: their lies and
+  daydreams are the ones that flip to memories. Keep them
+  orthogonal in bibles.
+- **`whenEstimate` means nobody owns a calendar.** Written
+  characters should not "know" exact dates of unremarked days
+  — bibles may pin landmark days (the accident, the wedding)
+  because the landmark pull makes those stickier, but ordinary
+  Tuesdays drift toward mid-window and round dates. If a plot
+  needs a character to misremember *when* by weeks, give the
+  record low dayConf, not a special exemption.
+- **`observed_action` is a world tag, not a trait.** Any
+  character who watches a housemate cook enough times can end
+  up believing they cooked — but a bible that scripts shared
+  domestic routines is signing up for crossed chore memories;
+  that's the feature.
+- **Dream flips need the traits.** `dreamEvent` mints are cheap
+  and mostly harmless; only high-dissoc/fantasy/imagery
+  characters flip them at meaningful rates. A grounded,
+  concrete-minded main effectively never misremembers a dream —
+  write them that way rather than reaching for dream confusion
+  as a plot lever.
+- **`noticed_discrepancy` is silent.** It's a tell available to
+  the dialogue layer (a pause, a narrowing), not a spoken
+  objection — a character can notice a lie and still say
+  nothing. `demand_detail` is the same for the retrieval side:
+  it's a posture callers set, so a bible-written interrogator or
+  pedant should be flagged as habitually demanding detail.
+- **`nameFluency` is ambient reputation.** An ambient whose name
+  circulates at the bar becomes "somebody" without ever doing
+  anything — bible-visible consequence: famous-adjacent NPCs
+  accrue acquaintance attributions they never earned. This is
+  by design; do not "fix" it in the cast list.
