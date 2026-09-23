@@ -1,5 +1,37 @@
-# Memory Model Spec v5.3 — implementable human-like memory for RW characters
+# Memory Model Spec v5.4 — implementable human-like memory for RW characters
 
+> **v5.4 note (social-memory V — who keeps whom):**
+> `memory/social-memory.md` Part V (§§65–80) prices the
+> asymmetries of who is remembered and why. **Names gate behind
+> semantics** — a `personSem` tier sits between identity and name
+> in the §5.10 cascade; name production requires semantic access
+> (Baker < baker; McWeeny 1987, Cohen 1990) — §5.10 addendum.
+> **The spotlight asymmetry** — `expectOtherRecall` anchors on
+> own record strength (Gilovich 2000); failed witness recall
+> mints offense — §6.89. **The promise ledger** — creditor
+> intentions are cue-bound, debtor intentions ride `pm_self`;
+> breach detection is asymmetric — §6.90. **Hidden profiles
+> starve** — group talk samples ∝ holders^hp_exp; unique
+> knowledge gets zero rehearsal (Stasser & Titus) — §6.91.
+> **Truth-default + suspicion residue** — belief is baseline,
+> triggers break it, the doubt tag decays slower than the claim;
+> locked null: no demeanor channel (Levine TDT; Bond & DePaulo
+> 54%) — §6.92. **Co-presence decays to the usuals** — attendee
+> fields reconstruct by schema (Simons & Levin ~50%) — §6.93.
+> **Memory labor** — the `keeper` trait holds the relational
+> calendar; her prompts are everyone else's cues (Rosenthal
+> 1985) — §6.94. **The liar's ledger** — denials rot the denied
+> record (DIF), fabrications keep a decaying lie-src flag
+> (Otgaar & Baker; Pickel) — §6.95. **Exclusion encodes hot** —
+> thin record, hot tag, scope drifts toward total (Williams;
+> Eisenberger) — §6.96. **Living-in-history anchors** — only
+> routine-disrupting public events mint dating landmarks (Brown
+> 2009: 9/11 didn't, the earthquake did) — §6.97. **Moral
+> revision asymmetry** — negative-moral rewrites at 1.5,
+> positive-moral repairs at 0.4 with a triple-cost threshold
+> (Mende-Siedlecki 2013) — §6.98. +21 params, +1 trait
+> (keeper), probes P578–P589.
+>
 > **v5.3 note (individual-differences V — the lived-in mind):**
 > `memory/individual-differences.md` Part V (§§49–62) adds the
 > everyday-life axes. **The ego's ledger** — `self_srv` writes
@@ -6705,6 +6737,155 @@ effect" is unfalsifiable, and unfalsifiable is unbelievable.
 
 ---
 
+### 6.89 The spotlight asymmetry — expected others'-recall anchors on own strength (new in v5.4)
+
+Gilovich, Medvec & Savitsky 2000 (JPSP 78:211 — verified, 5 studies):
+people overestimate observers' notice/recall ~2×, via anchoring on
+own phenomenology + insufficient adjustment. New read:
+`expectOtherRecall(self→witness, record)` returns
+`min(1, own_R·spot_mult)·(1−0.15·days/30)` — the character's model
+of what a witness stored is built from the character's OWN record
+(which carried w_self), not the witness's real E. When a witness
+demonstrably fails recall of a self-event the character expected
+known, mint an offense record at `spot_offense_p` (0.3). Locked
+nulls (P579): no direct read of the witness's actual R (the bias
+is the mechanism — a calibrated expectOtherRecall is the bug);
+spot_mult never <0 at any trait loading (nobody assumes they were
+invisible).
+
+### 6.90 The promise ledger — commitments are asymmetric Intentions (new in v5.4)
+
+`Intention` gains `commitment:true` + `creditor:charId` fields
+(world tags promises/debts/favors at mint). The creditor holds a
+CLONE record of the expectation — cue-bound at
+`cueBind·promise_cred_w` (1.3, self-relevant expectation binds
+hard); the debtor's own intention binds at `cueBind·promise_debt_w`
+(0.8) and resolves only via trigger or `pm_self`. On unresolved
+trigger past dueDay, the creditor clone mints a breach-candidate
+record (valence −) at `breach_p` (0.6); the debtor side expires
+silently. Availability asymmetry source: Greenberg & Westcott
+1983 indebtedness + Ross & Sicoly availability (sign DEBATED →
+HYPOTHESIS, bounded). Locked nulls (P580): the debtor record
+gets no rehearsal from creditor expectation (ledgers don't
+couple); breach mints on the CREDITOR side only — the debtor's
+surprise is the phenotype.
+
+### 6.91 Hidden-profile starvation — group talk samples the shared corpus (new in v5.4)
+
+Stasser & Titus 1985 (JPSP 48:1467 — verified); Stasser, Taylor
+& Hanna 1989; Stasser et al. 1992 (solve-set 67% vs judge-set 35%
+hidden-profile discovery). In group-discussion record selection
+(upstream of the §42 novelty gate): surface probability ∝
+`holders(record)^hp_exp` (0.7), where holders counts group
+members whose store contains the record. `solve_set_relax` (0.5)
+scales hp_exp when the task is tagged problem-with-answer.
+Unshared records receive zero retell rehearsal — the shared
+corpus compounds while unique knowledge decays solo. Locked null
+(P581): the novelty gate cannot rescue a never-sampled record —
+sampling precedes novelty.
+
+### 6.92 Truth-default and the suspicion residue (new in v5.4)
+
+Levine 2014 (J Lang Soc Psych 33:378 — verified TDT): belief is
+the passive default; suspicion requires a trigger; cue/demeanor
+reading is the FAILED detection path. Bond & DePaulo 2006
+(meta, 24,483 judges — verified): 54% accuracy, 61% truths vs
+47% lies — truth bias, not lie blindness. Implement: `hearAccount`
+believe_p floor = `truth_def_bias` (0.61) absent triggers; NO
+demeanor/cue params exist (locked null). Triggers: content vs own
+field > conform_gate conflict; plaus < plaus_min·0.7; speaker
+credibility < 0.3; third-party flag. On trigger: mint `suspicion`
+tag (M-tier) on PersonModel[speaker], str 0.3, decay
+β_source·`susp_persist` (0.7 — slower than source decay; the
+doubt outlives what it doubted). Tag effect: speaker's future
+believe_p ×(1 − 0.2·susp_str) — a soft prior, never a veto,
+never emitted as a value (P582).
+
+### 6.93 Co-presence decays to the usuals (new in v5.4)
+
+Simons & Levin 1998 (Psychon Bull Rev 5:644 — verified): ~50%
+miss a mid-conversation partner swap; detection moderated by
+social group. Multi-actor events mint an `attendees` list; each
+non-interacting co-present member encodes at `E·copres_w` (0.6),
+×(1 − `group_blind`·(1−same_group)) for out-group attendees
+(0.4). At recall, missing attendee slots fill by schema at
+`copres_schema_fill` (0.3) — sampling from the place's routine
+co-occurrence distribution; the usuals get inserted when absent,
+one-timers get dropped when present (P583).
+
+### 6.94 Memory labor — the relational calendar is a role (new in v5.4)
+
+Rosenthal 1985 (J Marriage Fam 47:965 — verified): >half of
+families name a kinkeeper (~3/4 women, median tenure ~20y,
+mother→daughter transmission); kinkeeping is a position in the
+division of labor. New IndivTrait `keeper` (bible-pinnable).
+Relational Intentions (birthdays, rituals, overdue-contact flags)
+mint at p ∝ (0.3 + `keeper_mint`·keeper) — the keeper holds ~2–3×
+the relational calendar (keeper_mint 0.7). The keeper's emitted
+reminders act as OTHER characters' external PM cues at
+`keeper_cue_w` (1.0 — full cue). Keeper absence orphans the
+calendar: other members' relational PM falls to uncued `pm_self`
+rates (P584). Locked null: keeper boosts no non-relational
+channel — a role allocation, not a capacity.
+
+### 6.95 The liar's ledger — denials and fabrications diverge (new in v5.4)
+
+Otgaar & Baker 2018 MAD framework (*Memory* 26:2 — verified):
+mnemonic outcome is lie-type-contingent. Otgaar, Howe, Smeets &
+Wang 2016 (JARMAC 5:168 — verified): denial-induced forgetting —
+own denials undermine memory, external denials undermine belief.
+Pickel 2004 — self-generated misinformation becomes believed.
+Otgaar et al. 2014 — fabrications keep strong source memory,
+denials keep weak. Two new ops on the liar's own store:
+`deny(record, field)` — denied field decays ×(1+`dif_mult`) (0.5)
+for `dif_days` (7); the denial act encodes with
+`deny_src_weak` (0.5) source binding. `fabricate(content)` —
+mints src-flagged record; gen_gain applies; lie-src flag decays
+at β_source·lie_src_weak while content accrues normal retell
+fluency — at flag death it competes unmarked (Pickel path).
+Locked null (P585): denial and fabrication MUST NOT share a code
+path — opposite source-memory signs.
+
+### 6.96 Exclusion encodes hot — thin record, hot tag, widening scope (new in v5.4)
+
+Williams 2007 ostracism program (need-threat, fast/automatic);
+Eisenberger, Lieberman & Williams 2003 (Science 302:290 — dACC
+social-pain overlap). World tags `exclusion:true` events;
+encoding E ×(1+`ostrac_gain`) (0.6), decay β ×(1−`ostrac_persist`)
+(0.3), arousal +0.2. Reconstruction drifts reported scope toward
+total at `excl_scope_drift` (0.2) — one-person slight reads as
+unanimous. Excluder PersonModel gains cheaterLoad at stt-like
+rate. Post-exclusion, ambiguous omissions re-tag as exclusion
+candidates at `ostrac_vigil` (0.2) — the hypervigilant loop
+(P586).
+
+### 6.97 Living-in-history anchors — disruption, not importance, writes the landmark (new in v5.4)
+
+Brown et al. 2009 (Psych Sci 20:399 — verified, 18 samples):
+public events organize autobiographical time ONLY when they
+disrupted daily life (war/earthquake yes; 9/11-for-Americans no).
+Broadcast events carrying `disrupt ≥ h_dap_thresh` (0.7 — routines
+actually altered) mint `h_dap:true` anchor records,
+permastore-eligible. `dateEstimate` (§6.15): same-era events get
+σ ×(1−`anchor_date_gain`) (0.3); cross-anchor dating resolves as
+relative ("before the fire"). Locked null (P587): arousal/conf
+alone never mints an anchor — flashbulb certainty is not a
+calendar object.
+
+### 6.98 Impression revision asymmetry — the moral ledger (new in v5.4)
+
+Mende-Siedlecki, Baron & Todorov 2013 (J Neurosci 33:19406 —
+verified): diagnostic value drives domain-asymmetric updating;
+Brambilla et al. 2021 (morality dominates at updating);
+Reeder & Brewer 1979 (immoral diagnostic, moral weakly;
+ability inverts). PersonModel update gains: `rev_moral_neg`
+(1.5), `rev_moral_pos` (0.4), `rev_abil` (0.8 symmetric). Once
+eval < `moral_bad_thresh` (−0.3) on moral evidence, subsequent
+moral-positive updates count at 1/`moral_repair_k` (3) — the
+redemption tax (P588).
+
+---
+
 ## 7. Character parameter table (schema)
 
 All weights live in one per-character params object. Profiles doc assigns
@@ -7726,6 +7907,32 @@ MemoryParams = {
 //   birth_order → EVERYTHING = 0 (mandated null, Rohrer 2015).
 // v5.3 state fields (context, not traits): task_load, pain_state ∈
 //   [0,1] on encodeEvent/recall contexts.
+// v5.4 additions (social-memory V — SM§§65–80)
+"name_meaning_gain": 0.3, "name_distinct_gain": 0.25,  // §5.10 tier-3
+"spot_mult": 1.0, "spot_offense_p": 0.3,               // §6.89 spotlight
+"promise_cred_w": 1.3, "promise_debt_w": 0.8,
+"breach_p": 0.6,                                       // §6.90 promise ledger
+"hp_exp": 0.7, "solve_set_relax": 0.5,                 // §6.91 hidden profile
+"truth_def_bias": 0.61, "susp_persist": 0.7,           // §6.92 TDT + residue
+"copres_w": 0.6, "group_blind": 0.4,
+"copres_schema_fill": 0.3,                             // §6.93 who-was-there
+"keeper_mint": 0.7, "keeper_cue_w": 1.0,               // §6.94 memory labor
+"dif_mult": 0.5, "dif_days": 7, "deny_src_weak": 0.5,  // §6.95 liar's ledger
+"ostrac_gain": 0.6, "ostrac_persist": 0.3,
+"excl_scope_drift": 0.2, "ostrac_vigil": 0.2,          // §6.96 exclusion
+"h_dap_thresh": 0.7, "anchor_date_gain": 0.3,          // §6.97 H-DAP anchors
+"rev_moral_neg": 1.5, "rev_moral_pos": 0.4,
+"rev_abil": 0.8, "moral_bad_thresh": -0.3,
+"moral_repair_k": 3,                                   // §6.98 moral ledger
+// v5.4 locked nulls: expectOtherRecall reads NO witness actuals
+//   (the bias IS the mechanism); no demeanor/lie-cue params exist
+//   (TDT — cue reading is the failed path); creditor expectation
+//   gives debtor records zero rehearsal; novelty gate cannot
+//   rescue unsampled records (sampling precedes novelty); keeper
+//   boosts no non-relational channel; deny/fabricate share no code
+//   path (opposite source-memory signs); arousal/conf alone never
+//   mints h_dap anchors.
+// v5.4 trait: keeper ∈ N(0,1), bible-pinnable (Rosenthal skew).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7738,7 +7945,8 @@ face_ability, adhd, asd, suggs, vigil, aim, hand_mix; v4.2 adds
 depr, ptsd, attach_anx, attach_avoid, persp_obs, supp, reap,
 pspeed, mindful, scc, smoker — Part IV §43; v5.3 adds self_srv,
 alexith, media_m, early_adv, circ_irr, chron_pain, music, rosy, and
-the locked-null birth_order — Part V §60) — sampled MVN(0, R) with the sparse correlation matrix in
+the locked-null birth_order — Part V §60; v5.4 adds keeper —
+SM Part V §76) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -8760,6 +8968,28 @@ not resolved (DEBATED magnitude). P509/P511.
     skew.
   - IndivTraits gains `birth_order` as a DOCUMENTED NULL — bible
     field, every loading locked 0.0 (§6.88; P575 null-locks it).
+  - All snapshot-additive, absent = legacy.
+- v5.4 additions (social-memory.md Part V §§65–80):
+  - `Intention` gains `commitment:true` + `creditor:charId`
+    (§6.90 — world tags promises at mint; creditor clone is a
+    separate record on the promisee's store).
+  - New pure read `expectOtherRecall(charId, witnessId, record)`
+    (§6.89 — joins reader_pure; it must not touch witness state).
+  - `PersonModel` gains M-tier `suspicion` tag (§6.92 — never
+    emitted as a value; shifts believe_p only).
+  - Records may carry `attendees` list, `exclusion:true`,
+    `h_dap:true` flags; broadcast events may carry `disrupt` ∈
+    [0,1] (§§6.93–6.97 — world supplies all three).
+  - New ops `deny(record, field)` / `fabricate(content)` on the
+    speaker's own store (§6.95 — distinct code paths is a probe
+    requirement, not a style note).
+  - Group-discussion record sampling gains holder-count bias
+    `hp_exp` upstream of the §42 novelty gate (§6.91).
+  - IndivTraits gains `keeper` (§6.94 — relational-calendar role;
+    bible-pinnable, Rosenthal skew documented).
+  - PersonModel update gains are now dimension×valence keyed
+    (§6.98: rev_moral_neg/rev_moral_pos/rev_abil + moral_bad_thresh
+    threshold + moral_repair_k tax).
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)

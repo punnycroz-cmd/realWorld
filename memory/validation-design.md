@@ -4453,5 +4453,117 @@ Registry: P1–P565. v54 suite: P555–P565 (7 MUST, 4 SHOULD).
   imagination; ~0.1 SD intelligence tilt only; DOI
   10.1073/pnas.1506451112); Damian & Roberts 2015 concur.
 
-Registry: P1–P577. v55 suite: P566–P577 (8 MUST, 4 SHOULD — P575
-is the first null-locked honesty probe in the registry).
+## 99. Probes P578–P589 (v56 — social-memory V, who keeps whom)
+
+- **P578 person-semantics gate (MUST — sign-locked):** name
+  production fails at ≥2× the rate of occupation/role production
+  for the same persons at matched delay; names never out-produce
+  semantics (tier-3 roll gated on tier-2.5 access). Meaningful-
+  name advantage replicates (Baker < baker gap closes).
+- **P579 spotlight asymmetry (MUST — sign-locked):**
+  expectOtherRecall for self-events exceeds witnesses' actual R
+  by ≥1.5× mean; scripted witness recall failure mints offense
+  at ≥spot_offense_p; zero mint on successful recall. FAIL if
+  expected≈actual — calibration is the bug.
+- **P580 promise asymmetry (MUST — sign-locked):** creditor-side
+  breach detection ≥1.4× debtor-side fulfillment-cue rate at
+  equal delay; task_load degrades debtor resolution, leaves
+  creditor detection intact. FAIL on sign flip.
+- **P581 hidden-profile starvation (MUST):** all-held records
+  surface ≥3× solo-held in 4-member discussion; 30-day retention
+  gap widens (compounding, not just sampling); solve-set framing
+  cuts the ratio ≥40%.
+- **P582 truth-default + residue (MUST — two arms):** believe_p
+  ≥ truth_def_bias absent triggers with NO demeanor/cue param
+  (locked null); after one confirmed lie, speaker's TRUE later
+  accounts show reduced believe_p for weeks while others are
+  unaffected.
+- **P583 co-presence fill (SHOULD):** attendee reconstruction
+  inserts routine-regular false positives at ≥copres_schema_fill;
+  one-timers dropped first; out-group under-counted at matched
+  true presence.
+- **P584 keeper allocation (SHOULD):** keeper=+1.5 concentrates
+  relational Intention mints ≥2×; keeper removal drops others'
+  relational PM to uncued pm_self rates.
+- **P585 liar's ledger (MUST — two arms, sign-locked):** deny
+  degrades denied-field detail below suppressed-not-denied AND
+  degrades source memory of the denial; fabricate mints
+  src-flagged records whose flag decays while fluency grows —
+  flag death → unmarked believe_p competition. FAIL if the two
+  lie types share a code path.
+- **P586 exclusion heat (SHOULD):** exclusion:true encodes above
+  matched negative-social, decays slower; reconstructed scope >
+  encoded breadth; post-exclusion ambiguous omissions re-tag at
+  ostrac_vigil.
+- **P587 H-DAP gate (MUST — boundary-locked):** high-arousal
+  zero-disruption event mints no anchor, no dating gain;
+  high-disruption moderate-arousal mints anchor + ≥20% σ
+  reduction on same-era dateEstimate.
+- **P588 moral revision asymmetry (MUST — sign-locked):** one
+  moral-negative act outweighs three matched moral-positive;
+  ability updates symmetric within 20%; post-threshold repair
+  requires ≥moral_repair_k× evidence mass.
+- **P589 compound social ledger (SHOULD):** debtor-forgetful +
+  spotlight-anchored + keeper-absent composes without
+  interaction terms (additivity audit across §§6.89–6.94).
+
+## 100. Sources verified this version (P578–P589 backing)
+
+- McWeeny, Young, Hay & Ellis 1987 (*BJP* 78:143 — verified:
+  surname recall loses to occupation recall under equated
+  conditions — "Baker vs baker"); Cohen 1990 (*BJP* 81:287 —
+  verified: names ≈ meaningless non-words, worse than meaningful
+  possessions/occupations; meaningfulness manipulation flips the
+  deficit); Stanhope & Cohen 1993 (*BJP* 84:51 — verified:
+  serial-access model survives modified; distinctive names learn
+  faster); Cohen & Faulkner 1986 (proper-name retrieval age
+  differences); Bruce & Young 1986 (semantics-before-name
+  architecture).
+- Gilovich, Medvec & Savitsky 2000 (*JPSP* 78:211 — verified, 5
+  studies: ~2× overestimate of observer notice; anchoring +
+  insufficient adjustment; DOI 10.1037/0022-3514.78.2.211);
+  Gilovich, Savitsky & Medvec 1998 (illusion of transparency).
+- Greenberg & Westcott 1983 (indebtedness — obligation
+  availability); Ross & Sicoly 1979 (asymmetric availability of
+  own contributions — reused anchor for the creditor/debtor
+  asymmetry, sign marked HYPOTHESIS).
+- Stasser & Titus 1985 (*JPSP* 48:1467 — verified: biased
+  sampling of shared info; DOI 10.1037/0022-3514.48.6.1467);
+  Stasser, Taylor & Hanna 1989 (shared-content dominance in
+  discussion); Stasser et al. 1992 (*JPSP* 63:426 — verified:
+  solve 67% vs judge 35% hidden-profile discovery).
+- Levine 2014 (*J Lang Soc Psych* 33:378 — verified TDT: belief
+  default, trigger-gated suspicion, cue-reading is the failed
+  path); Bond & DePaulo 2006 (*Pers Soc Psych Rev* 10:214 —
+  verified meta, 206 studies/24,483 judges: 54% overall, 61%
+  truths vs 47% lies).
+- Simons & Levin 1998 (*Psychon Bull Rev* 5:644 — verified: ~50%
+  partner-swap miss, social-group moderation).
+- Rosenthal 1985 (*J Marriage Fam* 47:965 — verified: >half of
+  families name kinkeeper, ~3/4 women, ~20y median tenure,
+  mother→daughter; DOI 10.2307/352340).
+- Otgaar & Baker 2018 (*Memory* 26:2 — verified MAD framework);
+  Otgaar, Howe, Smeets & Wang 2016 (*JARMAC* 5:168 — verified
+  DIF: own denials undermine memory, external denials undermine
+  belief); Otgaar et al. 2014 (fabrication vs denial source
+  memory split); Pickel 2004 (*Memory* 12:14 — self-generated
+  misinformation becomes truth).
+- Williams 2007 (ostracism need-threat review); Williams & Nida
+  2011; Eisenberger, Lieberman & Williams 2003 (*Science*
+  302:290 — dACC social-pain overlap).
+- Brown, Lee, Krslak, Conrad, Hansen, Havelka & Reddon 2009
+  (*Psych Sci* 20:399 — verified: public events anchor
+  autobiographical dating ONLY when directly disruptive;
+  Bosnian war + Izmit earthquake yes, 9/11-for-Americans no;
+  DOI 10.1111/j.1467-9280.2009.02307.x); Brown & Lee 2010
+  (living-in-history project overview — H-DAP mechanism).
+- Mende-Siedlecki, Baron & Todorov 2013 (*J Neurosci* 33:19406
+  — verified: diagnostic-value asymmetric updating, morality vs
+  ability); Brambilla et al. 2019/2021 (moral character
+  dominates impression updating); Reeder & Brewer 1979
+  (hierarchical schema asymmetry); Skowronski & Carlston 1987
+  (negativity canon).
+
+Registry: P1–P589. v56 suite: P578–P589 (8 MUST, 4 SHOULD —
+P582 carries a locked null on the demeanor channel; P585
+sign-locks the denial/fabrication split).

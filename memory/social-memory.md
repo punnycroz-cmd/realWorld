@@ -2070,3 +2070,679 @@ conditions are temporal, not dispositional).
   characters cannot *know* the neighborhood's memory is
   consensus-warped; that's a viewer affordance (history browser),
   correctly.
+
+# Part V (v56) — who keeps whom: debts, spotlights, denials, and anchors
+
+Parts I–IV built the person store, the talk ecology, the dyadic
+ledger, and its failure modes. Part V turns to the asymmetries of
+*who is remembered, by whom, and why*: names die before jobs,
+everyone assumes they were noticed, creditors remember what debtors
+forget, groups starve the one member who knows something unique,
+belief is the factory default while suspicion is the residue that
+never quite washes off, the guest list is rewritten by schema,
+somebody is always holding the neighborhood's calendar, a denial
+rots the truth it protected while a fabrication stays half-labeled,
+exclusion burns in and exaggerates outward, public events only date
+private time when they moved the furniture, and the moral ledger
+rewrites once and repairs at triple cost. Eleven mechanisms, all
+landing in spec v5.4.
+
+Citations author/year; tiers as in Parts I–IV.
+
+## 65. The person cascade gets a fourth tier — semantics outlast names **[CONSENSUS]**
+
+The §5.10 cascade (familiarity → identity → name) is right in order
+but wrong in structure: names are not merely the weakest rung, they
+are *qualitatively* harder than other person semantics — the
+famous "Baker paradox" generalizes. McWeeny, Young, Hay & Ellis
+1987 (BJP 78:143 — verified): with context, cueing, and usage
+frequency equated, surname recall still loses badly to occupation
+recall — it is much harder to remember a man is named Baker than
+that he is a baker. Cohen 1990 (BJP 81:287 — verified): name recall
+is no better than recall of *meaningless non-words* and worse than
+meaningful possessions or occupations; when the name is made
+meaningful (or the occupation meaningless) the deficit disappears —
+names are arbitrary labels, and arbitrariness is the cost. Stanhope
+& Cohen 1993 (BJP 84:51 — verified): the serial-access account
+(semantics first, then name — Bruce & Young 1986) survives only
+modified; distinctive names actually learn FASTER, so the
+architecture is "semantics first, distinctive-name exception."
+Cohen & Faulkner 1986 — the name deficit is precisely where age
+bites hardest.
+
+Implement in §5.10: insert a `personSem` tier between identity
+(tier 2) and name (tier 3):
+
+```
+tier 2.5 personSem: occupation/role/relation facts about the
+    person — decay at beta_semantic (they ARE semantics)
+tier 3 name roll: p_name = p_sem_access · p_name_roll —
+    name production is GATED on the semantic tier resolving
+    ("I know she's the one who runs the bakery — the name is…")
+    a name roll fired without tier-2.5 access produces the pure
+    TOT state, no content
+name_meaning_gain (0.3): names that coincide with a semantic
+    field (Baker the baker, Marshal the landlord) get E ×
+    (1 + name_meaning_gain) at the name-write — the pun relief
+name_distinct_gain (0.25): phonologically distinctive names
+    (Stanhope & Cohen) encode faster — rare names learn in fewer
+    exposures but do not decay slower
+```
+
+Emergent: the character remembers what everyone does and forgets
+what everyone is called — the block party produces fluent
+occupation talk over a floor of unproduced names, and the oldest
+resident produces the most TOTs. The reunion split (P446) is now
+three-way: face recognized, role placed, name blanked.
+
+## 66. The spotlight asymmetry — everyone assumes their record was shared **[CONSENSUS effect]**
+
+Gilovich, Medvec & Savitsky 2000 (JPSP 78:211 — verified, 5
+studies): people overestimate how much their actions and
+appearance are noted — embarrassing T-shirt wearers estimated
+~2× the actual number of observers who could recall it; group
+discussants overestimated the prominence of BOTH their brilliant
+and their foolish utterances. Mechanism (Studies 4–5): anchoring
+on own phenomenological richness + insufficient adjustment.
+Companion: Gilovich, Savitsky & Medvec 1998 — illusion of
+transparency (internal states assumed to leak). Memory-relevant
+corollary nobody states plainly: **a character's model of what
+OTHERS stored about them is anchored on the character's OWN
+record strength** — which for self-events carries the full
+w_self boost that the witness's record never had.
+
+Implement as a metamemory read used by social reasoning
+(`expectOtherRecall(charId→target, record)`):
+
+```
+expected_R_other = min(1, own_R · spot_mult) · (1 − 0.15·days/30)
+    spot_mult ≈ 1.0 — the anchor IS own strength; the
+    insufficient adjustment is that it starts there at all
+actual_R_other = the witness's real record — encoded with
+    w_self=0 for them, next_in_line taxes, omit_p risk
+when the other demonstrably fails to recall a self-event the
+    character expected known (denied greeting, forgotten
+    birthday, "who?"): mint offense record at
+    spot_offense_p (0.3) — the forgotten-reads-as-slight channel
+```
+
+Emergent and dramatic: the embarrassed character avoids the
+corner store for a week over a slip nobody encoded; the
+housewarming host is quietly wounded that the neighbor forgot the
+party she never attended; "how could you forget" disputes are
+structural — both sides are honest, one side anchored. Also the
+inverse mercy: characters overestimate how long their own
+mistakes persist in others — shame outlives its witnesses.
+
+## 67. The promise ledger — the creditor remembers what the debtor forgets **[ROBUST direction; asymmetry sign DEBATED→HYPOTHESIS]**
+
+Commitments are prospective-memory records, and the two parties
+to a promise hold *different kinds* of them. For the promisee,
+the promise is event-cued: the debtor's face, the due date, the
+shared context all trigger it — it resolves through the strong
+§9 cue path. For the promiser, the same promise is increasingly
+self-initiated — it must surface via `pm_self` (the weakest
+channel, §9/v1.3) or not at all. Add the availability asymmetry:
+Greenberg & Westcott 1983 indebtedness theory + Ross & Sicoly
+1979 — obligations to self are more available than obligations
+from self (the creditor rehearsed the expectation; the debtor
+encoded a compliance intention under whatever task_load the
+moment carried). The DIRECTION of the asymmetry (creditor memory
+> debtor memory) is supported by the availability mechanism but
+the social-PM literature lacks a clean controlled effect —
+marked HYPOTHESIS, magnitude bounded.
+
+Implement on `Intention` records tagged `commitment` with a
+`creditor` field:
+
+```
+creditor-side clone (the promisee's copy): cueBind init
+    ×= promise_cred_w (1.3) — self-relevant expectation binds
+    hard to its triggers
+debtor-side record: cueBind ×= promise_debt_w (0.8) — the
+    promise is one of many self-made intentions, competes for
+    pm_self bandwidth under task_load (§6.87)
+on unresolved trigger past dueDay: creditor side mints
+    breach-candidate record (valence −) at breach_p (0.6);
+    debtor side — silence, the record just expires
+on debtor fulfillment: BOTH sides resolve; creditor resolution
+    rehearses debtor-side person-model reliability += small
+```
+
+Emergent: the rent promise, the "I'll cover your shift," the
+"I'll return the ladder" — the neighborhood's grievance graph is
+built by expired debtor records meeting live creditor ones, and
+the debtor's confusion is genuine: they never *decided* not to,
+the record just never fired. This is the promise half of the
+>100% dyad (§51) — the ledger asymmetry at the obligation layer.
+
+## 68. Hidden profiles starve — what only one member knows, the group forgets **[CONSENSUS effect]**
+
+Stasser & Titus 1985 (JPSP 48:1467 — verified): discussion is
+dominated by information members ALREADY share; unshared items
+surface rarely and post-discussion recall perpetuates the
+distortion. Stasser, Taylor & Hanna 1989 — discussion content
+analysis: shared items overwhelmingly sampled. Stasser, Stewart
+& Wittenbaum 1995 / Stasser et al. 1992 (JPSP 63:426 — verified):
+the tax is gated by task framing — 67% of "solve-set" groups vs
+35% of "judge-set" groups discovered the hidden profile; the
+mechanism is sampling, not suppression. The memory corollary the
+substrate needs: shared records get re-aired → §53 retell
+rehearsal → strength grows; uniquely-held records get ZERO group
+rehearsal — they decay on a solo schedule while the shared
+corpus compounds.
+
+Implement in group-discussion sampling (before the §42 novelty
+gate — hidden-profile starvation is a *sampling* bias upstream
+of novelty):
+
+```
+P(record surfaces in group talk) ∝ holders(record)^hp_exp
+    hp_exp ≈ 0.7 — a record held by all N is ~(N/1)^0.7 ≈
+    4–5× as likely to surface as a solo-held one at N=8
+solve_set: if the conversation goal is tagged problem-with-
+    answer (world supplies), hp_exp ×= solve_set_relax (0.5)
+    — the murder-mystery mode halves the tax, doesn't remove it
+unshared records receive no retellCount growth — normal decay;
+    emergent half-life advantage for shared corpus ≈ 2×
+```
+
+Emergent: after the tenants' meeting, everyone remembers the
+complaints everyone already had; the one resident who knew the
+building's actual rule never surfaced it, and three months later
+she doesn't remember it either — the group forgot *through* her.
+The information network and the rehearsal network are the same
+network, which is why unique knowledge is fragile.
+
+## 69. Truth-default and the suspicion residue — belief is the baseline, doubt is what lingers **[CONSENSUS baseline; residue HYPOTHESIS-shaped]**
+
+Levine 2014 (J Lang Soc Psych 33:378 — verified, Truth-Default
+Theory): humans presume honesty passively — the thought that
+maybe we shouldn't believe doesn't even arise until a TRIGGER
+breaks the default; crucially, TDT rejects cue-based detection
+(nonverbal "tells" make people WORSE detectors) — suspicion is
+triggered by content inconsistency, implausibility, or
+third-party flagging, not by demeanor. Bond & DePaulo 2006
+(Pers Soc Psych Rev 10:214 — verified: 206 studies, 24,483
+judges): 54% overall accuracy; the asymmetry is diagnostic —
+61% of truths classified correctly vs 47% of lies — people are
+truth-biased, not lie-blind. What the literature adds for us:
+once triggered, suspicion has no clean off-switch — the
+discredited-source work (§56 sleeper) shows the doubt and the
+claim decouple, and the doubt is the survivor.
+
+Implement in `hearAccount`:
+
+```
+default: believe_p computed WITHOUT a demeanor channel —
+    there is no lie-cue read (locked null: no shifty_eyes param;
+    TDT is explicit that cue-reading is the failed path)
+triggers (any): content contradicts listener's own strong field
+    (> conform_gate); plaus fails below plaus_min·0.7; speaker
+    PersonModel.credibility < 0.3; flagged by a higher-cred
+    third party
+on trigger: mint `suspicion` tag on PersonModel[speaker],
+    str 0.3, decay β_source·susp_persist (0.7 — SLOWER than
+    source decay: the doubt outlives what it doubted)
+suspicion tag effect: future believe_p for that speaker's
+    accounts ×(1 − 0.2·susp_str) — a soft prior, never a veto;
+    tag never emits as a value (C-tier invisible — the
+    character has "a feeling," not a number)
+```
+
+Emergent: the smooth liar is believed at default forever; the
+awkward truth-teller loses nothing (no demeanor channel exists
+to punish); and the one caught lie writes a residue that shades
+everything that speaker says for months — "I can't point to
+why, I just don't quite buy it from her" is the tag's exact
+phenomenology. Detection is near-chance at the moment of the
+lie and slowly, vaguely corrective afterward.
+
+## 70. Who was there — co-presence decays to the usuals **[ROBUST direction; fill rate HYPOTHESIS]**
+
+Simons & Levin 1998 (Psychon Bull Rev 5:644 — verified): HALF of
+pedestrians failed to notice their conversation partner was
+swapped for a different person mid-interaction — and detection
+depended on social group: same-group pedestrians noticed,
+different-group didn't. Attention to *which specific person* is
+present is thinner than anyone believes. Co-presence is a field,
+not a fact: attendee lists are reconstructed, not read.
+
+Implement: multi-actor events mint an `attendees` list field;
+each co-present non-interacting member encodes at
+E·copres_w (0.6 — they're scenery, not actors):
+
+```
+copres_w ×(1 − group_blind·(1 − same_group)) — Simons & Levin's
+    moderation: out-group attendees encode ~40% thinner
+    (group_blind ≈ 0.4); group = cast cohort / role / tenure
+at recall, missing attendee slots fill by schema: sample from
+    the place's routine co-occurrence distribution — the usuals
+    get inserted at copres_schema_fill (0.3) rate even when
+    absent; one-time visitors are the first slots dropped
+```
+
+Emergent: "was she at the party?" produces confident answers
+built from who's ALWAYS at the party — the regular is
+remembered at events she missed, the newcomer is forgotten from
+the event he attended. Alibi memory is exactly this weak: being
+somewhere is only as memorable as being *surprising* there.
+
+## 71. Memory labor — somebody keeps the relational calendar **[CONSENSUS existence; mechanization HYPOTHESIS]**
+
+Rosenthal 1985 (J Marriage Fam 47:965 — verified, stratified
+sample, Hamilton ON): more than half of extended families name a
+**kinkeeper** — the person who keeps members in touch, runs the
+rituals, carries the reminders; ~3/4 of kinkeepers are women;
+median tenure ~20 years; the position transmits mother→daughter;
+families WITH a kinkeeper show measurably more interaction and
+ritual observance. Kinkeeping is a *position in a division of
+labor* — the relational prospective-memory work is allocated,
+not distributed. The memory-mechanics consequence: the
+neighborhood's birthdays, check-ins, anniversaries, and "haven't
+seen him in a while" flags live disproportionately in ONE
+character's Intention store — and other characters' PM triggers
+for relational events are largely *external cues supplied by the
+keeper's prompting* (transactive structure, §8/§27).
+
+Implement:
+
+```
+IndivTraits keeper ∈ N(0,1), loading +consc·+social·+empathy;
+    documented skew: bible-level role pin (Rosenthal's 3/4)
+relational Intentions (birthdays, rituals, overdue-visit flags)
+    mint at p ∝ (0.3 + keeper_mint·keeper) — the keeper holds
+    ~2–3× the relational calendar (keeper_mint ≈ 0.7)
+keeper's emitted reminders act as OTHER characters' cueBind
+    boost: being told "it's her anniversary" fires the listener's
+    dormant intention at keeper_cue_w (1.0 — a full external cue)
+keeper absence (departure, illness, rift): the reminder channel
+    dies → other characters' relational PM failure rate rises
+    to the uncued pm_self rate; the calendar orphans
+```
+
+Emergent: while the keeper thrives, the block celebrates itself;
+when she leaves, nothing is decided — birthdays just stop being
+noticed, and residents feel the thinning as "we used to do
+things" without being able to name what changed. The kinkeeper
+is the neighborhood's external memory organ, and her absence is
+a lesion, not a vacancy.
+
+## 72. The liar's ledger — denials rot the truth, fabrications stay labeled **[CONSENSUS for components; composite HYPOTHESIS]**
+
+Otgaar & Baker 2018 (*Memory* 26:2 — verified, the MAD framework:
+memory outcome is contingent on lie TYPE): **false denials**
+induce forgetting of the denied content — Otgaar, Howe, Smeets &
+Wang 2016 (JARMAC 5:168 — verified: denial-induced forgetting,
+DIF; the act of denial monopolizes resources and denies the
+content its rehearsal; external denials undermine belief, own
+denials undermine memory — the two denial arms dissociate).
+**Fabrications** differ: Pickel 2004 (self-generated
+misinformation becomes believed truth over time); Otgaar et al.
+2014 — people retain good source memory for having FABRICATED
+("I described the thing that wasn't there" is remembered as a
+lie) but poor source memory for having DENIED ("did I say that
+didn't happen?") — denials are cheap, fabrications are
+expensive, and the accounting differs. Compounds with §6.76:
+the emitted lie consolidates as "claimed" and wins its own
+fluency race.
+
+Implement two ops on the liar's own store:
+
+```
+deny(record, field): the denied field decays ×(1 + dif_mult)
+    (0.5) for dif_days (7) — resource monopolization starves
+    rehearsal; the denial act itself encodes at
+    deny_src_weak (0.5) source binding — "did I deny that?"
+    is itself deniable in memory
+fabricate(content): mints a record flagged lie-src at birth —
+    but gen_gain applies (self-generated > heard), and the
+    lie-src flag decays at beta_source·lie_src_weak (existing
+    §4.6 param) while content gains normal retell fluency —
+    at flag-death the fabrication competes as unmarked memory
+    (Pickel path); source memory for the FABRICATION act is
+    strong — the liar usually knows they made it up, which is
+    why the flip is fluency-driven, not instant
+```
+
+Emergent: the character who "just said it never happened"
+genuinely loses the event — later honesty is impaired at the
+record level; the character who invented a story keeps a labeled
+lie that, told often enough, walks around without its label.
+Two lie types, two memory fates — and only the fabricator can
+still tell you it was a lie.
+
+## 73. Exclusion encodes hot — being left out is a trauma-lite record **[CONSENSUS on encoding strength; exaggeration HYPOTHESIS]**
+
+Williams's ostracism program (Williams 2007 review; Williams &
+Nida 2011): even trivial, ephemeral exclusion (a ball-toss
+game with strangers, a text thread that goes quiet) produces
+immediate need-threat — belonging, control, self-esteem,
+meaningful existence all dip, and the response is fast and
+automatic. Eisenberger, Lieberman & Williams 2003 (Science
+302:290): exclusion engages dorsal ACC — the social-pain
+overlap. Memory consequence: exclusion events carry
+self-relevant negative affect at near-trauma salience but at
+ordinary-event detail quality — a hot tag on a thin record,
+which is exactly the configuration that reconstructs worst.
+
+Implement:
+
+```
+events tagged exclusion:true (world tags: uninvited party seen,
+    meeting held without them, conversation that stopped on
+    arrival): E ×(1 + ostrac_gain) (0.6), decay β ×
+    (1 − ostrac_persist) (0.3), arousal tag +0.2
+reconstruction: scope drift — excl_scope_drift (0.2): reported
+    breadth of the exclusion drifts toward total ("nobody
+    wanted me there" — a one-person slight becomes a unanimous
+    one; the record's thin detail can't resist the hot gist)
+secondary: excluder PersonModel gains suspicion/cheaterLoad
+    at stt_gain-like rate — the ledger books the exclusion
+    to whoever the schema can hold responsible
+ostrac_vigil (0.2): post-exclusion, ambiguous omissions
+    (unanswered text, closed conversation) re-encode as
+    exclusion:true candidates at elevated rate — the
+    hypervigilant detection loop
+```
+
+Emergent: the excluded character's grievance is real, durable,
+and systematically larger than the event; the exclusion ripples
+into person-model degradation that the excluder never coded as
+harm. The neighborhood's coldest records are its hottest.
+
+## 74. Living-in-history anchors — public events date private time, conditionally **[CONSENSUS — including the boundary condition]**
+
+Brown, Lee, Krslak, Conrad, Hansen, Havelka & Reddon 2009
+(Psych Sci 20:399 — verified, cross-national, 18 samples):
+public events organize autobiographical memory **only when they
+directly, forcefully, and durably disrupted daily life** —
+Bosnians dated mundane memories by the civil war, Izmit Turks
+by the 1999 earthquake; but 9/11 — historically enormous —
+produced essentially ZERO landmark references in American
+dating protocols. Personal significance, not historical
+importance, writes the landmark. Mechanism: events that
+disrupted routines mint historically-defined autobiographical
+periods (H-DAPs) — lifetime periods delimited by the public
+event, which then serve as dating anchors for everything inside
+them.
+
+Implement on broadcast events:
+
+```
+if event.disrupt ≥ h_dap_thresh (0.7 — actually altered
+    routines: closed street, lost home, weeks of changed days;
+    NOT merely arousing): mint anchor record flagged h_dap:true,
+    always permastore-eligible
+dateEstimate (§6.15): when a target event and an anchor share
+    era (same side of the boundary), dating error σ ×=
+    (1 − anchor_date_gain) (0.3); events separated BY an anchor
+    are dated relative ("that was before the fire") — the
+    era-split itself is a retrieval aid
+non-disruptive famous events mint NO anchor regardless of
+    conf/arousal — locked: flashbulb conf is not a calendar
+```
+
+Emergent: the neighborhood shares a chronology only for what
+changed the streets — the fire, the flood, the months the café
+was boarded up — and dates everything else loosely; "the year
+of the blackout" is a real cognitive object only for residents
+whose routines broke, which is also why the tourists and the
+tenants remember the same event on different calendars.
+
+## 75. Impression revision asymmetry — the moral ledger rewrites once, repairs at triple cost **[CONSENSUS direction; magnitudes HYPOTHESIS]**
+
+Mende-Siedlecki, Baron & Todorov 2013 (J Neurosci 33:19406 —
+verified): impression updating is asymmetric BY DOMAIN —
+diagnostic value drives it; negative moral behavior is maximally
+informative (immoral acts are rare and intentional) so moral
+impressions update hardest on bad evidence; ability impressions
+update more symmetrically. Brambilla, Sacchi, Rusconi & Goodwin
+2021 (Eur Rev Soc Psych — the domain program): morality
+dominates global evaluation both at formation AND updating.
+Reeder & Brewer 1979 — the schema asymmetry that generates it:
+immoral behavior is diagnostic of immoral people (good people
+can't do it), but moral behavior is only weakly diagnostic
+(everyone performs it); ability inverts the pattern. Skowronski
+& Carlston 1987/1992 — the negativity-effect canon underneath.
+
+Implement in PersonModel trait/eval updating:
+
+```
+revision gains by dimension×valence:
+    moral-negative: rev_moral_neg (1.5) — one dishonest act
+        rewrites the ledger
+    moral-positive: rev_moral_pos (0.4) — goodness is
+        expected, weakly diagnostic
+    ability both signs: rev_abil (0.8) — symmetric
+redemption tax: once model.eval < moral_bad_thresh (−0.3) on
+    a moral basis, incoming moral-positive evidence counts at
+    1/moral_repair_k (k ≈ 3) — repair is possible and
+    disproportionately expensive
+```
+
+Emergent: the landlord's one petty dishonesty out-weighs his
+year of fairness — not because anyone is vindictive, but
+because negative moral evidence is *more informative* and memory
+prices it that way; redemption arcs are real but run at a third
+of the descent rate, which is why they take seasons, not
+episodes.
+
+## 76. Trait and age loadings (extends §§12, 28, 44, 60)
+
+| Param | Primary loadings | Age note |
+|---|---|---|
+| name_meaning_gain / name_distinct_gain | flat — structural | flat (the RELIEF doesn't age; the name roll does — rides tot_rate) |
+| spot_mult | +self_srv? weak — anchoring is universal; −persp_obs insufficient | flat [HYPOTHESIS]; older adults show REDUCED spotlight in some work — ×(1−0.2·age_eff/60) HYPOTHESIS |
+| spot_offense_p | +attach_anx (rejection sensitivity reads forgetting as slight) | flat |
+| promise_cred_w / promise_debt_w | +consc shrinks BOTH the gap and the base rate (conscientious people just do the thing); +self_srv widens the gap | debtor arm rides pm_self decline — older debtors forget more (age-PM paradox preserved) |
+| hp_exp | −wmc (better trackers surface unique info); −expert (domain holders push their unique items) | flat [HYPOTHESIS] |
+| solve_set_relax | flat — task frame, world-supplied | flat |
+| susp_persist | +distrust | ×(1+0.3·age_eff/60) — older adults' suspicion lingers longer (documented tendency to remember untrustworthy faces slower to extinguish; DEBATED) |
+| truth_def_bias | −distrust (the default itself lowers) | flat |
+| copres_w / group_blind | copres_w +vigil; group_blind −social | group_blind ×(1+0.2·age_eff/60) — out-group encoding thins |
+| copres_schema_fill | +gc (gist-reconstructors fill harder) | ×(1+0.3·age_eff/60) — schema reliance grows (Hess) |
+| keeper_mint / keeper_cue_w | keeper trait (bible pin); cue_w flat | flat — the labor doesn't age, the capacity does (rides pm_self) |
+| dif_mult | +supp (habitual suppressors deny cheaper, rot faster); −consc | flat [HYPOTHESIS] |
+| deny_src_weak | flat — resource artifact | ×(1+0.2·age_eff/60) rides source decay |
+| ostrac_gain / ostrac_persist | +attach_anx·+neurot; −scc (self-concept clarity blunts) | ×(1−0.15·age_eff/60) — exclusion hurts less, SOC selection |
+| excl_scope_drift / ostrac_vigil | +neurot·+vigil | flat |
+| h_dap_thresh / anchor_date_gain | flat — ecological gate | flat — anchors are the aging-robust tier (landmark organization preserved) |
+| rev_moral_neg / rev_moral_pos / moral_repair_k | +distrust raises neg gain AND repair cost; +reap lowers persist | ×(1+0.15·age_eff/60) on repair_k — older impressions revise slower (Hess schema reliance) |
+
+Explicit nulls preserved: `g_mem` does not shrink the spotlight
+(anchoring is not ability); `wmc` does not rescue debtor
+promises beyond the normal pm_self loading (the asymmetry is
+cue-structure, not capacity); `meta_cal` cannot read the
+suspicion tag (it's M-tier — the character feels it, can't
+report it); `distrust` does not create a demeanor channel —
+suspicious characters are not better lie detectors, they're
+just suspicious earlier and longer (TDT: cue-reading is the
+failed path for everyone); `keeper` does not boost nonrelational
+PM (it's a role allocation, not a general capacity).
+
+## 77. Spec changes in v5.4 (summary)
+
+- §5.10 addendum: `personSem` tier inserted between identity and
+  name; name production gated on semantic access;
+  `name_meaning_gain`/`name_distinct_gain` on name-write.
+- §6.89 NEW: spotlight asymmetry — `expectOtherRecall` read,
+  `spot_mult`, `spot_offense_p` offense minting.
+- §6.90 NEW: promise ledger — `commitment`/`creditor` fields on
+  Intention; `promise_cred_w`, `promise_debt_w`, `breach_p`.
+- §6.91 NEW: hidden-profile starvation — `holders(record)`,
+  `hp_exp`, `solve_set_relax`; group-talk sampling bias.
+- §6.92 NEW: truth-default + suspicion residue — trigger list,
+  `suspicion` tag, `susp_persist`, `truth_def_bias`; locked
+  null: no demeanor/cue channel.
+- §6.93 NEW: co-presence decay — `attendees` field,
+  `copres_w`, `group_blind`, `copres_schema_fill`.
+- §6.94 NEW: memory labor — `keeper` trait, `keeper_mint`,
+  `keeper_cue_w`; relational-calendar Intention allocation.
+- §6.95 NEW: the liar's ledger — `deny`/`fabricate` ops,
+  `dif_mult`, `dif_days`, `deny_src_weak`; fabrication src-flag
+  decay path (rides lie_src_weak).
+- §6.96 NEW: exclusion encoding — `exclusion:true` tag,
+  `ostrac_gain`, `ostrac_persist`, `excl_scope_drift`,
+  `ostrac_vigil`.
+- §6.97 NEW: living-in-history anchors — `disrupt` field,
+  `h_dap_thresh`, `h_dap` flag, `anchor_date_gain` on
+  dateEstimate; locked null: non-disruptive famous events mint
+  no anchor.
+- §6.98 NEW: impression revision asymmetry — `rev_moral_neg`,
+  `rev_moral_pos`, `rev_abil`, `moral_bad_thresh`,
+  `moral_repair_k`.
+- §7: +21 params +1 trait (keeper); §10: contract additions
+  (Intention `commitment`/`creditor` fields; `suspicion`
+  M-tier tag; `attendees`/`exclusion:true`/`h_dap` record
+  fields; `expectOtherRecall` read; `deny`/`fabricate` ops).
+
+## 78. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| param | default | range | source |
+|---|---|---|---|
+| name_meaning_gain | 0.3 | 0.0–0.6 | Cohen 1990 |
+| name_distinct_gain | 0.25 | 0.0–0.6 | Stanhope & Cohen 1993 |
+| spot_mult | 1.0 | 0.5–1.5 | Gilovich et al. 2000 |
+| spot_offense_p | 0.3 | 0.0–0.7 | HYPOTHESIS rate |
+| promise_cred_w | 1.3 | 1.0–1.8 | Greenberg & Westcott 1983 + PM cue structure |
+| promise_debt_w | 0.8 | 0.5–1.0 | availability asymmetry (HYPOTHESIS sign) |
+| breach_p | 0.6 | 0.2–0.9 | HYPOTHESIS |
+| hp_exp | 0.7 | 0.3–1.5 | Stasser & Titus 1985; Stasser et al. 1989 |
+| solve_set_relax | 0.5 | 0.2–1.0 | Stasser et al. 1992 (67/35 solve/judge) |
+| truth_def_bias | 0.61 | 0.5–0.8 | Bond & DePaulo 2006 (61% truth accuracy) |
+| susp_persist | 0.7 | 0.3–1.0 | HYPOTHESIS (sleeper-adjacent) |
+| copres_w | 0.6 | 0.3–0.9 | Simons & Levin 1998 |
+| group_blind | 0.4 | 0.0–0.8 | Simons & Levin 1998 (group moderation) |
+| copres_schema_fill | 0.3 | 0.0–0.6 | HYPOTHESIS rate |
+| keeper_mint | 0.7 | 0.0–1.5 | Rosenthal 1985 (role allocation) |
+| keeper_cue_w | 1.0 | 0.5–1.5 | transactive-cue equivalence |
+| dif_mult | 0.5 | 0.0–1.0 | Otgaar et al. 2016 (DIF) |
+| dif_days | 7 | 2–30 | HYPOTHESIS window |
+| deny_src_weak | 0.5 | 0.2–0.9 | Otgaar et al. 2014 |
+| ostrac_gain | 0.6 | 0.2–1.0 | Williams 2007; Eisenberger et al. 2003 |
+| ostrac_persist | 0.3 | 0.0–0.6 | HYPOTHESIS (need-threat durability) |
+| excl_scope_drift | 0.2 | 0.0–0.5 | HYPOTHESIS |
+| ostrac_vigil | 0.2 | 0.0–0.6 | HYPOTHESIS |
+| h_dap_thresh | 0.7 | 0.5–0.9 | Brown et al. 2009 (disruption gate) |
+| anchor_date_gain | 0.3 | 0.0–0.6 | Brown et al. 2009 |
+| rev_moral_neg | 1.5 | 1.0–2.5 | Mende-Siedlecki et al. 2013 |
+| rev_moral_pos | 0.4 | 0.1–0.8 | Reeder & Brewer 1979 |
+| rev_abil | 0.8 | 0.4–1.2 | Mende-Siedlecki et al. 2013 |
+| moral_bad_thresh | −0.3 | −0.6–0.0 | scale choice |
+| moral_repair_k | 3 | 1.5–6 | HYPOTHESIS ratio |
+
+## 79. Validation probes (P578–P589)
+
+- **P578 person-semantics gate (MUST — sign-locked):** name
+  production fails at ≥2× the rate of occupation/role production
+  for the same persons at matched delay; name production without
+  resolved tier-2.5 access is ~0 (names never out-produce
+  semantics). Meaningful-name advantage replicates (Baker <
+  baker gap closes). FAIL if names and occupations decay
+  together.
+- **P579 spotlight asymmetry (MUST — sign-locked):**
+  expectOtherRecall for self-events exceeds the witnesses'
+  actual R by ≥1.5× on average; when a witness fails a
+  scripted recall of a self-relevant event, offense records
+  mint at ≥spot_offense_p and zero mint on successful recall.
+  FAIL if expected≈actual.
+- **P580 promise asymmetry (MUST — sign-locked):** shared
+  commitment pairs show creditor-side breach-detection rate ≥
+  1.4× debtor-side fulfillment-cue rate at equal delays; raising
+  task_load degrades debtor resolution, leaves creditor
+  detection intact. FAIL if the asymmetry flips sign.
+- **P581 hidden-profile starvation (MUST):** in a 4-member
+  group-discussion sim, records held by all surface ≥3× more
+  than matched solo-held records; after 30 days the solo-held
+  retention gap widens (rehearsal compounding, not just
+  sampling). Solve-set framing cuts the surface ratio ≥40%.
+  FAIL if solo-held items surface equally.
+- **P582 truth-default + residue (MUST — two arms):** with no
+  trigger, believe_p ≥ truth_def_bias regardless of speaker
+  demeanor fields (locked null — demeanor params absent); after
+  one triggered-and-confirmed lie, that speaker's later TRUE
+  accounts show reduced believe_p for weeks while other
+  speakers are unaffected. FAIL if detection rides a
+  demeanor/cue variable OR if suspicion never outlives the
+  discredited claim.
+- **P583 co-presence fill (SHOULD):** attendee reconstruction
+  inserts routine-regular false positives at ≥copres_schema_fill
+  rate and drops one-time visitors first; out-group attendees
+  are under-counted relative to in-group at matched true
+  presence. FAIL if reconstruction is veridical.
+- **P584 keeper allocation (SHOULD):** with keeper=+1.5 on one
+  member, relational Intention mints concentrate ≥2× on that
+  character; removing the keeper raises others' relational PM
+  failure to the uncued pm_self rate. FAIL if intentions
+  distribute uniformly.
+- **P585 liar's ledger (MUST — two arms, sign-locked):**
+  deny-ops degrade the denied record's detail below matched
+  suppressed-but-not-denied records, AND degrade source memory
+  for the denial act; fabricate-ops mint src-flagged records
+  whose flag decays while content fluency grows — at flag
+  death the fabrication enters believe_p competition unmarked.
+  FAIL if denial and fabrication share one fate.
+- **P586 exclusion heat (SHOULD):** exclusion:true records
+  show encoding above matched negative-social records and
+  slower decay; reconstruction reports systematically wider
+  scope than encoded breadth (excl_scope_drift); subsequent
+  ambiguous omissions re-tag as exclusion candidates at
+  ostrac_vigil rate.
+- **P587 H-DAP gate (MUST — boundary-locked):** a high-arousal
+  but zero-disruption broadcast event mints NO anchor and
+  produces no dating improvement for neighboring events; a
+  high-disruption moderate-arousal event mints an anchor AND
+  reduces dateEstimate σ for same-era events by ≥20%. FAIL if
+  arousal alone writes anchors.
+- **P588 moral revision asymmetry (MUST — sign-locked):** one
+  moral-negative act moves eval more than three matched
+  moral-positive acts (rev ratio >2); ability-negative vs
+  ability-positive moves are symmetric within 20%; post-threshold
+  repair requires ≥moral_repair_k× the positive evidence mass.
+  FAIL if morality updates symmetrically.
+- **P589 compound social ledger (SHOULD):** a character who is
+  debtor-forgetful + spotlight-anchored + keeper-absent produces
+  the composed pattern (missed promise + offense at others'
+  forgetting + no relational calendar) without interaction
+  terms — additivity audit across §§6.89–6.94.
+
+## 80. Honest limits (Part V)
+
+- **The promise asymmetry's sign is a modeling commitment** —
+  availability and cue-structure both predict creditor > debtor
+  memory, but the social-PM literature lacks the clean
+  controlled effect; promise_cred_w/debt_w are bounded to keep
+  the gap human-scale, and P580 will catch a flip.
+- **Suspicion residue is mechanism-light** — TDT and the sleeper
+  work jointly predict doubt-outlives-claim, but susp_persist's
+  0.7 is a shape, not a fit; treat as the tunable that sets how
+  paranoid a neighborhood a single caught lie produces.
+- **Hidden-profile parameters compress group size** — hp_exp is
+  one exponent over 2–8 members; the real sampling bias scales
+  nonlinearly with N and agenda structure we don't model.
+- **The keeper role is documented, not explained** — Rosenthal
+  gives occupancy, gender skew, tenure, transmission; the
+  trait-loadings are our mechanization (consc·social·empathy is
+  a proxy, not a validated composite), and the cue-substitution
+  equivalence (keeper_cue_w=1.0) is asserted.
+- **DIF windows are guesses** — dif_days=7 extrapolates the lab
+  session-to-retest gap; the denial-act source weakness is
+  better grounded than its duration.
+- **Ostracism scope-drift is our extension** — need-threat and
+  social-pain are established; the *reconstructive exaggeration*
+  of exclusion breadth is inferred from hot-tag/thin-record
+  mechanics, not measured.
+- **H-DAP anchoring is the best-grounded new piece** — Brown
+  2009 supplies both the effect and its boundary (disruption,
+  not importance); h_dap_thresh is the one knob and it's an
+  ecological judgment call about what "changed routines" means
+  for a Mission block.
+- **Moral revision magnitudes are direction-locked only** —
+  Mende-Siedlecki establishes the asymmetry; rev ratio 1.5/0.4
+  and repair_k=3 are calibrated to produce the observed
+  phenomenology (fast fall, slow redemption), not fitted values.
+- Part V still leaves **collective commemoration** unmodeled —
+  the neighborhood ritual that *deliberately* rehearses an
+  anchor (anniversary gatherings) is world-layer content, not a
+  memory mechanism; noted for world-builder, not spec'd here.

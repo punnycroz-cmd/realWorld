@@ -857,6 +857,18 @@ needs both.
 | rosy_retro | 0.0 | 0.4 | rosy-arc positive tilt on emission (v5.3) |
 | task_load / pain_state | 0.0 / 0.0 | 1.0 / 1.0 | context fields, not traits (v5.3) |
 | birth_order | — | — | DOCUMENTED NULL — every loading locked 0.0 (v5.3) |
+| name_meaning_gain / name_distinct_gain | 0 / 0 | 0.6 / 0.6 | tier-3 name-write relief (v5.4) |
+| spot_mult / spot_offense_p | 0.5 / 0 | 1.5 / 0.7 | spotlight anchor + offense mint (v5.4) |
+| promise_cred_w / promise_debt_w / breach_p | 1.0 / 0.5 / 0.2 | 1.8 / 1.0 / 0.9 | asymmetric commitment Intentions (v5.4) |
+| hp_exp / solve_set_relax | 0.3 / 0.2 | 1.5 / 1.0 | hidden-profile sampling tax (v5.4) |
+| truth_def_bias / susp_persist | 0.5 / 0.3 | 0.8 / 1.0 | truth-default + residue decay (v5.4) |
+| copres_w / group_blind / copres_schema_fill | 0.3 / 0 / 0 | 0.9 / 0.8 / 0.6 | co-presence encoding + schema fill (v5.4) |
+| keeper | −2 | +2 | new IndivTrait — relational-calendar role, bible-pinnable (v5.4) |
+| keeper_mint / keeper_cue_w | 0 / 0.5 | 1.5 / 1.5 | keeper allocation + reminder-as-cue (v5.4) |
+| dif_mult / dif_days / deny_src_weak | 0 / 2 / 0.2 | 1.0 / 30 / 0.9 | denial-induced forgetting (v5.4) |
+| ostrac_gain / ostrac_persist / excl_scope_drift / ostrac_vigil | 0.2 / 0 / 0 / 0 | 1.0 / 0.6 / 0.5 / 0.6 | exclusion hot-encode + scope drift (v5.4) |
+| h_dap_thresh / anchor_date_gain | 0.5 / 0 | 0.9 / 0.6 | living-in-history anchor gate (v5.4) |
+| rev_moral_neg / rev_moral_pos / rev_abil / moral_bad_thresh / moral_repair_k | 1.0 / 0.1 / 0.4 / −0.6 / 1.5 | 2.5 / 0.8 / 1.2 / 0.0 / 6 | domain×valence revision gains + redemption tax (v5.4) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2508,3 +2520,72 @@ dials — most mains should carry at least one non-zero.
   pain patient forgets the day, not the past; (d) the busiest
   character drops the most intentions — PM failure is load, not
   flakiness; (e) the null axis keeps the whole trait layer honest.
+
+## 39. v5.4 note (social-memory V — who keeps whom)
+
+Clamp rows added in §0 for the v5.4 params. These are the social
+dials — most interact with bible role assignments, not just traits.
+
+- **`keeper` (trait) → `keeper_mint`/`keeper_cue_w`:** the
+  relational-calendar role (Rosenthal 1985 — ~3/4 of real
+  kinkeepers are women; tenure ~20y; mother→daughter). Pin it on
+  the character who organizes the block: they mint 2–3× the
+  relational intentions AND their reminders are everyone else's
+  cues. If the keeper leaves or turns, the calendar orphans —
+  birthdays stop being noticed and nobody can name what changed.
+  Pair with high `consc`/`social`/`empathy`; do NOT use as a
+  general-memory buff (locked null).
+- **`spot_mult`/`spot_offense_p`:** the spotlight — everyone
+  assumes others stored self-events at near-own strength. High
+  `attach_anx` + high `spot_offense_p` = the character who is
+  wounded that you forgot; low offense_p = the one who quietly
+  registers it. Both are believable; the anchor itself
+  (`spot_mult ≈ 1`) is universal — nobody assumes they were
+  invisible.
+- **`promise_cred_w`/`promise_debt_w`:** creditor vs debtor
+  asymmetry on commitments — the promisee's copy is cue-bound,
+  the debtor's rides `pm_self`. High `consc` narrows the gap
+  (conscientious characters just do the thing). The grievance
+  graph of the neighborhood is mostly expired debtor records
+  meeting live creditor ones.
+- **`hp_exp`/`solve_set_relax`:** hidden-profile starvation —
+  what only one member of a group knows gets zero rehearsal and
+  dies. Lower on high-`wmc`/`expert` holders (they push their
+  unique items); the solve-set relax is world-tagged, not a trait.
+- **`truth_def_bias`/`susp_persist`:** belief is the default
+  (floor 0.61 — Bond & DePaulo's truth accuracy, not a niceness
+  dial); once triggered, `suspicion` outlives the claim. High
+  `distrust` lowers the floor and lengthens the residue — the
+  suspicious character isn't a better lie detector, they're just
+  suspicious earlier and longer. There is NO demeanor/cue dial —
+  a "reads body language" param would be the bug P582 catches.
+- **`copres_w`/`group_blind`/`copres_schema_fill`:** who-was-there
+  fields are thin and reconstructive — regulars get inserted,
+  one-timers dropped, out-group attendees under-encoded. Alibi
+  memory is exactly this weak.
+- **`dif_mult`/`dif_days`/`deny_src_weak` vs fabrication path:**
+  the liar's ledger splits — denials rot the denied truth (the
+  denier genuinely forgets), fabrications stay labeled but the
+  label decays (the practiced lie walks unmarked). `supp`-high
+  characters deny cheaper and rot faster.
+- **`ostrac_*`:** exclusion is a hot tag on a thin record —
+  high E, slow decay, scope drifts toward "everyone," and the
+  excluder gets booked. High `attach_anx`/`neurot` amplify;
+  high `scc` blunts.
+- **`h_dap_thresh`/`anchor_date_gain`:** public events date
+  private time ONLY when they broke routines (Brown 2009 — 9/11
+  didn't anchor Americans; the earthquake anchored Izmit). The
+  threshold is an ecological judgment, not an arousal one —
+  the fire on the block anchors; the famous scandal doesn't.
+- **`rev_moral_*`/`moral_repair_k`:** the moral ledger rewrites
+  once and repairs at ~3× cost — one dishonest act outweighs a
+  season of fairness, and redemption arcs run at a third of the
+  descent rate. Ability impressions update symmetrically; keep
+  the two domains on separate gain constants.
+- **Cast shadow:** (a) every promise is two ledgers now — the
+  debtor's genuine surprise is the phenotype; (b) the block's
+  kinkeeper is load-bearing infrastructure disguised as
+  personality; (c) the smooth liar is believed at default and
+  the caught lie outlives its retraction; (d) "who was at the
+  party" is always partly fiction; (e) moral reputation is a
+  ratchet — cheap to lose, expensive to buy back.
