@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v68)
+# Playtest Harness — "Real World / The Mission" (world v69)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -148,6 +148,15 @@ One person can wear every hat; four real testers is the intended shape.
   from service, not the posting), the itemized move-out walkthrough
   that every deduction must cite, and receipts that agree with the
   ledger.
+  PT64 (thin-AI v69 — the long-outage layer) is an ops audit — wake
+  parity (the first beat back continues the handoff note's doing;
+  place/ledger/needs carry over), outage rotation on the deg_min
+  credit ledger (a dwell-eligible bench swaps up within Δ≤1 salience —
+  a swap is not a recovery), scene-yield on a degraded main, the
+  closed co-star ask-class taxonomy (be-present / hold-space /
+  walk-with / carry-item), the phrase-kit repetition guard, and the
+  0% blackout floor that reads as a quiet day, never an outage
+  screen.
 
 ## 3. Running a session
 
@@ -322,7 +331,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v68 mark present, scenario integrity — unique PT ids,
+harness_ui_v69 mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).

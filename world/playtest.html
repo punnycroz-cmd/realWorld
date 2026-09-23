@@ -1366,12 +1366,35 @@ const PTS=[
   ck:["Lease gate: 0 fail; detail reports 'schema v68 · 13 states · key rw_lease_v68'",
     "A guarantor feed line or a deduction without a walkthrough citation would FAIL — spot-check",
     "Harness gate: '63 scenarios · N checkpoints · key rw_playtest_v68'; 0 fail overall"]}]}
-];
+,{id:"PT64",title:"Thin-AI fallback v69 — the long-outage layer (wake parity, rotation, scene-yield, ask classes, repetition guard, blackout)",min:14,
+ persona:"ops-minded spectator who has watched a live service degrade before — wants proof the seam never shows, even at 0%",
+ goal:"Verify the v69 thin-AI pass: a wake or recovery inherits the day (place/ledger/needs continuity — the first beat continues the handoff note's doing); under a sustained brownout the deg_min outage-credit ledger lets a dwell-eligible bench swap up with a peer within Δ≤1 salience (a swap is not a recovery — the pawn stepping down starts a fresh dwell); a degraded main in a live scene yields (phrase-kit only, reads as the quiet one tonight); co-star asks resolve to a closed taxonomy (be-present / hold-space / walk-with / carry-item — no class, no accept); the phrase kit never repeats inside the hour or echoes consecutive lines; and 0% capacity is a quiet day, not an outage screen.",
+ surfaces:["thinai", "audit"],steps:[
+ {do:"Read thin-ai.md §§29–35 and thinai.json's wake_parity / outage_rotation / scene_yield / blackout_floor / co_star.ask_classes / phrase_kit.repetition_guard blocks.",
+  exp:"Wake parity is four continuities (place, ledger, needs, temporal) with the test 'if a wake feels like a wake, the layer failed'. Rotation keys on a rolling 24-h deg_min ledger with tolerance Δ≤1 and the rule 'a swap is not a recovery'. Scene-yield is posture only — phrase-kit, never initiates, nothing persists. The ask taxonomy is closed at four classes. The blackout floor is 0% and reads 'a quiet day'.",
+  ck:["outage_rotation.tolerance is 1 and swap_is_not_recovery is stated; deg_min is internal, never feed",
+    "All four ask classes carry bounds + veto; closed_taxonomy says thin never improvises a class",
+    "blackout_floor.still_true keeps routines/reflexes/wages running and the feed silent"]},
+ {do:"Open thinai.html (file://). Drive a long brownout: Service 55%, then step +1 h repeatedly until a degraded main's dwell elapses and deg_min diverges; watch for a rotation swap. Toggle 'Scene forms at C6' while she is degraded.",
+  exp:"Degradation walks one step per beat; deg_min accrues 15/tick only on degraded mains and shows in the coverage panel. Once a bench is dwell-eligible and ahead on credit within Δ≤1 salience, a 'rotation swap' seam line fires — the pawn stepping down starts a fresh dwell. With the scene flag on a degraded C6, her card shows the scene-yield chip and the scene adds salience while it lasts.",
+  ck:["Coverage panel shows 'outage credit — deg_min' per main; swap logs 'a swap is not a recovery' and a fresh dwell",
+    "Degraded C6 under a scene shows 'scene-yield — phrase-kit only, the quiet one tonight'",
+    "No wire/feed line appears for degrade, swap, yield, or recovery — seam-only"]},
+ {do:"Exercise wake parity and the kit: 'Owner logs off', linger, drop; 'Owner returns'; press A01 four times inside the hour, then again after +1 h; fire 'Co-star A01 · cycle classes' four times at different hours; then 'Service 0% · blackout' and step the clock.",
+  exp:"Wake logs 'first beat back' continuing the note's doing. Bubbles never repeat a line inside the hour and never echo the last line; at 3/hr cap, silence. Co-star classes cycle: be-present/hold-space/carry-item accept on-shift inside cell bounds, walk-with only fits the evening cell — declines wire 'resolved · declined (50% auto-refund)'. At 0% both mains degrade stepwise, the panel reads 'blackout floor — a quiet day, not an outage screen', routines/wages/autopay keep running, and the feed shows nothing.",
+  ck:["'wake parity — first beat back' seam line cites the note's doing; needs/ledger carry over",
+    "Press A01: no line repeats within the hour; after the cap, silence lines only",
+    "At least one co-star class declines with 'the taxonomy is closed'; blackout converges one step per beat with zero feed lines"]},
+ {do:"Run `node world/audit.js` and read the thinai + harness gates.",
+  exp:"The thinai gate passes the v69 checks: schema v69, key rw_thinai_v69, the four new blocks, four ask classes with bounds+veto, repetition guard, demo events service_0 + scene_c6, and all MUST69 copy in the html. Harness gate reports 64 scenarios at the v69 key.",
+  ck:["Thinai gate: 0 fail; detail reports 'schema v69 · 4 pawns · key rw_thinai_v69'",
+    "A wire() line outside 'request — / weather — ' vocabulary would FAIL — spot-check",
+    "Harness gate: '64 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v68";
-const BUILD="world v68 local";
+const LS="rw_playtest_v69";
+const BUILD="world v69 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

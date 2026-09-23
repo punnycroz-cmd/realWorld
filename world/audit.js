@@ -991,6 +991,44 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of MUST55)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v55 copy: ${label}`);
+    /* ---- v69 long-outage pass ---- */
+    for (const blk of ['wake_parity', 'outage_rotation', 'scene_yield', 'blackout_floor'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v69 block "${blk}" missing`);
+    if (TJ.outage_rotation) {
+      if (TJ.outage_rotation.tolerance !== 1)
+        add(g, 'fail', 'thinai.json', null, 'outage_rotation.tolerance drifted from Δ≤1');
+      if (!/not a recovery/.test(TJ.outage_rotation.swap_is_not_recovery || ''))
+        add(g, 'fail', 'thinai.json', null, 'outage_rotation lost the swap-is-not-recovery rule');
+      if (!/deg_min/.test(TJ.outage_rotation.credit || ''))
+        add(g, 'fail', 'thinai.json', null, 'outage_rotation lost the deg_min credit ledger');
+    }
+    if (TJ.blackout_floor && TJ.blackout_floor.at_pct !== 0)
+      add(g, 'fail', 'thinai.json', null, 'blackout_floor.at_pct drifted from 0');
+    if (TJ.wake_parity && !/own (time|day)/.test(TJ.wake_parity.rule || ''))
+      add(g, 'fail', 'thinai.json', null, 'wake_parity lost the thin-time-is-their-own-day rule');
+    const CLS = TJ.co_star && TJ.co_star.ask_classes || {};
+    for (const c of ['be-present', 'hold-space', 'walk-with', 'carry-item'])
+      if (!CLS[c] || !CLS[c].bounds || !CLS[c].veto)
+        add(g, 'fail', 'thinai.json', null, `co_star.ask_classes.${c} missing bounds/veto`);
+    if (!/never improvises/.test(TJ.co_star?.closed_taxonomy || ''))
+      add(g, 'fail', 'thinai.json', null, 'co_star closed-taxonomy rule missing');
+    if (!TJ.phrase_kit?.repetition_guard)
+      add(g, 'fail', 'thinai.json', null, 'phrase_kit.repetition_guard missing');
+    for (const ev of ['service_0', 'scene_c6'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v69 surfaces */
+    const MUST69 = [
+      [/deg_min|degMin/, 'outage-credit ledger'],
+      [/rotation swap/, 'rotation swap seam line'],
+      [/scene-yield/, 'scene-yield posture chip'],
+      [/blackout/, 'blackout floor copy'],
+      [/first beat back|first beat/i, 'wake-parity first-beat copy'],
+      [/repetition guard/i, 'phrase-kit repetition guard'],
+      [/be-present|hold-space|walk-with|carry-item/, 'co-star ask classes']
+    ];
+    for (const [re, label] of MUST69)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v69 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
@@ -2292,7 +2330,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v68 || {};
+    const H = PT.harness_ui_v69 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

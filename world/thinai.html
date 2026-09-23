@@ -5,7 +5,7 @@
 <title>Real World — The Understudy (thin-AI fallback)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Thin-AI fallback demo — "The Understudy" v4 (world v55).
+  Thin-AI fallback demo — "The Understudy" v5 (world v69).
   Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
   Machine mirror: world/thinai.json. INTERNAL builder tool —
   never-ship, not a player surface; mode badges and seam lines are
@@ -28,6 +28,17 @@
   dwell, one step per beat, so a flapping service never churns the
   seam. "Corrupt C6 routine" drops rungs live; each pawn card shows
   which rung its cell resolved from.
+  v69 — the long-outage layer: wake parity (the resumed brain's first
+  beat continues the note's `doing` — thin time is the character's
+  own day), outage rotation (a per-main deg_min credit ledger lets a
+  dwell-eligible bench swap up with a peer within Δ≤1 salience — a
+  swap is not a recovery), scene-yield (a degraded main in a live
+  scene goes phrase-kit only and reads as the quiet one tonight),
+  a closed co-star ask-class taxonomy (be-present / hold-space /
+  walk-with / carry-item — no class, no accept), the phrase-kit
+  repetition guard (no repeat inside the hour, no consecutive echo,
+  silence exempt), and the 0% blackout floor (a quiet day, never an
+  outage screen).
   LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
   surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
   gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
@@ -168,8 +179,8 @@
 </main>
 <div class="toast" id="toast"></div>
 <script>
-/* mirror of thinai.json demo scenario (schema v55) */
-var LS='rw_thinai_v55';
+/* mirror of thinai.json demo scenario (schema v69) */
+var LS='rw_thinai_v69';
 var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
 var KIT={
   greeting:['morning','hey',"how's it"],
@@ -187,7 +198,8 @@ var LIVE=BRIDGE&&seamReads.every(function(f){return typeof BRIDGE[f]==='function
 function hhmm(m){return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+Math.floor(m%60)).slice(-2);}
 function seed(){return {
   min:13*60+7, day:4, rain:false, cap:100, linger:0, possessLeft:0, handoffBeat:0,
-  coStar:0, bubHour:-1, bubN:0, paidToday:false, c6src:'authored',
+  coStar:0, csClass:0, scene:false, bubHour:-1, bubN:0, bubUsed:{}, lastLine:{a01:null},
+  paidToday:false, c6src:'authored', degMin:{c2:0,c6:0},
   ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
   comp:{llm:0,thin:0,player:0},
   needs:{a01:{hunger:40,rest:70},h01:{hunger:40,rest:70},c2:{hunger:40,rest:70},c6:{hunger:40,rest:70}},
@@ -253,6 +265,7 @@ function salience(id){
   var kind=cell(id,S.min/60)[1];
   var s=(kind==='sleep'||kind==='idle')?0:(kind==='serve'||kind==='work'||kind==='carry')?2:1;
   if(id==='a01'&&S.coStar)s+=1;
+  if(id==='c6'&&S.scene)s+=1; /* a live scene at her venue */
   return s;
 }
 function reflexes(id){
@@ -266,6 +279,7 @@ function reflexes(id){
   }
   if(id==='c6'&&S.min>=19*60)r.push('shared: dusk-home — evening cells tighten');
   if((id==='c2'||id==='c6')&&S.cap<60)r.push('public-routine only — no seed access');
+  if(id==='c6'&&S.scene&&S.pawns.c6.mode==='degraded')r.push('scene-yield — phrase-kit only, the quiet one tonight');
   if(id==='a01'&&S.min>=7.5*60&&S.min<9*60)r.push('morning rush double tempo');
   var n=S.needs[id];
   if(n.rest<25)r.push('low rest — evening cells cut short');
@@ -313,16 +327,17 @@ function render(){
     'scheduled obligations drafted: <b>'+S.rentDrafts+'</b> <small>(rent autopay at day boundary — thin keeps standing commitments on autopilot)</small>';
   $('comp').innerHTML='llm_min <b>'+S.comp.llm+'</b> · thin_min <b>'+S.comp.thin+'</b> · player_min <b>'+S.comp.player+'</b><br>'+
     '<small>full-brain minutes are the paid bucket; thin/degraded and possessed minutes are ~free — this split is the cost story</small>';
-  var band=(S.cap<60?'below the degrade line':S.cap<70?'inside the deadband — posture held':'healthy');
+  var band=(S.cap===0?'blackout floor — a quiet day, not an outage screen':S.cap<60?'below the degrade line':S.cap<70?'inside the deadband — posture held':'healthy');
   $('cov').innerHTML='service <b>'+S.cap+'%</b> — '+band+'<br>'+
     ['c2','c6'].map(function(id){
       var p=S.pawns[id];
       if(p.mode==='degraded'){
         var left=30-((S.day*1440+S.min)-(p.degradedAt||0));
-        return id.toUpperCase()+' degraded · dwell '+(left>0?left+' min left':'elapsed — eligible to recover ≥70%');
+        return id.toUpperCase()+' degraded · dwell '+(left>0?left+' min left':'elapsed — eligible to recover ≥70% / swap up');
       }
       return id.toUpperCase()+' '+p.mode+' · salience '+salience(id);
-    }).join('<br>')+'<br>'+
+    }).join('<br>')+
+    '<br>outage credit — deg_min: <b>C2 '+S.degMin.c2+'</b> · <b>C6 '+S.degMin.c6+'</b> <small>(rolling 24 h; a dwell-eligible bench with the largest credit swaps up with a peer within Δ≤1 salience — a swap is not a recovery)</small><br>'+
     '<small>deadband: thin &lt;60%, recover ≥70% · min dwell 30 min · one step per beat · ambients + possessed never on the ladder</small>';
   var hp=S.pawns.h01,hc=cell('h01',h);
   $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
@@ -355,7 +370,9 @@ var EV=[
    seam('owner connection lost — linger grace 90 s starts (refresh-safe)');}],
  ['Owner returns',function(){
    var p=S.pawns.h01; p.owner='online';S.linger=0;
-   if(p.mode==='thin'){p.mode='full';seam('h01 thin → full — brain resumes on the handoff note; the day was theirs the whole time');}
+   if(p.mode==='thin'){p.mode='full';
+     seam('h01 thin → full — brain resumes on the handoff note; the day was theirs the whole time');
+     seam('wake parity — first beat back continues "'+(p.note?p.note.doing:'the routine cell')+'"; needs, ledger and place carry over: thin time is h01\'s own day');}
    else seam('owner returns during possession — brain stays suspended, session continues');}],
  ['Possess h01 · 30 min',function(){
    var p=S.pawns.h01;
@@ -378,28 +395,52 @@ var EV=[
    if(S.bubHour!==hr){S.bubHour=hr;S.bubN=0;}
    if(cell('a01',h)[1]==='sleep'){seam('pressed while asleep — no response; thin doesn\'t perform off-schedule');return;}
    if(S.bubN>=3){seam('phrase cap reached (3/hr) — thin goes quiet: '+KIT.silence[S.bubN%3]+'. Silence is cheaper than a fourth generic line.');return;}
+   /* v69 repetition guard — no repeat inside the hour, no consecutive
+      echo; silence exempt. Rotate categories before repeating a word. */
    var cats=['greeting','queue','weather','game','closing'];
-   var cat=cats[(hr+S.bubN)%cats.length],lines=KIT[cat];
-   S.bubN++;
-   seam('bubble '+S.bubN+'/3 ('+cat+'): "'+lines[(hr+S.bubN)%lines.length]+'" — phrase-kit small talk, interchangeable across characters');}],
+   var picked=null,pcat=null;
+   for(var k=0;k<cats.length*4&&!picked;k++){
+     var cat2=cats[(hr+S.bubN+k)%cats.length],lines=KIT[cat2];
+     for(var j=0;j<lines.length;j++){
+       var ln=lines[(hr+S.bubN+k+j)%lines.length];
+       if(ln!==S.lastLine.a01&&S.bubUsed[ln]!==hr){picked=ln;pcat=cat2;break;}
+     }
+   }
+   if(!picked){seam('every fitting line spent — the repetition guard defaults to silence: '+KIT.silence[S.bubN%3]+'. A nod over a stutter.');return;}
+   S.bubUsed[picked]=hr;S.lastLine.a01=picked;S.bubN++;
+   seam('bubble '+S.bubN+'/3 ('+pcat+'): "'+picked+'" — phrase-kit small talk, repetition guard on (no repeat <60 min, no consecutive echo)');}],
  ['Ask A01 a direct question',function(){
    var d=KIT.deflect[S.day%KIT.deflect.length];
    seam('direct question → generic deflect: "'+d+'" — thin never answers; the full brain\'s memory logs a non-conversation');}],
- ['Co-star A01 · 20 min',function(){
+ ['Co-star A01 · cycle classes',function(){
    var h=S.min/60;
    if(S.coStar){toast('A co-star window is already live.');return;}
-   if(h>=7.5&&h<18){
+   /* v69 closed taxonomy — be-present / hold-space / walk-with /
+      carry-item. An ask matching no class declines; thin never
+      improvises a class. */
+   var cls=['be-present','hold-space','walk-with','carry-item'][S.csClass%4];S.csClass++;
+   var onShift=h>=7.5&&h<18,fitsCell=onShift&&h<17.6,evening=h>=18&&h<22;
+   var ok={'be-present':onShift,          /* venue fits the routine cell */
+           'hold-space':fitsCell,         /* window ≤ cell end */
+           'walk-with':evening,           /* route stays on the pawn's route — off-route during shift */
+           'carry-item':fitsCell}[cls];   /* destination on-route, inside the window */
+   if(ok){
      S.coStar=2; /* 20 min ≈ 2 demo ticks */
-     wire('request — ambient co-star, 20 min — running (leaf)');
-     seam('A01 bounded compliance: ask fits barista role-card, no reflex veto → accepts, time-boxed to the request');}
+     wire('request — ambient co-star ('+cls+'), 20 min — running (leaf)');
+     seam('A01 co-star · '+cls+': ask fits the role card + class bounds, no reflex veto → accepts, time-boxed to the request');}
    else{
-     wire('request — ambient co-star — resolved · declined (50% auto-refund)');
-     seam('A01 declines — off-shift + routine obligations win; nothing persists');}}],
+     wire('request — ambient co-star ('+cls+') — resolved · declined (50% auto-refund)');
+     seam('A01 declines '+cls+' — '+(cls==='walk-with'?'off-route for a counter shift':'off-shift / window past cell end')+'; the taxonomy is closed, nothing persists');}}],
+ ['Scene forms at C6',function(){
+   S.scene=!S.scene;
+   seam(S.scene?'a live scene forms around C6 — under degrade she yields: phrase-kit only, drifts to the background of her cell, reads as the quiet one tonight'
+              :'the scene around C6 disperses — yield ends with the scene; nothing persists, no memory on the thin side');}],
  ['Service 100%',function(){setCap(100);}],
  ['Service 70%',function(){setCap(70);}],
  ['Service 60%',function(){setCap(60);}],
  ['Service 55%',function(){setCap(55);}],
  ['Service 30%',function(){setCap(30);}],
+ ['Service 0% · blackout',function(){setCap(0);}],
  ['Corrupt C6 routine',function(){
    if(S.c6src==='authored'){S.c6src='template';
      seam('C6 authored routine dropped mid-day — resolver falls a rung: role template at the next seam. Finish the beat, then follow the fallback cell — the pawn never freezes.');}
@@ -430,7 +471,23 @@ function ladderStep(verbose,was){
   }else if(S.cap>=70&&degs.length){
     var id2=degs[0],p2=S.pawns[id2],left=30-(now-(p2.degradedAt||0));
     if(left>0){if(verbose)seam('service '+was+'→'+S.cap+'% — '+id2.toUpperCase()+' recovery queued: '+left+' min of the 30-min degrade dwell left — the guard never churns a seam');}
-    else{seam(id2.toUpperCase()+' degraded → full — dwell elapsed; recovery walks back up in the same order');p2.mode='full';}
+    else{seam(id2.toUpperCase()+' degraded → full — dwell elapsed; recovery walks back up in the same order. First beat back: continues "'+(p2.note?p2.note.doing:'the routine cell')+'" — thin time was their own day');p2.mode='full';}
+  }else if(S.cap<60&&degs.length&&fulls.length){
+    /* v69 outage rotation — a dwell-eligible degraded main carrying
+       the largest deg_min credit may swap with the lowest-salience
+       full main when salience is within Δ≤1. A swap is NOT a
+       recovery: the pawn stepping down starts a fresh dwell. */
+    var el=degs.filter(function(d){return now-(S.pawns[d].degradedAt||0)>=30;});
+    if(el.length){
+      el.sort(function(a,b){return (S.degMin[b]-S.degMin[a])||(a<b?-1:1);});
+      var up=el[0],dn=fulls[fulls.length-1];
+      if(S.degMin[up]>S.degMin[dn]&&Math.abs(salience(up)-salience(dn))<=1){
+        var pu=S.pawns[up],pd=S.pawns[dn];
+        writeNote(pd,'full','degraded','finishing the current beat','the evening continues on public routine');
+        writeNote(pu,'degraded','full','stepping back up','the day picks up where thin left it');
+        pu.mode='full';pd.mode='degraded';pd.degradedAt=now;
+        seam('rotation swap — '+up.toUpperCase()+' steps up (deg_min '+S.degMin[up]+' served), '+dn.toUpperCase()+' steps down (salience within Δ≤1). A swap is not a recovery: '+dn.toUpperCase()+' starts a fresh 30-min dwell.');}
+    }
   }else if(verbose){
     if(S.cap>=60&&S.cap<70&&was<60)seam('service '+was+'→'+S.cap+'% — inside the deadband (60–69%): the ladder holds posture, no churn');
     else if(S.cap>=70&&!degs.length&&was<70)seam('service '+was+'→'+S.cap+'% — recovery complete; all mains full');
@@ -467,6 +524,9 @@ function tick(mins){
       if(p.mode==='possessed')S.comp.player+=15;
       else if(p.mode==='full')S.comp.llm+=15;
       else S.comp.thin+=15;
+      /* v69 outage credit — degraded mains accrue deg_min (rolling
+         24-h ledger; rotation spends it as swaps, not recoveries) */
+      if(p.mode==='degraded'&&S.degMin[id]!==undefined)S.degMin[id]+=15;
       /* baseline auto-shift wages: work cells pay $18/h → $4.50/15min */
       if((kind==='serve'||kind==='carry')&&(id==='a01'||id==='h01')){
         S.ledger[id]+=4.5;

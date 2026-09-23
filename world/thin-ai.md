@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55)
+# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -137,18 +137,21 @@ serve."
 
 ## 8. Demo & playtest
 
-`world/thinai.html` — "The Understudy" (v3, world v41): four pawns
+`world/thinai.html` — "The Understudy" (v5, world v69): four pawns
 (A01 always thin; h01 cycling thin→possessed→handoff; C2 *and* C6
 showing the salience-ordered degrade ladder — Carmen alone at home
 thins before Jules mid-scene), a clock stepper, service-capacity
-buttons, event buttons (log off / return / possess / cap / rain /
-press / ask / co-star), needs meters, a baseline-wage ledger, a
-compute ledger (llm_min / thin_min / player_min), an owner report,
-the live handoff note + stale-note archive, the authored phrase kit,
-and a split log marking which lines are feed-public vs seam-internal.
-The page carries a LIVE SEAM badge: when `window.__aiBridge` exposes
-the game-v9 offline surfaces it reads them; otherwise it runs on the
-inline mirror. Playtests: PT11 + PT25 + PT37 in `world/playtest.json`.
+buttons (incl. the 0% blackout floor), event buttons (log off /
+return / possess / cap / rain / press / ask / co-star classes /
+scene-at-C6), needs meters, a baseline-wage ledger, a compute ledger
+(llm_min / thin_min / player_min), an owner report, the live handoff
+note + stale-note archive, the authored phrase kit with the
+repetition guard, the per-main `deg_min` outage-credit ledger driving
+rotation swaps, and a split log marking which lines are feed-public
+vs seam-internal. The page carries a LIVE SEAM badge: when
+`window.__aiBridge` exposes the game-v9 offline surfaces it reads
+them; otherwise it runs on the inline mirror. Playtests: PT11 + PT25
++ PT37 + PT64 in `world/playtest.json`.
 
 ## 9. Degrade ladder (mains, brain-service capacity)
 
@@ -539,3 +542,153 @@ Extends §15. Decided, not deferred:
   a partial variant — ignored whole, role template wins, and the
   owner report flags "routine repaired to template" on next visit
   (mechanics, not narration — §19 tone).
+
+## 29. Wake parity — the first beat back (v69)
+
+When a pawn leaves `thin`/`degraded` for `full` (owner wake, service
+recovery), the resumed brain inherits the day, not a reset:
+
+- **Place continuity:** the pawn wakes where thin left it — the
+  receiving brain's first beat continues the handoff note's `doing`
+  ("finishing a shift side-work list"), then normal priority resumes.
+- **Ledger continuity:** wages accrued and obligations drafted while
+  thin are already on the books — there is nothing to reconcile,
+  nothing to re-earn, nothing to refund.
+- **Needs continuity:** the needs meters carry over. A pawn that ran
+  thin all day wakes hungry per the meter, not refreshed — needs are
+  posture inputs the whole time, so nothing changes hands at the seam.
+- **Temporal continuity:** thin time is the character's own time. The
+  resumed brain reads the interval as "the day I just lived" — never
+  "while you were away". There is no gap to narrate and no recap
+  surface (the owner report §19 is mechanics for the owner, not a
+  memory the character consults).
+
+The parity rule is the seam rule one level up: if a wake *feels* like
+a wake — to the character or to a spectator — the layer failed.
+
+## 30. Outage rotation — fairness under a long brownout (v69)
+
+§26's dwell keeps a degraded main down ≥30 min. Without more, a
+day-long brownout parks the same low-salience main on the bench while
+the others stay full — the outage has a *bearer*, and it would always
+be Carmen. Rotation fixes that without touching the seam:
+
+- **Outage credit:** every minute a main runs `degraded` accrues to a
+  rolling 24-h `deg_min` ledger (internal, never a feed line).
+- **The swap:** once per evaluation beat, a dwell-eligible degraded
+  main carrying the largest credit may swap places with the
+  lowest-salience `full` main **when their salience is within
+  tolerance Δ ≤ 1** — the tired understudy steps up, a peer steps
+  down. The swap is one pawn each way, still between beats, still
+  invisible.
+- **A swap is not a recovery.** The main who steps down starts their
+  own 30-min dwell; the main who steps up is simply full again (their
+  dwell was already served). Credits never decay mid-outage — they
+  roll off on the 24-h window.
+- **Determinism:** ties break the §20 way — fewer watchers, then
+  longer idle, then id order. Rotation never overrides salience by
+  more than the tolerance; a main mid-scene with watchers is never
+  swapped down to free a bored one.
+- **Possessed pawns and ambients** are not on the ladder — the credit
+  ledger doesn't even track them (§9).
+
+## 31. Scene-yield posture (v69)
+
+When a live scene forms around a `degraded` main — a real
+conversation, a crowd moment, anything a full brain is carrying — the
+degraded pawn **yields**:
+
+- It contributes phrase-kit lines only (the 3/hr cap still governs —
+  §11) and drifts to the background of its own cell: at the café it
+  wipes the counter; at the park it stays on the palm but goes quiet.
+- It never initiates and never leads. The scene's full-brain
+  participants carry it; to a spectator the degraded main reads as
+  "the quiet one tonight", not as a broken puppet.
+- A direct press still earns the generic deflect (§5) — under
+  scene-yield that's the *only* register available, so a scene built
+  on a degraded main simply doesn't form: the pawn's routine cell
+  resolves and the moment passes to whoever else is there.
+- Yield ends with the scene or the degrade, whichever first. Nothing
+  persists — no obligation, no relationship write, no memory on the
+  thin side (thin has none to write).
+
+## 32. Co-star ask classes (v69)
+
+§13's bounded compliance gets a fixed taxonomy. Every screened co-star
+ask resolves to exactly one class — thin never improvises a new one:
+
+| class | the ask | accept bounds | example veto |
+|-------|---------|---------------|--------------|
+| `be-present` | "be at V for N min" (default) | venue fits the current or next routine cell | sleep cell, off-shift elsewhere |
+| `hold-space` | "keep the table / spot" | inside a venue cell, window ≤ cell end | window past shift end |
+| `walk-with` | "come along a while" | route stays inside the pawn's current route/loop | off-route destination |
+| `carry-item` | "take this to X" | X is on the routine route within the window | destination off-route, sealed/unknown parcel |
+
+- An ask matching **no class** declines — the taxonomy is closed.
+- Declines keep `resolved · declined` + the 50% auto-refund (§13);
+  accepts run `running` — the locked feed vocabulary never grows.
+- All four classes are still time-boxed to the request window and
+  still end mid-beat-clean; nothing persists past release.
+
+## 33. Repetition guard (v69)
+
+The phrase kit's weakness is the loop — the same bubble twice in an
+hour reads as a glitch, and seams show through glitches:
+
+- **No repeat inside the hour window:** a line used at minute m can't
+  recur before m+60, per pawn. The kit rotates through its categories
+  before it repeats a word.
+- **No consecutive echo:** even across hour boundaries, a pawn never
+  emits the identical line twice in a row — the next pick skips the
+  last line used.
+- **Silence is exempt** — a nod can repeat; gestures don't loop badly
+  the way words do.
+- At cap, silence — unchanged (§11). The guard makes the capped
+  vocabulary go further, never wider.
+
+## 34. Blackout floor — 0% capacity (v69)
+
+The ladder's bottom rung is a posture, not an outage screen:
+
+- At **0% brain-service capacity** all mains are `degraded`; the block
+  runs entirely on schedule + reflexes. Ambients are unaffected (they
+  were never on the service); possessed pawns finish their sessions
+  (the player is the compute).
+- The spectator-facing product of a blackout is **a quiet day** —
+  every routine still resolves (§25), reflexes still fire, wages and
+  autopays still draft. The Wire shows nothing; there is no "the AI
+  is down" surface anywhere in-world.
+- Convergence is still stepwise: the ladder walks one pawn per beat
+  on the way down and back up (§26), and rotation (§30) spreads the
+  bench time if the blackout outlasts a dwell.
+- A blackout is a `thin_min` day on the compute ledger — the honest
+  split (§18) already accounts for it.
+
+## 35. Failure matrix — the long-outage cases (v69)
+
+Extends §§15/28. Decided, not deferred:
+
+- **Rotation swap mid-dwell:** can't happen — the degraded pawn must
+  be dwell-eligible (≥30 min down) to step up. The pawn stepping down
+  starts a fresh dwell.
+- **Two mains with equal credit:** deterministic §20 order breaks the
+  tie — fewer watchers, then longer idle, then id. Never random.
+- **Salience gap > tolerance:** no swap. Credit accrues; the ladder
+  waits for the par — fairness never makes a live scene lose its
+  lead mid-beat.
+- **Blackout during possession:** session unaffected; the pawn skips
+  the ladder entirely (§9). If the owner's session ends inside a
+  blackout, the handoff lands `thin` (owner offline) or `degraded`
+  (owner online, mains-only posture applies to mains — a hired pawn
+  lands `thin`).
+- **Wake during a scene-yield:** the yield ends with the degrade; the
+  first beat back (§29) continues the note's `doing`, and the full
+  brain re-enters the scene as itself — the yield is posture, never
+  an exit.
+- **Co-star ask spanning a mode change** (owner returns mid-window):
+  the window runs to its box regardless — a hired pawn waking to
+  `full` finishes the co-star window, then the full brain takes over.
+  The ask was screened; the mode change is the owner's business.
+- **Repetition guard vs. an empty category:** if every line in the
+  only fitting category is spent, thin defaults to silence — a nod
+  over a stutter, always.
