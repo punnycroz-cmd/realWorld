@@ -12,19 +12,19 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v18-A.png       1440x900 (approx)
+screenshots/v19-A.png       1440x900 (approx)
   The café block from overhead — real Mission street grid, parody
   storefront signage, mural walls, generated addresses.
 
-screenshots/v18-B.png       1440x900 (approx)
+screenshots/v19-B.png       1440x900 (approx)
   Street-level follow camera: polychrome Victorian trim, cast-iron fire
   escapes, a resident on an afternoon routine.
 
-screenshots/v18-C.png       1440x900 (approx)
+screenshots/v19-C.png       1440x900 (approx)
   Dolores Park from above — the neighborhood's back yard, with court and
   path decals baked into the terrain.
 
-screenshots/v18-D.png       1440x900 (approx)
+screenshots/v19-D.png       1440x900 (approx)
   Director mode: the camera treats the neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
@@ -35,7 +35,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v18-A / v18-B.
+  First art pass, for before/after coverage. Pair with v19-A / v19-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

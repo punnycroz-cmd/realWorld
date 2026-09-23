@@ -1,6 +1,10 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v3 — launch-ready draft, 2026-09-22.** Not submitted anywhere. This
+**Status: v18 — launch-ready draft + generated capsule set, 2026-09-23.**
+Not submitted anywhere. Capsule art is now real files under
+`store/capsules/` (see `store/README.md`), regenerated from the current hero
+shot by `tools/make_brand_assets.py` — the only outstanding art dependency
+is the Steam library hero (§4). This
 document is the single source of truth for storefront copy: master copy plus
 per-platform variants (itch.io primary, Steam conditional), field-length
 checks, capsule/hero art specs, disclosure matrix, and a tag plan. All claims
@@ -155,10 +159,24 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 
 | Asset | Spec | Status |
 |---|---|---|
-| Cover image | 630×500 PNG | **Done** — `site/assets/cover-itch-630x500.png` (crop of keyart-square) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v18-A..D.png` (4 ready) |
+| Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v19-A..D.png` (4 ready, grounded-shadow build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
+
+### 2.5 itch.io embed / project settings
+
+| Setting | Value |
+|---|---|
+| Embed type | `HTML` — embed the spectator build when it ships (`demo.html` `data-demo-src` is the same slot) |
+| Viewport | 1280×720, "click to run" enabled (lazy-loads the sim, keeps page weight honest) |
+| Fullscreen button | Yes |
+| Mobile-friendly flag | Yes — touch input supported per design |
+| Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
+
+Screenshots order on the page: v19-D (director view — the hook), v19-B
+(street level), v19-C (Dolores Park), v16-int-cafe (interior vignette),
+then v19-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -210,21 +228,24 @@ live request activity.
 Source art: `site/assets/keyart-16x9.png` (1920×1080), `keyart-square.png`
 (1080×1080), `logo-primary.svg`, `logo-icon.svg`. All derivatives generated
 with `tools/make_brand_assets.py` — extend it rather than hand-editing.
+**v18:** every capsule below now exists as a real file in `store/capsules/`
+(manifest: `store/README.md`); rerun the script to re-bake after any art
+refresh.
 
-| Platform | Asset | Size (px) | Notes |
+| Platform | Asset | Size (px) | Status |
 |---|---|---|---|
-| itch.io | Cover image | 630×500 | Crop from keyart-square; title readable at 315×250 thumb |
-| itch.io | Screenshot set | 1280×720+ | v18 series, 4 shots |
-| Steam | Header capsule | 460×215 | Keyart 16:9 crop, logo top-left safe zone |
-| Steam | Small capsule | 231×87 | Logo-icon + wordmark only — screenshots unreadable at this size |
-| Steam | Main capsule | 616×353 | Keyart 16:9 full-bleed |
-| Steam | Vertical capsule | 374×448 | Keyart-square crop, logo centered upper third |
-| Steam | Library capsule | 600×900 | Keyart-square extended vertically (add roofline sky) |
-| Steam | Library hero | 3840×1240 | Needs commission or 2× upscale pass — FLAG: art-track request |
-| Steam | Client logo | transparent PNG | logo-primary.svg export |
-| Steam | Page background | 1438×810 max | Subtle: blurred keyart at 30% — keep under 500 KB |
-| Social | OG / Twitter card | 1200×630 | `og-card.png` done |
-| Social | Avatar | 512×512 | `logo-icon.png` done |
+| itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v19-A..D` |
+| Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
+| Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
+| Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
+| Steam | Vertical capsule | 374×448 | **Done** — `store/capsules/steam-vertical-374x448.png` |
+| Steam | Library capsule | 600×900 | **Done** — `store/capsules/steam-library-600x900.png` |
+| Steam | Library hero | 3840×1240 | **FLAG** — needs commission or 2× upscale pass (art-track request) |
+| Steam | Client logo | transparent PNG | **Done** — `store/capsules/steam-client-logo.png` |
+| Steam | Page background | 1438×810 max | **Done** — `store/capsules/steam-page-bg-1438x810.png` (397 KB < 500 KB) |
+| Social | OG / Twitter card | 1200×630 | **Done** — `site/assets/og-card.png` |
+| Social | Avatar | 512×512 | **Done** — `site/assets/logo-icon.png` |
 
 **Safe-zone rule:** keep logo + title inside the central 80% — storefronts
 crop unpredictably. **Text rule:** no prices, no "free", no review scores on
@@ -294,5 +315,9 @@ This file supersedes the v0 DRAFT (single generic template). Changes:
 platform split (itch primary / Steam conditional), capsule spec sheet,
 disclosure matrix, pricing phrasing aligned to the monetization plan's
 PROPOSAL numbers without locking them, and the "what a dollar buys" honesty
-box. Update when: monetization numbers finalize (v8 pricing-page focus),
-Steam wrapper decision made, or the cast/address facts change.
+box. **v18 changes:** capsule spec → generated `store/capsules/` set +
+`store/README.md` manifest, itch.io embed/project-settings table (§2.5),
+screenshot ordering, gallery rebased on the v19 art build (grounded
+pawn/prop shadows). Update when: monetization numbers finalize (v8
+pricing-page focus), Steam wrapper decision made, the library hero lands,
+or the cast/address facts change.

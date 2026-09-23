@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "site", "assets")
 KEYART = os.path.join(ROOT, "press-kit", "keyart")
-SHOT = os.path.join(ROOT, "site", "shots", "v18-D.png")
+SHOT = os.path.join(ROOT, "site", "shots", "v19-D.png")
 
 BG = (20, 22, 28, 255)          # --bg
 PANEL = (29, 32, 41, 255)       # --panel
@@ -143,6 +143,55 @@ def draw_keyart(tw, th, tagline):
     return img
 
 
+def draw_capsule(tw, th, logo=True, tagline=None):
+    """Storefront capsule: keyart base + optional logo/tagline, safe-zone aware.
+
+    Safe-zone rule (STORE-COPY.md §4): title/logo inside central 80%;
+    no prices, no 'free', no review scores on capsules."""
+    shot = Image.open(SHOT).convert("RGB")
+    img = crop_resize(shot, tw, th)
+    grad = Image.new("L", (1, th))
+    for y in range(th):
+        t = y / th
+        a = int(220 * max(0.0, (t - 0.35) / 0.65) ** 1.3)
+        grad.putpixel((0, y), a)
+    grad = grad.resize((tw, th))
+    img = Image.composite(Image.new("RGB", (tw, th), (10, 11, 15)), img, grad)
+    d = ImageDraw.Draw(img)
+    if logo:
+        lock = draw_lockup()
+        lw = int(tw * 0.72)
+        lh = int(lock.height * (lw / lock.width))
+        if lh > th * 0.55:
+            lh = int(th * 0.55)
+            lw = int(lock.width * (lh / lock.height))
+        lock = lock.resize((lw, lh), Image.LANCZOS)
+        img = img.convert("RGBA")
+        img.alpha_composite(lock, (int((tw - lw) / 2 - lw * 0.06),
+                                   int(th * 0.5 - lh * 0.55)))
+        img = img.convert("RGB")
+        d = ImageDraw.Draw(img)
+    if tagline:
+        f_tag = ImageFont.truetype(FONT_R, max(10, int(th * 0.055)))
+        d.text((int(tw * 0.1), int(th * 0.88)), tagline, font=f_tag, fill=TEXT)
+    return img
+
+
+def draw_library_capsule(tw=600, th=900):
+    """600x900 vertical: roofline sky extended above the keyart crop."""
+    img = Image.new("RGB", (tw, th), (10, 11, 15))
+    shot_h = int(th * 0.62)
+    img.paste(crop_resize(Image.open(SHOT).convert("RGB"), tw, shot_h),
+              (0, th - shot_h))
+    lock = draw_lockup()
+    lw = int(tw * 0.8)
+    lh = int(lock.height * (lw / lock.width))
+    lock = lock.resize((lw, lh), Image.LANCZOS)
+    img = img.convert("RGBA")
+    img.alpha_composite(lock, (int((tw - lw) / 2 - lw * 0.06), int(th * 0.16)))
+    return img.convert("RGB")
+
+
 def main():
     os.makedirs(ASSETS, exist_ok=True)
     os.makedirs(KEYART, exist_ok=True)
@@ -159,6 +208,29 @@ def main():
     draw_keyart(1080, 1080,
         "Watch free. Pay to reach in."
         ).save(os.path.join(KEYART, "keyart-square.png"))
+
+    # Storefront capsule set (STORE-COPY.md §4) — regenerated from the
+    # current hero shot so a shot refresh re-bakes every capsule.
+    STORE = os.path.join(ROOT, "store", "capsules")
+    os.makedirs(STORE, exist_ok=True)
+    draw_capsule(630, 500).save(
+        os.path.join(STORE, "itch-cover-630x500.png"))
+    draw_capsule(630, 500).save(
+        os.path.join(ASSETS, "cover-itch-630x500.png"))
+    draw_capsule(460, 215).save(
+        os.path.join(STORE, "steam-header-460x215.png"))
+    draw_capsule(231, 87).save(
+        os.path.join(STORE, "steam-small-231x87.png"))
+    draw_capsule(616, 353).save(
+        os.path.join(STORE, "steam-main-616x353.png"))
+    draw_capsule(374, 448).save(
+        os.path.join(STORE, "steam-vertical-374x448.png"))
+    draw_library_capsule().save(
+        os.path.join(STORE, "steam-library-600x900.png"))
+    bg = draw_capsule(1438, 810, logo=False)
+    bg = bg.filter(ImageFilter.GaussianBlur(6))
+    bg.save(os.path.join(STORE, "steam-page-bg-1438x810.png"),
+            optimize=True)
     print("brand assets written")
 
 
