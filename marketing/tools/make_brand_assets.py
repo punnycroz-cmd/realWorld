@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "site", "assets")
 KEYART = os.path.join(ROOT, "press-kit", "keyart")
-SHOT = os.path.join(ROOT, "site", "shots", "v13-D.png")
+SHOT = os.path.join(ROOT, "site", "shots", "v14-D.png")
 
 BG = (20, 22, 28, 255)          # --bg
 PANEL = (29, 32, 41, 255)       # --panel

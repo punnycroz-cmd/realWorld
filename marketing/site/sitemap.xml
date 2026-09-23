@@ -8,10 +8,10 @@
     <lastmod>2026-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v13-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v13-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v13-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v13-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v14-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v14-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v14-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v14-D.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/features.html</loc>
