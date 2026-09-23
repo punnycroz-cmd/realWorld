@@ -1,9 +1,13 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v45 · 2026-09-24 (third pass — gallery refresh v26→v28, audit
-tooling extended: srcset/og:image/CLS checks, question bank, future indexable
-surfaces register). **v46 delta:** gallery refresh v28→v29; new 14th page
-`/archive.html` added to §3 and §13.
+**Version:** v60 · 2026-09-23 (fourth pass — gallery refresh v37→v39 across
+site/press-kit/keyart/capsules/og-card/trailer; FAQ 25→26 with the jobs
+question; seo_audit.py +3 machine checks: title/description uniqueness,
+sitemap lastmod sanity, llms.txt link + FAQ-count parity; keyword map gains
+the jobs/hire cluster from game-v8 canon).
+**v45** (third pass): audit tooling extended (srcset/og:image/CLS checks,
+question bank, future indexable surfaces register). **v46 delta:** gallery
+refresh v28→v29; new 14th page `/archive.html` added to §3 and §13.
 **Status:** LOCAL — site is launch-ready markup against a placeholder domain
 (`realworld-game.example`). Nothing published; no accounts registered.
 **Truth sources:** `devin-reviews/rw-game-design-2026-09-22.md` (product truth),
@@ -69,6 +73,8 @@ first week post-launch; re-score tiers at day-30.
 | rent controlled apartment game | journal (municipal realism post) |
 | AI NPC with memory game | journal + features (memory-model angle once sf/memory lands) |
 | NPC daily schedule simulation | features |
+| AI character job / NPC with a real job | how-it-works, faq (jobs Q, v60) |
+| hire an AI character | how-it-works (#move-in), faq |
 
 ### Avoid list (never target, never imply)
 
@@ -85,14 +91,14 @@ in markup today.
 
 | Page | Title (shipped) | Primary keyword | Schema | Notes |
 |---|---|---|---|---|
-| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v37-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
+| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v39-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
 | `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
 | `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
 | `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
-| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 25 Qs; JSON-LD ↔ visible parity enforced by seo_audit.py |
+| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 26 Qs (jobs Q added v60); JSON-LD ↔ visible parity enforced by seo_audit.py |
 | `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
 | `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
 | `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
@@ -183,11 +189,11 @@ reported as a quiet week.
 ## 8. Technical SEO — reconciled checklist
 
 Done in markup (verified by `tools/staging_dryrun.sh` **and**
-`tools/seo_audit.py` 58 pass / 0 fail at v45 — the audit runs inside
+`tools/seo_audit.py` 66 pass / 0 fail at v60 — the audit runs inside
 `tools/preflight.sh` step [1b], so regressions block a GO verdict):
 - [x] Semantic HTML, one H1/page, alt text on every shot
-- [x] `sitemap.xml` (all 12 indexable pages + image entries + lastmod) & `robots.txt`
-- [x] OG/Twitter cards on all 12 indexable pages; og:image 1200×630; og:site_name (v15)
+- [x] `sitemap.xml` (all 14 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 14 indexable pages; og:image 1200×630; og:site_name (v15)
 - [x] Canonical URLs on every page
 - [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
 - [x] webp companions + lazy-loading + width/height attrs (no CLS)
@@ -196,7 +202,11 @@ Done in markup (verified by `tools/staging_dryrun.sh` **and**
 - [x] Every meta description ≤155 chars (8 fixed in v30 after audit found them)
 - [x] VideoGame `screenshot[]` — all four current gallery shots
 - [x] `llms.txt` at site root — entity briefing for AI answer engines
-- [x] FAQ visible↔schema parity machine-checked (25 questions)
+- [x] FAQ visible↔schema parity machine-checked (26 questions)
+- [x] Title & meta-description uniqueness across all pages machine-checked (v60)
+- [x] Sitemap lastmod dates ISO + never future-dated (v60)
+- [x] llms.txt link targets resolve + "N questions" claim matches live
+  FAQPage count (v60 — keeps the entity briefing from going stale)
 - [x] `<source srcset>` candidates resolve on disk — audit FAILs on a dangling
   webp/png (v45; catches stale shot names after gallery refreshes)
 - [x] `og:image` resolves to a real file under `site/` (v45)
@@ -210,7 +220,7 @@ Pending (owner-gated, launch):
 - [ ] PENDING — English only; no hreflang, no localization claims
 
 Performance budget: page payload <3MB excluding gallery (gallery is lazy webp);
-one PNG fallback (v37-C, 1.9MB) is under the 2MB ceiling — accepted, it only
+one PNG fallback (v39-C, 1.9MB) is under the 2MB ceiling — accepted, it only
 loads on browsers without webp.
 
 ## 9. Measurement plan
@@ -230,7 +240,7 @@ loads on browsers without webp.
 - **Press hook 3:** "the game whose devlog is written by its NPCs" — recap format.
 - Community seeding post-launch (owner-approved only): life-sim Discords,
   gamedev/AI communities. Draft posts already in `social/drafts/`.
-- Asset hooks that earn embeds: before/after v1→v37 gallery, the public request
+- Asset hooks that earn embeds: before/after v1→v39 gallery, the public request
   feed screenshot, the "same angle, seventeen iterations later" image pair.
 
 ---
@@ -242,7 +252,7 @@ Which rich result each page is built to win — checked by `seo_audit.py`:
 | SERP feature | Page | Asset that earns it |
 |---|---|---|
 | VideoGame rich result (screenshots, free offer) | index | VideoGame JSON-LD + `screenshot[]` + `isAccessibleForFree` |
-| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 25 Qs incl. the Sims/InZOI comparison added v30 |
+| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 26 Qs incl. the Sims/InZOI comparison (v30) and the jobs question (v60) |
 | Image pack | index, features, press-kit | sitemap `image:` entries + descriptive alt + real shot filenames |
 | Sitelinks | index | flat nav + consistent titles — earned, not markup |
 | "Free" qualifier snippets | demo, pricing | `isAccessibleForFree` + "free, always" copy in first 155 chars |
@@ -282,6 +292,7 @@ Two pages must never compete for the same query. Current assignments:
 | sims/inzoi/paralives alternative | faq (comparison Q) | journal essays link back to faq, don't re-rank |
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
+| jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |
 
 Rule: if a new page/post wants a keyword already in this table, it links to
 the owner instead of competing — same rule as internal-link §6.
@@ -310,7 +321,7 @@ the owner instead of competing — same rule as internal-link §6.
   fold learnings into the calendar's next 12 weeks.
 
 **Debt register (carried, honest):**
-1. `shots/v37-C.png` is 1.9MB and `v37-A.png` is 1.8MB (accepted — webp
+1. `shots/v39-C.png` is 1.9MB and `v39-A.png` is 1.8MB (accepted — webp
    companions serve modern browsers; PNGs are fallback only). Revisit if
    CWV flags LCP.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on
@@ -341,6 +352,9 @@ already owns the cluster.
 | is the map real San Francisco | faq "Is the neighborhood a real place?" | ✔ answered (parody venues, real streets) |
 | what's the difference between watching and playing | how-it-works | ✔ covered on-page |
 | how long is a request / what do credits buy | pricing | ✔ covered on-page |
+| can my character get a job / who pays them | faq "Can my character get a job — and who pays them?" | ✔ answered (v60 — job board, Friday payroll, bill-on-approval) |
+| can I co-sign / co-sponsor someone's request | faq | QUEUE — world-v32 `co_sponsor` contract is real; add when wire shows it |
+| can I link to a specific request or event | archive + how-it-works | QUEUE — world-v33 `#r=` permalinks; add when the wire is public |
 | do the characters know you're watching | index copy ("none know you're watching") | QUEUE — graduate to faq if the query shows up |
 | is it multiplayer | faq | QUEUE — asymmetric shared world; needs wording care |
 | can you romance / date a character | faq | QUEUE — only if asked; no romance mechanic to promise |
@@ -362,7 +376,7 @@ built today, and none must cannibalize an owner page in §13.
 | Candidate surface | Source | Gate | Cannibalization note |
 |---|---|---|---|
 | `/journal/<slug>/` per-post URLs | journal cards already templated | volume justifies + Article JSON-LD | cards get 301s, never duplicate (§14) |
-| Public event-archive URLs (`#e=<id>` → real pages) | world-v19 wire permalinks | wire must be public + feed events stable live→archive (game-v6 contract) | archive pages must not re-pitch "watch" queries — demo owns those |
+| Public event-archive URLs (`#e=<id>` → real pages) | world-v19 wire permalinks; world-v33 adds `#r=<req>` request permalinks + `mentions[]`/`sponsors[]` attrs | wire must be public + feed events stable live→archive (game-v6 contract) | archive pages must not re-pitch "watch" queries — demo owns those |
 | `/venues/` venue pages (22 parody businesses) | world-v16 `businesses.json` | cast.html directory must not thin out — venue pages deepen, cast keeps roster | cast owns "cast/characters"; venues own venue-name queries only |
 | Recap archive pages | weekly recap pipeline (§7) | post-launch content exists first | recaps link to demo/how-it-works, never compete |
 | Playable demo subdomain (`play.`) | infra contract (deploy/) | game build ships | not a page concern — noindex until G12 |

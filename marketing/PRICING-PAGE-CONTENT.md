@@ -60,7 +60,7 @@ drift shows as wrong math, not wrong claims).
   Emits `price_calc` analytics events (debounced; class/minutes/flags only,
   never amounts).
 
-## 1b. Page components (v37)
+## 1b. Page components (v39)
 
 - **In-page TOC** (`.page-toc` chips in the hero) — anchor nav to all eight
   sections; pure HTML, no JS.

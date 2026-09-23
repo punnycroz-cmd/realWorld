@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "site", "assets")
 KEYART = os.path.join(ROOT, "press-kit", "keyart")
-SHOT = os.path.join(ROOT, "site", "shots", "v37-D.png")
+SHOT = os.path.join(ROOT, "site", "shots", "v39-D.png")
 
 BG = (20, 22, 28, 255)          # --bg
 PANEL = (29, 32, 41, 255)       # --panel
@@ -262,6 +262,12 @@ def main():
     draw_keyart(1080, 1080,
         "Watch free. Pay to reach in."
         ).save(os.path.join(KEYART, "keyart-square.png"))
+
+    # Social share card (OG/Twitter, 1200x630) — same bake as key art so a
+    # shot refresh keeps og:image on the current build.
+    draw_keyart(1200, 630,
+        "A neighborhood that's alive whether you're watching or not."
+        ).save(os.path.join(ASSETS, "og-card.png"), optimize=True)
 
     # Storefront capsule set (STORE-COPY.md §4) — regenerated from the
     # current hero shot so a shot refresh re-bakes every capsule.

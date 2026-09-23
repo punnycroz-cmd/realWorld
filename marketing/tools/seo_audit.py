@@ -260,7 +260,7 @@ def audit_page(fname, html):
             link_targets.add(h)
             if not os.path.exists(os.path.join(SITE, h)):
                 bad(f"{label}: internal link target missing: {href}")
-    return link_targets, types
+    return link_targets, types, title, (p.meta_desc or "")
 
 
 def main():
@@ -273,13 +273,42 @@ def main():
 
     inbound = {p: set() for p in pages}
     all_types = set()
+    titles = {}
+    descs = {}
+    faq_schema_count = 0
     for fname in pages:
         with open(os.path.join(SITE, fname), encoding="utf-8") as fh:
-            targets, types = audit_page(fname, fh.read())
+            html = fh.read()
+        targets, types, title, desc = audit_page(fname, html)
         all_types |= types
+        titles[fname] = title
+        descs[fname] = desc
+        if "FAQPage" in types and fname == "faq.html":
+            for blob in re.findall(
+                    r'<script type="application/ld\+json">(.*?)</script>',
+                    html, re.S):
+                try:
+                    d = json.loads(blob)
+                except json.JSONDecodeError:
+                    continue
+                if d.get("@type") == "FAQPage":
+                    faq_schema_count += len(d.get("mainEntity", []))
         for t in targets:
             if t in inbound and t != fname:
                 inbound[t].add(fname)
+
+    # --- duplicate titles / descriptions (SERP cannibalization tell) ---
+    for pool, label in ((titles, "title"), (descs, "meta description")):
+        seen = {}
+        for fname, val in pool.items():
+            v = val.strip()
+            if not v:
+                continue
+            if v in seen:
+                bad(f"duplicate {label} on {seen[v]} and {fname}: '{v[:50]}…'")
+            else:
+                seen[v] = fname
+    ok("title/description uniqueness checked")
 
     # --- orphan check (404 is intentionally unlinked) ---
     print("[cross-page] internal-link graph")
@@ -314,11 +343,35 @@ def main():
             f = os.path.join(SITE, img.rsplit("/", 1)[-1])
             if not os.path.exists(os.path.join(SITE, "shots", img.rsplit("/", 1)[-1])):
                 bad(f"sitemap image missing on disk: {img}")
+        # lastmod sanity — real dates, never future-dated
+        import datetime
+        today = datetime.date.today()
+        for lm in re.findall(r"<lastmod>([^<]+)</lastmod>", sm):
+            try:
+                d = datetime.date.fromisoformat(lm.strip())
+            except ValueError:
+                bad(f"sitemap lastmod not ISO date: {lm}")
+                continue
+            if d > today:
+                bad(f"sitemap lastmod in the future: {lm}")
         ok("sitemap ↔ filesystem parity checked")
 
     # --- llms.txt (AI answer engines) ---
-    if os.path.exists(os.path.join(SITE, "llms.txt")):
+    llms_path = os.path.join(SITE, "llms.txt")
+    if os.path.exists(llms_path):
         ok("llms.txt present")
+        llms = open(llms_path, encoding="utf-8").read()
+        # every markdown link target must resolve to a real page
+        for target in re.findall(r"\]\(([^)]+)\)", llms):
+            if target.startswith(("http", "//", "mailto:")):
+                continue
+            if not os.path.exists(os.path.join(SITE, target.split("#")[0])):
+                bad(f"llms.txt links to missing file: {target}")
+        # any "N questions" claim must match the live FAQPage count
+        for m in re.findall(r"(\d+)\s+questions", llms):
+            if faq_schema_count and int(m) != faq_schema_count:
+                bad(f"llms.txt claims {m} questions; FAQPage schema has {faq_schema_count}")
+        ok("llms.txt links + FAQ count checked")
     else:
         warn("llms.txt missing — AI answer engines get no entity briefing")
 

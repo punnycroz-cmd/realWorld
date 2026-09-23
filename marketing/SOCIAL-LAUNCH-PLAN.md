@@ -81,7 +81,7 @@ its channel, timing slot, required asset, and character-count check.
 |---|---|---|
 | `launch-thread.md` | X announcement thread (8 posts) + Bluesky condensed version + pinned-post variant | 3 |
 | `cast-spotlights.md` | 8 cards, one per main character, built from the cast bible — spoiler-safe (see note) | 8 |
-| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v37 captures | 6 |
+| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v39 captures | 6 |
 | `recap-format.md` | "This Week on the Block" template — the weekly retention post, filled from the public feed (site long-form version: `templates/weekly-recap.md` on `journal.html`) | 1 template + 1 example |
 | `pricing-post.md` | The honesty post: "what a dollar buys" — turns the credit model into a trust signal | 1 |
 | `seeded-questions.md` | 10 discussion starters for Discord/Reddit after launch | 10 |
@@ -92,7 +92,7 @@ its channel, timing slot, required asset, and character-count check.
 | `rent-week-arc.md` | 7-post narrative series on the lease/rent cycle, keyed to world-v12 canonical feed wording (v36) | 7 |
 | `archive-arc.md` | 5-post "the block keeps receipts" series on The Archive — rumor outcomes, permalinks, attributed ledger (v49; post-launch only, canon: world-v20 archive-ui.md) | 5 |
 | `playtest-night.md` | Community playtest night — recruitment posts + facilitator run sheet on the world-v23 harness (v49; double owner-gate) | 3 posts + runbook |
-| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v37) | full asset set |
+| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v39) | full asset set |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
 author of "Mission Unfiltered") is *load-bearing season-one material*. Cards
@@ -107,7 +107,7 @@ Goal: make the concept legible before asking for attention.
 
 | Day | Post | Channel |
 |---|---|---|
-| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v37-D evening shot, slow zoom) | TikTok, X, Shorts |
+| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v39-D evening shot, slow zoom) | TikTok, X, Shorts |
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |

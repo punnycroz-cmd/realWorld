@@ -412,7 +412,7 @@ ul.clean li { margin: 6px 0; }
 .calc-out .cc-note { font-size: 13px; color: var(--muted); flex-basis: 100%; }
 .calc-out .cc-surge { font-size: 13px; color: var(--accent-3); font-weight: 600; flex-basis: 100%; }
 
-/* ---------- pricing page v37: toc, pack coverage, receipt, personas ---------- */
+/* ---------- pricing page v39: toc, pack coverage, receipt, personas ---------- */
 .page-toc {
   display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px;
 }
