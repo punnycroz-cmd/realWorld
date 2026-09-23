@@ -577,3 +577,335 @@ classification test are formalized as P206.
 - Continuing threads: Harris et al. 2014 (transactive loss, from v2.0);
   Erickson 2011 (fitness, v1.9); Woollett & Maguire 2009 (expertise cost,
   v1.0).
+
+---
+
+# Part II — v34 pass: the narrative-self layer + spec v3.x catch-up
+
+v22 compiled the mains against spec v2.2. Six spec versions later
+(v3.0–v3.4), four new findings from the character-literature join the
+cast layer, and every main gets a delta block bringing their profile
+current. The bible-derived pins from Part I are unchanged — this pass
+*adds* dials, never rewrites.
+
+## 8. New mechanisms (→ spec v3.4 §6.34)
+
+### 8.1 Self-defining memories — the anchor records
+
+**[CONSENSUS]** Singer & Salovey (1993, *The Remembered Self*);
+Blagov & Singer (2004, *J. Personality* 72:481–511): a small set of
+memories is self-defining — vivid, affect-charged, meaning-laden,
+linked to enduring concerns. Four scored dimensions (specificity,
+meaning, content per Thorne & McLean, affect) map onto record fields:
+`selfdef:true` + `meaning` + `sdmCat` + `affect_tag`. Blagov &
+Singer's key individual-difference result — SDM specificity is
+inversely related to *repressive defensiveness* — becomes the
+`selfdef_spec_mult` load on new trait axis `defens` (axis 23; r
+with neurot ≈ −0.3, with selfconceal ≈ +0.4 — defensiveness is NOT
+neuroticism and NOT mere secrecy).
+
+Spec mechanics (§6.34a): archive floor, split drift (meaning held,
+wording drifts), warm bias on drive, cap `selfdef_cap` 6. This is
+the missing piece for the cast's oldest open loops: Tomás's
+confession plan and Victor's handshake were already canonized (§6.24)
+— now they are also *anchors*, records that can never archive and
+that cue the rest of the store disproportionately.
+
+### 8.2 Mnemic neglect — the recall-only self-defense
+
+**[CONSENSUS]** Sedikides & Green (2000, *JPSP* 79:906; model review
+Sedikides & Green 2009, *P&SC* 3): feedback that is negative, about
+central self-traits, high in diagnosticity, and about the SELF is
+recalled worse than all control cells — and the effect is
+**recall-only** (Green, Sedikides & Gregg 2008, *JESP* 44:547:
+recognition unimpaired — "forgotten but not gone"). Eliminated when
+the source is close or the goal is self-improvement (Green et al.
+2009, *Self & Identity* 8:233). Magnified by repressive
+defensiveness.
+
+Spec mechanics (§6.34b): a three-gate drive penalty, recognition
+path exempt, close-source relief. The character who "doesn't
+remember being told off" is not lying and not repressing — the
+record is there, it just fails at search, and a recognition cue (or
+a trusted person's re-telling) can still land it. This is the
+mechanism the bibles kept describing in prose — "he files it and
+never opens the drawer" — as a *retrieval* phenomenon, which is
+more human and more playable than an encoding block.
+
+### 8.3 Life-script corrections — the bump is for the happy, the wound is for now
+
+**[CONSENSUS]** Berntsen & Rubin (2004, *Psych. Bull. Rev.* 11:1003)
++ Rubin & Berntsen (2003, *Psych. Aging* 18:636): the reminiscence
+bump appears for POSITIVE events only (cultural life scripts
+concentrate expected transitions at 15–30); negative events show no
+bump and their distributions peak at the present; happy involuntary
+memories outnumber unhappy ~2:1 and only the happy ones bump.
+v0.3's `bump_valence_gate` covered the encode side; v3.4 adds the
+retrieve/date side: `neg_now_pull` (negative records misdate
+recent), `script_age_pull` (lifescript-positives drift toward
+normative ages), `invol_pos_bias` (the ambient scan arrives warm).
+
+Cast consequence: Carmen's immigration bump (Schrauf & Rubin, v22)
+carries her *positive* transitions — the displacement-era negatives
+distribute flat and misdate forward. Her "worse times, better told"
+is now mechanically two different distributions, not one story.
+
+### 8.4 Redemption/contamination — the retell transform on meaning
+
+**[CONSENSUS]** McAdams, Reynolds, Lewis, Patten & Bowman (2001,
+*PSPB* 27:472–483): life narratives are coded for sequences where
+bad turns good (redemption — tracks wellbeing and generativity) or
+good turns bad (contamination — tracks distress); redemption
+predicts wellbeing better than raw affective tone. Spec mechanics
+(§6.34d): `script_redeem ∈ [−1,1]` × `redeem_write` per retell
+accrues a valence-shifting frame on the record's `meaning` field —
+content fields untouched. Over tellings the character's *interpretation*
+of their own biography drifts onto their script's groove while their
+facts stay checkable — the two-headed phenomenon where someone can
+be honest about what happened and wrong about what it meant.
+
+### 8.5 The ambient tier — profiles for the 20 thin-AI NPCs
+
+The 20 ambient NPCs now get a formal profile recipe rather than
+"the same equations, smaller" (spec §10 v3.4):
+`deriveParams(ambient:true)` samples IndivTraits at
+`ambient_trait_sigma` (0.3σ — a narrow, legible band, never flat),
+caps the live store at `ambient_cap`·`ambient_cap_mult`, sets
+`selfdef_cap`→0 (no anchors — thin characters hold roles, not life
+stories), and defaults `individ_rate` low / `cat_prior_pull` high so
+their PersonModels stay category-first (Fiske & Neuberg 1990 — thin
+attention leaves people as "the landlord type," "the jogger").
+**Promotion path:** on promotion to main, re-sample at full σ,
+backfill SelfModel + allow anchors to mint naturally — records are
+never rewritten, so a promoted NPC's thin early store is real
+history, not a retcon.
+
+## 9. Per-main delta blocks (v22 pins stand; these add)
+
+### C1 Marisol — `defens +0.5` · `script_redeem +0.4` · `mnem_neg 0.20`
+- `face_ability +0.5σ` (the order-ledger extends to faces — she
+  recognizes the irregular from six months ago), `name_fan` emergent
+  HIGH cost (her directory is the cast's biggest — the mechanism
+  makes the social giant blank names *sometimes*, which is truer
+  than never). `suggs` −0.4 (Yield low — she has heard every version
+  already), `heard_update_w` high (0.6 — absorbs impressions of
+  people, skeptics of claims). `doubt_persist` ~45 — a burned
+  confidante doesn't unhear.
+- **Anchors (selfdef, 4):** relationship{the regular who stopped
+  coming — unspoken}, achievement{manager keys at 24},
+  lifeThreat{father's last illness — vigil at the counter},
+  other{the first open mic she ran}. All mint `meaning`-rich:
+  Marisol's anchors are story-shaped because she rehearses everyone
+  else's — and her OWN rehearse silently (self_share_pen).
+- **Mnemic neglect reading:** moderate `mnem_neg` + full
+  `mnem_close_relief` — strangers' jabs slide off; a true regular's
+  criticism lands. Her defensiveness is real but modest — she knows
+  her own faults; she just doesn't SHARE them.
+- `invol_pos_bias` 0.3 — her mind wanders to people, warmly.
+
+### C2 Jules — `defens 0.0` · `script_redeem +0.3` · `mnem_neg 0.10`
+- `face_ability` +0.3 (sketcher's faces), `vivid`-driven anchors
+  high-specificity; `individ_rate` HIGH (0.25 — newcomer
+  individuates fast, everyone is still diagnostic),
+  `cat_prior_pull` 0.4 (low — no block stereotypes loaded yet).
+  `transference_pool` 3 with `transference_seed` 0.4 — three months
+  in, new faces DO get read through home-town schemas.
+- **Anchors (3):** relationship{the goodbye that wasn't — left
+  town mid-lease}, achievement{first sketch a stranger asked to
+  keep}, other{the apartment's first dawn — drawn}. Their anchors
+  are the newest in the cast and the least canonized — high
+  specificity, low retell count, still forming.
+- `mnem_neg` low + `mnem_close_relief` 1.0 — their self-protection
+  is social (avoidance of exposure), not mnemonic; `defens` flat.
+- `invol_pos_bias` 0.35 — the correspondent-in-the-head narration
+  arrives mostly charmed.
+
+### C3 Dani — `defens +0.3` · `script_redeem −0.1` · `mnem_neg 0.15`
+- `suggs` +0.3 (Shift high — polite freeze yields to confident
+  corrections), `vigil_social_gain` 0.2 (threat = exposure —
+  social-threat events encode hot), `dest_decay_mult` 2.0 +
+  `told_pen` 0.3 — she compartmentalizes tellings by venue, so the
+  same story legitimately lands twice on different audiences (NOT
+  forgetfulness — partitioned ecology).
+- **Anchors (3):** achievement{first chalkboard — "I made the
+  corner laugh"}, relationship{the evening that became a secret —
+  sdmCat relationship, selfdef + confidential BOTH: an anchor that
+  cannot be told — the cast's only gagged anchor}, other{the flat
+  key — independence}. The confidential anchor is the interesting
+  object: warm bias + archive floor + suppressed retell = it
+  intrudes and can never be discharged (§6.24 canonization without
+  audience — canonized in silence).
+- `mnem_neg` moderate BUT compartmentalized — drive penalty applies
+  only in the record's home context (w_place partition means the
+  neglect doesn't even have to work outside it).
+
+### C4 Priya — `defens +0.4` · `script_redeem −0.2` · `mnem_neg 0.30`
+- `mnem_close_relief` 1.0 BUT `improvement:true` events bypass
+  entirely — the nurse's improvement-striving gate is wide open for
+  clinical feedback, narrower for relational. Her `mnem_neg` is the
+  cast's most *diagnostic* case: "you're cold with Marcus" fails at
+  recall (central? yes — she files herself as caring; diagnostic?
+  yes — a patient-observer said it); "your charting slipped"
+  doesn't (improvement-tagged, relieved).
+- `attach_avoid` +0.8 already pins her encoding deficit on
+  attachment; v3.4 adds the retrieval-side complement: criticism
+  ABOUT her relational coldness is itself self-threatening → doubly
+  gated out. The blind spot now has two walls.
+- **Anchors (4):** achievement{first code she ran}, relationship{
+  the flat — sdmCat relationship, meaning contested, low
+  specificity}, lifeThreat{the patient she lost — she retells it as
+  protocol}, other{the day she realized the tally was unfair}.
+  `selfdef_spec_mult` ×(1−0.5·0.4)=0.8 — her anchors are clipped:
+  meanings strong, scenes thin (the Blagov & Singer repressor
+  signature at moderate amplitude).
+- `script_redeem −0.2` — slight contamination: her good stories
+  arrive with the audit attached.
+
+### C5 Marcus — `defens −0.2` · `script_redeem +0.5` · `mnem_neg 0.05`
+- `mnem_neg` near zero — Marcus does NOT defensively forget
+  criticism (he deflects behaviorally, not mnemonically); his
+  prospective-memory failure is untouched by this layer. IMPORTANT
+  NULL: do not pin mnem_neg to explain his arrears — the rent loop
+  is PM machinery (v22), not self-protection. This is the profile
+  boundary the v3.4 dials let us keep clean.
+- `face_ability` −0.3 (porches not faces), `suggs` +0.2,
+  `exposure_fam_gain` high (he SEES everyone daily — ambient
+  familiarity accrual is his social glue),
+  `individ_rate` moderate.
+- **Anchors (3):** other{the route he cracked — the day the map
+  clicked}, relationship{the reveal he wants to make — an anchor
+  on an INTENTION, P209 territory}, leisure{the rooftop set —
+  drums}. `script_redeem +0.5` — Marcus's tellings rescue: the
+  crash story gets funnier and kinder each time (benefit-finding
+  without depth — redeemed but not deepened).
+- `invol_pos_bias` 0.4 — the warmest ambient mind in the cast.
+
+### C6 Carmen — `defens +0.2` · `script_redeem +0.8` · `mnem_neg 0.20`
+- Cast-max `script_redeem` — the survivor's grammar: every hard
+  story lands as a lesson, a joke, or a feeding. McAdams
+  generativity map is near-literal: the stoop IS generativity.
+  `redeem_write` default — decades of retellings have already done
+  the write; her anchors are all fully converted.
+- **Anchors (6 — at cap):** relationship{the husband — the first
+  cafecito}, lifeThreat{Miami 1981 — the crossing era},
+  achievement{the seam that paid the rent}, relationship{the
+  neighbor she raised}, other{the stoop at dusk}, lifeThreat{
+  nowhere-to-go — confidential + selfdef: a gagged anchor like
+  Dani's, but forty years deeper}. Specificity moderate
+  (selfdef_spec_mult 0.9) — her anchors are scene-rich because
+  she retells them, not because `defens` spared them.
+- `invol_pos_bias` 0.45 — the positivity-effect stack (v1.6) plus
+  involuntary warmth: her quiet afternoons arrive in 1989, gently.
+  `neg_now_pull` rides age curve — her old wounds date "recently"
+  when asked, the standard misdating, not pathology.
+- `mnem_neg` 0.20 but rarely TRIGGERED — nobody gives Carmen
+  diagnostic central negative feedback; her self-protection is
+  the community's, not hers.
+
+### C7 Victor — `defens +1.2` · `script_redeem −0.5` · `mnem_neg 0.45`
+- The cast's `mnem_neg` max AND `mnem_close_relief` near 0 — the
+  brittle profile: criticism of Victor-as-person fails at recall
+  from ANYONE (the drawer works on incoming mail too). Since the
+  wife's death there is no close-source relief channel left — the
+  transactive-loss finding (v22) and the mnemic-relief finding
+  COMPOSE: her absence removed both his memory partner AND his
+  correction channel. Emergent: he gets righter about buildings and
+  wronger about himself every year.
+- **Anchors (5):** achievement{the store's first year},
+  relationship{the wife — sdmCat relationship, `selfdef_spec_mult`
+  ×(1−0.5·1.2)=0.4 — THE vague-anchor case: he can tell you the
+  MEANING ("she kept the books, and the rest") but the scenes are
+  nearly empty — forty years of feeling filed as one line},
+  lifeThreat{the diagnosis}, achievement{the buildings — plumbing
+  as autobiography}, other{the handshake — confidential-adjacent,
+  meaning "word is bond," verbatim-preserved because untold}.
+  Victor's anchors are the spec's own test case for
+  meaning-faithful/detail-free (P334): ask him WHAT HAPPENED the
+  day they signed the store papers and you get accounting; ask
+  what it meant and you get a sentence he has polished for decades.
+- `script_redeem −0.5` — contamination grammar: his good stories
+  acquire the cost ("it worked, at the time, and then—"). The sale
+  offer in the drawer is contamination waiting for a retell.
+- `doubt_persist` 90 — corrections land hard and stay doubted.
+
+### C8 Tomás — `defens +0.1` · `script_redeem +0.6` · `mnem_neg 0.10`
+- `script_redeem +0.6` — the planner's grammar: hardship becomes
+  apprenticeship ("San Miguel was the training"). His open loops
+  canonize ALREADY-redeemed — the confession plan's meaning field
+  is "devotion," not "fear," which is why it never feels urgent.
+- **Anchors (5):** lifeThreat{the arrival at 12 — es-tagged,
+  crossover}, achievement{first line-lead}, relationship{the 3pm
+  coffee — an anchor on a RITUAL, meaning-layer "she is the plan"},
+  other{the notebook's first page}, relationship{the handshake —
+  same event as Victor's anchor, opposite valence charge: his
+  version means "I was trusted"; Victor's means "I owe"}. TWO
+  mains anchoring the same dyadic record with divergent meanings
+  is the cleanest natural test of §6.34a drift split (P334).
+- `invol_pos_bias` 0.4 via w_sensory channel — his involuntaries
+  arrive by smell and arrive warm (Proust stack + positivity).
+- `mnem_neg` low — he absorbs correction like a line-order
+  (improvement-tagged by temperament).
+
+## 10. The 20 ambient NPCs — profile template
+
+Per §8.5 / spec v3.4: `deriveParams(ambient:true)`. Concretely for
+world-builder: each ambient NPC gets ONLY (a) role tags →
+`cat_prior_pull` categories (vendor, jogger, stoop-sitter,
+delivery), (b) a 2-DOF jitter {`enc_base` ±10%, `theta` ±0.05}
+inside `ambient_trait_sigma`, (c) `exposure_fam_gain` default so
+mains' PersonModels accrue familiarity from sightings. NO
+selfdef records, no SelfModel, no secret machinery (`secret_str`
+→0), `individ_rate` 0.05. Emergent and intended: ambient NPCs
+misidentify people by category (transference/transplant pools draw
+from `cat_resist` defaults), remember events as types ("a courier
+thing"), and are the rumor chain's lossy-but-cheap edges. On
+promotion: full MVN + SelfModel backfill + records kept verbatim —
+a promoted NPC remembers their ambient era *thinly and typed*,
+which is exactly what a minor character's backstory should feel
+like from inside.
+
+## 11. Distinctness — second-pass notes
+
+- **The avoidant five now split three ways:** Priya (encoding gate
+  `attach_encode_loss`), Victor (encoding gate + recall gate
+  `mnem_neg` + vague anchors `selfdef_spec_mult`), Tomás (encoding
+  gate only — his avoidance is behavioral silence, memory intact).
+  Same bible-word "closed," three different forgetting machines.
+- **The two gagged anchors** (Dani's relationship, Carmen's
+  nowhere-to-go) differ by `defens`: Dani's is vivid-and-suppressed
+  (spec 1.0), Carmen's is polished-and-rehearsed-in-silence (0.9).
+- **Marcus is the control case** for mnem_neg: his profile
+  explicitly forbids the dial (§9 C5) — a boundary assertion world-
+  builders should copy: not every "avoids" is a memory defense.
+
+## 12. New probes (filed to validation-design §43, P334–P345)
+
+P334 anchor drift split (MUST) · P335 anchor floor (MUST) ·
+P336 defensiveness-specificity (MUST, sign) · P337 mnemic neglect
+recall-recognition dissociation (MUST, structure) · P338 close-source
+relief (MUST) · P339 mnem gates nulls (MUST) · P340 negative
+forward-misdating (SHOULD) · P341 lifescript age pull (SHOULD) ·
+P342 involuntary positivity (SHOULD) · P343 redemption meaning-drift
+(SHOULD) · P344 ambient tier distinctness (MUST) · P345 cast
+narrative signatures (OBSERVE).
+
+## 13. Sources added this version
+
+- Singer & Salovey 1993 (*The Remembered Self*) — SDM construct.
+- Blagov & Singer 2004 (*J. Personality* 72:481–511) — four SDM
+  dimensions; specificity × repressive defensiveness (verified).
+- Sedikides & Green 2000 (*JPSP* 79:906); Sedikides & Green 2009
+  (*P&SC* 3, "Memory as a Self-Protective Mechanism"); Green,
+  Sedikides & Gregg 2008 (*JESP* 44:547); Green et al. 2009
+  (*Self & Identity* 8:233) — mnemic neglect: recall-only,
+  gate structure, close-source/improvement relief (all verified).
+- Berntsen & Rubin 2004 (*Psych. Bull. Rev.* 11:1003); Rubin &
+  Berntsen 2003 (*Psych. Aging* 18:636) — life scripts, positive-only
+  bump, negative present-peak, 2:1 involuntary asymmetry (verified).
+- McAdams, Reynolds, Lewis, Patten & Bowman 2001 (*PSPB* 27:472–483)
+  — redemption/contamination sequences; wellbeing/generativity
+  correlates (verified).
+- Thorne & McLean — SDM content taxonomy (via Blagov & Singer).
+- Weinberger — repressive defensiveness trait → `defens` axis.
+- Continuing: Fiske & Neuberg 1990 (ambient category-first, v3.2);
+  Schrauf & Rubin (immigration bump, v22).

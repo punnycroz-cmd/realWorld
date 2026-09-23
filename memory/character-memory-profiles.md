@@ -416,6 +416,20 @@ never copying raw.
 | novel_pick_w / told_pen | 1.0 / 0.1 | 6.0 / 1.0 | retell novelty gate / repeat-tell penalty (v3.2) |
 | phrase_surv_base / phrase_distinct_mult | 0.3 / 1.0 | 1.0 / 2.5 | phrasing hop survival / distinctive boost (v3.2) |
 | doubt_persist | 3 | 180 | days a retraction holds "doubted"; high = can't unhear it (v3.3) |
+| selfdef_cap | 2 | 10 | max anchor records (v3.4) |
+| selfdef_floor | 0.05 | 0.3 | strength below which anchors never archive (v3.4) |
+| selfdef_drift_mult | 0.2 | 0.8 | anchor core-field drift multiplier (v3.4) |
+| selfdef_cue_gain | 0.0 | 0.25 | anchor warm-bias on recall drive (v3.4) |
+| selfdef_spec_mult | 0.4 | 1.2 | anchor field richness; <1 under defensiveness (v3.4) |
+| mnem_neg | 0.0 | 0.5 | self-threat recall penalty; recall-only (v3.4) |
+| mnem_central_thresh / mnem_diag_thresh | 0.4 / 0.4 | 0.9 / 0.9 | centrality / diagnosticity gates (v3.4) |
+| mnem_close_relief | 0.0 | 1.0 | close-source/improvement relief strength (v3.4) |
+| script_redeem | −0.8 | 0.9 | − contamination, + redemption (v3.4) |
+| redeem_write | 0.0 | 0.35 | per-retell meaning-overwrite rate (v3.4) |
+| neg_now_pull | 0.0 | 0.35 | negative-record forward misdating (v3.4) |
+| script_age_pull | 0.0 | 0.5 | normative-age pull on lifescript records (v3.4) |
+| invol_pos_bias | 0.0 | 0.5 | positive share boost, involuntary scan (v3.4) |
+| ambient_cap_mult / ambient_trait_sigma | 0.2 / 0.15 | 0.7 / 0.5 | ambient tier: cap / trait band (v3.4) |
 
 **v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
 only new per-char dial — how long a trusted correction keeps a record
@@ -1404,3 +1418,66 @@ Explicit nulls preserved: `g_mem` doesn't buy FAE exemption (the
 correction stage is resource-gated, not ability-gated — P311);
 `face_ability` doesn't change `exposure_fam_gain` (DP accrual rides
 `fam_gain` instead); `meta_cal` doesn't fix destination memory.
+
+## 21. v3.4 note — character-profiles II: the narrative-self dials
+
+Four new personality surfaces and one tier template. The v3.4 dials are
+the ones a bible writer will *reach for* most often — they map directly
+onto prose like "she's the kind of person who always lands the story
+well" or "he genuinely doesn't remember being criticized" — so the
+guidance is mostly about not double-counting:
+
+- **`selfdef_*` (anchor layer):** bibles nominate CONTENT
+  (`seedHints` → records with `selfdef:true` + `meaning` + `sdmCat`),
+  never the params. `selfdef_cap` is nearly a population constant —
+  pin it 7–8 only for a narrator-character whose identity is visibly
+  built of stories; `selfdef_drift_mult`/`selfdef_cue_gain` stay
+  default for the whole cast (the effects are ecological, not
+  temperamental). The ONE per-character surface is
+  `selfdef_spec_mult` via trait `defens` — repressive-defensive
+  characters hold *vague* anchors (Blagov & Singer 2004). Do NOT pin
+  `defens` from a bible that merely says "private" — that is
+  `selfconceal`; `defens` is the Weinberger pattern (low distress
+  report + high defensiveness markers). C7 Victor is the cast's
+  clear case; C1 Marisol reads selfconceal-high, defens-moderate.
+- **`mnem_neg` (self-protective forgetting):** recall-only, self-only,
+  central-diagnostic-only. Pair guidance: a character with high
+  `mnem_neg` AND high `mnem_close_relief` forgets strangers' insults
+  but absorbs a friend's correction — healthy self-protection. High
+  `mnem_neg` + LOW `mnem_close_relief` is the brittle profile (nobody
+  can tell them anything) — reserve for the most defended cast
+  member. Never use `mnem_neg` to make a character "modest" — the
+  effect is a *recall* failure; their stored self-knowledge is
+  unchanged (recognition path intact, P337).
+- **`script_redeem` (life-story valence transform):** a direct bible
+  pin in [−0.8, 0.9], NOT trait-derived — a character's redemption
+  score is authored, not sampled (McAdams 2001 tracks wellbeing/
+  generativity but is measured from narratives). Guidance: warm
+  generative elders/cooks get +0.6 to +0.8; the compartmentalized
+  suppressor gets −0.4 to −0.6 (their good stories spoil in the
+  telling). `redeem_write` stays default cast-wide — it is the rate
+  limit, not the direction.
+- **Life-script trio** (`neg_now_pull`, `script_age_pull`,
+  `invol_pos_bias`): mostly age-ecology, not personality. The only
+  per-character override is `invol_pos_bias` HIGH on profiles already
+  carrying `positivity_gain` high (the same motivational current)
+  and LOW on dysphoric/menaced profiles — a frightened character's
+  mind wandering should not arrive cheerful.
+- **Ambient tier** (`ambient_cap_mult`, `ambient_trait_sigma`):
+  population constants for the 20-NPC pool, never per-NPC pins —
+  ambient diversity comes from role tags (PersonModel categories)
+  and `cat_prior_pull` HIGH + `individ_rate` LOW defaults, which is
+  exactly the category-first individuation the literature predicts
+  for thin-attention witnesses (Fiske & Neuberg 1990, v3.2 §40). On
+  promotion to main, re-sample IndivTraits at full σ and backfill a
+  SelfModel — the promoted NPC's *records* are real and thin, never
+  rewritten.
+
+Explicit nulls preserved (P334/P337/P338 guards): `selfdef` records
+do NOT get verbatim protection — anchors drift on wording, hold on
+meaning; `mnem_neg` does NOT touch recognition, other-target
+feedback, or peripheral-trait criticism; `script_redeem` does NOT
+edit content fields — only `meaning` — so a redemption-teller's
+facts stay checkable; `defens` does NOT load `self_share_pen` (that
+is `selfconceal`'s channel — the two traits dissociate, which is
+why a secretive-but-unrepressed character keeps a vivid inner life).

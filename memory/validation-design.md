@@ -1973,3 +1973,79 @@ Wilson 1927 (score interval); Benjamini & Hochberg 1995 (JRSS-B
 57:289 — FDR); Gutenkunst et al. 2007 (sloppy-model priors, reuse);
 Loftus 1979 (eyewitness divergence, reuse); Gabbert, Memon & Allan
 2003 (co-witness conformity, reuse); Bartlett 1932 (reuse).
+
+## 43. New probes P334–P345 (v34, character-profiles II suite)
+
+- **P334 anchor drift split (MUST — structure):** seed a `selfdef`
+  record and a matched non-anchor at equal strength; after 30d of
+  drift, the anchor's `meaning` field error ≤ 0.5× the non-anchor's
+  while peripheral-field error is NOT significantly lower — anchors
+  hold interpretation, not wording (Blagov & Singer). Victor vs
+  Tomás versions of the same handshake event MUST diverge in
+  `meaning` while agreeing in content fields.
+- **P335 anchor floor (MUST):** decay an anchor below
+  `forget_thresh` — it never archives while `selfdef:true`; the cap
+  `selfdef_cap` demotes rather than deletes (displaced anchor then
+  archives normally).
+- **P336 defensiveness-specificity (MUST — sign-locked):** profiles
+  at `defens` {−1, 0, +1} mint anchors whose field-population
+  decreases monotonically (`selfdef_spec_mult` inverse load);
+  meaning-field presence is UNAFFECTED — the repressor claims the
+  point and loses the scene (Blagov & Singer 2004).
+- **P337 mnemic neglect dissociation (MUST — structure):** battery
+  of {self|other} × {central|peripheral} × {high|low diagnostic}
+  negative feedback → recall deficit ONLY in the
+  self×central×high-diagnostic cell; recognition/copy-cue probe on
+  the same records shows NO deficit ("forgotten but not gone" —
+  Green et al. 2008). Sign-locked on the cell pattern.
+- **P338 close-source relief (MUST):** identical self-threatening
+  feedback from (a) stranger, (b) `eval ≥ 0.5` close other, (c)
+  `improvement:true` framing → (b,c) recall ≈ control, (a) shows
+  deficit; `mnem_close_relief` scales the rescue (Green et al. 2009).
+- **P339 mnem gate nulls (MUST — null family):** `mnem_neg` max does
+  NOT depress recall of: positive central feedback, other-target
+  feedback, peripheral-trait criticism, low-diagnosticity insults.
+  All four nulls are cite-guarded (Sedikides & Green model).
+- **P340 negative forward-misdating (SHOULD — direction):**
+  `dateEstimate` on seeded negative records biases recent at
+  `neg_now_pull`-proportional magnitude; positive controls do not
+  (Rubin & Berntsen 2003 negative present-peak).
+- **P341 lifescript age pull (SHOULD):** `lifescript:true` positive
+  records' dateEstimates cluster nearer normative script ages than
+  non-script positives at matched true ages (Berntsen & Rubin 2004);
+  pull ≤ `script_age_pull` bound.
+- **P342 involuntary positivity (SHOULD — rate):** ambient-scan
+  involuntary retrievals' positive share ≥ ~2× negative share at
+  `invol_pos_bias` default on a neutral seeded store; scales with
+  param; AGE-linked via positivity curve (older cohorts higher).
+- **P343 redemption meaning-drift (SHOULD):** a `script_redeem`
+  +0.8 profile retelling a negative record n times shows monotone
+  `meaning`-valence ascent bounded by `redeem_write·n`; content
+  fields unchanged at every step — checkable facts, drifting frame
+  (McAdams 2001). Contamination mirror at −0.5.
+- **P344 ambient tier distinctness (MUST):**
+  `deriveParams(ambient:true)` vectors (a) occupy a strictly
+  narrower trait ellipsoid (`ambient_trait_sigma`), (b) hold zero
+  `selfdef` records after 90 simulated days, (c) show
+  `cat_prior_pull`-dominated PersonModels (type-typed recall errors
+  ≥ mains'); promotion path produces a full-σ profile WITHOUT
+  rewriting prior records.
+- **P345 cast narrative signatures (OBSERVE):** run each main's
+  compiled profile through the P337/P343 batteries; expected order
+  mnem_neg effective: Victor > Priya > Marisol > Carmen > Dani >
+  Jules > Tomás > Marcus; redemption retell ascent: Carmen > Tomás
+  > Marcus > Marisol > Jules > Dani > Priya > Victor. Deviations
+  flag compiler drift, not spec failure (v22 P206 is the binding
+  distinctness gate).
+
+Registry now P1–P345; numbering stable.
+
+### Sources new to this version
+
+Blagov & Singer 2004 (J. Personality 72:481); Singer & Salovey 1993;
+Sedikides & Green 2000 (JPSP 79:906); Sedikides & Green 2009
+(P&SC 3); Green, Sedikides & Gregg 2008 (JESP 44:547); Green et al.
+2009 (Self & Identity 8:233); Berntsen & Rubin 2004 (Psych. Bull.
+Rev. 11:1003); Rubin & Berntsen 2003 (Psych. Aging 18:636);
+McAdams, Reynolds, Lewis, Patten & Bowman 2001 (PSPB 27:472);
+Fiske & Neuberg 1990 (reuse).

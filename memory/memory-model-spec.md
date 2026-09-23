@@ -1,4 +1,22 @@
-# Memory Model Spec v3.3 — implementable human-like memory for RW characters
+# Memory Model Spec v3.4 — implementable human-like memory for RW characters
+
+> **v3.4 note (character-profiles II — the narrative-self layer):**
+> `memory/cast-profiles.md` Part II (§§8–10) adds the layer that makes
+> a record store a *person*: **self-defining anchor records**
+> (`selfdef`, `meaning`, `sdmCat` — archive floor, split drift, warm
+> bias, defensiveness-scaled specificity; Singer & Salovey 1993;
+> Blagov & Singer 2004); **mnemic neglect** — self-threatening
+> feedback fails at recall only, gated by centrality×diagnosticity×
+> self, relieved by close sources (Sedikides & Green 2000; Green et
+> al. 2008); **life-script corrections** — negative records misdate
+> forward (`neg_now_pull`), lifescript-positive records pull toward
+> normative ages, involuntary scan biases positive (`invol_pos_bias`)
+> (Berntsen & Rubin 2004; Rubin & Berntsen 2003); **redemption/
+> contamination retell transform** on the meaning field
+> (`script_redeem` × `redeem_write`; McAdams et al. 2001); **ambient
+> profile tier** (`deriveParams(ambient:true)` — narrow trait band,
+> no anchors, category-first person models). +16 params in §7, new
+> trait axis `defens`; probes P334–P345. All optional, default-neutral.
 
 > **v3.3 note (formal-model IV — the society layer, the cache
 > discipline, the fitting layer):** `memory/formal-model.md` Part IV
@@ -3526,6 +3544,100 @@ lukewarm from a phlegmatic teller, hot from a still-angry one —
 the neighborhood's emotional version of events tracks who is
 *currently* upset, not what originally happened.
 
+### 6.34 The narrative-self layer — anchors, self-protection, life scripts (new in v3.4)
+
+Three operators that turn a *record store* into a *person*. None of
+them change how much is stored — they change which records carry
+identity, which the self quietly drops, and how the life is told.
+Sources and profile readings in `cast-profiles.md` Part II.
+
+#### 6.34a Self-defining memories — the anchor records
+
+Records may carry `selfdef:true` (Singer & Salovey 1993; Blagov &
+Singer 2004, *J. Personality* 72:481). Minted at encoding or
+promoted on retell when `selfRelevance ≥ 0.8` AND the record has a
+`meaning` field (a stored gist interpretation — what the event
+*means about the self*); capped at `selfdef_cap` (default 6; new
+anchor displaces weakest, never deletes it — it demotes). Effects:
+
+- **Archive floor:** strength never falls below `selfdef_floor` —
+  the anchor survives the §4 archive cutoff that kills its
+  neighbors (the day the store opened, the night she left).
+- **Drift split:** core fields drift at `×selfdef_drift_mult`
+  (canonized-like); peripheral fields drift normally — anchors are
+  *meaning-faithful, detail-free* (they get more wrong about what
+  was said than about what it meant).
+- **Warm bias:** recall drive `+= selfdef_cue_gain` — anchors are
+  perpetually near-threshold; they intrude and cue disproportionate
+  reminding chains (they ARE the life story's cue hubs).
+- **Specificity axis:** field-population at birth scaled by
+  `selfdef_spec_mult = 1 − 0.5·max(0, defens)` — repressive
+  defensiveness yields *vague* anchors (Blagov & Singer 2004:
+  specificity inversely related to repressive defensiveness). The
+  meaning is claimed; the scene is thin.
+
+#### 6.34b Mnemic neglect — self-protective recall failure
+
+Applies ONLY to events tagged `feedback:true` that clear three
+gates (Sedikides & Green 2000, *JPSP* 79:906; Green, Sedikides &
+Gregg 2008, *JESP* 44:547 — review Sedikides & Green 2009,
+*P&SC* 3): `valence < 0` AND `traitCentrality ≥ mnem_central_thresh`
+AND `diagnosticity ≥ mnem_diag_thresh` AND `selfRelevance ≥ 0.6`.
+Then:
+
+```
+recallDrive *= (1 − mnem_neg·(1 + 0.5·max(0, defens)))
+relief: speaker closeness (PersonModel[spkr].eval ≥ 0.5 or
+        attachment:true speaker) OR event improvement:true
+        → penalty *= (1 − mnem_close_relief)
+```
+
+Three boundaries ARE the finding: (1) recall-only — the
+recognition/copy-cue path (`recogn_pen` branch) is EXEMPT
+(Green et al. 2008: "forgotten but not gone"); (2) feedback about
+*other* people is unaffected; (3) peripheral-trait or
+low-diagnosticity criticism encodes normally. NOT an encode block —
+the record writes shallow and fails at search, so the character who
+"doesn't remember being criticized" is not lying; it is recoverable
+under recognition cues, which is what makes the blow-up scene legal.
+
+#### 6.34c Life-script corrections — the bump is positive, the wound is recent
+
+`bump_valence_gate` (v0.3) already confines the bump to positive/
+self-relevant records (Berntsen & Rubin 2004, *Psych. Bull. Rev.*
+11:1003; Rubin & Berntsen 2003, *Psych. Aging* 18:636 — bump for
+positive only; negative events monotonically decreasing, peaking at
+present). v3.4 adds the two *downstream* asymmetries:
+
+- `dateEstimate` on negative-valence records adds a forward pull
+  `+neg_now_pull·(trueAge/10y)` — negative events are systematically
+  misdated RECENT (they "just happened"), the statistical mirror of
+  the negative no-bump.
+- `dateEstimate` on positive records tagged `lifescript:true` is
+  pulled toward the culturally normative script age by
+  `script_age_pull` — the wedding drifts toward 28, the degree
+  toward 22 (the script supplies dates when memory doesn't).
+- Ambient-scan involuntary candidates get drive
+  `+= invol_pos_bias·max(0, valence)` — happy involuntary memories
+  run ~2× unhappy ones (Rubin & Berntsen 2003); rides the existing
+  positivity curve, so elders' days are biased warmer even when
+  nobody is asking.
+
+#### 6.34d Redemption/contamination — the retell transform on meaning
+
+Each character carries `script_redeem ∈ [−1, 1]` (McAdams,
+Reynolds, Lewis, Patten & Bowman 2001, *PSPB* 27:472 — redemption
+sequences track wellbeing/generativity; contamination tracks
+distress). On `retell` of a record whose valence opposes the
+script's direction, with prob `|script_redeem|·redeem_write` per
+retell the record's `meaning` field accrues a frame candidate that
+shifts *told valence* toward the script (negative→benefit-found for
+redeemers; positive→spoiled for contaminators). The stored content
+fields are untouched — what drifts is the interpretation layer —
+but through reconsolidation the meaning IS what the character
+believes happened *to* them. Canonized anchors (§6.24) amplify:
+the oft-retold story settles onto the script's groove.
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -4013,6 +4125,24 @@ MemoryParams = {
   "doubt_persist": 30,       // days a retraction holds "doubted" (§6.7)
   "truth_default_w": 0.75,   // untriggered told_by adoption baseline (§6.3)
   "session_scan_cap_base": 2,// scans/session = base·|members|+2 (§27)
+  // v3.4 additions (character-profiles II — the narrative-self
+  // layer, cast-profiles.md Part II §§8–10)
+  "selfdef_cap": 6,          // max anchor records (§6.34a)
+  "selfdef_floor": 0.12,     // strength below which anchors never archive
+  "selfdef_drift_mult": 0.45,// core-field drift mult on anchors
+  "selfdef_cue_gain": 0.10,  // anchor warm-bias added to recall drive
+  "selfdef_spec_mult": 1.0,  // anchor field richness; ↓ w/ defens
+  "mnem_neg": 0.25,          // self-threat recall-drive penalty (§6.34b)
+  "mnem_central_thresh": 0.7,// trait-centrality gate
+  "mnem_diag_thresh": 0.6,   // diagnosticity gate
+  "mnem_close_relief": 1.0,  // close-source/improvement relief (§6.34b)
+  "script_redeem": 0.0,      // −1 contamination … +1 redemption (§6.34d)
+  "redeem_write": 0.15,      // per-retell meaning-overwrite rate
+  "neg_now_pull": 0.15,      // negative-record forward misdating (§6.34c)
+  "script_age_pull": 0.2,    // lifescript-positive → normative-age pull
+  "invol_pos_bias": 0.2,     // positive share boost, involuntary scan
+  "ambient_cap_mult": 0.4,   // ambient NPC live-store cap multiplier
+  "ambient_trait_sigma": 0.3,// ambient trait-sample σ (narrow band)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -4744,6 +4874,25 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - Harness contract (no runtime cost): parameter-recovery runs,
     Wilson-CI/BH probe statistics, Morris sensitivity screening —
     probe numbers P322–P333 (§32).
+- v3.4 additions (cast-profiles.md Part II §§8–10):
+  - Record fields: `selfdef` (bool), `meaning` (gist-interpretation
+    string, driftable), `sdmCat` ∈ relationship|achievement|
+    lifeThreat|leisure|other (Thorne & McLean taxonomy; §6.34a).
+  - Event fields (all optional, default-neutral): `feedback:true`,
+    `traitCentrality` ∈ [0,1], `diagnosticity` ∈ [0,1],
+    `improvement:true`, `lifescript:true` (§6.34b/c).
+  - IndivTraits gains axis 23 `defens` (repressive defensiveness σ;
+    loads `selfdef_spec_mult` inverse, `mnem_neg` positive; r(neurot)
+    ≈ −0.3, r(selfconceal) ≈ +0.4 — Blagov & Singer 2004; Weinberger).
+  - `script_redeem` is a direct bible pin (McAdams 2001), not trait-
+    derived; `deriveParams` passes it through.
+  - Ambient-NPC profile tier: `deriveParams(ambient:true)` → trait
+    sample σ = `ambient_trait_sigma`, live cap `ambient_cap`·
+    `ambient_cap_mult`, `selfdef_cap`→0, `individ_rate` low /
+    `cat_prior_pull` high defaults (NPCs stay "types" until
+    promoted); promotion path = full MVN sample + SelfModel backfill.
+  - Snapshot-additive: `selfdef`/`meaning`/`sdmCat` absent = legacy
+    records; `defens` absent = 0.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

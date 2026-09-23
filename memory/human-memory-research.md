@@ -1572,3 +1572,64 @@ Fourth formal-model pass (`memory/formal-model.md` Part IV,
   ladder) are engineering law — no literature claim; the
   psychological content they carry is witness divergence (Loftus
   1979) and co-witness conformity (Gabbert, Memon & Allan 2003).
+
+## 34. v34 — character-profiles II: the narrative-self layer (2026-09-23)
+
+Focus: character-profiles, second pass (cast-profiles.md Part II
+§§8–13). Four findings that turn a record store into a person, plus
+the ambient-tier formalization.
+
+- **Self-defining memories (SDM).** Singer & Salovey (1993); Blagov &
+  Singer (2004, J. Personality 72:481–511 — verified via DOI
+  10.1111/j.0022-3506.2004.00270.x): a capped set of identity-
+  carrying memories scored on four dimensions — specificity,
+  meaning, content (Thorne & McLean taxonomy), affect. The
+  load-bearing individual-difference result: SDM SPECIFICITY is
+  inversely related to repressive defensiveness (Weinberger scale)
+  while meaning is not — the defensive person keeps the point and
+  loses the scene. Spec mapping: `selfdef`+`meaning`+`sdmCat`
+  record fields, archive floor, split drift (meaning held, wording
+  drifts), warm-bias drive, `selfdef_spec_mult` = 1−0.5·max(0,defens).
+- **Mnemic neglect.** Sedikides & Green (2000, JPSP 79:906 — person-
+  memory paradigm; 2009 P&SC review "Memory as a Self-Protective
+  Mechanism"; Green, Sedikides & Gregg 2008 JESP 44:547 — verified):
+  recall (NOT recognition — "forgotten but not gone") is impaired
+  for feedback that is negative × central-trait × high-diagnostic ×
+  self-referent; ALL FOUR gates required. Relieved by close-source
+  feedback and self-improvement framing (Green et al. 2009, Self &
+  Identity 8:233). Magnified by repressive defensiveness. Spec
+  mapping: three-gate recall-drive penalty `mnem_neg`, recognition
+  path exempt, `mnem_close_relief` — a retrieval defense, never an
+  encode block.
+- **Life scripts sharpen the bump.** Berntsen & Rubin (2004, Psych.
+  Bull. Rev. 11:1003, N=1,485 Danes — verified) + Rubin & Berntsen
+  (2003, Psych. Aging 18:636, N=1,241): cultural life scripts
+  concentrate EXPECTED positive transitions at 15–30; the bump
+  exists for positive events only; negative events show no bump and
+  their distributions peak at the present; happy involuntary
+  memories run ~2× unhappy and only happy ones bump. Spec mapping:
+  `neg_now_pull` (forward misdating on negative dateEstimates),
+  `script_age_pull` (normative-age attraction on lifescript-tagged
+  positives), `invol_pos_bias` (ambient-scan valence asymmetry).
+- **Redemption/contamination.** McAdams, Reynolds, Lewis, Patten &
+  Bowman (2001, PSPB 27:472–483 — verified): narrative sequences
+  where bad turns good (redemption; tracks wellbeing + generativity)
+  vs good turns bad (contamination; tracks distress); redemption
+  predicts wellbeing beyond raw affective tone. Spec mapping:
+  `script_redeem` ∈ [−1,1] as a direct bible pin × `redeem_write`
+  per-retell accrual on the `meaning` field only — checkable facts,
+  drifting interpretation.
+- **Ambient NPC tier.** `deriveParams(ambient:true)`: narrow trait
+  band (`ambient_trait_sigma` 0.3σ), zero anchors, category-first
+  PersonModels (`cat_prior_pull` high, `individ_rate` low — Fiske &
+  Neuberg 1990 category-then-individuate is the same finding as
+  v3.2 §40), promotion path preserves records verbatim. Thin
+  characters stay types until promoted — an intended null.
+- **Profile-level consequences (cast-profiles §9):** the avoidant
+  five decompose into three machines (Priya encode-gate; Victor
+  encode+recall+anchor-vague; Tomás encode-only); two mains carry
+  `selfdef`+`confidential` gagged anchors (Dani, Carmen); Marcus is
+  the pinned NULL for `mnem_neg` — his deflection is behavioral,
+  not mnemonic; Victor's transactive widowhood now removes his
+  mnemic-relief channel too (v22 Harris finding × v34 Green finding
+  compose).
