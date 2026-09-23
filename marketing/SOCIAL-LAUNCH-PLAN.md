@@ -1,8 +1,9 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v49 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v64 — launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
-community playtest night, 2026-09-24.
+community playtest night + Move-In Week arc + automated pre-send checker
+(`tools/social_check.py`), 2026-09-24.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -92,6 +93,7 @@ its channel, timing slot, required asset, and character-count check.
 | `rent-week-arc.md` | 7-post narrative series on the lease/rent cycle, keyed to world-v12 canonical feed wording (v36) | 7 |
 | `archive-arc.md` | 5-post "the block keeps receipts" series on The Archive — rumor outcomes, permalinks, attributed ledger (v49; post-launch only, canon: world-v20 archive-ui.md) | 5 |
 | `playtest-night.md` | Community playtest night — recruitment posts + facilitator run sheet on the world-v23 harness (v49; double owner-gate) | 3 posts + runbook |
+| `move-in-arc.md` | 6-post "Move-In Week" series on hiring a character onto the cast — the funnel's last step (v64; canon: world-v35 creation.json/creation-ui.md, design doc possession ban) | 6 |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v40) | full asset set |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
@@ -149,6 +151,10 @@ Sustainable rhythm, fed by the product itself.
   (`archive-arc.md`) — rumor outcomes, permalinks, the attributed
   ledger. Gate: post-launch only; pre-live archive shots must carry the
   `demo archive` badge in-frame and say "demo" in copy.
+- **Move-In Week arc:** T+21 → T+27, the hire-a-character series
+  (`move-in-arc.md`) — covers the funnel's last step once spectators
+  already understand the world. Same feed-honesty gate; hire price is
+  PROPOSAL-tier until pricing is final.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
@@ -163,8 +169,8 @@ Sustainable rhythm, fed by the product itself.
 3. **Posting:** follow Phase B table. Reply to comments with clip links —
    every reply is a second impression for lurkers.
 4. **Log:** screenshot each post's 24-h stats into the metrics log
-   (ANALYTICS.md format when it lands; until then, a dated note in
-   MARKETINGLOG.md).
+   (ANALYTICS.md §weekly report format; until the endpoint is live, a
+   dated note in MARKETINGLOG.md).
 5. **End of day:** write day-0 recap post from real events only.
 
 ## 7. Community seeding guidelines
@@ -214,6 +220,10 @@ Pre-send checklist (every post):
       "development build" pre-launch; every image post carries alt text
       from `social/alt-text.md`.
 - [ ] Marisol/season-one secrets teased, not confirmed (§4 spoiler rule).
+- [ ] `python3 tools/social_check.py` is clean for the file being sent
+      (0 FAIL; every WARN read and accepted — the checker automates the
+      mechanical half of this list: banned words, real business names,
+      spoiler co-mentions, cut features, char limits, UTMs).
 
 ## 9. UTM & measurement conventions
 
@@ -227,7 +237,7 @@ utm_campaign = launch | week1 | ongoing
 
 Funnel we're optimizing: **profile visit → site → spectator view →
 request/credit purchase → character creation.** Weekly metrics note goes in
-MARKETINGLOG.md (template pending ANALYTICS.md, focus v9).
+MARKETINGLOG.md (template: ANALYTICS.md weekly report + `analytics_report.py`).
 
 ## 10. Risks & notes
 

@@ -22,12 +22,11 @@ community energy into filed findings instead of vibes. Canon source:
 ## Recruitment posts (drafted, fill {{PLACEHOLDERS}} at send)
 
 **Invite (T-7)**
-> Want to break our game before it exists? We're running a small
-> playtest night on {{DATE}} — you'll walk the request queue, file a
-> request that gets denied on purpose, and try to find copy that lies.
-> ~1 hour, in Discord, four tester spots. Reply or DM if you want one.
-> Honest version: it's a contract harness, not the live sim — you're
-> testing the rules and the words, not the AI.
+> Want to break our game before it exists? Small playtest night on
+> {{DATE}} — walk the request queue, get denied on purpose, hunt for
+> copy that lies. ~1 hr in Discord, four spots, reply or DM. Honest
+> version: a contract harness, not the live sim — you're testing the
+> rules and the words, not the AI.
 
 **Reminder (T-2)**
 > Playtest night is {{DAY}}. Still {{N}} spots. You get the full

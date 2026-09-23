@@ -28,10 +28,9 @@ Attach: Archive screenshot, ledger view. Caption must say
 
 **Post 2 (Tue) — the rumor board**
 > Word on the block travels like word on a block: distorted, secondhand,
-> and marked. Every rumor card in the Archive is badged UNCONFIRMED,
-> sourced to where it was overheard — never to who said it — and later
-> stamped: stood, debunked, faded, or still open. {{N}} rumors on record.
-> {{N}} debunked. The block settles its own stories.
+> and marked. Rumor cards are badged UNCONFIRMED, later stamped: stood,
+> debunked, faded, still open. {{N}} rumors on record, {{N}} debunked.
+> The block settles its own stories.
 
 Attach: rumor-board view screenshot. Fill {{N}} from the tally strip —
 real numbers only; "0 debunked yet" is a fine post.
@@ -55,11 +54,10 @@ that's the best possible frame — "request not approved" on the permanent
 record is the moderation system proving itself in public.
 
 **Post 5 (Sun) — the honesty close**
-> What the Archive won't show you: a character's private whereabouts
-> ("nothing public on record — the archive only holds what a spectator
-> could have seen"), a rumor's author, an hour nobody watched. Gaps say
-> "off the feed (14:00 → 16:00)" instead of pretending. A history that
-> admits its edges is worth more than one that doesn't.
+> What the Archive won't show you: private whereabouts, a rumor's
+> author, an hour nobody watched. Gaps say "off the feed (14:00 →
+> 16:00)" instead of pretending. A history that admits its edges is
+> worth more than one that doesn't.
 
 Attach: a day view showing an honest-gap line, if one exists.
 

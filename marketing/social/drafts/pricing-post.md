@@ -4,6 +4,9 @@ When: launch week, when the first "how does it make money" question lands —
 or proactively on T+2. Channel: X/Bluesky, link to `pricing.html`.
 All numbers mirror the monetization plan's PROPOSAL ladder — update at send
 time if pricing has been finalized (see PRICING-PAGE work, roadmap v8).
+Length note (social_check): the draft runs ~980 chars — post it as an X
+long-form post or split at the blank `>` lines into a 6-post thread; the
+Bluesky version must be split (300 limit).
 
 ---
 

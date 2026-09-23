@@ -24,11 +24,10 @@ world persistence we don't have.
 
 ## 2. Request feed abuse wave (visible griefing)
 
-> You've probably seen it on the feed: someone filed {{N}} requests
-> trying to turn the block into a billboard. All of them hit the review
-> queue, none ran, all credits refunded — that's the system working as
-> designed, and now it's public proof. Their account is flagged. The
-> block is itself again.
+> You've seen it on the feed: someone filed {{N}} requests trying to
+> turn the block into a billboard. All hit the review queue, none ran,
+> all credits refunded — the system working as designed, in public.
+> Their account is flagged. The block is itself again.
 
 Rules: post only after moderation actions are actually logged (per
 MODERATION-PLAN appeal_flow). Never name or shame the account handle —
@@ -39,10 +38,9 @@ requests were auto-denied, don't claim the wall worked; say which part
 ## 3. Moderation decision blowback
 
 > A request was {{approved/denied}} yesterday that people are calling
-> out. Here's the call we made and why: {{2 sentences, reason code in
-> plain English}}. If you think it's wrong, the appeal path is open —
-> 72 hours, a different reviewer, and a reversal never costs the denied
-> party anything.
+> out. Here's the call and why: {{2 sentences, reason code in plain
+> English}}. Think it's wrong? The appeal path is open — 72 hours, a
+> different reviewer, a reversal never costs the denied party anything.
 
 Rules: cite the reason code's plain-language meaning, not the code
 string. Never argue precedent in replies — one statement, then the
@@ -52,9 +50,8 @@ appeal path. Denied requests are always refunded; say so every time.
 
 > Fair question, straight answer: they're authored fictional agents —
 > personalities, memories, routines — not minds. The possession ban
-> exists to protect their storylines from players, not their feelings
-> from you. If you want the design-doc version, it's public:
-> {{URL}}/how-it-works.html
+> protects their storylines from players, not their feelings from you.
+> Design-doc version is public: {{URL}}/how-it-works.html
 
 Rules: honest beats cute. Never "they're happy, don't worry" — that's
 the creepy answer. One reply per thread; don't chase quote-posts.
@@ -62,9 +59,9 @@ the creepy answer. One reply per thread; don't chase quote-posts.
 ## 5. Pricing accusation ("it's a slot machine / NFT scam")
 
 > The money model in one line: credits buy agency, not rent, not loot.
-> There's no cash-out, no marketplace, no randomized rewards — a credit
-> is worth about a cent (provisional pricing) and buys a defined request
-> that's publicly visible on the feed. Full breakdown: {{URL}}/pricing.html
+> No cash-out, no marketplace, no randomized rewards — a credit is about
+> a cent (provisional pricing) and buys a defined request that's
+> publicly visible. Full breakdown: {{URL}}/pricing.html
 
 Rules: always lead with the three nevers (no cash-out, no RMT, no loot
 boxes) — they're the strongest true sentence we have. PROPOSAL label on
