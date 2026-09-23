@@ -99,19 +99,21 @@ owner 11 "community surfaces created (COMMUNITY-FUNNEL §3)"
 owner 13 "feed display-filter option A/B/C picked (MODERATION-PLAN §2.3)"
 owner 14 "infrastructure provisioned (INFRASTRUCTURE §5 runbook)"
 track 15 "feed vocab diff vs world/feed.json request_status" "world"
-track 16 "onboarding flow + 4 hooks verified on staging" "world-v25 contract + game emitters"
+track 16 "onboarding flow + 9 hooks verified on staging" "world-v39 contract + game emitters"
+owner 17 "human playtest: 0 open blockers on launch candidate (world/playtest.html PT1-PT35)"
 
 echo
-echo "  AUTO green: $GREEN · pending (owner/track/auto): $PENDING of 16"
+echo "  AUTO green: $GREEN · pending (owner/track/auto): $PENDING of 17"
 echo
 echo "─── paste into the owner decision thread ───"
 cat <<EOF
 GO/NO-GO — Real World launch, <date>
-Gates: $GREEN/16 auto-green, $PENDING pending (see worksheet $(date '+%Y-%m-%d'))
+Gates: $GREEN/17 auto-green, $PENDING pending (see worksheet $(date '+%Y-%m-%d'))
 Blocking items: <list or none>
 Known warnings: <dry-run warns accepted as non-blocking>
 Feed display-filter option (G13): A / B / C — <pick>
-Onboarding hooks (G16): <staging run logged>
+Onboarding hooks (G16): <staging run logged — 9-hook set incl. ?hired=1 return>
+Human playtest (G17): <report logged — 0 open blockers, N majors dispositioned>
 Decision: GO / NO-GO — <owner name>, <timestamp>
 EOF
 echo "────────────────────────────────────────────"

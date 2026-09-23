@@ -1,9 +1,9 @@
-## metrics — week 2026-W39
-- sessions: 220 · pageviews: 220 · events: 1457
-- top sources: x (23), bsky (20), discord (20)
-- campaigns: launch-2026 (63), press-embargo (18), store-launch (17)
-- funnel: pageview 220 (100% of visits) → engaged 196 (89% of visits) → community 71 (32% of visits) → watch_start 65 (30% of visits) → request_submitted 12 (5% of visits) → character_created 7 (3% of visits)
-- top shots: v16-int-flat.png (10), v40-C.png (10), v1-A.png (9)
+## metrics — week {{ISO week}}
+- sessions: 220 · pageviews: 220 · events: 1515
+- top sources: rps (24), x (21), discord (19)
+- campaigns: launch-2026 (54), press-embargo (24), store-launch (14)
+- funnel: pageview 220 (100% of visits) → engaged 197 (90% of visits) → community 67 (30% of visits) → watch_start 64 (29% of visits) → request_submitted 12 (5% of visits) → character_created 6 (3% of visits)
+- top shots: v16-int-cafe.png (10), v1-A.png (9), v43-D.png (9)
 - 404s: 0
 - action taken: {{one line — what we changed because of the numbers}}
 
@@ -12,26 +12,26 @@
 | stage | sessions | vs prev |
 |---|---|---|
 | pageview | 220 | — |
-| engaged | 196 | 89% |
-| community | 71 | 36% |
-| watch_start | 65 | 92% |
-| request_submitted | 12 | 18% |
-| character_created | 7 | 58% |
+| engaged | 197 | 90% |
+| community | 67 | 34% |
+| watch_start | 64 | 96% |
+| request_submitted | 12 | 19% |
+| character_created | 6 | 50% |
 
-**pageviews by page:** index (57), demo (36), how-it-works (27), features (24), cast (16), pricing (13), community (12), faq (10), journal (10), rules (8), press-kit (7)
+**pageviews by page:** index (66), demo (32), how-it-works (26), features (17), pricing (16), cast (15), faq (11), rules (11), community (10), journal (10), press-kit (6)
 
-**cta_click by slot:** demo-hero (18), nav (12), faq-exit (11), walkthrough (11), hero (10), pricing-teaser (10), demo-ladder (10), footer (9)
+**cta_click by slot:** demo-hero (21), walkthrough (13), nav (12), footer (10), demo-ladder (9), pricing-teaser (8), faq-exit (8), hero (7)
 
-**scroll depth reach:** ≥25%: 147, ≥50%: 119, ≥75%: 86, ≥100%: 47 (of 399 marks)
+**scroll depth reach:** ≥25%: 158, ≥50%: 124, ≥75%: 93, ≥100%: 51 (of 426 marks)
 
-**engaged seconds by page:** index: 9203s, demo: 4482s, how-it-works: 4207s, features: 4050s, pricing: 2467s, community: 2247s, cast: 2073s, journal: 1277s, faq: 1230s, press-kit: 1181s, rules: 1043s
+**engaged seconds by page:** index: 9785s, how-it-works: 4481s, demo: 3989s, features: 2792s, pricing: 2513s, cast: 2050s, rules: 1936s, faq: 1553s, community: 1530s, journal: 1086s, press-kit: 1039s
 
-**request simulator (action/class):** weather/exclusive (8), possess/exclusive (7), venue/flat (7), possess/flat (7), venue/compatible (6), weather/compatible (5), venue/exclusive (4), possess/compatible (4), weather/flat (3)
+**request simulator (action/class):** possess/exclusive (8), weather/exclusive (7), venue/flat (7), weather/compatible (7), venue/exclusive (5), weather/flat (4), venue/compatible (4), possess/compatible (3), possess/flat (3)
 
-**onboarding (world-v11/v25 hooks, game-side):** decline_lesson_shown: 8, handle_set: 17, handle_taken_shown: 4, onboard_dismissed: 2, persona_chosen: 35, returning_session: 5, topup_shown: 9, tour_beat: 84, tour_completed: 15, tour_skipped: 20, tour_started: 35, wallet_explained: 24
-  persona split: watch (24), play (11)
-  tour_skipped at beat: 0 ×6, 1 ×8, 2 ×2, 3 ×4
+**onboarding (world-v11/v25/v39 hooks, game-side):** decline_lesson_shown: 8, handle_set: 20, handle_taken_shown: 6, handoff_seen: 5, hired_return: 2, low_balance_simulated: 5, onboard_dismissed: 6, persona_chosen: 36, returning_session: 3, review_lesson_shown: 11, review_outcome_seen: 11, topup_shown: 11, tour_beat: 85, tour_completed: 15, tour_skipped: 21, tour_started: 36, wallet_explained: 24
+  persona split: watch (21), play (15)
+  tour_skipped at beat: 0 ×6, 1 ×9, 2 ×2, 3 ×4
 
-**referrer hosts:** itch.io (45), news.ycombinator.com (41), bsky.app (36), pcgamer.com (26)
+**referrer hosts:** itch.io (51), news.ycombinator.com (37), bsky.app (36), pcgamer.com (30)
 
-**raw event counts:** scroll_depth: 399, pageview: 220, engaged_time: 220, cta_click: 91, tour_beat: 84, watch_start: 65, screenshot_view: 58, request_simulated: 51, recap_open: 48, persona_chosen: 35, tour_started: 35, community_join: 28, wallet_explained: 24, tour_skipped: 20, handle_set: 17, tour_completed: 15, request_submitted: 12, topup_shown: 9, decline_lesson_shown: 8, character_created: 7, returning_session: 5, handle_taken_shown: 4, onboard_dismissed: 2
+**raw event counts:** scroll_depth: 426, pageview: 220, engaged_time: 220, cta_click: 88, tour_beat: 85, watch_start: 64, screenshot_view: 55, request_simulated: 48, recap_open: 44, persona_chosen: 36, tour_started: 36, community_join: 27, wallet_explained: 24, tour_skipped: 21, handle_set: 20, tour_completed: 15, request_submitted: 12, topup_shown: 11, review_lesson_shown: 11, review_outcome_seen: 11, decline_lesson_shown: 8, handle_taken_shown: 6, onboard_dismissed: 6, character_created: 6, low_balance_simulated: 5, handoff_seen: 5, returning_session: 3, hired_return: 2

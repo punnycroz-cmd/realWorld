@@ -67,9 +67,9 @@ visit      pageview                     (site — live now)
             └─create character_created  (game — PENDING)
 ```
 
-**Onboarding events (v36 + v51):** the world track's onboarding contract
-(`world/onboarding-ui.md` §8+§17 / `world/onboarding.json analytics_hooks`)
-names thirteen events emitted at merge. v11's nine: `tour_started`,
+**Onboarding events (v36 + v51 + v68):** the world track's onboarding contract
+(`world/onboarding-ui.md` / `world/onboarding.json analytics_hooks`)
+names eighteen events emitted at merge. v11's nine: `tour_started`,
 `tour_beat`, `tour_completed`, `tour_skipped` (carries `at_beat`),
 `handle_set`, `wallet_explained`, `topup_shown`, `first_request_filed`,
 `onboard_dismissed`. v25 added four (§17): `persona_chosen` (carries
@@ -77,7 +77,14 @@ names thirteen events emitted at merge. v11's nine: `tour_started`,
 for), `handle_taken_shown` (reserved-name friction), `decline_lesson_shown`
 (the S4b refund-on-decline teaching moment), `returning_session` (parked/
 `?returning=1` visitors — counts sessions, not users; no cross-session
-identity exists). All thirteen are in `analytics-events.json`, the sink
+identity exists). v39 added five (storage key `rw_onboard_v39`):
+`review_lesson_shown` (the S4c "a human reads exclusive asks" moment),
+`review_outcome_seen` (the scripted "not approved — refunded" outcome;
+`outcome` prop uses feed-vocabulary values only),
+`low_balance_simulated` (opt-in sim → "player session ended"; `opted_in`
+flag, no amounts), `handoff_seen` (graceful session handoff state),
+`hired_return` (`?hired=1` deep link → first-day card S6). All eighteen
+are in `analytics-events.json`, the sink
 allowlist, the report's onboarding block (with a persona split line), and
 the local dashboard. Per the world contract they carry `stage` +
 `opted_out`/`persona` only — **no per-step dwell, no handle values (not
@@ -292,11 +299,13 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
       manually until then (community/first-100.md §4)
 - [ ] Game embed emits `watch_start` / `request_submitted` / `character_created`
       per `analytics-events.json` (coordination note for game/world track)
-- [ ] Game emits the thirteen onboarding events per world-v11/v25 contract
-      (`tour_*`, `persona_chosen`, `handle_set`, `handle_taken_shown`,
-      `wallet_explained`, `topup_shown`, `decline_lesson_shown`,
-      `first_request_filed`, `onboard_dismissed`, `returning_session`) —
-      stage + opted_out/persona only
+- [ ] Game emits the eighteen onboarding events per world-v11/v25/v39
+      contract (`tour_*`, `persona_chosen`, `handle_set`,
+      `handle_taken_shown`, `wallet_explained`, `topup_shown`,
+      `decline_lesson_shown`, `first_request_filed`, `onboard_dismissed`,
+      `returning_session`, `review_lesson_shown`, `review_outcome_seen`,
+      `low_balance_simulated`, `handoff_seen`, `hired_return`) —
+      stage + opted_out/persona/outcome/opted_in only
 
 ## 10. Hard rules
 

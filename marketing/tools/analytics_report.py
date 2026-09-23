@@ -130,7 +130,9 @@ def report(evts, week=None):
                       "handle_set", "wallet_explained", "topup_shown",
                       "first_request_filed", "onboard_dismissed",
                       "persona_chosen", "handle_taken_shown",
-                      "decline_lesson_shown", "returning_session"):
+                      "decline_lesson_shown", "returning_session",
+                      "review_lesson_shown", "review_outcome_seen",
+                      "low_balance_simulated", "handoff_seen", "hired_return"):
             onboard[name] += 1
             if name == "tour_skipped":
                 tour_skip_beats[props.get("at_beat", "?")] += 1
@@ -207,7 +209,7 @@ def report(evts, week=None):
             f"{k} ({n})" for k, n in sim_uses.most_common()))
         out.append("")
     if onboard:
-        out.append("**onboarding (world-v11/v25 hooks, game-side):** " + ", ".join(
+        out.append("**onboarding (world-v11/v25/v39 hooks, game-side):** " + ", ".join(
             f"{k}: {v}" for k, v in sorted(onboard.items())))
         if personas:
             out.append("  persona split: " + ", ".join(

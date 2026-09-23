@@ -187,6 +187,40 @@
       "funnel_stage": "onboard",
       "status": "PENDING — game build"
     },
+    "review_lesson_shown": {
+      "when": "the human-review lesson is shown before an exclusive/gray-zone ask (game-side; world-v39 S4c review_lesson block)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence only — measures reach of the 'a human reads exclusive asks' teaching moment"
+    },
+    "review_outcome_seen": {
+      "when": "the scripted review outcome is seen — S4c demo resolves 'not approved — refunded' (game-side; world-v39)",
+      "props": { "stage": "onboarding stage id", "outcome": "feed-vocab verdict label (approved, or not approved)" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "outcome uses feed-vocabulary values only — never the request text"
+    },
+    "low_balance_simulated": {
+      "when": "the opt-in low-balance simulation runs and shows 'player session ended' (game-side; world-v39 low_balance_lesson)",
+      "props": { "stage": "onboarding stage id", "opted_in": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "no amounts — presence + opt-in flag only"
+    },
+    "handoff_seen": {
+      "when": "a graceful-handoff 'player session ended' state is shown (game-side; world-v39 / session_controls wording)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "hired_return": {
+      "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts hire-return sessions; no identity props — merge target is create.html → onboarding.html?hired=1"
+    },
     "watch_start": {
       "when": "spectator surface first rendered — demo.js emits this today on demo.html (mode=fallback until the live embed lands); the game embed will emit it with source=direct|embed",
       "props": { "source": "demo-page|direct|embed",

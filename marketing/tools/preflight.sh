@@ -90,6 +90,18 @@ else
                     || ok "$(basename "$ZIP") is fresher than all sources"
 fi
 
+# ── 5b. Checklist self-audit — the launch contract must match the tree ──
+echo "[5b] checklist audit"
+CL=$(./tools/checklist_audit.py 2>&1)
+echo "$CL" | grep -E '^\s+FAIL' || true
+CLLINE=$(echo "$CL" | tail -1)
+echo "       $CLLINE"
+if echo "$CLLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "checklist audit has failures (above)"
+else
+  ok "checklist audit: $CLLINE"
+fi
+
 # ── 6. Tree state (informational) ──
 echo "[6] worktree"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -104,7 +116,7 @@ fi
 echo
 echo "=== PREFLIGHT RESULT: $PASS pass / $WARN warn / $FAIL fail ==="
 if [ "$FAIL" -eq 0 ]; then
-  echo "VERDICT: mechanically GO — owner gates (G1..G15) still apply."
+  echo "VERDICT: mechanically GO — owner gates (G1..G17) still apply."
   exit 0
 else
   echo "VERDICT: NO-GO — fix FAILs above before requesting owner sign-off."

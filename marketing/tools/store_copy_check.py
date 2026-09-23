@@ -147,7 +147,7 @@ def main():
     for path in re.findall(r"`((?:store|press-kit|site)/[^`]+?)`", s):
         n += 1
         if ".." in path:
-            # letter-range shorthand like v40-A..D — expand and require
+            # letter-range shorthand like v43-A..D — expand and require
             # every letter to exist under some image extension
             m = re.match(r"^(.*?)([A-Z])\.\.([A-Z])$", path)
             if not m:

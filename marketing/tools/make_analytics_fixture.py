@@ -32,7 +32,7 @@ UTMS = [
     {"utm_source": "discord", "utm_medium": "community", "utm_campaign": "launch-2026"},
 ]
 REFS = ["bsky.app", "pcgamer.com", "itch.io", "news.ycombinator.com", None, None]
-SHOTS = ["v40-A.png", "v40-B.png", "v40-C.png", "v40-D.png",
+SHOTS = ["v43-A.png", "v43-B.png", "v43-C.png", "v43-D.png",
          "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png"]
 CTAS = ["hero", "walkthrough", "footer", "nav", "demo-hero", "demo-ladder",
         "pricing-teaser", "faq-exit"]
@@ -105,7 +105,7 @@ def main():
             yield_evt("watch_start", "/demo.html", sid,
                       {"source": "demo-page", "mode": rnd.choice(["live", "fallback"])},
                       utm=utm, ref=ref, ts=ts + 12000)
-            if rnd.random() < 0.5:  # onboarding tour (world-v11/v25 hooks, game-side)
+            if rnd.random() < 0.5:  # onboarding tour (world-v11/v25/v39 hooks, game-side)
                 yield_evt("persona_chosen", "/demo.html", sid,
                           {"stage": "s0", "persona": "play" if rnd.random() < 0.35 else "watch"},
                           utm=utm, ref=ref, ts=ts + 14000)
@@ -140,6 +140,21 @@ def main():
                 if rnd.random() < 0.3:  # declined-request refund lesson (v25 S4b)
                     yield_evt("decline_lesson_shown", "/demo.html", sid, {"stage": "s4b"},
                               utm=utm, ref=ref, ts=ts + 63000)
+                if rnd.random() < 0.35:  # human-review lesson (v39 S4c)
+                    yield_evt("review_lesson_shown", "/demo.html", sid, {"stage": "s4c"},
+                              utm=utm, ref=ref, ts=ts + 63500)
+                    yield_evt("review_outcome_seen", "/demo.html", sid,
+                              {"stage": "s4c", "outcome": "not approved"},
+                              utm=utm, ref=ref, ts=ts + 63600)
+                if rnd.random() < 0.2:  # opt-in low-balance sim (v39)
+                    yield_evt("low_balance_simulated", "/demo.html", sid,
+                              {"stage": "s5", "opted_in": True},
+                              utm=utm, ref=ref, ts=ts + 63700)
+                    yield_evt("handoff_seen", "/demo.html", sid, {"stage": "s5"},
+                              utm=utm, ref=ref, ts=ts + 63800)
+                if rnd.random() < 0.08:  # post-hire return (v39 S6, ?hired=1)
+                    yield_evt("hired_return", "/demo.html", sid, {"stage": "s6"},
+                              utm=utm, ref=ref, ts=ts + 63900)
                 if rnd.random() < 0.12:
                     yield_evt("onboard_dismissed", "/demo.html", sid,
                               {"stage": "s4", "opted_out": True},
