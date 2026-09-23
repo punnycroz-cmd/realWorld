@@ -115,6 +115,9 @@ function gsLeaseInit(l, spec){
   l.violations = [];                         // {id,kind,who,since,note,discovered,status,curedOn,how}
   l.raiseHist = [];                          // {on,from,to}
   l.pendingRaise = null;                     // {amt,effectiveOn,servedOn}
+  l.disputes = [];                           // {kind,by,since,note,status} —
+                                           // world-truth disagreements
+                                           // (9457's contested raise)
   l.chargeSeq = 0;                           // rent charges posted (habit math)
   l.booksFrom = null;                        // first day the system saw this
                                              // lease — no back-billing before it
@@ -384,6 +387,8 @@ function gsRentTick(dateStr){
 function gsApplyForLease(unitId, applicantId, spec){
   const u = (typeof gsUnitById === 'function') ? gsUnitById(unitId) : null;
   if(!u) return { ok: false, reason: 'unknown_unit' };
+  if(typeof gsUnitLivable === 'function' && !gsUnitLivable(u))
+    return { ok: false, reason: 'unit_not_livable' };
   if(GS_LEASE.apps.some(a => a.unit_id === unitId &&
       a.applicant_id === applicantId && a.status === 'pending'))
     return { ok: false, reason: 'already_applied' };
@@ -405,6 +410,7 @@ function gsApproveApplication(appId, opts){
     return { ok: false, reason: 'unit_occupied' };
   const l = gsSignLease(app.unit_id, app.applicant_id, {
     start: opts.date || null, occupants: app.occupants });
+  if(!l) return { ok: false, reason: 'unit_not_livable' };
   gsLeaseEnsure(l);
   app.status = 'approved'; app.leaseUnit = l.unit_id;
   if(l.monthly_rent > 0 && l.deposit > 0){
@@ -698,6 +704,8 @@ function gsLeaseStatement(unitId){
       servedOn: n.servedOn, deadline: n.deadline, status: n.status })),
     violations: l.violations.map(v => ({ id: v.id, kind: v.kind,
       who: v.who, discovered: v.discovered, status: v.status })),
+    disputes: (l.disputes || []).map(d => ({ kind: d.kind, by: d.by,
+      since: d.since, note: d.note, status: d.status })),
     pendingRaise: l.pendingRaise };
 }
 
@@ -735,7 +743,7 @@ function gsNearestFreeBld(cell){
   let best = null, bd = Infinity;
   for(const b of GS_REG.buildings){
     if(b.bld_idx == null || b.status !== 'standing') continue;
-    if(!b.units.some(uid => !gsActiveLease(uid))) continue;  // needs vacancy
+    if(!b.units.some(uid => gsUnitVacant(gsUnitById(uid)))) continue;  // vacancy
     const dc = gsBldDoorCell(b);
     if(!dc) continue;
     const d = Math.hypot(dc.wx - cell.wx, dc.wy - cell.wy);
@@ -746,17 +754,33 @@ function gsNearestFreeBld(cell){
 function gsLeaseSeedSF(){
   if(typeof SF_MODE === 'undefined' || !SF_MODE) return 0;
   for(const l of GS_REG.leases) gsLeaseEnsure(l);          // enrich all
-  /* the 750 flat's roommate split — Priya's half is punctual; Marcus's
-     is late about every third month (cast bible), which the late-fee /
-     arrears machinery now makes real instead of told */
-  const l750 = (typeof gsLeasesFor === 'function')
+  /* the 9457-3 flat's roommate split — Priya's half is punctual;
+     Marcus's is late about every third month (canonical content), which
+     the late-fee / arrears machinery now makes real instead of told.
+     (Shares are normally set at signing; this is the safety net for
+     leases loaded from older snapshots.) */
+  const l9457 = (typeof gsLeasesFor === 'function')
     ? gsLeasesFor('C4').find(l => l.status === 'active') : null;
-  if(l750 && (!l750.shares || !l750.shares.C5)){
-    const half = Math.round(l750.monthly_rent / 2);
-    l750.shares = { C4: { amt: half, lateEvery: 0, lateDays: 0 },
-      C5: { amt: l750.monthly_rent - half, lateEvery: 3, lateDays: 10 } };
+  if(l9457 && (!l9457.shares || !l9457.shares.C5)){
+    const half = Math.round(l9457.monthly_rent / 2);
+    l9457.shares = { C4: { amt: half, lateEvery: 0, lateDays: 0 },
+      C5: { amt: l9457.monthly_rent - half, lateEvery: 3, lateDays: 10 } };
   }
-  /* Jules (C2): the spare room at 744 — cash, month-to-month,
+  /* the contested raise (jobs-housing §3): Victor raised 9457-3
+     $2600→$3200; Priya disputes the passthrough claim AND reports a
+     dead heater. World-truth record — the dispute is a live storyline,
+     deliberately left open and ambiguous. */
+  if(l9457){
+    if(!l9457.raiseHist.some(r => r.to === 3200))
+      l9457.raiseHist.push({ on: '2025-08-01', from: 2600, to: 3200,
+        note: 'passthrough claim — contested by tenant' });
+    if(!(l9457.disputes || []).some(d => d.kind === 'rent_raise'))
+      l9457.disputes.push({ kind: 'rent_raise', by: 'C4',
+        since: '2025-08-01', status: 'open',
+        note: 'raise $2600→$3200 contested: passthrough claim + dead ' +
+              'heater (habitability). Ambiguous on purpose.' });
+  }
+  /* Jules (C2): the spare room at 9418-A — cash, month-to-month,
      deliberately NOT on Carmen's lease. Recorded as the open,
      undiscovered violation it is; gsHomeOf resolves her through it. */
   const lC6 = (typeof gsLeasesFor === 'function')
@@ -765,15 +789,47 @@ function gsLeaseSeedSF(){
       v.status === 'open' && v.kind === 'unpermitted_occupant'))
     gsRecordViolation(lC6.unit_id, { kind: 'unpermitted_occupant', who: 'C2',
       since: '2025-11-01',
-      note: 'spare-room cash sublet — deliberately off the lease' });
-  /* ambient cast: each resolves their hashed home cell to the nearest
-     registered residential building with a free unit, and signs there */
+      note: 'spare-room cash sublet ($700/mo to Carmen) — deliberately ' +
+            'off the lease' });
+  /* Dani (C3): the Geneva Ave flat is her cousins' lease — she pays a
+     $700 informal room share and is not on the paperwork. Same
+     off-lease-occupant mechanics as Jules, different flavor. */
+  const lCous = (typeof gsLeasesFor === 'function')
+    ? gsLeasesFor('reyes-cousins').find(l => l.status === 'active') : null;
+  if(lCous && !(lCous.violations || []).some(v => v.who === 'C3' &&
+      v.status === 'open' && v.kind === 'unpermitted_occupant'))
+    gsRecordViolation(lCous.unit_id, { kind: 'unpermitted_occupant',
+      who: 'C3', since: '2023-02-01',
+      note: 'pays $700/mo informal room share to the cousins — ' +
+            'not on the lease' });
   let n = 0;
   if(typeof NV_CAST !== 'undefined'){
+    /* canonical detail: 9457 unit 1 holds "an ambient household" —
+     assign whichever still-unhoused ambient lives nearest its door */
+    const b9457 = GS_REG.buildings.find(b => b.canon === 'home-c4c5');
+    const u9457_1 = b9457 &&
+      gsUnitsOf(b9457.id).find(u => u.unit_code === '1');
+    if(u9457_1 && gsUnitVacant(u9457_1)){
+      const dc = gsBldDoorCell(b9457);
+      let pick = null, bd = Infinity;
+      for(const c of NV_CAST){
+        if(c.tier !== 'ambient' || gsHomeOf(c.id)) continue;
+        const cell = gsAmbientHomeCell(c.id);
+        const d = dc ? Math.hypot(dc.wx - cell.wx, dc.wy - cell.wy) : 0;
+        if(d < bd){ bd = d; pick = c; }
+      }
+      if(pick){
+        gsSignLease(u9457_1.id, pick.id, { start: gsAmbientStart(pick.id),
+          monthly_rent: u9457_1.base_rent, occupants: [pick.id] });
+        n++;
+      }
+    }
+    /* ambient cast: each resolves their hashed home cell to the nearest
+       registered residential building with a free unit, and signs there */
     for(const c of NV_CAST){
       if(c.tier !== 'ambient' || gsHomeOf(c.id)) continue;
       const b = gsNearestFreeBld(gsAmbientHomeCell(c.id));
-      const u = b && gsUnitsOf(b.id).find(x => !gsActiveLease(x.id));
+      const u = b && gsUnitsOf(b.id).find(x => gsUnitVacant(x));
       if(!u) continue;
       gsSignLease(u.id, c.id, { start: gsAmbientStart(c.id),
         monthly_rent: u.base_rent, occupants: [c.id] });
@@ -781,7 +837,9 @@ function gsLeaseSeedSF(){
     }
     /* in-world dollars: every cast member has a bank balance so the
        rent run moves real money (Victor's is landlord-scale — he
-       collects 744/750, he doesn't pay) */
+       collects the Guerrero rents, he doesn't pay). Non-cast tenants
+       of record (the Reyes cousins) get a balance too — they pay real
+       rent through the same books. */
     for(const c of NV_CAST){
       if(gsDollarBalance(c.id) > 0) continue;
       const amt = (c.id === 'C7')
@@ -789,6 +847,9 @@ function gsLeaseSeedSF(){
         : 3000 + hashString18('bank' + c.id) % 9000;
       gsDollarGrant(c.id, amt, 'household savings (seed)');
     }
+    if(gsDollarBalance('reyes-cousins') <= 0)
+      gsDollarGrant('reyes-cousins', 6000 +
+        hashString18('bank reyes-cousins') % 6000, 'household savings (seed)');
   }
   return n;
 }

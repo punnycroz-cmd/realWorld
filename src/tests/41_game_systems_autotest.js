@@ -40,8 +40,15 @@ runAutoTest = async function(){
       if(seen.has(key)) unique = false;
       seen.add(key);
       let hit = false;
-      for(let i = 0; i <= perStreet[b.street] + 2 && !hit; i++)
-        if(gsAddrNumber(b.street, i) === b.hn) hit = true;
+      /* v4: the index used is stored on the record (sequential or a
+         designer pin's searched index); legacy records fall back to
+         scanning plausible indices */
+      if(b.addr_idx != null){
+        hit = gsAddrNumber(b.street, b.addr_idx) === b.hn;
+      } else {
+        for(let i = 0; i <= perStreet[b.street] + 16 && !hit; i++)
+          if(gsAddrNumber(b.street, i) === b.hn) hit = true;
+      }
       if(!hit) conform = false;
     }
     log(conform, 'gs: every seeded number satisfies 9000 + hash(street|idx) % 900');
@@ -56,9 +63,55 @@ runAutoTest = async function(){
         'gs: Victor (C7) owner-occupies above the shop');
     const c4 = gsLeasesFor('C4').find(l => l.status === 'active');
     log(!!c4 && c4.occupants.indexOf('C5') >= 0,
-        'gs: 750 Guerrero flat lists Priya + Marcus as occupants');
+        'gs: 9457 Guerrero flat lists Priya + Marcus as occupants');
     const b744 = GS_REG.buildings.find(b => b.bld_idx === (SF_MAP.anchors.g744 || {}).bld);
-    log(!!b744 && b744.owner_id === 'C7', 'gs: 744 Guerrero anchor is owned by C7');
+    log(!!b744 && b744.owner_id === 'C7', 'gs: 9418 Guerrero anchor is owned by C7');
+
+    // ---- v4 canonical reconciliation (world/jobs-housing.md §3): the
+    //      eight mains live at the AUTHORED addresses — pinned through
+    //      the §3 formula itself, not around it ----
+    const canon = [
+      ['C1', '9127 Capp Street, San Francisco, CA Unit C'],
+      ['C2', '9418 Guerrero Street, San Francisco, CA Unit A'],
+      ['C3', '9263 Geneva Avenue, San Francisco, CA Unit 4'],
+      ['C4', '9457 Guerrero Street, San Francisco, CA Unit 3'],
+      ['C5', '9457 Guerrero Street, San Francisco, CA Unit 3'],
+      ['C6', '9418 Guerrero Street, San Francisco, CA Unit A'],
+      ['C7', '9102 Mission Street, San Francisco, CA Unit 2'],
+      ['C8', '9344 Folsom Street, San Francisco, CA Unit 1'],
+    ];
+    let canonOk = true;
+    for(const [cid, want] of canon){
+      const h = gsHomeOf(cid);
+      if(!h || h.address !== want) canonOk = false;
+    }
+    log(canonOk, 'gs: v4 all 8 mains resolve to canonical world-content addresses');
+    const pinned = GS_REG.buildings.filter(b => b.canon);
+    log(pinned.length === 6 &&
+        pinned.every(b => b.addr_idx != null &&
+          gsAddrNumber(b.street, b.addr_idx) === b.hn),
+        'gs: v4 canonical pins satisfy the §3 formula at their stored index');
+    log(GS_REG.buildings.filter(b => b.offmap).length === 2 &&
+        !!GS_REG.buildings.find(b => b.street === 'Geneva Avenue') &&
+        !!GS_REG.buildings.find(b => b.street === 'Folsom Street'),
+        'gs: v4 off-map canonical homes (Geneva, Folsom) are real registry places');
+    const lG = gsLeasesFor('reyes-cousins').find(l => l.status === 'active');
+    log(!!lG && gsHomeOf('C3').via === 'unpermitted' &&
+        gsHomeOf('C3').unit_id === lG.unit_id &&
+        gsDollarBalance('reyes-cousins') > 0,
+        'gs: v4 Dani resolves through the cousins\' lease — off-paperwork room share');
+    const c4l0 = gsLeasesFor('C4').find(l => l.status === 'active');
+    log(!!c4l0 && c4l0.monthly_rent === 3200 &&
+        c4l0.raiseHist.some(r => r.from === 2600 && r.to === 3200) &&
+        (c4l0.disputes || []).some(d => d.kind === 'rent_raise' &&
+          d.status === 'open'),
+        'gs: v4 the contested 2600→3200 raise is on the books, still open');
+    const b9457 = GS_REG.buildings.find(b => b.canon === 'home-c4c5');
+    const u9457_1 = b9457 &&
+      gsUnitsOf(b9457.id).find(u => u.unit_code === '1');
+    const lAmb = u9457_1 && gsActiveLease(u9457_1.id);
+    log(!!lAmb && /^A\d\d$/.test(lAmb.tenant_id),
+        'gs: v4 an ambient household holds 9457-1 (canonical detail)');
 
     // ---- v3: the whole cast is housed through the lease system ----
     const housed = gsCastHousing();
@@ -89,6 +142,58 @@ runAutoTest = async function(){
     log(gsDollarBalance('C6') > 0 && gsDollarBalance('A01') > 0 &&
         gsDollarBalance('A20') > 0,
         'gs: v3 cast bank balances seeded — the rent run moves real dollars');
+
+    // ---- v4: the live seed survives its own audit ----
+    const audSF = gsRegistryAudit();
+    log(audSF.ok === true,
+        'gs: v4 audit passes on the live SF seed',
+        audSF.issues.slice(0, 3).join('; ') || 'clean');
+    const stSF = gsRegistryStats();
+    log(stSF.buildings === GS_REG.buildings.length &&
+        stSF.units === GS_REG.units.length &&
+        stSF.units > stSF.buildings &&      // multi-unit stock is real now
+        stSF.withdrawn === 0,
+        'gs: v4 registry stats — more units than buildings, none withdrawn',
+        stSF.units + ' units / ' + stSF.buildings + ' buildings');
+
+    // ---- v4: real unit counts — a real "a;b;c" address list means real
+    //      doors; the seed must mint exactly that many units ----
+    let multiOk = true, multiChecked = 0;
+    for(const b of GS_REG.buildings){
+      if(b.bld_idx == null) continue;
+      if(b.canon) continue;             // canonical homes carry authored
+                                       // units — content, not derivation
+      const mb = SF_MAP.buildings[b.bld_idx];
+      /* only generically-seeded stock is derivable — cast homes carry
+         authored units by design (kind 'yes' is never auto-seeded) */
+      if(!mb || !GS_RES_KINDS[mb.kind]) continue;
+      if(!mb.hn || !mb.hn.includes(';')) continue;
+      const want = Math.min(
+        mb.hn.split(';').filter(s => s.trim()).length, 12);
+      multiChecked++;
+      if(gsUnitsOf(b.id).filter(u => (u.status || 'active') === 'active')
+          .length !== want) multiOk = false;
+    }
+    log(multiChecked > 20 && multiOk,
+        'gs: v4 real address counts drive real unit counts',
+        multiChecked + ' multi-address buildings checked');
+
+    // ---- v4: spec §8 executed — every bible HOUSEHOLD resolves to its
+    //      CANONICAL address (world/jobs-housing.md §3 verbatim) ----
+    const book = gsCastAddressBook();
+    log(book.length === 28 &&
+        book.every(r => r.address && /^9\d{3} /.test(r.address)) &&
+        book.filter(r => r.bibleRef).length === 8 &&
+        book.filter(r => r.offmap).length === 2 &&
+        book.filter(r => r.offmap).every(r => r.cid === 'C3' ||
+          r.cid === 'C8'),
+        'gs: v4 cast address book — all 28 on 9xxx, 8 canonical refs, 2 off-map');
+    const mig = gsBibleMigrationReport();
+    log(mig.ok === true &&
+        mig.rows.every(r => r.status === 'ok') &&
+        mig.rows.find(r => r.cid === 'C2').via === 'unpermitted' &&
+        mig.rows.find(r => r.cid === 'C3').via === 'unpermitted',
+        'gs: v4 bible migration — every HOUSEHOLD matches its canonical address');
   }
 
   /* ---------- isolated unit tests on reset state ---------- */
@@ -956,6 +1061,248 @@ runAutoTest = async function(){
         reLv && reLv.shares.T8.lateEvery === 3 &&
         GS_LEASE.apps.length > 0,
         'gs: v3 lifecycle state survives registry+lease snapshot/load');
+
+    // ================= v4: ADDRESS REGISTRY HARDENING =================
+    // spec §2 unit codes, livability gates, the §6 clerk ops (subdivide /
+    // garage conversion / merge / retire), parse+lookup APIs, the audit,
+    // and the bible migration cross-check.
+
+    // ---- v4: unit codes are spec-format, unique per building, auto ----
+    const cb1 = gsRegisterBuilding({ street: 'Code Street' });
+    const cU = gsRegisterUnit(cb1.id, { unit_code: 'A' });
+    const dupC = gsRegisterUnit(cb1.id, { unit_code: 'A' });
+    const badC = gsRegisterUnit(cb1.id, { unit_code: 'TOO LONG!' });
+    const autoC = gsRegisterUnit(cb1.id, { autoCode: true });
+    log(!!cU && dupC === null && badC === null &&
+        autoC && autoC.unit_code === 'B' && autoC.status === 'active' &&
+        autoC.origin === 'seed',
+        'gs: v4 unit codes — spec format enforced, dupes refused, auto assigns next');
+
+    // ---- v4: subdivision mints new codes under an UNCHANGED address ----
+    const sb = gsRegisterBuilding({ street: 'Split Street', owner_id: 'landlord' });
+    const su = gsRegisterUnit(sb.id, { unit_code: 'A', bedrooms: 4,
+                                       base_rent: 3200, rent_controlled: true });
+    const sAddr = sb.address;
+    const parts = gsSubdivideUnit(su.id, { n: 2 });
+    const splitOk = parts && parts.length === 2 && su.status === 'split' &&
+      parts[0].unit_code === 'A1' && parts[1].unit_code === 'A2' &&
+      parts[0].bedrooms === 2 && parts[1].bedrooms === 2 &&
+      parts[0].base_rent + parts[1].base_rent === 3200 &&
+      parts.every(u => u.rent_controlled && u.origin === 'subdivide') &&
+      sb.address === sAddr &&
+      gsAddressOfUnit(parts[0].id) === sAddr + ' Unit A1';
+    log(!!splitOk,
+        'gs: v4 subdivide retires the flat, mints A1/A2, same address');
+    log(gsSignLease(su.id, 'T40', { start: '2026-01-01' }) === null &&
+        !gsUnitLivable(su) && !gsActiveLease(su.id),
+        'gs: v4 a split unit can never be leased again');
+    const hb50 = gsRegisterBuilding({ street: 'Hold Street' });
+    const hu50 = gsRegisterUnit(hb50.id, { unit_code: 'A', bedrooms: 3 });
+    gsSignLease(hu50.id, 'T30', { start: '2026-01-01', monthly_rent: 2000 });
+    const studio = gsRegisterUnit(hb50.id, { unit_code: 'B', bedrooms: 1 });
+    gsMarkHired('H50', 'qA', { unitId: studio.id });
+    const studio2b = gsRegisterBuilding({ street: 'Tiny Street' });
+    const stu = gsRegisterUnit(studio2b.id, { unit_code: 'A', bedrooms: 1 });
+    log(gsSubdivideUnit(hu50.id) === null && hu50.status === 'active' &&
+        gsSubdivideUnit(studio.id) === null &&
+        gsSubdivideUnit(stu.id) === null && stu.status === 'active',
+        'gs: v4 leased/hired/studio units refuse subdivision honestly');
+
+    // ---- v4: garage conversion — one ADU per lot, same address ----
+    const gb = gsRegisterBuilding({ street: 'Garage Street' });
+    const gu = gsRegisterUnit(gb.id, { unit_code: 'A', bedrooms: 3 });
+    const adu = gsConvertGarage(gb.id, { base_rent: 1500 });
+    const adu2 = gsConvertGarage(gb.id);
+    log(!!adu && adu.unit_code === 'G' && adu.origin === 'garage_conversion' &&
+        adu.rent_controlled === false && gb.units.length === 2 &&
+        gsAddressOfUnit(adu.id) === gb.address + ' Unit G' && adu2 === null,
+        'gs: v4 garage conversion mints Unit G once under the same address');
+    const aduLease = gsSignLease(adu.id, 'T41', { start: '2026-10-01',
+                                                  monthly_rent: 1500 });
+    log(!!aduLease && gsHomeOf('T41').unit_id === adu.id,
+        'gs: v4 the ADU is a real leasable home');
+
+    // ---- v4: merge two vacant units; codes retire, never recycle ----
+    const mb2 = gsRegisterBuilding({ street: 'Merge Street' });
+    const mA = gsRegisterUnit(mb2.id, { unit_code: 'A', bedrooms: 1,
+                                        base_rent: 1200, rent_controlled: true });
+    const mB = gsRegisterUnit(mb2.id, { unit_code: 'B', bedrooms: 1,
+                                        base_rent: 1300, rent_controlled: true });
+    const mNew = gsMergeUnits(mA.id, mB.id);
+    const mAuto = gsRegisterUnit(mb2.id, { autoCode: true });
+    log(!!mNew && mNew.unit_code === 'C' && mNew.bedrooms === 2 &&
+        mNew.base_rent === 2500 && mNew.rent_controlled === true &&
+        mA.status === 'merged' && mB.status === 'merged' &&
+        mA.mergedInto === mNew.id && mAuto.unit_code === 'D',
+        'gs: v4 merge withdraws both flats; merged codes stay retired');
+
+    // ---- v4: retire a unit — code never recycles; leased units refuse ----
+    const rb3 = gsRegisterBuilding({ street: 'Rewind Street' });
+    const rA = gsRegisterUnit(rb3.id, { unit_code: 'A' });
+    const rB = gsRegisterUnit(rb3.id, { unit_code: 'B' });
+    gsSignLease(rB.id, 'T42', { start: '2026-09-01', monthly_rent: 1400 });
+    const retNo = gsRetireUnit(rB.id, 'occupied');
+    const retOk = gsRetireUnit(rA.id, 'converted to storage');
+    const rAuto = gsRegisterUnit(rb3.id, { autoCode: true });
+    log(retNo === false && retOk === true && rA.status === 'retired' &&
+        rAuto.unit_code === 'C' &&
+        gsSignLease(rA.id, 'T43', { start: '2026-10-01' }) === null,
+        'gs: v4 retired units keep their code forever and stop leasing');
+
+    // ---- v4: retiring a building refuses while occupied (honest demo) ----
+    const ob = gsRegisterBuilding({ street: 'Doomed Street' });
+    const ou = gsRegisterUnit(ob.id, { unit_code: 'A' });
+    gsSignLease(ou.id, 'T44', { start: '2026-09-01', monthly_rent: 1800 });
+    const refuse = gsRetireBuilding(ob.id, { reason: 'condo conversion' });
+    const forced = gsRetireBuilding(ob.id, { reason: 'condo conversion',
+      force: true, date: '2026-10-01' });
+    const ob2 = gsRegisterBuilding({ street: 'Gone Street' });
+    gsRegisterUnit(ob2.id, { unit_code: 'A' });
+    const goneOk = gsRetireBuilding(ob2.id, 'demolished');
+    log(refuse === false && forced === true && ob.status === 'retired' &&
+        gsActiveLease(ou.id) === null && goneOk === true &&
+        GS_REG.retired.indexOf(ob.id) >= 0,
+        'gs: v4 demolition needs vacant homes or an honest forced ending');
+
+    // ---- v4: every clerk op hits the mint log AND the public feed ----
+    log(GS_REG.mintLog.some(e => /subdivide/.test(e.reason)) &&
+        GS_REG.mintLog.some(e => /garage conversion/.test(e.reason)) &&
+        GS_REG.mintLog.some(e => /merge/.test(e.reason)) &&
+        GS_REG.mintLog.some(e => /retired unit/.test(e.reason)) &&
+        GS_REG.mintLog.every(e => e.address && e.bld_id) &&
+        GS_FEED.some(e => e.type === 'admin' && e.action === 'subdivide') &&
+        GS_FEED.some(e => e.type === 'admin' && e.action === 'convert'),
+        'gs: v4 clerk ops are logged + publicly fed (register first, tell after)');
+
+    // ---- v4: parse + lookup — how an AI turns words into records ----
+    const pb2 = gsRegisterBuilding({ street: 'Parse Street' });
+    const pA = gsRegisterUnit(pb2.id, { unit_code: '3B' });
+    const pa1 = gsParseAddress(gsAddressOfUnit(pA.id));
+    const pa2 = gsParseAddress(pb2.address);
+    const pa3 = gsParseAddress(pb2.hn + ' Parse St. Unit 3B');
+    const pa4 = gsParseAddress('1234 Nowhere Boulevard');
+    const pa5 = gsParseAddress('the pink Victorian');
+    log(pa1 && pa1.bld === pb2 && pa1.unit === pA &&
+        pa2 && pa2.bld === pb2 && pa2.unit === null &&
+        pa3 && pa3.bld === pb2 && pa3.unit === pA &&
+        pa4 && pa4.bld === null && pa5 === null,
+        'gs: v4 gsParseAddress round-trips formats; unknowns parse honestly');
+    const lp = gsLookupPlace(pA.id);
+    const lpB = gsLookupPlace(pb2.address);
+    log(lp && lp.unit === pA && lp.building === pb2 && lp.livable === true &&
+        lpB && lpB.building === pb2 && lpB.occupancy.units.length === 1,
+        'gs: v4 gsLookupPlace resolves ids and address strings alike');
+    gsSignLease(pA.id, 'T45', { start: '2026-09-01', monthly_rent: 1600,
+                                occupants: ['T45', 'T46'] });
+    log(gsAddressOf(pA.id) === gsAddressOfUnit(pA.id) &&
+        gsAddressOf(pb2.id) === pb2.address &&
+        gsResidents(pA.id).indexOf('T46') >= 0 &&
+        gsResidents(pb2.id).indexOf('T45') >= 0,
+        'gs: v4 polymorphic gsAddressOf/gsResidents resolve unit and building');
+    const occ = gsOccupancyOf(pb2.id);
+    log(occ && occ.units[0].residents.length === 2 &&
+        occ.units[0].lease.tenant === 'T45',
+        'gs: v4 occupancy view shows the landlord the per-unit truth');
+
+    // ---- v4: vacancy stock excludes leased/retired/split ----
+    const vacM = gsVacantUnits({ street: 'Merge Street' });
+    const vacGG = gsVacantUnits({ street: 'Garage Street' });
+    log(vacM.length === 2 && vacM.every(v => v.unit.status === 'active') &&
+        vacM.some(v => v.unit.id === mNew.id) &&
+        !vacM.some(v => v.unit.id === mA.id) &&
+        vacGG.length === 1 && vacGG[0].unit.id === gu.id,
+        'gs: v4 gsVacantUnits surfaces only livable, unleased stock');
+
+    // ---- v4: livability gates the request bus too (hire/listing) ----
+    gsCreditGrant('pZ', 2000, 'stake');
+    const rqH = gsSubmitRequest({ playerId: 'pZ', kind: 'hire',
+      target: rA.id, durationMin: 5, params: { name: 'Nobody' } }, 40000);
+    const rqL = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+      target: rA.id, durationMin: 60, params: { ask: 100000 } }, 40000);
+    log(rqH.reason === 'unit_not_livable' &&
+        rqL.reason === 'unit_not_livable',
+        'gs: v4 hire/listing refuse retired units before billing');
+
+    // ---- v4: designer pins — canonical numbers through the §3 formula ----
+    const pin1 = gsRegisterBuilding({ street: 'Pin Street', hnPin: 9418 });
+    log(!!pin1 && pin1.hn === 9418 && pin1.addr_idx != null &&
+        gsAddrNumber('Pin Street', pin1.addr_idx) === 9418 &&
+        pin1.address === '9418 Pin Street, San Francisco, CA',
+        'gs: v4 a designer pin lands the authored number formula-legally');
+    log(gsRegisterBuilding({ street: 'Pin Street', hnPin: 9418 }) === null &&
+        gsRegisterBuilding({ street: 'Pin Street', hnPin: 744 }) === null &&
+        gsRegisterBuilding({ street: 'Pin Street', hnPin: 12345 }) === null,
+        'gs: v4 pins refuse taken numbers and non-9xxx values');
+    const pinSameOther = gsRegisterBuilding({ street: 'Other Street',
+      hnPin: 9418 });
+    log(!!pinSameOther && pinSameOther.hn === 9418 &&
+        pinSameOther.id !== pin1.id,
+        'gs: v4 the same number on a different street is a legal address');
+    const mintNoPin = gsMintAddress('Pin Street', 'clerk test',
+      { hnPin: 9418 });
+    log(!!mintNoPin && mintNoPin.hn !== 9418 && mintNoPin.hn >= 9000,
+        'gs: v4 the clerk generates — hnPin is stripped, never honored');
+
+    // ---- v4: off-map buildings — real places, not rentable in-game ----
+    const ob9 = gsRegisterBuilding({ street: 'Faraway Avenue', hnPin: 9300,
+      offmap: true, canon: 'test-far' });
+    const ou9 = gsRegisterUnit(ob9.id, { unit_code: 'A', base_rent: 1500 });
+    const offLease = gsSignLease(ou9.id, 'T47', { start: '2026-01-01',
+      monthly_rent: 1500 });
+    log(!!ob9 && ob9.offmap === true && ob9.bld_idx === null &&
+        !!ou9 && !!offLease,
+        'gs: v4 off-map buildings are real registry places (leasable)');
+    const ob10 = gsRegisterBuilding({ street: 'Farther Street',
+      offmap: true });
+    const ou10 = gsRegisterUnit(ob10.id, { unit_code: 'A' });
+    log(gsVacantUnits().every(v => !v.building.offmap) &&
+        gsVacantUnits({ offmap: true }).some(v => v.unit === ou10),
+        'gs: v4 vacant stock hides off-map units unless asked');
+    const rqOff = gsSubmitRequest({ playerId: 'pZ', kind: 'hire',
+      target: ou10.id, durationMin: 5, params: { name: 'Away' } }, 40001);
+    const rqOffL = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+      target: ou10.id, durationMin: 60, params: { ask: 90000 } }, 40001);
+    log(rqOff.reason === 'unit_offmap' && rqOffL.reason === 'unit_offmap',
+        'gs: v4 hire/listing refuse off-map units — the cast lives on-screen');
+    /* re-seed idempotency: canon tag returns the existing record */
+    const rePin = gsRegisterBuilding({ street: 'Faraway Avenue',
+      canon: 'test-far' });
+    log(rePin === ob9,
+        'gs: v4 canon-tagged registration is idempotent under re-seed');
+
+    // ---- v4: the audit verifies the invariants — and catches breaches ----
+    const aud0 = gsRegistryAudit();
+    log(aud0.ok === true,
+        'gs: v4 registry audit passes on a clean registry',
+        aud0.issues.slice(0, 2).join('; ') || 'clean');
+    const corrupt = gsRegisterBuilding({ street: 'Bad Street' });
+    const corruptHn = corrupt.hn;
+    corrupt.hn = 1234;                      // a REAL-range number — spec §7 breach
+    const aud1 = gsRegistryAudit();
+    corrupt.hn = corruptHn;                 // restore — the audit must clear
+    const aud2 = gsRegistryAudit();
+    log(aud1.ok === false &&
+        aud1.issues.some(s => /privacy rule breach/.test(s)) &&
+        aud2.ok === true,
+        'gs: v4 audit flags a real-range number, then clears clean');
+    const stats = gsRegistryStats();
+    log(stats.buildings === GS_REG.buildings.length &&
+        stats.units === GS_REG.units.length &&
+        stats.vacant >= 0 && stats.livable + stats.withdrawn === stats.units,
+        'gs: v4 registry stats tally the stock honestly');
+
+    // ---- v4: snapshot/load preserves withdrawal state + code freeze ----
+    const v4snap = gsRegSnapshot();
+    gsRegistryReset();
+    const v4ok = gsRegLoad(v4snap) &&
+      gsUnitById(su.id).status === 'split' &&
+      gsUnitById(mA.id).status === 'merged' &&
+      gsUnitById(rA.id).status === 'retired' &&
+      gsBldById(ob.id).status === 'retired' &&
+      gsUnitCodeTaken(gsBldById(mb2.id), 'A') &&
+      gsNextUnitCode(gsBldById(mb2.id)) === 'E' &&
+      gsParseAddress(gsAddressOfUnit(pA.id)).unit.id === pA.id;
+    log(v4ok, 'gs: v4 withdrawn units, retired codes, parses survive load');
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

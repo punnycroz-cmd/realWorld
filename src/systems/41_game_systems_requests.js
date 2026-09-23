@@ -273,6 +273,9 @@ function gsFxEventOff(r){
 function gsFxHire(r, now){
   const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
   if(!u) return { ok: false, reason: 'unknown_unit' };
+  if(!gsUnitLivable(u)) return { ok: false, reason: 'unit_not_livable' };
+  const hb = gsBldById(u.bld_id);
+  if(hb && hb.offmap) return { ok: false, reason: 'unit_offmap' };
   if(gsActiveLease(u.id)) return { ok: false, reason: 'unit_occupied' };
   let n = 1; while(GS_HIRED['H' + n]) n++;        // first free id, deterministic
   const cid = 'H' + n;
@@ -293,6 +296,7 @@ function gsFxHire(r, now){
 function gsFxListOn(r, now){
   const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
   if(!u) return { ok: false, reason: 'unknown_unit' };
+  if(!gsUnitLivable(u)) return { ok: false, reason: 'unit_not_livable' };
   if(GS_LISTINGS[u.id]) return { ok: false, reason: 'already_listed' };
   const ask = (r.params && r.params.ask > 0) ? Math.floor(r.params.ask)
                                            : u.base_rent * 150;
@@ -380,6 +384,9 @@ gsDefineAction('hire', {
     if(!r.target) return 'needs_housing';        // design §6: housing required
     const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
     if(!u) return 'unknown_unit';
+    if(!gsUnitLivable(u)) return 'unit_not_livable';
+    const hb = gsBldById(u.bld_id);              // hired cast live on-map
+    if(hb && hb.offmap) return 'unit_offmap';
     if(gsActiveLease(u.id)) return 'unit_occupied';
     if(gsHiredCount(r.playerId) >= GS_MAX_HIRED_PER_PLAYER) return 'hire_cap';
     if(Object.keys(GS_HIRED).length >= GS_MAX_HIRED_TOTAL) return 'cast_cap';
@@ -397,7 +404,9 @@ gsDefineAction('listing', {
   allow: (r) => {
     const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
     if(!u) return 'unknown_unit';
+    if(!gsUnitLivable(u)) return 'unit_not_livable';
     const b = gsBldById(u.bld_id);
+    if(b && b.offmap) return 'unit_offmap';      // listings are on-map stock
     const owner = u.owner_id || (b && b.owner_id);
     if(owner !== r.playerId && !(gsIsAdmin(r.playerId) && owner === 'landlord'))
       return 'not_owner';
