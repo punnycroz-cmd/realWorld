@@ -1,0 +1,79 @@
+{
+  "$schema": "internal/real-world-analytics-events/v1",
+  "comment": "Machine-readable event spec for Real World marketing + funnel analytics. Client emitter: marketing/site/js/analytics.js. Dev sink: marketing/tools/analytics_sink.py. See ANALYTICS.md for the full plan. All events are anonymous (session nonce only, no persistent ids, no cookies).",
+  "envelope": {
+    "v": "int — schema version, currently 1",
+    "site": "string — site key, default 'realworld'",
+    "event": "string — one of the names below",
+    "path": "string — location.pathname, e.g. '/pricing.html'",
+    "props": "object — per-event properties, see events",
+    "sid": "string — random session nonce from sessionStorage; dies with the tab; NOT a visitor id",
+    "utm": "object — utm_source/medium/campaign/content/term + ref, captured at landing, session-scoped",
+    "ref": "string|null — referrer HOST only, never the full URL",
+    "ts": "int — epoch milliseconds"
+  },
+  "events": {
+    "pageview": {
+      "when": "once per page load, auto",
+      "props": {
+        "title": "document.title",
+        "page": "body[data-page] slug: index|features|how-it-works|pricing|faq|press-kit|404",
+        "vw": "viewport width (for layout QA)",
+        "lang": "navigator.language"
+      },
+      "funnel_stage": "visit"
+    },
+    "cta_click": {
+      "when": "click on any element carrying data-rw-event=\"cta_click\"",
+      "props": {
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit",
+        "dest": "logical destination: how-it-works|features|pricing|faq|index",
+        "href": "raw href (same-site)"
+      },
+      "funnel_stage": "visit → engaged"
+    },
+    "screenshot_view": {
+      "when": "click on a .gallery img (opens lightbox)",
+      "props": {
+        "shot": "image src basename",
+        "alt": "alt text, truncated 80 chars"
+      },
+      "funnel_stage": "engaged"
+    },
+    "outbound_click": {
+      "when": "click on an external link not otherwise instrumented",
+      "props": { "href": "full outbound URL" },
+      "funnel_stage": "exit"
+    },
+    "press_kit_download": {
+      "when": "click on the kit zip link (data-rw-event on press-kit.html)",
+      "props": { "file": "zip filename" },
+      "funnel_stage": "press"
+    },
+    "watch_start": {
+      "when": "spectator feed first rendered (emitted by the game embed, not the marketing shim; spec'd here for the funnel)",
+      "props": { "source": "demo-page|direct|embed" },
+      "funnel_stage": "watch",
+      "status": "PENDING — depends on game build / demo page (roadmap v12)"
+    },
+    "request_submitted": {
+      "when": "a viewer files a world request (game-side event; spec only)",
+      "props": { "class": "compatible|exclusive|queued", "credits": "int", "duration_min": "int" },
+      "funnel_stage": "request",
+      "status": "PENDING — game build"
+    },
+    "character_created": {
+      "when": "a viewer hires/creates a character (game-side event; spec only)",
+      "props": { "source": "cta|settings|post-request" },
+      "funnel_stage": "create",
+      "status": "PENDING — game build"
+    }
+  },
+  "privacy": {
+    "cookies": false,
+    "persistent_ids": false,
+    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored",
+    "opt_out": ["navigator.doNotTrack", "navigator.globalPrivacyControl", "?nocollect=1", "localStorage rw:no-collect=1", "rw.optOut()"],
+    "inert_by_default": true
+  }
+}

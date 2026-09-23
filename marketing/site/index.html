@@ -44,7 +44,7 @@
 }
 </script>
 </head>
-<body>
+<body data-page="index">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="nav-wrap">
@@ -76,8 +76,8 @@
         Watching costs nothing. Reaching in is what you pay for.
       </p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="how-it-works.html">See how it works</a>
-        <a class="btn btn-ghost" href="features.html">Meet the world</a>
+        <a class="btn btn-primary" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"hero","dest":"how-it-works"}'>See how it works</a>
+        <a class="btn btn-ghost" href="features.html" data-rw-event="cta_click" data-rw-props='{"cta":"hero","dest":"features"}'>Meet the world</a>
       </div>
     </div>
     <div>
@@ -161,7 +161,7 @@
         the point.</p>
       </div>
     </div>
-    <div class="btn-row"><a class="btn btn-ghost" href="how-it-works.html">The full walkthrough →</a></div>
+    <div class="btn-row"><a class="btn btn-ghost" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"walkthrough","dest":"how-it-works"}'>The full walkthrough →</a></div>
   </div>
 </section>
 
@@ -201,8 +201,8 @@
     <h2>The block is being built. The door will open.</h2>
     <p class="lead" style="margin:0 auto">Real World is in active development. Everything on this site describes the locked design — nothing here is vaporware we haven't specced, and nothing is promised that isn't in the build plan.</p>
     <div class="btn-row" style="justify-content:center">
-      <a class="btn btn-primary" href="features.html">Explore the features</a>
-      <a class="btn btn-ghost" href="faq.html">Read the FAQ</a>
+      <a class="btn btn-primary" href="features.html" data-rw-event="cta_click" data-rw-props='{"cta":"footer","dest":"features"}'>Explore the features</a>
+      <a class="btn btn-ghost" href="faq.html" data-rw-event="cta_click" data-rw-props='{"cta":"footer","dest":"faq"}'>Read the FAQ</a>
     </div>
   </div>
 </section>
@@ -234,6 +234,7 @@
   </div>
 </footer>
 
+<script src="js/analytics.js" defer></script><!-- inert until data-endpoint is set; see marketing/ANALYTICS.md -->
 <script src="js/main.js"></script>
 </body>
 </html>

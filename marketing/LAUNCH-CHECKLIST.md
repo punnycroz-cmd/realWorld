@@ -23,8 +23,10 @@ Legend: `[ ] PENDING` = not done, not started (or drafted-but-unpublished).
       (placeholders today — no accounts exist)
 - [ ] PENDING — Legal pass: payments terms, refund policy, privacy policy
       (ad-credit system + request purchases), age-gating/COPPA posture decided
-- [ ] PENDING — Analytics wired (privacy-respecting; see analytics focus) and
-      verified firing on a staging deploy
+- [ ] PENDING — Analytics: shim is wired on all 7 pages but INERT — set
+      `data-endpoint` on `js/analytics.js` after owner picks a backend
+      (Umami/Plausible CE/first-party sink; see ANALYTICS.md §2 + §9), then
+      verify events on a staging deploy
 - [ ] PENDING — Screenshot gallery refreshed with launch-build captures
       (current shots show dev-build UI)
 

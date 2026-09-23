@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-page="404">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="nav-wrap">
@@ -37,9 +37,9 @@
     but this one doesn't exist even in our registry. The block you want is probably
     one of these:</p>
     <div class="btn-row" style="justify-content:center">
-      <a class="btn btn-primary" href="index.html">Back to the neighborhood</a>
-      <a class="btn btn-ghost" href="how-it-works.html">How it works</a>
-      <a class="btn btn-ghost" href="faq.html">FAQ</a>
+      <a class="btn btn-primary" href="index.html" data-rw-event="cta_click" data-rw-props='{"cta":"404-exit","dest":"index"}'>Back to the neighborhood</a>
+      <a class="btn btn-ghost" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"404-exit","dest":"how-it-works"}'>How it works</a>
+      <a class="btn btn-ghost" href="faq.html" data-rw-event="cta_click" data-rw-props='{"cta":"404-exit","dest":"faq"}'>FAQ</a>
     </div>
   </div>
 </section>
@@ -51,6 +51,7 @@
   </div>
 </footer>
 
+<script src="js/analytics.js" defer></script>
 <script src="js/main.js"></script>
 </body>
 </html>
