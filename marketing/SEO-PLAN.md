@@ -78,13 +78,15 @@ Open Graph + Twitter card tags, VideoGame schema on index only.
 | `/pricing.html` | Credits & Pricing — Real World | What agency costs: credit packs, request pricing, the Resident subscription. All figures provisional pre-launch. | AI life sim pricing (low comp.) |
 | `/faq.html` | FAQ — Real World | Can you possess the main cast? (No.) Is it free to watch? (Yes.) Credits, refunds, ads, moderation — honest answers. | AI life sim questions (snippet bait) |
 | `/press-kit.html` | Press Kit — Real World | Facts, boilerplate, screenshots, and key art for Real World, the persistent AI neighborhood set in the Mission. | (press utility, not ranked) |
-| Future: `/demo/` | Watch the Neighborhood — Live Demo | — | watch AI villagers |
-| Future: `/devlog/` | Devlog — Real World | — | long-tail recaps, comparison posts |
+| `/demo.html` | Watch the Neighborhood — Real World | Watch a living Mission block: residents on schedule, weather on the hour, every viewer request on the public feed. | watch AI villagers |
+| `/journal.html` | The Dispatch — Real World Journal | Devlogs from the build now; a weekly recap of the public feed after launch. Only real events — a quiet week gets reported as a quiet week. | long-tail recaps, AI life sim devlog |
 | Future: `/the-mission/` | The Mission — Season One Cast & Map | — | dolores park game, cast names |
 
-**URL naming:** lowercase-hyphen, flat structure, no dates in URLs (devlog posts:
-`/devlog/slug/`). Placeholder domain `realworld-game.example` until the user picks
-a real one — replace in `sitemap.xml`, `robots.txt`, canonical/OG tags at launch.
+**URL naming:** lowercase-hyphen, flat structure, no dates in URLs (journal posts
+live on `/journal.html` as dated cards pre-launch; a `/journal/slug/` per-post
+URL scheme is reserved for when volume justifies it). Placeholder domain
+`realworld-game.example` until the user picks a real one — replace in
+`sitemap.xml`, `robots.txt`, canonical/OG tags at launch.
 
 ## 4. Content calendar skeleton
 
@@ -94,7 +96,7 @@ history browser = built-in content marketing, per research §2.4).
 
 | Slot | Series | Format | SEO job |
 |---|---|---|---|
-| Mon | "This Week on the Block" | In-world recap: what the cast did, pulled from the event feed | Freshness signal; long-tail drama queries; the TPP-style "watch collective life" hook |
+| Sun | "This Week on the Block" | In-world recap: what the cast did, pulled from the event feed | Freshness signal; long-tail drama queries; the TPP-style "watch collective life" hook |
 | Wed | Devlog | Build progress, design decisions, honest postmortems | Developer-brand queries; earns links from gamedev communities |
 | Fri | "Meet the Cast" | Character spotlight (no drama-seed spoilers — surface profiles only) | Character-name queries once fans search them |
 | Ad hoc | Comparison essays | "Real World vs. life sims", "why the cast can't be possessed" | Tier-2 comparison terms |

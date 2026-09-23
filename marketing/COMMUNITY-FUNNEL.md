@@ -162,9 +162,10 @@ quiet week on the block" is itself content and reinforces the honesty brand.
 - Cast spotlights use public-profile facts only. Drama seeds and secrets are
   redacted even from marketing — leaking them breaks the Truman contract
   (design §7).
-- Parody business names only in all copy (user decision 2026-09-22). Until the
-  world track publishes the parody list, use generic descriptors ("the
-  taqueria", "the café on the corner").
+- Parody business names only in all copy (user decision 2026-09-22).
+  Canonical names are now available from the world track's cast index
+  (Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware);
+  `world/businesses.md` becomes the authority when published.
 - No fake testimonials, no invented community quotes, ever.
 
 ---
@@ -248,9 +249,10 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 
 ## 10. Open dependencies
 
-- Parody business-name list (world track, `world/businesses.md`) — when it
-  lands, sweep all community templates (same sweep queued in
-  SOCIAL-LAUNCH-PLAN §10).
+- Parody business-name list (world track, `world/businesses.md`) — four
+  canonical names already in use via the cast index (Mudhaus Coffee, El
+  Farolote, Flying Pannier, Auerbach Hardware); sweep remaining generic
+  descriptors when the full list publishes.
 - Live public feed (game-systems) — `#the-feed` mirror and recaps are manual
   captures until then.
 - Spectator build / demo page (roadmap v12) — funnel Stage 1 depends on it.

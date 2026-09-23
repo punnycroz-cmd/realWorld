@@ -156,7 +156,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `site/assets/cover-itch-630x500.png` (crop of keyart-square) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v15-A..D.png` (4 ready) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v16-A..D.png` (4 ready) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -214,7 +214,7 @@ with `tools/make_brand_assets.py` — extend it rather than hand-editing.
 | Platform | Asset | Size (px) | Notes |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | Crop from keyart-square; title readable at 315×250 thumb |
-| itch.io | Screenshot set | 1280×720+ | v15 series, 4 shots |
+| itch.io | Screenshot set | 1280×720+ | v16 series, 4 shots |
 | Steam | Header capsule | 460×215 | Keyart 16:9 crop, logo top-left safe zone |
 | Steam | Small capsule | 231×87 | Logo-icon + wordmark only — screenshots unreadable at this size |
 | Steam | Main capsule | 616×353 | Keyart 16:9 full-bleed |

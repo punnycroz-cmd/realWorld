@@ -244,6 +244,15 @@ ul.clean li { margin: 6px 0; }
   .feed-row p { grid-column: 1 / -1; }
 }
 
+/* ---------- journal (journal.html) ---------- */
+.journal-post { padding: 26px 28px; }
+.journal-post h2, .journal-post h3 { margin-top: 4px; }
+.journal-post p { max-width: 70ch; }
+.post-meta {
+  font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 6px;
+}
+
 /* ---------- pricing state switch (pricing.html only) ----------
    Flip <body data-pricing="provisional"> to "final" — one attribute. */
 .final-only { display: none; }

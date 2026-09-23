@@ -77,8 +77,8 @@ its channel, timing slot, required asset, and character-count check.
 |---|---|---|
 | `launch-thread.md` | X announcement thread (8 posts) + Bluesky condensed version + pinned-post variant | 3 |
 | `cast-spotlights.md` | 8 cards, one per main character, built from the cast bible — spoiler-safe (see note) | 8 |
-| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v15 captures | 6 |
-| `recap-format.md` | "This Week on the Block" template — the weekly retention post, filled from the public feed | 1 template + 1 example |
+| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v16 captures | 6 |
+| `recap-format.md` | "This Week on the Block" template — the weekly retention post, filled from the public feed (site long-form version: `templates/weekly-recap.md` on `journal.html`) | 1 template + 1 example |
 | `pricing-post.md` | The honesty post: "what a dollar buys" — turns the credit model into a trust signal | 1 |
 | `seeded-questions.md` | 10 discussion starters for Discord/Reddit after launch | 10 |
 
@@ -95,7 +95,7 @@ Goal: make the concept legible before asking for attention.
 
 | Day | Post | Channel |
 |---|---|---|
-| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v15-D evening shot, slow zoom) | TikTok, X, Shorts |
+| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v16-D evening shot, slow zoom) | TikTok, X, Shorts |
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |
@@ -179,9 +179,10 @@ Pre-send checklist (every post):
 - [ ] Claims match the design doc: free watch tier, request model,
       possession rules (only your own hired character), 8 mains
       unpossessable by anyone.
-- [ ] No real SF business names — parody names only; if the art track's
-      parody list hasn't landed, use generic descriptors ("the taqueria",
-      "the hardware counter"). Street/landmark names are fine.
+- [ ] No real SF business names — canonical parody names only (Mudhaus
+      Coffee, El Farolote, Flying Pannier, Auerbach Hardware — source:
+      world track `world/characters/_index.md`; `world/businesses.md`
+      becomes the authority when published). Street/landmark names fine.
 - [ ] No fake testimonials, invented quotes, or fabricated player behavior.
 - [ ] No "coming soon" on cut features (voice/TTS v1, ambient-NPC
       possession/economies, cash-out, loot boxes).
@@ -215,6 +216,8 @@ MARKETINGLOG.md (template pending ANALYTICS.md, focus v9).
   the possession ban protects the mains' storylines, not feelings. Honest
   beats cute.
 - **Empty-feed risk at launch:** covered in §7 — an empty feed is content.
-- **Parody-name dependency:** if the art track publishes its parody business
-  list before launch, sweep `social/drafts/` for generic descriptors and
-  substitute real in-world names (better posts).
+- **Parody-name dependency:** RESOLVED for the cast-spotlight set —
+  `cast-spotlights.md` now uses canonical names (Mudhaus Coffee, El
+  Farolote, Flying Pannier, Auerbach Hardware). Residual: other drafts
+  still use generic descriptors where a venue isn't load-bearing; sweep
+  again when `world/businesses.md` publishes the full list.

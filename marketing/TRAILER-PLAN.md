@@ -58,17 +58,17 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened the café.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:12 | S2 | Top-down dawn over the café block (v15-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
-| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v15-B framing). | **[T]** "Twenty-eight people live here." |
-| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v15-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
-| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v15-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
+| 2 | 0:05–0:12 | S2 | Top-down dawn over the café block (v16-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v16-B framing). | **[T]** "Twenty-eight people live here." |
+| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v16-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
+| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v16-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
 | 6 | 0:33–0:40 | S6 | Feed overlay (UI capture): entries tick by — a lease signed, a rumor, a shift started. | **[T]** "Watching is free. Always." |
 | 7 | 0:40–0:47 | S7 | Request card UI fills on screen: `REQUEST: rain, 2 h — declared upfront, 12 cr`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
 | 8 | 0:47–0:54 | S8 | Same park shot as S4, now raining — wet bake, dark pavement, pawns scatter. | **[T]** "Weather. Events. A character of your own." |
 | 9 | 0:54–1:01 | S9 | Possession handoff: character card flips `AI → YOU`, street cam follows the pawn turning mid-block. | **[T]** "Drive the character you hired — only yours." |
 | 10 | 1:01–1:08 | S10 | Hard-cap moment: timer drains, card flips `YOU → AI`, pawn keeps walking without a stutter. | **[T]** "When time's up, the sim takes the wheel back." |
 | 11 | 1:08–1:14 | S11 | Montage on the public request feed: each intervention scrolls past **with attribution**. | **[T]** "Every move is public. The audience sees everything." |
-| 12 | 1:14–1:20 | S12 | Night falls fast over the block — sodium lamps pool on the sidewalks (v15 dusk look). One window lit. | Music resolves. Sound: distant bus, crickets. |
+| 12 | 1:14–1:20 | S12 | Night falls fast over the block — sodium lamps pool on the sidewalks (v16 dusk look). One window lit. | Music resolves. Sound: distant bus, crickets. |
 | 13 | 1:20–1:25 | End card | Logo on black. | **[T]** "REAL WORLD — The Mission. Watch free. Move in when you're ready." **[VO]** (optional) "The neighborhood is live." + URL + "development build" bug. |
 
 ### Script notes for the editor
@@ -87,24 +87,24 @@ shot sources keyed to §4.
 
 Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 `W.tod`/`W.month` per shot for continuity (v14+ canonical captures pin
-`tod=16.5`; dusk shots use the v15 lamp engine, el < ~5°).
+`tod=16.5`; dusk shots use the v15-v16 lamp engine, el < ~5°).
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over café block | dawn, dry | matches `site/shots/v15-A.png` |
-| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v15-B.png` |
-| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v15-C.png` |
-| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v15-D.png` |
+| S2 | Top-down, slow E→W drift over café block | dawn, dry | matches `site/shots/v16-A.png` |
+| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v16-B.png` |
+| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v16-C.png` |
+| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v16-D.png` |
 | S6 | Public feed overlay, entries ticking | any | game-systems feed API (`__aiBridge` viewer state) |
 | S7 | Request card UI: action + duration + credits | n/a | request pipeline, design doc §11 |
 | S8 | S4 framing repeated, wet bake + rain | rain override | `GS_WX_OVR` weather override exists in the sim |
 | S9 | Character card `AI → YOU` flip + follow cam | match S3 light | possession = hired character only |
 | S10 | Timer expiry, `YOU → AI`, seamless resume | match S9 | forced graceful handoff at timeout |
 | S11 | Feed montage w/ attribution rows | n/a | every paid intervention is public |
-| S12 | Night grade, lamps pooling | civil dusk | v15 `sfLampsLit()` look |
+| S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v15 stills with slow push-ins (Ken Burns) and
+trailer against the existing v16 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 The plan marks every shot that MUST be re-captured from live footage before
 the trailer ships: **S6–S11** (UI beats). S2–S5 and S12 may ship from
@@ -166,11 +166,11 @@ center crop is 506×900 — re-capture vertically at ship if quality is short.
 
 ## 8. Thumbnail concepts (pick 1, test later)
 
-1. **The watcher:** v15-D director shot, darkened edges, small red "REC" dot,
+1. **The watcher:** v16-D director shot, darkened edges, small red "REC" dot,
    title small. Sells the Truman-Show premise instantly.
 2. **The handoff:** split frame — same street shot, left labeled `AI`,
    right `YOU`, pawn mid-stride across the seam. Sells the hook mechanic.
-3. **The block at dusk:** v15 night-lamp look, one lit window, wordmark only.
+3. **The block at dusk:** v16 night-lamp look, one lit window, wordmark only.
    Quietest option; best for press embeds.
 
 All three build from real captures + typography. No rendered key art
@@ -189,7 +189,7 @@ promises — reuse `press-kit/keyart/` if a painted look is wanted.
 
 ## 10. Handoff
 
-Everything an editor needs is in this repo: stills in `site/shots/` (v15
+Everything an editor needs is in this repo: stills in `site/shots/` (v16
 series + v1 early-pass pair), brand assets in `site/assets/` + `press-kit/`,
 voice/tone spec in `marketing/BRAND.md` *(planned — if absent, use the
 SOCIAL-LAUNCH-PLAN voice spec: neighborly, dry, specific)*, description copy in

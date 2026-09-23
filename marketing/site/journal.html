@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Dispatch — Real World Journal</title>
+<meta name="description" content="Notes from the block: development logs from the build and, after launch, This Week on the Block — a weekly recap of what actually happened in the neighborhood, sourced from the public feed.">
+<link rel="canonical" href="https://realworld-game.example/journal.html"><!-- PLACEHOLDER domain: replace at launch -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Dispatch — Real World Journal">
+<meta property="og:description" content="Devlogs from the build now; a weekly recap of the public feed after launch. Only real events — a quiet week gets reported as a quiet week.">
+<meta property="og:url" content="https://realworld-game.example/journal.html"><!-- PLACEHOLDER domain -->
+<meta property="og:image" content="assets/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Dispatch — Real World Journal">
+<meta name="twitter:description" content="Build notes now; a weekly recap of the block after launch. Only real events.">
+<meta name="twitter:image" content="assets/og-card.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="journal">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><img src="assets/favicon.svg" width="34" height="34" alt="" style="border-radius:8px"><span>REAL WORLD<small>The Mission</small></span></a>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="community.html">Community</a>
+      <a href="journal.html" class="active" aria-current="page">Journal</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+      <a href="press-kit.html">Press kit</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="pill">The Dispatch — devlogs now, block reports at launch</div>
+    <h1>Notes from the block.</h1>
+    <p class="lead">
+      Two formats live here. <b>Devlogs</b> — what we built and why, written
+      while the neighborhood is under construction. And after launch,
+      <b>This Week on the Block</b> — a Sunday recap of what actually happened,
+      sourced from the public request feed and the world's own event ledger.
+      Only real events; a quiet week gets reported as a quiet week.
+    </p>
+  </div>
+</section>
+
+<!-- LATEST POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Latest — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-23 · Development build v16</p>
+      <h2>How the block learned to look like the Mission.</h2>
+      <p>
+        The first pass at the neighborhood was a flat grid with good bones:
+        real Mission streets around Dolores Park, generated addresses, 28
+        residents on schedule. Sixteen art iterations later, the same block has
+        pitched Victorian rooflines, water towers and solar arrays on the flat
+        roofs, pigeons, a sun that actually tracks the hour — long shadows at
+        golden hour, sodium lamps pooling on the sidewalks at dusk — and, as of
+        this week, interiors: storefront glass that opens into a lit café or a
+        lived-in flat instead of a dark rectangle.
+      </p>
+      <p>
+        Under the paint, the simulation grew its plumbing: a request pipeline
+        that classifies every intervention (exclusive, compatible, queued),
+        prices it upfront, and refunds what expires; and a lease ledger that
+        gives all 28 residents real housing — deposits, rent runs, notices —
+        because a world where nobody pays rent is a world where nothing is at
+        stake.
+      </p>
+      <p class="muted">
+        The gallery below is the same build, same day — we keep the first-pass
+        shots up for contrast because watching the world improve is half the
+        fun of following a build.
+      </p>
+      <div class="gallery" style="margin-top:14px">
+        <figure><picture><source srcset="shots/v1-A.webp" type="image/webp"><img src="shots/v1-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="First art pass, top-down over the block"></picture><figcaption>v1 — first pass, overhead.</figcaption></figure>
+        <figure><picture><source srcset="shots/v16-A.webp" type="image/webp"><img src="shots/v16-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Current build, same overhead angle"></picture><figcaption>v16 — same angle, sixteen iterations later.</figcaption></figure>
+        <figure><picture><source srcset="shots/v16-int-cafe.webp" type="image/webp"><img src="shots/v16-int-cafe.png" width="1440" height="900" loading="lazy" decoding="async" alt="New interior vignette — café"></picture><figcaption>New in v16 — interiors behind the glass.</figcaption></figure>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- FORMAT PREVIEW -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Format preview — post-launch</p>
+    <h2>This Week on the Block.</h2>
+    <p class="muted">
+      The weekly recap launches with the game, because it reports on the
+      public feed. Below is the format with <b>illustrative</b> rows — real
+      recaps will only ever describe real feed events.
+    </p>
+    <article class="card journal-post">
+      <p class="post-meta">This Week on the Block · format preview · illustrative</p>
+      <h3>A quiet Tuesday, a loud Saturday.</h3>
+      <div class="feed-preview" aria-label="Illustrative preview of a weekly recap entry list">
+        <div class="feed-row"><span class="feed-time">Week</span><span class="feed-tag tag-run">ran</span><p>21 requests approved — most of them small: a rain hour, two open-mic nights at Mudhaus.</p></div>
+        <div class="feed-row"><span class="feed-time">Sat</span><span class="feed-tag tag-queue">queued</span><p>An exclusive on the prime evening slot queued four hours, then ran at 9 p.m. Surge pricing applied; it's all on the feed.</p></div>
+        <div class="feed-row"><span class="feed-time">Sat</span><span class="feed-tag tag-refund">refunded</span><p>Three requests expired before their slots freed — auto-refunded, as designed.</p></div>
+        <div class="feed-row"><span class="feed-time">Sun</span><span class="feed-tag tag-done">resolved</span><p>A new resident moved in above the hardware store. The block noticed before we did.</p></div>
+      </div>
+      <p class="muted" style="margin-top:10px">Every line links to the feed entry it reports. If we can't link it, it didn't happen.</p>
+    </article>
+  </div>
+</section>
+
+<!-- CADENCE -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Cadence</p>
+    <h2>What to expect, and when.</h2>
+    <div class="grid grid-3">
+      <div class="card"><h3>Devlog</h3><p>Irregular, while we build — published when there's a real change to show, never on a quota. Each post links the captures it describes.</p></div>
+      <div class="card"><h3>This Week on the Block</h3><p>Sundays, post-launch. Sourced from the public request feed; every claim links to its entry. Quiet weeks stay quiet on the page.</p></div>
+      <div class="card"><h3>Launch notes</h3><p>At launch and at each major update: what changed, what it costs, what we cut and why. The honesty section on the homepage applies here too.</p></div>
+    </div>
+    <p class="muted" style="margin-top:18px">Following along: posts will syndicate to our social channels and the community Discord at launch — see <a href="community.html">Community</a>. An RSS feed ships with the live site.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot-grid">
+    <div>
+      <h4>Real World</h4>
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="community.html">Community</a>
+      <a href="journal.html">Journal</a>
+    </div>
+    <div>
+      <h4>Buy</h4>
+      <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div>
+      <h4>Press</h4>
+      <a href="press-kit.html">Press kit</a>
+      <a href="index.html#gallery">Screenshots</a>
+    </div>
+  </div>
+  <div class="wrap foot-note">
+    © <span id="year"></span> Real World team. All characters are fictional; the neighborhood is real geography.
+    This is a pre-launch draft site — no live game is implied.
+  </div>
+</footer>
+
+<script src="js/analytics.js" defer></script><!-- inert until data-endpoint is set; see marketing/ANALYTICS.md -->
+<script src="js/main.js"></script>
+</body>
+</html>
