@@ -52,7 +52,7 @@ global.document = {
   title: '',
   addEventListener(){}, body: makeEl('body'),
 };
-global.location = { search: '?test' };
+global.location = { search: process.env.GS_TEST_QUERY || '?test' };
 global.requestAnimationFrame = () => 0;   // do not run the render loop
 try { global.navigator = { userAgent: 'node' }; } catch (e) {}
 

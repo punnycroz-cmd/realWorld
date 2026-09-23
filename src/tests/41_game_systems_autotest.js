@@ -1,6 +1,8 @@
 /* =====================================================================
    PART 41 AUTOTEST — game-systems v0 registry/ledger/bus + v1 request
-   lifecycle (real catalogue, effect dispatch, per-minute billing).
+   lifecycle (real catalogue, effect dispatch, per-minute billing) +
+   v2 conflicts (pairwise claims matrix, shared skies, venue permits,
+   paperwork serialization, promotion ordering + handoff).
    Mode-agnostic: runs in medieval ?test AND ?sf&test. Mutating tests run
    on reset state and the prior contents are restored afterwards, so the
    SF-seeded registry survives the suite untouched.
@@ -203,11 +205,11 @@ runAutoTest = async function(){
         gsActiveOn('t:possess:H1').length === 1 && gsActiveOn('t:possess:H2').length === 1,
         'gs: same-target possess queues (exclusive); different-target runs (compatible)');
     const wx = gsSubmitRequest({ playerId: 'pB', kind: 'weather', durationMin: 60,
-                                 params: { wx: 'rain' } }, 1);
+                                 params: { wx: 'clear' } }, 1);
     const ev = gsSubmitRequest({ playerId: 'pB', kind: 'street_event', durationMin: 30,
                                  params: { event: 'block_party' } }, 1);
     log(wx.status === 'active' && ev.status === 'active',
-        'gs: non-exclusive street_event co-runs with active weather');
+        'gs: benign weather + outdoor event co-run (v2: compatible classes)');
 
     // ---- bus: FCFS promotion (same submit minute -> filing order holds) ----
     gsMarkHired('H4', 'pB');
@@ -471,6 +473,194 @@ runAutoTest = async function(){
         vKinds.has('hire') && vKinds.has('warn'),
         'gs: v1 feed covers fail/admin/sale/hire/warn events');
 
+    // ================= v2: THE PAIRWISE CONFLICT MATRIX =================
+    // fresh players + hired chars; all times >= 20000 so nothing from the
+    // v1 block is still live (its actives end by ~8030; its queued TTL-
+    // expired requests simply get swept by the first v2 tick).
+    for(const p of ['qA','qB','qC','qD','qE','qF','qG','qS'])
+      gsCreditGrant(p, 20000, 'v2 stake');
+    gsMarkHired('H20','qA'); gsMarkHired('H21','qB'); gsMarkHired('H22','qC');
+    gsMarkHired('H23','qD'); gsMarkHired('H24','qE'); gsMarkHired('H25','qB');
+    const allQueuedBlocked = () =>
+      GS_REQ.reqs.filter(r => r.status === 'queued')
+                 .every(r => gsFindBlockers(r).length > 0);
+
+    // ---- v2: contradictory weather queues on the sky; identical co-sponsors
+    const wxA = gsSubmitRequest({ playerId: 'qA', kind: 'weather', durationMin: 20,
+                                params: { wx: 'rain' } }, 20000);      // severe
+    const wxC = gsSubmitRequest({ playerId: 'qC', kind: 'weather', durationMin: 50,
+                                params: { wx: 'rain' } }, 20001);      // identical
+    const wxB = gsSubmitRequest({ playerId: 'qB', kind: 'weather', durationMin: 30,
+                                params: { wx: 'heatwave' } }, 20002);  // contradictory
+    log(wxA.status === 'active' && wxB.status === 'queued' &&
+        wxB.queuedBehind.indexOf(wxA.id) >= 0 &&
+        wxB.queuedBehind.indexOf(wxC.id) >= 0 &&
+        GS_FEED.some(e => e.type === 'queue' && e.req === wxB.id &&
+                          e.on.indexOf('sky') >= 0),
+        'gs: v2 contradictory weather queues on the sky; feed names the blockers');
+    log(wxC.status === 'active' && GS_WX_OVR.wx === 'rain' &&
+        GS_WX_OVR.sponsors[wxA.id] === 20020 &&
+        GS_WX_OVR.sponsors[wxC.id] === 20051 && GS_WX_OVR.untilMin === 20051,
+        'gs: v2 identical forecasts co-sponsor the same sky (design §5)');
+
+    // ---- v2: severe weather blocks outdoor event permits (anti-grief)
+    const evM = gsSubmitRequest({ playerId: 'qD', kind: 'street_event',
+        durationMin: 40, params: { event: 'farmers_market', at: '24th Street' } }, 20003);
+    const evT = gsSubmitRequest({ playerId: 'qE', kind: 'street_event',
+        durationMin: 30, params: { event: 'mural_tour', at: 'Clarion Alley' } }, 20004);
+    log(evM.status === 'queued' && evT.status === 'queued' &&
+        gsFindBlockers(evM).some(b => b.id === wxA.id || b.id === wxC.id),
+        'gs: v2 no outdoor permits issued into a storm hold (severe sky)');
+
+    // ---- v2: non-conflicting filings leapfrog the queue — no head-of-line
+    //      blocking; two players steering two characters = a feed session
+    const pB1 = gsSubmitRequest({ playerId: 'qB', kind: 'possess', target: 'H21',
+                                durationMin: 15 }, 20005);
+    const pC1 = gsSubmitRequest({ playerId: 'qC', kind: 'possess', target: 'H22',
+                                durationMin: 25 }, 20006);
+    const pB2 = gsSubmitRequest({ playerId: 'qB', kind: 'possess', target: 'H21',
+                                durationMin: 10 }, 20007);
+    log(pB1.status === 'active' && pC1.status === 'active' &&
+        pB2.status === 'queued' && gsQueuePosition(pB2.id) === 1 &&
+        GS_FEED.some(e => e.type === 'session' &&
+                          e.players.indexOf('qB') >= 0 && e.players.indexOf('qC') >= 0 &&
+                          e.chars.indexOf('H21') >= 0 && e.chars.indexOf('H22') >= 0) &&
+        gsCoSessions().some(pr =>
+          (pr.a.player === 'qB' && pr.b.player === 'qC') ||
+          (pr.a.player === 'qC' && pr.b.player === 'qB')),
+        'gs: v2 compatible multiplayer — two players steer two characters; feed reports the session');
+
+    // ---- v2: a later filing cannot leapfrog an earlier QUEUED clash
+    const wxD = gsSubmitRequest({ playerId: 'qA', kind: 'weather', durationMin: 10,
+                                params: { wx: 'clear' } }, 20008);
+    log(wxD.status === 'queued' &&
+        gsFindBlockers(wxD).some(b => b.id === wxB.id && b.status === 'queued'),
+        'gs: v2 later requests cannot leapfrog a queued clash (FCFS holds)');
+    log(allQueuedBlocked(), 'gs: v2 invariant — every queued request has a live blocker');
+
+    // ---- v2: promotion cascade — one freed sky unblocks the line in order
+    gsBusTick(20021);   // wxA rain + pB1 possess end at 20020
+    log(wxA.status === 'completed' && GS_WX_OVR.wx === 'rain' &&
+        wxB.status === 'queued' && evM.status === 'queued' &&
+        pB2.status === 'active' &&
+        GS_POSSESS.H21 && GS_POSSESS.H21.playerId === 'qB',
+        'gs: v2 sky holds while a co-sponsor remains; next possess promotes');
+    gsBusTick(20052);   // wxC rain ends at 20051 — the sky releases
+    const approv = GS_FEED.filter(e => e.type === 'approve' && e.promoted &&
+                                       e.min === 20052);
+    log(wxC.status === 'completed' && GS_WX_OVR.wx === 'heatwave' &&
+        wxB.status === 'active' && evM.status === 'active' &&
+        evT.status === 'active' && wxD.status === 'queued' &&
+        approv.length === 3 &&
+        approv[0].req === wxB.id && approv[1].req === evM.id &&
+        approv[2].req === evT.id,
+        'gs: v2 cascade promotes heatwave + market + tour in strict FCFS order');
+    log(allQueuedBlocked(), 'gs: v2 invariant holds after the cascade');
+    gsBusTick(20083);   // heatwave + mural tour end at 20082
+    log(wxD.status === 'expired' && wxD.refunded === wxD.price,
+        'gs: v2 queued request that never unblocks before TTL refunds in full');
+
+    // ---- v2: venue permits — one event per location; roving passes through
+    const evP = gsSubmitRequest({ playerId: 'qA', kind: 'street_event',
+        durationMin: 40, params: { event: 'parade', at: 'Valencia Street' } }, 20100);
+    const evB = gsSubmitRequest({ playerId: 'qB', kind: 'street_event',
+        durationMin: 30, params: { event: 'block_party',
+                                   at: '  VALENCIA   Street ' } }, 20101);
+    const evF = gsSubmitRequest({ playerId: 'qC', kind: 'street_event',
+        durationMin: 30, params: { event: 'street_fair', at: 'Mission Street' } }, 20102);
+    const evR = gsSubmitRequest({ playerId: 'qF', kind: 'street_event',
+        durationMin: 20, params: { event: 'mural_tour', at: 'Valencia Street' } }, 20103);
+    log(evP.status === 'active' && evB.status === 'queued' &&
+        gsQueuePosition(evB.id) === 1 &&
+        evF.status === 'active' && evR.status === 'active' &&
+        gsNormVenue('  VALENCIA   Street ') === 'valencia street' &&
+        gsViewerState(20101).queues['g:street_event']
+          .some(q => q.id === evB.id && q.blockedBy.indexOf(evP.id) >= 0),
+        'gs: v2 one permit per venue (normalized); other venues + roving tours co-run');
+    gsBusTick(20141);   // parade ends 20140 -> block_party takes the venue
+    log(evP.status === 'completed' && evB.status === 'active' &&
+        GS_EVENTS.some(e => e.event === 'block_party'),
+        'gs: v2 queued permit activates the moment the venue frees up');
+    // severe weather may not be summoned over the running event either
+    const stQ = gsSubmitRequest({ playerId: 'qE', kind: 'weather', durationMin: 10,
+                                params: { wx: 'storm' } }, 20150);
+    log(stQ.status === 'queued' &&
+        gsFindBlockers(stQ).some(b => b.id === evB.id),
+        'gs: v2 you cannot summon a storm over a permitted outdoor event');
+    gsBusTick(20172);   // block_party ends 20171 -> storm promotes
+    log(evB.status === 'completed' && stQ.status === 'active' &&
+        GS_WX_OVR.wx === 'storm',
+        'gs: v2 held storm request runs once the last outdoor event clears');
+
+    // ---- v2: registry paperwork serializes — a buy waits behind a hire
+    const pb = gsRegisterBuilding({ street: 'Escrow Street', owner_id: 'landlord' });
+    const pu = gsRegisterUnit(pb.id, { unit_code: 'A', base_rent: 2200 });
+    gsSubmitRequest({ playerId: 'owner', kind: 'listing', target: pu.id,
+                      durationMin: 60, params: { ask: 300000 } }, 20200);
+    const hr = gsSubmitRequest({ playerId: 'qA', kind: 'hire', target: pu.id,
+                               durationMin: 5, params: { name: 'Tenant Tess' } }, 20201);
+    gsDollarGrant('H25', 400000, 'v2 purse');
+    const by = gsSubmitRequest({ playerId: 'qB', kind: 'buy', target: pu.id,
+                               durationMin: 1, params: { buyerId: 'H25' } }, 20202);
+    log(hr.status === 'active' && by.status === 'queued' &&
+        gsFindBlockers(by).some(b => b.id === hr.id),
+        'gs: v2 hire and buy on one unit serialize (paperwork conflict)');
+    gsBusTick(20207);   // hire completes 20206 -> escrow activates + closes
+    log(hr.status === 'completed' && by.status === 'active' &&
+        gsUnitById(pu.id).owner_id === 'H25' &&
+        gsDollarBalance('H25') === 100000 && !GS_LISTINGS[pu.id],
+        'gs: v2 queued buy promotes after the hire and closes the sale honestly');
+    const by2 = gsSubmitRequest({ playerId: 'qC', kind: 'buy', target: pu.id,
+                                durationMin: 1, params: { buyerId: 'H22' } }, 20210);
+    log(by2.status === 'denied' && by2.reason === 'not_listed',
+        'gs: v2 a consumed listing is a standing-state denial, not a queue');
+
+    // ---- v2: cancel now promotes — instant possession handoff (v1 hole)
+    const hA = gsSubmitRequest({ playerId: 'qD', kind: 'possess', target: 'H23',
+                               durationMin: 30 }, 20300);
+    const hB = gsSubmitRequest({ playerId: 'qD', kind: 'possess', target: 'H23',
+                               durationMin: 20 }, 20301);
+    gsCancelRequest(hA.id, 20310, 'player');
+    log(hA.status === 'cancelled' && hA.refunded === 80 &&
+        hB.status === 'active' &&
+        GS_POSSESS.H23 && GS_POSSESS.H23.reqId === hB.id,
+        'gs: v2 cancelling an active request hands the resource to the line instantly');
+
+    // ---- v2: positions + explain + the readable rule table
+    const pos1 = gsSubmitRequest({ playerId: 'qE', kind: 'possess', target: 'H24',
+                                 durationMin: 30 }, 20400);
+    const pos2 = gsSubmitRequest({ playerId: 'qE', kind: 'possess', target: 'H24',
+                                 durationMin: 30 }, 20401);
+    const pos3 = gsSubmitRequest({ playerId: 'qE', kind: 'possess', target: 'H24',
+                                 durationMin: 30 }, 20402);
+    const pos4 = gsSubmitRequest({ playerId: 'qE', kind: 'possess', target: 'H24',
+                                 durationMin: 30 }, 20403);
+    const ex3 = gsExplainRequest(pos3.id);
+    log(pos1.status === 'active' && gsQueuePosition(pos2.id) === 1 &&
+        gsQueuePosition(pos3.id) === 2 && gsQueuePosition(pos4.id) === 3 &&
+        ex3 && ex3.queuePos === 2 && ex3.blockedBy.indexOf(pos1.id) >= 0 &&
+        ex3.behind.indexOf(pos2.id) >= 0 && /waiting for/.test(ex3.note),
+        'gs: v2 queue positions + gsExplainRequest tell viewers exactly why');
+    gsBusTick(20431);   // pos1 ends 20430 -> pos2 activates
+    log(pos2.status === 'active' && gsQueuePosition(pos3.id) === 1 &&
+        gsQueuePosition(pos4.id) === 2,
+        'gs: v2 queue position only ever shrinks — monotonic under contention');
+    log(gsConflictRules().length >= 5 &&
+        gsConflictRules().every(s => typeof s === 'string' && s.length > 10),
+        'gs: v2 conflict rule table is readable');
+
+    // ---- v2: sponsored sky survives snapshot/load
+    const sA = gsSubmitRequest({ playerId: 'qS', kind: 'weather', durationMin: 20,
+                               params: { wx: 'fog' } }, 30000);
+    const sB = gsSubmitRequest({ playerId: 'owner', kind: 'weather', durationMin: 40,
+                               params: { wx: 'fog' } }, 30001);
+    const snap2 = gsBusSnapshot();
+    gsBusReset();
+    log(gsBusLoad(snap2) && GS_WX_OVR.wx === 'fog' &&
+        !!GS_WX_OVR.sponsors[sA.id] && !!GS_WX_OVR.sponsors[sB.id] &&
+        gsRequestById(pos2.id).status === 'active',
+        'gs: v2 sky sponsors + queues survive snapshot/load');
+
     // ---- bus: snapshot round-trip (v1: includes live effect state) ----
     const bSnap = gsBusSnapshot();
     const nReqs = GS_REQ.reqs.length;
@@ -479,7 +669,7 @@ runAutoTest = async function(){
         gsHiredOwner('H1') === 'pA' &&
         gsHiredOwner(hiredId) === 'pD' &&
         gsRequestById(fC.id).status === 'completed' &&
-        GS_POSSESS.H13 && GS_POSSESS.H13.playerId === 'pD' &&
+        GS_POSSESS.H24 && GS_POSSESS.H24.playerId === 'qE' &&   // v2: the
         gsUnitById(lu.id).owner_id === 'H10' &&   // registry is separate —
         GS_FEED.length > 0,                        // assert bus-owned state
         'gs: bus snapshot/load round-trips requests, cooldowns, hired + fx state');

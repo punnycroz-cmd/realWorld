@@ -24740,6 +24740,37 @@ function gsLedgerLoad(json){
    - gsBusTick is now wired into the live sim via registerSimTick — the
      bus runs on real wall-clock minutes (the show is real-time).
 
+   v2: conflicts are now a PAIRWISE CLAIMS matrix (the permit-office
+   model) instead of a single exclusive resource key:
+   - Every request declares what it claims: char:<id> (one driver per
+     body), sky (one forecast — but design §5 only makes CONTRADICTORY
+     weather exclusive, so identical forecasts may co-sponsor the same
+     sky via GS_WX_OVR.sponsors), venue:<place> (one permit per
+     location), openair (roving/city-assigned events — never block each
+     other but still flag outdoor), paper:<unit> (one registry paperwork
+     change per unit — hire and buy serialize), listing:<unit>.
+   - Pairwise clash rules: same class + same resource clash, EXCEPT a
+     shared sky forecast; and sky.severe x event.outdoor clashes BOTH
+     ways — you cannot rain on a permitted outdoor event (pay-to-grief
+     is forbidden), and the city does not issue outdoor permits into a
+     storm hold.
+   - FCFS under pairwise conflicts: a request queues iff it clashes
+     with ANY earlier live request (active or queued). Queued requests
+     can never be leapfrogged by later conflicting ones — starvation is
+     impossible because every blocker has a hard endMin cap.
+   - Promotion is global (gsPromoteAll): after any completion, expiry,
+     cancel or revoke, the whole queue is scanned in submission order
+     and every request that has become unblocked activates. v1 only
+     promoted on natural completion — a cancelled request left its
+     queue stranded until something else finished. That hole is closed.
+   - Compatible multiplayer is made visible: co-possession by different
+     players emits a 'session' feed event and gsCoSessions() reports
+     the overlaps — two players steering two characters through one
+     interaction is the best multiplayer (design §5).
+   - Transparency: queue feed entries carry blockedBy + on (the
+     clashing claims); gsExplainRequest gives the plain-English reason;
+     gsConflictRules lists the matrix for the debug panel.
+
    RATE CARD (design §9.3 — honest pricing tracks real compute cost):
      possess      4 cr/min — interactive session relay; the character's
                    LLM brain is SUSPENDED while possessed, so compute cost
@@ -24783,7 +24814,12 @@ const GS_HIRE_STAKE_PAD = 1200;
 
 /* ---- live effect state (the world-side residue of active requests) ---- */
 const GS_POSSESS = {};     // charId -> {playerId, reqId, sinceMin}
-const GS_WX_OVR = { wx: null, untilMin: 0, reqId: null, baseHum: null };
+/* the sky may have several sponsors when identical forecasts co-run
+   (design §5: only CONTRADICTORY weather is exclusive) — sponsors maps
+   reqId -> that request's endMin; the override holds while it is
+   non-empty and untilMin is the furthest sponsor end. */
+const GS_WX_OVR = { wx: null, untilMin: 0, reqId: null, baseHum: null,
+                    sponsors: {} };
 const GS_EVENTS = [];      // {id, event, at, sinceMin, untilMin, reqId, playerId}
 const GS_LISTINGS = {};    // unitId -> {ask, by, sinceMin, reqId}
 const GS_FX_SEQ = { n: 0 };
@@ -24851,6 +24887,18 @@ function gsFxPossessOn(r, now){
   GS_POSSESS[r.target] = { playerId: r.playerId, reqId: r.id, sinceMin: now };
   const v = gsVillagerForChar(r.target);
   if(v){ v.gsPossessed = r.id; v.isNPC = false; }  // LLM/AI brain suspended
+  /* compatible multiplayer made visible (design §5): when this activation
+     puts two DIFFERENT players behind two different characters at once,
+     that's a shared scene — report it on the feed as one. */
+  const others = Object.keys(GS_POSSESS).filter(c =>
+    c !== r.target && GS_POSSESS[c].playerId !== r.playerId);
+  if(others.length){
+    const players = [r.playerId].concat(others.map(c => GS_POSSESS[c].playerId));
+    gsBusEmit('session', r, {
+      players: players.filter((x, i) => players.indexOf(x) === i),
+      chars: [r.target].concat(others),
+    });
+  }
   return true;
 }
 function gsFxPossessOff(r){
@@ -24860,24 +24908,46 @@ function gsFxPossessOff(r){
 }
 
 const GS_WX_KINDS = {   // honest Mission-plausible sky states (Karl included)
-  rain:     { rain: 0.75, storm: 0.10, cover: 0.90, dTemp: -2, dHum: +0.20 },
-  storm:    { rain: 0.90, storm: 0.80, cover: 1.00, dTemp: -4, dHum: +0.25 },
-  clear:    { rain: 0.00, storm: 0.00, cover: 0.15, dTemp: +1, dHum: -0.10 },
-  fog:      { rain: 0.10, storm: 0.00, cover: 1.00, dTemp: -3, dHum: +0.30 },
-  heatwave: { rain: 0.00, storm: 0.00, cover: 0.05, dTemp: +8, dHum: -0.15 },
+  rain:     { rain: 0.75, storm: 0.10, cover: 0.90, dTemp: -2, dHum: +0.20, severe: 1 },
+  storm:    { rain: 0.90, storm: 0.80, cover: 1.00, dTemp: -4, dHum: +0.25, severe: 1 },
+  clear:    { rain: 0.00, storm: 0.00, cover: 0.15, dTemp: +1, dHum: -0.10, severe: 0 },
+  fog:      { rain: 0.10, storm: 0.00, cover: 1.00, dTemp: -3, dHum: +0.30, severe: 0 },
+  heatwave: { rain: 0.00, storm: 0.00, cover: 0.05, dTemp: +8, dHum: -0.15, severe: 0 },
 };
+/* severe = weather the city would not issue an outdoor permit into, and
+   that may not be summoned over a permitted outdoor event (v2 matrix).
+   Fog stays benign — Karl over a Dolores movie night is authentic, not
+   griefing; heatwaves are real SF and don't cancel fairs either. */
 function gsFxWxOn(r, now){
   const prof = GS_WX_KINDS[r.params && r.params.wx];
   if(!prof) return { ok: false, reason: 'bad_weather' };
-  GS_WX_OVR.wx = r.params.wx; GS_WX_OVR.untilMin = r.endMin; GS_WX_OVR.reqId = r.id;
-  GS_WX_OVR.baseHum = (typeof W !== 'undefined') ? W.hum : null; // hum isn't
-  return true;                                   // recomputed per-frame: capture base
+  const wx = r.params.wx;
+  /* a different forecast still holds the sky — the matrix should have
+     queued this request; never clobber a paid override. */
+  if(GS_WX_OVR.wx && GS_WX_OVR.wx !== wx)
+    return { ok: false, reason: 'sky_busy' };
+  if(!GS_WX_OVR.wx)                            // first sponsor: capture base
+    GS_WX_OVR.baseHum = (typeof W !== 'undefined') ? W.hum : null; // hum isn't
+  GS_WX_OVR.wx = wx;                           // recomputed per-frame
+  (GS_WX_OVR.sponsors = GS_WX_OVR.sponsors || {})[r.id] = r.endMin;
+  GS_WX_OVR.untilMin = Math.max.apply(null,
+    Object.keys(GS_WX_OVR.sponsors).map(k => GS_WX_OVR.sponsors[k]));
+  GS_WX_OVR.reqId = r.id;                      // most recent sponsor (info)
+  return true;
 }
 function gsFxWxOff(r){
-  if(GS_WX_OVR.reqId !== r.id) return;
+  const s = GS_WX_OVR.sponsors || {};
+  if(!(r.id in s)) return;                     // never sponsored the sky
+  delete s[r.id];
+  const rest = Object.keys(s);
+  if(rest.length){                             // sponsors remain: sky holds
+    GS_WX_OVR.untilMin = Math.max.apply(null, rest.map(k => s[k]));
+    GS_WX_OVR.reqId = rest[rest.length - 1];
+    return;
+  }
   if(GS_WX_OVR.baseHum != null && typeof W !== 'undefined') W.hum = GS_WX_OVR.baseHum;
   GS_WX_OVR.wx = null; GS_WX_OVR.untilMin = 0; GS_WX_OVR.reqId = null;
-  GS_WX_OVR.baseHum = null;
+  GS_WX_OVR.baseHum = null; GS_WX_OVR.sponsors = {};
 }
 /* applied every sim frame AFTER the natural/live weather writes, so the
    request's sky wins while active and nature resumes the frame it ends */
@@ -24890,9 +24960,18 @@ function gsApplyWxOverride(){
   if(typeof SF_WX !== 'undefined') SF_WX.cover = prof.cover;
 }
 
-const GS_EVENT_KINDS = {   // permitted civic events — Mission-plausible
-  block_party: 1, street_fair: 1, farmers_market: 1, parade: 1,
-  movie_night: 1, park_cleanup: 1, mural_tour: 1,
+/* permitted civic events — Mission-plausible. venue:1 = occupies its
+   location (one permit per venue); venue:0 = roving (a walking tour
+   passes through, it does not occupy). outdoor flags exposure to the
+   sky — severe weather may not run over a permitted outdoor event. */
+const GS_EVENT_KINDS = {
+  block_party:     { outdoor: 1, venue: 1 },
+  street_fair:     { outdoor: 1, venue: 1 },
+  farmers_market:  { outdoor: 1, venue: 1 },
+  parade:          { outdoor: 1, venue: 1 },
+  movie_night:     { outdoor: 1, venue: 1 },
+  park_cleanup:    { outdoor: 1, venue: 1 },
+  mural_tour:      { outdoor: 1, venue: 0 },
 };
 function gsFxEventOn(r, now){
   const kind = r.params && r.params.event;
@@ -24965,7 +25044,10 @@ function gsFxBuy(r, now){
   return true;
 }
 
-/* ---- the catalogue ---- */
+/* ---- the catalogue ----
+   claims(r) declares what a request occupies while it runs (v2 conflict
+   matrix — see gsClaimClash). allow() still decides standing validity
+   (ownership, bans, caps); the matrix decides transient occupancy. */
 gsDefineAction('possess', {
   scope: 'target', exclusive: true, ratePerMin: 4,
   minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30,
@@ -24973,6 +25055,7 @@ gsDefineAction('possess', {
   allow: (r) => gsIsPossessable(r.target, r.playerId)
     ? true : (GS_CORE_CAST[r.target] ? 'possession_ban' : 'not_your_character'),
   activate: gsFxPossessOn, deactivate: gsFxPossessOff,
+  claims: (r) => [{ cls: 'char', res: 'char:' + r.target }],
 });
 gsDefineAction('weather', {
   scope: 'global', exclusive: true, ratePerMin: 6,
@@ -24980,6 +25063,10 @@ gsDefineAction('weather', {
   effect: 'maintained',
   allow: (r) => (r.params && GS_WX_KINDS[r.params.wx]) ? true : 'bad_weather',
   activate: gsFxWxOn, deactivate: gsFxWxOff,
+  claims: (r) => {
+    const k = GS_WX_KINDS[r.params && r.params.wx];
+    return [{ cls: 'sky', res: 'sky', severe: k && k.severe ? 1 : 0 }];
+  },
 });
 gsDefineAction('street_event', {
   scope: 'global', exclusive: false, ratePerMin: 5,
@@ -24987,6 +25074,18 @@ gsDefineAction('street_event', {
   effect: 'maintained',
   allow: (r) => (r.params && GS_EVENT_KINDS[r.params.event]) ? true : 'bad_event',
   activate: gsFxEventOn, deactivate: gsFxEventOff,
+  claims: (r) => {
+    const meta = GS_EVENT_KINDS[(r.params && r.params.event)] || {};
+    const at = gsNormVenue(r.params && r.params.at);
+    const out = meta.outdoor ? 1 : 0;
+    /* a venue event with a named location takes the permit for that
+       spot; a roving or unlocated event claims no venue but still flags
+       outdoor so severe weather can't stomp it either. */
+    if(meta.venue && at)
+      return [{ cls: 'venue', res: 'venue:' + at, outdoor: out }];
+    return [{ cls: 'openair', outdoor: out, excl: false,
+              res: 'openair:' + r.playerId + ':' + (r.params && r.params.event) }];
+  },
 });
 gsDefineAction('hire', {
   scope: 'target', exclusive: true, ratePerMin: 30,
@@ -25002,6 +25101,9 @@ gsDefineAction('hire', {
     return true;
   },
   activate: gsFxHire,
+  /* the unit's paperwork serializes — a buy escrow or another hire on
+     the same unit waits its turn, like real title work */
+  claims: (r) => [{ cls: 'paper', res: 'paper:' + r.target }],
 });
 gsDefineAction('listing', {
   scope: 'target', exclusive: true, ratePerMin: 1,
@@ -25018,6 +25120,7 @@ gsDefineAction('listing', {
     return true;
   },
   activate: gsFxListOn, deactivate: gsFxListOff,
+  claims: (r) => [{ cls: 'listing', res: 'listing:' + r.target }],
 });
 gsDefineAction('buy', {
   scope: 'target', exclusive: true, ratePerMin: 25,
@@ -25035,6 +25138,7 @@ gsDefineAction('buy', {
     return true;
   },
   activate: gsFxBuy,
+  claims: (r) => [{ cls: 'paper', res: 'paper:' + r.target }],
 });
 
 function gsResourceKey(kind, target){
@@ -25052,13 +25156,149 @@ function gsQueueOf(resKey){
 function gsRequestById(id){
   return GS_REQ.reqs.find(r => r.id === id) || null;
 }
-/* 1-based position in a resource queue, 0 when not queued — viewer-facing */
+
+/* ================= v2: THE CONFLICT MATRIX =================
+   The permit-office model: every request declares claims
+   {cls, res, ...}; two live requests conflict iff ANY claim pair
+   clashes. Classes in play:
+     char    'char:H3'        — one driver per body
+     sky     'sky'            — one forecast; IDENTICAL forecasts may
+                                co-sponsor (only contradictory weather
+                                is exclusive — design §5)
+     venue   'venue:<place>'  — one permitted event per location
+     openair                  — roving / city-assigned events; never
+                                block each other, still flag outdoor
+     paper   'paper:<unit>'   — one registry change per unit at a time
+     listing 'listing:<unit>' — one live listing per unit           */
+function gsNormVenue(at){
+  return (at == null) ? '' :
+    String(at).trim().toLowerCase().replace(/\s+/g, ' ');
+}
+function gsClaimsOf(r){
+  const a = GS_REQ.actions[r.kind];
+  if(a && a.claims){
+    try{ return a.claims(r) || []; }catch(e){ return []; }
+  }
+  /* catalogue entries without claims() fall back to the v1 model: the
+     primary resource key, exclusive iff the action is */
+  return [{ cls: 'res', res: gsResourceKey(r.kind, r.target),
+            excl: !a || a.exclusive !== false }];
+}
+/* one claim pair, both requests for context (the sky cares WHICH
+   forecast, events care whether they're outdoors) */
+function gsClaimClash(ca, ra, cb, rb){
+  if(ca.cls === cb.cls){
+    if(ca.res !== cb.res) return false;
+    if(ca.excl === false && cb.excl === false) return false; // two sharers
+    if(ca.cls === 'sky' &&
+       (ra.params || {}).wx === (rb.params || {}).wx)
+      return false;                      // identical forecast co-sponsors
+    return true;
+  }
+  /* severe weather may not run over a permitted outdoor event — and the
+     city does not issue outdoor permits into a storm hold */
+  const skyVsEvent = (sk, ev) =>
+    (sk.cls === 'sky' && (ev.cls === 'venue' || ev.cls === 'openair'))
+      ? !!(sk.severe && ev.outdoor) : null;
+  const s1 = skyVsEvent(ca, cb); if(s1 !== null) return s1;
+  const s2 = skyVsEvent(cb, ca); if(s2 !== null) return s2;
+  return false;
+}
+function gsRequestsConflict(ra, rb){
+  if(ra === rb || (ra.id && rb.id && ra.id === rb.id)) return false;
+  const A = gsClaimsOf(ra), B = gsClaimsOf(rb);
+  for(const ca of A) for(const cb of B)
+    if(gsClaimClash(ca, ra, cb, rb)) return true;
+  return false;
+}
+/* live requests filed BEFORE r that clash with it — its blockers.
+   FCFS-fair: a request may never activate while an earlier live request
+   it clashes with is still in line or running, so no leapfrogging and
+   no starvation (every blocker has a hard endMin cap). A not-yet-filed
+   candidate passes n:Infinity — everything live is earlier. */
+function gsFindBlockers(r){
+  const n = (r.n != null) ? r.n : Infinity;
+  return GS_REQ.reqs.filter(x => x.n < n &&
+    (x.status === 'active' || x.status === 'queued') &&
+    gsRequestsConflict(x, r));
+}
+/* the clashing claim resources on r's side — for feed/viewer display */
+function gsLiveClashes(r){
+  const seen = {};
+  for(const b of gsFindBlockers(r))
+    for(const ca of gsClaimsOf(r)) for(const cb of gsClaimsOf(b))
+      if(gsClaimClash(ca, r, cb, b)) seen[ca.res] = 1;
+  return Object.keys(seen);
+}
+function gsClaimLabel(res){
+  if(res === 'sky') return 'the sky';
+  let m = res.match(/^venue:(.+)$/);   if(m) return m[1] + ' (permitted venue)';
+  m = res.match(/^char:(.+)$/);       if(m) return 'character ' + m[1];
+  m = res.match(/^paper:(.+)$/);      if(m) return 'registry paperwork on ' + m[1];
+  m = res.match(/^listing:(.+)$/);    if(m) return 'the listing on ' + m[1];
+  m = res.match(/^openair:(.+)$/);    if(m) return 'the open air (event permit)';
+  return res;
+}
+/* plain-English why-is-this-waiting, for the feed UI / debug panel */
+function gsExplainRequest(id){
+  const r = gsRequestById(id);
+  if(!r) return null;
+  const o = { id: r.id, kind: r.kind, player: r.playerId, status: r.status };
+  if(r.status === 'queued'){
+    const act = [], line = [];
+    for(const b of gsFindBlockers(r))
+      (b.status === 'active' ? act : line).push(b.id);
+    o.blockedBy = act; o.behind = line;
+    o.on = gsLiveClashes(r).map(gsClaimLabel);
+    o.queuePos = gsQueuePosition(id);
+    o.note = act.length
+      ? 'waiting for ' + act.join(', ') + ' to finish (' + o.on.join('; ') + ')'
+      : 'in line behind ' + line.join(', ');
+  } else if(r.status === 'active'){
+    o.note = 'running';
+  } else {
+    const why = r.reason || r.failReason;
+    o.note = r.status + (why ? ': ' + why : '');
+  }
+  return o;
+}
+/* the rule table, readable — viewers and devs can ask why the matrix
+   decided what it did */
+function gsConflictRules(){
+  return [
+    'char — one driver per body: possession is exclusive per character',
+    'sky — one forecast at a time; identical forecasts co-sponsor the same sky',
+    'sky × outdoor event — severe weather never runs over a permitted ' +
+      'outdoor event, and no outdoor permits are issued into a storm hold',
+    'venue — one permitted event per location at a time',
+    'paper — one registry change per unit at a time (hire and buy serialize)',
+    'listing — one live listing per unit',
+    'queued requests are never leapfrogged by later conflicting requests',
+  ];
+}
+/* co-possession overlaps between DIFFERENT players — the compatible-
+   multiplayer sessions currently live in the world */
+function gsCoSessions(){
+  const act = Object.keys(GS_POSSESS).map(c => ({
+    char: c, player: GS_POSSESS[c].playerId,
+    sinceMin: GS_POSSESS[c].sinceMin }));
+  const pairs = [];
+  for(let i = 0; i < act.length; i++)
+    for(let j = i + 1; j < act.length; j++)
+      if(act[i].player !== act[j].player) pairs.push({ a: act[i], b: act[j] });
+  return pairs;
+}
+
+/* 1-based position among the queued requests it conflicts with, 0 when
+   not queued — your place in line can never grow, only shrink */
 function gsQueuePosition(id){
   const r = gsRequestById(id);
   if(!r || r.status !== 'queued') return 0;
-  const q = gsQueueOf(r.resKey);
-  const i = q.findIndex(x => x.id === id);
-  return i < 0 ? 0 : i + 1;
+  let ahead = 0;
+  for(const x of GS_REQ.reqs)
+    if(x.n < r.n && x.status === 'queued' && gsRequestsConflict(x, r))
+      ahead++;
+  return ahead + 1;
 }
 
 /* surge hook — v7 anti-grief replaces the constant with queue-depth math */
@@ -25089,17 +25329,22 @@ function gsFxDeactivate(r, now, why){
   }
   r.fxOn = false;
 }
-/* promotion revalidation: the world may have changed while the request
-   waited — re-run allow(); a stale request fails with a full refund. */
-function gsPromoteNext(resKey, now){
-  while(true){
-    const next = gsQueueOf(resKey)[0];
-    if(!next) return;
-    if(now > next.expireMin){                    // TTL already lapsed: refund,
-      next.status = 'expired'; next._now = now;  // don't activate a dead request
+/* promotion (v2): scan the WHOLE queue in submission order — conflicts
+   are pairwise, so a freed resource can unblock requests on several
+   resource keys at once, and a later request may activate only when no
+   earlier live request clashes with it (no leapfrog = no starvation).
+   The world may have changed while a request waited — re-run allow();
+   a stale request fails with a full refund and the scan moves on. */
+function gsPromoteAll(now){
+  const q = GS_REQ.reqs.filter(r => r.status === 'queued')
+    .sort((a, b) => a.submittedMin - b.submittedMin || a.n - b.n);
+  for(const next of q){
+    if(next.status !== 'queued') continue;       // resolved earlier in scan
+    if(next.expireMin != null && now > next.expireMin){
+      next.status = 'expired'; next._now = now;  // TTL lapsed: refund,
       if(next.billed > 0){ gsCreditRefund(next.playerId, next.billed,
-                                           'queue expired');
-                           next.refunded = next.billed; }
+                                           'queue expired');   // don't run
+                           next.refunded = next.billed; }       // a dead request
       gsBusEmit('expire', next, { refund: next.billed });
       continue;
     }
@@ -25117,12 +25362,12 @@ function gsPromoteNext(resKey, now){
         continue;                                // FCFS: try the next in line
       }
     }
+    if(gsFindBlockers(next).length) continue;    // still blocked — hold the line
     next.status = 'active'; next.startMin = now;
     next.endMin = now + next.durationMin; next.expireMin = null;
     next._now = now;
     gsBusEmit('approve', next, { promoted: true, price: next.price });
     if(!gsFxActivate(next, now)) continue;       // activation failed: next
-    return;
   }
 }
 
@@ -25152,14 +25397,22 @@ function gsSubmitRequest(spec, nowMin){
   const resKey = gsResourceKey(kind, target);
   const price = Math.ceil(a.ratePerMin * dur * gsSurgeFactor(resKey));
   /* admin ('owner'/'admin') files free — the owner exercises power through
-     admin tools (design §3), never buys it back from themselves. */
+     admin tools (design §3), never buys it back from themselves. Admin
+     requests join the same FCFS line as everyone else's — the override
+     mechanism is the revoke switch, not queue privilege. */
   if(price > 0 && !gsIsAdmin(pid) &&
      !gsCreditSpend(pid, price, kind + ' request'))
     return deny('insufficient_credits');
 
-  const conflict = a.exclusive && gsActiveOn(resKey).length > 0;
+  /* v2 pairwise conflicts: the request queues iff ANY earlier live
+     request (active or queued) clashes with one of its claims — a
+     queued blocker counts too, so nobody leapfrogs the line. */
+  const cand = { playerId: pid, kind, target, params, n: Infinity };
+  const claims = gsClaimsOf(cand);
+  const blockers = gsFindBlockers(cand);
+  const conflict = blockers.length > 0;
   const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
-    kind, target, durationMin: dur, params, price, resKey,
+    kind, target, durationMin: dur, params, price, resKey, claims,
     billed: gsIsAdmin(pid) ? 0 : price,
     rateApplied: dur > 0 ? price / dur : 0,
     submittedMin: now, status: conflict ? 'queued' : 'active',
@@ -25169,7 +25422,9 @@ function gsSubmitRequest(spec, nowMin){
     usedMin: 0, refunded: 0, fxOn: false, _now: now };
   GS_REQ.reqs.push(r);
   if(conflict){
-    gsBusEmit('queue', r, { price, pos: gsQueuePosition(r.id) });
+    r.queuedBehind = blockers.map(b => b.id);
+    gsBusEmit('queue', r, { price, pos: gsQueuePosition(r.id),
+      blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(cand) });
   } else {
     gsBusEmit('approve', r, { price });
     if(gsFxActivate(r, now) && gsLowCredit(pid))
@@ -25179,13 +25434,14 @@ function gsSubmitRequest(spec, nowMin){
   return r;
 }
 
-/* advance the bus: complete finished actives (set cooldowns, promote the
-   FCFS head of the resource queue), expire stale queued requests with a
-   full auto-refund. */
+/* advance the bus: complete finished actives (set cooldowns), expire
+   stale queued requests with a full auto-refund, then run ONE global
+   FCFS promotion scan — pairwise conflicts mean a single freed resource
+   can unblock several queues at once. */
 function gsBusTick(nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   for(const r of GS_REQ.reqs.slice()){
-    if(r.status === 'queued' && now > r.expireMin){
+    if(r.status === 'queued' && r.expireMin != null && now > r.expireMin){
       r.status = 'expired'; r._now = now;
       if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'queue expired');
                         r.refunded = r.billed; }
@@ -25200,9 +25456,9 @@ function gsBusTick(nowMin){
       if(a.cdPlayerMin) GS_REQ.cdP[r.playerId + '|' + r.kind] = now + a.cdPlayerMin;
       if(a.cdGlobalMin) GS_REQ.cdG[r.kind] = now + a.cdGlobalMin;
       gsBusEmit('complete', r, { usedMin: r.usedMin });
-      gsPromoteNext(r.resKey, now);
     }
   }
+  gsPromoteAll(now);
 }
 
 /* cancel a queued/active request.
@@ -25230,6 +25486,11 @@ function gsCancelRequest(id, nowMin, by){
   if(refund > 0){ gsCreditRefund(r.playerId, refund, 'cancelled');
                   r.refunded = refund; }
   gsBusEmit('cancel', r, { by: r.by, refund, usedMin: r.usedMin });
+  /* v2 fix: freeing a resource (or a queue slot, when a queued request
+     is cancelled) must promote — v1 waited for a natural completion and
+     could let a queued request expire while its resource sat idle.
+     This is also what makes possession handoff instant. */
+  gsPromoteAll(now);
   return true;
 }
 
@@ -25266,7 +25527,12 @@ function gsRequestMeter(id, nowMin){
   } else {
     m.usedMin = r.usedMin || 0;
   }
-  if(r.status === 'queued') m.queuePos = gsQueuePosition(id);
+  if(r.status === 'queued'){
+    m.queuePos = gsQueuePosition(id);
+    m.blockedBy = gsFindBlockers(r)
+      .filter(b => b.status === 'active').map(b => b.id);
+    m.on = gsLiveClashes(r).map(gsClaimLabel);
+  }
   return m;
 }
 function gsViewerState(nowMin){
@@ -25277,6 +25543,8 @@ function gsViewerState(nowMin){
     (queues[r.resKey] = queues[r.resKey] || []).push({
       id: r.id, player: r.playerId, kind: r.kind, target: r.target,
       pos: gsQueuePosition(r.id), expiresInMin: +(r.expireMin - now).toFixed(1),
+      blockedBy: gsFindBlockers(r)
+        .filter(b => b.status === 'active').map(b => b.id),
     });
   }
   return {
@@ -25286,7 +25554,9 @@ function gsViewerState(nowMin){
     queues,
     listings: JSON.parse(JSON.stringify(GS_LISTINGS)),
     events: GS_EVENTS.map(e => Object.assign({}, e)),
-    weather: GS_WX_OVR.wx ? { wx: GS_WX_OVR.wx, untilMin: GS_WX_OVR.untilMin } : null,
+    sessions: gsCoSessions(),
+    weather: GS_WX_OVR.wx ? { wx: GS_WX_OVR.wx, untilMin: GS_WX_OVR.untilMin,
+      sponsors: Object.keys(GS_WX_OVR.sponsors || {}).length } : null,
   };
 }
 function gsActiveSessions(now){
@@ -25354,6 +25624,12 @@ function gsBusLoad(json){
     for(const k in GS_LISTINGS) delete GS_LISTINGS[k];
     if(d.listings) Object.assign(GS_LISTINGS, d.listings);
     if(d.wxOvr) Object.assign(GS_WX_OVR, d.wxOvr);
+    /* legacy snapshots predate sky sponsors — rebuild the sponsor map
+       from the single-reqId override so deactivation still balances */
+    if(GS_WX_OVR.wx &&
+       (!GS_WX_OVR.sponsors || !Object.keys(GS_WX_OVR.sponsors).length))
+      GS_WX_OVR.sponsors = GS_WX_OVR.reqId
+        ? { [GS_WX_OVR.reqId]: GS_WX_OVR.untilMin } : {};
     GS_FX_SEQ.n = d.fxSeq || 0;
     // re-assert brain suspension on any already-spawned villagers
     for(const cid in GS_POSSESS){
@@ -25372,7 +25648,7 @@ function gsBusReset(){
   GS_EVENTS.length = 0;
   for(const k in GS_LISTINGS) delete GS_LISTINGS[k];
   GS_WX_OVR.wx = null; GS_WX_OVR.untilMin = 0; GS_WX_OVR.reqId = null;
-  GS_WX_OVR.baseHum = null;
+  GS_WX_OVR.baseHum = null; GS_WX_OVR.sponsors = {};
   GS_FX_SEQ.n = 0;
 }
 
@@ -25384,6 +25660,9 @@ if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.gsRequestMeter = (id) => gsRequestMeter(id);
   window.__aiBridge.gsQueuePosition = (id) => gsQueuePosition(id);
   window.__aiBridge.gsPossessionBriefing = (cid) => gsPossessionBriefing(cid);
+  window.__aiBridge.gsExplainRequest = (id) => gsExplainRequest(id);
+  window.__aiBridge.gsConflictRules = () => gsConflictRules();
+  window.__aiBridge.gsCoSessions = () => gsCoSessions();
 }
 
 /* Boot entry hook. Kept in the LAST module of _order.txt so that even a
