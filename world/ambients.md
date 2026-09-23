@@ -50,8 +50,33 @@ co-star behavior, promotion packet) live in `world/ambients/`:
 Crowd choreography — who's where when, venue crowd profiles, weather and
 event modifiers, spectator-facing scenes — lives in `world/crowd-scenes.md`.
 The population model beneath it (named ambients + unnamed extras layer,
-density budgets, spawn rules) is `world/crowd-sim.md` + `world/crowd.json`
-(v15).
+density budgets, spawn rules, work zones, claimable resources) is
+`world/crowd-sim.md` + `world/crowd.json` (v43).
+
+## Signatures & the ambient week (v43)
+
+`ambients.json` v43 adds a machine-readable variant layer per ambient —
+the spec the thin resolver consumes; `world/crowd-sim.md` §17 is the
+prose contract and `crowd.html` demos the resolution:
+
+- **`signature`** — `{silhouette, gait, carry, tell}`: the one-glance
+  read ("three leashes, one hand"). Shares vocabulary with the extras'
+  `appearance_palette` so named pawns and extras speak one grammar.
+- **`week.<dow>`** — full alternate row sets for days that differ:
+  every off-day now has a real day behind it (Reyes sleeps past 9 and
+  runs errands; Vera reads in the park on her closed days; Cole's
+  Sunday is flat), plus Asha's Tue/Wed decompression loop, Kofe's
+  Saturday surge, Sam's weekend pitches, the kids' all-day orbit.
+- **`weather.<cond>`** — `rain`/`storm`/`heat` alternate rows where the
+  condition visibly changes the day; `note`-only entries where it
+  doesn't (the shop doesn't move for rain — that is the read).
+- **`personal[]`** — named recurring texture: the Friday lottery ticket,
+  the pigeon schedule, exam-week library, surge nights.
+
+Resolution order: `storm` → `rain`/`heat` → `week.<dow>` → base
+`routine`. One layer, full 24 h — variants change where/when, never
+who; no seed references, no request affordances, no minor-adult
+pairings the base wouldn't produce.
 
 ## Shared reflexes (all ambients — cheap condition checks, never scripts)
 

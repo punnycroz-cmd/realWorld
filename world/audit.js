@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v42).
+/* world/audit.js — RW boundary audit (world v43).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -41,8 +41,10 @@
                  fields + v28 backstory/room/strangers + v42 wants/
                  interior/truth; cast.html CAST ids and card fields agree
     crowd     — crowd.json ↔ crowd.html mirror (zones, budgets, shades,
-                flows, micros, greets, scenes); extras carry no identity;
-                minors greet in packs; overnight allow_deserted protected
+                flows, micros, greets, scenes, v43 resources + AMB/AMBX
+                roster); extras carry no identity; minors greet in packs;
+                overnight allow_deserted protected; ambients.json v43
+                variant contract (signature/week/weather/personal)
     biz       — businesses.json ↔ directory.html mirror (BIZ/WEB blocks);
                 cards exist and none orphaned; tier/affordance/hours/staff
                 sanity; web edges resolve to real venues, loan edges are
@@ -938,7 +940,74 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'crowd.json', null, 'identity/ledger field detected in an extras-layer block');
     if (!CJ.feed_wording || !CJ.feed_wording.venue_band_event)
       add(g, 'fail', 'crowd.json', null, 'feed_wording.venue_band_event missing — the wire vocabulary is the boundary');
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs`;
+    /* v43: claimable resources — mirror + integrity */
+    const RES = pull('RESOURCES', '[]');
+    const jRes = (CJ.ambient_resources || {}).resources || [];
+    if (JSON.stringify(RES.map(r => r.id).sort()) !== JSON.stringify(jRes.map(r => r.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'RESOURCES ids != ambient_resources ids');
+    for (const r of jRes) {
+      const H = RES.find(x => x.id === r.id);
+      if (H && H.label !== r.label) add(g, 'fail', 'crowd.html', null, `resource ${r.id} label drifted`);
+      if (!CJ.zones[r.zone]) add(g, 'fail', 'crowd.json', null, `resource ${r.id}: unknown zone "${r.zone}"`);
+      if (!ambIds.has(r.staff)) add(g, 'fail', 'crowd.json', null, `resource ${r.id}: staff "${r.staff}" is not a registered ambient`);
+      const st = AMB.ambients.find(a => a.id === r.staff);
+      if (st && st.minor) add(g, 'fail', 'crowd.json', null, `resource ${r.id}: staffed by a minor — minors have no claimable resources`);
+      if (!Array.isArray(r.window_min) || r.window_min[0] > r.window_min[1])
+        add(g, 'fail', 'crowd.json', null, `resource ${r.id}: bad window_min`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(r)))
+        add(g, 'fail', 'crowd.json', null, `resource ${r.id}: meta/seed vocabulary in resource block`);
+    }
+    /* v43: roster mirror — crowd.html AMB ids/names/minors == ambients.json */
+    const AMBH = pull('AMB', '[]');
+    const jA = AMB.ambients.map(a => a.id).sort(), hA = AMBH.map(a => a[0]).sort();
+    if (JSON.stringify(hA) !== JSON.stringify(jA))
+      add(g, 'fail', 'crowd.html', null, `AMB ids drifted: ${hA.join(',')} != ${jA.join(',')}`);
+    for (const a of AMBH) {
+      const J = AMB.ambients.find(x => x.id === a[0]);
+      if (J && J.name !== a[1]) add(g, 'fail', 'crowd.html', null, `AMB ${a[0]} name drifted: "${a[1]}" != "${J.name}"`);
+      if (J && !!J.minor !== !!((a[4] || {}).minor)) add(g, 'fail', 'crowd.html', null, `AMB ${a[0]} minor flag drifted`);
+    }
+    /* v43: AMBX covers every roster id */
+    const AMBX = pull('AMBX', '{}');
+    for (const id of jA) if (!AMBX[id] || !AMBX[id].sig || !AMBX[id].v)
+      add(g, 'fail', 'crowd.html', null, `AMBX ${id}: missing signature/variant note — every ambient needs the one-glance read`);
+    /* v43: ambients.json variant contract — signature on all 20; week/weather
+       rows legal (states ⊆ declared; full 24h coverage; no seed vocab;
+       minors' variants stay in public zones) */
+    const LEGAL_ST = new Set(['sleep','idle','rest','serve','work','walk','sit','run','carry','phone','chat','play','drink']);
+    for (const a of AMB.ambients) {
+      const s = a.signature || {};
+      for (const k of ['silhouette','gait','carry','tell'])
+        if (!s[k] || typeof s[k] !== 'string')
+          add(g, 'fail', 'ambients.json', null, `${a.id}.signature.${k} missing — the feed-legible read is required`);
+      const rows24 = rows => {
+        let cov = true, t = 0;
+        for (const r of rows || []) {
+          if (r.h0 !== t) cov = false;
+          t = r.h1; if (t < r.h0) cov = false;
+          if (!LEGAL_ST.has(r.state)) add(g, 'fail', 'ambients.json', null, `${a.id}: variant state "${r.state}" not in declared states`);
+          const refs = (r.stops || []).concat(r.to && r.to !== 'home' ? [r.to] : []);
+          for (const spec of refs) if (spec && spec.poi === 'The 600 Club' && a.minor)
+            add(g, 'fail', 'ambients.json', null, `${a.id}: minor variant routes to a bar`);
+        }
+        if (rows && rows.length && (t !== 24 || !cov))
+          add(g, 'fail', 'ambients.json', null, `${a.id}: variant row set doesn't tile 0–24 (ends at ${t})`);
+      };
+      for (const [d, w] of Object.entries(a.week || {})) {
+        if (!/^(mon|tue|wed|thu|fri|sat|sun)$/.test(d)) add(g, 'fail', 'ambients.json', null, `${a.id}.week: bad day key "${d}"`);
+        rows24(w.rows);
+        if (/secret|seed|briefing/i.test(JSON.stringify(w))) add(g, 'fail', 'ambients.json', null, `${a.id}.week.${d}: meta vocabulary`);
+      }
+      for (const [c, w] of Object.entries(a.weather || {})) {
+        if (!/^(rain|storm|heat|cold|wind|fog)$/.test(c)) add(g, 'fail', 'ambients.json', null, `${a.id}.weather: unknown condition "${c}"`);
+        rows24(w.rows);
+        if (/secret|seed|briefing/i.test(JSON.stringify(w))) add(g, 'fail', 'ambients.json', null, `${a.id}.weather.${c}: meta vocabulary`);
+      }
+      for (const pr of a.personal || [])
+        if (!pr.id || !pr.when || /secret|seed|briefing/i.test(pr.note || ''))
+          add(g, 'fail', 'ambients.json', null, `${a.id}.personal: entry missing id/when or carries meta vocabulary`);
+    }
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -1636,7 +1705,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v42 local';
+out.build = 'world v43 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

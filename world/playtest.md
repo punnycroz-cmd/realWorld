@@ -45,6 +45,9 @@ One person can wear every hat; four real testers is the intended shape.
   PT37 (thinai v3) is facilitator + h01's owner — presence, salience, compute split, kit, archive.
   PT38 (bibles v42) is a facilitator audit — wants on three clocks, the private
   ledger, the honesty register, and the bible gate.
+  PT39 (crowd v4 / ambient week, v43) is a facilitator audit — the six work
+  zones, signatures + variants on all 20 ambients, claimable resources, and
+  the extended crowd gate.
 
 ## 3. Running a session
 

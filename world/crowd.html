@@ -5,13 +5,17 @@
 <title>Real World — The Crowd (ambient population model)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Crowd model demo — "The Crowd" (world v15; v3 build at world v29).
+  Crowd model demo — "The Crowd" (world v15; v4 build at world v43).
   Internal posture tool. Self-contained: file://-safe, no network.
   Spec: world/crowd-sim.md. Machine mirror: world/crowd.json (inlined
   below — hand-synced; the `crowd` audit gate enforces agreement).
   v29 adds: day shades (fri/sun/mon/first-of-month), the flow layer
   (zone-pair transit currents), micro-texture events, walk-chain
   continuity notes, and the greeting matrix between named ambients.
+  v43 adds: the six ambient work zones (school/sfgeneral/folsom/
+  auerbach/needlepointe/doloresperk), claimable sub-venue resources,
+  and a per-ambient day card (click a roster chip — signature +
+  resolved day incl. week/weather variants).
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -65,7 +69,8 @@
   .scene.live b{color:var(--grn)}
   .scene .why{margin-left:auto;font-size:10.5px;color:var(--dim);font-family:var(--mono);text-align:right}
   .roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px}
-  .r{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--panel2);font-size:11px}
+  .r{border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--panel2);font-size:11px;cursor:pointer}
+  .r.sel{border-color:var(--blu)}
   .r b{font-size:11.5px}
   .r .st{color:var(--dim);font-size:10px}
   .r.minor{border-color:var(--pink)}
@@ -111,7 +116,13 @@
     <div class="panel"><h2>Micro-texture now</h2><div id="micros"></div>
       <div class="fine">Mundane recurring deformations — internal vocabulary, never feed events.</div>
     </div>
-    <div class="panel"><h2>Named layer — all 20 ambients now</h2><div class="roster" id="roster"></div></div>
+    <div class="panel"><h2>Claimable resources — the small asks</h2><div id="res"></div>
+      <div class="fine">Sub-venue resources a request can claim for a declared window (exclusive class, human review) — without locking the venue. The claim clears extras inside the resource radius only; the staff ambient keeps their routine. Minors staff nothing here.</div>
+    </div>
+    <div class="panel"><h2>Named layer — all 20 ambients now</h2><div class="roster" id="roster"></div>
+      <div id="acard"></div>
+      <div class="fine">Click a card for the signature read + variant notes (the ambient week: off-days, rain/storm/heat alternates, personal texture — conditions, never scripts).</div>
+    </div>
     <div class="panel"><h2>Crowd rules under audit</h2><ul class="cant">
       <li><b>Extras spawn/despawn off-camera only</b> — at block edges, through doors. Nothing pops in view.</li>
       <li><b>Extras carry nothing:</b> no name, id, ledger row, feed attribution, memory, or request handle. Walk chains reuse a silhouette — costume continuity, not identity.</li>
@@ -138,6 +149,12 @@ const ZONES={
   clarion:{label:"Clarion Alley",kind:"open_air",weekday:{midday:[1,3],lunch:[2,4],afternoon:[3,6],evening:[1,3],night:[0,2]},weekend:{midday:[3,6],lunch:[4,8],afternoon:[5,9],evening:[2,4]}},
   bakery:{label:"Baguette About It Bakery",kind:"cafe",open:[6,13],weekday:{predawn:[0,1],commute:[3,6],rush:[5,9],midday:[3,6]},weekend:{commute:[4,7],rush:[6,10],midday:[4,7]},closed_days:["mon"]},
   bloomdoom:{label:"Bloom & Doom Flowers",kind:"shop",open:[7.5,18],weekday:{commute:[1,2],rush:[2,4],midday:[1,3],lunch:[2,4],afternoon:[2,4]},weekend:{rush:[2,4],midday:[2,4],afternoon:[1,3]},closed_days:["mon"]},
+  school:{label:"Mission High School",kind:"civic",open:[7.5,15.5],weekday:{commute:[3,7],rush:[6,12],midday:[4,8],lunch:[5,10]},weekend:{},closed_days:["sat","sun"]},
+  sfgeneral:{label:"SF General",kind:"civic",weekday:{overnight:[1,2],predawn:[1,3],commute:[3,6],rush:[4,8],midday:[4,8],lunch:[4,8],afternoon:[5,9],evening:[3,7],night:[2,4]},weekend:{commute:[2,5],rush:[3,6],midday:[4,7],lunch:[4,7],afternoon:[4,8],evening:[3,6],night:[2,4]}},
+  folsom:{label:"Folsom Auto & Sons",kind:"shop",open:[6.5,16],weekday:{commute:[1,3],rush:[2,4],midday:[1,3],lunch:[2,4],afternoon:[1,2]},weekend:{commute:[0,2],rush:[1,3],midday:[1,2]},closed_days:["sun"]},
+  auerbach:{label:"Auerbach Hardware",kind:"shop",open:[8,18],weekday:{commute:[0,1],rush:[2,5],midday:[2,4],lunch:[2,5],afternoon:[3,6],evening:[0,2]},weekend:{rush:[2,5],midday:[3,6],lunch:[3,6],afternoon:[3,6]}},
+  needlepointe:{label:"Needlepointe Tattoo",kind:"shop",open:[11,19],weekday:{midday:[0,2],lunch:[1,3],afternoon:[1,4],evening:[1,3],night:[0,1]},weekend:{midday:[1,3],lunch:[2,4],afternoon:[2,5],evening:[1,3]},closed_days:["mon"]},
+  doloresperk:{label:"Dolores Perk",kind:"cafe",open:[7,17],weekday:{commute:[2,4],rush:[3,6],midday:[3,5],lunch:[3,6],afternoon:[2,5]},weekend:{commute:[3,5],rush:[4,7],midday:[4,7],lunch:[4,7],afternoon:[3,6]}},
   streets:{label:"sidewalks & crossings",kind:"open_air",weekday:{overnight:[0,1],predawn:[1,3],commute:[6,10],rush:[6,10],midday:[5,9],lunch:[7,11],afternoon:[8,13],evening:[5,9],night:[3,6]},weekend:{commute:[3,6],rush:[5,9],midday:[8,13],lunch:[9,14],afternoon:[10,16],evening:[6,11],night:[4,8]}}
 };
 const WX={clear:{open_air:1,cafe:1,shop:1,stand:1,restaurant:1,bar:1,civic:1},
@@ -187,10 +204,10 @@ const GREETS=[
 /* ambient routines: [h0,h1,zone,state] weekday; off=off-day(s); wk=weekend override */
 const AMB=[
  ["A01","Reyes","barista",[[0,7.5,"home","sleep"],[7.5,18,"mudhaus","serve"],[18,24,"home","home"]],{off:["sun"]}],
- ["A02","Doro","dog-walker",[[0,7,"home","sleep"],[7,11,"park","walk"],[11,16,"home","rest"],[16,20,"park","walk"],[20,24,"home","home"]]],
+ ["A02","Doro","dog-walker",[[0,7,"home","sleep"],[7,11,"park","walk"],[11,16,"home","rest"],[16,20,"park","walk"],[20,24,"home","home"]],{stay:1}],
  ["A03","Malik","shopkeeper",[[0,7.5,"home","sleep"],[7.5,18,"minimart","serve"],[18,24,"home","home"]]],
- ["A04","June","student",[[0,7.5,"home","sleep"],[7.5,15,"school","class"],[15,19,"park","park/café"],[19,24,"home","home"]],{minor:1,wk:[[0,9,"home","sleep"],[9,19,"park","park/café"],[19,24,"home","home"]]}],
- ["A05","Esther","retiree",[[0,8,"home","sleep"],[8,18,"park","bench"],[18,24,"home","home"]],{rain_home:1}],
+ ["A04","June","student",[[0,7.5,"home","sleep"],[7.5,15,"school","class"],[15,19,"park","park/café"],[19,24,"home","home"]],{minor:1,rain_to:"mudhaus",wk:[[0,9,"home","sleep"],[9,19,"park","park/café"],[19,24,"home","home"]]}],
+ ["A05","Esther","retiree",[[0,8,"home","sleep"],[8,18,"park","bench"],[18,24,"home","home"]],{rain_to:"doloresperk"}],
  ["A06","Kofe","delivery rider",[[0,8,"home","sleep"],[8,19,"streets","riding"],[19,24,"home","home"]]],
  ["A07","Luz","fruit vendor",[[0,7,"home","sleep"],[7,18,"fruteria","serve"],[18,24,"home","home"]],{rain_half:1}],
  ["A08","Sam","busker",[[0,10,"home","sleep"],[10,18,"park","pitch"],[18,24,"club600","corner"]],{rain_to:"club600"}],
@@ -199,13 +216,13 @@ const AMB=[
  ["A11","Vera","librarian",[[0,7.5,"home","sleep"],[7.5,17.5,"library","work"],[17.5,20,"park","sit"],[20,24,"home","home"]],{off:["sun","mon"]}],
  ["A12","Tom","jogger",[[0,6,"home","sleep"],[6,8,"park","laps"],[8,17,"home","rest"],[17,19,"park","laps"],[19,24,"home","home"]]],
  ["A13","Nadia","remote worker",[[0,9,"home","sleep"],[9,17,"mudhaus","laptop"],[17,24,"home","home"]],{rain_home:1}],
- ["A14","Bex","tattoo artist",[[0,10,"home","sleep"],[10,18,"clarion","shop/alley"],[18,24,"club600","night"]],{off:["mon"]}],
+ ["A14","Bex","tattoo artist",[[0,10,"home","sleep"],[10,18,"clarion","shop/alley"],[18,24,"club600","night"]],{off:["mon"],rain_to:"needlepointe"}],
  ["A15","Omar","bike courier",[[0,8,"home","sleep"],[8,19,"streets","paper run"],[19,24,"home","home"]]],
  ["A16","Hana","baker",[[0,4,"home","sleep"],[4,13,"bakery","bake/serve"],[13,17,"park","errands"],[17,24,"home","home"]],{off:["mon"]}],
  ["A17","Cole","carpenter",[[0,6.5,"home","sleep"],[6.5,16,"auerbach","site"],[16,24,"home","home"]],{off:["sat","sun"]}],
  ["A18","Ida","florist",[[0,7.5,"home","sleep"],[7.5,18,"bloomdoom","serve"],[18,24,"home","home"]],{off:["mon"]}],
- ["A19","Ray","retired longshoreman",[[0,8,"home","sleep"],[8,18,"park","bench"],[18,24,"home","home"]],{rain_home:1}],
- ["A20","Zee","teenager",[[0,7.5,"home","sleep"],[7.5,15,"school","class"],[15,19,"park","perimeter"],[19,24,"home","home"]],{minor:1,wk:[[0,10,"home","sleep"],[10,19,"park","perimeter"],[19,24,"home","home"]]}]
+ ["A19","Ray","retired longshoreman",[[0,8,"home","sleep"],[8,18,"park","bench"],[18,24,"home","home"]],{rain_to:"doloresperk"}],
+ ["A20","Zee","teenager",[[0,7.5,"home","sleep"],[7.5,15,"school","class"],[15,19,"park","perimeter"],[19,24,"home","home"]],{minor:1,rain_to:"mudhaus",wk:[[0,10,"home","sleep"],[10,19,"park","perimeter"],[19,24,"home","home"]]}]
 ];
 const SCENES=[
  {id:"handoff-4am",label:"The 4 a.m. handoff",ck:s=>s.dp==="predawn"&&inZ("A16","bakery")&&s.wx!=="storm",why:"A16 baking · A06 on first runs"},
@@ -216,7 +233,36 @@ const SCENES=[
  {id:"evening-nurse",label:"The evening nurse",ck:s=>s.dp==="evening"&&inZ("A09","mudhaus"),why:"Asha's counter seat 19:30–21"},
  {id:"victor-pickup",label:"Victor's pickup at Gus's",ck:s=>s.day==="weekday"&&["lunch","afternoon"].includes(s.dp)&&inZ("A10","folsom"),why:"weekly — Fridays (demo: weekday afternoons)"},
  {id:"doorway-sets",label:"Doorway sets",ck:s=>s.wx==="rain"&&inZ("A08","club600"),why:"Sam under the awning — rain is the trigger"}];
-const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom",edge:"off-map"};
+const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom",needlepointe:"Needlepointe",doloresperk:"Dolores Perk",edge:"off-map"};
+/* v43: claimable sub-venue resources — mirror crowd.json ambient_resources */
+const RESOURCES=[
+ {id:"res-mudhaus-table",zone:"mudhaus",label:"the neighbor table",staff:"A01",cap:"seats 6",win:[15,60],note:"declared-window reservation; the café keeps serving around it"},
+ {id:"res-600-mic",zone:"club600",label:"the open-mic slot",staff:"A08",cap:"one 15-minute set",win:[15,15],note:"books a performance window; the bar stays open"},
+ {id:"res-park-pitch",zone:"park",label:"the north pitch",staff:"A08",cap:"one busker pitch",win:[30,120],note:"holds the raised pitch, not the grass around it"},
+ {id:"res-fruteria-firstbox",zone:"fruteria",label:"the first box",staff:"A07",cap:"one preorder crate",win:[30,30],note:"claimed by preorder, gone by 9"},
+ {id:"res-needlepointe-chair",zone:"needlepointe",label:"the walk-in chair",staff:"A14",cap:"one chair slot",win:[60,180],note:"holds the slot; flash only"}];
+/* v43: per-ambient signature + variant notes (prose mirror of ambients.json signature/week/weather) */
+const AMBX={
+ A01:{sig:"apron · purposeful · towel over one shoulder",v:"sun: sleeps past 9, errands + some catering gigs · rain/storm: the shift doesn't move · fri: one lottery ticket at Malik's on the walk home"},
+ A02:{sig:"dog-lead · dog-paced · three leashes, one hand",v:"sun: half book — owners walk their own · rain: loops halve · storm: cancels, she calls it"},
+ A03:{sig:"flat-cap · amble · pricing gun in the apron pocket",v:"seven days · rain: crates come in, doorway narrows · the 1st: small bills before opening"},
+ A04:{sig:"tote-stack · hurry · a tote heavier than she is",v:"weekends: park orbit all day · rain: awnings — Mudhaus window or the library · exam weeks: the 15–19 stop moves to the library"},
+ A05:{sig:"elder-cane · meander · a folded section of newspaper",v:"rain: Dolores Perk window table, shorter day · storm: her own window · the 1st: parliament runs long"},
+ A06:{sig:"delivery-hotbox · hurry · the hot box",v:"sat: surge — later start, later finish · rain: same loop, faster · fri/sat: dinner surge tightens to the restaurants"},
+ A07:{sig:"apron · purposeful · a paring knife and a produce scale",v:"rain: tarp over the stand, gone by early afternoon · storm: doesn't open · heat: sells out late, closes late · the 1st: biggest day"},
+ A08:{sig:"guitar-case · amble · the guitar, always",v:"weekends: pitches start an hour earlier · rain: doorway sets under the 600 awning · storm: at the bar by noon"},
+ A09:{sig:"scrubs · meander · a phone kept face-down",v:"tue/wed: off shift — the decompression loop · heat: same hours, longer day inside · evenings after a shift: the counter seat ritual"},
+ A10:{sig:"workboots · purposeful · a rag that lives in the pocket",v:"sun: shop closed — breakfast at the Perk · rain: the shop fills"},
+ A11:{sig:"tote-stack · purposeful · a returns cart she isn't pushing",v:"sun/mon: closed days — reads in the park like a civilian · rain: the library doubles, park hour goes to the overflow"},
+ A12:{sig:"jogger · hurry · nothing — that's the point",v:"rain: one lap fewer, same times · storm: the only thing that cancels him · thu: intervals — the metronome syncopates"},
+ A13:{sig:"headphones-big · amble · a laptop in a padded sleeve",v:"rain: a home day — the corner table stays empty · storm: same, plus the window open an inch"},
+ A14:{sig:"skater-carry · amble · a flash-sheet folder",v:"mon: shop dark — wanders the alley anyway · rain: shop door only, no wall time"},
+ A15:{sig:"messenger-sling · hurry · the paper bag that outlives the route",v:"rain: fenders on, pace identical · storm: halves the run — only the double-pay stops stay"},
+ A16:{sig:"apron · purposeful · warm trays at shoulder height",v:"mon: the one morning she sees daylight · heat: ovens off by 11 · rain: errands wait, day-old shelf half price"},
+ A17:{sig:"toolbelt · purposeful · a thermos the size of a forearm",v:"sat: still ends up at the hardware counter · sun: the flat day · rain: interior work, same hours"},
+ A18:{sig:"apron · amble · a basket of loose stems",v:"mon: walks the alley to see what the week did · rain: buckets in off the sidewalk"},
+ A19:{sig:"flat-cap · meander · a paper bag of crumbs",v:"rain: retires early — one wet pass for the pigeons · storm: disapproves from his own window · 8:30 and noon: never late for the pigeons"},
+ A20:{sig:"headphones-big · meander · a phone held like a camera",v:"weekends: perimeter orbit all day · sun: the pack drifts south toward Luz · rain: compresses to the Mudhaus awning, home earlier"}};
 let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",sel:"mudhaus"};
 
 function daypart(h){for(const d of DAYPARTS){const[h0,h1]=[d[1],d[2]];if(h0<=h&&h<h1)return d[0];}return"overnight";}
@@ -248,8 +294,9 @@ function ambWhere(a,h,day,wx){
   for(const seg of table)if(seg[0]<=h&&h<seg[1]){
     const zone=seg[2],st=seg[3];
     if(wx==="rain"||wx==="storm"){
+      if(opt.stay&&zone==="park")return[zone,st];
       if(opt.rain_home&&zone==="park")return["home","rained out"];
-      if(opt.rain_to&&zone==="park")return[opt.rain_to,"doorway set"];
+      if(opt.rain_to&&(zone==="park"||zone==="clarion"))return[opt.rain_to,opt.rain_to==="club600"?"doorway set":"rained over"];
       if(opt.rain_half&&zone==="fruteria"&&h>=12)return["home","tarps up early"];
       if(zone==="park"&&st!=="bench")return["streets","covered route"];
       if(zone==="park")return["home","rained out"];
@@ -346,9 +393,25 @@ function render(){
   document.getElementById("flows").innerHTML=FLOWS.map(flowRow).join("");
   document.getElementById("micros").innerHTML=MICROS.map(m=>
     `<span class="mic ${microActive(m)?'':'off'}" title="${m.note}">${m.id}</span>`).join("");
+  document.getElementById("res").innerHTML=RESOURCES.map(r=>{
+    const a=AMB.find(x=>x[0]===r.staff);
+    const locked=S.ev==="lock"&&r.zone==="mudhaus";
+    const stHere=a?ambWhere(a,S.h,S.day,S.wx)[0]===r.zone:false;
+    return `<div class="flow ${locked?'off':''}"><span class="arr">${r.label}</span>
+      <span style="color:var(--dim)">${ZONES[r.zone].label} · ${r.cap} · ${r.win[0]}–${r.win[1]} min · staff: ${a?a[1]:r.staff}${stHere?" (in)":""}</span>
+      <span class="n">${locked?"inside lock — cleared":"claimable"}</span></div>`;}).join("");
   document.getElementById("roster").innerHTML=AMB.map(a=>{
     const[z,st]=ambWhere(a,S.h,S.day,S.wx);
-    return `<div class="r ${a[4]&&a[4].minor?'minor':''}"><b>${a[0]} ${a[1]}</b><br><span class="st">${st} · ${ZLABEL[z]||z}</span></div>`;}).join("");
+    return `<div class="r ${a[4]&&a[4].minor?'minor':''} ${S.ambSel===a[0]?'sel':''}" onclick="S.ambSel=S.ambSel==='${a[0]}'?null:'${a[0]}';render()"><b>${a[0]} ${a[1]}</b><br><span class="st">${st} · ${ZLABEL[z]||z}</span></div>`;}).join("");
+  const sel=S.ambSel&&AMB.find(a=>a[0]===S.ambSel);
+  document.getElementById("acard").innerHTML=sel?(()=>{const[z,st]=ambWhere(sel,S.h,S.day,S.wx);const x=AMBX[sel[0]]||{};
+    const greets=GREETS.filter(g=>g.w!=="none"&&(g.a===sel[0]||g.b===sel[0])).map(g=>{const o=g.a===sel[0]?g.b:g.a;const n=(AMB.find(a=>a[0]===o)||[0,o])[1];return n+" — "+g.form;}).join("; ");
+    return `<div class="r" style="margin-top:8px;padding:9px 12px"><b>${sel[0]} ${sel[1]}</b> — ${sel[2]}${sel[4]&&sel[4].minor?' · <span style="color:var(--pink)">minor — public-space only</span>':''}
+      <div class="st" style="margin-top:4px">now: ${st} · ${ZLABEL[z]||z}</div>
+      <div style="font-size:11.5px;margin-top:5px"><b>signature:</b> ${x.sig||"—"}</div>
+      <div style="font-size:11.5px;margin-top:3px"><b>the week:</b> ${x.v||"—"}</div>
+      ${greets?`<div style="font-size:11.5px;margin-top:3px"><b>knows:</b> ${greets}</div>`:""}
+      <div class="fine" style="margin-top:5px">Thin tier · zero LLM while ambient · never possessable · promotable via world/promotion.md.</div></div>`;})():"";
   /* 24h curve for selected zone */
   const cv=document.getElementById("curve"),ctx=cv.getContext("2d");
   ctx.clearRect(0,0,cv.width,cv.height);

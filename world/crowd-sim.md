@@ -273,3 +273,101 @@ Rules:
 - The greeting matrix is the *only* sanctioned inter-ambient affinity
   layer below promotion. It cannot create a scene, a rumor, or a
   storyline — only a nod.
+
+---
+
+## 15. The ambient work zones (v43)
+
+The crowd map used to end where the extras' day ends — café, park, bar,
+shops. But the named layer spends its daylight in places the map didn't
+have: June and Zee are inside Mission High, Asha is inside SF General,
+Gus and Cole are at the shop and the site. v43 adds six zones so the
+board can say where a named pawn *is* instead of pretending the block
+is only storefronts:
+
+`school` · `sfgeneral` · `folsom` · `auerbach` · `needlepointe` ·
+`doloresperk` (the café the bench parliament defects to in rain).
+
+These zones carry **small extras budgets by design** — a hospital ward,
+a classroom, and a garage don't fill like a sidewalk; most of the people
+inside are staff, not extras, and the budgets reflect the visible public
+edge (the school gate at release, the clinic entrance, the parts
+counter). Weather multipliers apply by kind (`civic`/`shop`) as usual.
+
+Two consequences regulars will notice:
+
+- The greeting matrix's `auerbach`/`folsom` pairs finally resolve to
+  real zones — Cole and Gus's hardware-counter mornings have a board row.
+- Rain defects are visible: Esther and Ray's `rained out` reads now land
+  at `doloresperk`, not a generic absence.
+
+## 16. Claimable ambient resources (v43)
+
+A venue lock (claims matrix) is a blunt instrument — it clears the whole
+room. Most plausible player asks are smaller: *hold the big table*, *book
+the mic*, *save Luz's first crate*. `crowd.json §ambient_resources`
+declares five sub-venue resources that a request can claim for a
+declared window without touching the venue:
+
+| resource | zone | staffed by | what a claim does |
+|---|---|---|---|
+| the neighbor table | Mudhaus | A01 Reyes | seats-6 reservation; café keeps serving around it |
+| the open-mic slot | The 600 Club | A08 Sam | one 15-min set on the corner rig |
+| the north pitch | Dolores Park | A08 Sam | holds the raised pitch, not the grass around it |
+| the first box | Frutería Las Palmas | A07 Luz | preorder on the day's first crate — gone by 9 |
+| the walk-in chair | Needlepointe | A14 Bex | holds the chair slot; flash only |
+
+Contract (all enforceable):
+
+1. **The claim is on the resource, not the venue.** Extras budget inside
+   the resource's radius → 0 for the window; the rest of the zone is
+   unaffected. A claimed table in a busy café reads as a reserved sign,
+   not an emptied room.
+2. **Staff ambients stay on routine.** Reyes works the counter whether
+   or not the table is claimed; the claim can borrow her presence as a
+   co-star (ambients.md rules) but cannot give her orders.
+3. **Exclusive class, human review.** A resource claim is an
+   exclusive-class request on that resource id — it enters the §11
+   pipeline at step 4 like any exclusive, and shows on the public feed
+   attributed as normal.
+4. **Minors have no claimable resources.** Nothing in this block is
+   staffed by or adjacent to A04/A20.
+5. **No seed adjacency.** A claimable resource can never be a discovery
+   path — `res-needlepointe-chair` is a chair slot, not a conversation
+   about linework.
+
+## 17. The ambient week — per-ambient variants (v43)
+
+Until now every ambient ran one flat routine all week, and the weather
+reflexes were prose on their cards. `ambients.json` v43 gives each
+ambient three machine-readable variant layers plus a signature:
+
+- **`week.<dow>`** — a full alternate row set for days that differ:
+  off-days (Reyes's Sunday sleep-in, Vera's Sunday/Monday closures,
+  Cole's flat Sunday), weekend shifts (Kofe's surge, Sam's earlier
+  pitches, the kids' all-day park orbit), Asha's Tue/Wed decompression
+  loop. When a `week` entry exists for the day it *replaces* the base
+  routine; otherwise the base runs.
+- **`weather.<cond>`** — alternate rows for `rain`, `storm`, `heat`
+  where the condition visibly changes the day (Luz tarps and halves;
+  Sam plays doorways; Tom shortens laps but never moves them; Esther
+  and Ray defect to Dolores Perk). Indoor workers keep a `note`-only
+  entry — their day doesn't move, which is itself the information.
+- **`personal[]`** — named recurring conditions too small for the
+  calendar: Reyes's Friday lottery ticket, Ray's 8:30/noon pigeon
+  schedule, Kofe's Fri/Sat surge, June's exam-week library swap.
+  Conditions again — nothing summons anyone.
+- **`signature`** — `{silhouette, gait, carry, tell}`: the one-glance
+  read that makes a named pawn recognizable on the feed ("warm trays at
+  shoulder height", "three leashes, one hand"). Silhouette/gait reuse
+  the extras' `appearance_palette` vocabulary so a promoted ambient is
+  already legible in the extras' grammar.
+
+Resolution order for the thin tier: `storm` → `rain`/`heat` → `week.<dow>`
+→ base `routine`. Exactly one layer applies (a stormy Sunday is a storm
+day, not a Sunday); within a layer the row set is a full 24 h — no
+partial patching, no drift between spec and sim.
+
+Boundaries: variants change *where* and *when*, never *who*. No variant
+may introduce a seed reference, a request affordance, or a
+minor-to-adult pairing that the base routine wouldn't produce.
