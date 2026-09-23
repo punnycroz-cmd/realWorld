@@ -2483,3 +2483,78 @@ components review); Jenkins & Dallenbach 1924 (Am. J. Psych. 35:605 —
 verified); Gais, Lucas & Born 2006 (Learn. Mem. 13:259 — verified);
 Glenberg 1979; Smith & Rothkopf 1984; Smith & Vela 2001 (PB&R meta —
 verified). Deliberate-null citations in encoding-mechanics.md §39.
+
+## 57. New probes P368–P377 (v37 suite — forgetting-curves IV)
+
+Full spec of each probe is in `forgetting-curves.md` §20; registry
+entries below carry tier, sign-lock, and guard role only. All bands
+follow the §3 replication-discount protocol; cluster-aware CIs per §45.
+
+- **P368 transition mints period (MUST):** registerTransition → new
+  `period` id on subsequent records; first-post-transition n_sim = 0
+  (measured); E exceeds matched non-transition by ~trans_bound_gain.
+  Sign-locked PI-release leg.
+- **P369 cross-period + valence gate (MUST):** same-strength records —
+  within-period context out-recalls cross-period by ≥xperiod_pen
+  margin; negative-valence records inside any bump window show NO β
+  relief (Rubin & Berntsen sign-lock; the v0.3 OR-branch regression
+  test).
+- **P370 Ribot gradient (MUST):** strength loss graded monotone over
+  2min/15min/60min/2h pre-trauma gaps (~50% at contact → ~0 at
+  retro_window); pta_window encodes at ~40% reduced E, recovery after.
+- **P371 rest S-coupling (SHOULD):** `rested` storageS advantage at 7d
+  with zero intervening retrievals (Dewar Exp. 2 analog — R-side audit
+  cannot explain); first-day n_sim = 0 under bucket-matched encodes;
+  must not exceed the sleep-tick benefit.
+- **P372 modality split (MUST):** olf verbatim field outlives verb
+  field ≥1.5× at 30d within one record; olfactory-only cue resurrects
+  an archived record a matched verbal cue cannot reach. Constrains
+  k_olf / olf_cue_gain.
+- **P373 intrusion decay (MUST):** non-trauma arousal-.7 record's
+  surfacing rate halves by ~7d; trauma:true ≥50% of birth rate at 30d;
+  each intrusion reboosts (persistence loop observable); ptsd modifier
+  → no measurable decay.
+- **P374 latency channel (SHOULD):** latency monotone ↓ in R, ↑ in
+  n_sim; ≥lat_cap → §5.16 TOT surface (not silent null); latency must
+  not feed back into θ/strength (structural audit).
+- **P375 rehearsal tail (SHOULD):** 90 sim-days, retrievalCount
+  distribution heavy-tailed (top-decile ≥40% of retells vs ≤20% at
+  pa_gain=0); canonical-tail records correlate with §6.24 frozen
+  stories. Re-fit pa_gain against P239 when the social engine lands.
+- **P376 affect reconstruction (MUST):** 90d-old record's reported
+  valence shifts ≥30% toward current appraisal, stored tag unchanged;
+  1d-old reports ≈stored; reconciled → milder, estranged → hotter
+  (sign-locked both directions).
+- **P377 language cue (SHOULD):** non-encoding-language cue hits
+  ~lang_mismatch less at equal overlap; bilingual_bal=1.0 attenuates
+  cost → ~0 (never a bonus); monolingual = full v1.9 cost.
+
+Registry now P1–P377; numbering stable.
+
+## 58. Sources new to this version
+
+Brown et al. 2012 (Memory Studies — TNT autobiographical periods);
+Brown 2016 (transition theory monograph); Conway & Pleydell-Pearce
+2000 (Psych. Rev. 107 — lifetime periods/self-memory system); Schrauf
+& Rubin 1998 (JML 39:437 — verified: bilingual bump follows migration
+age); Schrauf & Rubin 2001 (Appl. Cogn. Psych. 15 — verified:
+immigration bump, effort-after-meaning + PI-release account); Rubin &
+Berntsen 2003 (Psych. Aging 17:636 — verified: bump for positive
+only, N=1,241); Berntsen & Rubin 2004 (M&C 32:427 — verified:
+cultural life scripts, N=1,485); Zaragoza Scherman et al. 2015
+(cross-cultural bump replication); Ribot 1882; Squire & Alvarez 1995
+(graded RA review); Russell & Smith 1961 (PTA duration); Dewar et al.
+2012 (Psych. Sci. 23:955 — verified: wakeful rest → 7-day benefit,
+no retrieval); Carr, Jadhav & Frank 2011; Tambini, Ketz & Davachi 2010;
+Engen & Ross 1973 (flat odor-recognition decay); Herz & Engen 1996;
+Chu & Downes 2000 (odor best cue); Willander & Larsson 2007 (odor-cued
+AMs older/more emotional); Cuddy & Duffin 2005 (music in dementia);
+Holmes & Bourne 2008; Iyadurai et al. 2018 (Mol. Psychiatry — 6h
+window cuts week-1 intrusions); Iyadurai et al. 2023 (Transl.
+Psychiatry ICU RCT — week-4 median 1 vs 10); Iyadurai et al. 2024
+preregistered meta (134 articles, g≈0.16); Anderson 1982 (retrieval
+latency power law); Nelson & Narens 1980; Simon 1955 (preferential
+attachment); Anderson & Schooler 1991 (reuse power tails); Levine &
+Safer 2002; Levine, Lench & Safer 2009; Robinson & Clore 2002
+(accessibility model of emotion report); Marian & Neisser 2000;
+Rubin, Wetzler & Nebes 1986; Thomsen & Berntsen 2008.

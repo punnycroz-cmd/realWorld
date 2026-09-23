@@ -1,4 +1,30 @@
-# Memory Model Spec v3.5 — implementable human-like memory for RW characters
+# Memory Model Spec v3.6 — implementable human-like memory for RW characters
+
+> **v3.6 note (forgetting-curves IV — the curve across a life):**
+> `memory/forgetting-curves.md` Part IV (§§17–21) prices the
+> biographical scale the curve never had: **autobiographical periods**
+> — `registerTransition` mints `period` ids, resets n_sim pools
+> (life-scale release-from-PI), boosts boundary encoding, mints
+> positive-only bump windows, and prices cross-period retrieval
+> (Brown TNT; Schrauf & Rubin 2001) — §4.18; **bump gate hardening**
+> — `valence ≥ bump_pos_min` required for ALL bump windows; negative
+> self-relevant records lose β relief (Rubin & Berntsen 2003; Berntsen
+> & Rubin 2004) — §4.1; **Ribot micro-windows** — graded retrograde
+> hit + anterograde PTA fog around trauma mints — §4.19; **rest S-
+> coupling** — `rested` records gain storageS and first-day n_sim
+> exemption (Dewar 2012's no-retrieval benefit is S-side) — §2;
+> **modality slopes** — olf/vis/verb/aud verbatim k-slopes + olfactory
+> resurrection privilege (Engen & Ross; Herz & Engen; Chu & Downes) —
+> §4.1/§5.7; **intrusion decay** — per-record `intrude_w` half-life
+> (7d/90d/∞-ptsd) replaces the flat trauma discount — §5.7;
+> **retrieval latency** — `latency_ms` power-of-strength + n_sim
+> search channel feeding §5.16 TOT — §5.25; **preferential-attachment
+> retells** — `pa_gain` makes told stories retellable, endogenizing
+> canonization's tail — §4.13; **affect reconstruction** — reported
+> valence blends toward current appraisal (Levine & Safer; Robinson &
+> Clore) — §5.5; **bilingual balance** — `bilingual_bal` attenuates
+> `lang_mismatch` — §5.2. +27 params in §7, probes P368–P377. All
+> optional, default-neutral.
 
 > **v3.5 note (encoding-mechanics III — the capacity/competition
 > layer):** `memory/encoding-mechanics.md` Part III (§§30–38) prices
@@ -1170,7 +1196,12 @@ Postman 1964; Hyde & Jenkins 1973).
     lands for the character within `rest_window` (0.007 day, frozen)
     after birth; at window close `strength += rest_gain·(1 − strength)`
     (0.12) — replay shield, age-flat, not gated on sleep/arousal
-    (Dewar et al. 2012).
+    (Dewar et al. 2012). **v3.6:** `rested` records additionally get
+    `storageS += rest_s_gain·(1 − storageS)` (0.1) at window close —
+    Dewar's no-retrieval 7-day benefit is an S-side consolidation
+    effect, not an accessibility one — and are exempt from `n_sim`
+    accrual for their first day (rest protects from interfering
+    incoming information; forgetting-curves.md §17.4).
   - *Implementation intentions:* Intention records with `ifCue` AND
     `thenAct` populated get `cueBinding += impl_intent_gain` (0.25) on
     the §5.14 focal-cue leg — the gain is on the binding, not the plan
@@ -1440,9 +1471,14 @@ t_eff = Δt_days + ev_time_w · (n_events_since / ev_day_norm)   // v2.5
     `bump_gain(a) = bump_beta_mult + (1−bump_beta_mult)·(1−cos(π·clamp((a−bump_lo)/(bump_hi−bump_lo))))`
     — a raised cosine over [bump_lo 10, bump_hi 30] peaked near
     `bump_peak` (~15). Applied **only if** `bump_valence_gate` passes:
-    `valence > 0 OR selfRelevance > bump_self_thresh` — the empirical bump
-    is for positive/important memories; sad memories show no bump
-    (Berntsen & Rubin 2004; Rubin & Berntsen 2003). Per-character
+    `valence ≥ bump_pos_min` (0.15 — v3.6 hardening: the v0.3
+    `valence > 0 OR selfRelevance > bump_self_thresh` OR-branch let
+    negative self-relevant records bump, contradicting the data —
+    happiest/important bump, saddest/traumatic decline monotonically;
+    Rubin & Berntsen 2003; Berntsen & Rubin 2004; Zaragoza Scherman
+    et al. 2015). Negative self-relevant records get NO β relief from
+    any bump window; their survival comes from arousal floor and
+    rumin_k/co-rumination rehearsal. Per-character
     `bump_peak` jitter ±3y (Janssen et al. 2005: earlier for women).
     **v2.2:** the window generalizes to a per-character
     `bump_windows: [{lo, hi, mult}]` list emitted by the profile
@@ -1472,6 +1508,16 @@ t_eff = Δt_days + ev_time_w · (n_events_since / ev_day_norm)   // v2.5
     effective boundary is `amnesia_exit_eff = amnesia_exit −
     3·(reminiscence_env − 0.5)` — caregiver reminiscing style moves the
     amnesia window itself (Reese & Newcombe 2007).
+- **Modality slopes (v3.6):** verbatim fields carry `mod` ∈
+  olf|vis|verb|aud (default verb); per-field β multiplies by
+  `k_mod`: `k_olf` 0.6, `k_vis` 1.0, `k_verb` 1.25, `k_aud` 1.1 —
+  olfactory content decays slowest, verbal fastest (Engen & Ross 1973;
+  Herz & Engen 1996; Willander & Larsson 2007 — odor-cued AMs are
+  older and more emotional; Cuddy & Duffin 2005 for k_aud being
+  conservative). Olfactory cue overlap on §5.7's scan gets
+  `olf_cue_gain` (1.3) and reaches archived records at
+  `resurrect_thresh − 0.1` — smells resurrect what words cannot
+  (Chu & Downes 2000; the mechanism behind `sensory_age_slope`).
 - **Quote field class (v1.3):** `verbatim.quote` decays on a sub-daily
   schedule — `tau_quote` 0.02d (~30 min), `beta_quote` 0.8, floor 0
   (Sachs 1967: wording indistinguishable from paraphrase after ~80
@@ -1838,6 +1884,21 @@ The retell ecology now prices the schedule, not just the count.
   (Habermas & Bluck 2000; Habermas & de Silveira 2008). Child retells
   rehearse episodes; teen retells build the narrative.
 
+**v3.6 — preferential-attachment retells:** a story already told is
+more likely to be told again (practiced script, social permission,
+§6.24 canonization feedback; Anderson & Schooler reuse power tails;
+Simon 1955):
+
+```
+p_retell *= min(pa_cap, 1 + pa_gain·ln(1 + retrievalCount))
+    pa_gain 0.3, pa_cap 3.0
+```
+
+Emergent: a handful of records absorb most of the rehearsal economy —
+the canonical stories rehearse themselves toward permanence while the
+median record rides the β slope. This is the engine §6.24's
+canonization threshold presupposed; P375 audits the tail.
+
 ### 4.14 Latent infancy layer — stored but inaccessible (new in v1.5)
 
 Infantile amnesia is an accessibility failure, not a storage failure
@@ -1962,6 +2023,55 @@ reversibility and the practice-stall signature.
   association (DEBATED, protopathic); we model the acute reversible
   impairment only — it does not feed `age_eff`.
 
+### 4.18 Autobiographical periods — lives are chaptered (new in v3.6)
+
+Transition theory (Brown et al. 2012; Brown 2016; Conway &
+Pleydell-Pearce 2000 lifetime periods; Schrauf & Rubin 2001's
+novelty + PI-release account): autobiographical memory is segmented
+into periods delimited by life transitions. Every record carries a
+`period` id (default 0). `registerTransition(charId, kind)` —
+fired by the world layer on moves, job changes, relationship
+starts/ends, household deaths — does four things:
+
+1. Mints a new `period` id; subsequent records carry it.
+2. **Life-scale release-from-PI:** `n_sim` pools reset — pre-transition
+   cue buckets stop competing with post-transition records (the first
+   week at the new job competes with nothing).
+3. Records encoded within `trans_win` (±14d) of the transition get
+   `E × (1 + trans_bound_gain)` (0.2 — novelty + effort-after-meaning);
+   among them, records with `valence ≥ bump_pos_min` additionally join
+   the §4.1 `bump_windows` list (generalizes the v2.2 migration clause
+   to all transitions — Berntsen & Rubin 2004 sign-lock, §17.2 of
+   forgetting-curves.md).
+4. Retrieval: `cueMatch_ext` on a record pays `xperiod_pen` (0.15)
+   when the active context's period differs from the record's; a
+   same-period match gains `period_prime` (0.1) — cuing one member of
+   a period makes its neighbors more available.
+
+`kind` ∈ move|jobStart|jobEnd|relStart|relEnd|death|other; the world
+layer owns the firing decision, params own the magnitudes. Emergent:
+"before the divorce" stays a coherent, vivid, self-cuing pool — and
+stops blurring into what came after. P368/P369.
+
+### 4.19 Trauma micro-windows — Ribot's gradient (new in v3.6)
+
+On minting a `trauma:true` record (arousal ≥ trauma_thresh), the
+minutes around the event run backward and forward (Ribot 1882;
+Squire & Alvarez 1995; Russell & Smith 1961 PTA):
+
+- **Retrograde:** each of this character's records with
+  `(t_trauma − createdDay) ∈ [0, retro_window]` (0.02d ≈ 30 min) takes
+  `strength *= 1 − retro_loss·(1 − gap/retro_window)`
+  (`retro_loss` 0.5 — graded: ~50% loss at contact, ~0 at the window).
+  One-shot adjustment; the hit then rides the normal curve.
+- **Anterograde (PTA):** for `pta_window` (0.02d) after the trauma,
+  all new encodes get `E *= (1 − pta_loss)` (0.4) — the post-accident
+  fog encodes thinly.
+
+Minute-scale complement to the day-scale §4.6 consolidation window:
+after the accident, the character keeps the day but loses the
+approach. P370.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -2002,9 +2112,12 @@ sensory age scale:  c_sensory = w_sensory · overlap · (1 + sensory_age_slope
 mismatch penalty:   if a salient sensory field mismatches:
                     cueMatch -= sensory_mismatch_pen (0.05)      // RC§3
 language match (v1.9):  if C.lang && m.lang && C.lang != m.lang:
-                    c_verbal, c_topic, c_people *= lang_mismatch   // ≈0.6
-                    // language-of-encoding is a context cue
-                    // (Marian & Neisser 2000) — attenuates, never gates
+                    c_verbal, c_topic, c_people *= lang_mismatch_eff
+                    // lang_mismatch ≈0.6 base; v3.6:
+                    // lang_mismatch_eff = 1 − bilingual_bal·(1−lang_mismatch)
+                    // — balanced bilinguals cross-retrieve nearly free
+                    // (Schrauf & Rubin 1998; Marian & Neisser 2000) —
+                    // attenuates, never gates
 cueMatch_ext = 1 − Π_j (1 − min(c_j, 1))                         // saturates at 1
 place reinstate:    if C.place == m.cueVector.place:
                     cueMatch_ext += place_reinstate · (1 + log1p(m.ageDays/30))
@@ -2166,6 +2279,18 @@ Not the record — a **reconstruction**:
    gist + core verbatim but blank/drift `verbatim.when` and ordering
    fields (encoded at half strength per §7 of emotional-memory.md) —
    vivid event, fragmented timeline (Brewin et al. 1996).
+8. **v3.6 — remembered emotion is reconstructed:** the reported
+   `emotional.valence` is blended toward *current* appraisal —
+   `reported_valence = w·v_stored + (1−w)·v_appraisal` with
+   `w = min(1, strength·aff_recon_scale)` (`aff_recon_scale` ≈ 2.0);
+   `v_appraisal` comes from the PersonModel eval dim of the event's
+   participants or the record's `meaning` field, falling back to
+   `v_stored` when neither exists (Levine & Safer 2002; Robinson &
+   Clore 2002 — long-delay emotion reports substitute belief-based
+   knowledge; forgetting-curves.md §17.9). Stored tag unchanged; sign
+   follows the PRESENT relationship — the reconciled ex-friend's
+   betrayal reports milder, the estranged one's hotter. Second
+   affective channel for §6.17 consistency-pull. P376.
 
 ### 5.6 Recognition vs recall modes (new in v0.2)
 
@@ -2253,6 +2378,21 @@ age-knot table): involuntary-memory rates are roughly age-invariant
 while voluntary recall declines (Schlagman, Kvavilashvili & Schulz
 2007) — age differences in spontaneous recall enter through
 `search_breadth`, not the threshold. P246.
+
+**v3.6 — intrusion weight is a decay curve (replaces the flat −0.15
+discount):** each episodic record carries `intrude_w` =
+`arousal·(1 + trauma_bonus)` (trauma_bonus 1.0 on `trauma:true`) at
+birth, decaying `intrude_w *= exp(−Δt/intrude_hl)` per tick —
+`intrude_hl` 7d default, 90d on `trauma:true`, ∞ under the `ptsd`
+profile modifier (natural history: post-event intrusions decline over
+days-to-weeks, persist in PTSD — Holmes & Bourne 2008; Iyadurai et al.
+2018/2023; the 2024 preregistered meta, 134 articles). The scan's
+surfacing drive per record is `intrude_w·cueMatch_ext` against
+`intrusion_thresh` — traumatic records start hot and cool; ordinary
+records were never intrusive. The v2.2 arousal re-stamp on each
+intrusion is now priced as the persistence loop: a trauma record's
+reboost fights a 90-day half-life and approximately wins; a normal
+record's doesn't (forgetting-curves.md §17.6). P373.
 
 ### 5.8 Retrieval-induced forgetting and part-list cuing
 
@@ -2691,6 +2831,27 @@ emitted ≥ ease_n:        judgedFreq ∝ 1/searchCost at stall
 P249 is the falsifier: judgedFreq(k=4) > judgedFreq(k=10) on
 stall-prone topics — a decreasing judgment from an increasing count.
 Nothing else in the model produces that signature.
+
+### 5.25 Retrieval latency — a decay observable (new in v3.6)
+
+Retrieval TIME follows the same power family as retrieval probability
+(Anderson 1982; Nelson & Narens 1980 latency-metamemory covariance).
+`recall` attaches `latency_ms` to each Reconstruction:
+
+```
+latency_ms = min(lat_cap,
+    lat_base · R^(−lat_pow) · (1 + lat_search·n_sim/10))
+lat_base 400ms, lat_pow 0.6, lat_search 0.4, lat_cap 5000ms
+```
+
+`n_sim` prices bucket crowding — searching a dense cue pool is slow,
+not just uncertain (the 40th-commute problem in real time).
+`latency_ms ≥ lat_cap` surfaces as a §5.16 TOT/hesitation event rather
+than a silent null — the TOT machinery gains an arrival-time surface.
+Dialogue layer consumes latency for beat-level hesitations
+("…give me a second"); validation uses it as a second, independent
+observable channel on R. Display/validation only — latency must never
+feed back into θ or strength. P374.
 
 ---
 
@@ -4261,6 +4422,25 @@ MemoryParams = {
   "threat_drain": 0.3,       // co-occurring neutral suppression (§36)
   "pre_sleep_gain": 0.1,     // pre-sleep-window shield (§37)
   "ctx_var_add": 2,          // new-context cue fields on re-activation (§38)
+  // v3.6 additions (forgetting-curves IV — the curve across a life,
+  // forgetting-curves.md §§17–18)
+  "trans_win": 14,           // days around a transition getting E boost
+  "trans_bound_gain": 0.2,   // E boost inside trans_win (§4.18)
+  "xperiod_pen": 0.15,       // cross-period cueMatch penalty (§4.18)
+  "period_prime": 0.1,       // same-period match bonus (§4.18)
+  "bump_pos_min": 0.15,      // valence gate for ALL bump windows (§4.1)
+  "retro_window": 0.02, "retro_loss": 0.5,   // Ribot graded hit (§4.19)
+  "pta_window": 0.02, "pta_loss": 0.4,       // post-trauma encode fog
+  "rest_s_gain": 0.1,        // S-side wakeful-rest bump (§2)
+  "k_olf": 0.6, "k_vis": 1.0, "k_verb": 1.25, "k_aud": 1.1, // §4.1
+  "olf_cue_gain": 1.3,       // olfactory involuntary/scan cue gain
+  "intrude_hl": 7.0,         // intrusion weight half-life, days (§5.7)
+  "trauma_bonus": 1.0,       // intrude_w birth multiplier on trauma
+  "lat_base": 400, "lat_pow": 0.6, "lat_search": 0.4, "lat_cap": 5000,
+                             // §5.25 latency channel (ms)
+  "pa_gain": 0.3, "pa_cap": 3.0,             // §4.13 retell attachment
+  "aff_recon_scale": 2.0,    // §5.5 affect-report appraisal blend
+  "bilingual_bal": 0.3,      // §5.2 lang_mismatch attenuation
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -5031,6 +5211,26 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     s_gain receipts and applies `intent_done_decay` to β (§34).
   - Snapshot-additive: all fields absent = legacy behavior;
     `perceptLoad` absent = 0.4 default.
+- v3.6 additions (forgetting-curves.md Part IV §§17–18):
+  - `registerTransition(charId, kind)` — mints a `period` id, resets
+    `n_sim` pools, applies `trans_win`/`trans_bound_gain`, mints
+    positive-valence bump windows; `kind` ∈ move|jobStart|jobEnd|
+    relStart|relEnd|death|other (§4.18).
+  - Record fields: `period` (id, default 0); verbatim `mod` ∈
+    olf|vis|verb|aud (default verb — drives k_mod slopes, §4.1);
+    `intrude_w` (intrusion weight, decays at `intrude_hl`, §5.7).
+  - `recall` Reconstructions carry `latency_ms` (§5.25) and report
+    `emotional.valence` through the appraisal blend (§5.5 item 8).
+  - `bump_valence_gate` semantics changed: `valence ≥ bump_pos_min`
+    required for ALL bump windows incl. transition-minted — negative
+    self-relevant records lost their former β relief (sign-locked,
+    P369).
+  - `rested` records (v2.4) now also gain `rest_s_gain` storageS at
+    window close and first-day `n_sim` exemption (§2).
+  - Profile modifier `bilingual_bal` attenuates `lang_mismatch` (§5.2);
+    `ptsd` modifier sets `intrude_hl`→∞ (§5.7).
+  - Snapshot-additive: `period`/`mod`/`intrude_w` absent = legacy
+    (period 0, mod verb, intrude_w derived from arousal).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

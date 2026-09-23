@@ -441,6 +441,20 @@ never copying raw.
 | threat_capture / threat_drain | 0 / 0 | 0.5 / 0.7 | threat priority + neutral drain (v3.5) |
 | pre_sleep_gain | 0 | 0.3 | last-hours-of-day consolidation shield (v3.5) |
 | ctx_var_add | 0 | 4 | new-context cue fields on re-activation (v3.5) |
+| trans_win / trans_bound_gain | 3 / 0 | 30 / 0.5 | transition window + boundary E boost (v3.6) |
+| xperiod_pen / period_prime | 0 / 0 | 0.4 / 0.3 | cross-period penalty / same-period prime (v3.6) |
+| bump_pos_min | 0.05 | 0.4 | valence gate for ALL bump windows (v3.6) |
+| retro_window / retro_loss | 0.005 / 0 | 0.1 / 0.9 | Ribot graded hit, days (v3.6) |
+| pta_window / pta_loss | 0.005 / 0 | 0.1 / 0.8 | post-trauma encode fog (v3.6) |
+| rest_s_gain | 0 | 0.3 | S-side wakeful-rest bump (v3.6) |
+| k_olf / k_vis / k_verb / k_aud | 0.3 / 0.5 / 0.5 / 0.5 | 1.0 / 1.5 / 2.0 / 1.5 | verbatim modality slopes (v3.6) |
+| olf_cue_gain | 1.0 | 2.0 | olfactory scan cue gain (v3.6) |
+| intrude_hl | 1 | 365 | intrusion half-life days; ∞ via ptsd mod (v3.6) |
+| trauma_bonus | 0 | 3.0 | intrude_w birth multiplier on trauma (v3.6) |
+| lat_base / lat_pow / lat_search / lat_cap | 100 / 0.1 / 0 / 2000 | 1000 / 1.2 / 1.0 / 10000 | latency channel, ms (v3.6) |
+| pa_gain / pa_cap | 0 / 1.0 | 0.8 / 5.0 | preferential-attachment retell (v3.6) |
+| aff_recon_scale | 0.5 | 5.0 | affect-report appraisal blend (v3.6) |
+| bilingual_bal | 0 | 1.0 | lang_mismatch attenuation (v3.6) |
 
 **v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
 only new per-char dial — how long a trusted correction keeps a record
@@ -1539,3 +1553,57 @@ are NOT deleted, they keep cue access via extref; `threat_drain` does
 NOT scale with arousal (that is ABC's channel — a scary stimulus and
 a scary event are priced separately); `load_flag` is permanent like
 sleepdep_flag — born-in-a-crowd records stay suggestion-prone.
+
+## 23. v3.6 note — forgetting-curves IV: which of these are personality
+
+The v3.6 layer is mostly BIOGRAPHY — the world supplies transitions,
+trauma events, rest spans, and languages; the bible supplies who lives
+a chaptered life and how it lands. The per-character surfaces:
+
+- **`bilingual_bal`:** the one clean bible dial. Pin by biography
+  (heritage + usage), not by intelligence — a second-generation
+  character who dreams in English sits ~0.3; the recent migrant who
+  still thinks in Spanish ~0.0; the truly balanced switcher 0.8–1.0.
+  Ambients default 0.3. Its visible signature is whether an English
+  conversation can reach Spanish-encoded memories.
+- **`intrude_hl` / `ptsd` modifier:** `intrude_hl` rides neurot/trauma
+  profile — the 7d default suits everyone; trauma-flagged records get
+  90d automatically (record-level, not profile-level). The `ptsd`
+  profile modifier (∞) is reserved for clinical-severity profiles —
+  do NOT hand it out for flavor; P373's persistence sign is what
+  makes it heavy.
+- **`pa_gain`:** mild personality surface — the raconteur profile
+  (high social + high retell_boost) may take +0.1–0.2; reticent
+  profiles lower it. `pa_cap` is population-flat.
+- **`aff_recon_scale`:** near-flat. Higher fits characters whose
+  feelings are re-authored by current relationships (consistency-
+  driven profiles, high defens); lower fits affect-literal profiles
+  who hold grudges against the evidence. Never zero — the blend must
+  always be reachable.
+- **Period structure is world-owned:** `registerTransition` fires on
+  world events (moves, jobs, relationships, deaths) — the bible only
+  decides WHICH events count as transitions for this person (a
+  roommate change is a period boundary for a homebody, noise for a
+  drifter). `xperiod_pen`/`period_prime`/`trans_*` are population
+  params, not traits.
+- **Modality slopes (`k_*`, `olf_cue_gain`):** population constants —
+  nobody's nose forgets differently. Individual smell acuity is a
+  *sensory-encoding* question (lives at event-capture), not a decay
+  parameter.
+- **Ribot windows (`retro_*`, `pta_*`):** population-flat — the
+  gradient is biology, not personality. A trauma-prone profile changes
+  how often §4.19 FIRES (trauma_thresh via modifiers), never the
+  window shape.
+- **Latency channel (`lat_*`):** display-side, population-flat. If a
+  bible wants a "slow deliberate" character, the knob is speech
+  cadence in the dialogue layer, not lat_base — memory latency is
+  not a personality trait (P374 keeps it honest as an R-observable).
+- **`bump_pos_min`:** population-flat sign-lock (Rubin & Berntsen) —
+  profiles may NOT re-open the bump window to negative records;
+  painful-memory survival is rumin_k + floor, by design.
+
+Explicit nulls (guards): `period` reset does NOT erase pre-transition
+records — PI release is prospective (old pools simply stop gaining
+competitors); `intrude_w` decay does NOT touch `intrusion_thresh` or
+the trauma re-stamp — three channels stay separate; `rested` n_sim
+exemption is first-day only, not a permanent shield.
