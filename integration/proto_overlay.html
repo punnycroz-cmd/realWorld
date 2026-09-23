@@ -1,0 +1,377 @@
+<!-- =====================================================================
+  integration-1 PROTOTYPE OVERLAY — injected into willowbrook_natura.html
+  by build_prototype.py -> prototype.html.
+
+  A right-rail panel that wires the REAL surfaces together in the same
+  window as the live game (all calls hit the production modules):
+    WIRE     — __aiBridge.gsViewerState().feed (41_game_systems_feed.js
+               formatted entries, feed.json schema)
+    REQUESTS — __aiBridge.gsSubmitRequest + gsPriceQuote + gsRequestMeter
+               + gsReviewResolve (the local reviewer lane)
+    LEDGER   — GS_LEDGER.txns / gsCreditBalance / gsDollarBalance
+    CAST     — NV_CAST (the 8 bible mains) + GS_HIRED, gsBrainMode,
+               gsHomeOf, live pawn state
+
+  The player id is 'proto-local' (editable). The "reviewer" lane exists
+  because hire/weather/event filings legitimately park in_review — a
+  local prototype plays that human role too.
+  ====================================================================== -->
+<style>
+#protoRail{position:fixed;top:0;right:0;bottom:0;width:392px;background:#14171cee;
+  border-left:1px solid #333c48;color:#e8e4da;font:12.5px/1.45 'Segoe UI',system-ui,sans-serif;
+  display:flex;flex-direction:column;z-index:60}
+#protoRail .pr-head{display:flex;align-items:center;gap:8px;padding:8px 12px;
+  border-bottom:1px solid #333c48;background:#1c2129}
+#protoRail .pr-head b{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#e0b34c}
+#protoRail .pr-head .pid{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#9a927f}
+#protoRail .pr-head input{width:110px;background:#232a34;border:1px solid #333c48;color:#e8e4da;
+  border-radius:4px;padding:2px 6px;font:inherit;font-size:11px}
+#protoRail .pr-cred{margin-left:auto;font-family:ui-monospace,Menlo,monospace;color:#e0b34c;font-size:12px}
+#protoRail .pr-cred button{margin-left:6px;font-size:10px;background:#232a34;border:1px solid #5fae7f;
+  color:#5fae7f;border-radius:4px;cursor:pointer;padding:1px 6px}
+#protoTabs{display:flex;border-bottom:1px solid #333c48;background:#1c2129}
+#protoTabs button{flex:1;background:none;border:0;color:#9a927f;font:inherit;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;padding:7px 0;cursor:pointer}
+#protoTabs button.on{color:#e0b34c;border-bottom:2px solid #e0b34c}
+#protoBody{flex:1;overflow-y:auto;padding:10px 12px}
+#protoRail label{display:block;font-size:10.5px;color:#9a927f;margin:8px 0 2px;
+  letter-spacing:.06em;text-transform:uppercase}
+#protoRail select,#protoRail input[type=text],#protoRail input[type=number],#protoRail textarea{
+  width:100%;background:#232a34;border:1px solid #333c48;color:#e8e4da;border-radius:5px;
+  padding:5px 7px;font:inherit;font-size:12px}
+#protoRail textarea{min-height:38px;resize:vertical}
+#protoRail .row2{display:flex;gap:8px}#protoRail .row2>*{flex:1}
+#protoRail button.act{width:100%;margin-top:10px;padding:8px;background:#e0b34c;border:0;
+  border-radius:6px;font:inherit;font-weight:600;font-size:12.5px;color:#1a1408;cursor:pointer}
+#protoRail button.act:disabled{background:#333c48;color:#9a927f;cursor:not-allowed}
+#protoRail .hint{font-size:10.5px;color:#9a927f;font-style:italic;margin-top:4px}
+#protoRail .quote{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#e0b34c;
+  margin-top:6px;min-height:14px}
+/* wire */
+.wl{list-style:none;margin:0;padding:0}
+.wl li{padding:6px 0;border-bottom:1px solid #232a34;font-size:12px}
+.wl .t{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#9a927f;margin-right:6px}
+.wl .k{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:1px 6px;border-radius:8px;margin-right:6px;border:1px solid #333c48;color:#9a927f}
+.wl .k.request{color:#6ea8d4;border-color:#6ea8d4}.wl .k.cast{color:#5fae7f;border-color:#5fae7f}
+.wl .k.housing{color:#c99a3c;border-color:#c99a3c}.wl .k.admin{color:#d48bb0;border-color:#d48bb0}
+.wl .k.weather{color:#9a927f}.wl .k.scene,.wl .k.venue,.wl .k.move{color:#e8e4da}
+.wl .st{font-size:9.5px;color:#e0b34c;margin-left:4px}
+.wl .who{color:#6ea8d4}
+/* ledger */
+.ld{list-style:none;margin:0;padding:0;font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
+.ld li{display:flex;justify-content:space-between;gap:6px;padding:3px 0;border-bottom:1px dashed #232a34}
+.ld .cr{color:#e0b34c}.ld .dl{color:#5fae7f}
+/* cast */
+.ct{list-style:none;margin:0;padding:0}
+.ct li{padding:6px 0;border-bottom:1px solid #232a34;font-size:12px}
+.ct .nm{font-weight:600}.ct .sub{color:#9a927f;font-size:11px}
+.ct .bm{float:right;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:1px 6px;border-radius:8px;border:1px solid #333c48;color:#9a927f}
+.ct .bm.full{color:#5fae7f;border-color:#5fae7f}.ct .bm.thin{color:#6ea8d4;border-color:#6ea8d4}
+.ct .bm.possessed{color:#e0b34c;border-color:#e0b34c}.ct .bm.degraded{color:#d4695e;border-color:#d4695e}
+/* my requests / review */
+.rq{border:1px solid #232a34;border-radius:6px;padding:6px 8px;margin:6px 0;background:#1c2129;font-size:11.5px}
+.rq .rr{display:flex;justify-content:space-between;align-items:baseline}
+.rq .st{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#e0b34c}
+.rq button{font-size:10px;background:#232a34;border:1px solid #6ea8d4;color:#6ea8d4;
+  border-radius:4px;cursor:pointer;padding:1px 8px;margin-left:4px}
+.rq button.deny{border-color:#d4695e;color:#d4695e}
+.pr-sec{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9a927f;
+  margin:12px 0 4px;border-bottom:1px solid #232a34;padding-bottom:3px}
+</style>
+
+<div id="protoRail">
+  <div class="pr-head"><b>prototype</b>
+    <input id="prPid" type="text" value="proto-local" title="player id">
+    <span class="pr-cred"><span id="prCred">0</span>cr<button id="prMint" title="demo mint — admin faucet">+500</button></span>
+  </div>
+  <div id="protoTabs">
+    <button data-t="wire" class="on">Wire</button>
+    <button data-t="req">Requests</button>
+    <button data-t="led">Ledger</button>
+    <button data-t="cast">Cast</button>
+  </div>
+  <div id="protoBody"></div>
+</div>
+
+<script>
+/* everything below runs in the SAME window as the game bundle — the
+   globals (VILLAGERS, GS_*, NV_CAST, __aiBridge, gs* fns) are live. */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var rail = $('protoRail'), body = $('protoBody');
+  var tab = 'wire';
+  var pid = function(){ return ($('prPid').value || 'proto-local').trim(); };
+  var nowMin = function(){ return Date.now() / 60000; };
+  var esc = function(s){ return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var fmtT = function(t){
+    if(t == null) return '--:--';
+    return ('0' + Math.floor(t/60)).slice(-2) + ':' + ('0' + Math.floor(t%60)).slice(-2);
+  };
+  var B = function(){ return window.__aiBridge || {}; };
+
+  /* ---------- shared lookups ---------- */
+  function myHires(){
+    var out = [];
+    if(typeof GS_HIRED === 'object')
+      for(var c in GS_HIRED) if(gsHiredOwner(c) === pid()) out.push(c);
+    return out;
+  }
+  function vacantUnits(limit){
+    var out = [];
+    if(typeof GS_REG === 'undefined') return out;
+    for(var i = 0; i < GS_REG.units.length && out.length < (limit||60); i++){
+      var u = GS_REG.units[i];
+      if(!gsUnitVacant(u)) continue;
+      var b = gsBldById(u.bld_id);
+      if(!b || b.offmap || b.status !== 'standing') continue;
+      out.push(u);
+    }
+    return out;
+  }
+  function charLabel(cid){ try{ return gsCharName(cid); }catch(e){ return cid; } }
+
+  /* ---------- WIRE ---------- */
+  function renderWire(){
+    var vs = B().gsViewerState ? B().gsViewerState() : null;
+    var feed = (vs && vs.feed) || [];
+    var h = '<ul class="wl">';
+    feed.slice().reverse().forEach(function(e){
+      h += '<li><span class="t">' + fmtT(e.t) + '</span>' +
+        '<span class="k ' + esc(e.kind) + '">' + esc(e.kind) + '</span>' +
+        (e.who ? '<span class="who">' + esc(e.who) + '</span> ' : '') +
+        esc(e.text) +
+        (e.status ? '<span class="st">' + esc(e.status) + '</span>' : '') +
+        (e.reason_code ? ' <span class="st">[' + esc(e.reason_code) + ']</span>' : '') +
+        '</li>';
+    });
+    if(!feed.length) h += '<li><span class="t">--:--</span>the wire is quiet — the block is still waking up.</li>';
+    body.innerHTML = h + '</ul>';
+  }
+
+  /* ---------- REQUESTS ---------- */
+  var REQ_KINDS = ['possess','weather','street_event','hire','listing','buy'];
+  function renderReq(){
+    var hires = myHires(), units = vacantUnits(80);
+    var listings = (typeof GS_LISTINGS === 'object') ? Object.keys(GS_LISTINGS) : [];
+    var h = '';
+    h += '<label>action</label><select id="rqKind">';
+    REQ_KINDS.forEach(function(k){ h += '<option>' + k + '</option>'; });
+    h += '</select><div id="rqFields"></div>';
+    h += '<label>note (public if approved — screened)</label>' +
+         '<textarea id="rqNote" placeholder="what a camera on the street would see"></textarea>';
+    h += '<div class="quote" id="rqQuote"></div>';
+    h += '<button class="act" id="rqGo">file request</button>';
+    h += '<div class="hint">files through the real bus: screen → lane → FCFS ' +
+         'claims → bill → activate. weather/events/named hires park for the reviewer below.</div>';
+    h += '<div class="pr-sec">my requests</div><div id="rqMine"></div>';
+    h += '<div class="pr-sec">review lane (you are the local reviewer)</div><div id="rqRev"></div>';
+    body.innerHTML = h;
+    $('rqKind').onchange = renderReqFields;
+    $('rqGo').onclick = submitReq;
+    renderReqFields(); renderMine(); renderReview();
+  }
+  function renderReqFields(){
+    var k = $('rqKind').value, f = $('rqFields'), h = '';
+    if(k === 'possess'){
+      h += '<label>your hired character</label><select id="rqTarget">';
+      myHires().forEach(function(c){
+        h += '<option value="' + c + '">' + esc(charLabel(c)) + ' (' + c + ')</option>'; });
+      h += '</select><label>minutes (5-120)</label><input type="number" id="rqDur" value="10" min="5" max="120">';
+      if(!myHires().length) h += '<div class="hint">no hires yet — file a hire first (below), or watch it fail honestly.</div>';
+    } else if(k === 'weather'){
+      h += '<label>sky</label><select id="rqWx"><option>rain</option><option>storm</option>' +
+           '<option>clear</option><option>fog</option><option>heatwave</option></select>' +
+           '<label>minutes (10-240)</label><input type="number" id="rqDur" value="30" min="10" max="240">';
+    } else if(k === 'street_event'){
+      h += '<label>event</label><select id="rqEvent"><option>block_party</option><option>street_fair</option>' +
+           '<option>farmers_market</option><option>parade</option><option>movie_night</option>' +
+           '<option>park_cleanup</option><option>mural_tour</option></select>' +
+           '<label>venue (e.g. dolores park, clarion alley — blank = roving)</label>' +
+           '<input type="text" id="rqAt" placeholder="dolores park">' +
+           '<label>minutes (15-180)</label><input type="number" id="rqDur" value="30" min="15" max="180">';
+    } else if(k === 'hire'){
+      h += '<label>move-in unit</label><select id="rqTarget">';
+      vacantUnits(80).forEach(function(u){
+        h += '<option value="' + u.id + '">' + esc(gsAddressOfUnit(u.id)) + ' — $' + u.base_rent + '</option>'; });
+      h += '</select>' +
+           '<label>name</label><input type="text" id="rqName" placeholder="e.g. Dana Okafor">' +
+           '<div class="row2"><div><label>age</label><input type="number" id="rqAge" value="29" min="18" max="99"></div>' +
+           '<div><label>job</label><select id="rqJob">' +
+             (typeof GS_JOBS !== 'undefined' ? GS_JOBS : []).map(function(j){
+               return '<option value="' + j.id + '">' + esc(j.id) + (j.est ? ' ~$' + j.est + '/mo' : '') + '</option>';
+             }).join('') + '</select></div></div>' +
+           '<div class="row2"><div><label>build</label><select id="rqBuild"><option>slight</option><option>compact</option>' +
+             '<option>tall</option><option>broad</option><option>angular</option></select></div>' +
+           '<div><label>palette</label><select id="rqPal"><option>fog grey</option><option>mission mural</option>' +
+             '<option>moss</option><option>midnight</option><option>ochre</option><option>plum</option></select></div></div>' +
+           '<label>signature</label><select id="rqSig"><option>windbreaker, always</option>' +
+             '<option>paint-flecked work boots</option><option>loud prints, louder laugh</option>' +
+             '<option>cardigans and a paperback</option><option>running gear at dawn</option>' +
+             '<option>denim jacket, pins on the collar</option></select>' +
+           '<input type="hidden" id="rqDur" value="5">';
+    } else if(k === 'listing'){
+      h += '<label>unit you own</label><select id="rqTarget">';
+      (typeof GS_REG !== 'undefined' ? GS_REG.units : []).forEach(function(u){
+        var b = gsBldById(u.bld_id);
+        if(u.owner_id === pid() || (b && b.owner_id === pid()))
+          h += '<option value="' + u.id + '">' + esc(gsAddressOfUnit(u.id)) + '</option>'; });
+      h += '</select><label>ask ($)</label><input type="number" id="rqAsk" value="320000">' +
+           '<label>minutes listed (30-4320)</label><input type="number" id="rqDur" value="120" min="30" max="4320">' +
+           '<div class="hint">players do not start owning units — expect an honest not_owner denial unless admin files it.</div>';
+    } else if(k === 'buy'){
+      h += '<label>listed unit</label><select id="rqTarget">';
+      listings.forEach(function(uid){ h += '<option value="' + uid + '">' + esc(gsAddressOfUnit(uid)) + '</option>'; });
+      h += '</select><label>buyer (your hire)</label><select id="rqBuyer">';
+      myHires().forEach(function(c){ h += '<option>' + c + '</option>'; });
+      h += '</select><input type="hidden" id="rqDur" value="1">';
+    }
+    f.innerHTML = h;
+    quoteReq();
+    f.onchange = quoteReq; $('rqNote').oninput = quoteReq;
+  }
+  function reqSpec(){
+    var k = $('rqKind').value;
+    var spec = { playerId: pid(), kind: k,
+                 durationMin: +(($('rqDur')||{}).value || 0),
+                 params: { note: ($('rqNote').value || '').trim() || undefined } };
+    var t = $('rqTarget'); if(t) spec.target = t.value;
+    if(k === 'weather') spec.params.wx = $('rqWx').value;
+    if(k === 'street_event'){ spec.params.event = $('rqEvent').value;
+      if($('rqAt').value.trim()) spec.params.at = $('rqAt').value.trim(); }
+    if(k === 'hire'){
+      spec.params.name = $('rqName').value.trim();
+      spec.params.age = +$('rqAge').value;
+      spec.params.job = $('rqJob').value;
+      spec.params.look = { build: $('rqBuild').value, palette: $('rqPal').value,
+                           signature: $('rqSig').value };
+    }
+    if(k === 'listing') spec.params.ask = +$('rqAsk').value;
+    if(k === 'buy') spec.params.buyerId = ($('rqBuyer')||{}).value;
+    return spec;
+  }
+  function quoteReq(){
+    try{
+      var q = B().gsPriceQuote ? B().gsPriceQuote(reqSpec()) : null;
+      $('rqQuote').textContent = q
+        ? ('quote: ' + JSON.stringify(q).slice(0, 140))
+        : '';
+    }catch(e){ $('rqQuote').textContent = ''; }
+  }
+  function submitReq(){
+    var spec = reqSpec();
+    if(!spec.params.note) delete spec.params.note;
+    var r = B().gsSubmitRequest(spec);      // real-time filing
+    renderReq();                            // re-render (status lands in lists)
+  }
+  function renderMine(){
+    var el = $('rqMine'); if(!el) return;
+    var mine = GS_REQ.reqs.filter(function(r){ return r.playerId === pid(); })
+                          .slice(-6).reverse();
+    el.innerHTML = mine.map(function(r){
+      var m = gsRequestMeter(r.id) || {};
+      return '<div class="rq"><div class="rr"><b>' + esc(r.kind) +
+        (r.target ? ' · ' + esc(charLabel(r.target)) : '') + '</b>' +
+        '<span class="st">' + esc(r.status) + (r.reason ? ':' + esc(r.reason) : '') + '</span></div>' +
+        '<div>' + esc(r.id) + ' · billed ' + (r.billed||0) + 'cr' +
+        (m.remainingMin != null ? ' · ' + m.remainingMin.toFixed(1) + 'min left' : '') +
+        ((r.status === 'active' || r.status === 'queued')
+          ? '<button data-c="' + r.id + '">cancel</button>' : '') +
+        '</div></div>';
+    }).join('') || '<div class="hint">none yet</div>';
+    el.querySelectorAll('button[data-c]').forEach(function(b){
+      b.onclick = function(){ B().gsCancelRequest(b.dataset.c); renderReq(); };
+    });
+  }
+  function renderReview(){
+    var el = $('rqRev'); if(!el) return;
+    var q = gsReviewQueue();
+    el.innerHTML = q.map(function(r){
+      return '<div class="rq"><div class="rr"><b>' + esc(r.kind) + '</b>' +
+        '<span class="st">in_review' + (r.screen ? ':' + esc(r.screen) : '') + '</span></div>' +
+        '<div>' + esc(r.id) + ' · ' + esc(r.playerId) + ' · ' + (r.billed||0) + 'cr' +
+        '<button data-a="' + r.id + '">approve</button>' +
+        '<button class="deny" data-d="' + r.id + '">deny</button></div></div>';
+    }).join('') || '<div class="hint">empty — nothing parked</div>';
+    el.querySelectorAll('button[data-a]').forEach(function(b){
+      b.onclick = function(){ gsReviewResolve(b.dataset.a, true, { by: 'proto-reviewer' }); renderReq(); };
+    });
+    el.querySelectorAll('button[data-d]').forEach(function(b){
+      b.onclick = function(){ gsReviewResolve(b.dataset.d, false, { by: 'proto-reviewer', code: 'gray-zone' }); renderReq(); };
+    });
+  }
+
+  /* ---------- LEDGER ---------- */
+  function renderLedger(){
+    var txns = (typeof GS_LEDGER === 'object') ? GS_LEDGER.txns : [];
+    var h = '<div class="pr-sec">player credits</div><ul class="ld">';
+    Object.keys(GS_LEDGER.credits).forEach(function(p){
+      h += '<li><span>' + esc(p) + '</span><span class="cr">' + GS_LEDGER.credits[p] + ' cr</span></li>'; });
+    h += '</ul><div class="pr-sec">last txns (both currencies — never mixed)</div><ul class="ld">';
+    txns.slice(-30).reverse().forEach(function(t){
+      h += '<li><span class="' + (t.cur === 'credits' ? 'cr' : 'dl') + '">' + t.cur + '</span>' +
+        '<span>#' + t.n + ' ' + esc(t.from) + ' → ' + esc(t.to) + '</span>' +
+        '<span><b>' + t.amt + '</b> ' + esc(t.reason || '') + '</span></li>'; });
+    h += '</ul>';
+    var minted = txns.filter(t => t.from === 'mint').reduce((s,t)=>s+t.amt,0);
+    var burned = txns.filter(t => t.to === 'burn').reduce((s,t)=>s+t.amt,0);
+    h += '<div class="hint">conservation: minted ' + minted + ' − burned ' + burned +
+         ' = balances ' + (minted - burned) + '</div>';
+    body.innerHTML = h;
+  }
+
+  /* ---------- CAST ---------- */
+  function renderCast(){
+    var nm = nowMin();
+    var rows = [];
+    (NV_CAST || []).forEach(function(c){
+      var v = VILLAGERS.find(function(x){ return x._castId === c.id; });
+      var home = (typeof gsHomeOf === 'function') ? gsHomeOf(c.id) : null;
+      var bm = (typeof gsBrainMode === 'function') ? gsBrainMode(c.id, nm) : '?';
+      rows.push({ id: c.id, name: (v && v.name) || c.name || c.id,
+        role: (v && v.role) || c.role || '', bm: bm,
+        state: v ? (v.state + (v.inside ? ' · inside ' + v.inside : '')) : 'off-stage',
+        home: home ? home.address : '—' });
+    });
+    Object.keys(GS_HIRED || {}).forEach(function(cid){
+      var v = VILLAGERS.find(function(x){ return x._castId === cid; });
+      var home = (typeof gsHomeOf === 'function') ? gsHomeOf(cid) : null;
+      rows.push({ id: cid, name: charLabel(cid), role: (GS_HIRED[cid].role || 'Resident') +
+        ' · hire of ' + GS_HIRED[cid].playerId,
+        bm: (typeof gsBrainMode === 'function') ? gsBrainMode(cid, nm) : '?',
+        state: v ? v.state : 'not spawned',
+        home: home ? home.address : '—' });
+    });
+    body.innerHTML = '<ul class="ct">' + rows.map(function(r){
+      return '<li><span class="bm ' + esc(r.bm) + '">' + esc(r.bm) + '</span>' +
+        '<div class="nm">' + esc(r.name) + ' <span class="sub">' + esc(r.id) + '</span></div>' +
+        '<div class="sub">' + esc(r.role) + ' — ' + esc(r.state) + '</div>' +
+        '<div class="sub">' + esc(r.home) + '</div></li>';
+    }).join('') + '</ul>';
+  }
+
+  /* ---------- shell ---------- */
+  function refresh(){
+    $('prCred').textContent = (typeof gsCreditBalance === 'function')
+      ? gsCreditBalance(pid()) : '?';
+    if(tab === 'wire') renderWire();
+    else if(tab === 'req'){ renderMine(); renderReview(); }
+    else if(tab === 'led') renderLedger();
+    else renderCast();
+  }
+  $('protoTabs').addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if(!b) return;
+    tab = b.dataset.t;
+    document.querySelectorAll('#protoTabs button').forEach(function(x){
+      x.classList.toggle('on', x === b); });
+    if(tab === 'req') renderReq(); else refresh();
+  });
+  $('prMint').onclick = function(){
+    gsCreditGrant(pid(), 500, 'demo top-up'); refresh(); };
+  $('prPid').onchange = refresh;
+  setInterval(refresh, 1500);
+  refresh();
+})();
+</script>
