@@ -73,6 +73,87 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>';
 }
 
+/* ---------------- v6: "Karl" — living sky & cloud-shadow system -------
+   A persistent field of cumulus clouds drifts over the neighborhood on
+   the real wind vector (W.windAng/W.windSpd). The SAME clouds are drawn
+   in the street-view sky, parallax-projected at altitude, and cast soft
+   moving shadows on the ground in BOTH views. Coverage follows
+   Open-Meteo cloud_cover (SF_WX.cover), boosted by rain/storm. Rain now
+   renders in SF views too: wind-slanted streaks + wet-pavement gloom.
+   A marine fog bank hugs the horizon whenever humidity is high. */
+const SF_WX = {
+  clouds: null, wrapX: 0, wrapY: 0,
+  cover: 0.38,   // fetched cloud fraction; mild SF default
+  t: 0, lastMs: 0,
+};
+const SF_SUN = { x: 0.26, y: 0.16 }; // ground shadow dir per meter of height
+const SF_CLOUD_ALT = 130;            // meters
+
+function sfWxTick(){
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  if(SF_WX.lastMs) SF_WX.t += Math.min(0.5, (now - SF_WX.lastMs) / 1000);
+  SF_WX.lastMs = now;
+}
+function sfClouds(){
+  if(SF_WX.clouds) return SF_WX.clouds;
+  const cm = SF_M.cell_m;
+  SF_WX.wrapX = SF_M.gw * cm + 700;
+  SF_WX.wrapY = SF_M.gh * cm + 700;
+  SF_WX.clouds = [];
+  for(let k = 0; k < 46; k++){
+    SF_WX.clouds.push({
+      x: phash(k, 1, 1600) * SF_WX.wrapX,
+      y: phash(k, 2, 1601) * SF_WX.wrapY,
+      r: 22 + phash(k, 3, 1602) * 52,
+      a: 0.55 + phash(k, 4, 1603) * 0.45,
+      s: 0.55 + phash(k, 5, 1604) * 0.9,
+    });
+  }
+  return SF_WX.clouds;
+}
+function sfCloudCover(){
+  return clamp(SF_WX.cover + W.rain * 0.9 + W.storm * 0.6, 0, 1);
+}
+/* cloud position in world meters, drifting + wrapping on the wind */
+function sfCloudPos(c){
+  const vx = Math.cos(W.windAng) * W.windSpd * 11 * c.s;
+  const vy = Math.sin(W.windAng) * W.windSpd * 11 * c.s;
+  let x = (c.x + vx * SF_WX.t) % SF_WX.wrapX; if(x < 0) x += SF_WX.wrapX;
+  let y = (c.y + vy * SF_WX.t) % SF_WX.wrapY; if(y < 0) y += SF_WX.wrapY;
+  return [x - 350, y - 350];
+}
+/* 0..1 soft cloud occlusion over a world point (meters) — sun dimmer */
+function sfCloudShadow(mx, my){
+  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
+  let sh = 0;
+  for(let i = 0; i < n; i++){
+    const c = cs[i];
+    const [cx, cy] = sfCloudPos(c);
+    const gx = cx - SF_SUN.x * SF_CLOUD_ALT, gy = cy - SF_SUN.y * SF_CLOUD_ALT;
+    const dx = mx - gx, dy = my - gy;
+    const d2 = dx * dx + dy * dy, r2 = c.r * c.r;
+    if(d2 < r2 * 4) sh += c.a * Math.exp(-d2 / r2);
+  }
+  return Math.min(1, sh * (0.4 + 0.6 * sfCloudCover()));
+}
+/* screen-space rain shared by both SF views */
+function sfRainOverlay(cw, ch, slant){
+  ctx.fillStyle = `rgba(60,72,96,${W.rain * 0.14})`;
+  ctx.fillRect(0, 0, cw, ch);
+  ctx.strokeStyle = `rgba(190,215,240,${clamp(W.rain * 0.5, 0, 0.6)})`;
+  ctx.lineWidth = 1;
+  const drops = Math.floor(70 + W.rain * 190);
+  const bucket = Math.floor(SF_WX.t * 15);
+  ctx.beginPath();
+  for(let i = 0; i < drops; i++){
+    const rx = hash2(i, bucket, SEED + 91) * (cw + 80) - 40;
+    const ry = hash2(i, bucket + 977, SEED + 92) * (ch + 60) - 30;
+    const len = 8 + hash2(i, 7, SEED + 95) * 12;
+    ctx.moveTo(rx, ry); ctx.lineTo(rx + slant * len, ry + len);
+  }
+  ctx.stroke();
+}
+
 function sfTerrainTile(wx, wy, tt){
   const T = PA.sf;
   switch(tt){
@@ -113,6 +194,9 @@ function sfTerrainTile(wx, wy, tt){
 }
 
 function sfRenderWorld(cw, ch){
+  sfWxTick();
+  const sfDappleOn = !isNight();
+  const sfDappleCover = 0.25 + 0.75 * sfCloudCover();
   const cs = CS * cam.zoom;
   const wx0 = Math.floor((cam.x - cw / 2 / cam.zoom) / CS) - 1;
   const wx1 = Math.floor((cam.x + cw / 2 / cam.zoom) / CS) + 1;
@@ -127,6 +211,16 @@ function sfRenderWorld(cw, ch){
       const sx = Math.round((wx * CS - cam.x) * cam.zoom + cw / 2);
       const sy = Math.round((wy * CS - cam.y) * cam.zoom + ch / 2);
       if(spr && spr.c) ctx.drawImage(spr.c, sx, sy, cs, cs);
+      // v6: low-frequency dappled light — cloud deck sliding on the wind
+      if(sfDappleOn){
+        const dap = fbm(wx * 0.05 + SF_WX.t * W.windSpd * 0.35,
+                        wy * 0.05 + SF_WX.t * W.windSpd * 0.2, SEED + 1700, 2);
+        const a2 = clamp((dap - 0.44) * 1.15, 0, 0.45) * sfDappleCover;
+        if(a2 > 0.015){
+          ctx.fillStyle = `rgba(30,38,62,${a2})`;
+          ctx.fillRect(sx - 1, sy - 1, cs + 2, cs + 2);
+        }
+      }
     }
   }
 
@@ -201,12 +295,48 @@ function sfRenderWorld(cw, ch){
           ctx.fill();
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
-        ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
+        // v6: canopy sway on the wind (trees only; storms rock harder)
+        const sway = (o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
+                      o.kind === 'sfPalm' || o.kind === 'sfCypress')
+          ? Math.sin(SF_WX.t * 1.7 + o.x * 0.05 + o.y * 0.03) *
+            0.022 * (0.4 + W.windSpd * 0.4 + W.storm * 1.4)
+          : 0;
+        if(sway){
+          ctx.save(); ctx.translate(sx, sy); ctx.rotate(sway);
+          ctx.drawImage(sprC, -pw / 2, -ph + 4 * cam.zoom, pw, ph);
+          ctx.restore();
+        } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
       }
     } else {
       renderChibiPawn(d.v, cw, ch);
     }
   }
+
+  // 2b. v6: drifting cloud shadows — soft blobs sliding over the whole map
+  const cover = sfCloudCover();
+  if(!isNight() && cover > 0.05){
+    const cs2 = sfClouds(), n = Math.ceil(cs2.length * (0.25 + 0.75 * cover));
+    for(let i = 0; i < n; i++){
+      const c = cs2[i];
+      const [cxm, cym] = sfCloudPos(c);
+      const gx = (cxm - SF_SUN.x * SF_CLOUD_ALT) * SF_PXM;
+      const gy = (cym - SF_SUN.y * SF_CLOUD_ALT) * SF_PXM;
+      const sx = (gx - cam.x) * cam.zoom + cw / 2;
+      const sy = (gy - cam.y) * cam.zoom + ch / 2;
+      const rr = c.r * SF_PXM * cam.zoom * 1.5;
+      if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
+      const a = Math.min(0.4, 0.42 * c.a * (0.35 + 0.65 * cover));
+      const g = ctx.createRadialGradient(sx, sy, rr * 0.15, sx, sy, rr);
+      g.addColorStop(0, `rgba(28,36,58,${a})`);
+      g.addColorStop(1, 'rgba(28,36,58,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy, rr, rr * 0.72, 0.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  // 2c. v6: rain streaks + gloom over the neighborhood
+  if(W.rain > 0.08) sfRainOverlay(cw, ch, Math.sin(W.windAng) * 0.6);
 
   // 3. street name labels along road midpoints
   if(cam.zoom >= 0.85){
@@ -242,7 +372,9 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   const TRIM = SF_TRIM_COLS[Math.floor(phash(i, 9, 1301) * SF_TRIM_COLS.length)];
   const isShop = !!b.name || phash(i, 5, 1303) < 0.12;
   const style = Math.floor(phash(i, 13, 1405) * 3); // 0 italianate 1 stick 2 marina
-  const dim = night ? 0.4 : 1;
+  // v6: passing cloud dims the whole wall
+  const dim = (night ? 0.4 : 1) *
+              (1 - 0.45 * sfCloudShadow(b.x / SF_PXM, b.y / SF_PXM));
   const lit = (0.55 + 0.45 * Math.max(0, nx * -0.5 + ny * -0.85)) * dim;
   const para = 0.5 + phash(i, 17, 1406) * 0.35;
   const ux = ex / L, uy = ey / L;
@@ -555,6 +687,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
 
 /* ---------------- street-level "Truman camera" ---------------- */
 function sfRenderStreet(cw, ch){
+  sfWxTick();
   const v = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
   if(v && v.inBuilding && !SF_CAM.director){ sfRenderInterior(cw, ch, v); return; }
   const cm = SF_M.cell_m;
@@ -606,24 +739,68 @@ function sfRenderStreet(cw, ch){
   else if(W.rain > 0.2){ sky.addColorStop(0, '#6a7688'); sky.addColorStop(1, '#a8b2bc'); }
   else { sky.addColorStop(0, '#5b8fc9'); sky.addColorStop(1, '#cfe3f2'); }
   ctx.fillStyle = sky; ctx.fillRect(0, 0, cw, horizon);
-  // v3: sun glow + drifting cumulus on clear days
-  if(!night && W.rain <= 0.2){
-    const sg = ctx.createRadialGradient(cw * 0.72, horizon * 0.18, 4,
-                                        cw * 0.72, horizon * 0.18, cw * 0.3);
-    sg.addColorStop(0, 'rgba(255,248,220,0.5)');
-    sg.addColorStop(1, 'rgba(255,248,220,0)');
-    ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, horizon);
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    for(let k = 0; k < 4; k++){
-      let cx = (phash(k, 3, 1500) * cw * 1.4 - SF_CAM.yaw * 160) % (cw * 1.2);
-      if(cx < -120) cx += cw * 1.2;
-      const cy = horizon * (0.10 + phash(k, 5, 1501) * 0.4);
-      const cw2 = 40 + phash(k, 7, 1502) * 70;
-      for(const [ox, oy, s] of [[0, 0, 1], [-0.5, 0.15, 0.7], [0.55, 0.1, 0.75], [0.15, -0.3, 0.6]]){
+  const cover = sfCloudCover();
+  if(!night){
+    // v6: sun disc at the real tod azimuth, halo + glare
+    const az = Math.PI * (W.tod - 6) / 12;
+    const sunFwd = Math.cos(az) * DX + Math.sin(az) * DY;
+    const sunSide = Math.cos(az) * DY - Math.sin(az) * DX;
+    if(sunFwd > 0.15 && W.rain < 0.4){
+      const sx2 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
+      const sy2 = horizon - F * 0.33;
+      if(sx2 > -200 && sx2 < cw + 200){
+        const sg = ctx.createRadialGradient(sx2, sy2, 2, sx2, sy2, F * 0.55);
+        sg.addColorStop(0, 'rgba(255,252,232,0.85)');
+        sg.addColorStop(0.07, 'rgba(255,246,200,0.5)');
+        sg.addColorStop(1, 'rgba(255,246,200,0)');
+        ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, horizon + 40);
+      }
+    }
+    // v6: the SAME cloud field, projected at 130m altitude — parallax sky
+    const cs2 = sfClouds(), nC = Math.ceil(cs2.length * (0.25 + 0.75 * cover));
+    for(let i = 0; i < nC; i++){
+      const c = cs2[i];
+      const [cx2, cy2] = sfCloudPos(c);
+      const p = pr(cx2, cy2, SF_CLOUD_ALT);
+      if(!p || p[2] > 750) continue;
+      const sc2 = F / p[2], rw = c.r * sc2;
+      if(rw < 5 || rw > cw * 1.5) continue;
+      const a = clamp(0.9 - p[2] / 900, 0.12, 0.85) * (0.45 + 0.55 * cover);
+      const rh = rw * 0.34;
+      ctx.fillStyle = `rgba(146,156,178,${a * 0.85})`;
+      ctx.beginPath();
+      ctx.ellipse(p[0], p[1] + rh * 0.3, rw, rh * 0.75, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(252,252,250,${a})`;
+      for(const [ox, oy, ss] of [[-0.45, 0.05, 0.6], [0, -0.18, 0.95],
+                                 [0.48, 0.02, 0.65], [0.12, -0.3, 0.55]]){
         ctx.beginPath();
-        ctx.ellipse(cx + ox * cw2, cy + oy * cw2 * 0.35, cw2 * s, cw2 * s * 0.32, 0, 0, Math.PI * 2);
+        ctx.ellipse(p[0] + ox * rw, p[1] + oy * rh, rw * ss, rh * ss, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+    }
+    // v6: marine layer — Karl the Fog shouldering over the horizon,
+    // growing with humidity; the Mission's signature wall of gray.
+    const fogA = clamp(0.16 + (W.hum - 0.55) * 1.7 + W.rain * 0.5, 0.1, 0.9);
+    const fh = horizon * (0.08 + fogA * 0.45);
+    const fg = ctx.createLinearGradient(0, horizon - fh, 0, horizon + 40);
+    fg.addColorStop(0, 'rgba(214,224,232,0)');
+    fg.addColorStop(0.72, `rgba(216,226,233,${fogA})`);
+    fg.addColorStop(1, `rgba(206,216,226,${fogA * 0.75})`);
+    ctx.fillStyle = fg; ctx.fillRect(0, horizon - fh, cw, fh + 40);
+  } else {
+    // v6 night: faint moon glow + starfield when the sky is clear
+    if(cover < 0.55){
+      ctx.fillStyle = 'rgba(240,244,255,0.8)';
+      for(let k = 0; k < 40; k++){
+        const sx2 = phash(k, 1, 1605) * cw, sy2 = phash(k, 2, 1606) * horizon * 0.85;
+        ctx.fillRect(sx2, sy2, 1.4, 1.4);
+      }
+      const mg = ctx.createRadialGradient(cw * 0.3, horizon * 0.2, 4,
+                                          cw * 0.3, horizon * 0.2, cw * 0.2);
+      mg.addColorStop(0, 'rgba(230,236,250,0.35)');
+      mg.addColorStop(1, 'rgba(230,236,250,0)');
+      ctx.fillStyle = mg; ctx.fillRect(0, 0, cw, horizon);
     }
   }
   ctx.fillStyle = night ? '#2e2a28' : '#7d8a70';
@@ -656,6 +833,15 @@ function sfRenderStreet(cw, ch){
     ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
     ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
     ctx.closePath(); ctx.fill();
+    // v6: cloud shadow sliding over the pavement
+    const csh = !night ? sfCloudShadow(wxm + cm / 2, wym + cm / 2) : 0;
+    if(csh > 0.04){
+      ctx.fillStyle = `rgba(28,36,60,${csh * 0.34})`;
+      ctx.beginPath();
+      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
+      ctx.closePath(); ctx.fill();
+    }
     if(t === 16){ // zebra hint in perspective
       ctx.fillStyle = 'rgba(232,230,223,0.55)';
       ctx.beginPath();
@@ -872,6 +1058,15 @@ function sfRenderStreet(cw, ch){
         }
       }
     }
+  }
+
+  // v6: rain — wind-slanted streaks + wet sheen rising from the pavement
+  if(W.rain > 0.08){
+    sfRainOverlay(cw, ch, Math.sin(W.windAng - SF_CAM.yaw) * 0.9);
+    const wg = ctx.createLinearGradient(0, horizon, 0, ch);
+    wg.addColorStop(0, 'rgba(120,140,165,0)');
+    wg.addColorStop(1, `rgba(140,160,185,${W.rain * 0.22})`);
+    ctx.fillStyle = wg; ctx.fillRect(0, horizon, cw, ch - horizon);
   }
 
   // DIRECTOR badge while free-fly camera is active

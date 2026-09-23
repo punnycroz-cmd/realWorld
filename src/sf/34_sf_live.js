@@ -40,6 +40,7 @@ async function sfFetchWeather(){
     if(c.temperature_2m != null) W.temp = c.temperature_2m;
     if(c.relative_humidity_2m != null) W.hum = c.relative_humidity_2m / 100;
     if(c.precipitation != null) W.rain = clamp(c.precipitation / 4, 0, 1);
+    if(c.cloud_cover != null) SF_WX.cover = c.cloud_cover / 100;
     if(c.weather_code != null)
       W.storm = (c.weather_code >= 95) ? 0.9 : (c.weather_code >= 80 ? 0.25 : 0);
     if(c.wind_direction_10m != null) W.windAng = c.wind_direction_10m * Math.PI / 180;
