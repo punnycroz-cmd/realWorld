@@ -34,7 +34,7 @@ log the result in §10 before the checklist may cite it.
 |---|------|-------|--------|
 | G1 | Owner approves public launch in writing (the go/no-go, §6) | owner | `[ ] PENDING` |
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
-| G3 | Real domain registered; `realworld-game.example` replaced in all 15 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
+| G3 | Real domain registered; `realworld-game.example` replaced everywhere it ships (canonical links, OG URLs, `sitemap.xml`, `robots.txt`, Caddyfile/netlify DNS+env). One command: `tools/swap_domain.sh <domain>` then `--check` must print CLEAN | owner + mkt | `[ ] PENDING` — swap tool rehearsed v59 (apply→check→revert round-trip clean) |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
 | G5 | Screenshot gallery refreshed with launch-build captures (current = **v37 dev build** — refreshed v55 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
@@ -108,7 +108,10 @@ cd marketing
 ./deploy/deploy-site.sh --apply                 # D0.1 — gated deploy (host from infra.env)
 ./tools/prod_smoke.sh https://<domain>          # D0.2 — live smoke pass (read-only)
 ./tools/uptime_probe.sh https://<domain>        # health probe — external-monitor stopgap (cron */5)
-grep -rIl 'realworld-game.example' site/        # must print nothing (G3)
+./tools/swap_domain.sh <domain>                 # G3 — placeholder→domain sweep (site/ + deploy/)
+./tools/swap_domain.sh --check <domain>         # must print CLEAN (G3)
+./tools/rehearse_host.sh                        # deploy/rollback/retention drill on a local fake host
+./tools/stripe_webhook_fixture.py --out /tmp/f.json   # signed test event for the crediting path
 grep -n 'data-demo-src' site/demo.html          # must show the live embed URL (G12)
 grep -n 'data-pricing' site/pricing.html        # must show "final" post-G4
 ./tools/analytics_e2e.sh                        # G8 — localhost sink e2e, no args
@@ -238,6 +241,9 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | staging_dryrun.sh (v55, shots v37) | 34 pass / 2 warn / 0 fail — warns: domain ×2 only; seo_audit 64/24/0 |
 | 2026-09-24 | tools/preflight.sh (v53) | 5 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
 | 2026-09-24 | tools/gonogo.sh (v53, 16 gates) | 2/16 auto-green (G5, G9) — G16 added as TRACK gate |
+| 2026-09-23 | tools/rehearse_host.sh (v59, first run) | PASS — 7 deploys on local fake host: symlink flips, 5-release retention, rollback flip to r6 verified by marker, `diff -r` content integrity, maintenance.html staged outside releases |
+| 2026-09-23 | tools/swap_domain.sh (v59, apply→check→revert) | PASS — placeholder→test domain across 24 files (site/ + deploy/), `--check` CLEAN 0 leftovers, `--revert` restored the whole tree; git status clean |
+| 2026-09-23 | tools/stripe_webhook_fixture.py (v59) | PASS — emits `checkout.session.completed` + `Stripe-Signature`; v1 HMAC independently re-verified against `t.body_raw` |
 
 ## §11 Rehearsal coverage matrix
 
@@ -248,7 +254,7 @@ it before citing the gate.
 
 | Item | Proof of readiness | Last rehearsed |
 |------|--------------------|----------------|
-| G3 domain swap | `staging_dryrun.sh` §4 sweep + `grep` card line | every dry-run |
+| G3 domain swap | `tools/swap_domain.sh` apply→`--check`→`--revert` + `staging_dryrun.sh` §4 sweep | 2026-09-23 (v59 round-trip) |
 | G4 pricing flip | `data-pricing` attribute + `gonogo.sh` AUTO check | flip rehearsed 2026-09-23 |
 | G5 gallery freshness | `gonogo.sh` AUTO diff vs `published/VERSION` | v53 (v32→v36) |
 | G8 analytics | `tools/analytics_e2e.sh` end-to-end fixture | 2026-09-23 (1057/1057) |
@@ -256,7 +262,7 @@ it before citing the gate.
 | G10 dry-run | `tools/staging_dryrun.sh` | every version |
 | G12 demo flip | `demo.html` fallback verified; `data-demo-src` grep in command card | fallback rehearsed |
 | G13 moderation | `MODERATION-PLAN.md` + `world/mod-console.html` demo; `gsWireAudit()` staging run still owed | spec only — needs game build |
-| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` | 2026-09-23 ship.sh green |
+| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) | 2026-09-23 ship.sh + rehearse_host green |
 | G15 feed vocab | `world/feed.json` canonical list quoted in gate text | diff owed at flip |
 | G16 onboarding | `analytics-events.json` hooks + sink/report/dashboard support (v51); staging run owed | spec only — needs game build |
 | D0.1 deploy | `deploy/deploy-site.sh` (dry-run rehearsed) | 2026-09-23 |
@@ -266,7 +272,7 @@ it before citing the gate.
 | D0.5–D0.8 posts | `social/drafts/` — launch-thread, timeline, pitches, seeds | drafted, not sent |
 | D0.8b community | `COMMUNITY-FUNNEL.md` §3 + `rules.html` + `templates/mod-responses.md` | spec complete |
 | D0.9 monitoring | `tools/uptime_probe.sh` + `deploy/monitoring.example` + ANALYTICS dashboard | probe HEALTHY 2026-09-23 |
-| §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts | maintenance flip documented |
+| §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts + `tools/rehearse_host.sh` rollback flip | rollback flip exercised 2026-09-23 (v59) |
 
 ## §12 Never-do list (load-bearing)
 

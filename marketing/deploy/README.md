@@ -20,3 +20,12 @@ production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2).
 The whole go-session is one command: `../tools/ship.sh` (preflight → kit
 rebuild → deploy → live smoke). Bare run rehearses read-only; `--apply`
 ships. Ongoing health: `../tools/uptime_probe.sh https://<domain>`.
+
+Companion tools (all local, nothing publishes):
+- `../tools/swap_domain.sh <domain>` — the G3 placeholder→domain sweep over
+  site/ + deploy/; `--check` verifies zero leftovers, `--revert` restores.
+- `../tools/rehearse_host.sh` — exercises the releases/current/retention/
+  rollback contract on a local fake host (no SSH needed).
+- `../tools/stripe_webhook_fixture.py` — emits a correctly-signed
+  `checkout.session.completed` + `Stripe-Signature` header so the game-side
+  crediting consumer can be rehearsed before a Stripe account exists.

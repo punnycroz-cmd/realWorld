@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v44 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v59 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -130,9 +130,9 @@ GO; it never publishes anything.
 | 3 | Provision host (VPS+Caddy or Pages/Netlify project); deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
 | 4 | Verify TLS auto-issued; run `tools/prod_smoke.sh https://<domain>` | G14/D0.2 | 10 min |
 | 5 | Stand up analytics backend on `stats.<domain>`; set `data-endpoint` on all pages; confirm events in dashboard | G8 | 30 min |
-| 6 | Stripe: create account → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path | G14 | 45 min |
+| 6 | Stripe: create account → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path. The consumer itself can be rehearsed BEFORE the account exists: `tools/stripe_webhook_fixture.py` emits a correctly-signed `checkout.session.completed` + `Stripe-Signature` header (HMAC-SHA256 over `t.body`) for a local endpoint | G14 | 45 min |
 | 7 | Arm uptime monitoring per `deploy/monitoring.example` (external monitor, or cron `tools/uptime_probe.sh` as the self-hosted stopgap); alert → owner email/SMS | G14 | 10 min |
-| 8 | Swap `realworld-game.example` → real domain in all 8 files (dry-run §4 sweep must go clean) | G3 | 15 min |
+| 8 | `tools/swap_domain.sh <domain>` — automated G3 sweep (site/ + deploy/, 24 files today; `--check` verifies zero leftovers, `--revert` restores the placeholder for continued iteration). Dry-run §4 + preflight §3 must go clean after | G3 | 5 min |
 | 9 | Rebuild press kit (`./build-press-kit.sh`), rerun dry-run | G9/G10 | 10 min |
 
 ## 6. Deploy & rollback
@@ -145,6 +145,10 @@ GO; it never publishes anything.
 - **Rollback:** symlink flip back using the printed command, or redeploy a
   prior git tag. Worst case = maintenance mode (below). No state to lose —
   the site is stateless. Full table: LAUNCH-CHECKLIST §5.
+  **Rehearsed:** `tools/rehearse_host.sh` exercises the whole contract on a
+  local fake host — 7 deploys, symlink flips, 5-release retention, the
+  printed-style rollback flip, `diff -r` content integrity, and
+  maintenance-page staging. Run it any time deploy logic changes.
 - **Maintenance mode:** `deploy/maintenance.html` is a self-contained page
   (inline styles, zero asset deps — renders even if a release is broken).
   It lives OUTSIDE `site/` so it never ships in a deploy; copy it to
