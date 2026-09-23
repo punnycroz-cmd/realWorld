@@ -20,7 +20,8 @@ Contents
   manifest.json      Machine-readable kit manifest
   logos/             Primary lockup (light text, for dark bgs) +
                      dark-ink lockup (logo-primary-dark.svg, for light bgs) +
-                     stacked lockup + icon + single-ink mono icon +
+                     stacked lockup + icon + single-ink mono icon and
+                     mono lockup +
                      animated icon SVG + window pattern; SVG and PNG; favicon.
                      Usage rules: marketing/BRAND.md §7.
   keyart/            1920x1080 and 1080x1080 key art (built on a real

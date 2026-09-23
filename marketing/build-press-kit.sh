@@ -15,7 +15,7 @@ python3 tools/make_brand_assets.py >/dev/null
 cp site/assets/logo-primary.svg site/assets/logo-primary.png \
    site/assets/logo-primary-dark.svg \
    site/assets/logo-icon.svg site/assets/logo-icon.png \
-   site/assets/logo-icon-mono.svg \
+   site/assets/logo-icon-mono.svg site/assets/logo-primary-mono.svg \
    site/assets/logo-stacked.svg \
    site/assets/logo-icon-animated.svg \
    site/assets/pattern-windows.svg \

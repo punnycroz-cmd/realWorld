@@ -140,6 +140,7 @@ The palette is the Mission at dusk: wet asphalt, warm windows, fog.
 | `--accent` | `#e8a04c` | Café-light amber | Primary accent, lit window, CTAs, "THE MISSION" |
 | `--accent-2` | `#4f9d69` | Park green | Secondary accent, success/affordable states |
 | `--accent-3` | `#d4645c` | Mural red | Sparingly: alerts, one window in the mark |
+| `--ink` | `#1a1206` | Ink on amber | Text/icons on accent fills (amber buttons, badges) |
 
 **Ratios:** ~80% darks/neutrals, ~15% paper/fog text, ~5% accent colors.
 Amber is the hero accent — green and red appear at most once per composition
@@ -191,10 +192,13 @@ brand's whole thesis in one glyph; protect it.
 | `logo-primary-dark.svg` | Horizontal lockup, dark ink | Light/white backgrounds only |
 | `logo-icon.svg` / `.png` (512²) | Icon tile | Avatar, favicon base, app icon, square contexts |
 | `logo-icon-mono.svg` | Icon, single-ink | One-color print, engraving, watermark |
+| `logo-primary-mono.svg` | Horizontal lockup, single-ink (`currentColor`) | One-color print, engraving, merch, watermark |
+| `safari-pinned-tab.svg` | Black-silhouette mask icon | Safari pinned tabs (recolored by the `mask-icon` link's `color`) |
 | `logo-stacked.svg` | Vertical lockup (icon over wordmark) | Square/tall placements: podcast art, profile panels, video end-cards |
 | `logo-icon-animated.svg` | Living icon — lit window breathes on a ~9s ease cycle, glow behind, honors `prefers-reduced-motion` | Web embeds, loading states, trailer/teaser end-card. Never where motion would imply "live" status |
 | `pattern-windows.svg` | Window-grid divider motif (cornice line + window run, one lit amber off-center) | Section breaks, textures, email/social dividers. A motif — never a logo substitute |
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | Favicons | Site `<head>` (already wired) |
+| `icon-192.png`, `icon-maskable.png`, `site.webmanifest` | PWA/install icons + manifest | `icon-maskable` keeps the mark inside the 80% safe zone so Android can crop any mask shape; manifest name/theme use brand values |
 
 ### Rules
 
@@ -339,8 +343,12 @@ When a commissioned key-art piece replaces the dev-capture art:
 ## 13. Governance
 
 - Changes to palette/type/logo/taglines = edit this file + regenerate assets +
-  inbox note. Palette hexes are also hardcoded in `site/css/style.css` and
-  `tools/make_brand_assets.py` — change all three together.
+  inbox note. Palette hexes are also hardcoded in `site/css/style.css`,
+  `site/assets/brand-tokens.json` (machine-readable source for
+  `css/tokens.css` via `tools/make_tokens.py`), and
+  `tools/make_brand_assets.py` — change all four together.
+  `tools/brand_audit.py` enforces parity mechanically: run it after any
+  brand change (exit 0 = clean).
 - New taglines/claims need a line citing the design doc section that permits
   them.
 - Every shipped page/post is accountable to §10. The dry-run script checks

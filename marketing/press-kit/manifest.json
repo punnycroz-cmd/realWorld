@@ -16,7 +16,7 @@
     "logos/": [
       "logo-primary.svg", "logo-primary.png", "logo-primary-dark.svg",
       "logo-stacked.svg", "logo-icon.svg", "logo-icon.png",
-      "logo-icon-mono.svg", "logo-icon-animated.svg",
+      "logo-icon-mono.svg", "logo-primary-mono.svg", "logo-icon-animated.svg",
       "pattern-windows.svg", "favicon.svg"
     ],
     "keyart/": ["keyart-16x9.png", "keyart-square.png"],

@@ -243,9 +243,17 @@ def main():
     os.makedirs(KEYART, exist_ok=True)
 
     draw_icon(512).save(os.path.join(ASSETS, "logo-icon.png"))
+    draw_icon(192).save(os.path.join(ASSETS, "icon-192.png"))
     draw_icon(180).save(os.path.join(ASSETS, "apple-touch-icon.png"))
     draw_icon(32).save(os.path.join(ASSETS, "favicon-32.png"))
     draw_lockup().save(os.path.join(ASSETS, "logo-primary.png"))
+
+    # Maskable icon: full-bleed Asphalt tile, mark shrunk into the inner 80%
+    # safe zone so Android launchers can crop to any mask shape.
+    mask = Image.new("RGBA", (512, 512), BG)
+    inner = draw_icon(410)
+    mask.alpha_composite(inner, (51, 51))
+    mask.save(os.path.join(ASSETS, "icon-maskable.png"))
 
     k169 = draw_keyart(1920, 1080,
         "A neighborhood that's alive whether you're watching or not.")
