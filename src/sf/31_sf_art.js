@@ -395,6 +395,149 @@ function sfPlanterSpr(){
     paBlob(g, bx, by, 1.1, c);
   return s;
 }
+/* ---- v31: URBAN FOREST — elevation vegetation + park canopy masses ----
+   sfBigTreeSpr: 128px park-scale crown (~8m at 16px/m) — the broad
+   multi-lobed canopies Dolores Park actually carries, built from the
+   same leaf-cluster engine so the texture language matches the pits.
+   sfVegSideSpr: SIDE-ELEVATION silhouettes for the street camera — a
+   trunk rising into real crown architecture, instead of the top-down
+   crown sprite pasted upright (which read as a green balloon). */
+function sfBigTreeSpr(v){
+  const s = paMk(128, 120), g = s.g;
+  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
+  const blobs = v === 0
+    ? [[64,58,34,25],[34,70,24,17],[94,68,24,17],[64,32,26,17],
+       [44,46,20,13],[86,44,20,13],[64,82,30,15],[26,60,14,11],[102,58,14,11]]
+    : v === 1
+    ? [[64,48,30,26],[38,62,22,17],[90,60,22,17],[64,24,22,16],
+       [46,36,17,12],[82,34,17,12],[64,76,26,15],[30,48,13,10],[98,46,13,10]]
+    : [[64,62,38,22],[30,66,24,15],[98,64,24,15],[64,36,30,15],
+       [40,50,20,12],[88,48,20,12],[64,82,30,13]];
+  for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
+  // trunk + forked scaffold limbs peeking under the crown edge
+  paR(g, 62, 96, 5, 20, tr[2]); paR(g, 63, 96, 2, 20, tr[3]);
+  paLine(g, 63, 100, 44, 84, tr[2]); paLine(g, 64, 100, 84, 82, tr[2]);
+  paLine(g, 63, 104, 52, 90, tr[3]); paLine(g, 64, 104, 74, 88, tr[3]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx, by, rx, ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, 3400 + v * 53 + bi, lf, ld,
+                 { n: Math.round(rx * ry * 1.9) });
+  }
+  paEllipse(g, 40, 22, 6, 3, lf[5]); // key light catch
+  paEllipse(g, 30, 34, 4, 2, lf[4]);
+  return s;
+}
+/* shared side-view crown: dark occlusion mass, then cluster texture */
+function sfSideCrown(g, blobs, seed, lf, ld){
+  for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx,by,rx,ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, seed + bi, lf, ld,
+                 { n: Math.round(rx * ry * 1.7) });
+  }
+}
+function sfVegSideSpr(kind, v){
+  if(kind === 'tree'){
+    // park / OSM broadleaf seen from the sidewalk: real trunk into a
+    // layered crown (~7-9m tall at draw scale)
+    const s = paMk(110, 175), g = s.g;
+    const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+    // tapered trunk + scaffold limbs
+    for(let y = 0; y < 78; y++){
+      const w2 = Math.max(1.4, 3.4 - y * 0.022), x = 55 + Math.round(y * 0.02);
+      paR(g, x - w2 / 2, 172 - y, w2, 1.2, tr[y % 9 === 0 ? 3 : 2]);
+    }
+    const limbs = [[55,100,34,72],[55,96,76,70],[55,92,52,58],[55,98,66,64]];
+    for(const [x1,y1,x2,y2] of limbs){ paLine(g,x1,y1,x2,y2,tr[2]); paLine(g,x1,y1-1,x2,y2-1,tr[1]); }
+    const blobs = v === 0
+      ? [[55,58,34,26],[28,74,20,15],[82,72,20,15],[55,32,24,17],
+         [40,44,17,12],[72,42,17,12],[55,86,26,14]]
+      : v === 1
+      ? [[55,52,30,26],[32,66,20,15],[78,64,20,15],[55,26,22,16],
+         [42,38,16,12],[70,36,16,12],[55,80,24,13]]
+      : [[55,60,36,22],[26,72,20,13],[84,70,20,13],[55,36,28,15],
+         [38,50,18,11],[74,48,18,11]];
+    sfSideCrown(g, blobs, 3500 + v * 61, lf, ld);
+    paEllipse(g, 34, 26, 5, 3, lf[5]);
+    return s;
+  }
+  if(kind === 'street'){
+    // sidewalk pit tree in profile: grate sliver, slim trunk, round crown
+    const s = paMk(64, 140), g = s.g;
+    const tr = MAT.trunk, ir = MAT.ironDark;
+    const lf = v === 0 ? MAT.leaf : v === 1 ? rampOf('#e8a0bc') : rampOf('#c9a04a');
+    const ld = v === 0 ? MAT.leafDeep : v === 1 ? rampOf('#a8567a') : rampOf('#8a6c30');
+    paEllipse(g, 32, 136, 12, 2.6, ir[1]);
+    paEllipse(g, 32, 135.4, 9, 2, MAT.dirt[2]);
+    for(let k = -2; k <= 2; k++) paPX(g, 32 + k * 4, 134, ir[0]);
+    paR(g, 30.6, 74, 2.8, 62, tr[2]); paR(g, 31.4, 74, 1.2, 62, tr[3]);
+    paLine(g, 32, 84, 20, 66, tr[2]); paLine(g, 32, 84, 44, 64, tr[2]);
+    const blobs = [[32,46,24,20],[17,56,14,11],[47,54,14,11],
+                   [32,26,16,13],[24,38,11,9],[42,36,11,9]];
+    sfSideCrown(g, blobs, 3560 + v * 47, lf, ld);
+    if(v === 1) paNoise(g, 12, 22, 40, 40, ['#ffd8e8','#f4c2d8','#f8ecf2'], 0.10, 3620);
+    if(v === 2) paNoise(g, 12, 22, 40, 40, ['#e8c86a','#f0d888'], 0.10, 3621);
+    paEllipse(g, 22, 24, 4, 2.4, lf[5]);
+    return s;
+  }
+  if(kind === 'palm'){
+    // Mission fan palm: curved ringed trunk, crown shaft, fronds arching
+    // OUT and drooping (not the top-down star), dead thatch skirt
+    const s = paMk(96, 190), g = s.g;
+    const tr = rampOf('#9a7a4e'), lf = rampOf('#4e9a44'), ld = rampOf('#357030');
+    const lean = v === 0 ? 5 : -5;
+    for(let y = 0; y < 148; y++){
+      const t = y / 148, x = 48 + Math.round(lean * t * t * 1.6) - Math.round(lean * 0.1);
+      const w2 = Math.max(1.6, 3.2 - t * 1.4);
+      paR(g, x - w2 / 2, 187 - y, w2, 1.3, tr[2]);
+      if(y % 7 === 0) paR(g, x - w2 / 2, 187 - y, w2, 1, tr[4]); // ring scars
+    }
+    const tx = 48 + Math.round(lean * 1.5), ty = 38;
+    const sk = rampOf('#8a6a38');
+    for(let f = 0; f < 8; f++){ // dead-frond skirt hanging below the crown
+      const fx = (f - 3.5) * 2.4;
+      for(let k = 0; k < 7; k++)
+        paPX(g, Math.round(tx + fx * (1 - k * 0.08)), Math.round(ty + 4 + k * 1.7 + Math.abs(fx) * 0.4), sk[k < 4 ? 2 : 1]);
+    }
+    paEllipse(g, tx, ty + 2, 4, 4, tr[2]);
+    for(let f = 0; f < 12; f++){
+      const ang = -Math.PI * 0.08 - f * (Math.PI * 0.92 / 11);
+      const fx = Math.cos(ang), fy = Math.sin(ang);
+      const len = 20 + (f % 3) * 5;
+      for(let k = 1; k <= len; k++){
+        // rachis arcs out then droops under gravity
+        const px = tx + fx * k, py = ty + fy * k * 0.55 + k * k * 0.05;
+        paPX(g, Math.round(px), Math.round(py), k % 3 === 0 ? ld[2] : lf[3]);
+        if(k > 2){
+          const lw = Math.max(1, 3.4 - k * 0.14);
+          const lc = fy < -0.3 ? lf[4] : (k % 2 ? lf[3] : lf[2]);
+          paLine(g, Math.round(px), Math.round(py),
+                 Math.round(px - fy * lw), Math.round(py + 2 + fx * lw * 0.4), lc);
+        }
+      }
+      paPX(g, Math.round(tx + fx * len), Math.round(ty + fy * len * 0.55 + len * len * 0.05), lf[5]);
+    }
+    return s;
+  }
+  // 'cypress': Monterey cypress flag form in profile — dense windward
+  // face, crown streamed leeward (east), ragged drifting top
+  const s = paMk(84, 190), g = s.g;
+  const tr = MAT.trunk, lf = rampOf(v === 0 ? '#3a6a34' : '#466e38'),
+        ld = rampOf(v === 0 ? '#244a22' : '#2c4a26');
+  paR(g, 34, 150, 4, 38, tr[1]); paR(g, 36, 150, 1.4, 38, tr[2]);
+  paLine(g, 36, 158, 44, 140, tr[2]);
+  const blobs = [];
+  for(let k = 0; k < 11; k++){
+    const t = k / 10, y = 158 - k * 14.5;
+    const r = 5 + Math.sin(Math.min(1, t * 1.15) * Math.PI) * 15 + phash(k, v, 3700) * 3;
+    blobs.push([34 + t * 12 + (phash(k, v, 3701) - 0.5) * 4, y, r, Math.max(6, r * 0.55)]);
+  }
+  sfSideCrown(g, blobs, 3710 + v * 37, lf, ld);
+  paNoise(g, 20, 4, 44, 160, [lf[5], ld[0]], 0.05, 3720 + v);
+  paPX(g, 50, 2, lf[4]); paPX(g, 52, 4, lf[3]); paPX(g, 54, 6, lf[3]); // streamed tip
+  return s;
+}
 function sfBenchSpr(){
   const s = paMk(36, 22), g = s.g;
   const wd = MAT.wood, ir = MAT.ironDark;
@@ -500,6 +643,13 @@ function buildSfVeg(){
     V.car.push(sfCarSpr(cv, true));
   }
   V.pole = [sfPoleSpr(0), sfPoleSpr(1)]; // v20
+  // v31: park-scale crowns (top view) + side-elevation silhouettes
+  // (street view) — drawn instead of the plan-view crown sprites
+  V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
+  V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
+  V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
+  V.sideStreet = [sfVegSideSpr('street', 0), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
+  V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
 }
 
 /* ---------------- Victorian facade compiler ----------------

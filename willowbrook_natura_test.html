@@ -27754,7 +27754,7 @@ function sfInitWorld(){
   for(let wy = 1; wy < SF_M.gh - 1; wy++){
     for(let wx = 1; wx < SF_M.gw - 1; wx++){
       const t = sfTile(wx, wy);
-      if(t === 11 && nStreetTree < 1100){
+      if(t === 11 && nStreetTree < 1500){
         // sidewalk cell with a street edge: curb-side pit tree
         let fx = 0, fy = 0;
         if(sfTile(wx, wy - 1) === 10) fy = -11;
@@ -27767,13 +27767,13 @@ function sfInitWorld(){
            sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16) continue;
         if(doorNear(wx, wy, 2)) continue;
         // v21: real Mission streets carry a pit tree every ~8-10m —
-        // coverage roughly doubles, spacing relaxed one cell
-        if(phash(wx, wy, 1650) > 0.55) continue;
+        // v31: coverage raised again toward the real ~70% of eligible pits
+        if(phash(wx, wy, 1650) > 0.68) continue;
         if(occNear(wx, wy, 2)) continue;
         const v = phash(wx, wy, 1651) < 0.22 ? 1 : (phash(wx, wy, 1652) < 0.18 ? 2 : 0);
         const o = addVeg('sfStreetTree', wx, wy, fx, fy);
         o.v = v; nStreetTree++;
-      } else if(t === 13 && nParkVeg < 700){
+      } else if(t === 13 && nParkVeg < 1000){
         // park grass: shrubs + flowerbeds; denser near paths, sparse inside
         const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
                          sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
@@ -27783,10 +27783,26 @@ function sfInitWorld(){
         // v21: Dolores Park is TREE-dotted, not bare lawn — big leafy
         // canopy trees inside the grass, palms ringing the park edge,
         // cypress in clustered stands (they grow in groves, not alone)
-        if(h1 > 0.975 && !occNear(wx, wy, 4) && !nearPath){
-          addVeg('sfTree', wx, wy,
+        // v31: park canopy upgraded to real cover — denser gate, half the
+        // trees mature ~8m crowns (o.big), and trees clump into groves
+        // the way Dolores Park's plantings actually mass on the slopes
+        if(h1 > 0.962 && !occNear(wx, wy, 3) && !nearPath){
+          const o = addVeg('sfTree', wx, wy,
                  (phash(wx, wy, 1667) - 0.5) * 10, (phash(wy, wx, 1668) - 0.5) * 10);
+          o.big = phash(wx, wy, 3450) < 0.55 ? 1 : 0;
           nParkVeg++;
+          if(phash(wx, wy, 3451) < 0.45 && nParkVeg < 1000){
+            const cx2 = wx + Math.floor(phash(wx, wy, 3452) * 5) - 2;
+            const cy2 = wy + Math.floor(phash(wy, wx, 3453) * 5) - 2;
+            const np2 = sfTile(cx2, cy2 - 1) === 15 || sfTile(cx2, cy2 + 1) === 15 ||
+                        sfTile(cx2 - 1, cy2) === 15 || sfTile(cx2 + 1, cy2) === 15;
+            if(sfTile(cx2, cy2) === 13 && !occNear(cx2, cy2, 1) && !np2){
+              const o2 = addVeg('sfTree', cx2, cy2,
+                     (phash(cx2, cy2, 3454) - 0.5) * 10, (phash(cy2, cx2, 3455) - 0.5) * 10);
+              o2.big = phash(cx2, cy2, 3450) < 0.4 ? 1 : 0;
+              nParkVeg++;
+            }
+          }
         } else if(nearWalk && h1 < 0.07 && !occNear(wx, wy, 4)){
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
@@ -28385,6 +28401,149 @@ function sfPlanterSpr(){
     paBlob(g, bx, by, 1.1, c);
   return s;
 }
+/* ---- v31: URBAN FOREST — elevation vegetation + park canopy masses ----
+   sfBigTreeSpr: 128px park-scale crown (~8m at 16px/m) — the broad
+   multi-lobed canopies Dolores Park actually carries, built from the
+   same leaf-cluster engine so the texture language matches the pits.
+   sfVegSideSpr: SIDE-ELEVATION silhouettes for the street camera — a
+   trunk rising into real crown architecture, instead of the top-down
+   crown sprite pasted upright (which read as a green balloon). */
+function sfBigTreeSpr(v){
+  const s = paMk(128, 120), g = s.g;
+  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
+  const blobs = v === 0
+    ? [[64,58,34,25],[34,70,24,17],[94,68,24,17],[64,32,26,17],
+       [44,46,20,13],[86,44,20,13],[64,82,30,15],[26,60,14,11],[102,58,14,11]]
+    : v === 1
+    ? [[64,48,30,26],[38,62,22,17],[90,60,22,17],[64,24,22,16],
+       [46,36,17,12],[82,34,17,12],[64,76,26,15],[30,48,13,10],[98,46,13,10]]
+    : [[64,62,38,22],[30,66,24,15],[98,64,24,15],[64,36,30,15],
+       [40,50,20,12],[88,48,20,12],[64,82,30,13]];
+  for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
+  // trunk + forked scaffold limbs peeking under the crown edge
+  paR(g, 62, 96, 5, 20, tr[2]); paR(g, 63, 96, 2, 20, tr[3]);
+  paLine(g, 63, 100, 44, 84, tr[2]); paLine(g, 64, 100, 84, 82, tr[2]);
+  paLine(g, 63, 104, 52, 90, tr[3]); paLine(g, 64, 104, 74, 88, tr[3]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx, by, rx, ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, 3400 + v * 53 + bi, lf, ld,
+                 { n: Math.round(rx * ry * 1.9) });
+  }
+  paEllipse(g, 40, 22, 6, 3, lf[5]); // key light catch
+  paEllipse(g, 30, 34, 4, 2, lf[4]);
+  return s;
+}
+/* shared side-view crown: dark occlusion mass, then cluster texture */
+function sfSideCrown(g, blobs, seed, lf, ld){
+  for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx,by,rx,ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, seed + bi, lf, ld,
+                 { n: Math.round(rx * ry * 1.7) });
+  }
+}
+function sfVegSideSpr(kind, v){
+  if(kind === 'tree'){
+    // park / OSM broadleaf seen from the sidewalk: real trunk into a
+    // layered crown (~7-9m tall at draw scale)
+    const s = paMk(110, 175), g = s.g;
+    const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+    // tapered trunk + scaffold limbs
+    for(let y = 0; y < 78; y++){
+      const w2 = Math.max(1.4, 3.4 - y * 0.022), x = 55 + Math.round(y * 0.02);
+      paR(g, x - w2 / 2, 172 - y, w2, 1.2, tr[y % 9 === 0 ? 3 : 2]);
+    }
+    const limbs = [[55,100,34,72],[55,96,76,70],[55,92,52,58],[55,98,66,64]];
+    for(const [x1,y1,x2,y2] of limbs){ paLine(g,x1,y1,x2,y2,tr[2]); paLine(g,x1,y1-1,x2,y2-1,tr[1]); }
+    const blobs = v === 0
+      ? [[55,58,34,26],[28,74,20,15],[82,72,20,15],[55,32,24,17],
+         [40,44,17,12],[72,42,17,12],[55,86,26,14]]
+      : v === 1
+      ? [[55,52,30,26],[32,66,20,15],[78,64,20,15],[55,26,22,16],
+         [42,38,16,12],[70,36,16,12],[55,80,24,13]]
+      : [[55,60,36,22],[26,72,20,13],[84,70,20,13],[55,36,28,15],
+         [38,50,18,11],[74,48,18,11]];
+    sfSideCrown(g, blobs, 3500 + v * 61, lf, ld);
+    paEllipse(g, 34, 26, 5, 3, lf[5]);
+    return s;
+  }
+  if(kind === 'street'){
+    // sidewalk pit tree in profile: grate sliver, slim trunk, round crown
+    const s = paMk(64, 140), g = s.g;
+    const tr = MAT.trunk, ir = MAT.ironDark;
+    const lf = v === 0 ? MAT.leaf : v === 1 ? rampOf('#e8a0bc') : rampOf('#c9a04a');
+    const ld = v === 0 ? MAT.leafDeep : v === 1 ? rampOf('#a8567a') : rampOf('#8a6c30');
+    paEllipse(g, 32, 136, 12, 2.6, ir[1]);
+    paEllipse(g, 32, 135.4, 9, 2, MAT.dirt[2]);
+    for(let k = -2; k <= 2; k++) paPX(g, 32 + k * 4, 134, ir[0]);
+    paR(g, 30.6, 74, 2.8, 62, tr[2]); paR(g, 31.4, 74, 1.2, 62, tr[3]);
+    paLine(g, 32, 84, 20, 66, tr[2]); paLine(g, 32, 84, 44, 64, tr[2]);
+    const blobs = [[32,46,24,20],[17,56,14,11],[47,54,14,11],
+                   [32,26,16,13],[24,38,11,9],[42,36,11,9]];
+    sfSideCrown(g, blobs, 3560 + v * 47, lf, ld);
+    if(v === 1) paNoise(g, 12, 22, 40, 40, ['#ffd8e8','#f4c2d8','#f8ecf2'], 0.10, 3620);
+    if(v === 2) paNoise(g, 12, 22, 40, 40, ['#e8c86a','#f0d888'], 0.10, 3621);
+    paEllipse(g, 22, 24, 4, 2.4, lf[5]);
+    return s;
+  }
+  if(kind === 'palm'){
+    // Mission fan palm: curved ringed trunk, crown shaft, fronds arching
+    // OUT and drooping (not the top-down star), dead thatch skirt
+    const s = paMk(96, 190), g = s.g;
+    const tr = rampOf('#9a7a4e'), lf = rampOf('#4e9a44'), ld = rampOf('#357030');
+    const lean = v === 0 ? 5 : -5;
+    for(let y = 0; y < 148; y++){
+      const t = y / 148, x = 48 + Math.round(lean * t * t * 1.6) - Math.round(lean * 0.1);
+      const w2 = Math.max(1.6, 3.2 - t * 1.4);
+      paR(g, x - w2 / 2, 187 - y, w2, 1.3, tr[2]);
+      if(y % 7 === 0) paR(g, x - w2 / 2, 187 - y, w2, 1, tr[4]); // ring scars
+    }
+    const tx = 48 + Math.round(lean * 1.5), ty = 38;
+    const sk = rampOf('#8a6a38');
+    for(let f = 0; f < 8; f++){ // dead-frond skirt hanging below the crown
+      const fx = (f - 3.5) * 2.4;
+      for(let k = 0; k < 7; k++)
+        paPX(g, Math.round(tx + fx * (1 - k * 0.08)), Math.round(ty + 4 + k * 1.7 + Math.abs(fx) * 0.4), sk[k < 4 ? 2 : 1]);
+    }
+    paEllipse(g, tx, ty + 2, 4, 4, tr[2]);
+    for(let f = 0; f < 12; f++){
+      const ang = -Math.PI * 0.08 - f * (Math.PI * 0.92 / 11);
+      const fx = Math.cos(ang), fy = Math.sin(ang);
+      const len = 20 + (f % 3) * 5;
+      for(let k = 1; k <= len; k++){
+        // rachis arcs out then droops under gravity
+        const px = tx + fx * k, py = ty + fy * k * 0.55 + k * k * 0.05;
+        paPX(g, Math.round(px), Math.round(py), k % 3 === 0 ? ld[2] : lf[3]);
+        if(k > 2){
+          const lw = Math.max(1, 3.4 - k * 0.14);
+          const lc = fy < -0.3 ? lf[4] : (k % 2 ? lf[3] : lf[2]);
+          paLine(g, Math.round(px), Math.round(py),
+                 Math.round(px - fy * lw), Math.round(py + 2 + fx * lw * 0.4), lc);
+        }
+      }
+      paPX(g, Math.round(tx + fx * len), Math.round(ty + fy * len * 0.55 + len * len * 0.05), lf[5]);
+    }
+    return s;
+  }
+  // 'cypress': Monterey cypress flag form in profile — dense windward
+  // face, crown streamed leeward (east), ragged drifting top
+  const s = paMk(84, 190), g = s.g;
+  const tr = MAT.trunk, lf = rampOf(v === 0 ? '#3a6a34' : '#466e38'),
+        ld = rampOf(v === 0 ? '#244a22' : '#2c4a26');
+  paR(g, 34, 150, 4, 38, tr[1]); paR(g, 36, 150, 1.4, 38, tr[2]);
+  paLine(g, 36, 158, 44, 140, tr[2]);
+  const blobs = [];
+  for(let k = 0; k < 11; k++){
+    const t = k / 10, y = 158 - k * 14.5;
+    const r = 5 + Math.sin(Math.min(1, t * 1.15) * Math.PI) * 15 + phash(k, v, 3700) * 3;
+    blobs.push([34 + t * 12 + (phash(k, v, 3701) - 0.5) * 4, y, r, Math.max(6, r * 0.55)]);
+  }
+  sfSideCrown(g, blobs, 3710 + v * 37, lf, ld);
+  paNoise(g, 20, 4, 44, 160, [lf[5], ld[0]], 0.05, 3720 + v);
+  paPX(g, 50, 2, lf[4]); paPX(g, 52, 4, lf[3]); paPX(g, 54, 6, lf[3]); // streamed tip
+  return s;
+}
 function sfBenchSpr(){
   const s = paMk(36, 22), g = s.g;
   const wd = MAT.wood, ir = MAT.ironDark;
@@ -28490,6 +28649,13 @@ function buildSfVeg(){
     V.car.push(sfCarSpr(cv, true));
   }
   V.pole = [sfPoleSpr(0), sfPoleSpr(1)]; // v20
+  // v31: park-scale crowns (top view) + side-elevation silhouettes
+  // (street view) — drawn instead of the plan-view crown sprites
+  V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
+  V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
+  V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
+  V.sideStreet = [sfVegSideSpr('street', 0), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
+  V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
 }
 
 /* ---------------- Victorian facade compiler ----------------
@@ -31062,7 +31228,8 @@ function sfRenderWorld(cw, ch){
       // v19: propM = real height in meters (drives sun throw), footM =
       // ground-contact radius in meters (drives the always-on AO disc)
       let spr = null, shadeR = 0, propM = 0, footM = 0;
-      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; shadeR = 15; footM = 0.55; }
+      if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0;
+        spr = o.big ? V.bigTree[ti] : V.tree[ti]; shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; shadeR = 11; footM = 0.45; }
       else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; shadeR = 8; footM = 0.5; }
@@ -31103,7 +31270,7 @@ function sfRenderWorld(cw, ch){
         // and stretch both come from the solar elevation (long low-sun
         // streaks, compact noon pools), tilted with the ground plane
         if(shadeR && !isNight() && SF_SUN.day > 0.08){
-          const hmPx = (o.kind === 'sfTree' ? 4.4 : o.kind === 'sfPalm' ? 6.4 :
+          const hmPx = (o.kind === 'sfTree' ? (o.big ? 7.2 : 4.4) : o.kind === 'sfPalm' ? 6.4 :
                         o.kind === 'sfCypress' ? 6.0 : 3.6) * SF_PXM * cam.zoom;
           const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
           const stretch = 1 + Math.hypot(SF_SUN.x, SF_SUN.y) * 0.55;
@@ -31138,10 +31305,32 @@ function sfRenderWorld(cw, ch){
                         0.24 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
+        const vegK = o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
+                     o.kind === 'sfPalm' || o.kind === 'sfCypress';
+        // v31: leaf litter — wind-combed leaf/petal fall drifted leeward
+        // of each crown (pink trumpet petals, ginkgo gold, plain leaf).
+        // Deterministic per prop; denser under the big park crowns.
+        if(vegK && cam.zoom >= 0.55 && !isNight()){
+          const LC = o.kind === 'sfStreetTree'
+            ? (o.v === 1 ? ['#f0b8d0','#e0a0bc','#f8dce8'] :
+               o.v === 2 ? ['#d8a84a','#c09038','#e8c86a'] :
+                           ['#5a7a3a','#6b8a44','#48682e'])
+            : ['#5a7a3a','#718c46','#486830'];
+          const nL = o.big ? 22 : (o.kind === 'sfStreetTree' ? 9 : 12);
+          const wdx = Math.cos(W.windAng || 0), wdy = Math.sin(W.windAng || 0);
+          const lee = shadeR * 0.4 * (0.4 + SF_WX.gust * 0.8);
+          for(let li = 0; li < nL; li++){
+            const a = phash(li, o.wx * 7 + o.wy, 3460) * Math.PI * 2;
+            const rr = (0.45 + phash(li, o.wy * 5 + o.wx, 3461) * 0.85) * shadeR * cam.zoom;
+            ctx.fillStyle = LC[li % 3];
+            ctx.fillRect(Math.round(sx + Math.cos(a) * rr + wdx * lee * cam.zoom),
+                         Math.round(sy + Math.sin(a) * rr * SF_TILT + wdy * lee * SF_TILT * cam.zoom),
+                         Math.max(1, 1.6 * cam.zoom), Math.max(1, 1.1 * cam.zoom));
+          }
+        }
         // v6: canopy sway on the wind (trees only; storms rock harder)
         // v7: modulated by the gust envelope — canopies breathe in waves
-        const sway = (o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
-                      o.kind === 'sfPalm' || o.kind === 'sfCypress')
+        const sway = vegK
           ? Math.sin(SF_WX.t * 1.7 + o.x * 0.05 + o.y * 0.03) *
             0.022 * (0.3 + SF_WX.gust * 0.9 + W.storm * 1.4)
           : 0;
@@ -31150,6 +31339,39 @@ function sfRenderWorld(cw, ch){
           ctx.drawImage(sprC, -pw / 2, -ph + 4 * cam.zoom, pw, ph);
           ctx.restore();
         } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
+        // v31: crowns answer the REAL sun — a warm wash on the sunward
+        // flank of the crown, cool sky-fill lee, and light-dapple
+        // speckles where sun leaks through onto the shadowed ground
+        if(vegK && !isNight() && SF_SUN.day > 0.2){
+          const crx = pw * 0.42, cy2 = sy - ph * 0.58;
+          const sux = SF_SUN.toX, suy = SF_SUN.toY * SF_TILT;
+          const sl2 = Math.hypot(sux, suy) || 1;
+          const hg = ctx.createRadialGradient(
+            sx + sux / sl2 * crx * 0.4, cy2 + suy / sl2 * crx * 0.3, 1,
+            sx + sux / sl2 * crx * 0.4, cy2 + suy / sl2 * crx * 0.3, crx);
+          hg.addColorStop(0, `rgba(255,232,160,${0.20 * SF_SUN.day})`);
+          hg.addColorStop(1, 'rgba(255,232,160,0)');
+          ctx.fillStyle = hg;
+          ctx.beginPath(); ctx.ellipse(sx, cy2, crx, crx * 0.72, 0, 0, Math.PI * 2); ctx.fill();
+          const cg = ctx.createRadialGradient(
+            sx - sux / sl2 * crx * 0.4, cy2 - suy / sl2 * crx * 0.3, 1,
+            sx - sux / sl2 * crx * 0.4, cy2 - suy / sl2 * crx * 0.3, crx);
+          cg.addColorStop(0, `rgba(70,90,130,${0.13 * SF_SUN.day})`);
+          cg.addColorStop(1, 'rgba(70,90,130,0)');
+          ctx.fillStyle = cg;
+          ctx.beginPath(); ctx.ellipse(sx, cy2, crx, crx * 0.72, 0, 0, Math.PI * 2); ctx.fill();
+          // dapple: bright pinpoints scattered inside the cast shadow
+          const nD = o.big ? 14 : 7;
+          const dcx = sx + SF_SUN.x * (o.big ? 7.2 : 4.4) * SF_PXM * cam.zoom * 0.5,
+                dcy = sy + SF_SUN.y * (o.big ? 7.2 : 4.4) * SF_PXM * cam.zoom * 0.5 * SF_TILT;
+          ctx.fillStyle = `rgba(255,240,190,${0.30 * SF_SUN.day})`;
+          for(let di = 0; di < nD; di++){
+            const a = phash(di, o.wx * 3 + o.wy, 3462) * Math.PI * 2;
+            const rr = Math.sqrt(phash(di, o.wy * 11 + o.wx, 3463)) * shadeR * cam.zoom;
+            ctx.fillRect(Math.round(dcx + Math.cos(a) * rr),
+                         Math.round(dcy + Math.sin(a) * rr * 0.5), 1.6, 1.2);
+          }
+        }
         // v15: lit lamp spills a warm sodium pool on the pavement
         if(o.kind === 'sfLamp' && sfLampsLit())
           sfLampPool(sx, sy, 3.4 * SF_PXM * cam.zoom);
@@ -33950,10 +34172,12 @@ function sfRenderStreet(cw, ch){
       }
       const V = PA.sfVeg;
       let spr = null, hm = 5, shadowR = 0;
-      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; hm = 4.4; shadowR = 1.6; }
-      else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; hm = 6.4; shadowR = 1.1; }
-      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; hm = 3.6; shadowR = 1.2; }
-      else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; hm = 6.0; shadowR = 0.9; }
+      // v31: vegetation draws in ELEVATION — real trunk-to-crown
+      // silhouettes at their true heights, not the plan-view crown blit
+      if(o.kind === 'sfTree'){ spr = V.sideTree[Math.abs(hash2(o.wx, o.wy, 7) * V.sideTree.length) | 0]; hm = o.big ? 8.6 : 7.0; shadowR = 1.9; }
+      else if(o.kind === 'sfPalm'){ spr = V.sidePalm[Math.abs(hash2(o.wx, o.wy, 8) * V.sidePalm.length) | 0]; hm = 10.5; shadowR = 1.1; }
+      else if(o.kind === 'sfStreetTree'){ spr = V.sideStreet[o.v != null ? o.v : 0]; hm = 4.4; shadowR = 1.3; }
+      else if(o.kind === 'sfCypress'){ spr = V.sideCypress[Math.abs(hash2(o.wx, o.wy, 9) * V.sideCypress.length) | 0]; hm = 11.5; shadowR = 1.0; }
       else if(o.kind === 'sfBench'){ spr = V.bench; hm = 0.9; shadowR = 0.55; }
       else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; hm = 4.5; shadowR = 0.3; }
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
@@ -33983,7 +34207,61 @@ function sfRenderStreet(cw, ch){
                         shadowR * sc + len / 2, shadowR * 0.3 * sc, ang,
                         0.32 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
         }
-        ctx.drawImage(sprC, p[0] - pw / 2, p[1] - ph, pw, ph);
+        const vegK = o.kind === 'sfTree' || o.kind === 'sfPalm' ||
+                     o.kind === 'sfStreetTree' || o.kind === 'sfCypress';
+        if(vegK){
+          // v31: crowns lean on the wind — a horizontal shear pivoted at
+          // the root, so trunks stay planted while foliage streams
+          const lean = Math.sin(SF_WX.t * 1.4 + o.x * 0.04 + o.y * 0.03) *
+                       (0.015 + SF_WX.gust * 0.05 + W.storm * 0.08) *
+                       Math.cos(W.windAng - SF_CAM.yaw);
+          ctx.save(); ctx.translate(p[0], p[1]);
+          ctx.transform(1, 0, lean, 1, 0, 0);
+          ctx.drawImage(sprC, -pw / 2, -ph, pw, ph);
+          ctx.restore();
+          // v31: crown answers the real sun bearing — warm wash on the
+          // flank turned toward the sun, cool sky-fill on the lee side,
+          // bright rim when backlit; canyon-shaded crowns stay flat
+          if(!night && SF_SUN.day > 0.15){
+            const shadeTop = p[2] < 130
+              ? sfCanyonShade(o.x / SF_PXM, o.y / SF_PXM, -1) : 0;
+            const crownZ = o.kind === 'sfPalm' ? hm * 0.9 : hm * 0.66;
+            if(shadeTop < crownZ - 1){
+              const sunSide = SF_SUN.toX * DY - SF_SUN.toY * DX; // + = screen right
+              const sunFront = -(SF_SUN.toX * DX + SF_SUN.toY * DY); // + = sun behind cam
+              const crx = pw * 0.5, cry = p[1] - ph * (o.kind === 'sfPalm' ? 0.85 : 0.62);
+              const wA = 0.22 * SF_SUN.day * (0.4 + 0.6 * Math.max(0, sunFront));
+              const gxp = p[0] + sunSide * crx * 0.45;
+              const wg = ctx.createRadialGradient(gxp, cry, 1, gxp, cry, crx * 0.9);
+              wg.addColorStop(0, `rgba(255,226,150,${wA})`);
+              wg.addColorStop(1, 'rgba(255,226,150,0)');
+              ctx.fillStyle = wg;
+              ctx.beginPath(); ctx.ellipse(gxp, cry, crx * 0.85, ph * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+              const gxn = p[0] - sunSide * crx * 0.45;
+              const cg = ctx.createRadialGradient(gxn, cry, 1, gxn, cry, crx * 0.9);
+              cg.addColorStop(0, `rgba(80,100,140,${0.15 * SF_SUN.day * (1 - Math.max(0, sunFront) * 0.5)})`);
+              cg.addColorStop(1, 'rgba(80,100,140,0)');
+              ctx.fillStyle = cg;
+              ctx.beginPath(); ctx.ellipse(gxn, cry, crx * 0.85, ph * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+              if(sunFront < -0.3){ // lens into the sun: bright crown rim
+                ctx.strokeStyle = `rgba(255,240,190,${0.5 * SF_SUN.day})`;
+                ctx.lineWidth = Math.max(1, 0.05 * sc);
+                ctx.beginPath();
+                ctx.ellipse(p[0], cry, crx * 0.82, ph * 0.3, 0,
+                            Math.PI * 1.05, Math.PI * 1.95);
+                ctx.stroke();
+              }
+            }
+          }
+          // marine haze settles on distant crowns like it does the rows
+          const hzA = sfHazeA(p[2]);
+          if(hzA > 0.02){
+            ctx.fillStyle = `rgba(196,206,220,${hzA * 0.55})`;
+            ctx.beginPath();
+            ctx.ellipse(p[0], p[1] - ph * 0.6, pw * 0.5, ph * 0.34, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else ctx.drawImage(sprC, p[0] - pw / 2, p[1] - ph, pw, ph);
         // v15: lit lamp — halo around the acorn globe + sodium pool below
         if(o.kind === 'sfLamp' && sfLampsLit()){
           const gp = pr(o.x / SF_PXM, o.y / SF_PXM, 4.15);

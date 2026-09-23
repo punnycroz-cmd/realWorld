@@ -428,7 +428,7 @@ function sfInitWorld(){
   for(let wy = 1; wy < SF_M.gh - 1; wy++){
     for(let wx = 1; wx < SF_M.gw - 1; wx++){
       const t = sfTile(wx, wy);
-      if(t === 11 && nStreetTree < 1100){
+      if(t === 11 && nStreetTree < 1500){
         // sidewalk cell with a street edge: curb-side pit tree
         let fx = 0, fy = 0;
         if(sfTile(wx, wy - 1) === 10) fy = -11;
@@ -441,13 +441,13 @@ function sfInitWorld(){
            sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16) continue;
         if(doorNear(wx, wy, 2)) continue;
         // v21: real Mission streets carry a pit tree every ~8-10m —
-        // coverage roughly doubles, spacing relaxed one cell
-        if(phash(wx, wy, 1650) > 0.55) continue;
+        // v31: coverage raised again toward the real ~70% of eligible pits
+        if(phash(wx, wy, 1650) > 0.68) continue;
         if(occNear(wx, wy, 2)) continue;
         const v = phash(wx, wy, 1651) < 0.22 ? 1 : (phash(wx, wy, 1652) < 0.18 ? 2 : 0);
         const o = addVeg('sfStreetTree', wx, wy, fx, fy);
         o.v = v; nStreetTree++;
-      } else if(t === 13 && nParkVeg < 700){
+      } else if(t === 13 && nParkVeg < 1000){
         // park grass: shrubs + flowerbeds; denser near paths, sparse inside
         const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
                          sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
@@ -457,10 +457,26 @@ function sfInitWorld(){
         // v21: Dolores Park is TREE-dotted, not bare lawn — big leafy
         // canopy trees inside the grass, palms ringing the park edge,
         // cypress in clustered stands (they grow in groves, not alone)
-        if(h1 > 0.975 && !occNear(wx, wy, 4) && !nearPath){
-          addVeg('sfTree', wx, wy,
+        // v31: park canopy upgraded to real cover — denser gate, half the
+        // trees mature ~8m crowns (o.big), and trees clump into groves
+        // the way Dolores Park's plantings actually mass on the slopes
+        if(h1 > 0.962 && !occNear(wx, wy, 3) && !nearPath){
+          const o = addVeg('sfTree', wx, wy,
                  (phash(wx, wy, 1667) - 0.5) * 10, (phash(wy, wx, 1668) - 0.5) * 10);
+          o.big = phash(wx, wy, 3450) < 0.55 ? 1 : 0;
           nParkVeg++;
+          if(phash(wx, wy, 3451) < 0.45 && nParkVeg < 1000){
+            const cx2 = wx + Math.floor(phash(wx, wy, 3452) * 5) - 2;
+            const cy2 = wy + Math.floor(phash(wy, wx, 3453) * 5) - 2;
+            const np2 = sfTile(cx2, cy2 - 1) === 15 || sfTile(cx2, cy2 + 1) === 15 ||
+                        sfTile(cx2 - 1, cy2) === 15 || sfTile(cx2 + 1, cy2) === 15;
+            if(sfTile(cx2, cy2) === 13 && !occNear(cx2, cy2, 1) && !np2){
+              const o2 = addVeg('sfTree', cx2, cy2,
+                     (phash(cx2, cy2, 3454) - 0.5) * 10, (phash(cy2, cx2, 3455) - 0.5) * 10);
+              o2.big = phash(cx2, cy2, 3450) < 0.4 ? 1 : 0;
+              nParkVeg++;
+            }
+          }
         } else if(nearWalk && h1 < 0.07 && !occNear(wx, wy, 4)){
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);

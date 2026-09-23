@@ -64,7 +64,8 @@ const api = eval(m[1] + `
     SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol,
     sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
     SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
-    sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU })`);
+    sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
+    sfVegSideSpr, sfBigTreeSpr, VILLAGE_OBJECTS })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -247,6 +248,22 @@ const api = eval(m[1] + `
      'sfGableFront deterministic');
   ok(api.sfGableFront(3, 0, 12, true, 3) === 0 && api.sfGarageU(3, 0, 12, true, 0, false, 0.5) === -1,
      'shops never get gables or garages');
+
+  // v31 urban forest: elevation sprites baked for every tree kind,
+  // park groves produce mature crowns, pit-tree coverage thickened
+  const VG = api.PA.sfVeg;
+  ok(VG.sideTree.length === 3 && VG.sidePalm.length === 2 &&
+     VG.sideStreet.length === 3 && VG.sideCypress.length === 2 &&
+     VG.bigTree.length === 3, 'v31 vegetation sprite sets baked');
+  ok(api.sfVegSideSpr('palm', 0).c.height === 190 &&
+     api.sfVegSideSpr('street', 1).c.width === 64,
+     'v31 side sprites deterministic sizes');
+  ok(api.sfBigTreeSpr(0).c.width === 128, 'v31 big-tree sprite 128px');
+  const bigs = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfTree' && o.big).length;
+  const trees = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfTree').length;
+  ok(bigs > 10 && bigs < trees, 'v31 park groves carry mature crowns (' + bigs + '/' + trees + ')');
+  const pits = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfStreetTree').length;
+  ok(pits > 600, 'v31 street pit coverage raised (' + pits + ')');
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');
