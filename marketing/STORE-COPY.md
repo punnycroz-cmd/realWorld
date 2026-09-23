@@ -1,16 +1,20 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v18 — launch-ready draft + generated capsule set, 2026-09-23.**
-Not submitted anywhere. Capsule art is now real files under
-`store/capsules/` (see `store/README.md`), regenerated from the current hero
-shot by `tools/make_brand_assets.py` — the only outstanding art dependency
-is the Steam library hero (§4). This
-document is the single source of truth for storefront copy: master copy plus
-per-platform variants (itch.io primary, Steam conditional), field-length
-checks, capsule/hero art specs, disclosure matrix, and a tag plan. All claims
-verified against the locked design doc (`rw-game-design-2026-09-22.md`) and the
-monetization plan (`rw-monetization-plan-2026-09-22.md`, numbers marked
-PROPOSAL). Nothing below promises a feature that doesn't exist in the design.
+**Status: v33 — canonical-contract sync + submission packet, 2026-09-23.**
+Not submitted anywhere. Capsule art is real files under `store/capsules/`
+(see `store/README.md`), regenerated from the current hero shot by
+`tools/make_brand_assets.py` — the only outstanding art dependency is the
+Steam library hero (§4). This document is the single source of truth for
+storefront copy: master copy plus per-platform variants (itch.io primary,
+Steam conditional), field-length checks, capsule/hero art specs, disclosure
+matrix, and a paste-ready submission packet (§9). All claims verified
+against the locked design doc (`rw-game-design-2026-09-22.md`), the
+monetization plan (`rw-monetization-plan-2026-09-22.md`, PROPOSAL), and the
+world track's shipped contracts: `world/requests.json` (action catalog,
+rates, feed vocabulary), `world/creation.json` (hire/character creation),
+`world/moderation.json` (review codes + denial wording), and
+`world/businesses.md` (parody names). Nothing below promises a feature that
+doesn't exist in the design.
 
 **Platform strategy (from market research):** browser-first product →
 **itch.io is the natural primary storefront** (browser games live natively
@@ -63,14 +67,15 @@ serial. Observation never costs anything.
 **When watching isn't enough, buy a moment — not the world.** File a request:
 a declared action with a declared duration, priced upfront in credits and
 capped hard. Possess your own character for thirty minutes. Call for rain
-over the park. Requests sort themselves into exclusive, compatible, or
-queued; expire unfired and you're auto-refunded. When time runs out, the AI
-takes the character back seamlessly.
+over the park. Nudge a neighbor — an ask, not mind-control; they can say no.
+Requests sort themselves into exclusive, compatible, or queued; expire
+unfired and you're auto-refunded. When time runs out, the AI takes the
+character back seamlessly.
 
-**Or move in.** Create a character — the only one you'll ever control — rent
-a room in game dollars, work a job, save toward a deed. The ladder is the
-Mission's oldest story: tenant, owner, landlord. Miss rent and you can be
-evicted, same as anyone.
+**Or move in.** Hire a character onto the cast — the only one you'll ever
+control — rent a room in game dollars, work a job at Mudhaus or Auerbach
+Hardware, save toward a deed. The ladder is the Mission's oldest story:
+tenant, owner, landlord. Miss rent and you can be evicted, same as anyone.
 
 **The one rule that matters:** the eight mains can never be possessed — not
 by players, not by us. Their secrets stay theirs. What you watch is real
@@ -94,7 +99,7 @@ voice lines. Credits are non-transferable and never redeemable for money.
   auto-refunded on expiry.
 - **A public feed of everything** — every request, approval, refund, and
   admin action is visible to all viewers. Sunlight is the moderation model.
-- **Live the ladder** — create a character, rent, work, buy, rent out.
+- **Live the ladder** — hire a character onto the cast, rent, work, buy, rent out.
   In-game dollars are earned only in-world; nobody buys their way up.
 - **Two walled currencies** — credits buy agency; game dollars run your
   life. No conversion either way. No cash-out, ever.
@@ -131,13 +136,23 @@ screenshots, embed config.
 
 1. **Watch** — open the neighborhood, follow anyone, read the public feed. Free forever.
 2. **Request** — when you want to act, file a time-boxed request priced in credits upfront.
-3. **Move in** — create a character, rent a room, work a job, climb the tenant → owner → landlord ladder.
+3. **Move in** — hire a character onto the cast, rent a room, work a job, climb the tenant → owner → landlord ladder.
 
-**What a dollar buys (current proposal — will be finalized before launch)**
+**The request menu (current proposal — finalized before launch)**
 
-- A 30-minute visit inside your own character: about the price of a snack.
-- Rain over Dolores Park for two hours: under a dollar.
-- Creating a character: under five dollars, plus you still have to make rent.
+| Ask | Cost (1 credit ≈ $0.01) |
+|---|---|
+| Possess your own character | 1.5 cr/min, 15–120 min — 30 min ≈ 45 cr |
+| Camera director (spectator-side only) | 10 cr / 30 min |
+| NPC nudge (an ask — they can decline; 50% back if they do) | 40 cr flat |
+| Weather block over the neighborhood | 40 / 70 / 100 cr for 1 / 2 / 4 h |
+| Event trigger at a venue or the park | 200 cr flat |
+| Hire a character onto the cast | 500 cr one-time, human name review, slot-capped |
+
+Queued requests cost 15% less and auto-refund if they expire unfired.
+Exclusive actions get human review; surge pricing (×1.5–2.5) is always shown
+before you pay, and cooldowns are never purchasable. Denied requests never
+bill.
 
 **Honesty box**
 
@@ -264,6 +279,8 @@ capsules (Steam policy).
 | Cash-out / real-money trading | NO — credits non-transferable, non-redeemable | same |
 | Online requirement | YES — persistent shared world | Steam "requires internet" |
 | Account requirement | YES for paid actions; watching may not require one | forms |
+| User-generated text | YES, moderated — player request text + hired-character names pass an intent classifier + human review before entering the world (`world/moderation.json`) | Steam UGC question, platform trust/safety forms |
+| AI-generated content | YES — disclosed honestly: residents are LLM-driven; live text is screened on the way in, never sold as authored story | Steam AI-disclosure field |
 
 ---
 
@@ -309,15 +326,60 @@ capsules (Steam policy).
 
 ---
 
-## 9. Versioning note
+## 9. Submission packet (paste-ready runbook)
+
+When the owner says "go", submitting the itch.io page is one sitting:
+
+| Step | Action | Source |
+|---|---|---|
+| 1 | Create project, title + tagline | §2.1 table |
+| 2 | Paste page body | §1.3 + §2.2 (incl. request menu + honesty box) |
+| 3 | Upload cover | `store/capsules/itch-cover-630x500.png` |
+| 4 | Upload screenshots in order | §2.5 ordering, files in `press-kit/screenshots/` |
+| 5 | Set tags, pricing $0, early-access flag | §2.3 + §2.1 |
+| 6 | Embed config | §2.5 — page-only until the build ships |
+| 7 | Fill disclosure/IAP forms | §5 verbatim |
+| 8 | Screenshot captions | `press-kit/captions.txt` |
+| 9 | Fact-check pass | every number vs `world/requests.json` + PRICING-PAGE-CONTENT.md §2 |
+| 10 | Set visibility draft → owner review → public | owner decision |
+
+Steam (conditional): same packet with §3 fields + §4 capsule set; the only
+missing asset is the library hero (§4 FLAG row).
+
+**Screenshot alt-text / caption set** (store forms + a11y, keep with
+`press-kit/captions.txt` as canonical): v22-D "director view" → "Aerial view
+of the Mission block at golden hour — the spectator camera's home position.";
+v22-B street level → "Street-level view: facades, parody storefront signage,
+a resident mid-errand."; v22-C park → "Dolores Park edge — palms, lawn,
+residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
+the café venue from the street camera."; v1 pair → "Same engine, day one —
+the before/after that anchors the devlog series."
+
+**Feed-vocabulary note for storefront copy:** if marketing ever quotes feed
+statuses on a store page, the canonical vocabulary is `world/requests.json`
+feed_vocabulary (requested / in_review / approved / approved (modified) /
+running / queued / resolved / refunded / not approved / admin action /
+player session ended). Denials are always worded "request not approved" —
+never a reason in public.
+
+---
+
+## 10. Versioning note
 
 This file supersedes the v0 DRAFT (single generic template). Changes:
 platform split (itch primary / Steam conditional), capsule spec sheet,
 disclosure matrix, pricing phrasing aligned to the monetization plan's
-PROPOSAL numbers without locking them, and the "what a dollar buys" honesty
-box. **v18 changes:** capsule spec → generated `store/capsules/` set +
-`store/README.md` manifest, itch.io embed/project-settings table (§2.5),
-screenshot ordering, gallery rebased on the v22 art build (grounded
-pawn/prop shadows). Update when: monetization numbers finalize (v8
-pricing-page focus), Steam wrapper decision made, the library hero lands,
-or the cast/address facts change.
+PROPOSAL numbers without locking them, and the honesty box. **v18 changes:**
+capsule spec → generated `store/capsules/` set + `store/README.md` manifest,
+itch.io embed/project-settings table (§2.5), screenshot ordering, gallery
+rebased on the v22 art build. **v33 changes:** copy re-synced to the world
+track's shipped contracts — request menu table uses `world/requests.json`
+verbatim rates (possess 1.5 cr/min, camera 10 cr/30 min, nudge 40 cr,
+weather 40/70/100, event 200 cr, hire 500 cr + human name review), "create
+a character" phrasing → "hire a character onto the cast" per
+`world/creation.json`, canonical parody venues (Mudhaus, Auerbach Hardware)
+in the long description, disclosure matrix gains moderated-UGC + AI-content
+rows, new §9 submission packet + caption/alt-text set + feed-vocabulary
+rule. Update when: monetization numbers finalize, Steam wrapper decision
+made, the library hero lands, or the request catalog/feed vocabulary changes
+(grep this file for the old rates).
