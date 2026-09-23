@@ -5,7 +5,7 @@
 <title>INTERNAL — Drama Direction Board (The Mission)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  INTERNAL SHOWRUNNER TOOL — world v10. NOT a spectator surface.
+  INTERNAL SHOWRUNNER TOOL — world v10, extended v24. NOT a spectator surface.
   This board renders every secret on the block (world/drama.json mirror).
   It must never be linked, embedded, screenshotted for marketing, or
   reachable from any player-facing surface (feed.html, history.html,
@@ -68,7 +68,7 @@
 <header>
   <div><span class="logo">Drama Direction <span>Board</span></span>
     <span class="warn">Internal — secrets present — never ship</span></div>
-  <div class="sub">The Mission · world v10 · mirrors <code>world/drama.json</code> · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+  <div class="sub">The Mission · world v24 · mirrors <code>world/drama.json</code> (schema drama-v2) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
 </header>
 <main>
   <h2>Season fuse map</h2>
@@ -79,6 +79,16 @@
   <table id="edges"><thead><tr><th>Pair</th><th>Axis</th><th>Fuse</th></tr></thead><tbody></tbody></table>
   <h2>Pacing knobs (drama manager — pressure only, never events)</h2>
   <div class="knobs" id="knobs"></div>
+  <h2>Pressure catalog <span style="text-transform:none;color:var(--dim)">(§14 — conditions the world already produces; spendable, auditable)</span></h2>
+  <table id="pcat"><thead><tr><th>Id</th><th>Condition</th><th>Produced by</th><th>Feeds</th><th>Legible shadow</th><th>Exhaustion</th></tr></thead><tbody></tbody></table>
+  <h2>Week shapes <span style="text-transform:none;color:var(--dim)">(§16 — observed targets, never schedules)</span></h2>
+  <table id="weeks"><thead><tr><th>Shape</th><th>Budget</th><th>Feed texture</th><th>When it's right</th></tr></thead><tbody></tbody></table>
+  <h2>Aftermath &amp; residue <span style="text-transform:none;color:var(--dim)">(§15 — resolved fuses leave residue, never reset)</span></h2>
+  <table id="after"><thead><tr><th>Fuse</th><th>Residue</th><th>Texture</th></tr></thead><tbody></tbody></table>
+  <h2>Requests as weather <span style="text-transform:none;color:var(--dim)">(§17 — identical-twin test applies)</span></h2>
+  <table id="reqw"><thead><tr><th>Request class</th><th>Natural pressure</th><th>Watch for</th></tr></thead><tbody></tbody></table>
+  <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
+  <ul class="never" id="legal"></ul>
   <h2>Never list</h2>
   <ul class="never" id="never"></ul>
 </main>
@@ -165,6 +175,43 @@ const NEVER=[
  "Ambient revelation vectors — ambients can never be first knowers",
  "Drama that outruns the camera — no interior resolutions without a legible shadow"];
 
+const PCAT=[
+ ["P-01","Sale-process activity near the Guerrero buildings","S1's world facts (sale mechanics)","F1 · F5 · S4","clipboard stranger; notice-shaped letter","never twice in a week; paperwork is slow"],
+ ["P-02","Kitchen compression — mains crowded into shared indoor space","weather · requested events · ambient schedules","F2 · F3 · F4","venue co-presence on feed; borrowed umbrellas","one shared-space squeeze per pressured window"],
+ ["P-03","A physical object changing hands in public (flyer / notebook / sketchbook)","character carry routines","F1 · F4 · F6","object seen, contents unseen","objects move rarely; a lost object is off-register"],
+ ["P-04","Victor's counter hours going irregular","C7 disposition under pressure","F1","closed-door hours; missed Tuesday repairs","his avoidance is the tell — don't stack signs"],
+ ["P-05","Mars's pointed-question loop","C1 deliberation","F6 · F1","questions that answer themselves on her rounds","twice on the same fact = audience has it — stop"],
+ ["P-06","Sunday cooking cadence","C5 penance reflex","F2 · S9","weekly flat cooking, unnamed","never let anyone name it; naming ends the fuel"],
+ ["P-07","Carmen missing a ritual","C6 fragility ticks","F5","empty stoop; Esther/Ray noticing bench math","gentle + rare only — hard cap once per arc"],
+ ["P-08","Tomás's supplier loop lengthening","C8 dream rehearsing","F1 · S6 · F4","pricing equipment; catalog linger","pressure is duration, not new stops"],
+ ["P-09","Chalkboard figure converging","C3's art telling on her","F2","a doodle viewers recognize before the block does","one legible step per pressured window"],
+ ["P-10","Quiet itself — a day where nothing moves","the block's ordinary life","all","quiet feed events; clean routines","a floor, not a resource to spend"]];
+const WEEKS=[
+ ["Quiet","0 pressured","quiet markers, routines, weather","default; most weeks; recovery windows quiet-start"],
+ ["Pressure","1 pressured + 1 slow tick","legible shadows on one fuse; ordinary life elsewhere","baseline dramatic content — the show's pulse"],
+ ["Compounding","2–3 pressured, interlocked only","one event from different sides; dense group spaces","rare; earned by genuinely interlocked fuses"],
+ ["Recovery","shed to 0 over 2–4 days","rumor corrections, visibly changed routines","mandatory after any surface/resolution"]];
+const AFTER=[
+ ["F1","the trust tax","the block's relationship to its landlord now includes a drawer; warmth → polite-and-careful"],
+ ["F2","the renegotiated flat","three people re-learning their addresses to each other; Marisol's hurt-at-concealment is the sleeper thread"],
+ ["F3","the witness","Jules narrating wreckage adjacent to a crush; the correspondent pose gains a cost"],
+ ["F4","the almost","the 3 p.m. coffee is the monument — unspoken or spoken, the ritual's shape is the residue"],
+ ["F5","the exchange","help accepted as exchange, not charity; or the archive becomes the block's conscience — texture, not punishment"],
+ ["F6","the named power","everyone re-reads old posts looking for themselves; or Mars carries her first secret of her own"]];
+const REQW=[
+ ["Block party / park event","P-02 compression (F2/F3/F4)","reveal-hope — identical to an unrequested party"],
+ ["Weather change","P-02 indoor crowding; P-07 visibility","rain never targets a ritual — weather is flat"],
+ ["Hired character moves in","new-neighbor texture; staffing shifts","a hire carries no seed knowledge"],
+ ["NPC nudge (screened)","the ask itself, not pressure","a nudge naming a seed fact = upstream screening failure"],
+ ["Camera director","none — view layer","zero world effect"]];
+const LEGAL=[
+ "Is it a disposition, condition, weight, or protection?",
+ "Could the feed falsify it in a week? (outcome claim → rewrite)",
+ "Does it move a fact across the knowledge matrix? (injection → illegal)",
+ "Does it assume a player request happened? (steering → flat pressure)",
+ "Does it name an outcome, even as hope? (delete the outcome)",
+ "Would it survive the season going the other way? (else it's a plan)"];
+
 document.getElementById('fuses').innerHTML=FUSES.map(f=>
  `<div class="fuse"><h3>${f.id} — ${f.t}</h3><div class="tag">${f.who}</div><p>${f.p}</p><div class="dir"><b>direction:</b> ${f.d}</div></div>`).join('');
 document.getElementById('seeds').innerHTML=SEEDS.map(s=>
@@ -176,6 +223,15 @@ document.getElementById('seeds').innerHTML=SEEDS.map(s=>
 document.querySelector('#edges tbody').innerHTML=EDGES.map(e=>
  `<tr><td class="c">${NAMES[e[0]]} ↔ ${NAMES[e[1]]}</td><td>${e[2]}</td><td class="c">${e[3]}</td></tr>`).join('');
 document.getElementById('knobs').innerHTML=KNOBS.map(k=>`<div class="knob"><b>${k[0]}</b>${k[1]}</div>`).join('');
+document.querySelector('#pcat tbody').innerHTML=PCAT.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="c">${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join('');
+document.querySelector('#weeks tbody').innerHTML=WEEKS.map(r=>
+ `<tr><td><b>${r[0]}</b></td><td class="c">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+document.querySelector('#after tbody').innerHTML=AFTER.map(r=>
+ `<tr><td class="c">${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#reqw tbody').innerHTML=REQW.map(r=>
+ `<tr><td>${r[0]}</td><td class="c">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
 document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
 </script>
 </body>

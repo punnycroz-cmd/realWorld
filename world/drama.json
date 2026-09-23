@@ -1,7 +1,8 @@
 {
   "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
-  "schema_version": "drama-v1",
+  "schema_version": "drama-v2",
   "seed_states": ["dormant", "pressured", "surfaced", "resolved", "residue"],
+  "fuse_ids": ["F1", "F2", "F3", "F4", "F5", "F6"],
   "seed_schema": {
     "id": "S#",
     "title": "internal label",
@@ -149,5 +150,61 @@
     "ambient_rule": "carriers only, never authors of fact"
   },
   "player_request_rule": "approved requests are weather, not levers: identical requested/unrequested events exert identical pressure; outcomes always belong to the characters",
-  "spectator_legibility_rule": "every dramatic movement must cast a camera-legible shadow without revealing the secret (drama-notes §12 table is canonical)"
+  "spectator_legibility_rule": "every dramatic movement must cast a camera-legible shadow without revealing the secret (drama-notes §12 table is canonical)",
+  "note_grammar": {
+    "doc": "drama-notes §13 — the only legal forms a direction note may take",
+    "legal_forms": ["disposition", "condition", "weight", "protection"],
+    "falsification_test": "if the feed could confirm/refute it in a week, it is an outcome claim — rewrite as a weight",
+    "banned_forms": ["trigger", "outcome", "schedule", "dialogue", "interior resolution"]
+  },
+  "pressure_catalog": [
+    { "id": "P-01", "condition": "sale-process activity near the Guerrero buildings", "produced_by": "S1's world facts (sale mechanics)", "feeds": ["F1", "F5", "S4"], "legible_shadow": "clipboard stranger; notice-shaped letter", "exhaustion": "never twice in a week; paperwork is slow" },
+    { "id": "P-02", "condition": "kitchen compression — mains crowded into shared indoor space", "produced_by": "weather layer, requested events, ambient schedules", "feeds": ["F2", "F3", "F4"], "legible_shadow": "venue co-presence on feed; borrowed umbrellas", "exhaustion": "one shared-space squeeze per pressured window" },
+    { "id": "P-03", "condition": "a physical object changing hands in public (flyer/notebook/sketchbook)", "produced_by": "character carry routines", "feeds": ["F1", "F4", "F6"], "legible_shadow": "object seen, contents unseen", "exhaustion": "objects move rarely; a lost object is off-register" },
+    { "id": "P-04", "condition": "Victor's counter hours going irregular", "produced_by": "C7 disposition under pressure", "feeds": ["F1"], "legible_shadow": "closed-door hours; missed Tuesday repairs", "exhaustion": "his avoidance is the tell — don't stack other signs" },
+    { "id": "P-05", "condition": "Mars's pointed-question loop", "produced_by": "C1 deliberation", "feeds": ["F6", "F1"], "legible_shadow": "questions that answer themselves on her rounds", "exhaustion": "twice on the same fact = audience has it — stop" },
+    { "id": "P-06", "condition": "Sunday cooking cadence", "produced_by": "C5 penance reflex", "feeds": ["F2", "S9"], "legible_shadow": "weekly flat cooking, unnamed", "exhaustion": "never let anyone name it; naming ends the fuel" },
+    { "id": "P-07", "condition": "Carmen missing a ritual", "produced_by": "C6 fragility ticks", "feeds": ["F5"], "legible_shadow": "empty stoop; Esther/Ray noticing bench math", "exhaustion": "gentle + rare only — hard cap once per arc" },
+    { "id": "P-08", "condition": "Tomás's supplier loop lengthening", "produced_by": "C8 dream rehearsing", "feeds": ["F1", "S6", "F4"], "legible_shadow": "pricing equipment; catalog linger", "exhaustion": "pressure is duration, not new stops" },
+    { "id": "P-09", "condition": "chalkboard figure converging", "produced_by": "C3's art telling on her", "feeds": ["F2"], "legible_shadow": "a doodle viewers recognize before the block does", "exhaustion": "one legible step per pressured window" },
+    { "id": "P-10", "condition": "quiet itself — a day where nothing moves", "produced_by": "the block's ordinary life", "feeds": ["all"], "legible_shadow": "quiet feed events; clean routines", "exhaustion": "a floor, not a resource to spend" }
+  ],
+  "aftermath_arcs": [
+    { "fuse": "F1", "residue_name": "the trust tax", "texture": "the block's relationship to its landlord now includes a drawer; warmth → polite-and-careful" },
+    { "fuse": "F2", "residue_name": "the renegotiated flat", "texture": "three people re-learning their addresses to each other; Marisol's hurt-at-concealment is the sleeper thread" },
+    { "fuse": "F3", "residue_name": "the witness", "texture": "Jules narrating wreckage adjacent to a crush; the correspondent pose gains a cost" },
+    { "fuse": "F4", "residue_name": "the almost", "texture": "the 3 p.m. coffee is the monument — unspoken or spoken, the ritual's shape is the residue" },
+    { "fuse": "F5", "residue_name": "the exchange", "texture": "help accepted as exchange, not charity; or the archive becomes the block's conscience — texture, not punishment" },
+    { "fuse": "F6", "residue_name": "the named power", "texture": "everyone re-reads old posts looking for themselves; or Mars carries her first secret of her own" }
+  ],
+  "week_shapes": [
+    { "shape": "quiet", "budget": "0 pressured", "feed_texture": "quiet markers, routines, weather", "when": "default; most weeks; recovery windows quiet-start" },
+    { "shape": "pressure", "budget": "1 pressured + 1 slow tick", "feed_texture": "legible shadows on one fuse; ordinary life elsewhere", "when": "baseline dramatic content — the show's pulse" },
+    { "shape": "compounding", "budget": "2–3 pressured, interlocked only", "feed_texture": "one event from different sides; dense group spaces", "when": "rare; earned by genuinely interlocked fuses" },
+    { "shape": "recovery", "budget": "shed to 0 over 2–4 days", "feed_texture": "rumor corrections, visibly changed routines", "when": "mandatory after any surface/resolution" }
+  ],
+  "request_absorption": [
+    { "request_class": "block party / park event", "natural_pressure": "P-02 compression (F2/F3/F4)", "watch": "reveal-hope — identical to unrequested party" },
+    { "request_class": "weather change", "natural_pressure": "P-02 indoor crowding; P-07 visibility", "watch": "rain never targets a ritual — weather is flat" },
+    { "request_class": "hired character moves in", "natural_pressure": "new-neighbor texture; staffing shifts", "watch": "a hire carries no seed knowledge" },
+    { "request_class": "NPC nudge (screened)", "natural_pressure": "the ask itself, not pressure", "watch": "a nudge naming a seed fact = upstream screening failure" },
+    { "request_class": "camera director", "natural_pressure": "none — view layer", "watch": "zero world effect" }
+  ],
+  "identical_twin_test": "would an unrequested instance of this event exert the same pressure? if not, the aim is the player's hope — pressure stays flat anyway",
+  "substrate_handoff": {
+    "state_inference": "pressured = a pressure_route produced a ledger event within recent block days; surfaced = fact crossed to a must_not_know member via a reveal_vector; resolved = resolution_space closed; residue thereafter. Observed, never written.",
+    "data_minimization": "brains receive only held facts via bible context — never the registry, fuse map, or matrix",
+    "manager_reads": ["canonical ledger", "seed registry states", "budget counters"],
+    "manager_never_reads": ["character interiors", "request text beyond public feed form", "briefing contents"],
+    "memory_hooks": "rumor pressure rides memory-spec §6.3 distortion; rumor outcome corrections are the spectator-visible half of §6.6 — corrections must be allowed to exist",
+    "budget_mechanics": "pressured-fuse count is the spend; slow ticks cost a fraction; recovery windows are a spend ban, not a refund"
+  },
+  "note_legality_checklist": [
+    "is it a disposition, condition, weight, or protection?",
+    "could the feed falsify it in a week? (outcome claim → rewrite)",
+    "does it move a fact across the knowledge matrix? (injection → illegal)",
+    "does it assume a player request happened? (steering → flat pressure)",
+    "does it name an outcome, even as hope? (delete the outcome)",
+    "would it survive the season going the other way? (else it's a plan)"
+  ]
 }

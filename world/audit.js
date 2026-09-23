@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v23).
+/* world/audit.js — RW boundary audit (world v24).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -21,6 +21,9 @@
      internal  — internal-tier surfaces carry an internal/never-ship marker
      mirror    — playtest.html inline data == playtest.json (hand-sync gate)
      coverage  — every declared surface file exists; no orphan demos
+     drama     — drama.json structural invariants (state enum, fuse ids,
+                 knowledge-matrix disjointness); seed vocabulary never
+                 leaks into spectator contracts; drama files never public
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -286,13 +289,50 @@ const PUB = Object.values(PT.surfaces)
   g.detail = 'exempt (internal-only, unlisted): ' + [...EXEMPT_HTML].join(', ');
 }
 
+/* ============ G9 drama ============ */
+{
+  const g = gate('drama', 'drama registry invariants (states, fuses, knowledge disjointness, internal-only)');
+  try {
+    const D = JSONF('drama.json');
+    const states = new Set(D.seed_states);
+    const fuses = new Set(D.fuse_ids || []);
+    const CID = /^C[1-8]$/;
+    for (const s of D.seeds || []) {
+      if (!states.has(s.state)) add(g, 'fail', 'drama.json', null, `${s.id}: state "${s.state}" not in seed_states`);
+      if (!fuses.has(s.fuse)) add(g, 'fail', 'drama.json', null, `${s.id}: fuse "${s.fuse}" not in fuse_ids`);
+      for (const field of ['holders', 'suspects', 'must_not_know'])
+        for (const c of s[field] || [])
+          if (!CID.test(c)) add(g, 'fail', 'drama.json', null, `${s.id}.${field}: "${c}" is not a main id`);
+      const H = new Set(s.holders), SU = new Set(s.suspects), M = new Set(s.must_not_know);
+      for (const c of H) if (SU.has(c) || M.has(c)) add(g, 'fail', 'drama.json', null, `${s.id}: ${c} both holds and suspects/must-not-know`);
+      for (const c of SU) if (M.has(c)) add(g, 'fail', 'drama.json', null, `${s.id}: ${c} both suspects and must-not-know`);
+    }
+    /* fuses referenced in tension_edges + pressure catalog must exist */
+    for (const e of D.tension_edges || [])
+      for (const f of String(e.fuse).split('/'))
+        if (!fuses.has(f)) add(g, 'fail', 'drama.json', null, `tension_edge ${e.pair}: unknown fuse ${f}`);
+    for (const p of D.pressure_catalog || [])
+      for (const f of p.feeds || [])
+        if (!fuses.has(f) && f !== 'all' && !/^S\d+$/.test(f))
+          add(g, 'review', 'drama.json', null, `${p.id}: feeds entry "${f}" is neither a fuse nor a seed`);
+    /* internal-only: drama files must never appear as a public playtest surface */
+    for (const f of ['drama.html', 'drama.json', 'drama-notes.md'])
+      if (PUB.includes(f)) add(g, 'fail', f, null, 'internal drama file listed as a public surface');
+    /* seeds must never be reachable from spectator contracts */
+    for (const f of ['feed.json', 'history.json', 'requests.json', 'moderation.json', 'creation.json'])
+      if (rd(f).includes('S1') || /must_not_know|pressure_routes|reveal_vectors/.test(rd(f)))
+        add(g, 'fail', f, null, 'seed-registry vocabulary leaking into a spectator contract');
+    g.detail = `${(D.seeds || []).length} seeds · ${(D.pressure_catalog || []).length} pressure rows · schema ${D.schema_version}`;
+  } catch (e) { add(g, 'fail', 'drama.json', null, 'parse/schema failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v23 local';
+out.build = 'world v24 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {
