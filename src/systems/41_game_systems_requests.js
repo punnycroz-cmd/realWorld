@@ -1315,6 +1315,11 @@ function gsViewerState(nowMin){
        contended resource, free/cool/locked/queued with honest times */
     board: (typeof gsResourceBoard === 'function')
       ? gsResourceBoard(now) : {},
+    /* v11: the block's memory, public face — every subject with public
+       record, worst first. Fair means card-shaped: band + counts, never
+       a float bar, never a private ledger line */
+    reputation: (typeof gsCharRepBoard === 'function')
+      ? gsCharRepBoard() : [],
   };
 }
 function gsActiveSessions(now){
@@ -1378,7 +1383,9 @@ function gsBusSnapshot(){
     offline: (typeof gsOffSnapshot === 'function')
              ? gsOffSnapshot() : null,             // v9 quiet hours
     deeds: (typeof gsListingSnapshot === 'function')
-           ? gsListingSnapshot() : null });        // v10 title office
+           ? gsListingSnapshot() : null,          // v10 title office
+    crep: (typeof gsCrepSnapshot === 'function')
+          ? gsCrepSnapshot() : null });           // v11 block's memory
 }
 function gsBusLoad(json){
   try{
@@ -1416,6 +1423,9 @@ function gsBusLoad(json){
     if(typeof gsOffLoad === 'function') gsOffLoad(d.offline);
     /* v10: building listings, deeds, the transfer book, licenses */
     if(typeof gsListingLoad === 'function') gsListingLoad(d.deeds);
+    /* v11: the reputation journal — restored verbatim; anything older
+       than the saved cursor stays put (the feed replay is deduped) */
+    if(typeof gsCrepLoad === 'function' && d.crep) gsCrepLoad(d.crep);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1451,6 +1461,7 @@ function gsBusReset(){
   if(typeof gsHireReset === 'function') gsHireReset();       // v8
   if(typeof gsOffReset === 'function') gsOffReset();         // v9
   if(typeof gsListingReset === 'function') gsListingReset(); // v10
+  if(typeof gsCrepReset === 'function') gsCrepReset();       // v11
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */

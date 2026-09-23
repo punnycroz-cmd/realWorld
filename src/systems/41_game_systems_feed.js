@@ -100,6 +100,10 @@ const GS_WIRE_LEASE = {
      a filled vacancy, and a licensed landlord's eviction filing */
   listed: 'listed', delisted: 'delisted', filled: 'filled',
   evict_filed: 'filed',
+  /* v11: the block's memory — rent-board paper and the block's own
+     beat when a pattern turns into hallway talk */
+  dispute_filed: 'dfiled', dispute_resolved: 'dres',
+  tenant_notice: 'tnotice', tenants_talk: 'ttalk',
 };
 
 const GS_WIRE_EVENT_LABEL = {
@@ -395,6 +399,16 @@ function gsWireLeaseLines(evt, mk){
       /* verbatim contract — never the debt, never the reason text */
       return [mk('admin', 'admin action — tenancy ended at ' + addr,
         { who: 'admin' })];
+    /* v11: rent-board paper + the block's own beat. Filings name the
+       door, never the parties; 'comparing notes' names nobody at all. */
+    case 'dfiled':
+      return [mk('housing', 'a housing dispute filed — ' + addr)];
+    case 'dres':
+      return [mk('housing', 'a housing dispute resolved — ' + addr)];
+    case 'tnotice':
+      return [mk('housing', 'a tenant gave notice — ' + addr)];
+    case 'ttalk':
+      return [mk('housing', 'neighbors comparing notes — ' + addr)];
     default:
       return [];                       // 'drop' + unmapped: fail closed
   }

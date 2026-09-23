@@ -291,6 +291,10 @@ function gsHireMoveIn(u, cid, startDate, opts){
     occupants: [cid], date: startDate,
     deposit: opts.deposit != null ? opts.deposit : null,
     note: opts.note || 'move-in',
+    by: 'agent',   /* v11: the office files for them — the character's
+                      own willingness gate (reputation) doesn't veto a
+                      player's placement; their stance still decides
+                      whether they stay */
   });
   if(!app || app.ok === false)
     return { ok: false, reason: (app && app.reason) || 'application_failed' };

@@ -300,8 +300,15 @@ function gsRentTick(dateStr){
     }
 
     /* 2. fixed terms roll to month-to-month when they lapse (CA default —
-       a lease that ends without renewal keeps running monthly) */
+       a lease that ends without renewal keeps running monthly). v11:
+       a tenant who knows the landlord's record may give notice at the
+       roll instead — the block's memory, moving real bodies. */
     if(l.term !== 'month-to-month' && l.endOn && dateStr > l.endOn){
+      if(typeof gsRepTermCheck === 'function' &&
+         gsRepTermCheck(l, dateStr)){
+        res.left = res.left || []; res.left.push(l.unit_id);
+        continue;
+      }
       l.term = 'month-to-month'; l.endOn = null;
       gsLeaseFeed('term_rolled', l, { day: dateStr });
       res.rolled.push(l.unit_id);
@@ -376,6 +383,15 @@ function gsRentTick(dateStr){
     /* 5. notices mature: cure windows close, deadlines make them
        executable (pay arrears in time and a pay-or-quit just cures) */
     gsProcessNotices(l, dateStr, res);
+
+    /* 6. v11 reputation drain — a month-to-month tenant whose landlord
+       went cold gives notice within a couple of months (the same
+       decision the term-roll gate makes, spread honestly over time) */
+    if(l.status === 'active' && l.term === 'month-to-month' &&
+       typeof gsRepMonthCheck === 'function' &&
+       gsRepMonthCheck(l, dateStr)){
+      res.left = res.left || []; res.left.push(l.unit_id);
+    }
   }
   return res;
 }
@@ -392,6 +408,20 @@ function gsApplyForLease(unitId, applicantId, spec){
   if(GS_LEASE.apps.some(a => a.unit_id === unitId &&
       a.applicant_id === applicantId && a.status === 'pending'))
     return { ok: false, reason: 'already_applied' };
+  /* v11: the block's memory — a character who knows this landlord's
+     record may not file at all (reputation feeds the paper path in).
+     Only their OWN petition is gated: an office-filed application
+     (hire/rehouse, spec.by === 'agent') is the player's decision — the
+     character's stance still runs the later notice/term checks.
+     Non-characters with no record are untouched either way. */
+  if(typeof gsRepApplyCheck === 'function' &&
+     !(spec && spec.by === 'agent')){
+    const rc = gsRepApplyCheck(applicantId, unitId,
+                             (spec && spec.date) || null);
+    if(rc && rc.willing === false)
+      return { ok: false, reason: 'declined_reputation',
+               detail: rc.reason || null, factor: rc.factor };
+  }
   const app = { id: 'app-' + (++GS_LEASE.appSeq), unit_id: unitId,
     applicant_id: applicantId,
     occupants: (spec && spec.occupants) || [applicantId],
@@ -605,6 +635,12 @@ function gsVacate(unitId, opts){
   const who = (opts && opts.by) || l.tenant_id;
   l.status = 'ended'; l.end = (opts && opts.date) || null; l.vacatedBy = who;
   for(const n of l.notices) if(n.status === 'open') n.status = 'moot';
+  /* v11: a voluntary move-out un-homes hired characters too — the
+     reputation notice path is the first way a hire can leave on their
+     own, and the eviction path already clears unitId the same way */
+  if(typeof GS_HIRED !== 'undefined')
+    for(const cid of [l.tenant_id].concat(l.occupants || []))
+      if(GS_HIRED[cid]) GS_HIRED[cid].unitId = null;
   gsLeaseFeed('vacate', l, { by: who, day: l.end });
   /* v10: the vacancy wheel turns — an emptied door posts its rent card */
   if(typeof gsListingTurnover === 'function') gsListingTurnover(unitId);

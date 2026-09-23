@@ -229,6 +229,35 @@ runAutoTest = async function(){
           'gs: v10 the listing audit is clean on the live seed',
           gsListingAudit().issues.slice(0, 3).join('; ') || 'clean');
     }
+
+    /* ---- v11: the block's memory on the live seed — Victor's open
+       dispute is journaled public record; knowledge stays bounded ---- */
+    if(typeof gsCharRepCard === 'function'){
+      const dspEv = GS_CREP.events.find(e => e.kind === 'dispute_filed');
+      const c7card = gsCharRepCard('C7', '2025-09-24');
+      log(!!dspEv && dspEv.landlord === 'C7' && dspEv.pub === true &&
+          dspEv.day === '2025-08-01' &&
+          c7card.landlord.disputesOpen === 1 &&
+          c7card.landlord.evictions === 0,
+          'gs: v11 the contested 9457 raise is journaled as public ' +
+          'record on Victor\'s card');
+      log(gsCharRepKnows('C4', dspEv.id, '2025-08-01') === true &&
+          gsCharRepKnows('C7', dspEv.id, '2025-08-01') === true,
+          'gs: v11 filer and landlord know their dispute on day zero');
+      log(gsCharRepKnows('C8', dspEv.id, '2025-08-02') === false &&
+          gsCharRepKnows('C8', dspEv.id, '2025-08-09') === true,
+          'gs: v11 an off-street cast member hears the filing days ' +
+          'later — bounded gossip, no omniscience');
+      const resp7 = gsCharRepResponse('C7', '2025-09-24');
+      log(resp7.organized === false && resp7.complaints === 1,
+          'gs: v11 one open dispute is not yet an organized block — ' +
+          'honest zero');
+      log(Array.isArray(gsViewerState().reputation),
+          'gs: v11 the viewer board exposes card-shaped reputation');
+      log(gsCharRepAudit().ok === true,
+          'gs: v11 the reputation audit is clean on the live seed',
+          gsCharRepAudit().issues.slice(0, 3).join('; ') || 'clean');
+    }
   }
 
   /* ---------- isolated unit tests on reset state ---------- */
@@ -3531,6 +3560,258 @@ runAutoTest = async function(){
       log(gsListingAudit().ok === true,
           'gs: v10 the audit is clean after the whole arc',
           gsListingAudit().issues.slice(0, 3).join('; ') || 'clean');
+    }
+
+    /* ==================== v11 — THE BLOCK'S MEMORY ====================
+       Reputation as a journal: eviction verdicts weighted honestly,
+       bounded knowledge (parties / hallway / street / gossip, private
+       paper never leaves the building), public-but-fair band cards,
+       and behavior that follows from what a character KNOWS — they
+       stop applying, they give notice, the block compares notes. */
+    if(typeof gsCharRepScore === 'function'){
+      /* -- the stage: one bad landlord, two buildings on a row ------- */
+      const repB  = gsRegisterBuilding({ street: 'Reputation Row',
+        owner_id: 'L-BAD' });
+      const repB2 = gsRegisterBuilding({ street: 'Reputation Row',
+        owner_id: 'L-BAD' });
+      const farB  = gsRegisterBuilding({ street: 'Faraway Street',
+        owner_id: 'landlord' });
+      const ruNB = gsRegisterUnit(repB.id, { unit_code: 'A', base_rent: 900 });
+      const ruGD = gsRegisterUnit(repB.id, { unit_code: 'B', base_rent: 1000 });
+      const ruV1 = gsRegisterUnit(repB.id, { unit_code: 'C', base_rent: 900 });
+      const ruV2 = gsRegisterUnit(repB.id, { unit_code: 'D', base_rent: 900 });
+      const ruLT = gsRegisterUnit(repB.id, { unit_code: 'E', base_rent: 800 });
+      const ruC8 = gsRegisterUnit(repB.id, { unit_code: 'F', base_rent: 1000 });
+      const ruC5 = gsRegisterUnit(repB.id, { unit_code: 'G', base_rent: 1000 });
+      const ruST = gsRegisterUnit(repB2.id, { unit_code: 'A', base_rent: 900 });
+      const ruJ  = gsRegisterUnit(repB2.id, { unit_code: 'B', base_rent: 900 });
+      const ruFA = gsRegisterUnit(farB.id, { unit_code: 'A', base_rent: 900 });
+      gsSignLease(ruNB.id, 'T-NB',   { start: '2025-11-01', monthly_rent: 900 });
+      gsSignLease(ruGD.id, 'T-GOOD', { start: '2026-01-05', monthly_rent: 1000 });
+      gsSignLease(ruV1.id, 'T-VIC',  { start: '2026-01-20', monthly_rent: 900 });
+      gsSignLease(ruV2.id, 'T-VIC2', { start: '2026-01-22', monthly_rent: 900 });
+      gsSignLease(ruLT.id, 'T-LATE', { start: '2025-11-01', monthly_rent: 800 });
+      gsSignLease(ruC8.id, 'C8', { start: '2025-11-01', monthly_rent: 1000,
+                                   term: 'fixed', endOn: '2026-03-01' });
+      gsSignLease(ruC5.id, 'C5', { start: '2025-11-01', monthly_rent: 1000 });
+      gsSignLease(ruST.id, 'T-ST',  { start: '2025-11-01', monthly_rent: 900 });
+      gsSignLease(ruFA.id, 'T-FAR', { start: '2025-11-01', monthly_rent: 900 });
+      for(const cid of ['T-NB','T-ST','T-FAR','C5','C8'])
+        gsDollarGrant(cid, 99999, 'savings');
+
+      /* -- the record: arrears + a private late, one honest eviction,
+         two wrongful ones (a pattern), then the rent board --------- */
+      gsRentTick('2026-01-10');      // T-GOOD's arrears post; T-LATE goes late
+      gsServeNotice(ruGD.id, 'pay_or_quit', { date: '2026-01-10' });
+      gsAdminEvict(ruGD.id, { date: '2026-01-15', reason: 'nonpayment' });
+      gsAdminEvict(ruV1.id, { override: true, date: '2026-02-01',
+        reason: 'owner move-in' });
+      gsAdminEvict(ruV2.id, { override: true, date: '2026-02-10',
+        reason: 'owner move-in' });
+      const dsp = gsFileDispute(ruNB.id, 'habitability', 'T-NB',
+        { date: '2026-02-15' });
+      gsResolveDispute(ruNB.id, dsp.dispute.id, 'upheld_tenant',
+        { date: '2026-03-01' });
+
+      const evLegit  = GS_CREP.events.find(e => e.kind === 'evict' &&
+        e.tenant === 'T-GOOD');
+      const evWrong1 = GS_CREP.events.find(e => e.kind === 'evict' &&
+        e.tenant === 'T-VIC');
+      const evWrong2 = GS_CREP.events.find(e => e.kind === 'evict' &&
+        e.tenant === 'T-VIC2');
+      const lateEvt  = GS_CREP.events.find(e => e.kind === 'rent_late' &&
+        e.tenant === 'T-LATE');
+      const DAY = '2026-03-05';
+
+      /* -- verdicts: cause vs no-paper, weighted for both sides ------ */
+      log(!!evLegit && evLegit.verdict === 'for_cause' &&
+          evLegit.wL === -3 && evLegit.wT === -14 &&
+          !!evWrong1 && evWrong1.verdict === 'wrongful' &&
+          evWrong1.wL === -16 && evWrong1.wT === 0,
+          'gs: v11 a legitimate eviction bruises the tenant; a paperless ' +
+          'one lands on the landlord');
+      log(!!evWrong2 && evWrong2.wL === -23 && evWrong2.mult > 1,
+          'gs: v11 the second wrongful eviction lands heavier — ' +
+          'a pattern, not an accident', evWrong2 && evWrong2.mult);
+      const scBad = gsCharRepScore('L-BAD', DAY);
+      log(scBad.score === -60 && scBad.band === 'pariah',
+          'gs: v11 the record sums to a band, not a bar — ' +
+          'pariah at -60', scBad.score + ' ' + scBad.band);
+      log(gsCharRepScore('T-VIC', DAY).score === 0 &&
+          gsCharRepScore('T-GOOD', DAY).score === -13,
+          'gs: v11 the wrongfully-evicted tenant keeps a clean record; ' +
+          'the for-cause one carries -13');
+
+      /* -- bounded knowledge: who knew what, when -------------------- */
+      log(gsCharRepKnows('T-VIC', evWrong1.id, '2026-02-01') === true &&
+          gsCharRepKnows('T-NB', evWrong1.id, '2026-02-01') === true,
+          'gs: v11 the displaced and the hallway know on day zero');
+      log(gsCharRepKnows('T-ST', evWrong1.id, '2026-02-01') === false &&
+          gsCharRepKnows('T-ST', evWrong1.id, '2026-02-02') === true,
+          'gs: v11 the same street hears a day later');
+      log(gsCharRepKnows('T-FAR', evWrong1.id, '2026-02-01') === false &&
+          gsCharRepKnows('T-FAR', evWrong1.id, '2026-02-08') === true &&
+          gsCharRepKnows('C6', evWrong1.id, '2026-02-01') === false,
+          'gs: v11 farther neighbors learn by gossip over days — ' +
+          'never instantly');
+      log(gsCharRepKnows('T-FAR', lateEvt.id, '2030-01-01') === false &&
+          gsCharRepKnows('C6', lateEvt.id, '2030-01-01') === false &&
+          gsCharRepKnows('T-NB', lateEvt.id, '2026-01-10') === true,
+          'gs: v11 private money history never leaves the building — ' +
+          'no omniscience leak');
+      const told = gsCharRepTell('T-NB', 'T-FAR', lateEvt.id, '2026-02-20');
+      log(told.ok === true &&
+          gsCharRepKnows('T-FAR', lateEvt.id, '2026-02-20') === true,
+          'gs: v11 gossip is a verb — a neighbor who knows can tell');
+
+      /* -- stance: opinion from what THEY know, personal stake 1.5x -- */
+      const stVic = gsCharRepStance('T-VIC', 'L-BAD', '2026-02-05');
+      const stNb  = gsCharRepStance('T-NB', 'L-BAD', '2026-02-05');
+      log(stVic.score < stNb.score,
+          'gs: v11 the displaced feel it half again — ' +
+          stVic.score + ' vs ' + stNb.score);
+      log(gsCharRepStance('T-FAR', 'L-BAD', '2026-01-16').score === 0 &&
+          gsCharRepScore('L-BAD', '2026-01-16').score === -3,
+          'gs: v11 characters act on what they know — the record ' +
+          'exists before the gossip lands');
+      log(gsCharRepStance('C8', 'L-BAD', DAY).score === -60,
+          'gs: v11 a building-mate\'s stance tracks the full record');
+
+      /* -- the measurable social response ---------------------------- */
+      const resp = gsCharRepResponse('L-BAD', DAY);
+      log(resp.knowers.length >= 20 && resp.cold.length >= 3 &&
+          resp.organized === true && resp.complaints === 2,
+          'gs: v11 wrongful patterns produce a measurable response — ' +
+          resp.knowers.length + ' know, ' + resp.cold.length +
+          ' are cold, the block organizes');
+      log(gsWire({ limit: 900 }).some(e =>
+            /neighbors comparing notes — 9\d{3} Reputation Row/
+              .test(e.text)),
+          'gs: v11 the wire prints the block\'s own beat once the ' +
+          'pattern is real');
+
+      /* -- the paper path in: reputation gates applications ---------- */
+      const appBurned = gsApplyForLease(ruJ.id, 'T-VIC',
+        { date: '2026-03-10' });
+      const appCold = gsApplyForLease(ruJ.id, 'C6',
+        { date: '2026-03-10' });
+      const appEarly = gsApplyForLease(ruJ.id, 'C4',
+        { date: '2026-01-16' });
+      const appStranger = gsApplyForLease(ruJ.id, 'T-NEW',
+        { date: '2026-03-10' });
+      log(!appBurned.ok && appBurned.reason === 'declined_reputation' &&
+          appBurned.detail === 'burned_before',
+          'gs: v11 once burned — the displaced never apply to the ' +
+          'same landlord again');
+      log(!appCold.ok && appCold.detail === 'landlord_reputation' &&
+          appEarly.status === 'pending' &&
+          appStranger.status === 'pending',
+          'gs: v11 a knowing character declines to apply; before the ' +
+          'gossip (and for record-less strangers) the door is open');
+
+      /* -- bodies move: term-roll + month-to-month notice ------------ */
+      const tick11 = gsRentTick('2026-03-11');
+      const lC8 = GS_REG.leases.find(l => l.unit_id === ruC8.id);
+      const lC5 = GS_REG.leases.find(l => l.unit_id === ruC5.id);
+      log(tick11.left && tick11.left.indexOf(ruC8.id) >= 0 &&
+          tick11.left.indexOf(ruC5.id) >= 0 &&
+          lC8.status === 'ended' && lC8.vacatedBy === 'C8' &&
+          lC5.status === 'ended' && lC5.vacatedBy === 'C5' &&
+          gsActiveLease(ruST.id) !== null,
+          'gs: v11 cold tenants give notice — fixed-term at the roll, ' +
+          'month-to-month on the run; non-characters stay put');
+      log(gsWire({ limit: 900 }).filter(e =>
+            /a tenant gave notice — 9\d{3} Reputation Row/.test(e.text))
+            .length >= 2,
+          'gs: v11 tenant notice prints as public paper, not a name');
+
+      /* -- the public card: counts and a band, never a float --------- */
+      const cardBad = gsCharRepCard('L-BAD', DAY);
+      log(cardBad.landlord.evictions === 3 &&
+          cardBad.landlord.forCause === 1 &&
+          cardBad.landlord.wrongful === 2 &&
+          cardBad.landlord.disputesOpen === 0 &&
+          cardBad.landlord.disputesLost === 1 &&
+          cardBad.band === 'pariah' &&
+          /tenancies ended/.test(cardBad.line),
+          'gs: v11 the landlord card reads like a tenant-union ' +
+          'bulletin', cardBad.line);
+      const cardGood = gsCharRepCard('T-GOOD', DAY);
+      const cardLate = gsCharRepCard('T-LATE', DAY);
+      log(cardGood.tenant.evicted === 1 && cardGood.tenant.forCause === 1 &&
+          cardLate.score === 0 &&
+          gsCharRepScore('T-LATE', DAY).score === -1,
+          'gs: v11 the public card is fair — private lateness never ' +
+          'prints, evictions count honestly');
+      const board11 = gsCharRepBoard(DAY);
+      log(board11.some(r => r.who === 'L-BAD' && r.band === 'pariah' &&
+          r.wrongful === 2) &&
+          board11.every(r => typeof r.score === 'number' &&
+            typeof r.band === 'string'),
+          'gs: v11 the spectator board is card-shaped — band + counts, ' +
+          'worst standing first');
+      const wire11 = gsWire({ limit: 900 });
+      log(wire11.some(e => /a housing dispute filed — 9\d{3} Reputation Row/
+              .test(e.text)) &&
+          wire11.some(e => /a housing dispute resolved — 9\d{3} Reputation Row/
+              .test(e.text)) &&
+          !wire11.some(e => /habitability|T-GOOD|T-VIC|wrongful/i.test(e.text)),
+          'gs: v11 rent-board paper prints the door, never the ' +
+          'allegations or names');
+
+      /* -- decay: the block forgives, on a clock --------------------- */
+      const scLater = gsCharRepScore('L-BAD', '2027-03-05');
+      const scOld   = gsCharRepScore('L-BAD', '2031-06-01');
+      log(Math.abs(scLater.score) < Math.abs(scBad.score) &&
+          scLater.score < 0 && scOld.score === 0 && scOld.band === 'okay',
+          'gs: v11 reputation decays on a half-life; five years and ' +
+          'the block forgives', scLater.score + ' -> ' + scOld.score);
+
+      /* -- persistence: journal + knowledge ride the bus ------------- */
+      const snap11 = gsBusSnapshot();
+      const nEv11 = GS_CREP.events.length;
+      gsBusReset();
+      const wiped11 = GS_CREP.events.length === 0 &&
+                      Object.keys(GS_CREP.known).length === 0;
+      gsBusLoad(snap11);
+      log(wiped11 && GS_CREP.events.length === nEv11 &&
+          gsCharRepScore('L-BAD', DAY).score === -60 &&
+          gsCharRepKnows('T-NB', evWrong1.id, '2026-02-01') === true &&
+          gsCharRepKnows('C8', evWrong1.id, '2026-02-01') === true,
+          'gs: v11 the journal, the knowledge map, and scores survive ' +
+          'the bus snapshot');
+
+      /* -- invariants: audit clean, money untouched, ban intact ------ */
+      const ledBefore = gsLedgerTotal('dollars');
+      const d2 = gsFileDispute(ruST.id, 'rent_raise', 'T-ST',
+        { date: '2026-03-20' });
+      gsResolveDispute(ruST.id, d2.dispute.id, 'settled',
+        { date: '2026-03-25' });
+      log(d2.ok && gsLedgerTotal('dollars') === ledBefore,
+          'gs: v11 reputation and disputes move no money — ' +
+          'the currencies never mix');
+      log(gsCharRepAudit().ok === true,
+          'gs: v11 the reputation audit is clean after the whole arc',
+          gsCharRepAudit().issues.slice(0, 3).join('; ') || 'clean');
+      log(typeof gsPossessDeny === 'function' &&
+          gsPossessDeny('C7', 'owner') === 'possession_ban',
+          'gs: v11 the possession ban still holds — reputation ' +
+          'moves opinions, never bodies');
+
+      /* -- the office exception + the honest un-homing --------------- */
+      const appAgent = gsApplyForLease(ruV1.id, 'T-VIC',
+        { date: '2026-03-26', by: 'agent' });
+      log(!!appAgent && appAgent.status === 'pending',
+          'gs: v11 an office-filed application is the owner\'s call — ' +
+          'a burned hire can still be re-doored (their stance runs ' +
+          'the stay-or-go checks instead)');
+      gsMarkHired('H-REP', 'pRep', { name: 'Rep Hire' });
+      gsSignLease(ruC8.id, 'H-REP', { start: '2026-03-12',
+        monthly_rent: 1000 });
+      GS_HIRED['H-REP'].unitId = ruC8.id;
+      gsVacate(ruC8.id, { by: 'H-REP', date: '2026-03-26' });
+      log(GS_HIRED['H-REP'].unitId === null,
+          'gs: v11 a hire who gives notice is honestly un-homed');
     }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
