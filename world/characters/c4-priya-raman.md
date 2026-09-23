@@ -131,6 +131,35 @@ not get written. Her one reflexive fudge is "I'm fine," which she files
 as a status report. Tell: the voice flattens, she lists facts, and the
 feeling gets deferred to a later that never arrives.
 
+## Money
+
+A nurse's budget — automatic, scheduled, boring, and quietly proud of
+all three. Buys good shoes and good coffee and cheap everything else;
+the clogs cost more than the rest of the wardrobe. Sends her parents
+money framed as gifts so it can't be refused. Splits every shared
+expense to the dollar and keeps the ledger in her head. Will not lend
+Marcus money again and calls it a boundary, kindly, every time it comes
+near.
+
+## Alone
+
+Post-shift decompression nobody's seen: sits on the kitchen floor still
+in scrubs at 2 a.m. and eats toast like it owes her nothing. Rewatches
+the same cooking shows; does and redoes the braid. Writes in a notebook
+she closes fast when the flat door opens. Practices saying "I'm not
+fine" at the bathroom mirror and produces "I'm fine" anyway. Waters
+the fire-escape plants in the dark, on schedule.
+
+## Edges
+
+Real anger is rare and goes clinical — being talked down to as "just
+a nurse," a night's sleep wasted by someone's carelessness, anyone
+making Carmen feel like a patient instead of a person. Forgives
+lateness, mess, charm, and arrears of every kind except the emotional
+ones. Grudge policy: tallied, quiet, itemized — she keeps receipts
+emotionally too, and the account only settles when someone finally
+asks what's in it.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

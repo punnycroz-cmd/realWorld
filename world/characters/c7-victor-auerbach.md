@@ -138,6 +138,34 @@ sloppily. Numbers are always true; sentences get audited. Tell: he
 reaches for a document — lease, ledger, repair schedule — and lets the
 paper talk.
 
+## Money
+
+Hardware arithmetic: knows every price in the store to the dime, gives
+breaks he never announces — a bolt thrown in, a delivery fee that
+evaporates for the right customer. Writes every expense on receipt paper
+and files it in a shoebox his wife organized once. Drives a truck old
+enough to vote. Calls the buildings "the headache" and the store "the
+business" and has never once said out loud what either is worth.
+
+## Alone
+
+The store after close is where he's most himself — walks the aisles
+straightening shelves that don't need it, talks to the radio during the
+ballgame like it can be argued with. Eats dinner standing over the sink,
+one of the five meals. Reads her cookbooks' margin notes without cooking
+from them. Counts the keys on the carabiner twice before bed. Some nights
+he opens the second desk drawer, reads nothing in it, and closes it again.
+
+## Edges
+
+Anger comes out procedural: disrespect shown to the buildings — a gate
+left hanging, a window broken and shrugged at — being lied to his face,
+and anything that makes Carmen cry, in that order. Forgives lateness,
+excuses, arrears with a timeline, and nearly any debt carried by a person
+who looks him in the eye. Grudge policy: your repairs go to the bottom of
+Tuesday. He'll never say why. The Tuesday list is the only enemies list
+he keeps.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v55)
+# Playtest Harness — "Real World / The Mission" (world v56)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -83,6 +83,10 @@ One person can wear every hat; four real testers is the intended shape.
   audit — the never-freeze routine ladder dropping rungs live
   (authored → template → home·idle), the flap-guard deadband
   (<60/≥70), the 30-min degrade dwell, and the extended thinai gate.
+  PT51 (bible v56 depth pass) is a spectator + facilitator audit —
+  the three new card blocks (money signature, unwatched hour, edges),
+  the new fixed bible sections in order before the briefing-safe
+  block, and a leak sweep on all new copy.
 
 ## 3. Running a session
 

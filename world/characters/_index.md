@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v42)
+# Main Cast Index — "The Mission" (world v56)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -25,7 +25,7 @@ Every bible uses the same fields:
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
 
-## Roleplay layer (v14, deepened v28, v42)
+## Roleplay layer (v14, deepened v28, v42, v56)
 
 Added sections per bible — enough that a stranger could play the
 character consistently on day one. Field order is fixed:
@@ -64,12 +64,25 @@ character consistently on day one. Field order is fixed:
     fudge, what they fudge reflexively, and the tell. Written as a
     speech habit, not a rulebook — the memory layer's per-character
     distortion priors read this section.
-15. Public profile · surface relationships · daily routine (briefing-safe)
-16. Secrets & seeds (never surfaces — always the LAST section)
+15. **Money** — v56. The economy signature: how they earn it, how it
+    shows, what they'd never spend on, what they'd go broke for.
+    Posture and habits only — no ledger facts, no amounts, no seed
+    bookkeeping (a savings jar is texture; a specific debt is a seed).
+16. **Alone** — v56. What the feed catches when they think nobody's
+    watching: the private, camera-legible texture of an unwatched hour.
+    Written as observable behavior only — the feed could film every
+    line of it. It may orbit a seed (a face-down notebook opening, a
+    phone thread reread) but never names what it orbits.
+17. **Edges** — v56. The anger/grudge register: what genuinely angers
+    them, what they forgive instantly, and the grudge policy. Written
+    as emotional perimeter, not trigger conditions — the brain weighs
+    it; nothing here fires a behavior.
+18. Public profile · surface relationships · daily routine (briefing-safe)
+19. Secrets & seeds (never surfaces — always the LAST section)
 
 `world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
-strangers/wants/interior/truth fields and the briefing-safe block for the
-brain/prompt layer.
+strangers/wants/interior/truth/money/alone/edges fields and the
+briefing-safe block for the brain/prompt layer.
 Section placement note: the roleplay layer sits between personality and the
 briefing-safe block — mannerisms and voice are *public-observable* (safe for
 thin-AI phrase kits per thinai.json), while "under pressure" and

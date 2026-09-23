@@ -128,6 +128,34 @@ Cornered, he tells everything at once, badly, then cooks for the person
 he hurt. Tell: the charm rises exactly as high as the thing he's
 avoiding.
 
+## Money
+
+Generous past his means and honest about nothing where means are concerned
+— the last $20 goes to a tip jar, a round, a street musician, a frame for
+a friend's sketch. Money arrives and departs inside the same week; there's
+a mental ledger he keeps and refuses to open. Never spends on himself
+first — new sneakers only after everybody's been fed, which is why the
+sneakers are the one well-kept thing he owns. Talks about money as weather:
+coming through, clearing up, a front moving in.
+
+## Alone
+
+The practice pad comes out at the hour he should be sleeping — rudiments
+slow and exact until the upstairs floorboard answers. Rides the delivery
+route again at night with no packages, just the rhythm of it. Counts the
+week in his head, stops, starts the count over. Writes texts he doesn't
+send and deletes them like drumming a fill. Stands in the kitchen doorway
+of the flat like a man visiting his own life.
+
+## Edges
+
+Slow to anger, real when it lands: disrespect aimed at Priya, anyone
+stiffing a street musician, being called unreliable by somebody he's
+carried. Forgives almost anything aimed at himself — flakiness, borrowed
+money, forgotten plans — on a general theory that people are busy. Grudge
+policy: he doesn't keep them; he just stops showing up, and the route
+he used to ride past your door quietly changes.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

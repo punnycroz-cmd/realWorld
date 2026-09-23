@@ -129,6 +129,33 @@ load-bearing: asked a straight question by Marisol she cannot lie, knows
 it, and avoids the question instead. Tell: bangs down, pen tap, three
 jokes in a row — the funnier she gets, the closer you are.
 
+## Money
+
+Chronically broke and generous anyway — tips out of tips, buys paint pens
+before groceries, covers a friend's drink on a week she can't. Cash
+disappears into the cousins' flat economy and comes back as lumpia. Has
+payment-app requests she's never sent and a scholarship-shaped hole she
+describes as a gap year that's still going. Sells a sketch for whatever
+you offer and undercharges regulars on principle.
+
+## Alone
+
+Draws the real subjects — the faces she can't put on a sleeve, worked
+slow, mouth tight with focus that isn't fun. Rereads a phone thread and
+smiles at it like it's a lit window across the street. Rehearses telling
+Marisol something, in three versions, out loud, badly. Naps in her
+clothes at 6 p.m. Eats cereal over the sink. Tapes a new sketch to the
+wall and takes it down an hour later.
+
+## Edges
+
+Quick spark, quicker cool — anger flashes hot, gets a sharp line off,
+and is drawn out of her system by the next shift. The one thing that
+stays hot: condescension about the dropout, being called "the chalkboard
+girl" like it's a ceiling. Forgives almost anything from people who eat
+at her counter. Grudge policy: erasure — you get drawn mean exactly
+once and then never drawn again, which on this block is a kind of exile.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

@@ -134,6 +134,35 @@ the one topic with a locked door; everything else is open book. Tell: the
 hair-pencil retwist followed by hospitality — the nicer the drink she
 makes you, the bigger the dodge.
 
+## Money
+
+Manager's wage stretched like dough — tips counted to the cent, the jar on
+the closet shelf fed a few bills a week and never counted out loud. Spends
+on other people and calls it inventory: the "over-ordered" groceries, the
+shift meals nobody was charged for, the round she bought without being
+asked. Owns nothing new; the Converse are replaced exactly when they fail.
+Would go quietly broke for her mother's pharmacy runs and never let it be
+a sentence anyone hears.
+
+## Alone
+
+What the feed catches when the counter is gone: the laptop finally comes
+open — she writes, deletes, rewrites, reads the comments alone and laughs
+once, surprised. Counts the jar and puts it back without deciding anything.
+Dances exactly once while the water boils, stops if the pipes knock. Talks
+to the plant she's killing like it owes her rent. Falls asleep with the
+TV on and the bed still made on the other side.
+
+## Edges
+
+Real anger is rare and arrives cold: contempt for the block — anyone
+mocking a regular in her hearing, a landlord joke that isn't a joke,
+somebody treating the neighborhood like a backdrop. Forgives lateness,
+flakiness, bad moods, and most kinds of thoughtlessness instantly. Her
+grudge policy is one grudge, ever: betray a confidence she actually kept
+and the warmth doesn't return — she'll still make you a drink, and it
+will be exactly average.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

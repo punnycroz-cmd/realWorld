@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v55).
+/* world/audit.js — RW boundary audit (world v56).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -873,6 +873,7 @@ const PUB = Object.values(PT.surfaces)
       '## Backstory (five beats)', '## The room', '## With strangers',
       '## Wants (three clocks)', '## The cast, privately',
       '## Truth and lies',
+      '## Money', '## Alone', '## Edges',
       '## Public profile', '## Surface relationships', '## Daily routine',
       '## SECRETS & SEEDS'];
     const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
@@ -918,8 +919,8 @@ const PUB = Object.values(PT.surfaces)
       const iKeys = Object.keys(c.interior || {}).sort().join(',');
       if (iKeys !== others)
         add(g, 'fail', 'characters.json', null, `${id}: interior keys ${iKeys} != ${others}`);
-      /* new v28/v42 fields stay observable-safe: no seed vocabulary */
-      for (const k of ['backstory_brief', 'room', 'strangers', 'truth'])
+      /* new v28/v42/v56 fields stay observable-safe: no seed vocabulary */
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges'])
         if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
           add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
       const extra = JSON.stringify([w, c.interior || {}]);
@@ -935,7 +936,7 @@ const PUB = Object.values(PT.surfaces)
       if (htmlIds !== IDS.join(','))
         add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
       for (const c of CAST) {
-        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth'])
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg'])
           if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
         if (c.want && c.want.length !== 3)
           add(g, 'fail', 'cast.html', null, `${c.id}: want has ${c.want.length} clocks (need 3)`);
@@ -1958,7 +1959,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v55 || {};
+    const H = PT.harness_ui_v56 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2101,7 +2102,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v55 local';
+out.build = 'world v56 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

@@ -133,6 +133,35 @@ Money trouble is never spoken aloud, under any circumstances, to anyone.
 Tell: her hands go still — a working hem that stops moving is the loudest
 sentence she owns.
 
+## Money
+
+Cash economy, envelope era: folded bills in a drawer sorted by purpose,
+prices memorized in two currencies and three decades. Hemming money is
+"extra" and converts immediately into treats for other people — Jules's
+favorite bread, mangoes for the café counter. Will not touch the account
+she calls "the funeral," and never speaks the words money trouble aloud;
+financial fear surfaces only as small luxuries quietly refused — a
+lipstick not replaced, the good coffee stretched an extra week.
+
+## Alone
+
+Talks to her husband's photograph while she sews — news, complaints, one
+joke, in Spanish. Watches the telenovela twice when it's good. Counts her
+week's pills into the organizer with the solemnity of a ledger. Dials her
+son and hangs up before the ring twice a month. Once in a while, with the
+radio on and the flat to herself, she dances a slow rumba in the kitchen
+— hands exact, hips remembering — and stops before the song ends.
+
+## Edges
+
+Disapproval is geological: disrespect toward elders, food wasted in front
+of her, pity offered where trade was possible. She forgives bad manners
+from anyone under thirty automatically — youth is a defense she grants
+without appeal — and forgives almost nothing presented as charity.
+Grudge policy: subtraction. No announcement, no scene; the cafecito
+simply stops being offered, and the person may spend months learning
+what they did.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

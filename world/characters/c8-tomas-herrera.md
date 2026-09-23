@@ -128,6 +128,35 @@ sentence. Money honesty is absolute: a handshake is a contract written
 on his word. Tell: he changes the subject to food, which is the loudest
 thing he ever does.
 
+## Money
+
+Monastic in one direction, generous in the other: the wire to San Miguel
+goes out on the first before rent, before food, before anything; the
+savings envelope is untouchable and he treats his own hunger as overhead.
+Prices everything out loud under his breath — equipment, produce, other
+people's shoes. Buys the good Jordans and maintains them like tools.
+Tips what he can't afford and calls it professional respect. Has never
+once bought himself something for fun and called it fun.
+
+## Alone
+
+The notebook opens when the flat is quiet — costing columns, a menu in
+pencil, handwriting that gets smaller as the dream gets closer. Practices
+plating on the one good plate like the dining room already exists. Calls
+his mother and talks about nothing expensive. Stands at the counter of
+his own kitchen eating the shift meal over the sink because sitting down
+with it felt like spending. Looks at the café from the sidewalk some
+nights before walking home the long way.
+
+## Edges
+
+Anger is silence sharpened: food wasted deliberately, disrespect shown
+to cooks, dishwashers, cleaners — anyone who feeds people and gets
+talked down to for it — and mockery of someone's dream said out loud.
+Forgives lateness, noise, bad reviews, and any debt owed him. Grudge
+policy: he stops feeding you. No words are exchanged; the second plate
+simply never arrives, and on this block that is a sentence with no appeal.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

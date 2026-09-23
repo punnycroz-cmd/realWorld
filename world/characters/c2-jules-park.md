@@ -133,6 +133,34 @@ mid-sentence, apologizes for both. The one thing they omit is the
 paperwork of their own housing, and it eats them visibly. Tell: eye
 contact drops to zero and the next sentence comes out very precise.
 
+## Money
+
+Portland-frugal with an envelope system that survived the move: the rent
+envelope is filled first, early, in cash, and handed over before being
+asked — a whole moral code in one envelope. Records every expense in
+pencil in a sketchbook margin. Buys drawing materials before groceries
+some weeks and eats Carmen's dinners with visible guilt about the math.
+Tips like a former service worker — which is to say, always, and more
+than the shift warrants.
+
+## Alone
+
+The sketchbook opens to the pages nobody sees — full compositions of the
+block: Carmen's stoop at 8 a.m., the park in three lights, hands mostly.
+Practices conversations out loud in a voice slightly braver than their
+own, then winces at it. Portland playlists on the good headphones; lies
+on the floor while the kettle heats. Sits at the window at night and
+reads the block like a letter they're still composing to people back home.
+
+## Edges
+
+Anger is rare and arrives as frost: cruelty dressed up as honesty, anyone
+making Carmen feel old, a stranger treating the neighborhood like content.
+Forgives nearly everything aimed at them — awkwardness, cold shoulders,
+being forgotten — on a theory of giving people three months. The grudge
+policy is distance: cold, precise, permanent politeness. Nobody is told
+they've been moved; the questions just stop going deeper.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

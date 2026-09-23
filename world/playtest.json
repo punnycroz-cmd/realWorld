@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 55,
+ "version": 56,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2541,9 +2541,9 @@
     },
     {
      "do": "Run `node world/audit.js` and read the harness gate.",
-     "expect": "harness gate passes: LS key rw_playtest_v55 + build tag agree with playtest.json v55, every v55 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
+     "expect": "harness gate passes: LS key rw_playtest_v56 + build tag agree with playtest.json v56, every v56 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
      "checkpoints": [
-      "Gate reports '50 scenarios · N checkpoints · key rw_playtest_v55'",
+      "Gate reports '51 scenarios · N checkpoints · key rw_playtest_v56'",
       "A missing owner select, a dropped debrief id, or the old LS key would FAIL — spot-check",
       "All gates green; overall 0 fail"
      ]
@@ -2592,7 +2592,7 @@
      "expect": "The card states offline = thin AI (thinner but present) with the no-'miss you' clause; the onboard gate reports 'schema v53 · 7 beats · key rw_onboard_v53' with zero fails.",
      "checkpoints": [
       "Thin-AI line and no-nag clause appear together",
-      "Onboard gate passes; harness gate passes at key rw_playtest_v55 / build 'world v55 local'",
+      "Onboard gate passes; harness gate passes at key rw_playtest_v56 / build 'world v56 local'",
       "All gates green; overall 0 fail"
      ]
     }
@@ -2697,6 +2697,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT51",
+   "title": "The bibles round three — money, the unwatched hour, and the edges",
+   "persona": "returning spectator checking whether the cast page now reads like eight people instead of eight profiles",
+   "minutes": 10,
+   "surfaces": [
+    "cast",
+    "audit"
+   ],
+   "goal": "Verify the v56 character-bible pass: every card carries the three new depth fields (money signature, alone-time texture, anger/grudge edges), the bibles hold the new fixed sections in order before the briefing-safe block, and nothing in the new copy leaks a seed.",
+   "steps": [
+    {
+     "do": "Open cast.html and click through all eight cards, reading the three new blocks: 'Money, as they handle it', 'Their edges', and 'When nobody's watching'.",
+     "expect": "Every card renders all three blocks with real prose — each voice is distinct (Carmen's envelopes, Victor's shoebox, Marcus's weather-talk), and the 'unwatched' block reads like something the feed could actually film.",
+     "checkpoints": [
+      "All 8 cards show 'Money, as they handle it', 'Their edges — what angers, what gets forgiven', and 'When nobody's watching'",
+      "No card repeats another's text — eight distinct voices, spot-check C1 vs C6 vs C7",
+      "The alone blocks are camera-legible behavior (a jar counted, a rumba stopped mid-song), not interior monologue"
+     ]
+    },
+    {
+     "do": "Open two bibles (characters/c1 and c7) and check section order: Money → Alone → Edges sit between 'Truth and lies' and 'Public profile'; SECRETS & SEEDS is still last.",
+     "expect": "The three new sections appear in fixed order on both files, above the briefing-safe block; the secrets section still closes the file with no ## section after it.",
+     "checkpoints": [
+      "Money/Alone/Edges present in that order, after 'Truth and lies', before 'Public profile'",
+      "SECRETS & SEEDS remains the final section in both files",
+      "The Money sections carry posture and habits, not ledger facts — no sale, loan, or arrears amounts"
+     ]
+    },
+    {
+     "do": "Cross-check leak safety on the new copy: search the new sections and the cast.html fields for seed vocabulary and seed-shaped facts.",
+     "expect": "Nothing names the blog, the sale offer, the loan, the unpermitted room, or the hidden couple. Alone-section gestures stay gestures — a face-down notebook opening, a phone thread reread — without naming what they orbit.",
+     "checkpoints": [
+      "'Mission Unfiltered', 'La Esperanza', 'unpermitted', 'for sale' appear in no new section or card field",
+      "Marcus's mny/aln/edg describe generosity and avoidance, never arrears as fact",
+      "Jules's money line mentions the rent envelope — posture — not its lease status"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the bible + harness gates.",
+     "expect": "The bible gate reports schema v56 with 20 required sections and passes; the harness gate reports 51 scenarios with the v56 key.",
+     "checkpoints": [
+      "Bible gate detail: 'schema v56 · 8 mains · 20 required sections'",
+      "Harness gate: '51 scenarios · N checkpoints · key rw_playtest_v56'",
+      "0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -2738,10 +2787,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v55 local",
- "harness_ui_v55": {
-  "storage_key": "rw_playtest_v55",
-  "build_tag_prefix": "world v55 local",
+ "build": "world v56 local",
+ "harness_ui_v56": {
+  "storage_key": "rw_playtest_v56",
+  "build_tag_prefix": "world v56 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -2760,7 +2809,7 @@
   "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
   "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
   "required_marks": [
-   "rw_playtest_v55",
+   "rw_playtest_v56",
    "id=\"prog\"",
    "id=\"keyCard\"",
    "id=\"exInbox\"",
