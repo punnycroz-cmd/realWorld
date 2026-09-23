@@ -501,6 +501,26 @@ function sfLampPool(cx, cy, r){
    ~0.5° disc makes the penumbra grow with distance from the occluder */
 function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
 
+/* ---------------- v33: FORWARD SCATTER & CANYON BOUNCE ----------------
+   Two missing pieces of real daylight, both driven by the same SF_SUN:
+   sfSkyLobeA — the air-light Mie lobe. Sky luminance is NOT uniform
+   around the compass: looking toward the sun the atmosphere blooms warm
+   and bright; the anti-solar point is the deepest, coolest blue in the
+   dome. sunFwd = cos(view bearing, sun bearing) -> lobe strength.
+   sfBounceK — street-canyon bounce. When the pavement out front of a
+   sun-shy wall is lit (asphalt + painted facades reflect ~15%), the
+   street throws warm uplight onto the wall's lowest meters. sunK is the
+   wall's n·L, occlM the shadow height sfCanyonShade measures at the
+   street point (0 = open sun). */
+function sfSkyLobeA(sunFwd){
+  return clamp(0.05 + 0.17 * SF_SUN.day, 0, 0.22) * clamp(sunFwd, 0, 1);
+}
+function sfBounceK(sunK, occlM){
+  if(sunK > 0.12 || occlM > 1.2) return 0;
+  return 0.16 * SF_SUN.day * clamp(1 - occlM / 1.2, 0, 1) *
+         clamp((0.12 - sunK) / 0.3, 0, 1) * (0.55 + 0.45 * SF_SUN.warm);
+}
+
 /* ---------------- v28: CURB HEIGHT — the sidewalk is a place, not a color
    Real SF curbs are ~15cm of granite-faced concrete. Until now every
    ground quad sat on the z=0 plane and the "curb" was a painted stripe;
@@ -1508,6 +1528,31 @@ function sfRenderWorld(cw, ch){
       ctx.globalAlpha = cover ? 0.45 : 1;
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       ctx.globalAlpha = 1;
+      // v33: parapet sun-rim — the coping lip on every footprint edge
+      // whose outward normal faces the solar bearing catches a thin warm
+      // line at roof height; the baked sprite can't carry it (the sprite
+      // is quantized to 8 sun sectors, the rim follows the real vector).
+      if(!cover && !isNight() && SF_SUN.day > 0.22 && cam.zoom >= 0.5){
+        const P = b.px, nP = P.length, hOff = b.hPx * cam.zoom;
+        ctx.lineWidth = Math.max(1, 1.5 * cam.zoom);
+        for(let e = 0; e < nP; e++){
+          const a = P[e], c2 = P[(e + 1) % nP];
+          const ex2 = c2[0] - a[0], ey2 = c2[1] - a[1];
+          const el2 = Math.hypot(ex2, ey2) || 1;
+          let nx2 = -ey2 / el2, ny2 = ex2 / el2;
+          if(nx2 * ((a[0] + c2[0]) / 2 - b.x) +
+             ny2 * ((a[1] + c2[1]) / 2 - b.y) < 0){ nx2 = -nx2; ny2 = -ny2; }
+          const rk = nx2 * SF_SUN.toX + ny2 * SF_SUN.toY;
+          if(rk < 0.35) continue;
+          ctx.strokeStyle = `rgba(255,222,160,${(0.10 + 0.20 * rk) * SF_SUN.day})`;
+          ctx.beginPath();
+          ctx.moveTo((a[0] - cam.x) * cam.zoom + cw / 2,
+                     sfSY(a[1], ch) - hOff);
+          ctx.lineTo((c2[0] - cam.x) * cam.zoom + cw / 2,
+                     sfSY(c2[1], ch) - hOff);
+          ctx.stroke();
+        }
+      }
       if(cover){
         ctx.strokeStyle = 'rgba(150,215,255,0.5)';
         ctx.lineWidth = 1;
@@ -2062,6 +2107,32 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.beginPath();
         ctx.moveTo(eA[0], eA[1]); ctx.lineTo(eB[0], eB[1]);
         ctx.lineTo(eD[0], eD[1]); ctx.lineTo(eC[0], eC[1]);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+
+  // v33: canyon bounce — the pavement in front of a sun-shy wall is often
+  // still in full sun (the shadow comes from this side of the street).
+  // Asphalt + opposite facades throw ~15% of that light back as warm
+  // uplight on the wall's lowest meters. Probed by the same canyon
+  // ray-march that lays the street shadows, so cause and effect agree.
+  if(!night && det > 0 && sunK < 0.12){
+    const bk = sfBounceK(sunK,
+      sfCanyonShade((x1 + x2) / 2 + nx * 5.5, (y1 + y2) / 2 + ny * 5.5, i));
+    if(bk > 0.012){
+      const bz = Math.min(2.4, hm * 0.4);
+      const u1 = pr(x1, y1, 0), u2 = pr(x2, y2, 0),
+            u3 = pr(x2, y2, bz), u4 = pr(x1, y1, bz);
+      if(u1 && u2 && u3 && u4){
+        const ug = ctx.createLinearGradient(0, Math.min(u3[1], u4[1]),
+                                            0, Math.max(u1[1], u2[1]));
+        ug.addColorStop(0, 'rgba(255,196,130,0)');
+        ug.addColorStop(1, `rgba(255,196,130,${bk})`);
+        ctx.fillStyle = ug;
+        ctx.beginPath();
+        ctx.moveTo(u1[0], u1[1]); ctx.lineTo(u2[0], u2[1]);
+        ctx.lineTo(u3[0], u3[1]); ctx.lineTo(u4[0], u4[1]);
         ctx.closePath(); ctx.fill();
       }
     }
@@ -3341,6 +3412,39 @@ function sfRenderStreet(cw, ch){
     ctx.fillRect(0, horizon - horizon * 0.5, cw, horizon * 0.5);
   }
   const cover = sfCloudCover();
+  // v33: azimuthal forward scatter — the sky dome is not uniformly lit.
+  // A wide warm Mie lobe swells around the sun's projected bearing and
+  // sinks toward the horizon; turn the camera away from the sun and the
+  // sky ahead cools and deepens (the anti-solar veil, with a faint rose
+  // belt at real dusk). Drawn under the clouds so bodies still occlude it.
+  if(!night && W.rain < 0.3 && SF_SUN.day > 0.08){
+    const sF3 = SF_SUN.toX * DX + SF_SUN.toY * DY;
+    const sS3 = SF_SUN.toX * DY - SF_SUN.toY * DX;
+    if(sF3 > 0.05){
+      const lx = cw / 2 + (sS3 / Math.max(0.4, sF3)) * F * 0.9;
+      const la = sfSkyLobeA(sF3) * (1 - cover * 0.6);
+      const lG = 240 - Math.round(66 * wK), lB = 214 - Math.round(120 * wK);
+      const lobe = ctx.createRadialGradient(lx, horizon, 20,
+                                            lx, horizon, cw * 0.92);
+      lobe.addColorStop(0, `rgba(255,${lG},${lB},${la})`);
+      lobe.addColorStop(0.55, `rgba(255,${lG},${lB},${la * 0.4})`);
+      lobe.addColorStop(1, `rgba(255,${lG},${lB},0)`);
+      ctx.fillStyle = lobe; ctx.fillRect(0, 0, cw, horizon);
+    } else {
+      const aS = cw / 2 + (-sS3 / Math.max(0.4, -sF3)) * F * 0.9;
+      const av = ctx.createRadialGradient(aS, horizon, 30,
+                                          aS, horizon, cw * 0.85);
+      av.addColorStop(0, `rgba(66,90,138,${0.11 * SF_SUN.day})`);
+      av.addColorStop(1, 'rgba(66,90,138,0)');
+      ctx.fillStyle = av; ctx.fillRect(0, 0, cw, horizon);
+      if(wK > 0.55 && cover < 0.6){
+        const bv = ctx.createLinearGradient(0, horizon - 56, 0, horizon);
+        bv.addColorStop(0, 'rgba(234,150,140,0)');
+        bv.addColorStop(1, `rgba(234,150,140,${0.22 * (wK - 0.55)})`);
+        ctx.fillStyle = bv; ctx.fillRect(0, horizon - 56, cw, 56);
+      }
+    }
+  }
   // v9: aerial perspective strength for this frame — the marine layer's
   // moisture scatters light, so distant blocks melt toward the horizon
   // color. Driven by the same humidity/cloud physics as Karl himself.

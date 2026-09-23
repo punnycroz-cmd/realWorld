@@ -65,7 +65,8 @@ const api = eval(m[1] + `
     sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
     SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
     sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
-    sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS })`);
+    sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
+    sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -288,6 +289,21 @@ const api = eval(m[1] + `
   ok(api.sfGrassDry(1, 1) === d9, 'sfGrassDry deterministic');
   ok(d9 >= 0 && d9 <= 1, 'sfGrassDry bounded 0..1');
   api.W.month = mo0;
+
+  // v33 forward scatter & canyon bounce: the Mie lobe swells toward the
+  // sun and dies behind it; bounce uplight only exists when the wall is
+  // sun-shy AND the canyon floor in front is lit
+  const day0 = api.SF_SUN.day;
+  api.SF_SUN.day = 0.8;
+  ok(api.sfSkyLobeA(1) > api.sfSkyLobeA(0.2) && api.sfSkyLobeA(-1) === 0,
+     'sky lobe peaks at the sun bearing, none anti-solar');
+  ok(api.sfBounceK(-0.6, 0) > 0.02, 'shaded wall over lit street bounces');
+  ok(api.sfBounceK(0.5, 0) === 0, 'sunlit wall needs no bounce');
+  ok(api.sfBounceK(-0.6, 2.5) === 0, 'shadowed street gives no bounce');
+  ok(api.sfBounceK(-0.6, 0) === api.sfBounceK(-0.6, 0),
+     'sfBounceK deterministic');
+  ok(api.sfCanyonShade(1, 1, -1) >= 0, 'canyon probe bounded');
+  api.SF_SUN.day = day0;
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');
