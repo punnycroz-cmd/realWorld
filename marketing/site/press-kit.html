@@ -13,13 +13,16 @@
 <meta property="og:image" content="assets/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="assets/og-card.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="nav-wrap">
-    <a class="brand" href="index.html">REAL WORLD<small>The Mission</small></a>
+    <a class="brand" href="index.html"><img src="assets/favicon.svg" width="34" height="34" alt="" style="border-radius:8px"><span>REAL WORLD<small>The Mission</small></span></a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
     <nav class="nav-links">
       <a href="index.html">Home</a>
@@ -40,9 +43,11 @@
     <h1>Real World</h1>
     <p class="lead">A persistent AI neighborhood on a real Mission District block —
     free to watch, paid to reach into. First neighborhood: <b>The Mission</b>.</p>
-    <p class="muted">This page is a pre-launch draft. A downloadable kit
-    (zip of logo, key art, screenshots) will ship at launch — asset slots are
-    marked below.</p>
+    <p class="muted">This page is a pre-launch draft. The full kit —
+    logos, key art, screenshots, print-ready fact sheet — is bundled at
+    <code>marketing/press-kit/</code>; build the zip with
+    <code>./marketing/build-press-kit.sh</code>. Remaining placeholders are
+    labeled below.</p>
   </div>
 </section>
 
@@ -107,14 +112,15 @@
 <section>
   <div class="wrap">
     <h2>Assets</h2>
-    <p class="muted">Logo and key art are pending the brand-identity pass — slots
-    below reference the future files. Screenshots below are real captures from
-    the current development build and may be used with attribution and the
+    <p class="muted">All assets below are real files in the kit bundle
+    (<code>press-kit/</code>). Logos are the lit-window rowhouse mark — don't
+    recolor or redraw it. Screenshots and key art are real captures from the
+    current development build and may be used with attribution and the
     "in development" label intact.</p>
     <div class="grid grid-3">
-      <div class="asset-slot">LOGO — primary<br><code>assets/logo-primary.svg</code><br>(slot — pending brand pass)</div>
-      <div class="asset-slot">LOGO — mono/icon<br><code>assets/logo-icon.svg</code><br>(slot — pending brand pass)</div>
-      <div class="asset-slot">KEY ART — 16:9<br><code>assets/keyart-16x9.png</code><br>(slot — pending key art)</div>
+      <figure class="card" style="margin:0"><img src="assets/logo-primary.png" width="1600" height="480" loading="lazy" decoding="async" alt="Real World — The Mission primary logo" style="background:var(--bg-2);border-radius:8px;padding:12px"><figcaption class="muted" style="font-size:13px;margin-top:8px">Primary lockup — <code>press-kit/logos/logo-primary.svg/.png</code></figcaption></figure>
+      <figure class="card" style="margin:0"><img src="assets/logo-icon.png" width="512" height="512" loading="lazy" decoding="async" alt="Real World lit-window icon" style="background:var(--bg-2);border-radius:8px;padding:12px;max-width:220px"><figcaption class="muted" style="font-size:13px;margin-top:8px">Icon / mono — <code>press-kit/logos/logo-icon.svg/.png</code></figcaption></figure>
+      <figure class="card" style="margin:0"><img src="assets/keyart-16x9.png" width="1920" height="1080" loading="lazy" decoding="async" alt="Real World key art — development build capture with title" style="border-radius:8px"><figcaption class="muted" style="font-size:13px;margin-top:8px">Key art 16:9 + square — <code>press-kit/keyart/</code></figcaption></figure>
     </div>
     <h3 style="margin-top:26px">Screenshots (development build)</h3>
     <div class="gallery">

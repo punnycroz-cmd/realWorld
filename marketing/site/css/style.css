@@ -49,7 +49,9 @@ code { background: var(--bg-2); padding: 1px 6px; border-radius: 6px; font-size:
   max-width: var(--maxw); margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; gap: 24px;
 }
-.brand { font-weight: 800; font-size: 20px; color: var(--text); letter-spacing: .02em; }
+.brand { font-weight: 800; font-size: 20px; color: var(--text); letter-spacing: .02em; display: flex; align-items: center; gap: 10px; }
+.brand img { flex: none; }
+.brand span { display: block; }
 .brand small { display: block; font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: .14em; text-transform: uppercase; }
 .brand:hover { text-decoration: none; }
 .nav-links { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }

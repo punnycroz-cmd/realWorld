@@ -1,8 +1,11 @@
 # Press Kit — Real World ("The Mission")
 
-**Version:** v0 bootstrap · 2026-09-22 · **Status:** LOCAL DRAFT — pre-launch.
+**Version:** v2 · 2026-09-22 · **Status:** LOCAL DRAFT — pre-launch.
 Contact fields are placeholders; no public channels exist yet. HTML mirror:
-`marketing/site/press-kit.html`.
+`marketing/site/press-kit.html`. Downloadable bundle:
+`marketing/press-kit/` — build the zip with `./marketing/build-press-kit.sh`
+(outputs `marketing/dist/real-world-press-kit.zip`). Outreach template +
+pitch drafts + embargo policy: `PRESS-OUTREACH.md`.
 
 ---
 
@@ -78,14 +81,23 @@ date. The founder quote slot below stays empty until the user writes one:
 
 | Asset | Status | File reference |
 |---|---|---|
-| Logo — primary | **Pending** brand-identity pass (roadmap) | `site/assets/logo-primary.svg` (slot) |
-| Logo — icon/mono | **Pending** | `site/assets/logo-icon.svg` (slot) |
-| Key art 16:9 | **Pending** key-art commission | `site/assets/keyart-16x9.png` (slot) |
-| Screenshots | **Available** — 4 current-build shots + 2 early-pass shots, real captures | `site/shots/v11-*.png`, `site/shots/v1-*.png` |
-| Trailer | **Not yet produced** — see trailer-plan on roadmap | — |
+| Logo — primary lockup | **Available** — SVG + 1600×480 PNG | `press-kit/logos/logo-primary.{svg,png}` |
+| Logo — icon/mono | **Available** — SVG + 512×512 PNG; favicon SVG | `press-kit/logos/logo-icon.{svg,png}`, `press-kit/logos/favicon.svg` |
+| Key art | **Available** — 1920×1080 + 1080×1080 composites on a real build capture | `press-kit/keyart/keyart-16x9.png`, `keyart-square.png` |
+| Screenshots | **Available** — 4 current-build shots (v13) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
+| Fact sheet | **Available** — print-ready HTML, prints to PDF | `press-kit/fact-sheet.html` |
+| Trailer | **Not yet produced** — see TRAILER-PLAN.md when it lands | — |
+
+Regenerate all raster brand assets with `python3 marketing/tools/make_brand_assets.py`
+(SVGs are the hand-authored vector sources; PNGs/key art are derived).
 
 Screenshot usage: free to use with attribution and the "in development" label —
 they show a pre-release build with placeholder UI (dev-build header visible).
+Logo rule: don't recolor, stretch, or redraw the lit-window mark.
+
+**Remaining placeholders (all explicitly labeled, all launch-gated):** studio
+name, press@/hello@ addresses, social handles, founder quote, release date,
+final domain. Everything else in this kit is a real file.
 
 ## Story angles for press
 
