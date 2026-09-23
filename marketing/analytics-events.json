@@ -87,6 +87,63 @@
       "props": { "file": "zip filename" },
       "funnel_stage": "press"
     },
+    "tour_started": {
+      "when": "onboarding tour begins (game-side; world-v11 onboarding.json analytics_hooks)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool — visitor declined the tour" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "onboarding events carry stage + opted_out ONLY — no per-step dwell/funnel-pressure data (world/onboarding-ui.md §8)"
+    },
+    "tour_beat": {
+      "when": "a tour beat is shown (game-side)",
+      "props": { "beat": "int — beat index", "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "tour_completed": {
+      "when": "tour finished (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "tour_skipped": {
+      "when": "tour dismissed mid-run (game-side)",
+      "props": { "stage": "onboarding stage id", "at_beat": "int — beat index at dismissal" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "handle_set": {
+      "when": "visitor picks a public handle (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "NEVER sends the handle value — presence only"
+    },
+    "wallet_explained": {
+      "when": "wallet explainer viewed (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "topup_shown": {
+      "when": "top-up UI shown during onboarding (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "no amounts — presence only"
+    },
+    "first_request_filed": {
+      "when": "the guided first request is filed during onboarding (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard → request",
+      "status": "PENDING — game build"
+    },
+    "onboard_dismissed": {
+      "when": "onboarding checklist dismissed entirely (game-side)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
     "watch_start": {
       "when": "spectator feed first rendered (emitted by the game embed, not the marketing shim; spec'd here for the funnel)",
       "props": { "source": "demo-page|direct|embed" },

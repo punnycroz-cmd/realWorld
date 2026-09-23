@@ -26,7 +26,8 @@ import sys
 from collections import Counter, defaultdict
 
 FUNNEL = ["pageview", "engaged", "watch_start", "request_submitted", "character_created"]
-ENGAGED_EVENTS = {"cta_click", "scroll_depth", "screenshot_view", "share_click"}
+ENGAGED_EVENTS = {"cta_click", "scroll_depth", "screenshot_view", "share_click",
+                  "price_calc", "request_simulated"}
 
 
 def load(path):
@@ -69,6 +70,9 @@ def report(evts, week=None):
     shares = Counter()
     calc_uses = Counter()
     calc_mins = []
+    sim_uses = Counter()
+    onboard = Counter()
+    tour_skip_beats = Counter()
     events_total = Counter()
 
     for e in evts:
@@ -114,6 +118,14 @@ def report(evts, week=None):
             calc_uses[key] += 1
             if props.get("minutes"):
                 calc_mins.append(int(props["minutes"]))
+        elif name == "request_simulated":
+            sim_uses[f'{props.get("action") or "?"}/{props.get("class") or "?"}'] += 1
+        elif name in ("tour_started", "tour_beat", "tour_completed", "tour_skipped",
+                      "handle_set", "wallet_explained", "topup_shown",
+                      "first_request_filed", "onboard_dismissed"):
+            onboard[name] += 1
+            if name == "tour_skipped":
+                tour_skip_beats[props.get("at_beat", "?")] += 1
 
     def reached(stage):
         return sum(1 for st in sessions.values() if stage in st)
@@ -179,6 +191,17 @@ def report(evts, week=None):
         out.append("**price estimator uses:** " + ", ".join(
             f"{k} ({n})" for k, n in calc_uses.most_common())
             + f" — avg {avg_min} priced per use")
+        out.append("")
+    if sim_uses:
+        out.append("**request simulator (action/class):** " + ", ".join(
+            f"{k} ({n})" for k, n in sim_uses.most_common()))
+        out.append("")
+    if onboard:
+        out.append("**onboarding (world-v11 hooks, game-side):** " + ", ".join(
+            f"{k}: {v}" for k, v in sorted(onboard.items())))
+        if tour_skip_beats:
+            out.append("  tour_skipped at beat: " + ", ".join(
+                f"{b} ×{n}" for b, n in sorted(tour_skip_beats.items())))
         out.append("")
     if refs:
         out.append("**referrer hosts:** " + ", ".join(f"{r} ({n})" for r, n in refs.most_common(8)))

@@ -30,7 +30,7 @@ UTMS = [
     {"utm_source": "discord", "utm_medium": "community", "utm_campaign": "launch-2026"},
 ]
 REFS = ["bsky.app", "pcgamer.com", "itch.io", "news.ycombinator.com", None, None]
-SHOTS = ["v19-A.png", "v19-B.png", "v19-C.png", "v19-D.png",
+SHOTS = ["v22-A.png", "v22-B.png", "v22-C.png", "v22-D.png",
          "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png"]
 CTAS = ["hero", "walkthrough", "footer", "nav", "demo-hero", "demo-ladder",
         "pricing-teaser", "faq-exit"]
@@ -84,10 +84,47 @@ def main():
             yield_evt("screenshot_view", path, sid,
                       {"shot": "shots/" + rnd.choice(SHOTS), "alt": "dev build capture"},
                       utm=utm, ref=ref, ts=ts + 8000)
+        if rnd.random() < 0.18:  # request simulator on demo page
+            yield_evt("request_simulated", "/demo.html", sid,
+                      {"action": rnd.choice(["possess", "venue", "weather"]),
+                       "class": rnd.choice(["compatible", "exclusive", "flat"]),
+                       "minutes": rnd.choice([5, 10, 30]),
+                       "credits": rnd.choice([8, 45, 90, 180])},
+                      utm=utm, ref=ref, ts=ts + 20000)
         if rnd.random() < 0.28:  # watch
             yield_evt("watch_start", "/demo.html", sid,
                       {"source": "demo_page", "mode": rnd.choice(["live", "fallback"])},
                       utm=utm, ref=ref, ts=ts + 12000)
+            if rnd.random() < 0.5:  # onboarding tour (world-v11 hooks, game-side)
+                yield_evt("tour_started", "/demo.html", sid,
+                          {"stage": "s1", "opted_out": False},
+                          utm=utm, ref=ref, ts=ts + 15000)
+                for beat in range(1, 5):
+                    if rnd.random() < 0.85:
+                        yield_evt("tour_beat", "/demo.html", sid,
+                                  {"beat": beat, "stage": "s1"},
+                                  utm=utm, ref=ref, ts=ts + 15000 + beat * 8000)
+                    else:
+                        yield_evt("tour_skipped", "/demo.html", sid,
+                                  {"stage": "s1", "at_beat": beat - 1},
+                                  utm=utm, ref=ref, ts=ts + 15000 + beat * 8000)
+                        break
+                else:
+                    yield_evt("tour_completed", "/demo.html", sid, {"stage": "s1"},
+                              utm=utm, ref=ref, ts=ts + 52000)
+                if rnd.random() < 0.6:
+                    yield_evt("handle_set", "/demo.html", sid, {"stage": "s2"},
+                              utm=utm, ref=ref, ts=ts + 56000)
+                if rnd.random() < 0.7:
+                    yield_evt("wallet_explained", "/demo.html", sid, {"stage": "s3"},
+                              utm=utm, ref=ref, ts=ts + 60000)
+                    if rnd.random() < 0.4:
+                        yield_evt("topup_shown", "/demo.html", sid, {"stage": "s3"},
+                                  utm=utm, ref=ref, ts=ts + 62000)
+                if rnd.random() < 0.12:
+                    yield_evt("onboard_dismissed", "/demo.html", sid,
+                              {"stage": "s4", "opted_out": True},
+                              utm=utm, ref=ref, ts=ts + 64000)
             if rnd.random() < 0.22:  # request
                 yield_evt("request_submitted", "/demo.html", sid,
                           {"class": rnd.choice(["compatible", "exclusive", "queued"]),

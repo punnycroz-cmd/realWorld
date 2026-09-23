@@ -25,8 +25,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 ALLOWED_EVENTS = {
     "pageview", "cta_click", "screenshot_view", "outbound_click",
     "scroll_depth", "engaged_time", "share_click",
-    "press_kit_download", "price_calc", "watch_start", "request_submitted",
-    "character_created",
+    "press_kit_download", "price_calc", "request_simulated",
+    "watch_start", "request_submitted", "character_created",
+    # onboarding (world-v11 onboarding.json analytics_hooks — game-side at merge)
+    "tour_started", "tour_beat", "tour_completed", "tour_skipped",
+    "handle_set", "wallet_explained", "topup_shown", "first_request_filed",
+    "onboard_dismissed",
 }
 
 

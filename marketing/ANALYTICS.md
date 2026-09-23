@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v22 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v36 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -55,12 +55,25 @@ marketing site — spec'd now so the dashboard schema is stable):
 
 ```
 visit      pageview                     (site — live now)
-  └─engaged  cta_click, screenshot_view (site — live now)
+  └─engaged  cta_click, screenshot_view, scroll_depth, engaged_time,
+             share_click, price_calc, request_simulated  (site — live now)
     └─press    press_kit_download       (site — live once kit zip is linked)
       └─watch  watch_start              (game embed — PENDING, roadmap v12)
-        └─request request_submitted     (game — PENDING)
-          └─create character_created    (game — PENDING)
+        └─onboard  tour_started … onboard_dismissed  (game — PENDING, v36)
+          └─request request_submitted, first_request_filed  (game — PENDING)
+            └─create character_created  (game — PENDING)
 ```
+
+**Onboarding events (v36):** the world track's onboarding contract
+(`world/onboarding-ui.md` §8 / `world/onboarding.json analytics_hooks`)
+names nine events emitted at merge: `tour_started`, `tour_beat`,
+`tour_completed`, `tour_skipped` (carries `at_beat`), `handle_set`,
+`wallet_explained`, `topup_shown`, `first_request_filed`,
+`onboard_dismissed`. They are now in `analytics-events.json` and the sink
+allowlist so a staging build can emit them day one. Per the world contract
+they carry `stage` + `opted_out` only — **no per-step dwell, no handle
+values, no amounts**. That constraint is load-bearing (no funnel-pressure
+instrumentation) and enforced by the spec's prop lists.
 
 Full field-level spec: **`marketing/analytics-events.json`** (envelope +
 per-event props + privacy contract). Site-side events already wired:
@@ -147,6 +160,15 @@ drop it straight into MARKETINGLOG.md once live. `--json` dumps raw
 aggregates. Committed reference output: `marketing/analytics/sample-report.md`
 (generated from `sample-week.ndjson`, both synthetic).
 
+### Local dashboard (v36)
+
+`marketing/analytics/dashboard.html` — a standalone, file://-safe page.
+Drop any NDJSON capture on it (or pick the file) and it renders the §7
+four panels in-browser: acquisition, engagement, funnel (+ onboarding
+sub-funnel when the events are present), health. No server, no upload —
+parsing is local JS. Internal tool, marked `noindex`; do not deploy to
+the public site. Try it with `analytics/sample-week.ndjson`.
+
 Smoke test without a browser:
 
 ```bash
@@ -217,6 +239,9 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - [ ] `press_kit_download` hook added when the kit zip gets a public link
 - [ ] Game embed emits `watch_start` / `request_submitted` / `character_created`
       per `analytics-events.json` (coordination note for game/world track)
+- [ ] Game emits the nine onboarding events per world-v11 contract
+      (`tour_*`, `handle_set`, `wallet_explained`, `topup_shown`,
+      `first_request_filed`, `onboard_dismissed`) — stage + opted_out only
 
 ## 10. Hard rules
 
