@@ -5,7 +5,7 @@
 <title>INTERNAL — Drama Direction Board (The Mission)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  INTERNAL SHOWRUNNER TOOL — world v10, extended v24. NOT a spectator surface.
+  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38. NOT a spectator surface.
   This board renders every secret on the block (world/drama.json mirror).
   It must never be linked, embedded, screenshotted for marketing, or
   reachable from any player-facing surface (feed.html, history.html,
@@ -68,7 +68,7 @@
 <header>
   <div><span class="logo">Drama Direction <span>Board</span></span>
     <span class="warn">Internal — secrets present — never ship</span></div>
-  <div class="sub">The Mission · world v24 · mirrors <code>world/drama.json</code> (schema drama-v2) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+  <div class="sub">The Mission · world v38 · mirrors <code>world/drama.json</code> (schema drama-v3) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
 </header>
 <main>
   <h2>Season fuse map</h2>
@@ -87,6 +87,16 @@
   <table id="after"><thead><tr><th>Fuse</th><th>Residue</th><th>Texture</th></tr></thead><tbody></tbody></table>
   <h2>Requests as weather <span style="text-transform:none;color:var(--dim)">(§17 — identical-twin test applies)</span></h2>
   <table id="reqw"><thead><tr><th>Request class</th><th>Natural pressure</th><th>Watch for</th></tr></thead><tbody></tbody></table>
+  <h2>State-inference evidence <span style="text-transform:none;color:var(--dim)">(§21 — absence is never a transition; evidence must be reconstructible)</span></h2>
+  <table id="evid"><thead><tr><th>Transition</th><th>Qualifying ledger evidence</th><th>Not evidence</th></tr></thead><tbody></tbody></table>
+  <h2>Drift review <span style="text-transform:none;color:var(--dim)">(§22 — weekly editorial pass; writes notes/posture, never the world)</span></h2>
+  <table id="drift"><thead><tr><th>#</th><th>Step</th></tr></thead><tbody></tbody></table>
+  <h2>Hired characters <span style="text-transform:none;color:var(--dim)">(§23 — inside the sim, outside the seed architecture)</span></h2>
+  <ul class="never" id="hires"></ul>
+  <h2>Ambient teller biases <span style="text-transform:none;color:var(--dim)">(§24 — carriers only; a correction undistorts)</span></h2>
+  <table id="tellers"><thead><tr><th>Ambient</th><th>Bias</th><th>Never</th></tr></thead><tbody></tbody></table>
+  <h2>Stall &amp; season boundary <span style="text-transform:none;color:var(--dim)">(§25 — a stall is not a failure; no finale is owed)</span></h2>
+  <div class="knobs" id="stall"></div>
   <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
   <ul class="never" id="legal"></ul>
   <h2>Never list</h2>
@@ -185,7 +195,45 @@ const PCAT=[
  ["P-07","Carmen missing a ritual","C6 fragility ticks","F5","empty stoop; Esther/Ray noticing bench math","gentle + rare only — hard cap once per arc"],
  ["P-08","Tomás's supplier loop lengthening","C8 dream rehearsing","F1 · S6 · F4","pricing equipment; catalog linger","pressure is duration, not new stops"],
  ["P-09","Chalkboard figure converging","C3's art telling on her","F2","a doodle viewers recognize before the block does","one legible step per pressured window"],
- ["P-10","Quiet itself — a day where nothing moves","the block's ordinary life","all","quiet feed events; clean routines","a floor, not a resource to spend"]];
+ ["P-10","Quiet itself — a day where nothing moves","the block's ordinary life","all","quiet feed events; clean routines","a floor, not a resource to spend"],
+ ["P-11","First-of-month rent day","the lease ledger's own cadence","F1 · S9","envelopes; ledger postings; the month's small talk","monthly by construction — the calendar is the cap"],
+ ["P-12","A hire's first week on the block","creation + housing move-in","all (as texture)","a new face at venues; introductions; wrong-order coffee","once per move-in; a hire is texture, not a pressure engine"],
+ ["P-13","A shared chore left undone at 9457","the flat's routines + C5's absence patterns","S9 · S10","the dishes; the dead heater; who carried the trash out","weekly cap — background, not event"],
+ ["P-14","The son's monthly call","C6's family contact routine","F5","Carmen quieter after the phone; the call she steps inside for","monthly; F5's gentle-and-rare cap still governs"],
+ ["P-15","Blog-post expectation cycle","F6's own cadence — regulars expect a post","F6","ambient chatter: 'anything new on Unfiltered?'","expectation decays; can't be forced, only noticed"]];
+const EVID=[
+ ["dormant → pressured","a ledger event traceable to a listed pressure_route within ~3 block days","manager intent · spectator chatter · a near-miss with no ledger event · another seed already pressured"],
+ ["pressured → surfaced","the fact crossing to a must-not-know via a listed reveal vector, with a legible shadow","a rumor (can't mint seed facts) · interior realization · player hope"],
+ ["surfaced → resolved","a resolution option closed by an observable decision — signing, telling, publishing, refusal enacted","time passing · the block going quiet · feed absence"],
+ ["resolved → residue","automatic — aftermath lands as ordinary events; budget spend stops","anything requiring adjudication — residue needs none"]];
+const DRIFT=[
+ "Re-infer every seed state from the ledger per the evidence table",
+ "Compare against the week-shape target — an emergent stacked week is canon, just not repurchased",
+ "If emergence reordered the season preference, update notes + drama.json and log it — update, don't fight it",
+ "Audit legible shadows — a state move with no shadow is a fix-forward violation, never a history rewrite",
+ "Set next week's posture — a preference among conditions, not a plan"];
+const HIRES=[
+ "A hire holds no seeds at creation and starts outside every knowledge wall",
+ "A hire learning a seed through play is canon — gained via ledger, never briefing",
+ "Hires are never pressure instruments — the manager can't spend through a hire's schedule",
+ "Hires carry accounts and near-misses; they never author seed facts they haven't learned",
+ "An offline hire (thin-AI fallback) suspends nothing — no held beats",
+ "A hire pressing a boundary gets ordinary in-character refusal — refusal is content"];
+const TELLERS=[
+ ["Esther + Ray (A05, A19)","compress — drop specifics, keep the moral shape","add a detail they didn't hear"],
+ ["Malik (A03)","inflate prices and scale — every number grows","change who"],
+ ["June + Zee (A04, A20) — minors","get venue and day wrong, get the vibe right","carry moral injury or safety/housing facts — stays comic"],
+ ["Reyes (A01)","repeat-with-awkwardness — hesitation, hedges, a pause","add content — delivery is the tell"],
+ ["Doro (A02)","near-zero distortion — precise and boring; almost a correction","let a correction sound like gossip"],
+ ["Omar (A15)","amplify stakes — 'might sell' → 'definitely selling'","invent a source"],
+ ["Gus (A10)","age everything — 'it's always been like this'","update a stale rumor with fresh detail"],
+ ["Luz (A07)","redirect to stall specifics — stocked, staffing","carry the emotional center of a story"],
+ ["Nadia (A13)","deadpan-flatten — the drama shrinks in retelling","dramatize"],
+ ["Ida (A18)","formalize — 'a situation' with procedures attached","gossip about health or money specifics"]];
+const STALL=[
+ ["Stall definition","All seeds dormant AND nothing spent because no route fired — not a failure. Correct response: nothing. P-10 is the floor."],
+ ["Stall never-list","Never inject a fact, manufacture a coincidence, or warm a fuse whose routes haven't produced. Waiting is the job."],
+ ["Season boundary","No finale mechanic. When 3+ fuses sit in residue, the next drift review may declare a boundary looking backward — residue becomes the new fuse map's raw material. A boundary is never aimed at."]];
 const WEEKS=[
  ["Quiet","0 pressured","quiet markers, routines, weather","default; most weeks; recovery windows quiet-start"],
  ["Pressure","1 pressured + 1 slow tick","legible shadows on one fuse; ordinary life elsewhere","baseline dramatic content — the show's pulse"],
@@ -231,6 +279,14 @@ document.querySelector('#after tbody').innerHTML=AFTER.map(r=>
  `<tr><td class="c">${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`).join('');
 document.querySelector('#reqw tbody').innerHTML=REQW.map(r=>
  `<tr><td>${r[0]}</td><td class="c">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#evid tbody').innerHTML=EVID.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#drift tbody').innerHTML=DRIFT.map((s,i)=>
+ `<tr><td class="c">${i+1}</td><td>${s}</td></tr>`).join('');
+document.getElementById('hires').innerHTML=HIRES.map(h=>`<li>${h}</li>`).join('');
+document.querySelector('#tellers tbody').innerHTML=TELLERS.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.getElementById('stall').innerHTML=STALL.map(k=>`<div class="knob"><b>${k[0]}</b>${k[1]}</div>`).join('');
 document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
 document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
 </script>

@@ -1,6 +1,6 @@
 {
   "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
-  "schema_version": "drama-v2",
+  "schema_version": "drama-v3",
   "seed_states": ["dormant", "pressured", "surfaced", "resolved", "residue"],
   "fuse_ids": ["F1", "F2", "F3", "F4", "F5", "F6"],
   "seed_schema": {
@@ -167,8 +167,71 @@
     { "id": "P-07", "condition": "Carmen missing a ritual", "produced_by": "C6 fragility ticks", "feeds": ["F5"], "legible_shadow": "empty stoop; Esther/Ray noticing bench math", "exhaustion": "gentle + rare only — hard cap once per arc" },
     { "id": "P-08", "condition": "Tomás's supplier loop lengthening", "produced_by": "C8 dream rehearsing", "feeds": ["F1", "S6", "F4"], "legible_shadow": "pricing equipment; catalog linger", "exhaustion": "pressure is duration, not new stops" },
     { "id": "P-09", "condition": "chalkboard figure converging", "produced_by": "C3's art telling on her", "feeds": ["F2"], "legible_shadow": "a doodle viewers recognize before the block does", "exhaustion": "one legible step per pressured window" },
-    { "id": "P-10", "condition": "quiet itself — a day where nothing moves", "produced_by": "the block's ordinary life", "feeds": ["all"], "legible_shadow": "quiet feed events; clean routines", "exhaustion": "a floor, not a resource to spend" }
+    { "id": "P-10", "condition": "quiet itself — a day where nothing moves", "produced_by": "the block's ordinary life", "feeds": ["all"], "legible_shadow": "quiet feed events; clean routines", "exhaustion": "a floor, not a resource to spend" },
+    { "id": "P-11", "condition": "first-of-month rent day", "produced_by": "the lease ledger's own cadence", "feeds": ["F1", "S9"], "legible_shadow": "envelopes; ledger postings; the month's small talk", "exhaustion": "monthly by construction — the calendar is the cap" },
+    { "id": "P-12", "condition": "a hire's first week on the block", "produced_by": "creation + housing move-in (drama-notes §23)", "feeds": ["all"], "legible_shadow": "a new face at venues; introductions; wrong-order coffee", "exhaustion": "once per move-in; a hire is texture, not a pressure engine" },
+    { "id": "P-13", "condition": "a shared chore left undone at 9457", "produced_by": "the flat's routines + C5's absence patterns", "feeds": ["S9", "S10"], "legible_shadow": "the dishes; the dead heater; who carried the trash out", "exhaustion": "weekly cap — background, not event; two undone chores is already loud" },
+    { "id": "P-14", "condition": "the son's monthly call", "produced_by": "C6's family contact routine", "feeds": ["F5"], "legible_shadow": "Carmen quieter after the phone; the call she steps inside for", "exhaustion": "monthly; F5's gentle-and-rare cap still governs" },
+    { "id": "P-15", "condition": "blog-post expectation cycle", "produced_by": "F6's own cadence — regulars expect a Mission Unfiltered post", "feeds": ["F6"], "legible_shadow": "ambient chatter: 'anything new on Unfiltered?'", "exhaustion": "expectation decays naturally; can't be forced, only noticed" }
   ],
+  "state_evidence": {
+    "doc": "drama-notes §21 — what qualifies as a ledger observation per transition; absence is never a transition and evidence must be reconstructible",
+    "dormant_to_pressured": {
+      "qualifying": ["a canonical-ledger event traceable to a listed pressure_route within ~3 block days (a real document, a real co-presence, a real routine deviation)"],
+      "not_evidence": ["manager intent to spend", "spectator chatter", "a near-miss that produced no ledger event", "another seed already being pressured"]
+    },
+    "pressured_to_surfaced": {
+      "qualifying": ["the underlying fact crossing to a must_not_know member via a listed reveal_vector, with a spectator-legible shadow per §12"],
+      "not_evidence": ["a rumor — rumors distort the surfaced, they cannot mint seed facts (§10)", "an interior realization — all knowledge-crossing is event-mediated", "player hope"]
+    },
+    "surfaced_to_resolved": {
+      "qualifying": ["a resolution_space option closed by an observable decision-event — a signing, a telling, a publishing, a refusal enacted"],
+      "not_evidence": ["time passing", "the block going quiet", "absence from the feed"]
+    },
+    "resolved_to_residue": {
+      "qualifying": ["automatic — the aftermath lands as ordinary world events (§15) and the seed stops consuming budget"],
+      "not_evidence": ["anything requiring adjudication — residue needs none"]
+    }
+  },
+  "drift_review": {
+    "doc": "drama-notes §22 — weekly editorial pass; writes to notes, drama.json, and budget posture only — never to the world",
+    "cadence": "once per block week",
+    "steps": ["re-infer all seed states from the ledger per state_evidence", "compare against week-shape target — a stacked week emergence produced is canon, just not repurchased", "if emergence reordered the season preference, update notes + season_preference in one commit and log it", "audit legible shadows — a state move with no §12 shadow is a fix-forward violation, never a history rewrite", "set next week's posture — a preference among conditions, not a plan"],
+    "writes": ["drama-notes.md", "drama.json", "budget posture"],
+    "never_writes": ["world state", "the canonical ledger", "character interiors"]
+  },
+  "hire_rules": {
+    "doc": "drama-notes §23 — player-hired characters live inside the sim but outside the seed architecture",
+    "rules": [
+      "a hire holds no seeds at creation and starts outside every knowledge wall",
+      "a hire learning a seed fact through play is legitimate canon — the matrix gains them via ledger, never briefing",
+      "hires are never pressure instruments — the manager may not spend budget through a hire's schedule",
+      "hires are near-miss surfaces and rumor relays; they carry accounts, never author seed facts they haven't learned",
+      "an offline hire (thin-AI fallback) suspends nothing — the world owes no held beat",
+      "a hire pressing a boundary produces ordinary in-character refusal — refusal is content"
+    ]
+  },
+  "teller_biases": [
+    { "id": "A05", "name": "Esther", "bias": "compress — drop specifics, keep the moral shape", "never": "add a detail they didn't hear", "minor_safe": false },
+    { "id": "A19", "name": "Ray", "bias": "compress — drop specifics, keep the moral shape", "never": "add a detail he didn't hear", "minor_safe": false },
+    { "id": "A03", "name": "Malik", "bias": "inflate prices and scale — every number grows", "never": "change who", "minor_safe": false },
+    { "id": "A04", "name": "June", "bias": "get venue and day wrong, get the vibe right", "never": "carry moral injury or any fact about a person's safety or housing — minor distortion stays comic", "minor_safe": true },
+    { "id": "A20", "name": "Zee", "bias": "get venue and day wrong, get the vibe right", "never": "carry moral injury or any fact about a person's safety or housing — minor distortion stays comic", "minor_safe": true },
+    { "id": "A01", "name": "Reyes", "bias": "repeat-with-awkwardness — hesitation, hedges, a pause", "never": "add content — his tell is delivery, not substance", "minor_safe": false },
+    { "id": "A02", "name": "Doro", "bias": "near-zero distortion — precise and boring; a rumor through Doro is almost a correction", "never": "let a correction sound like gossip", "minor_safe": false },
+    { "id": "A15", "name": "Omar", "bias": "amplify stakes — 'might sell' becomes 'definitely selling'", "never": "invent a source", "minor_safe": false },
+    { "id": "A10", "name": "Gus", "bias": "age everything — 'it's always been like this'", "never": "update a stale rumor with fresh detail", "minor_safe": false },
+    { "id": "A07", "name": "Luz", "bias": "redirect to stall specifics — what's stocked, who's staffing", "never": "carry the emotional center of a story", "minor_safe": false },
+    { "id": "A13", "name": "Nadia", "bias": "deadpan-flatten — the drama shrinks in retelling", "never": "dramatize", "minor_safe": false },
+    { "id": "A18", "name": "Ida", "bias": "formalize — a story becomes 'a situation' with procedures attached", "never": "gossip about health or money specifics", "minor_safe": false }
+  ],
+  "teller_default": "unlisted ambients: drift toward teller interest, shed detail each hop, moral valence last to fade; a correction traveling the same biases undistorts",
+  "stall_policy": {
+    "definition": "all seeds dormant AND nothing spent because no pressure route fired on its own — a stall is not a failure",
+    "correct_response": "nothing — P-10 is the floor; the show is the block's ordinary life",
+    "never": ["inject a fact", "manufacture a coincidence", "warm a fuse whose routes haven't produced"],
+    "season_boundary": "no finale mechanic; when 3+ fuses sit in residue, the next drift review may declare a boundary looking backward — residue becomes the new fuse map's raw material; a boundary is never aimed at"
+  },
   "aftermath_arcs": [
     { "fuse": "F1", "residue_name": "the trust tax", "texture": "the block's relationship to its landlord now includes a drawer; warmth → polite-and-careful" },
     { "fuse": "F2", "residue_name": "the renegotiated flat", "texture": "three people re-learning their addresses to each other; Marisol's hurt-at-concealment is the sleeper thread" },

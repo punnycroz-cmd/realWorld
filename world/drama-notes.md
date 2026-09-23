@@ -1,4 +1,9 @@
-# Drama Direction Notes — "The Mission" (world v10)
+# Drama Direction Notes — "The Mission" (world v38)
+
+*v10 origin; v24 added the note grammar, pressure catalog, residue playbook,
+week shapes, and substrate handoff; v38 adds evidence standards, drift review,
+hire integration, teller biases, stall/season-boundary policy, and pressure
+catalog second tranche.*
 
 **Audience:** the character AI brains (via their system context), the future
 drama-pacing manager (game-systems substrate item 9), reviewers of this
@@ -567,7 +572,125 @@ substrate hint) is committed, the author answers six questions:
 A note that passes all six can still be *wrong* — that's fine. Direction
 is allowed to be wrong; it is not allowed to be a leash.
 
-## 20. Maintenance
+## 21. Evidence standards for state inference
+
+§18 says the pacing manager *observes* seed states. This section defines what
+counts as an observation — the difference between a ledger signal and a hunch.
+A state claim without qualifying evidence is a direction bug, same as a
+scripted beat.
+
+| Transition | Qualifying ledger evidence | NOT evidence |
+|---|---|---|
+| dormant → pressured | An event traceable to one of the seed's `pressure_routes` within ~3 block days (a real document, a real co-presence, a real routine deviation) | The manager intending to spend; spectator chatter on the feed; a near-miss that produced no ledger event; a *second* seed already pressured |
+| pressured → surfaced | The underlying fact crossing to a `must_not_know` member via a listed `reveal_vector`, with a spectator-legible shadow (§12) | A rumor — rumors distort the surfaced, they cannot mint seed facts (§10); an interior realization (all knowledge-crossing is event-mediated); a player hoping hard |
+| surfaced → resolved | A `resolution_space` option closed by an observable decision-event — a signing, a telling, a publishing, a refusal enacted | Time passing; the block going quiet; the fuse simply being absent from the feed for a stretch |
+| resolved → residue | Automatic. The aftermath lands as ordinary world events (§15) and the seed stops consuming budget | Anything the review would have to *decide* — residue needs no adjudication |
+
+Two standing rules: **absence is not a transition** (a quiet week changes no
+states), and **evidence must be reconstructible** — if a reviewer can't point
+at the ledger event that moved a seed, the state stays where it was.
+
+## 22. Drift review — the weekly editorial pass
+
+Once a week (block time), a human or reviewer process runs this pass. It
+writes to this file, `drama.json`, and the budget posture — **never to the
+world.**
+
+1. **Re-infer every seed state** from the canonical ledger per §21. Record
+   deltas only; unchanged states are the expected output.
+2. **Compare against the week-shape target** (§16). If the week came out
+   stacked and emergence produced it anyway — it's canon; the manager just
+   doesn't buy another one.
+3. **Check the season preference** (§8). If emergence reordered it, the
+   reordering is canon: update the preference text and `drama.json`'s
+   `season_preference` in one commit, note it in WORLDLOG. Update, don't
+   fight it.
+4. **Audit legible shadows.** Every state move must have left a §12 surface
+   sign. A move with no shadow is a fix-forward violation — add shadow
+   opportunities going forward; never rewrite history.
+5. **Set next week's posture**: which fuse the manager *prefers* to spend on
+   if its pressure routes fire on their own, and which it holds at slow tick.
+   A posture is a preference among conditions, not a plan.
+
+## 23. Player-hired characters in the drama
+
+Hires (world/creation.json, design §6) live inside the sim but outside the
+seed architecture. Standing rules:
+
+- **A hire holds no seeds at creation** and sits outside every knowledge
+  wall — a hire can never *start* inside a `must_not_know` boundary because
+  the boundary is defined on mains.
+- **A hire learning a seed fact through play is legitimate canon** —
+  discovery, not leak. The knowledge matrix gains them via the ledger the
+  same way it would a main; the briefing never grants it (design §7).
+- **Hires are not pressure instruments.** The pacing layer may not spend
+  budget *through* a hire (a hire's schedule is their player's, or thin-AI
+  fallback per world/thin-ai.md — neither is a knob). Hires can be
+  near-miss surfaces and rumor relays exactly like ambients-plus: they
+  carry accounts, never author seed facts they haven't genuinely learned.
+- **Offline hires don't suspend anything.** When a hire drops to thin AI,
+  drama touching them simply doesn't wait — the world owes no one a held
+  beat.
+- **Direction protects mains around hires, not hires from mains.** A hire
+  pressing on a boundary (asking Victor about the buildings) produces
+  ordinary in-character refusal — refusal is content.
+
+## 24. Ambient teller biases
+
+§10's distortion policy, made per-person. When a surfaced fact travels
+through an ambient, it drifts toward that teller's bias — this is the
+memory-spec distortion machinery (§6.3) given a cast list. `drama.json`
+mirrors this table as `teller_biases`. Ambients carry rumors only; they can
+never be a fact's source (§7).
+
+| Ambient | Bias | Never |
+|---|---|---|
+| Esther + Ray (A05, A19) | Compress — drop specifics, keep the moral shape ("someone was rude to Priya") | Never add a detail they didn't hear |
+| Malik (A03) | Inflate prices and scale — every number grows | Never change *who* |
+| June + Zee (A04, A20) | Get venue and day wrong, get the vibe right | Minors: distortion stays comic — never carry moral injury, never a fact about a person's safety or housing |
+| Reyes (A01) | Repeat-with-awkwardness — adds hesitation, hedges, a pause | Never adds content; his tell is delivery, not substance |
+| Doro (A02) | Near-zero distortion — precise and boring; a rumor through Doro is almost a correction | Never lets a correction sound like gossip |
+| Omar (A15) | Amplifies stakes ("might sell" → "definitely selling") | Never invents a source |
+| Gus (A10) | Ages everything — "it's always been like this" | Never updates a stale rumor with fresh detail |
+| Luz (A07) | Redirects to shop-floor specifics — what's stocked, who's staffing | Never carries the emotional center of a story |
+| Nadia (A13) | Deadpan-flatten — the drama shrinks in retelling | Never dramatizes |
+| Ida (A18) | Formalizes — a story becomes "a situation" with procedures attached | Never gossips about health or money specifics |
+
+Unlisted ambients default to the population rule: drift toward teller
+interest, shed detail each hop, moral valence last to fade. A correction
+(§10) traveling through the same biases *undistorts* — that asymmetry is
+intentional and it's what makes corrections feel earned.
+
+## 25. Stall policy & season boundary
+
+**A stall is not a failure.** Definition: all seeds dormant AND the manager
+has spent nothing for a stretch because no pressure route fired on its own.
+The correct response to a stall is *nothing* — P-10 is the floor and the
+show is the block's ordinary life. What the manager may never do at a stall:
+inject a fact, manufacture a coincidence, or warm a fuse whose routes
+haven't produced. Waiting is the job.
+
+**Season boundary.** There is no finale mechanic and no climactic week is
+ever owed. A "season" is a drift-review artifact (§22): when **three or
+more fuses sit in `residue`**, the next review may declare a boundary in
+the notes — at which point residue becomes the new fuse map's raw material
+(the trust tax seeds a documentation habit; the renegotiated flat seeds its
+own next tension). A boundary is declared *looking backward*, never aimed
+at *looking forward*.
+
+## 26. Pressure catalog — second tranche
+
+Same legality as §14: each row is something the world already produces.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-11 | First-of-month rent day | The lease ledger's own cadence | F1, S9 | Envelopes, ledger postings, the month's small talk | Monthly by construction — the calendar is the cap |
+| P-12 | A hire's first week on the block | Creation + housing move-in (§23) | all (as texture) | A new face at venues; introductions; wrong-order coffee | Once per move-in; a hire is texture, not a pressure engine |
+| P-13 | A shared chore left undone at 9457 | The flat's routines + C5's absence patterns | S9, S10 | The dishes; the dead heater; who carried the trash out | Weekly cap — it's background, not event; two undone chores is already loud |
+| P-14 | The son's monthly call | C6's family contact routine | F5 | Carmen quieter after the phone; the call she steps inside for | Monthly; F5's gentle-and-rare cap still governs |
+| P-15 | Blog-post expectation cycle | F6's own cadence — regulars expect a Mission Unfiltered post | F6 | Ambient chatter: "anything new on Unfiltered?" | Expectation decays naturally; can't be forced, only noticed |
+
+## 27. Maintenance
 
 - This file and `world/drama.json` are mirrors (JSON = machine contract,
   MD = direction). `world/drama.html` renders the JSON's inline mirror.

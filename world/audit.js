@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v37).
+/* world/audit.js — RW boundary audit (world v38).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -22,7 +22,12 @@
      mirror    — playtest.html inline data == playtest.json (hand-sync gate)
      coverage  — every declared surface file exists; no orphan demos
      drama     — drama.json structural invariants (state enum, fuse ids,
-                 knowledge-matrix disjointness); seed vocabulary never
+                 knowledge-matrix disjointness); v38 blocks checked:
+                 state_evidence transitions, drift_review write fence,
+                 teller biases resolve to real ambients (minors
+                 minor_safe), stall policy, aftermath arcs cover all
+                 fuses, pressure rows carry producer+shadow+exhaustion,
+                 drama.html mirror agreement; seed vocabulary never
                  leaks into spectator contracts; drama files never public
      onboard   — onboarding.json ↔ onboarding.html agreement; honesty
                  strings present; dark-pattern vocabulary absent
@@ -367,6 +372,82 @@ const PUB = Object.values(PT.surfaces)
     /* internal-only: drama files must never appear as a public playtest surface */
     for (const f of ['drama.html', 'drama.json', 'drama-notes.md'])
       if (PUB.includes(f)) add(g, 'fail', f, null, 'internal drama file listed as a public surface');
+    /* ---- v38 blocks (schema drama-v3) ---- */
+    if (D.schema_version === 'drama-v3') {
+      /* state_evidence: exactly the four transitions, each with both lists */
+      const EV = D.state_evidence || {};
+      for (const t of ['dormant_to_pressured', 'pressured_to_surfaced',
+                       'surfaced_to_resolved', 'resolved_to_residue']) {
+        const e = EV[t];
+        if (!e || !(e.qualifying || []).length || !(e.not_evidence || []).length)
+          add(g, 'fail', 'drama.json', null, `state_evidence.${t} missing or incomplete`);
+      }
+      for (const k of Object.keys(EV))
+        if (k !== 'doc' && !/^(dormant_to_pressured|pressured_to_surfaced|surfaced_to_resolved|resolved_to_residue)$/.test(k))
+          add(g, 'review', 'drama.json', null, `state_evidence: unexpected key "${k}"`);
+      /* drift review: steps + write boundaries */
+      const DR = D.drift_review || {};
+      if (!(DR.steps || []).length) add(g, 'fail', 'drama.json', null, 'drift_review.steps empty');
+      if (!(DR.never_writes || []).some(w => /world state|ledger|interiors/i.test(w)))
+        add(g, 'fail', 'drama.json', null, 'drift_review.never_writes must fence off world state');
+      /* hires live outside the seed architecture */
+      if (!((D.hire_rules || {}).rules || []).length)
+        add(g, 'fail', 'drama.json', null, 'hire_rules.rules empty');
+      /* teller biases: real ambient ids; minors carry minor_safe */
+      const AMB = new Set(JSONF('ambients.json').ambients.map(a => a.id));
+      for (const t of D.teller_biases || []) {
+        if (!AMB.has(t.id)) add(g, 'fail', 'drama.json', null, `teller_biases: "${t.id}" is not a registered ambient`);
+        if (!t.bias || !t.never) add(g, 'fail', 'drama.json', null, `teller_biases ${t.id}: bias/never missing`);
+        if (['A04', 'A20'].includes(t.id) && t.minor_safe !== true)
+          add(g, 'fail', 'drama.json', null, `teller_biases ${t.id}: minor teller without minor_safe:true`);
+      }
+      /* stall policy must exist — waiting is the job */
+      const SP = D.stall_policy || {};
+      for (const k of ['definition', 'correct_response', 'never', 'season_boundary'])
+        if (!SP[k]) add(g, 'fail', 'drama.json', null, `stall_policy.${k} missing`);
+      /* aftermath arcs cover every fuse exactly once */
+      const arcFuses = (D.aftermath_arcs || []).map(a => a.fuse).sort();
+      if (JSON.stringify(arcFuses) !== JSON.stringify([...fuses].sort()))
+        add(g, 'fail', 'drama.json', null, `aftermath_arcs fuses [${arcFuses}] != fuse_ids [${[...fuses].sort()}]`);
+      /* note grammar + legality checklist shape */
+      if (((D.note_grammar || {}).legal_forms || []).length !== 4)
+        add(g, 'fail', 'drama.json', null, 'note_grammar.legal_forms must be exactly the four legal forms');
+      if ((D.note_legality_checklist || []).length !== 6)
+        add(g, 'fail', 'drama.json', null, 'note_legality_checklist must keep its six questions');
+      /* pressure rows need producer + shadow + exhaustion (§27 rule) */
+      const seenP = new Set();
+      for (const p of D.pressure_catalog || []) {
+        if (!/^P-\d+$/.test(p.id)) add(g, 'fail', 'drama.json', null, `pressure id "${p.id}" off-format`);
+        if (seenP.has(p.id)) add(g, 'fail', 'drama.json', null, `duplicate pressure id ${p.id}`);
+        seenP.add(p.id);
+        for (const k of ['produced_by', 'legible_shadow', 'exhaustion'])
+          if (!p[k]) add(g, 'fail', 'drama.json', null, `${p.id}: missing ${k} — a row without all three is a wish, not a pressure`);
+      }
+      /* request absorption rows must carry the watch field */
+      for (const r of D.request_absorption || [])
+        if (!r.watch) add(g, 'fail', 'drama.json', null, `request_absorption "${r.request_class}": missing watch`);
+      /* drama.html mirror: new sections render, row counts agree */
+      const H = rd('drama.html');
+      for (const id of ['evid', 'drift', 'hires', 'tellers', 'stall'])
+        if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+      const grab = n => { const m = H.match(new RegExp('const ' + n + '=(\\[[\\s\\S]*?\\]);'));
+                          return m ? eval(m[1]) : null; };
+      const TL = grab('TELLERS'), HI = grab('HIRES'), DRF = grab('DRIFT'),
+            EVI = grab('EVID'), STL = grab('STALL');
+      /* teller rows may combine pairs (Esther+Ray) — every json id must appear */
+      if (!TL) add(g, 'fail', 'drama.html', null, 'TELLERS block not found');
+      else {
+        const names = TL.map(r => r[0]).join(' ');
+        for (const t of D.teller_biases || [])
+          if (!names.includes(t.id)) add(g, 'fail', 'drama.html', null, `TELLERS missing ${t.id}`);
+      }
+      if (!HI || HI.length !== ((D.hire_rules || {}).rules || []).length)
+        add(g, 'fail', 'drama.html', null, 'HIRES count != hire_rules.rules');
+      if (!DRF || DRF.length !== (DR.steps || []).length)
+        add(g, 'fail', 'drama.html', null, 'DRIFT count != drift_review.steps');
+      if (!EVI || EVI.length !== 4) add(g, 'fail', 'drama.html', null, 'EVID must mirror the four transitions');
+      if (!STL || STL.length < 3) add(g, 'fail', 'drama.html', null, 'STALL missing stall/boundary rows');
+    }
     /* seeds must never be reachable from spectator contracts */
     for (const f of ['feed.json', 'history.json', 'requests.json', 'moderation.json', 'creation.json'])
       if (rd(f).includes('S1') || /must_not_know|pressure_routes|reveal_vectors/.test(rd(f)))
@@ -1451,7 +1532,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v37 local';
+out.build = 'world v38 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {
