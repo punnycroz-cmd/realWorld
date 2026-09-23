@@ -1,12 +1,15 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v50 (2026-09-24);
-all stills/programs rebased to the art-v37 build in v55; refs/rebuilds rebased to art-v40 in v60.
-Five cuts now exist as real mp4s — hero 85s, teaser 15s, the
-9:16 vertical 30s, a 6s bumper, and the 50s "Feed Cut" alternate-concept
-trailer (§7.2, added v65) — `trailer/out/animatic-*.mp4`, built by
+**Status:** production-ready plan + rendered animatics, v80 (2026-09-23);
+all stills/programs rebased to the art-v48 build in v78.
+Six cuts now exist as real mp4s — hero 85s, teaser 15s, the
+9:16 vertical 30s, a 6s bumper, the 50s "Feed Cut" alternate-concept
+trailer (§7.2, added v65), and the 60s "Move-In Cut" player-journey
+trailer (§7.3, added v80) — `trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
-`trailer/edl.json` (§11). Each cut also has a `-scratch.mp4` variant with
+`trailer/edl.json` (§11). Upload-ready metadata (titles, descriptions,
+tags, chapter markers, thumbnail picks) lives in `trailer/metadata.json`.
+Each cut also has a `-scratch.mp4` variant with
 a procedural temp-audio bed (mood/timing reference only — the ship score
 is still a licensing task, §5) and a printable `board-*.png` contact
 sheet. The three §8 thumbnail concepts are rendered PNGs
@@ -53,6 +56,7 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Vertical cut | 30 s | 9:16 | TikTok/Reels/Shorts — animatic rendered (§11) |
 | Bumper | 6 s | 16:9 | pre-roll, Shorts end-screen, Discord embed — rendered (§7.1) |
 | Feed Cut (alt concept) | 50 s | 16:9 | A/B alternate hero, press embeds, streamer cold-open — rendered (§7.2) |
+| Move-In Cut (alt concept) | 60 s | 16:9 | how-it-works embed, store-page second video, onboarding ad — rendered (§7.3) |
 | Thumbnail stills | — | 16:9 | YouTube/itch — three concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
@@ -117,8 +121,14 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 | S11 | Feed montage w/ attribution rows | n/a | every paid intervention is public |
 | S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
+**Sunbeam caveat (art-feedback, 2026-09-23):** the v49-D Director-mode
+sunbeams were flagged for rework — hard-edged triangles that read as a
+glitch, not light. Do NOT frame any ship capture around the v49 sunbeam
+look; capture against v48-era renders or the post-rework build, whichever
+the art track marks fixed. The gallery/edl stills already hold at v48.
+
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v40 stills with slow push-ins (Ken Burns) and
+trailer against the existing v48 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 **This is exactly what the animatic does** — see §11. The plan marks every
 shot that MUST be re-captured from live footage before the trailer ships:
@@ -260,6 +270,55 @@ feed entries are verbatim-accurate mocks, `{{URL}}` placeholder stands, and
 every recapture-flagged shot (F2–F7) must be re-cut from live UI/footage
 before ship.
 
+### 7.3 The Move-In Cut — player-journey trailer (v80 — rendered)
+
+`edl.json` carries a sixth `"movein"` program (60 s, 16:9) rendered to
+`out/animatic-movein.mp4` + `captions-movein.srt` + `board-movein.png`
+(+ scratch bed). Third creative concept: where the hero is the *watcher's*
+trailer and the Feed Cut is the *world's*, this one is the *player's* —
+the whole free-watch → join-the-cast → sign-a-lease → first-request arc,
+narrated by the paperwork. Best fit: the how-it-works page embed, the
+store page's second video slot, and any onboarding retargeting if ads are
+ever approved.
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | M1 feedline cold open | `07:14 — Vic opened Auerbach Hardware.` types on black |
+| 0:04–0:10 | M2 café block, slow drift | "Watching the block costs nothing." |
+| 0:10–0:18 | M3 `uicard` JOIN THE CAST | "Pick a handle. Land in the next window." |
+| 0:18–0:26 | M4 `uicard` LEASE — UNIT 3B | "Sign a lease like everybody else." |
+| 0:26–0:31 | M5 street follow | "Then it's your block too." |
+| 0:31–0:38 | M6 request card: rain, APPROVED | "File a request. Your handle goes on it." |
+| 0:38–0:44 | M7 park goes wet | "Requests become weather." |
+| 0:44–0:51 | M8 attributed ledger incl. own handle + a DENIED row | "Every move is attributed. Yours too." |
+| 0:51–0:55 | M9 feedline button | `19:02 — nightowl_415 moved in on Guerrero.` |
+| 0:55–1:00 | M10 end card | "REAL WORLD — THE MISSION. Watch free. Move in when you're ready. {{URL}}" |
+
+**New shot kind `uicard`:** a generic in-world form mock — header,
+label/value rows revealed in sequence, and a stamp (`ON THE ROSTER`,
+`SIGNED`) landing at ~62% — requestcard's layout language for screens that
+aren't requests. Fields per shot: `title`, `sub`, `lines` ([label, value]
+pairs, ≤6), `stamp`, `tone` (`good`/`warn`/`accent`).
+
+**Accuracy anchors (verify before ship):**
+
+- **M3** mirrors the world-v49 creation contract (`world/creation.json`
+  v23 / `create.html` v4): handle, public attribution by handle (never a
+  real name), a declared landing window, and roster honesty — the card
+  reads "spot confirmed at submit", not "spots always open".
+- **M4** mirrors the world-v54 lease contract (`world/leases.json`):
+  prorated first month, 21-day deposit-return clock, habitability SLA in
+  writing, named landlord of record. These are the same lines on
+  `lease.html` — if the lease terms change, this card lies.
+- **M6** keeps the §11 review step visible (`status: reviewed → live on
+  the feed`) — no instant/anonymous intervention implied.
+- **M8** shows the new resident's own handle in the ledger next to a
+  DENIED row — attribution and the possession ban apply to the player too.
+- The cast stays untouched: no shot implies steering a main; the only
+  denied action shown is possession of a cast member, refused up front.
+- `nightowl_415` is a fictional handle for a *player* resident — not a
+  cast-bible name; swap if it collides with a real roster entry at ship.
+
 ## 8. Thumbnail concepts (v50 — rendered)
 
 All three are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
@@ -299,12 +358,17 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 - [ ] Feed attribution visible in S11 — the transparency promise is a feature.
 - [ ] (Feed Cut) denied request reads `DENIED — refunded`, never ran; no
       denied action shown executing.
+- [ ] (Move-In) create/lease cards match the live contracts
+      (world/creation.json + world/leases.json at ship date); handle is a
+      fictional player handle, not a cast name.
+- [ ] No v49-D-era sunbeam renders in frame (art-feedback 2026-09-23) —
+      re-capture against the post-rework build.
 - [ ] Owner sign-off recorded in LAUNCH-CHECKLIST.md before any upload.
 
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v40 series + v16
+`marketing/trailer/` (§11), stills in `site/shots/` (v48 series + v16
 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures
@@ -316,14 +380,19 @@ Parody names are RESOLVED (`world/parody-names.json`).
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Five programs
+- **`edl.json`** — machine-readable edit decision list. Six programs
   (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s,
-  `feed` 50s — the §7.2 alternate concept)
+  `feed` 50s — the §7.2 alternate concept, `movein` 60s — the §7.3
+  player-journey cut)
   plus the `thumbnails` spec: every shot's
   source still, timing, card text, Ken Burns zoom/pan, color grade
   (`wet`/`night` simulated the §8 beat and the night look), possession chip +
-  draining timer overlays, transition type, a `recapture` flag = the §4
+  draining timer overlays, `uicard` form mocks (v80 — join/lease cards),
+  transition type, a `recapture` flag = the §4
   must-recapture list, and an `audio` preset naming the intended sound bed.
+- **`metadata.json`** (v80) — upload-ready metadata per cut: title,
+  description, tags, chapter markers, thumbnail pick, intended slot.
+  `{{URL}}` placeholders throughout; the owner flips them at go.
 - **`build-animatic.py`** — PIL renders every frame (feed mock, request-card
   mock, attribution ledger, end card, `DEVELOPMENT BUILD` corner bug,
   dip-to-black transitions) and pipes to ffmpeg → mp4. Per-program canvas +

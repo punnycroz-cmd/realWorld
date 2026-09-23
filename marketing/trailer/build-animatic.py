@@ -266,6 +266,38 @@ class Build:
             d.text((bx + (bw - tw) / 2, by + 10), t, font=self.f_monob, fill=(10, 12, 10))
         return img
 
+    def render_uicard(self, shot, f, n):
+        """Generic in-world form card (join-the-cast, lease, registry) —
+        requestcard's layout language for non-request screens."""
+        img = Image.new("RGB", (W, H), hexrgb("#0d0f14"))
+        d = ImageDraw.Draw(img)
+        rows = shot["lines"]  # list of [label, value] pairs
+        ch = 150 + len(rows) * 66 + 70
+        cw = 860
+        x0, y0 = (W - cw) / 2, (H - ch) / 2 - 30
+        d.rectangle((x0, y0, x0 + cw, y0 + ch), fill=self.c["panel"], outline=self.c["border"], width=2)
+        d.rectangle((x0, y0, x0 + cw, y0 + 64), fill=self.c["bg"])
+        d.text((x0 + 28, y0 + 17), shot["title"].upper(), font=self.f_monob, fill=self.c["accent"])
+        if shot.get("sub"):
+            tw = d.textlength(shot["sub"], font=self.f_mono)
+            d.text((x0 + cw - tw - 28, y0 + 17), shot["sub"], font=self.f_mono, fill=self.c["muted"])
+        reveal = min(int(f / (n * 0.12)) + 1, len(rows))
+        for i, (k, v) in enumerate(rows[:reveal]):
+            y = y0 + 112 + i * 66
+            d.text((x0 + 32, y), k.upper(), font=self.f_reqb, fill=self.c["muted"])
+            d.text((x0 + 380, y), v, font=self.f_req, fill=self.c["text"])
+            d.line((x0 + 32, y + 44, x0 + cw - 32, y + 44), fill=self.c["border"])
+        if shot.get("stamp") and f > n * 0.62:
+            t = shot["stamp"]
+            tone = {"warn": self.c["accent3"], "accent": self.c["accent"]}.get(
+                shot.get("tone"), self.c["accent2"])
+            tw = d.textlength(t, font=self.f_monob)
+            bw, bh = tw + 36, 46
+            bx, by = x0 + cw - bw - 40, y0 + ch - 70
+            d.rectangle((bx, by, bx + bw, by + bh), fill=tone)
+            d.text((bx + (bw - tw) / 2, by + 10), t, font=self.f_monob, fill=(10, 12, 10))
+        return img
+
     def render_endcard(self, shot, f, n):
         img = Image.new("RGB", (W, H), hexrgb("#0a0b0f"))
         d = ImageDraw.Draw(img)
@@ -298,6 +330,8 @@ class Build:
             img = self.render_ledger(shot, f, n)
         elif kind == "requestcard":
             img = self.render_requestcard(shot, f, n)
+        elif kind == "uicard":
+            img = self.render_uicard(shot, f, n)
         elif kind == "endcard":
             img = self.render_endcard(shot, f, n)
         else:  # still
@@ -337,6 +371,14 @@ class Build:
             for i in range(n):
                 lp = 0.985 * lp + 0.015 * (rnd.random() * 2 - 1)
                 out[i] = lp * amp * 8
+        if preset == "keys":  # typewriter clicks over the room bed
+            k, s0 = 0, 0
+            while s0 < n - int(0.06 * SR):
+                s0 += int((0.16 + rnd.random() * 0.3) * SR)
+                k += 1
+                for i in range(s0, min(s0 + int(0.03 * SR), n)):
+                    d_ = (i - s0) / SR
+                    out[i] += (rnd.random() * 2 - 1) * 0.10 * math.exp(-d_ * 160)
         if preset == "ticks":  # feed-entry blips
             step = int(0.55 * SR)
             for k in range(1, int(dur / 0.55)):
@@ -508,14 +550,15 @@ class Build:
         "feed": ("lines",),
         "ledger": ("lines",),
         "requestcard": ("fields",),
+        "uicard": ("title", "lines"),
         "endcard": ("title", "subtitle"),
     }
-    AUDIO_PRESETS = {"room", "swell", "ticks", "thunder", "rain", "night",
-                     "resolve", "silence"}
+    AUDIO_PRESETS = {"room", "swell", "ticks", "keys", "thunder", "rain",
+                     "night", "resolve", "silence"}
     TRANSITIONS = {"cut", "dip"}
     # soft ceilings per program (seconds) — warn, not fail
     DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5,
-                    "bumper": 6.5, "feed": 50.5}
+                    "bumper": 6.5, "feed": 50.5, "movein": 60.5}
     CARD_MAX = 80  # title-card readability ceiling
 
     def check(self):
@@ -578,6 +621,19 @@ class Build:
                             fail(f"{sid}: fields missing '{f_}'")
                     if s.get("verdict") and s["verdict"] not in ("approved", "denied"):
                         fail(f"{sid}: unknown verdict '{s['verdict']}'")
+                if kind == "uicard":
+                    if not isinstance(s.get("lines"), list) or not s["lines"]:
+                        fail(f"{sid}: uicard 'lines' must be a non-empty list")
+                    else:
+                        if len(s["lines"]) > 6:
+                            warn(f"{sid}: {len(s['lines'])} rows crowds the card")
+                        for row in s["lines"]:
+                            if not (isinstance(row, list) and len(row) == 2):
+                                fail(f"{sid}: uicard row not a [label, value] pair")
+                            elif len(row[1]) > 28:
+                                warn(f"{sid}: uicard value {len(row[1])}ch may overflow")
+                    if s.get("tone") and s["tone"] not in ("good", "warn", "accent"):
+                        fail(f"{sid}: unknown stamp tone '{s['tone']}'")
                 if kind == "endcard" and s.get("url") and s["url"] != "{{URL}}":
                     warn(f"{sid}: endcard url is not the {{URL}} placeholder")
         for spec in self.edl.get("thumbnails") or []:

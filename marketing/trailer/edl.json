@@ -714,6 +714,208 @@
           "audio": "resolve"
         }
       ]
+    },
+    "movein": {
+      "file": "animatic-movein.mp4",
+      "captions": "captions-movein.srt",
+      "shots": [
+        {
+          "id": "M1",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "07:14 — Vic opened Auerbach Hardware.",
+          "card": null,
+          "transition": "cut",
+          "audio": "room",
+          "note": "Cold open, morning. The feed was already running before you arrived."
+        },
+        {
+          "id": "M2",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v48-A.png",
+          "zoom": [
+            1.0,
+            1.1
+          ],
+          "pan": "left",
+          "card": "Watching the block costs nothing.",
+          "transition": "dip",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "audio": "room",
+          "note": "Free tier first — this cut is the viewer→resident journey."
+        },
+        {
+          "id": "M3",
+          "t": 8.0,
+          "kind": "uicard",
+          "title": "Join the cast",
+          "sub": "the Mission roster",
+          "lines": [
+            [
+              "handle",
+              "nightowl_415"
+            ],
+            [
+              "attribution",
+              "your handle is public"
+            ],
+            [
+              "landing window",
+              "evening"
+            ],
+            [
+              "roster",
+              "spot confirmed at submit"
+            ]
+          ],
+          "stamp": "ON THE ROSTER",
+          "tone": "good",
+          "card": "Pick a handle. Land in the next window.",
+          "transition": "cut",
+          "recapture": true,
+          "audio": "keys",
+          "note": "Creation flow per world-v49 create.html/creation.json: handle, public attribution, declared landing window, roster-full honesty. Recapture from the real create screen at ship."
+        },
+        {
+          "id": "M4",
+          "t": 8.0,
+          "kind": "uicard",
+          "title": "Lease — Unit 3B",
+          "sub": "9418 Guerrero St",
+          "lines": [
+            [
+              "first month",
+              "prorated to move-in day"
+            ],
+            [
+              "deposit",
+              "21-day return clock"
+            ],
+            [
+              "repairs",
+              "habitability SLA in writing"
+            ],
+            [
+              "landlord",
+              "named on the lease"
+            ]
+          ],
+          "stamp": "SIGNED",
+          "tone": "good",
+          "card": "Sign a lease like everybody else.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "keys",
+          "note": "Lease terms per world-v54 leases.json/lease.html: proration, deposit clock, repair SLA, landlord of record. Recapture from the real lease screen at ship."
+        },
+        {
+          "id": "M5",
+          "t": 5.0,
+          "kind": "still",
+          "src": "v48-B.png",
+          "zoom": [
+            1.0,
+            1.08
+          ],
+          "pan": "right",
+          "card": "Then it's your block too.",
+          "transition": "cut",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "recapture": true,
+          "audio": "room",
+          "note": "Street follow — your resident walks the same streets as the mains."
+        },
+        {
+          "id": "M6",
+          "t": 7.0,
+          "kind": "requestcard",
+          "fields": {
+            "action": "rain — Dolores Park",
+            "duration": "2 h",
+            "cost": "credits/min · declared upfront · hard cap",
+            "status": "reviewed → live on the feed"
+          },
+          "verdict": "approved",
+          "card": "File a request. Your handle goes on it.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "thunder",
+          "note": "Requests pass intent screening + review (design §11) — nothing is instant or anonymous."
+        },
+        {
+          "id": "M7",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v48-C.png",
+          "zoom": [
+            1.0,
+            1.1
+          ],
+          "pan": "down",
+          "grade": "wet",
+          "card": "Requests become weather.",
+          "transition": "cut",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "recapture": true,
+          "audio": "rain",
+          "note": "Same beat as hero S8 — the request rendered in-world."
+        },
+        {
+          "id": "M8",
+          "t": 7.0,
+          "kind": "ledger",
+          "lines": [
+            "@nightowl_415   rain over the park, 2 h       ran — public",
+            "@mara          drive their hire, 30 min      ran — public",
+            "@rex           possess Mars (cast member)    DENIED — refunded",
+            "admin          storm cleared early           logged — compensated"
+          ],
+          "card": "Every move is attributed. Yours too.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "Attribution ledger incl. the denial row — the possession ban protects the mains from everyone."
+        },
+        {
+          "id": "M9",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "19:02 — nightowl_415 moved in on Guerrero.",
+          "card": null,
+          "transition": "cut",
+          "audio": "ticks",
+          "note": "Button: the new resident is now a line in everyone else's feed."
+        },
+        {
+          "id": "M10",
+          "t": 5.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Watch free. Move in when you're ready.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "End card. {{URL}} placeholder — swap at upload."
+        }
+      ]
     }
   },
   "thumbnails": [
