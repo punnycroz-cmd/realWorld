@@ -38960,11 +38960,25 @@ function sfAgentAct(cid, act){
   const holdH = Math.min(2, Math.max(0.25, +(act.holdH || 1.25))); // ≤2 sim-hrs
 
   if(verb === 'move'){
+    /* resolve: POI name -> anchor key (g744, park_center...) ->
+       street address ("744 Guerrero") via the registry */
+    let cell = null, label = null;
     const p = sfFindPOI(act.to);
-    if(!p) return { ok: false, err: 'unknown place: ' + act.to };
-    const cell = sfHomeCell({ poi: p.name });
-    v.sfAgent = { verb: 'move', poi: p.name, cell, until: W.tod + holdH };
-    return { ok: true, going: p.name };
+    if(p){ cell = sfHomeCell({ poi: p.name }); label = p.name; }
+    else{
+      cell = sfAnchorCell(act.to);
+      if(!cell && typeof gsParseAddress === 'function'){
+        const pa = gsParseAddress(act.to);
+        if(pa && pa.bld && pa.bld.bld_idx != null &&
+           SF_DOOR_OF.has(pa.bld.bld_idx)){
+          cell = SF_DOOR_OF.get(pa.bld.bld_idx);
+          label = pa.address;
+        }
+      } else if(cell) label = String(act.to);
+    }
+    if(!cell) return { ok: false, err: 'unknown place: ' + act.to };
+    v.sfAgent = { verb: 'move', poi: label, cell, until: W.tod + holdH };
+    return { ok: true, going: label };
   }
   if(verb === 'talk'){
     const t = sfPawnOf(act.to);

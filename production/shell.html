@@ -561,6 +561,24 @@
   $('rwAd').onclick = function(){
     var r = B().gsWatchAd ? B().gsWatchAd(pid()) : null; refreshCred();
     if(r && r.capHit) $('rwAd').disabled = true; };
+  /* constitution: the 8 mains can never be possessed — not by you, not
+     by the owner. The sandbox's Take Control button is a dev affordance;
+     the production shell removes it whenever a protected main is
+     inspected (hires still show it — they're yours). */
+  if(typeof updateHUD === 'function'){
+    var _origHUD = updateHUD;
+    updateHUD = function(){
+      var r = _origHUD.apply(this, arguments);
+      try{
+        var v = VILLAGERS[inspectedPawnIdx];
+        var main = v && /^C[1-8]$/.test(v._castId || '');
+        var b = document.getElementById('btn-toggle-ctrl');
+        if(b) b.style.display = main ? 'none' : '';
+      }catch(e){}
+      return r;
+    };
+  }
+
   setInterval(function(){
     refreshCred();
     if(tab === 'watch') renderFeedMini();
