@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Real World icon — lit window breathing">
+  <style>
+    /* The lit window breathes: someone's home, someone's watching.
+       ~9s cycle, subtle — never a blink. Honors reduced-motion. */
+    .lit  { animation: litPulse 9s ease-in-out infinite; }
+    .glow { animation: glowPulse 9s ease-in-out infinite; }
+    @keyframes litPulse  { 0%,100% { opacity: 1; } 50% { opacity: .78; } }
+    @keyframes glowPulse { 0%,100% { opacity: .55; } 50% { opacity: .18; } }
+    @media (prefers-reduced-motion: reduce) {
+      .lit, .glow { animation: none; }
+    }
+  </style>
+  <rect width="512" height="512" rx="112" fill="#14161c"/>
+  <rect width="512" height="512" rx="112" fill="none" stroke="#2c303c" stroke-width="6"/>
+  <rect x="92" y="108" width="328" height="24" fill="#2c303c"/>
+  <rect x="106" y="128" width="300" height="302" fill="#1d2029"/>
+  <rect x="206" y="128" width="4" height="302" fill="#2c303c"/>
+  <rect x="306" y="128" width="4" height="302" fill="#2c303c"/>
+  <ellipse class="glow" cx="256" cy="194" rx="120" ry="110" fill="#e8a04c" opacity=".55"/>
+  <g>
+    <rect x="124" y="158" width="64" height="72" rx="8" fill="#788092"/>
+    <rect x="124" y="256" width="64" height="72" rx="8" fill="#788092"/>
+    <rect x="124" y="354" width="64" height="72" rx="8" fill="#4f9d69"/>
+    <rect x="224" y="158" width="64" height="72" rx="8" fill="#788092"/>
+    <rect x="224" y="256" width="64" height="72" rx="8" fill="#e8a04c" class="lit"/>
+    <rect x="224" y="354" width="64" height="72" rx="8" fill="#788092"/>
+    <rect x="324" y="158" width="64" height="72" rx="8" fill="#d4645c"/>
+    <rect x="324" y="256" width="64" height="72" rx="8" fill="#788092"/>
+    <rect x="324" y="354" width="64" height="72" rx="8" fill="#788092"/>
+  </g>
+</svg>

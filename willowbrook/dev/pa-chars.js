@@ -1342,7 +1342,7 @@ const NV_CAST = [
    skin:'#eab088', skinD:'#cf8f66', hair:'#6b4423', hairD:'#4e3018', hairStyle:'curly',
    hat:'none', acc:'beard', shirt:'#5a4a8c', shirtD:'#443a6d', pants:'#3a3a44', pantsD:'#2a2a32',
    boots:'#4a3524', bootsD:'#33241a', outfit:'vest', prop:'lute'},
-  {id:'A09', tier:'ambient', name:'Priya', role:'nurse in scrubs off a shift',
+  {id:'A09', tier:'ambient', name:'Asha', role:'nurse in scrubs off a shift',
    skin:'#a86a44', skinD:'#8a5230', hair:'#1c1a18', hairD:'#0e0d0c', hairStyle:'ponytail',
    hat:'none', acc:'none', shirt:'#3a8a9e', shirtD:'#2c6b7b', pants:'#3a8a9e', pantsD:'#2c6b7b',
    boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'scrubs', prop:'phone'},

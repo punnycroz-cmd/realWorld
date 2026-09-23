@@ -1,0 +1,333 @@
+{
+ "doc": "The Application — machine-readable mirror of world/applications.md (v45). Actor-facing layer: how a character asks for work or a room, who screens, what the trial tests, how a no sounds. jobs-housing.md + market.json remain canonical for numbers/channels; the audit gate asserts agreement. Game dollars only — zero credit figures in this layer. Conditions, never scripts; declines never hit the feed.",
+ "version": 45,
+ "schema": "apps-v1",
+ "arc": ["apply", "screen", "trial", "filled"],
+ "decline_rule": "voiced in-world per channel; spectator surface sees at most the card coming down or the listing delisted — never the applicant, never the reason",
+ "job_apps": [
+  {
+   "employer": "Mudhaus Coffee", "role": "Barista", "channel": "board",
+   "apply": "Reply card pinned under the listing, or ask for Marisol at the counter before 9:00",
+   "screen": {
+    "who": "c1-marisol",
+    "watches": "reads the card replies herself, then watches how you wait for her",
+    "asks": ["what shift did you last close", "why did you leave it", "can you start a Saturday"]
+   },
+   "trial": { "shape": "one paid Saturday rush, 7:30–13:00", "paid": true, "wage": 19,
+    "passes_on": "unhurried competence under the line; a clean till count; tables bussed unasked",
+    "fails_on": "talking through the rush; leaving the floor for a phone call; regulars as audience" },
+   "days": "1–3 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Taqueria El Farolote", "role": "Line cook", "channel": "word_of_mouth",
+   "apply": "You don't — the kitchen network brings you; a supplier, a cousin, another cook says your name",
+   "screen": {
+    "who": "doña-ocampo",
+    "watches": "one dinner service, silent, from the corner stool — knife safety and whether you taste the salsa",
+    "asks": []
+   },
+   "trial": { "shape": "one dinner service on the plancha, own knives", "paid": true, "wage": 26,
+    "passes_on": "plancha held on a slammed rail without a refire; everything tasted",
+    "fails_on": "touching Tomás's knife roll; an untasted plate; speed that starves the salsa bar" },
+   "days": "2–4 wks",
+   "decline": { "voiced": "a pause, then 'they filled it' — you learn who told you", "spectator": null }
+  },
+  {
+   "employer": "Taqueria El Farolote", "role": "Counter/closer", "channel": "board",
+   "apply": "Reply card or ask at the counter early in the week — the closers collect names",
+   "screen": {
+    "who": "counter staff vouch-check",
+    "watches": "real Spanish and patience with the 2 a.m. crowd",
+    "asks": ["what do you do when a guy orders the same burrito three times and pays once"]
+   },
+   "trial": { "shape": "one Friday close, register through 2 a.m.", "paid": true, "wage": 18,
+    "passes_on": "sober at 2 a.m., still kind, drawer counts out",
+    "fails_on": "escalating a drunk; freezing on Spanish; a short drawer with a story" },
+   "days": "1–2 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "MuleIt", "role": "Delivery rider", "channel": "app",
+   "apply": "The app — license photo, bank routing, orientation video; twenty minutes and you're on the map",
+   "screen": {
+    "who": "nobody — churn is the design",
+    "watches": "the algorithm learns your zone; there is no decider",
+    "asks": []
+   },
+   "trial": { "shape": "the first week IS the trial", "paid": true, "wage": 17,
+    "passes_on": "surge hours pay for the dead ones; riders who want a name graduate to the Pannier intake",
+    "fails_on": "self-attrition — nobody fires you, the app just stops being worth opening" },
+   "days": "days",
+   "decline": { "voiced": "silence — the app is the answer", "spectator": null }
+  },
+  {
+   "employer": "Buy-Rite Market", "role": "Grocery clerk", "channel": "board",
+   "apply": "Reply card, then the office interview — fifteen minutes upstairs, clipboard",
+   "screen": {
+    "who": "shift manager",
+    "watches": "availability honesty; screens for someone still here in six months",
+    "asks": ["what's your real availability", "one reference we can call"]
+   },
+   "trial": { "shape": "two stocking shifts", "paid": true, "wage": 19,
+    "passes_on": "stock rotated oldest-forward untold; back-room aisle left cleaner",
+    "fails_on": "phone out on the floor; the reference who hesitates" },
+   "days": "2–4 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Buy-Rite Creamery", "role": "Scooper", "channel": "board",
+   "apply": "Ask at the counter — the interview is two questions",
+   "screen": {
+    "who": "lead scooper",
+    "watches": "your wrist over the case; whether you smile at kids without it looking like labor",
+    "asks": ["can you work weekends", "have you got a scoop arm"]
+   },
+   "trial": { "shape": "one sunny Sunday — the whole job in miniature", "paid": true, "wage": 17,
+    "passes_on": "steady wrist through the line; tastes offered unasked",
+    "fails_on": "the wrist; treating samples as negotiation" },
+   "days": "1–2 wks in season",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Dolores Perk", "role": "Counter", "channel": "board",
+   "apply": "Reply card — but the morning regulars function as informal references",
+   "screen": {
+    "who": "owner + the regulars' unrequested verdict",
+    "watches": "mornings are the job; strangers the regulars have never seen are presumed walk-throughs",
+    "asks": ["how are you with mornings"]
+   },
+   "trial": { "shape": "one morning rush", "paid": true, "wage": 18,
+    "passes_on": "two orders remembered by the second visit",
+    "fails_on": "treating the regulars as furniture" },
+   "days": "2–4 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Baguette About It Bakery", "role": "Counter, afternoons", "channel": "board",
+   "apply": "Reply card or ask the counter lead at 14:00 — never during the morning sell-down",
+   "screen": {
+    "who": "a16-hana (the baker)",
+    "watches": "hands you the sell-down list and watches you read it — do you know what the numbers mean",
+    "asks": []
+   },
+   "trial": { "shape": "one 13:00–17:00 shift; the 16:00 slump is the real test", "paid": true, "wage": 18,
+    "passes_on": "the case fronted during the dead hour, unasked",
+    "fails_on": "standing behind the counter waiting to be used" },
+   "days": "1–2 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Baguette About It Bakery", "role": "Counter temp, holiday", "channel": "board",
+   "seasonal": true,
+   "apply": "Same as the afternoon counter, faster — card goes up ~Nov 1",
+   "screen": {
+    "who": "a16-hana (the baker)",
+    "watches": "two questions and a date check — the screen is for people who mean it",
+    "asks": ["can you work Dec 23rd"]
+   },
+   "trial": { "shape": "two shifts before Thanksgiving; the holiday crowd is the whole exam", "paid": true, "wage": 18,
+    "passes_on": "warmth under line pressure; ribbon-and-box is teachable in an afternoon",
+    "fails_on": "the December 23rd answer turning out to be negotiable" },
+   "days": "days — posted ~Nov 1",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Il Delfino", "role": "Line cook", "channel": "word_of_mouth",
+   "apply": "They ask kitchens they know — the stage tradition is the door",
+   "screen": {
+    "who": "the chef",
+    "watches": "your prep list, your station reset, whether you taste — rules unexplained",
+    "asks": []
+   },
+   "trial": { "shape": "the Tuesday stage IS the trial — one service, unpaid tradition (tone contested, documented)", "paid": false, "wage": 27,
+    "passes_on": "mise en place squared away before tickets; questions asked once",
+    "fails_on": "station clutter mid-service; the second asking of any question" },
+   "days": "3–6 wks",
+   "decline": { "voiced": "a pause, then 'they filled it' — you learn who told you", "spectator": null }
+  },
+  {
+   "employer": "Il Delfino", "role": "Server", "channel": "board",
+   "apply": "Reply card — the floor manager will ask you to walk a tray across the room, applied for or not",
+   "screen": {
+    "who": "floor manager",
+    "watches": "table sense — whether you read a four-top's mood in the approach",
+    "asks": []
+   },
+   "trial": { "shape": "one Tuesday floor — the slow night, deliberately", "paid": true, "wage": 18,
+    "passes_on": "the room's energy held; sidework done without the list",
+    "fails_on": "camping a tipped-out table while another sits dirty" },
+   "days": "1–3 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Auerbach Hardware", "role": "Counter clerk", "channel": "word_of_mouth",
+   "apply": "Victor hears about interest before a card could dry — someone mentions you're looking; he says 'send them Saturday'",
+   "screen": {
+    "who": "c7-victor",
+    "watches": "hands that sort screws without sorting being the conversation; whether you ask which bin before guessing",
+    "asks": []
+   },
+   "trial": { "shape": "half a Saturday — the contractor morning is the test", "paid": true, "wage": 21,
+    "passes_on": "you find it, or ask where it lives without apologizing",
+    "fails_on": "guessing confidently; retail voice with the regulars" },
+   "days": "4+ wks — he's in no hurry",
+   "decline": { "voiced": "a pause, then 'they filled it' — you learn who told you", "spectator": null }
+  },
+  {
+   "employer": "Marooned Records", "role": "Weekend counter", "channel": "word_of_mouth",
+   "apply": "There is no card, ever — Sam mentions the opening at the counter; the owner asks what you listen to, and means it",
+   "screen": {
+    "who": "the owner",
+    "watches": "taste as biography — real listening, whatever it is; can you talk a customer toward a record instead of at one",
+    "asks": ["what are you listening to"]
+   },
+   "trial": { "shape": "one Sunday — the 45 crate test: a customer with ten dollars and no plan", "paid": true, "wage": 17,
+    "passes_on": "the browser leaves with something they love, not something they were sold",
+    "fails_on": "condescension, of any genre" },
+   "days": "3–5 wks — it fills by vibe",
+   "decline": { "voiced": "a pause, then 'they filled it' — you learn who told you", "spectator": null }
+  },
+  {
+   "employer": "Golden Hour Laundromat", "role": "Evening attendant", "channel": "board",
+   "apply": "Reply card — the owner asks one question and interviews the ones who ask what it means",
+   "screen": {
+    "who": "the owner",
+    "watches": "temperament for the last hour — the laundromat's loneliest shift",
+    "asks": ["can you be kind at 22:45"]
+   },
+   "trial": { "shape": "one Friday evening — coin machine, lint traps, the fold counter, whoever's still drying at close", "paid": true, "wage": 17,
+    "passes_on": "the close done gently — lights down section by section",
+    "fails_on": "rushing the last customer; treating the chair row as a problem" },
+   "days": "2–4 wks",
+   "decline": { "voiced": "We went with someone with Saturday open. Card'll stay up — try the next one.", "spectator": null }
+  },
+  {
+   "employer": "Bloom & Doom Flowers", "role": "Saturday counter help", "channel": "word_of_mouth",
+   "apply": "Ida asks at the market — the produce vendors, the Growers stall people, the regulars",
+   "screen": {
+    "who": "a18-ida",
+    "watches": "your hands around the stems — thorns stripped without mangling, a bouquet carried like it's going somewhere",
+    "asks": ["who's it for"]
+   },
+   "trial": { "shape": "one Saturday — wedding season Saturdays are the honest version", "paid": true, "wage": 18,
+    "passes_on": "ribbon work that holds; 'who's it for' before 'how much'",
+    "fails_on": "crushed stems; a sympathy arrangement treated as inventory" },
+   "days": "2–4 wks",
+   "decline": { "voiced": "a pause, then 'they filled it' — you learn who told you", "spectator": null }
+  },
+  {
+   "employer": "SF General", "role": "CNA/tech", "channel": "hr_portal",
+   "apply": "The hospital portal — cert number, immunization records, fingerprints, behavioral interview",
+   "screen": {
+    "who": "HR queue, then the unit",
+    "watches": "the packet first, then reliability under load and charting honesty",
+    "asks": ["tell me about a patient you got wrong"]
+   },
+   "trial": { "shape": "orientation week — supervised med-surg shifts; the preceptor writes the real evaluation", "paid": true, "wage": 22,
+    "passes_on": "vitals charted honestly at 3 a.m.; asking the nurse instead of guessing",
+    "fails_on": "a chart that rounds itself; the preceptor's name for you being a sigh" },
+   "days": "1–2 mo (HR queue)",
+   "decline": { "voiced": "We are moving forward with other candidates — the system's own voice", "spectator": null }
+  }
+ ],
+ "housing_apps": [
+  {
+   "key": "bld-g9418-B", "label": "9418 Guerrero St, Unit B — 1BR", "voice": "owner-direct",
+   "viewing": "Saturday 11–1, shown by Victor himself — he opens the door, says the rent, lets the flat talk",
+   "shown_by": "c7-victor",
+   "watches": "how people treat the stair; who asks about the downstairs neighbor",
+   "packet": ["two references he actually calls", "first month + one month deposit ready"],
+   "fee": "none — he pays for his own screening calls",
+   "decision": "3–7 days; feel backed by the calls — 'somebody who'll still be here'",
+   "decline": { "voiced": "Went with an earlier application. I'll keep your number if B opens up.", "spectator": "listing delisted" }
+  },
+  {
+   "key": "bld-g9457-2", "label": "9457 Guerrero St, Unit 2 — studio", "voice": "owner-direct",
+   "viewing": "same Saturday window; Victor discloses the stair noise himself because it will be discovered either way",
+   "shown_by": "c7-victor",
+   "watches": "references matter more than the talk — the rent does the advertising",
+   "packet": ["two references he actually calls", "first month + one month deposit ready"],
+   "fee": "none — he pays for his own screening calls",
+   "decision": "under a week",
+   "decline": { "voiced": "Went with an earlier application. I'll keep your number if B opens up.", "spectator": "listing delisted" }
+  },
+  {
+   "key": "bld-c9127-A", "label": "9127 Capp St, Unit A — studio", "voice": "manager",
+   "viewing": "weekday evening window, shown by the building manager — a clipboard walk-through, not a conversation",
+   "shown_by": "building manager",
+   "watches": "paper moves here, not feel",
+   "packet": ["application form", "proof of income ~2.5× rent", "references optional"],
+   "fee": "screening charge at actual cost, disclosed on the form",
+   "decision": "5–10 days through the manager's queue",
+   "decline": { "voiced": "silence — the listing disappearing is the answer", "spectator": "listing delisted" }
+  },
+  {
+   "key": "tier-room", "label": "Room in shared flat — $700 tier", "voice": "roommates",
+   "viewing": "the kitchen-table interview — the roommates are picking a person, not an application",
+   "shown_by": "the roommates",
+   "watches": "schedule vs the bathroom, whether 'clean' means the same thing, whether the money moves without drama",
+   "packet": ["yourself", "'who can vouch' asked casually, followed up seriously", "first month + half deposit"],
+   "fee": "none",
+   "decision": "days — the vibe decides",
+   "decline": { "voiced": "hey — we went with my coworker's friend, sorry! we'll keep you posted if anything changes", "spectator": null }
+  },
+  {
+   "key": "tier-studio", "label": "Studio — $1,300 tier", "voice": "mixed",
+   "viewing": "owner or manager depending on the building",
+   "shown_by": "owner or manager",
+   "watches": "income ~2.5× rent on paper; steadiness in person",
+   "packet": ["proof of income ~2.5× rent", "first month + one month deposit"],
+   "fee": "screening at actual cost where charged",
+   "decision": "~1 wk",
+   "decline": { "voiced": "silence (manager) or a short text (owner)", "spectator": "listing delisted" }
+  },
+  {
+   "key": "tier-1br", "label": "1BR apartment — $2,100 tier", "voice": "owner-direct",
+   "viewing": "owner-direct mostly; near the park they go fast",
+   "shown_by": "owner",
+   "watches": "references + whether the household math looks honest",
+   "packet": ["references", "proof of income", "first month + one month deposit"],
+   "fee": "screening at actual cost where charged",
+   "decision": "1–2 wks",
+   "decline": { "voiced": "a short text", "spectator": "listing delisted" }
+  },
+  {
+   "key": "tier-flat", "label": "Victorian upper flat — $3,200 tier", "voice": "owner-direct",
+   "viewing": "owner feel — Victor hears about interest before the card is dry",
+   "shown_by": "owner",
+   "watches": "references + the household math — two incomes or a very good job",
+   "packet": ["references", "proof of income", "first month + one month deposit"],
+   "fee": "screening at actual cost where charged",
+   "decision": "1–3 wks",
+   "decline": { "voiced": "an honest call, sometimes in person", "spectator": "listing delisted" }
+  },
+  {
+   "key": "tier-house", "label": "Whole Victorian house — $5,500 tier", "voice": "owner-direct",
+   "viewing": "by appointment",
+   "shown_by": "owner",
+   "watches": "the math has to work on paper; pet negotiation is real",
+   "packet": ["references", "proof of income", "first month + one month deposit", "pet negotiation"],
+   "fee": "screening at actual cost where charged",
+   "decision": "3+ wks",
+   "decline": { "voiced": "a letter, strangely formal", "spectator": "listing delisted" }
+  }
+ ],
+ "decline_bank": {
+  "board": "We went with someone with Saturday open. Card'll stay up — try the next one.",
+  "word_of_mouth": "a pause, then 'they filled it' — you learn who told you",
+  "app": "silence — the app is the answer",
+  "hr_portal": "We are moving forward with other candidates — the system's own voice",
+  "owner_direct": "Went with an earlier application. I'll keep your number if B opens up.",
+  "manager": "silence — the listing disappearing is the answer",
+  "roommates": "hey — we went with my coworker's friend, sorry! we'll keep you posted if anything changes",
+  "spectator_note": "the only public tell is the card coming down or the listing delisted — 'card came down' rides existing venue/quiet texture; no new event kinds, never the applicant, never the reason"
+ },
+ "never": [
+  "no application fee above real screening cost, disclosed on the form",
+  "no rent bidding, no pay-to-interview, no pay-to-see-a-listing",
+  "no feed event names an applicant or a decline — hires surface only as a new face",
+  "trial shifts are paid unless the entry says otherwise in plain words",
+  "an application never leaks a secret — screening texture is surface knowledge"
+ ]
+}

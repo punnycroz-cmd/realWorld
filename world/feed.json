@@ -1,0 +1,101 @@
+{
+  "doc": "world/feed-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: spectator-feed event schema, event vocabulary, and the demo seed set used by feed.html. The spectator feed is FREE forever (design §5) — it is the product's top of funnel, never metered.",
+  "event_schema": {
+    "id": "string, stable",
+    "t": "block-time minutes since midnight (world clock)",
+    "kind": "one of event_kinds",
+    "venue": "optional venue id (see venues)",
+    "who": "optional character id (C1–C8, A01–A20) or player handle on request events",
+    "text": "display text — surface-level only; never quotes interiors of homes, never secrets",
+    "status": "request events only: one of request_status",
+    "req": "optional, request events: shared request id — every lifecycle event of one paid intervention carries it; detail views group the status trail on it",
+    "reason_code": "optional, denied requests only: fixed enum from world/moderation.json (public sees the why-class, never the screened text beyond the display filter)",
+    "attrs": "optional: { surge, credits, minutes, compensated_cr, sponsors[], mentions[] } for transparency lines and follow matching; credits+minutes = the declared cost/duration shown at filing (design §11: action + duration declared upfront)"
+  },
+  "spectator_ui": {
+    "doc": "world v19 — the full spectator surface (world/wire.html, spec world/wire-ui.md). feed.html remains the lightweight variant.",
+    "permalink": "#e=<event id> deep-links one event; ids are stable live → archive (same id resolves in The Archive next day)",
+    "request_threading": "events sharing `req` render as one lifecycle trail (requested → in_review → approved → running → resolved/refunded/not approved)",
+    "follow_targets": {
+      "v:<venue_id>": "pin a venue — free spectator filter, reversible",
+      "c:<char_id>": "pin a character (C/A/h ids) — public whereabouts only; a filter, never control"
+    },
+    "pagination": {
+      "page_size": 60,
+      "older": "'load older' extends the page in place — never a scroll jump",
+      "caught_up": "'You're caught up — nothing older than this today.'; earlier days route to The Archive",
+      "new_events": "scrolled-away viewers see 'N new — jump to top'; the stream never moves text under a reader"
+    },
+    "spectator_ui_v33": {
+      "doc": "world v33 — lean-back + control polish on wire.html. Everything is view-layer only; no key, button, or pin can touch the world.",
+      "zen": "lean-back theater view (button, `z` key, `#z=1`) — rails/upsell off, stream enlarged; view-layer only",
+      "hold": "freezes the DISPLAY, never the world — events keep accruing behind an honest backlog bar ('the world didn't pause; the display did'); click or `h` releases",
+      "reaching_in_now": "strip of live request cards (latest status ∈ requested/in_review/approved/queued/running) + recent admin actions, all attributed; a card opens the request's trail",
+      "keyboard": "j/k select · enter detail · / search · f following · z zen · h hold · esc back out · ? help card",
+      "request_permalink": "#r=<req> deep-links a request — resolves to the newest event in its lifecycle trail",
+      "mentions_ui": "attrs.mentions[] render as pinnable chips in the detail panel; event who/venue get 'pin' buttons (view-layer follows only)",
+      "density": "cozy/compact row toggle, persisted (rw_wire_density)",
+      "reduced_motion": "prefers-reduced-motion disables the live-dot blink"
+    },
+    "spectator_ui_v47": {
+      "doc": "world v47 — the recap layer on wire.html (v4). Still strictly view-layer: every number below is the feed's own events counted, never invented and never editorial.",
+      "day_so_far": "collapsible card ('the day so far' bar / `d` key) — window covered, event count, busiest venue, requests filed/open/closed, weather changes, admin actions + total compensated credits; footer note states it is the wire counted, not a ranking",
+      "missed_bar": "on join, a dismissible 'earlier today' bar summarizes everything already on the wire (count, requests, admin actions, latest sky) + 'catch me up' scrolls to the oldest pre-join event; pre-join timestamps render dimmed. No persistence, no fabricated personalization — it describes the feed as it stood at arrival",
+      "declared_costs": "request rows carry 'N cr · M min' and the detail panel adds 'declared — N cr · M min (paid upfront, hard cap — shown at filing)' from attrs.credits/minutes; the price was public at filing and the wire repeats it",
+      "wx_follows_feed": "the header weather line is set by the newest `weather` event (icon guessed from the event's own words — fog/rain/sun/wind/cloud); no fabricated temperature. Applies in demo and live modes alike",
+      "keyboard": "adds `d` — toggle the day-so-far card"
+    }
+  },
+  "event_kinds": [
+    "move",      "a named character changes venue (arrivals/departures — public routine only)",
+    "scene",     "recurring crowd-scene beat (crowd-scenes.md §4)",
+    "venue",     "crowd-level note: fills, empties, line out the door",
+    "weather",   "sky changes — including player-called weather, attributed",
+    "request",   "a player request lifecycle event (attributed — design §5 public request feed)",
+    "admin",     "owner/admin action, always attributed, always with compensation note",
+    "press",     "Mission Unfiltered blog post — the blog is public; the author is a secret and never named",
+    "housing",   "public registry events: move-in, listing posted/filled (never terms beyond posted rent)",
+    "cast",      "a hired character joins the block — attributed to the hiring player; bio text only post-screen",
+    "quiet"      ,"honest-empty marker for dead dayparts — the feed may go quiet and says so"
+  ],
+  "request_status": ["requested", "in_review", "approved", "approved (modified)", "running", "queued", "resolved", "refunded", "not approved", "player session ended"],
+  "venues": {
+    "mudhaus":  "Mudhaus Coffee",
+    "park":     "Dolores Park",
+    "farolote": "Taqueria El Farolote",
+    "club600":  "The 600 Club",
+    "auerbach": "Auerbach Hardware",
+    "perk":     "Dolores Perk",
+    "maliks":   "Malik's Mini Mart",
+    "clarion":  "Clarion Alley",
+    "library":  "Mission Branch Library",
+    "buyrite":  "Buy-Rite Market",
+    "block":    "the block (street-level)"
+  },
+  "display_rules": [
+    "surface-only: feed text is what a camera on the street could verify — no thoughts, no dialogue, no home interiors",
+    "homes render as 'home'/'headed home' — residential interiors are never a feed surface",
+    "secrets/drama seeds cannot appear: they are absent from the feed schema (structural, not filtered)",
+    "request text shown verbatim only after the §11 screen passes; denied text is never displayed",
+    "admin actions always carry compensation detail when players were affected",
+    "Mission Unfiltered posts carry no author — the author is a C1 secret and the feed does not speculate",
+    "viewer counts and timestamps are honest — no inflated social proof (no dark patterns)"
+  ],
+  "demo_seeds": [
+    { "t": 375,  "kind": "move",    "who": "C2", "venue": "park",     "text": "Jules out for the morning run — north path loops" },
+    { "t": 452,  "kind": "scene",   "venue": "mudhaus",  "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
+    { "t": 487,  "kind": "move",    "who": "C4", "venue": "buyrite",  "text": "Priya headed in to SF General — a twelves day" },
+    { "t": 540,  "kind": "venue",   "venue": "park",     "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
+    { "t": 566,  "kind": "request", "who": "okfm",       "req": "rq-1033", "text": "possess — own courier, 30 min", "status": "resolved", "attrs": { "credits": 45, "minutes": 30 } },
+    { "t": 601,  "kind": "weather", "text": "Fog burned off over the park — full sun" },
+    { "t": 647,  "kind": "press",   "text": "Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always" },
+    { "t": 720,  "kind": "scene",   "venue": "farolote", "text": "Lunch prep at El Farolote — the salsa bar gets its midday refill" },
+    { "t": 783,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "event — park cleanup at Dolores Park", "status": "queued", "attrs": { "credits": 178 } },
+    { "t": 806,  "kind": "cast",    "who": "okfm",       "venue": "block",  "text": "a new face on the block — Dana Okafor, a hired resident, settling in" },
+    { "t": 812,  "kind": "housing", "venue": "block",    "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board" },
+    { "t": 841,  "kind": "admin",   "venue": "club600",  "text": "admin action — venue window reset at The 600 Club", "attrs": { "compensated_cr": 90 } },
+    { "t": 852,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "queued request expired before activation — refunded", "status": "refunded" },
+    { "t": 878,  "kind": "request", "who": "tide_9",     "req": "rq-1039", "text": "weather — evening fog return, 1 h", "status": "running", "attrs": { "sponsors": ["tide_9", "loam", "marina_w"], "surge": true, "credits": 120, "minutes": 60 } },
+    { "t": 900,  "kind": "scene",   "venue": "park",     "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter", "attrs": { "mentions": ["A04", "A20"] } }
+  ]
+}

@@ -1,0 +1,6 @@
+# Real World marketing site — robots.txt (local draft)
+# PLACEHOLDER DOMAIN in Sitemap line: update at launch.
+User-agent: *
+Allow: /
+
+Sitemap: https://realworld-game.example/sitemap.xml

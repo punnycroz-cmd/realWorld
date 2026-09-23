@@ -1,0 +1,117 @@
+{
+  "doc": "world/request-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: action catalog, rates, and feed vocabulary. Prices adopt rw-monetization-plan-2026-09-22 §2.2–2.3 (PROPOSAL — do not contradict in player-facing copy).",
+  "currency": "credits",
+  "classes": {
+    "compatible": { "rate_cr_per_min": 1.5, "min_min": 15, "max_min": 120, "review": "auto" },
+    "exclusive":  { "rate_cr_per_min": 6.0, "min_min": 15, "max_min": 60,  "review": "human", "cooldown_h": 4 },
+    "queued":     { "discount": 0.15, "queue_hold_h": 24, "expiry": "auto-refund" }
+  },
+  "surge": { "multiplier_range": [1.5, 2.5], "window_h": 6, "primetime_local": "18:00-23:00", "shown_pre_payment": true },
+  "actions": [
+    { "id": "possess",  "label": "Possess your character", "class": "compatible", "billing": "per_min",
+      "targets": "own_hired_character_only", "note": "Mains (C1–C8) + landlord unpossessable — locked. Briefing = public profile + surface relationships + routine only." },
+    { "id": "weather",  "label": "Weather change", "class": "exclusive", "billing": "flat_by_block",
+      "claims": ["sky"], "blocks": [ { "min": 60, "cr": 40 }, { "min": 120, "cr": 70 }, { "min": 240, "cr": 100 } ],
+      "global_cooldown_h": [4, 8] },
+    { "id": "nudge",    "label": "NPC nudge", "class": "compatible", "billing": "flat", "cr": 40,
+      "refund_on_decline": 0.5, "note": "An ask, not mind-control — the character may decline." },
+    { "id": "event",    "label": "Event trigger", "class": "exclusive", "billing": "flat", "cr": 200,
+      "claims": ["venue:*", "openair"], "note": "Drama-manager-mediated; one per resource per 24 h." },
+    { "id": "camera",   "label": "Camera director", "class": "compatible", "billing": "flat", "cr_per_30min": 10,
+      "note": "Spectator-side only; changes nothing in-world." },
+    { "id": "hire",     "label": "Character hire", "class": "compatible", "billing": "flat", "cr": 500,
+      "review": "human (naming strings always queued — moderation §4)",
+      "note": "One-time per character, slot-capped per account (creation.json). Includes starter wardrobe + apartment hunt; housing costs game dollars. Denied applications never bill.",
+      "spec": "world/creation-ui.md" }
+  ],
+  "feed_vocabulary": ["requested", "in_review", "approved", "approved (modified)", "running", "queued", "resolved", "refunded", "not approved", "admin action", "player session ended"],
+  "resource_board": {
+    "doc": "v18 — the claims matrix rendered legibly to players, before any money is spent",
+    "claim_keys": ["char:<h##>", "sky", "venue:<poi>", "openair", "paper:<id>", "listing:<id>"],
+    "states": { "free": "bookable now", "cool": "post-exclusive cooldown, shows minutes left, never skippable", "locked": "exclusive running, shows holder + minutes left", "queued": "queue depth shown as a count, never a position auction" },
+    "on_free": "queued requests activate in FCFS order; review happens on activation, not while waiting"
+  },
+  "possession_briefing": {
+    "doc": "design §7 whitelist — previewed in the request form before payment; identical card to what the session opens on",
+    "fields": ["who", "profile", "surface_relationships", "daily_routine", "scope"],
+    "secrets": "absent_by_schema — the record carries no secret field; UI copy says 'not redacted: absent'",
+    "merge_target": "game-v5 gsPossessBrief / gsBriefingAudit — same whitelist, enforced once"
+  },
+  "session_controls": {
+    "end_early": "graceful handoff identical to cap expiry; feed logs 'player session ended'; unused minutes inside the cap are not refunded",
+    "low_balance_warning": "toast at ≤15 funded minutes or ≤15 min left, whichever first; one-click top-up",
+    "brain_state_shown": "possession only — 'suspended — AI resumes on release'"
+  },
+  "moderation_contract": "world/moderation.json — reason codes attach to 'not approved' feed entries; display filter (redact/withhold/quarantine) is an owner decision at build time",
+  "wallet": {
+    "doc": "v32 — the wallet is a contract surface: pack ladder + first-purchase bonus + spend cap + rewarded ads + itemized ledger. Numbers adopt monetization-plan §2.1/§2.7 verbatim (PROPOSAL).",
+    "packs": [
+      { "id": "pocket",  "usd": 0.99,  "cr": 100 },
+      { "id": "starter", "usd": 4.99,  "cr": 550 },
+      { "id": "regular", "usd": 9.99,  "cr": 1150 },
+      { "id": "plus",    "usd": 19.99, "cr": 2500 },
+      { "id": "pro",     "usd": 49.99, "cr": 6750 },
+      { "id": "mogul",   "usd": 99.99, "cr": 14000 }
+    ],
+    "first_purchase_bonus": { "mult": 0.5, "once": true, "disclosed": "flagged in the sheet before the first buy — 'first purchase +50%'" },
+    "daily_spend_cap_usd": 200,
+    "no_expiration": true,
+    "rewarded_ads": { "cr_per_view": 2, "per_day": 5, "per_week": 25,
+      "placement": "opt-in from the wallet sheet only — never pre-roll, never mid-session, never inside the sim view" },
+    "ledger": "every debit and refund itemized — the feed shows public refunds; the wallet ledger shows everything private (charges, pack buys, ad earns, appeal re-charges)"
+  },
+  "appeals": {
+    "doc": "v32 — denied requests carry a private appeal path per moderation.json appeal_flow",
+    "window_h": 72,
+    "rule": "a different reviewer decides — the console shows orig_reviewer so the rule is checkable",
+    "not_appealable": ["legal-backstop", "appeal-resubmit"],
+    "feed_visibility": "aggregate only — individual appeals are never spectacle; recaps may count them",
+    "on_reversal": "denial lifted — the request re-enters human review at its original quote; the charge re-applies only on approval (the deny refund already landed)",
+    "on_uphold": "denial stands — second review is final for that request"
+  },
+  "co_sponsor": {
+    "doc": "v32 — identical exclusive intents may co-sign the running override instead of queueing (game-v2 GS_WX_OVR.sponsors is the merge target)",
+    "class": "compatible — joins a live claim, never locks a new one; auto-runs on a passing screen",
+    "pricing": "same flat block price as the running request — you are buying the same world event, not a discount",
+    "attribution": "every sponsor is named on the feed line",
+    "cap": 4,
+    "scope": "declared intents only — weather overrides ship in v32; venue events can adopt the same rule later"
+  },
+  "approve_modified": {
+    "doc": "v46 — the player side of moderation.json approve-modified: the reviewer returns a trimmed request, the player accepts or declines",
+    "rule": "duration/scope trimmed only, never expanded; unused credits auto-refund; ambiguity resolves against the player",
+    "feed_status": "approved (modified)",
+    "decline": "full refund — the trim is an offer, not a bill; declining costs nothing",
+    "accept": "runs the trimmed terms at the re-quoted total; the upfront-charge difference refunds on accept",
+    "player_affordance": "the offer card shows old → new terms and both prices before any choice"
+  },
+  "queue_hold": {
+    "doc": "v46 — the ≤24 h hold is visible on the queued card as a countdown, not just a promise",
+    "display": "hold H h M min left of 24 h · expiry auto-refunds",
+    "expiry": "auto-refund at zero — 'queued request expired before activation' on the feed (locked)",
+    "on_activation": "review happens on activation; the hold clock stops the moment the slot is reached"
+  },
+  "scheduled_events": {
+    "doc": "v46 — approved flat exclusives (weather, event triggers, activated queued requests) fire on schedule and show it",
+    "feed": "'running' when the event fires, 'resolved' when it ends — attribution (the filer's handle) stays on both lines",
+    "trimmed": "events running under modified terms say so on the fire line"
+  },
+  "demo_hooks": {
+    "doc": "v46 — merge points for the analytics spec (marketing analytics-events.json PENDING hooks); local-only in-page array window.RW_DEMO_EVENTS, nothing leaves the file",
+    "emitted": ["request_submitted", "review_lesson_shown", "review_outcome_seen", "low_balance_simulated", "handoff_seen"]
+  },
+  "session_extend": {
+    "doc": "v32 — a running session may buy more minutes at its own rate while the class cap allows",
+    "rates": "session class rate — compatible 1.5 cr/min; camera 10 cr per +30 min",
+    "cap": "total session length never exceeds the class max (120 min compatible; camera uncapped but sold in +30 blocks)",
+    "low_balance": "insufficient balance disables the button and links the wallet sheet — the top-up to extend path is one click"
+  },
+  "fairness_invariants": [
+    "cooldowns never purchasable",
+    "surge multiplier shown before payment",
+    "hard cap — no overrun; forced graceful handoff at zero",
+    "queued expiry auto-refunds",
+    "admin overrides compensate affected players",
+    "no auctions for slots; FCFS within class"
+  ]
+}

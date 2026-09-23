@@ -112,10 +112,101 @@ const SF_CORE_ROUTINES = {
 };
 
 /* ambient role -> routine template */
+function sfAmbientHome(id){
+  return { poi: null, latlon: [37.7560 + (hashString18(id) % 40) / 2000,
+                               -122.4240 + (hashString18(id + 'x') % 60) / 3000] };
+}
+/* per-ambient routines — world/ambients.json + world/ambients/ are the
+   readable spec; canonical venue names resolve via SF_WORLD_POIS
+   (30_sf_world.js). Falls back to the role template when absent. */
+const SF_AMBIENT_ROUTINES = {
+  A01: c => { const home = sfAmbientHome(c.id); return [ // Reyes: Mudhaus espresso shifts
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 18, to: { poi: 'Mudhaus Coffee' }, state: 'serve' },
+    { h0: 18, h1: 22, to: home, state: 'idle', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A03: c => { const home = sfAmbientHome(c.id); return [ // Malik: counter at his own corner store
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 18, to: { poi: "Malik's Mini Mart" }, state: 'serve' },
+    { h0: 18, h1: 22, to: home, state: 'idle', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A05: c => { const home = sfAmbientHome(c.id); return [ // Esther: stoop, park, Dolores Perk
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 12, state: 'sit', stops: [{ anchor: 'park_center' }, { poi: 'Dolores Perk' }] },
+    { h0: 12, h1: 18, to: { anchor: 'park_south' }, state: 'sit' },
+    { h0: 18, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A06: c => { const home = sfAmbientHome(c.id); return [ // Kofe: MuleIt hot-box loop
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 19, state: 'carry',
+      stops: [{ poi: 'Taqueria El Farolote' }, { poi: 'Il Delfino' },
+              { poi: 'Buy-Rite Creamery' }, { poi: 'Dolores Perk' },
+              { poi: 'Mudhaus Coffee' }, { anchor: 'g750' }] },
+    { h0: 19, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A07: c => { const home = sfAmbientHome(c.id); return [ // Luz: fruit stand, Dolores at 19th
+    { h0: 0, h1: 7, to: home, state: 'sleep', inside: true },
+    { h0: 7, h1: 18, to: { poi: 'Frutería Las Palmas' }, state: 'serve' },
+    { h0: 18, h1: 21, to: home, state: 'idle', inside: true },
+    { h0: 21, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A08: c => { const home = sfAmbientHome(c.id); return [ // Sam: corner sets, 600 Club nights
+    { h0: 0, h1: 10, to: home, state: 'sleep', inside: true },
+    { h0: 10, h1: 18, state: 'work', stops: [{ anchor: 'park_north' }, { anchor: 'park_south' }] },
+    { h0: 18, h1: 24, state: 'chat', stops: [{ poi: 'The 600 Club' }, { anchor: 'park_south' }] } ]; },
+  A09: c => { const home = sfAmbientHome(c.id); return [ // Asha: SF General shifts
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 19.5, to: { poi: 'SF General' }, state: 'work' },
+    { h0: 19.5, h1: 21, state: 'walk', stops: [{ poi: 'Mudhaus Coffee' }] },
+    { h0: 21, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A10: c => { const home = sfAmbientHome(c.id); return [ // Gus: Folsom Auto & Sons
+    { h0: 0, h1: 6.5, to: home, state: 'sleep', inside: true },
+    { h0: 6.5, h1: 16, to: { poi: 'Folsom Auto & Sons' }, state: 'work' },
+    { h0: 16, h1: 22, to: home, state: 'rest', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A11: c => { const home = sfAmbientHome(c.id); return [ // Vera: Mission Branch Library
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 17.5, to: { poi: 'Mission Branch Library' }, state: 'work' },
+    { h0: 17.5, h1: 20, state: 'sit', stops: [{ anchor: 'park_center' }, { poi: 'Dolores Perk' }] },
+    { h0: 20, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A12: c => { const home = sfAmbientHome(c.id); return [ // Tom: park laps bookending an office day
+    { h0: 0, h1: 6, to: home, state: 'sleep', inside: true },
+    { h0: 6, h1: 8, state: 'run', stops: [{ anchor: 'park_north' }, { anchor: 'park_south' }] },
+    { h0: 8, h1: 17, to: home, state: 'rest', inside: true },
+    { h0: 17, h1: 19, state: 'run', stops: [{ anchor: 'park_south' }, { anchor: 'park_center' }] },
+    { h0: 19, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A14: c => { const home = sfAmbientHome(c.id); return [ // Bex: Needlepointe + Clarion wanders
+    { h0: 0, h1: 10, to: home, state: 'sleep', inside: true },
+    { h0: 10, h1: 18, state: 'work', stops: [{ poi: 'Needlepointe Tattoo' }, { poi: 'Clarion Alley' }] },
+    { h0: 18, h1: 24, state: 'chat', stops: [{ poi: 'The 600 Club' }, { anchor: 'park_south' }] } ]; },
+  A15: c => { const home = sfAmbientHome(c.id); return [ // Omar: Flying Pannier paper runs
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 19, state: 'carry',
+      stops: [{ poi: 'Auerbach Hardware' }, { poi: 'Mission Branch Library' },
+              { poi: 'Dolores Perk' }, { poi: 'Mudhaus Coffee' }, { anchor: 'g744' }] },
+    { h0: 19, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A16: c => { const home = sfAmbientHome(c.id); return [ // Hana: the 4am bake at Baguette About It
+    { h0: 0, h1: 4, to: home, state: 'sleep', inside: true },
+    { h0: 4, h1: 13, to: { poi: 'Baguette About It Bakery' }, state: 'serve' },
+    { h0: 13, h1: 17, state: 'walk', stops: [{ anchor: 'park_center' }, { poi: 'Buy-Rite Market' }] },
+    { h0: 17, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A17: c => { const home = sfAmbientHome(c.id); return [ // Cole: site work by Auerbach Hardware
+    { h0: 0, h1: 6.5, to: home, state: 'sleep', inside: true },
+    { h0: 6.5, h1: 16, to: { poi: 'Auerbach Hardware' }, state: 'work' },
+    { h0: 16, h1: 22, to: home, state: 'rest', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A18: c => { const home = sfAmbientHome(c.id); return [ // Ida: Bloom & Doom counter
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 18, to: { poi: 'Bloom & Doom Flowers' }, state: 'serve' },
+    { h0: 18, h1: 22, to: home, state: 'idle', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A19: c => { const home = sfAmbientHome(c.id); return [ // Ray: bench + pigeon rounds
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 12, state: 'sit', stops: [{ anchor: 'park_center' }, { poi: 'Dolores Perk' }] },
+    { h0: 12, h1: 18, state: 'sit', stops: [{ anchor: 'park_south' }, { anchor: 'park_center' }] },
+    { h0: 18, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+};
 function sfAmbientRoutine(c){
+  if(SF_AMBIENT_ROUTINES[c.id]) return SF_AMBIENT_ROUTINES[c.id](c);
   const role = (c.role || '').toLowerCase();
-  const home = { poi: null, latlon: [37.7560 + (hashString18(c.id) % 40) / 2000,
-                                     -122.4240 + (hashString18(c.id + 'x') % 60) / 3000] };
+  const home = sfAmbientHome(c.id);
   const B = [];
   const at = (h0, h1, spec, st, inside) => B.push({ h0, h1, to: spec, state: st, inside });
   if(/barista|baker|shop|keeper|florist|grocer/.test(role)){
@@ -190,6 +281,9 @@ function sfInitCast(){
     });
     v._ci = i;
     v._castId = c.id;
+    // production-1: compiled memory profile (35_sf_memory.js) — wired into
+    // decayEpistemic/observe where the sim has a real mechanism
+    if(typeof sfMemProfileFor === 'function') v.memProfile = sfMemProfileFor(c.id);
     v.sfSched = sched || [];
     v.sfStopIdx = 0;
     v.sfStopT = 0;
@@ -217,6 +311,15 @@ function sfNpcTick(v, dtH){
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
+  // production-1: a parked agent order (36_sf_agent.js, the playtest
+  // bridge) drives this pawn through real sim calls until done/expired,
+  // then the schedule brain resumes. Order channel, not possession.
+  if(v.sfAgent){
+    const a = v.sfAgent;
+    if(a.done || W.tod > a.until) v.sfAgent = null;
+    else if(typeof sfAgentTick === 'function'){ sfAgentTick(v, a, dtH); return; }
+    else v.sfAgent = null;
+  }
   const sched = v.sfSched;
   if(!sched || !sched.length){ v.state = v.moving ? v.state : 'idle'; return; }
   const h = W.tod;
@@ -238,8 +341,12 @@ function sfNpcTick(v, dtH){
   if(dist > CS * 1.2){
     v.inBuilding = false;
     if(!v.sfPath || !v.sfPath.length){
-      if(v._sfRepathT == null || (G.frame - v._sfRepathT) > 90){
-        v._sfRepathT = G.frame;
+      // repath cooldown keys on the sim clock, not G.frame — headless
+      // drivers call simTick() without loop(), so a frame-keyed cooldown
+      // would freeze the pawn forever after one failed sfGoTo.
+      const simNow = W.day * 24 + W.tod;
+      if(v._sfRepathT == null || (simNow - v._sfRepathT) > 0.05){
+        v._sfRepathT = simNow;
         sfGoTo(v, cell.wx, cell.wy);
       }
       if(!v.sfPath){ v.state = 'idle'; v.moving = false; return; }

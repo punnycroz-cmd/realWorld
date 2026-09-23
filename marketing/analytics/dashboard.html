@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Real World — local analytics dashboard</title>
+<!--
+  INTERNAL TOOL — never deploy to the public site (noindex).
+  Drop an NDJSON capture (from tools/analytics_sink.py, or any conforming
+  collector) onto the page — or pick it with the button — and it renders
+  the four-panel dashboard spec'd in ANALYTICS.md §7. Everything runs
+  locally in this file; the data never leaves the browser. Zero deps.
+
+  Quick check: python3 marketing/tools/make_analytics_fixture.py > /tmp/wk.ndjson
+  then drop /tmp/wk.ndjson here (or open marketing/analytics/sample-week.ndjson).
+-->
+<style>
+  :root{
+    --bg:#101216; --panel:#171a20; --ink:#e8e6df; --mut:#9a968c;
+    --line:#2a2e37; --acc:#e8b04b; --acc2:#7fb4c7; --good:#8bc48b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  header{padding:28px 24px 12px;border-bottom:1px solid var(--line)}
+  h1{font-size:20px;margin:0 0 4px}
+  h1 small{color:var(--mut);font-weight:400;font-size:13px}
+  .sub{color:var(--mut);font-size:12.5px;max-width:70ch}
+  main{max-width:1180px;margin:0 auto;padding:20px 24px 60px}
+  #drop{border:1.5px dashed var(--line);border-radius:10px;padding:44px 20px;
+    text-align:center;color:var(--mut);margin:22px 0;cursor:pointer}
+  #drop.over{border-color:var(--acc);color:var(--acc)}
+  #drop b{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--acc);margin:0 0 12px;font-weight:600}
+  .kv{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted var(--line)}
+  .kv:last-child{border-bottom:0}
+  .kv span:last-child{color:var(--acc2)}
+  .bar{position:relative;background:#0c0e11;border-radius:4px;height:20px;
+    margin:4px 0;overflow:hidden}
+  .bar i{position:absolute;inset:0 auto 0 0;background:var(--acc);opacity:.85}
+  .bar b{position:relative;z-index:1;font-weight:400;font-size:11.5px;
+    padding:0 8px;line-height:20px;color:var(--ink);display:block;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar em{position:absolute;right:8px;top:0;line-height:20px;font-style:normal;
+    font-size:11.5px;color:var(--mut);z-index:1}
+  .fun .bar i{background:var(--acc2)}
+  .note{color:var(--mut);font-size:12px;margin-top:10px}
+  .warn{color:var(--acc)}
+  footer{color:var(--mut);font-size:11.5px;padding:14px 24px;border-top:1px solid var(--line)}
+  code{background:#0c0e11;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Real World <small>— local analytics dashboard</small></h1>
+  <p class="sub">Reads NDJSON captured by <code>tools/analytics_sink.py</code>
+  (or any collector speaking <code>analytics-events.json</code>). All parsing
+  happens in this page — the file is never uploaded. Internal tool; not part
+  of the public site.</p>
+</header>
+<main>
+  <div id="drop"><b>Drop an .ndjson capture here</b><br>or click to choose a file
+    <input type="file" id="file" accept=".ndjson,.json,.txt" hidden></div>
+  <div id="out"></div>
+</main>
+<footer>Privacy contract: sessions are tab-nonces, not visitor ids; unique
+counts here are session counts. See ANALYTICS.md §1/§7.</footer>
+<script>
+(function(){
+"use strict";
+var ENGAGED = {cta_click:1, scroll_depth:1, screenshot_view:1, share_click:1,
+               price_calc:1, request_simulated:1};
+var FUNNEL = ["pageview","engaged","watch_start","request_submitted","character_created"];
+var ONBOARD = ["persona_chosen","tour_started","handle_set","handle_taken_shown",
+               "wallet_explained","topup_shown","decline_lesson_shown",
+               "first_request_filed","tour_completed","returning_session"];
+var drop = document.getElementById("drop"), out = document.getElementById("out");
+var file = document.getElementById("file");
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+function bar(label,n,total,cls){
+  var pct = total? Math.max(2, Math.round(100*n/total)) : 0;
+  return '<div class="bar"><i style="width:'+pct+'%"></i><b>'+esc(label)+
+         '</b><em>'+n+' ('+ (total? Math.round(100*n/total)+'%':'—') +')</em></div>';
+}
+function kvs(obj,limit){
+  var rows = Object.keys(obj).map(function(k){return [k,obj[k]];})
+    .sort(function(a,b){return b[1]-a[1];}).slice(0,limit||12);
+  if(!rows.length) return '<p class="note">none recorded</p>';
+  return rows.map(function(r){
+    return '<div class="kv"><span>'+esc(r[0])+'</span><span>'+r[1]+'</span></div>';
+  }).join("");
+}
+
+function render(evts, fname){
+  var sids={}, pageviews={}, pages={}, sources={}, campaigns={}, refs={},
+      shots={}, ctas={}, outbound={}, notfound={}, scroll={}, shares={},
+      calc={}, sims={}, engagedSec={}, evCount={}, onboard={}, tourSkipBeat={},
+      personas={}, engagedBySid={};
+  var tmin=Infinity, tmax=0;
+  evts.forEach(function(e){
+    var n=e.event||"?", p=e.props||{}, u=e.utm||{}, path=e.path||"";
+    evCount[n]=(evCount[n]||0)+1;
+    if(e.ts){ if(e.ts<tmin)tmin=e.ts; if(e.ts>tmax)tmax=e.ts; }
+    if(e.sid){
+      sids[e.sid]=sids[e.sid]||{};
+      var st = n==="pageview"?"pageview":(ENGAGED[n]?"engaged":n);
+      sids[e.sid][st]=1;
+    }
+    if(n==="pageview"){
+      pageviews[path]=(pageviews[path]||0)+1;
+      pages[p.page||path||"?"]=(pages[p.page||path||"?"]||0)+1;
+      if(p.page==="404"||/404\.html$/.test(path)) notfound[path]=(notfound[path]||0)+1;
+      if(u.utm_source) sources[u.utm_source]=(sources[u.utm_source]||0)+1;
+      if(u.utm_campaign) campaigns[u.utm_campaign]=(campaigns[u.utm_campaign]||0)+1;
+      if(e.ref) refs[e.ref]=(refs[e.ref]||0)+1;
+    }
+    else if(n==="cta_click") ctas[p.cta||"?"]=(ctas[p.cta||"?"]||0)+1;
+    else if(n==="screenshot_view"){
+      var s=(p.shot||"?").split("/").pop(); shots[s]=(shots[s]||0)+1; }
+    else if(n==="outbound_click") outbound[p.href||"?"]=(outbound[p.href||"?"]||0)+1;
+    else if(n==="scroll_depth") scroll[p.depth]=(scroll[p.depth]||0)+1;
+    else if(n==="engaged_time"){var pg=p.page||path||"?";
+      engagedSec[pg]=(engagedSec[pg]||0)+(+p.seconds||0);}
+    else if(n==="share_click") shares[p.method||"?"]=(shares[p.method||"?"]||0)+1;
+    else if(n==="price_calc"){
+      var k=p["class"]||"?"; if(p.queued)k+="+queued"; if(p.surge)k+="+surge"; if(p.first)k+="+first";
+      calc[k]=(calc[k]||0)+1;}
+    else if(n==="request_simulated"){
+      var k2=(p.action||"?")+"/"+(p["class"]||"?"); sims[k2]=(sims[k2]||0)+1;}
+    else if(n==="persona_chosen"){
+      onboard[n]=(onboard[n]||0)+1;
+      var ps=p.persona||"?"; personas[ps]=(personas[ps]||0)+1;}
+    else if(n==="tour_skipped"){
+      onboard[n]=(onboard[n]||0)+1;
+      var b=p.at_beat!=null?p.at_beat:"?"; tourSkipBeat[b]=(tourSkipBeat[b]||0)+1;}
+    else if(ONBOARD.indexOf(n)>=0||n==="onboard_dismissed")
+      onboard[n]=(onboard[n]||0)+1;
+  });
+
+  var nSessions=Object.keys(sids).length;
+  var reached=function(stage){var c=0;for(var s in sids)if(sids[s][stage])c++;return c;};
+  var nVisit=reached("pageview");
+
+  var h='';
+  h+='<div class="grid">';
+
+  // Summary strip
+  var span = tmax>tmin ? Math.round((tmax-tmin)/86400000)+"d span" : "single batch";
+  h+='<div class="panel"><h2>Summary</h2>'
+    +'<div class="kv"><span>file</span><span>'+esc(fname)+'</span></div>'
+    +'<div class="kv"><span>sessions (tab-nonces)</span><span>'+nSessions+'</span></div>'
+    +'<div class="kv"><span>pageviews</span><span>'+evts.filter(function(e){return e.event==="pageview"}).length+'</span></div>'
+    +'<div class="kv"><span>events total</span><span>'+evts.length+'</span></div>'
+    +'<div class="kv"><span>event span</span><span>'+span+'</span></div>'
+    +'</div>';
+
+  // Panel 1 — acquisition
+  h+='<div class="panel"><h2>1 · Acquisition</h2>'
+    +'<p class="note" style="margin-top:0">utm_source on landing pageviews</p>'
+    +kvs(sources,6)
+    +'<p class="note">campaigns</p>'+kvs(campaigns,6)
+    +'<p class="note">referrer hosts</p>'+kvs(refs,8)+'</div>';
+
+  // Panel 3 — funnel (render early for prominence)
+  var fun='<div class="panel fun"><h2>3 · Funnel — does watching convert to acting?</h2>';
+  FUNNEL.forEach(function(stage){
+    fun+=bar(stage==="pageview"?"visit (pageview)":stage, reached(stage), nVisit);
+  });
+  fun+='<p class="note">session-joined by sid, same-file window. watch/request/create '
+    +'emit from the game build — zeroes here mean "not emitting yet", not failure.</p>';
+  var hasOnboard=Object.keys(onboard).length;
+  if(hasOnboard){
+    fun+='<p class="note">onboarding (game-side, world-v11/v25 hooks)</p>';
+    var pkeys=Object.keys(personas);
+    if(pkeys.length) fun+='<p class="note">persona split: '
+      +pkeys.sort().map(function(k){return esc(k)+" ×"+personas[k];}).join(", ")+'</p>';
+    ONBOARD.concat(["tour_skipped","onboard_dismissed"]).forEach(function(n){
+      if(onboard[n]) fun+='<div class="kv"><span>'+esc(n)+'</span><span>'+onboard[n]+'</span></div>';
+    });
+    var tb=Object.keys(tourSkipBeat);
+    if(tb.length) fun+='<p class="note">tour_skipped at beat: '
+      +tb.sort().map(function(b){return b+" ×"+tourSkipBeat[b];}).join(", ")+'</p>';
+  }
+  fun+='</div>';
+  h+=fun;
+
+  // Panel 2 — engagement
+  h+='<div class="panel"><h2>2 · Site engagement</h2>'
+    +'<p class="note" style="margin-top:0">cta_click by slot</p>'+kvs(ctas,8)
+    +'<p class="note">screenshot_view by shot</p>'+kvs(shots,8)
+    +'<p class="note">scroll-depth reach</p>'+kvs(scroll,4)
+    +'<p class="note">engaged seconds by page</p>'+kvs(engagedSec,8)
+    +'<p class="note">shares by method</p>'+kvs(shares,4)
+    +'<p class="note">price_calc mixes</p>'+kvs(calc,6)
+    +'<p class="note">request_simulated (action/class)</p>'+kvs(sims,6)
+    +'<p class="note">outbound targets</p>'+kvs(outbound,6)
+    +'</div>';
+
+  // Panel 4 — health
+  h+='<div class="panel"><h2>4 · Health</h2>'
+    +'<p class="note" style="margin-top:0">404 pageviews by path (broken-link radar)</p>'
+    +kvs(notfound,8)
+    +'<p class="note">pageviews by page</p>'+kvs(pages,14)
+    +'<p class="note">raw event counts</p>'+kvs(evCount,24)
+    +'</div>';
+
+  h+='</div>';
+  out.innerHTML=h;
+}
+
+function ingest(text, fname){
+  var evts=[], bad=0;
+  text.split(/\r?\n/).forEach(function(line){
+    line=line.trim(); if(!line) return;
+    try{ var e=JSON.parse(line); if(e&&e.event) evts.push(e); else bad++; }
+    catch(x){ bad++; }
+  });
+  if(!evts.length){
+    out.innerHTML='<p class="warn">No analytics events found in '+esc(fname)+
+      ' ('+bad+' unparseable lines). Expecting NDJSON per analytics-events.json.</p>';
+    return;
+  }
+  render(evts, fname+(bad?" — "+bad+" bad lines skipped":""));
+}
+
+drop.addEventListener("click",function(){file.click();});
+file.addEventListener("change",function(){
+  var f=file.files[0]; if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){ingest(r.result,f.name);};
+  r.readAsText(f);
+});
+["dragover","dragenter"].forEach(function(ev){drop.addEventListener(ev,function(e){
+  e.preventDefault();drop.classList.add("over");});});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){
+  e.preventDefault();drop.classList.remove("over");});});
+drop.addEventListener("drop",function(e){
+  var f=e.dataTransfer.files[0]; if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){ingest(r.result,f.name);};
+  r.readAsText(f);
+});
+})();
+</script>
+</body>
+</html>

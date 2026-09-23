@@ -1,0 +1,43 @@
+{
+  "kit": "Real World — The Mission — press kit",
+  "status": "pre-launch draft (local build only)",
+  "generated_by": "marketing/build-press-kit.sh",
+  "art_build": "v48 (+ v16 interior vignettes, v1 early-pass shots)",
+  "files": {
+    "index.html": "self-contained offline press hub — open this first",
+    "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
+    "press-release-launch.md": "launch press release draft, slots marked",
+    "media-alert.md": "120-word launch-day 'it's live' notice + send rules",
+    "interview-prep.md": "spokesperson sheet — talking points, bridges, red lines (internal)",
+    "CHANGELOG.md": "kit freshness record — which renderer build shots are from",
+    "press-qa.md": "anticipated press Q&A, approved answers",
+    "copy-deck.md": "approved taglines/headlines/phrases + words to avoid",
+    "creator-notes.md": "streamer & creator coverage guide + embargo stance",
+    "context.md": "positioning sheet — endorsed comparisons + honest weaknesses",
+    "guided-tour.md": "10-minute press-preview run sheet + presenter rules",
+    "b-roll-shotlist.md": "video-press capture guide — essential b-roll shots, camera keys, capture rules",
+    "captions.txt": "per-asset captions and credit lines",
+    "LICENSE.txt": "press asset usage terms",
+    "README.txt": "contents + usage rules + accuracy note",
+    "logos/": [
+      "logo-primary.svg", "logo-primary.png", "logo-primary-dark.svg",
+      "logo-stacked.svg", "logo-icon.svg", "logo-icon.png",
+      "logo-icon-mono.svg", "logo-primary-mono.svg", "logo-icon-animated.svg",
+      "pattern-windows.svg", "favicon.svg"
+    ],
+    "keyart/": ["keyart-16x9.png", "keyart-square.png"],
+    "banners/": [
+      "banner-x-1500x500.png", "banner-youtube-2560x1440.png",
+      "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
+    ],
+    "screenshots/": [
+      "v48-A.png", "v48-B.png", "v48-C.png", "v48-D.png",
+      "v48-A.webp", "v48-B.webp", "v48-C.webp", "v48-D.webp",
+      "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
+    ]
+  },
+  "placeholders_pending_owner": [
+    "studio name", "press@ / hello@ addresses", "social handles",
+    "founder quote", "release date", "final domain"
+  ]
+}

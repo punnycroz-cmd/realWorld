@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" role="img" aria-label="Window-grid divider motif">
+  <!-- Motif divider: a cornice line with a run of dark windows; exactly one lit
+       amber window sits off-center (like the icon). Low-contrast on purpose —
+       use as a section break or texture, never as the logo. -->
+  <rect x="0" y="12" width="1200" height="3" fill="#2c303c"/>
+  <g fill="#1d2029" stroke="#2c303c" stroke-width="2">
+    <rect x="60"  y="34" width="52" height="58" rx="6"/>
+    <rect x="150" y="34" width="52" height="58" rx="6"/>
+    <rect x="240" y="34" width="52" height="58" rx="6"/>
+    <rect x="330" y="34" width="52" height="58" rx="6"/>
+    <rect x="420" y="34" width="52" height="58" rx="6"/>
+    <rect x="708" y="34" width="52" height="58" rx="6"/>
+    <rect x="798" y="34" width="52" height="58" rx="6"/>
+    <rect x="888" y="34" width="52" height="58" rx="6"/>
+    <rect x="978" y="34" width="52" height="58" rx="6"/>
+    <rect x="1068" y="34" width="52" height="58" rx="6"/>
+  </g>
+  <rect x="510" y="34" width="52" height="58" rx="6" fill="#e8a04c" opacity=".9"/>
+  <rect x="600" y="34" width="52" height="58" rx="6" fill="#1d2029" stroke="#2c303c" stroke-width="2"/>
+</svg>

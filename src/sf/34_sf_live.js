@@ -22,6 +22,7 @@ function sfSyncClock(){
     W.tod = (+p.hour % 24) + (+p.minute) / 60 + (+p.second) / 3600;
     W.day = +p.day;
     const mo = +p.month;
+    W.month = mo; // v14: solar declination needs day-of-year
     W.season = mo < 3 || mo === 12 ? 'Winter' : mo < 6 ? 'Spring'
              : mo < 9 ? 'Summer' : 'Autumn';
   }catch(e){ /* Intl/tz missing: leave sim clock alone */ }

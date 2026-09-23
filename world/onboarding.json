@@ -1,0 +1,158 @@
+{
+  "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
+  "version": 53,
+  "storage_key": "rw_onboard_v53",
+  "stages": [
+    { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
+    { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
+    { "id": "S1_orient",   "tier": "free", "gate": "offered by welcome/fork card; self-dismisses once the viewer has scrolled the feed" },
+    { "id": "S1w_watch_done", "tier": "free", "gate": "watcher-fork landing after the tour: 'you're set' card; setup steps remain available but unpushed" },
+    { "id": "S2_name",     "tier": "free", "gate": "optional — handle required only for request attribution + wallet; one field, no email in this build; live availability + reserved-name check" },
+    { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever" },
+    { "id": "S4_first_ask","tier": "paid", "gate": "requires balance > 0; recommends camera director 10 cr/30 min (view-layer, zero in-world risk); optional second guided ask demonstrates a DECLINED nudge + 50% auto-refund" },
+    { "id": "S4b_declined","tier": "paid", "gate": "optional teaching beat — a fixed-safe nudge scripted to be declined so the player watches the refund land" },
+    { "id": "S4c_review",  "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask (40 cr, exclusive class) scripted to return 'not approved — refunded' so the player sees human review + auto-refund" },
+    { "id": "lowbal_sim",  "tier": "paid", "gate": "opt-in affordance on the running-ask card only — simulates the wallet hitting zero inside the cap: warning toast → 'player session ended' feed line → AI resumes, no debt" },
+    { "id": "S4e_queue",   "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask filed while the sky is claimed, lands 'queued' at tier −15% (34 cr held); scripted to lapse unactivated → 'queued request expired before activation' + full auto-refund" },
+    { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight" },
+    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" }
+  ],
+  "persona_fork": {
+    "where": "welcome card, before the tour offer",
+    "options": ["watch", "play"],
+    "watch_path": "tour ends at S1w 'you're set' card; optional items relabeled 'only if you ever want to act'; setup still reachable, never pushed",
+    "play_path": "standard S1→S5 sequence",
+    "rule": "the fork changes emphasis and checklist labeling only — it never unlocks, hides, or prices anything"
+  },
+  "tour_beats": [
+    { "n": 1, "anchor": "feed-clock",   "copy_key": "tour.clock" },
+    { "n": 2, "anchor": "feed-venues",  "copy_key": "tour.venues" },
+    { "n": 3, "anchor": "feed-cast",    "copy_key": "tour.possession_ban", "note": "v25 beat — the honest limit up front: mains unpossessable by anyone, at any tier" },
+    { "n": 4, "anchor": "feed-request", "copy_key": "tour.public_agency" },
+    { "n": 5, "anchor": "feed-follow",  "copy_key": "tour.follow" },
+    { "n": 6, "anchor": "feed-reachin", "copy_key": "tour.reach_in" },
+    { "n": 7, "anchor": "feed-archive", "copy_key": "tour.archive", "note": "v53 beat — the time layer: nobody can watch 24/7; the Archive keeps the block's week and catching up is free" }
+  ],
+  "tour_rules": {
+    "skippable": "every beat — Skip ends the whole tour",
+    "auto_play": "never — not on return visits, not after dismissal, not mid-request",
+    "overlay": "coach-mark card beside the anchored element; never a modal over the stream",
+    "reduced_motion": "prefers-reduced-motion strips the anchor pulse; the tour itself is click-driven, no animation required"
+  },
+  "handle_rules": {
+    "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{2,19}$",
+    "max_len": 20,
+    "reserved": "all main + ambient character names and surnames (characters.json + ambients.json) plus system words (admin, mod, landlord, system, support, owner, realworld, thewire, rw, staff)",
+    "reserved_reason": "the feed attributes requests by handle — a spectator named 'Victor' would read as the resident; impersonation blocked at input, not by moderation",
+    "screening": "handles are NOT request text — §11 intent screening does not apply; format + reservation only (character names in creation go through the real screen per creation.json)",
+    "on_taken": "inline message + suggested variants; never an error page",
+    "demo_source": "demo carries an inline copy of the reserved list; at merge, reserved names are generated from characters.json + ambients.json"
+  },
+  "pack_ladder": {
+    "doc": "wallet step shows the full ladder honestly, PROPOSAL prices verbatim — no highlighted 'best value', no decoy styling",
+    "packs": [
+      { "id": "pocket",  "usd": 0.99,  "cr": 100 },
+      { "id": "starter", "usd": 4.99,  "cr": 550 },
+      { "id": "regular", "usd": 9.99,  "cr": 1150 },
+      { "id": "plus",    "usd": 19.99, "cr": 2500 },
+      { "id": "pro",     "usd": 49.99, "cr": 6750 },
+      { "id": "mogul",   "usd": 99.99, "cr": 14000 }
+    ],
+    "first_purchase_bonus": "+50% extra credits once, disclosed on the wallet card — never sprung at checkout",
+    "demo_topup": "starter pack only (550 cr / $4.99)"
+  },
+  "checklist": [
+    { "n": 1, "id": "watch",      "optional": false, "completes_on": "60s on feed OR feed scroll" },
+    { "n": 2, "id": "tour",       "optional": false, "completes_on": "tour_completed | tour_skipped" },
+    { "n": 3, "id": "handle",     "optional": true,  "completes_on": "handle_set" },
+    { "n": 4, "id": "wallet",     "optional": true,  "completes_on": "balance > 0 | explicitly skipped" },
+    { "n": 5, "id": "first_ask",  "optional": true,  "completes_on": "own request reaches feed status 'requested'" },
+    { "n": 6, "id": "settle",     "optional": false, "completes_on": "S5 fork chosen (or S1w 'just keep watching' on the watch path)" }
+  ],
+  "checklist_rules": {
+    "optional_items": "marked 'optional' in copy ('only if you ever want to act' on the watch path); never styled as failures; percent-complete bars only count chosen (non-skipped) items",
+    "completion_reward": "none — completing onboarding grants no credits/items/status (no-dark-patterns)",
+    "done_state": "thanks the viewer once, collapses permanently"
+  },
+  "first_ask_recommendation": {
+    "action": "camera",
+    "why": "cheapest (10 cr/30 min), compatible class auto-clears, view-layer only — demonstrates declare→classify→screen→run with zero in-world risk",
+    "alt": "possess or nudge offered to players who already hired — nudge copy always states 'the character may decline'",
+    "guided_text": "fixed safe text — onboarding does not re-implement the §11 screen; free text lives in request.html",
+    "lifecycle_demo": "filed request lands 'running'; a 'jump ahead' affordance resolves it so the player sees the hard cap end the session — nothing billed past the cap"
+  },
+  "declined_ask_lesson": {
+    "action": "nudge", "cr": 40, "refund_on_decline": 0.5,
+    "scripted_outcome": "declined — fixed in the demo so every tester sees the refund path",
+    "copy_promise": "you pay for the ask, never the outcome",
+    "feed_result": "request event resolves 'resolved' with neutral declined wording + refund amount"
+  },
+  "review_lesson": {
+    "action": "weather", "block": "60 min", "cr": 40, "class": "exclusive",
+    "why": "cheapest exclusive request — demonstrates the human-review path (design §11 step 4) that compatible asks never show",
+    "scripted_outcome": "not approved — fixed in the demo so every tester sees neutral wording + full auto-refund; real review outcomes are never scripted",
+    "feed_result": "request event lands 'in review' (charge held), resolves 'not approved' + 'refunded' — feed vocabulary verbatim from requests.json",
+    "copy_promise": "exclusive asks get a human look before they run; a 'not approved' costs you nothing — the refund is automatic",
+    "never": "no reason shown on the card (reason codes live in the moderation contract), no appeal affordance, no approval-rate framing, no derived queued figure quoted (queued = −15% stated as a rate only)"
+  },
+  "low_balance_lesson": {
+    "where": "running-ask card only — hidden when no session is live",
+    "trigger": "opt-in 'simulate low balance' click — never fires uninvited",
+    "sequence": "toast warning at ~15 min funded time remaining → balance 0 → feed logs 'player session ended' → AI resumes mid-motion",
+    "honesty": "no debt, no overrun, no shaming wording; unused minutes inside the cap are not refunded"
+  },
+  "queue_lesson": {
+    "action": "weather", "block": "60 min", "tier_cr": 40, "queued_cr": 34, "class": "queued",
+    "why": "the third ask class a stranger meets — a claimed resource doesn't mean 'no', it means 'wait'. Teaches FCFS, the −15% hold, the ≤24 h slot, and the auto-refund on lapse",
+    "scripted_outcome": "lapses unactivated — fixed in the demo so every tester sees 'queued request expired before activation' + the full refund; real queued requests activate FCFS when the resource frees",
+    "feed_result": "request event lands 'queued' (charge held), resolves 'queued request expired before activation' + 'refunded' — feed vocabulary verbatim from requests.json",
+    "copy_promise": "queueing is the patient option, not a consolation — −15% off the tier rate, and a lapsed slot refunds every credit on its own",
+    "never": "queue depth shown as a count, never a position; never a position auction or pay-to-jump; the −15% is shown as a rate + the held amount, nothing derived beyond it"
+  },
+  "archive_beat": {
+    "where": "tour beat 7, anchored to the 'Yesterday on the block' link under the stream",
+    "copy_promise": "nobody can watch 24/7 — the Archive keeps the block's week and catching up is free, always",
+    "watch_path_note": "the S1w landing names the block's human rhythm (morning rush, dusk bench parliament) as texture — explicitly 'nothing is on a timer for you', never urgency framing"
+  },
+  "hired_return": {
+    "deep_link": "?hired=1 — demo affordance; at merge create.html redirects here post-approval",
+    "card": "one-time 'first day' card: briefing = public profile + surface relationships + routine only (secrets redacted even for the hirer); rent owed in game dollars; possession = compatible 1.5 cr/min, a visit not ownership; closing the tab drops the character to thin AI — present but sleeping — with no 'miss you' nag",
+    "rule": "dismisses into the checklist — never a second funnel; renders fine with no handle set"
+  },
+  "exit_states": {
+    "completed": "all chosen items done — collapses permanently",
+    "dismissed": "one-click don't-show; no confirm-shame, no snooze timer",
+    "parked": "card closed via ✕ mid-way — reopens only via footer link 'New here? Take the tour'; never auto-resurfaces",
+    "returning": "session 2+ with state (or ?returning=1): no welcome card; a quiet 'welcome back' line at most; footer link only"
+  },
+  "deep_links": {
+    "?returning=1": "demo affordance simulating a returning session — suppresses the welcome card",
+    "?hired=1": "demo affordance for the post-approval return — opens the S6 first-day card"
+  },
+  "never": [
+    "gate/dim/delay/nag the free feed; no paywall copy",
+    "offer or imply possession of C1–C8 at any tier",
+    "invent prices/discounts/'limited-time' framing not in plan §2",
+    "auto-play the tour on return visits, after dismissal, or mid-request",
+    "describe requests as guaranteed outcomes — declined asks are a feature, taught up front",
+    "completion rewards of any kind",
+    "let a spectator handle impersonate a resident",
+    "show a denial reason, an appeal button, or approval-rate framing inside onboarding",
+    "fire the low-balance lesson without the player's click",
+    "deep-link into a paid step (deep links are returning/hired only)",
+    "show queue position or sell queue priority — depth is a count, FCFS is the rule",
+    "frame the Archive, the block's rhythm, or catching up as urgency — the world waits, nothing is on a timer for the viewer",
+    "imply a hired character suffers, waits, or misses the player while offline — thin AI is stated as fact, never as guilt"
+  ],
+  "analytics_hooks": [
+    "tour_started", "tour_beat", "tour_completed", "tour_skipped",
+    "persona_chosen (watch|play)", "handle_set", "handle_taken_shown",
+    "wallet_explained", "topup_shown", "first_request_filed",
+    "decline_lesson_shown", "onboard_dismissed", "returning_session",
+    "review_lesson_shown", "review_outcome_seen", "low_balance_simulated",
+    "handoff_seen", "hired_return",
+    "queue_lesson_shown", "queue_outcome_seen", "archive_beat_seen",
+    "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
+  ],
+  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + wallet + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', and the queued ask is scripted to lapse — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"
+}

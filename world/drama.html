@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>INTERNAL — Drama Direction Board (The Mission)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38 + v52. NOT a spectator surface.
+  This board renders every secret on the block (world/drama.json mirror).
+  It must never be linked, embedded, screenshotted for marketing, or
+  reachable from any player-facing surface (feed.html, history.html,
+  request.html, mod-console.html, create.html, board.html, playtest.html).
+  Canonical direction: world/drama-notes.md. Machine contract: world/drama.json.
+  Data below is the inline hand-synced mirror — same convention as
+  history.html/history.json: regen by hand, no build step.
+-->
+<style>
+  :root{
+    --bg:#17141c; --panel:#211c29; --panel2:#2a2433; --ink:#e8e4da;
+    --dim:#9a927f; --line:#3c3448; --acc:#e0b34c; --red:#d4695e;
+    --grn:#5fae7f; --blu:#6ea8d4; --pink:#d48bb0; --pur:#a58bd4;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.55 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{padding:14px 22px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .warn{display:inline-block;margin-left:14px;font-size:11px;font-weight:700;letter-spacing:.08em;
+    color:var(--red);border:1px solid var(--red);border-radius:10px;padding:2px 10px;text-transform:uppercase}
+  .sub{font-size:12px;color:var(--dim);margin-top:4px}
+  main{padding:18px 22px;max-width:1180px;margin:0 auto}
+  h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:26px 0 10px}
+  .fuses{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+  .fuse{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;border-left:3px solid var(--acc)}
+  .fuse h3{margin:0 0 4px;font-size:14px}
+  .fuse .tag{font-family:var(--mono);font-size:11px;color:var(--acc)}
+  .fuse p{margin:6px 0 0;font-size:12.5px;color:var(--ink)}
+  .fuse .dir{margin-top:8px;font-size:12px;color:var(--dim);border-top:1px dashed var(--line);padding-top:6px}
+  .fuse .dir b{color:var(--pink);font-weight:600}
+  .seedgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+  .seed{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+  .seed h4{margin:0;font-size:13px}
+  .seed .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin:2px 0 6px}
+  .state{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    border-radius:9px;padding:1px 8px;margin-left:6px}
+  .st-dormant{color:var(--dim);border:1px solid var(--dim)}
+  .st-pressured{color:var(--acc);border:1px solid var(--acc)}
+  .st-surfaced{color:var(--red);border:1px solid var(--red)}
+  .st-resolved{color:var(--grn);border:1px solid var(--grn)}
+  .seed dl{margin:0;font-size:12px}
+  .seed dt{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+  .seed dd{margin:1px 0 0}
+  .seed dd li{margin-left:-18px}
+  .seed ul{margin:2px 0 0;padding-left:18px}
+  table{width:100%;border-collapse:collapse;font-size:12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);background:var(--panel2)}
+  td .c{font-family:var(--mono);font-size:11px}
+  .never li{margin:3px 0;font-size:12.5px}
+  .knobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  .knob{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12.5px}
+  .knob b{display:block;color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+  footer{padding:16px 22px;color:var(--dim);font-size:11.5px;border-top:1px solid var(--line);margin-top:30px}
+</style>
+</head>
+<body>
+<header>
+  <div><span class="logo">Drama Direction <span>Board</span></span>
+    <span class="warn">Internal — secrets present — never ship</span></div>
+  <div class="sub">The Mission · world v52 · mirrors <code>world/drama.json</code> (schema drama-v3) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+</header>
+<main>
+  <h2>Season fuse map</h2>
+  <div class="fuses" id="fuses"></div>
+  <h2>Seed registry <span style="text-transform:none;color:var(--dim)">(S1–S10 · lifecycle state observed from world events)</span></h2>
+  <div class="seedgrid" id="seeds"></div>
+  <h2>Tension edges</h2>
+  <table id="edges"><thead><tr><th>Pair</th><th>Axis</th><th>Fuse</th></tr></thead><tbody></tbody></table>
+  <h2>Pacing knobs (drama manager — pressure only, never events)</h2>
+  <div class="knobs" id="knobs"></div>
+  <h2>Pressure catalog <span style="text-transform:none;color:var(--dim)">(§14 — conditions the world already produces; spendable, auditable)</span></h2>
+  <table id="pcat"><thead><tr><th>Id</th><th>Condition</th><th>Produced by</th><th>Feeds</th><th>Legible shadow</th><th>Exhaustion</th></tr></thead><tbody></tbody></table>
+  <h2>Week shapes <span style="text-transform:none;color:var(--dim)">(§16 — observed targets, never schedules)</span></h2>
+  <table id="weeks"><thead><tr><th>Shape</th><th>Budget</th><th>Feed texture</th><th>When it's right</th></tr></thead><tbody></tbody></table>
+  <h2>Aftermath &amp; residue <span style="text-transform:none;color:var(--dim)">(§15 — resolved fuses leave residue, never reset)</span></h2>
+  <table id="after"><thead><tr><th>Fuse</th><th>Residue</th><th>Texture</th></tr></thead><tbody></tbody></table>
+  <h2>Requests as weather <span style="text-transform:none;color:var(--dim)">(§17 — identical-twin test applies)</span></h2>
+  <table id="reqw"><thead><tr><th>Request class</th><th>Natural pressure</th><th>Watch for</th></tr></thead><tbody></tbody></table>
+  <h2>State-inference evidence <span style="text-transform:none;color:var(--dim)">(§21 — absence is never a transition; evidence must be reconstructible)</span></h2>
+  <table id="evid"><thead><tr><th>Transition</th><th>Qualifying ledger evidence</th><th>Not evidence</th></tr></thead><tbody></tbody></table>
+  <h2>Drift review <span style="text-transform:none;color:var(--dim)">(§22 — weekly editorial pass; writes notes/posture, never the world)</span></h2>
+  <table id="drift"><thead><tr><th>#</th><th>Step</th></tr></thead><tbody></tbody></table>
+  <h2>Hired characters <span style="text-transform:none;color:var(--dim)">(§23 — inside the sim, outside the seed architecture)</span></h2>
+  <ul class="never" id="hires"></ul>
+  <h2>Ambient teller biases <span style="text-transform:none;color:var(--dim)">(§24 — carriers only; a correction undistorts)</span></h2>
+  <table id="tellers"><thead><tr><th>Ambient</th><th>Bias</th><th>Never</th></tr></thead><tbody></tbody></table>
+  <h2>Stall &amp; season boundary <span style="text-transform:none;color:var(--dim)">(§25 — a stall is not a failure; no finale is owed)</span></h2>
+  <div class="knobs" id="stall"></div>
+  <h2>Tell ladders <span style="text-transform:none;color:var(--dim)">(§28 — graded legible shadows; rungs are a display ceiling, not a to-do list)</span></h2>
+  <div class="seedgrid" id="ladders"></div>
+  <h2>Venue dramaturgy <span style="text-transform:none;color:var(--dim)">(§29 — where shadows may land; home venues first)</span></h2>
+  <table id="venues"><thead><tr><th>Venue</th><th>Fuses</th><th>Shadows that land here</th><th>Never</th></tr></thead><tbody></tbody></table>
+  <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
+  <ul class="never" id="legal"></ul>
+  <h2>Never list</h2>
+  <ul class="never" id="never"></ul>
+</main>
+<footer>Drama-direction surface. Ambients hold no secrets by construction and are rumor carriers only. Player requests are weather, not levers. Emergence may reorder the season preference — update the notes, don't fight it.</footer>
+<script>
+const NAMES={C1:"Marisol",C2:"Jules",C3:"Dani",C4:"Priya",C5:"Marcus",C6:"Carmen",C7:"Victor",C8:"Tomás"};
+const FUSES=[
+ {id:"F1",t:"The sale that isn't said",who:"C7 holds the offer · C1 holds the flyer",p:"Spine. Victor's developer offer on both Guerrero buildings; Marisol's drafted exposé. Every other fuse hangs off it.",d:"Pressure vessel, not a countdown. The approaching-discovery cone is the content; Victor's avoidance must cast visible shadows."},
+ {id:"F2",t:"Dani + Marcus",who:"C3+C5 · kept from C4",p:"Three months secret; asymmetric keepers; the chalkboards already confessing in doodle form.",d:"Compression is the pressure — crisis crowds kitchens. Reveal must be found, not triggered. Protect Priya's agency in the aftermath."},
+ {id:"F3",t:"Jules → Priya",who:"C2 · viewers can see it first",p:"A crush legible on-camera (latte art, held eye contact) long before any character names it.",d:"Slower than the audience wants. Never resolved by F2's break — Jules as witness to wreckage is its own story."},
+ {id:"F4",t:"Tomás → Marisol",who:"C8 · C1 cannot see it",p:"Daily 3 p.m. coffee; a dream named before it has a location; she reads everyone and misreads him.",d:"Patience vs. windows. Near-misses are the renewable resource — spend slowly. No blurting, ever."},
+ {id:"F5",t:"Carmen's fragility",who:"C6 only · hides it from C2",p:"Unpermitted tenant, fixed income, nowhere else to go, told no one. One letter from ending.",d:"Dignity is the constraint. Ticks, not detonations. Help must be earned and reframed as exchange. Health lever: gentle and rare only."},
+ {id:"F6",t:"Mission Unfiltered",who:"C1 alone",p:"The blog everyone reads; the draft sale post is a loaded gun; unmasking detonates her standing.",d:"The public-pressure organ — how private facts become block facts. Publish/hold is conscience, not device."}
+];
+const SEEDS=[
+ {id:"S1",t:"Developer offer on 9418/9457 Guerrero",fuse:"F1",st:"pressured",h:"C7",mnk:"C2 C4 C5 C6 C8",
+  pr:["flyer circulating","sale-process mechanics (inspections, notices)","rent-hike dispute already live","loan exposure (S6)"],
+  rv:["Mission Unfiltered post","sale paperwork reaching a tenant","C7's own rational call"],
+  tell:"missed Tuesday repairs · uncharacteristic free fixes · closed-door counter hours"},
+ {id:"S2",t:"Marisol = Mission Unfiltered + sale draft",fuse:"F6",st:"pressured",h:"C1",mnk:"everyone",
+  pr:["sale rumor by any route","blog treated as truth-source in front of her","the draft going stale"],
+  rv:["she publishes","she's unmasked","she holds — the choice becomes residue"],
+  tell:"press silence where a post was expected · pointed questions on her rounds"},
+ {id:"S3",t:"Dani + Marcus secret relationship",fuse:"F2",st:"pressured",h:"C3 C5",mnk:"C4",
+  pr:["F1 compression","chalkboard figure converging","asymmetric keepers","C4's tally sharpening attention"],
+  rv:["C4's own noticing (preferred)","ambient-space near-miss compounding","a keeper choosing honesty"],
+  tell:"doodles converging on one figure · simultaneous unexplained absences"},
+ {id:"S4",t:"Jules's unpermitted tenancy",fuse:"F1",st:"dormant",h:"C2 C6",mnk:"C7",
+  pr:["sale process → inspections","lease-registry attention on 9418","C6 hiding threats as care"],
+  rv:["inspection/notice reaching the building","C7 connecting 'friend of the family' to a resident"],
+  tell:"cash rent leaves no trail — invisible until it isn't"},
+ {id:"S5",t:"Carmen has nowhere else to go",fuse:"F5",st:"dormant",h:"C6",mnk:"C2",
+  pr:["S1/S4 any movement","health tick — gentle + rare only"],
+  rv:["she chooses to tell — earned intimacy","a letter she can't hide"],
+  tell:"stoop empty at cafecito hour · declining a walk she loves"},
+ {id:"S6",t:"Tomás's $6k loan + La Esperanza",fuse:"F1",st:"dormant",h:"C7 C8",mnk:"all others",
+  pr:["S1 — loan callable/creditorless at worst moment","supplier loop compounding"],
+  rv:["the notebook glimpsed/found","S1 forcing the loan conversation","C8 showing someone the plan"],
+  tell:"supplier-loop linger · notebook present, closed, guarded"},
+ {id:"S7",t:"Tomás loves Marisol",fuse:"F4",st:"dormant",h:"C8",mnk:"C1",
+  pr:["F1 hitting C1 hardest — help instinct vs. one-way intimacy","S2 surface mobilizing the block around her"],
+  rv:["near-miss confessions (renewable, spend slowly)","she finally reads him (rare)"],
+  tell:"3 p.m. coffee duration creep · what he cooks vs. what he says"},
+ {id:"S8",t:"Jules falling for Priya",fuse:"F3",st:"dormant",h:"C2",mnk:"C4 C5",
+  pr:["S3 surfacing — C4's orbit reshuffles","counter proximity at 19:30 decompression"],
+  rv:["latte art / held eye contact","sketchbook content","never via S3's mechanics"],
+  tell:"latte art · eye contact held a beat too long"},
+ {id:"S9",t:"Marcus's chronic arrears",fuse:"F2",st:"pressured",h:"C4 C5",mnk:"—",
+  pr:["contested hike live in lease ledger","C4's tally","S1 — arrears read differently under a new owner"],
+  rv:["lease-system surface (notices are real documents)","C4 naming it — her timing"],
+  tell:"Sunday cooking cadence — penance nobody names"},
+ {id:"S10",t:"Priya's tally + stalled life",fuse:"F2",st:"pressured",h:"C4",mnk:"—",
+  pr:["every crisis recruits her as helper","S9 + hike + dead heater compounding"],
+  rv:["she names it — her own pacing","a visible refusal to absorb"],
+  tell:"shared labor done visibly · a pause before 'you two good?'"}
+];
+const EDGES=[
+ ["C1","C7","she holds the flyer to his secret; he doesn't read blogs","F1/F6"],
+ ["C3","C5","asymmetric keepers — he wants to tell, she delays","F2"],
+ ["C4","C7","contested hike + dead heater — polite standoff, ledger-backed","F1"],
+ ["C4","C5","amicable exes; her tally, his penance, the secret between them","F2"],
+ ["C6","C7","30-year friendship vs. the drawer he's not opening","F1/F5"],
+ ["C7","C8","handshake creditor — warmest and most dangerous tie","F1"],
+ ["C8","C1","the 3 p.m. coffee; he telegraphs daily, she can't see it","F4"],
+ ["C2","C4","crush legible to viewers before any character","F3"],
+ ["C2","C6","mutual hiding-as-care","F5"],
+ ["C1","C3","sister-figure hurt by the secret and its concealment both","F2"]];
+const KNOBS=[
+ ["Pressure budget","Baseline: one fuse pressured + one slow tick. Sweeps week: two. Ceiling: three — shed before adding."],
+ ["Compounding exception","Interlocked fuses (F1→F2→F5) may share a pressured window — one event from different sides."],
+ ["Quiet floor","Most days: zero surfaced-drama movement. Quiet feed events are correct content."],
+ ["Recovery window","2–4 block days of quiet after any surface/resolution. Residue writes itself here."],
+ ["Season preference","F1 last to resolve · F2 likeliest early surface · F3/F4 slow burn · F5 undertow · F6 mid-arc only. Emergence may reorder — update notes, don't fight it."],
+ ["Legibility rule","Every dramatic movement casts a camera-legible shadow without revealing the secret."]];
+const NEVER=[
+ "Scripted beats — conditions and weights only, never 'when X, does Y'",
+ "Coincidence engineering — compression is a condition; the seeing is emergent",
+ "The puppeteer reading — Marisol never weaponizes secrets",
+ "Villain drift — there are no antagonists, only avoidances",
+ "Consequence scheduling — consequences are other characters, never karma",
+ "Pity framing for Carmen / frailty-as-content escalation",
+ "Reset-to-zero resolutions — resolved fuses leave residue",
+ "Player-outcome steering — requests never change reveal likelihood",
+ "Ambient revelation vectors — ambients can never be first knowers",
+ "Drama that outruns the camera — no interior resolutions without a legible shadow"];
+
+const PCAT=[
+ ["P-01","Sale-process activity near the Guerrero buildings","S1's world facts (sale mechanics)","F1 · F5 · S4","clipboard stranger; notice-shaped letter","never twice in a week; paperwork is slow"],
+ ["P-02","Kitchen compression — mains crowded into shared indoor space","weather · requested events · ambient schedules","F2 · F3 · F4","venue co-presence on feed; borrowed umbrellas","one shared-space squeeze per pressured window"],
+ ["P-03","A physical object changing hands in public (flyer / notebook / sketchbook)","character carry routines","F1 · F4 · F6","object seen, contents unseen","objects move rarely; a lost object is off-register"],
+ ["P-04","Victor's counter hours going irregular","C7 disposition under pressure","F1","closed-door hours; missed Tuesday repairs","his avoidance is the tell — don't stack signs"],
+ ["P-05","Mars's pointed-question loop","C1 deliberation","F6 · F1","questions that answer themselves on her rounds","twice on the same fact = audience has it — stop"],
+ ["P-06","Sunday cooking cadence","C5 penance reflex","F2 · S9","weekly flat cooking, unnamed","never let anyone name it; naming ends the fuel"],
+ ["P-07","Carmen missing a ritual","C6 fragility ticks","F5","empty stoop; Esther/Ray noticing bench math","gentle + rare only — hard cap once per arc"],
+ ["P-08","Tomás's supplier loop lengthening","C8 dream rehearsing","F1 · S6 · F4","pricing equipment; catalog linger","pressure is duration, not new stops"],
+ ["P-09","Chalkboard figure converging","C3's art telling on her","F2","a doodle viewers recognize before the block does","one legible step per pressured window"],
+ ["P-10","Quiet itself — a day where nothing moves","the block's ordinary life","all","quiet feed events; clean routines","a floor, not a resource to spend"],
+ ["P-11","First-of-month rent day","the lease ledger's own cadence","F1 · S9","envelopes; ledger postings; the month's small talk","monthly by construction — the calendar is the cap"],
+ ["P-12","A hire's first week on the block","creation + housing move-in","all (as texture)","a new face at venues; introductions; wrong-order coffee","once per move-in; a hire is texture, not a pressure engine"],
+ ["P-13","A shared chore left undone at 9457","the flat's routines + C5's absence patterns","S9 · S10","the dishes; the dead heater; who carried the trash out","weekly cap — background, not event"],
+ ["P-14","The son's monthly call","C6's family contact routine","F5","Carmen quieter after the phone; the call she steps inside for","monthly; F5's gentle-and-rare cap still governs"],
+ ["P-15","Blog-post expectation cycle","F6's own cadence — regulars expect a post","F6","ambient chatter: 'anything new on Unfiltered?'","expectation decays; can't be forced, only noticed"]];
+const EVID=[
+ ["dormant → pressured","a ledger event traceable to a listed pressure_route within ~3 block days","manager intent · spectator chatter · a near-miss with no ledger event · another seed already pressured"],
+ ["pressured → surfaced","the fact crossing to a must-not-know via a listed reveal vector, with a legible shadow","a rumor (can't mint seed facts) · interior realization · player hope"],
+ ["surfaced → resolved","a resolution option closed by an observable decision — signing, telling, publishing, refusal enacted","time passing · the block going quiet · feed absence"],
+ ["resolved → residue","automatic — aftermath lands as ordinary events; budget spend stops","anything requiring adjudication — residue needs none"]];
+const DRIFT=[
+ "Re-infer every seed state from the ledger per the evidence table",
+ "Compare against the week-shape target — an emergent stacked week is canon, just not repurchased",
+ "If emergence reordered the season preference, update notes + drama.json and log it — update, don't fight it",
+ "Audit legible shadows — a state move with no shadow is a fix-forward violation, never a history rewrite",
+ "Set next week's posture — a preference among conditions, not a plan"];
+const HIRES=[
+ "A hire holds no seeds at creation and starts outside every knowledge wall",
+ "A hire learning a seed through play is canon — gained via ledger, never briefing",
+ "Hires are never pressure instruments — the manager can't spend through a hire's schedule",
+ "Hires carry accounts and near-misses; they never author seed facts they haven't learned",
+ "An offline hire (thin-AI fallback) suspends nothing — no held beats",
+ "A hire pressing a boundary gets ordinary in-character refusal — refusal is content"];
+const TELLERS=[
+ ["Esther + Ray (A05, A19)","compress — drop specifics, keep the moral shape","add a detail they didn't hear"],
+ ["Malik (A03)","inflate prices and scale — every number grows","change who"],
+ ["June + Zee (A04, A20) — minors","get venue and day wrong, get the vibe right","carry moral injury or safety/housing facts — stays comic"],
+ ["Reyes (A01)","repeat-with-awkwardness — hesitation, hedges, a pause","add content — delivery is the tell"],
+ ["Doro (A02)","near-zero distortion — precise and boring; almost a correction","let a correction sound like gossip"],
+ ["Omar (A15)","amplify stakes — 'might sell' → 'definitely selling'","invent a source"],
+ ["Gus (A10)","age everything — 'it's always been like this'","update a stale rumor with fresh detail"],
+ ["Luz (A07)","redirect to stall specifics — stocked, staffing","carry the emotional center of a story"],
+ ["Nadia (A13)","deadpan-flatten — the drama shrinks in retelling","dramatize"],
+ ["Ida (A18)","formalize — 'a situation' with procedures attached","gossip about health or money specifics"]];
+const STALL=[
+ ["Stall definition","All seeds dormant AND nothing spent because no route fired — not a failure. Correct response: nothing. P-10 is the floor."],
+ ["Stall never-list","Never inject a fact, manufacture a coincidence, or warm a fuse whose routes haven't produced. Waiting is the job."],
+ ["Season boundary","No finale mechanic. When 3+ fuses sit in residue, the next drift review may declare a boundary looking backward — residue becomes the new fuse map's raw material. A boundary is never aimed at."]];
+const WEEKS=[
+ ["Quiet","0 pressured","quiet markers, routines, weather","default; most weeks; recovery windows quiet-start"],
+ ["Pressure","1 pressured + 1 slow tick","legible shadows on one fuse; ordinary life elsewhere","baseline dramatic content — the show's pulse"],
+ ["Compounding","2–3 pressured, interlocked only","one event from different sides; dense group spaces","rare; earned by genuinely interlocked fuses"],
+ ["Recovery","shed to 0 over 2–4 days","rumor corrections, visibly changed routines","mandatory after any surface/resolution"]];
+const AFTER=[
+ ["F1","the trust tax","the block's relationship to its landlord now includes a drawer; warmth → polite-and-careful"],
+ ["F2","the renegotiated flat","three people re-learning their addresses to each other; Marisol's hurt-at-concealment is the sleeper thread"],
+ ["F3","the witness","Jules narrating wreckage adjacent to a crush; the correspondent pose gains a cost"],
+ ["F4","the almost","the 3 p.m. coffee is the monument — unspoken or spoken, the ritual's shape is the residue"],
+ ["F5","the exchange","help accepted as exchange, not charity; or the archive becomes the block's conscience — texture, not punishment"],
+ ["F6","the named power","everyone re-reads old posts looking for themselves; or Mars carries her first secret of her own"]];
+const REQW=[
+ ["Block party / park event","P-02 compression (F2/F3/F4)","reveal-hope — identical to an unrequested party"],
+ ["Weather change","P-02 indoor crowding; P-07 visibility","rain never targets a ritual — weather is flat"],
+ ["Hired character moves in","new-neighbor texture; staffing shifts","a hire carries no seed knowledge"],
+ ["NPC nudge (screened)","the ask itself, not pressure","a nudge naming a seed fact = upstream screening failure"],
+ ["Camera director","none — view layer","zero world effect"]];
+const LADDERS=[
+ {id:"S1",w:"the flyer as an object — folded page changing pockets · counter five minutes late",p:"missed Tuesday repairs · free fixes · clipboard stranger · notice-shaped mail",b:"rehearsed counter sentences that die early · both buildings in one errand, twice · flyer reaching hands that don't fold it"},
+ {id:"S2",w:"post cadence regular · rounds questions as small talk",p:"press silence where a post was expected · questions that answer themselves · draft on a closed laptop",b:"café quiet about exactly one topic · a question answered with its own question twice in a shift"},
+ {id:"S3",w:"doodles drifting · sketch framed 'for a friend'",p:"simultaneous absences · chalkboard figure converging · undisclosed 17:00–21:00 stops",b:"held glance in a shared kitchen · arrivals ninety seconds apart · sharp where she's usually funny at Priya's name"},
+ {id:"S4",w:"cash envelopes · a name on no doorbell",p:"sketchbook at 9418 at odd hours · mail for no one the building knows",b:"gone before any knock finishes · Carmen answering doors meant for the whole house"},
+ {id:"S5",w:"stoop occupied like a claim · thirty years of plants",p:"hemming volume up · stoop empty once at cafecito hour · a declined walk",b:"a letter read twice then moved out of Jules's sight · the son's call taken inside, low"},
+ {id:"S6",w:"notebook present, closed, guarded · supplier-loop linger",p:"catalog linger lengthening · prices from memory · notebook almost opened in company",b:"notebook on the table, unopened · 'if the building—' abandoned"},
+ {id:"S7",w:"the 3 p.m. coffee as fixed point",p:"duration creep past 3:40 · cooked vs. said · ingredients 'going to waste'",b:"a plan in the conditional with her name inside · coffee gone cold on a waiting sentence"},
+ {id:"S8",w:"latte art · a recurring sketchbook figure",p:"eye contact a beat long · 19:30 coinciding with closing · one question too many",b:"the figure recognizably Priya to viewers · a narrated goodbye that doesn't include leaving"},
+ {id:"S9",w:"Sunday cooking · the near-the-first errand",p:"envelope math at the counter · hike live in the ledger · generosity with the last $20",b:"a number said aloud to no one · Priya covering a gap without looking at him"},
+ {id:"S10",w:"shared labor done visibly · dead heater",p:"a pause before 'you two good?' · check-ins that are also audits",b:"a refusal to absorb — legible because it's unlike her · the heater named as a flat fact"}];
+const VENUES=[
+ ["Mudhaus Coffee counter","F6 · F4 · F2","Mars's deliberation · the 3 p.m. coffee · chalkboards, wrong-hour absences","a seed fact spoken at the counter — shadows, not facts"],
+ ["Auerbach Hardware counter","F1","irregular hours · free fixes · closed-door time","the offer letter on camera — objects show, contents don't"],
+ ["The 9418 stoop","F5 · F1-adjacent","Carmen's rituals and their absences · who visits","a health event staged for the stoop"],
+ ["The 9457 flat (door + kitchen)","F2 · F3","compression · Sunday cooking · the tally · Jules's alibis","an engineered walk-in — doors are the sim's business"],
+ ["Dolores Park benches (Esther + Ray)","all (echo)","the chorus notices bench math","first knower of anything — rumor, never seed fact"],
+ ["Supplier loop (Las Palmas, Valencia Growers)","F1 · F4 via S6","Tomás pricing his dream in public","new stops invented for pressure"],
+ ["Mission Unfiltered (press surface)","F6","where a private fact can become a block fact","a post sourced beyond what Mars could have learned"],
+ ["Ordinary-life venues (Golden Hour, Buy-Rite, courier loop)","all","the quiet floor — contrast","drama staging; these carry P-10"]];
+const LEGAL=[
+ "Is it a disposition, condition, weight, or protection?",
+ "Could the feed falsify it in a week? (outcome claim → rewrite)",
+ "Does it move a fact across the knowledge matrix? (injection → illegal)",
+ "Does it assume a player request happened? (steering → flat pressure)",
+ "Does it name an outcome, even as hope? (delete the outcome)",
+ "Would it survive the season going the other way? (else it's a plan)"];
+
+document.getElementById('fuses').innerHTML=FUSES.map(f=>
+ `<div class="fuse"><h3>${f.id} — ${f.t}</h3><div class="tag">${f.who}</div><p>${f.p}</p><div class="dir"><b>direction:</b> ${f.d}</div></div>`).join('');
+document.getElementById('seeds').innerHTML=SEEDS.map(s=>
+ `<div class="seed"><h4>${s.id} · ${s.t}<span class="state st-${s.st}">${s.st}</span></h4>
+  <div class="meta">fuse ${s.fuse} · holds: ${s.h} · must-not-know: ${s.mnk}</div>
+  <dl><dt>pressure routes</dt><dd><ul>${s.pr.map(x=>`<li>${x}</li>`).join('')}</ul></dd>
+  <dt>reveal vectors</dt><dd><ul>${s.rv.map(x=>`<li>${x}</li>`).join('')}</ul></dd>
+  <dt>spectator tell</dt><dd>${s.tell}</dd></dl></div>`).join('');
+document.querySelector('#edges tbody').innerHTML=EDGES.map(e=>
+ `<tr><td class="c">${NAMES[e[0]]} ↔ ${NAMES[e[1]]}</td><td>${e[2]}</td><td class="c">${e[3]}</td></tr>`).join('');
+document.getElementById('knobs').innerHTML=KNOBS.map(k=>`<div class="knob"><b>${k[0]}</b>${k[1]}</div>`).join('');
+document.querySelector('#pcat tbody').innerHTML=PCAT.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="c">${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join('');
+document.querySelector('#weeks tbody').innerHTML=WEEKS.map(r=>
+ `<tr><td><b>${r[0]}</b></td><td class="c">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+document.querySelector('#after tbody').innerHTML=AFTER.map(r=>
+ `<tr><td class="c">${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#reqw tbody').innerHTML=REQW.map(r=>
+ `<tr><td>${r[0]}</td><td class="c">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#evid tbody').innerHTML=EVID.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#drift tbody').innerHTML=DRIFT.map((s,i)=>
+ `<tr><td class="c">${i+1}</td><td>${s}</td></tr>`).join('');
+document.getElementById('hires').innerHTML=HIRES.map(h=>`<li>${h}</li>`).join('');
+document.querySelector('#tellers tbody').innerHTML=TELLERS.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.getElementById('stall').innerHTML=STALL.map(k=>`<div class="knob"><b>${k[0]}</b>${k[1]}</div>`).join('');
+document.getElementById('ladders').innerHTML=LADDERS.map(l=>
+ `<div class="seed"><h4>${l.id} <span class="state st-dormant">whisper→brink</span></h4>
+  <dl><dt>whisper (any state)</dt><dd>${l.w}</dd>
+  <dt>pressure (pressured+)</dt><dd>${l.p}</dd>
+  <dt>brink (pressured + live reveal vector — never the fact)</dt><dd>${l.b}</dd></dl></div>`).join('');
+document.querySelector('#venues tbody').innerHTML=VENUES.map(v=>
+ `<tr><td><b>${v[0]}</b></td><td class="c">${v[1]}</td><td>${v[2]}</td><td>${v[3]}</td></tr>`).join('');
+document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
+document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
+</script>
+</body>
+</html>
