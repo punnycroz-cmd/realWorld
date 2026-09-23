@@ -281,6 +281,9 @@ function sfInitCast(){
     });
     v._ci = i;
     v._castId = c.id;
+    // production-1: compiled memory profile (35_sf_memory.js) — wired into
+    // decayEpistemic/observe where the sim has a real mechanism
+    if(typeof sfMemProfileFor === 'function') v.memProfile = sfMemProfileFor(c.id);
     v.sfSched = sched || [];
     v.sfStopIdx = 0;
     v.sfStopT = 0;
@@ -308,6 +311,15 @@ function sfNpcTick(v, dtH){
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
+  // production-1: a parked agent order (36_sf_agent.js, the playtest
+  // bridge) drives this pawn through real sim calls until done/expired,
+  // then the schedule brain resumes. Order channel, not possession.
+  if(v.sfAgent){
+    const a = v.sfAgent;
+    if(a.done || W.tod > a.until) v.sfAgent = null;
+    else if(typeof sfAgentTick === 'function'){ sfAgentTick(v, a, dtH); return; }
+    else v.sfAgent = null;
+  }
   const sched = v.sfSched;
   if(!sched || !sched.length){ v.state = v.moving ? v.state : 'idle'; return; }
   const h = W.tod;
@@ -329,8 +341,12 @@ function sfNpcTick(v, dtH){
   if(dist > CS * 1.2){
     v.inBuilding = false;
     if(!v.sfPath || !v.sfPath.length){
-      if(v._sfRepathT == null || (G.frame - v._sfRepathT) > 90){
-        v._sfRepathT = G.frame;
+      // repath cooldown keys on the sim clock, not G.frame — headless
+      // drivers call simTick() without loop(), so a frame-keyed cooldown
+      // would freeze the pawn forever after one failed sfGoTo.
+      const simNow = W.day * 24 + W.tod;
+      if(v._sfRepathT == null || (simNow - v._sfRepathT) > 0.05){
+        v._sfRepathT = simNow;
         sfGoTo(v, cell.wx, cell.wy);
       }
       if(!v.sfPath){ v.state = 'idle'; v.moving = false; return; }

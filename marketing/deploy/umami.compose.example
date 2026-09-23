@@ -1,0 +1,52 @@
+# umami.compose.example — self-hosted cookieless analytics for stats.<domain>.
+# Matches INFRASTRUCTURE.md §2 (recommended pick) and the Caddyfile's
+# `stats.<domain> { reverse_proxy 127.0.0.1:3000 }` block.
+#
+# Why Umami: cookieless, no third-party pixel, DNT/GPC-compatible with our
+# privacy posture (ANALYTICS.md §1). The site shim (site/js/analytics.js)
+# posts to data-endpoint — point it at https://stats.<domain>/api/send after
+# creating the website entry in the Umami dashboard (it issues the site id).
+#
+# Provisioning (owner-gated, runbook step 5 / gate G8):
+#   1. copy this file to the host as docker-compose.yml (e.g. /srv/umami/)
+#   2. fill the two CHANGE_ME secrets below (never commit real values)
+#   3. `docker compose up -d` → uncomment the stats. block in Caddyfile →
+#      `caddy reload` → create the site in the Umami UI →
+#      `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send`
+#   4. re-run tools/analytics_e2e.sh against staging, then prod_smoke.sh
+#
+# Backup: the Postgres volume is the ONLY stateful marketing-surface artifact
+# (INFRASTRUCTURE.md §11) — nightly `pg_dump` from the db container suffices.
+
+services:
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    # pin a concrete tag at provisioning time (e.g. :v2.x.y) — "latest" is
+    # fine for the spec, not for the host.
+    ports:
+      - "127.0.0.1:3000:3000"   # loopback only — Caddy is the TLS edge
+    environment:
+      DATABASE_URL: postgresql://umami:CHANGE_ME_DB_PASSWORD@db:5432/umami
+      APP_SECRET: CHANGE_ME_32CHAR_RANDOM
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: CHANGE_ME_DB_PASSWORD
+    volumes:
+      - umami-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  umami-db:

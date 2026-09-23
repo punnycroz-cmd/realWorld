@@ -1,0 +1,22 @@
+{
+  "_comment": "Stripe provisioning manifest — Real World launch. Numbers are PROPOSAL adopted verbatim from devin-reviews/rw-monetization-plan-2026-09-22 §2 via PRICING-PAGE-CONTENT.md §2. Owner sign-off (gate G4) required before creating LIVE objects; build in TEST mode first. Create via Dashboard or: stripe fixtures / stripe products create + prices create using these fields. Currency USD; regional table is a display-layer concern (PRICING-PAGE-CONTENT.md §3), NOT separate Stripe prices at launch.",
+  "one_time_prices": [
+    { "key": "pack_pocket",  "name": "Pocket — 100 credits",   "unit_amount": 99,   "credits": 100 },
+    { "key": "pack_starter", "name": "Starter — 550 credits",  "unit_amount": 499,  "credits": 550 },
+    { "key": "pack_regular", "name": "Regular — 1,150 credits","unit_amount": 999,  "credits": 1150 },
+    { "key": "pack_plus",    "name": "Plus — 2,500 credits",   "unit_amount": 1999, "credits": 2500 },
+    { "key": "pack_pro",     "name": "Pro — 6,750 credits",    "unit_amount": 4999, "credits": 6750 },
+    { "key": "pack_mogul",   "name": "Mogul — 14,000 credits", "unit_amount": 9999, "credits": 14000 }
+  ],
+  "subscriptions": [
+    { "key": "sub_resident", "name": "Resident", "unit_amount": 499,  "interval": "month", "grants": "600 cr/mo, +1 request slot, queued tie-break, digest, badge" },
+    { "key": "sub_director", "name": "Director", "unit_amount": 1199, "interval": "month", "grants": "1,500 cr/mo, +1 request slot, camera mode, monthly cosmetic, show credits, early request types" }
+  ],
+  "settings": {
+    "tax": "Stripe Tax enabled; EU/UK prices displayed tax-inclusive",
+    "fraud": "Radar on; 3-D Secure on orders > $30",
+    "checkout": "Stripe Checkout hosted pages — no card data on our origins",
+    "webhook_events": ["checkout.session.completed", "invoice.paid", "customer.subscription.deleted"],
+    "credit_rule": "webhook is the ONLY credit-granting path; credits non-transferable, non-redeemable (design doc); first purchase +50% handled game-side, not as a Stripe coupon"
+  }
+}

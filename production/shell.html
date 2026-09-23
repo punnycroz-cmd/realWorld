@@ -1,0 +1,589 @@
+<!-- =====================================================================
+  PRODUCTION-1 SHELL — injected into willowbrook_natura.html by
+  build_production.py -> hub.html. One window, one world: the rail talks
+  to the REAL modules (GS_* state, __aiBridge.gs* functions, the 37-camera
+  rig). No demo paths: requests file through gsSubmitRequest, the review
+  lane resolves through gsReviewResolve, leases through gsApplyForLease /
+  gsApproveApplication, hires through the personnel office.
+
+  Views: WATCH (cameras + spectator feed) · WIRE (public resolutions) ·
+  REQUESTS (file -> review -> resolve) · LEDGER (two currencies) ·
+  CAST (mains + hires + hire flow) · HOUSING (units, leases, listings)
+  ====================================================================== -->
+<style>
+#rwShell{position:fixed;top:0;right:0;bottom:0;width:400px;background:#11141acc;
+  border-left:1px solid #2c3440;color:#ece7db;font:12.5px/1.45 'Segoe UI',system-ui,sans-serif;
+  display:flex;flex-direction:column;z-index:60;backdrop-filter:blur(10px)}
+#rwShell .rw-head{display:flex;align-items:center;gap:8px;padding:8px 12px;
+  border-bottom:1px solid #2c3440;background:#181d26}
+#rwShell .rw-head b{font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:#e8a04c;white-space:nowrap}
+#rwShell .rw-head .pid{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#a89f8a}
+#rwShell .rw-head input{width:104px;background:#20262f;border:1px solid #333c48;color:#ece7db;
+  border-radius:4px;padding:2px 6px;font:inherit;font-size:11px}
+#rwShell .rw-cred{margin-left:auto;font-family:ui-monospace,Menlo,monospace;color:#e8a04c;
+  font-size:12px;display:flex;gap:5px;align-items:center}
+#rwShell .rw-cred button{font-size:9.5px;background:#20262f;border:1px solid #5fae7f;
+  color:#5fae7f;border-radius:4px;cursor:pointer;padding:1px 6px}
+#rwShell .rw-cred button.ad{border-color:#6ea8d4;color:#6ea8d4}
+#rwTabs{display:flex;border-bottom:1px solid #2c3440;background:#181d26}
+#rwTabs button{flex:1;background:none;border:0;color:#a89f8a;font:inherit;font-size:10px;
+  letter-spacing:.07em;text-transform:uppercase;padding:8px 0;cursor:pointer}
+#rwTabs button.on{color:#e8a04c;border-bottom:2px solid #e8a04c}
+#rwBody{flex:1;overflow-y:auto;padding:10px 12px}
+#rwShell label{display:block;font-size:10.5px;color:#a89f8a;margin:8px 0 2px;
+  letter-spacing:.06em;text-transform:uppercase}
+#rwShell select,#rwShell input[type=text],#rwShell input[type=number],#rwShell textarea{
+  width:100%;background:#20262f;border:1px solid #333c48;color:#ece7db;border-radius:5px;
+  padding:5px 7px;font:inherit;font-size:12px}
+#rwShell textarea{min-height:36px;resize:vertical}
+#rwShell .row2{display:flex;gap:8px}#rwShell .row2>*{flex:1}
+#rwShell button.act{width:100%;margin-top:10px;padding:8px;background:#e8a04c;border:0;
+  border-radius:6px;font:inherit;font-weight:600;font-size:12.5px;color:#1a1408;cursor:pointer}
+#rwShell button.act:disabled{background:#333c48;color:#a89f8a;cursor:not-allowed}
+#rwShell .hint{font-size:10.5px;color:#a89f8a;font-style:italic;margin-top:4px}
+#rwShell .quote{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#e8a04c;
+  margin-top:6px;min-height:14px}
+.rw-sec{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a89f8a;
+  margin:12px 0 4px;border-bottom:1px solid #2c3440;padding-bottom:3px}
+/* camera strip */
+.rw-cams{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.rw-cams button{flex:1 1 30%;background:#20262f;border:1px solid #333c48;color:#ece7db;
+  border-radius:6px;padding:6px 4px;font:inherit;font-size:10.5px;cursor:pointer}
+.rw-cams button:hover{border-color:#e8a04c}
+.rw-cams button.on{border-color:#e8a04c;color:#e8a04c;background:#2a2a1e}
+#rwPip{display:none;position:fixed;left:16px;top:58px;width:300px;z-index:55;
+  border:1px solid #333c48;border-radius:8px;overflow:hidden;background:#000;
+  box-shadow:0 12px 30px rgba(0,0,0,.6)}
+#rwPip canvas{width:100%;display:block;image-rendering:pixelated}
+#rwPip .pl{font:10px ui-monospace,Menlo,monospace;color:#e8a04c;background:#181d26;
+  padding:3px 8px;letter-spacing:.08em}
+/* wire */
+.wl{list-style:none;margin:0;padding:0}
+.wl li{padding:6px 0;border-bottom:1px solid #20262f;font-size:12px}
+.wl .t{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#a89f8a;margin-right:6px}
+.wl .k{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:1px 6px;border-radius:8px;margin-right:6px;border:1px solid #333c48;color:#a89f8a}
+.wl .k.request{color:#6ea8d4;border-color:#6ea8d4}.wl .k.cast{color:#5fae7f;border-color:#5fae7f}
+.wl .k.housing{color:#c99a3c;border-color:#c99a3c}.wl .k.admin{color:#d48bb0;border-color:#d48bb0}
+.wl .k.weather{color:#9a927f}.wl .k.scene,.wl .k.venue,.wl .k.move{color:#ece7db}
+.wl .st{font-size:9.5px;color:#e8a04c;margin-left:4px}
+.wl .who{color:#6ea8d4}
+/* ledger */
+.ld{list-style:none;margin:0;padding:0;font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
+.ld li{display:flex;justify-content:space-between;gap:6px;padding:3px 0;border-bottom:1px dashed #20262f}
+.ld .cr{color:#e8a04c}.ld .dl{color:#5fae7f}
+/* cast */
+.ct{list-style:none;margin:0;padding:0}
+.ct li{padding:6px 0;border-bottom:1px solid #20262f;font-size:12px}
+.ct .nm{font-weight:600}.ct .sub{color:#a89f8a;font-size:11px}
+.ct .bm{float:right;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:1px 6px;border-radius:8px;border:1px solid #333c48;color:#a89f8a}
+.ct .bm.full{color:#5fae7f;border-color:#5fae7f}.ct .bm.thin{color:#6ea8d4;border-color:#6ea8d4}
+.ct .bm.possessed{color:#e8a04c;border-color:#e8a04c}.ct .bm.degraded{color:#d4695e;border-color:#d4695e}
+/* requests + housing cards */
+.rq{border:1px solid #20262f;border-radius:6px;padding:6px 8px;margin:6px 0;background:#181d26;font-size:11.5px}
+.rq .rr{display:flex;justify-content:space-between;align-items:baseline}
+.rq .st{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#e8a04c}
+.rq button{font-size:10px;background:#20262f;border:1px solid #6ea8d4;color:#6ea8d4;
+  border-radius:4px;cursor:pointer;padding:1px 8px;margin-left:4px}
+.rq button.deny{border-color:#d4695e;color:#d4695e}
+.rq .u{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#a89f8a}
+#help-bar{display:none}   /* the rail carries the controls now */
+#gs-wire{display:none!important}    /* rail's Wire view supersedes the ticker
+    (the game sets an inline display — !important wins) */
+#pawn-inspector{left:16px;bottom:16px;max-width:300px}
+</style>
+
+<div id="rwShell">
+  <div class="rw-head"><b>Real World · The Mission</b>
+    <input id="rwPid" type="text" value="spectator-1" title="player id">
+    <span class="rw-cred"><span id="rwCred">0</span>cr
+      <button id="rwAd" class="ad" title="watch a spot — the honest trickle">+ad</button>
+      <button id="rwMint" title="local demo grant — no payment rails exist">+500</button></span>
+  </div>
+  <div id="rwTabs">
+    <button data-t="watch" class="on">Watch</button>
+    <button data-t="wire">Wire</button>
+    <button data-t="req">Requests</button>
+    <button data-t="led">Ledger</button>
+    <button data-t="cast">Cast</button>
+    <button data-t="house">Housing</button>
+  </div>
+  <div id="rwBody"></div>
+</div>
+<div id="rwPip"><div class="pl" id="rwPipLab">feed</div><canvas id="rwPipCv" width="600" height="340"></canvas></div>
+
+<script>
+/* the shell runs in the SAME window as the game bundle — VILLAGERS,
+   GS_*, NV_CAST, gs* fns and window.__aiBridge are all live globals. */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var body = $('rwBody'), pip = $('rwPip'), pipCv = $('rwPipCv'), pipLab = $('rwPipLab');
+  var tab = 'watch';
+  var pid = function(){ return ($('rwPid').value || 'spectator-1').trim(); };
+  var esc = function(s){ return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var fmtT = function(t){
+    if(t == null) return '--:--';
+    return ('0' + Math.floor(t/60)).slice(-2) + ':' + ('0' + Math.floor(t%60)).slice(-2);
+  };
+  var B = function(){ return window.__aiBridge || {}; };
+  var up = function(){ return typeof VILLAGERS !== 'undefined' && VILLAGERS.length; };
+
+  /* ---------- shared lookups ---------- */
+  function myHires(){
+    var out = [];
+    if(typeof GS_HIRED === 'object')
+      for(var c in GS_HIRED) if(gsHiredOwner(c) === pid()) out.push(c);
+    return out;
+  }
+  function charLabel(cid){ try{ return gsCharName(cid); }catch(e){ return cid; } }
+  function pawnIdx(cid){
+    for(var i = 0; i < VILLAGERS.length; i++)
+      if(VILLAGERS[i]._castId === cid || VILLAGERS[i].name === cid) return i;
+    return null;
+  }
+  function liveCast(){
+    return VILLAGERS.filter(function(v){ return v._castId; });
+  }
+
+  /* ---------- WATCH: multi-camera + spectator feed ---------- */
+  var cams = { main: null, pip: null };
+  function ensureViews(){
+    if(!B().sfCamMake) return false;
+    if(!cams.overlook) cams.overlook = B().sfCamMake({ preset: 'dolores_overlook', id: 'overlook' });
+    if(!cams.streetLv) cams.streetLv = B().sfCamMake({ preset: 'mission_street', id: 'streetlv' });
+    if(!cams.roof)     cams.roof     = B().sfCamMake({ preset: 'rooftop_park', id: 'roof' });
+    return true;
+  }
+  var freeCam = { on: false, drag: null };
+  function renderWatch(){
+    var h = '<div class="rw-sec">cameras — yours alone</div><div class="rw-cams">';
+    h += '<button data-cam="overlook">Dolores Park<br>overlook</button>';
+    h += '<button data-cam="streetlv">Street level<br>18th & Guerrero</button>';
+    h += '<button data-cam="roof">Rooftop<br>over the park</button>';
+    h += '<button data-cam="follow">Follow ▸<br><span style="font-size:9px">pick below</span></button>';
+    h += '<button data-cam="free"' + (freeCam.on ? ' class="on"' : '') + '>Free pan<br>+ zoom</button>';
+    h += '<button data-cam="home">Release<br>(follow card)</button></div>';
+    h += '<label>follow / inspect</label><select id="rwFollow">';
+    liveCast().forEach(function(v){
+      h += '<option value="' + v._castId + '">' + esc(v.name) + ' · ' + v._castId + '</option>';
+    });
+    h += '</select>';
+    h += '<label>monitor feed (picture-in-picture)</label><select id="rwPipSel">' +
+      '<option value="">off</option><option value="overlook">Dolores Park overlook</option>' +
+      '<option value="streetlv">Street level</option><option value="roof">Rooftop</option>' +
+      '<option value="follow">Follow same pick</option></select>';
+    h += '<div class="hint">street view: drag looks, wheel dollies, C frees the ' +
+      'director rig (WASD/R/F), V returns to the map. Free pan: drag to move, wheel to zoom.</div>';
+    h += '<div class="rw-sec">the block, live</div><div id="rwFeedMini"></div>';
+    body.innerHTML = h;
+    body.querySelectorAll('button[data-cam]').forEach(function(b){
+      b.onclick = function(){ camGo(b.dataset.cam); };
+    });
+    $('rwFollow').onchange = function(){
+      var idx = pawnIdx($('rwFollow').value);
+      if(idx != null){ inspectedPawnIdx = idx; if(typeof updateHUD === 'function') updateHUD(); }
+    };
+    $('rwPipSel').onchange = function(){ pipSel($('rwPipSel').value); };
+    renderFeedMini();
+  }
+  function camGo(which){
+    if(!ensureViews()) return;
+    if(which === 'free'){
+      freeCam.on = !freeCam.on;
+      if(typeof SF_CAM_FREE !== 'undefined') SF_CAM_FREE = freeCam.on;
+      renderWatch(); return;
+    }
+    freeCam.off();
+    if(which === 'home'){ if(typeof SF_CAM_FREE !== 'undefined') SF_CAM_FREE = false; return; }
+    if(which === 'follow'){
+      var idx = pawnIdx($('rwFollow').value);
+      if(idx == null) return;
+      inspectedPawnIdx = idx;
+      SF_VIEW = 'street'; SF_CAM.director = false;
+      SF_CAM._lastPawn = -1; if(typeof sfCamSnap === 'function') sfCamSnap();
+      return;
+    }
+    B().sfCamWatch(which);
+  }
+  freeCam.off = function(){
+    freeCam.on = false;
+    if(typeof SF_CAM_FREE !== 'undefined') SF_CAM_FREE = false;
+  };
+  /* free pan + zoom on the main canvas (top view): capture-phase drag
+     beats the game's click-to-move only while the toggle is on */
+  document.addEventListener('pointerdown', function(e){
+    if(!freeCam.on || e.target !== document.getElementById('cv')) return;
+    freeCam.drag = { x: e.clientX, y: e.clientY };
+    e.stopImmediatePropagation();
+  }, true);
+  document.addEventListener('pointermove', function(e){
+    if(!freeCam.drag) return;
+    cam.x -= (e.clientX - freeCam.drag.x) / cam.zoom;
+    cam.y -= (e.clientY - freeCam.drag.y) / (cam.zoom * (typeof SF_TILT !== 'undefined' ? SF_TILT : 1));
+    freeCam.drag = { x: e.clientX, y: e.clientY };
+  }, true);
+  document.addEventListener('pointerup', function(){ freeCam.drag = null; }, true);
+  document.addEventListener('wheel', function(e){
+    if(!freeCam.on || e.target !== document.getElementById('cv')) return;
+    cam.zoom = Math.min(4, Math.max(0.25, cam.zoom * (e.deltaY > 0 ? 0.9 : 1.11)));
+    e.preventDefault();
+  }, { capture: true, passive: false });
+  function pipSel(which){
+    if(!which){ pip.style.display = 'none'; cams.pip = null; return; }
+    ensureViews();
+    if(which === 'follow'){
+      var idx = pawnIdx($('rwFollow').value);
+      if(idx == null){ pip.style.display = 'none'; return; }
+      cams.pip = B().sfCamMake({ mode: 'street', follow: idx, id: 'pip' });
+      pipLab.textContent = 'FOLLOW — ' + esc(($('rwFollow').selectedOptions[0] || {}).textContent || '');
+    } else {
+      cams.pip = SF_CAM_VIEWS[which];
+      pipLab.textContent = (B().sfCamPresets()[which] || {}).label || which;
+    }
+    pip.style.display = 'block';
+  }
+  setInterval(function(){
+    if(pip.style.display === 'block' && cams.pip && up())
+      B().sfCamRender(cams.pip.id, pipCv);
+  }, 300);
+  function renderFeedMini(){
+    var el = $('rwFeedMini'); if(!el) return;
+    var feed = (B().gsWireTail ? B().gsWireTail(12) : []);
+    el.innerHTML = '<ul class="wl">' + feed.slice().reverse().map(function(e){
+      return '<li><span class="t">' + fmtT(e.t) + '</span>' +
+        '<span class="k ' + esc(e.kind) + '">' + esc(e.kind) + '</span>' +
+        (e.who ? '<span class="who">' + esc(e.who) + '</span> ' : '') +
+        esc(e.text) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  /* ---------- WIRE: the public-resolution page ---------- */
+  function renderWire(){
+    var feed = (B().gsWireTail ? B().gsWireTail(60) : []);
+    var reqs = (typeof GS_REQ === 'object' ? GS_REQ.reqs : []).slice(-12).reverse();
+    var h = '<div class="rw-sec">the wire — public record</div><ul class="wl">';
+    feed.slice().reverse().forEach(function(e){
+      h += '<li><span class="t">' + fmtT(e.t) + '</span>' +
+        '<span class="k ' + esc(e.kind) + '">' + esc(e.kind) + '</span>' +
+        (e.who ? '<span class="who">' + esc(e.who) + '</span> ' : '') +
+        esc(e.text) +
+        (e.status ? '<span class="st">' + esc(e.status) + '</span>' : '') +
+        (e.reason_code ? ' <span class="st">[' + esc(e.reason_code) + ']</span>' : '') +
+        '</li>';
+    });
+    if(!feed.length) h += '<li><span class="t">--:--</span>the wire is quiet — the block is still waking up.</li>';
+    h += '</ul><div class="rw-sec">resolutions (request ledger)</div>';
+    h += reqs.map(function(r){
+      return '<div class="rq"><div class="rr"><b>' + esc(r.kind) +
+        (r.target ? ' · ' + esc(charLabel(r.target)) : '') + '</b>' +
+        '<span class="st">' + esc(r.status) + (r.reason ? ':' + esc(r.reason) : '') + '</span></div>' +
+        '<div class="u">' + esc(r.id) + ' · ' + esc(r.playerId) + ' · billed ' + (r.billed || 0) + 'cr' +
+        (r.refunded ? ' · refunded ' + r.refunded : '') + '</div></div>';
+    }).join('') || '<div class="hint">nothing filed yet</div>';
+    body.innerHTML = h;
+  }
+
+  /* ---------- REQUESTS ---------- */
+  var REQ_KINDS = ['possess','weather','street_event','hire','listing','buy'];
+  function renderReq(){
+    var h = '<label>action</label><select id="rqKind">';
+    REQ_KINDS.forEach(function(k){ h += '<option>' + k + '</option>'; });
+    h += '</select><div id="rqFields"></div>';
+    h += '<label>note (public if approved — screened)</label>' +
+         '<textarea id="rqNote" placeholder="what a camera on the street would see"></textarea>';
+    h += '<div class="quote" id="rqQuote"></div>';
+    h += '<button class="act" id="rqGo">file request</button>';
+    h += '<div class="hint">the real bus: intent screen → lane → FCFS claims → ' +
+         'bill → activate. weather, events and hires park for the review lane.</div>';
+    h += '<div class="rw-sec">my requests</div><div id="rqMine"></div>';
+    h += '<div class="rw-sec">review lane (you are the local desk)</div><div id="rqRev"></div>';
+    body.innerHTML = h;
+    $('rqKind').onchange = renderReqFields;
+    $('rqGo').onclick = submitReq;
+    renderReqFields(); renderMine(); renderReview();
+  }
+  function renderReqFields(){
+    var k = $('rqKind').value, f = $('rqFields'), h = '';
+    if(k === 'possess'){
+      h += '<label>your hired character</label><select id="rqTarget">';
+      myHires().forEach(function(c){
+        h += '<option value="' + c + '">' + esc(charLabel(c)) + ' (' + c + ')</option>'; });
+      h += '</select><label>minutes (5-120)</label><input type="number" id="rqDur" value="10" min="5" max="120">';
+      h += '<div class="hint">the 8 mains can never be possessed — not by ' +
+           'you, not by the owner. Only your own hires.</div>';
+      if(!myHires().length) h += '<div class="hint">no hires yet — hire one first (Cast tab), or watch the honest denial.</div>';
+    } else if(k === 'weather'){
+      h += '<label>sky</label><select id="rqWx"><option>rain</option><option>storm</option>' +
+           '<option>clear</option><option>fog</option><option>heatwave</option></select>' +
+           '<label>minutes (10-240)</label><input type="number" id="rqDur" value="30" min="10" max="240">';
+    } else if(k === 'street_event'){
+      h += '<label>event</label><select id="rqEvent"><option>block_party</option><option>street_fair</option>' +
+           '<option>farmers_market</option><option>parade</option><option>movie_night</option>' +
+           '<option>park_cleanup</option><option>mural_tour</option></select>' +
+           '<label>venue (e.g. dolores park, clarion alley — blank = roving)</label>' +
+           '<input type="text" id="rqAt" placeholder="dolores park">' +
+           '<label>minutes (15-180)</label><input type="number" id="rqDur" value="30" min="15" max="180">';
+    } else if(k === 'hire'){
+      h += '<label>move-in unit</label><select id="rqTarget">';
+      (B().gsVacantUnits ? B().gsVacantUnits({}) : []).slice(0, 80).forEach(function(r){
+        h += '<option value="' + r.unit.id + '">' + esc(r.address) + ' — $' + r.unit.base_rent + '</option>'; });
+      h += '</select>' +
+           '<label>name</label><input type="text" id="rqName" placeholder="e.g. Dana Okafor">' +
+           '<div class="row2"><div><label>age</label><input type="number" id="rqAge" value="29" min="18" max="99"></div>' +
+           '<div><label>job</label><select id="rqJob">' +
+             (typeof GS_JOBS !== 'undefined' ? GS_JOBS : []).map(function(j){
+               return '<option value="' + j.id + '">' + esc(j.id) + (j.est ? ' ~$' + j.est + '/mo' : '') + '</option>';
+             }).join('') + '</select></div></div>' +
+           '<div class="row2"><div><label>build</label><select id="rqBuild"><option>slight</option><option>compact</option>' +
+             '<option>tall</option><option>broad</option><option>angular</option></select></div>' +
+           '<div><label>palette</label><select id="rqPal"><option>fog grey</option><option>mission mural</option>' +
+             '<option>moss</option><option>midnight</option><option>ochre</option><option>plum</option></select></div></div>' +
+           '<label>signature</label><select id="rqSig"><option>windbreaker, always</option>' +
+             '<option>paint-flecked work boots</option><option>loud prints, louder laugh</option>' +
+             '<option>cardigans and a paperback</option><option>running gear at dawn</option>' +
+             '<option>denim jacket, pins on the collar</option></select>' +
+           '<input type="hidden" id="rqDur" value="5">';
+    } else if(k === 'listing'){
+      h += '<label>unit you own</label><select id="rqTarget">';
+      (typeof GS_REG !== 'undefined' ? GS_REG.units : []).forEach(function(u){
+        var b = gsBldById(u.bld_id);
+        if(u.owner_id === pid() || (b && b.owner_id === pid()))
+          h += '<option value="' + u.id + '">' + esc(gsAddressOfUnit(u.id)) + '</option>'; });
+      h += '</select><label>ask ($)</label><input type="number" id="rqAsk" value="320000">' +
+           '<label>minutes listed (30-4320)</label><input type="number" id="rqDur" value="120" min="30" max="4320">' +
+           '<div class="hint">players start owning nothing — expect an honest not_owner denial.</div>';
+    } else if(k === 'buy'){
+      var listings = (typeof GS_LISTINGS === 'object') ? Object.keys(GS_LISTINGS) : [];
+      h += '<label>listed unit</label><select id="rqTarget">';
+      listings.forEach(function(uid){ h += '<option value="' + uid + '">' + esc(gsAddressOfUnit(uid)) + '</option>'; });
+      h += '</select><label>buyer (your hire)</label><select id="rqBuyer">';
+      myHires().forEach(function(c){ h += '<option>' + c + '</option>'; });
+      h += '</select><input type="hidden" id="rqDur" value="1">';
+    }
+    f.innerHTML = h;
+    quoteReq();
+    f.onchange = quoteReq; $('rqNote').oninput = quoteReq;
+  }
+  function reqSpec(){
+    var k = $('rqKind').value;
+    var spec = { playerId: pid(), kind: k,
+                 durationMin: +(($('rqDur')||{}).value || 0),
+                 params: { note: ($('rqNote').value || '').trim() || undefined } };
+    var t = $('rqTarget'); if(t && t.value) spec.target = t.value;
+    if(k === 'weather') spec.params.wx = $('rqWx').value;
+    if(k === 'street_event'){ spec.params.event = $('rqEvent').value;
+      if($('rqAt').value.trim()) spec.params.at = $('rqAt').value.trim(); }
+    if(k === 'hire'){
+      spec.params.name = $('rqName').value.trim();
+      spec.params.age = +$('rqAge').value;
+      spec.params.job = $('rqJob').value;
+      spec.params.look = { build: $('rqBuild').value, palette: $('rqPal').value,
+                           signature: $('rqSig').value };
+    }
+    if(k === 'listing') spec.params.ask = +$('rqAsk').value;
+    if(k === 'buy') spec.params.buyerId = ($('rqBuyer')||{}).value;
+    return spec;
+  }
+  function quoteReq(){
+    try{
+      var q = B().gsPriceQuote ? B().gsPriceQuote(reqSpec()) : null;
+      $('rqQuote').textContent = q ? ('quote: ' + JSON.stringify(q).slice(0, 160)) : '';
+    }catch(e){ $('rqQuote').textContent = ''; }
+  }
+  function submitReq(){
+    var spec = reqSpec();
+    if(!spec.params.note) delete spec.params.note;
+    B().gsSubmitRequest(spec);   // the real filing
+    renderReq();
+  }
+  function renderMine(){
+    var el = $('rqMine'); if(!el) return;
+    var mine = GS_REQ.reqs.filter(function(r){ return r.playerId === pid(); }).slice(-6).reverse();
+    el.innerHTML = mine.map(function(r){
+      var m = gsRequestMeter(r.id) || {};
+      return '<div class="rq"><div class="rr"><b>' + esc(r.kind) +
+        (r.target ? ' · ' + esc(charLabel(r.target)) : '') + '</b>' +
+        '<span class="st">' + esc(r.status) + (r.reason ? ':' + esc(r.reason) : '') + '</span></div>' +
+        '<div class="u">' + esc(r.id) + ' · billed ' + (r.billed||0) + 'cr' +
+        (m.remainingMin != null ? ' · ' + m.remainingMin.toFixed(1) + 'min left' : '') +
+        ((r.status === 'active' || r.status === 'queued')
+          ? '<button data-c="' + r.id + '">cancel</button>' : '') +
+        '</div></div>';
+    }).join('') || '<div class="hint">none yet</div>';
+    el.querySelectorAll('button[data-c]').forEach(function(b){
+      b.onclick = function(){ B().gsCancelRequest(b.dataset.c); renderReq(); };
+    });
+  }
+  function renderReview(){
+    var el = $('rqRev'); if(!el) return;
+    var q = gsReviewQueue();
+    el.innerHTML = q.map(function(r){
+      return '<div class="rq"><div class="rr"><b>' + esc(r.kind) + '</b>' +
+        '<span class="st">in_review' + (r.screen ? ':' + esc(r.screen) : '') + '</span></div>' +
+        '<div class="u">' + esc(r.id) + ' · ' + esc(r.playerId) + ' · ' + (r.billed||0) + 'cr' +
+        '<button data-a="' + r.id + '">approve</button>' +
+        '<button class="deny" data-d="' + r.id + '">deny</button></div></div>';
+    }).join('') || '<div class="hint">empty — nothing parked</div>';
+    el.querySelectorAll('button[data-a]').forEach(function(b){
+      b.onclick = function(){ B().gsReviewResolve(b.dataset.a, true, { by: 'local-desk' }); renderReq(); };
+    });
+    el.querySelectorAll('button[data-d]').forEach(function(b){
+      b.onclick = function(){ B().gsReviewResolve(b.dataset.d, false, { by: 'local-desk', code: 'gray-zone' }); renderReq(); };
+    });
+  }
+
+  /* ---------- LEDGER ---------- */
+  function renderLedger(){
+    var txns = (typeof GS_LEDGER === 'object') ? GS_LEDGER.txns : [];
+    var h = '<div class="rw-sec">player credits</div><ul class="ld">';
+    Object.keys(GS_LEDGER.credits).forEach(function(p){
+      h += '<li><span>' + esc(p) + '</span><span class="cr">' + GS_LEDGER.credits[p] + ' cr</span></li>'; });
+    if(!Object.keys(GS_LEDGER.credits).length) h += '<li><span>none</span><span class="cr">0 cr</span></li>';
+    h += '</ul><div class="rw-sec">last txns — two currencies, never mixed</div><ul class="ld">';
+    txns.slice(-30).reverse().forEach(function(t){
+      h += '<li><span class="' + (t.cur === 'credits' ? 'cr' : 'dl') + '">' + t.cur + '</span>' +
+        '<span>#' + t.n + ' ' + esc(t.from) + ' → ' + esc(t.to) + '</span>' +
+        '<span><b>' + t.amt + '</b> ' + esc(t.reason || '') + '</span></li>'; });
+    h += '</ul>';
+    ['credits','dollars'].forEach(function(cur){
+      var minted = txns.filter(t => t.cur === cur && t.from === 'mint').reduce((s,t)=>s+t.amt,0);
+      var burned = txns.filter(t => t.cur === cur && t.to === 'burn').reduce((s,t)=>s+t.amt,0);
+      var held = 0, acc = cur === 'credits' ? GS_LEDGER.credits : GS_LEDGER.dollars;
+      for(var k in acc) held += acc[k];
+      h += '<div class="hint">' + cur + ': minted ' + minted + ' − burned ' + burned +
+           ' = ' + (minted - burned) + ' · on books ' + held + '</div>';
+    });
+    body.innerHTML = h;
+  }
+
+  /* ---------- CAST: mains + hired + hire flow ---------- */
+  function renderCast(){
+    var nm = Date.now() / 60000;
+    var rows = [];
+    (typeof NV_CAST !== 'undefined' ? NV_CAST : []).forEach(function(c){
+      var v = VILLAGERS.find(function(x){ return x._castId === c.id; });
+      var home = (B().gsHomeOf ? B().gsHomeOf(c.id) : null);
+      var bm = (B().gsBrainMode ? B().gsBrainMode(c.id, nm) : '?');
+      rows.push({ id: c.id, name: (v && v.name) || c.name || c.id,
+        role: (v && v.role) || c.role || '', bm: bm,
+        state: v ? (v.state + (v.inside ? ' · ' + v.inside : '') +
+                  (v.sfAgent ? ' · ◆' + v.sfAgent.verb : '')) : 'off-stage',
+        home: home ? home.address : '—' });
+    });
+    Object.keys(typeof GS_HIRED === 'object' ? GS_HIRED : {}).forEach(function(cid){
+      var v = VILLAGERS.find(function(x){ return x._castId === cid; });
+      var home = (B().gsHomeOf ? B().gsHomeOf(cid) : null);
+      rows.push({ id: cid, name: charLabel(cid), role: (GS_HIRED[cid].role || 'Resident') +
+        ' · hire of ' + gsHiredOwner(cid),
+        bm: (B().gsBrainMode ? B().gsBrainMode(cid, nm) : '?'),
+        state: v ? v.state : 'not spawned',
+        home: home ? home.address : '—' });
+    });
+    var h = '<div class="rw-sec">the cast — 8 mains, never possessable</div><ul class="ct">';
+    h += rows.map(function(r){
+      return '<li><span class="bm ' + esc(r.bm) + '">' + esc(r.bm) + '</span>' +
+        '<span class="nm">' + esc(r.name) + '</span> <span class="sub">' + esc(r.id) + '</span>' +
+        '<div class="sub">' + esc(r.role) + ' — ' + esc(r.state) + '</div>' +
+        '<div class="sub">⌂ ' + esc(r.home) + '</div></li>';
+    }).join('') + '</ul>';
+    h += '<div class="hint">◆ = running an agent order (the playtest bridge). ' +
+         'hire a neighbor through Requests → hire; they join the block with a ' +
+         'real body, a lease, and a thin schedule.</div>';
+    body.innerHTML = h;
+  }
+
+  /* ---------- HOUSING: rental + listings ---------- */
+  function renderHousing(){
+    var vac = (B().gsVacantUnits ? B().gsVacantUnits({}) : []);
+    var apps = (typeof GS_LEASE === 'object' && GS_LEASE.apps) ?
+      GS_LEASE.apps.filter(function(a){ return a.status === 'pending'; }) : [];
+    var book = (B().gsLeaseBook ? B().gsLeaseBook() : []);
+    var h = '<div class="rw-sec">vacant units (' + vac.length + ')</div>';
+    h += vac.slice(0, 14).map(function(r){
+      return '<div class="rq"><div class="rr"><b>' + esc(r.address) + '</b>' +
+        '<span class="st">$' + r.unit.base_rent + '/mo</span></div>' +
+        '<div class="u">' + esc(r.unit.id) +
+        '<button data-ap="' + r.unit.id + '">apply as hire ▸</button></div></div>';
+    }).join('') || '<div class="hint">no vacancies on the map</div>';
+    h += '<div class="rw-sec">pending applications</div>';
+    h += apps.map(function(a){
+      return '<div class="rq"><div class="rr"><b>' + esc(a.id) + '</b>' +
+        '<span class="st">pending</span></div>' +
+        '<div class="u">' + esc(a.applicant_id) + ' → ' + esc(a.unit_id) +
+        '<button data-y="' + a.id + '">approve</button>' +
+        '<button class="deny" data-n="' + a.id + '">deny</button></div></div>';
+    }).join('') || '<div class="hint">none pending</div>';
+    h += '<div class="rw-sec">lease book</div>';
+    h += book.slice(-12).reverse().map(function(l){
+      return '<div class="rq"><div class="rr"><b>' + esc(l.address || l.unit) + '</b>' +
+        '<span class="st">' + esc(l.status) + (l.owed ? ' · owes $' + l.owed : '') + '</span></div>' +
+        '<div class="u">' + esc((l.occupants || [l.tenant]).join(', ')) +
+        ' · $' + (l.rent != null ? l.rent : '?') + '/mo</div></div>';
+    }).join('') || '<div class="hint">no leases on the books</div>';
+    body.innerHTML = h;
+    body.querySelectorAll('button[data-ap]').forEach(function(b){
+      b.onclick = function(){
+        var hires = myHires();
+        if(!hires.length){ alert('hire a character first (Requests → hire)'); return; }
+        var r = B().gsApplyForLease(b.dataset.ap, hires[0], { by: 'agent', note: 'rental application' });
+        renderHousing();
+      };
+    });
+    body.querySelectorAll('button[data-y]').forEach(function(b){
+      b.onclick = function(){ B().gsApproveApplication(b.dataset.y, {}); renderHousing(); };
+    });
+    body.querySelectorAll('button[data-n]').forEach(function(b){
+      b.onclick = function(){ B().gsDenyApplication(b.dataset.n, {}); renderHousing(); };
+    });
+  }
+
+  /* ---------- tabs + header ---------- */
+  var TABS = { watch: renderWatch, wire: renderWire, req: renderReq,
+               led: renderLedger, cast: renderCast, house: renderHousing };
+  document.querySelectorAll('#rwTabs button').forEach(function(b){
+    b.onclick = function(){
+      tab = b.dataset.t;
+      document.querySelectorAll('#rwTabs button').forEach(function(x){
+        x.classList.toggle('on', x === b); });
+      render();
+    };
+  });
+  function render(){ if(up()) TABS[tab](); }
+  function refreshCred(){
+    $('rwCred').textContent =
+      (typeof gsCreditBalance === 'function' ? gsCreditBalance(pid()) : 0);
+  }
+  $('rwMint').onclick = function(){
+    gsCreditGrant(pid(), 500, 'demo top-up'); refreshCred(); };
+  $('rwAd').onclick = function(){
+    var r = B().gsWatchAd ? B().gsWatchAd(pid()) : null; refreshCred();
+    if(r && r.capHit) $('rwAd').disabled = true; };
+  /* constitution: the 8 mains can never be possessed — not by you, not
+     by the owner. The sandbox's Take Control button is a dev affordance;
+     the production shell removes it whenever a protected main is
+     inspected (hires still show it — they're yours). */
+  if(typeof updateHUD === 'function'){
+    var _origHUD = updateHUD;
+    updateHUD = function(){
+      var r = _origHUD.apply(this, arguments);
+      try{
+        var v = VILLAGERS[inspectedPawnIdx];
+        var main = v && /^C[1-8]$/.test(v._castId || '');
+        var b = document.getElementById('btn-toggle-ctrl');
+        if(b) b.style.display = main ? 'none' : '';
+      }catch(e){}
+      return r;
+    };
+  }
+
+  setInterval(function(){
+    refreshCred();
+    if(tab === 'watch') renderFeedMini();
+    else if(tab === 'wire' || tab === 'cast') render();
+  }, 2000);
+  render();
+})();
+</script>

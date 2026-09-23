@@ -1,0 +1,16 @@
+{
+  "name": "Real World — The Mission",
+  "short_name": "Real World",
+  "description": "A persistent browser life-sim. A Mission District neighborhood of AI residents who keep living whether you watch or not. Watching is free.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#14161c",
+  "theme_color": "#14161c",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/logo-icon.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
