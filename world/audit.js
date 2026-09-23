@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v31).
+/* world/audit.js — RW boundary audit (world v32).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -46,6 +46,10 @@
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
                 and rents match housing.json ladder; no credit figures
+    request   — requests.json ↔ request.html mirror; pack ladder + rates +
+                ad caps verbatim from the plan PROPOSAL; appeal rules honor
+                the not-appealable list; co-sponsor is same-price compatible;
+                dark-pattern vocabulary absent
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -896,13 +900,97 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'market.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G17 request ============ */
+{
+  const g = gate('request', 'request contract (requests.json ↔ request.html; plan-verbatim pricing; appeal/co-sponsor/extend rules)');
+  try {
+    const RJ = JSONF('requests.json');
+    const html = rd('request.html');
+    /* action catalog: every json action id + rate appears in the demo */
+    for (const a of RJ.actions) {
+      if (a.spec) {   /* actions owned by another surface (e.g. hire → creation-ui.md) */
+        try { rd(a.spec.replace(/^world\//, '')); }
+        catch { add(g, 'fail', a.spec, null, `spec for action "${a.id}" not found`); }
+        continue;
+      }
+      if (!html.includes(`id:'${a.id}'`) && !html.includes(`id:"${a.id}"`))
+        add(g, 'fail', 'request.html', null, `action "${a.id}" missing from demo ACTIONS`);
+    }
+    for (const [cls, c] of Object.entries(RJ.classes)) {
+      if (c.rate_cr_per_min && !new RegExp(`${cls}: ?${c.rate_cr_per_min}`).test(html))
+        add(g, 'fail', 'request.html', null, `rate for ${cls} (${c.rate_cr_per_min} cr/min) not in demo`);
+    }
+    if (RJ.classes.queued.discount !== 0.15 || !html.includes('QUEUE_DISCOUNT = 0.15'))
+      add(g, 'fail', 'requests.json', null, 'queue discount drifted from −15%');
+    /* wallet ladder verbatim from plan §2.1 */
+    const WANT = [[0.99,100],[4.99,550],[9.99,1150],[19.99,2500],[49.99,6750],[99.99,14000]];
+    RJ.wallet.packs.forEach((p, i) => {
+      if (p.usd !== WANT[i][0] || p.cr !== WANT[i][1])
+        add(g, 'fail', 'requests.json', null, `pack ${p.id} ${p.usd}/${p.cr} != plan ${WANT[i]}`);
+      if (!html.includes(`usd:${p.usd}`) || !html.includes(`cr:${p.cr}`))
+        add(g, 'fail', 'request.html', null, `pack ${p.id} (${p.usd}/${p.cr}) not in demo PACKS`);
+    });
+    if (RJ.wallet.first_purchase_bonus.mult !== 0.5 || !html.includes('+50%'))
+      add(g, 'fail', 'requests.json', null, 'first-purchase +50% missing or drifted');
+    if (RJ.wallet.daily_spend_cap_usd !== 200 || !html.includes('$200'))
+      add(g, 'fail', 'requests.json', null, 'daily spend cap must be $200 and shown');
+    const ra = RJ.wallet.rewarded_ads;
+    if (ra.cr_per_view !== 2 || ra.per_day !== 5 || ra.per_week !== 25)
+      add(g, 'fail', 'requests.json', null, 'rewarded-ad numbers drifted (2/5/25)');
+    for (const s of ['+2 cr','never pre-roll','never mid-session'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `ad placement copy missing "${s}"`);
+    /* appeals: window, different-reviewer rule, not-appealable honored */
+    if (RJ.appeals.window_h !== 72 || !html.includes('72'))
+      add(g, 'fail', 'requests.json', null, 'appeal window must be 72 h');
+    if (!/different reviewer/.test(html))
+      add(g, 'fail', 'request.html', null, 'different-reviewer appeal copy missing');
+    for (const code of RJ.appeals.not_appealable)
+      if (!html.includes(`'${code}'`)) add(g, 'fail', 'request.html', null,
+        `not-appealable code "${code}" absent from NONAPPEAL`);
+    if (!/never appear on the public feed|not.*spectacle/i.test(html))
+      add(g, 'fail', 'request.html', null, 'appeal privacy copy missing (aggregate-only feed visibility)');
+    /* co-sponsor: same price, compatible, capped, attributed */
+    const co = RJ.co_sponsor;
+    if (co.cap !== 4 || !/compatible/.test(co.class) || !/same flat block price|same world event/.test(co.pricing + co.class))
+      add(g, 'fail', 'requests.json', null, 'co_sponsor contract drifted (cap 4 / compatible / same-price)');
+    for (const s of ['co-sponsor','not a discount','Co-sponsor'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `co-sponsor copy "${s}" missing`);
+    /* locked honesty strings */
+    const MUST = [
+      [/not redacted: absent/i, 'briefing secrets bar'],
+      [/unpossessable/i, 'possession ban'],
+      [/hard cap/i, 'upfront hard cap'],
+      [/never mind-control|never mind.control/i, 'opportunity-not-mind-control'],
+      [/request not approved/i, 'neutral deny wording'],
+      [/auto-refund/i, 'queued expiry refund']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'request.html', null, `missing required copy: ${label}`);
+    /* dark-pattern vocabulary — tailored (queue/expire words are legitimate here) */
+    const DARK = [
+      /limited[- ]time offer/i, /\bstreak\b/i, /only \d+ left/i, /\bhurry\b/i,
+      /act now/i, /don'?t miss/i, /\bfomo\b/i, /offer ends/i, /claim your/i,
+      /skip (the )?(queue|cooldown)/i, /buy (a |the )?cooldown/i, /loot box/i, /\bodds\b/i
+    ];
+    html.split('\n').forEach((ln, i) => {
+      for (const re of DARK)
+        if (re.test(ln)) add(g, 'fail', 'request.html', i + 1,
+          `dark-pattern vocabulary ${re}: ${ln.trim().slice(0, 100)}`);
+    });
+    /* screening is the shared engine, never a stub */
+    if (!html.includes('screen.js') || !html.includes('RWScreen.screenRequest'))
+      add(g, 'fail', 'request.html', null, 'demo must screen through world/screen.js, not a stub');
+    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap}`;
+  } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v31 local';
+out.build = 'world v32 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

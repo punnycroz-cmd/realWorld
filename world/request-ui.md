@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -127,7 +127,69 @@ status chip + timeline, mirroring what lands publicly on the feed.
 | Release early | "Released early — AI resumed mid-action. Unused time inside the cap is not refunded." |
 | Briefing secrets bar | "secrets, drama seeds, inner life — not redacted: absent." |
 
-## 8. Demo limits (what's simulated)
+## 8. v32 — wallet sheet, appeals, co-sponsors, session extend
+
+**Wallet sheet.** The header wallet opens a sheet, not a bare top-up: the full
+six-pack ladder (plan §2.1 PROPOSAL verbatim — 100/$0.99 → 14,000/$99.99), the
+one-time **first-purchase +50%** flagged on every pack until used, the **$200/day
+spend cap** shown as spent-so-far (packs that would exceed it are disabled, and
+the cap is never raised by a purchase), and the currency wall in plain text
+("credits never expire and never convert back to money or game dollars").
+Demo charges are labeled simulated — nothing real is billed.
+
+**Rewarded ads.** Opt-in only, inside the wallet sheet (plan §2.7): +2 cr per
+view, 5/day and 25/week counters visible on the button row. Never pre-roll,
+never mid-session, never inside the sim view. Deliberately a taste, not a wage.
+
+**Credits ledger.** A private itemized list under the feed: every debit
+(request charge, queue hold, co-sponsor, session extend, pack buy) and every
+credit (deny refund — implicit, queued cancel, nudge 50%, ad earn, appeal
+re-charge). The public feed shows refunds; the ledger shows everything.
+
+**Appeals.** A denied request card offers **appeal — different reviewer,
+≤72 h** for every appealable code (moderation.json: all deny codes except
+`legal-backstop` and `appeal-resubmit`, which are marked "not appealable" on
+the card). Appeals are **private** — they never post to the public feed;
+recaps may count them in aggregate only. On reversal the denial lifts and the
+request re-enters human review at its original quote: the upfront charge
+re-applies **only on approval** (the deny refund already landed). If balance
+can't cover the re-charge, the card waits with a "top up to run" affordance.
+Upheld is final for that request.
+
+**Co-sponsorship.** When a shared resource is locked by a *running* request
+with an identical declared intent (v32: weather only — `sky` claims carrying
+`wx` intent), the form offers a third path beside queue/wait: **co-sponsor the
+running call**. Same flat block price — you buy the same world event, not a
+discount. It classifies **compatible** (joins a live claim, locks nothing new),
+auto-runs on a passing screen, caps at 4 sponsors, and every sponsor is named
+on the feed line. A different forecast still queues. Merge target:
+game-v2 `GS_WX_OVR.sponsors`.
+
+**Session extend.** A running session may buy more minutes at its own rate
+while the class cap allows: possess +15 min at 1.5 cr/min (session total ≤120),
+camera +30 min at 10 cr. The button disables at the cap ("the cap is the cap")
+or on insufficient balance — in which case it deep-links the wallet sheet.
+Extends are ledger entries; the feed sees no extra noise.
+
+### v32 copy deck additions
+
+|| Moment | Copy |
+||---|---|
+|| Wallet header | "Credits buy agency, never access — watching stays free." |
+|| Currency wall | "Credits never expire and never convert back to money or game dollars." |
+|| First purchase | "First purchase +50% — one time, on any pack." |
+|| Spend cap hit | "That would pass the $200 daily spend cap — it is never raised by a purchase." |
+|| Ad earn | "Opt-in only, from this sheet — never pre-roll, never mid-session. A taste, not a wage." |
+|| Appeal offer | "appeal — different reviewer, ≤72 h" |
+|| Appeal filed | "Appeals never appear on the public feed." |
+|| Appeal reversed | "The deny refund stays; the charge re-applies only if it runs." |
+|| Appeal upheld | "The denial stands (second review is final)." |
+|| Not appealable | "this denial class is not appealable" (no button, no theater) |
+|| Co-sponsor offer | "Same flat block price — you buy the same world event, not a discount. Both names go on the feed." |
+|| Co-sponsor limit | "Only for an identical call; a different forecast queues." |
+|| Extend at cap | "the cap is the cap" (disabled-button title) |
+
+## 9. Demo limits (what's simulated)
 
 `request.html` ships without the game request bus (it lives on
 `sf/game-systems`): classification, review, sessions, and feed are local

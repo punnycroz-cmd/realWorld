@@ -11,6 +11,12 @@
   v18 adds: possession briefing preview (whitelist + absent-by-schema secrets),
   a live resource board (cooldowns/locks), the queued path (−15%, 24 h hold,
   auto-refund), a my-requests tray, and session controls (end-early handoff).
+  v32 adds: the wallet sheet (full pack ladder, first-purchase +50%, $200/day
+  spend cap, opt-in rewarded ads, itemized credits ledger), the private appeal
+  path on denials (different reviewer, ≤72 h, never on the public feed),
+  weather co-sponsorship (join a running identical call at the same flat
+  price — compatible class, every sponsor named), and session extend
+  (buy more minutes at session rate inside the class cap).
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -120,12 +126,45 @@
     display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
   .fineprint{max-width:1220px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
   .fineprint b{color:var(--ink)}
+  /* wallet sheet */
+  .sheet{position:fixed;inset:0;background:rgba(8,10,14,.72);display:none;z-index:20;
+    align-items:center;justify-content:center}
+  .sheet .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    width:min(560px,94vw);max-height:88vh;overflow:auto;padding:18px 20px}
+  .sheet .shead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .sheet .shead b{font-size:15px}
+  .sheet .x{color:var(--dim);cursor:pointer;font-size:18px;line-height:1}
+  .packs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+  .pack{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:9px 10px;
+    cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+  .pack:hover{border-color:var(--acc)}
+  .pack .cr{font-family:var(--mono);font-size:15px;color:var(--acc)}
+  .pack .usd{font-size:11.5px;color:var(--dim)}
+  .pack .fb{font-size:10.5px;color:var(--grn)}
+  .ads{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;font-size:12.5px}
+  .ads button{padding:6px 14px;font:inherit;font-size:12.5px;background:var(--panel2);
+    border:1px solid var(--blu);color:var(--blu);border-radius:6px;cursor:pointer}
+  .ads button:disabled{border-color:var(--line);color:var(--dim);cursor:not-allowed}
+  /* ledger */
+  .ledger{list-style:none;margin:0;padding:0;font-size:12px;max-height:150px;overflow:auto}
+  .ledger li{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed var(--line)}
+  .ledger .c{font-family:var(--mono)}
+  .ledger .c.in{color:var(--grn)} .ledger .c.out{color:var(--red)}
+  /* appeal + co-sponsor */
+  .myreq .abtn{float:right;font-size:10.5px;color:var(--acc);cursor:pointer;margin-left:8px}
+  .coopt{display:none;margin-top:10px;border:1px solid var(--grn);border-radius:6px;padding:9px 12px;font-size:12.5px}
+  .coopt label{display:block;color:var(--ink);margin:0 0 4px}
+  .coopt input{vertical-align:-2px;margin-right:6px}
+  .session .ext{margin-top:8px;padding:7px;font:inherit;font-size:12px;background:none;
+    border:1px solid var(--grn);border-radius:6px;color:var(--grn);cursor:pointer}
+  .session .ext:disabled{border-color:var(--line);color:var(--dim);cursor:not-allowed}
+  .st.appeal{background:#332a1e;color:var(--acc)}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">Real <span>World</span> — The Mission</div>
-  <div class="wallet"><b id="bal">1,240</b> cr <span class="topup" id="topup">+ top up</span></div>
+  <div class="wallet"><b id="bal">1,240</b> cr <span class="topup" id="topup">+ wallet</span></div>
 </header>
 
 <main>
@@ -159,6 +198,14 @@
         Hold my slot up to 24 h at −15%; if it never activates, auto-refund.</label>
     </div>
 
+    <div class="coopt" id="coopt">
+      <label><input type="checkbox" id="coMe"> <b>Co-sponsor the running call</b> —
+        join <span id="coWho"></span>'s weather instead of queueing.</label>
+      <span class="note">Same flat block price — you buy the same world event, not a
+        discount. Both names go on the feed. Only for an identical call; a different
+        forecast queues.</span>
+    </div>
+
     <div class="quote" id="quote"></div>
     <button class="submit" id="go">Submit request</button>
 
@@ -177,8 +224,32 @@
     <ul class="myreq" id="myreq"></ul>
     <h2>Public request feed <span class="note" style="display:inline">— every request, attributed</span></h2>
     <ul class="feed" id="feed"></ul>
+    <h2>Credits ledger <span class="note" style="display:inline">— every debit and refund, itemized</span></h2>
+    <ul class="ledger" id="ledger"></ul>
   </section>
 </main>
+
+<div class="sheet" id="wsheet">
+  <div class="card">
+    <div class="shead"><b>Wallet</b><span class="x" id="wclose">✕</span></div>
+    <div class="note" style="margin-top:0">Credits buy agency, never access — watching stays
+      free. Credits never expire and never convert back to money or game dollars.
+      Prices below are PROPOSAL (plan §2.1).</div>
+    <div class="packs" id="packs"></div>
+    <div class="note" id="fnote"></div>
+    <div class="ads" id="ads">
+      <h3>Earn a few credits — rewarded ads</h3>
+      <div class="row" style="align-items:baseline">
+        <button id="adbtn">Watch a short ad · +2 cr</button>
+        <span class="note" id="adcount"></span>
+      </div>
+      <div class="note">Opt-in only, from this sheet — never pre-roll, never mid-session,
+        never inside the sim view. A taste, not a wage.</div>
+    </div>
+    <div class="note" style="margin-top:10px">Daily spend cap $200 · demo payments are
+      simulated — no real charge, no real ads.</div>
+  </div>
+</div>
 
 <div class="fineprint">
   <b>Fairness, in plain sight:</b> exclusive requests are human-reviewed (median &lt;15 min);
@@ -199,6 +270,23 @@ var RATES = { compatible: 1.5, exclusive: 6.0 };            // cr/min, plan §2.
 var QUEUE_DISCOUNT = 0.15;
 var QUEUE_HOLD_H = 24;
 var LOW_WARN_MIN = 15;                                       // funded-minutes warning
+
+/* wallet — plan §2.1 ladder + §2.7 rewarded ads (PROPOSAL numbers, verbatim) */
+var PACKS = [
+  {id:'pocket',  usd:0.99,  cr:100},
+  {id:'starter', usd:4.99,  cr:550},
+  {id:'regular', usd:9.99,  cr:1150},
+  {id:'plus',    usd:19.99, cr:2500},
+  {id:'pro',     usd:49.99, cr:6750},
+  {id:'mogul',   usd:99.99, cr:14000}
+];
+var FIRST_BONUS = 0.5, FIRST_AVAIL = true;      // +50% on the first pack, once
+var SPEND_CAP_USD = 200, SPENT_USD = 0;          // daily cap
+var AD_CR = 2, AD_DAY = 5, AD_WEEK = 25, adsDay = 0, adsWeek = 0;
+var LEDGER = [];                                  // {what, cr} — private itemization
+var APPEAL_H = 72;
+var NONAPPEAL = {'legal-backstop':1,'appeal-resubmit':1};  // moderation.json
+var CO_CAP = 4;
 
 var ACTIONS = [
   { id:'possess', label:'Possess your character', cls:'compatible', per:'min',
@@ -233,7 +321,9 @@ var ACTIONS = [
    state: free | cool (cooldown, minutes left) | locked (exclusive running, minutes left)
    qa = queue depth waiting on it */
 var CLAIMS = {
-  'sky':           {name:'Sky (weather)', state:'cool',  left:118, lastExclusiveH:3, note:'exclusive ran 3 h ago · cooldown 4–8 h · surge ×1.5'},
+  'sky':           {name:'Sky (weather)', state:'locked', left:42, by:'marina_w',
+                    wx:{what:'clear skies', block_min:120, cr:70, sponsors:['marina_w']},
+                    note:'weather running — identical calls can co-sponsor'},
   'openair':       {name:'Open air (parks, alleys, blocks)', state:'free', qa:1},
   'venue:mudhaus': {name:'Mudhaus Coffee', state:'free'},
   'venue:club600': {name:'The 600 Club',   state:'locked', left:34, by:'marina_w', note:'private show window'},
@@ -278,8 +368,65 @@ var $ = function(id){ return document.getElementById(id); };
 function toast(m){ var t=$('toast'); t.textContent=m; t.style.display='block';
   clearTimeout(t._h); t._h=setTimeout(function(){t.style.display='none';},4200); }
 function balSet(n){ BAL=n; $('bal').textContent=n.toLocaleString(); }
-function topup(){ balSet(BAL+550); toast('Demo top-up: +550 cr (Starter pack · $4.99 — PROPOSAL pricing)'); refreshQuote(); }
-$('topup').onclick = topup;
+function ledgerAdd(what, cr){ LEDGER.unshift({what:what, cr:cr}); renderLedger(); }
+function chg(n, what){ balSet(BAL+n); ledgerAdd(what, n); }
+function renderLedger(){
+  var ul=$('ledger');
+  if (!LEDGER.length){ ul.innerHTML='<li style="border-style:dashed;color:var(--dim)">No credits moved yet — watching never touches the wallet.</li>'; return; }
+  ul.innerHTML='';
+  LEDGER.slice(0,14).forEach(function(e){
+    var li=document.createElement('li');
+    li.innerHTML='<span>'+e.what+'</span><span class="c '+(e.cr>=0?'in':'out')+'">'+
+      (e.cr>=0?'+':'')+e.cr.toLocaleString()+' cr</span>';
+    ul.appendChild(li);
+  });
+}
+
+/* ---- wallet sheet ---- */
+function openWallet(){
+  renderPacks();
+  $('fnote').textContent = FIRST_AVAIL
+    ? 'First purchase +50% — one time, on any pack. Spent today: $'+SPENT_USD.toFixed(2)+' of $'+SPEND_CAP_USD+'.'
+    : 'Spent today: $'+SPENT_USD.toFixed(2)+' of $'+SPEND_CAP_USD+' daily cap. Credits never expire.';
+  renderAds();
+  $('wsheet').style.display='flex';
+}
+function closeWallet(){ $('wsheet').style.display='none'; }
+function renderPacks(){
+  var box=$('packs'); box.innerHTML='';
+  PACKS.forEach(function(p){
+    var b=document.createElement('button'); b.className='pack';
+    var bonus = FIRST_AVAIL ? Math.round(p.cr*FIRST_BONUS) : 0;
+    b.innerHTML='<div class="cr">'+(p.cr+bonus).toLocaleString()+' cr</div>'+
+      '<div class="usd">$'+p.usd.toFixed(2)+'</div>'+
+      (bonus?'<div class="fb">incl. first-purchase +'+bonus.toLocaleString()+'</div>':'<div class="usd">'+p.cr.toLocaleString()+' cr pack</div>');
+    if (SPENT_USD + p.usd > SPEND_CAP_USD){ b.disabled=true; b.style.opacity=.45; b.title='over the $200 daily cap'; }
+    b.onclick=function(){ buyPack(p); };
+    box.appendChild(b);
+  });
+}
+function buyPack(p){
+  if (SPENT_USD + p.usd > SPEND_CAP_USD){ toast('That would pass the $200 daily spend cap — it is never raised by a purchase.'); return; }
+  var bonus = FIRST_AVAIL ? Math.round(p.cr*FIRST_BONUS) : 0;
+  FIRST_AVAIL=false; SPENT_USD+=p.usd;
+  chg(p.cr+bonus, p.id+' pack $'+p.usd.toFixed(2)+(bonus?' · +'+bonus+' first-purchase bonus':''));
+  toast('+'+(p.cr+bonus).toLocaleString()+' cr (demo charge — nothing real was billed)');
+  renderPacks(); refreshQuote();
+}
+function renderAds(){
+  $('adcount').textContent = adsDay+'/'+AD_DAY+' today · '+adsWeek+'/'+AD_WEEK+' this week';
+  $('adbtn').disabled = (adsDay>=AD_DAY || adsWeek>=AD_WEEK);
+}
+$('adbtn').onclick=function(){
+  if (adsDay>=AD_DAY || adsWeek>=AD_WEEK) return;
+  adsDay++; adsWeek++;
+  chg(AD_CR,'rewarded ad view');
+  toast('+2 cr — thanks for watching (demo ad, nothing played)');
+  renderAds();
+};
+$('topup').onclick = openWallet;
+$('wclose').onclick = closeWallet;
+$('wsheet').onclick = function(e){ if(e.target===$('wsheet')) closeWallet(); };
 function fmtMin(m){ return m>=60 ? (Math.floor(m/60))+' h '+(m%60?m%60+' min':'') : m+' min'; }
 
 /* ================= resource board ================= */
@@ -287,7 +434,8 @@ function renderBoard(){
   var html='';
   for (var k in CLAIMS){
     var c=CLAIMS[k], st, cls;
-    if (c.state==='locked'){ st='locked · '+fmtMin(c.left)+' left'+(c.by?' · '+c.by:''); cls='locked'; }
+    if (c.state==='locked'){ st='locked · '+fmtMin(c.left)+' left'+(c.by?' · '+c.by:''); cls='locked';
+      if (c.wx) st += ' · "'+c.wx.what+'" · '+(c.wx.sponsors.length)+'/'+CO_CAP+' sponsors'; }
     else if (c.state==='cool'){ st='cooldown · '+fmtMin(c.left)+' left'; cls='cool'; }
     else { st='free'+(c.qa?' · '+c.qa+' queued':''); cls=c.qa?'q':'free'; }
     html+='<div class="res"><div class="rn">'+c.name+'</div><div class="rs '+cls+'">'+st+'</div>'+
@@ -299,9 +447,25 @@ function renderBoard(){
 setInterval(function(){
   for (var k in CLAIMS){ var c=CLAIMS[k];
     if ((c.state==='cool'||c.state==='locked') && c.left>0){ c.left--;
-      if (c.left<=0){ c.state='free'; toast(c.name+' is free again — queued requests activate in order.'); promoteQueued(k); } } }
+      if (c.left<=0){
+        if (c.state==='locked' && c.wx){ resolveSponsors(k); c.wx=null;
+          c.state='cool'; c.left=240; c.note='cooldown 4–8 h · never skippable';
+          toast(c.name+' is cooling down — cooldowns are never for sale.');
+        } else { c.state='free'; toast(c.name+' is free again — queued requests activate in order.'); promoteQueued(k); }
+      } } }
   renderBoard(); refreshQuote();
 }, 3000);
+
+/* running co-sponsors resolve with the override they bought into */
+function resolveSponsors(ck){
+  MYREQ.forEach(function(r){
+    if (r.claim===ck && r.st==='running' && r.co){
+      r.st='resolved'; r.sub+=' · the call ended — both sponsors on the feed';
+      feedAdd('you', r.label, 'resolved');
+    }
+  });
+  renderMine();
+}
 
 /* ================= briefing preview ================= */
 function renderBrief(t){
@@ -377,7 +541,8 @@ function quote(a, t, durMin, queued){
 
 /* ================= UI wiring ================= */
 var actSel=$('action'), tgtSel=$('target'), durIn=$('dur'), durLbl=$('durLbl'),
-    durRow=$('durRow'), quoteBox=$('quote'), go=$('go'), qopt=$('qopt'), queueMe=$('queueMe');
+    durRow=$('durRow'), quoteBox=$('quote'), go=$('go'), qopt=$('qopt'), queueMe=$('queueMe'),
+    coopt=$('coopt'), coMe=$('coMe');
 
 ACTIONS.forEach(function(a){ var o=document.createElement('option'); o.value=a.id; o.textContent=a.label; actSel.appendChild(o); });
 
@@ -405,10 +570,15 @@ function refreshQuote(){
   if (a.per==='min') durLbl.textContent = dm+' min';
   else if (a.per==='block') durLbl.textContent = a.blocks[+durIn.value].lbl;
   var ck = claimOf(a,t), busy = claimBusy(ck);
-  qopt.style.display = (busy && a.cls==='exclusive') ? 'block' : 'none';
-  var q = quote(a, t, dm, busy && queueMe.checked);
+  var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
+  var co = coOK && coMe.checked;
+  coopt.style.display = coOK ? 'block' : 'none';
+  if (coOK) $('coWho').textContent = CLAIMS[ck].wx.sponsors.join(' + ');
+  qopt.style.display = (busy && a.cls==='exclusive' && !co) ? 'block' : 'none';
+  var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, busy && !co && queueMe.checked);
   var badge = '<span class="badge '+q.cls+'">'+q.cls+'</span>' +
-    (q.cls==='exclusive' ? ' <span class="badge">human review</span>' :
+    (co ? ' <span class="badge">co-sponsor · auto-run on pass</span>' :
+     q.cls==='exclusive' ? ' <span class="badge">human review</span>' :
      q.cls==='queued' ? ' <span class="badge">review on activation</span>' :
      ' <span class="badge">auto-run on pass</span>');
   var html = '<div class="line"><span>Classification</span><span>'+badge+'</span></div>';
@@ -416,16 +586,29 @@ function refreshQuote(){
     (CLAIMS[ck].state==='free'?'free':CLAIMS[ck].state==='cool'?'cooldown '+fmtMin(CLAIMS[ck].left):'locked '+fmtMin(CLAIMS[ck].left))+'</b></div>';
   q.lines.forEach(function(l){ html += '<div class="line'+(l[2]?' '+l[2]:'')+'"><span>'+l[0]+'</span><b>'+l[1]+'</b></div>'; });
   html += '<div class="line total"><span>Charged upfront · hard cap</span><b>'+q.total+' cr</b></div>';
-  if (busy && !queueMe.checked) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
+  if (busy && !queueMe.checked && !co) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
   if (a.note) html += '<div class="warn" style="color:var(--dim)">'+a.note+'</div>';
-  if (q.total > BAL) html += '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>';
+  if (q.total > BAL) html += '<div class="warn">Balance too low — <span class="topup" onclick="openWallet()">open wallet</span> first.</div>';
   quoteBox.innerHTML = html;
-  go.disabled = q.total > BAL || (busy && !queueMe.checked && a.cls==='exclusive');
-  go.textContent = (busy && a.cls==='exclusive' && !queueMe.checked) ? 'Resource busy — queue to file' : 'Submit request';
+  go.disabled = q.total > BAL || (busy && !queueMe.checked && !co && a.cls==='exclusive');
+  go.textContent = co ? 'Co-sponsor — join the running call' :
+    (busy && a.cls==='exclusive' && !queueMe.checked) ? 'Resource busy — queue to file' : 'Submit request';
+}
+/* co-sponsor quote: same flat block price as the running request — you buy
+   the same world event, not a discount; it classifies compatible because it
+   joins a live claim instead of locking a new one */
+function coQuote(a, c){
+  return { cls:'compatible', surge:1, co:true,
+    lines:[ ['Joining', '"'+c.wx.what+'" — '+c.wx.block_min/60+' h call by '+c.wx.sponsors.join(' + ')],
+            ['Sponsor price', c.wx.cr+' cr flat — same event, not a discount'],
+            ['Sponsors', (c.wx.sponsors.length+1)+' of '+CO_CAP] ],
+    total:c.wx.cr };
 }
 actSel.onchange = refreshTargets;
 tgtSel.onchange = function(){ renderBrief(curTarget()); refreshQuote(); };
 durIn.oninput = refreshQuote; queueMe.onchange = refreshQuote;
+coMe.onchange = function(){ if (coMe.checked) queueMe.checked=false; refreshQuote(); };
+queueMe.addEventListener('change', function(){ if (queueMe.checked) coMe.checked=false; refreshQuote(); });
 
 /* ================= feed ================= */
 function feedAdd(who, txt, st, tail){
@@ -454,19 +637,72 @@ function renderMine(){
     li.innerHTML='<div class="rt"><b>'+r.label+'</b><span class="st '+r.st+'">'+r.st+'</span></div>'+
       '<div class="sub">'+r.sub+'</div>'+
       (r.mini?'<div class="mini">'+r.mini+'</div>':'')+
-      (r.canCancel?'<span class="xbtn" data-rq="'+r.id+'">cancel — auto-refund</span>':'');
+      (r.canCancel?'<span class="xbtn" data-rq="'+r.id+'">cancel — auto-refund</span>':'')+
+      (r.canAppeal?'<span class="abtn" data-ap="'+r.id+'">appeal — different reviewer, ≤'+APPEAL_H+' h</span>':'')+
+      (r.needsFunds?'<span class="abtn" data-fund="'+r.id+'">top up to run — '+r.paid+' cr</span>':'');
     ul.appendChild(li);
   });
   ul.querySelectorAll('.xbtn').forEach(function(x){
     x.onclick=function(){ cancelReq(+x.dataset.rq); };
   });
+  ul.querySelectorAll('.abtn[data-ap]').forEach(function(x){
+    x.onclick=function(){ appealReq(+x.dataset.ap); };
+  });
+  ul.querySelectorAll('.abtn[data-fund]').forEach(function(x){
+    x.onclick=function(){ fundReq(+x.dataset.fund); };
+  });
+}
+
+/* ---- appeals (moderation.json appeal_flow) ----
+   Private only: individual appeals never hit the public feed — recaps may
+   count them in aggregate. A different reviewer decides; upheld is final. */
+function appealReq(id){
+  var r=findReq(id); if(!r||!r.canAppeal) return;
+  r.canAppeal=false; r.st='appeal';
+  r.sub+=' · appealed — a different reviewer decides within '+APPEAL_H+' h';
+  renderMine();
+  toast('Appeal filed — it goes to a different reviewer. Appeals never appear on the public feed.');
+  setTimeout(function(){
+    if (Math.random() < 0.4){          /* demo: some appeals reverse */
+      r.st='review';
+      r.sub+=' · reversed — denial lifted, back in human review';
+      r.mini='original charge '+r.paid+' cr re-applies only on approval';
+      toast('Appeal reversed — your request is back in review. The deny refund stays; the charge re-applies only if it runs.');
+      setTimeout(function(){
+        if (BAL >= r.paid){
+          r.st='resolved';
+          chg(-r.paid, 'appeal reversal — '+r.label+' (charge re-applied)');
+          r.sub+=' · approved · charge re-applied '+r.paid+' cr';
+          feedAdd('you', r.label+' approved on review','resolved');
+        } else {
+          r.st='review'; r.needsFunds=true;
+          r.sub+=' · approved — top up '+r.paid+' cr to run it';
+        }
+        renderMine();
+      }, 4000);
+    } else {
+      r.st='resolved';
+      r.sub+=' · appeal upheld — the denial stands (second review is final)';
+      toast('Appeal reviewed — the denial stands. You were already refunded in full.');
+    }
+    renderMine();
+  }, 5000);
+}
+function fundReq(id){
+  var r=findReq(id); if(!r||!r.needsFunds) return;
+  if (BAL < r.paid){ openWallet(); toast('Top up first — the re-charge posts only when balance covers it.'); return; }
+  r.needsFunds=false;
+  chg(-r.paid, 'appeal reversal — '+r.label+' (charge re-applied)');
+  r.st='resolved'; r.sub+=' · approved · charge re-applied '+r.paid+' cr';
+  feedAdd('you', r.label+' approved on review','resolved');
+  renderMine();
 }
 function findReq(id){ for (var i=0;i<MYREQ.length;i++) if (MYREQ[i].id===id) return MYREQ[i]; }
 function cancelReq(id){
   var r=findReq(id); if(!r||!r.canCancel) return;
   r.canCancel=false;
   if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
-  balSet(BAL + r.paid);
+  chg(r.paid, 'cancel — '+r.label+' (queued cancel refund)');
   r.st='refunded'; r.sub+=' · cancelled before activation — '+r.paid+' cr returned';
   feedAdd('you', r.label+' — cancelled before activation','refunded');
   toast('Cancelled — '+r.paid+' cr back. Queued requests never keep your money.');
@@ -505,8 +741,10 @@ go.onclick = function(){
   var dm = durMin(a);
   var text = $('intent').value.trim();
   var ck = claimOf(a,t), busy = claimBusy(ck);
-  var queued = busy && a.cls==='exclusive' && queueMe.checked;
-  var q = quote(a, t, dm, queued);
+  var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
+  var co = coOK && coMe.checked;
+  var queued = busy && a.cls==='exclusive' && !co && queueMe.checked;
+  var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, queued);
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
   go.disabled = true;
 
@@ -530,14 +768,27 @@ go.onclick = function(){
       stage('Not approved', 'fail', scr.msg);
       stage('Refund', 'done', q.total + ' cr returned — denied requests never bill');
       mine.st='resolved'; mine.sub+=' · not approved ('+scr.code+') · refunded in full';
+      if (!NONAPPEAL[scr.code]) mine.canAppeal=true;
+      else mine.sub+=' · this denial class is not appealable';
       feedAdd('you', label+' — request not approved', 'resolved');
       toast(scr.msg + ' (refunded ' + q.total + ' cr)');
       renderMine(); go.disabled=false; return;
     }
     s2.className='stage done'; s2.querySelector('.why').textContent='pass';
 
+    if (co){
+      chg(-q.total, 'weather co-sponsor — "'+CLAIMS[ck].wx.what+'"');
+      CLAIMS[ck].wx.sponsors.push('you');
+      stage('Co-sponsor filed','done','joins the running call — auto-run on pass');
+      mine.st='running'; mine.co=true; mine.claim=ck;
+      mine.sub+=' · co-sponsoring "'+CLAIMS[ck].wx.what+'" · sponsors: '+CLAIMS[ck].wx.sponsors.join(' + ');
+      feedAdd('you','weather — co-sponsored "'+CLAIMS[ck].wx.what+'" with '+CLAIMS[ck].by,'running');
+      toast('You are a sponsor now — every name rides the feed line.');
+      renderMine(); renderBoard(); go.disabled=false; return;
+    }
+
     if (queued){
-      balSet(BAL - q.total);
+      chg(-q.total, 'queued — '+label+' (slot held ≤'+QUEUE_HOLD_H+' h)');
       stage('Queued', 'done', 'slot held ≤'+QUEUE_HOLD_H+' h · expires → auto-refund · review on activation');
       mine.st='queued'; mine.canCancel=true; mine.sub+=' · waiting on '+CLAIMS[ck].name;
       mine.mini='hold expires +'+QUEUE_HOLD_H+' h · paid '+q.total+' cr (−15%)';
@@ -563,14 +814,14 @@ go.onclick = function(){
 function run(a, t, q, dm, text, label, mine){
   var nudgeDeclined = (a.id==='nudge' && /decline|refuse|no thanks/i.test($('intent').value)) ||
                       (a.id==='nudge' && Math.random() < 0.3);
-  balSet(BAL - q.total);
+  chg(-q.total, a.label.toLowerCase()+' — '+t.label);
   mine.st='running'; feedAdd('you', label+' ('+(a.per==='min'?dm+' min':a.per==='block'?(dm/60)+' h':'one-shot')+')', 'running');
   renderMine();
 
   if (a.id==='nudge'){
     setTimeout(function(){
       if (nudgeDeclined){
-        var back = Math.floor(q.total*0.5); balSet(BAL+back);
+        var back = Math.floor(q.total*0.5); chg(back,'nudge declined — 50% refund');
         stage('Declined by character', 'wait', 'the ask was heard; the answer was no');
         stage('Partial refund', 'done', back+' cr back (50% — you bought the ask, not the outcome)');
         mine.st='refunded'; mine.sub+=' · declined — 50% back';
@@ -600,19 +851,43 @@ function run(a, t, q, dm, text, label, mine){
   var left = mins; // demo: 1 tick = ~200 ms stands for 1 min
   stage('Running', 'done', mins+' min hard cap');
   var lowWarned = false;
+  var totalMin = mins;
+  var extMin = a.id==='possess' ? 15 : 30;                 // possess +15, camera +30
+  var extCost = a.id==='possess' ? Math.ceil(extMin*RATES.compatible) : 10;
+  var extCap = a.id==='possess' ? 120 : Infinity;          // class max for compatible
   sess.innerHTML='<h2>Live session — '+t.label+'</h2>' +
     '<div class="clock" id="clock">'+left+':00</div>' +
     '<div class="srow"><span>hard cap</span><span id="fundline"></span></div>' +
+    '<div class="srow"><span>session length</span><span id="totline">'+totalMin+' min'+(isFinite(extCap)?' (max '+extCap+')':'')+'</span></div>' +
     (a.id==='possess' ? '<div class="srow"><span>brain</span><span>suspended — AI resumes on release</span></div>' : '') +
     '<div class="note">At zero, control hands back to the AI seamlessly — logged on the feed as \u201cplayer session ended\u201d.</div>' +
+    '<button class="ext" id="extend">Extend +'+extMin+' min — '+extCost+' cr at session rate</button>' +
     '<button class="ghost" id="endearly">Release early — same graceful handoff</button>';
   $('endearly').onclick=function(){ endSession(a, t, mine, left, true); };
+  var extBtn=$('extend');
+  function extRefresh(){
+    var can = totalMin + extMin <= extCap && BAL >= extCost;
+    extBtn.disabled = !can;
+    extBtn.title = totalMin + extMin > extCap ? 'at the class max — the cap is the cap' :
+                   BAL < extCost ? 'open the wallet to top up' : '';
+  }
+  extBtn.onclick=function(){
+    if (totalMin + extMin > extCap) return;
+    if (BAL < extCost){ openWallet(); return; }
+    chg(-extCost, 'session extend +'+extMin+' min — '+t.label);
+    left += extMin; totalMin += extMin;
+    $('totline').textContent = totalMin+' min'+(isFinite(extCap)?' (max '+extCap+')':'');
+    mine.mini=(mine.mini||'')+' · extended +'+extMin+' min';
+    extRefresh(); renderMine();
+  };
+  extRefresh();
   clearInterval(sessTimer);
   activeSess={mine:mine, a:a, t:t};
   sessTimer = setInterval(function(){
     left--;
     var perMin = RATES[q.cls==='queued'?'compatible':q.cls] || 1.5;
     var fundedLeft = Math.floor(BAL / perMin);
+    extRefresh();
     $('clock').textContent = left+':00';
     $('fundline').textContent = fundedLeft+' funded min on balance';
     if (!lowWarned && (left <= LOW_WARN_MIN || fundedLeft <= LOW_WARN_MIN)){
@@ -632,7 +907,7 @@ function endSession(a, t, mine, left, early){
   renderMine(); go.disabled=false;
 }
 
-renderBoard(); renderMine(); refreshTargets();
+renderBoard(); renderMine(); renderLedger(); refreshTargets();
 </script>
 </body>
 </html>

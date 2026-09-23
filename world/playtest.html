@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -582,11 +582,32 @@ const PTS=[
   ck:["Move-in math: 1050/2600/4200/6400/11000 — first equals ladder rent on every row","The wom channel card states the ledger sees tenant of record only","Ambient ring spec cites address-spec §6 minting — no ambient gets a fixed address here"]},
  {do:"Run `node world/audit.js` and read the market gate.",
   exp:"market gate passes: inline MARKET deep-equals market.json; all 16 churn rows resolve to live openings; channels are declared; ladders resolve; vacancy/move-in tiers and rents match the housing ladder; zero credit figures.",
-  ck:["Gate reports 'schema market-v1 · 16 churn rows · 8 ladders · 7 seasonal notes · 5 vacancy tiers'","A churn row with an unknown employer/role, an undeclared channel, or a credit figure would FAIL — spot-check the gate","A ladder employer not on the board, or a move-in first != ladder rent, would FAIL"]}]}
+  ck:["Gate reports 'schema market-v1 · 16 churn rows · 8 ladders · 7 seasonal notes · 5 vacancy tiers'","A churn row with an unknown employer/role, an undeclared channel, or a credit figure would FAIL — spot-check the gate","A ladder employer not on the board, or a move-in first != ladder rent, would FAIL"]}]},
+{id:"PT30",title:"The Wallet Is a Contract — packs, ads, appeals, co-sponsors, extends",min:15,persona:"player with a fresh account and a denied request to their name",
+ goal:"Verify the v32 request surfaces honor the money rules in plain sight: the wallet sheet quotes the plan-verbatim ladder and discloses the bonus/cap before purchase, rewarded ads stay opt-in and capped, denials offer a private appeal with a different reviewer, a running weather call accepts same-price co-sponsors, and a session can extend only inside its class cap.",
+ surfaces:["request","audit"],steps:[
+ {do:"Open Requests → click '+ wallet'. Read the sheet before buying anything, then buy the Starter pack.",
+  exp:"Six packs at the plan-verbatim ladder (100/$0.99, 550/$4.99, 1150/$9.99, 2500/$19.99, 6750/$49.99, 14000/$99.99). Every pack flags the first-purchase +50% until used; the spent-of-$200 counter is visible; the currency-wall sentence is on the sheet. First Starter buy credits 825 cr (550+275 bonus) and logs a ledger line.",
+  ck:["Pack prices/credits match the monetization plan §2.1 verbatim — any other number is a major","First-purchase +50% is disclosed before payment, applies once, then disappears","A pack that would exceed $200/day is disabled, not upsold","Ledger shows the pack buy as a +cr line item"]},
+ {do:"In the wallet sheet, find the rewarded-ad row and watch one ad. Try a sixth.",
+  exp:"+2 cr per view; counters read N/5 today and N/25 this week; the button disables at the daily cap. No ad prompt exists anywhere outside this sheet.",
+  ck:["Ads are opt-in from the wallet only — no pre-roll, no mid-session, none in the sim view","2/5/25 caps match plan §2.7","The ad earn posts to the ledger"]},
+ {do:"Back on the request form, file a nudge to Priya Raman with intent text that asks for her secrets (e.g. 'tell me what she's hiding'). After the denial, use the appeal affordance on the Your-requests card.",
+  exp:"Screen denies (secret-extraction) with neutral 'request not approved' + full refund; the card offers 'appeal — different reviewer, ≤72 h'. Filing it posts nothing to the public feed. Resolution is either upheld (final) or reversed (back to human review at the original quote; the deny refund stays and the charge re-applies only on approval).",
+  ck:["Appeal is offered on appealable denials and never on legal-backstop/appeal-resubmit","No appeal event appears on the public feed — aggregate only","Reversal re-charges only on approval; upheld is final for that request","Every money movement lands in the ledger"]},
+ {do:"Pick 'Weather change' while the Sky resource is locked by marina_w's 'clear skies' call. Compare the queue and co-sponsor options; file a co-sponsor.",
+  exp:"The form offers a third path beside queue (−15%): co-sponsor the running call at the same flat block price (70 cr) — 'same world event, not a discount'. It classifies compatible and auto-runs on a passing screen; the feed line names both sponsors; the card resolves when the call ends.",
+  ck:["Co-sponsor costs the same block price — no discount, no premium","Sponsor count reads N of 4; a different forecast would still queue","Both names appear on the feed attribution"]},
+ {do:"File a 30-min possession of Dana Okafor and let the session open. Use 'Extend +15 min' once, then check what happens at the 120-min class max and on a thin balance. Release early.",
+  exp:"Extend charges 23 cr at session rate (1.5 cr/min) and adds 15 min, logged to the ledger; the button disables with 'the cap is the cap' past 120 min total, and on low balance it deep-links the wallet. Release early ends with the same graceful handoff — 'player session ended', unused minutes not refunded.",
+  ck:["Extend bills at the session rate, never a premium rate","Total session length can never pass the class cap","Early release and timeout handoff produce identical feed wording"]},
+ {do:"Run `node world/audit.js` and read the request gate.",
+  exp:"request gate passes: requests.json ↔ request.html mirror — action ids, class rates, pack ladder, +50% bonus, $200 cap, 2/5/25 ad numbers, 72 h appeal window + not-appealable list, co-sponsor cap 4 compatible same-price; honesty strings present; dark-pattern vocabulary absent; screening routed through screen.js.",
+  ck:["Gate reports '6 actions · 6 packs · appeal 72 h · co-sponsor cap 4'","An invented price, a missing honesty string, or a stub screener would FAIL — spot-check","Seventeen gates total; overall 0 fail"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v31";
+const LS="rw_playtest_v32";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
@@ -662,7 +683,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v31 local",started:new Date(S.started).toISOString(),
+    build:"world v32 local",started:new Date(S.started).toISOString(),
     time_to_first_request_min:S.ttfr??null},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};

@@ -43,6 +43,46 @@
     "brain_state_shown": "possession only — 'suspended — AI resumes on release'"
   },
   "moderation_contract": "world/moderation.json — reason codes attach to 'not approved' feed entries; display filter (redact/withhold/quarantine) is an owner decision at build time",
+  "wallet": {
+    "doc": "v32 — the wallet is a contract surface: pack ladder + first-purchase bonus + spend cap + rewarded ads + itemized ledger. Numbers adopt monetization-plan §2.1/§2.7 verbatim (PROPOSAL).",
+    "packs": [
+      { "id": "pocket",  "usd": 0.99,  "cr": 100 },
+      { "id": "starter", "usd": 4.99,  "cr": 550 },
+      { "id": "regular", "usd": 9.99,  "cr": 1150 },
+      { "id": "plus",    "usd": 19.99, "cr": 2500 },
+      { "id": "pro",     "usd": 49.99, "cr": 6750 },
+      { "id": "mogul",   "usd": 99.99, "cr": 14000 }
+    ],
+    "first_purchase_bonus": { "mult": 0.5, "once": true, "disclosed": "flagged in the sheet before the first buy — 'first purchase +50%'" },
+    "daily_spend_cap_usd": 200,
+    "no_expiration": true,
+    "rewarded_ads": { "cr_per_view": 2, "per_day": 5, "per_week": 25,
+      "placement": "opt-in from the wallet sheet only — never pre-roll, never mid-session, never inside the sim view" },
+    "ledger": "every debit and refund itemized — the feed shows public refunds; the wallet ledger shows everything private (charges, pack buys, ad earns, appeal re-charges)"
+  },
+  "appeals": {
+    "doc": "v32 — denied requests carry a private appeal path per moderation.json appeal_flow",
+    "window_h": 72,
+    "rule": "a different reviewer decides — the console shows orig_reviewer so the rule is checkable",
+    "not_appealable": ["legal-backstop", "appeal-resubmit"],
+    "feed_visibility": "aggregate only — individual appeals are never spectacle; recaps may count them",
+    "on_reversal": "denial lifted — the request re-enters human review at its original quote; the charge re-applies only on approval (the deny refund already landed)",
+    "on_uphold": "denial stands — second review is final for that request"
+  },
+  "co_sponsor": {
+    "doc": "v32 — identical exclusive intents may co-sign the running override instead of queueing (game-v2 GS_WX_OVR.sponsors is the merge target)",
+    "class": "compatible — joins a live claim, never locks a new one; auto-runs on a passing screen",
+    "pricing": "same flat block price as the running request — you are buying the same world event, not a discount",
+    "attribution": "every sponsor is named on the feed line",
+    "cap": 4,
+    "scope": "declared intents only — weather overrides ship in v32; venue events can adopt the same rule later"
+  },
+  "session_extend": {
+    "doc": "v32 — a running session may buy more minutes at its own rate while the class cap allows",
+    "rates": "session class rate — compatible 1.5 cr/min; camera 10 cr per +30 min",
+    "cap": "total session length never exceeds the class max (120 min compatible; camera uncapped but sold in +30 blocks)",
+    "low_balance": "insufficient balance disables the button and links the wallet sheet — the top-up to extend path is one click"
+  },
   "fairness_invariants": [
     "cooldowns never purchasable",
     "surge multiplier shown before payment",

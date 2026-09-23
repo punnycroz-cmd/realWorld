@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 31,
+ "version": 32,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -1509,6 +1509,75 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT30",
+   "title": "The Wallet Is a Contract — packs, ads, appeals, co-sponsors, extends",
+   "minutes": 15,
+   "persona": "player with a fresh account and a denied request to their name",
+   "goal": "Verify the v32 request surfaces honor the money rules in plain sight: the wallet sheet quotes the plan-verbatim ladder and discloses the bonus/cap before purchase, rewarded ads stay opt-in and capped, denials offer a private appeal with a different reviewer, a running weather call accepts same-price co-sponsors, and a session can extend only inside its class cap.",
+   "surfaces": [
+    "request",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open Requests → click '+ wallet'. Read the sheet before buying anything, then buy the Starter pack.",
+     "expect": "Six packs at the plan-verbatim ladder (100/$0.99, 550/$4.99, 1150/$9.99, 2500/$19.99, 6750/$49.99, 14000/$99.99). Every pack flags the first-purchase +50% until used; the spent-of-$200 counter is visible; the currency-wall sentence is on the sheet. First Starter buy credits 825 cr (550+275 bonus) and logs a ledger line.",
+     "checkpoints": [
+      "Pack prices/credits match the monetization plan §2.1 verbatim — any other number is a major",
+      "First-purchase +50% is disclosed before payment, applies once, then disappears",
+      "A pack that would exceed $200/day is disabled, not upsold",
+      "Ledger shows the pack buy as a +cr line item"
+     ]
+    },
+    {
+     "do": "In the wallet sheet, find the rewarded-ad row and watch one ad. Try a sixth.",
+     "expect": "+2 cr per view; counters read N/5 today and N/25 this week; the button disables at the daily cap. No ad prompt exists anywhere outside this sheet.",
+     "checkpoints": [
+      "Ads are opt-in from the wallet only — no pre-roll, no mid-session, none in the sim view",
+      "2/5/25 caps match plan §2.7",
+      "The ad earn posts to the ledger"
+     ]
+    },
+    {
+     "do": "Back on the request form, file a nudge to Priya Raman with intent text that asks for her secrets (e.g. 'tell me what she's hiding'). After the denial, use the appeal affordance on the Your-requests card.",
+     "expect": "Screen denies (secret-extraction) with neutral 'request not approved' + full refund; the card offers 'appeal — different reviewer, ≤72 h'. Filing it posts nothing to the public feed. Resolution is either upheld (final) or reversed (back to human review at the original quote; the deny refund stays and the charge re-applies only on approval).",
+     "checkpoints": [
+      "Appeal is offered on appealable denials and never on legal-backstop/appeal-resubmit",
+      "No appeal event appears on the public feed — aggregate only",
+      "Reversal re-charges only on approval; upheld is final for that request",
+      "Every money movement lands in the ledger"
+     ]
+    },
+    {
+     "do": "Pick 'Weather change' while the Sky resource is locked by marina_w's 'clear skies' call. Compare the queue and co-sponsor options; file a co-sponsor.",
+     "expect": "The form offers a third path beside queue (−15%): co-sponsor the running call at the same flat block price (70 cr) — 'same world event, not a discount'. It classifies compatible and auto-runs on a passing screen; the feed line names both sponsors; the card resolves when the call ends.",
+     "checkpoints": [
+      "Co-sponsor costs the same block price — no discount, no premium",
+      "Sponsor count reads N of 4; a different forecast would still queue",
+      "Both names appear on the feed attribution"
+     ]
+    },
+    {
+     "do": "File a 30-min possession of Dana Okafor and let the session open. Use 'Extend +15 min' once, then check what happens at the 120-min class max and on a thin balance. Release early.",
+     "expect": "Extend charges 23 cr at session rate (1.5 cr/min) and adds 15 min, logged to the ledger; the button disables with 'the cap is the cap' past 120 min total, and on low balance it deep-links the wallet. Release early ends with the same graceful handoff — 'player session ended', unused minutes not refunded.",
+     "checkpoints": [
+      "Extend bills at the session rate, never a premium rate",
+      "Total session length can never pass the class cap",
+      "Early release and timeout handoff produce identical feed wording"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the request gate.",
+     "expect": "request gate passes: requests.json ↔ request.html mirror — action ids, class rates, pack ladder, +50% bonus, $200 cap, 2/5/25 ad numbers, 72 h appeal window + not-appealable list, co-sponsor cap 4 compatible same-price; honesty strings present; dark-pattern vocabulary absent; screening routed through screen.js.",
+     "checkpoints": [
+      "Gate reports '6 actions · 6 packs · appeal 72 h · co-sponsor cap 4'",
+      "An invented price, a missing honesty string, or a stub screener would FAIL — spot-check",
+      "Seventeen gates total; overall 0 fail"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1516,7 +1585,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v31 local",
+   "build": "world v32 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },
