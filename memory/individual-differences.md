@@ -430,3 +430,439 @@ profile recipes keep working:
   a few strong pairs) is more defensible than its magnitudes.
 - Sex effects are small on purpose — the meta-analytic reality is a
   material-specific tilt, and overshooting it produces caricature.
+
+---
+---
+
+# Part II — v19: the second axis of difference (state noise, language,
+# culture, metacognition, domain knowledge, and time itself)
+
+**Version focus:** v19 · **Date:** 2026-09-23 · **Builds on:** Part I
+(trait layer), spec v1.8, profiles §7.
+
+Part I established that within-age variance is *structured*: one latent
+vector projects onto ~100 params. Part II pushes the layer in five
+directions the first pass left informal:
+
+1. **Time-varying person noise.** A character is not the same rememberer
+   every day — intraindividual variability (IIV) is a *trait in itself*,
+   and it grows with age and shrinks with control (§10).
+2. **Encoding channel context that is personal**: language of encoding
+   for bilinguals (§11) and self-construal for content/style (§12) —
+   neither is a generic cue weight; both are who-the-character-is.
+3. **Metacognitive personality.** Confidence, complaints, and checking
+   have their own trait axes that are *deliberately decoupled* from
+   accuracy (§13) — including the documented paradox that verification
+   *destroys* confidence.
+4. **Knowledge as a double edge.** Crystallized knowledge and domain
+   expertise buy recall AND semantic-lure vulnerability (§14).
+5. **Slow change.** Traits themselves drift with age (maturity
+   principle) and individual aging slopes differ (§15) — plus one new
+   *state* the v5 two-timescale rule needed: intoxication (§16).
+
+New traits: `inattn`, `verbal`, `gc`, `meta_conf`, `checker`,
+`culture_self`, `fitness`, `dissoc`, `empathy` (promoted from v1.7
+implicit), `langs` (set-valued). New params: §16 loading table →
+spec §7.
+
+---
+
+## 9. Why more axes: what Part I could not express
+
+Part I's traits explain *level* differences. Three literatures say the
+residual structure is not noise either:
+
+- **Within-person variance is itself a stable trait.** Intraindividual
+  variability (trial-to-trial and day-to-day spread, not just mean)
+  is reliable, increases with age, inversely relates to WMC, and
+  *predicts* cognitive decline better than mean level in some cohorts
+  (Hultsch, MacDonald, Hunter, Levy-Bencheton & Strauss 2000;
+  MacDonald, Hultsch & Dixon 2003; Nesselroade & Salthouse 2004 found
+  within-person variance ~60% of total in perceptual-motor tasks).
+  **[CONSENSUS that IIV is real and age-linked; the generative mapping
+  to our daily-noise term is HYPOTHESIS.]**
+- **Metamemory is a personality domain.** Self-confidence is a stable,
+  domain-general trait orthogonal to ability (Kleitman & Stankov 2007 —
+  confidence ratings correlate across verbal/perceptual tasks while
+  accuracy does not; also Kleitman & Stankov 2001). Memory *complaints*
+  correlate with depression/anxiety (r≈0.3–0.4) more than with tested
+  performance (r≈0.1–0.15) (Jonker, Geerlings & Schmand 2000; Reid &
+  MacLullich 2006). **[CONSENSUS.]**
+- **Language and culture re-partition autobiographical memory.** Both
+  change *which* records exist and *how* they are told — not captured
+  by any ±σ loading on shared params (§§11–12).
+
+Consequence: the trait layer gets a second block of axes and one new
+state variable, while Part I's axes are untouched — this is additive,
+not a refactor.
+
+## 10. IIV — the inconsistency trait
+
+New trait `iiv` (+ = more variable) and param `iiv_sigma` (σ of a
+per-day multiplier on encoding E and per-call noise on drive). The
+documented structure:
+
+- IIV rises with age and with low WMC (Hultsch et al. 2000; Lövdén et
+  al. 2007), and is *more* trait-like than mean level across domains
+  (Nesselroade & Salthouse 2004). 
+- Formalization: each dailyMemoryTick draws
+  `day_mult = exp(N(0, iiv_sigma))` applied to that day's encoding E and
+  to θ (retrieval-side half as large: θ += N(0, iiv_sigma/2) per recall
+  call). `iiv_sigma = 0.04·(1 + age_eff/50)·(1 − 0.25·wmc)` —
+  a 70-year-old low-control character is ~2× as day-to-day variable as
+  a young high-control one. [Functional-form HYPOTHESIS on CONSENSUS
+  direction.]
+- Design consequence: P56's rank-stability test stays true at the trait
+  level while *daily* performance legitimately crosses ranks — a
+  character has good days and bad days without any plot reason. This
+  also gives the game-systems track a cheap "off day" dial.
+
+Related but distinct: `inattn` — the everyday-lapse trait (Cognitive
+Failures Questionnaire lineage, Broadbent et al. 1982; mind-wandering
+literature, Smallwood & Schooler 2006; Unsworth & McMillan 2013 —
+mind-wandering prospectively predicts PM errors and encoding gaps).
+Model: `omit_p` — probability a routine, low-salience event is never
+encoded *at all* (not a weak record — absent), plus small pm_self and
+enc_base costs. This is the "walked right past the note" trait; it
+produces absent-mindedness that no amount of retrieval cuing can fix,
+which is exactly what makes it read as a personality and not a bug.
+[CONSENSUS direction; omit_p magnitude HYPOTHESIS.]
+
+## 11. Language of encoding — bilingual cue match
+
+Marian & Neisser (2000): Russian-English bilinguals retrieved ~2× more
+memories from the matching-language life period; ambient language
+mattered more than prompt language (Exp 2: both independently
+effective). This is encoding specificity operating through the
+linguistic channel — the cleanest possible justification for a `lang`
+field on records.
+
+Model:
+- Record schema gains optional `lang` (the dominant language of the
+  episode; world-builder/event layer supplies it — Mission District
+  Spanish/English bilinguals, Mandarin grandparents, etc.).
+- cueContext gains `lang`; when both are set and differ, the
+  verbal/topic/people cue contributions are attenuated ×`lang_mismatch`
+  (≈0.6) — not zeroed: context match, not access gating (Marian &
+  Neisser; Matsumoto & Stanny 2006 on emotional language).
+- Converse: monolingual characters (`langs` singleton) never pay the
+  cost — trait expresses only through record distribution.
+- **Deliberate null:** bilingualism gets NO `wmc`/executive bonus. The
+  "bilingual advantage" literature failed replication (Paap & Greenberg
+  2013; Paap, Johnson & Sawi 2015) — we mark it DEBATED-to-null and
+  assign zero loading. The real effect we model is cue specificity.
+
+## 12. Self-construal — whose story gets kept
+
+Wang's program (Wang 2001 — American vs Chinese students' earliest
+memories ~6 months apart; Americans lengthy/specific/self-focused/
+emotionally elaborate, Chinese brief/collective/routine-focused;
+Wang & Brockmeier 2002; Wang 2003 infantile-amnesia cross-cultural
+analysis; Fivush & Nelson 2004 on maternal reminiscing style as the
+mechanism) establishes that self-construal changes autobiographical
+memory's *boundary, content mix, and narrative density*.
+
+New trait `culture_self` ∈ [−1, +1] (−1 = strongly interdependent, +1 =
+strongly independent; we parameterize the *psychological construct*,
+not ethnicity — a Mission kid raised on elaborative dinner-table
+reminiscing is +0.8 regardless of ancestry):
+
+| param | loading | basis |
+|---|---|---|
+| amnesia_exit | −0.5y·culture_self | Wang 2001/2003 (~6mo observed shift) |
+| w_self | ·+0.10·culture_self | self-focused content (CONSENSUS) |
+| w_people | ·−0.05·culture_self → i.e. social/routine weight up at −1 | Wang content analyses |
+| specificity | +0.05·culture_self | specific vs categorical style |
+| emo tag richness at encoding | +0.05·culture_self on `vivid_detail` | emotional elaboration |
+| retell content | interdependent → collective framing drifts fields toward shared/routine (uses existing §6.11 audience_tune machinery — no new param) | Wang & Brockmeier 2002 |
+
+**Mechanism note:** the amnesia_exit effect is hypothesized to run
+through reminiscing *style* (elaborative vs pragmatic maternal talk,
+Fivush; Leichtman) — so the trait belongs in character bibles as
+"family reminiscing culture," which world-builder can set
+independently of present-day personality. [CONSENSUS that the group
+difference exists; per-character parameterization HYPOTHESIS.]
+
+## 13. Metacognitive personality — confidence, complaints, checking
+
+Three traits that deliberately do NOT touch accuracy:
+
+- **`meta_conf` → `conf_bias` (existing param) + `meta_cal` (new).**
+  Trait self-confidence is stable and domain-general (Kleitman &
+  Stankov 2007). `conf_bias` is the intercept (already in §7);
+  `meta_cal` is the calibration *slope*: reported confidence spread
+  scales `conf_out = conf_bias + meta_cal·(conf − 0.5) + oc_gain…`.
+  High-meta_conf characters report confidently right AND confidently
+  wrong — the courtroom-persuasive unreliable narrator.
+- **`mem_complaint` — felt memory decoupled from real memory.**
+  `selfReport` (v1.0) gains a complaint term:
+  `complaint = clamp01(0.3·neurot + 0.4·distrust + 0.2·stereo_suscept·
+  age_gate + complaint_k·N(0,1) − 0.1·g_mem)` — note the weights:
+  affective traits dominate, actual ability enters at −0.1 only,
+  matching the complaint-vs-performance literature (Jonker 2000;
+  Reid & MacLullich 2006; meta-analytic complaint-depression link in
+  older adults). The 65-year-old who says "my memory is going" may be
+  the cast's most accurate member; the 30-year-old who never complains
+  may confabulate daily. Believability gold for dialogue. [CONSENSUS
+  direction; weights HYPOTHESIS.]
+- **`checker` and the verification paradox.** van den Hout & Kindt
+  (2003; replicated — Radomsky et al.; meta-analysis k=28, N=1662,
+  *large* effects on confidence/vividness/detail, small on accuracy):
+  repeated checking *reduces* memory confidence — familiarity shifts
+  processing to the conceptual level, starving recollection of
+  perceptual detail. Model: `cueContext.verify:true` recall calls apply
+  `conf_out −= check_conf_loss·log1p(retrievalCount)` and report fewer
+  detail fields (vivid_detail fraction ↓ on the report side only —
+  the record is intact; the *experience* of it is thinned). High
+  `checker` trait → character keeps checking → keeps distrusting →
+  keeps checking. A self-sealing loop straight out of the OCD
+  literature, free of any psychopathology claim: any meticulous
+  landlord re-checking "did I lock the unit" gets the effect.
+  [CONSENSUS — one of the better-replicated individual-difference
+  findings in metamemory.]
+
+## 14. Knowledge and expertise — the double edge
+
+Part I had `reserve` (buffer) and v1.0 has `expert_gain`/`domainMatch`.
+Two findings sharpen the picture:
+
+- **Crystallized knowledge `gc` trait** (Horn & Cattell; preserves or
+  grows into old age — Salthouse). Loadings: `link_p`·+0.10/σ for
+  knowledge-consistent records (richer associative scaffold);
+  `know_protect_*` gains +0.10/σ; `search_breadth` +1/σ (more
+  candidates to try); `lure_accept` **+0.05/σ — positive sign**:
+  denser semantic networks mean stronger gist extraction, and gist
+  is what semantic lures exploit (Brainerd & Reyna FTT; the aging
+  DRM literature). `tot_rate` +0.02/σ — bigger vocabulary, more
+  near-neighbor blockers (Burke et al. 1991). The well-read character
+  is *better* at knowing things and *worse* at knowing whether a
+  plausible thing actually happened. [CONSENSUS for both directions;
+  the coupling is our FTT-derived HYPOTHESIS.]
+- **Expertise dark side `expert_lure`.** Experts show *more* false
+  recall for domain-consistent material (Baird 2003; Castel, McCabe,
+  Roediger & Heitman 2007 "The Dark Side of Expertise"; Arkes &
+  Freedman 1984). Model: when `domainMatch` fires (v1.0 machinery),
+  `expert_gain` boosts encoding AND `expert_lure` (≈0.10) adds to
+  lure acceptance / phantom adoption for domain-consistent content.
+  A chef misremembers the recipe she never actually used; a
+  contractor swears the inspection happened. Scope-locked: the bonus
+  and the cost are the same trait.
+
+## 15. Slow axes — trait drift and aging-rate variance
+
+- **Personality maturation (the maturity principle).** Meta-analytic
+  longitudinal work: conscientiousness and agreeableness rise,
+  neuroticism falls through midlife (Roberts, Walton & Viechtbauer
+  2006; Roberts & Mroczek 2008). Model: optional yearly trait drift —
+  `neurot −0.02σ/yr` between ages 20–50, `consc +0.02σ/yr`, clamped —
+  re-derive affected params on the yearly re-anchor the spec already
+  does (§7 "re-anchored yearly"). Subtle, cumulative, and it makes a
+  character's 30s genuinely different from their 20s. [CONSENSUS
+  direction; magnitudes small.]
+- **`aging_rate` — individuals age at different rates.** Between-person
+  variance in cognitive change grows with age (Salthouse 2010;
+  Rabbitt et al.). Model: `aging_rate` trait N(0,1) multiplies the
+  decline-side evaluation: `age_eff = (age_now − reserve·reserve_shift)
+  ·(1 + 0.2·aging_rate − 0.15·fitness)`. `fitness` — aerobic fitness —
+  is a real modifiable factor: exercise training increases hippocampal
+  volume ~2% in older adults (Erickson et al. 2011, PNAS RCT);
+  fitness meta-analysis shows ~0.5 SD cognitive benefit (Colcombe &
+  Kramer 2003). The runner's 70-year-old is functionally 62; the
+  sedentary smoker's is 78. [CONSENSUS for fitness-direction; the
+  0.2/0.15 magnitudes are HYPOTHESIS fitted to reserve_shift's scale.]
+- **`dissoc` — peritraumatic dissociation.** Best single predictor of
+  PTSD in Ozer et al.'s (2003) meta-analysis (r≈0.35). Model on
+  `trauma:true` records only: high dissoc → lower S at birth but
+  *more* fragment records (split the event across weakly-linked
+  records), lower intrusion_thresh for those fragments — the
+  fragmented-trauma phenotype (Brewin dual-representation theory —
+  DEBATED as mechanism, CONSENSUS as phenomenology). Keeps trauma
+  heterogeneous per character rather than a uniform script.
+
+## 16. State variable the two-timescale rule was missing: intoxication
+
+§5 split traits from states but had no pharmacological state. The sim
+has bars and parties; alcohol is the most common everyday memory
+perturbation and is *dramatically* under-modeled:
+
+- Event/call context gains `intox` ∈ [0,1] (0 = sober … 0.7 ≈ heavy
+  drinking, ~0.15–0.20 BAC neighborhood). Encoding only:
+  `E *= (1 − intox·(1 − intox_encode_mult))` with
+  `intox_encode_mult` ≈ 0.3 at intox=1; peripheral fields drop at
+  `+0.4·intox` beyond vivid_detail — alcohol disproportionately
+  impairs *encoding* of new episodic memories while sparing retrieval
+  of material learned sober (Miller et al.; Söderlund et al. 2005;
+  Mintzer 2007 review). **[CONSENSUS: anterograde ≫ retrograde.]**
+- Fragmentary blackouts at intox ≥ ~0.8: the night's records become
+  sparse islands (islands survive; intervals absent — White 2003:
+  fragmentary blackouts dominate en-bloc; ~50% of drinkers report at
+  least one). Implement as `omit_p += 0.5·max(0, intox − 0.8)/0.2`
+  for that window. Morning-after gap-filling then runs through
+  ordinary confab_fill — a hungover character's reconstructed night
+  is a *confabulation showcase*. [CONSENSUS mechanism.]
+- Mild state-dependency: `intox_state_dep` ≈ 0.05 cue-match bonus when
+  encode/retrieval intox levels match (Goodwin et al. 1969; mixed
+  replications — DEBATED, kept small).
+- Interaction: high-intox records encode with w_state inflated → they
+  are disproportionately retrievable in later similar states — the
+  seed of "we only talk about that night when we're drinking."
+- Cannabis gets the same `intox` slot with a comment flag (similar
+  anterograde profile, weaker evidence — Ranganathan & D'Souza 2006).
+
+## 17. Extended trait vector and R additions
+
+```json
+IndivTraits += {
+  "inattn": 0.0,      // everyday lapses, mind-wandering, PM slips
+  "verbal": 0.0,      // verbal ability — narrative recall quality
+  "gc": 0.0,          // crystallized knowledge density
+  "meta_conf": 0.0,   // trait self-confidence (Kleitman & Stankov 2007)
+  "checker": 0.0,     // verification compulsion → distrust loop
+  "culture_self": 0.0,// −1 interdependent … +1 independent construal
+  "fitness": 0.0,     // aerobic fitness → aging slope
+  "aging_rate": 0.0,  // idiosyncratic aging slope
+  "dissoc": 0.0,      // peritraumatic dissociation proneness
+  "empathy": 0.0,     // promoted: already drives v1.7 contagion
+  "langs": ["en"],    // set-valued; record/cue lang matching (§11)
+  "iiv": 0.0          // day-to-day inconsistency (§10)
+}
+```
+
+R additions (same sparse philosophy — hypotheses unless noted):
+
+```
+inattn·wmc       −0.45  (mind-wandering ∝ low control — CONSENSUS dir.)
+inattn·consc     −0.30
+verbal·gc        +0.55  (vocabulary is the canonical gc proxy)
+gc·reserve       +0.40  (education/occupation → reserve — CONSENSUS)
+meta_conf·distrust −0.55 (same coin, opposite faces)
+checker·neurot   +0.35
+checker·distrust +0.40
+culture_self·social +0.10 (weak — reminiscing culture ≠ sociability)
+fitness·stress   −0.15
+dissoc·neurot    +0.25
+empathy·extra    +0.20
+aging_rate·fitness −0.20 (fitness partially realizes as slow aging)
+```
+
+Pinned-trait conditioning (made explicit — Part I left it informal):
+with pinned set P and values t_P, unpinned traits U ~ N(0, R_UU);
+the conditional draw is `U | t_P ~ N(R_UP·R_PP⁻¹·t_P,  R_UU −
+R_UP·R_PP⁻¹·R_PU)` — standard MVN conditioning. Pinning "anxious
+insomniac" (neurot=+1.5, sleep=−1.2) therefore *pulls* distrust,
+stress, fantasy, checker upward automatically; a bible that pins
+`distrust=+2` without neurot gets a merely-self-doubting character,
+not an anxious one — the difference shows up in rumin_k, not in a
+warning.
+
+### Loading table additions (rows beyond Part I §3)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| inattn | omit_p | +0.03/σ | CONSENSUS dir. (CFQ/mind-wandering) |
+| inattn | pm_self | −0.08/σ | CONSENSUS dir. (Unsworth & McMillan) |
+| inattn | enc_base | ·−0.05/σ | DEBATED |
+| verbal | confab_fill fluency* | +0.10/σ | HYPOTHESIS (fluent gaps) |
+| verbal | link_p (verbal material) | ·+0.10/σ | CONSENSUS dir. |
+| verbal | lure_accept | +0.04/σ | DEBATED (gist extraction edge) |
+| gc | link_p | ·+0.10/σ | CONSENSUS dir. |
+| gc | know_protect_* | ·+0.10/σ | CONSENSUS dir. |
+| gc | lure_accept | +0.05/σ | CONSENSUS dir. (FTT gist) |
+| gc | tot_rate | +0.02/σ | CONSENSUS dir. (Burke 1991) |
+| gc | search_breadth | +1/σ | HYPOTHESIS |
+| meta_conf | conf_bias | +0.10/σ | CONSENSUS (Kleitman & Stankov 2007) |
+| meta_conf | meta_cal | ·+0.15/σ | DEBATED |
+| checker | check_conf_loss | ·+0.30/σ | CONSENSUS dir. (van den Hout & Kindt) |
+| checker | distrust-linked retract_p | +0.05/σ | DEBATED |
+| culture_self | (see §12 table) | | Wang 2001/2003 |
+| fitness | aging_rate mult | −0.15·fitness | CONSENSUS dir. (Erickson 2011) |
+| aging_rate | age_eff scale | ×(1+0.2·aging_rate) | HYPOTHESIS magnitude |
+| dissoc | trauma S at birth | ·−0.15/σ | CONSENSUS dir. (Ozer 2003) |
+| dissoc | trauma fragment count | +1 frag/σ | DEBATED (Brewin mechanism) |
+| dissoc | intrusion_thresh (trauma frags) | −0.08/σ | CONSENSUS dir. |
+| empathy | contagion_k | ·+0.30/σ | already implicit in v1.7 — now a trait |
+| iiv | iiv_sigma | +0.02/σ | CONSENSUS dir. (Hultsch 2000) |
+| langs≥2 | lang_mismatch applies | on/off | CONSENSUS (Marian & Neisser) |
+| langs≥2 | wmc | **0 — explicit null** | DEBATED-null (Paap & Greenberg) |
+
+*fluency: narration-side smoothness of confabulated fields — report
+quality, not content quality.
+
+**New explicit nulls** (joining Part I's list — falsifiability):
+- `langs≥2 → wmc` = 0 (bilingual-advantage replication failures).
+- `meta_conf → accuracy params` = 0 — confident people are not righter.
+- `checker → accuracy` = 0 — checking erodes *confidence*, not memory
+  (meta-analytic accuracy effect is small).
+- `culture_self → beta_*` = 0 — the shift is in boundary/content/style,
+  not forgetting rate.
+- `fitness → beta_episodic` = 0 directly — it works through age_eff.
+
+## 18. New falsifiable probes (P173–P182; spec §validation-design §18)
+
+- **P173 IIV signature (MUST):** a 70yo low-wmc profile shows ≥1.5×
+  the day-to-day retrieval hit-rate variance of a 25yo high-wmc
+  profile on identical cue sets, while 200-day rank-order stays
+  stable (P56 not broken). Constrains `iiv_sigma`.
+- **P174 language-dependent recall (MUST — sign-locked):** bilingual
+  profile probed in language A vs B: matching-language records
+  recalled ≥1.4× mismatching (Marian & Neisser ~2× direction,
+  conservative bound); monolingual profile shows no lang effect.
+  Constrains `lang_mismatch`.
+- **P175 self-construal boundary (SHOULD):** culture_self=+1 vs −1
+  profiles: amnesia_exit shifts ~0.5y; +1 records richer in self/
+  emotional detail fields; −1 records denser in people/routine fields;
+  forgetting rate equal (null half of the test). Constrains §12.
+- **P176 checking paradox (MUST — sign-locked):** verify-recall on a
+  high-retrievalCount record reports LOWER confidence and FEWER
+  detail fields than first recall; accuracy unchanged (van den Hout &
+  Kindt — FAIL if verification raises confidence).
+  Constrains `check_conf_loss`.
+- **P177 complaint decoupling (SHOULD):** across a 500-profile cohort,
+  selfReport complaint correlates with neurot/distrust composite at
+  r≥0.3 but with actual hit-rate at |r|≤0.2 (Jonker 2000 bands).
+- **P178 expertise dark side (SHOULD):** domainMatch-on records show
+  HIGHER true recall AND higher domain-consistent lure acceptance vs
+  matched off-domain records (Castel 2007 sign-lock).
+- **P179 intoxication fragmentation (SHOULD):** encode run at
+  intox=0.9 produces ≥40% fewer records for the window, surviving
+  records sparser in peripheral fields, and sober-cued retrieval of
+  the window is impaired vs a matched sober window; retrieval of
+  sober-learned material while intox is nearly intact (anterograde
+  asymmetry sign-lock). Constrains `intox_encode_mult`.
+- **P180 aging-rate spread (OBSERVE):** at age 80, aging_rate ±1.5σ
+  profiles differ in functional age by ~±10y on the decline params
+  while reserve is held fixed — the two buffers are orthogonal.
+- **P181 maturity drift (OBSERVE):** 20→50y trait-drift on shifts
+  neurot-linked params in the reported direction by ~0.4σ total;
+  no discontinuity at any single re-anchor.
+- **P182 dissociative trauma (OBSERVE):** high-dissoc trauma records
+  present as more, weaker, fragment records with more involuntary
+  returns — NOT as higher-S consolidated memories. Report-only.
+
+## 19. Part II honest limits
+
+- `iiv_sigma`, `omit_p`, `lang_mismatch`, `check_conf_loss`,
+  `intox_encode_mult` magnitudes are judgment fits to effect-size
+  directions; the *signs* are consensus, the numbers are ours.
+- Culture/self-construal parameterization deliberately models the
+  psychological construct — never ethnicity — and should stay that
+  way in bibles.
+- The Brewin dual-representation mechanism under `dissoc` is
+  contested; the phenomenology (fragmented, intrusive trauma recall)
+  is not. We model the phenomenology.
+- `meta_cal` (calibration slope) is the weakest-anchored new param —
+  calibration research gives trait confidence (intercept) stronger
+  support than trait slope. Flagged DEBATED; set to 1.0 (neutral) if
+  playtest reports feel off.
+
+- The loadings in §3 beyond the consensus-direction ones are calibrated
+  *judgment*, not meta-analytic fits — we have correlation-level
+  evidence, not a generative map. Marked HYPOTHESIS.
+- Big Five–memory links are genuinely weak in the literature (except C→
+  PM); we deliberately keep those loadings small. If playtests show
+  personalities' memories feel "too different", scale §3's DEBATED rows
+  down first.
+- The correlation matrix R is mostly hypothesis; its structure (sparse,
+  a few strong pairs) is more defensible than its magnitudes.
+- Sex effects are small on purpose — the meta-analytic reality is a
+  material-specific tilt, and overshooting it produces caricature.

@@ -108,6 +108,17 @@ never copying raw.
 | plaus_min / imagine_gain | 0.15 / 0.0 | 0.6 / 0.4 | implantation gate + gain (v0.6) |
 | source_confuse_flip | 0.0 | 0.4 | imagined→witnessed flip per check (v0.6) |
 | source_confuse | 0.0 | 0.3 | external-source reassignment (v0.6) |
+| iiv_sigma | 0.0 | 0.12 | day-to-day performance noise σ; age/WMC-scaled (v1.9) |
+| omit_p | 0.0 | 0.25 | routine-event encoding omission (v1.9) |
+| lang_mismatch | 0.4 | 1.0 | cross-language cue attenuation; 1.0 = off (v1.9) |
+| meta_cal | 0.5 | 1.5 | confidence calibration slope, report-side only (v1.9) |
+| complaint_k | 0.0 | 0.4 | selfReport complaint noise (v1.9) |
+| check_conf_loss | 0.0 | 0.25 | verify-mode confidence decrement (v1.9) |
+| expert_lure | 0.0 | 0.25 | in-domain semantic-lure bonus (v1.9) |
+| intox_encode_mult | 0.1 | 0.7 | E floor at intox=1; lower = harder hit (v1.9) |
+| intox_state_dep | 0.0 | 0.15 | intox-match cue bonus (v1.9, DEBATED) |
+| aging_rate | −1.5 | 1.5 | trait passthrough on age_eff slope (v1.9) |
+| fitness | −1.5 | 1.5 | trait passthrough on age_eff offset (v1.9) |
 | cand_base_str | 0.3 | 1.0 | misinfo candidate birth strength ×sourceCred (v1.8) |
 | fab_inflate | 0.0 | 1.5 | claim→belief flip multiplier (v1.8) |
 | forced_confab_gain | 0.0 | 0.6 | per-forced-answer confab strength (v1.8) |
@@ -711,3 +722,42 @@ exceptions and deltas:
 - **Deliberate null:** no per-character `cb_detect` tail below 0.1 —
   universal seam-ownership is the design intent; a character who
   detects every swap breaks the fiction.
+
+## 8. v1.9 note — individual-differences II: new modifiers & sensitivity
+
+The v1.9 params (individual-differences.md Part II) ride the trait
+layer; archetype deltas:
+
+- **Older-adult archetype:** `iiv_sigma` ×(1+age_eff/50) is already
+  age-scaled — no extra knot; `aging_rate`/`fitness` variance should
+  be sampled wider in this band (aging heterogeneity grows with age).
+- **Child archetype:** `omit_p` higher (attentional lapses); `check_conf_loss`
+  untested in children — keep default.
+- **Depressive modifier:** gains `complaint` weight via neurot/distrust
+  automatically (selfReport) — plus `meta_cal` slightly <1 (depressive
+  realism in calibration, mild).
+- **New modifiers for bibles:**
+  - **Absent-minded** | inattn = +1.5σ → omit_p≈0.15, pm_self −0.08,
+    enc_base ·0.95 — "walked right past it" personality.
+  - **Meticulous checker** | checker = +1.5σ + distrust +0.5 →
+    verify-call frequency up (behavior layer), check_conf_loss ·1.3 —
+    re-verification erodes confidence, a self-sealing loop.
+  - **Bilingual** | langs = ["es","en"] (etc.) → lang_mismatch applies;
+    NO wmc bonus (Paap null).
+  - **Interdependent upbringing** | culture_self = −0.8 →
+    amnesia_exit +0.4y, w_people/routine-weighted records, sparser
+    self-focused detail (Wang 2001).
+  - **Bookworm / polymath** | gc = +1.5σ + verbal +1.0 → denser links,
+    better knowledge-protection, MORE semantic-lure uptake (double
+    edge, Castel 2007).
+  - **The confident one** | meta_conf = +1.5σ → conf_bias +0.15,
+    meta_cal ·1.15; accuracy untouched — persuasive and wrong as often
+    as persuasive and right.
+  - **The athlete / the couch** | fitness ±1.2 → functional-age offset
+    ∓~9y at old ages (Erickson 2011).
+  - **The survivor (fragmented)** | dissoc = +1.5σ + trauma modifier →
+    trauma records split into weakly-linked fragments with lowered
+    intrusion threshold.
+- **Trait-drift note:** yearly maturity drift (Roberts 2006) is
+  OPTIONAL; when enabled, bibles should pin late-life trait values,
+  not early ones, to avoid double-counting.

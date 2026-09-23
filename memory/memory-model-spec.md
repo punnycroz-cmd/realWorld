@@ -1,4 +1,24 @@
-# Memory Model Spec v1.8 — implementable human-like memory for RW characters
+# Memory Model Spec v1.9 — implementable human-like memory for RW characters
+
+> **v1.9 note (individual-differences II — state noise, language,
+> culture, metacognition):** `memory/individual-differences.md` Part II
+> (§§9–19) adds the second trait block. **New params (§7):**
+> `iiv_sigma` (day-to-day inconsistency, age/WMC-scaled — Hultsch 2000),
+> `omit_p` (mind-wandering encoding omission — Smallwood & Schooler;
+> Unsworth & McMillan), `lang_mismatch` (language-of-encoding cue
+> attenuation — Marian & Neisser 2000), `meta_cal`/`complaint_k`
+> (metamemory slope + complaint decoupling — Kleitman & Stankov 2007;
+> Jonker 2000), `check_conf_loss` (verification erodes confidence —
+> van den Hout & Kindt 2003), `expert_lure` (in-domain semantic-lure
+> bonus — Castel et al. 2007), `intox_encode_mult`/`intox_state_dep`
+> (alcohol state — White 2003 anterograde). **Formula changes:**
+> `age_eff = (age_now − reserve·reserve_shift)·(1 + 0.2·aging_rate −
+> 0.15·fitness)` — individual aging slopes (Salthouse; Erickson 2011);
+> record schema gains optional `lang`; `cueContext` gains `lang`,
+> `verify`, `intox`. New explicit nulls: bilingual→wmc (Paap),
+> meta_conf→accuracy, checker→accuracy, culture_self→β, fitness→β
+> (individual-differences.md §17). All v1.9 fields optional, default
+> neutral; monolingual `langs` makes `lang_mismatch` dead code.
 
 > **v1.8 note (false-memory II — candidates, claims, coercion):**
 > `memory/false-memory.md` Part II fixes what v0.6 got wrong at the
@@ -539,6 +559,24 @@ Postman 1964; Hyde & Jenkins 1973).
   correct it is (Dawes et al. 2022 aphantasia: fewer episodic details,
   individual-differences.md §2.7). Missing fields are confabulation
   surface at reconstruction (§5.5); vividness never changes accuracy.
+- **Inconsistency and lapses (v1.9):** each dailyMemoryTick draws
+  `day_mult = exp(N(0, iiv_sigma))` multiplying that day's encoding E
+  (retrieval-side θ noise in §5.4) — intraindividual variability is a
+  trait that grows with age_eff and shrinks with wmc (Hultsch et al.
+  2000). Separately, routine low-salience events (`attention < 0.3`)
+  are dropped before E is computed with probability `omit_p` —
+  absent-minded *omission*, not a weak record; nothing exists to decay
+  or cue (mind-wandering encoding gaps, Smallwood & Schooler 2006;
+  individual-differences.md §10).
+- **Intoxication state (v1.9):** `context.intox` ∈ [0,1] (alcohol;
+  same slot reusable for cannabis) applies anterograde-only:
+  `E *= (1 − intox·(1 − intox_encode_mult))` and peripheral-field
+  write probability `vivid_detail·(1 − 0.4·intox)`. Retrieval of
+  sober-encoded material is NOT degraded. At `intox ≥ 0.8` the window
+  additionally pays `omit_p += 0.5·(intox − 0.8)/0.2` — fragmentary
+  blackout islands (White 2003; morning-after gap-filling then runs
+  through ordinary confab_fill, §5.5). Mild state-dependency cue
+  `intox_state_dep` at §5.4. (individual-differences.md §16.)
 - **Engagement mode (v1.2):** Event field `engagement` ∈
   {observed, heard, enacted, generated, spoken} (default derived from
   source.kind). Ordering at matched attention: enacted > generated >
@@ -664,8 +702,16 @@ while certainty stays pinned (Talarico & Rubin 2003; emotional-memory.md
 at output time —
 
 ```
-conf_out = conf + oc_gain·max(0, conf − accuracy)·(1 − m.strength)
+conf_out = conf_bias + meta_cal·(conf − 0.5)
+           + oc_gain·max(0, conf − accuracy)·(1 − m.strength)
            + conf_inflate_old(age_eff)·wrong_flag
+           − (C.verify ? check_conf_loss·log1p(m.retrievalCount) : 0)
+// v1.9: conf_bias/meta_cal are the trait-confidence intercept/slope
+// (Kleitman & Stankov 2007 — stable, domain-general, orthogonal to
+// accuracy); the verify term is the checking paradox — repeated
+// verification DECREASES reported confidence and detail-vividness,
+// never increases it (van den Hout & Kindt 2003; meta k=28, N=1662).
+// All report-side only — none of these terms touch stored conf.
 ```
 
 where `wrong_flag` = 1 if the reconstruction carries phantom content,
@@ -1092,6 +1138,10 @@ sensory age scale:  c_sensory = w_sensory · overlap · (1 + sensory_age_slope
                                   · log1p(m.ageDays/30))         // RC§3 Proust
 mismatch penalty:   if a salient sensory field mismatches:
                     cueMatch -= sensory_mismatch_pen (0.05)      // RC§3
+language match (v1.9):  if C.lang && m.lang && C.lang != m.lang:
+                    c_verbal, c_topic, c_people *= lang_mismatch   // ≈0.6
+                    // language-of-encoding is a context cue
+                    // (Marian & Neisser 2000) — attenuates, never gates
 cueMatch_ext = 1 − Π_j (1 − min(c_j, 1))                         // saturates at 1
 place reinstate:    if C.place == m.cueVector.place:
                     cueMatch_ext += place_reinstate · (1 + log1p(m.ageDays/30))
@@ -1123,7 +1173,12 @@ moodStateDep   = w_msd · (1 − |m.encodeMood − C.mood|)/2
 ```
 drive(m) = cueMatch_ext·env_support_gain + moodCongruence + moodStateDep
            + recencyBump(m) + contiguityTerm(m)
-           + m.strength·w_str − θ + N(0, ret_noise)
+           + (C.intox && m.intox ? intox_state_dep·
+              (1 − |C.intox − m.intox|) : 0)          // v1.9, small
+           + m.strength·w_str − θ + N(0, ret_noise) + N(0, iiv_sigma/2)
+// v1.9: iiv_sigma/2 is the per-call half of the inconsistency trait
+// (§2 day_mult is the per-day half); record field `m.intox` = the
+// encode-time context.intox (schema gain — default 0).
 
 // v0.9 deepening — temporal contiguity (formal-model.md §14):
 contiguityTerm(m) = C.temporalAnchor == null ? 0 :
@@ -1246,7 +1301,12 @@ Not the record — a **reconstruction**:
   a match with probability `lure_accept(age_eff)·overlap` — the
   pattern-separation deficit produces false "yes, that's the scarf"
   endorsements, robust to instructions (Stark et al. 2013/2015;
-  age-decline.md §4).
+  age-decline.md §4). **v1.9 — domain-scoped:** when the lure is
+  consistent with a profile `domains` entry (same domainMatch test as
+  §2 expert_gain), add `expert_lure` (≈0.10) — experts falsely recall
+  MORE domain-consistent material (Castel, McCabe, Roediger & Heitman
+  2007; Baird 2003). Same term applies to §6.3/§6.8 adoption of
+  domain-consistent misinformation and phantom content.
 
 ### 5.7 Involuntary retrieval (new in v0.2)
 
@@ -2178,6 +2238,22 @@ MemoryParams = {
   "expert_gain": 0.10,       // in-domain enc_base boost per domMatch
   "expert_cost": 0.06,       // out-of-domain link_p penalty (Woollett 2009)
   "expert_bound": 1.0,       // gain collapse at domain edge (Chase&Simon)
+  // v1.9 additions (individual-differences II, individual-differences.md
+  // §§10–17)
+  "iiv_sigma": 0.04,         // day-to-day encoding/retrieval noise σ;
+                             // ×(1+age_eff/50)·(1−0.25·wmc) (Hultsch 2000)
+  "omit_p": 0.05,            // routine-event encoding-omission prob (§2)
+  "lang_mismatch": 0.6,      // verbal/topic/people cue attenuation when
+                             // C.lang ≠ m.lang (Marian & Neisser 2000)
+  "meta_cal": 1.0,           // confidence calibration slope at report (§3)
+  "complaint_k": 0.15,       // selfReport complaint noise weight (§10)
+  "check_conf_loss": 0.10,   // verify-mode conf decrement per log1p
+                             // retrievalCount (van den Hout & Kindt 2003)
+  "expert_lure": 0.10,       // in-domain lure/adoption bonus (Castel 2007)
+  "intox_encode_mult": 0.3,  // E floor at intox=1 — anterograde (White 2003)
+  "intox_state_dep": 0.05,   // encode/retrieval intox-match cue (DEBATED)
+  "aging_rate": 0.0,         // trait passthrough: age_eff slope N(0,1)
+  "fitness": 0.0             // trait passthrough: age_eff offset −0.15·fitness
   "open_loop_gain": 0.12,    // intrusion/drive boost on open:true records
   "open_self_gate": 0.4,     // selfRelevance floor for open tagging
   // v1.2 additions (encoding-mechanics calibration,
@@ -2340,9 +2416,12 @@ MemoryParams = {
 **Trait layer (v0.7):** parameter vectors are generated from a small
 correlated latent trait vector `IndivTraits` (g_mem, wmc, neurot, extra,
 consc, open, vivid, distrust, fantasy, sleep, stress, social, sex,
-chronotype) — sampled MVN(0, R) with the sparse correlation matrix in
-`individual-differences.md` §4, then projected through the loading table
-(§3 there) onto these params, plus ±5% residual jitter. This replaces
+chronotype — plus the v1.9 block: inattn, verbal, gc, meta_conf,
+checker, culture_self, fitness, aging_rate, dissoc, empathy, langs,
+iiv) — sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4/§17 (pinned traits conditioned per the
+§17 MVN-conditioning formula), then projected through the loading tables
+(§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
 v0's independent ±10% jitter: real individual differences are
 correlated (a low-WMC person is forgetful AND suggestible AND
 source-confused — Jaschinski & Wentura 2002; Zhu et al. 2010), and
@@ -2360,7 +2439,15 @@ intrusion_thresh, w_emo, w_self, att_min, pm_self) with the knot table in
 params use `encodeAge` on the record instead. The profile archetypes are
 named knots on these curves — individual profiles = curve value ⊕
 modifiers ⊕ jitter, unchanged. **v0.4:** decline-side capacity params
-evaluate at `age_eff = age_now − reserve·reserve_shift` (§4.8); the
+evaluate at `age_eff = age_now − reserve·reserve_shift` (§4.8);
+**v1.9:** `age_eff = (age_now − reserve·reserve_shift)·(1 +
+0.2·aging_rate − 0.15·fitness)` — individual aging slopes differ
+(Salthouse; Rabbitt) and aerobic fitness slows them (Erickson et al.
+2011; Colcombe & Kramer 2003); `aging_rate`/`fitness` are trait
+passthroughs (individual-differences.md §15). **v1.9 optional:**
+yearly trait drift (maturity principle, Roberts et al. 2006 — neurot
+−0.02σ/yr, consc +0.02σ/yr, ages 20–50, clamped) re-derives affected
+params at the existing yearly re-anchor; the
 age-decline knot rows are in `age-decline.md` §13 (search_breadth,
 env_support_gain, discrim_mult, lure_accept, specificity, tot_rate,
 sws_mult, ret_noise — decline curves, ≥30 side). **v0.5:** the emotional
@@ -2679,3 +2766,25 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     harness-readable, never in briefings/feed.
   - §6.19 documents the repression non-mechanism: no repress()
     operator, ever (P172).
+- v1.9 additions (individual-differences.md Part II §§9–18):
+  - `encodeEvent` context may carry `intox` (0..1) — anterograde-only
+    encoding loss + peripheral-field thinning + blackout-window
+    omission at ≥0.8 (§2); record schema gains `intox` (encode-time
+    value) and optional `lang` — both snapshot-additive; `lang` is
+    player-safe to expose, `intox` is harness/hidden.
+  - `cueContext` gains `lang` (§5.2 attenuation), `verify:true`
+    (§3 checking-paradox conf decrement — dialogue calls it for
+    re-checking behavior), `intox` (§5.4 mild state-dependent cue).
+  - `selfReport(charId, facet)` gains the §13 complaint composite —
+    complaint output weighted to neurot/distrust/stereo_suscept, NOT
+    actual params (`complaint_k`); felt memory and real memory stay
+    decoupled by design (Jonker 2000).
+  - `dailyMemoryTick` draws the `day_mult` IIV factor (§2) — cheap
+    "off day" dial; and at intox≥0.8 windows applies the omission
+    bump retroactively to that window's events.
+  - `deriveParams` accepts the extended IndivTraits block (§7);
+    `langs` is a set-valued trait (not N(0,1)); pinned-trait
+    conditioning is the §17 MVN formula — pinning high `neurot`
+    pulls `distrust`/`checker`/`stress` upward automatically.
+  - lure/adoption paths honor `expert_lure` when the content matches
+    a profile domain (§5.6/§6.3/§6.8) — expertise is double-edged.

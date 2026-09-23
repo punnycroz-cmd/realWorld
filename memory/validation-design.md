@@ -771,3 +771,55 @@ named there. Headline additions — the candidate/self-authored layer:
   only, not a gate.
 
 Registry now P1–P172; numbering stable.
+
+## 18. New probes P173–P182 (v19, individual-differences II suite)
+
+Normative definitions in `individual-differences.md` §§10–18;
+constrained params named there. The "second axis" layer — state noise,
+language, culture, metacognition, knowledge.
+
+- **P173 IIV signature (MUST):** a 70yo low-wmc profile shows ≥1.5×
+  the day-to-day retrieval hit-rate variance of a 25yo high-wmc
+  profile on identical cue sets; 200-day trait rank-order still holds
+  (P56 not broken). Constrains `iiv_sigma` and its age/wmc scaling.
+- **P174 language-dependent recall (MUST — sign-locked):** bilingual
+  profile probed in language A vs B: matching-language records
+  recalled ≥1.4× mismatching (Marian & Neisser 2000 direction,
+  conservative bound); monolingual profile shows no lang effect.
+  Constrains `lang_mismatch`.
+- **P175 self-construal boundary (SHOULD):** culture_self=+1 vs −1
+  profiles differ in amnesia_exit by ~1y total, in self-vs-collective
+  field density, and NOT in decay rate — the null half is part of the
+  test (Wang 2001/2003). Constrains the §12 loading rows.
+- **P176 checking paradox (MUST — sign-locked):** verify-mode recall
+  on a high-retrievalCount record reports LOWER confidence and FEWER
+  detail fields than the first recall; accuracy unchanged. FAIL if
+  verification raises confidence (van den Hout & Kindt 2003; meta
+  k=28, N=1662). Constrains `check_conf_loss`.
+- **P177 complaint decoupling (SHOULD):** across a 500-profile cohort,
+  selfReport complaint correlates with the neurot/distrust composite
+  at r≥0.3 but with actual hit-rate at |r|≤0.2 (Jonker 2000; Reid &
+  MacLullich 2006 bands). Constrains `complaint_k` and the complaint
+  composite weights.
+- **P178 expertise dark side (SHOULD):** domainMatch-on records show
+  HIGHER true recall AND higher domain-consistent lure adoption vs
+  matched off-domain records (Castel et al. 2007; Baird 2003 —
+  sign-lock on BOTH directions). Constrains `expert_lure`.
+- **P179 intoxication fragmentation (SHOULD):** an encode run at
+  intox=0.9 yields ≥40% fewer records for the window; surviving
+  records carry fewer peripheral fields; sober-cued retrieval of the
+  window is impaired vs a matched sober window; retrieval of
+  sober-learned material while intox is near-intact (anterograde
+  asymmetry sign-lock; White 2003). Constrains `intox_encode_mult`.
+- **P180 aging-rate spread (OBSERVE):** at age 80, aging_rate ±1.5σ
+  profiles differ ~±10y of functional age on decline params with
+  reserve held fixed — orthogonality of the two buffers.
+- **P181 maturity drift (OBSERVE):** 20→50y trait drift moves
+  neurot-linked params ~0.4σ in the maturity direction with no
+  single-step discontinuity at re-anchors (Roberts et al. 2006).
+- **P182 dissociative trauma (OBSERVE):** high-dissoc trauma presents
+  as more, weaker fragment records with more involuntary returns —
+  never as higher-S consolidated memory (Ozer 2003; Brewin
+  phenomenology). Report-only, not a gate.
+
+Registry now P1–P182; numbering stable.
