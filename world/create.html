@@ -5,11 +5,32 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "Join the Cast" v3 (world v35; v2 was v21,
-  wizard v1 was v7). Self-contained demo: file://-safe, no network. The
-  pipeline (screen → human review → charge → registry write → lease →
-  briefing) is simulated locally; at merge it becomes gsRequest*/gsLease*
-  calls + feed events.
+  Character creation flow — "Join the Cast" v4 (world v49; v3 was v35,
+  v2 was v21, wizard v1 was v7). Self-contained demo: file://-safe, no
+  network. The pipeline (screen → human review → charge → registry write →
+  lease → briefing) is simulated locally; at merge it becomes
+  gsRequest*/gsLease* calls + feed events.
+
+  v49 changes — the people layer:
+    - PEOPLE mirror — the block's actual names (8 mains + 20 ambient
+      faces, mirrored from characters.json + ambients.json). Powers the
+      taken-names list, the "you'd work alongside" card on the job step,
+      the "building you'd land in" card on the home step (with the named
+      landlord of record where the registry names one), the FACES row in
+      the first week, and a briefing that names real people instead of
+      "the neighbors". All briefing-safe: names, workplaces, doors.
+    - TAKEN NAMES ON THE TABLE — step 1 gains a fold listing every name
+      already on the block (cast, faces, role words) so a collision is
+      never a surprise.
+    - THE LANDING — a declared arrival window (tonight / tomorrow
+      morning / Saturday morning) rides the hire; the cast feed event
+      carries it. Declared upfront like everything else.
+    - REGISTRY ENTRY — after the briefing, the minted h## record renders
+      field-for-field per creation.json record_schema: what was actually
+      written, bank after move-in, brain mode. The whole file — no
+      secret fields exist on it.
+    - ROSTER FULL — a slot-capped account sees the state on step 6
+      instead of a silently disabled button.
 
   v35 changes:
     - LIVE SEAM — if window.__aiBridge exposes the game-v8 hire surfaces
@@ -166,6 +187,23 @@
   .movein .ml b{color:var(--ink);font-family:var(--mono);font-weight:400}
   .movein .ml.cash{color:var(--ink)}
   .movein .ml.cash b{color:var(--acc)}
+  /* ---- v49: people layer, names fold, landing pick, registry record ---- */
+  .people{margin-top:10px;border:1px solid var(--line);border-radius:6px;padding:9px 12px;
+    background:var(--panel2);font-size:12.5px}
+  .people .pt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+  .people .pp{padding:3px 0;border-bottom:1px solid var(--line)}
+  .people .pp:last-child{border:0}
+  .people .pp b{color:var(--ink);font-weight:600}
+  .people .pp span{color:var(--dim)}
+  .namesbox{border:1px dashed var(--line);border-radius:6px;padding:8px 12px;margin-top:6px;font-size:12px}
+  .namesbox .grp{color:var(--dim);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;margin:5px 0 2px}
+  .namesbox .grp:first-child{margin-top:0}
+  .rec{margin-top:12px;border:1px solid var(--blu);border-radius:6px;padding:12px 14px;display:none;font-size:12.5px}
+  .rec h3{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--blu)}
+  .rec .rl{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid var(--line)}
+  .rec .rl:last-of-type{border:0}
+  .rec .rl b{color:var(--ink);font-family:var(--mono);font-weight:400;text-align:right}
+  .rec .rl span{color:var(--dim)}
 </style>
 </head>
 <body>
@@ -189,6 +227,7 @@
     <div class="denybox" id="denybox"></div>
     <div class="pipeline" id="pipe"></div>
     <div class="briefing" id="briefing"></div>
+    <div class="rec" id="record"></div>
     <div class="nextsteps" id="nextsteps"></div>
   </section>
 
@@ -243,7 +282,7 @@ var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per chara
 var SLOT_CAP = 2;                  // this account: Resident tier
 var START_BANK = 1600;             // game dollars — arrival money
 var RENT_PCT_MAX = 55;             // rent-to-income ceiling shown honestly
-var DRAFT_KEY = 'rw_create_draft_v22';
+var DRAFT_KEY = 'rw_create_draft_v23';
 var created = 0;
 var submits = 0;                   // resubmissions route to a different reviewer
 
@@ -336,7 +375,68 @@ if (BRIDGE && BRIDGE.gsHireSlots){ try{
 }catch(e){} }
 
 /* names the form refuses structurally (cast + ambients + the role) */
-var TAKEN = /\b(marisol|mars delgado|jules park|dani reyes|priya raman|marcus bell|carmen echeverr|victor auerbach|tom[aá]s herrera|reyes ortega|doro|malik|june|esther|kofe|luz|asha|gus|vera|nadia|bex|omar|hana|cole|ida|zee|landlord|admin|owner)\b/i;
+var TAKEN = /\b(marisol|mars delgado|jules park|dani reyes|priya raman|marcus bell|carmen echeverr|victor auerbach|tom[aá]s herrera|reyes|doro|malik|june|esther|kofe|luz|sam|asha|gus|vera|tom|nadia|bex|omar|hana|cole|ida|ray|zee|landlord|admin|owner)\b/i;
+
+/* ================= the people layer (world v49) =================
+   The block's actual names, mirrored from characters.json (cast) and
+   ambients.json (faces). w = job-board employer strings they work under;
+   b = building prefix they live behind (cast only — ambient homes aren't
+   addresses); owns = buildings of record where the lease file names a
+   landlord. Notes are public-observable one-liners only. The audit gate
+   re-verifies every row against the two registries. */
+var PEOPLE = [
+  {n:'Marisol "Mars" Delgado', k:'cast', w:['Mudhaus Coffee'], b:'9127 Capp',   note:'the manager — learns your order by the second visit'},
+  {n:'Jules Park',             k:'cast', w:['Mudhaus Coffee'], b:'9418 Guerrero',note:'barista — quiet, draws between rushes'},
+  {n:'Dani Reyes',             k:'cast', w:['Mudhaus Coffee'], b:'9263 Geneva', note:'barista and the chalkboard — asks about the work, never biography'},
+  {n:'Priya Raman',            k:'cast', w:['SF General'],     b:'9457 Guerrero',note:'RN, med-surg — eats like a shift worker'},
+  {n:'Marcus Bell',            k:'cast', w:['Flying Pannier Courier Co-op'], b:'9457 Guerrero', note:'courier — Thursday drum circle in the park'},
+  {n:'Carmen Echeverría',      k:'cast', w:[],                 b:'9418 Guerrero',note:'retired seamstress — cafecito first, questions second'},
+  {n:'Victor Auerbach',        k:'cast', w:['Auerbach Hardware'], b:'9102 Mission', owns:['9418 Guerrero','9457 Guerrero'], note:'hardware owner — the landlord of record on the Guerrero buildings'},
+  {n:'Tomás Herrera',          k:'cast', w:['Taqueria El Farolote'], b:'9344 Folsom', note:'lead cook — feeds you before he talks'},
+  {n:'Reyes Aguilar',      k:'face', w:['Mudhaus Coffee'],                 note:'pulls espresso shifts'},
+  {n:'Dorothea Klein',     k:'face', w:[],                               note:'Doro — dog-walker on the park loops'},
+  {n:'Malik Haddad',       k:'face', w:["Malik's Mini Mart"],              note:'keeps the corner shop'},
+  {n:'June Park',          k:'face', w:[],                               note:'student — never on a work list'},
+  {n:'Esther Goldman',     k:'face', w:['Dolores Perk'],                   note:'stoop and park benches — sees everything'},
+  {n:'Kofe Adeyemi',       k:'face', w:['MuleIt'],                         note:'delivery rider with a hot box'},
+  {n:'Luz Cárdenas',       k:'face', w:['Frutería Las Palmas'],            note:'the fruit stand on Dolores at 19th'},
+  {n:'Sam Okafor',         k:'face', w:[],                                 note:'busker — park pitches, the 600 Club'},
+  {n:'Asha Nair',          k:'face', w:['SF General','Mudhaus Coffee'],    note:'nurse — Mudhaus evenings off shift'},
+  {n:'Gus Ferreira',       k:'face', w:['Folsom Auto & Sons'],             note:'mechanic in oil-stained overalls'},
+  {n:'Vera Osei',          k:'face', w:['Mission Branch Library'],         note:'librarian shelving returns'},
+  {n:'Tom Nakamura',       k:'face', w:[],                                 note:'jogger — the park perimeter'},
+  {n:'Nadia Petrov',       k:'face', w:['Mudhaus Coffee'],                 note:'the corner table at Mudhaus'},
+  {n:'Rebecca Lindqvist',  k:'face', w:['Needlepointe Tattoo'],            note:'Bex — tattoo artist on a smoke break'},
+  {n:'Omar Haddad',        k:'face', w:['Flying Pannier Courier Co-op'],   note:'courier on the paper-run loop'},
+  {n:'Hana Lindgren',      k:'face', w:['Baguette About It Bakery'],       note:'baker — carries warm trays'},
+  {n:'Cole Brennan',       k:'face', w:['Auerbach Hardware'],              note:'construction — the site near the hardware store'},
+  {n:'Ida Johansson',      k:'face', w:['Bloom & Doom Flowers'],           note:'florist with the basket'},
+  {n:'Ray Kowalski',       k:'face', w:['Dolores Perk'],                   note:'retired longshoreman — pigeons, benches'},
+  {n:'Zee Okafor-Banks',   k:'face', w:[],                                 note:'teenager — park and café perimeter'}
+];
+
+/* every name already taken on the block — shown on the table so a
+   collision never surprises. Groups mirror TAKEN exactly. */
+var TAKEN_NAMES = {
+  cast:['Marisol "Mars" Delgado','Jules Park','Dani Reyes','Priya Raman',
+        'Marcus Bell','Carmen Echeverría','Victor Auerbach','Tomás Herrera'],
+  faces:['Reyes','Doro','Malik','June','Esther','Kofe','Luz','Sam','Asha','Gus',
+         'Vera','Tom','Nadia','Bex','Omar','Hana','Cole','Ida','Ray','Zee'],
+  roles:['landlord','admin','owner']
+};
+
+function bldgPrefix(addr){ var m=addr.split(',')[0].match(/^(\d+)\s+(\w+)/); return m? m[1]+' '+m[2] : ''; }
+function crewFor(emp){ return PEOPLE.filter(function(p){ return (p.w||[]).indexOf(emp)>=0; }); }
+function neighborsFor(hm){ var p=bldgPrefix(hm.address);
+  return PEOPLE.filter(function(x){ return x.b===p; }); }
+function landlordFor(hm){ var p=bldgPrefix(hm.address);
+  return PEOPLE.filter(function(x){ return (x.owns||[]).indexOf(p)>=0; }); }
+function peopleCard(title, list, emptyTxt){
+  var h='<div class="people"><div class="pt">'+title+'</div>';
+  if (!list.length) return h+'<div class="pp"><span>'+emptyTxt+'</span></div></div>';
+  list.forEach(function(p){ h+='<div class="pp"><b>'+p.n+'</b> <span>— '+p.note+'</span></div>'; });
+  return h+'</div>';
+}
 
 /* structured look pickers — creation.json record_schema look field:
    rendering data, not text. No free text here = nothing to screen. */
@@ -393,7 +493,8 @@ function nameStatus(n){
 
 /* ================= draft autosave ================= */
 var f = { name:'', age:28, pronouns:'she/her', bio:'', arrival:'',
-          look:{build:'',palette:'',signature:''}, job:null, home:null };
+          look:{build:'',palette:'',signature:''}, job:null, home:null,
+          landing:'tomorrow morning' };
 var STEP = 0, STEPS = 6;
 function saveDraft(){
   try{ localStorage.setItem(DRAFT_KEY, JSON.stringify({f:f,step:STEP,submits:submits}));
@@ -468,6 +569,11 @@ function render(){
     h='<h2>Step 1 — Who arrives</h2>' +
     '<label for="cname">Name</label><input type="text" id="cname" maxlength="40" placeholder="e.g. Rio Takemura" value="'+esc(f.name)+'">' +
     '<div class="namecheck" id="namecheck"></div>' +
+    '<div class="fold" id="foldNames">the names already taken on the block — all of them · <b>see them</b></div>' +
+    '<div class="namesbox" id="namesBox" style="display:none">' +
+      '<div class="grp">the main cast</div><div>'+TAKEN_NAMES.cast.join(' · ')+'</div>' +
+      '<div class="grp">faces you\u2019ll recognize</div><div>'+TAKEN_NAMES.faces.join(' · ')+'</div>' +
+      '<div class="grp">role words, not people</div><div>'+TAKEN_NAMES.roles.join(' · ')+'</div></div>' +
     '<div class="row"><div><label for="cage">Age (18+)</label><input type="number" id="cage" min="18" max="99" value="'+f.age+'"></div>' +
     '<div><label for="cpro">Pronouns</label><select id="cpro"><option>she/her</option><option>he/him</option><option>they/them</option><option>other</option></select></div></div>' +
     '<label for="carr">First day on the block — one line of arrival context</label>' +
@@ -511,6 +617,9 @@ function render(){
     if (f.job==='seeking')
       h+='<div class="warn">Arriving without work is allowed — but rent doesn\u2019t wait. ' +
          'The runway meter on the next step will show exactly how long savings last.</div>';
+    if (f.job && f.job!=='seeking')
+      h+=peopleCard('you\u2019d work alongside', crewFor(job().employer),
+        'no regulars on the card yet — the crew introduces itself on shift');
   } else if (STEP===3){
     var est = job()?job().est:0;
     h='<h2>Step 4 — A door of their own</h2><div class="note" style="margin:0 0 4px">Lease signs at creation — ' +
@@ -526,7 +635,16 @@ function render(){
         (tight?'<div class="bad">out of reach on that income — pick a cheaper door or a better job</div>':'')+
         '</span><span class="r"><b>$'+hm.rent+'/mo</b>'+(afford!==null?'<br>'+afford+'% of income':'')+'</span></div>';
     });
-    if (f.home) h+=moveInCard(home())+runwayBar(home());
+    if (f.home){
+      var hmv=home(), nb=neighborsFor(hmv), ll=landlordFor(hmv);
+      h+=moveInCard(hmv)+runwayBar(hmv);
+      h+=peopleCard('the building you\u2019d land in', nb,
+        hmv.room ? 'a shared flat — the housemates aren\u2019t on the card; you\u2019ll learn them at the sink'
+                 : 'the other tenants aren\u2019t on the card yet — a genuinely fresh landing');
+      h+='<div class="note">'+(ll.length
+        ? 'the landlord of record here: '+ll.map(function(x){return x.n;}).join(', ')+' — owner-direct; notices come from the office, not a stranger'
+        : 'the lease file runs through the landlord\u2019s office like every door on the block — no name needed on day one')+'</div>';
+    }
     h+='<div class="note">Miss rent and the landlord\u2019s office notices — arrears, notices, eviction. ' +
     'Same ledger as everyone on the block; rent control flags are real lease terms, not decoration.</div>';
   } else if (STEP===4){
@@ -541,6 +659,14 @@ function render(){
       (j&&j.pay? '<span class="d">PAYDAY</span><span>'+payLine(j)+(j.pay==='weekly'?' — the first one lands the Friday after the 5th':'')+'</span>' : '') +
       '<span class="d">WEEKEND</span><span>Dolores Park, like everyone else — where new faces get noticed</span>' +
       '<span class="d">THE 1ST</span><span>rent due — $'+hm.rent+' in game dollars, same ledger as every tenant</span>' +
+      (function(){
+        var seen={}, faces=[];
+        (j&&j.est?crewFor(j.employer):[]).concat(neighborsFor(hm)).forEach(function(p){
+          if(!seen[p.n]){seen[p.n]=1;faces.push(p.n);}});
+        return '<span class="d">FACES</span><span>'+(faces.length
+          ? 'the card already has '+faces.join(', ')+' where they\u2019re landing — surface ties, not friendships yet'
+          : 'nobody on the card where they\u2019re landing — a genuinely new face')+'</span>';
+      })() +
     '</div>' +
     '<div class="note">Who they meet, what they hide, who they become — none of that is in this form. ' +
     'It happens on the feed, in front of everyone.</div>';
@@ -568,10 +694,15 @@ function render(){
           return '<div class="line"><span>'+esc(l.label||'')+'</span><b>'+esc(l.value||'')+'</b></div>'; }).join('') + '</div>';
     }catch(e){} }
     h='<h2>Step 6 — Review & sign</h2>' + quote +
+    '<label>The landing — when they arrive (the block sees it on The Wire)</label>' +
+    '<div class="pickrow" id="pland">' +
+      ['lands tonight','tomorrow morning','Saturday morning'].map(function(w){
+        return '<span class="pick'+(f.landing===w?' sel':'')+'" data-w="'+w+'">'+w+'</span>';}).join('')+'</div>' +
     '<div class="note">Name, bio, and arrival line get the same screen every request gets — ' +
     'the shared engine, then a human pass before the character lands. The hire bills on approval only — denied applications never bill.' +
     (submits>0 ? ' This is submission #'+(submits+1)+' — resubmissions go to a different reviewer.' : '')+'</div>' +
-    (BAL < HIRE_CR ? '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>':'');
+    (BAL < HIRE_CR ? '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>':'') +
+    (created+1 > SLOT_CAP ? '<div class="warn">The roster is full on this account — '+created+' of '+SLOT_CAP+' slots used. The cap is the account\u2019s tier; Director raises it to 3.</div>':'');
   }
   wiz.innerHTML=h;
   $('back').style.display = STEP===0 ? 'none':'';
@@ -592,6 +723,12 @@ function wireStep(){
     $('cage').oninput=function(){f.age=+this.value;validate();};
     $('cpro').value=f.pronouns; $('cpro').onchange=function(){f.pronouns=this.value;};
     $('carr').oninput=function(){f.arrival=this.value;};
+    $('foldNames').onclick=function(){
+      var bx=$('namesBox'), open=bx.style.display!=='none';
+      bx.style.display=open?'none':'';
+      this.innerHTML=open?'the names already taken on the block — all of them · <b>see them</b>'
+                         :'cast, faces, and role words — every one refuses · <b>hide them</b>';
+    };
   } else if (STEP===1){
     $('cbio').oninput=function(){f.bio=this.value;validate();};
     wiz.querySelectorAll('.pick,.sw').forEach(function(el){
@@ -613,6 +750,10 @@ function wireStep(){
     };
     if (fold){ fold.dataset.closed=fold.innerHTML;
       fold.dataset.open='open posts above · filled posts below — <b>hide them</b>'; }
+  } else if (STEP===5){
+    wiz.querySelectorAll('#pland .pick').forEach(function(el){
+      el.onclick=function(){ f.landing=el.dataset.w; render(); };
+    });
   }
 }
 function validate(){
@@ -704,7 +845,8 @@ function submit(){
       var hm=home(), depPlanned = START_BANK < moveInFor(hm);
       stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month + deposit'+
         (depPlanned?' (deposit on a payment plan)':'')+' paid in game dollars');
-      feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address);
+      stage('Landing scheduled','done',f.landing+' — the arrival posts to The Wire like everything else');
+      feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address+' · '+f.landing);
       feedAdd('you','housing — move-in · '+hm.address+' comes off the board');
       $('slotLine').textContent=(created+1)+' of '+SLOT_CAP+' slots used';
       var j=job();
@@ -718,12 +860,33 @@ function submit(){
 
 function briefing(){
   var j=job(), hm=home();
+  var crew = j&&j.est?crewFor(j.employer):[], nb=neighborsFor(hm), ll=landlordFor(hm);
+  var ties = 'New in town — ' +
+    (j&&j.est ? (crew.length? 'the counter at '+j.employer+' ('+crew.map(function(p){return p.n;}).join(', ')+')'
+                             : 'the crew at '+j.employer+' — no names on the card yet')
+              : 'no workplace yet') +
+    '; ' + (nb.length? nb.map(function(p){return p.n;}).join(', ')+' behind the same door'
+                     : 'the neighbors at '+hm.address.split(',')[0]) +
+    (ll.length? '; the landlord of record is '+ll.map(function(p){return p.n;}).join(', ') : '') +
+    '. That\u2019s the whole list.';
   var b=$('briefing'); b.style.display='block';
   b.innerHTML='<h3>Possession briefing — ' + esc(f.name) + '</h3>' +
     '<div class="bline"><span class="k">Public profile</span>'+esc(f.bio)+'</div>' +
-    '<div class="bline"><span class="k">Surface relationships</span>New in town — knows the supervisor at '+j.employer+', the neighbors at '+hm.address.split(',')[0]+'. That\u2019s the whole list.</div>' +
+    '<div class="bline"><span class="k">Surface relationships</span>'+ties+'</div>' +
     '<div class="bline"><span class="k">Daily routine</span>'+(j.est? 'Shift at '+j.employer+' ('+j.hrs+'), home by evening.':'Job hunting days, home evenings.')+'</div>' +
     '<div class="bline"><span class="k">Secrets</span><span class="redacted">none written — none to redact. Whatever they\u2019re hiding, they\u2019ll grow it themselves.</span></div>';
+
+  var r=$('record'); r.style.display='block';
+  r.innerHTML='<h3>Registry entry — h'+created+'</h3>' +
+    '<div class="rl"><span>id / owner</span><b>h'+created+' · you (demo-player)</b></div>' +
+    '<div class="rl"><span>name</span><b>'+esc(f.name)+' · '+f.age+' · '+esc(f.pronouns)+'</b></div>' +
+    '<div class="rl"><span>look</span><b>'+esc([f.look.build,f.look.palette,f.look.signature].filter(Boolean).join(' · '))+'</b></div>' +
+    '<div class="rl"><span>arrival</span><b>'+esc(f.arrival||'—')+' · '+esc(f.landing)+'</b></div>' +
+    '<div class="rl"><span>job</span><b>'+esc(f.job)+'</b></div>' +
+    '<div class="rl"><span>unit</span><b>'+esc(f.home)+' · $'+hm.rent+'/mo</b></div>' +
+    '<div class="rl"><span>bank</span><b>$'+bankAfterMoveIn(hm).toLocaleString()+' game dollars</b></div>' +
+    '<div class="rl"><span>brain</span><b>full while possessed · thin AI when you\u2019re offline</b></div>' +
+    '<div class="note" style="margin-top:6px">The whole file — what was written is what\u2019s here. No secret fields exist on it.</div>';
 
   var n=$('nextsteps'); n.style.display='block';
   n.innerHTML='<h3>Day one — what now</h3>' +
@@ -732,7 +895,7 @@ function briefing(){
     '<div style="padding:3px 0">Rent is due on the 1st in game dollars — see it on <a href="lease.html">The Rent Book</a>. You can\u2019t pay it with credits; they can\u2019t skip it with charm.</div>' +
     '<div style="padding:3px 0">Offline? They drop to thin AI — job kept, rent paid, life lived. They wake to a full brain when you return.</div>';
 
-  feedAdd('you','cast — a new face on the block · "'+f.name+'"');
+  feedAdd('you','cast — a new face on the block · "'+f.name+'"','lands '+f.landing);
   toast(f.name+' is on the block. First rent paid; the rest is theirs.');
   $('back').disabled=false; $('back').textContent='Start another';
   $('back').onclick=function(){ location.reload(); };

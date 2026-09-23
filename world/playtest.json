@@ -77,7 +77,7 @@
   },
   "create": {
    "file": "create.html",
-   "name": "Join the Cast (v2)",
+   "name": "Join the Cast (v4)",
    "tier": "paid"
   },
   "board": {
@@ -2388,6 +2388,56 @@
       "Open-thread chips derive from member rows (open rumor or open request status) — same rule as the threads view",
       "Gate now deep-compares mentions/attrs/outcome and validates outcome.by names a real archived event",
       "Twenty-two gates total; overall 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT45",
+   "title": "Join the Cast v4 — the people layer, the landing, the registry entry",
+   "minutes": 9,
+   "persona": "paid-tier player hiring a second character + facilitator auditing the v49 creation pass",
+   "goal": "Verify the creation flow now names the real block: the taken-names fold agrees with the live name check, the crew card resolves actual coworkers for the picked job, the building card resolves actual neighbors plus the named landlord of record on the Guerrero doors, the landing window rides the hire, and the post-hire registry entry shows the whole record.",
+   "surfaces": [
+    "create",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open Join the Cast. On step 1 open 'the names already taken on the block' fold, then try a name from each group — 'Sam', 'Reyes', 'Victor Auerbach' — then a free name.",
+     "expect": "The fold lists 8 main-cast names, 20 ambient first names, and 3 role words (landlord/admin/owner). Every listed name trips the live check 'taken — the block already has one' (including Sam, Reyes, Tom, Ray — ambient first names the old registry missed). A free name reads 'available on the block'.",
+     "checkpoints": [
+      "Fold groups render cast / faces / role words; counts are 8 · 20 · 3",
+      "Each displayed name is refused by the same TAKEN check that drives the live namecheck — no decoration-only list",
+      "The denial never waits for the pipeline — it lands on keystroke"
+     ]
+    },
+    {
+     "do": "Continue through step 2, then on step 3 pick 'Barista — Mudhaus Coffee', and read the crew card. Pick an employer with no named regulars (e.g. Buy-Rite Market) and compare.",
+     "expect": "Mudhaus shows a 'you'd work alongside' card naming Mars Delgado, Jules Park, Dani Reyes, Reyes Aguilar, Asha Nair, Nadia Petrov with public one-line notes. Buy-Rite shows the honest empty state 'no regulars on the card yet — the crew introduces itself on shift' instead of a padded list.",
+     "checkpoints": [
+      "Crew card names only people whose venue/employer actually matches the job row — no invented coworkers",
+      "Empty employers get a stated empty state, never silence or filler",
+      "Notes stay briefing-safe: role + one observable line, nothing interior"
+     ]
+    },
+    {
+     "do": "On step 4 pick '9457 Guerrero St, Unit 2', then '9521 Treat Ave, Unit 2', and read the building card and the landlord line each time.",
+     "expect": "Guerrero lists Priya Raman and Marcus Bell behind the same door, plus 'the landlord of record here: Victor Auerbach — owner-direct; notices come from the office, not a stranger'. The Treat room share shows the honest shared-flat empty state and the generic landlord's-office line — no name claimed where the registry names none.",
+     "checkpoints": [
+      "Neighbors resolve by building prefix from the cast registry — Capp names Mars, Guerrero names its tenants",
+      "The named-landlord line appears only where the lease file names one (9418/9457 Guerrero)",
+      "Move-in card and runway still render above the people card — the lease math is unchanged"
+     ]
+    },
+    {
+     "do": "Finish the wizard: read the FACES row on step 5, pick a landing window on step 6, sign, and read the pipeline, briefing, and registry entry.",
+     "expect": "Step 5 names the coworkers+neighbors already on the card ('surface ties, not friendships yet'). The landing pick (lands tonight / tomorrow morning / Saturday morning) appears on the review step, in the pipeline ('Landing scheduled'), and on the cast feed event ('lands <window>'). The briefing's surface-relationships line names actual people. The registry entry renders the h## record field-for-field — bank after move-in included — with 'no secret fields exist on it'.",
+     "checkpoints": [
+      "Landing is declared upfront and attributed on the wire — consistent with every other request",
+      "Briefing whitelist unchanged: profile, surface relationships, routine — now with real names, still nothing interior",
+      "Registry entry shows exactly the record_schema fields including post-move-in game dollars — nothing hidden",
+      "creation gate passes: 28 PEOPLE rows re-verified against characters.json/ambients.json, 31 taken names ⊆ TAKEN, draft key rw_create_draft_v23"
      ]
     }
    ]

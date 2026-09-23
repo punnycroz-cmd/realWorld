@@ -1,9 +1,46 @@
-# Character Creation — spec & copy deck (world v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v49 — the people layer: the flow now names the actual block:**
+
+- **PEOPLE mirror.** A hand-maintained `PEOPLE` list (all 8 mains + all 20
+  ambient faces, mirrored from `characters.json` + `ambients.json`) carries
+  who works where (`w` = job-board employer strings), which building each
+  main lives behind (`b` = `9xxx Street` prefix; ambient homes are not
+  addresses, so faces never carry one), and who the lease file names
+  landlord of record (`owns` — Victor Auerbach on the two Guerrero
+  buildings). The audit gate re-verifies every row against the two
+  registries, so the card can never drift from the cast.
+- **Taken names on the table.** Step 1 gains a fold listing every name
+  that refuses — 8 cast, 20 faces, 3 role words — so a `name-collision`
+  denial is never a surprise. `TAKEN_NAMES` is gated to agree with the
+  `TAKEN` regex itself (which now covers Reyes, Sam, Tom, Ray — ambient
+  first names the old list missed).
+- **Coworkers and neighbors.** Step 3's job pick shows "you'd work
+  alongside" (e.g. Mudhaus → Mars, Jules, Dani, Reyes, Asha, Nadia);
+  step 4's home pick shows "the building you'd land in" (9127 Capp →
+  Mars upstairs; 9418/9457 Guerrero → the tenants plus the landlord-of-
+  record line). Empty states are stated honestly — "no regulars on the
+  card yet — the crew introduces itself on shift."
+- **FACES row.** The first-week rhythm names the people already on the
+  card where they're landing — "surface ties, not friendships yet."
+- **The landing.** A declared arrival window (lands tonight / tomorrow
+  morning / Saturday morning) rides the hire, like every request
+  declares upfront. It's part of the 500 cr, posts as a pipeline stage
+  and on the cast feed event.
+- **Registry entry.** After the briefing, the minted `h##` record
+  renders field-for-field per `record_schema` — id/owner, name, look,
+  arrival, job, unit, bank after move-in, brain mode — with the honesty
+  line "the whole file — no secret fields exist on it."
+- **Roster full.** A slot-capped account sees the state on step 6
+  instead of a silently disabled button.
+- **Named briefing.** The possession briefing's surface-relationships
+  line names the actual coworkers, neighbors, and landlord instead of
+  "the supervisor" and "the neighbors."
 
 **v35 — the flow now reads the real market and the real lease math:**
 
@@ -202,6 +239,17 @@ whitelist serves the mod console (moderation §4).
 | Engine-missing guard | "The screening engine didn't load — the application can't be checked, so it can't be billed." |
 | Day-one card | "Rent is due on the 1st in game dollars … You can't pay it with credits; they can't skip it with charm." |
 | Fineprint | "a person, not a puppet … secrets — theirs, everyone's — aren't in the box" |
+| Step 1 names fold | "the names already taken on the block — all of them · see them" |
+| Step 3 crew card | "you'd work alongside" · empty: "no regulars on the card yet — the crew introduces itself on shift" |
+| Step 4 building card | "the building you'd land in" · room share: "a shared flat — the housemates aren't on the card; you'll learn them at the sink" |
+| Step 4 landlord line | "the landlord of record here: Victor Auerbach — owner-direct; notices come from the office, not a stranger" |
+| Step 4 no-name line | "the lease file runs through the landlord's office like every door on the block — no name needed on day one" |
+| Step 5 faces row | "the card already has <names> where they're landing — surface ties, not friendships yet" · empty: "a genuinely new face" |
+| Step 6 landing label | "The landing — when they arrive (the block sees it on The Wire)" |
+| Pipeline: landing | "Landing scheduled — <window> · the arrival posts to The Wire like everything else" |
+| Feed: cast tail | "lands <window>" |
+| Registry card | "Registry entry — h##" + "The whole file — what was written is what's here. No secret fields exist on it." |
+| Roster full | "The roster is full on this account — N of M slots used. The cap is the account's tier; Director raises it to 3." |
 
 ## 7. Merge notes
 

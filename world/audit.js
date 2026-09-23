@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v47).
+/* world/audit.js — RW boundary audit (world v49).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -74,7 +74,12 @@
                 and field-compared to jobs.json/housing.json/record_schema;
                 move-in math (deposit + payment plan), payday cadence,
                 bill-on-approval, live-seam reads present and no mutation
-                call on the surface; draft key + deny codes agree
+                call on the surface; draft key + deny codes agree; v49
+                people layer: PEOPLE rows re-verified against
+                characters.json/ambients.json (w tokens → job/venue,
+                b → cast home, owns → landlord field), TAKEN_NAMES ⊆
+                TAKEN regex, landing pick + registry entry + roster-full
+                honesty present
     mod       — moderation tooling: taxonomy agreement between
                 moderation.json and screen.js REASON_CODES; corpus↔lab
                 content mirror case-for-case; console CHARS whitelist;
@@ -1548,15 +1553,18 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G20 creation ============ */
 {
-  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look mirrors; move-in math; bill-on-approval; read-only seam)');
+  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; move-in math; bill-on-approval; read-only seam)');
   try {
     const CJ = JSONF('creation.json');
     const JJ = JSONF('jobs.json');
     const HJ = JSONF('housing.json');
     const FJ = JSONF('feed.json');
+    const CJ2 = JSONF('characters.json');
+    const AJ = JSONF('ambients.json');
     const html = rd('create.html');
-    /* contract blocks the v35 surface depends on */
-    for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist'])
+    /* contract blocks the v35+v49 surface depends on */
+    for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
+                     'people_layer', 'names_registry', 'arrival_window', 'registry_entry'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
@@ -1616,6 +1624,51 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'create.html', null, 'deposit rule (1× flat / 0.5× room share) not implemented');
     const roomRow = DHOMES.find(h2 => h2.room);
     if (!roomRow) add(g, 'fail', 'create.html', null, 'no room-share home flagged for the 0.5× deposit rule');
+    /* v49 PEOPLE mirror — every row re-verified against the registries:
+       cast rows must match characters.json names exactly (w tokens → job,
+       b → home, owns → landlord field); face rows match ambients by
+       fullName|name (w tokens → venue; faces never carry a home). */
+    const pm = /var PEOPLE = (\[[\s\S]*?\]);/.exec(html);
+    const DPEOPLE = pm ? eval(pm[1]) : [];
+    if (!pm || !DPEOPLE.length) add(g, 'fail', 'create.html', null, 'PEOPLE block not found or empty');
+    const tok = w => w.replace(/\(.*?\)/, '').trim().split(' ')[0];
+    let castRows = 0;
+    for (const p of DPEOPLE) {
+      if (p.k === 'cast') {
+        castRows++;
+        const c = CJ2.cast.find(x => x.name === p.n);
+        if (!c) { add(g, 'fail', 'create.html', null, `PEOPLE cast "${p.n}" not in characters.json`); continue; }
+        for (const w of p.w || []) if (!c.job.includes(tok(w)))
+          add(g, 'fail', 'create.html', null, `${p.n}: employer "${w}" not under job "${c.job}"`);
+        if (p.b && !c.home.startsWith(p.b + ' '))
+          add(g, 'fail', 'create.html', null, `${p.n}: building "${p.b}" != home "${c.home}"`);
+        for (const o of p.owns || []) {
+          if (!/landlord/.test(c.job)) add(g, 'fail', 'create.html', null, `${p.n}: owns "${o}" but job carries no landlord role`);
+          if (!c.job.includes(o.split(' ')[0])) add(g, 'fail', 'create.html', null, `${p.n}: owns "${o}" not under job "${c.job}"`);
+        }
+      } else {
+        const a = AJ.ambients.find(x => x.fullName === p.n || x.name === p.n);
+        if (!a) { add(g, 'fail', 'create.html', null, `PEOPLE face "${p.n}" not in ambients.json`); continue; }
+        for (const w of p.w || []) if (!a.venue.includes(tok(w)))
+          add(g, 'fail', 'create.html', null, `${p.n}: employer "${w}" not under venue "${a.venue}"`);
+        if (p.b) add(g, 'fail', 'create.html', null, `${p.n}: faces never carry a home address (b)`);
+      }
+    }
+    if (castRows !== CJ2.cast.length)
+      add(g, 'fail', 'create.html', null, `PEOPLE lists ${castRows} cast, characters.json has ${CJ2.cast.length} — every main must be on the card`);
+    /* TAKEN_NAMES — every listed string must actually refuse under TAKEN */
+    const tm = /var TAKEN = (\/[^/]+\/\w+);/.exec(html);
+    const TRX = tm ? eval(tm[1]) : null;
+    const nm = /var TAKEN_NAMES = (\{[\s\S]*?\});/.exec(html);
+    const TN = nm ? eval('(' + nm[1] + ')') : {};
+    const flat = ['cast', 'faces', 'roles'].reduce((a, k2) => a.concat(TN[k2] || []), []);
+    if (!flat.length) add(g, 'fail', 'create.html', null, 'TAKEN_NAMES block not found or empty');
+    if (TRX) for (const n of flat)
+      if (!TRX.test(n)) add(g, 'fail', 'create.html', null, `TAKEN_NAMES "${n}" is shown as taken but TAKEN does not refuse it`);
+    if ((TN.cast || []).length !== CJ2.cast.length)
+      add(g, 'fail', 'create.html', null, 'TAKEN_NAMES.cast must list every main');
+    if ((TN.faces || []).length !== AJ.ambients.length)
+      add(g, 'fail', 'create.html', null, 'TAKEN_NAMES.faces must list every ambient first name');
     /* honesty strings the surface MUST carry */
     const MUST = [
       [/charged on approval/i, 'bill-on-approval wording'],
@@ -1643,7 +1696,22 @@ const PUB = Object.values(PT.surfaces)
       [/gsHireNameCheck/, 'live seam: name check'],
       [/gsHireQuote/, 'live seam: quote'],
       [/gsHireSlots/, 'live seam: slots'],
-      [/TAKEN/, 'local name registry']
+      [/TAKEN/, 'local name registry'],
+      [/names already taken on the block/, 'v49: taken-names fold'],
+      [/namesBox/, 'v49: taken-names box'],
+      [/work alongside/, 'v49: crew card'],
+      [/building you\\u2019d land in|building you'd land in/, 'v49: neighbor card'],
+      [/landlord of record/, 'v49: named-landlord line'],
+      [/crew introduces itself on shift/, 'v49: honest empty-crew copy'],
+      [/lands tonight/, 'v49: landing option'],
+      [/Saturday morning/, 'v49: landing option'],
+      [/Landing scheduled/, 'v49: landing pipeline stage'],
+      [/lands <window>|lands '|lands " ?\+f\.landing/, 'v49: landing on the wire'],
+      [/Registry entry — h/, 'v49: registry record card'],
+      [/no secret fields exist on it/i, 'v49: record honesty line'],
+      [/roster is full/, 'v49: slot-cap honesty'],
+      [/surface ties, not friendships/, 'v49: FACES honesty'],
+      [/peopleCard/, 'v49: people card helper']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);
@@ -1665,7 +1733,8 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'create.html', i + 1, `world-mutation call on the creation surface: ${ln.trim().slice(0, 100)}`);
     });
     g.detail = `${DJOBS.length} board rows (${DJOBS.filter(j=>j.openings===0).length} filled) · ` +
-      `${DHOMES.length} homes · schema v${CJ.version} · draft ${dk}`;
+      `${DHOMES.length} homes · ${DPEOPLE.length} people (${castRows} cast) · ` +
+      `${flat.length} taken names · schema v${CJ.version} · draft ${dk}`;
   } catch (e) { add(g, 'fail', 'creation.json', null, 'parse/check failure: ' + e.message); }
 }
 

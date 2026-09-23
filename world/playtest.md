@@ -57,6 +57,14 @@ One person can wear every hat; four real testers is the intended shape.
   PT42 (request v46) is a player + facilitator audit — the approve-modified
   offer (trim-only, decline = full refund), honest upfront charge, queued
   hold clock + expiry, scheduled exclusives firing, and the hire route.
+  PT43 (wire v4 recap layer, v47) is a spectator audit — the day-so-far
+  card, missed bar, declared-cost chips, and the wire gate's v47 keys.
+  PT44 (archive v4 week layer, v48) is a spectator + facilitator audit —
+  week grid = day filters, day walk, around-that-time, outcome.by.
+  PT45 (create v4 people layer, v49) is a hired player + facilitator
+  audit — the taken-names fold agreeing with the live check, the crew
+  card and building card resolving real cast/ambient rows, the named
+  landlord of record, the landing window, and the registry entry.
 
 ## 3. Running a session
 

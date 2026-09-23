@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 22,
+  "version": 23,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -78,8 +78,28 @@
     "never": ["gsRequestSubmit", "gsHireActivate", "gsHiredTakeJob", "gsApplyForLease", "gsSignLease", "fetch", "XHR"],
     "badge": "header shows 'live board' | 'demo board' — the page never pretends to be live"
   },
+  "people_layer": {
+    "doc": "v49 — the block's actual names, mirrored from characters.json (cast, k:'cast') and ambients.json (faces, k:'face'). Every row re-verified by the audit gate: w employer tokens resolve into the person's job/venue field, b building prefixes resolve into cast home fields, owns prefixes resolve into the landlord's job field. Ambient homes are not addresses, so faces never carry b.",
+    "fields": { "n": "display name (cast full name / ambient full name)", "k": "cast | face", "w": "job-board employer strings — crew card source", "b": "building prefix '9xxx Street' — neighbor card source (cast only)", "owns": "buildings where the registry names this person landlord of record", "note": "public-observable one-liner, briefing-safe" },
+    "renders": ["taken-names fold (step 1)", "'you'd work alongside' card (step 3)", "'the building you'd land in' card + landlord-of-record line (step 4)", "FACES row (step 5)", "named surface relationships in the briefing"],
+    "honesty": "empty states are stated, not padded — 'no regulars on the card yet — the crew introduces itself on shift'; names shown are surface ties, never claimed friendships"
+  },
+  "names_registry": {
+    "doc": "v49 — the complete taken list rendered on the table (fold on step 1): 8 cast names, 20 ambient first names, 3 role words. Every listed string must match the TAKEN regex — the audit gate checks both directions' agreement.",
+    "groups": ["cast", "faces", "roles"]
+  },
+  "arrival_window": {
+    "doc": "v49 — a declared landing window rides the hire, like every request declares its action upfront. Part of the 500 cr, never priced separately.",
+    "options": ["lands tonight", "tomorrow morning", "Saturday morning"],
+    "default": "tomorrow morning",
+    "feed": "the cast event carries it — 'lands <window>' — so the block sees the arrival on The Wire"
+  },
+  "registry_entry": {
+    "doc": "v49 — after the briefing, the minted h## record renders field-for-field per record_schema: id/owner, name/age/pronouns, look, arrival+landing, job_id, unit_id, bank after move-in (game dollars), brain mode. Honesty line: 'the whole file — no secret fields exist on it.'",
+    "rule": "renders exactly the record_schema fields — nothing the player can't see is written on the card"
+  },
   "draft": {
-    "storage": "localStorage rw_create_draft_v22 — fields + step + resubmit count",
+    "storage": "localStorage rw_create_draft_v23 — fields + step + resubmit count + landing pick",
     "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
   },
   "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
