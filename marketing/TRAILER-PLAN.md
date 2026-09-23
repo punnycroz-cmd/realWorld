@@ -1,10 +1,14 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v20 (2026-09-23).
-The hero and teaser cuts now exist as real mp4s — `trailer/out/animatic-*.mp4`,
-built by `trailer/build-animatic.py` from the machine-readable EDL in
-`trailer/edl.json` (§11). Live footage still pending; the animatic locks
-timing, copy, and structure so the ship cut is a recapture job, not a rewrite.
+**Status:** production-ready plan + rendered animatics, v35 (2026-09-23).
+All three cuts now exist as real mp4s — hero 85s, teaser 15s, and the
+9:16 vertical 30s — `trailer/out/animatic-*.mp4`, built by
+`trailer/build-animatic.py` from the machine-readable EDL in
+`trailer/edl.json` (§11). Each cut also has a `-scratch.mp4` variant with
+a procedural temp-audio bed (mood/timing reference only — the ship score
+is still a licensing task, §5) and a printable `board-*.png` contact
+sheet. Live footage still pending; the animatic locks timing, copy, and
+structure so the ship cut is a recapture job, not a rewrite.
 **Owner-gated:** publishing the finished video anywhere requires explicit owner
 approval. All captures come from the local dev build or the shipped game.
 **Accuracy rule:** every claim below is verified against
@@ -42,7 +46,7 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 |---|---|---|---|
 | Hero trailer | 75–90 s | 16:9 | site hero, YouTube, press kit, store page |
 | Teaser cutdown | 15 s | 16:9 + 9:16 re-frame | social launch day, paid placements if approved |
-| Vertical cut | 30 s | 9:16 | TikTok/Reels/Shorts (optional phase 2) |
+| Vertical cut | 30 s | 9:16 | TikTok/Reels/Shorts — animatic rendered (§11) |
 | Thumbnail stills | — | 16:9 | YouTube/itch |
 
 All footage labeled **"development build — not final"** in the corner bug or
@@ -177,6 +181,29 @@ must read fully muted (most social plays are sound-off).
 9:16 re-frame: recompose to the center third; all captures are 1440×900 so the
 center crop is 506×900 — re-capture vertically at ship if quality is short.
 
+### 30-second vertical cut (v35 — now rendered)
+
+The §2 vertical deliverable is no longer optional-future: `edl.json` carries a
+`"vertical"` program (canvas `[720,1280]`) rendered to
+`out/animatic-vertical.mp4` + `captions-vertical.srt`:
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | V1 feedline cold open | `06:01 — Mars opened Mudhaus.` types on black |
+| 0:04–0:10 | V2 café block, center re-frame | "A neighborhood that doesn't know it's watched." |
+| 0:10–0:15 | V3 park, wet grade | "Watching is free." |
+| 0:15–0:21 | V4 possession chip AI→YOU | "Reaching in costs credits." |
+| 0:21–0:26 | V5 night grade, lamps | — |
+| 0:26–0:30 | V6 end card | "REAL WORLD — The Mission. Watch free." |
+
+Vertical crops use the same HUD-free band (`y 100–794`) narrowed to a 390px
+column — the animatic is watchable but the ship cut should re-capture native
+portrait framing. Same accuracy rules: possession chip implies hired-character
+only, `{{URL}}` placeholder on the end card. V4 additionally `redact`-blurs
+the debug name tags in frame — the AI→YOU chip over a labeled main would
+violate the possession-ban truth; consider the same redaction for hero
+S9/S10 at ship.
+
 ## 8. Thumbnail concepts (pick 1, test later)
 
 1. **The watcher:** v22-D director shot, darkened edges, small red "REC" dot,
@@ -214,23 +241,33 @@ interiors + v1 early-pass pair), brand assets in `site/assets/` +
 for the recapture-flagged shots (game build), final credit numbers (owner).
 Parody names are RESOLVED (`world/parody-names.json`).
 
-## 11. Animatic — rendered pre-production cut (NEW in v20)
+## 11. Animatic — rendered pre-production cut (v20; extended v35)
 
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Both programs
-  (`hero` 85s, `teaser` 15s): every shot's source still, timing, card text,
-  Ken Burns zoom/pan, color grade (`wet`/`night` simulated the §8 beat and
-  the night look), possession chip + draining timer overlays, transition
-  type, and a `recapture` flag = the §4 must-recapture list.
+- **`edl.json`** — machine-readable edit decision list. Three programs
+  (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`): every shot's
+  source still, timing, card text, Ken Burns zoom/pan, color grade
+  (`wet`/`night` simulated the §8 beat and the night look), possession chip +
+  draining timer overlays, transition type, a `recapture` flag = the §4
+  must-recapture list, and an `audio` preset naming the intended sound bed.
 - **`build-animatic.py`** — PIL renders every frame (feed mock, request-card
   mock, attribution ledger, end card, `DEVELOPMENT BUILD` corner bug,
-  dip-to-black transitions) and pipes to ffmpeg → mp4. No audio (music is a
-  licensing task, §5). Rebuild: `python3 build-animatic.py`.
-- **`out/animatic-hero.mp4` / `animatic-teaser.mp4`** — the rendered cuts.
-- **`out/captions-*.srt`** — generated from the same EDL, so captions can
-  never drift from picture.
+  dip-to-black transitions) and pipes to ffmpeg → mp4. Per-program canvas +
+  font scaling, so the vertical cut shares every renderer. Rebuild:
+  `python3 build-animatic.py [hero|teaser|vertical|all]`.
+- **Scratch audio (v35):** shots' `audio` presets (`room`, `swell`, `ticks`,
+  `thunder`, `rain`, `night`, `resolve`) are synthesized in pure Python →
+  `out/scratch-*.wav`, muxed to `out/animatic-*-scratch.mp4`. Temp bed for
+  pacing review only — the ship score is the licensing task in §5; nothing
+  here is licensed or final.
+- **Storyboard sheets (v35):** `python3 build-animatic.py --board [program]`
+  tiles one representative frame per shot + timing/kind/recapture label +
+  card text into `out/board-*.png` — the printable storyboard an editor can
+  pin up next to §3/§4.
+- **`out/animatic-*.mp4`** — the rendered cuts; **`out/captions-*.srt`** —
+  generated from the same EDL, so captions can never drift from picture.
 
 Use it to review pacing/copy with the owner before any capture session, as
 the timing reference for the editor, and as the muted-safe proof that the

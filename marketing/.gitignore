@@ -1,3 +1,4 @@
 dist/
 deploy/*.local
 deploy/.env*
+trailer/out/*.wav

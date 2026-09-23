@@ -1,5 +1,5 @@
 {
-  "_comment": "Edit decision list \u2014 Real World 'The Mission' trailer. Machine-readable source of truth for TRAILER-PLAN.md \u00a73/\u00a77. Consumed by build-animatic.py. Timing in seconds at fps below. 'recapture' marks shots that MUST be re-cut from live game footage before ship; stills are pre-production only.",
+  "_comment": "Edit decision list — Real World 'The Mission' trailer. Machine-readable source of truth for TRAILER-PLAN.md §3/§7. Consumed by build-animatic.py. Timing in seconds at fps below. 'recapture' marks shots that MUST be re-cut from live game footage before ship; stills are pre-production only.",
   "canvas": [
     1440,
     900
@@ -27,10 +27,11 @@
           "id": "S1",
           "t": 5.0,
           "kind": "feedline",
-          "line": "06:01 \u2014 Mars opened Mudhaus.",
+          "line": "06:01 — Mars opened Mudhaus.",
           "card": null,
           "transition": "cut",
-          "note": "Cold open. Feed line types on black. Audio: room tone, espresso fades up."
+          "note": "Cold open. Feed line types on black. Audio: room tone, espresso fades up.",
+          "audio": "room"
         },
         {
           "id": "S2",
@@ -45,13 +46,14 @@
           "card": "A neighborhood in San Francisco.",
           "transition": "dip",
           "recapture": false,
-          "note": "Top-down dawn over the caf\u00e9 block. Slow drift.",
+          "note": "Top-down dawn over the café block. Slow drift.",
           "crop": [
             330,
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "room"
         },
         {
           "id": "S3",
@@ -72,7 +74,8 @@
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "room"
         },
         {
           "id": "S4",
@@ -87,13 +90,14 @@
           "card": "They work. They fall in love. They keep secrets.",
           "transition": "dip",
           "recapture": false,
-          "note": "Dolores Park overhead \u2014 palms, paths, drifting pawns.",
+          "note": "Dolores Park overhead — palms, paths, drifting pawns.",
           "crop": [
             330,
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "room"
         },
         {
           "id": "S5",
@@ -114,7 +118,8 @@
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "swell"
         },
         {
           "id": "S6",
@@ -124,29 +129,31 @@
             "06:01  Mars opened Mudhaus.",
             "06:14  Vic unboxed a shipment at Auerbach Hardware.",
             "06:40  Jules signed the lease on 9418 Guerrero St, Unit 3B.",
-            "07:05  Priya asked Tom\u00e1s about the rooftop garden.",
+            "07:05  Priya asked Tomás about the rooftop garden.",
             "07:31  Dani ordered at Dolores Perk. Again.",
             "08:02  Carmen's window box bloomed overnight."
           ],
           "card": "Watching is free. Always.",
           "transition": "dip",
           "recapture": true,
-          "note": "Public feed overlay, entries ticking. Ship version = real feed UI capture."
+          "note": "Public feed overlay, entries ticking. Ship version = real feed UI capture.",
+          "audio": "ticks"
         },
         {
           "id": "S7",
           "t": 7.0,
           "kind": "requestcard",
           "fields": {
-            "action": "rain \u2014 Dolores Park",
+            "action": "rain — Dolores Park",
             "duration": "2 h",
-            "cost": "credits/min \u00b7 declared upfront \u00b7 hard cap",
-            "status": "APPROVED \u2014 queued \u2192 live"
+            "cost": "credits/min · declared upfront · hard cap",
+            "status": "APPROVED — queued → live"
           },
           "card": "Want to reach in? File a request.",
           "transition": "cut",
           "recapture": true,
-          "note": "Request card fills on screen; approve tick. Sound: held breath, first thunder."
+          "note": "Request card fills on screen; approve tick. Sound: held breath, first thunder.",
+          "audio": "thunder"
         },
         {
           "id": "S8",
@@ -162,13 +169,14 @@
           "card": "Weather. Events. A character of your own.",
           "transition": "dip",
           "recapture": true,
-          "note": "S4 framing repeated in rain \u2014 hard dry\u2192wet cut is the money beat. Sim supports weather override (GS_WX_OVR).",
+          "note": "S4 framing repeated in rain — hard dry→wet cut is the money beat. Sim supports weather override (GS_WX_OVR).",
           "crop": [
             330,
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "rain"
         },
         {
           "id": "S9",
@@ -184,16 +192,17 @@
             "AI",
             "YOU"
           ],
-          "card": "Drive the character you hired \u2014 only yours.",
+          "card": "Drive the character you hired — only yours.",
           "transition": "dip",
           "recapture": true,
-          "note": "Possession handoff: card flips AI\u2192YOU mid-shot. Accuracy-critical: hired character only.",
+          "note": "Possession handoff: card flips AI→YOU mid-shot. Accuracy-critical: hired character only.",
           "crop": [
             330,
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "room"
         },
         {
           "id": "S10",
@@ -213,28 +222,30 @@
           "card": "When time's up, the sim takes the wheel back.",
           "transition": "dip",
           "recapture": true,
-          "note": "Timer drains; graceful handoff. Pawn keeps walking \u2014 no stutter.",
+          "note": "Timer drains; graceful handoff. Pawn keeps walking — no stutter.",
           "crop": [
             330,
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "room"
         },
         {
           "id": "S11",
           "t": 6.0,
           "kind": "ledger",
           "lines": [
-            "@wren_44      rain over the park, 2 h        ran \u2014 public",
-            "@northbeach   hired a new resident           queued \u2014 refunded",
+            "@wren_44      rain over the park, 2 h        ran — public",
+            "@northbeach   hired a new resident           queued — refunded",
             "@lamps        moved into 9418 Guerrero 3B    live",
             "admin         lease dispute resolved          logged"
           ],
           "card": "Every move is public. The audience sees everything.",
           "transition": "dip",
           "recapture": true,
-          "note": "Request-feed montage WITH attribution \u2014 transparency is the feature."
+          "note": "Request-feed montage WITH attribution — transparency is the feature.",
+          "audio": "ticks"
         },
         {
           "id": "S12",
@@ -250,13 +261,14 @@
           "card": null,
           "transition": "dip",
           "recapture": false,
-          "note": "Night falls \u2014 sodium pools, one lit window (v15+ lamp engine). Music resolves.",
+          "note": "Night falls — sodium pools, one lit window (v15+ lamp engine). Music resolves.",
           "crop": [
             330,
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "night"
         },
         {
           "id": "S13",
@@ -268,7 +280,8 @@
           "url": "{{URL}}",
           "card": null,
           "transition": "dip",
-          "note": "Logo on black. Optional VO: 'The neighborhood is live.'"
+          "note": "Logo on black. Optional VO: 'The neighborhood is live.'",
+          "audio": "resolve"
         }
       ]
     },
@@ -293,7 +306,8 @@
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "room"
         },
         {
           "id": "T2",
@@ -313,7 +327,8 @@
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "rain"
         },
         {
           "id": "T3",
@@ -336,7 +351,8 @@
             100,
             1440,
             794
-          ]
+          ],
+          "audio": "swell"
         },
         {
           "id": "T4",
@@ -347,7 +363,148 @@
           "tagline": null,
           "url": "{{URL}}",
           "card": null,
-          "transition": "dip"
+          "transition": "dip",
+          "audio": "resolve"
+        }
+      ]
+    },
+    "vertical": {
+      "file": "animatic-vertical.mp4",
+      "captions": "captions-vertical.srt",
+      "canvas": [
+        720,
+        1280
+      ],
+      "shots": [
+        {
+          "id": "V1",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "06:01 — Mars opened Mudhaus.",
+          "card": null,
+          "transition": "cut",
+          "audio": "room",
+          "note": "Cold open, feed line types on black — reads fine on 9:16."
+        },
+        {
+          "id": "V2",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v22-A.png",
+          "zoom": [
+            1.0,
+            1.12
+          ],
+          "pan": "left",
+          "card": "A neighborhood that doesn't know it's watched.",
+          "transition": "dip",
+          "recapture": false,
+          "audio": "room",
+          "crop": [
+            700,
+            100,
+            1090,
+            794
+          ],
+          "note": "9:16 center re-frame of the café block (HUD-free band, 390px column)."
+        },
+        {
+          "id": "V3",
+          "t": 5.0,
+          "kind": "still",
+          "src": "v22-C.png",
+          "zoom": [
+            1.06,
+            1.0
+          ],
+          "pan": "down",
+          "grade": "wet",
+          "card": "Watching is free.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "rain",
+          "crop": [
+            520,
+            100,
+            910,
+            794
+          ],
+          "note": "Dry→wet hard cut lands mid-feed-scroll on vertical."
+        },
+        {
+          "id": "V4",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v22-B.png",
+          "zoom": [
+            1.05,
+            1.16
+          ],
+          "pan": "right",
+          "chip": [
+            "AI",
+            "YOU"
+          ],
+          "card": "Reaching in costs credits.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "swell",
+          "crop": [
+            560,
+            100,
+            950,
+            794
+          ],
+          "note": "Possession flip — hired character only at ship. Debug pawn name tags (mains' public names) are blurred via 'redact' so the chip can't read as possessing a main.",
+          "redact": [
+            [
+              62,
+              220,
+              102,
+              236
+            ],
+            [
+              114,
+              244,
+              178,
+              264
+            ]
+          ]
+        },
+        {
+          "id": "V5",
+          "t": 5.0,
+          "kind": "still",
+          "src": "v22-D.png",
+          "zoom": [
+            1.05,
+            1.0
+          ],
+          "pan": "right",
+          "grade": "night",
+          "card": null,
+          "transition": "dip",
+          "recapture": false,
+          "audio": "night",
+          "crop": [
+            600,
+            100,
+            990,
+            794
+          ],
+          "note": "Night grade, lamps pooling — quiet beat before the card."
+        },
+        {
+          "id": "V6",
+          "t": 4.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Watch free.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve"
         }
       ]
     }
