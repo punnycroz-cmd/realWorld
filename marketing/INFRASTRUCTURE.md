@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v74 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v89 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -147,7 +147,9 @@ to include the live DNS row).
 
 - **Deploy:** `deploy/deploy-site.sh` — `rsync --delete` to a host path, or
   `caddy` reload. Defaults to `--dry-run`; requires `--apply` and
-  `RW_DEPLOY_HOST`. Static + atomic: rsync to a `releases/<ts>/` dir and
+  `RW_DEPLOY_HOST`. Static + atomic: rsync to a `releases/<ts>/` dir, write
+  `release.json` (provenance manifest — `tools/release_manifest.py`: git
+  sha, deploy timestamp, file count, `tree_sha256` over the tree), then
   flip a symlink. On apply it prints the exact rollback command (previous
   release path) and prunes the host to the 5 newest releases.
 - **Rollback:** symlink flip back using the printed command, or redeploy a
@@ -237,3 +239,17 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
 - **Post-launch verification cadence:** `prod_smoke.sh` after every
   deploy (ship.sh runs it automatically); `uptime_probe.sh` failures →
   LAUNCH-CHECKLIST §5 severity ladder.
+- **Release provenance:** every deployed release carries `/release.json`.
+  `prod_smoke.sh` §5b fetches it and compares `git_sha` to the local
+  HEAD — a mismatch WARNs "host serves a different commit" (catches stale
+  or wrong-checkout deploys); `tools/release_manifest.py --verify <dir>`
+  on the host re-hashes the tree against its manifest (catches corrupted
+  or tampered files). A release.json 404 just warns — pre-v89 releases
+  and edge-stripped JSON both produce that.
+- **Incident drill:** `tools/incident_drill.sh` rehearses the actual
+  failure loop, not just mechanics — fake host + HTTP server, deploy a
+  good release (baseline smoke green), inject a corrupted release
+  (gutted index.html/style.css), assert BOTH detectors fire (manifest
+  verify MISMATCH + prod_smoke FAIL), then flip the rollback symlink and
+  assert green again. Run it whenever deploy-site.sh, prod_smoke.sh, or
+  the release layout change. Rehearsed PASS 2026-09-23 (v89).

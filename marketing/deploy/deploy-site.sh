@@ -37,7 +37,17 @@ rsync -az --delete $RSYNC_DRY -e "ssh $SSH_OPTS" \
   --exclude '.DS_Store' \
   "$SITE_DIR" "${RW_DEPLOY_HOST}:${REL}/"
 
-# 2. flip the symlink (atomic)
+# 2. write the release manifest (provenance: what shipped, from which commit)
+MANIFEST=$(./tools/release_manifest.py "$SITE_DIR")
+if [ "$APPLY" -eq 1 ]; then
+  printf '%s\n' "$MANIFEST" | ssh $SSH_OPTS "$RW_DEPLOY_HOST" "cat > '$REL/release.json'"
+  echo "== release.json: sha $(printf '%s' "$MANIFEST" | grep -o '"git_sha": "[^"]*"' | cut -d'"' -f4 | cut -c1-8), $(printf '%s' "$MANIFEST" | grep -o '"file_count": [0-9]*' | cut -d' ' -f2) files"
+else
+  echo "== would write release.json (release_manifest.py):"
+  printf '%s\n' "$MANIFEST" | sed 's/^/   /'
+fi
+
+# 3. flip the symlink (atomic)
 if [ "$APPLY" -eq 1 ]; then
   PREV=$(ssh $SSH_OPTS "$RW_DEPLOY_HOST" "readlink '$RW_DEPLOY_PATH/current' 2>/dev/null || true")
   ssh $SSH_OPTS "$RW_DEPLOY_HOST" "ln -sfn '$REL' '$RW_DEPLOY_PATH/current'"

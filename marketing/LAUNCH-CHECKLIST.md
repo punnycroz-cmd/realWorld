@@ -56,7 +56,7 @@ log the result in §10 before the checklist may cite it.
 | G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate, `tools/ship.sh` runs steps 0–4 as one command; monitor spec in `deploy/monitoring.example`; est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, approved (modified), running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
 | G16 | Onboarding contract: the shipped build runs the world-v53 flow (persona fork watch/play, handle format + reserved-name check, declined-ask refund lesson, human-review lesson S4c scripted "not approved — refunded", queued-ask lesson S4e, archive-link beat S7, opt-in low-balance sim → "player session ended", post-hire return via `?hired=1` → first-day card S6, parked/returning states — `world/onboarding-ui.md` + `onboarding.json` schema v53, storage key `rw_onboard_v53`) and emits the full `analytics_hooks` contract to the endpoint configured in G8 — all 21 hooks (`tour_started`/`tour_beat`/`tour_completed`/`tour_skipped`, `persona_chosen`, `handle_set`/`handle_taken_shown`, `wallet_explained`/`topup_shown`, `first_request_filed`, `decline_lesson_shown`, `onboard_dismissed`, `returning_session`, `review_lesson_shown`/`review_outcome_seen`, `low_balance_simulated`, `handoff_seen`, `hired_return`, `queue_lesson_shown`/`queue_outcome_seen`, `archive_beat_seen`) are spec'd in `analytics-events.json`. Verify on staging with a scripted watch-persona and play-persona run including a `?hired=1` return | owner + game/world track | `[ ] PENDING` — marketing sink/report/dashboard accept all 21 hooks; the game-side emitters are the missing half |
-| G17 | Human playtest: owner (or designate) runs the world-v59 playtest harness end-to-end on the near-launch build (`world/playtest.html`, PT1–PT54 · 657 checkpoints, `#pt=` deep links, harness keyboard map, per-scenario timing in `session.time_per_scenario`). Blocker/major findings exported via "Copy inbox note" into the shared inbox; **zero open blockers and every major triaged with an owner-visible disposition** before GO. This is the only gate that proves a human can actually get through the front door — every other gate proves a mechanism | owner + world track | `[ ] PENDING` — harness now at world-v59; run owed on the launch candidate build |
+| G17 | Human playtest: owner (or designate) runs the world-v60 playtest harness end-to-end on the near-launch build (`world/playtest.html`, PT1–PT55 · 669 checkpoints, `#pt=` deep links, harness keyboard map, per-scenario timing in `session.time_per_scenario`). Blocker/major findings exported via "Copy inbox note" into the shared inbox; **zero open blockers and every major triaged with an owner-visible disposition** before GO. This is the only gate that proves a human can actually get through the front door — every other gate proves a mechanism | owner + world track | `[ ] PENDING` — harness now at world-v60; run owed on the launch candidate build |
 
 ## §2 Run of show — T-minus schedule
 
@@ -66,7 +66,7 @@ The ordered countdown. Each line is owner-visible; nothing executes early.
 |------|------|-----------|
 | T-7d | Content freeze on `site/` (bugfixes only); social drafts re-read against BRAND.md voice; press list re-confirmed with owner | G6 |
 | T-5d | Full local rehearsal: dry-run + press-kit rebuild + animatic review + checklist_audit; log results in §10 | G9, G10 |
-| T-4d | Human playtest pass (G17): run `world/playtest.html` PT1–PT54 on the launch candidate; export blocker/major findings via "Copy inbox note"; owner dispositions every major | G17 |
+| T-4d | Human playtest pass (G17): run `world/playtest.html` PT1–PT55 on the launch candidate; export blocker/major findings via "Copy inbox note"; owner dispositions every major | G17 |
 | T-3d | Staging deploy at placeholder domain; run `tools/prod_smoke.sh` against staging; OG card validated in a share-preview tool | G14 (staging half) |
 | T-48h | Go/No-Go issued (§6 template); if GO, flip G4 pricing + G15 vocab sync in ONE commit on `sf/marketing`; confirm G16 staging verification is logged | all gates |
 | T-24h | Final dry-run on the exact commit that will ship; press kit zip rebuilt and staged; day-0 posts loaded into drafts folder in send order | G9, G10 |
@@ -128,6 +128,9 @@ cd marketing
 ./tools/flip_flags.sh --set demo=<url>          # G12 — data-demo-src on demo.html
 ./tools/flip_flags.sh --revert                  # all three back to pre-launch state
 ./tools/rehearse_host.sh                        # deploy/rollback/retention drill on a local fake host
+./tools/incident_drill.sh                       # bad-deploy drill: manifest + smoke must detect, rollback must restore
+./tools/release_manifest.py site/               # provenance manifest that deploy-site.sh ships as /release.json
+./tools/release_manifest.py --verify <dir>      # re-hash a deployed release vs its manifest (integrity)
 ./tools/stripe_webhook_fixture.py --out /tmp/f.json   # signed test event for the crediting path
 grep -n 'data-demo-src' site/demo.html          # must show the live embed URL (G12)
 grep -n 'data-pricing' site/pricing.html        # must show "final" post-G4
@@ -202,7 +205,7 @@ the checklist exists so a GO is boring.
 | Infrastructure (G14) | | | domain + host + Stripe + analytics + uptime |
 | Feed vocabulary sync (G15) | | | labels match `world/feed.json` |
 | Onboarding contract (G16) | | | world-v53 flow + 21 hooks on staging |
-| Human playtest (G17) | | | 0 open blockers on launch candidate · PT1–PT54 |
+| Human playtest (G17) | | | 0 open blockers on launch candidate · PT1–PT55 |
 
 ## §8 Day 7 — first week
 
@@ -268,6 +271,7 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | tools/preflight.sh (v53) | 5 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
 | 2026-09-24 | tools/gonogo.sh (v53, 16 gates) | 2/16 auto-green (G5, G9) — G16 added as TRACK gate |
 | 2026-09-23 | tools/rehearse_host.sh (v59, first run) | PASS — 7 deploys on local fake host: symlink flips, 5-release retention, rollback flip to r6 verified by marker, `diff -r` content integrity, maintenance.html staged outside releases |
+| 2026-09-23 | tools/incident_drill.sh (v89, first run) | PASS — fake host over HTTP: good release baseline 0 fail + manifest PASS; corrupted release (index.html/style.css gutted) caught by BOTH `release_manifest.py --verify` (tree_sha256 MISMATCH) and `prod_smoke.sh` (1 FAIL); rollback flip restored green site |
 | 2026-09-23 | tools/swap_domain.sh (v59, apply→check→revert) | PASS — placeholder→test domain across 24 files (site/ + deploy/), `--check` CLEAN 0 leftovers, `--revert` restored the whole tree; git status clean |
 | 2026-09-23 | tools/stripe_webhook_fixture.py (v59) | PASS — emits `checkout.session.completed` + `Stripe-Signature`; v1 HMAC independently re-verified against `t.body_raw` |
 | 2026-09-24 | tools/checklist_audit.py (v68, first run) | caught real drift: 5 gates missing §11 rows, 5 owner gates missing §7 rows, stale "all-15-gate" — all fixed this version; final 9 pass / 0 warn / 0 fail |
@@ -310,10 +314,10 @@ it before citing the gate.
 | G10 dry-run | `tools/staging_dryrun.sh` | every version |
 | G12 demo flip | `demo.html` fallback verified; `tools/flip_flags.sh --set demo=` + `--check` in command card | fallback rehearsed; flip rehearsed 2026-09-24 (v74) |
 | G13 moderation | `MODERATION-PLAN.md` + `world/mod-console.html` demo; `gsWireAudit()` staging run still owed | spec only — needs game build |
-| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) + `tools/dns_check.sh` (DNS verify) + `tools/runofshow.sh` (countdown status) | 2026-09-23 ship.sh + rehearse_host green; dns_check + runofshow rehearsed 2026-09-24 (v74) |
+| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/incident_drill.sh` (detect→rollback→verify) + `tools/release_manifest.py` (release.json provenance, prod_smoke §5b) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) + `tools/dns_check.sh` (DNS verify) + `tools/runofshow.sh` (countdown status) | 2026-09-23 ship.sh + rehearse_host green; dns_check + runofshow rehearsed 2026-09-24 (v74); incident_drill PASS 2026-09-23 (v89) |
 | G15 feed vocab | `world/feed.json` canonical list quoted in gate text | diff owed at flip |
 | G16 onboarding | `analytics-events.json` — all 21 world-v53 onboarding hooks spec'd (verified by checklist_audit §8) + sink/report/dashboard support; staging run incl. `?hired=1` owed | spec complete — needs game build |
-| G17 human playtest | `world/playtest.html` harness (world-v59: PT1–PT54 · 657 checkpoints, `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |
+| G17 human playtest | `world/playtest.html` harness (world-v60: PT1–PT55 · 669 checkpoints, `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |
 | Checklist integrity | `tools/checklist_audit.py` — gates↔§11↔§7↔command-card↔gonogo consistency + live world-contract freshness (§8) | 2026-09-23 (v83): 14/0/0 |
 | D0.1 deploy | `deploy/deploy-site.sh` (dry-run rehearsed) | 2026-09-23 |
 | D0.2 prod smoke | `tools/prod_smoke.sh` vs localhost staging | rehearsed |
@@ -322,7 +326,7 @@ it before citing the gate.
 | D0.5–D0.8 posts | `social/drafts/` — launch-thread, timeline, pitches, seeds | drafted, not sent |
 | D0.8b community | `COMMUNITY-FUNNEL.md` §3 + `community/feed-mirror.md` + `rules.html` + `templates/mod-responses.md` | spec complete |
 | D0.9 monitoring | `tools/uptime_probe.sh` + `deploy/monitoring.example` + ANALYTICS dashboard | probe HEALTHY 2026-09-23 |
-| §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts + `tools/rehearse_host.sh` rollback flip | rollback flip exercised 2026-09-23 (v59) |
+| §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts + `tools/rehearse_host.sh` rollback flip + `tools/incident_drill.sh` (bad deploy detected, rollback restores green) | rollback flip exercised 2026-09-23 (v59); full incident loop 2026-09-23 (v89) |
 
 ## §12 Never-do list (load-bearing)
 

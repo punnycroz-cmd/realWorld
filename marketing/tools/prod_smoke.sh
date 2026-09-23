@@ -66,8 +66,33 @@ else
   warn "analytics still inert (no data-endpoint served) — expected pre-G8"
 fi
 
+# 5b. Release provenance — is what is live what we shipped?
+echo "[5b] release provenance"
+rcode=$(curl -s -o /tmp/rw-smoke/release.json -w '%{http_code}' "$BASE/release.json")
+if [ "$rcode" != "200" ]; then
+  warn "release.json not served ($rcode) — pre-manifest release or stripped at edge"
+else
+  python3 - <<'PY' && ok "release.json parses" || bad "release.json malformed"
+import json; json.load(open('/tmp/rw-smoke/release.json'))
+PY
+  RELSHA=$(python3 -c "import json;print(json.load(open('/tmp/rw-smoke/release.json')).get('git_sha',''))" 2>/dev/null || true)
+  RELAT=$(python3 -c "import json;print(json.load(open('/tmp/rw-smoke/release.json')).get('deployed_at',''))" 2>/dev/null || true)
+  HEADSHA=$(git rev-parse HEAD 2>/dev/null || true)
+  echo "       live release: ${RELSHA:0:8} deployed_at=${RELAT:-?} (HEAD=${HEADSHA:0:8})"
+  if [ -z "$RELSHA" ] || [ -z "$HEADSHA" ]; then
+    warn "cannot compare live sha to HEAD"
+  elif [ "$RELSHA" = "$HEADSHA" ]; then
+    ok "live == HEAD ($HEADSHA)"
+  else
+    warn "live sha ${RELSHA:0:8} != HEAD ${HEADSHA:0:8} — host serves a different commit (check: intentional hotfix or stale release?)"
+  fi
+fi
+
 # 6. www redirect (apex→www or www→apex, either fine — just report)
-c=$(curl -s -o /dev/null -w '%{http_code}' "https://www.${BASE#https://}" 2>/dev/null || true)
+c="skipped"
+if [ "${BASE#https://}" != "$BASE" ]; then
+  c=$(curl -s --max-time 5 -o /dev/null -w '%{http_code}' "https://www.${BASE#https://}" 2>/dev/null || true)
+fi
 echo "       www variant -> ${c:-unreachable} (informational)"
 
 echo "=== RESULT: $PASS pass / $WARN warn / $FAIL fail ==="
