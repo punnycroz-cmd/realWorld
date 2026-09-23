@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -155,6 +155,7 @@ const SURF={
   feed:{file:"feed.html",name:"The Wire (lite)"},wire:{file:"wire.html",name:"The Wire"},
   request:{file:"request.html",name:"Requests"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast (v2)"},
+  lab:{file:"screen-lab.html",name:"Screen Lab"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive (lite)"},
   archive:{file:"archive.html",name:"The Archive"},
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
@@ -408,11 +409,29 @@ const PTS=[
   ck:["Pipeline shows 'No charge — denied applications never bill' as a visible stage","Deny copy invites fixing fields; resubmit stage says a different reviewer takes it","Feed shows 'hire — application not approved' with neutral wording"]},
  {do:"Fix the bio, resubmit to approval, then read the briefing and day-one card.",
   exp:"Briefing renders whitelist fields only; day-one card links The Wire (free), Requests (1.5 cr/min compatible), The Rent Book (rent due the 1st, game dollars).",
-  ck:["hired id is h## — visibly disjoint from C#/A#","Secrets line: 'none written — none to redact'","New roster card lands with 'yours' + 'day one'; slot counter ticks"]}]}
+  ck:["hired id is h## — visibly disjoint from C#/A#","Secrets line: 'none written — none to redact'","New roster card lands with 'yours' + 'day one'; slot counter ticks"]}]},
+{id:"PT20",title:"Screen Lab — the screening contract is testable",min:15,persona:"reviewer or designer about to touch a screening rule",
+ goal:"Verify the corpus regression gate, the try-it console, normalization visibility, and that the mod console and lab agree on identical input.",
+ surfaces:["lab","mod"],steps:[
+ {do:"Open Screen Lab. Read the header, the corpus run strip, and the coverage chips before touching anything.",
+  exp:"Engine reads v22; corpus runs 50/50 green; every non-pass code chip shows ≥3 cases and near-miss markers; a 'mod console →' link is in the header.",
+  ck:["Green count equals the number of rows in the table","Every deny/review code chip shows ×3+ and at least one ·nm","No 'report the AI' surface exists anywhere on the page"]},
+ {do:"Click corpus row SC18 ('Possess Priya for an hour'), then SC29 ('p0ss3ss Marisol'). Watch try-it populate and the verdicts.",
+  exp:"Clicking a case loads its full input incl. player history; SC18 → deny/possession-scope, SC29 → deny/possession-scope with the normalized input shown decoded.",
+  ck:["Loaded cases reproduce their expected verdict+code exactly","'show normalized input' displays p0ss3ss→possess while raw text stays untouched","Trace table shows which rule hit and which didn't"]},
+ {do:"Type a fresh evasion in try-it: 'k1ll his chances, get Jules f1red'. Screen it. Then try 'Fog burn-off by 10am' with exclusive checked.",
+  exp:"Evasion → deny/harm-targeting (normalization catches leet); the clean weather ask → pass but route 'human' because exclusive is locked to review.",
+  ck:["Leet evasion is caught without the reviewer reading anything weird","'burn-off' does NOT trip harm — the near-miss pin holds","Exclusive+pass still routes human; compatible+pass would auto-run"]},
+ {do:"From the lab header open Mod Console, pick rq-1039 ('raise the rent'), and compare with running the same text in the lab.",
+  exp:"Same input → same verdict+code on both surfaces (no drift); the console's character card shows the 'Not redacted — absent' bar; the deny dropdown offers only canned codes.",
+  ck:["Lab verdict == console trace verdict for identical text","Whitelist card has no secret fields — absent, not blacked out","Player-copy preview is per-code canned text, never free-typed"]},
+ {do:"Back in the lab, hit 'copy report JSON'.",
+  exp:"A JSON report materializes with engine version, case count, fail count, and per-case expected-vs-actual.",
+  ck:["Report shows engine 'v22', total 50, fails 0","A designer could attach this verbatim to a rule-change commit"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v21";
+const LS="rw_playtest_v22";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -479,7 +498,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v21 local",started:new Date(S.started).toISOString()},
+    build:"world v22 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }

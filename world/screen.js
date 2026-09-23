@@ -1,5 +1,7 @@
-/* world/screen.js — RW intent-screening engine (world v8)
-   Shared by request.html (player side) and mod-console.html (reviewer side).
+/* world/screen.js — RW intent-screening engine (world v8; v22 adds input
+   normalization — leetspeak + dotted-letter evasion — and VERSION).
+   Shared by request.html (player side), create.html (naming strings),
+   mod-console.html (reviewer side), and screen-lab.html (corpus runner).
    Implements the moderation-notes.md §3 contract as DATA + a pure function.
    file://-safe: plain script tag, attaches window.RWScreen. No modules, no fetch.
 
@@ -8,8 +10,12 @@
      output — {verdict:'pass'|'deny'|'review', code, player_msg, route, trace[]}
    The engine screens STATED INTENT only — it never predicts the AI's rendering.
    Denied requests never bill; the caller auto-refunds. Everything is logged.
+   Golden corpus: world/screen-corpus.json — every rule change must keep it green
+   (or update expectations in the same commit).
 */
 window.RWScreen = (function () {
+
+  var VERSION = 'v22';
 
   /* ---------- reason-code taxonomy (mirror of moderation.json) ---------- */
   var REASON_CODES = {
@@ -68,11 +74,11 @@ window.RWScreen = (function () {
     { code:'legal-backstop',
       re:/\b(doxx|swat|real (home )?address|social security|credit card number|password|kill (you|yourself)|i(?:'ll| will) (find|hurt) you|find where (s?he|they|you) lives?|bomb threat|csam|minor|underage|child)\b/i },
     { code:'harm-targeting',
-      re:/\b(kill|burn(?! ?off|-?off)|destroy|ruin|wreck|humiliate|embarrass|hurt|harm|punish|make .* (cry|suffer|pay)|get (her|him|them|fired|evicted|dumped)|break (her|him|them|up)|firebomb|smash|beat up)\b/i },
+      re:/\b(kill\w*|burn(?! ?off|-?off)|destroy\w*|ruin\w*|wreck\w*|humiliat\w*|embarrass\w*|hurt\w*|harm(ed|ing|s)?|punish\w*|make .{0,40}?\b(cry|suffer|pa?y)\b|get [a-z' ]{0,20}?\b(fired|evicted|dumped|beaten)|break (her|him|them|up)|firebomb|smash\w*|beat up)\b/i },
     { code:'secret-extraction',
-      re:/\b(secret|reveal|admit|confess|redacted|who (writes|wrote)|mission unfiltered|drama seed|tell me (what|who)|expose|leak|the truth about)\b/i },
+      re:/\b(secret\w*|reveal\w*|admit\w*|confess\w*|redacted|who (writes|wrote)|mission unfiltered|drama seed\w*|tell me (what|who)|expos\w*|leak\w*|the truth about)\b/i },
     { code:'possession-scope',
-      re:/\b(possess|take over|control|play as|drive|become)\b[\s\S]{0,40}\b(marisol|mars|jules|dani|priya|marcus|carmen|victor|tom[aá]s|tomas|delgado|park|reyes|raman|bell|echeverr[ií]a|auerbach|herrera|landlord|main cast)\b/i },
+      re:/\b(possess\w*|take over|control|play as|drive|become)\b[\s\S]{0,40}\b(marisol|mars|jules|dani|priya|marcus|carmen|victor|tom[aá]s|tomas|delgado|park|reyes|raman|bell|echeverr[ií]a|auerbach|herrera|landlord|main cast)\b/i },
     { code:'admin-domain',
       re:/\b(raise|lower|hike) (the |her |his |their )?rent|evict|eviction|lease (terminate|cancel)|rent control|kick .*(out of) (her|his|their|the) (flat|apartment|unit|place)\b/i },
     { code:'identity-fraud',
@@ -81,7 +87,7 @@ window.RWScreen = (function () {
       re:/\b(bi-rite|tartine|delfina|dolores park caf[eé]|500 club|dandelion|ritual coffee|four barrel|philz|la taqueria|el farolito|foreign cinema|mission chinese|wise sons|sightglass)\b/i },
     /* --- review tier --- */
     { code:'gray-zone',
-      re:/\b(break ?up|dump|confront|quit|fire|yell|insult|argue|fight|accuse|demand|threaten|pressure|convince .* to (leave|quit|dump))\b/i },
+      re:/\b(break ?up|dump\w*|confront\w*|quit|fire[drs]?\b|yell\w*|insult\w*|argu\w*|fight\w*|accus\w*|demand\w*|threaten\w*|pressure\w*|convince .{0,30}?to (leave|quit|dump))\b/i },
     { code:'surface-relationship',
       re:/\b(boyfriend|girlfriend|husband|wife|partner|marriage|dating|crush|affair|flirt|kiss|cheat|family dinner|invite (her|him|them|jules|marisol|mars|dani|priya|marcus|carmen|victor|tom[aá]s))\b/i },
     { code:'venue-lock',
@@ -102,9 +108,21 @@ window.RWScreen = (function () {
     return f;
   }
 
+  /* input normalization (v22) — defeat cheap evasion before matching.
+     Leet chars decode ONLY when adjacent to a letter, so real text like
+     "9457 Guerrero" or "Unit 3B" is untouched. Dotted-letter runs
+     ("p.a.y") collapse to the word ("pay"). Original text is still what
+     reviewers see; the trace reports the normalized hit. */
+  var LEET = { '0':'o', '1':'i', '3':'e', '4':'a', '5':'s', '7':'t', '@':'a', '$':'s', '!':'i' };
+  function norm(s) {
+    return s.toLowerCase()
+      .replace(/[013457@$!](?=[a-z])|(?<=[a-z])[013457@$!]/g, function (c) { return LEET[c]; })
+      .replace(/\b(?:[a-z]\.){2,}[a-z](?=\b|\.)/g, function (m) { return m.replace(/\./g, ''); });
+  }
+
   /* screenRequest(req) — pure. Never mutates. Never predicts AI rendering. */
   function screenRequest(req) {
-    var hay = ((req.action || '') + ' ' + (req.target_label || '') + ' ' + (req.text || ''));
+    var hay = norm((req.action || '') + ' ' + (req.target_label || '') + ' ' + (req.text || ''));
     var trace = [];
     for (var i = 0; i < RULES.length; i++) {
       var m = hay.match(RULES[i].re);
@@ -133,7 +151,8 @@ window.RWScreen = (function () {
     return REASON_CODES[k].tier === 'deny';
   });
 
-  return { RULES: RULES, REASON_CODES: REASON_CODES,
+  return { VERSION: VERSION, RULES: RULES, REASON_CODES: REASON_CODES,
            REVIEWER_DENY_CODES: REVIEWER_DENY_CODES,
+           normalize: norm,
            screenRequest: screenRequest };
 })();

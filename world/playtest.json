@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 21,
+ "version": 22,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -24,7 +24,9 @@
    "world/businesses/",
    "world/timeclock.html",
    "world/shifts.json",
-   "world/budgets.json"
+   "world/budgets.json",
+   "world/screen-lab.html",
+   "world/screen-corpus.json"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -115,6 +117,11 @@
   "timeclock": {
    "file": "timeclock.html",
    "name": "The Timeclock",
+   "tier": "internal"
+  },
+  "lab": {
+   "file": "screen-lab.html",
+   "name": "Screen Lab",
    "tier": "internal"
   }
  },
@@ -946,6 +953,63 @@
       "hired id is h## — visibly disjoint from C#/A#",
       "Secrets line: 'none written — none to redact'",
       "New roster card lands with 'yours' + 'day one'; slot counter ticks"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT20",
+   "title": "Screen Lab — the screening contract is testable",
+   "minutes": 15,
+   "persona": "reviewer or designer about to touch a screening rule",
+   "goal": "Verify the corpus regression gate, the try-it console, normalization visibility, and that the mod console and lab agree on identical input.",
+   "surfaces": [
+    "lab",
+    "mod"
+   ],
+   "steps": [
+    {
+     "do": "Open Screen Lab. Read the header, the corpus run strip, and the coverage chips before touching anything.",
+     "expect": "Engine reads v22; corpus runs 50/50 green; every non-pass code chip shows ≥3 cases and near-miss markers; a 'mod console →' link is in the header.",
+     "checkpoints": [
+      "Green count equals the number of rows in the table",
+      "Every deny/review code chip shows ×3+ and at least one ·nm",
+      "No 'report the AI' surface exists anywhere on the page"
+     ]
+    },
+    {
+     "do": "Click corpus row SC18 ('Possess Priya for an hour'), then SC29 ('p0ss3ss Marisol'). Watch try-it populate and the verdicts.",
+     "expect": "Clicking a case loads its full input incl. player history; SC18 → deny/possession-scope, SC29 → deny/possession-scope with the normalized input shown decoded.",
+     "checkpoints": [
+      "Loaded cases reproduce their expected verdict+code exactly",
+      "'show normalized input' displays p0ss3ss→possess while raw text stays untouched",
+      "Trace table shows which rule hit and which didn't"
+     ]
+    },
+    {
+     "do": "Type a fresh evasion in try-it: 'k1ll his chances, get Jules f1red'. Screen it. Then try 'Fog burn-off by 10am' with exclusive checked.",
+     "expect": "Evasion → deny/harm-targeting (normalization catches leet); the clean weather ask → pass but route 'human' because exclusive is locked to review.",
+     "checkpoints": [
+      "Leet evasion is caught without the reviewer reading anything weird",
+      "'burn-off' does NOT trip harm — the near-miss pin holds",
+      "Exclusive+pass still routes human; compatible+pass would auto-run"
+     ]
+    },
+    {
+     "do": "From the lab header open Mod Console, pick rq-1039 ('raise the rent'), and compare with running the same text in the lab.",
+     "expect": "Same input → same verdict+code on both surfaces (no drift); the console's character card shows the 'Not redacted — absent' bar; the deny dropdown offers only canned codes.",
+     "checkpoints": [
+      "Lab verdict == console trace verdict for identical text",
+      "Whitelist card has no secret fields — absent, not blacked out",
+      "Player-copy preview is per-code canned text, never free-typed"
+     ]
+    },
+    {
+     "do": "Back in the lab, hit 'copy report JSON'.",
+     "expect": "A JSON report materializes with engine version, case count, fail count, and per-case expected-vs-actual.",
+     "checkpoints": [
+      "Report shows engine 'v22', total 50, fails 0",
+      "A designer could attach this verbatim to a rule-change commit"
      ]
     }
    ]

@@ -1,4 +1,4 @@
-# Moderation Tooling — spec & reviewer runbook (world v8)
+# Moderation Tooling — spec & reviewer runbook (world v8; v22 adds Screen Lab)
 
 The reviewer-facing half of the design doc §11 pipeline. Companion artifacts:
 
@@ -111,3 +111,30 @@ exists on that branch). This version's contract points:
 - Queue items carry `lane` derived per `queue_routing` in moderation.json.
 - Feed wording comes from `reason_codes.*.feed` — never reviewer free text.
 - Audit log entries become canonical-ledger `mod_decision` records.
+
+## 9. Screen Lab + golden corpus (v22)
+
+`world/screen-lab.html` is the screening workbench. Two surfaces:
+
+- **Try a request** — compose any request (action, target, text, exclusive
+  flag, player-history signals) and watch `RWScreen.screenRequest` verdict,
+  code, route, canned player copy, feed wording, flag weight, and the full
+  per-rule trace. A toggle shows the **normalized input** the engine actually
+  matched (v22 normalization: leet chars adjacent to letters decode —
+  `p0ss3ss`→`possess`; dotted-letter runs collapse — `p.a.y`→`pay`. Real
+  strings like `9457 Guerrero`/`Unit 3B` are untouched).
+- **Golden corpus** — runs every case in `world/screen-corpus.json`
+  (mirrored inline, hand-synced per convention) and diffs expected vs
+  actual verdict+code. 50 cases: every reason code ≥3, near-misses that
+  must NOT trip, precedence pins (first-match-wins; rules beat history).
+  Report exports as JSON — attach it to any rule change.
+
+**Regression discipline:** a rule edit and its corpus run land in the same
+commit; green or the expectations change with it. The corpus doubles as the
+conformance suite for the game-track port — a stricter verdict on identical
+input is acceptable, a more permissive one is a bug.
+
+v22 engine hardening (found BY the corpus, kept honest by it): word-form
+stems (`humiliates`, `confesses`, `k1ll`), `get <name> fired/evicted`
+patterns, leet/dotted-letter evasion. All 50 cases green; v8 mod-console
+seed texts verified unchanged.

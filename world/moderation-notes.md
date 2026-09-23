@@ -199,3 +199,20 @@ the bar for touching the world is deliberately unreachable by drama.)
   game's `gsViewerState` — marketing's demo page is already marked
   illustrative pending this sync. Still open: game-track owns the queue
   data model + ledger writes at merge.
+
+## 9. World-track tooling (v22 — Screen Lab)
+
+- `world/screen-lab.html` — NEW. Screening workbench: try-a-request console
+  (verdict/code/route/copy/trace + normalized-input view) and a golden-corpus
+  regression runner with per-code coverage and a JSON report export.
+- `world/screen-corpus.json` — NEW. 50 labeled cases = the screening
+  contract in data. Every code ≥3 cases + near-misses; precedence pins.
+- `world/screen.js` — v22: input normalization before matching (leet
+  adjacent-to-letters, dotted-letter collapse), word-form stems, `get X
+  fired/evicted` coverage, `RWScreen.VERSION`/`normalize` exposed. Corpus
+  found the gaps; corpus verifies the fix. All v8 seed texts unchanged.
+- `world/moderation.json` — new `testing` block: corpus pointer, coverage
+  rule, rule-change workflow, drift gate for the game port (stricter ok,
+  more permissive = bug), precedence note.
+- Rule-change workflow is now mechanical: edit rule → run corpus → same
+  commit. New rules ship with their cases.

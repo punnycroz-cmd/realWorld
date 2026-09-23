@@ -87,7 +87,17 @@
     },
     "separate_from_intent_screening": "the display filter judges wording on the public feed; the intent classifier judges declared intent before money moves. Different stages, different jobs."
   },
-  "metrics": ["queue depth", "oldest wait", "median decision vs 15-min SLA", "decisions per shift", "denial rate by reason code", "appeal reversal count", "compensation paid (cr)"],
+  "metrics": ["queue depth", "oldest wait", "median decision vs 15-min SLA", "decisions per shift", "denial rate by reason code", "appeal reversal count", "compensation paid (cr)", "corpus green (screen-lab)"],
+  "testing": {
+    "engine_version": "screen.js RWScreen.VERSION (v22)",
+    "corpus": "world/screen-corpus.json — golden labeled cases, mirrored inline in world/screen-lab.html",
+    "runner": "world/screen-lab.html — try-it console + corpus regression run + per-code coverage + JSON report export",
+    "rule_change_workflow": "edit a rule → run the corpus → corpus goes green in the same commit or the expectations change with it; every new rule ships with its cases",
+    "coverage_rule": "every non-pass reason code needs >= 3 cases including at least one near-miss that must NOT trip it",
+    "drift_gate": "the game-track classifier may be STRICTER on identical input, never more permissive; the corpus is the conformance suite for any port",
+    "normalization": "v22 — input is normalized before matching (leet chars adjacent to letters decode; dotted-letter runs collapse). Real text like '9457 Guerrero'/'Unit 3B' is untouched. Trace hits report the normalized span.",
+    "precedence": "first-match-wins in RULES order: legal-backstop > harm > secret > possession > admin > fraud > business > gray > relationship > venue > person; rules beat history flags (SC39/SC42/SC44 pin this)"
+  },
   "audit": "every decision logged: timestamp, reviewer, request id, outcome, code — merge target is canonical-ledger mod_decision records",
   "feed_contract": "feed wording comes from reason_codes.*.feed — never reviewer free text; reason_code attaches to 'not approved' entries (world/feed.json request events)"
 }
