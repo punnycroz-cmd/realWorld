@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Real World pinned-tab icon">
+  <!-- Safari pinned-tab mask icon: black silhouette on transparent; Safari
+       recolors it with the mask-icon link's color attribute. Geometry
+       matches logo-icon-mono.svg so the mark reads identically at 16px. -->
+  <g fill="none" stroke="#000">
+    <rect x="3" y="3" width="506" height="506" rx="112" stroke-width="10"/>
+    <rect x="92" y="108" width="328" height="24" fill="#000" stroke="none"/>
+    <rect x="106" y="128" width="300" height="302" stroke-width="8"/>
+    <rect x="206" y="128" width="4" height="302" fill="#000" stroke="none"/>
+    <rect x="306" y="128" width="4" height="302" fill="#000" stroke="none"/>
+    <rect x="124" y="158" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="124" y="256" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="124" y="354" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="224" y="158" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="224" y="354" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="324" y="158" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="324" y="256" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="324" y="354" width="64" height="72" rx="8" stroke-width="8"/>
+  </g>
+  <rect x="224" y="256" width="64" height="72" rx="8" fill="#000"/>
+</svg>

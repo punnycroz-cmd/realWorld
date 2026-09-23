@@ -1,0 +1,182 @@
+{
+  "doc": "The Working Week — machine mirror of world/shifts.md (v17). Canonical numbers still live in world/jobs-housing.md §2 + world/jobs.json; venue hours in world/businesses.json. Grids are coverage obligations (conditions), never scripts; routines in ambients.json / character bibles are authoritative for behavior inside a shift.",
+  "version": 17,
+  "conventions": {
+    "days": ["mon","tue","wed","thu","fri","sat","sun"],
+    "hours": "game-local decimal (19.5 = 19:30); 'wk' = mon–fri pattern",
+    "who": "cast/ambient id, or 'open' = fillable by a player-hired character (jobs.json openings)",
+    "staffing_bands": ["deserted","quiet","steady","busy","slammed"]
+  },
+  "payday": {
+    "weekly": { "day": "fri", "who": "entry + informal jobs" },
+    "biweekly": { "day": "fri", "every": 2, "who": "mid/top bands" },
+    "owner_draw": { "who": ["c7-victor","a03-malik"], "note": "irregular, after month's bills" },
+    "rent_run": { "due_day": 1, "grace_through": 5, "late_fee": { "pct": 0.05, "cap": 50 }, "source": "leases.json" },
+    "texture": "week after the 5th = first paycheck that's fully theirs; block runs quieter — feed-legible, amounts never public"
+  },
+  "employers": [
+    {
+      "employer": "Mudhaus Coffee", "venue": "Mudhaus Coffee",
+      "hours": { "wk": [6.5, 19], "sat": [7, 20], "sun": [7, 20] },
+      "min_staff": [ { "span": "wk", "h0": 7.5, "h1": 9.5, "n": 2 }, { "span": "all", "h0": 15, "h1": 16.5, "n": 2 }, { "span": "all", "h0": 0, "h1": 24, "n": 1 } ],
+      "rush": [ { "days": "all", "h0": 7.5, "h1": 9.5 }, { "days": "wk", "h0": 15, "h1": 16.5 } ],
+      "grid": [
+        { "who": "c1-marisol", "role": "manager/open", "days": "wk", "h0": 5.5, "h1": 14, "note": "one wk day floats to paperwork/ordering" },
+        { "who": "c1-marisol", "role": "manager/open", "days": ["sat"], "h0": 6.5, "h1": 14 },
+        { "who": "c3-dani", "role": "barista/mid-close", "days": "wk", "h0": 8, "h1": 17 },
+        { "who": "c3-dani", "role": "barista/mid-close", "days": ["sat"], "h0": 9, "h1": 18 },
+        { "who": "c2-jules", "role": "barista/mid", "days": "wk", "h0": 8, "h1": 15 },
+        { "who": "c2-jules", "role": "barista/mid", "days": ["sat"], "h0": 9, "h1": 16 },
+        { "who": "a01-reyes", "role": "barista", "days": ["mon","tue","wed","thu","fri","sat"], "h0": 7.5, "h1": 18 },
+        { "who": "open", "role": "barista/closes", "days": "wk", "h0": 14, "h1": 19 },
+        { "who": "open", "role": "barista/weekend floor", "days": ["sat","sun"], "h0": 10, "h1": 18 }
+      ],
+      "gaps": "Sunday: no Reyes, no Jules — Marisol + open-slot coverage; speed visibly drops. Weekday 13–15 can run one-deep."
+    },
+    {
+      "employer": "Taqueria El Farolote", "venue": "Taqueria El Farolote",
+      "hours": { "wk": [10, 25.5], "sat": [10, 26.5], "sun": [10, 26.5] },
+      "min_staff": [ { "span": "all", "h0": 17, "h1": 24, "n": 2 }, { "span": "all", "h0": 0, "h1": 24, "n": 1 } ],
+      "rush": [ { "days": "all", "h0": 12, "h1": 14 }, { "days": "all", "h0": 21, "h1": 25.5 } ],
+      "grid": [
+        { "who": "c8-tomas", "role": "lead cook", "days": ["tue","wed","thu","fri","sat"], "h0": 16, "h1": 24, "note": "off Monday; mornings are his supplier loop" },
+        { "who": "open", "role": "line cook", "days": ["tue","wed","thu","fri","sat"], "h0": 11, "h1": 18 },
+        { "who": "open", "role": "counter/closer", "days": "wk", "h0": 18, "h1": 25.5 },
+        { "who": "open", "role": "counter/closer", "days": ["sat","sun"], "h0": 18, "h1": 26.5 },
+        { "who": "owner", "role": "cook (unposted)", "days": ["mon"], "h0": 10, "h1": 22, "note": "owner covers Monday + lunch leads himself — known weak spot" }
+      ],
+      "gaps": "Monday is owner-cooked and slow; no posted lead coverage before 16:00 Tue–Sat."
+    },
+    {
+      "employer": "Buy-Rite Market", "venue": "Buy-Rite Market",
+      "hours": { "wk": [8, 21], "sat": [8, 21], "sun": [8, 21] },
+      "min_staff": [ { "span": "all", "h0": 0, "h1": 24, "n": 1 } ],
+      "rush": [ { "days": "all", "h0": 17, "h1": 20 } ],
+      "grid": [
+        { "who": "open", "role": "grocery clerk", "days": ["mon","wed","fri"], "h0": 8, "h1": 16 },
+        { "who": "open", "role": "grocery clerk", "days": ["tue","thu"], "h0": 13, "h1": 21 },
+        { "who": "open", "role": "scooper (Creamery)", "days": ["thu","fri","sat","sun"], "h0": 15, "h1": 21 }
+      ],
+      "gaps": "Deliveries Tue/Fri mornings land on whoever opened; Friday 13–21 absorbs weekend pre-stock."
+    },
+    {
+      "employer": "Dolores Perk", "venue": "Dolores Perk",
+      "hours": { "wk": [7, 17], "sat": [7, 18], "sun": [7, 18] },
+      "min_staff": [ { "span": "all", "h0": 0, "h1": 24, "n": 1 } ],
+      "rush": [ { "days": "all", "h0": 7, "h1": 9.5 } ],
+      "grid": [
+        { "who": "open", "role": "counter", "days": "wk", "h0": 7, "h1": 14 }
+      ],
+      "gaps": "Afternoons run one-deep by design."
+    },
+    {
+      "employer": "Baguette About It Bakery", "venue": "Baguette About It Bakery",
+      "hours": { "wk": [7, 15], "sat": [7, 16], "sun": [7, 16] },
+      "min_staff": [ { "span": "all", "h0": 0, "h1": 24, "n": 1 } ],
+      "grid": [
+        { "who": "a16-hana", "role": "baker", "days": ["tue","wed","thu","fri","sat"], "h0": 4, "h1": 13 },
+        { "who": "open", "role": "counter, afternoons", "days": ["wed","thu","fri"], "h0": 11.5, "h1": 15.5 },
+        { "who": "open", "role": "counter, afternoons", "days": ["sat","sun"], "h0": 8, "h1": 16 }
+      ],
+      "gaps": "Off Monday (Hana) — bakery still opens; day-old case only. Also supplies Mudhaus pastry delivery ~6:20, always 4 min late."
+    },
+    {
+      "employer": "Il Delfino", "venue": "Il Delfino",
+      "hours": { "wk": [17.5, 22.5], "sat": [17.5, 23], "sun": [17.5, 23], "dark": ["mon"] },
+      "min_staff": [ { "span": "all", "h0": 17.5, "h1": 23, "n": 2 } ],
+      "rush": [ { "days": ["fri","sat"], "h0": 19, "h1": 22 } ],
+      "grid": [
+        { "who": "open", "role": "line cook", "days": ["tue","wed","thu","fri","sat"], "h0": 16.5, "h1": 23 },
+        { "who": "open", "role": "server", "days": ["tue","wed","thu","sun"], "h0": 17, "h1": 22.5 },
+        { "who": "open", "role": "server", "days": ["wed","thu","fri","sat"], "h0": 17, "h1": 23 }
+      ],
+      "gaps": "Dark Mondays. Two-server floor Fri/Sat; one bad callout = visible strain."
+    },
+    {
+      "employer": "Auerbach Hardware", "venue": "Auerbach Hardware",
+      "hours": { "wk": [8, 18], "sat": [9, 17], "sun": [9, 17] },
+      "min_staff": [ { "span": "all", "h0": 0, "h1": 24, "n": 1 } ],
+      "grid": [
+        { "who": "c7-victor", "role": "owner/counter", "days": ["mon","wed","thu","fri","sat","sun"], "h0": 8, "h1": 18, "note": "sat/sun opens 9:00 per venue hours" },
+        { "who": "c7-victor", "role": "repair loop (off-site)", "days": ["tue"], "h0": 9, "h1": 17, "note": "Guerrero buildings; shop runs half-staffed by his choice" },
+        { "who": "open", "role": "counter clerk", "days": "wk", "h0": 10, "h1": 16 }
+      ],
+      "gaps": "Tuesday counter is Victor-or-nobody; the open clerk slot has sat unfilled ~1 year."
+    },
+    {
+      "employer": "Folsom Auto & Sons", "venue": "Folsom Auto & Sons",
+      "hours": { "wk": [8, 17.5], "sat": null, "sun": null },
+      "grid": [ { "who": "a10-gus", "role": "mechanic", "days": "wk", "h0": 6.5, "h1": 16, "note": "opens early, gone before posted close" } ],
+      "gaps": "Closed weekends."
+    },
+    {
+      "employer": "Needlepointe Tattoo", "venue": "Needlepointe Tattoo",
+      "hours": { "wk": [12, 20], "sat": [12, 20], "sun": [12, 20] },
+      "grid": [ { "who": "a14-bex", "role": "artist (appointment)", "days": ["tue","wed","thu","fri","sat","sun"], "h0": 12, "h1": 20, "note": "books inside the window; off Monday" } ],
+      "gaps": "Dark Mondays."
+    },
+    {
+      "employer": "Bloom & Doom Flowers", "venue": "Bloom & Doom Flowers",
+      "hours": { "wk": [9, 18], "sat": [10, 16], "sun": [10, 16] },
+      "grid": [
+        { "who": "a18-ida", "role": "florist", "days": ["tue","wed","thu","fri","sat"], "h0": 7.5, "h1": 18 },
+        { "who": "open", "role": "saturday counter help", "days": ["sat"], "h0": 9.5, "h1": 17.5 }
+      ],
+      "gaps": "Off Sunday/Monday; Saturday is market-load day — the one posted helper shift."
+    },
+    {
+      "employer": "Malik's Mini Mart", "venue": "Malik's Mini Mart",
+      "hours": { "wk": [7, 23], "sat": [8, 24], "sun": [8, 24] },
+      "grid": [
+        { "who": "a03-malik", "role": "owner-clerk", "days": "all", "h0": 7.5, "h1": 18 },
+        { "who": "family", "role": "evening counter (off-registry)", "days": "all", "h0": 18, "h1": 23, "note": "nephew, cash, nobody calls it a job" }
+      ],
+      "gaps": "Seven days, no posted coverage — the counter never closes early anyway."
+    },
+    {
+      "employer": "Frutería Las Palmas", "venue": "Frutería Las Palmas",
+      "hours": { "wk": [8, 18], "sat": [8, 18], "sun": [8, 18] },
+      "grid": [ { "who": "a07-luz", "role": "vendor", "days": "all", "h0": 7, "h1": 18, "note": "cash/informal; rain cuts the day, not the obligation" } ],
+      "gaps": "Weather-dependent; wet days close early."
+    },
+    {
+      "employer": "Mission Branch Library", "venue": "Mission Branch Library",
+      "hours": { "wk": [9, 17.5], "sat": [10, 16], "sun": null },
+      "grid": [ { "who": "a11-vera", "role": "librarian", "days": "wk", "h0": 7.5, "h1": 17.5, "note": "city schedule; one Saturday monthly" } ],
+      "gaps": "City payroll — real sick days, the only ones on the block."
+    },
+    {
+      "employer": "SF General", "venue": "SF General",
+      "hours": { "wk": [0, 24], "sat": [0, 24], "sun": [0, 24] },
+      "grid": [
+        { "who": "c4-priya", "role": "RN med-surg, 3×12", "days": ["mon","tue","fri"], "h0": 7, "h1": 19.5 },
+        { "who": "a09-asha", "role": "RN med-surg, 3×12", "days": ["wed","thu","sat"], "h0": 7, "h1": 19.5 },
+        { "who": "open", "role": "CNA/tech", "days": "wk", "h0": 7, "h1": 19.5, "note": "2 openings; real scheduling office" }
+      ],
+      "gaps": "The only workplace here with a staffing office — callouts get backfilled, not absorbed."
+    },
+    {
+      "employer": "Flying Pannier Courier Co-op", "venue": "Flying Pannier Courier Co-op",
+      "hours": { "wk": [7, 19], "sat": [9, 17], "sun": [9, 17] },
+      "grid": [ { "who": "c5-marcus", "role": "bike courier", "days": "wk", "windows": [[10.5, 14], [16.5, 20.5]], "note": "riders self-select inside dispatch windows; Marcus takes both most days — ~30 posted h, thinner paycheck" } ],
+      "gaps": "Variable by dispatch volume; rain pays more and costs more."
+    },
+    {
+      "employer": "MuleIt", "venue": "MuleIt",
+      "hours": { "wk": [0, 24], "sat": [0, 24], "sun": [0, 24] },
+      "grid": [ { "who": "a06-kofe", "role": "delivery rider", "days": "all", "windows": [[11, 14], [17, 21]], "note": "app work, dinner-weighted; routine carries 8–19, paid hours cluster in the windows" } ],
+      "gaps": "Always hiring, always churning."
+    },
+    {
+      "employer": "independent / informal", "venue": null,
+      "grid": [
+        { "who": "a02-doro", "role": "dog-walker", "days": "all", "windows": [[7, 11], [16, 20]], "note": "dogs don't take weekends" },
+        { "who": "a17-cole", "role": "construction laborer", "days": "wk", "h0": 6.5, "h1": 16, "note": "Folsom lot; rain-short" },
+        { "who": "a13-nadia", "role": "tech worker (remote)", "days": "wk", "h0": 9, "h1": 17, "note": "calendar-bound, not place-bound" },
+        { "who": "a08-sam", "role": "busker", "days": "all", "h0": 10, "h1": 18, "note": "weather-permitting; income is a mood" },
+        { "who": "c6-carmen", "role": "seamstress (word of mouth)", "days": "wk", "h0": 9, "h1": 12, "note": "mornings at home; a supplement, not a job" }
+      ],
+      "gaps": "No coverage obligations anywhere — the work exists when the worker shows up."
+    }
+  ]
+}

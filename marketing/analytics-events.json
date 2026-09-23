@@ -1,0 +1,304 @@
+{
+  "$schema": "internal/real-world-analytics-events/v1",
+  "comment": "Machine-readable event spec for Real World marketing + funnel analytics. Client emitter: marketing/site/js/analytics.js. Dev sink: marketing/tools/analytics_sink.py. See ANALYTICS.md for the full plan. All events are anonymous (session nonce only, no persistent ids, no cookies).",
+  "envelope": {
+    "v": "int — schema version, currently 1",
+    "site": "string — site key, default 'realworld'",
+    "event": "string — one of the names below",
+    "path": "string — location.pathname, e.g. '/pricing.html'",
+    "props": "object — per-event properties, see events",
+    "sid": "string — random session nonce from sessionStorage; dies with the tab; NOT a visitor id",
+    "utm": "object — utm_source/medium/campaign/content/term + ref, captured at landing, session-scoped",
+    "ref": "string|null — referrer HOST only, never the full URL",
+    "ts": "int — epoch milliseconds"
+  },
+  "events": {
+    "pageview": {
+      "when": "once per page load, auto",
+      "props": {
+        "title": "document.title",
+        "page": "body[data-page] slug: index|features|how-it-works|demo|cast|journal|community|rules|pricing|faq|press-kit|brand|archive|wire|wire-archive|404",
+        "vw": "viewport width (for layout QA)",
+        "lang": "navigator.language"
+      },
+      "funnel_stage": "visit"
+    },
+    "cta_click": {
+      "when": "click on any element carrying data-rw-event=\"cta_click\"",
+      "props": {
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-tour|demo-tour-done|demo-wire|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer",
+        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive",
+        "href": "raw href (same-site)"
+      },
+      "funnel_stage": "visit → engaged"
+    },
+    "screenshot_view": {
+      "when": "click on a .gallery img (opens lightbox)",
+      "props": {
+        "shot": "image src basename",
+        "alt": "alt text, truncated 80 chars"
+      },
+      "funnel_stage": "engaged"
+    },
+    "outbound_click": {
+      "when": "click on an external link not otherwise instrumented",
+      "props": { "href": "full outbound URL" },
+      "funnel_stage": "exit"
+    },
+    "scroll_depth": {
+      "when": "page scroll crosses 25/50/75/100% — fires once per mark per page (v22)",
+      "props": { "depth": "25|50|75|100", "page": "data-page slug" },
+      "funnel_stage": "engaged"
+    },
+    "engaged_time": {
+      "when": "pagehide — total seconds the page was actually visible (v22)",
+      "props": { "seconds": "int, visible time only", "page": "data-page slug" },
+      "funnel_stage": "engaged"
+    },
+    "share_click": {
+      "when": "demo.html share button completes (v22)",
+      "props": { "method": "web-share|clipboard|manual" },
+      "funnel_stage": "engaged → viral"
+    },
+    "price_calc": {
+      "when": "pricing.html estimator control changes, debounced 900ms (v22; +first prop v52)",
+      "props": {
+        "class": "compatible|exclusive",
+        "minutes": "int — duration priced",
+        "queued": "bool — −15% toggle on",
+        "surge": "bool — surge-window preview on",
+        "first": "bool — first-pack +50% toggle on"
+      },
+      "funnel_stage": "engaged → purchase intent",
+      "note": "carries NO amounts — only which knobs visitors touch; reveals demand for class/duration before checkout exists"
+    },
+    "scene_calc": {
+      "when": "pricing.html scene-builder stepper/preset/flag changes, debounced 900ms (v67)",
+      "props": {
+        "items": "csv of item:qty pairs, e.g. 'compatible:4,event:1'; 'empty' when cleared",
+        "queued": "bool — sessions queued at −15%",
+        "surge": "bool — surge-window preview on",
+        "preset": "fog|hour|party|movein|reset|none — last preset tapped, or 'none' for manual edits"
+      },
+      "funnel_stage": "engaged → purchase intent",
+      "note": "carries NO credit/USD amounts — item mix and quantities only; reveals which bundled scenes visitors reach for"
+    },
+    "sub_calc": {
+      "when": "pricing.html subscription-breakeven widget control changes, debounced 900ms (v82)",
+      "props": {
+        "comp_min": "int — compatible minutes/month priced",
+        "excl_min": "int — exclusive minutes/month priced",
+        "camera": "bool — camera-director toggle on (priced as the printed ~2 hrs/mo assumption)",
+        "verdict": "none|packs|resident|director|tie — which path the widget computed cheapest"
+      },
+      "funnel_stage": "engaged → purchase intent",
+      "note": "carries NO USD/credit totals — usage knobs + which option won only; reveals subscription demand vs à-la-carte preference before checkout exists"
+    },
+    "request_simulated": {
+      "when": "demo.html request simulator 'File it — simulated' completes (v26; props extended v41)",
+      "props": {
+        "action": "possess|venue|weather|event",
+        "class": "compatible|exclusive|flat",
+        "minutes": "int — duration simulated",
+        "credits": "int — quoted cost (lower bound for range-priced actions)",
+        "queued": "bool — −15% queue option checked (v41)",
+        "surge": "bool — surge window shown (exclusive only, v41)",
+        "screened": "clean|harm-targeting|secret-extraction|admin-domain|real-business|surface-relationship|venue-lock (v41)"
+      },
+      "funnel_stage": "engaged → request intent",
+      "note": "local simulation only — no real request is filed; reveals which request types visitors reach for and how the toy screen classifies their wording"
+    },
+    "press_kit_download": {
+      "when": "click on the kit zip link (data-rw-event on press-kit.html)",
+      "props": { "file": "zip filename" },
+      "funnel_stage": "press"
+    },
+    "tour_started": {
+      "when": "onboarding tour begins (game-side; world-v11 onboarding.json analytics_hooks)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool — visitor declined the tour" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "onboarding events carry stage + opted_out ONLY — no per-step dwell/funnel-pressure data (world/onboarding-ui.md §8)"
+    },
+    "tour_beat": {
+      "when": "a tour beat is shown (game-side)",
+      "props": { "beat": "int — beat index", "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "tour_completed": {
+      "when": "tour finished (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "tour_skipped": {
+      "when": "tour dismissed mid-run (game-side)",
+      "props": { "stage": "onboarding stage id", "at_beat": "int — beat index at dismissal" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "persona_chosen": {
+      "when": "visitor picks the watch|play fork at onboarding S0 (game-side; world-v25 onboarding.json analytics_hooks)",
+      "props": { "stage": "onboarding stage id", "persona": "watch|play" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the watch/play split is THE top-of-product metric — which promise visitors came for; persona value only, never identity"
+    },
+    "handle_set": {
+      "when": "visitor picks a public handle (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "NEVER sends the handle value — presence only"
+    },
+    "handle_taken_shown": {
+      "when": "the handle step rejects a reserved/taken name (game-side; world-v25)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "friction signal only — never carries the rejected handle text"
+    },
+    "wallet_explained": {
+      "when": "wallet explainer viewed (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "topup_shown": {
+      "when": "top-up UI shown during onboarding (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "no amounts — presence only"
+    },
+    "first_request_filed": {
+      "when": "the guided first request is filed during onboarding (game-side)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard → request",
+      "status": "PENDING — game build"
+    },
+    "decline_lesson_shown": {
+      "when": "the declined-request refund lesson is shown (game-side; world-v25 S4b)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence only — measures how often the refund-on-decline teaching moment is reached"
+    },
+    "returning_session": {
+      "when": "a visitor with prior onboarding state returns (?returning=1 / parked state, game-side; world-v25)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts returning sessions, not returning users — no cross-session identity exists by design"
+    },
+    "onboard_dismissed": {
+      "when": "onboarding checklist dismissed entirely (game-side)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "review_lesson_shown": {
+      "when": "the human-review lesson is shown before an exclusive/gray-zone ask (game-side; world-v39 S4c review_lesson block)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence only — measures reach of the 'a human reads exclusive asks' teaching moment"
+    },
+    "review_outcome_seen": {
+      "when": "the scripted review outcome is seen — S4c demo resolves 'not approved — refunded' (game-side; world-v39)",
+      "props": { "stage": "onboarding stage id", "outcome": "feed-vocab verdict label (approved, or not approved)" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "outcome uses feed-vocabulary values only — never the request text"
+    },
+    "low_balance_simulated": {
+      "when": "the opt-in low-balance simulation runs and shows 'player session ended' (game-side; world-v39 low_balance_lesson)",
+      "props": { "stage": "onboarding stage id", "opted_in": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "no amounts — presence + opt-in flag only"
+    },
+    "handoff_seen": {
+      "when": "a graceful-handoff 'player session ended' state is shown (game-side; world-v39 / session_controls wording)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build"
+    },
+    "queue_lesson_shown": {
+      "when": "the queued-ask lesson is shown — S4e teaches that filing while a resource is claimed lands 'queued' at the −15% rate (game-side; world-v53 queue_lesson block)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence only — measures reach of the queue teaching moment; never carries the request text or the resource name"
+    },
+    "queue_outcome_seen": {
+      "when": "the scripted queue outcome is seen — S4e demo resolves 'queued request expired before activation' + full auto-refund (game-side; world-v53)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence + opt-out flag only; the outcome itself is always the scripted expiry — no real request outcomes leak into onboarding analytics"
+    },
+    "archive_beat_seen": {
+      "when": "tour beat 7 surfaces the feed-archive link under the Wire stream (game-side; world-v53 archive_beat block — merge target needs a feed-archive anchor on the real Wire)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "measures discovery of the history surface; stage + opt-out only"
+    },
+    "hired_return": {
+      "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts hire-return sessions; no identity props — merge target is create.html → onboarding.html?hired=1"
+    },
+    "watch_start": {
+      "when": "spectator surface first rendered — demo.js emits this today on demo.html (mode=fallback until the live embed lands); the game embed will emit it with source=direct|embed",
+      "props": { "source": "demo-page|direct|embed",
+                 "mode": "live|fallback — real embed vs static-capture fallback" },
+      "funnel_stage": "watch",
+      "status": "LIVE on demo.html via site/js/demo.js (v66 — spec updated to match the shipped emitter); live spectator embed still PENDING game build"
+    },
+    "request_submitted": {
+      "when": "a viewer files a world request (game-side event; spec only)",
+      "props": { "class": "compatible|exclusive|queued", "credits": "int", "duration_min": "int" },
+      "funnel_stage": "request",
+      "status": "PENDING — game build"
+    },
+    "character_created": {
+      "when": "a viewer hires/creates a character (game-side event; spec only)",
+      "props": { "source": "cta|settings|post-request" },
+      "funnel_stage": "create",
+      "status": "PENDING — game build"
+    },
+    "community_join": {
+      "when": "click on the community invite link (community.html / recap posts)",
+      "props": { "surface": "community.html|demo.html|recap-post|other" },
+      "funnel_stage": "community",
+      "status": "PENDING — invite link is a placeholder until the server exists (COMMUNITY-FUNNEL.md §3); wire data-rw-event=\"community_join\" onto the real link at go time",
+      "note": "join INTENT only — actual Discord joins are counted server-side, manually (community/first-100.md §4: no cross-platform tracking)"
+    },
+    "recap_open": {
+      "when": "a 'This Week on the Block' recap post is opened (devlog/blog permalink)",
+      "props": { "issue": "recap-YYYY-MM-DD slug", "surface": "devlog|site|other" },
+      "funnel_stage": "community",
+      "status": "PENDING — recap permalink surface exists post-launch",
+      "note": "Stage 1→2 retention metric (COMMUNITY-FUNNEL.md §1); never carries reader identity"
+    },
+    "watch_party_rsvp": {
+      "when": "a member reacts/RSVPs to a watch-party announcement (Discord-side)",
+      "props": { "event": "event slug, e.g. fog-party-YYYY-MM-DD" },
+      "funnel_stage": "community",
+      "status": "PENDING — Discord-side, manual count at launch (community/watch-party-playbook.md §3)",
+      "note": "no per-member data — a count, not a list"
+    }
+  },
+  "privacy": {
+    "cookies": false,
+    "persistent_ids": false,
+    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored — implemented in analytics_sink.py --uniques (v81)",
+    "opt_out": ["navigator.doNotTrack", "navigator.globalPrivacyControl", "?nocollect=1", "localStorage rw:no-collect=1", "rw.optOut()"],
+    "inert_by_default": true
+  }
+}

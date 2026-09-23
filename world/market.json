@@ -1,0 +1,86 @@
+{
+ "doc": "Market layer — machine-readable mirror of world/market.md (canonical). Job churn, hiring channels, skill ladders, seasonal rhythm, housing vacancy lifecycle, word-of-mouth room channel, off-registry ambient ring, move-in math. Money is game dollars; no credit figures in this layer (deed fees live in housing.json only). Conditions, not scripts. Internal tier — spectator surfaces get texture, never this machinery.",
+ "version": 31,
+ "schema": "market-v1",
+ "opening_lifecycle": {
+  "states": ["posted", "screening", "trial", "filled", "reposted", "withdrawn"],
+  "note": "posted→screening→trial→filled; trial failures repost; withdrawals are rare"
+ },
+ "channels": {
+  "board": "physical card at Mudhaus + the board page",
+  "word_of_mouth": "somebody asks somebody — never a posted card; invisible to the board",
+  "app": "gig-app signup, always open",
+  "hr_portal": "institutional queue — certs, fingerprints"
+ },
+ "churn": [
+  {"employer": "Mudhaus Coffee", "role": "Barista", "channel": "board", "screen": "Marisol reads the card replies herself", "trial": "one paid Saturday rush — she watches hands", "days_to_fill": "1–3 wks", "decider": "c1-marisol", "repost": "~1/yr — her crew stays"},
+  {"employer": "Taqueria El Farolote", "role": "Line cook", "channel": "word_of_mouth", "screen": "Doña asks around the kitchen network", "trial": "one dinner service, own knives", "days_to_fill": "2–4 wks", "decider": "dona", "repost": "irregular — cooked-out line cooks leave in twos"},
+  {"employer": "Taqueria El Farolote", "role": "Counter/closer", "channel": "board", "screen": "counter staff vouch-check", "trial": "one Friday close, sober at 2 a.m.", "days_to_fill": "1–2 wks", "decider": "c8-tomas+dona", "repost": "2–3/yr — the 2 a.m. crowd filters people"},
+  {"employer": "MuleIt", "role": "Delivery rider", "channel": "app", "screen": "none — churn by design", "trial": "the first week IS the trial", "days_to_fill": "days", "decider": "algorithm", "repost": "continuous"},
+  {"employer": "Buy-Rite Market", "role": "Grocery clerk", "channel": "board", "screen": "office interview + one reference", "trial": "two stocking shifts", "days_to_fill": "2–4 wks", "decider": "store manager", "repost": "~2/yr"},
+  {"employer": "Buy-Rite Creamery", "role": "Scooper", "channel": "board", "screen": "counter asks two questions: weekends? scoop arm?", "trial": "one sunny Sunday", "days_to_fill": "1–2 wks in season", "decider": "counter lead", "repost": "every spring + mid-summer attrition"},
+  {"employer": "Dolores Perk", "role": "Counter", "channel": "board", "screen": "morning regulars act as informal references", "trial": "one morning rush", "days_to_fill": "2–4 wks", "decider": "owner", "repost": "~1/yr"},
+  {"employer": "Baguette About It Bakery", "role": "Counter, afternoons", "channel": "board", "screen": "the baker hands you the sell-down list", "trial": "one 13:00–17:00 shift", "days_to_fill": "1–2 wks", "decider": "a16-hana", "repost": "~1/yr"},
+  {"employer": "Baguette About It Bakery", "role": "Counter temp, holiday", "channel": "board", "screen": "same as counter, faster", "trial": "two shifts before Thanksgiving", "days_to_fill": "days — posted ~Nov 1", "decider": "a16-hana", "repost": "annually, Nov 15–Dec 24", "seasonal": true},
+  {"employer": "Il Delfino", "role": "Line cook", "channel": "word_of_mouth", "screen": "stage culture — they ask kitchens they know", "trial": "Tuesday stage (unpaid tradition, contested in tone)", "days_to_fill": "3–6 wks", "decider": "chef-owner", "repost": "~1/yr — they poach, they get poached"},
+  {"employer": "Il Delfino", "role": "Server", "channel": "board", "screen": "floor manager watches you carry plates in the interview", "trial": "one Tuesday floor", "days_to_fill": "1–3 wks", "decider": "floor manager", "repost": "2/yr"},
+  {"employer": "Auerbach Hardware", "role": "Counter clerk", "channel": "word_of_mouth", "screen": "Victor hands you a bin of screws and talks", "trial": "half a Saturday", "days_to_fill": "4+ wks — he's in no hurry", "decider": "c7-victor", "repost": "years apart — last hire was 2019"},
+  {"employer": "Bloom & Doom Flowers", "role": "Saturday counter help", "channel": "word_of_mouth", "screen": "Ida asks at the market", "trial": "one Saturday", "days_to_fill": "2–4 wks", "decider": "a18-ida", "repost": "intermittent"},
+  {"employer": "SF General", "role": "CNA/tech", "channel": "hr_portal", "screen": "cert + fingerprints + behavioral interview", "trial": "orientation week", "days_to_fill": "1–2 mo (HR queue)", "decider": "HR + floor charge", "repost": "continuous — med-surg always short"},
+  {"employer": "Marooned Records", "role": "Weekend counter", "channel": "word_of_mouth", "screen": "Sam mentions it at the counter; owner asks what you listen to", "trial": "one Sunday, the 45 crate", "days_to_fill": "3–5 wks — it fills by vibe", "decider": "owner via a08-sam", "repost": "rare — the last kid stayed three years"},
+  {"employer": "Golden Hour Laundromat", "role": "Evening attendant", "channel": "board", "screen": "owner asks one question: can you be kind at 22:45?", "trial": "one Friday evening", "days_to_fill": "2–4 wks", "decider": "owner", "repost": "~1/yr"}
+ ],
+ "ladders": [
+  {"from": "Barista", "to": "shift lead (keys)", "at": "Mudhaus Coffee", "requires": ["6+ months showing up at 6:00", "till count matches Marisol's twice running", "fixes group two without being told"], "gain": "+$2/h equiv, first pick of shifts, opens alone"},
+  {"from": "Line cook", "to": "lead cook", "at": "Taqueria El Farolote", "requires": ["the plancha on a slammed Friday without a refire", "tastes every salsa"], "gain": "lead wage ($30), menu input"},
+  {"from": "Grocery clerk", "to": "keyholder", "at": "Buy-Rite Market", "requires": ["six months gets the good shifts", "a year gets keys"], "gain": "opening/closing premium, clipboard access"},
+  {"from": "App rider", "to": "co-op member", "at": "Flying Pannier Courier Co-op", "requires": ["6 mo app-work history", "two member sponsors", "buy-in"], "gain": "steadier dispatch, vote, profit share", "note": "not a promotion — an application"},
+  {"from": "Scooper", "to": "counter", "at": "Buy-Rite Creamery / Dolores Perk", "requires": ["one full summer of Sundays"], "gain": "counter wage, year-round hours"},
+  {"from": "CNA", "to": "RN", "at": "SF General", "requires": ["cert seniority", "hospital bridge program"], "gain": "the real ladder on this board — $22→$48"},
+  {"from": "Evening attendant", "to": "manager", "at": "Golden Hour Laundromat", "requires": ["the washer-repair guy's number memorized", "binder balanced three months straight"], "gain": "keys + the bulletin board is yours"},
+  {"from": "Weekend counter", "to": "buyer", "at": "Marooned Records", "requires": ["can price a crate by flipping it once"], "gain": "Sunday desk; the hold-shelf is your judgment"}
+ ],
+ "seasonal": [
+  {"id": "sun-swell-post", "months": [3, 4], "note": "Creamery + park-side jobs post early; MuleIt signup surge"},
+  {"id": "park-peak", "months": [5, 6, 7, 8, 9], "note": "scooper hours stretch past posted; courier work swells; Dolores Perk weekends run long"},
+  {"id": "school-wave", "months": [9, 10], "note": "after-school café wave resumes; Creamery keeps its ironic best month (fog-free September)"},
+  {"id": "holiday-temp", "months": [11, 12], "note": "Baguette holiday temp window Nov 15–Dec 24; nobody quits in December"},
+  {"id": "rain-ragged", "months": [12, 1, 2], "note": "construction weather days pile up — laborer hours ragged; stand vendors thin"},
+  {"id": "flu-surge", "months": [1, 2, 3], "note": "SF General overtime on med-surg; agency float posts appear"},
+  {"id": "quiet-month", "months": [2], "note": "board is thinnest; rents due all the same — texture only"}
+ ],
+ "vacancy_lifecycle": {
+  "states": ["notice", "listed", "showings", "pool", "lease_signed", "filled"],
+  "delisted": "rare — owner decides to hold the unit",
+  "note": "neighbors know at notice, before any listing exists; the lease ledger (leases.json) takes over at lease_signed",
+  "tiers": [
+   {"tier": "room", "days": "3–7", "channel": "word_of_mouth", "screening": "roommate interview — vibe + rent math", "deposit": "~½ month ($350 on $700)"},
+   {"tier": "studio", "days": "5–10", "channel": "board + walk-bys", "screening": "first + deposit + references", "deposit": "one month"},
+   {"tier": "1br", "days": "7–14", "channel": "board — goes fast near the park", "screening": "screening + references", "deposit": "one month"},
+   {"tier": "flat", "days": "10–21", "channel": "board + word_of_mouth", "screening": "owner feel + references", "deposit": "one month"},
+   {"tier": "house", "days": "30+", "channel": "word_of_mouth, agent-adjacent", "screening": "the household math has to work on paper", "deposit": "one month + pet negotiation"}
+  ]
+ },
+ "wom_channel": {
+  "specimen": "Jules's room at 9418 Guerrero St Unit A — $700 cash to Carmen, tenant of record",
+  "rules": [
+   "roommates choose the person, not the paperwork",
+   "never reaches the board or the registry — ledger sees tenant of record only",
+   "spectator surface is texture only: a new face in the hallway",
+   "player path: heard about only through in-world ties — hired characters start at the listed-room tier"
+  ]
+ },
+ "ambient_ring": {
+  "spec": "20 ambients live one ring out — rooming-house floors, in-law units, family duplexes, 90s rent-controlled one-bedrooms",
+  "mint_rule": "promotion mints a real 9xxx address per address-spec §6 (landlord-as-clerk) + a lease row; ambients.md home-base note becomes registry truth",
+  "why_off_registry": "enumerating 20 addresses invites treating ambients' homes as stages — the ring is texture until promotion"
+ },
+ "move_in_math": [
+  {"tier": "room", "first": 700, "deposit": 350, "total": 1050, "vs": "66% of a part-time baseline month — the day-one door"},
+  {"tier": "studio", "first": 1300, "deposit": 1300, "total": 2600, "vs": "~1 month's barista gross — needs savings or a mid job"},
+  {"tier": "1br", "first": 2100, "deposit": 2100, "total": 4200, "vs": "~1 month's mid-band gross"},
+  {"tier": "flat", "first": 3200, "deposit": 3200, "total": 6400, "vs": "two-person household math or top-band"},
+  {"tier": "house", "first": 5500, "deposit": 5500, "total": 11000, "vs": "aspiration tier"}
+ ],
+ "pacing_note": "moving is the expensive part, not the rent — room→studio ≈ 3–5 months of play at baseline wages (intended)"
+}

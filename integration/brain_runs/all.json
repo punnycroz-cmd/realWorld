@@ -1,0 +1,938 @@
+[
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C3",
+  "rung": "R3",
+  "model": "swe-2-high",
+  "promptChars": 2587,
+  "ms": 22388,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Mars, besh — hypothetically, if a starving artist needed that Friday table… asking for me. It's me.",
+   "do": "slides a doodled cup sleeve across the counter toward Marisol",
+   "move_to": "Mudhaus Coffee",
+   "remember": "One table, first ask wins — cancel rumor or not, grab it.",
+   "why": "free corner table is the best sketching seat in the Mission",
+   "raw": "{\"say\":\"Mars, besh — hypothetically, if a starving artist needed that Friday table… asking for me. It's me.\",\"do\":\"slides a doodled cup sleeve across the counter toward Marisol\",\"move_to\":\"Mudhaus Coffee\",\"remember\":\"One table, first ask wins — cancel rumor or not, grab it.\",\"why\":\"free corner table is the best sketching seat in the Mission\"}"
+  },
+  "applied": "Mudhaus Coffee"
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C2",
+  "rung": "R2",
+  "model": "swe-2-max",
+  "promptChars": 7782,
+  "ms": 23795,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*straightens the cup stack, steadies nerve* \"Marisol? About Friday's table — does asking count if I ask really quietly?",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*straightens the cup stack, steadies nerve* \"Marisol? About Friday's table — does asking count if I ask really quietly?\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C4",
+  "rung": "R4",
+  "model": "swe-2-high",
+  "promptChars": 1816,
+  "ms": 23828,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Marisol — Friday's neighbor table. I'm claiming it for the block.",
+   "do": "pulls on rain jacket, grabs keys",
+   "move_to": "Mudhaus Coffee",
+   "remember": "Table seats four — invite everyone, not just Marcus.",
+   "why": "first-ask wins; nurse reflex — secure it, sort details later",
+   "raw": "{\"say\":\"Marisol — Friday's neighbor table. I'm claiming it for the block.\",\"do\":\"pulls on rain jacket, grabs keys\",\"move_to\":\"Mudhaus Coffee\",\"remember\":\"Table seats four — invite everyone, not just Marcus.\",\"why\":\"first-ask wins; nurse reflex — secure it, sort details later\"}"
+  },
+  "applied": "Mudhaus Coffee"
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C1",
+  "rung": "R1",
+  "model": "swe-2-max",
+  "promptChars": 8267,
+  "ms": 43239,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Dani — anybody asks about Friday, the answer is 'nobody knows yet.' Including me.",
+   "do": "Retwists the pencil in her hair tighter and flips the neighbor-table card face-up on Friday's page of the reservation book.",
+   "move_to": "stay",
+   "remember": "Verify the park permit on 2pm rounds; Friday table still unclaimed.",
+   "why": "the rumor's moving faster than facts and the block will ask me first",
+   "raw": "{\"say\":\"Dani — anybody asks about Friday, the answer is 'nobody knows yet.' Including me.\",\"do\":\"Retwists the pencil in her hair tighter and flips the neighbor-table card face-up on Friday's page of the reservation book.\",\"move_to\":\"stay\",\"remember\":\"Verify the park permit on 2pm rounds; Friday table still unclaimed.\",\"why\":\"the rumor's moving faster than facts and the block will ask me first\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C5",
+  "rung": "R5",
+  "model": "swe-2-medium",
+  "promptChars": 2881,
+  "ms": 19831,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Table's spoken for, fam — Priya ran point before y'all finished stretching.",
+   "do": "taps handlebars twice, grins easy",
+   "move_to": "stay",
+   "remember": "Priya already claimed Friday table — back her play, not my name on it.",
+   "why": "she's home; I don't need the spotlight, just the table near her.",
+   "raw": "{\"say\":\"Table's spoken for, fam — Priya ran point before y'all finished stretching.\",\"do\":\"taps handlebars twice, grins easy\",\"move_to\":\"stay\",\"remember\":\"Priya already claimed Friday table — back her play, not my name on it.\",\"why\":\"she's home; I don't need the spotlight, just the table near her.\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C7",
+  "rung": "R7",
+  "model": "swe-2-medium",
+  "promptChars": 1646,
+  "ms": 20369,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*rings up a box of screws, calls toward the door* \"Movie's cancelled or it ain't — either way, somebody's still gonna need a tarp. Ask me, I'll sell you one.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*rings up a box of screws, calls toward the door* \"Movie's cancelled or it ain't — either way, somebody's still gonna need a tarp. Ask me, I'll sell you one.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C8",
+  "rung": "R8",
+  "model": "swe-2-medium",
+  "promptChars": 1411,
+  "ms": 20359,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Marisol — I'm asking for that Friday table. Directly. Right now.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Marisol — I'm asking for that Friday table. Directly. Right now."
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 1,
+  "cid": "C6",
+  "rung": "R6",
+  "model": "swe-2-medium",
+  "promptChars": 2009,
+  "ms": 20548,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*keeps hemming Jules's jacket, doesn't look up* \"Ask her Thursday when the lunch rush is over — and bring the aprons in dry.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*keeps hemming Jules's jacket, doesn't look up* \"Ask her Thursday when the lunch rush is over — and bring the aprons in dry.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C3",
+  "rung": "R3",
+  "model": "swe-2-high",
+  "promptChars": 3613,
+  "ms": 32910,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Whoa, timestamp, besh — I asked before Priya stretched. Corner table already has my name in chalk.",
+   "do": "pulls a shot, doodles Priya surrendering on a cup sleeve",
+   "move_to": "stay",
+   "remember": "Priya claims it — get Mars to confirm out loud, chalk counts.",
+   "why": "I asked first, and broke artists need corner tables.",
+   "raw": "{\"say\":\"Whoa, timestamp, besh — I asked before Priya stretched. Corner table already has my name in chalk.\",\"do\":\"pulls a shot, doodles Priya surrendering on a cup sleeve\",\"move_to\":\"stay\",\"remember\":\"Priya claims it — get Mars to confirm out loud, chalk counts.\",\"why\":\"I asked first, and broke artists need corner tables.\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C4",
+  "rung": "R4",
+  "model": "swe-2-high",
+  "promptChars": 2837,
+  "ms": 32843,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Marcus — did Marisol actually say yes, or did I just say it loudest?",
+   "do": "steps into the med room, phone out on break",
+   "move_to": "stay",
+   "remember": "Claim isn't real till Marisol confirms — table seats four, not two.",
+   "why": "she heard 'nobody knows yet' and hates an unconfirmed plan",
+   "raw": "{\"say\":\"Marcus — did Marisol actually say yes, or did I just say it loudest?\",\"do\":\"steps into the med room, phone out on break\",\"move_to\":\"stay\",\"remember\":\"Claim isn't real till Marisol confirms — table seats four, not two.\",\"why\":\"she heard 'nobody knows yet' and hates an unconfirmed plan\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C2",
+  "rung": "R2",
+  "model": "swe-2-max",
+  "promptChars": 8704,
+  "ms": 43179,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*already moving to pull the aprons in from the rain* \"Thursday, copy. Priya claimed it for the block anyway — that's fine. It's fine.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*already moving to pull the aprons in from the rain* \"Thursday, copy. Priya claimed it for the block anyway — that's fine. It's fine.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C1",
+  "rung": "R1",
+  "model": "swe-2-max",
+  "promptChars": 9303,
+  "ms": 47280,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Table doesn't exist till the permit does. Napkin order's Dani, Jules, Priya, Tomás — I check the city at two, that's the whole answer.",
+   "do": "writes four names on a napkin in order, tucks it under the spare tamper",
+   "move_to": "stay",
+   "remember": "Permit check at 2pm rounds; napkin order stands — nobody crowned before the city is.",
+   "why": "won't hand out a table for an event that might not exist, and won't let Marcus name her decision for her",
+   "raw": "{\"say\":\"Table doesn't exist till the permit does. Napkin order's Dani, Jules, Priya, Tomás — I check the city at two, that's the whole answer.\",\"do\":\"writes four names on a napkin in order, tucks it under the spare tamper\",\"move_to\":\"stay\",\"remember\":\"Permit check at 2pm rounds; napkin order stands — nobody crowned before the city is.\",\"why\":\"won't hand out a table for an event that might not exist, and won't let Marcus name her decision for her\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C6",
+  "rung": "R6",
+  "model": "swe-2-medium",
+  "promptChars": 2712,
+  "ms": 13786,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*snips the thread, finally looks up* \"Napkin order. In my day we used a pencil — cheaper, and it never argued back.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*snips the thread, finally looks up* \"Napkin order. In my day we used a pencil — cheaper, and it never argued back.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C7",
+  "rung": "R7",
+  "model": "swe-2-medium",
+  "promptChars": 2349,
+  "ms": 13926,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*flips the OPEN sign, wipes rain off the counter* \"Two o'clock, then. Till the city decides, tarps and tent stakes are front of the shelf.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*flips the OPEN sign, wipes rain off the counter* \"Two o'clock, then. Till the city decides, tarps and tent stakes are front of the shelf.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C8",
+  "rung": "R8",
+  "model": "swe-2-medium",
+  "promptChars": 2114,
+  "ms": 14114,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Fourth on the napkin — guess I'll bring the tarp.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Fourth on the napkin — guess I'll bring the tarp."
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 2,
+  "cid": "C5",
+  "rung": "R5",
+  "model": "swe-2-medium",
+  "promptChars": 3701,
+  "ms": 14485,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Napkin order's just a playlist, fam — Priya's holding the block's spot either way.",
+   "do": "shoulders courier bag, nods to Priya on the way out",
+   "move_to": "Mudhaus Coffee",
+   "remember": "Priya asked if Marisol said yes — still haven't answered her straight.",
+   "why": "back her play while dodging her question with charm",
+   "raw": "{\"say\":\"Napkin order's just a playlist, fam — Priya's holding the block's spot either way.\",\"do\":\"shoulders courier bag, nods to Priya on the way out\",\"move_to\":\"Mudhaus Coffee\",\"remember\":\"Priya asked if Marisol said yes — still haven't answered her straight.\",\"why\":\"back her play while dodging her question with charm\"}"
+  },
+  "applied": "Mudhaus Coffee"
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C3",
+  "rung": "R3",
+  "model": "swe-2-high",
+  "promptChars": 3919,
+  "ms": 14482,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "First on the napkin — Marisol said it out loud, it's chalk now.",
+   "do": "Chalks a tiny napkin-order doodle by the register, stars her name",
+   "move_to": "stay",
+   "remember": "Priya's 'for the block' could swallow my spot — watch it.",
+   "why": "holding first place without starting a fight",
+   "raw": "{\"say\":\"First on the napkin — Marisol said it out loud, it's chalk now.\",\"do\":\"Chalks a tiny napkin-order doodle by the register, stars her name\",\"move_to\":\"stay\",\"remember\":\"Priya's 'for the block' could swallow my spot — watch it.\",\"why\":\"holding first place without starting a fight\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C4",
+  "rung": "R4",
+  "model": "swe-2-high",
+  "promptChars": 3149,
+  "ms": 22697,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Third on a napkin still counts — if the city cooperates.",
+   "do": "Texts Marcus between patients: 'four seats, invite everyone.'",
+   "move_to": "stay",
+   "remember": "Dani's first; my job is keeping four seats filled.",
+   "why": "the table only matters if everyone's at it",
+   "raw": "{\"say\":\"Third on a napkin still counts — if the city cooperates.\",\"do\":\"Texts Marcus between patients: 'four seats, invite everyone.'\",\"move_to\":\"stay\",\"remember\":\"Dani's first; my job is keeping four seats filled.\",\"why\":\"the table only matters if everyone's at it\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C1",
+  "rung": "R1",
+  "model": "swe-2-max",
+  "promptChars": 9632,
+  "ms": 33154,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Napkin's a queue, not a playlist, Marcus — and nobody buys a tarp till the city says so. Two o'clock.",
+   "do": "tucks the claim napkin into her apron pocket, out of chalk reach, and keeps pouring",
+   "move_to": "stay",
+   "remember": "Permit check first on 2pm rounds; keep the napkin list off the floor — and note Victor pushing tent stakes while Guerrero's quietly on the market.",
+   "why": "the table fight stays hers until the permit's real, and the draft in her laptop is already reading this block",
+   "raw": "{\"say\":\"Napkin's a queue, not a playlist, Marcus — and nobody buys a tarp till the city says so. Two o'clock.\",\"do\":\"tucks the claim napkin into her apron pocket, out of chalk reach, and keeps pouring\",\"move_to\":\"stay\",\"remember\":\"Permit check first on 2pm rounds; keep the napkin list off the floor — and note Victor pushing tent stakes while Guerrero's quietly on the market.\",\"why\":\"the table fight stays hers until the permit's real, and the draft in her laptop is already reading this block\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C2",
+  "rung": "R2",
+  "model": "swe-2-max",
+  "promptChars": 8946,
+  "ms": 34593,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*folds damp aprons, sketches Priya's hands on a cup sleeve* \"Second's fine — I'm good anywhere I can see the screen.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*folds damp aprons, sketches Priya's hands on a cup sleeve* \"Second's fine — I'm good anywhere I can see the screen.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C7",
+  "rung": "R7",
+  "model": "swe-2-medium",
+  "promptChars": 2337,
+  "ms": 14847,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*sets a dented tin of tent stakes on the counter* \"City says yes or no, I still sell stakes — but I'll wait till two like everybody else.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*sets a dented tin of tent stakes on the counter* \"City says yes or no, I still sell stakes — but I'll wait till two like everybody else.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C5",
+  "rung": "R5",
+  "model": "swe-2-medium",
+  "promptChars": 3762,
+  "ms": 15023,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Two o'clock it is, coach — I'll be on the block either way, rain don't stop the wheels.",
+   "do": "tightens tarp over the courier bag, heads back into the rain",
+   "move_to": "stay",
+   "remember": "Still owe Priya a straight answer on Marisol — say it before Friday.",
+   "why": "keeping the vibe up while dodging Priya's question one more hour",
+   "raw": "{\"say\":\"Two o'clock it is, coach — I'll be on the block either way, rain don't stop the wheels.\",\"do\":\"tightens tarp over the courier bag, heads back into the rain\",\"move_to\":\"stay\",\"remember\":\"Still owe Priya a straight answer on Marisol — say it before Friday.\",\"why\":\"keeping the vibe up while dodging Priya's question one more hour\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C8",
+  "rung": "R8",
+  "model": "swe-2-medium",
+  "promptChars": 2102,
+  "ms": 15282,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Rain's not waiting for the city — tarp's already in my bag.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Rain's not waiting for the city — tarp's already in my bag."
+  },
+  "applied": null
+ },
+ {
+  "run": 1,
+  "tick": 3,
+  "cid": "C6",
+  "rung": "R6",
+  "model": "swe-2-medium",
+  "promptChars": 2700,
+  "ms": 16329,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*sets the iron down, watches Tomás hurry past* \"A tarp he brings. In 1961 we watched movies through a hurricane — nobody had a permit.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*sets the iron down, watches Tomás hurry past* \"A tarp he brings. In 1961 we watched movies through a hurricane — nobody had a permit.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C4",
+  "rung": "R8",
+  "model": "swe-2-medium",
+  "promptChars": 957,
+  "ms": 15166,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Movie night cancelled or not, I'm grabbing that neighbor table.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Movie night cancelled or not, I'm grabbing that neighbor table."
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C2",
+  "rung": "R6",
+  "model": "swe-2-medium",
+  "promptChars": 1545,
+  "ms": 15237,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "I wipe down the counter, then approach Marisol: \"Hey — is that Friday neighbor table still open? And is the movie night actually cancelled?",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "I wipe down the counter, then approach Marisol: \"Hey — is that Friday neighbor table still open? And is the movie night actually cancelled?\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C1",
+  "rung": "R2",
+  "model": "swe-2-max",
+  "promptChars": 7959,
+  "ms": 30855,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*slides a drink across, wipes the same counter spot twice* \"Oat latte's up. Rain's stacking 'em in, Dani — movie night's unconfirmed, don't bury it yet.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*slides a drink across, wipes the same counter spot twice* \"Oat latte's up. Rain's stacking 'em in, Dani — movie night's unconfirmed, don't bury it yet.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C3",
+  "rung": "R1",
+  "model": "swe-2-max",
+  "promptChars": 7627,
+  "ms": 49066,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Mars — neighbor table Friday, I'm claiming it before the vultures wake up. Movie or no movie, I'll watch the rain like a feature.",
+   "do": "doodles four chairs on a cup sleeve, one already penciled with a familiar profile, tapes it to the corner table as the reservation tag",
+   "move_to": "stay",
+   "remember": "recruit Jules plus one buffer so Marcus reads as group, not date",
+   "why": "the corner table is the one Friday spot where ending up next to Marcus looks like luck, not planning",
+   "raw": "{\"say\":\"Mars — neighbor table Friday, I'm claiming it before the vultures wake up. Movie or no movie, I'll watch the rain like a feature.\",\"do\":\"doodles four chairs on a cup sleeve, one already penciled with a familiar profile, tapes it to the corner table as the reservation tag\",\"move_to\":\"stay\",\"remember\":\"recruit Jules plus one buffer so Marcus reads as group, not date\",\"why\":\"the corner table is the one Friday spot where ending up next to Marcus looks like luck, not planning\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C6",
+  "rung": "R3",
+  "model": "swe-2-high",
+  "promptChars": 3143,
+  "ms": 14662,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Rain and rumors, mi cielo. Both unconfirmed. I hemmed Marisol's aprons — go, ask her yourself.",
+   "do": "threads a needle by the window light, watching Jules through the front room",
+   "move_to": "stay",
+   "remember": "Jules wants that table; one apron still needs buttons",
+   "why": "someone in this house should eat with neighbors Friday",
+   "raw": "{\"say\":\"Rain and rumors, mi cielo. Both unconfirmed. I hemmed Marisol's aprons — go, ask her yourself.\",\"do\":\"threads a needle by the window light, watching Jules through the front room\",\"move_to\":\"stay\",\"remember\":\"Jules wants that table; one apron still needs buttons\",\"why\":\"someone in this house should eat with neighbors Friday\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C7",
+  "rung": "R7",
+  "model": "swe-2-medium",
+  "promptChars": 1767,
+  "ms": 15746,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*flips the sign to OPEN, shakes rain off his jacket* \"Table or no table, somebody better decide on that permit — I'm not renting tarps for a cancelled movie.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*flips the sign to OPEN, shakes rain off his jacket* \"Table or no table, somebody better decide on that permit — I'm not renting tarps for a cancelled movie.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C8",
+  "rung": "R5",
+  "model": "swe-2-medium",
+  "promptChars": 3093,
+  "ms": 15775,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "",
+   "do": "Wraps leftover tamales in foil, tucks them in his bag for the staff.",
+   "move_to": "Mudhaus Coffee",
+   "remember": "Table's a race I won't run. Bring food anyway.",
+   "why": "Mars is there; the tamales are the excuse.",
+   "raw": "{\"say\":\"\",\"do\":\"Wraps leftover tamales in foil, tucks them in his bag for the staff.\",\"move_to\":\"Mudhaus Coffee\",\"remember\":\"Table's a race I won't run. Bring food anyway.\",\"why\":\"Mars is there; the tamales are the excuse.\"}"
+  },
+  "applied": "Mudhaus Coffee"
+ },
+ {
+  "run": 2,
+  "tick": 1,
+  "cid": "C5",
+  "rung": "R4",
+  "model": "swe-2-high",
+  "promptChars": 2368,
+  "ms": 15903,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Heard, Dani — table's yours. I'll just take the corner stool and a coffee.",
+   "do": "pulls on rain shell, grabs courier bag",
+   "move_to": "Mudhaus Coffee",
+   "remember": "Priya wanted that table — don't tell her I let Dani take it",
+   "why": "wants out of the flat, but won't fight Dani over a table",
+   "raw": "{\"say\":\"Heard, Dani — table's yours. I'll just take the corner stool and a coffee.\",\"do\":\"pulls on rain shell, grabs courier bag\",\"move_to\":\"Mudhaus Coffee\",\"remember\":\"Priya wanted that table — don't tell her I let Dani take it\",\"why\":\"wants out of the flat, but won't fight Dani over a table\"}"
+  },
+  "applied": "Mudhaus Coffee"
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C2",
+  "rung": "R6",
+  "model": "swe-2-medium",
+  "promptChars": 2556,
+  "ms": 20966,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "I hesitate, then slide a water cup toward Dani: \"Congrats on the table — hey Marisol, who actually approves that permit? Maybe someone's heard wrong.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "I hesitate, then slide a water cup toward Dani: \"Congrats on the table — hey Marisol, who actually approves that permit? Maybe someone's heard wrong.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C4",
+  "rung": "R8",
+  "model": "swe-2-medium",
+  "promptChars": 1968,
+  "ms": 31054,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Dani, I called it first — Marisol, that table's mine, confirm it.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Dani, I called it first — Marisol, that table's mine, confirm it."
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C1",
+  "rung": "R2",
+  "model": "swe-2-max",
+  "promptChars": 8970,
+  "ms": 37280,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*chalks \"JULES — FRI\" on the corner table card* First to ask me, not the street. Dani, Priya — refills, no sulking. Movie's unconfirmed.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*chalks \"JULES — FRI\" on the corner table card* First to ask me, not the street. Dani, Priya — refills, no sulking. Movie's unconfirmed."
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C3",
+  "rung": "R1",
+  "model": "swe-2-max",
+  "promptChars": 8749,
+  "ms": 134870,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Jules asked first, which makes Jules my plus-one by squatters' law — Mars, that's a table by committee: me, her, two chairs TBD. Marcus, that corner stool wobbles, don't be a hero.",
+   "do": "slides Marcus's coffee across the counter — the sleeve's already got a wobbly little stool drawn on it wearing a cape",
+   "move_to": "stay",
+   "remember": "four = me + Jules + buffer + M; this week the chalkboard draws literally anyone else's face",
+   "why": "folding Jules's claim into mine locks the table and pre-builds the group cover so Friday reads squad, not date",
+   "raw": "{\"say\":\"Jules asked first, which makes Jules my plus-one by squatters' law — Mars, that's a table by committee: me, her, two chairs TBD. Marcus, that corner stool wobbles, don't be a hero.\",\"do\":\"slides Marcus's coffee across the counter — the sleeve's already got a wobbly little stool drawn on it wearing a cape\",\"move_to\":\"stay\",\"remember\":\"four = me + Jules + buffer + M; this week the chalkboard draws literally anyone else's face\",\"why\":\"folding Jules's claim into mine locks the table and pre-builds the group cover so Friday reads squad, not date\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C8",
+  "rung": "R5",
+  "model": "swe-2-medium",
+  "promptChars": 3971,
+  "ms": 21386,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Coffee, Mars. Black. And—leave two chairs for whoever needs them.",
+   "do": "Sets the foil-wrapped tamales on the counter, nods to Jules and Dani",
+   "move_to": "Mudhaus Coffee",
+   "remember": "The table's claimed; the tamales aren't. Small moves only.",
+   "why": "Bringing food is safe; sitting near her is the closest I get.",
+   "raw": "{\"say\":\"Coffee, Mars. Black. And—leave two chairs for whoever needs them.\",\"do\":\"Sets the foil-wrapped tamales on the counter, nods to Jules and Dani\",\"move_to\":\"Mudhaus Coffee\",\"remember\":\"The table's claimed; the tamales aren't. Small moves only.\",\"why\":\"Bringing food is safe; sitting near her is the closest I get.\"}"
+  },
+  "applied": "Mudhaus Coffee"
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C6",
+  "rung": "R3",
+  "model": "swe-2-high",
+  "promptChars": 4028,
+  "ms": 24692,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Three claims, one chalk mark. Easier than wedding-dress alterations, that table.",
+   "do": "Threads needle, sews buttons on the last apron",
+   "move_to": "stay",
+   "remember": "Buttons by Friday; Jules has the table.",
+   "why": "Marisol's aprons are due; the table already resolved itself",
+   "raw": "{\"say\":\"Three claims, one chalk mark. Easier than wedding-dress alterations, that table.\",\"do\":\"Threads needle, sews buttons on the last apron\",\"move_to\":\"stay\",\"remember\":\"Buttons by Friday; Jules has the table.\",\"why\":\"Marisol's aprons are due; the table already resolved itself\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C7",
+  "rung": "R7",
+  "model": "swe-2-medium",
+  "promptChars": 2552,
+  "ms": 24762,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Victor: *unfolds a tarp on the counter for a customer* \"Jules got the table? Smart kid. Somebody still owes me an answer on that permit.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Victor: *unfolds a tarp on the counter for a customer* \"Jules got the table? Smart kid. Somebody still owes me an answer on that permit.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 2,
+  "cid": "C5",
+  "rung": "R4",
+  "model": "swe-2-high",
+  "promptChars": 3259,
+  "ms": 31535,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Jules, two chairs TBD — Priya's got seniority. Pencil her in.",
+   "do": "nudges the dry bench spot toward Priya",
+   "move_to": "stay",
+   "remember": "Fix it with Priya without admitting I gave Dani the table",
+   "why": "Priya's mad and my hands aren't clean",
+   "raw": "{\"say\":\"Jules, two chairs TBD — Priya's got seniority. Pencil her in.\",\"do\":\"nudges the dry bench spot toward Priya\",\"move_to\":\"stay\",\"remember\":\"Fix it with Priya without admitting I gave Dani the table\",\"why\":\"Priya's mad and my hands aren't clean\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C4",
+  "rung": "R8",
+  "model": "swe-2-medium",
+  "promptChars": 2127,
+  "ms": 24916,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Seniority counts for something — pencil me in, Marcus. Jules, coffee's on you.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Seniority counts for something — pencil me in, Marcus. Jules, coffee's on you."
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C2",
+  "rung": "R6",
+  "model": "swe-2-medium",
+  "promptChars": 2715,
+  "ms": 32564,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Jules: I duck my head, half-smiling. \"Okay — one chair for Priya, one TBD. But if the movie's cancelled, does the table still count?",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Jules: I duck my head, half-smiling. \"Okay — one chair for Priya, one TBD. But if the movie's cancelled, does the table still count?\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C1",
+  "rung": "R2",
+  "model": "swe-2-max",
+  "promptChars": 9129,
+  "ms": 45343,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "*sets Tomás's coffee down, taps the chalk card* Four chairs, one card — stop legislating. Permits live at Rec and Park; nobody's heard \"no.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "*sets Tomás's coffee down, taps the chalk card* Four chairs, one card — stop legislating. Permits live at Rec and Park; nobody's heard \"no.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C3",
+  "rung": "R1",
+  "model": "swe-2-max",
+  "promptChars": 9002,
+  "ms": 66355,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Pencils down, boss — nobody owns a chair yet. Friday we draw names out of the tip jar, Carmen referees, and your stool lease is still month-to-month.",
+   "do": "doodles a little raffle jar on a cup sleeve and slides it next to Jules's chalk card",
+   "move_to": "stay",
+   "remember": "M just tried to pencil P into my table — keep chair four unclaimed without naming names",
+   "why": "a raffle keeps Priya un-offended and the fourth chair open for M without saying his name",
+   "raw": "{\"say\":\"Pencils down, boss — nobody owns a chair yet. Friday we draw names out of the tip jar, Carmen referees, and your stool lease is still month-to-month.\",\"do\":\"doodles a little raffle jar on a cup sleeve and slides it next to Jules's chalk card\",\"move_to\":\"stay\",\"remember\":\"M just tried to pencil P into my table — keep chair four unclaimed without naming names\",\"why\":\"a raffle keeps Priya un-offended and the fourth chair open for M without saying his name\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C7",
+  "rung": "R7",
+  "model": "swe-2-medium",
+  "promptChars": 2504,
+  "ms": 15879,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Victor: *rings up the tarp* \"Tip jar raffle — finally, a permit process I understand. Put me down for a chair, Dani. Store's closed Friday anyway.",
+   "do": "",
+   "move_to": "stay",
+   "remember": "",
+   "raw": "Victor: *rings up the tarp* \"Tip jar raffle — finally, a permit process I understand. Put me down for a chair, Dani. Store's closed Friday anyway.\""
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C8",
+  "rung": "R5",
+  "model": "swe-2-medium",
+  "promptChars": 3984,
+  "ms": 16181,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Tamales Friday, Mars. Table or no table — people eat.",
+   "do": "sets a folded twenty by the register, nods once",
+   "move_to": "El Farolote",
+   "remember": "Feed them first. The rest can wait — it always waits.",
+   "why": "I can't claim a chair, but I can show up carrying something",
+   "raw": "{\"say\":\"Tamales Friday, Mars. Table or no table — people eat.\",\"do\":\"sets a folded twenty by the register, nods once\",\"move_to\":\"El Farolote\",\"remember\":\"Feed them first. The rest can wait — it always waits.\",\"why\":\"I can't claim a chair, but I can show up carrying something\"}"
+  },
+  "applied": "Taqueria El Farolote"
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C5",
+  "rung": "R4",
+  "model": "swe-2-high",
+  "promptChars": 3271,
+  "ms": 26145,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "Tip-jar draw sounds fair — just don't audit my stool's history.",
+   "do": "drains coffee, shoulders courier bag, grins at Priya",
+   "move_to": "stay",
+   "remember": "Keep Dani off the table topic; smooth it with Priya later.",
+   "why": "deflect with charm before anyone asks who took Priya's table",
+   "raw": "{\"say\":\"Tip-jar draw sounds fair — just don't audit my stool's history.\",\"do\":\"drains coffee, shoulders courier bag, grins at Priya\",\"move_to\":\"stay\",\"remember\":\"Keep Dani off the table topic; smooth it with Priya later.\",\"why\":\"deflect with charm before anyone asks who took Priya's table\"}"
+  },
+  "applied": null
+ },
+ {
+  "run": 2,
+  "tick": 3,
+  "cid": "C6",
+  "rung": "R3",
+  "model": "swe-2-high",
+  "promptChars": 4022,
+  "ms": 26174,
+  "ok": true,
+  "err": null,
+  "beat": {
+   "say": "",
+   "do": "Threads a needle, sets the last apron across her lap, starts the buttons.",
+   "move_to": "stay",
+   "remember": "Buttons by Friday; Jules's table still needs watching.",
+   "why": "Paid work before street gossip — and the rain agrees with me.",
+   "raw": "{\"say\":\"\",\"do\":\"Threads a needle, sets the last apron across her lap, starts the buttons.\",\"move_to\":\"stay\",\"remember\":\"Buttons by Friday; Jules's table still needs watching.\",\"why\":\"Paid work before street gossip — and the rain agrees with me.\"}"
+  },
+  "applied": null
+ }
+]

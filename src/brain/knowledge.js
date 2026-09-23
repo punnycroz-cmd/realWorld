@@ -247,7 +247,15 @@ function observe(v, content, details){
 
   let defaultConf = 0.95;
   if(source === 'memory') defaultConf = 0.65;
-  else if(source === 'hearsay') defaultConf = 0.45;
+  else if(source === 'hearsay'){
+    defaultConf = 0.45;
+    /* production-1: memory-model wiring — misinfo_suscept (spec range
+       0.05–0.70, archetype-C baseline 0.30) scales how strongly
+       heard-but-unverified accounts land for this character. */
+    if(v.memProfile && v.memProfile.misinfo_suscept != null)
+      defaultConf = Math.max(0.1, Math.min(0.9,
+        0.45 * (v.memProfile.misinfo_suscept / 0.30)));
+  }
   else if(source === 'claim') defaultConf = 0.30;
 
   const conf = details.confidence != null ? details.confidence : defaultConf;
@@ -735,6 +743,18 @@ function decayEpistemic(v, dtDays){
   let traitMult = 1.0;
   if(trait === 'sharp') traitMult = 0.4;
   else if(trait === 'forgetful') traitMult = 2.5;
+  /* production-1: memory-model wiring — a compiled per-character profile
+     (sf/35_sf_memory.js, from memory/cast-profiles.md) refines the coarse
+     trait: beta_episodic is the episodic decay rate, normed so archetype C
+     (0.42) ~= 1.0, and forget_thresh replaces the flat 0.05 prune floor
+     on memory records. */
+  let memPrune = 0.05;
+  if(v.memProfile){
+    if(v.memProfile.beta_episodic != null)
+      traitMult = v.memProfile.beta_episodic / 0.42;
+    if(v.memProfile.forget_thresh != null)
+      memPrune = v.memProfile.forget_thresh;
+  }
 
   const baseDecay = 0.08 * dtDays;
 
@@ -749,7 +769,7 @@ function decayEpistemic(v, dtDays){
       m.confidence = Math.max(0, +(m.confidence - baseDecay * traitMult * salienceFactor).toFixed(4));
       m.salience = Math.max(0, +(m.salience - baseDecay * 0.5).toFixed(4));
     }
-    if(m.confidence > 0.05 || m.salience > 0.05){
+    if(m.confidence > memPrune || m.salience > 0.05){
       prunedMemories.push(m);
     }
   }

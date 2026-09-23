@@ -819,20 +819,11 @@ const SF_TILE_COLS = [['#2a6a6a', '#e8e0c8'], ['#7a2a30', '#e8d8b0'],
                       ['#2a4a6a', '#d8e0e0'], ['#4a5a2a', '#e8e0c0']];
 /* user-locked rule: businesses on screen are GTA-style parodies, never
    real SF names. Code keys stay real for routines/lookups — this is the
-   display layer (mirrors world/businesses.md on the sf/world branch). */
-const SF_PARODY_NAMES = {
-  'Haus Coffee': 'MUDHAUS COFFEE',
-  'Taqueria El Farolito': 'TAQUERIA EL FAROLOTE',
-  'Auerbach Hardware': 'AUERBACH HARDWARE',
-  'Bi-Rite Market': 'BUY-RITE MARKET',
-  'Bi-Rite Creamery': 'BUY-RITE CREAMERY',
-  'Delfina': 'IL DELFINO',
-  'Dolores Park Cafe': 'DOLORES PERK',
-  'Tartine Bakery': 'BAGUETTE ABOUT IT',
-  '500 Club': 'THE 600 CLUB',
-  'Dandelion Chocolate': 'DANDY LION CHOCOLATE',
-  'Valencia Farmers Market': 'VALENCIA GROWERS MKT',
-};
+   display layer. production-1: the canonical parody table is
+   SF_PARODY_NAMES in sf/30a_sf_names.js (world track's naming authority,
+   66+ entries) — the duplicate art-side table is removed so the bundle
+   has exactly one declaration. sfSignName consults the canonical
+   sfDisplayName() first, then falls back to per-kind generic signage. */
 const SF_GENERIC_SIGN = {
   restaurant: 'TAQUERIA', cafe: 'CAFÉ', bar: 'CANTINA', pub: 'PUB',
   fast_food: 'TAQUERIA', convenience: 'MINI MART', supermarket: 'MERCADO',
@@ -848,8 +839,8 @@ const SF_GENERIC_SIGN = {
   kindergarten: 'DAYCARE', social_facility: 'CENTRO', poi: 'STORE',
 };
 function sfSignName(b){
-  if(b.name && SF_PARODY_NAMES[b.name]) return SF_PARODY_NAMES[b.name];
-  return SF_GENERIC_SIGN[b.kind] || (b.name ? null : 'STORE');
+  const dn = (typeof sfDisplayName === 'function') ? sfDisplayName(b.name, b.kind) : null;
+  return dn || SF_GENERIC_SIGN[b.kind] || (b.name ? null : 'STORE');
 }
 /* one mural per wall, deterministic — the same gate drives the street
    view and the baked sprite so the colorful band agrees in both */
@@ -1201,7 +1192,7 @@ function sfBldCanvas(b, wet){
         for(let k = 0; k <= Math.floor(aw / 5); k++)
           paEllipse(g, ax - aw / 2 + k * 5, dy2 - 18, 2.5, 2.5, awn[4]);
         paR(g, ax - aw / 2, dy2 - 23, aw, 1, awn[5]);
-        // painted sign on the fascia — parody display name only
+        // painted sign on the fascia — canonical parody display name
         const sg = sfSignName(b);
         if(sg){
           g.fillStyle = '#f8f4e8';

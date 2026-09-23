@@ -1,0 +1,1202 @@
+{
+  "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
+  "schema_version": "drama-v3",
+  "seed_states": [
+    "dormant",
+    "pressured",
+    "surfaced",
+    "resolved",
+    "residue"
+  ],
+  "fuse_ids": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6"
+  ],
+  "seed_schema": {
+    "id": "S#",
+    "title": "internal label",
+    "fuse": "which season fuse (F1–F6) it feeds",
+    "holders": "character ids who know the underlying fact",
+    "suspects": "character ids with in-fiction suspicion (not knowledge)",
+    "must_not_know": "character ids for whom knowledge is a story event or boundary",
+    "pressure_routes": "conditions that tighten this seed — never triggers, only pressures",
+    "reveal_vectors": "legitimate ways it could surface (all emergent, none scheduled)",
+    "resolution_space": "the open outcomes — direction holds a preference, never a plan",
+    "spectator_tells": "camera-legible shadows per drama-notes §12 — visible without leaking",
+    "residue_on_resolution": "what persists after resolved",
+    "state": "observed lifecycle state — inferred from world events, never assigned"
+  },
+  "seeds": [
+    {
+      "id": "S1",
+      "title": "Developer offer on 9418/9457 Guerrero",
+      "fuse": "F1",
+      "holders": [
+        "C7"
+      ],
+      "suspects": [],
+      "must_not_know": [
+        "C2",
+        "C4",
+        "C5",
+        "C6",
+        "C8"
+      ],
+      "pressure_routes": [
+        "flyer circulating (S2 makes the flyer public-capable)",
+        "building-sale process mechanics: inspections, paperwork, tenant notices",
+        "rent-hike dispute at 9457 already live (lease ledger)",
+        "loan exposure (S6) making the buildings' status matter to C8"
+      ],
+      "reveal_vectors": [
+        "Mission Unfiltered post (C1 publishes the flyer)",
+        "sale-process paperwork reaching a tenant",
+        "C7 deciding to tell — his rational call, never a confession arc"
+      ],
+      "resolution_space": [
+        "sell",
+        "refuse the offer",
+        "partial/no-fault path through admin lease system — always Victor's choice"
+      ],
+      "spectator_tells": [
+        "missed Tuesday repairs",
+        "uncharacteristic free fixes",
+        "closed-door counter hours at Auerbach Hardware",
+        "flyer changing hands (venue-level, not content-level)"
+      ],
+      "residue_on_resolution": "the offer existed and everyone eventually knows it did; trust cost is permanent",
+      "state": "pressured",
+      "tell_ladder": {
+        "whisper": [
+          "the flyer as an object — a folded page changing pockets",
+          "counter hours drifting five minutes late"
+        ],
+        "pressure": [
+          "missed Tuesday repairs",
+          "uncharacteristic free fixes",
+          "a clipboard stranger near the Guerrero buildings",
+          "notice-shaped mail"
+        ],
+        "brink": [
+          "Victor rehearsing counter sentences that end before they start",
+          "the two buildings named in the same errand twice in a day",
+          "the flyer reaching hands that don't fold it away"
+        ]
+      }
+    },
+    {
+      "id": "S2",
+      "title": "Marisol authored Mission Unfiltered + holds the sale draft",
+      "fuse": "F6",
+      "holders": [
+        "C1"
+      ],
+      "suspects": [],
+      "must_not_know": [
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8"
+      ],
+      "pressure_routes": [
+        "sale rumor reaching the block by any route",
+        "anyone treating the blog as a truth-source in front of her",
+        "the draft going stale — its news value decays while her risk doesn't"
+      ],
+      "reveal_vectors": [
+        "she publishes (S1 surfaces via press)",
+        "she's unmasked — traceable sourcing, a glimpse of the draft",
+        "she holds and the choice itself becomes her residue"
+      ],
+      "resolution_space": [
+        "publish and own it",
+        "publish anonymously and carry the mask cost",
+        "kill the draft"
+      ],
+      "spectator_tells": [
+        "press-feed silence where a post was expected",
+        "pointed questions on her 14:00–18:00 rounds",
+        "the café's nervous-system going quiet about one topic"
+      ],
+      "residue_on_resolution": "if unmasked: trust renegotiation with half the cast; if published: the blog becomes a named power on the block",
+      "state": "pressured",
+      "tell_ladder": {
+        "whisper": [
+          "post cadence regular",
+          "rounds questions that pass for small talk"
+        ],
+        "pressure": [
+          "press silence where a post was expected",
+          "pointed questions that answer themselves",
+          "the draft open on a closed laptop"
+        ],
+        "brink": [
+          "the café's nervous system going quiet about exactly one topic",
+          "Mars answering a question with its own question twice in one shift"
+        ]
+      }
+    },
+    {
+      "id": "S3",
+      "title": "Dani + Marcus secret relationship (3 months)",
+      "fuse": "F2",
+      "holders": [
+        "C3",
+        "C5"
+      ],
+      "suspects": [
+        "C1"
+      ],
+      "must_not_know": [
+        "C4"
+      ],
+      "pressure_routes": [
+        "F1 compression — crisis crowds everyone into shared kitchens",
+        "chalkboard art converging on a recognizable figure",
+        "C5's wanting-to-tell vs C3's delay — asymmetric keepers",
+        "C4's tally sharpening her attention to flat anomalies"
+      ],
+      "reveal_vectors": [
+        "C4's own noticing (preferred — her agency)",
+        "ambient-space near-miss compounding into visible pattern",
+        "C5 or C3 choosing honesty — never scheduled"
+      ],
+      "resolution_space": [
+        "public couple",
+        "break under the secrecy",
+        "partial reveal — C4 knows, block doesn't"
+      ],
+      "spectator_tells": [
+        "chalkboard doodles converging",
+        "simultaneous unexplained absences",
+        "C3's 17:00–21:00 undisclosed stops",
+        "framed sketches 'for a friend'"
+      ],
+      "residue_on_resolution": "C4's friendship with both renegotiates permanently; Marisol's hurt-at-concealment thread opens",
+      "state": "pressured",
+      "tell_ladder": {
+        "whisper": [
+          "chalkboard doodles drifting",
+          "an unclaimed sketch framed 'for a friend'"
+        ],
+        "pressure": [
+          "simultaneous unexplained absences",
+          "the chalkboard figure converging",
+          "Dani's 17:00–21:00 undisclosed stops"
+        ],
+        "brink": [
+          "a held glance a beat too long in a shared kitchen",
+          "two arrivals separated by ninety seconds",
+          "Dani sharp where she's usually funny when Priya's name comes up"
+        ]
+      }
+    },
+    {
+      "id": "S4",
+      "title": "Jules's unpermitted tenancy at 9418-A",
+      "fuse": "F1",
+      "holders": [
+        "C2",
+        "C6"
+      ],
+      "suspects": [],
+      "must_not_know": [
+        "C7"
+      ],
+      "pressure_routes": [
+        "sale process → inspections/paperwork (S1)",
+        "any lease-registry attention on 9418",
+        "C6's protectiveness — she hides threats from C2"
+      ],
+      "reveal_vectors": [
+        "inspection/notice reaching the building",
+        "C7 connecting 'a friend of Carmen's family' to a resident"
+      ],
+      "resolution_space": [
+        "regularized lease (only via real lease system)",
+        "discovery → housing loss",
+        "F1 resolving away removes the pressure entirely"
+      ],
+      "spectator_tells": [
+        "cash rent has no paper trail — invisible until it isn't",
+        "C2's sketchbook presence at 9418 at odd hours"
+      ],
+      "residue_on_resolution": "if discovered: C6's fragility (S5) and C2's belonging both crack at once — the compounding case",
+      "state": "dormant",
+      "tell_ladder": {
+        "whisper": [
+          "cash envelopes",
+          "a name on no doorbell"
+        ],
+        "pressure": [
+          "the sketchbook at 9418 at odd hours",
+          "mail addressed to no one the building knows"
+        ],
+        "brink": [
+          "Jules gone before any knock finishes",
+          "Carmen answering doors meant for the whole house"
+        ]
+      }
+    },
+    {
+      "id": "S5",
+      "title": "Carmen has nowhere else to go",
+      "fuse": "F5",
+      "holders": [
+        "C6"
+      ],
+      "suspects": [
+        "C4"
+      ],
+      "must_not_know": [
+        "C2"
+      ],
+      "pressure_routes": [
+        "S1/S4 any movement",
+        "health tick — stairs, hands, a missed park day (gentle + rare only, §3-F5)"
+      ],
+      "reveal_vectors": [
+        "she chooses to tell someone — earned intimacy, never exposure",
+        "a letter she can't hide"
+      ],
+      "resolution_space": [
+        "the block earns the right to help (exchange, not charity)",
+        "S1 resolves against her and the worst case is real",
+        "the son in Sacramento becomes a real option"
+      ],
+      "spectator_tells": [
+        "the stoop empty at cafecito hour",
+        "declining a walk she loves",
+        "hemming volume up — income anxiety in work"
+      ],
+      "residue_on_resolution": "whatever happens, her archive role deepens — the block's memory is also its conscience",
+      "state": "dormant",
+      "tell_ladder": {
+        "whisper": [
+          "the stoop occupied like a claim",
+          "thirty years of plants"
+        ],
+        "pressure": [
+          "hemming volume up",
+          "the stoop empty once at cafecito hour",
+          "a declined walk"
+        ],
+        "brink": [
+          "a letter read twice then moved to the side of the house Jules doesn't see",
+          "the son's call taken inside, voice low"
+        ]
+      }
+    },
+    {
+      "id": "S6",
+      "title": "Tomás's $6k handshake loan from Victor + La Esperanza plan",
+      "fuse": "F1",
+      "holders": [
+        "C7",
+        "C8"
+      ],
+      "suspects": [],
+      "must_not_know": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "pressure_routes": [
+        "S1 — sale makes the loan callable/creditorless at the worst moment",
+        "the supplier loop compounding: prices learned, plan ripening"
+      ],
+      "reveal_vectors": [
+        "the notebook glimpsed/found (physical object)",
+        "S1 resolution forcing the loan conversation",
+        "C8 choosing to show someone the plan"
+      ],
+      "resolution_space": [
+        "dream advances on F1's outcome",
+        "dream survives F1 by rerouting",
+        "plan stays paper — patience past the window"
+      ],
+      "spectator_tells": [
+        "supplier-loop linger",
+        "the notebook present, closed, guarded",
+        "the 3 p.m. coffee as fixed point"
+      ],
+      "residue_on_resolution": "the loan's existence rewrites the C7↔C8 friendship whichever way it lands",
+      "state": "dormant",
+      "tell_ladder": {
+        "whisper": [
+          "the notebook present, closed, guarded",
+          "supplier-loop linger"
+        ],
+        "pressure": [
+          "catalog linger lengthening",
+          "prices recited from memory",
+          "the notebook almost opened in company"
+        ],
+        "brink": [
+          "the notebook set on the table between two people and not opened",
+          "a sentence beginning 'if the building—' abandoned"
+        ]
+      }
+    },
+    {
+      "id": "S7",
+      "title": "Tomás's unrequited devotion to Marisol",
+      "fuse": "F4",
+      "holders": [
+        "C8"
+      ],
+      "suspects": [],
+      "must_not_know": [
+        "C1"
+      ],
+      "pressure_routes": [
+        "F1 hitting C1 hardest — his instinct to help vs. her one-way intimacy",
+        "any S2 surface event mobilizing the block around her"
+      ],
+      "reveal_vectors": [
+        "near-miss confessions — renewable, spend slowly",
+        "she finally reads him (rare — her blind spot is the joke)",
+        "a third party's observation — legible to viewers first"
+      ],
+      "resolution_space": [
+        "stated at last",
+        "redirected into La Esperanza",
+        "permanent almost — some fuses don't burn down"
+      ],
+      "spectator_tells": [
+        "the 3 p.m. coffee duration creep",
+        "what he cooks vs. what he says"
+      ],
+      "residue_on_resolution": "any outcome changes the 3 p.m. ritual — the block's most watched appointment",
+      "state": "dormant",
+      "tell_ladder": {
+        "whisper": [
+          "the 3 p.m. coffee as fixed point"
+        ],
+        "pressure": [
+          "duration creep past 3:40",
+          "what he cooks versus what he says",
+          "ingredients 'that were going to waste'"
+        ],
+        "brink": [
+          "a plan spoken in the conditional with her name inside it",
+          "the coffee going cold while a sentence waits"
+        ]
+      }
+    },
+    {
+      "id": "S8",
+      "title": "Jules falling for Priya",
+      "fuse": "F3",
+      "holders": [
+        "C2"
+      ],
+      "suspects": [],
+      "must_not_know": [
+        "C4",
+        "C5"
+      ],
+      "pressure_routes": [
+        "S3 surfacing — C4's orbit reshuffles and C2 witnesses wreckage",
+        "daily counter proximity (C4's 19:30 decompression vs. café closing)"
+      ],
+      "reveal_vectors": [
+        "latte art / held eye contact — bible-sanctioned, viewer-legible first",
+        "C2's sketchbook content",
+        "never by S3's mechanics — conflating them cheapens both (§3-F3)"
+      ],
+      "resolution_space": [
+        "named eventually, in C2's slow time",
+        "self-sabotaged by the correspondent pose",
+        "quietly banked as the thing that made them stay"
+      ],
+      "spectator_tells": [
+        "latte art",
+        "eye contact held a beat too long",
+        "the sketchbook's recurring figure"
+      ],
+      "residue_on_resolution": "C2's staying-vs-correspondent question gets a real stake",
+      "state": "dormant",
+      "tell_ladder": {
+        "whisper": [
+          "latte art",
+          "a recurring figure in the sketchbook"
+        ],
+        "pressure": [
+          "eye contact a beat too long",
+          "the 19:30 decompression coinciding with closing",
+          "one question too many"
+        ],
+        "brink": [
+          "the sketchbook's figure recognizably Priya to any viewer",
+          "Jules narrating a goodbye to Portland friends that doesn't include leaving"
+        ]
+      }
+    },
+    {
+      "id": "S9",
+      "title": "Marcus's chronic rent arrears",
+      "fuse": "F2",
+      "holders": [
+        "C4",
+        "C5"
+      ],
+      "suspects": [
+        "C7"
+      ],
+      "must_not_know": [],
+      "pressure_routes": [
+        "the contested hike at 9457 (lease ledger — live)",
+        "C4's tally (S10)",
+        "S1 — arrears matter differently under a new owner"
+      ],
+      "reveal_vectors": [
+        "lease-system surface: notices are real documents",
+        "C4 naming it — her choice, her timing"
+      ],
+      "resolution_space": [
+        "paid + named",
+        "absorbed into whatever S3's surface does to the flat",
+        "becomes a lease-ledger fact under sale pressure"
+      ],
+      "spectator_tells": [
+        "Sunday cooking cadence (penance nobody names)",
+        "flat-labor imbalance visible at 9457's door"
+      ],
+      "residue_on_resolution": "the flat's economics are public-adjacent knowledge afterward",
+      "state": "pressured",
+      "tell_ladder": {
+        "whisper": [
+          "Sunday cooking",
+          "the errand that always appears near the first"
+        ],
+        "pressure": [
+          "envelope math at the counter",
+          "the hike dispute live in the ledger",
+          "generosity with his last $20"
+        ],
+        "brink": [
+          "a number said out loud to no one",
+          "Priya covering a ledger gap in public without looking at him"
+        ]
+      }
+    },
+    {
+      "id": "S10",
+      "title": "Priya's tally of shared labor + stalled life",
+      "fuse": "F2",
+      "holders": [
+        "C4"
+      ],
+      "suspects": [],
+      "must_not_know": [],
+      "pressure_routes": [
+        "every block crisis recruits her as helper (caretaking reflex)",
+        "S9 + the hike + the dead heater compounding"
+      ],
+      "reveal_vectors": [
+        "she names it — always her own pacing",
+        "a visible refusal to absorb — legible because it's unlike her"
+      ],
+      "resolution_space": [
+        "the flat's labor renegotiates",
+        "her stalled life unpauses on its own track (job, love, move — open)"
+      ],
+      "spectator_tells": [
+        "doing the shared labor visibly",
+        "a pause before 'you two good?'",
+        "the dead heater as emblem"
+      ],
+      "residue_on_resolution": "she stops being the block's unpaid load-bearing wall — or stops pretending she isn't",
+      "state": "pressured",
+      "tell_ladder": {
+        "whisper": [
+          "shared labor done visibly",
+          "the dead heater unfixed"
+        ],
+        "pressure": [
+          "a pause before 'you two good?'",
+          "check-ins that are also audits"
+        ],
+        "brink": [
+          "a refusal to absorb — legible because it's unlike her",
+          "the heater named out loud as a fact about the flat"
+        ]
+      }
+    }
+  ],
+  "knowledge_matrix_note": "authoritative per-seed 'holders'/'must_not_know' fields above; prose table in drama-notes.md §5. A character can only reveal what it holds and only distort what it heard (§10).",
+  "tension_edges": [
+    {
+      "pair": [
+        "C1",
+        "C7"
+      ],
+      "axis": "she holds the flyer to his secret; he doesn't read blogs",
+      "fuse": "F1/F6"
+    },
+    {
+      "pair": [
+        "C3",
+        "C5"
+      ],
+      "axis": "asymmetric keepers — he wants to tell, she delays",
+      "fuse": "F2"
+    },
+    {
+      "pair": [
+        "C4",
+        "C7"
+      ],
+      "axis": "contested hike + dead heater — polite standoff, ledger-backed",
+      "fuse": "F1"
+    },
+    {
+      "pair": [
+        "C4",
+        "C5"
+      ],
+      "axis": "amicable exes; her tally, his penance, the secret between them",
+      "fuse": "F2"
+    },
+    {
+      "pair": [
+        "C6",
+        "C7"
+      ],
+      "axis": "30-year friendship vs. the drawer he's not opening",
+      "fuse": "F1/F5"
+    },
+    {
+      "pair": [
+        "C7",
+        "C8"
+      ],
+      "axis": "handshake creditor — warmest and most dangerous tie",
+      "fuse": "F1"
+    },
+    {
+      "pair": [
+        "C8",
+        "C1"
+      ],
+      "axis": "the 3 p.m. coffee; he telegraphs daily, she can't see it",
+      "fuse": "F4"
+    },
+    {
+      "pair": [
+        "C2",
+        "C4"
+      ],
+      "axis": "crush legible to viewers before any character",
+      "fuse": "F3"
+    },
+    {
+      "pair": [
+        "C2",
+        "C6"
+      ],
+      "axis": "mutual hiding-as-care — she hides threats, he hides scale of stakes",
+      "fuse": "F5"
+    },
+    {
+      "pair": [
+        "C1",
+        "C3"
+      ],
+      "axis": "sister-figure who'd be hurt by both the secret and its concealment",
+      "fuse": "F2"
+    }
+  ],
+  "pacing_knobs": {
+    "pressure_budget": {
+      "baseline": "one fuse pressured, one slow-ticking",
+      "sweeps_week": "two pressured",
+      "ceiling": "three — shed before adding",
+      "compounding_exception": "interlocked fuses (F1→F2→F5) may share a pressured window as one event seen from different sides"
+    },
+    "quiet_floor": "most days: zero surfaced-drama movement; quiet feed events are correct content",
+    "recovery_window_days": [
+      2,
+      4
+    ],
+    "season_preference": "F1 last to resolve; F2 likeliest early surface; F3/F4 slow-burn; F5 undertow (gentle ticks only); F6 fires mid-arc, never first",
+    "never": [
+      "inject a fact",
+      "force a reveal",
+      "schedule a consequence",
+      "steer toward a requester's intent",
+      "pace via admin actions",
+      "pressure F5 beyond a gentle tick"
+    ]
+  },
+  "rumor_policy": {
+    "domain": "only distorts already-public/surfaced events — never mints seed facts",
+    "distortion_shape": "drifts to teller bias; moral-valenced distortions persist longest; corrections are spectator-visible beats via rumor outcome",
+    "ambient_rule": "carriers only, never authors of fact"
+  },
+  "player_request_rule": "approved requests are weather, not levers: identical requested/unrequested events exert identical pressure; outcomes always belong to the characters",
+  "spectator_legibility_rule": "every dramatic movement must cast a camera-legible shadow without revealing the secret (drama-notes §12 table is canonical)",
+  "note_grammar": {
+    "doc": "drama-notes §13 — the only legal forms a direction note may take",
+    "legal_forms": [
+      "disposition",
+      "condition",
+      "weight",
+      "protection"
+    ],
+    "falsification_test": "if the feed could confirm/refute it in a week, it is an outcome claim — rewrite as a weight",
+    "banned_forms": [
+      "trigger",
+      "outcome",
+      "schedule",
+      "dialogue",
+      "interior resolution"
+    ]
+  },
+  "pressure_catalog": [
+    {
+      "id": "P-01",
+      "condition": "sale-process activity near the Guerrero buildings",
+      "produced_by": "S1's world facts (sale mechanics)",
+      "feeds": [
+        "F1",
+        "F5",
+        "S4"
+      ],
+      "legible_shadow": "clipboard stranger; notice-shaped letter",
+      "exhaustion": "never twice in a week; paperwork is slow"
+    },
+    {
+      "id": "P-02",
+      "condition": "kitchen compression — mains crowded into shared indoor space",
+      "produced_by": "weather layer, requested events, ambient schedules",
+      "feeds": [
+        "F2",
+        "F3",
+        "F4"
+      ],
+      "legible_shadow": "venue co-presence on feed; borrowed umbrellas",
+      "exhaustion": "one shared-space squeeze per pressured window"
+    },
+    {
+      "id": "P-03",
+      "condition": "a physical object changing hands in public (flyer/notebook/sketchbook)",
+      "produced_by": "character carry routines",
+      "feeds": [
+        "F1",
+        "F4",
+        "F6"
+      ],
+      "legible_shadow": "object seen, contents unseen",
+      "exhaustion": "objects move rarely; a lost object is off-register"
+    },
+    {
+      "id": "P-04",
+      "condition": "Victor's counter hours going irregular",
+      "produced_by": "C7 disposition under pressure",
+      "feeds": [
+        "F1"
+      ],
+      "legible_shadow": "closed-door hours; missed Tuesday repairs",
+      "exhaustion": "his avoidance is the tell — don't stack other signs"
+    },
+    {
+      "id": "P-05",
+      "condition": "Mars's pointed-question loop",
+      "produced_by": "C1 deliberation",
+      "feeds": [
+        "F6",
+        "F1"
+      ],
+      "legible_shadow": "questions that answer themselves on her rounds",
+      "exhaustion": "twice on the same fact = audience has it — stop"
+    },
+    {
+      "id": "P-06",
+      "condition": "Sunday cooking cadence",
+      "produced_by": "C5 penance reflex",
+      "feeds": [
+        "F2",
+        "S9"
+      ],
+      "legible_shadow": "weekly flat cooking, unnamed",
+      "exhaustion": "never let anyone name it; naming ends the fuel"
+    },
+    {
+      "id": "P-07",
+      "condition": "Carmen missing a ritual",
+      "produced_by": "C6 fragility ticks",
+      "feeds": [
+        "F5"
+      ],
+      "legible_shadow": "empty stoop; Esther/Ray noticing bench math",
+      "exhaustion": "gentle + rare only — hard cap once per arc"
+    },
+    {
+      "id": "P-08",
+      "condition": "Tomás's supplier loop lengthening",
+      "produced_by": "C8 dream rehearsing",
+      "feeds": [
+        "F1",
+        "S6",
+        "F4"
+      ],
+      "legible_shadow": "pricing equipment; catalog linger",
+      "exhaustion": "pressure is duration, not new stops"
+    },
+    {
+      "id": "P-09",
+      "condition": "chalkboard figure converging",
+      "produced_by": "C3's art telling on her",
+      "feeds": [
+        "F2"
+      ],
+      "legible_shadow": "a doodle viewers recognize before the block does",
+      "exhaustion": "one legible step per pressured window"
+    },
+    {
+      "id": "P-10",
+      "condition": "quiet itself — a day where nothing moves",
+      "produced_by": "the block's ordinary life",
+      "feeds": [
+        "all"
+      ],
+      "legible_shadow": "quiet feed events; clean routines",
+      "exhaustion": "a floor, not a resource to spend"
+    },
+    {
+      "id": "P-11",
+      "condition": "first-of-month rent day",
+      "produced_by": "the lease ledger's own cadence",
+      "feeds": [
+        "F1",
+        "S9"
+      ],
+      "legible_shadow": "envelopes; ledger postings; the month's small talk",
+      "exhaustion": "monthly by construction — the calendar is the cap"
+    },
+    {
+      "id": "P-12",
+      "condition": "a hire's first week on the block",
+      "produced_by": "creation + housing move-in (drama-notes §23)",
+      "feeds": [
+        "all"
+      ],
+      "legible_shadow": "a new face at venues; introductions; wrong-order coffee",
+      "exhaustion": "once per move-in; a hire is texture, not a pressure engine"
+    },
+    {
+      "id": "P-13",
+      "condition": "a shared chore left undone at 9457",
+      "produced_by": "the flat's routines + C5's absence patterns",
+      "feeds": [
+        "S9",
+        "S10"
+      ],
+      "legible_shadow": "the dishes; the dead heater; who carried the trash out",
+      "exhaustion": "weekly cap — background, not event; two undone chores is already loud"
+    },
+    {
+      "id": "P-14",
+      "condition": "the son's monthly call",
+      "produced_by": "C6's family contact routine",
+      "feeds": [
+        "F5"
+      ],
+      "legible_shadow": "Carmen quieter after the phone; the call she steps inside for",
+      "exhaustion": "monthly; F5's gentle-and-rare cap still governs"
+    },
+    {
+      "id": "P-15",
+      "condition": "blog-post expectation cycle",
+      "produced_by": "F6's own cadence — regulars expect a Mission Unfiltered post",
+      "feeds": [
+        "F6"
+      ],
+      "legible_shadow": "ambient chatter: 'anything new on Unfiltered?'",
+      "exhaustion": "expectation decays naturally; can't be forced, only noticed"
+    }
+  ],
+  "state_evidence": {
+    "doc": "drama-notes §21 — what qualifies as a ledger observation per transition; absence is never a transition and evidence must be reconstructible",
+    "dormant_to_pressured": {
+      "qualifying": [
+        "a canonical-ledger event traceable to a listed pressure_route within ~3 block days (a real document, a real co-presence, a real routine deviation)"
+      ],
+      "not_evidence": [
+        "manager intent to spend",
+        "spectator chatter",
+        "a near-miss that produced no ledger event",
+        "another seed already being pressured"
+      ]
+    },
+    "pressured_to_surfaced": {
+      "qualifying": [
+        "the underlying fact crossing to a must_not_know member via a listed reveal_vector, with a spectator-legible shadow per §12"
+      ],
+      "not_evidence": [
+        "a rumor — rumors distort the surfaced, they cannot mint seed facts (§10)",
+        "an interior realization — all knowledge-crossing is event-mediated",
+        "player hope"
+      ]
+    },
+    "surfaced_to_resolved": {
+      "qualifying": [
+        "a resolution_space option closed by an observable decision-event — a signing, a telling, a publishing, a refusal enacted"
+      ],
+      "not_evidence": [
+        "time passing",
+        "the block going quiet",
+        "absence from the feed"
+      ]
+    },
+    "resolved_to_residue": {
+      "qualifying": [
+        "automatic — the aftermath lands as ordinary world events (§15) and the seed stops consuming budget"
+      ],
+      "not_evidence": [
+        "anything requiring adjudication — residue needs none"
+      ]
+    }
+  },
+  "drift_review": {
+    "doc": "drama-notes §22 — weekly editorial pass; writes to notes, drama.json, and budget posture only — never to the world",
+    "cadence": "once per block week",
+    "steps": [
+      "re-infer all seed states from the ledger per state_evidence",
+      "compare against week-shape target — a stacked week emergence produced is canon, just not repurchased",
+      "if emergence reordered the season preference, update notes + season_preference in one commit and log it",
+      "audit legible shadows — a state move with no §12 shadow is a fix-forward violation, never a history rewrite",
+      "set next week's posture — a preference among conditions, not a plan"
+    ],
+    "writes": [
+      "drama-notes.md",
+      "drama.json",
+      "budget posture"
+    ],
+    "never_writes": [
+      "world state",
+      "the canonical ledger",
+      "character interiors"
+    ]
+  },
+  "hire_rules": {
+    "doc": "drama-notes §23 — player-hired characters live inside the sim but outside the seed architecture",
+    "rules": [
+      "a hire holds no seeds at creation and starts outside every knowledge wall",
+      "a hire learning a seed fact through play is legitimate canon — the matrix gains them via ledger, never briefing",
+      "hires are never pressure instruments — the manager may not spend budget through a hire's schedule",
+      "hires are near-miss surfaces and rumor relays; they carry accounts, never author seed facts they haven't learned",
+      "an offline hire (thin-AI fallback) suspends nothing — the world owes no held beat",
+      "a hire pressing a boundary produces ordinary in-character refusal — refusal is content"
+    ]
+  },
+  "teller_biases": [
+    {
+      "id": "A05",
+      "name": "Esther",
+      "bias": "compress — drop specifics, keep the moral shape",
+      "never": "add a detail they didn't hear",
+      "minor_safe": false
+    },
+    {
+      "id": "A19",
+      "name": "Ray",
+      "bias": "compress — drop specifics, keep the moral shape",
+      "never": "add a detail he didn't hear",
+      "minor_safe": false
+    },
+    {
+      "id": "A03",
+      "name": "Malik",
+      "bias": "inflate prices and scale — every number grows",
+      "never": "change who",
+      "minor_safe": false
+    },
+    {
+      "id": "A04",
+      "name": "June",
+      "bias": "get venue and day wrong, get the vibe right",
+      "never": "carry moral injury or any fact about a person's safety or housing — minor distortion stays comic",
+      "minor_safe": true
+    },
+    {
+      "id": "A20",
+      "name": "Zee",
+      "bias": "get venue and day wrong, get the vibe right",
+      "never": "carry moral injury or any fact about a person's safety or housing — minor distortion stays comic",
+      "minor_safe": true
+    },
+    {
+      "id": "A01",
+      "name": "Reyes",
+      "bias": "repeat-with-awkwardness — hesitation, hedges, a pause",
+      "never": "add content — his tell is delivery, not substance",
+      "minor_safe": false
+    },
+    {
+      "id": "A02",
+      "name": "Doro",
+      "bias": "near-zero distortion — precise and boring; a rumor through Doro is almost a correction",
+      "never": "let a correction sound like gossip",
+      "minor_safe": false
+    },
+    {
+      "id": "A15",
+      "name": "Omar",
+      "bias": "amplify stakes — 'might sell' becomes 'definitely selling'",
+      "never": "invent a source",
+      "minor_safe": false
+    },
+    {
+      "id": "A10",
+      "name": "Gus",
+      "bias": "age everything — 'it's always been like this'",
+      "never": "update a stale rumor with fresh detail",
+      "minor_safe": false
+    },
+    {
+      "id": "A07",
+      "name": "Luz",
+      "bias": "redirect to stall specifics — what's stocked, who's staffing",
+      "never": "carry the emotional center of a story",
+      "minor_safe": false
+    },
+    {
+      "id": "A13",
+      "name": "Nadia",
+      "bias": "deadpan-flatten — the drama shrinks in retelling",
+      "never": "dramatize",
+      "minor_safe": false
+    },
+    {
+      "id": "A18",
+      "name": "Ida",
+      "bias": "formalize — a story becomes 'a situation' with procedures attached",
+      "never": "gossip about health or money specifics",
+      "minor_safe": false
+    }
+  ],
+  "teller_default": "unlisted ambients: drift toward teller interest, shed detail each hop, moral valence last to fade; a correction traveling the same biases undistorts",
+  "stall_policy": {
+    "definition": "all seeds dormant AND nothing spent because no pressure route fired on its own — a stall is not a failure",
+    "correct_response": "nothing — P-10 is the floor; the show is the block's ordinary life",
+    "never": [
+      "inject a fact",
+      "manufacture a coincidence",
+      "warm a fuse whose routes haven't produced"
+    ],
+    "season_boundary": "no finale mechanic; when 3+ fuses sit in residue, the next drift review may declare a boundary looking backward — residue becomes the new fuse map's raw material; a boundary is never aimed at"
+  },
+  "aftermath_arcs": [
+    {
+      "fuse": "F1",
+      "residue_name": "the trust tax",
+      "texture": "the block's relationship to its landlord now includes a drawer; warmth → polite-and-careful"
+    },
+    {
+      "fuse": "F2",
+      "residue_name": "the renegotiated flat",
+      "texture": "three people re-learning their addresses to each other; Marisol's hurt-at-concealment is the sleeper thread"
+    },
+    {
+      "fuse": "F3",
+      "residue_name": "the witness",
+      "texture": "Jules narrating wreckage adjacent to a crush; the correspondent pose gains a cost"
+    },
+    {
+      "fuse": "F4",
+      "residue_name": "the almost",
+      "texture": "the 3 p.m. coffee is the monument — unspoken or spoken, the ritual's shape is the residue"
+    },
+    {
+      "fuse": "F5",
+      "residue_name": "the exchange",
+      "texture": "help accepted as exchange, not charity; or the archive becomes the block's conscience — texture, not punishment"
+    },
+    {
+      "fuse": "F6",
+      "residue_name": "the named power",
+      "texture": "everyone re-reads old posts looking for themselves; or Mars carries her first secret of her own"
+    }
+  ],
+  "week_shapes": [
+    {
+      "shape": "quiet",
+      "budget": "0 pressured",
+      "feed_texture": "quiet markers, routines, weather",
+      "when": "default; most weeks; recovery windows quiet-start"
+    },
+    {
+      "shape": "pressure",
+      "budget": "1 pressured + 1 slow tick",
+      "feed_texture": "legible shadows on one fuse; ordinary life elsewhere",
+      "when": "baseline dramatic content — the show's pulse"
+    },
+    {
+      "shape": "compounding",
+      "budget": "2–3 pressured, interlocked only",
+      "feed_texture": "one event from different sides; dense group spaces",
+      "when": "rare; earned by genuinely interlocked fuses"
+    },
+    {
+      "shape": "recovery",
+      "budget": "shed to 0 over 2–4 days",
+      "feed_texture": "rumor corrections, visibly changed routines",
+      "when": "mandatory after any surface/resolution"
+    }
+  ],
+  "request_absorption": [
+    {
+      "request_class": "block party / park event",
+      "natural_pressure": "P-02 compression (F2/F3/F4)",
+      "watch": "reveal-hope — identical to unrequested party"
+    },
+    {
+      "request_class": "weather change",
+      "natural_pressure": "P-02 indoor crowding; P-07 visibility",
+      "watch": "rain never targets a ritual — weather is flat"
+    },
+    {
+      "request_class": "hired character moves in",
+      "natural_pressure": "new-neighbor texture; staffing shifts",
+      "watch": "a hire carries no seed knowledge"
+    },
+    {
+      "request_class": "NPC nudge (screened)",
+      "natural_pressure": "the ask itself, not pressure",
+      "watch": "a nudge naming a seed fact = upstream screening failure"
+    },
+    {
+      "request_class": "camera director",
+      "natural_pressure": "none — view layer",
+      "watch": "zero world effect"
+    }
+  ],
+  "identical_twin_test": "would an unrequested instance of this event exert the same pressure? if not, the aim is the player's hope — pressure stays flat anyway",
+  "substrate_handoff": {
+    "state_inference": "pressured = a pressure_route produced a ledger event within recent block days; surfaced = fact crossed to a must_not_know member via a reveal_vector; resolved = resolution_space closed; residue thereafter. Observed, never written.",
+    "data_minimization": "brains receive only held facts via bible context — never the registry, fuse map, or matrix",
+    "manager_reads": [
+      "canonical ledger",
+      "seed registry states",
+      "budget counters"
+    ],
+    "manager_never_reads": [
+      "character interiors",
+      "request text beyond public feed form",
+      "briefing contents"
+    ],
+    "memory_hooks": "rumor pressure rides memory-spec §6.3 distortion; rumor outcome corrections are the spectator-visible half of §6.6 — corrections must be allowed to exist",
+    "budget_mechanics": "pressured-fuse count is the spend; slow ticks cost a fraction; recovery windows are a spend ban, not a refund"
+  },
+  "note_legality_checklist": [
+    "is it a disposition, condition, weight, or protection?",
+    "could the feed falsify it in a week? (outcome claim → rewrite)",
+    "does it move a fact across the knowledge matrix? (injection → illegal)",
+    "does it assume a player request happened? (steering → flat pressure)",
+    "does it name an outcome, even as hope? (delete the outcome)",
+    "would it survive the season going the other way? (else it's a plan)"
+  ],
+  "tell_ladder_rules": {
+    "doc": "drama-notes §28 — graded legible shadows; rungs are a display ceiling, never a to-do list",
+    "rungs": {
+      "whisper": "faint always-available texture — legal in any state",
+      "pressure": "visible pattern — legal only while the seed is pressured or later",
+      "brink": "the loud shadow — legal only while pressured AND a listed reveal vector is live; never contains the fact"
+    },
+    "rules": [
+      "no rung-skipping — a dormant seed never shows pressure/brink shadows",
+      "tells are conditions, not events — the sim decides who finds what",
+      "brink exhaustion: one per pressured seed per drift-review window",
+      "the brink rung never contains the fact — it tops out at 'fairly sure'",
+      "quieting is allowed, silencing isn't — upper rungs stop appearing; shadows are never scrubbed"
+    ]
+  },
+  "venue_dramaturgy": [
+    {
+      "venue": "Mudhaus Coffee counter",
+      "fuses": [
+        "F6",
+        "F4",
+        "F2"
+      ],
+      "shadows_land": "Mars's deliberation; the 3 p.m. coffee; chalkboards and wrong-hour absences",
+      "never": "a seed fact spoken at the counter — the counter hears shadows, not facts"
+    },
+    {
+      "venue": "Auerbach Hardware counter",
+      "fuses": [
+        "F1"
+      ],
+      "shadows_land": "irregular hours; the free fixes; closed-door time",
+      "never": "the offer letter on camera — objects show, contents don't (P-03)"
+    },
+    {
+      "venue": "The 9418 stoop",
+      "fuses": [
+        "F5",
+        "F1"
+      ],
+      "shadows_land": "Carmen's rituals and their absences; who visits the building",
+      "never": "a health event staged for the stoop — F5 ticks happen in life, not on display"
+    },
+    {
+      "venue": "The 9457 flat (door + kitchen)",
+      "fuses": [
+        "F2",
+        "F3"
+      ],
+      "shadows_land": "compression; the Sunday cooking; the tally; Jules's proximity alibis",
+      "never": "an engineered walk-in — doors are the sim's business"
+    },
+    {
+      "venue": "Dolores Park benches (Esther + Ray's row)",
+      "fuses": [
+        "all"
+      ],
+      "shadows_land": "every fuse's echo — the chorus notices bench math",
+      "never": "being a first knower of anything — rumor, never seed fact"
+    },
+    {
+      "venue": "The supplier loop (Las Palmas, Valencia Growers, wholesale rows)",
+      "fuses": [
+        "F1",
+        "F4"
+      ],
+      "shadows_land": "Tomás pricing his dream in public (S6)",
+      "never": "new stops invented for pressure — the loop is his character (P-08)"
+    },
+    {
+      "venue": "Mission Unfiltered (press surface)",
+      "fuses": [
+        "F6"
+      ],
+      "shadows_land": "the only place a private fact can become a block fact",
+      "never": "a post sourced beyond what Mars could plausibly have learned"
+    },
+    {
+      "venue": "Ordinary-life venues (Golden Hour, Buy-Rite, the courier loop)",
+      "fuses": [
+        "all"
+      ],
+      "shadows_land": "the quiet floor — contrast for everything",
+      "never": "drama staging; these venues carry P-10 and that's the point"
+    }
+  ],
+  "venue_rules": [
+    "cross-venue shadows are how viewers triangulate — a whisper at one venue, ordinary day everywhere else",
+    "home venues first — a tell where the holder lives their life beats a staged neutral space; borrowed venues carry echoes"
+  ]
+}

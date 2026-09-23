@@ -1,0 +1,27 @@
+# DNS records spec — Real World launch.
+# Replace realworld-game.example (PLACEHOLDER) with the real domain.
+# TTL: 300 during launch week (fast fixes), raise to 3600+ after stable.
+
+# ── Marketing site (Caddy VPS option) ─────────────────────────────────
+A      @                      <VPS-IPv4>
+AAAA   @                      <VPS-IPv6>          # optional
+CNAME  www                    @
+
+# ── Marketing site (Pages/Netlify option instead — pick ONE) ──────────
+# CNAME/ALIAS per host docs: e.g.  CNAME @  <project>.pages.dev
+#                              CNAME www  <project>.pages.dev
+
+# ── Spectator/game origin ─────────────────────────────────────────────
+A      play                   <GAME-SERVER-IPv4>  # or CNAME if same box:
+# CNAME play                  @                   # when Caddy reverse_proxies it
+
+# ── Analytics backend ─────────────────────────────────────────────────
+A      stats                  <ANALYTICS-IPv4>    # or CNAME @ if same VPS
+
+# ── Mail (only if press@/contact@ addresses are created — G6) ──────────
+# MX     @                    <provider MX>       # e.g. Fastmail/Proton/Google
+# TXT    @                    "v=spf1 ..."        # per provider
+# TXT    _dmarc               "v=DMARC1; p=quarantine; rua=mailto:postmaster@<domain>"
+
+# ── Verification (Search Console / Bing at D0.4) ──────────────────────
+# TXT    @                    <verification-token>  # issued by Search Console

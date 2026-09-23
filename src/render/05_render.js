@@ -66,9 +66,11 @@ function renderWorld(){
   ctx.fillStyle = '#07090e';
   ctx.fillRect(0, 0, cw, ch);
 
-  // Camera smooth follow
+  // Camera smooth follow (skipped while a production-1 spectator view
+  // holds a free/preset framing — SF_CAM_FREE is set per-view by the
+  // multi-camera rig in production/hub_overlay.html)
   const targetPawn = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
-  if(targetPawn){
+  if(targetPawn && !(typeof SF_CAM_FREE !== 'undefined' && SF_CAM_FREE)){
     cam.x += (targetPawn.x - cam.x) * 0.1;
     cam.y += (targetPawn.y - cam.y) * 0.1;
   }
@@ -467,6 +469,11 @@ function renderChibiPawn(v, cw, ch){
     ctx.fillStyle = '#f8fafc';
     ctx.fillText(tag, sx - tw/2, sy - 66 * cam.zoom);
   }
+
+  // production-1: speech bubble above the name tag (sfSayBubble lives in
+  // the SF renderer module; shared script scope, hoisted at call time)
+  if(typeof sfSayBubble === 'function')
+    sfSayBubble(v, sx, sy - 82 * cam.zoom, cam.zoom);
 }
 
 function renderWeatherAtmosphere(cw, ch){

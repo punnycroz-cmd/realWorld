@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Dispatch — Real World Journal</title>
+<meta name="description" content="Notes from the block: devlogs from the build and, after launch, This Week on the Block — a weekly recap sourced from the public request feed.">
+<link rel="canonical" href="https://realworld-game.example/journal.html"><!-- PLACEHOLDER domain: replace at launch -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Real World">
+<meta property="og:title" content="The Dispatch — Real World Journal">
+<meta property="og:description" content="Devlogs from the build now; a weekly recap of the public feed after launch. Only real events — a quiet week gets reported as a quiet week.">
+<meta property="og:url" content="https://realworld-game.example/journal.html"><!-- PLACEHOLDER domain -->
+<meta property="og:image" content="assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Dispatch — Real World Journal">
+<meta name="twitter:description" content="Build notes now; a weekly recap of the block after launch. Only real events.">
+<meta name="twitter:image" content="assets/og-card.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="assets/site.webmanifest">
+<link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#e8a04c">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="journal">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><img src="assets/favicon.svg" width="34" height="34" alt="" style="border-radius:8px"><span>REAL WORLD<small>The Mission</small></span></a>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="cast.html">Cast</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="archive.html">Archive</a>
+      <a href="community.html">Community</a>
+      <a href="journal.html" class="active" aria-current="page">Journal</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+      <a href="rules.html">Rules</a>
+      <a href="press-kit.html">Press kit</a>
+      <a href="brand.html">Brand &amp; assets</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="pill">The Dispatch — devlogs now, block reports at launch</div>
+    <h1>Notes from the block.</h1>
+    <p class="lead">
+      Two formats live here. <b>Devlogs</b> — what we built and why, written
+      while the neighborhood is under construction. And after launch,
+      <b>This Week on the Block</b> — a Sunday recap of what actually happened,
+      sourced from the public request feed and the world's own event ledger.
+      Only real events; a quiet week gets reported as a quiet week.
+    </p>
+  </div>
+</section>
+
+<!-- LATEST POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Latest — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v45</p>
+      <h2>Every door has a tryout.</h2>
+      <p>
+        A "help wanted" card on the block is no longer a prop with a
+        promise — it's a whole ask, written down. All sixteen open roles
+        now carry the full arc: <b>apply → screen → trial → decision</b>.
+        How you apply is specific to the door — a reply card pinned under
+        the listing at Mudhaus, or ask Marisol at the counter before 9:00.
+        Who screens is a named neighbor, not an algorithm: she reads the
+        card replies herself, then watches how you wait for her. The
+        trial is a shift, not a quiz — one paid Saturday rush,
+        7:30–13:00, that passes on unhurried competence under the line
+        and a clean till count, and fails on talking through the rush.
+      </p>
+      <p>
+        Housing got the same treatment. The three live units and the
+        whole ladder — room to house — now carry viewing, packet, and
+        decision: a Saturday 11–1 showing at 9418 Guerrero, opened by
+        Victor himself, who says the rent and lets the flat talk. And the
+        "no" is built with the same care as the "yes": declines are
+        voiced in-world, per channel, in the voice of the door that
+        answered — <i>"Card'll stay up — try the next one."</i> A decline
+        never hits the feed. A spectator sees at most the card come down;
+        never the applicant, never the reason.
+      </p>
+      <p>
+        The boundaries are published as a never-list: no application fee
+        above real screening cost, no rent bidding, no pay-to-interview,
+        trial shifts paid unless the entry says otherwise in plain words,
+        and an application never leaks a secret — screening texture is
+        surface knowledge only. Conditions, never scripts: the same rule
+        the <a href="how-it-works.html">request pipeline</a> lives by.
+      </p>
+      <p class="muted">
+        Sources: the application layer is the world track's
+        <code>world/applications.md</code>/<code>applications.json</code>
+        (v45 — 16 job arcs, 8 housing rows, per-channel decline bank,
+        never-list), demoed in <code>world/apply.html</code>; wages and
+        channels are asserted to agree with <code>jobs.json</code> /
+        <code>market.json</code> by the world audit gate.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v32</p>
+      <h2>The wallet shows its math.</h2>
+      <p>
+        The request form grew a wallet sheet, and it was designed to be
+        boring. Six credit packs, $0.99 to $99.99 — provisional, like
+        every number on <a href="pricing.html">the pricing page</a>. A
+        first-purchase +50% bonus, flagged in the sheet before the first
+        buy — not discovered after it. A $200-a-day spend cap that
+        applies to everyone, including us. Credits that never expire.
+        And an itemized ledger: every debit, every refund, every pack buy
+        and ad earn, line by line — because the feed already shows
+        refunds publicly, and your own money deserves at least that much
+        visibility.
+      </p>
+      <p>
+        The honest parts are the unfashionable ones. Rewarded ads exist —
+        2 credits a view, five a day, twenty-five a week — but they're
+        opt-in from the wallet sheet only. Never a pre-roll, never a
+        mid-session break, never inside the sim view. And when a request
+        is declined, the appeal path is private: a different reviewer, an
+        answer inside 72 hours, and no public spectacle — the feed counts
+        appeals in aggregate, never names them. Two codes can't be
+        appealed (legal backstop, appeal resubmit), and a reversal
+        re-charges only if the request is then approved.
+      </p>
+      <p>
+        Two smaller courtesies shipped in the same pass. Identical
+        weather requests can co-sign a running override instead of
+        queueing — same flat block price, every sponsor named on the feed
+        line, cap of four. And a running session can buy more minutes at
+        its own rate while the class cap allows — 1.5 cr/min for
+        compatible sessions, camera time in +30-minute blocks — with a
+        low balance disabling the button and pointing at the top-up
+        instead of failing mid-session.
+      </p>
+      <p class="muted">
+        Sources: the wallet contract is
+        <code>world/requests.json → wallet</code> (pack ladder, +50%
+        first buy, $200/day cap, ad caps, ledger rule); appeal semantics
+        mirror <code>world/moderation.json → appeal_flow</code>;
+        co-sponsor rides the game track's <code>GS_WX_OVR.sponsors</code>
+        merge target; the numbers adopt the monetization plan verbatim
+        and carry the same provisional flag as
+        <a href="pricing.html">the pricing page</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
+      <h2>Now hiring: the block posts real jobs.</h2>
+      <p>
+        The job board on the wall at Mudhaus stopped being set dressing.
+        Every open role on the block now moves through a real lifecycle —
+        <b>posted → screening → trial → filled</b> — with a reposted card
+        meaning exactly what it means on a real corkboard: the last person
+        washed out or took something else. And the board is only one of
+        four hiring channels. Some openings go through the gig app, some
+        through an institutional portal, and the best ones travel by word
+        of mouth — invisible to the board by construction. A spectator
+        learns about those the way neighbors do: somebody mentions it.
+      </p>
+      <p>
+        For players, hiring is now a first-class request. A
+        <b>character hire</b> filing (500 credits, flat) brings a new
+        resident onto the block through the ordinary application path —
+        structured application, a name check against the whole cast and
+        crew, a pre-payment disclosure card that shows the full quote
+        before anything is billed, and a charge that only lands if the
+        hire is approved. Denied applications never bill. Hired residents
+        take a real opening off the finite job board, start at the room
+        tier like everyone else, and are bound by the same math as the
+        cast: rent stays under roughly 55% of what the job pays, and a
+        hire package can only move them in through a lease that clears.
+      </p>
+      <p>
+        Once hired, they live by the block's clock — job-anchored routines,
+        a Friday payroll that runs employer to character every SF Friday,
+        and the same ordinary life as everyone on the
+        <a href="cast.html">cast page</a>. On the feed it shows up the way
+        the rest of the block's news does — a job start, a move — as
+        ordinary events, not spectacle. See the request classes on
+        <a href="how-it-works.html">how it works</a>.
+      </p>
+      <p class="muted">
+        Sources: the market layer is the world track's
+        <code>world/market.md</code>/<code>market.json</code> (opening
+        lifecycle, four channels, churn table, ladders — INTERNAL tier,
+        conditions never scripts); the hire request and its economics ship
+        in the game track's <code>41_game_systems_hiring.js</code> (flat
+        500 billed on approval, finite openings, 55% ceiling, Friday
+        payroll); the request contract is <code>world/requests.json</code>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
+      <h2>Meet the venues.</h2>
+      <p>
+        The block's twenty-five businesses are people now — at least on
+        paper. Every parody storefront on the map graduated from a name on
+        a fascia to a registry entry: what it is, when it opens, who works
+        it, what you can do there, what things cost in game dollars.
+        Mudhaus Coffee, Taqueria El Farolote, Auerbach Hardware, Buy-Rite
+        Market, The 600 Club, Baguette About It Bakery — and four doors
+        promoted most recently: Golden Hour Laundromat, The Dusty Spine,
+        Marooned Records, The Musket. Each has its own card in the world
+        canon.
+      </p>
+      <p>
+        It matters because the world keeps venue hours. The Directory —
+        the internal demo over the registry — shows which doors are open
+        at whatever time you look, by the block's own clock. A 2 a.m.
+        request aimed at a closed bakery behaves like a 2 a.m. request
+        aimed at a closed bakery: it queues or it waits. Venues aren't
+        set dressing; they're resources with schedules the request
+        pipeline respects.
+      </p>
+      <p>
+        The newest layer is the one you can't fully see. The venues now
+        link to each other — supplier runs, crowd spillover, rivalry
+        pressure, shared regulars, gossip routes — fourteen edges the
+        simulation may notice and is never obliged to act on. Most of that
+        mesh is public knowledge; one edge is deliberately kept off public
+        surfaces, like every secret on the block.
+      </p>
+      <p>
+        And a standing reminder of the naming law: every business on the
+        block is a parody — GTA-style imitation, never a real Mission
+        business. Streets and landmarks stay real (Dolores Park doesn't
+        need a stage name); businesses get fictional ones. If a request
+        names a real business, the form suggests the parody instead.
+      </p>
+      <p class="muted">
+        Sources: the venue registry is <code>world/businesses.json</code> +
+        the per-venue cards in <code>world/businesses/</code>; the
+        venue-to-venue mesh is its <code>web</code> block; the naming
+        policy is <code>world/businesses.md</code>; the full cast of
+        regulars is on the <a href="cast.html">cast page</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
+      <h2>The Archive: the block keeps its receipts.</h2>
+      <p>
+        Last week the Wire learned to hand out permalinks. This week it learned
+        what they're for. The spectator layer now has a second surface:
+        <b>the Archive</b> — a public history browser where every day the feed
+        has ever written stays whole, browsable, and free.
+      </p>
+      <p>
+        One record, five ways in. Read <b>by day</b>, with an hour-strip that
+        shows where the action clustered and marks today
+        <i>still-being-written</i> through the last completed hour. Read
+        <b>by person</b> or <b>by venue</b> — cross-day trails built from the
+        record's own fields, never string-matched, so a trail can't see what
+        isn't there. Read the <b>word on the block</b> board, where rumors are
+        place-sourced, always marked UNCONFIRMED, and settled with an outcome
+        line when the block resolves them. Or read <b>the ledger</b>: every
+        request event and admin action, verbatim — payer handles, status chips,
+        declared credits, compensation when an admin touch affected a filing.
+        The archive doesn't sanitize who paid.
+      </p>
+      <p>
+        The honesty rules are the feature. Stretches with nothing public render
+        as <i>off the feed</i> gaps — uncovered time is stated, never
+        interpolated. A person with no public record reads
+        <i>"nothing public on record"</i> instead of a guess. Denied requests
+        show their outcome; the screened text was never written, so it cannot
+        be found here. And a badge keeps the two data sources honest —
+        <b>live archive</b> or <b>demo archive</b>; the demo never impersonates
+        live. There is nothing to click that touches the world: a trail is
+        reading, never reach.
+      </p>
+      <p>
+        Best of all, the seams hold: a <code>#e=</code> link shared from the
+        live Wire resolves in the Archive the next day, unchanged. The recap
+        rule survives the night — <i>if we can't link it, it didn't
+        happen.</i> The full tour is on the new
+        <a href="archive.html">Archive page</a>.
+      </p>
+      <p class="muted">
+        Sources: the history browser ships in the world track's
+        <code>world/archive.html</code> + <code>world/archive-ui.md</code>
+        (five views, permalink table, honesty rules); the schema is
+        <code>world/history.json</code>; live data rides the game track's
+        <code>gsWireDays</code>/<code>gsWireArchiveDay</code> contract.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v28</p>
+      <h2>The Wire: every event gets a permalink.</h2>
+      <p>
+        The public spectator feed — the free window into the block — now runs
+        end to end. The simulation's event bus projects into the same public
+        schema the site documents: approved requests, queued requests,
+        refunds, declines, moves, weather, all posted as one neutral line each
+        with attribution. Every entry carries a stable id
+        (<code>d0923-14</code>-style) and a permalink; the same id still
+        resolves in the day Archive tomorrow. That's not a cosmetic detail —
+        it's the plumbing behind our recap rule: <i>every line links to the
+        feed entry it reports. If we can't link it, it didn't happen.</i>
+      </p>
+      <p>
+        The spectator app itself is built to be read, not just glanced at:
+        follow-pins on venues and residents, a request's whole lifecycle
+        grouped into one legible trail, an honest <i>"you're caught up"</i>
+        marker at the bottom of the day, and a <b>quiet</b> marker when the
+        block is genuinely quiet — the feed says so instead of manufacturing
+        motion. Denied requests show only their why-class; the screened text
+        is never public anywhere. Admin actions carry their compensation in
+        the open.
+      </p>
+      <p>
+        The same app runs on two data sources with one badge keeping them
+        honest: <b>live</b> when it's reading the build, <b>demo stream</b>
+        when it's replaying seeded events — the demo never impersonates live.
+        You can see the feed vocabulary right now on the
+        <a href="demo.html">watch page</a> and in the recap format preview
+        below.
+      </p>
+      <p class="muted">
+        Sources: the feed projection ships in the game track's
+        <code>41_game_systems_feed.js</code> (stable ids, archive day
+        objects, follow/stats APIs); the spectator surface and its copy
+        contract are the world track's <code>world/wire.html</code> +
+        <code>world/wire-ui.md</code>; the schema is
+        <code>world/feed.json</code>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v28</p>
+      <h2>Rent is due on the first.</h2>
+      <p>
+        A neighborhood where nobody pays rent is a neighborhood where nothing
+        is at stake — so the block runs a lease ledger. All twenty-eight
+        residents hold real housing: deposits paid up front, rent runs on the
+        first of the month, notices when it doesn't clear. Carmen has held
+        her Guerrero Street flat since 1989; Jules rents a room; Victor owns
+        the building and does the Tuesday repairs himself.
+      </p>
+      <p>
+        The economics are balanced to be cozy, not punishing. Wages run in
+        bands — entry shifts (barista, clerk, courier) at $16–20 an hour in
+        game dollars, mid trades at $25–35, specialists like Priya's RN
+        shifts at $40–50, and the retirees on fixed incomes of about
+        $1,600–1,900 a month. Rent is tuned to stay under roughly 45% of the
+        wage it pairs with; groceries, transit, and utilities eat most of the
+        rest. Savings rate is the difficulty knob.
+      </p>
+      <p>
+        One wall stays up forever: game dollars and viewer credits never
+        exchange. You can buy credits to file requests; you cannot buy your
+        way into a resident's wallet, and no resident's rent money ever
+        becomes a payout. The economy is for stakes, not for cashing out.
+      </p>
+      <p class="muted">
+        Sources: wage bands and the 45% rent target are locked in the world
+        track's jobs/housing canon (<code>world/jobs-housing.md</code>);
+        per-building detail lives in <code>world/housing/</code>; the
+        credit–dollar wall is design doc law.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-23 · Development build v28</p>
+      <h2>Every request knocks before it enters.</h2>
+      <p>
+        A request in Real World is a suggestion to a world that can say no —
+        and this week the "no" got teeth. The request pipeline now runs every
+        filing through <b>intent screening</b> before it's priced or queued:
+        one shared screening engine sits behind both the request form you see
+        and the review console our moderators see, so the verdict you get and
+        the verdict a reviewer gets can never drift apart.
+      </p>
+      <p>
+        What gets declined is a short, boring list, and it's published:
+        requests that target a resident's private life, fish for secrets, try
+        to steer a character who isn't yours, meddle in rent or evictions
+        (admin-only powers), impersonate someone, or name a real business —
+        the form will suggest the parody name instead. Declines refund in
+        full, automatically, and on the public feed a declined request is one
+        neutral line — <i>request not approved</i>. No spectacle, no wall of
+        shame.
+      </p>
+      <p>
+        Gray-zone and exclusive requests go to a human reviewer with a target
+        answer inside fifteen minutes, and every decision is appealable. What
+        moderation never touches is the world itself: there is no "report the
+        AI" button, no retcon tool, and the residents' secrets aren't in any
+        schema a reviewer can open. You can try the filing end of this on the
+        <a href="demo.html#request-sim">watch page's request simulator</a> —
+        same classes, same prices, clearly labeled as a simulation.
+      </p>
+      <p class="muted">
+        Sources: the screening engine and reviewer console ship in the world
+        track's v8 tooling (<code>world/screen.js</code>,
+        <code>world/mod-console.html</code>); the reason-code taxonomy and
+        SLA are the machine-readable contract in
+        <code>world/moderation.json</code>. The rules page summarizes the
+        same policy in plain language: <a href="rules.html">Rules &amp; safety</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-23 · Development build v28</p>
+      <h2>How the block learned to look like the Mission.</h2>
+      <p>
+        The first pass at the neighborhood was a flat grid with good bones:
+        real Mission streets around Dolores Park, generated addresses, 28
+        residents on schedule. Twenty-nine art iterations later, the same block
+        has pitched Victorian rooflines, water towers and solar arrays on the
+        flat roofs, pigeons, a sun that actually tracks the hour — long
+        shadows at golden hour, sodium lamps pooling on the sidewalks at
+        dusk — interiors lit behind the storefront glass, and now the last
+        streetscape details: parked cars on the curb, painted gutters, storm
+        drains, and court decals out on Dolores Park.
+      </p>
+      <p>
+        Under the paint, the simulation grew its plumbing: a request pipeline
+        that classifies every intervention (exclusive, compatible, queued),
+        prices it upfront, and refunds what expires; and a lease ledger that
+        gives all 28 residents real housing — deposits, rent runs, notices —
+        because a world where nobody pays rent is a world where nothing is at
+        stake.
+      </p>
+      <p class="muted">
+        The gallery below is the same build, same day — we keep the first-pass
+        shots up for contrast because watching the world improve is half the
+        fun of following a build.
+      </p>
+      <div class="gallery" style="margin-top:14px">
+        <figure><picture><source srcset="shots/v1-A.webp" type="image/webp"><img src="shots/v1-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="First art pass, top-down over the block"></picture><figcaption>v1 — first pass, overhead.</figcaption></figure>
+        <figure><picture><source srcset="shots/v48-A.webp" type="image/webp"><img src="shots/v48-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Current build, same overhead angle"></picture><figcaption>v48 — same angle, forty-seven iterations later: murals, parody signage, fire escapes, real Mission hills, a lived-in ground line, the skyline behind it all.</figcaption></figure>
+        <figure><picture><source srcset="shots/v16-int-cafe.webp" type="image/webp"><img src="shots/v16-int-cafe.png" width="1440" height="900" loading="lazy" decoding="async" alt="New interior vignette — café"></picture><figcaption>New in v16 — interiors behind the glass.</figcaption></figure>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- FORMAT PREVIEW -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Format preview — post-launch</p>
+    <h2>This Week on the Block.</h2>
+    <p class="muted">
+      The weekly recap launches with the game, because it reports on the
+      public feed. Below is the format with <b>illustrative</b> rows — real
+      recaps will only ever describe real feed events.
+    </p>
+    <article class="card journal-post">
+      <p class="post-meta">This Week on the Block · format preview · illustrative</p>
+      <h3>A quiet Tuesday, a loud Saturday.</h3>
+      <div class="feed-preview" aria-label="Illustrative preview of a weekly recap entry list">
+        <div class="feed-row"><span class="feed-time">Week</span><span class="feed-tag tag-run">ran</span><p>21 requests approved — most of them small: a rain hour, two open-mic nights at Mudhaus.</p></div>
+        <div class="feed-row"><span class="feed-time">Sat</span><span class="feed-tag tag-queue">queued</span><p>An exclusive on the prime evening slot queued four hours, then ran at 9 p.m. Surge pricing applied; it's all on the feed.</p></div>
+        <div class="feed-row"><span class="feed-time">Sat</span><span class="feed-tag tag-refund">refunded</span><p>Three requests expired before their slots freed — auto-refunded, as designed.</p></div>
+        <div class="feed-row"><span class="feed-time">Sun</span><span class="feed-tag tag-done">resolved</span><p>A new resident moved in above Auerbach Hardware. The block noticed before we did.</p></div>
+      </div>
+      <p class="muted" style="margin-top:10px">Every line links to the feed entry it reports. If we can't link it, it didn't happen.</p>
+    </article>
+  </div>
+</section>
+
+<!-- CADENCE -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Cadence</p>
+    <h2>What to expect, and when.</h2>
+    <div class="grid grid-3">
+      <div class="card"><h3>Devlog</h3><p>Irregular, while we build — published when there's a real change to show, never on a quota. Each post links the captures it describes.</p></div>
+      <div class="card"><h3>This Week on the Block</h3><p>Sundays, post-launch. Sourced from the public request feed; every claim links to its entry. Quiet weeks stay quiet on the page.</p></div>
+      <div class="card"><h3>Launch notes</h3><p>At launch and at each major update: what changed, what it costs, what we cut and why. The honesty section on the homepage applies here too.</p></div>
+    </div>
+    <p class="muted" style="margin-top:18px">Following along: posts will syndicate to our social channels and the community Discord at launch — see <a href="community.html">Community</a>. An RSS feed ships with the live site.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot-grid">
+    <div>
+      <h4>Real World</h4>
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="cast.html">Cast</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="archive.html">Archive</a>
+      <a href="community.html">Community</a>
+      <a href="journal.html">Journal</a>
+      <a href="rules.html">Rules &amp; safety</a>
+    </div>
+    <div>
+      <h4>Buy</h4>
+      <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div>
+      <h4>Press</h4>
+      <a href="press-kit.html">Press kit</a>
+      <a href="brand.html">Brand &amp; assets</a>
+      <a href="index.html#gallery">Screenshots</a>
+    </div>
+  </div>
+  <div class="wrap foot-note">
+    © <span id="year"></span> Real World team. All characters are fictional; the neighborhood is real geography.
+    This is a pre-launch draft site — no live game is implied.
+  </div>
+</footer>
+
+<script src="js/analytics.js" defer></script><!-- inert until data-endpoint is set; see marketing/ANALYTICS.md -->
+<script src="js/main.js"></script>
+</body>
+</html>
