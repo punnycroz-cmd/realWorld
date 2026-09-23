@@ -838,6 +838,18 @@ needs both.
 | mood_confab_k / mood_crit_shift | 0.0 / 0.0 | 0.5 / 0.25 | mood-matched confab / low-arousal criterion (v5.1) |
 | rep_habit_k / rep_script_gain | 0.0 / 0.0 | 0.4 / 0.5 | recurrence habituation / script consolidation (v5.1) |
 | emo_inertia | 0.0 | 1.0 | mood autocorrelation trait; depr→0.7 (v5.1) |
+| anchor_w / persever_resid | 1.0 / 0.1 | 2.0 / 0.6 | incumbent weight + discredited-anchor residue (v5.2) |
+| test_window / test_pot_mult | 0.5 / 1.0 | 2.0 / 1.8 | recall→misinfo susceptibility leg (v5.2) |
+| own_emit_gain | 0.0 | 0.3 | emitted-answer "claimed" bonus (v5.2) |
+| exp_fill_p / exp_thresh | 0.0 / 0.4 | 0.5 / 0.8 | encode-time schema fill rate/bar (v5.2) |
+| ev_cred / retro_evid | 0.7 / 0.0 | 1.0 / 0.5 | artifact credibility + back-fill (v5.2) |
+| why_mint_p | 0.5 | 1.0 | reason mint rate on probe (v5.2) |
+| fic_penalty / fic_known_prior | 0.2 / 0.0 | 0.8 / 0.4 | story-frame discount + fluency (v5.2) |
+| corrob_root_req / lineage_conf | — / 0.0 | — / 0.8 | genealogy rule + unknown-lineage discount (v5.2) |
+| reappr_k | 0.0 | 0.7 | current-appraisal blend on emitted affect (v5.2) |
+| yield_suscept / shift_suscept | 0.05 / 0.05 | 0.7 / 0.7 | GSS two-factor split (v5.2) |
+| shift_int_frac | 0.1 | 0.7 | internalized fraction of pressured flips (v5.2) |
+| intent_done_p / comm_err_p | 0.0 / 0.0 | 0.3 / 0.5 | intention-completion mint + re-fire (v5.2) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2372,3 +2384,61 @@ trait dials:
   acquire a fear she never lived; (d) old mains' dream reports
   skew to the strong-old archive — write their 20s richly, the
   night draws from there too.
+
+## 37. v5.2 note (false-memory V — the arrival channels)
+
+Clamp rows added in §0 for the v5.2 params. What bible authors should
+actually touch — most of this block is channel machinery, but three
+dials are character-visible:
+
+- **`yield_suscept` / `shift_suscept` (0.05–0.7):** the two dials the
+  old `misinfo_suscept` was hiding. Set them INDEPENDENTLY — the
+  gullible-but-stubborn character (high yield, low shift) swallows
+  every leading hint but never backs down under pressure; the
+  skeptical-but-pliant character (low yield, high shift) resists the
+  story and still folds when challenged. GSS says both phenotypes
+  exist and are stable. Load yield off distrust/wmc channels, shift
+  off neurotic/social-anxiety — a biddable tough-talker is the
+  high-shift/low-yield corner.
+- **`reappr_k` (0–0.7):** how much the present repaints the feeling.
+  The scorekeeper who "was always furious" stays low; the
+  reconciler whose old hurts warm over runs high. Children and
+  elders differ little — Levine found the mechanism at all ages.
+- **`exp_fill_p` (0–0.5):** how much the schema writes at encoding.
+  Push up on characters whose lives run on scripts (the clerk, the
+  creature of habit) — they "remember" the expected detail that
+  wasn't there on the FIRST telling. Push down on the
+  hypervigilant/attentive. Interacts with confab_fill: exp_fill is
+  born in the record, confab arrives at retelling — a high-
+  exp_fill character lies fluently from the start.
+- **`intent_done_p` (0–0.3):** the chore-phantom rate. The
+  distracted multitasker and the rigid routine-holder both run
+  high — for opposite reasons (weak act-encoding vs strong script).
+  The character who believes they paid rent they only meant to pay
+  is this dial.
+- **`fic_penalty`:** mostly flat ~0.5 — it's a channel discount,
+  not a trait. `fic_known_prior` may drift up on the fluent
+  self-assured (they're sure they "already knew" what the story
+  planted).
+- **`anchor_w` / `persever_resid`:** mechanism constants for
+  almost everyone; the exceptionally rigid personality may push
+  anchor_w to 1.8 — first impressions that nothing evicts.
+- **`ev_cred` / `retro_evid`:** skepticism toward artifacts — the
+  suspicious character drops ev_cred to ~0.7; most people sit at
+  the 0.9+ ceiling because fabricated proof is the strongest
+  implant vector measured.
+- **`test_pot_mult` / `own_emit_gain` / `why_mint_p` /
+  `comm_err_p` / `lineage_conf` / `corrob_root_req` /
+  `shift_int_frac` / `test_window` / `exp_thresh`:** mechanism
+  constants — never pin per-character. `why_mint_p` ~1.0 is
+  universal: everyone produces a reason on demand.
+- **Emergent cast shadow:** (a) the first version of any event a
+  character hears becomes their canonical version — rumor TIMING
+  now matters as much as rumor content; (b) a character who was
+  asked about an event yesterday absorbs today's gossip about it
+  faster — interview order is a leak; (c) fabricated proof
+  (doctored artifact) can implant what no amount of telling could;
+  (d) a clique hearing one rumor from one source does not
+  corroborate it — only independent origin chains turn rumor into
+  "fact"; (e) "I meant to" quietly becomes "I did" on the
+  routine chores — rent-payment claims are now falsifiable drama.

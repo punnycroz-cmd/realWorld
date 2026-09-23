@@ -1,4 +1,37 @@
-# Memory Model Spec v5.1 — implementable human-like memory for RW characters
+# Memory Model Spec v5.2 — implementable human-like memory for RW characters
+
+> **v5.2 note (false-memory V — the arrival channels):**
+> `memory/false-memory.md` Part V (§§52–64) prices what the earlier
+> distortion passes left implicit. **First believable account anchors** —
+> the first candidate on an empty field gains incumbent weight and
+> survives source-discrediting at `persever_resid`; only a
+> mechanism-explaining correction evicts it (Ross, Lepper & Hubbard
+> 1975) — §6.75. **Recalling first makes you worse** — a recall within
+> `test_window` RAISES misinformation adoption (`test_pot_mult`), the
+> reversed testing effect (Chan, Thomas & Bulevich 2009); emitted
+> wrong answers consolidate as "claimed" (§6.76). **The schema writes
+> at encoding** — expected-but-absent fields mint verbatim candidates
+> at encode (`exp_fill_p`), present at FIRST recall (Brewer & Treyens
+> 1981) — §6.77. **Proof beats plausibility** — `presentEvidence`
+> (doctored artifact) sets `ev_cred` ceiling, bypasses plaus_min,
+> back-fills encoding-condition candidates (Wade et al. 2002; Kassin &
+> Kiechel 1996) — §6.78. **"Why" is minted on demand** — reason/motive
+> fields never encode, always confabulate fluently on first probe
+> (Nisbett & Wilson 1977) — §6.79. **Fiction plants facts** —
+> story-framed accounts adopt at `fic_penalty`, not zero (Marsh, Meade
+> & Roediger 2003) — §6.80. **Corroboration needs genealogy** —
+> believe_p counts independent provenance roots only; N hearers of one
+> origin are one witness (Meade & Roediger 2002) — §6.81. **Re-appraised
+> affect** — emitted emoTag blends stored tag with current appraisal
+> (`reappr_k`; trauma exempt) (Levine 1997) — §6.82. **Yield and
+> shift** — `misinfo_suscept` decomposes into `yield_suscept`
+> (leading-account acceptance, internalizes) and `shift_suscept`
+> (pressure flips, mostly compliance) (Gudjonsson GSS) — §6.83.
+> **The interrupted deed** — rehearsed routine intentions mint "did
+> it" candidates (`intent_done_p`); fired intentions re-fire
+> (`comm_err_p`) (Albarracín et al. 2020; Scullin et al. 2011) —
+> §6.84. +17 params in §7; probes P555–P565. All optional,
+> default-neutral.
 
 > **v5.1 note (emotional-memory V — the feeling that arrives early,
 > stays secondhand, and heals on schedule):** `memory/emotional-memory.md`
@@ -6362,6 +6395,174 @@ state variable the mood clauses always assumed; flagged
 valence-asymmetry (negative-affect inertia is the clinical leg) as
 a future refinement (P553).
 
+### 6.75 First-account anchor — incumbency on empty fields (new in v5.2)
+
+Ross, Lepper & Hubbard 1975 (JPSP 32:880 — verified): impressions
+formed on false feedback persevere after total discrediting; only
+process debriefing (explaining the mechanism) clears them. When a
+field holds NO surviving candidate, the first credible candidate to
+arrive gains `anchor_w` (×1.5) effective weight in all future
+candidate competition — the incumbent advantage. Discrediting the
+anchor's source (§6.6 correction or credibility collapse) drops it
+to `persever_resid` (0.4) effective weight and flips beliefStatus —
+content stays competitive and re-wins on later corroboration. The
+only full eviction: a correction that explains the distortion
+mechanism itself (process debrief) clears the anchor flag. Sibling
+of §6.6 CIE but distinct: CIE is residual inference weight after
+retraction; the anchor is ordering privilege in competition (P555,
+P556).
+
+### 6.76 Test-potentiated misinformation — recalling first makes you
+### worse (new in v5.2)
+
+Chan, Thomas & Bulevich 2009 (Psych. Sci. 20:66 — verified):
+immediate cued recall of a witnessed event INCREASED later
+misinformation adoption, younger and older adults both — the
+"reversed testing effect" (retrieval potentiates new learning AND
+exposes the retrieved details to interference — the §6.31 window
+with teeth). Accounts arriving within `test_window` (1 day) of a
+successful recall/emission of the same record take
+`test_pot_mult` (×1.3) on §6.3 p_adopt. Emitted field values —
+right or wrong — additionally take `own_emit_gain` (0.1)
+candStrength and provenance "claimed" (self-authorship, cf.
+§6.46 self_cred): a guessed detail becomes an owned detail. The
+potentiation applies to sample-mode recall; §6.50 discriminate
+mode does not retro-protect what casual recollection exposed
+(P557 — sign-locked against the intuitive direction).
+
+### 6.77 Schema fill at encoding — the books that weren't there
+### (new in v5.2)
+
+Brewer & Treyens 1981 (Cogn. Psych. 13:207 — verified): schema-
+expected-but-absent objects falsely recalled; expectancy predicts
+false inclusion; integration hypothesis = the trace is born mixed.
+Lampinen, Copeland & Neuschatz 2001 (verified): errors carry
+"remember" phenomenology. At encodeEvent, for each schema-expected
+field the event did NOT carry (expectancy ≥ `exp_thresh` 0.6):
+mint a verbatim candidate at `exp_fill_p` (0.25), candStrength =
+enc·0.6, provenance "schema" (invisible to the character).
+Sign-lock vs §6.2: exp_fill candidates exist BEFORE first recall;
+confab_fill mints at reconstruction only — first tellings already
+contain the absent books. Saliency exception: high-salience
+unexpected items encode normally — the fill targets expected-
+absent fields only (P558).
+
+### 6.78 presentEvidence — proof breaks the plausibility gate (new
+### in v5.2)
+
+Wade, Garry, Read & Lindsay 2002 (doctored photo → 50% full/partial
+childhood false memories); Nash & Wade 2009 (doctored video →
+internalized false confessions + confabulated details); Nash, Wade
+& Lindsay 2009 (evidence × imagination additive-to-superadditive);
+Kassin & Kiechel 1996 (fabricated evidence → internalized guilt +
+consistent confabulation) — all verified. `presentEvidence(charId,
+artifact, claim)`: sourceCredibility = `ev_cred` (0.95, the
+artifact ceiling — proof outranks every speaker); the claim
+BYPASSES plaus_min (the artifact IS the plausibility);
+`retro_evid` (0.2) mints inflated encoding-condition candidates —
+"I must have been there." Evidence + imagineEvent runs both legs.
+Artifact records carry `authentic` ∈ {real, doctored} — visible to
+ledger/history browser, never the character; detection flips
+credibility to ~0 and leaves the §6.75 residue (P559).
+
+### 6.79 Reason fields — "why" is minted on demand (new in v5.2)
+
+Nisbett & Wilson 1977 (Psych. Rev. 84:231 — verified canonical):
+fluent, confident, demonstrably wrong causal self-reports —
+reasons are inferred, not retrieved. Fields of class
+reason/motive NEVER write verbatim at encodeEvent. At the first
+probe demanding a reason (`answerProbe` `why:true`), a candidate
+mints at `why_mint_p` (~1.0) from schema ⊕ selfModel ⊕ current
+appraisal, provenance "confabulated", NORMAL confidence — the
+teller can't tell. The minted reason then anchors and rehearses
+like content (§6.75): the first confabulated answer becomes the
+true reason. Accuracy is governed by schema/selfModel quality —
+sometimes the confabulation is right, which is why it feels like
+access (P560).
+
+### 6.80 The fiction channel — labeled-untrue still plants (new in
+### v5.2)
+
+Marsh, Meade & Roediger 2003 (J. Mem. Lang. 49:519 — verified):
+>35% misinformation answers vs <10% baseline from stories, a
+week later, with "already knew it" misattribution; Marsh, Balota &
+Roediger 2005 (aging arm). Accounts framed as story/joke/
+hypothetical route through hearAccount with sourceCredibility ×
+`fic_penalty` (0.5) — a discount on the source, not a quarantine.
+Semantic/world-knowledge fields absorb most; episodic hearsay uses
+§6.3. Absorbed fiction candidates gain `fic_known_prior` (0.15)
+fluency on first emission; hearCount compounds regardless of
+frame. Distinct from §6.61 sleeper (no discrediting event needed —
+the unreliable tag is present from birth and doesn't block) (P561).
+
+### 6.81 Corroboration genealogy — N hearers, one witness (new in
+### v5.2)
+
+Meade & Roediger 2002 + Roediger, Meade & Bergman 2001 (verified):
+social contagion transfers false recall under warnings and source
+tests; bigger for schema-consistent items and weak encodings;
+arrives as "know" not "remember". §6.7 believe_p's corroboration
+term counts candidate ORIGINS, not holders: two accounts
+corroborate only if their provenance trees share no common
+ancestor (`corrob_root_req`: true). hearAccount appends the
+hearer-known lineage (speaker chain); unknown-origin hearsay
+counts as independent only below `lineage_conf` (0.5). A rumor
+through a clique plateaus at single-source belief; two genuinely
+independent observation chains move believe_p to "fact" — the
+difference between gossip and news (P562).
+
+### 6.82 Re-appraised affect — the feeling tracks today's reading
+### (new in v5.2)
+
+Levine 1997 (JEP:G 126:165 — verified): recalled emotion distorts
+systematically toward CURRENT appraisals; Levine & Bluck 1997
+(same finding, older adults). Distinct from §5.5 mood_bleed
+(current mood → report) and fading affect (tag decay): this is
+re-appraisal OF THE EVENT. Emitted affect:
+`emoTag_out = (1−reappr_k)·emoTag_stored + reappr_k·appraise(event, now)`
+with `reappr_k` 0.35; appraise() reads current belief/RelEdge
+state. Stored tag never mutates — only the emission. trauma:true
+records exempt; flashbulb reception-tags reappraise at half rate
+(P563 — sign-locked: reconciled ex-friends' old fights report
+warmer; reignited feuds report colder).
+
+### 6.83 Yield and shift — the two-factor suggestibility split (new
+### in v5.2)
+
+Gudjonsson Suggestibility Scales (Gudjonsson 1984/1997 — verified):
+Yield (leading questions) and Shift (negative-feedback flips) are
+factorially separate; Yield contains internalization + compliance,
+Shift is mostly compliance (Otgaar-line source-ID studies —
+verified). `misinfo_suscept` retained as aggregate but decomposes:
+`yield_suscept` (0.35) weights §6.3 p_adopt on leading/
+presupposing accounts (§6.43, §6.48) — absorbed content
+internalizes; `shift_suscept` (0.35) weights answer-flips under
+negative feedback/pressure (§6.44 disconfirm, §6.59, §6.45) —
+shift-driven flips write the flipped answer as "claimed" at only
+`shift_int_frac` (0.4) of normal strength: pressure flips mouths
+faster than minds. Trait mapping: yield loads on distrust/wmc
+channels; shift loads on neurotic/social-anxiety/compliance —
+the two dials decorrelate in profile space as the GSS factors do
+(P564).
+
+### 6.84 The interrupted deed — intentions mint completions (new in
+### v5.2)
+
+Albarracín et al. 2020 (PSPB 47:38 — verified): mundane intentions
+misremembered as enacted; confusion grows with intention↔act
+similarity; monitoring THE ACT rescues, monitoring the intention
+does not. Scullin, Bugg & McDaniel 2011 (verified): ~25%
+commission errors — finished intentions re-fire under their cue.
+Armed Intention records that are routine/script-consistent mint,
+on each dwell/rehearsal, a "performed" candidate on the action
+slot at `intent_done_p` (0.08 × intention↔act similarity) — the
+rehearsed plan reads as a thin memory of having done it ("I paid
+the rent" — false-completion phantom on the chore loop). Mirror
+channel: fired intentions re-fire at `comm_err_p` (0.2) under
+load/fatigue. Rescue: act-encode attention ≥ att_min+0.1
+suppresses intent_done_p to ~0 — attention on the doing, not the
+intending (P565).
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -7349,6 +7550,24 @@ MemoryParams = {
 //   at 65+; nostalgia_lift ×1.1 at 65+; emo_inertia ×1.2 adolescent,
 //   ×1.1 at 75+; rep_script_gain higher below 10; anticip_gain
 //   ×1.1@50, ×0.8@75 — all HYPOTHESIS unless noted (EM§67).
+// v5.2 additions (false-memory V — FM§§52–64)
+"anchor_w": 1.5, "persever_resid": 0.4,        // §6.75 incumbent + residue
+"test_window": 1.0, "test_pot_mult": 1.3,      // §6.76 reversed testing
+"own_emit_gain": 0.1,                          // §6.76 emitted-answer bonus
+"exp_fill_p": 0.25, "exp_thresh": 0.6,         // §6.77 encode-time schema fill
+"ev_cred": 0.95, "retro_evid": 0.2,            // §6.78 artifact ceiling/backfill
+"why_mint_p": 1.0,                             // §6.79 reason mint on probe
+"fic_penalty": 0.5, "fic_known_prior": 0.15,   // §6.80 fiction channel
+"corrob_root_req": true, "lineage_conf": 0.5,  // §6.81 genealogy rule
+"reappr_k": 0.35,                              // §6.82 re-appraised affect
+"yield_suscept": 0.35, "shift_suscept": 0.35,
+"shift_int_frac": 0.4,                         // §6.83 GSS two-factor split
+"intent_done_p": 0.08, "comm_err_p": 0.2,      // §6.84 intention completions
+// v5.2 locked constants: reason/motive fields never encode verbatim
+//   (why_mint_p is a MINT rate, not an omission probability);
+//   process-debrief is the ONLY anchor-eviction path; act-monitoring
+//   is the ONLY intent_done rescue — attention on the doing, never
+//   the intending.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -8339,6 +8558,30 @@ not resolved (DEBATED magnitude). P509/P511.
   - `C.mood` persistence semantics documented (§6.74 `emo_inertia`) —
     world supplies mood inputs; the substrate owns autocorrelation.
   - All snapshot-additive, absent = legacy.
+- v5.2 additions (false-memory.md Part V §§52–64):
+  - NEW `presentEvidence(charId, artifact, claim)` (§6.78) —
+    fabricated/real artifact delivery; `ev_cred` ceiling, plaus_min
+    bypass, `retro_evid` back-fill; artifact records carry
+    `authentic` ∈ {real, doctored} — ledger/history-browser visible,
+    never the character.
+  - `hearAccount` gains `frame:"story"|"hypothetical"` (§6.80
+    fic_penalty path) and appends hearer-known speaker lineage to
+    candidate provenance for §6.81 genealogy (`corrob_root_req`) —
+    rumor propagation should propagate lineage, not just content.
+  - `answerProbe` gains `why:true` (§6.79 — reason fields are
+    never-encoded; the probe mints the confabulated reason at
+    normal confidence) and participates in §6.76 potentiation
+    (recall opens test_window).
+  - recall emissions apply §6.82 re-appraisal to reported emoTag —
+    `emoTag_stored` is ledger-side and never mutates; the REPORT
+    drifts toward current appraisal.
+  - Intention records (§9 extension) may emit "performed"
+    candidates via §6.84 dwell — chore-loop claims ("I paid it")
+    can be phantom completions; act-encode attention is the
+    suppressor.
+  - Records/candidates may carry `anchored:true` (§6.75 flag,
+    hidden) and provenance "claimed" (§6.76 own-emission) —
+    snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

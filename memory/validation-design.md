@@ -4231,3 +4231,110 @@ Registry: P1–P554. v53 suite: P545–P554 (7 MUST, 3 SHOULD).
   stability across repetitions drives the advantage); Fivush 1984
   (*Dev Psychol* — GER/script formation, instances go generic);
   Brewer 1986 (repeated-event recall generic dominance).
+
+## 95. Probes P555–P565 (v54 — false-memory V, the arrival channels;
+## false-memory.md Part V, spec v5.2)
+
+- **P555 anchor incumbency (MUST):** first credible candidate on an
+  empty field vs an equally-credible later competitor → first wins
+  emission at a rate above the reverse-order control; the effect
+  vanishes on fields holding a surviving verbatim (no vacancy, no
+  anchor).
+- **P556 debrief perseverance (MUST — sign-locked):** discredit an
+  anchored candidate's source → emission drops to the
+  persever_resid band, not zero, and re-corroboration re-elevates;
+  a mechanism-explaining correction clears the anchor entirely.
+  FAIL if an ordinary correction evicts.
+- **P557 reversed testing (MUST — sign-locked):** recall of a
+  record followed within test_window by a misleading account →
+  p_adopt HIGHER than the no-recall control. FAIL if recall
+  protects — the literature's direction is backwards from
+  intuition.
+- **P558 encode-time schema fill (MUST):** FIRST recall of a
+  schema-rich event already emits expected-absent fields at
+  ~exp_fill_p with witnessed phenomenology (normal confidence;
+  discriminate mode lists provenance "schema", not confab).
+- **P559 evidence gate (MUST):** identical claim as narrative vs
+  presentEvidence → artifact arm implants at ≥1.5× and bypasses
+  plaus_min (implausible+proven implants where
+  implausible+unproven dies); retro_evid candidates appear on
+  encoding-condition fields.
+- **P560 reason mint (SHOULD):** a never-probed "why" produces a
+  fluent, normal-confidence, schema-consistent answer on first
+  ask; the same answer repeats stably thereafter (anchored
+  confabulation invented once).
+- **P561 fiction channel (SHOULD):** story-framed misinfo lands at
+  ~fic_penalty of unframed rate but far above zero on semantic
+  fields; absorbed claims show fic_known_prior fluency on first
+  emission.
+- **P562 genealogy (MUST):** believe_p after three tellers sharing
+  one origin ≈ single-teller; three independent-origin tellers
+  materially higher. FAIL if teller count alone moves believe_p.
+- **P563 re-appraisal (MUST — sign-locked):** flipping the event's
+  current outcome appraisal shifts emitted emoTag toward it at
+  ~reappr_k while emoTag_stored is ledger-identical; trauma:true
+  flat. FAIL if the stored tag mutates.
+- **P564 yield/shift decorrelation (SHOULD):** yield 0.6/shift 0.1
+  accepts presupposing accounts but does not flip under pure
+  negative feedback; the inverse profile shows the reverse; a
+  GSS-style two-stage probe recovers the two factors from
+  behavior.
+- **P565 intention completion (SHOULD):** routine intentions
+  dwelled on without firing emit "did it" claims at
+  ~intent_done_p·dwells; act-monitored encodings suppress to ~0;
+  fired intentions re-fire at ~comm_err_p under fatigue.
+
+Registry: P1–P565. v54 suite: P555–P565 (7 MUST, 4 SHOULD).
+
+## 96. Sources verified this version (P555–P565 backing)
+
+- Ross, Lepper & Hubbard 1975 (*JPSP* 32:880 — verified: false
+  feedback impressions persevere after full discrediting, actors
+  AND observers; only process debriefing removes them).
+- Chan, Thomas & Bulevich 2009 (*Psychol Sci* 20:66 — verified:
+  immediate cued recall increases later misinformation adoption,
+  both age groups; "reversed testing effect"; DOI
+  10.1111/j.1467-9280.2008.02245.x).
+- Brewer & Treyens 1981 (*Cogn Psychol* 13:207 — verified:
+  schema-expected absent objects falsely recalled; expectancy
+  predicts false inclusions; DOI 10.1016/0010-0285(81)90008-6);
+  Lampinen, Copeland & Neuschatz 2001 (*Mem Cognit* 29 —
+  schema-consistent false recalls carry "remember" judgments).
+- Wade, Garry, Read & Lindsay 2002 (*Psychon Bull Rev* 9:597 —
+  verified: doctored childhood photo → 50% complete/partial false
+  memories over three sessions; DOI 10.3758/BF03196318).
+- Nash & Wade 2009 (*Appl Cogn Psychol* — verified: doctored
+  video of own "cheating" → confessions, internalization,
+  confabulation vs told-video controls); Nash, Wade & Lindsay
+  2009 (*Mem Cognit* 37:414 — verified: evidence and imagination
+  each distort; combined additive/superadditive).
+- Kassin & Kiechel 1996 (*Psychol Sci* 7:125 — verified: false
+  incriminating evidence → signed confessions, internalized
+  guilt, confabulated memory details; DOI
+  10.1111/j.1467-9280.1996.tb00344.x).
+- Nisbett & Wilson 1977 (*Psychol Rev* 84:231 — verified
+  canonical: fluent confident causal self-reports dissociated
+  from operative causes).
+- Marsh, Meade & Roediger 2003 (*J Mem Lang* 49:519 — verified:
+  story misinformation produced on general-knowledge tests >35%
+  vs <10% baseline; persists 1 week; "knew it before"
+  misattribution; DOI 10.1016/S0749-596X(03)00092-5); Marsh,
+  Balota & Roediger 2005 (aging/DAT arm — verified).
+- Meade & Roediger 2002 (*Mem Cognit* 30:995 — verified:
+  contagion persists under warning and source-monitoring tests;
+  repetition- and schema-consistency-dependent); Roediger, Meade
+  & Bergman 2001 (*Psychon Bull Rev* 8:365 — verified: paradigm;
+  15s encoding + schema-consistent lures worst; "know" >
+  "remember" reports).
+- Levine 1997 (*JEP:G* 126:165 — verified: recalled emotions
+  distort toward current appraisals, Perot-supporter panel);
+  Levine & Bluck 1997 (older-adult arm — verified).
+- Gudjonsson 1984/1997 (GSS — verified: Yield vs Shift factorial
+  split); Otgaar-line source-identification work (*Br J Psychol*
+  2012 — verified: Yield mixes internalization+compliance; Shift
+  mostly compliance).
+- Albarracín et al. 2020 (*PSPB* 47:38 — verified: five studies,
+  mundane intentions misremembered as enacted; similarity grows
+  confusion; act-monitoring rescues; DOI 10.1177/0146167220929203);
+  Scullin, Bugg & McDaniel 2011 (*Psychol Aging* 27:46 —
+  verified: ~25% PM commission errors; DOI 10.1037/a0026112).
