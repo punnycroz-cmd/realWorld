@@ -1,6 +1,6 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v88 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v103 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -13,7 +13,12 @@ declared-cost chips, and game-v9's costar action — see §2.0, §2.1, §4,
 §5, §7, §9; v88: aligned to world-v59's grievance layer ("the Ear") +
 game-v11's dispute/reputation verbs — new §2.6 draws the boundary between
 in-world complaints and moderation, §4 +2 rows, §6 +1 row, §7 +2 rows,
-§9 re-struck.)
+§9 re-struck; v103: aligned to world-v60's free pre-flight check + live
+request seam + receipts, world-v63's screened `goes_by` + never-billed
+application queue, world-v64's flag roster + canonical `mod_decision`
+record, world-v67's age-band contract, world-v69's co-star ask classes +
+blackout floor, and game-v12's canonical write verb + spectator handles —
+new §2.7, §4 +4 rows, §6 +2 rows, §7 +3 rows, §8/§9 re-struck.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -203,6 +208,67 @@ Delivered since v58 (world-v36/v39/v43/v45/v46/v47, game-v9):
   Brain-mode transitions deliberately emit NO feed events — thin/possessed
   flips are not public spectacle.
 
+Delivered since v88 (world-v60/v61/v63/v64/v67/v69, game-v12):
+
+- **`world/request.html` v60 (the Counter) + `requests.json` v60** —
+  three moderation-relevant surfaces went player-facing:
+  - **Free pre-flight check.** "Check wording first — free": the player can
+    run `RWScreen.screenRequest` on their drafted text *before* filing and
+    see the same verdict a reviewer would — no credits touched. Moderation
+    stops being a gotcha and becomes self-serve: the screener's answer is
+    the same function on both sides of the counter.
+  - **Live seam + receipts.** `requests.json.live_seam` documents the merge
+    contract: the page reads `gsViewerState.feed`/`.sessions`,
+    `gsCoSessions`, `gsExplainRequest` and writes via a capability-checked
+    submit call; a receipt drawer shows the whole request trail by `rq-<id>`.
+  - **Verb correction (game-v12):** the canonical write verb is
+    **`gsSubmitRequest`**, not the `gsRequestSubmit` the v60 seam assumed —
+    game-v12 deliberately did NOT add the alias (keeps the banned-name
+    list unambiguous) and flagged the world-side `live_seam.never` docs
+    for alignment. Any copy or doc quoting the old name is stale — fixed
+    here.
+- **`world/wire.html` v5 (world-v61)** — the Director's rail: named camera
+  presets, replay scrub, live receipts via `gsExplainRequest`, occupancy
+  cards. Gate-enforced: **the wire carries no buy verb** — the spectator
+  surface can never become a purchase surface, which keeps the
+  accountability layer readable as accountability, not a storefront.
+- **`world/create.html` v5 + `creation.json` v24 (world-v63)** — the
+  pending-application queue keeps a filed hire's place with a
+  **withdraw-never-billed** card (withdrawal is always free and posts a
+  feed line); the optional `goes_by` block name joins the screened surface
+  — game track treats it as a naming string through the §4 naming lane,
+  same as `gsHireNameCheck` inputs.
+- **`world/mod-console.html` v3 + `moderation.json` v64** — the roster &
+  record layer: a **flag roster panel** renders the §2.4a account scores
+  live (seed `wren_404` sits at score 9 for the demo), the owner docket
+  shows score-≥9 accounts with the rule baked in — **the docket recommends
+  to the owner, never executes** — and a ledger export emits canonical
+  **`mod_decision` records** (`moderation.json.ledger_records`: `{rec, ts,
+  reviewer, request_id, player, decision, code, flag_w, appeal_of,
+  feed_line}`; `feed_line` is always neutral taxonomy wording). The screen
+  corpus is now **94 cases**, all green.
+- **`world/onboarding.json` v67 (the eligibility layer)** — `age_band`
+  contract: spectator / teen / adult / na, with paid stages gated and a
+  u13 redirect out of the paid flow; `rewarded_ads` (2 cr, 5/day cap) is
+  **adult-only** and its five never-rules are contractual. Moderation
+  relevance: eligibility is now a declared contract, not vibes — see §2.7.
+- **`world/thinai.json` v69 (long-outage layer)** — three edges the plan
+  now cites: `co_star.ask_classes` is the **closed four-class taxonomy**
+  (be-present / hold-space / walk-with / carry-item) the request
+  pipeline's co-star path classifies into — an ask outside the four
+  classes is a scope problem, not a decline; `blackout_floor` at 0% means
+  all mains degraded and **the feed goes silent by design** — a quiet feed
+  during an AI outage is the world working, not a crash; `scene_yield` is
+  the degraded-main posture. Brain-mode transitions still emit no feed
+  events (game-v9 rule stands).
+- **game-v12 (sf/game-systems)** — spectator handles shipped:
+  `gsSetHandle`/`gsHandleCheck`/`gsHandleOf`, and the wire `who` line now
+  prints the spectator's handle — attribution extends to free watchers,
+  not just requesters. New bus action **`camera`** (compatible class,
+  claims nothing, 10 cr/30 min) — the Director pass is now a real request
+  kind through the same screened pipeline; it files at the Counter, never
+  on the wire itself (world-v61's gate).
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -277,13 +343,21 @@ shopping list is now mostly built by world-v8:
 4. **Queue depth alert — DELIVERED as spec.** Threshold 20 pending → owner
    alert; wait display amber >15 min, red >30 min; **never auto-approve to
    drain a queue** (in `moderation.json`, not just convention).
-5. **Audit — DELIVERED as spec.** Every decision logs timestamp, reviewer,
-   request id, outcome, code; merge target is canonical-ledger
-   `mod_decision` records (game-systems owns the ledger writes).
+5. **Audit — DELIVERED, now with a canonical record shape.** Every decision
+   logs timestamp, reviewer, request id, outcome, code; world-v64's
+   `moderation.json.ledger_records` defines the exact `mod_decision` record
+   (`{rec, ts, reviewer, request_id, player, decision, code, flag_w,
+   appeal_of, feed_line}`, feed_line always neutral) the game-side ledger
+   should accept at merge — and the console already exports it.
+6. **Flag roster — DELIVERED (world-v64).** The §2.4a score ladder is now a
+   rendered panel, not just a spec: reviewer sees an account's live flag
+   score in context; the owner docket lists score-≥9 accounts and
+   *recommends* — it never executes a ban itself.
 
 Still PENDING (game-systems plumbing at merge): the live queue data model,
 classifier wiring into `41_game_systems_requests.js`, SLA timers, and
-`mod_decision` ledger writes. Delivered since v28: the feed display filter
+`mod_decision` ledger writes (record shape now fixed by world-v64's
+`ledger_records` — no schema invention left on the game side). Delivered since v28: the feed display filter
 (§2.3) and admin-compensation ledgering (`compensated_cr` on
 `gsAdminRevoke`, game-v6); since v43: the player-facing appeal path
 (world-v32), request permalinks + mention/sponsor attribution chips
@@ -295,9 +369,13 @@ corpus + G21 audit gate + shift-report panel (world-v36), the player-facing
 review lesson (world-v39), claimable `res-*` ambient resources in the
 exclusive class (world-v43), and the full player-side reviewed-request
 flow — modified-offer accept/decline, upfront charge, hold clock,
-scheduled-fire attribution (world-v46). The console demo defines expected
-review behavior; `RWScreen` verdicts + the corpus are the reference
-outputs — merge keeps the stricter-or-equal rule verbatim.
+scheduled-fire attribution (world-v46). Since v88: the free pre-flight
+check (world-v60 — players self-screen before filing), the screened
+`goes_by` naming field + never-billed pending-application queue
+(world-v63), and the flag roster + canonical `mod_decision` export
+(world-v64). The console demo defines expected review behavior;
+`RWScreen` verdicts + the corpus are the reference outputs — merge keeps
+the stricter-or-equal rule verbatim.
 
 **Honest-SLA rule:** copy may say "exclusive requests are reviewed by a
 human before they run." Copy must never promise a review *time* — a queue
@@ -374,7 +452,10 @@ in `moderation.json`):
 | 9 | Account review — owner decision |
 
 Decay: −1 per clean 30 days. Rules: flags are never shown publicly, never
-monetized around, never appear on the feed. The marketing-relevant property:
+monetized around, never appear on the feed. (world-v64 delivered the
+reviewer-facing side: the flag roster panel renders live scores, and the
+owner docket recommends score-≥9 accounts to the owner — it never executes
+on its own.) The marketing-relevant property:
 **repeat grief costs the griefer privileges, not refunds** — a cleaner story
 than "we keep your money," and it removes the worst possible headline
 ("game fines players for denied requests").
@@ -430,6 +511,25 @@ character did, it belongs to the Ear; if it's about what a player asked
 for, it belongs to §2; if it's about what a member posted, it belongs to
 §3.** Mods never adjudicate disputes — a feed line naming an address is
 the whole of the public record, and no one may attach names to it.
+
+### 2.7 Age bands & eligibility (world-v67 contract — POLICY→LOCKED-in-spec)
+
+`onboarding.json.age_band` declares four bands — spectator / teen / adult /
+na — and moderation inherits the contract:
+
+- **Watching is identical for every band.** The spectator surface has no
+  paid stages; there is nothing to moderate differently. This is quotable
+  copy — see §7.
+- **Paid stages are gated.** The account's band (server-side at merge, not
+  self-picked per session) gates every money surface; a band that resolves
+  under-13 is redirected out of the paid flow entirely — there is no
+  "ask a parent" upsell.
+- **Rewarded ads are adult-only.** The `rewarded_ads` contract (2 cr per
+  view, 5/day cap) applies to the adult band only; its five never-rules
+  are contractual, not copy conventions.
+- **Moderation consequence:** eligibility failures are not moderation
+  events — a redirected minor is not a flagged account, no flag_w, no
+  feed line. Copy must never frame the redirect as a punishment.
 
 ---
 
@@ -501,6 +601,10 @@ not policy discretion.
 | Press asks "can players do anything horrible?" | Interview question | Answer with the pipeline: screened intent, human review, attribution, hard caps — pitch is transparency, not promises | Prepared quote in PRESS-OUTREACH.md |
 | Member files/wants a "report" on a character | "How do I report what she did to my tenant?" | Not a moderation case — the in-world channel is the dispute ladder (world-v59): aside → named ask → third ear → table → filing, all character-run. Mods point at the world and stop; never open a ticket | No |
 | Dispute feed line misread as a mod notice | "a housing dispute filed — 9457 Guerrero St" read as a strike against a player | Explain the door-not-name rule: the address is the whole public record by design; it's world paper, not a moderation action; nobody may attach names to it — doing so in community spaces trips rule 2 | No |
+| Pre-flight check "rejected my wording" | Player ran the free check, got a would-deny verdict | Working as designed — the check is the same classifier a reviewer runs; rephrase and re-check for free, no credits moved and nothing was filed. Never tell the player which rule tripped beyond the shown code | No |
+| Feed goes quiet during an AI outage | Spectators report the wire "died" | Check before apologizing: at `blackout_floor` 0% all mains are degraded and the feed is silent *by design* (world-v69) — a quiet feed is the outage posture, not a second bug. Comms acknowledge the outage, never promise restoration times | No |
+| Under-age band hits a paid stage | "The site redirected my kid" / support mail | Working as designed — band-gated paid surfaces redirect u13 out of the paid flow (world-v67); it's an eligibility redirect, not a flag or a ban. Canned reply exists; never offer a workaround | No |
+| Spectator handle rejected/impersonation | `gsHandleCheck` refuses a handle | Same rule as hire names: no cast/ambient/real-person names (game-v12). Handles are attribution — the wire `who` line prints them — so they get screened, not hand-moderated | No |
 
 ## 5. Appeals & refunds (requests) — aligned to `moderation.json` appeal_flow
 
@@ -544,7 +648,9 @@ not policy discretion.
 | Community ladder actions | #mod-log | warns >> timeouts >> bans |
 | Feed-filter flag rate | display filter — measurable via `gsWireAudit` + `GS_WIRE_SUP` suppression counters (game-v6) | low; spikes = coordinated test or broken filter |
 | Wire audit result | `gsWireAudit()` → `{ok, issues[]}` | ok:true always — a fail is a launch blocker |
-| Screen-corpus conformance | `world/audit.js` G21 ↔ `screen-corpus.json` (80 cases, world-v36) | green at current `RWScreen.VERSION`; a red corpus is a launch blocker same as a wire-audit fail |
+| Screen-corpus conformance | `world/audit.js` G21 ↔ `screen-corpus.json` (94 cases as of world-v64) | green at current `RWScreen.VERSION`; a red corpus is a launch blocker same as a wire-audit fail |
+| Pre-flight check usage / would-deny rate | Counter `preflight_check` hook (world-v60 `requests.json.demo_hooks`) | healthy = players rephrase and file clean; a high would-deny rate that still converts to filings means the check isn't being believed — review its placement copy |
+| Owner-docket dwell | `mod-console` flag roster (world-v64) | score-≥9 accounts get an owner decision same-week; a growing docket is a staffing signal, not a queue to drain |
 | Costar decline rate | feed `— resolved · declined` lines (game-v9) | exists, low; a ~0% rate means declines aren't reaching the feed, ~100% means pricing/scoping is off |
 | Modified-offer decline rate | offer-card accept/decline counts (world-v46 contract) | some declines are healthy — proof trims are real offers; a ~0% decline rate means trims are too timid to notice |
 | Boundary-confusion rate | mod tickets/DMs asking to "report" a character vs. feed dispute lines (`a housing dispute filed — <addr>`) | low; a rising ticket rate means public copy blurs the §2.6 boundary — fix copy, never open the ticket |
@@ -581,6 +687,10 @@ the counters.
 | "The screening engine is versioned and regression-tested — every rule ships with test cases, and the game build's classifier can only be stricter than the public reference, never looser" | Publishing the corpus or rule internals — the corpus is conformance tooling, not a public how-to-dodge list |
 | "The block has its own complaint channel — disputes climb an in-world ladder and only the last rung reaches the feed, as an address, never a name" | "Report a character's behavior and moderators will act" — there is no ticket queue for the fiction; disputes resolve in-world |
 | "When the feed says 'a housing dispute filed — <address>', that address is the entire public record" | Attaching names, amounts, or filers to dispute lines — the door-not-name rule is contractual, not a style choice |
+| "You can check your wording before you file — the screening check is free and it's the same check a reviewer runs" | "Preview whether your request will work" — the check judges the *text's* ask, never whether the AI will do it or how |
+| "Watching is identical for every age band — the paid stages are gated, and under-13s are redirected out of them" | "Family-friendly" / "safe for kids" framing — the policy is eligibility gates, not a content rating we haven't earned |
+| "Co-star requests are small by design — be present, hold space, walk with, carry an item — and the character can still say no" | Implying co-star is open-ended puppeteering — the four-class taxonomy is closed, and a decline resolves with half refund |
+| "Your spectator handle is checked before it's set — no cast, neighbor, or real-person names" | "Handles are moderated by hand" — `gsHandleCheck` is code, like `gsHireNameCheck` |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -593,7 +703,13 @@ pages + this table update in the same commit.
   demo flip (G12). `rules.html` copy stays option-neutral — it already is.
 - **Day-0:** pin verbatim rules in Discord; verify `#mod-log` exists;
   confirm canned responses posted to mod channel; run `gsWireAudit()` once
-  on live data and record `{ok:true}` in the rehearsal log.
+  on live data and record `{ok:true}` in the rehearsal log. **Launch
+  blocker:** verify the production shell exposes no possession affordance
+  on C1–C8 — the OPEN `production-feedback` item found the "Take Control"
+  button bypassing the mains ban and the "Controlled" badge mislabeling
+  AI-driven cast. Until that lands, no copy quoting "the 8 mains can't be
+  possessed" may run — the claim is true of the rules and must be true of
+  the build.
 - **Day-7:** review queue health + denial-rate first look; confirm the
   recap can quote aggregate moderation stats.
 - **Day-30:** publish first transparency report
@@ -646,9 +762,24 @@ pages + this table update in the same commit.
   `feed_shapes.work_proposal` PROPOSAL on the game track's desk — §2.6
   copy stays housing-canonical until it's adopted. §6a report may count
   dispute lines as a *world* stat, never as moderation actions.
-- Merge plumbing status — production-1 (in-flight builder session) pins
-  marketing v84 + game v11 + world v58 and plans to wire
-  `world/request.html`'s pipeline to `__aiBridge` when present; the §2.2
-  PENDING list (queue data model, classifier port under the
-  stricter-or-equal rule, `mod_decision` ledger writes) lands or doesn't
-  there. Re-check against the merged build when production-1 reports.
+- Merge plumbing status — production-1 merged as baseline 7eb476a
+  (marketing v84 + game v11 + world v58 + integration fixes). The §2.2
+  PENDING list stands: live queue data model, `RWScreen` port under the
+  stricter-or-equal rule, `mod_decision` ledger writes per world-v64's
+  `ledger_records` shape. Write verb is `gsSubmitRequest` (game-v12);
+  the world-side `live_seam.never` doc still names `gsRequestSubmit` —
+  flagged by the game track for world to align, not a code defect.
+- Possession-ban UI hole — OPEN `production-feedback` item: the spectator
+  shell's "Take Control" button is unguarded against C1–C8 and the
+  "Controlled" badge mislabels AI-driven mains. Production-blocking fix
+  owned by the art/UI realignment brief; marketing treats it as a launch
+  gate (§8 day-0) since our headline copy asserts the ban.
+- Age-band merge — `onboarding.json.age_band` bands exist in the world
+  contract (v67); at merge the band must come from the account record,
+  not per-session self-pick (world's own merge note). Marketing's
+  "identical for every band" line is safe now; any band-specific watch
+  surface would retire it.
+- Camera-pass moderation — game-v12's `camera` bus action is compatible
+  class (claims nothing, 10 cr/30 min) and files through the same
+  screened pipeline at the Counter; the wire itself stays purchase-free
+  (world-v61 gate). No new policy needed — §2.1 compatible rule covers it.
