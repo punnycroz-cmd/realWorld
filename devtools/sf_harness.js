@@ -67,7 +67,8 @@ const api = eval(m[1] + `
     sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
-    sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior })`);
+    sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
+    sfBoomClip, sfSegHitT })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -365,6 +366,42 @@ const api = eval(m[1] + `
     prevV.inside = hadInside;
   }
   api.W.tod = t0; api.W.hum = h0; api.W.windSpd = ws0; api.W.windAng = wa0;
+
+  // v36 boom arm: the follow rig's pull-back is physical — it clips
+  // against real footprints taller than the lens, stands off the wall
+  // face, clears rooflines when the camera flies high, and never treats
+  // the subject's own building as an occluder
+  {
+    const pm = b744.px.map(q => [q[0] / api.SF_PXM, q[1] / api.SF_PXM]);
+    let wx0 = 1e9, wx1 = -1e9, wy0 = 1e9, wy1 = -1e9;
+    for(const q of pm){
+      if(q[0] < wx0) wx0 = q[0]; if(q[0] > wx1) wx1 = q[0];
+      if(q[1] < wy0) wy0 = q[1]; if(q[1] > wy1) wy1 = q[1];
+    }
+    const midY = (wy0 + wy1) / 2, span = wx1 - wx0;
+    const sx0 = wx0 - 6, back = span + 12;
+    const clipD = api.sfBoomClip(sx0, midY, 1, 0, back, 1.7);
+    ok(clipD < back && clipD >= 1.4,
+       'boom clips before entering a tall facade (' + clipD.toFixed(1) + '/' + back.toFixed(1) + 'm)');
+    ok(api.sfBoomClip(sx0, midY, 1, 0, back, 1.7) === clipD,
+       'sfBoomClip deterministic');
+    let pkx = 0, pky = 0, pkn = 0;
+    for(let gy = 0; gy < api.SF_M.gh; gy++)
+      for(let gx = 0; gx < api.SF_M.gw; gx++)
+        if(api.sfTile(gx, gy) === 13){ pkx += gx; pky += gy; pkn++; }
+    pkx = pkx / pkn * api.SF_M.cell_m; pky = pky / pkn * api.SF_M.cell_m;
+    ok(api.sfBoomClip(pkx, pky, 1, 0, 15, 1.7) === 15,
+       'boom over open park grass keeps full length');
+    ok(api.sfBoomClip(sx0, midY, 1, 0, back, 60) === back,
+       'lens above the roofline never clips');
+    ok(api.sfSegHitT(0, 0, 10, 0, 5, -5, 5, 5) > 0 &&
+       api.sfSegHitT(0, 0, 10, 0, 20, -5, 20, 5) === -1,
+       'sfSegHitT returns the hit parameter');
+    // subject inside the footprint: the boom still reaches out through
+    // the door side — the arm clips only against OTHER buildings
+    const inD = api.sfBoomClip(cmid.x, cmid.y, 1, 0, back, 1.7);
+    ok(inD >= 1.4 && inD <= back, 'boom from inside a footprint bounded');
+  }
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');

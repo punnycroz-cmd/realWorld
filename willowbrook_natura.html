@@ -24306,7 +24306,13 @@ function sfLensEnd(cw, ch){
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);    // device pixels
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(F, 0, 0);
+  // v36: dutch roll — pan-rate cants the gate a fraction of a degree;
+  // settled cameras roll to zero so locked shots stay level
+  if(SF_LENS.roll && Math.abs(SF_LENS.roll) > 0.0004){
+    ctx.translate(W / 2, H / 2); ctx.rotate(SF_LENS.roll);
+    ctx.drawImage(F, -W / 2, -H / 2);
+    ctx.rotate(-SF_LENS.roll); ctx.translate(-W / 2, -H / 2);
+  } else ctx.drawImage(F, 0, 0);
   if(SF_LENS.mode !== 'flat' && B && typeof bg.filter !== 'undefined'){
     const R = Math.max(3, Math.round(H * (SF_LENS.mode === 'top' ? 0.012 : 0.0065)));
     bg.setTransform(1, 0, 0, 1, 0, 0);
@@ -24362,6 +24368,46 @@ function sfLensEnd(cw, ch){
         gg.addColorStop(1, `rgba(${hues[i]},0)`);
         ctx.fillStyle = gg;
         ctx.beginPath(); ctx.arc(gx, gy, gr, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    /* v36: veiling glare — a strong source near the axis fogs the whole
+       frame. The blurred plate screen-composited back over itself lifts
+       the blacks and blooms the highlights; strength follows sunK, so
+       the glare fades exactly as the disc leaves the gate. */
+    if(B){
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.05 + 0.13 * SF_LENS.sunK;
+      ctx.drawImage(B, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    }
+  }
+  /* v36: rain on the front element — droplets bead on the outer glass,
+     so they sit in FIXED screen space (on the lens, not in the world),
+     bead-shadowed with a caustic glint toward the sun's side, and creep
+     downward at droplet speeds while it's actually raining. */
+  {
+    const rainK = (SF_LENS.mode === 'street' && typeof W !== 'undefined')
+      ? clamp(W.rain, 0, 1) : 0;
+    if(rainK > 0.12){
+      const nD = Math.floor(6 + rainK * 14);
+      for(let i = 0; i < nD; i++){
+        const rx = phash(i, 1, 3890) * W;
+        const slide = (2 + phash(i, 5, 3894) * 9) * dpr;
+        const ry = (phash(i, 2, 3891) * H + SF_WX.t * slide) % (H + 40 * dpr) - 20 * dpr;
+        const rr = (3 + phash(i, 3, 3892) * 10) * dpr;
+        const a = (0.10 + 0.14 * phash(i, 4, 3893)) * rainK;
+        const g2 = ctx.createRadialGradient(rx, ry, rr * 0.2, rx, ry, rr);
+        g2.addColorStop(0, `rgba(200,215,230,${a * 0.7})`);
+        g2.addColorStop(0.75, `rgba(30,40,55,${a * 0.35})`);
+        g2.addColorStop(1, 'rgba(30,40,55,0)');
+        ctx.fillStyle = g2;
+        ctx.beginPath(); ctx.arc(rx, ry, rr, 0, Math.PI * 2); ctx.fill();
+        const sunS = SF_LENS.sunOn ? Math.sign(SF_LENS.sunX * dpr - rx) : 0.4;
+        ctx.fillStyle = `rgba(255,250,235,${Math.min(0.5, a * 1.4)})`;
+        ctx.beginPath();
+        ctx.arc(rx + sunS * rr * 0.35, ry - rr * 0.3, rr * 0.22, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
   }
@@ -24687,6 +24733,44 @@ function sfGhostSet(cx, cy, tx, ty){
     if(hit) out.add(b.i);
   }
   return out;
+}
+/* ---------------- v36: BOOM — collision-aware follow arm -------------
+   The third-person rig rides `back` meters behind the subject, and that
+   arm is physical: it cannot sink through a facade taller than the
+   lens. sfSegHitT returns the segment parameter of a real edge hit;
+   sfBoomClip marches the boom (subject→camera) against the same
+   meter-space footprints the cutaway pass uses and returns the last
+   free distance, standing the lens off the wall face. Buildings the
+   lens clears entirely (camH above the roofline) never clip, and the
+   footprint the subject stands inside is not an occluder. */
+function sfSegHitT(x1, y1, x2, y2, x3, y3, x4, y4){
+  const rx = x2 - x1, ry = y2 - y1, sx = x4 - x3, sy = y4 - y3;
+  const den = rx * sy - ry * sx;
+  if(!den) return -1;
+  const t = ((x3 - x1) * sy - (y3 - y1) * sx) / den;
+  const u = ((x3 - x1) * ry - (y3 - y1) * rx) / den;
+  return (t > 0 && t <= 1 && u >= 0 && u <= 1) ? t : -1;
+}
+function sfBoomClip(px, py, dx, dy, backM, camHM){
+  if(backM <= 1.4) return backM;
+  const ex = px + dx * backM, ey = py + dy * backM;
+  const bx0 = Math.min(px, ex), bx1 = Math.max(px, ex);
+  const by0 = Math.min(py, ey), by1 = Math.max(py, ey);
+  let hitT = 1;
+  for(const b of SF_BLD){
+    if(camHM >= b.hPx / 4.2) continue;          // lens clears the roofline
+    sfBldMPoly(b);
+    const bb = b._pbb;
+    if(bx0 > bb[2] || bx1 < bb[0] || by0 > bb[3] || by1 < bb[1]) continue;
+    if(sfPtInPoly(b._pm, px, py)) continue;     // subject's own building
+    for(let e = 0; e < b._pm.length; e++){
+      const a = b._pm[e], c = b._pm[(e + 1) % b._pm.length];
+      const t = sfSegHitT(px, py, ex, ey, a[0], a[1], c[0], c[1]);
+      if(t >= 0 && t < hitT) hitT = t;
+    }
+  }
+  if(hitT >= 1) return backM;
+  return Math.max(1.4, hitT * backM - 0.9);     // stand off the wall face
 }
 /* director shot marks — Shift+Digit stores, Digit recalls */
 function sfCamMarkSave(n){
@@ -27518,9 +27602,18 @@ function sfRenderStreet(cw, ch){
   if(SF_CAM.director){
     tX = SF_CAM.x; tY = SF_CAM.y;
   } else {
-    tX = px + SF_CAM._leadX - TDX * SF_CAM.back;
-    tY = py + SF_CAM._leadY - TDY * SF_CAM.back;
-    tPitch = SF_CAM.pitch - Math.atan2(Math.max(0, SF_CAM.h - 1.05), Math.max(2, SF_CAM.back)) * 0.85;
+    // v36: the boom is physical — clip it against real footprints so the
+    // arm never sinks into a facade; pull-in is fast (never clip through
+    // a wall), the return is slow (no snap-back pop).
+    const clip = sfBoomClip(px, py, -TDX, -TDY, SF_CAM.back, SF_CAM.h);
+    if(SF_CAM._backE == null || SF_CAM._snap) SF_CAM._backE = clip;
+    const kB = Math.min(1, dtC * (clip < SF_CAM._backE ? 10 : 2.6));
+    SF_CAM._backE += (clip - SF_CAM._backE) * kB;
+    const backUse = Math.max(1.4, SF_CAM._backE);
+    SF_CAM._backUse = backUse;
+    tX = px + SF_CAM._leadX - TDX * backUse;
+    tY = py + SF_CAM._leadY - TDY * backUse;
+    tPitch = SF_CAM.pitch - Math.atan2(Math.max(0, SF_CAM.h - 1.05), Math.max(2, backUse)) * 0.85;
   }
   if(SF_CAM._snap || SF_CAM._sx == null){
     SF_CAM._sx = tX; SF_CAM._sy = tY; SF_CAM._syaw = SF_CAM.yaw;
@@ -27536,9 +27629,19 @@ function sfRenderStreet(cw, ch){
   // the director rig (invisible in stills, alive in motion)
   let useYaw = SF_CAM._syaw, usePitch = SF_CAM._spitch;
   if(SF_CAM.director){
-    useYaw += Math.sin(SF_WX.t * 0.6) * 0.004 + Math.sin(SF_WX.t * 1.7) * 0.0015;
-    usePitch += Math.sin(SF_WX.t * 0.83 + 1.2) * 0.003;
+    // v36: shake is angular — a long lens magnifies operator tremor, so
+    // the breath scales with focal length like real footage
+    const hh = 0.55 + 0.45 * SF_CAM.fov;
+    useYaw += (Math.sin(SF_WX.t * 0.6) * 0.004 + Math.sin(SF_WX.t * 1.7) * 0.0015) * hh;
+    usePitch += Math.sin(SF_WX.t * 0.83 + 1.2) * 0.003 * hh;
   }
+  // v36: dutch roll — the operator's wrist lags a pan, so a fast yaw
+  // cants the gate a fraction of a degree and settles back to level.
+  const yawRate = (useYaw - (SF_CAM._yaw0 == null ? useYaw : SF_CAM._yaw0)) / dtC;
+  SF_CAM._yaw0 = useYaw;
+  const rollT = clamp(-yawRate * 0.045, -0.02, 0.02) * (SF_CAM.director ? 1 : 0.6);
+  SF_CAM._roll = (SF_CAM._roll || 0) + (rollT - (SF_CAM._roll || 0)) * Math.min(1, dtC * 5);
+  SF_LENS.roll = SF_CAM._roll;
   const DX = Math.cos(useYaw), DY = Math.sin(useYaw);
   const camX = SF_CAM._sx, camY = SF_CAM._sy;
   // v27: operator bob — the follow lens rides the subject's gait, a ~5cm
