@@ -11,7 +11,7 @@ Contents
   keyart/            1920x1080 and 1080x1080 key art (built on a real
                      development-build capture)
   screenshots/       Real captures of the current development build.
-                     v14-* = current renderer (pitched roofs, roof props);
+                     v15-* = current renderer (pitched roofs, roof props);
                      v1-*  = early pass, useful for before/after coverage.
 
 Usage rules for press/creators

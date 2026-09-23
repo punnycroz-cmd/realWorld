@@ -15,8 +15,8 @@ python3 tools/make_brand_assets.py >/dev/null
 cp site/assets/logo-primary.svg site/assets/logo-primary.png \
    site/assets/logo-icon.svg site/assets/logo-icon.png \
    site/assets/favicon.svg "$KIT/logos/"
-cp site/shots/v14-A.png site/shots/v14-B.png site/shots/v14-C.png \
-   site/shots/v14-D.png site/shots/v1-A.png site/shots/v1-B.png \
+cp site/shots/v15-A.png site/shots/v15-B.png site/shots/v15-C.png \
+   site/shots/v15-D.png site/shots/v1-A.png site/shots/v1-B.png \
    "$KIT/screenshots/"
 
 mkdir -p dist
