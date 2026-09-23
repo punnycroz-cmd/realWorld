@@ -1110,6 +1110,110 @@ function sfKarlShade(mx, my){
   return clamp(kk * 1.25 * (1 - (p - lim) / 110), 0, 1);
 }
 
+/* ---------------- v44: SKYLINE — the city doesn't end at the map edge
+   The street camera's horizon used to be bare gradient + fog. Now it
+   carries a real skyline: an azimuth-consistent silhouette band (each
+   screen column maps to a true compass bearing, so the roofline stays
+   put as the camera pans), the downtown tower cluster to the NE, and
+   the Twin Peaks ridge + Sutro Tower tripod to the WSW. Depth cueing
+   uses the same aerial-perspective alpha as the building pass, and the
+   marine layer drawn afterwards still veils all of it. */
+const SF_SKY_AZ = { dt: -0.96, tp: 2.93 };   // downtown NE, Twin Peaks WSW
+function sfSkyline(cw, horizon, F, yaw, cover, wK, fogA){
+  const hazeK = clamp(fogA * 0.8 + cover * 0.3, 0, 0.9);
+  const baseA = clamp(0.62 - hazeK * 0.5, 0.06, 0.62);
+  if(baseA < 0.05) return;
+  const warm = Math.round(wK * 40);
+  // generic roofline: 22 bearing buckets around the compass, heights in
+  // meters resolved through real perspective at ~650m — parapet rhythm
+  // with an occasional taller stack, like the endless Mission rows
+  const dist = 650, step = Math.max(14, cw / 90);
+  ctx.fillStyle = `rgba(${58 + warm},${68 + warm * 0.4},${96 - warm * 0.3},${baseA})`;
+  ctx.beginPath();
+  for(let sx = -step; sx <= cw + step; sx += step){
+    const az = yaw - Math.atan((sx - cw / 2) / F);
+    const bq = Math.floor(az / (Math.PI * 2) * 22);
+    let hm = 7 + phash(bq, 0, 1790) * 13;
+    if(phash(bq, 1, 1791) > 0.86) hm *= 1.9;          // a church, a stack
+    const hh = hm * F / dist;
+    ctx.rect(sx, horizon - hh, step + 1, hh + 2);
+  }
+  ctx.fill();
+  // cornice texture: parapet ticks on the band top
+  ctx.fillStyle = `rgba(${44 + warm},${54 + warm * 0.4},${80 - warm * 0.3},${baseA * 0.9})`;
+  for(let sx = -step; sx <= cw + step; sx += step){
+    const az = yaw - Math.atan((sx - cw / 2) / F);
+    const bq = Math.floor(az / (Math.PI * 2) * 22);
+    let hm = 7 + phash(bq, 0, 1790) * 13;
+    if(phash(bq, 1, 1791) > 0.86) hm *= 1.9;
+    const hh = hm * F / dist;
+    for(let k = 0; k < 3; k++)
+      if(phash(bq * 3 + k, 2, 1792) > 0.5)
+        ctx.fillRect(sx + k * step / 3 + 2, horizon - hh, 2.5, 3);
+  }
+  const azToX = (a) => {
+    const dA = Math.atan2(Math.sin(a - yaw), Math.cos(a - yaw));
+    return [cw / 2 - F * Math.tan(dA), Math.cos(dA)];
+  };
+  // downtown cluster NE (~4km): hazier, taller, one tapered supertall
+  {
+    const [dx0, cA] = azToX(SF_SKY_AZ.dt);
+    if(cA > 0.2 && dx0 > -F * 0.9 && dx0 < cw + F * 0.9){
+      const a2 = baseA * 0.72;
+      ctx.fillStyle = `rgba(${64 + warm},${76 + warm * 0.4},${104 - warm * 0.3},${a2})`;
+      const dD = 4000, spread = F * 0.28;
+      for(let k = -3; k <= 3; k++){
+        const tx = dx0 + k * spread * (0.24 + phash(k, 3, 1793) * 0.14);
+        const th = (46 + phash(k, 4, 1794) * 120) * F / dD;
+        const tw = Math.max(4, (26 + phash(k, 5, 1795) * 30) * F / dD);
+        ctx.fillRect(tx - tw / 2, horizon - th, tw, th + 2);
+      }
+      // the tapered supertall on the cluster's west shoulder
+      const stH = 296 * F / dD, stW = 34 * F / dD, sx2 = dx0 - spread * 0.42;
+      ctx.beginPath();
+      ctx.moveTo(sx2 - stW / 2, horizon);
+      ctx.lineTo(sx2 - stW * 0.18, horizon - stH);
+      ctx.lineTo(sx2 + stW * 0.18, horizon - stH);
+      ctx.lineTo(sx2 + stW / 2, horizon);
+      ctx.closePath(); ctx.fill();
+      ctx.fillRect(sx2 - 0.8, horizon - stH - 8 * F / dD, 1.6, 8 * F / dD);
+    }
+  }
+  // Twin Peaks ridge + Sutro Tower WSW (~2.3km): the ridge humps over
+  // the roofline, the tripod mast prongs off the summit — the single
+  // most recognizable thing on the Mission's sky
+  {
+    const [tx0, cA] = azToX(SF_SKY_AZ.tp);
+    if(cA > 0.2 && tx0 > -F * 0.9 && tx0 < cw + F * 0.9){
+      const dT = 2300, a2 = baseA * 0.9;
+      const ridgeW = 700 * F / dT, ridgeH = 272 * F / dT * 0.9;
+      ctx.fillStyle = `rgba(${56 + warm},${70 + warm * 0.4},${92 - warm * 0.3},${a2})`;
+      ctx.beginPath();
+      ctx.moveTo(tx0 - ridgeW / 2, horizon + 1);
+      ctx.quadraticCurveTo(tx0 - ridgeW * 0.22, horizon - ridgeH, tx0, horizon - ridgeH);
+      ctx.quadraticCurveTo(tx0 + ridgeW * 0.18, horizon - ridgeH * 0.86,
+                           tx0 + ridgeW / 2, horizon + 1);
+      ctx.closePath(); ctx.fill();
+      // Sutro: three legs, two crossbars, mast tip — ~300m AGL total
+      const topY = horizon - ridgeH - 98 * F / dT,
+            baseY = horizon - ridgeH + 4, legS = 22 * F / dT;
+      ctx.strokeStyle = `rgba(${44 + warm},${54 + warm * 0.4},${76 - warm * 0.3},${a2 + 0.08})`;
+      ctx.lineWidth = Math.max(1, 2.2 * F / dT);
+      ctx.beginPath();
+      for(const lx of [-legS, 0, legS]){
+        ctx.moveTo(tx0 + lx, baseY);
+        ctx.lineTo(tx0 + lx * 0.14, topY);
+      }
+      ctx.stroke();
+      ctx.lineWidth = Math.max(0.7, 1.4 * F / dT);
+      for(const fy of [0.36, 0.62, 0.86]){
+        const yy = baseY - (baseY - topY) * fy, ww = legS * (1 - fy * 0.86);
+        ctx.beginPath(); ctx.moveTo(tx0 - ww, yy); ctx.lineTo(tx0 + ww, yy); ctx.stroke();
+      }
+    }
+  }
+}
+
 /* ---------------- v25: the wet-world pack -------------------------
    Rain used to be a screen-space streak overlay over dry geometry — the
    world itself never got wet beyond a dark tint. Now water has a body:
@@ -1256,6 +1360,97 @@ function sfDecalChunk(g, cx, cy){
         if(sfTile(wx - 1, wy) === 10){ const c2 = edgeCol('w', near16(-1, 0, 0, 1)); if(c2) paint('w', c2); }
         if(sfTile(wx + 1, wy) === 10){ const c2 = edgeCol('e', near16(1, 0, 0, 1)); if(c2) paint('e', c2); }
       } else if(t === 10){
+        /* v44: arterial dressing off the road-width map (built once in
+           sfInitWorld). Mission/Guerrero-class streets (7-9 cells) carry
+           the real SF red transit carpet on the curb lanes plus a
+           double-yellow centerline; Dolores-class boulevards (>=10) get
+           a planted median with amber edge lines; every crosswalk
+           approach gets a white stop bar; sparse manholes dot midblock.
+           Drawn under the gutter/windrow bands so curb detail still
+           wins at the edges. */
+        if(SF_ROADW){
+          const ri = wy * SF_M.gw + wx;
+          const rw2 = SF_ROADW[ri], rax = SF_ROADAX[ri], roff = SF_ROADOFF[ri];
+          const nearX = sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16 ||
+                        sfTile(wx, wy - 1) === 16 || sfTile(wx, wy + 1) === 16;
+          if(!nearX){
+            if(rw2 >= 10 && Math.abs(roff) <= 1){      // |off| <= 0.5 cell
+              // planted median — turf band with a pale stone lip and an
+              // amber edge line on the traffic side of each lip cell
+              g.fillStyle = '#5d7f56';
+              g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+              if(phash(wx, wy, 1775) < 0.3){
+                g.fillStyle = 'rgba(96,140,80,0.6)';
+                g.fillRect(sx + phash(wx, wy, 1776) * csz * 0.7,
+                           sy + phash(wy, wx, 1777) * sh * 0.7, 3, 3);
+              }
+              if(Math.abs(roff) === 1){
+                const lip = 'rgba(212,206,190,0.85)',
+                      amb = 'rgba(214,164,52,0.8)';
+                if(rax === 1){ // N-S street: lip on the off-side edge
+                  const lx = roff > 0 ? sx + csz - 3 : sx;
+                  g.fillStyle = lip; g.fillRect(lx, sy, 3, sh);
+                  g.fillStyle = amb; g.fillRect(roff > 0 ? lx + 3 : lx - 2, sy, 2, sh);
+                } else {
+                  const ly = roff > 0 ? sy + sh - 3 : sy;
+                  g.fillStyle = lip; g.fillRect(sx, ly, csz, 3);
+                  g.fillStyle = amb; g.fillRect(sx, roff > 0 ? ly + 3 : ly - 2, csz, 2);
+                }
+              }
+            } else if(rw2 >= 7 && rw2 <= 9){
+              // red transit carpet on the curb lanes — SF's real red
+              // paint on Mission/Guerrero sits on the outer lane only
+              const curbSide = (rax === 0)
+                ? (sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11)
+                : (sfTile(wx - 1, wy) === 11 || sfTile(wx + 1, wy) === 11);
+              if(curbSide){
+                g.fillStyle = 'rgba(166,56,42,0.55)';
+                g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+                g.fillStyle = 'rgba(120,36,26,0.3)';
+                if(rax === 0) g.fillRect(sx, sy + sh * 0.46, csz, Math.max(1.5, sh * 0.08));
+                else g.fillRect(sx + csz * 0.46, sy, Math.max(1.5, csz * 0.08), sh);
+              }
+              // double-yellow centerline — solid pair on the axis
+              // cells; roff is in half-cells so even-width streets land
+              // the pair on the exact seam between the two center cells
+              if(Math.abs(roff) <= 1){
+                g.fillStyle = 'rgba(216,170,54,0.85)';
+                if(rax === 1){
+                  const cxp = sx + csz * (0.5 - roff / 2);
+                  g.fillRect(cxp - 2.4, sy, 1.6, sh);
+                  g.fillRect(cxp + 0.8, sy, 1.6, sh);
+                } else {
+                  const cyp = sy + sh * (0.5 - roff / 2);
+                  g.fillRect(sx, cyp - 2.4, csz, 1.6);
+                  g.fillRect(sx, cyp + 0.8, csz, 1.6);
+                }
+              }
+            }
+            // manhole covers — sparse, mid-lane, ring + lid + highlight
+            if(phash(wx, wy, 1771) < 0.045){
+              g.fillStyle = '#33373e';
+              g.beginPath();
+              g.ellipse(sx + csz * 0.5, sy + sh * 0.55, csz * 0.2,
+                        csz * 0.2 * SF_TILT, 0, 0, Math.PI * 2);
+              g.fill();
+              g.strokeStyle = '#4b5058'; g.lineWidth = 1;
+              g.stroke();
+              g.fillStyle = 'rgba(190,196,204,0.35)';
+              g.beginPath();
+              g.ellipse(sx + csz * 0.47, sy + sh * 0.5, csz * 0.09,
+                        csz * 0.05 * SF_TILT, 0, 0, Math.PI * 2);
+              g.fill();
+            }
+          }
+          // stop bar — white transverse band on the pavement edge that
+          // meets a crosswalk (every approach, both directions)
+          const bar = 'rgba(234,234,224,0.8)';
+          const bw2 = Math.max(3, 5 * SF_TILT);
+          if(sfTile(wx, wy - 1) === 16) g.fillStyle = bar, g.fillRect(sx, sy, csz, bw2);
+          if(sfTile(wx, wy + 1) === 16) g.fillStyle = bar, g.fillRect(sx, sy + sh - bw2, csz, bw2);
+          if(sfTile(wx - 1, wy) === 16) g.fillStyle = bar, g.fillRect(sx, sy, 4, sh);
+          if(sfTile(wx + 1, wy) === 16) g.fillStyle = bar, g.fillRect(sx + csz - 4, sy, 4, sh);
+        }
         // gutter shade band along the curb + storm drain grates near
         // crosswalk ends — the dark slot where rain leaves the street
         const gut = (edge) => {
@@ -4273,6 +4468,10 @@ function sfRenderStreet(cw, ch){
       og.addColorStop(1, `rgba(150,158,172,${oa * 0.5})`);
       ctx.fillStyle = og; ctx.fillRect(0, 0, cw, horizon);
     }
+    // v44: the horizon is real geography — skyline silhouettes on true
+    // compass bearings (roofline band, downtown NE, Twin Peaks + Sutro
+    // WSW), drawn before Karl so the marine layer veils them correctly
+    sfSkyline(cw, horizon, F, useYaw, cover, wK, fogAFrame);
     // v6: marine layer — Karl the Fog shouldering over the horizon,
     // growing with humidity; the Mission's signature wall of gray.
     const fogA = clamp(0.16 + (W.hum - 0.55) * 1.7 + W.rain * 0.5, 0.1, 0.9);
@@ -4633,6 +4832,60 @@ function sfRenderStreet(cw, ch){
                        subQ(cm * 0.68, 0, cm * 0.82, cm, 'rgba(20,22,28,0.16)'); }
         else if(h2 && !v2){ subQ(0, cm * 0.18, cm, cm * 0.32, 'rgba(20,22,28,0.16)');
                             subQ(0, cm * 0.68, cm, cm * 0.82, 'rgba(20,22,28,0.16)'); }
+      }
+      /* v44: same arterial dressing as the baked atlas — red transit
+         carpet on curb lanes, double-yellow centerline, stop bars at
+         crosswalks, sparse manholes. Median cells already come in green
+         through SF_GROUND_OVR. */
+      if(SF_ROADW && cfwd < 100){
+        const ri = gy * SF_M.gw + gx;
+        const rw2 = SF_ROADW[ri], rax = SF_ROADAX[ri], roff = SF_ROADOFF[ri];
+        const nearX = (nm & 4) || (nm & (4 << 4)) || (nm & (4 << 8)) ||
+                      (nm & (4 << 12));
+        if(rw2 >= 7 && rw2 <= 9 && !nearX){
+          const curbSide = rax === 0
+            ? ((nm & (2 << 0)) || (nm & (2 << 4)))
+            : ((nm & (2 << 8)) || (nm & (2 << 12)));
+          if(curbSide) subQ(0, 0, cm, cm, 'rgba(166,56,42,0.45)', 0);
+          if(Math.abs(roff) <= 1){
+            const yl = 'rgba(216,170,54,0.75)';
+            if(rax === 1){
+              const cxp = cm * (0.5 - roff / 2);
+              subQ(cxp - 0.09, 0, cxp - 0.03, cm, yl, 0);
+              subQ(cxp + 0.03, 0, cxp + 0.09, cm, yl, 0);
+            } else {
+              const cyp = cm * (0.5 - roff / 2);
+              subQ(0, cyp - 0.09, cm, cyp - 0.03, yl, 0);
+              subQ(0, cyp + 0.03, cm, cyp + 0.09, yl, 0);
+            }
+          }
+        }
+        if(rw2 >= 10 && Math.abs(roff) <= 2 && cfwd < 70){
+          // median lip: pale stone + amber edge line on the outer edge
+          if(Math.abs(roff) === 2){
+            if(rax === 1){
+              const lx = roff > 0 ? cm - 0.22 : 0;
+              subQ(lx, 0, lx + 0.22, cm, 'rgba(212,206,190,0.7)', 0);
+              subQ(roff > 0 ? cm - 0.02 : -0.16, 0,
+                   roff > 0 ? cm + 0.14 : 0.06, cm, 'rgba(214,164,52,0.7)', 0);
+            } else {
+              const ly = roff > 0 ? cm - 0.22 : 0;
+              subQ(0, ly, cm, ly + 0.22, 'rgba(212,206,190,0.7)', 0);
+              subQ(0, roff > 0 ? cm - 0.02 : -0.16,
+                   cm, roff > 0 ? cm + 0.14 : 0.06, 'rgba(214,164,52,0.7)', 0);
+            }
+          }
+        }
+        if(cfwd < 70){
+          const bar = 'rgba(234,234,224,0.7)';
+          if(nm & (4 << 0))  subQ(0, 0, cm, 0.32, bar, 0);
+          if(nm & (4 << 4))  subQ(0, cm - 0.32, cm, cm, bar, 0);
+          if(nm & (4 << 8))  subQ(0, 0, 0.32, cm, bar, 0);
+          if(nm & (4 << 12)) subQ(cm - 0.32, 0, cm, cm, bar, 0);
+          if(!nearX && phash(gx, gy, 1771) < 0.045 && cfwd < 50)
+            subQ(cm * 0.32, cm * 0.36, cm * 0.68, cm * 0.64,
+                 'rgba(38,42,50,0.8)', 0);
+        }
       }
     }
     // v9: aerial perspective — far pavement dissolves into the marine layer

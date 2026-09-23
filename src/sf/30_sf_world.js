@@ -96,6 +96,12 @@ function sfGenChunk(cx, cy){
 /* ---- collision: buildings block, door thresholds pass ---- */
 const SF_PROP_CELL = new Map(); // "wx,wy" -> [objs] spatial index (v5)
 const SF_WIRES = []; // v20: [{x1,y1,x2,y2}] pole-top wire spans (world px)
+/* v44: street classification — real curb-to-curb width per road cell.
+   SF_ROADW = perpendicular run length (cells), SF_ROADAX = travel axis
+   (0 = E-W, 1 = N-S), SF_ROADOFF = signed cell offset from the axis
+   centerline. Drives the red transit carpet, centerlines, the Dolores
+   palm median, stop bars and manholes in both ground passes. */
+let SF_ROADW = null, SF_ROADAX = null, SF_ROADOFF = null;
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       sfStreetTree: 8, sfCypress: 7, sfPlanter: 5,
@@ -621,6 +627,78 @@ function sfInitWorld(){
       if(lst[k].slot - lst[k - 1].slot > 16) continue;
       SF_WIRES.push({ x1: lst[k - 1].o.x, y1: lst[k - 1].o.y,
                       x2: lst[k].o.x, y2: lst[k].o.y });
+    }
+  }
+
+  /* ---- v44: street classification from real run geometry ----
+     For every road cell the contiguous (street|crosswalk) run in each
+     axis is measured once: the SHORTER run is curb-to-curb width, the
+     LONGER is the travel axis. Mission/Guerrero resolve to 7-9 cells,
+     residential streets to 5-6, Dolores to 12-15 (it really is a
+     boulevard with a planted median). Intersection cells (both runs
+     long, or crosswalk tile) get width but no centerline dressing. */
+  {
+    const gw = SF_M.gw, gh = SF_M.gh, n = gw * gh;
+    const isRd = (t) => t === 10 || t === 16;
+    const hL = new Int16Array(n), hLen = new Uint16Array(n),
+          vL = new Int16Array(n), vLen = new Uint16Array(n);
+    for(let y = 0; y < gh; y++){
+      let x = 0;
+      while(x < gw){
+        if(!isRd(SF_GRID[y * gw + x])){ x++; continue; }
+        let x2 = x;
+        while(x2 + 1 < gw && isRd(SF_GRID[y * gw + x2 + 1])) x2++;
+        for(let k = x; k <= x2; k++){ const i = y * gw + k; hL[i] = x; hLen[i] = x2 - x + 1; }
+        x = x2 + 1;
+      }
+    }
+    for(let x = 0; x < gw; x++){
+      let y = 0;
+      while(y < gh){
+        if(!isRd(SF_GRID[y * gw + x])){ y++; continue; }
+        let y2 = y;
+        while(y2 + 1 < gh && isRd(SF_GRID[(y2 + 1) * gw + x])) y2++;
+        for(let k = y; k <= y2; k++){ const i = k * gw + x; vL[i] = y; vLen[i] = y2 - y + 1; }
+        y = y2 + 1;
+      }
+    }
+    SF_ROADW = new Uint8Array(n); SF_ROADAX = new Uint8Array(n);
+    SF_ROADOFF = new Int8Array(n);
+    for(let i = 0; i < n; i++){
+      if(!hLen[i]) continue;
+      const ax = hLen[i] > vLen[i] ? 0 : 1;
+      const w = Math.min(hLen[i], vLen[i]);
+      SF_ROADAX[i] = ax;
+      SF_ROADW[i] = Math.min(255, w);
+      const x = i % gw, y = (i / gw) | 0;
+      // signed offset from the perpendicular run's center, clamped
+      const off = ax === 0 ? y - (vL[i] + (vLen[i] - 1) / 2)
+                           : x - (hL[i] + (hLen[i] - 1) / 2);
+      SF_ROADOFF[i] = Math.max(-24, Math.min(24, Math.round(off * 2))); // half-cells
+    }
+    /* The Dolores Street median: real Dolores carries a planted palm
+       median down its centerline beside the park. Median cells (the
+       center two on any boulevard >= 10 cells wide) bake green in the
+       terrain pass, mirror green to the street camera, and take a palm
+       every ~6 cells along the axis. */
+    let nMed = 0;
+    for(let wy = 1; wy < gh - 1; wy++){
+      for(let wx = 1; wx < gw - 1; wx++){
+        const i = wy * gw + wx;
+        if(SF_GRID[i] !== 10 || SF_ROADW[i] < 10) continue;
+        if(Math.abs(SF_ROADOFF[i]) > 2) continue;   // |off| <= 1 cell
+        SF_GROUND_OVR.set(wx + ',' + wy, '#5d7f56');
+        const u = SF_ROADAX[i] ? wy : wx;
+        // palms on the consistent center cell: off 0 (odd widths) or the
+        // +0.5-cell side (even widths), every ~6 cells along the axis
+        if((SF_ROADOFF[i] === 0 || SF_ROADOFF[i] === 1) && u % 6 === 2 &&
+           sfTile(wx - 1, wy) === 10 && sfTile(wx + 1, wy) === 10 &&
+           sfTile(wx, wy - 1) === 10 && sfTile(wx, wy + 1) === 10 &&
+           !occNear(wx, wy, 1)){
+          addVeg('sfPalm', wx, wy, 0, 0);
+          nMed++;
+        }
+      }
     }
   }
 
