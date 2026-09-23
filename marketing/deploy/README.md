@@ -12,6 +12,11 @@ Everything here is LOCAL/draft until the owner gates open
 | `dns-records.example` | DNS spec: apex + www + `play.` + `stats.` (+ optional mail/verification). |
 | `stripe-products.json` | Product/price manifest for Stripe provisioning — numbers = PRICING-PAGE-CONTENT.md §2 (PROPOSAL until G4). |
 | `infra.env.example` | Secrets/env inventory. Copy to `infra.env.local` (gitignored) at provisioning; never commit values. |
+| `monitoring.example` | Uptime/alert spec: 6 HTTP probes, TLS-expiry alerting, 2-severity routing, per-failure response playbook. Feed to any external monitor, or cron `../tools/uptime_probe.sh` as the self-hosted stopgap. |
 
 Post-deploy verification: `../tools/prod_smoke.sh https://<domain>` — the
 production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2).
+
+The whole go-session is one command: `../tools/ship.sh` (preflight → kit
+rebuild → deploy → live smoke). Bare run rehearses read-only; `--apply`
+ships. Ongoing health: `../tools/uptime_probe.sh https://<domain>`.

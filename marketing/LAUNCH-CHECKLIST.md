@@ -45,7 +45,7 @@ log the result in §10 before the checklist may cite it.
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
 | G12 | Demo page live: set `data-demo-src` on `demo.html` `#demo-stage` to the spectator build URL; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels per G15 | owner + game track | `[ ] PENDING` — fallback verified; one-attribute flip at launch |
 | G13 | Moderation readiness: owner confirms the shipped feed display-filter default (game-v6 ships `GS_WIRE_CFG.displayFilter='A'`, all three modes implemented; `gsWireSetFilter` flips it in one call — MODERATION-PLAN.md §2.3) and confirms the game build wires the world-v8 contract (`screen.js` verdicts, lane routing, `reason_code` on feed denials, `mod_decision` ledger records — console demo exists at `world/mod-console.html`); record one `gsWireAudit()` → `{ok:true}` on staging data in the rehearsal log | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
-| G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate; est. 2–3 h |
+| G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate, `tools/ship.sh` runs steps 0–4 as one command; monitor spec in `deploy/monitoring.example`; est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
 
 ## §2 Run of show — T-minus schedule
@@ -98,12 +98,15 @@ Everything mechanical on day-0, copy-pasteable. Fill `<domain>` once.
 
 ```sh
 cd marketing
+./tools/ship.sh                                 # THE go command: preflight→kit→deploy→smoke (bare = rehearsal)
+./tools/ship.sh --apply                         # ships for real — needs RW_DEPLOY_* env + RW_DOMAIN
 ./tools/preflight.sh                            # THE go-gate: dry-run + secret scan + switches
 ./tools/staging_dryrun.sh                       # expect 0 fail, 0 warns post-G3
 ./build-press-kit.sh                            # rebuild dist zip post-G3/G4/G5
 ./deploy/deploy-site.sh                         # pure rsync dry-run — rehearse anytime
 ./deploy/deploy-site.sh --apply                 # D0.1 — gated deploy (host from infra.env)
 ./tools/prod_smoke.sh https://<domain>          # D0.2 — live smoke pass (read-only)
+./tools/uptime_probe.sh https://<domain>        # health probe — external-monitor stopgap (cron */5)
 grep -rIl 'realworld-game.example' site/        # must print nothing (G3)
 grep -n 'data-demo-src' site/demo.html          # must show the live embed URL (G12)
 grep -n 'data-pricing' site/pricing.html        # must show "final" post-G4
@@ -215,6 +218,8 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | staging_dryrun.sh (v38, shots v26) | 33 pass / 2 warn / 0 fail — warns: domain ×2 only (PNG-weight warn cleared) |
 | 2026-09-23 | tools/preflight.sh (v38) | 5 pass / 5 warn / 0 fail — warns: G3 domain, G4 provisional, G8 endpoint, G12 demo-src, uncommitted files |
 | 2026-09-23 | tools/gonogo.sh (v38, post-refresh) | 2/15 auto-green (G5, G9) — mechanical gates now prove themselves |
+| 2026-09-23 | tools/ship.sh (v44, first run, rehearsal mode) | full pipeline green: preflight GO (4 pass / 6 warn / 0 fail) → dist zip rebuilt → deploy dry-run (env unset) → punch list printed |
+| 2026-09-23 | tools/uptime_probe.sh (v44, vs localhost staging) | HEALTHY — 4×200 + brand marker; TLS check correctly WARNs on non-HTTPS |
 
 ## §11 Never-do list (load-bearing)
 

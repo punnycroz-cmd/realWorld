@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v29 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v44 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -114,6 +114,9 @@ staging exists mainly to rehearse DNS/TLS/headers and the demo embed.
 ## 5. Provisioning runbook (the "go" session)
 
 Ordered; each step maps to a LAUNCH-CHECKLIST gate. Est. total: ~2–3 h.
+**The whole session is now one command:** `tools/ship.sh` runs steps 0–4
+plus the kit rebuild and prints the post-deploy punch list — `--apply`
+ships for real, bare invocation rehearses it read-only (§6).
 **Step 0, always:** `tools/preflight.sh` — runs the dry-run, a secret scan
 over `site/`+`deploy/`, sitemap parity, press-kit freshness, and reports the
 three owner-gated flip flags (pricing/demo/analytics). Exit 0 = mechanically
@@ -128,7 +131,7 @@ GO; it never publishes anything.
 | 4 | Verify TLS auto-issued; run `tools/prod_smoke.sh https://<domain>` | G14/D0.2 | 10 min |
 | 5 | Stand up analytics backend on `stats.<domain>`; set `data-endpoint` on all pages; confirm events in dashboard | G8 | 30 min |
 | 6 | Stripe: create account → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path | G14 | 45 min |
-| 7 | Point uptime monitor at `/` and `play.` health; alert → owner email/SMS | G14 | 10 min |
+| 7 | Arm uptime monitoring per `deploy/monitoring.example` (external monitor, or cron `tools/uptime_probe.sh` as the self-hosted stopgap); alert → owner email/SMS | G14 | 10 min |
 | 8 | Swap `realworld-game.example` → real domain in all 8 files (dry-run §4 sweep must go clean) | G3 | 15 min |
 | 9 | Rebuild press kit (`./build-press-kit.sh`), rerun dry-run | G9/G10 | 10 min |
 
@@ -192,3 +195,33 @@ GO; it never publishes anything.
 4. Stripe account + whether to start Stripe-only (recommended) or MoR.
 5. Whether `play.` lives on the same box as the site (Caddy
    `reverse_proxy` block already sketched in `deploy/Caddyfile`).
+
+## 11. Day-2 operations (post-launch)
+
+What keeps the surface healthy after D0.1 — all runnable from this repo.
+
+- **The go command:** `tools/ship.sh` orchestrates preflight → kit rebuild →
+  deploy → live smoke → punch list. Rehearse bare (`./tools/ship.sh`,
+  read-only); ship with `--apply` + deploy env set. It hard-stops on any
+  preflight FAIL — owner-gated warns pass through by design.
+- **Monitoring:** `deploy/monitoring.example` is the probe/alert spec —
+  six HTTP probes (apex pages, sitemap, `play.` + `stats.` health), TLS
+  expiry at 14 days, two-severity alert routing, and a short response
+  playbook per failure class. Until the owner picks an external monitor,
+  `tools/uptime_probe.sh https://<domain>` (cron `*/5`) is the self-hosted
+  stopgap — same checks, exits non-zero on failure.
+- **Backups:** the site is stateless — there is nothing to back up beyond
+  what git already holds. Host keeps the 5 newest releases
+  (`deploy-site.sh` retention); rollback = symlink flip. The only
+  irreplaceable host artifact is `/srv/www/realworld/maintenance.html`
+  (re-copyable from `deploy/`). Analytics DB (if self-hosted Umami) is
+  game-adjacent — backup policy is set when the backend is picked (G8).
+- **TLS:** Caddy auto-renews ~30 days out; the 14-day monitor alert means
+  renewal already failed once — check 80/443 reachability and LE
+  rate-limits, don't wait for day 0.
+- **Logs:** Caddy access/error logs live on the host (`journalctl -u caddy`);
+  nothing is shipped back. Uptime probes should retain 30 days of
+  status history (any free monitor does this).
+- **Post-launch verification cadence:** `prod_smoke.sh` after every
+  deploy (ship.sh runs it automatically); `uptime_probe.sh` failures →
+  LAUNCH-CHECKLIST §5 severity ladder.
