@@ -71,6 +71,112 @@
     <p class="eyebrow">Latest — devlog</p>
     <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
+      <h2>Now hiring: the block posts real jobs.</h2>
+      <p>
+        The job board on the wall at Mudhaus stopped being set dressing.
+        Every open role on the block now moves through a real lifecycle —
+        <b>posted → screening → trial → filled</b> — with a reposted card
+        meaning exactly what it means on a real corkboard: the last person
+        washed out or took something else. And the board is only one of
+        four hiring channels. Some openings go through the gig app, some
+        through an institutional portal, and the best ones travel by word
+        of mouth — invisible to the board by construction. A spectator
+        learns about those the way neighbors do: somebody mentions it.
+      </p>
+      <p>
+        For players, hiring is now a first-class request. A
+        <b>character hire</b> filing (500 credits, flat) brings a new
+        resident onto the block through the ordinary application path —
+        structured application, a name check against the whole cast and
+        crew, a pre-payment disclosure card that shows the full quote
+        before anything is billed, and a charge that only lands if the
+        hire is approved. Denied applications never bill. Hired residents
+        take a real opening off the finite job board, start at the room
+        tier like everyone else, and are bound by the same math as the
+        cast: rent stays under roughly 55% of what the job pays, and a
+        hire package can only move them in through a lease that clears.
+      </p>
+      <p>
+        Once hired, they live by the block's clock — job-anchored routines,
+        a Friday payroll that runs employer to character every SF Friday,
+        and the same ordinary life as everyone on the
+        <a href="cast.html">cast page</a>. On the feed it shows up the way
+        the rest of the block's news does — a job start, a move — as
+        ordinary events, not spectacle. See the request classes on
+        <a href="how-it-works.html">how it works</a>.
+      </p>
+      <p class="muted">
+        Sources: the market layer is the world track's
+        <code>world/market.md</code>/<code>market.json</code> (opening
+        lifecycle, four channels, churn table, ladders — INTERNAL tier,
+        conditions never scripts); the hire request and its economics ship
+        in the game track's <code>41_game_systems_hiring.js</code> (flat
+        500 billed on approval, finite openings, 55% ceiling, Friday
+        payroll); the request contract is <code>world/requests.json</code>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
+      <h2>Meet the venues.</h2>
+      <p>
+        The block's twenty-five businesses are people now — at least on
+        paper. Every parody storefront on the map graduated from a name on
+        a fascia to a registry entry: what it is, when it opens, who works
+        it, what you can do there, what things cost in game dollars.
+        Mudhaus Coffee, Taqueria El Farolote, Auerbach Hardware, Buy-Rite
+        Market, The 600 Club, Baguette About It Bakery — and four doors
+        promoted most recently: Golden Hour Laundromat, The Dusty Spine,
+        Marooned Records, The Musket. Each has its own card in the world
+        canon.
+      </p>
+      <p>
+        It matters because the world keeps venue hours. The Directory —
+        the internal demo over the registry — shows which doors are open
+        at whatever time you look, by the block's own clock. A 2 a.m.
+        request aimed at a closed bakery behaves like a 2 a.m. request
+        aimed at a closed bakery: it queues or it waits. Venues aren't
+        set dressing; they're resources with schedules the request
+        pipeline respects.
+      </p>
+      <p>
+        The newest layer is the one you can't fully see. The venues now
+        link to each other — supplier runs, crowd spillover, rivalry
+        pressure, shared regulars, gossip routes — fourteen edges the
+        simulation may notice and is never obliged to act on. Most of that
+        mesh is public knowledge; one edge is deliberately kept off public
+        surfaces, like every secret on the block.
+      </p>
+      <p>
+        And a standing reminder of the naming law: every business on the
+        block is a parody — GTA-style imitation, never a real Mission
+        business. Streets and landmarks stay real (Dolores Park doesn't
+        need a stage name); businesses get fictional ones. If a request
+        names a real business, the form suggests the parody instead.
+      </p>
+      <p class="muted">
+        Sources: the venue registry is <code>world/businesses.json</code> +
+        the per-venue cards in <code>world/businesses/</code>; the
+        venue-to-venue mesh is its <code>web</code> block; the naming
+        policy is <code>world/businesses.md</code>; the full cast of
+        regulars is on the <a href="cast.html">cast page</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
       <h2>The Archive: the block keeps its receipts.</h2>
       <p>
         Last week the Wire learned to hand out permalinks. This week it learned

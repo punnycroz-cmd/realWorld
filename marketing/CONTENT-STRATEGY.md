@@ -141,14 +141,17 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 2 — "Every request knocks before it enters" | live on `journal.html` | world-v8 `screen.js`/`moderation.json`/`mod-console.html` |
 | Devlog 3 — "Rent is due on the first" | live on `journal.html` (v42) | world `jobs-housing.md`, `leases.json`, `housing/` |
 | Devlog 4 — "The Wire: every event gets a permalink" | live on `journal.html` (v42); record at `marketing/content/devlog-04-the-wire.md` | game-v6 `41_game_systems_feed.js`, world-v19 `wire.html`/`wire-ui.md`/`feed.json` |
-| Devlog 5 — "Meet the venues" | drafted, `marketing/content/devlog-05-meet-the-venues.md` | world `businesses.json` + `businesses/` + `directory.html` (world-v16) |
+| Devlog 5 — "Meet the venues" | live on `journal.html` (v57); record at `marketing/content/devlog-05-meet-the-venues.md` | world `businesses.json` (25 live venues + `web` mesh) + `businesses/` + `directory.html` (world-v16/v30) |
 | Devlog 6 — "The Archive: the block keeps its receipts" | live on `journal.html` (v46); record at `marketing/content/devlog-06-the-archive.md` | world-v20 `archive.html`/`archive-ui.md`/`history.json`, game-v6 `gsWireDays`/`gsWireArchiveDay` |
+| Devlog 7 — "Now hiring: the block posts real jobs" | live on `journal.html` (v57); record at `marketing/content/devlog-07-now-hiring.md` | world-v31 `market.md`/`market.json`, game-v8 `41_game_systems_hiring.js`, `requests.json` hire row |
+| Devlog 8 — "The wallet shows its math" | drafted, `marketing/content/devlog-08-the-wallet.md` | world-v32 `requests.json → wallet/appeals/co_sponsor/session_extend` + `request-ui.md` §8 |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
-Backlog (write when the source lands — never ahead of it): lease-ledger
-devlog deep-dive (devlog-3 covers the intro; a ledger-mechanics follow-up
-still has room), a transparency note format for moderation stats once the
-live feed emits `moderation.json`-shaped events, a wire.html-screenshot
-post if the world/art tracks publish a spectator-app capture, memory-model
-explainer once game-systems implements the memory spec (research-only
-today — do not preview).
+Backlog (write when the source lands — never ahead of it): publish
+devlog-08 once its checklist passes against both `requests.json` and
+`pricing.html`; lease-ledger devlog deep-dive (devlog-3 covers the intro;
+a ledger-mechanics follow-up still has room), a transparency note format
+for moderation stats once the live feed emits `moderation.json`-shaped
+events, a wire.html-screenshot post if the world/art tracks publish a
+spectator-app capture, memory-model explainer once game-systems implements
+the memory spec (research-only today — do not preview).
