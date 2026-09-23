@@ -1,8 +1,8 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v78 — store-operations depth pass (store-page FAQ, refund/support
-copy, itch community policy, wishlist posture, other-storefront audit) +
-v50 art rebase, 2026-09-24.** Supersedes v63.
+**Status: v93 — art-v51 rebase (screenshots/captions/ledger) + itch.io
+complete field map + store-update SOP + bundle stance, 2026-09-23.**
+Supersedes v78.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — the only outstanding art dependency is the
@@ -177,7 +177,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v50-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v51-A..D.png` (4 ready, specular-glass build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -191,9 +191,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v50-D (director view — the hook), v50-B
-(street level), v50-C (Dolores Park), v16-int-cafe (interior vignette),
-then v50-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v51-D (director view — the hook), v51-B
+(street level), v51-C (Dolores Park), v16-int-cafe (interior vignette),
+then v51-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -252,7 +252,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v50-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v51-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -355,11 +355,14 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v50-D "director view" → "Aerial view
-of the Mission block at golden hour — the spectator camera's home position.";
-v50-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v50-C park → "Dolores Park edge — palms, lawn,
-residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
+`press-kit/captions.txt` as canonical): v51-D "director view" → "Director
+mode over the rooftops under a clean autumn sky — REC cluster up top,
+awnings and pastel facades stepping with the block, leaves across the
+lens."; v51-B street level → "Street-level up the block past parody
+storefronts — autumn leaves drifting, parked cars on the curb, name tags
+overhead (Dani, Priya, Jules)."; v51-C park → "The park from above as Karl
+pools at the edges — mature crowns, worn desire-lines, the palm allée
+through thinning fog."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
 the before/after that anchors the devlog series."
 
@@ -384,7 +387,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v50-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v51-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -484,7 +487,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v50 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v51 build) | shipped |
 
 ---
 
@@ -807,3 +810,115 @@ ask; Steam coming-soon gates incl. "To be announced" only), §24
 other-storefront audit (Epic/GOG/Humble/portals/mobile verdicts);
 versioning note renumbered §20→§25; §14 claim-ledger art-build cite
 refreshed v40→v50.
+
+**v93 changes:** art rebase v50→v51 (specular window glints, eave-shadow
+shear, lamplit spill — specular-glass build): §2.4/§2.5/§4 screenshot
+refs, §9 caption set rewritten to match `press-kit/captions.txt` v51
+wording (inspector on Jules, Karl pooling at the park edges, REC cluster),
+§10 media row, §14 ledger cite. Capsules/keyart/og-card already rebaked on
+v51-D at v91 — no asset work needed, this was pure copy drift (caught by
+`store_copy_check.py`: the v50-A..D range check FAILED). New §26 itch.io
+complete field map (every project-edit field incl. sidebar "more
+information" + external links with UTMs), §27 store-update SOP (the
+rebase drill that this drift proved necessary — grep pattern + script
+order + checker gate), §28 bundle-invitation stance (decline; why a live
+free page can't bundle).
+
+---
+
+## 26. itch.io complete field map (every project-edit field)
+
+§2.1 covers the headline fields; this table is the rest of the edit form so
+submission day is transcription, not decisions. `PLACEHOLDER` rows are
+owner-gated (LAUNCH-CHECKLIST gates noted).
+
+| itch field | Value | Source |
+|---|---|---|
+| Project URL slug | `real-world-the-mission` | title, §2.1 |
+| Classification | Games | — |
+| Kind of project | HTML | browser-native |
+| Release status | In development | §2.1 early-access flag |
+| Pricing | $0 (free); "pay what you want" OFF | donations bypass credits, §2.1 |
+| Genre | Simulation | primary + only honest genre |
+| Tags | §2.3 ordered list | ≤10 shown |
+| Cover | `store/capsules/itch-cover-630x500.png` | §4 |
+| Theme palette | §11 verbatim token values | brand-tokens.json |
+| Header image | `banners/banner-x-1500x500.png` | §11 |
+| Viewport/embed | 1280×720, click-to-run, fullscreen on | §2.5 |
+| Comments | ON — policy §22 | first comment pre-drafted |
+| External links | see link table below | — |
+| Visibility | Draft → owner review → public | §9 step 10 |
+
+**External links** (itch shows these as page links; every one carries UTM
+per ANALYTICS.md conventions — `utm_source=itch&utm_medium=store`):
+
+| Label | URL |
+|---|---|
+| Website | `https://<domain>/?utm_source=itch&utm_medium=store` |
+| Watch the neighborhood | `https://<domain>/demo.html?utm_source=itch&utm_medium=store` |
+| The Wire (public feed) | `https://<domain>/wire.html?utm_source=itch&utm_medium=store` |
+| Press kit | `https://<domain>/press-kit.html?utm_source=itch&utm_medium=store` |
+| Community rules | `https://<domain>/rules.html?utm_source=itch&utm_medium=store` |
+
+**"More information" sidebar** (itch's standard metadata block — publish it
+honest):
+
+| Sidebar field | Value |
+|---|---|
+| Status | In development — live dev build, watching free from day one |
+| Platforms | HTML5 (any modern browser; mobile-friendly) |
+| Author | `[STUDIO NAME]` (**PLACEHOLDER** — owner-gated, G6) |
+| Made with | Custom canvas renderer + LLM-driven residents (disclosed, §5) |
+| Session length | Any — drop-in spectator model |
+| Inputs | Mouse/touch; keyboard not required |
+| Links | Website · Public feed · Press kit · Community rules (UTM table above) |
+
+Never fill fields we can't honor: no "local multiplayer" flag, no
+controller-support flag, no release date until the owner commits one.
+
+---
+
+## 27. Store-update SOP (the rebase drill)
+
+Every art rebase or contract change has drifted this file once — this is
+the checklist that prevents it. Run in order; each step has a verify.
+
+| # | Trigger: new art build published (`v{N}-A..D` in `published/`) |
+|---|---|
+| 1 | Copy shots to `site/shots/` + `press-kit/screenshots/`, regenerate `.webp` |
+| 2 | Re-pin `SHOT` in `tools/make_brand_assets.py` → `v{N}-D`, rerun it (capsules, keyart, og-card, banners) |
+| 3 | `bash build-press-kit.sh` — rebuilds the dist zip |
+| 4 | `rg -n "v\d+-(A|B|C|D)" STORE-COPY.md` — every stale ref must move to `v{N}` (§2.4, §2.5, §4, §9, §10, §14) |
+| 5 | Rewrite §9 caption set + `captions.txt` to describe the *new* frames — never carry over weather/fog claims |
+| 6 | `python3 tools/store_copy_check.py` → 0 fail; `tools/preflight.sh` → GO |
+| 7 | Append a versioning-note line (§25) naming the build and its visual signature |
+
+| # | Trigger: `world/requests.json` rates or feed vocabulary change |
+|---|---|
+| 1 | `rg -n "cr|credit" STORE-COPY.md` — §2.2 menu, §13 variants, §14 ledger must match verbatim |
+| 2 | `rg -n "request_status\|feed_vocabulary" world/requests.json` — compare against §9 feed-vocabulary note |
+| 3 | If a PROPOSAL number finalizes, flip its label here and in PRICING-PAGE-CONTENT.md in the same commit — never half-final |
+
+Rule of thumb: **copy cites builds, builds don't cite copy.** The claim
+ledger (§14) is the index of what to re-verify; if it's not in §14, it
+shouldn't be in the copy.
+
+---
+
+## 28. Bundle invitations — standing answer
+
+itch charity bundles and game-jam collections invite pages, not
+executable builds — so the question will come up. The answer is **no, on
+principle**:
+
+- Watching is already free — a bundle can't add value to the product.
+- A bundle "key" can never grant credits: paid agency is priced per
+  request against the live economy, and currency issued outside Stripe is
+  untraceable (breaks the two-walled-currencies claim, §5).
+- Bundle buyers reasonably expect downloadable games; ours is a live
+  shared shard — an installable copy would be a lie about the product.
+
+If the owner ever wants bundle-adjacent charity: offer the devlog/press
+materials (keyart, caption pack) to a bundle's promotional assets, never
+the product itself. Same verdict for Steam key bundles / gray-market
+resellers — no keys exist to sell.
