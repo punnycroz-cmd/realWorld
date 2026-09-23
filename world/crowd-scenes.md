@@ -48,6 +48,8 @@ Sunday; Luz's stand shortens.
 | Condition | Crowd deformation |
 |---|---|
 | Rain | Park empties (A05/A19 stay home, Doro shortens loops, Sam → 600 Club doorway); Luz tarps and halves the day; library + cafés absorb the overflow; Kofe/Omar keep pace (work doesn't care) |
+| Fog (v57) | A depth profile, not a binary — deep overnight/commute, burns ~10:30. Park reads thin, cafés tick up; Esther + Ray hold the Dolores Perk window till it burns; Luz opens late; the kids orbit the Mudhaus awning. On an all-day fog the parliament stays in exile |
+| Wind (v57) | Afternoon westerlies (peak 14–18): open-air thins, stands pack early, Sam's pitch moves to the 600 Club doorway; nobody leaves the block, they just hold onto things |
 | Storm / thunder | All outdoor states → `inside` within a block; the feed should read as *emptied*, that's fine |
 | Heat wave | Park fills; Luz stays late and sells out; Hana's bake shortens; 600 Club spills earlier |
 | Dusk (`sfLampsLit`) | Day roles head home; A08/A14 reverse direction; lit windows become the crowd |
@@ -76,6 +78,9 @@ bits — the things regulars of the feed learn to wait for:
   truck is worth keeping, continued from last week.
 - **Doorway sets** — Sam under the 600 Club awning when it rains:
   smaller crowd, better music.
+- **Parliament in exile** (v57) — Esther and Ray at the Dolores Perk
+  window table whenever the benches are untenable: rain, storm, or an
+  all-day fog. Same argument, worse view of the pigeons.
 
 ## 5. What the crowd must never do
 
@@ -95,13 +100,15 @@ bits — the things regulars of the feed learn to wait for:
 - Per-NPC detail: `world/ambients/a01..a20`
 - Machine-readable registry: `world/ambients.json` (routines keyed to
   `SF_AMBIENT_ROUTINES` in `src/sf/33_sf_cast.js`)
-- Crowd model (v15, deepened v29 + v43): `world/crowd-sim.md` +
+- Crowd model (v15, deepened v29 + v43 + v57): `world/crowd-sim.md` +
   `world/crowd.json` — the two-layer population contract (named ambients +
   unnamed extras), density bands, weather/event deformation, scene
   conditions, day shades, the flow layer, micro-texture, walk-chain
   continuity, the greeting matrix, the six ambient work zones, claimable
-  sub-venue resources, and the per-ambient week/weather variant layer
-  (`ambients.json` v43); `world/crowd.html` demos it; the `crowd` audit
+  sub-venue resources, the per-ambient week/weather variant layer
+  (`ambients.json` v43), and the marine-layer pass (`ambients.json` v57:
+  fog/wind answers on all 20, season shades, the fog depth model);
+  `world/crowd.html` demos it; the `crowd` audit
   gate enforces json↔demo agreement
 - Venue names: `world/businesses.md` (canonical parody names; code-side
   resolution via `SF_WORLD_POIS` in `src/sf/30_sf_world.js`)

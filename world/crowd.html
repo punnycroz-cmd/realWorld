@@ -16,6 +16,11 @@
   auerbach/needlepointe/doloresperk), claimable sub-venue resources,
   and a per-ambient day card (click a roster chip — signature +
   resolved day incl. week/weather variants).
+  v57 adds: the marine layer — fog and wind as weather conditions, fog
+  as a depth profile (deep/patchy/burned, burn-off ~10:30, an all-day
+  mode), season shades (fog_season / indian_summer / wet_season) that
+  stack under the day shades, two new micro-events (fog-burn,
+  west-wind), and the parliament-in-exile scene.
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -93,7 +98,9 @@
   <input type="range" id="scrub" min="0" max="24" step="0.5" value="8">
   <div class="tgl" id="dayTgl">day <button data-v="weekday" class="on">weekday</button><button data-v="weekend">weekend</button></div>
   <div class="tgl" id="shTgl">shade <button data-v="none" class="on">—</button><button data-v="fri">fri</button><button data-v="sun">sun</button><button data-v="mon">mon</button><button data-v="first_of_month">1st</button></div>
-  <div class="tgl" id="wxTgl">wx <button data-v="clear" class="on">clear</button><button data-v="rain">rain</button><button data-v="storm">storm</button><button data-v="heat">heat</button></div>
+  <div class="tgl" id="wxTgl">wx <button data-v="clear" class="on">clear</button><button data-v="fog">fog</button><button data-v="wind">wind</button><button data-v="rain">rain</button><button data-v="storm">storm</button><button data-v="heat">heat</button></div>
+  <div class="tgl" id="fogTgl">fog <button data-v="burn" class="on">burns off</button><button data-v="allday">all-day</button></div>
+  <div class="tgl" id="seaTgl">season <button data-v="6">jun</button><button data-v="9" class="on">sep</button><button data-v="1">jan</button></div>
   <div class="tgl" id="evTgl">event <button data-v="none" class="on">none</button><button data-v="party">block party @ park</button><button data-v="lock">exclusive lock @ Mudhaus</button></div>
 </header>
 <main>
@@ -130,7 +137,8 @@
       <li><b>00–04 may be deserted.</b> The honest hour is protected — nothing pads it.</li>
       <li><b>Minors (June, Zee)</b> stay public-space; greet in packs; never request targets.</li>
       <li><b>Locked venues clear extras,</b> not staff — a claim empties the crowd, not the people who work there.</li>
-      <li><b>Shades, flows, micro-events stay internal.</b> The wire says band words and scene labels only.</li>
+      <li><b>Shades, flows, micro-events, seasons stay internal.</b> The wire says band words and scene labels only — a gray morning is a reading, never the word "fog_season".</li>
+      <li><b>Fog is a depth profile,</b> not a weather binary — it thins the west edge first and burns by ~10:30. An all-day fog sends the bench parliament to Dolores Perk; nobody runs, nobody shelters.</li>
     </ul></div>
   </div>
 </main>
@@ -160,7 +168,17 @@ const ZONES={
 const WX={clear:{open_air:1,cafe:1,shop:1,stand:1,restaurant:1,bar:1,civic:1},
   rain:{open_air:.15,cafe:1.4,shop:1.2,stand:.4,restaurant:1.2,bar:1.1,civic:1.5},
   storm:{open_air:.05,cafe:1.2,shop:1.1,stand:0,restaurant:1.1,bar:.9,civic:1.3},
-  heat:{open_air:1.4,cafe:.9,shop:1,stand:1.3,restaurant:1,bar:1.2,civic:1.2}};
+  heat:{open_air:1.4,cafe:.9,shop:1,stand:1.3,restaurant:1,bar:1.2,civic:1.2},
+  fog:{open_air:.55,cafe:1.15,shop:1,stand:.8,restaurant:1,bar:1.05,civic:1.1},
+  wind:{open_air:.75,cafe:1.05,shop:1,stand:.7,restaurant:1,bar:1,civic:1}};
+/* v57 mirrors: the marine layer + season shades */
+const FOG={stages:["deep","patchy","burned"],burn_hour:10.5,
+  profile:{overnight:"deep",predawn:"deep",commute:"deep",rush:"patchy",midday:"burned",lunch:"burned",afternoon:"burned",evening:"patchy",night:"deep"},
+  line:"the park's west edge"};
+const SEASONS={
+  fog_season:{months:[5,6,7,8],zone_mult:{park:.9,clarion:.9},daypart_zone_mult:{commute:{park:.8},rush:{park:.85}}},
+  indian_summer:{months:[9,10],zone_mult:{park:1.1},daypart_zone_mult:{afternoon:{park:1.15,clarion:1.1},evening:{park:1.1}}},
+  wet_season:{months:[11,12,1,2,3],zone_mult:{park:.95}}};
 const BANDS=[[0,"deserted"],[1,"thin"],[4,"steady"],[9,"busy"],[16,"packed"]];
 /* v29 mirrors: shades, flow edges, micro-events, greeting matrix */
 const SHADES={
@@ -181,7 +199,9 @@ const MICROS=[
   {id:"school-bell",when:{dow_not:["sat","sun"],hrs:[15,16.5]},edge_mult:{"f-school-park":2},zone_floor:{park:{afternoon:2}},note:"school release current"},
   {id:"delivery-window",when:{dp:["commute","rush"]},note:"truck curb dwell at bakery/market"},
   {id:"last-call-drift",when:{hrs:[23,26]},edge_mult:{"f-club600-edge":1.6},zone_mult:{elfarolote:1.15},note:"post-bar tail"},
-  {id:"sunday-stoop",when:{dow:"sun",dp:["midday","lunch","afternoon","evening"]},note:"stoops read occupied"}];
+  {id:"sunday-stoop",when:{dow:"sun",dp:["midday","lunch","afternoon","evening"]},note:"stoops read occupied"},
+  {id:"fog-burn",when:{wx:"fog",hrs:[10.5,12.5]},edge_mult:{"f-mudhaus-park":1.5},zone_floor:{park:{midday:6}},note:"the burn-off hour — the park fills in twenty minutes"},
+  {id:"west-wind",when:{wx:"wind",hrs:[14,18]},edge_mult:{"f-park-minimart":.7},zone_mult:{clarion:.8,streets:.9},note:"gusts shorten loitering"}];
 const GREETS=[
   {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
   {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
@@ -209,8 +229,8 @@ const AMB=[
  ["A04","June","student",[[0,7.5,"home","sleep"],[7.5,15,"school","class"],[15,19,"park","park/café"],[19,24,"home","home"]],{minor:1,rain_to:"mudhaus",wk:[[0,9,"home","sleep"],[9,19,"park","park/café"],[19,24,"home","home"]]}],
  ["A05","Esther","retiree",[[0,8,"home","sleep"],[8,18,"park","bench"],[18,24,"home","home"]],{rain_to:"doloresperk"}],
  ["A06","Kofe","delivery rider",[[0,8,"home","sleep"],[8,19,"streets","riding"],[19,24,"home","home"]]],
- ["A07","Luz","fruit vendor",[[0,7,"home","sleep"],[7,18,"fruteria","serve"],[18,24,"home","home"]],{rain_half:1}],
- ["A08","Sam","busker",[[0,10,"home","sleep"],[10,18,"park","pitch"],[18,24,"club600","corner"]],{rain_to:"club600"}],
+ ["A07","Luz","fruit vendor",[[0,7,"home","sleep"],[7,18,"fruteria","serve"],[18,24,"home","home"]],{rain_half:1,wind_half:1,fog_late:1}],
+ ["A08","Sam","busker",[[0,10,"home","sleep"],[10,18,"park","pitch"],[18,24,"club600","corner"]],{rain_to:"club600",wind_to:"club600"}],
  ["A09","Asha","nurse",[[0,8,"home","sleep"],[8,19.5,"sfgeneral","shift"],[19.5,21,"mudhaus","counter"],[21,24,"home","home"]]],
  ["A10","Gus","mechanic",[[0,6.5,"home","sleep"],[6.5,16,"folsom","work"],[16,24,"home","home"]],{off:["sun"]}],
  ["A11","Vera","librarian",[[0,7.5,"home","sleep"],[7.5,17.5,"library","work"],[17.5,20,"park","sit"],[20,24,"home","home"]],{off:["sun","mon"]}],
@@ -232,7 +252,8 @@ const SCENES=[
  {id:"release-1500",label:"The 15:00 release",ck:s=>s.day==="weekday"&&s.h>=15&&s.h<16.5&&inZ("A04","park"),why:"weekday 15:00–16:30, June out"},
  {id:"evening-nurse",label:"The evening nurse",ck:s=>s.dp==="evening"&&inZ("A09","mudhaus"),why:"Asha's counter seat 19:30–21"},
  {id:"victor-pickup",label:"Victor's pickup at Gus's",ck:s=>s.day==="weekday"&&["lunch","afternoon"].includes(s.dp)&&inZ("A10","folsom"),why:"weekly — Fridays (demo: weekday afternoons)"},
- {id:"doorway-sets",label:"Doorway sets",ck:s=>s.wx==="rain"&&inZ("A08","club600"),why:"Sam under the awning — rain is the trigger"}];
+ {id:"doorway-sets",label:"Doorway sets",ck:s=>(s.wx==="rain"||s.wx==="wind")&&inZ("A08","club600"),why:"Sam under the awning — rain or gusts are the trigger"},
+ {id:"parliament-in-exile",label:"Parliament in exile",ck:s=>inZ("A05","doloresperk")&&inZ("A19","doloresperk"),why:"benches untenable — rain, storm, or an all-day fog"}];
 const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom",needlepointe:"Needlepointe",doloresperk:"Dolores Perk",edge:"off-map"};
 /* v43: claimable sub-venue resources — mirror crowd.json ambient_resources */
 const RESOURCES=[
@@ -263,7 +284,10 @@ const AMBX={
  A18:{sig:"apron · amble · a basket of loose stems",v:"mon: walks the alley to see what the week did · rain: buckets in off the sidewalk"},
  A19:{sig:"flat-cap · meander · a paper bag of crumbs",v:"rain: retires early — one wet pass for the pigeons · storm: disapproves from his own window · 8:30 and noon: never late for the pigeons"},
  A20:{sig:"headphones-big · meander · a phone held like a camera",v:"weekends: perimeter orbit all day · sun: the pack drifts south toward Luz · rain: compresses to the Mudhaus awning, home earlier"}};
-let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",sel:"mudhaus"};
+let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",sel:"mudhaus",month:9,fogAllDay:false};
+function fogStage(h){if(S.wx!=="fog")return null;const st=FOG.profile[daypart(h)];
+  if(S.fogAllDay&&st==="burned")return"patchy";return st;}
+function seasonShade(){for(const[id,s]of Object.entries(SEASONS))if(s.months.includes(S.month))return{id,s};return null;}
 
 function daypart(h){for(const d of DAYPARTS){const[h0,h1]=[d[1],d[2]];if(h0<=h&&h<h1)return d[0];}return"overnight";}
 /* shade resolves a day-of-week for closed_days + micro conditions */
@@ -280,6 +304,7 @@ function shadeZoneMult(z,dp){
 }
 function microActive(mc){
   const w=mc.when,dow=dowOf(),dp=daypart(S.h);
+  if(w.wx&&w.wx!==S.wx)return false;
   if(w.dow&&w.dow!==dow)return false;
   if(w.dow_not&&w.dow_not.includes(dow))return false;
   if(w.dp&&!w.dp.includes(dp))return false;
@@ -301,6 +326,16 @@ function ambWhere(a,h,day,wx){
       if(zone==="park"&&st!=="bench")return["streets","covered route"];
       if(zone==="park")return["home","rained out"];
     }
+    /* v57 fog: only while the marine layer holds — burned means a normal day */
+    if(wx==="fog"&&fogStage(h)!=="burned"){
+      if(opt.rain_home&&zone==="mudhaus"&&h<11)return["home","gray morning"];
+      if(opt.rain_to&&(zone==="park"||zone==="clarion"))return[opt.rain_to,"fogged over"];
+      if(opt.fog_late&&zone==="fruteria"&&h<7.5)return["home","dew delay"];
+    }
+    if(wx==="wind"){
+      if(opt.wind_to&&zone==="park")return[opt.wind_to,"doorway set"];
+      if(opt.wind_half&&zone==="fruteria"&&h>=14)return["home","packed early"];
+    }
     if(wx==="heat"&&zone==="bakery"&&h>=11)return["park","bake done early"];
     return[zone,st];
   }
@@ -316,6 +351,10 @@ function budgetMid(z,h,day,wx,shade){
   if(closed)return 0;
   let b=(zd[d2]&&zd[d2][dp])||[0,0];
   let mid=(b[0]+b[1])/2*WX[wx][zd.kind];
+  /* v57: season baseline resolves before shades/weather */
+  const ss=seasonShade();
+  if(ss){if(ss.s.zone_mult&&ss.s.zone_mult[z])mid*=ss.s.zone_mult[z];
+    if(ss.s.daypart_zone_mult&&ss.s.daypart_zone_mult[dp]&&ss.s.daypart_zone_mult[dp][z])mid*=ss.s.daypart_zone_mult[dp][z];}
   const sh=SHADES[shade];
   if(sh){if(sh.zone_mult&&sh.zone_mult[z])mid*=sh.zone_mult[z];
     if(sh.daypart_zone_mult&&sh.daypart_zone_mult[dp]&&sh.daypart_zone_mult[dp][z])mid*=sh.daypart_zone_mult[dp][z];
@@ -323,6 +362,7 @@ function budgetMid(z,h,day,wx,shade){
   const dp2=dp;
   for(const mc of MICROS){
     const w=mc.when,dow=shade==="fri"?"fri":shade==="sun"?"sun":shade==="mon"?"mon":d2==="weekend"?"sat":"wed";
+    if(w.wx&&w.wx!==wx)continue;
     if(w.dow&&w.dow!==dow)continue;
     if(w.dow_not&&w.dow_not.includes(dow))continue;
     if(w.dp&&!w.dp.includes(dp2))continue;
@@ -365,10 +405,12 @@ function zoneRow(z){
   const pct=band==="closed"?4:{deserted:4,thin:14,steady:38,busy:62,packed:92}[band];
   const col={deserted:"var(--line)",thin:"var(--blu)",steady:"var(--grn)",busy:"var(--acc)",packed:"var(--pink)",closed:"var(--line)"}[band];
   const shTag=S.shade!=="none"?" · shade:"+S.shade:"";
+  const fgTag=S.wx==="fog"?" · fog:"+fogStage(S.h)+(S.fogAllDay?" (all-day)":""):"";
+  const ssTag=seasonShade()?" · "+seasonShade().id:"";
   return `<div class="zone ${S.sel===z?'sel':''}" onclick="S.sel='${z}';render()"><div class="top"><span class="zn">${zd.label}</span>
     <span class="band ${band}">${band}</span></div>
     <div class="who">${chips||'<span style="color:var(--dim);font-size:11px">nobody named — '+(band==="closed"?"dark":"quiet")+'</span>'}</div>
-    <div class="sub">extras budget ${b[0]}–${b[1]} ×${WX[S.wx][zd.kind]} wx${shTag}${S.ev!=="none"?" · event-modified":""}${zd.open?" · open "+zd.open[0]+"–"+(zd.open[1]>24?zd.open[1]-24+"+":zd.open[1]):""}</div>
+    <div class="sub">extras budget ${b[0]}–${b[1]} ×${WX[S.wx][zd.kind]} wx${shTag}${ssTag}${fgTag}${S.ev!=="none"?" · event-modified":""}${zd.open?" · open "+zd.open[0]+"–"+(zd.open[1]>24?zd.open[1]-24+"+":zd.open[1]):""}</div>
     <div class="meter"><i style="width:${pct}%;background:${col}"></i></div></div>`;
 }
 function flowRow(f){
@@ -386,7 +428,7 @@ function render(){
   const h=S.h,dp=daypart(h);
   const hh=Math.floor(h),mm=h%1?"30":"00";
   document.getElementById("ck").textContent=String(hh).padStart(2,"0")+":"+mm;
-  document.getElementById("dp").textContent=dp+" · "+effDay()+(S.shade!=="none"?" · "+S.shade:"")+" · "+S.wx+(S.ev!=="none"?" · "+S.ev:"");
+  document.getElementById("dp").textContent=dp+" · "+effDay()+(S.shade!=="none"?" · "+S.shade:"")+" · "+S.wx+(S.wx==="fog"?"/"+fogStage(S.h):"")+(S.ev!=="none"?" · "+S.ev:"")+" · "+(seasonShade()?seasonShade().id:"—");
   document.getElementById("zones").innerHTML=Object.keys(ZONES).map(zoneRow).join("");
   document.getElementById("scenes").innerHTML=SCENES.map(sc=>{
     const live=sc.ck({...S,dp});return `<div class="scene ${live?'live':''}"><span class="dot"></span><b>${sc.label}</b><span class="why">${live?"LIVE — ":""}${sc.why}</span></div>`;}).join("");
@@ -432,6 +474,10 @@ document.getElementById("scrub").oninput=e=>{S.h=+e.target.value;render();};
   document.getElementById(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{
     S[key]=b.dataset.v;document.getElementById(id).querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
 });
+document.getElementById("fogTgl").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  S.fogAllDay=b.dataset.v==="allday";document.getElementById("fogTgl").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
+document.getElementById("seaTgl").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  S.month=+b.dataset.v;document.getElementById("seaTgl").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
 render();
 </script>
 </body>

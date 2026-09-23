@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v56).
+/* world/audit.js — RW boundary audit (world v57).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -1155,6 +1155,50 @@ const PUB = Object.values(PT.surfaces)
         if (!pr.id || !pr.when || /secret|seed|briefing/i.test(pr.note || ''))
           add(g, 'fail', 'ambients.json', null, `${a.id}.personal: entry missing id/when or carries meta vocabulary`);
     }
+    /* v57: the marine layer — fog/wind weather rows, fog_model +
+       season_shades mirror + integrity, every ambient answers fog */
+    for (const c of ['fog', 'wind'])
+      if (!CJ.weather_multipliers[c])
+        add(g, 'fail', 'crowd.json', null, `weather_multipliers missing "${c}" — the shoulder conditions are contract`);
+    const FOGM = CJ.fog_model || {};
+    if (JSON.stringify(FOGM.stages || []) !== JSON.stringify(['deep', 'patchy', 'burned']))
+      add(g, 'fail', 'crowd.json', null, 'fog_model.stages != deep/patchy/burned');
+    if (!(FOGM.burn_hour > 6 && FOGM.burn_hour < 14))
+      add(g, 'fail', 'crowd.json', null, 'fog_model.burn_hour out of sane range');
+    const dpIds = CJ.dayparts.map(d => d.id);
+    for (const [dp, st] of Object.entries(FOGM.day_profile || {})) {
+      if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `fog_model.day_profile: unknown daypart "${dp}"`);
+      if (!(FOGM.stages || []).includes(st)) add(g, 'fail', 'crowd.json', null, `fog_model.day_profile.${dp}: bad stage "${st}"`);
+    }
+    for (const dp of dpIds)
+      if (FOGM.day_profile && !(dp in FOGM.day_profile))
+        add(g, 'fail', 'crowd.json', null, `fog_model.day_profile missing daypart "${dp}"`);
+    const FOG = pull('FOG', '{}'), SEA = pull('SEASONS', '{}');
+    if (FOG.burn_hour !== FOGM.burn_hour)
+      add(g, 'fail', 'crowd.html', null, `FOG.burn_hour ${FOG.burn_hour} != fog_model ${FOGM.burn_hour}`);
+    for (const dp of dpIds)
+      if (FOG.profile && FOG.profile[dp] !== (FOGM.day_profile || {})[dp])
+        add(g, 'fail', 'crowd.html', null, `FOG.profile.${dp} drifted from fog_model.day_profile`);
+    const jSea = ((CJ.season_shades || {}).shades || []);
+    if (JSON.stringify(Object.keys(SEA).sort()) !== JSON.stringify(jSea.map(s => s.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'SEASONS keys != season_shades ids');
+    for (const s of jSea) {
+      for (const m of (s.when || {}).months || [])
+        if (!Number.isInteger(m) || m < 1 || m > 12)
+          add(g, 'fail', 'crowd.json', null, `season ${s.id}: bad month ${m}`);
+      for (const z of Object.keys(s.zone_mult || {}))
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `season ${s.id}: unknown zone ${z}`);
+      for (const [dp, mm] of Object.entries(s.daypart_zone_mult || {})) {
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `season ${s.id}: unknown daypart ${dp}`);
+        for (const z of Object.keys(mm)) if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `season ${s.id}.${dp}: unknown zone ${z}`);
+      }
+      const H = SEA[s.id];
+      if (H && JSON.stringify(H.zone_mult || null) !== JSON.stringify(s.zone_mult || null))
+        add(g, 'fail', 'crowd.html', null, `SEASONS.${s.id}.zone_mult drifted`);
+    }
+    for (const a of AMB.ambients)
+      if (!(a.weather && a.weather.fog))
+        add(g, 'fail', 'ambients.json', null, `${a.id}: no weather.fog answer — fog is the default SF condition, every card must respond`);
     g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
@@ -1959,7 +2003,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v56 || {};
+    const H = PT.harness_ui_v57 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2102,7 +2146,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v56 local';
+out.build = 'world v57 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

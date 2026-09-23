@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -363,11 +363,76 @@ ambient three machine-readable variant layers plus a signature:
   the extras' `appearance_palette` vocabulary so a promoted ambient is
   already legible in the extras' grammar.
 
-Resolution order for the thin tier: `storm` → `rain`/`heat` → `week.<dow>`
-→ base `routine`. Exactly one layer applies (a stormy Sunday is a storm
+Resolution order for the thin tier: `storm` → `rain` → `wind`/`fog` →
+`heat` → `week.<dow>` → base `routine`. Exactly one layer applies (a stormy Sunday is a storm
 day, not a Sunday); within a layer the row set is a full 24 h — no
 partial patching, no drift between spec and sim.
 
 Boundaries: variants change *where* and *when*, never *who*. No variant
 may introduce a seed reference, a request affordance, or a
 minor-to-adult pairing that the base routine wouldn't produce.
+
+---
+
+## 18. The marine layer (v57)
+
+Rain and storm were honest but incomplete — the condition the Mission
+actually lives under most summer mornings is **fog**. `crowd.json
+§fog_model` makes fog a depth profile, not a binary:
+
+- **Stages:** `deep → patchy → burned`, keyed by daypart
+  (`day_profile`). Overnight through commute runs deep; the burn starts
+  in the rush daypart and `burn_hour` (10:30) is where the park's
+  budget recovers. Evening re-grays; night is deep again.
+- **The fog line.** The marine layer pours over Twin Peaks and dies at
+  the park's west edge. Extras thin at the west edge first; the east
+  sidewalks keep their sun. A spectator reads the line on the frame —
+  never the word "fog" on the wire.
+- **All-day fog** (~1 fog day in 4, heavier May–Aug): `patchy` holds
+  through midday/lunch/afternoon. The park stays thin and the bench
+  parliament defects to Dolores Perk — the same displacement rain
+  causes, for a different reason. That's the new scene
+  `parliament-in-exile`: it fires on *presence* at the Perk, whatever
+  the sky's excuse.
+- **No new reflex.** Fog isn't wet — `shelter` never fires, gaits don't
+  change, nobody runs. Fog is a gray read, not an empty one. The
+  extras multiplier (`open_air ×0.55`, cafés ×1.15) does all the work.
+
+Named ambients carry their own `weather.fog` answers (ambients.json
+v57): Esther and Ray hold the Perk window until it burns; Luz opens a
+half-hour late and dries the crates; the kids' park orbit compresses to
+the Mudhaus awning; Nadia treats a gray morning as a home morning and
+comes out when it burns. Indoor workers carry note-only entries — the
+shift doesn't move, which is itself the information.
+
+## 19. The wind (v57)
+
+The afternoon westerlies are the second shoulder condition
+(`wind_model`): strongest 14–18, felt on stands, stoops, and anyone
+holding paper. Open-air budgets drop ×0.75, stands ×0.7, and the
+`west-wind` micro-event thins Clarion and the sidewalks in the blow.
+Named answers: Luz packs early when gusts argue with the scale; Sam's
+pitch moves to the 600 Club doorway (you can't tune a gust); Ray's
+crumb bag stays shut until it passes. Wind never empties the block —
+it's a texture condition, not a displacement.
+
+## 20. Seasons (v57)
+
+`season_shades` is the climate baseline the calendar rides on — resolved
+*before* day shades and weather, and it stacks with both (a shade is a
+day; a season is the month it lands in). Three rows:
+
+| shade | months | what it does |
+|---|---|---|
+| `fog_season` | May–Aug | park/clarion mornings thin — summer is the gray season |
+| `indian_summer` | Sep–Oct | the Mission's real summer — warm, clear, fuller park afternoons |
+| `wet_season` | Nov–Mar | near-baseline; the storms matter more than the fog |
+
+Season ids are internal vocabulary like shade ids — the wire says band
+words; a spectator learns "September is the park's month" by watching,
+never by reading it.
+
+Spawner contract addition: `crowdBudget(zone, daypart, weather, shade,
+season, events)` — `season` resolves first; `fogStage(hour, all_day) ->
+deep|patchy|burned` reads `fog_model.day_profile`, and `all_day` holds
+`patchy` through the burned dayparts.

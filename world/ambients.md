@@ -73,10 +73,18 @@ prose contract and `crowd.html` demos the resolution:
 - **`personal[]`** — named recurring texture: the Friday lottery ticket,
   the pigeon schedule, exam-week library, surge nights.
 
-Resolution order: `storm` → `rain`/`heat` → `week.<dow>` → base
-`routine`. One layer, full 24 h — variants change where/when, never
-who; no seed references, no request affordances, no minor-adult
-pairings the base wouldn't produce.
+Resolution order: `storm` → `rain` → `wind`/`fog` → `heat` →
+`week.<dow>` → base `routine`. One layer, full 24 h — variants change
+where/when, never who; no seed references, no request affordances, no
+minor-adult pairings the base wouldn't produce.
+
+v57 adds the shoulder-condition answers: every ambient carries a
+`weather.fog` entry (full rows where the gray actually moves the day —
+Esther and Ray's Perk-window mornings, Luz's dew-delayed stand, the
+kids' awning orbit, Nadia's home-till-it-burns — and a note where it
+doesn't); the stand, the pitch, and the paper-bag routines also carry
+`weather.wind`. Fog is the default SF morning, so the audit gate fails
+any card without a fog answer.
 
 ## Shared reflexes (all ambients — cheap condition checks, never scripts)
 

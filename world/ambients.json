@@ -1,2903 +1,3908 @@
 {
-  "version": 43,
-  "updated": "2026-09-23",
-  "spec": "Ambient cast registry for The Mission. Mirrors SF_AMBIENT_ROUTINES in src/sf/33_sf_cast.js — this JSON is the readable spec, the JS is the implementation; edit them together. 'poi' values use canonical parody names resolved by SF_WORLD_POIS in src/sf/30_sf_world.js; 'anchor' values are SF_MAP.anchors keys; 'home' is the hashed sfAmbientHome cell. v43 adds the ambient-week contract: per-ambient 'signature' (silhouette/gait/carry — the feed-legible read), 'week' day-keyed routine rows for days that differ from the base routine (off days, personal days), 'weather' alternate rows per condition that changes the day, and 'personal' recurring life-texture conditions. Variants are conditions, not scripts — the thin-AI resolver picks the day's row set; base 'routine' stays the fallback and the 33_sf_cast.js mirror.",
-  "conventions": {
-    "hours": "game-local, decimal (19.5 = 19:30)",
-    "states": [
-      "sleep",
-      "idle",
-      "rest",
-      "serve",
-      "work",
-      "walk",
-      "sit",
-      "run",
-      "carry",
-      "phone",
-      "chat",
-      "play",
-      "drink"
-    ],
-    "possession": "ambient NPCs are never possessable (design §9); minors A04/A20 are never request targets",
-    "promotion": "see world/promotion.md",
-    "brain_modes": "thin/full/possessed/degraded + handoff contract: world/thinai.json (v13)",
-    "crowd_model": "two-layer population contract (named ambients + unnamed extras): world/crowd.json + world/crowd-sim.md (v15)",
-    "ambient_week": "per-ambient signature/week/weather/personal blocks — resolved by the thin tier, demoed in crowd.html v4 (v43)",
-    "variant_rows": "same schema as routine rows ({h0,h1,to|stops,state,inside}); a 'week' or 'weather' entry REPLACES the day's rows only where the day differs — unspecified hours fall through to the base routine? No: a variant row set covers the full 24h when present."
-  },
-  "ambients": [
+ "version": 57,
+ "updated": "2026-09-23",
+ "spec": "Ambient cast registry for The Mission. Mirrors SF_AMBIENT_ROUTINES in src/sf/33_sf_cast.js — this JSON is the readable spec, the JS is the implementation; edit them together. 'poi' values use canonical parody names resolved by SF_WORLD_POIS in src/sf/30_sf_world.js; 'anchor' values are SF_MAP.anchors keys; 'home' is the hashed sfAmbientHome cell. v43 adds the ambient-week contract: per-ambient 'signature' (silhouette/gait/carry — the feed-legible read), 'week' day-keyed routine rows for days that differ from the base routine (off days, personal days), 'weather' alternate rows per condition that changes the day, and 'personal' recurring life-texture conditions. Variants are conditions, not scripts — the thin-AI resolver picks the day's row set; base 'routine' stays the fallback and the 33_sf_cast.js mirror. v57 adds the fog/wind variant answers — every ambient carries a fog entry (rows where the gray moves the day, a note where it doesn't); the stand, the pitch, and the paper-bag routines carry wind.",
+ "conventions": {
+  "hours": "game-local, decimal (19.5 = 19:30)",
+  "states": [
+   "sleep",
+   "idle",
+   "rest",
+   "serve",
+   "work",
+   "walk",
+   "sit",
+   "run",
+   "carry",
+   "phone",
+   "chat",
+   "play",
+   "drink"
+  ],
+  "possession": "ambient NPCs are never possessable (design §9); minors A04/A20 are never request targets",
+  "promotion": "see world/promotion.md",
+  "brain_modes": "thin/full/possessed/degraded + handoff contract: world/thinai.json (v13)",
+  "crowd_model": "two-layer population contract (named ambients + unnamed extras): world/crowd.json + world/crowd-sim.md (v15)",
+  "ambient_week": "per-ambient signature/week/weather/personal blocks — resolved by the thin tier, demoed in crowd.html v4 (v43)",
+  "variant_rows": "same schema as routine rows ({h0,h1,to|stops,state,inside}); a 'week' or 'weather' entry REPLACES the day's rows only where the day differs — unspecified hours fall through to the base routine? No: a variant row set covers the full 24h when present."
+ },
+ "ambients": [
+  {
+   "id": "A01",
+   "name": "Reyes",
+   "fullName": "Reyes Aguilar",
+   "age": 27,
+   "role": "barista pulling espresso shifts",
+   "venue": "Mudhaus Coffee",
+   "card": "ambients/a01-reyes.md",
+   "routine": [
     {
-      "id": "A01",
-      "name": "Reyes",
-      "fullName": "Reyes Aguilar",
-      "age": 27,
-      "role": "barista pulling espresso shifts",
-      "venue": "Mudhaus Coffee",
-      "card": "ambients/a01-reyes.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7.5,
-          "h1": 18,
-          "to": {
-            "poi": "Mudhaus Coffee"
-          },
-          "state": "serve"
-        },
-        {
-          "h0": 18,
-          "h1": 22,
-          "to": "home",
-          "state": "idle",
-          "inside": true
-        },
-        {
-          "h0": 22,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "rush-tempo",
-        "counter-circle-tell",
-        "quiet-water-cup"
-      ],
-      "offDay": "sun",
-      "minor": false,
-      "signature": {
-        "silhouette": "apron",
-        "gait": "purposeful",
-        "carry": "towel over one shoulder",
-        "tell": "counter circles"
-      },
-      "week": {
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9.5,
-              "h1": 13,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Buy-Rite Market"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 13,
-              "h1": 22,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            },
-            {
-              "h0": 22,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "the only morning past 9 — laundry, groceries, and some Sundays a catering gig that takes the whole day"
-        }
-      },
-      "weather": {
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7.5,
-              "h1": 18,
-              "to": {
-                "poi": "Mudhaus Coffee"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "work is indoors; the shift doesn't move"
-        }
-      },
-      "personal": [
-        {
-          "id": "friday-ticket",
-          "when": {
-            "dow": "fri",
-            "hours": [
-              18,
-              18.5
-            ]
-          },
-          "note": "stops at the minimart counter for one lottery ticket on the walk home — the whole wager, every week"
-        }
-      ]
+     "h0": 0,
+     "h1": 7.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
     },
     {
-      "id": "A02",
-      "name": "Doro",
-      "fullName": "Dorothea Klein",
-      "age": 41,
-      "role": "dog-walker with a leash hand",
-      "venue": "Dolores Park loops",
-      "card": "ambients/a02-doro.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7,
-          "h1": 11,
-          "state": "walk",
-          "stops": [
-            {
-              "anchor": "park_north"
-            },
-            {
-              "anchor": "park_center"
-            },
-            {
-              "anchor": "park_south"
-            }
-          ]
-        },
-        {
-          "h0": 11,
-          "h1": 16,
-          "to": "home",
-          "state": "rest",
-          "inside": true
-        },
-        {
-          "h0": 16,
-          "h1": 20,
-          "state": "walk",
-          "stops": [
-            {
-              "anchor": "park_south"
-            },
-            {
-              "anchor": "park_center"
-            }
-          ]
-        },
-        {
-          "h0": 20,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "dog-pull",
-        "vehicle-detour",
-        "off-leash-interpose"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "dog-lead",
-        "gait": "dog-paced",
-        "carry": "three leashes, one hand",
-        "tell": "counts her dogs without looking"
-      },
-      "week": {
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 12,
-              "state": "walk",
-              "stops": [
-                {
-                  "anchor": "park_north"
-                },
-                {
-                  "anchor": "park_center"
-                }
-              ]
-            },
-            {
-              "h0": 12,
-              "h1": 24,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            }
-          ],
-          "note": "half book — Sundays the clients' owners walk their own"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7,
-              "h1": 9.5,
-              "state": "walk",
-              "stops": [
-                {
-                  "anchor": "park_north"
-                }
-              ]
-            },
-            {
-              "h0": 9.5,
-              "h1": 16,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            },
-            {
-              "h0": 16,
-              "h1": 18,
-              "state": "walk",
-              "stops": [
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "loops halve; the dogs don't vote"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 24,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            }
-          ],
-          "note": "storm days the walks cancel — she calls it, not the dogs"
-        }
-      }
+     "h0": 7.5,
+     "h1": 18,
+     "to": {
+      "poi": "Mudhaus Coffee"
+     },
+     "state": "serve"
     },
     {
-      "id": "A03",
-      "name": "Malik",
-      "fullName": "Malik Haddad",
-      "age": 52,
-      "role": "corner-shop keeper",
-      "venue": "Malik's Mini Mart",
-      "card": "ambients/a03-malik.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7.5,
-          "h1": 18,
-          "to": {
-            "poi": "Malik's Mini Mart"
-          },
-          "state": "serve"
-        },
-        {
-          "h0": 18,
-          "h1": 22,
-          "to": "home",
-          "state": "idle",
-          "inside": true
-        },
-        {
-          "h0": 22,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "rush-second-register",
-        "the-stare",
-        "rain-crates-in"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "flat-cap",
-        "gait": "amble",
-        "carry": "pricing gun in the apron pocket",
-        "tell": "the stare"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7.5,
-              "h1": 18,
-              "to": {
-                "poi": "Malik's Mini Mart"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 18,
-              "h1": 22,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            },
-            {
-              "h0": 22,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "same hours — the sidewalk crates come in and the doorway narrows"
-        }
-      },
-      "personal": [
-        {
-          "id": "first-of-month",
-          "when": {
-            "dom": 1
-          },
-          "note": "stocks the register with small bills before opening — he knows what the 1st does to the block"
-        }
-      ]
+     "h0": 18,
+     "h1": 22,
+     "to": "home",
+     "state": "idle",
+     "inside": true
     },
     {
-      "id": "A04",
-      "name": "June",
-      "fullName": "June Park",
-      "age": 16,
-      "role": "student hauling a tote of books",
-      "venue": "Mission High School",
-      "card": "ambients/a04-june.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7.5,
-          "h1": 15,
-          "to": {
-            "poi": "Mission High School"
-          },
-          "state": "work"
-        },
-        {
-          "h0": 15,
-          "h1": 19,
-          "state": "phone",
-          "stops": [
-            {
-              "anchor": "park_center"
-            },
-            {
-              "poi": "Mudhaus Coffee"
-            }
-          ]
-        },
-        {
-          "h0": 19,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "holiday-park-inversion",
-        "exam-week-library",
-        "rain-awning-study"
-      ],
-      "minor": true,
-      "signature": {
-        "silhouette": "tote-stack",
-        "gait": "hurry",
-        "carry": "a tote bag heavier than she is",
-        "tell": "reads while crossing"
-      },
-      "week": {
-        "sat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 19,
-              "state": "phone",
-              "stops": [
-                {
-                  "anchor": "park_center"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                }
-              ]
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "no school — the park orbit runs all day"
-        },
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 17,
-              "state": "walk",
-              "stops": [
-                {
-                  "anchor": "park_center"
-                },
-                {
-                  "poi": "Frutería Las Palmas"
-                }
-              ]
-            },
-            {
-              "h0": 17,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "Sunday is the long mango-and-homework loop"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7.5,
-              "h1": 15,
-              "to": {
-                "poi": "Mission High School"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 15,
-              "h1": 19,
-              "state": "phone",
-              "stops": [
-                {
-                  "poi": "Mudhaus Coffee"
-                },
-                {
-                  "poi": "Mission Branch Library"
-                }
-              ]
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "the park swap is the awnings — Mudhaus window or the library, never the grass"
-        }
-      },
-      "personal": [
-        {
-          "id": "exam-week",
-          "when": {
-            "dayparts": [
-              "afternoon"
-            ]
-          },
-          "note": "exam weeks: the 15–19 stop moves to the library — Vera holds the same table"
-        }
-      ]
-    },
-    {
-      "id": "A05",
-      "name": "Esther",
-      "fullName": "Esther Goldman",
-      "age": 78,
-      "role": "retiree on a stoop, watching the block",
-      "venue": "park benches + Dolores Perk",
-      "card": "ambients/a05-esther.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 8,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 8,
-          "h1": 12,
-          "state": "sit",
-          "stops": [
-            {
-              "anchor": "park_center"
-            },
-            {
-              "poi": "Dolores Perk"
-            }
-          ]
-        },
-        {
-          "h0": 12,
-          "h1": 18,
-          "to": {
-            "anchor": "park_south"
-          },
-          "state": "sit"
-        },
-        {
-          "h0": 18,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "weather-gated-day",
-        "bench-ownership",
-        "witness-posture"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "elder-cane",
-        "gait": "meander",
-        "carry": "a folded section of newspaper",
-        "tell": "witness posture"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 12,
-              "to": {
-                "poi": "Dolores Perk"
-              },
-              "state": "sit"
-            },
-            {
-              "h0": 12,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "rain moves the parliament indoors — Dolores Perk table by the window, shorter day"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "storms she watches from her own window"
-        }
-      },
-      "personal": [
-        {
-          "id": "first-of-month",
-          "when": {
-            "dom": 1,
-            "dayparts": [
-              "midday",
-              "lunch",
-              "afternoon"
-            ]
-          },
-          "note": "parliament runs long on the 1st — everybody walks past the bench eventually"
-        }
-      ]
-    },
-    {
-      "id": "A06",
-      "name": "Kofe",
-      "fullName": "Kofe Adeyemi",
-      "age": 29,
-      "role": "delivery rider with a hot box",
-      "venue": "MuleIt delivery spine",
-      "card": "ambients/a06-kofe.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 8,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 8,
-          "h1": 19,
-          "state": "carry",
-          "stops": [
-            {
-              "poi": "Taqueria El Farolote"
-            },
-            {
-              "poi": "Il Delfino"
-            },
-            {
-              "poi": "Buy-Rite Creamery"
-            },
-            {
-              "poi": "Dolores Perk"
-            },
-            {
-              "poi": "Mudhaus Coffee"
-            },
-            {
-              "anchor": "g750"
-            }
-          ]
-        },
-        {
-          "h0": 19,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "surge-tightens-loop",
-        "doorway-wait-read",
-        "rain-faster"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "delivery-hotbox",
-        "gait": "hurry",
-        "carry": "the hot box",
-        "tell": "reads doorways at speed"
-      },
-      "week": {
-        "sat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 21,
-              "state": "carry",
-              "stops": [
-                {
-                  "poi": "Taqueria El Farolote"
-                },
-                {
-                  "poi": "Il Delfino"
-                },
-                {
-                  "poi": "Buy-Rite Creamery"
-                },
-                {
-                  "poi": "Dolores Perk"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                }
-              ]
-            },
-            {
-              "h0": 21,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "weekend surge — later start, later finish"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 19,
-              "state": "carry",
-              "stops": [
-                {
-                  "poi": "Taqueria El Farolote"
-                },
-                {
-                  "poi": "Il Delfino"
-                },
-                {
-                  "poi": "Buy-Rite Creamery"
-                },
-                {
-                  "poi": "Dolores Perk"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                },
-                {
-                  "anchor": "g750"
-                }
-              ]
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "same loop, faster — rain raises the order count, not the pace limit"
-        }
-      },
-      "personal": [
-        {
-          "id": "surge-nights",
-          "when": {
-            "dow": [
-              "fri",
-              "sat"
-            ],
-            "hours": [
-              17,
-              19
-            ]
-          },
-          "note": "Friday and Saturday dinner surges tighten the loop to the restaurants — no park-adjacent stops"
-        }
-      ]
-    },
-    {
-      "id": "A07",
-      "name": "Luz",
-      "fullName": "Luz Cárdenas",
-      "age": 45,
-      "role": "street vendor at a fruit stand",
-      "venue": "Frutería Las Palmas (Dolores at 19th)",
-      "card": "ambients/a07-luz.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7,
-          "h1": 18,
-          "to": {
-            "poi": "Frutería Las Palmas"
-          },
-          "state": "serve"
-        },
-        {
-          "h0": 18,
-          "h1": 21,
-          "to": "home",
-          "state": "idle",
-          "inside": true
-        },
-        {
-          "h0": 21,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "rain-tarp-halfday",
-        "heat-stays-late",
-        "kid-mango-cooler"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "apron",
-        "gait": "purposeful",
-        "carry": "a paring knife and a produce scale",
-        "tell": "the mango slice appears before the greeting does"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7,
-              "h1": 13,
-              "to": {
-                "poi": "Frutería Las Palmas"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 13,
-              "h1": 21,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            },
-            {
-              "h0": 21,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "tarp over the stand, half day — gone by early afternoon"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "the stand doesn't open in a storm"
-        },
-        "heat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7,
-              "h1": 20,
-              "to": {
-                "poi": "Frutería Las Palmas"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 20,
-              "h1": 22,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            },
-            {
-              "h0": 22,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "heat stretches the day — she sells out late and closes late"
-        }
-      },
-      "personal": [
-        {
-          "id": "first-of-month",
-          "when": {
-            "dom": 1
-          },
-          "note": "the 1st is her biggest day — extra crates before dawn, sold through by afternoon"
-        }
-      ]
-    },
-    {
-      "id": "A08",
-      "name": "Sam",
-      "fullName": "Sam Okafor",
-      "age": 38,
-      "role": "busker with a guitar on the corner",
-      "venue": "park pitches; The 600 Club",
-      "card": "ambients/a08-sam.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 10,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 10,
-          "h1": 18,
-          "state": "work",
-          "stops": [
-            {
-              "anchor": "park_north"
-            },
-            {
-              "anchor": "park_south"
-            }
-          ]
-        },
-        {
-          "h0": 18,
-          "h1": 24,
-          "state": "chat",
-          "stops": [
-            {
-              "poi": "The 600 Club"
-            },
-            {
-              "anchor": "park_south"
-            }
-          ]
-        }
-      ],
-      "reflexes": [
-        "pitch-etiquette-yield",
-        "crowd-edge-not-center",
-        "rain-doorway-set"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "guitar-case",
-        "gait": "amble",
-        "carry": "the guitar, always",
-        "tell": "sets up without looking at the crowd"
-      },
-      "week": {
-        "sat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 18,
-              "state": "work",
-              "stops": [
-                {
-                  "anchor": "park_north"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "state": "chat",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            }
-          ],
-          "note": "Saturday starts an hour earlier — weekend crowds pay"
-        },
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 18,
-              "state": "work",
-              "stops": [
-                {
-                  "anchor": "park_north"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "state": "chat",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            }
-          ],
-          "note": "same — Sunday afternoon is the best pitch of the week"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 18,
-              "state": "work",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                }
-              ]
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "state": "chat",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            }
-          ],
-          "note": "doorway sets — the 600 Club awning, smaller crowd, better music"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 12,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 12,
-              "h1": 24,
-              "state": "chat",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                }
-              ]
-            }
-          ],
-          "note": "storm days the park is dead — he's at the bar by noon anyway"
-        }
-      }
-    },
-    {
-      "id": "A09",
-      "name": "Asha",
-      "fullName": "Asha Nair",
-      "age": 33,
-      "role": "nurse in scrubs off a shift",
-      "venue": "SF General; Mudhaus evenings",
-      "card": "ambients/a09-asha.md",
-      "codeNameNote": "NV_CAST name was 'Priya' through v0 — renamed 'Asha' in pa-chars.js at v1 (collision with C4 Priya Raman).",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 8,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 8,
-          "h1": 19.5,
-          "to": {
-            "poi": "SF General"
-          },
-          "state": "work"
-        },
-        {
-          "h0": 19.5,
-          "h1": 21,
-          "state": "walk",
-          "stops": [
-            {
-              "poi": "Mudhaus Coffee"
-            }
-          ]
-        },
-        {
-          "h0": 21,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "post-shift-slow-walk",
-        "bench-distress-check",
-        "avoids-crowd-noise"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "scrubs",
-        "gait": "meander",
-        "carry": "a phone kept face-down",
-        "tell": "post-shift walk — slow on purpose"
-      },
-      "week": {
-        "tue": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 14,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Buy-Rite Market"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 14,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "off shift — errands at walking-decompression speed"
-        },
-        "wed": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 14,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Buy-Rite Market"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 14,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "off shift — same decompression loop"
-        }
-      },
-      "weather": {
-        "heat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 19.5,
-              "to": {
-                "poi": "SF General"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 19.5,
-              "h1": 21,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Mudhaus Coffee"
-                }
-              ]
-            },
-            {
-              "h0": 21,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "heat waves fill the ward — same hours, longer day inside"
-        }
-      },
-      "personal": [
-        {
-          "id": "evening-nurse",
-          "when": {
-            "dayparts": [
-              "evening"
-            ]
-          },
-          "note": "after a shift she takes the Mudhaus counter seat facing the door, phone down, one drink — this is the whole ritual"
-        }
-      ]
-    },
-    {
-      "id": "A10",
-      "name": "Gus",
-      "fullName": "Gus Ferreira",
-      "age": 61,
-      "role": "mechanic in oil-stained overalls",
-      "venue": "Folsom Auto & Sons",
-      "card": "ambients/a10-gus.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 6.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 6.5,
-          "h1": 16,
-          "to": {
-            "poi": "Folsom Auto & Sons"
-          },
-          "state": "work"
-        },
-        {
-          "h0": 16,
-          "h1": 22,
-          "to": "home",
-          "state": "rest",
-          "inside": true
-        },
-        {
-          "h0": 22,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "engine-sound-headtilt",
-        "rain-shop-fills",
-        "commotion-glance-once"
-      ],
-      "offDay": "sun",
-      "minor": false,
-      "signature": {
-        "silhouette": "workboots",
-        "gait": "purposeful",
-        "carry": "a rag that lives in the pocket",
-        "tell": "head-tilt at engines"
-      },
-      "week": {
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 12,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Dolores Perk"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 12,
-              "h1": 24,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            }
-          ],
-          "note": "shop closed Sundays — breakfast at the Perk, then the couch"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 6.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 6.5,
-              "h1": 16,
-              "to": {
-                "poi": "Folsom Auto & Sons"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 16,
-              "h1": 22,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            },
-            {
-              "h0": 22,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "rain fills the shop — nobody wants to be under a car in their driveway"
-        }
-      }
-    },
-    {
-      "id": "A11",
-      "name": "Vera",
-      "fullName": "Vera Osei",
-      "age": 44,
-      "role": "librarian shelving returns",
-      "venue": "Mission Branch Library",
-      "card": "ambients/a11-vera.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7.5,
-          "h1": 17.5,
-          "to": {
-            "poi": "Mission Branch Library"
-          },
-          "state": "work"
-        },
-        {
-          "h0": 17.5,
-          "h1": 20,
-          "state": "sit",
-          "stops": [
-            {
-              "anchor": "park_center"
-            },
-            {
-              "poi": "Dolores Perk"
-            }
-          ]
-        },
-        {
-          "h0": 20,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "reflexive-shush",
-        "rain-overflow-shelter",
-        "reserve-pile"
-      ],
-      "offDays": [
-        "sun",
-        "mon"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "tote-stack",
-        "gait": "purposeful",
-        "carry": "a returns cart she isn't pushing",
-        "tell": "the reflexive shush"
-      },
-      "week": {
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 13,
-              "state": "sit",
-              "stops": [
-                {
-                  "anchor": "park_center"
-                },
-                {
-                  "poi": "Dolores Perk"
-                }
-              ]
-            },
-            {
-              "h0": 13,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "library closed — she reads in the park like a civilian"
-        },
-        "mon": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 13,
-              "state": "sit",
-              "stops": [
-                {
-                  "anchor": "park_center"
-                },
-                {
-                  "poi": "Dolores Perk"
-                }
-              ]
-            },
-            {
-              "h0": 13,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "Monday closure — same bench, different book"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7.5,
-              "h1": 17.5,
-              "to": {
-                "poi": "Mission Branch Library"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 17.5,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "rain doubles the library — her park hour goes to the overflow at the door"
-        }
-      }
-    },
-    {
-      "id": "A12",
-      "name": "Tom",
-      "fullName": "Tom Nakamura",
-      "age": 35,
-      "role": "jogger doing laps around the park",
-      "venue": "park perimeter",
-      "card": "ambients/a12-tom.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 6,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 6,
-          "h1": 8,
-          "state": "run",
-          "stops": [
-            {
-              "anchor": "park_north"
-            },
-            {
-              "anchor": "park_south"
-            }
-          ]
-        },
-        {
-          "h0": 8,
-          "h1": 17,
-          "to": "home",
-          "state": "rest",
-          "inside": true
-        },
-        {
-          "h0": 17,
-          "h1": 19,
-          "state": "run",
-          "stops": [
-            {
-              "anchor": "park_south"
-            },
-            {
-              "anchor": "park_center"
-            }
-          ]
-        },
-        {
-          "h0": 19,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "weather-adjusts-distance-never-schedule",
-        "distress-assess-and-stop"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "jogger",
-        "gait": "hurry",
-        "carry": "nothing — that's the point",
-        "tell": "the metronome never pauses"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 6,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 6,
-              "h1": 7.5,
-              "state": "run",
-              "stops": [
-                {
-                  "anchor": "park_north"
-                }
-              ]
-            },
-            {
-              "h0": 7.5,
-              "h1": 17,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            },
-            {
-              "h0": 17,
-              "h1": 18.5,
-              "state": "run",
-              "stops": [
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 18.5,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "rain shortens the laps, never the schedule — one lap fewer, same times"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 19,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "a storm is the only thing that cancels him — he hates it visibly"
-        }
-      },
-      "personal": [
-        {
-          "id": "thursday-fartlek",
-          "when": {
-            "dow": "thu",
-            "hours": [
-              6,
-              8
-            ]
-          },
-          "note": "Thursdays he runs intervals — the only day the metronome syncopates"
-        }
-      ]
-    },
-    {
-      "id": "A13",
-      "name": "Nadia",
-      "fullName": "Nadia Petrov",
-      "age": 31,
-      "role": "tech worker doom-scrolling on the curb",
-      "venue": "Mudhaus corner table",
-      "card": "ambients/a13-nadia.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 9,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 9,
-          "h1": 17,
-          "to": {
-            "poi": "Mudhaus Coffee"
-          },
-          "state": "phone"
-        },
-        {
-          "h0": 17,
-          "h1": 22,
-          "to": "home",
-          "state": "phone",
-          "inside": true
-        },
-        {
-          "h0": 22,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "headphones-on-loud",
-        "wifi-outage-relocate",
-        "rain-stays-home"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "headphones-big",
-        "gait": "amble",
-        "carry": "a laptop in a padded sleeve",
-        "tell": "headphones go on when it gets loud"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 22,
-              "to": "home",
-              "state": "phone",
-              "inside": true
-            },
-            {
-              "h0": 22,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "rain is a home day — the corner table stays empty"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 24,
-              "to": "home",
-              "state": "phone",
-              "inside": true
-            }
-          ],
-          "note": "same — plus the window open an inch for the sound"
-        }
-      }
-    },
-    {
-      "id": "A14",
-      "name": "Bex",
-      "fullName": "Rebecca Lindqvist",
-      "age": 29,
-      "role": "tattoo artist on a smoke break",
-      "venue": "Needlepointe Tattoo + Clarion Alley; The 600 Club",
-      "card": "ambients/a14-bex.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 10,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 10,
-          "h1": 18,
-          "state": "work",
-          "stops": [
-            {
-              "poi": "Needlepointe Tattoo"
-            },
-            {
-              "poi": "Clarion Alley"
-            }
-          ]
-        },
-        {
-          "h0": 18,
-          "h1": 24,
-          "state": "chat",
-          "stops": [
-            {
-              "poi": "The 600 Club"
-            },
-            {
-              "anchor": "park_south"
-            }
-          ]
-        }
-      ],
-      "reflexes": [
-        "smoke-break-consult",
-        "rain-shop-doorway",
-        "alley-catalog"
-      ],
-      "secretAdjacent": "Recognizes the chalkboard/Clarion linework match (C3-adjacent). Ambient = never says it; promotion makes her a live discovery path.",
-      "offDay": "mon",
-      "minor": false,
-      "signature": {
-        "silhouette": "skater-carry",
-        "gait": "amble",
-        "carry": "a flash-sheet folder",
-        "tell": "smoke-break consults at the shop door"
-      },
-      "week": {
-        "mon": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 11,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 11,
-              "h1": 18,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Clarion Alley"
-                },
-                {
-                  "poi": "Buy-Rite Market"
-                }
-              ]
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "state": "chat",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            }
-          ],
-          "note": "shop dark Mondays — she wanders the alley anyway, it's where the walls are"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 18,
-              "to": {
-                "poi": "Needlepointe Tattoo"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "state": "chat",
-              "stops": [
-                {
-                  "poi": "The 600 Club"
-                }
-              ]
-            }
-          ],
-          "note": "the alley wall doesn't happen in rain — shop door only"
-        }
-      }
-    },
-    {
-      "id": "A15",
-      "name": "Omar",
-      "fullName": "Omar Haddad",
-      "age": 27,
-      "role": "bike courier with a messenger bag",
-      "venue": "Flying Pannier paper-run loop",
-      "card": "ambients/a15-omar.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 8,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 8,
-          "h1": 19,
-          "state": "carry",
-          "stops": [
-            {
-              "poi": "Auerbach Hardware"
-            },
-            {
-              "poi": "Mission Branch Library"
-            },
-            {
-              "poi": "Dolores Perk"
-            },
-            {
-              "poi": "Mudhaus Coffee"
-            },
-            {
-              "anchor": "g744"
-            }
-          ]
-        },
-        {
-          "h0": 19,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "marcus-sighted-one-block-race",
-        "door-code-memory",
-        "rain-fenders-pace-same"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "messenger-sling",
-        "gait": "hurry",
-        "carry": "the paper bag that outlives the route",
-        "tell": "memorized door codes"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 19,
-              "state": "carry",
-              "stops": [
-                {
-                  "poi": "Auerbach Hardware"
-                },
-                {
-                  "poi": "Mission Branch Library"
-                },
-                {
-                  "poi": "Dolores Perk"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                },
-                {
-                  "anchor": "g744"
-                }
-              ]
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "fenders on, pace identical — paper doesn't wait for weather"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 17,
-              "state": "carry",
-              "stops": [
-                {
-                  "poi": "Auerbach Hardware"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                },
-                {
-                  "anchor": "g744"
-                }
-              ]
-            },
-            {
-              "h0": 17,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "storm halves the run — only the stops that pay double stay on the list"
-        }
-      }
-    },
-    {
-      "id": "A16",
-      "name": "Hana",
-      "fullName": "Hana Lindgren",
-      "age": 47,
-      "role": "baker carrying warm trays",
-      "venue": "Baguette About It Bakery",
-      "card": "ambients/a16-hana.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 4,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 4,
-          "h1": 13,
-          "to": {
-            "poi": "Baguette About It Bakery"
-          },
-          "state": "serve"
-        },
-        {
-          "h0": 13,
-          "h1": 17,
-          "state": "walk",
-          "stops": [
-            {
-              "anchor": "park_center"
-            },
-            {
-              "poi": "Buy-Rite Market"
-            }
-          ]
-        },
-        {
-          "h0": 17,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "heat-shortens-bake",
-        "rain-dayold-half-price",
-        "5am-head-tilt"
-      ],
-      "offDay": "mon",
-      "minor": false,
-      "signature": {
-        "silhouette": "apron",
-        "gait": "purposeful",
-        "carry": "warm trays at shoulder height",
-        "tell": "the 5 a.m. head-tilt at the oven"
-      },
-      "week": {
-        "mon": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7,
-              "h1": 12,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Buy-Rite Market"
-                },
-                {
-                  "anchor": "park_center"
-                }
-              ]
-            },
-            {
-              "h0": 12,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "bakery dark Mondays — the one morning she sees daylight"
-        }
-      },
-      "weather": {
-        "heat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 4,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 4,
-              "h1": 11,
-              "to": {
-                "poi": "Baguette About It Bakery"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 11,
-              "h1": 17,
-              "state": "walk",
-              "stops": [
-                {
-                  "anchor": "park_center"
-                },
-                {
-                  "poi": "Buy-Rite Market"
-                }
-              ]
-            },
-            {
-              "h0": 17,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "heat cuts the bake short — ovens off by 11, out the door"
-        },
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 4,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 4,
-              "h1": 13,
-              "to": {
-                "poi": "Baguette About It Bakery"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 13,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "rain keeps her in — the errands wait, the day-old shelf goes half price"
-        }
-      }
-    },
-    {
-      "id": "A17",
-      "name": "Cole",
-      "fullName": "Cole Brennan",
-      "age": 36,
-      "role": "construction worker on a scaffold",
-      "venue": "site near Auerbach Hardware",
-      "card": "ambients/a17-cole.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 6.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 6.5,
-          "h1": 16,
-          "to": {
-            "poi": "Auerbach Hardware"
-          },
-          "state": "work"
-        },
-        {
-          "h0": 16,
-          "h1": 22,
-          "to": "home",
-          "state": "rest",
-          "inside": true
-        },
-        {
-          "h0": 22,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "hardhat-zone-awareness",
-        "rain-interior-work",
-        "scaffold-vantage"
-      ],
-      "offDays": [
-        "sat",
-        "sun"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "toolbelt",
-        "gait": "purposeful",
-        "carry": "a thermos the size of a forearm",
-        "tell": "hard-hat awareness even off-site"
-      },
-      "week": {
-        "sat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 8,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 8,
-              "h1": 13,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Auerbach Hardware"
-                },
-                {
-                  "anchor": "park_south"
-                }
-              ]
-            },
-            {
-              "h0": 13,
-              "h1": 24,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            }
-          ],
-          "note": "Saturdays he still ends up at the hardware counter — personal projects"
-        },
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 24,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            }
-          ],
-          "note": "Sunday is the flat day — nobody expects him anywhere"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 6.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 6.5,
-              "h1": 16,
-              "to": {
-                "poi": "Auerbach Hardware"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 16,
-              "h1": 22,
-              "to": "home",
-              "state": "rest",
-              "inside": true
-            },
-            {
-              "h0": 22,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "rain moves the crew to interior work — same hours, different scaffold"
-        }
-      }
-    },
-    {
-      "id": "A18",
-      "name": "Ida",
-      "fullName": "Ida Johansson",
-      "age": 55,
-      "role": "florist with a basket of bouquets",
-      "venue": "Bloom & Doom Flowers",
-      "card": "ambients/a18-ida.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7.5,
-          "h1": 18,
-          "to": {
-            "poi": "Bloom & Doom Flowers"
-          },
-          "state": "serve"
-        },
-        {
-          "h0": 18,
-          "h1": 22,
-          "to": "home",
-          "state": "idle",
-          "inside": true
-        },
-        {
-          "h0": 22,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "stray-stem-to-strangers",
-        "rain-buckets-in",
-        "reads-the-flyer"
-      ],
-      "offDay": "mon",
-      "minor": false,
-      "signature": {
-        "silhouette": "apron",
-        "gait": "amble",
-        "carry": "a basket of loose stems",
-        "tell": "hands a stray stem to strangers"
-      },
-      "week": {
-        "mon": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 14,
-              "state": "walk",
-              "stops": [
-                {
-                  "poi": "Clarion Alley"
-                },
-                {
-                  "anchor": "park_center"
-                }
-              ]
-            },
-            {
-              "h0": 14,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "shop dark Mondays — she walks the alley to see what the week did to the walls"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7.5,
-              "h1": 18,
-              "to": {
-                "poi": "Bloom & Doom Flowers"
-              },
-              "state": "serve"
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "the buckets come in off the sidewalk — the storefront shrinks"
-        }
-      }
-    },
-    {
-      "id": "A19",
-      "name": "Ray",
-      "fullName": "Ray Kowalski",
-      "age": 71,
-      "role": "retired longshoreman feeding pigeons",
-      "venue": "park benches + Dolores Perk",
-      "card": "ambients/a19-ray.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 8,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 8,
-          "h1": 12,
-          "state": "sit",
-          "stops": [
-            {
-              "anchor": "park_center"
-            },
-            {
-              "poi": "Dolores Perk"
-            }
-          ]
-        },
-        {
-          "h0": 12,
-          "h1": 18,
-          "state": "sit",
-          "stops": [
-            {
-              "anchor": "park_south"
-            },
-            {
-              "anchor": "park_center"
-            }
-          ]
-        },
-        {
-          "h0": 18,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "weather-gated-park",
-        "bench-claim-by-standing",
-        "pigeon-schedule"
-      ],
-      "minor": false,
-      "signature": {
-        "silhouette": "flat-cap",
-        "gait": "meander",
-        "carry": "a paper bag of crumbs",
-        "tell": "claims the bench by standing next to it"
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 9,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 9,
-              "h1": 12,
-              "to": {
-                "poi": "Dolores Perk"
-              },
-              "state": "sit"
-            },
-            {
-              "h0": 12,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "rain retires him early — the pigeons get one wet pass and no parliament"
-        },
-        "storm": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 24,
-              "to": "home",
-              "state": "idle",
-              "inside": true
-            }
-          ],
-          "note": "storms he sits in his own window and disapproves"
-        }
-      },
-      "personal": [
-        {
-          "id": "pigeon-schedule",
-          "when": {
-            "dayparts": [
-              "rush",
-              "midday"
-            ]
-          },
-          "note": "the pigeons know 8:30 and noon — he is never late to either"
-        }
-      ]
-    },
-    {
-      "id": "A20",
-      "name": "Zee",
-      "fullName": "Zee Okafor-Banks",
-      "age": 17,
-      "role": "teenager glued to a phone",
-      "venue": "Mission High School; park/café perimeter",
-      "card": "ambients/a20-zee.md",
-      "routine": [
-        {
-          "h0": 0,
-          "h1": 7.5,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        },
-        {
-          "h0": 7.5,
-          "h1": 15,
-          "to": {
-            "poi": "Mission High School"
-          },
-          "state": "work"
-        },
-        {
-          "h0": 15,
-          "h1": 19,
-          "state": "phone",
-          "stops": [
-            {
-              "anchor": "park_center"
-            },
-            {
-              "poi": "Mudhaus Coffee"
-            }
-          ]
-        },
-        {
-          "h0": 19,
-          "h1": 24,
-          "to": "home",
-          "state": "sleep",
-          "inside": true
-        }
-      ],
-      "reflexes": [
-        "films-anything-loud",
-        "sincerity-countermeasures",
-        "pack-migration"
-      ],
-      "minor": true,
-      "signature": {
-        "silhouette": "headphones-big",
-        "gait": "meander",
-        "carry": "a phone held like a camera",
-        "tell": "films anything loud"
-      },
-      "week": {
-        "sat": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 19,
-              "state": "phone",
-              "stops": [
-                {
-                  "anchor": "park_center"
-                },
-                {
-                  "poi": "Mudhaus Coffee"
-                }
-              ]
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "weekend perimeter — pack orbit, all day"
-        },
-        "sun": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 10,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 10,
-              "h1": 19,
-              "state": "phone",
-              "stops": [
-                {
-                  "anchor": "park_south"
-                },
-                {
-                  "poi": "Frutería Las Palmas"
-                }
-              ]
-            },
-            {
-              "h0": 19,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "Sunday the pack drifts south — Luz's end of the park"
-        }
-      },
-      "weather": {
-        "rain": {
-          "rows": [
-            {
-              "h0": 0,
-              "h1": 7.5,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            },
-            {
-              "h0": 7.5,
-              "h1": 15,
-              "to": {
-                "poi": "Mission High School"
-              },
-              "state": "work"
-            },
-            {
-              "h0": 15,
-              "h1": 18,
-              "state": "phone",
-              "stops": [
-                {
-                  "poi": "Mudhaus Coffee"
-                }
-              ]
-            },
-            {
-              "h0": 18,
-              "h1": 24,
-              "to": "home",
-              "state": "sleep",
-              "inside": true
-            }
-          ],
-          "note": "rain compresses the perimeter to the Mudhaus awning and home earlier"
-        }
-      }
+     "h0": 22,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
     }
-  ]
+   ],
+   "reflexes": [
+    "rush-tempo",
+    "counter-circle-tell",
+    "quiet-water-cup"
+   ],
+   "offDay": "sun",
+   "minor": false,
+   "signature": {
+    "silhouette": "apron",
+    "gait": "purposeful",
+    "carry": "towel over one shoulder",
+    "tell": "counter circles"
+   },
+   "week": {
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9.5,
+       "h1": 13,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Buy-Rite Market"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 13,
+       "h1": 22,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the only morning past 9 — laundry, groceries, and some Sundays a catering gig that takes the whole day"
+    }
+   },
+   "weather": {
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 18,
+       "to": {
+        "poi": "Mudhaus Coffee"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "work is indoors; the shift doesn't move"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 18,
+       "to": {
+        "poi": "Mudhaus Coffee"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 18,
+       "h1": 22,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the line is the same length gray or gold — the shift doesn't move"
+    }
+   },
+   "personal": [
+    {
+     "id": "friday-ticket",
+     "when": {
+      "dow": "fri",
+      "hours": [
+       18,
+       18.5
+      ]
+     },
+     "note": "stops at the minimart counter for one lottery ticket on the walk home — the whole wager, every week"
+    }
+   ]
+  },
+  {
+   "id": "A02",
+   "name": "Doro",
+   "fullName": "Dorothea Klein",
+   "age": 41,
+   "role": "dog-walker with a leash hand",
+   "venue": "Dolores Park loops",
+   "card": "ambients/a02-doro.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7,
+     "h1": 11,
+     "state": "walk",
+     "stops": [
+      {
+       "anchor": "park_north"
+      },
+      {
+       "anchor": "park_center"
+      },
+      {
+       "anchor": "park_south"
+      }
+     ]
+    },
+    {
+     "h0": 11,
+     "h1": 16,
+     "to": "home",
+     "state": "rest",
+     "inside": true
+    },
+    {
+     "h0": 16,
+     "h1": 20,
+     "state": "walk",
+     "stops": [
+      {
+       "anchor": "park_south"
+      },
+      {
+       "anchor": "park_center"
+      }
+     ]
+    },
+    {
+     "h0": 20,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "dog-pull",
+    "vehicle-detour",
+    "off-leash-interpose"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "dog-lead",
+    "gait": "dog-paced",
+    "carry": "three leashes, one hand",
+    "tell": "counts her dogs without looking"
+   },
+   "week": {
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 12,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 12,
+       "h1": 24,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      }
+     ],
+     "note": "half book — Sundays the clients' owners walk their own"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 9.5,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_north"
+        }
+       ]
+      },
+      {
+       "h0": 9.5,
+       "h1": 16,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 16,
+       "h1": 18,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "loops halve; the dogs don't vote"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 24,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      }
+     ],
+     "note": "storm days the walks cancel — she calls it, not the dogs"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 11,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_center"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 11,
+       "h1": 16,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 16,
+       "h1": 20,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 20,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "fog is the default morning — the dogs don't vote on it either"
+    },
+    "wind": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 11,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_center"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 11,
+       "h1": 16,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 16,
+       "h1": 20,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 20,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "wind is the dogs' favorite — every ear up, same loops"
+    }
+   }
+  },
+  {
+   "id": "A03",
+   "name": "Malik",
+   "fullName": "Malik Haddad",
+   "age": 52,
+   "role": "corner-shop keeper",
+   "venue": "Malik's Mini Mart",
+   "card": "ambients/a03-malik.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7.5,
+     "h1": 18,
+     "to": {
+      "poi": "Malik's Mini Mart"
+     },
+     "state": "serve"
+    },
+    {
+     "h0": 18,
+     "h1": 22,
+     "to": "home",
+     "state": "idle",
+     "inside": true
+    },
+    {
+     "h0": 22,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "rush-second-register",
+    "the-stare",
+    "rain-crates-in"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "flat-cap",
+    "gait": "amble",
+    "carry": "pricing gun in the apron pocket",
+    "tell": "the stare"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 18,
+       "to": {
+        "poi": "Malik's Mini Mart"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 18,
+       "h1": 22,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "same hours — the sidewalk crates come in and the doorway narrows"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 18,
+       "to": {
+        "poi": "Malik's Mini Mart"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 18,
+       "h1": 22,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "door open either way; fog sells coffee, not umbrellas"
+    }
+   },
+   "personal": [
+    {
+     "id": "first-of-month",
+     "when": {
+      "dom": 1
+     },
+     "note": "stocks the register with small bills before opening — he knows what the 1st does to the block"
+    }
+   ]
+  },
+  {
+   "id": "A04",
+   "name": "June",
+   "fullName": "June Park",
+   "age": 16,
+   "role": "student hauling a tote of books",
+   "venue": "Mission High School",
+   "card": "ambients/a04-june.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7.5,
+     "h1": 15,
+     "to": {
+      "poi": "Mission High School"
+     },
+     "state": "work"
+    },
+    {
+     "h0": 15,
+     "h1": 19,
+     "state": "phone",
+     "stops": [
+      {
+       "anchor": "park_center"
+      },
+      {
+       "poi": "Mudhaus Coffee"
+      }
+     ]
+    },
+    {
+     "h0": 19,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "holiday-park-inversion",
+    "exam-week-library",
+    "rain-awning-study"
+   ],
+   "minor": true,
+   "signature": {
+    "silhouette": "tote-stack",
+    "gait": "hurry",
+    "carry": "a tote bag heavier than she is",
+    "tell": "reads while crossing"
+   },
+   "week": {
+    "sat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 19,
+       "state": "phone",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "no school — the park orbit runs all day"
+    },
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 17,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Frutería Las Palmas"
+        }
+       ]
+      },
+      {
+       "h0": 17,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "Sunday is the long mango-and-homework loop"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 15,
+       "to": {
+        "poi": "Mission High School"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 15,
+       "h1": 19,
+       "state": "phone",
+       "stops": [
+        {
+         "poi": "Mudhaus Coffee"
+        },
+        {
+         "poi": "Mission Branch Library"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the park swap is the awnings — Mudhaus window or the library, never the grass"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 15,
+       "to": {
+        "poi": "Mission High School"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 15,
+       "h1": 18.5,
+       "stops": [
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ],
+       "state": "phone"
+      },
+      {
+       "h0": 18.5,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "a gray afternoon reads cold on the bench — the pack studies at Mudhaus and drifts home earlier"
+    }
+   },
+   "personal": [
+    {
+     "id": "exam-week",
+     "when": {
+      "dayparts": [
+       "afternoon"
+      ]
+     },
+     "note": "exam weeks: the 15–19 stop moves to the library — Vera holds the same table"
+    }
+   ]
+  },
+  {
+   "id": "A05",
+   "name": "Esther",
+   "fullName": "Esther Goldman",
+   "age": 78,
+   "role": "retiree on a stoop, watching the block",
+   "venue": "park benches + Dolores Perk",
+   "card": "ambients/a05-esther.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 8,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 8,
+     "h1": 12,
+     "state": "sit",
+     "stops": [
+      {
+       "anchor": "park_center"
+      },
+      {
+       "poi": "Dolores Perk"
+      }
+     ]
+    },
+    {
+     "h0": 12,
+     "h1": 18,
+     "to": {
+      "anchor": "park_south"
+     },
+     "state": "sit"
+    },
+    {
+     "h0": 18,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "weather-gated-day",
+    "bench-ownership",
+    "witness-posture"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "elder-cane",
+    "gait": "meander",
+    "carry": "a folded section of newspaper",
+    "tell": "witness posture"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 12,
+       "to": {
+        "poi": "Dolores Perk"
+       },
+       "state": "sit"
+      },
+      {
+       "h0": 12,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "rain moves the parliament indoors — Dolores Perk table by the window, shorter day"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "storms she watches from her own window"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 11.5,
+       "to": {
+        "poi": "Dolores Perk"
+       },
+       "state": "sit"
+      },
+      {
+       "h0": 11.5,
+       "h1": 18,
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ],
+       "state": "sit"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the parliament convenes at the Perk till it burns — usually by eleven; on an all-day fog the window table holds"
+    }
+   },
+   "personal": [
+    {
+     "id": "first-of-month",
+     "when": {
+      "dom": 1,
+      "dayparts": [
+       "midday",
+       "lunch",
+       "afternoon"
+      ]
+     },
+     "note": "parliament runs long on the 1st — everybody walks past the bench eventually"
+    }
+   ]
+  },
+  {
+   "id": "A06",
+   "name": "Kofe",
+   "fullName": "Kofe Adeyemi",
+   "age": 29,
+   "role": "delivery rider with a hot box",
+   "venue": "MuleIt delivery spine",
+   "card": "ambients/a06-kofe.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 8,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 8,
+     "h1": 19,
+     "state": "carry",
+     "stops": [
+      {
+       "poi": "Taqueria El Farolote"
+      },
+      {
+       "poi": "Il Delfino"
+      },
+      {
+       "poi": "Buy-Rite Creamery"
+      },
+      {
+       "poi": "Dolores Perk"
+      },
+      {
+       "poi": "Mudhaus Coffee"
+      },
+      {
+       "anchor": "g750"
+      }
+     ]
+    },
+    {
+     "h0": 19,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "surge-tightens-loop",
+    "doorway-wait-read",
+    "rain-faster"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "delivery-hotbox",
+    "gait": "hurry",
+    "carry": "the hot box",
+    "tell": "reads doorways at speed"
+   },
+   "week": {
+    "sat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 21,
+       "state": "carry",
+       "stops": [
+        {
+         "poi": "Taqueria El Farolote"
+        },
+        {
+         "poi": "Il Delfino"
+        },
+        {
+         "poi": "Buy-Rite Creamery"
+        },
+        {
+         "poi": "Dolores Perk"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 21,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "weekend surge — later start, later finish"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19,
+       "state": "carry",
+       "stops": [
+        {
+         "poi": "Taqueria El Farolote"
+        },
+        {
+         "poi": "Il Delfino"
+        },
+        {
+         "poi": "Buy-Rite Creamery"
+        },
+        {
+         "poi": "Dolores Perk"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        },
+        {
+         "anchor": "g750"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "same loop, faster — rain raises the order count, not the pace limit"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19,
+       "state": "carry",
+       "stops": [
+        {
+         "poi": "Taqueria El Farolote"
+        },
+        {
+         "poi": "Il Delfino"
+        },
+        {
+         "poi": "Buy-Rite Creamery"
+        },
+        {
+         "poi": "Dolores Perk"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        },
+        {
+         "anchor": "g750"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "same loop; the foghorn is somebody else's problem"
+    }
+   },
+   "personal": [
+    {
+     "id": "surge-nights",
+     "when": {
+      "dow": [
+       "fri",
+       "sat"
+      ],
+      "hours": [
+       17,
+       19
+      ]
+     },
+     "note": "Friday and Saturday dinner surges tighten the loop to the restaurants — no park-adjacent stops"
+    }
+   ]
+  },
+  {
+   "id": "A07",
+   "name": "Luz",
+   "fullName": "Luz Cárdenas",
+   "age": 45,
+   "role": "street vendor at a fruit stand",
+   "venue": "Frutería Las Palmas (Dolores at 19th)",
+   "card": "ambients/a07-luz.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7,
+     "h1": 18,
+     "to": {
+      "poi": "Frutería Las Palmas"
+     },
+     "state": "serve"
+    },
+    {
+     "h0": 18,
+     "h1": 21,
+     "to": "home",
+     "state": "idle",
+     "inside": true
+    },
+    {
+     "h0": 21,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "rain-tarp-halfday",
+    "heat-stays-late",
+    "kid-mango-cooler"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "apron",
+    "gait": "purposeful",
+    "carry": "a paring knife and a produce scale",
+    "tell": "the mango slice appears before the greeting does"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 13,
+       "to": {
+        "poi": "Frutería Las Palmas"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 13,
+       "h1": 21,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 21,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "tarp over the stand, half day — gone by early afternoon"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "the stand doesn't open in a storm"
+    },
+    "heat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 20,
+       "to": {
+        "poi": "Frutería Las Palmas"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 20,
+       "h1": 22,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "heat stretches the day — she sells out late and closes late"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 17,
+       "to": {
+        "poi": "Frutería Las Palmas"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 17,
+       "h1": 21,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 21,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "fog means dew — the stand opens a half hour late and dries the crates first, closes an hour early when the gray holds"
+    },
+    "wind": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 14,
+       "to": {
+        "poi": "Frutería Las Palmas"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 14,
+       "h1": 21,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 21,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "high wind packs the stand early — the scale and the tarps don't argue with gusts"
+    }
+   },
+   "personal": [
+    {
+     "id": "first-of-month",
+     "when": {
+      "dom": 1
+     },
+     "note": "the 1st is her biggest day — extra crates before dawn, sold through by afternoon"
+    }
+   ]
+  },
+  {
+   "id": "A08",
+   "name": "Sam",
+   "fullName": "Sam Okafor",
+   "age": 38,
+   "role": "busker with a guitar on the corner",
+   "venue": "park pitches; The 600 Club",
+   "card": "ambients/a08-sam.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 10,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 10,
+     "h1": 18,
+     "state": "work",
+     "stops": [
+      {
+       "anchor": "park_north"
+      },
+      {
+       "anchor": "park_south"
+      }
+     ]
+    },
+    {
+     "h0": 18,
+     "h1": 24,
+     "state": "chat",
+     "stops": [
+      {
+       "poi": "The 600 Club"
+      },
+      {
+       "anchor": "park_south"
+      }
+     ]
+    }
+   ],
+   "reflexes": [
+    "pitch-etiquette-yield",
+    "crowd-edge-not-center",
+    "rain-doorway-set"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "guitar-case",
+    "gait": "amble",
+    "carry": "the guitar, always",
+    "tell": "sets up without looking at the crowd"
+   },
+   "week": {
+    "sat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 18,
+       "state": "work",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      }
+     ],
+     "note": "Saturday starts an hour earlier — weekend crowds pay"
+    },
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 18,
+       "state": "work",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      }
+     ],
+     "note": "same — Sunday afternoon is the best pitch of the week"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 18,
+       "state": "work",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      }
+     ],
+     "note": "doorway sets — the 600 Club awning, smaller crowd, better music"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 12,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 12,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        }
+       ]
+      }
+     ],
+     "note": "storm days the park is dead — he's at the bar by noon anyway"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 18,
+       "state": "work",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      }
+     ],
+     "note": "a gray park still tips — the pitch doesn't move for fog"
+    },
+    "wind": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 18,
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        }
+       ],
+       "state": "work"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ],
+       "state": "chat"
+      }
+     ],
+     "note": "wind moves the pitch to the 600 Club doorway — you can't tune a gust"
+    }
+   }
+  },
+  {
+   "id": "A09",
+   "name": "Asha",
+   "fullName": "Asha Nair",
+   "age": 33,
+   "role": "nurse in scrubs off a shift",
+   "venue": "SF General; Mudhaus evenings",
+   "card": "ambients/a09-asha.md",
+   "codeNameNote": "NV_CAST name was 'Priya' through v0 — renamed 'Asha' in pa-chars.js at v1 (collision with C4 Priya Raman).",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 8,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 8,
+     "h1": 19.5,
+     "to": {
+      "poi": "SF General"
+     },
+     "state": "work"
+    },
+    {
+     "h0": 19.5,
+     "h1": 21,
+     "state": "walk",
+     "stops": [
+      {
+       "poi": "Mudhaus Coffee"
+      }
+     ]
+    },
+    {
+     "h0": 21,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "post-shift-slow-walk",
+    "bench-distress-check",
+    "avoids-crowd-noise"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "scrubs",
+    "gait": "meander",
+    "carry": "a phone kept face-down",
+    "tell": "post-shift walk — slow on purpose"
+   },
+   "week": {
+    "tue": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 14,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Buy-Rite Market"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 14,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "off shift — errands at walking-decompression speed"
+    },
+    "wed": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 14,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Buy-Rite Market"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 14,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "off shift — same decompression loop"
+    }
+   },
+   "weather": {
+    "heat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19.5,
+       "to": {
+        "poi": "SF General"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 19.5,
+       "h1": 21,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 21,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "heat waves fill the ward — same hours, longer day inside"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19.5,
+       "to": {
+        "poi": "SF General"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 19.5,
+       "h1": 21,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 21,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the ward doesn't have weather"
+    }
+   },
+   "personal": [
+    {
+     "id": "evening-nurse",
+     "when": {
+      "dayparts": [
+       "evening"
+      ]
+     },
+     "note": "after a shift she takes the Mudhaus counter seat facing the door, phone down, one drink — this is the whole ritual"
+    }
+   ]
+  },
+  {
+   "id": "A10",
+   "name": "Gus",
+   "fullName": "Gus Ferreira",
+   "age": 61,
+   "role": "mechanic in oil-stained overalls",
+   "venue": "Folsom Auto & Sons",
+   "card": "ambients/a10-gus.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 6.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 6.5,
+     "h1": 16,
+     "to": {
+      "poi": "Folsom Auto & Sons"
+     },
+     "state": "work"
+    },
+    {
+     "h0": 16,
+     "h1": 22,
+     "to": "home",
+     "state": "rest",
+     "inside": true
+    },
+    {
+     "h0": 22,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "engine-sound-headtilt",
+    "rain-shop-fills",
+    "commotion-glance-once"
+   ],
+   "offDay": "sun",
+   "minor": false,
+   "signature": {
+    "silhouette": "workboots",
+    "gait": "purposeful",
+    "carry": "a rag that lives in the pocket",
+    "tell": "head-tilt at engines"
+   },
+   "week": {
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 12,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Dolores Perk"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 12,
+       "h1": 24,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      }
+     ],
+     "note": "shop closed Sundays — breakfast at the Perk, then the couch"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6.5,
+       "h1": 16,
+       "to": {
+        "poi": "Folsom Auto & Sons"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 16,
+       "h1": 22,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "rain fills the shop — nobody wants to be under a car in their driveway"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6.5,
+       "h1": 16,
+       "to": {
+        "poi": "Folsom Auto & Sons"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 16,
+       "h1": 22,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the shop is indoors; fog changes nothing but the light through the door"
+    }
+   }
+  },
+  {
+   "id": "A11",
+   "name": "Vera",
+   "fullName": "Vera Osei",
+   "age": 44,
+   "role": "librarian shelving returns",
+   "venue": "Mission Branch Library",
+   "card": "ambients/a11-vera.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7.5,
+     "h1": 17.5,
+     "to": {
+      "poi": "Mission Branch Library"
+     },
+     "state": "work"
+    },
+    {
+     "h0": 17.5,
+     "h1": 20,
+     "state": "sit",
+     "stops": [
+      {
+       "anchor": "park_center"
+      },
+      {
+       "poi": "Dolores Perk"
+      }
+     ]
+    },
+    {
+     "h0": 20,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "reflexive-shush",
+    "rain-overflow-shelter",
+    "reserve-pile"
+   ],
+   "offDays": [
+    "sun",
+    "mon"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "tote-stack",
+    "gait": "purposeful",
+    "carry": "a returns cart she isn't pushing",
+    "tell": "the reflexive shush"
+   },
+   "week": {
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 13,
+       "state": "sit",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Dolores Perk"
+        }
+       ]
+      },
+      {
+       "h0": 13,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "library closed — she reads in the park like a civilian"
+    },
+    "mon": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 13,
+       "state": "sit",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Dolores Perk"
+        }
+       ]
+      },
+      {
+       "h0": 13,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "Monday closure — same bench, different book"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 17.5,
+       "to": {
+        "poi": "Mission Branch Library"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 17.5,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "rain doubles the library — her park hour goes to the overflow at the door"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 17.5,
+       "to": {
+        "poi": "Mission Branch Library"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 17.5,
+       "h1": 20,
+       "state": "sit",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Dolores Perk"
+        }
+       ]
+      },
+      {
+       "h0": 20,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "fog is library weather — the chairs fill either way"
+    }
+   }
+  },
+  {
+   "id": "A12",
+   "name": "Tom",
+   "fullName": "Tom Nakamura",
+   "age": 35,
+   "role": "jogger doing laps around the park",
+   "venue": "park perimeter",
+   "card": "ambients/a12-tom.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 6,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 6,
+     "h1": 8,
+     "state": "run",
+     "stops": [
+      {
+       "anchor": "park_north"
+      },
+      {
+       "anchor": "park_south"
+      }
+     ]
+    },
+    {
+     "h0": 8,
+     "h1": 17,
+     "to": "home",
+     "state": "rest",
+     "inside": true
+    },
+    {
+     "h0": 17,
+     "h1": 19,
+     "state": "run",
+     "stops": [
+      {
+       "anchor": "park_south"
+      },
+      {
+       "anchor": "park_center"
+      }
+     ]
+    },
+    {
+     "h0": 19,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "weather-adjusts-distance-never-schedule",
+    "distress-assess-and-stop"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "jogger",
+    "gait": "hurry",
+    "carry": "nothing — that's the point",
+    "tell": "the metronome never pauses"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6,
+       "h1": 7.5,
+       "state": "run",
+       "stops": [
+        {
+         "anchor": "park_north"
+        }
+       ]
+      },
+      {
+       "h0": 7.5,
+       "h1": 17,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 17,
+       "h1": 18.5,
+       "state": "run",
+       "stops": [
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 18.5,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "rain shortens the laps, never the schedule — one lap fewer, same times"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "a storm is the only thing that cancels him — he hates it visibly"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6,
+       "h1": 8,
+       "state": "run",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 8,
+       "h1": 17,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 17,
+       "h1": 19,
+       "state": "run",
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the metronome doesn't check the sky — same laps, same times"
+    },
+    "wind": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6,
+       "h1": 8,
+       "state": "run",
+       "stops": [
+        {
+         "anchor": "park_north"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 8,
+       "h1": 17,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 17,
+       "h1": 19,
+       "state": "run",
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "into the wind is still a lap"
+    }
+   },
+   "personal": [
+    {
+     "id": "thursday-fartlek",
+     "when": {
+      "dow": "thu",
+      "hours": [
+       6,
+       8
+      ]
+     },
+     "note": "Thursdays he runs intervals — the only day the metronome syncopates"
+    }
+   ]
+  },
+  {
+   "id": "A13",
+   "name": "Nadia",
+   "fullName": "Nadia Petrov",
+   "age": 31,
+   "role": "tech worker doom-scrolling on the curb",
+   "venue": "Mudhaus corner table",
+   "card": "ambients/a13-nadia.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 9,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 9,
+     "h1": 17,
+     "to": {
+      "poi": "Mudhaus Coffee"
+     },
+     "state": "phone"
+    },
+    {
+     "h0": 17,
+     "h1": 22,
+     "to": "home",
+     "state": "phone",
+     "inside": true
+    },
+    {
+     "h0": 22,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "headphones-on-loud",
+    "wifi-outage-relocate",
+    "rain-stays-home"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "headphones-big",
+    "gait": "amble",
+    "carry": "a laptop in a padded sleeve",
+    "tell": "headphones go on when it gets loud"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 22,
+       "to": "home",
+       "state": "phone",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "rain is a home day — the corner table stays empty"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 24,
+       "to": "home",
+       "state": "phone",
+       "inside": true
+      }
+     ],
+     "note": "same — plus the window open an inch for the sound"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 11,
+       "to": "home",
+       "state": "phone",
+       "inside": true
+      },
+      {
+       "h0": 11,
+       "h1": 17,
+       "to": {
+        "poi": "Mudhaus Coffee"
+       },
+       "state": "phone"
+      },
+      {
+       "h0": 17,
+       "h1": 22,
+       "to": "home",
+       "state": "phone",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "a gray morning is a home morning — she comes out when it burns, mid-morning"
+    }
+   }
+  },
+  {
+   "id": "A14",
+   "name": "Bex",
+   "fullName": "Rebecca Lindqvist",
+   "age": 29,
+   "role": "tattoo artist on a smoke break",
+   "venue": "Needlepointe Tattoo + Clarion Alley; The 600 Club",
+   "card": "ambients/a14-bex.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 10,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 10,
+     "h1": 18,
+     "state": "work",
+     "stops": [
+      {
+       "poi": "Needlepointe Tattoo"
+      },
+      {
+       "poi": "Clarion Alley"
+      }
+     ]
+    },
+    {
+     "h0": 18,
+     "h1": 24,
+     "state": "chat",
+     "stops": [
+      {
+       "poi": "The 600 Club"
+      },
+      {
+       "anchor": "park_south"
+      }
+     ]
+    }
+   ],
+   "reflexes": [
+    "smoke-break-consult",
+    "rain-shop-doorway",
+    "alley-catalog"
+   ],
+   "secretAdjacent": "Recognizes the chalkboard/Clarion linework match (C3-adjacent). Ambient = never says it; promotion makes her a live discovery path.",
+   "offDay": "mon",
+   "minor": false,
+   "signature": {
+    "silhouette": "skater-carry",
+    "gait": "amble",
+    "carry": "a flash-sheet folder",
+    "tell": "smoke-break consults at the shop door"
+   },
+   "week": {
+    "mon": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 11,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 11,
+       "h1": 18,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Clarion Alley"
+        },
+        {
+         "poi": "Buy-Rite Market"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      }
+     ],
+     "note": "shop dark Mondays — she wanders the alley anyway, it's where the walls are"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 18,
+       "to": {
+        "poi": "Needlepointe Tattoo"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        }
+       ]
+      }
+     ],
+     "note": "the alley wall doesn't happen in rain — shop door only"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 18,
+       "state": "work",
+       "stops": [
+        {
+         "poi": "Needlepointe Tattoo"
+        },
+        {
+         "poi": "Clarion Alley"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "state": "chat",
+       "stops": [
+        {
+         "poi": "The 600 Club"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      }
+     ],
+     "note": "fog is good skin weather; the shop door opens on time"
+    }
+   }
+  },
+  {
+   "id": "A15",
+   "name": "Omar",
+   "fullName": "Omar Haddad",
+   "age": 27,
+   "role": "bike courier with a messenger bag",
+   "venue": "Flying Pannier paper-run loop",
+   "card": "ambients/a15-omar.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 8,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 8,
+     "h1": 19,
+     "state": "carry",
+     "stops": [
+      {
+       "poi": "Auerbach Hardware"
+      },
+      {
+       "poi": "Mission Branch Library"
+      },
+      {
+       "poi": "Dolores Perk"
+      },
+      {
+       "poi": "Mudhaus Coffee"
+      },
+      {
+       "anchor": "g744"
+      }
+     ]
+    },
+    {
+     "h0": 19,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "marcus-sighted-one-block-race",
+    "door-code-memory",
+    "rain-fenders-pace-same"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "messenger-sling",
+    "gait": "hurry",
+    "carry": "the paper bag that outlives the route",
+    "tell": "memorized door codes"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19,
+       "state": "carry",
+       "stops": [
+        {
+         "poi": "Auerbach Hardware"
+        },
+        {
+         "poi": "Mission Branch Library"
+        },
+        {
+         "poi": "Dolores Perk"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        },
+        {
+         "anchor": "g744"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "fenders on, pace identical — paper doesn't wait for weather"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 17,
+       "state": "carry",
+       "stops": [
+        {
+         "poi": "Auerbach Hardware"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        },
+        {
+         "anchor": "g744"
+        }
+       ]
+      },
+      {
+       "h0": 17,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "storm halves the run — only the stops that pay double stay on the list"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 19,
+       "state": "carry",
+       "stops": [
+        {
+         "poi": "Auerbach Hardware"
+        },
+        {
+         "poi": "Mission Branch Library"
+        },
+        {
+         "poi": "Dolores Perk"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        },
+        {
+         "anchor": "g744"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "pace identical — glasses on, head down"
+    }
+   }
+  },
+  {
+   "id": "A16",
+   "name": "Hana",
+   "fullName": "Hana Lindgren",
+   "age": 47,
+   "role": "baker carrying warm trays",
+   "venue": "Baguette About It Bakery",
+   "card": "ambients/a16-hana.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 4,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 4,
+     "h1": 13,
+     "to": {
+      "poi": "Baguette About It Bakery"
+     },
+     "state": "serve"
+    },
+    {
+     "h0": 13,
+     "h1": 17,
+     "state": "walk",
+     "stops": [
+      {
+       "anchor": "park_center"
+      },
+      {
+       "poi": "Buy-Rite Market"
+      }
+     ]
+    },
+    {
+     "h0": 17,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "heat-shortens-bake",
+    "rain-dayold-half-price",
+    "5am-head-tilt"
+   ],
+   "offDay": "mon",
+   "minor": false,
+   "signature": {
+    "silhouette": "apron",
+    "gait": "purposeful",
+    "carry": "warm trays at shoulder height",
+    "tell": "the 5 a.m. head-tilt at the oven"
+   },
+   "week": {
+    "mon": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7,
+       "h1": 12,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Buy-Rite Market"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 12,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "bakery dark Mondays — the one morning she sees daylight"
+    }
+   },
+   "weather": {
+    "heat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 4,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 4,
+       "h1": 11,
+       "to": {
+        "poi": "Baguette About It Bakery"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 11,
+       "h1": 17,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Buy-Rite Market"
+        }
+       ]
+      },
+      {
+       "h0": 17,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "heat cuts the bake short — ovens off by 11, out the door"
+    },
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 4,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 4,
+       "h1": 13,
+       "to": {
+        "poi": "Baguette About It Bakery"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 13,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "rain keeps her in — the errands wait, the day-old shelf goes half price"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 4,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 4,
+       "h1": 13,
+       "to": {
+        "poi": "Baguette About It Bakery"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 13,
+       "h1": 17,
+       "state": "walk",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Buy-Rite Market"
+        }
+       ]
+      },
+      {
+       "h0": 17,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the ovens don't notice; fog is just the morning"
+    }
+   }
+  },
+  {
+   "id": "A17",
+   "name": "Cole",
+   "fullName": "Cole Brennan",
+   "age": 36,
+   "role": "construction worker on a scaffold",
+   "venue": "site near Auerbach Hardware",
+   "card": "ambients/a17-cole.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 6.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 6.5,
+     "h1": 16,
+     "to": {
+      "poi": "Auerbach Hardware"
+     },
+     "state": "work"
+    },
+    {
+     "h0": 16,
+     "h1": 22,
+     "to": "home",
+     "state": "rest",
+     "inside": true
+    },
+    {
+     "h0": 22,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "hardhat-zone-awareness",
+    "rain-interior-work",
+    "scaffold-vantage"
+   ],
+   "offDays": [
+    "sat",
+    "sun"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "toolbelt",
+    "gait": "purposeful",
+    "carry": "a thermos the size of a forearm",
+    "tell": "hard-hat awareness even off-site"
+   },
+   "week": {
+    "sat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 13,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Auerbach Hardware"
+        },
+        {
+         "anchor": "park_south"
+        }
+       ]
+      },
+      {
+       "h0": 13,
+       "h1": 24,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      }
+     ],
+     "note": "Saturdays he still ends up at the hardware counter — personal projects"
+    },
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 24,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      }
+     ],
+     "note": "Sunday is the flat day — nobody expects him anywhere"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6.5,
+       "h1": 16,
+       "to": {
+        "poi": "Auerbach Hardware"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 16,
+       "h1": 22,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "rain moves the crew to interior work — same hours, different scaffold"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 6.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 6.5,
+       "h1": 16,
+       "to": {
+        "poi": "Auerbach Hardware"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 16,
+       "h1": 22,
+       "to": "home",
+       "state": "rest",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "interior or exterior, the thermos is the same"
+    }
+   }
+  },
+  {
+   "id": "A18",
+   "name": "Ida",
+   "fullName": "Ida Johansson",
+   "age": 55,
+   "role": "florist with a basket of bouquets",
+   "venue": "Bloom & Doom Flowers",
+   "card": "ambients/a18-ida.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7.5,
+     "h1": 18,
+     "to": {
+      "poi": "Bloom & Doom Flowers"
+     },
+     "state": "serve"
+    },
+    {
+     "h0": 18,
+     "h1": 22,
+     "to": "home",
+     "state": "idle",
+     "inside": true
+    },
+    {
+     "h0": 22,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "stray-stem-to-strangers",
+    "rain-buckets-in",
+    "reads-the-flyer"
+   ],
+   "offDay": "mon",
+   "minor": false,
+   "signature": {
+    "silhouette": "apron",
+    "gait": "amble",
+    "carry": "a basket of loose stems",
+    "tell": "hands a stray stem to strangers"
+   },
+   "week": {
+    "mon": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 14,
+       "state": "walk",
+       "stops": [
+        {
+         "poi": "Clarion Alley"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 14,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "shop dark Mondays — she walks the alley to see what the week did to the walls"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 18,
+       "to": {
+        "poi": "Bloom & Doom Flowers"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "the buckets come in off the sidewalk — the storefront shrinks"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 18,
+       "to": {
+        "poi": "Bloom & Doom Flowers"
+       },
+       "state": "serve"
+      },
+      {
+       "h0": 18,
+       "h1": 22,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      },
+      {
+       "h0": 22,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "fog is free watering — the sidewalk buckets stay out"
+    }
+   }
+  },
+  {
+   "id": "A19",
+   "name": "Ray",
+   "fullName": "Ray Kowalski",
+   "age": 71,
+   "role": "retired longshoreman feeding pigeons",
+   "venue": "park benches + Dolores Perk",
+   "card": "ambients/a19-ray.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 8,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 8,
+     "h1": 12,
+     "state": "sit",
+     "stops": [
+      {
+       "anchor": "park_center"
+      },
+      {
+       "poi": "Dolores Perk"
+      }
+     ]
+    },
+    {
+     "h0": 12,
+     "h1": 18,
+     "state": "sit",
+     "stops": [
+      {
+       "anchor": "park_south"
+      },
+      {
+       "anchor": "park_center"
+      }
+     ]
+    },
+    {
+     "h0": 18,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "weather-gated-park",
+    "bench-claim-by-standing",
+    "pigeon-schedule"
+   ],
+   "minor": false,
+   "signature": {
+    "silhouette": "flat-cap",
+    "gait": "meander",
+    "carry": "a paper bag of crumbs",
+    "tell": "claims the bench by standing next to it"
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 9,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 9,
+       "h1": 12,
+       "to": {
+        "poi": "Dolores Perk"
+       },
+       "state": "sit"
+      },
+      {
+       "h0": 12,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "rain retires him early — the pigeons get one wet pass and no parliament"
+    },
+    "storm": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 24,
+       "to": "home",
+       "state": "idle",
+       "inside": true
+      }
+     ],
+     "note": "storms he sits in his own window and disapproves"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 11,
+       "to": {
+        "poi": "Dolores Perk"
+       },
+       "state": "sit"
+      },
+      {
+       "h0": 11,
+       "h1": 18,
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ],
+       "state": "sit"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "Perk window till it burns, then the bench — the pigeons wait; on an all-day fog the pigeons get one wet pass and he retires early"
+    },
+    "wind": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 8,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 8,
+       "h1": 12,
+       "state": "sit",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Dolores Perk"
+        }
+       ]
+      },
+      {
+       "h0": 12,
+       "h1": 18,
+       "state": "sit",
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "anchor": "park_center"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "the crumbs stay bagged till the gusts pass — the pigeons know why"
+    }
+   },
+   "personal": [
+    {
+     "id": "pigeon-schedule",
+     "when": {
+      "dayparts": [
+       "rush",
+       "midday"
+      ]
+     },
+     "note": "the pigeons know 8:30 and noon — he is never late to either"
+    }
+   ]
+  },
+  {
+   "id": "A20",
+   "name": "Zee",
+   "fullName": "Zee Okafor-Banks",
+   "age": 17,
+   "role": "teenager glued to a phone",
+   "venue": "Mission High School; park/café perimeter",
+   "card": "ambients/a20-zee.md",
+   "routine": [
+    {
+     "h0": 0,
+     "h1": 7.5,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    },
+    {
+     "h0": 7.5,
+     "h1": 15,
+     "to": {
+      "poi": "Mission High School"
+     },
+     "state": "work"
+    },
+    {
+     "h0": 15,
+     "h1": 19,
+     "state": "phone",
+     "stops": [
+      {
+       "anchor": "park_center"
+      },
+      {
+       "poi": "Mudhaus Coffee"
+      }
+     ]
+    },
+    {
+     "h0": 19,
+     "h1": 24,
+     "to": "home",
+     "state": "sleep",
+     "inside": true
+    }
+   ],
+   "reflexes": [
+    "films-anything-loud",
+    "sincerity-countermeasures",
+    "pack-migration"
+   ],
+   "minor": true,
+   "signature": {
+    "silhouette": "headphones-big",
+    "gait": "meander",
+    "carry": "a phone held like a camera",
+    "tell": "films anything loud"
+   },
+   "week": {
+    "sat": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 19,
+       "state": "phone",
+       "stops": [
+        {
+         "anchor": "park_center"
+        },
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "weekend perimeter — pack orbit, all day"
+    },
+    "sun": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 10,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 10,
+       "h1": 19,
+       "state": "phone",
+       "stops": [
+        {
+         "anchor": "park_south"
+        },
+        {
+         "poi": "Frutería Las Palmas"
+        }
+       ]
+      },
+      {
+       "h0": 19,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "Sunday the pack drifts south — Luz's end of the park"
+    }
+   },
+   "weather": {
+    "rain": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 15,
+       "to": {
+        "poi": "Mission High School"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 15,
+       "h1": 18,
+       "state": "phone",
+       "stops": [
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ]
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "rain compresses the perimeter to the Mudhaus awning and home earlier"
+    },
+    "fog": {
+     "rows": [
+      {
+       "h0": 0,
+       "h1": 7.5,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      },
+      {
+       "h0": 7.5,
+       "h1": 15,
+       "to": {
+        "poi": "Mission High School"
+       },
+       "state": "work"
+      },
+      {
+       "h0": 15,
+       "h1": 18,
+       "stops": [
+        {
+         "poi": "Mudhaus Coffee"
+        }
+       ],
+       "state": "phone"
+      },
+      {
+       "h0": 18,
+       "h1": 24,
+       "to": "home",
+       "state": "sleep",
+       "inside": true
+      }
+     ],
+     "note": "gray days the perimeter orbit compresses to the Mudhaus awning, home earlier"
+    }
+   }
+  }
+ ]
 }

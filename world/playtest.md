@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v56)
+# Playtest Harness — "Real World / The Mission" (world v57)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -87,6 +87,11 @@ One person can wear every hat; four real testers is the intended shape.
   the three new card blocks (money signature, unwatched hour, edges),
   the new fixed bible sections in order before the briefing-safe
   block, and a leak sweep on all new copy.
+  PT52 (crowd v5 marine layer, v57) is a spectator + facilitator
+  audit — the fog depth profile with its burn-off hour and all-day
+  mode, wind as a texture condition, season shades under the day
+  shades, parliament-in-exile, and the crowd gate's fog/wind +
+  all-20-fog checks.
 
 ## 3. Running a session
 

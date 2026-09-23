@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 56,
+ "version": 57,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2541,9 +2541,9 @@
     },
     {
      "do": "Run `node world/audit.js` and read the harness gate.",
-     "expect": "harness gate passes: LS key rw_playtest_v56 + build tag agree with playtest.json v56, every v56 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
+     "expect": "harness gate passes: LS key rw_playtest_v57 + build tag agree with playtest.json v57, every v57 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
      "checkpoints": [
-      "Gate reports '51 scenarios · N checkpoints · key rw_playtest_v56'",
+      "Gate reports '52 scenarios · N checkpoints · key rw_playtest_v57'",
       "A missing owner select, a dropped debrief id, or the old LS key would FAIL — spot-check",
       "All gates green; overall 0 fail"
      ]
@@ -2592,7 +2592,7 @@
      "expect": "The card states offline = thin AI (thinner but present) with the no-'miss you' clause; the onboard gate reports 'schema v53 · 7 beats · key rw_onboard_v53' with zero fails.",
      "checkpoints": [
       "Thin-AI line and no-nag clause appear together",
-      "Onboard gate passes; harness gate passes at key rw_playtest_v56 / build 'world v56 local'",
+      "Onboard gate passes; harness gate passes at key rw_playtest_v57 / build 'world v57 local'",
       "All gates green; overall 0 fail"
      ]
     }
@@ -2738,11 +2738,60 @@
     },
     {
      "do": "Run `node world/audit.js` and read the bible + harness gates.",
-     "expect": "The bible gate reports schema v56 with 20 required sections and passes; the harness gate reports 51 scenarios with the v56 key.",
+     "expect": "The bible gate reports schema v56 with 20 required sections and passes; the harness gate reports 52 scenarios with the v57 key.",
      "checkpoints": [
       "Bible gate detail: 'schema v56 · 8 mains · 20 required sections'",
-      "Harness gate: '51 scenarios · N checkpoints · key rw_playtest_v56'",
+      "Harness gate: '52 scenarios · N checkpoints · key rw_playtest_v57'",
       "0 fail overall"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT52",
+   "title": "The Crowd v5 — the marine layer (fog, wind, seasons)",
+   "persona": "spectator who knows SF summers — checking whether the gray reads like weather and not a bug",
+   "minutes": 10,
+   "surfaces": [
+    "crowd",
+    "audit"
+   ],
+   "goal": "Verify the v57 marine-layer pass: fog and wind sit beside rain/storm/heat in the weather bank, fog resolves as a depth profile with a burn-off hour and an all-day mode, an all-day fog moves the bench parliament to Dolores Perk as 'parliament in exile', season shades shift the baseline, and every ambient now answers fog in ambients.json.",
+   "steps": [
+    {
+     "do": "Open crowd.html, set wx=fog, and scrub 06:00 → 13:00 watching the fog stage chip and the park/Dolores Perk rows.",
+     "expect": "The fog stage walks deep → patchy → burned across the morning; the park budget thins (open_air ×0.55) while cafés tick up; Esther and Ray read 'fogged over' at Dolores Perk while the layer holds and return to the benches once it burns.",
+     "checkpoints": [
+      "Stage chip reads deep → patchy → burned across the morning, burned by midday",
+      "Park row thins under fog; café rows tick up (×1.15) — nobody runs, nothing shelters",
+      "Esther + Ray chips sit at Dolores Perk before the burn, back at the park after ~10:30"
+     ]
+    },
+    {
+     "do": "Set the fog toggle to 'all-day' and watch the Standing bits panel; then set wx=wind and scrub to 15:00.",
+     "expect": "All-day fog holds patchy through the burned dayparts — 'Parliament in exile' goes LIVE as Esther and Ray stay at the Perk. Under wind, the stand and open-air budgets drop, Sam relocates to the 600 Club doorway, and the west-wind micro-event lights 14–18.",
+     "checkpoints": [
+      "'Parliament in exile' appears in the scene list and goes LIVE under all-day fog (and under rain)",
+      "wx=wind: fruteria budget drops (stand ×0.7); Sam reads 'doorway set' at the 600 Club",
+      "The west-wind micro chip lights only inside 14–18 under wind; fog-burn lights only under fog ~10:30–12:30"
+     ]
+    },
+    {
+     "do": "Flip the season toggle jun ↔ sep ↔ jan and compare the park curve and budgets.",
+     "expect": "fog_season thins park mornings, indian_summer swells the park afternoons, wet_season sits near baseline — the same block in three climates. Season names stay internal vocabulary; zone subs show them as debug tags only, never feed wording.",
+     "checkpoints": [
+      "jun: morning park budget visibly lower; sep: afternoon higher; jan: near baseline",
+      "The 24h curve redraws under the selected season",
+      "No season id appears as a feed word — band words and scene labels only"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the crowd + harness gates.",
+     "expect": "The crowd gate reports schema v57 — fog/wind weather rows present, fog_model stages/day-profile mirror green, season shades mirrored and referentially clean — and every one of the 20 ambients carries a weather.fog answer. Harness passes at the v57 key.",
+     "checkpoints": [
+      "Crowd gate detail: 'schema v57 · 17 zones' and passes — no fog_model or SEASONS drift items",
+      "No 'no weather.fog answer' fails — all 20 ambients respond to fog (rows or note)",
+      "Harness gate: '52 scenarios · N checkpoints · key rw_playtest_v57'; 0 fail overall"
      ]
     }
    ]
@@ -2787,10 +2836,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v56 local",
- "harness_ui_v56": {
-  "storage_key": "rw_playtest_v56",
-  "build_tag_prefix": "world v56 local",
+ "build": "world v57 local",
+ "harness_ui_v57": {
+  "storage_key": "rw_playtest_v57",
+  "build_tag_prefix": "world v57 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -2809,7 +2858,7 @@
   "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
   "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
   "required_marks": [
-   "rw_playtest_v56",
+   "rw_playtest_v57",
    "id=\"prog\"",
    "id=\"keyCard\"",
    "id=\"exInbox\"",
