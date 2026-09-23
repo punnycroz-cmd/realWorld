@@ -1,8 +1,11 @@
 # DRAFT — Devlog 3: "Rent is due on the first."
 
-Status: drafted (v27), NOT yet on `site/journal.html`. Publish when the
-lease-ledger capture or a housing UI shot exists to pair with it — or as a
-text-only post; both are fine per the template.
+Status: PUBLISHED on `site/journal.html` (v42, dated 2026-09-24), text-only
+per the template. Accuracy checklist below was re-run at publish — wage
+bands, 45% target, resident count, and the Carmen/Jules/Victor housing
+claims all still match `world/jobs-housing.md` + `world/leases.json`
+(Carmen's lease start is 1989-03-01; Victor owns the Guerrero Victorians
+and does Tuesday repairs per his bible).
 
 Template: `templates/devlog-post.md`. Gate before publish: every claim below
 must still match `world/jobs-housing.md` + `world/housing/` at publish time.

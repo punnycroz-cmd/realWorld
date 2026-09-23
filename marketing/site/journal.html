@@ -69,6 +69,94 @@
   <div class="wrap">
     <p class="eyebrow">Latest — devlog</p>
     <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v26</p>
+      <h2>The Wire: every event gets a permalink.</h2>
+      <p>
+        The public spectator feed — the free window into the block — now runs
+        end to end. The simulation's event bus projects into the same public
+        schema the site documents: approved requests, queued requests,
+        refunds, declines, moves, weather, all posted as one neutral line each
+        with attribution. Every entry carries a stable id
+        (<code>d0923-14</code>-style) and a permalink; the same id still
+        resolves in the day Archive tomorrow. That's not a cosmetic detail —
+        it's the plumbing behind our recap rule: <i>every line links to the
+        feed entry it reports. If we can't link it, it didn't happen.</i>
+      </p>
+      <p>
+        The spectator app itself is built to be read, not just glanced at:
+        follow-pins on venues and residents, a request's whole lifecycle
+        grouped into one legible trail, an honest <i>"you're caught up"</i>
+        marker at the bottom of the day, and a <b>quiet</b> marker when the
+        block is genuinely quiet — the feed says so instead of manufacturing
+        motion. Denied requests show only their why-class; the screened text
+        is never public anywhere. Admin actions carry their compensation in
+        the open.
+      </p>
+      <p>
+        The same app runs on two data sources with one badge keeping them
+        honest: <b>live</b> when it's reading the build, <b>demo stream</b>
+        when it's replaying seeded events — the demo never impersonates live.
+        You can see the feed vocabulary right now on the
+        <a href="demo.html">watch page</a> and in the recap format preview
+        below.
+      </p>
+      <p class="muted">
+        Sources: the feed projection ships in the game track's
+        <code>41_game_systems_feed.js</code> (stable ids, archive day
+        objects, follow/stats APIs); the spectator surface and its copy
+        contract are the world track's <code>world/wire.html</code> +
+        <code>world/wire-ui.md</code>; the schema is
+        <code>world/feed.json</code>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v26</p>
+      <h2>Rent is due on the first.</h2>
+      <p>
+        A neighborhood where nobody pays rent is a neighborhood where nothing
+        is at stake — so the block runs a lease ledger. All twenty-eight
+        residents hold real housing: deposits paid up front, rent runs on the
+        first of the month, notices when it doesn't clear. Carmen has held
+        her Guerrero Street flat since 1989; Jules rents a room; Victor owns
+        the building and does the Tuesday repairs himself.
+      </p>
+      <p>
+        The economics are balanced to be cozy, not punishing. Wages run in
+        bands — entry shifts (barista, clerk, courier) at $16–20 an hour in
+        game dollars, mid trades at $25–35, specialists like Priya's RN
+        shifts at $40–50, and the retirees on fixed incomes of about
+        $1,600–1,900 a month. Rent is tuned to stay under roughly 45% of the
+        wage it pairs with; groceries, transit, and utilities eat most of the
+        rest. Savings rate is the difficulty knob.
+      </p>
+      <p>
+        One wall stays up forever: game dollars and viewer credits never
+        exchange. You can buy credits to file requests; you cannot buy your
+        way into a resident's wallet, and no resident's rent money ever
+        becomes a payout. The economy is for stakes, not for cashing out.
+      </p>
+      <p class="muted">
+        Sources: wage bands and the 45% rent target are locked in the world
+        track's jobs/housing canon (<code>world/jobs-housing.md</code>);
+        per-building detail lives in <code>world/housing/</code>; the
+        credit–dollar wall is design doc law.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-23 · Development build v26</p>
       <h2>Every request knocks before it enters.</h2>
       <p>

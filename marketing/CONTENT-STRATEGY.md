@@ -79,7 +79,12 @@ recap-format.md production notes).
 2. Fill `templates/weekly-recap.md`: headline event, feed beats with
    attribution, resident beats, the numbers, next-week hook.
 3. **Link rule:** every recap line links to its feed entry. If we can't
-   link it, it didn't happen.
+   link it, it didn't happen. The mechanics landed with game-v6 +
+   world-v19: feed entries carry stable `d<MMDD>-<feedN>` ids that deep-link
+   as `#e=<id>` on the spectator app and still resolve in the day Archive
+   (`history.json`-shaped day objects keep ids live→archive). Recap links
+   point at `<site>/watch#e=<id>` (or the domain equivalent); ids are also
+   the citation format for press/creators quoting an event.
 4. Cut the social version from the same material (`recap-format.md`).
 5. Gate: same as devlog. Until the live feed exists, the journal shows the
    illustrative-format preview only — already on `journal.html`, labeled.
@@ -134,11 +139,15 @@ village"), recaps target branded/community queries. Rules:
 |---|---|---|
 | Devlog 1 — "How the block learned to look like the Mission" | live on `journal.html` | art v1→v26 inbox history + game lease/request systems |
 | Devlog 2 — "Every request knocks before it enters" | live on `journal.html` | world-v8 `screen.js`/`moderation.json`/`mod-console.html` |
-| Devlog 3 — "Rent is due on the first" | drafted, `marketing/content/devlog-03-rent-is-due.md` | world `jobs-housing.md`, `housing/` |
+| Devlog 3 — "Rent is due on the first" | live on `journal.html` (v42) | world `jobs-housing.md`, `leases.json`, `housing/` |
+| Devlog 4 — "The Wire: every event gets a permalink" | live on `journal.html` (v42); record at `marketing/content/devlog-04-the-wire.md` | game-v6 `41_game_systems_feed.js`, world-v19 `wire.html`/`wire-ui.md`/`feed.json` |
+| Devlog 5 — "Meet the venues" | drafted, `marketing/content/devlog-05-meet-the-venues.md` | world `businesses.json` + `businesses/` + `directory.html` (world-v16) |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it): lease-ledger
-devlog deep-dive, "meet the venues" cast-adjacent post (businesses.md §2),
-a transparency note format for moderation stats once the live feed emits
-`moderation.json`-shaped events, memory-model explainer once game-systems
-implements the memory spec (research-only today — do not preview).
+devlog deep-dive (devlog-3 covers the intro; a ledger-mechanics follow-up
+still has room), a transparency note format for moderation stats once the
+live feed emits `moderation.json`-shaped events, a wire.html-screenshot
+post if the world/art tracks publish a spectator-app capture, memory-model
+explainer once game-systems implements the memory spec (research-only
+today — do not preview).
