@@ -562,8 +562,8 @@ const PUB = Object.values(PT.surfaces)
       if (!re.test(html)) add(g, 'fail', 'lease.html', null, `missing required copy: ${label}`);
     /* feed wording: every wire push uses a neutral template from the table */
     const allowed = ['Listing filled —', 'Listed —', 'housing notice posted —',
-      'rent-board filing —', 'rent-board ruling —', 'Unit turning over —',
-      'Sold —', 'admin action — tenancy ended at'];
+      'no-fault notice posted —', 'rent-board filing —', 'rent-board ruling —',
+      'Unit turning over —', 'Sold —', 'admin action — tenancy ended at'];
     html.split('\n').forEach((ln, i) => {
       for (const m of ln.matchAll(/tx:'([^']+)'/g)) {
         const tx = m[1];
@@ -588,6 +588,32 @@ const PUB = Object.values(PT.surfaces)
     ]) if (!html.includes(want)) add(g, 'fail', 'lease.html', null, `rent-run figure "${label}" (${want}) absent from page`);
     if (rr.late_fee.cap !== 50 || rr.formal_notice_day !== 10 || rr.cure_window_d !== 14)
       add(g, 'fail', 'leases.json', null, 'rent-run numbers drifted from the locked ladder (50/10/14)');
+    /* v40 additions — terms, move-in record, installment plans, frozen
+       raises, no-fault path, sublets, file scars */
+    if (LJ.version >= 40) {
+      if (LJ.demo_seed.storage_key === 'rw_lease_v26')
+        add(g, 'fail', 'leases.json', null, 'v40 schema still on the v26 storage key');
+      for (const [re, label] of [
+        [/month-to-month/i, 'lease term stated'],
+        [/move-in record/i, 'move-in condition record surface'],
+        [/pre-existing/i, 'move-in gate wording'],
+        [/installment/i, 'installment plan mechanics'],
+        [/relocation credit|NOFAULT/i, 'no-fault path'],
+        [/sublet/i, 'sublet flow'],
+        [/frozen/i, 'raise freeze on filing']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v40 surface missing: ${label}`);
+      if (!LJ.move_in_record || !LJ.sublets || !LJ.file_scars || !LJ.lease_terms)
+        add(g, 'fail', 'leases.json', null, 'v40 blocks missing (move_in_record/sublets/file_scars/lease_terms)');
+      if (!LJ.eviction.no_fault_path || LJ.eviction.no_fault_path.admin_only !== true)
+        add(g, 'fail', 'leases.json', null, 'no-fault path must stay admin-only');
+      if (LJ.eviction.no_fault_path && LJ.eviction.no_fault_path.distinct_ledger_code !== 'NOFAULT')
+        add(g, 'fail', 'leases.json', null, 'no-fault ledger code drifted');
+      /* licensed landlord must never reach no-fault */
+      const nf = html.match(/window\.nofaultNotice=function[\s\S]*?^\};/m);
+      if (!nf) add(g, 'fail', 'lease.html', null, 'nofaultNotice missing');
+      else if (!/myUnit/.test(nf[0]))
+        add(g, 'fail', 'lease.html', null, 'nofaultNotice lacks the own-unit guard');
+    }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
 }
@@ -1560,7 +1586,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v39 local';
+out.build = 'world v40 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

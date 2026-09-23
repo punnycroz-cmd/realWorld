@@ -1912,6 +1912,73 @@
           ]
         }
       ]
+    },
+    {
+      "id": "PT36",
+      "title": "The Rent Book round three — terms, move-in record, real plans, frozen raises, no-fault, sublets",
+      "minutes": 15,
+      "persona": "tenant player mid-lease + facilitator checking the paperwork is the game",
+      "goal": "Verify the v40 lease additions: every file states its term, signing writes a move-in record that refuses pre-existing deductions, payment plans are signed documents with installments that breach honestly, a filed dispute freezes a pending raise, the eviction review card shows its four fields, no-fault notice is different paper (60d + mandatory credit, admin-only), and sublets run inside the lease.",
+      "surfaces": [
+        "lease",
+        "audit"
+      ],
+      "steps": [
+        {
+          "do": "Tenant mode: open 9457-2 and read the detail line, the move-in record notice, and the file-history line on 9457-1 or 9457-3.",
+          "expect": "The sub-line carries 'fixed 12 mo → month-to-month'; the move-in record lists condition lines with pre-existing items marked; older files show arrears scars ('cured 2024', 'cured twice') as texture, never a feed event.",
+          "checkpoints": [
+            "Term is stated on every lease row, including Carmen's 'served 1989'",
+            "Move-in record is a document on the file, not flavor text",
+            "Scars are visible to tenant + landlord of that unit, absent in spectator mode"
+          ]
+        },
+        {
+          "do": "Step days until h01 hits arrears (day 10), then 'Propose payment plan'. Switch to Admin and accept it. Step to day 8 and pay the installment as the tenant; step past day 22 without paying the second.",
+          "expect": "Proposal waits for a signature — nothing pauses until admin accepts. Paying day 8 marks the installment paid on the ledger; missing day 22 writes a breach line and resumes the ladder at the rung it froze at — never back at day 6.",
+          "checkpoints": [
+            "A proposed plan pauses nothing until accepted — offer, not shield",
+            "Installments are dated ledger lines with paid flags",
+            "Breach resumes at plan_rung and is itself a ledger line"
+          ]
+        },
+        {
+          "do": "Admin mode: post a raise on an active controlled lease, then as tenant file a dispute on it before the 1st. Step past the 1st.",
+          "expect": "The detail line reads 'raise posted → $N on the 1st (frozen by filing)'; the rollover bills the OLD rent. A ruling withdraws the frozen posting; an accepted mediation would amend to band rate.",
+          "checkpoints": [
+            "rent_next does not apply while rent_frozen is set",
+            "The freeze is announced as a doc line on the file",
+            "9457-3's frozen passthrough posting still never resolves"
+          ]
+        },
+        {
+          "do": "Admin: on an active lease, post notices to 'noticed', open Eviction review, read the card; then decline. On another active lease, use 'No-fault notice'. Then landlord mode: try the same paths on 9088-5.",
+          "expect": "The review card renders ledger count, notice history, open disputes, and household facts before any decision. No-fault posts a 60-day window, a mandatory one-month relocation credit coded NOFAULT, and a neutral feed line. In landlord mode the no-fault button doesn't exist — it stays on the owner's desk.",
+          "checkpoints": [
+            "Review card shows all four fields before confirm/decline",
+            "No-fault feed line is 'no-fault notice posted — <addr>', never a reason",
+            "Licensed landlord has no no-fault affordance anywhere"
+          ]
+        },
+        {
+          "do": "Tenant mode on 9457-2: 'Request sublet approval', then admin approves it. Then admin 'Record move-out' on a lease with a deposit.",
+          "expect": "Approval posts 'Listed — <addr> (sublet)' and a doc stating the tenant stays liable. Move-out returns the deposit itemized: the broken-latch deduction lands, the repaint claim on the scuffed entry wall is refused outright — move-in record settles it.",
+          "checkpoints": [
+            "Sublet decline would require a stated reason on the file",
+            "Pre-existing deductions are refused, not negotiated",
+            "Deposit math: itemized lines + interest inside 21-day window"
+          ]
+        },
+        {
+          "do": "Run `node world/audit.js` and read the lease gate.",
+          "expect": "lease gate passes: storage key rw_lease_v40 agrees, states ⊆ schema, feed templates enforced (incl. the two new neutral lines), v40 surfaces required (term, move-in record, installments, NOFAULT, sublet, frozen raise), evictConfirm still unreachable from landlord mode.",
+          "checkpoints": [
+            "Gate reports 'schema v40 · 13 states · key rw_lease_v40'",
+            "An off-template feed line, a missing no-fault guard, or the old LS key would FAIL — spot-check",
+            "Twenty-two gates total; overall 0 fail"
+          ]
+        }
+      ]
     }
   ],
   "harness_ui_v37": {

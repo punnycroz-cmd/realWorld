@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v26; v12 base + v26 depth pass)
+# Lease Flow — spec & copy deck (world v40; v12 base + v26/v40 depth passes)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v2), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v3), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v26`.
+  9088-5 only) / admin. localStorage `rw_lease_v40`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -351,3 +351,124 @@ the owner's desk:
 | Deposit return | "Deposit returned — $N of $M + interest. Deductions itemized; wear and tear is never a deduction." |
 | Licensed cap | "Licensed landlords can bring the paper; only the owner's desk can end a tenancy." |
 | Not-your-unit refusal | "Not your unit — licensed tools reach your own doors only." |
+
+## 20. Lease terms (the paper says how long)
+
+Every lease file states its term in one line — demo field `term`:
+
+- **Initial term: fixed 12 months**, then **month-to-month** — no renewal
+  paperwork, no rent bump for staying. Staying is the default; the Mission
+  rewards roots.
+- Ending inside a fixed term is the tenant's break-fee conversation
+  (documented, itemized like anything else); month-to-month ends on the
+  ordinary 30-day notice of §6.
+- Long-tenured files read "month-to-month (initial term served 1989)" —
+  Carmen's paper says in one line what the fiction already knows.
+
+## 21. The move-in record (the deposit's baseline)
+
+Signing writes a **move-in condition record** in the same atomic moment —
+itemized condition lines, anything pre-existing marked as such.
+
+- At move-out, every deduction is checked against the record: a claim on a
+  **pre-existing item is refused outright** — the record settles it, not an
+  argument. Demo: 9457-2's record carries "entry wall scuffed —
+  pre-existing"; the repaint claim is refused and the refusal is a doc line.
+- The record is also dispute evidence (`deposit_deductions` ground) — it is
+  a ledger object, same as a payment line.
+- Copy never frames it as a favor: "Move-in condition recorded the same
+  day — it's the baseline every deposit deduction is measured against."
+
+## 22. Payment plans, for real (propose → accept → installments → breach)
+
+v26's plan flag becomes a full document lifecycle:
+
+```
+proposed (tenant files itemized installments — demo: two paydays)
+  → accepted | declined (landlord file / admin — a proposal is an offer,
+      not a shield; nothing pauses until it's signed)
+  → honored: fees pause, ladder holds at plan_rung
+  → completed (→ cured) | breached
+```
+
+- Installments are dated lines; each due-day is checked — `paid` flag or
+  breach. A missed installment **resumes the ladder at the rung it froze
+  at** (`plan_rung`) — never reset to day 6, and the breach is itself a
+  ledger line.
+- A declined plan is a document, not a door closing — a new proposal can
+  be filed. Licensed landlords decide plans on their own units only.
+- Plans stay private mail; spectators see at most the status word.
+
+## 23. Frozen raises (dispute before the 1st)
+
+A filed dispute with `rent_next` pending sets `rent_frozen`:
+
+- The **old rent bills on the 1st** — the raise waits for ruling or a
+  signed offer. The detail line reads "(frozen by filing)".
+- A ruling that reduces withdraws the posting; an accepted mediation offer
+  amends to the band rate. 9457-3's passthrough posting sits frozen in its
+  ledger — the claim, not the number, is what the board examines.
+
+## 24. The no-fault path (different paper entirely)
+
+Sale or owner move-in — admin-only, never on the for-cause ladder:
+
+- **60-day window** (not 14), **mandatory relocation credit** of one
+  month's rent posted to the ledger, ledger code `NOFAULT` — distinct so
+  abuse is legible: a landlord running no-fault paper to dodge the cure
+  ladder leaves a readable trail.
+- Feed line is its own neutral template: "no-fault notice posted —
+  <address>". Licensed landlords **cannot** issue no-fault notices — it
+  stays on the owner's desk with eviction itself.
+- Deposit still returns separately, itemized, against the move-in record.
+
+## 25. Sublets (inside the lease, not around it)
+
+- Tenant files a sublet request: named subtenant, stated dates, rent at
+  or under the lease rate. Approval **not unreasonably withheld** — a
+  decline needs a stated reason on the file.
+- An approved sublet posts a board entry marked `(sublet)`; the tenant of
+  record stays on the lease and stays liable. The owner-tier sublet unlock
+  (§8) is the same document for a whole unit.
+- Informal room shares (Jules, Dani) stay person-to-person and off-ledger —
+  §6 stands; discovery consequences are emergent.
+
+## 26. File scars (arrears history)
+
+Cured arrears stay on the file (`hist`) — "arrears — cured day 12", visible
+to the tenant and to the landlord of that unit. A scar is reputation
+texture, never a feed event, and never a screening criterion on its own —
+the screening checklist (§12) is the whole checklist.
+
+## 27. Copy deck additions (v40)
+
+| Moment | Copy |
+|---|---|
+| Term line | "fixed 12 mo → month-to-month" (stated on every file) |
+| Move-in record | "Move-in condition recorded the same day — it's the baseline every deposit deduction is measured against." |
+| Deduction refused | "Refused outright — it's on the move-in record as pre-existing." |
+| Plan proposed | "Plan proposed — it binds only when the other side signs it." |
+| Plan accepted | "Plan accepted and dated. Fees pause while it's honored; the ladder holds where it stood." |
+| Installment due | "Pay installment — $N (due day N). Missed installment resumes the ladder where it froze — no reset." |
+| Plan breached | "The ladder resumes at <rung> — where it froze, not back at day 6." |
+| Raise frozen | "The posted raise freezes with the filing — old rent bills until ruling or a signed offer." |
+| No-fault notice | "No-fault termination — 60-day window, relocation credit posted mandatory, coded NOFAULT so abuse is legible." |
+| Sublet request | "Approval not unreasonably withheld — a decline needs a reason on the file." |
+| Sublet live | "Board entry reads 'sublet'; you stay the tenant of record and liable." |
+| File scar | "The arrears line stays on the file — a scar, not a sentence." |
+
+## 28. Merge notes (v40)
+
+- New seed fields on lease rows: `term`, `movein`, `hist`, `planProp`,
+  `planInst`, `planRung`, `rentFrozen`, `subReq`, `sublet` — all optional,
+  all documented above. LS key rolled `rw_lease_v26` → `rw_lease_v40`
+  (old saves ignored by design).
+- Feed vocabulary gained two templates — `Listed — <addr> (sublet)` and
+  `no-fault notice posted — <addr>` — both `housing` kind, both neutral;
+  no amounts, no reasons.
+- No-fault notices are admin-only; licensed landlords stop at filing for
+  review. The `NOFAULT` ledger code is the audit trail — engine should
+  preserve it verbatim.
+- `node world/audit.js` G11 now also requires the v40 surfaces (move-in
+  record, installments, relocation credit, sublet, month-to-month) and
+  fails on the old storage key.

@@ -5,7 +5,7 @@
 <title>Real World — The Rent Book (lease flow)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Lease-flow demo — "The Rent Book" (world v26, v2).
+  Lease-flow demo — "The Rent Book" (world v40, v3).
   Self-contained: file://-safe, no network. Spec + copy deck:
   world/lease-ui.md. Machine mirror: world/leases.json.
   Registry numbers: world/jobs-housing.md §3 (canonical).
@@ -18,6 +18,15 @@
   deposit), partial payments oldest-first, payment plans, mediation
   offers inside disputes, admin/licensed raises with a stated basis,
   itemized deposit return on move-out.
+  v40 adds: lease terms (12-mo initial → month-to-month) stated on
+  every file; a move-in condition record written at signing that gates
+  deposit deductions (pre-existing items are refused, not argued);
+  payment plans as real installment docs (accept/decline, due-day
+  installments, breach resumes the frozen rung); a posted raise freezes
+  when a dispute lands before the 1st; the eviction review card renders
+  its four fields; the no-fault path (sale / owner move-in — 60-day
+  window, mandatory relocation credit, NOFAULT ledger code); tenant
+  sublet requests with approval; arrears scars retained on the file.
   Boundaries: game dollars only (credits never touch rent); eviction is
   admin-only and never automatic; 9457-3's dispute stays ambiguous;
   no surface offers possession or request-based lease powers.
@@ -143,7 +152,7 @@
 
 <script>
 /* ================= mirror of leases.json + jobs-housing §3 ================= */
-var LS='rw_lease_v26';
+var LS='rw_lease_v40';
 var STEPS=['listed','applied','approved','active','arrears','noticed','cured','disputed','evict_review','evicted','move_out','turnover','owner_occupied'];
 var RAISE_BAND=0.04; /* controlled-unit annual raise band (house rule, lease-ui §13) */
 var SCREEN_INCOME_X=2.5; /* published screening condition */
@@ -152,29 +161,38 @@ function seed(){ return {
   day:6, mode:'tenant', sel:'bld-g9457-2', wires:[], bank:3200, /* h01's wallet — game dollars only */
   leases:[
     {uid:'bld-g9418-A', addr:'9418 Guerrero St, Unit A', tenant:'C6 Carmen', pub:'a long-time tenant',
-     rent:950, ctrl:true, state:'active', bal:0, ledger:[{d:1,t:'rent charge',a:950},{d:1,t:'payment',a:-950}], docs:[], repair:[]},
+     rent:950, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 1989)', hist:[],
+     movein:['original fir floors, worn finish — pre-existing','north window painted shut — pre-existing'],
+     ledger:[{d:1,t:'rent charge',a:950},{d:1,t:'payment',a:-950}], docs:[], repair:[]},
     {uid:'bld-g9418-B', addr:'9418 Guerrero St, Unit B', tenant:null, pub:'listed — 1BR',
      rent:2100, ctrl:true, state:'listed', bal:0, ledger:[], docs:[], repair:[], forsale:false},
     {uid:'bld-g9457-1', addr:'9457 Guerrero St, Unit 1', tenant:'ambient household', pub:'an ambient household',
-     rent:1950, ctrl:true, state:'active', bal:0, ledger:[{d:1,t:'rent charge',a:1950},{d:3,t:'payment',a:-1950}], docs:[], repair:[]},
+     rent:1950, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 2019)', hist:['arrears — cured 2024'],
+     ledger:[{d:1,t:'rent charge',a:1950},{d:3,t:'payment',a:-1950}], docs:[], repair:[]},
     {uid:'bld-g9457-2', addr:'9457 Guerrero St, Unit 2', tenant:'h01 (your character)', pub:'a new tenant',
-     rent:1350, ctrl:true, state:'active', bal:1400, mine:true, deposit:1350,
+     rent:1350, ctrl:true, state:'active', bal:1400, mine:true, deposit:1350, hist:[],
+     term:'fixed 12 mo \u2192 month-to-month',
+     movein:['entry wall scuffed — pre-existing','window latch intact','stove burner R2 slow — noted'],
      ledger:[{d:1,t:'rent charge',a:1350},{d:6,t:'late fee (5%, cap $50)',a:50}],
      docs:[{n:'late reminder',t:'Rent\u2019s past grace — $1,400 incl. $50 late fee. Pay by the 10th to keep the file clean.'}],
      repair:[]},
     {uid:'bld-g9457-3', addr:'9457 Guerrero St, Unit 3', tenant:'C4 Priya + C5 Marcus', pub:'an upstairs household',
-     rent:3200, ctrl:true, state:'disputed', bal:0,
-     ledger:[{d:1,t:'rent charge',a:3200},{d:2,t:'payment',a:-3200},{d:1,t:'raise posted 2600\u21923200 (passthrough claim)',a:0}],
-     docs:[{n:'dispute',t:'Board filing — contested raise + habitability (heater). Clock frozen.'}],
+     rent:3200, ctrl:true, state:'disputed', bal:0, term:'month-to-month (initial term served 2023)',
+     hist:['arrears — cured twice (marcus share)'],
+     ledger:[{d:1,t:'rent charge',a:3200},{d:2,t:'payment',a:-3200},{d:1,t:'raise posted 2600\u21923200 (passthrough claim) — FROZEN by filing',a:0}],
+     docs:[{n:'dispute',t:'Board filing — contested raise + habitability (heater). Clock frozen; the posted raise is frozen with it — old rent bills until ruling or a signed offer.'}],
      repair:[{item:'heater',st:'requested \u2192 acknowledged',age:'open 5 mo'}]},
     {uid:'bld-c9127-C', addr:'9127 Capp St, Unit C', tenant:'C1 Marisol', pub:'a tenant of record',
-     rent:1150, ctrl:true, state:'active', bal:0, ledger:[{d:1,t:'rent charge',a:1150},{d:1,t:'payment',a:-1150}], docs:[], repair:[]},
+     rent:1150, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 2018)', hist:[],
+     ledger:[{d:1,t:'rent charge',a:1150},{d:1,t:'payment',a:-1150}], docs:[], repair:[]},
     {uid:'bld-c9127-A', addr:'9127 Capp St, Unit A', tenant:null, pub:'listed — studio',
      rent:1300, ctrl:false, state:'listed', bal:0, ledger:[], docs:[], repair:[]},
     {uid:'bld-g9263-4', addr:'9263 Geneva Ave, Unit 4', tenant:'Reyes cousins', pub:'a household',
-     rent:2100, ctrl:true, state:'active', bal:0, ledger:[{d:1,t:'rent charge',a:2100},{d:4,t:'payment',a:-2100}], docs:[], repair:[]},
+     rent:2100, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 2022)', hist:[],
+     ledger:[{d:1,t:'rent charge',a:2100},{d:4,t:'payment',a:-2100}], docs:[], repair:[]},
     {uid:'bld-f9344-1', addr:'9344 Folsom St, Unit 1', tenant:'C8 Tomás', pub:'a tenant of record',
-     rent:1275, ctrl:true, state:'active', bal:0, ledger:[{d:1,t:'rent charge',a:1275},{d:2,t:'payment',a:-1275}], docs:[], repair:[]},
+     rent:1275, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 2021)', hist:[],
+     ledger:[{d:1,t:'rent charge',a:1275},{d:2,t:'payment',a:-1275}], docs:[], repair:[]},
     {uid:'bld-m9102-2', addr:'9102 Mission St, Unit 2', tenant:'C7 Victor', pub:'owner-occupied',
      rent:0, ctrl:false, state:'owner_occupied', bal:0, ledger:[{d:1,t:'property tax + HOA',a:-610}], docs:[], repair:[]},
     {uid:'bld-d9476-B', addr:'9476 Dolores St, Unit B', tenant:null, pub:'listed — 1BR, rent or buy',
@@ -182,6 +200,8 @@ function seed(){ return {
      forsale:true, price:160000, deed_cr:2000},
     {uid:'bld-f9088-5', addr:'9088 Folsom St, Unit 5', tenant:'ambient tenant', pub:'a studio tenancy',
      rent:1300, ctrl:true, state:'active', bal:1300, ownedBy:'h02', deposit:1300,
+     term:'fixed 12 mo \u2192 month-to-month (mo 4)', hist:[],
+     movein:['clean throughout','blinds frayed at cord — pre-existing'],
      ledger:[{d:1,t:'rent charge',a:1300}], docs:[], repair:[]}
   ],
   wires:[
@@ -236,8 +256,10 @@ function renderDetail(){
   h+='<div class="addr-big">'+l.addr+'</div>';
   h+='<div class="sub">'+(l.ctrl?'rent-controlled':'not rent-controlled')+
      (l.rent?' · posted rent $'+l.rent.toLocaleString()+'/mo':' · owner-occupied')+
-     (l.rentNext?' · raise posted \u2192 $'+l.rentNext.toLocaleString()+' on the 1st':'')+
+     (l.term?' · '+l.term:'')+
+     (l.rentNext?' · raise posted \u2192 $'+l.rentNext.toLocaleString()+' on the 1st'+(l.rentFrozen?' <b style="color:var(--blu)">(frozen by filing)</b>':''):'')+
      (l.forsale?' · <b style="color:var(--acc)">for sale $'+l.price.toLocaleString()+'</b>':'')+
+     (l.planProp?' · <b style="color:var(--acc)">payment plan proposed</b>':'')+
      (l.plan?' · <b style="color:var(--grn)">payment plan honored</b>':'')+'</div>';
   h+=stepper(l);
 
@@ -256,7 +278,22 @@ function renderDetail(){
     }
     if(l.mine) h+='<div class="note">Your bank: <b style="color:var(--ink)">$'+S.bank.toLocaleString()+'</b> game dollars. Credits never pay rent — the wall is a lease term.</div>';
     if(depth && l.deposit) h+='<div class="note">Deposit on file: '+money(l.deposit)+' (1× rent) + simple interest. Returned at move-out minus itemized deductions, within 21 days.</div>';
+    if(depth && l.movein && l.movein.length)
+      h+='<div class="notice"><b>move-in record</b>Condition recorded at signing — the baseline every deposit deduction is measured against: '+
+         l.movein.map(function(m){return '· '+m;}).join('<br>')+'</div>';
+    if(depth && l.hist && l.hist.length)
+      h+='<div class="note">File history (the scar stays): '+l.hist.join(' · ')+'. Visible to landlords on this unit; never a feed event.</div>';
     if(depth && l.repair.length) h+='<div class="notice"><b>repair on file</b>'+l.repair.map(function(r){return r.item+' — '+r.st+' · '+r.age;}).join('<br>')+'</div>';
+    if(depth && l.plan && l.planInst)
+      h+='<div class="notice plan"><b>payment plan — installments</b>'+l.planInst.map(function(i){
+        return 'day '+i.d+': '+money(i.amt)+(i.paid?' <b style="color:var(--grn)">paid</b>':' <b style="color:var(--acc)">due</b>');}).join('<br>')+
+        '<br>Missed installment resumes the ladder where it froze — no reset.</div>';
+    if(depth && l.state==='evict_review')
+      h+='<div class="notice"><b>eviction review card</b>Ledger: '+l.ledger.length+' lines, balance '+money(l.bal)+
+         ' · notices on file: '+l.docs.filter(function(d){return /notice|cure|reminder/i.test(d.n);}).length+
+         ' · open disputes: '+(l.docs.some(function(d){return d.n==='dispute';})?'yes':'none')+
+         ' · household facts: '+(l.tenant||'—')+', '+(l.term||'term unrecorded')+
+         '<br>A human decides — nothing auto-evicts. The feed will read a neutral line either way.</div>';
 
     /* ---- actions ---- */
     h+='<div class="actions">';
@@ -264,11 +301,16 @@ function renderDetail(){
       if(l.bal>0){
         h+='<button onclick="payRent()">Pay rent — '+money(l.bal)+'</button>'+
           '<button class="ghost" onclick="payPartial()">Partial — $500 (oldest-first)</button>';
-        if(!l.plan&&(l.state==='arrears'||l.state==='noticed'))
+        if(!l.plan&&!l.planProp&&(l.state==='arrears'||l.state==='noticed'))
           h+='<button class="ghost" onclick="proposePlan()">Propose payment plan</button>';
+      }
+      if(l.plan&&l.planInst){
+        var due=l.planInst.find(function(i){return !i.paid;});
+        if(due) h+='<button class="ghost" onclick="payInst()">Pay installment — '+money(due.amt)+' (due day '+due.d+')</button>';
       }
       h+='<button class="ghost" onclick="repairReq()">Request repair</button>'+
          '<button class="ghost" onclick="fileDispute()">File a dispute</button>'+
+         '<button class="ghost" onclick="reqSublet()">Request sublet approval</button>'+
          '<button class="ghost" onclick="giveNotice()">Give 30-day notice</button>';
       if(l.state==='disputed'&&!l.med)
         h+='<button class="ghost" onclick="mediate(\'tenant\')">Make a mediation offer</button>';
@@ -285,6 +327,12 @@ function renderDetail(){
     if((S.mode==='admin') && l.state!=='listed' && l.state!=='owner_occupied'){
       h+='<button class="ghost" onclick="postNotice()">Post next notice</button>'+
          '<button class="ghost" onclick="postRaise()">Post raise (stated basis)</button>';
+      if(l.planProp)
+        h+='<button class="ghost" onclick="planDecide(true)">Accept payment plan</button>'+
+           '<button class="ghost" onclick="planDecide(false)">Decline plan</button>';
+      if(l.subReq)
+        h+='<button class="ghost" onclick="subDecide(true)">Approve sublet</button>'+
+           '<button class="ghost" onclick="subDecide(false)">Decline sublet</button>';
       if(l.state==='disputed'){
         h+='<button class="ghost" onclick="ruling()">Open ruling card</button>';
         if(l.med) h+='<button class="ghost" onclick="acceptMed()">Accept mediation offer</button>';
@@ -293,11 +341,19 @@ function renderDetail(){
       if(l.state==='noticed') h+='<button class="danger" onclick="evictReview()">Eviction review</button>';
       if(l.state==='evict_review') h+='<button class="danger" onclick="evictConfirm(true)">Confirm — end tenancy</button><button class="ghost" onclick="evictConfirm(false)">Decline — back to noticed</button>';
       if(l.state==='active'||l.state==='arrears') h+='<button class="ghost" onclick="recordMoveOut()">Record move-out</button>';
+      if(l.state==='active'||l.state==='arrears'||l.state==='noticed')
+        h+='<button class="ghost" onclick="nofaultNotice()">No-fault notice (sale / owner move-in)</button>';
     }
     if(isLand() && myUnit(l)){
       if(l.state==='active'||l.state==='arrears')
         h+='<button class="ghost" onclick="postNotice()">Post next notice</button>'+
            '<button class="ghost" onclick="postRaise()">Post raise (band ≤4%)</button>';
+      if(l.planProp)
+        h+='<button class="ghost" onclick="planDecide(true)">Accept payment plan</button>'+
+           '<button class="ghost" onclick="planDecide(false)">Decline plan</button>';
+      if(l.subReq)
+        h+='<button class="ghost" onclick="subDecide(true)">Approve sublet</button>'+
+           '<button class="ghost" onclick="subDecide(false)">Decline sublet</button>';
       if(l.state==='noticed')
         h+='<button class="danger" onclick="evictFile()">File for eviction review</button>';
       if(l.state==='disputed'&&!l.med)
@@ -335,8 +391,9 @@ window.payRent=function(){
   if(S.bank<l.bal){toast('Not enough game dollars — wages first, rent second.');return;}
   var amt=l.bal; S.bank-=amt; l.bal=0;
   l.ledger.push({d:S.day,t:'payment',a:-amt});
-  if(l.state==='arrears'||l.state==='noticed'){l.state='cured';l.plan=false;
-    l.docs.push({n:'cured',t:'Balance cleared on day '+S.day+'. File kept; back to active standing.'});}
+  if(l.state==='arrears'||l.state==='noticed'){l.state='cured';l.plan=false;l.planInst=null;
+    l.hist=l.hist||[]; l.hist.push('arrears — cured day '+S.day);
+    l.docs.push({n:'cured',t:'Balance cleared on day '+S.day+'. File kept; back to active standing. The arrears line stays on the file — a scar, not a sentence.'});}
   toast('Paid. The ledger keeps the line; the block sees nothing.');
   renderAll();
 };
@@ -349,9 +406,59 @@ window.payPartial=function(){
   renderAll();
 };
 window.proposePlan=function(){
-  var l=L(); l.plan=true;
-  l.docs.push({n:'payment plan',cls:'plan',t:'Plan on file — '+money(l.bal)+' split across the next two paydays. Honored plan pauses late-fee accrual; a missed installment resumes the ladder where it froze. The plan itself is a ledger document.'});
-  toast('Plan filed. Fees pause while it\u2019s honored — the ladder remembers.');
+  var l=L(); l.planProp=true;
+  l.planInst=[{d:8,amt:Math.ceil(l.bal/2),paid:false},{d:22,amt:Math.floor(l.bal/2),paid:false}];
+  l.docs.push({n:'payment plan — proposed',cls:'plan',t:'Proposal on file — '+money(l.bal)+' across two paydays: '+money(l.planInst[0].amt)+' on day 8, '+money(l.planInst[1].amt)+' on day 22. The landlord file reviews it; nothing pauses until it\u2019s accepted. The plan itself is a ledger document.'});
+  toast('Plan proposed — it binds only when the other side signs it.');
+  renderAll();
+};
+window.planDecide=function(yes){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit — licensed tools reach your own doors only.');return;}
+  l.planProp=false;
+  if(yes){
+    l.plan=true; l.planRung=l.state;
+    l.docs.push({n:'payment plan — accepted',cls:'plan',t:'Plan accepted and dated. Fees pause while it\u2019s honored; the ladder holds at '+l.state+'. The balance still owes — the plan schedules, it doesn\u2019t forgive.'});
+    toast('Plan on file. Fees pause while it\u2019s honored — the ladder remembers.');
+  } else {
+    l.planInst=null;
+    l.docs.push({n:'payment plan — declined',cls:'plan',t:'Plan declined. The ladder stands where it stood; the balance still owes. A declined plan is a document, not a door closing — a new proposal can be filed.'});
+    toast('Declined on the record.');
+  }
+  renderAll();
+};
+window.payInst=function(){
+  var l=L(), i=l.planInst.find(function(x){return !x.paid;});
+  if(!i)return;
+  if(S.bank<i.amt){toast('Not enough game dollars for the installment.');return;}
+  S.bank-=i.amt; l.bal-=i.amt; i.paid=true;
+  l.ledger.push({d:S.day,t:'plan installment (day '+i.d+')',a:-i.amt});
+  if(l.bal<=0){l.state='cured';l.plan=false;l.planInst=null;
+    l.hist=l.hist||[];l.hist.push('arrears — cured by plan, day '+S.day);
+    l.docs.push({n:'cured',t:'Plan completed — balance cleared. File kept; the scar stays on the record.'});}
+  renderAll();
+};
+window.reqSublet=function(){
+  var l=L();
+  if(l.subReq||l.sublet){toast('Already on file.');return;}
+  l.subReq=true;
+  l.docs.push({n:'sublet request',t:'Sublet approval requested — named subtenant, stated dates, rent at or under the lease rate. Approval not unreasonably withheld; a live sublet posts a board entry marked sublet. The lease stays yours.'});
+  toast('Request filed — the landlord file answers it.');
+  renderAll();
+};
+window.subDecide=function(yes){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
+  l.subReq=false;
+  if(yes){
+    l.sublet=true;
+    l.docs.push({n:'sublet approved',t:'Approved — sublet runs inside your lease term. Board entry reads "sublet"; you stay the tenant of record and liable.'});
+    S.wires.push({d:S.day,k:'housing',tx:'Listed — '+l.addr+' (sublet)'});
+    toast('Approved. The board shows a sublet-shaped listing.');
+  } else {
+    l.docs.push({n:'sublet declined',t:'Declined — reason stated on the file. "Not unreasonably withheld" means a decline needs a reason; this one is recorded.'});
+    toast('Declined on the record.');
+  }
   renderAll();
 };
 window.repairReq=function(){
@@ -363,6 +470,8 @@ window.fileDispute=function(){
   var l=L();
   if(l.state==='disputed'){toast('Already open — the board is reading it.');return;}
   l.state='disputed';
+  if(l.rentNext){l.rentFrozen=true;
+    l.docs.push({n:'raise frozen',t:'The posted raise freezes with the filing — '+money(l.rent)+' bills on the 1st until ruling or a signed offer. The claim is what the board examines.'});}
   l.docs.push({n:'dispute',t:'Filed with the board — your clock pauses while it reads. Evidence is your ledger, not your word. Grounds: contested raise · passthrough · habitability · deposit deductions.'});
   S.wires.push({d:S.day,k:'housing',tx:'rent-board filing — '+l.addr});
   renderAll();
@@ -404,7 +513,9 @@ window.signLease=function(){
   S.bank-=cost;
   l.state='active'; l.tenant='h01 (your character)'; l.mine=true; l.deposit=l.rent;
   l.ledger.push({d:S.day,t:'first month',a:l.rent},{d:S.day,t:'deposit held',a:l.rent});
-  l.docs.push({n:'lease signed',t:'Lease signed — '+l.addr+' · '+money(l.rent)+'/mo · first month + deposit paid in game dollars. Deposit earns simple interest; move-out deductions must be itemized.'});
+  l.term='fixed 12 mo \u2192 month-to-month';
+  l.movein=['walkthrough day '+S.day+' — walls clean','appliances working','window latches intact'];
+  l.docs.push({n:'lease signed',t:'Lease signed — '+l.addr+' · '+money(l.rent)+'/mo · fixed 12 mo then month-to-month · first month + deposit paid in game dollars. Move-in condition recorded the same day — it\u2019s the baseline every deposit deduction is measured against. Deposit earns simple interest; move-out deductions must be itemized.'});
   S.wires.push({d:S.day,k:'housing',tx:'Listing filled — '+l.addr+' comes off the board'});
   toast('Signed. The lease, the money, and the feed line land together.');
   renderAll();
@@ -454,6 +565,8 @@ window.ruling=function(){
   var l=L();
   l.docs.push({n:'ruling — repair+credit',t:'Ruling: heater repair ordered within 7 days + rent credit posted. Raise stands pending passthrough math — the file stays open. (Demo: content never resolves 9457-3.)'});
   l.ledger.push({d:S.day,t:'rent credit — ruling',a:-400});
+  if(l.rentFrozen){l.rentNext=null;l.rentFrozen=false;
+    l.docs.push({n:'raise amended by ruling',t:'Ruling: raise reduced — the frozen posting is withdrawn; '+money(l.rent)+' stands. Ledger amended.'});}
   S.wires.push({d:S.day,k:'housing',tx:'rent-board ruling — '+l.addr});
   renderAll();
 };
@@ -467,7 +580,7 @@ window.acceptMed=function(){
     renderAll();return;
   }
   var banded=l.rent+Math.round(l.rent*RAISE_BAND);
-  l.state='active'; l.med=null;
+  l.state='active'; l.med=null; l.rentFrozen=false; l.rentNext=null;
   l.ledger.push({d:S.day,t:'mediation — raise amended to '+banded,a:0});
   l.docs.push({n:'mediation accepted',cls:'med',t:'Offer accepted — raise amended to '+money(banded)+' (band rate), repair scheduled inside 7 days, filing withdrawn. Ledger amended; both sides signed the offer, not a ruling.'});
   S.wires.push({d:S.day,k:'housing',tx:'rent-board ruling — '+l.addr});
@@ -502,15 +615,34 @@ window.evictConfirm=function(yes){
 };
 window.recordMoveOut=function(){
   var l=L(); l.state='turnover';
-  var dep=l.deposit||0, ded=dep?180:0;
+  var dep=l.deposit||0;
+  /* deductions are gated by the move-in record: anything marked
+     pre-existing is refused outright — the record settles it, not
+     an argument */
+  var pre=(l.movein||[]).filter(function(m){return /pre-existing/i.test(m);});
+  var refused=pre.length?pre[0]:null;
+  var ded=dep?90:0;
   if(dep){
-    l.ledger.push({d:S.day,t:'deduction — repaint scuffed wall (itemized)',a:ded},
+    l.ledger.push({d:S.day,t:'deduction — broken window latch (not on move-in record)',a:ded},
                  {d:S.day,t:'deposit returned (+ interest $'+Math.round(dep*0.01)+')',a:-(dep-ded)});
-    l.docs.push({n:'deposit returned',t:'Deposit returned — '+money(dep-ded)+' of '+money(dep)+' + interest. One itemized deduction: repaint scuffed wall, '+money(ded)+'. Wear and tear is never a deduction; "cleaning fee: vibes" is not a reason.'});
+    l.docs.push({n:'deposit returned',t:'Deposit returned — '+money(dep-ded)+' of '+money(dep)+' + interest. One itemized deduction: broken window latch, '+money(ded)+'.'+
+      (refused?' A second claim — repaint "'+refused.replace(/\s*—\s*pre-existing/i,'')+'" — was refused outright: it\u2019s on the move-in record as pre-existing.':'')+
+      ' Wear and tear is never a deduction; "cleaning fee: vibes" is not a reason.'});
   } else {
     l.docs.push({n:'move-out',t:'Deposit returned minus itemized deductions. Unit flips to the board.'});
   }
   S.wires.push({d:S.day,k:'housing',tx:'Unit turning over — '+l.addr+' back on the board'});
+  renderAll();
+};
+window.nofaultNotice=function(){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
+  if(l.state==='disputed'){toast('Frozen — a board filing is open on this lease.');return;}
+  l.state='move_out';
+  l.ledger.push({d:S.day,t:'relocation credit — NOFAULT (mandatory)',a:-l.rent});
+  l.docs.push({n:'no-fault notice',t:'No-fault termination — sale / owner move-in. 60-day window, not the 14-day ladder; a relocation credit of one month\u2019s rent ('+money(l.rent)+') posts mandatory, coded NOFAULT so abuse is legible in the ledger. Deposit returns separately, itemized.'});
+  S.wires.push({d:S.day,k:'housing',tx:'no-fault notice posted — '+l.addr});
+  toast('No-fault is a different paper — longer window, mandatory credit, distinct code.');
   renderAll();
 };
 
@@ -520,7 +652,7 @@ $('nextDay').onclick=function(){
   if(S.day>30){
     S.day=1;
     S.leases.forEach(function(x){
-      if(x.rentNext){x.rent=x.rentNext;x.rentNext=null;}
+      if(x.rentNext&&!x.rentFrozen){x.rent=x.rentNext;x.rentNext=null;}
       if(x.state==='active'||x.state==='arrears'||x.state==='noticed'||x.state==='disputed'){
         if(x.rent>0){x.bal+=x.rent;x.ledger.push({d:1,t:'rent charge',a:x.rent});}}
     });
@@ -548,6 +680,18 @@ $('nextDay').onclick=function(){
       l.state='noticed';
       l.docs.push({n:'cure-or-quit',t:'Cure within 14 days or the tenancy is reviewed. Filing a dispute pauses this clock.'});
       S.wires.push({d:S.day,k:'housing',tx:'housing notice posted — '+l.addr});
+    }
+    /* installment due-day: a missed installment breaches the plan and
+       resumes the ladder at the rung it froze at — no reset to day 6 */
+    if(l.plan&&l.planInst){
+      var missed=l.planInst.find(function(i){return i.d<S.day&&!i.paid;});
+      if(missed){
+        l.plan=false;l.planInst=null;
+        l.state=l.planRung==='noticed'?'noticed':'arrears';
+        l.ledger.push({d:S.day,t:'plan breach — installment day '+missed.d+' missed',a:0});
+        l.docs.push({n:'plan breached',cls:'plan',t:'Missed installment (day '+missed.d+'). The ladder resumes at '+l.state+' — where it froze, not back at day 6. Fees accrue again from here.'});
+        if(l.mine)toast('Plan breached — the ladder resumes where it froze.');
+      }
     }
   });
   renderAll();
