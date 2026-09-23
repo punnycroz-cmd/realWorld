@@ -147,6 +147,20 @@ never copying raw.
 | expert_bound | 0.7 | 1.0 | domain-boundary collapse fraction (v1.0) |
 | open_loop_gain | 0.0 | 0.3 | intrusion/drive boost on open records (v1.0) |
 | open_self_gate | 0.0 | 0.7 | selfRelevance floor for open tagging (v1.0) |
+| elab_gain | 0.0 | 0.5 | deep/elaborative processing term (v1.2) |
+| gen_gain | 0.0 | 0.4 | self-generated content bonus — the good talker (v1.2) |
+| enact_gain | 0.0 | 0.5 | performed-action bonus; applied post-decline (v1.2) |
+| prod_gain | 0.0 | 0.25 | said-aloud bonus, recognition-weighted (v1.2) |
+| boundary_gain | 0.0 | 0.4 | event-boundary encoding bonus (v1.2) |
+| boundary_order_loss | 0.0 | 0.8 | cross-boundary link/order penalty (v1.2) |
+| doorway_drop | 0.0 | 0.4 | locShift R penalty; FLAT across age (v1.2) |
+| lapse_p | 0.0 | 0.15 | stochastic attention-collapse rate (v1.2) |
+| lapse_drop | 0.3 | 0.9 | attention multiplier during a lapse (v1.2) |
+| da_encode_mult | 0.2 | 0.8 | divided-attention encoding damage (v1.2) |
+| unitize_gain | 0.0 | 0.6 | coherent-unit link rescue (v1.2) |
+| distinct_gain | 0.0 | 0.4 | within-context isolation bonus (v1.2) |
+| concrete_gain | 0.0 | 0.3 | sensory/concrete content bonus (v1.2) |
+| mood_cong_encode | 0.0 | 0.3 | mood-congruent elaboration bonus (v1.2) |
 
 **v0.9d frozen constants (deepening pass):** `s_decay` (0.0008),
 `relearn_gain` (0.8), `resurrect_R` (0.35), `tele_cross` (21),
@@ -154,6 +168,24 @@ never copying raw.
 `k_order` (4.0), `contiguity_tau` (2.0), `contiguity_asym` (1.25),
 `hindsight_conf_gain` (0.08), `hindsight_max_surprise` (0.7),
 `ease_few` (1.5), `ease_many` (3.0) — same audit rule as below.
+
+**v1.2 encoding-mechanics note:** the new params divide into
+age-sensitive and age-invariant sets. Age-SENSITIVE (evaluate on the §6
+curve / decline layer): `elab_gain` (rises with expertise/goals, sags with
+fatigue — shallow processing is the fatigued default), `lapse_p` (child
+0.05 → young adult 0.02 → older 0.05; also trait-loaded: neurot, poor
+sleep, stress — see modifier rows), `da_encode_mult` (older +0.15 —
+multitasking costs grow with age), `unitize_gain` (older HIGHER — the
+mechanism exists to rescue their weak link_p, Giovanello & Schacter
+2012). Age-INVARIANT (flat for everyone, per the cited results):
+`doorway_drop` (Radvansky et al. 2015 — event-level updating is age-
+invariant), `enact_gain` (Roberts 2022 patient studies — the advantage
+survives impairment; child values may be HIGHER, motor encoding is the
+intact channel), `boundary_gain`/`boundary_order_loss` (event-level
+segmentation intact across lifespan), `prod_gain`, `distinct_gain`,
+`concrete_gain`, `mood_cong_encode`, `gen_gain`. Frozen v1.2 constants:
+`intent_null = 0`, `da_ret_cost = 1.5`, `lapse_window = 0.02`,
+elaboration weights {0.5,0.3,0.2,0.3} — same audit rule as below.
 
 **v0.9 frozen-constant note:** per the identifiability audit in
 `formal-model.md` §4, the following params are population constants and
@@ -284,6 +316,9 @@ drift_p 0.12 · misinfo_suscept 0.60 · confab_fill 0.75
 gist_lure_gain 0.45 · phantom_p 0.04 · imagine_gain 0.25
   (v0.6: children phantomize freely and imagination-inflate fast —
   Ceci & Bruck suggestibility + immature reality monitoring)
+enact_gain 0.3 · lapse_p 0.05
+  (v1.2: motor encoding is the intact channel — kids remember what they
+  DID; lapses frequent, zoning out is the child default)
 ```
 Emergent: vivid but scrambled; adopts adults' versions of events easily;
 confidently wrong.
@@ -307,6 +342,9 @@ drift_p 0.09 · misinfo_suscept 0.45 · confab_fill 0.6
 sti_prob 0.75 · audience_tune 0.10 · cred_step 0.12 · ss_rif_k 0.05
   (v0.8: person-attentive encoding, peer-tuned retellings rewrite the
   memory, fast reputation accounting)
+gen_gain 0.2 · lapse_p 0.035 · mood_cong_encode 0.15
+  (v1.2: identity work is generation — their own arguments encode deep;
+  mood steers what elaborates; lapses ride the limbic load)
 ```
 Emergent: remembers every slight at full heat; social world over-encoded;
 slow to let go of negative affect.
@@ -380,6 +418,11 @@ identity_thresh 0.5 · name_thresh 0.65 · ss_rif_k 0.06
   (v0.8: knows the face, loses the biography, blanks the name;
   familiar_only becomes the common state — cheat_source_mult stays
   flat, cheaters remembered; Bell & Buchner 2012)
+unitize_gain 0.45 · lapse_p 0.05 · da_encode_mult 0.65
+  (v1.2: coherent units rescue the weak link_p — "Sanna opened the
+  shop" survives as one item while loose associations fragment
+  (Giovanello & Schacter 2012); lapses up; multitasking costs heavy.
+  doorway_drop stays FLAT at default — Radvansky 2015 no age diff)
 ```
 Emergent: recent events evaporate; youth-era memories are vivid, polished by
 retelling, and partly invented; warm memories outlast grievances.
@@ -394,11 +437,11 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 | Modifier | Deltas | Rationale |
 |---|---|---|
 | **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core); intrusion_thresh −0.15 for threat-cued records (intrusive recall). **v0.5:** seed ≥1 `trauma:true` backstory record + cond_thresh ×0.9, cond_gain ×1.3 (lowered acquisition bar, faster conditioning) — the intrusion discount and fragmented timeline are now record properties (spec §5.7, emotional-memory.md §7) | hyper-encoded threat core, fragmented context; conditioned dread outlives the record (R§5, R§8; RC§5; Bouton 2004) |
-| **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15 | cortisol impairs encode+retrieve (R§8) |
-| **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2; **v0.6:** sleepFactor 0.7 < 0.75 → `sleepdep_flag` fires on most new records → permanently higher misinfo adoption on them (Frenda 2014 — the underslept are the gullible) | consolidation failure (R§2, R§8; false-memory.md §3) |
+| **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15; **v1.2:** lapse_p +0.03, da_encode_mult +0.1 (busy mind drops events and can't split attention) | cortisol impairs encode+retrieve; mind-wandering risk (R§8; Maillet & Rajah 2013) |
+| **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2; **v0.6:** sleepFactor 0.7 < 0.75 → `sleepdep_flag` fires on most new records → permanently higher misinfo adoption on them (Frenda 2014 — the underslept are the gullible); **v1.2:** lapse_p +0.04 (the sleep-deprived lapse loading in §2 fires daily) | consolidation failure + encoding lapses (R§2, R§8; false-memory.md §3) |
 | **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15; **v0.6:** rumor `hearCount` accumulates faster (more exposures per rumor — repetition, not variety, is the mechanism); rep_gain ×1.1; **v0.8:** audience_tune ×1.5 (their own stories bend their own memory — Higgins & Rholes), sti_prob ×1.2, cred_step ×1.3 (keeps accounts on everyone), social_transmit_gain ×1.15 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion; illusory truth g≈0.37; saying-is-believing) |
 | **Open-loop carrier** (NEW v1.0 — unresolved business) | open_loop_gain ×1.4; open_self_gate −0.1; on close β×1.2 still applies (the relief forgets) | involvement-gated Zeigarnik — intrusion/resumption CONSENSUS, recall advantage DEBATED (2025 meta); profile-generation.md §4 |
-| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5; **v0.6:** imagine_gain ×1.5 on negative-valence scenarios only — rehearsed fears can flip into remembered ones via §6.9; **v0.8:** mnemic_encode ×0.3 + mnemic_loss ×0.3 — dysphoria removes self-protective forgetting, criticism is retained (Sedikides & Green 2016; social-memory.md §10) | overgeneral memory, mood-congruence, negative rehearsal loop, feared→remembered drift, no self-protective amnesia (R§8; emotional-memory.md §8; Garry 1996) |
+| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5; **v0.6:** imagine_gain ×1.5 on negative-valence scenarios only — rehearsed fears can flip into remembered ones via §6.9; **v0.8:** mnemic_encode ×0.3 + mnemic_loss ×0.3 — dysphoria removes self-protective forgetting, criticism is retained (Sedikides & Green 2016; social-memory.md §10); **v1.2:** lapse_p +0.03 (ruminative absorption — attention collapses inward, the outside event never encodes; Maillet & Rajah 2013 negative-mood loading) | overgeneral memory, mood-congruence, negative rehearsal loop, feared→remembered drift, no self-protective amnesia (R§8; emotional-memory.md §8; Garry 1996) |
 | **Domain expert** (per domain tag) | **v1.0 supersedes:** `expert_gain` (default 0.10) ×depth on in-domain enc_base; k_verbatim ×(1−0.4·depth) in-domain; merge_thresh ×(1−0.15·depth) in-domain; link_p ×(1−expert_cost·depth) OUT of domain — expertise has a bill (Woollett & Maguire 2009); gain collapses at the domain edge (Chase & Simon 1973). Domain tags are per-character (`domains:` list) — see profile-generation.md §3 | expertise is additive with age, domain-locked, and costs elsewhere (R§8; Maguire 2000; Recht & Leslie 1989) |
 | **Routine-heavy life** | merge_thresh ×0.9; interf_k ×1.3 | commutes blur together (R§3) |
 | **Isolation / few retellings** | retell_boost ×0.6; memories fade without rehearsal | — |

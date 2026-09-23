@@ -208,6 +208,8 @@ Tier rules in §8.
 | P68–P75 | formal-model.md §8 | machinery: determinism, caps, ambient mode, possession, RNG, ordering | MUST — all | exact assertions |
 | P76–P85 | formal-model.md §15 | S/R split, spacing, savings, telescoping, rounding, landmark, hindsight, contiguity, hard-easy, ease-of-retrieval | MUST (P76–P82); SHOULD (P83–P85) | T-diff + T-point |
 | P86–P95 | profile-generation.md | compiler determinism, coherence invariants, metamemory decorrelation, expertise bill, open loops, regime overlays, frozen audit | MUST (P86–P91, P95); OBSERVE (P92 Zeigarnik recall advantage — DEBATED per 2025 meta); SHOULD (P93–P94) | exact + T-diff |
+| P96–P105 | validation-design.md §9 | density, ambient equivalence, distinctness, trait structure, curves, caps, rehearsal inequality, metamemory, goldens, non-interference | MUST (P97, P99 nulls, P100, P105); SHOULD (P96, P98, P101–P104) | T-point + T-equiv |
+| P106–P116 | encoding-mechanics.md §12 | generation, enactment-in-aging, doorway, boundary structure, elaboration + maintenance null, intention null, DA asymmetry, production, unitization, survival fold, lapse structure | MUST (P106, P107, P109–P112); SHOULD (P108 doorway — magnitude DEBATED, P113, P114, P116); OBSERVE (P115 survival fold) | T-diff + T-equiv |
 
 **Registry rules:** probe numbering is frozen forever (deprecate by
 marking OBSERVE-dead, never renumber). New probes append. Every MUST
@@ -421,6 +423,35 @@ probe covered:
   itself is the only thing being validated.
 
 P96–P105 bring the registry to P1–P105; numbering stable.
+
+---
+
+## 11. New probes P106–P116 (v12, encoding-mechanics suite)
+
+Normative definitions in `encoding-mechanics.md` §12; constrained params
+named there. Headline additions:
+
+- **P110 elaboration + maintenance null (MUST):** deep vs shallow
+  matched-attention events → ≥1.5× recall at 7 days; AND a rote-repetition
+  control (re-encoded with elaboration at floor) adds ≤0.05 — tests
+  `elab_gain` and the Craik & Watkins null in one shot.
+- **P111 intention null (MUST):** `intent` on/off at fixed elaboration →
+  TOST-equivalent. Guards the frozen `intent_null = 0` — if intent moves
+  E the constant is broken by construction.
+- **P112 DA asymmetry (MUST):** daLoad=0.7 at encoding costs ≥3× the
+  recall loss of daLoad=0.7 at retrieval; retrieval-side cost lands in
+  `searchCost`, not hit rate (Craik et al. 1996).
+- **P107 enactment & aging (MUST):** enacted>observed advantage present
+  in all bands and NOT smaller at 65+ — TOST on the interaction
+  (Roberts et al. 2022: patients retain the benefit).
+- **P108 doorway (SHOULD):** locShift → accessibility dip on
+  <lapse_window-old records + pending Intentions; flat across age;
+  magnitude band wide (DEBATED size, CONSENSUS direction).
+- **P115 survival fold (OBSERVE):** residual dedicated survival term
+  ≤0.02 E after the elaboration fold — guards the no-param decision;
+  failure reinstates the param.
+
+Registry now P1–P116; numbering stable.
 
 ---
 

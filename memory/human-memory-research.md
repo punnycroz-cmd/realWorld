@@ -722,3 +722,52 @@ that borrows the replication-crisis toolkit for simulation calibration:
 New probes P96–P105 (registry now P1–P105). Spec → v1.1 (note + hidden-
 field read policy only; no param/schema changes). Boundaries kept:
 research only, no code, no narratives, no push/merge.
+
+## 17. v12 summary — encoding-mechanics
+
+`memory/encoding-mechanics.md` adds the processing-side layer §2 lacked —
+*how* an event was processed, not just what it was about:
+
+- **Elaboration is the master variable** (CONSENSUS): Craik & Lockhart
+  1972 / Craik & Tulving 1975 — depth beats time-on-task. Two formal
+  NULLS added: maintenance rehearsal (Craik & Watkins 1973 — rote
+  repetition is not encoding) and intention-to-learn (`intent_null = 0`,
+  frozen — Postman 1964; Hyde & Jenkins 1973; the orienting task IS the
+  encoding). New derived Event field `elaboration`; `elab_gain`.
+- **Self-reference quantified**: Symons & Johnson 1997 (129 studies,
+  d≈0.65 vs semantic, ~half vs other-reference) → `w_self` now drives a
+  saturating `selfRelevance^0.7` — the last 0.4 of relevance buys little.
+- **Engagement-mode ordering** enacted > generated > spoken > heard:
+  Bertsch et al. 2007 (generation meta d=.40, 445 effects, N=17,711);
+  Roberts et al. 2022 (enactment meta g=1.23, 145 studies — preserved in
+  patients/aging → applied post-decline); Fawcett 2013/2023 (production
+  effect small, recognition-weighted, reduces intrusions).
+- **Divided-attention asymmetry** (Craik et al. 1996; Naveh-Benjamin et
+  al. 2000): encoding is fragile under DA (attention AND elaboration
+  damaged — qualitative shallowing); retrieval is obligatory (searchCost
+  rises, θ unmoved). Plus stochastic `lapse_p` attention collapses
+  (mind-wandering; Maillet & Rajah 2013) trait-loaded on neurot/sleep/
+  stress — unexplained holes in otherwise fine memories.
+- **Event segmentation** (Zacks et al. 2007): boundary content privileged
+  (`boundary_gain`), cross-boundary order/links degraded
+  (`boundary_order_loss`; DuBrow & Davachi 2013), and the doorway/
+  location-updating effect — `locShift` drops recent records + pending
+  Intentions (`doorway_drop`, flat across age per Radvansky et al. 2015;
+  magnitude DEBATED — marked SHOULD).
+- **Unitization** (Giovanello & Schacter 2012; Bastin 2013): coherent-
+  unit events rescue the aging associative deficit — `unitize_gain`
+  automatically targets the cohort whose link_p is lowest.
+- **Isolation not weirdness** (Hunt 1995; Schmidt 1991): `distinct_gain`
+  on within-stream outliers only; bizarreness folded into novelty
+  (DEBATED). Routine-heavy lives isolate more — the odd day survives.
+- **Survival processing adjudicated**: Scofield et al. 2018 bias-corrected
+  meta (η²p .06–.18 — real, medium, smaller than canonical) + mechanism
+  analyses (Klein; Kroneisen) → it is an elaboration delivery device;
+  FOLDED into `elaboration` via `survivalRelevance`, NO dedicated param.
+  P115 equivalence-probes the fold.
+- Spec → v1.2: §2 +9 mechanism bullets + E-formula terms; §7 +14 params
+  +4 frozen constants; §10 +7 Event fields + cueContext.daLoad; probes
+  P106–P116 (registry now P1–P116). Profiles: +14 clamp rows, child/
+  teen/older deltas, lapse loadings on poor-sleep/stress/depressive
+  modifiers, v1.2 age-sensitivity note.
+- Boundaries kept: research only, no code, no narratives, no push/merge.

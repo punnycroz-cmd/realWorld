@@ -1,4 +1,18 @@
-# Memory Model Spec v1.1 — implementable human-like memory for RW characters
+# Memory Model Spec v1.2 — implementable human-like memory for RW characters
+
+> **v1.2 note (encoding-mechanics):** `memory/encoding-mechanics.md` adds
+> the processing-side layer §2 was missing: elaboration depth (LoP;
+> maintenance-rehearsal and intention-to-learn as formal nulls), engagement
+> mode (enacted > generated > spoken > heard — Bertsch 2007, Roberts 2022),
+> divided-attention asymmetry (encoding fragile, retrieval obligatory —
+> Craik 1996), stochastic attention lapses, event segmentation (boundary
+> privilege, cross-boundary order loss, doorway/location-updating —
+> Radvansky), unitization rescue of the aging associative deficit,
+> mood-congruent encoding, concreteness. Self-relevance now saturates
+> (Symons & Johnson 1997). Survival processing is adjudicated and FOLDED
+> into elaboration — no dedicated param (Scofield 2018 meta). §7 +14
+> params + 4 frozen constants; Event schema +7 fields; probes P106–P116.
+> All optional w/ defaults; backward compatible.
 
 > **v1.1 note (validation-design):** `memory/validation-design.md`
 > consolidates probes P1–P95 into a tiered registry (MUST/SHOULD/OBSERVE),
@@ -180,10 +194,21 @@ strength **E ∈ [0,1]** as a weighted geometric-ish blend — multiplicative wh
 the literature demands a gate, additive elsewhere (R§2):
 
 ```
-E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
+E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance_eff
                       + w_nov·novelty + w_pred·predictionError)
-    + spacingBonus
+    + elab_gain·elaboration + spacingBonus
 ```
+
+**v1.2 — processing terms:** `selfRelevance_eff = selfRelevance^0.7`
+(saturating — the self-reference meta's compressed high end; Symons &
+Johnson 1997, d≈0.65 vs semantic but ~half vs other-reference) and
+`elaboration ∈ [0,1]` is a derived Event field (deep semantic work done
+on the event; default `clamp(0.5·selfRelevance + 0.3·predictionError +
+0.2·coherence + 0.3·survivalRelevance, 0, 1)` — encoding-mechanics.md
+§§1, 9). Two formal NULLS live here: repetition without elaboration adds
+nothing (Craik & Watkins 1973 — maintenance rehearsal), and intention to
+learn adds nothing past the orienting task (`intent_null = 0`, frozen —
+Postman 1964; Hyde & Jenkins 1973).
 
 - `E0` = character base encoding rate (param `enc_base`, ~0.35).
 - `attention ∈ [0,1]` — is the event in focus? Ambient/background events get
@@ -274,6 +299,59 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   correct it is (Dawes et al. 2022 aphantasia: fewer episodic details,
   individual-differences.md §2.7). Missing fields are confabulation
   surface at reconstruction (§5.5); vividness never changes accuracy.
+- **Engagement mode (v1.2):** Event field `engagement` ∈
+  {observed, heard, enacted, generated, spoken} (default derived from
+  source.kind). Ordering at matched attention: enacted > generated >
+  spoken > heard/observed — `E += enact_gain` (0.20, on enacted events;
+  applied AFTER the age-scaled enc_base so motor encoding partially
+  bypasses the decline curve — preserved in aging and impairment,
+  Roberts et al. 2022 meta g=1.23), `E += gen_gain` (0.15, self-composed
+  speech/plans/conclusions — generation effect d=0.40, Bertsch et al.
+  2007), `E += prod_gain` (0.08, said-aloud — Fawcett 2013/2023;
+  recognition-weighted). Enacted records take HALF the `da_encode_mult`
+  damage below (motor encoding needs no central resources — Engelkamp).
+- **Divided attention at encoding (v1.2):** Event field `daLoad` ∈ [0,1]
+  (secondary-task pull). `attention ×= (1 − da_encode_mult·daLoad)` AND
+  `elaboration ×= (1 − da_encode_mult·daLoad)` (da_encode_mult ≈ 0.5) —
+  the hit is on both channels, a qualitative shallowing not just less
+  resource (Craik et al. 1996; Naveh-Benjamin et al. 2000). Retrieval
+  side is near-immune: `cueContext.daLoad` raises searchCost only
+  (×`da_ret_cost` = 1.5, frozen) — §5.4.
+- **Attention lapses (v1.2):** per event, with probability `lapse_p`
+  (0.03 + trait/state loadings: +0.02·neurot>0, +0.03·sleepFactor<0.8,
+  +0.02·stress>0.6 — individual-differences.md), `attention ×= (1 −
+  lapse_drop)` (0.6), drawn BEFORE the att_min gate — lapsed events often
+  simply do not exist for the character (mind-wandering; Maillet & Rajah
+  2013).
+- **Event segmentation (v1.2):** Event flag `boundary:true` (task
+  switch, arrival/departure, topic break) → `E += boundary_gain` (0.15)
+  — boundary content is privileged (Zacks et al. 2007; Swallow et al.
+  2009). Event flag `locShift:true` (venue/room change) → every record
+  created within the last `lapse_window` (0.02 day, frozen) AND every
+  pending `Intention` (§9) takes a one-time `R ×= (1 − doorway_drop)`
+  (0.15) — the doorway/location-updating effect, flat across age
+  (Radvansky & Copeland 2006; Radvansky et al. 2011/2015). Cross-boundary
+  associative edges form at `link_p·(1 − boundary_order_loss)` (0.4) —
+  order survives within events and dies between them (DuBrow & Davachi
+  2013).
+- **Unitization (v1.2):** Event flag `coherentUnit:true` (person+their
+  signature action; object+its place) → `link_p_eff = link_p +
+  unitize_gain·(1 − link_p)` (0.3) — unitizing an association into an
+  item rescues the age-graded associative deficit exactly where it is
+  worst (Giovanello & Schacter 2012; Bastin et al. 2013).
+- **Isolation (v1.2):** Event flag `isolated:true` (categorical outlier
+  within its local episode) → `E += distinct_gain` (0.15) — von Restorff
+  needs statistical oddity in the stream, not world-weirdness (Hunt 1995;
+  Schmidt 1991). Routine-heavy lives isolate MORE often — the rare odd
+  day survives the mush.
+- **Concreteness (v1.2):** events with ≥2 populated sensory cue fields →
+  `E += concrete_gain` (0.1) — dual coding; the concrete outlives the
+  argued (Paivio).
+- **Mood-congruent encoding (v1.2):** when sign(valence) ==
+  sign(encodeMood), `E += mood_cong_encode·|encodeMood|·(1 −
+  selfRelevance)` (0.1) — mood steers what elaborates, but only on thin
+  ambient content; self-relevant material doesn't need the help (Bower
+  1981; Ucros 1989 meta).
 - **Social encoding layer (v0.8)** — for events with `agent != self`
   (someone else's observed/heard behavior; social-memory.md §2):
   - *Spontaneous trait inference:* with prob `sti_prob` (0.6), update the
@@ -1329,7 +1407,23 @@ MemoryParams = {
   "expert_cost": 0.06,       // out-of-domain link_p penalty (Woollett 2009)
   "expert_bound": 1.0,       // gain collapse at domain edge (Chase&Simon)
   "open_loop_gain": 0.12,    // intrusion/drive boost on open:true records
-  "open_self_gate": 0.4      // selfRelevance floor for open tagging
+  "open_self_gate": 0.4,     // selfRelevance floor for open tagging
+  // v1.2 additions (encoding-mechanics calibration,
+  // encoding-mechanics.md §11)
+  "elab_gain": 0.25,         // deep/elaborative processing term (LoP)
+  "gen_gain": 0.15,          // self-generated content bonus (d=0.40)
+  "enact_gain": 0.20,        // performed-action bonus; post-decline (g=1.23)
+  "prod_gain": 0.08,         // said-aloud bonus, recognition-weighted
+  "boundary_gain": 0.15,     // event-boundary encoding bonus
+  "boundary_order_loss": 0.4,// cross-boundary link/order penalty
+  "doorway_drop": 0.15,      // locShift R penalty, recent+pending records
+  "lapse_p": 0.03,           // stochastic attention-collapse rate
+  "lapse_drop": 0.6,         // attention multiplier during a lapse
+  "da_encode_mult": 0.5,     // divided-attention encoding damage
+  "unitize_gain": 0.3,       // coherent-unit link rescue (aging)
+  "distinct_gain": 0.15,     // within-context isolation bonus
+  "concrete_gain": 0.1,      // sensory/concrete content bonus
+  "mood_cong_encode": 0.1    // mood-congruent elaboration bonus
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -1344,6 +1438,13 @@ MemoryParams = {
 //   contiguity_asym = 1.25 (§5.4); hindsight_conf_gain = 0.08,
 //   hindsight_max_surprise = 0.7 (§6.16); ease_few = 1.5,
 //   ease_many = 3.0 (§5.4)
+// v1.2 frozen constants (encoding-mechanics.md §11):
+//   intent_null = 0 (intention-to-learn adds nothing past the orienting
+//   task — Postman 1964; Hyde & Jenkins 1973; guarded by P111);
+//   da_ret_cost = 1.5 (retrieval-DA searchCost multiplier, §5.4);
+//   lapse_window = 0.02 day (doorway reach, ~30 min);
+//   elaboration weights {0.5·selfRelevance, 0.3·predictionError,
+//   0.2·coherence, 0.3·survivalRelevance} (LoP derivation mix, P110)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -1388,7 +1489,9 @@ should validate params into those ranges at load.
 
 ## 8. Tick architecture (suggested, cheap)
 
-- **On event:** encoding pass §2 (O(1)).
+- **On event:** encoding pass §2 (O(1)); if the event carries
+  `locShift:true`, additionally apply the §2 doorway penalty to
+  last-`lapse_window` records and pending Intentions (v1.2).
 - **Daily tick:** decay pass §4.1 (all records), interference/genericization
   §4.2–4.3 only on records sharing cue keys (bucket by cue, never O(n²)),
   sleep consolidation §2 (also applies §4.6 consol_beta_mult to same-day
@@ -1536,3 +1639,16 @@ the age-PM paradox for free. See `age-development.md` §7.
   ground-truth tap; they must NEVER leak into dialogue, briefings, or
   feed text. Probe/analyzer output schema + acceptance gates live in
   validation-design.md §§2.5, 8.
+- v1.2 additions (encoding-mechanics.md §§1–9):
+  - `encodeEvent` event may carry `engagement` (observed/heard/enacted/
+    generated/spoken), `daLoad` (0..1 secondary-task pull), `boundary`,
+    `locShift`, `coherentUnit`, `isolated`, `survivalRelevance` — all
+    optional; defaults derive from source.kind per formal-model.md §5
+  - a `locShift:true` event triggers the doorway penalty on recent
+    records + pending Intentions (§2; flat across age)
+  - `cueContext.daLoad` (0..1) raises `searchCost` by ×`da_ret_cost`
+    only — retrieval under divided attention is slow, not fragile
+    (Craik 1996); never moves θ
+  - `rememberIntention` records are doorway-susceptible: a locShift drops
+    their accessibility like any recent record — "walked in and forgot
+    why" is emergent
