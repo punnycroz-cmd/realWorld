@@ -1,0 +1,171 @@
+# Launch Infrastructure — Real World ("The Mission")
+
+**Version:** v14 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
+Every account creation, DNS change, and paid service is owner-gated. This file is
+the plan so that "go" is a provisioning session, not an architecture debate.
+
+**Scope note:** this track owns launch *readiness*. Game-server internals belong
+to the game-systems track; this doc only specifies what the game build must
+*expose* for the marketing surface to work (§3, §8).
+
+---
+
+## 1. Architecture map
+
+```
+                         ┌─────────────────────────────┐
+   player/press ──HTTPS─▶│  CDN + static site host      │  marketing/site/ as-is
+                         │  (realworld-game.example)    │  11 pages, zero build step
+                         └──────────────┬──────────────┘
+                                        │ iframe (sandboxed)
+                                        ▼
+                         ┌─────────────────────────────┐
+                         │  spectator feed origin       │  game build serves the
+                         │  (play.<domain> subdomain)   │  embeddable world view
+                         └──────────────┬──────────────┘
+                                        │
+        ┌───────────────────────────────┼───────────────────────────────┐
+        ▼                               ▼                               ▼
+ ┌─────────────┐               ┌────────────────┐              ┌────────────────┐
+ │ Stripe      │               │ analytics      │              │ status/uptime  │
+ │ + Stripe Tax│──webhooks──▶  │ backend        │              │ monitor        │
+ │ (payments)  │  to game API  │ (cookieless)   │              │ (external ping)│
+ └─────────────┘               └────────────────┘              └────────────────┘
+```
+
+Principles:
+
+- **Static site is static.** The whole marketing surface deploys as files —
+  no framework, no build step, no server code we own. Any static host works;
+  the deploy configs in `deploy/` cover the two recommended targets.
+- **The game is a separate origin.** Spectator traffic is heavy and
+  stateful; it must never take down the front door. Subdomain isolation
+  also keeps cookies/CSP clean.
+- **Payments touch the site minimally.** Checkout happens on Stripe-hosted
+  pages (Stripe Checkout) — no card data ever touches our origins. The site
+  links out; the game backend consumes webhooks to credit accounts.
+- **Privacy posture is load-bearing** (ANALYTICS.md §1): cookieless
+  analytics, no third-party pixels, DNT/GPC honored. Infrastructure choices
+  must not silently add tracking (no host-injected scripts).
+
+## 2. Component decisions
+
+All options are OWNER-GATED. "Recommended" = lowest ops burden consistent
+with the brand and the budget; swap freely — the site is portable.
+
+| Component | Recommended | Alternatives | Why / notes |
+|---|---|---|---|
+| Domain registrar | any major registrar | — | owner registers; enable registrar lock + 2FA. Domain name itself is an owner decision (all copy uses `realworld-game.example` placeholder until then) |
+| DNS | registrar DNS or Cloudflare (free) | Route53 | needs apex → host + `play.` + `stats.` records; spec in `deploy/dns-records.example` |
+| Static site host | **VPS + Caddy** (`deploy/Caddyfile`) | Cloudflare Pages / Netlify (`deploy/netlify.toml`), S3+CDN | Caddy = auto-TLS, zero vendor lock, full header control. Pages/Netlify = zero-ops; both configs ship ready |
+| CDN | host-builtin (Pages/Netlify) or Cloudflare in front of Caddy | — | site is ~small MB; CDN mainly buys TLS edge + DDoS absorption |
+| Game/spectator server | game track owns the process; marketing needs one HTTPS origin `play.<domain>` | same box as site (Caddy `reverse_proxy`) or separate host | requirements for the embed in §3 |
+| Payments | **Stripe + Stripe Tax** (monetization plan §4.4) | Paddle/Lemon Squeezy (MoR) when EU/UK volume justifies | Checkout-hosted → no PCI scope on our servers; product/price manifest in `deploy/stripe-products.json` |
+| Analytics | self-hosted **Umami** or the existing `tools/analytics_sink.py` first-party collector | Plausible CE | cookieless; `data-endpoint` flip documented in ANALYTICS.md §4 |
+| Transactional email | none at launch (site has no accounts) | game-side receipts come from Stripe's built-in emails | revisit when game accounts exist |
+| Status/uptime | any external ping monitor (free tier) hitting `/` + `play.` health | self-hosted status page later | launch needs alerting, not a status page |
+| Secrets | host env vars / owner's password manager | Doppler/1Password | inventory in `deploy/infra.env.example` — **no real values ever committed** |
+
+## 3. What the game build must expose (contract for game/world tracks)
+
+Marketing-side surfaces already built; these are the integration points:
+
+1. **Spectator embed** — `site/demo.html` mounts `<iframe data-demo-src>`.
+   Requirements: HTTPS, `frame-ancestors` allowing the site origin (or no
+   X-Frame-Options blocking), reasonable initial payload (<5 MB target).
+   Until the URL exists the page shows the fallback gallery — verified.
+2. **Feed vocabulary** — demo feed-preview + journal recap labels use
+   `ran / queued / resolved / refunded`; sync with real `gsViewerState`
+   event names before launch (DEMO-PAGE.md §7, MODERATION-PLAN.md §2.3).
+3. **Analytics events** — game emits `watch_start`, `request_submitted`,
+   `character_created` per `marketing/analytics-events.json` to the same
+   endpoint the site uses.
+4. **Stripe webhook consumer** — game backend receives
+   `checkout.session.completed` to credit accounts; signature verification
+   with `STRIPE_WEBHOOK_SECRET`. Non-transferable credits → webhook is the
+   ONLY crediting path; never expose a client-callable grant.
+5. **Public request feed endpoint** (design §5) — read-only JSON for
+   `#the-feed` mirror + journal recaps; display-filter pass applied per the
+   owner's option-A/B/C decision (MODERATION-PLAN.md §2.3) before serving.
+
+## 4. Environments
+
+| Env | URL | Purpose | State today |
+|---|---|---|---|
+| local | `127.0.0.1:8123` | `tools/staging_dryrun.sh` rehearsal | ✅ 29 pass / 3 warn / 0 fail |
+| staging | `staging.<domain>` (owner-gated) | pre-launch full dress rehearsal incl. real DNS + TLS | not provisioned |
+| production | `<domain>` + `play.` + `stats.` | launch | not provisioned |
+
+No separate staging *site* pipeline is needed — the site is identical files;
+staging exists mainly to rehearse DNS/TLS/headers and the demo embed.
+
+## 5. Provisioning runbook (the "go" session)
+
+Ordered; each step maps to a LAUNCH-CHECKLIST gate. Est. total: ~2–3 h.
+
+| # | Step | Gate | Est. |
+|---|---|---|---|
+| 1 | Owner registers domain; point nameservers (or keep registrar DNS) | G3 | 15 min |
+| 2 | Create DNS records per `deploy/dns-records.example` (apex + `www` redirect + `play.` + `stats.`) | G3/G14 | 15 min |
+| 3 | Provision host (VPS+Caddy or Pages/Netlify project); deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
+| 4 | Verify TLS auto-issued; run `tools/prod_smoke.sh https://<domain>` | G14/D0.2 | 10 min |
+| 5 | Stand up analytics backend on `stats.<domain>`; set `data-endpoint` on all pages; confirm events in dashboard | G8 | 30 min |
+| 6 | Stripe: create account → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path | G14 | 45 min |
+| 7 | Point uptime monitor at `/` and `play.` health; alert → owner email/SMS | G14 | 10 min |
+| 8 | Swap `realworld-game.example` → real domain in all 8 files (dry-run §4 sweep must go clean) | G3 | 15 min |
+| 9 | Rebuild press kit (`./build-press-kit.sh`), rerun dry-run | G9/G10 | 10 min |
+
+## 6. Deploy & rollback
+
+- **Deploy:** `deploy/deploy-site.sh` — `rsync --delete` to a host path, or
+  `caddy` reload. Defaults to `--dry-run`; requires `--apply` and
+  `RW_DEPLOY_HOST`. Static + atomic: rsync to a `releases/<ts>/` dir and
+  flip a symlink if the host supports it (documented in the script).
+- **Rollback:** keep previous release dir; symlink flip back, or redeploy
+  prior git tag. Worst case = maintenance page (styled `404.html`). No
+  state to lose — the site is stateless. Full table: LAUNCH-CHECKLIST §3.
+- **Never deployed:** secrets, `.env`, live keys — `.gitignore` covers
+  `deploy/*.local`, `deploy/.env*`.
+
+## 7. Security baseline (enforced by `deploy/Caddyfile` headers)
+
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+- `Content-Security-Policy: default-src 'self'; img-src 'self' data:; frame-src https://play.*` — tighten `frame-src` to the real play origin at launch; `analytics.js` posts via `connect-src`
+- `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` deny-list
+- Custom 404 → `/404.html`; `sitemap.xml`/`robots.txt` at root
+- Rate limiting on the game API is game-track scope; site needs none.
+- Stripe: webhook signature verification mandatory; Radar on; 3-DS on
+  orders >$30 (monetization plan §4.4). Chargeback → claw credits per ToS.
+
+## 8. Cost estimate (launch scale, monthly)
+
+| Item | $0–low option | Typical |
+|---|---|---|
+| Domain | — | $12–20/yr |
+| Static host | Cloudflare Pages / Netlify free tier | VPS $5–10 |
+| Analytics (Umami self-hosted) | on same VPS | incl. above |
+| Uptime monitor | free tier | $0 |
+| Stripe | — | 2.9% + 30¢/txn (no fixed cost) |
+| Game server | game track owns | dominates infra cost (streaming) — see monetization plan §4.3: ~$1–1.5k/mo at 10k MAU incl. LLM |
+| **Marketing surface total** | **≈ $0–15/mo** | the site is deliberately boring |
+
+## 9. Secrets inventory (values never committed)
+
+`deploy/infra.env.example` is the canonical list. Highlights:
+
+- `RW_DEPLOY_HOST`, `RW_DEPLOY_PATH`, `RW_DEPLOY_USER` — deploy script
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` —
+  game-side; site never sees them
+- `RW_ANALYTICS_ENDPOINT` — the only value the *site* needs, and it ships
+  as a public `data-endpoint` attribute (not secret)
+- Uptime-monitor webhook/email — owner config
+
+## 10. Owner decisions still open
+
+1. Real domain name (drives G3 sweep, DNS, OG URLs, email addresses).
+2. Hosting choice: VPS+Caddy vs Pages/Netlify — both configs ready.
+3. Analytics backend pick (ANALYTICS.md §2).
+4. Stripe account + whether to start Stripe-only (recommended) or MoR.
+5. Whether `play.` lives on the same box as the site (Caddy
+   `reverse_proxy` block already sketched in `deploy/Caddyfile`).

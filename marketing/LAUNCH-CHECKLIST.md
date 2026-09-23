@@ -33,6 +33,7 @@ placeholder domain not yet swapped + 1 PNG >2 MB — both expected pre-launch).
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
 | G12 | Demo page live: set `data-demo-src` on `demo.html` `#demo-stage` to the spectator build URL; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels with the real feed's vocabulary (DEMO-PAGE.md §7) | owner + game track | `[ ] PENDING` — fallback verified; one-attribute flip at launch |
 | G13 | Moderation readiness: owner picks feed display-filter option A/B/C (MODERATION-PLAN.md §2.3) and confirms review-inbox tooling exists in the game build (§2.2); `rules.html` copy is option-neutral until decided | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
+| G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; est. 2–3 h |
 
 ## §2 Day 0 — launch day (in order)
 
@@ -41,8 +42,8 @@ DNS/CDN latency only.
 
 | # | Task | Est. | Status |
 |---|------|------|--------|
-| D0.1 | Deploy `marketing/site/` to production hosting at real domain | ~15 min | `[ ] PENDING` |
-| D0.2 | Run production smoke pass (same checks as dry-run, against live URL): all pages 200, sitemap+robots reachable, JSON-LD parses, OG card renders in a share validator | ~10 min | `[x] REHEARSED` locally — 0.001s TTFB/page |
+| D0.1 | Deploy `marketing/site/` to production hosting at real domain via `deploy/deploy-site.sh --apply` (or git-connected host) | ~15 min | `[ ] PENDING` — script rehearsed dry-run |
+| D0.2 | Run production smoke pass: `tools/prod_smoke.sh https://<domain>` — pages 200, sitemap+robots, JSON-LD parses, security headers, served-placeholder sweep; OG card renders in a share validator | ~10 min | `[x] REHEARSED` locally — prod_smoke.sh is the live counterpart of the dry-run |
 | D0.3 | Flip "in development" labels → launch copy; CTA → live watch URL | ~20 min | `[ ] PENDING` |
 | D0.3b | Demo page flip: set `data-demo-src` on `demo.html`, reload, confirm iframe mounts and `watch_start` fires with `mode:"live"`; confirm feed-preview labels match the live feed | ~10 min | `[ ] PENDING` — gated on G12 |
 | D0.4 | Submit `sitemap.xml` to Search Console + Bing Webmaster | ~10 min | `[ ] PENDING` (owner accounts) |
@@ -90,6 +91,7 @@ Decision: GO / NO-GO — <owner name>, <timestamp>
 | Legal/privacy (G7) | | | |
 | Analytics backend (G8) | | | |
 | Feed display-filter option (G13) | | | A=redact / B=withhold / C=quarantine |
+| Infrastructure (G14) | | | domain + host + Stripe + analytics + uptime |
 
 ## §6 Day 7 — first week
 

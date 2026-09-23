@@ -1,0 +1,51 @@
+# Caddyfile — production config for the Real World marketing site.
+# Recommended static host: any VPS + Caddy (auto-TLS via Let's Encrypt).
+# Install: `caddy run --config Caddyfile` or systemd `caddy reload`.
+# Replace BOTH placeholder domains before use (see deploy/README.md §DNS).
+
+# ── apex ──────────────────────────────────────────────────────────────
+realworld-game.example {                 # PLACEHOLDER — real domain at launch
+    root * /srv/www/realworld/current    # symlink flipped by deploy-site.sh
+    encode zstd gzip
+
+    # Security headers (INFRASTRUCTURE.md §7)
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        # frame-src: allow ONLY the spectator origin once known; 'none' until then
+        Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://stats.realworld-game.example; frame-src https://play.realworld-game.example; frame-ancestors 'self'; base-uri 'self'; form-action 'none'"
+    }
+
+    # Cache static assets hard; HTML short (launch-day edits go live fast)
+    @assets path /assets/* /shots/* /css/* /js/* *.png *.webp *.svg
+    header @assets Cache-Control "public, max-age=86400"
+    @html path *.html /
+    header @html Cache-Control "public, max-age=300"
+    header /sitemap.xml Cache-Control "public, max-age=3600"
+
+    try_files {path} {path}.html /404.html
+    handle_errors {
+        respond "{http.error.status_code}" 404
+        rewrite * /404.html
+        file_server
+    }
+    file_server
+}
+
+# ── www → apex redirect ───────────────────────────────────────────────
+www.realworld-game.example {             # PLACEHOLDER
+    redir https://realworld-game.example{uri} permanent
+}
+
+# ── OPTIONAL: same-box spectator origin (uncomment at launch) ─────────
+# play.realworld-game.example {
+#     reverse_proxy 127.0.0.1:9000        # game spectator build — game track owns the process
+#     header X-Content-Type-Options "nosniff"
+# }
+#
+# ── OPTIONAL: same-box analytics (Umami container on :3000) ───────────
+# stats.realworld-game.example {
+#     reverse_proxy 127.0.0.1:3000
+# }
