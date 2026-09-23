@@ -24,7 +24,7 @@ echo "[1] staging server up on $BASE (pid $SRV)"
 
 # 2. Page status + TTFB (seconds)
 echo "[2] pages: status + time_starttransfer"
-for p in index.html features.html how-it-works.html demo.html community.html journal.html pricing.html faq.html press-kit.html 404.html; do
+for p in index.html features.html how-it-works.html demo.html community.html journal.html rules.html pricing.html faq.html press-kit.html 404.html; do
   read -r code t < <(curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}' "$BASE/$p")
   if [ "$code" = "200" ]; then ok "$p  $code  ${t}s"; else bad "$p  $code"; fi
 done
@@ -59,7 +59,7 @@ done < <(grep -rhoE '(src|href)="[^"]+"' "$SITE"/*.html | sed -E 's/^(src|href)=
 
 # 6. OG/meta + JSON-LD sanity
 echo "[6] meta + structured data"
-for p in index features how-it-works demo community journal pricing faq press-kit; do
+for p in index features how-it-works demo community journal rules pricing faq press-kit; do
   h="$SITE/$p.html"
   grep -q 'og:title' "$h" && grep -q 'og:image' "$h" && ok "$p OG tags" || bad "$p missing OG tags"
   grep -q 'name="description"' "$h" || warn "$p missing meta description"

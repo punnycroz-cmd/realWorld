@@ -96,6 +96,12 @@ this checklist. Never link a server that doesn't exist.
 
 ## 4. Moderation plan
 
+**Canonical reference: `MODERATION-PLAN.md` (v13).** This section is the
+summary; the plan holds the full policy, review-queue tooling spec, feed
+display-filter options, incident runbook, canned responses
+(`templates/mod-responses.md`), and the copy do/don't table. Public-facing
+version lives at `site/rules.html`.
+
 Two separate moderation scopes — keep them distinct in docs and tooling.
 
 ### 4.1 Community moderation (Discord, comments, socials)

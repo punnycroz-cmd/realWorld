@@ -32,6 +32,7 @@ placeholder domain not yet swapped + 1 PNG >2 MB — both expected pre-launch).
 | G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 23/3/0, warns = G3 + 1 PNG weight |
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
 | G12 | Demo page live: set `data-demo-src` on `demo.html` `#demo-stage` to the spectator build URL; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels with the real feed's vocabulary (DEMO-PAGE.md §7) | owner + game track | `[ ] PENDING` — fallback verified; one-attribute flip at launch |
+| G13 | Moderation readiness: owner picks feed display-filter option A/B/C (MODERATION-PLAN.md §2.3) and confirms review-inbox tooling exists in the game build (§2.2); `rules.html` copy is option-neutral until decided | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
 
 ## §2 Day 0 — launch day (in order)
 
@@ -49,7 +50,7 @@ DNS/CDN latency only.
 | D0.6 | Post launch announcement on registered channels (owner approves each post) | ~30 min | `[~] DRAFTED` — SOCIAL-LAUNCH-PLAN.md timeline |
 | D0.7 | Send press kit link to owner-approved press list (angle templates in PRESS-OUTREACH.md) | ~30 min | `[~] DRAFTED` — 3 pitch angles ready |
 | D0.8 | Community posts where welcome (owner-approved subs/Discords only) | ~30 min | `[~] DRAFTED` — seeded-questions.md |
-| D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual), welcome post, rules pinned; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 |
+| D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual), welcome post, rules pinned (verbatim from `rules.html` per MODERATION-PLAN.md §3.2), `#mod-log` private channel created, canned responses (`templates/mod-responses.md`) posted to mod channel; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 + G13 |
 | D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`), request-feed health | continuous | `[ ] PENDING` |
 | D0.10 | Same-day retro note → MARKETINGLOG.md + shared inbox | ~15 min | `[ ] PENDING` |
 
@@ -63,7 +64,7 @@ Trigger conditions and the exact response:
 | OG cards broken | any | Revert last deploy; cards are cosmetic — do not hold launch for this alone |
 | Pricing page wrong | any | Flip `data-pricing` back to `"provisional"` + revert commit; purchases pause until fixed |
 | Analytics dead | day-0 | Non-blocking — funnel events buffer in the spec; fix day-1 |
-| Request feed abused | any | Game-side moderation (owner decision); marketing pulls CTA to watch-only copy |
+| Request feed abused | any | MODERATION-PLAN.md §4 runbook (cooldowns/denials/refunds); marketing pulls CTA to watch-only copy |
 
 Full rollback = maintenance page + pause posts + note in shared inbox. No data
 loss possible: the site is fully static and stateless.
@@ -88,6 +89,7 @@ Decision: GO / NO-GO — <owner name>, <timestamp>
 | Final pricing (G4) | | | |
 | Legal/privacy (G7) | | | |
 | Analytics backend (G8) | | | |
+| Feed display-filter option (G13) | | | A=redact / B=withhold / C=quarantine |
 
 ## §6 Day 7 — first week
 
@@ -99,6 +101,7 @@ Decision: GO / NO-GO — <owner name>, <timestamp>
 - [ ] PENDING — Second devlog post (honest post-launch retrospective)
 - [ ] PENDING — Press follow-ups only to outlets that engaged (no spam rounds)
 - [ ] PENDING — Trailer greenlight decision based on week-1 spectator retention (TRAILER-PLAN.md ready to execute)
+- [ ] PENDING — Moderation week-1: review-queue depth + denial-rate first look; confirm recap can quote aggregate moderation stats (MODERATION-PLAN.md §6)
 
 ## §7 Day 30 — first month
 
@@ -109,6 +112,7 @@ Decision: GO / NO-GO — <owner name>, <timestamp>
 - [ ] PENDING — Press kit v1.1: real earned quotes (attributed), final pricing, launch screenshots, trailer link if produced
 - [ ] PENDING — Roadmap review: re-rank remaining marketing focuses against month-1 data; update MARKETING_ROADMAP.md
 - [ ] PENDING — Season-2 neighborhood marketing decision only if shard-1 retains (research: do NOT split the audience early)
+- [ ] PENDING — Moderation month-1: mod recruitment decision + incident-runbook retro (MODERATION-PLAN.md §3.4/§4); revisit deny-no-refund count
 
 ## §8 Never-do list (load-bearing)
 
