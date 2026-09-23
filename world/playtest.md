@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v61)
+# Playtest Harness — "Real World / The Mission" (world v62)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -109,6 +109,12 @@ One person can wear every hat; four real testers is the intended shape.
   follow-cam with "public whereabouts only"), the replay scrub over the
   wire's own events, the gsExplainRequest/gsOccupancy live reads, and
   the no-purchase-affordance rule on a spectator surface.
+  PT57 (the Archive v5 reading layer, v62) is a spectator audit — the
+  device-local shelf (rw_archive_shelf pins, copy-shelf transcript with
+  the badge line, honest orphan count), the seen-together pair view
+  (structural co-presence, never a relationship claim), person
+  'seen with' chips + first/latest jumps, and the venue rhythm strip —
+  all projections, nothing world-touching.
 
 ## 3. Running a session
 

@@ -1190,12 +1190,35 @@ const PTS=[
   ck:["wire gate detail ends 'v61 keys: director_bar,cam_presets,...' — PASS",
     "A purchase-affordance button on wire.html would FAIL the no-world-verb scan — spot-check by reading the gate",
     "Harness gate: '56 scenarios · N checkpoints · key rw_playtest_v61'; 0 fail overall"]}]}
+,{id:"PT57",title:"The Archive v5 — the reading layer (shelf, seen together, venue rhythm) (v62)",min:10,persona:"returning spectator — keeps losing good records in the week and wants a way to hold them without an account",
+ goal:"Verify the v62 archive pass: the device-local shelf (pin/unpin from any record, rw_archive_shelf persistence, copy-shelf transcript with the source badge, honest orphan count), the seen-together pair view (structural co-presence, never a relationship claim), person 'seen with' chips + first/latest jumps, and the venue rhythm histogram — all projections, nothing world-touching.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open archive.html, select any record, and hit 'keep on the shelf'; pin two more from different days. Then open 'your shelf' from the Browse rail.",
+  exp:"The record's button flips to 'on the shelf — take off'. The shelf view lists all three pins grouped by day, headed 'the shelf lives in this browser — the archive doesn't remember you; nothing is sent anywhere'.",
+  ck:["Shelf header carries the device-only honesty line verbatim",
+    "Pins persist across reload (localStorage rw_archive_shelf); the summary strip counts pinned records",
+    "'copy shelf' produces a transcript headed 'your shelf (demo archive)' — the badge line travels with the paste"]},
+ {do:"Open 'seen together' and pick Mars Delgado + Reyes (pickA/pickB). Then pick the same name twice.",
+  exp:"The shared trail shows only events where both ids appear in who/mentions, headed 'public co-presence — the wire's own rows, never a claim about the relationship'. Same-name selection redirects to the person view explanation. The permalink writes #v=pair&a=C1&b=A01.",
+  ck:["Shared rows are structural (who/mentions) — spot-check one row's record for both names",
+    "No text anywhere asserts a relationship — the head copy disclaims it",
+    "#v=pair&a=<id>&b=<id> deep-links back to the same trail on reload"]},
+ {do:"Open by person → Jules Park. Read the jump chips and the 'seen with' row; click a seen-with chip.",
+  exp:"The head gains 'first on record — HH:MM · day' and 'latest — HH:MM · day' chips that select the trail's ends, plus 'seen with — public rows only:' chips for the top co-occurring names (×N counted). Clicking one opens the pair view for Jules + that name.",
+  ck:["First/latest chips land on the correct end records and mark them in the detail panel",
+    "Seen-with counts match a manual recount of co-occurrences in the trail",
+    "A person with no public record still shows the empty-state copy — nothing inferred"]},
+ {do:"Open by venue → Dolores Park. Read the rhythm strip, then run `node world/audit.js` and read the archive + harness gates.",
+  exp:"'The corner's rhythm — counted across the whole record, not a promise' renders a 24-hour histogram of park tags (tooltips 'HH:00 — N across the record'), non-interactive. The archive gate reports 'schema archive-v5' with the v62 affordance checks green; harness gate reports 57 scenarios at the v62 key.",
+  ck:["Rhythm bars carry no click affordance — they count, they don't promise",
+    "archive gate passes: shelf/pair/rhythm marks + archive_ui_v62 contract block present",
+    "Harness gate: '57 scenarios · N checkpoints · key rw_playtest_v62'; 0 fail overall"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v61";
-const BUILD="world v61 local";
+const LS="rw_playtest_v62";
+const BUILD="world v62 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

@@ -79,6 +79,25 @@
         "outcome.by may only point at an event that stood on the wire in its own right — never at a record written to explain the rumor",
         "nothing on the week view touches the world; the grid's only affordance is opening a day"
       ]
+    },
+    "archive_ui_v62": {
+      "doc": "world v62 — The Archive v5: the reading layer. Your shelf (device-local record pins + shelf transcript), seen-together pair trails, person 'seen with' chips + first/latest jumps, venue rhythm histogram. Still projections — the shelf is the reader's device, not the world.",
+      "views_added": {
+        "shelf": "#v=shelf — pinned records grouped by day; 'keep on the shelf' toggle on every record detail; pins persist in localStorage under rw_archive_shelf (this device only); 'copy shelf' exports a transcript carrying the source badge; pins whose ids the current source doesn't serve count honestly as 'not in this archive source'",
+        "pair": "#v=pair&a=<id>&b=<id> — the events where two names co-occur in who/mentions, grouped by day; header states public co-presence, never a relationship claim",
+        "person_seen_with": "person view gains top-3 co-occurring-name chips (counted from who/mentions) that open the pair view, plus 'first on record' / 'latest' jump chips",
+        "venue_rhythm": "venue view gains a 24-hour histogram of that corner's tags across the whole record — labeled 'counted, not a promise'"
+      },
+      "permalinks_added": [
+        "#v=shelf lists pinned records",
+        "#v=pair&a=<id>&b=<id> opens a shared trail"
+      ],
+      "honesty": [
+        "the shelf is reader-side state — localStorage on this device; nothing is sent anywhere and the copy says so",
+        "co-presence is structural (who/mentions only) and never asserted as a relationship — the header says it",
+        "the shelf transcript carries the source badge like the day transcript — a pasted shelf can't impersonate live",
+        "the rhythm strip counts the wire's own tags; it never predicts where a venue will be"
+      ]
     }
   },
   "days": {

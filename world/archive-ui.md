@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -246,7 +246,61 @@ Copy deck additions:
 | Neighbor trail head | "around that time — same day, the wire's own rows" |
 | Settled-by line | "settled by the public record — HH:MM · <kind>" |
 
-## 12. Merge notes (for the game track)
+## 12. v62 — The Archive v5 — the reading layer
+
+Four additions. The standing rule holds — projections of public rows,
+counted, never curated — plus a new one for the shelf: reader-side state
+is the reader's own device, never the world's.
+
+- **Your shelf** (`#v=shelf`). Every record detail gains a `keep on the
+  shelf` toggle. Pins persist in `localStorage` under `rw_archive_shelf`
+  — this browser only; nothing is sent anywhere, and the header copy
+  says so ("the shelf lives in this browser — the archive doesn't
+  remember you"). The shelf view lists pinned records through the same
+  day-grouped trail renderer, with a summary strip: pinned count plus an
+  honest "N pinned ids not in this archive source" when a pin outlives a
+  demo↔live source change (ids are stable; an unserved pin is stated,
+  never dropped silently or invented). `copy shelf` emits the pins as a
+  transcript carrying the source badge — same honesty rule as the day
+  transcript. `clear the shelf` empties it; the toast confirms nothing
+  was sent.
+- **Seen together** (`#v=pair&a=<id>&b=<id>`). Two pickers in the left
+  rail; the trail is every event where both ids appear — structurally,
+  via `who`/`mentions` only. Header: `public co-presence — the wire's
+  own rows, never a claim about the relationship`. Same-name selection
+  redirects to the person view with a plain explanation. Empty picker
+  state explains the view without implying anyone was together.
+- **Person: seen with + first/latest.** The person head gains a
+  `seen with — public rows only` chip row: the top-3 co-occurring ids
+  across the trail (counted, ties alphabetical), each chip opening the
+  pair view for that pair. Plus `first on record` / `latest` jump chips
+  that select the trail's end rows. All counted from rows; none of it
+  asserts anything the rows don't.
+- **Venue rhythm.** The venue view gains `the corner's rhythm` — a
+  24-hour histogram of that venue's tags across the whole record,
+  non-interactive, tooltips read "HH:00 — N across the record". Label:
+  `counted across the whole record, not a promise` — the bars say where
+  the wire happened to look, never where the corner will be.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Shelf chip | "pins kept on this device — the archive doesn't remember you" |
+| Shelf head | "the shelf lives in this browser — the archive doesn't remember you; nothing is sent anywhere" |
+| Shelf empty | "Nothing pinned — 'keep on the shelf' on any record puts it here. The shelf is this browser's, not the world's." |
+| Shelf orphans | "N pinned ids not in this archive source" |
+| Shelf transcript head | "real world — the archive — your shelf (<source badge>)" |
+| Record toggle | "keep on the shelf" / "on the shelf — take off" |
+| Pair chip | "two names, one public record — co-presence only" |
+| Pair head | "public co-presence — the wire's own rows, never a claim about the relationship" |
+| Pair empty | "Pick two names on the left — …the archive doesn't guess at relationships." |
+| Seen-with label | "seen with — public rows only:" |
+| Person jumps | "first on record — HH:MM · <day>" / "latest — HH:MM · <day>" |
+| Rhythm head | "the corner's rhythm — counted across the whole record, not a promise" |
+| Rhythm tooltip | "HH:00 — N across the record" |
+
+## 13. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -270,3 +324,10 @@ event that settled the talk. Emit it only when such an event genuinely
 exists on the wire; the archive drops unresolvable ids silently. The week
 view needs nothing new — it counts `kind`, `venue`, `req`, `status`,
 `outcome`, and `attrs` over the same day-objects.
+
+v62: no schema change — the shelf lives in the reader's localStorage and
+the pair/rhythm views project `who`/`mentions`/`venue`/`t` only. Live
+sources change nothing: a pin id the current source doesn't serve is
+counted honestly, never dropped or invented. If the bus ever rewrites an
+id, the shelf treats the old id as absent — correct behavior, no repair
+path needed.

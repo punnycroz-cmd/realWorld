@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v61).
+/* world/audit.js — RW boundary audit (world v62).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -1829,10 +1829,28 @@ const PUB = Object.values(PT.surfaces)
       [/ArrowLeft/, 'arrow-key day walk'],
       [/around that time/, 'record neighbor trail'],
       [/settled by the public record/, 'rumor settled-by affordance'],
-      [/busiest/, 'busiest-corner day rows']
+      [/busiest/, 'busiest-corner day rows'],
+      /* v62 — the reading layer */
+      [/data-v="shelf"/, 'shelf view switch'],
+      [/data-v="pair"/, 'pair view switch'],
+      [/rw_archive_shelf/, 'shelf storage key'],
+      [/the shelf lives in this browser/, 'shelf honesty copy'],
+      [/keep on the shelf/, 'shelf pin affordance'],
+      [/id="shelfBtn"/, 'record shelf toggle'],
+      [/id="shelftx"/, 'shelf transcript control'],
+      [/copy shelf/, 'copy-shelf affordance'],
+      [/public co-presence/, 'pair honesty copy'],
+      [/seen with — public rows only/, 'person seen-with chips'],
+      [/first on record/, 'person first/latest jumps'],
+      [/the corner’s rhythm/, 'venue rhythm strip'],
+      [/not a promise/, 'rhythm honesty copy'],
+      [/id="pickA"/, 'pair picker A'],
+      [/id="pickB"/, 'pair picker B']
     ];
     if (!HJ.archive_ui?.archive_ui_v48)
       add(g, 'fail', 'history.json', null, 'archive_ui_v48 contract block missing');
+    if (!HJ.archive_ui?.archive_ui_v62)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v62 contract block missing');
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'archive.html', null, `missing required copy/affordance: ${label}`);
     /* no world-mutation call on the surface */
@@ -1846,7 +1864,7 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'archive.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
     });
     g.detail = `${Object.keys(HJ.days).length} days · ${evCount} events mirrored · ` +
-      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v4`;
+      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v5`;
   } catch (e) { add(g, 'fail', 'history.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -2126,7 +2144,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v61 || {};
+    const H = PT.harness_ui_v62 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

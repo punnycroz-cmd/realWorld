@@ -25,6 +25,18 @@
       immediate neighbors, clickable. Same rows, smaller window.
     - rumor "settled by" — outcome.by (optional event id) links the talk
       to the public record that settled it, when one exists.
+  v5 additions (the reading layer — still projections, and the shelf is
+  the reader's own device, not the world):
+    - YOUR SHELF — pin any record ('keep on the shelf'); pins live in
+      localStorage on this browser only, exportable as a transcript that
+      carries the source badge. The archive doesn't remember you.
+    - SEEN TOGETHER — a pair trail: two names, the events where both
+      appear in who/mentions. Public co-presence — never a claim about
+      the relationship.
+    - person 'seen with' chips + first/latest jumps — top co-occurring
+      names counted from the rows, linking into the pair view.
+    - venue rhythm — a 24-hour histogram of that corner's tags across
+      the whole record. Counted, not a promise.
 
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
@@ -280,9 +292,13 @@
         <div class="vchip" data-v="threads">threads<small>storylines the public record already tells</small></div>
         <div class="vchip" data-v="word">word on the block<small>the rumor board — all of it marked</small></div>
         <div class="vchip" data-v="ledger">the ledger<small>every paid reach-in, attributed</small></div>
+        <div class="vchip" data-v="pair">seen together<small>two names, one public record — co-presence only</small></div>
+        <div class="vchip" data-v="shelf">your shelf<small>pins kept on this device — the archive doesn’t remember you</small></div>
       </div>
       <select class="pick" id="pickWho" style="display:none"></select>
       <select class="pick" id="pickVenue" style="display:none"></select>
+      <select class="pick" id="pickA" style="display:none"></select>
+      <select class="pick" id="pickB" style="display:none"></select>
     </section>
     <section class="panel">
       <h2>Days on record</h2>
@@ -521,7 +537,26 @@ if (LIVE){ var b=document.getElementById('srcBadge'); b.textContent='live archiv
 
 /* ================= state + hash routing ================= */
 var view="day", day=TODAY, selHour=-1, kindF="all", q="", who="", venue="", selId=null;
-var selTh=null, searchScope="day", payer="";
+var selTh=null, searchScope="day", payer="", pairA="", pairB="";
+
+/* ---- the shelf: pins kept in this browser's localStorage only.
+   Reader-side state, not world state — the archive doesn't remember
+   you; nothing is sent anywhere. Ids are stable, so a pin that outlives
+   a demo↔live source swap simply renders under whichever source serves
+   the id (or counts as 'not in this archive' until it does). */
+var SHELF_KEY='rw_archive_shelf';
+var shelf=(function(){
+  try{ var a=JSON.parse(localStorage.getItem(SHELF_KEY)||'[]');
+       return new Set(Array.isArray(a)?a:[]); }catch(e){ return new Set(); }
+})();
+function shelfSave(){
+  try{ localStorage.setItem(SHELF_KEY, JSON.stringify(Array.from(shelf))); }catch(e){}
+}
+function shelfToggle(id){
+  if (shelf.has(id)){ shelf.delete(id); toast('taken off the shelf'); }
+  else { shelf.add(id); toast('kept on the shelf — this device only'); }
+  shelfSave();
+}
 
 function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -547,6 +582,7 @@ function setHash(){
   var h = view==='day' ? '#d='+day
         : view==='person' ? '#v=person&who='+who
         : view==='venue' ? '#v=venue&venue='+venue
+        : view==='pair' ? '#v=pair&a='+pairA+'&b='+pairB
         : '#v='+view;
   if (view==='threads' && selTh) h+='&th='+selTh;
   if (selId) h += (h.indexOf('&')>=0||view!=='day'?'&':'&')+'e='+selId;
@@ -557,10 +593,12 @@ function readHash(){
   h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
   if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
   if (kv.d && DAYS[kv.d]) day=kv.d;
-  if (kv.v && ['day','person','venue','threads','word','ledger','week'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf'].indexOf(kv.v)>=0) view=kv.v;
   if (kv.who && NAMES[kv.who]){ who=kv.who; view='person'; }
   if (kv.venue && VENUES[kv.venue]){ venue=kv.venue; view='venue'; }
   if (kv.th && THREADS[kv.th]){ selTh=kv.th; view='threads'; }
+  if (kv.a && NAMES[kv.a]){ pairA=kv.a; if(kv.v==='pair')view='pair'; }
+  if (kv.b && NAMES[kv.b]){ pairB=kv.b; if(kv.v==='pair')view='pair'; }
   if (kv.e && !kv.v && !kv.who && !kv.venue) view='day';
 }
 readHash();
@@ -586,6 +624,8 @@ function renderViewChips(){
     c.classList.toggle('on', c.dataset.v===view); });
   document.getElementById('pickWho').style.display = view==='person'?'':'none';
   document.getElementById('pickVenue').style.display = view==='venue'?'':'none';
+  document.getElementById('pickA').style.display = view==='pair'?'':'none';
+  document.getElementById('pickB').style.display = view==='pair'?'':'none';
 }
 function buildPickers(){
   var cs=document.getElementById('pickWho'); cs.innerHTML='<option value="">pick someone…</option>';
@@ -597,6 +637,16 @@ function buildPickers(){
   Object.keys(VENUES).forEach(function(id){ var o=document.createElement('option');
     o.value=id; o.textContent=VENUES[id]; vs.appendChild(o); });
   vs.value=venue; vs.onchange=function(){ venue=vs.value; selId=null; renderAll(); };
+  [['pickA','first name…',function(v){pairA=v;}],['pickB','second name…',function(v){pairB=v;}]]
+    .forEach(function(cfg){
+      var el=document.getElementById(cfg[0]); el.innerHTML='<option value="">'+cfg[1]+'</option>';
+      Object.keys(NAMES).sort(function(a,b){return NAMES[a].localeCompare(NAMES[b]);})
+        .forEach(function(id){ var o=document.createElement('option'); o.value=id;
+          o.textContent=NAMES[id]+(id[0]==='C'?' (main)':''); el.appendChild(o); });
+      el.onchange=function(){ cfg[2](el.value); selId=null; renderAll(); };
+    });
+  document.getElementById('pickA').value=pairA;
+  document.getElementById('pickB').value=pairB;
 }
 
 /* ================= shared event row ================= */
@@ -810,16 +860,42 @@ function renderPersonView(){
   if(!who){ body.innerHTML='<div class="empty">Pick someone on the left — mains, ambients, anyone the camera has ever named.</div>'; return; }
   var evs=charEvents(who);
   var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  /* 'seen with' — top co-occurring ids across this trail, counted from
+     who/mentions only; chips open the pair view. Co-presence on public
+     rows, never a claim about the relationship. */
+  var co={};
+  evs.forEach(function(e){
+    [e.who].concat(e.mentions||[]).forEach(function(id){
+      if (id && id!==who && NAMES[id]) co[id]=(co[id]||0)+1;
+    });
+  });
+  var topCo=Object.keys(co).sort(function(a,b){return co[b]-co[a] || NAMES[a].localeCompare(NAMES[b]);}).slice(0,3);
   body.innerHTML='<div class="subhead"><h3>'+esc(NAMES[who]||who)+'</h3>'+
     (ROLES[who]?'<span class="meta">'+esc(ROLES[who])+'</span>':'')+
     '<span class="pubonly">public whereabouts only</span>'+
     '<span class="meta">'+evs.length+' sightings · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    (evs.length?'<div class="chiprow" id="jumpchips">'+
+      '<span class="chip" id="firstEv" title="the oldest row on this trail">first on record — '+fmt(evs[0].t)+' · '+daySepLabel(dateOfId(evs[0].id)||'')+'</span>'+
+      '<span class="chip" id="lastEv" title="the newest row on this trail">latest — '+fmt(evs[evs.length-1].t)+' · '+daySepLabel(dateOfId(evs[evs.length-1].id)||'')+'</span>'+
+      '</div>':'')+
+    (topCo.length?'<div class="chiprow" id="cochips"><span class="meta" style="font-size:11px;color:var(--dim);align-self:center">seen with — public rows only:</span></div>':'')+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this trail…" value="'+esc(q)+'"></div>'+
     renderTrailDays(evs.filter(function(e){
       if(!q) return true;
       return (e.text+' '+(VENUES[e.venue]||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  var fe=document.getElementById('firstEv'), le=document.getElementById('lastEv');
+  if (fe) fe.onclick=function(){ selId=evs[0].id; day=dateOfId(evs[0].id)||day; renderDet(); setHash(); toast('first on record'); };
+  if (le) le.onclick=function(){ selId=evs[evs.length-1].id; day=dateOfId(evs[evs.length-1].id)||day; renderDet(); setHash(); toast('latest on record'); };
+  var cc=document.getElementById('cochips');
+  if (cc) topCo.forEach(function(id){
+    var s=document.createElement('span'); s.className='chip';
+    s.innerHTML=esc(NAMES[id])+' <span class="n">×'+co[id]+'</span>';
+    s.title='open the shared public record';
+    s.onclick=function(){ pairA=who; pairB=id; view='pair'; selId=null; renderAll(); };
+    cc.appendChild(s);
+  });
   mountTrailDays();
 }
 function renderVenueView(){
@@ -827,15 +903,103 @@ function renderVenueView(){
   if(!venue){ body.innerHTML='<div class="empty">Pick a place on the left — any corner the wire has ever written about.</div>'; return; }
   var evs=venueEvents(venue);
   var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  /* venue rhythm — a 24-hour histogram of this corner's tags across the
+     whole record. Counted, not a promise: the bars say where the wire
+     happened to look, not where the corner will be. */
+  var rh=new Array(24).fill(0); evs.forEach(function(e){rh[Math.floor(e.t/60)]++;});
+  var rmax=Math.max.apply(null,rh.concat([1]));
   body.innerHTML='<div class="subhead"><h3>'+esc(VENUES[venue]||venue)+'</h3>'+
     '<span class="meta">'+evs.length+' entries · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    (evs.length?'<h2 style="margin:10px 0 0">the corner’s rhythm <span class="free">— counted across the whole record, not a promise</span></h2>'+
+    '<div class="hours" id="rhythm"></div><div class="hrlabels" id="rhlabels"></div>':'')+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this record…" value="'+esc(q)+'"></div>'+
     renderTrailDays(evs.filter(function(e){
       if(!q) return true;
       return (e.text+' '+(NAMES[e.who]||e.who||'')+(e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  var rb=document.getElementById('rhythm'), rl=document.getElementById('rhlabels');
+  if (rb) for(var h=0;h<24;h++){
+    var s=document.createElement('div');
+    s.className='hr'; s.style.height=Math.max(3,rh[h]/rmax*32)+'px'; s.style.cursor='default';
+    s.title=('0'+h).slice(-2)+':00 — '+rh[h]+' across the record';
+    rb.appendChild(s);
+    var l=document.createElement('span'); l.textContent=('0'+h).slice(-2); rl.appendChild(l);
+  }
   mountTrailDays();
+}
+
+/* ================= VIEW: seen together =================
+   Two names, one public record. Co-presence is structural — an event
+   counts only when both ids appear in who/mentions. The view asserts
+   nothing about the relationship; it is the same rows, arranged. */
+function evHas(e,id){ return e.who===id || (e.mentions&&e.mentions.indexOf(id)>=0); }
+function renderPairView(){
+  var body=document.getElementById('viewBody');
+  if (!pairA || !pairB){
+    body.innerHTML='<div class="empty">Pick two names on the left — the trail is every event '+
+      'where both appear in the public record. Co-presence only; the archive doesn\u2019t '+
+      'guess at relationships.</div>'; return;
+  }
+  if (pairA===pairB){
+    body.innerHTML='<div class="empty">Same name twice — a person\u2019s own trail lives under by person.</div>'; return;
+  }
+  var evs=allEvents().filter(function(e){return evHas(e,pairA)&&evHas(e,pairB);});
+  var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  body.innerHTML='<div class="subhead"><h3>'+esc(NAMES[pairA])+' &amp; '+esc(NAMES[pairB])+'</h3>'+
+    '<span class="pubonly">public co-presence — the wire\u2019s own rows, never a claim about the relationship</span>'+
+    '<span class="meta">'+evs.length+' shared event'+(evs.length===1?'':'s')+' · '+daysActive+' day'+(daysActive===1?'':'s')+'</span></div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search the shared record…" value="'+esc(q)+'"></div>'+
+    renderTrailDays(evs.filter(function(e){
+      if(!q) return true;
+      return (e.text+' '+(VENUES[e.venue]||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
+    }));
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  mountTrailDays();
+}
+
+/* ================= VIEW: your shelf =================
+   Pins kept in this browser's localStorage — reader-side state, not
+   world state. Copy-shelf exports a transcript that carries the source
+   badge, same honesty rule as the day transcript. */
+function renderShelfView(){
+  var body=document.getElementById('viewBody');
+  var items=allEvents().filter(function(e){return shelf.has(e.id);});
+  var orphans=shelf.size-items.length;
+  var html='<div class="dayhead"><h3>Your shelf</h3>'+
+    '<span class="meta">the shelf lives in this browser — the archive doesn\u2019t remember you; nothing is sent anywhere</span></div>'+
+    '<div class="ledsum">'+
+    '<div class="rs"><b>'+items.length+'</b><span>pinned records</span></div>'+
+    (orphans?'<div class="rs"><b>'+orphans+'</b><span>pinned id'+(orphans===1?'':'s')+' not in this archive source</span></div>':'')+
+    '</div>'+
+    '<div class="controls"><button class="chip" id="shelftx" style="cursor:pointer" title="the shelf as plain text — badge line included">copy shelf</button>'+
+    '<button class="chip" id="shelfclr" style="cursor:pointer" title="remove every pin on this device">clear the shelf</button></div>'+
+    (items.length?renderTrailDays(items):
+      '<div class="empty">Nothing pinned — \u2018keep on the shelf\u2019 on any record puts it here. '+
+      'The shelf is this browser\u2019s, not the world\u2019s.</div>');
+  body.innerHTML=html;
+  document.getElementById('shelftx').onclick=function(){ copyShelf(items); };
+  document.getElementById('shelfclr').onclick=function(){
+    if(!shelf.size){ toast('the shelf is already empty'); return; }
+    shelf.clear(); shelfSave(); renderAll(); toast('shelf cleared — nothing was ever sent');
+  };
+  mountTrailDays();
+}
+function copyShelf(items){
+  var lines=['real world — the archive — your shelf ('+(LIVE?'live archive':'demo archive')+')',
+    'pins kept on this device only — spectator-layer record; homes are walls'];
+  items.forEach(function(e){
+    var d=dateOfId(e.id)||TODAY;
+    var txt=e.text;
+    if (e.kind==='rumor') txt='[unconfirmed] '+txt;
+    if (e.status) txt=txt+' ['+e.status+']';
+    lines.push(d+' '+fmt(e.t)+'  '+padK(e.kind)+'  '+txt+'  <'+e.id+'>');
+  });
+  var txt=lines.join('\n');
+  var done=function(){ toast('shelf copied — '+items.length+' line'+(items.length===1?'':'s')); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done,function(){ legacyCopy(txt); done(); });
+  } else { legacyCopy(txt); done(); }
 }
 
 /* ================= VIEW: the week =================
@@ -1131,7 +1295,8 @@ function renderDet(){
   }
   html+='<div class="plink"><input readonly value="archive.html#e='+e.id+'" id="plinkIn">'+
     '<button id="plinkBtn">copy link</button>'+
-    '<button class="daylink" id="daylink">open day</button></div>'+
+    '<button class="daylink" id="daylink">open day</button>'+
+    '<button class="daylink" id="shelfBtn">'+(shelf.has(e.id)?'on the shelf — take off':'keep on the shelf')+'</button></div>'+
     '<div class="meta" style="margin-top:8px">id <b>'+esc(e.id)+'</b> — stable; this event sat on the wire under the same id.</div>';
   det.innerHTML=html;
   document.getElementById('plinkBtn').onclick=function(){
@@ -1141,6 +1306,7 @@ function renderDet(){
     }
   };
   document.getElementById('daylink').onclick=function(){ view='day'; day=d; selHour=-1; kindF='all'; renderAll(); };
+  document.getElementById('shelfBtn').onclick=function(){ shelfToggle(e.id); renderDet(); };
   det.querySelectorAll('.trail li[data-tid]').forEach(function(li){
     li.onclick=function(){ selId=li.dataset.tid; var ff=findEvent(selId); if(ff&&ff.day)day=ff.day; renderDet(); renderView(); setHash(); };
   });
@@ -1171,6 +1337,8 @@ function renderView(){
   else if (view==='threads') renderThreadsView();
   else if (view==='word') renderWordView();
   else if (view==='ledger') renderLedgerView();
+  else if (view==='pair') renderPairView();
+  else if (view==='shelf') renderShelfView();
 }
 function renderAll(){
   renderViewChips(); renderDayList(); renderView(); renderDet(); setHash();
