@@ -42,6 +42,9 @@
   (0 expected; nonzero means a bug, and we'd say so here).
 - Denied-request text on the feed: **0** — by construction; the audit
   greps for it.
+- Citeable evidence: every request lifecycle has a `#r=<req>` permalink
+  (requested → review → outcome). Counts above can be spot-checked against
+  the public wire; we link the aggregate classes, never a named player.
 
 ## What we're changing
 

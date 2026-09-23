@@ -32,6 +32,23 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
 > Admin action: request [#ID] was revoked by the owner. Affected players were
 > compensated [X] credits. This action is public like every intervention.
 
+**Appeal decided — upheld:**
+> Your appeal on request [#ID] was reviewed by a different reviewer and the
+> denial stands — that's final for this request text. A reworded request is
+> always welcome; identical refilings route to the appeal lane, not a new
+> appeal.
+
+**Appeal decided — reversed:**
+> Your appeal on request [#ID] was upheld — the denial is lifted and the
+> request is back in human review at its original quote. You'll only be
+> charged if it's approved; the original refund already landed. Nothing
+> about this appears on the public feed beyond the usual aggregate count.
+
+**Hire name rejected (create form, `gsHireNameCheck`):**
+> That name isn't available — hire names can't reuse a cast member's, a
+> neighbor's, or a real person's name. Pick a different one and the
+> application goes through normally; denied applications are never billed.
+
 ## B. Community-space responses (Discord / comments)
 
 **Warn:**

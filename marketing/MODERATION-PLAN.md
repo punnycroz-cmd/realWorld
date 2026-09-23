@@ -1,9 +1,11 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v43 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v58 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
-display filter + world-v18/v19 surfaces — see §2.3.)
+display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
+world-v32's shipped private appeal path, world-v33 wire request
+permalinks, and game-v8's shipped hire-name check — see §2.0, §5, §9.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -95,6 +97,32 @@ Delivered since v28 (world-v18, world-v19, game-v6):
   reconciles `GS_WIRE_SUP` suppression counters. `gsAdminRevoke` now logs
   `compensated_cr` — admin compensation is ledgered, not promised.
 
+Delivered since v43 (world-v32, world-v33, game-v8):
+
+- **`world/request.html` v3 + `requests.json.appeals` (world-v32)** — the
+  private appeal path is no longer plan text, it's in the player-facing
+  denial flow verbatim from `moderation.json`: 72 h window, different
+  reviewer, `legal-backstop`/`appeal-resubmit` not appealable, aggregate-only
+  feed visibility, and — the v58 wording fix in §5 — a reversal re-enters
+  human review at the original quote with the charge re-applying **only on
+  approval** (the deny refund already landed). The same v3 wallet sheet
+  ships the launch pricing contract `pricing.html` already quotes.
+- **`world/wire.html` v3 (world-v33)** — `#r=<req>` request permalinks: a
+  whole request lifecycle trail (requested → in_review → approved →
+  running → resolved/refunded/not approved) is now one citeable link, not
+  just per-event `#e=` links. `attrs.mentions[]`/`sponsors[]` render as
+  pinnable chips — attribution (including co-sponsors on weather requests,
+  cap 4, all named) is a view-layer fact. Moderation relevance: every
+  denial and every sponsor is deep-linkable, which is what makes §6a
+  transparency-report lines linkable evidence instead of counts.
+- **`gsHireNameCheck(name)` (game-v8, sf/game-systems)** — the naming lane's
+  front gate is shipped code for the hire/create flows: rejects cast,
+  ambient, and role-word names plus born-hire collisions before a string can
+  reach the world. Hire requests ride `billOnApproval` — denied applications
+  never bill, honoring `moderation.json` verbatim. Free-text naming strings
+  inside ordinary requests still route through screening (PENDING plumbing,
+  §2.2/§9).
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -174,8 +202,13 @@ Still PENDING (game-systems plumbing at merge): the live queue data model,
 classifier wiring into `41_game_systems_requests.js`, SLA timers, and
 `mod_decision` ledger writes. Delivered since v28: the feed display filter
 (§2.3) and admin-compensation ledgering (`compensated_cr` on
-`gsAdminRevoke`, game-v6). The console demo defines expected review
-behavior; `RWScreen` verdicts are the reference outputs.
+`gsAdminRevoke`, game-v6); since v43: the player-facing appeal path
+(world-v32), request permalinks + mention/sponsor attribution chips
+(world-v33), and the hire-name gate `gsHireNameCheck` (game-v8 — naming
+lane delivered for hire/create names; free-text naming strings inside
+ordinary requests still await classifier plumbing). The console demo
+defines expected review behavior; `RWScreen` verdicts are the reference
+outputs.
 
 **Honest-SLA rule:** copy may say "exclusive requests are reviewed by a
 human before they run." Copy must never promise a review *time* — a queue
@@ -329,7 +362,8 @@ not policy discretion.
 |---|---|---|---|
 | Grief request wave | Review queue fills with same-target requests | Cooldowns engage automatically; deny with `harm-targeting`/`repeat-pattern`, full refunds; account flags accumulate; note on feed is public | No — ladder runs itself |
 | Rent/eviction grief wave | Queue fills with "raise her rent" style asks | All die on `admin-domain` (deny, refund, flag +1); recap may note the attempt class in aggregate | No |
-| Naming-lane abuse | Offensive hire name / plaque string | Naming lane deny via `identity-fraud`/`legal-backstop` as applicable; string never reaches the world | No |
+| Naming-lane abuse | Offensive hire name / plaque string | `gsHireNameCheck` blocks cast/ambient/role-word names at the create form (game-v8); screened strings deny via `identity-fraud`/`legal-backstop` as applicable; string never reaches the world | No |
+| Appeal-cycle abuse | Denied requester refiles the same text to farm new appeals | Re-submissions route to the `appeal-resubmit` lane — different reviewer, *not* a fresh appeal; `repeat-pattern` engages at denied_30d ≥ 2; flags accumulate per §2.4a | No |
 | Credit scam in Discord | "selling credits" posts | Instant ban + pinned PSA reminder credits are non-transferable | No |
 | Doxxing attempt (mapping fiction → real door) | Member posts real-address guesses | Instant ban, delete content, note in #mod-log | Owner informed after |
 | CSAM/illegal request text | Classifier flags legal-backstop | Escalate-legal: kill pre-run or mid-flight, account flag +3, owner notified, ledger legal-deny; public wording identical to a normal deny; owner decides legal reporting | Yes — immediately |
@@ -349,8 +383,11 @@ not policy discretion.
 - Admin override of an active request → affected players compensated (§3).
 - **Appeal window 72 h**, routed to a **different reviewer** — the console
   shows the original reviewer id on the appeal card so the rule is checkable.
-  Overturned requests re-enter the pipeline post-review at no re-charge; a
-  second denial is final for that request text. Not appealable:
+  Canonical on_reversal (`requests.json.appeals`, world-v32): the denial is
+  lifted and the request **re-enters human review at its original quote —
+  the charge re-applies only on approval** (the deny refund already landed,
+  so a reversal is never a surprise second charge). A second denial is final
+  for that request text. Not appealable:
   `legal-backstop`, `appeal-resubmit` (a resubmitted denial goes through the
   appeal lane, not a new appeal).
 - A denied requester may refile with different text — the feed will show both
@@ -396,6 +433,8 @@ the counters.
 | "The 8 main characters can't be possessed by anyone, including us" | "AI characters are supervised" — they aren't, by design |
 | "Request text is filtered before appearing on the public feed" | Naming the filter option until owner confirms the shipped default (§2.3) |
 | "Denied request text never appears on the public feed — enforced in code and audited" | Implying approved requests are pre-scripted — the AI renders them in character |
+| "Hire names are checked before they're accepted — you can't name a character after a cast member, a neighbor, or a real person" | "Names are moderated by hand" — the create-form check is code (`gsHireNameCheck`), not a reviewer |
+| "Every request — and every denial — has a permalink you can link" | "Moderation is fully transparent" — individual appeals and flags stay private by design |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -428,6 +467,12 @@ pages + this table update in the same commit.
 - ~~Denial reason codes on feed entries~~ — DELIVERED: `feed.json` carries
   `reason_code`; public wording is the neutral "request not approved".
 - Contact address for appeals — part of G6 account registration.
-- Naming-lane enforcement for `world/creation.json` hire names (500 cr hire
-  flow from world-v7 routes through the naming lane — confirm game plumbing
-  wires it at merge).
+- ~~Naming-lane enforcement for `world/creation.json` hire names~~ —
+  PARTIALLY DELIVERED: `gsHireNameCheck` (game-v8) gates hire/create names
+  against cast + ambient + role words + born hires, and `billOnApproval`
+  means denied applications never bill. Remaining: free-text naming strings
+  inside ordinary requests still need `RWScreen` wiring at merge.
+- Wire `#r=` request permalinks as transparency-report evidence — DELIVERED
+  by world-v33; the day-30 report template may now link whole request
+  lifecycles, not just events (§6a; template update still owed at first
+  issue).
