@@ -1221,6 +1221,63 @@ function sfRowBounds(){
   return SF_ROWB;
 }
 
+/* ---------------- v29: street ground-pass infrastructure ---------------
+   The ground pass walks ~18k visible cells per frame; everything below
+   exists to keep that loop allocation-free and projection-lean. */
+const SF_CB = { f: new Float64Array(3 * 24576), t: new Uint8Array(24576),
+                i: new Uint32Array(24576) };  // flat cell buffer + sort index
+function sfCellGrow(){
+  const n = SF_CB.t.length * 2;
+  const f = new Float64Array(3 * n), t = new Uint8Array(n),
+        ix = new Uint32Array(n);
+  f.set(SF_CB.f); t.set(SF_CB.t); ix.set(SF_CB.i);
+  SF_CB.f = f; SF_CB.t = t; SF_CB.i = ix;
+}
+const SF_QP = new Float64Array(16);   // projected quad scratch (z0 + slab top)
+const SF_FILLS = new Map();           // pooled style -> flat coord buckets
+const SF_POST = [];                   // pooled sparse-shape list
+/* static per-cell neighbor mask — SF_GRID never changes after world gen,
+   so the four-neighbor tile test every cell used to pay for per frame
+   becomes one Uint16 lookup. Per direction (n,s,w,e at bits d*4..d*4+3):
+   bit0 neighbor==road(10), bit1 ==sidewalk(11), bit2 ==crosswalk(16),
+   bit3 out-of-bounds(-1). */
+let SF_NB = null, SF_NB_G = null;
+function sfNbMasks(){
+  if(SF_NB && SF_NB_G === SF_GRID) return SF_NB;
+  SF_NB_G = SF_GRID;
+  const gw = SF_M.gw, gh = SF_M.gh;
+  SF_NB = new Uint16Array(gw * gh);
+  for(let y = 0; y < gh; y++){
+    for(let x = 0; x < gw; x++){
+      let m = 0;
+      for(let d = 0; d < 4; d++){
+        const tt = sfTile(x + (d === 2 ? -1 : d === 3 ? 1 : 0),
+                          y + (d === 0 ? -1 : d === 1 ? 1 : 0));
+        if(tt === 10) m |= 1 << (d * 4);
+        else if(tt === 11) m |= 2 << (d * 4);
+        else if(tt === 16) m |= 4 << (d * 4);
+        else if(tt < 0) m |= 8 << (d * 4);
+      }
+      SF_NB[y * gw + x] = m;
+    }
+  }
+  return SF_NB;
+}
+/* numeric-keyed copy of SF_GROUND_OVR ("wx,wy" strings -> cell index) so
+   the emit loop does a Map<int> get instead of building a string per cell.
+   Rebuilt only when the override set changes size. */
+let SF_OVRN = null, SF_OVRN_SZ = -1, SF_OVRN_G = null;
+function sfOvrNums(){
+  if(SF_OVRN && SF_OVRN_SZ === SF_GROUND_OVR.size && SF_OVRN_G === SF_GRID)
+    return SF_OVRN;
+  SF_OVRN = new Map(); SF_OVRN_SZ = SF_GROUND_OVR.size; SF_OVRN_G = SF_GRID;
+  for(const [k, v] of SF_GROUND_OVR){
+    const c = k.indexOf(',');
+    SF_OVRN.set(+k.slice(c + 1) * SF_M.gw + (+k.slice(0, c)), v);
+  }
+  return SF_OVRN;
+}
+
 function sfTerrainTile(wx, wy, tt){
   const T = PA.sf;
   switch(tt){
@@ -3081,11 +3138,20 @@ function sfRenderStreet(cw, ch){
   // ground tiles far -> near
   const COLS = { 10: '#50555e', 11: '#bdb7ac', 12: '#7a7268', 13: '#6cae52',
                  14: '#bdb7ac', 15: '#d0b78e', 16: '#8a8f98', 0: '#a8977a' };
-  const cells = [];
-  // v10: walk only the rows/columns the view cone can reach. Per-row
-  // nonzero spans plus an analytic clamp of the forward range replace a
-  // 771x813 blind scan (~627k iterations) with the visible wedge —
-  // identical cell set, identical draw order.
+  /* v29: the ground pass used to allocate ~18k small arrays per frame and
+     re-project shared edges up to 5x (base quad + 4 risers) — the single
+     biggest JS+GC cost in street view. Now: persistent typed cell buffers
+     sorted by a reusable index, ONE z=0 projection per corner (slab-top
+     corners derived arithmetically — pr() is linear in z), riser faces
+     reusing those same points (zero extra projections), a precomputed
+     static neighbor bitmask replacing ~12 sfTile calls per cell, pooled
+     fill buckets/post list (no per-frame Map/array churn), per-frame
+     quantized style tables (no per-cell string building), and a far-LOD
+     tier: past 130m a cell is subpixel detail under >25% haze, so haze is
+     composited INTO the base color and emitted as a single quad with no
+     overlay stack. Physics unchanged — same sun, same haze law, same
+     curb geometry; only the draw calls merged. */
+  let cb = SF_CB.f, ct = SF_CB.t, ord = SF_CB.i, nc = 0;
   const rows = sfRowBounds();
   for(let gy = 0; gy < SF_M.gh; gy++){
     const rb = rows[gy];
@@ -3103,8 +3169,6 @@ function sfRenderStreet(cw, ch){
       if(lo > hi) continue;
     }
     // lateral cone: |side| < fwd*1.3 + 30 is linear too — solve for gx.
-    // side = sa*gx + sb; the two half-planes are side <= C and -side <= C
-    // with C = 1.3*fwd + 30, i.e. (sa ∓ 1.3*fa)*gx <= 1.3*fb + 30 ∓ sb.
     const sa = cm * DY, sb = -ddy * DX - camX * DY;
     for(const [ka, kb] of [[sa - 1.3 * fa, 1.3 * fb + 30 - sb],
                            [-sa - 1.3 * fa, 1.3 * fb + 30 + sb]]){
@@ -3122,93 +3186,128 @@ function sfRenderStreet(cw, ch){
       const fwd = ddx * DX + ddy * DY;
       if(fwd < 0.5 || fwd > 240) continue;
       if(Math.abs(ddx * DY - ddy * DX) > fwd * 1.3 + 30) continue;
-      cells.push([wxm, wym, fwd, t]);
+      if(nc >= ct.length){ sfCellGrow(); cb = SF_CB.f; ct = SF_CB.t; ord = SF_CB.i; }
+      cb[nc * 3] = gx; cb[nc * 3 + 1] = gy; cb[nc * 3 + 2] = fwd;
+      ct[nc] = t; ord[nc] = nc; nc++;
     }
   }
-  cells.sort((a, b) => b[2] - a[2]);
-  /* v11: batched ground fills. The old pass issued up to 4 beginPath/fill
-     pairs per cell (base + haze + cloud shadow + wet film) — thousands of
-     canvas state changes per frame. Ground quads tile the plane without
-     overlapping, so they are bucketed by fill style into flat coordinate
-     arrays and flushed as paths of ~48 quads each (measured sweet spot:
-     big enough to amortize fill dispatch, small enough for fast
-     rasterization). Overlay alphas are quantized to 1/24 — an invisible
-     step — so they share buckets. Sparse extras (zebra hints, puddle
-     glints) keep their own shapes in a post list. */
-  const fills = new Map();   // style -> [x1,y1,x2,y2,x3,y3,x4,y4, ...]
-  const post = [];           // [0 zebra|1 puddle, p1,p2,p3,p4, wv?]
+  ord.subarray(0, nc).sort((a, b) => cb[b * 3 + 2] - cb[a * 3 + 2]);
+  /* v11: batched ground fills — bucketed by style, flushed ~48 quads per
+     path. v29: buckets + post list are pooled across frames. */
+  const fills = SF_FILLS, post = SF_POST; post.length = 0;
   const shBlobs = night ? null : sfShadowBlobs();
-  const qEmit = (style, p1, p2, p3, p4) => {
-    let a = fills.get(style);
-    if(!a){ a = []; fills.set(style, a); }
-    a.push(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+  if(shBlobs) for(const sc of shBlobs){
+    const r2 = 2 * Math.sqrt(sc[2]);   // bbox for cheap cloud-shadow reject
+    sc[4] = sc[0] - r2; sc[5] = sc[0] + r2; sc[6] = sc[1] - r2; sc[7] = sc[1] + r2;
+  }
+  // per-frame style tables — one string per quantized level, not per cell
+  const hzSt = [], shSt = [];
+  for(let q = 0; q <= 24; q++) hzSt[q] = `rgba(${SF_WX.hazeRGB},${q / 24})`;
+  for(let q = 0; q <= 8; q++) shSt[q] = `rgba(28,36,60,${q / 24})`;
+  const hzRGBv = SF_WX.hazeRGB.split(',');
+  const hzR = +hzRGBv[0], hzG = +hzRGBv[1], hzB = +hzRGBv[2];
+  const wetV = SF_WX.wet, wetSt = `rgba(26,34,52,${wetV * 0.2})`;
+  const farSt = new Map();   // tile*32+hazeStep -> composited rgb() far LOD
+  const farCol = (t2, qb) => {
+    const k = t2 * 32 + qb; let s = farSt.get(k);
+    if(s === undefined){
+      const cc = sfHX(COLS[t2] || '#a8977a'), a = qb / 24;
+      s = `rgb(${Math.round(cc.r + (hzR - cc.r) * a)},` +
+          `${Math.round(cc.g + (hzG - cc.g) * a)},` +
+          `${Math.round(cc.b + (hzB - cc.b) * a)})`;
+      farSt.set(k, s);
+    }
+    return s;
   };
-  for(const [wxm, wym, cfwd, t] of cells){
-    const c = cm;
-    // v28: sidewalk cells are a raised slab — corners project at curb
-    // height so the walkway physically steps up from the roadway
+  const curbC = [sfCurbFaceCol(0, -1), sfCurbFaceCol(0, 1),
+                 sfCurbFaceCol(-1, 0), sfCurbFaceCol(1, 0)]; // n s w e
+  const nb = sfNbMasks(), ovrN = sfOvrNums();
+  const P = SF_QP;           // 4 z=0 corners (0-7) + 4 slab-top (8-15)
+  const qE = (style, a, bq, cq, dq) => {
+    let s = fills.get(style);
+    if(!s){ s = []; fills.set(style, s); }
+    s.push(P[a], P[a + 1], P[bq], P[bq + 1], P[cq], P[cq + 1], P[dq], P[dq + 1]);
+  };
+  const qP = (style, p1, p2, p3, p4) => {
+    let s = fills.get(style);
+    if(!s){ s = []; fills.set(style, s); }
+    s.push(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
+  };
+  const FAR_D = 130;
+  for(let oi = 0; oi < nc; oi++){
+    const bi = ord[oi], c = cm;
+    const gx = cb[bi * 3], gy = cb[bi * 3 + 1], cfwd = cb[bi * 3 + 2], t = ct[bi];
+    const wxm = gx * c, wym = gy * c;
     const gz = (t === 11) ? SF_CURB_H : 0;
-    const p1 = pr(wxm, wym, gz), p2 = pr(wxm + c, wym, gz),
-          p3 = pr(wxm + c, wym + c, gz), p4 = pr(wxm, wym + c, gz);
+    const p1 = pr(wxm, wym, 0), p2 = pr(wxm + c, wym, 0),
+          p3 = pr(wxm + c, wym + c, 0), p4 = pr(wxm, wym + c, 0);
     if(!p1 || !p2 || !p3 || !p4) continue;
-    // v17: decal cells (park courts/playground/worn hill) override the
-    // flat tile color so the street camera reads the same surfaces the
-    // baked atlas shows from above
-    const gx = Math.round(wxm / cm), gy = Math.round(wym / cm);
-    qEmit(SF_GROUND_OVR.get(gx + ',' + gy) || COLS[t] || '#a8977a',
-          p1, p2, p3, p4);
-    // v17 grounding detail on the flat quad grid:
-    //  - curb reveal: bright curb top on the sidewalk edge + gutter band
-    //    on the roadway beside it (the 15cm step that grounds the street)
-    //  - sidewalk expansion joints: thin saw-cut lines across each cell
+    P[0] = p1[0]; P[1] = p1[1]; P[2] = p2[0]; P[3] = p2[1];
+    P[4] = p3[0]; P[5] = p3[1]; P[6] = p4[0]; P[7] = p4[1];
+    // slab top: pr() is linear in z — top corner = z0 corner lifted by gz*F/fwd
+    let T0 = 0;
+    if(gz){
+      T0 = 8;
+      P[8] = P[0];  P[9]  = P[1] - gz * F / p1[2];
+      P[10] = P[2]; P[11] = P[3] - gz * F / p2[2];
+      P[12] = P[4]; P[13] = P[5] - gz * F / p3[2];
+      P[14] = P[6]; P[15] = P[7] - gz * F / p4[2];
+    }
+    const ovr = ovrN.get(gy * SF_M.gw + gx);
+    const qb = Math.round(sfHazeA(cfwd) * 24);
+    if(cfwd > FAR_D && ovr === undefined){
+      // far LOD: haze folded into the tile color, one quad total
+      qE(farCol(t, qb), T0, T0 + 2, T0 + 4, T0 + 6);
+      continue;
+    }
+    qE(ovr !== undefined ? ovr : (COLS[t] || '#a8977a'), T0, T0 + 2, T0 + 4, T0 + 6);
+    const nm = nb[gy * SF_M.gw + gx];   // 4 bits/dir (n,s,w,e): 10|11|16|oob
     const subQ = (x0, y0, x1, y1, style, z) => {
       const q1 = pr(wxm + x0, wym + y0, z), q2 = pr(wxm + x1, wym + y0, z),
             q3 = pr(wxm + x1, wym + y1, z), q4 = pr(wxm + x0, wym + y1, z);
-      if(q1 && q2 && q3 && q4) qEmit(style, q1, q2, q3, q4);
+      if(q1 && q2 && q3 && q4) qP(style, q1, q2, q3, q4);
     };
     if(t === 11){
-      if(cfwd < 90){
-        subQ(0, cm / 2 - 0.03, cm, cm / 2 + 0.03, 'rgba(40,36,28,0.30)', gz);
-        subQ(cm / 2 - 0.03, 0, cm / 2 + 0.03, cm, 'rgba(40,36,28,0.30)', gz);
-      }
-      if(sfTile(gx, gy - 1) === 10) subQ(0, 0, cm, 0.16, 'rgba(226,222,210,0.55)', gz);
-      if(sfTile(gx, gy + 1) === 10) subQ(0, cm - 0.16, cm, cm, 'rgba(226,222,210,0.55)', gz);
-      if(sfTile(gx - 1, gy) === 10) subQ(0, 0, 0.16, cm, 'rgba(226,222,210,0.55)', gz);
-      if(sfTile(gx + 1, gy) === 10) subQ(cm - 0.16, 0, cm, cm, 'rgba(226,222,210,0.55)', gz);
-      // v28: the curb is geometry — a riser face closes every edge that
-      // meets a lower surface (roadway, lot line, dirt), lit by the same
-      // sun as the walls; where a crosswalk touches, the riser drops to a
-      // sloped apron ramp so wheelchairs and the eye cross flush
-      const riser = (e) => {
-        const nt = e === 'n' ? sfTile(gx, gy - 1) : e === 's' ? sfTile(gx, gy + 1)
-                 : e === 'w' ? sfTile(gx - 1, gy) : sfTile(gx + 1, gy);
-        if(nt === 11 || nt < 0) return;
-        if(nt === 16){
-          const rp = e === 'n' ? [[0, 0, gz], [c, 0, gz], [c, -0.7, 0], [0, -0.7, 0]]
-                   : e === 's' ? [[0, c, gz], [c, c, gz], [c, c + 0.7, 0], [0, c + 0.7, 0]]
-                   : e === 'w' ? [[0, 0, gz], [0, c, gz], [-0.7, c, 0], [-0.7, 0, 0]]
-                   :             [[c, 0, gz], [c, c, gz], [c + 0.7, c, 0], [c + 0.7, 0, 0]];
-          const pts = rp.map(([dx, dy, z]) => pr(wxm + dx, wym + dy, z));
-          if(pts.every(Boolean)) post.push([2, ...pts]);
-          return;
+      if(cfwd < FAR_D){
+        if(cfwd < 90){
+          subQ(0, cm / 2 - 0.03, cm, cm / 2 + 0.03, 'rgba(40,36,28,0.30)', gz);
+          subQ(cm / 2 - 0.03, 0, cm / 2 + 0.03, cm, 'rgba(40,36,28,0.30)', gz);
         }
-        const [ax, ay, bx, by, nx, ny] =
-            e === 'n' ? [0, 0, c, 0, 0, -1]
-          : e === 's' ? [0, c, c, c, 0, 1]
-          : e === 'w' ? [0, 0, 0, c, -1, 0]
-          :             [c, 0, c, c, 1, 0];
-        const r1 = pr(wxm + ax, wym + ay, 0), r2 = pr(wxm + bx, wym + by, 0),
-              r3 = pr(wxm + bx, wym + by, gz), r4 = pr(wxm + ax, wym + ay, gz);
-        if(r1 && r2 && r3 && r4) qEmit(sfCurbFaceCol(nx, ny), r1, r2, r3, r4);
-      };
-      riser('n'); riser('s'); riser('w'); riser('e');
+        const rv = 'rgba(226,222,210,0.55)';
+        if(nm & (1 << 0))  subQ(0, 0, cm, 0.16, rv, gz);
+        if(nm & (1 << 4))  subQ(0, cm - 0.16, cm, cm, rv, gz);
+        if(nm & (1 << 8))  subQ(0, 0, 0.16, cm, rv, gz);
+        if(nm & (1 << 12)) subQ(cm - 0.16, 0, cm, cm, rv, gz);
+        // riser faces reuse the base quad's projected edges — no new pr()
+        for(let d = 0; d < 4; d++){
+          const sh = d * 4;
+          if(nm & (10 << sh)) continue;            // sidewalk or void neighbor
+          if(nm & (4 << sh)){                      // crosswalk -> sloped apron
+            const rp = d === 0 ? [[0, 0, gz], [c, 0, gz], [c, -0.7, 0], [0, -0.7, 0]]
+                     : d === 1 ? [[0, c, gz], [c, c, gz], [c, c + 0.7, 0], [0, c + 0.7, 0]]
+                     : d === 2 ? [[0, 0, gz], [0, c, gz], [-0.7, c, 0], [-0.7, 0, 0]]
+                     :           [[c, 0, gz], [c, c, gz], [c + 0.7, c, 0], [c + 0.7, 0, 0]];
+            const pts = rp.map(([dx, dy, z]) => pr(wxm + dx, wym + dy, z));
+            if(pts.every(Boolean))
+              post.push([2, pts[0][0], pts[0][1], pts[1][0], pts[1][1],
+                            pts[2][0], pts[2][1], pts[3][0], pts[3][1]]);
+            continue;
+          }
+          // quad(z0 edge -> slab-top edge), order n,s,w,e
+          const [a, bq, cq, dq] = d === 0 ? [0, 2, 10, 8]
+                                : d === 1 ? [6, 4, 12, 14]
+                                : d === 2 ? [0, 6, 14, 8]
+                                :           [2, 4, 12, 10];
+          qE(curbC[d], a, bq, cq, dq);
+        }
+      }
     } else if(t === 10 && cfwd < 90){
-      if(sfTile(gx, gy - 1) === 11) subQ(0, 0, cm, 0.5, 'rgba(16,18,24,0.30)', 0);
-      if(sfTile(gx, gy + 1) === 11) subQ(0, cm - 0.5, cm, cm, 'rgba(16,18,24,0.30)', 0);
-      if(sfTile(gx - 1, gy) === 11) subQ(0, 0, 0.5, cm, 'rgba(16,18,24,0.30)', 0);
-      if(sfTile(gx + 1, gy) === 11) subQ(cm - 0.5, 0, cm, cm, 'rgba(16,18,24,0.30)', 0);
-      // v28: gutter windrow — wind and slope row litter against the curb;
-      // leaf dabs surface near the camera, density riding the gust field
+      const gb = 'rgba(16,18,24,0.30)';
+      if(nm & (2 << 0))  subQ(0, 0, cm, 0.5, gb, 0);
+      if(nm & (2 << 4))  subQ(0, cm - 0.5, cm, cm, gb, 0);
+      if(nm & (2 << 8))  subQ(0, 0, 0.5, cm, gb, 0);
+      if(nm & (2 << 12)) subQ(cm - 0.5, 0, cm, cm, gb, 0);
+      // v28: gutter windrow — wind and slope row litter against the curb
       if(cfwd < 70){
         const row = (e) => {
           const h = phash(gx, gy, 1901 + 'nsew'.indexOf(e));
@@ -3232,15 +3331,15 @@ function sfRenderStreet(cw, ch){
                      subQ(x0 + 0.12, u2, x0 + 0.22, u2 + 0.18, leaf, 0); }
           }
         };
-        if(sfTile(gx, gy - 1) === 11) row('n');
-        if(sfTile(gx, gy + 1) === 11) row('s');
-        if(sfTile(gx - 1, gy) === 11) row('w');
-        if(sfTile(gx + 1, gy) === 11) row('e');
+        if(nm & (2 << 0))  row('n');
+        if(nm & (2 << 4))  row('s');
+        if(nm & (2 << 8))  row('w');
+        if(nm & (2 << 12)) row('e');
       }
       // asphalt wear: darker wheel-track bands along the travel axis
       if(cfwd < 60){
-        const v2 = sfTile(gx, gy - 1) === 10 && sfTile(gx, gy + 1) === 10;
-        const h2 = sfTile(gx - 1, gy) === 10 && sfTile(gx + 1, gy) === 10;
+        const v2 = (nm & (1 << 0)) && (nm & (1 << 4));
+        const h2 = (nm & (1 << 8)) && (nm & (1 << 12));
         if(v2 && !h2){ subQ(cm * 0.18, 0, cm * 0.32, cm, 'rgba(20,22,28,0.16)');
                        subQ(cm * 0.68, 0, cm * 0.82, cm, 'rgba(20,22,28,0.16)'); }
         else if(h2 && !v2){ subQ(0, cm * 0.18, cm, cm * 0.32, 'rgba(20,22,28,0.16)');
@@ -3248,16 +3347,13 @@ function sfRenderStreet(cw, ch){
       }
     }
     // v9: aerial perspective — far pavement dissolves into the marine layer
-    const cHz = sfHazeA(cfwd);
-    if(cHz > 0.02){
-      const qb = Math.round(cHz * 24);
-      if(qb > 0) qEmit(`rgba(${SF_WX.hazeRGB},${qb / 24})`, p1, p2, p3, p4);
-    }
-    // v6: cloud shadow sliding over the pavement (v11: blobs hoisted)
+    if(qb > 0) qE(hzSt[qb], T0, T0 + 2, T0 + 4, T0 + 6);
+    // v6: cloud shadow sliding over the pavement (v29: bbox reject first)
     let csh = 0;
     if(shBlobs){
       const mx2 = wxm + cm / 2, my2 = wym + cm / 2;
       for(const sc of shBlobs){
+        if(mx2 < sc[4] || mx2 > sc[5] || my2 < sc[6] || my2 > sc[7]) continue;
         const dx2 = mx2 - sc[0], dy2 = my2 - sc[1];
         const d2 = dx2 * dx2 + dy2 * dy2;
         if(d2 < sc[2] * 4) csh += sc[3] * Math.exp(-d2 / sc[2]);
@@ -3266,16 +3362,18 @@ function sfRenderStreet(cw, ch){
     }
     if(csh > 0.04){
       const qa = Math.round(csh * 0.34 * 24);
-      if(qa > 0) qEmit(`rgba(28,36,60,${qa / 24})`, p1, p2, p3, p4);
+      if(qa > 0) qE(shSt[Math.min(8, qa)], T0, T0 + 2, T0 + 4, T0 + 6);
     }
     // v7: wetness memory — hardscape darkens, puddles mirror the sky
-    if(SF_WX.wet > 0.05 && (t === 10 || t === 11 || t === 14 || t === 16)){
-      const wv = SF_WX.wet;
-      qEmit(`rgba(26,34,52,${wv * 0.2})`, p1, p2, p3, p4);
-      if(wv > 0.3 && hash2(wxm | 0, wym | 0, SEED + 1820) < wv * 0.45)
-        post.push([1, p1, p2, p3, p4, wv]);
+    if(wetV > 0.05 && (t === 10 || t === 11 || t === 14 || t === 16)){
+      qE(wetSt, T0, T0 + 2, T0 + 4, T0 + 6);
+      if(wetV > 0.3 && hash2(wxm | 0, wym | 0, SEED + 1820) < wetV * 0.45)
+        post.push([1, P[T0], P[T0 + 1], P[T0 + 2], P[T0 + 3],
+                      P[T0 + 4], P[T0 + 5], P[T0 + 6], P[T0 + 7], wetV]);
     }
-    if(t === 16) post.push([0, p1, p2, p3, p4]); // zebra hint in perspective
+    if(t === 16 && cfwd < FAR_D)
+      post.push([0, P[T0], P[T0 + 1], P[T0 + 2], P[T0 + 3],
+                    P[T0 + 4], P[T0 + 5], P[T0 + 6], P[T0 + 7]]);
   }
   const QUAD_BATCH = 48 * 8;   // coords per fill() — ~48 quads per path
   for(const [style, a] of fills){
@@ -3290,32 +3388,33 @@ function sfRenderStreet(cw, ch){
       }
       ctx.fill();
     }
+    a.length = 0;            // pooled — keep the bucket, drop the coords
   }
+  if(fills.size > 480) fills.clear();   // bound stale style keys
   for(const q of post){
-    const p1 = q[1], p2 = q[2], p3 = q[3], p4 = q[4];
     if(q[0] === 2){
       // v28: curb-ramp apron — sloped concrete quad, gutter-dark at the
       // street edge fading to walkway pale at the sidewalk lip
       ctx.fillStyle = '#a29c90';
       ctx.beginPath();
-      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
+      ctx.moveTo(q[1], q[2]); ctx.lineTo(q[3], q[4]);
+      ctx.lineTo(q[5], q[6]); ctx.lineTo(q[7], q[8]);
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = 'rgba(40,36,30,0.4)'; ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]); ctx.stroke();
+      ctx.moveTo(q[5], q[6]); ctx.lineTo(q[7], q[8]); ctx.stroke();
       continue;
     }
     if(q[0] === 0){
       ctx.fillStyle = 'rgba(232,230,223,0.55)';
       ctx.beginPath();
-      ctx.moveTo((p1[0] + p2[0]) / 2, p1[1]); ctx.lineTo((p3[0] + p4[0]) / 2, p3[1]);
-      ctx.lineTo(p4[0], p4[1]); ctx.lineTo(p1[0], p1[1]); ctx.fill();
+      ctx.moveTo((q[1] + q[3]) / 2, q[2]); ctx.lineTo((q[5] + q[7]) / 2, q[6]);
+      ctx.lineTo(q[7], q[8]); ctx.lineTo(q[1], q[2]); ctx.fill();
     } else {
-      const wv = q[5];
-      const cxp = (p1[0] + p2[0] + p3[0] + p4[0]) / 4,
-            cyp = (p1[1] + p2[1] + p3[1] + p4[1]) / 4;
-      const prw = Math.max(2, Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) * 0.28);
+      const wv = q[9];
+      const cxp = (q[1] + q[3] + q[5] + q[7]) / 4,
+            cyp = (q[2] + q[4] + q[6] + q[8]) / 4;
+      const prw = Math.max(2, Math.hypot(q[3] - q[1], q[4] - q[2]) * 0.28);
       ctx.fillStyle = `rgba(172,202,232,${wv * 0.4})`;
       ctx.beginPath();
       ctx.ellipse(cxp, cyp, prw * 1.5, prw * 0.45, 0, 0, Math.PI * 2);
@@ -3326,7 +3425,8 @@ function sfRenderStreet(cw, ch){
       ctx.fill();
     }
   }
-  SF_PERF.info = cells.length + 'cl/' + fills.size + 'fl';
+  post.length = 0;
+  SF_PERF.info = nc + 'cl/' + fills.size + 'fl';
 
   /* v25: wet-mirror sun glare — wet asphalt is a horizontal mirror, so
      when the sun hangs ahead of the camera the roadway throws a bright

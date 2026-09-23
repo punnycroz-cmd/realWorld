@@ -63,7 +63,8 @@ const api = eval(m[1] + `
     VILLAGERS, PA, W, SF_M, SF_DOORS, SF_DOOR_OF, SF_POIS, SF_MAP,
     SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol,
     sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
-    SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol })`);
+    SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
+    sfNbMasks, sfOvrNums, SF_GROUND_OVR })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -209,6 +210,20 @@ const api = eval(m[1] + `
   }
   ok(/^#|^rgb/.test(api.sfCurbFaceCol(0, -1)),
      'curb riser face returns a shaded color');
+
+  // v29 ground-pass infrastructure
+  const nbm = api.sfNbMasks();
+  ok(nbm && nbm.length === api.SF_M.gw * api.SF_M.gh,
+     'neighbor mask covers the whole grid');
+  if(swCell){
+    const mi = swCell[1] * api.SF_M.gw + swCell[0];
+    ok((nbm[mi] & 1) === 1, 'mask bit0: road to the north');
+    ok((nbm[mi] & (2 << 0)) === 0, 'mask bit1: north neighbor not sidewalk');
+  }
+  const ovn = api.sfOvrNums();
+  ok(ovn && ovn.size === api.SF_GROUND_OVR.size,
+     'numeric ground-override map mirrors string map 1:1');
+  ok(api.sfOvrNums() === ovn, 'override map is cached (same instance)');
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');

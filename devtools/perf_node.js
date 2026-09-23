@@ -80,6 +80,10 @@ function bench(fn, frames){
           sfSyncClock = function(){}; sfLiveTick = function(){};`);
   // swap in counting ctx post-boot (sprite gen happens during boot)
   api.setCtx(makeCtx());
+  // v29: PERF_NOSTILL=1 disables the temporal frame cache so the bench
+  // measures full render cost, not the 0.5s still-blit (which now hits
+  // whenever the measured frame is fast enough to stay in one bucket)
+  if(process.env.PERF_NOSTILL) api.EV('sfStillHit = function(){ return false; }');
   COUNT = true;
 
   api.EV(`(() => {
