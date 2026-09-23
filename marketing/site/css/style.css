@@ -306,6 +306,27 @@ ul.clean li { margin: 6px 0; }
 .calc-out .cc-note { font-size: 13px; color: var(--muted); flex-basis: 100%; }
 .calc-out .cc-surge { font-size: 13px; color: var(--accent-3); font-weight: 600; flex-basis: 100%; }
 
+/* ---------- brand page (brand.html) ---------- */
+.brand-fig {
+  margin: 0 0 18px; padding: 26px 22px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.brand-fig-light { background: #f2efe8; }
+.brand-fig-light figcaption { color: #5a5f6b; }
+.brand-fig figcaption { font-size: 12.5px; color: var(--muted); padding-top: 10px; }
+.swatch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;
+}
+@media (max-width: 760px) { .swatch-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .swatch-grid { grid-template-columns: 1fr; } }
+.swatch {
+  border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px 12px;
+  min-height: 96px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;
+}
+.swatch span { font-weight: 700; font-size: 14.5px; }
+.swatch code { padding: 0; font-size: 12.5px; }
+.swatch em { font-style: normal; font-size: 12px; opacity: .75; }
+
 /* ---------- pricing state switch (pricing.html only) ----------
    Flip <body data-pricing="provisional"> to "final" — one attribute. */
 .final-only { display: none; }
@@ -320,3 +341,23 @@ body[data-pricing="final"] .prov-only { display: none !important; }
 .foot-grid a { display: block; color: var(--muted); font-size: 14px; padding: 3px 0; }
 .foot-grid a:hover { color: var(--text); }
 .foot-note { color: var(--muted); font-size: 12.5px; margin-top: 26px; }
+
+/* ---------- brand page (brand.html) ---------- */
+.swatch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.swatch {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-2); padding: 12px 14px; display: flex;
+  flex-direction: column; gap: 4px; font-size: 14px;
+}
+.swatch .sw { display: block; height: 44px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 6px; }
+.swatch b { color: var(--text); }
+.swatch i { color: var(--muted); font-style: normal; font-size: 13px; }
+.asset-card .asset-preview {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  min-height: 110px; display: flex; align-items: center; justify-content: center;
+  padding: 14px; margin-bottom: 12px;
+}
+.asset-card .asset-preview.asset-light { background: #ece7dc; }
+.asset-card .asset-preview img { max-height: 90px; max-width: 100%; width: auto; }
+.asset-card .dl { font-size: 13.5px; margin-bottom: 0; }
+@media (max-width: 720px) { .swatch-grid { grid-template-columns: 1fr 1fr; } }

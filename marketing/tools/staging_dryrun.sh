@@ -24,7 +24,7 @@ echo "[1] staging server up on $BASE (pid $SRV)"
 
 # 2. Page status + TTFB (seconds)
 echo "[2] pages: status + time_starttransfer"
-for p in index.html features.html cast.html how-it-works.html demo.html community.html journal.html rules.html pricing.html faq.html press-kit.html 404.html; do
+for p in index.html features.html cast.html how-it-works.html demo.html community.html journal.html rules.html brand.html pricing.html faq.html press-kit.html 404.html; do
   read -r code t < <(curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}' "$BASE/$p")
   if [ "$code" = "200" ]; then ok "$p  $code  ${t}s"; else bad "$p  $code"; fi
 done

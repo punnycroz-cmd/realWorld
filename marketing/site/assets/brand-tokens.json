@@ -1,0 +1,58 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Real World — The Mission brand tokens",
+  "version": "25.0",
+  "canonical_source": "marketing/BRAND.md — when this file and BRAND.md disagree, BRAND.md wins; fix this file in the same commit",
+  "color": {
+    "bg":        { "value": "#14161c", "name": "Asphalt",          "role": "page background" },
+    "bg-2":      { "value": "#1b1e27", "name": "Sidewalk",         "role": "raised surfaces" },
+    "panel":     { "value": "#1d2029", "name": "Facade",           "role": "cards, logo tile interior" },
+    "border":    { "value": "#2c303c", "name": "Cornice",          "role": "hairlines, frames, parapets" },
+    "text":      { "value": "#ece7dc", "name": "Paper",            "role": "body text on dark", "contrast_on_bg": "15:1 AAA" },
+    "muted":     { "value": "#9aa0ae", "name": "Fog",              "role": "secondary text, nav", "contrast_on_bg": "5.6:1 AA" },
+    "accent":    { "value": "#e8a04c", "name": "Café-light amber", "role": "primary accent, lit window, CTAs", "contrast_on_bg": "7.4:1 AA large — never body text under 18px" },
+    "accent-2":  { "value": "#4f9d69", "name": "Park green",       "role": "secondary accent, success states" },
+    "accent-3":  { "value": "#d4645c", "name": "Mural red",        "role": "sparingly: alerts, one window in the mark" },
+    "ink":       { "value": "#1a1206", "name": "Ink on amber",     "role": "text/icons on accent fills" }
+  },
+  "typography": {
+    "stack": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "raster_fallback": "DejaVu Sans (Bold for display, Regular for captions)",
+    "wordmark": { "text": "REAL WORLD", "weight": "700-800", "case": "uppercase", "tracking": "0.02-0.14em" },
+    "subtitle": { "text": "THE MISSION", "weight": "700", "case": "uppercase", "tracking": "~0.3em", "color": "accent" },
+    "headings": { "weight": "700", "case": "sentence case" },
+    "body":     { "line_height": "1.5-1.6", "measure": "<= 70ch" }
+  },
+  "logo": {
+    "mark": "dark Mission rowhouse tile, corniced facade, 3x3 window grid, one lit amber window (center), one green, one red",
+    "lit_window": { "position": "center", "color": "accent", "rule": "always amber — never a theming slot" },
+    "clear_space": ">= half the icon tile height on all sides",
+    "min_size": { "lockup_px": 180, "icon_px": 24 },
+    "files": {
+      "logo-primary.svg":        "horizontal lockup, light text — dark backgrounds",
+      "logo-primary-dark.svg":   "horizontal lockup, dark ink — light backgrounds ONLY",
+      "logo-icon.svg":           "icon tile — avatar, favicon, square contexts",
+      "logo-icon-mono.svg":      "single-ink icon — one-color print, watermark",
+      "logo-icon-animated.svg":  "lit-window breathing variant — web contexts where motion is appropriate; honors prefers-reduced-motion",
+      "favicon.svg":             "site favicon",
+      "logo-icon.png":           "512px raster avatar",
+      "logo-primary.png":        "1600x480 raster lockup"
+    }
+  },
+  "banner_files": {
+    "banner-x-1500x500.png":       "X/Twitter header — keep text center 60%",
+    "banner-youtube-2560x1440.png":"YouTube channel art — safe zone = center 1546x423",
+    "banner-discord-960x540.png":  "Discord server banner (Boost L2+)",
+    "banner-linkedin-1584x396.png":"LinkedIn page cover — text center-right"
+  },
+  "voice": {
+    "one_line": "a neighbor who knows the block — warm, plain-spoken, slightly wry",
+    "never": ["hype words", "scarcity/FOMO", "invented quotes or metrics", "real SF business names", "promises of possessing the main cast"]
+  },
+  "taglines": {
+    "primary": "A neighborhood that's alive whether you're watching or not.",
+    "primary_alt": "A neighborhood that never stops performing.",
+    "short": "Watch free. Pay to reach in.",
+    "descriptive": "The Truman Show you can visit."
+  }
+}

@@ -15,7 +15,7 @@ echo "=== Real World PROD smoke — $BASE — $(date '+%Y-%m-%d %H:%M %Z') ==="
 
 # 1. Pages 200 + TTFB
 echo "[1] pages"
-for p in "" index.html features.html cast.html how-it-works.html demo.html community.html journal.html rules.html pricing.html faq.html press-kit.html; do
+for p in "" index.html features.html cast.html how-it-works.html demo.html community.html journal.html rules.html brand.html pricing.html faq.html press-kit.html; do
   read -r code t < <(curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}' "$BASE/$p")
   tgt="/${p:-index}"
   [ "$code" = "200" ] && ok "$tgt  $code  ${t}s" || bad "$tgt  $code"

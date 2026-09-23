@@ -1,6 +1,8 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v1 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v2 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+The public-facing subset of this file now ships as `site/brand.html` (the
+brand book page) — keep the two in sync when rules change.
 **Scope:** positioning, naming, voice, palette, type, logo system, art direction,
 social specs, and accuracy guardrails for every public artifact this track
 produces. When a doc and this file disagree on a *number*, the monetization
@@ -185,6 +187,9 @@ brand's whole thesis in one glyph; protect it.
 | `logo-primary-dark.svg` | Horizontal lockup, dark ink | Light/white backgrounds only |
 | `logo-icon.svg` / `.png` (512²) | Icon tile | Avatar, favicon base, app icon, square contexts |
 | `logo-icon-mono.svg` | Icon, single-ink | One-color print, engraving, watermark |
+| `logo-stacked.svg` | Vertical lockup (icon over wordmark) | Square/tall placements: podcast art, profile panels, video end-cards |
+| `logo-icon-animated.svg` | Living icon — lit window breathes on a ~9s ease cycle, glow behind, honors `prefers-reduced-motion` | Web embeds, loading states, trailer/teaser end-card. Never where motion would imply "live" status |
+| `pattern-windows.svg` | Window-grid divider motif (cornice line + window run, one lit amber off-center) | Section breaks, textures, email/social dividers. A motif — never a logo substitute |
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | Favicons | Site `<head>` (already wired) |
 
 ### Rules
@@ -199,6 +204,21 @@ brand's whole thesis in one glyph; protect it.
   rotate, add outlines/glows/drop-shadows, redraw it, set it in a different
   typeface, or use the 3×3 grid without the tile.
 - The lit window is **always amber** — it's not a theming slot.
+
+### Motion rule
+
+The only sanctioned logo animation is the breathing window in
+`logo-icon-animated.svg` (~9s, subtle, reduced-motion aware). No spins,
+bounces, reveals, or parallax on the mark — the brand watches calmly; it
+doesn't perform. Video end-cards hold the static or breathing icon on
+`--bg` for ≥ 1.5 s with one approved tagline.
+
+### Co-branding
+
+Partner logos sit to the right of ours, separated by a hairline in Cornice
+`#2c303c`, at equal optical weight. We never recolor our mark to match a
+partner and never recolor theirs. Over busy footage/screenshots, use the
+icon alone on a `--bg` plate — never the lockup on imagery.
 
 ---
 
@@ -227,6 +247,7 @@ Photography/illustration commissions: brief lives in §11.
 | Avatar (all networks) | `logo-icon.png` | 512×512 reads at 48 px; never the full lockup |
 | Profile banner | `keyart-16x9.png` crop or `og-card.png` | Safe-zone: keep text in middle 60% |
 | OG / link card | `og-card.png` (1200×630) | Already referenced site-wide |
+| Brand book page | `site/brand.html` | Public guidelines + one-click logo downloads; mirror of this file |
 | Post image (feed) | `keyart-square.png` (1080²) | Tagline variant "Watch free. Pay to reach in." |
 | itch.io cover | `cover-itch-630x500.png` | Built |
 | Steam capsule (if ever) | — | Spec in STORE-COPY.md §capsules; commission before any Steam page |
@@ -256,9 +277,45 @@ outcomes, real-money earnings, "uncensored/unmoderated", real business or
 resident names, invented reviews/testimonials/metrics, "coming soon" for cut
 features (voice/TTS v1, ambient-NPC economies, cash-out, loot boxes).
 
+**"Join the cast" language (world-v7 hire flow):** players may pay to create
+a new resident (`h##`) who moves in through the same screening + human review
++ lease flow. These player-created residents are possessable by their owner —
+that is the *one* sanctioned possession. Language rules: always say "join the
+cast" or "move in", never "buy a character"; always pair it with "the eight
+mains still can't be possessed"; never imply the hired resident is scripted or
+safe from consequences — they live under the same sim rules once created.
+
 ---
 
-## 11. Key-art commission brief (for a future artist)
+## 11. Press boilerplate (quote-verbatim)
+
+Three lengths, all claims checkable against the design doc. These also ship on
+`site/brand.html` — edit both together.
+
+**25 words:**
+> Real World is a persistent browser life-sim: a Mission District
+> neighborhood of AI residents who keep living whether you watch or not.
+> Watching is free.
+
+**50 words:**
+> Real World is a persistent browser life-sim set on real Mission District
+> street geometry. Twenty-eight AI residents keep living whether you watch
+> or not. Watching is free; players pay only to file screened, public
+> requests — never to control the cast.
+
+**100 words:**
+> Real World is a persistent browser life-sim — a "Truman Show" you can
+> visit — set on real Mission District street geometry around Dolores Park.
+> Twenty-eight AI residents keep living whether you watch or not. Watching
+> is free. Players can pay for agency, not control: requests are screened
+> for intent, time-boxed, resolved as opportunities the residents choose how
+> to answer, and attributed on a public feed. The eight main characters can
+> never be possessed by anyone — including the developer. A neighborhood
+> that's alive whether you're watching or not.
+
+---
+
+## 12. Key-art commission brief (for a future artist)
 
 When a commissioned key-art piece replaces the dev-capture art:
 
@@ -275,7 +332,7 @@ When a commissioned key-art piece replaces the dev-capture art:
 
 ---
 
-## 12. Governance
+## 13. Governance
 
 - Changes to palette/type/logo/taglines = edit this file + regenerate assets +
   inbox note. Palette hexes are also hardcoded in `site/css/style.css` and

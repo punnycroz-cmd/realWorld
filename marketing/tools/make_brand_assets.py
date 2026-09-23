@@ -192,6 +192,52 @@ def draw_library_capsule(tw=600, th=900):
     return img.convert("RGB")
 
 
+def draw_banner(tw, th, tagline, icon_frac=0.62, text_cx=None):
+    """Social profile banner: darkened build capture + icon + lockup text,
+    all content inside the center safe zone. text_cx = horizontal center
+    of the text block as a fraction of width (None = centered)."""
+    shot = Image.open(SHOT).convert("RGB")
+    # v21 stills carry the dev HUD on the left edge — crop it out (same
+    # crop as the trailer animatic: [330,100,1440,794]).
+    shot = shot.crop((330, 100, min(1440, shot.width), min(794, shot.height)))
+    img = crop_resize(shot, tw, th)
+    # heavier overall darken — banners must survive overlay UI + crops
+    grad = Image.new("L", (1, th))
+    for y in range(th):
+        t = y / th
+        a = int(150 + 90 * abs(t - 0.5) * 2)  # darkest at edges
+        grad.putpixel((0, y), a)
+    grad = grad.resize((tw, th))
+    img = Image.composite(Image.new("RGB", (tw, th), (10, 11, 15)), img, grad)
+
+    img = img.convert("RGBA")
+    # shrink the icon+lockup group until it fits the safe width (88% of tw)
+    probe = ImageDraw.Draw(img)
+    ih = int(th * icon_frac)
+    while True:
+        f_big = ImageFont.truetype(FONT_B, max(10, int(ih * 0.30)))
+        f_sub = ImageFont.truetype(FONT_B, max(8, int(ih * 0.10)))
+        f_tag = ImageFont.truetype(FONT_R, max(8, int(ih * 0.085)))
+        wt = probe.textlength("REAL WORLD", font=f_big)
+        group_w = ih + int(ih * 0.18) + int(wt)
+        if group_w <= tw * 0.88 or ih < 40:
+            break
+        ih = int(ih * 0.92)
+    icon = draw_icon(ih)
+    gx = int((tw - group_w) / 2) if text_cx is None else int(text_cx * tw - group_w / 2)
+    gx = max(int(tw * 0.06), min(gx, tw - group_w - int(tw * 0.06)))
+    gy = (th - ih) // 2
+    img.alpha_composite(icon, (gx, gy))
+    d = ImageDraw.Draw(img)
+    tx = gx + ih + int(ih * 0.18)
+    ty = gy + int(ih * 0.10)
+    d.text((tx, ty), "REAL WORLD", font=f_big, fill=TEXT)
+    d.rectangle([tx + 3, ty + int(ih * 0.34), tx + wt - 3, ty + int(ih * 0.34) + max(3, int(ih * 0.02))], fill=ACCENT)
+    d.text((tx + 3, ty + int(ih * 0.40)), "T H E   M I S S I O N", font=f_sub, fill=ACCENT)
+    d.text((tx + 3, ty + int(ih * 0.62)), tagline, font=f_tag, fill=TEXT)
+    return img.convert("RGB")
+
+
 def main():
     os.makedirs(ASSETS, exist_ok=True)
     os.makedirs(KEYART, exist_ok=True)
@@ -231,6 +277,22 @@ def main():
     bg = bg.filter(ImageFilter.GaussianBlur(6))
     bg.save(os.path.join(STORE, "steam-page-bg-1438x810.png"),
             optimize=True)
+
+    # Social profile banners (BRAND.md §9) — content inside center safe zones.
+    BANNERS = os.path.join(ROOT, "press-kit", "banners")
+    os.makedirs(BANNERS, exist_ok=True)
+    for name, tw, th, tag, kw in [
+        ("banner-x-1500x500.png",        1500,  500, "Watch free. Pay to reach in.", {}),
+        ("banner-youtube-2560x1440.png", 2560, 1440,
+         "A neighborhood that's alive whether you're watching or not.",
+         {"icon_frac": 0.30}),  # YT safe zone = center 1546x423
+        ("banner-discord-960x540.png",    960,  540, "Watch free. Pay to reach in.", {}),
+        ("banner-linkedin-1584x396.png", 1584,  396,
+         "A neighborhood that never stops performing.", {"icon_frac": 0.72}),
+    ]:
+        b = draw_banner(tw, th, tag, **kw)
+        b.save(os.path.join(BANNERS, name), optimize=True)
+        b.save(os.path.join(ASSETS, name), optimize=True)
     print("brand assets written")
 
 

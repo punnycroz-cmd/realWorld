@@ -89,6 +89,7 @@ in markup today.
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
 | `/faq.html` | FAQ — Real World | AI life sim questions | ✔ FAQPage | Snippet bait; keep JSON-LD synced to visible Qs |
+| `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
 | `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
 | `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
 | `/community.html` | Community — Real World | game community (soft) | — | Discord spec is owner-gated pre-launch |
