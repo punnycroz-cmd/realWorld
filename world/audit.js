@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v28).
+/* world/audit.js — RW boundary audit (world v30).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -38,6 +38,10 @@
     crowd     — crowd.json ↔ crowd.html mirror (zones, budgets, shades,
                 flows, micros, greets, scenes); extras carry no identity;
                 minors greet in packs; overnight allow_deserted protected
+    biz       — businesses.json ↔ directory.html mirror (BIZ/WEB blocks);
+                cards exist and none orphaned; tier/affordance/hours/staff
+                sanity; web edges resolve to real venues, loan edges are
+                secret-flagged, reserved entries stay empty
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -722,13 +726,96 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G15 biz ============ */
+{
+  const g = gate('biz', 'business registry contract (businesses.json ↔ directory.html; web edge integrity)');
+  try {
+    const BJ = JSONF('businesses.json');
+    const html = rd('directory.html');
+    const pull = (name, close) => {
+      const m = html.match(new RegExp('const ' + name + '\\s*=\\s*(\\' + close[0] + '[\\s\\S]*?\\' + close[1] + ');'));
+      if (!m) throw new Error('inline ' + name + ' not found');
+      return eval('(' + m[1] + ')');
+    };
+    const BIZ = pull('BIZ', '[]'), WEB = pull('WEB', '[]');
+    const tiers = new Set(Object.keys(BJ.tiers));
+    const affKeys = new Set(Object.keys(BJ.affordance_keys));
+    const ids = new Set(BJ.businesses.map(b => b.id));
+    const names = new Set();
+    const CASTID = /^[cC]([1-8])$|^[aA](0[1-9]|1[0-9]|20)$/;
+    const cardFiles = new Set(BJ.businesses.map(b => b.card).filter(Boolean));
+    for (const b of BJ.businesses) {
+      if (!tiers.has(b.tier)) add(g, 'fail', 'businesses.json', null, `${b.id}: tier "${b.tier}" not in tiers`);
+      if (names.has(b.name)) add(g, 'fail', 'businesses.json', null, `${b.id}: duplicate name "${b.name}"`);
+      names.add(b.name);
+      for (const k of Object.keys(b.affordances || {}))
+        if (!affKeys.has(k)) add(g, 'fail', 'businesses.json', null, `${b.id}: affordance "${k}" not in affordance_keys`);
+      for (const s of b.staff || []) {
+        const tok = String(s).match(/^([a-zA-Z]\d+)/);
+        if (!tok || !CASTID.test(tok[1])) add(g, 'fail', 'businesses.json', null, `${b.id}: staff "${s}" is not a cast id`);
+      }
+      for (const d of ['weekday', 'weekend']) {
+        const h = (b.hours || {})[d];
+        if (h !== undefined && h !== null && (!Array.isArray(h) || h.length !== 2 || h[0] < 0 || h[1] > 26.5 || h[0] >= h[1]))
+          add(g, 'fail', 'businesses.json', null, `${b.id}: bad ${d} hours ${JSON.stringify(h)}`);
+      }
+      for (const d of (b.hours || {}).days || [])
+        if (!['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].includes(d))
+          add(g, 'fail', 'businesses.json', null, `${b.id}: hours.days "${d}" not a day abbreviation`);
+      if (b.tier === 'reserved' && ((b.staff || []).length || b.hours || b.job_card))
+        add(g, 'fail', 'businesses.json', null, `${b.id}: reserved tier carries staff/hours/job_card — reserved stays empty`);
+      if (b.card && !fs.existsSync(path.join(W, b.card.replace(/^world\//, ''))))
+        add(g, 'fail', b.card, null, `${b.id}: card file missing`);
+      /* inline mirror: html BIZ row exists with same name/tier */
+      const hb = BIZ.find(x => x.id === b.id);
+      if (!hb) add(g, 'fail', 'directory.html', null, `BIZ missing "${b.id}"`);
+      else {
+        const norm = s => String(s).replace(/[\u2018\u2019]/g, "'");
+        if (norm(hb.name) !== norm(b.name)) add(g, 'fail', 'directory.html', null, `BIZ ${b.id} name drifted: "${hb.name}" != "${b.name}"`);
+        if (hb.tier !== b.tier) add(g, 'fail', 'directory.html', null, `BIZ ${b.id} tier drifted`);
+        /* secret-marked staffers are withheld from the inline card at any
+           clearance — compare only the public staff count */
+        const jc = (b.staff || []).filter(s => !/secret/i.test(String(s))).length,
+          hc = (hb.staff || []).length;
+        if (jc !== hc) add(g, 'fail', 'directory.html', null, `BIZ ${b.id} staff count ${hc} != ${jc}`);
+        if ((hb.card || '') !== b.card) add(g, 'fail', 'directory.html', null, `BIZ ${b.id} card path drifted`);
+      }
+    }
+    for (const hb of BIZ)
+      if (!ids.has(hb.id)) add(g, 'fail', 'directory.html', null, `inline BIZ "${hb.id}" absent from businesses.json`);
+    /* orphan cards: every businesses/*.md must be referenced */
+    for (const f of fs.readdirSync(path.join(W, 'businesses')).filter(f => f.endsWith('.md')))
+      if (!cardFiles.has('world/businesses/' + f))
+        add(g, 'fail', 'businesses/' + f, null, 'orphan card — no registry entry references it');
+    /* web edges: endpoints real, kinds declared, loan always secret,
+       secret flag mirrored in inline WEB */
+    const kinds = new Set(Object.keys(BJ.web.kinds));
+    const jEdges = new Set(), hEdges = new Set();
+    for (const e of BJ.web.edges) {
+      for (const ep of [e.a, e.b])
+        if (!ids.has(ep)) add(g, 'fail', 'businesses.json', null, `web edge ${e.a}→${e.b}: "${ep}" is not a business`);
+      if (!kinds.has(e.kind)) add(g, 'fail', 'businesses.json', null, `web edge ${e.a}→${e.b}: kind "${e.kind}" not declared`);
+      if (e.kind === 'loan' && e.secret !== true)
+        add(g, 'fail', 'businesses.json', null, `web edge ${e.a}→${e.b}: loan without secret flag`);
+      jEdges.add([e.a, e.b, e.kind, !!e.secret].join('|'));
+    }
+    for (const e of WEB) hEdges.add([e.a, e.b, e.kind, !!e.secret].join('|'));
+    for (const k of jEdges) if (!hEdges.has(k)) add(g, 'fail', 'directory.html', null, `WEB missing edge ${k}`);
+    for (const k of hEdges) if (!jEdges.has(k)) add(g, 'fail', 'directory.html', null, `inline WEB edge ${k} absent from businesses.json`);
+    /* public-clearance redaction path must exist for secret edges */
+    if (!/e\.secret&&state\.clr!=='internal'/.test(html))
+      add(g, 'fail', 'directory.html', null, 'secret web edges have no public-clearance redaction path');
+    g.detail = `schema v${BJ.version} · ${ids.size} businesses · ${BJ.web.edges.length} web edges · ${cardFiles.size} cards`;
+  } catch (e) { add(g, 'fail', 'businesses.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v29 local';
+out.build = 'world v30 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

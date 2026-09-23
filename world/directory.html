@@ -5,11 +5,12 @@
 <title>Real World — The Directory (parody business registry)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Business registry demo — "The Directory" (world v16). Internal posture tool.
+  Business registry demo — "The Directory" (world v30). Internal posture tool.
   Self-contained: file://-safe, no network. Machine source: world/businesses.json
   (mirrored inline below — hand-synced). Card depth: world/businesses/*.md.
   Shows: every canonical parody business, open/closed by clock, tier and
-  affordances, staff chips, game-$ price points, spectator hooks.
+  affordances, staff chips, game-$ price points, spectator hooks, and the
+  v30 business web (venue↔venue links; secret edges honor the clearance toggle).
   Clearance toggle: PUBLIC hides secret-adjacent hooks (Mission Unfiltered
   authorship, the La Esperanza loan) exactly as briefings/feed would.
   Boundaries: parody names only; game-$ prices are in-world money, never
@@ -82,7 +83,7 @@
   <div class="grid" id="grid"></div>
 </main>
 <script>
-/* ---- inline mirror of world/businesses.json (hand-synced, v16) ---- */
+/* ---- inline mirror of world/businesses.json (hand-synced, v30) ---- */
 const BIZ = [
  {id:'mudhaus', name:'Mudhaus Coffee', kind:'cafe', tier:'anchor', corner:'24th St mid-block',
   hours:{weekday:[6.5,19], weekend:[7,20]}, staff:['C1 Marisol (mgr)','C2 Jules','C3 Dani','A01 Reyes'],
@@ -116,7 +117,7 @@ const BIZ = [
   hours:{weekday:[17.5,22.5], weekend:[17.5,23]}, staff:[], owner:'off-screen',
   afford:['event','hires'], prices:'pasta $24 · two-top w/ wine ~$110', card:'world/businesses/il-delfino.md',
   hooks:['the window two-top is a public statement — who sits with whom is information']},
- {id:'baguette', name:'Baguette About It Bakery', kind:'bakery', tier:'street', corner:'18th / Guerrero side',
+ {id:'baguette-about-it', name:'Baguette About It Bakery', kind:'bakery', tier:'street', corner:'18th / Guerrero side',
   hours:{weekday:[7,15], weekend:[7,16]}, staff:['A16 Hana (baker)'], owner:'off-screen',
   afford:['nudge','hires'], prices:'morning bun $5 · country loaf $11', card:'world/businesses/baguette.md',
   hooks:['4 AM bake light = the block\u2019s first lit window','~13:00 sellout — the CLOSED sign is a character']},
@@ -152,6 +153,22 @@ const BIZ = [
   hours:{weekday:[9,18], weekend:[10,16]}, staff:['A18 Ida'], owner:'A18',
   afford:['nudge'], prices:'stem $4 · bouquet $35', card:'world/businesses/bloom-and-doom.md',
   hooks:['a big van load tells spectators something is coming — the what stays in-world','window display is a mood ring for the cast']},
+ {id:'golden-hour', name:'Golden Hour Laundromat', kind:'laundry', tier:'street', corner:'Mission St side, orange awning',
+  hours:{weekday:[7,23], weekend:[7,23]}, staff:[], owner:'off-screen',
+  afford:[], prices:'wash $4.25 · dry $0.50/8min · fold $1.75/lb', card:'world/businesses/golden-hour.md',
+  hooks:['the 90-min wait = cheapest collision venue on the block — folding-table adjacency is information','bulletin board = second rumor node after Malik\u2019s counter']},
+ {id:'dusty-spine', name:'The Dusty Spine', kind:'books', tier:'street', corner:'Valencia at 20th side',
+  hours:{weekday:[11,19], weekend:[10,20]}, staff:[], owner:'off-screen clerk-owner',
+  afford:['hires'], prices:'paperback $6 · staff-pick $18 · free box $0', card:'world/businesses/dusty-spine.md',
+  hooks:['June\u2019s after-school YA window; Vera alphabetizes the free box unasked','borrowed vs bought is a legible tell']},
+ {id:'marooned', name:'Marooned Records', kind:'music', tier:'street', corner:'Valencia side',
+  hours:{weekday:[11,19], weekend:[11,20]}, staff:[], owner:'off-screen',
+  afford:[], prices:'45s $2 · used LP ~$16 · new $28', card:'world/businesses/marooned.md',
+  hooks:['Sam\u2019s Sunday dollar-bin tithe — one 45 a week','Jules\u2019s sell-back cycle; the clerk\u2019s hold shelf','the turntable is the counter clerk\u2019s mood readout']},
+ {id:'the-musket', name:'The Musket', kind:'restaurant', tier:'street', corner:'Valencia at 23rd side',
+  hours:{weekday:[17,23], weekend:[15,24]}, staff:[], owner:'off-screen',
+  afford:['event','hires'], prices:'small plates $14 · cocktail $15', card:'world/businesses/the-musket.md',
+  hooks:['walk-in bar seats only — adjacency is luck the audience watches happen','choosing this room over Il Delfino is a statement']},
  {id:'flying-pannier', name:'Flying Pannier Courier Co-op', kind:'poi', tier:'offstage', corner:'no door — locker wall + group chat',
   hours:{weekday:[7,19], weekend:[9,17]}, staff:['C5 Marcus'], owner:'worker-owned',
   afford:['nudge'], prices:'—', card:'world/businesses/flying-pannier.md',
@@ -177,7 +194,24 @@ const BIZ = [
  {id:'spares', name:'Reserved spare names', kind:'poi', tier:'reserved', corner:'unassigned',
   hours:null, staff:[], owner:'unassigned',
   afford:[], prices:'—', card:'world/businesses/spares.md',
-  hooks:['The Watchbird · Café Cometa · Golden Hour Laundromat — mintable when the world grows a door']},
+  hooks:['The Watchbird · Café Cometa — mintable when the world grows a door (Golden Hour minted v30)']},
+];
+/* ---- inline mirror of businesses.json → web.edges (v30) ---- */
+const WEB = [
+ {a:'mudhaus', b:'baguette-about-it', kind:'supplies'},
+ {a:'el-farolote', b:'valencia-growers', kind:'supplies'},
+ {a:'the-600-club', b:'el-farolote', kind:'spillover'},
+ {a:'dolores-perk', b:'buy-rite-creamery', kind:'spillover'},
+ {a:'buy-rite-market', b:'maliks', kind:'rivalry'},
+ {a:'las-palmas', b:'valencia-growers', kind:'rivalry'},
+ {a:'the-musket', b:'il-delfino', kind:'rivalry'},
+ {a:'dusty-spine', b:'marooned', kind:'shared_clientele'},
+ {a:'needlepointe', b:'the-600-club', kind:'shared_clientele'},
+ {a:'folsom-auto', b:'auerbach', kind:'parts_run'},
+ {a:'golden-hour', b:'maliks', kind:'gossip_route'},
+ {a:'flying-pannier', b:'il-delfino', kind:'gossip_route'},
+ {a:'bloom-and-doom', b:'las-palmas', kind:'shared_clientele'},
+ {a:'auerbach', b:'la-esperanza', kind:'loan', secret:true},
 ];
 const state = { t:12, day:'weekday', tier:'all', clr:'internal' };
 const $ = id => document.getElementById(id);
@@ -211,13 +245,21 @@ function render(){
       ? b.secret_hooks.map(h=>`<p class="hook redacted">[internal] ${h}</p>`).join('') : '';
     const redact = state.clr==='public'&&b.secret_hooks
       ? `<p class="hook redacted">[redacted at public clearance — briefing rule]</p>` : '';
+    const links=[];
+    for(const e of WEB){
+      if(e.a!==b.id&&e.b!==b.id) continue;
+      if(e.secret&&state.clr!=='internal'){links.push('<span class="chip secret">[web edge redacted]</span>');continue;}
+      const other=e.a===b.id?e.b:e.a, nm=(BIZ.find(x=>x.id===other)||{}).name||other;
+      links.push(`<span class="chip aff">${e.a===b.id?e.kind+' →':e.kind+' ←'} ${nm}</span>`);
+    }
     d.innerHTML=`<div class="top"><h3>${b.name}</h3><span class="tier ${b.tier}">${b.tier}</span>`+
       (open===null?'<span class="open n">—</span>':open?'<span class="open y">open now</span>':'<span class="open n">closed</span>')+
       `</div><div class="corner">${b.corner}</div><div class="hrs">${hrsText(b)}</div>`+
       (b.staff.length?`<div class="row"><b>staff</b> ${b.staff.map(s=>`<span class="chip">${s}</span>`).join('')}</div>`:'')+
       `<div class="row"><b>owner</b> ${b.owner}</div>`+
       (b.afford.length?`<div class="row"><b>affords</b> ${b.afford.map(a=>`<span class="chip aff">${a}</span>`).join('')}</div>`:'')+
-      `<div class="row"><b>prices</b> ${b.prices}</div>`+hooks+sec+redact+
+      `<div class="row"><b>prices</b> ${b.prices}</div>`+
+      (links.length?`<div class="row"><b>web</b> ${links.join('')}</div>`:'')+hooks+sec+redact+
       `<div class="card">${b.card}</div>`;
     grid.appendChild(d);
   }

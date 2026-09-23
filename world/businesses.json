@@ -1,6 +1,6 @@
 {
   "_doc": "Machine-readable registry of canonical parody businesses. Naming authority: world/businesses.md; depth layer: world/businesses/*.md (one card per venue). Display layer: src/sf/30a_sf_names.js + world/parody-names.json (generated). Rule: parody names only (design §11); civic/landmark kinds keep real names as scenery. All prices are GAME DOLLARS — never credits, never real USD.",
-  "version": 16,
+  "version": 30,
   "tiers": {
     "anchor": "interior-capable, request-targetable venue",
     "street": "street-facing counter/signage, no interior yet",
@@ -293,6 +293,80 @@
       "job_card": "world/jobs/shop-and-trade.md"
     },
     {
+      "id": "golden-hour",
+      "name": "Golden Hour Laundromat",
+      "code_keys": [],
+      "kind": "laundry", "tier": "street",
+      "corner": "Mission St side, orange awning",
+      "hours": { "weekday": [7, 23], "weekend": [7, 23] },
+      "staff": [], "owner": "off-screen",
+      "interior": false,
+      "affordances": { "venue_lock": false, "event": false, "nudge": false, "hires": false },
+      "prices": { "wash": 4.25, "dry per 8 min": 0.5, "wash-and-fold per lb": 1.75 },
+      "hooks": [
+        "the 90-minute wait is the cheapest collision venue on the block — folding-table adjacency is information",
+        "Esther's Thursday-morning machines; the Friday-night laundromat date is a real genre here",
+        "the bulletin board is a second rumor node after Malik's counter"
+      ],
+      "card": "world/businesses/golden-hour.md"
+    },
+    {
+      "id": "dusty-spine",
+      "name": "The Dusty Spine",
+      "code_keys": ["Dog Eared Books"],
+      "kind": "books", "tier": "street",
+      "corner": "Valencia at 20th side",
+      "hours": { "weekday": [11, 19], "weekend": [10, 20] },
+      "staff": [], "owner": "off-screen clerk-owner",
+      "interior": false,
+      "affordances": { "venue_lock": false, "event": false, "nudge": false, "hires": true },
+      "prices": { "paperback": 6, "staff-pick hardcover": 18, "free box": 0 },
+      "hooks": [
+        "June's after-school window — the YA spin rack is hers until her bus",
+        "Vera alphabetizes the free box on her day off; the clerk pretends not to notice",
+        "borrowed vs bought is a legible tell in what June carries out"
+      ],
+      "card": "world/businesses/dusty-spine.md",
+      "job_card": "world/jobs/shop-and-trade.md"
+    },
+    {
+      "id": "marooned",
+      "name": "Marooned Records",
+      "code_keys": ["Stranded Records"],
+      "kind": "music", "tier": "street",
+      "corner": "Valencia side",
+      "hours": { "weekday": [11, 19], "weekend": [11, 20] },
+      "staff": [], "owner": "off-screen",
+      "interior": false,
+      "affordances": { "venue_lock": false, "event": false, "nudge": false, "hires": false },
+      "prices": { "45s bin": 2, "used LP": 16, "new release": 28 },
+      "hooks": [
+        "Sam's Sunday dollar-bin tithe before his park set — one 45 a week",
+        "Jules sells back the same three records every broke month; the clerk keeps a hold shelf",
+        "the in-store turntable is the counter clerk's public mood readout"
+      ],
+      "card": "world/businesses/marooned.md"
+    },
+    {
+      "id": "the-musket",
+      "name": "The Musket",
+      "code_keys": ["Beretta"],
+      "kind": "restaurant", "tier": "street",
+      "corner": "Valencia at 23rd side",
+      "hours": { "weekday": [17, 23], "weekend": [15, 24] },
+      "staff": [], "owner": "off-screen",
+      "interior": false,
+      "affordances": { "venue_lock": false, "event": true, "nudge": false, "hires": true },
+      "prices": { "small plate": 14, "cocktail": 15 },
+      "hooks": [
+        "walk-in bar seats only — adjacency is luck the audience can watch happen",
+        "choosing this room over Il Delfino's formality is a public statement",
+        "Tomás studies the room like homework for a restaurant that doesn't exist yet"
+      ],
+      "card": "world/businesses/the-musket.md",
+      "job_card": "world/jobs/food-and-grocery.md"
+    },
+    {
       "id": "flying-pannier",
       "name": "Flying Pannier Courier Co-op",
       "code_keys": [],
@@ -383,13 +457,55 @@
       "interior": false,
       "affordances": { "venue_lock": false, "event": false, "nudge": false, "hires": false },
       "prices": {},
-      "hooks": ["The Watchbird (bar/lounge), Café Cometa (café), Golden Hour Laundromat — claimed in businesses.md §2, mintable when a story needs a door"],
+      "hooks": ["The Watchbird (bar/lounge), Café Cometa (café) — claimed in businesses.md §2, mintable when a story needs a door. Golden Hour Laundromat minted at v30."],
       "card": "world/businesses/spares.md"
     }
   ],
+  "web": {
+    "_doc": "v30 — business-to-business interlink layer. Economic geography as conditions: supplier runs, clientele overlap, rivalry pressure, gossip routes. Edges are facts the sim may notice (who walks where, who prices against whom), never scripts it must run. 'secret: true' edges are secret-adjacent — internal surfaces only; public clearance redacts them like secret hooks. Cast ties live in staff/hooks; the web is venue↔venue only.",
+    "kinds": {
+      "supplies": "one venue's stock comes from the other — a visible recurring run",
+      "spillover": "one venue's crowd physically becomes the other's",
+      "rivalry": "same customers, overlapping offer — pressure, never a feud",
+      "shared_clientele": "same regulars by affinity — collision odds, not competition",
+      "parts_run": "mid-job supply walk between working venues",
+      "gossip_route": "a physical path along which neighborhood information travels",
+      "loan": "money moved between venues off the books — always secret-adjacent"
+    },
+    "edges": [
+      { "a": "mudhaus", "b": "baguette-about-it", "kind": "supplies",
+        "note": "the pastry case restocks off the morning bake; day-olds move at $2 — the day the case is empty is a readable anomaly" },
+      { "a": "el-farolote", "b": "valencia-growers", "kind": "supplies",
+        "note": "Saturday produce cases — Tomás walks stalls comparing tomato cases before the week starts" },
+      { "a": "the-600-club", "b": "el-farolote", "kind": "spillover",
+        "note": "last call walks downhill into the post-1 AM burrito line — the taqueria's loudest hour is the bar's doing" },
+      { "a": "dolores-perk", "b": "buy-rite-creamery", "kind": "spillover",
+        "note": "when the creamery line hits the sidewalk, Perk's park-side tables take the overflow" },
+      { "a": "buy-rite-market", "b": "maliks", "kind": "rivalry",
+        "note": "same basket, different scale — Buy-Rite wins the peach, Malik wins at 23:00" },
+      { "a": "las-palmas", "b": "valencia-growers", "kind": "rivalry",
+        "note": "Luz prices against the Saturday stalls; her regulars migrate weekly and she notices every defection" },
+      { "a": "the-musket", "b": "il-delfino", "kind": "rivalry",
+        "note": "two date-night rooms, one neighborhood — reservation formality vs walk-in bar luck; a vibe, never a feud" },
+      { "a": "dusty-spine", "b": "marooned", "kind": "shared_clientele",
+        "note": "the Valencia twenty-dollar loop — same browsers, different bins, one shared pastry" },
+      { "a": "needlepointe", "b": "the-600-club", "kind": "shared_clientele",
+        "note": "flash talk carries to the back booth — Bex's tattoo workload is legible in her bar occupancy" },
+      { "a": "folsom-auto", "b": "auerbach", "kind": "parts_run",
+        "note": "Gus walks fittings over mid-job; Victor holds them behind the counter — two old shops keeping each other honest" },
+      { "a": "golden-hour", "b": "maliks", "kind": "gossip_route",
+        "note": "the folding-table bulletin board mirrors the Mini Mart's — flyers migrate between them within days" },
+      { "a": "flying-pannier", "b": "il-delfino", "kind": "gossip_route",
+        "note": "Marcus's manifest includes the Delfino pickup — the courier sees the date-night room before anyone talks about it" },
+      { "a": "bloom-and-doom", "b": "las-palmas", "kind": "shared_clientele",
+        "note": "Ida and Luz trade stem scraps for fruit — the corner smells like both by noon" },
+      { "a": "auerbach", "b": "la-esperanza", "kind": "loan", "secret": true,
+        "note": "the $6,000 handshake — Victor's back-drawer ledger funds a restaurant that does not exist" }
+    ]
+  },
   "civic_keep_real": {
     "rule": "scenery only — never story targets (businesses.md §3c)",
     "list": ["SF General", "Mission High School", "Mission Branch Library", "Mission Police Station", "Clarion Alley", "Dolores Park"]
   },
-  "corridor_flips_note": "The second-wave parody names (v16 — e.g. The Musket, Tacobulous, Marooned Records, Hole in Fun, Centro Cultural La Misión) live in SF_PARODY_NAMES / parody-names.json, not here: they are signage-level venues with no cast ties. Promote one to a card only when a routine, job, or storyline attaches to it."
+  "corridor_flips_note": "The second-wave parody names (v16 — e.g. Tacobulous, Hole in Fun, Centro Cultural La Misión) live in SF_PARODY_NAMES / parody-names.json, not here: they are signage-level venues with no cast ties. Promote one to a card only when a routine, job, or storyline attaches to it. Promoted at v30: The Dusty Spine (Dog Eared Books), Marooned Records (Stranded Records), The Musket (Beretta) — plus Golden Hour Laundromat minted from the reserved list."
 }

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v29)
+# Playtest Harness — "Real World / The Mission" (world v30)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Fourteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Fifteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -104,7 +104,11 @@ fields + v28 backstory/room/strangers; cast.html CAST ids and card fields
 agree), **crowd** (crowd.json ↔ crowd.html mirror — zones, budgets, shades,
 flow edges, micro-events, greeting pairs, scenes; extras carry no
 identity-shaped field; minors greet in packs only; overnight
-allow_deserted protected).
+allow_deserted protected), **biz** (businesses.json ↔ directory.html:
+BIZ/WEB blocks mirrored, every card exists and none orphaned,
+tier/affordance/hours/staff sanity, web edges resolve to real venues,
+loan edges always secret-flagged, reserved entries stay empty, the
+public-clearance redaction path exists for secret edges).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

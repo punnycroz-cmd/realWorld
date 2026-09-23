@@ -7,8 +7,9 @@ nothing.
   room with a jukebox and worse lighting than The 600 Club.
 - **Café Cometa** — café. Available when the block needs a third coffee
   option or a rival for Mudhaus to glare at.
-- **Golden Hour Laundromat** — available when a storyline needs a
-  place where people wait 90 minutes together on purpose.
+
+(Golden Hour Laundromat was minted at v30 — it's a live venue now, see
+`world/businesses/golden-hour.md`.)
 
 ## Minting rule
 

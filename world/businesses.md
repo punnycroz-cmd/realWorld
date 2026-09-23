@@ -1,5 +1,12 @@
-# Parody Business Registry — "The Mission" (world v16)
+# Parody Business Registry — "The Mission" (world v30)
 
+> **v30 additions:** four doors promoted to registered venues — Golden Hour
+> Laundromat (minted from the reserved list), The Dusty Spine, Marooned
+> Records, and The Musket (corridor flips with cast ties now attached).
+> New §6: the **business web** — venue↔venue interlinks (supplies,
+> spillover, rivalry, shared clientele, parts runs, gossip routes)
+> machine-readable at `businesses.json → web`.
+>
 > **v16 depth layer:** the naming policy below remains canonical. The
 > registry now has a machine mirror at `world/businesses.json` (tiers,
 > hours, staff, affordances, hooks), per-venue cards at
@@ -116,6 +123,16 @@ time in. Details beyond the name are world content — safe for briefings.
 - **Frutería Las Palmas** — **A07 Luz**'s fruit stand, Dolores at 19th.
 - **Bloom & Doom Flowers** — **A18 Ida**'s florist; weddings and funerals
   both, which is the joke.
+- **Golden Hour Laundromat** — Mission-side wash house; the block's
+  cheapest collision venue. Minted from the reserved list at v30.
+- **The Dusty Spine** — used-book shop, Valencia side (parody flip of
+  the real used-book POI). **A04 June**'s after-school window; **A11
+  Vera** alphabetizes the free box unasked.
+- **Marooned Records** — record shop, Valencia side (parody flip).
+  **A08 Sam**'s Sunday dollar-bin tithe; **C2 Jules**'s sell-back cycle.
+- **The Musket** — small-plates-and-cocktails room, Valencia at 23rd
+  side (parody flip). The walk-in-bar rival to Il Delfino's date-night
+  formality.
 
 ### Off-stage organizations (names only — no venue needed)
 
@@ -138,7 +155,6 @@ time in. Details beyond the name are world content — safe for briefings.
   it ever opens, it's an earned world-event, not a spawn.
 - **The Watchbird** — spare bar/lounge name, unassigned.
 - **Café Cometa** — spare café name, unassigned.
-- **Golden Hour Laundromat** — spare, unassigned.
 
 ---
 
@@ -344,3 +360,44 @@ GTA-style imitation, applied to the Mission:
 - Cast-bible-era addresses (744/750 Guerrero, Capp St studio, Geneva Ave
   flat) are superseded by 9xxx numbers per the address spec — see
   `world/characters/_index.md` and `world/jobs-housing.md`.
+
+---
+
+## 6. The business web — venue↔venue interlinks (v30)
+
+The registry used to treat each business as an island: staff, hours,
+hooks. Real neighborhoods are meshes — a taqueria's loudest hour is a
+bar's doing, a minimart's bulletin board mirrors a laundromat's. The
+`web` block in `businesses.json` makes that mesh machine-readable.
+
+Edge kinds (all conditions, never scripts):
+
+| Kind | Meaning |
+|---|---|
+| `supplies` | one's stock comes from the other — a visible recurring run |
+| `spillover` | one venue's crowd physically becomes the other's |
+| `rivalry` | same customers, overlapping offer — pressure, never a feud |
+| `shared_clientele` | same regulars by affinity — collision odds |
+| `parts_run` | mid-job supply walk between working venues |
+| `gossip_route` | a physical path along which information travels |
+| `loan` | money moved off the books — always `secret: true` |
+
+Current edges (14) live in `businesses.json → web.edges` — the
+canonical list. Highlights: 600 Club → El Farolote spillover (the
+post-1 AM burrito tide), Mudhaus → Baguette About It pastry restock,
+Buy-Rite ↔ Malik's basket rivalry, The Musket ↔ Il Delfino date-night
+rivalry, Gus's mid-job parts runs to Auerbach, and one `secret` edge —
+Victor's handshake loan to La Esperanza.
+
+Rules:
+
+- **Venue↔venue only.** Cast ties stay in `staff`/`hooks`; the web
+  describes rooms, not people.
+- **`secret: true` = internal surfaces only.** Public-clearance views
+  redact it exactly like `secret_hooks` (same rule, same reason).
+- **Conditions, never scripts.** An edge says what a camera can
+  notice — it never obliges a character to walk it.
+- **Rivalry is not war.** No sabotage, no feud beats — overlapping
+  offer and legible preference only.
+- New edges enter through this file's update flow (registry first,
+  then signage/cards), same as new names.
