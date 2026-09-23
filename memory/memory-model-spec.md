@@ -1,4 +1,36 @@
-# Memory Model Spec v3.6 — implementable human-like memory for RW characters
+# Memory Model Spec v3.7 — implementable human-like memory for RW characters
+
+> **v3.7 note (retrieval-cues IV — the cue's owner, moment, and
+> protocol):** `memory/retrieval-cues.md` Part IV (§§33–45) prices
+> what the first three passes never owned: **cue ownership** —
+> self-generated cues carry `origin` and earn `selfcue_mult`
+> (Mäntylä 1986: ~91% vs ~55% other-cue) — §5.2; **retrieval-time
+> load** — DA at test taxes latency, breadth, and PM monitoring
+> while accuracy stays near-obligatory (Craik et al. 1996;
+> Naveh-Benjamin et al. 1998/2000; Rohrer & Pashler 2003) —
+> §5.4/§5.25; **retrieval-time stress sharpening** — cortisol lag
+> window + valence multiplier on `stress_retrieve_loss` (Shields
+> et al. 2017 meta; Gagnon & Wagner 2016) — §5.4; **mood repair**
+> — trait-gated incongruent search mode that flips §5.3's
+> congruence sign under sustained negative mood, blocked under
+> dysphoria/rumination (Josephson et al. 1996; Joormann & Siemer
+> 2004) — §5.27; **forward testing** — a retrieval bout primes the
+> next encodings and halves their PI pool (Szpunar et al. 2008;
+> Chan et al. 2018 meta) — §5.26; **familiarity-without-recall** —
+> scene-level `familiar_only`/`deja`/`sourceless` returns on failed
+> bouts via configural famScore (Cleary & Greene 2000; Cleary et
+> al. 2012) — §5.28; **in-group SSRIF** — `ss_rif_k` gated by
+> speaker in-group status (Coman & Hirst 2015) — §5.8; **PM
+> retrospective leg** — fired cue + failed action recall →
+> `pm_vague` intention-shell (Einstein & McDaniel) — §5.14;
+> **doorway drop** — locShift boundaries shed peripheral cues and
+> dip armed intentions (Radvansky et al. 2011) — §5.29;
+> **interviewMode** — the cognitive-interview sequence as a
+> game-systems contract (Köhnken et al. 1999 d=0.87; Memon et al.
+> 2010) — §5.30; **isolation at retrieval** — `isolated` records
+> take singleton cue buckets (fan immunity) + bout-first privilege
+> (Hunt & McDaniel 1993) — §5.31. +25 params in §7, probes
+> P378–P388. All optional, default-neutral.
 
 > **v3.6 note (forgetting-curves IV — the curve across a life):**
 > `memory/forgetting-curves.md` Part IV (§§17–21) prices the
@@ -2107,6 +2139,13 @@ diagnosticity (v2.6): c_j *= (1 − diag_w
                     // diagnosticity prices the cue (Nairne 2002;
                     // Poirier et al. 2012 — more match can hurt when
                     // it lowers diagnostic value).
+cue ownership (v3.7): if C_j.origin == "self": c_j *= selfcue_mult
+                    // ≈1.7 — a cue descended from the character's own
+                    // elaboration/narration beats a nominally identical
+                    // external cue (Mäntylä 1986: ~91% vs ~55%; Tullis &
+                    // Finley 2018 — RC§33). origin defaults "ext";
+                    // self-origin cues are definitionally §5.1-encoded.
+                    // Orthogonal to diagnosticity: holds at matched df.
 sensory age scale:  c_sensory = w_sensory · overlap · (1 + sensory_age_slope
                                   · log1p(m.ageDays/30))         // RC§3 Proust
 mismatch penalty:   if a salient sensory field mismatches:
@@ -2190,6 +2229,25 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
   sparing encoding/consolidation (de Quervain et al. 1998/2000; requires
   concurrent arousal, Roozendaal et al. 2004; emotional-memory.md §4).
   Retrieval-side only; never touches decay.
+  **v3.7 — lag + valence (RC§35):** the penalty applies only when the
+  stressor's onset is ≥ `stress_lag_min` (≈20 sim-min — cortisol hasn't
+  peaked inside the window; Schoofs et al. timing studies) and ≤
+  `stress_off_min` (≈90), and is scaled per-record by
+  `(1 + stress_emo_mult·|m.emotional.valence|)` (`stress_emo_mult` ≈0.5)
+  — the meta's moderator: retrieval stress hits emotional material
+  HARDER than neutral (Shields, Sazma, McCullough & Yonelinas 2017,
+  113 studies; Gagnon & Wagner 2016). Interrogated during the shock:
+  fine. Twenty minutes after, calm and cortisol-peaked: empty.
+- **v3.7 — divided attention at test (RC§34):** `cueContext.daLoad`
+  taxes the effortful legs, not the completion: voluntary recall
+  `θ += da_ret_pen·daLoad` (≈0.04), `search_breadth ×=
+  (1 − da_breadth_pen·daLoad)` (≈0.3), and §5.25 `latency_ms ×=
+  (1 + lat_da_mult·daLoad)` (≈0.6); §5.14 nonfocal/time PM monitor
+  rolls `×= (1 − da_monitor_pen·daLoad)` (≈0.5) — vigilance pays
+  what retrieval doesn't. Ambient scan, involuntary, focal PM:
+  unchanged. Retrieval is near-obligatory but protection costs
+  resources (Craik et al. 1996; Naveh-Benjamin et al. 1998/2000;
+  Rohrer & Pashler 2003). P379.
   **v0.7 — synchrony on θ:** with `peak_hour` set, θ gains
   `synchrony_gain·(1 − cos(π·Δh/12))/2` — recall is HARDER off-peak,
   mirroring the §2 encoding modulation; age-scaled per §2 (May &
@@ -2416,6 +2474,14 @@ autobiographical extension Stone, Barnier, Sutton & Hirst 2010/2013;
 social-memory.md §6). Shared silences: a speaker who always tells one
 version makes listeners progressively unable to recall what she omits.
 Same trauma exemption as plist_suppress.
+**v3.7 — the in-group gate (RC§39):** `ss_rif_k ×= ingroup_w(speaker)`
+— SS-RIF requires the listener to co-retrieve, and co-retrieval follows
+shared identity (Coman & Hirst 2015: in-group speakers suppress,
+out-group don't; shared-identity priming restores it). `ingroup_w` =
+1.0 when PersonModel[speaker] shows shared group OR credibility ≥
+`cred_hi`; `ssrif_out_mult` (≈0.2) for out-group/distrusted tellers.
+An outsider's omissions leave your memory alone; a trusted voice's
+silences become yours. P384.
 **v2.0 — the facilitation switch:** unsurfaced records that are
 *integrated* with the surfaced one (same event id or a `links` edge —
 not merely cue-similar) flip sign: `strength *= (1 + rif_facil_k)`
@@ -2604,6 +2670,25 @@ re-encountering the cue inside the tail:
 
 A refire is a commission — the act or the reach ("I already gave you
 this, didn't I?"), never a fresh recall. P247.
+
+**v3.7 — the retrospective leg (RC§40a):** a successful fire roll runs
+a second draw on the intention's ACTION content:
+
+```
+p(action recalled | fired) = pm_action_p            // ≈0.9
+    · (1 − 0.3·ageScale) · (1 − da_monitor_pen·daLoad)
+fail → `pm_vague` flag: urgency without content — high FOK, no plan
+    ("I know I was supposed to do something when I saw him…");
+    resolves if the action cue arrives within pm_vague_win (≈0.5d);
+    unresolved, decays like an ordinary failed recall and can
+    TOT-recur via §5.16
+```
+
+PM success = detecting the cue AND recalling the action (Einstein &
+McDaniel multiprocess decomposition); the retrospective leg shares
+ordinary recall's age/load deficits while focal detection stays
+spared — the classic "stood there knowing I'd come for something"
+state is cue detection minus content. P385.
 
 **v2.8 — the PM paradox (age-decline.md §34):**
 
@@ -2852,6 +2937,138 @@ Dialogue layer consumes latency for beat-level hesitations
 ("…give me a second"); validation uses it as a second, independent
 observable channel on R. Display/validation only — latency must never
 feed back into θ or strength. P374.
+**v3.7:** `latency_ms ×= (1 + lat_da_mult·cueContext.daLoad)` — the
+retrieval-time DA tax lives here, not in accuracy (RC§34).
+
+### 5.26 Forward testing — remembering primes learning (new in v3.7)
+
+A successful voluntary recall bout stamps `postRecallDay` on the
+character. For `fwd_win` (≈0.05 day — the same scene, the next
+conversation):
+
+```
+new encodings:  E ×= (1 + fwd_test_gain)            // ≈0.12
+n_sim pool:     the incoming record's bucket counts ×fwd_pi_release
+                (≈0.5) for this encoding's similarity/interference
+                math — retrieval resets the competitive pool like
+                a miniature §4.18 transition
+re-exposure bouts (hearAccount, ambient scan): NO window — the
+                benefit belongs to retrieval, not re-presentation
+                (Szpunar, McDermott & Roediger 2008 Exp. 3; Chan,
+                Manley, Davis & Szpunar 2018 meta — RC§37)
+```
+
+Reminiscence warms the encoder: a character who just dug up old
+stories lays down the next hour more cleanly, and the old material
+interferes with it less. P382.
+
+### 5.27 Mood repair — retrieval as regulation (new in v3.7)
+
+On a voluntary recall bout while `C.mood < repair_mood_bar` (−0.2)
+has held across the bout's span, roll `repair_p` (trait — ≈0.5
+nondysphoric; ≈0.05 under the depressive/ruminative modifier or an
+active rumination state — Joormann & Siemer 2004):
+
+```
+repair mode:  the §5.3 moodCongruence sign flips —
+              positive-valence records gain repair_gain (≈0.15)
+              drive against the mood match
+feedback:     each emitted positive record adds repair_mood_gain
+              (≈0.05, cumulative ≤0.2) to C.mood — the recall works
+failed roll:  ordinary congruent selection — the consecutive-
+              negatives pattern (Josephson, Singer & Salovey 1996;
+              Rusting & DeHart 2000 — RC§36)
+```
+
+`repair_p` is a personality dial — the bible decides whether this
+character self-soothes with memory at all. P381.
+
+### 5.28 Familiarity without a source — scene-level déjà vu (new in v3.7)
+
+When a voluntary recall bout emits nothing, compute `famScore` =
+max over all live records of configural overlap (place + people +
+sensory fields jointly — a global-matching familiarity signal, not
+the §5.1-gated cue match). If `famScore ≥ fam_bar` (≈0.45), emit a
+`familiar_only` Reconstruction — no content fields, confidence ≤0.3,
+flagged by the top match's nature (Cleary & Greene 2000; Cleary et
+al. 2012 configural VR result — RC§38):
+
+- `sourceless: true` — top match is a real record that failed
+  retrieval. "I've definitely had this conversation…" The trace is
+  there; the door is closed.
+- `deja: true` — top match is a *similar-but-different* record.
+  Genuine déjà vu: a false familiarity the character cannot place.
+  Surface flag only; feeds §6 misattribution surface; `deja_prop`
+  (≈0.3, declining with age_eff/80 — Brown 2003/2004) gates whether
+  the experience reaches awareness at all.
+
+Distinct from §5.10's person-cascade `familiar_only` (same return
+shape, different trigger — this one is scene/context-level and
+requires a FAILED bout). Never fires with content; a familiar_only
+return that later resolves re-enters normal scoring. P383.
+
+### 5.29 The doorway — boundary crossing sheds cues (new in v3.7)
+
+On a `locShift` location boundary (existing event flag; Radvansky,
+Krawietz & Tamplin 2011 — walking through doorways measurably
+impairs recall of carried objects and armed intentions — RC§40b):
+
+```
+active context C:  peripheral cueVector fields (non-attended)
+                   drop at boundary_cue_drop ≈0.4 — the old room's
+                   cue set is re-segmented away
+armed intentions:  nonfocal/time fire rolls ×(1 − doorway_pen)
+                   (≈0.2) inside post_boundary_win ≈0.02 day
+shallow records:   live records with R < 0.5 and age < 1h take a
+                   one-time boundary_hit ≈0.05 R decrement
+exempt:            focal-armed intentions and self-origin cue
+                   fields — what you're looking at and what you
+                   named yourself survive the doorway
+```
+
+"Walked into the kitchen and lost the errand" — unless the errand
+was rehearsed out loud or was what you were already doing. P386.
+
+### 5.30 interviewMode — the cognitive interview as a contract (new in v3.7)
+
+Contract-level guidance, no new machinery — each step reuses
+validated operators (Fisher & Geiselman 1992; Köhnken et al. 1999
+meta: correct d=0.87, errors d=0.28, accuracy 85% vs 82%; Memon,
+Meissner & Fraser 2010 — larger benefit for older witnesses).
+`interviewMode(charId, eventRef)` recommended sequence:
+
+```
+1. reinstate:  inject event place/sensory fields into C at
+               mental_reinstate weight; set C.ops = m.encodeOps —
+               kills the §5.12 TAP tax by matching channels
+2. free pass:  bout k≥5 with NO supplied cue fields — self-origin
+               retrieval at selfcue_mult (§5.2); interviewer cues
+               would only compete AND part-list-suppress (§5.8)
+3. vary:       flip contiguity_asym (backward recount), rotate
+               C.ops — each channel change re-sorts the drive
+               ranking and reaches what pass 1 couldn't
+4. delayed second pass: §5.11 reminiscence leg applies
+```
+
+Acceptance shape (P387): ≥20% more correct fields than direct
+exhaustive questioning at accuracy rate within ±3%; larger margin
+for older characters. The worst interrogation is §5.13's own
+finding — cued exhaustion self-destructs.
+
+### 5.31 Isolation at retrieval — the oddball goes first (new in v3.7)
+
+`isolated` (§2, v1.2) gains a retrieval life (Hunt & McDaniel 1993
+distinctiveness principle — difference pays at access, RC§42):
+
+- **Singleton bucket:** an isolated record's cue key is its own —
+  `fan(m)` = 0 by construction (immune to §5.4's log-fan divisor).
+  Two isolates sharing a cue key collapse the privilege — two
+  oddities in one room stop being odd.
+- **Bout-first privilege:** `iso_first` (≈0.1) drive bonus on the
+  first emission of a voluntary bout — oddities lead stories
+  ("you'll never guess what happened").
+- Retrieval-side only: no strength bonus, no decay relief. A buried
+  oddity dies like anything else; it just never waits in line. P388.
 
 ---
 
@@ -4441,6 +4658,25 @@ MemoryParams = {
   "pa_gain": 0.3, "pa_cap": 3.0,             // §4.13 retell attachment
   "aff_recon_scale": 2.0,    // §5.5 affect-report appraisal blend
   "bilingual_bal": 0.3,      // §5.2 lang_mismatch attenuation
+  // v3.7 additions (retrieval-cues IV — retrieval-cues.md §§33–45)
+  "selfcue_mult": 1.7,       // self-origin cue weight multiplier (§5.2)
+  "da_ret_pen": 0.04,        // θ tax under daLoad at test (§5.4)
+  "da_breadth_pen": 0.3,     // search_breadth shrink under daLoad (§5.4)
+  "lat_da_mult": 0.6,        // latency inflation under daLoad (§5.25)
+  "da_monitor_pen": 0.5,     // PM monitor/intention-leg DA tax (§5.14)
+  "stress_lag_min": 20,      // sim-min before cortisol penalty lands (§5.4)
+  "stress_off_min": 90,      // sim-min tail of the stress penalty (§5.4)
+  "stress_emo_mult": 0.5,    // valence multiplier on stress loss (§5.4)
+  "fwd_win": 0.05, "fwd_test_gain": 0.12, "fwd_pi_release": 0.5,
+                             // forward-testing window (§5.26)
+  "repair_mood_bar": -0.2, "repair_p": 0.5, "repair_gain": 0.15,
+  "repair_mood_gain": 0.05,  // mood-repair search mode (§5.27)
+  "fam_bar": 0.45, "deja_prop": 0.3,   // familiar_only/deja gate (§5.28)
+  "ssrif_out_mult": 0.2,     // out-group speaker SSRIF scale (§5.8)
+  "pm_action_p": 0.9, "pm_vague_win": 0.5,  // PM action recall (§5.14)
+  "boundary_cue_drop": 0.4, "doorway_pen": 0.2,
+  "post_boundary_win": 0.02, "boundary_hit": 0.05, // doorway (§5.29)
+  "iso_first": 0.1,          // isolated-record bout-first bonus (§5.31)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -5231,6 +5467,31 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     `ptsd` modifier sets `intrude_hl`→∞ (§5.7).
   - Snapshot-additive: `period`/`mod`/`intrude_w` absent = legacy
     (period 0, mod verb, intrude_w derived from arousal).
+- v3.7 additions (retrieval-cues.md Part IV §§33–45):
+  - `cueContext` fields: `daLoad` (0..1 — divided attention at TEST;
+    taxes latency/breadth/monitoring, not accuracy, §5.4/§5.25);
+    cue features may carry `origin:"self"|"ext"` (default ext —
+    self-origin cues earn `selfcue_mult`, §5.2); `stress` semantics
+    unchanged but now lag/valence-weighted (§5.4).
+  - `recall` may return `familiar_only` Reconstructions outside the
+    person cascade — scene-level familiarity on a FAILED bout with
+    `famScore ≥ fam_bar`; flags `sourceless` (real record, door
+    closed) or `deja` (similar-but-different match — surface flag,
+    feeds §6 misattribution). No content fields, conf ≤0.3 (§5.28).
+  - Intention records may return `pm_vague` — fired cue + failed
+    action recall: urgency without content, resolves on action-cue
+    arrival within `pm_vague_win` (§5.14).
+  - `interviewMode(charId, eventRef)` — recommended CI sequence
+    (reinstate → free pass → varied channels → delayed second pass);
+    each step reuses existing ops, contract-level only (§5.30).
+  - `locShift` events now shed peripheral cueVector fields and dip
+    armed nonfocal intentions inside `post_boundary_win` (§5.29);
+    successful voluntary bouts stamp `postRecallDay` granting the
+    `fwd_win` encoding window (§5.26).
+  - Record schema: `isolated` now has retrieval semantics (singleton
+    cue bucket + `iso_first`, §5.31); character store gains
+    `postRecallDay`; cue-feature `origin` tag — all snapshot-
+    additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

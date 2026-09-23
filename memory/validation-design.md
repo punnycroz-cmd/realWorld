@@ -2558,3 +2558,94 @@ attachment); Anderson & Schooler 1991 (reuse power tails); Levine &
 Safer 2002; Levine, Lench & Safer 2009; Robinson & Clore 2002
 (accessibility model of emotion report); Marian & Neisser 2000;
 Rubin, Wetzler & Nebes 1986; Thomsen & Berntsen 2008.
+
+## 59. New probes P378–P388 (v38 suite — retrieval-cues IV)
+
+Full spec of each probe is in `retrieval-cues.md` §44; registry
+entries below carry tier, sign-lock, and guard role only. All bands
+follow the §3 replication-discount protocol; cluster-aware CIs per §45.
+
+- **P378 cue ownership (MUST):** self-origin vs external cue at
+  matched overlap/df → ≥1.5× recall; advantage ≥1.3× at ≥3-week
+  gaps. Mäntylä 1986. Guard: P9 gate must hold simultaneously —
+  unencoded cues contribute 0 regardless of origin tag.
+- **P379 retrieval-DA asymmetry (MUST):** daLoad=1 at test →
+  accuracy drop ≤15% of matched encoding-DA drop; latency +≥30%;
+  ambient-scan rate unchanged; nonfocal PM fire-rate drops
+  measurably more than accuracy (monitoring is the taxed leg).
+  Craik et al. 1996; Rohrer & Pashler 2003.
+- **P380 stress lag & valence (MUST):** θ penalty ≈0 inside
+  stress_lag_min, present at lag, persists to stress_off_min;
+  |valence|-high records penalized measurably more than neutral.
+  Shields et al. 2017; Gagnon & Wagner 2016.
+- **P381 mood repair (MUST):** sustained negative mood →
+  high-repair_p second emission shifts positive vs first;
+  ruminative/low-repair_p shows consecutive negatives (Josephson
+  1996 ordering); successful repair recall lifts C.mood.
+- **P382 forward testing (MUST):** matched encodes with vs without
+  an interpolated retrieval bout → higher 24h R AND fewer
+  PI-source swaps in the post-bout arm; re-exposure interpolation
+  produces neither (Szpunar et al. 2008 Exp. 3 sign-lock).
+- **P383 familiar-only emission (MUST):** failed bout with
+  famScore ≥ fam_bar → `familiar_only` return (no content, conf
+  ≤0.3); similar-but-new top match → `deja`, real unretrieved →
+  `sourceless`; below bar → nothing. Cleary & Greene 2000;
+  Cleary et al. 2012.
+- **P384 in-group SSRIF (SHOULD):** listener suppression of own
+  unspoken related records larger under in-group/credible than
+  out-group speaker at matched listenerAttention. Coman & Hirst
+  2015.
+- **P385 PM action forgetting (MUST):** fired cue + failed action
+  draw → `pm_vague`, measurably higher with age/daLoad; resolves
+  on action-cue arrival inside pm_vague_win; P130's focal
+  age-flatness must still hold (detection spared, content lost).
+- **P386 doorway drop (SHOULD):** armed nonfocal intention
+  fire-rate dips ≥15% inside post_boundary_win; shallow recent
+  records take boundary_hit; focal-armed + self-origin cues
+  exempt. Radvansky et al. 2011.
+- **P387 interviewMode (MUST):** CI sequence ≥20% more correct
+  fields than direct exhaustive questioning at accuracy rate
+  within ±3%; older witnesses gain MORE (Memon et al. 2010).
+  Guard: the interrogation arm must still show §5.13's trail-off.
+- **P388 isolation at retrieval (SHOULD):** isolated record in a
+  dense corpus recalls ≥1.5× a strength-matched non-isolated
+  record and leads bout emissions disproportionately; zero effect
+  on decay (survival equal at matched strength).
+
+Registry now P1–P388; numbering stable.
+
+## 60. Sources new to this version
+
+Mäntylä 1986 (JEP:LMC 12:66 — verified: ~91% self-cue vs ~55%
+other-cue, 500–600 items); Mäntylä & Nilsson 1983 (Scand J Psych
+24) and 1988; Tullis & Finley 2018 (self-cue review); honored-vs-
+dishonored cue follow-up (Mem&Cog 2022, OR≈3.8); Craik, Govoni,
+Naveh-Benjamin & Anderson 1996 (JEP:G 125:159 — verified:
+encoding-DA 26–33% drop vs minimal retrieval-DA); Naveh-Benjamin,
+Craik, Guez & Dori 1998 (JEP:LMC 24); Naveh-Benjamin, Craik,
+Gavrilescu & Anderson 2000 (M&C 28:965); Rohrer & Pashler 2003
+(retrieval protected "with substantial resource"); Shields,
+Sazma, McCullough & Yonelinas 2017 (Psych Bull 143:636 — 113
+studies, retrieval-stress impairment, larger for valenced);
+Gagnon & Wagner 2016 (NYAS — stress biases retrieval toward
+reflexive modes); Schoofs et al. timing work (cortisol-peak lag);
+Josephson, Singer & Salovey 1996 (Cog&Emotion 10:437 — verified:
+repair shift in low-depression, consecutive negatives in high);
+Rusting & DeHart 2000 (JPSP 78:737); Joormann & Siemer 2004 (J
+Abnorm Psych 113:179 — dysphoric repair failure); Szpunar,
+McDermott & Roediger 2008 (JEP:LMC 34:1392 — verified: testing
+insulates subsequent learning from PI, retrieval-not-reexposure);
+Pastötter & Bäuml 2014; Chan, Manley, Davis & Szpunar 2018
+(Psych Bull — forward-testing meta); Cleary & Greene 2000
+(JEP:LMC 26:1063 — recognition without identification); Cleary,
+Ryals & Nomi 2009; Cleary, Brown, Sawyer et al. 2012 (Cog&Cognition
+21 — configural familiarity → déjà vu in VR scenes); Brown 2003/
+2004 (déjà vu base rate, age decline); Coman & Hirst 2015
+(JEP:G 144:1066 — in-group gate on SSRIF, shared-identity
+restoration); Radvansky, Krawietz & Tamplin 2011 (QJEP 64:1632 —
+doorway forgetting); Einstein & McDaniel multiprocess framework
+(PM retrospective component); Fisher & Geiselman 1992; Köhnken,
+Milne, Memon & Bull 1999 (meta d=0.87/0.28, accuracy 85% vs 82%
+— verified); Memon, Meissner & Fraser 2010 (PP&L 16:340 — older-
+witness moderator); Hunt & McDaniel 1993 (distinctiveness
+principle).

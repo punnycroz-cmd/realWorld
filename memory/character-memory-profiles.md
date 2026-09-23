@@ -455,6 +455,18 @@ never copying raw.
 | pa_gain / pa_cap | 0 / 1.0 | 0.8 / 5.0 | preferential-attachment retell (v3.6) |
 | aff_recon_scale | 0.5 | 5.0 | affect-report appraisal blend (v3.6) |
 | bilingual_bal | 0 | 1.0 | lang_mismatch attenuation (v3.6) |
+| selfcue_mult | 1.0 | 2.2 | self-origin cue weight multiplier (v3.7) |
+| da_ret_pen / da_breadth_pen / lat_da_mult | 0 / 0 / 0 | 0.15 / 0.6 / 1.5 | retrieval-time DA taxes (v3.7) |
+| da_monitor_pen | 0 | 0.9 | PM/intention monitor DA tax (v3.7) |
+| stress_lag_min / stress_off_min | 0 / 30 | 60 / 240 | cortisol window edges, sim-min (v3.7) |
+| stress_emo_mult | 0 | 1.0 | valence weight on retrieval stress loss (v3.7) |
+| fwd_win / fwd_test_gain / fwd_pi_release | 0 / 0 / 0.5 | 0.15 / 0.3 / 1.0 | forward-testing window (v3.7) |
+| repair_mood_bar / repair_p / repair_gain / repair_mood_gain | -0.5 / 0 / 0 / 0 | 0 / 1.0 / 0.4 / 0.15 | mood-repair search mode (v3.7) |
+| fam_bar / deja_prop | 0.2 / 0 | 0.8 / 0.8 | familiar_only gate / deja-vu awareness (v3.7) |
+| ssrif_out_mult | 0 | 1.0 | out-group speaker SSRIF scale (v3.7) |
+| pm_action_p / pm_vague_win | 0.5 / 0 | 1.0 / 1.0 | PM action recall + vague window (v3.7) |
+| boundary_cue_drop / doorway_pen / post_boundary_win / boundary_hit | 0 / 0 / 0 / 0 | 0.8 / 0.5 / 0.1 / 0.2 | doorway/boundary drop (v3.7) |
+| iso_first | 0 | 0.3 | isolated-record bout-first bonus (v3.7) |
 
 **v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
 only new per-char dial — how long a trusted correction keeps a record
@@ -1607,3 +1619,51 @@ records — PI release is prospective (old pools simply stop gaining
 competitors); `intrude_w` decay does NOT touch `intrusion_thresh` or
 the trauma re-stamp — three channels stay separate; `rested` n_sim
 exemption is first-day only, not a permanent shield.
+
+## 24. v3.7 note — retrieval-cues IV: which of these are personality
+
+The v3.7 layer is mostly ECOLOGY — load, stress, boundaries, and who
+is doing the asking arrive from the world, not the bible. The
+per-character surfaces:
+
+- **`repair_p`:** the clean bible dial. Self-soothers (warm,
+  emotionally skilled profiles, often high extraversion or earned-
+  secure) sit ~0.5–0.7; stoic profiles who simply endure bad moods
+  without reaching for memory ~0.3; depressive/ruminative profiles
+  ~0.05 — the Josephson consecutive-negatives pattern emerges for
+  free under the rumin modifier. NEVER set high on a character the
+  bible wants melancholic; repair is the difference between sadness
+  and gloom.
+- **`deja_prop`:** mild trait surface. Dreamy/absorbed or
+  fantasy-prone profiles may take 0.4–0.5 (they NOTICE the signal);
+  concrete/literal profiles 0.1–0.2 — the familiarity still fires,
+  it just never reaches awareness. Age_decline curve applies on
+  top; do not hand-tune per age band.
+- **`selfcue_mult`:** near-flat. It prices a cue property (who
+  generated it), not a capacity — a verbal/high-elaboration profile
+  may indirectly mint more self-origin cues (their narrations
+  become their own cues) without touching the multiplier.
+- **`fam_bar`:** flat-ish. Lower it 0.05–0.1 only for profiles
+  whose bible already runs loose source-monitoring (high
+  confab_fill) — a character who lives at the edge of "have I been
+  here?" is a source-monitoring phenotype, not a familiarity
+  phenotype.
+- **DA/stress/boundary params (`da_*`, `stress_*`, `boundary_*`,
+  `doorway_pen`, `post_boundary_win`, `pm_action_p`, `fwd_*`,
+  `iso_first`, `ssrif_out_mult`):** population constants. Age
+  enters through `ageScale` inside the formulas, not through
+  profile knots. `ssrif_out_mult` is relational — the in-group
+  judgment comes from PersonModel, so a clannish profile shrinks
+  its effective in-group (fewer speakers qualify), a trusting one
+  widens it; the multiplier itself never moves.
+- **`pm_vague_win`:** flat. The vague-shell state is a retrieval
+  phenomenon, not a personality one — a bible expresses it through
+  dialogue (the character who narrates "I came in here for
+  SOMETHING"), not through the parameter.
+
+Explicit nulls (guards): `postRecallDay`/`fwd_win` is E-side, not a
+trait — retelling does not become a personality buff; `repair_p`
+flips the CONGRUENCE SIGN only inside a repair-mode bout — it does
+not invert mood-congruent selection globally; `pm_vague` is a
+retrieval state flag, never a stored intention change — the
+intention record itself is intact.
