@@ -89,7 +89,7 @@ latency only.
 | D0.6 | Post launch announcement on registered channels (owner approves each post) | ~30 min | `[~] DRAFTED` — SOCIAL-LAUNCH-PLAN.md timeline |
 | D0.7 | Send press kit link to owner-approved press list (angle templates in PRESS-OUTREACH.md) | ~30 min | `[~] DRAFTED` — 3 pitch angles ready |
 | D0.8 | Community posts where welcome (owner-approved subs/Discords only) | ~30 min | `[~] DRAFTED` — seeded-questions.md |
-| D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual), welcome post, rules pinned (verbatim from `rules.html` per MODERATION-PLAN.md §3.2), `#mod-log` private channel created, canned responses (`templates/mod-responses.md`) posted to mod channel; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 + G13 |
+| D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual curation per `community/feed-mirror.md` §1–§3), welcome post, rules pinned (verbatim from `rules.html` per MODERATION-PLAN.md §3.2), `#mod-log` private channel created, canned responses (`templates/mod-responses.md`) posted to mod channel; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 + G13 |
 | D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`) + onboarding hooks (`persona_chosen` split, `handle_taken_shown`, `decline_lesson_shown` — G16), request-feed health, review-queue depth | continuous | `[ ] PENDING` |
 | D0.10 | Same-day retro note → MARKETINGLOG.md + shared inbox | ~15 min | `[ ] PENDING` |
 
@@ -298,7 +298,7 @@ it before citing the gate.
 | D0.3/D0.3b flips | documented attributes (`data-pricing`, `data-demo-src`) | attribute greps in §4 |
 | D0.4 sitemap submit | sitemap.xml valid + prod_smoke checks it | every dry-run |
 | D0.5–D0.8 posts | `social/drafts/` — launch-thread, timeline, pitches, seeds | drafted, not sent |
-| D0.8b community | `COMMUNITY-FUNNEL.md` §3 + `rules.html` + `templates/mod-responses.md` | spec complete |
+| D0.8b community | `COMMUNITY-FUNNEL.md` §3 + `community/feed-mirror.md` + `rules.html` + `templates/mod-responses.md` | spec complete |
 | D0.9 monitoring | `tools/uptime_probe.sh` + `deploy/monitoring.example` + ANALYTICS dashboard | probe HEALTHY 2026-09-23 |
 | §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts + `tools/rehearse_host.sh` rollback flip | rollback flip exercised 2026-09-23 (v59) |
 
