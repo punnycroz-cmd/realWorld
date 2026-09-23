@@ -471,9 +471,11 @@ function sfClipHalf(P, F, keepPos){
   }
   return out;
 }
-/* sunlit? — the sun sits upper-left (SF_SUN shadows fall +x,+y), so a slope
-   face whose outward normal has negative screen x/y catches the light */
-function sfRoofFaceLit(nx, ny){ return (nx + ny) < 0; }
+/* sunlit? — v14: the TRUE sun vector (SF_SUN.toX/toY, set by the solar
+   engine in 32_sf_render) decides which slope faces catch the light */
+function sfRoofFaceLit(nx, ny){
+  return (nx * SF_SUN.toX + ny * SF_SUN.toY) > 0.08;
+}
 /* v13: even-odd point-in-polygon test in the caller's coordinate space.
    Roof furniture uses it so nothing lands over a courtyard or lot-line
    notch in non-rectangular footprints. */
@@ -485,16 +487,19 @@ function sfPtInPoly(P, x, y){
   }
   return c;
 }
-/* v13: sun-cast shadow blob for rooftop clutter. The building's own shadow
-   slides the footprint by (hPx*0.20, hPx*0.12), so a prop h px tall slides
-   its contact shadow by the same ratio — one sun, one direction. */
+/* v13/v14: sun-cast shadow blob for rooftop clutter. A prop h px tall
+   slides its contact shadow along the live solar vector — same direction
+   and length scale as the building's own footprint shadow. */
 function sfPropShadow(g, x, y, h, r){
-  paEllipse(g, x + h * 0.20 + r * 0.4, y + h * 0.12, r * 1.5, r * 0.55,
-            'rgba(20,14,8,0.28)');
+  paEllipse(g, x + h * SF_SUN.x + r * 0.4, y + h * SF_SUN.y, r * 1.5, r * 0.55,
+            `rgba(20,14,8,${0.10 + 0.18 * SF_SUN.day})`);
 }
 
 function sfBldCanvas(b, wet){
-  const pad = 26; // v12: ridge + chimney height needs more headroom
+  // v12: ridge + chimney headroom; v14: pad also swallows the longest cast
+  // shadow the current sun can throw (hPx · cot(elevation) in any dir)
+  const pad = Math.ceil(26 + b.hPx *
+    Math.max(Math.abs(SF_SUN.x), Math.abs(SF_SUN.y)) * 1.1);
   const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
   const hBase = Math.ceil(b.by1 - b.by0);
   const hPx = Math.ceil(b.hPx);
@@ -528,9 +533,11 @@ function sfBldCanvas(b, wet){
   const wallAt = (x1, y1, x2, y2, t, f) =>
     [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t - hPx * f];
 
-  // pass 0: cast shadow on the pavement — footprint pushed away from the sun
-  const shx = hPx * 0.20, shy = hPx * 0.12;
-  for(const [mul, al] of [[1.6, 0.10], [1.0, 0.18]]){
+  // pass 0: cast shadow on the pavement — footprint pushed along the REAL
+  // sun vector; length = hPx · cot(elevation), direction = away from sun
+  const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
+  const shA = 0.05 + 0.15 * SF_SUN.day; // fades to nothing under cloud/night
+  for(const [mul, al] of [[1.35, shA * 0.5], [1.0, shA]]){
     g.fillStyle = `rgba(26,19,10,${al})`;
     g.beginPath();
     P.forEach(([x, y], i2) => i2
@@ -546,11 +553,14 @@ function sfBldCanvas(b, wet){
     const [nx, ny] = edgeOutward(x1, y1, x2, y2);
     const facing = ny > 0.35 ? 'front' : (ny > -0.35 ? 'side' : 'back');
     if(facing === 'back') continue;
-    wallFaces.push({ i, x1, y1, x2, y2, facing, len: Math.hypot(x2 - x1, y2 - y1) });
+    wallFaces.push({ i, x1, y1, x2, y2, nx, ny, facing,
+                     len: Math.hypot(x2 - x1, y2 - y1) });
   }
   for(const w of wallFaces){
-    const shadeF = w.facing === 'front' ? 1.0 : 0.82;
-    const wr = W.map(c => shade(c, shadeF));
+    // v14: real sun exposure per face — n·L against the solar bearing,
+    // warm-lit sunward / cool sky-fill shaded (same rule as street view)
+    const sunK = clamp(w.nx * SF_SUN.toX + w.ny * SF_SUN.toY, -1, 1);
+    const wr = rampOf(sfSunWallCol(wallBase, sunK));
     g.fillStyle = wr[3];
     g.beginPath();
     g.moveTo(w.x1, w.y1); g.lineTo(w.x2, w.y2);
@@ -585,7 +595,12 @@ function sfBldCanvas(b, wet){
       for(let k = 0; k < bays; k++){
         const t = (k + 0.5) / bays;
         const [wx, wy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, fv);
-        const frameC = TRIM, glassC = '#7a94a8', glassHi = '#c8d8e4';
+        const frameC = TRIM,
+              // v14: sunward glass catches the warm sky reflection
+              glassC = (SF_SUN.day > 0.3 && sunK > 0.35)
+                ? mix('#7a94a8', '#ffd9a0', 0.4 + SF_SUN.warm * 0.3)
+                : '#7a94a8',
+              glassHi = '#c8d8e4';
         // sill
         paR(g, wx - 5, wy + 5, 10, 2, frameC);
         // capsule window: rounded top arch + body
@@ -876,7 +891,7 @@ function sfBldCanvas(b, wet){
   } else {
     /* ---- v12: pitched roofscape (gable / mansard / hip) ----
        All heights are pixel lifts above the eave line (y - hPx - lift).
-       Lit faces use PC[4..5], shaded faces PC[1..2] — sun is upper-left. */
+       Lit faces use PC[4..5], shaded faces PC[1..2] — v14: real sun. */
     const liftOf = p => sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', p[0], p[1]);
     const rise = rk === 'mansard'
       ? Math.min(11, Math.max(5, RF.wMax * 0.4))
@@ -908,10 +923,13 @@ function sfBldCanvas(b, wet){
     if(rk === 'gable'){
       // 2. two slope faces split at the ridge axis, each vertex lifted by
       //    its perpendicular distance from the ridge
+      const wU = RF.alongX ? [0, 1] : [1, 0];
       for(const keepPos of [false, true]){
         const half = sfClipHalf(P, RF, keepPos);
         if(half.length < 3) continue;
-        const lit = !keepPos; // w<0 side faces up/left = toward the sun
+        // v14: slope outward normal vs the real sun — not a fixed side
+        const lit = sfRoofFaceLit(wU[0] * (keepPos ? 1 : -1),
+                                  wU[1] * (keepPos ? 1 : -1));
         const col = lit ? shingle[4] : shingle[2];
         g.fillStyle = shade(col, wetF);
         g.beginPath();
@@ -1107,7 +1125,8 @@ function sfBldCanvas(b, wet){
           const dy5 = RF.alongX ? RF.cy + w0 : RF.cy + u;
           if(!sfPtInPoly(P, dx5, dy5)) continue;
           const gy5 = dy5 - hPx - sfRoofLift(RF, 'gable', dx5, dy5) * rise;
-          const lit5 = sgn < 0; // w<0 cheek faces the sun
+          // v14: cheek lit by the real sun, not by a fixed side
+          const lit5 = sfRoofFaceLit((RF.alongX ? 0 : sgn), (RF.alongX ? sgn : 0));
           const wc = shade(wallBase, lit5 ? 1.02 : 0.7);
           sfPropShadow(g, dx5, gy5, 6, 3.2);
           paR(g, dx5 - 3.5, gy5 - 5, 7, 6, wc);                    // cheek wall
@@ -1133,7 +1152,10 @@ function sfBldCanvas(b, wet){
         const py5 = pad + hBase * phash(s2, b.i, 1721) + hPx; // P-space y
         if(!sfPtInPoly(P, sx5, py5)) continue;
         const w5 = RF.alongX ? py5 - RF.cy : sx5 - RF.cx;
-        if(rk === 'gable' && w5 >= -2) continue; // lit side only
+        // v14: sunward slope only — whichever side the real sun strikes
+        const slopeK = sfRoofFaceLit((RF.alongX ? 0 : Math.sign(w5)),
+                                     (RF.alongX ? Math.sign(w5) : 0));
+        if(rk === 'gable' && (!slopeK || Math.abs(w5) < 2)) continue;
         const gy5 = py5 - hPx - sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', sx5, py5) * rise;
         sfPropShadow(g, sx5, gy5, 1, 2.4);
         paR(g, sx5 - 3, gy5 - 1, 6, 3.4, shade(shingle[1], 0.9)); // curb
@@ -1147,9 +1169,18 @@ function sfBldCanvas(b, wet){
 function frameDoorCol(isShop, trim){ return isShop ? '#3a3a40' : trim; }
 
 const SF_BLD_CACHE = new Map();
-function getSfBldArt(i, wet){
-  const key = i + ':' + (wet ? 1 : 0); // v12: wet roofs are a separate bake
+/* v14: facade art is now a function of the sun — shadow throw, wall
+   exposure and roof shading all move with the real solar position, so the
+   cache key carries the quantized sun sector (SF_SUN.q). A panning day
+   rebakes visible facades a few times; an LRU cap keeps memory flat. */
+function getSfBldArt(i, wet, sunQ){
+  const key = i + ':' + (wet ? 1 : 0) + ':' +
+              (sunQ == null ? SF_SUN.q : sunQ);
   let a = SF_BLD_CACHE.get(key);
-  if(!a){ a = sfBldCanvas(SF_BLD[i], wet); SF_BLD_CACHE.set(key, a); }
+  if(a){ SF_BLD_CACHE.delete(key); SF_BLD_CACHE.set(key, a); return a; }
+  a = sfBldCanvas(SF_BLD[i], wet);
+  SF_BLD_CACHE.set(key, a);
+  while(SF_BLD_CACHE.size > 160)
+    SF_BLD_CACHE.delete(SF_BLD_CACHE.keys().next().value);
   return a;
 }

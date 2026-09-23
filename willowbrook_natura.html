@@ -22636,9 +22636,11 @@ function sfClipHalf(P, F, keepPos){
   }
   return out;
 }
-/* sunlit? — the sun sits upper-left (SF_SUN shadows fall +x,+y), so a slope
-   face whose outward normal has negative screen x/y catches the light */
-function sfRoofFaceLit(nx, ny){ return (nx + ny) < 0; }
+/* sunlit? — v14: the TRUE sun vector (SF_SUN.toX/toY, set by the solar
+   engine in 32_sf_render) decides which slope faces catch the light */
+function sfRoofFaceLit(nx, ny){
+  return (nx * SF_SUN.toX + ny * SF_SUN.toY) > 0.08;
+}
 /* v13: even-odd point-in-polygon test in the caller's coordinate space.
    Roof furniture uses it so nothing lands over a courtyard or lot-line
    notch in non-rectangular footprints. */
@@ -22650,16 +22652,19 @@ function sfPtInPoly(P, x, y){
   }
   return c;
 }
-/* v13: sun-cast shadow blob for rooftop clutter. The building's own shadow
-   slides the footprint by (hPx*0.20, hPx*0.12), so a prop h px tall slides
-   its contact shadow by the same ratio — one sun, one direction. */
+/* v13/v14: sun-cast shadow blob for rooftop clutter. A prop h px tall
+   slides its contact shadow along the live solar vector — same direction
+   and length scale as the building's own footprint shadow. */
 function sfPropShadow(g, x, y, h, r){
-  paEllipse(g, x + h * 0.20 + r * 0.4, y + h * 0.12, r * 1.5, r * 0.55,
-            'rgba(20,14,8,0.28)');
+  paEllipse(g, x + h * SF_SUN.x + r * 0.4, y + h * SF_SUN.y, r * 1.5, r * 0.55,
+            `rgba(20,14,8,${0.10 + 0.18 * SF_SUN.day})`);
 }
 
 function sfBldCanvas(b, wet){
-  const pad = 26; // v12: ridge + chimney height needs more headroom
+  // v12: ridge + chimney headroom; v14: pad also swallows the longest cast
+  // shadow the current sun can throw (hPx · cot(elevation) in any dir)
+  const pad = Math.ceil(26 + b.hPx *
+    Math.max(Math.abs(SF_SUN.x), Math.abs(SF_SUN.y)) * 1.1);
   const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
   const hBase = Math.ceil(b.by1 - b.by0);
   const hPx = Math.ceil(b.hPx);
@@ -22693,9 +22698,11 @@ function sfBldCanvas(b, wet){
   const wallAt = (x1, y1, x2, y2, t, f) =>
     [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t - hPx * f];
 
-  // pass 0: cast shadow on the pavement — footprint pushed away from the sun
-  const shx = hPx * 0.20, shy = hPx * 0.12;
-  for(const [mul, al] of [[1.6, 0.10], [1.0, 0.18]]){
+  // pass 0: cast shadow on the pavement — footprint pushed along the REAL
+  // sun vector; length = hPx · cot(elevation), direction = away from sun
+  const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
+  const shA = 0.05 + 0.15 * SF_SUN.day; // fades to nothing under cloud/night
+  for(const [mul, al] of [[1.35, shA * 0.5], [1.0, shA]]){
     g.fillStyle = `rgba(26,19,10,${al})`;
     g.beginPath();
     P.forEach(([x, y], i2) => i2
@@ -22711,11 +22718,14 @@ function sfBldCanvas(b, wet){
     const [nx, ny] = edgeOutward(x1, y1, x2, y2);
     const facing = ny > 0.35 ? 'front' : (ny > -0.35 ? 'side' : 'back');
     if(facing === 'back') continue;
-    wallFaces.push({ i, x1, y1, x2, y2, facing, len: Math.hypot(x2 - x1, y2 - y1) });
+    wallFaces.push({ i, x1, y1, x2, y2, nx, ny, facing,
+                     len: Math.hypot(x2 - x1, y2 - y1) });
   }
   for(const w of wallFaces){
-    const shadeF = w.facing === 'front' ? 1.0 : 0.82;
-    const wr = W.map(c => shade(c, shadeF));
+    // v14: real sun exposure per face — n·L against the solar bearing,
+    // warm-lit sunward / cool sky-fill shaded (same rule as street view)
+    const sunK = clamp(w.nx * SF_SUN.toX + w.ny * SF_SUN.toY, -1, 1);
+    const wr = rampOf(sfSunWallCol(wallBase, sunK));
     g.fillStyle = wr[3];
     g.beginPath();
     g.moveTo(w.x1, w.y1); g.lineTo(w.x2, w.y2);
@@ -22750,7 +22760,12 @@ function sfBldCanvas(b, wet){
       for(let k = 0; k < bays; k++){
         const t = (k + 0.5) / bays;
         const [wx, wy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, fv);
-        const frameC = TRIM, glassC = '#7a94a8', glassHi = '#c8d8e4';
+        const frameC = TRIM,
+              // v14: sunward glass catches the warm sky reflection
+              glassC = (SF_SUN.day > 0.3 && sunK > 0.35)
+                ? mix('#7a94a8', '#ffd9a0', 0.4 + SF_SUN.warm * 0.3)
+                : '#7a94a8',
+              glassHi = '#c8d8e4';
         // sill
         paR(g, wx - 5, wy + 5, 10, 2, frameC);
         // capsule window: rounded top arch + body
@@ -23041,7 +23056,7 @@ function sfBldCanvas(b, wet){
   } else {
     /* ---- v12: pitched roofscape (gable / mansard / hip) ----
        All heights are pixel lifts above the eave line (y - hPx - lift).
-       Lit faces use PC[4..5], shaded faces PC[1..2] — sun is upper-left. */
+       Lit faces use PC[4..5], shaded faces PC[1..2] — v14: real sun. */
     const liftOf = p => sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', p[0], p[1]);
     const rise = rk === 'mansard'
       ? Math.min(11, Math.max(5, RF.wMax * 0.4))
@@ -23073,10 +23088,13 @@ function sfBldCanvas(b, wet){
     if(rk === 'gable'){
       // 2. two slope faces split at the ridge axis, each vertex lifted by
       //    its perpendicular distance from the ridge
+      const wU = RF.alongX ? [0, 1] : [1, 0];
       for(const keepPos of [false, true]){
         const half = sfClipHalf(P, RF, keepPos);
         if(half.length < 3) continue;
-        const lit = !keepPos; // w<0 side faces up/left = toward the sun
+        // v14: slope outward normal vs the real sun — not a fixed side
+        const lit = sfRoofFaceLit(wU[0] * (keepPos ? 1 : -1),
+                                  wU[1] * (keepPos ? 1 : -1));
         const col = lit ? shingle[4] : shingle[2];
         g.fillStyle = shade(col, wetF);
         g.beginPath();
@@ -23272,7 +23290,8 @@ function sfBldCanvas(b, wet){
           const dy5 = RF.alongX ? RF.cy + w0 : RF.cy + u;
           if(!sfPtInPoly(P, dx5, dy5)) continue;
           const gy5 = dy5 - hPx - sfRoofLift(RF, 'gable', dx5, dy5) * rise;
-          const lit5 = sgn < 0; // w<0 cheek faces the sun
+          // v14: cheek lit by the real sun, not by a fixed side
+          const lit5 = sfRoofFaceLit((RF.alongX ? 0 : sgn), (RF.alongX ? sgn : 0));
           const wc = shade(wallBase, lit5 ? 1.02 : 0.7);
           sfPropShadow(g, dx5, gy5, 6, 3.2);
           paR(g, dx5 - 3.5, gy5 - 5, 7, 6, wc);                    // cheek wall
@@ -23298,7 +23317,10 @@ function sfBldCanvas(b, wet){
         const py5 = pad + hBase * phash(s2, b.i, 1721) + hPx; // P-space y
         if(!sfPtInPoly(P, sx5, py5)) continue;
         const w5 = RF.alongX ? py5 - RF.cy : sx5 - RF.cx;
-        if(rk === 'gable' && w5 >= -2) continue; // lit side only
+        // v14: sunward slope only — whichever side the real sun strikes
+        const slopeK = sfRoofFaceLit((RF.alongX ? 0 : Math.sign(w5)),
+                                     (RF.alongX ? Math.sign(w5) : 0));
+        if(rk === 'gable' && (!slopeK || Math.abs(w5) < 2)) continue;
         const gy5 = py5 - hPx - sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', sx5, py5) * rise;
         sfPropShadow(g, sx5, gy5, 1, 2.4);
         paR(g, sx5 - 3, gy5 - 1, 6, 3.4, shade(shingle[1], 0.9)); // curb
@@ -23312,10 +23334,19 @@ function sfBldCanvas(b, wet){
 function frameDoorCol(isShop, trim){ return isShop ? '#3a3a40' : trim; }
 
 const SF_BLD_CACHE = new Map();
-function getSfBldArt(i, wet){
-  const key = i + ':' + (wet ? 1 : 0); // v12: wet roofs are a separate bake
+/* v14: facade art is now a function of the sun — shadow throw, wall
+   exposure and roof shading all move with the real solar position, so the
+   cache key carries the quantized sun sector (SF_SUN.q). A panning day
+   rebakes visible facades a few times; an LRU cap keeps memory flat. */
+function getSfBldArt(i, wet, sunQ){
+  const key = i + ':' + (wet ? 1 : 0) + ':' +
+              (sunQ == null ? SF_SUN.q : sunQ);
   let a = SF_BLD_CACHE.get(key);
-  if(!a){ a = sfBldCanvas(SF_BLD[i], wet); SF_BLD_CACHE.set(key, a); }
+  if(a){ SF_BLD_CACHE.delete(key); SF_BLD_CACHE.set(key, a); return a; }
+  a = sfBldCanvas(SF_BLD[i], wet);
+  SF_BLD_CACHE.set(key, a);
+  while(SF_BLD_CACHE.size > 160)
+    SF_BLD_CACHE.delete(SF_BLD_CACHE.keys().next().value);
   return a;
 }
 
@@ -23462,13 +23493,73 @@ const SF_WX = {
 function sfHazeA(fwd){
   return Math.min(0.62, Math.max(0, (fwd - 45) / 240) * SF_WX.hazeK);
 }
-const SF_SUN = { x: 0.26, y: 0.16 }; // ground shadow dir per meter of height
+/* ---------------- v14: TRUE SUN — a real solar position drives every light
+   The old constant shadow vector (sun frozen upper-left) is replaced by the
+   actual sun over the Mission: azimuth + elevation computed from the sim
+   clock (W.tod) and day-of-year at SF's latitude (37.76°N). One sun now
+   feeds EVERY consumer — building/prop/pawn cast shadows (direction AND
+   length = h·cot(elevation)), per-face facade lighting in both views, roof
+   slope shading, cloud-shadow drift, the street-view sun disc and sky
+   grade, and golden-hour color temperature. World axes: +x east, +y south.
+   x/y keep their old meaning (ground shadow dir per meter of height). */
+const SF_SUN = {
+  x: 0.26, y: 0.16,   // shadow dir per meter of height (recomputed)
+  toX: 0, toY: 1,     // unit vector TOWARD the sun, world xy
+  el: 0.9, az: Math.PI, // elevation / compass bearing (rad)
+  day: 1,             // 0..1 direct-sun strength (0 = night / overcast)
+  warm: 0,            // 0..1 golden-hour warmth (low sun)
+  q: 0,               // quantized sun sector — building bakes key on this
+};
 const SF_CLOUD_ALT = 130;            // meters
+function sfSunUpdate(){
+  const lat = 37.7596 * Math.PI / 180;
+  const mo = (typeof W !== 'undefined' && W.month) ||
+             ({ Winter: 1, Spring: 4, Summer: 7, Autumn: 10 })[W.season] || 9;
+  const doy = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334][mo - 1] +
+              (W.day || 15);
+  const dec = -23.44 * Math.PI / 180 * Math.cos(2 * Math.PI * (doy + 10) / 365);
+  // solar noon ≈ 13:06 PDT at 122.43°W (PDT meridian 105°W + equation of time)
+  const H = (W.tod - 13.1) * Math.PI / 12;
+  const sinEl = Math.sin(lat) * Math.sin(dec) +
+                Math.cos(lat) * Math.cos(dec) * Math.cos(H);
+  SF_SUN.el = Math.asin(clamp(sinEl, -1, 1));
+  const azS = Math.atan2(Math.sin(H),
+    Math.cos(H) * Math.sin(lat) - Math.tan(dec) * Math.cos(lat));
+  SF_SUN.az = Math.PI + azS;              // compass bearing from north
+  SF_SUN.toX = Math.sin(SF_SUN.az);       // east component
+  SF_SUN.toY = -Math.cos(SF_SUN.az);      // south component (+y = south)
+  const up = SF_SUN.el > 0.01;
+  // shadow length = height · cot(elevation); capped so a 2° sun doesn't
+  // throw kilometer-long streaks
+  const cot = Math.min(1 / Math.max(0.16, Math.tan(Math.max(0.01, SF_SUN.el))), 2.6);
+  SF_SUN.x = -SF_SUN.toX * cot;
+  SF_SUN.y = -SF_SUN.toY * cot;
+  const clear = 1 - clamp(sfCloudCover() * 0.8 + W.rain * 0.7 + W.storm * 0.9, 0, 0.95);
+  SF_SUN.day = up ? clear * clamp(Math.sin(SF_SUN.el) * 1.7, 0.08, 1) : 0;
+  SF_SUN.warm = up ? clamp(1 - SF_SUN.el / 0.6, 0, 1) : 0;
+  SF_SUN.q = !up ? -1
+    : Math.round(SF_SUN.az / (Math.PI / 8)) +
+      Math.round(SF_SUN.el / 0.22) * 32 + (SF_SUN.day < 0.25 ? 512 : 0);
+}
+/* scalar sun exposure of a face with outward normal (nx,ny) — shared by
+   baked sprites and street-view walls so both views light identically */
+function sfSunFaceK(nx, ny){
+  return clamp(nx * SF_SUN.toX + ny * SF_SUN.toY, -1, 1);
+}
+/* face color under the current sun: warm-lit when sunward, sky-cool fill
+   when shaded, ambient grey when the sun is down or buried in the deck */
+function sfSunWallCol(base, k){
+  const lit = 0.58 + 0.5 * Math.max(0, k) * SF_SUN.day + 0.05 * Math.max(0, k);
+  if(SF_SUN.day > 0.22 && k > 0.18)
+    return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.42 * Math.min(1, k));
+  return mix(shade(base, lit), '#7183a4', 0.22 * (1 - Math.max(0, k) * SF_SUN.day));
+}
 
 function sfWxTick(){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   const dt = SF_WX.lastMs ? Math.min(0.5, (now - SF_WX.lastMs) / 1000) : 0;
   SF_WX.dt = dt; SF_WX.t += dt; SF_WX.lastMs = now;
+  sfSunUpdate(); // v14: real solar position drives every light below
   // v7: wetness memory — pavement soaks while it rains, dries over minutes.
   // The street stays glossy long after the last drop: classic SF morning.
   SF_WX.wet = clamp(SF_WX.wet + (W.rain > 0.1 ? W.rain * 0.05 : -0.006) * dt, 0, 1);
@@ -23705,7 +23796,7 @@ function sfStillKey(cw, ch, view, pose){
     sig += Math.round(v.x) + Math.round(v.y) + (v.face || 0) * 13 +
            (v.inBuilding ? 7919 : 0);
   return [view, cw, ch, Math.round(SF_WX.t * 2), isNight() ? 1 : 0,
-          Math.round(W.tod * 24), Math.round(W.rain * 8),
+          Math.round(W.tod * 24), SF_SUN.q, Math.round(W.rain * 8),
           Math.round(SF_WX.wet * 8), Math.round(sfCloudCover() * 8),
           Math.round(SF_WX.gust * 4), Math.round(sig), inspectedPawnIdx]
           .concat(pose).join(',');
@@ -23934,13 +24025,24 @@ function sfRenderWorld(cw, ch){
       if(sprC){
         const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
         const sy = Math.round(sfSY(o.y, ch));
-        // v5: canopy cast shadow pushed down-right like the building sun
-        if(shadeR && !isNight()){
-          ctx.fillStyle = 'rgba(20,26,12,0.22)';
+        // v14: canopy shadow thrown along the REAL sun vector — direction
+        // and stretch both come from the solar elevation (long low-sun
+        // streaks, compact noon pools), tilted with the ground plane
+        if(shadeR && !isNight() && SF_SUN.day > 0.08){
+          const hmPx = (o.kind === 'sfTree' ? 4.4 : o.kind === 'sfPalm' ? 6.4 :
+                        o.kind === 'sfCypress' ? 6.0 : 3.6) * SF_PXM * cam.zoom;
+          const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
+          const stretch = 1 + Math.hypot(SF_SUN.x, SF_SUN.y) * 0.55;
+          const rot = Math.atan2(shy, shx);
+          ctx.fillStyle = `rgba(20,26,12,${0.22 * Math.min(1, SF_SUN.day + 0.3)})`;
+          ctx.save();
+          ctx.translate(sx + shx, sy + shy);
+          ctx.rotate(rot);
           ctx.beginPath();
-          ctx.ellipse(sx + shadeR * 0.5 * cam.zoom, sy + shadeR * 0.28 * cam.zoom * SF_TILT,
-                      shadeR * cam.zoom, shadeR * 0.42 * cam.zoom * SF_TILT, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, 0, shadeR * cam.zoom * stretch,
+                      shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), 0, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         // v6: canopy sway on the wind (trees only; storms rock harder)
@@ -24052,6 +24154,22 @@ function sfRenderWorld(cw, ch){
   // 2f. v7: lightning wash
   sfFlashOverlay(cw, ch);
 
+  // 2g. v14: directional light grade — a warm wash falls from the sunward
+  // side of the frame while the opposite corner sinks into cool sky fill;
+  // strength and hue track the real solar elevation (golden near dusk)
+  if(!isNight() && SF_SUN.day > 0.06){
+    const gx0 = cw / 2 - SF_SUN.toX * cw * 0.65,
+          gy0 = ch / 2 - SF_SUN.toY * ch * 0.65;
+    const gx1 = cw / 2 + SF_SUN.toX * cw * 0.65,
+          gy1 = ch / 2 + SF_SUN.toY * ch * 0.65;
+    const lg = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
+    const wa = 0.10 * SF_SUN.day * (0.5 + SF_SUN.warm * 0.8);
+    lg.addColorStop(0, `rgba(70,88,130,${0.09 * SF_SUN.day})`);
+    lg.addColorStop(0.55, 'rgba(0,0,0,0)');
+    lg.addColorStop(1, `rgba(255,214,150,${wa})`);
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, cw, ch);
+  }
+
   // 3. street name labels along road midpoints
   if(cam.zoom >= 0.85){
     ctx.textAlign = 'center';
@@ -24100,7 +24218,13 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // v6: passing cloud dims the whole wall
   const dim = (night ? 0.4 : 1) *
               (1 - 0.45 * sfCloudShadow(b.x / SF_PXM, b.y / SF_PXM));
-  const lit = (0.55 + 0.45 * Math.max(0, nx * -0.5 + ny * -0.85)) * dim;
+  // v14: real sun exposure — n·L against the live solar bearing; sunward
+  // faces warm up (golden when the sun is low), shaded faces take cool
+  // sky fill. Shared formula with the baked sprites via sfSunWallCol.
+  const sunK = sfSunFaceK(nx, ny);
+  const lit = (0.55 + 0.5 * Math.max(0, sunK) * SF_SUN.day +
+               0.05 * Math.max(0, sunK)) * dim;
+  const wallCol = sfSunWallCol(wallBase, sunK);
   const para = 0.5 + phash(i, 17, 1406) * 0.35;
   const ux = ex / L, uy = ey / L;
   const quad = (pts, fill) => {
@@ -24122,16 +24246,18 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         p1 = pr(x1, y1, hm + para), p2 = pr(x2, y2, hm + para);
   if(!g1 || !g2 || !t1 || !t2 || !p1 || !p2) return;
 
-  // cast shadow: base edge extruded on the ground away from the sun
+  // v14: cast shadow — base edge extruded on the ground along the real
+  // sun vector (direction + length = hm·cot(elevation))
   quad([[x1, y1, 0.02], [x2, y2, 0.02],
-        [x2 - hm * 0.26, y2 - hm * 0.16, 0.02],
-        [x1 - hm * 0.26, y1 - hm * 0.16, 0.02]], 'rgba(15,12,8,0.18)');
+        [x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm, 0.02],
+        [x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm, 0.02]],
+       `rgba(15,12,8,${0.06 + 0.14 * SF_SUN.day})`);
 
   // wall face: vertical gradient — sky-lit top, AO near the pavement
   const wgr = ctx.createLinearGradient(0, Math.min(p1[1], p2[1]), 0, Math.max(g1[1], g2[1]));
-  wgr.addColorStop(0, shade(wallBase, Math.min(1.3, lit * 1.14)));
-  wgr.addColorStop(0.7, shade(wallBase, lit));
-  wgr.addColorStop(1, shade(wallBase, lit * 0.68));
+  wgr.addColorStop(0, shade(wallCol, Math.min(1.3, 1.14)));
+  wgr.addColorStop(0.7, wallCol);
+  wgr.addColorStop(1, shade(wallCol, 0.68));
   ctx.fillStyle = wgr;
   ctx.beginPath();
   ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
@@ -24223,6 +24349,12 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.moveTo(pb[0] - r, pb[1]); ctx.lineTo(pb[0] - r, pt[1] + r);
     ctx.arc(pb[0], pt[1] + r, r, Math.PI, 0, true);
     ctx.lineTo(pb[0] + r, pb[1]); ctx.closePath(); ctx.fill();
+    // v14: sun glint — glass flashes warm when the facade faces the sun
+    if(!night && SF_SUN.day > 0.3 && sunK > 0.35){
+      ctx.fillStyle = `rgba(255,242,205,${0.32 * SF_SUN.day * sunK})`;
+      ctx.fillRect(pb[0] - r * 0.7, pt[1] + wh * 0.12, r * 0.95,
+                   Math.max(1.5, wh * 0.3));
+    }
     ctx.strokeStyle = shade(TRIM, 0.9); ctx.lineWidth = Math.max(0.5, ww * 0.06);
     ctx.beginPath();
     ctx.moveTo(pb[0] - r, pt[1] + wh * 0.45); ctx.lineTo(pb[0] + r, pt[1] + wh * 0.45);
@@ -24274,11 +24406,11 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       const a2x = ax + nx * pd, a2y = ay + ny * pd;
       const b2x = bx + nx * pd, b2y = by + ny * pd;
       quad([[ax, ay, zLo], [ax, ay, zHi], [a2x, a2y, zHi], [a2x, a2y, zLo]],
-           shade(wallBase, lit * 0.78));
+           shade(wallCol, 0.78));
       quad([[b2x, b2y, zLo], [b2x, b2y, zHi], [bx, by, zHi], [bx, by, zLo]],
-           shade(wallBase, lit * 0.78));
+           shade(wallCol, 0.78));
       quad([[a2x, a2y, zLo], [b2x, b2y, zLo], [b2x, b2y, zHi], [a2x, a2y, zHi]],
-           shade(wallBase, Math.min(1.25, lit * 1.06)));
+           shade(sfSunWallCol(wallBase, Math.min(1, sunK + 0.25)), Math.min(1.25, 1.06)));
       const bayFl = floors - 1;
       for(let f = 0; f < bayFl; f++){
         const zz = zLo + (zHi - zLo) * (f + 0.5) / bayFl;
@@ -24316,7 +24448,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       ctx.beginPath(); ctx.moveTo(pb[0], pb[1]); ctx.lineTo(pt[0], pt[1]); ctx.stroke();
     }
     quad([[sx0, sy0, 0], [sx1, sy1, 0], [sx1, sy1, 0.55], [sx0, sy0, 0.55]],
-         shade(wallBase, lit * 0.55));
+         shade(wallCol, 0.55));
     quad([[sx0, sy0, 2.6], [sx1, sy1, 2.6], [sx1, sy1, 3.4], [sx0, sy0, 3.4]],
          shade(TRIM, 0.9));
     // striped awning: sloped band from wall (z 3.9) to lip (+n*1.0, z 3.05)
@@ -24524,13 +24656,26 @@ function sfRenderStreet(cw, ch){
      SF_CAM.director ? 1 : 0]);
   if(sfStillHit(stillKey)){ sfPerfHud(cw, ch); return; }
 
-  // sky + light by tod/weather
+  // sky + light by tod/weather — v14: graded by real solar elevation
   const night = isNight();
+  const wK = SF_SUN.warm; // 0 high sun -> 1 sun on the horizon
   const sky = ctx.createLinearGradient(0, 0, 0, horizon);
   if(night){ sky.addColorStop(0, '#101626'); sky.addColorStop(1, '#2a3350'); }
   else if(W.rain > 0.2){ sky.addColorStop(0, '#6a7688'); sky.addColorStop(1, '#a8b2bc'); }
-  else { sky.addColorStop(0, '#5b8fc9'); sky.addColorStop(1, '#cfe3f2'); }
+  else {
+    sky.addColorStop(0, mix('#5b8fc9', '#5a6ea8', wK * 0.65));
+    sky.addColorStop(1, mix('#cfe3f2', '#ffc98a', wK * 0.85));
+  }
   ctx.fillStyle = sky; ctx.fillRect(0, 0, cw, horizon);
+  // v14: low-sun band — the warm veil that sits on the horizon whenever
+  // the real solar elevation drops toward golden hour
+  if(!night && wK > 0.03 && W.rain < 0.3){
+    const hb = ctx.createLinearGradient(0, horizon - horizon * 0.5, 0, horizon);
+    hb.addColorStop(0, 'rgba(255,170,90,0)');
+    hb.addColorStop(1, `rgba(255,178,96,${0.34 * wK * (1 - sfCloudCover() * 0.5)})`);
+    ctx.fillStyle = hb;
+    ctx.fillRect(0, horizon - horizon * 0.5, cw, horizon * 0.5);
+  }
   const cover = sfCloudCover();
   // v9: aerial perspective strength for this frame — the marine layer's
   // moisture scatters light, so distant blocks melt toward the horizon
@@ -24539,18 +24684,22 @@ function sfRenderStreet(cw, ch){
   SF_WX.hazeK = clamp((night ? 0.10 : 0.15) + fogAFrame * 0.55 + cover * 0.15, 0.1, 0.8);
   SF_WX.hazeRGB = night ? '52,62,92' : '188,212,230';
   if(!night){
-    // v6: sun disc at the real tod azimuth, halo + glare
-    const az = Math.PI * (W.tod - 6) / 12;
-    const sunFwd = Math.cos(az) * DX + Math.sin(az) * DY;
-    const sunSide = Math.cos(az) * DY - Math.sin(az) * DX;
+    // v14: sun disc at the TRUE solar bearing/elevation — the same vector
+    // that throws every shadow in both views. Elevation maps to height
+    // above the horizon; the disc warms and swells as the sun drops.
+    const sunFwd = SF_SUN.toX * DX + SF_SUN.toY * DY;
+    const sunSide = SF_SUN.toX * DY - SF_SUN.toY * DX;
+    const sunUp = Math.sin(Math.max(0, SF_SUN.el));
     if(sunFwd > 0.15 && W.rain < 0.4){
       const sx2 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
-      const sy2 = horizon - F * 0.33;
+      const sy2 = horizon - sunUp * F * 0.72;
       if(sx2 > -200 && sx2 < cw + 200){
-        const sg = ctx.createRadialGradient(sx2, sy2, 2, sx2, sy2, F * 0.55);
-        sg.addColorStop(0, 'rgba(255,252,232,0.85)');
-        sg.addColorStop(0.07, 'rgba(255,246,200,0.5)');
-        sg.addColorStop(1, 'rgba(255,246,200,0)');
+        const sg = ctx.createRadialGradient(sx2, sy2, 2, sx2, sy2,
+                                            F * (0.5 + wK * 0.3));
+        const sgR = 255, sgG = Math.round(252 - wK * 72), sgB = Math.round(232 - wK * 138);
+        sg.addColorStop(0, `rgba(${sgR},${sgG},${sgB},0.85)`);
+        sg.addColorStop(0.07, `rgba(255,${236 - Math.round(wK * 70)},${190 - Math.round(wK * 100)},0.5)`);
+        sg.addColorStop(1, 'rgba(255,210,140,0)');
         ctx.fillStyle = sg; ctx.fillRect(0, 0, cw, horizon + 40);
       }
     }
@@ -24596,7 +24745,7 @@ function sfRenderStreet(cw, ch){
     // from the sun disc whenever it hangs in front of the camera
     if(sunFwd > 0.15 && W.rain < 0.4 && cover < 0.8){
       const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
-      const sy3 = horizon - F * 0.33;
+      const sy3 = horizon - sunUp * F * 0.72;
       const shaftA = 0.055 * (1 - cover * 0.55);
       ctx.save();
       ctx.translate(sx3, sy3);
@@ -24942,10 +25091,13 @@ function sfRenderStreet(cw, ch){
           }
         }
         if(rk === 'gable'){
+          const wU2 = RFm.alongX ? [0, 1] : [1, 0];
           for(const keepPos of [false, true]){
             const half = sfClipHalf(P, RFm, keepPos);
             if(half.length < 3) continue;
-            const lit = !keepPos; // w<0 side faces up/left = sunward
+            // v14: this slope's outward normal vs the real sun vector
+            const lit = sfRoofFaceLit(wU2[0] * (keepPos ? 1 : -1),
+                                      wU2[1] * (keepPos ? 1 : -1));
             fillProj(half.map(p => [p[0], p[1], hm + liftM(p[0], p[1]) * riseM]),
                      colAt(lit));
           }
@@ -25015,7 +25167,7 @@ function sfRenderStreet(cw, ch){
               // this slope's outward normal: does it face the camera?
               const nwx = wU[0] * sgn, nwy = wU[1] * sgn;
               if(nwx * -DX + nwy * -DY <= 0.05) continue;
-              const litD = sgn < 0;
+              const litD = sfRoofFaceLit(nwx, nwy); // v14: real sun side
               for(let d2 = 0; d2 < nDor; d2++){
                 const u = (phash(b.i, d2 + (sgn > 0 ? 9 : 0), 1711) - 0.5) * (uHi - uLo) * 0.6;
                 const w0 = sgn * RFm.wMax * (0.3 + phash(d2, b.i + sgn * 3, 1712) * 0.22);
@@ -25246,12 +25398,23 @@ function sfRenderStreet(cw, ch){
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const ph = hm * sc, pw = ph * (sprC.width / sprC.height);
-        if(shadowR && !night){
-          ctx.fillStyle = 'rgba(15,20,10,0.28)';
+        // v14: shadow thrown along the true sun vector — tip projected
+        // through pr so length/direction track the solar elevation
+        if(shadowR && !night && SF_SUN.day > 0.08){
+          const tip = pr(o.x / SF_PXM + SF_SUN.x * hm * 0.6,
+                         o.y / SF_PXM + SF_SUN.y * hm * 0.6, 0);
+          const tx = tip ? tip[0] : p[0], ty = tip ? tip[1] : p[1];
+          const ang = Math.atan2(ty - p[1], tx - p[0]);
+          const len = Math.hypot(tx - p[0], ty - p[1]);
+          ctx.fillStyle = `rgba(15,20,10,${0.28 * Math.min(1, SF_SUN.day + 0.3)})`;
+          ctx.save();
+          ctx.translate((p[0] + tx) / 2, (p[1] + ty) / 2);
+          ctx.rotate(ang);
           ctx.beginPath();
-          ctx.ellipse(p[0] + shadowR * 0.45 * sc, p[1], shadowR * sc,
-                      shadowR * 0.3 * sc, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, 0, shadowR * sc + len / 2, shadowR * 0.3 * sc,
+                      0, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
         }
         ctx.drawImage(sprC, p[0] - pw / 2, p[1] - ph, pw, ph);
       }
@@ -25265,11 +25428,26 @@ function sfRenderStreet(cw, ch){
       if(F2 && F2[dir]) fr = paActFrame(F2, dir, pv, G.frame);
       if(fr){
         const ph = 1.7 * F / p[2], pw = ph * 0.75;
-        // ground shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.beginPath();
-        ctx.ellipse(p[0], p[1], pw * 0.4, pw * 0.12, 0, 0, Math.PI * 2);
-        ctx.fill();
+        // v14: ground shadow cast along the real sun vector
+        const vtip = (!night && SF_SUN.day > 0.08)
+          ? pr(pv.x / SF_PXM + SF_SUN.x * 1.7, pv.y / SF_PXM + SF_SUN.y * 1.7, 0)
+          : null;
+        ctx.fillStyle = `rgba(0,0,0,${night ? 0.3 : 0.16 + 0.14 * SF_SUN.day})`;
+        if(vtip){
+          const ang = Math.atan2(vtip[1] - p[1], vtip[0] - p[0]);
+          const len = Math.hypot(vtip[0] - p[0], vtip[1] - p[1]);
+          ctx.save();
+          ctx.translate((p[0] + vtip[0]) / 2, (p[1] + vtip[1]) / 2);
+          ctx.rotate(ang);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, pw * 0.4 + len / 2, pw * 0.12, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.beginPath();
+          ctx.ellipse(p[0], p[1], pw * 0.4, pw * 0.12, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
         ctx.drawImage(fr, p[0] - pw / 2, p[1] - ph, pw, ph);
         if(p[2] < 40){
           ctx.font = `bold ${Math.max(8, 24 / p[2] * 4)}px sans-serif`;
@@ -25698,6 +25876,7 @@ function sfSyncClock(){
     W.tod = (+p.hour % 24) + (+p.minute) / 60 + (+p.second) / 3600;
     W.day = +p.day;
     const mo = +p.month;
+    W.month = mo; // v14: solar declination needs day-of-year
     W.season = mo < 3 || mo === 12 ? 'Winter' : mo < 6 ? 'Spring'
              : mo < 9 ? 'Summer' : 'Autumn';
   }catch(e){ /* Intl/tz missing: leave sim clock alone */ }
