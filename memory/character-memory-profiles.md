@@ -127,6 +127,19 @@ never copying raw.
 | cred_step | 0.02 | 0.2 | credibility learning rate (v0.8) |
 | mnemic_loss / mnemic_encode / mnemic_centrality | 0.0 / 0.0 / 0.4 | 0.35 / 0.5 / 0.8 | mnemic neglect (v0.8) |
 | source_cat_share | 0.4 | 0.9 | in-category source-confusion share (v0.8) |
+| enc_quota_per_day | 20 | 80 | soft cap on records reaching first sleep (v0.9) |
+| cap_episodic / cap_archive / cap_persons | 1000 / 4000 / 30 | 4000 / 16000 / 120 | live/archive/person-model caps (v0.9) |
+| ambient_tick_mult / ambient_cap | 2 / 75 | 7 / 300 | degraded-mode cadence + record cap (v0.9) |
+| possess_alien | 0.0 | 0.4 | estrangement discount on possessed records (v0.9) |
+| catchup_max | 3 | 14 | daily ticks replayed on resume before aggregation (v0.9) |
+
+**v0.9 frozen-constant note:** per the identifiability audit in
+`formal-model.md` §4, the following params are population constants and
+should NOT vary per character — loaders treat them as fixed regardless of
+profile: `k` (logistic sharpness, 8), `drift_k` (0.02), `tau_episodic`
+(1.2), `tau_semantic` (30), `collab_size_pen` (0.1),
+`collab_friend_mult` (1.2), `arousal_affect_decay` (1.4), `rep_cap` (2.0).
+They stay in the spec table for backward compatibility only.
 
 **v0.3 continuous-curves note:** the archetypes below are now *named knots*
 on the piecewise-linear age curves in `age-development.md` §6 — the runtime

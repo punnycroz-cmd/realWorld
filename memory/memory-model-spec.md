@@ -1,4 +1,13 @@
-# Memory Model Spec v0.8 — implementable human-like memory for RW characters
+# Memory Model Spec v0.9 — implementable human-like memory for RW characters
+
+> **v0.9 note (formal-model):** `memory/formal-model.md` now pins what this
+> spec left informal — exact timebase/units, Event/CueContext input schemas
+> with derivation defaults, strict operator ordering for
+> encodeEvent/recall/dailyMemoryTick/hearAccount, an identifiability audit
+> (which params are per-character vs frozen population constants), record
+> caps + ambient-NPC degraded mode, possession/thin-AI edge-case semantics,
+> seeded-RNG determinism, and machinery probes P68–P75. Implementers: read
+> §8.1 below before wiring the tick loop.
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -73,6 +82,11 @@ MemoryRecord = {
   "sleepdep_flag": false,             // v0.6: encodeDay sleepFactor was
                                       // <0.75 — permanent susceptibility
                                       // marker (Frenda 2014, §2/§6.3)
+  "possessed": false,                 // v0.9: encoded while the character
+                                      // was player-possessed — hidden like
+                                      // phantom; gets possess_alien
+                                      // estrangement discount at recall
+                                      // (formal-model.md §6)
   "accessLog": []                     // optional debug; may be capped
 }
 ```
@@ -1112,8 +1126,23 @@ MemoryParams = {
   "cred_step": 0.08,         // credibility learning rate (§6.14)
   "mnemic_loss": 0.15, "mnemic_encode": 0.25, "mnemic_centrality": 0.6,
                              // mnemic neglect: recall-suppress, encode-shallow (§4.10)
-  "source_cat_share": 0.65   // within-category source confusion (§6.10)
+  "source_cat_share": 0.65,  // within-category source confusion (§6.10)
+  // v0.9 additions (formal-model hardening, formal-model.md §§4–6)
+  "enc_quota_per_day": 40,   // soft cap on records surviving to first sleep
+  "cap_episodic": 2000, "cap_archive": 8000, "cap_persons": 60,
+                             // live-record/archive/PersonModel caps
+  "ambient_tick_mult": 3, "ambient_cap": 150,  // degraded mode (§8.1)
+  "possess_alien": 0.15,     // estrangement discount on possessed records
+  "catchup_max": 7           // days replayed on resume before aggregation
 }
+
+// v0.9 FROZEN population constants — same for every character, never in
+// profiles (identifiability audit, formal-model.md §4):
+//   k = 8 (logistic sharpness §5.4), drift_k = 0.02, tau_episodic = 1.2,
+//   tau_semantic = 30, collab_size_pen = 0.1, collab_friend_mult = 1.2,
+//   arousal_affect_decay = 1.4, rep_cap = 2.0
+// (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
+// for backward compatibility; loaders should treat them as constants.)
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -1169,6 +1198,22 @@ should validate params into those ranges at load.
 - **Budget:** expect ~200–800 live records per main character; archive below
   threshold. Ambient NPCs run the same equations with a coarser tick and
   smaller caps (they're thin-AI anyway).
+
+## 8.1 Formal semantics pointer (new in v0.9)
+
+The tick sketch above is superseded by `formal-model.md`, which is the
+authority on: timebase/units (day floats; decay evaluated as R(Δt) never
+per-tick-multiplied — power-law scale invariance makes tick granularity a
+compute decision); Event/CueContext schemas + derived-field defaults
+(attention/selfRelevance/novelty/predictionError); strict operator order
+for encodeEvent, recall, dailyMemoryTick, hearAccount (order-sensitive
+pairs are only consolidation→decay and merge→archive); the frozen-vs-free
+parameter split; caps (enc_quota_per_day, cap_episodic, cap_archive,
+cap_persons); ambient degraded mode (ambient_tick_mult, ambient_cap, no
+phantom/scan machinery); possession semantics (records encode with hidden
+`possessed` flag + `possess_alien` estrangement discount at retrieval;
+scan suspended; resume replays ≤ catchup_max daily ticks then aggregates);
+seeded RNG `rand(seed, charId, worldDay, opSeq)` for bit-identical replay.
 
 ## 9. Non-goals for v0
 
@@ -1240,7 +1285,15 @@ the age-PM paradox for free. See `age-development.md` §7.
   phantom records (§4.6), source-decay check feeding `sourceInfer`
   (§6.10)
 - `memorySnapshot/Load(charId)` → serialize the stores (episodic,
-  semantic, conditioned-affect, PersonModel social store) + params
+  semantic, conditioned-affect, PersonModel social store) + params +
+  RNG opSeq state (v0.9 — round-trip must preserve determinism, P69)
+- v0.9 hard-safety rule: `possessed`, `phantom`, `accuracy`, and all
+  other hidden flags/fields must NEVER serialize into possession
+  briefings or any player-visible surface (formal-model.md §6)
+- v0.9 ambient/offline mode: `dailyMemoryTick` accepts
+  `mode:"ambient"` — coarser cadence (ambient_tick_mult), caps
+  (ambient_cap), phantom minting and §5.7 scan disabled; promotion to
+  main preserves existing record ids (formal-model.md §5)
 - `deriveParams(archetype, modifiers, traits, seed)` (v0.7) → MemoryParams
   — the character-creation helper: applies the §3 loading table +
   residual jitter + §0 clamps so a bible trait vector deterministically

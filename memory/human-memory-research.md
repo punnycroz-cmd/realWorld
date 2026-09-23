@@ -546,3 +546,48 @@ Focus version. Full treatment in `social-memory.md`; spec → v0.8.
   cheater-module framing (we model threat-tagging, not a module);
   mnemic-neglect mechanism (suppression vs. shallow encoding — we
   implement both); audience-tuning age interactions (kept flat).
+
+## 13. v9 calibration summary — formal model hardening (formal-model.md)
+
+v9 added no new psychological mechanisms; it formalized the accumulated
+v0–v8 spec. Sources consulted and what each contributes:
+
+- **Landauer 1986** (Cognitive Science 10:477–493): lifetime functional
+  memory ~10⁹ bits, LTM input ≈1–2 bits/s → ~10⁵ bits/day encoding budget.
+  Grounds `enc_quota_per_day` (40 surviving records/day), `cap_episodic`
+  (2000), `cap_archive` (8000) — the human store is huge but the *daily
+  write budget* is tiny. [CONSENSUS as order of magnitude]
+- **Rubin & Wenzel 1996 / Wickelgren 1974** (already in §3): power-law
+  retention is scale-invariant across timescales → decay must be evaluated
+  as R(Δt) against elapsed time, never per-tick-multiplied; tick
+  granularity becomes a compute choice, not a psychological one. Probe P71
+  tests this directly. [CONSENSUS at functional-form level]
+- **Gutenkunst et al. 2007** (sloppy models, PLoS Comput Biol): multiparameter
+  systems have few stiff directions; behavior constrains combinations, not
+  components → the §4 identifiability audit freezing k, drift_k, taus,
+  collab penalties, arousal_affect_decay, rep_cap as population constants
+  (~50 frozen / ~70 free). Rule adopted: every new param must name its
+  identifying observable.
+- **Operator ordering** (formal-model.md §3): strict sequences for
+  encodeEvent/recall/dailyMemoryTick/hearAccount; only two order-sensitive
+  pairs exist (consolidation→decay, merge→archive) — everything else
+  commutes within noise. Resolves ambiguities the layered v0–v8 spec
+  inherited.
+- **Event/CueContext schemas + derived-field defaults** (§2): attention/
+  selfRelevance/novelty/predictionError now have floor derivations so the
+  substrate can call encodeEvent without a director. All tagged HYPOTHESIS.
+- **Edge cases** (§6): possession-window records encode with hidden
+  `possessed` flag + `possess_alien` estrangement discount (depersonalized
+  recall of actions the character didn't choose — HYPOTHESIS, fiction-
+  consistent); suspension replays ≤catchup_max daily ticks then aggregates
+  via scale-invariance; hidden flags never serialize into briefings.
+- **Determinism** (§7): seeded `rand(seed, charId, worldDay, opSeq)` —
+  same ledger → identical state; required by the rumor engine's replay
+  debugging.
+- **Probes P68–P75** (§8): machinery-level tests — determinism, snapshot
+  round-trip, boundedness fuzz, tick-granularity invariance, daily-tick
+  ordering pairs, possession continuity, cap enforcement, ambient-mode
+  equivalence. These test the *implementation*, complementing P1–P67's
+  psychological phenomena.
+- New params ×8 (spec §7 v0.9 block); spec → v0.9. DEBATED items: none —
+  all additions are engineering semantics or flagged HYPOTHESIS.
