@@ -30,6 +30,12 @@ Contents
   b-roll-shotlist.md Video-press capture guide: six essential b-roll
                      shots + optional color shots, camera keys, capture
                      rules for anyone filming the dev build
+  deadline-desk.md   The 15-minute coverage path for journalists on
+                     deadline: three checkable facts, a verbatim-safe
+                     paragraph, three go-to images, the five mistakes
+                     to avoid, corrections policy
+  contact-sheet.html Printable visual index of every image asset in the
+                     kit — thumbnails + exact filenames; Print → PDF works
   captions.txt       Caption + credit line for every image
   LICENSE.txt        Press asset usage terms
   manifest.json      Machine-readable kit manifest

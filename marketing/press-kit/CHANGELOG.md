@@ -1,7 +1,25 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v50-* is the current development build).
+build they were captured from (v51-* is the current development build).
+
+## v92 — 2026-09-23
+- NEW `deadline-desk.md` — the 15-minute coverage path for journalists on
+  deadline: three checkable facts, a verbatim-safe paragraph, the three
+  images that carry a piece, the five mistakes to avoid, and the
+  corrections policy.
+- NEW `contact-sheet.html` — printable visual index of every image asset
+  in the kit (screenshots, key art, logos, badges, banners) with exact
+  filenames; Print → PDF works.
+- Fixed v91 drift: `manifest.json`, `fact-sheet.html`, and
+  `b-roll-shotlist.md` still said v50 — now all references match the
+  v51 screenshots actually in `screenshots/`.
+
+## v91 — 2026-09-23
+- Screenshots rebased to renderer build **v51** (specular window glints,
+  lamplit spill, eave-shadow band — same framings as v50). Site shots,
+  kit screenshots, key art, banners, og-card rebaked; new site gallery
+  page. (Manifest/fact-sheet/b-roll text refs caught up in v92.)
 
 ## v78 — 2026-09-24
 - Screenshots rebased to renderer build **v50** (lived-in ground line:
