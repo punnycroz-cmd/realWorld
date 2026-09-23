@@ -503,19 +503,31 @@ runAutoTest = async function(){
     const hu = gsRegisterUnit(hb.id, { unit_code: 'A', base_rent: 2000 });
     const hire = gsSubmitRequest({ playerId: 'pD', kind: 'hire', target: hu.id,
                                    durationMin: 5,
-                                   params: { name: 'Newcomer Nan' } }, 4000);
+                                   params: { name: 'Newcomer Nan',
+                                     job: 'farolote-line',
+                                     moveInDate: '2026-09-22' } }, 4000);
     /* v7: player-authored naming strings always route through the naming
-       lane — a human reads 'Newcomer Nan' before the character exists */
+       lane — a human reads 'Newcomer Nan' before the character exists.
+       v8: the flat 500 is deferred to that approval — screening first,
+       money second, and a denied application never bills at all. */
+    const hireParked = hire.status === 'in_review' && hire.billed === 0 &&
+                       hire.deferred === true;
     gsReviewResolve(hire.id, true, { nowMin: 4000 });
     const hiredId = Object.keys(GS_HIRED).find(k =>
       GS_HIRED[k] && GS_HIRED[k].unitId === hu.id);
     const hire2 = gsSubmitRequest({ playerId: 'pD', kind: 'hire', target: hu.id,
                                     durationMin: 5 }, 4001);
-    log(hire.status === 'active' && hiredId && gsHiredOwner(hiredId) === 'pD' &&
+    log(hireParked && hire.status === 'active' && hire.billed === 500 &&
+        hiredId && /^h\d\d$/.test(hiredId) &&
+        gsHiredOwner(hiredId) === 'pD' &&
         gsActiveLease(hu.id) && gsActiveLease(hu.id).tenant_id === hiredId &&
-        gsDollarBalance(hiredId) === 2000 * 2 + 1200 &&
+        gsActiveLease(hu.id).deposit === 0 &&
+        gsActiveLease(hu.id).hirePackage === true &&
+        gsDollarBalance(hiredId) === 1600 - 600 &&  // bank - pro-rated 9 days
+        GS_JOBS.find(j => j.id === 'farolote-line').openings === 0 &&
         hire2.reason === 'unit_occupied',
-        'gs: v1 hire creates character, signs the lease, pays move-in stake');
+        'gs: v8 hire — deferred 500 on approval, h## id, hire-package ' +
+        'lease, arrival bank minus pro-rated first month, opening consumed');
     const possNew = gsSubmitRequest({ playerId: 'pD', kind: 'possess',
                                       target: hiredId, durationMin: 5 }, 4010);
     const possWrong = gsSubmitRequest({ playerId: 'pC', kind: 'possess',
@@ -2291,6 +2303,345 @@ runAutoTest = async function(){
         params: { note: 'confront the noisy upstairs flat' } }, 62930);
     log(refile2.status === 'denied' && refile2.reason === 'appeal_final',
         'gs: v7 appeal finality survives snapshot/load');
+
+    /* ================= v8: THE PERSONNEL OFFICE (hiring) ============
+       the hire is a real application now — file, screen, approve, sign,
+       move in, work. The suite's marked hires retire to open seats
+       under the 24-cap; real hires below keep the cast ledger-sized. */
+    for(const cid of ['H310','H311','H312','H313','H314','H315','H316',
+                      'H317','H318','H70','H40','H50','H90','H91',
+                      'H71','H72','H73','H74','H20','H21','H22','H23',
+                      'H24','H25'])
+      gsReleaseHired(cid, 'v8 needs seats');
+    gsCreditGrant('hP', 5000, 'v8 stake');
+    gsCreditGrant('hQ', 5000, 'v8 stake');
+    gsCreditGrant('hB', 300, 'v8 short stake');
+    const h8b = gsRegisterBuilding({ street: 'Personnel Street',
+                                     owner_id: 'landlord' });
+    const uStd  = gsRegisterUnit(h8b.id, { unit_code: 'A', base_rent: 1400 });
+    const uBig  = gsRegisterUnit(h8b.id, { unit_code: 'B', base_rent: 2000 });
+    const uRich = gsRegisterUnit(h8b.id, { unit_code: 'C', base_rent: 2100 });
+    const uLo   = gsRegisterUnit(h8b.id, { unit_code: 'D', base_rent: 700 });
+    const uMid  = gsRegisterUnit(h8b.id, { unit_code: 'E', base_rent: 1200 });
+
+    /* the board is a live mirror of the canonical openings */
+    const board8 = gsJobBoard();
+    log(board8.length >= 13 &&
+        board8.some(j => j.id === 'mudhaus-barista' && j.openings === 1) &&
+        board8.some(j => j.id === 'seeking' && j.accepting) &&
+        board8.find(j => j.id === 'farolote-line').openings === 0 &&
+        board8.every(j => j.est >= 0 && j.role),
+        'gs: v8 the job board mirrors the canonical openings');
+    /* the availability check is the create-form gate, live */
+    const nc8 = gsHireNameCheck('Marisol Delgado');
+    log(nc8.ok === false && nc8.reason === 'name_collision' &&
+        gsHireNameCheck('a landlord clone').reason === 'name_collision' &&
+        gsHireNameCheck('x').reason === 'name_too_short' &&
+        gsHireNameCheck('Newcomer Nan').reason === 'name_collision' &&
+        gsHireNameCheck('Peregrine Booth').ok === true,
+        'gs: v8 name availability — taken names, role words, born hires');
+    /* structural denials refuse before money — the filing gets a real
+       refusal back and nothing ever bills */
+    const hBal8 = gsCreditBalance('hP');
+    /* (all on the pricey door — denied filings accuse THAT door's
+       repeat-pattern; the clean application below lands on another) */
+    const dName8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { job: 'muleit-rider', moveInDate: '2026-09-22' } }, 70000);
+    const dAge8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { name: 'Kid Kim', age: 16, job: 'muleit-rider',
+                  moveInDate: '2026-09-22' } }, 70001);
+    const dLook8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { name: 'Look Lou', look: { build: 'enormous' },
+                  job: 'muleit-rider', moveInDate: '2026-09-22' } }, 70002);
+    const dJob8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { name: 'Job Jo', job: 'astronaut',
+                  moveInDate: '2026-09-22' } }, 70003);
+    const dTaken8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { name: 'Marisol Delgado', job: 'muleit-rider',
+                  moveInDate: '2026-09-22' } }, 70004);
+    const dFill8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { name: 'Late Lana', job: 'farolote-line',
+                  moveInDate: '2026-09-22' } }, 70005);
+    const dReach8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uRich.id, durationMin: 5,
+        params: { name: 'Reach Rae', job: 'bloom-saturday',
+                  moveInDate: '2026-09-22' } }, 70006);
+    log(dName8.reason === 'needs_name' && dAge8.reason === 'underage' &&
+        dLook8.reason === 'bad_look' && dJob8.reason === 'unknown_job' &&
+        dTaken8.reason === 'name_collision' &&
+        dFill8.reason === 'job_filled' && dReach8.reason === 'out_of_reach',
+        'gs: v8 application denials — name, age, look, job, filled, ceiling');
+    log(gsCreditBalance('hP') === hBal8 &&
+        dName8.status === 'denied' && dReach8.status === 'denied',
+        'gs: v8 structural denials never bill — not one credit moved');
+
+    /* the complete application parks in the naming lane, nothing billed */
+    const hApp8 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uStd.id, durationMin: 5,
+        params: { name: 'Peregrine Booth', age: 34,
+                  job: 'buyrite-clerk', moveInDate: '2026-09-22',
+                  bio: 'line cook learning the block',
+                  arrival: 'off the 48 with a duffel',
+                  look: { build: 'compact', palette: 'ochre',
+                          signature: 'windbreaker, always' } } }, 70010);
+    log(hApp8.status === 'in_review' && hApp8.lane === 'naming' &&
+        hApp8.billed === 0 && hApp8.deferred === true &&
+        gsCreditBalance('hP') === hBal8,
+        'gs: v8 a complete application parks with nothing billed');
+    gsReviewResolve(hApp8.id, false, { code: 'review_denied',
+                                       nowMin: 70011, by: 'mod-b' });
+    log(hApp8.status === 'denied' && hApp8.billed === 0 &&
+        (hApp8.refunded || 0) === 0 &&
+        gsCreditBalance('hP') === hBal8,
+        'gs: v8 review denial — zero billed, zero refunded, zero moved');
+
+    /* approval with empty pockets fails honestly — nothing was ever
+       charged, so there is nothing to refund and nobody moves in */
+    const hShort8 = gsSubmitRequest({ playerId: 'hB', kind: 'hire',
+        target: uLo.id, durationMin: 5,
+        params: { name: 'Broke Brit', job: 'muleit-rider',
+                  moveInDate: '2026-09-22' } }, 70020);
+    gsReviewResolve(hShort8.id, true, { nowMin: 70021 });
+    log(hShort8.status === 'failed' &&
+        hShort8.failReason === 'insufficient_credits' &&
+        gsCreditBalance('hB') === 300 && !gsActiveLease(uLo.id) &&
+        GS_JOBS.find(j => j.id === 'muleit-rider').openings === -1,
+        'gs: v8 approval with empty pockets fails — no charge, no char');
+
+    /* approval: the charge lands once, the file opens, the package
+       signs through the ordinary application path */
+    const hApp9 = gsSubmitRequest({ playerId: 'hP', kind: 'hire',
+        target: uStd.id, durationMin: 5,
+        params: { name: 'Peregrine Booth', age: 34,
+                  job: 'buyrite-clerk', moveInDate: '2026-09-22',
+                  bio: 'line cook learning the block',
+                  arrival: 'off the 48 with a duffel',
+                  look: { build: 'compact', palette: 'ochre',
+                          signature: 'windbreaker, always' } } }, 70030);
+    gsReviewResolve(hApp9.id, true, { nowMin: 70031, by: 'mod-a' });
+    const cid8 = hApp9.charId;
+    const h8 = cid8 && GS_HIRED[cid8];
+    const lease8 = cid8 && gsActiveLease(uStd.id);
+    log(hApp9.status === 'active' && hApp9.billed === 500 &&
+        gsCreditBalance('hP') === hBal8 - 500 &&
+        /^h\d\d$/.test(cid8 || '') && h8 &&
+        h8.name === 'Peregrine Booth' && h8.age === 34 &&
+        h8.bio === 'line cook learning the block' &&
+        h8.arrival === 'off the 48 with a duffel' &&
+        h8.job && h8.job.id === 'buyrite-clerk' &&
+        h8.job.weeklyWage === 600,
+        'gs: v8 approval bills 500 once — the file opens whole');
+    log(lease8 && lease8.tenant_id === cid8 && lease8.deposit === 0 &&
+        lease8.hirePackage === true &&
+        GS_LEASE.apps.some(a => a.applicant_id === cid8 &&
+                                a.status === 'approved') &&
+        gsDollarBalance(cid8) === 1600 - 420,
+        'gs: v8 the hire package signs like any tenant — deposit ' +
+        'waived, pro-rated first month paid out of the arrival bank');
+    log(GS_JOBS.find(j => j.id === 'buyrite-clerk').openings === 0 &&
+        GS_WIRE.some(e => e.kind === 'cast' &&
+          /Peregrine Booth/.test(e.text) && /joins the cast/.test(e.text)) &&
+        !/\b500\b|\$\d|credits?/i.test(GS_WIRE.filter(e =>
+          /Peregrine/.test(e.text)).map(e => e.text).join(' ')),
+        'gs: v8 the opening is consumed; the wire tells the block, ' +
+        'never the fee');
+
+    /* the routine is the posted shift; the look is the picked look */
+    const rt8 = gsHiredRoutine(cid8);
+    const wk8 = rt8.find(b => b.to && b.to.poi === 'Bi-Rite Market');
+    log(!!wk8 && wk8.h0 === 8 && wk8.h1 === 16.5 &&
+        wk8.state === 'serve' &&
+        rt8[0].h0 === 0 && rt8[rt8.length - 1].h1 === 24 &&
+        rt8.every(b => b.h0 < b.h1),
+        'gs: v8 the routine walks the real shift at the real employer');
+    const lk8 = gsHiredLook(cid8);
+    log(lk8.shirt === GS_HIRE_PALETTE['ochre'] &&
+        lk8.outfit === 'jacket' && lk8.build === 'compact' &&
+        lk8.palette === 'ochre' &&
+        lk8.signature === 'windbreaker, always',
+        'gs: v8 structured look picks paint the character');
+
+    /* Friday payroll: employer -> character through the same ledger */
+    const fri8 = gsJobTick('2026-09-25');
+    const pay8 = fri8.paid.find(x => x.cid === cid8);
+    const due8 = gsBiweeklyDue(hiredId, '2026-09-25');
+    log(!!pay8 && pay8.amt === 600 && pay8.bonus === 0 &&
+        pay8.employer === 'Buy-Rite Market' &&
+        gsDollarBalance(cid8) === 1180 + 600 &&
+        h8.lastPayday === '2026-09-25' &&
+        gsJobTick('2026-09-25').paid.length === 0 &&
+        (fri8.paid.some(x => x.cid === hiredId)) === due8 &&
+        (!due8 ||
+          fri8.paid.find(x => x.cid === hiredId).amt === 1800),
+        'gs: v8 weekly wages post Friday; biweekly bands alternate');
+
+    /* a possessed shift earns the same wage + the session bonus */
+    const poss8 = gsSubmitRequest({ playerId: 'hP', kind: 'possess',
+        target: cid8, durationMin: 30 }, 70040);
+    const fri9 = gsJobTick('2026-10-02');
+    const payB8 = fri9.paid.find(x => x.cid === cid8);
+    log(poss8.status === 'active' && !!payB8 &&
+        payB8.bonus === 90 && payB8.amt === 690 &&
+        h8.wagesEarned === 600 + 690,
+        'gs: v8 driving on payday earns wage + the small session bonus');
+    gsCancelRequest(poss8.id, 70045, 'admin');
+
+    /* rent comes out of earned wages through the same ledger */
+    const balPreRent = gsDollarBalance(cid8);
+    const rr8 = gsRentTick('2026-10-22');
+    log(rr8.paid.some(p => p.cid === cid8 && p.unit === uStd.id) &&
+        gsDollarBalance(cid8) < balPreRent,
+        'gs: v8 wages pay the rent — one economy, both directions');
+
+    /* 'seeking' stays legal — the runway number replaces a locked door */
+    const hSeek8 = gsSubmitRequest({ playerId: 'hQ', kind: 'hire',
+        target: uBig.id, durationMin: 5,
+        params: { name: 'Seeker Sage', age: 41, job: 'seeking',
+                  moveInDate: '2026-09-22' } }, 70050);
+    gsReviewResolve(hSeek8.id, true, { nowMin: 70051 });
+    const seek8 = hSeek8.charId && GS_HIRED[hSeek8.charId];
+    log(hSeek8.status === 'active' && !!seek8 &&
+        seek8.job.id === 'seeking' && seek8.runwayMonths === 0.8 &&
+        gsDollarBalance(hSeek8.charId) === 1000,
+        'gs: v8 a seeking hire arrives — runway on file, bank - first month');
+    const qSeek8 = gsHireQuote({ playerId: 'hQ', target: uBig.id,
+        params: { name: 'Another Seeker', job: 'seeking',
+                  moveInDate: '2026-09-22' } });
+    log(qSeek8.ok && qSeek8.runwayMonths === 0.8 &&
+        /runs dry/.test(qSeek8.runwayNote) &&
+        qSeek8.fee === 500 && qSeek8.deposit === 0 &&
+        !qSeek8.outOfReach,
+        'gs: v8 the disclosure card shows fee, runway, waived deposit');
+
+    /* taking real work later: the ceiling binds, the slot is consumed,
+       the routine re-anchors, the block hears about it */
+    const tk8 = gsHiredTakeJob(hSeek8.charId, 'sfgh-cna');
+    log(tk8.ok === false && tk8.reason === 'out_of_reach' &&
+        GS_JOBS.find(j => j.id === 'sfgh-cna').openings === 2,
+        'gs: v8 an unreachable job is refused before the slot moves');
+    const tk9 = gsHiredTakeJob(hSeek8.charId, 'delfino-line');
+    const rt9 = gsHiredRoutine(hSeek8.charId);
+    log(tk9.ok && GS_HIRED[hSeek8.charId].job.id === 'delfino-line' &&
+        GS_JOBS.find(j => j.id === 'delfino-line').openings === 0 &&
+        GS_HIRED[hSeek8.charId].runwayMonths === null &&
+        rt9.some(b => b.to && b.to.poi === 'Delfina' &&
+                      b.h0 === 16.5 && b.h1 === 23) &&
+        GS_FEED.some(e => e.type === 'hire' &&
+          e.action === 'job_start' && e.charId === hSeek8.charId),
+        'gs: v8 taking work consumes the opening, re-anchors the day');
+
+    /* eviction happens — arrears are real. The humane end is a second
+       apartment hunt: rehouse signs a normal lease, deposit and all */
+    const rehNo8 = gsSubmitRequest({ playerId: 'hP', kind: 'rehouse',
+        target: uLo.id, durationMin: 5,
+        params: { charId: hSeek8.charId } }, 70060);
+    gsAdminEvict(uBig.id, { date: '2026-09-24', override: true,
+                            reason: 'no-fault' });
+    log(rehNo8.reason === 'not_your_character' &&
+        GS_HIRED[hSeek8.charId].unitId === null &&
+        !gsActiveLease(uBig.id),
+        'gs: v8 only your own hire re-houses; eviction leaves them hired');
+    const reh8 = gsSubmitRequest({ playerId: 'hQ', kind: 'rehouse',
+        target: uLo.id, durationMin: 5,
+        params: { charId: hSeek8.charId,
+                  moveInDate: '2026-09-24' } }, 70061);
+    log(reh8.status === 'active' &&
+        GS_HIRED[hSeek8.charId].unitId === uLo.id &&
+        gsActiveLease(uLo.id) && gsActiveLease(uLo.id).deposit === 700 &&
+        !gsActiveLease(uLo.id).hirePackage &&
+        gsDollarBalance(hSeek8.charId) === 1000 - 700 - 163 &&
+        GS_FEED.some(e => e.type === 'hire' && e.action === 'rehouse'),
+        'gs: v8 rehouse is a real second lease — deposit owed');
+
+    /* the public file: roster + briefing carry the whitelisted profile */
+    const ros8 = gsHiredRoster().find(r => r.id === cid8);
+    const brf8 = gsPossessionBriefing(cid8);
+    log(!!ros8 && ros8.owner === 'hP' && ros8.age === 34 &&
+        ros8.job && ros8.job.employer === 'Buy-Rite Market' &&
+        /Personnel Street/.test(ros8.home || '') &&
+        ros8.bio === 'line cook learning the block' &&
+        ros8.spawned === (typeof SF_MODE !== 'undefined' && !!SF_MODE) &&
+        !/seed|secret|screen|flag|appeal|suspend|wagesEarned|account/i
+          .test(JSON.stringify(ros8)),
+        'gs: v8 the roster reads like a public file — internals never');
+    log(!!brf8 && brf8.age === 34 &&
+        brf8.bio === 'line cook learning the block' &&
+        brf8.arrival === 'off the 48 with a duffel' &&
+        brf8.job && brf8.job.employer === 'Buy-Rite Market' &&
+        brf8.home && /Personnel Street/.test(brf8.home.address || '') &&
+        gsBriefingAudit(brf8).ok === true,
+        'gs: v8 the briefing carries the whitelisted profile, audit clean');
+
+    /* a reviewed hire that still has to queue pays the patience rate —
+       the escrow's paperwork blocks the lease's, FCFS as always */
+    gsDollarGrant(hiredId, 5000, 'escrow float');
+    const lst9 = gsSubmitRequest({ playerId: 'owner', kind: 'listing',
+        target: uMid.id, durationMin: 60,
+        params: { ask: 400 } }, 70070);
+    const buy9 = gsSubmitRequest({ playerId: 'pD', kind: 'buy',
+        target: uMid.id, durationMin: 1,
+        params: { buyerId: hiredId } }, 70071);
+    const hQ8 = gsSubmitRequest({ playerId: 'hQ', kind: 'hire',
+        target: uMid.id, durationMin: 5,
+        params: { name: 'Queued Quinn', job: 'perk-counter',
+                  moveInDate: '2026-09-22' } }, 70072);
+    /* (the instant sale closes the listing request — the escrow's
+       own paper claim is what the hire queues behind) */
+    log(lst9.status === 'completed' && buy9.status === 'active' &&
+        hQ8.status === 'in_review',
+        'gs: v8 escrow holds the unit\'s paperwork while the app reads');
+    gsReviewResolve(hQ8.id, true, { nowMin: 70072 });
+    log(hQ8.status === 'queued' &&
+        hQ8.billed === Math.ceil(hQ8.price * (1 - GS_QUEUE_DISCOUNT)) &&
+        hQ8.discount === GS_QUEUE_DISCOUNT,
+        'gs: v8 an approved hire behind escrow queues at -15%');
+    gsBusTick(70073);
+    const qq8 = hQ8.charId;
+    log(hQ8.status === 'active' && !!qq8 &&
+        gsActiveLease(uMid.id) &&
+        gsActiveLease(uMid.id).tenant_id === qq8,
+        'gs: v8 the queued hire signs when the paperwork clears');
+
+    /* snapshot/load: records, openings + the h## counter all ride */
+    const snap8 = gsBusSnapshot();
+    gsBusReset();
+    log(Object.keys(GS_HIRED).length === 0 &&
+        GS_JOBS.find(j => j.id === 'buyrite-clerk').openings === 1 &&
+        GS_JOBS.find(j => j.id === 'farolote-line').openings === 1 &&
+        GS_HIRE_SEQ.n === 0,
+        'gs: v8 reset returns the board and counter to open');
+    log(gsBusLoad(snap8) === true &&
+        GS_HIRED[cid8] && GS_HIRED[cid8].name === 'Peregrine Booth' &&
+        GS_HIRED[hSeek8.charId] &&
+        GS_JOBS.find(j => j.id === 'buyrite-clerk').openings === 0 &&
+        GS_JOBS.find(j => j.id === 'delfino-line').openings === 0 &&
+        GS_HIRE_SEQ.n >= 1,
+        'gs: v8 hired records, openings + the counter ride the snapshot');
+    if(typeof SF_MODE !== 'undefined' && SF_MODE){
+      const pw8 = gsVillagerForChar(cid8);
+      log(!!pw8 && pw8.gsHired === true &&
+          gsHiredLook(cid8).signature === 'windbreaker, always',
+          'gs: v8 the hired body + picked look walk back on after load');
+    } else {
+      log(GS_HIRED[cid8].spawned === false &&
+          gsSpawnHired(cid8) === null,
+          'gs: v8 load restores the file — no Mission pawn in medieval');
+    }
+
+    /* release is the whole cleanup: body, lease, record — and the
+       opening goes back on the board */
+    const openBefore8 = GS_JOBS.find(j => j.id === 'buyrite-clerk').openings;
+    gsReleaseHired(cid8, 'v8 done');
+    log(GS_HIRED[cid8] == null && !gsActiveLease(uStd.id) &&
+        GS_JOBS.find(j => j.id === 'buyrite-clerk').openings ===
+          openBefore8 + 1 && !gsVillagerForChar(cid8),
+        'gs: v8 release — record, lease, pawn gone; the opening returns');
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

@@ -184,7 +184,10 @@ function gsScreenHistory(pid, target, spec, now){
 function gsIntentScreen(spec){
   spec = spec || {};
   const p = spec.params || {};
-  const text = [spec.note, p.note, p.intent, p.text, p.plan, p.goal, p.name]
+  /* v8: the hire application's screened surface rides the same engine —
+     name + bio + arrival are the creation.json screening strings */
+  const text = [spec.note, p.note, p.intent, p.text, p.plan, p.goal, p.name,
+                p.bio, p.arrival]
     .filter(s => typeof s === 'string').join('\n');
   if(text){
     for(const rule of GS_INTENT_RULES){
@@ -219,6 +222,16 @@ function gsHiredRoster(){
       owner: gsHiredOwner(cid), hiredMin: h.hiredMin != null ? h.hiredMin : null,
       home: lease ? gsAddressOfUnit(lease.unit_id)
                   : (h.unitId ? gsAddressOfUnit(h.unitId) : null),
+      /* v8: the personnel file rides the opening credits — job, runway,
+         the screened one-liners */
+      job: (h.job && h.job.id && h.job.id !== 'seeking')
+        ? { employer: h.job.employer, role: h.job.role,
+            est: h.job.est }
+        : null,
+      seeking: !!(h.job && h.job.id === 'seeking'),
+      runwayMonths: h.runwayMonths != null ? h.runwayMonths : null,
+      age: h.age != null ? h.age : null,
+      bio: h.bio || null,
       spawned: !!h.spawned || !!gsVillagerForChar(cid),
       possessed: !!GS_POSSESS[cid],
     });
@@ -267,9 +280,18 @@ function gsHiredLook(cid){
   const pick = (arr, tag) => arr[hashString18(cid + '|' + tag) % arr.length];
   const sh = (typeof shade === 'function') ? shade : (h) => h;
   const skin = pick(GS_LOOK_SKIN, 'skin'), hair = pick(GS_LOOK_HAIR, 'hair');
-  const shirt = pick(GS_LOOK_SHIRT, 'shirt'),
+  /* v8: the creation wizard's structured pickers are rendering data, not
+     text — palette picks the shirt family, signature picks the wardrobe
+     detail, build rides the record for the art contract. Hash picks stay
+     the fallback for anything the player didn't pick. */
+  const lk = (GS_HIRED[cid] && GS_HIRED[cid].look) || {};
+  const pal = (typeof GS_HIRE_PALETTE === 'object' && lk.palette)
+    ? GS_HIRE_PALETTE[lk.palette] : null;
+  const sig = (typeof GS_HIRE_SIG === 'object' && lk.signature)
+    ? GS_HIRE_SIG[lk.signature] : null;
+  const shirt = pal || pick(GS_LOOK_SHIRT, 'shirt'),
         pants = pick(GS_LOOK_PANTS, 'pants'),
-        boots = pick(GS_LOOK_BOOTS, 'boots');
+        boots = (sig && sig.boots) || pick(GS_LOOK_BOOTS, 'boots');
   return {
     id: cid, name: gsCharName(cid),
     skin, skinD: sh(skin, 0.8), hair, hairD: sh(hair, 0.75),
@@ -278,7 +300,10 @@ function gsHiredLook(cid){
     acc: 'none', accCol: '#2b2b33',
     shirt, shirtD: sh(shirt, 0.8), pants, pantsD: sh(pants, 0.8),
     boots, bootsD: sh(boots, 0.85),
-    outfit: pick(GS_LOOK_FIT, 'of'), prop: pick(GS_LOOK_PROP, 'pp'),
+    outfit: (sig && sig.outfit) || pick(GS_LOOK_FIT, 'of'),
+    prop: (sig && sig.prop) || pick(GS_LOOK_PROP, 'pp'),
+    build: lk.build || null,
+    palette: lk.palette || null, signature: lk.signature || null,
   };
 }
 
@@ -287,6 +312,14 @@ function gsHiredLook(cid){
    door, not a hashed park cell */
 function gsHiredRoutine(cid){
   const h = GS_HIRED[cid] || {};
+  /* v8: a character hired into a real opening works the shift the board
+     posted — the personnel office builds the job-anchored day; the
+     role-text branches below stay the fallback for free-role hires */
+  if(h.job && h.job.id && h.job.id !== 'seeking' &&
+     typeof gsHiredJobRoutine === 'function'){
+    const jr = gsHiredJobRoutine(cid);
+    if(jr) return jr;
+  }
   const role = String(h.role || '').toLowerCase();
   const homeCell = gsHiredHomeCell(cid);
   const home = { latlon: (typeof SF_M !== 'undefined' && SF_M)
@@ -449,6 +482,8 @@ function gsReleaseHired(cid, why){
     const l = gsLeasesFor(cid).find(x => x.status === 'active');
     if(l) gsVacate(l.unit_id, { by: 'hire_released' });
   }
+  /* v8: the job opening goes back on the board with the seat */
+  if(typeof gsHireFreeSlot === 'function') gsHireFreeSlot(cid);
   delete GS_HIRED[cid];
   gsBusEmit('hire', { playerId: h.playerId, kind: 'hire', target: cid,
     _now: (typeof gsNowMin === 'function') ? gsNowMin() : null },
@@ -672,6 +707,16 @@ function gsPossessBrief(charId){
     role: h.role || (v && v.role) || 'Resident',
     hiredBy: owner,
     hiredMin: h.hiredMin != null ? h.hiredMin : null,
+    /* v8: the public profile IS the screened application surface —
+       bio/arrival/job are briefing-whitelisted verbatim
+       (creation.json briefing_whitelist: public profile) */
+    age: h.age != null ? h.age : null,
+    bio: h.bio || null,
+    arrival: h.arrival || null,
+    job: (h.job && h.job.id && h.job.id !== 'seeking')
+      ? { employer: h.job.employer, role: h.job.role,
+          shift: h.job.shiftTxt || null }
+      : null,
     home: lease ? {
       address: gsAddressOfUnit(lease.unit_id),
       unitId: lease.unit_id,

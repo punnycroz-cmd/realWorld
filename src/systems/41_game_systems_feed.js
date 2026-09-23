@@ -501,8 +501,21 @@ function gsWireFormat(evt){
           { who: evt.player,
             mentions: (evt.charId || evt.target)
               ? [evt.charId || evt.target] : null })];
+      /* v8: the personnel beats — a job start and a re-door are cast
+         news the same way an arrival is */
+      if(evt.action === 'job_start')
+        return [mk('cast', gsWireCharLabel(evt.charId) +
+          ' starts a new job — ' + (evt.detail || 'on the block'),
+          { who: evt.player,
+            mentions: evt.charId ? [evt.charId] : null })];
+      if(evt.action === 'rehouse')
+        return [mk('cast', gsWireCharLabel(evt.charId) +
+          ' finds a new door' + (evt.detail ? ' — ' + evt.detail : ''),
+          { who: evt.player,
+            mentions: evt.charId ? [evt.charId] : null })];
       return [mk('cast', 'a new face on the block — ' +
-        gsWireCharLabel(evt.charId) + ' joins the cast',
+        gsWireCharLabel(evt.charId) + ' joins the cast' +
+        (evt.detail ? ' — ' + evt.detail : ''),
         { who: evt.player,
           mentions: evt.charId ? [evt.charId] : null })];
 

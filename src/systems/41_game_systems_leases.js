@@ -396,6 +396,9 @@ function gsApplyForLease(unitId, applicantId, spec){
     applicant_id: applicantId,
     occupants: (spec && spec.occupants) || [applicantId],
     note: (spec && spec.note) || null,
+    /* v8: a hire package or negotiated lease may carry its own deposit
+       terms (0 = waived); undefined keeps the 1-month default */
+    deposit: spec && spec.deposit,
     appliedOn: (spec && spec.date) || null, status: 'pending' };
   GS_LEASE.apps.push(app);
   gsLeaseFeed('apply', { unit_id: unitId, tenant_id: applicantId },
@@ -409,7 +412,8 @@ function gsApproveApplication(appId, opts){
   if(typeof gsActiveLease === 'function' && gsActiveLease(app.unit_id))
     return { ok: false, reason: 'unit_occupied' };
   const l = gsSignLease(app.unit_id, app.applicant_id, {
-    start: opts.date || null, occupants: app.occupants });
+    start: opts.date || null, occupants: app.occupants,
+    deposit: app.deposit });
   if(!l) return { ok: false, reason: 'unit_not_livable' };
   gsLeaseEnsure(l);
   app.status = 'approved'; app.leaseUnit = l.unit_id;

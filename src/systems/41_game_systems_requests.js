@@ -63,8 +63,13 @@
                    world-scale exclusive resource every viewer sees.
      street_event 5 cr/min — perturbs ~20 thin-AI ambient schedules
                    (cheap reflex recompute, no LLM calls).
-     hire        30 cr/min (fixed 5-min processing) — creates a character
+     hire       500 cr flat (fixed 5-min processing) — creates a character
                    with a standing full-brain compute budget + a lease.
+                   requests.json: billing 'flat', billed ONCE after
+                   screening passes — a parked (named) hire defers the
+                   charge to approval; denied applications never bill.
+     rehouse    150 cr flat — the eviction loop's humane end: re-door a
+                   hired character who lost their home (v8).
      listing      1 cr/min — a registry row + feed entry; near-zero cost.
      buy         25 cr flat (1-min escrow window) — paperwork one-shot.
    Surge multiplier hook stays flat at 1 — v7 (anti-grief) owns surge.
@@ -416,22 +421,31 @@ gsDefineAction('street_event', {
   },
 });
 gsDefineAction('hire', {
-  scope: 'target', exclusive: true, ratePerMin: 30,
+  scope: 'target', exclusive: true, ratePerMin: 100,
   minMin: 5, maxMin: 5, cdPlayerMin: 1440, ttlMin: 30,
+  /* v8: flat 500cr billed AFTER screening (requests.json billing 'flat'
+     + creation.json "denied applications never bill") — a parked hire
+     defers the charge to approval; gsReviewResolve collects it there.
+     The personnel office (41_game_systems_hiring.js) owns validation +
+     activation; the fallbacks keep a module-less build legal. */
+  billOnApproval: true,
   effect: 'once',
-  allow: (r) => {
-    if(!r.target) return 'needs_housing';        // design §6: housing required
-    const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
-    if(!u) return 'unknown_unit';
-    if(!gsUnitLivable(u)) return 'unit_not_livable';
-    const hb = gsBldById(u.bld_id);              // hired cast live on-map
-    if(hb && hb.offmap) return 'unit_offmap';
-    if(gsActiveLease(u.id)) return 'unit_occupied';
-    if(gsHiredCount(r.playerId) >= GS_MAX_HIRED_PER_PLAYER) return 'hire_cap';
-    if(Object.keys(GS_HIRED).length >= GS_MAX_HIRED_TOTAL) return 'cast_cap';
-    return true;
-  },
-  activate: gsFxHire,
+  allow: (r, now) => (typeof gsHireAllow === 'function')
+    ? gsHireAllow(r, now)
+    : (() => {
+        if(!r.target) return 'needs_housing';
+        const u = (typeof gsUnitById === 'function') && gsUnitById(r.target);
+        if(!u) return 'unknown_unit';
+        if(!gsUnitLivable(u)) return 'unit_not_livable';
+        const hb = gsBldById(u.bld_id);
+        if(hb && hb.offmap) return 'unit_offmap';
+        if(gsActiveLease(u.id)) return 'unit_occupied';
+        if(gsHiredCount(r.playerId) >= GS_MAX_HIRED_PER_PLAYER) return 'hire_cap';
+        if(Object.keys(GS_HIRED).length >= GS_MAX_HIRED_TOTAL) return 'cast_cap';
+        return true;
+      })(),
+  activate: (r, now) => (typeof gsHireActivate === 'function')
+    ? gsHireActivate(r, now) : gsFxHire(r, now),
   /* the unit's paperwork serializes — a buy escrow or another hire on
      the same unit waits its turn, like real title work */
   claims: (r) => [{ cls: 'paper', res: 'paper:' + r.target }],
@@ -869,20 +883,26 @@ function gsSubmitRequest(spec, nowMin){
   const discounted = conflict && !parked && !gsIsAdmin(pid);
   const billed = discounted ? Math.ceil(price * (1 - GS_QUEUE_DISCOUNT))
                             : price;
+  /* v8 deferred billing: an action with billOnApproval (the hire — a
+     denied application must NEVER have billed) that parks in review
+     holds its charge until a human approves it. The credit leaves once,
+     at approval — screening first, then money. */
+  const deferBill = !!a.billOnApproval && parked;
   /* admin ('owner'/'admin') files free — the owner exercises power through
      admin tools (design §3), never buys it back from themselves. Admin
      requests join the same FCFS line as everyone else's — the override
      mechanism is the revoke switch, not queue privilege. */
-  if(billed > 0 && !gsIsAdmin(pid) &&
+  if(billed > 0 && !gsIsAdmin(pid) && !deferBill &&
      !gsCreditSpend(pid, billed, kind + ' request'))
     return deny('insufficient_credits');
 
   const resKey = gsResourceKey(kind, target);
   const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
     kind, target, durationMin: dur, params, price, resKey, claims,
-    billed: gsIsAdmin(pid) ? 0 : billed,
+    billed: (gsIsAdmin(pid) || deferBill) ? 0 : billed,
+    deferred: deferBill && !gsIsAdmin(pid),
     surge, discount: discounted ? GS_QUEUE_DISCOUNT : 0,
-    rateApplied: dur > 0 ? (gsIsAdmin(pid) ? 0 : billed) / dur : 0,
+    rateApplied: dur > 0 ? ((gsIsAdmin(pid) || deferBill) ? 0 : billed) / dur : 0,
     submittedMin: now, status: conflict ? 'queued' : 'active',
     startMin: conflict ? null : now,
     endMin: conflict ? null : now + dur,
@@ -1124,6 +1144,24 @@ function gsReviewResolve(id, approve, opts){
     }
   }
   const blockers = gsFindBlockers(r);
+  /* v8: a deferred-billed request (the hire) pays ONCE here — screening
+     passed, the reviewer approved, now the flat fee lands. A request
+     that still has to queue pays the discounted patience rate instead
+     of the list price; a player whose credits ran out while they waited
+     fails honestly with nothing to refund (none ever moved). */
+  if(r.deferred && r.billed <= 0 && !gsIsAdmin(r.playerId)){
+    const want = blockers.length
+      ? Math.ceil(r.price * (1 - GS_QUEUE_DISCOUNT)) : r.price;
+    if(!gsCreditSpend(r.playerId, want, r.kind + ' request')){
+      r.status = 'failed'; r.failReason = 'insufficient_credits';
+      gsBusEmit('fail', r, { reason: 'insufficient_credits', refund: 0 });
+      if(r.holdsLine){ r.holdsLine = false; gsPromoteAll(now); }
+      return r;
+    }
+    r.billed = want; r.deferred = false;
+    if(blockers.length) r.discount = GS_QUEUE_DISCOUNT;
+    r.rateApplied = r.durationMin > 0 ? r.billed / r.durationMin : 0;
+  }
   if(blockers.length){
     r.status = 'queued';
     r.expireMin = now + (a.ttlMin || 60);
@@ -1287,7 +1325,9 @@ function gsBusSnapshot(){
     wire: (typeof gsWireSnapshot === 'function')
           ? gsWireSnapshot() : null,                // v6 formatted feed
     grief: (typeof gsGriefSnapshot === 'function')
-           ? gsGriefSnapshot() : null });           // v7 door-policy state
+           ? gsGriefSnapshot() : null,             // v7 door-policy state
+    hiring: (typeof gsHireSnapshot === 'function')
+            ? gsHireSnapshot() : null });          // v8 personnel office
 }
 function gsBusLoad(json){
   try{
@@ -1319,6 +1359,8 @@ function gsBusLoad(json){
     if(typeof gsWireLoad === 'function') gsWireLoad(d.wire);
     /* v7: account flags, appeals, ads + rep notebook */
     if(typeof gsGriefLoad === 'function') gsGriefLoad(d.grief);
+    /* v8: job openings + the h## counter */
+    if(typeof gsHireLoad === 'function') gsHireLoad(d.hiring);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1351,6 +1393,7 @@ function gsBusReset(){
   if(typeof gsPossessReset === 'function') gsPossessReset();
   if(typeof gsWireReset === 'function') gsWireReset();       // v6
   if(typeof gsGriefReset === 'function') gsGriefReset();     // v7
+  if(typeof gsHireReset === 'function') gsHireReset();       // v8
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */
