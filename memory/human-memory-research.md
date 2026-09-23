@@ -932,3 +932,56 @@ mechanistic holes and corrected two sign errors.
   latent_returned reconstructions). Probes P136–P144 (registry now
   P1–P144); profiles +18 clamp rows + v1.5 sensitivity note.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 21. v16 summary — age-decline II (the compensation layer, 2026-09-23)
+
+Second pass on the decline side (age-decline.md Part II). v4 gave the
+deficit machinery; this pass adds what old minds do *differently* —
+selective, positive, scaffolded, socially compensated, confidently wrong.
+
+- **Value-directed remembering** (Castel, Benjamin, Craik & Watkins
+  2002; Murphy et al. 2020; Hoover et al. 2025): older adults recall
+  less but select MORE — `value_select` sharpens the importance term
+  in E so high-value encoding is spared and low-value abandoned.
+- **Positivity effect** (Reed, Chan & Mikels 2014 meta — old dbias
+  +.13, young −.12, unconstrained d=.48 vs constrained .13; Mather &
+  Knight 2005 load reversal): `positivity_gain` on encoding and
+  candidate selection, resource-gated. NOT reserve-shifted —
+  motivational (SST).
+- **Hyper-binding** (Campbell, Hasher & Thomas 2010; Campbell et al.
+  2024 review — implicit-only): `hyperbind_p` writes co-present
+  unrelated features into verbatim slots — wrong-context confident
+  detail, distinct from offtarget_p (storage vs emission).
+- **Destination memory** (Gopie & MacLeod 2009 — confident misses →
+  repeat telling; El Haj et al. 2012): `toldTo` map + `dest_mem`
+  hit rate; misses dominate → elders repeat stories to the same
+  listener.
+- **Context>content decline** (Spencer & Raz 1995 meta): `ctx_loss`
+  multiplies where/when/source decay; dating vs ordering gap widens.
+- **Misrecollection** (Dodson & Krueger 2006; Shing et al. 2008 —
+  children don't): `conf_inflate_old` on wrong-flagged conf_out —
+  old errors at HIGH confidence, the eyewitness-signature inversion.
+- **Schema scaffold** (Castel 2005; Umanath & Marsh 2014):
+  `schema_support` — semantic-store-congruent events encode near
+  young rates.
+- **Stereotype threat** (Lamont, Swift & Abrams 2015 d=.28/.52;
+  Armstrong et al. 2017 episodic d=.373, recall-only): `evaluative`
+  cueContext × trait `stereo_suscept` — quizzed elders blank, same
+  elders reminisce fine.
+- **Gist false memory** (Balota et al. 1999; Tun et al. 1998): formal
+  old-side knots on phantom_p/gist_lure_gain (0.02→0.05, 0.3→0.5 @80).
+- **Couple compensation** (Harris et al. 2011; Barnier et al. 2014 —
+  facilitation older-couples-only): `collab_partner_gain` waives the
+  collab penalty for intimate dyads — widowed elders lose a memory
+  prosthesis.
+- **Olfactory encoding decline** (Doty et al. 1984): w_sensory
+  old-side knots 0.10→0.05; reach (sensory_age_slope) unchanged.
+- **Deliberate non-change** (Dodson & Krueger 2006): misinfo_suscept
+  old knots stay modest — the aging signature is confidence, not
+  adoption; warnings work on elders.
+- Spec → v1.6: §2 +4 encoding terms, §3 conf_out wrong-flag term,
+  §5.4 evaluative/positivity clauses, §6.8/6.11/6.13/6.15 edits,
+  §7 +9 params +3 knot updates +1 frozen shape, §10 contract
+  additions. Probes P145–P153 (registry P1–P153); profiles +9 clamp
+  rows + E-block + v1.6 note.
+- Boundaries kept: research only, no code, no narratives, no push/merge.

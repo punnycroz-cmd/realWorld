@@ -207,6 +207,33 @@ never copying raw.
 | child_internal_confuse | 1.0 | 3.0 | internal source-confusion mult <9 (v1.5) |
 | child_trauma_off | 0.0 | 0.2 | trauma_thresh offset; HYPOTHESIS (v1.5) |
 | tele_age_gain | 0.0 | 1.0 | telescoping age gradient (v1.5) |
+| value_select | 0.0 | 0.7 | importance sharpening on E; age curve (v1.6) |
+| positivity_gain | 0.0 | 0.5 | valence asymmetry encode/select; load-gated (v1.6) |
+| hyperbind_p | 0.0 | 0.4 | wrong-context verbatim binding (v1.6) |
+| dest_mem | 0.3 | 0.95 | toldTo hit rate; low = repeats stories (v1.6) |
+| ctx_loss | 0.8 | 2.0 | context>content decay multiplier (v1.6) |
+| conf_inflate_old | 0.0 | 0.25 | conf_out bump on wrong content; old-age (v1.6) |
+| schema_support | 0.0 | 0.35 | prior-knowledge encoding scaffold (v1.6) |
+| stereo_suscept | 0.0 | 1.0 | trait; evaluative-recall θ tax (v1.6) |
+| collab_partner_gain | 0.0 | 0.35 | intimate-dyad facilitation (v1.6) |
+
+**v1.6 age-decline note (compensation layer):** the v1.6 params split
+into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
+`dest_mem`, `ctx_loss`, `conf_inflate_old`, `schema_support`,
+`collab_partner_gain` — all evaluate at `age_eff`) and two deliberately
+NOT shifted (`positivity_gain` — motivational, SST; `stereo_suscept` —
+a trait, gated by the frozen `stereo_age_gate`). World-builder
+guidance: `schema_support` scales with the density of a character's
+semantic store, so bibles with rich expertise get it implicitly —
+don't pin it high for sparse-store elders. `collab_partner_gain`
+matters only where a bible describes a long-term intimate partner —
+widowed elders get measurably less support (grief as memory loss is
+emergent). `dest_mem` low values produce the endearing/irritating
+repeat-telling; pair with `chain_gain` HIGH for the storyteller.
+`stereo_suscept` loads on neurot/distrust — the character who fears
+being seen as senile performs worst when quizzed. `conf_inflate_old`
+is the reason old witnesses should never be trusted on details even
+when they sound certain — a probe-locked inversion (P150).
 
 **v1.5 age-development note:** this pass adds mostly AGE-STRUCTURED
 params — they ARE the age curves. `reminiscence_env` is the bible dial
@@ -518,6 +545,16 @@ unitize_gain 0.45 · lapse_p 0.05 · da_encode_mult 0.65
   shop" survives as one item while loose associations fragment
   (Giovanello & Schacter 2012); lapses up; multitasking costs heavy.
   doorway_drop stays FLAT at default — Radvansky 2015 no age diff)
+value_select 0.3 · positivity_gain 0.2 · schema_support 0.15
+  (v1.6 compensation: important things still encode, warm things
+  preferentially encode, domain knowledge scaffolds — the selective,
+  sunny, expert old mind)
+hyperbind_p 0.15 · dest_mem 0.7 · ctx_loss 1.25
+  (v1.6: wrong-context details bound at birth; repeats stories to the
+  same listener — the miss asymmetry; where/when die before what/who)
+conf_inflate_old 0.08 · collab_partner_gain 0.15
+  (v1.6: confidently wrong on details — Dodson; a spouse's memory
+  partially substitutes for her own — Barnier 2014)
 ```
 Emergent: recent events evaporate; youth-era memories are vivid, polished by
 retelling, and partly invented; warm memories outlast grievances.

@@ -1,4 +1,27 @@
-# Memory Model Spec v1.5 — implementable human-like memory for RW characters
+# Memory Model Spec v1.6 — implementable human-like memory for RW characters
+
+> **v1.6 note (age-decline II — the compensation layer):**
+> `memory/age-decline.md` Part II adds what aging minds do
+> *differently*, not just worse: value-directed selectivity — the old
+> system prices importance steeper, sparing high-value encoding while
+> abandoning the rest (Castel, Benjamin, Craik & Watkins 2002; Castel
+> 2023); the positivity effect on encoding AND selection, collapsed by
+> load/stress (Reed, Chan & Mikels 2014 meta; Mather & Knight 2005);
+> hyper-binding — wrong-context verbatim fields, implicit-only
+> (Campbell, Hasher & Thomas 2010); destination memory — `toldTo` misses
+> produce the repeat-story tell (Gopie & MacLeod 2009; El Haj 2012);
+> context>content decay asymmetry (Spencer & Raz 1995 meta);
+> misrecollection — old errors at HIGH confidence (Dodson & Krueger
+> 2006; Shing et al. 2008); prior-knowledge scaffold (Castel 2005;
+> Umanath & Marsh 2014); stereotype threat — recall-only, evaluative
+> contexts (Lamont, Swift & Abrams 2015; Armstrong et al. 2017);
+> gist-false-memory age knots (Balota et al. 1999); intimate-dyad
+> collaborative facilitation — old couples remember better together
+> (Harris et al. 2011; Barnier et al. 2014); olfactory cue-encoding
+> decline (Doty 1984). Deliberate non-change: `misinfo_suscept` old
+> knots stay modest — the aging signature is confidence, not adoption.
+> Schema +`toldTo`/`hyperbound`; §7 +9 params +3 knot updates; probes
+> P145–P153. All optional w/ defaults; backward compatible.
 
 > **v1.5 note (age-development II):** `memory/age-development.md` Part II
 > deepens the developmental layer: infantile records go **latent, not
@@ -358,6 +381,32 @@ Postman 1964; Hyde & Jenkins 1973).
   2013); `cascade: true` cultural records encoded at `encodeAge ∈
   [4,10]` get `bump_cascade_gain` (0.4) — the parents'-era secondary
   peak (Svob & Brown 2012; age-development.md §17).
+- **Value-directed selectivity (v1.6):**
+  `importance = max(selfRelevance, goalRelevance)` (goalRelevance is
+  predictionError routed through a live goal/open loop; default =
+  selfRelevance). `E *= (1 + value_select(age_eff)·(2·importance − 1))`
+  — older adults preserve high-value encoding and abandon low-value
+  (Castel, Benjamin, Craik & Watkins 2002; Castel 2023). Fails to rescue
+  intrinsically-hard content — it reweights E, it can't create it
+  (Hoover et al. 2025; age-decline.md §17).
+- **Positivity at encoding (v1.6):** `pos_eff = positivity_gain(age_now)
+  ·(1 − daLoad)·(1 − acuteStress)` (acuteStress = 1 if arousal ≥
+  stress_thresh, else 0). For valence>0 events `E *= (1 + pos_eff·
+  valence)`; for valence<0 `E *= (1 − 0.5·pos_eff·|valence|)`. Resource-
+  dependent by construction — load/threat collapses it (Mather & Knight
+  2005; Reed, Chan & Mikels 2014 meta). NOT reserve-shifted — motivational,
+  not fluid (age-decline.md §18).
+- **Schema scaffold (v1.6):** if the event's cue tags overlap a semantic
+  record with strength ≥ `know_protect_thresh`, `E += schema_support
+  (age_eff)·overlap` (bounded +0.15) — prior knowledge carries encoding
+  for the old (Castel 2005; Umanath & Marsh 2014; age-decline.md §23).
+- **Hyper-binding (v1.6):** with probability `hyperbind_p(age_eff)·
+  (1 − awareness)` — awareness = `boundary:true` or selfRelevance ≥0.8 —
+  write ONE verbatim field from a co-present but unrelated context
+  feature and flag it `hyperbound` (hidden). Older adults bind the
+  WRONG things, not fewer (Campbell, Hasher & Thomas 2010; implicit-
+  only per Campbell et al. 2024; age-decline.md §19). Small compensating
+  `link_p` refund (+0.05·hyperbind_p) on co-occurring pairs.
 - **Sleep modifier:** at end of each world day, consolidation pass multiplies
   all same-day `encodingE` by `sleepFactor` (param; poor sleep ≈ 0.7–0.85,
   good ≈ 1.0–1.1). (R§2, R§8.) **v0.4:** `sleepFactor_eff = sleepFactor ·
@@ -515,7 +564,17 @@ at output time —
 
 ```
 conf_out = conf + oc_gain·max(0, conf − accuracy)·(1 − m.strength)
+           + conf_inflate_old(age_eff)·wrong_flag
 ```
+
+where `wrong_flag` = 1 if the reconstruction carries phantom content,
+a merged/generic substitution, a `hyperbound` field, or a lure-accepted
+recognition (§6.8/§4.3/§2 hyper-binding/§5.6) — the misrecollection
+inversion: older adults' errors concentrate at HIGH confidence while
+young adults' errors cluster at low confidence (Dodson & Krueger 2006;
+Dodson, Bawa & Krueger 2007; Shing et al. 2008 — children don't show it).
+Report-side only; `conf_inflate_old` knots 0 ≤50 → 0.15 at 85
+(age-decline.md §22).
 
 overconfidence widens exactly where the trace is weakest (hard-easy
 effect, Lichtenstein & Fischhoff 1977; kept modest per Gigerenzer et al.
@@ -692,8 +751,14 @@ Two global modifiers wrap all age-declining capacity params
   reserve·reserve_shift` (`reserve_shift` ≈ 10y). Applies to: enc_base,
   beta_episodic, beta_source, theta, link_p, discrim_mult, lure_accept,
   tot_rate, search_breadth, sws_mult, pm_self, ret_noise, specificity.
+  **v1.6 additions to the reserve-shifted set:** value_select,
+  hyperbind_p, dest_mem, ctx_loss, conf_inflate_old, schema_support,
+  collab_partner_gain (age-decline.md §30).
   Does NOT apply to era terms (encodeAge is fact) or to
   misinfo_suscept/confab_fill (meaning-machinery, not fluid capacity).
+  **v1.6 exemptions:** `positivity_gain` (motivational reorientation —
+  SST, Carstensen) and `stereo_suscept` (trait × age gate, §5.4) are
+  evaluated at `age_now`, never reserve-shifted.
   High reserve = later decline onset, similar slope (compression
   pattern; Stern 2002; Valenzuela & Sachdev 2006, OR 0.54).
 - **Terminal decline (optional):** if a character's `deathDay` is set
@@ -990,6 +1055,19 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
   by drive; ~12 young → 5 at 85). Older characters surface fewer
   candidates with identical cue math (processing-resource decline,
   Craik; Salthouse; age-decline.md §2). Also caps §5.7 scan breadth.
+- **v1.6 — stereotype threat:** if `cueContext.evaluative: true` (the
+  character knows their memory is being judged) and the mode is
+  `recall` — NOT recognition — `θ += stereo_suscept·0.06·
+  stereo_age_gate(age_now)` and `lapse_p` +0.02 for the bout.
+  `stereo_age_gate` = 0 below 50, ramps to 1 by 70 [frozen shape].
+  Recall-only per the Armstrong et al. 2017 meta moderator; the
+  Hess/Lamont literature's effect is real but small (d≈.3 overall,
+  d≈.52 stereotype-framed) — this is a situational tax, not a trait
+  deficit (age-decline.md §24).
+- **v1.6 — positivity at selection:** among near-tied candidates
+  (drive within 0.05) prefer the positive-valence record with
+  probability `pos_eff` (§2 formula; age-decline.md §18). Older
+  reminiscence leans warm even when the archive doesn't.
 
 ### 5.5 What retrieval returns
 
@@ -1461,7 +1539,9 @@ P(phantomize) = gist_lure_gain (≈0.3) · confab_fill · gistStrength
               · (valence<0 ? neg_fidelity : pos_gist_drift)
 field-level: write schema-typical detail into verbatim
              (accuracy→0 on that field, confidence += 0.02 fluency)
-episode-level (rare, cap phantom_p ≈ 0.02 per recall):
+episode-level (rare, cap phantom_p ≈ 0.02 per recall — v1.6: age
+             knots 0.02 → 0.05 at 80, gist_lure_gain 0.3 → 0.5 at 80;
+             Balota et al. 1999; Tun et al. 1998; age-decline.md §25):
              mint a phantom record — accuracy=0 hidden,
              source.kind:"self", verbatim schema-generated,
              phantom:true; decays and reconsolidates normally,
@@ -1542,6 +1622,16 @@ No tuning to distrusted audiences: compliance is performance, not
 memory. Requires the dialogue layer to supply `audienceStance`; absent
 stance → no-op (social-memory.md §5).
 
+**v1.6 — destination memory:** the record carries a hidden `toldTo:
+{personId: day}` map, written on every retell. Before emitting, the
+audience check succeeds with probability `dest_mem(age_eff)` (knots
+0.9 young → 0.55 at 85 — Gopie & MacLeod 2009; El Haj, Fasotti &
+Allain 2012). On a MISS the retell proceeds and emits
+`alreadyTold: true` (the dialogue layer may play the listener's
+"you told me" beat or let it slide). Misses dominate — old
+characters repeat stories to the same listener far more than they
+wrongly withhold (age-decline.md §20).
+
 ### 6.12 Serial reproduction — rumor chains converge (new in v0.8)
 
 When a `told_by` record is retold onward, apply transmission operators
@@ -1579,6 +1669,15 @@ member's recalled items get a normal retell boost, and SS-RIF (§5.8)
 applies to members' unspoken related records. Use for explicit group-
 reconstruction scenes; individual recall is unchanged.
 
+**v1.6 — intimate-pair compensation:** when a member's PersonModel of
+the partner shows high familiarity AND high credibility (a long-term
+couple), waive `collab_size_pen` for that dyad and add
+`collab_partner_gain(age_eff)` (0 young → 0.25 at 85) to that member's
+factor — old couples can recall MORE together than alone (collaborative
+facilitation: Harris et al. 2011; Barnier et al. 2014 — internal-detail
+gain was older-couples-only). Stranger pairs keep inhibition
+(age-decline.md §26).
+
 ### 6.14 Learned credibility and the transactive directory (new in v0.8)
 
 - **Credibility is a memory, not a score.** `PersonModel[X].credibility`
@@ -1608,7 +1707,11 @@ reported_age = true_age·(1 − tele_k_eff)                   // forward
              + (true_age < tele_cross ?
                 tele_back·(tele_cross − true_age) : 0)     // small
                backward telescoping for recent ones
-             + N(0, date_sigma·sqrt(true_age + 1))         // σ ∝ √age
+             + N(0, date_sigma·ctx_loss·sqrt(true_age + 1))
+               // v1.6: context fields decay faster than content
+               // (Spencer & Raz 1995 meta) — ctx_loss knots 1.0 ≤50
+               // → 1.5 at 85; same multiplier on verbatim where/
+               // source-confidence decay channels (age-decline.md §21)
 tele_k_eff   = tele_k·(1 − landmark_gain) if m.links reaches a dated
                landmark record (arousal ≥ landmark_arousal);
                sigma likewise ×= (1 − landmark_gain)
@@ -1876,7 +1979,23 @@ MemoryParams = {
   "bump_cascade_gain": 0.4,  // parents'-era secondary peak, encodeAge 4-10 (§2)
   "child_internal_confuse": 2.0, // internal source-confusion mult <9 (§6.10)
   "child_trauma_off": 0.1,   // trauma_thresh offset in childhood (§2, HYPOTHESIS)
-  "tele_age_gain": 0.5       // telescoping age gradient (§6.15)
+  "tele_age_gain": 0.5,      // telescoping age gradient (§6.15)
+  // v1.6 additions (age-decline II — the compensation layer,
+  // age-decline.md Part II §§17–31)
+  "value_select": 0.0,       // importance sharpening on E (§2; age curve §30)
+  "positivity_gain": 0.0,    // valence asymmetry at encode/select; NOT
+                             // reserve-shifted, load/stress-gated (§2, §5.4)
+  "hyperbind_p": 0.05,       // wrong-context verbatim binding rate (§2)
+  "dest_mem": 0.9,           // toldTo hit rate; misses → repeat tellings (§6.11)
+  "ctx_loss": 1.0,           // context>content decay multiplier (§4.1/§6.15)
+  "conf_inflate_old": 0.0,   // conf_out bump on wrong-flagged reconstructions (§3)
+  "schema_support": 0.05,    // prior-knowledge encoding scaffold (§2)
+  "stereo_suscept": 0.5,     // trait; evaluative-context θ tax (§5.4)
+  "collab_partner_gain": 0.0,// intimate-dyad collaborative facilitation (§6.13)
+  // v1.6 knot-table updates (existing params, new age knots):
+  //   w_sensory: 0.10 → 0.07@70 → 0.05@85 (olfactory encoding decline)
+  //   phantom_p: 0.02 → 0.035@70 → 0.05@80 (gist-false-memory scaling)
+  //   gist_lure_gain: 0.3 → 0.42@70 → 0.5@80
   // v1.5 knot-table updates (existing params, new age knots):
   //   sws_mult: 1.2@6 → 1.0@14 (child side, §4.15)
   //   metamem_r: ~0.0@6 → 0.10@13 → 0.15 adult (§18)
@@ -1908,6 +2027,9 @@ MemoryParams = {
 //   tau_quote = 0.02, beta_quote = 0.8 (verbatim-speech field class —
 //   Sachs 1967; same for everyone, P121); lag curve SHAPE is frozen
 //   (log-normal), only lag_opt_ratio/lag_width are free
+// v1.6 frozen constants (age-decline.md §§24, 31):
+//   stereo_age_gate shape (0 below age 50 → ramps to 1 by 70 —
+//   population gate, never per-character; stereo_suscept is the trait)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -2177,3 +2299,22 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     `know_protect_*` params; nothing caller-side changes.
   - `reminiscence_env` is a creation-time param (bible dial), fixed
     for life; `naps` is a bible flag consumed by the §4.15 tick.
+- v1.6 additions (age-decline.md Part II — the compensation layer):
+  - `encodeEvent` applies the §2 compensation terms — `value_select`
+    importance sharpening, `positivity_gain` valence asymmetry (gated
+    by daLoad/stress), `schema_support` semantic-scaffold gain, and
+    `hyperbind_p` wrong-context binding (`hyperbound` fields are
+    hidden/harness-readable); `w_sensory` declines on old-side knots.
+  - `retell` writes `toldTo[audienceId]` and emits `alreadyTold: true`
+    on a `dest_mem` miss — the repeat-story tell (§6.11).
+  - `cueContext.evaluative: true` applies the §5.4 stereotype-threat θ
+    tax in recall mode only (Armstrong 2017 moderator — never in
+    recognition mode).
+  - `groupRecall` gains `collab_partner_gain` for intimate dyads
+    (§6.13) — old couples can beat their own solo union.
+  - `conf_out` gains `conf_inflate_old` on wrong-flagged
+    reconstructions (§3) — confident-and-wrong is the old-age signature.
+  - `dateEstimate`/`orderBefore` noise scales by `ctx_loss` (§6.15).
+  - record schema gains `toldTo` (hidden map) and verbatim fields may
+    carry `hyperbound` (hidden) — snapshot-additive, never serialized
+    to briefings/feed.

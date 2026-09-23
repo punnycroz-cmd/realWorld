@@ -406,3 +406,406 @@ profiles §0.
   that is a narrative choice for world-builder, not ours.
 - Ret_noise is added to drive, not to stored state — aging makes
   retrieval noisy, it does not scramble archives faster than β does.
+
+---
+
+# Part II — v16: the compensation layer (what aging minds do *differently*, not just worse)
+
+Part I (§§1–16) formalized the deficit machinery. Part II adds the
+asymmetric side — the channels where older adults are selective,
+positive, schema-scaffolded, socially compensated, and confidently
+wrong in characteristic ways. Every finding lands in a spec parameter
+(v0.4 → v1.6), a knot row (§30), or a probe (P145–P153). Same tagging:
+[CONSENSUS] / [DEBATED] / [HYPOTHESIS].
+
+## 17. Value-directed remembering — selectivity is the spared strategy
+
+- Castel, Benjamin, Craik & Watkins 2002; Castel et al. 2007/2011;
+  reviewed Castel 2023 (Curr Opin Psychol): on selectivity tasks (items
+  carry point values, maximize score), older adults recall FEWER items
+  overall but are **equally or MORE selective** — high-value items are
+  recalled at young-adult rates while low-value items are abandoned.
+  **[CONSENSUS pattern]**
+- Murphy et al. 2020 (conative factors): older adults are MORE
+  selective AND less confident; task-specific motivation, not
+  self-efficacy, drives the selectivity. Hoover et al. 2025: the
+  selectivity *fails* when high-value items are intrinsically hard to
+  remember — value steers effort, it can't override memorability.
+  **[CONSENSUS + boundary condition]**
+- Functional reading: with capacity scarce, the old system prices
+  importance more steeply. The deficit is not uniform — it is a
+  **reweighting**.
+
+**Spec consequence (v1.6):** `value_select(age_eff)` sharpens the
+importance term in E (§2). Let `importance = max(selfRelevance,
+goalRelevance)` (goalRelevance = predictionError routed to a goal;
+default = selfRelevance alone). Then
+`E *= (1 + value_select·(2·importance − 1))` — at value_select 0.5 a
+max-importance event gets ×1.5 while a zero-importance one gets ×0.5.
+Knots: 0.0 ≤40 → 0.3 at 70 → 0.5 at 85. This is the encoding-side
+implementation of "grandmother forgets the errand, never the
+granddaughter's visit" — and the reason older characters' surviving
+records skew consequential. Reserve-applicable (it is a capacity-
+sensitive strategy). **[CONSENSUS phenomenon; functional form
+HYPOTHESIS]**
+
+## 18. Positivity effect — the encoding/selection side
+
+- Socioemotional selectivity (Carstensen 1992+; Carstensen, Isaacowitz
+  & Charles 1999): shrinking time horizons reprioritize emotional
+  satisfaction over information acquisition — older adults prefer,
+  attend, and remember positive over negative.
+- Reed, Chan & Mikels 2014 meta (100 studies, N=7,129): reliable
+  age×valence interaction — older adults show positive bias
+  (dbias≈+.13), young adults NEGATIVE bias (−.12); the effect is
+  large only where processing is unconstrained (d=.482 vs .134
+  constrained). **[CONSENSUS that the effect exists and is
+  resource-dependent; SST's motivational account DEBATED vs
+  neural-decline accounts]**
+- Mather & Knight 2005: cognitive load abolishes the positivity
+  effect — it is goal-driven and resource-hungry, not a leak.
+
+**Spec consequence (v1.6):** `positivity_gain(age_eff)` knots
+0 ≤40 → 0.15 at 60 → 0.35 at 85; effective
+`pos_eff = positivity_gain·(1 − daLoad)·(1 − cueContext.stress or
+encoding-stress proxy)` — under load or threat it collapses (Mather &
+Knight). Applied twice: (a) encoding — `E` gets
+`×(1 + pos_eff·valence)` for valence>0 and `×(1 − 0.5·pos_eff·|valence|)`
+for valence<0 (positive attended more, negative filtered); (b)
+retrieval selection — among near-tied candidates (drive within 0.05)
+prefer the positive-valence record with probability `pos_eff`.
+Note: `neg_affect_decay` (§4.5) already owns the retention-side
+asymmetry; this is the encoding/attention/choice side — both needed,
+they compound. Deliberately NOT reserve-shifted: positivity is
+motivational reorientation, not fluid capacity (SST).
+
+## 19. Hyper-binding — too many associations, not too few
+
+- Campbell, Hasher & Thomas 2010 (Psych Sci): older adults
+  incidentally bind task-irrelevant distractors to targets — later
+  paired-associate learning shows a *preserved-pair advantage* in old
+  only. Campbell & Hasher, Trelle & Hasher 2024 review (Curr Dir):
+  hyper-binding is implicit-only (abolished when the relevance of the
+  connection is revealed), driven by failed attentional down-
+  regulation, and a plausible contributor to older adults' retained
+  real-world covariation knowledge. **[CONSENSUS pattern; functional
+  significance DEBATED]**
+- This reframes Part I's link_p decline (associative deficit,
+  Naveh-Benjamin 2000): older adults don't form FEWER associations —
+  they form the WRONG ones (no control over which). Both live in the
+  model: link_p down AND hyperbind_p up.
+
+**Spec consequence (v1.6):** `hyperbind_p(age_eff)` knots
+0.05 ≤40 → 0.15 at 70 → 0.3 at 85. On encodeEvent, with probability
+`hyperbind_p·(1 − awareness)` (awareness = event flagged
+`boundary:true` or selfRelevance ≥0.8 — explicit, goal-directed
+processing suppresses it, Campbell 2024 implicit-only finding), ONE
+verbatim slot is filled from a co-present but causally unrelated
+context feature — a hidden `hyperbound` flag marks it. Downstream
+these fields surface as confident, vivid, wrong detail ("the red
+scarf — no wait, that was the funeral"). Shares machinery with
+`offtarget_p` (§5.19) but is storage-side (bound at birth) vs
+emission-side. Also gives old characters occasional *true* spare
+associations — small `link_p` refund on co-occurring pairs.
+
+## 20. Destination memory — "stop me if I've told you this"
+
+- Gopie & MacLeod 2009 (Psych Sci): older adults disproportionately
+  impaired on destination memory (to WHOM a fact was told) vs spared
+  item memory — and critically, more CONFIDENT misses: they believe
+  they hadn't told someone they had → repeated tellings to the same
+  listener. Reversed direction (who told ME — source memory) showed no
+  age difference in their design. **[CONSENSUS pattern]**
+- El Haj, Fasotti & Allain 2012; El Haj et al. 2017 review: the
+  deficit is binding-flavored (content↔destination association), and
+  older adults remember OLDER destinations better — a destination-side
+  own-age bias tied to social exposure. **[CONSENSUS-ish]**
+
+**Spec consequence (v1.6):** records gain hidden `toldTo:
+{personId: day}` (retell writes it). On `retell(charId, audienceId,
+record)`: with probability `1 − dest_mem(age_eff)` the audience check
+is skipped/misses — `dest_mem` knots 0.9 young → 0.7 at 70 → 0.55 at
+85 — and the retell proceeds, emitting `alreadyTold: true` to the
+dialogue layer (it can render the listener's "you told me" beat or
+not). Misses not false-alarms dominate (Gopie's asymmetry): old
+characters repeat stories to the same person far more than they
+wrongly withhold. `dest_mem` scaled by destination familiarity —
+`×min(1, familiarity(dest)·oab-share)` is left to PersonModel; the
+own-age destination tilt is noted but not parametrized (small).
+
+## 21. Context decays faster than content (Spencer & Raz)
+
+- Spencer & Raz 1995 meta (46 studies): age differences in CONTEXT
+  memory (source, time, place) are reliably LARGER than in content
+  memory — greatest for contextual features encoded independently of
+  content. Retrieval effort moderates content gaps, not context gaps.
+  **[CONSENSUS meta]**
+- We already encode this partially via `beta_source` age knots; this
+  meta extends it to where/when and formalizes the ratio.
+
+**Spec consequence (v1.6):** `ctx_loss(age_eff)` knots 1.0 ≤50 →
+1.25 at 70 → 1.5 at 85 multiplies the decay on verbatim `where`,
+`when`, and the source-confidence channel RELATIVE to `what`/`who`.
+In §6.15: `date_sigma_eff = date_sigma·ctx_loss` and `orderBefore`'s
+S-gradient denominator widens — ordering survives dating (already
+true) but the gap between date error and order error widens with age.
+
+## 22. Misrecollection — confident and wrong (Dodson & Krueger)
+
+- Dodson & Krueger 2006 (eyewitness paradigm): matched for overall
+  accuracy, older adults make suggestibility errors **most when most
+  confident** — young adults err when uncertain, old adults err with
+  certainty. Dodson, Bawa & Krueger 2007: metamonitoring impairment
+  specific to detail-demanding tasks (source ID, cued recall) — spared
+  on old/new recognition and general knowledge. Shing et al. 2008:
+  lifespan — high-confidence errors are an OLD-AGE signature, children
+  at matched accuracy don't show it. **[CONSENSUS pattern]**
+- Mechanism: feature miscombination produces coherent-feeling false
+  detail — the misrecollection account fits our phantom/merge/hyperbind
+  machinery exactly.
+
+**Spec consequence (v1.6):** `conf_inflate_old(age_eff)` knots
+0 ≤50 → 0.08 at 70 → 0.15 at 85 — added into §3's `conf_out` ONLY when
+the reconstruction contains any of: phantom content, merged/generic
+substitution, hyperbound field, or lure-accepted recognition. Young
+characters' conf_out is already best-calibrated where accuracy is
+highest; this term inverts the coupling in old age — the oldest
+characters are most certain exactly where they are most wrong. It is
+report-side only (never stored).
+
+## 23. Prior-knowledge scaffold — schemas carry what the trace can't
+
+- Castel 2005; Umanath & Marsh 2014 review; Badham, Estes & Maylor
+  2012: schema-consistent material is relatively SPARED in aging —
+  prior knowledge scaffolds encoding and retrieval; the benefit grows
+  with the density of the semantic store. Related to §1 environmental
+  support but distinct: the support here is internal (knowledge), not
+  external (cues). **[CONSENSUS pattern]**
+
+**Spec consequence (v1.6):** `schema_support(age_eff)` knots
+0.05 young → 0.15 at 70 → 0.25 at 85 — on encodeEvent, if the event's
+cue tags overlap a semantic record with strength ≥ know_protect_thresh,
+`E += schema_support·overlap` (bounded +0.15). The old professor's
+domain events encode at near-midlife rates; genuinely novel content
+gets no scaffold. Reserve-correlated in practice (dense stores =
+bigger scaffold) — implementers should compute overlap against the
+semantic store, not the trait.
+
+## 24. Stereotype threat — evaluative contexts tax the old
+
+- Hess et al. 2003; Lamont, Swift & Abrams 2015 meta (82 effects,
+  N=3882): age-based stereotype threat d=.28 (corrected .32) —
+  stereotype-based manipulations d=.52, cognitive-task outcomes d=.36.
+  Armstrong et al. 2017 (J Gerontol B) episodic-memory-specific meta:
+  d=.373 — and critically, the effect reaches significance for
+  **free recall only** (not cued recall, not recognition) and only on
+  immediate tests. **[CONSENSUS meta; moderator pattern CONSENSUS]**
+
+**Spec consequence (v1.6):** `cueContext.evaluative: true` (the
+character knows their memory is being judged — a doctor's question, a
+pointed "do you remember?") applies `θ += stereo_suscept·0.06·
+stereo_age_gate(age_now)` where `stereo_age_gate` = 0 below 50,
+ramps to 1 by 70, and `stereo_suscept` ∈[0,1] is a TRAIT (loads on
+neurot/distrust — characters who fear being seen as senile are hurt
+most). **Recall mode only** — recognition mode exempt (Armstrong's
+moderator). The clean behavioral read: the same elder who reminisces
+fluently over dinner blanks when formally quizzed. Not
+reserve-shifted (a self-presentation effect, not capacity).
+
+## 25. Gist-based false memory scales with age
+
+- Balota et al. 1999 (DRM in old age); Tun et al. 1998; Koutstaal &
+  Schacter 1997: older adults falsely recall/recognize critical lures
+  MORE than young — verbatim suppression of gist-falsity weakens
+  (fuzzy-trace). False recognition is attenuated when distinctive
+  verbatim survives — which §6.8 already prices via (1−verbatimStrength)
+  ·discrim_mult. **[CONSENSUS]**
+
+**Spec consequence (v1.6):** old-side age knots on the v0.6 phantom
+machinery — `phantom_p` 0.02 → 0.05 at 80, `gist_lure_gain` 0.3 →
+0.5 at 80 (knot table §30). No new mechanism; the knots were
+informal in profiles §E and are now curve-formalized. Pairs with
+§22: the inflated-confidence channel is what makes these dangerous.
+
+## 26. Collaborative compensation — the old couple remembers together
+
+- Harris, Keil, Sutton, Barnier & McIlwain 2011 (Discourse Proc, 12
+  couples): older married couples show collaborative *facilitation*
+  in some dyads, not the standard stranger-pair inhibition — strategy
+  sharing predicts success. Barnier et al. 2014 (JARMAC "Reaping what
+  they sow", Addis-paradigm): older long-married couples generated MORE
+  internal (episodic) details together than alone; young couples
+  showed no gain. Harris, Barnier, Sutton & Keil 2014 (Memory
+  Studies): couples as distributed cognitive systems — transactive
+  directories offload each partner's decline. **[CONSENSUS direction
+  in long-term intimate dyads; NOT generalizable to strangers —
+  collaborative inhibition stands there]**
+
+**Spec consequence (v1.6):** `collab_partner_gain(age_eff)` knots
+0 ≤40 → 0.15 at 70 → 0.25 at 85 — in `groupRecall` (§6.13), when a
+partner's PersonModel shows high familiarity AND high credibility,
+`collab_size_pen` is waived and `collab_factor` gains
+`+collab_partner_gain` for the old member only. Lifelong couples
+function as each other's environmental support (§1) — the rumor/
+reminiscence engine gets a real dyadic scaffold, and widowed old
+characters lose measurably more than their married peers (grief as
+memory loss — emergent, correct).
+
+## 27. Sensory encoding decline — the Proust channel narrows at intake
+
+- Doty et al. 1984 (UPSIT, n>1900): olfactory identification declines
+  markedly after ~60; smell loss is among the earliest sensory
+  declines and predicts cognitive decline. Olfactory *cues*, when
+  encoded, still reach old memories (§5 sensory_age_slope intact —
+  Willander & Larsson 2007 odor-cued AMs skew earlier).
+  **[CONSENSUS for the decline; interaction with our cue mechanics
+  is HYPOTHESIS wiring]**
+
+**Spec consequence (v1.6):** `w_sensory` gains old-side knots:
+0.10 → 0.07 at 70 → 0.05 at 85 (encoding-side weight — fewer odor/
+texture cue keys written). `sensory_age_slope` unchanged: when an old
+character DID encode the smell, it still reaches the deepest archive.
+Net effect: sensory-triggered reminiscence becomes rarer with age but
+no shallower — consistent with involuntary-memory work showing
+odor-cued AMs are old-dated in elders (Rubin & Schulkind 1997).
+
+## 28. Misinformation in aging — the nuance is confidence, not adoption
+
+- Dodson & Krueger 2006: matched for event memory, older adults are
+  NOT dramatically more suggestible — they are more CONFIDENT in their
+  suggestibility errors. Dodson, Bawa & Slotnick 2007: source memory
+  deficits make misattribution the real channel. Wang et al.
+  (cognitive-interview work cited there): retrieval warnings reduce
+  misleading-information reporting **equally** across age.
+  **[CONSENSUS-ish: adoption gap smaller than confidence gap;
+  warnings work]**
+
+**Spec consequence (v1.6):** DO NOT steepen `misinfo_suscept`'s old
+knots — keep ~0.35→0.50 as now. The age signature lives in (a)
+`conf_inflate_old` on adopted content (§22) and (b)
+`source_confuse`/`beta_source` old knots (source loss is the
+admission vector). `warn_mult` stays age-flat — warnings work on
+elders (explicitly checked against the literature's warning-efficacy
+finding). This is a deliberate non-change with a citation — the
+wrong model here doubles the adoption gap and misses the real one.
+
+## 29. Mechanism debate — compensation vs dedifferentiation
+
+- HAROLD (Cabeza 2002): older brains recruit bilateral frontal
+  circuits — is that compensation or dedifferentiation? CRUNCH
+  (Reuter-Lorenz & Cappell 2008): over-recruitment at low load,
+  capacity ceiling at high load. STAC (Park & Reuter-Lorenz 2009):
+  scaffolding vs decline. **[DEBATED — neural-level, we take no
+  position]**
+
+Functional consequence only: our model already encodes the
+*behavioral* shadow — `env_support_gain` (support rescues),
+`ret_noise` (inconsistency), `search_breadth` (ceiling). The debate
+doesn't change any parameter; it warns against interpreting
+reserve/age_eff as "brain health" — it's behavioral compression.
+
+## 30. Part II knot rows (extends §13 — all evaluated at age_eff
+    unless noted; NOT reserve-shifted: positivity_gain, stereo_suscept)
+
+| param | 30 | 50 | 60 | 70 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| value_select | 0.0 | 0.05 | 0.15 | 0.3 | 0.42 | 0.5 | Castel 2002/2023 |
+| positivity_gain | 0.0 | 0.02 | 0.08 | 0.2 | 0.3 | 0.35 | Reed&Chan&Mikels 2014 |
+| hyperbind_p | 0.05 | 0.06 | 0.1 | 0.15 | 0.25 | 0.3 | Campbell 2010/2024 |
+| dest_mem | 0.9 | 0.88 | 0.8 | 0.7 | 0.6 | 0.55 | Gopie&MacLeod 2009 |
+| ctx_loss | 1.0 | 1.0 | 1.1 | 1.25 | 1.4 | 1.5 | Spencer&Raz 1995 |
+| conf_inflate_old | 0.0 | 0.0 | 0.03 | 0.08 | 0.12 | 0.15 | Dodson&Krueger 2006 |
+| schema_support | 0.05 | 0.07 | 0.1 | 0.15 | 0.2 | 0.25 | Castel 2005; Umanath&Marsh |
+| stereo_suscept (trait, ×gate) | — | — | — | — | — | trait | Lamont 2015; Armstrong 2017 |
+| collab_partner_gain | 0.0 | 0.02 | 0.07 | 0.15 | 0.22 | 0.25 | Harris 2011; Barnier 2014 |
+| w_sensory (old-side) | 0.10 | 0.10 | 0.08 | 0.07 | 0.055 | 0.05 | Doty 1984 |
+| phantom_p (knot update) | 0.02 | 0.02 | 0.025 | 0.035 | 0.045 | 0.05 | Balota 1999; Tun 1998 |
+| gist_lure_gain (knot update) | 0.3 | 0.32 | 0.36 | 0.42 | 0.47 | 0.5 | Koutstaal&Schacter 1997 |
+
+**[All knot interpolations HYPOTHESIS; anchors CONSENSUS.]**
+
+## 31. Spec changes v0.4 → v1.6 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| F1 | §2: `value_select` importance sharpening + `positivity_gain`
+     valence asymmetry (load/stress-gated) + `schema_support`
+     knowledge-scaffold gain + `hyperbind_p` wrong-field binding
+     (hidden `hyperbound` flag) + `w_sensory` old-side knots | §§17–19, 23, 27 |
+| F2 | §3: `conf_out += conf_inflate_old` when reconstruction carries
+     phantom/merged/hyperbound/lure content — confident-and-wrong | §22 |
+| F3 | §5.4: `evaluative` cueContext → θ bump via `stereo_suscept·
+     stereo_age_gate`; RECALL ONLY | §24 |
+| F4 | §6.11: `toldTo` map + `dest_mem` miss-probability; retell emits
+     `alreadyTold` | §20 |
+| F5 | §6.8: `phantom_p`/`gist_lure_gain` old-side knots formalized | §25 |
+| F6 | §6.13: `collab_partner_gain` — intimate-pair facilitation | §26 |
+| F7 | §6.15: `ctx_loss` on date_sigma/orderBefore | §21 |
+| F8 | §4.8: reserve list += value_select, hyperbind_p, dest_mem,
+     ctx_loss, conf_inflate_old, schema_support, collab_partner_gain | §8 |
+
+New params: `value_select`, `positivity_gain`, `hyperbind_p`,
+`dest_mem`, `ctx_loss`, `conf_inflate_old`, `schema_support`,
+`stereo_suscept`, `collab_partner_gain` (+ `stereo_age_gate` frozen
+shape). Knot updates: `w_sensory`, `phantom_p`, `gist_lure_gain`.
+Record field: `toldTo` (hidden). Frozen constants: `stereo_age_gate`
+shape (0 below 50 → 1 by 70).
+
+## 32. Validation probes P145–P153
+
+- **P145 value selectivity (MUST):** same event stream graded by
+  importance tags → 75yo's recall rate spread between top- vs
+  bottom-quartile importance ≥2× the 25yo's spread, while overall
+  recall is lower (Castel signature — selectivity preserved, capacity
+  lost). Constrains `value_select`.
+- **P146 positivity (MUST):** valence-balanced event set → 75yo recall
+  skews positive (pos_rate − neg_rate ≥ +0.15) and the skew VANISHES
+  under `daLoad`/`stress` context (Mather & Knight sign-lock);
+  25yo skews mildly negative (Reed meta: young dbias −.12).
+  Constrains `positivity_gain`.
+- **P147 hyperbinding (SHOULD):** events with salient distractor
+  context → old records contain ≥3× more `hyperbound` fields; the
+  fields surface with above-median confidence at recall; explicit-
+  attention events suppress the rate (implicit-only sign-lock).
+  Constrains `hyperbind_p`.
+- **P148 destination memory (MUST):** 75yo re-tells a live record to
+  the SAME listener at ≥3× the 25yo rate; withhold-from-wrong-person
+  (false alarm) rate stays low both ages (Gopie's miss asymmetry).
+  Constrains `dest_mem`, `toldTo`.
+- **P149 context-content gap (SHOULD):** survival curves per verbatim
+  field class → where/when die before what/who, and the ratio widens
+  with age (~1.5× at 85). Constrains `ctx_loss` (Spencer & Raz).
+- **P150 confident-and-wrong (MUST):** among reconstruction errors,
+  high-confidence (≥0.8) share rises with age while overall error
+  rate is matched to a young cohort — the Dodson inversion; young
+  cohort's errors concentrate at LOW confidence. Constrains
+  `conf_inflate_old`.
+- **P151 schema scaffold (SHOULD):** domain-congruent vs novel events
+  → old cohort's E gap between them ≥2× young cohort's; semantic-
+  store density mediates (sparse-store elder: no scaffold).
+  Constrains `schema_support`.
+- **P152 stereotype threat (SHOULD):** evaluative recall context
+  lowers old recall (θ gate) but NOT recognition — mode-specific
+  (Armstrong sign-lock); young cohort unaffected. Constrains
+  `stereo_suscept`, `stereo_age_gate`.
+- **P153 couple compensation (SHOULD):** groupRecall on an old
+  intimate dyad ≥ solo union output (facilitation allowed); old
+  stranger pair < solo (inhibition preserved). Constrains
+  `collab_partner_gain` (Barnier 2014 crossover).
+
+## 33. Part II honest limits
+
+- Positivity magnitudes are small (dbias .13) — the knots are tuned
+  for legibility (~3× literature), flagged calibration choice as in
+  Part I's pessimism note.
+- `hyperbind_p` fields are written at birth — we deliberately do NOT
+  model the implicit-only caveat in retrieval (awareness gate at
+  encoding is the functional approximation).
+- `dest_mem` reuses the PersonModel familiarity channel rather than a
+  dedicated destination store — adequate for the behavior, not the
+  mechanism.
+- `stereo_suscept` is trait-loaded but the gate is age-only;
+  stereotype-awareness × exposure history is bible-level texture we
+  leave to world-builder.
+- None of Part II rescues terminal decline — the §9 ramp still
+  overrides all compensations (dedifferentiation is the floor).

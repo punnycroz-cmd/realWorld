@@ -613,3 +613,49 @@ named there. Headline additions:
   `source_confuse` knots (Foley & Johnson 1985; Henkel et al. 1998).
 
 Registry now P1–P144; numbering stable.
+
+---
+
+## 15. New probes P145–P153 (v16, age-decline II suite)
+
+Normative definitions in `age-decline.md` §32; constrained params
+named there. Headline additions — the compensation layer:
+
+- **P145 value selectivity (MUST):** importance-graded event stream →
+  75yo's top-vs-bottom-quartile recall spread ≥2× the 25yo's spread
+  while overall recall is lower (Castel signature — selectivity
+  preserved, capacity lost). Constrains `value_select`.
+- **P146 positivity (MUST):** valence-balanced events → 75yo recall
+  skews positive (+0.15 rate gap) and the skew VANISHES under
+  daLoad/stress contexts (Mather & Knight sign-lock); 25yo skews
+  mildly negative (Reed, Chan & Mikels 2014). Constrains
+  `positivity_gain`.
+- **P147 hyperbinding (SHOULD):** distractor-rich events → old records
+  carry ≥3× more `hyperbound` fields, surfacing at recall with
+  above-median confidence; explicit-attention events suppress the rate
+  (implicit-only sign-lock, Campbell et al. 2024). Constrains
+  `hyperbind_p`.
+- **P148 destination memory (MUST):** 75yo re-tells a live record to
+  the SAME listener ≥3× the 25yo rate; withhold-false-alarms stay low
+  both ages (Gopie & MacLeod 2009 miss asymmetry). Constrains
+  `dest_mem`, `toldTo`.
+- **P149 context-content gap (SHOULD):** per-field-class survival →
+  where/when die before what/who, ratio widening to ~1.5× at 85
+  (Spencer & Raz 1995). Constrains `ctx_loss`.
+- **P150 confident-and-wrong (MUST):** error reconstructions only —
+  high-confidence (≥0.8) share rises with age at matched error rate
+  (Dodson inversion); young errors cluster at low confidence.
+  Constrains `conf_inflate_old`.
+- **P151 schema scaffold (SHOULD):** domain-congruent vs novel events
+  → old E-gap ≥2× young; sparse-semantic-store elder shows no
+  scaffold. Constrains `schema_support` (Castel 2005).
+- **P152 stereotype threat (SHOULD):** evaluative cueContext lowers
+  old recall, NOT old recognition (Armstrong 2017 mode sign-lock);
+  young cohort unaffected. Constrains `stereo_suscept`,
+  `stereo_age_gate`.
+- **P153 couple compensation (SHOULD):** groupRecall on an old
+  intimate dyad ≥ solo union (facilitation allowed); old stranger
+  pair < solo (inhibition preserved). Constrains
+  `collab_partner_gain` (Barnier et al. 2014 crossover).
+
+Registry now P1–P153; numbering stable.
