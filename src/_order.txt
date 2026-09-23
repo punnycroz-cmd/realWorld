@@ -72,5 +72,16 @@ sf/31_sf_art.js
 sf/32_sf_render.js
 sf/33_sf_cast.js
 sf/34_sf_live.js
+systems/41_game_systems_registry.js
+systems/41_game_systems_ledger.js
+systems/41_game_systems_requests.js
+systems/41_game_systems_leases.js
+systems/41_game_systems_addressing.js
+systems/41_game_systems_possession.js
+systems/41_game_systems_hiring.js
+systems/41_game_systems_feed.js
+systems/41_game_systems_antigrief.js
+systems/41_game_systems_offline.js
 tests/30_sf_autotest.js
+tests/41_game_systems_autotest.js
 sim/99_boot_hook.js
