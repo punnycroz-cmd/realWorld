@@ -1,8 +1,9 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v64 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v79 — launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
-community playtest night + Move-In Week arc + automated pre-send checker
+community playtest night + Move-In Week arc + Limits arc + Parrot Watch
+arc + automated pre-send checker
 (`tools/social_check.py`), 2026-09-24.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
@@ -94,6 +95,8 @@ its channel, timing slot, required asset, and character-count check.
 | `archive-arc.md` | 5-post "the block keeps receipts" series on The Archive — rumor outcomes, permalinks, attributed ledger (v49; post-launch only, canon: world-v20 archive-ui.md) | 5 |
 | `playtest-night.md` | Community playtest night — recruitment posts + facilitator run sheet on the world-v23 harness (v49; double owner-gate) | 3 posts + runbook |
 | `move-in-arc.md` | 6-post "Move-In Week" series on hiring a character onto the cast — the funnel's last step (v64; canon: world-v35 creation.json/creation-ui.md, design doc possession ban) | 6 |
+| `offline-and-limits.md` | 5-post evergreen "the rules are the pitch" series — possession ban, attributed feed, no money out, the Understudy fallback (world-v55), the session cap (v79) | 5 |
+| `parrot-watch.md` | 3-post mini-arc on the wild parakeets (art-v49 render feature + real local lore; `{{PARROT_CLIP}}` is the bank's only unfilled asset) (v79) | 3 |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v40) | full asset set |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
@@ -155,6 +158,12 @@ Sustainable rhythm, fed by the product itself.
   (`move-in-arc.md`) — covers the funnel's last step once spectators
   already understand the world. Same feed-honesty gate; hire price is
   PROPOSAL-tier until pricing is final.
+- **Limits arc:** evergreen from T+28 — the "rules are the pitch" series
+  (`offline-and-limits.md`). Five text-first posts, zero feed dependency;
+  bank for any quiet week.
+- **Parrot Watch arc:** T+14 → T+16 or first quiet weekend — the wild-
+  parakeet mini-series (`parrot-watch.md`). Prefers a live `{{PARROT_CLIP}}`
+  capture post-launch; degrades to stills.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
