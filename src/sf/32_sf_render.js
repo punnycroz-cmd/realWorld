@@ -586,10 +586,21 @@ function sfBounceK(sunK, occlM){
    projects its four corners at their own heights, facade bases shear to
    follow the slope, pawns/props/trees ground through sfGroundZ, and the
    lens rides the land. */
+/* v38: elevation memo — sfElevM is pure in (xm,ym) (the landform never
+   moves) yet the street pass asked it ~130k times/frame: each grid
+   vertex is solved once per adjacent cell (4x), the three shadow-sweep
+   layers re-solve the same displaced corners, wall bases and prop feet
+   repeat lot datums. Quantized to 1/16m — sub-millimeter height error
+   on these slopes — and LRU-bounded; the map persists across frames so
+   steady-state frames run lookup-only. */
+const SF_ELEV_MEMO = new Map();
 function sfElevM(xm, ym){
+  const k = Math.round(xm * 16) * 1e6 + Math.round(ym * 16);
+  let z = SF_ELEV_MEMO.get(k);
+  if(z !== undefined) return z;
   const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
   const pc = sfParkCenterM();
-  let z = 9 + (ym / mh) * 31 + (1 - xm / mw) * 19;
+  z = 9 + (ym / mh) * 31 + (1 - xm / mw) * 19;
   const bx = xm - pc[0], by = ym - pc[1];
   const bq = (bx * bx + by * by) / (130 * 130);
   z -= 7.5 / ((1 + bq) * (1 + bq));              // the Dolores bowl
@@ -599,6 +610,8 @@ function sfElevM(xm, ym){
   z += 9.0 / (1 + (hx * hx + hy * hy) / (240 * 240));   // Dolores Heights
   z += 0.9 * Math.sin(xm * 0.011 + 1.3) * Math.sin(ym * 0.009 + 0.4)
      + 0.4 * Math.sin((xm - ym) * 0.0055);       // dunes under the grid
+  if(SF_ELEV_MEMO.size > 400000) SF_ELEV_MEMO.clear();
+  SF_ELEV_MEMO.set(k, z);
   return z;
 }
 const SF_CURB_H = 0.15;
@@ -2311,6 +2324,38 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         t1 = pr(x1, y1, hm), t2 = pr(x2, y2, hm),
         p1 = pr(x1, y1, hm + para), p2 = pr(x2, y2, hm + para);
   if(!g1 || !g2 || !t1 || !t2 || !p1 || !p2) return;
+
+  /* v38: micro-LOD — a facade whose whole massing resolves under ~9px of
+     gate height carries no resolvable Victorian detail (windows already
+     cull below 2.5px). The far tier used to pay the full dressing pass —
+     cornice box, gable, courses, stoop — for shapes no pixel can show.
+     Now it draws only what survives at that scale: the cast shadow (the
+     mass still shades real pavement), one sun-keyed flat fill, and the
+     marine haze it dissolves into. Same silhouette, same physics. */
+  if(det === 0 &&
+     Math.max(g1[1], g2[1]) - Math.min(p1[1], p2[1], t1[1], t2[1]) < 9){
+    quad([[x1, y1, eA + 0.02], [x2, y2, eB + 0.02],
+          [x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm,
+           sfElevM(x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm) - zb + 0.02],
+          [x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm,
+           sfElevM(x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm) - zb + 0.02]],
+         `rgba(15,12,8,${0.06 + 0.14 * SF_SUN.day})`);
+    ctx.fillStyle = wallCol;
+    ctx.beginPath();
+    ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+    ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+    ctx.closePath(); ctx.fill();
+    const hz0 = sfHazeA(fwd);
+    if(hz0 > 0.02){
+      ctx.globalAlpha = hz0; ctx.fillStyle = `rgb(${SF_WX.hazeRGB})`;
+      ctx.beginPath();
+      ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+      ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    return;
+  }
 
   // v14: cast shadow — base edge extruded on the ground along the real
   // sun vector (direction + length = hm·cot(elevation)); v37: it lies
@@ -4306,36 +4351,58 @@ function sfRenderStreet(cw, ch){
   if(!night && SF_SUN.day > 0.08){
     const shA = 0.46 * Math.min(1, SF_SUN.day + 0.25) * (1 - cover * 0.55);
     if(shA > 0.03){
+      /* v38: the sweep used to re-project every footprint edge three
+         times (once per penumbra layer) through px-space coords — ~30k
+         redundant projections a frame. Now the pass is two-phase: ONE
+         walk over visible footprints projects each base edge + caches
+         the meter poly (sfBldMPoly, shared with the wall pass), then
+         each layer only re-projects the displaced rim (the part that
+         actually differs between layers). Same shapes, same order —
+         the pixels are identical. */
+      const shGeo = [];   // flat: per building [edges flat8..., caps per layer]
+      for(const b of SF_BLD){
+        const bxm = b.x / SF_PXM, bym = b.y / SF_PXM;
+        const ddx = bxm - camX, ddy = bym - camY;
+        const fwdS = ddx * DX + ddy * DY;
+        if(fwdS < -80 || fwdS > 200) continue;
+        if(Math.abs(ddx * DY - ddy * DX) > Math.max(50, fwdS * 1.6 + 70))
+          continue;
+        const P2 = sfBldMPoly(b), nP = P2.length, hm2 = b.hPx / 4.2;
+        const base = [];
+        for(let e = 0; e < nP; e++){
+          const a1 = P2[e], a2 = P2[(e + 1) % nP],
+                q1 = pr(a1[0], a1[1], 0.02 + sfElevM(a1[0], a1[1])),
+                q2 = pr(a2[0], a2[1], 0.02 + sfElevM(a2[0], a2[1]));
+          base.push(a1[0], a1[1], a2[0], a2[1], q1 && q1[0], q1 && q1[1],
+                    q2 && q2[0], q2 && q2[1]);
+        }
+        shGeo.push(base, P2, hm2);
+      }
       for(const [mul, al] of [[1.15, shA * 0.35], [1.0, shA * 0.7],
                               [0.6, shA]]){
         ctx.beginPath();
-        for(const b of SF_BLD){
-          const bxm = b.x / SF_PXM, bym = b.y / SF_PXM;
-          const ddx = bxm - camX, ddy = bym - camY;
-          const fwdS = ddx * DX + ddy * DY;
-          if(fwdS < -80 || fwdS > 200) continue;
-          if(Math.abs(ddx * DY - ddy * DX) > Math.max(50, fwdS * 1.6 + 70))
-            continue;
-          const hm2 = b.hPx / 4.2;
-          const ox = SF_SUN.x * hm2 * mul, oy = SF_SUN.y * hm2 * mul,
-                nP = b.px.length;
-          for(let e = 0; e < nP; e++){
-            const a1 = b.px[e], a2 = b.px[(e + 1) % nP],
-                  ax = a1[0] / SF_PXM, ay = a1[1] / SF_PXM,
-                  bx2 = a2[0] / SF_PXM, by2 = a2[1] / SF_PXM,
-                  q1 = pr(ax, ay, 0.02 + sfElevM(ax, ay)),
-                  q2 = pr(bx2, by2, 0.02 + sfElevM(bx2, by2)),
-                  q3 = pr(bx2 + ox, by2 + oy, 0.02 + sfElevM(bx2 + ox, by2 + oy)),
-                  q4 = pr(ax + ox, ay + oy, 0.02 + sfElevM(ax + ox, ay + oy));
-            if(!q1 || !q2 || !q3 || !q4) continue;
-            ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]);
+        for(let gi = 0; gi < shGeo.length; gi += 3){
+          const base = shGeo[gi], P2 = shGeo[gi + 1],
+                ox = SF_SUN.x * shGeo[gi + 2] * mul,
+                oy = SF_SUN.y * shGeo[gi + 2] * mul;
+          for(let e = 0; e < base.length; e += 8){
+            const ax = base[e], ay = base[e + 1],
+                  bx2 = base[e + 2], by2 = base[e + 3],
+                  q3 = pr(bx2 + ox, by2 + oy,
+                          0.02 + sfElevM(bx2 + ox, by2 + oy)),
+                  q4 = pr(ax + ox, ay + oy,
+                          0.02 + sfElevM(ax + ox, ay + oy));
+            if(base[e + 4] === false || base[e + 6] === false ||
+               !q3 || !q4) continue;
+            ctx.moveTo(base[e + 4], base[e + 5]);
+            ctx.lineTo(base[e + 6], base[e + 7]);
             ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]);
             ctx.closePath();
           }
           // displaced cap fills the silhouette interior past the far edge
           let st = false;
-          for(const q of b.px){
-            const qx = q[0] / SF_PXM + ox, qy = q[1] / SF_PXM + oy;
+          for(const q of P2){
+            const qx = q[0] + ox, qy = q[1] + oy;
             const p = pr(qx, qy, 0.02 + sfElevM(qx, qy));
             if(!p){ st = false; continue; }
             st ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
@@ -4350,15 +4417,21 @@ function sfRenderStreet(cw, ch){
   }
 
   // drawables: buildings, props, pawns — far -> near
+  /* v38: the gather cone used to run side < 1.6*fwd+60 — more than twice
+     the widest gate the lens can produce (fov 0.55 -> side/fwd ~1.3 at
+     16:9). Walls a full 60° off-axis were projected, dressed and filled
+     for zero pixels. The cone now tracks the real frustum
+     (side < 1.45*fwd) plus a building half-extent margin. */
   const ds = [];
   for(const b of SF_BLD){
     const bxm = b.x / SF_PXM, bym = b.y / SF_PXM;
     const ddx = bxm - camX, ddy = bym - camY;
     const fwd = ddx * DX + ddy * DY, side = Math.abs(ddx * DY - ddy * DX);
-    if(fwd > 0.3 && fwd < 260 && side < fwd * 1.6 + 60) ds.push({ k: 'b', fwd, b });
+    if(fwd > 0.3 && fwd < 260 && side < fwd * 1.45 + 30)
+      ds.push({ k: 'b', fwd, b });
   }
   // v11: props via the chunk index — walk only the chunks under the view
-  // cone's bounding box (reach 120m, lateral 1.4*fwd+20, plus a cell of
+  // cone's bounding box (reach 120m, lateral 1.45*fwd+12, plus a cell of
   // sub-cell jitter) instead of every prop on the map. Same cone test,
   // same emitted set.
   {
@@ -4375,7 +4448,8 @@ function sfRenderStreet(cw, ch){
           const ox = o.x / SF_PXM, oy = o.y / SF_PXM;
           const ddx = ox - camX, ddy = oy - camY;
           const fwd = ddx * DX + ddy * DY, side = Math.abs(ddx * DY - ddy * DX);
-          if(fwd > 0.5 && fwd < 120 && side < fwd * 1.4 + 20) ds.push({ k: 'p', fwd, o });
+          if(fwd > 0.5 && fwd < 120 && side < fwd * 1.45 + 12)
+            ds.push({ k: 'p', fwd, o });
         }
       }
     }
@@ -4385,7 +4459,8 @@ function sfRenderStreet(cw, ch){
     const vx = pv.x / SF_PXM, vy = pv.y / SF_PXM;
     const ddx = vx - camX, ddy = vy - camY;
     const fwd = ddx * DX + ddy * DY, side = Math.abs(ddx * DY - ddy * DX);
-    if(fwd > 0.3 && fwd < 160 && side < fwd * 1.5 + 20) ds.push({ k: 'v', fwd, pv });
+    if(fwd > 0.3 && fwd < 160 && side < fwd * 1.45 + 15)
+      ds.push({ k: 'v', fwd, pv });
   }
   ds.sort((a, b) => b.fwd - a.fwd);
 
@@ -4429,6 +4504,24 @@ function sfRenderStreet(cw, ch){
       }
       const P = b._pm, ccw = b._ccw, area = b._ccw ? b._area : -b._area;
       const n = P.length;
+      /* v38: whole-building gate reject — the centroid cone keeps some
+         masses whose footprints sit entirely outside the gate; those
+         used to run the full roofscape pass (clips, dormers, chimneys,
+         railings) for zero pixels. If EVERY roof-ring corner projects
+         (none behind the lens) and all land beyond the same screen edge,
+         the massing can contribute nothing — walls and roof skip
+         together. Buildings partially behind the camera can span the
+         whole frame, so any null corner keeps the building. */
+      {
+        let allIn = true, minX = 1e9, maxX = -1e9;
+        for(const [rx, ry] of P){
+          const rp = pr(rx, ry, hm);
+          if(!rp){ allIn = false; break; }
+          if(rp[0] < minX) minX = rp[0];
+          if(rp[0] > maxX) maxX = rp[0];
+        }
+        if(allIn && (maxX < -60 || minX > cw + 60)) continue;
+      }
       for(let e = 0; e < n; e++){
         const [x1, y1] = P[e], [x2, y2] = P[(e + 1) % n];
         const ex = x2 - x1, ey = y2 - y1, L = Math.hypot(ex, ey) || 1;
@@ -4436,6 +4529,20 @@ function sfRenderStreet(cw, ch){
         if(ccw){ nx = -nx; ny = -ny; }
         const facingCam = (nx * -DX + ny * -DY) > 0.05; // wall faces camera
         if(!facingCam) continue;
+        /* v38: per-edge gate reject — the centroid cone keeps buildings
+           whose far edges still sit outside the gate. A wall only needs
+           drawing if at least one endpoint lands inside the horizontal
+           gate (±side < own fwd scaled to the lens, with a 10m margin
+           for its cornice projection and screen edge bleed). */
+        {
+          const f1 = (x1 - camX) * DX + (y1 - camY) * DY,
+                f2 = (x2 - camX) * DX + (y2 - camY) * DY,
+                s1 = (x1 - camX) * DY - (y1 - camY) * DX,
+                s2 = (x2 - camX) * DY - (y2 - camY) * DX,
+                lat1 = f1 * 1.45 + 10, lat2 = f2 * 1.45 + 10;
+          if((s1 > lat1 && s2 > lat2) || (s1 < -lat1 && s2 < -lat2))
+            continue;
+        }
         sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
         /* v23: canyon shade band — the row across the street steals the
            low sun: a ray toward the sun from each end of this wall finds
@@ -4602,7 +4709,10 @@ function sfRenderStreet(cw, ch){
         // v13: gable dormers on the camera-facing slope — same hash recipe
         // as the baked sprite, so top-down and street agree. Cheek wall
         // stands on the lifted surface, gable cap climbs toward the ridge.
-        if(rk === 'gable'){
+        // v38: past 140m a dormer resolves to ~8px under marine haze —
+        // the slope fill + haze already carries it, so the detail pass
+        // is skipped (silhouette unchanged).
+        if(rk === 'gable' && d.fwd < 140){
           const roofAreaPx2 = b._area * SF_PXM * SF_PXM;
           if(roofAreaPx2 > 1400){
             const nDor = Math.min(3, Math.floor(roofAreaPx2 / 2600) +
@@ -4668,7 +4778,8 @@ function sfRenderStreet(cw, ch){
           ctx.fill();
         }
         // faint tar-paper seams across the roof plane
-        if(!night && rpts.length >= 3){
+        // (v38: subpixel past ~90m — clipped strokes cost more than they show)
+        if(!night && d.fwd < 90 && rpts.length >= 3){
           ctx.save(); ctx.clip();
           ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
           const xMin = Math.min(...rpts.map(p => p[0])),
@@ -4708,7 +4819,9 @@ function sfRenderStreet(cw, ch){
           ? (phash(b.i, k, 1511) < 0.7 ? 5 : 2)
           : Math.floor(phash(b.i, k, 1507) * 9); // v22: +bulkhead, +planters
         const base = pr(fx, fy, hm + zR);
-        if(!base || base[2] > 200) continue;
+        // v38: 200m -> 150m cutoff — past that a tank/dish is <10px of
+        // haze-filtered silhouette the roof cap already implies
+        if(!base || base[2] > 150) continue;
         const sc = F / base[2];
         ctx.strokeStyle = night ? '#1c1a18' : '#4a4540';
         ctx.fillStyle = night ? '#262220' : '#6a5f52';
