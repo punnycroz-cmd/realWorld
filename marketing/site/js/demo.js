@@ -167,7 +167,7 @@
     var markNow = function () {
       var now = ptNow();
       if (now === null) return;
-      var cards = strip.querySelectorAll(".card[data-from]");
+      var cards = strip.querySelectorAll("[data-from]");
       for (var i = 0; i < cards.length; i++) {
         var from = parseFloat(cards[i].getAttribute("data-from"));
         var to = parseFloat(cards[i].getAttribute("data-to"));
@@ -181,10 +181,31 @@
     setInterval(markNow, 60000);
   }
 
-  // Fallback capture rotator — while the live embed is unwired, cycle the
+  // Routine-aware cast chips — same PT windows on "who you might see".
+  // Honest by construction: the highlight follows the published routine,
+  // not anyone's live position.
+  var castStrip = document.getElementById("cast-strip");
+  if (castStrip) {
+    var markCast = function () {
+      var now = ptNow && ptNow();
+      if (now === null || now === undefined) return;
+      var chips = castStrip.querySelectorAll(".cast-chip[data-from]");
+      for (var i = 0; i < chips.length; i++) {
+        var from = parseFloat(chips[i].getAttribute("data-from"));
+        var to = parseFloat(chips[i].getAttribute("data-to"));
+        var inWin = from < to ? (now >= from && now < to) : (now >= from || now < to);
+        chips[i].classList.toggle("is-now", inWin);
+        var w = chips[i].querySelector(".watch-now");
+        if (w) w.hidden = !inWin;
+      }
+    };
+    if (ptNow) { markCast(); setInterval(markCast, 60000); }
+  }
+
+  // Fallback capture deck — while the live embed is unwired, cycle the
   // published development captures. Always captioned "Development capture" —
-  // it never pretends to be live. Off under prefers-reduced-motion and when
-  // the tab is hidden.
+  // it never pretends to be live. Auto-cycles unless reduced-motion is set;
+  // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
       ["shots/v43-A", "the block from overhead under the marine layer"],
@@ -196,24 +217,109 @@
     var img = screen && screen.querySelector("img");
     var srcEl = screen && screen.querySelector("source");
     var cap = document.getElementById("demo-cap");
+    var note = document.getElementById("demo-note");
+    var noteStep = document.getElementById("demo-note-step");
+    var noteText = document.getElementById("demo-note-text");
+    var tourBtn = document.getElementById("demo-tour");
+    var keysHint = document.getElementById("demo-keys");
     var reduced = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (screen && img && !reduced) {
-      var idx = 0;
-      setInterval(function () {
-        if (document.hidden) return;
-        idx = (idx + 1) % SHOTS.length;
-        var base = SHOTS[idx][0], label = SHOTS[idx][1];
-        var swap = function () {
-          if (srcEl) srcEl.setAttribute("srcset", base + ".webp");
-          img.src = base + ".png";
-          img.alt = "Development capture — " + label + ".";
-          if (cap) cap.textContent = "Development capture — " + label;
-          screen.classList.remove("is-fading");
-        };
+    var idx = 0, touring = false, tourTimer = null, autoTimer = null;
+
+    function show(i, fade) {
+      idx = ((i % SHOTS.length) + SHOTS.length) % SHOTS.length;
+      var base = SHOTS[idx][0], label = SHOTS[idx][1];
+      var swap = function () {
+        if (srcEl) srcEl.setAttribute("srcset", base + ".webp");
+        img.src = base + ".png";
+        img.alt = "Development capture — " + label + ".";
+        if (cap) cap.textContent = "Development capture — " + label;
+        screen.classList.remove("is-fading");
+      };
+      if (fade && !reduced) {
         screen.classList.add("is-fading");
         setTimeout(swap, 480);
+      } else {
+        swap();
+      }
+    }
+
+    // Guided watch — a scripted pass over the captures narrating what a
+    // spectator would be looking for. The notes describe the captures, not a
+    // live feed, and say so on the card. ~12 s per beat.
+    var TOUR = [
+      [0, "Start overhead. The fog band on the rooftops is the world's own weather — it keeps its schedule whether or not a camera is up here. Spectators get this roofline view for free."],
+      [1, "Now street level. This is the follow-cam the spectator view is built around: close enough to read the block — who opened the café, who isn't speaking to whom — never close enough to steer it."],
+      [2, "Dolores Park, the block's commons. Viewer requests tend to land here because everyone watching can see them land — every intervention is public and attributed."],
+      [3, "Director mode. Framing the shot is part of watching; the pastel rowhouses on the hill are the postcard the feed writes under. When the build ships, this deck retires — live needs no script."]
+    ];
+    var tourBeat = -1;
+    function tourStep() {
+      tourBeat++;
+      if (tourBeat >= TOUR.length) { endTour(true); return; }
+      show(TOUR[tourBeat][0], true);
+      if (note && noteStep && noteText) {
+        noteStep.textContent = (tourBeat + 1) + " / " + TOUR.length;
+        noteText.textContent = TOUR[tourBeat][1];
+        note.hidden = false;
+      }
+      tourTimer = setTimeout(tourStep, 12000);
+    }
+    function startTour() {
+      if (!screen || !img) return;
+      touring = true;
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      if (tourBtn) tourBtn.textContent = "End the tour";
+      tourBeat = -1;
+      tourStep();
+      // the button's own data-rw-event emits cta_click{cta:"demo-tour"}
+    }
+    function endTour(done) {
+      touring = false;
+      if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
+      if (note) note.hidden = true;
+      if (tourBtn) tourBtn.textContent = "Guided watch";
+      if (done && window.rw && window.rw.track) {
+        window.rw.track("cta_click", { cta: "demo-tour-done" });
+      }
+      if (!reduced && !autoTimer) startAuto();
+    }
+    function startAuto() {
+      autoTimer = setInterval(function () {
+        if (document.hidden || touring) return;
+        show(idx + 1, true);
       }, 8000);
     }
+
+    if (screen && img) {
+      if (!reduced) startAuto();
+      if (tourBtn) {
+        tourBtn.addEventListener("click", function () {
+          if (touring) { endTour(false); } else { startTour(); }
+        });
+      } else if (note) {
+        note.hidden = true;
+      }
+      // Keyboard: ←/→ flip captures (also nudge the tour's beat if running).
+      if (keysHint) keysHint.hidden = false;
+      document.addEventListener("keydown", function (e) {
+        if (e.target && /^(input|select|textarea)$/i.test(e.target.tagName)) return;
+        if (e.key === "ArrowRight") {
+          if (touring) { if (tourTimer) clearTimeout(tourTimer); tourStep(); }
+          else show(idx + 1, true);
+        } else if (e.key === "ArrowLeft") {
+          if (touring) { if (tourTimer) clearTimeout(tourTimer); tourBeat = Math.max(tourBeat - 2, -1); tourStep(); }
+          else show(idx - 1, true);
+        }
+      });
+    } else {
+      if (tourBtn) tourBtn.hidden = true;
+    }
+  } else {
+    // Live embed resolved — the guided watch and capture deck are fallback-only.
+    var tb = document.getElementById("demo-tour");
+    if (tb) tb.hidden = true;
+    var kh = document.getElementById("demo-keys");
+    if (kh) kh.hidden = true;
   }
 })();

@@ -2,11 +2,13 @@
 
 **Owner:** marketing track. **Status:** fallback + request simulator v2 +
 block clock + theater mode + canonical-vocabulary feed preview (v41) +
-rotating dev captures + time-aware viewing guide + cast strip (v56); live
+rotating dev captures + time-aware viewing guide + cast strip (v56) +
+real app embeds (v61) + guided watch, routine-aware cast chips,
+keyboard deck control, today-vs-launch block (v71); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
-to v11; second pass v26; third pass v41; fourth pass v56.
+to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -125,6 +127,32 @@ the request simulator, iframe `.demo-frame.app-frame` (72vh, lazy). The
 `data-demo-src` launch switch is UNCHANGED — it still waits for the live
 spectator game build; the wire embed is a separate, already-real surface.
 
+## 4a-iv. v71 — guided watch, routine chips, keyboard deck
+
+- **Guided watch** (`#demo-tour` + `#demo-note`) — a scripted ~48 s pass
+  over the four fallback captures; each beat pairs a shot with a
+  director-style note about what a spectator would be looking for
+  (overhead weather → street follow-cam → Dolores commons → director
+  mode). The note card labels itself "narrated development captures, not
+  a live feed"; the today-vs-launch block says the tour retires when the
+  build ships. 12 s per beat; ←/→ nudge beats manually; the button
+  toggles to "End the tour". Fallback-only: hidden when a live embed
+  resolves, auto-rotator suspended while touring. Emits
+  `cta_click{cta:"demo-tour"}` on click (declarative attr) and
+  `cta_click{cta:"demo-tour-done"}` when the script completes unbroken.
+- **Keyboard deck** — ←/→ flip fallback captures any time (form fields
+  excluded); `#demo-keys` hint chip in the toolbar. Manual flips work
+  under prefers-reduced-motion (auto-cycle stays off).
+- **Routine-aware cast chips** — each `.cast-chip` carries
+  `data-from`/`data-to` PT-hour windows taken from the chip's own public
+  routine line; the same `ptNow` clock marks `.is-now` and reveals a
+  "usually out now" `.watch-now` chip. Intro copy states plainly: the
+  highlight follows the published routine, not a live position.
+- **Today-vs-launch block** — `.demo-diff` two-column honesty panel under
+  the stage toolbar: what this page shows today vs what the same frames
+  show the day the build ships. Reinforces the one-attribute launch
+  switch without promising a date.
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -148,13 +176,15 @@ persistent world. No liveness implied.
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 6 KB,
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 14 KB
+  (raised v71 — guided watch + deck controls; was < 6 KB pre-v56),
   `demo-sim.js` < 10 KB (raised v41 — screen table + modifiers).
 
 ## 6. Analytics hooks
 
 `watch_start` (live|fallback), `cta_click` on hero/share/fullscreen/ladder/
-sim CTAs, `request_simulated` from the request widget (+`queued`, `surge`,
+sim/wire/tour CTAs (`demo-tour` + `demo-tour-done` added v71),
+`request_simulated` from the request widget (+`queued`, `surge`,
 `screened` props in v41), `screenshot_view` via the shared gallery handler.
 All inert until an endpoint is configured — see ANALYTICS.md and
 analytics-events.json.
@@ -184,5 +214,11 @@ analytics-events.json.
 - [x] Toy intent screen maps to real `moderation.json` reason codes; denies
   always refund; exclusive always routes `in_review` (v41).
 - [x] Block clock + theater mode degrade silently where unsupported (v41).
+- [x] Guided watch never runs over the live embed; note card labels itself
+  narrated captures; tour retires at launch per the diff block (v71).
+- [x] Cast-chip highlight is routine-derived, not positional — intro copy
+  says so (v71).
+- [x] Keyboard deck controls skip form fields; reduced-motion disables
+  auto-cycle but not manual flips or the tour (v71).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).
