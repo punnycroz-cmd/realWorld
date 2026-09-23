@@ -2,7 +2,7 @@
 
 **Status: v78 — store-operations depth pass (store-page FAQ, refund/support
 copy, itch community policy, wishlist posture, other-storefront audit) +
-v48 art rebase, 2026-09-24.** Supersedes v63.
+v50 art rebase, 2026-09-24.** Supersedes v63.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — the only outstanding art dependency is the
@@ -177,7 +177,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v48-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v50-A..D.png` (4 ready, grounded-shadow build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -191,9 +191,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v48-D (director view — the hook), v48-B
-(street level), v48-C (Dolores Park), v16-int-cafe (interior vignette),
-then v48-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v50-D (director view — the hook), v50-B
+(street level), v50-C (Dolores Park), v16-int-cafe (interior vignette),
+then v50-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -252,7 +252,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v48-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v50-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -355,10 +355,10 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v48-D "director view" → "Aerial view
+`press-kit/captions.txt` as canonical): v50-D "director view" → "Aerial view
 of the Mission block at golden hour — the spectator camera's home position.";
-v48-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v48-C park → "Dolores Park edge — palms, lawn,
+v50-B street level → "Street-level view: facades, parody storefront signage,
+a resident mid-errand."; v50-C park → "Dolores Park edge — palms, lawn,
 residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
 the before/after that anchors the devlog series."
@@ -384,7 +384,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v48-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v50-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -484,7 +484,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v48 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v50 build) | shipped |
 
 ---
 
@@ -768,7 +768,7 @@ in the long description, disclosure matrix gains moderated-UGC + AI-content
 rows, new §9 submission packet + caption/alt-text set + feed-vocabulary
 rule. Update when: monetization numbers finalize, Steam wrapper decision
 made, the library hero lands, or the request catalog/feed vocabulary changes
-(grep this file for the old rates). **v48 changes:** new §10 Product Hunt
+(grep this file for the old rates). **v50 changes:** new §10 Product Hunt
 launch card, §11 itch page theme palette (from brand tokens), §12 Steam
 system-requirements block, §13 A/B short-description variants, §14 claim
 ledger mapping every store claim to its source contract; gallery/capsules/
@@ -795,10 +795,10 @@ renumbered §15→§20; §8/§9 now route through the checker.
 **v53 changes:** gallery/capsules/keyart rebased to the art-v36 build
 (Karl's marine layer over the Mission; boom-rig/veiling-glare lens work);
 trailer EDL + all animatics/thumbnails rebuilt on v36 stills.
-**v78 changes:** gallery/capsules/keyart/og-card rebased to the art-v48
+**v78 changes:** gallery/capsules/keyart/og-card rebased to the art-v50
 build (lived-in ground line: areaway lightwells, toter bins, garage-door
 throwies, cornice pigeons — same framings/weather pins as v47); trailer
-EDL + animatics/thumbs rebuilt on v48 stills. New §20 store-page FAQ
+EDL + animatics/thumbs rebuilt on v50 stills. New §20 store-page FAQ
 block (8 Q&As, purchase-adjacent register), §21 refund/support/billing
 copy (verbatim refund policy + support table + chargeback stance), §22
 itch.io community & comments policy (first comment, reply SLA, ratings
@@ -806,4 +806,4 @@ rules, devlog cadence), §23 wishlist/"coming soon" posture (itch follow
 ask; Steam coming-soon gates incl. "To be announced" only), §24
 other-storefront audit (Epic/GOG/Humble/portals/mobile verdicts);
 versioning note renumbered §20→§25; §14 claim-ledger art-build cite
-refreshed v40→v48.
+refreshed v40→v50.

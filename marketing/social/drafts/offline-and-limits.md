@@ -22,7 +22,7 @@ the people who trust these limits are the audience.
 > not ever. Their mornings belong to them. That's not a limitation we
 > apologize for; it's the whole premise.
 
-Attach: `site/shots/v48-A` still + "development build" label.
+Attach: `site/shots/v50-A` still + "development build" label.
 
 **Post 2 — the attributed feed**
 > Every request in Real World is public and signed. Ask for rain over
@@ -47,7 +47,7 @@ the point of the post; the checker will WARN, accept it.)
 > through their real routine. All 28 routines cover the full 24 hours.
 > The show degrades; it doesn't stop.
 
-Attach: `site/shots/v48-C` still. Canon: world-v55 `thinai.json`
+Attach: `site/shots/v50-C` still. Canon: world-v55 `thinai.json`
 coverage ladders + main_routines C1–C8 (contiguous 0–24).
 
 **Post 5 — the cap, again**

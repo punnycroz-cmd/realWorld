@@ -1,10 +1,10 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v48-* is the current development build).
+build they were captured from (v50-* is the current development build).
 
 ## v78 — 2026-09-24
-- Screenshots rebased to renderer build **v48** (lived-in ground line:
+- Screenshots rebased to renderer build **v50** (lived-in ground line:
   areaway lightwells + iron railings, toter bins with sun shadows,
   garage-door throwies and buff patches, cornice pigeons — same framings
   and weather pins as v47). Site shots, kit screenshots, key art, banners,

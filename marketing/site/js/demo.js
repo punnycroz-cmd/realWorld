@@ -208,10 +208,10 @@
   // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
-      ["shots/v48-A", "the block from overhead under the marine layer"],
-      ["shots/v48-B", "street-level follow-cam inside the fog"],
-      ["shots/v48-C", "Dolores Park under a drifting fog tongue"],
-      ["shots/v48-D", "director mode — pastel rowhouses on the sloped block"]
+      ["shots/v50-A", "the block from overhead under the marine layer"],
+      ["shots/v50-B", "street-level follow-cam inside the fog"],
+      ["shots/v50-C", "Dolores Park under a drifting fog tongue"],
+      ["shots/v50-D", "director mode — pastel rowhouses on the sloped block"]
     ];
     var screen = stage.querySelector(".demo-fallback-screen");
     var img = screen && screen.querySelector("img");
