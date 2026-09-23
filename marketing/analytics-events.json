@@ -115,12 +115,26 @@
       "funnel_stage": "onboard",
       "status": "PENDING — game build"
     },
+    "persona_chosen": {
+      "when": "visitor picks the watch|play fork at onboarding S0 (game-side; world-v25 onboarding.json analytics_hooks)",
+      "props": { "stage": "onboarding stage id", "persona": "watch|play" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the watch/play split is THE top-of-product metric — which promise visitors came for; persona value only, never identity"
+    },
     "handle_set": {
       "when": "visitor picks a public handle (game-side)",
       "props": { "stage": "onboarding stage id" },
       "funnel_stage": "onboard",
       "status": "PENDING — game build",
       "note": "NEVER sends the handle value — presence only"
+    },
+    "handle_taken_shown": {
+      "when": "the handle step rejects a reserved/taken name (game-side; world-v25)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "friction signal only — never carries the rejected handle text"
     },
     "wallet_explained": {
       "when": "wallet explainer viewed (game-side)",
@@ -140,6 +154,20 @@
       "props": { "stage": "onboarding stage id" },
       "funnel_stage": "onboard → request",
       "status": "PENDING — game build"
+    },
+    "decline_lesson_shown": {
+      "when": "the declined-request refund lesson is shown (game-side; world-v25 S4b)",
+      "props": { "stage": "onboarding stage id" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence only — measures how often the refund-on-decline teaching moment is reached"
+    },
+    "returning_session": {
+      "when": "a visitor with prior onboarding state returns (?returning=1 / parked state, game-side; world-v25)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts returning sessions, not returning users — no cross-session identity exists by design"
     },
     "onboard_dismissed": {
       "when": "onboarding checklist dismissed entirely (game-side)",

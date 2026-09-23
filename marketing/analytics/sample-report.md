@@ -1,9 +1,9 @@
 ## metrics — week 2026-W39
-- sessions: 220 · pageviews: 220 · events: 1395
-- top sources: x (26), rps (24), bsky (18)
-- campaigns: launch-2026 (62), press-embargo (24), store-launch (14)
-- funnel: pageview 220 (100% of visits) → engaged 197 (90% of visits) → community 63 (29% of visits) → watch_start 61 (28% of visits) → request_submitted 14 (6% of visits) → character_created 9 (4% of visits)
-- top shots: v1-A.png (15), v31-D.png (8), v16-int-cafe.png (8)
+- sessions: 220 · pageviews: 220 · events: 1457
+- top sources: x (23), bsky (20), discord (20)
+- campaigns: launch-2026 (63), press-embargo (18), store-launch (17)
+- funnel: pageview 220 (100% of visits) → engaged 196 (89% of visits) → community 71 (32% of visits) → watch_start 65 (30% of visits) → request_submitted 12 (5% of visits) → character_created 7 (3% of visits)
+- top shots: v16-int-flat.png (10), v32-C.png (10), v1-A.png (9)
 - 404s: 0
 - action taken: {{one line — what we changed because of the numbers}}
 
@@ -12,25 +12,26 @@
 | stage | sessions | vs prev |
 |---|---|---|
 | pageview | 220 | — |
-| engaged | 197 | 90% |
-| community | 63 | 32% |
-| watch_start | 61 | 97% |
-| request_submitted | 14 | 23% |
-| character_created | 9 | 64% |
+| engaged | 196 | 89% |
+| community | 71 | 36% |
+| watch_start | 65 | 92% |
+| request_submitted | 12 | 18% |
+| character_created | 7 | 58% |
 
-**pageviews by page:** index (67), demo (30), how-it-works (28), features (24), journal (14), cast (12), pricing (12), faq (11), community (10), press-kit (6), rules (6)
+**pageviews by page:** index (57), demo (36), how-it-works (27), features (24), cast (16), pricing (13), community (12), faq (10), journal (10), rules (8), press-kit (7)
 
-**cta_click by slot:** walkthrough (18), demo-hero (17), nav (12), faq-exit (10), footer (9), demo-ladder (9), hero (7), pricing-teaser (6)
+**cta_click by slot:** demo-hero (18), nav (12), faq-exit (11), walkthrough (11), hero (10), pricing-teaser (10), demo-ladder (10), footer (9)
 
-**scroll depth reach:** ≥25%: 144, ≥50%: 126, ≥75%: 85, ≥100%: 47 (of 402 marks)
+**scroll depth reach:** ≥25%: 147, ≥50%: 119, ≥75%: 86, ≥100%: 47 (of 399 marks)
 
-**engaged seconds by page:** index: 10065s, how-it-works: 4643s, features: 3979s, demo: 3766s, community: 1946s, journal: 1920s, cast: 1868s, pricing: 1805s, faq: 1104s, press-kit: 1016s, rules: 883s
+**engaged seconds by page:** index: 9203s, demo: 4482s, how-it-works: 4207s, features: 4050s, pricing: 2467s, community: 2247s, cast: 2073s, journal: 1277s, faq: 1230s, press-kit: 1181s, rules: 1043s
 
-**request simulator (action/class):** weather/compatible (9), possess/exclusive (8), weather/exclusive (8), weather/flat (6), venue/exclusive (5), venue/compatible (5), possess/compatible (4), venue/flat (4), possess/flat (4)
+**request simulator (action/class):** weather/exclusive (8), possess/exclusive (7), venue/flat (7), possess/flat (7), venue/compatible (6), weather/compatible (5), venue/exclusive (4), possess/compatible (4), weather/flat (3)
 
-**onboarding (world-v11 hooks, game-side):** handle_set: 20, onboard_dismissed: 1, topup_shown: 7, tour_beat: 90, tour_completed: 16, tour_skipped: 17, tour_started: 33, wallet_explained: 23
-  tour_skipped at beat: 0 ×3, 1 ×5, 2 ×6, 3 ×3
+**onboarding (world-v11/v25 hooks, game-side):** decline_lesson_shown: 8, handle_set: 17, handle_taken_shown: 4, onboard_dismissed: 2, persona_chosen: 35, returning_session: 5, topup_shown: 9, tour_beat: 84, tour_completed: 15, tour_skipped: 20, tour_started: 35, wallet_explained: 24
+  persona split: watch (24), play (11)
+  tour_skipped at beat: 0 ×6, 1 ×8, 2 ×2, 3 ×4
 
-**referrer hosts:** news.ycombinator.com (48), itch.io (41), bsky.app (32), pcgamer.com (28)
+**referrer hosts:** itch.io (45), news.ycombinator.com (41), bsky.app (36), pcgamer.com (26)
 
-**raw event counts:** scroll_depth: 402, pageview: 220, engaged_time: 220, tour_beat: 90, cta_click: 88, watch_start: 61, screenshot_view: 54, request_simulated: 53, recap_open: 43, tour_started: 33, community_join: 24, wallet_explained: 23, handle_set: 20, tour_skipped: 17, tour_completed: 16, request_submitted: 14, character_created: 9, topup_shown: 7, onboard_dismissed: 1
+**raw event counts:** scroll_depth: 399, pageview: 220, engaged_time: 220, cta_click: 91, tour_beat: 84, watch_start: 65, screenshot_view: 58, request_simulated: 51, recap_open: 48, persona_chosen: 35, tour_started: 35, community_join: 28, wallet_explained: 24, tour_skipped: 20, handle_set: 17, tour_completed: 15, request_submitted: 12, topup_shown: 9, decline_lesson_shown: 8, character_created: 7, returning_session: 5, handle_taken_shown: 4, onboard_dismissed: 2

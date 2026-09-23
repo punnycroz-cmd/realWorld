@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v36 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v51 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -66,16 +66,22 @@ visit      pageview                     (site — live now)
             └─create character_created  (game — PENDING)
 ```
 
-**Onboarding events (v36):** the world track's onboarding contract
-(`world/onboarding-ui.md` §8 / `world/onboarding.json analytics_hooks`)
-names nine events emitted at merge: `tour_started`, `tour_beat`,
-`tour_completed`, `tour_skipped` (carries `at_beat`), `handle_set`,
-`wallet_explained`, `topup_shown`, `first_request_filed`,
-`onboard_dismissed`. They are now in `analytics-events.json` and the sink
-allowlist so a staging build can emit them day one. Per the world contract
-they carry `stage` + `opted_out` only — **no per-step dwell, no handle
-values, no amounts**. That constraint is load-bearing (no funnel-pressure
-instrumentation) and enforced by the spec's prop lists.
+**Onboarding events (v36 + v51):** the world track's onboarding contract
+(`world/onboarding-ui.md` §8+§17 / `world/onboarding.json analytics_hooks`)
+names thirteen events emitted at merge. v11's nine: `tour_started`,
+`tour_beat`, `tour_completed`, `tour_skipped` (carries `at_beat`),
+`handle_set`, `wallet_explained`, `topup_shown`, `first_request_filed`,
+`onboard_dismissed`. v25 added four (§17): `persona_chosen` (carries
+`persona: watch|play` — the S0 fork, i.e. which promise the visitor came
+for), `handle_taken_shown` (reserved-name friction), `decline_lesson_shown`
+(the S4b refund-on-decline teaching moment), `returning_session` (parked/
+`?returning=1` visitors — counts sessions, not users; no cross-session
+identity exists). All thirteen are in `analytics-events.json`, the sink
+allowlist, the report's onboarding block (with a persona split line), and
+the local dashboard. Per the world contract they carry `stage` +
+`opted_out`/`persona` only — **no per-step dwell, no handle values (not
+even rejected ones), no amounts**. That constraint is load-bearing (no
+funnel-pressure instrumentation) and enforced by the spec's prop lists.
 
 Full field-level spec: **`marketing/analytics-events.json`** (envelope +
 per-event props + privacy contract). Site-side events already wired:
@@ -244,9 +250,11 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
       manually until then (community/first-100.md §4)
 - [ ] Game embed emits `watch_start` / `request_submitted` / `character_created`
       per `analytics-events.json` (coordination note for game/world track)
-- [ ] Game emits the nine onboarding events per world-v11 contract
-      (`tour_*`, `handle_set`, `wallet_explained`, `topup_shown`,
-      `first_request_filed`, `onboard_dismissed`) — stage + opted_out only
+- [ ] Game emits the thirteen onboarding events per world-v11/v25 contract
+      (`tour_*`, `persona_chosen`, `handle_set`, `handle_taken_shown`,
+      `wallet_explained`, `topup_shown`, `decline_lesson_shown`,
+      `first_request_filed`, `onboard_dismissed`, `returning_session`) —
+      stage + opted_out/persona only
 
 ## 10. Hard rules
 

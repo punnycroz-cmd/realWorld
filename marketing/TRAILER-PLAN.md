@@ -1,14 +1,16 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v35 (2026-09-23).
-All three cuts now exist as real mp4s — hero 85s, teaser 15s, and the
-9:16 vertical 30s — `trailer/out/animatic-*.mp4`, built by
+**Status:** production-ready plan + rendered animatics, v50 (2026-09-24).
+All four cuts now exist as real mp4s — hero 85s, teaser 15s, the
+9:16 vertical 30s, and a 6s bumper — `trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
 `trailer/edl.json` (§11). Each cut also has a `-scratch.mp4` variant with
 a procedural temp-audio bed (mood/timing reference only — the ship score
 is still a licensing task, §5) and a printable `board-*.png` contact
-sheet. Live footage still pending; the animatic locks timing, copy, and
-structure so the ship cut is a recapture job, not a rewrite.
+sheet. The three §8 thumbnail concepts are rendered PNGs
+(`out/thumb-*.png`), and `--check` validates the whole EDL without
+rendering. Live footage still pending; the animatic locks timing, copy,
+and structure so the ship cut is a recapture job, not a rewrite.
 **Owner-gated:** publishing the finished video anywhere requires explicit owner
 approval. All captures come from the local dev build or the shipped game.
 **Accuracy rule:** every claim below is verified against
@@ -47,7 +49,8 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Hero trailer | 75–90 s | 16:9 | site hero, YouTube, press kit, store page |
 | Teaser cutdown | 15 s | 16:9 + 9:16 re-frame | social launch day, paid placements if approved |
 | Vertical cut | 30 s | 9:16 | TikTok/Reels/Shorts — animatic rendered (§11) |
-| Thumbnail stills | — | 16:9 | YouTube/itch |
+| Bumper | 6 s | 16:9 | pre-roll, Shorts end-screen, Discord embed — rendered (§7.1) |
+| Thumbnail stills | — | 16:9 | YouTube/itch — three concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
 description until the game ships.
@@ -65,10 +68,10 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:12 | S2 | Top-down dawn over the Mudhaus block (v31-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
-| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v31-B framing). | **[T]** "Twenty-eight people live here." |
-| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v31-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
-| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v31-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
+| 2 | 0:05–0:12 | S2 | Top-down dawn over the Mudhaus block (v32-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v32-B framing). | **[T]** "Twenty-eight people live here." |
+| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v32-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
+| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v32-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
 | 6 | 0:33–0:40 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
 | 7 | 0:40–0:47 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
 | 8 | 0:47–0:54 | S8 | Same park shot as S4, now raining — wet bake, dark pavement, pawns scatter. | **[T]** "Weather. Events. A character of your own." |
@@ -99,10 +102,10 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v31-A.png` |
-| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v31-B.png` |
-| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v31-C.png` |
-| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v31-D.png` |
+| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v32-A.png` |
+| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v32-B.png` |
+| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v32-C.png` |
+| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v32-D.png` |
 | S6 | Public feed overlay, entries ticking | any | game-systems feed API (`__aiBridge` viewer state) |
 | S7 | Request card UI: action + duration + credits | n/a | request pipeline, design doc §11 |
 | S8 | S4 framing repeated, wet bake + rain | rain override | `GS_WX_OVR` weather override exists in the sim |
@@ -112,7 +115,7 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 | S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v31 stills with slow push-ins (Ken Burns) and
+trailer against the existing v32 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 **This is exactly what the animatic does** — see §11. The plan marks every
 shot that MUST be re-captured from live footage before the trailer ships:
@@ -204,17 +207,45 @@ the debug name tags in frame — the AI→YOU chip over a labeled main would
 violate the possession-ban truth; consider the same redaction for hero
 S9/S10 at ship.
 
-## 8. Thumbnail concepts (pick 1, test later)
+### 7.1 Six-second bumper (v50 — rendered)
 
-1. **The watcher:** v31-D director shot, darkened edges, small red "REC" dot,
-   title small. Sells the Truman-Show premise instantly.
-2. **The handoff:** split frame — same street shot, left labeled `AI`,
-   right `YOU`, pawn mid-stride across the seam. Sells the hook mechanic.
-3. **The block at dusk:** v16 night-lamp look, one lit window, wordmark only.
-   Quietest option; best for press embeds.
+`edl.json` carries a fourth `"bumper"` program, rendered to
+`out/animatic-bumper.mp4` + `captions-bumper.srt` (+ scratch bed). For
+non-skippable pre-roll, Shorts end-screens, and Discord link embeds —
+anywhere a 6-second loop outperforms a thumbnail alone:
 
-All three build from real captures + typography. No rendered key art
-promises — reuse `press-kit/keyart/` if a painted look is wanted.
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:03 | B1 café block, slow drift | "A neighborhood that doesn't know it's watched." |
+| 0:03–0:06 | B2 end card (dip) | "REAL WORLD — THE MISSION. Watch free. {{URL}}" |
+
+One image, one line, logo — the card is 58 characters, readable inside the
+3-second window. No possession beat: a 6s cut can't carry the hired-only
+nuance, so the bumper sells watchability only.
+
+## 8. Thumbnail concepts (v50 — rendered)
+
+All three are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
+`python3 build-animatic.py --thumbs` from the top-level `thumbnails` spec
+in `edl.json` — same stills, brand palette, and redact machinery as the
+animatics:
+
+1. **The watcher** (`thumb-watcher.png`, style `rec`): v32-D director
+   shot, vignette-darkened edges, red "REC · live — 24/7" cluster,
+   title small at the bottom. The debug "DIRECTOR" badge is
+   redact-blurred. Sells the Truman-Show premise instantly.
+2. **The handoff** (`thumb-handoff.png`, style `split`): v32-B street
+   shot split down the middle — left labeled `AI`, right `YOU` on a
+   brightened half, orange seam. Pawn name tags are redact-blurred so
+   the AI/YOU split can't read as possessing a main. Sells the hook
+   mechanic.
+3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v32-D
+   under the night grade, wordmark + accent rule only. Quietest option;
+   best for press embeds.
+
+Thumbnails carry no `{{URL}}` and no dev-build bug (that label lives on
+the video footage itself). Pick one at upload; A/B test later. Reuse
+`press-kit/keyart/` if a painted look is wanted.
 
 ## 9. Pre-flight accuracy checklist (run before export)
 
@@ -234,20 +265,21 @@ promises — reuse `press-kit/keyart/` if a painted look is wanted.
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v31 series + v16
+`marketing/trailer/` (§11), stills in `site/shots/` (v32 series + v16
 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures
 for the recapture-flagged shots (game build), final credit numbers (owner).
 Parody names are RESOLVED (`world/parody-names.json`).
 
-## 11. Animatic — rendered pre-production cut (v20; extended v35)
+## 11. Animatic — rendered pre-production cut (v20; extended v35, v50)
 
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Three programs
-  (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`): every shot's
+- **`edl.json`** — machine-readable edit decision list. Four programs
+  (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s)
+  plus the `thumbnails` spec: every shot's
   source still, timing, card text, Ken Burns zoom/pan, color grade
   (`wet`/`night` simulated the §8 beat and the night look), possession chip +
   draining timer overlays, transition type, a `recapture` flag = the §4
@@ -268,6 +300,14 @@ into watchable video:
   pin up next to §3/§4.
 - **`out/animatic-*.mp4`** — the rendered cuts; **`out/captions-*.srt`** —
   generated from the same EDL, so captions can never drift from picture.
+- **Thumbnails (v50):** `python3 build-animatic.py --thumbs` renders the
+  §8 concepts to `out/thumb-*.png` (1280×720); crops/redacts are declared
+  per spec in `edl.json`.
+- **EDL validation (v50):** `python3 build-animatic.py --check` verifies
+  every program without rendering — required fields per shot kind, still
+  files exist, crops inside image bounds, audio presets/transitions valid,
+  card copy ≤80 chars, per-program duration ceilings, endcard `{{URL}}`
+  placeholders intact. Exits non-zero on FAIL; run after any EDL edit.
 
 Use it to review pacing/copy with the owner before any capture session, as
 the timing reference for the editor, and as the muted-safe proof that the

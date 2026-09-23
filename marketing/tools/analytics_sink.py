@@ -33,6 +33,9 @@ ALLOWED_EVENTS = {
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
     "handle_set", "wallet_explained", "topup_shown", "first_request_filed",
     "onboard_dismissed",
+    # onboarding v25 hooks (world-v25 onboarding.json — game-side at merge)
+    "persona_chosen", "handle_taken_shown", "decline_lesson_shown",
+    "returning_session",
 }
 
 

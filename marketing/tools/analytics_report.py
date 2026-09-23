@@ -76,6 +76,7 @@ def report(evts, week=None):
     sim_uses = Counter()
     onboard = Counter()
     tour_skip_beats = Counter()
+    personas = Counter()
     events_total = Counter()
 
     for e in evts:
@@ -125,10 +126,14 @@ def report(evts, week=None):
             sim_uses[f'{props.get("action") or "?"}/{props.get("class") or "?"}'] += 1
         elif name in ("tour_started", "tour_beat", "tour_completed", "tour_skipped",
                       "handle_set", "wallet_explained", "topup_shown",
-                      "first_request_filed", "onboard_dismissed"):
+                      "first_request_filed", "onboard_dismissed",
+                      "persona_chosen", "handle_taken_shown",
+                      "decline_lesson_shown", "returning_session"):
             onboard[name] += 1
             if name == "tour_skipped":
                 tour_skip_beats[props.get("at_beat", "?")] += 1
+            if name == "persona_chosen":
+                personas[props.get("persona") or "?"] += 1
 
     def reached(stage):
         return sum(1 for st in sessions.values() if stage in st)
@@ -200,8 +205,11 @@ def report(evts, week=None):
             f"{k} ({n})" for k, n in sim_uses.most_common()))
         out.append("")
     if onboard:
-        out.append("**onboarding (world-v11 hooks, game-side):** " + ", ".join(
+        out.append("**onboarding (world-v11/v25 hooks, game-side):** " + ", ".join(
             f"{k}: {v}" for k, v in sorted(onboard.items())))
+        if personas:
+            out.append("  persona split: " + ", ".join(
+                f"{p} ({n})" for p, n in personas.most_common()))
         if tour_skip_beats:
             out.append("  tour_skipped at beat: " + ", ".join(
                 f"{b} ×{n}" for b, n in sorted(tour_skip_beats.items())))
