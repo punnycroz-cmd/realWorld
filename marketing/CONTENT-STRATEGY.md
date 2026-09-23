@@ -142,6 +142,7 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 3 — "Rent is due on the first" | live on `journal.html` (v42) | world `jobs-housing.md`, `leases.json`, `housing/` |
 | Devlog 4 — "The Wire: every event gets a permalink" | live on `journal.html` (v42); record at `marketing/content/devlog-04-the-wire.md` | game-v6 `41_game_systems_feed.js`, world-v19 `wire.html`/`wire-ui.md`/`feed.json` |
 | Devlog 5 — "Meet the venues" | drafted, `marketing/content/devlog-05-meet-the-venues.md` | world `businesses.json` + `businesses/` + `directory.html` (world-v16) |
+| Devlog 6 — "The Archive: the block keeps its receipts" | live on `journal.html` (v46); record at `marketing/content/devlog-06-the-archive.md` | world-v20 `archive.html`/`archive-ui.md`/`history.json`, game-v6 `gsWireDays`/`gsWireArchiveDay` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it): lease-ledger

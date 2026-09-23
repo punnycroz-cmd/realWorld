@@ -82,7 +82,7 @@ per-event props + privacy contract). Site-side events already wired:
 
 - `pageview` — auto on every page; props: title, `data-page` slug, viewport, lang.
 - `cta_click` — on every primary/ghost CTA (`data-rw-event="cta_click"`,
-  `data-rw-props` = slot + destination). Instrumented across all 12 pages.
+  `data-rw-props` = slot + destination). Instrumented across all 13 pages.
 - `screenshot_view` — auto on gallery lightbox opens (which shot, by filename).
 - `outbound_click` — any external link not otherwise tagged.
 - `scroll_depth` (v22) — auto at 25/50/75/100% marks, once each per page;
@@ -235,7 +235,7 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 ## 9. Launch-readiness checklist additions
 
 - [ ] Owner picks backend (Umami / Plausible CE / first-party sink) — owner-gated
-- [ ] `data-endpoint` set on the analytics script tag (all 12 pages)
+- [ ] `data-endpoint` set on the analytics script tag (all 13 pages)
 - [ ] `tools/analytics_e2e.sh` re-run against staging after endpoint is set
 - [ ] Privacy line added to FAQ/footer when collection goes live
 - [ ] `press_kit_download` hook added when the kit zip gets a public link

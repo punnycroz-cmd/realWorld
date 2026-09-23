@@ -2,7 +2,8 @@
 
 **Version:** v45 · 2026-09-24 (third pass — gallery refresh v26→v28, audit
 tooling extended: srcset/og:image/CLS checks, question bank, future indexable
-surfaces register)
+surfaces register). **v46 delta:** gallery refresh v28→v29; new 14th page
+`/archive.html` added to §3 and §13.
 **Status:** LOCAL — site is launch-ready markup against a placeholder domain
 (`realworld-game.example`). Nothing published; no accounts registered.
 **Truth sources:** `devin-reviews/rw-game-design-2026-09-22.md` (product truth),
@@ -77,18 +78,19 @@ first week post-launch; re-score tiers at day-30.
 - Real SF business names — parody names only (world/businesses.md canon:
   Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware).
 
-## 3. Page-by-page spec (all 13 URLs, as shipped)
+## 3. Page-by-page spec (all 14 URLs, as shipped)
 
 Title ≤60 chars, meta ≤155 chars, one H1, canonical, OG+Twitter cards. ✔ = live
 in markup today.
 
 | Page | Title (shipped) | Primary keyword | Schema | Notes |
 |---|---|---|---|---|
-| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v28-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
+| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v29-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
 | `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
 | `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
+| `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
 | `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 25 Qs; JSON-LD ↔ visible parity enforced by seo_audit.py |
 | `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
@@ -140,7 +142,7 @@ no reviewCount — we have neither and never fake them.
 ## 6. Internal linking
 
 Current architecture: global nav (9 links) + footer (full map) on every page —
-every page is ≤2 clicks from everywhere, which is right at 13 pages.
+every page is ≤2 clicks from everywhere, which is right at 14 pages.
 
 Contextual-link rules (apply to every new page/post):
 
@@ -208,7 +210,7 @@ Pending (owner-gated, launch):
 - [ ] PENDING — English only; no hreflang, no localization claims
 
 Performance budget: page payload <3MB excluding gallery (gallery is lazy webp);
-one PNG fallback (v28-C, 1.9MB) is under the 2MB ceiling — accepted, it only
+one PNG fallback (v29-C, 1.9MB) is under the 2MB ceiling — accepted, it only
 loads on browsers without webp.
 
 ## 9. Measurement plan
@@ -228,7 +230,7 @@ loads on browsers without webp.
 - **Press hook 3:** "the game whose devlog is written by its NPCs" — recap format.
 - Community seeding post-launch (owner-approved only): life-sim Discords,
   gamedev/AI communities. Draft posts already in `social/drafts/`.
-- Asset hooks that earn embeds: before/after v1→v28 gallery, the public request
+- Asset hooks that earn embeds: before/after v1→v29 gallery, the public request
   feed screenshot, the "same angle, seventeen iterations later" image pair.
 
 ---
@@ -279,6 +281,7 @@ Two pages must never compete for the same query. Current assignments:
 | cast / characters | cast | features names roles only |
 | sims/inzoi/paralives alternative | faq (comparison Q) | journal essays link back to faq, don't re-rank |
 | mission district / dolores park | index | features keeps place as support copy |
+| history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 
 Rule: if a new page/post wants a keyword already in this table, it links to
 the owner instead of competing — same rule as internal-link §6.
@@ -307,7 +310,7 @@ the owner instead of competing — same rule as internal-link §6.
   fold learnings into the calendar's next 12 weeks.
 
 **Debt register (carried, honest):**
-1. `shots/v28-C.png` is 1.9MB and `v28-A.png` is 1.8MB (accepted — webp
+1. `shots/v29-C.png` is 1.9MB and `v29-A.png` is 1.8MB (accepted — webp
    companions serve modern browsers; PNGs are fallback only). Revisit if
    CWV flags LCP.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on

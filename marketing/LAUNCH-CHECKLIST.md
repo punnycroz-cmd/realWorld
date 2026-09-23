@@ -36,7 +36,7 @@ log the result in §10 before the checklist may cite it.
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced in all 15 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = **v28 dev build** — refreshed v45 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = **v29 dev build** — refreshed v46 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
@@ -224,6 +224,7 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | staging_dryrun.sh (v45, shots v28) | 33 pass / 2 warn / 0 fail — warns: domain ×2 only |
 | 2026-09-24 | tools/seo_audit.py (v45, extended) | 58 pass / 23 warn / 0 fail — new srcset/og:image/CLS checks active; warns: domain, PNG-fallback weight, thin-desc legacy |
 | 2026-09-24 | tools/preflight.sh (v45) | 5 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
+| 2026-09-24 | archive.html page added (v46) + gallery refresh v28→v29 | 14th page wired into navs/footers/sitemap/dry-run/prod-smoke/SEO-PLAN/llms.txt; shots + press-kit screenshots swapped, webp regen, keyart+banners rebaked, animatics rebuilt, dist zip rebuilt (39 files) |
 
 ## §11 Never-do list (load-bearing)
 
