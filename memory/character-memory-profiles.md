@@ -1764,3 +1764,40 @@ confidence suppression does NOT exist (children choose
 confidently — do not add a humility dial); script-mode intrusion
 fields are emitted as ordinary fields — a profile cannot flag
 them uncertain.
+
+## 26. v4.1 note — false-memory IV: which instrumented dials are personality
+
+- **`self_cred` (clamp 0.8–1.0):** self-as-source credibility ceiling
+  for swapReport (§6.46). Default 1.0 — everyone trusts their own
+  prior testimony more than anyone's gossip. Lower only for
+  memory-distrust phenotypes (`distrust` high): the character who
+  already doubts his own mind can be talked out of his own report.
+  This is the rare case where a TRAIT makes a channel weaker.
+- **`traitValence` (clamp −0.6..+0.6):** the per-character valence
+  baseline that moodcong_lure matches (§6.8 selection). Set from the
+  bible's dominant register, not computed — a melancholic profile
+  phantomizes the negative schema detail; the genial one the warm
+  one. Orthogonal to rumination (rumin_k controls volume/repetition;
+  traitValence controls WHICH falsehoods).
+- **`mb_detect` rider:** discrim_mult already scales it (old → more
+  blind); do NOT add a separate trait dial — source-monitoring
+  ability is the single moderator the literature supports.
+- **Flashbulb exposure is situational, not a trait:** every profile
+  gets fb_conf_floor at 0.75; what varies is how many public events
+  reach arousal_tag ≥0.8 — an emo_rate-high life mints more
+  flashbulb records, but none of them is more honest about it.
+- **`distrust` and the expectancy loop:** high-distrust characters
+  are the coerced-internalization pipeline's prey (§6.45 loop lands
+  hardest); bible note: interrogated-often characters (the landlord's
+  nervous tenant, the kid) get expect_press effectively ×1.3 through
+  compliance, matching the Gudjonsson path already in §15.
+- **Population-flat:** fb_conf_floor, verb_pull, lp_detail_p,
+  fb_conf_gain/fb_disconf, retro_inflate, expect_*, ssif_suppress,
+  emit_omit, im_act_*, discrim_recover, moodcong_lure (the
+  coefficient; the matched target is the trait above).
+- **Explicit nulls:** no profile may raise discrim_recover past 0.6
+  (source discrimination helps, never sterilizes); no profile may
+  floor confidence on non-flashbulb records; no trait exempts a
+  character from listener SSIF (silence edits everyone); there is no
+  "immune to question wording" dial — the only defenses are verbatim
+  strength and the §6.50 discriminate mode itself.

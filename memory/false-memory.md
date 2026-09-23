@@ -1523,3 +1523,505 @@ event) spreads like it has a second witness. It doesn't.
   rather than retrieve — watch for double-counting with §2's
   schema-driven encoding fills (P289's direction check is the
   guard).
+
+---
+---
+
+# PART IV (v42) — the instrumented channels: questions, feedback,
+# and the past that answers back
+
+**Scope:** Parts I–III covered what *accounts* do to records and what
+the rememberer's own acts do. Part IV covers the channel the earlier
+parts left implicit: **memory is interrogated**, and the
+interrogation itself — the wording of the question, the feedback on
+the answer, the interviewer's expectation, the altered playback of
+one's own statement — is a distortion operator. Plus three
+sharpenings: flashbulb confidence/accuracy decoupling, mood-congruent
+lure selection, and the population-scale emergent layer. Tag
+convention unchanged.
+
+## 38. Flashbulb records — confidence decouples from accuracy
+
+- **Neisser & Harsch 1992** (Challenger, N=106): three-year-delayed
+  reports of the reception event were **massively inconsistent** with
+  next-day reports (consistency ~2.95/7; a quarter of subjects wrong
+  on every scored element) while **confidence stayed ~4.2/5** — the
+  canonical demonstration that "I remember exactly where I was"
+  certifies nothing about where they were.
+- **Talarico & Rubin 2003** (9/11, prospective): flashbulb and
+  everyday memories encoded same day decayed at **indistinguishable
+  rates** in consistency; the ONLY divergent measure was confidence —
+  flat and maximal for flashbulb, declining for everyday. Hirst et
+  al. 2015 (10-yr follow-up): consistency collapses in the first
+  ~3 years then plateaus — the canonical communal narrative freezes.
+- Mechanism is ordinary: rehearsal of the *reception narrative*
+  (media, retelling) drives drift exactly like §6.3/§6.12; what
+  flashbulb adds is not a better trace but a **confidence floor the
+  accuracy no longer earns**.
+
+**[CONSENSUS — the decoupling is the finding, not the fidelity]**
+
+**Spec consequence (new §6.42):** reception-event records (learning
+of a high-arousal public event — "where I was when I heard") mint
+with `flashbulb:true`:
+
+```
+flashbulb records: emitted confidence = max(conf, fb_conf_floor)
+    // fb_conf_floor 0.75 — permanent, accuracy-independent;
+    // the ONLY place in the model confidence is floored
+candidate drift on the reception narrative is NORMAL — §6.3
+    candidates, §6.12 serial convergence toward the communal
+    canonical version; media retellings arrive as told_by accounts
+    (sourceCredibility high — "everyone saw it"), giving the drift a
+    systematic direction: toward the shared script
+consistency plateaus after ~fb_plateau (1000d) of drift — the
+    frozen-wrong steady state (Hirst 2015)
+```
+
+RW hook: every character confidently narrates where they were for
+the quake/fire/raid — and a third of them are narrating a version
+assembled later. The disagreement is permanent and no one's voice
+wobbles.
+
+## 39. The verb did it — question wording on quantitative fields
+
+- **Loftus & Palmer 1974** (Exp 1): "smashed" produced speed
+  estimates **40.8 mph** vs "hit" **34.0 mph** — the wording alone
+  moved the estimate ~20%. Exp 2: a week later, "smashed" witnesses
+  reported broken glass (there was none) at **32% vs 14%** —
+  wording planted a peripheral detail that outlived the question.
+- **Loftus & Zanni 1975**: indefinite vs definite article ("a"
+  vs "the" broken headlight) doubles fabricated-detail reports —
+  presupposition itself is suggestive.
+- Mechanism: the question supplies a schema-intensity prior and an
+  implied-detail candidate; weak verbatim fields absorb both
+  (§6.3 machinery — the question IS an account).
+
+**[CONSENSUS — the most-cited result in the field; sizes are
+lab-magnitude, direction is not contested]**
+
+**Spec consequence (new §6.43):** `answerProbe` gains
+`wording_intensity` ∈ [−1,+1] (the question's implied magnitude —
+"how fast was he going" vs "how slowly"; "how loud was the crash"):
+
+```
+on answerProbe with wording_intensity ≠ 0, for quantitative
+verbatim fields (speed, size, duration, count, amount):
+    pulled candidate: value = fieldVal + wording_intensity
+                     · verb_pull (0.2) · schemaRange(field)
+    provenance:"confabulated" — written by the question, not the
+        memory; candStrength per §6.9 forced-confabulation rules
+implied-detail clause: questions presupposing a detail ("the X")
+    plant a confabulated candidate for X at lp_detail_p (0.15)
+    if the field is empty/weak — "the broken glass" effect
+```
+
+## 40. "Good, you picked the right one" — feedback inflates the past
+
+- **Wells & Bradfield 1998**: post-identification confirming
+  feedback inflated not just confidence but **retrospective
+  judgments of how good the view was, how much attention was paid,
+  how quickly the pick was made** — feedback rewrites the encoding
+  conditions, not just the verdict.
+- **Douglass & Steblay 2006** meta (20 tests, N>2400): confirming
+  feedback produces **large** effect sizes on certainty, view,
+  attention; smaller on objective measures; disconfirming-vs-control
+  effects small in the other direction. **Steblay, Wells &
+  Douglass 2014** (Psych. Pub. Pol. Law, N≈7000): robust across
+  settings; the literature's policy conclusion — feedback-tainted
+  confidence certifies nothing.
+- Asymmetry [DEBATED magnitude, CONSENSUS direction]: disconfirming
+  feedback erodes confidence; in several designs the disconfirming
+  hit is larger than the confirming boost.
+
+**Spec consequence (new §6.44):** `feedback` event on a recall /
+identification / retell emission:
+
+```
+feedback(confirm): confidence += fb_conf_gain (0.25)·(1−conf);
+    encoding-condition fields (view quality, attention, distance,
+    duration — the "how good was my look" fields) mint/promote
+    inflated candidates at retro_inflate (0.15) — the past gets
+    better because the answer was approved; provenance:"inferred"
+feedback(disconfirm): confidence −= fb_disconf (0.4)·conf — hits
+    harder than confirm helps; accuracy untouched in BOTH
+    directions (feedback edits metamemory, never content —
+    P-guarded)
+blind-first rule: feedback effects are measured on post-feedback
+    reports; a confidence snapshot taken BEFORE feedback is the
+    only honest one (contract note — game-systems should log
+    pre-feedback conf on contested identifications)
+```
+
+## 41. The interviewer already knows — expectancy transmission
+
+- **Kassin, Goldstein & Savitsky 2003** (Psych. Sci.): interviewers
+  led to expect guilt used more pressure, more guilt-presumptive
+  questions; suspects under guilt-presumptive interrogation
+  (regardless of actual guilt) were judged guiltier by blind
+  observers — the expectation manufactures its own confirmation.
+- **Kassin, Dror & Kukucka 2013** (forensic-confirmation review):
+  the expectancy chain generalizes — an examiner's belief flows
+  into the evidence and then reads the contaminated evidence back
+  as corroboration. The loop, not the bias, is the mechanism.
+- Narvaez & Stern-style face-construction expectancy (forensic
+  composites built under expectation bias toward the expected face)
+  — same loop on a perceptual artifact.
+
+**[CONSENSUS that expectancy transmits; sizes are design-specific]**
+
+**Spec consequence (new §6.45):** `answerProbe` gains
+`expect:`{value} — the questioner's expected answer:
+
+```
+expect set: press_gain × (1 + expect_press 0.3) — expectation is
+    pressure; AND the expected value itself writes a weak told_by
+    candidate (the questioner leaks the answer: expect_cand 0.3)
+expectancy loop: when the probe's emitted answer matches expect,
+    the questioner's satisfaction feedback auto-fires §6.44
+    confirm — expectation → pressure → conforming answer →
+    confirmation → inflated confidence in the conforming memory.
+    Self-fulfilling in one function call.
+```
+
+## 42. Memory blindness — your own words, altered
+
+- **Cochran, Greenspan, Bogart & Loftus 2016** (Mem & Cogn, two
+  experiments): subjects' own memory reports were altered and
+  re-presented; the **majority failed to detect the changes**, and
+  final memory tests shifted toward the altered versions — "memory
+  blindness." Present whether framed as self-sourced or
+  other-sourced [the self/other strength ordering is DEBATED —
+  dissertation analyses found other-sourced slightly stronger].
+- **Sauerland, Sagana & Otgaar-line sticker study** (PLoS ONE 2017):
+  altered written answers on reattachable stickers — majority
+  choice-blind; blind participants later reported recollections
+  consistent with the manipulations.
+- The dangerous version of self-delivered misinformation: the
+  source is YOU, so sourceCredibility is maximal and the
+  alteration arrives pre-attributed.
+
+**[CONSENSUS phenomenon; small literature, two labs]**
+
+**Spec consequence (new §6.46 — `swapReport`):** distinct from
+§6.18 `swapOutcome` (which swaps a decision *outcome*); this swaps
+the *content of a prior report*:
+
+```
+swapReport(charId, record, field, alteredValue):
+    P(detect) = mb_detect (0.35) · (fresh ? 1 : 0.6)
+                · (1 + 0.3·selfRelevance)   // seams on what you
+                // SAID are easier than seams on what you DID
+    undetected: altered value writes a candidate
+        provenance:"claimed" (self-authored!), candStrength =
+        cand_base_str · self_cred — self_cred 1.0, the highest
+        sourceCredibility the model allows; the character
+        "remembers" their own testimony more than the event
+    detected: incongruent:true tag (same flag as §6.18 — the
+        character noticed the seam)
+```
+
+## 43. The listener forgets what you didn't say — SSIF on the audience
+
+- **Cuc, Koppel & Hirst 2007** (Psych. Sci.): listeners to a
+  selective retelling later recalled FEWER unshared related details
+  — **socially shared retrieval-induced forgetting** — because
+  listeners covertly co-retrieve along with the speaker. Within-
+  category, silent, no misinformation needed.
+- **Stone, Coman, Brown, Koppel & Hirst 2012** review + **Coman,
+  Manier & Hirst 2009** (9/11 field): SSIF persists ≥1 month and
+  operates speaker→audience at scale — a community's shared
+  silence about an unmentionable detail literally erodes it.
+- Distinct from §6.5 conformity (which changes content) and §5.8
+  RIF (which suppresses the *retriever's* own rivals): this is the
+  **speaker's selection suppressing the listener's memory** —
+  retelling is a distortion channel on people who never spoke.
+
+**[CONSENSUS; the speaker→listener direction is the finding]**
+
+**Spec consequence (new §6.47):** `hearAccount` applies a
+suppression pass to the LISTENER's own record of the same event:
+
+```
+when listener l holds record m_l of the same event and hears a
+    partial account covering field-set F:
+    for fields related to F (same category/sim-neighborhood) that
+        the account did NOT mention: l's surviving candidates take
+        a one-shot ssif_suppress (0.15) strength hit — co-retrieval
+        of the shared part suppresses the unshared rivals
+mentioned fields are handled normally (§6.3 candidates/boosts) —
+    the retelling simultaneously strengthens what it says and
+    starves what it omits, WITHOUT asserting anything false
+```
+
+RW: a rumor doesn't have to lie to distort. The half-told story,
+retold often, edits the audience's memory toward the telling.
+
+## 44. "Nothing happened" — omission suggestion
+
+- **Oeberst & Blank 2012** ("undoing" debate, Memory Studies):
+  misinformation can also REMOVE true content from reports —
+  blanket claims that an event/detail did not occur suppress
+  reporting of surviving memory; DEBATED whether the mechanism is
+  storage impairment, report bias, or demand — all three are
+  documented components.
+- Part III's §6.29 denial backfire plants the AFFIRMED core of a
+  negated claim; omission suggestion is the opposite instrument —
+  no affirmed content, just an assertion of absence.
+- Related: suggesting that one saw nothing / "you wouldn't have
+  noticed" — meta-claims about encoding quality attack confidence
+  in the record wholesale (overlaps §40 disconfirm but aimed at
+  existence, not verdict).
+
+**[DEBATED mechanism; CONSENSUS that omission accounts reduce
+reporting of the omitted]**
+
+**Spec consequence (new §6.48):** `hearAccount` gains
+`omission:true` (the account asserts absence, not content):
+
+```
+no candidate is written — instead, surviving candidates on the
+    addressed record's core fields take emit_omit (0.2) penalty
+    on their RETRIEVAL/emission weight (not strength — the trace
+    stays, the report dries up; storage-vs-report DEBATED flag
+    resolved by choosing the report side, which P-guards can
+    distinguish: record still retrievable under discriminate
+    mode, §6.50)
+repetition compounds via hearCount as usual; neg_frame_mult does
+    NOT apply — there is no affirmed core to outlive a frame
+```
+
+## 45. Imagined actions — rehearsing it is halfway to having done it
+
+- **Goff & Roediger 1998**: imagining performing simple actions
+  (breaking a toothpick) produced later false claims of HAVING
+  performed them; more imaginings → more false claims — the action
+  version of imagination inflation, stronger than scene imagining.
+- **Thomas & Loftus 2002**: even bizarre self-performed imagined
+  actions inflated later "did it" claims — the plausibility gate
+  applies but imagined action inflation is robust across
+  plausibility (bizarre imagined actions are imagined MORE, which
+  compensates).
+- Enactment gradient (Engelkamp): performed > imagined > heard —
+  motor encoding is the richest channel; imagined actions carry
+  partial motor content, which is why they flip easier.
+
+**[CONSENSUS effect; the action/channel gradient is textbook]**
+
+**Spec consequence (§6.9 extension — `selfAction:true`):**
+
+```
+imagineEvent(…, selfAction:true): the scenario is a rehearsed
+    self-performance — rehearsing what you'd say, how you'd quit,
+    the confrontation in the shower
+    verbatim richness mints higher (motor/proprioceptive fills —
+    +im_act_rich 0.1) AND source_confuse_flip × im_act_gain (1.5)
+    — imagined DOING outlives imagined SEEING as a memory source
+    candidates on the flip path read provenance "witnessed" with
+    selfRelevance high — "I did it" phantoms are the most
+    convincing phantoms a character can own
+```
+
+## 46. Ask the right question — the discriminate recall mode
+
+- **Lindsay & Johnson 1989**: when the test forces source
+  discrimination ("what did you see vs what were you told"), the
+  misinformation effect largely dissolves — both contents coexist
+  (Part II §13) and attribution is recoverable when demanded.
+- **McCloskey & Zaragoza 1985** modified test: excluding the
+  misinformation option unmasks surviving originals — the
+  consensus storage story.
+- This is the model's own instrument: candidate sets exist; what
+  was missing is a retrieval mode that READS provenance instead
+  of sampling winners.
+
+**Spec consequence (§5 + new §6.50):** recall gains
+`mode:"discriminate"` — an interview/cognitive-instruction context
+forcing source attribution per field:
+
+```
+discriminate mode emits, per field: the candidate LIST with
+    per-candidate provenance estimates (§6.10 sourceInfer run per
+    candidate, not per field)
+emitted false content falls by discrim_recover (0.5) — the
+    monitoring recover; contested fields emit at reduced
+    confidence, not with a winner
+cost: slower (latency ×1.5), and §6.16/§6.17-style pulls still
+    apply to candidates themselves — discriminate mode reveals
+    competition, it does not sterilize it
+```
+
+The probe-grade implication (P163's instrument): the engine can now
+report "says X, also holds Y from another source" — the difference
+between a database that's wrong and a witness who's conflicted.
+
+## 47. The lure matches the mood — congruent phantom selection
+
+- **Joormann, Teachman & Gotlib 2009** (J. Abnorm. Psych.):
+  depressed participants produced MORE false recall of
+  negative-valence critical lures and FEWER of positive — the
+  phantom machinery is valence-selective, tracking trait mood.
+- **Howe & Malone 2011** (Cognition): mood-congruent DRM false
+  memories under induced mood — congruence works on state as well
+  as trait.
+- Direction: it is SELECTION, not rate — depression doesn't make
+  more phantoms, it makes negative ones (and older adults'
+  positivity shift predicts positive-selective lures — consistent
+  with §1.6/fading-affect asymmetry).
+
+**[CONSENSUS direction; the selectivity-not-volume claim is the
+useful part]**
+
+**Spec consequence (§6.8/§6.27 candidate selection):** lure and
+migration candidates are valence-filtered before the phantomize
+draw:
+
+```
+candidate weight ×= 1 + moodcong_lure (0.25)
+                     · match(candidate.valence, traitValence)
+    // depressive profiles phantomize the negative schema detail;
+    // positivity-shifted elders the warm one; rate unchanged,
+    // CONTENT congruent — sign-locked probe
+```
+
+## 48. The emergent layer — collective phantoms, no operator
+
+Nothing in Parts I–IV needs a new mechanism to produce the
+population-scale phenomenon: schema-consistent lures (§6.8) +
+mass parallel exposure (hearCount fluency, §6.3) + conformity
+(§6.5) converge toward shared false "facts" — the
+Monopoly-man's-monocle class of collective misremembering
+("Mandela effect" — the folk label; the mechanism decomposition is
+what the literature offers: shared schemas generate the SAME lure
+in every head, then the rumor layer corroborates it).
+
+**Spec consequence (§6.51, OBSERVE-only):** no operator; a
+validation check that N characters exposed to the same schema-rich
+event develop CORRELATED phantom details above the independence
+baseline — shared falsity emerging from shared schemas, not from
+a shared error channel.
+
+## 49. Spec changes in v4.1 (summary)
+
+- **New §6.42** flashbulb records (`flashbulb:true`,
+  `fb_conf_floor`, `fb_plateau` — confidence floored, drift normal,
+  plateau frozen).
+- **New §6.43** question wording (`wording_intensity` on
+  answerProbe, `verb_pull`, `lp_detail_p` presupposition planting).
+- **New §6.44** confirmatory/disconfirming feedback (`feedback`
+  event; `fb_conf_gain`, `fb_disconf`, `retro_inflate` on
+  encoding-condition fields; blind-first logging contract).
+- **New §6.45** interviewer expectancy (`expect:` on answerProbe —
+  `expect_press`, `expect_cand`; auto-confirm loop into §6.44).
+- **New §6.46** `swapReport` — memory blindness on own reports
+  (`mb_detect`, `self_cred` 1.0 ceiling, incongruent tag reuse).
+- **New §6.47** listener-side SSIF (`ssif_suppress` — suppression
+  pass on the listener's unshared related fields).
+- **New §6.48** omission suggestion (`omission:true`,
+  `emit_omit` — report-side suppression, DEBATED mechanism noted).
+- **§6.9 extension** `selfAction:true` (`im_act_gain`,
+  `im_act_rich` — imagined self-performance flips easier).
+- **New §6.50** discriminate recall mode (`mode:"discriminate"`,
+  `discrim_recover`, per-candidate provenance emission, latency
+  cost).
+- **§6.8/§6.27 selection** mood-congruent lure weighting
+  (`moodcong_lure`).
+- **New §6.51** collective phantoms — OBSERVE note, no operator.
+- **§7** +15 params (all optional w/ defaults).
+- **§10** contract: `answerProbe` +`wording_intensity`/`expect`;
+  `hearAccount` +`omission`; `imagineEvent` +`selfAction`; recall
+  +`mode:"discriminate"`; new `feedback` + `swapReport` calls;
+  records may carry `flashbulb:true` (visible — the character's
+  certainty is the feature).
+
+## 50. Parameter guidance and probes
+
+| param | default | meaning |
+|---|---|---|
+| fb_conf_floor / fb_plateau | 0.75 / 1000d | flashbulb confidence floor + drift freeze (§6.42) |
+| verb_pull | 0.2 | quantitative-field pull toward wording intensity (§6.43) |
+| lp_detail_p | 0.15 | presupposed-detail planting rate (§6.43) |
+| fb_conf_gain / fb_disconf / retro_inflate | 0.25 / 0.4 / 0.15 | feedback confidence + retroactive encoding inflation (§6.44) |
+| expect_press / expect_cand | 0.3 / 0.3 | expectancy pressure + leaked-answer candidate (§6.45) |
+| mb_detect / self_cred | 0.35 / 1.0 | self-report alteration detection + self-source ceiling (§6.46) |
+| ssif_suppress | 0.15 | listener unshared-field suppression per partial account (§6.47) |
+| emit_omit | 0.2 | omission-account emission penalty (§6.48) |
+| im_act_gain / im_act_rich | 1.5 / 0.1 | imagined-action flip multiplier + richness (§6.9) |
+| discrim_recover | 0.5 | false-content emission fall in discriminate mode (§6.50) |
+| moodcong_lure | 0.25 | valence-congruent candidate selection weight (§6.8) |
+
+**Probes P421–P432** (extends registry P1–P420):
+
+- **P421 flashbulb decoupling (MUST — sign-locked):** flashbulb
+  records' consistency decays at everyday rates while emitted
+  confidence stays ≥ fb_conf_floor; plateau of (wrong) consistency
+  by ~fb_plateau. FAIL if confidence tracks accuracy.
+- **P422 verb pull (MUST):** matched events probed with
+  wording_intensity ±1 → quantitative estimates differ in the
+  wording's direction; presupposed details surface at ~lp_detail_p
+  a week later on empty fields.
+- **P423 feedback asymmetry (MUST):** confirm → conf up AND
+  view/attention candidates inflate; disconfirm → conf down MORE;
+  accuracy untouched in both arms. FAIL if feedback moves
+  field content.
+- **P424 expectancy loop (SHOULD):** answerProbe with expect +
+  auto-confirm produces expectation-congruent, high-confidence
+  reports at rates above matched neutral probes — the loop, not
+  just the leak.
+- **P425 memory blindness (MUST):** swapReport undetected at
+  ~55–70%; undetected arms shift later reports toward the
+  alteration at HIGHER rate than matched other-sourced
+  misinformation (self_cred > sourceCredibility ordering).
+- **P426 listener SSIF (MUST — sign-locked):** after a partial
+  account, listener's unmentioned related-field candidates are
+  weaker than no-account controls; mentioned fields strengthened —
+  same account, both signs.
+- **P427 omission (SHOULD):** omission:true accounts reduce later
+  emission of the addressed record's core fields WITHOUT reducing
+  their retrievability under mode:"discriminate" — report-side,
+  not store-side (the DEBATED-mechanism discriminator).
+- **P428 imagined action (SHOULD):** selfAction:true imagineEvent
+  loops flip to "witnessed" ~1.5× the rate of matched scene
+  imaginations; flip candidates carry elevated richness.
+- **P429 discriminate mode (MUST):** discriminate recall emits
+  candidate lists with provenance estimates; emitted false content
+  ~halved vs sample mode; contested-field confidence lower;
+  latency higher.
+- **P430 mood-congruent lures (MUST — sign-locked):** depressive
+  profile phantomizes negative-schema details preferentially at
+  MATCHED total phantom rate; positivity-shifted elder profile the
+  positive ones. FAIL on volume differences — selection only.
+- **P431 blind-first logging (OBSERVE):** contested identification
+  logs carry pre-feedback conf — contract check, not behavior.
+- **P432 collective phantoms (OBSERVE):** 8 mains + shared
+  schema-rich event → correlated phantom details above
+  independence baseline; no dedicated operator may exist
+  (P-guard against a "collective_memory" shortcut).
+
+## 51. Honest limits (Part IV)
+
+- **Flashbulb confidence is floored as a modeling choice** — the
+  literature shows flat-maximal confidence; whether the floor is
+  truly permanent or slowly erodes past ~10y is open (Hirst 2015's
+  plateau is consistency, confidence data thin late).
+- **Feedback effects are lineup-calibrated**; the retro_inflate
+  generalization to non-eyewitness records is our extrapolation —
+  flagged tunable.
+- **Expectancy loop** is assembled from separate findings
+  (pressure transmission × feedback inflation) — the composition
+  is HYPOTHESIS; each clause is sourced.
+- **Memory blindness** is two labs/small N; mb_detect is a
+  midpoint guess — and the self-vs-other ordering is actively
+  DEBATED (we take self_cred highest because pre-attribution is
+  the mechanism both sides agree on).
+- **Omission suppression** deliberately lands on the report side;
+  Oeberst & Blank's debate is unresolved, and our resolution is
+  the one that keeps P427 falsifiable.
+- **Discriminate mode** is the one operator that REDUCES emitted
+  falsity — keep discrim_recover ≤0.6 or the witness interview
+  becomes a cure-all the literature doesn't support (source
+  discrimination helps, it doesn't sterilize).
+- **Collective phantoms** are a prediction, not a citation —
+  P432 is OBSERVE because correlated phantom rates at population
+  scale have no clean human benchmark; the Mandela-effect label
+  is folk, not experimental.

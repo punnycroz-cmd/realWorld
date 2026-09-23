@@ -1,4 +1,40 @@
-# Memory Model Spec v4.0 — implementable human-like memory for RW characters
+# Memory Model Spec v4.1 — implementable human-like memory for RW characters
+
+> **v4.1 note (false-memory IV — the instrumented channels):**
+> `memory/false-memory.md` Part IV (§§38–51) covers interrogation
+> itself as a distortion operator: **flashbulb records** floor
+> emitted confidence at `fb_conf_floor` while accuracy drifts
+> normally and freezes wrong at `fb_plateau` (Neisser & Harsch
+> 1992; Talarico & Rubin 2003; Hirst et al. 2015) — §6.42;
+> **question wording** — `wording_intensity`/`verb_pull` pull
+> quantitative fields, presuppositions plant details at
+> `lp_detail_p` (Loftus & Palmer 1974: 40.8 vs 34.0 mph, glass
+> 32% vs 14%; Loftus & Zanni 1975) — §6.43; **confirmatory
+> feedback** inflates confidence AND retroactively inflates
+> encoding-condition fields `retro_inflate`, disconfirming hits
+> harder `fb_disconf`, accuracy untouched (Wells & Bradfield 1998;
+> Douglass & Steblay 2006; Steblay, Wells & Douglass 2014,
+> N≈7000) — §6.44; **interviewer expectancy** `expect:` — pressure
+> + leaked candidate + auto-confirm loop (Kassin, Goldstein &
+> Savitsky 2003; Kassin, Dror & Kukucka 2013) — §6.45;
+> **memory blindness** `swapReport` — altered own-reports go
+> undetected ~65%, adopt at self-source ceiling `self_cred` 1.0
+> (Cochran et al. 2016; Sauerland-line sticker study 2017) —
+> §6.46; **listener SSIF** — a partial account suppresses the
+> LISTENER's unshared related fields `ssif_suppress` (Cuc, Koppel
+> & Hirst 2007; Stone et al. 2012) — §6.47; **omission
+> suggestion** — `omission:true` suppresses emission without
+> writing candidates `emit_omit` (Oeberst & Blank 2012, DEBATED)
+> — §6.48; **imagined actions** `selfAction:true` flip easier
+> `im_act_gain` (Goff & Roediger 1998; Thomas & Loftus 2002) —
+> §6.9 ext; **discriminate recall mode** emits candidate lists
+> with provenance, halves emitted falsity `discrim_recover`
+> (Lindsay & Johnson 1989; McCloskey & Zaragoza 1985) — §6.50;
+> **mood-congruent lures** — selection not volume
+> `moodcong_lure` (Joormann, Teachman & Gotlib 2009) — §6.8/§6.27;
+> **collective phantoms** — OBSERVE-only, no operator — §6.51.
+> +15 params in §7; probes P421–P432 in validation-design.md.
+> All optional, default-neutral.
 
 > **v4.0 note (emotional-memory IV — the social life of leftover
 > affect):** `memory/emotional-memory.md` Part IV (§§40–55) prices
@@ -4645,6 +4681,151 @@ Behavioral consequence: avoidance/pursuit decisions run on inflated
 forecasts — dreading the confrontation more than it will hurt.
 P419.
 
+### 6.42 Flashbulb records — floored confidence, ordinary drift (new in v4.1)
+
+Reception-event records (learning of a high-arousal public event —
+"where I was when I heard") mint `flashbulb:true` when
+`arousal_tag ≥ 0.8 AND event is public/social` (false-memory.md §38):
+
+```
+emitted confidence = max(conf, fb_conf_floor)   // 0.75 — the ONLY
+    floored confidence in the model; accuracy-independent
+candidate drift is NORMAL (§6.3/§6.12); media retellings arrive as
+    high-credibility told_by accounts → systematic drift toward the
+    communal canonical narrative
+after fb_plateau (1000d) the drifted state freezes — consistency
+    plateaus wrong, confidence doesn't notice (Hirst et al. 2015)
+```
+
+Neisser & Harsch 1992; Talarico & Rubin 2003 — consistency decays
+at everyday rates; confidence alone stays maximal. P421.
+
+### 6.43 Question wording — the verb pulls the number (new in v4.1)
+
+`answerProbe` gains `wording_intensity` ∈ [−1,+1] (the question's
+implied magnitude) and presupposition (false-memory.md §39):
+
+```
+quantitative fields (speed, size, duration, count, amount):
+    pulled candidate = fieldVal + wording_intensity·verb_pull
+                       ·schemaRange(field)   // verb_pull 0.2
+    provenance "confabulated" — written by the question
+presupposed detail ("the broken glass"): empty/weak field gains a
+    confabulated candidate at lp_detail_p (0.15)
+```
+
+Loftus & Palmer 1974 (smashed 40.8 vs hit 34.0; glass 32% vs 14%);
+Loftus & Zanni 1975 ("the" vs "a"). P422.
+
+### 6.44 Feedback — the answer edits the evidence (new in v4.1)
+
+`feedback(charId, emission, kind)` on a recall/identification/
+retell emission (false-memory.md §40):
+
+```
+confirm: confidence += fb_conf_gain·(1−conf)   // 0.25
+    encoding-condition fields (view, attention, distance,
+    duration) mint/promote inflated candidates at retro_inflate
+    (0.15), provenance:"inferred" — the past gets better because
+    the answer was approved
+disconfirm: confidence −= fb_disconf·conf      // 0.4 — hits harder
+accuracy untouched BOTH directions — feedback edits metamemory,
+    never content (P423 guards)
+```
+
+Wells & Bradfield 1998; Douglass & Steblay 2006 (N>2400, large
+effects on certainty/view/attention); Steblay, Wells & Douglass
+2014 (N≈7000). Contract: contested identifications log pre-feedback
+conf (P431).
+
+### 6.45 Interviewer expectancy — the self-fulfilling probe (new in v4.1)
+
+`answerProbe` gains `expect:`{value} (false-memory.md §41):
+
+```
+press_gain × (1 + expect_press 0.3); the expected value writes a
+    weak told_by candidate (expect_cand 0.3) — the question leaks
+    its answer
+expectancy loop: emitted answers matching expect auto-fire §6.44
+    confirm — pressure → conforming answer → confirmation →
+    inflated confidence (Kassin, Goldstein & Savitsky 2003;
+    Kassin, Dror & Kukucka 2013 — composition HYPOTHESIS, clauses
+    sourced)
+```
+
+P424.
+
+### 6.46 swapReport — memory blindness on own reports (new in v4.1)
+
+An altered version of the character's own prior statement is
+re-presented as self-sourced (false-memory.md §42). Distinct from
+§6.18 `swapOutcome` (decision outcomes, not report content):
+
+```
+P(detect) = mb_detect (0.35)·(fresh ? 1 : 0.6)·(1 + 0.3·selfRelevance)
+undetected → altered value writes a candidate provenance:"claimed"
+    at candStrength = cand_base_str·self_cred (self_cred 1.0 — the
+    sourceCredibility ceiling; own testimony outranks the event)
+detected → incongruent:true (shared with §6.18)
+```
+
+Cochran, Greenspan, Bogart & Loftus 2016 (majority undetected,
+memory shifts toward the alteration); sticker-study replication.
+P425.
+
+### 6.47 Listener SSIF — your retelling edits my memory (new in v4.1)
+
+`hearAccount` applies a suppression pass to the LISTENER's own
+record of the same event (false-memory.md §43):
+
+```
+account covering field-set F: listener's surviving candidates on
+    F-RELATED fields the account did NOT mention take a one-shot
+    ssif_suppress (0.15) strength hit — co-retrieval suppresses
+    unshared rivals (Cuc, Koppel & Hirst 2007; Stone et al. 2012;
+    persists ≥30d Coman et al. 2009)
+mentioned fields follow §6.3 normally — the same retelling
+    strengthens what it says and starves what it omits
+```
+
+P426 — sign-locked both directions.
+
+### 6.48 Omission suggestion — "nothing happened" (new in v4.1)
+
+`hearAccount` with `omission:true` asserts absence, not content
+(false-memory.md §44). No candidate is written; surviving core-field
+candidates take `emit_omit` (0.2) emission-weight penalty — the
+trace stays, the report dries up (report-side resolution of the
+Oeberst & Blank 2012 undoing debate; P427 discriminates via §6.50).
+`neg_frame_mult` does NOT apply — no affirmed core to outlive a
+frame.
+
+### 6.49 — reserved (none)
+
+### 6.50 Discriminate recall mode — test the source, not the content (new in v4.1)
+
+Recall gains `mode:"discriminate"` — source-attribution-forcing
+context (false-memory.md §46). Per field, emits the candidate LIST
+with per-candidate provenance estimates (§6.10 sourceInfer run per
+candidate); emitted false content falls by `discrim_recover` (0.5 —
+capped ≤0.6, monitoring helps but doesn't sterilize); contested
+fields emit at reduced confidence; latency ×1.5. Lindsay & Johnson
+1989; McCloskey & Zaragoza 1985 modified test. P429. This is the
+engine's own coexistence instrument (P163's reader).
+
+### 6.51 Collective phantoms — emergent, no operator (new in v4.1)
+
+Schema-consistent lures (§6.8) + mass parallel exposure (hearCount
+fluency §6.3) + conformity (§6.5) converge toward shared false
+"facts" at population scale — the "Mandela effect" class.
+OBSERVE-only (P432): N characters on a shared schema-rich event
+should develop CORRELATED phantom details above independence; no
+dedicated operator may exist (guard against a collective-memory
+shortcut). Mood-congruent selection lives in §6.8/§6.27 candidate
+weighting: `×= 1 + moodcong_lure (0.25)·match(cand.valence,
+traitValence)` — selection not volume (Joormann, Teachman & Gotlib
+2009; Howe & Malone 2011). P430.
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -5388,6 +5569,29 @@ MemoryParams = {
 //   (P412/P416/P418 guards — no lifespan evidence, deliberate).
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
+// v4.1 additions (false-memory IV — the instrumented channels,
+//   false-memory.md §§38–51)
+"fb_conf_floor": 0.75, "fb_plateau": 1000, // flashbulb conf floor + drift freeze day (§6.42)
+"verb_pull": 0.2, "lp_detail_p": 0.15,  // wording pull + presupposition plant (§6.43)
+"fb_conf_gain": 0.25, "fb_disconf": 0.4, "retro_inflate": 0.15, // §6.44 feedback
+"expect_press": 0.3, "expect_cand": 0.3, // interviewer expectancy (§6.45)
+"mb_detect": 0.35, "self_cred": 1.0,    // swapReport detect + self-source ceiling (§6.46)
+"ssif_suppress": 0.15,                  // listener unshared-field suppression (§6.47)
+"emit_omit": 0.2,                     // omission-account emission penalty (§6.48)
+"im_act_gain": 1.5, "im_act_rich": 0.1, // imagined self-actions (§6.9 ext)
+"discrim_recover": 0.5,               // discriminate-mode false-emission fall (§6.50; cap ≤0.6)
+"moodcong_lure": 0.25,                // valence-congruent lure selection (§6.8/§6.27)
+// v4.1 explicit nulls: fb_conf_floor is the ONLY confidence floor
+//   (no other operator may floor conf); feedback never edits field
+//   content (P423); omission never writes candidates (P427);
+//   no collective-memory operator may exist (P432);
+//   discriminate mode reveals competition, never sterilizes
+//   (discrim_recover ≤ 0.6).
+// v4.1 knot notes: mb_detect rides discrim_mult (older adults
+//   blind more — source inference reuse); moodcong_lure matches
+//   traitValence per profile, not age per se; fb_conf_floor,
+//   verb_pull, fb_conf_gain/fb_disconf, ssif_suppress, emit_omit
+//   declared AGE-FLAT (cite-guarded — no lifespan evidence).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -6166,6 +6370,21 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     gains `music` key (world tags `era_song:true`).
   - Char state `carryArous` + `emo_rate` are snapshot fields; all
     additions snapshot-additive, absent = legacy.
+- v4.1 additions (false-memory.md Part IV §§38–51):
+  - `answerProbe` accepts `wording_intensity` ∈ [−1,+1] and
+    `expect:`{value} (§6.43/§6.45); `hearAccount` accepts
+    `omission:true` (§6.48); `imagineEvent` accepts
+    `selfAction:true` (§6.9 ext); recall/`Reconstruction` accepts
+    `mode:"discriminate"` — returns candidate lists with
+    per-candidate provenance estimates (§6.50).
+  - New calls: `feedback(charId, emission, "confirm"|"disconfirm")`
+    (§6.44) and `swapReport(charId, record, field, alteredValue)`
+    (§6.46); contested identifications must log pre-feedback conf
+    (P431 contract).
+  - Records may carry `flashbulb:true` (§6.42 — visible flag; the
+    floored certainty is the character feature, not a bug) and
+    `incongruent:true` is shared between §6.18 and §6.46 detection
+    paths; all additions snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

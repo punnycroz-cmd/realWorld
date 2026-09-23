@@ -2904,3 +2904,107 @@ al. 2000 (focalism); Janata, Tomic & Rakowski 2007 (Memory 15:845
 Krumhansl 2017 (music bump); El Haj, Fasotti & Allain 2012 (MEAM
 vividness); PLOS One 2025 acoustic-feature replication (low-energy
 songs → slower/vivid/unique AMs).
+
+## 67. New probes P421–P432 (v42 suite — false-memory IV, instrumented channels)
+
+- **P421 flashbulb decoupling (MUST — sign-locked):** flashbulb:true
+  records' field consistency decays at everyday-record rates while
+  emitted confidence stays ≥ fb_conf_floor throughout; drifted
+  consistency plateaus by ~fb_plateau (1000d) (Neisser & Harsch 1992;
+  Talarico & Rubin 2003; Hirst et al. 2015). FAIL if confidence ever
+  tracks accuracy on a flashbulb record, or if drift is slower than
+  matched everyday records.
+- **P422 verb pull (MUST):** identical events probed with
+  wording_intensity −1 vs +1 → emitted quantitative estimates differ
+  in the wording's direction (~±verb_pull·schemaRange); presupposed
+  details ("the X") surface on previously empty/weak fields at
+  ~lp_detail_p after delay (Loftus & Palmer 1974 Exp 2 direction:
+  wording plants content that outlives the question).
+- **P423 feedback asymmetry + content-null (MUST — sign-locked):**
+  confirm → conf up AND encoding-condition candidates inflate
+  (retro_inflate); disconfirm → conf down MORE than confirm raised it
+  (fb_disconf > fb_conf_gain ordering); hidden accuracy and field
+  candidates' values untouched in both arms. FAIL if feedback moves
+  field CONTENT.
+- **P424 expectancy loop (SHOULD):** answerProbe(expect:v) +
+  auto-confirm produces v-congruent reports at higher rate AND higher
+  confidence than matched neutral probes; the effect exceeds the
+  expect_cand leak alone (the loop, not just the leak — Kassin et al.
+  2003 chain).
+- **P425 memory blindness (MUST — rate band + ordering):** swapReport
+  detected ≤45% on fresh, ~65–70% undetected overall (Cochran et al.
+  2016 "majority"); undetected arms shift later reports toward the
+  alteration at HIGHER rate than matched other-sourced misinfo
+  (self_cred > sourceCredibility ordering — self-authored beats
+  hearsay); detected arms tag incongruent:true and do NOT adopt.
+- **P426 listener SSIF (MUST — sign-locked):** after a partial
+  account, the listener's unmentioned F-related candidates are weaker
+  than no-account controls at ≥1 day delay; mentioned-field
+  candidates are stronger — same account produces both signs
+  (Cuc, Koppel & Hirst 2007); suppression persists ≥7d (Coman et al.
+  2009 direction).
+- **P427 omission (MUST — mechanism discriminator):** omission:true
+  accounts reduce later EMISSION of the addressed record's core
+  fields while discriminate-mode retrieval still recovers them —
+  report-side suppression only (Oeberst & Blank 2012 undoing debate;
+  our resolution is report-side). FAIL if candidates weaken or die.
+- **P428 imagined actions (SHOULD):** selfAction:true imagineEvent
+  loops flip to witnessed ~1.5× the matched scene-imagination rate
+  (Goff & Roediger 1998); flipped candidates carry elevated verbatim
+  richness (im_act_rich); bizarre-but-plausible-gated actions still
+  flip (Thomas & Loftus 2002 — im_act_gain does not shrink at
+  moderate implausibility; plaus_min gate still holds below it).
+- **P429 discriminate mode (MUST):** mode:"discriminate" emits
+  candidate lists with provenance estimates per field; emitted false
+  content ~discrim_recover (0.5) below sample-mode; contested-field
+  confidence lower; latency ≥1.4×; the surviving ORIGINAL candidate
+  must appear in the list post-adoption (P163's instrument —
+  Lindsay & Johnson 1989).
+- **P430 mood-congruent lures (MUST — sign-locked):** depressive-trait
+  profile phantomizes/migrates negative-valence schema details
+  preferentially at MATCHED total phantom rate vs neutral profile;
+  positivity-shifted elder profile the positive details
+  (Joormann, Teachman & Gotlib 2009 — selection, not volume). FAIL on
+  volume difference alone.
+- **P431 blind-first logging (OBSERVE):** contested identifications'
+  logs carry pre-feedback confidence — contract/logging check.
+- **P432 collective phantoms (OBSERVE):** 8 mains + shared
+  schema-rich event → correlated phantom details above independence
+  baseline over 30d; guard: no dedicated collective operator may
+  exist — emergence only.
+
+Registry: P1–P432. v42 suite: P421–P432 (7 MUST, 3 SHOULD, 2
+OBSERVE).
+
+## 68. Sources new to this version
+
+Neisser & Harsch 1992 (in Affect & Accuracy in Recall — Challenger
+3-yr: consistency ~2.95/7, confidence ~4.2/5); Talarico & Rubin
+2003 (Psych Sci — 9/11 flashbulb vs everyday: identical consistency
+decay, divergent confidence); Hirst et al. 2015 (Psych Sci — 10-yr
+9/11 follow-up: early collapse then plateau); Loftus & Palmer 1974
+(J Verb Learn Verb Behav — smashed 40.8 vs hit 34.0 mph; broken
+glass 32% vs 14%); Loftus & Zanni 1975 ("the" vs "a" presupposition);
+Wells & Bradfield 1998 (JAP 83:360 — feedback inflates view/
+attention/certainty retrospectives); Douglass & Steblay 2006 (Appl
+Cogn Psych 20:859 — meta, 20 tests, N>2400, large effects);
+Steblay, Wells & Douglass 2014 (PPPL 20:1 — N≈7000 re-meta);
+Kassin, Goldstein & Savitsky 2003 (Psych Sci — expectancy →
+pressure → guiltier-looking innocents); Kassin, Dror & Kukucka 2013
+(J Forensic Sci — forensic confirmation chain); Cochran, Greenspan,
+Bogart & Loftus 2016 (Mem Cogn — verified: majority fail to detect
+altered own-reports, memory shifts toward alteration); Sauerland-
+line sticker study 2017 (PLoS ONE — self-delivered misinformation,
+majority choice-blind); Cuc, Koppel & Hirst 2007 (Psych Sci —
+listener SSIF); Stone, Coman, Brown, Koppel & Hirst 2012 (review);
+Coman, Manier & Hirst 2009 (Psych Sci — SSIF persists ≥30d); Oeberst
+& Blank 2012 (Memory Studies — undoing debate: misinformation also
+removes true reports; mechanism contested); Goff & Roediger 1998
+(imagined actions → false performance claims, repetition-graded);
+Thomas & Loftus 2002 (bizarre imagined actions inflate); Lindsay &
+Johnson 1989 (source-discrimination test dissolves misinformation);
+McCloskey & Zaragoza 1985 (modified test — coexistence instrument);
+Joormann, Teachman & Gotlib 2009 (J Abnorm Psych — depression:
+negative-lure false recall up, positive down); Howe & Malone 2011
+(Cognition — mood-congruent DRM under induced mood); Engelkamp
+(enactment gradient: performed > imagined > heard).
