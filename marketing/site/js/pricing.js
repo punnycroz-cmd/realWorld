@@ -15,6 +15,7 @@
     exclusive:  { rate: 6.0, cap: 60,  label: "Exclusive" }
   };
   var QUEUE_DISCOUNT = 0.85;   // queued = class rate −15%
+  var FIRST_BONUS = 1.5;       // first pack purchase: +50% credits
   var SURGE_MIN = 1.5, SURGE_MAX = 2.5;
   var USD_PER_CR = 0.0094;     // ~1¢ blended; matches "~$0.85/hr" printed copy
   var PACKS = [
@@ -31,6 +32,7 @@
   var elDurOut  = root.querySelector("#cc-duration-out");
   var elQueued  = root.querySelector("#cc-queued");
   var elSurge   = root.querySelector("#cc-surge");
+  var elFirst   = root.querySelector("#cc-first");
   var elCredits = root.querySelector("#cc-credits");
   var elUsd     = root.querySelector("#cc-usd");
   var elSurgeR  = root.querySelector("#cc-surge-range");
@@ -66,10 +68,12 @@
 
     var pack = null;
     for (var i = 0; i < PACKS.length; i++) {
-      if (PACKS[i].credits >= credits) { pack = PACKS[i]; break; }
+      var eff = elFirst.checked ? Math.floor(PACKS[i].credits * FIRST_BONUS) : PACKS[i].credits;
+      if (eff >= credits) { pack = PACKS[i]; break; }
     }
     elPack.textContent = pack
-      ? "Covered by the " + pack.name + " pack ($" + pack.usd.toFixed(2) + ")"
+      ? "Covered by the " + pack.name + " pack ($" + pack.usd.toFixed(2) + ")" +
+        (elFirst.checked ? " with the first-purchase +50% bonus" : "")
       : "Bigger than the Mogul pack — split into multiple sessions (caps apply)";
 
     elNote.textContent = elQueued.checked
@@ -87,12 +91,13 @@
         "class": elClass.value,
         minutes: parseInt(elDur.value, 10) || 0,
         queued: !!elQueued.checked,
-        surge: !!elSurge.checked
+        surge: !!elSurge.checked,
+        first: !!elFirst.checked
       });
     }, 900);
   }
 
-  [elClass, elDur, elQueued, elSurge].forEach(function (el) {
+  [elClass, elDur, elQueued, elSurge, elFirst].forEach(function (el) {
     el.addEventListener("input", function () { compute(); ping(); });
     el.addEventListener("change", function () { compute(); ping(); });
   });

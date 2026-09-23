@@ -192,11 +192,14 @@ def audit_page(fname, html):
         t = data.get("@type")
         types.add(t)
         if t == "FAQPage":
-            # every visible <summary> question should have a schema twin
+            # every visible <summary> phrased as a question should have a
+            # schema twin — non-question disclosures (tables, notes) are exempt
             visible = re.findall(r"<summary>(.*?)</summary>", html, re.S)
             schema_qs = {e.get("name") for e in data.get("mainEntity", [])}
             for q in visible:
                 q_clean = re.sub(r"<[^>]+>", "", q).strip()
+                if not q_clean.endswith("?"):
+                    continue
                 if q_clean not in schema_qs:
                     bad(f"{label}: visible FAQ '{q_clean[:50]}' missing from FAQPage schema")
             for q in schema_qs:

@@ -25,6 +25,62 @@
 <link rel="manifest" href="assets/site.webmanifest">
 <link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#e8a04c">
 <link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do credits expire?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Credits never expire and there are no dormancy fees. The only credits that come back automatically are refunds: queued requests that expire before activation, requests denied in review, admin overrides that end a session early (pro-rated), and NPC nudges a character declines (50%)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What can I buy for under a dollar?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Pocket pack (100 credits, $0.99) covers about four 15-minute compatible sessions — roughly 22 credits each. Watching costs nothing and never will; paid credits buy agency inside the world, priced per minute and declared upfront."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I get a refund?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Automatic credit refunds cover every case where you didn't get what you paid for: expired queue slots, denied reviews, admin overrides, and declined nudges. Time that already ran isn't refundable — the hard cap means you can never be charged past the printed price. Payment errors are corrected in the currency you paid with."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a subscription?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Watching is free forever, and every paid action works à la carte with credit packs. Resident ($4.99/mo) and Director ($11.99/mo) are optional monthly subscriptions whose perks are discounted currency, convenience, and cosmetics — never power over free players."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can kids buy credits?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Minor accounts are hard-capped below the default $200/day spend cap, and rewarded-ad credits are adults-only and opt-in. Credits are non-transferable, so they cannot be gifted, traded, or sold — there is no gray market to buy into."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I gift credits to a friend?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — credits are non-transferable by design. It's the same rule that blocks trading, cash-out, and every gray market around them."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <!--
   ════════════════════════════════════════════════════════════════════
@@ -83,10 +139,14 @@
       <a href="#packs">Packs</a>
       <a href="#requests">Requests</a>
       <a href="#receipt">A receipt</a>
+      <a href="#refunds">Refunds</a>
       <a href="#oneshots">One-shots</a>
       <a href="#subs">Subscriptions</a>
+      <a href="#compare">Compare tiers</a>
       <a href="#cast">Joining the cast</a>
       <a href="#month">A month, priced</a>
+      <a href="#regional">Regional pricing</a>
+      <a href="#quick">Quick answers</a>
       <a href="#never">Never for sale</a>
     </nav>
   </div>
@@ -169,8 +229,8 @@
       <li><b>First purchase +50%:</b> your first pack — any tier, one time — pays
       half again as many credits.</li>
       <li><b>Regional pricing:</b> packs are priced in local currency on a
-      published, purchasing-power-adjusted table. No silent geo-markup — and
-      since credits can't be transferred, regional pricing can't be arbitraged.</li>
+      published, purchasing-power-adjusted table — <a href="#regional">the
+      method is below</a>.</li>
       <li><b>Spend caps:</b> $200/day default ($500 on verified accounts);
       minor accounts are hard-capped.</li>
     </ul>
@@ -222,6 +282,7 @@
           <div>
             <label class="check"><input type="checkbox" id="cc-queued"> Queue it <span class="muted">(−15%)</span></label>
             <label class="check"><input type="checkbox" id="cc-surge"> Surge window <span class="muted">(×1.5–2.5)</span></label>
+            <label class="check"><input type="checkbox" id="cc-first"> First pack <span class="muted">(+50% credits)</span></label>
           </div>
           <div>
             <label>Cost</label>
@@ -286,6 +347,30 @@
   </div>
 </section>
 
+<!-- REFUNDS -->
+<section id="refunds">
+  <div class="wrap">
+    <h2>The refund ledger — every way credits come back</h2>
+    <p class="muted">Refunds are rules, not favors. Each case below is automatic,
+    logged, and visible on the public feed like everything else that moves
+    credits.</p>
+    <div class="tbl-wrap">
+    <table>
+      <tr><th>What happened</th><th>What you get back</th><th>When</th></tr>
+      <tr><td>Queued request expires before its slot frees</td><td><b>100%</b> of the credits</td><td>Automatic, on expiry</td></tr>
+      <tr><td>Request denied in review</td><td><b>100%</b> of the credits</td><td>Automatic, on denial</td></tr>
+      <tr><td>Admin override ends a running session early</td><td><b>Pro-rated</b> for the unused minutes</td><td>Automatic, with a feed entry</td></tr>
+      <tr><td>NPC nudge declined in character</td><td><b>50%</b> — you bought the ask, not the outcome</td><td>Automatic, on decline</td></tr>
+      <tr><td>Payment error or duplicate charge</td><td><b>Full correction</b> in the currency you paid</td><td>On support review</td></tr>
+      <tr><td class="r-dim">Session time that already ran</td><td class="r-dim">Not refundable — the hard cap means you never pay past the printed price</td><td class="r-dim">—</td></tr>
+    </table>
+    </div>
+    <p class="muted">Everything refundable is refunded in credits; only payment
+    errors touch real money. A denied request always refunds in full — moderation
+    flags track repeat-abuse patterns, not honest mistakes.</p>
+  </div>
+</section>
+
 <!-- ONE-SHOT ACTIONS -->
 <section id="oneshots">
   <div class="wrap">
@@ -341,6 +426,34 @@
     fairness audit: every perk is (a) discounted currency, (b) convenience or
     cosmetics, or (c) a view-layer feature. None touches what a free player can
     do in the world.</p>
+  </div>
+</section>
+
+<!-- COMPARE TIERS -->
+<section id="compare">
+  <div class="wrap">
+    <h2>Free vs. paid vs. subscribed — the whole matrix</h2>
+    <p class="muted">Every way to touch the world, side by side. The free column
+    is a complete product; the paid columns only ever add agency, never
+    access.</p>
+    <div class="tbl-wrap">
+    <table class="matrix">
+      <tr><th></th><th>Watcher<br><span class="thsub">$0 forever</span></th><th>Player<br><span class="thsub">à-la-carte credits</span></th><th>Resident<br><span class="thsub">$4.99/mo</span></th><th>Director<br><span class="thsub">$11.99/mo</span></th></tr>
+      <tr><td>Watch the neighborhood, all cameras, 24/7</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Public request feed, recaps &amp; archive</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>File requests — possess your own character, weather, events</td><td>—</td><td>✓ <span class="muted">per-minute</span></td><td>✓ <span class="muted">stipend covers most</span></td><td>✓</td></tr>
+      <tr><td>Character slots</td><td>—</td><td>1 <span class="muted">(500 cr each)</span></td><td>2</td><td>3</td></tr>
+      <tr><td>Monthly credit stipend</td><td>—</td><td>—</td><td>600 cr</td><td>1,500 cr</td></tr>
+      <tr><td>Queued-request tie-break priority</td><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Camera director mode (multi-cam, replays, clips)</td><td>—</td><td><span class="muted">10 cr/30 min</span></td><td><span class="muted">10 cr/30 min</span></td><td>✓ <span class="muted">unlocked</span></td></tr>
+      <tr><td>Weekly illustrated street digest</td><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Cosmetics &amp; show credits</td><td>—</td><td>✓ <span class="muted">direct purchase</span></td><td>badge</td><td>monthly exclusive + credits</td></tr>
+      <tr><td>Possess any of the eight mains</td><td>—</td><td>—</td><td>—</td><td>— <span class="muted">nobody can</span></td></tr>
+      <tr><td>Skip cooldowns, buy reputation, cash out</td><td>—</td><td>—</td><td>—</td><td>— <span class="muted">not for sale</span></td></tr>
+    </table>
+    </div>
+    <p class="muted">The last two rows are the whole philosophy: the column of
+    things nobody can buy is identical at every price point.</p>
   </div>
 </section>
 
@@ -437,6 +550,78 @@
   </div>
 </section>
 
+<!-- REGIONAL PRICING -->
+<section id="regional">
+  <div class="wrap">
+    <h2>Regional pricing — the method, published</h2>
+    <p class="muted">A dollar isn't the same price everywhere. Packs are sold in
+    local currency on a purchasing-power-adjusted table — and the whole method
+    is public, because an honest price list that changes at the border isn't
+    honest.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>One credit ladder</h3><p>Same packs, same credit
+      amounts, everywhere. What changes is the local-currency price of a pack —
+      never what a credit buys inside the world.</p></div>
+      <div class="card"><h3>PPP-adjusted, published</h3><p>Local prices follow a
+      purchasing-power index (Steam-style regional pricing). The full table
+      publishes at launch — before that, treat every local figure as
+      provisional like the rest of this page.</p></div>
+      <div class="card"><h3>No arbitrage by design</h3><p>Credits are
+      non-transferable and non-redeemable, so a cheaper region can't be farmed
+      for resale. EU/UK prices display tax-inclusive, as consumer law
+      requires.</p></div>
+    </div>
+    <p class="muted">Payments run through Stripe with Stripe Tax at launch; a
+    merchant-of-record (Paddle or Lemon Squeezy) takes over when EU/UK volume
+    justifies it. Nothing here is a surcharge — only the local equivalent of
+    the same printed ladder.</p>
+  </div>
+</section>
+
+<!-- QUICK ANSWERS -->
+<section id="quick">
+  <div class="wrap">
+    <h2>Quick answers</h2>
+    <p class="muted">Pricing-specific, in one place. The <a href="faq.html">full
+    FAQ</a> covers the rest — possession, moderation, the two currencies.</p>
+    <div>
+      <details>
+        <summary>Do credits expire?</summary>
+        <p>No — no expiration, no dormancy fees. Credits only ever move three
+        ways: you spend them, a refund returns them, or they sit there.</p>
+      </details>
+      <details>
+        <summary>What can I buy for under a dollar?</summary>
+        <p>The Pocket pack — 100 credits for $0.99 — covers about four
+        15-minute compatible sessions. The cheapest moment of agency costs
+        less than a gumball.</p>
+      </details>
+      <details>
+        <summary>Can I get a refund?</summary>
+        <p>Yes — expired queue slots, denied reviews, early admin overrides,
+        and declined nudges all refund automatically in credits. The table in
+        <a href="#refunds">the refund ledger</a> lists every case.</p>
+      </details>
+      <details>
+        <summary>Do I need a subscription?</summary>
+        <p>No. Watching is free forever and every paid action works à la carte.
+        Resident and Director are optional — their perks are discounted
+        currency, convenience, and cosmetics, never power.</p>
+      </details>
+      <details>
+        <summary>Can kids buy credits?</summary>
+        <p>Minor accounts are hard-capped below the default $200/day spend cap,
+        and rewarded-ad credits are adults-only and opt-in only.</p>
+      </details>
+      <details>
+        <summary>Can I gift credits to a friend?</summary>
+        <p>No — credits are non-transferable by design. It's the same rule that
+        blocks trading, cash-out, and every gray market around them.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- PRINCIPLES -->
 <section id="never">
   <div class="wrap">
@@ -447,7 +632,7 @@
       <div class="card"><h3>Never hides its odds</h3><p>There are none — no loot boxes, no gacha. Every price is printed before you pay, surge included.</p></div>
     </div>
     <details style="margin-top:22px">
-      <summary>Why these prices? (the comparison table)</summary>
+      <summary>Why these prices — the comparison table</summary>
       <p>Anchors verified against live competitor pricing on 2026-09-22 — the
       full source list lives in our monetization plan. The short version:</p>
       <div class="tbl-wrap">

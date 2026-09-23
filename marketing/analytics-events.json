@@ -61,12 +61,13 @@
       "funnel_stage": "engaged → viral"
     },
     "price_calc": {
-      "when": "pricing.html estimator control changes, debounced 900ms (v22)",
+      "when": "pricing.html estimator control changes, debounced 900ms (v22; +first prop v52)",
       "props": {
         "class": "compatible|exclusive",
         "minutes": "int — duration priced",
         "queued": "bool — −15% toggle on",
-        "surge": "bool — surge-window preview on"
+        "surge": "bool — surge-window preview on",
+        "first": "bool — first-pack +50% toggle on"
       },
       "funnel_stage": "engaged → purchase intent",
       "note": "carries NO amounts — only which knobs visitors touch; reveals demand for class/duration before checkout exists"

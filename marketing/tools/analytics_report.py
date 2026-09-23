@@ -119,6 +119,8 @@ def report(evts, week=None):
                 key += "+queued"
             if props.get("surge"):
                 key += "+surge"
+            if props.get("first"):
+                key += "+first"
             calc_uses[key] += 1
             if props.get("minutes"):
                 calc_mins.append(int(props["minutes"]))

@@ -80,6 +80,30 @@ drift shows as wrong math, not wrong claims).
   Landlord-track $10–20 ramp. All figures derived from §2; nothing new is
   priced here.
 
+## 1c. Page components (v52)
+
+- **Refund ledger** (`#refunds`) — one table consolidating every refund rule
+  that was previously scattered across three lists: queued expiry 100%,
+  denied-in-review 100%, admin override pro-rated, nudge declined 50%,
+  payment-error cash correction, and the explicit non-refundable row (time
+  that already ran). Wording follows the moderation contract: a deny always
+  refunds; flags track repeat abuse, not honest mistakes.
+- **Compare matrix** (`#compare`, `.matrix`) — Watcher / Player / Resident /
+  Director columns across 11 capabilities. The two closing rows are the
+  persuasion: things nobody can buy are identical in every column.
+- **Regional pricing** (`#regional`) — three cards on method (one credit
+  ladder, PPP-adjusted local prices, published table; no arbitrage because
+  credits are non-transferable; EU/UK tax-inclusive). No invented local
+  numbers — the table itself publishes at launch. Replaces the old bullet.
+- **Quick answers** (`#quick`) — six pricing-specific `<details>` plus a
+  **FAQPage JSON-LD** block in `<head>` (same six questions, verbatim-faithful
+  wording). Scoped to money questions so it doesn't duplicate faq.html's
+  broader FAQPage.
+- **Estimator "First pack" toggle** (`#cc-first` + `FIRST_BONUS = 1.5` in
+  `pricing.js`) — applies the +50% first-purchase bonus when picking the
+  smallest covering pack; `price_calc` analytics event gains a `first` bool
+  (spec/sink/report/dashboard updated in the same commit).
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
