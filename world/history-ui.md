@@ -7,9 +7,10 @@ product one day later.
 
 Companion artifacts:
 
-- `world/archive.html` — the full history-browser application (v20);
-  spec in `world/archive-ui.md`. Supersedes history.html as the primary
-  archive surface.
+- `world/archive.html` — the full history-browser application (v20,
+  v3 feature pass in v34 — threads, payer lens, whole-record search,
+  transcript); spec in `world/archive-ui.md`. Supersedes history.html
+  as the primary archive surface.
 - `world/history.html` — working demo (file://-safe; day data inlined,
   mirrors `history.json`). Kept as the lightweight day-browser variant.
   Every state below is reachable in it.

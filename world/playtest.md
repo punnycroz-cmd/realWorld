@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v33)
+# Playtest Harness — "Real World / The Mission" (world v34)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -35,7 +35,7 @@ What IS under test — the five invariants, checked on every scenario:
 
 One person can wear every hat; four real testers is the intended shape.
 
-- **Spectator** — PT1, PT6, PT8, PT31. Free-tier only; never touches a wallet.
+- **Spectator** — PT1, PT6, PT8, PT31, PT32. Free-tier only; never touches a wallet.
 - **Player** — PT2, PT3 (first half), PT4, PT5, PT9, PT23, PT30. Files requests, hires a character.
 - **Reviewer** — PT3 (second half), PT4. Wears the mod hat; judges queue honesty.
 - **Facilitator** — PT7 + session stewardship. Owns the boundary checklist,
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Eighteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Nineteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -121,7 +121,12 @@ required honesty strings, dark-pattern vocabulary absent, screening
 routed through screen.js — never a stub), **wire** (feed.json ↔
 wire.html: every event kind/status has a chip style, honesty strings +
 live seam + v33 affordances present, demo seeds mirrored, no button
-offers a world-touching verb).
+offers a world-touching verb), **archive** (history.json ↔ archive.html
+deep mirror — DEMO_DAYS/THREADS eval'd and field-compared; thread
+registry ↔ event tags agree with ≥2 members each; rumors never
+person-sourced; kinds/statuses inside feed.json vocabulary; honesty
+strings + v34 affordances present; no world-mutation call on the
+surface).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

@@ -12,7 +12,8 @@
     "req": "optional, request events: shared request id — every lifecycle event of one paid intervention carries it; archive detail views group the status trail on it (same contract as feed.json)",
     "attrs": "optional { surge, credits, compensated_cr }",
     "src": "rumor events only — where the talk was overheard (a venue id or 'the block')",
-    "outcome": "rumor events only — { state: 'debunked'|'faded'|'stood', note } filled in when the talk resolves; null while open"
+    "outcome": "rumor events only — { state: 'debunked'|'faded'|'stood', note } filled in when the talk resolves; null while open",
+    "thread": "optional array of thread ids — archive-layer arrangement metadata only: chains already-public events a spectator could have followed; never carries information the events don't"
   },
   "rumor_kind": [
     "rumor",
@@ -45,7 +46,25 @@
       "projections add no information — person/venue/ledger views rearrange rows, never extend scope",
       "rumor outcome writes are append-only corrections on the archived event; the rumor entry is never rewritten",
       "no affordance on any archive view touches the world — no comments, votes, annotations, or reach-ins"
-    ]
+    ],
+    "archive_ui_v34": {
+      "doc": "world v34 — The Archive v3: threads (named chains of already-public events), a per-payer lens on the ledger, whole-record search from the day view, and a copyable day transcript. All projections — arrangement only, zero new information.",
+      "views_added": {
+        "threads": "named storylines across days, built from event.thread tags; a thread only ever chains events that were already public. Open state derives from member events (open rumor / open request). #v=threads&th=<id>",
+        "ledger_payer_lens": "payer chips on the ledger — one handle per chip, verbatim; filtering shows that payer's request/admin events and declared-credit total. Attribution stays unsanitized.",
+        "whole_record_search": "day-view search gains a 'whole record' scope — matches render grouped by day via the same trail renderer; hits are still only display text + resolved names + venue names + mentions",
+        "day_transcript": "'copy transcript' on the day header emits the day as plain text (HH:MM + kind + text, rumors prefixed 'unconfirmed —'); free, unstyled, exactly what the page shows"
+      },
+      "permalinks_added": [
+        "#v=threads lists all threads",
+        "#v=threads&th=<id> opens one thread"
+      ],
+      "honesty": [
+        "thread labels are archive chrome, not narration — a thread asserts nothing beyond its member rows",
+        "transcript copy carries the source badge (live/demo) in its header line",
+        "payer totals are computed from attrs.credits only where declared — undeclared stays undeclared"
+      ]
+    }
   },
   "days": {
     "2026-09-17": [
@@ -158,7 +177,10 @@
         "who": "pt",
         "req": "rq-0917-2",
         "text": "nudge — an ask to Mars Delgado · declined by character, 50% refunded",
-        "status": "refunded"
+        "status": "refunded",
+        "thread": [
+          "t-carmen-asks"
+        ]
       },
       {
         "id": "d0917-13",
@@ -222,7 +244,10 @@
         "t": 661,
         "kind": "venue",
         "venue": "buyrite",
-        "text": "Buy-Rite restocking the good bread — the word will travel"
+        "text": "Buy-Rite restocking the good bread — the word will travel",
+        "thread": [
+          "t-bread"
+        ]
       },
       {
         "id": "d0918-06",
@@ -279,7 +304,10 @@
           "A08",
           "A14"
         ],
-        "text": "Friday crowd at the 600 Club — Sam and Bex drifted in"
+        "text": "Friday crowd at the 600 Club — Sam and Bex drifted in",
+        "thread": [
+          "t-license"
+        ]
       },
       {
         "id": "d0918-12",
@@ -315,14 +343,20 @@
         "who": "leaf",
         "req": "rq-0919-1",
         "text": "event — park cleanup at Dolores Park",
-        "status": "running"
+        "status": "running",
+        "thread": [
+          "t-cleanup"
+        ]
       },
       {
         "id": "d0919-04",
         "t": 588,
         "kind": "scene",
         "venue": "park",
-        "text": "Park cleanup underway — gloves, bags, a drone overhead nobody asked for"
+        "text": "Park cleanup underway — gloves, bags, a drone overhead nobody asked for",
+        "thread": [
+          "t-cleanup"
+        ]
       },
       {
         "id": "d0919-05",
@@ -332,7 +366,10 @@
         "mentions": [
           "A14"
         ],
-        "text": "A photo crew in Clarion Alley; Bex pretending not to watch"
+        "text": "A photo crew in Clarion Alley; Bex pretending not to watch",
+        "thread": [
+          "t-crew"
+        ]
       },
       {
         "id": "d0919-06",
@@ -341,7 +378,10 @@
         "who": "leaf",
         "req": "rq-0919-1",
         "text": "event — park cleanup at Dolores Park",
-        "status": "resolved"
+        "status": "resolved",
+        "thread": [
+          "t-cleanup"
+        ]
       },
       {
         "id": "d0919-07",
@@ -353,7 +393,10 @@
           "state": "faded",
           "note": "no crew came back; chalked up to a wedding shoot"
         },
-        "text": "Word on the block — a film crew is scouting Clarion for something"
+        "text": "Word on the block — a film crew is scouting Clarion for something",
+        "thread": [
+          "t-crew"
+        ]
       },
       {
         "id": "d0919-08",
@@ -412,7 +455,10 @@
         "text": "Drizzle over the park, 2 h — called by marina_w",
         "attrs": {
           "credits": 70
-        }
+        },
+        "thread": [
+          "t-drizzle"
+        ]
       },
       {
         "id": "d0920-03",
@@ -421,7 +467,10 @@
         "who": "marina_w",
         "req": "rq-0920-1",
         "text": "weather — drizzle over Dolores Park, 2 h",
-        "status": "running"
+        "status": "running",
+        "thread": [
+          "t-drizzle"
+        ]
       },
       {
         "id": "d0920-04",
@@ -432,14 +481,20 @@
           "A05",
           "A19"
         ],
-        "text": "Bench parliament under umbrellas — Esther and Ray, unmoved"
+        "text": "Bench parliament under umbrellas — Esther and Ray, unmoved",
+        "thread": [
+          "t-drizzle"
+        ]
       },
       {
         "id": "d0920-05",
         "t": 714,
         "kind": "housing",
         "venue": "block",
-        "text": "Move-in at 9263 Geneva Ave, Unit 2 — the block absorbs another"
+        "text": "Move-in at 9263 Geneva Ave, Unit 2 — the block absorbs another",
+        "thread": [
+          "t-moveins"
+        ]
       },
       {
         "id": "d0920-06",
@@ -536,7 +591,10 @@
         "who": "pt",
         "req": "rq-0921-1",
         "text": "nudge — an ask to Carmen Echeverría · declined by character, 50% refunded",
-        "status": "refunded"
+        "status": "refunded",
+        "thread": [
+          "t-carmen-asks"
+        ]
       },
       {
         "id": "d0921-08",
@@ -554,7 +612,10 @@
           "state": "debunked",
           "note": "the doorway set ran on schedule that same night"
         },
-        "text": "Word on the block — somebody's saying the 600 Club lost its license"
+        "text": "Word on the block — somebody's saying the 600 Club lost its license",
+        "thread": [
+          "t-license"
+        ]
       },
       {
         "id": "d0921-10",
@@ -583,7 +644,10 @@
         "mentions": [
           "A08"
         ],
-        "text": "Doorway set — Sam under the 600 Club awning, license talk notwithstanding"
+        "text": "Doorway set — Sam under the 600 Club awning, license talk notwithstanding",
+        "thread": [
+          "t-license"
+        ]
       },
       {
         "id": "d0921-13",
@@ -678,14 +742,20 @@
         "who": "leaf",
         "req": "rq-0922-3",
         "text": "event — park cleanup at Dolores Park",
-        "status": "queued"
+        "status": "queued",
+        "thread": [
+          "t-cleanup"
+        ]
       },
       {
         "id": "d0922-11",
         "t": 812,
         "kind": "housing",
         "venue": "block",
-        "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board"
+        "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board",
+        "thread": [
+          "t-moveins"
+        ]
       },
       {
         "id": "d0922-12",
@@ -696,7 +766,10 @@
         "text": "admin action — venue window reset at The 600 Club",
         "attrs": {
           "compensated_cr": 90
-        }
+        },
+        "thread": [
+          "t-license"
+        ]
       },
       {
         "id": "d0922-13",
@@ -808,7 +881,10 @@
         "venue": "buyrite",
         "src": "buyrite",
         "outcome": null,
-        "text": "Word on the block — Buy-Rite is about to raise the price of the good bread"
+        "text": "Word on the block — Buy-Rite is about to raise the price of the good bread",
+        "thread": [
+          "t-bread"
+        ]
       },
       {
         "id": "d0923-08",
@@ -820,5 +896,35 @@
         "status": "in_review"
       }
     ]
+  },
+  "threads": {
+    "t-bread": {
+      "label": "the good-bread ledger",
+      "blurb": "Buy-Rite keeps restocking the good bread; the block is now pricing it in advance. Still open — today's talk hasn't settled."
+    },
+    "t-cleanup": {
+      "label": "leaf's park cleanups",
+      "blurb": "One player keeps paying for park cleanups at Dolores — ran Saturday, queued again Tuesday. The ledger keeps the receipts."
+    },
+    "t-license": {
+      "label": "the 600 Club license talk",
+      "blurb": "Somebody said the club lost its license; the doorway set ran anyway and the venue got an admin window reset after. Debunked, on the record."
+    },
+    "t-crew": {
+      "label": "the film crew that wasn't",
+      "blurb": "A photo crew in Clarion became 'a film crew scouting something' by evening. It faded — chalked up to a wedding shoot."
+    },
+    "t-carmen-asks": {
+      "label": "the asks Carmen declined",
+      "blurb": "Two paid nudges aimed at Carmen Echeverría, two declines, two partial refunds. The character decides; the ledger shows it."
+    },
+    "t-drizzle": {
+      "label": "the drizzle nobody wanted",
+      "blurb": "marina_w paid for two hours of drizzle on a Sunday. Bench parliament sat under umbrellas, unmoved. Credits spent, benches dry-ish."
+    },
+    "t-moveins": {
+      "label": "the block absorbs another",
+      "blurb": "A move-in on Geneva and a filled listing on Guerrero — the housing churn a spectator could watch from the street."
+    }
   }
 }

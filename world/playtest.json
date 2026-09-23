@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 33,
+ "version": 34,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -1641,7 +1641,73 @@
      "checkpoints": [
       "Gate reports kind/status coverage and the spectator_ui_v33 contract keys",
       "A removed badge, an invented status, or a possess/nudge button would FAIL — spot-check",
-      "Eighteen gates total; overall 0 fail"
+      "Nineteen gates total; overall 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT32",
+   "title": "The Archive v3 — threads, payer lens, whole-record search, transcript",
+   "minutes": 15,
+   "persona": "returning spectator catching up on storylines + facilitator auditing that the new views add arrangement only",
+   "goal": "Verify the v34 archive additions: named threads chain only already-public events, the ledger's payer lens keeps attribution verbatim, whole-record search stays inside the public index, and the transcript is plain text with the source badge in its header.",
+   "surfaces": [
+    "archive",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Archive → 'threads'. Read the cards, then open 'the 600 Club license talk'.",
+     "expect": "Seven thread cards, each with label, blurb, member count, day span, and a still-open/settled state derived from member events. The detail groups events under day separators newest-first with 'open day' jumps; '← all threads' returns; #v=threads&th=t-license reloads straight into it.",
+     "checkpoints": [
+      "'the good-bread ledger' reads still open — its member rumor hasn't resolved",
+      "Every row in a thread was already a public event — the thread asserts nothing beyond its members",
+      "Threads carry no characters' private information — 'arrangement only' chip present"
+     ]
+    },
+    {
+     "do": "Open 'the ledger'. Click the payer chip 'leaf', then 'marina_w', then 'admin'.",
+     "expect": "Payer chips list every handle verbatim plus 'admin'. Filtering shows only that payer's rows plus a per-payer line: 'leaf — 3 events · no credits declared on record'; marina_w shows '70 cr declared' from attrs.credits only; 'admin' filters to admin actions with compensation where present.",
+     "checkpoints": [
+      "Handles render verbatim — the lens never anonymizes in hindsight",
+      "Credit totals come only from declared attrs.credits — undeclared stays 'no credits declared'",
+      "Toggle off ('everyone') restores the full ledger"
+     ]
+    },
+    {
+     "do": "Back in 'by day', type 'cleanup' in search, then toggle 'whole record'. Try a nonsense query. Toggle back.",
+     "expect": "Hits render grouped by day via the trail renderer, headed 'whole record — N hits across M days' (cleanup: 4 hits across 2 days). A nonsense query gives the honest empty line about the public index. Toggling back restores day scope.",
+     "checkpoints": [
+      "Whole-record hits are the same rows — no information beyond the public index",
+      "Kind chips still apply inside whole-record scope",
+      "Empty state never fabricates a match"
+     ]
+    },
+    {
+     "do": "Open day 2026-09-22 and hit 'copy transcript'. Paste it into a text editor and read it.",
+     "expect": "Plain text: header line 'real world — the archive — tuesday, 2026-09-22 (demo archive)', a spectator-layer scope line, HH:MM + KIND + text rows, an '-- off the feed --' gap line, rumor rows prefixed [unconfirmed], statuses bracketed.",
+     "checkpoints": [
+      "The source badge rides the transcript header — a paste can never impersonate live",
+      "Transcript matches what the day view shows — same events, same gaps",
+      "Toast reports the copied line count"
+     ]
+    },
+    {
+     "do": "Open the Buy-Rite rumor record (d0923-07) and click its 'on threads' chip.",
+     "expect": "The chip reads 'the good-bread ledger' and jumps straight into that thread's detail view.",
+     "checkpoints": [
+      "Every thread-tagged event shows thread chips in its record",
+      "Unknown/absent thread ids render no chip — no dead affordance"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the archive gate.",
+     "expect": "archive gate passes: DEMO_DAYS/THREADS eval'd and field-compared to history.json (7 days · 85 events mirrored), thread registry ↔ tags agree (≥2 members each), rumors never person-sourced, kinds/statuses in vocabulary, honesty strings + v34 affordances present, no world-mutation call on the surface.",
+     "checkpoints": [
+      "Gate reports '7 days · 85 events mirrored · 7 threads'",
+      "A drifted demo event, a one-member thread, or a rumor with a who would FAIL — spot-check",
+      "Nineteen gates total; overall 0 fail"
      ]
     }
    ]
@@ -1652,7 +1718,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v33 local",
+   "build": "world v34 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },

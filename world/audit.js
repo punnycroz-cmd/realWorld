@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v32).
+/* world/audit.js — RW boundary audit (world v34).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -53,6 +53,11 @@
     wire      — feed.json ↔ wire.html: every event kind/status has a chip
                 style; honesty strings + live seam + v33 affordances present;
                 demo seeds mirrored; NO button offers a world-touching verb
+    archive   — history.json ↔ archive.html deep mirror (DEMO_DAYS/THREADS
+                eval'd and field-compared); thread registry ↔ event tags
+                agree; kinds/statuses in-vocabulary; rumors never person-
+                sourced; honesty strings + v34 affordances present; no
+                world-mutation call on the surface
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -1057,13 +1062,118 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G19 archive ============ */
+{
+  const g = gate('archive', 'history contract (history.json ↔ archive.html mirror; thread registry; rumor honesty; view-layer only)');
+  try {
+    const HJ = JSONF('history.json');
+    const FJ = JSONF('feed.json');
+    const html = rd('archive.html');
+    /* DEMO_DAYS deep mirror: eval the page's object literal and compare
+       field-for-field against history.json days */
+    const dm = /var DEMO_DAYS = (\{[\s\S]*?\n\});/.exec(html);
+    if (!dm) add(g, 'fail', 'archive.html', null, 'DEMO_DAYS block not found');
+    const DEMO = dm ? eval('(' + dm[1].replace(/;$/, '') + ')') : {};
+    let evCount = 0;
+    for (const d of Object.keys(HJ.days)) {
+      const a = HJ.days[d], b = DEMO[d];
+      if (!b) { add(g, 'fail', 'archive.html', null, `demo missing day ${d}`); continue; }
+      if (a.length !== b.length)
+        add(g, 'fail', 'archive.html', null, `day ${d}: ${a.length} events in json vs ${b.length} in demo`);
+      for (let i = 0; i < a.length; i++) {
+        evCount++;
+        if (!b[i]) continue;
+        for (const k of ['id', 't', 'kind', 'text', 'status', 'req', 'venue', 'who'])
+          if (String(a[i][k]) !== String(b[i][k]))
+            add(g, 'fail', 'archive.html', null,
+              `event ${a[i].id}: field "${k}" differs (json "${a[i][k]}" / demo "${b[i][k]}")`);
+        if (JSON.stringify(a[i].thread || null) !== JSON.stringify(b[i].thread || null))
+          add(g, 'fail', 'archive.html', null, `event ${a[i].id}: thread tag not mirrored`);
+      }
+    }
+    /* kind/status vocabulary stays inside feed.json (+ rumor kind) */
+    const kinds = new Set(FJ.event_kinds.filter((v, i) => i % 2 === 0).concat(['rumor']));
+    const stats = new Set(FJ.request_status);
+    for (const d of Object.keys(HJ.days))
+      for (const e of HJ.days[d]) {
+        if (!kinds.has(e.kind)) add(g, 'fail', 'history.json', null, `event ${e.id}: unknown kind "${e.kind}"`);
+        if (e.status && !stats.has(e.status))
+          add(g, 'fail', 'history.json', null, `event ${e.id}: unknown status "${e.status}"`);
+        /* rumors are place-sourced talk — never person-sourced */
+        if (e.kind === 'rumor') {
+          if (e.who) add(g, 'fail', 'history.json', null, `rumor ${e.id} carries a person source (who)`);
+          if (!e.src) add(g, 'fail', 'history.json', null, `rumor ${e.id} has no place source`);
+          if (e.outcome && !/^(debunked|faded|stood)$/.test(e.outcome.state))
+            add(g, 'fail', 'history.json', null, `rumor ${e.id}: bad outcome state "${e.outcome.state}"`);
+        }
+        if (e.id && !/^d\d{4}-\d{2}$/.test(e.id))
+          add(g, 'fail', 'history.json', null, `event id "${e.id}" breaks the d<MMDD>-NN permalink contract`);
+      }
+    /* THREADS registry mirror + tag agreement */
+    const tm = /var THREADS = (\{[\s\S]*?\});/.exec(html);
+    if (!tm) add(g, 'fail', 'archive.html', null, 'THREADS block not found');
+    const TH = tm ? eval('(' + tm[1].replace(/;$/, '') + ')') : {};
+    if (JSON.stringify(Object.keys(TH)) !== JSON.stringify(Object.keys(HJ.threads || {})))
+      add(g, 'fail', 'archive.html', null, 'THREADS keys differ from history.json threads');
+    const tagUse = {};
+    for (const d of Object.keys(HJ.days))
+      for (const e of HJ.days[d])
+        for (const tid of e.thread || []) {
+          if (!(HJ.threads || {})[tid])
+            add(g, 'fail', 'history.json', null, `event ${e.id} tagged with unregistered thread "${tid}"`);
+          tagUse[tid] = (tagUse[tid] || 0) + 1;
+        }
+    for (const tid of Object.keys(HJ.threads || {})) {
+      const th = HJ.threads[tid];
+      if (!th.label || !th.blurb)
+        add(g, 'fail', 'history.json', null, `thread "${tid}" needs label + blurb`);
+      if ((tagUse[tid] || 0) < 2)
+        add(g, 'fail', 'history.json', null, `thread "${tid}" has ${tagUse[tid] || 0} member events — a thread needs ≥2`);
+    }
+    /* honesty strings + v34 affordances */
+    const MUST = [
+      [/demo archive/, 'demo badge'],
+      [/live archive/, 'live badge'],
+      [/unconfirmed/, 'rumor marking'],
+      [/never sourced to a person/, 'rumor place-source copy'],
+      [/public whereabouts only/, 'person-scope chip'],
+      [/still being written/, 'today honesty marker'],
+      [/off the feed/, 'honest gaps'],
+      [/sanitize/i, 'ledger honesty copy'],
+      [/whole record/, 'whole-record search affordance'],
+      [/copy transcript/, 'transcript affordance'],
+      [/arrangement only/, 'thread-scope chip'],
+      [/data-v="threads"/, 'threads view switch'],
+      [/id="scopetgl"/, 'search scope chip'],
+      [/id="txbtn"/, 'transcript control'],
+      [/gsWireDays/, 'live seam (gsWireDays)'],
+      [/gsWireArchiveDay/, 'live seam (gsWireArchiveDay)'],
+      [/archive\.html#e=/, 'permalink format']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'archive.html', null, `missing required copy/affordance: ${label}`);
+    /* no world-mutation call on the surface */
+    html.split('\n').forEach((ln, i) => {
+      for (const m of ln.matchAll(/<button[^>]*>([^<]*)<\/button>/g)) {
+        const t = m[1].replace(/<[^>]+>/g, '');
+        if (/\b(possess|nudge|tip|evict|hire|buy|pay|report|send)\b/i.test(t))
+          add(g, 'fail', 'archive.html', i + 1, `button offers a world-touching verb: "${t.trim()}"`);
+      }
+      if (/\bXMLHttpRequest\b|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin/i.test(ln))
+        add(g, 'fail', 'archive.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
+    });
+    g.detail = `${Object.keys(HJ.days).length} days · ${evCount} events mirrored · ` +
+      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v3`;
+  } catch (e) { add(g, 'fail', 'history.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v33 local';
+out.build = 'world v34 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

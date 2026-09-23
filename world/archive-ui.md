@@ -152,7 +152,49 @@ permalink resolves in The Archive the next day, unchanged (game-v6
 | Record footer | "id \<id\> — stable; this event sat on the wire under the same id." |
 | Wire back-link | "→ The Wire (live today)" |
 
-## 10. Merge notes (for the game track)
+## 10. v34 — The Archive v3
+
+Four additions, all projections — they rearrange the same rows and add
+zero information:
+
+- **Threads view** (`#v=threads`, `#v=threads&th=<id>`). Named chains of
+  already-public events. Events carry `thread:[ids]` (day_schema); the
+  registry (`history.json` `threads`, mirrored inline as `THREADS`)
+  carries `{label, blurb}`. List cards show member count, day span, and
+  a derived open/settled state (open = a member rumor still open or a
+  member request in an open status). A thread asserts nothing beyond
+  its member rows — the label is archive chrome, not narration. Records
+  show "on thread(s)" chips that jump to the thread.
+- **Ledger payer lens.** One chip per handle on the ledger (verbatim,
+  `admin` rides as its own chip). Selecting one filters the rows and
+  adds a per-payer line — event count plus declared-credit total
+  computed from `attrs.credits` only where declared; undeclared reads
+  "no credits declared on record". Attribution stays unsanitized.
+- **Whole-record search.** The day view's search gains a `whole record`
+  scope chip — hits render grouped by day through the same trail
+  renderer, headed "N hits across M days". The index is unchanged:
+  display text + resolved names + venue names + mentions only.
+- **Copy transcript.** A `copy transcript` control on the day view
+  emits the day as plain text — `HH:MM  KIND  text`, rumors prefixed
+  `[unconfirmed]`, statuses bracketed, honest `off the feed` lines for
+  ≥2 h gaps. The header line carries the source badge
+  (`live archive`/`demo archive`) so a pasted transcript can never
+  impersonate live.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Threads head | "storylines the public record already tells — arrangement only, nothing here wasn't on the wire" |
+| Thread card meta | "N events · <first day> → <last day> · still open / settled" |
+| Thread detail chip | "arrangement only — every line was already public" |
+| Whole-record head | "whole record — N hits across M days" |
+| Whole-record empty | "Nothing in the public record matches — the archive only indexes what a spectator could have seen." |
+| Payer line | "<handle> — N events · X cr declared / no credits declared on record" |
+| Transcript header | "real world — the archive — <weekday>, <date> (<source badge>)" |
+| Record thread chips | "on thread(s): <label>" |
+
+## 11. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -162,3 +204,11 @@ ledger views need nothing new — they are projections over `who`,
 Rumor `outcome` writes land on the already-archived event (append-only
 correction — the rumor entry itself is never rewritten, its outcome
 field is).
+
+v34: `gsWireArchiveDay` day-objects may emit `thread:[ids]` on events
+and an optional `threads` registry on the day-object (`{id:{label,
+blurb}}`) — the page merges registries across days and skips unknown
+tags, so partial tagging is safe. Threads are arrangement metadata:
+game-side code may tag events into chains, but a tag must never carry
+information the member events don't (no thread may exist to "reveal"
+a connection that wasn't public).
