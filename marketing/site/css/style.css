@@ -240,6 +240,7 @@ ul.clean li { margin: 6px 0; }
 .tag-done { color: var(--muted); }
 .tag-refund { color: var(--accent-3); border-color: var(--accent-3); }
 .tag-cast { color: var(--text); border-color: var(--muted); }
+.tag-kind { color: var(--muted); }
 @media (max-width: 620px) {
   .feed-row { grid-template-columns: 44px 1fr; }
   .feed-row p { grid-column: 1 / -1; }
