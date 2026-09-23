@@ -108,6 +108,19 @@ never copying raw.
 | plaus_min / imagine_gain | 0.15 / 0.0 | 0.6 / 0.4 | implantation gate + gain (v0.6) |
 | source_confuse_flip | 0.0 | 0.4 | imagined→witnessed flip per check (v0.6) |
 | source_confuse | 0.0 | 0.3 | external-source reassignment (v0.6) |
+| cand_base_str | 0.3 | 1.0 | misinfo candidate birth strength ×sourceCred (v1.8) |
+| fab_inflate | 0.0 | 1.5 | claim→belief flip multiplier (v1.8) |
+| forced_confab_gain | 0.0 | 0.6 | per-forced-answer confab strength (v1.8) |
+| other_gen_gain | 1.0 | 2.5 | suggested > self-generated confabulation (v1.8) |
+| press_gain | 0.0 | 0.8 | interrogative pressure compounding (v1.8) |
+| evid_boost | 0.0 | 0.8 | perceptual-evidence plausibility lift (v1.8) |
+| crypto_p | 0.0 | 0.3 | cryptomnesia flip rate; ×discrim_mult age (v1.8) |
+| consist_pull | 0.0 | 0.5 | reconstruct toward current self (v1.8) |
+| choice_support_gain | 0.0 | 0.5 | believed-choice feature bias; ×1.4@80 (v1.8) |
+| cb_detect | 0.1 | 0.7 | outcome-swap detection rate (v1.8) |
+| neg_gist_gain | 0.0 | 0.5 | negative-CONTENT distortion boost (v1.8) |
+| negmood_verbatim_gain | 0.0 | 0.3 | negative-MOOD verbatim protection (v1.8) |
+| prewarn_mult / inoc_mult / inoc_days | 0.4 / 0.4 / 0 | 1.0 / 1.0 / 60 | warning timing + inoculation decay (v1.8) |
 | peak_hour | null/5 | 22 | circadian peak hour; null = flat (v0.7) |
 | synchrony_gain | 0.0 | 0.15 | off-peak encode/θ penalty, age-scaled (v0.7) |
 | vivid_detail | 0.3 | 1.0 | peripheral field write prob (v0.7) |
@@ -673,3 +686,28 @@ sweep over the knot tables (P100, §6.3). Profiles themselves are
 unchanged — these are tests OF the compiler output, not new compiler
 rules. Clamp ranges in §0 are also the load-time validation contract
 referenced by the harness (§2.2).
+
+## 7. v1.8 note — false-memory II age/modifier sensitivity
+
+The v1.8 params (false-memory.md Part II) are mostly age-flat; the
+exceptions and deltas:
+
+- **Child archetype:** `forced_confab_gain` ×1.5 (Ackil & Zaragoza
+  developmental gradient, riding `child_internal_confuse`); `cb_detect`
+  lower (0.2) — children own substituted outcomes readily.
+- **Older-adult archetype:** `choice_support_gain` ×1.4 (knot at 80,
+  Mather & Johnson 2000); `crypto_p` rides `discrim_mult`; `cb_detect`
+  modestly lower (0.25).
+- **Gossip modifier:** no new deltas needed — it already raises
+  hearCount accumulation and audience_tune; under candidate competition
+  its rumors simply outcompete more often (§6.3).
+- **Depressive modifier:** `neg_gist_gain` ×1.5 — enduring negative
+  mood is gist-dominant (Bookbinder & Brainerd 2016 trait clause);
+  `consist_pull` targets a negative current self-model → pessimistic
+  rewriting of the past.
+- **Distrust trait:** reaches `coerced`→internalized flip faster
+  (Gudjonsson memory-distrust path) — implement as ×1.5 on the §6.9
+  flip check for `coerced:true` candidates only.
+- **Deliberate null:** no per-character `cb_detect` tail below 0.1 —
+  universal seam-ownership is the design intent; a character who
+  detects every swap breaks the fiction.

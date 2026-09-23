@@ -1,4 +1,31 @@
-# Memory Model Spec v1.7 — implementable human-like memory for RW characters
+# Memory Model Spec v1.8 — implementable human-like memory for RW characters
+
+> **v1.8 note (false-memory II — candidates, claims, coercion):**
+> `memory/false-memory.md` Part II fixes what v0.6 got wrong at the
+> storage layer and adds the self-authored channels: **adoption is
+> candidate competition, never overwrite** — verbatim fields are
+> candidate sets `{value, candStrength, provenance, day}`, originals
+> survive and resurface (McCloskey & Zaragoza 1985; Lindsay & Johnson
+> 1989; Tousignant 1986) — §6.3; **lies believed** — `claim:true` on
+> `imagineEvent`, gen+prod gains, `fab_inflate` flip scaled by
+> discrim_mult (Polage 2004/2012) — §6.9; **coerced production** —
+> `answerProbe(forced:true)` confabulation with developmental gradient
+> and suggested-answer persistence (Ackil & Zaragoza 1998; Pezdek,
+> Sperry & Owens 2007; Gudjonsson distrust→internalization) — §6.9;
+> **evidence bends the plausibility gate** — `evid_boost`, photos
+> pre-satisfy the richness gate (Wade, Garry, Read & Lindsay 2002) —
+> §6.9; **cryptomnesia** — `crypto_p` heard→self flip, proximity-boosted
+> (Brown & Murphy 1989) — §6.10; **consistency pull** — reconstruction
+> drifts toward the current self, `consist_pull` +
+> `choice_support_gain` (Ross 1989; Henkel & Mather 2007; Mather &
+> Johnson 2000) — §6.17; **choice blindness** — `swapOutcome`/`cb_detect`
+> seam ownership for possession handoffs (Johansson et al. 2005) —
+> §6.18; **content–mood paradox** — `neg_gist_gain` vs
+> `negmood_verbatim_gain` (Bookbinder & Brainerd 2016) — §6.3/§2;
+> **warning timing** — `prewarn_mult`, `inoc_mult`/`inoc_days` decaying
+> inoculation (Banas & Rains 2010) — §6.3; **repression is a documented
+> non-mechanism** — no repress() ever — §6.19. +13 params in §7; probes
+> P163–P172 in validation-design.md §17.
 
 > **v1.7 note (emotional-memory II — the affect-tag layer):**
 > `memory/emotional-memory.md` Part II deepens what v0.5 left as
@@ -602,6 +629,13 @@ Postman 1964; Hyde & Jenkins 1973).
   - `familiarity`/`identityStrength`/`nameStrength` accrue across
     encounters: second+ meetings bypass `face_ceiling` for the
     familiarity tier only — appearance verbatim stays capped.
+- **Negative mood protects surface detail (v1.8):** when
+  `context.mood < −0.3`, verbatim-field birth strength gains
+  `negmood_verbatim_gain` (0.1) — the context half of the
+  Bookbinder & Brainerd 2016 content–context paradox: negative mood
+  promotes item-specific/verbatim processing while negative CONTENT
+  (§6.3 `neg_gist_gain`) foments gist-side distortion. The two
+  halves live on different channels; do not merge them.
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -1526,12 +1560,41 @@ if similarity(myMemory, heardAccount) > 0.4:
                                                    // protects OLDER adults —
                                                    // young neglect it
                                                    // (Brashier 2017 vs Fazio 2015)
-        if rand < p_adopt: overwrite field, accuracy -= 0.15,
-                           confidence unchanged
+        if rand < p_adopt: v1.8 — WRITE A COMPETING CANDIDATE, never
+                           overwrite (coexistence, not destruction —
+                           McCloskey & Zaragoza 1985; Lindsay & Johnson
+                           1989; false-memory.md §13):
+            field.candidates.push({value: heard, candStrength:
+                cand_base_str·sourceCredibility
+                ·(1 + rep_gain·log1p(hearCount)),
+                provenance:"told_by:"+speakerId, day: worldDay})
+            // the original candidate is untouched and keeps its own
+            // decayed strength; field retrieval samples ∝ candStrength —
+            // fluent misinformation wins most of the time, faded
+            // originals can resurface on delay (Tousignant 1986
+            // fluctuation/reversion). accuracy -= 0.15 hidden, as before.
+            // losing candidates eat §5.13 out_int / §5.8 plist_suppress
+            // when the winner is rehearsed — retrieving the adopted
+            // version suppresses the surviving original (Shaw, Bjork &
+            // Handal 1995 — misinformation entrenches via retrieval)
     hearCount++ on the rumor-content hash (shared across speakers —
         source VARIABILITY adds nothing; only repetition count matters,
         Paterson-line meta k=8; false-memory.md §1)
     heardAccount may merge into myMemory.source ("told_by" contamination)
+```
+
+**v1.8 — additional p_adopt moderators (false-memory.md §§20–21):**
+```
+p_adopt additionally:
+  · (1 + neg_gist_gain) if account valence < −0.3
+      // negative CONTENT foments distortion via gist — Bookbinder &
+      // Brainerd 2016 content-context paradox (§6.17 note: this is
+      // the CONTENT half; negative encode-MOOD protects, §2)
+  · (prewarned ? prewarn_mult : 1)     // ~0.7 — warned BEFORE exposure
+      // helps but less than post-warning (Greene et al. 1982)
+  · (worldDay < inoc_until ? inoc_mult : 1)  // ~0.75 — generalized
+      // inoculation after being burned; refutational-different works
+      // ≈ same (Banas & Rains 2010), decays ~14d (inoc_days)
 ```
 **Hearsay carries heat (v1.7):** a `told_by` record's affect tag is
 `arousal = source_arousal · contagion_k · speaker_express ·
@@ -1672,6 +1735,36 @@ imagineEvent(charId, scenario):
         "witnessed" with prob source_confuse_flip (≈0.15/check)
 ```
 
+**v1.8 extensions (false-memory.md §§14–16):**
+
+- `claim:true` — a deliberate false assertion (lie, cover story,
+  brag). Written as source.kind:"claimed" with BOTH `gen_gain` and
+  `prod_gain` (generated AND spoken — telling beats planning,
+  Otgaar-lab 2018); flip prob becomes `source_confuse_flip·
+  (1 + fab_inflate)` scaled by `discrim_mult` (Polage 2012: source-
+  monitoring ability IS the moderator; ~10–16% inflation tail,
+  Polage 2004). Listeners who echo the claim back count toward its
+  corroboration term in §6.7 believe_p.
+- `evidence:"photo"|"video"|"artifact"` — perceptual evidence:
+  `plaus_eff = plaus + evid_boost·(1−plaus)` replaces plaus at the
+  gate (evidence bends plausibility but cannot force plaus_min-
+  impossible content to flip — Pezdek gate holds); record born with
+  verbatim richness ≥ rm_rich_thresh (a seen image supplies the
+  perceptual detail the flip gate demands — Wade et al. 2002: 50%
+  implantation via doctored photo) and confidence += 0.1.
+- `answerProbe(charId, question)` — forced answering where the
+  record lacks the asked field (interrogation, gossip pressure):
+  emits a `confabulated` candidate at `forced_confab_gain·
+  (suggested ? other_gen_gain : 1)·(1 + press_gain·repeatCount)`
+  (Ackil & Zaragoza 1998 — known fabrications become memories in
+  ~1 week, children > adults via child_internal_confuse; Pezdek,
+  Sperry & Owens 2007 — suggested answers outlast self-generated
+  ones). Under `disputed` or a hostile audience the candidate is
+  tagged `coerced:true` — performed, not believed; internalization
+  still requires the flip gate, reached faster by `distrust`-trait
+  characters (Gudjonsson memory-distrust → Kassin 2008
+  coerced-internalized confessions).
+
 ### 6.10 Source monitoring is inference (new in v0.6)
 
 Replaces the "attribution gone" dead end in §6.4 (Johnson, Hashtroudi &
@@ -1691,6 +1784,13 @@ sourceInfer(m): if source.confidenceInSource < 0.3:
       fall back to cue overlap alone
   internal-external: source.kind "imagined"→"witnessed" per §6.9 flip
       rule (gate on verbatim richness, not confidence)
+  external-internal (v1.8, cryptomnesia — Brown & Murphy 1989 ~10%):
+      when SELF-GENERATING content (retell as own idea, propose a
+      plan), a decayed-source told_by record with matching content
+      emits as own with prob crypto_p (0.08) — source cleared to
+      "self", not reassigned; ×discrim_mult with age, ×1.3 when the
+      true source spoke recently (proximity inversion — the rare
+      case where recent beats remote)
 ```
 
 **v1.5 channel asymmetry:** the two confusion routes have opposite age
@@ -1866,6 +1966,65 @@ learnOutcome(charId, eventRef, outcome):
 Applies to `told_by` prediction records too — post-outcome gossip
 ("everyone saw it coming") is a distortion product, amplified further
 by §6.11 audience tuning on retell.
+
+### 6.17 Consistency pull — the past assimilates to the present self (new in v1.8)
+
+Distinct from hindsight (§6.16 — predictions toward known outcomes):
+reconstruction of evaluative/attitudinal/decision fields drifts toward
+the character's **current** self-model under an assumed-stability
+theory (Ross 1989 implicit theories — [CONSENSUS]).
+
+```
+on reconstruct of m with evaluative/decision fields:
+  candidate write: value pulled consist_pull (0.15) toward current
+      attitude A per reconstruction — cumulative: a changed mind
+      rewrites history ("I always knew he was no good")
+  choice records: when believedChoice ≠ stored choice, positive-
+      feature candidates on the BELIEVED option gain
+      choice_support_gain (0.15) candStrength and emit at higher
+      vividness; believed-rejected attract negative features
+      (Henkel & Mather 2007 — the bias follows belief, not truth;
+      misinforming which option was chosen yields full choice-
+      supportive memory for the false choice)
+      age knots: ×1.0 ≤50 → ×1.4 at 80 (Mather & Johnson 2000 —
+      older adults more choice-supportive)
+```
+
+### 6.18 Outcome ownership — choice blindness (new in v1.8)
+
+When an outside act replaces a record's *outcome* field (possession
+handoff, admin intervention, another character's act attributed to
+them), the swap is a `swapOutcome` event on the record:
+
+```
+P(detect) = cb_detect (0.3) · (1 + selfRelevance) · (fresh ? 1 : 0.5)
+if undetected: outcome owned — provenance stays self/witnessed, and
+    §6.17 consistency pull + §6.2 confabulation generate inferred
+    motive candidates at next reconstruction (confabulated reasons
+    for choices never made — Johansson et al. 2005: <10% immediate
+    detection, ~20–25% total, confabulated justifications at equal
+    confidence/detail/emotionality; Hall et al. 2010 — the
+    confabulated position moves subsequent attitudes)
+if detected: tag record incongruent:true — "I don't know why I did
+    that"; distinct from the wholesale possess_alien estrangement
+    discount (§8.1)
+```
+
+This is the fictional-continuity layer for the possession economy:
+a resumed character confabulates ownership of the possessed interval
+instead of noticing the seam, at human rates.
+
+### 6.19 Repression — the non-mechanism (new in v1.8)
+
+**No repress() operator exists or will.** Massive motivated
+repression with intact recovery is not an evidence-supported
+mechanism (Loftus 1993; Patihis, Ho, Tingen, Lilienfeld & Loftus
+2014 — belief persists among clinicians despite the evidence).
+Apparent recoveries are produced by ordinary machinery already in
+the model: §4.12 bounded suppression (leaky, θ-side only), §4.14
+latent-route reinstatement, §6.9 source-confused imagined content,
+§6.8 phantom minting. A character's past can be lost, confused, or
+invented — never defended-against and unleashed. Guarded by P172.
 
 ---
 
@@ -2128,6 +2287,21 @@ MemoryParams = {
   "contagion_k": 0.5,        // hearsay arousal transmission (§6.3)
   "verbal_dampen": 0.05,     // per-social-retell arousal decay; trauma-exempt
   "fab_self_gate": 0.4,      // selfRelevance floor for neg_affect_decay (§4.5)
+  // v1.8 additions (false-memory II — candidates, claims, coercion,
+  // false-memory.md Part II §§13–22)
+  "cand_base_str": 0.7,      // misinfo candidate birth strength (§6.3)
+  "fab_inflate": 0.5,        // claim→belief flip multiplier (§6.9)
+  "forced_confab_gain": 0.2, // per-forced-answer candidate strength (§6.9)
+  "other_gen_gain": 1.5,     // suggested > self-generated confabulation
+  "press_gain": 0.3,         // per-repeat interrogative pressure (§6.9)
+  "evid_boost": 0.4,         // perceptual-evidence plausibility lift (§6.9)
+  "crypto_p": 0.08,          // cryptomnesia heard→self flip (§6.10)
+  "consist_pull": 0.15,      // reconstruct toward current self (§6.17)
+  "choice_support_gain": 0.15, // believed-choice feature bias (§6.17)
+  "cb_detect": 0.3,          // outcome-swap detection (§6.18)
+  "neg_gist_gain": 0.15,     // negative-CONTENT distortion boost (§6.3/§6.8)
+  "negmood_verbatim_gain": 0.1, // negative-MOOD verbatim protection (§2)
+  "prewarn_mult": 0.7, "inoc_mult": 0.75, "inoc_days": 14, // §6.3 timing
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -2156,6 +2330,9 @@ MemoryParams = {
 // v1.6 frozen constants (age-decline.md §§24, 31):
 //   stereo_age_gate shape (0 below age 50 → ramps to 1 by 70 —
 //   population gate, never per-character; stereo_suscept is the trait)
+// v1.8 knot-table updates (existing params, new age knots):
+//   choice_support_gain: ×1.0 ≤50 → ×1.4 at 80 (Mather & Johnson 2000)
+//   crypto_p: rides discrim_mult — old-side scaling, no separate knots
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -2471,3 +2648,34 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     episodic arousal tags (trauma-exempt, flagged DEBATED —
     emotional-memory.md §14) and the §2.3 tag-capture half-strength
     rescue of weak cue-unrelated neighbors of emotional events.
+- v1.8 additions (false-memory.md Part II — candidates, claims,
+  coercion, self-directed distortion):
+  - **SCHEMA CHANGE:** verbatim fields are candidate sets
+    `{value, candidates:[{value, candStrength, provenance, day}]}` —
+    §6.3 adoption pushes a candidate (provenance
+    witnessed/told_by/imagined/confabulated/claimed/inferred), never
+    overwrites; field retrieval samples ∝ candStrength; losing
+    candidates eat §5.13/§5.8 suppression when the winner is
+    rehearsed. Scalar fields deserialize as single-element
+    candidates — backward compatible.
+  - `hearAccount` account may carry `prewarned:true`,
+    `evidence:"photo"|"video"|"artifact"`; character store gains
+    `inoc_until` set by being-burned events (§6.3, §6.9).
+  - `imagineEvent` gains `claim:true` (deliberate lies — gen+prod
+    gains, fab_inflate flip, echo corroboration) and `evidence`
+    (plaus_eff lift + pre-satisfied richness gate) (§6.9).
+  - `answerProbe(charId, question, {forced, suggested})` — forced-
+    confabulation operator: writes `confabulated`/`coerced`
+    candidates, repeatCount compounds (§6.9).
+  - `swapOutcome(charId, recordRef, newOutcome)` — §6.18 choice-
+    blindness seam; undetected swaps are owned and confabulated,
+    detected ones tag `incongruent:true`. Intended use: possession
+    handoff, admin-acted outcomes.
+  - Reconstruction of evaluative/decision fields runs §6.17
+    consist_pull toward the current self-model; choice records run
+    the choice_support_gain bias.
+  - record schema gains hidden `confab_count`, `coerced`,
+    `cb_swapped`, `incongruent` flags — snapshot-additive,
+    harness-readable, never in briefings/feed.
+  - §6.19 documents the repression non-mechanism: no repress()
+    operator, ever (P172).

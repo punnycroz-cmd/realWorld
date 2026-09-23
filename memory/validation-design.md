@@ -716,3 +716,58 @@ params named there. Headline additions — the affect-tag layer:
   DEBATED). Constrains `reconsol_window`, `reconsol_extinct_gain`.
 
 Registry now P1–P162; numbering stable.
+
+## 17. New probes P163–P172 (v18, false-memory II suite)
+
+Normative definitions in `false-memory.md` §24; constrained params
+named there. Headline additions — the candidate/self-authored layer:
+
+- **P163 coexistence (MUST — sign-locked):** after §6.3 adoption, a
+  source-discrimination probe still recovers the original field value
+  at ≥ modified-test rates; the original can resurface at long delays
+  once the misinfo candidate decays (Tousignant fluctuation). FAIL if
+  adoption deletes the original candidate (overwrite is banned).
+  Constrains `cand_base_str`, candidate schema.
+- **P164 fabrication inflation (SHOULD):** `claim:true` loops inflate
+  believe_p more than matched silent `imagineEvent` loops; flip tail
+  lands in the 10–16% band across jittered profiles (Polage 2004);
+  low-discrim_mult profiles inflate more (Polage 2012 sign-lock).
+  Constrains `fab_inflate`.
+- **P165 forced confabulation (MUST):** `answerProbe(forced:true)` on
+  unanswerable details surfaces confabulated content in later recall
+  at ~7d; child profile > adult; suggested answers persist >
+  self-generated; voluntary silence produces none. Constrains
+  `forced_confab_gain`, `other_gen_gain`, `press_gain`.
+- **P166 evidence boost (SHOULD):** `evidence:"photo"` false scenario
+  adopts at materially higher rate than matched-plausibility
+  narrative and reaches the §6.9 flip gate sooner (pre-satisfied
+  richness); plaus_min-impossible content STILL never flips even
+  with evidence. Constrains `evid_boost`.
+- **P167 cryptomnesia (SHOULD):** decayed-source told_by content is
+  emitted as self-generated at ~5–15%; recently-heard content
+  cryptomnesizes MORE than remote (Brown & Murphy proximity —
+  sign-flip vs ordinary recency). Constrains `crypto_p`.
+- **P168 choice-supportive (SHOULD):** believed-chosen options
+  attract positive-feature candidates regardless of true choice;
+  believed-rejected attract negative; 75yo shows larger asymmetry
+  than 25yo (Mather & Johnson 2000). Constrains
+  `choice_support_gain`, `consist_pull`.
+- **P169 choice blindness (SHOULD):** `swapOutcome` undetected at
+  ~60–80%; undetected swaps generate `inferred`-provenance motive
+  candidates at next reconstruction; detected swaps tag
+  `incongruent` and confabulate NO ownership. Constrains `cb_detect`.
+- **P170 content–mood paradox (MUST — sign-locked):** negative-
+  CONTENT rumors phantomize/adopt MORE; negative encode-MOOD records
+  keep BETTER verbatim; depressive-trait cohort phantomizes more at
+  matched events — three dissociable channels (Bookbinder &
+  Brainerd 2016). Constrains `neg_gist_gain`, `negmood_verbatim_gain`.
+- **P171 warning timing (SHOULD):** prewarned adoption < unwarned but
+  > postwarned; `inoc_mult` protection present day 1, gone by ~day
+  21 (Banas & Rains decay boundary). Constrains `prewarn_mult`,
+  `inoc_mult`, `inoc_days`.
+- **P172 repression-null (OBSERVE):** verify NO code path removes a
+  high-S record from recoverable space; "recovered" reports emerge
+  only via latent/phantom/source-flip machinery (§6.19). Report-
+  only, not a gate.
+
+Registry now P1–P172; numbering stable.
