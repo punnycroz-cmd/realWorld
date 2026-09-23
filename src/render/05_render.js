@@ -24,7 +24,10 @@ function setupCanvas(){
     const clickY = (e.clientY - rect.top);
     const cw = cv.width / dpr, ch = cv.height / dpr;
     const worldX = (clickX - cw / 2) / cam.zoom + cam.x;
-    const worldY = (clickY - ch / 2) / cam.zoom + cam.y;
+    const worldY = (clickY - ch / 2) / cam.zoom /
+                   (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                    typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top'
+                    ? SF_TILT : 1) + cam.y;
 
     // Check if clicked near a villager
     let clickedV = null, clickedDist = 36;
@@ -72,10 +75,14 @@ function renderWorld(){
 
   ctx.imageSmoothingEnabled = false;
 
-  // SF Mission scenario: dedicated renderer (top-down or street-level)
+  // SF Mission scenario: dedicated renderer (top-down or street-level).
+  // v26: the scene paints into an offscreen frame and finishes through
+  // the lens rig (tilt-shift / depth-of-field / vignette / grain).
   if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    const lens = sfLensBegin(cw, ch);
     if(SF_VIEW === 'street') sfRenderStreet(cw, ch);
     else sfRenderWorld(cw, ch);
+    if(lens) sfLensEnd(cw, ch);
     renderWeatherAtmosphere(cw, ch);
     return;
   }
@@ -271,8 +278,13 @@ function resolveSprCvs(spr){
 }
 
 function renderChibiPawn(v, cw, ch){
+  // v8: SF diorama camera squashes the ground plane — pawns anchor at the
+  // tilted ground point but keep full-height sprites (true axonometric)
+  const tilt = (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top')
+               ? SF_TILT : 1;
   const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
-  const sy = Math.round((v.y - cam.y) * cam.zoom + ch / 2);
+  const sy = Math.round((v.y - cam.y) * cam.zoom * tilt + ch / 2);
 
   // Water depth at character feet
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);
@@ -302,7 +314,11 @@ function renderChibiPawn(v, cw, ch){
   }
 
   // Ground Shadow (only when on land or wading; when swimming in deep water, foam replaces shadow)
-  if(!isDeepWater){
+  // v19: in the SF top view the diorama renderer draws a physically-lit
+  // contact core + sun-thrown shadow itself — skip the static blob there.
+  const sfTopGround = typeof SF_MODE !== 'undefined' && SF_MODE &&
+                      typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top';
+  if(!isDeepWater && !sfTopGround){
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.beginPath();
     ctx.ellipse(sx, sy + 2, 11*cam.zoom, 4.5*cam.zoom, 0, 0, Math.PI*2);
