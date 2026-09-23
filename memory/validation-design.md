@@ -4016,3 +4016,108 @@ P529 DEBATED-flagged).
   verified: 4–7 disjoint earliest sets at 2y retest, ≥10 stable).
 - Kail 1991 (*Dev. Psych.* 27:259 — exponential speed
   development); Kail & Salthouse 1994.
+
+## 91. New probes P535–P544 (v52 suite — age-decline V,
+## the binding bill comes due)
+
+Suite: profiles at 30/55/70/78/85 (age_eff-shifted variants via
+reserve/aging_rate); seeded person↔name and person↔role link
+sets; matched-strength intentional vs incidental encode arms;
+a scripted 2h event stream for segmentation; correctness-signal
+on/off retell arms.
+
+- **P535 ADH split (MUST — sign-lock):** matched encode with
+  intentional effort: at 75, link-field recall (who/where/when
+  attachments, source tags) drops ≥1.4× the item-field drop;
+  records encoded at floor attention show item≈assoc loss —
+  the incidental null (Old & Naveh-Benjamin 2008). Fails if
+  incidental encodes show the split.
+- **P536 DA asymmetry (MUST — explicit null):** C.da at retrieval
+  raises latency (×1.4+ at 80 free recall, graded by mode) but
+  does NOT raise miss rate at ANY age; C.da at encoding raises
+  miss rate, more at 80 (Craik 1996; Anderson 1998).
+- **P537 face-name worst case (MUST):** person↔name links at 78
+  fail more than matched person↔role links; name failures present
+  as intact face familiarity + blank name slot — not full-record
+  miss (Naveh-Benjamin et al. 2004).
+- **P538 RIF pivot (MUST — sign-lock):** selective retell at 70
+  suppresses rivals ≥0.8× the 30yo rate; at 82 ≤0.4× (Aslan &
+  Bäuml 2012); under C.da suppression shrinks at BOTH ages —
+  no age interaction beyond rif_age_tail (Ortega 2012).
+- **P539 emo split (MUST — sign-lock):** at 78 emotional items
+  retain ≥0.9 of their 30yo enhancement ratio while
+  emotional-context benefit on neutral co-encodees falls ≤0.6×;
+  fails if w_emo legs drift onto the decline curve (Kensinger
+  2002).
+- **P540 quiet mind (SHOULD):** ambientMemoryScan rate at 80
+  ≤0.65× the 30yo rate; ≥75% of old emissions trace to a
+  present-stimulus cue vs ≤55% young; intrusive-trauma channel
+  unchanged (Maillet & Schacter 2016).
+- **P541 coarse chapters (SHOULD):** same 2h event stream →
+  record count at 78 ≤0.7× the count at 30; `coarse:true`
+  records carry higher gist share + wider dateEstimate sigma
+  (Sargent 2013).
+- **P542 bump importance (MUST — sign-lock):** "most important"
+  draws at 70 land ≥50% inside encodeAge 18–30 while word-cued
+  draws keep recency+power shape (Rubin & Schulkind 1997).
+- **P543 feedback gate (SHOULD):** at 78, uncorrected self-retell
+  improves later accuracy ≤ restudy (crossover allowed); with a
+  correctness signal testing gain returns ≥0.7× young level
+  (Tse et al. 2010).
+- **P544 recollection-only monitoring (MUST):** at 78, confidence
+  inflation appears on source/pairing/order emissions but NOT on
+  familiarity or semantic emissions; illus_recol emissions carry
+  reportMode:"remember" while wrong (Dodson et al. 2007).
+
+Registry: P1–P544. v52 suite: P535–P544 (7 MUST, 3 SHOULD).
+
+## 92. Sources verified this version (P535–P544 backing)
+
+- Naveh-Benjamin 2000 (*JEP:LMC* 26:1170 — verified: ADH,
+  interitem + intraitem); Old & Naveh-Benjamin 2008 (*Psychol
+  Aging* 23:104 — verified: 90 studies, assoc>item deficit,
+  intentional>incidental, recall-format flattening); Naveh-
+  Benjamin, Brav & Levy 2007 (strategy partial rescue); Bastin
+  & Van der Linden 2005 + Kilb & Naveh-Benjamin 2007 (item-
+  equated persistence).
+- Naveh-Benjamin, Guez, Kilb & Reedy 2004 (*Psychol Aging*
+  19:541 — verified: face-name pair deficit, attention not sole
+  mediator); Naveh-Benjamin, Hussain, Guez & Bar-On 2003
+  (preexisting-connection rescue).
+- Bopp & Verhaeghen 2005 (*J Gerontol B* 60:P223 — verified:
+  three-tier span slopes); Verhaeghen, Marcoen & Goossens 1993
+  (~0.8 SD complex-span deficit).
+- Craik, Govoni, Naveh-Benjamin & Anderson 1996 (*JEP:G*
+  125:159 — verified: encode-hit vs retrieve-RT asymmetry);
+  Anderson, Craik & Naveh-Benjamin 1998 (*Psychol Aging* 13:405
+  — verified: old RT cost graded free>cued>recognition);
+  Naveh-Benjamin, Craik, Guez & Kreuger 2005 (strategy arm).
+- Kensinger, Brierley, Medford, Growdon & Corkin 2002
+  (*Emotion* 2:118 — verified: item preserved, context lost);
+  Kensinger et al. 2003 (*Emotion* 3:239 — modulation intact
+  35–85); Kensinger, Brien et al. 2008 (*J Gerontol B* 63:P13 —
+  arousal-gated positivity).
+- Maillet & Schacter 2016 (*Neuropsychologia* 80:142 review +
+  *Psychol Aging* SDT/SIT — both verified); Jordano et al.
+  2019 MW meta (*Psychol Aging* — verified large effect).
+- Aslan & Bäuml 2012 (*Psychol Aging* 27:1027 — verified:
+  young-old intact, old-old inefficient); Aslan, Bäuml &
+  Pastötter 2007 (*Psych Sci* 18:72); Ortega, Gómez-Ariza,
+  Román & Bajo 2012 (lighter-DA kills RIF in old); listwise-DF
+  ~75 pivot (Bäuml-group).
+- Sargent et al. 2013 (*Cognition* 129:241 — verified: unique
+  variance claim, n=208); Zacks, Speer et al. 2006; Kurby &
+  Zacks 2011; Bailey, Kurby, Giovannetti & Zacks 2013.
+- Rubin & Schulkind 1997a (*Mem & Cogn* 25:859 — verified:
+  bump+power distribution, RT flat); Rubin & Schulkind 1997b
+  (*Psychol Aging* 12:524 — verified: 70yo importance →
+  20–30 decade).
+- Tse, Balota & Roediger 2010 (*Psychol Aging* — verified:
+  no-feedback crossover, feedback restores); Balota, Duchek,
+  Sergent-Marshall & Roediger 2006 (expanded>equal in aging+AD).
+- Dodson, Bawa & Krueger 2007 (*Psychol Aging* 22:122 —
+  verified: matched-accuracy monitoring impairment,
+  recollection-specific); Dodson, Bawa & Slotnick 2007
+  (*JEP:LMC* 33:169 — verified: illusory-recollection model
+  absorbs source d' deficit); Dodson & Krueger 2006
+  (*PB&R* 13:770).

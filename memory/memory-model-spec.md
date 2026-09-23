@@ -1,4 +1,34 @@
-# Memory Model Spec v4.9 — implementable human-like memory for RW characters
+# Memory Model Spec v5.0 — implementable human-like memory for RW characters
+
+> **v5.0 note (age-decline V — the binding bill comes due):**
+> `memory/age-decline.md` Part V (§§63–78) prices the join:
+> **associative deficit formalized** — `adh_bind_tax(age_eff)` taxes
+> every link-forming write (field attachments, source tags,
+> cueBind_init, RelEdge deltas) gated by `adh_intent_gate` (tax
+> applies to the intentional-encoding increment only — incidental
+> encodes show the item≈assoc null; Old & Naveh-Benjamin 2008 meta,
+> 90 studies); `namepair_tax` + `meaningful_link_rescue` make
+> person↔name the worst case (Naveh-Benjamin et al. 2004) — §4.25;
+> **WM capacity ladder** — `wm_store/reorder/complex_mult` three
+> tiers (Bopp & Verhaeghen 2005 — storage < backward < complex) —
+> §4.25; **segmentation coarsens** — `seg_boundary_p` mints fewer,
+> `coarse:true` records (Sargent et al. 2013) — §4.26; **emotional
+> item/context split** — `emo_ctx_gain` declines while emo-item
+> legs stay flat (Kensinger et al. 2002) — §4.27; **DA asymmetry** —
+> `da_enc_tax` on hits at encode, `da_ret_tax` on latency/spill at
+> retrieve, miss-rate null locked (Craik et al. 1996; Anderson et
+> al. 1998) — §5.49; **RIF two-regime** — `rif_age_tail` pivots ~75
+> (Aslan & Bäuml 2012), `da_rif_weak` at all ages — §5.50; **the
+> quiet mind** — `mw_decline` on ambient ticks, `sdt_share`
+> stimulus-bound (Maillet & Schacter 2016) — §5.51; **testing needs
+> feedback** — `test_fb_req`/`test_nofb_mult` (Tse, Balota &
+> Roediger 2010 crossover) — §5.52; **recollection-only monitoring**
+> — `mon_source_tax`/`illus_recol_p` (Dodson et al. 2007 — the
+> confidence lie is source/pairing/order-specific) — §6.70;
+> **bump-importance** — `bump_emit_w` concentrates "most important"
+> draws at encodeAge 18–30 for 60+ (Rubin & Schulkind 1997) —
+> §6.71. +19 params + 2 frozen in §7; probes P535–P544. All
+> optional, default-neutral.
 
 > **v4.9 note (age-development V — the wall has doors, the school
 > years still leak, the archive is language-locked):**
@@ -2850,6 +2880,61 @@ Wake-encoded dream records join normal machinery — including §6.9
 reality-monitoring slips under high `fantasy`/`confab_fill` (bounded
 ≤5% of dream recalls — P507). [CONSENSUS gate; magnitudes HYPOTHESIS]
 
+### 4.25 The binding tax and the capacity ladder (new in v5.0)
+
+Naveh-Benjamin 2000 + Old & Naveh-Benjamin 2008 meta (90 studies —
+verified): the old-age deficit is disproportionately in LINKS, not
+items; pronounced under intentional learning, unclear under
+incidental (AD§63). Applied as:
+
+```
+for every link-forming write (field attachment verbatim.who/where/
+when, source-tag strength, cueBind_init, RelEdge delta from a
+shared episode):
+    linkS *= 1 − (1 − 1/adh_bind_tax) · intent_share
+    // adh_bind_tax(age_eff): 1.0≤50 → 1.35@70 → 1.75@85
+    // intent_share = (enc − att_min·E_floor)/(enc) — the
+    //   intentional increment fraction; incidental encodes at
+    //   floor show item≈assoc loss (the incidental null, P535)
+person↔name/role links: linkS *= 1/namepair_tax   // ×1.2@70;
+    links carrying a semantic-relational tag (kinship/job/
+    cohabitation) subtract meaningful_link_rescue (0.3) of the tax
+recognition mode: the tax surfaces as source/context misses;
+free recall: masked — item retrieval fails first (emergent, not coded)
+```
+
+WM tier multipliers on retrieval consumers (Bopp & Verhaeghen 2005 —
+three slopes, verified): `wm_store_mult` (1.0→0.95@80) on single-cue
+recall; `wm_reorder_mult` (→0.85) on reconstruction field ordering;
+`wm_complex_mult` (→0.72) on multi-cue fusion (3+ simultaneous cues)
+— and is the *justification* for the existing `search_breadth`/
+`pm_self` knots, NOT a second decline on them (redundancy note:
+apply to new consumers only).
+
+### 4.26 Event segmentation coarsens (new in v5.0)
+
+Sargent et al. 2013 (Cognition 129:241 — verified): segmentation
+agreement predicts event memory beyond speed/WMC/knowledge, equally
+in old and young; older adults segment less normatively (Zacks et
+al. 2006; Kurby & Zacks 2011). `seg_boundary_p(age_eff)` (1.0≤55 →
+0.8@70 → 0.65@85) multiplies the §5.29/doorway boundary-mint rate
+and goal/subgoal record splitting. Records minted under low
+segmentation carry `coarse:true` → higher gist share, fewer
+verbatim fields, wider dateEstimate sigma. Distinct mechanism from
+§4.22 ctx_flux (context density vs boundary density — different
+interventions, P541 separates them).
+
+### 4.27 Emotional item vs context split (new in v5.0)
+
+Kensinger, Brierley et al. 2002 (Emotion 2:118 — verified):
+emotional-ITEM enhancement preserved in aging; emotional-CONTEXT
+enhancement (neutral items embedded in emotional context) LOST.
+The context benefit is a binding benefit — it falls under
+`adh_bind_tax` and additionally gets `emo_ctx_gain(age_eff)`
+knots 1.0≤60 → 0.6@75 → 0.4@85 on the §4.9-adjacent arousal-bleed
+leg onto neutral co-encodees. `w_emo`/`emo_consol_gain`/`abc_gain`
+reaffirmed explicitly OFF the decline curve (P539 sign-lock).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -4233,6 +4318,58 @@ df never archives or deletes by itself
 Distinct from §5.23 `inhib`: TNT accrues a cue-independent
 deficit; df shows NO deficit under rich cueing (P523 sign-locks
 the dissociation).
+
+### 5.49 Divided attention — hits at encode, latency at retrieve (new in v5.0)
+
+Craik, Govoni, Naveh-Benjamin & Anderson 1996 (JEP:G 125:159 —
+verified) + Anderson, Craik & Naveh-Benjamin 1998 (Psychol Aging
+13:405 — verified): DA at encoding costs memory in both ages
+(more in old: `da_enc_tax` 1.0→1.3@80 multiplies att deficit);
+DA at retrieval costs NOT accuracy but secondary-task capacity —
+in the model: `latency_ms *= da_ret_tax(age_eff)` graded by mode
+(free recall ×1.6@80 > cued ×1.3 > recognition ×1.15) plus
+`da_ret_spill` on whatever concurrent machinery runs. **Locked
+null: DA at retrieval never raises miss rate at any age** (P536
+sign-lock).
+
+### 5.50 RIF's two-regime tail (new in v5.0)
+
+Aslan & Bäuml 2012 (Psychol Aging 27:1027 — verified): RIF intact
+in young-old (60–75), inefficient in old-old (>75); Ortega et al.
+2012: dividing attention kills RIF with a LIGHTER secondary task
+in old — implemented universally: `rif_k *= rif_age_tail(age_eff)
+· (1 − 0.5·C.da)` — rif_age_tail 1.0≤72 → 0.5@80 → 0.2@88;
+`da_rif_weak` applies at ALL ages. All rif_k consumers (§5.23
+SS-RIF, §6.69 jointRecall) read the post-multiplier value.
+Parallel DF pivot (~75, listwise) noted — §5.48's df legs adopt
+the same tail on their θ penalty (AD§69).
+
+### 5.51 The quiet mind — wandering declines, thoughts go stimulus-bound (new in v5.0)
+
+Maillet & Schacter 2016 (Neuropsychologia 80:142 + Psychol Aging
+meta — verified): MW and IAM frequency decline with age; within
+the reduced total, share shifts stimulus-dependent. `ambientMemoryScan`
+tick rate `*= mw_decline(age_eff)` (1.0≤50 → 0.75@70 → 0.55@85);
+`sdt_share(age_eff)` (0.5→0.8@80) is the required fraction of
+emissions tracing to a present-stimulus cue — below it,
+train-of-thought chaining is refused (`sdt_min_cue`, frozen).
+Intrusive-trauma channel exempt; spontaneous PM keeps §34
+machinery. Resolves the §42 tension: cue→memory fidelity intact,
+self-seeded trigger rate down (P540).
+
+### 5.52 Testing needs feedback at old age (new in v5.0)
+
+Tse, Balota & Roediger 2010 (Psychol Aging — verified crossover):
+without feedback, older adults benefit MORE from restudy than
+retesting on arbitrary bindings; with feedback, testing wins
+again. `retell_boost` and the §5.26 forward-testing legs pay
+full gain only when a correctness signal exists (correction,
+verification, record agreement) — requirement probability
+`test_fb_req(age_eff)` (0.2@55 → 0.5@70 → 0.8@85); absent the
+signal, legs pay `test_nofb_mult` (0.55@75 → 0.3@85) and §6.58
+confidence inflation applies unopposed. Schedule-shape
+invariance locked: expanded>equal spacing holds at both ages
+(Balota et al. 2006).
 
 ---
 
@@ -6020,6 +6157,43 @@ emergent records (surfaced ONLY via partner cues, unreachable
 Dyad output stays < pooled solo on shared topics (P520 — the
 inhibition is not erased; closeness narrows it, never flips it).
 
+### 6.70 Recollection-only monitoring — the confidence lie has a scope (new in v5.0)
+
+Dodson, Bawa & Krueger 2007 (Psychol Aging 22:122 — verified) +
+Dodson, Bawa & Slotnick 2007 (JEP:LMC 33:169 — verified):
+monitoring impairment is specific to recollection-demanding
+probes (source ID, pairings, order, verbatim fields) — recognition
+and semantic-knowledge confidence stays calibrated. And the
+source d' deficit vanishes once illusory recollections are
+modeled: old source errors are misrememberings WITH
+phenomenology, not guesses.
+
+```
+emissions requiring recollection components (source tag, pairing,
+order, verbatim field): reported conf += mon_source_tax(age_eff)
+    // 0 → 0.1@65 → 0.2@80 — calibration gap, recollection-only
+wrong-source/pairing emissions: with p = illus_recol_p(age_eff)
+    // 0.05@50 → 0.15@70 → 0.3@85 — emit reportMode:"remember",
+    // vivid first-person phenomenology despite being wrong
+familiarity-level & semantic emissions: unchanged v2.1 machinery
+```
+
+Dialogue consequence: an old character's "I'm sure Marta said it"
+is overconfident; "I'm sure I've seen that face" is not (P544).
+
+### 6.71 Importance draws concentrate on the bump (new in v5.0)
+
+Rubin & Schulkind 1997 (Mem & Cogn 25:859; Psychol Aging 12:524 —
+verified): word-cued AMs at 70 show childhood dip + power-function
+recency + 10–30 bump; but "5 most important memories" at 70
+concentrate in the 20–30 decade while young importance draws
+mirror cued draws. Importance-ranked emission (life-review,
+"most important", eulogy-style queries) at age_eff ≥60 multiplies
+emission weight by `bump_emit_w(age_eff)` (1.0≤55 → 2.0@70 →
+2.5@85) inside the record's bump window (encodeAge 18–30, uses
+existing bump machinery — no hard band). Cued draws keep the
+ordinary recency shape (P542 sign-lock).
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -6961,6 +7135,29 @@ MemoryParams = {
 //   culture_exit_off/culture_env/auto_style/detail_emit_gain/
 //   pub_timing/l1_until live on the PROFILE, not MemoryParams —
 //   bible fields per profiles doc §34.
+// v5.0 additions (age-decline V — AD§§63–77, the binding bill)
+"adh_bind_tax": 1.0, "namepair_tax": 1.0,
+"meaningful_link_rescue": 0.3,               // §4.25 (adh_intent_gate frozen ON)
+"wm_store_mult": 1.0, "wm_reorder_mult": 1.0, "wm_complex_mult": 1.0,
+"seg_boundary_p": 1.0, "emo_ctx_gain": 1.0,  // §4.26/§4.27
+"da_enc_tax": 1.0, "da_ret_tax": 1.0,        // §5.49 (da_ret_spill derives)
+"rif_age_tail": 1.0,                          // §5.50 (da_rif_weak frozen 0.5)
+"mw_decline": 1.0, "sdt_share": 0.5,          // §5.51 (sdt_min_cue frozen)
+"test_fb_req": 0.2, "test_nofb_mult": 0.8,    // §5.52
+"mon_source_tax": 0.0, "illus_recol_p": 0.03, // §6.70
+"bump_emit_w": 1.0,                           // §6.71
+// v5.0 locked nulls: DA-at-retrieval → miss rate = 0 at ALL ages
+//   (Craik 1996); expanded>equal schedule shape holds at both ages
+//   (Balota 2006); incidental encodes show item≈assoc loss (O&N-B
+//   2008 — adh_intent_gate locked ON); intrusive-trauma channel
+//   exempt from mw_decline; wm_complex_mult never re-taxes
+//   search_breadth/pm_self (justification, not second decline);
+//   emo-item legs (w_emo/emo_consol_gain/abc_gain) stay off the
+//   decline curve — reaffirmed.
+// v5.0 knot notes: all v5.0 params carry age_eff curves inline
+//   (AD§75 table); rif_age_tail/df pivot ~75 is group-mean —
+//   reserve/aging_rate shift it via age_eff; sdt_share is
+//   lab-calibrated (conversations run hotter — cues are people).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7903,6 +8100,25 @@ not resolved (DEBATED magnitude). P509/P511.
     `public_scale` tags on eventClass/event definitions.
     All snapshot-additive, absent = legacy (monolingual
     profiles make the lang legs dead code, as before).
+- v5.0 additions (age-decline.md Part V §§63–77):
+  - Record field `coarse:true` — minted under low `seg_boundary_p`;
+    higher gist share, fewer verbatim fields, wider dateEstimate
+    sigma (§4.26).
+  - Reconstructions may emit `reportMode:"remember"` on WRONG
+    source/pairing emissions via `illus_recol_p` (§6.70) —
+    dialogue renders vivid first-person error, not hedged guess;
+    flag never exposed.
+  - `ambientMemoryScan` emission rate is age-scaled (`mw_decline`)
+    and cue-bound (`sdt_share`) — world sees fewer, more
+    stimulus-traceable involuntary recalls from old characters.
+  - `recall` under `C.da` (divided attention) applies `da_ret_tax`
+    to `latency_ms` + `da_ret_spill`, never to hit rate — locked.
+  - `retell`/`forward-testing` legs pay `test_nofb_mult` when no
+    correctness signal accompanies the practice (§5.52).
+  - Importance-ranked query mode ("most important", life-review)
+    reads `bump_emit_w` — a new draw mode, distinct from cued
+    recall; world supplies the query intent.
+  - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

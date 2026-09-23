@@ -1586,3 +1586,505 @@ supplantDay}`, `attribution` on familiar_only emissions,
   ecology.
 - As always: `deathDay` machinery overrides every Part IV channel —
   terminal dedifferentiation doesn't care about sparing.
+
+---
+
+# Part V — v52: the binding bill comes due (associative deficit
+# priced; what old minds stop paying for, and what they stop doing
+# spontaneously)
+
+Parts I–IV priced the channels; Part V prices the *join*. The
+associative deficit hypothesis (Naveh-Benjamin 2000) is arguably the
+single best-supported account of WHAT old episodic memory loses — not
+items, the links between them — and until now the model carried it only
+as a motivation (`link_p` decline, hyper-binding as the inverse). This
+pass gives it its own machinery, then five consequences nobody had
+priced (face-name as worst-case binding, divided-attention asymmetry,
+emotional-item-vs-context split, RIF's two-regime tail, feedback-gated
+testing), then two composition results (event segmentation; the
+important-memory draw at 70), one spontaneous-cognition result
+(mind-wandering declines — an apparent tension with §42's involuntary
+highway, resolved), and one monitoring result (the confidence lie is
+recollection-specific). Every claim tagged; everything lands in §7
+params or P535–P544.
+
+## 63. The associative deficit hypothesis — formalized at last
+
+- Naveh-Benjamin 2000 (JEP:LMC 26:1170 — verified): four experiments;
+  older adults deficient on BOTH interitem (word–word) and intraitem
+  (item–context, font/voice) associations while item memory is
+  comparatively spared; competing hypotheses (general slowing,
+  attention) don't fit the dissociation pattern. The deficit is in
+  **merging unrelated units into a cohesive episode**.
+- Old & Naveh-Benjamin 2008 (Psychol Aging 23:104 — verified meta,
+  90 studies, ~3200 per age group): age effect larger on associative
+  than item measures across source, context, temporal order, spatial
+  location, and item-pairings — verbal AND nonverbal. **[CONSENSUS —
+  the meta is the calibration anchor]**
+- Two moderators that matter for pricing:
+  1. **Intentional > incidental.** The associative deficit is
+     pronounced under intentional learning but not clearly evident
+     under incidental learning (Old & Naveh-Benjamin 2008). Read:
+     incidental encoding is equally poor at both ages; what declines is
+     the *intentional increment* — the extra binding work a young mind
+     buys when it decides to remember. This reframes the deficit as a
+     **gain loss, not a floor loss**.
+  2. **Test format.** Under recall tests, item and associative
+     deficits are similar size; the assoc>item split is a
+     *recognition* finding. Recall already taxes item retrieval
+     enough that the binding tax is invisible on top.
+- Strategy rescue is real but partial: sentence-mediator instructions
+  shrink the old associative deficit (Naveh-Benjamin, Brav & Levy
+  2007), further when encouraged at retrieval too — but never
+  eliminate it.
+- **Not merely multiplicative item loss:** the .9×.9=.81 arithmetic
+  fails — deficits persist when item memory is equated (Bastin & Van
+  der Linden 2005; Kilb & Naveh-Benjamin 2007; the face-name arm,
+  §64).
+
+**Spec consequence (v5.0):** new param `adh_bind_tax(age_eff)`
+multiplies every *link-forming* write — `cueBind_init`, field-to-
+record attachment (verbatim.who/where/when vs gist), source-tag
+strength, RelEdge delta from shared episodes — while item legs
+(enc_base, gist storageS) keep their existing shallower knots. The
+intentionality gate: the tax applies to `enc × intent` — the
+intentional-encoding increment over `att_min` floor — so records
+encoded at floor attention (incidental) show item≈assoc loss, records
+encoded with effort show the split. Knots: 1.0 at 50 → 1.15 at 60 →
+1.35 at 70 → 1.6 at 80 → 1.75 at 85 (meta: assoc deficit ≈1.5–2×
+item deficit at 70+; kept sublinear since links already ride the
+`link_p` decline — `adh_bind_tax` is the residual beyond it, applied
+to the *intentional increment* only). In recognition-mode recall the
+tax shows as source/context misses; in free recall it is masked
+(item retrieval already fails first) — an emergent null to probe,
+not a coded branch.
+
+## 64. Face-name binding — the ecologically worst case
+
+- Naveh-Benjamin, Guez, Kilb & Reedy 2004 (Psychol Aging 19:541 —
+  verified): name–face pairs; older adults deficient on the PAIR test
+  even when name and face recognition are matched to young — and
+  reduced attentional resources are NOT the sole mediator. The most
+  socially legible instance: "I know your face, your name's gone" is
+  not a TOT (§6) — it's a binding failure; the link record exists,
+  the association doesn't fire.
+- Arbitrary vs meaningful links: a name is an arbitrary tag on a face
+  — no semantic scaffold — so `schema_support` can't rescue it.
+  Where a link has semantic support (doctor↔clinic), the deficit
+  shrinks (Naveh-Benjamin, Hussain, Guez & Bar-On 2003: preexisting
+  connections reduce the deficit). **[CONSENSUS]**
+- Tse, Balota & Roediger 2010 (Psychol Aging — verified): for
+  face-name pairs, repeated testing only beat repeated study in older
+  adults **when feedback was given** (see §72). Raw retrieval
+  practice on an arbitrary binding can consolidate the wrong pairing.
+
+**Spec consequence:** the person cascade (§5.36's own-age machinery,
+v3.2's person records) gains `namepair_tax(age_eff)` = an extra ×1.2
+multiplier on `adh_bind_tax` for person↔name/person↔role links
+specifically — the arbitrary-tag surcharge. `meaningful_link_rescue`
+0.3: links carrying a semantic-relational tag (kinship, job,
+cohabitation) subtract this fraction of the tax — the neighborhood
+reason the landlord remembers "the nurse in 3B" better than
+"Jennifer."
+
+## 65. The working-memory ladder — storage holds, processing falls
+
+- Bopp & Verhaeghen 2005 (J Gerontol B 60:P223 — verified meta):
+  Brinley-plot analysis of 8 verbal span tasks; THREE distinct age
+  slopes in increasing deficit order: **simple storage span <
+  backward span < working-memory (complex) span** — old span is a
+  linear function of young span with slope <1, and the slope gets
+  worse as the task adds active processing to passive storage.
+- Same ordering across domains: storage+processing dual tasks are
+  the age-sensitive ones; pure maintenance is comparatively spared
+  (Verhaeghen, Marcoen & Goossens 1993 — earlier meta; ~0.8 SD
+  complex-span deficit).
+- The RW reading: holding a thread (who said what, mid-conversation)
+  while ALSO doing something with it (formulating a reply, tracking
+  two topics) is exactly the storage+processing combination — the
+  decline is largest where ordinary social life is densest.
+
+**Spec consequence:** `wmc_tier` param set — three per-age knots for
+the three tiers, folded into one search-breadth multiplier by task:
+`wm_store_mult` (1.0 → 0.95 at 80), `wm_reorder_mult` (1.0 → 0.85),
+`wm_complex_mult` (1.0 → 0.72). Retrieval-side consumers:
+`search_breadth` rides `wm_complex_mult` (already on decline knots —
+now justified by tier, not ad hoc); multi-cue fusion (cueMatch across
+3+ simultaneous cues) rides `wm_complex_mult`; verbatim verbatim-field
+recall order (reconstruction reordering) rides `wm_reorder_mult`;
+plain single-cue recall rides `wm_store_mult` — nearly flat, which is
+why "tell me about X" stays fluent at 80 while "wait, you said two
+contradictory things" tracking fails.
+
+## 66. Divided attention — the asymmetry is the point
+
+- Craik, Govoni, Naveh-Benjamin & Anderson 1996 (JEP:G 125:159 —
+  verified): DA at ENCODING → large memory cost, small RT cost;
+  DA at RETRIEVAL → small/no memory cost, larger RT cost (esp. free
+  recall). Retrieval is protected — memory accuracy doesn't yield,
+  the secondary task does.
+- Anderson, Craik & Naveh-Benjamin 1998 (Psychol Aging 13:405 —
+  verified): the memory-cost pattern holds equally for young and old
+  — but the secondary-task RT cost at retrieval is **larger for
+  older adults**, graded: free recall > cued recall > recognition.
+  Retrieval is MORE attention-demanding with age even though it
+  succeeds; the bill shows up on whatever else is happening.
+- Functional picture: an old character mid-search is *less
+  interruptible* — the search commandeers what the young would spend
+  on monitoring the room. Naveh-Benjamin, Craik, Guez & Kreuger 2005
+  (strategy arm): the age gap under DA narrows when relatedness or
+  strategy support is supplied.
+
+**Spec consequence:** two params, asymmetric: `da_enc_tax(age_eff)`
+(multiplies enc when `C.da` — divided-attention encode; knots
+1.0→1.3 at 80 — old pay MORE at encode) and `da_ret_tax(age_eff)`
+(applied NOT to recall success but to `latency_ms` and to a
+secondary-task decrement proxy `da_ret_spill` — at free-recall mode
+×1.6 latency at 80, cued ×1.3, recognition ×1.15). Locked null: DA at
+retrieval does NOT raise miss rate at either age (Craik 1996) — it
+raises latency and spill only. P536 sign-lock.
+
+## 67. Emotional item vs emotional context — the split nobody priced
+
+- Kensinger, Brierley, Medford, Growdon & Corkin 2002 (Emotion 2:118
+  — verified): young AND old show better memory for emotional vs
+  neutral items; but the *context* benefit (neutral items embedded in
+  an emotional context) is **lost in older adults** (and in AD).
+  Emotional ITEM enhancement preserved; emotional CONTEXT enhancement
+  gone.
+- Kensinger, Brierley et al. 2003 (Emotion 3:239 — verified): across
+  35–85, the modulation pattern (gist up, visual detail down) is
+  *comparable* — the amygdala-side mechanism is intact while
+  overall performance declines.
+- Reads coherently with §64: the context benefit IS a binding
+  benefit (item↔emotional-frame link) — it falls under
+  `adh_bind_tax`; the item benefit is an amygdala-side tag, spared.
+  The spec's deliberate flatness of `w_emo`/`emo_consol_gain` (v0.5,
+  Kensinger-grounded) is *right for items* and was silently
+  over-extended to context legs.
+
+**Spec consequence:** `emo_ctx_gain(age_eff)` — the
+emotional-context encoding leg (arousal bleed onto neutral
+co-encodees, §4.9-adjacent) gets decline knots 1.0 ≤60 → 0.6 at 75 →
+0.4 at 85 while `w_emo`/`emo_consol_gain`/`abc_gain` remain
+explicitly OFF the decline curve (reaffirmed). Behaviorally: the
+75-year-old still remembers the funeral vividly (emotional item),
+but the errand she ran *on the way to* the funeral no longer gets
+its free ride. P539.
+
+## 68. The mind quiets — wandering declines, thoughts go stimulus-bound
+
+- Maillet & Schacter 2016 (Neuropsychologia 80:142 review —
+  verified): older adults show reduced frequency of BOTH
+  mind-wandering AND involuntary autobiographical memory; intrusive
+  thoughts mixed; spontaneous PM retrieval relatively preserved.
+- Jordano et al. 2019 meta (Psychol Aging — verified): the MW
+  decrease is LARGE and robust across probe-caught methods.
+- Maillet & Schacter 2016b (Psychol Aging — verified): within the
+  reduced total, older adults' ongoing thoughts shift composition —
+  proportionally MORE stimulus-dependent (SDT), FEWER
+  stimulus-independent (SIT); SDT frequency predicted memory
+  performance in older adults.
+- **Apparent tension with §42's involuntary highway, resolved:**
+  §42 claims involuntary recall *per trigger* is preserved
+  (cue→memory fidelity holds); §68 claims the *rate of triggers
+  that land* declines — fewer internally generated retrievals, and
+  external cues face a quieter, more task-focused field. Both true:
+  old involuntary recall is cue-driven (higher share of emissions
+  trace to a present stimulus), young involuntary recall is
+  self-seeding (thoughts spawn thoughts). The old mind doesn't
+  wander *off* the world; it stays on it.
+
+**Spec consequence:** `mw_decline(age_eff)` multiplies
+`ambientMemoryScan` tick rate (self-seeded involuntary emission):
+knots 1.0 ≤50 → 0.75 at 70 → 0.55 at 85. `sdt_share(age_eff)` —
+fraction of involuntary emissions that must trace to a present
+environmental cue vs train-of-thought chaining: 0.5 at 30 → 0.8 at
+80. Emergent consequence worth noting: fewer spontaneous retrievals
+→ fewer free reconsolidation cycles → a secondary rehearsal drought
+for the old (compounding §13's retell economics). Intrusive-trauma
+channel exempt (mixed findings — `intrusion_thresh` trauma path
+stays as-is). Spontaneous PM fires keep §34's paradox machinery.
+
+## 69. RIF's two-regime tail — inhibition's late bankruptcy
+
+- Aslan, Bäuml & Pastötter 2007 (Psych Sci 18:72): RIF INTACT in
+  young-old — a direct challenge to blanket inhibitory-deficit
+  accounts. **[CONSENSUS, contested scope]**
+- Aslan & Bäuml 2012 (Psychol Aging 27:1027 — verified): RIF
+  reliable in young-old (60–75), **declines and becomes inefficient
+  in old-old (>75)** — inhibition of competitors is a late-declining
+  capability, not an early casualty.
+- Ortega, Gómez-Ariza, Román & Bajo 2012: dividing attention
+  eliminates RIF — but a *lighter* secondary task suffices in older
+  adults (3-digit vs 5-digit updating) — the fragile flank of the
+  same finding.
+- Parallel result for directed forgetting: listwise DF intact in
+  young-old, absent in old-old (Sahakyan, Delaney & Goodmon work;
+  Bäuml-group replications) — same ~75 pivot, consistent with
+  §5.48's soft-DF machinery.
+
+**Spec consequence:** `rif_age_tail(age_eff)` — `rif_k` effectiveness
+multiplier: 1.0 ≤72 → 0.5 at 80 → 0.2 at 88. Below the pivot,
+retrieval practice prunes rivals as usual (and `da` at retrieval
+weakens it in BOTH ages, Ortega arm — apply a ×(1−0.5·C.da) to
+rif_k universally, not just old). Above the pivot: rivals survive
+selective retell — an 85-year-old who keeps rehearsing the
+complaint does NOT suppress the neighbor's version of events.
+Cross-links: §5.23 SS-RIF and §6.69 jointRecall emissions all read
+the same `rif_k` after the tail multiplier.
+
+## 70. Event segmentation coarsens — the movie gets fewer chapters
+
+- Zacks, Speer et al. 2006; Kurby & Zacks 2011; Bailey, Kurby,
+  Giovannetti & Zacks 2013 (verified via Sargent 2013 review):
+  older adults show lower agreement with normative event boundaries
+  and less hierarchically organized segmentation; agreement predicts
+  memory — those who segment normatively remember better.
+- Sargent et al. 2013 (Cognition 129:241 — verified, n=208 lifespan
+  20–79): segmentation agreement explains unique variance in event
+  memory ABOVE psychometric speed/WMC/knowledge — and does so as
+  strongly in old as young. Segmentation is a basic encoding
+  mechanism whose decline is *orthogonal* to the resource declines.
+- Mechanistic read for RW: fewer boundaries → fewer record-chunk
+  transitions → larger, fewer, gist-thick records; a day reads as
+  "the morning at the shop" not eleven episodes — detail count per
+  record falls with boundary count even holding encoding strength.
+
+**Spec consequence:** `seg_boundary_p(age_eff)` multiplies the
+event-boundary mint rate (the §5.29 doorway machinery and record
+splitting at goal/subgoal shifts): 1.0 ≤55 → 0.8 at 70 → 0.65 at
+85. Records minted under low segmentation carry `coarse:true` —
+higher gist share, fewer verbatim fields, wider `dateEstimate`
+sigma (chapter-level uncertainty). Interacts with §4.22: coarser
+segments ALSO concentrate same-context records — two mechanisms,
+one behavioral signature, both kept (they respond to different
+interventions: context vs boundary density).
+
+## 71. What "most important" samples from — the bump is where old
+    significance lives
+
+- Rubin & Schulkind 1997a (Mem & Cogn 25:859 — verified): word-cued
+  AMs in 70yos: childhood dip, power-function recency, AND a bump at
+  10–30 — holds at individual level, holds for 124 and 921 cues.
+  RT constant across decades except longer for childhood.
+- Rubin & Schulkind 1997b (Psychol Aging 12:524 — verified): the
+  "5 most important memories" request — in 20- and 35-year-olds
+  distributes like word-cued memories, but in 70-year-olds
+  **concentrates in the single 20–30 decade**. Importance sampling
+  at old age is nearly synonymous with bump sampling.
+- Concrete words cue older memories; no cue property predicts which
+  memories come from the bump — the bump is availability, not
+  cue-matching.
+
+**Spec consequence:** the `importance` draw used by "most important
+memory" / life-review / eulogy-style queries gains
+`bump_emit_w(age_eff)`: at age_eff ≥60 the emission weights for
+importance-ranked draws concentrate on encodeAge ∈ [18,30]
+(analytic window per Rubin's 20–30 finding; uses the record's own
+bump machinery rather than a hard band — multiply emission weight
+by `bump_emit_w` inside the bump window). Knots 1.0 ≤55 → 2.0 at 70
+→ 2.5 at 85. Old characters asked "what mattered most" answer from
+their twenties — not sentiment, availability.
+
+## 72. Testing needs feedback at old age — rehearsal economics flip
+
+- Tse, Balota & Roediger 2010 (Psychol Aging — verified): face-name
+  pairs; without feedback, middle-aged benefit from repeated testing
+  over restudy while **older adults benefit more from repeated
+  study** (crossover); WITH feedback, both age groups benefit from
+  testing. Retrieval practice is only a free lunch when the answer
+  can be checked — uncheckable retell consolidates whatever came
+  out, wrong or right, and the old make more confident errors to
+  consolidate (§72-adjacent Dodson chain).
+- Balota, Duchek, Sergent-Marshall & Roediger 2006: expanded
+  retrieval benefits over equal spacing in healthy aging AND early
+  AD — schedule shape survives; it's the feedback, not the spacing,
+  that's the old-age gate.
+
+**Spec consequence:** `test_fb_req(age_eff)` — probability the
+testing-effect gain (`retell_boost`, forward-testing §5.26 legs)
+requires an external-correctness signal (correction, verification,
+record agreement) to fire at full value; without it the leg pays
+`test_nofb_mult` (0.5 at 75, 0.3 at 85) of its gain and the §6.58
+confidence-inflation applies unopposed. Knots for `test_fb_req`:
+0.2 at 55 → 0.5 at 70 → 0.8 at 85. Old self-quizzing without a
+check is nearly restudy-shaped — the honest read of the crossover.
+
+## 73. The confidence lie is recollection-specific — monitoring
+    taxonomy
+
+- Dodson, Bawa & Krueger 2007 (Psychol Aging 22:122 — verified):
+  old adults worse at judging accuracy on source-ID and cued-recall
+  EVEN WHEN matched on overall accuracy; monitoring intact for
+  old-new recognition and general-knowledge questions.
+- Dodson, Bawa & Slotnick 2007 (JEP:LMC 33:169 — verified):
+  illusory-recollection signal-detection model — the source-memory
+  d' deficit **virtually disappears** once illusory recollections
+  are modeled; old source errors are misrememberings, not guesses.
+- §22 priced confident-and-wrong; this prices WHERE the monitor
+  fails: the calibration gap lives on recollection-demanding probes
+  (source, pairing, sequence), not familiarity or semantic
+  knowledge. An old character's "I'm sure it was Marta who said it"
+  is overconfident; "I'm sure I've seen that face" and "I'm sure
+  that's true" are calibrated. **[CONSENSUS pattern]**
+
+**Spec consequence:** `mon_source_tax(age_eff)` — confidence
+calibration penalty applied ONLY on emissions that require
+recollection components (source tag, pairing, order, verbatim
+field): reported confidence overstates true accuracy by up to
+`mon_source_tax` (knots 0 → 0.1 at 65 → 0.2 at 80), while
+familiarity-level and semantic emissions keep v2.1 metamemory
+machinery unchanged. `illus_recol_p(age_eff)` — probability a
+source-error emission is emitted WITH phenomenology (vivid, first-
+person, `reportMode:"remember"`) rather than flagged guess: 0.05
+at 50 → 0.15 at 70 → 0.3 at 85. The two params are the dialogue
+difference between "…I think it was her?" and "I can picture her
+saying it" — both wrong, different phenomenology.
+
+## 74. What Part V deliberately did not do
+
+- **No dedicated "inhibition" trait split** — Hasher & Zacks stays a
+  mechanism family (§3), but the RIF/DF young-old-intact findings
+  (§69) warn against any flat inhibitory-decline parameter; the
+  two-regime knot is the honest form.
+- **No semantic-store decline knobs** — §43's accreting crystallized
+  channel stands; Bopp & Verhaeghen's simple-storage tier gives the
+  flat anchor, not a new decline.
+- **No "wisdom" or expertise-compensation knob** — reaffirmed from
+  §58; `schema_support` + `meaningful_link_rescue` cover the
+  behavioral shadow.
+- **No dementia trajectories** — §16 stands; `rif_age_tail` and the
+  old-old pivots are NORMAL-aging results (healthy 75+), not
+  pathology gates.
+- **No attention-as-cause** — Naveh-Benjamin 2004's negative result
+  (reduced attentional resources not the sole mediator of ADH) is
+  preserved: `da_enc_tax` and `adh_bind_tax` are independent legs,
+  never collapsed into one "attention deficit."
+
+## 75. Part V knot rows (extends §59; age_eff unless noted)
+
+| param | 30 | 50 | 60 | 70 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| adh_bind_tax (×links, intent-gated) | 1.0 | 1.0 | 1.15 | 1.35 | 1.6 | 1.75 | Old & N-B 2008 (~1.5–2× item) |
+| namepair_tax (×adh on person↔name) | 1.0 | 1.0 | 1.1 | 1.2 | 1.3 | 1.35 | N-B et al. 2004 |
+| meaningful_link_rescue (−frac tax) | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | N-B et al. 2003 |
+| wm_store_mult | 1.0 | 1.0 | 0.98 | 0.97 | 0.95 | 0.94 | B&V 2005 tier1 |
+| wm_reorder_mult | 1.0 | 1.0 | 0.95 | 0.9 | 0.85 | 0.82 | B&V 2005 tier2 |
+| wm_complex_mult | 1.0 | 1.0 | 0.92 | 0.83 | 0.72 | 0.65 | B&V 2005 tier3 |
+| da_enc_tax | 1.0 | 1.0 | 1.1 | 1.2 | 1.3 | 1.4 | Anderson 1998 |
+| da_ret_tax (×latency, free-recall) | 1.0 | 1.05 | 1.2 | 1.4 | 1.6 | 1.75 | Anderson 1998 |
+| emo_ctx_gain | 1.0 | 1.0 | 0.9 | 0.75 | 0.5 | 0.4 | Kensinger 2002 |
+| mw_decline (×ambient tick) | 1.0 | 1.0 | 0.9 | 0.75 | 0.6 | 0.55 | Jordano 2019 |
+| sdt_share | 0.5 | 0.55 | 0.62 | 0.7 | 0.78 | 0.8 | Maillet & Schacter 2016b |
+| rif_age_tail (×rif_k) | 1.0 | 1.0 | 1.0 | 0.9 | 0.5 | 0.3 | Aslan & Bäuml 2012 (pivot ~75) |
+| seg_boundary_p | 1.0 | 1.0 | 0.9 | 0.8 | 0.7 | 0.65 | Sargent 2013; Zacks 2006 |
+| bump_emit_w (importance draws) | 1.0 | 1.0 | 1.3 | 2.0 | 2.3 | 2.5 | Rubin & Schulkind 1997b |
+| test_fb_req | 0.1 | 0.2 | 0.35 | 0.5 | 0.7 | 0.8 | Tse et al. 2010 |
+| test_nofb_mult | 0.8 | 0.75 | 0.65 | 0.55 | 0.4 | 0.3 | Tse et al. 2010 |
+| mon_source_tax | 0.0 | 0.0 | 0.05 | 0.1 | 0.2 | 0.25 | Dodson et al. 2007 |
+| illus_recol_p | 0.03 | 0.05 | 0.08 | 0.15 | 0.25 | 0.3 | Dodson et al. 2007b |
+| adh_intent_gate | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | locked ON (O&N-B 2008) |
+
+Frozen constants: `adh_intent_gate` = apply tax to intentional
+increment only; `da_rif_weak` = rif_k ×(1−0.5·C.da) at ALL ages
+(Ortega); `sdt_min_cue` = involuntary emissions below sdt_share
+require a present-stimulus trace. **[Knot interpolations HYPOTHESIS;
+anchors CONSENSUS; the ~75 pivot class (RIF, DF) is the most
+load-bearing single number this part.]**
+
+## 76. Spec changes v4.9 → v5.0 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| I1 | §4.25: `adh_bind_tax`/`adh_intent_gate`/`namepair_tax`/`meaningful_link_rescue` on link writes | §63–§64 |
+| I2 | §4.25: `wm_*_mult` three-tier knots on retrieval consumers | §65 |
+| I3 | §4.26: `seg_boundary_p` boundary-mint decline + `coarse:true` records | §70 |
+| I4 | §4.27: `emo_ctx_gain` declines; emo-item legs reaffirmed flat | §67 |
+| I5 | §5.49: `da_enc_tax`/`da_ret_tax` asymmetric DA legs | §66 |
+| I6 | §5.50: `rif_age_tail` + `da_rif_weak` universal | §69 |
+| I7 | §5.51: `mw_decline`/`sdt_share` on ambientMemoryScan | §68 |
+| I8 | §5.52: `test_fb_req`/`test_nofb_mult` on testing legs | §72 |
+| I9 | §6.70: `mon_source_tax`/`illus_recol_p` recollection-only monitoring | §73 |
+| I10 | §6.71: `bump_emit_w` on importance draws | §71 |
+
+New params: `adh_bind_tax`, `adh_intent_gate`, `namepair_tax`,
+`meaningful_link_rescue`, `wm_store_mult`, `wm_reorder_mult`,
+`wm_complex_mult`, `da_enc_tax`, `da_ret_tax`, `emo_ctx_gain`,
+`mw_decline`, `sdt_share`, `rif_age_tail`, `seg_boundary_p`,
+`bump_emit_w`, `test_fb_req`, `test_nofb_mult`, `mon_source_tax`,
+`illus_recol_p`. Frozen: `da_rif_weak`, `sdt_min_cue`. Record field:
+`coarse:true`. Locked nulls: DA-at-retrieval → miss rate = 0;
+testing legs keep schedule-shape invariance (expanded>equal holds
+both ages — Balota 2006); intrusive-trauma channel exempt from
+mw_decline.
+
+## 77. Validation probes P535–P544
+
+- **P535 ADH split (MUST — sign-lock):** matched encode with
+  intentional effort: at 75, link-field recall (who/where/when
+  attachments, source tags) drops ≥1.4× the item-field drop; same
+  records encoded at floor attention show item≈assoc loss (the
+  incidental null — fails if incidental encodes show the split).
+- **P536 DA asymmetry (MUST — explicit null):** DA at retrieval
+  raises latency (×1.4+ at 80, free recall) but does NOT raise miss
+  rate at ANY age; DA at encoding raises miss rate, more at 80.
+- **P537 face-name worst case (MUST):** person↔name links at 78 fail
+  more than person↔role (meaningful) links matched on exposure;
+  name failures present as intact face familiarity + blank name
+  slot (not full-record miss).
+- **P538 RIF pivot (MUST — sign-lock):** selective retell at 70
+  suppresses rivals at ≥0.8× the 30yo rate; at 82 suppression is
+  ≤0.4× — and under C.da the suppression shrinks at BOTH ages
+  (Ortega arm, no age interaction coded beyond rif_age_tail).
+- **P539 emo split (MUST — sign-lock):** at 78, emotional items
+  retain ≥0.9 of their 30yo enhancement ratio while
+  emotional-CONTEXT benefit on neutral co-encodees falls to ≤0.6× —
+  fails if w_emo legs drift onto the decline curve.
+- **P540 quiet mind (SHOULD):** ambientMemoryScan emission rate at
+  80 ≤0.65× the 30yo rate; ≥75% of old emissions trace to a
+  present-stimulus cue vs ≤55% for young; intrusive-trauma channel
+  unchanged.
+- **P541 coarse chapters (SHOULD):** same 2h event stream → record
+  count at 78 ≤0.7× the count at 30; `coarse:true` records carry
+  higher gist share and wider dateEstimate sigma.
+- **P542 bump importance (MUST — sign-lock):** "most important"
+  draws at 70 land ≥50% inside encodeAge 18–30 while word-cued
+  draws keep the recency+power-function shape — fails if
+  importance draws mirror cued draws.
+- **P543 feedback gate (SHOULD):** at 78, uncorrected self-retell
+  improves later accuracy ≤ restudy (crossover allowed); with a
+  correctness signal the testing gain returns to ≥0.7× young level.
+- **P544 recollection-only monitoring (MUST):** at 78, confidence
+  inflation appears on source/pairing/order emissions but NOT on
+  familiarity-level or semantic emissions; illus_recol emissions
+  carry reportMode:"remember" despite being wrong.
+
+## 78. Part V honest limits
+
+- `adh_bind_tax` + `link_p` + `hyperbind_p` now form a three-legged
+  binding system (loss, baseline, spurious-gain); the legs are
+  conceptually distinct (deficit on intentional links / incidental
+  overbinding) but the joint fit is ours — flagged HYPOTHESIS; the
+  P535 incidental-null is the discriminating test.
+- The ~75 pivot (RIF, DF, and plausibly other inhibitory controls)
+  is a group-mean boundary; individual `reserve`/`aging_rate` shifts
+  it via age_eff — right in spirit, unpriced per mechanism.
+- `wm_complex_mult` triple-counts against `search_breadth` and
+  `pm_self` if all three ride age_eff — implementers should treat
+  wm_complex as the JUSTIFICATION for existing knots, applying it
+  only to the new consumers (multi-cue fusion, reorder); the
+  deliberate redundancy note is in §7.
+- `sdt_share` is calibrated to think-aloud lab probes, not
+  conversation; the conversational version likely runs hotter
+  (people ARE the cues) — noted, unfit.
+- `bump_emit_w`'s window (18–30) ignores the documented second-bump
+  and cohort-imprint structures (§4.1 epochal); importance draws
+  may show epochal spikes on public_scale≥2 records — emergent,
+  not coded.
+- `test_nofb_mult` consolidates whatever was retrieved INCLUDING
+  errors — that's the mechanism (confidence-inflated wrong
+  rehearsal); the harm is emergent and could read as punitive in
+  low-feedback worlds. Watch P543 in harness.
+- As always: `deathDay` machinery (§9) overrides every Part V
+  channel — the binding bill accelerates off-cliff, not on-knots.

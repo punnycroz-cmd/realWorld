@@ -577,6 +577,17 @@ never copying raw.
 | detail_emit_gain | 0.8 | 1.2 | report-detail density (v4.9; female +0.1) |
 | l1_until | 0 | — | bilingual ambient-switch encodeAge (v4.9; absent = monolingual) |
 | pub_timing | −2 | +2 | bible puberty-onset offset yrs (v4.9) |
+| adh_bind_tax / namepair_tax | 1.0 / 1.0 | 1.9 / 1.5 | link-write tax, intent-gated (v5.0; knots drive — per-char floor is 1.0) |
+| meaningful_link_rescue | 0.0 | 0.5 | semantic-tag tax relief (v5.0) |
+| wm_store_mult / wm_reorder_mult / wm_complex_mult | 0.8 / 0.7 / 0.5 | 1.0 / 1.0 / 1.0 | capacity-ladder ceilings at 30 (v5.0) |
+| seg_boundary_p | 0.5 | 1.0 | boundary-mint multiplier (v5.0) |
+| emo_ctx_gain | 0.3 | 1.0 | emotional-context leg (v5.0; emo-item legs exempt) |
+| da_enc_tax / da_ret_tax | 1.0 / 1.0 | 1.6 / 1.9 | divided-attention asymmetry (v5.0) |
+| rif_age_tail | 0.1 | 1.0 | RIF/DF pivot multiplier (v5.0) |
+| mw_decline / sdt_share | 0.4 / 0.4 | 1.0 / 0.9 | ambient-scan rate / stimulus-bound share (v5.0) |
+| test_fb_req / test_nofb_mult | 0.0 / 0.2 | 0.9 / 1.0 | feedback-gated testing (v5.0) |
+| mon_source_tax / illus_recol_p | 0.0 / 0.0 | 0.3 / 0.4 | recollection-only miscalibration (v5.0) |
+| bump_emit_w | 1.0 | 3.0 | importance-draw bump weight (v5.0) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -2251,3 +2262,45 @@ should actually touch:
   pierce-class backstory events (a sibling born when they
   were 2½ is the right kind of backstory detail — and now it
   matters mechanically).
+
+## 35. v5.0 note (age-decline V — the binding bill)
+
+Clamp rows added in §0 for the v5.0 params. Everything in this
+block is age-curve machinery — the knots in age-decline.md §75 do
+the work; what bible authors should actually touch:
+
+- **Almost nothing directly.** Every v5.0 param is age_eff-driven
+  decline machinery; a character's individual position on the
+  decline curves comes from the existing `reserve`, `aging_rate`,
+  `fitness`, `wmc` traits — not from pinning the tax itself. A
+  sharp 80-year-old is `reserve` high + `aging_rate` low; the
+  binding tax follows automatically.
+- **`meaningful_link_rescue` (0–0.5, default 0.3):** the one
+  defensible per-character dial — a character whose social
+  knowledge is densely relational (the connector, the longtime
+  shopkeeper who files people by kin-and-job) keeps links that a
+  loner loses. Pair with high `social`/`know_density` — it is a
+  scaffold dial, not a sociability halo.
+- **`sdt_share` baseline 0.5:** pin only via `open`/`inattn`
+  adjacency — a daydreamy elder still wanders more than a
+  task-focused one; the age curve shrinks everyone.
+- **`mon_source_tax` / `illus_recol_p`:** trait-adjacent via
+  `meta_conf` (v4.2) — a confident character's wrong-source
+  emissions carry phenomenology more often. The AGE component is
+  locked; only the trait floor is bible-reachable.
+- **World-builder event hooks:** `coarse:true` records arrive on
+  their own for old characters; bibles need no flag. For
+  OLD-CHARACTER backstories, though, note that `bump_emit_w` means
+  "most important memory" queries will land in their 20s — write
+  that decade richly in the bible or the draws will be thin.
+- **Never pin:** `adh_intent_gate` (locked ON — the incidental
+  null), `da_rif_weak`, `sdt_min_cue`, the ~75 RIF/DF pivot, the
+  wm_* tier spreads, `emo_ctx_gain` knots (the item/context split
+  is mechanism, not personality), `test_nofb_mult` schedule.
+- **The emergent cast shadow:** at 75+, characters (a) lose
+  person↔NAME links faster than person↔role links — expect "the
+  nurse in 3B" recall where names fail; (b) go quiet on
+  self-seeded recall — old mains speak memory when the world
+  cues them, young mains volunteer it; (c) keep retell quality
+  only where feedback exists — an uncorrected old raconteur
+  polishes errors, not stories.
