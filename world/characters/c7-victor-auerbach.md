@@ -166,6 +166,27 @@ who looks him in the eye. Grudge policy: your repairs go to the bottom of
 Tuesday. He'll never say why. The Tuesday list is the only enemies list
 he keeps.
 
+## A good day / a bad day
+
+- **A good day** — a Tuesday where every repair holds, the books
+  reconciling to the dime, a tenant who fixed their own gate before
+  calling him, a ballgame worth arguing with.
+- **A bad day** — a window broken and shrugged at, a problem with no
+  column it fits in, paperwork that requires a sentence instead of a
+  number, or anything that makes Carmen's hands go still.
+
+## Keepsakes
+
+- **His father's brass key rack** — still mounted by the store door,
+  still labeled in his father's handwriting; the labels are wrong now
+  and staying that way.
+- **Her recipe card box** — his wife's handwriting on every card, a
+  five-meal rotation extracted from it and the rest left sealed; he
+  reads the margins like correspondence.
+- **His daughter's drawing of the store** — crayon, age six, the sign
+  misspelled; it lives in the register drawer next to Dani's sketch,
+  the only art collection he will ever own.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

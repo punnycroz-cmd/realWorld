@@ -156,6 +156,27 @@ money, forgotten plans — on a general theory that people are busy. Grudge
 policy: he doesn't keep them; he just stops showing up, and the route
 he used to ride past your door quietly changes.
 
+## A good day / a bad day
+
+- **A good day** — Thursday, the circle holding a groove for one whole
+  song, a route with no rain in it, and rent that is not "being handled"
+  but actually handled.
+- **A bad day** — riding past a door he used to stop at, a balance that
+  can't be rescheduled, Priya's quiet arriving in the register that isn't
+  peace, or a Thursday that weather cancels.
+
+## Keepsakes
+
+- **The band's one flyer** — the funk band's single show poster, framed
+  badly and hung where visitors can see it; the ninety-second story
+  attached at no extra charge.
+- **A taped drumstick from the church kit** — his father's church, his
+  first kit, the stick split and repaired with electrical tape; it lives
+  with the good sticks like it earned the spot, because it did.
+- **A framed Dani sketch, unwrapped** — bought "for a friend," never
+  delivered; it leans against the wall in his room facing out, a gift
+  with no recipient he can name out loud.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

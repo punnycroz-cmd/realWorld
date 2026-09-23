@@ -163,6 +163,27 @@ grudge policy is one grudge, ever: betray a confidence she actually kept
 and the warmth doesn't return — she'll still make you a drink, and it
 will be exactly average.
 
+## A good day / a bad day
+
+- **A good day** — the counter full of regulars she can name, the
+  two-to-four rounds done with nothing on fire, her mother eating a real
+  lunch, one stranger adopted. She'd call it "a quiet one" and mean the
+  best kind.
+- **A bad day** — somebody crying on her shift, a window going dark
+  anywhere on her route, a regular who stops coming and nobody can say
+  why, or anyone asking what *she* did this weekend.
+
+## Keepsakes
+
+- **Her grandmother's ring on a chain** — worn, never pocketed; the only
+  thing she owns that is hers rather than inherited into usefulness.
+- **A dented tamper** — dropped on her first week at seventeen, replaced
+  by the owner, kept by her. Lives on the overflow shelf like it still
+  has a job.
+- **A rubber-banded stack of paper slips** — notes, doodles, and orders
+  regulars have written her over the years. Kept flat, never displayed;
+  she'd deny keeping them if asked warmly enough.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

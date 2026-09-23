@@ -160,6 +160,26 @@ ones. Grudge policy: tallied, quiet, itemized — she keeps receipts
 emotionally too, and the account only settles when someone finally
 asks what's in it.
 
+## A good day / a bad day
+
+- **A good day** — a shift where nothing coded, her café seat open at
+  19:40, Carmen's pressure reading good, one unbroken sleep either
+  behind her or credibly ahead.
+- **A bad day** — a night's sleep wasted by somebody else's carelessness,
+  the third conversation about the heater, a Sunday where the flat's
+  shared labor lands entirely on her, or a day the tally in her head
+  gets loud enough to hear over traffic.
+
+## Keepsakes
+
+- **Her first badge** — worn smooth at the edges, retired to a drawer;
+  the name printed on it is the version of herself she still clocks in.
+- **A Tamil cookbook annotated by her mother** — margins full of "add
+  more, you are too thin" energy; cooked from twice, read like letters.
+- **The photo on the fridge nobody took down** — the flat's better days
+  in one frame; it stays up by the same mutual silence that keeps
+  everything else at 9457 running.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

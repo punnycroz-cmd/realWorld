@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v56)
+# Main Cast Index — "The Mission" (world v70)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -25,7 +25,7 @@ Every bible uses the same fields:
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
 
-## Roleplay layer (v14, deepened v28, v42, v56)
+## Roleplay layer (v14, deepened v28, v42, v56, v70)
 
 Added sections per bible — enough that a stranger could play the
 character consistently on day one. Field order is fixed:
@@ -77,11 +77,23 @@ character consistently on day one. Field order is fixed:
     them, what they forgive instantly, and the grudge policy. Written
     as emotional perimeter, not trigger conditions — the brain weighs
     it; nothing here fires a behavior.
-18. Public profile · surface relationships · daily routine (briefing-safe)
-19. Secrets & seeds (never surfaces — always the LAST section)
+18. **A good day / a bad day** — v70. The valence axis: the concrete,
+    camera-legible conditions that make a day land good or bad for them.
+    Written as conditions, never triggers — the brain weighs them; nothing
+    here fires a behavior.
+19. **Keepsakes** — v70. Three objects each with a one-line story the
+    character carries. Camera-legible like "the room": the object and its
+    visible handling are filmable; the attached meaning may orbit a seed
+    (a face-down notebook, a gift never delivered) without naming it.
+20. Public profile · surface relationships · daily routine (briefing-safe)
+21. Secrets & seeds (never surfaces — always the LAST section)
+
+`world/characters/ensemble.md` (v70) is the companion between-layer file:
+topology, shared rituals, all 28 pair chemistries, and cold seams —
+observable-safe only, priors not scripts.
 
 `world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
-strangers/wants/interior/truth/money/alone/edges fields and the
+strangers/wants/interior/truth/money/alone/edges/day/keepsakes fields and the
 briefing-safe block for the brain/prompt layer.
 Section placement note: the roleplay layer sits between personality and the
 briefing-safe block — mannerisms and voice are *public-observable* (safe for

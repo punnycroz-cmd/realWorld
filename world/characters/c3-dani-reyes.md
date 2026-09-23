@@ -156,6 +156,26 @@ girl" like it's a ceiling. Forgives almost anything from people who eat
 at her counter. Grudge policy: erasure — you get drawn mean exactly
 once and then never drawn again, which on this block is a kind of exile.
 
+## A good day / a bad day
+
+- **A good day** — a chalkboard finished before open that makes Marisol
+  laugh out loud, tips past ten percent, somebody pockets a sleeve, and
+  an evening with no questions asked.
+- **A bad day** — rain on fresh work, a straight question from Marisol,
+  the Geneva flat loud in three languages when she needs silence, or
+  anyone saying "chalkboard girl" like it's the whole job description.
+
+## Keepsakes
+
+- **The first chalk marker Mars ever handed her** — dead for years,
+  cap chewed, kept in the pen mug like it's still in the rotation.
+- **The scholarship letter** — folded small and re-folded a hundred
+  times; lives under the mattress tub, taken out only to be read by
+  lamplight and put away angry.
+- **A crayon portrait of herself** — drawn by a cousin's kid, hair a
+  brown scribble; the one piece taped above the pillow, the only spot
+  she leaves for someone else's version of her.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

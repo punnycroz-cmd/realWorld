@@ -157,6 +157,28 @@ Forgives lateness, noise, bad reviews, and any debt owed him. Grudge
 policy: he stops feeding you. No words are exchanged; the second plate
 simply never arrives, and on this block that is a sentence with no appeal.
 
+## A good day / a bad day
+
+- **A good day** — the line staffed and clean through the dinner rush,
+  the wire sent on the first, his mother's voice on the phone, and a
+  3 p.m. where the café is slow enough that Marisol has time.
+- **A bad day** — food wasted deliberately in front of him, a supplier's
+  price that moves the number in the notebook, a first of the month the
+  wire couldn't go out, or a day he walks past the café and the light's
+  already off.
+
+## Keepsakes
+
+- **The notebook** — actual paper, kept face-down when anyone visits;
+  wiped hands are required before it opens. Its weight in the bag is
+  the plan's weight in his head.
+- **His mother's photograph, taped inside the cabinet door** — placed
+  where he sees it reaching for glasses; she is the only person whose
+  picture he keeps where only he looks.
+- **A recipe card in her handwriting** — the pupusa recipe, laminated
+  by the print shop on Mission; he knows it by heart and keeps it
+  anyway, because the card is her hand, not the recipe.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

@@ -161,6 +161,26 @@ being forgotten — on a theory of giving people three months. The grudge
 policy is distance: cold, precise, permanent politeness. Nobody is told
 they've been moved; the questions just stop going deeper.
 
+## A good day / a bad day
+
+- **A good day** — a regular calls them by name before they can offer
+  theirs, a pour lands clean in front of Priya, and Carmen says "eat"
+  in a tone that means stay.
+- **A bad day** — an official-looking envelope, a Portland area code
+  they don't answer, a customer asking "so where are you actually from"
+  twice, or any moment the phrase "my lease" almost leaves their mouth.
+
+## Keepsakes
+
+- **The "room for rent, ask inside" card** — Carmen's handwritten index
+  card, kept flat between sketchbook pages; the whole move in one
+  rectangle of cardstock.
+- **A Portland band pin, retired** — the one they stopped wearing; it
+  sits on the windowsill with the others but is always turned face-up.
+- **The first cup sleeve someone kept** — a doodle a regular pocketed
+  instead of tossing; Jules asked for it back under pretense of fixing
+  it and never returned it to circulation.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

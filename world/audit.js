@@ -1046,6 +1046,7 @@ const PUB = Object.values(PT.surfaces)
       '## Wants (three clocks)', '## The cast, privately',
       '## Truth and lies',
       '## Money', '## Alone', '## Edges',
+      '## A good day / a bad day', '## Keepsakes',
       '## Public profile', '## Surface relationships', '## Daily routine',
       '## SECRETS & SEEDS'];
     const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
@@ -1092,7 +1093,7 @@ const PUB = Object.values(PT.surfaces)
       if (iKeys !== others)
         add(g, 'fail', 'characters.json', null, `${id}: interior keys ${iKeys} != ${others}`);
       /* new v28/v42/v56 fields stay observable-safe: no seed vocabulary */
-      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges'])
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes'])
         if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
           add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
       const extra = JSON.stringify([w, c.interior || {}]);
@@ -1108,13 +1109,27 @@ const PUB = Object.values(PT.surfaces)
       if (htmlIds !== IDS.join(','))
         add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
       for (const c of CAST) {
-        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg'])
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg', 'day', 'keep'])
           if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
         if (c.want && c.want.length !== 3)
           add(g, 'fail', 'cast.html', null, `${c.id}: want has ${c.want.length} clocks (need 3)`);
         if (c.priv && c.priv.length !== 7)
           add(g, 'fail', 'cast.html', null, `${c.id}: priv has ${c.priv.length} entries (need 7)`);
+        if (c.day && c.day.length !== 2)
+          add(g, 'fail', 'cast.html', null, `${c.id}: day has ${c.day.length} entries (need 2: good/bad)`);
+        if (c.keep && c.keep.length !== 3)
+          add(g, 'fail', 'cast.html', null, `${c.id}: keep has ${c.keep.length} keepsakes (need 3)`);
       }
+    }
+    /* v70 — ensemble.md exists and covers all 8 ids, seed-free */
+    const ens = 'characters/ensemble.md';
+    if (!fs.existsSync(path.join(W, ens))) add(g, 'fail', ens, null, 'ensemble bible missing');
+    else {
+      const em = rd(ens);
+      for (const id of IDS)
+        if (!em.includes(id)) add(g, 'fail', ens, null, `ensemble.md: ${id} absent`);
+      if (/SECRETS & SEEDS|detonating|money bomb|\$\d/i.test(em))
+        add(g, 'fail', ens, null, 'ensemble.md carries seed vocabulary — it is observable-safe only');
     }
     g.detail = `schema v${CJ.version} · ${(CJ.cast || []).length} mains · ${SECTIONS.length} required sections`;
   } catch (e) { add(g, 'fail', 'characters.json', null, 'parse/check failure: ' + e.message); }

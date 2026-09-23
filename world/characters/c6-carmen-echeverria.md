@@ -162,6 +162,27 @@ Grudge policy: subtraction. No announcement, no scene; the cafecito
 simply stops being offered, and the person may spend months learning
 what they did.
 
+## A good day / a bad day
+
+- **A good day** — three-o'clock sun on her palm, a hem that lies flat
+  on the first pass, Jules eating a second helping unasked, her son
+  calling before she has to call him.
+- **A bad day** — hands that won't hold a needle, pity offered where
+  trade was possible, a stoop nobody stops at, or a phone that stays
+  quiet past the day he usually calls.
+
+## Keepsakes
+
+- **Her mother's carved comb** — carried from Havana in 1981, still in
+  her hair most days; repinned when she's deciding, which means it's
+  working jewelry.
+- **Her husband's thimble on a ribbon** — worn under the housedress,
+  never mentioned; it has outlasted him by decades and she has never
+  once called it a necklace.
+- **A photograph of the block from the '90s** — the stoop, the palm
+  shorter, her husband mid-laugh at the edge of frame; kept behind the
+  newer frames, where only she knows it's load-bearing.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has
