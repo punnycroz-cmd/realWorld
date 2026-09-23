@@ -1,7 +1,7 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "Real World — The Mission brand tokens",
-  "version": "40.0",
+  "version": "41.0",
   "canonical_source": "marketing/BRAND.md — when this file and BRAND.md disagree, BRAND.md wins; fix this file in the same commit",
   "color": {
     "bg":        { "value": "#14161c", "name": "Asphalt",          "role": "page background" },
@@ -45,6 +45,10 @@
       "logo-icon.png":           "512px raster avatar",
       "logo-primary.png":        "1600x480 raster lockup"
     }
+  },
+  "badge_files": {
+    "badge-watched.svg":       "'WATCHED ON REAL WORLD' creator/embed badge — color, dark surfaces",
+    "badge-watched-mono.svg":  "single-ink badge (currentColor) — overlays, one-color print"
   },
   "banner_files": {
     "banner-x-1500x500.png":       "X/Twitter header — keep text center 60%",

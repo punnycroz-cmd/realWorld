@@ -1,6 +1,6 @@
 # Press Kit — Real World ("The Mission")
 
-**Version:** v77 · 2026-09-24 · **Status:** LOCAL DRAFT — pre-launch.
+**Version:** v85 · 2026-09-23 · **Status:** LOCAL DRAFT — pre-launch.
 Kit freshness record: `press-kit/CHANGELOG.md`.
 Contact fields are placeholders; no public channels exist yet. HTML mirror:
 `marketing/site/press-kit.html`. Downloadable bundle:
@@ -103,6 +103,7 @@ date. The founder quote slot below stays empty until the user writes one:
 | Guided tour | **Available** — 10-minute press-preview run sheet + presenter hard rules | `press-kit/guided-tour.md` |
 | B-roll shotlist | **Available** — six essential b-roll shots + optional color shots, camera keys, capture rules | `press-kit/b-roll-shotlist.md` |
 | Social banners | **Available** — X/YouTube/Discord/LinkedIn, safe-zone padded | `press-kit/banners/` |
+| Creator badge | **Available** — "WATCHED ON REAL WORLD" embed badge, color + mono SVGs | `press-kit/badges/` |
 | Captions/credits | **Available** — per-asset caption + credit line | `press-kit/captions.txt` |
 | Asset license | **Available** — editorial usage terms | `press-kit/LICENSE.txt` |
 | Manifest | **Available** — machine-readable kit contents | `press-kit/manifest.json` |

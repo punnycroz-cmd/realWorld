@@ -16,6 +16,10 @@ Checks:
      business names (parody-only rule), unambiguous control claims, and
      cut-feature promises. brand.html is exempt — it quotes banned forms
      deliberately in the "Never" row.
+  7. Lexicon lint — BRAND-LEXICON.md §3 drift table (users, customers,
+     bots, virtual, influencers, gameplay, playthrough) plus the NPC rule
+     (standalone "NPC"/"NPCs" banned; "NPC nudge" is canonical). Same
+     exempt list as check 6.
 
 Exit 0 = clean, 1 = failures. Warnings print but don't fail.
 Run: python3 marketing/tools/brand_audit.py
@@ -31,6 +35,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(ROOT, "site")
 ASSETS = os.path.join(SITE, "assets")
 KIT_LOGOS = os.path.join(ROOT, "press-kit", "logos")
+KIT_BADGES = os.path.join(ROOT, "press-kit", "badges")
 
 fails, warns = [], []
 
@@ -113,13 +118,23 @@ NEGATION_CUE = re.compile(
 # examples). Every other page is held to the lint.
 LINT_EXEMPT = {"brand.html"}
 
+# Check 7 — BRAND-LEXICON.md §3 drift table (mechanical subset). Case-
+# insensitive on purpose: these words are wrong in any casing. The NPC
+# standalone rule lives inline above (needs the "nudge" lookahead).
+LEXICON_BANS = [
+    r"\busers?\b", r"\bcustomers?\b", r"\bbots\b", r"\bvirtual\b",
+    r"\binfluencers?\b", r"\bgameplay\b", r"\bplaythrough\b",
+]
+
 
 def main():
     tokens = json.load(open(os.path.join(ASSETS, "brand-tokens.json")))
 
     # 1. named assets exist
-    for group in ("logo", "banner_files"):
-        files = tokens[group] if group == "banner_files" else tokens[group]["files"]
+    for group in ("logo", "banner_files", "badge_files"):
+        if group not in tokens:
+            continue
+        files = tokens[group]["files"] if group == "logo" else tokens[group]
         for name in files:
             p = os.path.join(ASSETS, name)
             if os.path.exists(p):
@@ -169,6 +184,19 @@ def main():
                 fail(f"press-kit/logos/{name} differs from site/assets master "
                      f"— rerun build-press-kit.sh")
 
+    # 4b. press-kit badge parity
+    if os.path.isdir(KIT_BADGES):
+        for name in sorted(os.listdir(KIT_BADGES)):
+            master = os.path.join(ASSETS, name)
+            copy = os.path.join(KIT_BADGES, name)
+            if not os.path.exists(master):
+                warn(f"press-kit/badges/{name} has no site/assets master")
+            elif sha(master) == sha(copy):
+                ok(f"press-kit badge identical: {name}")
+            else:
+                fail(f"press-kit/badges/{name} differs from site/assets master "
+                     f"— rerun build-press-kit.sh")
+
     # 5. icon links on every page
     required = ["assets/favicon.svg", "assets/favicon-32.png",
                 "assets/apple-touch-icon.png", "assets/site.webmanifest",
@@ -211,6 +239,16 @@ def main():
             if re.search(r"\b" + re.escape(biz) + r"\b", html):
                 hits += 1
                 fail(f"{rel}: real SF business {biz!r} — parody names only")
+        # 7. lexicon lint (BRAND-LEXICON.md §3 drift table + NPC rule)
+        for m in re.finditer(r"\bNPCs?\b(?!\s+nudge)", html):
+            hits += 1
+            fail(f"{rel}: standalone 'NPC' {m.group(0)!r} — 'residents'/"
+                 f"'characters'; 'NPC' survives only in 'NPC nudge' (lexicon §2)")
+        for pat in LEXICON_BANS:
+            for m in re.finditer(pat, html, re.I):
+                hits += 1
+                fail(f"{rel}: lexicon drift /{pat}/ ({m.group(0)!r}) — "
+                     f"BRAND-LEXICON.md §3")
     if hits == 0:
         ok(f"language lint clean across {len(pages)} pages "
            f"(exempt: {', '.join(sorted(LINT_EXEMPT))})")

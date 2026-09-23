@@ -1,6 +1,9 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v70 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+**Version:** v85 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+Word-level rules (which terms, which casing, which bans) live in
+`marketing/BRAND-LEXICON.md` — this file wins on voice/palette/logo/motion,
+the lexicon wins on vocabulary; keep both in sync.
 The public-facing subset of this file now ships as `site/brand.html` (the
 brand book page) — keep the two in sync when rules change.
 **Scope:** positioning, naming, voice, palette, type, logo system, art direction,
@@ -278,6 +281,7 @@ Photography/illustration commissions: brief lives in §11.
 |---|---|---|
 | Avatar (all networks) | `logo-icon.png` | 512×512 reads at 48 px; never the full lockup |
 | Profile banner | `keyart-16x9.png` crop or `og-card.png` | Safe-zone: keep text in middle 60% |
+| Creator embed badge | `badge-watched.svg` (+ `badge-watched-mono.svg`) | "WATCHED ON REAL WORLD" — stream overlays, video corners, article footers. Color on dark only; mono inherits text color. Ships in `press-kit/badges/` |
 | OG / link card | `og-card.png` (1200×630) | Already referenced site-wide |
 | Brand book page | `site/brand.html` | Public guidelines + one-click logo downloads; mirror of this file |
 | Post image (feed) | `keyart-square.png` (1080²) | Tagline variant "Watch free. Pay to reach in." |
@@ -412,9 +416,25 @@ When a commissioned key-art piece replaces the dev-capture art:
 
 ---
 
-## 15. Governance
+## 15. Lexicon
 
-- Changes to palette/type/logo/taglines = edit this file + regenerate assets +
+The canonical vocabulary lives in `marketing/BRAND-LEXICON.md`: canonical
+product terms and casing (The Wire, the block, NPC nudge, credits, reach
+in), people words (resident vs. viewer vs. player), the drift table
+(banned word → approved replacement), the in-world lexicon (parody venue
+names, Karl the Fog, verbatim feed strings), and grammar mechanics
+(sentence case, em dashes, en-dash ranges, no exclamation marks).
+
+The mechanical subset is enforced by `tools/brand_audit.py` check 7 on
+every site page — standalone "NPC", "users", "customers", "bots",
+"virtual", "influencers", "gameplay", "playthrough" all fail the gate.
+New banned terms go in the lexicon's §3 *and* the audit's `LEXICON_BANS`
+in the same commit.
+
+## 16. Governance
+
+- Changes to palette/type/logo/taglines/lexicon = edit this file (or
+  BRAND-LEXICON.md for vocabulary) + regenerate assets +
   inbox note. Palette hexes are also hardcoded in `site/css/style.css`,
   `site/assets/brand-tokens.json` (machine-readable source for
   `css/tokens.css` via `tools/make_tokens.py`), and

@@ -26,6 +26,7 @@
       "pattern-windows.svg", "favicon.svg"
     ],
     "keyart/": ["keyart-16x9.png", "keyart-square.png"],
+    "badges/": ["badge-watched.svg", "badge-watched-mono.svg"],
     "banners/": [
       "banner-x-1500x500.png", "banner-youtube-2560x1440.png",
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"

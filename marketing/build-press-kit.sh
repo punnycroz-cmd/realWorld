@@ -20,6 +20,9 @@ cp site/assets/logo-primary.svg site/assets/logo-primary.png \
    site/assets/logo-icon-animated.svg \
    site/assets/pattern-windows.svg \
    site/assets/favicon.svg "$KIT/logos/"
+mkdir -p "$KIT/badges"
+cp site/assets/badge-watched.svg site/assets/badge-watched-mono.svg \
+   "$KIT/badges/"
 cp site/shots/v48-A.png site/shots/v48-B.png site/shots/v48-C.png \
    site/shots/v48-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \

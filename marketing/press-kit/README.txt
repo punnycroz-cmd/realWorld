@@ -41,6 +41,9 @@ Contents
                      Usage rules: marketing/BRAND.md §7.
   keyart/            1920x1080 and 1080x1080 key art (built on a real
                      development-build capture)
+  badges/            "WATCHED ON REAL WORLD" creator/embed badge —
+                     color + single-ink (currentColor) SVGs for stream
+                     overlays, video corners, article footers.
   banners/           Pre-sized channel headers: X 1500x500, YouTube
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.

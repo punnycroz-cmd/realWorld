@@ -57,6 +57,12 @@ logos/logo-icon-animated.svg   Animated lit-window icon (SMIL; motion for
                                feeds/video bumpers where SVG animation plays).
 logos/pattern-windows.svg      Repeating lit-window pattern — backgrounds.
 
+badges/badge-watched.svg           "WATCHED ON REAL WORLD" embed badge —
+                                   stream overlays, video corners, article
+                                   footers. Dark surfaces only.
+badges/badge-watched-mono.svg      Single-ink badge (inherits text color)
+                                   for overlays and one-color print.
+
 banners/banner-x-1500x500.png        X/Twitter header.
 banners/banner-youtube-2560x1440.png YouTube channel art (safe-zone padded).
 banners/banner-discord-960x540.png   Discord banner.
