@@ -711,10 +711,20 @@ function sfBldCanvas(b, wet){
   // halo, a mid falloff, then the umbra core — the same physics the sun's
   // ~0.5° disc produces on real streets.
   const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
-  const shA = 0.05 + 0.15 * SF_SUN.day; // fades to nothing under cloud/night
-  for(const [mul, al] of [[1.7, shA * 0.18], [1.3, shA * 0.45], [1.0, shA]]){
-    g.fillStyle = `rgba(26,19,10,${al})`;
+  const shA = 0.08 + 0.24 * SF_SUN.day; // fades to nothing under cloud/night
+  // v23: true swept silhouette — every footprint edge extruded along the
+  // sun-throw plus the displaced cap, all in ONE path so the penumbra
+  // never double-darkens; tint is cool sky-lit shade, not warm mud
+  for(const [mul, al] of [[1.6, shA * 0.2], [1.25, shA * 0.45], [1.0, shA]]){
+    g.fillStyle = `rgba(30,38,62,${al})`;
     g.beginPath();
+    for(let i2 = 0; i2 < n; i2++){
+      const [x1, y1] = P[i2], [x2, y2] = P[(i2 + 1) % n];
+      g.moveTo(x1, y1); g.lineTo(x2, y2);
+      g.lineTo(x2 + shx * mul, y2 + shy * mul);
+      g.lineTo(x1 + shx * mul, y1 + shy * mul);
+      g.closePath();
+    }
     P.forEach(([x, y], i2) => i2
       ? g.lineTo(x + shx * mul, y + shy * mul)
       : g.moveTo(x + shx * mul, y + shy * mul));
@@ -787,6 +797,15 @@ function sfBldCanvas(b, wet){
     g.strokeStyle = shade(ACC, 0.85); g.lineWidth = 1;
     g.beginPath();
     g.moveTo(w.x1, w.y1 - hPx + 4); g.lineTo(w.x2, w.y2 - hPx + 4); g.stroke();
+    // v23: golden parapet rim — the sun-facing crown catches a warm edge
+    // of light at low sun while the street below sits in canyon shade
+    if(SF_SUN.day > 0.15 && sunK > 0.3){
+      g.strokeStyle = `rgba(255,216,150,${0.55 * Math.min(1, sunK) * SF_SUN.day})`;
+      g.lineWidth = 1.5;
+      g.beginPath();
+      g.moveTo(w.x1, w.y1 - hPx - 1); g.lineTo(w.x2, w.y2 - hPx - 1);
+      g.stroke();
+    }
     // v18: Clarion-style mural band across the lower wall — a painted
     // sky field, sun disc and layered hill silhouettes baked into the
     // sprite so the top-down view shows the same splash of color

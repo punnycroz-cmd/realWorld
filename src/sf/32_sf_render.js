@@ -199,8 +199,42 @@ function sfSunFaceK(nx, ny){
 function sfSunWallCol(base, k){
   const lit = 0.58 + 0.5 * Math.max(0, k) * SF_SUN.day + 0.05 * Math.max(0, k);
   if(SF_SUN.day > 0.22 && k > 0.18)
-    return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.42 * Math.min(1, k));
+    return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.58 * Math.min(1, k));
   return mix(shade(base, lit), '#7183a4', 0.22 * (1 - Math.max(0, k) * SF_SUN.day));
+}
+/* ---------------- v23: street-canyon sun occlusion ----------------
+   The Mission's signature light: a low sun fires down the street grid,
+   so the row on the sunward side throws the whole canyon into shade
+   while the facades opposite still catch gold. sfBldAtM resolves the
+   building under a meter-space point via the chunk index + even-odd
+   polygon test; sfCanyonShade marches a ray from a surface point toward
+   the sun and returns the height (m) up to which a neighboring mass
+   shadows it — 0 means open sky. */
+function sfBldAtM(xm, ym){
+  const cm = SF_M.cell_m;
+  const lst = SF_BLD_GRID.get(Math.floor(xm / (CHN * cm)) + ',' +
+                              Math.floor(ym / (CHN * cm)));
+  if(!lst) return -1;
+  const px = xm * SF_PXM, py = ym * SF_PXM;
+  for(const bi of lst){
+    const b = SF_BLD[bi];
+    if(px < b.bx0 || px > b.bx1 || py < b.by0 || py > b.by1) continue;
+    if(sfPtInPoly(b.px, px, py)) return bi;
+  }
+  return -1;
+}
+function sfCanyonShade(xm, ym, selfI){
+  if(SF_SUN.day < 0.08) return 0;
+  const tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+  const maxD = Math.min(80, 30 / tanEl);   // a 30m mass caps the reach
+  let zs = 0;
+  for(let s = 3; s < maxD; s += 3){
+    const bi = sfBldAtM(xm + SF_SUN.toX * s, ym + SF_SUN.toY * s);
+    if(bi < 0 || bi === selfI) continue;
+    const z = SF_BLD[bi].hPx / 4.2 - s * tanEl;
+    if(z > zs){ zs = z; if(zs > 26) break; }
+  }
+  return zs;
 }
 /* ---------------- v15: penumbra & twilight ----------------
    sfSoftEllipse — a contact shadow with a real umbra/penumbra profile:
@@ -1096,8 +1130,8 @@ function sfRenderWorld(cw, ch){
     const gx1 = cw / 2 + SF_SUN.toX * cw * 0.65,
           gy1 = ch / 2 + SF_SUN.toY * ch * 0.65;
     const lg = ctx.createLinearGradient(gx0, gy0, gx1, gy1);
-    const wa = 0.10 * SF_SUN.day * (0.5 + SF_SUN.warm * 0.8);
-    lg.addColorStop(0, `rgba(70,88,130,${0.09 * SF_SUN.day})`);
+    const wa = 0.15 * SF_SUN.day * (0.5 + SF_SUN.warm * 0.8);
+    lg.addColorStop(0, `rgba(70,88,130,${0.13 * SF_SUN.day})`);
     lg.addColorStop(0.55, 'rgba(0,0,0,0)');
     lg.addColorStop(1, `rgba(255,214,150,${wa})`);
     ctx.fillStyle = lg; ctx.fillRect(0, 0, cw, ch);
@@ -2515,6 +2549,56 @@ function sfRenderStreet(cw, ch){
   }
   SF_PERF.info = cells.length + 'cl/' + fills.size + 'fl';
 
+  /* v23: street-canyon cast shadows — each building's footprint swept
+     along the real sun vector pools across the pavement as one mass of
+     sky-lit shade (wide penumbra + umbra core, both in a single path so
+     overlapping sweeps never double-darken). Before this pass only a
+     thin ribbon hugged each wall base, so the street read flat-lit even
+     when the sun was scraping the cornice line. */
+  if(!night && SF_SUN.day > 0.08){
+    const shA = 0.46 * Math.min(1, SF_SUN.day + 0.25) * (1 - cover * 0.55);
+    if(shA > 0.03){
+      for(const [mul, al] of [[1.15, shA * 0.35], [1.0, shA * 0.7],
+                              [0.6, shA]]){
+        ctx.beginPath();
+        for(const b of SF_BLD){
+          const bxm = b.x / SF_PXM, bym = b.y / SF_PXM;
+          const ddx = bxm - camX, ddy = bym - camY;
+          const fwdS = ddx * DX + ddy * DY;
+          if(fwdS < -80 || fwdS > 200) continue;
+          if(Math.abs(ddx * DY - ddy * DX) > Math.max(50, fwdS * 1.6 + 70))
+            continue;
+          const hm2 = b.hPx / 4.2;
+          const ox = SF_SUN.x * hm2 * mul, oy = SF_SUN.y * hm2 * mul,
+                nP = b.px.length;
+          for(let e = 0; e < nP; e++){
+            const a1 = b.px[e], a2 = b.px[(e + 1) % nP],
+                  ax = a1[0] / SF_PXM, ay = a1[1] / SF_PXM,
+                  bx2 = a2[0] / SF_PXM, by2 = a2[1] / SF_PXM,
+                  q1 = pr(ax, ay, 0.02), q2 = pr(bx2, by2, 0.02),
+                  q3 = pr(bx2 + ox, by2 + oy, 0.02),
+                  q4 = pr(ax + ox, ay + oy, 0.02);
+            if(!q1 || !q2 || !q3 || !q4) continue;
+            ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]);
+            ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]);
+            ctx.closePath();
+          }
+          // displaced cap fills the silhouette interior past the far edge
+          let st = false;
+          for(const q of b.px){
+            const p = pr(q[0] / SF_PXM + ox, q[1] / SF_PXM + oy, 0.02);
+            if(!p){ st = false; continue; }
+            st ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+            st = true;
+          }
+          if(st) ctx.closePath();
+        }
+        ctx.fillStyle = `rgba(30,38,64,${al})`;
+        ctx.fill();
+      }
+    }
+  }
+
   // drawables: buildings, props, pawns — far -> near
   const ds = [];
   for(const b of SF_BLD){
@@ -2579,6 +2663,53 @@ function sfRenderStreet(cw, ch){
         const facingCam = (nx * -DX + ny * -DY) > 0.05; // wall faces camera
         if(!facingCam) continue;
         sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
+        /* v23: canyon shade band — the row across the street steals the
+           low sun: a ray toward the sun from each end of this wall finds
+           the occluding mass, and everything below the shade line sits in
+           cool sky light while the crown stays golden. The line slopes
+           with the block (corner lots cut real diagonals). */
+        if(!night && SF_SUN.day > 0.08 &&
+           nx * SF_SUN.toX + ny * SF_SUN.toY > 0.04){
+          const zm1 = Math.min(hm, sfCanyonShade(x1 + nx * 0.5, y1 + ny * 0.5, b.i)),
+                zm2 = Math.min(hm, sfCanyonShade(x2 + nx * 0.5, y2 + ny * 0.5, b.i));
+          if(zm1 > 0.3 || zm2 > 0.3){
+            const q1 = pr(x1, y1, 0), q2 = pr(x2, y2, 0),
+                  q3 = pr(x2, y2, zm2), q4 = pr(x1, y1, zm1);
+            if(q1 && q2 && q3 && q4){
+              const topY = Math.min(q3[1], q4[1]),
+                    softPx = Math.min(Math.max(4, Math.max(q1[1], q2[1]) - topY),
+                                      1.8 * F / Math.max(1, q1[2])),
+                    a0 = (0.52 + 0.12 * SF_SUN.warm) * Math.min(1, SF_SUN.day + 0.2) *
+                         (1 - cover * 0.5);
+              const grd = ctx.createLinearGradient(0, topY - softPx, 0,
+                                                   Math.max(q1[1], q2[1]));
+              grd.addColorStop(0, 'rgba(26,34,60,0)');
+              grd.addColorStop(clamp(softPx / Math.max(1, Math.max(q1[1], q2[1]) - topY + softPx), 0.05, 0.9),
+                               `rgba(26,34,60,${a0})`);
+              grd.addColorStop(1, `rgba(24,30,52,${a0})`);
+              ctx.fillStyle = grd;
+              ctx.beginPath();
+              ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]);
+              ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]);
+              ctx.closePath(); ctx.fill();
+              // warm bounce: the lit facade opposite kicks a whisper of
+              // reflected gold back into the shade near the pavement
+              const bA = pr(x1, y1, Math.min(1.4, zm1)),
+                    bB = pr(x2, y2, Math.min(1.4, zm2));
+              if(bA && bB){
+                const bg = ctx.createLinearGradient(0, Math.min(bA[1], bB[1]),
+                                                    0, Math.max(q1[1], q2[1]));
+                bg.addColorStop(0, 'rgba(255,190,120,0)');
+                bg.addColorStop(1, `rgba(255,190,120,${0.12 * SF_SUN.warm})`);
+                ctx.fillStyle = bg;
+                ctx.beginPath();
+                ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]);
+                ctx.lineTo(bB[0], bB[1]); ctx.lineTo(bA[0], bA[1]);
+                ctx.closePath(); ctx.fill();
+              }
+            }
+          }
+        }
       }
       // v12: roofscape — same deterministic typology as the baked sprite
       // (flat | gable | mansard | hip), so the silhouette you see from the
@@ -3111,8 +3242,12 @@ function sfRenderStreet(cw, ch){
         ctx.beginPath();
         ctx.ellipse(p[0], p[1], pw * 0.32, pw * 0.1, 0, 0, Math.PI * 2);
         ctx.fill();
+        // v23: a pawn standing in canyon shade cannot throw a sun shadow
+        // and its sprite takes the same cool sky fill as the pavement
+        const pvShade = (!night && SF_SUN.day > 0.08 && p[2] < 110)
+          ? sfCanyonShade(pv.x / SF_PXM, pv.y / SF_PXM, -1) : 0;
         // v14: ground shadow cast along the real sun vector
-        const vtip = (!night && SF_SUN.day > 0.08)
+        const vtip = (pvShade < 1.2 && !night && SF_SUN.day > 0.08)
           ? pr(pv.x / SF_PXM + SF_SUN.x * 1.7, pv.y / SF_PXM + SF_SUN.y * 1.7, 0)
           : null;
         if(vtip){
@@ -3129,6 +3264,10 @@ function sfRenderStreet(cw, ch){
           ctx.fill();
         }
         ctx.drawImage(fr, p[0] - pw / 2, p[1] - ph, pw, ph);
+        if(pvShade > 1.2){
+          ctx.fillStyle = `rgba(28,36,62,${0.3 * Math.min(1, pvShade / 4)})`;
+          ctx.fillRect(p[0] - pw / 2, p[1] - ph, pw, ph);
+        }
         if(p[2] < 40){
           ctx.font = `bold ${Math.max(8, 24 / p[2] * 4)}px sans-serif`;
           ctx.textAlign = 'center';
