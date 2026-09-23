@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Real World icon, monochrome">
+  <!-- Single-ink variant for one-color print / watermark / engraving.
+       Uses currentColor: set CSS color (or fill) to recolor. The lit window
+       is the only filled shape — the brand reads even in one ink. -->
+  <g fill="none" stroke="currentColor" color="#ece7dc">
+    <rect x="3" y="3" width="506" height="506" rx="112" stroke-width="10"/>
+    <rect x="92" y="108" width="328" height="24" fill="currentColor" stroke="none"/>
+    <rect x="106" y="128" width="300" height="302" stroke-width="8"/>
+    <rect x="206" y="128" width="4" height="302" fill="currentColor" stroke="none"/>
+    <rect x="306" y="128" width="4" height="302" fill="currentColor" stroke="none"/>
+    <rect x="124" y="158" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="124" y="256" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="124" y="354" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="224" y="158" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="224" y="354" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="324" y="158" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="324" y="256" width="64" height="72" rx="8" stroke-width="8"/>
+    <rect x="324" y="354" width="64" height="72" rx="8" stroke-width="8"/>
+  </g>
+  <rect x="224" y="256" width="64" height="72" rx="8" fill="currentColor" color="#ece7dc"/>
+</svg>

@@ -13,7 +13,9 @@ python3 tools/make_brand_assets.py >/dev/null
 
 # Refresh derivative copies (logos + screenshots mirror site assets).
 cp site/assets/logo-primary.svg site/assets/logo-primary.png \
+   site/assets/logo-primary-dark.svg \
    site/assets/logo-icon.svg site/assets/logo-icon.png \
+   site/assets/logo-icon-mono.svg \
    site/assets/favicon.svg "$KIT/logos/"
 cp site/shots/v15-A.png site/shots/v15-B.png site/shots/v15-C.png \
    site/shots/v15-D.png site/shots/v1-A.png site/shots/v1-B.png \
