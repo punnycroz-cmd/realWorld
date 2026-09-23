@@ -12,27 +12,27 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v51-A.png       1440x900 (approx)
+screenshots/v53-A.png       1440x900 (approx)
   The Mission block around 24th and Mission from overhead on an autumn
   afternoon (Day 22, 16:30): street grid, parked cars, crosswalks, and
-  the park edge read clearly. The resident inspector is open on Jules,
-  a hired resident, mid-routine — needs, mood, and recent thoughts are
-  all spectator-readable. The HUD shown is the real spectator chrome of
-  the development build.
+  curb-edge props — hydrants, news boxes, bike racks — read clearly.
+  The resident inspector is open on Jules, a hired resident, mid-routine
+  — needs, mood, and recent thoughts are all spectator-readable. The
+  HUD shown is the real spectator chrome of the development build.
 
-screenshots/v51-B.png       1440x900 (approx)
+screenshots/v53-B.png       1440x900 (approx)
   Street-level view up the block past storefronts and stoops: autumn
   leaves drift through the frame, parked cars line the curb, and
   residents (Dani, Priya, Jules) carry name tags overhead. The
   inspector stays open on Jules.
 
-screenshots/v51-C.png       1440x900 (approx)
+screenshots/v53-C.png       1440x900 (approx)
   The park from above as Karl — the marine layer — pools at the edges
-  of the frame: mature crowns, worn desire-lines, and the palm allée
-  show through the thinning fog. The neighborhood's back yard under a
-  moving edge, not a blanket.
+  of the frame: mature crowns, worn desire-lines, tennis courts, and
+  picnic blankets scattered across the lawns show through the thinning
+  fog. The neighborhood's back yard under a moving edge, not a blanket.
 
-screenshots/v51-D.png       1440x900 (approx)
+screenshots/v53-D.png       1440x900 (approx)
   Director mode over the rooftops under a clean autumn sky: REC cluster
   and DIRECTOR badge up top, shopfront awnings and pastel facades step
   with the block, leaves drift across the lens. The camera treats the
@@ -46,7 +46,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v51-A / v51-B.
+  First art pass, for before/after coverage. Pair with v53-A / v53-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

@@ -1,6 +1,6 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v93 — art-v51 rebase (screenshots/captions/ledger) + itch.io
+**Status: v93 — art-v53 rebase (screenshots/captions/ledger) + itch.io
 complete field map + store-update SOP + bundle stance, 2026-09-23.**
 Supersedes v78.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
@@ -177,7 +177,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v51-A..D.png` (4 ready, specular-glass build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v53-A..D.png` (4 ready, specular-glass build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -191,9 +191,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v51-D (director view — the hook), v51-B
-(street level), v51-C (Dolores Park), v16-int-cafe (interior vignette),
-then v51-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v53-D (director view — the hook), v53-B
+(street level), v53-C (Dolores Park), v16-int-cafe (interior vignette),
+then v53-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -252,7 +252,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v51-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v53-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -355,12 +355,12 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v51-D "director view" → "Director
+`press-kit/captions.txt` as canonical): v53-D "director view" → "Director
 mode over the rooftops under a clean autumn sky — REC cluster up top,
 awnings and pastel facades stepping with the block, leaves across the
-lens."; v51-B street level → "Street-level up the block past parody
+lens."; v53-B street level → "Street-level up the block past parody
 storefronts — autumn leaves drifting, parked cars on the curb, name tags
-overhead (Dani, Priya, Jules)."; v51-C park → "The park from above as Karl
+overhead (Dani, Priya, Jules)."; v53-C park → "The park from above as Karl
 pools at the edges — mature crowns, worn desire-lines, the palm allée
 through thinning fog."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
@@ -387,7 +387,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v51-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v53-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -487,7 +487,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v51 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v53 build) | shipped |
 
 ---
 
@@ -811,12 +811,12 @@ other-storefront audit (Epic/GOG/Humble/portals/mobile verdicts);
 versioning note renumbered §20→§25; §14 claim-ledger art-build cite
 refreshed v40→v50.
 
-**v93 changes:** art rebase v50→v51 (specular window glints, eave-shadow
+**v93 changes:** art rebase v50→v53 (specular window glints, eave-shadow
 shear, lamplit spill — specular-glass build): §2.4/§2.5/§4 screenshot
-refs, §9 caption set rewritten to match `press-kit/captions.txt` v51
+refs, §9 caption set rewritten to match `press-kit/captions.txt` v53
 wording (inspector on Jules, Karl pooling at the park edges, REC cluster),
 §10 media row, §14 ledger cite. Capsules/keyart/og-card already rebaked on
-v51-D at v91 — no asset work needed, this was pure copy drift (caught by
+v53-D at v91 — no asset work needed, this was pure copy drift (caught by
 `store_copy_check.py`: the v50-A..D range check FAILED). New §26 itch.io
 complete field map (every project-edit field incl. sidebar "more
 information" + external links with UTMs), §27 store-update SOP (the

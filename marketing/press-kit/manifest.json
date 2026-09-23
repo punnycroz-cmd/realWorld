@@ -2,7 +2,7 @@
   "kit": "Real World — The Mission — press kit",
   "status": "pre-launch draft (local build only)",
   "generated_by": "marketing/build-press-kit.sh",
-  "art_build": "v51 (+ v16 interior vignettes, v1 early-pass shots)",
+  "art_build": "v53 (+ v16 interior vignettes, v1 early-pass shots)",
   "files": {
     "index.html": "self-contained offline press hub — open this first",
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
@@ -34,8 +34,8 @@
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
     "screenshots/": [
-      "v51-A.png", "v51-B.png", "v51-C.png", "v51-D.png",
-      "v51-A.webp", "v51-B.webp", "v51-C.webp", "v51-D.webp",
+      "v53-A.png", "v53-B.png", "v53-C.png", "v53-D.png",
+      "v53-A.webp", "v53-B.webp", "v53-C.webp", "v53-D.webp",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
     ]
   },

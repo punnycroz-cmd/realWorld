@@ -33,9 +33,9 @@ in [brackets] is a placeholder — do not print brackets.
 
 | File | Shows | Caption shorthand |
 |---|---|---|
-| `screenshots/v51-A.png` | Top-down over the Mudhaus block — murals, parody signage, polychrome trim | "The Mission block, development build" |
-| `screenshots/v51-B.png` | Street-level follow-cam — fire escapes, stoops, lived-in ground line | "Street level, development build" |
-| `screenshots/v51-D.png` | Director mode — the block staged like a film set | "Director mode, development build" |
+| `screenshots/v53-A.png` | Top-down over the Mudhaus block — murals, parody signage, polychrome trim | "The Mission block, development build" |
+| `screenshots/v53-B.png` | Street-level follow-cam — fire escapes, stoops, lived-in ground line | "Street level, development build" |
+| `screenshots/v53-D.png` | Director mode — the block staged like a film set | "Director mode, development build" |
 
 Full captions + credit lines: `captions.txt`. Credit:
 "Real World (in development)". Keep the "in development" label.
@@ -70,5 +70,5 @@ If we got something wrong in the kit, or the design changed after this
 snapshot, the fix is one line to [press@ — placeholder]. Corrections to
 published coverage are welcomed — we'll confirm the accurate phrasing
 rather than ask for a takedown. Kit freshness is tracked in
-`CHANGELOG.md`; screenshots are labeled by renderer build (v51-* is
+`CHANGELOG.md`; screenshots are labeled by renderer build (v53-* is
 current as of this kit).

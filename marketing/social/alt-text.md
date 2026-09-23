@@ -5,14 +5,14 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v50)
+## Published shots (`site/shots/`, development build v53)
 
 | File | Alt text |
 |---|---|
-| `v50-A` | Top-down view of the Mission block at 24th and Mission as Karl's marine layer arrives canyon-channeled — fog fingers creep along the street grid and pool over rooftops while avenues stay lit. Development build. |
-| `v50-B` | Street-level view on the Mudhaus block: marine haze owns the far end of the street while warm sun holds the near facades; a controlled resident stands mid-block. Development build. |
-| `v50-C` | Dolores Park from overhead as the fingered fog front stalls against the blocks and pours down the avenues — tree crowns and paths visible through the thinning layer. Development build. |
-| `v50-D` | Director-mode street view under a clean evening sky — REC and DIRECTOR badges, soft warm light lanes on the roofline, pastel facades stepping with the slope, a named resident on the corner. Development build. |
+| `v53-A` | Top-down view of the Mission block around 24th and Mission on an autumn afternoon — street grid, crosswalks, parked cars, and curb-edge props read clearly; the resident inspector is open on Jules with needs, mood, and recent thoughts. Development build. |
+| `v53-B` | Street-level view up the block past storefront facades and stoops — parked cars at the curb, residents (Dani, Priya, Jules) named overhead, Karl's haze softening the far end of the street. Development build. |
+| `v53-C` | Dolores Park from overhead under thinning fog — tree crowns, worn paths, tennis courts, and picnic blankets scattered across the lawns; the marine layer pools at the frame's edges. Development build. |
+| `v53-D` | Director-mode street view under a clean autumn sky — REC cluster and DIRECTOR badge, pastel facades and awnings stepping with the block, leaves drifting across the lens. Development build. |
 | `v16-int-cafe` | Interior still: a corner cafe — counter, chalk menu, two residents mid-conversation. Development build. |
 | `v16-int-flat` | Interior still: a small apartment — sofa, window over the street, one resident reading. Development build. |
 | `v1-A` / `v1-B` | Earliest surviving build of the block — flat lighting, simple facades. Kept for before/after posts only; always paired with a current shot. |

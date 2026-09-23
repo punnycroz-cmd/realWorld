@@ -71,7 +71,7 @@ visit      pageview                     (site — live now)
             └─create character_created  (game — PENDING)
 ```
 
-**Onboarding events (v36 + v51 + v68 + v81):** the world track's onboarding contract
+**Onboarding events (v36 + v53 + v68 + v81):** the world track's onboarding contract
 (`world/onboarding-ui.md` / `world/onboarding.json analytics_hooks`)
 names twenty-one events emitted at merge. v11's nine: `tour_started`,
 `tour_beat`, `tour_completed`, `tour_skipped` (carries `at_beat`),

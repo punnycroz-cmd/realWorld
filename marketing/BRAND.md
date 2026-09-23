@@ -1,6 +1,6 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v85 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v100 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
 Word-level rules (which terms, which casing, which bans) live in
 `marketing/BRAND-LEXICON.md` — this file wins on voice/palette/logo/motion,
 the lexicon wins on vocabulary; keep both in sync.
@@ -286,6 +286,7 @@ Photography/illustration commissions: brief lives in §11.
 | Brand book page | `site/brand.html` | Public guidelines + one-click logo downloads; mirror of this file |
 | Post image (feed) | `keyart-square.png` (1080²) | Tagline variant "Watch free. Pay to reach in." |
 | itch.io cover | `cover-itch-630x500.png` | Built |
+| Email | `templates/email/` | Light-first table layout, dark-ink lockup, one amber element; spec in §16 |
 | Steam capsule (if ever) | — | Spec in STORE-COPY.md §capsules; commission before any Steam page |
 
 Consistent handle recommendation (owner registers at go): the product name
@@ -431,7 +432,41 @@ every site page — standalone "NPC", "users", "customers", "bots",
 New banned terms go in the lexicon's §3 *and* the audit's `LEXICON_BANS`
 in the same commit.
 
-## 16. Governance
+## 16. Email identity
+
+The inbox is a light surface — the one place the brand goes light-first.
+Clients force white backgrounds, block remote images, and clip dark CSS;
+the email system is designed for that reality, not against it. Executable
+templates + rules live in `marketing/templates/email/` (README is the
+enforcement doc; `base.html` is the only sanctioned skeleton).
+
+- **Layout:** single 600 px table column on Paper-warm `#f4f2ec`; white
+  card with a `#e3ded2` hairline. Inline styles only, no webfonts, no
+  images required to read. Survives "images blocked" by design.
+- **Lockup:** `logo-primary-dark` (dark ink) at 180 px in the header;
+  `alt="REAL WORLD — THE MISSION"` is the text fallback and carries the
+  brand when pixels don't load. Never the light-text lockup — it
+  disappears on white.
+- **One amber element per email** — the CTA button (`#e8a04c` fill,
+  `#1a1206` bold label) or a single amber rule. No amber body text, no
+  full-bleed Asphalt backgrounds (dark boxes read as a rendering bug
+  in the inbox, not as brand).
+- **Subject lines are sentences.** No emoji, no caps, no fake "re:",
+  no urgency/countdown language — the same calm as everywhere else.
+  Status mail names the fact: "Your request: not approved."
+- **Preheader is written, never default** ("View in browser" is a bug).
+- **Footer honesty:** every send says why the recipient got it, carries
+  a real `{{unsubscribe}}`, and skips guilt copy on the way out.
+- **No screenshots in email** — dev HUD + small type = illegible at
+  inbox scale and a broken-image risk. Icon tile or `keyart-16x9` with
+  full alt text at most; the copy must stand alone.
+- **Feed vocabulary travels verbatim** — `{{status}}` renders the feed
+  string (`approved`, `resolved · declined`, `not approved`), never a
+  marketing-softened rewrite (lexicon §4, gate G15).
+
+---
+
+## 17. Governance
 
 - Changes to palette/type/logo/taglines/lexicon = edit this file (or
   BRAND-LEXICON.md for vocabulary) + regenerate assets +
