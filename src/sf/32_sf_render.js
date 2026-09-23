@@ -1348,6 +1348,31 @@ function sfDecalChunk(g, cx, cy){
                        wy * csz - oy + phash(wy, wx, 1722) * 20, 6, 5);
           }
         }
+    } else if(d.kind === 'worn'){
+      // v40: desire lines — patchy bare-earth cells where foot traffic
+      // beats the lawn; wear weight w fades toward each line's fringe
+      for(const [wx, wy, w] of d.cells){
+        const X = wx * csz - ox, Y = wy * csz - oy;
+        if(X > CHN * csz + 4 || X < -csz - 4 || Y > CHN * csz + 4 || Y < -csz - 4)
+          continue;
+        g.fillStyle = `rgba(158,140,88,${0.36 + w * 0.5})`;
+        g.fillRect(X, Y, csz + 0.5, csz + 0.5);
+        if(w > 0.45){
+          g.fillStyle = `rgba(118,100,60,${(w - 0.45) * 0.95})`;
+          g.fillRect(X + csz * 0.16, Y + csz * 0.16, csz * 0.68, csz * 0.68);
+        }
+        // kicked-up bare speckles + a surviving grass tuft here and there
+        g.fillStyle = 'rgba(96,82,50,0.4)';
+        for(let s2 = 0; s2 < 3; s2++){
+          const hx = phash(wx, wy * 7 + s2, 1741), hy = phash(wy, wx * 5 + s2, 1742);
+          g.fillRect(X + hx * csz, Y + hy * csz, 2, 2);
+        }
+        if(phash(wx, wy, 1743) < 0.25){
+          g.fillStyle = 'rgba(110,150,80,0.5)';
+          g.fillRect(X + phash(wx, wy, 1744) * csz * 0.7,
+                     Y + phash(wy, wx, 1745) * csz * 0.7, 3, 2);
+        }
+      }
     }
   }
   g.restore();
@@ -1802,7 +1827,9 @@ function sfRenderWorld(cw, ch){
       if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0;
         spr = o.big ? V.bigTree[ti] : V.tree[ti]; shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
-      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; shadeR = 11; footM = 0.45; }
+      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0];
+        // v40: the ficus (v0) throws a real canopy-sized shade pool
+        shadeR = o.v === 0 ? 30 : 11; footM = o.v === 0 ? 0.7 : 0.45; }
       else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; shadeR = 8; footM = 0.5; }
       else if(o.kind === 'sfBench'){ spr = V.bench; propM = 0.9; footM = 0.8; }
       else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; propM = 4.5; footM = 0.4; } // v15: civil dusk
@@ -1842,7 +1869,8 @@ function sfRenderWorld(cw, ch){
         // streaks, compact noon pools), tilted with the ground plane
         if(shadeR && !isNight() && SF_SUN.day > 0.08){
           const hmPx = (o.kind === 'sfTree' ? (o.big ? 7.2 : 4.4) : o.kind === 'sfPalm' ? 6.4 :
-                        o.kind === 'sfCypress' ? 6.0 : 3.6) * SF_PXM * cam.zoom;
+                        o.kind === 'sfCypress' ? 6.0 :
+                        o.kind === 'sfStreetTree' && o.v === 0 ? 4.8 : 3.6) * SF_PXM * cam.zoom;
           const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
           const stretch = 1 + Math.hypot(SF_SUN.x, SF_SUN.y) * 0.55;
           const rot = Math.atan2(shy, shx);
@@ -1887,7 +1915,7 @@ function sfRenderWorld(cw, ch){
                o.v === 2 ? ['#d8a84a','#c09038','#e8c86a'] :
                            ['#5a7a3a','#6b8a44','#48682e'])
             : ['#5a7a3a','#718c46','#486830'];
-          const nL = o.big ? 22 : (o.kind === 'sfStreetTree' ? 9 : 12);
+          const nL = o.big ? 22 : (o.kind === 'sfStreetTree' ? (o.v === 0 ? 15 : 9) : 12);
           const wdx = Math.cos(W.windAng || 0), wdy = Math.sin(W.windAng || 0);
           const lee = shadeR * 0.4 * (0.4 + SF_WX.gust * 0.8);
           for(let li = 0; li < nL; li++){
@@ -5279,7 +5307,9 @@ function sfRenderStreet(cw, ch){
       // silhouettes at their true heights, not the plan-view crown blit
       if(o.kind === 'sfTree'){ spr = V.sideTree[Math.abs(hash2(o.wx, o.wy, 7) * V.sideTree.length) | 0]; hm = o.big ? 8.6 : 7.0; shadowR = 1.9; }
       else if(o.kind === 'sfPalm'){ spr = V.sidePalm[Math.abs(hash2(o.wx, o.wy, 8) * V.sidePalm.length) | 0]; hm = 10.5; shadowR = 1.1; }
-      else if(o.kind === 'sfStreetTree'){ spr = V.sideStreet[o.v != null ? o.v : 0]; hm = 4.4; shadowR = 1.3; }
+      else if(o.kind === 'sfStreetTree'){ spr = V.sideStreet[o.v != null ? o.v : 0];
+        // v40: ficus stands taller with a crown that spans the curb lane
+        hm = o.v === 0 ? 6.4 : 4.4; shadowR = o.v === 0 ? 2.0 : 1.3; }
       else if(o.kind === 'sfCypress'){ spr = V.sideCypress[Math.abs(hash2(o.wx, o.wy, 9) * V.sideCypress.length) | 0]; hm = 11.5; shadowR = 1.0; }
       else if(o.kind === 'sfBench'){ spr = V.bench; hm = 0.9; shadowR = 0.55; }
       else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; hm = 4.5; shadowR = 0.3; }

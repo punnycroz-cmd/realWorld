@@ -98,12 +98,21 @@ const SF_PROP_CELL = new Map(); // "wx,wy" -> [objs] spatial index (v5)
 const SF_WIRES = []; // v20: [{x1,y1,x2,y2}] pole-top wire spans (world px)
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
-                      sfStreetTree: 6, sfCypress: 7, sfPlanter: 5,
+                      sfStreetTree: 8, sfCypress: 7, sfPlanter: 5,
                       sfCar: 15, sfPole: 5 };
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
 const SF_DECALS = [];
 const SF_GROUND_OVR = new Map(); // "wx,wy" -> street-view fill color
+/* v40: perimeter palm allée — a park-edge grass cell carries a palm
+   every ~7 cells (~14m) along the edge axis, phase-offset per row, the
+   way Dolores Park's palms actually ring the lawn. Pure + deterministic. */
+function sfPalmRow(wx, wy){
+  const horiz = sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11;
+  const u = horiz ? wx : wy, per = horiz ? wy : wx;
+  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 7);
+  return ((u + off) % 7) === 0;
+}
 function sfPropIndex(o){
   const k = o.wx + ',' + o.wy;
   if(!SF_PROP_CELL.has(k)) SF_PROP_CELL.set(k, []);
@@ -447,7 +456,7 @@ function sfInitWorld(){
         const v = phash(wx, wy, 1651) < 0.22 ? 1 : (phash(wx, wy, 1652) < 0.18 ? 2 : 0);
         const o = addVeg('sfStreetTree', wx, wy, fx, fy);
         o.v = v; nStreetTree++;
-      } else if(t === 13 && nParkVeg < 1000){
+      } else if(t === 13 && nParkVeg < 1600){
         // park grass: shrubs + flowerbeds; denser near paths, sparse inside
         const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
                          sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
@@ -460,12 +469,13 @@ function sfInitWorld(){
         // v31: park canopy upgraded to real cover — denser gate, half the
         // trees mature ~8m crowns (o.big), and trees clump into groves
         // the way Dolores Park's plantings actually mass on the slopes
-        if(h1 > 0.962 && !occNear(wx, wy, 3) && !nearPath){
+        // v40: denser still — most park trees are now mature crowns
+        if(h1 > 0.955 && !occNear(wx, wy, 3) && !nearPath){
           const o = addVeg('sfTree', wx, wy,
                  (phash(wx, wy, 1667) - 0.5) * 10, (phash(wy, wx, 1668) - 0.5) * 10);
-          o.big = phash(wx, wy, 3450) < 0.55 ? 1 : 0;
+          o.big = phash(wx, wy, 3450) < 0.7 ? 1 : 0;
           nParkVeg++;
-          if(phash(wx, wy, 3451) < 0.45 && nParkVeg < 1000){
+          if(phash(wx, wy, 3451) < 0.55 && nParkVeg < 1600){
             const cx2 = wx + Math.floor(phash(wx, wy, 3452) * 5) - 2;
             const cy2 = wy + Math.floor(phash(wy, wx, 3453) * 5) - 2;
             const np2 = sfTile(cx2, cy2 - 1) === 15 || sfTile(cx2, cy2 + 1) === 15 ||
@@ -477,7 +487,9 @@ function sfInitWorld(){
               nParkVeg++;
             }
           }
-        } else if(nearWalk && h1 < 0.07 && !occNear(wx, wy, 4)){
+        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 4)){
+          // v40: perimeter palm allée — a tall palm every ~7 cells along
+          // the park edge, the row Dolores Park actually wears
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
           nParkVeg++;
@@ -501,16 +513,22 @@ function sfInitWorld(){
             nParkVeg++;
           }
         }
-      } else if(t === 15 && nPathPalm < 170){
-        // palm sentinels along park paths, offset onto the grass edge
-        let fx = 0, fy = 0;
-        if(sfTile(wx, wy - 1) === 13) fy = -13;
-        else if(sfTile(wx, wy + 1) === 13) fy = 13;
-        else if(sfTile(wx - 1, wy) === 13) fx = -13;
-        else if(sfTile(wx + 1, wy) === 13) fx = 13;
+      } else if(t === 15 && nPathPalm < 400){
+        // v40: path allée — palms march down the path edges every ~6
+        // cells (~12m) on a per-row phase, the way the real park palms
+        // line its walks, instead of the old random scatter
+        let fx = 0, fy = 0, u = 0, per = 0, horiz = true;
+        if(sfTile(wx, wy - 1) === 13){ fy = -13; u = wx; per = wy; }
+        else if(sfTile(wx, wy + 1) === 13){ fy = 13; u = wx; per = wy; }
+        else if(sfTile(wx - 1, wy) === 13){ fx = -13; u = wy; per = wx; horiz = false; }
+        else if(sfTile(wx + 1, wy) === 13){ fx = 13; u = wy; per = wx; horiz = false; }
         else continue;
-        if(phash(wx, wy, 1670) > 0.14 || occNear(wx, wy, 4)) continue;
-        addVeg('sfPalm', wx, wy, fx, fy); nPathPalm++;
+        const off = Math.floor(phash(per, 9, horiz ? 1671 : 1670) * 6);
+        if(((u + off) % 6) !== 0 || occNear(wx, wy, 4)) continue;
+        addVeg('sfPalm', wx, wy,
+               fx + (phash(wx, wy, 1672) - 0.5) * 5,
+               fy + (phash(wy, wx, 1673) - 0.5) * 5);
+        nPathPalm++;
       }
     }
   }
@@ -630,6 +648,54 @@ function sfInitWorld(){
         }
         SF_GROUND_OVR.set(wx + ',' + wy, OVR_COL[d.kind]);
       }
+  }
+
+  /* ---- v40: Dolores desire lines — the worn footpaths feet actually
+     cut across the lawn: two long corner-to-corner diagonals and a
+     terrace-cross mid link, wear fading toward each fringe. Cells bake
+     into the terrain atlas via a 'worn' decal and mirror to
+     SF_GROUND_OVR for the street camera. */
+  let pbx0 = 1e9, pby0 = 1e9, pbx1 = -1, pby1 = -1;
+  for(let wy = 0; wy < SF_M.gh; wy++)
+    for(let wx = 0; wx < SF_M.gw; wx++){
+      if(sfTile(wx, wy) !== 13) continue;
+      if(wx < pbx0) pbx0 = wx; if(wx > pbx1) pbx1 = wx;
+      if(wy < pby0) pby0 = wy; if(wy > pby1) pby1 = wy;
+    }
+  if(pbx1 > pbx0){
+    const pcx = (pbx0 + pbx1) / 2, pcy = (pby0 + pby1) / 2;
+    const lines = [
+      [[pbx0 + 2, pby1 - 3], [pcx - 6, pcy + 2], [pbx1 - 3, pby0 + 3]],
+      [[pbx0 + 2, pby0 + 4], [pcx + 5, pcy - 3], [pbx1 - 2, pby1 - 4]],
+      [[pbx0 + 2, pcy],      [pcx, pcy + 1],    [pbx1 - 2, pcy - 2]],
+    ];
+    const segD = (px, py, ax, ay, bx, by) => {
+      const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy || 1;
+      let tt = ((px - ax) * dx + (py - ay) * dy) / l2;
+      tt = Math.max(0, Math.min(1, tt));
+      return Math.hypot(px - (ax + dx * tt), py - (ay + dy * tt));
+    };
+    const wornCells = [];
+    for(let wy = pby0; wy <= pby1; wy++)
+      for(let wx = pbx0; wx <= pbx1; wx++){
+        if(sfTile(wx, wy) !== 13) continue;
+        let dmin = 1e9;
+        for(const L of lines)
+          for(let s2 = 0; s2 + 1 < L.length; s2++){
+            const dd = segD(wx + 0.5, wy + 0.5,
+                            L[s2][0], L[s2][1], L[s2 + 1][0], L[s2 + 1][1]);
+            if(dd < dmin) dmin = dd;
+          }
+        if(dmin > 1.3) continue;
+        const w = 1 - dmin / 1.3;
+        // patchy: wear breaks up on a per-cell hash at the fringe
+        if(phash(wx, wy, 1690) > 0.35 + w * 0.75) continue;
+        wornCells.push([wx, wy, w]);
+        SF_GROUND_OVR.set(wx + ',' + wy, w > 0.55 ? '#96855a' : '#a08e60');
+      }
+    if(wornCells.length)
+      SF_DECALS.push({ kind: 'worn', cells: wornCells,
+                       x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
   }
 
   // interiors for the key locations (door-teleport model)

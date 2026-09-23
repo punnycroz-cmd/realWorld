@@ -69,7 +69,7 @@ const api = eval(m[1] + `
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
-    sfWireShadow })`);
+    sfWireShadow, sfPalmRow, SF_DECALS })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -467,6 +467,21 @@ const api = eval(m[1] + `
       }
     ok(gmax > 0.005 && gmax < 0.13,
        'street grades real but drivable (' + (gmax * 100).toFixed(1) + '% max)');
+  }
+
+  // v40 canopy architecture: perimeter palm allée is deterministic and
+  // beats exactly one residue class per row; desire-line decals exist
+  {
+    ok(typeof api.sfPalmRow === 'function', 'sfPalmRow exported');
+    ok(api.sfPalmRow(10, 10) === api.sfPalmRow(10, 10),
+       'sfPalmRow deterministic');
+    const palms = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfPalm').length;
+    ok(palms >= 40, 'palm allees planted (' + palms + ' palms)');
+    const fic = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfStreetTree' && o.v === 0).length;
+    ok(fic >= 50, 'ficus street trees planted (' + fic + ')');
+    let nWorn = 0;
+    for(const d of api.SF_DECALS) if(d.kind === 'worn') nWorn += d.cells.length;
+    ok(nWorn > 40, 'desire lines worn across the lawn (' + nWorn + ' cells)');
   }
 
   console.log('---');

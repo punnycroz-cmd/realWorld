@@ -349,6 +349,65 @@ function sfStreetTreeSpr(v){
   paEllipse(g, 16, 13, 3.5, 2, lf[5]); // key light catch
   return s;
 }
+/* ---- v40: the Mission's real signature street tree — the ficus
+   (Indian laurel fig). A broad evergreen crown that arches over the
+   sidewalk AND the curb lane (real ficus crowns run 6-9m), glossy deep
+   green, and the famous buttress root flare that heaves the grate and
+   the sidewalk around it. Replaces the generic green pit tree — the
+   trumpet (v1) and ginkgo (v2) keep their smaller crowns. */
+function sfFicusSpr(){
+  const s = paMk(84, 76), g = s.g;
+  const tr = MAT.trunk, ir = MAT.ironDark;
+  const lf = rampOf('#3e7c36'), ld = rampOf('#265222');
+  // grate — heaved by roots: cracked square, lifted lips, split seams
+  paR(g, 33, 66, 19, 6, ir[2]);
+  paR(g, 33, 66, 19, 1, ir[4]);
+  paLine(g, 36, 71, 44, 72, ir[0]); paLine(g, 48, 72, 51, 68, ir[0]);
+  paEllipse(g, 43, 68, 5, 2.4, MAT.dirt[2]);
+  // buttress root flare crawling over the grate lips
+  paLine(g, 43, 68, 35, 71, tr[2]); paLine(g, 43, 68, 51, 70, tr[2]);
+  paLine(g, 42, 68, 38, 72, tr[1]); paLine(g, 44, 68, 49, 72, tr[1]);
+  // thick trunk rising into the crown
+  paR(g, 40, 50, 5, 18, tr[2]); paR(g, 41, 50, 2, 18, tr[3]);
+  paPX(g, 44, 58, tr[4]);
+  // crown: wide layered dome, much broader than a pit tree's
+  const blobs = [[42, 34, 26, 19], [22, 40, 15, 11], [62, 38, 15, 11],
+                 [42, 18, 18, 13], [30, 26, 13, 10], [56, 24, 13, 10],
+                 [16, 32, 9, 7], [68, 30, 9, 7], [42, 48, 20, 10]];
+  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx, by, rx, ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, 3800 + bi, lf, ld,
+                 { n: Math.round(rx * ry * 2.3) });
+  }
+  // aerial root strands hanging off the low crown — ficus signature
+  for(const rx of [30, 40, 52]) paLine(g, rx, 46, rx + 1, 52 + (rx % 3), tr[1]);
+  paEllipse(g, 26, 14, 5, 2.5, lf[5]); // key light catch
+  paEllipse(g, 36, 10, 3.5, 2, lf[4]);
+  return s;
+}
+/* street-view silhouette of the same ficus: buttressed trunk, crown
+   spreading low over the curb lane the way the real trees tunnel the
+   Mission's streets */
+function sfFicusSideSpr(){
+  const s = paMk(104, 150), g = s.g;
+  const tr = MAT.trunk, ir = MAT.ironDark;
+  const lf = rampOf('#3e7c36'), ld = rampOf('#265222');
+  paEllipse(g, 52, 146, 14, 3, ir[1]);
+  paEllipse(g, 52, 145.4, 10, 2.2, MAT.dirt[2]);
+  for(let k = -2; k <= 2; k++) paPX(g, 52 + k * 4, 144, ir[0]);
+  paLine(g, 52, 144, 42, 146, tr[2]); paLine(g, 52, 144, 62, 146, tr[2]);
+  paR(g, 49, 96, 6.4, 48, tr[2]); paR(g, 50, 96, 2.4, 48, tr[3]);
+  paLine(g, 52, 104, 30, 84, tr[2]); paLine(g, 52, 102, 74, 82, tr[2]);
+  paLine(g, 52, 98, 44, 80, tr[1]);
+  const blobs = [[52, 60, 38, 26], [28, 72, 20, 14], [76, 70, 20, 14],
+                 [52, 38, 24, 17], [36, 50, 15, 11], [70, 46, 15, 11],
+                 [16, 64, 11, 8], [88, 60, 11, 8], [52, 86, 30, 12]];
+  sfSideCrown(g, blobs, 3860, lf, ld);
+  for(const rx of [40, 52, 64]) paLine(g, rx, 82, rx + 1, 90, tr[1]); // aerial roots
+  paEllipse(g, 34, 36, 5, 3, lf[5]);
+  return s;
+}
 function sfCypressSpr(v){
   // Monterey cypress FLAG FORM: Pacific westerlies shear the crown
   // leeward — tight windward face, foliage streamed east, ragged top.
@@ -655,7 +714,7 @@ function buildSfVeg(){
   V.lampOff = sfLampSpr(false);
   V.lampOn = sfLampSpr(true);
   // v5 vegetation set
-  V.streetTree = [sfStreetTreeSpr(0), sfStreetTreeSpr(1), sfStreetTreeSpr(2)];
+  V.streetTree = [sfFicusSpr(), sfStreetTreeSpr(1), sfStreetTreeSpr(2)];
   V.cypress = [sfCypressSpr(0), sfCypressSpr(1)];
   V.shrub = [sfShrubSpr(0), sfShrubSpr(1)];
   V.flowerbed = [sfFlowerBedSpr(0), sfFlowerBedSpr(1)];
@@ -672,7 +731,7 @@ function buildSfVeg(){
   V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
   V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
   V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
-  V.sideStreet = [sfVegSideSpr('street', 0), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
+  V.sideStreet = [sfFicusSideSpr(), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
   V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
 }
 
