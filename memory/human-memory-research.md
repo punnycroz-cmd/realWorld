@@ -880,3 +880,55 @@ memory-as-its-own-cue, and overnight reactivation.
   age/trait-sensitivity note (PM monitoring, TOT resolution, renewal
   under trauma, chain_gain as the storyteller trait).
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 20. v15 summary — age-development II (infancy latents, socialization, retrieval inhibition, cultural bump, 2026-09-23)
+
+Second pass on the lifespan layer (age-development.md Part II). v0.3
+built the era structure and continuous curves; this pass filled four
+mechanistic holes and corrected two sign errors.
+
+- **Infantile amnesia = accessibility failure.** Rovee-Collier
+  (retention ∝ age at encoding, ~linear through infancy), Travaglia et
+  al. 2016 (latent trace reinstated only by context+reinforcer
+  compound reminders), Guskjolen et al. 2018 (optogenetic recovery of
+  infant engrams) → records under the amnesia boundary go `latent`,
+  never deleted; only a ≥2-sensory+place compound cue can return them
+  (`latent_recall_p` 0.08) as low-confidence fragments. The Proust
+  mechanism now reaches all the way down.
+- **The amnesia boundary is socially set.** Fivush & Nelson 2004;
+  Reese & Newcombe 2007 → `reminiscence_env` bible dial shifts
+  `amnesia_exit` ±1.5y and scales `child_consol_gain` — parental
+  retelling is rehearsal.
+- **Production deficiency** (Flavell 1970; Schneider & Pressley 1997):
+  `elab_gain`/`gen_gain` gated by `strategy_ramp(age)` to ~12;
+  `scaffolded` events bypass (adult-guided elaboration). Children keep
+  detail shards, weak gist (`child_gist_mult` — fuzzy-trace verbatim
+  bias).
+- **Retrieval-side inhibition / OTV** (Arbuckle & Gold 1993; Hasher &
+  Zacks 1988; Trunk & Abrams 2009 flagged DEBATED-style): `offtarget_p`
+  bout contamination rising to ~0.15 at 80 — rambling is a memory
+  phenotype, not a personality quirk (intercept IS personality).
+- **Sign fix — illusory truth × knowledge:** Fazio et al. 2015 (young
+  adults neglect knowledge) vs Brashier et al. 2017 (older adults'
+  knowledge protects them) → `know_protect_*` clause in §6.3: old resist
+  fluent lies that contradict what they know, young don't.
+- **Childhood sleep inversion** (Kurdziel et al. 2013; Wilhelm et al.
+  2008): `sws_mult` child knot 1.2; `nap` mini-tick + unrecoverable
+  `nap_loss` 0.1.
+- **Cascading bump** (Krumhansl & Zupnick 2013; Svob & Brown 2012):
+  bump extends to `cultural` semantic records (`bump_semantic_gain`)
+  plus a parents'-era secondary peak at encodeAge 4–10
+  (`bump_cascade_gain`).
+- **Metamemory miscalibrated UP in childhood** (Flavell 1970; Koriat &
+  Shitzer-Reichert 2002): `metamem_r` ~0 below ~10, `self_est_bias`
+  +0.3 child / −0.05 old.
+- **Source-channel split** (Foley & Johnson 1985 internal↔external vs
+  Henkel et al. 1998): children confuse imagined↔witnessed
+  (`child_internal_confuse` 2.0), old confuse speakers.
+- Spec → v1.5: schema +`latent`; NEW §4.14–4.15, §5.19–5.20; §2 strategy
+  gate + cultural bump + child trauma offset (HYPOTHESIS); §6.3/§6.10/
+  §6.15 edits; §7 +18 params + 5 knot-row updates; §10 contract
+  additions (nap tick, scaffolded/cultural/cascade event flags,
+  latent_returned reconstructions). Probes P136–P144 (registry now
+  P1–P144); profiles +18 clamp rows + v1.5 sensitivity note.
+- Boundaries kept: research only, no code, no narratives, no push/merge.

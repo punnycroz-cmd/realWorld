@@ -1,4 +1,26 @@
-# Memory Model Spec v1.4 — implementable human-like memory for RW characters
+# Memory Model Spec v1.5 — implementable human-like memory for RW characters
+
+> **v1.5 note (age-development II):** `memory/age-development.md` Part II
+> deepens the developmental layer: infantile records go **latent, not
+> erased** — below-floor pre-amnesia records are invisible to normal
+> recall but reinstatable by compound sensory+place cues (Travaglia et
+> al. 2016; Guskjolen et al. 2018; Rovee-Collier retention window);
+> `reminiscence_env` — caregiver reminiscing style shifts the amnesia
+> boundary ±1.5y (Fivush & Nelson 2004; Reese & Newcombe 2007);
+> `strategy_ramp` gates elaboration/generation gains in childhood with
+> `scaffolded` events as the bypass (production deficiency, Flavell
+> 1970); `offtarget_p` — retrieval-side inhibition loss emits
+> era-mate intrusions in old-age bouts (Arbuckle & Gold 1993; Hasher &
+> Zacks 1988); **sign fix** — stored knowledge protects OLDER adults
+> against fluent repeated lies while young adults neglect knowledge
+> (Brashier et al. 2017 vs Fazio et al. 2015); childhood `sws_mult`
+> inversion + nap consolidation (Kurdziel et al. 2013); the bump extends
+> to cultural semantic records with an intergenerational cascade peak
+> (Krumhansl & Zupnick 2013; Svob & Brown 2012); metamemory knots —
+> children miscalibrated UP; internal/external source-confusion channel
+> split (Foley & Johnson 1985). New §4.14–4.15, §5.19–5.20; schema
+> +`latent`; §7 +18 params; probes P136–P144. All optional w/ defaults;
+> backward compatible.
 
 > **v1.4 note (retrieval-cues II):** `memory/retrieval-cues.md` Part II
 > gives cues a job description: transfer-appropriate processing — a cue
@@ -184,6 +206,11 @@ MemoryRecord = {
                                       // — error repetition is field-
                                       // specific (§5.16, Warriner &
                                       // Humphreys 2008)
+  "latent": false,                    // v1.5: pre-amnesia record below
+                                      // floor — invisible to recall,
+                                      // reinstatable only via compound
+                                      // sensory cues (§4.14, §5.20;
+                                      // Travaglia 2016) — hidden
   "accessLog": []                     // optional debug; may be capped
 }
 ```
@@ -309,6 +336,28 @@ Postman 1964; Hyde & Jenkins 1973).
   hypothesis (Naveh-Benjamin 2000): older characters encode items fine
   but bind them weakly, mechanically producing source/context loss and
   cross-episode grafting downstream.
+- **Strategy gating (v1.5):** `elab_gain` and `gen_gain` are multiplied
+  by `strategy_ramp(age_now) = clamp((age_now−4)/8, 0, 1)` — production
+  deficiency: children own the strategies but don't deploy them
+  spontaneously before ~`strategy_exit` (12; Flavell 1970; Schneider &
+  Pressley 1997). Events carrying `scaffolded: true` (an adult walked
+  the child through the telling/doing) bypass the ramp and instead add
+  `scaffold_gain` (0.15) — outsourced elaboration is how children
+  actually encode well (Fivush & Nelson 2004). `gist` field birth
+  strength is ×`child_gist_mult` (0.7) for `encodeAge < 8` — children
+  keep detail shards, under-extract the narrative spine (fuzzy-trace;
+  Brainerd & Reyna). See age-development.md §13.
+- **Child trauma offset (v1.5, HYPOTHESIS — small):**
+  `trauma_thresh_eff = trauma_thresh − child_trauma_off·max(0, 1 −
+  encodeAge/12)` (`child_trauma_off` 0.1) — undeveloped regulation
+  reads the same arousal as overwhelming; flagged hypothesis.
+- **Cultural bump (v1.5):** `bump_gain(encodeAge)` (§4.1 era term)
+  applies to semantic records tagged `cultural: true` at reduced gain
+  `bump_semantic_gain` (0.5) — favorite songs/foods/rituals are
+  disproportionately minted in the bump window (Krumhansl & Zupnick
+  2013); `cascade: true` cultural records encoded at `encodeAge ∈
+  [4,10]` get `bump_cascade_gain` (0.4) — the parents'-era secondary
+  peak (Svob & Brown 2012; age-development.md §17).
 - **Sleep modifier:** at end of each world day, consolidation pass multiplies
   all same-day `encodingE` by `sleepFactor` (param; poor sleep ≈ 0.7–0.85,
   good ≈ 1.0–1.1). (R§2, R§8.) **v0.4:** `sleepFactor_eff = sleepFactor ·
@@ -525,9 +574,15 @@ R(t) = E_adj · (1 + t/τ)^(-β) + floor
     `P(survive childhood) = min(1, child_consol_base + coherence·child_consol_gain)`
     (`child_consol_base` 0.15, `child_consol_gain` 0.6; coherence =
     coherentUnit flag or link degree > 0 at birth — thematic coherence
-    predicts survival, Bauer & Larkina 2015). Failed records archive
-    immediately — childhood amnesia is a survivorship cliff, not a
-    delete. `amnesia_decay_mult` is deprecated (≈ ramp midpoint).
+    predicts survival, Bauer & Larkina 2015). **v1.5:** failed records
+    and pre-amnesia records that fall below `forget_thresh` set
+    `latent: true` (§4.14) instead of archiving — childhood amnesia is
+    an accessibility cliff, not a delete (Travaglia et al. 2016).
+    `amnesia_decay_mult` is deprecated (≈ ramp midpoint).
+    `child_consol_gain` is scaled by `reminiscence_env` (§4.14) and the
+    effective boundary is `amnesia_exit_eff = amnesia_exit −
+    3·(reminiscence_env − 0.5)` — caregiver reminiscing style moves the
+    amnesia window itself (Reese & Newcombe 2007).
 - **Quote field class (v1.3):** `verbatim.quote` decays on a sub-daily
   schedule — `tau_quote` 0.02d (~30 min), `beta_quote` 0.8, floor 0
   (Sachs 1967: wording indistinguishable from paraphrase after ~80
@@ -776,6 +831,47 @@ of records get rehearsed toward permanence while the rest ride the
 β=0.5 slope — survivorship, not a second functional form
 (forgetting-curves.md §7.9). When the real social/rumor engine exists,
 replace the Bernoulli draw with actual conversation opportunities.
+
+### 4.14 Latent infancy layer — stored but inaccessible (new in v1.5)
+
+Infantile amnesia is an accessibility failure, not a storage failure
+(Travaglia et al. 2016: reminder-reinstatable latent traces; Guskjolen
+et al. 2018: optogenetic recovery of tagged infant engrams;
+age-development.md §11). Two rules:
+
+- **Retention window (encodeAge < 3):** records auto-set `latent: true`
+  once `now − createdDay > ret_window(a) = ret_win_base·(encodeAge+1)`
+  days (`ret_win_base` ≈ 3 — Rovee-Collier: infant retention grows
+  ~linearly with age). The window fires regardless of strength —
+  infancy storage is time-boxed.
+- **Amnesia-zone transition (encodeAge < amnesia_exit_eff):** records
+  that fail the §4.1 consolidation gate or later decay below
+  `forget_thresh` set `latent: true` instead of archiving.
+
+`latent` records are invisible to `recall`, `ambientMemoryScan`, §4.13
+retell draws, and §6.x distortion operators — they cannot be rehearsed
+or merged. `storageS` persists (they are stored). The ONLY route back
+is §5.20 compound sensory reinstatement. Records with
+`encodeAge ≥ amnesia_exit_eff` never go latent — they archive normally
+under §4.4.
+
+### 4.15 Childhood consolidation inversion — naps (new in v1.5)
+
+Children consolidate *more*, not less, from sleep (Wilhelm, Diekelmann
+& Born 2008) and daytime sleep is a real consolidation event
+(Kurdziel, Duclos & Spencer 2013: nap-encoded benefit, habitual-napper
+dependence, and a ~10% nap-deprivation loss NOT recovered overnight).
+Two changes:
+
+- `sws_mult` knot table gains a child side: 1.2 (`sws_child_peak`) at
+  age 6, linear to 1.0 by ~14 — the curve is now genuinely lifespan,
+  not decline-only.
+- `dailyMemoryTick(charId, sleepQuality, nap: true)` — a mid-day mini
+  tick (game-supplied for `age_now < nap_age_exit`, 6) applies the §4.6
+  consolidation-window decay rate to same-morning records early. If a
+  nap-habitual child (bible flag `naps: true`) misses the nap, same-day
+  records take `strength *= (1 − nap_loss)` (0.1) at the night tick —
+  the loss is permanent (Kurdziel: overnight sleep does not recover it).
 
 ---
 
@@ -1174,6 +1270,41 @@ learning → zero effect; REM/wake presentation → zero effect). Ties the
 (P135 — direction SHOULD, magnitude OBSERVE; design extrapolation,
 RC§19).
 
+### 5.19 Off-target verbosity — inhibition loss at emission (new in v1.5)
+
+During a `recall` bout (k>1) or a `retell`, each emitted item after the
+first has probability `offtarget_p(age_eff)` of being supplemented or
+replaced by a *weakly-related* live record — one sharing a person or
+era tag with the emitted item and with drive ≥ 0.2·θ (activated but
+irrelevant to the query). Knots: 0.01 at 20 → 0.03 at 50 → 0.15 at 80;
+mildly elevated below age 10 (same inhibition immaturity, other end).
+Emitted off-target records receive the normal §5.9 reboost — rambling
+rehearses the tangent. Grounded in the off-target-verbosity literature
+(Arbuckle & Gold 1993: OTV is predicted by working-memory
+deletion/restraint failures, not by talkativeness; Hasher & Zacks 1988
+inhibition framework). DEBATED component: Trunk & Abrams 2009 argue
+OTV is partly communicative style — the profile layer may therefore
+raise `offtarget_p` at any age for loquacious characters; the age
+slope is the deficit, the intercept is the personality
+(age-development.md §14; P139 measures emission rate only).
+
+### 5.20 Latent reinstatement — the compound-sensory route (new in v1.5)
+
+The single exception to §4.14 invisibility: when a cue context
+simultaneously matches ≥2 `sensory` cueVector fields AND the `place`
+field of a `latent` record (the Travaglia et al. 2016 requirement —
+reminder must combine context AND salient reinstatement; partial
+reminders do nothing), roll `latent_recall_p` (0.08). On success the
+record returns as a Reconstruction with `latent_returned: true`:
+source kind absent, confidence floored at 0.3, verbatim mostly empty —
+a fragment, not a scene; its missing fields are maximal §5.5
+confabulation surface. A successful return clears `latent` and writes
+`lastAccessDay` — the reinstated fragment re-enters the normal economy
+(now rehearseable, now distortable). Single-cue contexts, word cues,
+and `tell-me-about` prompts can NEVER reach latent records — the
+childhood-home-scene cue pattern is the only door (P136 sign-locks the
+cue requirement).
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -1220,6 +1351,12 @@ if similarity(myMemory, heardAccount) > 0.4:
                 · (sleepdep_flag ? sleepdep_misinfo_gain : 1)  // Frenda 2014
                 · (neg_core_resist if valence<−0.3 & arousal>0.6 core field)
                                                    // v0.5, kept
+                · (contradicts known semantic (strength ≥ know_protect_thresh)
+                   ? (age_eff ≥ know_protect_age ? know_protect_mult : 1)
+                   : 1)                             // v1.5: stored knowledge
+                                                   // protects OLDER adults —
+                                                   // young neglect it
+                                                   // (Brashier 2017 vs Fazio 2015)
         if rand < p_adopt: overwrite field, accuracy -= 0.15,
                            confidence unchanged
     hearCount++ on the rumor-content hash (shared across speakers —
@@ -1375,6 +1512,15 @@ sourceInfer(m): if source.confidenceInSource < 0.3:
       rule (gate on verbatim richness, not confidence)
 ```
 
+**v1.5 channel asymmetry:** the two confusion routes have opposite age
+profiles (age-development.md §19): `source_confuse_flip` (internal —
+imagined↔witnessed) is multiplied by `child_internal_confuse` (2.0)
+below ~age 9 — children over-confuse their own thoughts and deeds
+(Foley & Johnson 1985; Foley, Johnson & Raye 1983); `source_confuse`
+(external — wrong speaker/channel) rides the existing old-side knots
+(~1.8× at 75 — Henkel, Johnson & De Leonardis 1998). Same failure
+umbrella, opposite channel by age; P144 checks the split.
+
 ### 6.11 Audience tuning — saying is believing (new in v0.8)
 
 On `retell(charId, audienceId, record)`: if the speaker trusts the
@@ -1466,6 +1612,9 @@ reported_age = true_age·(1 − tele_k_eff)                   // forward
 tele_k_eff   = tele_k·(1 − landmark_gain) if m.links reaches a dated
                landmark record (arousal ≥ landmark_arousal);
                sigma likewise ×= (1 − landmark_gain)
+             · (1 + tele_age_gain·age_eff/80)        // v1.5: forward
+               telescoping is age-graded (Janssen et al. 2006) —
+               old characters push remote events more recent
 if verbatim.when alive → error ×0.2 (near-veridical)
 if verbatim.when dead, with prob round_p: snap to nearest of
    {7, 30, 90, 365}; only a fuzzy era tag survives → report its
@@ -1707,7 +1856,33 @@ MemoryParams = {
   "tot_resolve_p": 0.3,      // syllable-cue TOT resolution (§5.16)
   "tot_persist": 1.5,        // tot_rate multiplier per unresolved TOT (§5.16)
   "chain_gain": 0.5,         // derived-cue strength on linked records (§5.17)
-  "tmr_gain": 0.12           // sleep-context sensory consolidation edge (§5.18)
+  "tmr_gain": 0.12,          // sleep-context sensory consolidation edge (§5.18)
+  // v1.5 additions (age-development II, age-development.md Part II §§11–20)
+  "ret_win_base": 3.0,       // days/yr infant retention window slope (§4.14)
+  "latent_recall_p": 0.08,   // compound-sensory latent reinstatement (§5.20)
+  "reminiscence_env": 0.5,   // caregiver reminiscing style 0..1; shifts
+                             // amnesia_exit ∓1.5y + child_consol_gain (§4.1/§4.14)
+  "strategy_exit": 12,       // age of full elab/gen gain (§2 strategy_ramp)
+  "scaffold_gain": 0.15,     // adult-guided elaboration bypass (§2)
+  "child_gist_mult": 0.7,    // gist birth strength below age 8 (§2)
+  "offtarget_p": 0.03,       // bout contamination rate; age curve §5.19
+  "know_protect_age": 50,    // knowledge-protection onset (§6.3)
+  "know_protect_thresh": 0.5,// semantic strength that counts as "known"
+  "know_protect_mult": 0.5,  // adoption mult when knowledge contradicts (§6.3)
+  "sws_child_peak": 1.2,     // sws_mult knot at age 6 (§4.15)
+  "nap_age_exit": 6,         // nap mini-tick eligibility (§4.15)
+  "nap_loss": 0.1,           // missed-nap same-day loss, unrecoverable (§4.15)
+  "bump_semantic_gain": 0.5, // bump gain on cultural semantic records (§2)
+  "bump_cascade_gain": 0.4,  // parents'-era secondary peak, encodeAge 4-10 (§2)
+  "child_internal_confuse": 2.0, // internal source-confusion mult <9 (§6.10)
+  "child_trauma_off": 0.1,   // trauma_thresh offset in childhood (§2, HYPOTHESIS)
+  "tele_age_gain": 0.5       // telescoping age gradient (§6.15)
+  // v1.5 knot-table updates (existing params, new age knots):
+  //   sws_mult: 1.2@6 → 1.0@14 (child side, §4.15)
+  //   metamem_r: ~0.0@6 → 0.10@13 → 0.15 adult (§18)
+  //   self_est_bias: +0.3@6 → 0 adult → −0.05@70 (children overpredict)
+  //   offtarget_p: 0.01@20 → 0.03@50 → 0.15@80; mild elevation <10 (§5.19)
+  //   source_confuse: external channel rides old-side knots ~1.8×@75 (§6.10)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -1987,3 +2162,18 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     cue-absent records exempt.
   - record schema gains `encodeOps` and `tot_fields`; CondEntry gains
     `extinctCtx` — all hidden/harness-readable like other state fields.
+- v1.5 additions (age-development.md Part II):
+  - record schema gains `latent` (hidden); `dailyMemoryTick` accepts
+    `nap: true` for `age_now < nap_age_exit` and runs the §4.14
+    latent-window/gate transitions.
+  - `recall`/`retell` bouts emit §5.19 off-target intrusions at
+    `offtarget_p(age_eff)`; Reconstructions may carry
+    `latent_returned: true` via the §5.20 compound-sensory route —
+    dialogue should render it as a fragment ("…I smell it more than I
+    see it"), never a scene.
+  - `encodeEvent` event may carry `scaffolded: true`, `cultural: true`,
+    `cascade: true` (world-builder supplies; defaults false).
+  - `hearAccount` gains the §6.3 knowledge-protection clause —
+    `know_protect_*` params; nothing caller-side changes.
+  - `reminiscence_env` is a creation-time param (bible dial), fixed
+    for life; `naps` is a bible flag consumed by the §4.15 tick.

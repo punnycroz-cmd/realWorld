@@ -189,6 +189,43 @@ never copying raw.
 | tot_persist | 1.0 | 2.2 | TOT error-repetition multiplier (v1.4) |
 | chain_gain | 0.15 | 0.8 | reminding-cascade strength (v1.4) |
 | tmr_gain | 0.0 | 0.25 | sleep-context consolidation edge (v1.4) |
+| ret_win_base | 1.5 | 6.0 | days/yr infant retention slope (v1.5) |
+| latent_recall_p | 0.0 | 0.2 | latent reinstatement rate; keep small (v1.5) |
+| reminiscence_env | 0.0 | 1.0 | bible dial; fixed at creation (v1.5) |
+| strategy_exit | 9 | 15 | age of full elab/gen gains (v1.5) |
+| scaffold_gain | 0.0 | 0.3 | guided-elaboration bypass (v1.5) |
+| child_gist_mult | 0.4 | 1.0 | gist birth strength below age 8 (v1.5) |
+| offtarget_p | 0.0 | 0.2 | bout intrusion rate at reference age (v1.5) |
+| know_protect_age | 35 | 65 | knowledge-protection onset (v1.5) |
+| know_protect_thresh | 0.3 | 0.7 | semantic strength = "known" (v1.5) |
+| know_protect_mult | 0.2 | 0.8 | adoption mult vs known-contradicting claims (v1.5) |
+| sws_child_peak | 1.0 | 1.4 | sws_mult child knot (v1.5) |
+| nap_age_exit | 5 | 8 | nap mini-tick eligibility (v1.5) |
+| nap_loss | 0.0 | 0.2 | missed-nap unrecoverable loss (v1.5) |
+| bump_semantic_gain | 0.0 | 0.8 | bump on cultural semantic records (v1.5) |
+| bump_cascade_gain | 0.0 | 0.6 | parents'-era secondary bump (v1.5) |
+| child_internal_confuse | 1.0 | 3.0 | internal source-confusion mult <9 (v1.5) |
+| child_trauma_off | 0.0 | 0.2 | trauma_thresh offset; HYPOTHESIS (v1.5) |
+| tele_age_gain | 0.0 | 1.0 | telescoping age gradient (v1.5) |
+
+**v1.5 age-development note:** this pass adds mostly AGE-STRUCTURED
+params — they ARE the age curves. `reminiscence_env` is the bible dial
+(storytelling household → earlier, denser childhood pool; fixed at
+creation, never drifts). `latent_recall_p` should stay small for all
+characters — it exists for rare payoff scenes, not as a retrieval
+path; trait-loaded on `vivid` (rich sensory encoders leave reinstatable
+traces). `offtarget_p` intercept is a personality dial (loquacious HIGH
+at any age — Trunk & Abrams 2009 style component), the slope is the
+deficit; pairs naturally with `chain_gain`. `scaffold_gain` only matters
+where bibles describe supervised/mentored childhoods. `know_protect_*`
+is effectively flat across characters — it is the *age boundary* that
+varies, and it should correlate with `reserve` (dense semantic stores
+protect more). `sws_child_peak`/`nap_*` matter only for characters with
+childhood segments in play (backstory seeding, child characters).
+`child_internal_confuse` pairs with `fantasy` trait (rich imaginers
+confuse imagined↔real more). `child_trauma_off` is HYPOTHESIS —
+small or zero for most profiles. `tele_age_gain` is flat population
+mechanism; do not trait-load it.
 
 **v1.3 forgetting-curves note:** the v1.3 params are mostly
 age-INVARIANT by design — spacing/testing dynamics, quote decay,

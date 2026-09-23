@@ -562,3 +562,54 @@ named there. Headline additions:
   null (Rasch et al. 2007). Constrains `tmr_gain`.
 
 Registry now P1–P135; numbering stable.
+
+---
+
+## 14. New probes P136–P144 (v15, age-development II suite)
+
+Normative definitions in `age-development.md` §21; constrained params
+named there. Headline additions:
+
+- **P136 latent amnesia (MUST):** records encoded at encodeAge 1–3 are
+  `latent:true` on snapshot by adulthood, zero hits via ordinary recall;
+  compound sensory(≥2)+place cue surfaces at ≈`latent_recall_p`;
+  single-word/partial cues NEVER (Travaglia et al. 2016 sign-lock —
+  context+reinforcer jointly required). Constrains `ret_win_base`,
+  `latent_recall_p`.
+- **P137 reminiscence_env (MUST):** env 0.9 vs 0.1 twins → high-env
+  earliest records ~2–3y earlier and denser age-5 pool; low-env child
+  still functional (boundary moves, capacity doesn't). Constrains
+  `reminiscence_env`→`amnesia_exit_eff`/`child_consol_gain` mapping
+  (Reese & Newcombe 2007).
+- **P138 production deficiency (MUST):** child self-elaborated vs
+  scaffolded events at matched content → scaffolded survives
+  adult-relative, self-elaborated baseline; TOST: elab/gen gains ≈0
+  below age 7 (Flavell 1970). Constrains `strategy_ramp`,
+  `scaffold_gain`.
+- **P139 off-target verbosity (SHOULD):** 75-y/o bout emits era-mate
+  intrusions ≥5× the 25-y/o rate; intrusions are real live records,
+  not noise. Interpretation-free (Trunk & Abrams 2009 style/debt
+  debate). Constrains `offtarget_p` curve (Arbuckle & Gold 1993).
+- **P140 knowledge-protection inversion (MUST — sign-locked):** repeated
+  false claim contradicting strong semantic → old adopts at HALF young
+  rate; same claim on novel topic → old adopts MORE. Fails if both
+  directions covary — this probe guards the v1.5 sign fix
+  (Brashier et al. 2017 vs Fazio et al. 2015).
+- **P141 child sleep inversion (SHOULD):** <6 char, nap vs nap-deprived
+  on same-morning records → ~`nap_loss` R gap unrecovered after normal
+  overnight tick; adult control null (Kurdziel et al. 2013). Constrains
+  `nap_loss`, `sws_child_peak`.
+- **P142 cascading bump (SHOULD):** cultural semantic records show two
+  encode-age peaks (own bump + [4,10] cascade); non-cultural controls
+  one. Constrains `bump_semantic_gain`, `bump_cascade_gain`
+  (Krumhansl & Zupnick 2013; Svob & Brown 2012).
+- **P143 metamemory calibration (SHOULD):** selfReport↔actual r ≈0
+  under age 10 (TOST vs adult r≈0.15); child self-estimates ≥1.5×
+  actual; 70-y/o estimates ≤ actual. Constrains the v1.5 metamem_r /
+  self_est_bias knot rows.
+- **P144 source-channel split (SHOULD):** child source errors ≥60%
+  internal (imagined→witnessed); 75-y/o errors ≥60% external
+  (wrong-speaker). Constrains `child_internal_confuse` vs old-side
+  `source_confuse` knots (Foley & Johnson 1985; Henkel et al. 1998).
+
+Registry now P1–P144; numbering stable.
