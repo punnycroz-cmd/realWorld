@@ -9,7 +9,7 @@ gate: `node world/audit.js` (see §3a).
 
 The demo surfaces (`feed`, `request`, `mod-console`, `create`, `board`,
 `history`, `onboarding`, `lease`, `thinai`, `cast`, `crowd`, `directory`,
-`timeclock`, `market`, `screen-lab`)
+`timeclock`, `market`, `storefront`, `screen-lab`)
 plus `screen.js` are **local simulations of the product contracts** —
 the request pipeline, the moderation queue, the spectator feed vocabulary. A
 playtest here validates *content, copy, flow, and the locked boundary rules*.
@@ -48,6 +48,9 @@ One person can wear every hat; four real testers is the intended shape.
   PT39 (crowd v4 / ambient week, v43) is a facilitator audit — the six work
   zones, signatures + variants on all 20 ambients, claimable resources, and
   the extended crowd gate.
+  PT40 (storefront layer, v44) is a facilitator audit — 20 door-tier
+  storefronts, condition-resolved A-frames, flyer boards as rumor surfaces,
+  and the extended biz gate.
 
 ## 3. Running a session
 

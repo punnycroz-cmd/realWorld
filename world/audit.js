@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v43).
+/* world/audit.js — RW boundary audit (world v44).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -48,7 +48,9 @@
     biz       — businesses.json ↔ directory.html mirror (BIZ/WEB blocks);
                 cards exist and none orphaned; tier/affordance/hours/staff
                 sanity; web edges resolve to real venues, loan edges are
-                secret-flagged, reserved entries stay empty
+                secret-flagged, reserved entries stay empty; v44 storefront
+                layer: storefronts.json ↔ storefront.html STO mirror,
+                doors-only coverage (anchor+street), when-key legality
     market    — market.json ↔ market.html deep mirror; every churn row
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
@@ -227,7 +229,7 @@ const PUB = Object.values(PT.surfaces)
   /* in-world surfaces: game dollars only — a bare "N cr" figure is a wall breach */
   const INWORLD = new Set(['board.html', 'lease.html', 'timeclock.html',
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
-    'shifts.json', 'budgets.json']);
+    'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -1090,7 +1092,49 @@ const PUB = Object.values(PT.surfaces)
     /* public-clearance redaction path must exist for secret edges */
     if (!/e\.secret&&state\.clr!=='internal'/.test(html))
       add(g, 'fail', 'directory.html', null, 'secret web edges have no public-clearance redaction path');
-    g.detail = `schema v${BJ.version} · ${ids.size} businesses · ${BJ.web.edges.length} web edges · ${cardFiles.size} cards`;
+    /* ---- v44 storefront layer: storefronts.json ↔ storefront.html ---- */
+    const SFJ = JSONF('storefronts.json');
+    const sHtml = rd('storefront.html');
+    const STO = (() => {
+      const m = sHtml.match(/const STO\s*=\s*(\{[\s\S]*?\});/);
+      if (!m) throw new Error('inline STO not found in storefront.html');
+      return eval('(' + m[1] + ')');
+    })();
+    const whenKeys = new Set(Object.keys(SFJ.when_keys || {}));
+    const DOOR = new Set(['anchor', 'street']);
+    const sfIds = new Set(Object.keys(SFJ.storefronts || {}));
+    for (const b of BJ.businesses) {
+      if (DOOR.has(b.tier) && !sfIds.has(b.id))
+        add(g, 'fail', 'storefronts.json', null, `${b.id} (${b.tier}) has a door but no storefront`);
+      if (!DOOR.has(b.tier) && sfIds.has(b.id))
+        add(g, 'fail', 'storefronts.json', null, `${b.id} (${b.tier}) carries a storefront — doors only`);
+    }
+    for (const id of sfIds) {
+      if (!ids.has(id)) { add(g, 'fail', 'storefronts.json', null, `storefront "${id}" is not a business`); continue; }
+      const sf = SFJ.storefronts[id];
+      if (!sf.fascia) add(g, 'fail', 'storefronts.json', null, `${id}: no fascia text`);
+      for (const a of sf.aframe || [])
+        if (a.when != null && !whenKeys.has(a.when))
+          add(g, 'fail', 'storefronts.json', null, `${id}: aframe when "${a.when}" not in when_keys`);
+    }
+    /* deep mirror: STO.storefronts must field-match storefronts.json */
+    if (STO.version !== SFJ.version)
+      add(g, 'fail', 'storefront.html', null, `STO version ${STO.version} != ${SFJ.version}`);
+    for (const k of ['fascia', 'window', 'board', 'aframe', 'flyers', 'neon', 'closed_note'])
+      for (const id of sfIds) {
+        const j = SFJ.storefronts[id], h = (STO.storefronts || {})[id];
+        if (!h) { add(g, 'fail', 'storefront.html', null, `STO missing storefront "${id}"`); break; }
+        if (JSON.stringify(j[k] ?? null) !== JSON.stringify(h[k] ?? null))
+          add(g, 'fail', 'storefront.html', null, `STO ${id}.${k} drifted from storefronts.json`);
+      }
+    for (const id of Object.keys(STO.storefronts || {}))
+      if (!sfIds.has(id)) add(g, 'fail', 'storefront.html', null, `inline STO "${id}" absent from storefronts.json`);
+    /* hours map (HRS) may only key real door-tier businesses */
+    const hrsM = sHtml.match(/const HRS = \{([\s\S]*?)\};/);
+    if (!hrsM) add(g, 'fail', 'storefront.html', null, 'inline HRS map not found');
+    else for (const hm of hrsM[1].matchAll(/'([\w-]+)':/g))
+      if (!sfIds.has(hm[1])) add(g, 'fail', 'storefront.html', null, `HRS key "${hm[1]}" has no storefront`);
+    g.detail = `schema v${BJ.version} · ${ids.size} businesses · ${BJ.web.edges.length} web edges · ${cardFiles.size} cards · ${sfIds.size} storefronts`;
   } catch (e) { add(g, 'fail', 'businesses.json', null, 'parse/check failure: ' + e.message); }
 }
 

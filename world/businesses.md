@@ -1,5 +1,11 @@
-# Parody Business Registry — "The Mission" (world v30)
+# Parody Business Registry — "The Mission" (world v44)
 
+> **v44 additions:** the **storefront layer** — `world/storefronts.json` +
+> `world/storefronts.md` + `world/storefront.html` carry the literal copy a
+> camera reads on every door: fascia, window glass, menu board, sidewalk
+> A-frame (condition-resolved), flyer board, neon, closed-door note. Doors
+> only (anchor + street tiers; 20 storefronts). See §7.
+>
 > **v30 additions:** four doors promoted to registered venues — Golden Hour
 > Laundromat (minted from the reserved list), The Dusty Spine, Marooned
 > Records, and The Musket (corridor flips with cast ties now attached).
@@ -401,3 +407,30 @@ Rules:
   offer and legible preference only.
 - New edges enter through this file's update flow (registry first,
   then signage/cards), same as new names.
+
+---
+
+## 7. The storefront layer — what the camera reads (v44)
+
+The registry says what a venue *is*; `world/storefronts.json` says what it
+*shows*. Every door-having venue (anchor + street tiers, 20 storefronts)
+carries fascia text, window lines, a menu/chalk board, a sidewalk A-frame,
+flyer-board postings where the venue plausibly keeps one, a neon sign (or
+null), and a closed-door note. Spec and copy rules: `world/storefronts.md`;
+internal demo: `world/storefront.html`.
+
+- **Doors only.** Offstage organizations (Flying Pannier, MuleIt, Nimbus9,
+  Mission Unfiltered) and reserved names (La Esperanza, The Watchbird, Café
+  Cometa) have no storefront — enforced by the biz gate.
+- **A-frame lines carry `when` conditions** (rain / heat / sat / thu / late /
+  morning / sun / closed) resolved like the v43 ambient-week variants —
+  conditions the sidewalk reflects, never scheduled scripts.
+- **Flyer boards are the rumor nodes made visible** — Malik's and Golden
+  Hour's boards carry the postings the `gossip_route` edges imply. Public
+  texture only: no secrets, no feed events.
+- **Game dollars only.** Board prices are in-world money; no credit figure
+  or USD framing ever appears on a storefront (prices gate).
+- At merge this layer is the copy source for the art track's fascia bake,
+  interior menu boards, and storefront glass (art v43 render boxes). The
+  mapping layer (`sfDisplayName`) still owns POI→name resolution; this file
+  authors what the resolved sign says.

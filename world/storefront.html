@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Storefront (signage copy layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Storefront copy demo — "The Storefront" (world v44). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/storefronts.json
+  (mirrored inline below as STO — hand-synced, deep-compared by audit.js biz gate).
+  Shows: what a paused camera frame reads on every door-having venue — fascia,
+  window glass, menu board, sidewalk A-frame (condition-resolved), flyer board,
+  neon, closed-door note. Doors only: anchor + street tiers. Offstage and
+  reserved venues have no storefront by contract (storefronts.md §3).
+  Hours for the open/closed read come from businesses.json via the inline HRS
+  map (display-only; the Directory remains canonical).
+  Boundaries: parody names only; board prices are game dollars — never credits;
+  `when` lines are conditions, never scripts.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --chalk:#dfe6d5;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .clock{font-family:var(--mono);font-size:15px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 14px}
+  .clock small{color:var(--dim);font-size:10.5px}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim)}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  input[type=range]{width:200px;accent-color:var(--acc)}
+  main{max-width:1240px;margin:0 auto;padding:16px 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+  .sf{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .fascia{background:#2b2620;border-bottom:3px solid #4a4034;padding:12px 14px 10px;
+    font-family:var(--mono);font-weight:700;letter-spacing:.18em;font-size:15px;
+    text-transform:uppercase;color:var(--acc);text-shadow:0 1px 0 #000}
+  .sf.closed .fascia{color:var(--dim);text-shadow:none}
+  .win{padding:8px 14px;border-bottom:1px dashed var(--line);font-size:11.5px;color:var(--blu);
+    font-style:italic;min-height:18px}
+  .board{padding:8px 14px;background:#1d2a22;border-bottom:1px solid var(--line);
+    font-family:'Segoe Print','Comic Sans MS',cursive;font-size:12.5px;color:var(--chalk)}
+  .board div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .aframe{margin:10px 14px 0;padding:7px 10px;background:#c9b98a;color:#33291a;border-radius:3px;
+    font-size:12px;font-weight:600;transform:rotate(-.4deg);box-shadow:0 2px 0 #00000040}
+  .aframe small{display:block;font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.55}
+  .flyers{padding:8px 14px;font-size:11px;color:var(--dim)}
+  .flyers b{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
+  .flyers div{padding-left:12px;position:relative}
+  .flyers div::before{content:"◈";position:absolute;left:0;color:var(--pink);font-size:8px;top:3px}
+  .foot{display:flex;align-items:center;gap:8px;padding:7px 14px;border-top:1px solid var(--line);font-size:10.5px}
+  .neon{font-family:var(--mono);font-weight:700;letter-spacing:.12em;font-size:10px;
+    padding:1px 8px;border:1px solid var(--pink);border-radius:9px;color:var(--pink);
+    text-shadow:0 0 6px var(--pink)}
+  .neon.off{color:var(--dim);border-color:var(--line);text-shadow:none}
+  .cnote{margin-left:auto;color:var(--dim);font-style:italic}
+  .open{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--grn)}
+  .cnote+.open{margin-left:6px}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin:14px 0}
+  .count{font-size:11px;color:var(--dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — THE STOREFRONT</div>
+  <span class="clock"><b id="ck">12:00</b> <small id="dp">midday · weekday · clear</small></span>
+  <input type="range" id="scrub" min="0" max="24" step="0.5" value="12">
+  <div class="tgl" id="dayTgl">day <button data-v="weekday" class="on">weekday</button><button data-v="sat">saturday</button><button data-v="sun">sunday</button></div>
+  <div class="tgl" id="wxTgl">weather <button data-v="clear" class="on">clear</button><button data-v="rain">rain</button><button data-v="heat">heat</button></div>
+  <span class="count" id="cnt"></span>
+</header>
+<main>
+  <p class="fine">What a paused frame reads. Every line below is authored copy, parody names only —
+  board prices are <b>game dollars</b>, in-world money, never credits. A-frame and flyer lines with a
+  condition are conditions the sidewalk reflects, never scheduled scripts. Doors only: offstage
+  organizations and reserved names carry no storefront by contract.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+/* ---- inline mirror of world/storefronts.json (hand-synced, v44) ---- */
+const STO={
+  "_doc": "The storefront layer (world v44) — the literal copy a camera reads on every door-having venue: fascia sign text, window glass lines, menu/chalk board, sidewalk A-frame, flyer-board postings, neon, and the closed-door note. Machine source for world/storefront.html (inline STO mirror) and the future art-track signage pass. Rules: parody names only (businesses.md §4); game-dollar prices only — never credits, never USD; every conditional line is a CONDITION the world may satisfy, never a scheduled script. Storefronts exist only for venues with a door: tiers anchor + street. Offstage organizations and reserved names carry none — enforced by audit.js biz gate.",
+  "version": 44,
+  "when_keys": {
+    "rain": "raining — wet-day line",
+    "heat": "hot day — park/heat line",
+    "sat": "Saturdays only",
+    "thu": "Thursdays only",
+    "late": "after 22:00 — late line",
+    "morning": "before 11:00 — morning line",
+    "closed": "shows only when the venue is closed",
+    "sun": "Sundays only"
+  },
+  "storefronts": {
+    "mudhaus": {
+      "fascia": "MUDHAUS COFFEE",
+      "window": [
+        "espresso · pour-over · day-olds",
+        "one outlet — be kind"
+      ],
+      "board": [
+        "drip 3.50",
+        "latte 5.50",
+        "pour-over 6.50",
+        "day-old pastry 2.00",
+        "the regular — regulars know"
+      ],
+      "aframe": [
+        {
+          "text": "the chalk menu has not changed in two years. it is correct.",
+          "when": null
+        },
+        {
+          "text": "park crowd welcome — towels under the bench, shake the umbrella first",
+          "when": "rain"
+        },
+        {
+          "text": "morning rush 7:30–9:30 — if you know, you wait",
+          "when": "morning"
+        },
+        {
+          "text": "corner table reserved after 5. don't ask.",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "open mic interest list — ask at the counter",
+        "lost: grey cat, 'Dishsoap', no collar, deeply indifferent",
+        "tutoring swap: english ↔ español, thursdays, corner table"
+      ],
+      "neon": "CAFÉ",
+      "closed_note": "back at 6:30 — the drip waits for no one"
+    },
+    "el-farolote": {
+      "fascia": "TAQUERIA EL FAROLOTE",
+      "window": [
+        "super burrito 12 · tacos 3.75",
+        "salsa bar — serve yourself, respect yourself"
+      ],
+      "board": [
+        "super burrito 12.00",
+        "taco 3.75",
+        "agua fresca 4.00",
+        "pupusa — not on the menu. not yet."
+      ],
+      "aframe": [
+        {
+          "text": "the line moves fast. have your order ready.",
+          "when": null
+        },
+        {
+          "text": "post-bar rush: loud, good, worth it",
+          "when": "late"
+        },
+        {
+          "text": "carnitas till they run out — they run out",
+          "when": "sat"
+        }
+      ],
+      "flyers": [],
+      "neon": "OPEN LATE",
+      "closed_note": "opens 10:00 — the flat top needs its hour"
+    },
+    "auerbach": {
+      "fascia": "AUERBACH HARDWARE — EST. 1962",
+      "window": [
+        "keys cut · tool rental · honest advice",
+        "repair day TUESDAY — drop-offs stack up"
+      ],
+      "board": [
+        "key cut 4.00",
+        "tool rental, half-day 18.00",
+        "faucet washer 1.50",
+        "advice — free, worth every penny"
+      ],
+      "aframe": [
+        {
+          "text": "bring the broken thing, not a photo of it",
+          "when": null
+        },
+        {
+          "text": "repair day: work orders on the counter by 8 or wait a week",
+          "when": null
+        },
+        {
+          "text": "pipe fittings and ballgame scores, both current",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "tenant work orders: leave them on the counter, tuesdays",
+        "borrowed tools come back. — V."
+      ],
+      "neon": "HARDWARE",
+      "closed_note": "closed — emergencies knock twice upstairs"
+    },
+    "dolores-perk": {
+      "fascia": "DOLORES PERK",
+      "window": [
+        "coffee · sandwiches · park-side tables"
+      ],
+      "board": [
+        "coffee 3.75",
+        "sandwich 9.50",
+        "park cup to go — lid on tight"
+      ],
+      "aframe": [
+        {
+          "text": "line's forty minutes. the grass is free and closer.",
+          "when": "heat"
+        },
+        {
+          "text": "inside seats only — the park is closed for weather",
+          "when": "rain"
+        },
+        {
+          "text": "two park-side tables, first come first stayed",
+          "when": null
+        }
+      ],
+      "flyers": [],
+      "neon": "PERK",
+      "closed_note": "closed — the park is still there"
+    },
+    "buy-rite-market": {
+      "fascia": "BUY-RITE MARKET",
+      "window": [
+        "local produce · sandwiches · the fancy stuff"
+      ],
+      "board": [
+        "sandwich of the day — ask",
+        "peaches (in season): priced accordingly",
+        "grocery run for one ≈ 45.00"
+      ],
+      "aframe": [
+        {
+          "text": "the creamery line is not our door — enter through produce",
+          "when": "heat"
+        },
+        {
+          "text": "the fancy stuff is in the back left. you knew that.",
+          "when": null
+        },
+        {
+          "text": "out-of-season peach, 4 dollars of optimism",
+          "when": null
+        }
+      ],
+      "flyers": [],
+      "neon": "MARKET",
+      "closed_note": "closed — Malik's on Guerrero goes later"
+    },
+    "buy-rite-creamery": {
+      "fascia": "BUY-RITE CREAMERY",
+      "window": [
+        "scoops · sundaes · the line is part of it"
+      ],
+      "board": [
+        "single scoop 5.50",
+        "sundae 9.00",
+        "flavor board rotates — today's is today's"
+      ],
+      "aframe": [
+        {
+          "text": "the line doubles after noon — shade lives on the market side",
+          "when": "heat"
+        },
+        {
+          "text": "yes the line is like this. it is always like this.",
+          "when": null
+        },
+        {
+          "text": "rain line: five minutes. your move.",
+          "when": "rain"
+        }
+      ],
+      "flyers": [],
+      "neon": "ICE CREAM",
+      "closed_note": "scoops resume 11:00"
+    },
+    "il-delfino": {
+      "fascia": "IL DELFINO",
+      "window": [
+        "dinner nightly · reservations recommended"
+      ],
+      "board": [
+        "pasta 24.00",
+        "table for two with wine ≈ 110.00",
+        "the window two-top is the window two-top"
+      ],
+      "aframe": [
+        {
+          "text": "walk-ins at the bar only — the room books ahead",
+          "when": null
+        },
+        {
+          "text": "date night starts at 5:30. dress like it or don't.",
+          "when": null
+        }
+      ],
+      "flyers": [],
+      "neon": "DINNER",
+      "closed_note": "service 5:30–10:30 — the kitchen rests mondays"
+    },
+    "baguette-about-it": {
+      "fascia": "BAGUETTE ABOUT IT",
+      "window": [
+        "bake light on at 4:00",
+        "country loaf · morning bun · croissant"
+      ],
+      "board": [
+        "morning bun 5.00",
+        "country loaf 11.00",
+        "croissant 4.75",
+        "day-olds to Mudhaus — nothing wasted"
+      ],
+      "aframe": [
+        {
+          "text": "morning buns gone by 9 most days. this is a warning, not a boast.",
+          "when": "morning"
+        },
+        {
+          "text": "the ovens are already warm. — H.",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "pre-orders for saturday loaves — pencil list at the register"
+      ],
+      "neon": "BAKERY",
+      "closed_note": "SOLD OUT — the ovens rest. see you 7:00."
+    },
+    "the-600-club": {
+      "fascia": "THE 600 CLUB",
+      "window": [
+        "open mic THURSDAY — sign up at the bar",
+        "beer · well · back booth"
+      ],
+      "board": [
+        "beer 6.00",
+        "well drink 9.00",
+        "open-mic slot: free, five minutes, no encores"
+      ],
+      "aframe": [
+        {
+          "text": "open mic tonight — the sign-up sheet fills by 7",
+          "when": "thu"
+        },
+        {
+          "text": "rain songs tonight, probably. — S.",
+          "when": "rain"
+        },
+        {
+          "text": "last call walks downhill to the burrito line",
+          "when": "late"
+        },
+        {
+          "text": "the back booth is occupied. it usually is.",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "band needs drummer — must own brushes, no exceptions"
+      ],
+      "neon": "600",
+      "closed_note": "opens 4 — earlier on weekends"
+    },
+    "dandy-lion": {
+      "fascia": "DANDY LION CHOCOLATE CO.",
+      "window": [
+        "single-origin bars · drinking chocolate"
+      ],
+      "board": [
+        "single-origin bar 12.00",
+        "hot chocolate 6.00",
+        "tasting square — one per visitor, honor system"
+      ],
+      "aframe": [
+        {
+          "text": "a bag from here means you meant it",
+          "when": null
+        },
+        {
+          "text": "drinking chocolate: the rain menu",
+          "when": "rain"
+        }
+      ],
+      "flyers": [],
+      "neon": "CHOCOLATE",
+      "closed_note": "closed — tomorrow is also a good day for it"
+    },
+    "valencia-growers": {
+      "fascia": "VALENCIA GROWERS MARKET",
+      "window": [
+        "saturdays 8–2 · stalls only"
+      ],
+      "board": [
+        "produce bag ≈ 20.00",
+        "tomato cases priced by the walk — compare before you buy"
+      ],
+      "aframe": [
+        {
+          "text": "SATURDAY — six hours, everyone who cooks",
+          "when": "sat"
+        },
+        {
+          "text": "the good stone fruit goes early. early.",
+          "when": "sat"
+        }
+      ],
+      "flyers": [
+        "vendor waitlist — talk to the collective table, not a stall"
+      ],
+      "neon": null,
+      "closed_note": "stalls return Saturday 8–2 — the corner rests till then"
+    },
+    "needlepointe": {
+      "fascia": "NEEDLEPOINTE TATTOO",
+      "window": [
+        "walk-ins SATURDAY · flash from 120",
+        "consultations by appointment"
+      ],
+      "board": [
+        "shop minimum 80.00",
+        "flash piece 120.00+",
+        "custom consult — free, honest, sometimes 'no'"
+      ],
+      "aframe": [
+        {
+          "text": "saturday walk-ins — the flash sheet decides, not you",
+          "when": "sat"
+        },
+        {
+          "text": "the wall changed again. it does that.",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "apprentice wanted — portfolio, patience, no exceptions"
+      ],
+      "neon": "TATTOO",
+      "closed_note": "closed — the flash sheet isn't going anywhere"
+    },
+    "folsom-auto": {
+      "fascia": "FOLSOM AUTO & SONS",
+      "window": [
+        "estimates free · ballgame on the radio"
+      ],
+      "board": [
+        "oil change 65.00",
+        "brake job 380.00",
+        "diagnostic shrug — free with any nod"
+      ],
+      "aframe": [
+        {
+          "text": "if it sounds expensive, it probably is. we'll check anyway.",
+          "when": null
+        },
+        {
+          "text": "closed weekends — engines rest too",
+          "when": "closed"
+        }
+      ],
+      "flyers": [],
+      "neon": "AUTO REPAIR",
+      "closed_note": "closed — Gus's radio is off till 8:00"
+    },
+    "maliks": {
+      "fascia": "MALIK'S MINI MART",
+      "window": [
+        "milk · smokes · the usual",
+        "open late — later than the fancy places"
+      ],
+      "board": [
+        "chips 2.50",
+        "six-pack 11.00",
+        "the usual — Malik already knows"
+      ],
+      "aframe": [
+        {
+          "text": "later than Buy-Rite. earlier than regret.",
+          "when": "late"
+        },
+        {
+          "text": "counter's open. so is the bulletin board.",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "room available — inquire within, first month talk only",
+        "lost: orange cat, answers to nothing, seen near the park",
+        "band needs drummer (must own brushes)",
+        "ESL swap, thursdays, Mudhaus corner table",
+        "free box at the Dusty Spine — alphabetized now, you're welcome"
+      ],
+      "neon": "MARKET · LIQUOR",
+      "closed_note": "Malik is asleep. the sign is lying. come back at 7."
+    },
+    "las-palmas": {
+      "fascia": "FRUTERÍA LAS PALMAS",
+      "window": [
+        "fruit cups · chile lime · mangoes when they're good"
+      ],
+      "board": [
+        "fruit cup with chile 6.00",
+        "mango 2.00",
+        "whatever's ripe — ask Luz"
+      ],
+      "aframe": [
+        {
+          "text": "saturday math: compare us to the market, then come back",
+          "when": "sat"
+        },
+        {
+          "text": "rain day — tarp down, see you when it dries",
+          "when": "rain"
+        }
+      ],
+      "flyers": [],
+      "neon": null,
+      "closed_note": "closed — weather or family, both good reasons"
+    },
+    "bloom-and-doom": {
+      "fascia": "BLOOM & DOOM FLOWERS",
+      "window": [
+        "weddings · funerals · tuesdays"
+      ],
+      "board": [
+        "bouquet 35.00",
+        "single stem 4.00",
+        "the order book is private — the van is not"
+      ],
+      "aframe": [
+        {
+          "text": "a big van load went out this morning. draw your own conclusions.",
+          "when": null
+        },
+        {
+          "text": "stems for the park crowd — 4 dollars of gesture",
+          "when": "heat"
+        }
+      ],
+      "flyers": [],
+      "neon": "FLOWERS",
+      "closed_note": "closed — condolences and congratulations both keep"
+    },
+    "golden-hour": {
+      "fascia": "GOLDEN HOUR LAUNDROMAT",
+      "window": [
+        "wash 4.25 · last wash 22:00",
+        "90 minutes — bring a book or find one"
+      ],
+      "board": [
+        "wash 4.25",
+        "dry 0.50 / 8 min",
+        "wash-and-fold 1.75/lb",
+        "the folding table is communal territory"
+      ],
+      "aframe": [
+        {
+          "text": "friday night is a real genre here",
+          "when": null
+        },
+        {
+          "text": "rain day = every machine spoken for by 10",
+          "when": "rain"
+        }
+      ],
+      "flyers": [
+        "roommate wanted — inquiries to the bulletin board, not the machines",
+        "lost: one sock. always one sock.",
+        "book exchange shelf — take one, leave one, no judging either way"
+      ],
+      "neon": "LAUNDRY · OPEN",
+      "closed_note": "never really closed — last wash 22:00, door locks at 23:00"
+    },
+    "dusty-spine": {
+      "fascia": "THE DUSTY SPINE — USED BOOKS",
+      "window": [
+        "free box on the curb",
+        "staff picks · YA · the good dust"
+      ],
+      "board": [
+        "paperback 6.00",
+        "staff-pick hardcover 18.00",
+        "free box 0.00 — take one, leave the guilt"
+      ],
+      "aframe": [
+        {
+          "text": "the free box is alphabetized. nobody asked. it stays.",
+          "when": null
+        },
+        {
+          "text": "school's out — the YA rack is occupied till the bus",
+          "when": null
+        },
+        {
+          "text": "rain reads: staff picks, front table",
+          "when": "rain"
+        }
+      ],
+      "flyers": [
+        "reading group, wednesdays — the back chairs"
+      ],
+      "neon": "BOOKS",
+      "closed_note": "closed — the free box stays out regardless"
+    },
+    "marooned": {
+      "fascia": "MAROONED RECORDS",
+      "window": [
+        "used vinyl · dollar 45s · the turntable is always on"
+      ],
+      "board": [
+        "45s bin 2.00",
+        "used LP ≈ 16.00",
+        "new release 28.00",
+        "sell-backs: hold shelf is real, so is the wait"
+      ],
+      "aframe": [
+        {
+          "text": "sunday dollar-bin tithe — one 45 at a time",
+          "when": "sun"
+        },
+        {
+          "text": "what's playing is a mood report. ask the clerk.",
+          "when": null
+        }
+      ],
+      "flyers": [
+        "band needs drummer — yes, the same flyer as Malik's"
+      ],
+      "neon": "RECORDS",
+      "closed_note": "closed — the turntable sleeps too"
+    },
+    "the-musket": {
+      "fascia": "THE MUSKET",
+      "window": [
+        "walk-ins only · small plates · cocktails"
+      ],
+      "board": [
+        "small plate 14.00",
+        "cocktail 15.00",
+        "bar seats are luck — the window watches it happen"
+      ],
+      "aframe": [
+        {
+          "text": "no reservations. the bar seats are the point.",
+          "when": null
+        },
+        {
+          "text": "choosing us over the place with the book is a statement. noted.",
+          "when": null
+        },
+        {
+          "text": "late kitchen — plates till close",
+          "when": "late"
+        }
+      ],
+      "flyers": [],
+      "neon": "THE MUSKET",
+      "closed_note": "opens 5 — weekends at 3"
+    }
+  }
+};
+/* ---- open/closed read: hours from businesses.json (display-only; Directory is canonical) ---- */
+const HRS = {
+ 'mudhaus':{weekday:[6.5,19],weekend:[7,20]},
+ 'el-farolote':{weekday:[10,25.5],weekend:[10,26.5]},
+ 'auerbach':{weekday:[8,18],weekend:[9,17]},
+ 'dolores-perk':{weekday:[7,17],weekend:[7,18]},
+ 'buy-rite-market':{weekday:[8,21],weekend:[8,21]},
+ 'buy-rite-creamery':{weekday:[11,22],weekend:[11,23]},
+ 'il-delfino':{weekday:[17.5,22.5],weekend:[17.5,23]},
+ 'baguette-about-it':{weekday:[7,15],weekend:[7,16]},
+ 'the-600-club':{weekday:[16,26],weekend:[14,26]},
+ 'dandy-lion':{weekday:[10,19],weekend:[10,20]},
+ 'valencia-growers':{weekday:null,weekend:[8,14],days:['sat']},
+ 'needlepointe':{weekday:[12,20],weekend:[12,20]},
+ 'folsom-auto':{weekday:[8,17.5],weekend:null},
+ 'maliks':{weekday:[7,23],weekend:[8,24]},
+ 'las-palmas':{weekday:[8,18],weekend:[8,18]},
+ 'bloom-and-doom':{weekday:[9,18],weekend:[10,16]},
+ 'golden-hour':{weekday:[7,23],weekend:[7,23]},
+ 'dusty-spine':{weekday:[11,19],weekend:[10,20]},
+ 'marooned':{weekday:[11,19],weekend:[11,20]},
+ 'the-musket':{weekday:[17,23],weekend:[15,24]}
+};
+const state = { t:12, day:'weekday', wx:'clear' };
+const $ = id => document.getElementById(id);
+function fmt(h){ const hh=Math.floor(h)%24, mm=h%1?'30':'00'; return String(hh).padStart(2,'0')+':'+mm; }
+function hoursFor(id){
+  const b=HRS[id]; if(!b) return null;
+  if(state.day==='weekday') return b.weekday;
+  if(b.days){ return b.days.includes(state.day)?b.weekend:null; }
+  return b.weekend;
+}
+function isOpen(id){ const h=hoursFor(id); if(!h) return false; const t=state.t%24;
+  return h[0]<=h[1] ? (t>=h[0]&&t<h[1]) : (t>=h[0]||t<h[1]-24); }
+function condOk(w,id,open){
+  if(w===null||w===undefined) return true;
+  switch(w){
+    case 'rain': return state.wx==='rain';
+    case 'heat': return state.wx==='heat';
+    case 'sat': return state.day==='sat';
+    case 'sun': return state.day==='sun';
+    case 'thu': return state.day==='weekday';
+    case 'late': return (state.t%24)>=22||(state.t%24)<2;
+    case 'morning': return state.t<11;
+    case 'closed': return !open;
+  }
+  return false;
+}
+function pickAframe(sf,id,open){
+  const pool=sf.aframe||[]; if(!pool.length) return null;
+  for(const a of pool) if(a.when!=null&&condOk(a.when,id,open)) return a;
+  const base=pool.filter(a=>a.when==null);
+  if(!base.length) return null;
+  return base[Math.floor(state.t)%base.length];
+}
+function neonLit(){ return (state.t%24)>=17.5||(state.t%24)<7; }
+function render(){
+  $('ck').textContent = fmt(state.t);
+  $('dp').textContent = (state.t<6?'overnight':state.t<11?'morning':state.t<16?'midday':state.t<21?'evening':'late night')
+    +' · '+state.day+' · '+state.wx;
+  const grid=$('grid'); grid.innerHTML=''; let n=0;
+  for(const id of Object.keys(STO.storefronts)){
+    const sf=STO.storefronts[id]; n++;
+    const open=isOpen(id);
+    const af=open?pickAframe(sf,id,open):(sf.aframe||[]).find(a=>a.when==='closed')||pickAframe(sf,id,open);
+    const d=document.createElement('div');
+    d.className='sf'+(open?'':' closed');
+    d.innerHTML=
+      `<div class="fascia">${sf.fascia}</div>`+
+      (sf.window&&sf.window.length?`<div class="win">${sf.window.join('<br>')}</div>`:'')+
+      (open&&sf.board&&sf.board.length?`<div class="board">${sf.board.map(l=>`<div>${l}</div>`).join('')}</div>`:'')+
+      (af?`<div class="aframe"><small>sidewalk sign${af.when?' · '+af.when:''}</small>${af.text}</div>`:'')+
+      (sf.flyers&&sf.flyers.length?`<div class="flyers"><b>bulletin board</b>${sf.flyers.map(f=>`<div>${f}</div>`).join('')}</div>`:'')+
+      `<div class="foot">`+
+        (sf.neon?`<span class="neon${neonLit()&&open?'':' off'}">${sf.neon}</span>`:'')+
+        (!open&&sf.closed_note?`<span class="cnote">${sf.closed_note}</span>`:'')+
+        (open?'<span class="open">open</span>':'')+
+      `</div>`;
+    grid.appendChild(d);
+  }
+  $('cnt').textContent = n+' storefronts · doors only (anchor + street tiers)';
+}
+for(const [el,key] of [['scrub','t']]){
+  $(el).addEventListener('input',e=>{state.t=+e.target.value;render();});
+}
+for(const [el,key] of [['dayTgl','day'],['wxTgl','wx']]){
+  $(el).addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    state[key]=b.dataset.v;
+    for(const x of $(el).querySelectorAll('button')) x.classList.toggle('on',x===b);
+    render();
+  });
+}
+render();
+</script>
+</body>
+</html>
