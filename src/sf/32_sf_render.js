@@ -202,6 +202,38 @@ function sfSunWallCol(base, k){
     return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.42 * Math.min(1, k));
   return mix(shade(base, lit), '#7183a4', 0.22 * (1 - Math.max(0, k) * SF_SUN.day));
 }
+/* ---------------- v15: penumbra & twilight ----------------
+   sfSoftEllipse — a contact shadow with a real umbra/penumbra profile:
+   opaque core fading to nothing, drawn as a scaled radial gradient.
+   `soft` is the umbra fraction (0..1): a long low-sun throw spreads the
+   penumbra wider, so callers shrink `soft` as shadows lengthen.
+   sfLampsLit — streetlights come on at civil dusk (sun within ~5° of the
+   horizon), not just deep night: the real Mission glows before dark.
+   sfLampPool — the warm sodium pool each lit lamp spills on pavement. */
+function sfSoftEllipse(cx, cy, rx, ry, rot, a, soft){
+  if(rx < 0.5 || ry < 0.5) return;
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot || 0); ctx.scale(rx, ry);
+  const g2 = ctx.createRadialGradient(0, 0, clamp(soft, 0.05, 0.95), 0, 0, 1);
+  g2.addColorStop(0, `rgba(18,15,8,${a})`);
+  g2.addColorStop(1, 'rgba(18,15,8,0)');
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+function sfLampsLit(){ return isNight() || SF_SUN.el < 0.09; }
+function sfLampPool(cx, cy, r){
+  const g2 = ctx.createRadialGradient(cx, cy, r * 0.05, cx, cy, r);
+  g2.addColorStop(0, 'rgba(255,196,110,0.30)');
+  g2.addColorStop(0.55, 'rgba(255,178,90,0.12)');
+  g2.addColorStop(1, 'rgba(255,170,80,0)');
+  ctx.fillStyle = g2;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, r, r * SF_TILT * 0.8, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+/* umbra fraction for a cast shadow of horizontal throw `len` — the sun's
+   ~0.5° disc makes the penumbra grow with distance from the occluder */
+function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
 
 function sfWxTick(){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -665,7 +697,7 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; shadeR = 11; }
       else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; shadeR = 8; }
       else if(o.kind === 'sfBench') spr = V.bench;
-      else if(o.kind === 'sfLamp') spr = isNight() ? V.lampOn : V.lampOff;
+      else if(o.kind === 'sfLamp') spr = sfLampsLit() ? V.lampOn : V.lampOff; // v15: civil dusk
       else if(o.kind === 'sfShrub') spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0];
       else if(o.kind === 'sfFlowerBed') spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0];
       else if(o.kind === 'sfPlanter') spr = V.planter;
@@ -682,15 +714,13 @@ function sfRenderWorld(cw, ch){
           const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
           const stretch = 1 + Math.hypot(SF_SUN.x, SF_SUN.y) * 0.55;
           const rot = Math.atan2(shy, shx);
-          ctx.fillStyle = `rgba(20,26,12,${0.22 * Math.min(1, SF_SUN.day + 0.3)})`;
-          ctx.save();
-          ctx.translate(sx + shx, sy + shy);
-          ctx.rotate(rot);
-          ctx.beginPath();
-          ctx.ellipse(0, 0, shadeR * cam.zoom * stretch,
-                      shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          // v15: penumbral canopy shadow — umbra core, soft falloff edge;
+          // the longer the throw, the wider the penumbra spreads
+          sfSoftEllipse(sx + shx, sy + shy,
+                        shadeR * cam.zoom * stretch,
+                        shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), rot,
+                        0.26 * Math.min(1, SF_SUN.day + 0.3),
+                        sfUmbra(Math.hypot(shx, shy)));
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         // v6: canopy sway on the wind (trees only; storms rock harder)
@@ -705,6 +735,9 @@ function sfRenderWorld(cw, ch){
           ctx.drawImage(sprC, -pw / 2, -ph + 4 * cam.zoom, pw, ph);
           ctx.restore();
         } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
+        // v15: lit lamp spills a warm sodium pool on the pavement
+        if(o.kind === 'sfLamp' && sfLampsLit())
+          sfLampPool(sx, sy, 3.4 * SF_PXM * cam.zoom);
       }
     } else {
       renderChibiPawn(d.v, cw, ch);
@@ -912,6 +945,41 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = 'rgba(20,16,12,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+
+  // v15: wall-base ambient occlusion — the lowest meter of facade is
+  // starved of skylight by its own mass; a soft band hugs the pavement
+  {
+    const b1 = pr(x1, y1, 0.95), b2 = pr(x2, y2, 0.95);
+    if(b1 && b2){
+      const aoG = ctx.createLinearGradient(0, Math.min(b1[1], b2[1]),
+                                           0, Math.max(g1[1], g2[1]));
+      aoG.addColorStop(0, 'rgba(16,12,8,0)');
+      aoG.addColorStop(1, `rgba(16,12,8,${(night ? 0.2 : 0.28) * dim})`);
+      ctx.fillStyle = aoG;
+      ctx.beginPath();
+      ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+      ctx.lineTo(b2[0], b2[1]); ctx.lineTo(b1[0], b1[1]);
+      ctx.closePath(); ctx.fill();
+    }
+    // v15: eave shadow — the cornice throws a shade band across the wall
+    // crown, deepest when high sun strikes the facade head-on
+    const ea = night ? 0 : 0.3 * SF_SUN.day * Math.max(0, sunK);
+    if(ea > 0.02){
+      const eA = pr(x1, y1, hm - 0.45), eB = pr(x2, y2, hm - 0.45),
+            eC = pr(x1, y1, hm - 1.6), eD = pr(x2, y2, hm - 1.6);
+      if(eA && eB && eC && eD){
+        const eG = ctx.createLinearGradient(0, Math.min(eA[1], eB[1]),
+                                            0, Math.max(eC[1], eD[1]));
+        eG.addColorStop(0, `rgba(20,14,8,${ea})`);
+        eG.addColorStop(1, 'rgba(20,14,8,0)');
+        ctx.fillStyle = eG;
+        ctx.beginPath();
+        ctx.moveTo(eA[0], eA[1]); ctx.lineTo(eB[0], eB[1]);
+        ctx.lineTo(eD[0], eD[1]); ctx.lineTo(eC[0], eC[1]);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+  }
 
   // parapet coping + bracketed cornice
   ctx.strokeStyle = shade(TRIM, 1.05);
@@ -2039,7 +2107,7 @@ function sfRenderStreet(cw, ch){
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; hm = 3.6; shadowR = 1.2; }
       else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; hm = 6.0; shadowR = 0.9; }
       else if(o.kind === 'sfBench'){ spr = V.bench; hm = 0.9; }
-      else if(o.kind === 'sfLamp'){ spr = night ? V.lampOn : V.lampOff; hm = 4.5; }
+      else if(o.kind === 'sfLamp'){ spr = sfLampsLit() ? V.lampOn : V.lampOff; hm = 4.5; }
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; }
@@ -2054,17 +2122,33 @@ function sfRenderStreet(cw, ch){
           const tx = tip ? tip[0] : p[0], ty = tip ? tip[1] : p[1];
           const ang = Math.atan2(ty - p[1], tx - p[0]);
           const len = Math.hypot(tx - p[0], ty - p[1]);
-          ctx.fillStyle = `rgba(15,20,10,${0.28 * Math.min(1, SF_SUN.day + 0.3)})`;
-          ctx.save();
-          ctx.translate((p[0] + tx) / 2, (p[1] + ty) / 2);
-          ctx.rotate(ang);
-          ctx.beginPath();
-          ctx.ellipse(0, 0, shadowR * sc + len / 2, shadowR * 0.3 * sc,
-                      0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          // v15: penumbral prop shadow — soft falloff grows with throw
+          sfSoftEllipse((p[0] + tx) / 2, (p[1] + ty) / 2,
+                        shadowR * sc + len / 2, shadowR * 0.3 * sc, ang,
+                        0.32 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
         }
         ctx.drawImage(sprC, p[0] - pw / 2, p[1] - ph, pw, ph);
+        // v15: lit lamp — halo around the acorn globe + sodium pool below
+        if(o.kind === 'sfLamp' && sfLampsLit()){
+          const gp = pr(o.x / SF_PXM, o.y / SF_PXM, 4.15);
+          if(gp){
+            const hg = ctx.createRadialGradient(gp[0], gp[1], 1,
+                                                gp[0], gp[1], 1.7 * sc);
+            hg.addColorStop(0, 'rgba(255,224,150,0.5)');
+            hg.addColorStop(1, 'rgba(255,190,100,0)');
+            ctx.fillStyle = hg;
+            ctx.beginPath();
+            ctx.arc(gp[0], gp[1], 1.7 * sc, 0, Math.PI * 2); ctx.fill();
+          }
+          const pg = ctx.createRadialGradient(p[0], p[1], 1,
+                                              p[0], p[1], 3.1 * sc);
+          pg.addColorStop(0, 'rgba(255,196,110,0.26)');
+          pg.addColorStop(1, 'rgba(255,170,80,0)');
+          ctx.fillStyle = pg;
+          ctx.beginPath();
+          ctx.ellipse(p[0], p[1], 3.1 * sc, 1.1 * sc, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     } else {
       const pv = d.pv;
@@ -2080,18 +2164,15 @@ function sfRenderStreet(cw, ch){
         const vtip = (!night && SF_SUN.day > 0.08)
           ? pr(pv.x / SF_PXM + SF_SUN.x * 1.7, pv.y / SF_PXM + SF_SUN.y * 1.7, 0)
           : null;
-        ctx.fillStyle = `rgba(0,0,0,${night ? 0.3 : 0.16 + 0.14 * SF_SUN.day})`;
         if(vtip){
           const ang = Math.atan2(vtip[1] - p[1], vtip[0] - p[0]);
           const len = Math.hypot(vtip[0] - p[0], vtip[1] - p[1]);
-          ctx.save();
-          ctx.translate((p[0] + vtip[0]) / 2, (p[1] + vtip[1]) / 2);
-          ctx.rotate(ang);
-          ctx.beginPath();
-          ctx.ellipse(0, 0, pw * 0.4 + len / 2, pw * 0.12, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          // v15: penumbral pawn shadow
+          sfSoftEllipse((p[0] + vtip[0]) / 2, (p[1] + vtip[1]) / 2,
+                        pw * 0.4 + len / 2, pw * 0.12, ang,
+                        0.2 + 0.16 * SF_SUN.day, sfUmbra(len));
         } else {
+          ctx.fillStyle = `rgba(0,0,0,${night ? 0.3 : 0.16 + 0.14 * SF_SUN.day})`;
           ctx.beginPath();
           ctx.ellipse(p[0], p[1], pw * 0.4, pw * 0.12, 0, 0, Math.PI * 2);
           ctx.fill();

@@ -534,16 +534,28 @@ function sfBldCanvas(b, wet){
     [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t - hPx * f];
 
   // pass 0: cast shadow on the pavement — footprint pushed along the REAL
-  // sun vector; length = hPx · cot(elevation), direction = away from sun
+  // sun vector; length = hPx · cot(elevation), direction = away from sun.
+  // v15: three stacked passes give a true penumbra profile — a wide faint
+  // halo, a mid falloff, then the umbra core — the same physics the sun's
+  // ~0.5° disc produces on real streets.
   const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
   const shA = 0.05 + 0.15 * SF_SUN.day; // fades to nothing under cloud/night
-  for(const [mul, al] of [[1.35, shA * 0.5], [1.0, shA]]){
+  for(const [mul, al] of [[1.7, shA * 0.18], [1.3, shA * 0.45], [1.0, shA]]){
     g.fillStyle = `rgba(26,19,10,${al})`;
     g.beginPath();
     P.forEach(([x, y], i2) => i2
       ? g.lineTo(x + shx * mul, y + shy * mul)
       : g.moveTo(x + shx * mul, y + shy * mul));
     g.closePath(); g.fill();
+  }
+  // v15: ground-level ambient occlusion — the pavement strip hugging a
+  // wall is starved of skylight, so a soft dark band rings every outside
+  // edge of the footprint (the inner half is covered by walls/roof above)
+  for(const [lw, aa] of [[6, 0.08], [2.5, 0.15]]){
+    g.strokeStyle = `rgba(20,16,9,${aa})`; g.lineWidth = lw;
+    g.beginPath();
+    P.forEach(([x, y], i2) => i2 ? g.lineTo(x, y) : g.moveTo(x, y));
+    g.closePath(); g.stroke();
   }
 
   // pass 1: walls (south + side), far(north) walls skipped
