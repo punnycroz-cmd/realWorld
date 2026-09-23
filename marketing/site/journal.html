@@ -68,6 +68,52 @@
     <p class="eyebrow">Latest — devlog</p>
     <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-23 · Development build v22</p>
+      <h2>Every request knocks before it enters.</h2>
+      <p>
+        A request in Real World is a suggestion to a world that can say no —
+        and this week the "no" got teeth. The request pipeline now runs every
+        filing through <b>intent screening</b> before it's priced or queued:
+        one shared screening engine sits behind both the request form you see
+        and the review console our moderators see, so the verdict you get and
+        the verdict a reviewer gets can never drift apart.
+      </p>
+      <p>
+        What gets declined is a short, boring list, and it's published:
+        requests that target a resident's private life, fish for secrets, try
+        to steer a character who isn't yours, meddle in rent or evictions
+        (admin-only powers), impersonate someone, or name a real business —
+        the form will suggest the parody name instead. Declines refund in
+        full, automatically, and on the public feed a declined request is one
+        neutral line — <i>request not approved</i>. No spectacle, no wall of
+        shame.
+      </p>
+      <p>
+        Gray-zone and exclusive requests go to a human reviewer with a target
+        answer inside fifteen minutes, and every decision is appealable. What
+        moderation never touches is the world itself: there is no "report the
+        AI" button, no retcon tool, and the residents' secrets aren't in any
+        schema a reviewer can open. You can try the filing end of this on the
+        <a href="demo.html#request-sim">watch page's request simulator</a> —
+        same classes, same prices, clearly labeled as a simulation.
+      </p>
+      <p class="muted">
+        Sources: the screening engine and reviewer console ship in the world
+        track's v8 tooling (<code>world/screen.js</code>,
+        <code>world/mod-console.html</code>); the reason-code taxonomy and
+        SLA are the machine-readable contract in
+        <code>world/moderation.json</code>. The rules page summarizes the
+        same policy in plain language: <a href="rules.html">Rules &amp; safety</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-23 · Development build v22</p>
       <h2>How the block learned to look like the Mission.</h2>
       <p>
         The first pass at the neighborhood was a flat grid with good bones:
@@ -119,7 +165,7 @@
         <div class="feed-row"><span class="feed-time">Week</span><span class="feed-tag tag-run">ran</span><p>21 requests approved — most of them small: a rain hour, two open-mic nights at Mudhaus.</p></div>
         <div class="feed-row"><span class="feed-time">Sat</span><span class="feed-tag tag-queue">queued</span><p>An exclusive on the prime evening slot queued four hours, then ran at 9 p.m. Surge pricing applied; it's all on the feed.</p></div>
         <div class="feed-row"><span class="feed-time">Sat</span><span class="feed-tag tag-refund">refunded</span><p>Three requests expired before their slots freed — auto-refunded, as designed.</p></div>
-        <div class="feed-row"><span class="feed-time">Sun</span><span class="feed-tag tag-done">resolved</span><p>A new resident moved in above the hardware store. The block noticed before we did.</p></div>
+        <div class="feed-row"><span class="feed-time">Sun</span><span class="feed-tag tag-done">resolved</span><p>A new resident moved in above Auerbach Hardware. The block noticed before we did.</p></div>
       </div>
       <p class="muted" style="margin-top:10px">Every line links to the feed entry it reports. If we can't link it, it didn't happen.</p>
     </article>

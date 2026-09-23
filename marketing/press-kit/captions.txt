@@ -13,7 +13,7 @@ keyart/keyart-square.png    1080x1080
   reach in."
 
 screenshots/v22-A.png       1440x900 (approx)
-  The café block from overhead — real Mission street grid, parody
+  The Mudhaus block from overhead — real Mission street grid, parody
   storefront signage, mural walls, generated addresses.
 
 screenshots/v22-B.png       1440x900 (approx)

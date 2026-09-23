@@ -61,7 +61,7 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:12 | S2 | Top-down dawn over the café block (v22-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 2 | 0:05–0:12 | S2 | Top-down dawn over the Mudhaus block (v22-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
 | 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v22-B framing). | **[T]** "Twenty-eight people live here." |
 | 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v22-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
 | 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v22-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
@@ -95,7 +95,7 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over café block | dawn, dry | matches `site/shots/v22-A.png` |
+| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v22-A.png` |
 | S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v22-B.png` |
 | S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v22-C.png` |
 | S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v22-D.png` |

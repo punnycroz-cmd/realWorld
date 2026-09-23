@@ -22,9 +22,13 @@ screenshot caption, and devlog claim must trace to:
 - the shipped build (real captures from `site/shots/`, copied — never
   hotlinked — from the art track's `published/`),
 - the public request feed (post-launch), or
-- the world track's canon (`world/characters/_index.md`, parody business
-  names — published as of world v0: Mudhaus Coffee, El Farolote, Flying
-  Pannier, Auerbach Hardware).
+- the world track's canon (`world/characters/_index.md`; parody business
+  names — naming authority `world/businesses.md`, generated mirror
+  `world/parody-names.json`, ~89 mappings; canonical names preferred over
+  generic descriptors in all copy since the v22/v27 sweeps), or
+- the request-pipeline/moderation contract (`world/moderation.json` +
+  `world/moderation-tooling.md`, world v8) — the source for any claim about
+  screening, deny codes, SLAs, or appeals.
 
 If it can't be linked or pointed to, it isn't said. Quiet weeks get
 reported as quiet weeks. Never-do list lives in LAUNCH-CHECKLIST §8.
@@ -119,6 +123,22 @@ village"), recaps target branded/community queries. Rules:
   by design).
 - **Spectator build URL** — gates `demo.html` flip (one attribute,
   DEMO-PAGE.md §1) and "watch now" CTAs resolving to a live view.
-- **`world/businesses.md`** — parody-name list partially confirmed via
-  `world/characters/_index.md`; sweep social/site copy to the full list
-  when the dedicated file lands (queued task in SOCIAL-LAUNCH-PLAN §10).
+- **`world/businesses.md`** — RESOLVED (v27). The dedicated file + generated
+  `parody-names.json` are published; site pages, press-kit captions, brand
+  samples, and trailer shot notes were swept to canonical names. Remaining
+  generic descriptors are deliberate voice choices, not placeholders.
+
+## 8. Published & drafted register
+
+| Piece | State | Source |
+|---|---|---|
+| Devlog 1 — "How the block learned to look like the Mission" | live on `journal.html` | art v1→v22 inbox history + game lease/request systems |
+| Devlog 2 — "Every request knocks before it enters" | live on `journal.html` | world-v8 `screen.js`/`moderation.json`/`mod-console.html` |
+| Devlog 3 — "Rent is due on the first" | drafted, `marketing/content/devlog-03-rent-is-due.md` | world `jobs-housing.md`, `housing/` |
+| Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
+
+Backlog (write when the source lands — never ahead of it): lease-ledger
+devlog deep-dive, "meet the venues" cast-adjacent post (businesses.md §2),
+a transparency note format for moderation stats once the live feed emits
+`moderation.json`-shaped events, memory-model explainer once game-systems
+implements the memory spec (research-only today — do not preview).

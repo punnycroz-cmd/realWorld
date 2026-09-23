@@ -54,9 +54,13 @@ possession ban and no-cash-out rules exist specifically to avoid those frames.
 
 In-world names: residents, venues, and businesses come from the world track's
 bibles and **parody business-name list** (GTA-style parody names only — never
-real SF businesses). Real street/landmark names (Dolores Park, Valencia St)
-are allowed and encouraged. Until the parody list is published, marketing copy
-uses generic descriptors ("the taqueria", "the corner bar").
+real SF businesses). The list is published and canonical:
+`world/businesses.md` (naming authority) and `world/parody-names.json`
+(generated mirror, ~89 mappings — Mudhaus Coffee, Taqueria El Farolote,
+Auerbach Hardware, Buy-Rite Market, The 600 Club, …). Prefer canonical names
+over generic descriptors in all new copy; site and social drafts were swept
+to them in v22/v27. Real street/landmark names (Dolores Park, Valencia St)
+are allowed and encouraged.
 
 ---
 
@@ -112,8 +116,8 @@ Second person for the player ("you"), third for residents (by name).
 
 **Sample lines (calibration):**
 
-- ✅ "Marta closes the taqueria at eleven. What she does after that is hers —
-  you can watch, you can ask, you can't make her."
+- ✅ "Tomás closes El Farolote at eleven. What he does after that is his —
+  you can watch, you can ask, you can't make him."
 - ✅ "Requests are screened, time-boxed, and public. If yours is declined, the
   credits come back automatically."
 - ❌ "Take control of anyone in the city!" (possession ban violation)
