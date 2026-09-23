@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v51 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v66 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -60,7 +60,8 @@ visit      pageview                     (site — live now)
     └─press    press_kit_download       (site — live once kit zip is linked)
     └─community community_join, recap_open, watch_party_rsvp
                                         (v40 — PENDING surfaces; see community/)
-      └─watch  watch_start              (game embed — PENDING, roadmap v12)
+      └─watch  watch_start              (demo.js LIVE on demo.html in fallback
+                                         mode; live game embed still PENDING)
         └─onboard  tour_started … onboard_dismissed  (game — PENDING, v36)
           └─request request_submitted, first_request_filed  (game — PENDING)
             └─create character_created  (game — PENDING)
@@ -88,7 +89,7 @@ per-event props + privacy contract). Site-side events already wired:
 
 - `pageview` — auto on every page; props: title, `data-page` slug, viewport, lang.
 - `cta_click` — on every primary/ghost CTA (`data-rw-event="cta_click"`,
-  `data-rw-props` = slot + destination). Instrumented across all 13 pages.
+  `data-rw-props` = slot + destination). Instrumented across all 16 pages.
 - `screenshot_view` — auto on gallery lightbox opens (which shot, by filename).
 - `outbound_click` — any external link not otherwise tagged.
 - `scroll_depth` (v22) — auto at 25/50/75/100% marks, once each per page;
@@ -168,6 +169,40 @@ drop it straight into MARKETINGLOG.md once live. `--json` dumps raw
 aggregates. Committed reference output: `marketing/analytics/sample-report.md`
 (generated from `sample-week.ndjson`, both synthetic).
 
+### Spec validation (v66)
+
+`tools/analytics_validate.py` — the hard gate between capture and report.
+Checks an NDJSON file against `analytics-events.json`: envelope shape, event
+names, per-event prop allowlists, enumerated prop domains, and the privacy
+contract as lint rules (PII-shaped prop names/values, full-URL refs, stray
+utm keys). Exit 1 on any FAIL — run it before trusting a report, and before
+accepting a new emitter:
+
+```bash
+python3 marketing/tools/analytics_validate.py /tmp/rw-events.ndjson
+```
+
+`analytics_e2e.sh` now runs it on the captured fixture automatically. Its
+first run caught real drift — the spec's page-slug and CTA-slot lists were
+a version behind the site, and `watch_start` was missing the `mode` prop the
+demo emitter already sends. All fixed in `analytics-events.json` (v66).
+
+### A/B / creative readout (v66)
+
+`tools/ab_compare.py` — splits sessions by a utm dimension (default
+`utm_content`, the §6 convention for creative variants) and prints a
+per-variant funnel table plus a two-proportion z-test vs baseline on one
+transition (default `engaged → watch_start`):
+
+```bash
+python3 marketing/tools/ab_compare.py /tmp/rw-events.ndjson \
+    --dim utm_content --baseline thumb-a
+```
+
+Honesty rules are baked in: arms under n=30 get a `low-n` flag, and the
+tool prints "confirm with a second week" — never call a creative winner on
+one week's z-score.
+
 ### Local dashboard (v36)
 
 `marketing/analytics/dashboard.html` — a standalone, file://-safe page.
@@ -241,8 +276,12 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 ## 9. Launch-readiness checklist additions
 
 - [ ] Owner picks backend (Umami / Plausible CE / first-party sink) — owner-gated
-- [ ] `data-endpoint` set on the analytics script tag (all 13 pages)
+- [ ] `data-endpoint` set on the analytics script tag (all 16 pages)
 - [ ] `tools/analytics_e2e.sh` re-run against staging after endpoint is set
+- [ ] `tools/analytics_validate.py` clean on the first real capture before
+      any weekly report is trusted (v66)
+- [ ] Creative variants tagged via `utm_content` per §6 so
+      `tools/ab_compare.py` has arms to compare (v66)
 - [ ] Privacy line added to FAQ/footer when collection goes live
 - [ ] `press_kit_download` hook added when the kit zip gets a public link
 - [ ] `community_join` hook added when the invite link goes live (v40);

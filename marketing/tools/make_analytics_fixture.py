@@ -23,8 +23,10 @@ PAGES = [
     ("/press-kit.html", "press-kit", 3),
 ]
 UTMS = [
-    {"utm_source": "bsky", "utm_medium": "social", "utm_campaign": "launch-2026"},
-    {"utm_source": "x", "utm_medium": "social", "utm_campaign": "launch-2026"},
+    {"utm_source": "bsky", "utm_medium": "social", "utm_campaign": "launch-2026",
+     "utm_content": "thumb-a"},
+    {"utm_source": "x", "utm_medium": "social", "utm_campaign": "launch-2026",
+     "utm_content": "thumb-b"},
     {"utm_source": "rps", "utm_medium": "press", "utm_campaign": "press-embargo"},
     {"utm_source": "itch", "utm_medium": "store", "utm_campaign": "store-launch"},
     {"utm_source": "discord", "utm_medium": "community", "utm_campaign": "launch-2026"},
@@ -101,7 +103,7 @@ def main():
                       utm=utm, ref=ref, ts=ts + 11000)
         if rnd.random() < 0.28:  # watch
             yield_evt("watch_start", "/demo.html", sid,
-                      {"source": "demo_page", "mode": rnd.choice(["live", "fallback"])},
+                      {"source": "demo-page", "mode": rnd.choice(["live", "fallback"])},
                       utm=utm, ref=ref, ts=ts + 12000)
             if rnd.random() < 0.5:  # onboarding tour (world-v11/v25 hooks, game-side)
                 yield_evt("persona_chosen", "/demo.html", sid,

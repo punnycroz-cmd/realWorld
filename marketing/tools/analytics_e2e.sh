@@ -51,10 +51,14 @@ echo "[e2e] captured $got / $sent events"
 echo "[e2e] 4/6 generating report -> $WORK/report.md"
 python3 tools/analytics_report.py "$WORK/captured.ndjson" --week e2e > "$WORK/report.md"
 
-echo "[e2e] 5/6 asserting report sanity"
+echo "[e2e] 5/6 asserting report sanity + validating capture against the spec"
 for want in "pageview" "watch_start" "request_submitted" "character_created" "funnel:"; do
   grep -q "$want" "$WORK/report.md" || { echo "[e2e] FAIL: report missing '$want'"; exit 1; }
 done
+python3 tools/analytics_validate.py "$WORK/captured.ndjson" --warn-extra-props \
+  || { echo "[e2e] FAIL: capture violates analytics-events.json"; exit 1; }
+python3 tools/ab_compare.py "$WORK/captured.ndjson" > "$WORK/ab.md" \
+  && echo "[e2e] ab_compare -> $WORK/ab.md"
 echo "[e2e] report head:"; head -8 "$WORK/report.md"
 
 echo "[e2e] 6/6 serving site on :$SITE_PORT (endpoint via ?rw_endpoint=)"

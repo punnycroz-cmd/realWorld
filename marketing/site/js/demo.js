@@ -33,7 +33,7 @@
 
   function live() {
     if (window.rw && window.rw.track) {
-      window.rw.track("watch_start", { source: "demo_page", mode: "live" });
+      window.rw.track("watch_start", { source: "demo-page", mode: "live" });
     }
   }
 
@@ -51,7 +51,7 @@
     stage.classList.add("is-live");
   } else {
     if (window.rw && window.rw.track) {
-      window.rw.track("watch_start", { source: "demo_page", mode: "fallback" });
+      window.rw.track("watch_start", { source: "demo-page", mode: "fallback" });
     }
   }
 
