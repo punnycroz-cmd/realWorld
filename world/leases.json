@@ -1,0 +1,92 @@
+{
+  "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
+  "version": 12,
+  "power_map": {
+    "player_own_character": ["apply", "sign", "pay_rent", "repair_request", "file_dispute", "give_notice", "offer_to_buy"],
+    "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
+    "admin_only": ["raise_rent", "issue_notices", "approvals", "evictions", "rulings", "mint_addresses"],
+    "requests_pipeline": "admin-domain deny — lease/rent/eviction asks are unreachable by request (moderation.json v8)",
+    "currency_wall": "credits never pay rent/deposits/fees — game dollars only"
+  },
+  "states": [
+    { "id": "listed",        "note": "unit on the board (housing.json listings_live + ladder)" },
+    { "id": "applied",       "note": "application in; screening conditions evaluated (income ~2.5x, references, roommate interview)" },
+    { "id": "approved",      "note": "lease offered; signing is atomic: lease row + first month + deposit + listing off board + feed event" },
+    { "id": "active",        "note": "ordinary tenancy" },
+    { "id": "arrears",       "note": "unpaid at day 10; formal notice issued" },
+    { "id": "noticed",       "note": "cure-or-quit posted; 14-day cure window; feed-visible" },
+    { "id": "cured",         "note": "balance cleared at any rung; back to active, arrears history retained" },
+    { "id": "disputed",      "note": "board filing open; notice ladder FROZEN at current rung" },
+    { "id": "evict_review",  "note": "admin queue card — never automatic; ledger + notices + disputes on the card" },
+    { "id": "evicted",       "note": "tenancy ended by admin; feed 'admin' event, neutral wording" },
+    { "id": "move_out",      "note": "tenant notice given (30d) or lease-end; deposit return itemized" },
+    { "id": "turnover",      "note": "unit between tenants; flips back to listed" },
+    { "id": "owner_occupied","note": "deed recorded; rent line replaced by tax/HOA" }
+  ],
+  "rent_run": {
+    "charge_day": 1,
+    "grace_through": 5,
+    "late_fee": { "pct": 0.05, "cap": 50, "note": "house rule stated in every lease" },
+    "formal_notice_day": 10,
+    "cure_or_quit_day": 24,
+    "cure_window_d": 14,
+    "partial_payments": "accepted, oldest-charge-first",
+    "frozen_while": "disputed (any rung) — no eviction while a board ruling is open",
+    "rent_control": {
+      "flag": "per unit (registry)",
+      "raise_rule": "controlled-unit raises need a stated basis in the ledger (annual pct or claimed passthrough); the claim is what a dispute examines"
+    }
+  },
+  "notices": [
+    { "n": 1, "name": "late_reminder",       "trigger": "day 6 unpaid",  "window_d": 0,  "visibility": "tenant + player inbox" },
+    { "n": 2, "name": "formal_notice",       "trigger": "arrears day 10","window_d": 7,  "visibility": "tenant + landlord file" },
+    { "n": 3, "name": "cure_or_quit",        "trigger": "balance 30+ days or unresponsive", "window_d": 14, "visibility": "feed (housing kind, neutral)" },
+    { "n": 4, "name": "eviction_filing",     "trigger": "window expired, no cure, no open dispute", "window_d": null, "visibility": "feed (admin kind, attributed)" }
+  ],
+  "deposits": {
+    "flat": "1x monthly rent",
+    "room_share": "0.5x",
+    "return_rule": "minus itemized deductions only — every deduction is a ledger line with a reason",
+    "informal_occupants": "room shares (c2-jules, c3-dani) are person-to-person — never ledger objects"
+  },
+  "repairs": {
+    "flow": ["requested", "acknowledged", "scheduled", "done"],
+    "habitability_items": ["heat", "hot_water", "water_intrusion", "lock_failure"],
+    "habitability_sla": "acknowledged same-day, target fix <= 7 days",
+    "dispute_weight": "open habitability item strengthens a dispute; rulings may order repair + rent credit"
+  },
+  "disputes": {
+    "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions"],
+    "flow": ["filed", "evidence_window_7d", "mediation_week", "ruling"],
+    "rulings": ["uphold", "reduce", "repair_credit"],
+    "evidence": "ledger objects only — repair requests, payment lines, claimed passthrough math; no testimony mechanics",
+    "feed": "rulings are housing events, neutral wording; amounts stay in the file",
+    "live_example": "bld-g9457-3 (c4-priya+c5-marcus): raise 2600->3200 contested on passthrough claim + dead heater; keep ambiguous, never resolve in content"
+  },
+  "eviction": {
+    "decision": "admin-only, human, never automatic",
+    "review_card_fields": ["ledger", "notice_history", "open_disputes", "household_facts"],
+    "hired_characters": "not exempt — miss rent and the admin may evict (design §6)",
+    "feed_wording": "admin action — tenancy ended at <address>; never the debt amount, never the reason text",
+    "no_fault_path": { "triggers": ["sale", "owner_move_in"], "window": "longer", "relocation_credit": "mandatory", "distinct_ledger_code": true }
+  },
+  "progression": {
+    "owner":   { "deed_fee_cr": { "studio": 1000, "1br": 2000, "flat": 3500, "house": 5000 }, "rule": "offer at asking, first accepted wins — no bidding", "unlock": ["decorate", "sublet", "public property history", "owner_occupied"] },
+    "landlord":{ "license_cr": 2000, "gates": ["own >= 30 days", "reputation threshold", "clean record"], "caps": ["rent-control band on owned units", "all actions public-record", "cooldowns", "own units only"] }
+  },
+  "feed_wording": {
+    "listing_posted":  "Listed — <address> (<type>)",
+    "listing_filled":  "Listing filled — <address> comes off the board",
+    "notice_3":        "housing notice posted — <address>",
+    "ruling":          "rent-board ruling — <address>",
+    "turnover":        "Unit turning over — <address> back on the board",
+    "sale":            "Sold — <address> changes hands",
+    "eviction":        "admin action — tenancy ended at <address>",
+    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments"]
+  },
+  "demo_seed": {
+    "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
+    "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2)",
+    "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open"
+  }
+}

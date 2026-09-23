@@ -1,8 +1,8 @@
 {
   "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
-  "version": 9,
+  "version": 12,
   "scope": {
-    "under_test": ["world/feed.html", "world/request.html", "world/mod-console.html", "world/create.html", "world/board.html", "world/history.html", "world/onboarding.html", "world/screen.js"],
+    "under_test": ["world/feed.html", "world/request.html", "world/mod-console.html", "world/create.html", "world/board.html", "world/history.html", "world/onboarding.html", "world/lease.html", "world/screen.js"],
     "not_under_test": ["llm behavior (sim STOPPED — no live world exists)", "real payments", "multiplayer concurrency", "game-track plumbing (gsViewerState/gsRequest* — sf/game-systems)", "rendering (sf/art)"],
     "invariant_reminders": [
       "possession ban on C1–C8 incl. the landlord — no surface may offer it",
@@ -19,7 +19,8 @@
     "create":  { "file": "create.html",      "name": "Join the Cast",      "tier": "paid" },
     "board":   { "file": "board.html",       "name": "Housing & Jobs Board","tier": "in-world" },
     "history": { "file": "history.html",     "name": "The Archive",        "tier": "free" },
-    "onboard": { "file": "onboarding.html",  "name": "Onboarding (first session)", "tier": "free" }
+    "onboard": { "file": "onboarding.html",  "name": "Onboarding (first session)", "tier": "free" },
+    "lease":   { "file": "lease.html",       "name": "The Rent Book",      "tier": "player/admin" }
   },
   "severity_rubric": [
     { "id": "blocker", "label": "Blocker", "def": "Breaks a boundary (possession ban, real business name, leaked secret, scripted-AI affordance) or a surface is unusable. Stop the session; report immediately." },
@@ -178,12 +179,32 @@
           "expect": "Dismissal persists via localStorage; returning state shows footer link only.",
           "checkpoints": ["No auto-resurface on reload or timer", "Footer link is the only re-entry", "Completing the checklist grants nothing — no reward screen, credits, or status"] }
       ]
+    },
+    {
+      "id": "PT10", "title": "The Rent Book — lease lifecycle", "minutes": 20,
+      "persona": "player with a hired character (h01, tenant of 9457-2) + a second hat as admin",
+      "goal": "Walk the lease lifecycle in both hats: pay rent late, climb the notice ladder, freeze it with a dispute, and confirm the power boundaries hold.",
+      "surfaces": ["lease"],
+      "steps": [
+        { "do": "Open The Rent Book in Spectator mode. Read the board and open two leases.",
+          "expect": "Public view shows addresses, posted rents, and status words only — never balances, tenant names, or documents.",
+          "checkpoints": ["No ledger amounts or tenant names render in spectator mode", "All addresses are 9xxx + real streets + unit codes", "9457-3 shows 'disputed' — the open storyline is visible as a status word, nothing more"] },
+        { "do": "Switch to Tenant mode. Pay h01's rent (past grace, with the late fee), then request a repair and file a dispute on another pass.",
+          "expect": "Payment clears the ledger oldest-first; dispute freezes the notice ladder; credits are never offered for rent.",
+          "checkpoints": ["Late fee is 5% capped at $50 and stated as a lease term", "Filing a dispute visibly freezes the ladder (admin cannot post further notices while open)", "Copy restates the currency wall — game dollars only"] },
+        { "do": "Switch to Admin mode. Step days forward on a delinquent lease and run the notice ladder to eviction review.",
+          "expect": "Notices escalate on schedule; eviction is a human review card, never automatic; every admin action posts a neutral feed line.",
+          "checkpoints": ["Cure-or-quit posts a 'housing' feed event with neutral wording (no amounts, no reasons)", "Eviction lands as an 'admin' event — 'tenancy ended at <address>' only", "A declined review returns the lease to the notice rung, not a dead end"] },
+        { "do": "In Tenant mode, offer on the for-sale unit (9476 Dolores B).",
+          "expect": "Offer-at-asking only — no bidding; deed fee is credits, price is game dollars; the two are clearly separated.",
+          "checkpoints": ["Deed fee matches plan §2.4 (2,000 cr for 1BR)", "Feed posts 'Sold — <address> changes hands'", "No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"] }
+      ]
     }
   ],
   "session_report_schema": {
-    "session": { "tester": "string", "role": "spectator|player|reviewer|facilitator", "date": "YYYY-MM-DD", "build": "world v9 local", "notes": "string" },
+    "session": { "tester": "string", "role": "spectator|player|reviewer|facilitator", "date": "YYYY-MM-DD", "build": "world v12 local", "notes": "string" },
     "results": [{ "scenario": "PT#", "step": "n", "checkpoint": "string", "verdict": "pass|fail|na", "note": "string" }],
-    "findings": [{ "severity": "blocker|major|minor|nit|question", "surface": "feed|request|mod|create|board|history|onboard|screen", "title": "string", "detail": "string", "steps_to_repro": "string" }],
+    "findings": [{ "severity": "blocker|major|minor|nit|question", "surface": "feed|request|mod|create|board|history|onboard|lease|screen", "title": "string", "detail": "string", "steps_to_repro": "string" }],
     "triage_owner_map": {
       "world": "all world/* surfaces + copy + content",
       "game-systems": "queue model, classifier plumbing, gsViewerState vocabulary, ledger (at merge)",

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease surface added v12). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -155,7 +155,8 @@ const SURF={
   feed:{file:"feed.html",name:"The Wire"},request:{file:"request.html",name:"Requests"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"},
-  onboard:{file:"onboarding.html",name:"Onboarding (first session)"}};
+  onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
+  lease:{file:"lease.html",name:"The Rent Book"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -259,11 +260,26 @@ const PTS=[
   ck:["Credits vs game dollars wall is stated in the explainer","Handle/skips are marked optional and styled neutrally (no red, no percent-shame)","Guided request uses fixed safe text — onboarding never duplicates the §11 screen","Feed entry uses request vocabulary (running) + attribution"]},
  {do:"Dismiss onboarding, reload, confirm it stays gone; then reopen via the footer link.",
   exp:"Dismissal persists via localStorage; returning state shows footer link only.",
-  ck:["No auto-resurface on reload or timer","Footer link is the only re-entry","Completing the checklist grants nothing — no reward screen, credits, or status"]}]}
+  ck:["No auto-resurface on reload or timer","Footer link is the only re-entry","Completing the checklist grants nothing — no reward screen, credits, or status"]}]},
+{id:"PT10",title:"The Rent Book — lease lifecycle",min:20,persona:"player with a hired character (h01, tenant of 9457-2) + a second hat as admin",
+ goal:"Walk the lease lifecycle in both hats: pay rent late, climb the notice ladder, freeze it with a dispute, and confirm the power boundaries hold.",
+ surfaces:["lease"],steps:[
+ {do:"Open The Rent Book in Spectator mode. Read the board and open two leases.",
+  exp:"Public view shows addresses, posted rents, and status words only — never balances, tenant names, or documents.",
+  ck:["No ledger amounts or tenant names render in spectator mode","All addresses are 9xxx + real streets + unit codes","9457-3 shows 'disputed' — the open storyline is visible as a status word, nothing more"]},
+ {do:"Switch to Tenant mode. Pay h01's rent (past grace, with the late fee), then request a repair and file a dispute on another pass.",
+  exp:"Payment clears the ledger oldest-first; dispute freezes the notice ladder; credits are never offered for rent.",
+  ck:["Late fee is 5% capped at $50 and stated as a lease term","Filing a dispute visibly freezes the ladder (admin cannot post further notices while open)","Copy restates the currency wall — game dollars only"]},
+ {do:"Switch to Admin mode. Step days forward on a delinquent lease and run the notice ladder to eviction review.",
+  exp:"Notices escalate on schedule; eviction is a human review card, never automatic; every admin action posts a neutral feed line.",
+  ck:["Cure-or-quit posts a 'housing' feed event with neutral wording (no amounts, no reasons)","Eviction lands as an 'admin' event — 'tenancy ended at <address>' only","A declined review returns the lease to the notice rung, not a dead end"]},
+ {do:"In Tenant mode, offer on the for-sale unit (9476 Dolores B).",
+  exp:"Offer-at-asking only — no bidding; deed fee is credits, price is game dollars; the two are clearly separated.",
+  ck:["Deed fee matches plan §2.4 (2,000 cr for 1BR)","Feed posts 'Sold — <address> changes hands'","No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v9";
+const LS="rw_playtest_v12";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -330,7 +346,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v9 local",started:new Date(S.started).toISOString()},
+    build:"world v12 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }
