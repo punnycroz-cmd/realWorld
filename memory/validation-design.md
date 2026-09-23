@@ -5791,3 +5791,128 @@ residual channels)
 Registry: P1–P696. v66 suite: P687–P696 — 7 MUST (P687–P693,
 P695; P690–P692 and P695 each carry a locked null/resist) and
 3 SHOULD (P694 locked-null-bearing, P696 trait orthogonality).
+
+## 127. Probes P697–P708 (v67 suite — individual-differences VI,
+the tails, the motivated mind, the body history, null #2)
+
+- **P697 the calendar mind (MUST — two locked nulls):** hsam=1
+  vs hsam=0 profiles on identical 90-day self-present event
+  diets — own-life retention near-flat (β effective ≤0.2×
+  control) and whenEstimate σ ≤ ~10% of control; on matched
+  non-self "laboratory" records all retention within jitter
+  (hsam_lab_null); misinformation adoption and lure
+  endorsement within jitter (hsam_misinfo_null — Patihis
+  2013). A general-memory or false-memory advantage fails.
+- **P698 the third person (MUST — three locked nulls):**
+  sdam=1 episodic queries return generic/know-mode
+  reconstructions ≥60% more often with forced observer
+  perspective; semantic, skill, and PM outcomes match control
+  (sdam_sem_null); encoding E terms identical (sdam_enc_null);
+  confidence stays fluent, not chronically uncertain
+  (sdam_conf_null).
+- **P699 elaboration is choosy (MUST — sign-locked):**
+  `elaborable` events tagged arg_quality — nfc=+1.5's
+  strong−weak field-retention gap ≈2× the nfc=−1.5 gap;
+  matched non-elaborable events identical; all beta_*
+  unchanged (encoding disposition, never storage).
+- **P700 forgotten but not gone (MUST — recognition lock):**
+  matched threaten-self vs affirm-self `self_feedback` events:
+  mnemic=+1.5 recalls ~30% fewer threaten fields; cueContext
+  mode:"recognition" recovers them at control rate
+  (mnemic_recog_null); other-referent feedback identical at
+  all trait values; `close:true`-source threaten events exempt.
+- **P701 Ribot's window (MUST — sign-locked):** `tbi_event`
+  minted mid-timeline — retrograde erasure graded by severity
+  (mild ≈ hours, severe ≈ weeks), remote records spared;
+  residual wmc-side tax present at +90d and STABLE — any
+  year-over-year deficit growth fails (tbi_prog_null).
+- **P702 the invisible allele (MUST — onset lock):** apoe=e4
+  vs e3 — identical curves at age_eff 30/40; divergence only
+  past onset on episodic-side params; semantic/procedural/PM
+  identical at every age; homozygous > heterozygous ordering.
+- **P703 the ordinary advantage (SHOULD — ceiling-locked):**
+  synesth=2 episodic E advantage ≈5–15% across ALL channel
+  types including synesthesia-irrelevant material (the 2019
+  meta's pervasiveness); >25% advantage FAILS — the bound is
+  the point (Rothen & Meier 2010).
+- **P704 the groove (MUST):** rumin=+1.5 negative self-
+  referent records show elevated rehearsal counts, slowed
+  neg_affect_decay, lowered intrusion_thresh on negative cues;
+  positive/neutral rehearsal and all encoding params
+  identical; rumin=−1.5 shows the small reflection gain on
+  problem-framed retells (Watkins 2008 asymmetry).
+- **P705 meshing null (MUST — honesty lock):** 200 draws,
+  learn_style pinned vs randomized, modality-matched vs
+  modality-mismatched encode contexts → recall identical
+  within jitter; ANY systematic loading or interaction fails.
+  Same honesty-lock architecture as P575 (birth_order).
+- **P706 tail exclusivity (MUST):** joint sampler draws with
+  hsam·sdam both >0 never emit — the projection resolves to
+  the larger magnitude; resulting profiles carry exactly one
+  tail's signature, never a composite.
+- **P707 rehearsal is the engine (SHOULD — mechanism audit):**
+  hsam=1 with the `hsam_rehearse` leg ablated (remin_w forced
+  to control) collapses the own-life advantage toward control;
+  the ablation — not the flag — must carry the effect. A
+  build where hsam survives rehearsal-removal is a magic flag,
+  not a mechanism.
+- **P708 the feedback ledger (SHOULD — compound audit):**
+  mnemic=+1.5 × self_srv=+1.5 criticized after shared work:
+  own-effort fields stay dense (self_srv arm) while threat
+  fields thin (mnemic arm) — both operators visible in one
+  record, additive, no interaction term.
+
+## 128. Sources verified this version (P697–P708 backing)
+
+- Parker, Cahill & McGaugh 2006 (*Neurocase* 12:35 — first
+  HSAM case "A.J."/Jill Price, diary-verified date recall);
+  LePort et al. 2012 (*Neurobiol. Learn. Mem.* 98:78, N=11 —
+  superior personal+public event recall WITH dates, matched
+  controls on standard lab tests); LePort et al. 2016/2017
+  (N≈33+; OC-spectrum correlation); Patihis et al. 2013
+  (*PNAS* 110:20947 — HSAM DRM/misinformation false memories
+  at control rates — the misinfo null).
+- Palombo, Alain, Söderlund, Khuu & Levine 2015
+  (*Neuropsychologia* 72:105, N=3 — SDAM: absent recollection
+  biomarkers, intact wherever tasks are non-episodic; "third
+  person" self-description); Palombo et al. 2018 (review);
+  Wan et al. 2024 (partial aphantasia covariation).
+- Cacioppo & Petty 1982 (*JPSP* 42:116 — NFC scale); Cacioppo,
+  Petty, Feinstein & Jarvis 1996 (*Psych. Bull.* 119:197 —
+  meta: elaboration + strong/weak argument memory gap);
+  Cohen, Stotland & Wolfe 1955 (grandfather study).
+- Sedikides & Green 2000 (*JPSP* 79:168 — mnemic neglect);
+  Sedikides, Green & Pinter 2004 (*EJSP* 35:225 —
+  modifiability moderator); Green, Sedikides & Gregg 2008
+  (*JESP* 44:547 — recall deficit, recognition intact:
+  "forgotten but not gone"); Sedikides & Green 2006 (*BBS*
+  29:532 — inhibitory-repression framing); Sedikides & Green
+  2009 (review — dysphoria attenuates, close-source averts;
+  Green, Pinter & Sedikides 2009 *Self & Identity* 8:233).
+- Russell & Nathan 1946 (*Brain* 69:280 — Ribot graded
+  retrograde amnesia; PTA as severity index); Belanger,
+  Curtiss, Demery, Lebowitz & Vanderploeg 2005
+  (*Neuropsychology* 19:595 — mild-TBI meta: small persisting
+  WM/pspeed effect); Dikmen et al. 2009 (PTA dose-response).
+- Caselli et al. 2009 (*NEJM* 361:255, N=815 — asymptomatic
+  ε4 carriers' memory decline diverges before 60,
+  dose-ordered, weaker non-memory effects); Bookheimer et al.
+  2000 (midlife ε4 subtleties); Nilsson et al. 2006.
+- Rothen & Meier 2010 (*Memory* 18:258 — "ordinary rather
+  than extraordinary"); Rothen et al. 2019 (multi-level
+  meta-analysis — episodic d̂≈0.61, WM d̂≈0.36, pervasive
+  across stimuli); Rothen & Meier 2009 (*PLoS ONE* 4:e5037 —
+  group null vs case-report selection bias).
+- Nolen-Hoeksema 1991 (*JPSP* 60:115 — rumination prolongs
+  negative mood); Watkins 2008 (*Psych. Bull.* 134:163 —
+  constructive reflection vs unconstructive brooding);
+  Lyubomirsky & Tkach 2004 (ruminators' negative AM bias).
+- Pashler, McDaniel, Rohrer & Bjork 2008 (*Psych. Sci. Public
+  Interest* 9:105 — no credible meshing-hypothesis evidence);
+  Rogowsky, Calhoun & Tallal 2015 (RCT — modality matching
+  did nothing).
+
+Registry: P1–P708. v67 suite: P697–P708 — 8 MUST (P697–P702,
+P704–P706; P697/P698/P700–P702 carry locked nulls, P705 is an
+honesty lock) and 4 SHOULD (P703 ceiling-locked, P707
+mechanism audit, P708 compound audit).

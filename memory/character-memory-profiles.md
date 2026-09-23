@@ -963,6 +963,16 @@ needs both.
 | jealous / rival_vigil_gain / rival_stick_k | 0.0 / 0.0 / 0.0 | 1.0 / 0.6 / 0.6 | rival vigilance trait + encode + stickiness (v5.13) |
 | awe_self_loss / awe_gist_gain / awe_gap_resist | 0.1 / 0.0 / 0.0 | 0.7 / 0.6 / 0.8 | small-self encode signature (v5.13) |
 | emo_df_resist | 0.0 | 0.5 | directed-forgetting resistance, ≤0.5 locked (v5.13) |
+| hsam_decay_cut / hsam_rehearse / hsam_date_acc | 0.5 / 0.0 / 0.5 | 0.95 / 0.8 / 0.98 | HSAM own-life decay + rehearsal engine + dating (v5.15) |
+| sdam_thin / sdam_know_shift | 0.3 / 0.0 | 0.9 / 0.6 | SDAM specificity thin + know-shift (v5.15) |
+| nfc_elab_gain / nfc_arg_split | 0.0 / 0.0 | 0.4 / 0.4 | elaborable-event E + strong/weak split (v5.15) |
+| mnemic_shallow / mnemic_theta | 0.0 / 0.0 | 0.7 / 0.8 | feedback not-thought encode + recall θ tax (v5.15) |
+| ribot_loss / ribot_win_mild / ribot_win_severe | 0.3 / 0.25 / 10 | 1.0 / 2.0 / 90 | Ribot retrograde window (v5.15) |
+| tbi_wmc_tax / tbi_ps_tax | 0.0 / 0.0 | 0.3 / 0.3 | stable wmc/pspeed residue (v5.15) |
+| apoe_shift / apoe_slope | 0.0 / 0.0 | 8.0 / 0.4 | ε4 onset shift (y/allele) + slope steepening (v5.15) |
+| syn_gain | 0.0 | 0.2 | pervasive episodic gain, ordinary-bound (v5.15) |
+| rumin_sel / rumin_refl_gain | 0.0 / 0.0 | 0.8 / 0.15 | negative-rehearsal bias + reflection leg (v5.15) |
+| hsam / sdam / nfc / mnemic / tbi / apoe / synesth / rumin / learn_style (traits) | 0 / 0 / −2 / −2 / 0 / e2 / 0 / −2 / — | 1 / 1 / +2 / +2 / 2 / e4 / 2 / +2 / — | new IndivTraits (v5.15); hsam·sdam exclusive; apoe hidden enum; learn_style all-0 lock |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -1152,8 +1162,8 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 
 | **Stoic / suppressor** (NEW v1.7) | `regulate_style` →0.15; `reg_suppress_cost` →0.3; intrusion_thresh +0.05 (held-in feelings intrude more, not less); verbal_dampen ×0.7 — they retell rarely and flatly | suppression taxes encoding — remembers less of hard days, stays hotter longer (Richards & Gross 2000; emotional-memory.md §17) |
 | **Vicarious absorber / high-empath** (NEW v1.7) | `empathy_trait` →0.9; `contagion_k` ×1.4; `gen_width` +0.05 | hearsay scars them too — secondhand conditioning (Olsson & Phelps 2007) |
-| **HSAM** (NEW v2.5 — population tail, ≤1% incidence; roster dial, unassigned by default) | beta_episodic ×0.15 on selfRelevance≥0.5 records ONLY; §4.3 merge disabled for those records; retell ecology not needed for flat curves; **misinfo_suscept, phantom_p, drift_p, confab_fill UNCHANGED** — Patihis 2013: HSAM is not suggestion- or false-memory-immune, storage is extraordinary, reconstruction is ordinary | decades-old personal events stay dateable and vivid; still gets the details wrong (LePort et al. 2012/2017) |
-| **SDAM** (NEW v2.5 — opposite tail) | beta_episodic +0.4 on selfRelevance≥0.5 records; w_self ×0.7; ret_noise +; specificity −0.2; semantic/procedural params untouched; report-side: `conf` low on own-past episodic, normal on facts | knows the facts of their life without re-living them — "I know it happened, I don't remember it" (Palombo et al. 2015; surfaces as §6.7 nonbelieved memory) |
+| **HSAM** (NEW v2.5 — population tail, ≤1% incidence; roster dial, unassigned by default; SUPERSEDED by the `hsam` trait v5.15, §49) | beta_episodic ×0.15 on selfRelevance≥0.5 records ONLY; §4.3 merge disabled for those records; retell ecology not needed for flat curves; **misinfo_suscept, phantom_p, drift_p, confab_fill UNCHANGED** — Patihis 2013: HSAM is not suggestion- or false-memory-immune, storage is extraordinary, reconstruction is ordinary | decades-old personal events stay dateable and vivid; still gets the details wrong (LePort et al. 2012/2017) |
+| **SDAM** (NEW v2.5 — opposite tail; SUPERSEDED by the `sdam` trait v5.15 — decay leg re-parameterized retrieval-side, §49) | beta_episodic +0.4 on selfRelevance≥0.5 records; w_self ×0.7; ret_noise +; specificity −0.2; semantic/procedural params untouched; report-side: `conf` low on own-past episodic, normal on facts | knows the facts of their life without re-living them — "I know it happened, I don't remember it" (Palombo et al. 2015; surfaces as §6.7 nonbelieved memory) |
 
 Optional derived param `specificity ∈ [0,1]` (default 1): on reconstruction,
 with probability `1−specificity` return the generic/merged memory instead of
@@ -3093,3 +3103,66 @@ one emission (`noticed_discrepancy`), one PersonModel field
   anything — bible-visible consequence: famous-adjacent NPCs
   accrue acquaintance attributions they never earned. This is
   by design; do not "fix" it in the cast list.
+
+## 49. v5.15 note (individual-differences VI — the tails, the
+motivated mind, the body history, the second null)
+
+Ten clamp rows added in §0 plus nine TRAITS (`hsam`, `sdam`,
+`nfc`, `mnemic`, `tbi`, `apoe`, `synesth`, `rumin`,
+`learn_style`), three new event/context fields
+(`arg_quality`, `self_feedback`, `tbi_event` + `close`/
+`modifiable` moderators). Bible-visible guidance:
+
+- **HSAM/SDAM graduate from modifier to trait.** The v2.5
+  roster modifiers are superseded by the Part VI traits —
+  same targets, now mechanized (hsam_decay_cut 0.85 reproduces
+  the old ×0.15 beta leg exactly; the SDAM modifier's
+  beta_episodic +0.4 leg is RE-PARAMETERIZED as retrieval-side
+  `sdam_thin`/`sdam_know_shift` per Palombo 2015's encoding-
+  intact evidence — drop the old decay leg when adopting).
+  Keep them rare: at most one tail per cast, never both
+  (`hsam`·`sdam` clamp is hard).
+- **An HSAM character still misremembers.** Patihis 2013 is
+  the lock: lab-type encoding and misinformation
+  susceptibility are at control rates. The signature is
+  *dates and own-life detail* — write them as the person who
+  can tell you what Tuesday in March 2009 was like, not as a
+  general-purpose recall machine.
+- **`apoe` is invisible.** No character knows their genotype,
+  and nothing in-world may reveal it — it is a fate parameter
+  for the author, not a fact for the cast. Its only observable
+  is a steeper late-life episodic slope; a 30-year-old ε4
+  carrier must read as memory-ordinary (P702).
+- **`tbi` is a bible field, not a plot device.** Severity
+  0–2, set once at character creation (or a live `tbi_event`);
+  the retrograde gap it carves is real (Ribot window) but the
+  residual tax is small and STABLE — do not write progressive
+  worsening into a `tbi` backstory; that belongs to `disease`
+  or `apoe`.
+- **`mnemic` is not `self_srv`.** Contribution bookkeeping
+  (who did the dishes) is §6.85's axis; mnemic neglect is
+  *feedback*-specific — a high-mnemic character genuinely
+  under-stores the review that stung, while still recognizing
+  it if confronted (the recognition exemption is locked — a
+  bible scene where such a character cannot recognize
+  criticism at all breaks the model).
+- **`nfc` needs world tags.** The trait only bites on events
+  the world marks `elaborable`/`arg_quality` — debates,
+  pitches, arguments. A high-nfc character unprompted will
+  remember *why* the good argument was good; they remember
+  nothing extra about the Tuesday commute.
+- **`rumin` signs the rehearsal policy.** Positive values
+  brood (negative records get unearned retell cycles);
+  negative values reflect (small problem-framing bonus). It
+  composes with `neurot` via R +0.4 — pin both explicitly in
+  bibles when you want the uncorrelated case.
+- **`synesth` is deliberately small.** Meta-pooled effect is
+  real but ordinary-range; the 0.08 loading is priced so no
+  character becomes cinematic. If a bible wants a
+  memorable-detail prodigy, `hsam`/`vivid`/`imagery` is the
+  tool, not synesth.
+- **`learn_style` is flavor text.** Characters may believe in
+  it ("I'm a visual learner") — the field exists so bibles
+  can write that belief — but every loading is locked 0.0.
+  Do not wire instruction modality to it; Pashler 2008 says
+  it does nothing, and P705 enforces the nothing.

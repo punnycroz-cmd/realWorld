@@ -1,5 +1,41 @@
-# Memory Model Spec v5.14 — implementable human-like memory for RW characters
+# Memory Model Spec v5.15 — implementable human-like memory for RW characters
 
+> **v5.15 note (individual-differences VI — the two tails, the
+> motivated mind, the body history, and the second mandated
+> null):** `memory/individual-differences.md` Part VI (§§63–76)
+> adds nine axes and one locked null. **The autobiographical
+> tails** — `hsam` [0,1] cuts own-life `beta_episodic` and
+> `whenEstimate` σ via a rehearsal-compulsion engine
+> (`hsam_rehearse` on `remin_w`), with locked nulls on lab-type
+> encoding AND misinformation resistance (LePort 2012: lab
+> tests normal; Patihis 2013: false memories at control rates);
+> `sdam` [0,1] thins episodic retrieval only — `specificity`
+> cut, `know`-mode dominant, forced observer perspective —
+> encoding/semantic/PM untouched (Palombo 2015) — §6.122.
+> **The motivated/elaborative mind** — `nfc` (need for
+> cognition, Cacioppo & Petty 1982) boosts E on `elaborable`
+> events with a strong−weak `arg_quality` split; `mnemic`
+> (mnemic neglect, Sedikides & Green 2000) thin-encodes
+> `self_feedback:threaten` events with a recall-side θ tax and
+> a LOCKED recognition exemption ("forgotten but not gone,"
+> Green 2008; close-source feedback exempt) — §6.123.
+> **The body history** — `tbi` [0,2] carries a Ribot-gradient
+> retrograde erasure at `tbi_event` mint plus a small stable
+> wmc/pspeed tax (Belanger 2005; no progression — a step, not
+> a slope); `apoe` ∈{e2,e3,e4} is a hidden fate parameter
+> shifting episodic decline onset −4y/ε4 allele and steepening
+> post-onset slopes (Caselli 2009 — divergence before 60,
+> dose-ordered), zero effect below onset; `synesth` [0,2]
+> gives a small pervasive episodic E gain (2019 meta d̂≈0.61,
+> priced ≤15% — Rothen & Meier's "ordinary" bound is the
+> ceiling); `rumin` biases the rehearsal sampler toward
+> negative self-referent records with brooding/reflection
+> asymmetry (Watkins 2008) — §6.124. **The second mandated
+> null** — `learn_style` exists as a bible field with every
+> loading locked 0.0 (Pashler 2008 — the meshing hypothesis
+> has no evidence) — §6.124. +19 params, +9 traits, 9 locked
+> nulls, probes P697–P708.
+>
 > **v5.14 note (false-memory VI — the residual channels: the
 > calendar lies, watching is half of doing, dreams leak, and the
 > two silent guards):** `memory/false-memory.md` Part VI
@@ -8161,6 +8197,122 @@ LOCKED detect_boost_null: detection suppresses adoption only —
 This mechanizes §1's interval result: weak verbatim → nothing
 to detect against → susceptible.
 
+### 6.122 The autobiographical tails — never forgets, never re-lives (new in v5.15)
+
+(ID§§63–64; LePort et al. 2012, Neurobiol Learn Mem 98:78 —
+verified: HSAM superior on public AND personal event recall
+*with dates*, comparable on standard lab tests; Patihis et al.
+2013, PNAS 110:20947 — HSAM false memories at control rates;
+Palombo et al. 2015, Neuropsychologia 72:105 — SDAM: lifelong
+non-recollective autobiographical memory, intact whenever the
+task is non-episodic.)
+
+**`hsam` ∈[0,1], bible-set, max ~1 per cast.** Three legs:
+own-life `beta_episodic` ×(1 − `hsam_decay_cut`·hsam) on
+self-present first-person records (cut 0.85 — near-permastored
+post-~age-10; rides `amnesia_exit`/`bump_lo`, never reaches
+into childhood amnesia); rehearsal-compulsion engine —
+`remin_w` own-day review bias +`hsam_rehearse` (0.4)·hsam
+(the OC-spectrum correlation, LePort 2016 — the compulsion is
+the mechanism, P707 ablates it); `whenEstimate` σ
+×(1 − `hsam_date_acc`·hsam), acc 0.9, on own-life records.
+Locked nulls: `hsam_lab_null` — enc_base/semantic/procedural/
+non-self episodic = 0; `hsam_misinfo_null` — misinfo_suscept/
+source_confuse/lure_accept = 0 (P697).
+
+**`sdam` ∈[0,1], bible-set.** Retrieval-side only: episodic
+queries return `specificity`-thinned, `know`-mode reconstructions
+(rk_thresh +`sdam_know_shift`·sdam toward know); `persp_obs`
+forced observer on all records (clamp — "third person");
+`sdam_thin` (0.7) scales effective specificity. Locked nulls:
+`sdam_enc_null` (all encoding terms = 0), `sdam_sem_null`
+(semantic/PM/procedural = 0), `sdam_conf_null` (confidence
+fluent — they narrate facts, not doubts) (P698).
+`hsam`·`sdam` mutually exclusive — joint sampler resolves to
+the larger magnitude (P706).
+
+### 6.123 The motivated mind — elaboration and self-protection (new in v5.15)
+
+(ID§§65–66; Cacioppo & Petty 1982 JPSP 42:116 + Cacioppo et
+al. 1996 Psych Bull 119:197 meta — high-NFC elaborate more and
+show a larger strong−weak argument memory gap; Sedikides &
+Green 2000 JPSP 79:168 + Green, Sedikides & Gregg 2008 JESP
+44:547 — mnemic neglect: poorer RECALL, intact RECOGNITION of
+self-threatening feedback.)
+
+**`nfc` N(0,1).** On events carrying `elaborable:true` (world
+tags discussions/arguments/pitches): E ×(1 +
+`nfc_elab_gain`·nfc) (0.15); fields tagged `arg_quality:weak`
+pay ×(1 − `nfc_arg_split`·nfc) (0.15) while strong keeps the
+bonus — the memory gap IS the trait's signature; gist quality
++0.1·nfc on elaborable records. Locked nulls: non-elaborable
+material, decay, PM = 0 (P699).
+
+**`mnemic` N(0,1).** On events carrying
+`self_feedback:{affirm,threaten,neutral}` (world tags
+evaluative feedback): threaten+self-referent encodes
+E ×(1 − `mnemic_shallow`·mnemic) (0.35 — the not-thought
+leg); recall-mode effective θ ×(1 + `mnemic_theta`·mnemic)
+(0.4) on such records; affirm gets ×(1 + 0.1·mnemic). The
+effect averts when the account/context carries `close:true` or
+`modifiable:true` (Green et al. 2009 — close others' hard
+truths are kept). Locked `mnemic_recog_null` — recognition-
+mode cueContext exempt at all trait values ("forgotten but
+not gone," P700); other-referent feedback = 0 at all values.
+Distinct code path from `repress` (§6.102, access suppression)
+and `self_srv` (§6.85, contribution bookkeeping); depr>0.5
+halves mnemic_shallow (dysphoria attenuates self-protection).
+
+### 6.124 The body history — injury, genotype, synesthesia, rehearsal (new in v5.15)
+
+(ID§§67–71; Russell & Nathan 1946 + Belanger et al. 2005
+Neuropsychology 19:595 — graded retrograde amnesia + small
+stable WM/pspeed residue; Caselli et al. 2009 NEJM 361:255,
+N=815 — asymptomatic ε4 memory decline diverges before 60,
+dose-ordered; Rothen & Meier 2010 + 2019 multi-level meta —
+episodic advantage d̂≈0.61 pervasive but ordinary-range;
+Nolen-Hoeksema 1991 + Watkins 2008 Psych Bull 134:163 —
+brooding vs reflection.)
+
+**`tbi` ∈[0,2] severity trait + `tbi_event:{severity}` mint.**
+At mint, records with createdDay ∈ [injury − `ribot_win`,
+injury] take strength ×(1 − `ribot_loss`), win ≈0.5d at mild
+→ ~30d at severe (Ribot gradient — graded, never clean);
+persistent wmc-side params ×(1 + `tbi_wmc_tax`·t) (0.1 —
+same target set as early_adv) and `pspeed` −`tbi_ps_tax`·t
+(0.1). Locked nulls: `tbi_sem_null` (semantic = 0),
+`tbi_prog_null` (no year-over-year growth — a step, not a
+slope; P701).
+
+**`apoe` ∈{e2,e3,e4} — hidden fate parameter** (characters do
+not know their genotype; never surfaced in-world). e4_dose
+∈{0,1,2}: `decline_onset` −`apoe_shift`(4y)·dose; post-onset
+episodic-decline params (beta drift, discrim_mult, sws_mult)
+×(1 + `apoe_slope`·dose) (0.15). Locked nulls: everything = 0
+below onset; semantic/procedural/PM = 0 at all ages; encoding
+= 0 (P702 — a 30-year-old ε4 carrier is memory-identical to
+e3).
+
+**`synesth` ∈[0,2].** E on all episodic channels
+×(1 + `syn_gain`·synesth) (0.08 — pervasive, priced to stay
+inside the meta's "ordinary" bound); `w_sensory`
++0.05·synesth (concurrent as extra cue handle). Locked null:
+decay = 0; P703 caps observable benefit at ~15% — >25% fails.
+
+**`rumin` N(0,1).** Rehearsal-policy trait: negative
+self-referent records re-sampled at ×(1 + `rumin_sel`·r⁺)
+(0.4); `neg_affect_decay` ×(1 − 0.12·r⁺); `intrusion_thresh`
+−0.1·r⁺ on negative-cued records; r⁻ (reflection side) gains
+`rumin_refl_gain` (0.05) on problem-framed retells. Locked
+nulls: positive/neutral rehearsal = 0 delta; encoding = 0 —
+the record is born normally, it just never rests (P704).
+
+**`learn_style` ∈{visual,verbal,auditory,kinesth} — DOCUMENTED
+NULL** (Pashler et al. 2008; Rogowsky et al. 2015 RCT null).
+Bible-visible field, every loading locked 0.0, R-row zero —
+the second mandated null (P705; §6.88's birth_order is the
+first). The trait layer must be able to say "no effect."
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -9347,6 +9499,40 @@ MemoryParams = {
 // v5.14 trait: IndivTraits + `imagery` (loads imagine_gain,
 //   imagined/dream verbatim richness, source_confuse,
 //   dream_flip_mult); PersonModel + `nameFluency` accumulator.
+// v5.15 additions (individual-differences VI — ID§§63–76)
+"hsam_decay_cut": 0.85, "hsam_rehearse": 0.4,
+"hsam_date_acc": 0.9,                          // §6.122 upper tail
+"sdam_thin": 0.7, "sdam_know_shift": 0.3,      // §6.122 lower tail
+"nfc_elab_gain": 0.15, "nfc_arg_split": 0.15,  // §6.123 elaboration
+"mnemic_shallow": 0.35, "mnemic_theta": 0.4,   // §6.123 feedback
+"ribot_loss": 0.7, "ribot_win_mild": 0.5,
+"ribot_win_severe": 30.0,                      // §6.124 Ribot window
+"tbi_wmc_tax": 0.1, "tbi_ps_tax": 0.1,         // §6.124 residue
+"apoe_shift": 4.0, "apoe_slope": 0.15,         // §6.124 genotype
+"syn_gain": 0.08,                              // §6.124 synesthesia
+"rumin_sel": 0.4, "rumin_refl_gain": 0.05,     // §6.124 rehearsal
+// v5.15 locked nulls: hsam_lab_null + hsam_misinfo_null
+//   (P697 — LePort 2012 lab tests + Patihis 2013 false-memory
+//   rates, both at control); sdam_enc_null + sdam_sem_null +
+//   sdam_conf_null (P698 — retrieval-side only, fluent
+//   certainty); mnemic_recog_null (P700 — recognition exempt,
+//   "forgotten but not gone"); tbi_sem_null + tbi_prog_null
+//   (P701 — a step, not a slope); apoe → everything below
+//   onset + all non-episodic channels (P702); synesth → decay
+//   = 0 + benefit ceiling ~15% (P703); rumin → positive/
+//   neutral rehearsal + all encoding = 0 (P704);
+//   learn_style → EVERYTHING = 0 (P705 — second mandated
+//   null, Pashler 2008).
+// v5.15 traits: IndivTraits + hsam, sdam (bible-set [0,1],
+//   mutually exclusive), nfc, mnemic, rumin (N(0,1)), tbi
+//   [0,2] bible-set, apoe ∈{e2,e3,e4} hidden enum, synesth
+//   [0,2], learn_style enum (bible-visible, zero loadings).
+// v5.15 event/context fields: `elaborable:true` +
+//   `arg_quality:{strong,weak,mixed}` (world tags persuasive
+//   content), `self_feedback:{affirm,threaten,neutral}` +
+//   account/context `close:true`/`modifiable:true` (world tags
+//   evaluative feedback + its framing), `tbi_event:{severity}`
+//   mint op (injury day — backstory or live).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -9367,8 +9553,10 @@ under defensiveness, the §6.102 repressor divergence); v5.13 adds
 `jealous` — romantic-rival vigilance, loads attach_anx/distrust,
 EM§76; v5.14 adds `imagery` — imagery vividness/ability, loads the
 imagination stack (imagine_gain, imagined/dream verbatim richness,
-source_confuse, dream_flip_mult — FM§72)) — sampled MVN(0, R) with the sparse correlation matrix in
-`individual-differences.md` §4/§17/§30/§43/§60 (pinned traits conditioned per the
+source_confuse, dream_flip_mult — FM§72); v5.15 adds hsam, sdam,
+nfc, mnemic, tbi, apoe, synesth, rumin, and the locked-null
+learn_style — ID Part VI §73) — sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4/§17/§30/§43/§60/§73 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
 v0's independent ±10% jitter: real individual differences are
@@ -10609,6 +10797,28 @@ not resolved (DEBATED magnitude). P509/P511.
   - Record/provenance additions: `source.kind:"dream"`;
     agency-field rewrites log `actor:self` flips from
     `observed_action` records.
+  - All snapshot-additive, absent = legacy.
+- v5.15 additions (individual-differences.md Part VI §§63–76):
+  - Event fields `elaborable:true` + `arg_quality` ∈
+    {"strong","weak","mixed"} (§6.123 — world tags persuasive/
+    argumentative content; the nfc split keys on it),
+    `self_feedback` ∈ {"affirm","threaten","neutral"} (§6.123 —
+    world tags evaluative feedback events), and
+    `tbi_event:{severity}` (§6.124 — mint op at injury day;
+    backstory injuries mint retroactively with the same gate).
+  - Account/context fields `close:true`, `modifiable:true`
+    (§6.123 — the mnemic-neglect moderators: a close other's
+    hard feedback is KEPT, not neglected).
+  - IndivTraits fields: `hsam`/`sdam` [0,1] bible-set and
+    mutually exclusive; `nfc`/`mnemic`/`rumin` N(0,1);
+    `tbi` [0,2] bible-set; `apoe` ∈ {"e2","e3","e4"} — hidden,
+    never surfaced to characters or players; `synesth` [0,2];
+    `learn_style` ∈ {"visual","verbal","auditory","kinesth"} —
+    bible-visible, all loadings locked 0.0.
+  - Reconstruction/report note: sdam>0 characters emit
+    `reportMode:"know"` dominant with forced observer
+    perspective — dialogue renders "I was at the café Tuesday"
+    as fact-narration, not reliving.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)

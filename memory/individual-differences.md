@@ -2457,3 +2457,506 @@ birth_order·*       0.0      (mandated — see §58)
 - The birth-order null is the strongest finding in the part —
   three national panels, null across five traits — and it is the
   only axis where "do nothing" IS the model.
+
+---
+
+# Part VI — v67: the sixth axis of difference (the two tails of
+# autobiographical memory, the motivated and elaborative minds,
+# the body history nobody chose, and the second mandated null)
+
+The earlier parts covered the clinical phenotypes and the
+everyday pharmacopeia. Part VI closes the remaining gaps a cast
+bible actually reaches for: what if a character never forgets
+*their own life* (HSAM) or can't re-live it at all (SDAM)?
+What about the character who simply *thinks harder* (need for
+cognition), the one whose self-esteem edits what gets kept
+(mnemic neglect), the one carrying an old concussion or an
+invisible gene, the synesthete, the ruminator — and one more
+bible-visible field that must do *nothing* (learning styles).
+Each axis below gets the same treatment: literature, mechanism
+choice, loadings, and the explicit null that keeps it honest.
+
+## 63. `hsam` — the calendar that never fades (the upper tail)
+
+Highly Superior Autobiographical Memory: Parker, Cahill &
+McGaugh 2006 (case "A.J."/Jill Price — first scientific
+description, diary-verified date recall); LePort et al. 2012
+(Neurobiol Learn Mem 98:78, N=11 — verified: superior recall of
+public AND personal events *with the days and dates*, but
+**comparable to matched controls on most standard laboratory
+memory tests**); LePort et al. 2016/2017 follow-ups (N≈33–60;
+elevated obsessive-compulsive spectrum traits; misinformation
+susceptibility NOT reduced — Patihis et al. 2013, PNAS 110:20947,
+HSAM participants showed DRM/misinformation false memories at
+control rates).
+
+The phenomenon is channel-specific, not general. That is the
+finding that makes it modelable: it is NOT "beta → 0
+everywhere." An HSAM character is not better at remembering
+grocery lists — they are better at remembering *their life*,
+date-stamped. The mechanism the literature points at is
+rehearsal compulsion: HSAM individuals report habitual, near-
+constant review of their own days (Parker 2006; LePort 2016 —
+the OC correlation), which in our machinery is a retell/
+reminiscence rate, not a storage miracle.
+
+**Mechanism (HYPOTHESIS-parameterization over CONSENSUS facts):**
+- `hsam` ∈ [0,1] — rare flag, ~1 per cast at most; bible-set,
+  never sampled (prevalence ~1/500 claimants confirmed, i.e.
+  effectively rarer).
+- Personal-episodic records (self-present, first-person) get
+  `beta_episodic` ×(1 − `hsam_decay_cut`·hsam), cut ≈0.85 —
+  near-permastored own-life records after ~age 10 (LePort's
+  10½-year onset boundary rides `amnesia_exit`/bump_lo — the
+  ability does NOT reach into childhood amnesia, locked).
+- `remin_w` / rehearsal sampling: own-day review bias
+  `hsam_rehearse` ≈ +0.4·hsam — the compulsion is the engine.
+- `whenEstimate` σ ×(1 − `hsam_date_acc`·hsam), acc ≈0.9:
+  date-linked recall is their signature; coarse telescoping
+  nearly absent on own-life records.
+- **Locked nulls** (the falsifiable edge): `hsam_lab_null` —
+  zero loading on enc_base, semantic, procedural, non-self
+  episodic; `hsam_misinfo_null` — zero reduction of
+  misinfo_suscept/source_confuse/DRM-style lures (Patihis 2013
+  is the anchor: false memories at control rates).
+
+## 64. `sdam` — a life story told in headlines (the lower tail)
+
+Palombo et al. 2015 (Neuropsychologia 72:105, N=3 — verified:
+lifelong inability to vividly recollect personally experienced
+events, corroborated by absent recollection biomarkers; learning
+and memory intact whenever a task "could be accomplished by
+non-episodic processes"); Palombo et al. 2018 review;
+Wan et al. 2024 — SDAM covaries with aphantasia/low imagery but
+is not identical to it. These people function normally — they
+*know* their lives without *re-living* them.
+
+**Mechanism:** `sdam` ∈ [0,1], bible-set, ~1 cast member max.
+- Encoding unchanged — records are written (they behaved
+  normally on learning tasks). The deficit is retrieval-side:
+  first-person episodic detail. Model: `specificity` effective
+  ×(1 − `sdam_thin`·sdam), thin ≈0.7 — episodic queries return
+  the generic/semantic form; `rk_thresh` shift toward `know`
+  (reportMode:"know" dominant — fluent content, thin detail).
+- `persp_obs` forced +1 equivalent on ALL records — SDAM
+  reports are third-person ("living life in the third person"
+  is the group's own description, verified in the 2015 paper's
+  reception).
+- Semantic records, skills, routines, prospective memory:
+  untouched (locked nulls). `vivid` correlates (−0.4 in R) but
+  is not required — aphantasia overlap is partial.
+- Locked nulls: `sdam_enc_null` (enc_base/E terms = 0);
+  `sdam_sem_null` (semantic/fact recall = 0); `sdam_conf_null`
+  (confidence reports may stay fluent — SDAM adults are not
+  chronically uncertain; they narrate facts about themselves).
+
+## 65. `nfc` — the mind that turns things over
+
+Need for cognition (Cacioppo & Petty 1982, JPSP 42:116 — the
+trait scale; Cacioppo, Petty, Feinstein & Jarvis 1996, Psych
+Bull 119:197 meta — verified: high-NFC people elaborate more,
+remember more *relevant* material, and — critically — show a
+bigger memory gap between strong and weak arguments; Cohen,
+Stotland & Wolfe 1955 is the grandfather study). NFC is not
+intelligence (r≈0.3 with gc) — it is *disposition to engage*.
+
+**Mechanism:** `nfc` N(0,1). Loads on encoding of
+`elaborable` content — discussions, arguments, pitches,
+explanations (Event field `arg_quality ∈ {strong,weak,mixed}`
+when the world tags persuasive content):
+- E on elaborable events ×(1 + `nfc_elab_gain`·nfc),
+  gain ≈0.15.
+- The argument-quality *split*: strong-argument fields keep
+  the bonus, weak-argument fields get ×(1 −
+  `nfc_arg_split`·nfc), split ≈0.15 — high-nfc characters
+  remember why a case was good, and remember the good cases.
+- `gist` quality on elaborable records +0.1·nfc (elaboration
+  writes better gist, not just more verbatim).
+- Locked nulls: non-elaborable events (routines, scenes,
+  faces) = 0; decay rates = 0 (NFC is an encoding disposition);
+  PM = 0.
+
+## 66. `mnemic` — the feedback the self declines to keep
+
+Mnemic neglect (Sedikides & Green 2000, JPSP 79:168; Sedikides,
+Green & Pinter 2004; Green, Sedikides & Gregg 2008, JESP
+44:547 — verified core: **poorer *recall*, unimpaired
+*recognition*, of self-threatening feedback** — negative,
+self-central, self-referent — vs self-affirming or
+other-referent feedback; the memories are "forgotten but not
+gone"; Sedikides & Green 2009 review — moderated by closeness
+of source, modifiability beliefs, and absent under ego-
+inflation; repressors show enhanced mnemic neglect).
+
+This is NOT `self_srv` (contribution bookkeeping on shared
+work) and NOT `repress` (v5.6's derived access suppression —
+mnemic neglect is its *feedback-specific* arm and the two
+share the family but not the code path). Mechanism is
+encoding-side shallow processing: the feedback that would
+hurt is "not-thought" (Sedikides & Green 2006, BBS — the
+effect is equivalent to inhibitory repression *instigated at
+encoding*).
+
+**Mechanism:** `mnemic` N(0,1), correlated with `defens`
+(+0.4) and `self_srv` (+0.25). Event field
+`self_feedback ∈ {affirm, threaten, neutral}` (world tags
+evaluative feedback events — reviews, reprimands, compliments):
+- threaten + self-referent: E ×(1 − `mnemic_shallow`·mnemic),
+  shallow ≈0.35 — the record is born thin.
+- Retrieval: recall-mode effective θ ×(1 +
+  `mnemic_theta`·mnemic) on threaten-self records;
+  recognition mode **exempt** (locked `mnemic_recog_null` —
+  the Green 2008 finding is the lock).
+- affirm-self fields: no penalty, small boost
+  ×(1 + 0.1·mnemic) — the ledger is asymmetric by design.
+- Moderator (spec §6.123): `close:true` source or
+  `modifiable:true` framing averts the effect (Green et al.
+  2009 — close others' hard feedback IS retained).
+- other-referent feedback: locked null at all trait values.
+
+## 67. `tbi` — the injury that took the week before
+
+Remote traumatic brain injury. Two real legs, both modeled:
+1. **The retrograde gap.** Ribot's gradient — injury erases
+   the hours-to-weeks *before* it while sparing remote
+   records (Russell & Nathan 1946, war-injury series —
+   classic consensus; post-traumatic amnesia duration is the
+   standard severity index).
+2. **The persistent tax.** Belanger et al. 2005
+   (Neuropsychology 19:595 meta, mild TBI — small persisting
+   effect concentrated in working memory/processing speed;
+   sports-concussion arm largely resolved by ~90 days);
+   moderate-severe TBI leaves durable episodic deficits
+   (Dikmen et al. 2009 dose-response by PTA length).
+
+**Mechanism:** `tbi` ∈ [0,2] severity trait (bible field —
+who had the crash). World mints `tbi_event:{severity}` at the
+injury day (backstory or live):
+- At mint: records with createdDay ∈ [injury − `ribot_win`,
+  injury] get strength ×(1 − `ribot_loss`), win scales with
+  severity (0.5d mild → ~30d severe) — a graduated erasure,
+  never a clean cut.
+- Persistent: `wmc`-side loadings at 0.1·tbi (plist_suppress,
+  source_confuse, stress_retrieve_loss — same target set as
+  early_adv, smaller coefficient), `pspeed` −0.1·tbi.
+- Locked nulls: `tbi_sem_null` (semantic store untouched);
+  `tbi_prog_null` (the deficit does NOT grow — remote TBI is
+  a step, not a slope; any accelerating decline belongs to
+  `apoe`/disease, not this field).
+
+## 68. `apoe` — the card dealt that nobody sees
+
+APOE ε4 carrier status. Caselli et al. 2009 (NEJM 361:255,
+N=815 longitudinal — verified: cognitively normal ε4 carriers'
+memory decline *begins before age 60* and accelerates faster
+than noncarriers, allele-dose effect; weaker effects on
+visuospatial/general status — it is a memory-specific early
+slope). Bookheimer et al. 2000 — midlife subtle differences in
+ε4 carriers; Nilsson et al. 2006 — detectable from ~50s on
+episodic measures. Modifier evidence (exercise/education
+attenuation) exists but is DEBATED (head 2020s meta-split).
+
+**Mechanism:** `apoe ∈ {e2,e3,e4}` — enum, not continuous;
+`e4_dose` ∈ {0,1,2} derived (homozygous accelerates most,
+Caselli p=0.008). Bible-invisible: characters do not know
+their genotype — this is a fate parameter, and the fix board
+of the mind has no test for it in-world.
+- Episodic-decline age curve: `decline_onset` shifts earlier
+  by `apoe_shift`·e4_dose years (≈4y/allele), and the
+  decline-slope params (beta_episodic drift, discrim_mult,
+  sws_mult) steepen ×(1 + `apoe_slope`·e4_dose) post-onset.
+- Locked nulls: below onset — EVERYTHING = 0 (a 30-year-old
+  ε4 carrier is memory-identical to e3); semantic/procedural/
+  PM channels = 0 at all ages; encoding params = 0 (the
+  allele moves decline, not learning).
+
+## 69. `synesth` — a small honest advantage
+
+Synesthesia. The 2019 multi-level meta-analysis (Rothen et al.,
+Memory — verified: enhanced long-term/episodic memory at
+medium effect d̂≈0.61, smaller but real WM effect d̂≈0.36;
+**pervasive across stimuli** — which the authors note is hard
+to reconcile with a direct-cue account). Rothen & Meier 2010
+group study: advantage real but "ordinary rather than
+extraordinary" — within normal range. Consensus: a modest,
+broad episodic advantage; NOT a mnemonic superpower (the
+case-study giants were selection bias, Rothen & Meier 2009).
+
+**Mechanism:** `synesth` ∈ [0,2] (0 absent; 1 grapheme-color
+typical; 2 strong multi-type). Loads: E on all episodic
+channels ×(1 + `syn_gain`·synesth), gain ≈0.08 — broad and
+small (the meta's pervasiveness, honestly priced);
+`w_sensory` cue weight +0.05·synesth (extra concurrent =
+extra cue handle). Locked nulls: decay rates = 0; a
+superhuman arm is a calibration failure (Rothen & Meier 2010
+"ordinary" bound — P703 caps observable benefit).
+
+## 70. `rumin` — the needle that returns to the same groove
+
+Response-styles trait (Nolen-Hoeksema 1991, JPSP 60:115 —
+ruminative responses prolong negative mood; Watkins 2008,
+Psych Bull 134:163 — verified the constructive/unconstructive
+split: *brooding* = passive dwelling, maladaptive; *reflection*
+= problem-focused, can be adaptive; Lyubomirsky & Tkach 2004 —
+ruminators recall more negative autobiographical content and
+negative interpretations). Distinct from `neurot` (R +0.4 —
+dispositional negative affect), which feeds mood; `rumin` is
+the *rehearsal allocation* policy.
+
+**Mechanism:** `rumin` N(0,1) — positive side = brooding.
+- Rehearsal sampler bias: negative self-referent records
+  re-sampled at base rate ×(1 + `rumin_sel`·rumin+), sel ≈0.4
+  — negative records get retell/refresh cycles their valence
+  would not earn them.
+- `neg_affect_decay` toward 1 by ×(1 − 0.12·rumin+) — the
+  unfaded negative (FAB reduction, parallel to alexith's leg
+  but rehearsal-mediated, not affect-flat).
+- `intrusion_thresh` −0.1·rumin+ on negative-cued records
+  (involuntary returns).
+- The reflection side: rumin− (below 0) gets a *small*
+  positive-resolution bonus `rumin_refl_gain` ≈0.05 on
+  problem-framed retells (Watkins 2008 — reflection can help).
+- Locked nulls: positive/neutral records' rehearsal rate = 0
+  delta; encoding params = 0 (rumination is a post-encoding
+  habit — the record is born normally, it just never rests).
+
+## 71. `learn_style` — the second mandated null
+
+Learning styles. Pashler, McDaniel, Rohrer & Bjork 2008 (Psych
+Sci Public Interest 9:105 — verified: no credible evidence for
+the meshing hypothesis; the studies that would support it
+lacked the required crossover design; Rogowsky, Calhoun &
+Tallal 2015 RCT null — matching "auditory/visual learner"
+instruction to preference did nothing for comprehension).
+A "visual learner" encoding preference is folk psychology,
+not memory science — the modal channel of a *good teacher* is
+the content's own channel, not the learner's.
+
+**Mechanism:** `learn_style ∈ {visual,verbal,auditory,kinesth}`
+exists as a bible field — characters believe in it, mention it,
+even self-sort by it — with every loading locked at 0.0 and
+the R-row zeroed. Like `birth_order` (§58): the field's
+purpose is to make "no effect" a *first-class representable
+outcome*. A future "meshing bonus" lands as a decision with a
+probe failure attached, not as silent drift (P705).
+
+## 72. Cross-version interactions (audit)
+
+- `hsam` × `sdam`: mutually exclusive — the projection clamps
+  hsam·sdam ≈ 0 (cannot be both tails); if both sampled, keep
+  the larger, zero the other.
+- `hsam` × age curves: hsam_decay_cut applies multiplicatively
+  INSIDE the age machinery — an 80-year-old HSAM still
+  outremembers peers but does not freeze decline (LePort
+  cohort is middle-aged; extension is HYPOTHESIS, bounded).
+- `sdam` × `persp_obs` (v4.2): sdam forces observer
+  perspective independent of the persp_obs trait — additive
+  clamp, never both stacked beyond the field's range.
+- `mnemic` × `repress` (v5.6 §6.102): shared family, distinct
+  gates — repress suppresses *access* on negative-self records
+  broadly; mnemic thins *encoding* of feedback events
+  specifically. A high-defens character shows both; they
+  compose, never double-count (P700 checks the recognition
+  exemption which is mnemic-specific).
+- `mnemic` × `depr` (v4.2): depressed characters show REDUCED
+  mnemic neglect (Sedikides & Green 2009 — dysphoria
+  attenuates self-protection) — depr>0.5 halves
+  mnemic_shallow.
+- `tbi` × `early_adv` (v5.3): additive on the shared wmc-side
+  target set; cap the joint multiplier at 1.3× — tails compose
+  sublinearly.
+- `apoe` × `fitness` (v1.9): fitness reserve mitigation is
+  DEBATED — no loading shipped; flagged for a future pass
+  when the human meta-analysis settles.
+- `rumin` × `neurot`: R +0.4 carries the comorbidity; loading
+  targets are disjoint (neurot feeds state mood/w_state; rumin
+  feeds rehearsal policy) — a correlation, not a coupling.
+- `nfc` × `gc`: R +0.3 (disposition vs ability, Cacioppo 1996);
+  nfc moves encoding effort on elaborable content, gc moves
+  general accuracy — orthogonal in the loading table.
+- `learn_style` × everything: 0.0 — the R-row is all zeros.
+
+## 73. Extended trait vector, R additions, loading table (Part VI)
+
+```json
+IndivTraits += {
+  "hsam":      0.0,   // autobiographical upper tail [0,1], bible-set
+  "sdam":      0.0,   // autobiographical lower tail [0,1], bible-set
+  "nfc":       0.0,   // need for cognition — disposition to elaborate
+  "mnemic":    0.0,   // mnemic-neglect self-protection amplitude
+  "tbi":       0.0,   // remote head-injury severity [0,2], bible-set
+  "apoe":      "e3",  // enum {e2,e3,e4}; e4_dose derived; hidden field
+  "synesth":   0.0,   // synesthesia [0,2] — small broad advantage
+  "rumin":     0.0,   // response style: + brooding / − reflection
+  "learn_style": "visual"  // DOCUMENTED NULL — all loadings 0 (§71)
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+hsam·sdam         −1.0   (exclusive tails — hard clamp, §72)
+hsam·rumin        +0.35  (the rehearsal compulsion IS the overlap
+                          — LePort 2016 OC-spectrum correlation,
+                          CONSENSUS direction)
+hsam·vivid        +0.2   (richer phenomenology — DEBATED)
+sdam·vivid        −0.4   (aphantasia overlap — CONSENSUS dir.,
+                          Wan 2024; partial, not identical)
+sdam·g_mem        −0.2   (episodic factor loads — CONSENSUS dir.)
+nfc·gc            +0.3   (Cacioppo 1996 — CONSENSUS)
+nfc·open          +0.3   (disposition shares novelty-seeking)
+mnemic·defens     +0.4   (repressors show enhanced neglect —
+                          Sedikides & Green 2009, CONSENSUS dir.)
+mnemic·self_srv   +0.25  (self-protective family)
+mnemic·depr       −0.3   (dysphoria attenuates it — CONSENSUS dir.)
+tbi·early_adv     +0.25  (sampling corr: adversity co-travels)
+apoe·*            0.0    (genotype is independent — CONSENSUS)
+synesth·vivid     +0.25  (concurrents enrich imagery — DEBATED)
+synesth·asd       +0.15  (co-occurrence reported — DEBATED)
+rumin·neurot      +0.4   (comorbidity — CONSENSUS dir.)
+rumin·depr        +0.35  (same)
+learn_style·*     0.0    (mandated — see §71)
+```
+
+### Loading table additions (rows beyond §60)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| hsam | beta_episodic on self-present records | ×(1 − 0.85·h) | CONSENSUS dir. (LePort 2012) |
+| hsam | remin_w (own-day review bias) | +0.4·h | CONSENSUS dir. (LePort 2016 OC link) |
+| hsam | whenEstimate σ (own-life) | ×(1 − 0.9·h) | CONSENSUS (date recall signature) |
+| sdam | specificity (episodic queries) | ×(1 − 0.7·s) | CONSENSUS (Palombo 2015) |
+| sdam | rk_thresh → reportMode know | +0.3·s | CONSENSUS dir. |
+| sdam | persp_obs forced observer | +1 (clamp) | CONSENSUS ("third person") |
+| nfc | E on elaborable events | ×(1 + 0.15·n) | CONSENSUS (Cacioppo 1996) |
+| nfc | arg-quality split | weak fields ×(1 − 0.15·n) | CONSENSUS (meta: strong/weak gap) |
+| nfc | gist on elaborable records | +0.1·n | HYPOTHESIS |
+| mnemic | E on self_feedback:threaten | ×(1 − 0.35·m) | CONSENSUS (Sedikides & Green 2000) |
+| mnemic | θ (recall mode) threaten-self | ×(1 + 0.4·m) | CONSENSUS |
+| mnemic | E on self_feedback:affirm | ×(1 + 0.1·m) | CONSENSUS dir. |
+| tbi | ribot retrograde window | 0.5–30d by severity | CONSENSUS (Russell & Nathan 1946) |
+| tbi | wmc-side params | ×(1 + 0.1·t) | CONSENSUS dir. (Belanger 2005) |
+| tbi | pspeed | −0.1·t | CONSENSUS dir. |
+| apoe | decline_onset / decline slopes | −4y·dose / ×(1+0.15·dose) | CONSENSUS (Caselli 2009) |
+| synesth | E all episodic channels | ×(1 + 0.08·s) | CONSENSUS (2019 meta d̂≈0.61, priced low) |
+| synesth | w_sensory | +0.05·s | HYPOTHESIS (concurrent-as-cue) |
+| rumin | negative-record rehearsal rate | ×(1 + 0.4·r⁺) | CONSENSUS dir. (Watkins 2008) |
+| rumin | neg_affect_decay | ×(1 − 0.12·r⁺) | CONSENSUS dir. |
+| rumin | intrusion_thresh (neg-cued) | −0.1·r⁺ | CONSENSUS dir. (Lyubomirsky & Tkach) |
+| rumin | problem-framed retell gain (r⁻) | +0.05·|r⁻| | CONSENSUS dir. (Watkins reflection) |
+| learn_style | ALL | **0.0 — locked** | CONSENSUS NULL (Pashler 2008) |
+
+## 74. New explicit nulls (Part VI's falsifiable edge)
+
+- `hsam` → enc_base, semantic, procedural, non-self episodic = 0;
+  misinfo_suscept/source_confuse/lure = 0 (P697 — the lab null
+  and the Patihis null are the famous finding's other half).
+- `sdam` → encoding, semantic, PM, confidence = 0 (P698).
+- `nfc` → non-elaborable material, decay, PM = 0 (P699).
+- `mnemic` → recognition mode, other-referent feedback = 0
+  (P700 — "forgotten but not gone" is the lock).
+- `tbi` → semantic store, progressive worsening = 0 (P701 —
+  a step, not a slope).
+- `apoe` → everything below onset age; semantic/procedural at
+  all ages; encoding = 0 (P702).
+- `synesth` → decay = 0; observable benefit capped "ordinary"
+  (P703).
+- `rumin` → positive/neutral rehearsal, encoding = 0 (P704).
+- `learn_style` → EVERYTHING = 0 (P705 — second honesty lock).
+
+## 75. Falsifiable probes (P697–P708; validation-design §127)
+
+- **P697 the calendar mind (MUST — two nulls locked):** hsam=1
+  vs 0, same 90-day event diet: self-present records show
+  near-flat retention + whenEstimate σ ≤ ~10% of control;
+  non-self word-list-equivalent records, misinfo_suscept, and
+  DRM-style lure acceptance IDENTICAL within jitter — a
+  general memory advantage or a false-memory shield fails.
+- **P698 the third person (MUST):** sdam=1 episodic queries
+  return generic/know-mode reconstructions ~70% more often,
+  persp_obs forced observer; semantic queries, skill
+  retention, and PM hit-rate match control; confidence
+  reports stay fluent (no chronic-uncertainty arm).
+- **P699 elaboration is choosy (MUST — sign-locked):**
+  discussion events tagged arg_quality: nfc=+1.5 shows
+  strong−weak field-retention gap ≈2× the nfc=−1.5 gap;
+  matched non-elaborable events identical; beta_* unchanged.
+- **P700 forgotten but not gone (MUST — recognition lock):**
+  matched threaten-self vs affirm-self feedback events:
+  mnemic=+1.5 recalls ~30% fewer threaten fields; recognition-
+  mode cueContext recovers them at control rate; other-
+  referent feedback identical across traits; close-source
+  threaten events exempt at all levels.
+- **P701 Ribot's window (MUST — sign-locked):** tbi_event
+  minted mid-timeline: retrograde erasure graded by severity
+  (mild ≈ hours, severe ≈ weeks), remote records spared;
+  persistent wmc-side tax present at +90d and STABLE — any
+  year-over-year growth of the deficit fails.
+- **P702 the invisible allele (MUST — onset lock):** apoe=e4
+  vs e3, age_eff curves compared: identical at 30/40; diverging
+  only past onset on episodic-side params (beta drift,
+  discrim_mult, sws_mult); semantic/procedural identical at
+  every age; homozygous > heterozygous ordering holds.
+- **P703 the ordinary advantage (SHOULD — ceiling-locked):**
+  synesth=2 shows episodic E advantage ≈5–15% across channel
+  types INCLUDING synesthesia-irrelevant material (the meta's
+  pervasiveness); >25% advantage fails — the trait is honest,
+  not cinematic.
+- **P704 the groove (MUST):** rumin=+1.5 negative records show
+  elevated rehearsal counts + slowed neg_affect_decay +
+  lowered intrusion_thresh on negative cues; positive/neutral
+  rehearsal and all encoding params identical; rumin=−1.5
+  shows the small reflection gain on problem-framed retells.
+- **P705 meshing null (MUST — honesty lock):** 200 draws
+  pinned learn_style vs randomized: modality-matched vs
+  modality-mismatched encode contexts produce identical
+  recall within jitter; ANY systematic interaction fails
+  (Pashler 2008; the field exists for bibles, not mechanics).
+- **P706 tail exclusivity (MUST):** joint sampler with
+  hsam·sdam both nonzero never emits; ordering resolves to
+  the larger magnitude; composite records show only one
+  tail's signature.
+- **P707 rehearsal is the engine (SHOULD):** ablate remin_w
+  on an hsam=1 profile (removal of the compulsion leg) —
+  the advantage collapses toward control; the ablation, not
+  the flag, carries the effect (mechanism-audit probe).
+- **P708 feedback ledger asymmetry (SHOULD):** mnemic=+1.5 ×
+  self_srv=+1.5 character gets criticized after a shared task:
+  own-effort fields stay dense (self_srv arm) while threat
+  fields thin (mnemic arm) — both operators visible in one
+  record, no interaction term.
+
+## 76. Part VI honest limits
+
+- `hsam`'s mechanism is contested in the literature — LePort
+  2016's OC-correlation supports the rehearsal account, but
+  neuroanatomical differences (9 structures) suggest
+  constitutional contributions we do not model; we chose the
+  rehearsal engine because it is implementable and P707 makes
+  the choice falsifiable.
+- `sdam` rests on N=3 (2015) plus small follow-ups — the
+  prevalence, boundaries, and aphantasia overlap are all
+  early-stage science; the strongest claim we make is the
+  episodic/semantic dissociation, which the biomarkers support.
+- `mnemic`'s effect sizes come from list-feedback paradigms
+  (trait-word feedback), extrapolated to naturalistic feedback
+  events; the recognition exemption is solid, the 0.35
+  magnitude is calibration judgment.
+- `tbi`'s ribot window compresses graded retrograde amnesia
+  into a two-parameter model; real PTA curves are messier.
+  Belanger's persistent effect is small — our 0.1 coefficient
+  sits at the strong end for mild, appropriate for moderate.
+- `apoe` models asymptomatic decline ONLY — the MCI/dementia
+  cliff is deliberately out of scope (disease trait owns that
+  door); the fitness-mitigation literature is too split to
+  price, so we shipped the null.
+- `synesth`'s pervasiveness finding (2019 meta) conflicts with
+  the direct-cue intuition; we priced the meta's pooled
+  effect, not the mechanism — if future work shows
+  stimulus-locked effects, the loading should narrow.
+- `rumin`'s brooding/reflection split is real in self-report
+  factor structure; our single-axis ± implementation is the
+  standard simplification (RRS subscales correlate ~0.6).
+- The two mandated nulls (birth_order, learn_style) now
+  bracket the trait layer: it can represent "everything" and
+  "nothing," and the nothing is load-bearing.

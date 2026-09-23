@@ -2076,3 +2076,81 @@ claims (full grounding in retrieval-cues.md §§60–69):
   84): high imagers are *worse* at external-external source
   discrimination — vivid internal generation blurs boundaries
   on both sides.
+
+## 44. v67 addendum — individual-differences VI anchors (verified)
+
+- **The upper tail is channel-specific, not superhuman.**
+  LePort et al. 2012 (*Neurobiol. Learn. Mem.* 98:78, N=11 —
+  verified abstract + UCI release): HSAM participants
+  significantly better on personal AND public autobiographical
+  recall including days/dates, but *comparable to matched
+  controls on most standard laboratory memory tests* — the
+  ability does not generalize. Patihis et al. 2013 (*PNAS*
+  110:20947): HSAM false-memory susceptibility (DRM,
+  misinformation) at control rates — extraordinary storage,
+  ordinary reconstruction. Parker, Cahill & McGaugh 2006
+  (*Neurocase*): the founding case. LePort 2016+ follow-ups:
+  elevated obsessive-compulsive spectrum traits — habitual
+  own-day review is the candidate mechanism we implement as a
+  rehearsal engine (P707 makes that choice falsifiable).
+- **The lower tail knows without reliving.** Palombo, Alain,
+  Söderlund, Khuu & Levine 2015 (*Neuropsychologia* 72:105,
+  N=3 — verified): lifelong SDAM, corroborated by absent fMRI/
+  ERP recollection biomarkers; learning and memory intact
+  wherever tasks "could be accomplished by non-episodic
+  processes." Retrieval-side deficit, encoding-side intact —
+  which is why v67 re-parameterizes the v2.5 SDAM modifier's
+  decay leg as retrieval-side specificity thinning. Aphantasia
+  covariation is partial, not identical (Wan et al. 2024).
+- **Disposition to think shows up as an argument gap.**
+  Cacioppo & Petty 1982 (*JPSP* 42:116) define NFC; Cacioppo
+  et al. 1996 (*Psych. Bull.* 119:197, meta — verified): high
+  NFC = more elaboration, more task-relevant thoughts, and a
+  *larger* memory gap between strong and weak arguments —
+  the trait's signature is selectivity, not volume.
+- **The self thin-encodes what threatens it.** Sedikides &
+  Green 2000 (*JPSP* 79:168) mnemic neglect; Green, Sedikides
+  & Gregg 2008 (*JESP* 44:547 — verified): poorer recall with
+  *intact recognition* of self-threatening feedback —
+  "forgotten but not gone"; averted by close sources and
+  modifiability framing (Green, Pinter & Sedikides 2009);
+  attenuated by dysphoria (Sedikides & Green 2009 review);
+  enhanced in repressors. Encoding-side shallow processing
+  (Sedikides & Green 2006, *BBS*).
+- **Injury erases backward, grades by severity, then stops.**
+  Russell & Nathan 1946 (*Brain* 69:280): Ribot's graded
+  retrograde amnesia; PTA length as severity index. Belanger
+  et al. 2005 (*Neuropsychology* 19:595 meta): mild TBI's
+  persisting effect is small and concentrated in WM/
+  processing speed; sports-concussion arm largely resolved by
+  ~90 days. Dikmen et al. 2009: PTA dose-response for
+  moderate-severe.
+- **The genotype moves the slope, not the person you meet.**
+  Caselli et al. 2009 (*NEJM* 361:255, N=815 longitudinal —
+  verified): cognitively normal APOE ε4 carriers' memory
+  decline begins before 60 and accelerates faster, with an
+  allele-dose effect (homozygous > heterozygous); weaker
+  non-memory effects. Below onset: nothing observable.
+- **Synesthesia's advantage is real, broad, and ordinary.**
+  2019 multi-level meta-analysis (Rothen et al., *Memory* —
+  verified): episodic d̂≈0.61, WM d̂≈0.36, pervasive across
+  stimulus types — which the authors note undermines a
+  direct-cue account. Rothen & Meier 2010 (*Memory* 18:258):
+  the advantage is "ordinary rather than extraordinary" —
+  our 0.08 loading is priced under that ceiling.
+- **Rumination is a rehearsal policy, and it has two halves.**
+  Nolen-Hoeksema 1991 (*JPSP* 60:115): ruminative response
+  style prolongs negative mood. Watkins 2008 (*Psych. Bull.*
+  134:163 — verified the split): brooding = maladaptive
+  dwelling; reflection = potentially adaptive problem focus.
+  Lyubomirsky & Tkach 2004: ruminators' negative
+  autobiographical bias.
+- **And the second thing that does nothing.** Pashler,
+  McDaniel, Rohrer & Bjork 2008 (*Psych. Sci. Public
+  Interest* 9:105 — verified): no credible evidence for the
+  learning-styles meshing hypothesis; the supportive studies
+  lack the required design. Rogowsky, Calhoun & Tallal 2015
+  RCT: matching instruction to stated style did nothing.
+  `learn_style` joins `birth_order` as a mandated null —
+  the trait layer's honesty depends on being able to
+  represent "no effect."
