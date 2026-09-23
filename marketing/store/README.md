@@ -2,7 +2,7 @@
 
 Generated capsule art for store submissions. **Local only — nothing
 submitted.** All files are produced by `tools/make_brand_assets.py` from the
-current hero shot (`site/shots/v39-D.png`); rerun that script after any art
+current hero shot (`site/shots/v40-D.png`); rerun that script after any art
 refresh to re-bake the whole set. Copy text lives in `../STORE-COPY.md`;
 the ordered paste-ready submission runbook is `../STORE-COPY.md` §9.
 

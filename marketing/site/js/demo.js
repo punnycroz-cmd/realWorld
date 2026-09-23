@@ -187,10 +187,10 @@
   // the tab is hidden.
   if (!url) {
     var SHOTS = [
-      ["shots/v39-A", "the block from overhead under the marine layer"],
-      ["shots/v39-B", "street-level follow-cam inside the fog"],
-      ["shots/v39-C", "Dolores Park under a drifting fog tongue"],
-      ["shots/v39-D", "director mode — pastel rowhouses on the sloped block"]
+      ["shots/v40-A", "the block from overhead under the marine layer"],
+      ["shots/v40-B", "street-level follow-cam inside the fog"],
+      ["shots/v40-C", "Dolores Park under a drifting fog tongue"],
+      ["shots/v40-D", "director mode — pastel rowhouses on the sloped block"]
     ];
     var screen = stage.querySelector(".demo-fallback-screen");
     var img = screen && screen.querySelector("img");

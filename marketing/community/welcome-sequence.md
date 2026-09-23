@@ -1,6 +1,6 @@
 # Welcome sequence — new-member journey (Discord)
 
-**Version:** v39 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v40 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 **Parent spec:** `COMMUNITY-FUNNEL.md` §3 (server structure), §4 (moderation).
 **Status:** copy-ready; every message below is OWNER-GATED until the server exists.
 

@@ -1,6 +1,6 @@
 # Referral loop — honest member-driven growth
 
-**Version:** v39 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v40 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 **Parent spec:** `COMMUNITY-FUNNEL.md` Stage 5 (Advocate), `ANALYTICS.md`
 (UTM session-scoped capture — no persistent ids, no cookies).
 
@@ -74,7 +74,7 @@ same privacy contract as everything else (no persistent ids).
 - `share_click` (demo page) — method breakdown already in the spec.
 - UTM-tagged sessions in `analytics_report.py` — utm_source=community
   share of visits, week over week.
-- `community_join` event (v39 spec) once the invite link is live —
+- `community_join` event (v40 spec) once the invite link is live —
   joined vs clicked intent.
 - Discord "how did you find us" — optional single question in the welcome
   flow, free text, never required.

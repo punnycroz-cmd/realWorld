@@ -1,6 +1,6 @@
 # Watch-party playbook — community event format
 
-**Version:** v39 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v40 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 **Parent spec:** `COMMUNITY-FUNNEL.md` §3 (`#watch-party`, `#rooftop` voice),
 §5 (cadence). Copy blocks are OWNER-GATED until the server exists.
 

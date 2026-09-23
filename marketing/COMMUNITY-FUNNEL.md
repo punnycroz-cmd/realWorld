@@ -3,7 +3,7 @@
 **Version:** v54 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
-and shipped `tools/build_recap.py`. v39 added the runnable ops kit under
+and shipped `tools/build_recap.py`. v40 added the runnable ops kit under
 `community/` — welcome sequence, watch-party playbook, first-100 seeding
 plan, referral loop — plus the `community` analytics stage. v54 added the
 measurement + routing layer: `community/funnel-scorecard.md` with
@@ -70,7 +70,7 @@ numbers from the events capture + manual Discord counts).
 | The Archive — `world/history.html` + `world/history.json` (world track) | Stage 1→2: free back-catalog; recap source data | EXISTS on sf/world — `history.json` is the recap input format |
 | Weekly recap post | Stage 1→2 retention engine | TEMPLATE + GENERATOR BUILT (`tools/build_recap.py`, §5a) |
 | Discord server | Stage 2 home: feed discussion, watch parties | OWNER-GATED (create at go) — runnable spec in `community/` kit |
-| Ops kit — `community/` (welcome-sequence, watch-party-playbook, first-100, referral-loop) | Stage 1→2→5 execution layer: copy-ready join flow, event format, seeding plan, honest referral mechanics | BUILT (v39), OWNER-GATED to run |
+| Ops kit — `community/` (welcome-sequence, watch-party-playbook, first-100, referral-loop) | Stage 1→2→5 execution layer: copy-ready join flow, event format, seeding plan, honest referral mechanics | BUILT (v40), OWNER-GATED to run |
 | Funnel scorecard — `community/funnel-scorecard.md` + `tools/funnel_scorecard.py` | Whole-funnel measurement: stage targets + weekly paste-ready report | BUILT (v54) — verified vs `analytics/sample-week.ndjson` |
 | Feedback router — `tools/feedback_router.py` + `community/feedback-batch.template.md` | §7 loop automation: sanitized batch → ready-to-paste inbox entry grouped by owning track | BUILT (v54) |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |

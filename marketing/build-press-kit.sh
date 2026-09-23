@@ -20,8 +20,8 @@ cp site/assets/logo-primary.svg site/assets/logo-primary.png \
    site/assets/logo-icon-animated.svg \
    site/assets/pattern-windows.svg \
    site/assets/favicon.svg "$KIT/logos/"
-cp site/shots/v39-A.png site/shots/v39-B.png site/shots/v39-C.png \
-   site/shots/v39-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
+cp site/shots/v40-A.png site/shots/v40-B.png site/shots/v40-C.png \
+   site/shots/v40-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \
    "$KIT/screenshots/"
 

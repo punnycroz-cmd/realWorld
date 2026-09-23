@@ -31,7 +31,7 @@ same-origin path) in demo.html. One attribute; no other page changes required.
 
 ## 2. Fallback state (pre-build)
 
-- Real development capture (`shots/v39-A.*`) behind a gradient overlay labeled
+- Real development capture (`shots/v40-A.*`) behind a gradient overlay labeled
   "Spectator build not wired in yet" — honest, never fakes liveness.
 - `noscript` notice routing to the static gallery.
 - Falls back gracefully on `file://`, blocked JS, and rejected embed schemes.
@@ -86,7 +86,7 @@ says "Simulation only," and simulated feed rows are marked "filed by you
 ## 4a-ii. v56 upgrades
 
 - **Rotating fallback captures** — while `data-demo-src` is empty, the
-  fallback screen cycles v39-A–D every 8 s (crossfade) with a `.demo-cap`
+  fallback screen cycles v40-A–D every 8 s (crossfade) with a `.demo-cap`
   caption chip that always reads "Development capture — …" verbatim. Off
   under `prefers-reduced-motion` and paused while the tab is hidden; never
   runs once the live iframe replaces the fallback.
@@ -166,7 +166,7 @@ analytics-events.json.
   The wire/wire-archive embeds (v61) are the world's own demo-mode apps —
   they go live automatically when `__aiBridge` is present; on a static host
   they stay in honest demo mode.
-- **Art:** fallback capture is `shots/v39-A.*`; swap when a better canonical
+- **Art:** fallback capture is `shots/v40-A.*`; swap when a better canonical
   shot is published (same filename convention).
 - Feed row labels must mirror the live feed's real vocabulary at launch —
   sync with `gsViewerState` feed events before flipping the switch.

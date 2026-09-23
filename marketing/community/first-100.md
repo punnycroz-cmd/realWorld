@@ -1,6 +1,6 @@
 # First 100 members — seeding plan
 
-**Version:** v39 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v40 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 **Parent spec:** `COMMUNITY-FUNNEL.md` §1 (funnel), §6 (creator outreach).
 **Honesty constraint:** every member must arrive via real interest — no
 invite farms, no paid joins, no "join for a chance at" mechanics.

@@ -12,29 +12,29 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v39-A.png       1440x900 (approx)
+screenshots/v40-A.png       1440x900 (approx)
   The Mission block at 24th and Mission from overhead as Karl — the
   marine layer — rolls in: fog sheets pool over the rooftops while the
-  street grid stays readable below. The character panel shows a hired
-  resident mid-routine; the harness UI is development chrome, not part
-  of the shipped spectator view.
+  street grid stays readable below. The character panel shows Jules, a
+  hired resident, mid-routine; the harness UI is development chrome, not
+  part of the shipped spectator view.
 
-screenshots/v39-B.png       1440x900 (approx)
-  Street-level inside the fog: the same controlled resident stands
-  mid-errand while facades, stoops and parked cars dissolve into the
-  marine layer. Neighbors' name tags (Dani, Priya) hold at their doors.
+screenshots/v40-B.png       1440x900 (approx)
+  Street-level inside the fog: Jules stands mid-block while facades,
+  stoops and parked cars dissolve into the marine layer. Neighbors' name
+  tags (Dani, Priya) hold at their doors.
 
-screenshots/v39-C.png       1440x900 (approx)
-  Dolores Park from above under the fog tongue — mature clustered
-  crowns and baked path decals show through the marine layer, the
-  neighborhood's back yard gone quiet gray-green.
+screenshots/v40-C.png       1440x900 (approx)
+  Dolores Park from above under the fog tongue — the palm allée lines the
+  paths, worn desire-lines cut the grass where residents actually walk,
+  and mature crowns show through the marine layer. The neighborhood's
+  back yard, gone quiet gray-green.
 
-screenshots/v39-D.png       1440x900 (approx)
+screenshots/v40-D.png       1440x900 (approx)
   Director mode under a clear evening sky: REC cluster and DIRECTOR
   badge up top, pastel facades stepping with the slope of the block,
-  laundry lines and water tanks on the roofline, a named resident (Carme)
-  on the corner. The camera treats
-  the neighborhood like a film set.
+  Mission ficus street trees over the sidewalk, a named resident (Carme)
+  on the corner. The camera treats the neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -44,7 +44,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v39-A / v39-B.
+  First art pass, for before/after coverage. Pair with v40-A / v40-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

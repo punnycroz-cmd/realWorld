@@ -20,6 +20,9 @@ Contents
                      Twitch Plays, Second Life; honest weaknesses
   guided-tour.md     The 10-minute press-preview run sheet (stops,
                      talking points, presenter hard rules)
+  b-roll-shotlist.md Video-press capture guide: six essential b-roll
+                     shots + optional color shots, camera keys, capture
+                     rules for anyone filming the dev build
   captions.txt       Caption + credit line for every image
   LICENSE.txt        Press asset usage terms
   manifest.json      Machine-readable kit manifest
@@ -35,10 +38,10 @@ Contents
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
   screenshots/       Real captures of the current development build.
-                     v39-* = current renderer (murals, parody signage,
+                     v40-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, stoops, garage bays,
-                     false-front gables, mature park crowns + street
-                     trees, parked cars);
+                     false-front gables, Mission ficus street trees,
+                     Dolores palm allée + worn desire-lines, parked cars);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 
