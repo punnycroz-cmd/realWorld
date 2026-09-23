@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v34).
+/* world/audit.js — RW boundary audit (world v37).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -68,6 +68,11 @@
                 content mirror case-for-case; console CHARS whitelist;
                 flag-ledger/shift-report/calibration affordances; no
                 mutation calls on internal surfaces
+    harness   — playtest harness self-contract: storage key + build tag
+                agree with playtest.json; required affordance marks
+                present; scenario integrity (unique PT ids, declared
+                surfaces, ≥1 checkpoint per step, every surface touched);
+                finding-surface dropdown ⊆ declared surfaces
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -1384,13 +1389,69 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'moderation.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G22 harness ============ */
+{
+  const g = gate('harness', 'playtest harness self-contract (v37 marks, LS/build agreement, scenario integrity, surface coverage)');
+  try {
+    const html = rd('playtest.html');
+    const H = PT.harness_ui_v37 || {};
+    /* 1. storage key + build tag agreement */
+    if (H.storage_key && !html.includes(`"${H.storage_key}"`))
+      add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
+    const lsM = html.match(/const LS="rw_playtest_v(\d+)"/);
+    if (!lsM) add(g, 'fail', 'playtest.html', null, 'const LS key not found');
+    else if (+lsM[1] !== PT.version)
+      add(g, 'fail', 'playtest.html', null, `LS v${lsM[1]} != playtest.json version ${PT.version}`);
+    if (H.build_tag_prefix && !html.includes(`"${H.build_tag_prefix}"`))
+      add(g, 'fail', 'playtest.html', null, `build tag "${H.build_tag_prefix}" not found (report build)`);
+    /* 2. required affordance marks */
+    for (const m of H.required_marks || [])
+      if (!html.includes(m))
+        add(g, 'fail', 'playtest.html', null, `required v37 mark missing: ${m}`);
+    /* 3. scenario integrity: unique PT ids, declared surfaces, ≥1 ck/step */
+    const ids = new Set();
+    const touched = new Set();
+    let ckTotal = 0;
+    for (const s of PT.scenarios) {
+      if (!/^PT\d+$/.test(s.id)) add(g, 'fail', 'playtest.json', null, `scenario id "${s.id}" off the PT# pattern`);
+      if (ids.has(s.id)) add(g, 'fail', 'playtest.json', null, `duplicate scenario id ${s.id}`);
+      ids.add(s.id);
+      if (!s.minutes || s.minutes <= 0) add(g, 'fail', 'playtest.json', null, `${s.id}: no minutes estimate`);
+      if (!s.steps.length) add(g, 'fail', 'playtest.json', null, `${s.id}: zero steps`);
+      s.steps.forEach((st, i) => {
+        if (!st.checkpoints.length) add(g, 'fail', 'playtest.json', null, `${s.id} step ${i + 1}: zero checkpoints`);
+        st.checkpoints.forEach((c, ci) => {
+          ckTotal++;
+          if (!c.trim()) add(g, 'fail', 'playtest.json', null, `${s.id} step ${i + 1} ck ${ci + 1}: empty checkpoint`);
+        });
+      });
+      for (const sf of s.surfaces) {
+        if (!PT.surfaces[sf]) add(g, 'fail', 'playtest.json', null, `${s.id}: undeclared surface "${sf}"`);
+        else touched.add(sf);
+      }
+    }
+    /* 4. every declared surface is touched by ≥1 scenario (untested = finding) */
+    for (const k of Object.keys(PT.surfaces))
+      if (!touched.has(k)) add(g, 'fail', 'playtest.json', null,
+        `surface "${k}" is declared but no scenario touches it — untested by definition`);
+    /* 5. finding-surface dropdown ⊆ declared surfaces */
+    const dm = html.match(/<select id="fSurf"[^>]*>([\s\S]*?)<\/select>/);
+    if (!dm) add(g, 'fail', 'playtest.html', null, 'fSurf dropdown not found');
+    else for (const om of dm[1].matchAll(/<option>([^<]+)<\/option>/g))
+      if (!PT.surfaces[om[1]]) add(g, 'fail', 'playtest.html', null,
+        `fSurf option "${om[1]}" not a declared surface — findings would cite a phantom`);
+    g.detail = `${ids.size} scenarios · ${ckTotal} checkpoints · ` +
+      `${touched.size}/${Object.keys(PT.surfaces).length} surfaces touched · key ${H.storage_key}`;
+  } catch (e) { add(g, 'fail', 'playtest.html', null, 'harness gate failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v36 local';
+out.build = 'world v37 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

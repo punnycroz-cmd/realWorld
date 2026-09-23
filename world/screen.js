@@ -14,6 +14,7 @@
    Denied requests never bill; the caller auto-refunds. Everything is logged.
    Golden corpus: world/screen-corpus.json — every rule change must keep it green
    (or update expectations in the same commit).
+   Internal engine module — not a player/spectator surface; never shipped alone.
 */
 window.RWScreen = (function () {
 

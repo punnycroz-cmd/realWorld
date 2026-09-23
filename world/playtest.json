@@ -1,6 +1,6 @@
 {
   "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
-  "version": 36,
+  "version": 37,
   "scope": {
     "under_test": [
       "world/feed.html",
@@ -135,6 +135,13 @@
       "tier": "internal",
       "kind": "tool",
       "run": "node world/audit.js"
+    },
+    "screen": {
+      "file": "screen.js",
+      "name": "Screen Engine",
+      "tier": "internal",
+      "kind": "tool",
+      "run": "node -e \"const w={};eval(require('fs').readFileSync('world/screen.js','utf8'));console.log(w.RWScreen.VERSION)\""
     },
     "harness": {
       "file": "playtest.html",
@@ -993,7 +1000,8 @@
       "goal": "Verify the corpus regression gate, the try-it console, normalization visibility, and that the mod console and lab agree on identical input.",
       "surfaces": [
         "lab",
-        "mod"
+        "mod",
+        "screen"
       ],
       "steps": [
         {
@@ -1837,15 +1845,109 @@
           ]
         }
       ]
+    },
+    {
+      "id": "PT35",
+      "title": "The harness itself — telemetry, deep links, triage note",
+      "minutes": 15,
+      "persona": "facilitator auditing the tool that runs every other scenario",
+      "goal": "Verify the v37 harness depth pass: deep links land on a scenario, per-scenario minutes accrue honestly, the keyboard map verdicts without a mouse, findings carry step refs, the progress line tells the truth, and the inbox-note export is a paste-ready triage block.",
+      "surfaces": [
+        "harness",
+        "audit"
+      ],
+      "steps": [
+        {
+          "do": "Reload the page with #pt=PT7 in the URL. Then pick PT1 normally.",
+          "expect": "The deep link boots straight into PT7's body with its checkpoints rendered; picking a scenario updates the address bar to #pt=PT1 — a copied URL lands any tester on the same scenario.",
+          "checkpoints": [
+            "#pt=<id> resolves on a cold load and on a same-page paste",
+            "An unknown id (#pt=PT99) falls back to the picker state with no crash",
+            "The hash updates on pick without a reload"
+          ]
+        },
+        {
+          "do": "Open PT2 and let two minutes pass while reading it. Then open PT3 and come back.",
+          "expect": "The rail meta shows spent minutes per scenario ('· Nm spent') that keep accumulating across revisits; the number is a facilitation aid — it never claims to measure anything but time-open.",
+          "checkpoints": [
+            "Spent time accrues only while the scenario is open",
+            "Reloading mid-scenario keeps the accumulated minutes (localStorage)",
+            "The session report carries time_per_scenario"
+          ]
+        },
+        {
+          "do": "With a scenario open, press ? for the key card, then j/k to walk three checkpoints, p/f/n to verdict them, esc to clear.",
+          "expect": "Keys verdict the selected checkpoint without touching the mouse; the card lists every binding; typing in a note field never triggers a verdict.",
+          "checkpoints": [
+            "? toggles the key card; esc closes it and then clears selection",
+            "j/k clamp at the first/last checkpoint — no wrap",
+            "Keys are inert inside inputs and textareas"
+          ]
+        },
+        {
+          "do": "Log a finding while a scenario is open: pick a step in the step-ref dropdown, save, read the list item.",
+          "expect": "The finding lands tagged 'PT#·sN' (or bare 'PT#' when 'whole scenario' is chosen); the ref rides both exports.",
+          "checkpoints": [
+            "Step refs appear on the finding row and in the JSON + Markdown exports",
+            "Whole-scenario findings still tag bare 'PT#'",
+            "Deleting a finding removes it from the report immediately"
+          ]
+        },
+        {
+          "do": "Read the progress line under Scenarios; then hit 'Copy inbox note' with one blocker and one minor logged.",
+          "expect": "Progress reads 'N of M checkpoints · ~K min left' across the full (or smoke-filtered) set; the inbox note carries header + blocker/major findings only — paste-ready for the shared inbox.",
+          "checkpoints": [
+            "Progress counts verdicted checkpoints, not open scenarios",
+            "Smoke filter narrows the denominator honestly",
+            "Inbox note omits minor/nit/question findings entirely"
+          ]
+        },
+        {
+          "do": "Run `node world/audit.js` and read the harness gate.",
+          "expect": "harness gate passes: LS key + build tag agree with playtest.json v37, every required affordance mark is present, scenario integrity holds (unique ids, declared surfaces, ≥1 checkpoint per step, every surface touched), and the finding-surface dropdown resolves to declared surfaces.",
+          "checkpoints": [
+            "Gate reports 'N scenarios · M checkpoints · key rw_playtest_v37'",
+            "A renamed LS key, a dropped affordance id, or a scenario referencing an undeclared surface would FAIL — spot-check",
+            "Twenty-two gates total; overall 0 fail"
+          ]
+        }
+      ]
     }
   ],
+  "harness_ui_v37": {
+    "storage_key": "rw_playtest_v37",
+    "build_tag_prefix": "world v37 local",
+    "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
+    "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
+    "keyboard": {
+      "?": "toggle the key card",
+      "j / k": "move the checkpoint cursor (clamped, no wrap)",
+      "p / f / n": "verdict the selected checkpoint pass / fail / n-a",
+      "o": "open the first listed surface in the embedded viewer",
+      "esc": "close the key card, then clear the checkpoint cursor",
+      "note": "all keys inert while focus is in an input/textarea/select"
+    },
+    "finding_step_ref": "fStep dropdown offers 'whole scenario' + one entry per step; refs are 'PT#' or 'PT#·sN'",
+    "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings only — the §5 triage paste",
+    "required_marks": [
+      "rw_playtest_v37",
+      "id=\"prog\"",
+      "id=\"keyCard\"",
+      "id=\"exInbox\"",
+      "id=\"fStep\"",
+      "time_per_scenario",
+      "S.times",
+      "#pt="
+    ]
+  },
   "session_report_schema": {
     "session": {
       "tester": "string",
       "role": "spectator|player|reviewer|facilitator",
       "date": "YYYY-MM-DD",
-      "build": "world v34 local",
+      "build": "world v37 local",
       "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
+      "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
       "notes": "string"
     },
     "results": [
@@ -1861,7 +1963,7 @@
       {
         "severity": "blocker|major|minor|nit|question",
         "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|harness",
-        "ref": "PT# or null — auto-tagged with the open scenario at log time",
+        "ref": "PT#, PT#·sN, or null — auto-tagged with the open scenario at log time; ·sN added when a step is picked in the fStep dropdown (v37)",
         "title": "string",
         "detail": "string",
         "steps_to_repro": "string"

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v35)
+# Playtest Harness — "Real World / The Mission" (world v37)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -40,7 +40,7 @@ One person can wear every hat; four real testers is the intended shape.
 - **Reviewer** — PT3 (second half), PT4. Wears the mod hat; judges queue honesty.
 - **Facilitator** — PT7 + session stewardship. Owns the boundary checklist,
   runs the machine audit (PT21, PT24/PT25 last steps), merges cohort reports (PT22),
-  clocks time-to-first-request, and harvests findings.
+  audits the harness itself (PT35), clocks time-to-first-request, and harvests findings.
 
 ## 3. Running a session
 
@@ -68,6 +68,27 @@ Session state persists in localStorage — a crashed browser loses nothing.
 **Reset session** clears verdicts, findings, and imports for the next tester.
 The **smoke set only** checkbox filters the rail to PT1·PT4·PT7·PT21.
 
+v37 harness affordances (PT35 exercises all of them):
+
+- **Deep links** — `#pt=<id>` in the URL boots straight into a scenario;
+  picking one updates the hash, so a facilitator can paste a tester a link
+  that lands on the right card. Unknown ids fall back to the picker.
+- **Per-scenario clock** — the rail shows `Nm spent` per scenario and the
+  report carries `session.time_per_scenario` (minutes, one decimal). It
+  counts time-open only — a facilitation aid, never a score.
+- **Progress line** — under Scenarios: `N of M checkpoints · ~K min left`
+  (smoke filter narrows the denominator honestly).
+- **Keyboard map** — `?` opens the key card; `j`/`k` move a checkpoint
+  cursor (clamped), `p`/`f`/`n` verdict it, `o` opens the first surface,
+  `esc` closes the card then clears the cursor. All keys are inert inside
+  inputs/textareas.
+- **Step-ref findings** — the findings form has a step dropdown; refs read
+  `PT#` or `PT#·sN` and ride both exports.
+- **Copy inbox note** — emits a `[world-playtest]` block (header + blocker/
+  major findings only), the paste-ready form of the §5 triage line.
+- **Autosave tick** — the header flashes `autosaved` on every write, so a
+  tester can see persistence working instead of trusting it.
+
 A full pass (PT1–PT8) is ~2.5 h. A smoke pass is PT1 + PT4 + PT7 + PT21
 (~50 min) — free-tier, every deny path, the boundary audit, and the machine gate.
 
@@ -81,7 +102,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Twenty gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Twenty-two gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -132,7 +153,13 @@ filled posts visible-but-unselectable; deposit 1× / 0.5×-room rule +
 stated payment plan on shortfall; payday cadence; bill-on-approval;
 live-seam reads gsJobBoard/gsHireNameCheck/gsHireQuote/gsHireSlots
 present and no mutation call on the surface; draft key + deny codes
-agree).
+agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
+whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
+LS key + build tag agree with the contract version, every
+harness_ui_v37 mark present, scenario integrity — unique PT ids,
+declared surfaces only, ≥1 checkpoint per step, every declared surface
+touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
+surfaces).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and
@@ -191,5 +218,9 @@ shared inbox after each session with blockers/majors only.
 - New gates in `audit.js` should follow the existing shape: `gate(name, desc,
   fn)` returning hits with `file:line` refs; REVIEW for eyeballed contexts,
   FAIL for violations.
+- v37: harness affordances are contract-checked — when you add a harness
+  feature, declare its marks under `harness_ui_v37.required_marks` in
+  playtest.json and the harness gate enforces them. Bumping the LS key
+  without bumping `version` (or vice versa) FAILs the gate.
 - When the game track lands real plumbing, add a `PT9 "merge wiring"` scenario
   rather than rewriting the demos — the demo contracts stay the reference.
