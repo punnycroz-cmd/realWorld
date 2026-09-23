@@ -29,7 +29,8 @@ placeholder domain not yet swapped + 1 PNG >2 MB — both expected pre-launch).
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging | owner + mkt | `[x] REHEARSED` — shim verified inert 2026-09-22 |
 | G9 | Press kit zip rebuilt after G3/G4/G5 land: `./build-press-kit.sh` | mkt | `[x] REHEARSED` — one-command rebuild verified |
-| G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 21/3/0, warns = G3 |
+| G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 23/3/0, warns = G3 + 1 PNG weight |
+| G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
 
 ## §2 Day 0 — launch day (in order)
 
@@ -46,6 +47,7 @@ DNS/CDN latency only.
 | D0.6 | Post launch announcement on registered channels (owner approves each post) | ~30 min | `[~] DRAFTED` — SOCIAL-LAUNCH-PLAN.md timeline |
 | D0.7 | Send press kit link to owner-approved press list (angle templates in PRESS-OUTREACH.md) | ~30 min | `[~] DRAFTED` — 3 pitch angles ready |
 | D0.8 | Community posts where welcome (owner-approved subs/Discords only) | ~30 min | `[~] DRAFTED` — seeded-questions.md |
+| D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual), welcome post, rules pinned; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 |
 | D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`), request-feed health | continuous | `[ ] PENDING` |
 | D0.10 | Same-day retro note → MARKETINGLOG.md + shared inbox | ~15 min | `[ ] PENDING` |
 
@@ -90,7 +92,8 @@ Decision: GO / NO-GO — <owner name>, <timestamp>
 - [ ] PENDING — First "This Week on the Block" recap post (from public feed)
 - [ ] PENDING — Launch metrics review: visits→watch sessions→credit purchases; funnel leaks → MARKETINGLOG.md
 - [ ] PENDING — Search Console coverage check; fix indexing issues
-- [ ] PENDING — Triage community questions; recurring ones → `faq.html`
+- [ ] PENDING — Triage community questions; recurring ones → `faq.html`; sanitized feedback batch → shared inbox per COMMUNITY-FUNNEL.md §7
+- [ ] PENDING — First creator-outreach variant drafted from PRESS-OUTREACH.md angles (COMMUNITY-FUNNEL.md §6); owner approves before any send
 - [ ] PENDING — Second devlog post (honest post-launch retrospective)
 - [ ] PENDING — Press follow-ups only to outlets that engaged (no spam rounds)
 - [ ] PENDING — Trailer greenlight decision based on week-1 spectator retention (TRAILER-PLAN.md ready to execute)
@@ -100,7 +103,7 @@ Decision: GO / NO-GO — <owner name>, <timestamp>
 - [ ] PENDING — Month-1 report: MAU, watcher→requester conversion, payer rate, credit burn vs. projections, top entry pages, top queries
 - [ ] PENDING — Pricing review: provisional figures holding? Changes proposed to owner (never silent)
 - [ ] PENDING — Content calendar retro: which posts earned traffic/links; adjust SEO-PLAN tiers with real query data
-- [ ] PENDING — Community funnel check: Discord/forum health if created
+- [ ] PENDING — Community funnel check: Discord health, cadence retro, mod-recruitment decision, subreddit revisit — per COMMUNITY-FUNNEL.md §9 day-30 list
 - [ ] PENDING — Press kit v1.1: real earned quotes (attributed), final pricing, launch screenshots, trailer link if produced
 - [ ] PENDING — Roadmap review: re-rank remaining marketing focuses against month-1 data; update MARKETING_ROADMAP.md
 - [ ] PENDING — Season-2 neighborhood marketing decision only if shard-1 retains (research: do NOT split the audience early)
