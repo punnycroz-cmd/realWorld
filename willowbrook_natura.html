@@ -24642,6 +24642,10 @@ if(SF_MODE && typeof document !== 'undefined'){
 const SF_LENS = { on: true, mode: 'flat', horizon: 0, camHF: 1, foc: 24,
                   frame: null, fg: null, blur: null, bg: null,
                   noise: null, pat: null, saveCtx: null };
+/* v51: world-space lens position, published once per street frame so any
+   painter can answer view-dependent light questions (specular glass) —
+   a glint is a property of the eye, not of the wall. */
+const SF_EYE = { x: 0, y: 0, h: 1.7 };
 function sfLensNoise(){
   if(SF_LENS.noise) return SF_LENS.noise;
   const c = document.createElement('canvas'); c.width = 160; c.height = 90;
@@ -26786,6 +26790,19 @@ function sfRenderWorld(cw, ch){
                         sfUmbra(Math.hypot(shx, shy)));
         }
         ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
+        /* v51: parked sheet metal — the sunward rim of the roof/hood
+           throws a short bright arc back when the sun is up (the same
+           bearing that throws the car's shadow, flipped). */
+        if(!isNight() && SF_SUN.day > 0.3){
+          const sa = Math.atan2(-SF_SUN.y * SF_TILT, -SF_SUN.x);
+          ctx.strokeStyle = `rgba(255,244,214,${(0.30 * SF_SUN.day *
+                             (0.4 + 0.6 * SF_SUN.warm)).toFixed(3)})`;
+          ctx.lineWidth = Math.max(1, 1.1 * cam.zoom);
+          ctx.beginPath();
+          ctx.ellipse(sx, sy - chh * 0.06, cw2 * 0.34, chh * 0.34, 0,
+                      sa - 0.55, sa + 0.55);
+          ctx.stroke();
+        }
         continue;
       }
       if(sprC){
@@ -27612,11 +27629,29 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       ctx.closePath(); ctx.fill();
     }
     // v15: eave shadow — the cornice throws a shade band across the wall
-    // crown, deepest when high sun strikes the facade head-on
+    // crown, deepest when high sun strikes the facade head-on.
+    // v51: the band is now SHEARED — the fascia stands ~0.55m off the
+    // wall plane, so its shade slides along the wall on the sun's bearing
+    // component and drops by tan(elevation), the same displacement law
+    // the bay projections use. An oblique afternoon sun rakes the band
+    // diagonally instead of pinning it straight under the roofline.
     const ea = night ? 0 : 0.3 * SF_SUN.day * Math.max(0, sunK);
     if(ea > 0.02){
-      const eA = pr(x1, y1, hm - 0.45), eB = pr(x2, y2, hm - 0.45),
-            eC = pr(x1, y1, hm - 1.6), eD = pr(x2, y2, hm - 1.6);
+      const snW = SF_SUN.x * nx + SF_SUN.y * ny;
+      let duE = 0, dzE = 0;
+      if(snW < -0.04){
+        const tR = 0.55 / -snW;
+        duE = (SF_SUN.x * ux + SF_SUN.y * uy) * tR;
+        dzE = Math.tan(Math.max(0, SF_SUN.el)) * tR;
+      }
+      const eA = pr(x1 + ux * duE + nx * 0.02, y1 + uy * duE + ny * 0.02,
+                    hm - 0.45 - dzE),
+            eB = pr(x2 + ux * duE + nx * 0.02, y2 + uy * duE + ny * 0.02,
+                    hm - 0.45 - dzE),
+            eC = pr(x1 + ux * duE + nx * 0.02, y1 + uy * duE + ny * 0.02,
+                    hm - 1.6 - dzE),
+            eD = pr(x2 + ux * duE + nx * 0.02, y2 + uy * duE + ny * 0.02,
+                    hm - 1.6 - dzE);
       if(eA && eB && eC && eD){
         const eG = ctx.createLinearGradient(0, Math.min(eA[1], eB[1]),
                                             0, Math.max(eC[1], eD[1]));
@@ -27924,8 +27959,10 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.globalAlpha = 1;
   }
 
-  // capsule window: trim frame + sky-reflection glass + sill + lintel
-  const drawWin = (wx, wy, zB, zT, wm) => {
+  // capsule window: trim frame + sky-reflection glass + sill + lintel.
+  // v51: pnx/pny let a caller hand the pane's OWN outward normal (bay
+  // cheeks sit at 45° to the wall) so the specular pass keys each facet.
+  const drawWin = (wx, wy, zB, zT, wm, pnx, pny) => {
     const pb = pr(wx, wy, zB), pt = pr(wx, wy, zT);
     if(!pb || !pt) return;
     const wh = pb[1] - pt[1], ww = wm * F / pb[2];
@@ -27966,8 +28003,15 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     } else if(seeIn){
       gg.addColorStop(0, '#241a12'); gg.addColorStop(1, '#43301f');
     } else {
-      gg.addColorStop(0, '#5d7d92'); gg.addColorStop(0.55, '#8fb0c6');
-      gg.addColorStop(1, '#a9c6da');
+      /* v51: the pane is a vertical mirror of the street scene, not a
+         flat blue card — upper glass returns the bright sky band near
+         the horizon (warming as the sun drops), mid-glass the open sky,
+         lower glass the shaded facades/pavement across the street. */
+      const skyHi = SF_SUN.day > 0.15
+        ? mix('#9db8cc', '#f2c89a', SF_SUN.warm * 0.6) : '#8ea8bc';
+      gg.addColorStop(0, skyHi);
+      gg.addColorStop(0.45, '#7c9cb4');
+      gg.addColorStop(1, '#57646e');
     }
     ctx.fillStyle = gg;
     ctx.beginPath();
@@ -28083,11 +28127,40 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       ctx.fillRect(pb[0] - ww * 0.12, pb[1] - fh, ww * 0.24, fh);
       ctx.beginPath(); ctx.arc(pb[0], pb[1] - fh - ww * 0.07, ww * 0.09, 0, Math.PI * 2); ctx.fill();
     }
-    // v14: sun glint — glass flashes warm when the facade faces the sun
-    if(!night && SF_SUN.day > 0.3 && sunK > 0.35){
-      ctx.fillStyle = `rgba(255,242,205,${0.32 * SF_SUN.day * sunK})`;
-      ctx.fillRect(pb[0] - r * 0.7, pt[1] + wh * 0.12, r * 0.95,
-                   Math.max(1.5, wh * 0.3));
+    /* v51: true specular glint — the pane throws the sun back at the
+       lens only when the eye sits near the reflected ray. R·S computed
+       in 3D (solar elevation counts: an upstairs pane mirrors a high sun
+       DOWN toward street level, so looking up at glass is exactly when
+       it blazes) against the pane's own normal, so the 45° cheeks of a
+       canted bay flash on a different heading than the flat wall. Sash
+       tilt varies pane to pane — a per-window jitter keeps the row from
+       igniting in lockstep. Off-axis sun-facing glass keeps a faint
+       warm sheen instead of the old full-strength blaze. */
+    if(!night && SF_SUN.day > 0.15){
+      const gnx = pnx === undefined ? nx : pnx,
+            gny = pny === undefined ? ny : pny;
+      const vdx = SF_EYE.x - wx, vdy = SF_EYE.y - wy,
+            vdz = SF_EYE.h - (zB + zT) / 2;
+      const vd = Math.hypot(vdx, vdy, vdz) || 1;
+      const vx = vdx / vd, vy = vdy / vd, vz = vdz / vd;
+      const cE = Math.cos(Math.max(0, SF_SUN.el)),
+            sE = Math.sin(Math.max(0, SF_SUN.el));
+      const nV = gnx * vx + gny * vy;
+      const spec = (2 * nV * gnx - vx) * SF_SUN.toX * cE +
+                   (2 * nV * gny - vy) * SF_SUN.toY * cE - vz * sE;
+      const jitter = 0.4 + 0.6 * phash(Math.round(wx * 13),
+                                       Math.round(zB * 7), i + 3320);
+      const glint = Math.pow(Math.max(0, spec), 2.5) * SF_SUN.day * jitter;
+      if(glint > 0.05){
+        ctx.fillStyle = `rgba(255,246,214,${Math.min(0.8, glint * 0.72)})`;
+        ctx.fillRect(pb[0] - r * 0.75, pt[1] + wh * 0.08, r * 1.1,
+                     Math.max(1.5, wh * 0.36));
+      } else if(SF_SUN.day > 0.3 && sfSunFaceK(gnx, gny) > 0.35){
+        ctx.fillStyle =
+          `rgba(255,242,205,${0.10 * SF_SUN.day * sfSunFaceK(gnx, gny)})`;
+        ctx.fillRect(pb[0] - r * 0.7, pt[1] + wh * 0.12, r * 0.95,
+                     Math.max(1.5, wh * 0.3));
+      }
     }
     ctx.strokeStyle = shade(ACC, 0.9); ctx.lineWidth = Math.max(0.5, ww * 0.06);
     ctx.beginPath();
@@ -28316,9 +28389,9 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         // a canted bay glitter differently from the flat wall
         if(det === 2){
           drawWin((ax + f1x) / 2 + nLx * 0.03, (ay + f1y) / 2 + nLy * 0.03,
-                  zz - 0.45, zz + 0.45, 0.34);
+                  zz - 0.45, zz + 0.45, 0.34, nLx, nLy);
           drawWin((bx + f2x) / 2 + nRx * 0.03, (by + f2y) / 2 + nRy * 0.03,
-                  zz - 0.45, zz + 0.45, 0.34);
+                  zz - 0.45, zz + 0.45, 0.34, nRx, nRy);
         }
       }
       // bay cornice + hipped cap: front ridge plus two cheek slopes
@@ -29428,6 +29501,7 @@ function sfRenderStreet(cw, ch){
   if(!SF_CAM.director && v && v.moving)
     camH += Math.sin(v.walkPhase || 0) * 0.05;
   camH += sfElevM(camX, camY);     // v37: the lens rides the landform
+  SF_EYE.x = camX; SF_EYE.y = camY; SF_EYE.h = camH;   // v51
   const F = Math.max(400, ch * 1.1) * SF_CAM.fov;
   const horizon = ch * 0.42 + Math.tan(usePitch) * F;
   const pr = (x, y, z) => {
@@ -30224,16 +30298,20 @@ function sfRenderStreet(cw, ch){
 
   /* v25: wet-mirror sun glare — wet asphalt is a horizontal mirror, so
      when the sun hangs ahead of the camera the roadway throws a bright
-     smeared column back at the viewer, widening toward the lens */
-  if(SF_WX.wet > 0.12 && !night && SF_SUN.day > 0.2){
+     smeared column back at the viewer, widening toward the lens.
+     v51: the lane isn't rain-only — crushed aggregate and polished
+     bitumen return a weak forward-scatter sheen at grazing angles too,
+     so a dry street keeps a faint hot column down-sun. */
+  if(!night && SF_SUN.day > 0.2){
     const sunFwd2 = SF_SUN.toX * DX + SF_SUN.toY * DY;
     if(sunFwd2 > 0.1){
       const sunSide2 = SF_SUN.toX * DY - SF_SUN.toY * DX;
       const sxr = cw / 2 + (sunSide2 / Math.max(0.4, sunFwd2)) * F * 0.9;
       if(sxr > -100 && sxr < cw + 100){
-        const wv2 = SF_WX.wet;
+        const wv2 = SF_WX.wet > 0.12 ? SF_WX.wet : 0.16;
+        const cap = SF_WX.wet > 0.12 ? 0.3 : 0.075;
         const gg = ctx.createLinearGradient(0, horizon, 0, ch);
-        gg.addColorStop(0, `rgba(255,240,205,${clamp(0.22 * wv2 * SF_SUN.day, 0, 0.3)})`);
+        gg.addColorStop(0, `rgba(255,240,205,${clamp(0.22 * wv2 * SF_SUN.day * (0.55 + 0.45 * sunFwd2), 0, cap)})`);
         gg.addColorStop(1, 'rgba(255,240,205,0)');
         ctx.fillStyle = gg;
         const hw2 = F * 0.10 * (0.6 + wv2);
