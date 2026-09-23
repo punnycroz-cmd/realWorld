@@ -2625,6 +2625,16 @@ function sfParapetKind(i, ei, L, isShop, floors){
   return 'flat';
 }
 function sfMissionH(i, ei){ return 0.9 + phash(i, ei, 3902) * 0.7; }
+/* v45: Queen Anne corner turret — the Mission's grandest facade gesture.
+   A faceted drum swells off one end of a tall residential front, rises
+   past the parapet, and wears a conical witch's hat. Returns the wall-u
+   where the drum anchors (kept off the door and the garage bay) or -1.
+   The same gate drives the baked top-down sprite so the roofline agrees
+   in every camera. */
+function sfTurretU(i, ei, L, isShop, floors){
+  if(isShop || floors < 2 || L < 9.5 || phash(i, ei, 4400) >= 0.34) return -1;
+  return phash(i, ei, 4401) < 0.5 ? 0.16 : 0.84;
+}
 
 function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, fwd){
   const i = b.i;
@@ -3413,11 +3423,24 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     const zLo = 2.6, zHi = hm - 0.9;
     for(let k = 0; k < nBay; k++){
       const tb = nBay === 1 ? 0.5 : 0.28 + 0.44 * k;
-      const hw = Math.min(1.7, L * 0.16), pd = 0.8;
+      const hw = Math.min(1.7, L * 0.16), pd = 0.95,
+            cf = Math.min(pd * 0.95, hw * 0.55);  // v45 chamfer inset
       const ax = x1 + ex * tb - ux * hw, ay = y1 + ey * tb - uy * hw;
       const bx = x1 + ex * tb + ux * hw, by = y1 + ey * tb + uy * hw;
-      const a2x = ax + nx * pd, a2y = ay + ny * pd;
-      const b2x = bx + nx * pd, b2y = by + ny * pd;
+      /* v45: the bay is CANTED now — the flat slab front became a real
+         chamfered trapezoid: two 45° cheeks carry the wall out to a
+         narrower front face, the way real Mission bays are built. Each
+         plane is sun-keyed off its own normal, so the faceting reads as
+         carved volume instead of a painted bump. */
+      const f1x = ax + ux * cf + nx * pd, f1y = ay + uy * cf + ny * pd,
+            f2x = bx - ux * cf + nx * pd, f2y = by - uy * cf + ny * pd;
+      // cheek outward normals (flip to the street side if winding differs)
+      let nLx = (f1y - ay), nLy = -(f1x - ax),
+          nRx = (by - f2y), nRy = -(bx - f2x);
+      const lL = Math.hypot(nLx, nLy) || 1, lR = Math.hypot(nRx, nRy) || 1;
+      nLx /= lL; nLy /= lL; nRx /= lR; nRy /= lR;
+      if(nLx * nx + nLy * ny < 0){ nLx = -nLx; nLy = -nLy; }
+      if(nRx * nx + nRy * ny < 0){ nRx = -nRx; nRy = -nRy; }
       // v20: the bay is a real projection, so it throws its own shadow on
       // the wall behind — slid along the sun's bearing and dropped by
       // tan(elevation) over the pd setback. Only when light hits this face.
@@ -3432,28 +3455,52 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
               [ax + ux * du + nx * 0.02, ay + uy * du + ny * 0.02, zHi - dz]],
              `rgba(24,34,60,${0.16 * SF_SUN.day * Math.min(1, -snW * 2.5)})`);
       }
-      quad([[ax, ay, zLo], [ax, ay, zHi], [a2x, a2y, zHi], [a2x, a2y, zLo]],
-           shade(wallCol, 0.78));
-      quad([[b2x, b2y, zLo], [b2x, b2y, zHi], [bx, by, zHi], [bx, by, zLo]],
-           shade(wallCol, 0.78));
-      quad([[a2x, a2y, zLo], [b2x, b2y, zLo], [b2x, b2y, zHi], [a2x, a2y, zHi]],
+      // cheeks keyed off their own normals, front face off the wall's
+      quad([[ax, ay, zLo], [ax, ay, zHi], [f1x, f1y, zHi], [f1x, f1y, zLo]],
+           shade(sfSunWallCol(wallBase, sfSunFaceK(nLx, nLy)), 0.94));
+      quad([[bx, by, zLo], [bx, by, zHi], [f2x, f2y, zHi], [f2x, f2y, zLo]],
+           shade(sfSunWallCol(wallBase, sfSunFaceK(nRx, nRy)), 0.94));
+      quad([[f1x, f1y, zLo], [f2x, f2y, zLo], [f2x, f2y, zHi], [f1x, f1y, zHi]],
            shade(sfSunWallCol(wallBase, Math.min(1, sunK + 0.25)), Math.min(1.25, 1.06)));
+      // corbel course under the bay — the molded band the projection
+      // springs from, catching the same sun as the fascia above
+      for(const [q0x, q0y, q1x, q1y] of [[ax, ay, f1x, f1y], [f1x, f1y, f2x, f2y], [f2x, f2y, bx, by]])
+        quad([[q0x, q0y, zLo - 0.02], [q1x, q1y, zLo - 0.02],
+              [q1x, q1y, zLo - 0.22], [q0x, q0y, zLo - 0.22]], shade(ACC, 0.85));
       const bayFl = floors - 1;
       for(let f = 0; f < bayFl; f++){
         const zz = zLo + (zHi - zLo) * (f + 0.5) / bayFl;
         for(const uu of [0.3, 0.7]){
-          const wx = a2x + (b2x - a2x) * uu, wy = a2y + (b2y - a2y) * uu;
+          const wx = f1x + (f2x - f1x) * uu, wy = f1y + (f2y - f1y) * uu;
           drawWin(wx, wy, zz - 0.55, zz + 0.55, 0.6);
         }
+        // one narrow sash on each cheek — the angled glass is what makes
+        // a canted bay glitter differently from the flat wall
+        if(det === 2){
+          drawWin((ax + f1x) / 2 + nLx * 0.03, (ay + f1y) / 2 + nLy * 0.03,
+                  zz - 0.45, zz + 0.45, 0.34);
+          drawWin((bx + f2x) / 2 + nRx * 0.03, (by + f2y) / 2 + nRy * 0.03,
+                  zz - 0.45, zz + 0.45, 0.34);
+        }
       }
-      // bay cornice + hipped cap
-      const hA = pr(a2x, a2y, zHi), hB = pr(b2x, b2y, zHi),
-            hM = pr((a2x + b2x) / 2, (a2y + b2y) / 2, zHi + 0.55);
+      // bay cornice + hipped cap: front ridge plus two cheek slopes
+      const hA = pr(f1x, f1y, zHi), hB = pr(f2x, f2y, zHi),
+            hM = pr((f1x + f2x) / 2, (f1y + f2y) / 2, zHi + 0.55),
+            hL = pr(ax, ay, zHi), hR = pr(bx, by, zHi);
       if(hA && hB && hM){
         ctx.fillStyle = shade(ACC, 0.9);
         ctx.beginPath();
         ctx.moveTo(hA[0], hA[1]); ctx.lineTo(hB[0], hB[1]); ctx.lineTo(hM[0], hM[1]);
         ctx.closePath(); ctx.fill();
+        if(hL && hR){
+          ctx.fillStyle = shade(ACC, 0.72);
+          ctx.beginPath();
+          ctx.moveTo(hL[0], hL[1]); ctx.lineTo(hA[0], hA[1]); ctx.lineTo(hM[0], hM[1]);
+          ctx.closePath(); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(hB[0], hB[1]); ctx.lineTo(hR[0], hR[1]); ctx.lineTo(hM[0], hM[1]);
+          ctx.closePath(); ctx.fill();
+        }
       }
     }
   }
@@ -3966,6 +4013,87 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       const bt = pr(dxx + nx * 0.3, dyy + ny * 0.3, 0.05);
       if(bt){ ctx.moveTo(dB[0], dB[1]); ctx.lineTo(bt[0], bt[1]); }
       ctx.stroke();
+    }
+  }
+
+  /* v45: Queen Anne corner turret — the Mission's grandest facade move.
+     A faceted drum swells off one end of a tall residential front, rises
+     past the parapet, and wears a conical witch's hat with a finial.
+     Every drum facet and cone gore is sun-keyed off its own normal, and
+     the drum throws a real shade wedge across the wall behind it (same
+     bearing/elevation solver as the canted bays). Painted late so the
+     drum reads in front of cornice, windows and ground-floor dressing. */
+  const tU = sfTurretU(i, ei, L, isShop, floors);
+  if(tU > 0 && det >= 1){
+    const R = Math.min(1.5, L * 0.10 + 0.5);
+    const cxT = x1 + ex * tU + nx * R * 0.28,
+          cyT = y1 + ey * tU + ny * R * 0.28;
+    const zLo = Math.min(2.4, hm * 0.3), zTop = hm + para + 0.55,
+          coneH = R * 2.4;
+    // half the hats wear the facade's accent color, half plain slate
+    const coneC = phash(i, ei, 4402) < 0.5 ? ACC : '#565a64';
+    const NF = 10, nAng = Math.atan2(ny, nx);
+    // drum shadow on the wall behind (sun striking the facade)
+    const snW3 = SF_SUN.x * nx + SF_SUN.y * ny;
+    if(!night && snW3 < -0.06 && SF_SUN.day > 0.12){
+      const tR = R * 1.1 / -snW3,
+            du = (SF_SUN.x * ux + SF_SUN.y * uy) * tR,
+            dz = Math.tan(Math.max(0, SF_SUN.el)) * tR;
+      quad([[cxT + ux * (du - R) + nx * 0.02, cyT + uy * (du - R) + ny * 0.02, zLo - dz],
+            [cxT + ux * (du + R) + nx * 0.02, cyT + uy * (du + R) + ny * 0.02, zLo - dz],
+            [cxT + ux * (du + R) + nx * 0.02, cyT + uy * (du + R) + ny * 0.02, zTop - dz],
+            [cxT + ux * (du - R) + nx * 0.02, cyT + uy * (du - R) + ny * 0.02, zTop - dz]],
+           `rgba(24,34,60,${0.14 * SF_SUN.day * Math.min(1, -snW3 * 2.5)})`);
+    }
+    for(let k = 0; k < NF; k++){
+      const a0 = nAng + (k - NF / 2) * (Math.PI * 2 / NF),
+            a1 = a0 + Math.PI * 2 / NF,
+            mid = (a0 + a1) / 2,
+            mnx = Math.cos(mid), mny = Math.sin(mid),
+            mDot = mnx * nx + mny * ny;
+      if(mDot < -0.12) continue;      // back half is inside the house
+      const vx0 = cxT + Math.cos(a0) * R, vy0 = cyT + Math.sin(a0) * R,
+            vx1 = cxT + Math.cos(a1) * R, vy1 = cyT + Math.sin(a1) * R;
+      const fK = sfSunFaceK(mnx, mny);
+      quad([[vx0, vy0, zLo], [vx1, vy1, zLo],
+            [vx1, vy1, zTop], [vx0, vy0, zTop]],
+           shade(sfSunWallCol(wallBase, fK), 0.98));
+      // molded base ring + eave band under the cone
+      quad([[vx0, vy0, zLo], [vx1, vy1, zLo],
+            [vx1, vy1, zLo + 0.16], [vx0, vy0, zLo + 0.16]], shade(ACC, 0.85));
+      quad([[vx0, vy0, zTop - 0.16], [vx1, vy1, zTop - 0.16],
+            [vx1, vy1, zTop], [vx0, vy0, zTop]], shade(ACC, 0.62));
+      // one narrow sash per floor on the frontal facets
+      if(mDot > 0.25){
+        for(let f = 1; f < floors; f++){
+          const zB = hm * f / floors + 0.55, zT = hm * (f + 1) / floors - 0.5;
+          if(zB < zLo + 0.25 || zT > zTop - 0.4) continue;
+          drawWin((vx0 + vx1) / 2, (vy0 + vy1) / 2, zB, zT, 0.5);
+        }
+      }
+      // cone gore: rim chord -> apex, slate or accent lit/shade by sun,
+      // with a standing seam along each gore edge (real cone flashing)
+      const goreLit = sfSunFaceK(mnx, mny) > 0.05;
+      quad([[vx0, vy0, zTop], [vx1, vy1, zTop],
+            [cxT, cyT, zTop + coneH], [cxT, cyT, zTop + coneH]],
+           shade(coneC, goreLit ? Math.min(1.2, 0.9 + fK * 0.4) : 0.58));
+      if(det === 2){
+        const rA = pr(vx0, vy0, zTop), rB = pr(vx1, vy1, zTop),
+              ap = pr(cxT, cyT, zTop + coneH);
+        if(rA && rB && ap){
+          ctx.strokeStyle = shade(coneC, 0.66); ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(rA[0], rA[1]); ctx.lineTo(rB[0], rB[1]);
+          ctx.moveTo(rA[0], rA[1]); ctx.lineTo(ap[0], ap[1]); ctx.stroke();
+        }
+      }
+    }
+    // finial rod + ball at the apex
+    const fB = pr(cxT, cyT, zTop + coneH), fT = pr(cxT, cyT, zTop + coneH + 0.7);
+    if(fB && fT){
+      ctx.strokeStyle = shade(ACC, 0.8); ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(fB[0], fB[1]); ctx.lineTo(fT[0], fT[1]); ctx.stroke();
+      ctx.fillStyle = shade(ACC, 1.15);
+      ctx.beginPath(); ctx.arc(fT[0], fT[1], Math.max(1.3, F * 0.05 / fT[2]), 0, Math.PI * 2); ctx.fill();
     }
   }
 

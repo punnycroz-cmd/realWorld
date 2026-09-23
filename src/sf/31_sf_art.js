@@ -900,8 +900,9 @@ function sfPropShadow(g, x, y, h, r){
 
 function sfBldCanvas(b, wet){
   // v12: ridge + chimney headroom; v14: pad also swallows the longest cast
-  // shadow the current sun can throw (hPx · cot(elevation) in any dir)
-  const pad = Math.ceil(26 + b.hPx *
+  // shadow the current sun can throw (hPx · cot(elevation) in any dir);
+  // v45: +18 so bay bumpouts and turret drums (and their own throw) fit
+  const pad = Math.ceil(44 + (b.hPx + 14) *
     Math.max(Math.abs(SF_SUN.x), Math.abs(SF_SUN.y)) * 1.1);
   const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
   const hBase = Math.ceil(b.by1 - b.by0);
@@ -984,6 +985,7 @@ function sfBldCanvas(b, wet){
     wallFaces.push({ i, x1, y1, x2, y2, nx, ny, facing,
                      len: Math.hypot(x2 - x1, y2 - y1) });
   }
+  const turrs = [];   // v45: Queen Anne drums collected per wall, drawn last
   for(const w of wallFaces){
     // v14: real sun exposure per face — n·L against the solar bearing,
     // warm-lit sunward / cool sky-fill shaded (same rule as street view)
@@ -1109,11 +1111,17 @@ function sfBldCanvas(b, wet){
     }
     // windows per floor: capsule sashes with arched tops + sills
     const bays = Math.max(1, Math.floor(w.len / 22));
+    // v45: bay bumpout gate (same salts as the street view's canted bay)
+    const bayT = (w.facing === 'front' && nFloors >= 2 && w.len > 46 &&
+                  phash(b.i, w.i, 1330) < 0.8)
+      ? 0.3 + phash(b.i, w.i, 1331) * 0.4 : -1;
+    const bayHwU = Math.min(26, w.len * 0.19) / w.len;
     for(let f = 0; f < nFloors; f++){
       const fv = 1 - (f + 0.72) / (nFloors + 0.4); // vertical band for floor f
       if(muralH && hPx * fv < muralH) continue;
       for(let k = 0; k < bays; k++){
         const t = (k + 0.5) / bays;
+        if(bayT > 0 && Math.abs(t - bayT) < bayHwU) continue; // bay owns this strip
         const [wx, wy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, fv);
         const frameC = ACC,
               // v14: sunward glass catches the warm sky reflection
@@ -1134,21 +1142,9 @@ function sfBldCanvas(b, wet){
         paR(g, wx - 5, wy - 9, 10, 1, shade(ACC, 0.8));  // lintel
       }
     }
-    // Victorian bay window bump on tall fronts
-    if(w.facing === 'front' && nFloors >= 2 && w.len > 46 && phash(b.i, w.i, 1330) < 0.8){
-      const t = 0.3 + phash(b.i, w.i, 1331) * 0.4;
-      const [bx, by] = wallAt(w.x1, w.y1, w.x2, w.y2, t, 0.5);
-      paEllipse(g, bx, by, 7, Math.min(11, hPx * 0.4), wr[2]);
-      paEllipse(g, bx, by - 1, 6, Math.min(10, hPx * 0.4 - 1), wr[3]);
-      for(let f = 0; f < nFloors; f++){
-        const wy2 = by - (f - (nFloors - 1) / 2) * 15;
-        paEllipse(g, bx, wy2 - 3, 3, 3, ACC);
-        paR(g, bx - 3, wy2 - 3, 6, 6, ACC);
-        paEllipse(g, bx, wy2 - 3, 2, 2, '#7a94a8');
-        paR(g, bx - 2, wy2 - 3, 4, 5, '#7a94a8');
-      }
-      paEllipse(g, bx, by - Math.min(11, hPx * 0.4) - 1, 7, 3, ACC); // bay cornice
-    }
+    // v45: the bay is no longer painted ON the wall — it grows OFF it.
+    // Collected here, drawn after the clip restore below as a real
+    // chamfered bumpout (front face + two 45° cheeks, each sun-keyed).
     // ground floor: door + stoop (and awning for shops) on front faces
     if(w.facing === 'front' && w.len > 20){
       const t = 0.5;
@@ -1212,6 +1208,82 @@ function sfBldCanvas(b, wet){
       }
     }
     g.restore();
+
+    /* v45: chamfered bay bumpout — drawn OUTSIDE the wall clip, after the
+       restore, because it really projects: two 45° cheeks carry the wall
+       out to a narrower front face (the same trapezoid the street view
+       builds). Each plane is sun-keyed off its own normal; the whole
+       mass throws its own shadow on the pavement and wears a hipped cap. */
+    if(bayT > 0){
+      const uxP = (w.x2 - w.x1) / w.len, uyP = (w.y2 - w.y1) / w.len;
+      const hw = Math.min(26, w.len * 0.19), pdP = Math.min(15, hPx * 0.4),
+            cf = Math.min(pdP * 0.9, hw * 0.55);
+      const [mx2, my2] = wallAt(w.x1, w.y1, w.x2, w.y2, bayT, 0);
+      const axP = mx2 - uxP * hw, ayP = my2 - uyP * hw,
+            bxP = mx2 + uxP * hw, byP = my2 + uyP * hw;
+      const f1x = axP + uxP * cf + w.nx * pdP, f1y = ayP + uyP * cf + w.ny * pdP,
+            f2x = bxP - uxP * cf + w.nx * pdP, f2y = byP - uyP * cf + w.ny * pdP;
+      const zLoP = hPx * 0.14, zHiP = hPx * 0.9;
+      // its own cast shadow, sliding along the real sun bearing
+      const shx2 = zHiP * SF_SUN.x, shy2 = zHiP * SF_SUN.y;
+      g.fillStyle = `rgba(30,38,62,${(0.07 + 0.18 * SF_SUN.day).toFixed(3)})`;
+      g.beginPath();
+      [[axP, ayP], [f1x, f1y], [f2x, f2y], [bxP, byP]].forEach(([px4, py4], i2) =>
+        i2 ? g.lineTo(px4 + shx2, py4 + shy2) : g.moveTo(px4 + shx2, py4 + shy2));
+      g.closePath(); g.fill();
+      // cheek normals
+      let nLx = (f1y - ayP), nLy = -(f1x - axP),
+          nRx = (byP - f2y), nRy = -(bxP - f2x);
+      const lL = Math.hypot(nLx, nLy) || 1, lR = Math.hypot(nRx, nRy) || 1;
+      nLx /= lL; nLy /= lL; nRx /= lR; nRy /= lR;
+      if(nLx * w.nx + nLy * w.ny < 0){ nLx = -nLx; nLy = -nLy; }
+      if(nRx * w.nx + nRy * w.ny < 0){ nRx = -nRx; nRy = -nRy; }
+      const bayFace = (qx, qy, rx2, ry2, fnx, fny) => {
+        const k2 = clamp(fnx * SF_SUN.toX + fny * SF_SUN.toY, -1, 1);
+        g.fillStyle = sfSunWallCol(wallBase, k2);
+        g.beginPath();
+        g.moveTo(qx, qy - zLoP); g.lineTo(rx2, ry2 - zLoP);
+        g.lineTo(rx2, ry2 - zHiP); g.lineTo(qx, qy - zHiP);
+        g.closePath(); g.fill();
+        g.strokeStyle = ACC; g.lineWidth = 1;
+        g.beginPath(); g.moveTo(qx, qy - zLoP); g.lineTo(rx2, ry2 - zLoP); g.stroke();
+        g.beginPath(); g.moveTo(qx, qy - zHiP); g.lineTo(rx2, ry2 - zHiP); g.stroke();
+      };
+      bayFace(axP, ayP, f1x, f1y, nLx, nLy);
+      bayFace(f2x, f2y, bxP, byP, nRx, nRy);
+      bayFace(f1x, f1y, f2x, f2y, w.nx, w.ny);
+      // sashes: two on the front face, one narrow on each cheek
+      for(let f = 0; f < nFloors; f++){
+        const fz = zLoP + (zHiP - zLoP) * (f + 0.5) / nFloors;
+        for(const [qx, qy] of [
+            [f1x + (f2x - f1x) * 0.3, f1y + (f2y - f1y) * 0.3],
+            [f1x + (f2x - f1x) * 0.7, f1y + (f2y - f1y) * 0.7],
+            [(axP + f1x) / 2 + nLx, (ayP + f1y) / 2 + nLy],
+            [(bxP + f2x) / 2 + nRx, (byP + f2y) / 2 + nRy]]){
+          paR(g, qx - 2.5, qy - fz - 3.5, 5, 7, ACC);
+          paR(g, qx - 1.8, qy - fz - 2.8, 3.6, 5.6, '#7a94a8');
+        }
+      }
+      // hipped cap: trapezoid lid at the bay's own roofline
+      g.fillStyle = shade(ROOF[3], 1.05);
+      g.beginPath();
+      [[axP, ayP], [f1x, f1y], [f2x, f2y], [bxP, byP]].forEach(([px4, py4], i2) =>
+        i2 ? g.lineTo(px4, py4 - zHiP) : g.moveTo(px4, py4 - zHiP));
+      g.closePath(); g.fill();
+      paLine(g, Math.round(mx2), Math.round(my2 - zHiP),
+             Math.round((f1x + f2x) / 2), Math.round((f1y + f2y) / 2 - zHiP),
+             shade(ROOF[2], 0.9));
+    }
+
+    // v45: Queen Anne turret — collect the front-facing drum site; the
+    // cone cap renders at the very end so it sits over the main roof
+    const tU2 = sfTurretU(b.i, w.i, w.len / SF_PXM, isShop, nFloors);
+    if(tU2 > 0 && w.ny > -0.2){
+      const Rpx = Math.min(1.5, w.len / SF_PXM * 0.10 + 0.5) * SF_PXM;
+      const [cx0, cy0] = wallAt(w.x1, w.y1, w.x2, w.y2, tU2, 0);
+      turrs.push({ cx: cx0 + w.nx * Rpx * 0.28, cy: cy0 + w.ny * Rpx * 0.28,
+                   r: Rpx, ang: Math.atan2(w.ny, w.nx) - Math.PI / 8 });
+    }
   }
 
   // pass 2: roof — v12 roofscape typology. Every building deterministically
@@ -1812,6 +1884,57 @@ function sfBldCanvas(b, wet){
         paPX(g, sx5 - 1, gy5, '#d8e8f0');                          // glint
       }
     }
+  }
+
+  /* v45: Queen Anne turrets, seen from above — the same drums the street
+     view grows, drawn last so the cone cap sits over the main roof.
+     Faceted drum walls sun-keyed per face, a real cast shadow on the
+     pavement, and an 8-gore conical cap lit by the same solar vector. */
+  for(const T of turrs){
+    sfPropShadow(g, T.cx, T.cy, hPx + 12, T.r * 0.9);
+    const NF = 8, drumTop = hPx + Math.min(10, hPx * 0.14);
+    for(let k = 0; k < NF; k++){
+      const a0 = T.ang + k * Math.PI * 2 / NF, a1 = a0 + Math.PI * 2 / NF;
+      const mnx = Math.cos((a0 + a1) / 2), mny = Math.sin((a0 + a1) / 2);
+      if(mny < -0.05) continue;   // same non-back-face rule as the walls
+      const vx0 = T.cx + Math.cos(a0) * T.r, vy0 = T.cy + Math.sin(a0) * T.r,
+            vx1 = T.cx + Math.cos(a1) * T.r, vy1 = T.cy + Math.sin(a1) * T.r;
+      const k2 = clamp(mnx * SF_SUN.toX + mny * SF_SUN.toY, -1, 1);
+      g.fillStyle = sfSunWallCol(wallBase, k2);
+      g.beginPath();
+      g.moveTo(vx0, vy0); g.lineTo(vx1, vy1);
+      g.lineTo(vx1, vy1 - drumTop); g.lineTo(vx0, vy0 - drumTop);
+      g.closePath(); g.fill();
+      // accent rim bands at the drum base and under the cone
+      g.strokeStyle = ACC; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(vx0, vy0); g.lineTo(vx1, vy1); g.stroke();
+      g.beginPath(); g.moveTo(vx0, vy0 - drumTop); g.lineTo(vx1, vy1 - drumTop); g.stroke();
+      // one slit sash per floor on the front-ish facets
+      if(mny > 0.3){
+        for(let f = 0; f < nFloors; f++){
+          const fz = hPx * (f + 0.55) / nFloors,
+                wxm = (vx0 + vx1) / 2, wym = (vy0 + vy1) / 2 - fz;
+          paR(g, wxm - 2, wym - 3, 4, 6, ACC);
+          paR(g, wxm - 1.4, wym - 2.4, 2.8, 4.6, '#7a94a8');
+        }
+      }
+    }
+    // conical witch's hat: gore fan over the rim, lit by the same sun
+    const coneH = T.r * 1.5, apY = T.cy - drumTop - coneH;
+    for(let k = 0; k < NF; k++){
+      const a0 = T.ang + k * Math.PI * 2 / NF, a1 = a0 + Math.PI * 2 / NF;
+      const vx0 = T.cx + Math.cos(a0) * T.r, vy0 = T.cy + Math.sin(a0) * T.r - drumTop,
+            vx1 = T.cx + Math.cos(a1) * T.r, vy1 = T.cy + Math.sin(a1) * T.r - drumTop;
+      const mnx = Math.cos((a0 + a1) / 2), mny = Math.sin((a0 + a1) / 2);
+      g.fillStyle = sfRoofFaceLit(mnx, mny) ? ROOF[4] : ROOF[2];
+      g.beginPath();
+      g.moveTo(vx0, vy0); g.lineTo(vx1, vy1); g.lineTo(T.cx, apY);
+      g.closePath(); g.fill();
+    }
+    // finial rod + ball
+    paLine(g, Math.round(T.cx), Math.round(apY), Math.round(T.cx),
+           Math.round(apY - 4), TRIM);
+    paPX(g, T.cx, apY - 5, '#e8d8a8');
   }
   return { c: S.c, ox: pad, oy: pad + hPx };
 }
