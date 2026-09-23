@@ -2049,3 +2049,367 @@ Sedikides & Green 2000 (JPSP 79:906); Sedikides & Green 2009
 Rev. 11:1003); Rubin & Berntsen 2003 (Psych. Aging 18:636);
 McAdams, Reynolds, Lewis, Patten & Bowman 2001 (PSPB 27:472);
 Fiske & Neuberg 1990 (reuse).
+
+---
+
+# Part III — the statistics engine and adversarial validation (v35 third pass)
+
+Part I built the probes; Part II made them honest (identifiability,
+Goodhart discipline, invariance). Part III fixes three remaining
+systematic lies: **(1) the battery is re-run every version — repeated
+significance testing across releases silently inflates the effective
+alpha** (each version is another "look" at accumulating evidence);
+**(2) probes recycle cohort members across items, so naive n counts
+overstate effective sample size**; and **(3) nothing has ever tested
+the battery against known-broken implementations** — a test suite that
+has never seen a fault cannot prove it catches faults. Sections 44–52
+are the fixes; §53 adds probes P346–P357.
+
+## 44. Sequential battery discipline (VA-SEQ)
+
+### 44.1 The repeated-look problem
+
+Every version re-runs all MUST/SHOULD probes on a model that drifts a
+little each release. This is the classical repeated-significance-
+testing setup (Armitage, McPherson & Rowe 1969): m unplanned looks at a
+criterion inflate the family-wise false-positive rate — with ~150 MUST
+probes re-run across ~35 versions, unadjusted per-look α=.05 makes
+occasional spurious "regressions" a *certainty*, and each spurious
+regression invites a spurious retune. The fix is not to stop looking;
+it is to spend alpha.
+
+### 44.2 Two regimes, kept separate
+
+- **Within-version (cross-sectional):** one run, one battery — the
+  existing BH-FDR q=.1 per probe family (P331) and pre-registered bands
+  apply unchanged. No alpha spending needed; looks are simultaneous,
+  not sequential.
+- **Across-version (longitudinal):** a probe's *regression verdict*
+  (was-pass → now-fail on unchanged spec semantics) is a sequential
+  decision. Governed by a **Lan–DeMets alpha-spending function with an
+  O'Brien–Fleming boundary** (O'Brien & Fleming 1979, *Biometrics*
+  35:549–556; Lan & DeMets 1983, *Biometrika* 70:659–663; Pocock 1977
+  as the rejected alternative — its flat boundary makes early alarms
+  too cheap for our purposes). Concretely:
+  - Information time t = versions elapsed / planned battery lifetime
+    (declare t at each release: current lifetime plan = 40 versions).
+  - A regression claim on a MUST probe must cross the OBF z-boundary at
+    that t — at t≤0.5 the boundary is extreme (z≈2.8+): early-version
+    "regressions" need overwhelming evidence before a retune is even
+    permitted. At the final look the boundary relaxes to ≈1.96.
+  - Rationale, verbatime from the trial literature: early-look
+    "wins" on immature data are the most dangerous false alarms —
+    OBF makes them almost impossible while preserving a legitimate
+    late stop. Same logic applies to "regressions."
+  - **Peeking ban** (Johari, Koomen, Pekelis & Walsh 2017, KDD —
+    "always valid inference": uncontrolled peeking at accumulating
+    A/B data inflates type-I error by factors of 2–5): mid-version
+    partial-battery runs are exploratory only, never gate-eligible.
+
+### 44.3 Futility and conditional power
+
+Symmetric to early-stop efficacy is futility: a SHOULD probe that has
+failed at the same bucket-triage classification for ≥3 consecutive
+versions *with an anchor tier ≥ MULTI* enters conditional-power review
+(computed vs its declared n). Conditional power <0.3 → the probe is
+formally re-powered or demoted — a probe that can never pass under
+any reachable parameter setting is dead weight that still costs FDR
+budget (futility analysis per Lan, Simon & Halperin 1982).
+
+### 44.4 What spending does NOT cover
+
+Band-form probes (T-point) are verdicts about the model, not
+hypothesis tests about a null; alpha spending applies to the
+*regression* decision (pass→fail transitions), not to the band check
+itself. A band miss remains a miss at every look — §3.2 stands.
+
+## 45. Dependence-aware inference (VA-DEP)
+
+### 45.1 The clustering problem
+
+Cohort arms reuse members across items (§3.3: n=60 × 5 items = "270
+observations"). Those items share member params — observations within
+a member are correlated, so the effective n is the design-effect-
+deflated count, not the raw count (Kish 1965 design effect:
+n_eff = n / (1 + (m−1)·ICC), m items/member, ICC the intraclass
+correlation). At ICC 0.2 and m=5, 300 raw observations ≈ 167
+effective — silently halving a probe's real power.
+
+### 45.2 Binding rules
+
+- Every probe analyzer MUST report `icc_hat` (member-level variance
+  share) alongside n_raw; reported CIs must use **n_eff**, via either
+  (a) cluster-robust (CR2/sandwich) standard errors at member level,
+  or (b) a member-level cluster bootstrap (resample members, never
+  items). Item-level resampling is banned — it manufactures
+  independence that doesn't exist.
+- For T-diff probes on continuous observables, the canonical model is
+  a **mixed-effects fit with member as random intercept** (Baayen,
+  Davidson & Bates 2008, *J. Mem. Lang.* 59:390 — the psycholinguistics
+  precedent for crossed random effects; we require random member
+  intercepts, and random item intercepts when an item bank is used).
+  Binary observables keep Wilson CIs computed on n_eff.
+- Cohort-members-as-clusters is also the answer to §2.2's sizing
+  tension: prefer **more members, fewer items** (ICC loss dominates
+  item-count gains once ICC>0.05) — revised default n=100 members ×
+  3 items for proportion probes when sim cost allows.
+
+### 45.3 ICC as a validation output, not just a correction
+
+`icc_hat` per probe is itself informative: a memory probe with near-
+zero ICC suggests the trait layer is doing nothing on that observable
+(no between-person variance = homogeneous characters — contradicts the
+design brief's diversity mandate); ICC ≈1 suggests the observable is a
+pure trait readout with no event-level stochasticity. Expected band
+per probe is recorded in the registry; out-of-band ICC is a P354 flag.
+
+## 46. Mutation testing of the battery (VA-MUT)
+
+The battery has never been shown to catch a broken implementation.
+Mutation testing closes that hole (Jia & Harman 2011, *IEEE TSE*
+37:649–678 — three-decade survey: fault-seeded mutants are the
+standard measure of test-suite adequacy; Andrews, Briand & Labiche
+2005, ICSE — mutants predict real-fault detection, coupling
+hypothesis validated).
+
+### 46.1 Mutation operators (model-specific, not generic code muts)
+
+Generic operators (negate condition, off-by-one) are fine for L0, but
+the valuable mutants are **semantic lesions below the §26 lesion
+granularity** — bugs a substrate implementer would actually write:
+
+| mut class | example | expected killer probes |
+|---|---|---|
+| decay-shape | power→exp swap; β applied to semantic store | P1/E1, P231, P254 |
+| cue-weight | drop the df-weighting in match score | P241, P9 |
+| order-swap | retell transmits pre-drift record | P323 |
+| scope leak | lesion/outcome applied record-wide not field-wide | P291, P293 |
+| cache skip | beliefStatus recomputed without hysteresis | P326 |
+| provenance | inferred→witnessed relabel on retell | P296, P163 |
+| trait-wire | drop wmc→misinfo_suscept edge | P48-family, P99 |
+| silent floor | clip negative affect instead of dampening | P160, P343 |
+| rng aliasing | reuse member seed across items | P68/P69 + ICC collapse |
+
+### 46.2 Protocol and acceptance
+
+- Per release, inject ≥30 mutants sampled from the operator table
+  (stratified so every home-doc family is hit ≥1× per 3 versions).
+- **Mutation score ≥0.9 on MUST coverage**: each killed mutant must
+  be killed by a probe in its predicted row — a mutant killed *only*
+  by unrelated probes means the battery detects it but can't diagnose
+  it (triage (a) vs (b) confusion, §30).
+- **Equivalent-mutant discipline** (Jia & Harman; Grün, Schüler &
+  Zeller 2009): a surviving mutant is either equivalent (prove it —
+  argument that observable behavior is unchanged, logged) or
+  **stubborn** — a live coverage hole that spawns a new probe or a
+  lesion-table row. Unexamined survivors are banned.
+- Mutants run on the confirmation seed split too — detection on
+  calibration seeds only is Goodhart-shaped detection (§27).
+
+## 47. Spec-coverage reverse audit (VA-COV)
+
+P213 checks that every MUST probe is falsifiable; §24/P220 check that
+every param is constrained. The remaining gap: **spec surface that no
+probe touches at all** — fields, operators, and contract hooks that
+are implemented but unobserved. Quarterly (every 4 versions) the
+registry emits a coverage matrix:
+
+- Rows: every §7 param, every record/event field, every §10 hook,
+  every §6.x operator, every degradation-ladder mode.
+- Columns: probe observables that read the row + lesion rows that
+  perturb it.
+- **Coverage classes:** `probed` (≥1 MUST/SHOULD probe + ≥1 lesion
+  row), `observed` (≥1 OBSERVE probe or measured only via realized
+  discrepancies), `blind` (no observable). Blind rows must carry a
+  written rationale (e.g., internal bookkeeping) or spawn a probe.
+- Fields used only as provenance/forensic markers (`phrasing` lineage,
+  `latent`, `absorbed`) are `observed` by construction — they exist
+  for the history browser, not for psychology.
+
+## 48. Two-implementation goldens (VA-2IMP)
+
+§3.4 goldens and the L0 closed-form checks currently presume the
+implementation's own formulas. If the implementer misreads the spec,
+the golden-generating code and the product code share the same
+misreading — a **correlated-error failure** that no amount of
+rerunning catches. Fix, adapted from N-version programming
+(Avizienis & Chen 1977, FTCS-7 — diverse-implementations rationale;
+we need only N=2):
+
+- The **analyzer ships a reference implementation** of the spec's
+  closed-form operators (decay, E-formula, match score, candidate
+  weights, deriveParams) written *from the spec text by a different
+  author/model than the substrate implementer* (rotating examiner,
+  §27 item 5, applied to the validator itself).
+- L0 goldens are generated by the reference implementation, hashed,
+  and stored; the product implementation must reproduce them within
+  MC error — not the reverse. A divergence is bucket (a) vs spec-
+  ambiguity triage: either the code is wrong or the spec is
+  underdetermined (both actionable; "the reference is wrong" is a
+  valid third outcome that must be argued, not assumed).
+- Determinism clause: the reference implementation uses the same
+  `rand(seed, charId, worldDay, opSeq)` contract — determinism is a
+  spec property, so both sides are bit-comparable.
+
+## 49. The measurement model — latent strength to observed recall (VA-MM)
+
+Every T-point probe silently assumes a mapping from the model's
+latent `strength`/drive state to an observed hit/miss. That mapping
+is an **instrument**, and instruments need their own validation —
+this is the item-response-theory framing (Rasch 1960; Lord 1980):
+
+- Define the probe-side response function R_obs = g(drive, cue,
+  params). The §10 `recall` contract already realizes one g; the
+  validator's job is to show g is (a) monotone in drive (an item-
+  characteristic-curve audit), (b) **DIF-free** across cohorts —
+  differential item functioning (Holland & Wainer 1993): at equal
+  drive, a child cohort and elder cohort must emit the same hit
+  probability, else every cross-cohort T-diff confounds trait with
+  instrument (§29 strong-invariance, operationalized).
+- g's free parts (e.g., how confidence maps to report language) are
+  declared instrument constants — tunable to match response-scale
+  conventions but **never** to move a probe toward its band (that's
+  tuning the thermometer, §27 violation).
+- P355 audits g directly; §29's invariance declarations now cite
+  the DIF result as evidence.
+
+## 50. Probe reliability budget (VA-REL)
+
+A probe whose statistic is irreproducible across seed ensembles can't
+constrain anything. Classical test theory applied to instruments:
+
+- For every probe, run the full statistic on ≥5 disjoint seed
+  ensembles; report the between-ensemble ICC of the probe *statistic*
+  (not the raw observations). Reliability classes:
+  `r≥0.9` excellent (point estimates usable), `0.75–0.9` standard,
+  `0.5–0.75` noisy (must report CI of statistic, bands widened by
+  the reliability attenuation — Spearman 1904 correction for
+  attenuation: observed effect ≤ true effect × √reliability),
+  `<0.5` unreliable (probe redesigned or demoted).
+- The flaky-probe rerun protocol (P331) is subsumed: a probe that
+  flips verdict across ensembles isn't flaky, it's underpowered —
+  §44.3 conditional-power review applies.
+- Reliability is reported per probe per release in the registry
+  artifact; drift in a probe's reliability (without spec change) is
+  itself a finding — usually means harness nondeterminism leaked in
+  (P68/69 precondition violation).
+
+## 51. Synthetic-world end-to-end benchmarks (VA-E2E)
+
+All L1–L2 probes are micro-studies. Missing: does the assembled
+model, embedded in the social substrate, produce a *recoverable
+history*? Benchmark worlds with planted ground truth:
+
+- **W-rumor:** plant one false claim at hop 0 through a scripted
+  5-teller chain; 30 sim-days later, score the history-browser
+  reconstruction: beliefStatus census must show the claim's
+  fingerprint (planted content present, provenance chain intact,
+  distortion present but bounded — E7 shape at world scale).
+- **W-secret:** one `confidential` record in one character; 60 days
+  of ambient simulation; audit: leak count, who-surfaced-it,
+  whether the leaker's report preserves or drops the flag (P188 at
+  scale).
+- **W-cohort:** 8 mains + 12 ambients, 90 days (the §6.4 run
+  promoted to a scored benchmark): the season-field assertions plus
+  a **forensic quiz** — 20 questions about the season that a correct
+  belief-vs-fact ledger answers exactly ("who currently believes X
+  happened", "who saw it"), scored against ground truth. ≥90%
+  required; errors classified: storage-loss vs propagation-loss vs
+  ledger-vs-belief desync.
+
+## 52. Adversarial schedule (VA-ADV)
+
+Quarterly red-team pass — inputs chosen to break assumptions, not to
+represent life:
+
+- **Clock boundaries:** event + tick within the same opSeq;
+  snapshot mid-conversation; worldDay rollover mid-session;
+  leap/empty days; a day containing zero ticks and a day containing
+  10 (order violations are P68 material — adversarial versions of
+  them, not new probes).
+- **Trait extremes:** full-corner trait cubes (all axes ±2σ);
+  contradicting pins (high wmc + low wmc pin attempt — must clamp+log,
+  not crash); HSAM-tail + ambient-mode promotion mid-run.
+- **Compound lesions:** two simultaneous §26 lesions — interactions
+  the single-lesion table can't see; required invariant: no compound
+  lesion may *improve* any MUST probe's statistic (a lesion that helps
+  is a bug in the mechanism or the probe).
+- **Starvation:** enc_quota=0 week, then normal week — recovery must
+  be clean; a store that never re-warms is a state-leak bug.
+- **Crash vs silent wrongness:** every adversarial outcome classified
+  crash/halt (acceptable, log + degrade) vs silent-wrong (never
+  acceptable — NaN escape, beliefStatus desync, record mutation
+  outside operators). Silent-wrong findings are release-blockers
+  regardless of tier.
+
+## 53. New probes P346–P357 (v35 suite)
+
+- **P346 sequential-regression discipline (MUST — process):** every
+  pass→fail regression claim on a MUST probe cites its OBF z-boundary
+  at current information time; sub-boundary "regressions" may not
+  trigger retunes. Audit = version-log check.
+- **P347 cluster-aware CIs (MUST — meta):** ≥95% of multi-item probes
+  report icc_hat + n_eff CIs; any probe whose n_eff falls below its
+  §3.3 minimum is re-powered before its verdict counts.
+- **P348 mutation score (MUST):** per-release mutation score ≥0.9
+  on MUST coverage with predicted-row kills ≥80%; every survivor
+  dispositioned equivalent-or-new-probe within one version.
+- **P349 spec-coverage (SHOULD):** zero unexplained `blind` rows in
+  the §47 matrix; blind→probed conversions logged.
+- **P350 two-implementation divergence (MUST):** reference-vs-product
+  L0 divergence rate ≈0; any divergence dispositioned in the version
+  log as code-bug, spec-ambiguity, or reference-bug (third outcome
+  must be argued, not defaulted).
+- **P351 instrument monotonicity (MUST):** response function g
+  monotone in drive on a titrated-drive ladder (≥7 points) for each
+  observable family; any non-monotone cell is a §10 contract bug.
+- **P352 DIF audit (MUST — sign-locked):** at matched drive, cross-
+  cohort hit-probability gap ≤0.05 (Mantel-Haenszel DIF or logistic-
+  regression DIF, Holland & Wainer 1993) for child/midlife/elder
+  cohorts on ≥10 standardized items. FAIL = every affected cross-
+  cohort probe suspended pending re-instrumentation.
+- **P353 world benchmark (SHOULD):** W-rumor fingerprint present at
+  day 30 (planted content + bounded distortion + provenance chain);
+  forensic-quiz accuracy ≥90% on W-cohort.
+- **P354 ICC health (SHOULD):** per-probe icc_hat inside its registry
+  band; near-zero ICC on a trait-sensitive probe = diversity-
+  mechanism failure, not a statistics footnote.
+- **P355 g-invariance (MUST):** instrument constants show zero
+  tuning-commit deltas correlated with probe-band misses (the
+  thermometer rule, §49); audit = version-log check.
+- **P356 compound-lesion monotonicity (MUST):** no §52 compound
+  lesion improves any MUST probe statistic; improvement = mechanism
+  or probe bug, dispositioned.
+- **P357 silent-wrong census (MUST — release blocker):** adversarial
+  pass produces zero silent-wrong outcomes; crash/degrade outcomes
+  logged with the degradation ladder's mode name.
+
+Registry now P1–P357; numbering stable.
+
+## 54. Sources new to this version
+
+Armitage, McPherson & Rowe 1969 (repeated significance testing —
+the inflation theorem behind §44.1); O'Brien & Fleming 1979
+(Biometrics 35:549–556 — OBF boundary shape); Pocock 1977
+(Biometrika 64:191 — cited as rejected alternative); Lan & DeMets
+1983 (Biometrika 70:659–663 — alpha-spending, flexible look times);
+Lan, Simon & Halperin 1982 (conditional power / futility); Johari,
+Koomen, Pekelis & Walsh 2017 (KDD — peeking inflation, always-valid
+inference motivation); Kish 1965 (design effect, n_eff formula);
+Baayen, Davidson & Bates 2008 (J. Mem. Lang. 59:390 — mixed-effects
+for clustered psycholinguistic data); Jia & Harman 2011 (IEEE TSE
+37:649–678 — mutation testing survey); Andrews, Briand & Labiche
+2005 (ICSE — mutant→real-fault coupling); Grün, Schüler & Zeller
+2009 (equivalent-mutant impact study); Avizienis & Chen 1977
+(FTCS-7 — N-version diverse implementation); Rasch 1960; Lord 1980
+(IRT); Holland & Wainer 1993 (DIF — Mantel-Haenszel tradition);
+Spearman 1904 (correction for attenuation); Meredith 1993 (reuse —
+§29 invariance now operationalized via DIF); Goodhart 1975 (reuse).
+
+Established-vs-hypothesis tagging: alpha-spending/OBF, design effect,
+cluster-robust/mixed inference, mutation testing, N-version
+diversity, IRT/DIF, and attenuation correction are methodological
+CONSENSUS. Applications flagged HYPOTHESIS: treating probe ICC as a
+diversity health-metric (§45.3 — ours), world-benchmark forensic quiz
+thresholds (§51 — ours), compound-lesion monotonicity as an
+invariant (§52 — plausible, not literature-guaranteed).
