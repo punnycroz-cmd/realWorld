@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v89 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v104 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -99,6 +99,21 @@ Marketing-side surfaces already built; these are the integration points:
    nothing under `site/` links or mirrors them, and the deploy script only
    ever rsyncs `site/`. Keep it that way. Playtest findings tagged
    `triage_owner: marketing` (world-v9 `playtest.json`) route to this track.
+8. **The production shell is the embed target** — the merged baseline ships
+   `production/hub.html` (built by `production/build_production.py`; a
+   generated bundle — hand edits are lost on rebuild). Its rail runs the
+   real modules: WATCH (37-camera rig), WIRE (public resolutions),
+   REQUESTS (`gsSubmitRequest` → `gsReviewResolve`), LEDGER (two
+   currencies), CAST (hire flow), HOUSING (leases/listings). The launch
+   flip for `demo.html` (`tools/flip_flags.sh --set demo=<url>`) should
+   point at `play.<domain>` serving this built hub — not a demo path.
+   Serving requirement for the game host: the built `production/` tree over
+   HTTPS, `frame-ancestors` allowing the site origin.
+9. **Legal pages exist now** — `site/terms.html`, `site/privacy.html`,
+   `site/refunds.html` (v104 drafts, footer-wired, in sitemap). Stripe
+   account activation requires public policy URLs; these are them. They are
+   marked "launch draft pending owner legal review" — gate G7 is that
+   review, not the drafting.
 
 ## 4. Environments
 
@@ -129,10 +144,10 @@ GO; it never publishes anything.
 | 2 | Create DNS records per `deploy/dns-records.example` (apex + `www` redirect + `play.` + `stats.`); verify with `tools/dns_check.sh <domain> [apex-ip]` — exits 1 until every record resolves correctly | G3/G14 | 15 min |
 | 3 | Provision host (VPS+Caddy or Pages/Netlify project); deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
 | 4 | Verify TLS auto-issued; run `tools/prod_smoke.sh https://<domain>` | G14/D0.2 | 10 min |
-| 5 | Stand up analytics backend on `stats.<domain>` — `deploy/umami.compose.example` is the ready Umami+Postgres spec matching the Caddyfile `stats.` block; then `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on all 16 pages in one pass; confirm events in dashboard | G8 | 30 min |
-| 6 | Stripe: create account → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path. The consumer itself can be rehearsed BEFORE the account exists: `tools/stripe_webhook_fixture.py` emits a correctly-signed `checkout.session.completed` + `Stripe-Signature` header (HMAC-SHA256 over `t.body`) for a local endpoint | G14 | 45 min |
+| 5 | Stand up analytics backend on `stats.<domain>` — `deploy/umami.compose.example` is the ready Umami+Postgres spec matching the Caddyfile `stats.` block; then `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every page in one pass; confirm events in dashboard | G8 | 30 min |
+| 6 | Stripe: create account (Dashboard asks for public **privacy/terms/refund URLs** — `privacy.html`/`terms.html`/`refunds.html` are drafted since v104 and go live with the site; G7 review must land first) → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path. The consumer itself can be rehearsed BEFORE the account exists: `tools/stripe_webhook_fixture.py` emits a correctly-signed `checkout.session.completed` + `Stripe-Signature` header (HMAC-SHA256 over `t.body`) for a local endpoint | G14 | 45 min |
 | 7 | Arm uptime monitoring per `deploy/monitoring.example` (external monitor, or cron `tools/uptime_probe.sh` as the self-hosted stopgap); alert → owner email/SMS | G14 | 10 min |
-| 8 | `tools/swap_domain.sh <domain>` — automated G3 sweep (site/ + deploy/, 24 files today; `--check` verifies zero leftovers, `--revert` restores the placeholder for continued iteration). Dry-run §4 + preflight §3 must go clean after | G3 | 5 min |
+| 8 | `tools/swap_domain.sh <domain>` — automated G3 sweep (site/ + deploy/, 27 files since v104 added the legal pages; `--check` verifies zero leftovers, `--revert` restores the placeholder for continued iteration). Dry-run §4 + preflight §3 must go clean after | G3 | 5 min |
 | 9 | Rebuild press kit (`./build-press-kit.sh`), rerun dry-run | G9/G10 | 10 min |
 
 The remaining owner-gated flips are also one command each — `tools/flip_flags.sh`
@@ -209,6 +224,8 @@ to include the live DNS row).
 4. Stripe account + whether to start Stripe-only (recommended) or MoR.
 5. Whether `play.` lives on the same box as the site (Caddy
    `reverse_proxy` block already sketched in `deploy/Caddyfile`).
+6. Legal review of the three drafted policy pages (G7) — counsel or owner
+   sign-off + effective-date fill-in; until then they read as drafts.
 
 ## 11. Day-2 operations (post-launch)
 

@@ -118,6 +118,9 @@ in markup today.
 | `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
 | `/community.html` | Community — Real World | game community (soft) | — | Discord spec is owner-gated pre-launch |
 | `/rules.html` | Rules & Safety — Real World | (trust signal) | — | Moderation transparency = E-E-A-T asset |
+| `/terms.html` | Terms of Use — Real World | (legal, no keyword target) | — | v104; G7 draft — Stripe terms URL; credits/possession/age terms |
+| `/privacy.html` | Privacy — Real World | (legal, no keyword target) | — | v104; G7 draft — Stripe privacy URL; cookieless-analytics contract mirrored |
+| `/refunds.html` | Refund Policy — Real World | (legal, no keyword target) | — | v104; G7 draft — Stripe refund-policy URL; the full refund matrix |
 | `/404.html` | 404 — This corner isn't on the map \| Real World | — | — | noindex-equivalent UX; keeps brand voice |
 
 **URL rules:** lowercase-hyphen, flat, no dates in URLs. Journal posts live as
@@ -207,8 +210,8 @@ Done in markup (verified by `tools/staging_dryrun.sh` **and**
 `tools/seo_audit.py` 66 pass / 0 fail at v60 — the audit runs inside
 `tools/preflight.sh` step [1b], so regressions block a GO verdict):
 - [x] Semantic HTML, one H1/page, alt text on every shot
-- [x] `sitemap.xml` (all 16 indexable pages + image entries + lastmod) & `robots.txt`
-- [x] OG/Twitter cards on all 16 indexable pages; og:image 1200×630; og:site_name (v15)
+- [x] `sitemap.xml` (all 19 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 19 indexable pages; og:image 1200×630; og:site_name (v15)
 - [x] Canonical URLs on every page
 - [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
 - [x] webp companions + lazy-loading + width/height attrs (no CLS)
