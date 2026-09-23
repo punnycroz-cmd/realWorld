@@ -379,6 +379,45 @@ function sfLampSpr(on){
   if(on){ paBlob(g, 9, 11, 8, 'rgba(255,217,138,0.18)'); }
   return s;
 }
+/* ---- v17: parked cars. Top-view sedan sprite, 4.6m x 1.85m at 16px/m
+   (~74x30px), drawn nose-east and rotated for N-S streets. Eight muted
+   Mission paint jobs: silver, oxford maroon, navy, charcoal, ivory,
+   fog green, taxi-ish ochre, plum. */
+const SF_CAR_COLS = ['#b4b8c0', '#7e3038', '#33507a', '#3c4046',
+                     '#d6d2c6', '#56705c', '#b0722e', '#5e4256'];
+function sfCarSpr(v, vert){
+  const W0 = 74, H0 = 30;
+  const src = paMk(W0, H0), g = src.g;
+  const C = rampOf(SF_CAR_COLS[v % SF_CAR_COLS.length]);
+  const GL = rampOf('#7f9eb2');          // glass: sky-reflecting blue-grey
+  // body silhouette: rounded ends, slab sides
+  paR(g, 8, 4, 58, 22, C[3]);
+  paEllipse(g, 9, 15, 5, 11, C[3]);
+  paEllipse(g, 65, 15, 5, 11, C[3]);
+  paR(g, 8, 4, 58, 3, C[4]);             // sunlit upper flank
+  paR(g, 8, 23, 58, 3, C[2]);            // shadowed lower flank
+  // bumpers
+  paR(g, 2, 9, 3, 12, C[2]); paR(g, 69, 9, 3, 12, C[2]);
+  // greenhouse: windshield rake, cabin, rear glass
+  paR(g, 22, 7, 26, 16, C[2]);           // cabin frame
+  paR(g, 24, 8, 22, 14, GL[3]);
+  paR(g, 30, 8, 2, 14, C[3]);            // B-pillar
+  paR(g, 18, 9, 4, 12, GL[2]);           // windshield (darker, raked)
+  paR(g, 47, 9, 4, 12, GL[2]);           // rear glass
+  paPX(g, 19, 9, GL[5]); paPX(g, 48, 9, GL[5]);
+  paR(g, 26, 8, 16, 3, GL[4]);           // glass sky catch
+  // wheels tucked in the arches
+  for(const wx of [13, 57]){ paR(g, wx, 2, 7, 3, '#1c1a18'); paR(g, wx, 25, 7, 3, '#1c1a18'); }
+  // lights: headlamps east, tail lamps west
+  paR(g, 68, 7, 2, 3, '#f4ecc8'); paR(g, 68, 20, 2, 3, '#f4ecc8');
+  paR(g, 3, 7, 2, 3, '#a03838'); paR(g, 3, 20, 2, 3, '#a03838');
+  paNoise(g, 6, 5, 62, 20, [C[4], C[2]], 0.05, 1700 + v);
+  if(!vert) return src;
+  const r = paMk(H0, W0);
+  r.g.save(); r.g.translate(H0 / 2, W0 / 2); r.g.rotate(Math.PI / 2);
+  r.g.drawImage(src.c, -W0 / 2, -H0 / 2); r.g.restore();
+  return r;
+}
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
@@ -392,6 +431,12 @@ function buildSfVeg(){
   V.shrub = [sfShrubSpr(0), sfShrubSpr(1)];
   V.flowerbed = [sfFlowerBedSpr(0), sfFlowerBedSpr(1)];
   V.planter = sfPlanterSpr();
+  // v17: V.car[v*2 + dir] — dir 0 = E-W street (horizontal), 1 = N-S
+  V.car = [];
+  for(let cv = 0; cv < 8; cv++){
+    V.car.push(sfCarSpr(cv, false));
+    V.car.push(sfCarSpr(cv, true));
+  }
 }
 
 /* ---------------- Victorian facade compiler ----------------

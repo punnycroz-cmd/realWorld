@@ -423,6 +423,167 @@ function sfPerfHud(cw, ch){
    bucket crossing re-renders the visible chunks. Row/column spans use
    round-to-round extents so chunks abut seamlessly at any zoom. */
 const SF_TERR = { cache: new Map(), max: 96 };
+/* ---------------- v17: ground truth pass ----------------
+   Baked once per terrain chunk: SF curb paint (red at crosswalk
+   approaches, rare blue accessible + yellow loading zones), storm
+   drains and gutter shading on the roadway, and the Dolores Park
+   surface decals — tennis courts, basketball court, playground pad,
+   and the worn dirt of the picnic hill. All deterministic. */
+function sfDecalChunk(g, cx, cy){
+  if(typeof SF_GRID === 'undefined' || !SF_GRID) return;
+  const csz = CS, cszT = CS * SF_TILT;
+  const ox = cx * CHN * csz, oy = cy * CHN * csz;
+  // -- curb paint / gutter / storm drains: per-cell edge work --
+  for(let iy = 0; iy < CHN; iy++){
+    const wy = cy * CHN + iy, sy = Math.round(iy * cszT);
+    const sh = Math.round((iy + 1) * cszT) - sy;
+    for(let ix = 0; ix < CHN; ix++){
+      const wx = cx * CHN + ix, t = sfTile(wx, wy);
+      const sx = ix * csz;
+      if(t === 11){
+        // curb paint on street-adjacent edges: red near crosswalks,
+        // blue/yellow loading zones sprinkled elsewhere
+        const near16 = (dx, dy, ax, ay) => {
+          for(let k = -3; k <= 3; k++)
+            if(sfTile(wx + ax * k + dx, wy + ay * k + dy) === 16) return true;
+          return false;
+        };
+        const paint = (edge, col) => {
+          g.fillStyle = col;
+          if(edge === 'n') g.fillRect(sx, sy, csz, Math.max(2, 3 * SF_TILT));
+          if(edge === 's') g.fillRect(sx, sy + sh - Math.max(2, 3 * SF_TILT), csz, Math.max(2, 3 * SF_TILT));
+          if(edge === 'w') g.fillRect(sx, sy, 3, sh);
+          if(edge === 'e') g.fillRect(sx + csz - 3, sy, 3, sh);
+        };
+        const edgeCol = (e, red) =>
+          red ? '#b8392e'
+              : phash(wx, wy, 1702 + 'nesw'.indexOf(e)) < 0.07 ? '#3a5f9e'
+              : phash(wx, wy, 1706 + 'nesw'.indexOf(e)) < 0.05 ? '#c8a028' : null;
+        if(sfTile(wx, wy - 1) === 10){ const c2 = edgeCol('n', near16(0, -1, 1, 0)); if(c2) paint('n', c2); }
+        if(sfTile(wx, wy + 1) === 10){ const c2 = edgeCol('s', near16(0, 1, 1, 0)); if(c2) paint('s', c2); }
+        if(sfTile(wx - 1, wy) === 10){ const c2 = edgeCol('w', near16(-1, 0, 0, 1)); if(c2) paint('w', c2); }
+        if(sfTile(wx + 1, wy) === 10){ const c2 = edgeCol('e', near16(1, 0, 0, 1)); if(c2) paint('e', c2); }
+      } else if(t === 10){
+        // gutter shade band along the curb + storm drain grates near
+        // crosswalk ends — the dark slot where rain leaves the street
+        const gut = (edge) => {
+          g.fillStyle = 'rgba(14,16,22,0.30)';
+          if(edge === 'n') g.fillRect(sx, sy, csz, Math.max(2, 3.5 * SF_TILT));
+          if(edge === 's') g.fillRect(sx, sy + sh - Math.max(2, 3.5 * SF_TILT), csz, Math.max(2, 3.5 * SF_TILT));
+          if(edge === 'w') g.fillRect(sx, sy, 3, sh);
+          if(edge === 'e') g.fillRect(sx + csz - 3, sy, 3, sh);
+        };
+        const drainN = (dx, dy, ax, ay) => {
+          for(let k = -2; k <= 2; k++)
+            if(sfTile(wx + ax * k + dx, wy + ay * k + dy) === 16) return true;
+          return false;
+        };
+        if(sfTile(wx, wy - 1) === 11){ gut('n'); if(drainN(0, -1, 1, 0) && phash(wx, wy, 1710) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = Math.max(2, 4 * SF_TILT); g.fillRect(sx + (csz - dw) / 2, sy, dw, dh); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx + (csz - dw) / 2 + s2 * dw / 4, sy, 1, dh); } }
+        if(sfTile(wx, wy + 1) === 11){ gut('s'); if(drainN(0, 1, 1, 0) && phash(wx, wy, 1711) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = Math.max(2, 4 * SF_TILT); g.fillRect(sx + (csz - dw) / 2, sy + sh - dh, dw, dh); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx + (csz - dw) / 2 + s2 * dw / 4, sy + sh - dh, 1, dh); } }
+        if(sfTile(wx - 1, wy) === 11){ gut('w'); if(drainN(-1, 0, 0, 1) && phash(wx, wy, 1712) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = 4; g.fillRect(sx, sy + sh / 2 - dw / 2, dh, dw); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx, sy + sh / 2 - dw / 2 + s2 * dw / 4, dh, 1); } }
+        if(sfTile(wx + 1, wy) === 11){ gut('e'); if(drainN(1, 0, 0, 1) && phash(wx, wy, 1713) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = 4; g.fillRect(sx + csz - dh, sy + sh / 2 - dw / 2, dh, dw); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx + csz - dh, sy + sh / 2 - dw / 2 + s2 * dw / 4, dh, 1); } }
+      }
+    }
+  }
+  // -- park decals in world px (drawn under a 1 x SF_TILT squash) --
+  if(!SF_DECALS.length) return;
+  const w0 = ox, w1 = ox + CHN * csz, u0 = oy, u1 = oy + CHN * csz;
+  g.save();
+  g.scale(1, SF_TILT);
+  g.beginPath(); g.rect(0, 0, CHN * csz + 2, CHN * csz + 2); g.clip();
+  for(const d of SF_DECALS){
+    const dx0 = d.x0 * csz, dy0 = d.y0 * csz, dx1 = d.x1 * csz, dy1 = d.y1 * csz;
+    if(dx1 < w0 - 4 || dx0 > w1 + 4 || dy1 < u0 - 4 || dy0 > u1 + 4) continue;
+    const X = dx0 - ox, Y = dy0 - oy, Wd = dx1 - dx0, Ht = dy1 - dy0;
+    if(d.kind === 'tennis'){
+      // fenced surround, then two N-S courts with white lines + nets
+      g.fillStyle = '#4d6b4e'; g.fillRect(X, Y, Wd, Ht);
+      g.fillStyle = '#5d8a62'; g.fillRect(X + 8, Y + 8, Wd - 16, Ht - 16);
+      const cw2 = (Wd - 24) / 2;             // one court width w/ 8px gap
+      for(let k = 0; k < 2; k++){
+        const cx0 = X + 8 + k * (cw2 + 8), cy0 = Y + 8, cx1 = cx0 + cw2, cy1 = Y + Ht - 8;
+        g.fillStyle = '#3f7a58'; g.fillRect(cx0, cy0, cw2, cy1 - cy0);
+        g.strokeStyle = '#eef0e4'; g.lineWidth = 2;
+        g.strokeRect(cx0 + 4, cy0 + 4, cw2 - 8, cy1 - cy0 - 8);
+        const my = (cy0 + cy1) / 2, sv = (cy1 - cy0) * 0.27;
+        g.beginPath();
+        g.moveTo(cx0 + 4, my - sv); g.lineTo(cx1 - 4, my - sv);
+        g.moveTo(cx0 + 4, my + sv); g.lineTo(cx1 - 4, my + sv);
+        g.moveTo((cx0 + cx1) / 2, my - sv); g.lineTo((cx0 + cx1) / 2, my + sv);
+        g.stroke();
+        // net: shadow + white tape
+        g.fillStyle = 'rgba(20,24,18,0.5)'; g.fillRect(cx0 + 2, my + 1, cw2 - 4, 3);
+        g.fillStyle = '#e8ece0'; g.fillRect(cx0 + 2, my - 1, cw2 - 4, 2);
+      }
+      // chain-link hint: dotted fence posts on the perimeter
+      g.fillStyle = 'rgba(30,40,32,0.55)';
+      for(let px2 = X + 4; px2 < X + Wd - 2; px2 += 12){
+        g.fillRect(px2, Y + 1, 2, 2); g.fillRect(px2, Y + Ht - 3, 2, 2);
+      }
+    } else if(d.kind === 'bball'){
+      g.fillStyle = '#5c6e78'; g.fillRect(X, Y, Wd, Ht);
+      g.fillStyle = '#6d7d88'; g.fillRect(X + 6, Y + 6, Wd - 12, Ht - 12);
+      g.strokeStyle = '#e8eae2'; g.lineWidth = 2;
+      g.strokeRect(X + 10, Y + 10, Wd - 20, Ht - 20);
+      const my = Y + Ht / 2;
+      g.beginPath(); g.moveTo(X + 10, my); g.lineTo(X + Wd - 10, my); g.stroke();
+      g.beginPath(); g.arc(X + Wd / 2, my, 24, 0, Math.PI * 2); g.stroke();
+      // keys + free-throw circles at both ends
+      g.strokeRect(X + Wd / 2 - 26, Y + 10, 52, 40);
+      g.strokeRect(X + Wd / 2 - 26, Y + Ht - 50, 52, 40);
+      g.beginPath(); g.arc(X + Wd / 2, Y + 50, 18, 0, Math.PI * 2); g.stroke();
+      g.beginPath(); g.arc(X + Wd / 2, Y + Ht - 50, 18, 0, Math.PI * 2); g.stroke();
+      // hoops: post + rim at each baseline
+      for(const hy of [Y + 12, Y + Ht - 12]){
+        g.fillStyle = '#2c343c'; g.fillRect(X + Wd / 2 - 2, hy - 2, 4, 4);
+        g.strokeStyle = '#d8dce0'; g.strokeRect(X + Wd / 2 - 8, hy + (hy < my ? 2 : -8), 16, 6);
+        g.strokeStyle = '#e8eae2';
+      }
+    } else if(d.kind === 'play'){
+      // rubberized tot-lot pad: tan base, poured-color blobs, border curb
+      g.fillStyle = '#8a6a44'; g.fillRect(X, Y, Wd, Ht);
+      g.fillStyle = '#c2a06c'; g.fillRect(X + 5, Y + 5, Wd - 10, Ht - 10);
+      const blobs = [[0.28, 0.35, 0.16, '#4a9a94'], [0.66, 0.30, 0.13, '#c06a4a'],
+                     [0.50, 0.66, 0.15, '#5a7ab0'], [0.80, 0.62, 0.10, '#7aa054']];
+      for(const [fx, fy, fr, col] of blobs){
+        g.fillStyle = col;
+        g.beginPath();
+        g.ellipse(X + fx * Wd, Y + fy * Ht, fr * Wd, fr * Ht * 0.9, 0, 0, Math.PI * 2);
+        g.fill();
+      }
+      // play structures: post pads + a slide silhouette, sun-shadowed
+      g.fillStyle = '#3c4a55';
+      g.fillRect(X + Wd * 0.24, Y + Ht * 0.30, 10, 10);
+      g.fillRect(X + Wd * 0.62, Y + Ht * 0.24, 8, 8);
+      g.fillStyle = '#d8b03a';
+      g.beginPath();
+      g.moveTo(X + Wd * 0.26 + 5, Y + Ht * 0.30 + 10);
+      g.lineTo(X + Wd * 0.26 + 22, Y + Ht * 0.30 + 26);
+      g.lineTo(X + Wd * 0.26 + 5, Y + Ht * 0.30 + 26);
+      g.closePath(); g.fill();
+      g.fillStyle = 'rgba(20,16,8,0.2)';
+      g.fillRect(X + 5, Y + Ht - 9, Wd - 10, 4);
+    } else if(d.kind === 'dirt'){
+      // worn picnic hill: irregular bare-earth ellipse on grass cells only
+      for(let wy = d.y0; wy < d.y1; wy++)
+        for(let wx = d.x0; wx < d.x1; wx++){
+          if(sfTile(wx, wy) !== 13) continue;
+          const ex = (wx + 0.5 - d.cx) / d.rx, ey = (wy + 0.5 - d.cy) / d.ry;
+          const r2 = ex * ex + ey * ey;
+          if(r2 > 1) continue;
+          const edge = clamp((1 - r2) * 4, 0, 1); // feathered rim
+          g.fillStyle = `rgba(168,152,104,${0.35 + 0.5 * edge})`;
+          g.fillRect(wx * csz - ox, wy * csz - oy, csz + 0.5, csz + 0.5);
+          if(phash(wx, wy, 1720) < 0.3){
+            g.fillStyle = 'rgba(120,104,70,0.5)';
+            g.fillRect(wx * csz - ox + phash(wx, wy, 1721) * 20,
+                       wy * csz - oy + phash(wy, wx, 1722) * 20, 6, 5);
+          }
+        }
+    }
+  }
+  g.restore();
+}
 function sfTerrChunk(cx, cy, wetQ){
   const key = cx + ',' + cy + ',' + wetQ;
   const hit = SF_TERR.cache.get(key);
@@ -459,6 +620,7 @@ function sfTerrChunk(cx, cy, wetQ){
       }
     }
   }
+  sfDecalChunk(g, cx, cy);
   SF_TERR.cache.set(key, c);
   while(SF_TERR.cache.size > SF_TERR.max)
     SF_TERR.cache.delete(SF_TERR.cache.keys().next().value);
@@ -701,7 +863,30 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfShrub') spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0];
       else if(o.kind === 'sfFlowerBed') spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0];
       else if(o.kind === 'sfPlanter') spr = V.planter;
+      else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
       const sprC = spr && (spr.c || spr);
+      if(o.kind === 'sfCar' && sprC){
+        // v17: parked car — low slab: hard contact shadow + a short
+        // sun-thrown wash (1.4m tall occluder), sprite centered on the lane
+        const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
+        const sy = Math.round(sfSY(o.y, ch));
+        const cw2 = sprC.width * cam.zoom, chh = sprC.height * cam.zoom;
+        ctx.fillStyle = 'rgba(16,13,9,0.34)';
+        ctx.beginPath();
+        ctx.ellipse(sx, sy + 2 * cam.zoom, cw2 * 0.5, chh * 0.48, 0, 0, Math.PI * 2);
+        ctx.fill();
+        if(!isNight() && SF_SUN.day > 0.08){
+          const hmPx = 1.4 * SF_PXM * cam.zoom;
+          const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
+          sfSoftEllipse(sx + shx, sy + shy,
+                        cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
+                        chh * 0.5, Math.atan2(shy, shx),
+                        0.22 * Math.min(1, SF_SUN.day + 0.3),
+                        sfUmbra(Math.hypot(shx, shy)));
+        }
+        ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
+        continue;
+      }
       if(sprC){
         const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
         const sy = Math.round(sfSY(o.y, ch));
@@ -1400,6 +1585,108 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
 }
 
 /* ---------------- street-level "Truman camera" ---------------- */
+/* v17: a parked car drawn as a real projected box — lower body slab,
+   glass greenhouse on top, wheels grounded at z=0. Faces are sorted
+   far->near and lit by the same sfSunWallCol/sun vector the buildings
+   use, so paint and shadow agree with the street around it. */
+function sfCarStreet(o, pr, F, night){
+  const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+  const p = pr(mx, my, 0);
+  if(!p) return;
+  const sc = F / p[2];
+  const ax = o.dir === 0 ? 1 : 0, ay = o.dir === 0 ? 0 : 1; // along-street
+  const bx = ay, by = ax;                                  // across-street
+  const hl = 2.3, hw = 0.92, z0 = 0.22, z1 = 1.0, zc = 1.48;
+  const base = SF_CAR_COLS[o.v % SF_CAR_COLS.length];
+  const kTop = Math.sin(Math.max(0, SF_SUN.el));
+  // cast shadow along the true sun vector + tight contact shade
+  if(!night && SF_SUN.day > 0.08){
+    const tip = pr(mx + SF_SUN.x * zc * 0.8, my + SF_SUN.y * zc * 0.8, 0);
+    if(tip){
+      const ang = Math.atan2(tip[1] - p[1], tip[0] - p[0]);
+      const len = Math.hypot(tip[0] - p[0], tip[1] - p[1]);
+      sfSoftEllipse((p[0] + tip[0]) / 2, (p[1] + tip[1]) / 2,
+                    hl * sc + len / 2, hw * 0.55 * sc, ang,
+                    0.30 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+    }
+  }
+  ctx.fillStyle = 'rgba(14,11,8,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(p[0], p[1], hl * sc * 0.96, hw * sc * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // wheels first — dark blobs grounded at the corners
+  ctx.fillStyle = night ? '#141210' : '#1e1c1a';
+  for(const sa of [-0.68, 0.68]) for(const sb of [-0.82, 0.82]){
+    const wp = pr(mx + ax * sa * hl + bx * sb * hw,
+                  my + ay * sa * hl + by * sb * hw, 0.18);
+    if(wp){ ctx.beginPath();
+      ctx.ellipse(wp[0], wp[1], Math.max(1.5, 0.34 * sc), Math.max(1.5, 0.3 * sc), 0, 0, Math.PI * 2);
+      ctx.fill(); }
+  }
+  // box faces: [corners xyz..., outward normal, color, glass?]
+  const corners = (a0, a1, b0, b1, zz0, zz1) => ({
+    // 4 side quads + top
+    quads: [
+      { q: [[a0, b0, zz0], [a1, b0, zz0], [a1, b0, zz1], [a0, b0, zz1]], n: [-by, -bx] },
+      { q: [[a0, b1, zz0], [a1, b1, zz0], [a1, b1, zz1], [a0, b1, zz1]], n: [by, bx] },
+      { q: [[a0, b0, zz0], [a0, b1, zz0], [a0, b1, zz1], [a0, b0, zz1]], n: [-ax, -ay] },
+      { q: [[a1, b0, zz0], [a1, b1, zz0], [a1, b1, zz1], [a1, b0, zz1]], n: [ax, ay] },
+      { q: [[a0, b0, zz1], [a1, b0, zz1], [a1, b1, zz1], [a0, b1, zz1]], n: null },
+    ],
+  });
+  const toXY = (a, b2) => [mx + ax * a + bx * b2, my + ay * a + by * b2];
+  const body = corners(-hl, hl, -hw, hw, z0, z1);
+  const cab = corners(-hl * 0.52, hl * 0.30, -hw * 0.88, hw * 0.88, z1, zc);
+  const faces = [];
+  const pushF = (box, col, isGlass) => {
+    for(const f of box.quads){
+      const pts = [];
+      let ok = true, dd = 0;
+      for(const [a, b2, z] of f.q){
+        const [wxm, wym] = toXY(a, b2);
+        const q = pr(wxm, wym, z);
+        if(!q){ ok = false; break; }
+        pts.push(q); dd += q[2];
+      }
+      if(ok) faces.push({ d: dd / 4, pts, n: f.n, col, isGlass });
+    }
+  };
+  pushF(body, base, false);
+  pushF(cab, '#6a8ea4', true);
+  faces.sort((fa, fb) => fb.d - fa.d);
+  for(const f of faces){
+    const k = f.n ? sfSunFaceK(f.n[0], f.n[1]) : kTop;
+    let col;
+    if(f.isGlass){
+      // glass: sky-cool base, bright glare when the face looks sunward
+      col = f.n ? sfSunWallCol('#6a8ea4', k * 0.9 + 0.2)
+                : sfSunWallCol('#7fa2b8', kTop);
+      if(!night && SF_SUN.day > 0.4 && k > 0.55)
+        col = mix(col, '#e8f4ff', (k - 0.55) * SF_SUN.day * 0.9);
+    } else {
+      col = f.n ? sfSunWallCol(base, k)
+                : sfSunWallCol(shade(base, 1.12), kTop * 0.9 + 0.1);
+      if(night) col = shade(col, 0.45);
+    }
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(f.pts[0][0], f.pts[0][1]);
+    for(let i2 = 1; i2 < 4; i2++) ctx.lineTo(f.pts[i2][0], f.pts[i2][1]);
+    ctx.closePath(); ctx.fill();
+  }
+  // head/tail lamps on the end faces
+  for(const e of [-1, 1]){
+    const lamp = e > 0 ? '#f2ecc8' : '#a03838';
+    for(const sb of [-0.6, 0.6]){
+      const lp = pr(mx + ax * e * hl + bx * sb * hw * 0.8,
+                    my + ay * e * hl + by * sb * hw * 0.8, 0.62);
+      if(lp){
+        ctx.fillStyle = lamp;
+        ctx.fillRect(lp[0] - 0.1 * sc, lp[1] - 0.06 * sc, 0.2 * sc, 0.12 * sc);
+      }
+    }
+  }
+}
 function sfRenderStreet(cw, ch){
   sfPerfBegin();
   sfWxTick();
@@ -1743,7 +2030,45 @@ function sfRenderStreet(cw, ch){
     const p1 = pr(wxm, wym, 0), p2 = pr(wxm + c, wym, 0),
           p3 = pr(wxm + c, wym + c, 0), p4 = pr(wxm, wym + c, 0);
     if(!p1 || !p2 || !p3 || !p4) continue;
-    qEmit(COLS[t] || '#a8977a', p1, p2, p3, p4);
+    // v17: decal cells (park courts/playground/worn hill) override the
+    // flat tile color so the street camera reads the same surfaces the
+    // baked atlas shows from above
+    const gx = Math.round(wxm / cm), gy = Math.round(wym / cm);
+    qEmit(SF_GROUND_OVR.get(gx + ',' + gy) || COLS[t] || '#a8977a',
+          p1, p2, p3, p4);
+    // v17 grounding detail on the flat quad grid:
+    //  - curb reveal: bright curb top on the sidewalk edge + gutter band
+    //    on the roadway beside it (the 15cm step that grounds the street)
+    //  - sidewalk expansion joints: thin saw-cut lines across each cell
+    const subQ = (x0, y0, x1, y1, style) => {
+      const q1 = pr(wxm + x0, wym + y0, 0), q2 = pr(wxm + x1, wym + y0, 0),
+            q3 = pr(wxm + x1, wym + y1, 0), q4 = pr(wxm + x0, wym + y1, 0);
+      if(q1 && q2 && q3 && q4) qEmit(style, q1, q2, q3, q4);
+    };
+    if(t === 11){
+      if(cfwd < 90){
+        subQ(0, cm / 2 - 0.03, cm, cm / 2 + 0.03, 'rgba(40,36,28,0.30)');
+        subQ(cm / 2 - 0.03, 0, cm / 2 + 0.03, cm, 'rgba(40,36,28,0.30)');
+      }
+      if(sfTile(gx, gy - 1) === 10) subQ(0, 0, cm, 0.16, 'rgba(226,222,210,0.55)');
+      if(sfTile(gx, gy + 1) === 10) subQ(0, cm - 0.16, cm, cm, 'rgba(226,222,210,0.55)');
+      if(sfTile(gx - 1, gy) === 10) subQ(0, 0, 0.16, cm, 'rgba(226,222,210,0.55)');
+      if(sfTile(gx + 1, gy) === 10) subQ(cm - 0.16, 0, cm, cm, 'rgba(226,222,210,0.55)');
+    } else if(t === 10 && cfwd < 90){
+      if(sfTile(gx, gy - 1) === 11) subQ(0, 0, cm, 0.5, 'rgba(16,18,24,0.30)');
+      if(sfTile(gx, gy + 1) === 11) subQ(0, cm - 0.5, cm, cm, 'rgba(16,18,24,0.30)');
+      if(sfTile(gx - 1, gy) === 11) subQ(0, 0, 0.5, cm, 'rgba(16,18,24,0.30)');
+      if(sfTile(gx + 1, gy) === 11) subQ(cm - 0.5, 0, cm, cm, 'rgba(16,18,24,0.30)');
+      // asphalt wear: darker wheel-track bands along the travel axis
+      if(cfwd < 60){
+        const v2 = sfTile(gx, gy - 1) === 10 && sfTile(gx, gy + 1) === 10;
+        const h2 = sfTile(gx - 1, gy) === 10 && sfTile(gx + 1, gy) === 10;
+        if(v2 && !h2){ subQ(cm * 0.18, 0, cm * 0.32, cm, 'rgba(20,22,28,0.16)');
+                       subQ(cm * 0.68, 0, cm * 0.82, cm, 'rgba(20,22,28,0.16)'); }
+        else if(h2 && !v2){ subQ(0, cm * 0.18, cm, cm * 0.32, 'rgba(20,22,28,0.16)');
+                            subQ(0, cm * 0.68, cm, cm * 0.82, 'rgba(20,22,28,0.16)'); }
+      }
+    }
     // v9: aerial perspective — far pavement dissolves into the marine layer
     const cHz = sfHazeA(cfwd);
     if(cHz > 0.02){
@@ -2224,6 +2549,7 @@ function sfRenderStreet(cw, ch){
       }
     } else if(d.k === 'p'){
       const o = d.o;
+      if(o.kind === 'sfCar'){ sfCarStreet(o, pr, F, night); continue; }
       const p = pr(o.x / SF_PXM, o.y / SF_PXM, 0);
       if(!p) continue;
       const sc = F / p[2];

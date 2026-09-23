@@ -97,7 +97,12 @@ function sfGenChunk(cx, cy){
 const SF_PROP_CELL = new Map(); // "wx,wy" -> [objs] spatial index (v5)
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
-                      sfStreetTree: 6, sfCypress: 7, sfPlanter: 5 };
+                      sfStreetTree: 6, sfCypress: 7, sfPlanter: 5,
+                      sfCar: 15 };
+/* v17 ground decals: world-cell rects baked into the terrain atlas —
+   Dolores Park courts/playground/worn grass + per-curb paint. */
+const SF_DECALS = [];
+const SF_GROUND_OVR = new Map(); // "wx,wy" -> street-view fill color
 function sfPropIndex(o){
   const k = o.wx + ',' + o.wy;
   if(!SF_PROP_CELL.has(k)) SF_PROP_CELL.set(k, []);
@@ -485,6 +490,70 @@ function sfInitWorld(){
       break; // one planter per shopfront
     }
   }
+  /* ---- v17 streetscape: parked cars lining the curb lanes ----
+     Every street cell touching a sidewalk is a curb lane. Cars sit in
+     ~6m slots along the street axis, offset toward the curb, skipping
+     crosswalk approaches, intersections, and deterministic gaps. */
+  SF_DECALS.length = 0; SF_GROUND_OVR.clear();
+  let nCars = 0;
+  const nearCross = (wx, wy, ax, ay) => {
+    for(let k = -3; k <= 3; k++)
+      if(sfTile(wx + ax * k, wy + ay * k) === 16) return true;
+    return false;
+  };
+  for(let wy = 1; wy < SF_M.gh - 1 && nCars < 5000; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1 && nCars < 5000; wx++){
+      if(sfTile(wx, wy) !== 10) continue;
+      // curb side: exactly which neighbor is sidewalk decides orientation
+      let dir = -1, ox = 0, oy = 0;
+      if(sfTile(wx, wy - 1) === 11){ dir = 0; oy = -1; }        // car runs E-W, curb N
+      else if(sfTile(wx, wy + 1) === 11){ dir = 0; oy = 1; }    // curb S
+      else if(sfTile(wx - 1, wy) === 11){ dir = 1; ox = -1; }   // car runs N-S, curb W
+      else if(sfTile(wx + 1, wy) === 11){ dir = 1; ox = 1; }    // curb E
+      else continue;
+      const ax = dir === 0 ? 1 : 0, ay = dir === 0 ? 0 : 1;
+      // street must continue along the axis on both sides (no intersections)
+      if(sfTile(wx - ax, wy - ay) !== 10 || sfTile(wx + ax, wy + ay) !== 10) continue;
+      if(nearCross(wx, wy, ax, ay)) continue;
+      // ~1 car per 6 slots along the street; keyed on the axis coordinate
+      const slot = dir === 0 ? wx : wy;
+      if(phash(slot, dir === 0 ? wy : wx, 1690) > 0.17) continue;
+      // jitter along the slot, hug the curb
+      const jx = (phash(wx, wy, 1691) - 0.5) * 10;
+      const o = { kind: 'sfCar',
+        x: wx * CS + 16 + ox * 9 + ax * jx,
+        y: wy * CS + 16 + oy * 9 + ay * jx,
+        wx, wy, dir, v: Math.floor(phash(wx, wy, 1692) * 8) };
+      VILLAGE_OBJECTS.push(o); sfPropIndex(o); nCars++;
+    }
+  }
+
+  /* ---- v17 Dolores Park ground decals (verified all-grass rects) ----
+     Two N-S tennis courts on the south lawn, a basketball half-court on
+     the east edge, the NE playground pad, and the worn dirt of the
+     west-side picnic hill. Rendered into the terrain atlas by
+     sfDecalDraw(); SF_GROUND_OVR gives the street camera the same surfaces. */
+  SF_DECALS.push(
+    { kind: 'tennis', x0: 288, y0: 283, x1: 316, y1: 295 },
+    { kind: 'bball',  x0: 330, y0: 190, x1: 340, y1: 202 },
+    { kind: 'play',   x0: 318, y0: 130, x1: 338, y1: 144 },
+    { kind: 'dirt',   x0: 264, y0: 196, x1: 288, y1: 214,
+      cx: 276, cy: 205, rx: 11, ry: 9 },
+  );
+  const OVR_COL = { tennis: '#577f60', bball: '#6d7d88', play: '#c2a06c',
+                    dirt: '#a89868' };
+  for(const d of SF_DECALS){
+    for(let wy = d.y0; wy < d.y1; wy++)
+      for(let wx = d.x0; wx < d.x1; wx++){
+        if(sfTile(wx, wy) !== 13) continue;
+        if(d.kind === 'dirt'){
+          const ex = (wx + 0.5 - d.cx) / d.rx, ey = (wy + 0.5 - d.cy) / d.ry;
+          if(ex * ex + ey * ey > 1) continue;
+        }
+        SF_GROUND_OVR.set(wx + ',' + wy, OVR_COL[d.kind]);
+      }
+  }
+
   // interiors for the key locations (door-teleport model)
   const INTERIOR_NAMES = {
     'Haus Coffee': 'café counter & window seats',
