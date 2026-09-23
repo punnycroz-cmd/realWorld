@@ -25533,6 +25533,81 @@ function sfWrapDrift(home, drift, dim, m){
   let p = (home * D + drift) % D; if(p < 0) p += D;
   return p - m;
 }
+/* ---- v49: THE WILD PARROTS — the Mission's feral red-masked parakeets.
+   A real SF institution: a noisy green flock roosts in the neighborhood's
+   palms and cypresses and commutes between crowns in strung-out strings.
+   Fully deterministic on SF_WX.t (zero mutable state — harness-safe):
+   sfParrotAt resolves bird i's world-meter position, altitude, heading
+   and mode from the sim clock. SF_PARROT_FLY "commuter" birds are always
+   mid-hop so the flock reads at any instant; the rest perch on crown
+   rims and reshuffle hosts every ~46s. Rain grounds the whole flock —
+   nobody flies in a storm. */
+const SF_PARROT_N = 11, SF_PARROT_FLY = 3;
+let SF_PARROT_TREES = null;
+function sfParrotTrees(){
+  if(SF_PARROT_TREES) return SF_PARROT_TREES;
+  const T = [];
+  if(typeof SF_PROP_DRAW !== 'undefined')
+    for(const lst of SF_PROP_DRAW.values())
+      for(const o of lst)
+        if(o.kind === 'sfTree' || o.kind === 'sfPalm' || o.kind === 'sfCypress')
+          T.push(o);
+  SF_PARROT_TREES = T;
+  return T;
+}
+function sfParrotHost(i, c, T){
+  return T[Math.abs(hash2(c * 13 + i * 3, i * 7 + c, 5101) * T.length) | 0];
+}
+function sfParrotAt(i, t){
+  const T = sfParrotTrees();
+  if(!T.length) return null;
+  const out = { x: 0, y: 0, z: 0, fly: 0, hdg: 0, flap: 0 };
+  if(i < SF_PARROT_FLY && W.rain <= 0.25){
+    // commuter: hop tree->tree on a bowed, weaving path (parrots never
+    // fly the straight line), lap time staggered per bird
+    const L = 10 + i * 3.5, u = t / L + i * 0.37;
+    const lap = Math.floor(u), s = u - lap;
+    const A = sfParrotHost(i, lap, T), B = sfParrotHost(i, lap + 1, T);
+    const ax = A.x / SF_PXM, ay = A.y / SF_PXM,
+          bx = B.x / SF_PXM, by = B.y / SF_PXM;
+    const dx = bx - ax, dy = by - ay, dl = Math.hypot(dx, dy);
+    if(dl < 4){ // same crown — treat as perched there
+      const ang = hash2(i, lap, 5104) * Math.PI * 2;
+      out.x = ax + Math.cos(ang) * 1.4; out.y = ay + Math.sin(ang) * 1.4;
+      out.z = 7.5; out.hdg = ang;
+      return out;
+    }
+    const se = s * s * (3 - 2 * s);
+    const nx = -dy / dl, ny = dx / dl;
+    const bow = Math.sin(Math.PI * s) * (6 + i * 2),
+          wob = Math.sin(s * 19 + i * 4) * 1.2;
+    out.x = ax + dx * se + nx * (bow * 0.4 + wob);
+    out.y = ay + dy * se + ny * (bow * 0.4 + wob);
+    out.z = 6.5 + Math.sin(Math.PI * s) * (4.5 + i) +
+            Math.sin(t * 9 + i) * 0.3;
+    out.hdg = Math.atan2(dy + ny * bow * 0.3, dx + nx * bow * 0.3);
+    out.fly = 1;
+    out.flap = Math.sin(t * 13 + i * 2.1);
+    return out;
+  }
+  // perched: reshuffle host crown every ~46s, staggered per bird.
+  // Real flocks bunch up — the rim angle is quantized to a few shared
+  // anchor spots so birds clump into visible knots instead of spacing
+  // out evenly around the crown.
+  const c = Math.floor((t + i * 13) / 46);
+  const A = sfParrotHost(i, c, T);
+  const spot = Math.floor(hash2(c, i >> 1, 5102) * 3),
+        ang = spot * 2.1 + hash2(i, c, 5105) * 0.5;
+  const rim = (A.big ? 3.2 : A.kind === 'sfPalm' ? 1.1 : 1.7) *
+              (0.7 + hash2(c, i, 5103) * 0.35);
+  out.x = A.x / SF_PXM + Math.cos(ang) * rim;
+  out.y = A.y / SF_PXM + Math.sin(ang) * rim;
+  out.z = (A.big ? 7.4 : A.kind === 'sfPalm' ? 9.6 :
+           A.kind === 'sfCypress' ? 9.0 : 6.2) +
+          Math.sin(t * 2.2 + i * 1.7) * 0.06;
+  out.hdg = ang;
+  return out;
+}
 /* v7: lightning flash — pale violet wash over the whole frame */
 function sfFlashOverlay(cw, ch){
   if(SF_WX.flash <= 0) return;
@@ -26746,6 +26821,22 @@ function sfRenderWorld(cw, ch){
                          Math.max(1, 1.6 * cam.zoom), Math.max(1, 1.1 * cam.zoom));
           }
         }
+        // v49: queen-palm fruit trusses — heavy orange bunches hanging
+        // just under the crown nut (real Mission palms carry them most
+        // of the year; the parrots work them over)
+        if(o.kind === 'sfPalm' && !isNight()){
+          const nF = 6 + (Math.abs(hash2(o.wx, o.wy, 5120) * 5) | 0);
+          const fcy = sy - ph * 0.44;
+          for(let fi = 0; fi < nF; fi++){
+            const fa = phash(fi, o.wx, 5121) * Math.PI * 2,
+                  fr2 = phash(fi, o.wy, 5122) * 3.4 * cam.zoom;
+            ctx.fillStyle = fi % 3 ? '#e08828' : '#c96e1e';
+            ctx.fillRect(Math.round(sx + Math.cos(fa) * fr2 - 1.5 * cam.zoom),
+                         Math.round(fcy + Math.sin(fa) * fr2 * 0.5 +
+                                    fi * 0.9 * cam.zoom),
+                         Math.max(1, 2.2 * cam.zoom), Math.max(1, 1.7 * cam.zoom));
+          }
+        }
         // v6: canopy sway on the wind (trees only; storms rock harder)
         // v7: modulated by the gust envelope — canopies breathe in waves
         // v32: second-harmonic leaf shiver on gusts + the crown center
@@ -26996,6 +27087,65 @@ function sfRenderWorld(cw, ch){
       ctx.fillStyle = l.c;
       ctx.fillRect(-sz, -sz * 0.5, sz * 2, sz);
       ctx.restore();
+    }
+  }
+
+  // 2d1b. v49: the wild parrot flock — red-masked parakeets commuting
+  //   between the Mission's roost crowns. Airborne birds drop a true sun
+  //   shadow on the ground via their altitude; perched birds speckle the
+  //   crown rims green+red. Rain/night grounds the whole flock.
+  if(!isNight()){
+    for(let i = 0; i < SF_PARROT_N; i++){
+      const b = sfParrotAt(i, SF_WX.t);
+      if(!b) break;
+      const gx = (b.x * SF_PXM - cam.x) * cam.zoom + cw / 2,
+            gy = sfSY(b.y * SF_PXM, ch);
+      const by2 = gy - b.z * 4.2 * cam.zoom;         // altitude lift, same 4.2px/m as buildings
+      if(gx < -12 || gx > cw + 12 || by2 < -12 || gy > ch + 12) continue;
+      if(b.fly){
+        // altitude shadow: a flying bird still throws its (small) shade
+        if(SF_SUN.day > 0.08)
+          sfSoftEllipse(gx + SF_SUN.x * b.z * 4.2 * cam.zoom,
+                        gy + SF_SUN.y * b.z * 4.2 * cam.zoom,
+                        2.8 * cam.zoom, 1.5 * cam.zoom, 0,
+                        0.17 * SF_SUN.day, 0.5);
+        const sc2 = cam.zoom;
+        ctx.save(); ctx.translate(gx, by2);
+        ctx.rotate(Math.atan2(Math.sin(b.hdg) * SF_TILT, Math.cos(b.hdg)));
+        const fl = b.flap;
+        // long tail + pointed swept wings — the parakeet silhouette
+        ctx.strokeStyle = '#2c7a34';
+        ctx.lineWidth = Math.max(1, 1.3 * sc2);
+        ctx.beginPath();
+        ctx.moveTo(-1.6 * sc2, 0); ctx.lineTo(-4.8 * sc2, 0.4 * sc2);
+        ctx.moveTo(-0.4 * sc2, 0);
+        ctx.lineTo(-2.6 * sc2, (-3.4 + fl * 1.6) * sc2);
+        ctx.moveTo(-0.4 * sc2, 0);
+        ctx.lineTo(-2.6 * sc2, (3.4 - fl * 1.6) * sc2);
+        ctx.stroke();
+        ctx.fillStyle = '#3fae4e';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 2.3 * sc2, 1.15 * sc2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d8382c';                  // red mask
+        ctx.fillRect(1.4 * sc2, -0.7 * sc2, 1.6 * sc2, 1.4 * sc2);
+        ctx.restore();
+      } else if(cam.zoom >= 0.55){
+        // roost whitewash — an occupied crown marks the ground below
+        // with droppings (real parrot roosts whitewash the pavement)
+        ctx.fillStyle = 'rgba(228,226,214,0.16)';
+        ctx.beginPath();
+        ctx.ellipse(gx, gy, 4.5 * cam.zoom, 2.6 * cam.zoom * SF_TILT,
+                    0, 0, Math.PI * 2);
+        ctx.fill();
+        // perched speck on the crown rim — green body under a red mask
+        ctx.fillStyle = '#379a44';
+        ctx.fillRect(gx - 1.8 * cam.zoom, by2 - 1.8 * cam.zoom,
+                     3.6 * cam.zoom, 3.6 * cam.zoom);
+        ctx.fillStyle = '#d8382c';
+        ctx.fillRect(gx - 1.2 * cam.zoom, by2 - 2.8 * cam.zoom,
+                     2.4 * cam.zoom, 1.6 * cam.zoom);
+      }
     }
   }
 
@@ -31066,6 +31216,62 @@ function sfRenderStreet(cw, ch){
                              (pA[1] + pB[1]) / 2 + sagPx * 2,
                              pB[0], pB[1]);
         ctx.stroke();
+      }
+    }
+  }
+
+  // v49: the wild parrot flock, seen from the street — the same
+  // deterministic birds, projected through pr() at true altitude.
+  // Commuters streak overhead as swept-wing green darts with red masks;
+  // perched birds dot the crown tops. Grounded by rain/night like
+  // everything else in this sky.
+  if(!night){
+    for(let i = 0; i < SF_PARROT_N; i++){
+      const b = sfParrotAt(i, SF_WX.t);
+      if(!b) break;
+      const gz = sfGroundZ(b.x, b.y);
+      const pp = pr(b.x, b.y, gz + b.z);
+      // depth cap: birds drawn after the facades would overdraw a wall
+      // they sit behind — keeping them near-field keeps the lie rare
+      if(!pp || pp[2] > (b.fly ? 130 : 90)) continue;
+      if(b.fly){
+        // screen heading: project a point just ahead on the flight path
+        const hdx = Math.cos(b.hdg), hdy = Math.sin(b.hdg);
+        const pq = pr(b.x + hdx * 0.9, b.y + hdy * 0.9, gz + b.z);
+        let hx = 1, hy = 0;
+        if(pq){
+          const vx = pq[0] - pp[0], vy = pq[1] - pp[1],
+                vl = Math.hypot(vx, vy) || 1;
+          hx = vx / vl; hy = vy / vl;
+        }
+        const nx2 = -hy, ny2 = hx, wsp = 0.62 * F / pp[2]; // ~0.6m wingspan
+        const fl = b.flap;
+        ctx.strokeStyle = 'rgba(26,58,32,0.92)';
+        ctx.lineWidth = Math.max(1, wsp * 0.09);
+        ctx.beginPath();
+        // swept pointed wings, flap driving the tips up/down
+        ctx.moveTo(pp[0] - hx * wsp * 0.06, pp[1] - hy * wsp * 0.06);
+        ctx.lineTo(pp[0] + nx2 * wsp * 0.5 - hx * wsp * 0.3,
+                   pp[1] + ny2 * wsp * 0.5 - hy * wsp * 0.3 - fl * wsp * 0.22);
+        ctx.moveTo(pp[0] - hx * wsp * 0.06, pp[1] - hy * wsp * 0.06);
+        ctx.lineTo(pp[0] - nx2 * wsp * 0.5 - hx * wsp * 0.3,
+                   pp[1] - ny2 * wsp * 0.5 - hy * wsp * 0.3 - fl * wsp * 0.22);
+        ctx.stroke();
+        ctx.fillStyle = '#3fae4e';
+        ctx.beginPath();
+        ctx.ellipse(pp[0], pp[1], wsp * 0.16, wsp * 0.09,
+                    Math.atan2(hy, hx), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d8382c';
+        ctx.fillRect(pp[0] + hx * wsp * 0.15 - 1, pp[1] + hy * wsp * 0.15 - 1,
+                     Math.max(1.5, wsp * 0.07), Math.max(1.5, wsp * 0.07));
+      } else {
+        // perched on the crown rim — a green speck under a red mask
+        const bs = Math.max(1.4, 0.3 * F / pp[2]);
+        ctx.fillStyle = '#379a44';
+        ctx.fillRect(pp[0] - bs / 2, pp[1] - bs / 2, bs, bs);
+        ctx.fillStyle = '#d8382c';
+        ctx.fillRect(pp[0] - bs * 0.32, pp[1] - bs * 0.78, bs * 0.64, bs * 0.42);
       }
     }
   }
