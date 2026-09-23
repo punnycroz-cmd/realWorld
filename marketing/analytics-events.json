@@ -251,6 +251,27 @@
       "status": "PENDING — game build",
       "note": "measures discovery of the history surface; stage + opt-out only"
     },
+    "band_declared": {
+      "when": "account picks an age band at onboarding S2a (game-side; world-v67 eligibility layer — §30)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "eligibility is not funnel data — the band VALUE is never a prop (world-v67 §35); stage + opt-out only"
+    },
+    "ads_line_shown": {
+      "when": "the adults-only §2.7 sponsored-message line renders on the wallet card (game-side; world-v67 §33 — structural guard: band==='adult' only)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts exposure of the opt-in ad affordance; its absence for teen/na/u13/unset bands is by construction, not an event"
+    },
+    "ad_demo_viewed": {
+      "when": "adult-band account watches one demo sponsored message for +2 cr, capped 5/day (game-side; world-v67 §33)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "opt-in rewarded path only — never pre-roll/mid-session; no countdown/cap-pressure props"
+    },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
       "props": { "stage": "onboarding stage id" },
