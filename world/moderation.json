@@ -1,0 +1,93 @@
+{
+  "doc": "world/moderation-tooling.md is canonical for behavior + reviewer runbook. This file is the machine-readable contract: reason-code taxonomy, queue routing, SLA, reviewer whitelist, appeal flow, account-flag thresholds. Scope is design doc §11 (LOCKED): moderation applies ONLY to player requests (intent screening) plus the legal backstop. Emergent AI behavior is inviolable. The screening reference implementation is world/screen.js (window.RWScreen) — shared by request.html and mod-console.html so player-side and reviewer-side verdicts can never drift.",
+  "scope": {
+    "moderated": ["request_text", "naming_strings", "review_queue", "appeals", "legal_backstop"],
+    "never_moderated": ["emergent_ai_behavior", "ambient_reflexes", "ai_rendering_of_approved_requests", "character_secrets"],
+    "note": "Secrets are unreachable by construction — absent from every player-facing and reviewer-facing schema. There is no 'report the AI' surface and no retcon tool."
+  },
+  "reason_codes": {
+    "deny_tier": [
+      { "code": "harm-targeting",    "flag_w": 2, "appealable": true,  "refund": "full", "feed": "request not approved" },
+      { "code": "secret-extraction", "flag_w": 1, "appealable": true,  "refund": "full", "feed": "request not approved" },
+      { "code": "possession-scope",  "flag_w": 1, "appealable": true,  "refund": "full", "feed": "request not approved" },
+      { "code": "admin-domain",      "flag_w": 1, "appealable": true,  "refund": "full", "feed": "request not approved",
+        "note": "added v8 — rent/eviction/lease requests are admin-only powers; covers 'nudge Victor to raise rent'" },
+      { "code": "real-business",     "flag_w": 0, "appealable": true,  "refund": "full", "feed": "request not approved",
+        "note": "player copy always suggests the parody name" },
+      { "code": "identity-fraud",    "flag_w": 2, "appealable": true,  "refund": "full", "feed": "request not approved" },
+      { "code": "legal-backstop",    "flag_w": 3, "appealable": false, "refund": "full", "feed": "request not approved",
+        "side_effects": ["account_flag +3", "owner_notified", "ledger legal-deny", "kill pre-run or mid-flight"],
+        "note": "terse player wording always: 'Request not approved.' Public wording identical to a normal deny — no spectacle." }
+    ],
+    "review_tier": [
+      { "code": "gray-zone",           "flag_w": 0, "appealable": true,  "feed": "in_review", "note": "charged but legible intent — human eyes first" },
+      { "code": "surface-relationship","flag_w": 0, "appealable": true,  "feed": "in_review", "note": "touches a main's job/marriage/friendship" },
+      { "code": "venue-lock",          "flag_w": 0, "appealable": true,  "feed": "in_review", "note": "locks a story-adjacent venue or park space" },
+      { "code": "repeat-pattern",      "flag_w": 1, "appealable": true,  "feed": "in_review", "note": "same_target_7d >= 3 or denied_30d >= 2 (fixation heuristic)" },
+      { "code": "real-person-mention", "flag_w": 0, "appealable": true,  "feed": "in_review", "note": "usually resolved by 'the world can't see real people' + suggested rephrase" },
+      { "code": "appeal-resubmit",     "flag_w": 0, "appealable": false, "feed": "in_review", "note": "re-submission of a denied request — different-reviewer rule" },
+      { "code": "first-time-exclusive","flag_w": 0, "appealable": true,  "feed": "in_review", "note": "acct_age_d < 3 with an exclusive attempt" }
+    ],
+    "player_wording": "per-code canned copy lives in screen.js REASON_CODES.player_msg — reviewers pick a code, never free-type player copy",
+    "public_wording": "always the neutral 'request not approved' regardless of code; the reason CODE may attach to the feed entry so the public sees the why-class, never the screened text"
+  },
+  "queue_routing": {
+    "lanes": {
+      "exclusive": "all exclusive requests (locked — every exclusive is human-reviewed)",
+      "review":    "classifier review verdicts: gray-zone, surface-relationship, venue-lock, repeat-pattern, real-person-mention, first-time-exclusive, contested nudges, event triggers locking shared space",
+      "appeal":    "appeals and denied-and-resubmitted requests — different-reviewer rule enforced by showing orig_reviewer on the card",
+      "naming":    "all player-authored strings: character names, unit plaques, naming rights",
+      "legal":     "legal-backstop fires — confirm or bounce, never improvise; kill before run"
+    },
+    "never_queued": "compatible requests on classifier pass auto-run (locked — a dinner between two characters never waits on a human)",
+    "ordering": "oldest-first by submitted/paid-at timestamp, FCFS; no priority for spend, no auctions",
+    "depth_alert": { "threshold": 20, "rule": "alert the owner; NEVER auto-approve to drain a queue" },
+    "wait_display": "amber > 15 min, red > 30 min"
+  },
+  "sla": {
+    "target": "median decision < 15 min (metric shown in-console)",
+    "honest_sla_rule": "public copy may say a human reviews exclusive requests; it must NEVER promise a review time. Queued/under-review requests that expire before activation auto-refund — the refund system absorbs review latency. A queue that pauses overnight is an honest small studio, not an SLA breach."
+  },
+  "decisions": {
+    "approve":          "inject as opportunity; AI decides how; attributed on the public feed",
+    "approve-modified": "duration/scope trimmed only, never expanded; unused credits auto-refund; logged; rare — resolve ambiguity against the player",
+    "deny":             "reason code → canned player copy + full refund; denied requests never bill",
+    "escalate-legal":   "kill pre-run or mid-flight; account flag +3; owner notified; ledger legal-deny; public wording identical to normal deny",
+    "no_retcon_tool":   "there is NO tool to alter, delete, or retcon an executed event. It does not exist; do not build it."
+  },
+  "appeal_flow": {
+    "window_h": 72,
+    "rule": "appeals route to a DIFFERENT reviewer — console shows orig_reviewer so the rule is checkable",
+    "outcome": "overturned requests re-enter the pipeline post-review at no re-charge; a second denial is final for that request text",
+    "feed_visibility": "aggregate only — recaps may say '3 denials appealed this month, 0 reversed'; individual appeals are not spectacle",
+    "not_appealable": ["legal-backstop", "appeal-resubmit"]
+  },
+  "account_flags": {
+    "mechanism": "deny verdicts carry flag_w (0–3) summed into a rolling score",
+    "thresholds_proposal": [
+      { "score": 3, "effect": "all requests human-reviewed for 7 days" },
+      { "score": 6, "effect": "request privileges suspended 72 h" },
+      { "score": 9, "effect": "account review — owner decision" }
+    ],
+    "decay": "-1 per clean 30 days",
+    "rules": "flags are never shown publicly and never monetized around"
+  },
+  "reviewer_whitelist": {
+    "fields": ["name", "age", "job", "home_address", "public_profile", "surface_relationships", "routine"],
+    "absent": ["secrets", "drama_seeds", "anything redacted from possession briefings"],
+    "rule": "SAME schema as possession briefings (design §7) — enforced once in the data layer, reused for briefings, console, and any future mod surface. 'Not redacted — absent.'",
+    "also_absent": "any prediction of how the AI will render an approved request (unknowable — reviewers approve the ask, not the outcome)"
+  },
+  "display_filter": {
+    "status": "OWNER-DECISION — open (marketing MODERATION-PLAN §2.3)",
+    "options": {
+      "A_redact":     "offending span → ░░░ + text-filtered flag (recommended — the attempt is half the show)",
+      "B_withhold":   "flagged text hidden; feed shows class + outcome only",
+      "C_quarantine": "flagged text held for human review before display"
+    },
+    "separate_from_intent_screening": "the display filter judges wording on the public feed; the intent classifier judges declared intent before money moves. Different stages, different jobs."
+  },
+  "metrics": ["queue depth", "oldest wait", "median decision vs 15-min SLA", "decisions per shift", "denial rate by reason code", "appeal reversal count", "compensation paid (cr)"],
+  "audit": "every decision logged: timestamp, reviewer, request id, outcome, code — merge target is canonical-ledger mod_decision records",
+  "feed_contract": "feed wording comes from reason_codes.*.feed — never reviewer free text; reason_code attaches to 'not approved' entries (world/feed.json request events)"
+}

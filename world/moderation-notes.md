@@ -182,14 +182,20 @@ the bar for touching the world is deliberately unreachable by drama.)
 | "Buy Dana* a coffee gift" (*player's char) | compatible | pass | no | runs; gift catalog only, no custom text |
 | "Rent 9418-B and move in" | housing | pass | no | lease flow; feed shows move-in |
 
-## 8. World-track tooling debt (v8 consumes)
+## 8. World-track tooling (v8 — delivered)
 
-- `world/` owns the *policy*; game-systems owns classifier plumbing and
-  the queue data model. v8 spec: console views (request detail, history,
-  claims state), reason-code taxonomy, SLA metrics, appeal flow.
+- `world/mod-console.html` — review-queue console demo (lanes, detail +
+  classifier trace, whitelist context panel, decisions, appeals, audit log).
+- `world/screen.js` — shared screening engine (`RWScreen.screenRequest`);
+  used by both request.html and mod-console.html. Reason taxonomy gained
+  `admin-domain` (rent/eviction requests are admin-only, deny tier).
+- `world/moderation.json` — machine-readable contract (codes, routing,
+  SLA, whitelist, appeal flow, flag thresholds).
+- `world/moderation-tooling.md` — spec + reviewer runbook.
 - Briefing-schema whitelist (public profile / surface relationships /
   routine only) is shared between possession briefings and the mod
-  console — enforce once, reuse everywhere.
+  console — enforced once in the whitelist, reused everywhere.
 - Feed vocabulary (`running/queued/resolved/refunded`) must match the
   game's `gsViewerState` — marketing's demo page is already marked
-  illustrative pending this sync.
+  illustrative pending this sync. Still open: game-track owns the queue
+  data model + ledger writes at merge.

@@ -8,6 +8,7 @@
     "who": "optional character id (C1–C8, A01–A20) or player handle on request events",
     "text": "display text — surface-level only; never quotes interiors of homes, never secrets",
     "status": "request events only: one of request_status",
+    "reason_code": "optional, denied requests only: fixed enum from world/moderation.json (public sees the why-class, never the screened text beyond the display filter)",
     "attrs": "optional: { surge, credits, compensated_cr } for transparency lines"
   },
   "event_kinds": [
@@ -22,7 +23,7 @@
     "cast",      "a hired character joins the block — attributed to the hiring player; bio text only post-screen",
     "quiet"      ,"honest-empty marker for dead dayparts — the feed may go quiet and says so"
   ],
-  "request_status": ["requested", "in_review", "approved", "running", "queued", "resolved", "refunded", "not approved", "player session ended"],
+  "request_status": ["requested", "in_review", "approved", "approved (modified)", "running", "queued", "resolved", "refunded", "not approved", "player session ended"],
   "venues": {
     "mudhaus":  "Mudhaus Coffee",
     "park":     "Dolores Park",

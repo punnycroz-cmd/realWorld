@@ -24,7 +24,8 @@
       "note": "One-time per character, slot-capped per account (creation.json). Includes starter wardrobe + apartment hunt; housing costs game dollars. Denied applications never bill.",
       "spec": "world/creation-ui.md" }
   ],
-  "feed_vocabulary": ["requested", "in_review", "approved", "running", "queued", "resolved", "refunded", "not approved", "admin action", "player session ended"],
+  "feed_vocabulary": ["requested", "in_review", "approved", "approved (modified)", "running", "queued", "resolved", "refunded", "not approved", "admin action", "player session ended"],
+  "moderation_contract": "world/moderation.json — reason codes attach to 'not approved' feed entries; display filter (redact/withhold/quarantine) is an owner decision at build time",
   "fairness_invariants": [
     "cooldowns never purchasable",
     "surge multiplier shown before payment",

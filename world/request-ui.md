@@ -84,8 +84,10 @@ class only* per plan §2.5).
 ## 7. Demo limits (what's simulated)
 
 `request.html` ships without the game request bus (it lives on
-`sf/game-systems`): classification, screening, review, sessions, and feed are
-all local simulation. The screening keywords demonstrate the §3 contract —
-the real classifier is game-track plumbing (v8 spec). At merge, the demo's
+`sf/game-systems`): classification, review, sessions, and feed are local
+simulation. Screening is NOT a demo stub — it calls the shared engine
+`world/screen.js` (`RWScreen.screenRequest`), the same function the mod
+console (`world/mod-console.html`, v8) runs, implementing the §3 contract +
+reason taxonomy in `world/moderation.json`. At merge, the demo's
 `run/feedAdd` calls become `gsViewerState` subscriptions and `gsRequest*`
 calls; the copy above is final.

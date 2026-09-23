@@ -140,6 +140,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="screen.js"></script>
 <script>
 /* ================= demo state ================= */
 var BAL = 1240;
@@ -189,28 +190,14 @@ var FEED = [
   {t:'18:02', who:'dvh', txt:'possess — own baker, 45 min', st:'resolved', tail:'player session ended'}
 ];
 
-/* ================= screening (demo of §3 contract) ================= */
-var DENY = [
-  {re:/\b(kill|burn|destroy|ruin|get (her|him|them|fired)|humiliate|hurt|punish|make .* (cry|suffer)|firebomb)\b/i,
-   code:'harm-targeting', msg:'Requests that aim to hurt, humiliate, or ruin a character are never run.'},
-  {re:/\b(secret|reveal|admit|confess|redacted|who writes|mission unfiltered|drama seed)\b/i,
-   code:'secret-extraction', msg:'Secrets are discovered by watching, never by request. They aren\u2019t in any schema a request can reach.'},
-  {re:/\b(possess|take over|control|play as)\b.*\b(marisol|jules|dani|priya|marcus|carmen|victor|tomás|tomas|landlord)\b/i,
-   code:'possession-scope', msg:'The main cast is unpossessable — by anyone, including the owner. You can only possess a character you hired.'},
-  {re:/\b(bi-rite|tartine|delfina|dolores park cafe|500 club|dandelion)\b/i,
-   code:'real-business', msg:'The world can\u2019t see real business names. Try the parody — this neighborhood has its own.'},
-  {re:/\b(threat|doxx|real address|swat|credit card|password)\b/i,
-   code:'legal-backstop', msg:'Request not approved.'}   // neutral public wording per §5
-];
-var REVIEW = [
-  {re:/\b(break ?up|dump|confront|quit|evict|kick out|yell|insult)\b/i,
-   code:'gray-zone', msg:'Charged requests get a human pair of eyes first.'}
-];
+/* ================= screening (world/screen.js — §3 contract) ================= */
 function screenText(action, target, text){
-  var s = (action+' '+target+' '+text).toLowerCase();
-  for (var i=0;i<DENY.length;i++) if (DENY[i].re.test(s)) return {r:'deny', code:DENY[i].code, msg:DENY[i].msg};
-  for (var j=0;j<REVIEW.length;j++) if (REVIEW[j].re.test(s)) return {r:'review', code:REVIEW[j].code, msg:REVIEW[j].msg};
-  return {r:'pass'};
+  var res = RWScreen.screenRequest({
+    action: action, target_id: target, target_label: target, text: text,
+    player: { acct_age_d: 400, denied_30d: 0, same_target_7d: 0 },
+    exclusive: (ACTIONS[actSel.selectedIndex].cls === 'exclusive')
+  });
+  return { r: res.verdict, code: res.code, msg: res.player_msg };
 }
 
 /* ================= pricing ================= */
