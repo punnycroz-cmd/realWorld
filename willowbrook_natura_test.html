@@ -30104,8 +30104,15 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.arc(pb[0], pt[1] + r + 1, r + 1, Math.PI, 0, true);
     ctx.lineTo(pb[0] + r + 1, pb[1]); ctx.closePath(); ctx.fill();
     const gg = ctx.createLinearGradient(0, pt[1], 0, pb[1]);
-    if(night && phash(wx * 7 | 0, zB * 13 | 0, i) < 0.5){
+    const litWin = sfLampsLit() && phash(wx * 7 | 0, zB * 13 | 0, i) < 0.5;
+    // v16: ~40% of daylight windows show the room behind the glass —
+    // dim interior + treatment — instead of a pure sky mirror
+    const treat = phash(Math.round(wx * 31), Math.round(zB * 17), i + 1770);
+    const seeIn = !night && !litWin && det === 2 && treat < 0.42;
+    if(litWin){
       gg.addColorStop(0, '#ffe9b0'); gg.addColorStop(1, '#c9862e');
+    } else if(seeIn){
+      gg.addColorStop(0, '#241a12'); gg.addColorStop(1, '#43301f');
     } else {
       gg.addColorStop(0, '#5d7d92'); gg.addColorStop(0.55, '#8fb0c6');
       gg.addColorStop(1, '#a9c6da');
@@ -30115,6 +30122,39 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.moveTo(pb[0] - r, pb[1]); ctx.lineTo(pb[0] - r, pt[1] + r);
     ctx.arc(pb[0], pt[1] + r, r, Math.PI, 0, true);
     ctx.lineTo(pb[0] + r, pb[1]); ctx.closePath(); ctx.fill();
+    // v16: what's inside — blinds, curtains, or a sill plant silhouette
+    if(seeIn && ww > 6){
+      if(treat < 0.15){            // venetian blinds, half down
+        ctx.fillStyle = 'rgba(214,204,180,0.85)';
+        ctx.fillRect(pb[0] - r, pt[1] + wh * 0.06, ww, wh * 0.42);
+        ctx.strokeStyle = 'rgba(80,66,48,0.8)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let k = 1; k < 5; k++){
+          const yy = pt[1] + wh * 0.06 + wh * 0.42 * k / 5;
+          ctx.moveTo(pb[0] - r, yy); ctx.lineTo(pb[0] + r, yy);
+        }
+        ctx.stroke();
+      } else if(treat < 0.30){     // side curtains
+        ctx.fillStyle = 'rgba(188,168,140,0.9)';
+        ctx.fillRect(pb[0] - r, pt[1], ww * 0.3, wh);
+        ctx.fillRect(pb[0] + r - ww * 0.3, pt[1], ww * 0.3, wh);
+      } else {                     // plant on the sill
+        ctx.fillStyle = 'rgba(46,90,40,0.9)';
+        ctx.beginPath();
+        ctx.arc(pb[0], pb[1] - wh * 0.16, r * 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(90,52,30,0.9)';
+        ctx.fillRect(pb[0] - r * 0.22, pb[1] - wh * 0.12, r * 0.44, wh * 0.12);
+      }
+      // glass still catches the sky — faint reflection over the room
+      ctx.fillStyle = 'rgba(160,190,214,0.16)';
+      ctx.fillRect(pb[0] - r, pt[1], ww, wh);
+    } else if(litWin && phash(wx * 11 | 0, zB * 3 | 0, i + 1771) < 0.4){
+      // lit window with a figure or lamp silhouette against the warmth
+      ctx.fillStyle = 'rgba(70,44,20,0.75)';
+      const fh = wh * 0.4;
+      ctx.fillRect(pb[0] - ww * 0.12, pb[1] - fh, ww * 0.24, fh);
+      ctx.beginPath(); ctx.arc(pb[0], pb[1] - fh - ww * 0.07, ww * 0.09, 0, Math.PI * 2); ctx.fill();
+    }
     // v14: sun glint — glass flashes warm when the facade faces the sun
     if(!night && SF_SUN.day > 0.3 && sunK > 0.35){
       ctx.fillStyle = `rgba(255,242,205,${0.32 * SF_SUN.day * sunK})`;
@@ -30202,9 +30242,96 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     const s0 = 0.16, s1 = 0.84;
     const sx0 = x1 + ex * s0, sy0 = y1 + ey * s0;
     const sx1 = x1 + ex * s1, sy1 = y1 + ey * s1;
-    // recessed plate-glass storefront + mullions + bulkhead + fascia
-    quad([[sx0, sy0, 0.55], [sx1, sy1, 0.55], [sx1, sy1, 2.6], [sx0, sy0, 2.6]],
-         night ? '#4a3a20' : '#2e3a44');
+    // recessed plate-glass storefront — v16: you can see IN now. The
+    // glass box shows the lit interior (back wall, shelves, counter,
+    // pendant lamps, a figure behind the bar), then sky reflection +
+    // mullions read it back as a window.
+    const gA = pr(sx0, sy0, 0.55), gB = pr(sx1, sy1, 0.55),
+          tA = pr(sx0, sy0, 2.6), tB = pr(sx1, sy1, 2.6);
+    if(gA && gB && tA && tB && Math.abs(gB[0] - gA[0]) > 8){
+      // screen-space point inside the glass quad: u along the front,
+      // z 0..1 floor->transom, d depth into the room (0 glass, 1 back)
+      const sp = (u, z, d) => {
+        const lx = gA[0] + (tA[0] - gA[0]) * z, ly = gA[1] + (tA[1] - gA[1]) * z;
+        const rx = gB[0] + (tB[0] - gB[0]) * z, ry = gB[1] + (tB[1] - gB[1]) * z;
+        const uu = u + (0.5 - u) * d * 0.55;   // squeeze toward center w/ depth
+        return [lx + (rx - lx) * uu, ly + (ry - ly) * uu + d * 0.12 * (tA[1] - gA[1])];
+      };
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(gA[0], gA[1]); ctx.lineTo(gB[0], gB[1]);
+      ctx.lineTo(tB[0], tB[1]); ctx.lineTo(tA[0], tA[1]);
+      ctx.closePath(); ctx.clip();
+      // interior volume: ceiling-dark down to floor-warm
+      const ig = ctx.createLinearGradient(0, Math.min(tA[1], tB[1]),
+                                        0, Math.max(gA[1], gB[1]));
+      if(night){
+        ig.addColorStop(0, '#3a2c18'); ig.addColorStop(1, '#6a4a26');
+      } else {
+        ig.addColorStop(0, '#33271c'); ig.addColorStop(0.55, '#54402c');
+        ig.addColorStop(1, '#6e5638');
+      }
+      ctx.fillStyle = ig;
+      ctx.fillRect(Math.min(gA[0], tA[0], gB[0], tB[0]) - 2,
+                   Math.min(gA[1], tA[1], gB[1], tB[1]) - 2,
+                   Math.abs(gB[0] - gA[0]) + 4,
+                   Math.max(gA[1], gB[1]) - Math.min(tA[1], tB[1]) + 4);
+      // back-wall shelf line with jars
+      const sh0 = sp(0.12, 0.55, 1), sh1 = sp(0.62, 0.55, 1);
+      ctx.strokeStyle = 'rgba(30,20,12,0.9)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(sh0[0], sh0[1]); ctx.lineTo(sh1[0], sh1[1]); ctx.stroke();
+      const nJar = Math.max(2, Math.floor(Math.hypot(sh1[0] - sh0[0], sh1[1] - sh0[1]) / 9));
+      for(let k = 0; k < nJar; k++){
+        const u = k / Math.max(1, nJar - 1);
+        const jx = sh0[0] + (sh1[0] - sh0[0]) * u, jy = sh0[1] + (sh1[1] - sh0[1]) * u;
+        ctx.fillStyle = ['#c9b89a', '#8a5a3a', '#5a7a8a', '#d8d0c0'][k % 4];
+        ctx.fillRect(jx - 1.5, jy - 6, 3.4, 6);
+      }
+      // counter silhouette with a lit top edge
+      const c0 = sp(0.16, 0.30, 0.45), c1 = sp(0.70, 0.30, 0.45),
+            c2 = sp(0.70, 0.02, 0.45), c3 = sp(0.16, 0.02, 0.45);
+      ctx.fillStyle = '#241a10';
+      ctx.beginPath(); ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]);
+      ctx.lineTo(c2[0], c2[1]); ctx.lineTo(c3[0], c3[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(230,200,140,0.55)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]); ctx.stroke();
+      // barista silhouette behind the counter
+      const fp = sp(0.44 + phash(i, ei, 1450) * 0.14, 0.30, 0.8);
+      const fs = Math.abs(gA[1] - tA[1]) / 46;
+      ctx.fillStyle = 'rgba(16,10,6,0.9)';
+      ctx.fillRect(fp[0] - 5 * fs, fp[1] - 22 * fs, 10 * fs, 22 * fs);
+      ctx.beginPath(); ctx.arc(fp[0], fp[1] - 26 * fs, 4.4 * fs, 0, Math.PI * 2); ctx.fill();
+      // pendant lamps: cord + glowing cone (always on in a working shop)
+      for(let k = 0; k < 3; k++){
+        const lp = sp(0.2 + k * 0.22, 0.98, 0.6), lt = sp(0.2 + k * 0.22, 0.80, 0.6);
+        ctx.strokeStyle = '#120e08'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(lp[0], lp[1]); ctx.lineTo(lt[0], lt[1]); ctx.stroke();
+        ctx.fillStyle = '#26382e';
+        ctx.beginPath(); ctx.moveTo(lt[0] - 5, lt[1]); ctx.lineTo(lt[0] + 5, lt[1]);
+        ctx.lineTo(lt[0] + 3, lt[1] - 6); ctx.lineTo(lt[0] - 3, lt[1] - 6);
+        ctx.closePath(); ctx.fill();
+        const la = night || sfLampsLit() ? 0.75 : 0.4;
+        const lg = ctx.createRadialGradient(lt[0], lt[1] + 3, 1, lt[0], lt[1] + 3, 16);
+        lg.addColorStop(0, `rgba(255,206,120,${la})`);
+        lg.addColorStop(1, 'rgba(255,206,120,0)');
+        ctx.fillStyle = lg;
+        ctx.fillRect(lt[0] - 16, lt[1] - 10, 32, 34);
+      }
+      // glass over the room: sky reflection + a diagonal glare swipe
+      ctx.fillStyle = night ? 'rgba(60,70,95,0.18)' : 'rgba(150,185,215,0.22)';
+      ctx.beginPath();
+      ctx.moveTo(gA[0], gA[1]); ctx.lineTo(gB[0], gB[1]);
+      ctx.lineTo(tB[0], tB[1]); ctx.lineTo(tA[0], tA[1]);
+      ctx.closePath(); ctx.fill();
+      const glx = gA[0] + (gB[0] - gA[0]) * phash(i, ei, 1451);
+      ctx.fillStyle = `rgba(235,244,252,${night ? 0.10 : 0.22})`;
+      ctx.beginPath();
+      ctx.moveTo(glx - 8, gA[1]); ctx.lineTo(glx + 14, gA[1]);
+      ctx.lineTo(glx + 34, tA[1]); ctx.lineTo(glx + 12, tA[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
     for(let k = 0; k <= 3; k++){
       const u = s0 + (s1 - s0) * k / 3;
       const pb = pr(x1 + ex * u, y1 + ey * u, 0.55),
@@ -31340,34 +31467,365 @@ function sfRenderStreet(cw, ch){
   sfPerfHud(cw, ch);
 }
 
-/* minimal generated interior backdrop for door-teleported pawns */
+/* ---------------- v16: real interiors ----------------
+   Door-teleported pawns used to land on a flat brown backdrop. Now each
+   interior is a one-point-perspective room, built per venue archetype:
+   cafés/shops get a counter, espresso machine, pastry case, menu board,
+   pendant lamps and window seats; flats get a sofa, rug, bookshelf,
+   floor lamp and sash windows. Physically consistent light: the sky
+   through the windows matches the outdoor grade, sun shafts pour in when
+   the real solar vector says the facade is lit, lamps glow at civil dusk
+   (sfLampsLit), and everyone inside casts a contact shadow. */
+const SF_INT_SEED = {};
+function sfIntSeed(name){
+  if(SF_INT_SEED[name] == null){
+    let h = 0;
+    for(let k = 0; k < name.length; k++) h = (h * 31 + name.charCodeAt(k)) >>> 0;
+    SF_INT_SEED[name] = h % 10000;
+  }
+  return SF_INT_SEED[name];
+}
 function sfRenderInterior(cw, ch, v){
   const name = v.inside || 'inside';
-  ctx.fillStyle = '#241c16'; ctx.fillRect(0, 0, cw, ch);
-  const wallG = ctx.createLinearGradient(0, 0, 0, ch * 0.6);
-  wallG.addColorStop(0, '#4a3a2c'); wallG.addColorStop(1, '#6b5340');
-  ctx.fillStyle = wallG; ctx.fillRect(0, 0, cw, ch * 0.6);
-  ctx.fillStyle = '#8a6a45'; ctx.fillRect(0, ch * 0.6, cw, ch * 0.4);
-  // floorboards
-  ctx.strokeStyle = 'rgba(60,40,20,0.5)';
-  for(let y = ch * 0.62; y < ch; y += 14){ ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cw, y); ctx.stroke(); }
-  // counter blob + shelves
-  paBlob(ctx, cw / 2, ch * 0.62, Math.min(140, cw * 0.18), '#5a3a22');
-  paBlob(ctx, cw / 2, ch * 0.60, Math.min(130, cw * 0.17), '#8a6a45');
-  for(let i = 0; i < 3; i++)
-    paEllipse(ctx, cw * 0.25 + i * cw * 0.25, ch * 0.3, 60, 10, '#4a3423');
-  ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillStyle = '#f8f4e8';
-  ctx.fillText('— ' + name + ' —', cw / 2, ch * 0.18);
-  const lab = (SF_INTERIORS[name] && SF_INTERIORS[name].label) || '';
-  ctx.font = '12px sans-serif'; ctx.fillStyle = '#d8c8b0';
-  ctx.fillText(lab, cw / 2, ch * 0.22);
-  // the pawn standing inside
+  const rec = SF_INTERIORS[name];
+  const lab = (rec && rec.label) || '';
+  const seed = sfIntSeed(name);
+  // venue interiors are registered POIs; flats are anchor rooms (poi:null)
+  const shop = rec ? !!rec.poi : /caf|coffee|counter|aisle|salsa|park-edge|bins/i.test(lab + ' ' + name);
+  const night = isNight();
+  const lamps = sfLampsLit();
+
+  /* --- room shell: one vanishing point centered on the back wall --- */
+  const vpx = cw * 0.5, vpy = ch * 0.40;
+  const bL = cw * 0.24, bR = cw * 0.76, bT = ch * 0.15, bB = ch * 0.60;
+  const wallB = shop ? '#6d5a44' : '#7a6a58';
+  const wallT = shop ? '#8a7458' : '#9a8874';
+  // ceiling
+  const cg = ctx.createLinearGradient(0, 0, 0, bT);
+  cg.addColorStop(0, shade(wallT, 0.5)); cg.addColorStop(1, shade(wallT, 0.78));
+  ctx.fillStyle = cg;
+  ctx.beginPath();
+  ctx.moveTo(0, 0); ctx.lineTo(cw, 0); ctx.lineTo(bR, bT); ctx.lineTo(bL, bT);
+  ctx.closePath(); ctx.fill();
+  // side walls (cooler, they face away from the window light)
+  for(const sgn of [-1, 1]){
+    const g2 = ctx.createLinearGradient(sgn < 0 ? 0 : cw, 0, vpx, 0);
+    g2.addColorStop(0, shade(wallB, 0.62)); g2.addColorStop(1, shade(wallB, 0.95));
+    ctx.fillStyle = g2;
+    ctx.beginPath();
+    if(sgn < 0){ ctx.moveTo(0, 0); ctx.lineTo(bL, bT); ctx.lineTo(bL, bB); ctx.lineTo(0, ch); }
+    else { ctx.moveTo(cw, 0); ctx.lineTo(bR, bT); ctx.lineTo(bR, bB); ctx.lineTo(cw, ch); }
+    ctx.closePath(); ctx.fill();
+  }
+  // back wall
+  const wg = ctx.createLinearGradient(0, bT, 0, bB);
+  wg.addColorStop(0, wallT); wg.addColorStop(1, wallB);
+  ctx.fillStyle = wg; ctx.fillRect(bL, bT, bR - bL, bB - bT);
+  // wainscot band + picture rail (Edwardian flat grammar even in shops)
+  ctx.fillStyle = shade(wallB, 0.8);
+  ctx.fillRect(bL, bB - (bB - bT) * 0.16, bR - bL, (bB - bT) * 0.16);
+  ctx.strokeStyle = shade(wallT, 1.12); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(bL, bB - (bB - bT) * 0.16);
+  ctx.lineTo(bR, bB - (bB - bT) * 0.16); ctx.stroke();
+  ctx.strokeStyle = 'rgba(30,22,14,0.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(bL, bT + (bB - bT) * 0.14);
+  ctx.lineTo(bR, bT + (bB - bT) * 0.14); ctx.stroke();
+  // floor — planks converge on the vanishing point, cross-seams get
+  // denser with depth (perspective foreshortening)
+  const fg = ctx.createLinearGradient(0, bB, 0, ch);
+  fg.addColorStop(0, '#9a7448'); fg.addColorStop(1, '#6b4a2c');
+  ctx.fillStyle = fg;
+  ctx.beginPath();
+  ctx.moveTo(bL, bB); ctx.lineTo(bR, bB); ctx.lineTo(cw, ch); ctx.lineTo(0, ch);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(52,34,18,0.5)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let k = 0; k <= 14; k++){
+    const x0 = bL + (bR - bL) * k / 14;
+    const x1 = (x0 - vpx) * (ch / Math.max(1, bB - vpy)) + vpx;
+    ctx.moveTo(x0, bB); ctx.lineTo(x1, ch);
+  }
+  for(let k = 1; k <= 6; k++){
+    const t = Math.pow(k / 6, 1.55);
+    const y = bB + (ch - bB) * t;
+    const xl = bL + (0 - bL) * t, xr = bR + (cw - bR) * t;
+    ctx.moveTo(xl, y); ctx.lineTo(xr, y);
+  }
+  ctx.stroke();
+  // baseboards + crown molding
+  ctx.strokeStyle = shade('#e8dcc8', 0.85); ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(bL, bB); ctx.lineTo(bR, bB); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bL, bT); ctx.lineTo(bR, bT); ctx.stroke();
+
+  /* --- windows on the back wall: real sky outside, real sun in --- */
+  // sky grade mirrors sfRenderStreet's gradient, same tod/weather
+  const wK = SF_SUN.warm;
+  const skyAt = (y0, y1) => {
+    const g2 = ctx.createLinearGradient(0, y0, 0, y1);
+    if(night){ g2.addColorStop(0, '#101626'); g2.addColorStop(1, '#2a3350'); }
+    else if(W.rain > 0.2){ g2.addColorStop(0, '#6a7688'); g2.addColorStop(1, '#a8b2bc'); }
+    else {
+      g2.addColorStop(0, mix('#5b8fc9', '#5a6ea8', wK * 0.65));
+      g2.addColorStop(1, mix('#cfe3f2', '#ffc98a', wK * 0.85));
+    }
+    return g2;
+  };
+  // sun shafts pour in while direct sun is up; slant follows the sun's
+  // world-space east/west bearing so it always agrees with the shadows
+  // outside (east sun pushes the beam toward the room's west side)
+  const sunIn = !night && SF_SUN.day > 0.22;
+  const winRects = [];
+  if(shop){
+    // storefront glass: one wide front window — you're looking back out
+    // at the street you walked in from
+    const wx0 = bL + (bR - bL) * 0.08, wx1 = bR - (bR - bL) * 0.08;
+    const wy0 = bT + (bB - bT) * 0.10, wy1 = bB - (bB - bT) * 0.24;
+    winRects.push([wx0, wy0, wx1, wy1]);
+  } else {
+    // two double-hung sash windows
+    for(const f of [0.14, 0.56]){
+      const wx0 = bL + (bR - bL) * f, wx1 = wx0 + (bR - bL) * 0.30;
+      const wy0 = bT + (bB - bT) * 0.10, wy1 = wy0 + (bB - bT) * 0.62;
+      winRects.push([wx0, wy0, wx1, wy1]);
+    }
+  }
+  for(const [wx0, wy0, wx1, wy1] of winRects){
+    ctx.fillStyle = '#efe6d4';
+    ctx.fillRect(wx0 - 5, wy0 - 5, wx1 - wx0 + 10, wy1 - wy0 + 10);
+    ctx.fillStyle = skyAt(wy0, wy1);
+    ctx.fillRect(wx0, wy0, wx1 - wx0, wy1 - wy0);
+    // street across the way: sidewalk band + facing roofline silhouette
+    ctx.fillStyle = night ? '#1c1a20' : 'rgba(60,56,52,0.85)';
+    ctx.fillRect(wx0, wy1 - (wy1 - wy0) * 0.22, wx1 - wx0, (wy1 - wy0) * 0.22);
+    ctx.fillStyle = night ? '#141220' : 'rgba(96,82,70,0.8)';
+    for(let k = 0; k < 3; k++){
+      const bx = wx0 + (wx1 - wx0) * phash(k, seed, 1901);
+      const bw2 = (wx1 - wx0) * (0.14 + phash(k, seed, 1902) * 0.2);
+      const bh = (wy1 - wy0) * (0.16 + phash(k, seed, 1903) * 0.14);
+      ctx.fillRect(bx, wy1 - (wy1 - wy0) * 0.22 - bh, bw2, bh);
+    }
+    if(!shop){ // sash meeting rail + muntins
+      ctx.strokeStyle = '#efe6d4'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(wx0, (wy0 + wy1) / 2);
+      ctx.lineTo(wx1, (wy0 + wy1) / 2); ctx.stroke();
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo((wx0 + wx1) / 2, wy0);
+      ctx.lineTo((wx0 + wx1) / 2, wy1); ctx.stroke();
+    } else { // storefront mullions
+      ctx.strokeStyle = 'rgba(28,36,44,0.9)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(let k = 1; k < 4; k++){
+        const mx = wx0 + (wx1 - wx0) * k / 4;
+        ctx.moveTo(mx, wy0); ctx.lineTo(mx, wy1);
+      }
+      ctx.stroke();
+    }
+    // curtain panels on flat windows
+    if(!shop){
+      ctx.fillStyle = `rgba(226,214,190,${night ? 0.9 : 0.75})`;
+      ctx.fillRect(wx0 - 2, wy0 - 2, (wx1 - wx0) * 0.16, wy1 - wy0 + 4);
+      ctx.fillRect(wx1 - (wx1 - wx0) * 0.16 + 2, wy0 - 2, (wx1 - wx0) * 0.16, wy1 - wy0 + 4);
+    }
+    // sun shaft: the window throws a bright parallelogram onto the floor,
+    // slanted by the sun's horizontal bearing, fading with distance
+    if(sunIn){
+      const slant = clamp(SF_SUN.toX, -1, 1) * (wx1 - wx0) * 0.9;
+      const drop = (ch - wy1) * 0.6;
+      const sg = ctx.createLinearGradient(0, wy1, 0, wy1 + drop);
+      sg.addColorStop(0, `rgba(255,238,190,${0.42 * SF_SUN.day})`);
+      sg.addColorStop(1, 'rgba(255,238,190,0)');
+      ctx.fillStyle = sg;
+      ctx.beginPath();
+      ctx.moveTo(wx0, wy1); ctx.lineTo(wx1, wy1);
+      ctx.lineTo(wx1 + slant, wy1 + drop); ctx.lineTo(wx0 + slant, wy1 + drop);
+      ctx.closePath(); ctx.fill();
+      // dust motes hanging in the beam
+      ctx.fillStyle = `rgba(255,244,210,${0.5 * SF_SUN.day})`;
+      const bucket = Math.floor(SF_WX.t * 6);
+      for(let k = 0; k < 10; k++){
+        const mx = wx0 + hash2(k, bucket, seed + 1905) * (wx1 - wx0) +
+                   slant * hash2(k, 3, seed + 1906) * 0.6;
+        const my = wy1 + hash2(k, bucket + 41, seed + 1907) * drop;
+        ctx.fillRect(mx, my, 1.6, 1.6);
+      }
+    }
+  }
+
+  /* --- furniture, per archetype --- */
+  const lampGlow = lamps || night;
+  if(shop){
+    // back-bar shelves with cups/jars
+    for(let s = 0; s < 2; s++){
+      const sy = bT + (bB - bT) * (0.16 + s * 0.12);
+      const sx0 = bL + (bR - bL) * 0.10, sx1 = sx0 + (bR - bL) * 0.26;
+      ctx.fillStyle = '#4a3626'; ctx.fillRect(sx0, sy, sx1 - sx0, 4);
+      for(let k = 0; k < 6; k++){
+        ctx.fillStyle = ['#c9b89a', '#8a5a3a', '#5a7a8a', '#d8d0c0'][k % 4];
+        ctx.fillRect(sx0 + 4 + k * (sx1 - sx0 - 8) / 6, sy - 8, 6, 8);
+      }
+    }
+    // menu board
+    const mx0 = bR - (bR - bL) * 0.34, my0 = bT + (bB - bT) * 0.10;
+    ctx.fillStyle = '#2a2620';
+    ctx.fillRect(mx0, my0, (bR - bL) * 0.24, (bB - bT) * 0.34);
+    ctx.strokeStyle = '#d8cba8'; ctx.lineWidth = 2;
+    ctx.strokeRect(mx0, my0, (bR - bL) * 0.24, (bB - bT) * 0.34);
+    ctx.strokeStyle = 'rgba(230,220,190,0.7)'; ctx.lineWidth = 1;
+    for(let k = 0; k < 4; k++){
+      ctx.beginPath();
+      ctx.moveTo(mx0 + 8, my0 + 10 + k * 11);
+      ctx.lineTo(mx0 + (bR - bL) * 0.24 - 8 - phash(k, seed, 1910) * 30, my0 + 10 + k * 11);
+      ctx.stroke();
+    }
+    // the counter: front face + lighter top, espresso machine + pastry case
+    const cx0 = cw * 0.52, cx1 = cw * 0.94, cy0 = ch * 0.62, cy1 = ch * 0.80;
+    ctx.fillStyle = '#5a3a22'; ctx.fillRect(cx0, cy0, cx1 - cx0, cy1 - cy0);
+    ctx.fillStyle = '#8a6a45'; ctx.fillRect(cx0 - 8, cy0 - 10, cx1 - cx0 + 16, 12);
+    ctx.fillStyle = '#c8b490'; ctx.fillRect(cx0 - 8, cy0 - 10, cx1 - cx0 + 16, 3);
+    // espresso machine silhouette
+    ctx.fillStyle = '#2c2c30';
+    ctx.fillRect(cx0 + 14, cy0 - 46, 54, 38);
+    ctx.fillStyle = '#b8bcc4'; ctx.fillRect(cx0 + 20, cy0 - 40, 42, 8);
+    ctx.fillStyle = '#d8a44a'; ctx.fillRect(cx0 + 24, cy0 - 24, 8, 10);
+    // pastry case: glass dome over warm crumb
+    ctx.fillStyle = '#7a4a26'; ctx.fillRect(cx1 - 78, cy0 - 20, 60, 10);
+    ctx.fillStyle = 'rgba(210,228,240,0.5)';
+    ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 20, 30, 14, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#e0b060';
+    ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 22, 22, 8, 0, Math.PI, 0); ctx.fill();
+    // cafe tables + chairs between camera and counter
+    for(let k = 0; k < 2; k++){
+      const tx = cw * (0.16 + k * 0.18), ty = ch * (0.78 + k * 0.06);
+      const tr = cw * 0.055;
+      ctx.fillStyle = 'rgba(20,14,8,0.35)';
+      ctx.beginPath(); ctx.ellipse(tx, ty + tr * 0.5, tr * 1.1, tr * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#3a2c1c'; ctx.fillRect(tx - 3, ty, 6, tr * 0.9);
+      ctx.fillStyle = '#d8cba8';
+      ctx.beginPath(); ctx.ellipse(tx, ty, tr, tr * 0.34, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#8a6a45'; ctx.lineWidth = 2; ctx.stroke();
+      for(const cs of [-1, 1]){ // chairs
+        ctx.fillStyle = '#4a3626';
+        ctx.fillRect(tx + cs * tr * 1.35 - 6, ty - 14, 12, 26);
+      }
+    }
+  } else {
+    // flat: rug, sofa, bookshelf, floor lamp, framed art, sill plant
+    ctx.fillStyle = shop ? '#7a4a3a' : '#8a4a42';
+    ctx.beginPath(); ctx.ellipse(vpx, ch * 0.82, cw * 0.16, ch * 0.075, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#5e342e'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.ellipse(vpx, ch * 0.82, cw * 0.13, ch * 0.058, 0, 0, Math.PI * 2); ctx.stroke();
+    // sofa against the left wall
+    const sox = cw * 0.10, soy = ch * 0.66;
+    ctx.fillStyle = 'rgba(20,14,8,0.35)';
+    ctx.beginPath(); ctx.ellipse(sox + 60, soy + 66, 72, 14, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5a6a58';
+    ctx.fillRect(sox, soy, 120, 56);
+    ctx.fillStyle = '#6d7e6a'; ctx.fillRect(sox, soy - 22, 120, 26);
+    ctx.fillStyle = '#4a5848';
+    ctx.fillRect(sox, soy + 20, 12, 36); ctx.fillRect(sox + 108, soy + 20, 12, 36);
+    ctx.fillStyle = '#c9a86a'; ctx.fillRect(sox + 16, soy - 14, 26, 18);
+    ctx.fillStyle = '#a85a5a'; ctx.fillRect(sox + 76, soy - 14, 26, 18);
+    // bookshelf right
+    const bsx = cw * 0.80, bsy = ch * 0.42, bsw = cw * 0.14, bsh = ch * 0.34;
+    ctx.fillStyle = '#4a3423'; ctx.fillRect(bsx, bsy, bsw, bsh);
+    for(let s = 0; s < 4; s++){
+      const sy = bsy + 12 + s * (bsh - 20) / 4;
+      ctx.fillStyle = '#3a281a'; ctx.fillRect(bsx + 5, sy, bsw - 10, 3);
+      for(let k = 0; k < 9; k++){
+        const bh2 = 12 + phash(k, s, seed + 1915) * 10;
+        ctx.fillStyle = ['#8a4a3a', '#3a5a7a', '#7a8a4a', '#b0905a', '#5a4a7a'][Math.floor(phash(k, s, seed + 1916) * 5)];
+        ctx.fillRect(bsx + 8 + k * (bsw - 16) / 9, sy - bh2 + 2, (bsw - 16) / 11, bh2);
+      }
+    }
+    // framed pictures on the back wall
+    for(let k = 0; k < 2; k++){
+      const fx = bL + (bR - bL) * (0.06 + k * 0.82), fy = bT + (bB - bT) * 0.16;
+      ctx.fillStyle = '#3a2c1c'; ctx.fillRect(fx, fy, 44, 56);
+      ctx.fillStyle = ['#7a9ab0', '#b0785a'][k];
+      ctx.fillRect(fx + 4, fy + 4, 36, 48);
+    }
+    // floor lamp with a lit cone at dusk
+    const lx = cw * 0.32, ly = ch * 0.60;
+    ctx.fillStyle = '#2c241c'; ctx.fillRect(lx - 2, ly - 60, 4, 62);
+    ctx.fillStyle = lampGlow ? '#f0d8a0' : '#c8b890';
+    ctx.beginPath(); ctx.moveTo(lx - 16, ly - 58); ctx.lineTo(lx + 16, ly - 58);
+    ctx.lineTo(lx + 10, ly - 78); ctx.lineTo(lx - 10, ly - 78); ctx.closePath(); ctx.fill();
+    if(lampGlow){
+      const lg = ctx.createRadialGradient(lx, ly - 62, 4, lx, ly - 62, 90);
+      lg.addColorStop(0, 'rgba(255,214,140,0.4)');
+      lg.addColorStop(1, 'rgba(255,214,140,0)');
+      ctx.fillStyle = lg; ctx.fillRect(lx - 90, ly - 150, 180, 180);
+    }
+    // plant on the floor by the window
+    ctx.fillStyle = '#8a5a3a'; ctx.fillRect(bL + 14, bB - 4, 20, 16);
+    ctx.fillStyle = '#3e7a34';
+    for(let k = 0; k < 5; k++)
+      paBlob(ctx, bL + 24 + Math.cos(k * 1.3) * 10, bB - 14 - k * 5, 7, k % 2 ? '#3e7a34' : '#2e5a24');
+  }
+  // pendant lamps: cord + shade + warm pool when lit (cafés keep them on
+  // all day; flats light them at dusk)
+  const nPend = shop ? 3 : 1;
+  for(let k = 0; k < nPend; k++){
+    const px = cw * (nPend === 1 ? 0.5 : 0.3 + k * 0.2);
+    const py = ch * 0.30;
+    ctx.strokeStyle = '#241c14'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, py); ctx.stroke();
+    ctx.fillStyle = shop ? '#3a5a4a' : '#7a6a58';
+    ctx.beginPath(); ctx.moveTo(px - 12, py); ctx.lineTo(px + 12, py);
+    ctx.lineTo(px + 7, py - 12); ctx.lineTo(px - 7, py - 12); ctx.closePath(); ctx.fill();
+    if(lampGlow || shop){
+      const a = lampGlow ? 0.5 : 0.18;
+      const lg = ctx.createRadialGradient(px, py + 6, 2, px, py + 6, 60);
+      lg.addColorStop(0, `rgba(255,208,130,${a})`);
+      lg.addColorStop(1, 'rgba(255,208,130,0)');
+      ctx.fillStyle = lg; ctx.fillRect(px - 60, py - 30, 120, 150);
+      ctx.fillStyle = `rgba(255,230,170,${a + 0.2})`;
+      ctx.beginPath(); ctx.arc(px, py + 3, 3.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  /* --- occupants: other pawns inside the same venue, sorted by depth --- */
+  const inside = [];
+  for(const o of VILLAGERS)
+    if(o.inBuilding && o.inside === name && o !== v) inside.push(o);
+  let k = 0;
+  for(const o of inside.slice(0, 4)){
+    const u = 0.2 + phash(k, seed, 1920) * 0.6;
+    const fy = ch * (0.60 + phash(k, seed, 1921) * 0.18);
+    const fx = bL + (bR - bL) * u;
+    const sc = 0.62 + (fy / ch - 0.6) * 1.6;  // deeper = smaller
+    const F3 = PA.chars && PA.chars[o._ci != null ? o._ci : 0];
+    const fr = F3 && F3[0] && (paActFrame(F3, 0, o, G.frame) || F3[0].idle[0]);
+    if(fr){
+      const pw = 72 * sc, ph2 = 96 * sc;
+      ctx.fillStyle = 'rgba(16,10,6,0.4)';
+      ctx.beginPath(); ctx.ellipse(fx, fy + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.drawImage(fr, fx - pw / 2, fy - ph2, pw, ph2);
+    }
+    k++;
+  }
+  // the followed pawn, front and center, grounded on the floorboards
   const F2 = PA.chars && PA.chars[v._ci != null ? v._ci : 0];
   if(F2 && F2[0]){
     const fr = paActFrame(F2, 0, v, G.frame) || F2[0].idle[0];
-    if(fr) ctx.drawImage(fr, cw / 2 - 36, ch * 0.62 - 96, 72, 96);
+    if(fr){
+      const fy = ch * 0.86;
+      ctx.fillStyle = 'rgba(16,10,6,0.45)';
+      ctx.beginPath(); ctx.ellipse(cw / 2, fy + 2, 34, 10, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.drawImage(fr, cw / 2 - 36, fy - 96, 72, 96);
+    }
   }
+  // location card
+  ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+  const tw = Math.max(ctx.measureText(name).width, ctx.measureText(lab).width);
+  ctx.fillStyle = 'rgba(12,10,8,0.72)';
+  ctx.fillRect(cw / 2 - tw / 2 - 14, ch * 0.045, tw + 28, 44);
+  ctx.strokeStyle = 'rgba(230,210,170,0.5)'; ctx.lineWidth = 1;
+  ctx.strokeRect(cw / 2 - tw / 2 - 14, ch * 0.045, tw + 28, 44);
+  ctx.fillStyle = '#f8f4e8';
+  ctx.fillText(name, cw / 2, ch * 0.045 + 18);
+  ctx.font = '11px sans-serif'; ctx.fillStyle = '#d8c8b0';
+  ctx.fillText(lab, cw / 2, ch * 0.045 + 34);
 }
 
 /* =====================================================================
