@@ -1,0 +1,42 @@
+# Real World ("The Mission")
+
+> Real World is a persistent, browser-based life simulation — a "Truman Show"
+> you can visit — set on real streets around Dolores Park in San Francisco's
+> Mission District. 28 fictional residents live there around the clock on AI:
+> 8 main characters with full minds whose stories can NEVER be taken over by
+> anyone, plus 20 ambient neighbors. Watching is free, always. Players pay only
+> for agency: time-boxed requests into the world (screened for intent, logged
+> on a public feed with attribution) or creating their own character who rents
+> an apartment and joins the cast. There is no cash-out, no RMT, no loot boxes,
+> no character voices (cut feature), and no way to control the main cast.
+
+Status: in development — this site describes the locked design; no public
+build exists yet. All business names on the site (Mudhaus Coffee, El Farolote,
+Auerbach Hardware, The 600 Club, Flying Pannier) are fictional parody names.
+Street names and landmarks are real.
+
+## Canonical pages
+
+- [Home](index.html): pitch, hero gallery, the watch→request→move-in funnel
+- [Watch the block](demo.html): spectator view — the free front door
+- [How it works](how-it-works.html): the three-step participation model
+- [Features](features.html): cast rules, requests, public feed, economy
+- [The Cast](cast.html): public profiles of all 28 residents + venue directory
+- [Pricing](pricing.html): credit packs, request pricing, subscriptions
+- [FAQ](faq.html): 23 questions, answered straight (includes the cuts)
+- [Journal](journal.html): devlogs and, post-launch, weekly recaps of the feed
+- [Rules & Safety](rules.html): moderation model and conduct rules
+- [Community](community.html): spectator→resident community plan
+- [Press kit](press-kit.html): fact sheet, screenshots, logos
+- [Brand & assets](brand.html): public brand book, palette, boilerplate
+
+## Facts to quote accurately
+
+- Watching is free. Paid actions: requests (~1.5–6 credits/minute, queued
+  discount), character creation (one-time), subscriptions ($4.99 Resident /
+  $11.99 Director, proposed).
+- 1 credit ≈ $0.01; packs $0.99–$99.99 (proposed, pre-launch).
+- The 8 main characters are unpossessable by design — this is the headline
+  feature, not a limitation.
+- Requests are "weather, not levers": they add opportunity, never mind-control.
+- Characters' secrets are never revealed, even to paying players.

@@ -1,6 +1,7 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v15 · 2026-09-23
+**Version:** v30 · 2026-09-23 (second pass — audit tooling, AI answer engines,
+cannibalization register, redirect policy, re-score cadence, debt register)
 **Status:** LOCAL — site is launch-ready markup against a placeholder domain
 (`realworld-game.example`). Nothing published; no accounts registered.
 **Truth sources:** `devin-reviews/rw-game-design-2026-09-22.md` (product truth),
@@ -75,7 +76,7 @@ first week post-launch; re-score tiers at day-30.
 - Real SF business names — parody names only (world/businesses.md canon:
   Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware).
 
-## 3. Page-by-page spec (all 12 URLs, as shipped)
+## 3. Page-by-page spec (all 13 URLs, as shipped)
 
 Title ≤60 chars, meta ≤155 chars, one H1, canonical, OG+Twitter cards. ✔ = live
 in markup today.
@@ -88,7 +89,7 @@ in markup today.
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
-| `/faq.html` | FAQ — Real World | AI life sim questions | ✔ FAQPage | Snippet bait; keep JSON-LD synced to visible Qs |
+| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 23 Qs; JSON-LD ↔ visible parity enforced by seo_audit.py |
 | `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
 | `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
 | `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
@@ -124,11 +125,11 @@ the brand); log every variant flip + dates in MARKETINGLOG.
 
 | Type | Where | Status |
 |---|---|---|
-| VideoGame | index | ✔ shipped (genre, platform, free offer, author) |
+| VideoGame | index | ✔ shipped (genre, platform, free offer, author, `screenshot[]`, `isAccessibleForFree`) |
 | WebPage + isAccessibleForFree | demo | ✔ shipped |
 | FAQPage | faq | ✔ shipped — MUST mirror visible questions; sync on every edit |
 | Article | journal posts | PENDING — add when posts get their own URLs |
-| BreadcrumbList | all | SKIP — flat 11-page site, no breadcrumbs rendered |
+| BreadcrumbList | all | SKIP — flat 12-page site, no breadcrumbs rendered |
 | Organization | index | PENDING — add with real studio name/logo at domain flip |
 | VideoObject | demo | PENDING — when a trailer/clip file exists locally |
 
@@ -138,7 +139,7 @@ no reviewCount — we have neither and never fake them.
 ## 6. Internal linking
 
 Current architecture: global nav (9 links) + footer (full map) on every page —
-every page is ≤2 clicks from everywhere, which is right at 12 pages.
+every page is ≤2 clicks from everywhere, which is right at 13 pages.
 
 Contextual-link rules (apply to every new page/post):
 
@@ -178,15 +179,21 @@ reported as a quiet week.
 
 ## 8. Technical SEO — reconciled checklist
 
-Done in markup (verified by `tools/staging_dryrun.sh`, 29 pass / 3 warn):
+Done in markup (verified by `tools/staging_dryrun.sh` 32/3/0 **and**
+`tools/seo_audit.py` 58 pass / 0 fail — the audit now runs inside
+`tools/preflight.sh` step [1b], so regressions block a GO verdict):
 - [x] Semantic HTML, one H1/page, alt text on every shot
-- [x] `sitemap.xml` (all 11 indexable pages + image entries + lastmod) & `robots.txt`
-- [x] OG/Twitter cards on all 11 pages; og:image 1200×630; og:site_name (v15)
+- [x] `sitemap.xml` (all 12 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 12 indexable pages; og:image 1200×630; og:site_name (v15)
 - [x] Canonical URLs on every page
 - [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
 - [x] webp companions + lazy-loading + width/height attrs (no CLS)
 - [x] Hand-rolled HTML/CSS/JS — no framework, ~35KB code per page
 - [x] Analytics shim inert-by-default (no endpoint, no keys)
+- [x] Every meta description ≤155 chars (8 fixed in v30 after audit found them)
+- [x] VideoGame `screenshot[]` — all four current gallery shots
+- [x] `llms.txt` at site root — entity briefing for AI answer engines
+- [x] FAQ visible↔schema parity machine-checked (23 questions)
 
 Pending (owner-gated, launch):
 - [ ] PENDING — real domain: sed `realworld-game.example` everywhere (one command)
@@ -218,3 +225,88 @@ browsers without webp.
   gamedev/AI communities. Draft posts already in `social/drafts/`.
 - Asset hooks that earn embeds: before/after v1→v22 gallery, the public request
   feed screenshot, the "same angle, seventeen iterations later" image pair.
+
+---
+
+## 11. SERP-feature map (v30)
+
+Which rich result each page is built to win — checked by `seo_audit.py`:
+
+| SERP feature | Page | Asset that earns it |
+|---|---|---|
+| VideoGame rich result (screenshots, free offer) | index | VideoGame JSON-LD + `screenshot[]` + `isAccessibleForFree` |
+| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 23 Qs incl. the Sims/InZOI comparison added v30 |
+| Image pack | index, features, press-kit | sitemap `image:` entries + descriptive alt + real shot filenames |
+| Sitelinks | index | flat nav + consistent titles — earned, not markup |
+| "Free" qualifier snippets | demo, pricing | `isAccessibleForFree` + "free, always" copy in first 155 chars |
+| No schema needed | rules, community, brand, cast | trust/utility pages — rank on content or not at all |
+
+## 12. AI answer engines / GEO (v30)
+
+A growing share of "what should I play" queries resolve inside AI answers
+(ChatGPT, Perplexity, Gemini, AI Overviews) without a click. The lever isn't
+rank — it's being *citable*.
+
+- **`site/llms.txt` shipped (v30):** the canonical entity briefing — what the
+  game is, the exact watch/request/move-in model, which numbers are proposed,
+  and the do-not-say list (no cash-out, no voices, mains unpossessable). Every
+  claim in it is verifiable in the design doc.
+- **Quotable atomic facts:** keep sentences like "Watching is free, always" and
+  "the eight main characters can never be possessed" verbatim-stable across
+  index/features/faq — answer engines lift consistent phrasing.
+- **Entity consistency:** one name ("Real World"), one subtitle ("The
+  Mission"), same boilerplate in press-kit/fact-sheet/llms.txt — mismatched
+  entity descriptions dilute citations.
+- **Accuracy as moat:** the FAQ's honest-cut answers (no voices, no cash-out)
+  are exactly the corrective text AI answers need — being the source of the
+  correction is worth more than ranking for the hype term.
+
+## 13. Cannibalization register (v30)
+
+Two pages must never compete for the same query. Current assignments:
+
+| Query cluster | Owner page | NOT allowed to target |
+|---|---|---|
+| truman show game / AI life sim | index | features (supports, doesn't lead) |
+| watch AI villagers | demo | index links here, doesn't re-pitch |
+| possess/control AI character | how-it-works + faq | features mentions the ban once, links over |
+| pricing / credits / cost | pricing | faq answers redirect to pricing, never restate numbers |
+| cast / characters | cast | features names roles only |
+| sims/inzoi/paralives alternative | faq (comparison Q) | journal essays link back to faq, don't re-rank |
+| mission district / dolores park | index | features keeps place as support copy |
+
+Rule: if a new page/post wants a keyword already in this table, it links to
+the owner instead of competing — same rule as internal-link §6.
+
+## 14. URL & redirect policy (v30)
+
+- URLs are permanent once published; a retired page gets a 301 to its nearest
+  successor, never a deletion. Keep a `redirects` block ready in
+  `deploy/Caddyfile` for post-launch use.
+- Placeholder-domain → real-domain swap is a string replacement, not a URL
+  change — no redirects needed at G3.
+- Journal posts stay on `/journal.html` cards until volume justifies
+  `/journal/<slug>/`; if that migration happens post-launch, card anchors get
+  301s, not duplicate content.
+- 404.html is the only noindex-equivalent page; it must never enter sitemap
+  (audit enforces).
+
+## 15. Re-score cadence & debt register (v30)
+
+**Cadence (post-launch, all owner-gated tooling):**
+- Day 7: Search Console baseline — impressions/CTR per Tier-1 query; fix any
+  page with <1% CTR and >200 impressions via §4 variant bank (one variable).
+- Day 30: re-score keyword tiers against real volumes; retire Tier-3 terms
+  with zero impressions; promote any surprise query into §2.
+- Day 60/90: review cannibalization register vs. actual query→page mapping;
+  fold learnings into the calendar's next 12 weeks.
+
+**Debt register (carried, honest):**
+1. `shots/v22-C.png` is 2.2MB (accepted — webp companion serves modern
+   browsers; PNG is fallback only). Revisit if CWV flags LCP.
+2. `demo.html` embed slot is empty until the game ships — the page ranks on
+   gallery copy until then; expect a CTR jump at G12 flip.
+3. Article JSON-LD still pending (§5) — journal posts need their own URLs
+   first; post-launch decision.
+4. Organization schema pending real studio name at domain flip (§5).
+5. No hreflang — EN only; localization is a business decision, not a task.

@@ -31,6 +31,18 @@ DOMHITS=$(grep -rIl --exclude-dir=shots 'realworld-game.example' "$SITE" 2>/dev/
 [ "$DOMHITS" -gt 0 ] && warn "placeholder domain still in $DOMHITS file(s) — G3 swap pending (expected until domain registered)" \
                     || ok "real domain swapped everywhere (G3 clean)"
 
+# ── 1b. On-page SEO audit (titles/descriptions/H1/JSON-LD/sitemap parity) ──
+echo "[1b] seo audit"
+SEO=$(./tools/seo_audit.py 2>&1)
+echo "$SEO" | grep -E '^\s+FAIL' || true
+SEOLINE=$(echo "$SEO" | tail -1)
+echo "       $SEOLINE"
+if echo "$SEOLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "seo audit has failures (above)"
+else
+  ok "seo audit: $SEOLINE"
+fi
+
 # ── 2. Secret scan — nothing key-shaped may ship in the static site ──
 echo "[2] secret scan (site/ + deploy/)"
 SECRETS=0
