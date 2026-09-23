@@ -40,7 +40,10 @@
    "world/applications.md",
    "world/grievance.html",
    "world/grievances.json",
-   "world/grievances.md"
+   "world/grievances.md",
+   "world/menus.html",
+   "world/menus.json",
+   "world/menus.md"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -180,6 +183,11 @@
   "grievance": {
    "file": "grievance.html",
    "name": "The Ear",
+   "tier": "internal"
+  },
+  "menus": {
+   "file": "menus.html",
+   "name": "The Board",
    "tier": "internal"
   }
  },
@@ -3388,6 +3396,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT65",
+   "title": "The Board — the menu layer (parody businesses, commerce substrate)",
+   "minutes": 10,
+   "persona": "long-time spectator — checking whether the counters sell things a stranger could order, at prices a ledger could keep",
+   "surfaces": [
+    "menus",
+    "storefront",
+    "audit"
+   ],
+   "goal": "Verify the v72 menu layer: every door-having venue carries an orderable catalog (item, game-dollar price or 'ask', cat, when, sig, counter-voice note); doors only; ≥4 items and ≥1 signature per venue; board-price agreement with storefronts.json; no credit figure or USD framing anywhere.",
+   "steps": [
+    {
+     "do": "Open menus.html (file://). Read the venue list, then scrub the clock through a day and toggle weather/day.",
+     "expect": "20 cards — exactly the anchor + street tiers. Each shows items with prices in game dollars or 'ask', a ★ signature item, category chips, and when-conditioned items dimming/appearing as conditions resolve (same vocabulary as storefront.html).",
+     "checkpoints": [
+      "20 menu cards; Mudhaus lists drip/latte/pour-over matching its registry prices",
+      "Every card carries ≥4 items and exactly the ★ marks its signature order",
+      "Conditional items (heat/rain/sat/late) shift with the scrubber — conditions, never scheduled scripts"
+     ]
+    },
+    {
+     "do": "Check the doors-only contract and read three 'ask'-priced and one 0-price item.",
+     "expect": "Flying Pannier, MuleIt, Nimbus9, Mission Unfiltered, Calle Justa, The Rent Table, La Esperanza, and the spares carry no menu — an app has no catalog, a notebook has no prices. 'Ask' items read as market-priced/verbal; a 0 item is something the house gives away on purpose (tasting square, free box, open-mic slot).",
+     "checkpoints": [
+      "No card exists for any offstage or reserved business",
+      "No item name or note resolves a secret, mentions the blog/loan, or uses credit/USD framing — spot-read three",
+      "Notes are counter voice, ≤ ~140 chars — surface-safe like regulars copy"
+     ]
+    },
+    {
+     "do": "Cross-check board agreement: open storefront.html beside menus.html and compare any item named on a venue's chalk board.",
+     "expect": "Any menu item named on a storefront board carries the same price in both places — the chalk and the ledger never disagree. Boards may carry jokes/warnings/'ask' lines the menu doesn't; menus may list items the board doesn't.",
+     "checkpoints": [
+      "Spot-check 3 board lines with prices — each matching menu item holds the identical number",
+      "A board-only line (joke, warning) is fine; a menu item named on the board at a different price is a FAIL"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the menus + biz + harness gates.",
+     "expect": "The menus gate reports schema v72 — 20 menus, 101 items — with doors-only coverage, cat/when enum checks, sig presence, banned-vocab sweep, board-price agreement, and the MENUS inline mirror deep-compared. Biz gate still passes at v72; harness gate reports 65 scenarios at the v69 key.",
+     "checkpoints": [
+      "menus gate detail: 'schema v72 · 20 menus · 101 items' — PASS",
+      "A menu on an offstage venue, a missing signature, or a board/menu price mismatch would FAIL — spot-check the gate code",
+      "Harness gate: '65 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -3413,7 +3470,7 @@
   "findings": [
    {
     "severity": "blocker|major|minor|nit|question",
-    "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|storefront|apply|harness",
+    "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|storefront|apply|harness|menus",
     "owner": "world|game-systems|art|marketing — owning track the finding routes to (v51)",
     "ref": "PT#, PT#·sN, or null — auto-tagged with the open scenario at log time; ·sN added when a step is picked in the fStep dropdown (v37)",
     "title": "string",

@@ -14,7 +14,8 @@
   PT60 + harness v65 finding templates / hide-finished filter / session handoff;
   PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery,
   PT62 + onboarding v5 eligibility layer / onboard gate v67,
-  PT63 + lease v68 hand-off layer / lease gate v68).
+  PT63 + lease v68 hand-off layer / lease gate v68, PT64 + thinai v69 long-outage layer,
+  PT65 + menus v72 / menus gate).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -156,7 +157,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>menus</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <select id="fOwner" style="max-width:120px" title="owning track — routes the finding in the inbox note"><option>world</option><option>game-systems</option><option>art</option><option>marketing</option></select>
         <select id="fStep" style="max-width:120px" title="finding ref — step inside the open scenario"></select>
         <select id="fTmpl" style="max-width:130px" title="prefill from a boundary-break template — seeds the form, never logs by itself">
@@ -214,6 +215,7 @@ const SURF={
   storefront:{file:"storefront.html",name:"The Storefront"},
   regulars:{file:"regulars.html",name:"The House Knows"},
   grievance:{file:"grievance.html",name:"The Ear"},
+  menus:{file:"menus.html",name:"The Board"},
   apply:{file:"apply.html",name:"The Tryout"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
@@ -1389,7 +1391,30 @@ const PTS=[
   exp:"The thinai gate passes the v69 checks: schema v69, key rw_thinai_v69, the four new blocks, four ask classes with bounds+veto, repetition guard, demo events service_0 + scene_c6, and all MUST69 copy in the html. Harness gate reports 64 scenarios at the v69 key.",
   ck:["Thinai gate: 0 fail; detail reports 'schema v69 · 4 pawns · key rw_thinai_v69'",
     "A wire() line outside 'request — / weather — ' vocabulary would FAIL — spot-check",
-    "Harness gate: '64 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}];
+    "Harness gate: '64 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}
+,{id:"PT65",title:"The Board — the menu layer (parody businesses, commerce substrate)",min:10,
+ persona:"long-time spectator — checking whether the counters sell things a stranger could order, at prices a ledger could keep",
+ goal:"Verify the v72 menu layer: every door-having venue carries an orderable catalog (item, game-dollar price or 'ask', cat, when, sig, counter-voice note); doors only; ≥4 items and ≥1 signature per venue; board-price agreement with storefronts.json; no credit figure or USD framing anywhere.",
+ surfaces:["menus","storefront","audit"],steps:[
+ {do:"Open menus.html (file://). Read the venue list, then scrub the clock through a day and toggle weather/day.",
+  exp:"20 cards — exactly the anchor + street tiers. Each shows items with prices in game dollars or 'ask', a ★ signature item, category chips, and when-conditioned items dimming/appearing as conditions resolve (same vocabulary as storefront.html).",
+  ck:["20 menu cards; Mudhaus lists drip/latte/pour-over matching its registry prices",
+    "Every card carries ≥4 items and exactly the ★ marks its signature order",
+    "Conditional items (heat/rain/sat/late) shift with the scrubber — conditions, never scheduled scripts"]},
+ {do:"Check the doors-only contract and read three 'ask'-priced and one 0-price item.",
+  exp:"Flying Pannier, MuleIt, Nimbus9, Mission Unfiltered, Calle Justa, The Rent Table, La Esperanza, and the spares carry no menu — an app has no catalog, a notebook has no prices. 'Ask' items read as market-priced/verbal; a 0 item is something the house gives away on purpose (tasting square, free box, open-mic slot).",
+  ck:["No card exists for any offstage or reserved business",
+    "No item name or note resolves a secret, mentions the blog/loan, or uses credit/USD framing — spot-read three",
+    "Notes are counter voice, ≤ ~140 chars — surface-safe like regulars copy"]},
+ {do:"Cross-check board agreement: open storefront.html beside menus.html and compare any item named on a venue's chalk board.",
+  exp:"Any menu item named on a storefront board carries the same price in both places — the chalk and the ledger never disagree. Boards may carry jokes/warnings/'ask' lines the menu doesn't; menus may list items the board doesn't.",
+  ck:["Spot-check 3 board lines with prices — each matching menu item holds the identical number",
+    "A board-only line (joke, warning) is fine; a menu item named on the board at a different price is a FAIL"]},
+ {do:"Run `node world/audit.js` and read the menus + biz + harness gates.",
+  exp:"The menus gate reports schema v72 — 20 menus, 101 items — with doors-only coverage, cat/when enum checks, sig presence, banned-vocab sweep, board-price agreement, and the MENUS inline mirror deep-compared. Biz gate still passes at v72; harness gate reports 65 scenarios at the v69 key.",
+  ck:["menus gate detail: 'schema v72 · 20 menus · 101 items' — PASS",
+    "A menu on an offstage venue, a missing signature, or a board/menu price mismatch would FAIL — spot-check the gate code",
+    "Harness gate: '65 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}];
 
 
 /* ---- state ---- */

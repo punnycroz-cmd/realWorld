@@ -1655,6 +1655,84 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'regulars.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G15c menus ============ */
+{
+  const g = gate('menus', 'menu catalog contract (menus.json ↔ menus.html; doors only; board-price agreement; game dollars only)');
+  try {
+    const MNU = JSONF('menus.json');
+    const html = rd('menus.html');
+    const m = html.match(/const MENUS\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline MENUS not found in menus.html');
+    const MI = eval('(' + m[1] + ')');
+    if (MI.version !== MNU.version)
+      add(g, 'fail', 'menus.html', null, `MENUS version ${MI.version} != menus.json ${MNU.version}`);
+    for (const k of ['cat_keys', 'when_keys', 'names', 'menus'])
+      if (JSON.stringify(MI[k] ?? null) !== JSON.stringify(MNU[k] ?? null))
+        add(g, 'fail', 'menus.html', null, `MENUS.${k} drifted from menus.json`);
+    const BJ = JSONF('businesses.json');
+    const SFJ = JSONF('storefronts.json');
+    const DOOR = new Set(['anchor', 'street']);
+    const cats = new Set(Object.keys(MNU.cat_keys || {}));
+    const whens = new Set(Object.keys(MNU.when_keys || {}));
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const mIds = new Set(Object.keys(MNU.menus || {}));
+    for (const b of BJ.businesses) {
+      if (DOOR.has(b.tier) && !mIds.has(b.id))
+        add(g, 'fail', 'menus.json', null, `${b.id} (${b.tier}) has a door but no menu`);
+      if (!DOOR.has(b.tier) && mIds.has(b.id))
+        add(g, 'fail', 'menus.json', null, `${b.id} (${b.tier}) carries a menu — doors only`);
+      if ((MNU.names || {})[b.id] && MNU.names[b.id] !== b.name)
+        add(g, 'fail', 'menus.json', null, `${b.id}: names "${MNU.names[b.id]}" != registry "${b.name}"`);
+    }
+    let nItems = 0;
+    for (const id of mIds) {
+      if (!BJ.businesses.some(b => b.id === id)) { add(g, 'fail', 'menus.json', null, `menu "${id}" is not a business`); continue; }
+      if (!(MNU.names || {})[id]) add(g, 'fail', 'menus.json', null, `${id}: names map missing entry`);
+      const items = ((MNU.menus[id] || {}).items) || [];
+      nItems += items.length;
+      if (items.length < 4) add(g, 'fail', 'menus.json', null, `${id}: ${items.length} items — minimum 4`);
+      if (!items.some(i => i.sig)) add(g, 'fail', 'menus.json', null, `${id}: no signature item`);
+      for (const it of items) {
+        const tag = `${id}:${it.name}`;
+        if (!it.name || typeof it.name !== 'string') add(g, 'fail', 'menus.json', null, `${id}: unnamed item`);
+        if (!((typeof it.price === 'number' && it.price >= 0) || it.price === 'ask'))
+          add(g, 'fail', 'menus.json', null, `${tag}: price must be a number ≥ 0 or "ask"`);
+        if (!cats.has(it.cat)) add(g, 'fail', 'menus.json', null, `${tag}: cat "${it.cat}" not in cat_keys`);
+        if (it.when != null && !whens.has(it.when))
+          add(g, 'fail', 'menus.json', null, `${tag}: when "${it.when}" not in when_keys`);
+        for (const s of [it.name, it.note])
+          for (const re of BANNED)
+            if (re.test(String(s))) add(g, 'fail', 'menus.json', null, `${tag}: "${s}" banned vocab (${re})`);
+      }
+    }
+    for (const id of Object.keys(MNU.names || {}))
+      if (!BJ.businesses.some(b => b.id === id)) add(g, 'fail', 'menus.json', null, `names key "${id}" is not a business`);
+    /* board agreement: a menu item named on the storefront board carries the
+       same price — the chalk and the ledger never disagree */
+    for (const id of mIds) {
+      const board = (((SFJ.storefronts || {})[id] || {}).board) || [];
+      for (const line of board) {
+        const mm = String(line).match(/^(.*?)\s+(?:≈\s*)?(\d+(?:\.\d+)?)\s*(?:\+|\/lb|$)/);
+        if (!mm) continue;
+        const lname = mm[1].replace(/\s*—.*$/, '').trim().toLowerCase();
+        const lprice = +mm[2];
+        for (const it of ((MNU.menus[id] || {}).items) || []) {
+          if (String(it.name).toLowerCase() !== lname) continue;
+          if (it.price === 'ask')
+            add(g, 'fail', 'menus.json', null, `${id}: "${it.name}" priced ${lprice} on board but "ask" on menu`);
+          else if (it.price !== lprice)
+            add(g, 'fail', 'menus.json', null, `${id}: "${it.name}" menu ${it.price} != board ${lprice}`);
+        }
+      }
+    }
+    /* credit figures never appear in this layer */
+    const mtxt = rd('menus.json');
+    for (const mm of mtxt.matchAll(/\b\d[\d,]*\s*cr\b/gi))
+      add(g, 'fail', 'menus.json', null, `credit figure in menu layer: "${mm[0]}"`);
+    g.detail = `schema v${MNU.version} · ${mIds.size} menus · ${nItems} items`;
+  } catch (e) { add(g, 'fail', 'menus.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ============ G16 market ============ */
 {
   const g = gate('market', 'market layer contract (market.json ↔ market.html; churn resolves to live openings; no credit figures)');

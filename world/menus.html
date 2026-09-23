@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Board (orderable catalog layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Menu catalog demo — "The Board" (world v72). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/menus.json
+  (mirrored inline below as MENUS — hand-synced, deep-compared by audit.js
+  menus gate). Shows: what the counter actually sells at every door-having
+  venue — item, game-dollar price (or "ask"), category, availability
+  condition, signature item, counter-voice note. Doors only: anchor + street
+  tiers. Offstage and reserved venues carry no catalog by contract
+  (menus.md §2). Hours for the open/closed read come from businesses.json via
+  the inline HRS map (display-only; the Directory remains canonical).
+  Boundaries: parody names only; prices are game dollars — never credits,
+  never USD; `when` items are conditions, never scheduled scripts.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .clock{font-family:var(--mono);font-size:15px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 14px}
+  .clock small{color:var(--dim);font-size:10.5px}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim)}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  input[type=range]{width:200px;accent-color:var(--acc)}
+  main{max-width:1240px;margin:0 auto;padding:16px 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+  .menu{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .hd{background:#2b2620;border-bottom:3px solid #4a4034;padding:10px 14px;
+    font-family:var(--mono);font-weight:700;letter-spacing:.12em;font-size:13.5px;
+    text-transform:uppercase;color:var(--acc)}
+  .menu.closed .hd{color:var(--dim)}
+  .hd .st{float:right;font-size:9.5px;letter-spacing:.08em;font-weight:600;margin-top:3px}
+  .hd .st.open{color:var(--grn)} .hd .st.shut{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  td{padding:6px 10px;border-bottom:1px dashed #2a313c;vertical-align:top}
+  tr.it.off{opacity:.38}
+  .nm{font-weight:600}
+  .sig .nm{color:var(--acc)}
+  .sig .nm::after{content:" \2605";font-size:9px;vertical-align:1px}
+  .cat{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--blu)}
+  .whn{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--pink);margin-left:6px}
+  .pr{font-family:var(--mono);text-align:right;white-space:nowrap;color:var(--ink)}
+  .pr.ask{color:var(--dim);font-style:italic;font-family:inherit}
+  .nt{color:var(--dim);font-size:11px;padding-top:0;border-bottom:1px solid #2a313c}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin:14px 0}
+  .count{font-size:11px;color:var(--dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — THE BOARD</div>
+  <span class="clock"><b id="ck">12:00</b> <small id="dp">midday · weekday · clear</small></span>
+  <input type="range" id="scrub" min="0" max="24" step="0.5" value="12">
+  <div class="tgl" id="dayTgl">day <button data-v="weekday" class="on">weekday</button><button data-v="sat">saturday</button><button data-v="sun">sunday</button><button data-v="thu">thursday</button></div>
+  <div class="tgl" id="wxTgl">weather <button data-v="clear" class="on">clear</button><button data-v="rain">rain</button><button data-v="heat">heat</button></div>
+  <span class="count" id="cnt"></span>
+</header>
+<main>
+  <p class="fine">What the counter actually sells. Every line is authored catalog — parody names only,
+  prices in <b>game dollars</b> ("ask" = market-priced verbally), never credits. Items with a condition
+  are conditions the shelf reflects, never scheduled scripts. &#9733; = the signature order. Doors only:
+  offstage organizations and reserved names carry no catalog by contract.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+/* ---- inline mirror of world/menus.json (hand-synced, v72) ---- */
+const MENUS = {
+  "_doc": "The menu layer (world v72) — the orderable catalog per door-having venue: what you can actually buy, in game dollars, with availability conditions and the signature item each room is known for. Where storefronts.json is what the sign SAYS, menus.json is what the counter SELLS — machine-readable for the game side's commerce/economy layer and the future order-a-thing request type. Rules: doors only (anchor + street tiers; offstage and reserved carry none); game dollars only — price is a number ≥ 0 or the string \"ask\" for market-priced/verbal items, never credits, never USD framing; `when` ⊆ storefronts.json when_keys — a conditional item is a CONDITION the shelf reflects, never a scheduled script; exactly the items a stranger could order — no secret stock, no favoritism prices. Board agreement: any menu item named on the venue's storefront board must carry the same price. Spec: world/menus.md; demo: world/menus.html (inline MENUS mirror).",
+  "version": 72,
+  "cat_keys": {
+    "drink": "something in a cup or glass",
+    "food": "something on a plate or in a bag",
+    "goods": "something you carry out",
+    "service": "work done for you — wash, repair, consult, cut",
+    "counter": "a house ritual — a slot, a sample, a shelf rule; often free"
+  },
+  "when_keys": {
+    "rain": "raining — wet-day item",
+    "heat": "hot day — park/heat item",
+    "sat": "Saturdays only",
+    "thu": "Thursdays only",
+    "late": "after 22:00 — late item",
+    "morning": "before 11:00 — morning item",
+    "closed": "orderable only while the door is shut (pre-order, drop-off)",
+    "sun": "Sundays only"
+  },
+  "names": {
+    "mudhaus": "Mudhaus Coffee",
+    "el-farolote": "Taqueria El Farolote",
+    "auerbach": "Auerbach Hardware",
+    "dolores-perk": "Dolores Perk",
+    "buy-rite-market": "Buy-Rite Market",
+    "buy-rite-creamery": "Buy-Rite Creamery",
+    "il-delfino": "Il Delfino",
+    "baguette-about-it": "Baguette About It Bakery",
+    "the-600-club": "The 600 Club",
+    "dandy-lion": "Dandy Lion Chocolate Co.",
+    "valencia-growers": "Valencia Growers Market",
+    "needlepointe": "Needlepointe Tattoo",
+    "folsom-auto": "Folsom Auto & Sons",
+    "maliks": "Malik's Mini Mart",
+    "las-palmas": "Frutería Las Palmas",
+    "bloom-and-doom": "Bloom & Doom Flowers",
+    "golden-hour": "Golden Hour Laundromat",
+    "dusty-spine": "The Dusty Spine",
+    "marooned": "Marooned Records",
+    "the-musket": "The Musket"
+  },
+  "menus": {
+    "mudhaus": {
+      "items": [
+        {
+          "name": "drip",
+          "price": 3.5,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "the volume seller; refills are a negotiation, not a policy"
+        },
+        {
+          "name": "latte",
+          "price": 5.5,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "oat milk default since 2024; nobody voted on it"
+        },
+        {
+          "name": "pour-over",
+          "price": 6.5,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "four minutes; ordered by people with four minutes"
+        },
+        {
+          "name": "day-old pastry",
+          "price": 2,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the Baguette About It handoff — yesterday's bake at honesty prices"
+        },
+        {
+          "name": "the regular",
+          "price": "ask",
+          "cat": "counter",
+          "when": null,
+          "sig": true,
+          "note": "whatever the counter decides you drink; regulars only, and the counter decides that too"
+        },
+        {
+          "name": "park cup",
+          "price": 4,
+          "cat": "drink",
+          "when": "heat",
+          "sig": false,
+          "note": "iced, lid taped — the cup that survives the grass"
+        }
+      ]
+    },
+    "el-farolote": {
+      "items": [
+        {
+          "name": "super burrito",
+          "price": 12,
+          "cat": "food",
+          "when": null,
+          "sig": true,
+          "note": "the thing the post-bar line is for; Tomás builds it two-handed"
+        },
+        {
+          "name": "taco",
+          "price": 3.75,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "priced to keep the math easy at 1 AM"
+        },
+        {
+          "name": "agua fresca",
+          "price": 4,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "whatever the big jars say today; ask before you point"
+        },
+        {
+          "name": "quesadilla",
+          "price": 9,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the quiet order — people who know skip the line conversation"
+        },
+        {
+          "name": "chips and salsa-bar run",
+          "price": 3,
+          "cat": "food",
+          "when": "late",
+          "sig": false,
+          "note": "the 22:00-onward mercy plate for the 600 Club tide"
+        },
+        {
+          "name": "carnitas plate",
+          "price": 13,
+          "cat": "food",
+          "when": "sat",
+          "sig": false,
+          "note": "Saturdays, till they run out — they run out"
+        }
+      ]
+    },
+    "auerbach": {
+      "items": [
+        {
+          "name": "key cut",
+          "price": 4,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "while you wait; the machine is older than most tenants"
+        },
+        {
+          "name": "tool rental, half-day",
+          "price": 18,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "deposit is the tool's dignity — return it the way it left"
+        },
+        {
+          "name": "faucet washer",
+          "price": 1.5,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the drawer of small solutions; Victor finds it before you finish describing it"
+        },
+        {
+          "name": "repair-day drop-off",
+          "price": "ask",
+          "cat": "service",
+          "when": null,
+          "sig": true,
+          "note": "Tuesdays; work orders on the counter by 8 or wait a week — the landlord's tenants queue too"
+        },
+        {
+          "name": "advice",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "free, worth every penny; delivered while he scans your broken thing"
+        },
+        {
+          "name": "borrowed-tool return",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "not a purchase — the shelf of honor behind the register"
+        }
+      ]
+    },
+    "dolores-perk": {
+      "items": [
+        {
+          "name": "coffee",
+          "price": 3.75,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "good enough for the park, priced for the park"
+        },
+        {
+          "name": "sandwich",
+          "price": 9.5,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "wrapped to travel; the grass is the dining room"
+        },
+        {
+          "name": "park cup to go",
+          "price": 4.25,
+          "cat": "drink",
+          "when": null,
+          "sig": true,
+          "note": "lid on tight — the cup designed for a blanket and a slope"
+        },
+        {
+          "name": "lemonade",
+          "price": 4.5,
+          "cat": "drink",
+          "when": "heat",
+          "sig": false,
+          "note": "only when the park asks for it"
+        },
+        {
+          "name": "cookie",
+          "price": 3,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the case by the register, dwindling honestly"
+        }
+      ]
+    },
+    "buy-rite-market": {
+      "items": [
+        {
+          "name": "sandwich of the day",
+          "price": "ask",
+          "cat": "food",
+          "when": null,
+          "sig": true,
+          "note": "the deli board decides; the line behind you votes with its feet"
+        },
+        {
+          "name": "peaches (in season)",
+          "price": "ask",
+          "cat": "goods",
+          "when": "heat",
+          "sig": false,
+          "note": "priced accordingly — out-of-season optimism is 4 dollars"
+        },
+        {
+          "name": "grocery run for one",
+          "price": 45,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the honest basket — dinner, breakfast, the fancy stuff optional"
+        },
+        {
+          "name": "fancy cheese, cut to order",
+          "price": "ask",
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "back left case; priced by the wedge and the mood of the scale"
+        },
+        {
+          "name": "sparkling water, cold case",
+          "price": 2.25,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "the park crowd's other order"
+        }
+      ]
+    },
+    "buy-rite-creamery": {
+      "items": [
+        {
+          "name": "single scoop",
+          "price": 5.5,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the unit of the whole operation"
+        },
+        {
+          "name": "double scoop",
+          "price": 8,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the correct order for a shared walk"
+        },
+        {
+          "name": "sundae",
+          "price": 9,
+          "cat": "food",
+          "when": null,
+          "sig": true,
+          "note": "the one the line builds to; fudge is not optional emotionally"
+        },
+        {
+          "name": "cone upgrade",
+          "price": 1,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "waffle only; the machine is audible from the sidewalk"
+        },
+        {
+          "name": "flavor of the day",
+          "price": 5.5,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the board rotates; yesterday's favorite is gone and that's the deal"
+        }
+      ]
+    },
+    "il-delfino": {
+      "items": [
+        {
+          "name": "pasta",
+          "price": 24,
+          "cat": "food",
+          "when": null,
+          "sig": true,
+          "note": "the reason the room books ahead; one shape, done properly"
+        },
+        {
+          "name": "table for two with wine",
+          "price": 110,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the whole gesture — two pastas, a bottle, the window if it's free"
+        },
+        {
+          "name": "bar seat plate",
+          "price": 16,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "walk-in price of admission; smaller plate, same kitchen"
+        },
+        {
+          "name": "house wine, glass",
+          "price": 14,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "red or red-adjacent"
+        },
+        {
+          "name": "dolci",
+          "price": 12,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "ordered by people who came for dinner and stayed for the point"
+        }
+      ]
+    },
+    "baguette-about-it": {
+      "items": [
+        {
+          "name": "morning bun",
+          "price": 5,
+          "cat": "food",
+          "when": "morning",
+          "sig": true,
+          "note": "gone by 9 most days — a warning, not a boast"
+        },
+        {
+          "name": "country loaf",
+          "price": 11,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the weekly bread; Saturday pre-orders on the pencil list"
+        },
+        {
+          "name": "croissant",
+          "price": 4.75,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the benchmark; laminated properly or not sold"
+        },
+        {
+          "name": "day-old bag",
+          "price": 3,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "what didn't move to Mudhaus; the bag, not the loaf, is a surprise"
+        },
+        {
+          "name": "saturday loaf pre-order",
+          "price": 11,
+          "cat": "counter",
+          "when": "closed",
+          "sig": false,
+          "note": "pencil list at the register — the only thing you buy at a shut door"
+        }
+      ]
+    },
+    "the-600-club": {
+      "items": [
+        {
+          "name": "beer",
+          "price": 6,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "whatever's cold; the tap list is short on purpose"
+        },
+        {
+          "name": "well drink",
+          "price": 9,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "poured honest; the regulars watch for it"
+        },
+        {
+          "name": "shot and a beer",
+          "price": 12,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "the combo the bar knows by a nod"
+        },
+        {
+          "name": "open-mic slot",
+          "price": 0,
+          "cat": "counter",
+          "when": "thu",
+          "sig": true,
+          "note": "free, five minutes, no encores; the sign-up sheet fills by 7"
+        },
+        {
+          "name": "pitcher",
+          "price": 18,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "for the table that plans to stay"
+        }
+      ]
+    },
+    "dandy-lion": {
+      "items": [
+        {
+          "name": "single-origin bar",
+          "price": 12,
+          "cat": "goods",
+          "when": null,
+          "sig": true,
+          "note": "a bag from here means you meant it"
+        },
+        {
+          "name": "hot chocolate",
+          "price": 6,
+          "cat": "drink",
+          "when": "rain",
+          "sig": false,
+          "note": "the rain menu — thick enough to stand a spoon"
+        },
+        {
+          "name": "tasting square",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "one per visitor, honor system; the honor system holds"
+        },
+        {
+          "name": "truffle",
+          "price": 3.5,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the small commitment"
+        },
+        {
+          "name": "gift box",
+          "price": 30,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "wrapped in the shop's paper — the apology that usually lands"
+        }
+      ]
+    },
+    "valencia-growers": {
+      "items": [
+        {
+          "name": "produce bag",
+          "price": 20,
+          "cat": "goods",
+          "when": "sat",
+          "sig": true,
+          "note": "the honest armload — whatever the season is doing"
+        },
+        {
+          "name": "tomato case",
+          "price": "ask",
+          "cat": "goods",
+          "when": "sat",
+          "sig": false,
+          "note": "priced by the walk — Tomás compares before he buys"
+        },
+        {
+          "name": "eggs, dozen",
+          "price": 8,
+          "cat": "goods",
+          "when": "sat",
+          "sig": false,
+          "note": "the stall with the line before 9"
+        },
+        {
+          "name": "flower bunch",
+          "price": 10,
+          "cat": "goods",
+          "when": "sat",
+          "sig": false,
+          "note": "Ida's stall is the one with the marigolds"
+        }
+      ]
+    },
+    "needlepointe": {
+      "items": [
+        {
+          "name": "shop minimum",
+          "price": 80,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "the floor — covers setup even for the small ones"
+        },
+        {
+          "name": "flash piece",
+          "price": 120,
+          "cat": "service",
+          "when": "sat",
+          "sig": true,
+          "note": "Saturday walk-ins; the flash sheet decides, not you"
+        },
+        {
+          "name": "custom consult",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "free, honest, sometimes 'no' — Bex turns down bad ideas kindly"
+        },
+        {
+          "name": "custom hourly",
+          "price": 200,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "big work, by appointment; the deposit holds the date"
+        }
+      ]
+    },
+    "folsom-auto": {
+      "items": [
+        {
+          "name": "oil change",
+          "price": 65,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "the bread-and-butter; done while the radio plays"
+        },
+        {
+          "name": "brake job",
+          "price": 380,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "quoted honestly — Gus shows you the old pads"
+        },
+        {
+          "name": "diagnostic",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": true,
+          "note": "the shrug is free with any nod; the answer is usually right"
+        },
+        {
+          "name": "smog certificate",
+          "price": 90,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "the paperwork nobody enjoys, handled anyway"
+        },
+        {
+          "name": "weekend voice mail",
+          "price": 0,
+          "cat": "counter",
+          "when": "closed",
+          "sig": false,
+          "note": "engines rest too — leave the noise description, keep it short"
+        }
+      ]
+    },
+    "maliks": {
+      "items": [
+        {
+          "name": "chips",
+          "price": 2.5,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the rack by the door; dinner when the shift runs long"
+        },
+        {
+          "name": "six-pack",
+          "price": 11,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the cold case; carded, always"
+        },
+        {
+          "name": "milk, eggs, the run",
+          "price": 9,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the 7 AM emergency basket — cheaper than the fancy places, closer than anywhere"
+        },
+        {
+          "name": "the usual",
+          "price": "ask",
+          "cat": "counter",
+          "when": null,
+          "sig": true,
+          "note": "Malik already knows; the price is whatever the usual costs today"
+        },
+        {
+          "name": "phone charger, counter stash",
+          "price": 14,
+          "cat": "goods",
+          "when": "late",
+          "sig": false,
+          "note": "the one that works, priced for the hour"
+        }
+      ]
+    },
+    "las-palmas": {
+      "items": [
+        {
+          "name": "fruit cup with chile",
+          "price": 6,
+          "cat": "food",
+          "when": null,
+          "sig": true,
+          "note": "the thing Luz's stand is for — lime, chile, the good mangoes when they're good"
+        },
+        {
+          "name": "mango",
+          "price": 2,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "whole, by the piece; ripeness discussed before money moves"
+        },
+        {
+          "name": "agua de fruta",
+          "price": 4,
+          "cat": "drink",
+          "when": "heat",
+          "sig": false,
+          "note": "park weather only — the cooler decides"
+        },
+        {
+          "name": "the ripe bag",
+          "price": "ask",
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "whatever's ripe — ask Luz; priced by what's in it"
+        }
+      ]
+    },
+    "bloom-and-doom": {
+      "items": [
+        {
+          "name": "bouquet",
+          "price": 35,
+          "cat": "goods",
+          "when": null,
+          "sig": true,
+          "note": "the standard arrangement — weddings and funerals both, which is the joke and also the job"
+        },
+        {
+          "name": "single stem",
+          "price": 4,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "4 dollars of gesture; the park crowd's order"
+        },
+        {
+          "name": "wedding consult",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "free, by appointment; Ida asks what the day should feel like, not what it should cost"
+        },
+        {
+          "name": "funeral arrangement",
+          "price": "ask",
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the order book is private; priced by the family, not the frame"
+        },
+        {
+          "name": "dried bunch",
+          "price": 15,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the permanent option — for people who don't do flowers"
+        }
+      ]
+    },
+    "golden-hour": {
+      "items": [
+        {
+          "name": "wash",
+          "price": 4.25,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "per machine; quarters and the card reader both work, neither gracefully"
+        },
+        {
+          "name": "dry",
+          "price": 0.5,
+          "cat": "service",
+          "when": null,
+          "sig": false,
+          "note": "per 8 minutes; the honest math on the wall"
+        },
+        {
+          "name": "wash-and-fold",
+          "price": 1.75,
+          "cat": "service",
+          "when": null,
+          "sig": true,
+          "note": "per pound, back by evening — the service the regulars actually buy"
+        },
+        {
+          "name": "detergent, vending",
+          "price": 1.5,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "single-load box for the ones who forgot"
+        },
+        {
+          "name": "folding-table residency",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "communal territory — your 90 minutes, your folding spot, everyone's truce"
+        }
+      ]
+    },
+    "dusty-spine": {
+      "items": [
+        {
+          "name": "paperback",
+          "price": 6,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the spine-broken majority of the store"
+        },
+        {
+          "name": "staff-pick hardcover",
+          "price": 18,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the front table — the staff argues about it weekly"
+        },
+        {
+          "name": "free box",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": true,
+          "note": "take one, leave the guilt; alphabetized by Vera, unasked"
+        },
+        {
+          "name": "trade-in bag",
+          "price": "ask",
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "bring a bag, leave with a number in the ledger — the ledger is a notebook"
+        },
+        {
+          "name": "zine rack",
+          "price": 4,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "local, xeroxed, priced to keep the rack full"
+        }
+      ]
+    },
+    "marooned": {
+      "items": [
+        {
+          "name": "45s bin",
+          "price": 2,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the crate by the door; Sunday tithe territory"
+        },
+        {
+          "name": "dollar-bin record",
+          "price": 1,
+          "cat": "goods",
+          "when": "sun",
+          "sig": true,
+          "note": "one 45 at a time — Sam's Sunday rule, the shop's standing joke"
+        },
+        {
+          "name": "used LP",
+          "price": 16,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "graded honestly; the sticker tells you what the clerk thinks"
+        },
+        {
+          "name": "new release",
+          "price": 28,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the wall behind the register; pre-orders on the clipboard"
+        },
+        {
+          "name": "sell-back hold shelf",
+          "price": "ask",
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "the shelf is real, so is the wait — Jules's cycle runs through here"
+        },
+        {
+          "name": "turntable needle",
+          "price": 15,
+          "cat": "goods",
+          "when": null,
+          "sig": false,
+          "note": "the practical purchase; the clerk installs it free if you buy it here"
+        }
+      ]
+    },
+    "the-musket": {
+      "items": [
+        {
+          "name": "small plate",
+          "price": 14,
+          "cat": "food",
+          "when": null,
+          "sig": false,
+          "note": "the kitchen runs till close; ordered two at a time"
+        },
+        {
+          "name": "cocktail",
+          "price": 15,
+          "cat": "drink",
+          "when": null,
+          "sig": true,
+          "note": "the bar is the point — no reservations, luck decides the seats"
+        },
+        {
+          "name": "wine, glass",
+          "price": 13,
+          "cat": "drink",
+          "when": null,
+          "sig": false,
+          "note": "the list is short; the bartender's answer is shorter"
+        },
+        {
+          "name": "off-menu special",
+          "price": "ask",
+          "cat": "food",
+          "when": "late",
+          "sig": false,
+          "note": "whatever the kitchen is doing after 10 — ask, don't assume"
+        },
+        {
+          "name": "bar seat",
+          "price": 0,
+          "cat": "counter",
+          "when": null,
+          "sig": false,
+          "note": "luck, not a purchase — the window watches it happen"
+        }
+      ]
+    }
+  }
+};
+/* ---- open/closed read: hours from businesses.json (display-only; Directory is canonical) ---- */
+const HRS = {
+ 'mudhaus':{weekday:[6.5,19],weekend:[7,20]},
+ 'el-farolote':{weekday:[10,25.5],weekend:[10,26.5]},
+ 'auerbach':{weekday:[8,18],weekend:[9,17]},
+ 'dolores-perk':{weekday:[7,17],weekend:[7,18]},
+ 'buy-rite-market':{weekday:[8,21],weekend:[8,21]},
+ 'buy-rite-creamery':{weekday:[11,22],weekend:[11,23]},
+ 'il-delfino':{weekday:[17.5,22.5],weekend:[17.5,23]},
+ 'baguette-about-it':{weekday:[7,15],weekend:[7,16]},
+ 'the-600-club':{weekday:[16,26],weekend:[14,26]},
+ 'dandy-lion':{weekday:[10,19],weekend:[10,20]},
+ 'valencia-growers':{weekday:null,weekend:[8,14],days:['sat']},
+ 'needlepointe':{weekday:[12,20],weekend:[12,20]},
+ 'folsom-auto':{weekday:[8,17.5],weekend:null},
+ 'maliks':{weekday:[7,23],weekend:[8,24]},
+ 'las-palmas':{weekday:[8,18],weekend:[8,18]},
+ 'bloom-and-doom':{weekday:[9,18],weekend:[10,16]},
+ 'golden-hour':{weekday:[7,23],weekend:[7,23]},
+ 'dusty-spine':{weekday:[11,19],weekend:[10,20]},
+ 'marooned':{weekday:[11,19],weekend:[11,20]},
+ 'the-musket':{weekday:[17,23],weekend:[15,24]}
+};
+const state = { t:12, day:'weekday', wx:'clear' };
+const $ = id => document.getElementById(id);
+function fmt(h){ const hh=Math.floor(h)%24, mm=h%1?'30':'00'; return String(hh).padStart(2,'0')+':'+mm; }
+function hoursFor(id){
+  const b=HRS[id]; if(!b) return null;
+  if(state.day==='weekday') return b.weekday;
+  if(b.days){ return b.days.includes(state.day)?b.weekend:null; }
+  if(state.day==='thu') return b.weekday;
+  return b.weekend;
+}
+function isOpen(id){ const h=hoursFor(id); if(!h) return false; const t=state.t%24;
+  return h[0]<=h[1] ? (t>=h[0]&&t<h[1]) : (t>=h[0]||t<h[1]-24); }
+function condOk(w,id,open){
+  if(w===null||w===undefined) return true;
+  switch(w){
+    case 'rain': return state.wx==='rain';
+    case 'heat': return state.wx==='heat';
+    case 'sat': return state.day==='sat';
+    case 'sun': return state.day==='sun';
+    case 'thu': return state.day==='thu';
+    case 'late': return (state.t%24)>=22||(state.t%24)<2;
+    case 'morning': return state.t<11;
+    case 'closed': return !open;
+  }
+  return false;
+}
+function prStr(p){ return typeof p==='number' ? p.toFixed(2) : 'ask'; }
+function render(){
+  $('ck').textContent = fmt(state.t);
+  $('dp').textContent = (state.t<6?'overnight':state.t<11?'morning':state.t<16?'midday':state.t<21?'evening':'late night')
+    +' · '+state.day+' · '+state.wx;
+  const grid=$('grid'); grid.innerHTML=''; let n=0, ni=0;
+  for(const id of Object.keys(MENUS.menus)){
+    const m=MENUS.menus[id]; n++;
+    const open=isOpen(id);
+    let rows='';
+    for(const it of m.items){
+      ni++;
+      const ok=condOk(it.when,id,open);
+      rows+=`<tr class="it${it.sig?' sig':''}${ok?'':' off'}">`+
+        `<td><span class="nm">${it.name}</span>`+
+          `<span class="cat">${it.cat}</span>`+
+          (it.when?`<span class="whn">${it.when}</span>`:'')+
+          `<br><span class="nt">${it.note}</span></td>`+
+        `<td class="pr${typeof it.price==='number'?'':' ask'}">${prStr(it.price)}</td></tr>`;
+    }
+    const d=document.createElement('div');
+    d.className='menu'+(open?'':' closed');
+    d.innerHTML=`<div class="hd">${MENUS.names[id]||id}<span class="st ${open?'open':'shut'}">${open?'open':'closed'}</span></div>`+
+      `<table>${rows}</table>`;
+    grid.appendChild(d);
+  }
+  $('cnt').textContent = n+' menus · '+ni+' items · doors only (anchor + street tiers) · game dollars';
+}
+for(const [el,key] of [['scrub','t']]){
+  $(el).addEventListener('input',e=>{state.t=+e.target.value;render();});
+}
+for(const [el,key] of [['dayTgl','day'],['wxTgl','wx']]){
+  $(el).addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    state[key]=b.dataset.v;
+    for(const x of $(el).querySelectorAll('button')) x.classList.toggle('on',x===b);
+    render();
+  });
+}
+render();
+</script>
+</body>
+</html>
