@@ -2,8 +2,9 @@
 
 **Status:** production-ready plan + rendered animatics, v50 (2026-09-24);
 all stills/programs rebased to the art-v37 build in v55; refs/rebuilds rebased to art-v40 in v60.
-All four cuts now exist as real mp4s — hero 85s, teaser 15s, the
-9:16 vertical 30s, and a 6s bumper — `trailer/out/animatic-*.mp4`, built by
+Five cuts now exist as real mp4s — hero 85s, teaser 15s, the
+9:16 vertical 30s, a 6s bumper, and the 50s "Feed Cut" alternate-concept
+trailer (§7.2, added v65) — `trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
 `trailer/edl.json` (§11). Each cut also has a `-scratch.mp4` variant with
 a procedural temp-audio bed (mood/timing reference only — the ship score
@@ -51,6 +52,7 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Teaser cutdown | 15 s | 16:9 + 9:16 re-frame | social launch day, paid placements if approved |
 | Vertical cut | 30 s | 9:16 | TikTok/Reels/Shorts — animatic rendered (§11) |
 | Bumper | 6 s | 16:9 | pre-roll, Shorts end-screen, Discord embed — rendered (§7.1) |
+| Feed Cut (alt concept) | 50 s | 16:9 | A/B alternate hero, press embeds, streamer cold-open — rendered (§7.2) |
 | Thumbnail stills | — | 16:9 | YouTube/itch — three concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
@@ -224,6 +226,40 @@ One image, one line, logo — the card is 58 characters, readable inside the
 3-second window. No possession beat: a 6s cut can't carry the hired-only
 nuance, so the bumper sells watchability only.
 
+### 7.2 The Feed Cut — alternate-concept trailer (v65 — rendered)
+
+`edl.json` carries a fifth `"feed"` program (50 s, 16:9) rendered to
+`out/animatic-feed.mp4` + `captions-feed.srt` + `board-feed.png` (+ scratch
+bed). It is a **second creative concept**, not a cutdown: the entire trailer
+is told through the public feed — found-footage style — because "the
+audience watches the players as much as the characters" is the product's
+most differentiating truth. Use it to A/B against the hero, as the press-kit
+embed (journalists get the mechanic in one watch), or as a streamer
+cold-open.
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | F1 feedline cold open | `19:42 — Dani ordered at Dolores Perk. Again.` types on black |
+| 0:04–0:11 | F2 ambient feed ticking | "The block writes its own feed — all day, every day." |
+| 0:11–0:17 | F3 request card: rain, APPROVED | "Someone in the audience just reached in." |
+| 0:17–0:23 | F4 park goes wet | "Requests become weather." |
+| 0:23–0:30 | F5 attributed ledger incl. a DENIED line + compensated admin override | "Every intervention is public. Even the ones we refuse." |
+| 0:30–0:36 | F6 request card: possess Mars (cast) — `× DENIED · REFUNDED` | "The cast can't be bought. Requests like this bounce." |
+| 0:36–0:41 | F7 street still, AI→YOU chip (name tags redact-blurred) | "Your hire answers to you — for the minutes you paid for." |
+| 0:41–0:45 | F8 feedline button | `00:12 — Mars closed Mudhaus. The block sleeps. The feed doesn't.` |
+| 0:45–0:50 | F9 end card | "REAL WORLD — THE MISSION. Watch free. Move in when you're ready. {{URL}}" |
+
+The denial beat is the point: F5/F6 dramatize the possession ban and the
+deny-with-refund pipeline (design §5/§7/§11) as *content*, not fine print —
+the refusal is itself on the public feed. Renderer support: `requestcard`
+shots accept `"verdict": "denied"` (default `approved`), which paints the
+verdict button red as `× DENIED · REFUNDED`. F7's possession chip reuses
+the vertical V4 name-tag redaction remapped to the hero crop
+(`[292,220,332,236]`, `[344,244,408,264]`). Same rules as every other cut:
+feed entries are verbatim-accurate mocks, `{{URL}}` placeholder stands, and
+every recapture-flagged shot (F2–F7) must be re-cut from live UI/footage
+before ship.
+
 ## 8. Thumbnail concepts (v50 — rendered)
 
 All three are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
@@ -261,6 +297,8 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 - [ ] Credit numbers on screen match the monetization plan *or* are generic.
 - [ ] "Development build" bug present on all footage.
 - [ ] Feed attribution visible in S11 — the transparency promise is a feature.
+- [ ] (Feed Cut) denied request reads `DENIED — refunded`, never ran; no
+      denied action shown executing.
 - [ ] Owner sign-off recorded in LAUNCH-CHECKLIST.md before any upload.
 
 ## 10. Handoff
@@ -278,8 +316,9 @@ Parody names are RESOLVED (`world/parody-names.json`).
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Four programs
-  (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s)
+- **`edl.json`** — machine-readable edit decision list. Five programs
+  (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s,
+  `feed` 50s — the §7.2 alternate concept)
   plus the `thumbnails` spec: every shot's
   source still, timing, card text, Ken Burns zoom/pan, color grade
   (`wet`/`night` simulated the §8 beat and the night look), possession chip +

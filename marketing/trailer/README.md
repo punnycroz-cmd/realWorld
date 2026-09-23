@@ -7,7 +7,8 @@ should be published without owner approval (see `../TRAILER-PLAN.md` §9).
 
 | File | Purpose |
 |------|---------|
-| `edl.json` | Machine-readable edit decision list — the source of truth for all four cuts (hero 85s, teaser 15s, vertical 30s, bumper 6s) plus the thumbnail specs. Shots, timing, cards, motion, grades, recapture flags, audio presets, per-program `canvas`. |
+| `edl.json` | Machine-readable edit decision list — the source of truth for all five cuts (hero 85s, teaser 15s, vertical 30s, bumper 6s, feed 50s) plus the thumbnail specs. Shots, timing, cards, motion, grades, recapture flags, audio presets, per-program `canvas`, `requestcard` `verdict` (`approved`/`denied`). |
+| `out/animatic-feed.mp4` | Rendered 50s "Feed Cut" — alternate-concept trailer told entirely through the public feed, incl. a denied-and-refunded possession request (TRAILER-PLAN §7.2). |
 | `build-animatic.py` | Renders every frame with PIL and pipes to ffmpeg. Produces the mp4s, `.srt` caption files, scratch-audio variants, and `--board` contact sheets. |
 | `out/animatic-hero.mp4` | Rendered 85s hero animatic (silent master). |
 | `out/animatic-teaser.mp4` | Rendered 15s teaser animatic. |

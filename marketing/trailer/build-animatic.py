@@ -256,10 +256,13 @@ class Build:
                    fill=self.c["accent2"] if k == "status" else self.c["text"])
             d.line((x0 + 32, y + 44, x0 + cw - 32, y + 44), fill=self.c["border"])
         if f > n * 0.62:
-            bx, by, bw, bh = x0 + cw - 240, y0 + ch - 70, 200, 46
-            d.rectangle((bx, by, bx + bw, by + bh), fill=self.c["accent2"])
-            t = "✓ APPROVED"
+            denied = shot.get("verdict") == "denied"
+            t = "× DENIED · REFUNDED" if denied else "✓ APPROVED"
             tw = d.textlength(t, font=self.f_monob)
+            bw, bh = tw + 36, 46
+            bx, by = x0 + cw - bw - 40, y0 + ch - 70
+            d.rectangle((bx, by, bx + bw, by + bh),
+                        fill=self.c["accent3"] if denied else self.c["accent2"])
             d.text((bx + (bw - tw) / 2, by + 10), t, font=self.f_monob, fill=(10, 12, 10))
         return img
 
@@ -511,7 +514,8 @@ class Build:
                      "resolve", "silence"}
     TRANSITIONS = {"cut", "dip"}
     # soft ceilings per program (seconds) — warn, not fail
-    DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5, "bumper": 6.5}
+    DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5,
+                    "bumper": 6.5, "feed": 50.5}
     CARD_MAX = 80  # title-card readability ceiling
 
     def check(self):
@@ -572,6 +576,8 @@ class Build:
                     for f_ in ("action", "duration", "cost", "status"):
                         if f_ not in (s.get("fields") or {}):
                             fail(f"{sid}: fields missing '{f_}'")
+                    if s.get("verdict") and s["verdict"] not in ("approved", "denied"):
+                        fail(f"{sid}: unknown verdict '{s['verdict']}'")
                 if kind == "endcard" and s.get("url") and s["url"] != "{{URL}}":
                     warn(f"{sid}: endcard url is not the {{URL}} placeholder")
         for spec in self.edl.get("thumbnails") or []:
