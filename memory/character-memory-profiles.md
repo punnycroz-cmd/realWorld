@@ -526,6 +526,12 @@ never copying raw.
 | pep_k / pep_days / pep_neg_drift | 0 / 2 / 0 | 0.5 / 30 / 0.1 | post-event processing; neurot·supp gated (v4.3) |
 | partner_eval_pull | 0 | 0.4 | current eval repaints partner history (v4.3) |
 | overhear_w / overhear_person_gain | 0.2 / 1.0 | 0.8 / 1.6 | eavesdropped encoding, person-content bonus (v4.3) |
+| chrono_peak_hr | 5 | 23 | compiled from routine wake + chronotype; null allowed = flat (v4.5) |
+| sync_gain / sync_implicit_flip / sync_age_gain | 0 / 0 / 0 | 0.3 / 0.3 / 0.6 | circadian encoding+retrieval match; off-peak implicit bonus; age knot (v4.5) |
+| func_self / func_dir / func_soc | 0 | 1 | TALE selection weights, sum-normalized at use (v4.5) |
+| concern_gain / concern_intrude | 0 / 0 | 0.6 / 0.25 | wants-gate encoding boost / concern-tag intrusion (v4.5) |
+| fab_dir / fab_discomfort / fab_deflate_gain | −1 / 0 / 0 | +1 / 1.0 / 0.15 | liar direction, discomfort gate, truth-strengthening (v4.5) |
+| collab_inhib / collab_cue_p | 0 / 0.2 | 0.3 / 0.9 | joint-recall tax / partner-cue rescue (v4.5) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -1973,3 +1979,45 @@ nothing — phantom content has to *earn* distrust through plausibility
 like everything else); no trait grants prescience (déjà vu and
 premonition flavor must be built from `fok`/`imagined` machinery, not
 from peeking at the ledger).
+
+## 30. v4.5 note (character-profiles IV — the bible-driven refinement pass)
+
+Clamp rows added in §0 for the eleven v4.5 params. Bible-author
+guidance for the new dials:
+
+- **`fab_dir`/`lie_freq`/`fab_discomfort` come from the bible's
+  `truth` register, not vibes.** The field has four readable phenotypes:
+  *fabricator* (lies fluently → fab_dir +, lie_freq high), *omitter*
+  (silence/edit/redirect → fab machinery dead, set fab_dir negative
+  and lie_freq ~0), *deflater* (scrupulous → fab_dir −1, fab_discomfort
+  high), *deferrer* (temporally-displaced truth → mid values). The
+  mechanism only fires on emitted `claim:true` — a bible that writes
+  "never lies" is claiming lie_freq ≈ 0, which makes the rest inert.
+- **Omission ≠ weak memory.** A character who omits a topic (Victor's
+  offer, Carmen's money) has an intact record with an emission gate —
+  do NOT write forgetfulness pins to express secrecy. If the bible says
+  "she knows exactly what she won't say," that is scoped silence, not
+  decay.
+- **`func_*` answers "what does this person USE the past for," not
+  "what do they remember."** Selection-only: high `func_soc` means the
+  surfaced memory is usually a shared story for the present audience;
+  it does not raise recall accuracy. Do not pin func weights to
+  express competence — that is `g_mem`/`wmc`.
+- **`chrono_peak_hr` is compiled, not authored.** The bible supplies
+  the routine (wake hour); the compiler derives the peak. Only
+  bible-settable escape: rotating/shift-work schedules → null.
+- **`concerns` = the `wants` field, memory-side.** Three clocks map to
+  weight decay: week items fade in ~2 weeks unresolved, season ~6
+  weeks, long persists. A resolved want releases its tagged records'
+  intrusion bonus over ~a week — if the bible resolves a want
+  on-screen, expect the character to stop being ambushed by it
+  gradually, not instantly.
+- **`collab_inhib`/`collab_cue_p` are dyad machinery, not
+  personality.** Bibles pin them only via cohabitation/close-dyad
+  facts (who eats together, who shares a household file); a loner has
+  nobody to be inhibited by. `transact_loss` (v0.8) remains the
+  bereavement dial — §6.69 explains what the lost directory was doing.
+- **Explicit nulls added:** meta_cal never exempts fabrication
+  inflation (the moderator is source monitoring, not metacognition);
+  func_* never touches θ/E (selection ≠ capability); the omission
+  register writes no claim so no fab mechanism can fire on it.

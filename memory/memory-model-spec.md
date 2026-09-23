@@ -1,4 +1,29 @@
-# Memory Model Spec v4.4 — implementable human-like memory for RW characters
+# Memory Model Spec v4.5 — implementable human-like memory for RW characters
+
+> **v4.5 note (character-profiles IV — the bible-driven refinement
+> pass):** `memory/cast-profiles.md` §14 recompiles the 8 mains against
+> the world-v42 bible fields (`truth`, `interior`, `wants`) and forces
+> five refinements: **synchrony** — the `chronotype` trait finally gets
+> teeth: `chrono_peak_hr` + `sync_gain` scale E and controlled retrieval
+> by circadian match, while implicit/intrusive recall prefers OFF-peak
+> (May, Hasher & Stoltzfus 1993; May, Hasher & Foong 2005) — §6.65;
+> **functional retrieval** — TALE weights `func_self`/`func_dir`/
+> `func_soc` bias WHICH records spontaneous recall surfaces, never
+> whether recall succeeds (Bluck & Alea 2002) — §6.66; **current
+> concerns** — the wants register compiles to a `concerns` set that
+> gates encoding relevance and intrusion pressure (Klinger 1975/2013;
+> Marsh, Hicks & Bink 1998) — §6.67; **fabrication direction** — §6.9's
+> population `fab_inflate` splits per-character: most people DEFLATE
+> (truth strengthens), a minority tail inflates, moderated by lie
+> frequency × discomfort × source monitoring (Polage 2004/2012) —
+> §6.68; **collaborative inhibition** — joint recall is worse than
+> pooled solo recall but coverage is better, and partner domains answer
+> at the partner's θ (Weldon & Bellinger 1997; Wegner 1987) — §6.69.
+> New D-class op `jointRecall` (per §12.2 catalog rules:
+> dyadic, sorted-lock) and char-record field `concerns` (M-tier —
+> steers encoding and intrusion, never emitted verbatim). +14 params
+> in §7; probes
+> P469–P480 in validation-design.md §75.
 
 > **v4.4 note (formal-model V — the transition system, the
 > lifecycle, the information boundary):** `memory/formal-model.md`
@@ -5230,6 +5255,149 @@ provenance — characters know things they were never told and
 cannot place (P456). `overhear_w` rides the v2.8 `hearing`
 trait (×(1−hearing_loss)).
 
+### 6.65 Synchrony — the clock in the cue (new in v4.5)
+
+[CONSENSUS] May, Hasher & Stoltzfus (1993, *Psychological Science*
+4:326): age differences in recognition nearly vanish at each group's
+peak circadian time — older adults are overwhelmingly morning types,
+younger adults evening/neutral, and "aging deficits" are partly
+synchrony artifacts. May (1999, *PBR* 6:142): the synchrony effect is
+largest for controlled, effortful processing. May, Hasher & Foong
+(2005, *Psychological Science* 16:96): explicit stem-cued recall peaks
+at optimal time but implicit memory is BETTER at off-peak — the two
+retrieval routes run on different circadian schedules.
+
+Mechanics: the `chronotype` latent trait (∈ N(0,1), morning-positive)
+compiles to `chrono_peak_hr` = routine wake-hour + 3 + 4·(1−chrono)/2
+(morning type wakes 6 → peak ~9; evening type wakes 9 → peak ~17; the
+world's routine table is the ground truth — P473). Encoding and
+controlled retrieval both scale:
+`syncMatch = 1 − |tod − chrono_peak_hr|/12` (triangular, hour-modular);
+`E *= 1 + sync_gain·syncMatch`; retrieval drive `w += sync_gain·0.5·
+syncMatch` at recall time. Intrusive/involuntary recall runs the
+implicit schedule: `intrusion drive *= 1 + sync_implicit_flip·
+(−syncMatch)` — the off-peak involuntary bonus (May et al. 2005).
+Age knots: `chrono_peak_hr` shifts −1 hr per two decades past 60
+(older → morning); `sync_gain` magnitude ×= `1 + sync_age_gain·
+age_eff/70` (the 2025 systematic review: synchrony evidence in 83% of
+older-adult studies vs 45% of young-adult studies — Facer-Childs
+review tradition, HYPOTHESIS on exact slope). Shift-work/rotating
+schedules flatten the peak: `chrono_peak_hr: null` disables the term
+(nurses, per the cast — HYPOTHESIS, no direct citation).
+
+### 6.66 What memory is FOR — functional retrieval weights (new in v4.5)
+
+[CONSENSUS] Autobiographical memory is functional, not archival: the
+TALE (Bluck & Alea 2002, *Intl J. Aging* 56:113; Bluck 2003) names
+three functions — **self-continuity**, **directing behavior**,
+**social bonding** — and the RFS (Webster 1993) shows stable
+individual differences in which function dominates. Harris, Rasmussen
+& Berntsen (2014, *Consciousness & Cognition* 27) find involuntary
+memories serve the same functions — function is a retrieval-selection
+property, not a deliberate-use property.
+
+Mechanics: spontaneous-retrieval candidate scoring (remind/recall/
+mind-wander paths) gains a selection term `funcMatch`:
+`func_self` matches `selfDef` records and high `self_rel` records;
+`func_dir` matches records whose topics intersect the active `concerns`
+set or carry `open` loops (the past consulted for a current decision);
+`func_soc` matches records with `shared_with` ∩ currently co-present
+characters (the story this audience can share). Selection weight
+`+= func_X · funcMatch` in the candidate score ONLY — E, θ, and the
+retrieval threshold are untouched: a functional profile changes what a
+character habitually surfaces, never what they can recall. Defaults
+uniform (1/3 each); profiles pin the dominant function(s). The three
+weights sum-normalize at use; a profile of all-low funcs = the
+character who rarely reminisces at all (low spontaneous-retrieval base
+rate, rides `mw_rate`).
+
+### 6.67 Current concerns — the wants gate (new in v4.5)
+
+[CONSENSUS] Klinger (1975, 2013): thought flow — including involuntary
+thought — is organized around *current concerns*, the states between
+committing to a goal and resolving it; concern-related cues have
+privileged capture. Conway & Pleydell-Pearce (2000, SMC model): active
+goals shape autobiographical construction. Marsh, Hicks & Bink (1998,
+*JEP:LMC* 24:350): completed intentions DEACTIVATE — goal resolution
+removes the activation advantage (the prospective-memory complement of
+the concern gate).
+
+Mechanics: `ProfileInput.wants` compiles to `concerns: [{topic,
+weight, clock, createdDay}]` on the character record — `clock:
+"week"` entries decay weight ×0.5 per 7 days unresolved (urgent and
+transient), `"season"` ×0.5 per 45 days, `"long"` persistent.
+Encoding: event topics ∩ concerns → `E *= 1 + concern_gain·
+concernMatch` (max over matches; concern_gain 0.25). Records born
+inside a concern match are tagged `concern:<topic>` and carry
+`concern_intrude` (0.08) additive intrusion drive while the concern is
+active. On resolution (world sets `resolvedDay`): matching records'
+intrusion bonus decays linearly to 0 over `pep_days`-style ~7 days —
+the closure is gradual, not a switch (Marsh et al. is about PM
+intention activation; the episodic-tag release is HYPOTHESIS).
+Distinct from §4 open-loops: open-loop = an interrupted task with a
+closure urge; concern = a standing goal that boosts ENCODING relevance
+and intrusion salience for everything tagged to it. The two compose —
+an interrupted concern-relevant task gets both.
+
+### 6.68 Fabrication direction — liars split (new in v4.5)
+
+[CONSENSUS, effect size DEBATED] Refines §6.9's population
+`fab_inflate`. Polage (2004, *Applied Cognitive Psychology* 18:455):
+after lying about non-events, MOST participants showed fabrication
+DEFLATION — likelihood ratings for the lied-about event DROPPED; only
+10–16% showed maximal inflation. Polage (2012, *Memory* 20:837):
+inflation correlates with habitual lying frequency, dissociation, and
+low discomfort while lying; source-monitoring ability is the
+moderator. Chrobak & Zaragoza (2008): forced confabulation → ~half
+develop false memories within 8 weeks. Otgaar-lab (2018): telling a
+lie inflates belief more than merely planning it.
+
+Mechanics: two new per-char pins compile from the bible's `truth`
+register — `fab_dir ∈ [−1, +1]` (fluent comfortable fabricator → +;
+scrupulous/omitter → −) and `lie_freq ∈ [0,1]` (dose: the mechanism
+only fires on emitted `claim:true` fabrications, so frequency is
+exposure). `fab_discomfort ∈ [0,1]` is the deflation gate. §6.9's
+flip becomes `flip_p = source_confuse_flip·(1 + fab_inflate·
+max(0, fab_dir)·(1−fab_discomfort))·discrim_mult` — only the positive
+tail inflates. Deflators instead strengthen the TRUE record: verbatim
+fields of the lied-about event get `R += fab_deflate_gain·(−fab_dir)`
+— rehearsing "what really happened" to keep the story straight is
+itself rehearsal (HYPOTHESIS for mechanism; the behavioral deflation
+is Polage's). **Omission is not fabrication:** a `truth` register of
+omission/redirect writes NO claim, so no flip, no deflate — the true
+record sits untouched and the omission act encodes normally (Victor's
+register, Carmen's money-silence). Locked null: `meta_cal` does not
+exempt inflation — the liar cannot think their way out (source
+monitoring, not metacognition, is the moderator).
+
+### 6.69 Collaborative memory — two heads, less recall, more coverage
+(new in v4.5)
+
+[CONSENSUS] Weldon & Bellinger (1997, *JEP:LMC* 23:1160): groups
+recalling together output LESS than the same people pooling solo
+recalls — collaborative inhibition, caused by retrieval-strategy
+disruption (Basden, Basden, Bryner & Thomas 1997): listening to a
+partner's search derails your own. Harris, Keil, Sutton, Barnier &
+McIlwain (2011): long-term couples show it too — intimacy does not
+exempt. But Wegner's transactive systems (1987, *Psych Rev* 94:186;
+Wegner, Erber & Raymond 1991) allocate domains: on the partner's
+topics, the couple out-covers either solo member.
+
+Mechanics: `jointRecall(a, b, topic)` — emitted when two co-present
+characters reminisce/discuss together. Each participant's recall gets
+`θ += collab_inhib` (0.10) and `search_breadth` −25% — the partner's
+retrievals disrupt own-search. In exchange: `collab_cue_p` (0.6) per
+miss — the partner's emission can cue a rescue through the normal
+retell/encode path; and topics in `PersonModel[partner].knowsTopics`
+resolve via referral (§6.14) at the PARTNER's θ — directory, not own
+search. Net contract: dyad output < solo sum on shared topics
+(inhibition), dyad coverage > either solo on split topics
+(division of memory labor). Extends §6.14's `transact_loss`: the
+directory is what the inhibited search was renting. Age-flat,
+cite-guarded (older-couple magnitudes understudied — HYPOTHESIS
+would predict larger inhibition via search_breadth already being low;
+the knot is left flat until evidence).
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -6056,6 +6224,23 @@ MemoryParams = {
 //   ×(1−hearing_loss) rides the v2.8 hearing trait; discredit_mult,
 //   stt_*, fam_permastore_*, own_share_bias, retell_conf_*,
 //   gossip_*, partner_eval_pull declared AGE-FLAT (cite-guarded).
+// v4.5 additions (character-profiles IV — bible-driven refinement,
+//   cast-profiles.md §14)
+"chrono_peak_hr": 14,      // compiled from routine wake + chronotype (§6.65); null = flat
+"sync_gain": 0.15, "sync_implicit_flip": 0.15, "sync_age_gain": 0.3, // §6.65
+"func_self": 0.33, "func_dir": 0.33, "func_soc": 0.33, // TALE selection (§6.66)
+"concern_gain": 0.25, "concern_intrude": 0.08,          // wants gate (§6.67)
+"fab_dir": 0.0, "fab_discomfort": 0.5, "fab_deflate_gain": 0.05, // §6.68
+"collab_inhib": 0.10, "collab_cue_p": 0.6,              // §6.69
+// v4.5 explicit nulls: meta_cal → no fab_inflate exemption (source
+//   monitoring, not metacognition, moderates); func_* → θ/E/θ-gate
+//   = 0 (selection only, never capability); omission register →
+//   fab_* = 0 (no claim emitted, no mechanism fires); lie_freq is a
+//   record field (dose counter), not a param — lives on ProfileInput.
+// v4.5 knot notes: chrono_peak_hr −1hr/2dec past 60, sync_gain
+//   ×(1+sync_age_gain·age_eff/70) — §6.65; concern week/season/long
+//   clock decay is schedule-driven (7d/45d/persistent); collab_inhib
+//   declared AGE-FLAT cite-guarded.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small

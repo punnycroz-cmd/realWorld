@@ -3292,3 +3292,97 @@ retention-of-availability, not protection from distortion — the
 §37 permastore semantics); Landauer 1986 (drop-is-the-only-
 deletion rationale, I6). All other content is bookkeeping law —
 HYPOTHESIS throughout, no new human claims.
+
+## 75. New probes P469–P480 (v46 suite — character-profiles IV, the
+## bible-driven refinement pass; cast-profiles.md §14, spec §§6.65–6.69)
+
+- **P469 fabrication direction split (MUST):** matched-event battery —
+  a high `fab_dir`/`lie_freq` profile (Dani-type: +0.8/0.8/0.2)
+  vs a deflator (Priya-type: −1.0/0.05/0.9), both emitting
+  `claim:true` fabrications about non-events. High profile: belief in
+  own fabrications rises over delay (Polage 2012 inflation arm).
+  Deflator: likelihood ratings FALL and the true record's verbatim R
+  rises (`fab_deflate_gain`) — the Polage 2004 majority pattern. Both
+  arms required; a spec that only inflates is wrong.
+- **P470 fabrication dose (MUST):** inflation magnitude ∝ count of
+  emitted fabrications for high `lie_freq`; an omission-register
+  profile (Victor-type: lie_freq 0) run through N omission events
+  produces zero flips and zero deflation — no claim, no mechanism.
+- **P471 discomfort gate (SHOULD):** high `fab_discomfort` at high
+  `lie_freq`/`fab_dir` converts the profile to deflation — discomfort
+  moderates the tail (Polage 2012 individual differences).
+- **P472 synchrony double-dissociation (MUST):** morning-type vs
+  evening-type profiles encode matched morning AND evening events:
+  each type's E higher in its own window; older profiles show larger
+  sync amplitude (age knot); `sync_implicit_flip` — intrusion rate
+  higher at OFF-peak times (May, Hasher & Foong 2005). Three sub-arms,
+  all required.
+- **P473 chrono compilation (MUST — structure):** `chrono_peak_hr`
+  derives from routine wake-hour + chronotype trait; two profiles with
+  identical traits but different routine wake-hours get different
+  peaks; rotating-shift profile → null disables the term. Bible
+  free-text must not set the peak directly.
+- **P474 TALE selection-only (MUST):** func_soc-pinned character in
+  varying audiences: spontaneous recalls preferentially surface
+  `shared_with`∩audience records; func_dir prefers concern-tagged;
+  func_self prefers `selfDef`. Invariant: θ, E, and retrieval
+  thresholds unchanged across func profiles — selection is the only
+  legal difference (TOST on capability metrics).
+- **P475 concern lifecycle (SHOULD):** concern-matching events encode
+  E↑ vs matched non-matching; week-clock concern weight halves per 7d;
+  on `resolvedDay` the tagged records' intrusion bonus decays
+  gradually (~7d), never steps to zero in one tick.
+- **P476 collaborative inhibition (MUST):** `jointRecall(a,b)` on a
+  shared topic outputs fewer unique items than the same pair's pooled
+  solo recalls (Weldon & Bellinger); on a topic split across
+  knowsTopics domains, dyad coverage exceeds either solo member
+  (Wegner division of labor). Both halves required — inhibition alone
+  is half the phenomenon.
+- **P477 transactive referral fidelity (SHOULD):** partner-domain
+  queries inside jointRecall resolve at the PARTNER's θ (referral),
+  not the asker's — a low-memory character with an expert partner
+  answers expert-domain questions at partner quality.
+- **P478 signature distinctness battery (MUST — meta):** compile all
+  8 mains + 20 ambients; assert each main differs from the population
+  prior on ≥2 of {fab_dir, func profile, chrono_peak_hr,
+  concern_gain-weighted concern count} AND no two mains share the
+  identical sign/dominant pattern — the cast's memory phenotypes must
+  be pairwise distinguishable on the new axes.
+- **P479 non-interference extension (MUST):** fab_dir/lie_freq/func_*/
+  chrono params steer dynamics but never read E-tier fields — re-run
+  the P457 mutation oracle with the v4.5 params active; identical
+  C/M trajectories required.
+- **P480 ambient prior sanity (OBSERVE):** the 20 ambients' fab_dir
+  distribution has mean ≈ −0.1 (deflation modal, Polage 2004);
+  func ≈ Dirichlet-flat; no ambient has chrono_peak_hr null unless
+  their routine variants show rotating shifts.
+
+Registry: P1–P480. v46 suite: P469–P480 (6 MUST, 4 SHOULD, 1 OBSERVE,
+1 structure).
+
+## 76. Sources new to this version
+
+- May, Hasher & Stoltzfus 1993 (*Psychological Science* 4:326–330);
+  May 1999 (*PBR* 6:142); May, Hasher & Foong 2005 (*Psychological
+  Science* 16:96) — synchrony, controlled-process scope,
+  explicit/implicit circadian dissociation.
+- Schmidt, Collette, Cajochen & Peigneux 2007 (*Neurosci & Biobehav
+  Rev* 31:899) — circadian rhythm and cognition review.
+- Polage 2004 (*Applied Cognitive Psychology* 18:455) — fabrication
+  deflation; Polage 2012 (*Memory* 20:837) — inflation individual
+  differences; Otgaar-lab 2018 (*EJoP* 13:1422) — telling > planning.
+- Chrobak & Zaragoza 2008 — forced confabulation → false memory.
+- Klinger 1975/2013; Conway & Pleydell-Pearce 2000 (*Psych Rev*
+  107:261); Marsh, Hicks & Bink 1998 (*JEP:LMC* 24:350) — current
+  concerns, SMC goal-shaping, intention deactivation.
+- Bluck & Alea 2002 (*Intl J. Aging* 56:113); Bluck 2003 (*Memory*
+  11); Webster 1993 (*JPSP* 65); Harris, Rasmussen & Berntsen 2014
+  (*Consciousness & Cognition* 27) — TALE functions, RFS, functions of
+  involuntary AM.
+- Weldon & Bellinger 1997 (*JEP:LMC* 23:1160); Basden, Basden,
+  Bryner & Thomas 1997 (*JEP:LMC* 23:1176); Harris, Keil, Sutton,
+  Barnier & McIlwain 2011 (*Memory Studies* 4) — collaborative
+  inhibition, strategy-disruption account, couples.
+- Wegner 1987 (*Psych Rev* 94:186); Wegner, Erber & Raymond 1991
+  (*JPSP* 61:923) — transactive memory (reused anchor).
+- Butler 1963 (*Psychiatry* 26:65) — life review.

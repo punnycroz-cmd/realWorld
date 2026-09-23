@@ -909,3 +909,246 @@ narrative signatures (OBSERVE).
 - Weinberger — repressive defensiveness trait → `defens` axis.
 - Continuing: Fiske & Neuberg 1990 (ambient category-first, v3.2);
   Schrauf & Rubin (immigration bump, v22).
+
+## 14. The world-v42 recompile — truth, wants, interior (v4.5)
+
+The bibles gained three fixed sections since the v22 compile
+(world-v42): **"Wants (three clocks)"**, **"The cast, privately"**
+(directed valence map over the other seven), and **"Truth and lies"**
+(honesty register + tell). Each maps onto new or existing machinery:
+
+- `truth` → §6.68 fabrication-direction pins (`fab_dir`, `lie_freq`,
+  `fab_discomfort`) — and, just as important, the *omission* register
+  that fires NO fabrication machinery at all.
+- `wants` → §6.67 `concerns` set with clock-class weights
+  (week/season/long).
+- `interior` → seeds `RelEdge` (§6.55) and `func_soc` targeting; the
+  private-vs-surface gap tells us which edges carry `secret`-adjacent
+  records.
+- `routine` tables → §6.65 `chrono_peak_hr` (wake-hour ground truth).
+
+v22 pins and §9 delta blocks stand; these add. Ambient template §10
+unchanged except §14.9.
+
+### 14.1 C1 Marisol — redirect, never fabricate
+
+- `truth`: "never lies outright — redirects." Redirects emit no
+  `claim:true` → `fab_dir` nominal −0.6 but `lie_freq` ≈ 0.05: the
+  mechanism is nearly dead code on her. What the register DOES pin:
+  self-biography is "the locked door" → existing `secret_str`/omission
+  high on self-topic records only.
+- `chrono`: wakes 05:30, opens the café → morning type,
+  `chrono_peak_hr` ≈ 9. Her sharpest encoding is the morning counter;
+  the 2–4 p.m. check-in rounds run slightly off-peak — the block's
+  gossip lands in her trough, mildly amusing and correct.
+- `wants` → concerns `{caretaking:0.8(week), block-stability:0.7
+  (season), self-escape:0.4(long)}`. High `concern_gain` on
+  block-stability events — a dark window or an odd rent notice encodes
+  deep for her.
+- `func`: `func_soc 0.5 / func_dir 0.3 / func_self 0.2` — memory as
+  bonding instrument; she surfaces YOUR shared history, not hers.
+- `collab`: she IS the directory — other chars' `PersonModel
+  [Marisol].knowsTopics` saturated on people/block topics; her own
+  `jointRecall` inhibition is real but she compensates via referrals
+  she receives, not gives.
+- Signature update: the block's directory who forgets herself.
+
+### 14.2 C2 Jules — honest to a fault, omitting one file
+
+- `truth`: default honest, overshares, self-corrects → `fab_dir −0.8`,
+  `fab_discomfort 0.9`, `lie_freq 0.05`. The single omission (housing
+  paperwork) is a topic-gated silence, not a fabrication — records
+  tagged `housing/paperwork` get emission suppression while the
+  memory itself is unharmed. "It eats them visibly" = the omission
+  topic has high `concern` intrusion — the thing you can't say keeps
+  surfacing.
+- `chrono`: 06:30 run → morning type, `chrono_peak_hr` ≈ 9–10.
+- `wants` → `{belonging:0.9(season), work-that-matters:0.5(long)}` —
+  acceptance events (being named, being asked) encode hot.
+- `func`: `func_self 0.4 / func_dir 0.3 / func_soc 0.3` — the identity
+  project ("be from a place again") drives self-continuity recall.
+- `collab`: Carmen dinners 3×/wk → young transactive dyad forming;
+  `collab_cue_p` on the Carmen dyad rising; knowsTopics(
+  "the building, the block's old days") accruing TO Carmen.
+
+### 14.3 C3 Dani — the fluent liar
+
+- `truth`: "lies fluently, cheerfully, constantly" → the cast's one
+  genuine fabrication-inflation phenotype: `fab_dir +0.8`,
+  `lie_freq 0.8`, `fab_discomfort 0.2`. Per Polage 2012 this is exactly
+  the inflation-risk profile — her glitter-dodges will, over months,
+  start feeling true. Exception encoded relationally, not as a param:
+  vs Marisol she *avoids the question* — no claim emitted, no flip —
+  the bible's load-bearing boundary is behavioral.
+- `chrono`: sleeps 00–08, evenings out → neutral/evening,
+  `chrono_peak_hr` ≈ 15.
+- `wants` → `{art-recognition:0.9(season), room-of-own:0.6(long)}` —
+  recognition events (Tomás's gallery-board praise) encode deep; she
+  will retell them.
+- `func`: `func_soc 0.4 / func_self 0.35 / func_dir 0.25`.
+- `collab`: the secret Marcus dyad — three months of `shared_with:
+  {Dani,Marcus}` records under a `secret` flag; `jointRecall` between
+  them is functional but every emission passes the disclosure gate.
+- Signature update: lies until the lies feel real — and only Marisol
+  can pull the ripcord.
+
+### 14.4 C4 Priya — scrupulous, on a flattened clock
+
+- `truth`: "if she writes it down it is true or it does not get
+  written" → `fab_dir −1.0`, `lie_freq 0.05`, `fab_discomfort 0.9`.
+  "I'm fine" is a minimized status report (a hedge, not a
+  fabrication — no claim, no flip). The cast's strongest deflator:
+  when forced to fudge, the true record strengthens.
+- `chrono`: three twelves a week, rotating — `chrono_peak_hr: null`.
+  Synchrony machinery off; HYPOTHESIS per §6.65 (shift-work flattens
+  the peak). Her fatigue/state effects come from `sleepdep`, not the
+  circadian gate.
+- `wants` → `{un-stall:0.7(season), heater/rent:0.8(week)}` — the
+  unresolved hike keeps concern-tagged housing events intruding.
+- `func`: `func_dir 0.5 / func_self 0.3 / func_soc 0.2` — memory
+  consulted like a chart: what does the past say about THIS decision.
+- `collab`: the ex-roommate dyad (Marcus) — directory fully formed and
+  NOT dismantled by the breakup ("identifies his dish-loading by
+  sound"): `knowsTopics` mutual on household/logistics topics;
+  `jointRecall` inhibition applies normally; `transact_loss` has NOT
+  fired because the partner remains present — the divorce of the
+  directory waits for someone actually moving out.
+
+### 14.5 C5 Marcus — reschedules the truth
+
+- `truth`: doesn't lie, defers — "it's being handled" is a promise
+  about a future conversation. Half-fabrication: the claim is real but
+  temporally displaced → `fab_dir +0.3`, `lie_freq 0.5`,
+  `fab_discomfort 0.6`. Moderate inflation exposure; the cornered-
+  confession register ("tells everything at once, badly") is a burst
+  disclosure event, not memory machinery.
+- `chrono`: wake 08, drums evenings → evening type, `chrono_peak_hr`
+  ≈ 17–18.
+- `wants` → `{rent:0.9(week), say-the-true-thing:0.7(season)}` — the
+  disclosure concern tags every Dani-adjacent event near Priya.
+- `func`: `func_soc 0.45 / func_self 0.3 / func_dir 0.25` — the
+  storyteller drummer; bonding recall dominant.
+- `collab`: two dyads — Priya (intact directory, post-breakup) and
+  Dani (secret, flagged). The same man runs a public and a covert
+  transactive system simultaneously — a genuinely unusual profile the
+  bible wrote for free.
+
+### 14.6 C6 Carmen — the editor, age-amplified morning
+
+- `truth`: "does not lie — edits." Edits are omission-with-polish →
+  `fab_dir −0.5`, `lie_freq 0.1`, `fab_discomfort 0.8`. The money
+  silence is absolute and topic-scoped: `money`-tagged records get an
+  emission gate for ALL audiences (the strongest scoped silence in the
+  cast) while memory itself is intact — she knows exactly what she
+  won't say.
+- `chrono`: 74yo → age-shifted morning (§6.65 knot): wake 07 →
+  `chrono_peak_hr` ≈ 8–9, and `sync_gain` age-boosted — her stoop
+  mornings are her peak-encoding window; afternoon palm-time recall is
+  off-peak, which per `sync_implicit_flip` mildly INCREASES
+  involuntary recall — the afternoons under the palm are when the past
+  arrives unbidden. The bible gave us the phenotype; synchrony gives
+  it a mechanism.
+- `wants` → `{stay-on-own-terms:0.9(season), Jules-fed:0.6(week),
+  not-a-burden:0.7(long)}`.
+- `func`: `func_self 0.55 / func_soc 0.3 / func_dir 0.15` — the
+  block's memory is a self-continuity engine; Butler (1963) life-review
+  flavor without pathology.
+- `collab`: richest directory profile in the cast — Jules (growing),
+  Victor (30 years), PLUS the existing transact_loss pin on the late
+  husband. Three dyads at three lifecycle stages: forming, mature,
+  lost.
+
+### 14.7 C7 Victor — the industrial omitter
+
+- `truth`: "omits on an industrial scale… omission isn't lying." This
+  is the purest omission register: `fab_dir −0.9`, `lie_freq 0` —
+  fabrication machinery completely dead; instead the money-bomb secret
+  (developer offer) sits in a `secret_str`-max record that only the
+  paper can speak. His documents ARE his externalized verbatim store —
+  a prop-supported memory profile (records `kind:"doc"` referenced,
+  not recalled).
+- `chrono`: 58yo, wake 08 → morning-neutral, `chrono_peak_hr` ≈ 10
+  with the age shift beginning.
+- `wants` → `{decide-the-offer:0.9(season), hand-down-whole:0.8
+  (long)}` — the decision concern is the largest single standing
+  concern in the cast; every tenant interaction encodes through it.
+- `func`: `func_dir 0.5 / func_self 0.25 / func_soc 0.25` — memory as
+  ledger: what did I decide, what is owed, what does the paper say.
+- `collab`: wife's directory lost (transact_loss pinned since v22) —
+  the buildings-as-directory note stands; his Tuesday repair loop is
+  literally a directory walk.
+
+### 14.8 C8 Tomás — understatement, evening line
+
+- `truth`: "understates rather than lies — the bigger the feeling, the
+  smaller the sentence"; money honesty absolute → `fab_dir −0.7`,
+  `lie_freq 0.1`, `fab_discomfort 0.85`. Handshake-records
+  (`kind:"claim"` he makes) are minimal but maximal-fidelity — his
+  fab profile is near-inert in BOTH directions.
+- `chrono`: wake 09, the line until 24:00 → the cast's clearest
+  evening type, `chrono_peak_hr` ≈ 19–20. His peak encoding happens
+  ON the line — service events land in his best hours.
+- `wants` → `{staff-and-wire:0.8(week), the-plan-priced:0.9(season),
+  kitchen-with-name:0.9(long)}` — the supplier loop is a concern-saturated
+  walk: every equipment price encodes through `concern_gain`. His dream
+  has a notebook AND a memory gate.
+- `func`: `func_dir 0.5 / func_self 0.3 / func_soc 0.2` — the plan
+  consults the past constantly; the 3 p.m. fixed point is the one
+  unaudited routine (Marisol's own interior entry mirrors it — a
+  dyadic `func` blind spot worth noting for the world-builder).
+
+### 14.9 Ambient template — v4.5 addendum
+
+Ambients get: `fab_dir ~ N(−0.1, 0.4)` truncated [−1,1] (population
+prior — deflation is the modal human outcome, Polage 2004),
+`lie_freq ~ Beta(2,5)`, `fab_discomfort ~ N(0.6, 0.15)`; `func_*`
+drawn Dirichlet(2,2,2) then jittered; `chrono_peak_hr` compiled from
+the ambient's `ambients.json` routine wake-hour (v43 variant layer
+supplies it); `concerns` = at most 1 week-clock item derived from the
+ambient's signature beat. No ambient gets a null `chrono_peak_hr`
+unless their variant table shows rotating shifts.
+
+### 14.10 Sources added this version
+
+- May, Hasher & Stoltzfus 1993 (*Psychological Science* 4:326) —
+  synchrony × age, the founding result (verified).
+- May 1999 (*PBR* 6:142) — synchrony is a controlled-process effect
+  (verified).
+- May, Hasher & Foong 2005 (*Psychological Science* 16:96) —
+  explicit peaks, implicit prefers off-peak (verified).
+- Schmidt, Collette, Cajochen & Peigneux 2007 (*Neurosci & Biobehav
+  Rev* 31) — circadian review backdrop (via 2025 review).
+- Polage 2004 (*Applied Cognitive Psychology* 18:455) — fabrication
+  deflation majority / 10–16% inflation tail (verified).
+- Polage 2012 (*Memory* 20:837) — inflation ∝ lie frequency, low
+  discomfort, dissociation; source-monitoring moderator (verified).
+- Chrobak & Zaragoza 2008 — forced confabulation → false memory at
+  8 weeks (~50%) (verified via Otgaar-lab review).
+- Otgaar-lab 2018 (*EJoP* 13:1422) — telling > planning for belief
+  inflation (verified).
+- Klinger 1975; Klinger 2013 — current concerns organize thought
+  flow (textbook).
+- Conway & Pleydell-Pearce 2000 (*Psych Rev* 107:261) — SMC: goals
+  shape AM construction (textbook).
+- Marsh, Hicks & Bink 1998 (*JEP:LMC* 24:350) — completed intentions
+  deactivate (verified prior versions for PM; reused for §6.67
+  release).
+- Bluck & Alea 2002 (*Intl J. Aging & Human Dev* 56:113) — TALE three
+  functions (verified).
+- Bluck 2003 (*Memory* 11) — TALE psychometrics.
+- Webster 1993 (*JPSP* 65) — RFS individual differences (verified).
+- Harris, Rasmussen & Berntsen 2014 (*Consciousness & Cognition* 27)
+  — functions of involuntary AM.
+- Weldon & Bellinger 1997 (*JEP:LMC* 23:1160) — collaborative
+  inhibition (verified).
+- Basden, Basden, Bryner & Thomas 1997 (*JEP:LMC* 23:1176) —
+  retrieval-strategy disruption account.
+- Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Memory Studies* 4)
+  — couples show inhibition too.
+- Wegner 1987 (*Psych Rev* 94:186); Wegner, Erber & Raymond 1991
+  (*JPSP* 61:923) — transactive systems (reused from v0.8/§6.14).
+- Butler 1963 — life review (Carmen's func_self flavor; background).
+
+### 14.11 Probes filed
+
+P469–P480 → validation-design.md §75.
