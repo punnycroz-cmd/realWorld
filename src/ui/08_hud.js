@@ -12,6 +12,18 @@ function updateHUD(){
   if(W.storm > 0.2) wxText = '⛈️ Thunderstorm';
   else if(W.rain > 0.1) wxText = '🌧️ Rain';
   else if(W.temp > 26) wxText = '☀️ Warm & Sunny';
+  // v47: the SF chip reports real conditions — wind (meteorological
+  // FROM-direction in compass + knots off the Open-Meteo km/h feed),
+  // live cloud cover, and Karl when the intrusion front is on the move
+  if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    const wd = ['N','NE','E','SE','S','SW','W','NW'];
+    const from = (((W.windAng || 0) * 180 / Math.PI) + 540) % 360;
+    const kt = Math.round((W.windSpd || 0) * 10 / 1.852);
+    const cov = Math.round((typeof sfCloudCover === 'function'
+      ? sfCloudCover() : 0) * 100);
+    wxText += ` · ${wd[Math.round(from / 45) % 8]} ${kt}kt · ${cov}%`;
+    if(typeof sfKarlK === 'function' && sfKarlK() > 0.3) wxText += ' · Karl';
+  }
   document.getElementById('ui-weather').textContent = wxText;
   document.getElementById('ui-temp').textContent = `${W.temp.toFixed(1)}°C`;
 

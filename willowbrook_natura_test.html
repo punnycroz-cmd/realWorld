@@ -6772,6 +6772,18 @@ function updateHUD(){
   if(W.storm > 0.2) wxText = '⛈️ Thunderstorm';
   else if(W.rain > 0.1) wxText = '🌧️ Rain';
   else if(W.temp > 26) wxText = '☀️ Warm & Sunny';
+  // v47: the SF chip reports real conditions — wind (meteorological
+  // FROM-direction in compass + knots off the Open-Meteo km/h feed),
+  // live cloud cover, and Karl when the intrusion front is on the move
+  if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    const wd = ['N','NE','E','SE','S','SW','W','NW'];
+    const from = (((W.windAng || 0) * 180 / Math.PI) + 540) % 360;
+    const kt = Math.round((W.windSpd || 0) * 10 / 1.852);
+    const cov = Math.round((typeof sfCloudCover === 'function'
+      ? sfCloudCover() : 0) * 100);
+    wxText += ` · ${wd[Math.round(from / 45) % 8]} ${kt}kt · ${cov}%`;
+    if(typeof sfKarlK === 'function' && sfKarlK() > 0.3) wxText += ' · Karl';
+  }
   document.getElementById('ui-weather').textContent = wxText;
   document.getElementById('ui-temp').textContent = `${W.temp.toFixed(1)}°C`;
 
@@ -31063,6 +31075,45 @@ function sfShadowBlobs(){
   }
   return out;
 }
+/* ---------------- v47: sunbreaks --------------------------------------
+   The cloud field only ever SUBTRACTED light — shadow lanes slid over
+   the streets while the gaps between cloud streets stayed at a flat
+   neutral exposure. But the same field that occludes also admits: the
+   lane halfway between two cloud streets is a corridor of FULL sun.
+   sfGapBlobs mirrors sfShadowBlobs with each cloud's ground spot pushed
+   half a street-spacing across the wind, so a warm pool sits exactly in
+   the lane between two shade lanes; sfSunGapK is the per-point scalar
+   (walls + cells + diorama all sample the same light field). Everything
+   drifts on the same wind, projects along the same sun vector, and dies
+   out as the deck closes (cover -> 1 leaves no gaps to shine through). */
+const SF_GAP_SHIFT = 132;                    // ~half the 265m street spacing
+function sfGapBlobs(){
+  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
+  const nxv = -Math.sin(W.windAng), nyv = Math.cos(W.windAng);
+  const out = [];
+  for(let i = 0; i < n; i++){
+    const c = cs[i];
+    const [cx, cy] = sfCloudPos(c);
+    out.push([cx + nxv * SF_GAP_SHIFT - SF_SUN.x * SF_CLOUD_ALT,
+              cy + nyv * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT,
+              c.r * c.r * 1.35, c.a]);
+  }
+  return out;
+}
+function sfSunGapK(mx, my){
+  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
+  const nxv = -Math.sin(W.windAng), nyv = Math.cos(W.windAng);
+  let k = 0;
+  for(let i = 0; i < n; i++){
+    const c = cs[i];
+    const [cx, cy] = sfCloudPos(c);
+    const gx = cx + nxv * SF_GAP_SHIFT - SF_SUN.x * SF_CLOUD_ALT,
+          gy = cy + nyv * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT;
+    const dx = mx - gx, dy = my - gy, d2 = dx * dx + dy * dy, r2 = c.r * c.r * 1.35;
+    if(d2 < r2 * 4) k += c.a * Math.exp(-d2 / r2);
+  }
+  return Math.min(1, k);
+}
 /* ---------------- v24: cumulus bodies -------------------------------
    The cloud field used to exist only as sliding ground shadows and flat
    sky ellipses — from the diorama the sky was empty while shadows swept
@@ -32547,6 +32598,32 @@ function sfRenderWorld(cw, ch){
       ctx.ellipse(sx, sy, rr * 1.7, rr * 0.55 * SF_TILT, wrot, 0, Math.PI * 2);
       ctx.fill();
     }
+    // 2b3. v47: sunbreaks — the lanes BETWEEN the shade streets are full
+    // sun: warm pools pushed half a street-spacing across the wind from
+    // each shadow, same lane-shaped smear, same drift. The diorama reads
+    // as alternating shade/sun streets sweeping the neighborhood instead
+    // of blobs over a flat-lit plate.
+    if(SF_SUN.day > 0.12){
+      const gb = sfGapBlobs();
+      for(const gp of gb){
+        const sx = (gp[0] * SF_PXM - cam.x) * cam.zoom + cw / 2;
+        const sy = sfSY(gp[1] * SF_PXM, ch);
+        const rr = Math.sqrt(gp[2]) * SF_PXM * cam.zoom * 1.15;
+        if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
+        const a = Math.min(0.30, (0.11 + 0.14 * SF_SUN.warm) * gp[3] *
+                  SF_SUN.day * (1 - cover * 0.55));
+        if(a < 0.015) continue;
+        const g = ctx.createRadialGradient(sx, sy, rr * 0.1, sx, sy, rr);
+        g.addColorStop(0, `rgba(255,224,158,${a})`);
+        g.addColorStop(0.65, `rgba(255,214,140,${a * 0.5})`);
+        g.addColorStop(1, 'rgba(255,214,140,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        const wrot2 = Math.atan2(Math.sin(W.windAng) * SF_TILT, Math.cos(W.windAng));
+        ctx.ellipse(sx, sy, rr * 1.6, rr * 0.5 * SF_TILT, wrot2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
   // 2b2. v24: the clouds THEMSELVES — the same cumulus field that throws
   // the shadows above drifts over the diorama as visible bodies: sun-lit
@@ -32855,10 +32932,16 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // v14: real sun exposure — n·L against the live solar bearing; sunward
   // faces warm up (golden when the sun is low), shaded faces take cool
   // sky fill. Shared formula with the baked sprites via sfSunWallCol.
+  // v47: a facade standing in a lane-gap between cloud streets catches
+  // unobstructed sun — the same sunbreak field the ground cells sample
+  // lifts its key and warms the paint (shade lanes still win via dim)
   const sunK = sfSunFaceK(nx, ny);
+  const gapK = night ? 0 : sfSunGapK(b.x / SF_PXM, b.y / SF_PXM) * SF_SUN.day;
   const lit = (0.55 + 0.5 * Math.max(0, sunK) * SF_SUN.day +
-               0.05 * Math.max(0, sunK)) * dim;
-  const wallCol = sfSunWallCol(wallBase, sunK);
+               0.05 * Math.max(0, sunK)) * dim * (1 + 0.30 * gapK);
+  const wallCol = gapK > 0.3
+    ? mix(sfSunWallCol(wallBase, sunK), '#ffe0a8', Math.min(0.3, gapK * 0.3))
+    : sfSunWallCol(wallBase, sunK);
   const para = 0.5 + phash(i, 17, 1406) * 0.35;
   const ux = ex / L, uy = ey / L;
   const quad = (pts, fill) => {
@@ -34768,15 +34851,18 @@ function sfRenderStreet(cw, ch){
     if(sunFwd > 0.15 && W.rain < 0.4 && cover < 0.8){
       const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
       const sy3 = horizon - sunUp * F * 0.72;
-      const shaftA = 0.055 * (1 - cover * 0.55);
+      // v47: brighter, wider fan — the sunbreak lanes overhead are real
+      // openings in the deck, so the shafts that drop through them carry
+      // more light and wander slowly with the gaps
+      const shaftA = 0.10 * (1 - cover * 0.55);
       ctx.save();
       ctx.translate(sx3, sy3);
       ctx.fillStyle = `rgba(255,246,214,${shaftA})`;
-      for(let k = 0; k < 5; k++){
-        const ang = 0.5 + k * 0.27 + Math.sin(SF_WX.t * 0.2 + k) * 0.02;
+      for(let k = 0; k < 7; k++){
+        const ang = 0.42 + k * 0.24 + Math.sin(SF_WX.t * 0.2 + k) * 0.03;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.arc(0, 0, F * 1.1, ang, ang + 0.09);
+        ctx.arc(0, 0, F * 1.15, ang, ang + 0.11);
         ctx.closePath(); ctx.fill();
       }
       ctx.restore();
@@ -34972,6 +35058,14 @@ function sfRenderStreet(cw, ch){
   const shBlobs = night ? null : sfShadowBlobs();
   if(shBlobs) for(const sc of shBlobs){
     const r2 = 2 * Math.sqrt(sc[2]);   // bbox for cheap cloud-shadow reject
+    sc[4] = sc[0] - r2; sc[5] = sc[0] + r2; sc[6] = sc[1] - r2; sc[7] = sc[1] + r2;
+  }
+  // v47: sunbreak pools — same walk as the shade blobs, offset half a
+  // street-spacing across the wind; cells inside a gap get their warm
+  // key boosted so the pavement reads alternating shade/sun lanes
+  const gapBlobs = night ? null : sfGapBlobs();
+  if(gapBlobs) for(const sc of gapBlobs){
+    const r2 = 2 * Math.sqrt(sc[2]);
     sc[4] = sc[0] - r2; sc[5] = sc[0] + r2; sc[6] = sc[1] - r2; sc[7] = sc[1] + r2;
   }
   // per-frame style tables — one string per quantized level, not per cell
@@ -35230,11 +35324,25 @@ function sfRenderStreet(cw, ch){
       const qa = Math.round(csh * 0.34 * 24);
       if(qa > 0) qE(shSt[Math.min(8, qa)], T0, T0 + 2, T0 + 4, T0 + 6);
     }
+    // v47: sunbreak scalar — a cell standing in a lane-gap between cloud
+    // streets catches unobstructed sun (boosted warm key); a cell inside
+    // a shade lane does not (gap and shade are mutually exclusive spots)
+    let gk = 0;
+    if(gapBlobs && csh < 0.35){
+      const mx2 = wxm + cm / 2, my2 = wym + cm / 2;
+      for(const sc of gapBlobs){
+        if(mx2 < sc[4] || mx2 > sc[5] || my2 < sc[6] || my2 > sc[7]) continue;
+        const dx2 = mx2 - sc[0], dy2 = my2 - sc[1];
+        const d2 = dx2 * dx2 + dy2 * dy2;
+        if(d2 < sc[2] * 4) gk += sc[3] * Math.exp(-d2 / sc[2]);
+      }
+      gk = Math.min(1, gk * (1 - cover * 0.5));
+    }
     // v42: the sun's warm key on whatever the shade leaves lit — grass,
     // asphalt, sidewalk all read gold in open sun, cool where cloud,
     // canyon or Karl already claimed the cell (lit ∝ 1 - csh)
     if(litK > 0.04 && csh < 0.9){
-      const ql = Math.min(8, Math.round(litK * (1 - csh) * 8));
+      const ql = Math.min(8, Math.round(litK * (1 - csh) * (1 + 0.85 * gk) * 8));
       if(ql > 0) qE(litSt[ql], T0, T0 + 2, T0 + 4, T0 + 6);
     }
     // v7: wetness memory — hardscape darkens, puddles mirror the sky
