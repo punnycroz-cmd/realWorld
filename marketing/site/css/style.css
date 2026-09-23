@@ -585,3 +585,27 @@ body[data-pricing="final"] .prov-only { display: none !important; }
 .asset-card .asset-preview img { max-height: 90px; max-width: 100%; width: auto; }
 .asset-card .dl { font-size: 13.5px; margin-bottom: 0; }
 @media (max-width: 720px) { .swatch-grid { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- pricing page v82: sub breakeven rows + price ledger + print ---------- */
+.sub-verdicts { display: grid; gap: 8px; margin-top: 16px; }
+.sv-row {
+  display: flex; gap: 14px; align-items: baseline;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-2); padding: 10px 14px;
+}
+.sv-row b { min-width: 120px; flex-shrink: 0; color: var(--text); font-size: 14px; }
+.sv-row span { font-size: 14px; color: var(--muted); }
+.sv-row.sv-best { border-color: var(--accent); background: rgba(232, 160, 76, .08); }
+.sv-row.sv-best b::after { content: " · cheapest"; color: var(--accent); font-weight: 700; }
+@media (max-width: 560px) { .sv-row { flex-direction: column; gap: 2px; } }
+
+/* Print: an honest price list should print clean. Interactive widgets and
+   nav drop out; tables and (auto-opened) details carry the full math. */
+@media print {
+  .site-header, .site-footer, .nav-toggle, .page-toc, .calc, .btn-row,
+  .gallery, .ribbon, .skip-link { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  a { color: #000 !important; }
+  section { padding: 14px 0 !important; }
+  .card, .sv-row, tr, .receipt { break-inside: avoid; }
+}

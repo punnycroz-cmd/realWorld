@@ -72,6 +72,14 @@
     },
     {
       "@type": "Question",
+      "name": "Is a subscription worth it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if your month uses more credits than the Starter pack holds (550). The pricing page carries a breakeven widget that prices your exact pace three ways — packs, Resident, Director — and names the cheapest, including when the answer is \"don't subscribe\"."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "Can I gift credits to a friend?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -143,11 +151,13 @@
       <a href="#oneshots">One-shots</a>
       <a href="#scenes">Price a scene</a>
       <a href="#subs">Subscriptions</a>
+      <a href="#worthit">Worth it?</a>
       <a href="#compare">Compare tiers</a>
       <a href="#cast">Joining the cast</a>
       <a href="#month">A month, priced</a>
       <a href="#regional">Regional pricing</a>
       <a href="#promise">The promise</a>
+      <a href="#history">Price ledger</a>
       <a href="#quick">Quick answers</a>
       <a href="#never">Never for sale</a>
     </nav>
@@ -533,6 +543,53 @@
   </div>
 </section>
 
+<!-- SUBSCRIPTION BREAKEVEN -->
+<section id="worthit">
+  <div class="wrap">
+    <h2>Is a subscription worth it? Do the math</h2>
+    <p class="muted">Move the sliders to a month you can actually imagine. We
+    price it three ways — à-la-carte packs, Resident's stipend, Director's
+    stipend — with the same numbers as the tables above. The widget picks the
+    cheapest and says so, even when the answer is "don't subscribe".</p>
+    <div class="calc" id="sub-calc">
+      <fieldset>
+        <legend>Your month inside the world</legend>
+        <div class="calc-controls sub-controls">
+          <div>
+            <label for="sc2-comp">Compatible minutes / month — <output id="sc2-comp-out" for="sc2-comp">60 min</output></label>
+            <input type="range" id="sc2-comp" min="0" max="240" step="15" value="60">
+          </div>
+          <div>
+            <label for="sc2-excl">Exclusive minutes / month — <output id="sc2-excl-out" for="sc2-excl">0 min</output></label>
+            <input type="range" id="sc2-excl" min="0" max="60" step="15" value="0">
+          </div>
+          <div>
+            <label class="check"><input type="checkbox" id="sc2-cam"> I'd use camera director mode <span class="muted">(10 cr / 30 min à la carte — we assume ~2 hrs/mo, 40 cr)</span></label>
+          </div>
+          <div>
+            <label>Your month needs</label>
+            <output class="cc-big" id="sc2-need">~90 cr</output>
+          </div>
+        </div>
+        <div class="sub-verdicts" role="group" aria-label="Three ways to pay for that month">
+          <div class="sv-row" id="sv-packs"><b>À la carte</b><span id="sv-packs-line"></span></div>
+          <div class="sv-row" id="sv-resident"><b>Resident · $4.99</b><span id="sv-resident-line"></span></div>
+          <div class="sv-row" id="sv-director"><b>Director · $11.99</b><span id="sv-director-line"></span></div>
+        </div>
+        <div class="calc-out">
+          <span class="cc-note" id="sc2-verdict"></span>
+        </div>
+      </fieldset>
+      <noscript><p class="muted" style="margin-top:14px">The comparison needs JavaScript — the honest shortcut: if your month fits in the Starter pack ($4.99 for 550 cr), Resident is the same money for 600 cr plus a second slot and the digest.</p></noscript>
+    </div>
+    <p class="muted">Caveats printed, not buried: stipends don't roll demand into
+    next month — unused stipend credits sit in your balance and never expire,
+    but the subscription keeps charging. Packs are one-time purchases, so a
+    "monthly" à-la-carte figure assumes you repurchase at the same pace. If
+    your real pace is bursty, packs win more often than the slider says.</p>
+  </div>
+</section>
+
 <!-- COMPARE TIERS -->
 <section id="compare">
   <div class="wrap">
@@ -705,6 +762,33 @@
   </div>
 </section>
 
+<!-- PRICE-LIST HISTORY -->
+<section id="history">
+  <div class="wrap">
+    <h2>Price-list history — the public ledger</h2>
+    <p class="muted">Every change to this price list, dated, newest first. An
+    honest price has a history you can check — if a number moves, this table
+    records what it was, when it moved, and why.</p>
+    <div class="tbl-wrap">
+    <table>
+      <tr><th>Date</th><th>Change</th><th>State</th></tr>
+      <tr>
+        <td>2026-09-22</td>
+        <td>Provisional price list published — full credit ladder, request
+        rates, one-shot actions, subscriptions, property ladder</td>
+        <td><span class="prov-only"><span class="provisional">provisional</span> — current</span><span class="final-only">superseded by launch pricing</span></td>
+      </tr>
+    </table>
+    </div>
+    <p class="muted prov-only">Nothing has changed since publication. The next
+    entry in this ledger is the launch flip — after that, changes appear here
+    before they take effect, per <a href="#promise">the promise</a>.</p>
+    <p class="muted final-only">Launch pricing is in effect. Any future change
+    lands in this table before it reaches checkout — per
+    <a href="#promise">the promise</a>.</p>
+  </div>
+</section>
+
 <!-- QUICK ANSWERS -->
 <section id="quick">
   <div class="wrap">
@@ -739,6 +823,13 @@
         <summary>Can kids buy credits?</summary>
         <p>Minor accounts are hard-capped below the default $200/day spend cap,
         and rewarded-ad credits are adults-only and opt-in only.</p>
+      </details>
+      <details>
+        <summary>Is a subscription worth it?</summary>
+        <p>Only if your month uses more credits than the Starter pack holds.
+        The <a href="#worthit">breakeven widget</a> prices your exact pace
+        three ways and tells you — including when the answer is "don't
+        subscribe".</p>
       </details>
       <details>
         <summary>Can I gift credits to a friend?</summary>

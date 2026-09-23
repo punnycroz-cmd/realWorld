@@ -27,7 +27,7 @@ from collections import Counter, defaultdict
 
 FUNNEL = ["pageview", "engaged", "community", "watch_start", "request_submitted", "character_created"]
 ENGAGED_EVENTS = {"cta_click", "scroll_depth", "screenshot_view", "share_click",
-                  "price_calc", "request_simulated"}
+                  "price_calc", "scene_calc", "sub_calc", "request_simulated"}
 COMMUNITY_EVENTS = {"community_join", "recap_open", "watch_party_rsvp"}
 
 
@@ -73,6 +73,7 @@ def report(evts, week=None, uniques_path=None):
     shares = Counter()
     calc_uses = Counter()
     calc_mins = []
+    sub_verdicts = Counter()
     sim_uses = Counter()
     onboard = Counter()
     tour_skip_beats = Counter()
@@ -124,6 +125,8 @@ def report(evts, week=None, uniques_path=None):
             calc_uses[key] += 1
             if props.get("minutes"):
                 calc_mins.append(int(props["minutes"]))
+        elif name == "sub_calc":
+            sub_verdicts[props.get("verdict") or "?"] += 1
         elif name == "request_simulated":
             sim_uses[f'{props.get("action") or "?"}/{props.get("class") or "?"}'] += 1
         elif name in ("tour_started", "tour_beat", "tour_completed", "tour_skipped",
@@ -218,6 +221,11 @@ def report(evts, week=None, uniques_path=None):
         out.append("**price estimator uses:** " + ", ".join(
             f"{k} ({n})" for k, n in calc_uses.most_common())
             + f" — avg {avg_min} priced per use")
+        out.append("")
+    if sub_verdicts:
+        out.append("**sub breakeven verdicts:** " + ", ".join(
+            f"{k} ({n})" for k, n in sub_verdicts.most_common())
+            + " — which payment path the widget computed cheapest")
         out.append("")
     if sim_uses:
         out.append("**request simulator (action/class):** " + ", ".join(

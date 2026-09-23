@@ -86,6 +86,31 @@ def main():
             yield_evt("screenshot_view", path, sid,
                       {"shot": "shots/" + rnd.choice(SHOTS), "alt": "dev build capture"},
                       utm=utm, ref=ref, ts=ts + 8000)
+        if slug == "pricing":  # pricing-page widgets (v82 — all three live there)
+            if rnd.random() < 0.5:
+                yield_evt("price_calc", path, sid,
+                          {"class": rnd.choice(["compatible", "exclusive"]),
+                           "minutes": rnd.choice([15, 30, 60, 120]),
+                           "queued": rnd.random() < 0.3,
+                           "surge": rnd.random() < 0.2,
+                           "first": rnd.random() < 0.25},
+                          utm=utm, ref=ref, ts=ts + 9000)
+            if rnd.random() < 0.35:
+                yield_evt("scene_calc", path, sid,
+                          {"items": rnd.choice(["compatible:4", "weather:1",
+                                                "event:1,exclusive:2", "slot:1,compatible:2"]),
+                           "queued": rnd.random() < 0.2,
+                           "surge": rnd.random() < 0.15,
+                           "preset": rnd.choice(["fog", "hour", "party", "movein", "none"])},
+                          utm=utm, ref=ref, ts=ts + 9500)
+            if rnd.random() < 0.45:
+                yield_evt("sub_calc", path, sid,
+                          {"comp_min": rnd.choice([0, 30, 60, 120, 240]),
+                           "excl_min": rnd.choice([0, 0, 15, 30]),
+                           "camera": rnd.random() < 0.2,
+                           "verdict": rnd.choice(["none", "packs", "resident",
+                                                  "resident", "director", "tie"])},
+                          utm=utm, ref=ref, ts=ts + 10000)
         if rnd.random() < 0.18:  # request simulator on demo page
             yield_evt("request_simulated", "/demo.html", sid,
                       {"action": rnd.choice(["possess", "venue", "weather"]),

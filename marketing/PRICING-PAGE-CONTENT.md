@@ -35,7 +35,8 @@ and surge on contested resources; admin overrides compensate players.
    the rate constants in `site/js/pricing.js` (CLASSES / QUEUE_DISCOUNT /
    SURGE_MIN / SURGE_MAX / USD_PER_CR / PACKS at the top of the estimator
    IIFE; ITEMS / PRESETS / the same constants again in the scene-builder
-   IIFE at the bottom — keep both blocks in sync),
+   IIFE; COMP_RATE / EXCL_RATE / CAM_CR / SUBS / PACKS / TIE in the
+   breakeven IIFE — keep all three blocks in sync),
    AND update this file.
 3. Change the one attribute. Done — no other edits needed for state.
 
@@ -126,6 +127,34 @@ drift shows as wrong math, not wrong claims).
   checkout, purchases keep the terms they were bought on (echoes the
   final-state banner), provisional→final flips once. No new policy —
   consolidates what the banner and refund ledger already commit to.
+
+## 1e. Page components (v82)
+
+- **Subscription breakeven** (`#worthit`, `.sub-verdicts`, third IIFE in
+  `js/pricing.js`) — two sliders (compatible 0–240 min/mo, exclusive
+  0–60 min/mo) + a camera toggle priced as a **printed assumption** (~2 hrs/mo
+  = 40 cr; free inside Director, where it's unlocked). The widget prices the
+  month three ways — smallest covering pack, Resident $4.99 + top-up pack for
+  stipend overage, Director $11.99 + top-up — and names the cheapest with a
+  25¢ tie band (`TIE`), highlighting winning rows (`.sv-best`). The verdict
+  can and does say "don't subscribe" and "none — watching is free". Caveats
+  under the widget print the two honest limits: stipend credits never expire
+  but the sub keeps charging, and bursty pacing favors packs. Emits
+  `sub_calc` (knobs + verdict only — never amounts; spec/report/fixture
+  updated in the same commit).
+- **Price-list ledger** (`#history`) — dated public changelog of the price
+  list itself. One row today (2026-09-22 provisional publication); the
+  launch flip adds a row, and post-launch changes land here before checkout
+  per `#promise`. The row's State cell is flip-aware (prov-only "current" /
+  final-only "superseded").
+- **Print support** — `@media print` block in `style.css` (nav, footer,
+  widgets, CTAs drop out; cards/rows/tables break-safe) plus a
+  `beforeprint`/`afterprint` handler in `pricing.js` that auto-opens every
+  `<details>` so the full pack table and quick answers reach paper. An
+  honest price list should survive being printed and checked later.
+- **Quick answers +1** — "Is a subscription worth it?" pointing at the
+  widget (deliberately not in the FAQPage JSON-LD — the answer is
+  interactive, not a fixed text answer).
 
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 

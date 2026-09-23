@@ -275,3 +275,173 @@
 
   render();
 })();
+
+// Subscription breakeven (#sub-calc) — prices the visitor's imagined month
+// three ways (packs / Resident stipend / Director stipend) and names the
+// cheapest, even when the answer is "don't subscribe". Same constants as
+// above; camera is priced as a printed assumption (~2 hrs/mo = 40 cr) and is
+// free inside the Director tier (unlocked).
+(function () {
+  "use strict";
+
+  var root = document.getElementById("sub-calc");
+  if (!root) return;
+
+  var COMP_RATE = 1.5, EXCL_RATE = 6.0;
+  var CAM_CR = 40;              // printed assumption: ~2 hrs/mo × 10 cr/30 min
+  var USD_PER_CR = 0.0094;      // blended fallback when no pack covers
+  var SUBS = {
+    resident: { usd: 4.99,  cr: 600 },
+    director: { usd: 11.99, cr: 1500 }
+  };
+  var PACKS = [
+    { name: "Pocket",  credits: 100,   usd: 0.99 },
+    { name: "Starter", credits: 550,   usd: 4.99 },
+    { name: "Regular", credits: 1150,  usd: 9.99 },
+    { name: "Plus",    credits: 2500,  usd: 19.99 },
+    { name: "Pro",     credits: 6750,  usd: 49.99 },
+    { name: "Mogul",   credits: 14000, usd: 99.99 }
+  ];
+  var TIE = 0.25;               // verdicts within 25¢ are called a tie
+
+  var elComp   = root.querySelector("#sc2-comp");
+  var elCompO  = root.querySelector("#sc2-comp-out");
+  var elExcl   = root.querySelector("#sc2-excl");
+  var elExclO  = root.querySelector("#sc2-excl-out");
+  var elCam    = root.querySelector("#sc2-cam");
+  var elNeed   = root.querySelector("#sc2-need");
+  var elPacks  = root.querySelector("#sv-packs-line");
+  var elRes    = root.querySelector("#sv-resident-line");
+  var elDir    = root.querySelector("#sv-director-line");
+  var elVerd   = root.querySelector("#sc2-verdict");
+  var lastVerdict = "none";
+  var rows     = { packs: root.querySelector("#sv-packs"),
+                   resident: root.querySelector("#sv-resident"),
+                   director: root.querySelector("#sv-director") };
+
+  function packFor(cr) {
+    for (var i = 0; i < PACKS.length; i++) {
+      if (PACKS[i].credits >= cr) return PACKS[i];
+    }
+    return null;
+  }
+  function money(x) { return "$" + x.toFixed(2); }
+
+  // Cost of a tier = price + smallest pack covering the stipend remainder.
+  function tierCost(sub, need) {
+    var over = Math.max(0, need - sub.cr);
+    if (!over) return { usd: sub.usd, over: 0, pack: null };
+    var p = packFor(over);
+    return { usd: sub.usd + (p ? p.usd : over * USD_PER_CR), over: over, pack: p };
+  }
+
+  function render() {
+    var comp = parseInt(elComp.value, 10) || 0;
+    var excl = parseInt(elExcl.value, 10) || 0;
+    elCompO.textContent = comp + " min";
+    elExclO.textContent = excl + " min";
+
+    var need = Math.floor(COMP_RATE * comp) + Math.floor(EXCL_RATE * excl)
+             + (elCam.checked ? CAM_CR : 0);
+    var needDir = need - (elCam.checked ? CAM_CR : 0); // camera is inside Director
+    elNeed.textContent = need ? "~" + need.toLocaleString("en-US") + " cr / mo" : "0 cr";
+
+    Object.keys(rows).forEach(function (k) { rows[k].classList.remove("sv-best"); });
+
+    if (!need) {
+      elPacks.textContent = "nothing to buy — watching is free";
+      elRes.textContent = "the stipend would sit unused — save the $4.99";
+      elDir.textContent = "same, bigger — save the $11.99";
+      elVerd.textContent = "Verdict: none. At zero minutes a month the best plan is the free one — the spectator game is the whole product.";
+      lastVerdict = "none";
+      return;
+    }
+
+    var pk = packFor(need);
+    var packsUsd = pk ? pk.usd : need * USD_PER_CR;
+    var res = tierCost(SUBS.resident, need);
+    var dir = tierCost(SUBS.director, needDir);
+
+    elPacks.textContent = pk
+      ? pk.name + " pack — " + money(pk.usd) + " covers it"
+      : "≈ " + money(packsUsd) + " — bigger than a Mogul; split across packs";
+
+    elRes.textContent = res.over
+      ? "$4.99 + " + (res.pack ? res.pack.name + " " + money(res.pack.usd) : "≈" + money(res.over * USD_PER_CR)) +
+        " top-up ≈ " + money(res.usd) + " — plus 2nd slot, digest, tie-break"
+      : "600-cr stipend covers it — " + money(res.usd) + " all-in, plus 2nd slot + digest" +
+        (need <= 400 ? " (" + (600 - need) + " cr headroom)" : "");
+
+    elDir.textContent = dir.over
+      ? "$11.99 + " + (dir.pack ? dir.pack.name + " " + money(dir.pack.usd) : "≈" + money(dir.over * USD_PER_CR)) +
+        " top-up ≈ " + money(dir.usd) + " — plus 3rd slot, camera mode, cosmetics"
+      : "1,500-cr stipend covers it — " + money(dir.usd) + " all-in" +
+        (elCam.checked ? ", camera mode unlocked" : "") +
+        (needDir <= 1100 ? " (" + (1500 - needDir) + " cr headroom)" : "");
+
+    var opts = [ ["packs", packsUsd], ["resident", res.usd], ["director", dir.usd] ];
+    opts.sort(function (a, b) { return a[1] - b[1]; });
+    var win = opts[0], second = opts[1];
+    var tied = second[1] - win[1] < TIE;
+
+    rows[win[0]].classList.add("sv-best");
+    if (tied) rows[second[0]].classList.add("sv-best");
+
+    var names = { packs: "à-la-carte packs", resident: "Resident", director: "Director" };
+    var v;
+    if (win[0] === "packs" && !tied) {
+      v = "Verdict: packs — " + names[win[0]] + " at ≈" + money(win[1]) + "/mo beat both subscriptions " +
+          "(next: " + names[second[0]] + " ≈" + money(second[1]) + "). No subscription earns its keep at this pace.";
+    } else if (tied) {
+      v = "Verdict: a tie — " + names[win[0]] + " and " + names[second[0]] + " both land ≈" + money(win[1]) +
+          "/mo. If it's Resident or Director in the tie, the extras (slot, digest, camera) are free on top of the same money.";
+    } else {
+      v = "Verdict: " + names[win[0]] + " — ≈" + money(win[1]) + "/mo, " + money(second[1] - win[1]) +
+          " under " + names[second[0]] + ".";
+      if (win[0] === "resident") v += " Second slot + weekly digest ride along free.";
+      if (win[0] === "director") v += " Third slot, camera mode, and the monthly cosmetic ride along free.";
+    }
+    elVerd.textContent = v;
+    lastVerdict = tied ? "tie" : win[0];
+  }
+
+  var t = null;
+  function ping() {
+    if (!window.rw || !window.rw.track) return;
+    clearTimeout(t);
+    t = setTimeout(function () {
+      window.rw.track("sub_calc", {
+        comp_min: parseInt(elComp.value, 10) || 0,
+        excl_min: parseInt(elExcl.value, 10) || 0,
+        camera: !!elCam.checked,
+        verdict: lastVerdict
+      });
+    }, 900);
+  }
+
+  [elComp, elExcl, elCam].forEach(function (el) {
+    el.addEventListener("input", function () { render(); ping(); });
+    el.addEventListener("change", function () { render(); ping(); });
+  });
+
+  render();
+})();
+
+// Print support: an honest price list should print clean. Open every closed
+// <details> before printing so the full tables and answers reach the page;
+// restore the prior state afterwards.
+(function () {
+  "use strict";
+  var opened = [];
+  window.addEventListener("beforeprint", function () {
+    opened = [];
+    document.querySelectorAll("details:not([open])").forEach(function (d) {
+      d.open = true;
+      opened.push(d);
+    });
+  });
+  window.addEventListener("afterprint", function () {
+    opened.forEach(function (d) { d.open = false; });
+    opened = [];
+  });
+})();

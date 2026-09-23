@@ -83,6 +83,17 @@
       "funnel_stage": "engaged → purchase intent",
       "note": "carries NO credit/USD amounts — item mix and quantities only; reveals which bundled scenes visitors reach for"
     },
+    "sub_calc": {
+      "when": "pricing.html subscription-breakeven widget control changes, debounced 900ms (v82)",
+      "props": {
+        "comp_min": "int — compatible minutes/month priced",
+        "excl_min": "int — exclusive minutes/month priced",
+        "camera": "bool — camera-director toggle on (priced as the printed ~2 hrs/mo assumption)",
+        "verdict": "none|packs|resident|director|tie — which path the widget computed cheapest"
+      },
+      "funnel_stage": "engaged → purchase intent",
+      "note": "carries NO USD/credit totals — usage knobs + which option won only; reveals subscription demand vs à-la-carte preference before checkout exists"
+    },
     "request_simulated": {
       "when": "demo.html request simulator 'File it — simulated' completes (v26; props extended v41)",
       "props": {
