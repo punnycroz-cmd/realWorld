@@ -30336,11 +30336,38 @@ function sfBounceK(sunK, occlM){
    on every non-sidewalk edge (dropping to a flush ramp at crosswalks),
    and sfGroundZ lifts whatever stands on the pavement — pawns, street
    trees, poles, lamps — so feet rest on the walkway, not inside it. */
+/* ---------------- v37: LANDFORM — the Mission is not flat --------------
+   The neighborhood sits on real terrain: the floor climbs south into the
+   hills and west toward the Buena Vista / Dolores Heights rise, drains
+   northeast toward the old Mission Bay marsh, and Dolores Park itself
+   occupies a genuine bowl — a former creek hollow — with Liberty Hill
+   shouldering its east rim. sfElevM is the pure elevation field in
+   meters (planar grade + Lorentzian landforms, no exp calls — it runs
+   inside the projection hot loop). Every ground quad in the street pass
+   projects its four corners at their own heights, facade bases shear to
+   follow the slope, pawns/props/trees ground through sfGroundZ, and the
+   lens rides the land. */
+function sfElevM(xm, ym){
+  const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
+  const pc = sfParkCenterM();
+  let z = 9 + (ym / mh) * 31 + (1 - xm / mw) * 19;
+  const bx = xm - pc[0], by = ym - pc[1];
+  const bq = (bx * bx + by * by) / (130 * 130);
+  z -= 7.5 / ((1 + bq) * (1 + bq));              // the Dolores bowl
+  const lx = xm - (pc[0] + 160), ly = ym - (pc[1] - 40);
+  z += 6.0 / (1 + (lx * lx + ly * ly) / (160 * 160));   // Liberty Hill
+  const hx = xm - (pc[0] - 280), hy = ym - (pc[1] + 90);
+  z += 9.0 / (1 + (hx * hx + hy * hy) / (240 * 240));   // Dolores Heights
+  z += 0.9 * Math.sin(xm * 0.011 + 1.3) * Math.sin(ym * 0.009 + 0.4)
+     + 0.4 * Math.sin((xm - ym) * 0.0055);       // dunes under the grid
+  return z;
+}
 const SF_CURB_H = 0.15;
 function sfGroundZ(wxm, wym){
   const cm = SF_M.cell_m;
-  return sfTile(Math.floor(wxm / cm), Math.floor(wym / cm)) === 11
-    ? SF_CURB_H : 0;
+  return sfElevM(wxm, wym) +
+    (sfTile(Math.floor(wxm / cm), Math.floor(wym / cm)) === 11
+      ? SF_CURB_H : 0);
 }
 /* riser concrete under the same sun as the walls: warm-lit when the face
    turns sunward, cool sky-fill in shade — quantized so fill buckets stay
@@ -31053,7 +31080,8 @@ function sfDecalChunk(g, cx, cy){
   g.restore();
 }
 function sfTerrChunk(cx, cy, wetQ){
-  const key = cx + ',' + cy + ',' + wetQ + ',' + Math.round(sfDrySeason() * 4);
+  const key = cx + ',' + cy + ',' + wetQ + ',' +
+              Math.round(sfDrySeason() * 4) + ',' + SF_SUN.q;
   const hit = SF_TERR.cache.get(key);
   if(hit){ // LRU touch
     SF_TERR.cache.delete(key); SF_TERR.cache.set(key, hit); return hit;
@@ -31073,6 +31101,24 @@ function sfTerrChunk(cx, cy, wetQ){
       const spr = sfTerrainTile(wx, wy, tt);
       const sx = ix * csz;
       if(spr && spr.c) g.drawImage(spr.c, sx, sy, csz, sh);
+      // v37: hillshade — the landform reads under the real sun: slopes
+      // angled at it catch warm light, shying slopes take cool fill
+      {
+        const cm2 = SF_M.cell_m, ax = wx * cm2, ay = wy * cm2;
+        const e00 = sfElevM(ax, ay), e10 = sfElevM(ax + cm2, ay),
+              e01 = sfElevM(ax, ay + cm2), e11 = sfElevM(ax + cm2, ay + cm2);
+        const sk = -((e10 + e11 - e00 - e01) / (2 * cm2) * SF_SUN.toX +
+                     (e01 + e11 - e00 - e10) / (2 * cm2) * SF_SUN.toY) *
+                   (0.35 + 0.65 * SF_SUN.day);
+        const aa = clamp(sk * 4.5, -0.22, 0.26);
+        if(aa > 0.02){
+          g.fillStyle = `rgba(255,246,220,${aa.toFixed(3)})`;
+          g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+        } else if(aa < -0.02){
+          g.fillStyle = `rgba(30,40,66,${(-aa).toFixed(3)})`;
+          g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+        }
+      }
       // v7: wetness memory — soaked hardscape darkens, puddles glint
       if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
         const wv = SF_WX.wet;
@@ -32016,16 +32062,25 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     return true;
   };
 
-  const g1 = pr(x1, y1, 0), g2 = pr(x2, y2, 0),
+  // v37: the lot sits on the landform — the base edge follows the true
+  // elevation at each end (facades shear down the hill like real SF
+  // rows). pr arrives already riding the lot datum (zb at the building
+  // centroid), so ground-contact points subtract it back off.
+  const zb = sfElevM(b.x / SF_PXM, b.y / SF_PXM);
+  const eA = sfElevM(x1, y1) - zb, eB = sfElevM(x2, y2) - zb;
+  const g1 = pr(x1, y1, eA), g2 = pr(x2, y2, eB),
         t1 = pr(x1, y1, hm), t2 = pr(x2, y2, hm),
         p1 = pr(x1, y1, hm + para), p2 = pr(x2, y2, hm + para);
   if(!g1 || !g2 || !t1 || !t2 || !p1 || !p2) return;
 
   // v14: cast shadow — base edge extruded on the ground along the real
-  // sun vector (direction + length = hm·cot(elevation))
-  quad([[x1, y1, 0.02], [x2, y2, 0.02],
-        [x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm, 0.02],
-        [x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm, 0.02]],
+  // sun vector (direction + length = hm·cot(elevation)); v37: it lies
+  // on the terrain it actually falls across, not the lot datum
+  quad([[x1, y1, eA + 0.02], [x2, y2, eB + 0.02],
+        [x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm,
+         sfElevM(x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm) - zb + 0.02],
+        [x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm,
+         sfElevM(x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm) - zb + 0.02]],
        `rgba(15,12,8,${0.06 + 0.14 * SF_SUN.day})`);
 
   // wall face: vertical gradient — sky-lit top, AO near the pavement
@@ -33134,6 +33189,9 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
    use, so paint and shadow agree with the street around it. */
 function sfCarStreet(o, pr, F, night){
   const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+  const oz = sfElevM(mx, my);      // v37: tires on the roadway's crown
+  const prA = pr;
+  pr = (x, y, z) => prA(x, y, z + oz);
   const p = pr(mx, my, 0);
   if(!p) return;
   const sc = F / p[2];
@@ -33335,6 +33393,7 @@ function sfRenderStreet(cw, ch){
   let camH = SF_CAM._sh;
   if(!SF_CAM.director && v && v.moving)
     camH += Math.sin(v.walkPhase || 0) * 0.05;
+  camH += sfElevM(camX, camY);     // v37: the lens rides the landform
   const F = Math.max(400, ch * 1.1) * SF_CAM.fov;
   const horizon = ch * 0.42 + Math.tan(usePitch) * F;
   const pr = (x, y, z) => {
@@ -33344,6 +33403,7 @@ function sfRenderStreet(cw, ch){
     if(fwd < 0.5) return null;
     return [cw / 2 + side * F / fwd, horizon + (camH - z) * F / fwd, fwd];
   };
+  const prFlat = pr;   // v37: terrain-free projection for datum wraps
 
   // v26: publish the lens focal plane — follow mode focuses on the
   // subject's true distance; director mode focuses where frame-center
@@ -33355,7 +33415,7 @@ function sfRenderStreet(cw, ch){
   // follow-focus pull instead of snapping to it every frame
   let focT = null;
   if(!SF_CAM.director && v){
-    const fp = pr(px, py, 0);
+    const fp = pr(px, py, sfElevM(px, py));
     if(fp) focT = fp[2];
   } else {
     const yMid = ch * 0.58;
@@ -33722,9 +33782,13 @@ function sfRenderStreet(cw, ch){
     sc[4] = sc[0] - r2; sc[5] = sc[0] + r2; sc[6] = sc[1] - r2; sc[7] = sc[1] + r2;
   }
   // per-frame style tables — one string per quantized level, not per cell
-  const hzSt = [], shSt = [];
+  const hzSt = [], shSt = [], slpW = [], slpC = [];
   for(let q = 0; q <= 24; q++) hzSt[q] = `rgba(${SF_WX.hazeRGB},${q / 24})`;
-  for(let q = 0; q <= 8; q++) shSt[q] = `rgba(28,36,60,${q / 24})`;
+  for(let q = 0; q <= 8; q++){
+    shSt[q] = `rgba(28,36,60,${q / 24})`;
+    slpW[q] = `rgba(255,240,205,${q / 24})`;   // sun-facing slope
+    slpC[q] = `rgba(38,50,78,${q / 24})`;      // shying slope
+  }
   const hzRGBv = SF_WX.hazeRGB.split(',');
   const hzR = +hzRGBv[0], hzG = +hzRGBv[1], hzB = +hzRGBv[2];
   const wetV = SF_WX.wet, wetSt = `rgba(26,34,52,${wetV * 0.2})`;
@@ -33760,8 +33824,11 @@ function sfRenderStreet(cw, ch){
     const gx = cb[bi * 3], gy = cb[bi * 3 + 1], cfwd = cb[bi * 3 + 2], t = ct[bi];
     const wxm = gx * c, wym = gy * c;
     const gz = (t === 11) ? SF_CURB_H : 0;
-    const p1 = pr(wxm, wym, 0), p2 = pr(wxm + c, wym, 0),
-          p3 = pr(wxm + c, wym + c, 0), p4 = pr(wxm, wym + c, 0);
+    // v37: each corner rides the landform — tiles shear into real slopes
+    const e1 = sfElevM(wxm, wym), e2 = sfElevM(wxm + c, wym),
+          e3 = sfElevM(wxm + c, wym + c), e4 = sfElevM(wxm, wym + c);
+    const p1 = pr(wxm, wym, e1), p2 = pr(wxm + c, wym, e2),
+          p3 = pr(wxm + c, wym + c, e3), p4 = pr(wxm, wym + c, e4);
     if(!p1 || !p2 || !p3 || !p4) continue;
     P[0] = p1[0]; P[1] = p1[1]; P[2] = p2[0]; P[3] = p2[1];
     P[4] = p3[0]; P[5] = p3[1]; P[6] = p4[0]; P[7] = p4[1];
@@ -33785,10 +33852,24 @@ function sfRenderStreet(cw, ch){
     qE(ovr !== undefined ? ovr
        : t === 13 ? grassSt[Math.min(6, Math.floor(sfGrassDry(gx, gy) * 7))]
        : (COLS[t] || '#a8977a'), T0, T0 + 2, T0 + 4, T0 + 6);
+    // v37: slope lighting — faces angled at the sun catch warm light,
+    // shying faces take cool fill, scaled by the live sun
+    {
+      const sk = -((e2 + e3 - e1 - e4) / (2 * c) * SF_SUN.toX +
+                   (e3 + e4 - e1 - e2) / (2 * c) * SF_SUN.toY) *
+                 5 * (0.3 + 0.7 * SF_SUN.day);
+      if(sk > 0.04) qE(slpW[Math.min(8, Math.round(sk * 24))],
+                       T0, T0 + 2, T0 + 4, T0 + 6);
+      else if(sk < -0.04) qE(slpC[Math.min(8, Math.round(-sk * 24))],
+                             T0, T0 + 2, T0 + 4, T0 + 6);
+    }
     const nm = nb[gy * SF_M.gw + gx];   // 4 bits/dir (n,s,w,e): 10|11|16|oob
     const subQ = (x0, y0, x1, y1, style, z) => {
-      const q1 = pr(wxm + x0, wym + y0, z), q2 = pr(wxm + x1, wym + y0, z),
-            q3 = pr(wxm + x1, wym + y1, z), q4 = pr(wxm + x0, wym + y1, z);
+      // v37: z is height ABOVE LOCAL terrain — each corner gets its own
+      const q1 = pr(wxm + x0, wym + y0, z + sfElevM(wxm + x0, wym + y0)),
+            q2 = pr(wxm + x1, wym + y0, z + sfElevM(wxm + x1, wym + y0)),
+            q3 = pr(wxm + x1, wym + y1, z + sfElevM(wxm + x1, wym + y1)),
+            q4 = pr(wxm + x0, wym + y1, z + sfElevM(wxm + x0, wym + y1));
       if(q1 && q2 && q3 && q4) qP(style, q1, q2, q3, q4);
     };
     if(t === 11){
@@ -33811,7 +33892,8 @@ function sfRenderStreet(cw, ch){
                      : d === 1 ? [[0, c, gz], [c, c, gz], [c, c + 0.7, 0], [0, c + 0.7, 0]]
                      : d === 2 ? [[0, 0, gz], [0, c, gz], [-0.7, c, 0], [-0.7, 0, 0]]
                      :           [[c, 0, gz], [c, c, gz], [c + 0.7, c, 0], [c + 0.7, 0, 0]];
-            const pts = rp.map(([dx, dy, z]) => pr(wxm + dx, wym + dy, z));
+            const pts = rp.map(([dx, dy, z]) =>
+              pr(wxm + dx, wym + dy, z + sfElevM(wxm + dx, wym + dy)));
             if(pts.every(Boolean))
               post.push([2, pts[0][0], pts[0][1], pts[1][0], pts[1][1],
                             pts[2][0], pts[2][1], pts[3][0], pts[3][1]]);
@@ -34002,9 +34084,10 @@ function sfRenderStreet(cw, ch){
             const a1 = b.px[e], a2 = b.px[(e + 1) % nP],
                   ax = a1[0] / SF_PXM, ay = a1[1] / SF_PXM,
                   bx2 = a2[0] / SF_PXM, by2 = a2[1] / SF_PXM,
-                  q1 = pr(ax, ay, 0.02), q2 = pr(bx2, by2, 0.02),
-                  q3 = pr(bx2 + ox, by2 + oy, 0.02),
-                  q4 = pr(ax + ox, ay + oy, 0.02);
+                  q1 = pr(ax, ay, 0.02 + sfElevM(ax, ay)),
+                  q2 = pr(bx2, by2, 0.02 + sfElevM(bx2, by2)),
+                  q3 = pr(bx2 + ox, by2 + oy, 0.02 + sfElevM(bx2 + ox, by2 + oy)),
+                  q4 = pr(ax + ox, ay + oy, 0.02 + sfElevM(ax + ox, ay + oy));
             if(!q1 || !q2 || !q3 || !q4) continue;
             ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]);
             ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]);
@@ -34013,7 +34096,8 @@ function sfRenderStreet(cw, ch){
           // displaced cap fills the silhouette interior past the far edge
           let st = false;
           for(const q of b.px){
-            const p = pr(q[0] / SF_PXM + ox, q[1] / SF_PXM + oy, 0.02);
+            const qx = q[0] / SF_PXM + ox, qy = q[1] / SF_PXM + oy;
+            const p = pr(qx, qy, 0.02 + sfElevM(qx, qy));
             if(!p){ st = false; continue; }
             st ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
             st = true;
@@ -34090,6 +34174,10 @@ function sfRenderStreet(cw, ch){
       const gh = SF_GHOST && SF_GHOST.has(b.i);
       if(gh) ctx.globalAlpha = 0.30;
       const hm = b.hPx / 4.2; // meters
+      // v37: the whole massing rides the lot datum — walls, roofs and
+      // trim all project from the terrain at the building centroid
+      const zb3 = sfElevM(b.x / SF_PXM, b.y / SF_PXM);
+      const pr = (qx, qy, qz) => prFlat(qx, qy, qz + zb3);
       // v10: meter-space polygon + signed area are static — compute once
       if(!b._pm){
         const P2 = b.px.map(q => [q[0] / SF_PXM, q[1] / SF_PXM]);
@@ -34602,7 +34690,7 @@ function sfRenderStreet(cw, ch){
         // streak on the pavement. Wires are drawn globally after the
         // drawables so they span cleanly over the street canyon.
         const mx = o.x / SF_PXM, my = o.y / SF_PXM;
-        const top = pr(mx, my, 7.2), arm = pr(mx, my, 6.75);
+        const top = pr(mx, my, oz + 7.2), arm = pr(mx, my, oz + 6.75);
         if(!top) continue;
         ctx.fillStyle = `rgba(14,12,8,${night ? 0.3 : 0.2})`;
         ctx.beginPath();
@@ -34622,8 +34710,8 @@ function sfRenderStreet(cw, ch){
         ctx.lineWidth = Math.max(1.5, 0.2 * sc);
         ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(top[0], top[1]); ctx.stroke();
         if(arm){
-          const a1 = o.dir === 0 ? pr(mx, my - 0.65, 6.75) : pr(mx - 0.65, my, 6.75),
-                a2 = o.dir === 0 ? pr(mx, my + 0.65, 6.75) : pr(mx + 0.65, my, 6.75);
+          const a1 = o.dir === 0 ? pr(mx, my - 0.65, oz + 6.75) : pr(mx - 0.65, my, oz + 6.75),
+                a2 = o.dir === 0 ? pr(mx, my + 0.65, oz + 6.75) : pr(mx + 0.65, my, oz + 6.75);
           if(a1 && a2){
             ctx.lineWidth = Math.max(1, 0.11 * sc);
             ctx.beginPath(); ctx.moveTo(a1[0], a1[1]); ctx.lineTo(a2[0], a2[1]); ctx.stroke();
@@ -34633,7 +34721,7 @@ function sfRenderStreet(cw, ch){
           }
         }
         if(phash(o.wx, o.wy, 1694) < 0.33){ // transformer can
-          const tc = pr(mx, my, 5.6);
+          const tc = pr(mx, my, oz + 5.6);
           if(tc){
             ctx.fillStyle = night ? '#14100d' : '#241d16';
             ctx.fillRect(tc[0] - 0.28 * sc, tc[1] - 0.3 * sc,
@@ -34739,7 +34827,8 @@ function sfRenderStreet(cw, ch){
         } else ctx.drawImage(sprC, p[0] - pw / 2, p[1] - ph, pw, ph);
         // v15: lit lamp — halo around the acorn globe + sodium pool below
         if(o.kind === 'sfLamp' && sfLampsLit()){
-          const gp = pr(o.x / SF_PXM, o.y / SF_PXM, 4.15);
+          const gp = pr(o.x / SF_PXM, o.y / SF_PXM,
+                        4.15 + sfGroundZ(o.x / SF_PXM, o.y / SF_PXM));
           if(gp){
             const hg = ctx.createRadialGradient(gp[0], gp[1], 1,
                                                 gp[0], gp[1], 1.7 * sc);
@@ -34870,7 +34959,8 @@ function sfRenderStreet(cw, ch){
       const wf = mxx * DX + myy * DY, ws = Math.abs(mxx * DY - myy * DX);
       if(wf < -12 || wf > 150 || ws > wf * 1.7 + 30) continue;
       for(const [wz, drop] of [[7.15, 0.55], [6.8, 0.8]]){
-        const pA = pr(ax1, ay1, wz), pB = pr(ax2, ay2, wz);
+        const pA = pr(ax1, ay1, wz + sfGroundZ(ax1, ay1)),
+              pB = pr(ax2, ay2, wz + sfGroundZ(ax2, ay2));
         if(!pA || !pB) continue;
         const mid = (pA[2] + pB[2]) / 2 || 1,
               sagPx = drop * F / mid;

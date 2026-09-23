@@ -68,7 +68,7 @@ const api = eval(m[1] + `
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
-    sfBoomClip, sfSegHitT })`);
+    sfBoomClip, sfSegHitT, sfElevM })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -207,10 +207,14 @@ const api = eval(m[1] + `
   ok(!!swCell, 'found a sidewalk/road adjacency');
   if(swCell){
     const cm2 = api.SF_M.cell_m;
-    ok(api.sfGroundZ((swCell[0] + 0.5) * cm2, (swCell[1] + 0.5) * cm2) === api.SF_CURB_H,
-       'sidewalk surface sits at curb height');
-    ok(api.sfGroundZ((rdCell[0] + 0.5) * cm2, (rdCell[1] + 0.5) * cm2) === 0,
-       'roadway stays at grade');
+    // v37: sfGroundZ is now ABSOLUTE (terrain + curb) — the curb step is
+    // the difference between adjacent walkway and roadway cells
+    const zSw = api.sfGroundZ((swCell[0] + 0.5) * cm2, (swCell[1] + 0.5) * cm2),
+          zRd = api.sfGroundZ((rdCell[0] + 0.5) * cm2, (rdCell[1] + 0.5) * cm2);
+    ok(Math.abs(zSw - zRd - api.SF_CURB_H) < 0.1,
+       'sidewalk sits curb-height above the roadway (step ' +
+       (zSw - zRd).toFixed(2) + 'm)');
+    ok(zRd > -30 && zRd < 90, 'roadway grade is plausible (' + zRd.toFixed(1) + 'm)');
   }
   ok(/^#|^rgb/.test(api.sfCurbFaceCol(0, -1)),
      'curb riser face returns a shaded color');
@@ -401,6 +405,45 @@ const api = eval(m[1] + `
     // the door side — the arm clips only against OTHER buildings
     const inD = api.sfBoomClip(cmid.x, cmid.y, 1, 0, back, 1.7);
     ok(inD >= 1.4 && inD <= back, 'boom from inside a footprint bounded');
+  }
+
+  // v37 landform: the elevation field is pure, finite, climbs south and
+  // west like the real Mission, puts Dolores Park in a true bowl, and
+  // keeps street grades drivable
+  {
+    ok(isFinite(api.sfElevM(0, 0)) && isFinite(api.sfElevM(1500, 1600)) &&
+       isFinite(api.sfElevM(-50, -50)), 'sfElevM finite even off-map');
+    ok(api.sfElevM(700, 500) === api.sfElevM(700, 500), 'sfElevM deterministic');
+    let nSum = 0, sSum = 0, wSum = 0, eSum = 0, nn = 0;
+    for(let gx = 0; gx < api.SF_M.gw; gx += 17){
+      nSum += api.sfElevM(gx * 2, 4);
+      sSum += api.sfElevM(gx * 2, api.SF_M.gh * 2 - 4);
+      wSum += api.sfElevM(4, gx % api.SF_M.gh * 2);
+      eSum += api.sfElevM(api.SF_M.gw * 2 - 4, gx % api.SF_M.gh * 2);
+      nn++;
+    }
+    ok(sSum > nSum + nn * 10,
+       'terrain climbs south (+' + ((sSum - nSum) / nn).toFixed(1) + 'm avg)');
+    ok(wSum > eSum + nn * 5,
+       'terrain climbs west (+' + ((wSum - eSum) / nn).toFixed(1) + 'm avg)');
+    let pkx = 0, pky = 0, pkn = 0;
+    for(let gy = 0; gy < api.SF_M.gh; gy++)
+      for(let gx = 0; gx < api.SF_M.gw; gx++)
+        if(api.sfTile(gx, gy) === 13){ pkx += gx; pky += gy; pkn++; }
+    pkx = pkx / pkn * api.SF_M.cell_m; pky = pky / pkn * api.SF_M.cell_m;
+    const eP = api.sfElevM(pkx, pky), eE = api.sfElevM(pkx + 220, pky);
+    ok(eE > eP + 2, 'Dolores Park sits in a real bowl (rim +' +
+       (eE - eP).toFixed(1) + 'm)');
+    let gmax = 0;
+    for(let gy = 0; gy < api.SF_M.gh; gy += 11)
+      for(let gx = 0; gx < api.SF_M.gw; gx += 11){
+        const x0 = gx * 2, y0 = gy * 2;
+        const gg = Math.hypot(api.sfElevM(x0 + 4, y0) - api.sfElevM(x0, y0),
+                              api.sfElevM(x0, y0 + 4) - api.sfElevM(x0, y0)) / 4;
+        if(gg > gmax) gmax = gg;
+      }
+    ok(gmax > 0.005 && gmax < 0.13,
+       'street grades real but drivable (' + (gmax * 100).toFixed(1) + '% max)');
   }
 
   console.log('---');
