@@ -60,6 +60,17 @@
       "props": { "method": "web-share|clipboard|manual" },
       "funnel_stage": "engaged → viral"
     },
+    "price_calc": {
+      "when": "pricing.html estimator control changes, debounced 900ms (v22)",
+      "props": {
+        "class": "compatible|exclusive",
+        "minutes": "int — duration priced",
+        "queued": "bool — −15% toggle on",
+        "surge": "bool — surge-window preview on"
+      },
+      "funnel_stage": "engaged → purchase intent",
+      "note": "carries NO amounts — only which knobs visitors touch; reveals demand for class/duration before checkout exists"
+    },
     "press_kit_download": {
       "when": "click on the kit zip link (data-rw-event on press-kit.html)",
       "props": { "file": "zip filename" },

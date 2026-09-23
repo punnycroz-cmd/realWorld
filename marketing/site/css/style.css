@@ -253,6 +253,59 @@ ul.clean li { margin: 6px 0; }
   color: var(--muted); margin: 0 0 6px;
 }
 
+/* ---------- pricing page v22: pack cards + cost calculator ---------- */
+.pack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0 8px; }
+@media (max-width: 860px) { .pack-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .pack-grid { grid-template-columns: 1fr; } }
+.pack-card {
+  position: relative; background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; text-align: center;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.pack-card.popular { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.pack-card .ribbon {
+  position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #1a1206; font-size: 11px; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase; padding: 2px 12px; border-radius: 999px;
+  white-space: nowrap;
+}
+.pack-card .pname { font-weight: 700; font-size: 15px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.pack-card .pcr { font-size: 30px; font-weight: 800; color: var(--text); line-height: 1.15; }
+.pack-card .pusd { font-size: 19px; font-weight: 700; color: var(--accent); }
+.pack-card .pmeta { font-size: 12.5px; color: var(--muted); }
+.pack-card .pbest { font-size: 12.5px; color: var(--accent-2); margin-top: 6px; min-height: 1.2em; }
+
+.calc {
+  border: 1px solid var(--accent); border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(232,160,76,.06), rgba(232,160,76,.02));
+  padding: 22px; margin: 20px 0 8px;
+}
+.calc fieldset { border: 0; margin: 0; padding: 0; }
+.calc legend {
+  font-size: 12.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--accent); padding: 0; margin-bottom: 14px;
+}
+.calc-controls { display: grid; grid-template-columns: 1.2fr 1.4fr 1fr 1fr; gap: 16px; align-items: end; }
+@media (max-width: 760px) { .calc-controls { grid-template-columns: 1fr 1fr; } }
+.calc label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+.calc select, .calc input[type="range"] { width: 100%; }
+.calc select {
+  background: var(--bg-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14.5px;
+}
+.calc input[type="range"] { accent-color: var(--accent); }
+.calc .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); padding-bottom: 8px; }
+.calc .check input { accent-color: var(--accent); width: 16px; height: 16px; }
+.calc-out {
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  border-top: 1px dashed var(--border); margin-top: 18px; padding-top: 16px;
+}
+.calc-out .cc-big { font-size: 32px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.calc-out .cc-usd { font-size: 16px; color: var(--accent); font-weight: 700; }
+.calc-out .cc-pack { font-size: 13.5px; color: var(--accent-2); font-weight: 600; }
+.calc-out .cc-note { font-size: 13px; color: var(--muted); flex-basis: 100%; }
+.calc-out .cc-surge { font-size: 13px; color: var(--accent-3); font-weight: 600; flex-basis: 100%; }
+
 /* ---------- pricing state switch (pricing.html only) ----------
    Flip <body data-pricing="provisional"> to "final" — one attribute. */
 .final-only { display: none; }

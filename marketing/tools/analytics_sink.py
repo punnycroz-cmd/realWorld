@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 ALLOWED_EVENTS = {
     "pageview", "cta_click", "screenshot_view", "outbound_click",
     "scroll_depth", "engaged_time", "share_click",
-    "press_kit_download", "watch_start", "request_submitted",
+    "press_kit_download", "price_calc", "watch_start", "request_submitted",
     "character_created",
 }
 

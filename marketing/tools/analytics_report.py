@@ -67,6 +67,8 @@ def report(evts, week=None):
     engaged_secs = defaultdict(int)
     scroll_marks = Counter()
     shares = Counter()
+    calc_uses = Counter()
+    calc_mins = []
     events_total = Counter()
 
     for e in evts:
@@ -103,6 +105,15 @@ def report(evts, week=None):
             engaged_secs[props.get("page") or path or "?"] += int(props.get("seconds") or 0)
         elif name == "share_click":
             shares[props.get("method") or "?"] += 1
+        elif name == "price_calc":
+            key = props.get("class") or "?"
+            if props.get("queued"):
+                key += "+queued"
+            if props.get("surge"):
+                key += "+surge"
+            calc_uses[key] += 1
+            if props.get("minutes"):
+                calc_mins.append(int(props["minutes"]))
 
     def reached(stage):
         return sum(1 for st in sessions.values() if stage in st)
@@ -162,6 +173,12 @@ def report(evts, week=None):
         out.append("")
     if shares:
         out.append("**shares by method:** " + ", ".join(f"{m} ({n})" for m, n in shares.most_common()))
+        out.append("")
+    if calc_uses:
+        avg_min = f"{sum(calc_mins) / len(calc_mins):.0f} min" if calc_mins else "—"
+        out.append("**price estimator uses:** " + ", ".join(
+            f"{k} ({n})" for k, n in calc_uses.most_common())
+            + f" — avg {avg_min} priced per use")
         out.append("")
     if refs:
         out.append("**referrer hosts:** " + ", ".join(f"{r} ({n})" for r, n in refs.most_common(8)))

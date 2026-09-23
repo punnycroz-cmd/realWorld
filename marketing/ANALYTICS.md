@@ -76,6 +76,10 @@ per-event props + privacy contract). Site-side events already wired:
   tabs don't count); the honest attention metric.
 - `share_click` (v21) — demo-page share button, `method` = web-share /
   clipboard / manual. Feeds the viral loop panel.
+- `price_calc` (v22) — pricing-page estimator (`js/pricing.js`), debounced
+  900 ms; props = class / minutes / queued / surge only — **no amounts**.
+  Pre-checkout demand signal: which request class and duration visitors
+  actually price out.
 
 Add an event = add `data-rw-event` + optional `data-rw-props` JSON to the
 element. No JS changes needed for click events.
@@ -172,7 +176,9 @@ One dashboard, four panels — everything derivable from the event spec:
 2. **Site engagement:** `cta_click` rate by `cta` slot; `screenshot_view` by
    shot (tells art which captures sell the game); `scroll_depth` reach per
    page (which pages get read); `engaged_time` medians (attention quality);
-   `share_click` by method (viral loop health); `outbound_click` targets.
+   `share_click` by method (viral loop health); `price_calc` splits
+   (which class/duration visitors price — purchase intent before checkout);
+   `outbound_click` targets.
 3. **Funnel:** visit → engaged → watch → request → create, session-joined by
    `sid` + same-day window. First three stages live at launch; last two turn on
    when the game embed emits.

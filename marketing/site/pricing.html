@@ -86,17 +86,65 @@
     creation. They're non-transferable, never redeemable for money, and never
     expire. About a cent each — the same unit price players already know from
     Robux and V-Bucks.</p>
-    <div class="tbl-wrap">
-    <table>
-      <tr><th>Pack</th><th>Credits</th><th>Price <span class="provisional prov-only">(provisional)</span></th><th>Bonus</th><th>Per credit</th></tr>
-      <tr><td>Pocket</td><td>100</td><td>$0.99</td><td>—</td><td>$0.0099</td></tr>
-      <tr><td>Starter</td><td>550</td><td>$4.99</td><td>+10%</td><td>$0.0091</td></tr>
-      <tr><td>Regular</td><td>1,150</td><td>$9.99</td><td>+15%</td><td>$0.0087</td></tr>
-      <tr><td>Plus</td><td>2,500</td><td>$19.99</td><td>+25%</td><td>$0.0080</td></tr>
-      <tr><td>Pro</td><td>6,750</td><td>$49.99</td><td>+35%</td><td>$0.0074</td></tr>
-      <tr><td>Mogul</td><td>14,000</td><td>$99.99</td><td>+40%</td><td>$0.0071</td></tr>
-    </table>
+    <div class="pack-grid">
+      <div class="pack-card">
+        <div class="pname">Pocket</div>
+        <div class="pcr">100</div>
+        <div class="pusd">$0.99</div>
+        <div class="pmeta">$0.0099/cr</div>
+        <div class="pbest">Try a first request</div>
+      </div>
+      <div class="pack-card">
+        <div class="pname">Starter</div>
+        <div class="pcr">550</div>
+        <div class="pusd">$4.99</div>
+        <div class="pmeta">+10% bonus · $0.0091/cr</div>
+        <div class="pbest">One evening of agency</div>
+      </div>
+      <div class="pack-card popular">
+        <div class="ribbon">Recommended</div>
+        <div class="pname">Regular</div>
+        <div class="pcr">1,150</div>
+        <div class="pusd">$9.99</div>
+        <div class="pmeta">+15% bonus · $0.0087/cr</div>
+        <div class="pbest">A character slot + change</div>
+      </div>
+      <div class="pack-card">
+        <div class="pname">Plus</div>
+        <div class="pcr">2,500</div>
+        <div class="pusd">$19.99</div>
+        <div class="pmeta">+25% bonus · $0.0080/cr</div>
+        <div class="pbest">Events &amp; deed fees</div>
+      </div>
+      <div class="pack-card">
+        <div class="pname">Pro</div>
+        <div class="pcr">6,750</div>
+        <div class="pusd">$49.99</div>
+        <div class="pmeta">+35% bonus · $0.0074/cr</div>
+        <div class="pbest">Seasoned residents</div>
+      </div>
+      <div class="pack-card">
+        <div class="pname">Mogul</div>
+        <div class="pcr">14,000</div>
+        <div class="pusd">$99.99</div>
+        <div class="pmeta">+40% bonus · $0.0071/cr</div>
+        <div class="pbest">Future landlords</div>
+      </div>
     </div>
+    <details>
+      <summary>Full pack table <span class="provisional prov-only">(provisional)</span></summary>
+      <div class="tbl-wrap">
+      <table>
+        <tr><th>Pack</th><th>Credits</th><th>Price</th><th>Bonus</th><th>Per credit</th></tr>
+        <tr><td>Pocket</td><td>100</td><td>$0.99</td><td>—</td><td>$0.0099</td></tr>
+        <tr><td>Starter</td><td>550</td><td>$4.99</td><td>+10%</td><td>$0.0091</td></tr>
+        <tr><td>Regular</td><td>1,150</td><td>$9.99</td><td>+15%</td><td>$0.0087</td></tr>
+        <tr><td>Plus</td><td>2,500</td><td>$19.99</td><td>+25%</td><td>$0.0080</td></tr>
+        <tr><td>Pro</td><td>6,750</td><td>$49.99</td><td>+35%</td><td>$0.0074</td></tr>
+        <tr><td>Mogul</td><td>14,000</td><td>$99.99</td><td>+40%</td><td>$0.0071</td></tr>
+      </table>
+      </div>
+    </details>
     <ul class="clean">
       <li><b>First purchase +50%:</b> your first pack — any tier, one time — pays
       half again as many credits.</li>
@@ -110,6 +158,11 @@
     <b>2 credits per view</b>, capped at 5 per day — about $0.45 a week of free
     credits. Enough for a small request, deliberately never a wage. Credits can't
     be farmed by gameplay grinding; that's the wall that keeps gray markets out.</div>
+    <div class="grid grid-3" style="margin-top:24px">
+      <div class="card stat"><div class="big">~22 cr</div><div class="lbl">15 minutes inside your own character — about twenty cents</div></div>
+      <div class="card stat"><div class="big">40–100 cr</div><div class="lbl">a weather block, credited to you on the public feed</div></div>
+      <div class="card stat"><div class="big">500 cr</div><div class="lbl">a character slot — one-time, plus a lease like everyone else</div></div>
+    </div>
   </div>
 </section>
 
@@ -128,6 +181,43 @@
       <tr><td><b>Queued</b> — fires when the slot frees</td><td>class rate −15%</td><td>—</td><td>same</td></tr>
     </table>
     </div>
+
+    <!-- Live estimator: rates mirror the table above; JS is a progressive
+         enhancement — without it the table remains the source of truth. -->
+    <div class="calc" id="cost-calc">
+      <fieldset>
+        <legend>Price a moment before you buy it</legend>
+        <div class="calc-controls">
+          <div>
+            <label for="cc-class">Request class</label>
+            <select id="cc-class">
+              <option value="compatible" selected>Compatible — runs alongside</option>
+              <option value="exclusive">Exclusive — locks the resource</option>
+            </select>
+          </div>
+          <div>
+            <label for="cc-duration">Duration — <span id="cc-duration-out">15 min</span></label>
+            <input type="range" id="cc-duration" min="15" max="120" step="5" value="15">
+          </div>
+          <div>
+            <label class="check"><input type="checkbox" id="cc-queued"> Queue it <span class="muted">(−15%)</span></label>
+            <label class="check"><input type="checkbox" id="cc-surge"> Surge window <span class="muted">(×1.5–2.5)</span></label>
+          </div>
+          <div>
+            <label>Cost</label>
+            <output class="cc-big" id="cc-credits" for="cc-class cc-duration cc-queued cc-surge">~22 cr</output>
+          </div>
+        </div>
+        <div class="calc-out">
+          <span class="cc-usd" id="cc-usd">≈ 21¢ at ~1¢/credit</span>
+          <span class="cc-pack" id="cc-pack">Covered by the Pocket pack ($0.99)</span>
+          <span class="cc-surge" id="cc-surge-range" hidden></span>
+          <span class="cc-note" id="cc-note">Compatible session, 15 min of a 120-min cap. Hard cap — control hands back when time ends.</span>
+        </div>
+      </fieldset>
+      <noscript><p class="muted" style="margin-top:14px">The estimator needs JavaScript — the rates table above prints the same math.</p></noscript>
+    </div>
+
     <ul class="clean">
       <li><b>15-minute minimum</b> — a 15-min compatible session is ~22 credits,
       about twenty cents. The cheapest moment of agency costs less than a gumball.</li>
@@ -323,6 +413,7 @@
 </footer>
 
 <script src="js/analytics.js" defer></script>
+<script src="js/pricing.js" defer></script>
 <script src="js/main.js"></script>
 </body>
 </html>

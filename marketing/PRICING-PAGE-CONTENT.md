@@ -31,12 +31,34 @@ and surge on contested resources; admin overrides compensate players.
 
 **Flip procedure:**
 1. Owner approves final numbers in writing (checklist gate).
-2. If numbers changed, edit the tables in `pricing.html` AND update this file.
+2. If numbers changed, edit the tables **and pack cards** in `pricing.html`,
+   the rate constants in `site/js/pricing.js` (CLASSES / QUEUE_DISCOUNT /
+   SURGE_MIN / SURGE_MAX / USD_PER_CR / PACKS — all at the top of the file),
+   AND update this file.
 3. Change the one attribute. Done — no other edits needed for state.
 
 Files that must be updated **in the same commit** if numbers change:
 `faq.html` (subscription/surge/expiry answers), `social/drafts/pricing-post.md`,
-`STORE-COPY.md` (IAP disclosure phrasing), `PRESS-KIT.md` (fact sheet).
+`STORE-COPY.md` (IAP disclosure phrasing), `PRESS-KIT.md` (fact sheet),
+`site/js/pricing.js` (estimator constants — the page prints "~" estimates, so
+drift shows as wrong math, not wrong claims).
+
+## 1a. Page components (v22)
+
+- **Pack cards** (`.pack-grid` / `.pack-card`) — six visual cards replacing
+  the bare table as the primary presentation; the full table survives inside
+  a `<details>` ("Full pack table") for screen-reader/print completeness.
+  Regular carries the "Recommended" ribbon — an editorial pick, NOT a
+  sales-rank claim (never use "most popular" — unverifiable pre-launch).
+- **"What a credit buys" strip** — three stat cards (~22 cr ≈ 20¢ session,
+  40–100 cr weather block, 500 cr character slot) grounding the unit.
+- **Cost estimator** (`#cost-calc` + `js/pricing.js`) — class select, duration
+  slider clamped to the class cap, queued (−15%) and surge (×1.5–2.5)
+  toggles; outputs floored credit count, ≈USD at ~1¢/cr, and the smallest
+  pack that covers it. Pure progressive enhancement: without JS the rates
+  table above it is the source of truth, and a `<noscript>` line says so.
+  Emits `price_calc` analytics events (debounced; class/minutes/flags only,
+  never amounts).
 
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
