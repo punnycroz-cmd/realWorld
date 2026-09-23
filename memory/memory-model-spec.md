@@ -8,6 +8,12 @@
 > caps + ambient-NPC degraded mode, possession/thin-AI edge-case semantics,
 > seeded-RNG determinism, and machinery probes P68–P75. Implementers: read
 > §8.1 below before wiring the tick loop.
+>
+> **v0.9 deepening:** the same doc's Part II formalizes five mechanisms
+> that were still informal — storage/retrieval strength split (§4.11,
+> §5.9), temporal dating (§6.15), hindsight (§6.16), fluency→confidence
+> (§3, §5.4 searchCost), and temporal contiguity (§5.4) — plus closed-
+> form calibration targets and probes P76–P85.
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -54,7 +60,14 @@ MemoryRecord = {
   "beliefStatus": "fact" | "belief" | "rumor" | "doubted",  // belief-vs-fact layer
 
   // STATE (all recomputed/updated by operators below)
-  "strength": 0.62,                   // current retention R(t), 0..1
+  "strength": 0.62,                   // current retention R(t), 0..1 —
+                                      // v0.9: this field IS retrieval
+                                      // strength R in the two-strength
+                                      // split (§4.11)
+  "storageS": 0.62,                   // v0.9: storage strength S — how
+                                      // learned the record is; init =
+                                      // encodingE, grows on difficult
+                                      // retrievals, near-permanent (§4.11)
   "encodingE": 0.74,                  // encoding strength at birth (immutable)
   "confidence": 0.7,                  // subjective certainty; independent of accuracy
   "accuracy": 0.95,                   // ground-truth drift accumulator (hidden from char)
@@ -296,11 +309,30 @@ flashbulb_thresh` (0.85) never let `confidence` fall below
 while certainty stays pinned (Talarico & Rubin 2003; emotional-memory.md
 §5).
 
+**v0.9 deepening — fluency and hard-easy calibration** (formal-model.md
+§13): reported confidence, not stored confidence, gets two adjustments
+at output time —
+
+```
+conf_out = conf + oc_gain·max(0, conf − accuracy)·(1 − m.strength)
+```
+
+overconfidence widens exactly where the trace is weakest (hard-easy
+effect, Lichtenstein & Fischhoff 1977; kept modest per Gigerenzer et al.
+1991's qualification); never feeds back into `accuracy` or `confidence`.
+Category/frequency judgments ride `searchCost` (§5.4): the ease of the
+search, not the count returned, is the data (Schwarz et al. 1991;
+Koriat 1993 cue-utilization).
+
 ---
 
 ## 4. Decay and interference — the forgetting engine
 
 ### 4.1 Trace decay (per tick, e.g. hourly or daily)
+
+**v0.9 note:** `strength` here is retrieval strength R — the accessible-
+now quantity. Storage strength S (§4.11) decays on its own far slower
+schedule; everything in §4.1–4.3 acts on R only.
 
 Power-law with asymptote (R§3):
 
@@ -373,6 +405,8 @@ old characters (pattern-separation deficit, age-decline.md §4).
 `strength < forget_thresh` (param ~0.08) → record is archived, not deleted:
 unreachable by normal retrieval, revivable only by a *maximal* cue (someone
 narrates the event back). Emotional associations (§1) may outlive the record.
+**v0.9:** archiving is on R only — `storageS` persists in archived
+records, which is what resurrection and savings act on (§4.11).
 
 ### 4.5 Fading affect
 
@@ -410,6 +444,9 @@ record with age ≥ `permastore_age` (180 game days) and strength ≥
 `permastore_thresh` (0.25) sets `permastore: true` and freezes decay
 (β→0). Well-consolidated world knowledge is effectively permanent; fresh
 facts still decay normally. See `forgetting-curves.md` §2.3.
+**v0.9:** the permastore gate tests `storageS ≥ permastore_thresh`
+instead of `strength` — permanence is a property of how well-stored the
+record is, not of how retrievable it happens to be today (§4.11).
 
 ### 4.8 Lifespan decline layer — reserve and terminal decline (new in v0.4)
 
@@ -490,6 +527,34 @@ King 1983; Bouton 2004; emotional-memory.md §6):
   `cheaterLoad` decays at `cond_decay·0.3` (moral reputation is sticky);
   `credibility` and `knowsTopics` do not decay (semantic directory).
 
+### 4.11 Storage strength — the S/R split (v0.9 deepening)
+
+`strength` is retrieval strength R (accessible now). Each record also
+carries `storageS` — how well-learned it is (Bjork & Bjork 1992 New
+Theory of Disuse; formal-model.md §10):
+
+- **Birth:** `storageS = encodingE`.
+- **On successful retrieval:** `S += s_gain·(1−S)·(1−R_pre)` where
+  `R_pre` is strength *before* the §5.9 reboost — the desirable-
+  difficulty term: hard retrievals grow S, easy ones barely do
+  (spacing/lag effect emergent; Cepeda et al. 2006; Karpicke & Roediger
+  2008). s_gain ≈ 0.35.
+- **Decay:** `S *= (1 − s_decay)` daily, s_decay ≈ 0.0008 — near-
+  permanent; under the §4.8 terminal ramp s_decay is a capacity param
+  (`*= (1 + terminal_gain·t_frac)`).
+- **Archive:** §4.4 tests R only; S persists in archived records.
+  On maximal-cue resurrection: `R ← max(R, min(resurrect_R, S))`,
+  resurrect_R ≈ 0.35 — high-S "forgotten" records return nearly
+  functional.
+- **Savings/relearn:** re-encoded content matching an archived record
+  (similarity > merge_thresh) merges rather than duplicating, with
+  `E_new *= (1 + relearn_gain·S_old)`, relearn_gain ≈ 0.8 (Ebbinghaus
+  savings; Nelson 1985).
+- **Permastore:** §4.7 gates on `S ≥ permastore_thresh`.
+
+PersonModel tiers are exempt — they keep their own strength ordering
+(adding S/R there doubles bookkeeping for no behavioral gain).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -549,7 +614,16 @@ moodStateDep   = w_msd · (1 − |m.encodeMood − C.mood|)/2
 
 ```
 drive(m) = cueMatch_ext·env_support_gain + moodCongruence + moodStateDep
-           + recencyBump(m) + m.strength·w_str − θ + N(0, ret_noise)
+           + recencyBump(m) + contiguityTerm(m)
+           + m.strength·w_str − θ + N(0, ret_noise)
+
+// v0.9 deepening — temporal contiguity (formal-model.md §14):
+contiguityTerm(m) = C.temporalAnchor == null ? 0 :
+    contiguity_gain·exp(−|m.createdDay − C.temporalAnchor|/contiguity_tau)
+    · (m.createdDay ≥ C.temporalAnchor ? contiguity_asym : 1)
+// C.temporalAnchor = createdDay of the last record recalled this
+// conversation — recall reinstates temporal context, which cues
+// neighbors-in-time with forward asymmetry (Howard & Kahana 1999/2002)
 P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
 ```
 
@@ -573,6 +647,16 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
 - **Archived records** (strength < forget_thresh, §4.4) are reachable only if
   `cueMatch_ext > resurrect_thresh` (≈0.85) — a near-total context
   reinstatement or someone narrating the event back (maximal cue).
+  **v0.9:** resurrected R is floored at `min(resurrect_R, S)` (§4.11) —
+  revival strength scales with how well-learned the record was, not a
+  flat return. contiguityTerm alone can never reach an archived record
+  (it is drive-only and too small to cross resurrect_thresh).
+- **v0.9 — searchCost output:** the call also returns `searchCost`
+  (scored/returned candidate ratio + mean drive margin) — the retrieval
+  *experience* the dialogue layer reads for judged-frequency statements
+  (ease-of-retrieval, formal-model.md §13): `searchCost ≤ ease_few`
+  reads "happens all the time," `≥ ease_many` reads "barely ever,"
+  independent of actual count (Schwarz et al. 1991).
 - **v0.4 — environmental support (age-decline.md §1):**
   `env_support_gain(age_eff)` ≥1 multiplies cueMatch_ext's contribution —
   cue-rich contexts disproportionately rescue older retrieval; deficits
@@ -689,10 +773,21 @@ Same trauma exemption as plist_suppress.
 
 ### 5.9 Reconsolidation on recall
 
-Each retrieval: `lastAccessDay = now`, `strength += boost·(1-strength)`
-(boost≈0.25, the spacing effect), `retrievalCount++`, `confidence += 0.03`.
-**And** the record re-enters a mutable state: the *current* context writes
-small deltas into it (§7.1). Memory is rewritten on every telling (R§4).
+Each retrieval: `lastAccessDay = now`, `retrievalCount++`,
+`confidence += 0.03`. **v0.9 — two-strength update replaces the flat
+boost** (§4.11; formal-model.md §10):
+
+```
+S += s_gain·(1−S)·(1−R_pre)          // difficulty-weighted learning
+R ← 1 − (1−R_pre)·(1 − retell_boost·(0.5 + 0.5·S))
+                                     // high-S records snap back fully
+```
+
+Massed retellings (R_pre high) barely grow S — retelling a story the
+same week doesn't cement it; a hard-won recall after months does.
+**And** the record re-enters a mutable state: the *current* context
+writes small deltas into it (§6.1). Memory is rewritten on every telling
+(R§4).
 
 ### 5.10 Person recognition — the cascade (new in v0.8)
 
@@ -999,6 +1094,63 @@ reconstruction scenes; individual recall is unchanged.
   the §5.10 `"directory"` retrieval mode — "who would know" is itself
   remembered (Wegner 1987; Wegner, Erber & Raymond 1991 couples).
 
+### 6.15 Temporal localization — dateEstimate (v0.9 deepening)
+
+Dating is reconstruction, not readout (Friedman 1993; formal-model.md
+§11). `verbatim.when` is the fastest-decaying field; when it dies,
+dating falls to telescoping + schema rounding + landmark anchoring:
+
+```
+true_age     = now − m.createdDay                          // hidden
+reported_age = true_age·(1 − tele_k_eff)                   // forward
+               telescoping for remote events
+             + (true_age < tele_cross ?
+                tele_back·(tele_cross − true_age) : 0)     // small
+               backward telescoping for recent ones
+             + N(0, date_sigma·sqrt(true_age + 1))         // σ ∝ √age
+tele_k_eff   = tele_k·(1 − landmark_gain) if m.links reaches a dated
+               landmark record (arousal ≥ landmark_arousal);
+               sigma likewise ×= (1 − landmark_gain)
+if verbatim.when alive → error ×0.2 (near-veridical)
+if verbatim.when dead, with prob round_p: snap to nearest of
+   {7, 30, 90, 365}; only a fuzzy era tag survives → report its
+   centroid (category adjustment, Huttenlocher et al. 1990/2000)
+```
+
+(Janssen, Chessa & Murre 2006 — sign and crossover; Huttenlocher,
+Hedges & Bradburn 1990 — rounding; Brown, Rips & Shevell 1985; Shum
+1998 — landmarks.) Exact constants HYPOTHESIS; see P79–P81.
+
+`orderBefore(m,n)` survives date loss: ordering rides the S gradient —
+`P(correct) = logistic(k_order·(S_n − S_m)·sgn(createdDay_n −
+createdDay_m))`, k_order ≈ 4 [pop]. Same-week pairs coin-flip; distant
+pairs order correctly while both dates are wrong.
+
+### 6.16 Hindsight — learnOutcome (v0.9 deepening)
+
+When the world resolves an open question, memory for prior expectations
+assimilates toward the outcome (Fischhoff 1975; Fischhoff & Beyth 1975
+creeping determinism; metas Christensen-Szalanski & Willham 1991,
+Guilbault et al. 2004; formal-model.md §12):
+
+```
+learnOutcome(charId, eventRef, outcome):
+  surprise = |outcome − prior_expectation|
+  if surprise > hindsight_max_surprise (0.7):
+      no assimilation — encode the shock itself ("I never saw it
+      coming"); unbelievable outcomes resist hindsight
+      (Blank & Nestler 2007)
+  else for each record on eventRef (overlap ≥ 0.4, createdDay <
+       outcomeDay, beliefStatus ∈ {fact, belief, rumor}):
+      prior_field += hindsight_k·(outcome − prior_field)
+      confidence  += hindsight_conf_gain
+      accuracy    −= hindsight_k·|outcome − prior_field|   // hidden
+```
+
+Applies to `told_by` prediction records too — post-outcome gossip
+("everyone saw it coming") is a distortion product, amplified further
+by §6.11 audience tuning on retell.
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -1133,7 +1285,16 @@ MemoryParams = {
                              // live-record/archive/PersonModel caps
   "ambient_tick_mult": 3, "ambient_cap": 150,  // degraded mode (§8.1)
   "possess_alien": 0.15,     // estrangement discount on possessed records
-  "catchup_max": 7           // days replayed on resume before aggregation
+  "catchup_max": 7,          // days replayed on resume before aggregation
+  // v0.9 deepening (mechanism formalization, formal-model.md §§10–16 —
+  // free-vs-frozen split per the §4 identifiability audit there)
+  "s_gain": 0.35,            // storage growth per difficult retrieval (§4.11)
+  "tele_k": 0.12,            // forward telescoping rate (§6.15)
+  "date_sigma": 0.9,         // dating noise scale ∝ √age (§6.15)
+  "round_p": 0.5,            // schema-unit rounding when `when` dead (§6.15)
+  "contiguity_gain": 0.15,   // temporal-neighbor drive bonus (§5.4)
+  "hindsight_k": 0.35,       // prior-assimilation toward outcome (§6.16)
+  "oc_gain": 0.3             // hard-easy overconfidence at report (§3)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -1141,6 +1302,13 @@ MemoryParams = {
 //   k = 8 (logistic sharpness §5.4), drift_k = 0.02, tau_episodic = 1.2,
 //   tau_semantic = 30, collab_size_pen = 0.1, collab_friend_mult = 1.2,
 //   arousal_affect_decay = 1.4, rep_cap = 2.0
+// v0.9 deepening frozen constants (formal-model.md §16):
+//   s_decay = 0.0008, relearn_gain = 0.8, resurrect_R = 0.35 (§4.11);
+//   tele_cross = 21, tele_back = 0.05, landmark_gain = 0.4,
+//   landmark_arousal = 0.7, k_order = 4.0 (§6.15); contiguity_tau = 2.0,
+//   contiguity_asym = 1.25 (§5.4); hindsight_conf_gain = 0.08,
+//   hindsight_max_surprise = 0.7 (§6.16); ease_few = 1.5,
+//   ease_many = 3.0 (§5.4)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -1287,6 +1455,20 @@ the age-PM paradox for free. See `age-development.md` §7.
 - `memorySnapshot/Load(charId)` → serialize the stores (episodic,
   semantic, conditioned-affect, PersonModel social store) + params +
   RNG opSeq state (v0.9 — round-trip must preserve determinism, P69)
+- v0.9 deepening (formal-model.md §§10–16):
+  - `recall` results carry `searchCost` (§5.4) — scored/returned ratio +
+    drive margin; dialogue reads it for judged-frequency hedging
+    (ease-of-retrieval). `cueContext.temporalAnchor` is set internally
+    to the last recalled record's createdDay (contiguity, §5.4);
+    callers may set it explicitly for guided reminiscence
+  - `dateEstimate(charId, record) -> {reportedAge, reportedDay}` (§6.15)
+    — telescoping + rounding + landmark anchoring; `orderBefore(m, n)`
+    for date-loss-tolerant ordering
+  - `learnOutcome(charId, eventRef, outcome)` (§6.16) — hindsight
+    assimilation of prediction records when the world resolves an open
+    question; blocked past `hindsight_max_surprise`
+  - reported confidence goes through the §3 `conf_out` overconfidence
+    adjustment — never write conf_out back into stored confidence
 - v0.9 hard-safety rule: `possessed`, `phantom`, `accuracy`, and all
   other hidden flags/fields must NEVER serialize into possession
   briefings or any player-visible surface (formal-model.md §6)

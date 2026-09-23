@@ -591,3 +591,50 @@ v0–v8 spec. Sources consulted and what each contributes:
   psychological phenomena.
 - New params ×8 (spec §7 v0.9 block); spec → v0.9. DEBATED items: none —
   all additions are engineering semantics or flagged HYPOTHESIS.
+
+## 14. v9 deepening — mechanism formalization (formal-model.md Part II)
+
+The hardening pass pinned units/order/budgets; the deepening pass
+formalized five mechanisms that were still prose in the spec:
+
+- **Two-strength split** (Bjork & Bjork 1992 New Theory of Disuse):
+  `strength` is retrieval strength R; new `storageS` field is storage
+  strength S. S grows on *difficult* retrievals (`s_gain·(1−S)·(1−R_pre)`
+  — spacing/lag effect emergent, Cepeda et al. 2006; Karpicke & Roediger
+  2008), decays ~100× slower than R, gates resurrection floor
+  (`min(resurrect_R, S)`), savings on re-encoding (`relearn_gain·S_old`,
+  Ebbinghaus/Nelson 1985), and the permastore transition. Archive is
+  now provably "not deleted": S persists and drives revival quality.
+- **Temporal dating as reconstruction** (Friedman 1993): `dateEstimate`
+  = forward telescoping for remote / slight backward for recent
+  (Janssen, Chessa & Murre 2006 — validated crossover), √age noise,
+  schema rounding to {7,30,90,365} + category-centroid pull
+  (Huttenlocher, Hedges & Bradburn 1990; Huttenlocher, Hedges & Vevea
+  2000), landmark rescue (Brown, Rips & Shevell 1985; Shum 1998), and
+  `orderBefore` on the S gradient — ordering survives date loss.
+- **Hindsight** (`learnOutcome`, spec §6.16): prior-belief records
+  assimilate `hindsight_k·gap` toward known outcomes with confidence
+  gain and hidden accuracy loss — Fischhoff 1975, creeping determinism
+  (Fischhoff & Beyth 1975), metas Christensen-Szalanski & Willham 1991 /
+  Guilbault et al. 2004; gated by outcome believability (Blank &
+  Nestler 2007). Applies to `told_by` predictions too — "everyone saw
+  it coming" is a distortion product.
+- **Fluency → confidence**: `searchCost` output on recall — ease of
+  search drives judged frequency, not count (Schwarz et al. 1991
+  6-vs-12; Koriat 1993 cue-utilization); hard-easy overconfidence term
+  `oc_gain·max(0, conf−accuracy)·(1−strength)` at report time only
+  (Lichtenstein & Fischhoff 1977; Gigerenzer et al. 1991 qualifier).
+- **Temporal contiguity** (Howard & Kahana 1999/2002 TCM; Sederberg et
+  al. 2008): `temporalAnchor` on the recall context gives neighbor-in-
+  time records a drive bonus with forward asymmetry — reminiscence
+  bursts and "and then?" flow for free.
+- **Calibration harness** (formal-model.md §15): closed-form retention
+  targets at fixed delays, two-strength spacing trajectories, archive/
+  resurrect values, telescoping distribution targets, fan-divisor
+  ratio — unit-testable before any tuning.
+- Spec: +`storageS` field, §4.11, §5.4 contiguity + searchCost +
+  resurrect floor, §5.9 rewrite, §3 fluency/hard-easy, §6.15–6.16,
+  §7 +7 free params +14 frozen constants (audit rule applied),
+  §10 contract +dateEstimate/orderBefore/learnOutcome/searchCost/
+  temporalAnchor. Probes P76–P85. PersonModel exempt from the S/R
+  split (own tier ordering suffices — modeling choice).

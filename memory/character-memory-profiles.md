@@ -132,6 +132,20 @@ never copying raw.
 | ambient_tick_mult / ambient_cap | 2 / 75 | 7 / 300 | degraded-mode cadence + record cap (v0.9) |
 | possess_alien | 0.0 | 0.4 | estrangement discount on possessed records (v0.9) |
 | catchup_max | 3 | 14 | daily ticks replayed on resume before aggregation (v0.9) |
+| s_gain | 0.15 | 0.6 | storage growth per difficult retrieval — spacing steepness (v0.9d) |
+| tele_k | 0.0 | 0.3 | forward-telescoping rate; high = "recently" for old events (v0.9d) |
+| date_sigma | 0.4 | 1.6 | dating noise scale — the timeline-muddle trait (v0.9d) |
+| round_p | 0.2 | 0.8 | schema-unit rounding habit on dead `when` fields (v0.9d) |
+| contiguity_gain | 0.0 | 0.4 | temporal-neighbor recall bonus — reminiscence cascader (v0.9d) |
+| hindsight_k | 0.1 | 0.6 | prior-assimilation toward known outcome — told-you-so trait (v0.9d) |
+| oc_gain | 0.0 | 0.6 | hard-easy overconfidence at report time (v0.9d) |
+
+**v0.9d frozen constants (deepening pass):** `s_decay` (0.0008),
+`relearn_gain` (0.8), `resurrect_R` (0.35), `tele_cross` (21),
+`tele_back` (0.05), `landmark_gain` (0.4), `landmark_arousal` (0.7),
+`k_order` (4.0), `contiguity_tau` (2.0), `contiguity_asym` (1.25),
+`hindsight_conf_gain` (0.08), `hindsight_max_surprise` (0.7),
+`ease_few` (1.5), `ease_many` (3.0) — same audit rule as below.
 
 **v0.9 frozen-constant note:** per the identifiability audit in
 `formal-model.md` §4, the following params are population constants and

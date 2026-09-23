@@ -413,3 +413,314 @@ targets.
 - The Event/CueContext derivation defaults (§2) are flagged HYPOTHESIS
   throughout; world-builder/game-systems may supply better signals and
   should — these are floor implementations, not ceilings.
+
+---
+
+# Part II — v9 deepening pass: mechanism formalization (P76–P85)
+
+The pass above hardened what existed; this pass formalizes five places
+where spec v0.8 was still prose or hand-wave: (a) `strength` conflated
+two different quantities — how *learned* a record is vs how *accessible*
+it is right now; (b) `verbatim.when` "drifts at `drift_p·1.5`" — no model
+of how people actually misdate memories; (c) hindsight — the most common
+distortion in everyday belief talk ("I knew it all along") — absent;
+(d) confidence updates ignored the strongest everyday signal, retrieval
+*fluency*; (e) recall order had no temporal structure — real recall
+jumps along the timeline; (f) no analytic targets an implementer could
+assert in a unit test. Spec refs below are to spec v0.9.
+
+## 10. Two strengths: storage vs retrieval (the `strength` split)
+
+**CONSENSUS.** Bjork & Bjork's New Theory of Disuse (1992, Estes
+Festschrift; restated Bjork & Bjork 2020, JARMAC) separates:
+
+- **Storage strength (S)** — how well-learned/interrelated a record is.
+  Grows with study and *successful retrieval*; essentially non-decaying.
+- **Retrieval strength (R)** — accessibility *right now*; decays fast
+  with disuse, resets high on each retrieval.
+
+The pair explains what a single strength cannot:
+
+1. **Savings / fast relearning.** A childhood address can be unavailable
+   (R≈0) yet relearns in one re-exposure because S is high (Ebbinghaus
+   1885 savings; Nelson 1985 — savings measurable even for items that
+   could not be recalled at all).
+2. **Spacing / desirable difficulty.** S increments are larger when the
+   retrieval was *harder* (low current R) — empirically the lag effect
+   (Cepeda et al. 2006 meta, 254 studies) and the testing effect
+   (Roediger & Karpicke 2006; Karpicke & Roediger 2008).
+3. **Why retelling a story the same week barely helps but retelling it
+   next season cements it** — same operator, different R.
+
+**Formalization (spec §4.11, §5.9):**
+
+- `MemoryRecord.strength` *is* R — unchanged semantics everywhere it is
+  read (decay §4.1, archive §4.4, drive §5.4). Backward compatible.
+- New field `storageS ∈ [0,1]`, init `= encodingE` at birth.
+- S update on successful retrieval:
+  `S += s_gain·(1−S)·(1−R_pre)` where `R_pre` is R *before* the
+  reactivation boost — the difficulty term. s_gain ≈ 0.35. Massed
+  retellings (R_pre still high) add almost nothing; a hard-won recall
+  after months adds a lot. Identifying observable: P76 spacing ordering.
+- R update replaces the flat `boost·(1−R)`:
+  `R ← 1 − (1−R)·(1 − retell_boost·(0.5 + 0.5·S))` — high-S records
+  snap back near full accessibility on one cue; low-S records get a
+  shallow refresh ("it all comes flooding back" vs "vaguely rings a
+  bell" — observable in P78 revival contrast).
+- S decay: `S *= (1 − s_decay)` daily, s_decay ≈ 0.0008 — ~2 orders
+  slower than R's effective daily loss; effectively permanent over a
+  character arc except under the §4.8 terminal ramp (s_decay is a
+  capacity param there).
+- Archive semantics: §4.4 archives on R only; S persists, which is *why*
+  maximal-cue resurrection works. On resurrection:
+  `R ← max(R, min(resurrect_R, S))`, resurrect_R ≈ 0.35.
+- Savings/relearn: re-encoded content matching an archived record
+  (similarity > merge_thresh) merges instead of duplicating, with the
+  new encoding boosted `E_new·(1 + relearn_gain·S_old)`,
+  relearn_gain ≈ 0.8 (Ebbinghaus; Nelson 1985). Identifying observable:
+  P77.
+- Permastore (§4.7) re-anchored on S: `S ≥ permastore_thresh`.
+
+**DEBATED:** NToD is a functional framework, not a fitted model — all
+constants here are HYPOTHESIS. The qualitative laws are consensus.
+
+## 11. Temporal localization — how characters misdate memories
+
+**CONSENSUS.** `verbatim.when` was already the fastest-decaying field
+(`drift_p·1.5`; Wagenaar 1986 found "when" the weakest cue). What
+replaces it is now specified — dating is reconstruction, not readout
+(Friedman 1993):
+
+- **Telescoping** — remote events dated too *recent* (forward), very
+  recent slightly too *remote* (backward): Janssen, Chessa & Murre 2006
+  (Memory & Cognition 34:138 — validated news events + Galton-Crovitz
+  personal events); Thompson, Skowronski & Lee 1988; Rubin & Baddeley
+  1989; Bradburn, Rips & Shevell 1987.
+- **Rounding/boundaries** — elapsed-time reports cluster on schema units
+  (days→weeks→months) and estimates inside a fuzzy temporal category
+  pull toward its central value (Huttenlocher, Hedges & Bradburn 1990;
+  category-adjustment model: Huttenlocher, Hedges & Vevea 2000).
+- **Landmarks** — dating improves when anchored to a public/personal
+  landmark (Brown, Rips & Shevell 1985; Shum 1998).
+- **Ordering > dating** — relative order survives absolute-date loss;
+  order uses strength gradients and episode chains (Friedman 1993).
+
+**Formalization (new spec §6.15, `dateEstimate`):**
+
+```
+true_age     = now − m.createdDay                          // hidden
+reported_age = true_age·(1 − tele_k_eff)                   // forward pull
+             + (true_age < tele_cross ?
+                tele_back·(tele_cross − true_age) : 0)     // small backward
+             + N(0, date_sigma·sqrt(true_age + 1))         // noise ∝ √age
+where tele_k_eff = tele_k·(1 − landmark_gain) if m links a landmark
+                   record (arousal ≥ landmark_arousal), else tele_k
+      sigma likewise ×= (1 − landmark_gain)
+if verbatim.when alive → return near-veridical (error ×0.2)
+if verbatim.when dead, with prob round_p:
+   snap reported_age to nearest of {7, 30, 90, 365} — category rounding;
+   only a fuzzy era tag survives → report the era centroid
+   (category adjustment)
+```
+
+Params: tele_k ≈ 0.12, tele_cross ≈ 21d, tele_back ≈ 0.05,
+date_sigma ≈ 0.9, round_p ≈ 0.5, landmark_gain ≈ 0.4,
+landmark_arousal ≈ 0.7. Constants loosely fit to Janssen et al. 2006 —
+exact values HYPOTHESIS, phenomenon consensus. Identifying observables:
+P79 (telescope sign test), P80 (rounding), P81 (landmark).
+
+`orderBefore(m,n)` — cheaper, survives date loss:
+`P(correct) = logistic(k_order·(S_n − S_m)·sgn(createdDay_n − createdDay_m))`
+— ordering rides the S gradient (stronger feels more recent): same-week
+pairs coin-flip, distant pairs order correctly while both dates are
+wrong. k_order ≈ 4 [pop constant — identifiable only via ordering
+curves, too entangled with S for per-character freedom].
+
+Behavioral yield: "last month" said of a 9-month-old event with a
+straight face; correct argument about which of two things came first
+while misdating both; exact dates only when pinned to a landmark
+("right before the block party").
+
+## 12. Hindsight bias — "I knew it all along"
+
+**CONSENSUS.** Once an outcome is known, memory for one's prior
+expectation assimilates toward it (Fischhoff 1975; Fischhoff & Beyth
+1975 "creeping determinism"; metas: Christensen-Szalanski & Willham
+1991 — 122 studies; Guilbault, Bryant, Brockway & Posavac 2004).
+Moderator: outcome must be assimilable — unbelievable outcomes show
+attenuated/reversed hindsight (Blank & Nestler 2007; the bias serves
+sense-making). In RW every resolved drama rewrites what characters
+*think* they predicted — and `told_by` prediction records drift too
+("everyone saw it coming").
+
+**Formalization (new spec §6.16, `learnOutcome`):**
+
+```
+learnOutcome(charId, eventRef, outcome):     // world resolves an open question
+  surprise = |outcome − prior_expectation|                  // 0..1
+  if surprise > hindsight_max_surprise (0.7):
+      no assimilation — encode the SHOCK as a fact about the event
+      ("I never saw it coming"); hindsight blocked
+      (Blank & Nestler 2007 gate)
+  else for each record m on eventRef (overlap ≥ 0.4,
+       createdDay < outcomeDay, beliefStatus ∈ {fact,belief,rumor}):
+      prior_field  += hindsight_k·(outcome − prior_field)
+      confidence   += hindsight_conf_gain
+      accuracy     −= hindsight_k·|outcome − prior_field|   // hidden
+```
+
+hindsight_k ≈ 0.35 (per-character — readable as "graciousness in defeat"
+vs "told-you-so" trait; observable: P82), hindsight_conf_gain ≈ 0.08
+[pop]. DEBATED: reconstructive-at-recall vs encoding-level update — we
+implement at feedback (cheaper, functionally equivalent downstream).
+
+## 13. Fluency → confidence and judged frequency
+
+**CONSENSUS.** Confidence is built from *processing cues*, not the trace
+— Koriat's cue-utilization framework (Koriat 1993; Koriat & Levy-Sadot
+2001). Two portable effects:
+
+- **Ease-of-retrieval / availability** — judged frequency tracks ease of
+  generation, not count: few examples recalled easily → "happens all
+  the time"; struggling to produce many → "rare," even when more items
+  surfaced (Schwarz et al. 1991, the 6-vs-12 reversal; Tversky &
+  Kahneman 1973).
+- **Hard-easy overconfidence** — confidence–accuracy calibration
+  degrades with difficulty (Lichtenstein & Fischhoff 1977; qualified by
+  Gigerenzer, Hoffrage & Kleinbölting 1991 — shrinks for frequency
+  formats; kept as a modest bias on *episodic* confidence only).
+
+**Formalization (spec §3, §10 contract):**
+
+- `recall` returns `searchCost` = scored/returned candidate ratio +
+  mean drive margin — O(1) bookkeeping. Dialogue layer reads it:
+  `searchCost ≤ ease_few` (1.5) → confident high-frequency assertion;
+  `≥ ease_many` (3.0) → hedged rare judgment — *independent of count*.
+  [Thresholds HYPOTHESIS; sign of effect consensus. Observable: P85.]
+- Report-time overconfidence: `conf_out = conf + oc_gain·max(0, conf −
+  accuracy)·(1 − m.strength)` — the overclaim widens exactly where the
+  trace is weakest. oc_gain ≈ 0.3 (per-character; observable: P84).
+  Never feeds back into `accuracy`.
+
+Net RW effect: the fluently repeated rumor feels common and certain;
+the barely-cued third retelling is where characters are most wrong
+*and* most sure.
+
+## 14. Temporal contiguity — recall walks along the timeline
+
+**CONSENSUS.** Recalling an item reinstates its temporal context, which
+cues neighbors-in-time — the contiguity effect, persistent at all
+retention intervals with forward asymmetry (Howard & Kahana 1999, 2002
+Temporal Context Model; Kahana 1996; Sederberg, Howard & Kahana 2008).
+Explains why reminiscence bursts from the same week and why "and then?"
+flows forward.
+
+**Formalization (spec §5.4 addition):** the recall context carries
+`temporalAnchor` = createdDay of the last successfully recalled record
+this conversation; each candidate's drive gains
+
+```
+contiguity_gain·exp(−|createdDay − anchor|/contiguity_tau)
+·(createdDay ≥ anchor ? contiguity_asym : 1)
+```
+
+contiguity_gain ≈ 0.15, contiguity_tau ≈ 2d, contiguity_asym ≈ 1.25.
+Drive-only — cannot reach archived records alone (resurrect_thresh
+still applies). One scalar per candidate. Observable: P83.
+
+## 15. Analytic calibration harness (closed-form unit targets)
+
+All operators are closed-form; implementers can unit-test before tuning.
+Defaults per spec §7; deterministic parts exact, stochastic ±10%.
+
+**(a) R trajectories** — `R(t) = E·(1+t/τ)^(−β)`, E=0.6:
+
+| record | day 7 | day 30 | day 90 | day 365 |
+|---|---|---|---|---|
+| episodic (τ=1.2, β=0.5) | 0.230 | 0.118 | 0.069 | 0.034 |
+| semantic (τ=30, β=0.2) | 0.563 | 0.522 | 0.444 | 0.358 |
+
+A median-salience episodic record crosses forget_thresh (0.08) between
+day 60–90 unaccessed — most ambient detail dies within a season;
+semantic survives the year. Intended selectivity.
+
+**(b) Two-strength trajectory** — E=0.6, one retell at day t:
+S = 0.6 + 0.35·0.4·(1−R(t)): t=1 → S≈0.70; t=30 → S≈0.72; t=90 →
+S≈0.73. Assert S ordering monotone in lag (spacing signature), and
+post-lag R higher for longer lags.
+
+**(c) Archive/resurrect** — E=0.6 episodic unaccessed: archived day
+60–90; `dateEstimate`/`sourceInfer` still run on it. Maximal-cue
+resurrection → R = min(0.35, S=0.6) = 0.35, then §4.11 reboost.
+
+**(d) Telescoping** — 300d-old record, `when` dead: mean reported ≈
+264d (12% forward); σ ≈ 0.9·√301 ≈ 15.6d; ≥ round_p fraction of
+reports on {7,30,90,365}. 5d-old: slight backward (≈5.8d).
+
+**(e) Fan divisor** — fixed cue, fan 1 vs 8:
+(1+0.4·ln2)/(1+0.4·ln9) ≈ 0.68 — related-episode competition halves
+accessibility at modest fan (Anderson & Reder 1999).
+
+**New probes P76–P85 (mechanism-deepening suite):**
+
+- **P76 spacing signature:** matched records retold at lag {1,30,90}d →
+  S and day-180 retention monotone in lag.
+- **P77 savings:** re-encoding archived content restores reachability
+  in ≤ half the encodings of a matched novel record.
+- **P78 resurrection contrast:** archived high-S revives at R≈0.35 and
+  reboosts strongly; archived low-S (S<0.35) revives at R≈S, shallow.
+- **P79 telescoping sign:** >tele_cross events net-forward, <tele_cross
+  net-backward; σ(age) ∝ √age monotone.
+- **P80 rounding:** dead-`when` records report ages on {7,30,90,365}
+  at ≥ 0.9·round_p rate.
+- **P81 landmark rescue:** landmark-linked records show |telescope| and
+  σ reduced ≈ landmark_gain vs matched unlinked.
+- **P82 hindsight:** post-learnOutcome, remembered prior shifts ≥
+  hindsight_k·|gap| toward outcome; surprise > hindsight_max_surprise
+  blocks it and encodes the shock.
+- **P83 contiguity:** P(next recall within ±contiguity_tau of anchor |
+  no cue overlap) ≫ base; forward:backward ≈ contiguity_asym.
+- **P84 hard-easy:** corr(conf − accuracy gap, −strength) > 0;
+  high-strength records near-calibrated.
+- **P85 ease-of-retrieval:** identical counts, manipulated searchCost →
+  judged frequency follows ease, not count.
+
+## 16. New params (spec §7 v0.9b block) — audit-compliant
+
+Per §4's rule each names its identifying observable:
+
+| param | default | free? | observable |
+|---|---|---|---|
+| s_gain | 0.35 | per-char | P76 spacing steepness |
+| s_decay | 0.0008 | pop | P78 (long-run only — not per-char identifiable) |
+| relearn_gain | 0.8 | pop | P77 |
+| resurrect_R | 0.35 | pop | P78 |
+| tele_k | 0.12 | per-char | P79 magnitude |
+| tele_cross | 21 | pop | P79 crossover |
+| tele_back | 0.05 | pop | P79 recent-end |
+| date_sigma | 0.9 | per-char | P79 σ(age) slope — the "timeline muddle" trait |
+| round_p | 0.5 | per-char | P80 — the "round numbers" speech habit |
+| landmark_gain | 0.4 | pop | P81 |
+| landmark_arousal | 0.7 | pop | P81 threshold |
+| k_order | 4.0 | pop | ordering curves (entangled with S) |
+| contiguity_gain | 0.15 | per-char | P83 — the "reminiscence cascader" trait |
+| contiguity_tau | 2.0 | pop | P83 width |
+| contiguity_asym | 1.25 | pop | P83 asymmetry |
+| hindsight_k | 0.35 | per-char | P82 — "told-you-so" trait |
+| hindsight_conf_gain | 0.08 | pop | P82 confidence leg |
+| hindsight_max_surprise | 0.7 | pop | P82 gate |
+| ease_few / ease_many | 1.5 / 3.0 | pop | P85 thresholds |
+| oc_gain | 0.3 | per-char | P84 — overconfidence trait |
+| searchCost fields | — | — | output, not param |
+
+21 params, 9 per-character, 12 frozen — split chosen by the §4 audit
+rule, not taste.
+
+## 17. Summary for game-systems
+
+One new record field (`storageS`), two new calls (`dateEstimate`,
+`learnOutcome`), two new context/result fields (`temporalAnchor` on
+CueContext, `searchCost` on Reconstruction), one rewritten update
+(§5.9), three additive terms (§5.4 contiguity, §3 overconfidence,
+resurrect floor). Daily-tick added cost ≈ nil — S updates ride the same
+loops as R. Whole layer is flag-gateable: diff probes P76–P85.
