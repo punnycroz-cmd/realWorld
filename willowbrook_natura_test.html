@@ -17966,6 +17966,13 @@ function brainLearn(v, dtH, outcome){
 
 function updateVillagerBrain(v, dtH){
   if(v.dead) return;
+  /* integration-1 fix: this module is the LAST updateVillagerAI binding
+     in bundle order, so it must honor the SF dispatch the earlier binding
+     (brain/07_ai.js) installed — otherwise the Mission cast's authored
+     sfSched routines never execute (latent since the override chain
+     existed; harnesses only exercised sfGoTo/sfFollowPath directly). */
+  if(typeof SF_MODE !== 'undefined' && SF_MODE &&
+     typeof sfNpcTick === 'function'){ sfNpcTick(v, dtH); return; }
   if(v.downed) downedTick(v, dtH);
   if(v.downed && v.downed.kind !== 'leg') return;
 
