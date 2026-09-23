@@ -1444,12 +1444,13 @@ const PUB = Object.values(PT.surfaces)
       for (let i = 0; i < a.length; i++) {
         evCount++;
         if (!b[i]) continue;
-        for (const k of ['id', 't', 'kind', 'text', 'status', 'req', 'venue', 'who'])
+        for (const k of ['id', 't', 'kind', 'text', 'status', 'req', 'venue', 'who', 'src'])
           if (String(a[i][k]) !== String(b[i][k]))
             add(g, 'fail', 'archive.html', null,
               `event ${a[i].id}: field "${k}" differs (json "${a[i][k]}" / demo "${b[i][k]}")`);
-        if (JSON.stringify(a[i].thread || null) !== JSON.stringify(b[i].thread || null))
-          add(g, 'fail', 'archive.html', null, `event ${a[i].id}: thread tag not mirrored`);
+        for (const k of ['thread', 'mentions', 'attrs', 'outcome'])
+          if (JSON.stringify(a[i][k] || null) !== JSON.stringify(b[i][k] || null))
+            add(g, 'fail', 'archive.html', null, `event ${a[i].id}: ${k} not mirrored`);
       }
     }
     /* kind/status vocabulary stays inside feed.json (+ rumor kind) */
@@ -1466,6 +1467,11 @@ const PUB = Object.values(PT.surfaces)
           if (!e.src) add(g, 'fail', 'history.json', null, `rumor ${e.id} has no place source`);
           if (e.outcome && !/^(debunked|faded|stood)$/.test(e.outcome.state))
             add(g, 'fail', 'history.json', null, `rumor ${e.id}: bad outcome state "${e.outcome.state}"`);
+          if (e.outcome && e.outcome.by !== undefined) {
+            const allIds = new Set(Object.values(HJ.days).flat().map(x => x.id));
+            if (!allIds.has(e.outcome.by))
+              add(g, 'fail', 'history.json', null, `rumor ${e.id}: outcome.by "${e.outcome.by}" names no archived event — a settled-by link may only point at the public record`);
+          }
         }
         if (e.id && !/^d\d{4}-\d{2}$/.test(e.id))
           add(g, 'fail', 'history.json', null, `event id "${e.id}" breaks the d<MMDD>-NN permalink contract`);
@@ -1509,8 +1515,20 @@ const PUB = Object.values(PT.surfaces)
       [/id="txbtn"/, 'transcript control'],
       [/gsWireDays/, 'live seam (gsWireDays)'],
       [/gsWireArchiveDay/, 'live seam (gsWireArchiveDay)'],
-      [/archive\.html#e=/, 'permalink format']
+      [/archive\.html#e=/, 'permalink format'],
+      [/data-v="week"/, 'week view switch'],
+      [/The week on record/i, 'week view head'],
+      [/no editorial pick/, 'week counted-not-curated copy'],
+      [/counted from the wire/, 'week provenance copy'],
+      [/id="dprev"/, 'prev-day control'],
+      [/id="dnext"/, 'next-day control'],
+      [/ArrowLeft/, 'arrow-key day walk'],
+      [/around that time/, 'record neighbor trail'],
+      [/settled by the public record/, 'rumor settled-by affordance'],
+      [/busiest/, 'busiest-corner day rows']
     ];
+    if (!HJ.archive_ui?.archive_ui_v48)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v48 contract block missing');
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'archive.html', null, `missing required copy/affordance: ${label}`);
     /* no world-mutation call on the surface */
@@ -1524,7 +1542,7 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'archive.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
     });
     g.detail = `${Object.keys(HJ.days).length} days · ${evCount} events mirrored · ` +
-      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v3`;
+      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v4`;
   } catch (e) { add(g, 'fail', 'history.json', null, 'parse/check failure: ' + e.message); }
 }
 

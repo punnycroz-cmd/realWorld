@@ -12,7 +12,7 @@
     "req": "optional, request events: shared request id — every lifecycle event of one paid intervention carries it; archive detail views group the status trail on it (same contract as feed.json)",
     "attrs": "optional { surge, credits, compensated_cr }",
     "src": "rumor events only — where the talk was overheard (a venue id or 'the block')",
-    "outcome": "rumor events only — { state: 'debunked'|'faded'|'stood', note } filled in when the talk resolves; null while open",
+    "outcome": "rumor events only — { state: 'debunked'|'faded'|'stood', note, by? } filled in when the talk resolves; null while open. Optional `by` is the id of the already-public event that settled it — the archive renders it as a 'settled by the public record' jump. It may only point at an event that was on the wire in its own right, never at anything written to explain the rumor.",
     "thread": "optional array of thread ids — archive-layer arrangement metadata only: chains already-public events a spectator could have followed; never carries information the events don't"
   },
   "rumor_kind": [
@@ -63,6 +63,21 @@
         "thread labels are archive chrome, not narration — a thread asserts nothing beyond its member rows",
         "transcript copy carries the source badge (live/demo) in its header line",
         "payer totals are computed from attrs.credits only where declared — undeclared stays undeclared"
+      ]
+    },
+    "archive_ui_v48": {
+      "doc": "world v48 — The Archive v4: the week view (whole record at a glance), day-to-day walk, around-that-time neighbors, rumor settled-by links. Same rule as ever: projections of public rows, counted — never curated.",
+      "views_added": {
+        "week": "#v=week — summary strip (days, entries, requests filed by distinct req id, admin actions, word-on-the-block with open count, declared + compensated credits where attrs carry them); day x filter-count grid where each cell equals what that day's matching kind filter would show (press posts also count under 'the block'); day-by-day rows with coverage span and busiest corner (most-tagged venue field, null counts as 'block', ties break to whichever peaked earliest); 'still open' thread chips. Clicking a cell opens that day pre-filtered. #v=week",
+        "day_walk": "‹ prev day / next day › controls on the day header + left/right arrow keys (inert while typing, day view only); ends disable, never wrap",
+        "around_that_time": "record detail shows the selected event's same-day neighbors (±2 rows) as a clickable trail — same rows, smaller window",
+        "settled_by": "rumor detail renders outcome.by (when present + resolvable) as a jump to the public event that settled the talk"
+      },
+      "honesty": [
+        "every week figure is a count of the archive's own rows — the header says 'no editorial pick, no ranking' and the code agrees",
+        "busiest corner counts venue tags verbatim, nulls as 'the block' — it is a mode, not a judgment",
+        "outcome.by may only point at an event that stood on the wire in its own right — never at a record written to explain the rumor",
+        "nothing on the week view touches the world; the grid's only affordance is opening a day"
       ]
     }
   },
@@ -610,7 +625,8 @@
         "src": "club600",
         "outcome": {
           "state": "debunked",
-          "note": "the doorway set ran on schedule that same night"
+          "note": "the doorway set ran on schedule that same night",
+          "by": "d0921-12"
         },
         "text": "Word on the block — somebody's saying the 600 Club lost its license",
         "thread": [

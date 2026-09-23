@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32, PT31 + wire v3 / wire gate v33, PT32 + archive v3 / archive gate v34, PT33 + create v3 / creation gate v35, PT34 + moderation v36 / mod gate v36, PT35 + harness depth pass v37 / harness gate v37, PT36 + lease v3 / lease gate v40, PT37 + thinai v3 / thinai gate v41, PT38 + bible v42 / bible gate v42, PT39 + crowd v4 ambient week / crowd gate v43, PT40 + storefront layer / biz gate v44, PT41 + application layer / apply gate v45, PT42 + request v46, PT43 + wire v4 recap layer v47). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29, PT28 + directory v2 / biz gate v30, PT29 + market / market gate v31, PT30 + request v3 / request gate v32, PT31 + wire v3 / wire gate v33, PT32 + archive v3 / archive gate v34, PT33 + create v3 / creation gate v35, PT34 + moderation v36 / mod gate v36, PT35 + harness depth pass v37 / harness gate v37, PT36 + lease v3 / lease gate v40, PT37 + thinai v3 / thinai gate v41, PT38 + bible v42 / bible gate v42, PT39 + crowd v4 ambient week / crowd gate v43, PT40 + storefront layer / biz gate v44, PT41 + application layer / apply gate v45, PT42 + request v46, PT43 + wire v4 recap layer v47, PT44 + archive v4 week layer v48). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -866,7 +866,31 @@ const PTS=[
   exp:"The header sky line is set by the newest weather event's own words (icon guessed from the text \u2014 \u2600 after the burn-off seed, \ud83c\udf2b if fog rolls in). The day bar's counts climb live; new request threads mint with declared cr/min. wire gate passes with v47 keys and the credits-seed check.",
   ck:["Header weather never shows a fabricated temperature \u2014 it repeats the event text",
     "Day bar numbers update on the same render as new rows (no stale recap)",
-    "wire gate reports v47 keys day_so_far/missed_bar/declared_costs/wx_follows_feed/keyboard and \u22651 seed carrying credits"]}]}
+    "wire gate reports v47 keys day_so_far/missed_bar/declared_costs/wx_follows_feed/keyboard and \u22651 seed carrying credits"]}]},
+{id:"PT44",title:"The Archive v4 \u2014 the week layer, day walk, neighbors, settled-by",min:9,
+ persona:"spectator (free tier) + facilitator auditing the v48 archive pass",
+ goal:"Verify the archive's v4 additions stay projections: the week view counts the archive's own rows (grid cells equal the day filters' results), the day walk moves between adjacent days without wrapping, the record detail's around-that-time trail shows same-day neighbors, and a rumor's outcome.by jumps to the public event that settled it.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open The Archive and pick 'the week' in the Browse switcher. Read the summary strip, the day x filter grid, and the day-by-day rows; compare a few figures against the day views by hand.",
+  exp:"Summary strip reads 7 days on record \u00b7 85 entries \u00b7 11 requests filed \u00b7 1 admin action \u00b7 6 word on the block \u00b7 1 open \u00b7 70 cr declared \u00b7 90 cr compensated. Header says 'counted from the wire's own events \u2014 no editorial pick, no ranking'. Each grid cell equals what that day's matching kind filter would list (e.g. tuesday 09-22 requests = 4). Day rows show coverage span and busiest corner \u2014 wednesday 09-23 reads 'busiest: Mudhaus Coffee (2)', today flagged and marked still being written.",
+  ck:["Every strip figure is a count of the archive's own rows \u2014 requests filed counts distinct req ids (11), not request events (12)",
+    "Grid cell counts match the day view filters exactly; press posts count under both 'the block' and 'press', and the grid's subhead says so",
+    "Busiest corner is the mode of venue tags (nulls as 'the block'); ties break to whichever peaked earlier"]},
+ {do:"Click the requests cell for tuesday 09-22 (4). Then walk days with the \u2039 prev day / next day \u203a buttons and the left/right arrow keys; try the ends of the record.",
+  exp:"The click opens 09-22 with the requests filter already on \u2014 4 rows. Arrow keys step one archived day per press, inert while the search box has focus; prev is disabled on thursday 09-17 and next on wednesday 09-23 (today) \u2014 no wrap.",
+  ck:["Grid cell click lands on the day pre-filtered, not just the day",
+    "\u2190/\u2192 are inert inside inputs and on non-day views; buttons disable at both ends",
+    "Today keeps its 'still being written' marker when reached by the walk"]},
+ {do:"Open any record \u2014 read the 'around that time' trail and click a neighbor. Then find the 09-21 rumor about the 600 Club license (word view or day 09-21, 13:02) and use its settled-by jump.",
+  exp:"The record panel lists up to two neighbors each side from the same day, current row marked, each clickable. The rumor's detail adds 'settled by the public record \u2014 18:40 \u00b7 scene', which jumps to the doorway-set event (d0921-12). Rumors without a resolving event render no such link.",
+  ck:["The neighbor trail only ever shows same-day rows already on the wire \u2014 no interpolation",
+    "settled-by resolves to a real archived event; the archive drops unresolvable ids silently",
+    "The rumor itself keeps its UNCONFIRMED mark and outcome line \u2014 the link is a pointer, not a rewrite"]},
+ {do:"Back on the week view, read the 'still open' strip, then run node world/audit.js and read the archive gate.",
+  exp:"Three open-thread chips (the good-bread ledger, leaf's park cleanups, the drizzle nobody wanted) jump to their thread detail. archive gate reports '7 days \u00b7 85 events mirrored \u00b7 7 threads \u00b7 schema archive-v4' with the v48 affordance checks and the outcome.by resolution check; the no-world-mutation sweep stays clean.",
+  ck:["Open-thread chips derive from member rows (open rumor or open request status) \u2014 same rule as the threads view",
+    "Gate now deep-compares mentions/attrs/outcome and validates outcome.by names a real archived event",
+    "Twenty-two gates total; overall 0 fail"]}]}
 ];
 
 

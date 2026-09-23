@@ -5,16 +5,26 @@
 <title>Real World — The Archive (history browser)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  The Archive v3 — the full history-browser application (world v34,
-  on the v20 shell). Supersedes history.html (v6) as the primary "every
-  day the wire ever showed" surface; history.html stays as the
-  lightweight day-browser variant.
+  The Archive v4 — the full history-browser application (world v48,
+  on the v20 shell, v3 feature pass in v34). Supersedes history.html (v6)
+  as the primary "every day the wire ever showed" surface; history.html
+  stays as the lightweight day-browser variant.
   v3 additions (all projections — arrangement, never new information):
     - THREADS  — named storylines across days, built from event.thread
       tags; a thread only ever chains events that were already public
     - LEDGER payer lens — one chip per handle, verbatim attribution
     - whole-record search — the day view's search can widen to all days
     - copy transcript — the day as plain text, badge line included
+  v4 additions (same rule — counted, never curated):
+    - THE WEEK — the whole record at a glance: day x filter-count grid,
+      per-day busiest corner, open threads strip. Every figure is the
+      archive's own rows counted; the copy says so.
+    - day-to-day walk — ‹ prev / next › controls + left/right arrow keys
+      move between adjacent archived days (inert while typing).
+    - "around that time" — the record detail shows the same day's
+      immediate neighbors, clickable. Same rows, smaller window.
+    - rumor "settled by" — outcome.by (optional event id) links the talk
+      to the public record that settled it, when one exists.
 
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
@@ -168,6 +178,35 @@
     cursor:pointer;color:var(--acc);background:var(--panel2);margin-right:5px}
   .thchip:hover{border-color:var(--acc)}
 
+  /* ---- the week ---- */
+  .wksum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .wksum .rs{flex:1;min-width:96px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:8px 10px;text-align:center}
+  .wksum b{display:block;font-family:var(--mono);font-size:18px;color:var(--acc)}
+  .wksum span{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+  table.wkgrid{border-collapse:collapse;width:100%;margin:4px 0 14px}
+  .wkgrid th{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+    font-weight:600;padding:4px 6px;text-align:right;border-bottom:1px solid var(--line)}
+  .wkgrid th:first-child{text-align:left}
+  .wkgrid td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;
+    font-family:var(--mono);font-size:11.5px}
+  .wkgrid td:first-child{text-align:left;font-family:inherit;font-size:12px;white-space:nowrap}
+  .wkgrid td.cell{cursor:pointer;color:var(--dim)}
+  .wkgrid td.cell:hover{background:var(--panel2);color:var(--ink)}
+  .wkgrid td.cell.hot{color:var(--ink)}
+  .wkgrid tr.today td:first-child{color:var(--grn)}
+  .wkrow{display:flex;align-items:baseline;gap:10px;padding:6px 8px;border-bottom:1px solid var(--line);
+    cursor:pointer;border-radius:4px;font-size:12.5px}
+  .wkrow:hover{background:var(--panel2)}
+  .wkrow .wn{font-weight:600;flex:none;width:110px}
+  .wkrow .wm{color:var(--dim);font-size:11.5px}
+  .wkrow .wc{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .dnav{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--blu);cursor:pointer}
+  .dnav:disabled{opacity:.35;cursor:default}
+  .keyhint{font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:6px;
+    padding:1px 8px;font-family:var(--mono)}
+
   /* ---- rumor board ---- */
   .rstat{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
   .rstat .rs{flex:1;min-width:88px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
@@ -234,6 +273,7 @@
     <section class="panel">
       <h2>Browse <span class="free">— free forever</span></h2>
       <div class="vchips" id="vchips">
+        <div class="vchip" data-v="week">the week<small>the whole record at a glance — counted, not curated</small></div>
         <div class="vchip on" data-v="day">by day<small>one block day, hour by hour</small></div>
         <div class="vchip" data-v="person">by person<small>a public trail across days</small></div>
         <div class="vchip" data-v="venue">by venue<small>one corner's whole record</small></div>
@@ -367,7 +407,7 @@ var DEMO_DAYS = {
  {id:"d0921-06",t:601,kind:"venue",venue:"library",mentions:["A11", "A04"],text:"Library quiet hour — Vera reshelving, June's exam books stacked"},
  {id:"d0921-07",t:655,kind:"request",who:"pt",text:"nudge — an ask to Carmen Echeverría · declined by character, 50% refunded",status:"refunded",req:"rq-0921-1",thread:["t-carmen-asks"]},
  {id:"d0921-08",t:703,kind:"weather",text:"The fog tore open over Dolores — hard shadows by 11:45"},
- {id:"d0921-09",t:782,kind:"rumor",venue:"club600",text:"Word on the block — somebody's saying the 600 Club lost its license",src:"club600",outcome:{"state": "debunked", "note": "the doorway set ran on schedule that same night"},thread:["t-license"]},
+ {id:"d0921-09",t:782,kind:"rumor",venue:"club600",text:"Word on the block — somebody's saying the 600 Club lost its license",src:"club600",outcome:{"state": "debunked", "note": "the doorway set ran on schedule that same night", "by": "d0921-12"},thread:["t-license"]},
  {id:"d0921-10",t:905,kind:"scene",venue:"park",mentions:["A04", "A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
  {id:"d0921-11",t:1020,kind:"move",who:"C3",venue:null,text:"Dani went off the feed — her own business"},
  {id:"d0921-12",t:1120,kind:"scene",venue:"club600",mentions:["A08"],text:"Doorway set — Sam under the 600 Club awning, license talk notwithstanding",thread:["t-license"]},
@@ -497,6 +537,11 @@ function findEvent(id){
 }
 function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.style.display='block';
   setTimeout(function(){t.style.display='none';},1900); }
+function stepDay(dir){
+  var ks=Object.keys(DAYS).sort(), i=ks.indexOf(day)+dir;
+  if (i<0||i>=ks.length) return;
+  day=ks[i]; selHour=-1; selId=null; view='day'; renderAll();
+}
 
 function setHash(){
   var h = view==='day' ? '#d='+day
@@ -512,7 +557,7 @@ function readHash(){
   h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
   if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
   if (kv.d && DAYS[kv.d]) day=kv.d;
-  if (kv.v && ['day','person','venue','threads','word','ledger'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.v && ['day','person','venue','threads','word','ledger','week'].indexOf(kv.v)>=0) view=kv.v;
   if (kv.who && NAMES[kv.who]){ who=kv.who; view='person'; }
   if (kv.venue && VENUES[kv.venue]){ venue=kv.venue; view='venue'; }
   if (kv.th && THREADS[kv.th]){ selTh=kv.th; view='threads'; }
@@ -585,7 +630,11 @@ function renderDayView(){
   var lastT = evs.length?evs[evs.length-1].t:0;
   var isToday = day===TODAY;
 
-  var html='<div class="dayhead"><h3>'+WDAYS[new Date(day+'T12:00:00').getDay()]+', '+day+'</h3>'+
+  var ks=Object.keys(DAYS).sort(), di=ks.indexOf(day);
+  var html='<div class="dayhead"><button class="dnav" id="dprev" '+(di<=0?'disabled':'')+'>&lsaquo; prev day</button>'+
+    '<h3>'+WDAYS[new Date(day+'T12:00:00').getDay()]+', '+day+'</h3>'+
+    '<button class="dnav" id="dnext" '+(di<0||di>=ks.length-1?'disabled':'')+'>next day &rsaquo;</button>'+
+    '<span class="keyhint">&larr; &rarr;</span>'+
     '<span class="meta">'+evs.length+' entries'+
     (evs.filter(function(e){return e.kind==='rumor';}).length?' · '+evs.filter(function(e){return e.kind==='rumor';}).length+' word-on-the-block':'')+
     ' · coverage: street-level only</span>'+
@@ -620,6 +669,9 @@ function renderDayView(){
   document.querySelectorAll('#kinds .chip').forEach(function(ch){
     ch.onclick=function(){ kindF=ch.dataset.k; renderAll(); };
   });
+  var dp=document.getElementById('dprev'), dn=document.getElementById('dnext');
+  if (dp) dp.onclick=function(){ stepDay(-1); };
+  if (dn) dn.onclick=function(){ stepDay(1); };
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderDayList_rows(); };
   document.getElementById('scopetgl').onclick=function(){
     searchScope=(searchScope==='all'?'day':'all'); renderAll();
@@ -786,6 +838,100 @@ function renderVenueView(){
   mountTrailDays();
 }
 
+/* ================= VIEW: the week =================
+   The whole record at a glance. Every figure is the archive's own rows
+   counted — the grid cells are exactly what the day view's matching
+   filter would show (press posts ride under "the block" there, so they
+   count in both columns here). No editorial pick, no ranking. */
+var WKCOLS=[['block','the block'],['rumor','word'],['request','requests'],
+  ['admin','admin'],['press','press']];
+function wkCount(evs,k){
+  return evs.filter(function(e){
+    if (k==='block') return e.kind!=='request'&&e.kind!=='admin'&&e.kind!=='rumor';
+    return e.kind===k;
+  }).length;
+}
+function busiestCorner(evs){
+  var c={}, last={};
+  evs.forEach(function(e){ var v=e.venue||'block'; c[v]=(c[v]||0)+1; last[v]=e.t; });
+  var best=null, bn=0, bt=Infinity;
+  Object.keys(c).forEach(function(v){
+    if (c[v]>bn || (c[v]===bn && last[v]<bt)){ best=v; bn=c[v]; bt=last[v]; }
+  });
+  return best ? {v:best, n:bn} : null;
+}
+function renderWeekView(){
+  var body=document.getElementById('viewBody');
+  var days=Object.keys(DAYS).sort(), evs=allEvents();
+  var reqs=evs.filter(function(e){return e.kind==='request';});
+  var reqIds={}; reqs.forEach(function(e){ reqIds[e.req||e.id]=1; });
+  var adminN=evs.filter(function(e){return e.kind==='admin';}).length;
+  var rumors=evs.filter(function(e){return e.kind==='rumor';});
+  var openRum=rumors.filter(function(e){return !e.outcome;}).length;
+  var cr=0, comp=0;
+  evs.forEach(function(e){ if(e.attrs){ if(e.attrs.credits)cr+=e.attrs.credits;
+    if(e.attrs.compensated_cr)comp+=e.attrs.compensated_cr; } });
+  var html='<div class="dayhead"><h3>The week on record</h3>'+
+    '<span class="meta">'+days.length+' day'+(days.length===1?'':'s')+
+    ' · counted from the wire\u2019s own events — no editorial pick, no ranking</span></div>'+
+    '<div class="wksum">'+
+    '<div class="rs"><b>'+days.length+'</b><span>days on record</span></div>'+
+    '<div class="rs"><b>'+evs.length+'</b><span>entries</span></div>'+
+    '<div class="rs"><b>'+Object.keys(reqIds).length+'</b><span>requests filed</span></div>'+
+    '<div class="rs"><b>'+adminN+'</b><span>admin action'+(adminN===1?'':'s')+'</span></div>'+
+    '<div class="rs"><b>'+rumors.length+'</b><span>word on the block'+(openRum?' · '+openRum+' open':'')+'</span></div>'+
+    (cr?'<div class="rs"><b>'+cr+' cr</b><span>declared credits</span></div>':'')+
+    (comp?'<div class="rs"><b>'+comp+' cr</b><span>compensated</span></div>':'')+
+    '</div>'+
+    '<h2 style="margin-top:4px">the grid <span class="free">— each cell is what that day\u2019s filter would show; press posts also count under \u201cthe block\u201d</span></h2>'+
+    '<table class="wkgrid"><tr><th>day</th>'+
+    WKCOLS.map(function(c){return '<th>'+c[1]+'</th>';}).join('')+'<th>entries</th></tr>';
+  days.slice().reverse().forEach(function(d){
+    var de=DAYS[d]||[];
+    html+='<tr'+(d===TODAY?' class="today"':'')+'><td>'+daySepLabel(d)+'</td>'+
+      WKCOLS.map(function(c){
+        var n=wkCount(de,c[0]);
+        return '<td class="cell'+(n?' hot':'')+'" data-d="'+d+'" data-k="'+c[0]+'">'+n+'</td>';
+      }).join('')+'<td>'+de.length+'</td></tr>';
+  });
+  html+='</table>'+
+    '<h2>day by day <span class="free">— busiest corner = the most-tagged public venue; ties break to whichever peaked earlier</span></h2>'+
+    '<div id="wkrows"></div>'+
+    '<h2 style="margin-top:14px">still open <span class="free">— threads whose public record hasn\u2019t settled</span></h2>'+
+    '<div id="wkthreads" class="chiprow"></div>';
+  body.innerHTML=html;
+  body.querySelectorAll('.wkgrid td.cell').forEach(function(td){
+    td.onclick=function(){
+      day=td.dataset.d; view='day'; selHour=-1; selId=null;
+      kindF=td.dataset.k; renderAll();
+    };
+  });
+  var wr=document.getElementById('wkrows');
+  days.slice().reverse().forEach(function(d){
+    var de=DAYS[d]||[]; if(!de.length) return;
+    var bc=busiestCorner(de);
+    var r=document.createElement('div'); r.className='wkrow';
+    r.innerHTML='<span class="wn">'+(d===TODAY?'● ':'')+daySepLabel(d)+'</span>'+
+      '<span class="wm">'+fmt(de[0].t)+' → '+fmt(de[de.length-1].t)+
+      (bc?' · busiest: '+esc(VENUES[bc.v]||bc.v)+' ('+bc.n+')':'')+
+      (d===TODAY?' · still being written':'')+'</span>'+
+      '<span class="wc">'+de.length+'</span>';
+    r.onclick=function(){ view='day'; day=d; selHour=-1; selId=null; kindF='all'; renderAll(); };
+    wr.appendChild(r);
+  });
+  var wt=document.getElementById('wkthreads'), openN=0;
+  Object.keys(THREADS).forEach(function(tid){
+    var mems=threadMembers(tid);
+    if (!mems.length || !threadOpen(mems)) return;
+    openN++;
+    var s=document.createElement('span'); s.className='chip';
+    s.textContent=THREADS[tid].label;
+    s.onclick=function(){ selTh=tid; view='threads'; renderAll(); };
+    wt.appendChild(s);
+  });
+  if (!openN) wt.innerHTML='<span class="meta" style="font-size:11.5px;color:var(--dim)">every thread on record has settled — for now</span>';
+}
+
 /* ================= VIEW: threads =================
    Named chains of already-public events. A thread asserts nothing
    beyond its member rows — the label is archive chrome, not narration.
@@ -942,6 +1088,11 @@ function renderDet(){
     bits.push('overheard near <b>'+esc(VENUES[e.src]||'the block')+'</b> — never sourced to a person');
     bits.push(e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
                         : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>');
+    if (e.outcome && e.outcome.by && findEvent(e.outcome.by)){
+      var be=findEvent(e.outcome.by).e;
+      bits.push('settled by the public record — <span class="thchip" data-ev="'+e.outcome.by+'">'+
+        fmt(be.t)+' · '+esc(be.kind)+'</span>');
+    }
   }
   if (e.attrs&&e.attrs.compensated_cr) bits.push('affected players compensated <b>'+e.attrs.compensated_cr+' cr</b>');
   if (e.attrs&&e.attrs.credits) bits.push('declared <b>'+e.attrs.credits+' cr</b>');
@@ -965,6 +1116,19 @@ function renderDet(){
       html+='</ul>';
     }
   }
+  /* around that time — the same day's immediate neighbors, same rows */
+  var dayEvs=DAYS[d]||[], ei=-1;
+  for (var ni=0;ni<dayEvs.length;ni++) if(dayEvs[ni].id===e.id){ ei=ni; break; }
+  if (ei>=0 && dayEvs.length>1){
+    var lo=Math.max(0,ei-2), hi=Math.min(dayEvs.length-1,ei+2);
+    if (lo<ei || hi>ei){
+      html+='<div class="meta" style="margin-top:8px"><b>around that time</b> — same day, the wire\u2019s own rows</div><ul class="trail">';
+      for (var ci=lo;ci<=hi;ci++){ var ne=dayEvs[ci];
+        html+='<li class="'+(ne.id===e.id?'cur':'')+'" data-tid="'+ne.id+'">'+fmt(ne.t)+' · '+esc(ne.kind)+'</li>';
+      }
+      html+='</ul>';
+    }
+  }
   html+='<div class="plink"><input readonly value="archive.html#e='+e.id+'" id="plinkIn">'+
     '<button id="plinkBtn">copy link</button>'+
     '<button class="daylink" id="daylink">open day</button></div>'+
@@ -983,11 +1147,25 @@ function renderDet(){
   det.querySelectorAll('.thchip[data-th]').forEach(function(c){
     c.onclick=function(){ selTh=c.dataset.th; view='threads'; renderAll(); };
   });
+  det.querySelectorAll('[data-ev]').forEach(function(c){
+    c.onclick=function(){ var ff=findEvent(c.dataset.ev); if(!ff) return;
+      selId=ff.e.id; if(ff.day)day=ff.day; renderDet(); renderView(); setHash(); };
+  });
 }
+
+/* ---- keyboard: arrow keys walk adjacent archived days ---- */
+document.addEventListener('keydown',function(ev){
+  var tag=(ev.target&&ev.target.tagName)||'';
+  if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  if (view!=='day') return;
+  if (ev.key==='ArrowLeft') stepDay(-1);
+  else if (ev.key==='ArrowRight') stepDay(1);
+});
 
 /* ================= render root ================= */
 function renderView(){
-  if (view==='day') renderDayView();
+  if (view==='week') renderWeekView();
+  else if (view==='day') renderDayView();
   else if (view==='person') renderPersonView();
   else if (view==='venue') renderVenueView();
   else if (view==='threads') renderThreadsView();

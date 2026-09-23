@@ -1,4 +1,4 @@
-# The Archive v2 — history-browser application spec & copy deck (world v20)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -194,7 +194,59 @@ Copy deck additions:
 | Transcript header | "real world — the archive — <weekday>, <date> (<source badge>)" |
 | Record thread chips | "on thread(s): <label>" |
 
-## 11. Merge notes (for the game track)
+## 11. v48 — The Archive v4 — the week layer
+
+Four additions. Same rule as ever — projections of public rows, counted,
+never curated. The week view is the archive's answer to the wire's
+"day so far" recap (v47): every figure a count, the copy says so.
+
+- **The week view** (`#v=week`, first chip in Browse). Three blocks:
+  - *Summary strip* — days on record, total entries, requests filed
+    (distinct `req` ids, falling back to the event id when `req` is
+    absent), admin actions, word-on-the-block count with open count,
+    and declared/compensated credit totals where `attrs` carries them.
+  - *The grid* — day × filter-count table. Columns are the day view's
+    own kind filters (`the block` / word / requests / admin / press) and
+    each cell is exactly what that day's matching filter would show —
+    press posts count under both "the block" and "press", the same way
+    they do on the day view. Clicking a cell opens that day pre-filtered.
+  - *Day by day* — one row per day: coverage span (first → last event),
+    busiest corner (mode of the `venue` field, `null` counted as
+    "the block", ties break to whichever venue peaked earliest), entry
+    count, today's "still being written" flag. Click opens the day.
+  - *Still open* — chips for threads whose derived state is open (same
+    `threadOpen` rule as the threads view: an open member rumor or a
+    member request in an open status). Empty state: "every thread on
+    record has settled — for now".
+- **Day-to-day walk.** `‹ prev day` / `next day ›` buttons flank the
+  day header (disabled at the ends, never wrap) and ← / → arrow keys do
+  the same while the day view is active — inert inside inputs, inert on
+  other views. A `.keyhint` chip marks the shortcut.
+- **Around that time.** The record detail gains a same-day neighbor
+  trail: the ±2 adjacent rows of that day, current row marked, each
+  clickable. Same rows, smaller window — no context that wasn't public.
+- **Settled by.** `outcome.by` (optional, rumor events) names the id of
+  the already-public event that settled the talk. The record detail
+  renders it as a jump ("settled by the public record — HH:MM · kind").
+  It may only ever point at an event that stood on the wire in its own
+  right — never at a record written to explain the rumor. Unresolvable
+  or absent ids simply don't render.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Week chip | "the week — the whole record at a glance — counted, not curated" |
+| Week head | "N days · counted from the wire's own events — no editorial pick, no ranking" |
+| Grid subhead | "each cell is what that day's filter would show; press posts also count under 'the block'" |
+| Day rows subhead | "busiest corner = the most-tagged public venue; ties break to whichever peaked earlier" |
+| Open threads subhead | "threads whose public record hasn't settled" |
+| Open threads empty | "every thread on record has settled — for now" |
+| Day walk | "‹ prev day" / "next day ›" + "← →" keyhint |
+| Neighbor trail head | "around that time — same day, the wire's own rows" |
+| Settled-by line | "settled by the public record — HH:MM · <kind>" |
+
+## 12. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -212,3 +264,9 @@ tags, so partial tagging is safe. Threads are arrangement metadata:
 game-side code may tag events into chains, but a tag must never carry
 information the member events don't (no thread may exist to "reveal"
 a connection that wasn't public).
+
+v48: rumor `outcome` objects may carry `by` — the id of an already-public
+event that settled the talk. Emit it only when such an event genuinely
+exists on the wire; the archive drops unresolvable ids silently. The week
+view needs nothing new — it counts `kind`, `venue`, `req`, `status`,
+`outcome`, and `attrs` over the same day-objects.

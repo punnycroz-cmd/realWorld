@@ -2342,6 +2342,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT44",
+   "title": "The Archive v4 — the week layer, day walk, neighbors, settled-by",
+   "minutes": 9,
+   "persona": "spectator (free tier) + facilitator auditing the v48 archive pass",
+   "goal": "Verify the archive's v4 additions stay projections: the week view counts the archive's own rows (grid cells equal the day filters' results), the day walk moves between adjacent days without wrapping, the record detail's around-that-time trail shows same-day neighbors, and a rumor's outcome.by jumps to the public event that settled it.",
+   "surfaces": [
+    "archive",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Archive and pick 'the week' in the Browse switcher. Read the summary strip, the day x filter grid, and the day-by-day rows; compare a few figures against the day views by hand.",
+     "expect": "Summary strip reads 7 days on record · 85 entries · 11 requests filed · 1 admin action · 6 word on the block · 1 open · 70 cr declared · 90 cr compensated. Header says 'counted from the wire's own events — no editorial pick, no ranking'. Each grid cell equals what that day's matching kind filter would list (e.g. tuesday 09-22 requests = 4). Day rows show coverage span and busiest corner — wednesday 09-23 reads 'busiest: Mudhaus Coffee (2)', today flagged and marked still being written.",
+     "checkpoints": [
+      "Every strip figure is a count of the archive's own rows — requests filed counts distinct req ids (11), not request events (12)",
+      "Grid cell counts match the day view filters exactly; press posts count under both 'the block' and 'press', and the grid's subhead says so",
+      "Busiest corner is the mode of venue tags (nulls as 'the block'); ties break to whichever peaked earlier"
+     ]
+    },
+    {
+     "do": "Click the requests cell for tuesday 09-22 (4). Then walk days with the ‹ prev day / next day › buttons and the left/right arrow keys; try the ends of the record.",
+     "expect": "The click opens 09-22 with the requests filter already on — 4 rows. Arrow keys step one archived day per press, inert while the search box has focus; prev is disabled on thursday 09-17 and next on wednesday 09-23 (today) — no wrap.",
+     "checkpoints": [
+      "Grid cell click lands on the day pre-filtered, not just the day",
+      "←/→ are inert inside inputs and on non-day views; buttons disable at both ends",
+      "Today keeps its 'still being written' marker when reached by the walk"
+     ]
+    },
+    {
+     "do": "Open any record — read the 'around that time' trail and click a neighbor. Then find the 09-21 rumor about the 600 Club license (word view or day 09-21, 13:02) and use its settled-by jump.",
+     "expect": "The record panel lists up to two neighbors each side from the same day, current row marked, each clickable. The rumor's detail adds 'settled by the public record — 18:40 · scene', which jumps to the doorway-set event (d0921-12). Rumors without a resolving event render no such link.",
+     "checkpoints": [
+      "The neighbor trail only ever shows same-day rows already on the wire — no interpolation",
+      "settled-by resolves to a real archived event; the archive drops unresolvable ids silently",
+      "The rumor itself keeps its UNCONFIRMED mark and outcome line — the link is a pointer, not a rewrite"
+     ]
+    },
+    {
+     "do": "Back on the week view, read the 'still open' strip, then run node world/audit.js and read the archive gate.",
+     "expect": "Three open-thread chips (the good-bread ledger, leaf's park cleanups, the drizzle nobody wanted) jump to their thread detail. archive gate reports '7 days · 85 events mirrored · 7 threads · schema archive-v4' with the v48 affordance checks and the outcome.by resolution check; the no-world-mutation sweep stays clean.",
+     "checkpoints": [
+      "Open-thread chips derive from member rows (open rumor or open request status) — same rule as the threads view",
+      "Gate now deep-compares mentions/attrs/outcome and validates outcome.by names a real archived event",
+      "Twenty-two gates total; overall 0 fail"
+     ]
+    }
+   ]
   }
  ],
  "harness_ui_v37": {
