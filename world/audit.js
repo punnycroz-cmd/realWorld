@@ -794,8 +794,8 @@ const PUB = Object.values(PT.surfaces)
     /* v54 additions — the paper layer: proration, break fee, repair
        SLA clock, roommate amendments, 21-day deposit clock */
     if (LJ.version >= 54) {
-      if (LJ.demo_seed.storage_key !== 'rw_lease_v54')
-        add(g, 'fail', 'leases.json', null, 'v54 schema on an old storage key');
+      if (['rw_lease_v12', 'rw_lease_v26', 'rw_lease_v40'].includes(LJ.demo_seed.storage_key))
+        add(g, 'fail', 'leases.json', null, 'v54+ schema on an old storage key');
       for (const [re, label] of [
         [/prorat/i, 'prorated first month'],
         [/break fee/i, 'fixed-term break fee'],
@@ -813,6 +813,31 @@ const PUB = Object.values(PT.surfaces)
       if (!rd2) add(g, 'fail', 'lease.html', null, 'returnDeposit missing');
       else if (!/myUnit/.test(rd2[0]))
         add(g, 'fail', 'lease.html', null, 'returnDeposit lacks the own-unit guard');
+    }
+    /* v68 additions — the hand-off layer: guarantor path on near-miss
+       screening, notice service records, move-out walkthrough, receipts */
+    if (LJ.version >= 68) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v68')
+        add(g, 'fail', 'leases.json', null, 'v68 schema on an old storage key');
+      for (const [re, label] of [
+        [/guarantor/i, 'guarantor path'],
+        [/near-miss|near_miss/i, 'near-miss screening band'],
+        [/served|service/i, 'notice service record'],
+        [/walkthrough/i, 'move-out walkthrough doc'],
+        [/receipt/i, 'rent receipt']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v68 surface missing: ${label}`);
+      if (!LJ.screening.guarantor || !LJ.deposits.walkthrough || !LJ.receipts)
+        add(g, 'fail', 'leases.json', null, 'v68 blocks missing (screening.guarantor/deposits.walkthrough/receipts)');
+      const n2 = (LJ.notices || []).find(n => n.n === 2), n3 = (LJ.notices || []).find(n => n.n === 3);
+      if (!n2 || !n2.service || !n3 || !n3.service)
+        add(g, 'fail', 'leases.json', null, 'notices 2–3 lack service records');
+      const ag = html.match(/window\.attachGuar=function[\s\S]*?^\};/m);
+      if (!ag) add(g, 'fail', 'lease.html', null, 'attachGuar missing');
+      else if (/wires\.push/.test(ag[0]))
+        add(g, 'fail', 'lease.html', null, 'attachGuar posts to the feed — guarantors are never feed events');
+      const sa = html.match(/window\.screenApp=function[\s\S]*?^\};/m);
+      if (!sa || !/guar/.test(sa[0]))
+        add(g, 'fail', 'lease.html', null, 'screenApp lacks the near-miss/guarantor branch');
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
@@ -2267,7 +2292,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v67 || {};
+    const H = PT.harness_ui_v68 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

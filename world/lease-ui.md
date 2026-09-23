@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v54; v12 base + v26/v40 depth passes + v54 paper layer)
+# Lease Flow — spec & copy deck (world v68; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -10,7 +10,7 @@ Companion artifacts:
 - `world/lease.html` — working demo ("The Rent Book" v4), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v54`.
+  9088-5 only) / admin. localStorage `rw_lease_v68`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -584,3 +584,92 @@ Move-out now *starts* something instead of settling everything at once:
 - `node world/audit.js` G11 now also requires the v54 surfaces
   (proration, break fee, repair SLA, amendment, deposit clock) and
   fails on the old storage key.
+
+## 36. The guarantor path (near-miss screening)
+
+§12's income leg has a middle band, and it isn't a decline:
+
+- Income **≥ 2.5× rent** approves; income **< 2.0×** declines (private
+  mail, no feed). Income **2.0–2.5×** is a *near-miss* — the file offers
+  a **guarantor path** instead of a flat no.
+- The tenant names a guarantor; the guarantor is verified on the **same
+  published checklist** (income, references) and co-signs the lease doc
+  before signing. Liable for rent and deposit — **never a tenant, never
+  an occupant line, never a feed event**.
+- Screening can't finish while the flag is set and unattached: the file
+  waits on the tenant, not on a vibe. A cheaper door is always the other
+  honest answer — the near-miss doc says so.
+- Demo: h01's $4,600/mo clears 9127-A ($1,300 needs $3,250) outright and
+  near-misses 9418-B ($2,100 needs $5,250, floor $4,200) — attach
+  guarantor "M. Okafor," re-run screening, sign.
+
+## 37. Notice service (the clock runs from the door)
+
+Notices 2–4 now carry a **service record** — because paper that never
+arrived doesn't start a clock:
+
+- Every formal notice, cure-or-quit, and eviction filing records
+  **served: posted to door + mailed**, both dated. The response/cure
+  window runs from **service, not the posting day**.
+- The cure-or-quit states its deadline in the document: "served day N —
+  cure by day N+14." The detail view shows the running deadline while
+  `noticed`.
+- Notice 1 (late reminder) stays informal — no service record; it isn't
+  legal paper, just a nudge.
+- Feed wording unchanged: the wire still says "housing notice posted" —
+  service detail lives in the file, not on the block.
+
+## 38. The move-out walkthrough (the deduction's citation)
+
+§21's move-in record gets its closing counterpart:
+
+- All three exits (tenant notice, recorded move-out, no-fault notice)
+  write an **itemized walkthrough doc** — findings each measured against
+  the move-in record: "window latch broken — new (intact on the move-in
+  record)" vs "floors worn — matches move-in record, ordinary wear."
+- **Every deduction must cite a walkthrough line.** The deposit return
+  reads "walkthrough finding; not on the move-in record" — the
+  pre-existing refusal rule (§21) is unchanged and still settles claims
+  outright.
+- The walkthrough is a ledger-side document, evidence under
+  `deposit_deductions` — same weight as the move-in record it closes.
+
+## 39. Receipts (proof the tenant carries)
+
+- Any payment can issue a **dated receipt doc** on request — itemized,
+  the same numbers as the ledger. The tenant's copy of the truth.
+- Dispute weight: the ledger and the receipt say the same thing; a
+  receipt that disagreed with the ledger would itself be a finding.
+  Receipts are tenant-file documents — never feed events.
+- Demo: "Request a receipt" sums payment + installment lines through the
+  current day and writes the doc.
+
+## 40. Copy deck additions (v68)
+
+|| Moment | Copy |
+|---|---|---|
+|| Near-miss | "Income clears the floor but not the published 2.5× — the file asks for a guarantor, not a denial. Or a cheaper door." |
+|| Guarantor attached | "Guarantor on file — liable for rent and deposit, never a tenant, never an occupant line, never a feed event." |
+|| Screening waits | "The file waits on a guarantor — screening can't finish without one." |
+|| Service | "Served: posted to door + mailed, day N — the clock runs from service, not the posting." |
+|| Cure deadline | "Cure by day N+14 — fourteen days from service." |
+|| Walkthrough | "Itemized walkthrough on file — deductions must cite a walkthrough line; anything pre-existing is refused, not argued." |
+|| Receipt | "Dated and itemized, the same numbers as the ledger — carry it to any dispute." |
+
+## 41. Merge notes (v68)
+
+- New demo fields: `income` (demo state — h01's monthly wage, the
+  screening income leg), `guar`, `guarantor`, `svc` {door, mail},
+  `svcDue`, `walkthrough` — all optional, all documented above. LS key
+  rolled `rw_lease_v54` → `rw_lease_v68` (old saves ignored by design).
+- leases.json v68 adds: `screening.guarantor` (near-miss band, attach,
+  liability), `notices[*].service` on n≥2, `deposits.walkthrough`,
+  `receipts`. Feed vocabulary unchanged — no new templates; guarantor,
+  service, walkthrough, and receipt detail all live in the file.
+- Engine contract at merge: the near-miss band is 2.0–2.5× (below 2.0×
+  declines); screening cannot complete while a guarantor is required
+  and unattached; notice windows run from service date; deductions must
+  cite a walkthrough line; receipts must agree with the ledger.
+- `node world/audit.js` G11 now also requires the v68 surfaces
+  (guarantor, service, walkthrough, receipt) and fails on the old
+  storage key.

@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 67,
+ "version": 68,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -3290,6 +3290,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT63",
+   "title": "Lease flow v68 — the hand-off layer (guarantor, service, walkthrough, receipts)",
+   "minutes": 14,
+   "persona": "tenant-side tester who has been denied an apartment before — wants proof the file answers, not vibes",
+   "goal": "Verify the v68 lease pass: a screening near-miss (income 2.0–2.5× rent) offers a guarantor path instead of a flat decline — the co-signer is verified on the same checklist, liable for rent + deposit, never a tenant, never a feed event; notices 2–4 carry a service record and their windows run from service, not the posting; every move-out writes an itemized walkthrough doc that deductions must cite; any payment can issue a dated receipt that agrees with the ledger.",
+   "surfaces": [
+    "lease",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Read lease-ui.md §§36–41 and leases.json's screening.guarantor / notices service / deposits.walkthrough / receipts blocks.",
+     "expect": "The near-miss band is 2.0–2.5× with a guarantor path; below 2.0× declines privately. Notices 2–4 record posted-to-door + mailed service and run their windows from it. The walkthrough is written on all three exits and every deduction cites a walkthrough line. Receipts are tenant-file docs that must agree with the ledger. No new feed vocabulary anywhere.",
+     "checkpoints": [
+      "guarantor.near_miss_band reads 2.0–2.5×; under_floor declines privately; liability is rent + deposit, never a tenant",
+      "notices n2/n3/NF carry a service clause; n1 (late reminder) stays informal",
+      "feed_wording.never still bars amounts/reasons — nothing v68 adds a template"
+     ]
+    },
+    {
+     "do": "Open lease.html (file://). As tenant h01 (income $4,600), apply to 9418-B ($2,100 — needs $5,250). Switch to admin and run screening.",
+     "expect": "Screening lands a near-miss doc — income clears the floor ($4,200) but not 2.5×; the file asks for a guarantor, and re-running screening without one waits. Back as tenant, 'Attach guarantor — M. Okafor' writes the doc; admin re-screens to approved; signing prorates day 6 as before. Then apply to 9127-A ($1,300 — needs $3,250): clean approve, no guarantor asked.",
+     "checkpoints": [
+      "Near-miss doc names the floor and the published multiple — no invented criteria",
+      "Guarantor attaches as a file doc; the wire gains nothing (guarantors are never feed events)",
+      "9418-B signs atomic after approval; 9127-A approves clean on the same checklist"
+     ]
+    },
+    {
+     "do": "On h01's own lease (9457-2, balance outstanding): as admin, post notices through formal notice and cure-or-quit; then give 30-day notice as tenant; as admin, return the deposit itemized; then request a receipt.",
+     "expect": "The formal notice and cure-or-quit docs carry 'Served: posted to door + mailed' lines, and the cure-or-quit states 'cure by day N+14' with the deadline visible in the detail. Notice posts the walkthrough doc (latch broken — new; floors worn — ordinary wear). The deposit return cites the walkthrough finding for the latch deduction and still refuses the pre-existing repaint claim. The receipt doc totals payments and matches the ledger.",
+     "checkpoints": [
+      "Service dates on both docs; 'the clock runs from service, not the posting'",
+      "Walkthrough lines itemized against the move-in record; deduction cites 'walkthrough finding'",
+      "Receipt reads 'same numbers as the ledger' and the amount matches the payment lines"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the lease + harness gates.",
+     "expect": "The lease gate passes the v68 checks: storage key rw_lease_v68, guarantor/near-miss/service/walkthrough/receipt surfaces, notices 2–3 service records in the JSON, attachGuar never posting to the feed, screenApp's guarantor branch. Harness gate reports 63 scenarios at the v68 key.",
+     "checkpoints": [
+      "Lease gate: 0 fail; detail reports 'schema v68 · 13 states · key rw_lease_v68'",
+      "A guarantor feed line or a deduction without a walkthrough citation would FAIL — spot-check",
+      "Harness gate: '63 scenarios · N checkpoints · key rw_playtest_v68'; 0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -3331,10 +3380,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v67 local",
- "harness_ui_v67": {
-  "storage_key": "rw_playtest_v67",
-  "build_tag_prefix": "world v67 local",
+ "build": "world v68 local",
+ "harness_ui_v68": {
+  "storage_key": "rw_playtest_v68",
+  "build_tag_prefix": "world v68 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3379,7 +3428,8 @@
    "FTEMPLATES",
    "world-playtest-handoff",
    "rw_playtest_v66",
-   "rw_playtest_v67"
+   "rw_playtest_v67",
+   "rw_playtest_v68"
   ]
  }
 }

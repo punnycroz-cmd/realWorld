@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v67)
+# Playtest Harness — "Real World / The Mission" (world v68)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -142,6 +142,12 @@ One person can wear every hat; four real testers is the intended shape.
   asks and honestly relabeled checklist items, the under-18
   spending-limits disclosure that quotes no invented figure, and the
   adults-only rewarded-ads line at plan §2.7 verbatim.
+  PT63 (lease v68 — the hand-off layer) is a tenant/admin audit — the
+  guarantor path on a screening near-miss (2.0–2.5× rent; liable, never
+  a tenant, never a feed event), notice service records (clocks run
+  from service, not the posting), the itemized move-out walkthrough
+  that every deduction must cite, and receipts that agree with the
+  ledger.
 
 ## 3. Running a session
 
@@ -316,7 +322,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v67 mark present, scenario integrity — unique PT ids,
+harness_ui_v68 mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).

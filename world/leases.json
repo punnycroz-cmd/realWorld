@@ -1,6 +1,6 @@
 {
   "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
-  "version": 54,
+  "version": 68,
   "power_map": {
     "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "give_notice", "offer_to_buy"],
     "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
@@ -66,7 +66,14 @@
     "rule": "first qualified application approves — no auctions, no vibe denials, no holding a listing to shop applicants",
     "decline_visibility": "private mail naming the failed criterion; no feed event",
     "sign_atomic": ["lease row written", "first month + deposit leave the bank", "move-in condition record filed", "listing off the board", "housing feed event"],
-    "proration": "signing after the 1st prorates the first month — round(rent × days-remaining / 30); the deposit stays 1× rent; the prorated line is itemized on the ledger"
+    "proration": "signing after the 1st prorates the first month — round(rent × days-remaining / 30); the deposit stays 1× rent; the prorated line is itemized on the ledger",
+    "guarantor": {
+      "near_miss_band": "income 2.0x–2.5x rent — clears the floor, misses the published multiple; the file offers a guarantor path instead of a flat decline",
+      "under_floor": "below 2.0x declines — private mail naming the criterion; no feed event",
+      "attach": "tenant names a guarantor; verified on the same published checklist (income, references); co-signs the lease doc before signing",
+      "liability": "rent + deposit; never a tenant, never an occupant line, never a feed event",
+      "demo_fields": "guar (near-miss flag), guarantor (name once attached); screening can't finish while guar is set and unattached"
+    }
   },
   "move_in_record": {
     "written_at": "signing — same atomic moment",
@@ -76,9 +83,9 @@
   },
   "notices": [
     { "n": 1, "name": "late_reminder",       "trigger": "day 6 unpaid",  "window_d": 0,  "visibility": "tenant + player inbox" },
-    { "n": 2, "name": "formal_notice",       "trigger": "arrears day 10","window_d": 7,  "visibility": "tenant + landlord file" },
-    { "n": 3, "name": "cure_or_quit",        "trigger": "balance 30+ days or unresponsive", "window_d": 14, "visibility": "feed (housing kind, neutral)" },
-    { "n": 4, "name": "eviction_filing",     "trigger": "window expired, no cure, no open dispute", "window_d": null, "visibility": "feed (admin kind, attributed)" },
+    { "n": 2, "name": "formal_notice",       "trigger": "arrears day 10","window_d": 7,  "visibility": "tenant + landlord file", "service": "posted to door + mailed, both dated — the window runs from service, not the posting" },
+    { "n": 3, "name": "cure_or_quit",        "trigger": "balance 30+ days or unresponsive", "window_d": 14, "visibility": "feed (housing kind, neutral)", "service": "posted to door + mailed, both dated — cure by service day + 14" },
+    { "n": 4, "name": "eviction_filing",     "trigger": "window expired, no cure, no open dispute", "window_d": null, "visibility": "feed (admin kind, attributed)", "service": "posted to door + mailed, both dated" },
     { "n": "NF", "name": "no_fault_notice",  "trigger": "sale or owner move-in only", "window_d": 60, "visibility": "feed (housing kind, neutral)", "note": "admin-only; mandatory relocation credit; distinct NOFAULT ledger code" }
   ],
   "deposits": {
@@ -91,7 +98,14 @@
     "never_deductible": ["ordinary wear", "pre-existing damage on move-in record", "retaliation for a filed dispute", "unitemized vibes"],
     "move_in_gate": "deductions are checked against the move-in record; a pre-existing item is refused, not argued",
     "return_rule": "minus itemized deductions only — every deduction is a ledger line with a reason",
-    "informal_occupants": "room shares (c2-jules, c3-dani) are person-to-person — never ledger objects"
+    "informal_occupants": "room shares (c2-jules, c3-dani) are person-to-person — never ledger objects",
+    "walkthrough": "move-out writes an itemized walkthrough doc — each finding measured against the move-in record; every deduction must cite a walkthrough line, and pre-existing items stay refused outright",
+    "demo_field_walk": "walkthrough — array of finding lines, written on all three exits (tenant notice, recorded move-out, no-fault)"
+  },
+  "receipts": {
+    "rule": "any payment line can issue a dated receipt doc on request — itemized, same numbers as the ledger",
+    "weight": "dispute evidence — the ledger and the receipt say the same thing; a receipt that disagrees with the ledger is itself a finding",
+    "visibility": "tenant file only — never a feed event"
   },
   "repairs": {
     "flow": ["requested", "acknowledged", "scheduled", "done"],
@@ -159,10 +173,11 @@
   },
   "demo_seed": {
     "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
-    "storage_key": "rw_lease_v54",
-    "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2)",
+    "storage_key": "rw_lease_v68",
+    "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2, income $4,600/mo game-$)",
     "licensed_landlord": "h02 (demo; owns bld-f9088-5, studio rented to an ambient tenant, balance outstanding day 1)",
     "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open with its raise frozen",
-    "v54_surfaces": "prorated first month on mid-month signing; break fee inside a fixed term; repair clock (habitability ≤7-day SLA + breach line); roommate amendments; 21-day deposit clock with overdue line"
+    "v54_surfaces": "prorated first month on mid-month signing; break fee inside a fixed term; repair clock (habitability ≤7-day SLA + breach line); roommate amendments; 21-day deposit clock with overdue line",
+    "v68_surfaces": "guarantor path on near-miss screening (9418-B at $2,100 is a near-miss on $4,600; 9127-A at $1,300 passes clean); service records on notices 2–4 (clock runs from service); move-out walkthrough doc; rent receipts"
   }
 }

@@ -34,6 +34,15 @@
   docs with a deposit pro-rata line; move-out starts a 21-day deposit
   clock — the return is posted separately and an overdue return is
   itself a ledger line.
+  v68 adds (the hand-off layer): screening near-misses (income 2.0–2.5×
+  rent) get a guarantor path instead of a flat decline — a named
+  co-signer verified on the same checklist, liable for rent + deposit,
+  never a tenant, never a feed event; notices 2–4 carry a service
+  record (posted to door + mailed, both dated — the clock runs from
+  service, not the posting); move-out writes an itemized walkthrough
+  doc measured against the move-in record (deductions must cite a
+  walkthrough line); any payment can issue a dated receipt — proof the
+  tenant carries, same numbers as the ledger.
   Boundaries: game dollars only (credits never touch rent); eviction is
   admin-only and never automatic; 9457-3's dispute stays ambiguous;
   no surface offers possession or request-based lease powers.
@@ -159,13 +168,14 @@
 
 <script>
 /* ================= mirror of leases.json + jobs-housing §3 ================= */
-var LS='rw_lease_v54';
+var LS='rw_lease_v68';
 var STEPS=['listed','applied','approved','active','arrears','noticed','cured','disputed','evict_review','evicted','move_out','turnover','owner_occupied'];
 var RAISE_BAND=0.04; /* controlled-unit annual raise band (house rule, lease-ui §13) */
 var SCREEN_INCOME_X=2.5; /* published screening condition */
 
 function seed(){ return {
   day:6, mode:'tenant', sel:'bld-g9457-2', wires:[], bank:3200, /* h01's wallet — game dollars only */
+  income:4600, /* h01's monthly wage (game $) — the screening checklist's income leg */
   leases:[
     {uid:'bld-g9418-A', addr:'9418 Guerrero St, Unit A', tenant:'C6 Carmen', pub:'a long-time tenant',
      rent:950, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 1989)', hist:[],
@@ -290,6 +300,15 @@ function renderDetail(){
     if(depth && l.movein && l.movein.length)
       h+='<div class="notice"><b>move-in record</b>Condition recorded at signing — the baseline every deposit deduction is measured against: '+
          l.movein.map(function(m){return '· '+m;}).join('<br>')+'</div>';
+    if(depth && l.walkthrough && l.walkthrough.length)
+      h+='<div class="notice"><b>move-out walkthrough</b>Itemized findings, each measured against the move-in record — deductions must cite a walkthrough line: '+
+         l.walkthrough.map(function(m){return '· '+m;}).join('<br>')+'</div>';
+    if(depth && l.guarantor)
+      h+='<div class="note">Guarantor on file — '+l.guarantor+'. Liable for rent and deposit; never a tenant, never an occupant line, never a feed event.</div>';
+    if(depth && l.guar && !l.guarantor)
+      h+='<div class="notice"><b>screening — near-miss</b>Income clears the floor but not the published 2.5×. The file waits on a named guarantor — verified on the same checklist — or a cheaper door.</div>';
+    if(depth && l.svcDue && l.state==='noticed')
+      h+='<div class="note">Cure window runs from service — cure by day '+l.svcDue+'.</div>';
     if(depth && l.hist && l.hist.length)
       h+='<div class="note">File history (the scar stays): '+l.hist.join(' · ')+'. Visible to landlords on this unit; never a feed event.</div>';
     if(depth && l.repair.length) h+='<div class="notice"><b>repair on file</b>'+l.repair.map(function(r){
@@ -327,10 +346,13 @@ function renderDetail(){
          '<button class="ghost" onclick="fileDispute()">File a dispute</button>'+
          '<button class="ghost" onclick="reqSublet()">Request sublet approval</button>'+
          '<button class="ghost" onclick="reqRoom()">Add a roommate (amendment)</button>'+
+         '<button class="ghost" onclick="reqReceipt()">Request a receipt</button>'+
          '<button class="ghost" onclick="giveNotice()">Give 30-day notice</button>';
       if(l.state==='disputed'&&!l.med)
         h+='<button class="ghost" onclick="mediate(\'tenant\')">Make a mediation offer</button>';
     }
+    if(S.mode==='tenant' && l.state==='applied' && l.guar && !l.guarantor)
+      h+='<button onclick="attachGuar()">Attach guarantor — M. Okafor</button>';
     if(S.mode==='tenant' && l.state==='approved' && !l.mine)
       h+='<button onclick="signLease()">Sign — '+money(firstMonth(l.rent)+l.rent)+
          ' (first month'+(S.day>1?', prorated to day '+S.day:'')+' + deposit)</button>';
@@ -541,9 +563,16 @@ window.mediate=function(who){
   toast('Offer stated on the record — mediation week, not a ruling.');
   renderAll();
 };
+function mkWalk(l){ /* move-out walkthrough — itemized findings measured
+    against the move-in record; deductions must cite a walkthrough line */
+  l.walkthrough=['walls — two nail holes, otherwise clean',
+    'window latch broken — new (intact on the move-in record)',
+    'floors worn — matches move-in record, ordinary wear'];
+  l.docs.push({n:'move-out walkthrough',t:'Itemized walkthrough on file, day '+S.day+' — each finding measured against the move-in record: '+l.walkthrough.join(' · ')+'. Deductions must cite a walkthrough line; anything pre-existing is refused, not argued.'});
+}
 window.giveNotice=function(){
   var l=L(); l.state='move_out'; l.turnWire=true;
-  if(l.deposit){l.depPending=true; l.depDue=S.day+21;}
+  if(l.deposit){l.depPending=true; l.depDue=S.day+21; mkWalk(l);}
   var fee='';
   if(/fixed/i.test(l.term)){
     l.breakFee=l.rent;
@@ -564,9 +593,38 @@ window.applyLease=function(){
 };
 window.screenApp=function(){
   var l=L();
-  l.state='approved';
-  l.docs.push({n:'screening result',t:'Approved — income verified via job board (barista, Mudhaus Coffee), references returned. Lease offered; signing is atomic: lease row + first month + deposit leave the bank + listing off the board + feed event.'});
-  toast('Approved. The tenant signs next — admin never signs for them.');
+  var need=l.rent*SCREEN_INCOME_X, floor=l.rent*2.0; /* near-miss band: 2.0–2.5× — lease-ui §36 */
+  if(l.guar && !l.guarantor){toast('The file waits on a guarantor — screening can\u2019t finish without one.');return;}
+  if(l.guarantor || S.income>=need){
+    l.state='approved'; l.guar=false;
+    l.docs.push({n:'screening result',t:'Approved — income verified via job board (barista, Mudhaus Coffee), references returned.'+
+      (l.guarantor?' Guarantor '+l.guarantor+' verified on the same checklist and co-signed — liable for rent and deposit, never a tenant.':'')+
+      ' Lease offered; signing is atomic: lease row + first month + deposit leave the bank + listing off the board + feed event.'});
+    toast('Approved. The tenant signs next — admin never signs for them.');
+  } else if(S.income>=floor){
+    l.guar=true;
+    l.docs.push({n:'screening — near-miss',t:'Income '+money(S.income)+' clears the floor ('+money(floor)+') but not the published '+SCREEN_INCOME_X+'\u00d7 ('+money(need)+'). The file offers a guarantor path — a named co-signer, verified on the same checklist, liable for rent and deposit, never a tenant, never on the feed. Or a cheaper door.'});
+    toast('Near-miss — the file asks for a guarantor, not a denial.');
+  } else {
+    l.state='listed';
+    l.docs.push({n:'application declined',t:'Declined — income below the screening floor ('+money(floor)+' on this listing). Private mail names the failed criterion; nothing posts to the feed.'});
+    toast('Declined on the record — private, no feed line.');
+  }
+  renderAll();
+};
+window.attachGuar=function(){
+  var l=L();
+  l.guarantor='M. Okafor';
+  l.docs.push({n:'guarantor attached',t:'Guarantor on file — '+l.guarantor+', income verified on the same published checklist. Co-signs the lease: liable for rent and deposit, never a tenant, never an occupant line, never a feed event. Back to the landlord file for screening.'});
+  toast('Guarantor on the record — screening can finish now.');
+  renderAll();
+};
+window.reqReceipt=function(){
+  var l=L();
+  var paid=l.ledger.filter(function(e){return e.a<0&&/payment|installment/i.test(e.t);})
+    .reduce(function(a,e){return a-e.a;},0);
+  l.docs.push({n:'receipt',t:'Receipt — '+money(paid)+' received on this lease through day '+S.day+'. Dated and itemized, the same numbers as the ledger — carry it to any dispute; the ledger and the receipt say the same thing.'});
+  toast('Receipt written to the file — proof you can carry.');
   renderAll();
 };
 window.signLease=function(){
@@ -601,12 +659,12 @@ window.postNotice=function(){
   if(l.bal<=0){toast('No balance — nothing to notice.');return;}
   if(l.state==='disputed'){toast('Ladder frozen — a board filing is open on this lease.');return;}
   if(l.state==='arrears'&&S.day>=24){
-    l.state='noticed';
-    l.docs.push({n:'cure-or-quit',t:'Cure within 14 days or the tenancy is reviewed. Filing a dispute pauses this clock.'});
+    l.state='noticed'; l.svc={door:S.day,mail:S.day}; l.svcDue=S.day+14;
+    l.docs.push({n:'cure-or-quit',t:'Cure within 14 days of service or the tenancy is reviewed. Filing a dispute pauses this clock. Served: posted to door + mailed, day '+S.day+' — the window runs from service, not the posting. Cure by day '+l.svcDue+'.'});
     S.wires.push({d:S.day,k:'housing',tx:'housing notice posted — '+l.addr});
   } else if(l.state==='active'&&S.day>=10){
-    l.state='arrears';
-    l.docs.push({n:'formal notice',t:'Balance due within 7 days. Partial payments apply oldest-first.'});
+    l.state='arrears'; l.svc={door:S.day,mail:S.day};
+    l.docs.push({n:'formal notice',t:'Balance due within 7 days. Partial payments apply oldest-first. Served: posted to door + mailed, day '+S.day+' — the clock runs from service, not the posting.'});
   } else {
     l.docs.push({n:'late reminder',t:'Rent\u2019s past grace — '+money(l.bal)+'. Pay by the 10th to keep the file clean.'});
   }
@@ -683,8 +741,8 @@ window.recordMoveOut=function(){
   if(l.deposit){
     /* move-out starts the deposit clock — the return is posted
        separately, itemized, inside a 21-day window (lease-ui §33) */
-    l.state='move_out'; l.depPending=true; l.depDue=S.day+21;
-    l.docs.push({n:'move-out recorded',t:'Keys in, walkthrough done. Deposit '+money(l.deposit)+' + interest is due back within 21 days (by day '+l.depDue+') — deductions itemized against the move-in record. The clock is a ledger line, not a promise.'});
+    l.state='move_out'; l.depPending=true; l.depDue=S.day+21; mkWalk(l);
+    l.docs.push({n:'move-out recorded',t:'Keys in, walkthrough done. Deposit '+money(l.deposit)+' + interest is due back within 21 days (by day '+l.depDue+') — deductions itemized against the walkthrough and the move-in record. The clock is a ledger line, not a promise.'});
   } else {
     l.state='turnover';
     l.docs.push({n:'move-out',t:'Unit vacated — no deposit on file. Flips to the board.'});
@@ -702,8 +760,8 @@ window.returnDeposit=function(){
      an argument */
   var pre=(l.movein||[]).filter(function(m){return /pre-existing/i.test(m);});
   var refused=pre.length?pre[0]:null;
-  var ded=90, items=['broken window latch — '+money(90)+' (not on the move-in record)'];
-  l.ledger.push({d:S.day,t:'deduction — broken window latch (not on move-in record)',a:90});
+  var ded=90, items=['broken window latch — '+money(90)+' (walkthrough finding; not on the move-in record)'];
+  l.ledger.push({d:S.day,t:'deduction — broken window latch (walkthrough finding, not on move-in record)',a:90});
   if(l.breakFee){
     ded+=l.breakFee;
     items.push('break fee — '+money(l.breakFee)+' (early end inside fixed term)');
@@ -725,7 +783,7 @@ window.nofaultNotice=function(){
   if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
   if(l.state==='disputed'){toast('Frozen — a board filing is open on this lease.');return;}
   l.state='move_out';
-  if(l.deposit){l.depPending=true; l.depDue=S.day+21;}
+  if(l.deposit){l.depPending=true; l.depDue=S.day+21; mkWalk(l);}
   l.ledger.push({d:S.day,t:'relocation credit — NOFAULT (mandatory)',a:-l.rent});
   l.docs.push({n:'no-fault notice',t:'No-fault termination — sale / owner move-in. 60-day window, not the 14-day ladder; a relocation credit of one month\u2019s rent ('+money(l.rent)+') posts mandatory, coded NOFAULT so abuse is legible in the ledger. Deposit returns separately, itemized.'});
   S.wires.push({d:S.day,k:'housing',tx:'no-fault notice posted — '+l.addr});
@@ -759,13 +817,13 @@ $('nextDay').onclick=function(){
       }
     }
     if(l.bal>0&&l.state==='active'&&S.day===10){
-      l.state='arrears';
-      l.docs.push({n:'formal notice',t:'Balance due within 7 days. Partial payments apply oldest-first.'});
+      l.state='arrears'; l.svc={door:S.day,mail:S.day};
+      l.docs.push({n:'formal notice',t:'Balance due within 7 days. Partial payments apply oldest-first. Served: posted to door + mailed, day '+S.day+' — the clock runs from service, not the posting.'});
       if(l.mine)toast('Formal notice posted on your lease — 7 days to respond.');
     }
     if(l.bal>0&&l.state==='arrears'&&S.day>=24&&!l.plan){
-      l.state='noticed';
-      l.docs.push({n:'cure-or-quit',t:'Cure within 14 days or the tenancy is reviewed. Filing a dispute pauses this clock.'});
+      l.state='noticed'; l.svc={door:S.day,mail:S.day}; l.svcDue=S.day+14;
+      l.docs.push({n:'cure-or-quit',t:'Cure within 14 days of service or the tenancy is reviewed. Filing a dispute pauses this clock. Served: posted to door + mailed, day '+S.day+' — cure by day '+l.svcDue+'.'});
       S.wires.push({d:S.day,k:'housing',tx:'housing notice posted — '+l.addr});
     }
     /* repair clock (v54): habitability acknowledges same-day, schedules
