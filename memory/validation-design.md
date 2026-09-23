@@ -4121,3 +4121,113 @@ Registry: P1–P544. v52 suite: P535–P544 (7 MUST, 3 SHOULD).
   (*JEP:LMC* 33:169 — verified: illusory-recollection model
   absorbs source d' deficit); Dodson & Krueger 2006
   (*PB&R* 13:770).
+
+## 93. Probes P545–P554 (v53 — emotional-memory V)
+
+- **P545 anticipatory trace (MUST):** flag an event `anticipated`,
+  run 7 dwell ticks, then encode the real event with a milder
+  affectSeries: BOTH traces must exist (imagined + event), the
+  anticip trace must show drift on its verbatim fields, and a
+  mismatch record must mint when |Δtag|>0.4. FAIL if the anticip
+  record merges into or replaces the real one (locked no-merge).
+- **P546 betrayal phenotype (MUST — sign-lock):** matched negative
+  events, perpetrator trust 0.8 vs 0.2: high-trust arm must show
+  HIGHER arousal_tag, THINNER verbatim, LOWER voluntary-recall rate,
+  and HIGHER ambientScan intrusion rate. After trust→0.1 collapse +
+  30d, voluntary recall rises ≥1.5× while arousal_tag is unchanged.
+  FAIL if betrayal produces amnesia — records must remain reachable
+  (avoidance, never erasure; McNally-side null locked).
+- **P547 vicarious acquisition (MUST):** direct victim, present
+  witness, hearsay recipient of the same arousal-0.9 event:
+  conditionedAffect ordering direct > witness > instructed >
+  control; witness mints `witnessed:true` episodic record;
+  instructed mints NO episodic record (locked).
+- **P548 emotional dream draw (SHOULD):** dream mints over-sample
+  high-arousal recent records (≥2× uniform) and skew negative at
+  ~dream_neg_bias; forced mood<0 deepens the skew ~2×. FAIL if
+  draw is uniform or purely world-supplied.
+- **P549 shame/guilt split (MUST):** matched self-caused negative
+  events tagged shame vs guilt: shame → lower voluntary recall +
+  higher intrusion + observer-perspective emissions ≥2× base;
+  guilt → higher rehearsal + rising amends_urge. FAIL on identical
+  retrieval ecology.
+- **P550 forgiveness thaw (MUST — direction lock):** forgive swept
+  0→1 cuts rehearsal/intrusion of offender-linked records ~70%
+  while strength/decay/tag profiles are unchanged; forgive held at
+  0 with forced rehearsals must drift forgive downward (rumination
+  drives unforgiveness — McCullough direction locked, never the
+  reverse-primary).
+- **P551 nostalgia regulation (SHOULD):** C.mood = −0.5 → ambient
+  draws over-select old positive people-rich records; a nostalgic
+  emission raises C.mood ≥0.05 after clamp; non-nostalgic
+  emissions show no lift.
+- **P552 mood-congruent fill (MUST):** same decayed record under
+  C.mood −0.6 vs +0.6 → confabulated field valence signs differ
+  matching mood; low-arousal context raises lure_accept vs
+  high-arousal (criterion leg, both directions of mood_crit_shift).
+- **P553 inertia (SHOULD):** emo_inertia 0.8 vs 0.1 under identical
+  mood inputs → mood-congruent retrieval bias persists ≥3× as many
+  ticks after the input ends; resilient (low) arm resets within
+  ~2 ticks.
+- **P554 repetition habituation (MUST):** five identical-signature
+  conflicts → instance-5 arousal_tag < instance-1 by ≥
+  rep_habit_k×4; script node gains rep_script_gain each time;
+  instance-6 at arousal 0.85 resets n_recur and mints at full
+  strength (locked escalation exception).
+
+Registry: P1–P554. v53 suite: P545–P554 (7 MUST, 3 SHOULD).
+
+## 94. Sources verified this version (P545–P554 backing)
+
+- Van Boven & Ashworth 2007 (*JEP:G* 136:289 — verified: five
+  experiments, anticipation > retrospection across positive/
+  negative/routine/hypothetical events, mental simulation
+  mediates); Shepperd & McNulty 2002 (expectation gap →
+  relief/disappointment — mismatch-record basis).
+- Freyd 1994 (*Ethics & Behavior* 4:307 — betrayal trauma theory);
+  Freyd, DePrince & Zurbriggen 2001 (*J Trauma Dissoc* 2:5 —
+  memory reports depend on victim-perpetrator relationship);
+  Lindblom & Gray 2009 (detail deficit attenuates under avoidance
+  controls); McNally 2007 (*Memory* critical appraisal — no
+  convincing amnesia evidence → conservative implementation).
+- Olsson & Phelps 2007 (*Nat Neurosci* 10:1095 — verified: social
+  fear learning shares conditioning circuitry); Olsson, Nearing &
+  Phelps 2007 (*SCAN* 2:3 — verified: observational fear engages
+  amygdala, can match direct experience); Phelps et al. 2001
+  (*Nat Neurosci* 4:437 — instructed-fear route).
+- Valli et al. 2008 (*Cogn Emot* — verified: dream threats more
+  frequent/severe than matched real events; current dream threats
+  resemble PAST real threats — negative bias real, not sampling);
+  Pesant & Zadra 2006 (*J Clin Psychol* — verified: PWB↔dream
+  content, longitudinal); Domhoff 2003/Schredl reviews (continuity
+  hypothesis — verified selective, mundane underrepresented).
+- Tangney et al. 1996 (*JPSP* 70:1256 — verified: shame/guilt/
+  embarrassment phenomenologically distinct); D'Argembeau-group
+  *Memory* 2023 (10.1080/09658211.2023.2260571 — verified: shame →
+  pronounced observer perspective, shame>guilt negative affect);
+  Conway-extension shame study (2023 — shame events' post-event
+  symptom cluster incl. intrusions+avoidance).
+- McCullough, Bono & Root 2007 (*JPSP* 92:490 — verified: three
+  longitudinal studies, rumination↑ → forgiveness↓ direction
+  stronger, anger not fear mediates); McCullough et al. 2001
+  (*PSPB* 27:601 — vengefulness↔rumination).
+- Wildschut et al. 2006 (*JPSP* 91:975 — verified: nostalgia ↑
+  positive affect, self-regard, connectedness; redemptive
+  self-central narratives); Routledge et al. 2011 (*JPSP* 101:638
+  — verified: meaning threat triggers nostalgia, nostalgia
+  restores meaning via connectedness, buffers threat→wellbeing).
+- Ruci, Tomes & Zelenski 2009 (*Cogn Emot* 23:1153 — verified:
+  mood-congruent DRM lures intrude more + more "remember"
+  judgments); Corson & Verrier 2007 (verified: low-arousal mood →
+  liberal false recognition regardless of valence).
+- Kuppens, Allen & Sheeber 2010 (*Psychol Sci* 21:984 — verified:
+  inertia elevated in maladjustment, prospective depression link);
+  Koval, Kuppens, Allen & Sheeber 2012 (*Cogn Emot* 26:1412 —
+  verified: rumination + inertia independently predict
+  depression); Koval et al. 2013 (*Emotion* 13:1132 — verified:
+  inertia/variability separation).
+- J. Neurosci. 2025 recurring emotional events (e2406232025 —
+  verified: first-encounter amygdala + neocortical pattern
+  stability across repetitions drives the advantage); Fivush 1984
+  (*Dev Psychol* — GER/script formation, instances go generic);
+  Brewer 1986 (repeated-event recall generic dominance).

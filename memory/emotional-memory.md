@@ -2378,3 +2378,594 @@ Registry now P1–P420; numbering stable.
 - Still unmodeled from §39's list: anticipatory *encoding* of dread
   (the pre-event trace), emotion in dreams, and the
   intention-affect loop — next passes.
+
+---
+
+# Part V — v53: the feeling that arrives early, stays secondhand, and heals on schedule (2026-09-23, fifth pass)
+
+Parts I–IV priced the record-level machinery (encoding, consolidation,
+trauma), the affect-tag layer (birth, sleep, regulation), the feeling's
+grammar (discrete emotions, inverted-U, time), and the social life of
+leftover affect (carryover, venting, savoring). What §39/§55 listed as
+still unmodeled — **anticipatory encoding** (the pre-event trace),
+**emotion in dreams** — lands here, joined by eight more legs the
+earlier passes left implicit: betrayal's closeness multiplier,
+secondhand fear, the shame/guilt split, forgiveness's thaw on the
+rumination loop, nostalgia as self-medication, mood-congruent
+confabulation, emotional inertia, and repetition's habituation of the
+tag. Tag convention unchanged: **[CONSENSUS] / [DEBATED] /
+[HYPOTHESIS]**.
+
+---
+
+## 56. Anticipation mints its own trace — the pre-event record
+
+Van Boven & Ashworth 2007 (*JEP:G* 136:289 — verified, five
+experiments): anticipation is more evocative than retrospection —
+people feel MORE about an upcoming Thanksgiving than the remembered
+one, across positive, negative, routine, and hypothetical events;
+mediated by more extensive mental simulation of future than past
+events. The imagination-inflation literature (Garry et al. 1996;
+§6.9's `imagine_gain`) supplies the mechanism leg: simulated events
+write records. So a dreaded meeting is not free until it happens —
+every pre-living writes a hot trace.
+
+**[CONSENSUS]** that anticipatory affect exceeds retrospective affect
+and that simulation mediates it; **[HYPOTHESIS]** the sim translation
+below.
+
+**Spec consequence (§4.28, "anticipatory records"):** when the world
+schedules a salient future event for a character (a known court date,
+a planned confrontation, a wedding — game-systems marks it
+`anticipated` on the request/schedule layer):
+
+```
+mint record { anticip:true, source:"imagined",
+              arousal_tag = anticip_gain·expectedArousal,  // ≈0.4
+              valence_tag = expected valence, verbatim thin }
+each dwell/simulation tick on the expected event (worry, rehearsal,
+    planning thought — flagged by the substrate or counted via
+    ambientMemoryScan hits on the anticip record):
+    retell-equivalent boost (strength up, drift applies —
+    imagined details CONFABULATE INTO the trace; the feared version
+    sharpens, §63 mood-congruent fill)
+at the real event's encodeEvent:
+    the anticip record does NOT merge destructively — it becomes a
+    competing same-event trace (source:"imagined" vs "event"); the
+    experienced tag is the peak-end output of the REAL affectSeries,
+    the anticip trace keeps its own tag
+    expectation gap → if |real_tag − anticip_tag| > 0.4:
+        mint a small mismatch record ("it wasn't as bad as I feared"
+        / "it was worse than I imagined") — relief/disappointment is
+        the meta-emotion of the gap (Shepperd & McNulty 2002)
+```
+
+Emergent: the character who dreads a conversation for a week has a
+week-old memory of a confrontation that hasn't happened; when it goes
+fine, she remembers BOTH the dread and the reality — and the relief
+attaches to the person who turned out kind. Characters who never
+anticipate (`anticip` never flagged — the impulsive, the present-
+focused) live without this drag and without the relief. (P545)
+
+---
+
+## 57. Betrayal prices the perpetrator's closeness — and then hides
+
+Freyd's betrayal trauma theory (1994/1996): violations by someone the
+victim depends on are handled differently — awareness is suppressed to
+preserve the necessary attachment. The empirical record is genuinely
+mixed: Freyd, DePrince & Zurbriggen 2001 report self-reported memory
+for abuse depending on victim-perpetrator relationship; Lindblom &
+Gray 2009 find more betrayal → less detailed narratives (but the
+effect attenuates controlling for avoidance); McNally's 2007 critical
+appraisal finds no convincing evidence for true amnesia — non-
+disclosure and avoidance of thought explain most cases.
+
+**[DEBATED — real signal is avoidance/detail-thinness, not erasure.
+We implement that version: betrayal records are HOT and THIN and
+UNVOLUNTEERED, never missing.]**
+
+**Spec consequence (§4.29):** on encoding of an event with valence <
+−0.3 where `cueVector.people` includes a perpetrator with
+relationship trust ≥ `betrayal_thresh` (0.6):
+
+```
+arousal_tag *= (1 + betrayal_trust_gain·trust)   // ≈0.35 — the wound
+               // scales with how close the hand was
+verbatim detail fields encode at (1 − betrayal_thin·trust)  // ≈0.3 —
+               // Lindblom & Gray's detail deficit, mechanism-agnostic
+record flag betrayal:true
+```
+
+Retrieval side (§5.54-adjacent): `betrayal:true` records get a
+voluntary-recall discount `betrayal_avoid_k` (0.4 — the character
+steers around it; implemented as a `suppressEvent`-equivalent
+automatic apply, θ bump R-side only) AND an intrusion discount of
+−0.1 (§5.7 — it surfaces unbidden precisely because it is avoided).
+If the relationship SURVIVES (trust stays high), the avoid leg
+persists; if the relationship breaks, avoidance relaxes over ~30 days
+and the record is finally retellable — Freyd's "awareness threatens
+the needed relationship" logic, inverted correctly: leaving the
+relationship frees the memory. (P546)
+
+Emergent: the friend who betrayed her is remembered in hot fragments
+she never brings up; strangers get a vaguer, cooler version; and when
+the friendship finally dies, the story comes out whole — viewers will
+read it as "she could only say it once it was over."
+
+---
+
+## 58. Witnessing teaches fear — secondhand conditioning
+
+Olsson & Phelps 2007 (*Nat. Neurosci.* 10:1095 review) and Olsson,
+Nearing & Phelps 2007 (*SCAN* 2:3 — verified): fear acquired by
+OBSERVING another's aversive event engages the same amygdala
+machinery as direct conditioning, and observational fear can be as
+strong as directly experienced fear; instructed fear (being told)
+works too, weaker (Phelps et al. 2001). Most human fears are probably
+not first-hand.
+
+**[CONSENSUS]** on observational > instructed > none ordering and
+shared mechanism.
+
+**Spec consequence (§4.29):** §4.9 conditioned-affect acquisition gets
+three routes:
+
+```
+direct (victim self):        strength += cond_gain·arousal   // as before
+witness (present, not target):
+    if observed arousal ≥ cond_thresh AND observer attention ≥ att_min:
+        strength += vic_cond_mult·cond_gain·arousal  // vic_cond_mult≈0.6
+    AND mint a thin episodic record marked witnessed:true
+        (it is THEIR memory of HIS bad night — the dread is hers)
+instructed (hears an arousing account — hearAccount with teller
+    emotional arousal ≥ cond_thresh):
+    strength += inst_cond_mult·cond_gain·arousal   // ≈0.3
+    // no episodic record needed — pure cue tag (Phelps 2001 route)
+```
+
+All routes share §4.9's decay/extinction/renewal machinery and §18's
+generalization width. Emergent: she watched him get fired at the
+coffeehouse and now flinches at the counter; the story of the
+break-in two streets over is enough to change her walk home — no
+record of a crime she never saw required. Vicarious positive
+conditioning exists too (`vic_cond_mult` applies to valence >0
+arousal ≥0.6) — the shared celebration marks the venue for both.
+(P547)
+
+---
+
+## 59. The dream draw goes emotional — and skews dark
+
+§4.24 (v4.7) mints dream records with world-supplied salience. The
+dream-content literature supplies what the salience draw should be:
+
+- Continuity hypothesis (Domhoff 2003; Schredl reviews — verified):
+  dream content reflects waking concerns, selectively — mundane
+  activities underrepresented, emotional concerns over.
+- Negative bias is real, not sampling artifact: Valli et al. 2008
+  (*Cogn Emot* — verified): threats much more frequent and severe in
+  dreams than in matched real-life event logs; current dream threats
+  resemble PAST real threats. Revonsuo's TST explanation is
+  [DEBATED]; the bias itself is [CONSENSUS].
+- Waking well-being tracks dream affect longitudinally (Pesant &
+  Zadra 2006 — verified): low PWB → more aggressive/negative dream
+  content over years.
+
+**Spec consequence (§5.53 — replaces the "world supplies salience"
+clause of §4.24):**
+
+```
+dream draw at sleep tick: sample the night's Poisson(dream_mint)
+    records from the character's OWN live episodic store, weight ∝
+    dream_emo_w·arousal·recency_factor + (1−dream_emo_w)·strength
+    // dream_emo_w ≈ 0.6 — mostly the hot queue, plus a tail into
+    // old strong records (Valli: current threats resemble past ones)
+negative skew: sampling valence weight ∝ (1 − dream_neg_bias·valence)
+    // dream_neg_bias ≈ 0.15 — modest, matched-event bias size
+mood dependence: when character mean-mood < 0, dream_neg_bias
+    effectively doubles (Pesant & Zadra longitudinal leg)
+```
+
+Everything downstream of §4.24 is unchanged — wake-gated recall,
+tau_dream, `dream_cond_mult` residue into §4.9. The change is the
+draw: dreams stop being story-supplied set-pieces and become what the
+character actually carried to bed. Emergent: the fight dreamt that
+night; the month of low mood dreamt darker than the days deserved;
+the old trauma surfacing in dreams years later without any current
+cause. (P548)
+
+---
+
+## 60. Shame looks away, guilt rehearses
+
+Self-conscious emotions split on the self/behavior axis (Tangney —
+Lewis's distinction, Tangney et al. 1996 verified): shame = "I am
+bad" (self-focused, withdrawal, others' imagined evaluation); guilt =
+"I did bad" (behavior-focused, empathy, repair). Memory
+phenomenology: shame memories show MORE observer-perspective (3PP)
+recall than guilt or neutral negative (D'Argembeau-group diary study,
+*Memory* 2023 — verified); shame predicts intrusions AND avoidance
+correlated with clinical symptoms (Conway-extension study — verified:
+shame events were mostly NOT very negative except for the shame).
+Guilt-proneness is unrelated to psychopathology and drives amends.
+
+**[CONSENSUS]** on the shame/guilt behavioral split and shame's
+observer-perspective signature.
+
+**Spec consequence (§5.54):** records tagged `emotion:"shame"` or
+`"guilt"` (§26 discrete tag; minted when valence<0, selfRelevance
+high, and the event's own-agent causal flag is set):
+
+```
+shame:  voluntary recall p *= (1 − shame_avoid_k)      // ≈0.35
+        intrusion_thresh −= shame_intrude_k            // ≈0.15 —
+        // avoided AND intrusive (the clinical signature)
+        Reconstructions emit perspective:"observer" at ~2× base rate
+        retell refusal bias: discussEvent on shame records routes
+        to deflection unless trust > 0.7
+guilt:  rumin-style rehearsal boost guilt_rehearse_k (≈0.3) BUT the
+        rehearsal is action-bound: each rehearsal increments an
+        `amends_urge` counter the behavior layer can read (§10 hook)
+        — guilt replays toward repair, shame replays toward hiding
+```
+
+Emergent: the shame character goes visibly quiet when the topic
+circles the party story, then mentions it unprompted at 1 a.m.; the
+guilt character brings up the forgotten favor until he makes it
+right. Same negative valence, opposite memory behavior — this is the
+split `w_emo_neg` cannot express. (P549)
+
+---
+
+## 61. Forgiveness thaws the loop — the rehearsal gate on the offender
+
+McCullough, Bono & Root 2007 (*JPSP* 92:490 — verified, three
+longitudinal studies): within-person rumination increases predict
+forgiveness DECREASES (cross-lag direction favors rumination→
+unforgiveness); mediated by anger, not fear. McCullough et al. 2001:
+vengefulness tracks rumination. So the rumination loop (§8's
+`rumin_k`, §42's venting route) needs a per-dyad gate, not just a
+trait.
+
+**[CONSENSUS]** on the rumination–unforgiveness loop and its causal
+direction.
+
+**Spec consequence (§5.55):** RelEdge gains optional `forgive` ∈
+[0,1] (default 0 for fresh transgressions; world/behavior layer
+drives it — apology events, amends, time). For negative records whose
+`cueVector.people` includes that dyad partner:
+
+```
+rehearsal/intrusion probability *= (1 − forgive·forgive_rumin_k)
+                                   // forgive_rumin_k ≈ 0.7 —
+                                   // forgiven wounds stop rehearsing,
+                                   // they don't get erased
+strength/decay unchanged — the record stays; the LOOP starves
+arousal_tag decay unchanged (§14/§4.5) — forgiveness quiets
+    rehearsal-driven re-stamping, the residual heat fades on its
+    normal clock, faster in effect because rumin re-stamping stops
+feedback the other direction (the documented causal arrow):
+    each unforgiven rehearsal nudges forgive −0.02; each completed
+    amends (guilt §60) nudges +0.1 — the loop is causal both ways,
+    weighted toward rumination→unforgiveness per the cross-lags
+```
+
+Emergent: a forgiven betrayal still intrudes occasionally (the
+record is intact) but the nightly replay dies; an unforgiven slight
+stays radioactive indefinitely and each replay digs the grudge
+deeper — the rumination-forgiveness spiral is now a mechanism, not
+an annotation. (P550)
+
+---
+
+## 62. Nostalgia is the mind's self-medication
+
+Wildschut et al. 2006 (*JPSP* 91:975 — verified): nostalgia induction
+raises positive affect, self-regard, social connectedness; nostalgic
+narratives are redemptive and self-central. Routledge et al. 2011
+(*JPSP* 101:638 — verified): meaning threat INCREASES nostalgia;
+nostalgia restores meaning via connectedness; buffers the threat→
+wellbeing link. Sedikides-group program: negative states (loneliness,
+boredom, meaninglessness) trigger nostalgic recall — it is an
+endogenous emotion-regulation tool.
+
+**[CONSENSUS]** on the trigger-by-distress → mood-lift function loop.
+
+**Spec consequence (§5.56):**
+
+```
+trigger: ambientMemoryScan's draw gains a regulation term — when
+    C.mood < −0.2, sampling weight of records flagged nostalgic:true
+    (§51 music route) OR positive + old (age > 180d) + people-rich
+    is multiplied by (1 + nostalgia_trigger_k·|C.mood|)
+    // nostalgia_trigger_k ≈ 0.3 — sad characters reach for the
+    // warm archive; the trigger is distress, not randomness
+on emission of a nostalgic record: C.mood += nostalgia_lift·(1−|C.mood|)
+    // nostalgia_lift ≈ 0.15 — a real mood nudge, self-limiting;
+    // §34's recall→mood feedback already exists — this is the
+    // valence-specific instance with the documented function
+```
+
+Emergent: the lonely evening pulls up the summer record unbidden and
+the night ends lighter; bittersweet is real — the emitted tag is
+positive-with-loss (§49 "mixed"), which is exactly the nostalgic
+signature the literature describes. (P551)
+
+---
+
+## 63. Mood fills the gaps — mood-congruent confabulation and the liberal criterion
+
+§8's `mood_bleed` shifts the *tag* of what is reconstructed; the
+fill-content literature adds that mood steers *what gets invented*:
+
+- Ruci, Tomes & Zelenski 2009 (*Cogn Emot* 23:1153 — verified):
+  mood-congruent DRM false recall elevated — negative mood produces
+  more negative critical-lure intrusions, positive likewise; and more
+  "remember" judgments for mood-matched lures.
+- Corson & Verrier 2007 (verified): LOW-arousal moods raise false
+  recognition regardless of valence — liberal criterion under calm
+  states, item-specific memory under arousal.
+- Mood-congruent recall generally (Matt et al. 1992 meta, already §8).
+
+**[CONSENSUS]** on mood-congruent false memory; the low-arousal
+criterion shift is a second, separable leg.
+
+**Spec consequence (§6.72):**
+
+```
+confab_fill content selection (§6.2): when generating schema fills,
+    candidate fills weighted toward mood-matching valence —
+    mood_confab_k ≈ 0.25: a sad character's invented details skew
+    negative (the forgotten meeting is remembered as having gone
+    worse in its unfilled parts)
+recognition lure criterion (§5.x): at low current arousal
+    (|C.mood|<0.3 && C.arousal<0.3) the lure_accept threshold
+    effectively shifts liberal: lure_accept += mood_crit_shift
+    (≈0.1); under arousal ≥0.6, shift negative — arousal tightens
+```
+
+Emergent: depressed characters don't just recall sadder true events —
+they invent sadder details into the gaps; the calm evening
+interrogation yields more false assents than the heated one. (P552)
+
+---
+
+## 64. Emotional inertia — the trait that makes moods chain
+
+§63's mood effects all key on `C.mood`, which the model treats as
+context the world supplies. The affect-dynamics literature says mood
+is a *stateful* variable with a per-person persistence:
+
+- Kuppens, Allen & Sheeber 2010 (*Psychol Sci* 21:984 — verified):
+  emotional inertia (affect autocorrelation) higher in maladjusted/
+  depressed individuals, prospectively predicts depression onset.
+- Koval et al. 2012/2013 (*Cogn Emot*; *Emotion* — verified):
+  negative-affect inertia independently associated with depressive
+  symptoms beyond rumination; the inertia-rumination link is real
+  but partial.
+
+**[CONSENSUS]** that inertia is a stable individual difference with
+clinical correlates.
+
+**Spec consequence (§6.74):**
+
+```
+trait emo_inertia ∈ [0,1] (default 0.3; depressive modifier sets 0.7):
+    C.mood evolution: mood_t+1 = mood_t·emo_inertia + input·(1−emo_inertia)
+    — high inertia means a bad morning's mood survives neutral
+    afternoons, which in turn (a) keeps mood-congruent retrieval
+    (§5.4/§8) biased negative for longer stretches, (b) extends
+    §63's confab skew windows, (c) lengthens the §62 nostalgia-
+    trigger regime (more pulls on the warm archive)
+    LOW inertia = volatile affect, shorter mood-congruent chains —
+    the resilient character's retrieval ecology resets with events
+```
+
+This is the missing state variable that makes §§5.4/8/63/62 cohere:
+without persistence, mood effects are tick-local noise; with it, a
+character's retrieval environment has WEATHER. Couples with §61 —
+high-inertia characters stay in the rumination-triggering mood longer,
+so their loops run hotter for the same `rumin_k`. (P553)
+
+---
+
+## 65. The first time writes the pattern — repetition habituates the tag, consolidates the script
+
+Two literatures converge on what the Nth occurrence does:
+
+- Reinstatement account (J. Neurosci. 2025 recurring-emotional-events
+  study — verified): emotional memory advantage for recurring events
+  rides amygdala response at the FIRST encounter + stable neocortical
+  reinstatement across repetitions — pattern stability, not encoding
+  variability, carries the benefit.
+- Script/GER literature (Fivush 1984; Hudson & Nelson; Brewer 1986 —
+  verified): repeated similar events form a general event
+  representation; individual instances become hard to access and
+  reports go generic; verbatim details blur across instances
+  (fuzzy-trace: gist strengthens per occurrence, verbatim decays).
+- Affective habituation: arousal_tag on recurrence N declines —
+  the fourth conflict at the same meeting is encoded cooler than
+  the first (straight habituation; [HYPOTHESIS] in this exact form).
+
+**Spec consequence (§6.73):**
+
+```
+on encodeEvent matching an existing record's schema (same
+    participants+place+event-type signature, sim ≥ merge_thresh·0.9):
+arousal_tag *= (1 − rep_habit_k)^n_recur        // ≈0.15 — each repeat
+    // is felt less; the fifth identical fight barely registers hot
+instance record still mints but thin (verbatim fields at
+    (1 − rep_habit_k)^n); the SHARED script node (§4.20) gains
+    rep_script_gain·n_recur strength                       // ≈0.2
+EXCEPTION (locked): any recurrence whose arousal at encode ≥ 0.8
+    resets n_recur to 0 — a genuinely new-intensity instance is a
+    NEW event, not a repeat (first-of-kind encoding: the amygdala
+    gate is at the first STRONG encounter, not the first nominal one)
+first-occurrence premium: the n_recur=0 instance of a repeating
+    series keeps full encoding and becomes the script's anchor —
+    "the first time he yelled" outlives every subsequent yell
+```
+
+Emergent: characters recount the FIRST offense vividly and "he does
+it all the time" as a generic; the routine cruelty that built the
+resentment is a script with one bright instance; a truly new
+escalation breaks the habituation and mints fresh. (P554)
+
+---
+
+## 66. Spec delta (v5.0 → v5.1)
+
+Params (all new, clamp ranges in profiles §0):
+
+- `anticip_gain` 0.4, `anticip` event flag, gap-mismatch record at
+  |Δtag| > 0.4 — §56
+- `betrayal_thresh` 0.6, `betrayal_trust_gain` 0.35,
+  `betrayal_thin` 0.3, `betrayal_avoid_k` 0.4, intrusion −0.1,
+  avoid-relax ~30d after trust collapse — §57
+- `vic_cond_mult` 0.6, `inst_cond_mult` 0.3, `witnessed:true`
+  record flag — §58
+- `dream_emo_w` 0.6, `dream_neg_bias` 0.15 (×2 under mood<0) — §59
+- `shame_avoid_k` 0.35, `shame_intrude_k` 0.15,
+  `perspective:"observer"` ×2 on shame reconstructions,
+  `guilt_rehearse_k` 0.3, `amends_urge` counter — §60
+- `forgive` RelEdge field ∈[0,1], `forgive_rumin_k` 0.7,
+  rehearsal→forgive −0.02, amends→forgive +0.1 — §61
+- `nostalgia_trigger_k` 0.3, `nostalgia_lift` 0.15 — §62
+- `mood_confab_k` 0.25, `mood_crit_shift` 0.1 — §63
+- `emo_inertia` trait 0..1 default 0.3 (depressive modifier 0.7) —
+  §64
+- `rep_habit_k` 0.15, `rep_script_gain` 0.2, arousal-0.8 recur
+  reset (locked) — §65
+
+Record fields: `anticip:true`, `betrayal:true`, `witnessed:true`;
+RelEdge gains `forgive`; character state gains `amends_urge` counter
+map; `C.mood` gains documented persistence semantics (emo_inertia).
+Contract: §10 gains anticip-record minting duty (world flags
+`anticipated` events), `amendsUrge(charId)` read hook, nostalgic
+emissions feed C.mood, dream draw now samples own store (§4.24
+salience clause superseded).
+
+## 67. Age guidance (extends §§10/23/37/53)
+
+- `anticip_gain`: modest rise through midlife (anticipation builds
+  on schema richness — [HYPOTHESIS], knot ×1.1 at 50) and decline
+  past 70 with future-time-horizon shortening (Carstensen SST —
+  anticipated futures compress; ×0.8 at 75, HYPOTHESIS).
+- `betrayal_*`: flat — the mechanism is relational, not
+  developmental. Children below ~10 get the thin-detail leg but the
+  avoid leg is weaker (×0.5 — avoidance regulation develops).
+- `vic_cond_mult`: children ×1.2 (observational fear learning is the
+  dominant childhood route — Mineka/Rachman developmental
+  consensus); flat after 12.
+- `dream_neg_bias`: nightmare literature shows childhood peak and
+  decline — ×1.3 below 12, flat adult (Nielsen & Levin).
+- `shame_*`: shame needs self-evaluative cognition — gate the tag
+  mint below ~6 (Tracy & Robins 2004 developmental consensus);
+  guilt slightly earlier (~4). Older adults: shame_avoid_k holds,
+  intrusion leg ×0.8 (quiet mind §5.51).
+- `forgive`: older adults forgive more readily (meta — [DEBATED]
+  whether it is aging per se); implement as `forgive` accrual rate
+  ×1.2 at 65+ rather than touching the mechanism constants.
+- `nostalgia_*`: trigger sensitivity flat; lift slightly higher at
+  65+ (×1.1 — older adults use positive reminiscence for
+  regulation, consistent with positivity-effect machinery).
+- `emo_inertia`: [HYPOTHESIS] modest U-curve — adolescent knots
+  ×1.2 (affective rigidity in adolescence), midlife floor, mild
+  rise at 75+ (×1.1).
+- `rep_habit_k`: flat; `rep_script_gain` higher below 10 (children
+  script after fewer exposures — Fivush).
+- `mood_confab_k`, `mood_crit_shift`: flat.
+
+## 68. Validation probes (P545–P554; registry continues)
+
+- **P545 anticipatory trace (MUST):** flag an event `anticipated`,
+  run 7 dwell ticks, then encode the real event with a milder
+  affectSeries: BOTH traces must exist (imagined + event), the
+  anticip trace must show drift on its verbatim fields, and a
+  mismatch record must mint when |Δtag|>0.4. FAIL if the anticip
+  record merges into or replaces the real one.
+- **P546 betrayal phenotype (MUST — sign-lock):** matched negative
+  events, perpetrator trust 0.8 vs 0.2: high-trust arm must show
+  HIGHER arousal_tag, THINNER verbatim, LOWER voluntary-recall rate,
+  and HIGHER ambientScan intrusion rate. After trust→0.1 collapse +
+  30d, voluntary recall must rise ≥1.5× while arousal_tag is
+  unchanged. FAIL if betrayal produces amnesia (record missing) —
+  we implement avoidance, not erasure.
+- **P547 vicarious acquisition (MUST):** direct victim, present
+  witness, hearsay recipient of the same arousal-0.9 event:
+  conditionedAffect response ordering must be direct > witness >
+  instructed > control; witness mints a `witnessed:true` record,
+  instructed does not mint an episodic record at all.
+- **P548 emotional dream draw (SHOULD):** store with known
+  arousal/valence distribution: dream mints must over-sample
+  high-arousal recent records (≥2× uniform) and skew negative
+  (~dream_neg_bias); under forced mood<0 the skew must deepen.
+  FAIL if draw is uniform or world-supplied.
+- **P549 shame/guilt split (MUST):** matched self-caused negative
+  events tagged shame vs guilt: shame shows lower voluntary recall
+  + higher intrusion + observer-perspective emissions; guilt shows
+  higher voluntary rehearsal and a rising amends_urge. FAIL if the
+  two tags produce identical retrieval ecology.
+- **P550 forgiveness thaw (MUST — direction lock):** negative
+  record vs offender, forgive swept 0→1: rehearsal/intrusion rate
+  must fall ~70% while strength and arousal_tag decay profiles are
+  unchanged; with forgive held at 0, each rehearsal must reduce
+  forgive (rumination drives unforgiveness, McCullough direction).
+- **P551 nostalgia regulation (SHOULD):** force C.mood = −0.5:
+  ambient draws must over-select old positive people-rich records;
+  a nostalgic emission must raise C.mood measurably (≥0.05 after
+  clamp). FAIL if draws ignore mood or if lift applies to
+  non-nostalgic emissions.
+- **P552 mood-congruent fill (MUST):** same decayed record
+  reconstructed under C.mood −0.6 vs +0.6: confabulated fields must
+  differ in valence sign-matching the mood (mood_confab_k visible
+  in fill distribution); and low-arousal context must raise
+  lure_accept vs high-arousal (criterion leg).
+- **P553 inertia (SHOULD):** emo_inertia 0.8 vs 0.1 characters under
+  identical mood inputs: high-inertia mood-congruent retrieval bias
+  must persist ≥3× as many ticks after the mood input ends.
+- **P554 repetition habituation (MUST):** five identical-signature
+  conflicts: arousal_tag of instance 5 < instance 1 by ≥
+  rep_habit_k×4; script node gains rep_script_gain each time; an
+  instance-6 with arousal 0.85 must reset the counter and mint at
+  full strength (locked exception).
+
+Registry now P1–P554; numbering stable.
+
+## 69. Honest limits (Part V)
+
+- **Anticipatory records** rest on a verified phenomenon
+  (anticipation > retrospection) plus a modeling leap (simulation →
+  same record machinery). The mismatch-record carve is our
+  invention — Shepperd & McNulty document the *feeling*, not a
+  trace type. P545 checks structure, not literature fidelity.
+- **Betrayal** is the most contested source in this pass. We
+  deliberately implement the conservative reading (avoidance +
+  detail-thinness, zero amnesia) — if the field ever vindicates
+  Freyd's strong claim, the spec can deepen `betrayal_avoid_k`
+  toward true suppression, but no current evidence supports
+  records being unreachable.
+- **Vicarious/instructed conditioning** ratios (0.6/0.3) are
+  calibrated guesses — the literature verifies ordering, not
+  coefficients.
+- **Dream sampling** operationalizes content statistics as a draw
+  weight; whether dreams *consolidate* the sampled records is
+  unresolved (§14's sleep debate applies). We let the minted dream
+  record follow §4.24's own decay — the effect on source records
+  is only the ordinary reconsolidation tick if retrieved.
+- **Forgiveness feedback** (−0.02/+0.1 nudges) is a shaped
+  implementation of the cross-lagged finding; the asymmetry
+  direction is literature, the magnitudes are priors.
+- **Nostalgia lift** is small on purpose — the induction effects
+  are real but modest and repeated lifting would trivialize mood
+  dynamics; the clamp `(1−|C.mood|)` bounds it.
+- **`emo_inertia`** prices mood persistence as a scalar trait; real
+  inertia is valence-selective (negative-affect inertia predicts
+  depression specifically) — an asymmetric version (inertia on
+  negative mood only) is a defensible refinement we did NOT take
+  to keep the parameter count honest; flagged for a future pass.
+- **Repetition** uses schema-signature matching as a proxy for
+  "same kind of event" — coarse but legible; the n_recur reset
+  at arousal 0.8 is locked because without it the model would
+  habituate a character out of noticing escalation.

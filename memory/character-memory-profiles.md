@@ -826,6 +826,19 @@ identity_thresh > familiar_thresh` always, and incongruity (encoding)
 vs stereotype-convergence (transmission) stay uncoupled — Kashima 2000
 needs both.
 
+| anticip_gain | 0.0 | 0.8 | pre-event trace birth gain (v5.1; 0 = lives un-anticipated) |
+| betrayal_thresh / betrayal_trust_gain | 0.4 / 0.0 | 0.9 / 0.7 | perpetrator-closeness gate/gain (v5.1) |
+| betrayal_thin / betrayal_avoid_k | 0.0 / 0.0 | 0.6 / 0.7 | verbatim thinning / voluntary-recall discount (v5.1) |
+| vic_cond_mult / inst_cond_mult | 0.0 / 0.0 | 1.0 / 0.6 | observed vs instructed conditioning routes (v5.1) |
+| dream_emo_w / dream_neg_bias | 0.0 / 0.0 | 1.0 / 0.4 | dream-draw arousal weight / negative skew (v5.1) |
+| shame_avoid_k / shame_intrude_k | 0.0 / 0.0 | 0.7 / 0.35 | self-conscious avoidance/intrusion (v5.1) |
+| guilt_rehearse_k | 0.0 | 0.6 | guilt rehearsal → amends_urge gain (v5.1) |
+| forgive_rumin_k | 0.0 | 1.0 | RelEdge.forgive gate strength (v5.1) |
+| nostalgia_trigger_k / nostalgia_lift | 0.0 / 0.0 | 0.6 / 0.4 | distress trigger / emission mood lift (v5.1) |
+| mood_confab_k / mood_crit_shift | 0.0 / 0.0 | 0.5 / 0.25 | mood-matched confab / low-arousal criterion (v5.1) |
+| rep_habit_k / rep_script_gain | 0.0 / 0.0 | 0.4 / 0.5 | recurrence habituation / script consolidation (v5.1) |
+| emo_inertia | 0.0 | 1.0 | mood autocorrelation trait; depr→0.7 (v5.1) |
+
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
 `deriveParams` pipeline (curve → modifiers → conditioned trait sampling
@@ -2304,3 +2317,58 @@ the work; what bible authors should actually touch:
   cues them, young mains volunteer it; (c) keep retell quality
   only where feedback exists — an uncorrected old raconteur
   polishes errors, not stories.
+
+## 36. v5.1 note (emotional-memory V — the feeling that arrives early)
+
+Clamp rows added in §0 for the v5.1 params. What bible authors should
+actually touch — most of this block is relational/event machinery, not
+trait dials:
+
+- **`emo_inertia` (0–1, default 0.3):** the most bible-visible new
+  trait. Set high (0.6–0.8) on characters whose moods linger — the
+  brooder whose bad morning owns his whole week; depressive modifier
+  already sets 0.7. Set low (0.1–0.2) on the resilient, the volatile,
+  the distracted. It is a DYNAMICS trait (how long moods persist),
+  not a valence trait — a cheerful-inert and a gloomy-inert character
+  are both legal and read differently on screen.
+- **`anticip_gain` (0–0.8):** pin on the planners and worriers —
+  the character who rehearses conversations before they happen needs
+  it ≥0.4; the improviser lives at 0 and never accrues the dread
+  trace (or the relief payoff). Bibles writing a known dread arc
+  (a court date, a wedding) should flag the event `anticipated` in
+  the event list so the substrate mints the trace.
+- **`forgive` (RelEdge field, 0–1):** relationship-state, not a
+  MemoryParams dial — bibles set the STARTING dyad value on
+  relationships with history (the ex-friends at 0.2, the
+  reconciled siblings at 0.8); the simulation moves it.
+- **`vic_cond_mult` / `inst_cond_mult`:** empathy-adjacent — the
+  high-`empathy` character picks up others' fears at the upper
+  range; the detached one barely registers them. Children get the
+  ×1.2 knot automatically — no bible pin needed.
+- **`shame_*` / `guilt_rehearse_k`:** drive from the bible's moral
+  style — a shame-prone character (Tangney's shame-proneness is a
+  stable disposition) gets `shame_avoid_k` high and should have
+  backstory events that WOULD mint shame tags (self-caused,
+  public-ish failures); a guilt-prone character gets
+  `guilt_rehearse_k` high and generates amends urges the behavior
+  layer can dramatize.
+- **`nostalgia_*`:** the sentimental character gets
+  `nostalgia_trigger_k` 0.4+; bibles should seed a few old positive
+  people-rich records for them to reach for (the nostalgic needs an
+  archive to self-medicate with).
+- **`rep_habit_k`:** flat for nearly everyone — it is a mechanism
+  constant about repeated events, not personality. Same for
+  `rep_script_gain`, `dream_emo_w`, `dream_neg_bias`,
+  `mood_confab_k`, `mood_crit_shift`, `betrayal_*` magnitudes.
+- **Never pin (mechanism constants / locked):** the arousal-0.8
+  recurrence reset, the betrayal→amnesia null (locked at 0 —
+  avoidance, never erasure), the no-merge rule on anticip traces,
+  the no-episodic-record rule on instructed fear, the
+  rehearsal→forgive −0.02 / amends→forgive +0.1 feedback rates.
+- **Emergent cast shadow:** (a) the worrier now has a week of
+  dread-records the audience can watch him relive; (b) the betrayed
+  character goes silent on the topic until the friendship ends —
+  then the story comes out; (c) the eavesdropping ambient NPC can
+  acquire a fear she never lived; (d) old mains' dream reports
+  skew to the strong-old archive — write their 20s richly, the
+  night draws from there too.

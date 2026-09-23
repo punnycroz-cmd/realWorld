@@ -1,4 +1,34 @@
-# Memory Model Spec v5.0 — implementable human-like memory for RW characters
+# Memory Model Spec v5.1 — implementable human-like memory for RW characters
+
+> **v5.1 note (emotional-memory V — the feeling that arrives early,
+> stays secondhand, and heals on schedule):** `memory/emotional-memory.md`
+> Part V (§§56–65) prices nine legs the earlier passes left implicit:
+> **anticipatory records** — `anticip:true` traces mint on flagged
+> future events, rehearse via dwell, and mint a mismatch record on
+> |Δtag|>0.4 (Van Boven & Ashworth 2007) — §4.28; **betrayal prices
+> closeness** — perpetrator trust scales arousal_tag up and verbatim
+> down, then the record is avoided-not-erased until the relationship
+> breaks (Freyd BTT, conservative reading) — §4.29; **secondhand
+> fear** — `vic_cond_mult`/`inst_cond_mult` give §4.9 three
+> acquisition routes (Olsson & Phelps 2007) — §4.29; **the dream draw
+> samples the hot queue** — §4.24's world-supplied salience clause is
+> superseded by an arousal×recency draw with `dream_neg_bias`
+> (Valli et al. 2008) — §5.53; **shame avoids, guilt rehearses** —
+> tag-split retrieval ecology + observer-perspective emissions +
+> `amends_urge` counter (Tangney; D'Argembeau-group 2023) — §5.54;
+> **forgiveness thaws the loop** — RelEdge `forgive` gates
+> rehearsal/intrusion of offender-linked records, rumination nudges
+> forgive down (McCullough et al. 2007 direction locked) — §5.55;
+> **nostalgia self-medicates** — distress triggers warm-archive draws,
+> emissions lift mood (Wildschut 2006; Routledge 2011) — §5.56;
+> **mood fills the gaps** — `mood_confab_k` valence-matched confab +
+> `mood_crit_shift` liberal low-arousal criterion (Ruci 2009; Corson &
+> Verrier 2007) — §6.72; **emotional inertia** — `emo_inertia` trait
+> gives C.mood persistence semantics (Kuppens 2010; Koval 2013) —
+> §6.74; **repetition habituates** — `rep_habit_k`/`rep_script_gain`
+> per recurrence, first-of-kind premium, arousal-0.8 reset locked —
+> §6.73. +20 params in §7; probes P545–P554. All optional,
+> default-neutral.
 
 > **v5.0 note (age-decline V — the binding bill comes due):**
 > `memory/age-decline.md` Part V (§§63–78) prices the join:
@@ -2935,6 +2965,48 @@ knots 1.0≤60 → 0.6@75 → 0.4@85 on the §4.9-adjacent arousal-bleed
 leg onto neutral co-encodees. `w_emo`/`emo_consol_gain`/`abc_gain`
 reaffirmed explicitly OFF the decline curve (P539 sign-lock).
 
+### 4.28 Anticipatory records — dread writes a trace (new in v5.1)
+
+Van Boven & Ashworth 2007 (JEP:G 136:289 — verified): anticipation
+is more evocative than retrospection, mediated by mental simulation;
+§6.9 `imagine_gain` supplies the write mechanism. When the world
+flags a future event `anticipated` for a character, mint
+`{anticip:true, source:"imagined", arousal_tag = anticip_gain·
+expectedArousal (0.4), thin verbatim}`. Each dwell/simulation tick
+on the expected event acts as a retell on the anticip trace
+(strength up, drift applies — the feared version sharpens). At the
+real encodeEvent the anticip trace does NOT merge — it persists as
+a competing same-event trace; if |real_tag − anticip_tag| > 0.4
+mint a small mismatch record ("not as bad as feared" /
+"worse than imagined") — relief/disappointment is the meta-emotion
+of the gap (Shepperd & McNulty 2002; P545).
+
+### 4.29 Betrayal and secondhand fear (new in v5.1)
+
+**Betrayal leg.** Freyd betrayal-trauma (1994/96; Freyd, DePrince &
+Zurbriggen 2001; Lindblom & Gray 2009 partial; McNally 2007
+critique — DEBATED): the defensible signal is avoidance + detail-
+thinness, NOT amnesia. On encoding of valence<−0.3 events whose
+cueVector.people contains a perpetrator at trust ≥ betrayal_thresh
+(0.6): `arousal_tag *= (1 + betrayal_trust_gain·trust)` (0.35),
+verbatim fields at `(1 − betrayal_thin·trust)` (0.3), record flagged
+`betrayal:true`. Retrieval legs at §5.54-adjacent: voluntary-recall
+discount `betrayal_avoid_k` (0.4, R-side θ bump à la suppressEvent)
++ intrusion −0.1; if trust collapses, avoidance relaxes over ~30d.
+Locked: betrayal records are NEVER unreachable — avoidance, not
+erasure (P546 sign-lock).
+
+**Secondhand-fear leg.** Olsson & Phelps 2007 (Nat Neurosci 10:1095)
++ Olsson, Nearing & Phelps 2007 (SCAN 2:3 — verified): observational
+fear learning shares amygdala machinery and can match direct
+conditioning; instructed fear weaker (Phelps et al. 2001). §4.9
+acquisition gains three routes — direct (unchanged); witness:
+`vic_cond_mult·cond_gain·arousal` (0.6) + thin `witnessed:true`
+episodic record; instructed via hearAccount with teller arousal ≥
+cond_thresh: `inst_cond_mult·cond_gain·arousal` (0.3), no episodic
+record. Same decay/extinction/renewal/generalization machinery;
+applies to positive conditioning too (P547).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -4370,6 +4442,59 @@ signal, legs pay `test_nofb_mult` (0.55@75 → 0.3@85) and §6.58
 confidence inflation applies unopposed. Schedule-shape
 invariance locked: expanded>equal spacing holds at both ages
 (Balota et al. 2006).
+
+### 5.53 The dream draw samples the hot queue (new in v5.1)
+
+Supersedes §4.24's "world/story supplies salience" clause. The
+night's Poisson(dream_mint) dream records now sample the character's
+OWN live episodic store: weight ∝ `dream_emo_w`·arousal·recency +
+(1−`dream_emo_w`)·strength (`dream_emo_w` 0.6 — mostly the hot
+queue plus an old-strong tail; Valli et al. 2008: current dream
+threats resemble PAST real threats). Valence draw ∝
+(1 − `dream_neg_bias`·valence), `dream_neg_bias` 0.15 — verified
+real bias, not sampling artifact; ×2 when mean mood < 0 (Pesant &
+Zadra 2006 longitudinal). Everything else in §4.24 unchanged —
+wake-gated recall, tau_dream, dream_cond_mult residue. [CONSENSUS
+draw; magnitudes HYPOTHESIS; P548]
+
+### 5.54 Self-conscious retrieval asymmetry — shame avoids, guilt rehearses (new in v5.1)
+
+Records tagged `emotion:"shame"`/`"guilt"` (minted on valence<0,
+self-caused, selfRelevance-high events; tag gated below ~6/4 years —
+Tracy & Robins 2004). Shame (Tangney; D'Argembeau-group *Memory*
+2023 — verified observer-perspective signature): voluntary recall
+p ×(1−`shame_avoid_k` 0.35), `intrusion_thresh` −`shame_intrude_k`
+0.15 (avoided AND intrusive), Reconstructions emit
+`perspective:"observer"` at ~2× base rate, discussEvent routes to
+deflection unless trust>0.7. Guilt: rumin-style rehearsal boost
+`guilt_rehearse_k` 0.3, and each rehearsal increments the
+`amends_urge` counter the behavior layer reads — guilt replays
+toward repair, shame toward hiding (P549).
+
+### 5.55 Forgiveness thaws the loop (new in v5.1)
+
+McCullough, Bono & Root 2007 (JPSP 92:490 — verified cross-lag:
+rumination→unforgiveness direction stronger). RelEdge gains
+`forgive` ∈[0,1] (world/behavior layer drives it). For negative
+records whose cueVector.people contains the dyad partner:
+rehearsal/intrusion probability ×(1 − `forgive`·`forgive_rumin_k`
+0.7) — the LOOP starves; strength/decay/tag clocks unchanged.
+Feedback: each unforgiven rehearsal nudges forgive −0.02; each
+completed amends (§5.54) +0.1 — both directions modeled, weighted
+per the cross-lags (P550 direction lock).
+
+### 5.56 Nostalgia self-medicates (new in v5.1)
+
+Wildschut et al. 2006 (JPSP 91:975) + Routledge et al. 2011 (JPSP
+101:638 — verified): distress triggers nostalgia; nostalgic recall
+restores mood/meaning/connectedness. `ambientMemoryScan` gains a
+regulation term — when C.mood < −0.2, draw weight of
+`nostalgic:true` OR positive + old (>180d) + people-rich records
+×(1 + `nostalgia_trigger_k`·|C.mood|) (0.3). On nostalgic emission:
+`C.mood += nostalgia_lift·(1−|C.mood|)` (0.15 — real nudge,
+self-limiting; §34's recall→mood feedback specialized to the
+documented valence route). Emitted tag stays bittersweet ("mixed" —
+the literature's signature; P551).
 
 ---
 
@@ -6194,6 +6319,49 @@ emission weight by `bump_emit_w(age_eff)` (1.0≤55 → 2.0@70 →
 existing bump machinery — no hard band). Cued draws keep the
 ordinary recency shape (P542 sign-lock).
 
+### 6.72 Mood-congruent confabulation and the liberal criterion (new in v5.1)
+
+Ruci, Tomes & Zelenski 2009 (Cogn Emot 23:1153 — verified):
+mood-congruent DRM lures intrude more, with more "remember"
+judgments. Corson & Verrier 2007 (verified): LOW-arousal moods
+raise false recognition regardless of valence (liberal criterion);
+arousal tightens item-specific memory. §6.2 confab_fill content
+selection weights candidate fills toward mood-matching valence at
+`mood_confab_k` (0.25) — a sad character's invented details skew
+negative. `lure_accept` shifts `+mood_crit_shift` (0.1) when
+|C.mood|<0.3 && C.arousal<0.3, and −mood_crit_shift when
+C.arousal≥0.6 (P552).
+
+### 6.73 Repetition habituates the tag, consolidates the script (new in v5.1)
+
+Recurring-emotional-events study (J. Neurosci. 2025 — verified):
+the advantage rides FIRST-encounter amygdala + stable neocortical
+reinstatement across repetitions. Script literature (Fivush 1984;
+Brewer 1986): instances go generic, script dominates. On
+encodeEvent matching an existing record's schema signature
+(participants+place+type, sim ≥ merge_thresh·0.9):
+`arousal_tag *= (1 − rep_habit_k)^n_recur` (0.15); instance mints
+thin; the §4.20 script node gains `rep_script_gain`·n_recur (0.2).
+LOCKED exception: any recurrence at encode-arousal ≥0.8 resets
+n_recur — escalation is a NEW event. The n_recur=0 instance keeps
+full encoding and anchors the script — "the first time he yelled"
+outlives every subsequent yell (P554).
+
+### 6.74 Emotional inertia — mood has weather (new in v5.1)
+
+Kuppens, Allen & Sheeber 2010 (Psychol Sci 21:984) + Koval et al.
+2012/2013 (verified): affect autocorrelation is a stable trait,
+higher in maladjustment, prospectively predicts depression.
+`emo_inertia` ∈[0,1] (default 0.3; depressive modifier 0.7) gives
+C.mood documented persistence semantics:
+`mood_t+1 = mood_t·emo_inertia + input·(1−emo_inertia)`. High
+inertia lengthens every mood-keyed leg — §5.4 mood congruence,
+§6.72 confab skew windows, §5.56 nostalgia-trigger regime; low
+inertia resets the retrieval ecology with each event. This is the
+state variable the mood clauses always assumed; flagged
+valence-asymmetry (negative-affect inertia is the clinical leg) as
+a future refinement (P553).
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -7158,6 +7326,29 @@ MemoryParams = {
 //   (AD§75 table); rif_age_tail/df pivot ~75 is group-mean —
 //   reserve/aging_rate shift it via age_eff; sdt_share is
 //   lab-calibrated (conversations run hotter — cues are people).
+// v5.1 additions (emotional-memory V — EM§§56–65)
+"anticip_gain": 0.4,                          // §4.28
+"betrayal_thresh": 0.6, "betrayal_trust_gain": 0.35,
+"betrayal_thin": 0.3, "betrayal_avoid_k": 0.4, // §4.29
+"vic_cond_mult": 0.6, "inst_cond_mult": 0.3,   // §4.29 (Olsson & Phelps)
+"dream_emo_w": 0.6, "dream_neg_bias": 0.15,    // §5.53 (×2 under mood<0)
+"shame_avoid_k": 0.35, "shame_intrude_k": 0.15,// §5.54
+"guilt_rehearse_k": 0.3,                       // §5.54 (+amends_urge counter)
+"forgive_rumin_k": 0.7,                        // §5.55 (RelEdge.forgive gate)
+"nostalgia_trigger_k": 0.3, "nostalgia_lift": 0.15, // §5.56
+"mood_confab_k": 0.25, "mood_crit_shift": 0.1, // §6.72
+"rep_habit_k": 0.15, "rep_script_gain": 0.2,   // §6.73
+"emo_inertia": 0.3,                            // §6.74 trait (depr→0.7)
+// v5.1 locked nulls/constants: betrayal → amnesia = 0 (avoidance,
+//   never erasure — McNally-side conservative read); recurrence at
+//   encode-arousal ≥0.8 resets n_recur (escalation is a new event);
+//   anticip records never merge into the real-event record;
+//   instructed fear mints no episodic record (cue tag only).
+// v5.1 knot notes: vic_cond_mult ×1.2 below 12; dream_neg_bias ×1.3
+//   below 12; shame tag gated <6y / guilt <4y; forgive accrual ×1.2
+//   at 65+; nostalgia_lift ×1.1 at 65+; emo_inertia ×1.2 adolescent,
+//   ×1.1 at 75+; rep_script_gain higher below 10; anticip_gain
+//   ×1.1@50, ×0.8@75 — all HYPOTHESIS unless noted (EM§67).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -8118,6 +8309,35 @@ not resolved (DEBATED magnitude). P509/P511.
   - Importance-ranked query mode ("most important", life-review)
     reads `bump_emit_w` — a new draw mode, distinct from cued
     recall; world supplies the query intent.
+  - All snapshot-additive, absent = legacy.
+- v5.1 additions (emotional-memory.md Part V §§56–65):
+  - `encodeEvent` event may carry `anticipated:true` (+ optional
+    `expectedArousal`, `expectedValence`) — mints the §4.28
+    `anticip:true` trace; dwell/simulation ticks flag the record for
+    rehearsal. World flags the schedule; the substrate owns the rest.
+  - Record flags `anticip:true`, `betrayal:true`, `witnessed:true`
+    — snapshot-additive; `betrayal:true` never gates retrieval to
+    zero (locked: avoidance, not erasure).
+  - §4.24 dream draw supersedes the "world supplies salience"
+    clause — dream records now sample the character's own store
+    (`dream_emo_w`/`dream_neg_bias`); world may still inject an
+    explicit `dream_salience` override.
+  - Reconstructions may carry `perspective:"observer"` on shame
+    records (~2× base rate) — dialogue renders watching-oneself
+    phrasing; flag exposed as recall phenomenology.
+  - `amendsUrge(charId)` read hook — returns the §5.54 guilt
+    rehearsal counter map keyed by offended-party; behavior layer
+    drains it when repair acts happen.
+  - RelEdge gains `forgive` ∈[0,1] (world drives: apologies,
+    amends, time) — gates §5.55 rehearsal/intrusion of
+    offender-linked records; feedback nudges are substrate-side.
+  - `ambientMemoryScan` gains the §5.56 nostalgia regulation leg —
+    emissions under C.mood<−0.2 may carry `nostalgic:true` and
+    nudge C.mood on emission.
+  - `hearAccount` may trigger `inst_cond_mult` conditioned-affect
+    acquisition (no episodic record) when teller arousal ≥ cond_thresh.
+  - `C.mood` persistence semantics documented (§6.74 `emo_inertia`) —
+    world supplies mood inputs; the substrate owns autocorrelation.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
