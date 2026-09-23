@@ -75,10 +75,14 @@ function renderWorld(){
 
   ctx.imageSmoothingEnabled = false;
 
-  // SF Mission scenario: dedicated renderer (top-down or street-level)
+  // SF Mission scenario: dedicated renderer (top-down or street-level).
+  // v26: the scene paints into an offscreen frame and finishes through
+  // the lens rig (tilt-shift / depth-of-field / vignette / grain).
   if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    const lens = sfLensBegin(cw, ch);
     if(SF_VIEW === 'street') sfRenderStreet(cw, ch);
     else sfRenderWorld(cw, ch);
+    if(lens) sfLensEnd(cw, ch);
     renderWeatherAtmosphere(cw, ch);
     return;
   }

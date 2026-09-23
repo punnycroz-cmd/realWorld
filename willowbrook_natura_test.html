@@ -6009,10 +6009,14 @@ function renderWorld(){
 
   ctx.imageSmoothingEnabled = false;
 
-  // SF Mission scenario: dedicated renderer (top-down or street-level)
+  // SF Mission scenario: dedicated renderer (top-down or street-level).
+  // v26: the scene paints into an offscreen frame and finishes through
+  // the lens rig (tilt-shift / depth-of-field / vignette / grain).
   if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    const lens = sfLensBegin(cw, ch);
     if(SF_VIEW === 'street') sfRenderStreet(cw, ch);
     else sfRenderWorld(cw, ch);
+    if(lens) sfLensEnd(cw, ch);
     renderWeatherAtmosphere(cw, ch);
     return;
   }
@@ -29599,6 +29603,12 @@ window.addEventListener('keydown', e => {
     if(typeof showToast === 'function')
       showToast(`Lens ${Math.round(50 * SF_CAM.fov)}mm`);
   }
+  if(e.code === 'KeyL'){
+    SF_LENS.on = !SF_LENS.on;
+    if(typeof showToast === 'function')
+      showToast(SF_LENS.on ? '◎ LENS rig — tilt-shift / depth of field'
+                           : 'Lens rig off — raw render');
+  }
 });
 if(SF_MODE && typeof window !== 'undefined'){
   let sfDrag = null;
@@ -29637,7 +29647,126 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>Z</kbd>/<kbd>X</kbd> Lens</span>' +
     '<span><kbd>Scroll</kbd> Dolly</span>' +
     '<span><kbd>WASD</kbd> Fly</span>' +
-    '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>';
+    '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>' +
+    '<span><kbd>L</kbd> Lens</span>';
+}
+
+/* ---------------- v26: LENS — camera post-processing rig -------------
+   The SF views no longer paint straight to the screen: the scene renders
+   into an offscreen frame, then finishes through a physical lens model.
+
+   · top view  — TILT-SHIFT: the axonometric diorama gets a sharp focal
+     band across the subject line; defocus grows toward the frame edges
+     so the neighborhood reads as a photographed miniature.
+   · street    — DEPTH OF FIELD: circle-of-confusion from the ground-
+     plane equation. For a screen row y below the horizon the distance
+     is d = camH·F/(y − horizon); blur scales with the diopter
+     difference |1/d − 1/foc|, so the focal plane stays tack-sharp
+     while near pavement and far blocks melt.
+   · both      — lens vignette + a whisper of film grain.
+
+   L toggles the rig. The still-frame cache still works — it now caches
+   the pre-lens frame, and the lens pass itself is ~3 canvas blits. */
+const SF_LENS = { on: true, mode: 'flat', horizon: 0, camHF: 1, foc: 24,
+                  frame: null, fg: null, blur: null, bg: null,
+                  noise: null, pat: null, saveCtx: null };
+function sfLensNoise(){
+  if(SF_LENS.noise) return SF_LENS.noise;
+  const c = document.createElement('canvas'); c.width = 160; c.height = 90;
+  const g = c.getContext('2d');
+  const im = g.createImageData(160, 90);
+  for(let i = 0; i < im.data.length; i += 4){
+    const v = 96 + Math.random() * 128;
+    im.data[i] = im.data[i + 1] = im.data[i + 2] = v;
+    im.data[i + 3] = 255;
+  }
+  g.putImageData(im, 0, 0);
+  SF_LENS.noise = c; return c;
+}
+/* Redirect the global ctx at the SF frame. All sf painters draw through
+   `ctx`, so the whole pipeline — including the still-frame cache, which
+   snapshots ctx.canvas — works unchanged inside the frame. */
+function sfLensBegin(cw, ch){
+  SF_LENS.mode = 'flat';      // renderers upgrade this while they paint
+  if(!SF_LENS.on || typeof document === 'undefined' || !ctx) return false;
+  const W = Math.max(2, Math.round(cw * dpr)), H = Math.max(2, Math.round(ch * dpr));
+  if(!SF_LENS.frame){
+    SF_LENS.frame = document.createElement('canvas');
+    SF_LENS.fg = SF_LENS.frame.getContext('2d');
+    SF_LENS.blur = document.createElement('canvas');
+    SF_LENS.bg = SF_LENS.blur.getContext('2d');
+  }
+  if(SF_LENS.frame.width !== W || SF_LENS.frame.height !== H){
+    SF_LENS.frame.width = W; SF_LENS.frame.height = H;
+    SF_LENS.blur.width = W; SF_LENS.blur.height = H;
+    SF_LENS.pat = null;
+  }
+  SF_LENS.saveCtx = ctx;
+  ctx = SF_LENS.fg;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return true;
+}
+/* Per-scanline defocus alpha (CSS-pixel y). */
+function sfLensAlpha(yCss, ch){
+  if(SF_LENS.mode === 'top'){
+    const d = Math.abs(yCss - ch * 0.5);
+    const t = clamp((d - ch * 0.15) / (ch * 0.30), 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+  // street: real circle of confusion — diopter difference from focus
+  const dy = yCss - SF_LENS.horizon;
+  const d = dy > 1 ? SF_LENS.camHF / dy : Infinity;
+  const dd = Math.abs(1 / d - 1 / SF_LENS.foc);
+  return clamp(dd * 5.5, 0, 0.8);
+}
+function sfLensEnd(cw, ch){
+  const g = SF_LENS.fg;
+  ctx = SF_LENS.saveCtx;                 // back to the real canvas
+  if(!g || !ctx) return;
+  const F = SF_LENS.frame, B = SF_LENS.blur, bg = SF_LENS.bg;
+  const W = F.width, H = F.height;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);    // device pixels
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(F, 0, 0);
+  if(SF_LENS.mode !== 'flat' && B && typeof bg.filter !== 'undefined'){
+    const R = Math.max(3, Math.round(H * (SF_LENS.mode === 'top' ? 0.012 : 0.0065)));
+    bg.setTransform(1, 0, 0, 1, 0, 0);
+    bg.clearRect(0, 0, W, H);
+    bg.filter = `blur(${R}px)`;
+    bg.drawImage(F, 0, 0);
+    bg.filter = 'none';
+    const N = 30;
+    for(let i = 0; i < N; i++){
+      const y0 = Math.floor(H * i / N), y1 = Math.ceil(H * (i + 1) / N);
+      const a = sfLensAlpha((y0 + y1) / 2 / dpr, ch);
+      if(a < 0.02) continue;
+      ctx.globalAlpha = a;
+      ctx.drawImage(B, 0, y0, W, y1 - y0, 0, y0, W, y1 - y0);
+    }
+    ctx.globalAlpha = 1;
+  }
+  // lens vignette — light falls off toward the corners of the frame
+  const vr = Math.hypot(W, H) * 0.62;
+  const vg = ctx.createRadialGradient(W / 2, H / 2, vr * 0.45,
+                                      W / 2, H / 2, vr);
+  vg.addColorStop(0, 'rgba(8,6,4,0)');
+  vg.addColorStop(1, 'rgba(8,6,4,0.30)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, W, H);
+  // film grain — fixed plate, random sub-frame offset each frame
+  if(!SF_LENS.pat && typeof ctx.createPattern === 'function')
+    SF_LENS.pat = ctx.createPattern(sfLensNoise(), 'repeat');
+  if(SF_LENS.pat){
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = SF_LENS.pat;
+    const ox = Math.floor(Math.random() * 160), oy = Math.floor(Math.random() * 90);
+    ctx.translate(-ox, -oy);
+    ctx.fillRect(0, 0, W + 160, H + 90);
+    ctx.translate(ox, oy);
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
 }
 
 /* ---------------- v6: "Karl" — living sky & cloud-shadow system -------
@@ -30439,6 +30568,7 @@ function sfTerrainTile(wx, wy, tt){
 function sfRenderWorld(cw, ch){
   sfPerfBegin();
   sfWxTick();
+  SF_LENS.mode = 'top';   // v26: tilt-shift bands in the lens pass
   // v10: temporal frame cache — blit the last frame when nothing moved
   const stillKey = sfStillKey(cw, ch, 'top',
     [Math.round(cam.x), Math.round(cam.y), Math.round(cam.zoom * 1000)]);
@@ -31987,6 +32117,21 @@ function sfRenderStreet(cw, ch){
     if(fwd < 0.5) return null;
     return [cw / 2 + side * F / fwd, horizon + (camH - z) * F / fwd, fwd];
   };
+
+  // v26: publish the lens focal plane — follow mode focuses on the
+  // subject's true distance; director mode focuses where frame-center
+  // meets the ground (60m when the lens points at the sky)
+  SF_LENS.mode = 'street';
+  SF_LENS.horizon = horizon;
+  SF_LENS.camHF = camH * F;
+  if(!SF_CAM.director && v){
+    const fp = pr(px, py, 0);
+    if(fp) SF_LENS.foc = fp[2];
+  } else {
+    const yMid = ch * 0.58;
+    SF_LENS.foc = yMid > horizon + 1
+      ? clamp((camH * F) / (yMid - horizon), 4, 400) : 60;
+  }
 
   // v10: temporal frame cache — skip the entire painter's pass when the
   // smoothed rig, pawn positions and weather buckets match the last frame
