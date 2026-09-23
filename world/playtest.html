@@ -11,7 +11,8 @@
   PT48 + onboarding v4 time layer / onboard gate v53, PT49 + lease v5 / lease gate v54,
   PT50 + thinai v5 / thinai gate v55, PT51 + bible v56 / bible gate v56,
   PT52 + crowd v5 marine layer / crowd gate v57,
-  PT60 + harness v65 finding templates / hide-finished filter / session handoff).
+  PT60 + harness v65 finding templates / hide-finished filter / session handoff;
+  PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -1295,12 +1296,32 @@ const PTS=[
   ck:["Harness gate: '60 scenarios · N checkpoints · key rw_playtest_v65'; 0 fail overall",
     "A missing fTmpl / hideDone / exHandoff id or the old LS key would FAIL — spot-check",
     "Mirror gate reports inline == contract after the PT60 hand-sync"]}]}
+,{id:"PT61",title:"Drama board v66 — interference matrix, suspicion ceilings, comedy duty, nursery",min:10,
+ persona:"showrunner-side reviewer — wants the v66 direction layer verified as permission structures, not scripts",
+ goal:"Verify the v66 drama-direction pass: drama.json drama-v4 carries the fuse interference matrix (all 15 pairs), per-seed suspicion ceilings, the comedy-duty roster, and the residue nursery; drama.html renders all four sections; every new note stays a disposition/condition/weight/protection per the §19 checklist.",
+ surfaces:["audit"],steps:[
+ {do:"Read drama-notes.md §§31–35 against the §19 legality checklist. For each new table row, name which of the four legal forms it is.",
+  exp:"Every row resolves to a permission, ceiling, or weight — interference relations are permissions ('may share a window', never 'will'), suspicion ceilings bound what the audience may conclude, comedy duty names carriers and forbidden registers, nursery candidates are dormant-only. No row predicts an outcome the feed could falsify in a week.",
+  ck:["All 15 unordered fuse pairs carry exactly one relation; only F1's four edges are interlocked; F2·F3 is the single masked pair",
+    "Each suspicion ceiling is phrased as what the audience may suspect — the brink rung never lets a viewer state the fact",
+    "Comedy duty's only mechanism is the comedy_drought review flag — a posture note, never a scheduled joke",
+    "Nursery candidates N1–N4 are dormant-only and each names what promotion would need (bible-authored fact, never backfilled)"]},
+ {do:"Open drama.html (file://) and scroll the four new sections: interference matrix, suspicion calibration, comedy duty, residue nursery.",
+  exp:"The interference table renders 15 color-coded rows (interlocked/adjacent/independent/masked); calibration shows 10 seeds × 3 ceilings; comedy shows 6 fuses with carriers + never; the nursery lists N1–N4 with parent fuses. The pressure catalog table now runs P-01–P-18 and the drift-review list carries the comedy-texture step.",
+  ck:["All four new tables render populated — no empty tbody, no console errors",
+    "Interference rows are relation-colored and the masked pair (F2·F3) reads as a ceiling drop, not a trigger",
+    "P-16/P-17/P-18 each name a producing system that already exists (lease cadence, weekend crowds, posted hours)"]},
+ {do:"Run `node world/audit.js` and read the drama + harness gates.",
+  exp:"The drama gate passes the v66 checks: pair coverage 15/15, relations in enum, per-seed ceilings complete, per-fuse comedy rows, nursery parent-fuse validity, comedy step in drift_review, and html mirror counts (INTERF/SUSP/COMEDY/NURSERY). Harness gate reports 61 scenarios at the v66 key.",
+  ck:["Drama gate: 0 fail; detail reports '10 seeds · 18 pressure rows · schema drama-v4'",
+    "A missing pair, an off-enum relation, or a seed without all three ceilings would FAIL — spot-check",
+    "Harness gate: '61 scenarios · N checkpoints · key rw_playtest_v66'; 0 fail overall"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v65";
-const BUILD="world v65 local";
+const LS="rw_playtest_v66";
+const BUILD="world v66 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

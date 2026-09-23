@@ -1,10 +1,12 @@
-# Drama Direction Notes — "The Mission" (world v52)
+# Drama Direction Notes — "The Mission" (world v66)
 
 *v10 origin; v24 added the note grammar, pressure catalog, residue playbook,
 week shapes, and substrate handoff; v38 added evidence standards, drift review,
 hire integration, teller biases, stall/season-boundary policy, and pressure
 catalog second tranche; v52 adds tell ladders (graded legible shadows per
-seed) and venue dramaturgy (where each fuse's shadows may land).*
+seed) and venue dramaturgy (where each fuse's shadows may land); v66 adds the
+fuse interference matrix, audience suspicion calibration, the comedy-duty
+roster, the residue nursery, and pressure catalog third tranche.*
 
 **Audience:** the character AI brains (via their system context), the future
 drama-pacing manager (game-systems substrate item 9), reviewers of this
@@ -827,3 +829,167 @@ Two corollaries:
   pairwise disjoint). It cannot check legality of *notes* — §19 is human.
 - Landlord casting remains TBD; Victor's notes are written to survive
   either casting (his *fiction* is fixed; only the formal game-role is open).
+
+## 31. Fuse interference matrix
+
+§8's compounding exception says interlocked fuses may share a pressured
+window. This matrix makes "interlocked" auditable: every unordered fuse
+pair carries exactly one relation, and the relation is a *permission*,
+never a summons. `drama.json` mirrors it as `fuse_interference`.
+
+| Relation | Meaning |
+|---|---|---|
+| `interlocked` | The same event read from different sides — the pair may share a pressured window (compounding, not stacking) |
+| `adjacent` | Shared characters or venues — one fuse's pressure may *echo* as texture in the other's spaces, but the echo spends no budget and pressuring both is a stacked week |
+| `independent` | No shared mechanics — co-pressuring is always a stacked week; shed one |
+| `masked` | During the louder fuse's surface window, the masked fuse's display ceiling drops one rung (brink→pressure, pressure→whisper) — its shadows get *read through* the bigger story, which is realistic, not wasted |
+
+The matrix:
+
+| Pair | Relation | Why |
+|---|---|---|---|
+| F1·F2 | interlocked | The sale crisis is what crowds the kitchens — compression is F1's pressure doing F2's work |
+| F1·F3 | adjacent | Jules's housing stakes ride F1, but the crush is its own material; F1 may echo as Jules narrating worry, nothing more |
+| F1·F4 | interlocked | S6 makes the buildings Tomás's collateral — the loan is the mechanical tie, not a thematic one |
+| F1·F5 | interlocked | Carmen's exposure is the sale's sharpest edge; F5's gentle-and-rare cap still applies *inside* the compound |
+| F1·F6 | interlocked | The blog is F1's public vector; a pressured F6 means the discovery cone is shrinking |
+| F2·F3 | masked | If F2 surfaces, Jules's crush-shadows get read through the wreckage — F3's ceiling drops a rung for the window (§3-F3: witness, not resolution) |
+| F2·F4 | independent | No shared mechanics; parallel quiet is fine, joint pressure isn't |
+| F2·F5 | independent | Carmen's fragility doesn't compound with the flat's secret |
+| F2·F6 | adjacent | A surfaced F2 is blog-shaped news; Mars *declining* to cover a friend's reveal is her texture, not pressure |
+| F3·F4 | independent | The two quiet fuses never compound |
+| F3·F5 | adjacent | C2/C6 mutual hiding-as-care — the adjacency is emotional, not mechanical |
+| F3·F6 | adjacent | Jules's outsider narration grazes the blog mystery |
+| F4·F5 | independent | — |
+| F4·F6 | adjacent | Mars sits on both ends; deliberation texture may bleed between them without either pressuring the other |
+| F5·F6 | adjacent | A surfaced F5 could be Unfiltered-shaped — but F5's cap means the adjacency is a temptation Mars may only feel, never a lever |
+
+Standing rules:
+
+- **Echoes are free, pressure costs.** An adjacent fuse's texture may show
+  up inside another's pressured window; it just may not consume budget or
+  advance a state. If an echo starts reading as a second pressured fuse,
+  the matrix was mislabeled — fix the label at drift review, don't shed
+  the echo retroactively.
+- **Masking is directional and time-boxed.** It applies only while the
+  louder fuse is `surfaced`-window hot (the 2–4 block days around the
+  surface event), then lifts on its own. Nobody unmasks a seed by effort.
+- **The matrix is a ceiling, not a quota.** An interlocked pair sharing a
+  window is *permitted*, never owed. Most pressured windows stay single.
+
+## 32. Audience suspicion calibration
+
+§28 grades what shadows may show; this section grades what the audience
+may *conclude* from them. Each rung carries a **suspicion ceiling** — the
+most a careful viewer is allowed to be sure of. A shadow that would let
+the audience *state the fact* (not suspect it — state it) exceeds its
+rung no matter how subtle it looked on paper. `drama.json` mirrors it as
+`suspicion_calibration`.
+
+| Seed | Whisper ceiling | Pressure ceiling | Brink ceiling |
+|---|---|---|---|
+| S1 | "Victor seems off lately" | "something is up with the buildings or the landlord" | "the two Guerrero buildings specifically are in play" — never "a written offer exists" |
+| S2 | "the blog is local, someone who knows the block" | "the blogger might be someone we watch" | "Mars is holding a post back" — never certainty she *is* Unfiltered |
+| S3 | "Dani's art has a recurring figure" | "Dani and Marcus orbit each other" | "they're involved, and Priya doesn't know" — the lit end allows a nearer brink, never duration or seriousness |
+| S4 | "Jules's paperwork is odd" | "Jules might not be on the lease" | "Jules's tenancy couldn't survive scrutiny" — never "unpermitted" named as fact |
+| S5 | "Carmen is deeply rooted here" | "Carmen is worried about something she won't say" | "the worry is housing-shaped" — never the income or the nowhere-to-go |
+| S6 | "Tomás has a plan" | "the plan has a name and a price" | "money moved between Tomás and Victor" — never the amount, never the handshake's terms |
+| S7 | "the 3 p.m. coffee is a fixture" | "Tomás's attention is specific" | "the audience may be surer than Marisol" — the ceiling never includes *her* seeing it |
+| S8 | "Jules draws a recurring figure" | "the figure is Priya; Jules lingers" | "the audience names the crush before the block does" — ahead-of-character is the design here, not a leak |
+| S9 | "Marcus is generous and thin" | "money is tight at 9457" | "the arrears are ledger-real" — never a figure |
+| S10 | "Priya does the shared labor" | "Priya is keeping count" | "the tally is about to be spoken aloud" — never a guarantee it is |
+
+Standing rules:
+
+- **The rewatch test.** Knowing everything, a viewer rewatching a rung's
+  shadows should find them *fair* — present but honestly ambiguous. A
+  shadow that only makes sense in hindsight is fine; a shadow that only
+  makes sense because the renderer knew the secret is a leak.
+- **Ceilings are per-rung and cumulative.** A brink window may still show
+  whisper and pressure tells; it may not show a shadow that collapses the
+  distance between "fairly sure" and "certain." The surface event does
+  the certainty.
+- **S8 is the calibrated exception.** Jules's crush is *designed* to run
+  ahead of the characters — its ceilings are higher at every rung and
+  that's correct, not a leak to fix.
+- **Suspicion is measured in the audience, not the block.** A brink tell
+  the characters shrug off is still a brink tell; calibration is about
+  what the *viewer* can hold, since the viewer is the product.
+
+## 33. Comedy duty — the contrast roster
+
+§2 makes comedy load-bearing; this section makes it *accountable*. Comedy
+is a standing condition of the characters, never a beat the pacing layer
+may schedule — but its **absence is observable**, and that's the knob.
+
+- **The drought flag.** A pressured window that produced zero comic
+  texture anywhere on the block gets flagged `comedy_drought` at drift
+  review (§22 step list, implicitly — see `drama.json`). The response is
+  never "add jokes": it's a posture note preferring venues/characters
+  whose ordinary texture is comic (the counter, the benches, the
+  supplier loop's earnestness) over the next window. The drought flag is
+  a review artifact, never a world event.
+- **Comedy lands next to the shadow, never on it.** A joke that deflates
+  its own fuse's brink tell is misregistered — the laugh comes from the
+  *other* 90% of the block living its life.
+- **Nobody is the joke because of their secret.** Carmen's fragility,
+  Priya's tally, Jules's crush — these may sit near comedy but never be
+  its target. The audience laughs with the block, not at its wounds.
+
+The roster (who carries contrast when a fuse is pressured, and the
+forbidden register):
+
+| Fuse | Natural comedy carriers | Never |
+|---|---|---|---|
+| F1 | Mars's deadpan at the counter; Malik's inflated retellings of whatever's public; Gus insisting it's always been like this | jokes that land eviction-shaped fear on Jules or Carmen; a wink that names the offer |
+| F2 | the 9457 flat's domestic rhythm; June/Zee gossiping about the wrong venue entirely | any bit that reads as the show winking at the secret — the comedy must stay deniable |
+| F3 | Jules's over-narration catching up with itself; latte-art seriousness | mocking the crush; Priya rendered clueless for a laugh |
+| F4 | the supplier loop's earnestness; Tomás's five-year-plan energy treated as normal | the joke being "she can't see it" — said to her or staged for the camera |
+| F5 | comedy lives strictly off-stoop — the park chorus, café banter | comedy at the stoop, about health, or at Carmen's expense in any register |
+| F6 | the block's guessing-game about who writes Unfiltered — a parlor game, played gently | a character "testing" Mars; the joke depending on her being caught |
+
+## 34. The residue nursery
+
+§15 says resolved fuses leave residue; §25 says residue becomes the next
+fuse map's raw material at a declared season boundary. The nursery is the
+holding pen between those two facts — a list of *candidate seeds* that
+residue is gesturing at. `drama.json` mirrors it as `residue_nursery`.
+
+Rules:
+
+- **Dormant-only, boundary-only.** A nursery candidate can never be
+  pressured; it isn't a seed yet. Promotion to the seed registry happens
+  only at a declared season boundary (§25) and only when the candidate's
+  underlying fact is authored into a bible — the nursery names
+  tendencies, the bibles own facts.
+- **No mid-arc minting.** A fuse must be `resolved` before its residue
+  can nominate a candidate. Nothing enters the nursery while its parent
+  is still burning.
+- **Residue seeds inherit no secret by default.** A candidate grown from
+  residue describes a *new situation* (a habit, a monument, a changed
+  ritual) — if it needs a held-secret core, that secret is authored at
+  promotion in the bible, never backfilled.
+- **Internal vocabulary.** Nursery candidates never appear on any
+  spectator surface, same rule as the seed registry itself.
+
+Current candidates (all prospective — none exists until its parent
+resolves):
+
+| Id | From | Tendency it gestures at | What promotion would need |
+|---|---|---|---|
+| N1 | F1 residue (the trust tax) | the documentation habit — tenants keeping paper, photographing repairs, quoting the lease | a bible-level fact about who starts keeping records and what they collect |
+| N2 | F6 residue (the named power) | Marisol's first secret of her own — the woman who banks everyone's secrets holding one | the secret itself, authored in C1's bible at promotion — never invented here |
+| N3 | F2 residue (the renegotiated flat) | the flat's new arrangement as its own tension — whatever shape three people settle into | the resolved shape of 9457, observed in canon, not presumed |
+| N4 | F4 residue (the almost) | the 3 p.m. monument — spoken or unspoken, the ritual's new shape carrying its own next question | the post-F4 shape of the ritual; promotion waits for the residue to have one |
+
+## 35. Pressure catalog — third tranche
+
+Same legality as §14/§26: each row is something the world already
+produces. `drama.json` mirrors; the audit gate enforces id format and the
+produced-by/shadow/exhaustion triple.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-16 | A lease-renewal window arriving | the lease system's own term/m2m cadence reaching a renewal date | F1, S9 | renewal-shaped paperwork; a terms conversation someone wasn't ready for | per-lease calendar — renewals can't be summoned, only awaited |
+| P-17 | Weekend crowd density as cover | the crowd system's weekend patterns — a busy park is where two people can be unremarkable together | F2, F4 | two people findable in a crowd is how they're seen together; shared festivals of nothing | weekends only by construction; a crowd is never summoned for pressure |
+| P-18 | Closing-time geometry | venues' posted hours compressing the last people in the room | F3, F4 | chairs on tables; the last-two-in-the-room geometry; "we're closing" as punctuation | posted hours only — hours never flex for pressure; once per evening by construction |

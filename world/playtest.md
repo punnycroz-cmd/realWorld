@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v65)
+# Playtest Harness — "Real World / The Mission" (world v66)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -131,6 +131,11 @@ One person can wear every hat; four real testers is the intended shape.
   dropdown seeding the five boundary breaks without logging on its own,
   the 'hide finished' rail filter composing with the smoke set, and the
   'Copy handoff' resume block for tester-to-tester relay.
+  PT61 (drama board v66) is a showrunner-side audit — the fuse
+  interference matrix covering all 15 pairs exactly once, per-seed
+  suspicion ceilings at every rung, the comedy-duty roster whose only
+  mechanism is a review flag, and the dormant-only residue nursery,
+  checked against the §19 legality checklist.
 
 ## 3. Running a session
 
@@ -217,6 +222,16 @@ v65 harness affordances (PT60 exercises all of them):
   per-scenario remaining counts matching the rail's N/M math, every open
   finding at any severity with refs and owner routing, and ttfr when set.
 
+v66 content under test (PT61 exercises it): the drama-direction board's
+new permission structures — fuse interference matrix (§31, all 15 pairs
+carry exactly one of interlocked/adjacent/independent/masked), audience
+suspicion calibration (§32, per-seed per-rung ceilings), the comedy-duty
+roster (§33, the `comedy_drought` flag is a review artifact, never a
+world event), and the residue nursery (§34, dormant-only candidates N1–N4
+promoted only at a declared season boundary). drama.html stays internal
+— PT61 runs it through `audit` surface + a file:// eyeball, and it is
+deliberately absent from the harness's own surface dropdown.
+
 A full pass (PT1–PT8) is ~2.5 h. A smoke pass is PT1 + PT4 + PT7 + PT21
 (~50 min) — free-tier, every deny path, the boundary audit, and the machine gate.
 
@@ -284,7 +299,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v65 mark present, scenario integrity — unique PT ids,
+harness_ui_v66 mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).

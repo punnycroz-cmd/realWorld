@@ -401,8 +401,8 @@ const PUB = Object.values(PT.surfaces)
     /* internal-only: drama files must never appear as a public playtest surface */
     for (const f of ['drama.html', 'drama.json', 'drama-notes.md'])
       if (PUB.includes(f)) add(g, 'fail', f, null, 'internal drama file listed as a public surface');
-    /* ---- v38 blocks (schema drama-v3) ---- */
-    if (D.schema_version === 'drama-v3') {
+    /* ---- v38+ blocks (schema drama-v3 or later) ---- */
+    if (/^drama-v[3-9]\d*$/.test(D.schema_version || '')) {
       /* state_evidence: exactly the four transitions, each with both lists */
       const EV = D.state_evidence || {};
       for (const t of ['dormant_to_pressured', 'pressured_to_surfaced',
@@ -506,6 +506,67 @@ const PUB = Object.values(PT.surfaces)
         if (!l.w || !l.p || !l.b) add(g, 'fail', 'drama.html', null, `LADDERS ${l.id}: whisper/pressure/brink field empty`);
       if (!VEN || VEN.length !== (D.venue_dramaturgy || []).length)
         add(g, 'fail', 'drama.html', null, 'VENUES count != venue_dramaturgy rows');
+      /* ---- v66 blocks (schema drama-v4) ---- */
+      if (D.schema_version === 'drama-v4') {
+        /* fuse_interference: all C(6,2)=15 pairs exactly once, relation in enum */
+        const FI = D.fuse_interference || {};
+        const RELS = new Set(FI.relations || []);
+        for (const r of ['interlocked', 'adjacent', 'independent', 'masked'])
+          if (!RELS.has(r)) add(g, 'fail', 'drama.json', null, `fuse_interference.relations missing "${r}"`);
+        const seenP2 = new Set();
+        for (const e of FI.pairs || []) {
+          const key = (e.pair || []).slice().sort().join('·');
+          if ((e.pair || []).length !== 2 || e.pair.some(f => !fuses.has(f)))
+            add(g, 'fail', 'drama.json', null, `fuse_interference pair "${key}": must be two known fuse ids`);
+          if (seenP2.has(key)) add(g, 'fail', 'drama.json', null, `fuse_interference: duplicate pair ${key}`);
+          seenP2.add(key);
+          if (!RELS.has(e.relation)) add(g, 'fail', 'drama.json', null, `fuse_interference ${key}: relation "${e.relation}" not in enum`);
+          if (!e.note) add(g, 'fail', 'drama.json', null, `fuse_interference ${key}: missing note`);
+        }
+        const NPAIR = fuses.size * (fuses.size - 1) / 2;
+        if (seenP2.size !== NPAIR)
+          add(g, 'fail', 'drama.json', null, `fuse_interference covers ${seenP2.size}/${NPAIR} fuse pairs — every pair needs exactly one relation`);
+        /* suspicion_calibration: every seed gets all three rung ceilings */
+        const SC = (D.suspicion_calibration || {}).per_seed || {};
+        for (const s of D.seeds || []) {
+          const c = SC[s.id] || {};
+          for (const rung of ['whisper', 'pressure', 'brink'])
+            if (!c[rung]) add(g, 'fail', 'drama.json', null, `suspicion_calibration.${s.id}.${rung} missing — an uncalibrated rung is an unbounded leak`);
+        }
+        /* comedy_duty: every fuse carries carriers + never */
+        const CD = (D.comedy_duty || {}).per_fuse || {};
+        for (const f of fuses) {
+          const c = CD[f] || {};
+          if (!c.carriers || !c.never)
+            add(g, 'fail', 'drama.json', null, `comedy_duty.${f}: carriers/never missing`);
+        }
+        if (!(D.comedy_duty || {}).drought_flag)
+          add(g, 'fail', 'drama.json', null, 'comedy_duty.drought_flag missing — the drought flag is the only knob comedy gets');
+        /* residue_nursery: rules + candidates with valid parent fuses */
+        const RN = D.residue_nursery || {};
+        if (!(RN.rules || []).length) add(g, 'fail', 'drama.json', null, 'residue_nursery.rules empty');
+        for (const n of RN.candidates || []) {
+          if (!fuses.has(n.from_fuse)) add(g, 'fail', 'drama.json', null, `nursery ${n.id}: from_fuse "${n.from_fuse}" not a fuse`);
+          if (!n.tendency || !n.needs) add(g, 'fail', 'drama.json', null, `nursery ${n.id}: tendency/needs missing`);
+        }
+        /* drift review must carry the comedy-texture step */
+        if (!(DR.steps || []).some(s => /comedy/i.test(s)))
+          add(g, 'fail', 'drama.json', null, 'drift_review.steps missing the comedy_drought check (§33)');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['interf', 'susp', 'comedy', 'nursery'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const ITF = grab('INTERF'), SSP = grab('SUSP'), CMD = grab('COMEDY'), NUR = grab('NURSERY');
+        if (!ITF || ITF.length !== (FI.pairs || []).length)
+          add(g, 'fail', 'drama.html', null, 'INTERF count != fuse_interference.pairs');
+        else for (const r of ITF)
+          if (!RELS.has(r[1])) add(g, 'fail', 'drama.html', null, `INTERF ${r[0]}: relation "${r[1]}" off-enum`);
+        if (!SSP || SSP.length !== (D.seeds || []).length)
+          add(g, 'fail', 'drama.html', null, 'SUSP count != seeds — every seed mirrors its ceilings');
+        if (!CMD || CMD.length !== fuses.size)
+          add(g, 'fail', 'drama.html', null, 'COMEDY count != fuses');
+        if (!NUR || NUR.length !== (RN.candidates || []).length)
+          add(g, 'fail', 'drama.html', null, 'NURSERY count != residue_nursery.candidates');
+      }
     }
     /* seeds must never be reachable from spectator contracts */
     for (const f of ['feed.json', 'history.json', 'requests.json', 'moderation.json', 'creation.json'])
@@ -2169,7 +2230,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v65 || {};
+    const H = PT.harness_ui_v66 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

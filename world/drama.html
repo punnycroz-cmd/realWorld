@@ -5,7 +5,7 @@
 <title>INTERNAL — Drama Direction Board (The Mission)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38 + v52. NOT a spectator surface.
+  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38 + v52 + v66. NOT a spectator surface.
   This board renders every secret on the block (world/drama.json mirror).
   It must never be linked, embedded, screenshotted for marketing, or
   reachable from any player-facing surface (feed.html, history.html,
@@ -68,7 +68,7 @@
 <header>
   <div><span class="logo">Drama Direction <span>Board</span></span>
     <span class="warn">Internal — secrets present — never ship</span></div>
-  <div class="sub">The Mission · world v52 · mirrors <code>world/drama.json</code> (schema drama-v3) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+  <div class="sub">The Mission · world v66 · mirrors <code>world/drama.json</code> (schema drama-v4) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
 </header>
 <main>
   <h2>Season fuse map</h2>
@@ -101,6 +101,14 @@
   <div class="seedgrid" id="ladders"></div>
   <h2>Venue dramaturgy <span style="text-transform:none;color:var(--dim)">(§29 — where shadows may land; home venues first)</span></h2>
   <table id="venues"><thead><tr><th>Venue</th><th>Fuses</th><th>Shadows that land here</th><th>Never</th></tr></thead><tbody></tbody></table>
+  <h2>Fuse interference matrix <span style="text-transform:none;color:var(--dim)">(§31 — a permission structure, never a quota; only interlocked pairs may share a pressured window)</span></h2>
+  <table id="interf"><thead><tr><th>Pair</th><th>Relation</th><th>Why</th></tr></thead><tbody></tbody></table>
+  <h2>Audience suspicion calibration <span style="text-transform:none;color:var(--dim)">(§32 — per-rung ceilings; the surface event does the certainty)</span></h2>
+  <table id="susp"><thead><tr><th>Seed</th><th>Whisper ceiling</th><th>Pressure ceiling</th><th>Brink ceiling</th></tr></thead><tbody></tbody></table>
+  <h2>Comedy duty <span style="text-transform:none;color:var(--dim)">(§33 — comedy is a standing condition; a drought is flagged, never fixed by fiat)</span></h2>
+  <table id="comedy"><thead><tr><th>Fuse</th><th>Natural carriers</th><th>Never</th></tr></thead><tbody></tbody></table>
+  <h2>Residue nursery <span style="text-transform:none;color:var(--dim)">(§34 — candidate seeds, dormant-only, promotion at a declared boundary)</span></h2>
+  <table id="nursery"><thead><tr><th>Id</th><th>From</th><th>Tendency</th><th>Promotion needs</th></tr></thead><tbody></tbody></table>
   <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
   <ul class="never" id="legal"></ul>
   <h2>Never list</h2>
@@ -204,7 +212,10 @@ const PCAT=[
  ["P-12","A hire's first week on the block","creation + housing move-in","all (as texture)","a new face at venues; introductions; wrong-order coffee","once per move-in; a hire is texture, not a pressure engine"],
  ["P-13","A shared chore left undone at 9457","the flat's routines + C5's absence patterns","S9 · S10","the dishes; the dead heater; who carried the trash out","weekly cap — background, not event"],
  ["P-14","The son's monthly call","C6's family contact routine","F5","Carmen quieter after the phone; the call she steps inside for","monthly; F5's gentle-and-rare cap still governs"],
- ["P-15","Blog-post expectation cycle","F6's own cadence — regulars expect a post","F6","ambient chatter: 'anything new on Unfiltered?'","expectation decays; can't be forced, only noticed"]];
+ ["P-15","Blog-post expectation cycle","F6's own cadence — regulars expect a post","F6","ambient chatter: 'anything new on Unfiltered?'","expectation decays; can't be forced, only noticed"],
+ ["P-16","A lease-renewal window arriving","the lease system's term/m2m cadence reaching a renewal date","F1 · S9","renewal-shaped paperwork; a terms conversation someone wasn't ready for","per-lease calendar — renewals can't be summoned, only awaited"],
+ ["P-17","Weekend crowd density as cover","the crowd system's weekend patterns — two people unremarkable together","F2 · F4","two people findable in a crowd is how they're seen together","weekends only; a crowd is never summoned for pressure"],
+ ["P-18","Closing-time geometry","venues' posted hours compressing the last people in the room","F3 · F4","chairs on tables; the last-two-in-the-room geometry","posted hours only — never flexed for pressure; once per evening"]];
 const EVID=[
  ["dormant → pressured","a ledger event traceable to a listed pressure_route within ~3 block days","manager intent · spectator chatter · a near-miss with no ledger event · another seed already pressured"],
  ["pressured → surfaced","the fact crossing to a must-not-know via a listed reveal vector, with a legible shadow","a rumor (can't mint seed facts) · interior realization · player hope"],
@@ -215,7 +226,8 @@ const DRIFT=[
  "Compare against the week-shape target — an emergent stacked week is canon, just not repurchased",
  "If emergence reordered the season preference, update notes + drama.json and log it — update, don't fight it",
  "Audit legible shadows — a state move with no shadow is a fix-forward violation, never a history rewrite",
- "Set next week's posture — a preference among conditions, not a plan"];
+ "Set next week's posture — a preference among conditions, not a plan",
+ "Check comedy texture — a pressured window with none earns a comedy_drought posture note, never a world event"];
 const HIRES=[
  "A hire holds no seeds at creation and starts outside every knowledge wall",
  "A hire learning a seed through play is canon — gained via ledger, never briefing",
@@ -276,6 +288,45 @@ const VENUES=[
  ["Supplier loop (Las Palmas, Valencia Growers)","F1 · F4 via S6","Tomás pricing his dream in public","new stops invented for pressure"],
  ["Mission Unfiltered (press surface)","F6","where a private fact can become a block fact","a post sourced beyond what Mars could have learned"],
  ["Ordinary-life venues (Golden Hour, Buy-Rite, courier loop)","all","the quiet floor — contrast","drama staging; these carry P-10"]];
+const INTERF=[
+ ["F1·F2","interlocked","the sale crisis is what crowds the kitchens"],
+ ["F1·F3","adjacent","Jules's stakes ride F1; the crush is its own material"],
+ ["F1·F4","interlocked","S6 makes the buildings Tomás's collateral"],
+ ["F1·F5","interlocked","Carmen's exposure is the sale's sharpest edge; F5's cap applies inside the compound"],
+ ["F1·F6","interlocked","the blog is F1's public vector"],
+ ["F2·F3","masked","F3's ceiling drops a rung while F2's surface window is hot — witness, not resolution"],
+ ["F2·F4","independent","no shared mechanics"],
+ ["F2·F5","independent","—"],
+ ["F2·F6","adjacent","a surfaced F2 is blog-shaped news; Mars declining is her texture"],
+ ["F3·F4","independent","the two quiet fuses never compound"],
+ ["F3·F5","adjacent","C2/C6 mutual hiding-as-care"],
+ ["F3·F6","adjacent","Jules's outsider narration grazes the blog mystery"],
+ ["F4·F5","independent","—"],
+ ["F4·F6","adjacent","Mars sits on both ends; deliberation texture may bleed"],
+ ["F5·F6","adjacent","surfaced F5 could be Unfiltered-shaped — a temptation, never a lever"]];
+const SUSP=[
+ ["S1","Victor seems off lately","something is up with the buildings or the landlord","the two Guerrero buildings specifically are in play — never 'a written offer exists'"],
+ ["S2","the blog is local","the blogger might be someone we watch","Mars is holding a post back — never certainty she is Unfiltered"],
+ ["S3","Dani's art has a recurring figure","Dani and Marcus orbit each other","they're involved, and Priya doesn't know — never duration or seriousness"],
+ ["S4","Jules's paperwork is odd","Jules might not be on the lease","Jules's tenancy couldn't survive scrutiny — never 'unpermitted' named"],
+ ["S5","Carmen is deeply rooted here","Carmen is worried about something she won't say","the worry is housing-shaped — never the income or the nowhere-to-go"],
+ ["S6","Tomás has a plan","the plan has a name and a price","money moved between Tomás and Victor — never the amount or terms"],
+ ["S7","the 3 p.m. coffee is a fixture","Tomás's attention is specific","the audience may be surer than Marisol — never includes her seeing it"],
+ ["S8","Jules draws a recurring figure","the figure is Priya; Jules lingers","the audience names the crush before the block does — ahead-of-character by design"],
+ ["S9","Marcus is generous and thin","money is tight at 9457","the arrears are ledger-real — never a figure"],
+ ["S10","Priya does the shared labor","Priya is keeping count","the tally is about to be spoken aloud — never a guarantee"]];
+const COMEDY=[
+ ["F1","Mars's deadpan at the counter; Malik's inflated retellings; Gus's always-been-like-this","jokes landing eviction-shaped fear on Jules or Carmen; a wink naming the offer"],
+ ["F2","the 9457 flat's domestic rhythm; June/Zee gossiping about the wrong venue entirely","any bit that reads as the show winking at the secret — deniable or don't"],
+ ["F3","Jules's over-narration catching up with itself; latte-art seriousness","mocking the crush; Priya rendered clueless for a laugh"],
+ ["F4","the supplier loop's earnestness; five-year-plan energy treated as normal","the joke being 'she can't see it' — said to her or staged for the camera"],
+ ["F5","strictly off-stoop — the park chorus, café banter","comedy at the stoop, about health, or at Carmen's expense"],
+ ["F6","the block's guessing-game about who writes Unfiltered — a parlor game, played gently","a character 'testing' Mars; the joke depending on her being caught"]];
+const NURSERY=[
+ ["N1","F1","the documentation habit — tenants keeping paper, photographing repairs, quoting the lease","a bible-level fact about who starts keeping records"],
+ ["N2","F6","Marisol's first secret of her own — the banker of everyone's secrets holding one","the secret itself, authored in C1's bible at promotion"],
+ ["N3","F2","the flat's new arrangement as its own tension","the resolved shape of 9457, observed in canon"],
+ ["N4","F4","the 3 p.m. monument — the ritual's new shape carrying its own next question","the post-F4 shape of the ritual; promotion waits for residue to have one"]];
 const LEGAL=[
  "Is it a disposition, condition, weight, or protection?",
  "Could the feed falsify it in a week? (outcome claim → rewrite)",
@@ -318,6 +369,15 @@ document.getElementById('ladders').innerHTML=LADDERS.map(l=>
   <dt>brink (pressured + live reveal vector — never the fact)</dt><dd>${l.b}</dd></dl></div>`).join('');
 document.querySelector('#venues tbody').innerHTML=VENUES.map(v=>
  `<tr><td><b>${v[0]}</b></td><td class="c">${v[1]}</td><td>${v[2]}</td><td>${v[3]}</td></tr>`).join('');
+const RELC={interlocked:'var(--acc)',adjacent:'var(--blu)',independent:'var(--dim)',masked:'var(--pur)'};
+document.querySelector('#interf tbody').innerHTML=INTERF.map(r=>
+ `<tr><td class="c">${r[0]}</td><td style="color:${RELC[r[1]]};font-weight:600">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#susp tbody').innerHTML=SUSP.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+document.querySelector('#comedy tbody').innerHTML=COMEDY.map(r=>
+ `<tr><td class="c">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.querySelector('#nursery tbody').innerHTML=NURSERY.map(r=>
+ `<tr><td class="c">${r[0]}</td><td class="c">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
 document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
 document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
 </script>
