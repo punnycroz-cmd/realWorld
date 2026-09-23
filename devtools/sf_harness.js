@@ -63,7 +63,7 @@ const api = eval(m[1] + `
     VILLAGERS, PA, W, SF_M, SF_DOORS, SF_DOOR_OF, SF_POIS, SF_MAP,
     SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol,
     sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
-    SF_LENS, SF_PXM })`);
+    SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -190,6 +190,25 @@ const api = eval(m[1] + `
      'director mark save/recall round-trip');
   ok(api.SF_CUT.on === true && api.SF_LENS.on === true,
      'cutaway + lens rig on by default');
+
+  // v28 curb height: sidewalk slab is real geometry
+  ok(api.SF_CURB_H > 0.1 && api.SF_CURB_H < 0.2, 'curb height ~15cm');
+  let swCell = null, rdCell = null;
+  for(let gy = 1; gy < api.SF_M.gh - 1 && !swCell; gy++)
+    for(let gx = 1; gx < api.SF_M.gw - 1; gx++){
+      if(api.sfTile(gx, gy) === 11 && api.sfTile(gx, gy - 1) === 10)
+        { swCell = [gx, gy]; rdCell = [gx, gy - 1]; break; }
+    }
+  ok(!!swCell, 'found a sidewalk/road adjacency');
+  if(swCell){
+    const cm2 = api.SF_M.cell_m;
+    ok(api.sfGroundZ((swCell[0] + 0.5) * cm2, (swCell[1] + 0.5) * cm2) === api.SF_CURB_H,
+       'sidewalk surface sits at curb height');
+    ok(api.sfGroundZ((rdCell[0] + 0.5) * cm2, (rdCell[1] + 0.5) * cm2) === 0,
+       'roadway stays at grade');
+  }
+  ok(/^#|^rgb/.test(api.sfCurbFaceCol(0, -1)),
+     'curb riser face returns a shaded color');
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');

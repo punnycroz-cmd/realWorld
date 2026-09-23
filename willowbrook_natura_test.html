@@ -30007,6 +30007,32 @@ function sfLampPool(cx, cy, r){
    ~0.5° disc makes the penumbra grow with distance from the occluder */
 function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
 
+/* ---------------- v28: CURB HEIGHT — the sidewalk is a place, not a color
+   Real SF curbs are ~15cm of granite-faced concrete. Until now every
+   ground quad sat on the z=0 plane and the "curb" was a painted stripe;
+   pawns crossing from asphalt to sidewalk never stepped up. Now sidewalk
+   cells project at z=SF_CURB_H, a sun-shaded riser face closes the gap
+   on every non-sidewalk edge (dropping to a flush ramp at crosswalks),
+   and sfGroundZ lifts whatever stands on the pavement — pawns, street
+   trees, poles, lamps — so feet rest on the walkway, not inside it. */
+const SF_CURB_H = 0.15;
+function sfGroundZ(wxm, wym){
+  const cm = SF_M.cell_m;
+  return sfTile(Math.floor(wxm / cm), Math.floor(wym / cm)) === 11
+    ? SF_CURB_H : 0;
+}
+/* riser concrete under the same sun as the walls: warm-lit when the face
+   turns sunward, cool sky-fill in shade — quantized so fill buckets stay
+   few */
+function sfCurbFaceCol(nx, ny){
+  const k = sfSunFaceK(nx, ny);
+  const lit = Math.round(clamp(0.34 + 0.30 * Math.max(0, k) * SF_SUN.day +
+                    0.10 * SF_SUN.day, 0.3, 0.72) * 8) / 8;
+  const c = shade('#6b655c', lit);
+  const cool = Math.round(0.18 * (1 - Math.max(0, k) * SF_SUN.day) * 8) / 8;
+  return mix(c, '#5a6a8c', cool);
+}
+
 /* ---------------- v27: CUTAWAY — occluder ghosting ----------------
    A lens pointed at a subject must never lose them behind a row of
    Victorians. sfGhostSet finds every building footprint the
@@ -30477,6 +30503,35 @@ function sfDecalChunk(g, cx, cy){
         if(sfTile(wx, wy + 1) === 11){ gut('s'); if(drainN(0, 1, 1, 0) && phash(wx, wy, 1711) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = Math.max(2, 4 * SF_TILT); g.fillRect(sx + (csz - dw) / 2, sy + sh - dh, dw, dh); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx + (csz - dw) / 2 + s2 * dw / 4, sy + sh - dh, 1, dh); } }
         if(sfTile(wx - 1, wy) === 11){ gut('w'); if(drainN(-1, 0, 0, 1) && phash(wx, wy, 1712) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = 4; g.fillRect(sx, sy + sh / 2 - dw / 2, dh, dw); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx, sy + sh / 2 - dw / 2 + s2 * dw / 4, dh, 1); } }
         if(sfTile(wx + 1, wy) === 11){ gut('e'); if(drainN(1, 0, 0, 1) && phash(wx, wy, 1713) < 0.5){ g.fillStyle = '#20242c'; const dw = csz * 0.4, dh = 4; g.fillRect(sx + csz - dh, sy + sh / 2 - dw / 2, dh, dw); g.fillStyle = '#4a5058'; for(let s2 = 1; s2 < 4; s2++) g.fillRect(sx + csz - dh, sy + sh / 2 - dw / 2 + s2 * dw / 4, dh, 1); } }
+        // v28: gutter windrow — wind rows litter/leaves against the curb;
+        // a ragged dark seam on the roadway just off the curb face, with
+        // leaf dabs where the row runs heavy
+        const windrow = (edge) => {
+          const h = phash(wx, wy, 1901 + 'nsew'.indexOf(edge));
+          if(h < 0.3) return;
+          const in2 = Math.max(2, 4.5 * SF_TILT), bw = Math.max(1.5, 2.4 * SF_TILT);
+          g.fillStyle = `rgba(56,46,32,${(0.10 + 0.14 * h).toFixed(3)})`;
+          if(edge === 'n') g.fillRect(sx, sy + in2, csz, bw);
+          if(edge === 's') g.fillRect(sx, sy + sh - in2 - bw, csz, bw);
+          if(edge === 'w') g.fillRect(sx + in2, sy, Math.max(1.5, 2.4), sh);
+          if(edge === 'e') g.fillRect(sx + csz - in2 - Math.max(1.5, 2.4), sy, Math.max(1.5, 2.4), sh);
+          if(h > 0.62){
+            g.fillStyle = 'rgba(140,104,50,0.5)';
+            const u1 = phash(wx, wy, 1921 + 'nsew'.indexOf(edge)) * (csz - 6),
+                  u2 = phash(wx, wy, 1931 + 'nsew'.indexOf(edge)) * (csz - 6);
+            if(edge === 'n' || edge === 's'){
+              const yy = edge === 'n' ? sy + in2 : sy + sh - in2 - bw + 1;
+              g.fillRect(sx + u1, yy, 3, 2); g.fillRect(sx + u2, yy + 1, 2, 2);
+            } else {
+              const xx = edge === 'w' ? sx + in2 : sx + csz - in2 - 3;
+              g.fillRect(xx, sy + u1, 2, 3); g.fillRect(xx + 1, sy + u2, 2, 2);
+            }
+          }
+        };
+        if(sfTile(wx, wy - 1) === 11) windrow('n');
+        if(sfTile(wx, wy + 1) === 11) windrow('s');
+        if(sfTile(wx - 1, wy) === 11) windrow('w');
+        if(sfTile(wx + 1, wy) === 11) windrow('e');
       }
     }
   }
@@ -32617,8 +32672,11 @@ function sfRenderStreet(cw, ch){
   };
   for(const [wxm, wym, cfwd, t] of cells){
     const c = cm;
-    const p1 = pr(wxm, wym, 0), p2 = pr(wxm + c, wym, 0),
-          p3 = pr(wxm + c, wym + c, 0), p4 = pr(wxm, wym + c, 0);
+    // v28: sidewalk cells are a raised slab — corners project at curb
+    // height so the walkway physically steps up from the roadway
+    const gz = (t === 11) ? SF_CURB_H : 0;
+    const p1 = pr(wxm, wym, gz), p2 = pr(wxm + c, wym, gz),
+          p3 = pr(wxm + c, wym + c, gz), p4 = pr(wxm, wym + c, gz);
     if(!p1 || !p2 || !p3 || !p4) continue;
     // v17: decal cells (park courts/playground/worn hill) override the
     // flat tile color so the street camera reads the same surfaces the
@@ -32630,25 +32688,82 @@ function sfRenderStreet(cw, ch){
     //  - curb reveal: bright curb top on the sidewalk edge + gutter band
     //    on the roadway beside it (the 15cm step that grounds the street)
     //  - sidewalk expansion joints: thin saw-cut lines across each cell
-    const subQ = (x0, y0, x1, y1, style) => {
-      const q1 = pr(wxm + x0, wym + y0, 0), q2 = pr(wxm + x1, wym + y0, 0),
-            q3 = pr(wxm + x1, wym + y1, 0), q4 = pr(wxm + x0, wym + y1, 0);
+    const subQ = (x0, y0, x1, y1, style, z) => {
+      const q1 = pr(wxm + x0, wym + y0, z), q2 = pr(wxm + x1, wym + y0, z),
+            q3 = pr(wxm + x1, wym + y1, z), q4 = pr(wxm + x0, wym + y1, z);
       if(q1 && q2 && q3 && q4) qEmit(style, q1, q2, q3, q4);
     };
     if(t === 11){
       if(cfwd < 90){
-        subQ(0, cm / 2 - 0.03, cm, cm / 2 + 0.03, 'rgba(40,36,28,0.30)');
-        subQ(cm / 2 - 0.03, 0, cm / 2 + 0.03, cm, 'rgba(40,36,28,0.30)');
+        subQ(0, cm / 2 - 0.03, cm, cm / 2 + 0.03, 'rgba(40,36,28,0.30)', gz);
+        subQ(cm / 2 - 0.03, 0, cm / 2 + 0.03, cm, 'rgba(40,36,28,0.30)', gz);
       }
-      if(sfTile(gx, gy - 1) === 10) subQ(0, 0, cm, 0.16, 'rgba(226,222,210,0.55)');
-      if(sfTile(gx, gy + 1) === 10) subQ(0, cm - 0.16, cm, cm, 'rgba(226,222,210,0.55)');
-      if(sfTile(gx - 1, gy) === 10) subQ(0, 0, 0.16, cm, 'rgba(226,222,210,0.55)');
-      if(sfTile(gx + 1, gy) === 10) subQ(cm - 0.16, 0, cm, cm, 'rgba(226,222,210,0.55)');
+      if(sfTile(gx, gy - 1) === 10) subQ(0, 0, cm, 0.16, 'rgba(226,222,210,0.55)', gz);
+      if(sfTile(gx, gy + 1) === 10) subQ(0, cm - 0.16, cm, cm, 'rgba(226,222,210,0.55)', gz);
+      if(sfTile(gx - 1, gy) === 10) subQ(0, 0, 0.16, cm, 'rgba(226,222,210,0.55)', gz);
+      if(sfTile(gx + 1, gy) === 10) subQ(cm - 0.16, 0, cm, cm, 'rgba(226,222,210,0.55)', gz);
+      // v28: the curb is geometry — a riser face closes every edge that
+      // meets a lower surface (roadway, lot line, dirt), lit by the same
+      // sun as the walls; where a crosswalk touches, the riser drops to a
+      // sloped apron ramp so wheelchairs and the eye cross flush
+      const riser = (e) => {
+        const nt = e === 'n' ? sfTile(gx, gy - 1) : e === 's' ? sfTile(gx, gy + 1)
+                 : e === 'w' ? sfTile(gx - 1, gy) : sfTile(gx + 1, gy);
+        if(nt === 11 || nt < 0) return;
+        if(nt === 16){
+          const rp = e === 'n' ? [[0, 0, gz], [c, 0, gz], [c, -0.7, 0], [0, -0.7, 0]]
+                   : e === 's' ? [[0, c, gz], [c, c, gz], [c, c + 0.7, 0], [0, c + 0.7, 0]]
+                   : e === 'w' ? [[0, 0, gz], [0, c, gz], [-0.7, c, 0], [-0.7, 0, 0]]
+                   :             [[c, 0, gz], [c, c, gz], [c + 0.7, c, 0], [c + 0.7, 0, 0]];
+          const pts = rp.map(([dx, dy, z]) => pr(wxm + dx, wym + dy, z));
+          if(pts.every(Boolean)) post.push([2, ...pts]);
+          return;
+        }
+        const [ax, ay, bx, by, nx, ny] =
+            e === 'n' ? [0, 0, c, 0, 0, -1]
+          : e === 's' ? [0, c, c, c, 0, 1]
+          : e === 'w' ? [0, 0, 0, c, -1, 0]
+          :             [c, 0, c, c, 1, 0];
+        const r1 = pr(wxm + ax, wym + ay, 0), r2 = pr(wxm + bx, wym + by, 0),
+              r3 = pr(wxm + bx, wym + by, gz), r4 = pr(wxm + ax, wym + ay, gz);
+        if(r1 && r2 && r3 && r4) qEmit(sfCurbFaceCol(nx, ny), r1, r2, r3, r4);
+      };
+      riser('n'); riser('s'); riser('w'); riser('e');
     } else if(t === 10 && cfwd < 90){
-      if(sfTile(gx, gy - 1) === 11) subQ(0, 0, cm, 0.5, 'rgba(16,18,24,0.30)');
-      if(sfTile(gx, gy + 1) === 11) subQ(0, cm - 0.5, cm, cm, 'rgba(16,18,24,0.30)');
-      if(sfTile(gx - 1, gy) === 11) subQ(0, 0, 0.5, cm, 'rgba(16,18,24,0.30)');
-      if(sfTile(gx + 1, gy) === 11) subQ(cm - 0.5, 0, cm, cm, 'rgba(16,18,24,0.30)');
+      if(sfTile(gx, gy - 1) === 11) subQ(0, 0, cm, 0.5, 'rgba(16,18,24,0.30)', 0);
+      if(sfTile(gx, gy + 1) === 11) subQ(0, cm - 0.5, cm, cm, 'rgba(16,18,24,0.30)', 0);
+      if(sfTile(gx - 1, gy) === 11) subQ(0, 0, 0.5, cm, 'rgba(16,18,24,0.30)', 0);
+      if(sfTile(gx + 1, gy) === 11) subQ(cm - 0.5, 0, cm, cm, 'rgba(16,18,24,0.30)', 0);
+      // v28: gutter windrow — wind and slope row litter against the curb;
+      // leaf dabs surface near the camera, density riding the gust field
+      if(cfwd < 70){
+        const row = (e) => {
+          const h = phash(gx, gy, 1901 + 'nsew'.indexOf(e));
+          if(h < 0.3) return;
+          const a = Math.min(0.34, 0.10 + 0.16 * h +
+                                 0.10 * Math.min(1, SF_WX.gust || 0));
+          const col = `rgba(56,46,32,${a.toFixed(3)})`,
+                leaf = `rgba(146,110,52,${(a + 0.08).toFixed(3)})`;
+          const u1 = cm * (0.12 + 0.7 * phash(gx, gy, 1921 + 'nsew'.indexOf(e))),
+                u2 = cm * (0.12 + 0.7 * phash(gx, gy, 1931 + 'nsew'.indexOf(e))),
+                spk = h > 0.62 && cfwd < 45;
+          if(e === 'n' || e === 's'){
+            const y0 = e === 'n' ? 0.10 : cm - 0.36;
+            subQ(0, y0, cm, y0 + 0.26, col, 0);
+            if(spk){ subQ(u1, y0 + 0.04, u1 + 0.22, y0 + 0.14, leaf, 0);
+                     subQ(u2, y0 + 0.12, u2 + 0.18, y0 + 0.22, leaf, 0); }
+          } else {
+            const x0 = e === 'w' ? 0.10 : cm - 0.36;
+            subQ(x0, 0, x0 + 0.26, cm, col, 0);
+            if(spk){ subQ(x0 + 0.04, u1, x0 + 0.14, u1 + 0.22, leaf, 0);
+                     subQ(x0 + 0.12, u2, x0 + 0.22, u2 + 0.18, leaf, 0); }
+          }
+        };
+        if(sfTile(gx, gy - 1) === 11) row('n');
+        if(sfTile(gx, gy + 1) === 11) row('s');
+        if(sfTile(gx - 1, gy) === 11) row('w');
+        if(sfTile(gx + 1, gy) === 11) row('e');
+      }
       // asphalt wear: darker wheel-track bands along the travel axis
       if(cfwd < 60){
         const v2 = sfTile(gx, gy - 1) === 10 && sfTile(gx, gy + 1) === 10;
@@ -32705,6 +32820,19 @@ function sfRenderStreet(cw, ch){
   }
   for(const q of post){
     const p1 = q[1], p2 = q[2], p3 = q[3], p4 = q[4];
+    if(q[0] === 2){
+      // v28: curb-ramp apron — sloped concrete quad, gutter-dark at the
+      // street edge fading to walkway pale at the sidewalk lip
+      ctx.fillStyle = '#a29c90';
+      ctx.beginPath();
+      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+      ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(40,36,30,0.4)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]); ctx.stroke();
+      continue;
+    }
     if(q[0] === 0){
       ctx.fillStyle = 'rgba(232,230,223,0.55)';
       ctx.beginPath();
@@ -33364,7 +33492,10 @@ function sfRenderStreet(cw, ch){
     } else if(d.k === 'p'){
       const o = d.o;
       if(o.kind === 'sfCar'){ sfCarStreet(o, pr, F, night); continue; }
-      const p = pr(o.x / SF_PXM, o.y / SF_PXM, 0);
+      // v28: props stand on the surface under them — a pole planted on
+      // the sidewalk starts at curb height, not inside the slab
+      const oz = sfGroundZ(o.x / SF_PXM, o.y / SF_PXM);
+      const p = pr(o.x / SF_PXM, o.y / SF_PXM, oz);
       if(!p) continue;
       if(SF_GHOST_P && SF_GHOST_P.has(o)) ctx.globalAlpha = 0.35;
       const sc = F / p[2];
@@ -33382,7 +33513,8 @@ function sfRenderStreet(cw, ch){
                     0, 0, Math.PI * 2);
         ctx.fill();
         if(!night && SF_SUN.day > 0.08){
-          const tp = pr(mx + SF_SUN.x * 7.2, my + SF_SUN.y * 7.2, 0);
+          const tpx = mx + SF_SUN.x * 7.2, tpy = my + SF_SUN.y * 7.2;
+          const tp = pr(tpx, tpy, sfGroundZ(tpx, tpy));
           if(tp){
             ctx.strokeStyle = `rgba(15,12,8,${0.3 * Math.min(1, SF_SUN.day + 0.3)})`;
             ctx.lineWidth = Math.max(1, 0.12 * sc);
@@ -33437,8 +33569,9 @@ function sfRenderStreet(cw, ch){
         // v14: shadow thrown along the true sun vector — tip projected
         // through pr so length/direction track the solar elevation
         if(shadowR && !night && SF_SUN.day > 0.08){
-          const tip = pr(o.x / SF_PXM + SF_SUN.x * hm * 0.6,
-                         o.y / SF_PXM + SF_SUN.y * hm * 0.6, 0);
+          const txm = o.x / SF_PXM + SF_SUN.x * hm * 0.6,
+                tym = o.y / SF_PXM + SF_SUN.y * hm * 0.6;
+          const tip = pr(txm, tym, sfGroundZ(txm, tym));
           const tx = tip ? tip[0] : p[0], ty = tip ? tip[1] : p[1];
           const ang = Math.atan2(ty - p[1], tx - p[0]);
           const len = Math.hypot(tx - p[0], ty - p[1]);
@@ -33483,7 +33616,10 @@ function sfRenderStreet(cw, ch){
       }
     } else {
       const pv = d.pv;
-      const p = pr(pv.x / SF_PXM, pv.y / SF_PXM, 0);
+      // v28: feet rest on the walkway slab — stepping off the curb is a
+      // real 15cm drop, not a palette swap
+      const p = pr(pv.x / SF_PXM, pv.y / SF_PXM,
+                   sfGroundZ(pv.x / SF_PXM, pv.y / SF_PXM));
       if(!p) continue;
       const F2 = PA.chars && PA.chars[pv._ci != null ? pv._ci : 0];
       const dir = pv.face === 1 ? 1 : ((pv.face === 2 || pv.face === 3) ? 2 : 0);
@@ -33502,8 +33638,10 @@ function sfRenderStreet(cw, ch){
         const pvShade = (!night && SF_SUN.day > 0.08 && p[2] < 110)
           ? sfCanyonShade(pv.x / SF_PXM, pv.y / SF_PXM, -1) : 0;
         // v14: ground shadow cast along the real sun vector
+        const vtx = pv.x / SF_PXM + SF_SUN.x * 1.7,
+              vty = pv.y / SF_PXM + SF_SUN.y * 1.7;
         const vtip = (pvShade < 1.2 && !night && SF_SUN.day > 0.08)
-          ? pr(pv.x / SF_PXM + SF_SUN.x * 1.7, pv.y / SF_PXM + SF_SUN.y * 1.7, 0)
+          ? pr(vtx, vty, sfGroundZ(vtx, vty))
           : null;
         if(vtip){
           const ang = Math.atan2(vtip[1] - p[1], vtip[0] - p[0]);
