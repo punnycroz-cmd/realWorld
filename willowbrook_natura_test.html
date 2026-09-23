@@ -28826,6 +28826,118 @@ function sfParkCenterM(){
   return SF_PARK_C;
 }
 
+/* ---------------- v10: renderer performance pass ----------------
+   Four real architectural changes (SF views only — medieval untouched):
+   1. SF_TERR — the top-view terrain layer (up to ~13k tiles/frame) is
+      baked into a viewport-sized offscreen canvas, re-rendered ONLY when
+      the pixel-quantized camera rect, zoom or wetness bucket changes.
+      A stationary camera costs one drawImage instead of thousands of
+      tile draws + per-tile noise.
+   2. SF_DAPPLE — the drifting cloud-shadow dapple is a pre-rendered
+      seamless 512px blob texture scrolled on the wind vector, replacing
+      a 2-octave fbm() evaluation per tile per frame.
+   3. sfRowBounds() — the street-view ground pass no longer scans all
+      771x813 cells (~627k) every frame; per-row nonzero spans plus an
+      analytic forward-range clamp reduce it to the visible cone only.
+      The emitted cell set is identical — same painter's order, same art.
+   4. SF_PERF — a live profiler chip (fps + render ms, EMA-smoothed)
+      drawn in both views, and facade micro-detail (dentils, brackets,
+      ivy, flower boxes) is distance-tiered so far walls cost far less.
+   Physically: same sun, same wind, same wet streets — just cheaper. */
+const SF_PERF = { ms: 0, fps: 60, t0: 0, last: 0 };
+function sfPerfBegin(){
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  if(SF_PERF.last) SF_PERF.fps += (1000 / Math.max(1, now - SF_PERF.last) - SF_PERF.fps) * 0.06;
+  SF_PERF.last = now; SF_PERF.t0 = now;
+}
+function sfPerfHud(cw, ch){
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  SF_PERF.ms += (now - SF_PERF.t0 - SF_PERF.ms) * 0.1;
+  const ms = SF_PERF.ms, fps = Math.min(240, SF_PERF.fps);
+  const lab = `PERF ${fps.toFixed(0)}fps ${ms.toFixed(1)}ms`;
+  ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+  const tw = ctx.measureText(lab).width;
+  const x = cw - tw - 30, y = ch - 14;
+  ctx.fillStyle = 'rgba(6,10,14,0.62)';
+  ctx.fillRect(x - 8, y - 15, tw + 16, 20);
+  ctx.strokeStyle = 'rgba(140,220,170,0.45)'; ctx.lineWidth = 1;
+  ctx.strokeRect(x - 8, y - 15, tw + 16, 20);
+  ctx.fillStyle = ms < 16.7 ? '#8fe6a0' : (ms < 33 ? '#f0d060' : '#f08a6a');
+  ctx.fillText(lab, x, y);
+}
+const SF_TERR = { c: null, g: null, key: '' };
+/* v10: temporal frame cache — a frozen camera + static scene redraws
+   identical output 60x a second. We hash everything that can change the
+   picture (rig pose, pawn positions, weather buckets, 2Hz wind clock)
+   and blit the last frame when it matches: stale by <0.5s at worst,
+   ~1 drawImage instead of the full painter's pass. */
+const SF_STILL = { c: null, g: null, key: '' };
+function sfStillKey(cw, ch, view, pose){
+  let sig = 0;
+  for(const v of VILLAGERS)
+    sig += Math.round(v.x) + Math.round(v.y) + (v.face || 0) * 13 +
+           (v.inBuilding ? 7919 : 0);
+  return [view, cw, ch, Math.round(SF_WX.t * 2), isNight() ? 1 : 0,
+          Math.round(W.tod * 24), Math.round(W.rain * 8),
+          Math.round(SF_WX.wet * 8), Math.round(sfCloudCover() * 8),
+          Math.round(SF_WX.gust * 4), Math.round(sig), inspectedPawnIdx]
+          .concat(pose).join(',');
+}
+function sfStillHit(key){
+  if(SF_STILL.key !== key || !SF_STILL.c) return false;
+  ctx.drawImage(SF_STILL.c, 0, 0);
+  return true;
+}
+function sfStillStore(cw, ch, key){
+  if(typeof document === 'undefined' || !ctx.canvas) return;
+  if(!SF_STILL.c){
+    SF_STILL.c = document.createElement('canvas');
+    SF_STILL.g = SF_STILL.c.getContext('2d');
+  }
+  if(SF_STILL.c.width !== cw || SF_STILL.c.height !== ch){
+    SF_STILL.c.width = cw; SF_STILL.c.height = ch;
+  }
+  SF_STILL.g.drawImage(ctx.canvas, 0, 0, cw, ch);
+  SF_STILL.key = key;
+}
+/* seamless cloud-dapple texture: blobs drawn 9-way wrapped so the tile
+   repeats without seams as it scrolls on the wind */
+let SF_DAPPLE = null;
+function sfDappleTex(){
+  if(SF_DAPPLE) return SF_DAPPLE;
+  const S = 512;
+  const c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d');
+  for(let k = 0; k < 30; k++){
+    const x = phash(k, 61, 1801) * S, y = phash(k, 62, 1802) * S;
+    const r = 46 + phash(k, 63, 1803) * 95;
+    const a = 0.2 + phash(k, 64, 1804) * 0.26;
+    for(const ox of [-S, 0, S]) for(const oy of [-S, 0, S]){
+      const gr = g.createRadialGradient(x + ox, y + oy, r * 0.2,
+                                        x + ox, y + oy, r);
+      gr.addColorStop(0, `rgba(30,38,62,${a})`);
+      gr.addColorStop(1, 'rgba(30,38,62,0)');
+      g.fillStyle = gr;
+      g.fillRect(x + ox - r, y + oy - r, r * 2, r * 2);
+    }
+  }
+  SF_DAPPLE = c; return c;
+}
+/* per-row [minX,maxX] nonzero cell span for the street-view cone scan */
+let SF_ROWB = null;
+function sfRowBounds(){
+  if(SF_ROWB) return SF_ROWB;
+  SF_ROWB = new Array(SF_M.gh);
+  for(let y = 0; y < SF_M.gh; y++){
+    let lo = -1, hi = -1;
+    const row = y * SF_M.gw;
+    for(let x = 0; x < SF_M.gw; x++)
+      if(SF_GRID[row + x]){ if(lo < 0) lo = x; hi = x; }
+    SF_ROWB[y] = lo < 0 ? null : [lo, hi];
+  }
+  return SF_ROWB;
+}
+
 function sfTerrainTile(wx, wy, tt){
   const T = PA.sf;
   switch(tt){
@@ -28866,50 +28978,86 @@ function sfTerrainTile(wx, wy, tt){
 }
 
 function sfRenderWorld(cw, ch){
+  sfPerfBegin();
   sfWxTick();
+  // v10: temporal frame cache — blit the last frame when nothing moved
+  const stillKey = sfStillKey(cw, ch, 'top',
+    [Math.round(cam.x), Math.round(cam.y), Math.round(cam.zoom * 1000)]);
+  if(sfStillHit(stillKey)){ sfPerfHud(cw, ch); return; }
   const sfDappleOn = !isNight();
-  const sfDappleCover = 0.25 + 0.75 * sfCloudCover();
   const cs = CS * cam.zoom;
   const csT = cs * SF_TILT;   // v8: squashed ground-plane cell height
+
+  // 1. terrain — v10: baked into a cached viewport-sized layer. The
+  //    camera is quantized to output pixels so a re-bake is bit-exact;
+  //    wetness enters as a coarse bucket (it changes over many seconds).
+  const qx = Math.round(cam.x * cam.zoom);
+  const qy = Math.round(cam.y * cam.zoom * SF_TILT);
+  const wetQ = Math.round(SF_WX.wet * 8);
+  const tkey = qx + ',' + qy + ',' + cam.zoom + ',' + cw + ',' + ch + ',' + wetQ;
+  if(SF_TERR.key !== tkey){
+    if(!SF_TERR.c && typeof document !== 'undefined'){
+      SF_TERR.c = document.createElement('canvas');
+      SF_TERR.g = SF_TERR.c.getContext('2d');
+    }
+    if(SF_TERR.c){
+      if(SF_TERR.c.width !== cw || SF_TERR.c.height !== ch){
+        SF_TERR.c.width = cw; SF_TERR.c.height = ch;
+      }
+      const g = SF_TERR.g;
+      g.imageSmoothingEnabled = false;
+      g.clearRect(0, 0, cw, ch);
+      const ecx = qx / cam.zoom, ecy = qy / (cam.zoom * SF_TILT);
+      const wx0 = Math.floor((ecx - cw / 2 / cam.zoom) / CS) - 1;
+      const wx1 = Math.floor((ecx + cw / 2 / cam.zoom) / CS) + 1;
+      const wy0 = Math.floor((ecy - ch / 2 / cam.zoom / SF_TILT) / CS) - 1;
+      const wy1 = Math.floor((ecy + ch / 2 / cam.zoom / SF_TILT) / CS) + 1;
+      for(let wy = wy0; wy <= wy1; wy++){
+        for(let wx = wx0; wx <= wx1; wx++){
+          const { c, i } = cellChunk(wx, wy);
+          const tt = c.tileType[i];
+          const spr = sfTerrainTile(wx, wy, tt);
+          const sx = Math.round((wx * CS - ecx) * cam.zoom + cw / 2);
+          const sy = Math.round((wy * CS - ecy) * cam.zoom * SF_TILT + ch / 2);
+          if(spr && spr.c) g.drawImage(spr.c, sx, sy, cs, csT);
+          // v7: wetness memory — soaked hardscape darkens, puddles glint
+          if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
+            const wv = SF_WX.wet;
+            g.fillStyle = `rgba(24,32,48,${wv * 0.2})`;
+            g.fillRect(sx, sy, cs, csT);
+            if(wv > 0.25 && hash2(wx, wy, SEED + 1810) < wv * 0.5){
+              const pw = cs * (0.16 + hash2(wx, wy, SEED + 1811) * 0.2);
+              g.fillStyle = `rgba(170,200,230,${wv * 0.34})`;
+              g.beginPath();
+              g.ellipse(sx + cs * 0.5, sy + csT * 0.56, pw, pw * 0.6 * SF_TILT, 0, 0, Math.PI * 2);
+              g.fill();
+            }
+          }
+        }
+      }
+      SF_TERR.key = tkey;
+    }
+  }
+  if(SF_TERR.c) ctx.drawImage(SF_TERR.c, 0, 0);
+
+  // v10: dappled cloud light — one seamless blob texture scrolled on the
+  // wind vector instead of per-tile fbm; same cause (drifting cumulus),
+  // a fraction of the cost, and it slides smoothly every frame.
+  if(sfDappleOn && typeof document !== 'undefined'){
+    const tex = sfDappleTex(), S = 512;
+    const wdx = Math.cos(W.windAng), wdy = Math.sin(W.windAng);
+    let ox = (wdx * W.windSpd * 22 * SF_WX.t) % S; if(ox > 0) ox -= S;
+    let oy = (wdy * W.windSpd * 22 * SF_WX.t) % S; if(oy > 0) oy -= S;
+    ctx.globalAlpha = clamp(0.45 + 0.5 * sfCloudCover(), 0, 0.85);
+    for(let ty = oy; ty < ch; ty += S)
+      for(let tx = ox; tx < cw; tx += S)
+        ctx.drawImage(tex, tx, ty);
+    ctx.globalAlpha = 1;
+  }
   const wx0 = Math.floor((cam.x - cw / 2 / cam.zoom) / CS) - 1;
   const wx1 = Math.floor((cam.x + cw / 2 / cam.zoom) / CS) + 1;
   const wy0 = Math.floor((cam.y - ch / 2 / cam.zoom / SF_TILT) / CS) - 1;
   const wy1 = Math.floor((cam.y + ch / 2 / cam.zoom / SF_TILT) / CS) + 1;
-
-  // 1. terrain
-  for(let wy = wy0; wy <= wy1; wy++){
-    for(let wx = wx0; wx <= wx1; wx++){
-      const { c, i } = cellChunk(wx, wy);
-      const tt = c.tileType[i];
-      const spr = sfTerrainTile(wx, wy, tt);
-      const sx = Math.round((wx * CS - cam.x) * cam.zoom + cw / 2);
-      const sy = Math.round(sfSY(wy * CS, ch));
-      if(spr && spr.c) ctx.drawImage(spr.c, sx, sy, cs, csT);
-      // v7: wetness memory — soaked hardscape darkens, puddles glint sky-blue
-      if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
-        const wv = SF_WX.wet;
-        ctx.fillStyle = `rgba(24,32,48,${wv * 0.2})`;
-        ctx.fillRect(sx, sy, cs, csT);
-        if(wv > 0.25 && hash2(wx, wy, SEED + 1810) < wv * 0.5){
-          const pw = cs * (0.16 + hash2(wx, wy, SEED + 1811) * 0.2);
-          ctx.fillStyle = `rgba(170,200,230,${wv * 0.34})`;
-          ctx.beginPath();
-          ctx.ellipse(sx + cs * 0.5, sy + csT * 0.56, pw, pw * 0.6 * SF_TILT, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      // v6: low-frequency dappled light — cloud deck sliding on the wind
-      if(sfDappleOn){
-        const dap = fbm(wx * 0.05 + SF_WX.t * W.windSpd * 0.35,
-                        wy * 0.05 + SF_WX.t * W.windSpd * 0.2, SEED + 1700, 2);
-        const a2 = clamp((dap - 0.44) * 1.15, 0, 0.45) * sfDappleCover;
-        if(a2 > 0.015){
-          ctx.fillStyle = `rgba(30,38,62,${a2})`;
-          ctx.fillRect(sx - 1, sy - 1, cs + 2, csT + 2);
-        }
-      }
-    }
-  }
 
   // 2. collect drawables: buildings in view + props + pawns, y-sorted
   const drawables = [];
@@ -29117,6 +29265,10 @@ function sfRenderWorld(cw, ch){
       ctx.restore();
     }
   }
+
+  // v10: stash this frame for the temporal cache, then profiler chip
+  sfStillStore(cw, ch, stillKey);
+  sfPerfHud(cw, ch);
 }
 
 /* ---------------- v3 facade detail pass ----------------
@@ -29131,6 +29283,11 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   const TRIM = SF_TRIM_COLS[Math.floor(phash(i, 9, 1301) * SF_TRIM_COLS.length)];
   const isShop = !!b.name || phash(i, 5, 1303) < 0.12;
   const style = Math.floor(phash(i, 13, 1405) * 3); // 0 italianate 1 stick 2 marina
+  // v10: distance-tiered detail — 2 near / 1 mid / 0 silhouette. Micro-trim
+  // (dentils, brackets, ivy, flower boxes) only resolves where the lens
+  // can see it; mid keeps windows + bays; past ~160m a wall is massing
+  // and parapet under marine haze — the detail pass is skipped entirely.
+  const det = fwd < 85 ? 2 : (fwd < 160 ? 1 : 0);
   // v6: passing cloud dims the whole wall
   const dim = (night ? 0.4 : 1) *
               (1 - 0.45 * sfCloudShadow(b.x / SF_PXM, b.y / SF_PXM));
@@ -29184,7 +29341,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.beginPath(); ctx.moveTo(cA[0], cA[1]); ctx.lineTo(cB[0], cB[1]); ctx.stroke();
     // dentil row under the cornice band
     const dA = pr(x1, y1, hm - 0.72), dB = pr(x2, y2, hm - 0.72);
-    if(dA && dB){
+    if(dA && dB && det === 2){
       const nD = Math.max(2, Math.floor(Math.hypot(cB[0] - cA[0], cB[1] - cA[1]) / 7));
       ctx.fillStyle = shade(TRIM, 0.8);
       for(let k = 0; k <= nD; k++){
@@ -29195,7 +29352,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       }
     }
     // scrolled brackets every ~3m
-    const nB = Math.max(1, Math.floor(L / 3));
+    const nB = det === 2 ? Math.max(1, Math.floor(L / 3)) : 0;
     for(let k = 0; k < nB; k++){
       const u = (k + 0.5) / nB;
       const pb2 = pr(x1 + ex * u, y1 + ey * u, hm - 1.2),
@@ -29207,9 +29364,23 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  // v10 silhouette tier: >160m — face + parapet + marine haze, done.
+  if(det === 0){
+    const hz0 = sfHazeA(fwd);
+    if(hz0 > 0.02){
+      ctx.globalAlpha = hz0; ctx.fillStyle = `rgb(${SF_WX.hazeRGB})`;
+      ctx.beginPath();
+      ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+      ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    return;
+  }
+
   const floors = Math.max(1, Math.round(hm / 3));
   // string courses between floors
-  for(let f = 1; f < floors; f++){
+  for(let f = det >= 1 ? 1 : floors; f < floors; f++){
     const sA = pr(x1, y1, hm * f / floors), sB = pr(x2, y2, hm * f / floors);
     if(!sA || !sB) continue;
     ctx.globalAlpha = 0.5;
@@ -29250,7 +29421,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.fillStyle = shade(TRIM, 1.05);
     ctx.fillRect(pb[0] - r - 2, pb[1], ww + 4, Math.max(1.5, wh * 0.08));
     // v5: window flower box on some residential sills
-    if(!isShop && phash(Math.round(wx * 13), Math.round(zB * 29), i + 1700) < 0.15){
+    if(det === 2 && !isShop && phash(Math.round(wx * 13), Math.round(zB * 29), i + 1700) < 0.15){
       const bh = Math.max(1.5, wh * 0.1);
       ctx.fillStyle = night ? '#2a2018' : '#7a4a2e';
       ctx.fillRect(pb[0] - r - 1, pb[1] + bh * 0.8, ww + 2, bh);
@@ -29264,7 +29435,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         }
       }
     }
-    if(style === 0){ // italianate hood moulding + keystone
+    if(style === 0 && det >= 1){ // italianate hood moulding + keystone
       ctx.fillRect(pb[0] - r - 2, pt[1] - 1, ww + 4, Math.max(1, wh * 0.05));
       ctx.fillRect(pb[0] - 1, pt[1] - wh * 0.06, 2, wh * 0.08);
     }
@@ -29341,7 +29512,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
          shade(TRIM, 0.9));
     // striped awning: sloped band from wall (z 3.9) to lip (+n*1.0, z 3.05)
     const awn = rampOf(['#c9483c', '#3a7a5a', '#3a5a8a', '#c98a2e'][Math.floor(phash(i, 3, 1340) * 4)]);
-    const nStripe = Math.max(3, Math.floor((s1 - s0) * L / 1.1));
+    const nStripe = det >= 1 ? Math.max(3, Math.floor((s1 - s0) * L / 1.1)) : 1;
     for(let k = 0; k < nStripe; k++){
       const u0 = s0 - 0.04 + (s1 - s0 + 0.08) * k / nStripe;
       const u1 = s0 - 0.04 + (s1 - s0 + 0.08) * (k + 1) / nStripe;
@@ -29413,7 +29584,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   }
 
   // v5: climbing ivy on some residential walls — leaf blobs winding up
-  if(!isShop && phash(i, ei, 1705) < 0.32){
+  if(det === 2 && !isShop && phash(i, ei, 1705) < 0.32){
     const u0 = 0.12 + phash(i, ei, 1706) * 0.6;
     const climb = hm * (0.3 + phash(i, ei, 1707) * 0.45);
     const nV = Math.max(6, Math.round(climb * 2.4));
@@ -29446,6 +29617,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
 
 /* ---------------- street-level "Truman camera" ---------------- */
 function sfRenderStreet(cw, ch){
+  sfPerfBegin();
   sfWxTick();
   const v = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
   if(v && v.inBuilding && !SF_CAM.director){ sfRenderInterior(cw, ch, v); return; }
@@ -29534,6 +29706,14 @@ function sfRenderStreet(cw, ch){
     if(fwd < 0.5) return null;
     return [cw / 2 + side * F / fwd, horizon + (camH - z) * F / fwd, fwd];
   };
+
+  // v10: temporal frame cache — skip the entire painter's pass when the
+  // smoothed rig, pawn positions and weather buckets match the last frame
+  const stillKey = sfStillKey(cw, ch, 'street',
+    [Math.round(camX * 50), Math.round(camY * 50), Math.round(useYaw * 500),
+     Math.round(usePitch * 500), Math.round(camH * 50), Math.round(F),
+     SF_CAM.director ? 1 : 0]);
+  if(sfStillHit(stillKey)){ sfPerfHud(cw, ch); return; }
 
   // sky + light by tod/weather
   const night = isNight();
@@ -29696,12 +29876,43 @@ function sfRenderStreet(cw, ch){
   const COLS = { 10: '#50555e', 11: '#bdb7ac', 12: '#7a7268', 13: '#6cae52',
                  14: '#bdb7ac', 15: '#d0b78e', 16: '#8a8f98', 0: '#a8977a' };
   const cells = [];
+  // v10: walk only the rows/columns the view cone can reach. Per-row
+  // nonzero spans plus an analytic clamp of the forward range replace a
+  // 771x813 blind scan (~627k iterations) with the visible wedge —
+  // identical cell set, identical draw order.
+  const rows = sfRowBounds();
   for(let gy = 0; gy < SF_M.gh; gy++){
-    for(let gx = 0; gx < SF_M.gw; gx++){
+    const rb = rows[gy];
+    if(!rb) continue;
+    const wym = gy * cm, ddy = wym - camY;
+    // forward range of this row's occupied span: fwd is linear in x
+    const fa = cm * DX, fb = ddy * DY - camX * DX;   // fwd = fa*gx + fb
+    const f0 = fa * rb[0] + fb, f1 = fa * rb[1] + fb;
+    if(Math.max(f0, f1) < 0.5 || Math.min(f0, f1) > 240) continue;
+    let lo = rb[0], hi = rb[1];
+    if(Math.abs(fa) > 1e-9){
+      const uA = (0.5 - fb) / fa, uB = (240 - fb) / fa;
+      lo = Math.max(lo, Math.ceil(Math.min(uA, uB) - 1e-6));
+      hi = Math.min(hi, Math.floor(Math.max(uA, uB) + 1e-6));
+      if(lo > hi) continue;
+    }
+    // lateral cone: |side| < fwd*1.3 + 30 is linear too — solve for gx.
+    // side = sa*gx + sb; the two half-planes are side <= C and -side <= C
+    // with C = 1.3*fwd + 30, i.e. (sa ∓ 1.3*fa)*gx <= 1.3*fb + 30 ∓ sb.
+    const sa = cm * DY, sb = -ddy * DX - camX * DY;
+    for(const [ka, kb] of [[sa - 1.3 * fa, 1.3 * fb + 30 - sb],
+                           [-sa - 1.3 * fa, 1.3 * fb + 30 + sb]]){
+      if(Math.abs(ka) < 1e-9){ if(kb < 0){ lo = hi + 1; break; } continue; }
+      const xb = kb / ka;
+      if(ka > 0) hi = Math.min(hi, Math.floor(xb + 1e-6));
+      else lo = Math.max(lo, Math.ceil(xb - 1e-6));
+    }
+    if(lo > hi) continue;
+    for(let gx = lo; gx <= hi; gx++){
       const t = SF_GRID[gy * SF_M.gw + gx];
       if(!t) continue;
-      const wxm = gx * cm, wym = gy * cm;
-      const ddx = wxm - camX, ddy = wym - camY;
+      const wxm = gx * cm;
+      const ddx = wxm - camX;
       const fwd = ddx * DX + ddy * DY;
       if(fwd < 0.5 || fwd > 240) continue;
       if(Math.abs(ddx * DY - ddy * DX) > fwd * 1.3 + 30) continue;
@@ -29794,14 +30005,18 @@ function sfRenderStreet(cw, ch){
     if(d.k === 'b'){
       const b = d.b;
       const hm = b.hPx / 4.2; // meters
-      const n = b.px.length;
-      const P = b.px.map(q => [q[0] / SF_PXM, q[1] / SF_PXM]);
-      let area = 0;
-      for(let e = 0; e < n; e++){
-        const [x1, y1] = P[e], [x2, y2] = P[(e + 1) % n];
-        area += (x2 - x1) * (y2 + y1);
+      // v10: meter-space polygon + signed area are static — compute once
+      if(!b._pm){
+        const P2 = b.px.map(q => [q[0] / SF_PXM, q[1] / SF_PXM]);
+        let ar = 0;
+        for(let e = 0; e < P2.length; e++){
+          const [x1, y1] = P2[e], [x2, y2] = P2[(e + 1) % P2.length];
+          ar += (x2 - x1) * (y2 + y1);
+        }
+        b._pm = P2; b._ccw = ar > 0; b._area = Math.abs(ar);
       }
-      const ccw = area > 0;
+      const P = b._pm, ccw = b._ccw, area = b._ccw ? b._area : -b._area;
+      const n = P.length;
       for(let e = 0; e < n; e++){
         const [x1, y1] = P[e], [x2, y2] = P[(e + 1) % n];
         const ex = x2 - x1, ey = y2 - y1, L = Math.hypot(ex, ey) || 1;
@@ -29850,7 +30065,7 @@ function sfRenderStreet(cw, ch){
       }
       // v4: rooftop furniture silhouettes — water tanks, pipes, antennas,
       // dishes rising above the parapet, scattered inside the footprint.
-      const roofAreaM = Math.abs(area); // P is in meters -> m²
+      const roofAreaM = b._area; // P is in meters -> m² (v10: cached)
       const nRoof = Math.min(5, Math.floor(roofAreaM / 55));
       let cxm = 0, cym = 0;
       for(const [x, y] of P){ cxm += x; cym += y; }
@@ -30078,6 +30293,10 @@ function sfRenderStreet(cw, ch){
     ctx.fillStyle = '#ffe9c9';
     ctx.fillText(label, cw / 2, by + 15);
   }
+
+  // v10: stash this frame for the temporal cache, then profiler chip
+  sfStillStore(cw, ch, stillKey);
+  sfPerfHud(cw, ch);
 }
 
 /* minimal generated interior backdrop for door-teleported pawns */
