@@ -1824,10 +1824,10 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G22 harness ============ */
 {
-  const g = gate('harness', 'playtest harness self-contract (v37 marks, LS/build agreement, scenario integrity, surface coverage)');
+  const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v37 || {};
+    const H = PT.harness_ui_v51 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -1840,7 +1840,7 @@ const PUB = Object.values(PT.surfaces)
     /* 2. required affordance marks */
     for (const m of H.required_marks || [])
       if (!html.includes(m))
-        add(g, 'fail', 'playtest.html', null, `required v37 mark missing: ${m}`);
+        add(g, 'fail', 'playtest.html', null, `required v51 mark missing: ${m}`);
     /* 3. scenario integrity: unique PT ids, declared surfaces, ≥1 ck/step */
     const ids = new Set();
     const touched = new Set();
@@ -1970,7 +1970,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v45 local';
+out.build = 'world v51 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

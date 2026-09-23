@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v37)
+# Playtest Harness — "Real World / The Mission" (world v51)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -68,6 +68,9 @@ One person can wear every hat; four real testers is the intended shape.
   PT46 (moderation v50) is a reviewer + facilitator audit — separator
   evasion landing the real charge, the accent fold, hyphenated-text
   near-misses, corpus 94/94, and the console's rq-1044 live trace.
+  PT47 (harness v51) is a facilitator audit — the session debrief card,
+  cohort coverage + never-verdicted list, owner-routed inbox notes,
+  the [ / ] scenario walk, and the harness gate's v51 marks.
 
 ## 3. Running a session
 
@@ -115,6 +118,27 @@ v37 harness affordances (PT35 exercises all of them):
   major findings only), the paste-ready form of the §5 triage line.
 - **Autosave tick** — the header flashes `autosaved` on every write, so a
   tester can see persistence working instead of trusting it.
+
+v51 harness affordances (PT47 exercises all of them):
+
+- **Session debrief** — a five-prompt card between findings and export,
+  one row per §6 watch-list item. Each answer is a verdict chip
+  (n/a / clear / stumbled / blocker) plus a one-line note, persisted in
+  the session and exported as `session.debrief` + a `## Debrief`
+  section in the Markdown report.
+- **Cohort coverage** — under the verdict matrix, a Coverage table lists
+  every scenario as `N/M` checkpoints verdicted by *anyone* (current
+  session + imports) with median time-open vs the estimate; below it, a
+  `never verdicted` list names the exact refs no session has touched.
+- **Owner routing** — findings carry an owner (world / game-systems /
+  art / marketing, default world). The inbox note groups blocker/major
+  findings under owner headers — the §5 triage paste arrives pre-sorted.
+- **Repro links** — every finding row has a `link` button copying
+  `playtest.html#pt=PT#` — the deep link back to the scenario that
+  produced it.
+- **Scenario walk** — `[` / `]` move to the previous / next scenario in
+  the rail order (clamped, honors the smoke filter); the deep-link hash
+  updates on each hop.
 
 A full pass (PT1–PT8) is ~2.5 h. A smoke pass is PT1 + PT4 + PT7 + PT21
 (~50 min) — free-tier, every deny path, the boundary audit, and the machine gate.
@@ -183,7 +207,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v37 mark present, scenario integrity — unique PT ids,
+harness_ui_v51 mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).
@@ -245,8 +269,8 @@ shared inbox after each session with blockers/majors only.
 - New gates in `audit.js` should follow the existing shape: `gate(name, desc,
   fn)` returning hits with `file:line` refs; REVIEW for eyeballed contexts,
   FAIL for violations.
-- v37: harness affordances are contract-checked — when you add a harness
-  feature, declare its marks under `harness_ui_v37.required_marks` in
+- v51: harness affordances are contract-checked — when you add a harness
+  feature, declare its marks under `harness_ui_v51.required_marks` in
   playtest.json and the harness gate enforces them. Bumping the LS key
   without bumping `version` (or vice versa) FAILs the gate.
 - When the game track lands real plumbing, add a `PT9 "merge wiring"` scenario

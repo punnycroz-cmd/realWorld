@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 37,
+ "version": 51,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2491,31 +2491,99 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT47",
+   "title": "The harness round two — debrief, coverage, owner routing, walk keys",
+   "minutes": 10,
+   "persona": "facilitator closing a session + merging a second tester's report",
+   "goal": "Verify the v51 harness pass: the five-question session debrief persists and rides both exports, the cohort coverage view counts verdicted checkpoints and median time against estimate, findings route to an owning track in the inbox note, [ and ] walk scenarios, and every finding carries a copyable repro link.",
+   "surfaces": [
+    "harness",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Answer two debrief prompts (verdict chip + one line each), then reload the page.",
+     "expect": "The debrief card sits between findings and the export buttons; verdicts and notes survive the reload; each prompt cites the watch-list item it mirrors.",
+     "checkpoints": [
+      "All five prompts render with n/a / clear / stumbled / blocker chips",
+      "Debrief answers persist across reload (localStorage)",
+      "Export report JSON carries session.debrief; Markdown export gains a Debrief section"
+     ]
+    },
+    {
+     "do": "Log two findings: leave one owner 'world', set the other to 'game-systems'. Then hit 'Copy inbox note' and read it.",
+     "expect": "The finding form has an owner dropdown (world default); the inbox note groups blocker/major findings under owner headers — world findings under '- world:', the other under '- game-systems:' — the §5 triage paste pre-sorted.",
+     "checkpoints": [
+      "Findings rows show the owner chip (→world / →game-systems …)",
+      "Inbox note groups by owner, omitting owners with no blocker/major findings",
+      "The 'link' button on a finding copies 'playtest.html#pt=PT#' — the repro deep link"
+     ]
+    },
+    {
+     "do": "Import a second session report (Import report…), then read the new Coverage block under the verdict matrix.",
+     "expect": "Coverage lists every scenario as 'N/M' checkpoints verdicted by anyone, plus median time-open vs the estimate; below it a 'never verdicted' list names refs no session touched.",
+     "checkpoints": [
+      "Coverage counts merge across sessions — a checkpoint verdicted only in the import still counts",
+      "Median time column shows '—' for scenarios no session opened, never a fabricated number",
+      "Never-verdicted list is exact refs (PT#-s-c), capped with an ellipsis tail"
+     ]
+    },
+    {
+     "do": "With a scenario open, press ] twice then [ once; repeat with the smoke filter on.",
+     "expect": "The walk keys move through the rail order — next/prev scenario, clamped at both ends, honoring the smoke filter; the hash updates on each hop.",
+     "checkpoints": [
+      "[ / ] never wrap — they stop at the first and last scenario",
+      "Smoke filter narrows the walk to PT1·PT4·PT7·PT21",
+      "Keys stay inert inside inputs and textareas"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the harness gate.",
+     "expect": "harness gate passes: LS key rw_playtest_v51 + build tag agree with playtest.json v51, every v51 mark present (debrief card, owner select, coverage table, walk keys), scenario integrity holds.",
+     "checkpoints": [
+      "Gate reports '47 scenarios · N checkpoints · key rw_playtest_v51'",
+      "A missing owner select, a dropped debrief id, or the old LS key would FAIL — spot-check",
+      "All gates green; overall 0 fail"
+     ]
+    }
+   ]
   }
  ],
- "harness_ui_v37": {
-  "storage_key": "rw_playtest_v37",
-  "build_tag_prefix": "world v37 local",
+ "harness_ui_v51": {
+  "storage_key": "rw_playtest_v51",
+  "build_tag_prefix": "world v51 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
    "?": "toggle the key card",
    "j / k": "move the checkpoint cursor (clamped, no wrap)",
    "p / f / n": "verdict the selected checkpoint pass / fail / n-a",
+   "[ / ]": "prev / next scenario in the (smoke-filtered) rail — clamped, no wrap (v51)",
    "o": "open the first listed surface in the embedded viewer",
    "esc": "close the key card, then clear the checkpoint cursor",
    "note": "all keys inert while focus is in an input/textarea/select"
   },
   "finding_step_ref": "fStep dropdown offers 'whole scenario' + one entry per step; refs are 'PT#' or 'PT#·sN'",
-  "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings only — the §5 triage paste",
+  "finding_owner": "fOwner dropdown (world|game-systems|art|marketing) routes each finding to an owning track; defaults world; rides the JSON + Markdown exports and the inbox note (v51)",
+  "repro_link": "every finding row carries a 'link' button copying 'playtest.html#pt=PT#' — the deep link back to the scenario it was logged from (v51)",
+  "debrief": "five fixed prompts mirroring playtest.md §6 — verdict chip (n/a|clear|stumbled|blocker) + one line each; persisted in S.debrief; exported as session.debrief + a Markdown '## Debrief' section (v51)",
+  "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
+  "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
   "required_marks": [
-   "rw_playtest_v37",
+   "rw_playtest_v51",
    "id=\"prog\"",
    "id=\"keyCard\"",
    "id=\"exInbox\"",
    "id=\"fStep\"",
+   "id=\"fOwner\"",
+   "id=\"debrief\"",
+   "id=\"covg\"",
+   "copyRef",
    "time_per_scenario",
    "S.times",
+   "S.debrief",
    "#pt="
   ]
  },
@@ -2524,8 +2592,9 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v37 local",
+   "build": "world v51 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
+   "debrief": "object — {prompt_id: {v: n/a|clear|stumbled|blocker, note}} — the §6 watch-list answered per session (v51)",
    "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
    "notes": "string"
   },
@@ -2542,6 +2611,7 @@
    {
     "severity": "blocker|major|minor|nit|question",
     "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen|lab|audit|market|storefront|apply|harness",
+    "owner": "world|game-systems|art|marketing — owning track the finding routes to (v51)",
     "ref": "PT#, PT#·sN, or null — auto-tagged with the open scenario at log time; ·sN added when a step is picked in the fStep dropdown (v37)",
     "title": "string",
     "detail": "string",
