@@ -1,4 +1,4 @@
-# Memory Model Spec v0.6 — implementable human-like memory for RW characters
+# Memory Model Spec v0.7 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -182,6 +182,20 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   misinformation adoption (§6.3, `sleepdep_misinfo_gain`). Deprivation
   *at encoding* is what matters; poor sleep on later days does nothing
   (Frenda et al. 2014; false-memory.md §3).
+- **Synchrony modulation (v0.7):** if `peak_hour` is set,
+  `E *= (1 − synchrony_gain·(1 − cos(π·Δh/12))/2)` where
+  `Δh = |tod − peak_hour|` in hours — full strength at the character's
+  circadian peak, `−synchrony_gain` at the antipeak. `synchrony_gain`
+  scales up with `age_eff` (×(1+age_eff/60)): older adults are far more
+  synchrony-sensitive — the May, Hasher & Stoltzfus 1993 asymmetry that
+  erased the age deficit at optimal times (individual-differences.md
+  §2.12, §5). Same factor applies to θ at retrieval (§5.4).
+- **Detail-write fraction (v0.7):** each peripheral (non-central)
+  verbatim field is written at all only with probability `vivid_detail`
+  (default 0.8) — imagery vividness sets how *wide* a record is, not how
+  correct it is (Dawes et al. 2022 aphantasia: fewer episodic details,
+  individual-differences.md §2.7). Missing fields are confabulation
+  surface at reconstruction (§5.5); vividness never changes accuracy.
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -190,7 +204,11 @@ Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 
 ## 3. Confidence vs accuracy
 
 Two separate fields, always (R§6). `confidence` starts
-`base_conf(E) + conf_emo_gain·arousal²` (v0.5: conf_emo_gain≈0.15,
+`base_conf(E) + conf_bias + conf_emo_gain·arousal²` (v0.7: conf_bias
+is a per-character trait offset, default 0 — high-vividness characters
+start ~+0.05 more certain, memory-distrusting ~−0.08; it moves
+confidence only, never accuracy — individual-differences.md §3).
+(v0.5: conf_emo_gain≈0.15,
 quadratic — only strong arousal inflates felt certainty; the amygdala-
 fluency "feeling of remembering," Sharot et al. 2004) and is raised by
 retellings (+0.05 each, cap 0.98); `accuracy` only moves via distortion
@@ -448,6 +466,10 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
   sparing encoding/consolidation (de Quervain et al. 1998/2000; requires
   concurrent arousal, Roozendaal et al. 2004; emotional-memory.md §4).
   Retrieval-side only; never touches decay.
+  **v0.7 — synchrony on θ:** with `peak_hour` set, θ gains
+  `synchrony_gain·(1 − cos(π·Δh/12))/2` — recall is HARDER off-peak,
+  mirroring the §2 encoding modulation; age-scaled per §2 (May &
+  Hasher 1993; individual-differences.md §5).
 - `recencyBump` = `rec_k · exp(−(now − createdDay)/rec_τ)`, rec_τ≈2 days.
 - **Archived records** (strength < forget_thresh, §4.4) are reachable only if
   `cueMatch_ext > resurrect_thresh` (≈0.85) — a near-total context
@@ -864,9 +886,29 @@ MemoryParams = {
   "rm_rich_thresh": 0.5,       // richness gate for imagined→witnessed (§6.9)
   "plaus_min": 0.35, "imagine_gain": 0.15, // plausibility gate + gain (§6.9)
   "source_confuse_flip": 0.15, // imagined→witnessed flip rate (§6.9)
-  "source_confuse": 0.10       // external source reassignment (§6.10)
+  "source_confuse": 0.10,      // external source reassignment (§6.10)
+  // v0.7 additions (individual-differences calibration,
+  // individual-differences.md §§3–5)
+  "peak_hour": null,           // circadian peak hour 0..23; null = flat
+  "synchrony_gain": 0.06,      // encoding/θ off-peak penalty; ×(1+age_eff/60)
+  "vivid_detail": 0.8,         // prob each peripheral field is written at all
+  "conf_bias": 0.0             // trait confidence offset, never touches accuracy
 }
 ```
+
+**Trait layer (v0.7):** parameter vectors are generated from a small
+correlated latent trait vector `IndivTraits` (g_mem, wmc, neurot, extra,
+consc, open, vivid, distrust, fantasy, sleep, stress, social, sex,
+chronotype) — sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4, then projected through the loading table
+(§3 there) onto these params, plus ±5% residual jitter. This replaces
+v0's independent ±10% jitter: real individual differences are
+correlated (a low-WMC person is forgetful AND suggestible AND
+source-confused — Jaschinski & Wentura 2002; Zhu et al. 2010), and
+correlated flaws are what make a character's mind legible. Explicit
+nulls the generator must preserve: no `g_mem → misinfo_suscept` direct
+path (HSAM is not suggestion-immune — Patihis 2013), no `wmc →
+cie_residual` (Brydges 2018), no `vivid → accuracy` (Dawes 2022).
 
 **Continuous age evaluation (v0.3):** age-sensitive params are no longer
 fixed per archetype — each is a piecewise-linear function of `age_now =
@@ -963,6 +1005,11 @@ the age-PM paradox for free. See `age-development.md` §7.
   phantom records (§4.6), source-decay check feeding `sourceInfer`
   (§6.10)
 - `memorySnapshot/Load(charId)` → serialize the two stores + params
+- `deriveParams(archetype, modifiers, traits, seed)` (v0.7) → MemoryParams
+  — the character-creation helper: applies the §3 loading table +
+  residual jitter + §0 clamps so a bible trait vector deterministically
+  yields a parameter vector (individual-differences.md §4). Pure
+  function; pinning traits makes character generation reproducible
 - `rememberIntention(charId, intention)` → optional PM extension (§9, v0.3)
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors
   are just records with `source.kind:"told_by"` + `beliefStatus:"rumor"`.

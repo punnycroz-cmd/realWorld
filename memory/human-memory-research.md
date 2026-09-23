@@ -411,6 +411,31 @@ P23–P30 (spec v0.4).
   (hypervigilance for threat cues) while fragmenting contextual detail —
   parameter: higher arousal weight, lower detail fidelity under stress.
 
+**v7 calibration (full derivations in `individual-differences.md`):**
+within-age variance is STRUCTURED, not noise — common memory factors
+(Carroll 1993), twin heritability ~40–60% (McClearn 1997; Volk 2006),
+and WMC predicting misinformation resistance/source monitoring
+(Jaschinski & Wentura 2002; Zhu et al. 2010, N=436; Brydges et al.
+2018: memory-for-materials, not WMC, drives continued influence — an
+explicit NULL) → correlated `IndivTraits` latent layer replaces ±10%
+independent jitter (MVN(0,R) → §3 loading table → ±5% residual).
+Anchors: Asperholm et al. 2019 (617 studies, 1.23M — female episodic
+advantage g=0.19, verbal 0.28, faces 0.26, odor 0.37; male spatial
+−0.20/−0.24 → material-specific tilts, deliberately sub-jitter);
+Cuttler & Graf 2007 (conscientiousness predicts PM where cognitive
+ability doesn't → consc→pm_self); Rubin, Boals & Berntsen 2008 +
+Rusting & Larsen 1997 (neurot→intrusions/negative tone, extra→positive
+retrieval); May, Hasher & Stoltzfus 1993 (synchrony — age deficit
+vanishes at optimal time → `peak_hour`/`synchrony_gain`, age-scaled);
+van Bergen 2010 + Gudjonsson (`distrust` → retract_p/confidence);
+Horselenberg 2000 (`fantasy` → imagination inflation); Dawes 2022
+aphantasia (`vivid` → detail width, never accuracy); LePort 2012 HSAM
++ Palombo 2015 SDAM extreme-tail recipes — with Patihis et al. 2013's
+critical null: HSAM equally susceptible to DRM/misinformation, so
+superior storage never buys veridicality. Spec v0.7: +4 params
+(peak_hour, synchrony_gain, vivid_detail, conf_bias), synchrony on E
+and θ, trait layer + deriveParams in §7/§10; probes P48–P56.
+
 ---
 
 ## 9. Synthesis → model hooks

@@ -108,6 +108,10 @@ never copying raw.
 | plaus_min / imagine_gain | 0.15 / 0.0 | 0.6 / 0.4 | implantation gate + gain (v0.6) |
 | source_confuse_flip | 0.0 | 0.4 | imagined→witnessed flip per check (v0.6) |
 | source_confuse | 0.0 | 0.3 | external-source reassignment (v0.6) |
+| peak_hour | null/5 | 22 | circadian peak hour; null = flat (v0.7) |
+| synchrony_gain | 0.0 | 0.15 | off-peak encode/θ penalty, age-scaled (v0.7) |
+| vivid_detail | 0.3 | 1.0 | peripheral field write prob (v0.7) |
+| conf_bias | −0.2 | 0.2 | trait confidence offset, accuracy-untouched (v0.7) |
 
 **v0.3 continuous-curves note:** the archetypes below are now *named knots*
 on the piecewise-linear age curves in `age-development.md` §6 — the runtime
@@ -148,6 +152,20 @@ daydreamers); `plaus_min` should be near-flat across age — children and
 adults both reject bizarre content, children differ in what counts as
 bizarre. Emergent check: a co-witness pair discussing a field neither
 holds verbatim should converge ~70% of the time (Gabbert 2003 anchor).
+
+**v0.7 individual-differences note:** modifiers in §2 are now named
+*trait bundles* — each maps to positions on the IndivTraits vector
+(g_mem, wmc, neurot, extra, consc, open, vivid, distrust, fantasy,
+sleep, stress, social, sex, chronotype) per individual-differences.md
+§6, and §4's diversity rule now samples traits rather than jittering
+params directly. Four new params (peak_hour, synchrony_gain,
+vivid_detail, conf_bias) carry the circadian/vividness/metacognitive
+effects. Hard nulls that generation must NOT create: g_mem does not
+lower misinfo_suscept (Patihis 2013 — HSAM stays suggestible), wmc does
+not lower cie_residual (Brydges 2018), vivid does not touch accuracy
+(Dawes 2022). New extreme-tail recipes (HSAM, SDAM, aphantasia) are in
+individual-differences.md §2.13 — cast at most one tail per
+neighborhood.
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -309,11 +327,19 @@ the episode — use for the depressive profile.
 
 ## 4. Diversity rule
 
-No two characters share a parameter vector. Generate individual profiles as
-`archetype ⊕ modifiers ⊕ jitter`, where jitter = ±10% uniform on each numeric
-param (re-clamped). Two midlife shopkeepers should still forget at different
-rates. Diversity of *weights*, not of *equations* — that is the model's
-central hypothesis (R§11).
+No two characters share a parameter vector. **v0.7 supersedes the v0
+jitter rule:** generate individual profiles as
+`archetype ⊕ modifiers ⊕ trait projection ⊕ residual`, where traits are
+sampled ~ MVN(0, R) (conditioned on any pinned traits from the bible),
+projected through the loading table in `individual-differences.md` §3,
+and residual = ±5% uniform per numeric param (re-clamped, down from
+±10% — the trait layer supplies the structured variance). Two midlife
+shopkeepers should still forget at different rates — but now the *kind*
+of forgetting is coherent: the anxious one also ruminates and doubts
+himself; the low-WMC one also misattributes sources and buys rumors.
+Diversity of *weights*, not of *equations* — that is the model's
+central hypothesis (R§11), now with the literature's correlational
+structure inside it (Carroll 1993; Zhu et al. 2010).
 
 ## 5. Sanity checks for implementers
 
