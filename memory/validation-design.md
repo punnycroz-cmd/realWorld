@@ -3008,3 +3008,116 @@ Joormann, Teachman & Gotlib 2009 (J Abnorm Psych — depression:
 negative-lure false recall up, positive down); Howe & Malone 2011
 (Cognition — mood-congruent DRM under induced mood); Engelkamp
 (enactment gradient: performed > imagined > heard).
+
+## 69. New probes P433–P444 (v43 suite — individual-differences IV,
+## clinical phenotypes + everyday pharmacopeia)
+
+- **P433 OGM valence split (MUST — sign-locked):** matched
+  depr=+0.8 vs ptsd=+0.8 profiles: depr's specificity deficit
+  concentrates on positive-cued recalls, ptsd's generic responding
+  on negative-cued; depr neutral-material hit-rate within jitter of
+  baseline (Ono, Devilly & Shum 2016; Williams et al. 2007). FAIL
+  if the phenotypes share a signature or if depr lowers hit-rate.
+- **P434 sensory-gated intrusion (MUST — sign-locked):**
+  ptsd=+0.8 threat records intrude on sensory-cue matches
+  (w_sensory-driven cueMatch) at ≥1.5× baseline; the same records
+  under topic/people cues at baseline; non-threat records
+  unaffected at any cue type (Ehlers & Clark 2000 gate).
+- **P435 avoidance content-gate (MUST — sign-locked):**
+  attach_avoid=+1.5 → thinner vivid_detail on attach:true records
+  of BOTH valences and theta surcharge on the negative ones, while
+  off-tag records stay within jitter — a global deficit fails the
+  gate (Edelstein 2006 WM finding).
+- **P436 depletion release (MUST — sign-locked):** same avoidant
+  profile under context.depleted: suppressed negative attach
+  records become MORE accessible (theta surcharge falls by
+  depl_release·avoid, intrusion drive rises); non-avoidant profiles
+  show no release (Kohn, Rholes & Schmeichel 2012). FAIL if
+  depletion never unburies, or unburies for everyone.
+- **P437 observer transform (SHOULD):** observer-flagged
+  reconstructions report arousal ~persp_affect_loss lower and drop
+  ~half of sensory fields vs field-mode emissions of the same
+  record; stored fields unchanged; P(observer) rises with record
+  age and selfDiscrepant:true (Nigro & Neisser 1983; Libby &
+  Eibach 2002).
+- **P438 dysphoric positive-observer (SHOULD — sign-locked):**
+  depr profiles emit persp:"observer" preferentially on POSITIVE
+  records (Nelis et al. 2012 — opposite of the naive
+  distance-from-pain prediction, which belongs to attach_avoid's
+  negative-record surcharge instead).
+- **P439 suppression tax + reappraisal null (MUST — two halves):**
+  suppressing:true during a social scene → people/conversation E
+  reduced ~supp_enc_cost, non-social fields intact; a
+  reappraising context arm shows NO encoding difference — FAIL if
+  reappraisal costs anything (Richards & Gross 2000 structure).
+- **P440 mindfulness double sign (MUST — both signs at once):**
+  mindful +1.5 vs −1.5: higher positive-cued specificity AND higher
+  lure_accept/source-flip rates — FAIL if only one sign appears
+  (Wilson et al. 2015 counterintuitive half; Heeren et al. 2009
+  specificity half). A "memory virtue" phenotype is a modeling
+  error.
+- **P441 caffeine discrimination-only (MUST — sign-locked):**
+  caff>0 in consol_window → next-day lure-discrimination improved
+  on the window's records; hit-rate and d′ unchanged (Borota 2014
+  null half); encoding-time caffeine helps only low-arousal
+  encodes (Smith 2002 arousal gate).
+- **P442 smoker blind spot (MUST):** smoker profiles lose ~10%
+  objective pm_self with complaint_k unchanged (Heffernan 2010);
+  nic_dep deepens it; dosing restores toward baseline, never
+  above (Jansari — FAIL on any above-baseline nicotine gain).
+- **P443 pspeed latency-only (SHOULD):** pspeed ±2σ profiles
+  differ ~15% on searchCost/latency_ms while matched-strength
+  hit-rate stays within jitter — speed moves the clock, not the
+  hit (Salthouse 1996).
+- **P444 scc self-scope (SHOULD):** low-scc profiles show stronger
+  §6.17 consistency pull and higher feedback adoption on
+  self-evaluative records, identical behavior on non-self records
+  — scope-locked (Campbell 1996 construct).
+
+Registry: P1–P444. v43 suite: P433–P444 (8 MUST, 4 SHOULD).
+
+## 70. Sources new to this version
+
+Williams et al. 2007 (Psych Bull — CaR-FA-X OGM model); Ono,
+Devilly & Shum 2016 (Psych Trauma meta — depression large OGM
+effect driven by positive-cue specificity loss; trauma medium,
+negative-cue general responses; PTSD amplified); Moore & Zoellner
+2007 (Psych Bull 133:419 — trauma exposure alone ≠ OGM,
+psychopathology carries it); Schönfeld & Ehlers 2007 (Memory —
+suppression instruction → fewer/general memories in PTSD);
+Ehlers & Clark 2000 (Behav Res Ther — data-driven processing,
+sensory-triggered intrusions); Brittlebank et al. 1993 (OGM as
+trait marker); Lloyd & Lishman 1975 (mood-congruent retrieval
+latency); Jonker et al. 2000 (complaint/accuracy decoupling);
+Edelstein 2006 (Emotion 6:340 — avoidant WM deficit for
+attachment-related stimuli, both valences, content-gated);
+Edelstein et al. 2005 (PSPB — avoidance × CSA severity memory);
+Mikulincer & Orbach 1995 (JPSP 68:917 — avoidant low negative-
+memory accessibility, anxious easy access + emotional spreading);
+Fraley, Garner & Shaver 2000; Kohn, Rholes & Schmeichel 2012
+(JESP 48 — depletion releases avoidant suppression);
+Nigro & Neisser 1983 (Cog Psych 15:467 — field/observer);
+Robinson & Swanson 1993 (Memory 1 — perspective shifts, affect
+drop); Libby & Eibach 2002 (JPSP 82:167 — self-discrepant →
+observer); Kuyken & Moulds 2009 (Memory 17:624 — observer links
+depression, low mindfulness, avoidance); Nelis et al. 2012
+(Memory — dysphoric observer shift for positive memories);
+Richards & Gross 2000 (JPSP 79:410 — suppression memory cost,
+reappraisal null); Richards, Butler & Gross 2003 (suppression
+social cost); Gross & John 2003 (ERQ); Salthouse 1996 (Psych Rev
+— speed mediation); Hagger et al. 2016 (depletion replication,
+DEBATED); Erickson et al. 2011 (PNAS 108:3017 — 2% hippocampal
+volume, ~1–2y reversal; fitness cross-ref, v1.9); Wilson, Mickes,
+Stolarz-Fantino, Evrard & Fantino 2015 (Psych Sci — mindfulness
+39% vs 20% DRM false recall, RM accuracy down); Williams,
+Teasdale, Segal & Soulsby 2000 (J Abnorm Psych — MBCT reduces
+OGM); Heeren, Van Broeck & Philippot 2009 (BRT 47:403 —
+specificity up, flexibility mediation); Rosenstreich & Margalit
+2015 (5-week practice: true recognition AND provoked false up);
+Campbell et al. 1996 (SCC scale); Borota et al. 2014 (Nat
+Neurosci 17:201 — post-encoding caffeine → 24h lure
+discrimination, inverted-U, hit/d′ null); Smith 2002 (caffeine
+alertness-mediated review); Jansari et al. (JEF — nicotine gum
+restores deprived smokers' PM, no never-smoker benefit);
+Heffernan, O'Neill & Moss 2010/2011 (Drug Alcohol Depend —
+objective PM deficits in smokers, self-report unchanged).

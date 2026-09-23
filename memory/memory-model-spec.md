@@ -1,4 +1,42 @@
-# Memory Model Spec v4.1 — implementable human-like memory for RW characters
+# Memory Model Spec v4.2 — implementable human-like memory for RW characters
+
+> **v4.2 note (individual-differences IV — the clinical phenotypes
+> and the everyday pharmacopeia):** `memory/individual-differences.md`
+> Part IV (§§34–48) adds eleven trait/state axes, each with a
+> measured signature and a locked null: **depr** — overgeneral
+> memory concentrated on positive-cued recall, storage intact
+> `pos_spec_loss` (Ono, Devilly & Shum 2016 valence split;
+> Williams et al. 2007 CaR-FA-X) — §6.52; **ptsd** — sensory-cue-
+> gated intrusions `trauma_sens_intr`, fragmented trauma birth
+> `frag_p`, negative-cue overgenerality `neg_ogm`, effortful
+> voluntary suppression `avoid_suppress` (Ehlers & Clark 2000;
+> Moore & Zoellner 2007; Schönfeld & Ehlers 2007) — §6.52;
+> **attach_anx/attach_avoid** — content-gated effects on
+> `attach:true` records only, `attach_field_loss`,
+> and the depletion release `depl_release` — avoidant suppression
+> is effortful and fails when `context.depleted` (Edelstein 2006;
+> Mikulincer & Orbach 1995; Kohn, Rholes & Schmeichel 2012) —
+> §5.38; **persp_obs** — Reconstructions emit `persp` (field/
+> observer), observer reports dampened affect `persp_affect_loss`,
+> older and self-discrepant records shift observer
+> `persp_age_gain` (Nigro & Neisser 1983; Libby & Eibach 2002;
+> Kuyken & Moulds 2009; Nelis et al. 2012) — §5.39; **supp** —
+> `context.suppressing` taxes E on social fields `supp_enc_cost`;
+> reappraisal is the explicit null arm (Richards & Gross 2000) —
+> §6.53; **pspeed** — latency-only axis `search_cost_mult`
+> (Salthouse 1996) — §5.25 addendum; **mindful** — the
+> counterintuitive pair: specificity up AND `mind_lure`/
+> `mind_rm_loss` up (Heeren et al. 2009; Wilson et al. 2015) —
+> §6.8/§6.10 addenda; **scc** — self-model resolution scales
+> §6.17 consistency pull `scc_consist_gain` (Campbell 1996) —
+> §6.17 addendum; **smoker/nic_dep/caff** — objective PM deficit
+> with metacognitive blindness `smoker_pm_loss`, deprivation
+> `nic_dep_pm` restored never enhanced (Heffernan et al. 2010;
+> Jansari et al.), and post-encoding consolidation discrimination
+> `caff_consol_gain` (Borota et al. 2014 — hit-rate null locked)
+> — §4.1 addendum. +17 params in §7; probes P433–P444. All
+> optional, default-neutral; the eleven explicit nulls in
+> individual-differences.md §44 are normative.
 
 > **v4.1 note (false-memory IV — the instrumented channels):**
 > `memory/false-memory.md` Part IV (§§38–51) covers interrogation
@@ -1264,6 +1302,19 @@ Postman 1964; Hyde & Jenkins 1973).
   blackout islands (White 2003; morning-after gap-filling then runs
   through ordinary confab_fill, §5.5). Mild state-dependency cue
   `intox_state_dep` at §5.4. (individual-differences.md §16.)
+- **Caffeine & nicotine (v4.2):** `context.caff` ∈ [0,1] (~dose/
+  200mg, cap 1.5): at encoding `E += 0.05·caff·(1−arousal)` —
+  alertness-mediated, vanishes on arousing events (Smith 2002); when
+  caff>0 during a record's `consol_window`, the next sleep tick
+  credits `caff_consol_gain` (0.08) to that record's lure-
+  discrimination/pattern-separation rolls ONLY — hit-rate and d′
+  unchanged (Borota et al. 2014 null locked). `smoker` trait:
+  baseline `pm_self ×(1 − smoker_pm_loss)` objective-only —
+  `complaint_k` does NOT move (Heffernan 2010 blind spot); state
+  `context.nic_dep` ∈ [0,1] abstinence deepens `pm_self ×(1 −
+  nic_dep_pm·dep)` plus a small wmc-task cost; dosing restores
+  toward baseline, never above (Jansari — restoration, not
+  enhancement). (individual-differences.md §42.)
 - **Engagement mode (v1.2):** Event field `engagement` ∈
   {observed, heard, enacted, generated, spoken} (default derived from
   source.kind). Ordering at matched attention: enacted > generated >
@@ -3203,6 +3254,9 @@ lat_base 400ms, lat_pow 0.6, lat_search 0.4, lat_cap 5000ms
 not just uncertain (the 40th-commute problem in real time).
 `latency_ms ≥ lat_cap` surfaces as a §5.16 TOT/hesitation event rather
 than a silent null — the TOT machinery gains an arrival-time surface.
+v4.2: the whole expression scales by `search_cost_mult` — the
+`pspeed` trait's ONLY target (Salthouse 1996 mediation — speed moves
+the clock, never the hit-rate; explicit null, P443).
 Dialogue layer consumes latency for beat-level hesitations
 ("…give me a second"); validation uses it as a second, independent
 observable channel on R. Display/validation only — latency must never
@@ -3459,6 +3513,44 @@ hits with valence>0.3 the emission may carry `nostalgic:true`
 (report-layer flag; §34 `nostalgia_gain` supplies the mood effect).
 The ambient scan treats `c_music` like `c_sensory` — involuntary.
 P420.
+
+### 5.38 Depletion release — suppression is effortful (new in v4.2)
+
+Negative attach-tagged records under `attach_avoid` carry a theta
+surcharge `avoid_suppress` (§6.52) that is *maintained* — not
+passive forgetting but active exclusion (Mikulincer & Orbach 1995;
+Kohn, Rholes & Schmeichel 2012: under self-regulatory depletion the
+suppression fails and accessibility rises). When `context.depleted`
+(or cueContext.stress ≥ stress_thresh) is set, the surcharge decays
+`theta_surcharge ×(1 − depl_release·attach_avoid)` and intrusion
+drive on those records gains a matching +depl_release·avoid fraction
+— the buried grief surfaces when tired. The same `depleted` budget
+is drawn by §6.53's suppression tax: characters who spend a day
+keeping a straight face lose the vault key by evening. Ego-depletion
+the resource model is DEBATED (Hagger et al. 2016 replication) —
+we model the measured accessibility phenomenon, not the glucose.
+P436.
+
+### 5.39 Observer perspective — where the rememberer stands (new in v4.2)
+
+Reconstructions carry `persp:"field"|"observer"`, sampled at
+emission:
+`P(observer) = clamp(0.10 + 0.15·persp_obs + persp_age_gain·log(1 +
+recordAge/365) + 0.20·selfDiscrepant + 0.15·depr·[valence>0] +
+0.10·attach_avoid·[attach:true & valence<0], 0, 0.95)`
+— record age and self-discrepancy push observer (Nigro & Neisser
+1983: older and high-self-awareness events go observer; Libby &
+Eibach 2002: self-incompatible actions); the depr term is valence-
+asymmetric *positive-only* (Nelis et al. 2012 — dysphorics observe
+the good memories, a dampening signature). Observer emissions report
+`arousal −persp_affect_loss` (0.2 — Robinson & Swanson 1993:
+field→observer shifts damp experienced affect) and drop ~half their
+sensory-field details while gaining evaluative self-visible phrasing
+("I can see myself…"). **Report-layer only**: stored fields are
+unchanged; later drift runs through ordinary operators. Guided
+reinstatement (`interviewMode`, §5.30) may pass `context.persp:
+"field"` to pull emission back toward field — that pull IS the
+instruction's mechanism. P437/P438.
 
 ---
 
@@ -4826,6 +4918,46 @@ weighting: `×= 1 + moodcong_lure (0.25)·match(cand.valence,
 traitValence)` — selection not volume (Joormann, Teachman & Gotlib
 2009; Howe & Malone 2011). P430.
 
+### 6.52 Overgeneral reporting — the psychopathology valence split (new in v4.2)
+
+Two clinical phenotypes share the *surface* of "vague past" but not
+the mechanism. `depr` (episodic, gated by `depr_state`):
+positive-cued autobiographical recalls return generic/categoric
+records at `pos_spec_loss·depr·(0.3+0.7·depr_state)` while storage
+is untouched — specificity, not strength (Williams et al. 2007;
+Ono, Devilly & Shum 2016: depression's OGM is driven by missing
+specific responses to positive cues). `ptsd`: the mirror image —
+negative-cued recalls go generic at `neg_ogm·ptsd`, trauma records
+birth fragmented `frag_p`, and `threat:true` records intrude on
+**sensory-cue matches only** at reduced `intrusion_thresh −
+trauma_sens_intr·ptsd` (Ehlers & Clark 2000 — perceptual triggers,
+not semantic reminders); voluntary recall of threat records carries
+the `avoid_suppress` theta surcharge released under depletion per
+§5.38. `attach_avoid`: `attach:true` records encode with
+`vivid_detail ×(1 − attach_field_loss·avoid)` of BOTH valences
+(Edelstein 2006 — content-gated, non-attach material untouched)
+and carry the same `avoid_suppress` retrieval surcharge on
+negative-valence members; `attach_anx` instead lowers
+intrusion_thresh on rejection-cued records and raises mood_bleed
+(spreading, not storage — Mikulincer & Orbach 1995). Locked nulls:
+depr → no enc_base/beta/theta loading; ptsd → no non-threat
+intrusion gain; attach_* → no off-tag effects. P433–P436.
+
+### 6.53 The suppression tax — masking costs encoding (new in v4.2)
+
+`context.suppressing:true` (dialogue/emotion layer sets it while the
+character masks): E on social fields (people, conversation content)
+of co-occurring events scales `×(1 − supp_enc_cost·supp)` (0.12);
+non-social fields untouched — the tax is on *social* information
+(Richards & Gross 2000, three studies; Richards, Butler & Gross
+2003 — the poker face forgets what was said). Sustained suppression
+increments the `depleted` budget that §5.38 spends. `reap` is the
+explicit null arm: reappraisal carries NO encoding loading
+(antecedent-focused regulation completes before the demand) — a
+reap loading is a spec violation (P439). Composes, never merges,
+with §5.4's acute-stress encoding loss: masking a calm lie costs
+the tax without any arousal spike.
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -5592,6 +5724,40 @@ MemoryParams = {
 //   traitValence per profile, not age per se; fb_conf_floor,
 //   verb_pull, fb_conf_gain/fb_disconf, ssif_suppress, emit_omit
 //   declared AGE-FLAT (cite-guarded — no lifespan evidence).
+// v4.2 additions (individual-differences IV — clinical phenotypes,
+//   regulation tax, everyday pharmacopeia; individual-differences.md
+//   §§34–48)
+"pos_spec_loss": 0.15,   // depr: positive-cued OGM probability (§6.52)
+"neg_ogm": 0.12,         // ptsd: negative-cued generic responding (§6.52)
+"trauma_sens_intr": 0.10,// ptsd: intrusion thresh cut, sensory-cued threat only (§6.52)
+"frag_p": 0.2,           // ptsd: trauma-record fragmentation at birth (§6.52)
+"avoid_suppress": 0.15,  // effortful theta surcharge, threat/attach-neg records (§6.52/§5.38)
+"depl_release": 0.3,     // depleted state releases suppression (§5.38; Kohn 2012)
+"attach_field_loss": 0.15,// attach_avoid: vivid_detail cut on attach:true, both valences
+"persp_age_gain": 0.15,  // record-age → observer shift (§5.39; Nigro & Neisser)
+"persp_affect_loss": 0.2,// observer emissions dampen reported arousal (§5.39)
+"supp_enc_cost": 0.12,   // suppressing → E tax on social fields (§6.53)
+"search_cost_mult": 1.0, // pspeed's latency target (§5.25 addendum)
+"mind_lure": 0.10, "mind_rm_loss": 0.10, // mindfulness: lure/RM cost (§6.8/§6.10; Wilson 2015)
+"scc_consist_gain": 0.4, // low-scc amplifies §6.17 consistency pull
+"smoker_pm_loss": 0.10,  // chronic objective PM deficit, self-report blind (§42)
+"nic_dep_pm": 0.15,      // deprivation-state PM cut, restored never enhanced (§42)
+"caff_consol_gain": 0.08,// post-encoding caffeine → next-day lure discrimination (§42)
+// v4.2 explicit nulls (individual-differences.md §44, normative):
+//   depr → enc_base/beta_*/theta = 0 and neg-cue specificity ≈ 0;
+//   ptsd → non-threat intrusion = 0, semantic/procedural = 0;
+//   attach_* → off-tag material = 0; reap → ALL encoding params = 0;
+//   pspeed → accuracy/decay/threshold = 0 (latency only);
+//   mindful → any lure/false-recognition REDUCTION = 0 (sign is +);
+//   nicotine → above-baseline gain = 0; caff → hit-rate/d′ = 0
+//   (discrimination-only, Borota 2014); persp_obs → stored fields
+//   = 0 (report layer); scc → non-self records = 0.
+// v4.2 knot notes: pspeed joins the age_eff decline evaluation
+//   (~−0.04/decade past 50, Salthouse) and propagates through
+//   search_cost_mult; depr/ptsd/attach_*/smoker are prevalence-
+//   weighted bible pins, not free MVN draws (§45); all v4.2
+//   coefficients declared AGE-FLAT except pspeed (no lifespan
+//   evidence — P443/P444 guards).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -5599,8 +5765,11 @@ correlated latent trait vector `IndivTraits` (g_mem, wmc, neurot, extra,
 consc, open, vivid, distrust, fantasy, sleep, stress, social, sex,
 chronotype — plus the v1.9 block: inattn, verbal, gc, meta_conf,
 checker, culture_self, fitness, aging_rate, dissoc, empathy, langs,
-iiv; v2.8 adds `hearing` — age-correlated, trait-jittered) — sampled MVN(0, R) with the sparse correlation matrix in
-`individual-differences.md` §4/§17 (pinned traits conditioned per the
+iiv; v2.8 adds `hearing` — age-correlated, trait-jittered; v3.1 adds
+face_ability, adhd, asd, suggs, vigil, aim, hand_mix; v4.2 adds
+depr, ptsd, attach_anx, attach_avoid, persp_obs, supp, reap,
+pspeed, mindful, scc, smoker — Part IV §43) — sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4/§17/§30/§43 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
 v0's independent ±10% jitter: real individual differences are
@@ -6385,6 +6554,28 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     floored certainty is the character feature, not a bug) and
     `incongruent:true` is shared between §6.18 and §6.46 detection
     paths; all additions snapshot-additive, absent = legacy.
+- v4.2 additions (individual-differences.md Part IV §§34–48):
+  - `context`/`cueContext` may carry `depleted:true` (§5.38
+    release), `suppressing:true` (§6.53 tax), `nic_dep` ∈[0,1],
+    `caff` ∈[0,1] (§2 substance block), `persp:"field"` (§5.39
+    guided reinstatement pull); character state gains `depr_state`
+    ∈[0,1] gating §6.52's depr loadings — all optional,
+    absent=neutral.
+  - Reconstructions may carry `persp:"field"|"observer"` (§5.39) —
+    dialogue renders observer emissions with dampened affect and
+    self-visible phrasing; the flag is report-layer, never a stored
+    field.
+  - Records may carry `attach:true` (world tags attachment-relevant
+    events — attachment-figure presence, rejection/loss/reliance
+    themes); `threat:true` records gain the §6.52 sensory-gated
+    intrusion channel. Events may carry `selfDiscrepant:true` for
+    the §5.39 observer shift.
+  - `smoker`/`depr`/`ptsd`/`attach_*`/`persp_obs`/`supp`/`reap`/
+    `pspeed`/`mindful`/`scc` join IndivTraits (§7) — prevalence-
+    weighted, bible-pinnable; all snapshot-additive.
+  - World-builder hooks: nightly deprivation/suppression bookkeeping
+    sets `depleted` and `nic_dep`; the suppression tax needs
+    dialogue-layer masking state (`suppressing:true`) to fire.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

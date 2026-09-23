@@ -498,6 +498,21 @@ never copying raw.
 | emo_gran / gran_thresh | 0 / 0.2 | 1.0 / 0.6 | discrete-tag precision trait / "mixed" mint gate (v4.0) |
 | forecast_int_bias / forecast_dur_bias | 1.0 | 1.5 / 2.5 | impact bias on imagineEvent outputs; ≥1.0 always (v4.0) |
 | cue_music_w / music_era_gain | 0.1 / 0 | 0.7 / 3.0 | jukebox cue weight / bump-era multiplier (v4.0) |
+| pos_spec_loss | 0 | 0.35 | depr positive-cued OGM prob; gated by depr_state (v4.2) |
+| neg_ogm | 0 | 0.30 | ptsd negative-cued generic responding (v4.2) |
+| trauma_sens_intr | 0 | 0.25 | sensory-gated intrusion cut on threat records (v4.2) |
+| frag_p | 0 | 0.5 | trauma record fragmentation at birth (v4.2) |
+| avoid_suppress | 0 | 0.35 | effortful theta surcharge, threat/attach-neg (v4.2) |
+| depl_release | 0 | 0.6 | depleted-state release of suppression (v4.2) |
+| attach_field_loss | 0 | 0.35 | vivid_detail cut on attach:true, both valences (v4.2) |
+| persp_age_gain / persp_affect_loss | 0 / 0 | 0.4 / 0.5 | observer shift by record age / observer affect damp (v4.2) |
+| supp_enc_cost | 0 | 0.30 | suppressing → social-field E tax (v4.2) |
+| search_cost_mult | 0.6 | 1.6 | pspeed's only target — latency, never hit-rate (v4.2) |
+| mind_lure / mind_rm_loss | 0 / 0 | 0.25 / 0.25 | mindfulness lure + reality-monitoring cost, sign + locked (v4.2) |
+| scc_consist_gain | 0 | 0.8 | low-scc consistency-pull amplification, self records only (v4.2) |
+| smoker_pm_loss / nic_dep_pm | 0 / 0 | 0.25 / 0.35 | objective PM deficit (self-report blind) / deprivation cut (v4.2) |
+| caff_consol_gain | 0 | 0.2 | post-encoding caffeine → next-day lure discrimination only (v4.2) |
+| depr / ptsd / attach_anx / attach_avoid / persp_obs / supp / reap / pspeed / mindful / scc / smoker | −2 or 0 | +2 or 1 | new IndivTraits; depr/ptsd/smoker 0..1 pinned, rest N(0,1); reap is a NULL trait (v4.2) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -1801,3 +1816,61 @@ them uncertain.
   character from listener SSIF (silence edits everyone); there is no
   "immune to question wording" dial — the only defenses are verbatim
   strength and the §6.50 discriminate mode itself.
+
+## 27. v4.2 note — individual-differences IV: the clinical phenotypes
+## and the everyday pharmacopeia
+
+- **`depr`/`ptsd` are pinned severities, not free traits.** Both are
+  0..1, bible-set from backstory (the cast's grief and history are
+  authored, never sampled). `depr` is the *episodic* axis — pair it
+  with `depr_state` runtime gating: a character in remission still
+  tilts positive-cue recall coarser (0.3 floor) but the full
+  signature needs the episode. A high-depr + high-dampen + high-
+  rumen profile is the depressive cluster — negative maintained,
+  positive thinned at every stage. Never write a depr profile whose
+  encoding fails globally: the literature's deficit is
+  *specificity*, and P433 is watching for it.
+- **`ptsd` composes `dissoc`, never replaces it.** dissoc is the
+  peritraumatic encoding state (Part II); ptsd is the chronic
+  phenotype — sensory-gated intrusions, negative-cue OGM, effortful
+  avoidance. A trauma backstory without ptsd is legitimate
+  (exposure ≠ disorder — Moore & Zoellner); ptsd without a
+  trauma:true record history is not.
+- **`attach_*` needs `attach:true` tags to exist.** World-builder
+  must tag attachment-relevant events (attachment-figure scenes,
+  rejection/loss/reliance) or both traits are inert. The avoidant
+  profile only becomes legible when `depleted` fires — write the
+  tired-evening beat or the suppression never releases.
+- **`persp_obs` is narration flavor with a mechanism.** High
+  persp_obs characters say "I watched myself…"; older records push
+  everyone toward it. The depr term is positive-only — the
+  melancholic distances herself from the good day, not the bad one
+  (Nelis). Do not store `persp` on records; it is emitted per
+  reconstruction.
+- **`supp`/`reap` are the regulation pair, asymmetrically.** supp
+  high = the poker-faced character who forgets the meeting;
+  reap is deliberately loadless — a bible may set it for
+  personality coherence, it must never buy a memory benefit or
+  cost (P439's null half).
+- **`mindful` is the anti-caricature dial.** The meditator recalls
+  more precisely AND adopts lures more readily (mind_lure,
+  mind_rm_loss — sign + locked). Never let a high-mindful profile
+  become the cast's reliable narrator.
+- **`smoker`/`nic_dep`/`caff` are scheduled, not sampled.** The
+  world's routines set the states; the trait flags vulnerability.
+  Smokers lose PM and don't know it — `complaint_k` untouched is
+  part of the phenotype (Heffernan). Caffeine buys pattern
+  separation in the consolidation window only; it is not an
+  encoding drug (Borota hit-rate null).
+- **Population-flat:** pos_spec_loss, neg_ogm, trauma_sens_intr,
+  frag_p, avoid_suppress, depl_release, attach_field_loss,
+  persp_age_gain, persp_affect_loss, supp_enc_cost, mind_lure,
+  mind_rm_loss, scc_consist_gain, smoker_pm_loss, nic_dep_pm,
+  caff_consol_gain — the *coefficients* are population constants;
+  the traits are what vary. `search_cost_mult` is the exception —
+  it IS pspeed's surface.
+- **Explicit nulls a bible cannot override:** no trait exempts the
+  suppression tax (only not-suppressing avoids it); no profile
+  makes observer mode *more* detailed than field mode; no profile
+  gains above-baseline memory from nicotine or caffeine; reap
+  stays zero-loaded; attach effects stay inside `attach:true`.

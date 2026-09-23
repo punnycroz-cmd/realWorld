@@ -1360,3 +1360,586 @@ hand_mix·(all)      ~0     (uncorrelated by design)
 - The meno overlay models the *population-average* transition;
   vasomotor/depression-mediated variance folds into existing
   stress/sleep states rather than dedicated params.
+
+---
+---
+
+# Part IV — v43: the fourth axis of difference (the clinical
+# phenotypes, the reporting style, the regulation tax, and the
+# drugs everyone actually uses)
+
+**Version focus:** v43 · **Date:** 2026-09-23 · **Builds on:** Parts
+I–III, spec v4.1.
+
+Part I built the trait layer, Part II added state noise and culture,
+Part III added the dissociable stores and the neurodivergence
+phenotypes. What is still missing is the class of individual
+differences that sits between "personality" and "disease": the
+depressive phenotype, the trauma phenotype, attachment style — each
+with a *named, measured memory signature* in the clinical literature
+that is NOT reducible to neurot/stress/vigil. Then a report-layer axis
+(perspective), an encoding-side tax nobody had modeled (expressive
+suppression), a counterintuitive trait (mindfulness helps recall AND
+helps lures), two self-model traits, and the mundane psychoactive
+states (caffeine, nicotine) that Part II/III's substance machinery was
+built for but never populated. Every axis lands in the loading table
+(§45) and the probe registry (§47).
+
+---
+
+## 34. `depr` — the dysphoria phenotype: overgeneral, not weaker
+
+The signature is NOT forgetting — it is *specificity collapse*.
+Depression is associated with **overgeneral autobiographical memory
+(OGM)**: cue-word tasks return categoric summaries ("every fight with
+my sister") instead of single-occasion episodes (Williams et al. 2007,
+CaR-FA-X model: capture by ruminative self-focus + functional
+avoidance + reduced executive control). Critically for our generator,
+the deficit is **valence-asymmetric**: the Ono, Devilly & Shum 2016
+meta-analysis (25 studies) found depression's OGM effect is large and
+driven by *lack of specific memories especially to positive cues*,
+while trauma history drives *overgeneral responses to negative cues*
+— the two phenotypes have opposite valence signatures. **[CONSENSUS]**
+
+Depression also speeds negative relative to positive recall (Lloyd &
+Lishman 1975 — retrieval latency is mood-congruent), inflates memory
+*complaints* beyond objective deficit (Jonker 2000 — same decoupling
+as §13), and couples to dampening of positive affect (Feldman 2008 —
+already a v4.0 trait).
+
+- `depr` trait (0..1 severity, bible-set or sampled; distinct from
+  neurot — neurot is the *vulnerability*, depr is the *episode-scale
+  coloring*; R correlation +0.5 with neurot, not identity).
+- Loadings: `specificity ×(1 − pos_spec_loss·depr)` **on
+  positive-cued retrievals only** (pos_spec_loss 0.15 — the Ono
+  valence split); `w_emo_pos ×(1 − 0.12·depr)` (positive events
+  encode thinner); `neg_affect_decay ×(1 − 0.10·depr)` (negative
+  tags linger); `intrusion_thresh −0.05·depr` restricted to
+  negative-cued records (involuntary negative recall); `dampen_mult`
+  effectively ×(1+0.2·depr) via the existing trait path;
+  `complaint_k +0.15·depr` (self-report inflation, §13).
+- **Explicit boundary:** depr does NOT lower enc_base globally and
+  does NOT raise beta_* — depressed people remember plenty; they
+  remember it *coarsely*. A depr profile with a global encoding
+  deficit is a modeling error (P433).
+- Episodicity: depression comes in episodes. `depr` is the trait
+  (risk/severity); a runtime `depr_state` (0..1, world-set or
+  event-driven — breakup, job loss) gates the loadings:
+  `loading_eff = loading · (0.3 + 0.7·depr_state)` so a euthymic
+  carrier still tilts but only the active episode shows the full
+  signature. [HYPOTHESIS parameterization of the state-trait
+  finding — OGM partially persists in remission (Brittlebank 1993
+  trait-marker claim, DEBATED how much).]
+
+## 35. `ptsd` — the trauma phenotype: hot and coarse at once
+
+PTSD's memory signature is a **paradox the model must reproduce**:
+involuntary, cue-triggered, sensory-rich intrusion of the trauma
+record, coexisting with overgenerality of the *rest* of
+autobiographical memory and effortful avoidance of the trauma cue
+space (Ehlers & Clark 2000 — data-driven processing at encoding →
+weakly elaborated but perceptually hot records; Brewin dual-
+representation — the phenomenology is consensus, the mechanism is
+DEBATED, as with `dissoc` in Part II).
+
+Evidence spine: Moore & Zoellner 2007 (Psych Bull, 24 studies —
+trauma exposure per se does NOT cause OGM; *psychopathology* does —
+so `ptsd` carries the OGM loading, not a bare "trauma-history"
+flag); Ono et al. 2016 (trauma → overgeneral **negative-cue**
+responses; PTSD amplifies, large and roughly valence-flat within the
+PTSD arm); Schönfeld & Ehlers 2007 (under suppression instruction,
+PTSD participants retrieved fewer/more general memories — avoidance
+is effortful suppression, and it *works* until resources fail).
+
+- `ptsd` trait (0..1; typically pinned by bible trauma history +
+  severity; R: +0.45 neurot, +0.30 vigil, +0.25 dissoc).
+- The hot leg: records tagged `threat:true` (or the bible's trauma
+  tag) get `intrusion_thresh − trauma_sens_intr·ptsd` (0.10) gated
+  to **sensory-cue matches only** (w_sensory-weighted cueMatch —
+  Ehlers & Clark: intrusions are triggered by *perceptual* matches,
+  not semantic reminders); `ptsd_frag` (0.2) splits trauma records
+  into more, weaker fragments at encoding (composes with Part II's
+  dissoc fragmenting — dissoc is the peritraumatic *state*, ptsd is
+  the chronic *condition*).
+- The coarse leg: `neg_ogm` (0.12) — probability a negative-cued
+  autobiographical retrieval returns a generic/categoric record
+  instead of a specific episode, scaling with ptsd; the Ono valence
+  split vs depr is probe-locked (P433).
+- The avoidance leg: `avoid_suppress` (0.15) — theta raise on
+  threat-tagged records under voluntary recall (the character does
+  not go looking); involuntary intrusions bypass it (intrusion
+  drive ignores theta — already the §5 architecture).
+
+## 36. `attach_anx` / `attach_avoid` — attachment style is a memory style
+
+The spec already *consumes* `attach_avoid` (v4.0 knot note:
+`secure_damp` rides it) without ever defining it. Part IV defines
+the pair; they are the two best-measured relationship-memory axes in
+the literature.
+
+- **`attach_avoid` — defensive exclusion.** Edelstein 2006 (Emotion):
+  avoidance → working-memory deficits for attachment-related stimuli
+  *of both valences*, zero deficit on non-attachment material —
+  the deficit is **content-gated, not global**. Edelstein et al.
+  2005 (PSPB, documented CSA cohort): avoidance negatively
+  associated with long-term memory for severe incidents. Mikulincer
+  & Orbach 1995: avoidant adults show low accessibility of negative
+  affective memories. Kohn, Rholes & Schmeichel 2012 (JESP):
+  the suppression is *effortful* — under self-regulatory depletion,
+  avoidants' negative attachment memories become MORE accessible.
+  **[CONSENSUS direction; mechanism = effortful suppression is the
+  Kohn finding.]**
+  - Loadings: `vivid_detail ×(1 − attach_field_loss·avoid)` (0.15)
+    on records carrying an attachment-relevant tag (co-present
+    attachment figure, rejection/loss/reliance theme — world tags
+    `attach:true`); `theta +avoid_suppress·avoid` on negative
+    attach-tagged records; **`depl_release` (0.3): under
+    `context.depleted` (or high stress state), the suppression cost
+    fails — theta returns toward baseline and intrusion drive rises**
+    — the avoidant character's buried grief surfaces when tired.
+    This is the mechanic that makes avoidance *interesting* rather
+    than just absent.
+- **`attach_anx` — hyperactivation.** Mikulincer & Orbach 1995:
+  anxious-ambivalent adults have *easy* access to negative memories
+  and cannot inhibit emotional spreading to nondominant emotions.
+  Edelstein 2006: anxiety unrelated to WM capacity — the deficit is
+  regulatory, not storage.
+  - Loadings: `intrusion_thresh −0.06·anx` on rejection/abandonment-
+    cued records; `mood_bleed ×(1+0.25·anx)` (the spreading); `link_p
+    ×(1+0.10·anx)` on negative interpersonal records (denser
+    grievance chains); `rumin_k` small + via neurot correlation only
+    (do not double-count).
+- R: `attach_anx·neurot +0.45`, `attach_avoid·neurot +0.20`,
+  `attach_avoid·extra −0.25`, `attach_avoid·social −0.20`,
+  `attach_anx·attach_avoid 0` (orthogonal dimensions — a person can
+  be both, "fearful", but we keep them separable).
+
+## 37. `persp_obs` — where the rememberer stands
+
+Nigro & Neisser 1983 established the field/observer distinction and
+its correlates: **older** memories and **self-aware/emotional**
+events come back in observer mode; field perspective dominates
+recent recall. Robinson & Swanson 1993: shifting field→observer
+*decreases* experienced affect (observer is a distancing device);
+perspective is switchable for recent/vivid memories, locked for old
+ones. Libby & Eibach 2002: **self-discrepant** actions — "that
+wasn't me" — are recalled in observer mode; perspective encodes
+self-concept compatibility at retrieval time, not at encoding.
+Kuyken & Moulds 2009 (123 recurrently-depressed patients): observer
+memories are less vivid, older, more rehearsed, and the observer
+tendency tracks negative self-evaluation, avoidance, and LOW
+mindfulness. Nelis et al. 2012: dysphorics show the observer shift
+preferentially for *positive* memories — the dampening style's
+signature. **[CONSENSUS correlates; causal direction DEBATED.]**
+
+- `persp_obs` trait (−1 field-locked … +1 habitual observer) shifts
+  the base rate; situational drivers stack multiplicatively:
+  `P(observer) = base(persp_obs) + persp_age_gain·log(1+recordAge
+  /365) + 0.2·selfDiscrepant + depr·0.15·(valence>0)` — the last
+  term encodes the Nelis finding (dysphoria shifts *positive*
+  memories to observer; negative ones are already field-hot).
+- Output: Reconstruction gains `persp:"field"|"observer"`. Observer
+  emissions report `arousal −persp_affect_loss` (0.2 — the Robinson
+  & Swanson affect drop), fewer sensory-field details, more
+  evaluative/self-visible content ("I can see myself standing
+  there"). Observer is a *report-layer* transform — the stored
+  fields don't change, the narration does; repeated observer recall
+  slowly drifts verbatim self-visible detail in (drift_p, existing).
+- Persuasion/checking hook: `context.persp:"field"` on guided
+  recall (the cognitive-interview reinstatement path §5.30) pulls
+  toward field mode — that's what the instruction is FOR.
+
+## 38. `supp` — the regulation tax at encoding
+
+Richards & Gross 2000 (JPSP, three studies): **expressive
+suppression — keeping a poker face — impairs memory for
+information presented while suppressing**, including social
+information (names, facts about interaction partners); the
+individual-difference arm found habitual suppressors have poorer
+objective memory for social material. **Reappraisal has no memory
+cost** — the tax is specific to response-focused regulation
+(suppressing the expression after emotion is live), because it
+consumes self-monitoring capacity during encoding; antecedent-
+focused regulation (reconstrual) completes before the demand.
+Richards, Butler & Gross 2003: suppression during an upsetting
+shared film degraded conversation partners' responsiveness —
+the social cost of the memory cost. **[CONSENSUS; effect size
+moderate.]**
+
+- `supp` trait (habitual expressive suppression, ERQ-style; R:
+  +0.3 attach_avoid, +0.2 neurot, −0.2 extra). `reap` trait kept as
+  an explicit **null row** — reappraisal is the no-cost arm and
+  must stay at zero loading on encoding (falsifiability: P439's
+  second half).
+- Mechanic: `context.suppressing:true` (set by the dialogue/
+  emotion layer when the character is masking) →
+  `E_people/E_conversation-fields ×(1 − supp_enc_cost·supp)`
+  (supp_enc_cost 0.12); non-social fields unaffected — Richards &
+  Gross's social-information specificity. The character who kept a
+  straight face through the meeting *doesn't remember what the
+  tenant said* — a playable, legible consequence.
+- Suppression draws on the same `depleted` resource that releases
+  §36's avoidant suppression — one self-regulation budget, two
+  memory consequences (Kohn 2012 supplies the coupling).
+
+## 39. `pspeed` — processing speed, the age mediator
+
+Salthouse's processing-speed theory: a large share of adult-age
+variance in memory measures is mediated by speed (Salthouse 1996 —
+~shared variance between speed and memory rises steeply with age;
+CONSENSUS that mediation exists, DEBATED whether speed is causal).
+We need it as a trait because it gives the model a *latency* axis
+that is not identical to g_mem: slow-but-accurate and fast-but-
+shallow are both real phenotypes.
+
+- `pspeed` N(0,1); R: +0.5 g_mem, +0.4 wmc, +0.3 iiv-inverse
+  (slower = more variable — Woodrow/Hultsch tradition via Part II's
+  IIV literature), +0.2 fitness.
+- Loadings: `search_cost_mult` (new param, 1.0 default) — scales
+  all `lat_*`/searchCost outputs `×(1 − 0.15·pspeed)`; `ret_noise
+  ×(1 − 0.10·pspeed)`; `omit_p` under multi-event windows small −;
+  **NO loading on beta_*, theta, or any accuracy parameter** —
+  speed buys time, not truth (explicit null; Salthouse is a
+  mediation claim, and the residual accuracy variance is g_mem's).
+- Age interaction: age curve applies to pspeed itself via the
+  existing knot machinery — add `pspeed` to the decline-side
+  evaluation at `age_eff` with slope ~−0.04/decade past 50
+  (Salthouse cross-sectional slopes), which then propagates to
+  latency — older characters don't just recall less, they recall
+  *slower*, and the two covary the way they do in humans.
+
+## 40. `mindful` — the counterintuitive trait
+
+Mindfulness is sold as a memory virtue; the data says it is a
+specificity virtue and a **source-monitoring vice**:
+
+- Williams, Teasdale, Segal & Soulsby 2000 (J Abnorm Psych, RCT):
+  MBCT reduced overgeneral memory in formerly depressed patients;
+  Heeren, Van Broeck & Philippot 2009 (BRT): mindfulness training
+  increased autobiographical specificity, mediated by improved
+  cognitive inhibition/flexibility. **[CONSENSUS direction —
+  specificity up.]**
+- Wilson, Mickes, Stolarz-Fantino, Evrard & Fantino 2015 (Psych
+  Sci, three experiments): a 15-min mindfulness induction **nearly
+  doubled** DRM false recall (39% vs 20% critical-lure recall) and
+  reduced reality-monitoring accuracy — nonjudgmental acceptance of
+  internally generated content makes imagined and perceived traces
+  harder to tell apart. Baranski & Was 2017-adjacent replications
+  and Rosenstreich & Margalit 2015 (5-week practice: true
+  recognition up, *provoked* false recognition up, spontaneous
+  false unchanged — the bias is in endorsing elicited lures).
+  **[CONSENSUS that acute induction raises DRM/RM error; the trait
+  projection is our HYPOTHESIS.]**
+
+- `mindful` trait N(0,1); R: −0.3 neurot, −0.3 depr, −0.2
+  persp_obs (Kuyken & Moulds).
+- Loadings (sign-locked pair, the falsifiable heart of Part IV):
+  `specificity +0.06·mindful`; `lure_accept +mind_lure·mindful`
+  (0.10); `source_confuse_flip +mind_rm_loss·mindful` (0.10);
+  `rumin_k ×(1−0.15·mindful)`. The trait that remembers more
+  precisely AND confuses imagination with perception more — a
+  character who meditates should be *better* at narrating a real
+  evening and *easier* to plant a detail in. P440.
+
+## 41. `scc` — self-concept clarity, the self-model's resolution
+
+Self-concept clarity (Campbell et al. 1996 SCC scale — trait
+stability/confidence of self-knowledge) moderates how hard the
+present self pulls on the past. The v3.4 narrative-self machinery
+(§6.17 consistency pull, §6.34 mnemic anchors, §4.x tdist_self)
+implicitly assumed a uniform self-model; scc parameterizes it:
+
+- Low scc: the present self is a weak attractor AND a malleable one
+  — consistency pull (§6.17) should be *stronger* per update (the
+  past has less to push back with: `consist_pull ×(1 +
+  scc_consist_gain·(−scc))`, gain 0.4) and self-relevant feedback
+  lands harder (misinfo on self-evaluative records ×(1+0.10·(−scc))
+  — DEBATED extension of the feedback literature).
+- High scc: stable self-model → weaker consistency pull, and
+  *subjective distance* (tdist_self) resolves cleanly — old selves
+  stay old rather than being rewritten or fused.
+- R: −0.4 neurot, −0.3 depr, +0.3 consc, −0.2 suggs (the
+  suggestible and the self-unclear overlap but are not the same —
+  keep the correlation small, P444 discriminates the channels).
+
+## 42. Substance III — the everyday pharmacopeia
+
+Part II gave `context.intox` alcohol; Part III gave it cannabis. The
+two substances RW characters actually consume daily still have no
+slots.
+
+- **Caffeine — a consolidation drug, not an encoding drug.**
+  Borota et al. 2014 (Nat Neurosci, n=160, double-blind,
+  caffeine-naive): 200 mg caffeine *after* encoding improved
+  lure discrimination (LDI) at 24h on an inverted-U dose curve —
+  100mg null, 200mg effective; **hit rate and basic d′ unchanged**
+  — the gain is pattern-separation during consolidation, not
+  recognition strength; pre-encoding administration literature is
+  mixed-to-null (Smith 2002 review — acute caffeine effects are
+  mostly alertness/vigilance, strongest on low-arousal boring
+  tasks).
+  - `context.caff` (0..1 ≈ dose/200mg, capped 1.5): if present
+    during `consol_window` → next sleep tick applies
+    `caff_consol_gain` (0.08) to that window's records'
+    lure-discrimination/pattern-separation ONLY (proxied: next-day
+    discriminate-mode and lure-rejection rolls on those records).
+    At encoding, `E += caff_enc_gain·caff·(1−arousal)` (0.05 —
+    alertness-mediated, vanishes on arousing events). Withdrawal:
+    `smoker`-style habitual flag `caff_dep` → morning-without-dose
+    `E ×(1−caff_dep_cost)` (0.05) — small, DEBATED.
+- **Nicotine — the deprivation state.** Jansari et al. (JEF virtual
+  executive battery): nicotine gum improved time- AND event-based
+  prospective memory in minimally-deprived smokers, not never-
+  smokers — the "enhancement" is withdrawal relief. Heffernan,
+  O'Neill & Moss 2010/2011: smokers show **objective** PM deficits
+  on real-world tasks while self-report PM is **unchanged** —
+  a metacognitive blind spot (they don't know what they've lost).
+  - `smoker` trait (binary/0..1): baseline `pm_self ×(1−
+    smoker_pm_loss)` (0.10) — objective only, `complaint_k` does
+    NOT rise (P442's blind-spot lock); `context.nic_dep` (0..1
+    abstinence): `pm_self ×(1−nic_dep_pm·dep)` (0.15) and small
+    `wmc`-task cost; dosing resets the deprivation, not a bonus
+    past baseline (explicit null: no supernormal nicotine gain —
+    Jansari's improvement is restoration).
+- Placement note: these stay STATE slots because consumption is
+  schedulable by the world; `smoker`/`caff_dep` are the trait-side
+  vulnerability flags. No tolerance curves beyond the deprivation
+  relief — out of evidence.
+
+## 43. Extended trait vector and R additions (Part IV)
+
+```json
+IndivTraits += {
+  "depr":        0.0,  // §34 dysphoria severity (episodic; gates via depr_state)
+  "ptsd":        0.0,  // §35 posttraumatic phenotype 0..1 (usually pinned)
+  "attach_anx":  0.0,  // §36 hyperactivating attachment
+  "attach_avoid":0.0,  // §36 deactivating attachment (was referenced in v4.0 knots; defined here)
+  "persp_obs":   0.0,  // §37 observer-perspective base rate
+  "supp":        0.0,  // §38 habitual expressive suppression
+  "reap":        0.0,  // §38 reappraisal — NULL-LOADING by design
+  "pspeed":      0.0,  // §39 processing speed (latency axis)
+  "mindful":     0.0,  // §40 dispositional mindfulness
+  "scc":         0.0,  // §41 self-concept clarity
+  "smoker":      0.0   // §42 nicotine dependence flag 0..1
+}
+```
+
+R additions (on top of Parts I–III):
+
+```
+depr·neurot        +0.50  (vulnerability ≠ episode — correlated, distinct)
+depr·scc           −0.30
+depr·mindful       −0.30
+depr·persp_obs     +0.20  (observer habit is a depressive signature — Kuyken & Moulds)
+ptsd·neurot        +0.45
+ptsd·vigil         +0.30
+ptsd·dissoc        +0.25
+attach_anx·neurot  +0.45
+attach_avoid·extra −0.25
+attach_avoid·supp  +0.30
+attach_avoid·neurot +0.20
+attach_anx·attach_avoid 0.0   (orthogonal by design)
+persp_obs·mindful  −0.20
+supp·extra         −0.20
+supp·reap          −0.30    (regulation styles anti-correlate — ERQ)
+pspeed·g_mem       +0.50
+pspeed·wmc         +0.40
+pspeed·fitness     +0.20
+mindful·neurot     −0.30
+scc·neurot         −0.40
+scc·consc          +0.30
+scc·suggs          −0.20
+smoker·consc       −0.20    (population correlation, small)
+reap·(accuracy params)  all 0 — explicit null trait
+```
+
+### Loading table additions (rows beyond §30)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| depr | specificity (positive-cued only) | ×−pos_spec_loss·d (0.15) | CONSENSUS (Ono 2016 valence split) |
+| depr | w_emo_pos | ×−0.12·d | CONSENSUS dir. |
+| depr | neg_affect_decay | ×−0.10·d | CONSENSUS dir. |
+| depr | intrusion_thresh (neg-cued) | −0.05·d | CONSENSUS dir. |
+| depr | complaint_k | +0.15·d | CONSENSUS dir. (Jonker 2000) |
+| depr | dampen_mult eff | ×+0.2·d | CONSENSUS dir. (Feldman 2008) |
+| ptsd | intrusion_thresh (sensory-cued threat) | −trauma_sens_intr·p (0.10) | CONSENSUS (Ehlers & Clark gate) |
+| ptsd | trauma fragment count | +frag_p·p (0.2) | CONSENSUS phenomenology / DEBATED mechanism |
+| ptsd | OGM on negative-cued recall | +neg_ogm·p (0.12) | CONSENSUS (Ono 2016) |
+| ptsd | theta (voluntary, threat-tagged) | +avoid_suppress·p (0.15) | CONSENSUS dir. (Schönfeld & Ehlers 2007) |
+| attach_avoid | vivid_detail (attach-tagged, both valences) | ×−attach_field_loss·a (0.15) | CONSENSUS (Edelstein 2006) |
+| attach_avoid | theta (negative attach-tagged) | +avoid_suppress·a | CONSENSUS dir. (Mikulincer & Orbach 1995) |
+| attach_avoid | suppression under depletion | −depl_release·a (0.3) | CONSENSUS dir. (Kohn 2012) |
+| attach_anx | intrusion_thresh (rejection-cued) | −0.06·a | CONSENSUS dir. |
+| attach_anx | mood_bleed | ×+0.25·a | CONSENSUS (Mikulincer & Orbach spreading) |
+| attach_anx | link_p (negative interpersonal) | ×+0.10·a | HYPOTHESIS |
+| persp_obs | P(observer) base | +0.15/σ | CONSENSUS dir. (Nigro & Neisser) |
+| supp | E on social fields while suppressing | ×−supp_enc_cost·s (0.12) | CONSENSUS (Richards & Gross 2000) |
+| pspeed | search_cost_mult | ×−0.15/σ | CONSENSUS dir. (Salthouse 1996) |
+| pspeed | ret_noise | ×−0.10/σ | CONSENSUS dir. |
+| mindful | specificity | +0.06/σ | CONSENSUS dir. (Heeren 2009) |
+| mindful | lure_accept | +mind_lure·m (0.10) | CONSENSUS (Wilson 2015) |
+| mindful | source_confuse_flip | +mind_rm_loss·m (0.10) | CONSENSUS dir. (Wilson Exp 3) |
+| mindful | rumin_k | ×−0.15/σ | CONSENSUS dir. |
+| scc | consist_pull (§6.17) | ×(1 + scc_consist_gain·(−scc)) 0.4 | HYPOTHESIS (Campbell 1996 construct) |
+| scc | misinfo on self-evaluative records | ×(1 + 0.10·(−scc)) | DEBATED |
+| smoker | pm_self baseline | ×−smoker_pm_loss (0.10) | CONSENSUS dir. (Heffernan 2010) |
+| (state) nic_dep | pm_self | ×−nic_dep_pm·dep (0.15) | CONSENSUS dir. (Jansari) |
+| (state) caff in consol_window | next-day lure discrimination | +caff_consol_gain (0.08) | CONSENSUS (Borota 2014) |
+| (state) caff at encoding | E, low-arousal events only | +0.05·(1−arousal) | CONSENSUS dir. (Smith 2002) |
+| (state) depleted | suppressor theta/avoid_suppress | released ×depl_release | CONSENSUS dir. (Kohn 2012) |
+
+## 44. New explicit nulls (Part IV's falsifiable edge)
+
+- `depr →` enc_base, beta_*, theta = 0 — OGM is specificity, not
+  storage. (P433)
+- `depr →` negative-cue specificity loss ≈ 0 — the deficit is
+  positive-cue-weighted (Ono 2016); ptsd carries the negative arm.
+- `ptsd →` non-threat records' intrusion_thresh = 0 — the gate is
+  the phenomenon (P434).
+- `ptsd →` semantic/procedural = 0.
+- `attach_avoid →` non-attach-tagged material = 0 (Edelstein's
+  WM null — content-gated or nothing).
+- `attach_anx →` WM/encoding params = 0 (Edelstein 2006 — anxiety
+  is regulatory, not storage).
+- `reap →` every encoding param = 0 — reappraisal is the no-cost
+  arm; a loading here falsifies the Richards & Gross structure.
+- `pspeed →` accuracy/decay/threshold params = 0 — latency only.
+- `mindful →` any reduction in lure/false-recognition = 0 — the
+  sign is +, locked (Wilson 2015).
+- `nicotine →` above-baseline gain = 0 — restoration, never
+  enhancement (Jansari: no never-smoker PM benefit).
+- `caff →` hit rate / basic d′ = 0 — Borota's gain is
+  discrimination-specific.
+- `persp_obs →` stored field values = 0 — report-layer transform;
+  drift via existing operators only.
+- `scc →` non-self-relevant records = 0 — self-model scope only.
+
+## 45. Sampling note: the clinical phenotypes are tails, not noise
+
+`depr`, `ptsd`, `attach_*`, `smoker` should NOT be sampled as free
+N(0,1) for most of the cast — they are prevalence-weighted
+(population base rates: lifetime MDD ~15–20%, PTSD ~6–8%,
+smoking ~12% US; marked HYPOTHESIS — the bible decides, sampling
+fills ambient NPCs). For the 8 mains the world-builder pins them
+from narrative; the trait machinery then propagates the memory
+consequences automatically — a bible that says "she never talks
+about the divorce and it shows at 2am" gets depr/attach_avoid and
+the depletion-release mechanic for free.
+
+## 46. Cross-version interactions (audit)
+
+- `depr` × §6.8 moodcong_lure: depr raises BOTH negative lure
+  selection (via traitValence, v4.1) and positive-cue OGM (§34) —
+  the same character is vaguer about good days and falsely surer
+  about bad ones. Do not merge the channels; P430/P433 test them
+  separately.
+- `ptsd` × `dissoc` (Part II): dissoc is the encoding-state trait
+  (peritraumatic), ptsd the chronic condition — they correlate and
+  compose (fragmented birth + hot sensory intrusion), never merge.
+- `supp` × `depleted` × `attach_avoid`: one self-regulation budget;
+  world sets `depleted` on sustained suppression/high-control days
+  (ego-depletion literature is DEBATED on the resource model —
+  Hagger replication issues — we model the *phenomenon* the Kohn
+  study measured, flagged accordingly).
+- `mindful` × `emo_gran` (v4.0): both raise report precision; the
+  lure penalty is mindful's alone (granularity doesn't touch source
+  monitoring — keep separable).
+- `pspeed` × `iiv` (Part II): correlated, distinct — IIV is
+  variance, pspeed is mean latency; a slow character can be
+  consistent (low iiv, low pspeed) and a fast one erratic.
+- `persp_obs` × `vivid` (Part I): low-vivid characters still emit
+  observer reconstructions — but sparser; the axes are orthogonal
+  (perspective is where you stand, vividness is how much renders).
+
+## 47. New falsifiable probes (P433–P444; validation-design §69)
+
+- **P433 OGM valence split (MUST — sign-locked):** matched
+  depr=+0.8 vs ptsd=+0.8 profiles: depr shows specificity deficit
+  concentrated on positive-cued recalls, ptsd on negative-cued
+  (generic responses); depr shows ~no storage deficit (hit-rate on
+  neutral material within jitter of baseline). FAIL if the two
+  phenotypes share a signature or if depr lowers hit-rate.
+- **P434 sensory-gated intrusion (MUST — sign-locked):**
+  ptsd=+0.8 threat records intrude on sensory-cue matches
+  (w_sensory-driven cueMatch) at ≥1.5× baseline rate; the same
+  records under semantic/topic cues at baseline; non-threat records
+  unaffected at any cue type.
+- **P435 avoidance content-gate (MUST — sign-locked):**
+  attach_avoid=+1.5 shows thinner vivid_detail and higher theta on
+  attach-tagged records (both valences at encoding; negative at
+  retrieval) while non-attach records are within jitter — a global
+  deficit fails the gate (Edelstein 2006).
+- **P436 depletion release (MUST — sign-locked):** the same
+  avoidant profile under context.depleted shows the suppressed
+  negative attach records MORE accessible (theta falls back);
+  non-avoidant profiles show no release. FAIL if depletion never
+  unburies, or if it unburies for everyone.
+- **P437 observer transform (SHOULD):** observer-flagged
+  reconstructions report lower arousal (~persp_affect_loss) and
+  fewer sensory fields than field-mode emissions of the same
+  record; stored fields unchanged (report-layer); record age and
+  self-discrepancy raise observer probability (Libby & Eibach).
+- **P438 dysphoric positive-observer (SHOULD — sign-locked):**
+  depr profiles emit observer mode preferentially on POSITIVE
+  records vs negative (Nelis 2012 direction — opposite of the
+  naive "distance from pain" prediction, which is attach_avoid's
+  job via §36 instead).
+- **P439 suppression tax + reappraisal null (MUST — two halves):**
+  suppressing:true during a social scene → E on people/
+  conversation fields reduced ~supp_enc_cost, non-social fields
+  intact; reappraising context → NO encoding difference
+  (explicit-null half — FAIL if reappraisal costs anything).
+- **P440 mindfulness double sign (MUST — both signs at once):**
+  mindful=+1.5 shows HIGHER positive-cued specificity AND HIGHER
+  lure_accept/source-flip rate vs −1.5 — FAIL if only one sign
+  appears (Wilson 2015 is the counterintuitive half; a "memory
+  virtue" trait is wrong).
+- **P441 caffeine discrimination-only (MUST — sign-locked):**
+  caff during consol_window → next-day lure-discrimination
+  improved on that window's records; hit-rate and d′ unchanged
+  (Borota null half); pre-encoding caffeine helps only
+  low-arousal encodes.
+- **P442 smoker blind spot (MUST):** smoker profiles show reduced
+  pm_self objective hit-rate with complaint_k unchanged (Heffernan
+  — they don't report the deficit); nic_dep deepens it; dosing
+  restores toward baseline, never above (Jansari null).
+- **P443 pspeed latency-only (SHOULD):** pspeed ±2σ profiles
+  differ on searchCost/latency outputs ~15% while hit-rate at
+  matched cue strength differs within jitter (Salthouse: speed
+  mediates measures, not stored truth).
+- **P444 scc self-scope (SHOULD):** low-scc profiles show stronger
+  §6.17 consistency pull and higher feedback adoption on
+  self-evaluative records, identical behavior on non-self records
+  — scope-locked.
+
+## 48. Part IV honest limits
+
+- The clinical axes are modeled as *dimensional severities*, which
+  matches the spectrum literature better than binary diagnoses but
+  flattens real comorbidity structure; R handles the common pairs
+  (depr×ptsd via shared neurot, depr×attach) but a character who
+  is BOTH high-depr and high-ptsd is a judgment region — Ono's
+  "PTSD amplified" cell suggests interaction, not additivity; we
+  choose additivity + clamp and flag it (P433 bounds the sum).
+- `depr_state` gating (episodes) is a convenience model — real
+  episode dynamics have onset/recovery latencies we don't
+  simulate; bible/world may drive depr_state on event triggers
+  (loss, isolation) at whatever grain they like.
+- The mindfulness trait extrapolates an *acute induction* finding
+  (Wilson) to a disposition — the biggest inferential leap in this
+  part; P440 is designed to catch over-calibration, and
+  mind_lure/mind_rm_loss should be halved rather than zeroed if it
+  fires.
+- Self-concept clarity's memory loadings are construct-level
+  inferences (Campbell's scale was validated on self-report
+  consistency, not episodic measures) — weakest evidence tier in
+  Part IV; keep scc_consist_gain ≤0.4.
+- Nicotine/cannabis/caffeine model *legal adult use* magnitudes;
+  polysubstance interactions and adolescent exposure are
+  unmodeled.
+- Observer perspective's `persp` emission is a report-layer flag;
+  whether observer recall *causes* later detail loss (the
+  reconstructive-feedback hypothesis in Robinson & Swanson) is
+  DEBATED — we let ordinary drift_p do the damage and add no
+  dedicated observer-decay operator.
