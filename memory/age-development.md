@@ -613,3 +613,390 @@ New params: `ret_win_base` 3.0, `latent_recall_p` 0.08,
 - Brashier 2017's knowledge protection is the *controlled-claims*
   finding; whether it survives real rumor ecology (partisan, social)
   is untested — P140's sign-lock is the falsifier.
+
+---
+
+# Part III — v27 deepening (2026-09-23): the bump's fuel, the adolescent regime, and the gates that never were
+
+Part I priced the era structure (amnesia ramp, valence-gated bump,
+continuous knots); Part II priced infancy latents, socialization, the
+semantic bump, and two sign corrections. What remained: (a) the bump was
+still a *distribution fact* with no mechanism — nobody had modeled WHY
+10–30 fills up (firsts and transitions do it); (b) adolescence was one
+knot column when it is a distinct *regime* — circadian shift, social-
+evaluative encoding, peer rehearsal ecology, life-narrative onset all
+concentrate there; (c) item-level discrimination was treated as an
+old-age mechanism only — it also *matures*, which produces a three-
+channel childhood false-memory picture (suggestion high, gist low,
+item-discrimination poor); (d) the amnesia gates were applied too
+broadly — early *semantic* and *procedural* learning survives fine;
+(e) adult female reproductive transitions are time-limited memory
+regimes the age curve can't express. Citations tagged
+**[CONSENSUS]** / **[DEBATED]** / **[HYPOTHESIS]** as before.
+
+## 23. Firsts and transitions — the bump's fuel, mechanized
+
+- **"Firsts" are privileged and structurally load-bearing.** Robinson
+  1992 (*First Experience Memories*): first-experience memories organize
+  personal histories into thematic streams and anchor their causal-
+  temporal sequence — the first kiss, first job, first apartment aren't
+  just better recalled, they're indexing nodes. **[CONSENSUS finding;
+  the structural claim is Robinson's interpretation, well-cited]**
+- **Life transitions mint their own local density.** Brown's transition
+  theory (Brown & Lee 2010; Brown 2016; Brown, Hansen, Lee, Vanderveen
+  & Conrad 2012): autobiographical memory organizes around *transition
+  points* — periods of rapid change in activities, goals, or locations
+  produce dense, landmark-rich records regardless of the age they
+  occur at. Thomsen & Berntsen 2008: the bump for *most positive*
+  events is carried disproportionately by transitional firsts; neutral
+  controls don't bump. Schrauf & Rubin's immigration bimodality (v2.2
+  `bump_windows`) is the same phenomenon — a relocation transition
+  mints a second bump in the 30s–40s. **[CONSENSUS pattern;
+  formalization as a runtime flag is our HYPOTHESIS]**
+
+**Spec consequence (v2.7):**
+- Events gain an optional `first:true` flag (world supplies it for
+  script-class firsts — first kiss, first day of school, first solo
+  trip): `E += first_gain` (0.2), and the record joins its "stream"
+  — `link_p` ×1.5 toward same-stream records (thematic chains
+  Robinson describes).
+- Records encoded inside a world-flagged `transition` window
+  (startDay/endDay on the character — moved house, new job, new baby,
+  divorce) get `transition_gain` (0.4) on the SAME valence gate as the
+  bump (positive or selfRelevance > bump_self_thresh). This generalizes
+  `bump_windows` (v2.2) from bible-fixed to runtime-declared.
+- Mechanistic payoff: the bump is now partially *emergent* — firsts and
+  transitions cluster at 10–30 in a normal life, so bump_gain on that
+  window + first_gain/transition_gain compound. P251 tests that
+  removing the first-flag mechanism measurably flattens the bump —
+  if the bump survives intact with uniform-age firsts, bump_gain is
+  doing all the work and the mechanism claim is empty.
+
+## 24. Item discrimination matures — the third false-memory channel
+
+- **Mnemonic discrimination (item-level lure rejection) improves
+  through childhood and declines in aging — an inverted U.** Ngo, Lin,
+  Newcombe & Olson 2019 (*JEP:G*, ages 4–80, lifespan sample): both
+  mnemonic discrimination and relational binding follow inverted-U
+  lifespan curves; Ngo, Newcombe & Olson 2017 (*Dev Sci*): 4-year-olds
+  worse than 6-year-olds and adults on both discrimination and
+  relational memory. Rollins & Cloude 2018 (*Learn Mem*): 5–6-year-olds
+  falsely call mnemonically-similar lures "old" at elevated rates vs
+  older children and adults — immature pattern separation.
+  **[CONSENSUS — multi-study, now including lifespan samples]**
+- **This is a THIRD channel, distinct from both suggestion (Part I §4,
+  falls with age) and gist-lures (rises with age, developmental
+  reversal).** A 6-year-old is simultaneously: (i) highly misinfo-
+  susceptible (external claims), (ii) gist-lure resistant (weak
+  meaning-connection machinery), and (iii) poor at telling apart two
+  similar things that actually happened (immature pattern separation).
+  All three are in different mechanisms and must not collapse.
+
+**Spec consequence (v2.7):** `lure_accept` (v0.4's similar-item lure
+parameter) gains child-side knots — the curve is now genuinely U:
+~1.6 at 5 → 1.0 by ~10 → 1.0 adult → rises 65+ per the existing
+discrim_mult knots. `phantom_p` (gist channel) stays monotonic-
+rising into adulthood — no child knots, by design. `link_p`'s child
+knot (0.6 at 6) already carries the relational-binding side. Child
+characters now produce *confusable near-duplicates* — two birthday
+parties smear into one via §4.3 merge — while resisting "a thing
+like X must have happened" gist errors. P252 sign-locks the split.
+
+## 25. Childhood interference — interpolated events hit harder
+
+- **Children's delayed recall is disproportionately damaged by
+  interpolated similar material.** Howe 1991/1995; Ceci & Bruck 1993/
+  1995 witness literature: children's trace fragility shows up as
+  vulnerability to intervening events — immediate recall can be good
+  while delayed recall collapses relative to adults'. **[CONSENSUS
+  direction; magnitude literature is witness-focused, DEBATED for
+  neutral autobiographical events]**
+
+**Spec consequence (v2.7):** the §4.2 `n_sim` accumulator applies
+`pi_child_mult` (1.3) to records with `encodeAge < 10` — similar
+intervening events pile up more PI against child-encoded traces. The
+compensation already exists: scaffolded retells (§12/v1.5) are the
+parent-supplied rehearsal that rescues the records worth keeping —
+a childhood event nobody talked about dies fast; one the family
+retold becomes an island of permanence, which is the real phenotype.
+
+## 26. Amnesia is episodic-only — early semantics and skills survive
+
+- **What dies in childhood amnesia is the *episodic* record, not the
+  learning.** Children amass vocabulary, scripts, facts, and skills
+  continuously from birth; adult semantic knowledge includes vast
+  amounts learned before age 5 with zero episodic residue. Infant
+  learning paradigms (Rovee-Collier) are themselves implicit/
+  procedural — behaviorally retained without declarative access.
+  Bahrick's permastore applies to school-learned semantics, much of it
+  early. **[CONSENSUS — implicit/procedural and semantic learning are
+  preserved across the amnesia boundary; it is autobiographical-
+  episodic that empties]**
+
+**Spec consequence (v2.7 — a gate correction):** `amnesia_ramp`,
+`amnesia_decay_mult`, `ret_window` auto-latent, and the §5.20 latent
+path apply ONLY to episodic records and their verbatim fields.
+Semantic and procedural records encoded at encodeAge < 7 form
+normally (they don't even carry a source episode — they're born
+decontextualized, which is what "I just know it" means). A grown
+character knows the childhood lullaby, can't tell you when she
+learned it, and never could — no latent record exists to surface.
+P254 tests the asymmetry.
+
+## 27. The adolescent regime I — phase delay and chronic restriction
+
+- **Adolescence phase-shifts circadian preference ~1.5–2h later while
+  school schedules stay early — the result is endemic partial sleep
+  restriction.** Carskadon 2011 (review); Wolfson & Carskadon. Lo et
+  al. 2016 (*SLEEP*, Need for Sleep Study, n=56, 15–19y): 7 nights of
+  5h TIB degrade sustained attention and mood. Lo et al. 2017 (*J
+  Sleep Res*, n=59): 5 nights of 5h TIB impair memory ENCODING —
+  measured after 3 recovery nights, so it's an encoding deficit, not
+  retrieval fatigue; uncorrelated with vigilance decline. Huang et al.
+  2016 (same study): spacing protected against the restriction
+  penalty; massed cramming lost more. **[CONSENSUS pattern; RW-magnitude
+  extrapolation HYPOTHESIS]**
+
+**Spec consequence (v2.7):**
+- `peak_hour` (v0.7) gets a teen knot: +1.5h at 13–19 relative to the
+  trait value — teen morning events encode under an effective synchrony
+  penalty by default (school happens at their circadian trough).
+- New param `adolesc_sleep_loss` (1.2): multiplier on the
+  sleepdep/low-sleepQuality encoding penalty for age_now ∈ [13,19] —
+  same lost hour costs a teen more, and recovery sleep doesn't fully
+  refund it (Lo 2017's post-recovery deficit).
+- Consequence for bibles: a teen character's `sleep` trait AND the
+  world's school schedule jointly determine how much of the school
+  week encodes dimly. P255 tests the persistent-after-recovery shape.
+
+## 28. The adolescent regime II — social evaluation and co-rumination
+
+- **Adolescents are hyper-attuned to social evaluation.** Somerville
+  2013 (*Curr Dir Psychol Sci*): peer observation alone elevates
+  adolescents' self-consciousness and socioaffective response beyond
+  children's and adults'; social-evaluative sensitivity peaks in
+  adolescence. **[CONSENSUS direction; neural mechanism DEBATED]**
+- **Teen rehearsal is peer-shaped and valence-skewed.** Rose 2002
+  (*Child Dev*, n=608): co-rumination — extensive rehashing of
+  problems in dyadic talk — is highest in adolescent girls, predicts
+  both friendship closeness AND internalizing symptoms; Stone,
+  Hankin, Gibb & Abela 2011: co-rumination prospectively predicts
+  depression onset in adolescent girls. **[CONSENSUS correlation;
+  causal path DEBATED]**
+- **Overgeneral autobiographical memory onsets in adolescence** with
+  depression (Sumner 2011 review; Valentino 2011) — the depressive
+  OGM signature is a teen-emergent, not child, phenomenon.
+
+**Spec consequence (v2.7):**
+- `social_eval_gain` (0.25) on records carrying `evaluated:true` or a
+  peer `audience` at encode, teen-knotted (~1.3 at 14, ~1.0 by 25,
+  ~0.9 after): being watched/judged by peers encodes deeper in
+  adolescence than at any other age — the embarrassment that still
+  surfaces at 40.
+- Retell ecology (§4.13) gains `coruminate_gain` (1.3): negative-
+  valence records get an extra retell draw when a high-closeness
+  PersonModel exists, teen-weighted (×1.5 for 13–19) and
+  trait-loaded on `social` + `sex`. Co-rumination buys both things
+  Rose found: stronger rehearsal of the wound AND interaction with
+  `rumin_k` — the record stays hot, specific-negative, and gets
+  retold until canonization (§6.24) can lock a painful story in.
+- Depressive-modifier note: the OGM drift (`rumin_k` gist-loss terms,
+  v0.5/v1.7) is gated to age ≥ 12 — children's negative records
+  fragment (verbatim-bound, §13), they don't overgeneralize.
+
+## 29. The life narrative switches on in adolescence
+
+- **Global autobiographical coherence — temporal, causal, thematic —
+  emerges between ~12 and 20.** Habermas & Bluck 2000 (*Psychol
+  Bull*): the cognitive tools and social-motivational demands for a
+  life story develop in adolescence; Habermas & Paha 2001: coherence
+  markers increase linearly 12→18; Habermas & de Silveira 2008
+  (16–70y lifespan): coherence continues rising into mid-adulthood
+  but the *onset* is adolescent. **[CONSENSUS]**
+- Mechanical meaning: before ~12, retells rehearse single episodes;
+  during 12–25, retelling starts *connecting* — "that was when I
+  stopped trusting him," "I became the person who…" — the era where
+  memories get woven into self-defining structure.
+
+**Spec consequence (v2.7):** during `narr_window` (12–25), each retell
+(§4.13/§6.11) additionally (a) adds `narr_coh_gain` (0.1) to gist S —
+narrating for coherence is consolidation; (b) mints thematic `links`
+at `narr_link_gain` (0.15 bonus link_p) to up-to-2 same-theme records
+across eras — adolescence is when the past stops being episodes and
+becomes a story, mechanically visible as a burst of cross-era links
+formed during teen/young-adult retells. P258: link formation during
+the narr_window should produce cross-era edges that child and midlife
+retells don't.
+
+## 30. Life scripts double as dating priors
+
+- **The cultural life script is not just a retention curve — it's a
+  temporal schema.** Berntsen & Rubin 2004: normative life events
+  carry culturally scripted expected ages; Bohn & Berntsen 2011:
+  life-script knowledge shapes *when* people place events — scripted
+  transitions get dated toward their scripted age. **[CONSENSUS
+  direction; effect sizes moderate]**
+
+**Spec consequence (v2.7):** `dateEstimate` (§6.15) gains a prior
+term: for records tagged transition-class (world supplies the tag —
+marriage, first job, first child, moving out), the estimate is pulled
+toward the character's `script_age` table (world-builder supplies per-
+culture expectations; default ~the bump window) with weight
+`script_date_pull` (0.3). Events that happened OFF-script (married at
+45 when the script says 27) carry elevated `date_sigma` — the schema
+that helps date the normal cases hurts the exceptions. P259 tests
+both signs.
+
+## 31. Children's prospective memory works — until interrupted
+
+- **Event-based PM is present by age 4 but fragile to task
+  interruption.** Kvavilashvili, Messer & Ebdon 2001 (*Dev Psychol*):
+  4–7-year-olds succeed at event-based PM when the ongoing task flows
+  into the cue, but interruption collapses performance; age explains
+  little variance vs the interruption factor. Children also
+  functionally offload intentions onto caregivers — the parent IS the
+  reminder system (consistent with §12's scaffolded-memory ecology).
+  **[CONSENSUS pattern]**
+
+**Spec consequence (v2.7):**
+- `pm_interrupt_mult` child knots (~1.5 at 4–7 → 1.0 by ~12): an
+  intervening `locShift` or topic change between intention arming and
+  cue arrival costs children disproportionately — the doorway effect
+  (§2 v1.2) plus this knot is why kids arrive in the kitchen having
+  forgotten why.
+- `pm_scaffold_gain` (0.2): when a caregiver-tier PersonModel is
+  co-present at the cue's arrival window, child PM firing gets the
+  bonus — the transactive directory (§6.14) extends to *prospective*
+  reminders for children before it becomes the adult couple system
+  (v1.6's collab_partner_gain). P260 tests all three arms.
+
+## 32. Hormonal transition regimes — pregnancy and perimenopause
+
+- **Pregnancy: small but real memory costs, retrieval-side.** Henry &
+  Rendell 2007 (*J Clin Exp Neuropsychol* meta, 14 studies): reliable
+  small deficits on free recall and executive working memory;
+  recognition and routine/well-practiced memory spared. Rendell &
+  Henry 2008: real-world (not lab) prospective memory impaired. Davies
+  et al. 2018 (*Med J Aust* meta, 20 studies): overall memory SMD
+  ≈ −0.48, third trimester reaching clinical significance; executive
+  function also dips. Complaint magnitude exceeds measured deficit —
+  the metamemory gap again. **[CONSENSUS that a small real deficit
+  exists; mechanism DEBATED — sleep disruption, hormonal, and
+  attentional-load accounts all live]**
+- **Perimenopause: the practice effect disappears, then returns.**
+  Greendale et al. 2009 (*Neurology*, SWAN n=2362, longitudinal):
+  during the menopause transition women fail to show the normal
+  retest *improvement* on processing speed and verbal memory —
+  learning-with-practice stalls; scores rebound post-menopause. The
+  deficit is time-limited, not cumulative. Greendale et al. 2010:
+  symptom adjustment doesn't explain it. ~⅔ of women report
+  complaints (subjective >> objective, again). **[CONSENSUS —
+  the largest longitudinal dataset on midlife cognition]**
+
+**Spec consequence (v2.7):** these are the first *reversible regime
+overlays* — distinct from the permanent age knots and from the
+v1.0 era/regime tags (which mark records, not capacity):
+- `preg` overlay (world-applied, trimester 3 weighted, ~90d):
+  `preg_theta_up` (+0.10 on θ — recall side), `preg_enc_loss`
+  (−0.08 on enc_base — mild), `preg_pm_loss` (0.2 penalty on
+  nonfocal PM), recognition/spared modes exempt (frozen:
+  `preg_recog_spare = true`). Fully removed when the window ends;
+  records encoded inside carry a normal `regime` tag, nothing more.
+- `perimenopause` overlay (sex-gated, ~age 45–55, duration param
+  `perim_years` ≈ 4): `perim_enc_loss` (−0.05) and — the distinctive
+  SWAN signature — `perim_s_gain_mult` (≈0): retell/rehearsal
+  practice stops *improving* storage during the window, then resumes.
+  Not cumulative; the records don't die faster, they just stop
+  getting stronger on re-test. The complaint-to-deficit asymmetry is
+  automatic: self_est dips on the felt stall while θ barely moves.
+- Both are profiles-doc modifiers (dated overlays), not new stores —
+  P261/P262 test reversibility and the practice-stall signature.
+
+## 33. What changed in the spec (v2.6 → v2.7)
+
+| # | Change | Grounding |
+|---|---|---|
+| F1 | Event flag `first:true` → `first_gain` + stream link_p ×1.5; runtime `transition` window → `transition_gain` on the bump valence gate | §23 (Robinson 1992; Brown & Lee 2010; Thomsen & Berntsen 2008) |
+| F2 | `lure_accept` gains child-side knots (~1.6@5→1.0@10) — item-discrimination maturation as third channel; `phantom_p` stays monotonic | §24 (Ngo 2017/2019; Rollins & Cloude 2018) |
+| F3 | `pi_child_mult` 1.3 on §4.2 n_sim for encodeAge<10 | §25 (Howe; Ceci & Bruck) |
+| F4 | Amnesia gates restricted to episodic+verbatim — semantic/procedural exempt | §26 (Bahrick; implicit-learning lit) — gate correction |
+| F5 | `peak_hour` teen knot +1.5h; `adolesc_sleep_loss` 1.2 on sleepdep encoding penalty 13–19 | §27 (Carskadon; Lo 2016/2017) |
+| F6 | `social_eval_gain` 0.25 teen-knotted on evaluated/peer-audience records | §28 (Somerville 2013) |
+| F7 | `coruminate_gain` 1.3 teen-weighted extra retell draw on negative records w/ close PersonModel; OGM drift age-gated ≥12 | §28 (Rose 2002; Stone 2011; Sumner 2011) |
+| F8 | `narr_coh_gain` 0.1 gist + `narr_link_gain` 0.15 on retells during narr_window 12–25 | §29 (Habermas & Bluck 2000) |
+| F9 | `script_date_pull` 0.3 in dateEstimate for transition-class records; off-script events gain date_sigma | §30 (Berntsen & Rubin 2004; Bohn & Berntsen 2011) |
+| F10 | `pm_interrupt_mult` child knots + `pm_scaffold_gain` 0.2 caregiver co-presence | §31 (Kvavilashvili et al. 2001) |
+| F11 | Reversible overlays `preg` (θ+, enc−, PM−, recognition frozen-spared) and `perimenopause` (s_gain→0, enc−, ~4y) | §32 (Henry & Rendell 2007; Davies 2018; Greendale 2009/2010) |
+
+New params: `first_gain` 0.2, `transition_gain` 0.4,
+`pi_child_mult` 1.3, `adolesc_sleep_loss` 1.2, `social_eval_gain`
+0.25, `coruminate_gain` 1.3, `narr_coh_gain` 0.1, `narr_link_gain`
+0.15, `script_date_pull` 0.3, `pm_interrupt_mult` (curve; base 1.5),
+`pm_scaffold_gain` 0.2, `preg_theta_up` 0.10, `preg_enc_loss` 0.08,
+`preg_pm_loss` 0.2, `perim_enc_loss` 0.05, `perim_s_gain_mult` 0.0,
+`perim_years` 4.0. Frozen: `preg_recog_spare = true`. Knot updates:
+`lure_accept` (child side), `peak_hour` (teen), `pm_interrupt_mult`.
+
+## 34. Validation probes (P251–P262; registry continues P1–P250)
+
+- **P251 firsts fuel the bump (SHOULD — mechanism):** hold bump_gain
+  fixed; redistribute `first:true` events uniformly across ages →
+  bump amplitude drops ≥25%. If it doesn't, the firsts mechanism is
+  decorative and F1 should be re-flagged HYPOTHESIS-only.
+- **P252 three-channel childhood (MUST — sign-locked):** at age 6 vs
+  25: misinfo adoption higher, gist-lure (phantom) rate LOWER,
+  similar-item lure FA higher. Fails if any two move together — the
+  three channels must stay dissociable.
+- **P253 child interference (SHOULD):** matched event, two interpolated
+  similar events → delayed-recall R at age 7 drops ≥1.3× the age-25
+  drop; scaffolded retell rescues.
+- **P254 episodic-only amnesia (MUST — structural):** semantic and
+  episodic records minted at encodeAge 3–5: at age 25 the episodic
+  pool is latent/absent, the semantic pool retains adult-normal
+  strength with NO source episode attached.
+- **P255 teen sleep (SHOULD):** 5-day low-sleepQuality stretch at 16 →
+  encoding deficit persisting through ≥3 recovery nights (Lo 2017
+  shape); identical stretch at 35 recovers overnight.
+- **P256 social-evaluative encoding (MUST — sign):** peer-evaluated
+  event at 15 encodes ≥1.2× matched neutral; same contrast at 35
+  <1.1×. Direction must invert with age, not just attenuate.
+- **P257 co-rumination (SHOULD):** teen negative records retell more
+  only when a high-closeness peer PersonModel exists; high-rumin_k
+  teen drifts gist-ward over months (OGM direction), and the gate
+  blocks it below 12.
+- **P258 narrative onset (SHOULD):** retells during 12–25 mint cross-
+  era thematic links at measurably higher rate than child or 45+
+  retells; teen-era records accumulate more links total.
+- **P259 script dating (SHOULD):** transition-class records date
+  toward script_age with signed error; off-script transitions date
+  with elevated sigma vs on-script matched events.
+- **P260 child PM (MUST):** uninterrupted event-based intention at 6
+  completes near-adult; interruption penalty ≥1.5× adult;
+  caregiver co-present at cue → completion back to adult rate.
+- **P261 pregnancy overlay (MUST):** recall θ penalty + PM cost active
+  in window, recognition spared (frozen constant), ALL effects gone
+  post-window; subjective complaint (self_est) drops more than θ
+  warrants.
+- **P262 perimenopause practice stall (MUST — sign-locked):** during
+  overlay, repeated retells produce ~no S growth vs outside-window
+  matched records; post-window growth resumes; no elevated decay
+  anywhere (the deficit is stalled growth, not loss).
+
+## 35. Honest limits, third pass
+
+- The firsts/transitions mechanism (§23) is the softest inference here
+  — the bump-fuel claim is well-supported but `first_gain`'s magnitude
+  is fitted, and P251 exists precisely to detect it doing nothing.
+- Adolescent parameters lean on a smaller literature than the old-age
+  side; Lo 2016/2017 is one lab (excellent but singular) — teen sleep
+  magnitudes flagged, directions solid.
+- The overlays (§32) assume the world can flag biological windows —
+  fine for bibles and scripted lives; ambient NPCs never get them
+  (degraded mode already covers this).
+- `script_age` tables are culture-specific world-builder content; the
+  model supplies only the pull mechanism. A world with no script table
+  gets flat priors — graceful by construction.
+- Three-channel childhood (§24) is the most load-bearing correction:
+  if implementers collapse item-lure and gist-lure into one dial, the
+  U-shape inverts and children come out *less* error-prone — the
+  single most common misread of the development literature.

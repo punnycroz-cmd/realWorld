@@ -1,4 +1,29 @@
-# Memory Model Spec v2.6 — implementable human-like memory for RW characters
+# Memory Model Spec v2.7 — implementable human-like memory for RW characters
+
+> **v2.7 note (age-development III — the bump's fuel, the adolescent
+> regime, and the gates that never were):** `memory/age-development.md`
+> Part III (§§23–35) gives the bump a *mechanism* and adolescence a
+> *regime*: **firsts/transitions** — `first:true` events and runtime
+> `transition` windows encode deeper, making the 10–30 density peak
+> partially emergent (Robinson 1992; Brown & Lee 2010) — §2; **item-
+> discrimination maturation** — `lure_accept` gains child knots: kids
+> can't tell similar real events apart while resisting gist lures —
+> three dissociable false-memory channels (Ngo et al. 2019; Rollins &
+> Cloude 2018) — §4.2; **child interference** — `pi_child_mult` on
+> n_sim for encodeAge<10 (Howe; Ceci & Bruck) — §4.2; **episodic-only
+> amnesia gate** — semantic/procedural records exempt from all amnesia
+> machinery (§4.14); **adolescent regime** — `peak_hour` +1.5h teen
+> knot + `adolesc_sleep_loss` (Lo et al. 2016/2017), `social_eval_gain`
+> (Somerville 2013), `coruminate_gain` retell ecology + OGM gate ≥12
+> (Rose 2002; Sumner 2011) — §2/§4.13; **narrative onset** — retells
+> in 12–25 mint cross-era thematic links (Habermas & Bluck 2000) —
+> §4.13; **script dating prior** — `script_date_pull` in dateEstimate
+> (Bohn & Berntsen 2011) — §6.15; **child PM** — `pm_interrupt_mult`
+> child knots + `pm_scaffold_gain` (Kvavilashvili et al. 2001) — §5.14;
+> **reversible regime overlays** — `preg` and `perimenopause` windows
+> with time-limited signatures (Henry & Rendell 2007; Davies 2018;
+> Greendale 2009 SWAN) — NEW §4.17. +17 params in §7; probes
+> P251–P262 in validation-design.md. All optional, default-neutral.
 
 > **v2.6 note (retrieval-cues III — what a cue IS):**
 > `memory/retrieval-cues.md` Part III (§§20–29) goes under the cue
@@ -904,6 +929,25 @@ Postman 1964; Hyde & Jenkins 1973).
     audits the fold).
   - *State folds (frozen):* `context.pain`/`hunger`/`fatigue` map to
     `daLoad` at weights 0.4/0.2/0.3 — no dedicated channels.
+- **v2.7 additions (age-development.md Part III §§23–32):**
+  - *Firsts:* Event flag `first:true` → `E += first_gain` (0.2) and
+    `link_p ×1.5` toward same-stream records — firsts are indexing
+    nodes of personal histories (Robinson 1992).
+  - *Transitions:* records encoded inside a character-level
+    `transition` window (`transitionStart`/`transitionEnd`, runtime-
+    declared — generalizes v2.2's bible-fixed `bump_windows`) get
+    `transition_gain` (0.4) on the same valence gate as `bump_gain`
+    (Brown & Lee 2010 transition theory; Thomsen & Berntsen 2008).
+  - *Social evaluation:* `evaluated:true` or a peer `audience` in
+    context → `E += social_eval_gain·(age knot)` — teen-knotted
+    (~1.3 at 14 → 1.0 at 25 → ~0.9 after; Somerville 2013).
+  - *Adolescent sleep:* `peak_hour` gains a +1.5h knot for 13–19
+    (Carskadon 2011) and `adolesc_sleep_loss` (1.2) multiplies the
+    sleepdep encoding penalty in that band — the deficit persists
+    past recovery nights (Lo et al. 2017).
+  - *OGM gate:* the depressive/rumin_k gist-loss terms (v0.5/v1.7)
+    apply only for age_now ≥ 12 — children's negative records
+    fragment, they don't overgeneralize (Sumner 2011).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -1088,6 +1132,18 @@ forgetting-curves.md §7.5.
 pattern separation loss means older characters treat *similar-but-distinct*
 records as matches sooner (Yassa et al. 2011; Stark et al. 2013;
 age-decline.md §4). Knots: 1.0 ≤50 → 0.72 at 85.
+**v2.7 — child side:** the same U exists on the young end — mnemonic
+discrimination matures through childhood (Ngo, Lin, Newcombe & Olson
+2019, ages 4–80 inverted-U; Rollins & Cloude 2018). `discrim_mult`
+gains child knots: ~0.75 at 5 → 1.0 by ~10 (merged into the knot
+table), and `n_sim` accrual is ×`pi_child_mult` (1.3) for records with
+`encodeAge < 10` — interpolated similar events pile up more PI against
+child-encoded traces (Howe 1991; Ceci & Bruck 1993). This is the
+*item-level* lure channel and is deliberately separate from the gist
+channel (`phantom_p`, §6.8) which stays monotonic-rising into
+adulthood — three dissociable childhood error channels (suggestion
+high / gist low / item-discrimination poor), sign-locked by P252
+(age-development.md §24).
 
 ### 4.3 Genericization (schema merging)
 
@@ -1364,6 +1420,21 @@ superiority at long intervals DEBATED (Karpicke & Roediger 2007), so
 the bonus is small. Records gain `prevGapDays` (one hidden field).
 The retell ecology now prices the schedule, not just the count.
 
+**v2.7 — the adolescent rehearsal ecology (age-development.md §§28–29):**
+- *Co-rumination:* negative-valence records (valence < −0.4) get one
+  extra retell draw per tick at `coruminate_gain` (1.3) when a
+  high-closeness PersonModel (closeness ≥ 0.6) exists in the roster —
+  teen-weighted (×1.5 for age_now ∈ [13,19]), trait-loaded on
+  `social`/`sex` (Rose 2002; Stone et al. 2011). Buys rehearsal AND
+  interacts with `rumin_k` — the wound stays hot and can canonize
+  (§6.24) a painful story.
+- *Narrative onset:* during `narr_window` (age_now ∈ [12,25]), each
+  retell additionally adds `narr_coh_gain` (0.1) to gist S and mints
+  up-to-2 cross-era thematic `links` at link_p + `narr_link_gain`
+  (0.15) — adolescence is when episodes get woven into a life story
+  (Habermas & Bluck 2000; Habermas & de Silveira 2008). Child retells
+  rehearse episodes; teen retells build the narrative.
+
 ### 4.14 Latent infancy layer — stored but inaccessible (new in v1.5)
 
 Infantile amnesia is an accessibility failure, not a storage failure
@@ -1386,6 +1457,15 @@ or merged. `storageS` persists (they are stored). The ONLY route back
 is §5.20 compound sensory reinstatement. Records with
 `encodeAge ≥ amnesia_exit_eff` never go latent — they archive normally
 under §4.4.
+
+**v2.7 gate correction — amnesia is episodic-only:** `amnesia_ramp`,
+`amnesia_decay_mult`, the `ret_window` auto-latent rule above, and the
+§5.20 latent path apply ONLY to episodic records and their verbatim
+fields. Semantic and procedural records minted at encodeAge < 7 form
+normally and carry no source episode at all — born decontextualized
+("I just know it"): early learning survives the amnesia boundary even
+though no episode does (age-development.md §26; Bahrick; implicit-
+learning literature). P254 tests the asymmetry.
 
 ### 4.15 Childhood consolidation inversion — naps (new in v1.5)
 
@@ -1427,6 +1507,38 @@ at El Farolote" endures as compact, schema-consistent gist because its
 frame was shed. This is the passive half of canonization (§6.24) and it
 gives genericization a payoff consistent with the data. [HYPOTHESIS
 implementation of a consensus observable — P234, SHOULD tier.]
+
+### 4.17 Reversible regime overlays — hormonal transition windows (new in v2.7)
+
+Distinct from the permanent age knots (§4.8 decline layer) and from
+record-era `regime` tags (v1.0): these are **capacity overlays with a
+runtime window** — they modify the character's live parameters while
+active and are fully removed when the window closes. World supplies
+the window flags; profiles doc §0 carries the clamps.
+
+- **`preg` overlay** (sex-gated; third-trimester weighted, ~90d):
+  `preg_theta_up` (+0.10 on θ — the deficit is recall-side),
+  `preg_enc_loss` (−0.08 on enc_base — mild), `preg_pm_loss` (0.2 on
+  nonfocal PM rolls). Recognition mode is FROZEN-spared
+  (`preg_recog_spare = true` — Henry & Rendell 2007: free recall and
+  executive WM dip, recognition/routine spared; Davies et al. 2018:
+  SMD ≈ −0.48 overall, third trimester clinically significant;
+  Rendell & Henry 2008: real-world PM impaired, lab spared).
+  Complaint > deficit: `self_est` dips while θ barely moves — the
+  metamemory gap is the phenotype.
+- **`perimenopause` overlay** (sex-gated; ~45–55, duration
+  `perim_years` ≈ 4): `perim_enc_loss` (−0.05) and the SWAN
+  signature `perim_s_gain_mult` (≈0) — retell/rehearsal practice
+  stops *growing* S during the window, then resumes after
+  (Greendale et al. 2009, n=2362: retest learning gains absent in
+  the transition, rebound post-menopause; Greendale et al. 2010:
+  symptom adjustment doesn't explain it). Time-limited by
+  construction — records don't decay faster; they stop getting
+  stronger on re-test.
+
+Both overlays: no new stores, no permanent marks — records encoded
+inside carry only the ordinary `regime` tag. P261/P262 test
+reversibility and the practice-stall signature.
 
 ---
 
@@ -1887,6 +1999,16 @@ re-encountering the cue inside the tail:
 
 A refire is a commission — the act or the reach ("I already gave you
 this, didn't I?"), never a fresh recall. P247.
+
+**v2.7 — the child end (age-development.md §31):** event-based PM is
+present by age 4 but interruption-fragile (Kvavilashvili, Messer &
+Ebdon 2001 — interruption collapses performance more than age does).
+Two knots: `pm_interrupt_mult` (~1.5 at 4–7 → 1.0 by ~12) multiplies
+any `locShift`/topic-change penalty on armed intentions for child
+characters; `pm_scaffold_gain` (0.2) fires on the intention roll when a
+caregiver-tier PersonModel is co-present at cue arrival — the
+transactive directory (§6.14) is prospective for children before it is
+collaborative for old couples (v1.6). P260 tests all three arms.
 
 ### 5.15 Context-scoped extinction — renewal (new in v1.4)
 
@@ -2518,6 +2640,15 @@ if verbatim.when alive → error ×0.2 (near-veridical)
 if verbatim.when dead, with prob round_p: snap to nearest of
    {7, 30, 90, 365}; only a fuzzy era tag survives → report its
    centroid (category adjustment, Huttenlocher et al. 1990/2000)
+// v2.7 — life-script prior (age-development.md §30): transition-class
+// records (world tags them — marriage, first job, first child,
+// moving out) get reported_age pulled toward the character's
+// script_age table entry with weight script_date_pull (0.3);
+// events that occurred off-script (>±10y from script_age) instead
+// carry date_sigma ×1.3 — the schema that helps date the normal
+// cases hurts the exceptions (Berntsen & Rubin 2004; Bohn &
+// Berntsen 2011). A character with no script_age table gets flat
+// priors — graceful default.
 ```
 
 (Janssen, Chessa & Murre 2006 — sign and crossover; Huttenlocher,
@@ -3082,6 +3213,25 @@ MemoryParams = {
   "selfinit_pen": 0.08,      // sparse-cue θ tax × ageScale (§5.4)
   "selfinit_bar": 0.3,       // cueMatch below → sparse-cue regime (§5.4)
   "ease_n": 4,               // ease-of-retrieval flip point (§5.24)
+  // v2.7 additions (age-development III — firsts, adolescent regime,
+  // overlays; age-development.md Part III §§23–32)
+  "first_gain": 0.2,         // E bonus on first:true events (§2)
+  "transition_gain": 0.4,    // E bonus inside transition window (§2)
+  "pi_child_mult": 1.3,      // n_sim accrual × for encodeAge<10 (§4.2)
+  "adolesc_sleep_loss": 1.2, // sleepdep encode-penalty ×, ages 13–19 (§2)
+  "social_eval_gain": 0.25,  // evaluated/peer-audience E bonus (§2)
+  "coruminate_gain": 1.3,    // extra retell draw, neg + close peer (§4.13)
+  "narr_coh_gain": 0.1,      // gist S on retells in narr_window (§4.13)
+  "narr_link_gain": 0.15,    // cross-era link bonus, narr_window (§4.13)
+  "script_date_pull": 0.3,   // script_age pull in dateEstimate (§6.15)
+  "pm_interrupt_mult": 1.5,  // interruption cost, child knots (§5.14)
+  "pm_scaffold_gain": 0.2,   // caregiver co-present PM bonus (§5.14)
+  "preg_theta_up": 0.10,     // θ lift inside preg window (§4.17)
+  "preg_enc_loss": 0.08,     // enc_base cut inside preg window (§4.17)
+  "preg_pm_loss": 0.2,       // nonfocal-PM penalty, preg window (§4.17)
+  "perim_enc_loss": 0.05,    // enc_base cut, perimenopause (§4.17)
+  "perim_s_gain_mult": 0.0,  // practice-gain multiplier, perim (§4.17)
+  "perim_years": 4.0,        // overlay duration (§4.17)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -3133,6 +3283,13 @@ MemoryParams = {
 //   lmax = search_breadth (reuse — §5.22 stop rule); intrusion_thresh
 //   is now age-FLAT by rule (§5.7, Schlagman et al. 2007 — remove it
 //   from the age-knot table)
+// v2.7 frozen constants + knot-table updates (age-development.md III):
+//   preg_recog_spare = true (recognition exempt from preg overlay,
+//   §4.17); narr_window = [12,25] fixed; OGM gate = age_now ≥ 12
+//   fixed (§2); discrim_mult child knots 0.75@5 → 1.0@10 (§4.2);
+//   lure_accept child knots ~1.6@5 → 1.0@10 (§5.6 — item channel,
+//   phantom_p untouched); peak_hour +1.5h @13–19 (§2); off-script
+//   date_sigma multiplier = 1.3 fixed (§6.15)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -3629,6 +3786,26 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     snapshot-additive.
   - `recall` applies `selfinit_pen` automatically on cue-sparse calls
     — no caller action.
+- v2.7 additions (age-development.md Part III §§23–32):
+  - `encodeEvent` Event fields: `first:true`, `evaluated:true`
+    (peer-evaluation salience), `transition:true` on transition-class
+    events (joins the §6.15 script-date class). Character-level
+    `transitionStart`/`transitionEnd` declare a runtime transition
+    window (generalizes ProfileInput `bump_windows` to live play).
+  - Character-level `script_age` table (world-builder supplies;
+    transition-class → expected age). Absent → flat prior, no pull.
+  - Regime overlays: `setOverlay(charId, "preg"|"perimenopause",
+    {startDay,endDay})` — capacity overlays per §4.17; stack with
+    trait/regime modifiers, fully reversible, never mark records
+    beyond the ordinary `regime` tag.
+  - `rememberIntention` on child characters: caller supplies
+    `caregiverPresent: bool` in the cue context at arrival for
+    `pm_scaffold_gain`; `pm_interrupt_mult` applies automatically on
+    `locShift`/topic-change between arm and cue.
+  - Records gain `first`/`transition` flags (snapshot-additive, both
+    default false); `stream` tag optional (same-stream link bonus).
+  - Amnesia gate (§4.14) is episodic-only — semantic/procedural
+    encodes bypass `amnesia_ramp`/`latent` entirely; no caller action.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

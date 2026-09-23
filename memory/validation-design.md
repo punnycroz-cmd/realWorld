@@ -1487,3 +1487,54 @@ the measurement discipline for "forgotten."
   field on all forgetting probes.
 
 Registry now P1–P250; numbering stable.
+## 36. New probes P251–P262 (v27, age-development III suite)
+
+Source: `memory/age-development.md` Part III (§§23–32). Spec v2.7.
+Tiers per §2.1. This suite audits the bump's mechanism, the
+three-channel childhood error structure, the adolescent regime, and
+the reversible overlays.
+
+- **P251 firsts fuel the bump (SHOULD — mechanism):** hold bump_gain
+  fixed; redistribute `first:true` events uniformly across encodeAge
+  → bump amplitude drops ≥25%. If the bump survives intact, the
+  mechanism is decorative — re-flag F1 HYPOTHESIS-only.
+- **P252 three-channel childhood (MUST — sign-locked):** at age 6 vs
+  25: misinfo adoption higher, gist-lure (`phantom_p`) rate LOWER,
+  similar-item lure FA higher (discrim_mult child knots). Fails if
+  any two channels move together — they must stay dissociable.
+- **P253 child interference (SHOULD):** matched event + two
+  interpolated cue-similar events → delayed-recall R drops ≥1.3× more
+  at encodeAge 7 than 25; a scaffolded retell rescues.
+- **P254 episodic-only amnesia (MUST — structural):** semantic and
+  episodic records minted at encodeAge 3–5, aged to 25 → episodic
+  pool latent/absent, semantic pool adult-strength with no source
+  episode. Fails if semantics go latent or episodics persist.
+- **P255 teen sleep (SHOULD):** 5-day low-sleepQuality stretch at 16
+  → encoding deficit persists through ≥3 recovery nights (Lo et al.
+  2017 shape); identical stretch at 35 recovers overnight.
+- **P256 social-evaluative encoding (MUST — sign):** peer-evaluated
+  event at 15 encodes ≥1.2× matched neutral; same contrast at 35
+  <1.1×. The contrast must invert with age, not just attenuate.
+- **P257 co-rumination (SHOULD):** teen negative records retell more
+  only with a high-closeness peer PersonModel in the roster;
+  high-rumin_k teen drifts gist-ward over months; the age≥12 gate
+  blocks the drift below 12 (Sumner 2011 onset).
+- **P258 narrative onset (SHOULD):** retells during narr_window
+  (12–25) mint cross-era links at measurably higher rate than child
+  or 45+ retells; teen-era records accumulate more links.
+- **P259 script dating (SHOULD):** transition-class records' date
+  errors are signed toward script_age; off-script transitions (>±10y)
+  date with elevated sigma vs on-script matched events.
+- **P260 child PM (MUST):** uninterrupted event-based intention at
+  age 6 completes near-adult rate; interruption penalty ≥1.5× adult;
+  caregiverPresent:true at cue arrival restores adult rate.
+- **P261 pregnancy overlay (MUST):** during the window θ penalty +
+  PM cost active, recognition spared (frozen `preg_recog_spare`),
+  all effects gone post-window; `self_est` drops more than θ
+  warrants (complaint > deficit asymmetry).
+- **P262 perimenopause stall (MUST — sign-locked):** inside the
+  overlay, repeated retells produce ~no S growth vs matched
+  outside-window records; growth resumes after; no elevated decay
+  anywhere (stalled growth, not loss — Greendale 2009 signature).
+
+Registry now P1–P262; numbering stable.

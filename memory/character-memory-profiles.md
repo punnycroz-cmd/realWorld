@@ -309,6 +309,23 @@ never copying raw.
 | selfinit_pen | 0.0 | 0.20 | sparse-cue θ tax × ageScale (v2.6) |
 | selfinit_bar | 0.1 | 0.5 | sparse-cue regime boundary (v2.6) |
 | ease_n | 2 | 7 | ease-of-retrieval inversion point (v2.6) |
+| first_gain | 0.0 | 0.5 | E bonus on first:true events (v2.7) |
+| transition_gain | 0.0 | 0.8 | E bonus inside transition windows (v2.7) |
+| pi_child_mult | 1.0 | 1.8 | child PI accrual multiplier (v2.7) |
+| adolesc_sleep_loss | 1.0 | 1.6 | teen sleepdep encode penalty × (v2.7) |
+| social_eval_gain | 0.0 | 0.5 | peer-evaluation E bonus, teen-knotted (v2.7) |
+| coruminate_gain | 0.0 | 2.0 | extra neg-valence retell draw, close peer (v2.7) |
+| narr_coh_gain | 0.0 | 0.3 | gist S on narr_window retells (v2.7) |
+| narr_link_gain | 0.0 | 0.4 | cross-era link bonus, narr_window (v2.7) |
+| script_date_pull | 0.0 | 0.6 | script_age dating pull (v2.7) |
+| pm_interrupt_mult | 1.0 | 2.0 | child PM interruption cost (v2.7) |
+| pm_scaffold_gain | 0.0 | 0.4 | caregiver co-present PM bonus (v2.7) |
+| preg_theta_up | 0.0 | 0.20 | θ lift, preg overlay (v2.7) |
+| preg_enc_loss | 0.0 | 0.15 | enc_base cut, preg overlay (v2.7) |
+| preg_pm_loss | 0.0 | 0.4 | nonfocal-PM penalty, preg overlay (v2.7) |
+| perim_enc_loss | 0.0 | 0.15 | enc_base cut, perim overlay (v2.7) |
+| perim_s_gain_mult | 0.0 | 0.5 | practice-gain mult, perim overlay (v2.7) |
+| perim_years | 2 | 8 | overlay duration (v2.7) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -1023,3 +1040,44 @@ variation enters through traits, records, and context instead:
 - **Deliberate nulls:** no trait → `diag_w` (diagnosticity is corpus
   statistics, not temperament); no `extra` → `monitor_cost` (the tax
   is capacity, not sociability); no `open` → `ease_n`.
+
+## 15. v2.7 note — age-development III: machinery vs bible dials
+
+- **`first_gain`/`transition_gain`** — encode-side machinery; the
+  *bible* dial is whether the character's life contains firsts and
+  transitions (world supplies the flags). A bible that says "her
+  twenties were unusually eventful" should be expressed as more
+  first/transition-tagged records in the seed pool, not a bigger gain.
+- **`social_eval_gain`** — teen-knotted automatically; per-character
+  variation enters via `social`/`neurot` loadings on whether the
+  character *experiences* an event as evaluated (world side), not the
+  gain itself. A socially-anxious teen isn't a bigger multiplier —
+  she's more `evaluated:true` events.
+- **`coruminate_gain`** — the one genuinely personality-loaded v2.7
+  param: load on `social` + `sex` (Rose 2002 girl-skew) + `neurot`;
+  requires a close PersonModel to fire, so roster loneliness
+  suppresses it mechanically. High-`coruminate_gain` + high `rumin_k`
+  teen = the OGM-risk profile; keep the age ≥12 gate.
+- **`adolesc_sleep_loss`, `pi_child_mult`, `pm_interrupt_mult`,
+  `pm_scaffold_gain`, `narr_*`** — developmental machinery, flat;
+  age knots do all the work. Never pin per-character.
+- **`script_date_pull`** — flat; the personality-relevant piece is the
+  `script_age` table (world-builder content, culture-locked). A
+  character who married at 45 when her script says 27 needs no dial —
+  the off-script sigma penalty produces the blurry dating for free.
+- **`preg_*`/`perim_*` overlays** — profiles-supplied *windows*, not
+  traits: bibles declare when the window ran (or world triggers it);
+  the magnitudes are population values. `perim_s_gain_mult` ≈ 0 is
+  the SWAN signature — resist the urge to "soften" it per-character;
+  the inter-individual variance lives in `perim_years` and whether
+  the bible schedules the window early/late.
+- **Deliberate nulls:** no `g_mem`/`wmc` → any child knot (immaturity
+  is maturational, not trait); no `consc` → `pm_scaffold_gain` (the
+  scaffold is the caregiver's presence, not the child's diligence);
+  no `extra` → `narr_link_gain` (narrative consolidation is not
+  sociability); no trait → `preg_recog_spare` (frozen population rule).
+- **Archetype deltas:** child knot additions — `lure_accept` ~1.6 at
+  5 (item-discrimination immaturity — do NOT confuse with the
+  gist channel), `pm_interrupt_mult` 1.5, `pi_child_mult` applies;
+  teen archetype — `peak_hour` +1.5h, `adolesc_sleep_loss` active,
+  `social_eval_gain` ×1.3, `coruminate_gain` ×1.5, narr_window open.

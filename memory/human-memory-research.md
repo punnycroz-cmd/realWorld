@@ -1234,3 +1234,76 @@ judgment-bending retrieval-experience effects.
   §5.14/§4.13 amendments, contract additions); profiles +18 clamp
   rows + §14; probes P241–P250.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 27. v27 summary — age-development III (the bump's fuel, the adolescent regime, episodic-only amnesia, 2026-09-23)
+
+Third pass on `age-development.md` (Part III §§23–35). What moved:
+
+- **The bump gains a mechanism.** Robinson 1992 (first-experience
+  memories as structural anchors of personal histories) + Brown's
+  transition theory (Brown & Lee 2010; Thomsen & Berntsen 2008) →
+  `first:true` event flag (`first_gain` 0.2, stream link ×1.5) and
+  runtime `transition` windows (`transition_gain` 0.4, same valence
+  gate). The 10–30 density peak is now partially *emergent* from the
+  clustering of firsts/transitions — P251 is the decorative-mechanism
+  detector. Generalizes v2.2's bible-fixed `bump_windows`.
+- **Three-channel childhood false memory.** Ngo, Lin, Newcombe & Olson
+  2019 (JEP:G, ages 4–80 inverted-U on mnemonic discrimination AND
+  relational binding) + Rollins & Cloude 2018 (5–6y elevated
+  similar-lure FA) → `discrim_mult`/`lure_accept` child knots
+  (~0.75/~1.6 at 5 → 1.0 by 10). Children are now simultaneously
+  suggestion-high, gist-lure-low, item-discrimination-poor — three
+  dissociable mechanisms, sign-locked by P252. `phantom_p` stays
+  monotonic by design.
+- **Child interference.** `pi_child_mult` 1.3 on n_sim accrual for
+  encodeAge<10 (Howe; Ceci & Bruck) — interpolated similar events
+  hurt child-encoded traces more; the scaffolded-retell ecology is
+  the compensation (P253).
+- **Gate correction:** all amnesia machinery (ramp, decay_mult,
+  ret_window, latent) now episodic-only. Early semantic/procedural
+  records form normally, born decontextualized — the lullaby survives
+  with no episode attached (P254, structural).
+- **Adolescence as a regime, not a knot:** `peak_hour` +1.5h (13–19)
+  + `adolesc_sleep_loss` 1.2 with post-recovery persistence (Carskadon
+  2011; Lo et al. 2016 SLEEP; Lo et al. 2017 J Sleep Res — encoding
+  impaired after 5 restricted nights, measured post-recovery);
+  `social_eval_gain` 0.25 teen-knotted (Somerville 2013);
+  `coruminate_gain` 1.3 — extra negative-record retell draw gated on
+  a close peer PersonModel, teen-weighted, trait-loaded social/sex
+  (Rose 2002; Stone et al. 2011); depressive OGM drift now age-gated
+  ≥12 (Sumner 2011).
+- **Narrative onset:** Habermas & Bluck 2000 — global life-story
+  coherence emerges 12–20. Retells in `narr_window` [12,25] add
+  `narr_coh_gain` 0.1 gist S + mint cross-era thematic links at
+  `narr_link_gain` 0.15 (P258).
+- **Life-script dating prior:** `script_date_pull` 0.3 pulls
+  transition-class dateEstimate toward `script_age`; off-script
+  events carry ×1.3 date_sigma (Berntsen & Rubin 2004; Bohn &
+  Berntsen 2011).
+- **Child PM:** interruption-fragile, scaffold-rescued
+  (Kvavilashvili, Messer & Ebdon 2001) — `pm_interrupt_mult` 1.5
+  child knots + `pm_scaffold_gain` 0.2 caregiver co-presence (P260).
+- **Reversible regime overlays (new machinery class):** `preg`
+  (θ+0.10 recall-side, enc−0.08, PM−0.2, recognition frozen-spared;
+  Henry & Rendell 2007 meta; Davies et al. 2018 SMD −0.48; Rendell &
+  Henry 2008 real-world PM) and `perimenopause` (enc−0.05 +
+  `perim_s_gain_mult`≈0 practice stall, ~4y, fully reversible;
+  Greendale et al. 2009 SWAN n=2362 — retest improvement absent in
+  transition, rebounds post). Complaint > deficit in both — the
+  metamemory gap is the phenotype (P261/P262).
+
+Spec → v2.7 (+17 params, 1 frozen constant, 5 knot-table updates,
+NEW §4.17, amendments §2/§4.2/§4.13/§4.14/§5.14/§6.15, contract
+additions incl. `setOverlay` + `first`/`transition`/`evaluated` Event
+fields + `script_age` table). Profiles +17 clamp rows + §15 note.
+Validation registry → P1–P262.
+
+Sources verified via web this pass: Ngo et al. 2017 Dev Sci +
+Ngo et al. 2019 JEP:G (PMC6715497); Rollins & Cloude 2018 Learn Mem;
+Lo et al. 2016 SLEEP 39:687 + Lo et al. 2017 J Sleep Res
+(10.1111/jsr.12578); Somerville 2013 CDPS 22:121; Greendale et al.
+2009 Neurology (SWAN n=2362, PMC2690984); Henry & Rendell 2007 JCEN
+29:793 + Davies et al. 2018 MJA 208:35; Habermas & Bluck 2000 Psychol
+Bull 126:748; Robinson 1992 (Springer NATO ASI 65); Kvavilashvili,
+Messer & Ebdon 2001 Dev Psychol 37:418; Rose 2002 Child Dev 73:1830.
+Boundaries kept: research only, no code, no narratives, no push/merge.
