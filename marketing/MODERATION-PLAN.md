@@ -1,8 +1,9 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v28 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v43 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
-moderation contract — see §2.0.)
+moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
+display filter + world-v18/v19 surfaces — see §2.3.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -71,6 +72,28 @@ Spec is no longer speculative. Delivered on `sf/world` (read-only for us):
   "Not redacted — absent" bars. Usable for press-kit captures.
 - **`world/moderation-tooling.md`** — reviewer runbook (the 90-second version
   is §7 there; our canned responses in `templates/mod-responses.md` comply).
+
+Delivered since v28 (world-v18, world-v19, game-v6):
+
+- **`world/request.html` v2 (world-v18)** — the possession-briefing preview
+  renders the reviewer-visible schema with a "Not redacted — absent" bar for
+  secrets: players *see* what a reviewer sees before they file. The resource
+  board exposes the claims matrix in player-legible states
+  (free/cool/locked/queued); session controls include end-early handoff.
+- **`world/wire.html` + `feed.json.spectator_ui` (world-v19)** — the full
+  spectator app: `#e=<id>` permalinks, request lifecycle trails on `req`,
+  follow pins. The wire is the moderation accountability surface — every
+  denial is a citeable permalink, which is what makes aggregate transparency
+  stats (§6a) linkable rather than vibes.
+- **`src/systems/41_game_systems_feed.js` (game-v6, sf/game-systems)** — the
+  display filter is no longer a spec, it's shipped code:
+  `GS_WIRE_CFG.displayFilter` implements options A/B/C (default **A**),
+  `gsWireSetFilter(mode)` is the owner-only switch, and the never-display set
+  is enforced in `gsWireNoteOf` — denied/failed/expired/in-review request
+  text cannot render on the wire under any mode. `gsWireAudit()` proves it:
+  it greps every denied request's authored text out of the formatted wire and
+  reconciles `GS_WIRE_SUP` suppression counters. `gsAdminRevoke` now logs
+  `compensated_cr` — admin compensation is ledgered, not promised.
 
 The locked pipeline, with the moderation decision at each stage spelled out:
 
@@ -148,9 +171,11 @@ shopping list is now mostly built by world-v8:
    `mod_decision` records (game-systems owns the ledger writes).
 
 Still PENDING (game-systems plumbing at merge): the live queue data model,
-classifier wiring into `41_game_systems_requests.js`, SLA timers, ledger
-writes. The console demo defines expected behavior; `RWScreen` verdicts are
-the reference outputs.
+classifier wiring into `41_game_systems_requests.js`, SLA timers, and
+`mod_decision` ledger writes. Delivered since v28: the feed display filter
+(§2.3) and admin-compensation ledgering (`compensated_cr` on
+`gsAdminRevoke`, game-v6). The console demo defines expected review
+behavior; `RWScreen` verdicts are the reference outputs.
 
 **Honest-SLA rule:** copy may say "exclusive requests are reviewed by a
 human before they run." Copy must never promise a review *time* — a queue
@@ -158,23 +183,37 @@ that pauses overnight is a feature of an honest small studio, not an SLA
 breach. Queued/under-review requests that expire before activation are
 auto-refunded per §5 — the refund system absorbs review latency.
 
-### 2.3 Public feed display filter (OWNER-DECISION — open)
+### 2.3 Public feed display filter (OWNER-DECISION — shipped default A)
 
 The request feed is public marketing surface AND accountability layer.
-Requester-supplied text needs a display-side pass (profanity / hate / PII /
-link spam) before render — separate from the intent classifier, which judges
-intent not wording.
+Requester-supplied text gets a display-side pass before render — separate
+from the intent classifier, which judges intent not wording.
 
-Options for the owner at game-build time:
+**game-v6 shipped all three options.** `GS_WIRE_CFG.displayFilter` in
+`41_game_systems_feed.js` defaults to **A**; the owner flips it with
+`gsWireSetFilter('A'|'B'|'C')` — one call, no rebuild. The remaining owner
+decision is confirm-the-default, not pick-an-implementation:
 
-| Option | Behavior | Trade-off |
+| Option | Shipped behavior (game-v6) | Trade-off |
 |---|---|---|
-| **A. Redact** (recommended) | Feed shows request with offending span replaced by `░░░` + `text-filtered` flag | Preserves transparency + attribution; slight legibility cost |
-| **B. Withhold** | Flagged requests don't display their text; feed entry shows class + outcome only | Cleaner feed; hides what was attempted — weakens the "half the show is the attempt" pitch |
-| **C. Quarantine** | Flagged text held for human review before display | Highest quality; adds review load to free content — poor trade at launch |
+| **A. Redact** (shipped default, recommended) | Request note renders verbatim with deny-tier spans masked `░░░`; real business names auto-swap to their parody twins | Preserves transparency + attribution; slight legibility cost |
+| **B. Withhold** | Note never renders; the summary line stands alone | Cleaner feed; hides what was attempted — weakens the "half the show is the attempt" pitch |
+| **C. Quarantine** | Notes appear only once the request resolves | Highest quality; hides in-flight requests — poor trade at launch |
 
-Marketing copy must work under any option: site says "request text is filtered
-before it appears on the public feed" — true under A/B/C.
+Two laws the wire enforces regardless of mode (verified by `gsWireAudit`,
+which fails the build if violated):
+
+- **Denied/failed/expired/in-review request text never displays.** The
+  never-display set is in `gsWireNoteOf`; the audit greps every denied
+  request's authored strings out of the formatted wire.
+- **No schema room for secrets.** `GS_WIRE_BAN` rejects any field key that
+  could carry seeds/secret/memory/belief — the audit proves the wire schema
+  never grew a place to put one. Secrets aren't redacted on the wire;
+  they're absent, same guarantee as possession briefings (§2.5).
+
+Marketing copy works under any option: site says "request text is filtered
+before it appears on the public feed" — true under A/B/C — and "denied
+request text never appears on the feed" is now code-verified, not a promise.
 
 ### 2.4 Anti-grief stack (design §8 + §11, ordered)
 
@@ -331,7 +370,18 @@ not policy discretion.
 | Refund rate (queued-expired) | ledger | low; high = queue/classification oversubscribed |
 | Account-flag distribution | flag store | most flags decay; score-9 reviews rare |
 | Community ladder actions | #mod-log | warns >> timeouts >> bans |
-| Feed-filter flag rate | display filter | low; spikes = coordinated test or broken filter |
+| Feed-filter flag rate | display filter — measurable via `gsWireAudit` + `GS_WIRE_SUP` suppression counters (game-v6) | low; spikes = coordinated test or broken filter |
+| Wire audit result | `gsWireAudit()` → `{ok, issues[]}` | ok:true always — a fail is a launch blocker |
+
+### 6a. Monthly transparency report (POLICY — template shipped v43)
+
+`templates/transparency-report.md` is the fill-in-the-blank public report:
+aggregate counts only (requests by class, denials by reason code, appeals,
+flags, refunds, feed-filter suppressions), each line linkable to a wire
+permalink class — never a named player, never screened text. Cadence:
+monthly, first issue day-30, folded into the recap post. This is the
+accountability pitch made periodic: we don't ask to be trusted, we publish
+the counters.
 
 ## 7. What marketing copy may and may not claim
 
@@ -344,30 +394,37 @@ not policy discretion.
 | "Every denial can be appealed once within 72 hours, to a different reviewer" | "Appeals get a public hearing" — aggregate stats only |
 | "A reviewer sees the same character info a possession briefing does — secrets aren't hidden, they're absent" | "Reviewers can check what the character is hiding" |
 | "The 8 main characters can't be possessed by anyone, including us" | "AI characters are supervised" — they aren't, by design |
-| "Request text is filtered before appearing on the public feed" | Naming the filter option until owner decides (§2.3) |
+| "Request text is filtered before appearing on the public feed" | Naming the filter option until owner confirms the shipped default (§2.3) |
+| "Denied request text never appears on the public feed — enforced in code and audited" | Implying approved requests are pre-scripted — the AI renders them in character |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
 
 ## 8. Launch wiring
 
-- **Gate G13** (added to LAUNCH-CHECKLIST.md): owner picks feed-display
-  option A/B/C (§2.3) + confirms review-inbox tooling exists in the game
-  build before the demo flip (G12). Until G13 is decided, `rules.html`
-  copy stays option-neutral — it already is.
+- **Gate G13** (added to LAUNCH-CHECKLIST.md): owner confirms the shipped
+  feed display-filter default (A — `gsWireSetFilter` flips it in one call,
+  §2.3) + confirms review-inbox tooling exists in the game build before the
+  demo flip (G12). `rules.html` copy stays option-neutral — it already is.
 - **Day-0:** pin verbatim rules in Discord; verify `#mod-log` exists;
-  confirm canned responses posted to mod channel.
+  confirm canned responses posted to mod channel; run `gsWireAudit()` once
+  on live data and record `{ok:true}` in the rehearsal log.
 - **Day-7:** review queue health + denial-rate first look; confirm the
   recap can quote aggregate moderation stats.
-- **Day-30:** mod recruitment decision; incident runbook retro.
+- **Day-30:** publish first transparency report
+  (`templates/transparency-report.md`); mod recruitment decision; incident
+  runbook retro.
 
 ## 9. Open dependencies
 
 - ~~Review-inbox tooling~~ — DELIVERED by world-v8 as `mod-console.html`
   demo + `moderation.json` contract; remaining work is game-systems
   plumbing (queue data model, classifier wiring, SLA timers, ledger writes).
-- Feed display filter option (§2.3) — OWNER-DECISION, still open;
-  `moderation.json.display_filter` mirrors our A/B/C options verbatim.
+- ~~Feed display filter option (§2.3)~~ — SHIPPED by game-v6 (default A,
+  `gsWireSetFilter` owner-only, `gsWireAudit` enforcement); the owner
+  decision narrowed to confirm-or-flip at G13.
+- ~~Admin-override compensation record~~ — DELIVERED: `gsAdminRevoke` logs
+  `compensated_cr` (game-v6); compensation is a ledger fact.
 - ~~Denial reason codes on feed entries~~ — DELIVERED: `feed.json` carries
   `reason_code`; public wording is the neutral "request not approved".
 - Contact address for appeals — part of G6 account registration.
