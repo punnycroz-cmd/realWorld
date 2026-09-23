@@ -87,7 +87,7 @@ date. The founder quote slot below stays empty until the user writes one:
 | Logo — icon | **Available** — SVG + 512×512 PNG; favicon SVG | `press-kit/logos/logo-icon.{svg,png}`, `press-kit/logos/favicon.svg` |
 | Logo — icon mono | **Available** — single-ink SVG (`currentColor`) | `press-kit/logos/logo-icon-mono.svg` |
 | Key art | **Available** — 1920×1080 + 1080×1080 composites on a real build capture | `press-kit/keyart/keyart-16x9.png`, `keyart-square.png` |
-| Screenshots | **Available** — 4 current-build shots (v19) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
+| Screenshots | **Available** — 4 current-build shots (v21) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
 | Fact sheet | **Available** — print-ready HTML, prints to PDF | `press-kit/fact-sheet.html` |
 | Offline press hub | **Available** — self-contained `index.html` inside the bundle | `press-kit/index.html` |
 | Press release | **Available** — launch release draft, slots marked | `press-kit/press-release-launch.md` |
