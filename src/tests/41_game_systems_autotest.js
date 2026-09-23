@@ -2642,6 +2642,400 @@ runAutoTest = async function(){
         GS_JOBS.find(j => j.id === 'buyrite-clerk').openings ===
           openBefore8 + 1 && !gsVillagerForChar(cid8),
         'gs: v8 release — record, lease, pawn gone; the opening returns');
+
+    // ==================== v9: THE QUIET HOURS (offline-mode) ====================
+    /* presence → linger → drop → wake; handoff notes; the seam; the
+       degrade ladder; needs; the phrase kit; co-star asks; the compute
+       ledger; obligations; snapshot. H70/H71 are plain marked hires —
+       the default resident routine needs no pawn, so every reflex below
+       reads identically in medieval and SF mode. */
+    gsCreditGrant('p9', 40000, 'v9 stake');
+    gsCreditGrant('p9b', 40000, 'v9 stake');
+    gsMarkHired('H70', 'p9', { name: 'Quiet Quinn' });
+    gsMarkHired('H71', 'p9', { name: 'Second Self' });
+    gsMarkHired('H72', 'p9b', { name: 'Other Owner' });
+
+    /* presence + derived modes */
+    log(gsPresenceOf('p9') === 'online' && gsPresenceOf('p9b') === 'online',
+        'gs: v9 presence defaults to online');
+    log(gsBrainMode('H70', 80000) === 'full' &&
+        gsBrainMode('C1', 80000) === 'full' &&
+        gsBrainMode('A01', 80000) === 'thin',
+        'gs: v9 modes derive — hires + mains full, ambient thin');
+
+    /* the linger: a disconnect holds 'full' for the contract's 90s,
+       then the brain drops */
+    gsPlayerOffline('p9', 80010);
+    log(gsPresenceOf('p9', 80010) === 'lingering' &&
+        gsBrainMode('H70', 80010) === 'full' &&
+        gsBrainMode('H71', 80010) === 'full' &&
+        gsBrainMode('H72', 80010) === 'full',
+        'gs: v9 the 90s linger keeps brains up through a blip window');
+    gsOffTick(80012);
+    log(gsPresenceOf('p9', 80012) === 'offline' &&
+        gsBrainMode('H70', 80012) === 'thin' &&
+        gsBrainMode('H71', 80012) === 'thin' &&
+        gsBrainMode('H72', 80012) === 'full',
+        'gs: v9 linger expiry drops only the offline owner\'s hires');
+
+    /* the drop wrote the contract's handoff note; the receiving brain
+       reads it exactly once */
+    const nd9 = gsHandoffNote('H70');
+    log(!!nd9 && nd9.transition === 'offline_drop' &&
+        nd9.from === 'full' && nd9.to === 'thin' &&
+        nd9.char === 'H70' && nd9.at_min != null &&
+        'place' in nd9 && 'pending' in nd9 && Array.isArray(nd9.near) &&
+        'mood_hint' in nd9 && nd9.readBy === null,
+        'gs: v9 the drop writes the contract handoff note');
+    log(!!nd9 && gsHandoffRead('H70', 'thin') === nd9 &&
+        nd9.readBy === 'thin' &&
+        gsHandoffRead('H70', 'thin') === null,
+        'gs: v9 a handoff note is read once by the receiving brain');
+
+    /* reconnect: thin wakes to full, and the wake leaves its own note */
+    gsPlayerOnline('p9', 80020);
+    log(gsPresenceOf('p9', 80020) === 'online' &&
+        gsBrainMode('H70', 80020) === 'full' &&
+        gsHandoffNote('H70') && gsHandoffNote('H70').transition === 'wake' &&
+        gsHandoffNote('H70').from === 'thin' &&
+        GS_NOTES_ARCH.some(n => n.char === 'H70' &&
+          n.transition === 'offline_drop'),
+        'gs: v9 reconnect wakes hires to full — wake note, drop archived');
+
+    /* a blip inside the linger never drops anything */
+    gsPlayerOffline('p9', 80030);
+    gsPlayerOnline('p9', 80031);
+    log(gsPresenceOf('p9', 80031) === 'online' &&
+        gsBrainMode('H70', 80031) === 'full' &&
+        gsHandoffNote('H70').transition === 'wake',
+        'gs: v9 a reconnect inside the linger never drops the brain');
+
+    /* disconnect mid-drive: the session ends FIRST (cap semantics —
+       unused minutes refund), then the linger starts */
+    const poss9 = gsSubmitRequest({ playerId: 'p9', kind: 'possess',
+        target: 'H70', durationMin: 30 }, 80100);
+    const p9BalPre = gsCreditBalance('p9');
+    log(poss9.status === 'active' && !!GS_POSSESS['H70'] &&
+        gsBrainMode('H70', 80100) === 'possessed',
+        'gs: v9 an owned hire drives while the owner is online');
+    gsPlayerOffline('p9', 80110);
+    const plog9 = GS_POSSESS_LOG[GS_POSSESS_LOG.length - 1];
+    log(!GS_POSSESS['H70'] && poss9.status === 'cancelled' &&
+        poss9.refunded === 80 &&           /* 30min@4cr − 10 used */
+        gsCreditBalance('p9') === p9BalPre + 80 &&
+        plog9 && plog9.char === 'H70' && plog9.endReason === 'released' &&
+        GS_WIRE.some(e => e.status === 'player session ended' &&
+          e.mentions && e.mentions.indexOf('H70') >= 0),
+        'gs: v9 disconnect ends the drive first — refund, record, wire');
+    if(typeof SF_MODE !== 'undefined' && SF_MODE){
+      const vOff = gsVillagerForChar('H70');
+      log(!!vOff && vOff.isNPC === true && !vOff.gsPossessed,
+          'gs: v9 the released pawn is back on its own schedule');
+    }
+    gsOffTick(80112);                       // linger ends -> the drop
+    log(gsHandoffNote('H70') && gsHandoffNote('H70').transition === 'offline_drop' &&
+        GS_NOTES_ARCH.some(n => n.char === 'H70' &&
+          n.transition === 'handoff' && n.from === 'possessed' &&
+          n.to === 'thin' && n.lead === 'I was just moving through here — '),
+        'gs: v9 the release handoff note carries the contract\'s lead');
+
+    /* the deny vocabulary: offline owner can't drive, main cast still
+       absolute, someone else's pawn still refused before billing */
+    const p9bBal = gsCreditBalance('p9b');
+    const wrong9 = gsSubmitRequest({ playerId: 'p9b', kind: 'possess',
+        target: 'H70', durationMin: 5 }, 80120);
+    log(gsPossessDeny('H70', 'p9') === 'owner_offline' &&
+        gsPossessDeny('C1', 'p9') === 'possession_ban' &&
+        wrong9.reason === 'not_your_character' &&
+        gsCreditBalance('p9b') === p9bBal,
+        'gs: v9 owner_offline joins the deny vocabulary — bans hold');
+
+    /* a queued possess can't promote into a player who isn't there —
+       and a live drive still ends on disconnect */
+    gsPlayerOnline('p9', 80200);
+    const pos9a = gsSubmitRequest({ playerId: 'p9', kind: 'possess',
+        target: 'H71', durationMin: 30 }, 80200);
+    const pos9b = gsSubmitRequest({ playerId: 'p9', kind: 'possess',
+        target: 'H71', durationMin: 10 }, 80200);
+    log(pos9a.status === 'active' && pos9b.status === 'queued' &&
+        gsQueuePosition(pos9b.id) === 1,
+        'gs: v9 a second possess on the same body queues behind it');
+    gsPlayerOffline('p9', 80210);
+    log(!GS_POSSESS['H71'] && pos9a.status === 'cancelled' &&
+        pos9b.status === 'failed' &&
+        pos9b.failReason === 'owner_offline' &&
+        pos9b.refunded === pos9b.billed,
+        'gs: v9 disconnect — drive ends; the queued drive fails ' +
+        'honestly with a full refund');
+    gsOffTick(80212);
+
+    /* paperwork doesn't need the player watching: a non-possess filing
+       runs to completion while the owner is offline */
+    const bLst9 = gsRegisterBuilding({ street: 'Quiet Street',
+                                     owner_id: 'landlord' });
+    const uLst9 = gsRegisterUnit(bLst9.id,
+        { unit_code: 'A', base_rent: 1500 });
+    uLst9.owner_id = 'p9';                  // title sits with the player
+    gsPlayerOnline('p9', 80220);
+    const lstV9 = gsSubmitRequest({ playerId: 'p9', kind: 'listing',
+        target: uLst9.id, durationMin: 60,
+        params: { ask: 300000 } }, 80220);
+    gsPlayerOffline('p9', 80240);
+    gsOffTick(80242);
+    log(lstV9.status === 'active' && !!GS_LISTINGS[uLst9.id] &&
+        gsBrainMode('H70', 80250) === 'thin',
+        'gs: v9 a live filing keeps running while the owner is offline');
+    gsBusTick(80290);
+    log(lstV9.status === 'completed' && !GS_LISTINGS[uLst9.id],
+        'gs: v9 the listing resolves on schedule — request state held');
+
+    /* the compute ledger: brain-minutes bill by mode — thin, possessed
+       and degraded never tick the LLM meter */
+    gsOffTick(80300);                       // pin the dt baseline
+    const c9a = gsComputeStats();
+    const modes9 = gsBrainModes(80360);
+    const nFull9 = Object.keys(modes9)
+      .filter(c => modes9[c] === 'full').length;
+    const nThin9 = Object.keys(modes9)
+      .filter(c => modes9[c] === 'thin').length;
+    gsOffTick(80360);
+    const c9b = gsComputeStats();
+    log(Math.abs((c9b.llmCalls - c9a.llmCalls) - 60 * nFull9) < 0.01 &&
+        Math.abs((c9b.thinMin - c9a.thinMin) - 60 * nThin9) < 0.01 &&
+        Math.abs((c9b.llmMin - c9a.llmMin) - 60 * nFull9) < 0.01,
+        'gs: v9 brain-minutes accrue by mode — thin never bills the ' +
+        'LLM meter');
+
+    /* obligations are ledger state, not brain state: Seeker Sage's
+       lease + job + wages read identically across the drop, and payday
+       still posts while the owner is away */
+    const sageC = hSeek8.charId;
+    const obB4 = JSON.stringify(gsObligations(sageC));
+    gsPlayerOffline('hQ', 81000);
+    gsOffTick(81100);
+    /* compare BEFORE payday runs — the ledger view honestly carries
+       lastPayday/wagesEarned, which a wage post is supposed to move */
+    const obSame = JSON.stringify(gsObligations(sageC)) === obB4 &&
+        gsObligations(sageC).job &&
+        gsObligations(sageC).job.id === 'delfino-line';
+    const due9 = (typeof gsBiweeklyDue === 'function')
+      ? gsBiweeklyDue(sageC, '2026-10-09') : null;
+    const wagB4 = GS_HIRED[sageC].wagesEarned;
+    const fri9c = gsJobTick('2026-10-09');
+    const gotPay9 = fri9c.paid.find(x => x.cid === sageC);
+    log(gsBrainMode(sageC, 81100) === 'thin' && obSame &&
+        (due9 ? (!!gotPay9 && GS_HIRED[sageC].wagesEarned > wagB4)
+              : (!gotPay9 && GS_HIRED[sageC].wagesEarned === wagB4)),
+        'gs: v9 obligations survive the drop — rent, job and payday ' +
+        'post on schedule');
+    gsPlayerOnline('hQ', 81200);
+    log(gsBrainMode(sageC, 81200) === 'full',
+        'gs: v9 the owner\'s return restores the full brain');
+
+    /* the needs model: reflexes read the routine, never mutate it, and
+       never override an obligation */
+    const n70 = gsThinNeeds('H70');
+    n70.hunger = 0.3; n70.rest = 0.5;
+    log(gsThinScheduleView('H70', 10).state === 'walk' &&
+        gsThinScheduleView('H70', 10).source === 'routine',
+        'gs: v9 a settled thin brain just walks the schedule');
+    n70.hunger = 0.9;
+    const vwHung = gsThinScheduleView('H70', 10);
+    log(vwHung.state === 'eat' && vwHung.source === 'needs' &&
+        vwHung.to && vwHung.to.poi === 'Haus Coffee',
+        'gs: v9 hunger detours a free block to a routine food stop');
+    n70.hunger = 0.3; n70.rest = 0.05;
+    const vwTired = gsThinScheduleView('H70', 20);
+    log(vwTired.state === 'sleep' && vwTired.source === 'needs',
+        'gs: v9 worn out cuts the evening short');
+    n70.rest = 0.5;
+    const nSage = gsThinNeeds(sageC); nSage.hunger = 0.9;
+    const vwShift = gsThinScheduleView(sageC, 17);
+    log(vwShift.state === 'work' && vwShift.source === 'routine',
+        'gs: v9 the shift stands — reflexes never override obligations');
+    nSage.hunger = 0.3;
+    const hunB4 = n70.hunger;
+    gsNeedsTick('H70', 60, 10);             // awake, no meal window
+    log(n70.hunger > hunB4, 'gs: v9 hunger rises through a waking hour');
+    gsNeedsTick('H70', 60, 13);             // the lunch window
+    log(n70.hunger < 0.1, 'gs: v9 a meal window feeds the hunger back down');
+    n70.rest = 0.5;
+    gsNeedsTick('H70', 60, 2);              // the sleep block
+    log(n70.rest > 0.5, 'gs: v9 the sleep block restores rest');
+
+    /* the phrase kit: <=3 generic lines/hr, shared across chars, never
+       a character's voice */
+    const say1 = gsThinSay('H70', 82000);
+    gsThinSay('H70', 82001); gsThinSay('H70', 82002);
+    log(!!say1 && GS_THIN_PHRASES.indexOf(say1.line) >= 0 &&
+        gsThinSay('H70', 82003) === null &&
+        !!gsThinSay('H70', 82061),
+        'gs: v9 thin pawns bubble <=3 generic lines an hour');
+    const sayB = gsThinSay('H71', 82000);
+    log(!!sayB && GS_THIN_PHRASES.indexOf(sayB.line) >= 0,
+        'gs: v9 the kit is shared — no char voice, no inner life');
+
+    /* the degrade ladder: capacity <60% degrades mains lowest-salience
+       first; <30% all of them; recovery hands brains back */
+    gsServiceSet(45);
+    const lad9 = gsServiceEval(82100);
+    const want9 = [lad9[0].cid, lad9[1].cid];
+    log(Object.keys(GS_DEGRADED).sort().join() === want9.slice().sort().join() &&
+        gsBrainMode(want9[0], 82100) === 'degraded' &&
+        gsBrainMode(lad9[2].cid, 82100) === 'full' &&
+        gsHandoffNote(want9[0]) &&
+        gsHandoffNote(want9[0]).transition === 'degrade',
+        'gs: v9 partial capacity degrades the least-watched mains first');
+    gsServiceSet(25); gsServiceEval(82101);
+    const degAll9 = Object.keys(GS_DEGRADED);
+    log(degAll9.length === 8 &&
+        degAll9.every(c => /^C\d$/.test(c)) &&
+        gsBrainMode('C1', 82101) === 'degraded',
+        'gs: v9 deep capacity loss degrades every main');
+    gsOffTick(82102);                       // pin the dt baseline
+    const c9c = gsComputeStats();
+    gsOffTick(82162);
+    const c9d = gsComputeStats();
+    const modes9b = gsBrainModes(82162);
+    const nFull9b = Object.keys(modes9b)
+      .filter(c => modes9b[c] === 'full').length;
+    log(Math.abs((c9d.llmCalls - c9c.llmCalls) - 60 * nFull9b) < 0.01 &&
+        Math.abs((c9d.degradedMin - c9c.degradedMin) - 60 * 8) < 0.01,
+        'gs: v9 degraded brains stop billing the LLM meter too');
+    gsServiceSet(100); gsServiceEval(82163);
+    log(Object.keys(GS_DEGRADED).length === 0 &&
+        gsBrainMode('C1', 82163) === 'full' &&
+        gsHandoffNote('C1') && gsHandoffNote('C1').transition === 'recover',
+        'gs: v9 capacity returning hands the brains back (recover)');
+
+    /* the seam: a transition waits for the pawn's beat to finish —
+       unspawned chars swap on the spot */
+    const seam9 = gsBrainTransition('H71', 'possessed', 'full', 82200,
+                                    'handoff');
+    log(seam9.queued === false && gsHandoffNote('H71') &&
+        gsHandoffNote('H71').transition === 'handoff',
+        'gs: v9 a pawn-less transition lands immediately');
+    if(typeof SF_MODE !== 'undefined' && SF_MODE){
+      const vA01 = gsVillagerForChar('A01');
+      vA01.moving = true;
+      const q9 = gsBrainTransition('A01', 'thin', 'thin', 82210, 'handoff');
+      const queued9 = q9.queued === true && !!GS_SEAM['A01'];
+      vA01.moving = false;
+      gsOffTick(82210);
+      log(queued9 && !GS_SEAM['A01'] && gsHandoffNote('A01') &&
+          gsHandoffNote('A01').transition === 'handoff',
+          'gs: v9 a mid-stride transition waits for the seam, then lands');
+      vA01.moving = true;
+      gsBrainTransition('A01', 'thin', 'thin', 82220, 'wake');
+      gsOffTick(82220 + GS_SEAM_MAX_MIN + 0.1);
+      log(!GS_SEAM['A01'] && gsHandoffNote('A01').transition === 'wake',
+          'gs: v9 the seam deadline lands the transition anyway');
+      vA01.moving = false;
+    }
+
+    /* co-star asks — the bounded favor lane. H70's owner is offline,
+       so the pawn is thin and summonable; mains and online-owned hires
+       refuse at the door. */
+    const n70b = gsThinNeeds('H70'); n70b.hunger = 0.3; n70b.rest = 0.5;
+    const csMain = gsSubmitRequest({ playerId: 'p9b', kind: 'costar',
+        target: 'C1', durationMin: 20,
+        params: { task: 'greet' } }, 87000);
+    const csFull = gsSubmitRequest({ playerId: 'p9b', kind: 'costar',
+        target: 'H72', durationMin: 20,
+        params: { task: 'greet' } }, 87000);
+    const csBad = gsSubmitRequest({ playerId: 'p9b', kind: 'costar',
+        target: 'H70', durationMin: 20,
+        params: { task: 'roast_someone' } }, 87000);
+    log(csMain.reason === 'not_thin' && csFull.reason === 'not_thin' &&
+        csBad.reason === 'unknown_task',
+        'gs: v9 co-star refuses mains, online-owned hires + bogus tasks');
+
+    /* the pawn reads its own routine and can say no — asleep at 2am PT */
+    const p9bBal2 = gsCreditBalance('p9b');
+    const csDec = gsSubmitRequest({ playerId: 'p9b', kind: 'costar',
+        target: 'H70', durationMin: 20,
+        params: { task: 'greet', note: 'just a hello' } }, 87000);
+    const decWire = gsWire({ who: 'p9b' })
+      .filter(e => /declined/.test(e.text));
+    log(csDec.status === 'completed' && csDec.declined === 'resting' &&
+        csDec.refunded === Math.floor(csDec.billed * 0.5) &&
+        gsCreditBalance('p9b') === p9bBal2 - csDec.billed + csDec.refunded &&
+        decWire.length && decWire[decWire.length - 1].status === 'resolved' &&
+        /resolved · declined/.test(decWire[decWire.length - 1].text) &&
+        !GS_COSTAR['H70'],
+        'gs: v9 a co-star decline resolves — half back, wire reads ' +
+        'resolved · declined, no stint held');
+
+    /* ...and yes when the ask fits the day — a bounded stint, then it
+       releases on schedule */
+    const csOk = gsSubmitRequest({ playerId: 'p9b', kind: 'costar',
+        target: 'H70', durationMin: 20,
+        params: { task: 'walk_with', note: 'walk the block' } }, 87700);
+    log(csOk.status === 'active' && !!GS_COSTAR['H70'] &&
+        GS_COSTAR['H70'].task === 'walk_with' &&
+        gsBrainMode('H70', 87700) === 'thin' &&
+        gsThinScheduleView('H70', 13).source === 'costar' &&
+        gsWire({ who: 'p9b' }).some(e => /co-star — walk along/.test(e.text)),
+        'gs: v9 a fitting ask runs — thin pawn on a bounded stint');
+    gsBusTick(87721);
+    log(csOk.status === 'completed' && !GS_COSTAR['H70'],
+        'gs: v9 the stint releases mid-beat-clean at its end');
+
+    /* reflex vetoes are honest and role-aware */
+    const evSave9 = GS_EVENTS.splice(0);
+    const noPost = gsCoStarCheck('A02', 'cover_shift', 87800, 20, 15);
+    const noEv = gsCoStarCheck('A01', 'join_event', 87800, 20, 12);
+    GS_EVENTS.push.apply(GS_EVENTS, evSave9);
+    const onSh = gsCoStarCheck(sageC, 'greet', 87800, 20, 18);
+    const resting = gsCoStarCheck('H70', 'greet', 87800, 20, 2);
+    n70.hunger = 0.9; const needsFirst = gsCoStarCheck('H70', 'greet',
+      87800, 20, 10);
+    n70.hunger = 0.3; n70.rest = 0.05;
+    const wornOut = gsCoStarCheck('H70', 'greet', 87800, 20, 10);
+    n70.rest = 0.5;
+    log(noPost.reason === 'no_post' && noEv.reason === 'no_event' &&
+        onSh.reason === 'on_shift' && resting.reason === 'resting' &&
+        needsFirst.reason === 'needs_first' &&
+        wornOut.reason === 'worn_out',
+        'gs: v9 the reflex vetoes read the day card honestly');
+
+    /* transitions never hit the feed — a spectator can't tell a brain
+       dropped */
+    const feedLen9 = GS_FEED.length;
+    gsPlayerOffline('p9', 88000);
+    gsOffTick(88002);
+    gsPlayerOnline('p9', 88010);
+    log(GS_FEED.length === feedLen9 &&
+        !gsWire({ limit: 200 }).some(e => /brain|thin ai|offline/i.test(e.text)),
+        'gs: v9 mode transitions are invisible on the wire');
+
+    /* the owner-facing report: presence + per-char mode + obligations */
+    gsPlayerOffline('p9', 88100);
+    gsOffTick(88102);
+    const rep9 = gsOfflineReport('p9', 88110);
+    const rep70 = rep9.chars.find(c => c.id === 'H70');
+    log(rep9.presence === 'offline' && rep9.chars.length === 2 &&
+        rep70 && rep70.mode === 'thin' && rep70.needs &&
+        rep70.obligations && !rep70.possessed,
+        'gs: v9 the owner report carries presence, modes, obligations');
+
+    /* snapshot/load: presence, notes, needs, co-star + compute all ride */
+    const snap9 = gsBusSnapshot();
+    gsBusReset();
+    const loadOk9 = gsBusLoad(snap9);
+    log(loadOk9 === true && gsPresenceOf('p9', 88110) === 'offline' &&
+        gsBrainMode('H70', 88110) === 'thin' &&
+        gsBrainMode('H72', 88110) === 'full' &&
+        !!gsHandoffNote('H70'),
+        'gs: v9 presence + brain state survive the bus snapshot');
+    const rep9b = gsOfflineReport('p9', 88110);
+    log(rep9b.presence === 'offline' &&
+        rep9b.chars.length === 2 &&
+        typeof gsComputeStats().thinMin === 'number',
+        'gs: v9 the report + compute ledger reload honest');
+    gsPlayerOnline('p9', 88200);
+    gsPlayerOnline('hQ', 88200);
+    gsOffTick(88200);
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

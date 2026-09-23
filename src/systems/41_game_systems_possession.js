@@ -83,6 +83,11 @@ function gsPossessDeny(cid, playerId){
   if(gsCharKind(cid) === 'ambient')
     return 'cast_ai_only';                        // design §9.2
   if(gsHiredOwner(cid) !== playerId) return 'not_your_character';
+  /* v9: possession needs the owner online to bill AND to drive — a
+     queued session can't promote into a player who isn't there, and
+     a lingering disconnect is still nobody behind the wheel. */
+  if(typeof gsPresenceOf === 'function' &&
+     gsPresenceOf(playerId) !== 'online') return 'owner_offline';
   return null;
 }
 function gsPossessGate(cid, playerId){
@@ -552,6 +557,16 @@ function gsPossessOff(r, now, why){
   if(GS_POSSESS_LOG.length > GS_PLOG_MAX) GS_POSSESS_LOG.shift();
   gsBusEmit('possess', r, { action: 'end', char: r.target, endReason,
     usedMin, dollarsSpent: entry.dollarsSpent, rentRisk: entry.rentRisk });
+  /* v9: the character's own brain takes the body back with a handoff
+     note — "I was just moving through here — ". The mode is computed
+     for AFTER the delete: 'full' while the owner is online, 'thin'
+     when they aren't (they can't be offline mid-session — disconnect
+     releases first — but admin paths can land anywhere). */
+  if(typeof gsBrainTransition === 'function'){
+    const toMode = (typeof gsPresenceOf === 'function' &&
+      gsPresenceOf(sess.playerId, now) !== 'online') ? 'thin' : 'full';
+    gsBrainTransition(r.target, 'possessed', toMode, now, 'handoff');
+  }
   return entry;
 }
 
@@ -594,6 +609,13 @@ function gsPossessTick(now){
     gsBusEmit('possess', { playerId: sess.playerId, kind: 'possess',
       target: cid, id: sess.reqId, _now: now },
       { action: 'end', char: cid, endReason: 'orphan_sweep' });
+    /* v9: an orphaned handoff still writes the note — the brain takes
+       the body back mid-beat either way */
+    if(typeof gsBrainTransition === 'function'){
+      const toMode = (typeof gsPresenceOf === 'function' &&
+        gsPresenceOf(sess.playerId, now) !== 'online') ? 'thin' : 'full';
+      gsBrainTransition(cid, 'possessed', toMode, now, 'handoff');
+    }
     delete GS_POSSESS[cid];
   }
 }

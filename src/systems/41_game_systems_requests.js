@@ -717,6 +717,18 @@ function gsFxActivate(r, now){
     gsBusEmit('fail', r, { reason: r.failReason, refund: r.billed });
     return false;
   }
+  /* v9 co-star decline: the pawn said no — a real outcome, not an
+     error. Half the bill comes back, the request resolves declined,
+     nothing ran (thinai.json costar rules). */
+  if(res && res.declined){
+    r.fxOn = false; r.status = 'completed'; r._now = now;
+    r.usedMin = 0; r.declined = res.declined;
+    const back = r.billed - Math.ceil(r.billed * 0.5);
+    if(back > 0){ gsCreditRefund(r.playerId, back, 'costar declined');
+                  r.refunded = (r.refunded || 0) + back; }
+    gsBusEmit('complete', r, { declined: res.declined, refund: back });
+    return true;
+  }
   r.fxOn = true;
   /* v7: a consumed permit rests the venue — "one event per resource per
      24h" (requests.json). Stamped at ACTIVATION (the slot was used the
@@ -805,6 +817,9 @@ function gsSubmitRequest(spec, nowMin){
   const dur = spec.durationMin;
   const params = spec.params || null;
   const a = GS_REQ.actions[kind];
+  /* v9: filing is an interactive act — the player at the door is online
+     (the quiet-hours presence layer wakes them + their hires). */
+  if(typeof gsPresenceSeen === 'function') gsPresenceSeen(pid, now);
   const deny = (reason) => {
     const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
       kind, target, durationMin: dur, params, price: 0, status: 'denied',
@@ -989,6 +1004,9 @@ function gsBusTick(nowMin){
   if(typeof gsPossessTick === 'function') gsPossessTick(now);
   /* v6: the wire's honest-empty marker rides the same beat */
   if(typeof gsWireTick === 'function') gsWireTick(now);
+  /* v9: the quiet-hours beat — linger expiries drop brains, the seam
+     drains, the ladder re-evaluates, needs + compute accrue */
+  if(typeof gsOffTick === 'function') gsOffTick(now);
 }
 
 /* cancel a queued/active request.
@@ -1327,7 +1345,9 @@ function gsBusSnapshot(){
     grief: (typeof gsGriefSnapshot === 'function')
            ? gsGriefSnapshot() : null,             // v7 door-policy state
     hiring: (typeof gsHireSnapshot === 'function')
-            ? gsHireSnapshot() : null });          // v8 personnel office
+            ? gsHireSnapshot() : null,             // v8 personnel office
+    offline: (typeof gsOffSnapshot === 'function')
+             ? gsOffSnapshot() : null });          // v9 quiet hours
 }
 function gsBusLoad(json){
   try{
@@ -1361,6 +1381,8 @@ function gsBusLoad(json){
     if(typeof gsGriefLoad === 'function') gsGriefLoad(d.grief);
     /* v8: job openings + the h## counter */
     if(typeof gsHireLoad === 'function') gsHireLoad(d.hiring);
+    /* v9: presence, degrade set, notes, needs, co-star + compute */
+    if(typeof gsOffLoad === 'function') gsOffLoad(d.offline);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1394,6 +1416,7 @@ function gsBusReset(){
   if(typeof gsWireReset === 'function') gsWireReset();       // v6
   if(typeof gsGriefReset === 'function') gsGriefReset();     // v7
   if(typeof gsHireReset === 'function') gsHireReset();       // v8
+  if(typeof gsOffReset === 'function') gsOffReset();         // v9
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */

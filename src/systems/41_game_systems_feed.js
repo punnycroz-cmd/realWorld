@@ -104,6 +104,12 @@ const GS_WIRE_EVENT_LABEL = {
   movie_night: 'a movie night', park_cleanup: 'a park cleanup',
   mural_tour: 'a mural tour',
 };
+/* v9 co-star asks — plain words for the bounded favors */
+const GS_WIRE_COSTAR_LABEL = {
+  greet: 'a hello', hold_spot: 'hold the spot',
+  walk_with: 'walk along', join_event: 'join the event',
+  cover_shift: 'cover the shift',
+};
 const GS_WIRE_WX_LABEL = {
   rain: 'Rain', storm: 'A storm', clear: 'Clear skies',
   fog: 'Fog', heatwave: 'A heatwave',
@@ -276,6 +282,14 @@ function gsWireReqSummary(evt, r){
     }
     case 'weather':
       return 'weather — ' + (p.wx || 'a sky change') + dTxt;
+    case 'costar': {
+      /* v9: a summoned thin pawn — the ask reads as the favor it was */
+      const cid = evt.target || (r && r.target);
+      const nm = (typeof gsCharName === 'function' && cid)
+        ? gsCharName(cid) : (cid || 'a neighbor');
+      const taskLbl = (GS_WIRE_COSTAR_LABEL[p.task] || 'a favor');
+      return 'co-star — ' + taskLbl + ' · ' + nm + dTxt;
+    }
     case 'street_event': {
       const lbl = GS_WIRE_EVENT_LABEL[p.event] || (p.event || 'an event');
       const at = p.at ? ' at ' + gsWireDispName(p.at) : '';
@@ -301,7 +315,8 @@ function gsWireReqVenue(evt, r){
   return gsWireVenueId(p.at) || null;
 }
 function gsWireReqMentions(evt, r){
-  if(evt.kind === 'possess' && (evt.target || (r && r.target)))
+  if((evt.kind === 'possess' || evt.kind === 'costar') &&
+     (evt.target || (r && r.target)))
     return [evt.target || r.target];
   return null;
 }
@@ -441,8 +456,13 @@ function gsWireFormat(evt){
         { status: 'refunded', who: evt.player, credits: evt.refund })];
 
     case 'complete': {
+      /* v9: a declined co-star ask resolves honestly — the pawn said
+         no, half the bill came back, and the wire says exactly that */
+      const declined = evt.declined || (r && r.declined);
       const out = [mk('request', sum() + gsWireNoteSuffix(r, 'resolved') +
-        ' — wrapped', { status: 'resolved', who: evt.player,
+        (declined ? ' — resolved · declined' : ' — wrapped'),
+        { status: 'resolved', who: evt.player,
+          credits: declined ? evt.refund : null,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
       /* the sky returns to nature when a weather call ends */
