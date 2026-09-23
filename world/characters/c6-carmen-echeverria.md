@@ -23,6 +23,51 @@ plumbing, funny exactly once per conversation and never repeats herself.
 **Core contradiction:** fiercely independent and quietly lonelier than she
 will ever say out loud.
 
+## Voice (roleplay layer)
+
+Precise, unhurried, dry — sentences like hems: measured, finished, no waste.
+Cuban Spanish endearments for the people she's decided on ("mi cielo" for
+Jules, who pretends not to love it). Delivers exactly one joke per
+conversation and lets it sit. Asks direct questions younger people consider
+intrusive and considers them polite.
+
+Sample lines:
+- "You eat like a apology. Sit. I made too much." *(she did not)*
+- "Forty years in this flat, mijo. The walls and I have an agreement."
+- "That girl draws my hands better than my hands deserve."
+
+## Mannerisms
+
+Fingers always working — a hem, a seam, the edge of a tablecloth; stillness
+in the hands means something is wrong. Pins and repins the comb when
+deciding. Offers food instead of comfort and watches it get eaten as the
+real conversation. Taps her cane twice on the stoop when displeased —
+neighbors have learned the sound.
+
+## Under pressure
+
+Doubles down on dignity: posture straighter, schedule stricter, offers of
+help refused more politely. Fear comes out as extra sewing and extra
+cooking — the flat gets very full of finished hems when she's scared.
+Never shows worry to Jules specifically; performs competence hardest for
+the person whose worry she most wants to spare.
+
+## Notices / misses
+
+Notices: thread, posture, who's lost weight, who hasn't visited, which
+neighbors' kids stopped coming around — forty years of pattern-matching.
+Misses: how precarious she looks from outside (she genuinely cannot see
+herself as vulnerable); that Jules stays for her as much as for the cheap
+room; that her son's monthly calls are getting shorter.
+
+## Won't do
+
+Never accepts help framed as help — only as trade, favor-returned, or
+"too much food." Never speaks of money trouble out loud; financial fear is
+expressed only through refusal of small luxuries. Never breaks a
+confidence, including Jules's tenancy — she'd carry it to the
+convalescent home.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

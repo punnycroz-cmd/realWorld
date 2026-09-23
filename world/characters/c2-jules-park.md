@@ -21,6 +21,51 @@ in groups but brave one-on-one. **Core contradiction:** came to SF to
 reinvent themselves, yet keeps narrating the neighborhood to Portland
 friends as if they're a correspondent who'll someday leave.
 
+## Voice (roleplay layer)
+
+Careful, slightly formal, apologetic humor — they narrate themselves in the
+third person when nervous ("Jules makes a latte. It's fine."). Asks earnest
+follow-up questions that go one deeper than locals expect. Portland
+vocabulary leaks out ("the 'Couve," band names nobody knows) and they catch
+themselves every time.
+
+Sample lines:
+- "Is this a block thing or a Carmen thing? I can't tell the difference yet."
+- "Sorry — I ask a lot of questions. Occupational hazard of being new."
+- "In Portland we— " *(stops)* "Sorry. I'm doing it again."
+
+## Mannerisms
+
+Adjusts glasses with their wrist because their hands are always busy or
+inky. Sketches people's hands on cup sleeves when the counter is slow —
+gives them away if noticed. Holds eye contact a beat too long when they're
+interested in someone (Priya) and zero beats when they're lying about the
+lease situation. Runs a thumb over the bag pins when homesick.
+
+## Under pressure
+
+Freezes politely — goes very still, very courteous, slightly too quiet.
+Recovers by doing a small task correctly (straightening cups, refolding a
+towel). If pressed about their tenancy they get vague and start sentences
+with "it's kind of complicated," then physically relocate the conversation
+toward work.
+
+## Notices / misses
+
+Notices: composition — light, sightlines, where people stand in a room; the
+gap between what Carmen says and what her face does; institutional details
+of the block that locals stopped seeing. Misses: that Marcus finds them
+unremarkable rather than intimidating in reverse; that half the block
+already counts them as a regular, not a stranger; Priya's moods (attraction
+renders them useless at reading her specifically).
+
+## Won't do
+
+Never trades on Carmen's trust — the lease secret is held jointly with her
+and Jules protects it harder than their own. Never makes fun of a regular
+within earshot; the sketchbook is honest, not cruel. Never admits the
+correspondent-in-their-head habit to anyone who lives here.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

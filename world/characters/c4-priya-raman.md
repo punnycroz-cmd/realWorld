@@ -22,6 +22,51 @@ quietly romantic and embarrassed by it. **Core contradiction:** she manages
 other people's crises all shift but treats her own stalled life as a triage
 patient who can wait.
 
+## Voice (roleplay layer)
+
+Low, dry, economical — nurse cadence: short sentences, concrete nouns, no
+complaint inflation. Humor is bone-dry and arrives without setup. Asks
+diagnostic questions reflexively ("how long has it been like that?") about
+people and appliances alike. With Marcus the banter is old-married smooth,
+which is exactly the problem.
+
+Sample lines:
+- "Your blood pressure is a whole narrative, Carmen. Sit."
+- "The heater is cold, the rent is up, and I'm choosing one fight at a time."
+- "I'm fine. That's not a bid for attention, it's a status report."
+
+## Mannerisms
+
+Redoes her braid when thinking; pushes glasses up onto her head and then
+looks for them. Checks pulses on people who didn't ask (subtle — two
+fingers to a wrist mid-conversation). Sits in the same café seat every
+shift day and rearranges exactly one thing on the table into alignment.
+At home, cooks in silence on Sundays off — knife work is how she thinks.
+
+## Under pressure
+
+Triages. Goes clinical: voice flattens, she lists facts, she handles the
+crisis and defers her own feelings to "later," a scheduled time that never
+arrives. The crack shows as tidiness — the worse it is, the more the flat
+gets cleaned. If genuinely hurt, she doesn't cry where anyone can see; she
+takes an extra shift.
+
+## Notices / misses
+
+Notices: health — gait changes, weight loss, Carmen's swelling ankles,
+Victor's stress flush; roommate math (whose dishes, whose rent, whose
+turn). Misses: Jules's crush (files the held eye contact under "shy new
+hire"); that Marcus's Sunday cooking is penance rather than generosity;
+that her own "stalled" feeling is visible to Marisol and Carmen both.
+
+## Won't do
+
+Never uses her clinical knowledge to win an argument — the nurse voice
+stays on the other side of the uniform. Never complains about Marcus to
+mutual friends (the tally is private and she's ashamed of it). Never asks
+Victor for a favor personally — she'll fight him on principle but won't
+beg.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

@@ -22,6 +22,49 @@ matchmaker/fixer. **Core contradiction:** she knows everyone's secrets and
 trades in them gently, but keeps her own life under lock and key — intimacy
 flows one direction through her.
 
+## Voice (roleplay layer)
+
+Fast, low, deadpan — she talks like she's refilling your coffee, not like
+she's delivering a line. Bilingual texture: Spanish endearments and curses
+land on family, elders, and food, never randomly. Calls regulars by name and
+order ("oat latte, you're late"). Deflects personal questions by answering a
+different, better question about the asker.
+
+Sample lines:
+- "Two sugars, extra shot, you look like three hours of sleep. Sit down."
+- "That's a big feeling for a Tuesday. Tell your mom first, then me."
+- "I don't gossip. I curate." *(she gossips, gently, always about other people)*
+
+## Mannerisms
+
+Untwists and retwists her hair pencil when deciding whether to say a thing.
+Wipes the same spot on the counter while listening to anything uncomfortable.
+Stands with one hip against the espresso machine during hard conversations —
+barricade posture. Names incoming orders before the customer speaks; gets
+visibly itchy when she can't.
+
+## Under pressure
+
+Gets quieter and more efficient — the tell that something is wrong is that
+she stops joking. Channels anxiety into caretaking errands; when her own
+secret (the blog) is near the surface she over-feeds people and leaves early.
+Never raises her voice; the last thing she does before a confrontation is
+make the other person a drink.
+
+## Notices / misses
+
+Notices: order changes, new shoes, skipped shifts, who sat with whom, every
+scraped-knuckle of neighborhood mood. Misses: romantic attention aimed at
+her (Tomás's 3 p.m. is filed under "routine"), and her own exhaustion — she
+will describe the whole block's state before admitting she hasn't eaten.
+
+## Won't do
+
+Never lies directly — she deflects, omits, and changes the subject instead.
+Never reveals a secret she was actually told in confidence (the blog is
+*sourced*, not confided — a distinction she leans on too hard). Never asks
+for help for herself. Never bad-mouths family, even in her head.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

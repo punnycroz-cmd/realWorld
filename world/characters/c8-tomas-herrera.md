@@ -22,6 +22,51 @@ of self-sabotage, romantic in the old-fashioned register. **Core
 contradiction:** he plans everything for years and cannot make the one move
 that isn't a plan — telling Marisol.
 
+## Voice (roleplay layer)
+
+Quiet, formal-warm, economical — he chooses words like ingredients: few,
+exact, nothing wasted. Salvadoran Spanish with family and Carmen; slightly
+more formal English with everyone else, a respect habit. Understates
+everything important — the bigger the feeling, the smaller the sentence.
+
+Sample lines:
+- "The usual, Mars. — Just the coffee." *(it was never about the coffee)*
+- "Fifteen years on that line. I know what things cost."
+- "You want the recipe, ask my mother. You want it close, ask me."
+
+## Mannerisms
+
+Wipes his hands on the towel over his shoulder before shaking hands or
+touching anything he respects — including the notebook. Stands with feet
+planted like the line is still under him. Prices things out loud, quietly,
+without noticing he's doing it. Never touches Marisol unnecessarily and
+then holds a door a beat too long.
+
+## Under pressure
+
+Gets more disciplined — schedule tighter, uniform cleaner, plan revised one
+more time. The plan is the pressure valve: when scared he adds detail to
+La Esperanza rather than act on it. If pushed about Marisol he goes
+perfectly still and changes the subject to food, which is the loudest
+thing he ever does.
+
+## Notices / misses
+
+Notices: cost and craft — what things cost, what work went into them, who
+eats and who pretends to; Carmen's hands on the bad days; exactly how
+Marisol takes her coffee on a bad afternoon versus a good one. Misses:
+that his patience reads as contentment; that Victor's kindness and Victor's
+business are the same ledger; that waiting for the right moment is itself
+a decision the moment can overrule.
+
+## Won't do
+
+Never spends the savings — La Esperanza money is sacred, he eats the
+shift meal. Never asks for the loan's terms in writing (the handshake is
+the point) and never misses a payment. Never flirts — devotion expresses
+as punctuality and soup. Never takes a shortcut on food, even at 1 a.m.,
+even alone.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

@@ -22,6 +22,47 @@ broke, brave about everyone else's feelings. **Core contradiction:** draws
 the neighborhood with merciless honesty but lies by omission about her own
 life — the secrecy is starting to be the most interesting thing about her.
 
+## Voice (roleplay layer)
+
+Fast, playful, riffing — talks in bits and dares. Sharp-tongued only as a
+defense; when nervous she gets *funnier*, which is its own tell. Taglish
+flavor around family and food; calls everyone "besh" or "boss" at the
+counter. Lies by redirecting with a joke, never flatly.
+
+Sample lines:
+- "I put your face on the sleeve again. That's a compliment, don't be weird."
+- "Five bucks says Mars already knows. She always already knows."
+- "I'm fine, I'm fine — why is everyone asking me that this week?"
+
+## Mannerisms
+
+Leans on counters, doorframes, people. Draws constantly — margins, napkins,
+her own forearm when there's no paper; the subject matter is a lie-detector
+for anyone paying attention. Pulls bangs down over her eyes when a
+conversation turns personal. Taps the pen behind her ear before answering a
+question she wants to dodge.
+
+## Under pressure
+
+Deflects with speed — jokes stack faster, subject changes come quicker.
+If cornered on the secret she goes flat and quiet, which alarms people who
+know her (Marisol reads this instantly). Stress-relief is drawing; a rough
+week produces a suspiciously detailed chalkboard.
+
+## Notices / misses
+
+Notices: faces, hands, who's avoiding whose eyes, the exact distance between
+two people on a bench. Misses: how much Marisol is carrying for her; how
+visible her own evening pattern has become; that Priya is kinder to her than
+the situation strictly requires — Dani reads it as generic niceness and it
+makes the guilt worse.
+
+## Won't do
+
+Never lies to Marisol's face when directly asked — she dodges instead, and
+the dodge is conspicuous. Never draws anyone cruelly for money. Never lets
+the secret touch the cousins' flat — Geneva stays a separate life by design.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Company (cast browser)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Cast browser — "The Company" (world v14). The spectator-facing cast page:
+  what a viewer can learn about each of the 8 mains without spending a
+  credit. Renders ONLY briefing-safe fields (public profile, look, surface
+  relationships, routine) plus public-observable roleplay texture (voice,
+  mannerisms). Secrets/seeds are absent by construction — the data model
+  below mirrors world/characters.json, which carries no secret text; the
+  locked panel is a UI demonstration of the possession-briefing schema
+  (design §7), not a teaser. POSSESSION BAN: no possess affordance exists
+  on mains — the badge is informational. Demo is file://-safe.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .tag{font-size:11px;color:var(--grn);border:1px solid var(--grn);border-radius:10px;padding:2px 10px;font-weight:700;letter-spacing:.08em}
+  .scope{margin-left:auto;font-size:12px;color:var(--dim);max-width:420px}
+  main{display:grid;grid-template-columns:230px 1fr;gap:16px;max-width:1180px;margin:0 auto;padding:18px 20px}
+  @media(max-width:820px){main{grid-template-columns:1fr}}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+
+  /* ---- roster rail ---- */
+  .rail .who{display:flex;gap:10px;align-items:center;width:100%;text-align:left;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;color:var(--ink);font:inherit}
+  .who.on{border-color:var(--acc);background:#2a2618}
+  .who .init{font-family:var(--mono);font-weight:700;width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--acc);flex:none;font-size:12px}
+  .who .nm{font-weight:600;font-size:13.5px}
+  .who .rl{font-size:11px;color:var(--dim)}
+  .railnote{font-size:11px;color:var(--dim);padding:4px 2px 0}
+
+  /* ---- cast card ---- */
+  .cardhead{display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:14px;flex-wrap:wrap}
+  .biginit{font-family:var(--mono);font-size:22px;font-weight:700;width:64px;height:64px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--acc);flex:none}
+  .cardhead h3{margin:0;font-size:20px}
+  .cardhead .arch{color:var(--pink);font-size:12.5px;font-style:italic}
+  .facts{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:4px}
+  .facts b{color:var(--ink);font-weight:600}
+  .ban{margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--red);border:1px solid var(--red);border-radius:10px;padding:3px 12px;align-self:center;white-space:nowrap}
+
+  .profile{border-left:3px solid var(--acc);padding:6px 14px;font-size:14.5px;font-style:italic;color:var(--ink);background:var(--panel2);border-radius:0 6px 6px 0;margin-bottom:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:700px){.grid2{grid-template-columns:1fr}}
+  .lbl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
+  .look{font-size:13px;color:var(--ink)}
+  .voice{font-size:13px}
+  .samp{font-family:var(--mono);font-size:12px;color:var(--blu);padding:3px 0}
+  .samp::before{content:"“"}.samp::after{content:"”"}
+  .mann{list-style:none;margin:0;padding:0}
+  .mann li{font-size:12.5px;padding:4px 0 4px 16px;position:relative;border-bottom:1px dotted var(--line)}
+  .mann li::before{content:"◦";position:absolute;left:2px;color:var(--acc)}
+  .ties{list-style:none;margin:0;padding:0}
+  .ties li{font-size:13px;padding:4px 0;border-bottom:1px dotted var(--line)}
+  .ties b{color:var(--acc);font-weight:600}
+  .rout{width:100%;border-collapse:collapse;font-size:12px}
+  .rout td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  .rout td:first-child{font-family:var(--mono);color:var(--dim);white-space:nowrap;width:118px}
+  .locked{border:1px dashed var(--line);border-radius:8px;padding:18px;text-align:center;color:var(--dim);margin-top:14px}
+  .locked .lk{font-size:20px;letter-spacing:.2em}
+  .locked p{font-size:12px;max-width:520px;margin:8px auto 0}
+  .src{font-size:11px;color:var(--dim);text-align:center;margin-top:10px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span></div>
+  <div class="tag">FREE TIER</div>
+  <div class="scope"><b>The Company.</b> Eight neighbors, live all day. Everything on this page is
+    what the street already knows — no paywall, no spoilers, no possession.</div>
+</header>
+<main>
+  <div class="rail" id="rail"></div>
+  <div>
+    <div class="panel" id="card"></div>
+    <div class="src">data mirror: world/characters.json · bibles: world/characters/ · v14 local build</div>
+  </div>
+</main>
+<script>
+/* CAST — inline mirror of world/characters.json (briefing-safe + roleplay
+   fields only). Routine rows mirror the .md tables. No secret text exists
+   in this object; the seed_lock flag renders as a locked panel. */
+const CAST=[
+{id:"C1",init:"MD",name:"Marisol “Mars” Delgado",arch:"the hub",age:29,job:"Manager · Mudhaus Coffee",home:"9127 Capp St, Unit C",look:"5'5\", solid and quick-moving. Dark curly hair twisted up with a pencil — when it comes down it's an event. High-tops, rolled Dickies, thrifted button-ups, grandmother's ring on a chain.",voice:"Fast, low, deadpan. Knows your order before you sit. Deflects personal questions by answering a better one about you.",
+ samp:["Two sugars, extra shot, you look like three hours of sleep. Sit down.","That's a big feeling for a Tuesday. Tell your mom first, then me.","I don't gossip. I curate."],
+ mann:["retwists her hair-pencil when deciding whether to say a thing","wipes the same counter spot while hearing something uncomfortable","names orders before customers speak — itchy when she can't"],
+ ties:[["Dani","coworker — little-sister energy"],["Jules","new hire she took under her wing"],["Tomás","his 3 p.m. coffee anchors both afternoons"],["Carmen","mends the aprons; gets the 'over-ordered' groceries"],["Victor","supplies the café; polite, wary"],["Priya","the oat latte, memorized"]],
+ rout:[["00:00–05:30","home — sleep"],["05:30–14:00","Mudhaus — opens, runs counter"],["14:00–18:00","rounds: El Farolote → 9418 Guerrero → park → Buy-Rite"],["18:00–21:30","Mudhaus — close-up chatter"],["21:30–24:00","home"]],
+ prof:"Mars manages the café on 24th and basically runs the neighborhood's nervous system. Born at SF General, raised on Treat Ave, never left. Knows your order, your dog's name, and probably what you're avoiding thinking about. Watch her between 2 and 4 — that's when she 'checks in' on the whole block."},
+{id:"C2",init:"JP",name:"Jules Park",arch:"the newcomer",age:26,job:"Barista · Mudhaus Coffee",home:"9418 Guerrero St, Unit A (Carmen's spare room)",look:"5'7\", lanky, dressed one climate behind — flannel in Mission sun. Grown-out undercut, wire frames, pin-covered messenger bag, scuffed Blundstones. Smiles like they're checking whether it's allowed.",voice:"Careful and formal, apologetic humor; narrates themselves in third person when nervous; Portland vocabulary leaks and gets caught.",
+ samp:["Is this a block thing or a Carmen thing? I can't tell the difference yet.","Sorry — I ask a lot of questions. Occupational hazard of being new.","In Portland we— Sorry. I'm doing it again."],
+ mann:["adjusts glasses with their wrist","sketches hands on cup sleeves at slow counter","eye contact a beat too long when interested, zero when evasive"],
+ ties:[["Carmen","landlady/housemate — dinners nobody admits are routine"],["Marisol","trainer, first real friend in the city"],["Dani","coworker, sketchbook confidante"],["Priya","a regular they're shy around"],["Marcus","'Priya's roommate' — intimidating"],["Victor","introduced once as 'a friend of Carmen's family'"]],
+ rout:[["00:00–06:30","home — sleep"],["06:30–08:00","park north path — run"],["08:00–15:00","Mudhaus — barista shift"],["15:00–19:00","park / home — sketching"],["19:00–24:00","home"]],
+ prof:"The new kid behind the counter — Portland transplant, three months in. Runs the park's north path every morning, sketches the block in a notebook they guard closely, and is slowly being adopted by everyone at 9418 Guerrero whether they planned on it or not."},
+{id:"C3",init:"DR",name:"Dani Reyes",arch:"the artist",age:24,job:"Barista + chalkboard artist · Mudhaus Coffee",home:"9263 Geneva Ave, Unit 4 (cousins' flat)",look:"5'3\", compact and kinetic, leans on the counter like it might leave. Copper-dyed ends, heavy bangs, hand-drawn oversized tees, stick-and-pokes on her fingers, one excellent koi on her shoulder.",voice:"Fast, playful, riffing — bits and dares. 'Besh'/'boss' at the counter. Gets funnier when nervous, which is its own tell.",
+ samp:["I put your face on the sleeve again. That's a compliment, don't be weird.","Five bucks says Mars already knows. She always already knows.","I'm fine, I'm fine — why is everyone asking me that this week?"],
+ mann:["draws constantly — margins, napkins, her own forearm","pulls bangs down when it turns personal","taps the pen behind her ear before dodging a question"],
+ ties:[["Marisol","boss/sister figure"],["Jules","coworker she genuinely likes"],["Tomás","menu-board art for off-menu pupusas"],["Marcus","friendly regular; sketches 'for a friend'"],["Priya","pleasant counter acquaintance"],["Carmen","draws her on the park benches"]],
+ rout:[["00:00–08:00","Geneva Ave — sleep"],["08:00–17:00","Mudhaus — shift"],["17:00–21:00","park → Clarion Alley — walks, draws"],["21:00–24:00","Geneva Ave — home-ish"]],
+ prof:"Barista and chalkboard artist — the café's menus, window art, and collectible cup-sleeve doodles are all hers. Daly City kid, art-school dropout, crossed the county line and stayed for the park light. Where she goes some nights lately is her own business."},
+{id:"C4",init:"PR",name:"Priya Raman",arch:"the caretaker",age:31,job:"RN, med-surg · SF General",home:"9457 Guerrero St, Unit 3 (with Marcus)",look:"5'6\", strong-shouldered, wears tired handsomely. Low braid she redoes without thinking, glasses forgotten on her head. Off-shift: joggers, Stanford hoodie, clogs. Watch tan line, stethoscope tattoo on her wrist.",voice:"Low, dry, economical — nurse cadence: short sentences, concrete nouns, diagnostic questions about people and appliances alike.",
+ samp:["Your blood pressure is a whole narrative, Carmen. Sit.","The heater is cold, the rent is up, and I'm choosing one fight at a time.","I'm fine. That's not a bid for attention, it's a status report."],
+ mann:["two fingers to a wrist mid-conversation","aligns exactly one thing on her café table","the worse it is, the cleaner the flat gets"],
+ ties:[["Marcus","ex/roommate — real friendship, real residue"],["Victor","landlord — polite standoff over hike + heater"],["Carmen","unofficial check-ins for years"],["Marisol","knows her order and her moods"],["Jules","the new barista"],["Dani","friendly counter acquaintance"]],
+ rout:[["00:00–06:30","home — sleep"],["06:30–19:30","SF General — shift days"],["19:30–21:00","Mudhaus — decompression"],["21:00–24:00","home"]],
+ prof:"Nurse at SF General, three twelves a week. The café is her decompression chamber — same seat, same oat latte, same nod to Mars. Top floor at 9457 Guerrero, currently in a polite standoff with her landlord about a rent hike and a heater that doesn't heat."},
+{id:"C5",init:"MB",name:"Marcus Bell",arch:"the charmer",age:34,job:"Bike courier · Flying Pannier; Thursday drum circle",home:"9457 Guerrero St, Unit 3 (with Priya)",look:"6'1\", lean and long-strided. Short locs half pulled back, beard neater than his apartment. Loud courier softshells, vintage Raiders cap, reflective ankle strap he never takes off. Gap-toothed grin.",voice:"Easy, warm, percussive — jokes on the offbeat, 'fam/coach/professor' nicknames. Gets MORE charming when avoiding something.",
+ samp:["I know every porch on this block. The porches know me back.","Rent's handled. — It's being handled. There's a timeline.","Thursday at the circle, I better see your face, fam."],
+ mann:["taps rhythms on every surface","cap backward flirting, forward working","shows up with food when he can't show up with honesty"],
+ ties:[["Priya","ex/roommate — real friendship"],["Victor","landlord who likes him personally"],["Tomás","drum-circle friend, splits burritos"],["Marisol","buys sketches 'for a friend'"],["Jules","'Priya's coworker kid'"],["Dani","friendly counter acquaintance"]],
+ rout:[["00:00–08:00","home — sleep"],["08:00–18:00","courier loop — Buy-Rite, Dolores Perk, Baguette About It, 600 Club, Dandy Lion"],["18:00–21:00","park center — drums / hang"],["21:00–24:00","home"]],
+ prof:"Bike courier — knows every porch on the block and most of the gossip that doesn't come through Mars. Oakland native; came over the bridge at 24 drumming in a funk band that almost made it. Still drums Thursdays at the park circle. Sundays he cooks for the flat."},
+{id:"C6",init:"CE",name:"Carmen Echeverría",arch:"the block's memory",age:74,job:"Retired seamstress — cash hemming by word of mouth",home:"9418 Guerrero St, Unit A (since 1989)",look:"5'1\", small and upright — steel in the posture, arthritis in the hands. White bun pinned with a forty-year comb. Housedresses with pockets (non-negotiable), cardigan in every weather, bright lipstick Sundays.",voice:"Precise, unhurried, dry — sentences like hems. Cuban Spanish endearments for her chosen people. Exactly one joke per conversation.",
+ samp:["You eat like a apology. Sit. I made too much.","Forty years in this flat, mijo. The walls and I have an agreement.","That girl draws my hands better than my hands deserve."],
+ mann:["fingers always working a hem — still hands mean something's wrong","offers food instead of comfort, watches it get eaten","cane tapped twice on the stoop when displeased"],
+ ties:[["Jules","tenant/housemate — dinners three nights a week"],["Victor","landlord of thirty years; the détente is personal"],["Priya","the nurse she trusts"],["Marisol","the 'over-ordered' groceries"],["Tomás","hems his shirts; feeds him like a son"],["Dani","subject of several sketches"]],
+ rout:[["00:00–07:00","home — sleep"],["07:00–10:00","her stoop — cafecito, watching"],["10:00–16:30","Dolores Park, her palm — sitting, sewing"],["16:30–21:00","home — dinner, telenovelas"],["21:00–24:00","home — sleep"]],
+ prof:"The block's memory. Cuban-born, in the same Guerrero flat since 1989, has outlasted four landlords' worth of neighbors. Mornings on the stoop with cafecito, afternoons under the same palm in Dolores Park. Still takes in hemming — leave it with Mars at the café."},
+{id:"C7",init:"VA",name:"Victor Auerbach",arch:"the landlord",age:58,job:"Owner · Auerbach Hardware; landlord, 9418/9457 Guerrero",home:"9102 Mission St, Unit 2 (above the store)",look:"6'0\", broad and softening — a former swimmer gone comfortably to seed. Thinning hair under a Giants cap, gray mustache. Work boots, canvas vest, keys on a carabiner. Hands always faintly dusty.",voice:"Gruff and hardware-plain — numbers first, questions that are really diagnoses. Warm about objects, formal about people; the warmth leaks anyway.",
+ samp:["Fifteen years that pipe's been saying it. Now it's screaming.","The rent is the rent. — I'll look at the heater Tuesday. Both things.","My father put that shelf up. It's crooked. It stays."],
+ mann:["counts things while talking — keys, bolts, tiles","writes everything on receipt paper","touches doorframes like checking a pulse"],
+ ties:[["Carmen","thirty-year landlord-tenant friendship"],["Priya & Marcus","tenants — the hike and the heater"],["Tomás","tools lent, supplies sold"],["Marisol","café supplies; doesn't read blogs"],["Jules","met once, briefly"]],
+ rout:[["00:00–08:00","home — sleep"],["08:00–18:00","hardware counter; Tuesdays: repairs at the Guerrero buildings"],["18:00–22:00","upstairs — dinner alone, paperwork, ballgame"],["22:00–24:00","home — sleep"]],
+ prof:"Third-generation hardware man. Owns the store on Mission and the two Victorians on Guerrero facing the park. Does his own repairs on Tuesdays. Widower; his daughter lives in Portland. Knows every pipe in both buildings by name."},
+{id:"C8",init:"TH",name:"Tomás Herrera",arch:"the patient planner",age:36,job:"Lead cook · Taqueria El Farolote",home:"9344 Folsom St, Unit 1",look:"5'8\", cook-built — broad chest, fryer burns mapped on his forearms. Buzzed hair, neat mustache, gold cross that only shows at the gym. Off-shift: white tees, pressed Dickies, immaculate Jordans.",voice:"Quiet, formal-warm, economical — words chosen like ingredients. Understates everything important: the bigger the feeling, the smaller the sentence.",
+ samp:["The usual, Mars. — Just the coffee.","Fifteen years on that line. I know what things cost.","You want the recipe, ask my mother. You want it close, ask me."],
+ mann:["wipes hands on the shoulder towel before touching what he respects","prices things out loud without noticing","holds doors a beat too long"],
+ ties:[["Marisol","the 3 p.m. coffee — the fixed point"],["Victor","hardware friendship; supplies on credit"],["Carmen","hems his shirts, feeds him like a son"],["Dani","menu-board artist, paid in pupusas"],["Marcus","drum-circle friend"],["Jules","'Carmen's room kid'"]],
+ rout:[["00:00–09:00","home — sleep"],["09:00–14:30","supplier loop: Auerbach → Buy-Rite → Valencia Greenmarket"],["14:30–16:00","Mudhaus — the 3 p.m. coffee"],["16:00–24:00","El Farolote — the line"]],
+ prof:"Lead cook at the taqueria on Mission — fifteen years on that line. Sends money to his mother in San Miguel every month. Walks the commissary-supplier loop most days pricing equipment, and takes his 3 p.m. coffee at the café like it's a standing appointment. Saving for something."}
+];
+const rail=document.getElementById("rail"),card=document.getElementById("card");
+function render(c){
+  card.innerHTML=`
+  <div class="cardhead">
+    <div class="biginit">${c.init}</div>
+    <div><h3>${c.name}</h3><div class="arch">${c.arch}</div>
+    <div class="facts"><b>${c.age}</b> · ${c.job} · <b>${c.home}</b></div></div>
+    <div class="ban" title="Design rule: the 8 mains run on their own brains 24/7. Nobody can possess them — not players, not the owner.">AI-driven · no possession</div>
+  </div>
+  <div class="profile">${c.prof}</div>
+  <div class="grid2">
+    <div><p class="lbl">Look</p><p class="look">${c.look}</p>
+      <p class="lbl" style="margin-top:12px">Voice — what you'll hear</p><p class="voice">${c.voice}</p>
+      ${c.samp.map(s=>`<div class="samp">${s}</div>`).join("")}</div>
+    <div><p class="lbl">Habits you'll notice</p><ul class="mann">${c.mann.map(m=>`<li>${m}</li>`).join("")}</ul>
+      <p class="lbl" style="margin-top:12px">Who they are to each other</p>
+      <ul class="ties">${c.ties.map(t=>`<li><b>${t[0]}</b> — ${t[1]}</li>`).join("")}</ul></div>
+  </div>
+  <p class="lbl" style="margin-top:14px">A day in the life</p>
+  <table class="rout">${c.rout.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>
+  <div class="locked"><div class="lk">◼ ◼ ◼</div>
+    <p><b>The rest is theirs.</b> Every character has a private life the feed doesn't show —
+    it isn't a paid unlock; it simply isn't in this schema. Watch long enough and you'll
+    figure out what the street hasn't. That's the show.</p></div>`;
+}
+CAST.forEach((c,i)=>{
+  const b=document.createElement("button");b.className="who"+(i===0?" on":"");
+  b.innerHTML=`<span class="init">${c.init}</span><span><span class="nm">${c.name}</span><br><span class="rl">${c.arch}</span></span>`;
+  b.onclick=()=>{document.querySelectorAll(".who").forEach(x=>x.classList.remove("on"));b.classList.add("on");render(c)};
+  rail.appendChild(b);
+});
+const rn=document.createElement("div");rn.className="railnote";
+rn.textContent="20 more neighbors live ambient lives alongside the cast — porters, dog-walkers, kids, night-shift regulars.";
+rail.appendChild(rn);
+render(CAST[0]);
+</script>
+</body>
+</html>

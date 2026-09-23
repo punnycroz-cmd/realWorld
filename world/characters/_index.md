@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v0)
+# Main Cast Index — "The Mission" (world v14)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -24,6 +24,30 @@ Every bible uses the same fields:
   these by omission: they are simply not in the briefing schema.
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
+
+## Roleplay layer (v14)
+
+Five added sections per bible — enough that a stranger could play the
+character consistently on day one. Field order is now fixed:
+
+1. header facts (age/ethnicity/pronouns, job, home)
+2. Look
+3. Personality (with core contradiction)
+4. **Voice** — speech register + 3 sample lines
+5. **Mannerisms** — camera-legible habits and tells
+6. **Under pressure** — stress signature
+7. **Notices / misses** — perception profile (what the brain sees vs. skips)
+8. **Won't do** — hard behavioral boundaries
+9. Public profile · surface relationships · daily routine (briefing-safe)
+10. Secrets & seeds (never surfaces)
+
+`world/characters.json` mirrors sections 4–8 plus the briefing-safe block
+for the brain/prompt layer. Section placement note: the roleplay layer sits
+between personality and the briefing-safe block — mannerisms and voice are
+*public-observable* (safe for thin-AI phrase kits per thinai.json), while
+"under pressure" and "notices/misses" are written as perception habits —
+they gesture at blind spots without stating the seed behind them; seed
+content stays in section 10 only.
 
 ## Roster
 

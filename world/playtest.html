@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease surface v12, PT11 + thinai surface v13). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -157,7 +157,8 @@ const SURF={
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"},
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
   lease:{file:"lease.html",name:"The Rent Book"},
-  thinai:{file:"thinai.html",name:"The Understudy"}};
+  thinai:{file:"thinai.html",name:"The Understudy"},
+  cast:{file:"cast.html",name:"The Company"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -291,11 +292,23 @@ const PTS=[
   ck:["Offline drop writes a handoff note and NO feed line","Logging off during a session is refused with an explanation, not a silent mode change"]},
  {do:"Fire 'Brain brownout' on C2, then 'Nudge A01' on-shift and off-shift.",
   exp:"Degraded posture is mains-only and seam-internal; nudges accept on role-card fit and decline with the 50% refund line.",
-  ck:["Degraded badge + 'public-routine only — no seed access' chip; recovery restores full","No wire line for degrade/recover — the illusion never breaks","Declined nudge shows 'resolved · declined (50% auto-refund)'","Nudge at off-hours declines — thin can't be talked out of its routine"]}]}
+  ck:["Degraded badge + 'public-routine only — no seed access' chip; recovery restores full","No wire line for degrade/recover — the illusion never breaks","Declined nudge shows 'resolved · declined (50% auto-refund)'","Nudge at off-hours declines — thin can't be talked out of its routine"]}]},
+{id:"PT12",title:"The Company — cast browser & the locked room",min:10,persona:"spectator browsing the cast before the first watch",
+ goal:"Verify the cast page teaches the roster using only briefing-safe fields — and that secrets are absent by construction, not withheld by UI.",
+ surfaces:["cast"],steps:[
+ {do:"Open The Company. Click through all 8 mains; read one profile fully.",
+  exp:"Every card shows name/archetype/age/job/home, look, voice + sample lines, habits, surface ties, and a routine table — consistent across mains.",
+  ck:["All 8 mains render the same field set — no card is thinner than another","Home addresses are 9xxx fictional numbers on real streets","Jobs/venues use parody names only (Mudhaus, El Farolote, Auerbach Hardware, Flying Pannier)"]},
+ {do:"Look for any affordance to control, possess, tip, or unlock a main.",
+  exp:"None exists. The badge reads 'AI-driven · no possession' on every card.",
+  ck:["No possess/act request path exists for C1–C8 anywhere on the page","The badge tooltip states the ban covers players AND the owner","No price or credit amount appears on the page"]},
+ {do:"Inspect the locked panel; cross-check a surface tie pairwise (C1's Tomás coffee vs C8's Marisol).",
+  exp:"The locked panel explains private life is absent from the schema, not a paid unlock; ties agree across cards.",
+  ck:["Locked copy says 'isn't in this schema' — never a paywall or 'coming soon' tease","Ties are symmetric across cards","Nothing states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v13";
+const LS="rw_playtest_v14";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -362,7 +375,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v13 local",started:new Date(S.started).toISOString()},
+    build:"world v14 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }

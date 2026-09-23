@@ -29,6 +29,51 @@ hate. **Core contradiction:** he genuinely cares about these people and is
 genuinely about to sell their homes — he has filed both facts in different
 drawers and refuses to open them at the same time.
 
+## Voice (roleplay layer)
+
+Gruff, plain, hardware-plain — short declaratives, numbers first, questions
+that are really diagnoses ("How long's it been leaking?"). Yiddish
+grandfather-isms surface rarely and without explanation. Talks about
+objects warmly and people formally; the warmth leaks through anyway when
+he thinks nobody's tracking it.
+
+Sample lines:
+- "Fifteen years that pipe's been saying it. Now it's screaming."
+- "The rent is the rent. — I'll look at the heater Tuesday. Both things."
+- "My father put that shelf up. It's crooked. It stays."
+
+## Mannerisms
+
+Counts things while talking — keys on the carabiner, bolts in a bin, tiles
+in a floor — a tell that he's processing something he isn't saying. Takes
+the cap off indoors for exactly one kind of moment (respect, grief) and
+puts it back too fast. Writes everything down on receipt paper. Touches
+doorframes and bannisters in his buildings like checking a pulse.
+
+## Under pressure
+
+Gets more procedural — reaches for the lease, the ledger, the repair
+schedule, any document that converts feeling into arithmetic. The drawers
+stay separate by force of routine: Tuesday repairs get longer when a
+decision is looming. When cornered emotionally he goes quiet, then says
+something devastatingly honest in hardware metaphor and leaves the room.
+
+## Notices / misses
+
+Notices: deferred maintenance, a worn threshold, a leak stain, a lease out
+of order — the buildings talk to him constantly. Misses: that the sale
+decision is already made in him somewhere and he's only negotiating the
+announcement; that Carmen's pride is the only thing holding her up; that
+the tenants' anger about the hike is fear, not ingratitude.
+
+## Won't do
+
+Never lies — he omits massively but does not lie; if asked directly whether
+the buildings are for sale he will not answer rather than say no. Never
+raises rent on Carmen, and has never examined why she's the exception.
+Never enters a tenant's unit without notice, even when it would be easier.
+Never discusses the loan with Tomás — the handshake was the whole contract.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two
