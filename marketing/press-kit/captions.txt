@@ -42,6 +42,17 @@ logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.
 logos/logo-icon.svg/.png       The lit-window mark, square.
 logos/logo-icon-mono.svg       Single-ink version (inherits text color).
 logos/favicon.svg              Site favicon.
+logos/logo-stacked.svg         Stacked lockup — vertical spaces.
+logos/logo-icon-animated.svg   Animated lit-window icon (SMIL; motion for
+                               feeds/video bumpers where SVG animation plays).
+logos/pattern-windows.svg      Repeating lit-window pattern — backgrounds.
+
+banners/banner-x-1500x500.png        X/Twitter header.
+banners/banner-youtube-2560x1440.png YouTube channel art (safe-zone padded).
+banners/banner-discord-960x540.png   Discord banner.
+banners/banner-linkedin-1584x396.png LinkedIn banner.
+  All banners: darkened development-build capture + lockup, tagline
+  "Watch free. Pay to reach in." Center content sits in crop-safe zones.
 
 Do not recolor, stretch, or redraw the lit-window mark. Do not imply
 endorsement. Do not present placeholder contact fields as real contact info.

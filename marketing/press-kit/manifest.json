@@ -8,14 +8,22 @@
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
     "press-release-launch.md": "launch press release draft, slots marked",
     "press-qa.md": "anticipated press Q&A, approved answers",
+    "copy-deck.md": "approved taglines/headlines/phrases + words to avoid",
+    "creator-notes.md": "streamer & creator coverage guide + embargo stance",
     "captions.txt": "per-asset captions and credit lines",
     "LICENSE.txt": "press asset usage terms",
     "README.txt": "contents + usage rules + accuracy note",
     "logos/": [
       "logo-primary.svg", "logo-primary.png", "logo-primary-dark.svg",
-      "logo-icon.svg", "logo-icon.png", "logo-icon-mono.svg", "favicon.svg"
+      "logo-stacked.svg", "logo-icon.svg", "logo-icon.png",
+      "logo-icon-mono.svg", "logo-icon-animated.svg",
+      "pattern-windows.svg", "favicon.svg"
     ],
     "keyart/": ["keyart-16x9.png", "keyart-square.png"],
+    "banners/": [
+      "banner-x-1500x500.png", "banner-youtube-2560x1440.png",
+      "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
+    ],
     "screenshots/": [
       "v22-A.png", "v22-B.png", "v22-C.png", "v22-D.png",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"

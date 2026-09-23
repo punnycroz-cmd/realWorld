@@ -11,15 +11,23 @@ Contents
   fact-sheet.html    Print-ready fact sheet (open in a browser, Print → PDF)
   press-release-launch.md  Launch press release — draft with fill-in slots
   press-qa.md        Anticipated press Q&A with approved answers
+  copy-deck.md       Approved taglines/headlines/phrases + words to avoid —
+                     verbatim-safe copy for articles, thumbnails, broadcast
+  creator-notes.md   Streamer & creator coverage guide (formats, rules,
+                     embargo stance)
   captions.txt       Caption + credit line for every image
   LICENSE.txt        Press asset usage terms
   manifest.json      Machine-readable kit manifest
   logos/             Primary lockup (light text, for dark bgs) +
                      dark-ink lockup (logo-primary-dark.svg, for light bgs) +
-                     icon + single-ink mono icon; SVG and PNG; favicon.
+                     stacked lockup + icon + single-ink mono icon +
+                     animated icon SVG + window pattern; SVG and PNG; favicon.
                      Usage rules: marketing/BRAND.md §7.
   keyart/            1920x1080 and 1080x1080 key art (built on a real
                      development-build capture)
+  banners/           Pre-sized channel headers: X 1500x500, YouTube
+                     2560x1440, Discord 960x540, LinkedIn 1584x396 —
+                     content inside center safe zones.
   screenshots/       Real captures of the current development build.
                      v22-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, parked cars);
@@ -35,6 +43,8 @@ Usage rules for press/creators
     logo-primary-dark. Do not recolor,
     stretch, or redraw the lit-window mark. Do not imply endorsement.
   - Do not present placeholder contact fields as real contact info.
+  - Describing the mechanics? copy-deck.md has verbatim-safe phrasing and
+    a words-to-avoid list. Creators: read creator-notes.md before covering.
 
 Accuracy note
 -------------

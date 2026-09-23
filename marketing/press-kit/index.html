@@ -52,6 +52,13 @@
   blockquote{margin:0;padding:12px 16px;border-left:3px solid var(--accent);
              background:var(--panel);border-radius:0 8px 8px 0;font-size:14.5px}
   .slot{color:var(--accent);font-weight:700}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+         gap:12px;margin-top:26px}
+  .facts .f{background:var(--panel);border:1px solid var(--border);
+            border-radius:10px;padding:14px 16px}
+  .facts .n{font-size:26px;font-weight:700;color:var(--accent);
+            display:block;line-height:1.1}
+  .facts .l{font-size:12.5px;color:var(--muted);letter-spacing:.04em}
   footer{padding:26px 0 40px;color:var(--muted);font-size:13px;
          border-top:1px solid var(--border)}
 </style>
@@ -75,7 +82,17 @@
   sheet: <a href="fact-sheet.html">fact-sheet.html</a>. Captions and credit
   lines: <a href="captions.txt">captions.txt</a>. Asset usage terms:
   <a href="LICENSE.txt">LICENSE.txt</a>. Anticipated Q&amp;A:
-  <a href="press-qa.md">press-qa.md</a>.</p>
+  <a href="press-qa.md">press-qa.md</a>. Approved wording:
+  <a href="copy-deck.md">copy-deck.md</a>. Streamer/creator guidance:
+  <a href="creator-notes.md">creator-notes.md</a>.</p>
+  <div class="facts">
+    <div class="f"><span class="n">28</span><span class="l">fictional residents, 8 mains + 20 ambients</span></div>
+    <div class="f"><span class="n">24/7</span><span class="l">persistent — runs whether anyone watches</span></div>
+    <div class="f"><span class="n">$0</span><span class="l">to watch, always</span></div>
+    <div class="f"><span class="n">0</span><span class="l">main characters any human can possess</span></div>
+    <div class="f"><span class="n">1</span><span class="l">real neighborhood: the Mission, SF</span></div>
+    <div class="f"><span class="n">~1¢</span><span class="l">per credit; agency by the minute (provisional)</span></div>
+  </div>
 </div>
 
 <section><div class="wrap">
@@ -122,6 +139,19 @@
 </div></section>
 
 <section><div class="wrap">
+  <h2>Social banners</h2>
+  <p class="muted" style="margin-top:0">Pre-sized channel headers, built on a
+  real build capture with safe-zone padding for overlay UI. For our channels
+  at launch — usable by fan/community spaces with attribution.</p>
+  <div class="gallery">
+    <figure><img src="banners/banner-x-1500x500.png" alt="X/Twitter header banner" loading="lazy"><figcaption>banner-x-1500x500.png</figcaption></figure>
+    <figure><img src="banners/banner-youtube-2560x1440.png" alt="YouTube channel banner" loading="lazy"><figcaption>banner-youtube-2560x1440.png</figcaption></figure>
+    <figure><img src="banners/banner-discord-960x540.png" alt="Discord banner" loading="lazy"><figcaption>banner-discord-960x540.png</figcaption></figure>
+    <figure><img src="banners/banner-linkedin-1584x396.png" alt="LinkedIn banner" loading="lazy"><figcaption>banner-linkedin-1584x396.png</figcaption></figure>
+  </div>
+</div></section>
+
+<section><div class="wrap">
   <h2>Boilerplate</h2>
   <div class="grid g2">
     <div>
@@ -155,6 +185,8 @@
     <li><span>Print-ready fact sheet</span><code>fact-sheet.html</code></li>
     <li><span>Launch press release — draft, slots marked</span><code>press-release-launch.md</code></li>
     <li><span>Anticipated press Q&amp;A</span><code>press-qa.md</code></li>
+    <li><span>Copy deck — approved wording + phrases to avoid</span><code>copy-deck.md</code></li>
+    <li><span>Streamer/creator coverage notes</span><code>creator-notes.md</code></li>
     <li><span>Per-asset captions + credit lines</span><code>captions.txt</code></li>
     <li><span>Asset usage terms</span><code>LICENSE.txt</code></li>
     <li><span>Kit manifest</span><code>manifest.json</code></li>
