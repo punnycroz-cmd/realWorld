@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v59)
+# Playtest Harness — "Real World / The Mission" (world v61)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -104,6 +104,11 @@ One person can wear every hat; four real testers is the intended shape.
   (mirror/live badge, capability-checked gsRequestSubmit write path),
   the free pre-flight wording check (same screen, before money moves,
   never a gate), and the per-request receipt drawer with its rq- ref.
+  PT56 (the Director's rail, v61) is a spectator + facilitator audit —
+  the director preview bar (cam presets marking, never filtering;
+  follow-cam with "public whereabouts only"), the replay scrub over the
+  wire's own events, the gsExplainRequest/gsOccupancy live reads, and
+  the no-purchase-affordance rule on a spectator surface.
 
 ## 3. Running a session
 

@@ -44,6 +44,17 @@
       "declared_costs": "request rows carry 'N cr · M min' and the detail panel adds 'declared — N cr · M min (paid upfront, hard cap — shown at filing)' from attrs.credits/minutes; the price was public at filing and the wire repeats it",
       "wx_follows_feed": "the header weather line is set by the newest `weather` event (icon guessed from the event's own words — fog/rain/sun/wind/cloud); no fabricated temperature. Applies in demo and live modes alike",
       "keyboard": "adds `d` — toggle the day-so-far card"
+    },
+    "spectator_ui_v61": {
+      "doc": "world v61 — the Director's rail on wire.html (v5). A free preview of the paid view-layer Director pass; still strictly view-layer — no preset, cam, or scrub touches the world, and the page carries no purchase affordance (the pass is filed at the Counter like any request).",
+      "director_bar": "collapsible bar between the day card and the stream (#dirbar; Preview button, `v` key, `#dir=1`); persisted per-viewer under rw_wire_cam; hidden in zen",
+      "cam_presets": "named presets (park lawn / café row / the strip / clarion alley / the night shift) map to venue sets — matching rows get a gold edge (.camhl); a camera MARKS the wire, never filters it",
+      "follow_cam": "selector over mains + ambients + hired residents — rows whose who/mentions hit the follow-cam get the gold edge; labeled 'public whereabouts only'; a follow-cam is a pin on visibility the camera already has, never new coverage",
+      "replay_scrub": "range slider spanning today's wire window [earliest event .. now]; scrubbing shows 'the wire at HH:MM' — the newest events at-or-before that minute, verbatim. It replays the feed's own record; the copy says 'the feed, replayed — the world itself kept running.'",
+      "live_receipt": "request detail gains a 'live record' line from BRIDGE.gsExplainRequest(req) when the bus offers it — status/claim/declared cost/trail count, rendered defensively",
+      "live_occupancy": "venue cards read BRIDGE.gsOccupancy() or gsViewerState().occupancy when offered ({mains,labels,count} per venue); absent, the public-routine picture stands",
+      "pass_pointer": "the Director pass (10 cr/30 min, plan §2.3 PROPOSAL) is pointed at, never sold — 'filed at the Counter like any request' links to request.html",
+      "keyboard": "adds `v` — toggle the director bar; esc closes it before clearing selection"
     }
   },
   "event_kinds": [

@@ -1,4 +1,4 @@
-# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
@@ -257,3 +257,67 @@ no editorial layer: every figure is the wire counted, and the UI says so.
 | Missed bar action | "catch me up" |
 | Declared cost (detail) | "declared — N cr · M min (paid upfront, hard cap — shown at filing)" |
 | Join marker | "you tuned in \<HH:MM\> — dimmed timestamps ran earlier" |
+
+## 11. v61 — the Director's rail (world v61)
+
+The left-rail Director upsell grows a real, free **preview** — the honest
+version of "try before you pay": every control is view-layer, nothing is
+gated content, and the page carries no purchase affordance (the paid pass
+is filed at the Counter like any request; the bar links there, and that
+is the whole monetization surface).
+
+### The director bar
+
+- `#dirbar`, toggled by the rail's **Preview** button, the `v` key, or
+  `#dir=1`; `esc` closes it before clearing selection; zen hides it. The
+  open state + choices persist per-viewer (`rw_wire_cam`) — viewer
+  state, never world state.
+- **Camera presets** — named chips (`park lawn`, `café row`,
+  `the strip`, `clarion alley`, `the night shift`, `all cams`) mapping to
+  venue sets. A live preset puts a gold edge (`.camhl`) on wire rows in
+  that camera's view. A camera **marks** the wire; it never filters it —
+  the stream stays whole and honest, and nothing a preset can do adds
+  coverage the feed didn't already have.
+- **Follow-cam** — a selector over the mains, the named ambients, and
+  hired residents; rows whose `who`/`attrs.mentions` hit the pick get the
+  same gold edge. Options are labeled "public whereabouts only": a
+  follow-cam is a pin on existing visibility, never new visibility —
+  off-the-feed stretches stay off, homes stay walls.
+- **Replay scrub** — a slider spanning today's wire window
+  `[earliest event .. now]`. Scrubbing shows "the wire at HH:MM — N
+  events by then" plus the newest few rows at-or-before the minute,
+  verbatim. It replays the feed's own record — nothing is reconstructed
+  or guessed — and the card says so: *"the feed, replayed — the world
+  itself kept running."* At live edge the card hides and the label reads
+  `live`.
+- **The pass pointer** — footer copy names the paid thing plainly:
+  *"The Director pass — multi-cam, PiP, scrub inside the sim view — is
+  10 cr / 30 min, filed at the Counter like any request."* Price adopts
+  plan §2.3 PROPOSAL verbatim. No countdown, no trial-credit trick, no
+  "unlock" verb on a button.
+
+### Live-seam deepening (capability-checked)
+
+- **Live receipt:** request detail panels call
+  `BRIDGE.gsExplainRequest(req)` when the bus offers it, rendering a
+  "live record" line (status · claim · declared cost · trail count) —
+  the bus's own explainer, so the wire's account of a paid intervention
+  matches the Counter's receipt word-for-word.
+- **Live occupancy:** venue cards read `BRIDGE.gsOccupancy()` or
+  `gsViewerState().occupancy` when offered (`{mains, labels, count}` per
+  venue); absent either, the public-routine picture stands — the demo
+  fallback is the contract reference, as ever.
+
+### Copy deck — v61 strings
+
+| Moment | Copy |
+|---|---|
+| Bar label | "director preview" |
+| Bar honesty note | "view-layer only — cameras watch the wire, never the inside of a home" |
+| Presets | "park lawn · café row · the strip · clarion alley · the night shift · all cams" |
+| Follow-cam option | "\<name\> — public whereabouts only" |
+| Replay label (scrubbed) | "the wire at \<HH:MM\> — N events by then" |
+| Replay label (edge) | "live" |
+| Replay footer | "the feed, replayed — the world itself kept running." |
+| Pass pointer | "The Director pass — multi-cam, PiP, scrub inside the sim view — is 10 cr / 30 min, filed at the Counter like any request. Watching costs nothing either way." |
+| Live record line | "live record — \<status · claim · declared · trail count\> (gsExplainRequest — the bus's own explainer)" |

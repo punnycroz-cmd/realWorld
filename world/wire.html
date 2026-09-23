@@ -47,6 +47,17 @@
       hard cap". The price was public at filing; the wire says so.
     - header weather follows the wire — the newest `weather` event sets
       the header line (demo and live alike), never a fabricated temp.
+  New in v5 (world v61) — the Director's rail:
+    - the upsell becomes a real preview: a collapsible director bar
+      (Preview button / `v` key / `#dir=1`) with named camera presets,
+      a follow-cam selector, and a replay scrub over the wire's own
+      events. Everything is view-layer only — cameras watch the wire,
+      never the inside of a home; the paid pass is filed at the
+      Counter, not here.
+    - live-seam deepening: gsExplainRequest(req) fills a "live record"
+      line on request detail when the bus is present, and venue cards
+      read gsOccupancy()/viewer-state occupancy when offered —
+      capability-checked, demo falls back to public routines.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -236,6 +247,32 @@
   .daycard .stat:last-of-type{border-bottom:0}
   .daycard .stat b{color:var(--ink);font-weight:600;text-align:right}
   .daycard .fnote{margin-top:8px;color:var(--dim);font-size:11px}
+
+  /* ---- v61: the Director's rail ---- */
+  .dirbar{display:none;margin:0 0 10px;border:1px solid var(--acc);border-radius:8px;
+    background:#221f16;padding:9px 12px;font-size:12.5px}
+  .dirbar.open{display:block}
+  .dirbar .dhead{display:flex;align-items:baseline;gap:10px}
+  .dirbar .dhead b{color:var(--acc);letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .dirbar .dnote{color:var(--dim);font-size:11px;flex:1}
+  .dirbar .dx{color:var(--dim);cursor:pointer;font-size:14px}
+  .dirbar .drow{display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap}
+  .dirbar .dlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .camchip{font:inherit;font-size:11px;padding:2px 10px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--dim)}
+  .camchip.on{color:var(--acc);border-color:var(--acc);background:#2a2618}
+  .dirbar select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:6px;font:inherit;font-size:11.5px;padding:2px 6px}
+  .dirbar input[type=range]{flex:1;min-width:120px;accent-color:var(--acc)}
+  .dirbar .slab{font-family:var(--mono);font-size:11px;color:var(--dim);min-width:38px;text-align:right}
+  .replay{display:none;margin-top:7px;border-top:1px dashed var(--line);padding-top:6px}
+  .replay .rt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--blu)}
+  .replay .rev{padding:2px 0;font-size:12px;color:var(--dim)}
+  .replay .rev .t{font-family:var(--mono);font-size:10.5px;margin-right:7px}
+  .dirbar .dfoot{margin-top:8px;color:var(--dim);font-size:11px}
+  .dirbar .dfoot a{color:var(--blu)}
+  .wire li.camhl{box-shadow:inset 2px 0 0 var(--acc)}
+  body.zen .dirbar{display:none !important}
 </style>
 </head>
 <body>
@@ -282,6 +319,21 @@
     <div class="missed" id="missedbar" aria-label="what was on the wire before you tuned in"></div>
     <div class="daybar" id="daybar" role="button" tabindex="0" aria-label="toggle the day-so-far recap"></div>
     <div class="daycard" id="daycard"></div>
+    <div class="dirbar" id="dirbar" aria-label="director preview — camera presets, follow-cam, replay scrub">
+      <div class="dhead"><b>director preview</b>
+        <span class="dnote">view-layer only — cameras watch the wire, never the inside of a home</span>
+        <span class="dx" id="dirx" title="close">✕</span></div>
+      <div class="drow"><span class="dlab">cam</span><span id="camps"></span>
+        <span class="dlab" style="margin-left:8px">follow</span>
+        <select id="fcamsel" aria-label="follow-cam — public whereabouts only"></select></div>
+      <div class="drow"><span class="dlab">replay</span>
+        <input type="range" id="scrub" min="0" max="100" value="100" aria-label="scrub the wire back through today">
+        <span class="slab" id="scrublab">live</span></div>
+      <div class="replay" id="replay"></div>
+      <div class="dfoot">preview is free. The Director pass — multi-cam, PiP, scrub inside
+        the sim view — is 10 cr / 30 min, filed at <a href="request.html">the Counter</a>
+        like any request. Watching costs nothing either way.</div>
+    </div>
     <div class="holdbar" id="holdbar"></div>
     <div class="newpill" id="newpill"></div>
     <ul class="wire" id="wire" role="log" aria-live="polite" aria-label="the wire — public feed"></ul>
@@ -331,6 +383,7 @@
       <tr><td class="k">z</td><td>zen — lean-back view (esc or z again to leave)</td></tr>
       <tr><td class="k">h</td><td>hold the display — the world keeps running</td></tr>
       <tr><td class="k">d</td><td>the day so far — the wire, counted</td></tr>
+      <tr><td class="k">v</td><td>director preview — cam presets, follow-cam, replay scrub</td></tr>
       <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
       <tr><td class="k">?</td><td>this card</td></tr>
     </table>
@@ -434,6 +487,26 @@ var density='cozy';
 try{ density = localStorage.getItem('rw_wire_density')||'cozy'; }catch(e){}
 if (density==='compact') document.body.classList.add('compact');
 
+/* ---- v61: director preview state (per-viewer, view-layer only) ---- */
+var dirOpen=false, camPreset=null, fcam=null;
+try{ var camSaved=JSON.parse(localStorage.getItem('rw_wire_cam')||'{}');
+  camPreset=camSaved.preset||null; fcam=camSaved.fcam||null; }catch(e){}
+var CAM_PRESETS=[
+  {id:'park',   label:'park lawn',       venues:{park:1}},
+  {id:'cafe',   label:'café row',        venues:{mudhaus:1,perk:1}},
+  {id:'strip',  label:'the strip',       venues:{buyrite:1,maliks:1,block:1}},
+  {id:'clarion',label:'clarion alley',   venues:{clarion:1}},
+  {id:'night',  label:'the night shift', venues:{club600:1,farolote:1}}
+];
+function camVenues(){ var p=CAM_PRESETS.filter(function(x){return x.id===camPreset;})[0];
+  return p?p.venues:null; }
+function camMatch(e){
+  var vs=camVenues();
+  if (vs && e.venue && vs[e.venue]) return true;
+  if (fcam && (e.who===fcam || (e.attrs && e.attrs.mentions && e.attrs.mentions.indexOf(fcam)>=0))) return true;
+  return false;
+}
+
 function eid(){ return 'd0923-'+(++feedN); }   // demo ids; live feed supplies its own
 function push(e){ e.id = e.id || eid(); e.seq = feedN; FEED.unshift(e); return e; }
 function findEvent(id){ for (var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
@@ -474,7 +547,7 @@ function rowHtml(e){
     (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</span>';
   if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
   var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'')+
-    (e.t<joinT?' early':'');
+    (e.t<joinT?' early':'')+(dirOpen&&camMatch(e)?' camhl':'');
   return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
     '<span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span></li>';
 }
@@ -657,6 +730,71 @@ function renderMissed(){
   document.getElementById('missedX').onclick=function(){ bar.style.display='none'; };
 }
 
+/* ================= v61: the Director's rail =================
+   A free preview of the paid view-layer pass. Camera presets and the
+   follow-cam only MARK wire rows (gold edge) — the stream itself is
+   never filtered by a camera. The replay scrub walks the wire's own
+   events: it replays the feed, not the world. The paid pass (multi-cam,
+   PiP, scrub inside the sim view) is filed at the Counter — this page
+   carries no purchase affordance by contract. */
+function renderDirector(){
+  var bar=document.getElementById('dirbar');
+  bar.classList.toggle('open',dirOpen);
+  document.getElementById('dir').classList.toggle('on',dirOpen);
+  if (!dirOpen) return;
+  var cp=document.getElementById('camps');
+  cp.innerHTML=CAM_PRESETS.map(function(p){
+    return '<button class="camchip'+(camPreset===p.id?' on':'')+'" data-p="'+p.id+'">'+p.label+'</button>';
+  }).join('')+'<button class="camchip'+(!camPreset?' on':'')+'" data-p="">all cams</button>';
+  cp.querySelectorAll('.camchip').forEach(function(c){
+    c.onclick=function(){ camPreset=c.dataset.p||null; saveCam(); renderDirector(); renderWire(); };
+  });
+  var sel=document.getElementById('fcamsel');
+  if (!sel.options.length){
+    var opts=['<option value="">follow-cam: off</option>'];
+    MAINS.forEach(function(m){ opts.push('<option value="'+m.id+'">'+esc(m.name)+' — public whereabouts only</option>'); });
+    Object.keys(CHAR_NAME).forEach(function(id){
+      if (/^A/.test(id)) opts.push('<option value="'+id+'">'+esc(CHAR_NAME[id])+' (ambient)</option>');
+      else if (/^h/.test(id)) opts.push('<option value="'+id+'">'+esc(CHAR_NAME[id])+'</option>');
+    });
+    sel.innerHTML=opts.join('');
+  }
+  sel.value=fcam||'';
+  sel.onchange=function(){ fcam=sel.value||null; saveCam(); renderWire(); renderReplay(); };
+  renderReplay();
+}
+function saveCam(){ try{ localStorage.setItem('rw_wire_cam',JSON.stringify({preset:camPreset,fcam:fcam})); }catch(e){} }
+function toggleDir(on){
+  dirOpen = (on===undefined)?!dirOpen:!!on;
+  renderDirector(); renderWire();
+  if (dirOpen) history.replaceState(null,'','#dir=1');
+}
+/* replay scrub — the slider spans today's wire window; the card lists
+   the newest events at-or-before the scrubbed minute. It replays the
+   feed's own record — nothing is reconstructed or guessed. */
+var scrubLive=true;
+function renderReplay(){
+  var sc=document.getElementById('scrub'), lab=document.getElementById('scrublab'),
+      card=document.getElementById('replay');
+  if (!FEED.length){ card.style.display='none'; return; }
+  var lo=FEED[FEED.length-1].t, hi=T;
+  FEED.forEach(function(e){ if(e.t<lo)lo=e.t; if(e.t>hi)hi=e.t; });
+  if (sc.min!=lo){ sc.min=lo; sc.max=Math.max(hi,lo+1); if(scrubLive) sc.value=sc.max; }
+  var t=+sc.value; scrubLive=(t>=+sc.max);
+  lab.textContent=scrubLive?'live':fmt(t);
+  if (scrubLive){ card.style.display='none'; return; }
+  var at=FEED.filter(function(e){return e.t<=t;}).slice(0,4);
+  var nBefore=FEED.filter(function(e){return e.t<=t;}).length;
+  card.style.display='block';
+  card.innerHTML='<span class="rt">the wire at '+fmt(t)+'</span> — '+
+    nBefore+' event'+(nBefore===1?'':'s')+' by then'+
+    at.map(function(e){return '<div class="rev"><span class="t">'+fmt(e.t)+'</span>'+esc(e.text)+'</div>';}).join('')+
+    '<div class="rev" style="font-style:italic">the feed, replayed — the world itself kept running.</div>';
+}
+document.getElementById('scrub').addEventListener('input',function(){ scrubLive=false; renderReplay(); });
+document.getElementById('scrub').addEventListener('change',function(){ if(+this.value>=+this.max){ scrubLive=true; renderReplay(); } });
+document.getElementById('dirx').onclick=function(){ toggleDir(false); };
+
 /* header weather follows the wire — the newest weather event is the sky.
    No fabricated temperature; the icon is a guess from the text's own words. */
 var WX_ICON=[[/sun|clear|burned off/i,'☀'],[/rain|drizzle|shower/i,'🌧'],
@@ -740,6 +878,21 @@ function renderDetail(){
       h+='<li class="'+(x.id===e.id?'cur':'')+'">'+fmt(x.t)+' — '+esc(x.status||x.kind)+(x.id===e.id?' ·':'')+'</li>';
     });
     h+='</ul>';
+    /* v61 live receipt — the bus-side explainer, capability-checked */
+    if (LIVE && BRIDGE.gsExplainRequest){
+      try{
+        var ex=BRIDGE.gsExplainRequest(e.req);
+        if (ex){
+          var bits=[];
+          if (ex.status) bits.push('status '+ex.status);
+          if (ex.claim) bits.push('claim '+ex.claim);
+          if (ex.credits!=null) bits.push(ex.credits+' cr'+(ex.minutes?' · '+ex.minutes+' min':''));
+          if (ex.trail && ex.trail.length) bits.push(ex.trail.length+' trail entries on the bus');
+          if (bits.length) h+='<div class="meta">live record — <b>'+esc(bits.join(' · '))+'</b>'+
+            ' <span style="color:var(--dim)">(gsExplainRequest — the bus\u2019s own explainer)</span></div>';
+        }
+      }catch(_){}
+    }
   }
   h+='<div class="plink"><input readonly value="'+esc(permalink(e))+'" aria-label="permalink"><button id="cplink">copy link</button></div>';
   h+='<div class="meta" style="margin-top:8px">ids are stable — this event will sit in The Archive under the same id.</div>';
@@ -781,16 +934,26 @@ function toggleFollow(k){
 }
 
 /* ================= left rail ================= */
+var LIVE_OCC=null;   /* v61 — bus-side occupancy when offered (gsOccupancy() or vs.occupancy) */
 function renderVenues(){
   var box=document.getElementById('venues'); box.innerHTML='';
   VENUES.forEach(function(v){
     var id=v[0], name=v[1];
     var mains=[], amb=0, labels=[];
-    MAINS.forEach(function(m){
-      var loc=whereIs(m,T)[1];
-      if (LOC2VENUE[loc]===id) mains.push(m.name.split(' ')[0]);
-    });
-    (AMBIENT_AT[id]||[]).forEach(function(a){ if(T>=a[0]&&T<a[1]){ amb++; labels.push(a[2]); } });
+    var occ = LIVE_OCC && LIVE_OCC[id];
+    if (occ){
+      /* live read: { mains:[names or ids], labels:[scene labels], count } —
+         missing fields degrade to the routine-derived picture */
+      (occ.mains||[]).forEach(function(x){ mains.push(CHAR_NAME[x]?CHAR_NAME[x].split(' ')[0]:String(x).split(' ')[0]); });
+      (occ.labels||[]).forEach(function(l){ labels.push(l); amb++; });
+      if (occ.count!=null && occ.count>mains.length+amb) amb += occ.count-mains.length-amb;
+    } else {
+      MAINS.forEach(function(m){
+        var loc=whereIs(m,T)[1];
+        if (LOC2VENUE[loc]===id) mains.push(m.name.split(' ')[0]);
+      });
+      (AMBIENT_AT[id]||[]).forEach(function(a){ if(T>=a[0]&&T<a[1]){ amb++; labels.push(a[2]); } });
+    }
     var crowd = mains.length+amb;
     var d = document.createElement('div'); d.className='venue';
     var who = mains.map(function(m){return '<span class="m">'+m+'</span>';}).join(', ');
@@ -945,7 +1108,12 @@ function livePoll(){
       if (!liveSeen[e.id]){ liveSeen[e.id]=true; push(e); applyWx(e); }
     });
     FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
-    renderWire();
+    renderWire(); if (dirOpen) renderReplay();
+    /* v61 — live occupancy: capability-checked, demo keeps routines */
+    var occ = null;
+    if (BRIDGE.gsOccupancy) occ = BRIDGE.gsOccupancy();
+    else if (vs && vs.occupancy) occ = vs.occupancy;
+    if (occ && occ!==LIVE_OCC){ LIVE_OCC=occ; renderVenues(); }
     if (BRIDGE.gsWireStats){
       var s=BRIDGE.gsWireStats();
       if (s && s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
@@ -983,7 +1151,7 @@ document.getElementById('filters').addEventListener('click', function(ev){
 });
 document.getElementById('q').addEventListener('input', function(ev){ query=ev.target.value.trim(); page=1; renderWire(); });
 document.getElementById('older').onclick=function(){ page++; renderWire(); };
-document.getElementById('dir').onclick=function(){ toast('View-layer only; the world doesn\u2019t notice.'); };
+document.getElementById('dir').onclick=function(){ toggleDir(); };
 document.getElementById('hold').onclick=toggleHold;
 document.getElementById('holdbar').onclick=toggleHold;
 document.getElementById('zen').onclick=function(){ setZen(!zen); };
@@ -1027,10 +1195,12 @@ document.addEventListener('keydown', function(ev){
   else if (ev.key==='z'){ setZen(!zen); }
   else if (ev.key==='h'){ toggleHold(); }
   else if (ev.key==='d'){ toggleDay(); }
+  else if (ev.key==='v'){ toggleDir(); }
   else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
   else if (ev.key==='Escape'){
     if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
     else if (zen) setZen(false);
+    else if (dirOpen) toggleDir(false);
     else if (selId){ selId=null; renderWire(); renderDetail(); history.replaceState(null,'','#'); }
   }
 });
@@ -1061,6 +1231,7 @@ if (deepR){
 }
 var deepZ = location.hash.match(/#z=1/);
 if (deepZ) setZen(true);
+if (location.hash.match(/#dir=1/)) toggleDir(true);
 </script>
 </body>
 </html>

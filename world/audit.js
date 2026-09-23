@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v60).
+/* world/audit.js — RW boundary audit (world v61).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -1684,6 +1684,17 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['day_so_far', 'missed_bar', 'declared_costs',
       'wx_follows_feed', 'keyboard'])
       if (!V47[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v47.${k} missing`);
+    /* v61 affordances + contract keys (the Director's rail) */
+    for (const s of ['id="dirbar"', 'id="camps"', 'id="fcamsel"', 'id="scrub"',
+      'id="replay"', 'renderDirector', 'renderReplay', 'camMatch', 'rw_wire_cam',
+      '#dir=1', 'gsExplainRequest', 'gsOccupancy', 'public whereabouts only',
+      'filed at', 'the world itself kept running'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v61 affordance "${s}" absent`);
+    const V61 = (FJ.spectator_ui || {}).spectator_ui_v61 || {};
+    for (const k of ['director_bar', 'cam_presets', 'follow_cam',
+      'replay_scrub', 'live_receipt', 'live_occupancy', 'pass_pointer',
+      'keyboard'])
+      if (!V61[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v61.${k} missing`);
     /* declared-cost attrs must be exercised: ≥1 seed carries credits */
     if (!(FJ.demo_seeds || []).some(e => e.attrs && e.attrs.credits))
       add(g, 'fail', 'feed.json', null, 'no demo seed exercises attrs.credits — declared-cost display untested');
@@ -1712,7 +1723,7 @@ const PUB = Object.values(PT.surfaces)
     });
     g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
       `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
-      `v47 keys: ${Object.keys(V47).join(',') || 'none'}`;
+      `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -2115,7 +2126,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v60 || {};
+    const H = PT.harness_ui_v61 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

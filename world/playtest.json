@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 60,
+ "version": 61,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -2956,6 +2956,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT56",
+   "title": "The Director's rail — spectator-feed camera preview, replay scrub, live receipt (v61)",
+   "minutes": 10,
+   "persona": "lean-back spectator — heard there's a director mode, wants to know what watching-with-intent feels like before it costs anything",
+   "surfaces": [
+    "wire",
+    "audit"
+   ],
+   "goal": "Verify the v61 spectator-feed pass: the director preview bar (named camera presets + follow-cam marking, never filtering, 'public whereabouts only'), the replay scrub over the wire's own events, the capability-checked live seam (gsExplainRequest live record, gsOccupancy venue cards), and the honesty rules — no purchase affordance on the page, the pass is only pointed at the Counter.",
+   "steps": [
+    {
+     "do": "Open wire.html and click 'Preview' in the left rail (or press v). Read the bar.",
+     "expect": "A gold-bordered 'director preview' bar opens under the day bar: cam preset chips, a follow-cam select, a replay slider at 'live', and the pass-pointer footer naming 10 cr / 30 min 'filed at the Counter'. The wire itself is unchanged — nothing is gated.",
+     "checkpoints": [
+      "Bar reads 'director preview' + 'view-layer only — cameras watch the wire, never the inside of a home'",
+      "Footer names the pass plainly (10 cr / 30 min) and links to request.html — there is no buy/pay button anywhere on the page",
+      "The bar survives reload via rw_wire_cam and #dir=1 deep-links it open"
+     ]
+    },
+    {
+     "do": "Click the 'park lawn' preset, then pick a main in the follow-cam select (e.g. Mars Delgado).",
+     "expect": "Wire rows in the camera's venue set gain a gold edge; rows whose who/mentions hit the follow-cam do too. The stream is MARKED, never filtered — every event still renders. Follow-cam options all carry 'public whereabouts only'.",
+     "checkpoints": [
+      "Preset 'park lawn' edges park rows gold; 'all cams' clears it",
+      "Follow-cam on Mars edges her move rows (and mention rows) gold",
+      "No event disappears under any preset or follow-cam — a camera marks, never filters"
+     ]
+    },
+    {
+     "do": "Drag the replay slider left, past mid-day. Read the replay card, then drag back to the right edge.",
+     "expect": "The card reads 'the wire at HH:MM — N events by then' with the newest rows at-or-before that minute, verbatim from the stream, ending 'the feed, replayed — the world itself kept running.' At the right edge the label returns to 'live' and the card hides.",
+     "checkpoints": [
+      "Scrubbed card shows real wire rows only — no reconstructed or guessed content",
+      "Label flips between fmt(HH:MM) and 'live' honestly at the edge",
+      "esc order: esc closes the director bar before clearing a selection"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the wire + harness gates.",
+     "expect": "The wire gate passes the v61 checks: dirbar/camps/fcamsel/scrub ids, gsExplainRequest + gsOccupancy capability reads, 'public whereabouts only', 'filed at', and the feed.json spectator_ui_v61 contract keys. No button on the page offers a world-touching verb. Harness gate reports 56 scenarios at the v61 key.",
+     "checkpoints": [
+      "wire gate detail ends 'v61 keys: director_bar,cam_presets,...' — PASS",
+      "A purchase-affordance button on wire.html would FAIL the no-world-verb scan — spot-check by reading the gate",
+      "Harness gate: '56 scenarios · N checkpoints · key rw_playtest_v61'; 0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -2997,10 +3046,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v60 local",
- "harness_ui_v60": {
-  "storage_key": "rw_playtest_v60",
-  "build_tag_prefix": "world v60 local",
+ "build": "world v61 local",
+ "harness_ui_v61": {
+  "storage_key": "rw_playtest_v61",
+  "build_tag_prefix": "world v61 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
