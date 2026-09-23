@@ -1,4 +1,30 @@
-# Memory Model Spec v4.5 — implementable human-like memory for RW characters
+# Memory Model Spec v4.6 — implementable human-like memory for RW characters
+
+> **v4.6 note (encoding-mechanics IV — the gate's exceptions and the
+> social cast):** `memory/encoding-mechanics.md` Part IV (§§44–57)
+> prices where `att_min` bends and how the person ledger forms:
+> **change blindness** — `fieldChanged` events below `field_upd_min`
+> leave `stale:true` fields carrying the old value (Simons & Levin
+> 1998; Veiel et al. 2006 age knot) — §2; **own-name breakthrough** —
+> `mentionsSelf` pierces the ambient gate at `ownname_break_p`,
+> LOW-wmc MORE (Conway, Cowan & Bunting 2001, sign locked), plus
+> `ownname_tail` monitoring — §2; **humor** — attended-only
+> `humor_gain` with `humor_rate` self-calibration and a small
+> privileged-retrieval leg (Schmidt 1994/2001) — §2; **animacy** —
+> `animate` content and its context piggyback (Nairne et al. 2013;
+> New et al. 2007) — §2; **expectancy-incongruence** — formative
+> person models elaborate anomalies, strong models prefer congruent
+> evidence and under-write counterexamples (Hastie & Kumar 1979;
+> Stangor & McMillan 1992 moderation, sign-flipping) — §2;
+> **impression primacy** — personModel.eval weights early evidence,
+> depleted states flip to recency (Asch 1946; Luchins 1957) — §2;
+> **motivational narrowing** — high-approach positive events drain
+> periphery like threat (Gable & Harmon-Jones 2008/2010) — §2;
+> **lie encoding** — `deceptive` emissions encode deeper with weak
+> source tags, the upstream arm of §6.68's fab inflation (Walczyk
+> 2003; Vrij 2008) — §2; **generative notes** — verbatim is a locked
+> null, rephrasing encodes (M&O 2014 vs Urry 2021 replication) — §2.
+> +16 params in §7; probes P493–P502. All optional, default-neutral.
 
 > **v4.5 note (character-profiles IV — the bible-driven refinement
 > pass):** `memory/cast-profiles.md` §14 recompiles the 8 mains against
@@ -1745,6 +1771,61 @@ Postman 1964; Hyde & Jenkins 1973).
   if cueContext tags differ from the record's stored context keys,
   append up to `ctx_var_add` (2) cue fields — new retrieval routes
   accrue on re-activation (Smith & Rothkopf 1984; Smith & Vela 2001).
+- **Change-blindness stale fields (v4.6):** change events
+  (`fieldChanged:{field,new_v}`) update an existing record's field
+  only if attention to the object ≥ `field_upd_min` (0.35,
+  ×(1+0.2·age_eff/70) age knot — Veiel et al. 2006); below the gate
+  the field keeps the old value flagged `stale:true` (E-tier — the
+  character believes the stale value at full conf). `animate:true`
+  objects relax the gate ×(1−`animacy_upd_gain`) (0.1 — New et al.
+  2007 animate monitoring).
+- **Own-name breakthrough (v4.6):** sub-att_min events tagged
+  `mentionsSelf:true` mint thin records (E×0.5) with prob
+  `ownname_break_p − ownname_wmc_slope·wmc_z` (0.35, slope −0.10 —
+  LOW wmc breaks through more, Conway et al. 2001, sign locked; no
+  g_mem path). On breakthrough set `monitor_tail` = `ownname_tail`
+  (2) ticks of elevated monitoring on that channel (Wood & Cowan
+  1995 two-item shift). AGE-FLAT (elder direction inconsistent).
+- **Humor (v4.6):** `humor` ∈ [0,1] on attended events only →
+  `E += humor_gain·humor·(1 − 0.5·humor_rate)` (0.12; `humor_rate`
+  = running share of humor≥0.5 events, init 0.1 — the witty
+  household amortizes); incidental/sub-threshold humor gets nothing
+  (Schmidt 1994). `humor_retr_gain` (0.05) rides famScore on
+  humorous records — privileged retrieval (Schmidt & Williams 2001).
+- **Animacy (v4.6):** `animate:true` (agent/animal content) →
+  `E += animacy_gain` (0.10) and the event's non-agent fields write
+  at ×(1+0.5·animacy_gain) — context piggyback (Nairne et al. 2013;
+  VanArsdall et al. 2013). Valence-flat, orthogonal to threatCue.
+- **Expectancy-incongruence (v4.6):** `aboutPerson:<id>` events
+  mismatching PersonModel(id).eval: `inc = |contentEval − eval|`.
+  Exposure < `impress_strong_thresh` (0.6, frozen) → `elaboration
+  += incongr_elab·inc` (0.15 — Hastie & Kumar 1979); exposure ≥
+  thresh → `E += congr_gain·(1−inc)` (0.05) and incongruent content
+  takes write-prob ×(1 − 0.3·(exposure−thresh)) — the settled
+  opinion doesn't file the counterexample (Stangor & McMillan 1992).
+  Knots: incongr_elab ×(1−0.15·age_eff/80), congr_gain
+  ×(1+0.2·age_eff/70) — schema reliance rises (HYPOTHESIS).
+- **Impression primacy (v4.6):** PersonModel.eval update weights the
+  i-th observed behavior `w_i = 1 − impress_primacy·(1 − exp(−i/2))`
+  (0.2 — Asch 1946); under `context.depleted` the most recent
+  behavior instead weighs ×(1+`impress_recency_p`) (0.15 — Luchins
+  1957 recency arm). Eval formation only; behavior records intact.
+- **Motivational narrowing (v4.6):** `approachMotiv` ∈ [0,1] ≥ 0.6
+  on positive-valence events → non-goal fields ×=(1 −
+  `motiv_narrow`·approachMotiv) (0.15), goal-central fields +=
+  0.5·motiv_narrow·approachMotiv — pre-goal positive states tunnel
+  like threat (Gable & Harmon-Jones 2008/2010).
+- **Lie encoding (v4.6):** `deceptive:true` emissions → `E +=
+  lie_enc_gain` (0.10 — suppression+construction effort, Walczyk
+  2003) and record flagged `lie:true` with sourceStr ×=(1 −
+  `lie_src_weak`) (0.20 — provenance contested at birth);
+  `lie_rehearsed:true` adds gen_gain. At recall, lie records compete
+  with truth records on simOp; §6.68 fab_dir owns which drifts.
+  Null: lie_src_weak touches sourceStr only, never content accuracy.
+- **Generative notes (v4.6):** `note:"verbatim"` → no E gain, mints
+  `extref` (§35); `note:"generative"` → `elaboration +=
+  note_gen_gain` (0.10). Locked null `note_mode_null` = 0 — device
+  modality adds nothing (Urry et al. 2021; Morehead et al. 2019).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -6241,6 +6322,30 @@ MemoryParams = {
 //   ×(1+sync_age_gain·age_eff/70) — §6.65; concern week/season/long
 //   clock decay is schedule-driven (7d/45d/persistent); collab_inhib
 //   declared AGE-FLAT cite-guarded.
+// v4.6 additions (encoding-mechanics IV — the gate's exceptions and
+//   the social cast, encoding-mechanics.md Part IV §§44–57)
+"field_upd_min": 0.35, "animacy_upd_gain": 0.10, // stale-field gate (§44)
+"ownname_break_p": 0.35, "ownname_wmc_slope": -0.10, "ownname_tail": 2, // §45
+"humor_gain": 0.12, "humor_retr_gain": 0.05,     // attended-only (§46)
+"animacy_gain": 0.10,                          // animate content + piggyback (§47)
+"incongr_elab": 0.15, "congr_gain": 0.05,      // expectancy sign flip (§48)
+"impress_primacy": 0.20, "impress_recency_p": 0.15, // §49
+"motiv_narrow": 0.15,                          // approach-motivated positive narrowing (§50)
+"lie_enc_gain": 0.10, "lie_src_weak": 0.20,    // deception effort + weak source (§51)
+"note_gen_gain": 0.10,                         // generative notes (§52)
+// v4.6 explicit nulls / locked constants: note_mode_null = 0 (locked —
+//   modality adds nothing, Urry 2021/Morehead 2019); impress_strong_thresh
+//   = 0.6 (frozen exposure gate for the §48 sign flip); g_mem → no
+//   ownname_break_p moderation (inhibition failure, not ability);
+//   humor → no sub-att_min gain (incidental attenuation locked);
+//   lie_src_weak → content accuracy = 0 (sourceStr only); monitor_tail
+//   never accumulates (re-breakthrough resets, not adds); stale:true
+//   is E-tier — never surfaces in reconstructions as a flag.
+// v4.6 knot notes: field_upd_min ×(1+0.2·age_eff/70) (Veiel 2006);
+//   incongr_elab ×(1−0.15·age_eff/80), congr_gain ×(1+0.2·age_eff/70)
+//   (schema reliance rises — HYPOTHESIS); ownname_*, humor_*,
+//   animacy_*, impress_*, motiv_narrow, lie_*, note_gen_gain declared
+//   AGE-FLAT cite-guarded.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7084,6 +7189,25 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     bookkeeping at the event layer; `RelEdge` minting needs
     alter–alter interaction visibility in `context.present`.
     All additions snapshot-additive, absent = legacy.
+- v4.6 additions (encoding-mechanics.md Part IV §§44–57):
+  - Event fields (all optional, default-neutral): `fieldChanged:
+    {field,new_v}` (§44 stale-field gate); `mentionsSelf:true`
+    (§45 breakthrough); `humor` ∈ [0,1] (§46); `animate:true` (§§44,
+    47); `aboutPerson:<id>` + contentEval (§48/§49 person-model
+    encoding); `approachMotiv` ∈ [0,1] (§50); `deceptive:true` /
+    `lie_rehearsed:true` (§51); `note:"verbatim"|"generative"` (§52).
+  - Record fields: `stale:true` on unupdated fields (E-tier — never
+    rendered, harness-only); `lie:true` (M-tier — steers §6.68 fab
+    competition, never emitted verbatim).
+  - Char state (snapshot): `monitor_tail` ticks remaining (§45),
+    `humor_rate` running share (§46).
+  - World-builder hooks: `fieldChanged` needs object-mutation
+    bookkeeping (who moved what); `mentionsSelf` needs the ambient
+    dialogue layer to flag name-mentions; `aboutPerson` needs the
+    event's target id; `deceptive` comes from the dialogue layer's
+    lie bookkeeping (pairs with bible `truth`/`lie_freq` pins);
+    `note` marks journaling/transcription activity.
+    All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

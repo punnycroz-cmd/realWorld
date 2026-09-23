@@ -532,6 +532,15 @@ never copying raw.
 | concern_gain / concern_intrude | 0 / 0 | 0.6 / 0.25 | wants-gate encoding boost / concern-tag intrusion (v4.5) |
 | fab_dir / fab_discomfort / fab_deflate_gain | −1 / 0 / 0 | +1 / 1.0 / 0.15 | liar direction, discomfort gate, truth-strengthening (v4.5) |
 | collab_inhib / collab_cue_p | 0 / 0.2 | 0.3 / 0.9 | joint-recall tax / partner-cue rescue (v4.5) |
+| field_upd_min / animacy_upd_gain | 0.15 / 0 | 0.6 / 0.3 | stale-field gate; animate-change relief (v4.6) |
+| ownname_break_p / ownname_wmc_slope / ownname_tail | 0.1 / −0.3 / 0 | 0.6 / 0 / 4 | self-mention pierces att_min; wmc sign locked (v4.6) |
+| humor_gain / humor_retr_gain | 0 / 0 | 0.3 / 0.15 | attended humor E bump + privileged retrieval (v4.6) |
+| animacy_gain | 0 | 0.25 | animate content bump + context piggyback (v4.6) |
+| incongr_elab / congr_gain | 0 / 0 | 0.4 / 0.15 | expectancy sign flip at impress_strong_thresh (v4.6) |
+| impress_primacy / impress_recency_p | 0 / 0 | 0.5 / 0.4 | first-evidence weight; depleted recency arm (v4.6) |
+| motiv_narrow | 0 | 0.4 | high-approach positive narrowing (v4.6) |
+| lie_enc_gain / lie_src_weak | 0 / 0 | 0.3 / 0.5 | deceptive-effort encode + weak source tag (v4.6) |
+| note_gen_gain | 0 | 0.25 | generative-note elaboration; verbatim null (v4.6) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -2021,3 +2030,53 @@ guidance for the new dials:
   inflation (the moderator is source monitoring, not metacognition);
   func_* never touches θ/E (selection ≠ capability); the omission
   register writes no claim so no fab mechanism can fire on it.
+
+## 31. v4.6 note (encoding-mechanics IV — the gate's exceptions and
+## the social cast)
+
+Clamp rows added in §0 for the sixteen v4.6 params. The layer is
+mostly WORLD-SUPPLIED (event tags, dialogue-layer flags) — the bible
+dials:
+
+- **`ownname_break_p` / `ownname_wmc_slope`:** do NOT pin directly —
+  the wmc slope is sign-locked (low-wmc breaks through more because
+  inhibition fails, Conway et al. 2001); the compiler reads `wmc`.
+  A bible that wants a character "always ears-up for their name"
+  should raise `social`/`vigil`, not this — the mechanism is a hole
+  in the gate, not a listening skill.
+- **`humor_gain`:** jitter on `extra` is legitimate (sense-of-humor
+  legibility — the funny person's jokes land for themselves too);
+  `humor_rate` is a state, not a trait — the witty household's
+  baseline is ecology. Never pin humor_gain to make someone
+  "memorable" — it makes THEM remember jokes.
+- **`field_upd_min`:** mostly flat + the age knot; a bible may take
+  +0.05 on `inattn`-loaded profiles (the oblivious one who keeps
+  saying the bike is in the hallway). `stale:true` records are the
+  visible product — pair with low `checker` for the confidently-
+  outdated phenotype.
+- **`impress_primacy` / `incongr_elab` / `congr_gain`:** population-
+  flat defaults; a rigid, fast-judging profile (`consc` high +
+  `open` low + `distrust` high) may take impress_primacy +0.1 and
+  congr_gain +0.05 — the mind that files people once and never
+  re-reads the file. Do NOT use incongr_elab to express
+  "notices everything" — it fires only while a person model is
+  FORMATIVE; on an old friendship it does nothing by design.
+- **`impress_recency_p`:** pairs with `depleted`-prone profiles —
+  the overworked one whose opinion of you is whichever interaction
+  was last. Flat default; +0.1 max on chronic-fatigue profiles.
+- **`motiv_narrow`:** state-gated (`approachMotiv` ≥ 0.6), so bibles
+  pin nothing — but a high-`concern`-loaded cast member will hit the
+  gate more often (the pining one sees only the beloved at the
+  party). Reads naturally out of `wants` density.
+- **`lie_enc_gain` / `lie_src_weak`:** flat — the mechanism fires on
+  `deceptive` emissions, so frequency comes from `lie_freq` (v4.5
+  bible pin), not these. A high-fab_dir fabricator lies often AND
+  later believes them; the params here just supply the paper trail.
+- **`note_gen_gain`:** the diary-keeper dial is behavioral — a bible
+  that says "keeps a journal" should ALSO get the world emitting
+  `note:"generative"` events for them; the param alone does nothing
+  without the habit. Verbatim-mode characters (the transcriber, the
+  screenshot-archiver) mint extref pointers and stay thin.
+- **Ecology-only, never pin:** `animacy_*` (content property),
+  `ownname_tail` (physics of the shift), `note_mode_null` (locked —
+  no device romance).

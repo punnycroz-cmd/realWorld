@@ -1247,3 +1247,404 @@ daLoad), `perceptLoad_low = 0.3` (spillover threshold), `load_flag_thresh
   Soderstrom et al. 2015 (JOL reactivity meta); Harp & Mayer 1998
   (seductive details); Adcock et al. 2006 (reward anticipation →
   hippocampus); Roig et al. 2013 (post-learning exercise).
+
+# Part IV — encoding-mechanics, fourth pass (v48 focus)
+
+**The gate's exceptions and the social cast.** Parts I–III priced the
+encoding formula's main terms (depth, self, engagement, attention, load,
+capacity, state). This pass prices the places where the gate BENDS —
+the stimuli that pierce `att_min` without permission, the updates that
+fail silently, the content classes with their own birth-weight, and the
+person-model bookkeeping that decides which of a neighbor's behaviors
+deserves ink. Nine mechanisms, six deliberate non-adds, 16 params,
+probes P493–P502.
+
+The through-line: a character's memory of other people is not an event
+log, it is an EVIDENCE LEDGER with a front-loaded prior — first
+encounters set the impression, anomalies during impression-formation
+get explained (encoded deeper), and once the model ossifies the
+congruent slides in easy while the anomalous either gets elaborated
+into a story or never lands at all. Most of RW's remembered drama is
+other people; this pass makes sure the ledger looks human.
+
+## 44. Change blindness — the record keeps the old value (CONSENSUS phenomenon; sim formalization HYPOTHESIS)
+
+Rensink, O'Regan & Clark (1997, Psych. Sci. 8:368 — flicker paradigm):
+large changes go undetected without attention to the changing region.
+Simons & Levin (1998, Perception 27:644 — the door study): ~50% of
+pedestrians failed to notice their conversational partner had been
+SWAPPED mid-interaction. Levin & Simons (1997): the failure is not
+lost detail — the observer forms a belief that nothing changed.
+Encoding-side consequence the sim lacked: a record exists, an object
+in the world changes, and the record is never updated — the character
+remembers the bike in the hallway though it moved to the rack, swears
+the shop still opens at 8 though the sign changed. Not decay, not
+distortion: a stale field.
+
+**Formalization.** Change events (world emits `fieldChanged:{field,
+new_v}` on a mutating object/state — the door color repainted, the
+roommate's haircut, the moved bike) update an existing record's field
+only if attention to that object ≥ `field_upd_min` (0.35). Below the
+gate the field keeps `old_v`, flagged `stale:true` (E-tier, harness
+observable, never surfaced verbatim — the character simply believes
+the old value). Age knot: `field_upd_min ×(1 + 0.2·age_eff/70)` —
+change detection declines in older adults (Veiel, Storandt & Abrams
+2006, Psych. Aging 21:492 — verified meta; the decline is in
+detection, not in confidence — elders report the stale value just as
+certainly). `animate:true` changed objects get `field_upd_min ×= (1 −
+animacy_upd_gain)` (0.1) — changes to animate agents are detected
+preferentially (New, Cosmides & Tooby 2007, PNAS 104:16598 — animate
+monitoring beats even artifact vehicles at matched salience). RW
+consequence: the landlord doesn't notice the tenant repainted; the
+regular doesn't notice the new barista until spoken to.
+
+## 45. Own-name breakthrough — the unattended channel is listening for YOU (CONSENSUS; magnitude ESTABLISHED)
+
+Moray (1959, QJEP 11:56): ~a third of listeners hear their own name in
+the channel they were told to ignore. Wood & Cowan (1995, JEP:LMC
+21:255 — verified replication with controls): 34.6% recalled the name;
+attention shifted ONLY for the ~two items following the name, then
+resettled. Conway, Cowan & Bunting (2001, JEP:G 130:243 — verified):
+the breakthrough is concentrated in LOW working-memory-capacity
+subjects — the counterintuitive arm: the price of being unable to
+inhibit is that your name reaches you anyway. So the att_min gate has
+a hole shaped exactly like the self.
+
+**Formalization.** Ambient events (attention < att_min) tagged
+`mentionsSelf:true` (the character's name, address, or description
+spoke in earshot) bypass the gate with prob
+`ownname_break_p − ownname_wmc_slope·wmc_z` (default 0.35, slope −0.10
+in σ units — LOW wmc breaks through MORE; sign locked). On breakthrough
+the record mints at thin E (`×0.5`, it arrived through the floor not
+the door) and sets character state `monitor_tail = ownname_tail` (2)
+ticks — brief involuntary monitoring of that channel (Wood & Cowan's
+two-item shadow). No `g_mem` moderation (the effect is about
+inhibition failure, not memory ability). DEBATED residue: older-adult
+direction is inconsistent across labs — declared AGE-FLAT.
+
+## 46. Humor — the joke is the encoding (ESTABLISHED; boundary conditions do the work)
+
+Schmidt (1994, JEP:LMC 20:953 — verified): humorous sentences beat
+matched nonhumorous controls on free AND cued recall; the advantage
+survives warning but is ATTENUATED in incidental learning and is a
+within-subject (contrast) effect — a funny line in a dull day lands;
+a funny life amortizes it. Schmidt & Williams (2001, M&C 29:305 —
+"the humour effect"): privileged retrieval contributes too — humorous
+material is easier to recall from the same storage. Subjective humor
+predicts memory even between subjects — the funny-to-you is what
+encodes.
+
+**Formalization.** Event field `humor` ∈ [0,1] (world/dialogue tags
+jokes, absurdities, comic beats). On attended events only (attention ≥
+att_min — Schmidt's incidental attenuation is load-bearing): `E +=
+humor_gain·humor·(1 − 0.5·humor_rate)` where `humor_gain` ≈ 0.12 and
+`humor_rate` is the character's running share of humor≥0.5 events (same
+self-calibrating shape as `emo_rate` — the witty household's jokes are
+baseline). Retrieval: humorous records get `humor_retr_gain` small
+(0.05, folded into famScore not θ — privileged but not free).
+Jitter `humor_gain` on `extra` (sense-of-humor legibility).
+
+## 47. Animacy — the ledger keeps animals and agents (ESTABLISHED, small lit)
+
+Nairne, VanArsdall, Pandeirada, Cogdill & LeBreton (2013, Psych. Sci.
+24:2099 — verified): animate words out-recall inanimate matched on
+imageability/meaningfulness — "one of the most important item
+dimensions controlling retention." VanArsdall et al. (2013, Exp.
+Psych. 60:172): the tuning replicates with novel nonwords paired with
+animate properties — the ADVANTAGE travels with the category, not the
+item's familiarity. Bonin et al. (2015) / animacy-context work
+(QJEP-verified thread): context bound to animates is itself better
+retained — people are magnets for their surroundings in memory too.
+Orthogonal to §36's threat_capture: a kitten encodes like a snake —
+priority without fear.
+
+**Formalization.** Event field `animate:true` (agents/animals as
+content, not just co-present) → `E += animacy_gain` (0.10), and
+non-agent fields of animate-carrying events write at
+`×(1 + animacy_gain·0.5)` — the context piggyback. §44's
+`animacy_upd_gain` rides the same flag. RW consequence: who DID the
+thing outlives what was done; the dog that was there outlives the
+furniture that was there.
+
+## 48. Expectancy-incongruence — anomalies earn ink while the model is young (CONSENSUS on existence; sign MODERATED — the flip is the finding)
+
+Hastie & Kumar (1979, JPSP 37:25 — verified lineage): behaviors
+incongruent with a forming impression are recalled BETTER — they
+attract causal, inter-item elaboration (you explain the kind
+neighbor's cruelty to yourself; the explanation IS the encoding).
+Stangor & McMillan (1992, Psych. Bull. 111:42 — verified meta, 54
+experiments): the sign flips with expectancy STRENGTH — weak/new
+expectancies → incongruency advantage; strong/well-established
+expectancies → CONGRUENT advantage (the ossified schema assimilates
+its evidence; anomalies die unencoded or are distorted into place —
+§6.x distortion downstream owns the misremember arm; this pass owns
+the encode arm).
+
+**Formalization.** On events tagged `aboutPerson:<id>` whose content
+valence mismatches the observer's PersonModel(id).eval: incongruence
+magnitude `inc = |contentEval − model.eval|`. If model exposure <
+`impress_strong_thresh` (0.6, frozen — formative model): `elaboration
++= incongr_elab·inc` (0.15) — the anomaly earns explanation-work.
+If exposure ≥ thresh (strong model): `E += congr_gain·(1−inc)` (0.05)
+— congruent evidence slides in easy, and incongruent content takes a
+write-prob penalty `(1 − 0.3·(exposure−thresh))` — the settled opinion
+literally doesn't file the counterexample (HYPOTHESIS magnitude,
+Stangor & McMillan direction). Age knot: `incongr_elab ×(1 −
+0.15·age_eff/80)`, `congr_gain ×(1 + 0.2·age_eff/70)` — schema
+reliance rises with age (HYPOTHESIS knot, cite-guarded by the
+meta's schema-strength moderator).
+
+## 49. Impression primacy — the ledger's first page outweighs its middle (CONSENSUS direction; recency arm DEBATED-but-real)
+
+Asch (1946 — verified lineage): trait order reverses whole
+impressions; Luchins (1957 — verified): primacy is the default mode of
+impression formation, BUT interpolated activity or delay between
+blocks produces recency — the late evidence lands when the early has
+been slept on or interrupted. The sim's PersonModel.eval already
+aggregates; what it lacked is order-dependence — evidence weight was
+flat in exposure order.
+
+**Formalization.** PersonModel eval updates weight each behavior by
+`w_i = 1 − impress_primacy·(1 − exp(−i/2))` — early encounters
+(i small) weigh MORE (impress_primacy 0.2 → first-behavior weight
+≈1.0, asymptote ≈0.8). Under `context.depleted` (§5.38's flag — the
+Luchins fatigue/interpolation arm) the update instead weights the
+MOST RECENT behavior `×(1 + impress_recency_p)` (0.15) — tired minds
+take the latest version of you. Null: primacy applies to EVAL
+formation only, never to whether a behavior's record encodes — the
+evidence is stored; the verdict is what's front-loaded (Asch's effect
+is integrative, not mnemonic — the memory claim stays §48's).
+
+## 50. Motivational intensity narrows — desire has tunnel vision too (ESTABLISHED; previously the sim only let the dark narrow)
+
+Gable & Harmon-Jones (2008, Psych. Sci. 19:476 — verified):
+approach-motivated positive affect (desire, pre-goal excitement)
+REDUCES attentional breadth — the "positive broadens" story was an
+artifact of sampling only low-approach positives (contentment,
+amusement). Gable & Harmon-Jones (2010, Emotion 10:599 — verified):
+high-approach positive states narrow MEMORY for periphery vs center —
+a desire can weapon-focus. Harmon-Jones, Gable & Price (2012, review):
+the dimension is motivational intensity, not valence — pre-goal
+emotions narrow (acquire the object), post-goal emotions broaden
+(survey the field).
+
+**Formalization.** Event field `approachMotiv` ∈ [0,1] (world tags
+pre-goal appetitive states — the wanted table, the flirtation, the
+deal about to close). `approachMotiv ≥ 0.6` on positive-valence events
+applies ABC-style peripheral drain `×=(1 − motiv_narrow·approachMotiv)`
+(0.15) to non-goal fields — the positive event narrows like a threat
+but via desire, not fear; central (goal-relevant) fields take a small
+positive `+= 0.5·motiv_narrow·approachMotiv`. Composes with §36
+threat machinery (different flag, same drain shape). RW consequence:
+the character mid-courtship remembers the other person and nothing
+else about the evening.
+
+## 51. The lie encodes twice — deception's effort and its weak source tag (ESTABLISHED effort; sim-side dual-trace HYPOTHESIS)
+
+Walczyk et al. (2003, Appl. Cogn. Psych. 17:755 — ADTD framework,
+verified lineage; Walczyk et al. 2014): lying costs more than truth —
+the liar must activate the truth, suppress it, and construct a
+plausible replacement in one working-memory pass. The extra
+construction work is generative (§24's machinery): the lie is
+self-composed. Vrij et al. (2008, review): the cost is real and
+detectable. Upstream arm for §6.68's fab machinery: a lie is TWO
+encodings — the truth record (inhibited, briefly effortful) and the
+said-version (generated). When the source tag rots first, the
+said-version is what remains retrievable — the mechanical path by
+which liars come to believe their own stories (Polage 2004's
+fabrication inflation, already spec'd downstream).
+
+**Formalization.** Event `deceptive:true` (the character is lying in
+this emission/event): `E += lie_enc_gain` (0.10 — the suppression +
+construction effort encodes deeper) AND the minted record carries
+`lie:true` with `sourceStr ×= (1 − lie_src_weak)` (0.20 — the
+said-version is born knowing its provenance is contested);
+`lie_rehearsed:true` adds `gen_gain` normally (a rehearsed lie is
+self-composed content). At recall, `lie:true` records compete with
+the truth record on simOp — §6.68's fab_dir decides which drifts
+toward belief. Null: `lie_src_weak` does not touch content accuracy —
+the liar knows exactly what they said and what happened; they only
+lose track of WHICH was real.
+
+## 52. Generative notes — the diary that rephrases remembers; the transcript doesn't (ESTABLISHED mechanism; the famous modality claim FAILED replication — locked null)
+
+Mueller & Oppenheimer (2014, Psych. Sci. 25:1159 — verified):
+longhand beat laptop on conceptual memory; mechanism claimed =
+verbatim transcription is shallow, reframing is generative. Then the
+replications: Urry et al. (2021, Psych. Sci. — verified direct
+replication + mini-meta): the MODE difference failed; what survived
+is the correlation — more verbatim overlap → worse test performance.
+Morehead, Dunlosky & Rawson (2019, Educ. Psych. Rev. 31:753 —
+verified replication + extension): differences "premature"; a
+no-notes control didn't differ either. Kobayashi (2005, meta):
+note-taking's encoding benefit is bounded and reframing-dependent.
+So: the DEVICE is a null; the REPHRASING is the mechanism — and it
+was always just gen_gain wearing a notebook.
+
+**Formalization.** Event `note:"verbatim"` (transcription —
+dictaphone, copy-paste, the stenographer) → no elaboration gain;
+the note mints as `extref` (§35 machinery — the notebook is the
+store). Event `note:"generative"` (diary, summary, the letter to a
+friend) → `elaboration += note_gen_gain` (0.10) ON TOP of normal
+gen_gain eligibility — summarizing your day in your own words is the
+real encoding act; the paper is a bonus extref. Frozen null:
+`note_mode_null = 0` — paper-vs-screen adds nothing (Urry/Morehead).
+RW consequence: the cast's diary-keepers get durable first-person
+records; a character who only photographs/transcribes keeps an
+archive of pointers and a thin past (composes with §35's
+offload_cost — the phone-first personality gets doubly hollow).
+
+## 53. Deliberate non-adds (v48)
+
+- **Longhand vs keyboard modality:** failed direct replication (Urry
+  et al. 2021; Morehead et al. 2019) — locked null `note_mode_null`;
+  the surviving mechanism (verbatim overlap) is priced inside §52.
+  Nobody re-adds "paper is better."
+- **Melody/jingle encoding:** sung content persists (advertising lore)
+  but the life-sim-level asymmetry beyond `concrete_gain` +
+  `cue_music_w` (§5.37) is unmeasured; melodies are a CUE type,
+  retrieval already owns them. No param.
+- **Exposure duration:** longer scenes produce more event ticks → more
+  records; duration effects on single-trace strength are confounded
+  with attention in the lit and emerge from record count here.
+  Deliberate emergence, not a param.
+- **Mere exposure / fluency at encoding:** familiarity without recall
+  is already `impl_str` (§5.35) — repetition writes the implicit
+  channel; a separate exposure param would double-count.
+- **Imagery instructions:** "picture it" is an orienting task →
+  `elaboration`/`concrete_gain` already; the instruction itself adds
+  nothing past intent_null's logic.
+- **Emotional granularity as an encoder:** `emo_gran` exists (v4.0) as
+  a record property; granularity-of-perception differs from
+  granularity-of-labeling in ways the lit hasn't priced at our grain —
+  noted so nobody bolts on a second copy.
+
+## 54. Parameter summary (new in v4.6 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `field_upd_min` | 0.35 | 0.15–0.6 | attention gate on change-event field updates | Simons & Levin 1998; Rensink 1997 |
+| `animacy_upd_gain` | 0.10 | 0–0.3 | animate changes pass the update gate easier | New, Cosmides & Tooby 2007 |
+| `ownname_break_p` | 0.35 | 0.1–0.6 | self-mention pierces att_min | Moray 1959; Wood & Cowan 1995 |
+| `ownname_wmc_slope` | −0.10 | −0.3–0 | LOW wmc breaks through more (sign locked) | Conway, Cowan & Bunting 2001 |
+| `ownname_tail` | 2 | 0–4 | monitoring ticks after breakthrough | Wood & Cowan 1995 |
+| `humor_gain` | 0.12 | 0–0.3 | attended humorous content E bump | Schmidt 1994 |
+| `humor_retr_gain` | 0.05 | 0–0.15 | privileged retrieval on humor records | Schmidt & Williams 2001 |
+| `animacy_gain` | 0.10 | 0–0.25 | animate content E bump + context piggyback | Nairne et al. 2013 |
+| `incongr_elab` | 0.15 | 0–0.4 | incongruent-behavior elaboration, formative models | Hastie & Kumar 1979 |
+| `congr_gain` | 0.05 | 0–0.15 | strong-model congruent advantage | Stangor & McMillan 1992 |
+| `impress_primacy` | 0.20 | 0–0.5 | early-evidence weight in personModel.eval | Asch 1946; Luchins 1957 |
+| `impress_recency_p` | 0.15 | 0–0.4 | depleted-state recency arm | Luchins 1957 |
+| `motiv_narrow` | 0.15 | 0–0.4 | high-approach positive narrowing | Gable & Harmon-Jones 2008/2010 |
+| `lie_enc_gain` | 0.10 | 0–0.3 | deceptive-emission encoding effort | Walczyk et al. 2003/2014 |
+| `lie_src_weak` | 0.20 | 0–0.5 | lie-vs-truth source-tag penalty | Walczyk; Vrij 2008 (magnitude HYPOTHESIS) |
+| `note_gen_gain` | 0.10 | 0–0.25 | generative-note elaboration | M&O 2014; Kobayashi 2005 |
+
+**Frozen constants (v4.6):** `impress_strong_thresh = 0.6` (model
+exposure gate for the §48 sign flip), `note_mode_null = 0` (locked —
+modality adds nothing), `monitor_tail` minted per breakthrough (never
+accumulates), `stale:true` is E-tier (harness-only — the character
+cannot report their own staleness flag).
+
+## 55. Validation probes P493–P502
+
+- **P493 (MUST) change-blindness stale fields:** `fieldChanged` events
+  under attention < field_upd_min leave `stale:true` old values —
+  reconstruction reports the pre-change state at full conf (the door-
+  study phenotype: the swap is unnoticed, not fuzzy); above the gate,
+  fields update; animate changes break the gate at animacy_upd_gain
+  rate; older cohorts accumulate more stale fields (Veiel knot).
+- **P494 (MUST) own-name breakthrough:** ambient `mentionsSelf` events
+  mint records at ≈ ownname_break_p (band admits 0.25–0.45); the wmc
+  slope is SIGN-LOCKED negative (low-wmc profile breaks through more
+  — Conway 2001); post-breakthrough monitoring measurable for exactly
+  ownname_tail ticks; g_mem manipulation has NO effect (null locked).
+- **P495 (SHOULD) humor:** attended humorous events out-recall matched
+  neutral at equal delay; sub-att_min humor gets NOTHING (incidental
+  attenuation — the joke you didn't hear isn't remembered); high-
+  humor_rate profiles show the amortized curve (self-calibration).
+- **P496 (SHOULD) animacy:** `animate:true` content out-recalls
+  inanimate at matched concreteness/imageability; non-agent fields of
+  animate events ride the piggyback; the effect is valence-flat (a
+  kitten ≈ a snake — orthogonal to threat_capture, sign check).
+- **P497 (MUST) incongruence sign flip:** formative person models
+  (exposure < thresh) → incongruent behaviors recalled better;
+  strong models → congruent advantage + incongruent write-prob
+  penalty; the crossover must occur AT the threshold knot, not
+  gradually (T-ORDER on exposure, Stangor & McMillan moderation is
+  the falsifier).
+- **P498 (SHOULD) impression primacy:** matched evidence sequences in
+  reversed order produce evals biased toward the FIRST block
+  (impress_primacy direction); `context.depleted` flips the bias
+  toward the last block (Luchins recency arm); primacy touches eval
+  only — the underlying behavior records stay intact (null check).
+- **P499 (SHOULD) motivational narrowing:** `approachMotiv ≥ 0.6`
+  positive events show peripheral field loss comparable in shape to
+  threat_drain but WITHOUT threatCue present — valence-positive
+  narrowing must not require arousal≥threat (Gable & Harmon-Jones:
+  intensity, not valence).
+- **P500 (MUST) lie encoding:** `deceptive` emissions mint records
+  with higher E AND weaker sourceStr than matched truthful ones;
+  `lie_rehearsed` adds the gen_gain; over serial retells the
+  said-version's share of reconstruction grows (fab machinery
+  upstream arm live); content accuracy of the lie record itself is
+  NOT reduced (null — the liar knows what they said).
+- **P501 (SHOULD) note split:** `note:"verbatim"` → no E gain +
+  extref minted (hollow archive); `note:"generative"` → elaboration
+  bump; mode manipulation (paper vs screen) TOST-equivalent within
+  SESOI (the locked null is enforced, not assumed).
+- **P502 (MUST — structure) v4.6 regression:** new fields/params pass
+  the P457 non-interference pattern (stale:, lie: are E/M-tier and
+  steer nothing outside their channels) and the §12.2 commutativity
+  pattern (no new op reads across charIds; PersonModel primacy
+  updates stay owner-local).
+
+## 56. Spec deltas delivered (v4.6)
+
+- `memory-model-spec.md` → v4.6: §2 +9 mechanism bullets (change-
+  blindness stale fields, own-name breakthrough, humor, animacy,
+  expectancy-incongruence, impression primacy, motivational narrowing,
+  lie encoding, generative notes); §7 +16 params + 2 locked nulls +
+  knot notes; §10 contract additions — Event fields `fieldChanged`,
+  `mentionsSelf`, `humor`, `animate`, `approachMotiv`, `deceptive`,
+  `lie_rehearsed`, `note`, `aboutPerson`; record flags `stale:true`,
+  `lie:true`; char state `monitor_tail`, `humor_rate`.
+- `character-memory-profiles.md`: §0 +16 clamp rows; §31 v4.6 note —
+  which are personality vs world-supplied ecology.
+- `validation-design.md`: registry → P1–P502 (new §83, sources §84).
+- `human-memory-research.md`: §36 v48 summary appended.
+
+## 57. Sources new to this version (all verified 2026-09-23)
+
+- Simons & Levin 1998 (Perception 27:644 — the door/person-swap
+  study); Rensink, O'Regan & Clark 1997 (Psych. Sci. 8:368 — flicker);
+  Levin & Simons 1997 (the change-belief arm); Veiel, Storandt &
+  Abrams 2006 (Psych. Aging 21:492 — change-detection age meta).
+- Moray 1959 (QJEP 11:56 — cocktail-party name); Wood & Cowan 1995
+  (JEP:LMC 21:255 — 34.6%, two-item attention shift, verified via
+  PubMed 7876773); Conway, Cowan & Bunting 2001 (JEP:G 130:243 —
+  low-WMC breakthrough, verified via DOI record).
+- Schmidt 1994 (JEP:LMC 20:953 — verified via APA record: within-Ss,
+  incidental attenuation, subjective-humor arm); Schmidt & Williams
+  2001 (M&C 29:305 — privileged retrieval).
+- Nairne, VanArsdall, Pandeirada, Cogdill & LeBreton 2013 (Psych.
+  Sci. 24:2099 — verified via PubMed 23921770); VanArsdall, Nairne,
+  Pandeirada & Blunt 2013 (Exp. Psych. 60:172); New, Cosmides &
+  Tooby 2007 (PNAS 104:16598 — animate monitoring vs vehicles).
+- Hastie & Kumar 1979 (JPSP 37:25 — person memory incongruency);
+  Stangor & McMillan 1992 (Psych. Bull. 111:42 — verified via DOI:
+  54 experiments, expectancy-strength moderator).
+- Asch 1946 (forming impressions); Luchins 1957 (primacy-recency;
+  interpolated-activity recency arm).
+- Gable & Harmon-Jones 2008 (Psych. Sci. 19:476); Gable &
+  Harmon-Jones 2010 (Emotion 10:599 — central vs peripheral memory);
+  Harmon-Jones, Gable & Price 2012 (Soc. Personal. Psych. Compass
+  6:308 review — verified via DOI records).
+- Walczyk, Roper, Seemann & Humphrey 2003 (Appl. Cogn. Psych. 17:755
+  — ADTD); Walczyk et al. 2014; Vrij et al. 2008 (lying effort
+  review).
+- Mueller & Oppenheimer 2014 (Psych. Sci. 25:1159 — verified);
+  Urry et al. 2021 (Psych. Sci. 32:640 — verified replication, mode
+  null + verbatim-overlap survivor); Morehead, Dunlosky & Rawson
+  2019 (Educ. Psych. Rev. 31:753 — replication/extension);
+  Kobayashi 2005 (Contemp. Educ. Psych. 30:242 — note-taking meta).

@@ -1691,3 +1691,59 @@ screen, what could fit, what was still open, what was handed off.
   4 source families web-verified (Lavie corpus, Leroy, Bond/Brenner,
   Sparrow/Henkel/Risko-Gilbert, Goschke-Kuhl/Marsh, Bar-Haim, J&D/Gais,
   Cowan, Smith-Rothkopf) — DOIs/effect directions confirmed.
+
+## 36. v48 — encoding-mechanics IV: the gate's exceptions and the
+## social cast (2026-09-23)
+
+Fourth pass on `memory/encoding-mechanics.md` (Part IV §§44–57, spec
+→ v4.6). What was learned, compressed:
+
+- **Records go stale, not just faint.** Change blindness (Rensink
+  1997 flicker; Simons & Levin 1998 door study; Veiel et al. 2006 age
+  meta): unattended object changes never update the record — the
+  character believes the OLD value at full confidence. New field tier
+  flag `stale:true`; `field_upd_min` gate with an age knot and an
+  animate-change relief (New et al. 2007). This is a failure mode the
+  sim had no name for: the confidently-outdated neighbor.
+- **The attention gate has a hole shaped like the self.** Moray 1959
+  → Wood & Cowan 1995 (34.6%, verified) → Conway, Cowan & Bunting
+  2001: your own name pierces the ignored channel, and the people it
+  reaches are the LOW-WMC ones — inhibition failure, not listening
+  skill. `ownname_break_p` with a sign-locked negative wmc slope is
+  the rare param whose moderator runs backwards.
+- **Content classes with their own birth-weight:** humor (Schmidt
+  1994 — attended-only, within-list, self-calibrating via
+  `humor_rate`) and animacy (Nairne 2013 — valence-flat, orthogonal
+  to threat; a kitten encodes like a snake) join the E formula.
+- **The person ledger is order-dependent.** Hastie & Kumar 1979 +
+  Stangor & McMillan 1992 (verified meta, 54 experiments): formative
+  impressions elaborate anomalies; strong impressions prefer
+  congruent evidence and under-write counterexamples — the sign
+  FLIPS at `impress_strong_thresh`. Asch/Luchins primacy weights
+  early evidence in eval formation, with a depleted-state recency
+  arm. RW consequence: first impressions literally outweigh, and an
+  entrenched opinion stops filing its counterexamples.
+- **Desire tunnels too.** Gable & Harmon-Jones 2008/2010 (verified):
+  motivational intensity, not valence, narrows scope — high-approach
+  positive states drain periphery like threat. `motiv_narrow` gives
+  the positive event its weapon-focus.
+- **Lies are born knowing they're contested.** Walczyk ADTD: the
+  deceptive emission costs more (encodes deeper, `lie_enc_gain`) but
+  mints with a weak source tag (`lie_src_weak`) — the mechanical
+  upstream arm for Polage's fabrication inflation already in §6.68.
+- **The notebook only helps if it rephrases.** Mueller & Oppenheimer
+  2014 vs the failed replications (Urry 2021, Morehead 2019 —
+  verified): the device is a locked null (`note_mode_null`); verbatim
+  transcription mints extref pointers and stays thin; generative
+  rephrasing encodes (`note_gen_gain`). Diary-keeper cast members
+  get durable pasts; screenshot-archivers get hollow archives.
+- **Deliberate nulls:** longhand modality (replication failure),
+  melody/jingle (cue-side already), exposure duration (emerges from
+  record count), mere exposure (impl_str), imagery instructions
+  (orienting task), emotional-granularity re-add.
+- Spec v4.5→v4.6: §2 +9 bullets, §7 +16 params + nulls/knots, §10
+  contract fields; profiles §0 +9 clamp rows + §31; probes
+  P493–P502 (registry P1–P502). 9 source families web-verified
+  (Wood & Cowan PubMed, Conway DOI, Stangor & McMillan DOI, Nairne
+  PubMed, Gable & Harmon-Jones DOIs, Urry/Morehead replication
+  records).

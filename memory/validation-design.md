@@ -3629,3 +3629,85 @@ as MUST-structure counted above).
   now consolidated by VA-NULL).
 - Kashima 2000; Jenkins & Dallenbach 1924; Roediger & McDermott 1995;
   Bartlett 1932; Bahrick — reused anchors for the paradigm split.
+
+## 83. New probes P493–P502 (v48 suite — encoding-mechanics IV,
+## the gate's exceptions and the social cast; encoding-mechanics.md
+## Part IV, spec §2 v4.6 bullets)
+
+- **P493 change-blindness stale fields (MUST):** `fieldChanged` events
+  under attention < `field_upd_min` leave `stale:true` fields holding
+  the old value — reconstruction reports the pre-change state at full
+  conf (the door-study phenotype: unnoticed, not fuzzy). Above the
+  gate fields update; `animate` changes pass at `animacy_upd_gain`
+  relief; older cohorts accumulate more stale fields (Veiel knot).
+- **P494 own-name breakthrough (MUST):** ambient `mentionsSelf` events
+  mint records at rate in band around `ownname_break_p` (0.25–0.45
+  admitted); `ownname_wmc_slope` sign-locked negative (low-wmc
+  profiles break through MORE — Conway, Cowan & Bunting 2001);
+  post-breakthrough channel monitoring measurable exactly
+  `ownname_tail` ticks; `g_mem` manipulation = null (locked).
+- **P495 humor (SHOULD):** attended `humor` events out-recall matched
+  neutral at equal delay; sub-att_min humor gets nothing (incidental
+  attenuation — Schmidt 1994's boundary, enforced); high-`humor_rate`
+  profiles amortize (self-calibration band).
+- **P496 animacy (SHOULD):** `animate:true` content out-recalls
+  inanimate at matched concreteness/imageability; non-agent fields
+  of animate events ride the piggyback; effect is valence-flat
+  (kitten ≈ snake — orthogonal to threat_capture, sign check).
+- **P497 incongruence sign flip (MUST):** formative person models
+  (exposure < `impress_strong_thresh`) recall incongruent behaviors
+  better; strong models show the congruent advantage + incongruent
+  write-prob penalty; the crossover lands AT the threshold knot
+  (T-ORDER on exposure — Stangor & McMillan moderation is the
+  falsifier).
+- **P498 impression primacy (SHOULD):** matched evidence sequences in
+  reversed order produce evals biased toward the FIRST block;
+  `context.depleted` flips toward the last block (Luchins arm);
+  primacy touches eval only — underlying behavior records intact
+  (null check).
+- **P499 motivational narrowing (SHOULD):** `approachMotiv` ≥ 0.6
+  positive events show peripheral field loss shaped like threat_drain
+  WITHOUT `threatCue` present — valence-positive narrowing must not
+  require arousal≥threat (Gable & Harmon-Jones intensity claim).
+- **P500 lie encoding (MUST):** `deceptive` emissions mint higher-E,
+  weaker-sourceStr records than matched truthful ones;
+  `lie_rehearsed` adds gen_gain; over serial retells the said-version
+  share of reconstruction grows (§6.68 upstream arm live); lie-record
+  content accuracy NOT reduced (locked null).
+- **P501 note split (SHOULD):** `note:"verbatim"` → no E gain +
+  extref minted; `note:"generative"` → `note_gen_gain` elaboration;
+  device-mode manipulation TOST-equivalent within SESOI
+  (`note_mode_null` enforced, not assumed — Urry 2021 arm).
+- **P502 v4.6 regression (MUST — structure):** new fields/params pass
+  the P457 non-interference pattern (`stale:`/`lie:` are E/M-tier and
+  steer nothing outside their channels) and §12.2 commutativity
+  (no new op reads across charIds; primacy updates owner-local).
+
+Registry: P1–P502. v48 suite: P493–P502 (5 MUST, 4 SHOULD, 1
+structure-MUST counted above).
+
+## 84. Sources new to this version
+
+- Simons & Levin 1998 (*Perception* 27:644); Rensink, O'Regan & Clark
+  1997 (*Psych. Sci.* 8:368); Levin & Simons 1997; Veiel, Storandt &
+  Abrams 2006 (*Psych. Aging* 21:492) — change blindness + age.
+- Moray 1959 (*QJEP* 11:56); Wood & Cowan 1995 (*JEP:LMC* 21:255,
+  PubMed 7876773 — 34.6%, two-item shift); Conway, Cowan & Bunting
+  2001 (*JEP:G* 130:243 — low-WMC breakthrough).
+- Schmidt 1994 (*JEP:LMC* 20:953); Schmidt & Williams 2001 (*M&C*
+  29:305) — humor encoding + privileged retrieval.
+- Nairne, VanArsdall, Pandeirada, Cogdill & LeBreton 2013 (*Psych.
+  Sci.* 24:2099, PubMed 23921770); VanArsdall et al. 2013 (*Exp.
+  Psych.* 60:172); New, Cosmides & Tooby 2007 (*PNAS* 104:16598).
+- Hastie & Kumar 1979 (*JPSP* 37:25); Stangor & McMillan 1992
+  (*Psych. Bull.* 111:42 — verified via DOI record).
+- Asch 1946; Luchins 1957 — impression primacy + recency arm.
+- Gable & Harmon-Jones 2008 (*Psych. Sci.* 19:476), 2010 (*Emotion*
+  10:599); Harmon-Jones, Gable & Price 2012 (*Soc. Personal. Psych.
+  Compass* 6:308).
+- Walczyk et al. 2003 (*Appl. Cogn. Psych.* 17:755 — ADTD); Walczyk
+  et al. 2014; Vrij et al. 2008 — deception effort.
+- Mueller & Oppenheimer 2014 (*Psych. Sci.* 25:1159); Urry et al.
+  2021 (*Psych. Sci.* 32:640 — replication, mode null); Morehead,
+  Dunlosky & Rawson 2019 (*Educ. Psych. Rev.* 31:753); Kobayashi
+  2005 (*Contemp. Educ. Psych.* 30:242).
