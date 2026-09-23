@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v62)
+# Playtest Harness — "Real World / The Mission" (world v63)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -115,6 +115,12 @@ One person can wear every hat; four real testers is the intended shape.
   (structural co-presence, never a relationship claim), person
   'seen with' chips + first/latest jumps, and the venue rhythm strip —
   all projections, nothing world-touching.
+  PT58 (Join the Cast v5 — the queue & keys layer, v63) is a player
+  audit — the pending application that keeps its place across a closed
+  page (rw_create_app_v24 queue card, nothing-charged-while-pending),
+  withdraw as a real never-billed path, the optional 'goes by' block
+  name (screened + collision-checked), and the keys card's day-one
+  logistics that never script the day.
 
 ## 3. Running a session
 

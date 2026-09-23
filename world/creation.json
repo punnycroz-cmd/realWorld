@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 23,
+  "version": 24,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -12,6 +12,7 @@
     "id": "h## — hired-character ids, disjoint from C1–C8 mains and A01–A20 ambients",
     "owner": "player handle — the only account that may ever possess this character",
     "name": "screened string; never a cast/ambient name, never a real person, never slurs",
+    "goes_by": "optional block name — what the neighbors end up calling them; screened text, collision-checked against the same registry; blank = the block decides",
     "age": "integer >= 18 — player-possessable characters are adults, always",
     "pronouns": "free pick",
     "bio": "public profile text — screened; this IS the briefing-safe surface",
@@ -28,7 +29,7 @@
     "brain": "full LLM when possessed or ambient-active; thin AI when owner offline"
   },
   "screening": {
-    "surface": ["name", "bio", "arrival"],
+    "surface": ["name", "goes_by", "bio", "arrival"],
     "engine": "world/screen.js RWScreen.screenRequest — the SHARED engine, same code path as request.html + mod-console.html; creation adds only the name-collision registry check (not an intent class). If the engine is unavailable the application cannot be billed — never fall back to private rules.",
     "resubmit_rule": "denied applications may be edited and resubmitted; resubmissions carry resubmit_n and route to a DIFFERENT reviewer (moderation.json appeal-resubmit). No resubmit fee.",
     "rules": "world/moderation-notes.md §3 verbatim — naming strings always get a human review pass (§4)",
@@ -99,8 +100,18 @@
     "rule": "renders exactly the record_schema fields — nothing the player can't see is written on the card"
   },
   "draft": {
-    "storage": "localStorage rw_create_draft_v23 — fields + step + resubmit count + landing pick",
+    "storage": "localStorage rw_create_draft_v24 — fields + step + resubmit count + landing pick + goes_by",
     "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
+  },
+  "pending_queue": {
+    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v24: fields + submitted timestamp + resubmit count); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
+    "withdraw": "a pending application can be withdrawn — never billed; the withdrawal posts to the feed like everything else and the draft survives for editing",
+    "resolve": "the demo reviewer clears the queue on return; at merge the real human-review desk resolves it — the card is a status view, never a faster lane",
+    "never": "no queue position is sold, no expedite exists, resubmissions go to a different reviewer not a faster one"
+  },
+  "day_one_keys": {
+    "doc": "v63 — the keys card after signing: day-one logistics derived from the picks — key pickup (landlord's office for flats, door-on-the-latch + mailed key card for room shares), mailbox name card, first rent-book entry, first shift or the job-hunt runway, and the exact wire line that will post. Conditions and addresses only — never a script for the day.",
+    "renders": ["KEYS", "MAILBOX", "RENT BOOK", "FIRST SHIFT", "THE WIRE"]
   },
   "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
   "feed_events": {

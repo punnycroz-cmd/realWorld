@@ -5,11 +5,27 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "Join the Cast" v4 (world v49; v3 was v35,
-  v2 was v21, wizard v1 was v7). Self-contained demo: file://-safe, no
+  Character creation flow — "Join the Cast" v5 (world v63; v4 was v49,
+  v3 was v35, v2 was v21, wizard v1 was v7). Self-contained demo: file://-safe, no
   network. The pipeline (screen → human review → charge → registry write →
   lease → briefing) is simulated locally; at merge it becomes
   gsRequest*/gsLease* calls + feed events.
+
+  v63 changes — the queue & keys layer:
+    - THE QUEUE — a submitted application keeps its place across a closed
+      page: pending state persists (rw_create_app_v24), and reopening
+      create.html shows the queue card — submitted time, the human-review
+      honesty line, and a WITHDRAW affordance that never bills. The demo
+      reviewer clears the queue on return; the page never pretends a
+      closed application vanished.
+    - GOES BY — an optional block name on step 1 ("what the neighbors
+      end up calling them"). Screened text like the rest, collision-
+      checked against the same registry; left blank, the block decides.
+      Rides the record + the wire's cast line.
+    - THE KEYS — a day-one logistics card after signing: key pickup /
+      door-on-the-latch per unit kind, the mailbox name card, the first
+      rent-book entry, the first shift. Conditions and addresses, never
+      a script.
 
   v49 changes — the people layer:
     - PEOPLE mirror — the block's actual names (8 mains + 20 ambient
@@ -204,6 +220,18 @@
   .rec .rl:last-of-type{border:0}
   .rec .rl b{color:var(--ink);font-family:var(--mono);font-weight:400;text-align:right}
   .rec .rl span{color:var(--dim)}
+  /* ---- v63: the queue card + the keys card ---- */
+  .queue{margin-top:12px;border:1px solid var(--acc);border-radius:6px;padding:14px 16px;font-size:13px}
+  .queue h3{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+  .queue .ql{display:flex;justify-content:space-between;gap:12px;padding:3px 0;color:var(--dim)}
+  .queue .ql b{color:var(--ink);font-family:var(--mono);font-weight:400}
+  .queue button.wd{margin-top:10px;background:none;border:1px solid var(--red);color:var(--red);
+    font-size:12.5px;padding:7px 14px}
+  .keys{margin-top:12px;border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:none;font-size:12.5px}
+  .keys h3{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+  .keys .kl{display:flex;gap:12px;padding:3px 0;border-bottom:1px solid var(--line)}
+  .keys .kl:last-child{border:0}
+  .keys .kl .k{color:var(--dim);font-size:11.5px;width:110px;flex:none;padding-top:1px}
 </style>
 </head>
 <body>
@@ -227,6 +255,7 @@
     <div class="denybox" id="denybox"></div>
     <div class="pipeline" id="pipe"></div>
     <div class="briefing" id="briefing"></div>
+    <div class="keys" id="keys"></div>
     <div class="rec" id="record"></div>
     <div class="nextsteps" id="nextsteps"></div>
   </section>
@@ -282,7 +311,8 @@ var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per chara
 var SLOT_CAP = 2;                  // this account: Resident tier
 var START_BANK = 1600;             // game dollars — arrival money
 var RENT_PCT_MAX = 55;             // rent-to-income ceiling shown honestly
-var DRAFT_KEY = 'rw_create_draft_v23';
+var DRAFT_KEY = 'rw_create_draft_v24';
+var APP_KEY = 'rw_create_app_v24';   // v63: a submitted application keeps its place
 var created = 0;
 var submits = 0;                   // resubmissions route to a different reviewer
 
@@ -460,9 +490,12 @@ function screenFields(){
   if (TAKEN.test(f.name))
     return {r:'deny',code:'name-collision',field:'name',
             msg:'That name is taken — the block already has one. Pick a name that\u2019s theirs alone.'};
+  if (f.goes_by && TAKEN.test(f.goes_by))
+    return {r:'deny',code:'name-collision',field:'goes_by',
+            msg:'That block name is taken too — pick one nobody on the card already answers to.'};
   var res = RWScreen.screenRequest({
     action:'hire', target_label:f.name,
-    text:[f.name,f.bio,f.arrival].join(' '),
+    text:[f.name,f.goes_by,f.bio,f.arrival].join(' '),
     player:{ resubmit_n: submits, appeal_of: submits>0 ? 'creation' : null }
   });
   if (res.verdict==='deny')
@@ -492,7 +525,7 @@ function nameStatus(n){
 }
 
 /* ================= draft autosave ================= */
-var f = { name:'', age:28, pronouns:'she/her', bio:'', arrival:'',
+var f = { name:'', goes_by:'', age:28, pronouns:'she/her', bio:'', arrival:'',
           look:{build:'',palette:'',signature:''}, job:null, home:null,
           landing:'tomorrow morning' };
 var STEP = 0, STEPS = 6;
@@ -504,6 +537,7 @@ function loadDraft(){
   try{
     var d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
     if (d && d.f){ f=d.f; if(!f.look) f.look={build:'',palette:'',signature:''};
+      if(f.goes_by==null) f.goes_by='';
       submits=d.submits||0; STEP=Math.min(d.step||0,STEPS-1);
       $('draftchip').style.display=''; }
   }catch(e){}
@@ -511,6 +545,54 @@ function loadDraft(){
 function clearDraft(){ try{localStorage.removeItem(DRAFT_KEY);}catch(e){}
   $('draftchip').style.display='none'; }
 $('clearDraft').onclick=function(){ clearDraft(); location.reload(); };
+
+/* ================= the queue (world v63) =================
+   A submitted application keeps its place: pending state persists in
+   localStorage so closing the page never pretends the application
+   vanished. Reopening shows the queue card — submitted time, the
+   human-review honesty line, and a withdraw affordance that never
+   bills. The demo reviewer clears the queue on return (age ≥ 45 s). */
+function savePending(){
+  try{ localStorage.setItem(APP_KEY, JSON.stringify({f:f,submitted:Date.now(),submits:submits})); }catch(e){}
+}
+function loadPending(){
+  try{ return JSON.parse(localStorage.getItem(APP_KEY)||'null'); }catch(e){ return null; }
+}
+function clearPending(){ try{localStorage.removeItem(APP_KEY);}catch(e){} }
+function fmtT(ts){ var d=new Date(ts); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+function renderQueue(p){
+  /* pending application on reopen — the wizard stays put behind it */
+  wiz.innerHTML='<div class="queue"><h3>Application in review — it keeps its place</h3>'+
+    '<div class="ql"><span>applicant</span><b>'+esc(p.f.name)+'</b></div>'+
+    '<div class="ql"><span>submitted</span><b>'+fmtT(p.submitted)+'</b></div>'+
+    '<div class="ql"><span>stage</span><b>human review — naming strings always get eyes</b></div>'+
+    '<div class="ql"><span>charge</span><b>nothing — billed on approval only, never while pending</b></div>'+
+    '<div class="note" style="font-style:normal">You can close this page — the application keeps its place. '+
+    'The desk reads in order; resubmissions go to a different reviewer, not a faster one.</div>'+
+    '<button class="wd" id="withdraw">withdraw the application — never billed</button>'+
+    '<div class="note">withdrawn applications post to the feed like everything else; nothing was ever charged.</div></div>';
+  $('next').disabled=true; $('back').disabled=true;
+  $('withdraw').onclick=function(){
+    f=p.f; submits=p.submits||0; clearPending();
+    feedAdd('you','hire — application "'+f.name+'" withdrawn · no charge');
+    toast('Withdrawn — nothing was billed. The draft is still here if you want it back.');
+    STEP=STEPS-1; $('next').disabled=false; $('back').disabled=false; render();
+  };
+  /* demo reviewer: clears the queue when the application has waited its
+     turn — on a real desk this is a human pass; here it's a clock */
+  var left = 45000 - (Date.now()-p.submitted);
+  if (left<=0) resolvePending(p);
+  else setTimeout(function(){ var q=loadPending(); if(q) resolvePending(q); }, left+500);
+}
+function resolvePending(p){
+  if (!loadPending()) return; /* withdrawn while we waited */
+  f=p.f; submits=p.submits||0;
+  var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
+  wiz.innerHTML='';
+  stage('Intent screen — name, bio, arrival','done','pass');
+  stage('Human review','done','approved · demo auto-reviewer — the queue kept its place');
+  approveHire();
+}
 
 var wiz = $('wizard');
 function steps(){
@@ -574,6 +656,9 @@ function render(){
       '<div class="grp">the main cast</div><div>'+TAKEN_NAMES.cast.join(' · ')+'</div>' +
       '<div class="grp">faces you\u2019ll recognize</div><div>'+TAKEN_NAMES.faces.join(' · ')+'</div>' +
       '<div class="grp">role words, not people</div><div>'+TAKEN_NAMES.roles.join(' · ')+'</div></div>' +
+    '<label for="cgoes">Goes by — optional; what the neighbors end up calling them</label>' +
+    '<input type="text" id="cgoes" maxlength="24" placeholder="e.g. Tak — leave blank and the block decides" value="'+esc(f.goes_by||'')+'">' +
+    '<div class="namecheck" id="goescheck"></div>' +
     '<div class="row"><div><label for="cage">Age (18+)</label><input type="number" id="cage" min="18" max="99" value="'+f.age+'"></div>' +
     '<div><label for="cpro">Pronouns</label><select id="cpro"><option>she/her</option><option>he/him</option><option>they/them</option><option>other</option></select></div></div>' +
     '<label for="carr">First day on the block — one line of arrival context</label>' +
@@ -720,6 +805,12 @@ function wireStep(){
       var s=nameStatus(f.name), nc=$('namecheck');
       nc.className='namecheck '+s.cls; nc.textContent=s.txt; validate();};
     var s0=nameStatus(f.name); $('namecheck').className='namecheck '+s0.cls; $('namecheck').textContent=s0.txt;
+    $('cgoes').oninput=function(){f.goes_by=this.value;
+      var g=$('goescheck'), t=(f.goes_by||'').trim();
+      if (!t){ g.className='namecheck'; g.textContent=''; }
+      else if (TAKEN.test(t)){ g.className='namecheck bad'; g.textContent='taken — someone on the block already answers to it'; }
+      else { g.className='namecheck ok'; g.textContent='free — the neighbors will still do what they do'; }
+      validate();};
     $('cage').oninput=function(){f.age=+this.value;validate();};
     $('cpro').value=f.pronouns; $('cpro').onchange=function(){f.pronouns=this.value;};
     $('carr').oninput=function(){f.arrival=this.value;};
@@ -835,27 +926,35 @@ function submit(){
     var s3=stage('Human review','wait',
       scr.r==='review' ? 'flagged — '+scr.code :
       (isResubmit ? 'resubmission #'+submits+' — different reviewer, per appeal rule' : 'naming strings always get eyes'));
-    feedAdd('you','hire — new character application','in review');
+    feedAdd('you','hire — new character application','in review · keeps its place if you close the page');
+    savePending(); /* v63 — the queue survives a closed page */
     setTimeout(function(){
+      if (!loadPending()) return; /* withdrawn from another tab */
       s3.className='stage done'; s3.querySelector('.why').textContent='approved · demo auto-reviewer';
-      submits++;
-      BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
-      stage('Charged on approval','done',HIRE_CR+' cr · slot '+(created+1)+' of '+SLOT_CAP);
-      stage('Registered','done','id h'+(created)+' — hired cast, owned by you, unpossessable to everyone else');
-      var hm=home(), depPlanned = START_BANK < moveInFor(hm);
-      stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month + deposit'+
-        (depPlanned?' (deposit on a payment plan)':'')+' paid in game dollars');
-      stage('Landing scheduled','done',f.landing+' — the arrival posts to The Wire like everything else');
-      feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address+' · '+f.landing);
-      feedAdd('you','housing — move-in · '+hm.address+' comes off the board');
-      $('slotLine').textContent=(created+1)+' of '+SLOT_CAP+' slots used';
-      var j=job();
-      rosterCard(f.name, j.role+' · '+j.employer+' · rents '+hm.address,
-        ' <span class="chip you">yours</span><span class="chip new">day one</span>');
-      clearDraft();
-      briefing();
+      approveHire();
     }, 3200);
   }, 900);
+}
+
+/* the approval tail — shared by the live submit and the queue's return */
+function approveHire(){
+  clearPending();
+  submits++;
+  BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
+  stage('Charged on approval','done',HIRE_CR+' cr · slot '+(created+1)+' of '+SLOT_CAP);
+  stage('Registered','done','id h'+(created)+' — hired cast, owned by you, unpossessable to everyone else');
+  var hm=home(), depPlanned = START_BANK < moveInFor(hm);
+  stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month + deposit'+
+    (depPlanned?' (deposit on a payment plan)':'')+' paid in game dollars');
+  stage('Landing scheduled','done',f.landing+' — the arrival posts to The Wire like everything else');
+  feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address+' · '+f.landing);
+  feedAdd('you','housing — move-in · '+hm.address+' comes off the board');
+  $('slotLine').textContent=(created+1)+' of '+SLOT_CAP+' slots used';
+  var j=job();
+  rosterCard(f.name, j.role+' · '+j.employer+' · rents '+hm.address,
+    ' <span class="chip you">yours</span><span class="chip new">day one</span>');
+  clearDraft();
+  briefing();
 }
 
 function briefing(){
@@ -876,10 +975,27 @@ function briefing(){
     '<div class="bline"><span class="k">Daily routine</span>'+(j.est? 'Shift at '+j.employer+' ('+j.hrs+'), home by evening.':'Job hunting days, home evenings.')+'</div>' +
     '<div class="bline"><span class="k">Secrets</span><span class="redacted">none written — none to redact. Whatever they\u2019re hiding, they\u2019ll grow it themselves.</span></div>';
 
+  /* v63 — the keys: day-one logistics, conditions and addresses only */
+  var k=$('keys'); k.style.display='block';
+  var llNames = ll.map(function(x){return x.n;}).join(', ');
+  k.innerHTML='<h3>Day one — the keys</h3>' +
+    '<div class="kl"><span class="k">KEYS</span><span>'+(hm.room
+      ? 'the housemates leave the door on the latch the first night; the office mails a key card within the week'
+      : (ll.length
+        ? 'key pickup at '+llNames+'\u2019s office — counter hours, bring the lease copy'
+        : 'key pickup at the landlord\u2019s office — counter hours, bring the lease copy'))+'</span></div>' +
+    '<div class="kl"><span class="k">MAILBOX</span><span>the name card goes up when the office gets to it — the mail finds them anyway</span></div>' +
+    '<div class="kl"><span class="k">RENT BOOK</span><span>first entry\u2019s already in the book — paid through the 1st; next due the 1st, in game dollars</span></div>' +
+    '<div class="kl"><span class="k">FIRST SHIFT</span><span>'+(j&&j.est
+      ? 'the counter expects them '+j.shift+' at '+j.employer+' — late on day one is a story, not a fine'
+      : 'no shift yet — the board posts openings daily; the runway number above is the clock')+'</span></div>' +
+    '<div class="kl"><span class="k">THE WIRE</span><span>what posts: a new face on the block — '+esc(f.name)+(f.goes_by?', goes by \u201c'+esc(f.goes_by)+'\u201d':'')+' · lands '+esc(f.landing)+'</span></div>' +
+    '<div class="note" style="margin-top:6px">Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs.</div>';
+
   var r=$('record'); r.style.display='block';
   r.innerHTML='<h3>Registry entry — h'+created+'</h3>' +
     '<div class="rl"><span>id / owner</span><b>h'+created+' · you (demo-player)</b></div>' +
-    '<div class="rl"><span>name</span><b>'+esc(f.name)+' · '+f.age+' · '+esc(f.pronouns)+'</b></div>' +
+    '<div class="rl"><span>name</span><b>'+esc(f.name)+(f.goes_by?' · goes by \u201c'+esc(f.goes_by)+'\u201d':'')+' · '+f.age+' · '+esc(f.pronouns)+'</b></div>' +
     '<div class="rl"><span>look</span><b>'+esc([f.look.build,f.look.palette,f.look.signature].filter(Boolean).join(' · '))+'</b></div>' +
     '<div class="rl"><span>arrival</span><b>'+esc(f.arrival||'—')+' · '+esc(f.landing)+'</b></div>' +
     '<div class="rl"><span>job</span><b>'+esc(f.job)+'</b></div>' +
@@ -895,14 +1011,16 @@ function briefing(){
     '<div style="padding:3px 0">Rent is due on the 1st in game dollars — see it on <a href="lease.html">The Rent Book</a>. You can\u2019t pay it with credits; they can\u2019t skip it with charm.</div>' +
     '<div style="padding:3px 0">Offline? They drop to thin AI — job kept, rent paid, life lived. They wake to a full brain when you return.</div>';
 
-  feedAdd('you','cast — a new face on the block · "'+f.name+'"','lands '+f.landing);
+  feedAdd('you','cast — a new face on the block · "'+f.name+'"'+(f.goes_by?' — goes by "'+f.goes_by+'"':''),
+    'lands '+f.landing);
   toast(f.name+' is on the block. First rent paid; the rest is theirs.');
   $('back').disabled=false; $('back').textContent='Start another';
   $('back').onclick=function(){ location.reload(); };
 }
 
 loadDraft();
-render();
+var _pend = loadPending();
+if (_pend && _pend.f) renderQueue(_pend); else render();
 </script>
 </body>
 </html>

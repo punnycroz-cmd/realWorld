@@ -1213,12 +1213,35 @@ const PTS=[
   ck:["Rhythm bars carry no click affordance — they count, they don't promise",
     "archive gate passes: shelf/pair/rhythm marks + archive_ui_v62 contract block present",
     "Harness gate: '57 scenarios · N checkpoints · key rw_playtest_v62'; 0 fail overall"]}]}
+,{id:"PT58",title:"Join the Cast v5 — the queue & keys layer (v63)",min:12,persona:"returning player — started a hire last night, closed the laptop on the review stage, wants to know the application didn't evaporate",
+ goal:"Verify the v63 creation pass: the pending application keeps its place across a closed page (rw_create_app_v24 queue card, submitted time, nothing-charged-while-pending honesty), withdraw is a real never-billed path that preserves the draft, the 'goes by' block name is optional + screened + collision-checked, and the keys card gives day-one logistics without scripting the day.",
+ surfaces:["create","audit"],steps:[
+ {do:"Fill a hire through step 6 (pick a job with wages and the 9457 Guerrero studio), set an optional 'goes by' — try 'Mars' first, then a free one. Sign & hire, and the moment 'Human review' shows waiting, close the tab. Reopen create.html.",
+  exp:"'Mars' as a block name reads 'taken — someone on the block already answers to it'; a free name reads 'free — the neighbors will still do what they do'. On reopen, instead of the wizard: the queue card — applicant name, submitted HH:MM, 'human review — naming strings always get eyes', 'nothing — billed on approval only, never while pending'.",
+  ck:["Queue card heads 'Application in review — it keeps its place' and states 'You can close this page'",
+    "No charge line claims anything but 'billed on approval only' — 500 cr has NOT left the wallet",
+    "goes_by is screened text: a collision denies with name-collision copy, and it rides the same RWScreen call as name/bio/arrival"]},
+ {do:"Reload once more (or wait ~45 s). Read the resolved pipeline and the cards after it.",
+  exp:"The demo reviewer clears the queue: pipeline shows the screen pass + 'approved · demo auto-reviewer — the queue kept its place', then charge/register/lease/landing. After the briefing, 'Day one — the keys' renders: key pickup at the landlord's office (named for the Guerrero buildings), mailbox card, first rent-book entry, first shift, and the exact wire line including the goes-by name.",
+  ck:["Keys card is logistics only — 'Logistics, not a script' footer present; KEYS/MAILBOX/RENT BOOK/FIRST SHIFT/THE WIRE rows all render",
+    "Registry entry carries 'goes by' when set; the cast feed line carries it too",
+    "rw_create_app_v24 is cleared after approval — a second reload does NOT resurrect the queue"]},
+ {do:"Start another hire, sign, and this time hit 'withdraw the application — never billed' on the queue card (reopen the page while it's pending if the desk already cleared it).",
+  exp:"Withdrawal clears the pending state, posts 'hire — application \"<name>\" withdrawn · no charge' to the feed, keeps the draft fields on step 6, and toasts that nothing was billed.",
+  ck:["Withdraw posts a public feed line — hidden exits don't exist here",
+    "Wallet unchanged through submit+withdraw; the draft chip still offers discard",
+    "Resubmitting after withdraw lands with the different-reviewer note intact"]},
+ {do:"Run `node world/audit.js` and read the creation + harness gates.",
+  exp:"Creation gate passes the v63 marks: pending_queue + day_one_keys contract blocks, rw_create_app_v24 key, goes_by on the screened surface, queue/keys copy strings. Harness gate reports 58 scenarios at the v63 key.",
+  ck:["Creation gate detail reports schema v24 + draft rw_create_draft_v24",
+    "Harness gate: '58 scenarios · N checkpoints · key rw_playtest_v63'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v62";
-const BUILD="world v62 local";
+const LS="rw_playtest_v63";
+const BUILD="world v63 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

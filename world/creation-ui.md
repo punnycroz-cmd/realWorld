@@ -1,9 +1,40 @@
-# Character Creation — spec & copy deck (world v49; v3 was v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v63 — the queue & keys layer: the application keeps its place, and day
+one gets its paperwork:**
+
+- **The queue.** A submitted application persists as pending state
+  (`localStorage rw_create_app_v24` — fields + submitted timestamp +
+  resubmit count). Closing the page mid-review no longer pretends the
+  application vanished: reopening create.html shows the queue card —
+  applicant, submitted time, the human-review stage, and the charge line
+  reading "nothing — billed on approval only, never while pending". The
+  demo reviewer clears the queue on return (≈45 s); at merge the real
+  desk resolves it. The card is a status view — no queue position is
+  sold, no expedite exists; resubmissions go to a different reviewer,
+  not a faster one.
+- **Withdraw.** A pending application can be withdrawn — never billed.
+  The withdrawal posts to the feed like everything else
+  (`hire — application "<name>" withdrawn · no charge`), clears the
+  pending key, and keeps the draft fields on the review step.
+- **Goes by.** Step 1 gains an optional block name — what the neighbors
+  end up calling them. It is screened text (rides the same RWScreen call
+  as name/bio/arrival, added to `screening.surface`) and collision-
+  checked against the same registry — "taken — someone on the block
+  already answers to it". Left blank, the block decides. It rides the
+  registry record and the wire's cast line.
+- **The keys.** After signing, a "Day one — the keys" card renders
+  logistics derived from the picks: key pickup (landlord's office —
+  named where the registry names one — for flats; door-on-the-latch +
+  mailed key card for the room share), the mailbox name card, the first
+  rent-book entry ("paid through the 1st"), the first shift (or the
+  job-hunt runway), and the exact wire line that will post. Footer:
+  "Logistics, not a script." Conditions and addresses only.
 
 **v49 — the people layer: the flow now names the actual block:**
 
@@ -250,6 +281,18 @@ whitelist serves the mod console (moderation §4).
 | Feed: cast tail | "lands <window>" |
 | Registry card | "Registry entry — h##" + "The whole file — what was written is what's here. No secret fields exist on it." |
 | Roster full | "The roster is full on this account — N of M slots used. The cap is the account's tier; Director raises it to 3." |
+| Step 1 goes-by label | "Goes by — optional; what the neighbors end up calling them" |
+| Step 1 goes-by check | "taken — someone on the block already answers to it" · "free — the neighbors will still do what they do" |
+| Queue card head | "Application in review — it keeps its place" |
+| Queue charge line | "nothing — billed on approval only, never while pending" |
+| Queue honesty | "You can close this page — the application keeps its place." + "resubmissions go to a different reviewer, not a faster one" |
+| Withdraw button | "withdraw the application — never billed" |
+| Withdraw feed | 'hire — application "<name>" withdrawn · no charge' |
+| Queue resolve | "approved · demo auto-reviewer — the queue kept its place" |
+| Keys card head | "Day one — the keys" |
+| Keys rows | KEYS / MAILBOX / RENT BOOK / FIRST SHIFT / THE WIRE |
+| Keys footer | "Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs." |
+| Deny: block name | "That block name is taken too — pick one nobody on the card already answers to." |
 
 ## 7. Merge notes
 
@@ -279,3 +322,9 @@ whitelist serves the mod console (moderation §4).
   can't cover first month + deposit, the lease application carries the
   `deposit` payment-plan flag (leases.json `deposit` field, game-v8) and the
   copy says "payment plan", never "waived".
+- v63 queue: `rw_create_app_v24` is a device-local mirror of review state;
+  at merge the server-side application record is authoritative — the card
+  reads status, never writes it. Withdraw maps to the hire-request cancel
+  verb (pre-billing, so always free); the feed line stays.
+- v63 `goes_by` joins the screened surface — the review desk sees it as a
+  naming string like `name` (moderation §4 human pass covers it).

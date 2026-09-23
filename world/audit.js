@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v62).
+/* world/audit.js — RW boundary audit (world v63).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -1881,7 +1881,8 @@ const PUB = Object.values(PT.surfaces)
     const html = rd('create.html');
     /* contract blocks the v35+v49 surface depends on */
     for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
-                     'people_layer', 'names_registry', 'arrival_window', 'registry_entry'])
+                     'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
+                     'pending_queue', 'day_one_keys'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
@@ -1937,6 +1938,13 @@ const PUB = Object.values(PT.surfaces)
     /* draft key + deposit rule agreement */
     const dk = (CJ.draft.storage.match(/rw_create_draft_v\d+/) || [])[0];
     if (!dk || !html.includes(dk)) add(g, 'fail', 'create.html', null, `draft key "${dk}" not in page`);
+    /* v63: pending-application key + goes_by on the screened surface */
+    const ak = (CJ.pending_queue.doc.match(/rw_create_app_v\d+/) || [])[0];
+    if (!ak || !html.includes(ak)) add(g, 'fail', 'create.html', null, `pending key "${ak}" not in page`);
+    if (!(CJ.screening.surface || []).includes('goes_by'))
+      add(g, 'fail', 'creation.json', null, 'screening.surface must carry goes_by — the block name is screened text');
+    if (!/f\.goes_by/.test(html))
+      add(g, 'fail', 'create.html', null, 'goes_by must ride the screened text + record, not sit unscreened');
     if (!/depFor/.test(html) || !/0\.5/.test(html))
       add(g, 'fail', 'create.html', null, 'deposit rule (1× flat / 0.5× room share) not implemented');
     const roomRow = DHOMES.find(h2 => h2.room);
@@ -2028,7 +2036,19 @@ const PUB = Object.values(PT.surfaces)
       [/no secret fields exist on it/i, 'v49: record honesty line'],
       [/roster is full/, 'v49: slot-cap honesty'],
       [/surface ties, not friendships/, 'v49: FACES honesty'],
-      [/peopleCard/, 'v49: people card helper']
+      [/peopleCard/, 'v49: people card helper'],
+      [/keeps its place/, 'v63: queue persistence honesty'],
+      [/withdraw the application — never billed/, 'v63: withdraw affordance'],
+      [/renderQueue|resolvePending/, 'v63: queue handlers'],
+      [/savePending/, 'v63: pending write on submit'],
+      [/Goes by — optional/, 'v63: block-name field'],
+      [/goescheck/, 'v63: block-name live check'],
+      [/Day one — the keys/, 'v63: keys card'],
+      [/MAILBOX/, 'v63: mailbox line'],
+      [/RENT BOOK/, 'v63: rent-book line'],
+      [/FIRST SHIFT/, 'v63: first-shift line'],
+      [/Logistics, not a script/, 'v63: keys honesty line'],
+      [/different reviewer, not a faster one/, 'v63: no-expedite honesty']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);
@@ -2144,7 +2164,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v62 || {};
+    const H = PT.harness_ui_v63 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
