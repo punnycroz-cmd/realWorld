@@ -23860,6 +23860,7 @@ const SF_CAM = {
   orbit: false,      // v9: slow auto-orbit around the subject
   director: false,
   x: 0, y: 0,        // director position, meters
+  marks: {},         // v27: saved director shots — Shift+1..9 sets, 1..9 recalls
   _lastPawn: -1,
   _snap: true,       // v9: jump smoothed rig to targets next frame
 };
@@ -23923,6 +23924,31 @@ window.addEventListener('keydown', e => {
       showToast(SF_LENS.on ? '◎ LENS rig — tilt-shift / depth of field'
                            : 'Lens rig off — raw render');
   }
+  // v27: G = cutaway (ghost whatever blocks the lens from the subject),
+  //      T = track (director aims at the inspected pawn),
+  //      Shift+1..9 stores a shot mark, 1..9 recalls it
+  if(e.code === 'KeyG' && SF_VIEW === 'street'){
+    SF_CUT.on = !SF_CUT.on;
+    if(typeof showToast === 'function')
+      showToast(SF_CUT.on ? '◈ CUTAWAY — occluding walls ghost out'
+                          : 'Cutaway off — solid walls');
+  }
+  if(e.code === 'KeyT' && SF_VIEW === 'street' && SF_CAM.director){
+    const vt = VILLAGERS[inspectedPawnIdx];
+    if(vt){
+      const txm = vt.x / SF_PXM, tym = vt.y / SF_PXM;
+      const dxm = txm - SF_CAM.x, dym = tym - SF_CAM.y;
+      SF_CAM.yaw = Math.atan2(dym, dxm);
+      SF_CAM.pitch = clamp(-Math.atan2(Math.max(0.4, SF_CAM.h - 1.4),
+                          Math.max(2, Math.hypot(dxm, dym))), -0.9, 0.9);
+      sfCamSnap();
+      if(typeof showToast === 'function') showToast('◎ TRACK — lens on subject');
+    }
+  }
+  if(/^Digit[1-9]$/.test(e.code) && SF_VIEW === 'street'){
+    const n = +e.code.slice(5);
+    if(e.shiftKey) sfCamMarkSave(n); else sfCamMarkGo(n);
+  }
 });
 if(SF_MODE && typeof window !== 'undefined'){
   let sfDrag = null;
@@ -23962,7 +23988,10 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>Scroll</kbd> Dolly</span>' +
     '<span><kbd>WASD</kbd> Fly</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>' +
-    '<span><kbd>L</kbd> Lens</span>';
+    '<span><kbd>L</kbd> Lens</span>' +
+    '<span><kbd>G</kbd> Cutaway</span>' +
+    '<span><kbd>T</kbd> Track</span>' +
+    '<span><kbd>1-9</kbd> Marks</span>';
 }
 
 /* ---------------- v26: LENS — camera post-processing rig -------------
@@ -24002,6 +24031,7 @@ function sfLensNoise(){
    snapshots ctx.canvas — works unchanged inside the frame. */
 function sfLensBegin(cw, ch){
   SF_LENS.mode = 'flat';      // renderers upgrade this while they paint
+  SF_LENS.sunOn = false;      // v27: street renderer re-publishes each frame
   if(!SF_LENS.on || typeof document === 'undefined' || !ctx) return false;
   const W = Math.max(2, Math.round(cw * dpr)), H = Math.max(2, Math.round(ch * dpr));
   if(!SF_LENS.frame){
@@ -24059,6 +24089,62 @@ function sfLensEnd(cw, ch){
       ctx.drawImage(B, 0, y0, W, y1 - y0, 0, y0, W, y1 - y0);
     }
     ctx.globalAlpha = 1;
+  }
+  /* v27: lens ghosts — internal element reflections of the sun disc.
+     Real ghosts mirror about the optical center: each ghost sits on the
+     sun→center axis at growing t, alternating aperture shapes (filled
+     disc / hexagon ring) and warm/cool tints. The anamorphic streak is
+     the horizontal smear a cylindrical element throws across the gate.
+     Everything scales with sunK — no sun in frame, no flare. */
+  if(SF_LENS.mode === 'street' && SF_LENS.sunOn && SF_LENS.sunK > 0.05){
+    const sx = SF_LENS.sunX * dpr, sy = SF_LENS.sunY * dpr;
+    const cxp = W / 2, cyp = H * 0.46, k = SF_LENS.sunK;
+    const st = ctx.createLinearGradient(sx - W * 0.42, 0, sx + W * 0.42, 0);
+    st.addColorStop(0, 'rgba(130,185,255,0)');
+    st.addColorStop(0.5, `rgba(170,205,255,${0.11 * k})`);
+    st.addColorStop(1, 'rgba(130,185,255,0)');
+    ctx.fillStyle = st;
+    ctx.fillRect(sx - W * 0.42, sy - 1.6 * dpr, W * 0.84, 3.2 * dpr);
+    const hues = ['255,196,120', '150,205,255', '205,170,255',
+                  '255,160,140', '170,235,205'];
+    for(let i = 0; i < 5; i++){
+      const t = 0.38 + i * 0.42;
+      const gx = cxp + (cxp - sx) * t, gy = cyp + (cyp - sy) * t;
+      const gr = (7 + i * 9 + (i === 2 ? 14 : 0)) * dpr;
+      const ga = (0.13 - i * 0.016) * k;
+      if(i % 2){
+        ctx.strokeStyle = `rgba(${hues[i]},${ga})`;
+        ctx.lineWidth = 1.4 * dpr;
+        ctx.beginPath();
+        for(let a2 = 0; a2 < 6; a2++){
+          const an = a2 * Math.PI / 3 + 0.4;
+          const hx = gx + Math.cos(an) * gr, hy = gy + Math.sin(an) * gr;
+          a2 ? ctx.lineTo(hx, hy) : ctx.moveTo(hx, hy);
+        }
+        ctx.closePath(); ctx.stroke();
+      } else {
+        const gg = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+        gg.addColorStop(0, `rgba(${hues[i]},${ga})`);
+        gg.addColorStop(1, `rgba(${hues[i]},0)`);
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.arc(gx, gy, gr, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+  /* v27: split-tone film grade — cool multiply lift in the shadows,
+     warm screen bloom in the highlights, deepened as the real sun drops
+     toward the horizon (SF_SUN.warm). The physical cause is the same
+     solar vector every shadow already obeys. */
+  {
+    const warmK = typeof SF_SUN !== 'undefined' ? SF_SUN.warm : 0;
+    const nK = typeof isNight === 'function' && isNight();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = nK ? 'rgba(215,225,255,0.16)' : 'rgba(233,240,255,0.09)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = `rgba(255,182,110,${nK ? 0.02 : 0.05 + warmK * 0.09})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
   }
   // lens vignette — light falls off toward the corners of the frame
   const vr = Math.hypot(W, H) * 0.62;
@@ -24234,6 +24320,87 @@ function sfLampPool(cx, cy, r){
 /* umbra fraction for a cast shadow of horizontal throw `len` — the sun's
    ~0.5° disc makes the penumbra grow with distance from the occluder */
 function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
+
+/* ---------------- v27: CUTAWAY — occluder ghosting ----------------
+   A lens pointed at a subject must never lose them behind a row of
+   Victorians. sfGhostSet finds every building footprint the
+   camera→subject sightline actually passes through (true
+   segment∩polygon, no bbox guessing); those masses render translucent
+   with a cool rim, so a wall reads as "the camera sees through it" —
+   never as a hole. Trees and poles inside a 2.3m corridor ghost too.
+   The segment stops 1.4m short of the subject so the facade they stand
+   against keeps its solidity. G toggles the pass; top view gets the
+   same treatment: a building sprite covering the inspected pawn fades
+   to glass and a locator ring marks the pawn underneath. */
+const SF_CUT = { on: true };
+let SF_GHOST = null, SF_GHOST_P = null, SF_TOPMARK = null;
+function sfSegHit(x1, y1, x2, y2, x3, y3, x4, y4){
+  const rx = x2 - x1, ry = y2 - y1, sx = x4 - x3, sy = y4 - y3;
+  const den = rx * sy - ry * sx;
+  if(!den) return false;
+  const t = ((x3 - x1) * sy - (y3 - y1) * sx) / den;
+  const u = ((x3 - x1) * ry - (y3 - y1) * rx) / den;
+  return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+}
+function sfSegDist(px, py, x1, y1, x2, y2){
+  const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1e-9;
+  const t = clamp(((px - x1) * dx + (py - y1) * dy) / L2, 0, 1);
+  return Math.hypot(px - (x1 + dx * t), py - (y1 + dy * t));
+}
+/* meter-space footprint + bbox, cached (shares b._pm with the street
+   renderer's lazy init — either side may compute it first) */
+function sfBldMPoly(b){
+  if(!b._pm){
+    const P2 = b.px.map(q => [q[0] / SF_PXM, q[1] / SF_PXM]);
+    let ar = 0;
+    for(let e = 0; e < P2.length; e++){
+      const [x1, y1] = P2[e], [x2, y2] = P2[(e + 1) % P2.length];
+      ar += (x2 - x1) * (y2 + y1);
+    }
+    b._pm = P2; b._ccw = ar > 0; b._area = Math.abs(ar);
+  }
+  if(!b._pbb){
+    let xA = 1e9, yA = 1e9, xB = -1e9, yB = -1e9;
+    for(const [x, y] of b._pm){
+      if(x < xA) xA = x; if(x > xB) xB = x;
+      if(y < yA) yA = y; if(y > yB) yB = y;
+    }
+    b._pbb = [xA, yA, xB, yB];
+  }
+  return b._pm;
+}
+function sfGhostSet(cx, cy, tx, ty){
+  const out = new Set();
+  const dx = tx - cx, dy = ty - cy, L = Math.hypot(dx, dy);
+  if(L < 4) return out;
+  const ex = cx + dx * (1 - 1.4 / L), ey = cy + dy * (1 - 1.4 / L);
+  for(const b of SF_BLD){
+    const P = sfBldMPoly(b), bb = b._pbb;
+    if(Math.min(cx, ex) > bb[2] || Math.max(cx, ex) < bb[0] ||
+       Math.min(cy, ey) > bb[3] || Math.max(cy, ey) < bb[1]) continue;
+    let hit = sfPtInPoly(P, cx, cy) || sfPtInPoly(P, ex, ey);
+    for(let e = 0; e < P.length && !hit; e++){
+      const a = P[e], c2 = P[(e + 1) % P.length];
+      hit = sfSegHit(cx, cy, ex, ey, a[0], a[1], c2[0], c2[1]);
+    }
+    if(hit) out.add(b.i);
+  }
+  return out;
+}
+/* director shot marks — Shift+Digit stores, Digit recalls */
+function sfCamMarkSave(n){
+  SF_CAM.marks[n] = { x: SF_CAM.x, y: SF_CAM.y, h: SF_CAM.h,
+    yaw: SF_CAM.yaw, pitch: SF_CAM.pitch, fov: SF_CAM.fov,
+    back: SF_CAM.back, director: SF_CAM.director };
+  if(typeof showToast === 'function') showToast(`Mark ${n} set`);
+}
+function sfCamMarkGo(n){
+  const m = SF_CAM.marks[n];
+  if(!m) return;
+  Object.assign(SF_CAM, m);
+  sfCamSnap();
+  if(typeof showToast === 'function') showToast(`Mark ${n}`);
+}
 
 function sfWxTick(){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
@@ -25018,6 +25185,7 @@ function sfRenderWorld(cw, ch){
     drawables.push({ kind: 'pawn', y: v.y, v });
   }
   drawables.sort((a, b) => a.y - b.y);
+  SF_TOPMARK = null; // v27: set when a sprite ghosts over the subject
 
   for(const d of drawables){
     if(d.kind === 'bld'){
@@ -25028,7 +25196,29 @@ function sfRenderWorld(cw, ch){
       // ground so facades stand on the correct pavement line; the roof plane
       // visually deepens toward the tilted north edge.
       const sy = Math.round(sfSY(b.by1, ch) - (art.oy + (b.by1 - b.by0)) * cam.zoom);
+      // v27: cutaway — if the inspected pawn is hidden behind this
+      // sprite's opaque mass (pawn drawn earlier in the y-sort), the
+      // building fades to glass and a locator ring marks the subject.
+      const sv = VILLAGERS[inspectedPawnIdx];
+      let cover = false;
+      if(SF_CUT.on && sv && !sv.inBuilding && sv.y < b.by1){
+        const psx = (sv.x - cam.x) * cam.zoom + cw / 2,
+              psy = sfSY(sv.y, ch),
+              dw = art.c.width * cam.zoom, dh = art.c.height * cam.zoom;
+        if(psx > sx + 2 && psx < sx + dw - 2 && psy > sy + 2 && psy < sy + dh){
+          cover = true; SF_TOPMARK = [psx, psy];
+        }
+      }
+      ctx.globalAlpha = cover ? 0.45 : 1;
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
+      ctx.globalAlpha = 1;
+      if(cover){
+        ctx.strokeStyle = 'rgba(150,215,255,0.5)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
+        ctx.setLineDash([]);
+      }
       if(cam.zoom >= 0.9 && b.name){
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
@@ -25186,6 +25376,18 @@ function sfRenderWorld(cw, ch){
         ctx.fill();
       }
     }
+  }
+
+  // v27: locator ring — the subject ping under a ghosted building
+  if(SF_TOPMARK){
+    const [mx, my] = SF_TOPMARK;
+    ctx.strokeStyle = 'rgba(150,215,255,0.9)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(mx, my - 10 * cam.zoom, 7 * cam.zoom, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(mx, my - 22 * cam.zoom); ctx.lineTo(mx - 4 * cam.zoom, my - 28 * cam.zoom);
+    ctx.moveTo(mx, my - 22 * cam.zoom); ctx.lineTo(mx + 4 * cam.zoom, my - 28 * cam.zoom);
+    ctx.stroke();
   }
 
   // v20: pole-line wires overhead — catenary spans between utility poles
@@ -26421,7 +26623,12 @@ function sfRenderStreet(cw, ch){
     usePitch += Math.sin(SF_WX.t * 0.83 + 1.2) * 0.003;
   }
   const DX = Math.cos(useYaw), DY = Math.sin(useYaw);
-  const camX = SF_CAM._sx, camY = SF_CAM._sy, camH = SF_CAM._sh;
+  const camX = SF_CAM._sx, camY = SF_CAM._sy;
+  // v27: operator bob — the follow lens rides the subject's gait, a ~5cm
+  // shoulder sway at step frequency; the director rig stays crane-smooth
+  let camH = SF_CAM._sh;
+  if(!SF_CAM.director && v && v.moving)
+    camH += Math.sin(v.walkPhase || 0) * 0.05;
   const F = Math.max(400, ch * 1.1) * SF_CAM.fov;
   const horizon = ch * 0.42 + Math.tan(usePitch) * F;
   const pr = (x, y, z) => {
@@ -26438,14 +26645,19 @@ function sfRenderStreet(cw, ch){
   SF_LENS.mode = 'street';
   SF_LENS.horizon = horizon;
   SF_LENS.camHF = camH * F;
+  // v27: rack focus — the lens breathes toward its target like a real
+  // follow-focus pull instead of snapping to it every frame
+  let focT = null;
   if(!SF_CAM.director && v){
     const fp = pr(px, py, 0);
-    if(fp) SF_LENS.foc = fp[2];
+    if(fp) focT = fp[2];
   } else {
     const yMid = ch * 0.58;
-    SF_LENS.foc = yMid > horizon + 1
+    focT = yMid > horizon + 1
       ? clamp((camH * F) / (yMid - horizon), 4, 400) : 60;
   }
+  if(focT != null)
+    SF_LENS.foc += (focT - SF_LENS.foc) * Math.min(1, dtC * 7);
 
   // v10: temporal frame cache — skip the entire painter's pass when the
   // smoothed rig, pawn positions and weather buckets match the last frame
@@ -26492,6 +26704,13 @@ function sfRenderStreet(cw, ch){
     if(sunFwd > 0.15 && W.rain < 0.4){
       const sx2 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
       const sy2 = horizon - sunUp * F * 0.72;
+      // v27: publish the sun's screen position for the lens-flare pass —
+      // ghosts only exist when the disc is actually in/near frame
+      SF_LENS.sunX = sx2; SF_LENS.sunY = sy2;
+      SF_LENS.sunOn = sx2 > -cw * 0.25 && sx2 < cw * 1.25 &&
+                      sy2 > -ch * 0.3 && sy2 < horizon + ch * 0.2;
+      SF_LENS.sunK = clamp(1.35 - Math.abs(sx2 - cw / 2) / (cw * 0.95), 0.2, 1) *
+                     clamp(sunFwd, 0, 1) * (1 - cover * 0.55);
       if(sx2 > -200 && sx2 < cw + 200){
         const sg = ctx.createRadialGradient(sx2, sy2, 2, sx2, sy2,
                                             F * (0.5 + wK * 0.3));
@@ -26936,9 +27155,29 @@ function sfRenderStreet(cw, ch){
   }
   ds.sort((a, b) => b.fwd - a.fwd);
 
+  /* v27: cutaway — everything sitting on the camera→subject sightline
+     ghosts out so the follow lens never loses its subject. Buildings
+     are tested as real segment∩polygon; props inside a 2.3m corridor. */
+  SF_GHOST = null; SF_GHOST_P = null;
+  if(SF_CUT.on && !SF_CAM.director && v && !v.inBuilding){
+    SF_GHOST = sfGhostSet(camX, camY, px, py);
+    const subjFwd = (px - camX) * DX + (py - camY) * DY;
+    for(const d of ds){
+      if(d.k !== 'p' || d.o.kind === 'sfCar' || d.fwd > subjFwd - 1) continue;
+      const o = d.o;
+      if(sfSegDist(o.x / SF_PXM, o.y / SF_PXM, camX, camY, px, py) < 2.3){
+        if(!SF_GHOST_P) SF_GHOST_P = new Set();
+        SF_GHOST_P.add(o);
+      }
+    }
+  }
+
   for(const d of ds){
+    ctx.globalAlpha = 1;
     if(d.k === 'b'){
       const b = d.b;
+      const gh = SF_GHOST && SF_GHOST.has(b.i);
+      if(gh) ctx.globalAlpha = 0.30;
       const hm = b.hPx / 4.2; // meters
       // v10: meter-space polygon + signed area are static — compute once
       if(!b._pm){
@@ -27415,11 +27654,33 @@ function sfRenderStreet(cw, ch){
           ctx.fillStyle = '#fff'; ctx.fillText(b.name, p[0], p[1]);
         }
       }
+      if(gh){
+        /* v27: the ghosted mass keeps a cool wire rim — parapet loop +
+           ground loop + corner drops, so the cutaway reads as camera
+           x-ray rather than a rendering hole */
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'rgba(150,215,255,0.55)';
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([5, 4]);
+        for(const z of [0, hm]){
+          ctx.beginPath();
+          let st = false;
+          for(const [qx, qy] of P){
+            const q = pr(qx, qy, z);
+            if(!q){ st = false; continue; }
+            st ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+            st = true;
+          }
+          ctx.closePath(); ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
     } else if(d.k === 'p'){
       const o = d.o;
       if(o.kind === 'sfCar'){ sfCarStreet(o, pr, F, night); continue; }
       const p = pr(o.x / SF_PXM, o.y / SF_PXM, 0);
       if(!p) continue;
+      if(SF_GHOST_P && SF_GHOST_P.has(o)) ctx.globalAlpha = 0.35;
       const sc = F / p[2];
       if(o.kind === 'sfPole'){
         // v20: projected wood utility pole — tapered post, crossarm with
@@ -27716,7 +27977,7 @@ function sfRenderStreet(cw, ch){
   {
     const mm = Math.round(50 * SF_CAM.fov);
     const mode = SF_CAM.director ? 'DIRECTOR' : (SF_CAM.orbit ? 'ORBIT' : 'FOLLOW');
-    const lab = `◉ ${mode}  ${mm}mm`;
+    const lab = `◉ ${mode}  ${mm}mm  ƒ2.0 · ${Math.round(SF_LENS.foc)}m`;
     ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
     const tw2 = ctx.measureText(lab).width;
     const barH = SF_CAM.director ? Math.round(ch * 0.085) : 0;
@@ -27741,6 +28002,26 @@ function sfRenderStreet(cw, ch){
     ctx.strokeRect(cw / 2 - bw / 2, by, bw, 22);
     ctx.fillStyle = '#ffe9c9';
     ctx.fillText(label, cw / 2, by + 15);
+  }
+
+  // v27: AF reticle — focus brackets ride the subject in follow mode,
+  // like a real viewfinder lock confirmation
+  if(!SF_CAM.director && v && !v.inBuilding){
+    const rp = pr(px, py, 1.0);
+    if(rp){
+      const s = 14, t = 6;
+      ctx.strokeStyle = 'rgba(160,230,255,0.8)'; ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      for(const [sx3, sy3] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]){
+        ctx.moveTo(rp[0] + sx3 * s, rp[1] + sy3 * s - sy3 * t);
+        ctx.lineTo(rp[0] + sx3 * s, rp[1] + sy3 * s);
+        ctx.lineTo(rp[0] + sx3 * s - sx3 * t, rp[1] + sy3 * s);
+      }
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(160,230,255,0.9)';
+      ctx.font = 'bold 9px monospace'; ctx.textAlign = 'left';
+      ctx.fillText('AF', rp[0] + s + 4, rp[1] - s + 4);
+    }
   }
 
   // v10: stash this frame for the temporal cache, then profiler chip

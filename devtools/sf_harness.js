@@ -61,7 +61,9 @@ const api = eval(m[1] + `
     sfPathfind, sfFindPOI, sfPoiDoor, sfEnterPOI, sfExitPOI, sfTile,
     sfFollowPath, sfGoTo, sfNpcTick, canMoveTo, paActFrame, paStateAnim,
     VILLAGERS, PA, W, SF_M, SF_DOORS, SF_DOOR_OF, SF_POIS, SF_MAP,
-    SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol })`);
+    SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol,
+    sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
+    SF_LENS, SF_PXM })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -170,6 +172,24 @@ const api = eval(m[1] + `
   ok(api.VILLAGERS.some(v => !v.inBuilding && api.sfUmbrellaCol(v)),
      'umbrellas come out in rain');
   api.W.rain = 0;
+
+  // v27 cutaway camera: sightlines through real footprints, not bboxes
+  const cmid = { x: b744.x / api.SF_PXM, y: b744.y / api.SF_PXM };
+  const gset = api.sfGhostSet(cmid.x - 60, cmid.y, cmid.x + 60, cmid.y);
+  ok(gset.has(g744.bld), 'ghost set ghosts a building on the sightline');
+  const gfar = api.sfGhostSet(cmid.x - 60, cmid.y + 400, cmid.x + 60, cmid.y + 400);
+  ok(!gfar.has(g744.bld), 'off-sightline building not ghosted');
+  ok(api.sfSegHit(0,0, 10,0, 5,-5, 5,5) && !api.sfSegHit(0,0, 10,0, 20,-5, 20,5),
+     'sfSegHit segment intersection');
+  // director marks round-trip
+  api.SF_CAM.x = 111; api.SF_CAM.y = 222; api.SF_CAM.h = 7;
+  api.sfCamMarkSave(3);
+  api.SF_CAM.x = 0; api.SF_CAM.y = 0; api.SF_CAM.h = 1;
+  api.sfCamMarkGo(3);
+  ok(api.SF_CAM.x === 111 && api.SF_CAM.y === 222 && api.SF_CAM.h === 7,
+     'director mark save/recall round-trip');
+  ok(api.SF_CUT.on === true && api.SF_LENS.on === true,
+     'cutaway + lens rig on by default');
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');
