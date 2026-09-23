@@ -6273,3 +6273,275 @@ Registry: P1–P756. v70 suite: P745–P756 — 9 MUST (P745–P748,
 P750, P752, P753, P755, P756 — locked-null carriers: P745/P748/
 P750/P753/P755/P756; sign-locked: P746/P747/P752) and 3 SHOULD
 (P749, P751, P754).
+
+## 137. Measurement backreaction (VA-MEAS) — the probe is a
+## participant (new in v71, validation-design IV)
+
+Every public measurement call is also an intervention. `recall`
+strengthens the trace (testing effect — Roediger & Karpicke 2006,
+*Psych Sci* 17:249, verified; meta-analytic d ≈ 0.5 vs restudy,
+Rowland 2014, *Psych Bull* 140:1432, verified), `retell` mints
+links and (v70) `lesson` records, `discussEvent` seeds distortion
+through the harness's own interlocutor. A validation suite that
+ignores this measures the studied system PLUS its own footprint.
+
+Binding rules:
+
+- **`measure_budget` is a required manifest field** — max
+  observations per (member, record). Default 1 (destructive
+  sampling): a member answers about a given record once, because
+  the second answer is a different human fact — "remembered
+  yesterday AND today" is a testing-effect datum, not an accuracy
+  datum.
+- **Repeated-measure probes must name the effect they ride.** A
+  retest design is legal iff its declared target *is* retrieval-
+  induced change; otherwise it is a lint fail.
+- **Twin-arm self-calibration:** longitudinal probes run a
+  measured arm and an unmeasured arm. Their divergence is the
+  probe's own testing effect and must sit inside the declared
+  band (§139); a probe whose footprint exceeds the human band is
+  over-intervening — fix the schedule, not the model.
+- **Analyzer correction:** `retrievalCount` (hidden tap, §2.4)
+  is a mandatory covariate when comparing to human anchors —
+  lab participants do not accumulate retrieval practice between
+  encoding and test the way a probed character does.
+- **Interlocutor dose control:** the harness's scripted
+  discussant is a rumor source and must carry a declared dose —
+  suggestion count, misleading-item load, post-event accuracy —
+  exactly as Loftus, Miller & Burns 1978 controlled the
+  misinformation dose. An undeclared-dose misinfo probe measures
+  the script, not the character.
+
+## 138. Endogenous selection (VA-COLLIDER) — condition on
+## encoding, never on retrieval (new in v71)
+
+Accuracy is only observable on retrieved records; conditioning on
+retrieval is conditioning on a collider (selection on strength,
+arousal, cue density — Elwert & Winship 2014, *Annu Rev Sociol*
+40:31, verified). The known biases this produces:
+
+- measured accuracy inflated (weak traces never enter the
+  denominator);
+- distortion rates biased down (the traces that survive to be
+  scored are the ones that resist distortion);
+- age gaps understated (older cohorts' lower retrieval culls
+  more records before scoring — the surviving sample looks
+  artificially similar).
+
+Binding rules:
+
+- **Denominators are the generator manifest**, not the retrieved
+  set. Every accuracy/distortion statistic is per-encoded-event.
+- `retrieved_frac` is a mandatory co-reported statistic; it is
+  itself a primary outcome (humans forget — that is the point).
+- "Not retrieved" is a verdict category, not missing data.
+- Conditional-on-retrieval analyses are legal only when labeled
+  `cond:retrieved` and may never be compared to unconditional
+  human anchors.
+- **Selection signature (P762):** conditional accuracy must
+  exceed unconditional accuracy in any healthy build. If the
+  signature inverts or vanishes, retrieval is not
+  strength-selective — a spec bug in the cue/θ machinery, found
+  by the bias audit rather than by any anchor.
+
+## 139. Power registry and honest nulls (VA-MDE) (new in v71)
+
+A non-significant difference is not an absence of effect — with
+Button et al. 2013's (*Nat Rev Neurosci* 14:365, verified)
+median-power-~20% warning as the standing caution, every probe
+now carries:
+
+- `mde` — minimum detectable effect at declared `n_eff`,
+  α, and power (default 0.8);
+- `n_eff` computed through the §45 Kish design-effect correction
+  (ICC per cohort — clustering inflates nominal n);
+- `sesoi` — smallest effect size of interest, set once per
+  probe family at registration, never tuned per run.
+
+**Null-verdict rule:** claims of absence (all CONTESTED negative
+anchors, all locked-null probes, all "no difference between arms"
+findings) require **equivalence testing** — TOST against the
+`sesoi` bound (Lakens 2017, *Soc Psychol Personal Sci* 8:355,
+verified). For CONTESTED anchors the bound is the failed RRR's
+CI (e.g., ego depletion: Hagger 2016's [−0.07, 0.15]); for
+locked nulls the bound is the family's `sesoi`. A probe that
+reports "no effect, p = 0.3" without a TOST result is upgraded
+to nothing — it is INCONCLUSIVE, and INCONCLUSIVE counts against
+coverage the same as FAIL for gate purposes (a gate may not be
+held open by an underpowered run).
+
+Consequence under §110 versioning: verdicts issued under the old
+"ns = absent" rule are archived under their probe_version;
+equivalence-verdict probes carry new versions (P616 → P616v2).
+
+## 140. The multiverse on the sloppy manifold (VA-MULTI)
+## (new in v71)
+
+§107 licensed legal diversity along sloppy eigendirections. The
+conjugate obligation: verdicts must be robust across that legal
+space, else the equivalence class was misdeclared.
+
+- **Sloppy ensemble:** each MUST probe re-runs with each cast
+  operating point perturbed along its declared-sloppy directions
+  (magnitude ≤ the §107 equivalence radius) and across ≥2 legal
+  `deriveParams` modifier sets. Report `pass_frac`; the MUST gate
+  is pass_frac = 1.0 over the declared ensemble.
+- **Failure attribution:** an ensemble failure is either a spec
+  bug (the direction was not actually sloppy — re-stiffen) or a
+  probe bug (it reads an unanchored direction — reclassify
+  OBSERVE). Never silently re-run with a different jitter.
+- **Analyzer specification curve:** SHOULD probes enumerate their
+  legal analysis choices (time window, trimming rule, cohort
+  composition) as a small specification curve (Simonsohn,
+  Simmons & Nelson 2020, *Nat Hum Behav* 4:1208, verified;
+  Steegen et al. 2016, *Persp Psychol Sci* 11:702; Silberzahn
+  et al. 2018, *Adv Methods Pract Psychol Sci* 1:337 — 29
+  teams, one dataset, divergent answers). The reported verdict
+  is the median pipeline + the range; a SHOULD probe whose sign
+  flips across legal pipelines is demoted to OBSERVE with the
+  curve attached.
+- This is the battery's answer to researcher degrees of freedom
+  on *our* side — §44 governs peeking at results; VA-MULTI
+  governs choosing the lens.
+
+## 141. Transportability and constraints on generality (VA-WEIRD)
+## (new in v71)
+
+The anchor corpus is overwhelmingly drawn from WEIRD undergraduate
+samples at lab timescales; the simulated population is children,
+older adults, trauma histories, and months-long horizons. Henrich,
+Heine & Norenzayan 2010 (*Behav Brain Sci* 33:61, verified) is
+the standing warning; Simons, Shoda & Lindsay 2017 (*Persp
+Psychol Sci* 12:1123 — constraints-on-generality) supplies the
+mechanism: **no anchor statement is complete without its
+conditions.**
+
+Binding rules:
+
+- Every anchor row carries `pop_scope`: {age_band, arousal
+  regime, timescale class, culture_class:"weird_default" unless
+  established otherwise}.
+- A probe whose cohort ≠ the anchor's `pop_scope` must either
+  (a) transport — apply the spec's declared moderator (e.g., the
+  age×binding split, the childhood-amnesia window) and widen the
+  band by the transport uncertainty — or (b) declare the anchor
+  inapplicable and mark the probe `transported` or `unanchored`.
+- `transported` verdicts never carry MUST weight alone; a MUST
+  gate on a transported claim requires ≥1 same-population anchor
+  in the family.
+- Yarkoni 2020 (*Behav Brain Sci* 45:e1, verified) — the
+  generalizability crisis is about *verbal* claims outrunning
+  *statistical* support; our version: prose claims in the
+  character bibles ("older adults remember gist") must trace to
+  a transported band, not to the untransported lab number.
+- Worked requirement (P768): child-cohort misinformation must
+  exceed adult adoption — Ceci & Bruck 1993 / Bruck & Ceci 1999
+  establish the direction; the band is transported, the sign is
+  not negotiable.
+
+## 142. New probes P757–P768 (v71 suite — validation-design IV)
+
+- **P757** measure_budget lint (MUST — process): registry lint
+  rejects any probe manifest missing `measure_budget`; default
+  is 1; repeated-measure probes must name their target effect
+  in the manifest or fail registration.
+- **P758** destructive sampling (MUST): audit JSONL for
+  (member, record) observation counts; any accuracy probe
+  exceeding budget without `repeated_measures` registration =
+  FAIL; duplicates found → entire probe output quarantined,
+  not trimmed.
+- **P759** probe-side testing effect (SHOULD): measured vs
+  unmeasured twin arms at fixed RI; the measurement-arm
+  advantage must land in the Rowland-2014 band (d ∈ [0.3, 0.7]
+  after rep_shrink discipline, SESOI 0.2); outside either end =
+  miscalibrated measure_budget or runaway strengthening.
+- **P760** interlocutor dose monotonicity (MUST): two discussant
+  scripts differing only in suggestion dose (0 vs k misleading
+  items); phantom/adoption rate must be monotone non-decreasing
+  in dose; a flat or inverted dose response means the misinfo
+  channel is not dose-sensitive — FAIL (Loftus dose-control
+  precedent).
+- **P761** encoding-denominator lint (MUST — process): every
+  accuracy/distortion row reports per-encoded denominators +
+  `retrieved_frac`; conditional-only reporting is a registry
+  lint fail; `cond:retrieved` rows may not be scored against
+  unconditional anchors.
+- **P762** selection signature (SHOULD): within each scored
+  probe, accuracy|retrieved > accuracy overall; missing or
+  inverted signature → retrieval is strength-blind, triage as
+  spec bug in cue machinery, not a probe failure.
+- **P763** power registry lint (MUST — process): every probe
+  carries mde/power/n_eff/sesoi; null claims cite TOST vs the
+  bound; "ns" without TOST = INCONCLUSIVE, and INCONCLUSIVE
+  does not satisfy gates.
+- **P764** equivalence-verdict upgrade (MUST): all negative
+  anchors re-scored under TOST (P616v2 etc. per §139); a build
+  "passing" a CONTESTED anchor only via underpowered ns =
+  FAIL-by-underpower, not PASS.
+- **P765** sloppy-ensemble robustness (MUST): each MUST probe's
+  pass_frac over the declared sloppy ensemble = 1.0; each
+  ensemble failure logged with spec-bug vs probe-bug
+  attribution; un-attributed failures block release.
+- **P766** specification-curve report (SHOULD): SHOULD probes
+  emit median+range over declared analyzer pipelines; sign-flip
+  across legal pipelines → demote to OBSERVE with curve
+  attached; curve archived to the verdict ledger.
+- **P767** pop_scope lint (MUST — process): every anchor row
+  carries pop_scope; a probe citing an anchor outside scope
+  without `transported` + widened band = lint fail; transported
+  claims may not carry MUST weight alone.
+- **P768** child-misinformation transport (SHOULD): child cohort
+  vs midlife cohort, matched misinfo dose; child adoption must
+  exceed adult by the transported direction (Ceci & Bruck);
+  child ≤ adult = FAIL — the susceptibility moderator is
+  absent or inverted.
+
+## 143. Sources verified this version (P757–P768 backing)
+
+- Roediger & Karpicke 2006 (*Psych Sci* 17:249 — verified):
+  testing effect; the reason measurement is intervention.
+  Rowland 2014 (*Psych Bull* 140:1432 — verified): testing-
+  effect meta-analysis, d ≈ 0.5 vs restudy → P759 band after
+  rep_shrink (SINGLE→META upgrade; the testing literature is
+  among the most replicated in the field).
+- Loftus, Miller & Burns 1978 (*J Verbal Learn Verbal Behav*
+  17 — verified): misinformation paradigm with controlled dose;
+  the dose-control precedent for P760.
+- Elwert & Winship 2014 (*Annu Rev Sociol* 40:31 — verified):
+  endogenous selection / collider bias; formal basis of
+  VA-COLLIDER and P761–P762.
+- Lakens 2017 (*Soc Psychol Personal Sci* 8:355 — verified):
+  equivalence testing / TOST / SESOI discipline → VA-MDE,
+  P763–P764. Button et al. 2013 (*Nat Rev Neurosci* 14:365 —
+  verified): median power ~20% in neuroscience → why "ns"
+  cannot mean "absent".
+- Simonsohn, Simmons & Nelson 2020 (*Nat Hum Behav* 4:1208 —
+  verified): specification-curve analysis. Steegen et al. 2016
+  (*Persp Psychol Sci* 11:702 — verified): multiverse analysis.
+  Silberzahn et al. 2018 (*Adv Methods Pract Psychol Sci*
+  1:337 — verified): 29 analyst teams, same data, divergent
+  conclusions → analyzer spec curves are not optional.
+- Henrich, Heine & Norenzayan 2010 (*Behav Brain Sci* 33:61 —
+  verified): WEIRD sampling. Simons, Shoda & Lindsay 2017
+  (*Persp Psychol Sci* 12:1123 — verified): constraints on
+  generality → `pop_scope`. Yarkoni 2020 (*Behav Brain Sci*
+  45:e1 — verified): generalizability crisis → transported
+  bands for bible claims.
+- Ceci & Bruck 1993 (*Psych Bull* 114:403); Bruck & Ceci 1999
+  (*Psychol Public Policy Law* 5:136 — verified): children's
+  heightened suggestibility — direction established,
+  magnitude transported → P768.
+- Reused: Kish 1965 (§45 design effect → n_eff); Gutenkunst
+  2007 (§107 sloppy manifold → the VA-MULTI ensemble);
+  Johari 2017 (§44 peeking — complementary to lens choice);
+  OSC 2015 / Camerer 2018 (rep_shrink discipline, §105);
+  Nosek 2018 / §110 probe versioning (P616v2 archival).
+
+Registry: P1–P768. v71 suite: P757–P768 — 8 MUST (P757, P758,
+P760, P761, P763, P764, P765, P767 — of which four are process
+lints: P757, P761, P763, P767) and 4 SHOULD (P759, P762, P766,
+P768). Versioned upgrades: P616 → P616v2 (TOST regime).
+Net new machinery: VA-MEAS, VA-COLLIDER, VA-MDE, VA-MULTI,
+VA-WEIRD — the battery now disciplines its own footprint, its
+own denominators, its own nulls, its own analyst choices, and
+its own population claims.

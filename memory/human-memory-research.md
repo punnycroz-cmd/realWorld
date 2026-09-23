@@ -2403,3 +2403,64 @@ anchor tension.
   Arrival weighting, field-depth tuning, lesson-as-persSem,
   link-mint rate, wall-scaling, prior formula, intrusion-only
   tension — all RW modeling HYPOTHESES on consensus bases.
+
+## 49. Addendum — v71 anchors (validation-design IV; no spec bump)
+
+This version's sources are methodological — they discipline the
+*battery*, not the model. Consensus/hypothesis split explicit.
+
+- **Retrieval is an intervention — CONSENSUS.** Roediger &
+  Karpicke 2006 (*Psych Sci* 17:249 — verified): testing beats
+  restudy; Rowland 2014 (*Psych Bull* 140:1432 — verified):
+  meta-analysis, d ≈ 0.5 vs restudy. Consequence for the
+  harness (VA-MEAS): every recall a probe orders changes the
+  thing measured → `measure_budget`, destructive sampling,
+  measured-vs-unmeasured twin arms (P757–P759). Our modeling
+  choice is the budget discipline itself, not the effect.
+- **Misinformation dose is controlled, not ambient —
+  CONSENSUS.** Loftus, Miller & Burns 1978 (verified): the
+  paradigm's authority rests on a *known* misleading-item dose.
+  Harness discussants are rumor sources → declared dose +
+  dose-monotonicity probe (P760). The interlocutor-as-agent
+  framing is our formalization.
+- **Conditioning on retrieval is collider selection —
+  CONSENSUS (methodological).** Elwert & Winship 2014 (*Annu
+  Rev Sociol* 40:31 — verified). Denominators = encoded
+  manifest; `retrieved_frac` co-reported; the
+  accuracy|retrieved > accuracy signature (P762) is our
+  diagnostic — its logic (selection on strength is what makes
+  the signature exist) is standard selection-bias reasoning
+  applied to the sim.
+- **"Not significant" is not "absent" — CONSENSUS.** Lakens
+  2017 (*Soc Psychol Personal Sci* 8:355 — verified): TOST/
+  SESOI equivalence testing; Button et al. 2013 (*Nat Rev
+  Neurosci* 14:365 — verified): median power ~20% →
+  underpowered nulls are noise. VA-MDE makes null claims carry
+  TOST; P616 → P616v2 under §110 versioning.
+- **Analyst choice is a variance source — CONSENSUS.**
+  Silberzahn et al. 2018 (*Adv Methods Pract Psychol Sci*
+  1:337 — verified): 29 teams, same data, divergent answers.
+  Steegen et al. 2016 (*Persp Psychol Sci* 11:702) multiverse;
+  Simonsohn, Simmons & Nelson 2020 (*Nat Hum Behav* 4:1208 —
+  verified) specification curve. VA-MULTI applies this to our
+  OWN analyzers plus the §107 sloppy ensemble.
+- **Anchors carry populations — CONSENSUS.** Henrich, Heine &
+  Norenzayan 2010 (*BBS* 33:61 — verified): WEIRD samples;
+  Simons, Shoda & Lindsay 2017 (*Persp Psychol Sci* 12:1123 —
+  verified): constraints on generality; Yarkoni 2020 (*BBS*
+  45:e1 — verified): verbal claims outrun statistical support.
+  → `pop_scope` on every anchor; transported bands, never
+  untransported MUSTs (P767).
+- **Children are more suggestible — CONSENSUS (direction).**
+  Ceci & Bruck 1993 (*Psych Bull* 114:403); Bruck & Ceci 1999
+  (*Psychol Public Policy Law* 5:136 — verified). P768 asserts
+  the direction on a transported band; the magnitude is our
+  modeling choice.
+- **Established vs hypothesis summary:** testing effect, dose
+  control, collider bias, TOST discipline, analyst variance,
+  WEIRD/CoG limits, child suggestibility direction — all
+  established methodology/consensus. The harness mechanics
+  (measure_budget field, twin-arm self-calibration, sloppy-
+  ensemble pass_frac gate, spec-curve demotion rule,
+  transported-band widening formula) are RW HYPOTHESES —
+  engineering choices on consensus bases.
