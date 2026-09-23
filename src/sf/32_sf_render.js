@@ -259,16 +259,17 @@ function sfRenderWorld(cw, ch){
       const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom);
       const sy = Math.round((b.by0 - cam.y) * cam.zoom + ch / 2 - art.oy * cam.zoom);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
-      if(cam.zoom >= 0.9 && b.name){
+      const dn = sfDisplayName(b.name, b.kind);
+      if(cam.zoom >= 0.9 && dn){
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
         const lx = Math.round((b.x - cam.x) * cam.zoom + cw / 2);
         const ly = Math.round((b.by0 - b.hPx - cam.y) * cam.zoom + ch / 2 - 8);
-        const tw = ctx.measureText(b.name).width;
+        const tw = ctx.measureText(dn).width;
         ctx.fillStyle = 'rgba(15,23,42,0.85)';
         ctx.fillRect(lx - tw / 2 - 4, ly - 11, tw + 8, 14);
         ctx.fillStyle = '#fef08a';
-        ctx.fillText(b.name, lx, ly);
+        ctx.fillText(dn, lx, ly);
       }
     } else if(d.kind === 'prop'){
       const o = d.o, V = PA.sfVeg;
@@ -591,13 +592,14 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
             [x1 + ex * u0 + nx, y1 + ey * u0 + ny, 3.05]],
            awn[k % 2 ? 4 : 3]);
     }
-    if(b.name){
+    const dn = sfDisplayName(b.name, b.kind);
+    if(dn){
       const mp = pr(x1 + ex * 0.5, y1 + ey * 0.5, 3.0);
       if(mp){
         ctx.font = `bold ${Math.max(8, 0.55 * F / mp[2])}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillStyle = '#f8f4e8';
-        ctx.fillText(b.name.slice(0, 20), mp[0], mp[1]);
+        ctx.fillText(dn.slice(0, 20), mp[0], mp[1]);
       }
     }
   } else if(L > 5){
@@ -996,13 +998,14 @@ function sfRenderStreet(cw, ch){
           ctx.fill();
         }
       }
-      if(b.name){
+      const dn = sfDisplayName(b.name, b.kind);
+      if(dn){
         const p = pr(b.x / SF_PXM, b.y / SF_PXM, hm + 1.5);
         if(p){
           ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
           ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 3;
-          ctx.strokeText(b.name, p[0], p[1]);
-          ctx.fillStyle = '#fff'; ctx.fillText(b.name, p[0], p[1]);
+          ctx.strokeText(dn, p[0], p[1]);
+          ctx.fillStyle = '#fff'; ctx.fillText(dn, p[0], p[1]);
         }
       }
     } else if(d.k === 'p'){
@@ -1101,7 +1104,7 @@ function sfRenderInterior(cw, ch, v){
     paEllipse(ctx, cw * 0.25 + i * cw * 0.25, ch * 0.3, 60, 10, '#4a3423');
   ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
   ctx.fillStyle = '#f8f4e8';
-  ctx.fillText('— ' + name + ' —', cw / 2, ch * 0.18);
+  ctx.fillText('— ' + (sfDisplayName(name) || name) + ' —', cw / 2, ch * 0.18);
   const lab = (SF_INTERIORS[name] && SF_INTERIORS[name].label) || '';
   ctx.font = '12px sans-serif'; ctx.fillStyle = '#d8c8b0';
   ctx.fillText(lab, cw / 2, ch * 0.22);

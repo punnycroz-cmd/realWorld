@@ -3898,7 +3898,7 @@ const NV_CAST = [
    skin:'#eab088', skinD:'#cf8f66', hair:'#6b4423', hairD:'#4e3018', hairStyle:'curly',
    hat:'none', acc:'beard', shirt:'#5a4a8c', shirtD:'#443a6d', pants:'#3a3a44', pantsD:'#2a2a32',
    boots:'#4a3524', bootsD:'#33241a', outfit:'vest', prop:'lute'},
-  {id:'A09', tier:'ambient', name:'Priya', role:'nurse in scrubs off a shift',
+  {id:'A09', tier:'ambient', name:'Asha', role:'nurse in scrubs off a shift',
    skin:'#a86a44', skinD:'#8a5230', hair:'#1c1a18', hairD:'#0e0d0c', hairStyle:'ponytail',
    hat:'none', acc:'none', shirt:'#3a8a9e', shirtD:'#2c6b7b', pants:'#3a8a9e', pantsD:'#2c6b7b',
    boots:'#f4f1ea', bootsD:'#c9c4b8', outfit:'scrubs', prop:'phone'},
@@ -27659,6 +27659,44 @@ function sfInitWorld(){
     wx: Math.round(al.auerbach.x / cm), wy: Math.round(al.auerbach.y / cm),
     x: Math.round(al.auerbach.x / cm) * CS + 16, y: Math.round(al.auerbach.y / cm) * CS + 16,
     bld: al.auerbach.bld });
+  // world-content venues: canonical parody names -> real map spots.
+  // src:<name> clones a real/synthetic POI's coords; at:[x,y] is map meters.
+  // (world/businesses.md is the naming authority; routines may key on either name)
+  const SF_WORLD_POIS = [
+    { name: 'Mudhaus Coffee', kind: 'cafe', src: 'Haus Coffee' },
+    { name: 'Taqueria El Farolote', kind: 'restaurant', src: 'Taqueria El Farolito' },
+    { name: 'Buy-Rite Market', kind: 'supermarket', src: 'Bi-Rite Market' },
+    { name: 'Buy-Rite Creamery', kind: 'ice_cream', src: 'Bi-Rite Creamery' },
+    { name: 'Il Delfino', kind: 'restaurant', src: 'Delfina' },
+    { name: 'Dolores Perk', kind: 'cafe', src: 'Dolores Park Cafe' },
+    { name: 'Baguette About It Bakery', kind: 'bakery', src: 'Tartine Bakery' },
+    { name: 'The 600 Club', kind: 'bar', src: '500 Club' },
+    { name: 'Dandy Lion Chocolate Co.', kind: 'chocolate', src: 'Dandelion Chocolate' },
+    { name: 'Valencia Growers Market', kind: 'marketplace', src: 'Valencia Farmers Market' },
+    { name: 'Needlepointe Tattoo', kind: 'tattoo', src: '13 Bats Tattoo and Piercing' },
+    { name: 'Folsom Auto & Sons', kind: 'car_repair', src: 'F. Lofrano and Son, Inc.' },
+    { name: "Malik's Mini Mart", kind: 'convenience', src: 'Guerrero Market & Deli' },
+    { name: 'Bloom & Doom Flowers', kind: 'florist', src: 'Diosa Blooms' },
+    { name: 'Mission Branch Library', kind: 'library',
+      src: 'Mission Temporary Branch, San Francisco Public Library' },
+    { name: 'Frutería Las Palmas', kind: 'greengrocer', at: [669.4, 545.5] }, // Dolores at 19th
+    { name: 'Mission High School', kind: 'school', at: [616.1, 256.0] },     // 18th & Church
+    { name: 'Clarion Alley', kind: 'artwork', at: [1020.9, 111.3] },          // 17th/18th, Mission-Valencia
+    { name: 'SF General', kind: 'clinic', at: [1531.3, 1424.9] },             // E edge — commute off toward Potrero
+  ];
+  for(const w of SF_WORLD_POIS){
+    let rec;
+    if(w.src){
+      const p = sfFindPOI(w.src);
+      if(!p) continue;
+      rec = { wx: p.wx, wy: p.wy, x: p.x, y: p.y, bld: p.bld };
+    } else {
+      const wx = Math.round(w.at[0] / cm), wy = Math.round(w.at[1] / cm);
+      rec = { wx, wy, x: wx * CS + 16, y: wy * CS + 16, bld: -1 };
+    }
+    rec.name = w.name; rec.kind = w.kind;
+    SF_POIS.push(rec);
+  }
   // building world-space records + chunk bucket
   SF_MAP.buildings.forEach((b, i) => {
     const px = b.poly.map(q => [q[0] * SF_PXM, q[1] * SF_PXM]);
@@ -27834,6 +27872,345 @@ function sfAnchorCell(ref){
     }
   }
   return null;
+}
+
+/* sf/30a_sf_names.js — Parody display-name layer (world v2, focus:
+   parody-businesses).
+
+   Locked rule (design doc §11, user 2026-09-22): in-world business names
+   are PARODY (GTA-style imitation), never real SF business names. Street
+   names and public landmarks/civic institutions stay real — geographic
+   facts with no defamation surface.
+
+   The map data (SF_MAP.pois / buildings) keeps real OSM names as CODE
+   KEYS — routines, interiors, and tests depend on them. This module is
+   the display layer: any name that reaches a player's eyes (signage bake,
+   map/street labels, interior headers, feed text, briefings) must pass
+   through sfDisplayName() first.
+
+   Naming authority: world/businesses.md. Machine-readable mirror:
+   world/parody-names.json. */
+
+/* Real/parody name -> canonical display name.
+   Three groups: story-adjacent venues (businesses.md §2), chain/notable
+   parodies (§3a), and interior keys whose superseded real addresses map
+   to the canonical 9xxx registry addresses (address spec §8). */
+const SF_PARODY_NAMES = {
+  // --- story-adjacent (canonical, businesses.md §1/§2) ---
+  'Haus Coffee': 'Mudhaus Coffee',
+  'Cafe La Boheme': 'Mudhaus Coffee',          // real POI under the haus anchor
+  'Taqueria El Farolito': 'Taqueria El Farolote',
+  'El Farolito Bar': 'El Farolote Bar',
+  'U-Save Plumbing and Hardware': 'Auerbach Hardware',
+  'Bi-Rite Market': 'Buy-Rite Market',
+  'Bi-Rite Creamery': 'Buy-Rite Creamery',
+  'Delfina': 'Il Delfino',
+  'Dolores Park Cafe': 'Dolores Perk',
+  'Tartine Bakery': 'Baguette About It Bakery',
+  '500 Club': 'The 600 Club',
+  'Dandelion Chocolate': 'Dandy Lion Chocolate Co.',
+  'Valencia Farmers Market': 'Valencia Growers Market',
+  '13 Bats Tattoo and Piercing': 'Needlepointe Tattoo',
+  'F. Lofrano and Son, Inc.': 'Folsom Auto & Sons',
+  'Guerrero Market & Deli': "Malik's Mini Mart",
+  'Diosa Blooms': 'Bloom & Doom Flowers',
+  // interior keys: superseded real addresses -> canonical 9xxx registry
+  '744 Guerrero': '9418 Guerrero St',
+  '750 Guerrero': '9457 Guerrero St',
+  // --- chains & nationals present in the POI data (§3a) ---
+  'Starbucks': 'Buzz Cup Coffee',
+  'Walgreens': "Wallgreen's",
+  "McDonald's": "McClucky's",
+  'Whole Foods Market': 'Hole Paycheck Market',
+  'Valencia Whole Foods': 'Hole Paycheck Market',
+  'Bank of America': 'First Merchants Bank',
+  'Wells Fargo': 'Goldenvault Bank',
+  'Chase': 'Goldenvault Bank',
+  'EverBank': 'Goldenvault Bank',
+  'BMO': 'First Merchants Bank',
+  'SF Fire Credit Union': 'Mission Credit Union',
+  'Self-Help Federal Credit Union': 'Mission Credit Union',
+  'DHL': 'Mail These Things',
+  'Dollar General': '99¢ Plus Ultra',
+  'AT&T': 'Talk & Text Wireless',
+  'Verizon': 'Talk & Text Wireless',
+  'Metro by T-Mobile': 'Talk & Text Wireless',
+  'Metro By T-Mobile': 'Talk & Text Wireless',
+  'Total Wireless': 'Talk & Text Wireless',
+  'Supercuts': 'Super Cuts',                    // generic-adjacent; CUTS also fine
+  'Skechers Outlet': 'Shoe City',
+  'One Medical': 'Mission Urgent Care',
+  'GoHealth Urgent Care': 'Mission Urgent Care',
+  'Western Dental': 'Mission Dental',
+  'Mathnasium': 'Numbers Up Tutoring',
+  'Pure Barre': 'Barre None Fitness',
+  'Ria': 'Money Wire',
+  'MoneyFast': 'Money Wire',
+  'Cambialo y Mandalo': 'Money Wire',
+  'JM Express': 'Money Wire',
+  'Apoyo Financiero': 'Quick Loans',
+  'Eagle Loan Office': 'Quick Loans',
+  'State Farm': 'Sure Thing Insurance',
+  'Fred Loya Insurance': 'Sure Thing Insurance',
+  'Primera Insurance Agency': 'Sure Thing Insurance',
+  'Pollo Campero': 'Pollito Frito',
+  'Curry Up Now': 'Curry Up Later',
+  'Pressed Juicery': 'Squeeze Juice Co.',
+  'Sidewalk Juice': 'Squeeze Juice Co.',
+  'Mixt': 'Salad Days',
+  'Reformation': 'Second Skin',
+  'Buffalo Exchange': 'Second Skin',
+  'Just For Fun': 'Fun & Games',               // everything store on 24th
+  // --- notable locals: GTA-style flips for spots a camera will read ---
+  'Foreign Cinema': 'Foreign Reels',
+  'Lazy Bear': 'The Idle Bear',
+  'The Chapel': 'The Steeple',
+  'The Valencia Room': 'The Guerrero Room',
+  'Make Out Room': 'The Breakup Room',
+  'Moby Dick': 'The White Whale',
+  'Latin American Club': 'Pan-American Club',
+  "Bender's Bar and Grill": "Fender's Bar & Grill",
+  'The Dubliner': 'The Corkman',
+  'The Valley Tavern': 'The Alley Tavern',
+  'Fort Point Beer Company': 'Fort Pint Beer Co.',
+  'El Techo': 'La Azotea',
+  "Doc's Clock": "Doc's Watch",
+  'El Valenciano': 'El Missionero',
+  'Señor Sisig': 'Señor Sizzle',
+  'ODC Theater': 'KDC Theater',
+  'The Marsh': 'The Bog',
+  'Endgames Improv': 'Opening Night Improv',
+  'Endgames Improv Training Center': 'Opening Night Improv',
+  'Needles And Pens': 'Needles & Puns',
+  'Paxton Gate': 'Odd Lot Curiosities',
+  'Dog Eared Books': 'The Dusty Spine',
+  'Community Thrift Store': 'Second Glance Thrift',
+  'Born Again Thrift': 'Second Glance Thrift',
+  'Landline': 'The Busy Signal',
+  'Arcana': 'The Velvet Hour',
+  'Radio Habana': 'Radio Mission',
+};
+
+/* Kinds whose names are civic / landmark facts and stay REAL (§3c):
+   schools, worship, library, police, post office, public art, toilets,
+   transit infrastructure. Scenery only — never story targets. */
+const SF_REAL_NAME_KINDS = new Set([
+  'place_of_worship', 'school', 'prep_school', 'kindergarten', 'college',
+  'library', 'post_office', 'police', 'community_centre', 'social_facility',
+  'social_centre', 'toilets', 'taxi', 'post_box', 'artwork', 'attraction',
+  'information', 'church', 'civic', 'government',
+]);
+
+/* Kinds that never get a label: housing, garages, misc/junk kinds.
+   Residential building names (real apartment names) are private —
+   they render nothing. */
+const SF_HIDDEN_NAME_KINDS = new Set([
+  'yes', 'apartments', 'apartment', 'residential', 'house', 'detached',
+  'semidetached_house', 'garage', 'roof', 'elevator', 'construction',
+  'fixme', 'disused:clinic', 'vacant', 'funeral_directors',
+]);
+
+/* Generic kind signage — the GTA long tail. Business POIs without a
+   mapped parody name render what they sell, uppercase, no proper noun
+   (businesses.md §3b). Arrays give deterministic variety via name hash. */
+const SF_KIND_SIGNAGE = {
+  restaurant: ['TAQUERIA', 'COMIDA', 'DINER', 'PIZZERIA', 'BIRYANI',
+               'NOODLES', 'SUSHI', 'CURRY', 'PUPUSERIA', 'RAMEN'],
+  cafe: ['CAFÉ', 'COFFEE', 'CAFÉ', 'COFFEE'],
+  fast_food: ['BURGERS', 'FRIED', 'SLICES', 'FRIED CHICKEN'],
+  bar: ['BAR', 'CANTINA', 'BAR', 'CANTINA'],
+  pub: ['BAR', 'CANTINA', 'PUB'],
+  lounge: ['LOUNGE', 'CANTINA'],
+  nightclub: ['CLUB', 'CLUB'],
+  ice_cream: ['ICE CREAM'],
+  bakery: ['PANADERÍA', 'BAKERY', 'DONUTS', 'PANADERÍA'],
+  pastry: ['PANADERÍA', 'BAKERY'],
+  convenience: ['MARKET', 'LIQUOR', 'MARKET', 'LIQUOR'],
+  supermarket: ['GROCERY', 'MARKET', 'GROCERY'],
+  'supermarket;convenience': ['GROCERY'],
+  greengrocer: ['PRODUCE', 'FRUTERÍA'],
+  butcher: ['BUTCHER', 'CARNICERÍA'],
+  seafood: ['SEAFOOD', 'MARISCOS'],
+  alcohol: ['LIQUOR', 'WINE & SPIRITS'],
+  hairdresser: ['CUTS', 'SALON', 'BARBER', 'SALON', 'CUTS'],
+  beauty: ['NAILS', 'SALON', 'SPA', 'WAX STUDIO', 'THREADING'],
+  massage: ['MASSAGE', 'SPA'],
+  'hot_tub;massage': ['SPA'],
+  spa: ['SPA'],
+  clothes: ['VINTAGE', 'THREADS', 'BOUTIQUE'],
+  boutique: ['BOUTIQUE', 'THREADS'],
+  'clothing;furniture': ['THREADS'],
+  'clothes;houseware': ['THREADS'],
+  second_hand: ['THRIFT', 'VINTAGE'],
+  shoes: ['SHOES'],
+  bag: ['BAGS'],
+  fashion_accessories: ['BOUTIQUE'],
+  jewelry: ['JEWELRY', 'JOYERÍA'],
+  tattoo: ['TATTOO'],
+  florist: ['FLOWERS', 'FLORERÍA'],
+  car_repair: ['AUTO REPAIR', 'MECHANIC'],
+  pharmacy: ['PHARMACY', 'FARMACIA'],
+  chemist: ['PHARMACY'],
+  books: ['USED BOOKS', 'BOOKS'],
+  stationery: ['STATIONERY', 'PAPER'],
+  laundry: ['LAUNDRY', 'LAUNDROMAT'],
+  dry_cleaning: ['CLEANERS', 'DRY CLEANING'],
+  dentist: ['DENTAL', 'DENTIST'],
+  doctors: ['CLINIC', 'DOCTOR'],
+  clinic: ['CLINIC', 'URGENT CARE'],
+  optician: ['OPTOMETRY', 'EYEWEAR'],
+  hardware: ['HARDWARE'],
+  paint: ['PAINT'],
+  houseware: ['HOUSEWARES'],
+  'houseware;interior_decoration': ['HOUSEWARES'],
+  'furniture;houseware': ['FURNITURE'],
+  furniture: ['FURNITURE'],
+  interior_decoration: ['HOME DECOR'],
+  carpet: ['CARPETS'],
+  locksmith: ['LOCKSMITH'],
+  gym: ['GYM'],
+  sports_centre: ['GYM'],
+  fitness_centre: ['GYM', 'FITNESS', 'PILATES', 'CROSSFIT'],
+  dojo: ['DOJO', 'MARTIAL ARTS'],
+  dancing_school: ['DANCE'],
+  dance: ['DANCE'],
+  music_school: ['MUSIC LESSONS'],
+  cooking_school: ['COOKING CLASSES'],
+  language_school: ['LANGUAGE SCHOOL'],
+  training: ['CLASSES', 'TUTORING'],
+  bank: ['BANK'],
+  atm: ['ATM'],
+  hotel: ['HOTEL'],
+  guest_house: ['GUEST HOUSE', 'HOTEL'],
+  cannabis: ['DISPENSARY'],
+  tobacco: ['SMOKE', 'SMOKE SHOP'],
+  erotic: ['ADULT SHOP'],
+  psychic: ['PSYCHIC'],
+  gift: ['GIFTS'],
+  antiques: ['ANTIQUES'],
+  gallery: ['GALLERY', 'ART'],
+  art: ['GALLERY'],
+  arts_centre: ['ART CENTER'],
+  theatre: ['THEATER'],
+  studio: ['STUDIO', 'RADIO'],
+  frame: ['FRAMING'],
+  wool: ['YARN'],
+  musical_instrument: ['MUSIC SHOP'],
+  music: ['RECORDS', 'MUSIC'],
+  video: ['VIDEO'],
+  electronics: ['ELECTRONICS'],
+  computer: ['COMPUTERS'],
+  mobile_phone: ['WIRELESS', 'PHONE REPAIR'],
+  printing: ['PRINTING', 'COPIES'],
+  copyshop: ['PRINTING'],
+  mailing_company: ['MAIL & SHIP'],
+  money_transfer: ['MONEY WIRE'],
+  money_lender: ['LOANS'],
+  bureau_de_change: ['CURRENCY EXCHANGE'],
+  pawnbroker: ['PAWN'],
+  travel_agency: ['TRAVEL'],
+  bicycle: ['BIKES', 'BIKE REPAIR'],
+  bicycle_rental: ['BIKE SHARE'],
+  parking: ['PARKING'],
+  marketplace: ['MARKET'],
+  health_food: ['HEALTH FOODS'],
+  herbalist: ['HERBALIST', 'BOTÁNICA'],
+  'religion;candles': ['BOTÁNICA'],
+  religion: ['BOTÁNICA'],
+  'spices;tea': ['SPICES & TEA'],
+  chocolate: ['CHOCOLATE'],
+  confectionery: ['CANDY', 'DULCES'],
+  coffee_roaster: ['COFFEE'],
+  fuel: ['GAS'],
+  taxi_stand: ['TAXI'],
+  pet: ['PET SUPPLY'],
+  pet_grooming: ['PET GROOMING'],
+  veterinary: ['VET', 'ANIMAL HOSPITAL'],
+  baby_goods: ['BABY'],
+  pottery: ['POTTERY'],
+  craft: ['CRAFTS'],
+  sports: ['SPORTING GOODS'],
+  pasta: ['PASTA'],
+  leather: ['LEATHER GOODS'],
+  'bar;restaurant': ['BAR & GRILL', 'CANTINA'],
+  'miniature_golf': ['MINI GOLF'],
+  poi: ['OFFICE', 'SERVICES', 'OFFICE'],   // realtors, tax, law, insurance
+  janitorial_supply: ['JANITORIAL'],
+  perfumery: ['PERFUME'],
+  variety_store: ['99¢ STORE', 'VARIETY'],
+  coffee: ['COFFEE'],
+};
+
+/* Name hints: when a real name telegraphs what it sells, the generic
+   sign should match. Checked before the kind table. Ordered. */
+const SF_NAME_HINTS = [
+  [/taqueria|taco|burrito|mexican|mexicano|oaxaque|jalisco|sisig|papalote|cancun|sabor|altos|san jose|loco/i, 'TAQUERIA'],
+  [/pizza|pizzeria|slice/i, 'PIZZERIA'],
+  [/sushi|ramen|taishoken|michiba|noodle|dumpling|dim sum|udon|tadaima|handroll|saru|isso/i, 'JAPANESE'],
+  [/thai/i, 'THAI'],
+  [/indian|curry|biryani|udupi|masala/i, 'INDIAN'],
+  [/chinese|china|heung|zhengxin|tung sing|yamo|bao |baos|kite asian/i, 'CHINESE'],
+  [/vietnam|pho|banh|banán|kasa\b/i, 'VIETNAMESE'],
+  [/salvador|pupusa|pan lido|santaneca/i, 'PUPUSERIA'],
+  [/ethiopia|habana|caribbean|jamaica|creole/i, 'COMIDA'],
+  [/coffee|café|caff|caffe|espresso|roaster|java|brew\b|linea|spro|supreme|due café|grinds/i, 'COFFEE'],
+  [/\btea\b|boba|matcha|cha-ya/i, 'TEA'],
+  [/juice|juicery|smoothie|acai|bowls/i, 'JUICE'],
+  [/bagel|donut|doughnut|cookie|pastry|bakery|panader|boulangerie|bread|patisserie|tarte|cake|dessert|sweet|chocolate|candy|dulce|confection/i, 'BAKERY'],
+  [/ice cream|creamery|gelato|scoop|frozen/i, 'ICE CREAM'],
+  [/burger|whiz/i, 'BURGERS'],
+  [/greek|mediterranean|souvla|gyro|mezze|mamahuhu|italian|pasta|french|korean|filipino|peruvian|ceviche|arepa|empanada|porten/i, 'COMIDA'],
+  [/grill|bbq|barbecue|rotisserie|smokehouse|diner|kitchen|eatery|ristorante|trattoria|osteria|brunch|breakfast|pancake|waffle|sando|sandwich|deli|picnic|soup|salad|vegan|vegetarian|restaurant|comida|cocina/i, 'COMIDA'],
+  [/bar\b|pub|tavern|lounge|cantina|saloon|cocktail|wine bar|beer|brewing|cervecer|speakeasy/i, 'BAR'],
+  [/club|disco|nightlife|dance hall/i, 'CLUB'],
+  [/liquor|wine|spirits|bottle/i, 'LIQUOR'],
+  [/market|grocery|produce|fruter|greengrocer|supermercado|food|mart\b|deli|bodega|mercado|mini mart|outpost|depot/i, 'MARKET'],
+  [/butcher|carnicer|meat|sausage|pork/i, 'BUTCHER'],
+  [/seafood|mariscos|fish|oyster/i, 'SEAFOOD'],
+  [/barber/i, 'BARBER'],
+  [/nail|manicure|pedicure|mani/i, 'NAILS'],
+  [/hair|salon|cuts|barbershop|coiffure|style|tress|curl|fade|beauty|threading|wax|lash|brow|skin|glow|facial|spa\b/i, 'SALON'],
+  [/massage|acupuncture|reiki/i, 'MASSAGE'],
+  [/tattoo|ink\b|piercing/i, 'TATTOO'],
+  [/flor|bloom|blossom|petal|flower/i, 'FLOWERS'],
+  [/book|literar|librer|read|paper|pen|zine|comic|record|music|vinyl|radio|studio|sound|audio/i, 'BOOKS & MUSIC'],
+  [/galler|art\b|frame|print|pottery|ceramic|craft|knit|yarn|wool|supply/i, 'ART & CRAFT'],
+  [/cloth|apparel|wear|fashion|boutique|vintage|thrift|second|denim|jeans|leather|shoe|kick|sneaker|footwear|thread|dress|garment|reformation/i, 'THREADS'],
+  [/jewel|joyer|gold|silver|watch|accessories|accessor/i, 'JEWELRY'],
+  [/laundr|wash|clean|dry clean/i, 'LAUNDRY'],
+  [/hardware|plumb|paint|tool|supply|lumber|glass|upholst|furniture|home|decor|antiqu|rug|carpet|appliance/i, 'HOME GOODS'],
+  [/auto|car\b|vehicle|motor|tire|collision|smog|repair shop|cyclery|bike|wheel/i, 'AUTO & BIKE'],
+  [/pharm|drug|apothec|herbal|botan|botanica|candle|spiritual|psychic|tarot|cbd|cannabis|dispensar|smoke|tobacco|cigar|vape|erotic|vibration|adult/i, 'SPECIALTY'],
+  [/dent|smile|brace|orthodon|tooth|teeth/i, 'DENTAL'],
+  [/clinic|medical|health|doctor|physician|urgent|optom|eye|vision|optic|pediatr|vet|animal|pet\b|paw|groom/i, 'CLINIC & CARE'],
+  [/gym|fitness|crossfit|pilates|yoga|barre|boxing|martial|jiu|dojo|karate|capoeira|train|athlet|sport|soccer|barbell|climb/i, 'GYM'],
+  [/bank|credit union|loan|money|transfer|insurance|tax|accounting|financial|realty|real estate|propert|law|legal|office|travel|print|copy|mail|ship|locksmith|key/i, 'SERVICES'],
+  [/hotel|inn|guest|hostel|lodge|motel|coliving|nest/i, 'HOTEL'],
+];
+
+/* Name-hash for deterministic signage variety (same name -> same sign). */
+function sfNameHash(s){
+  let h = 5381;
+  for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/* The one entry point. name = code/OSM name, kind = POI or building kind.
+   Returns the string a player may see, or null for "render no label". */
+function sfDisplayName(name, kind){
+  if(!name) return null;
+  const parody = SF_PARODY_NAMES[name];
+  if(parody) return parody;
+  if(kind && SF_REAL_NAME_KINDS.has(kind)) return name;
+  if(kind && SF_HIDDEN_NAME_KINDS.has(kind)) return null;
+  for(const [re, sign] of SF_NAME_HINTS) if(re.test(name)) return sign;
+  const signs = kind && SF_KIND_SIGNAGE[kind];
+  if(signs && signs.length) return signs[sfNameHash(name) % signs.length];
+  // unmapped building names: residential-looking names get no label;
+  // anything else falls back to the generic storefront
+  if(!kind || kind === 'yes' || /apart|condo|tower|plaza|terrace|court|residence|cottage|coliving|campus|building|manor|house$/i.test(name))
+    return null;
+  return 'SHOP';
 }
 
 /* =====================================================================
@@ -28389,11 +28766,12 @@ function sfBldCanvas(b){
           paEllipse(g, ax - aw / 2 + k * 5, dy2 - 18, 2.5, 2.5, awn[4]);
         paR(g, ax - aw / 2, dy2 - 23, aw, 1, awn[5]);
         // painted sign on the fascia
-        if(b.name){
+        const dn = sfDisplayName(b.name, b.kind);
+        if(dn){
           g.fillStyle = '#f8f4e8';
           g.font = 'bold 5px sans-serif';
           g.textAlign = 'center';
-          g.fillText(b.name.slice(0, 22), ax, dy2 - 19.5);
+          g.fillText(dn.slice(0, 22), ax, dy2 - 19.5);
         }
       }
     }
@@ -28810,16 +29188,17 @@ function sfRenderWorld(cw, ch){
       const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom);
       const sy = Math.round((b.by0 - cam.y) * cam.zoom + ch / 2 - art.oy * cam.zoom);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
-      if(cam.zoom >= 0.9 && b.name){
+      const dn = sfDisplayName(b.name, b.kind);
+      if(cam.zoom >= 0.9 && dn){
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
         const lx = Math.round((b.x - cam.x) * cam.zoom + cw / 2);
         const ly = Math.round((b.by0 - b.hPx - cam.y) * cam.zoom + ch / 2 - 8);
-        const tw = ctx.measureText(b.name).width;
+        const tw = ctx.measureText(dn).width;
         ctx.fillStyle = 'rgba(15,23,42,0.85)';
         ctx.fillRect(lx - tw / 2 - 4, ly - 11, tw + 8, 14);
         ctx.fillStyle = '#fef08a';
-        ctx.fillText(b.name, lx, ly);
+        ctx.fillText(dn, lx, ly);
       }
     } else if(d.kind === 'prop'){
       const o = d.o, V = PA.sfVeg;
@@ -29142,13 +29521,14 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
             [x1 + ex * u0 + nx, y1 + ey * u0 + ny, 3.05]],
            awn[k % 2 ? 4 : 3]);
     }
-    if(b.name){
+    const dn = sfDisplayName(b.name, b.kind);
+    if(dn){
       const mp = pr(x1 + ex * 0.5, y1 + ey * 0.5, 3.0);
       if(mp){
         ctx.font = `bold ${Math.max(8, 0.55 * F / mp[2])}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillStyle = '#f8f4e8';
-        ctx.fillText(b.name.slice(0, 20), mp[0], mp[1]);
+        ctx.fillText(dn.slice(0, 20), mp[0], mp[1]);
       }
     }
   } else if(L > 5){
@@ -29547,13 +29927,14 @@ function sfRenderStreet(cw, ch){
           ctx.fill();
         }
       }
-      if(b.name){
+      const dn = sfDisplayName(b.name, b.kind);
+      if(dn){
         const p = pr(b.x / SF_PXM, b.y / SF_PXM, hm + 1.5);
         if(p){
           ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
           ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 3;
-          ctx.strokeText(b.name, p[0], p[1]);
-          ctx.fillStyle = '#fff'; ctx.fillText(b.name, p[0], p[1]);
+          ctx.strokeText(dn, p[0], p[1]);
+          ctx.fillStyle = '#fff'; ctx.fillText(dn, p[0], p[1]);
         }
       }
     } else if(d.k === 'p'){
@@ -29652,7 +30033,7 @@ function sfRenderInterior(cw, ch, v){
     paEllipse(ctx, cw * 0.25 + i * cw * 0.25, ch * 0.3, 60, 10, '#4a3423');
   ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
   ctx.fillStyle = '#f8f4e8';
-  ctx.fillText('— ' + name + ' —', cw / 2, ch * 0.18);
+  ctx.fillText('— ' + (sfDisplayName(name) || name) + ' —', cw / 2, ch * 0.18);
   const lab = (SF_INTERIORS[name] && SF_INTERIORS[name].label) || '';
   ctx.font = '12px sans-serif'; ctx.fillStyle = '#d8c8b0';
   ctx.fillText(lab, cw / 2, ch * 0.22);
@@ -29778,10 +30159,101 @@ const SF_CORE_ROUTINES = {
 };
 
 /* ambient role -> routine template */
+function sfAmbientHome(id){
+  return { poi: null, latlon: [37.7560 + (hashString18(id) % 40) / 2000,
+                               -122.4240 + (hashString18(id + 'x') % 60) / 3000] };
+}
+/* per-ambient routines — world/ambients.json + world/ambients/ are the
+   readable spec; canonical venue names resolve via SF_WORLD_POIS
+   (30_sf_world.js). Falls back to the role template when absent. */
+const SF_AMBIENT_ROUTINES = {
+  A01: c => { const home = sfAmbientHome(c.id); return [ // Reyes: Mudhaus espresso shifts
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 18, to: { poi: 'Mudhaus Coffee' }, state: 'serve' },
+    { h0: 18, h1: 22, to: home, state: 'idle', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A03: c => { const home = sfAmbientHome(c.id); return [ // Malik: counter at his own corner store
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 18, to: { poi: "Malik's Mini Mart" }, state: 'serve' },
+    { h0: 18, h1: 22, to: home, state: 'idle', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A05: c => { const home = sfAmbientHome(c.id); return [ // Esther: stoop, park, Dolores Perk
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 12, state: 'sit', stops: [{ anchor: 'park_center' }, { poi: 'Dolores Perk' }] },
+    { h0: 12, h1: 18, to: { anchor: 'park_south' }, state: 'sit' },
+    { h0: 18, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A06: c => { const home = sfAmbientHome(c.id); return [ // Kofe: MuleIt hot-box loop
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 19, state: 'carry',
+      stops: [{ poi: 'Taqueria El Farolote' }, { poi: 'Il Delfino' },
+              { poi: 'Buy-Rite Creamery' }, { poi: 'Dolores Perk' },
+              { poi: 'Mudhaus Coffee' }, { anchor: 'g750' }] },
+    { h0: 19, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A07: c => { const home = sfAmbientHome(c.id); return [ // Luz: fruit stand, Dolores at 19th
+    { h0: 0, h1: 7, to: home, state: 'sleep', inside: true },
+    { h0: 7, h1: 18, to: { poi: 'Frutería Las Palmas' }, state: 'serve' },
+    { h0: 18, h1: 21, to: home, state: 'idle', inside: true },
+    { h0: 21, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A08: c => { const home = sfAmbientHome(c.id); return [ // Sam: corner sets, 600 Club nights
+    { h0: 0, h1: 10, to: home, state: 'sleep', inside: true },
+    { h0: 10, h1: 18, state: 'work', stops: [{ anchor: 'park_north' }, { anchor: 'park_south' }] },
+    { h0: 18, h1: 24, state: 'chat', stops: [{ poi: 'The 600 Club' }, { anchor: 'park_south' }] } ]; },
+  A09: c => { const home = sfAmbientHome(c.id); return [ // Asha: SF General shifts
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 19.5, to: { poi: 'SF General' }, state: 'work' },
+    { h0: 19.5, h1: 21, state: 'walk', stops: [{ poi: 'Mudhaus Coffee' }] },
+    { h0: 21, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A10: c => { const home = sfAmbientHome(c.id); return [ // Gus: Folsom Auto & Sons
+    { h0: 0, h1: 6.5, to: home, state: 'sleep', inside: true },
+    { h0: 6.5, h1: 16, to: { poi: 'Folsom Auto & Sons' }, state: 'work' },
+    { h0: 16, h1: 22, to: home, state: 'rest', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A11: c => { const home = sfAmbientHome(c.id); return [ // Vera: Mission Branch Library
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 17.5, to: { poi: 'Mission Branch Library' }, state: 'work' },
+    { h0: 17.5, h1: 20, state: 'sit', stops: [{ anchor: 'park_center' }, { poi: 'Dolores Perk' }] },
+    { h0: 20, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A12: c => { const home = sfAmbientHome(c.id); return [ // Tom: park laps bookending an office day
+    { h0: 0, h1: 6, to: home, state: 'sleep', inside: true },
+    { h0: 6, h1: 8, state: 'run', stops: [{ anchor: 'park_north' }, { anchor: 'park_south' }] },
+    { h0: 8, h1: 17, to: home, state: 'rest', inside: true },
+    { h0: 17, h1: 19, state: 'run', stops: [{ anchor: 'park_south' }, { anchor: 'park_center' }] },
+    { h0: 19, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A14: c => { const home = sfAmbientHome(c.id); return [ // Bex: Needlepointe + Clarion wanders
+    { h0: 0, h1: 10, to: home, state: 'sleep', inside: true },
+    { h0: 10, h1: 18, state: 'work', stops: [{ poi: 'Needlepointe Tattoo' }, { poi: 'Clarion Alley' }] },
+    { h0: 18, h1: 24, state: 'chat', stops: [{ poi: 'The 600 Club' }, { anchor: 'park_south' }] } ]; },
+  A15: c => { const home = sfAmbientHome(c.id); return [ // Omar: Flying Pannier paper runs
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 19, state: 'carry',
+      stops: [{ poi: 'Auerbach Hardware' }, { poi: 'Mission Branch Library' },
+              { poi: 'Dolores Perk' }, { poi: 'Mudhaus Coffee' }, { anchor: 'g744' }] },
+    { h0: 19, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A16: c => { const home = sfAmbientHome(c.id); return [ // Hana: the 4am bake at Baguette About It
+    { h0: 0, h1: 4, to: home, state: 'sleep', inside: true },
+    { h0: 4, h1: 13, to: { poi: 'Baguette About It Bakery' }, state: 'serve' },
+    { h0: 13, h1: 17, state: 'walk', stops: [{ anchor: 'park_center' }, { poi: 'Buy-Rite Market' }] },
+    { h0: 17, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A17: c => { const home = sfAmbientHome(c.id); return [ // Cole: site work by Auerbach Hardware
+    { h0: 0, h1: 6.5, to: home, state: 'sleep', inside: true },
+    { h0: 6.5, h1: 16, to: { poi: 'Auerbach Hardware' }, state: 'work' },
+    { h0: 16, h1: 22, to: home, state: 'rest', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A18: c => { const home = sfAmbientHome(c.id); return [ // Ida: Bloom & Doom counter
+    { h0: 0, h1: 7.5, to: home, state: 'sleep', inside: true },
+    { h0: 7.5, h1: 18, to: { poi: 'Bloom & Doom Flowers' }, state: 'serve' },
+    { h0: 18, h1: 22, to: home, state: 'idle', inside: true },
+    { h0: 22, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+  A19: c => { const home = sfAmbientHome(c.id); return [ // Ray: bench + pigeon rounds
+    { h0: 0, h1: 8, to: home, state: 'sleep', inside: true },
+    { h0: 8, h1: 12, state: 'sit', stops: [{ anchor: 'park_center' }, { poi: 'Dolores Perk' }] },
+    { h0: 12, h1: 18, state: 'sit', stops: [{ anchor: 'park_south' }, { anchor: 'park_center' }] },
+    { h0: 18, h1: 24, to: home, state: 'sleep', inside: true } ]; },
+};
 function sfAmbientRoutine(c){
+  if(SF_AMBIENT_ROUTINES[c.id]) return SF_AMBIENT_ROUTINES[c.id](c);
   const role = (c.role || '').toLowerCase();
-  const home = { poi: null, latlon: [37.7560 + (hashString18(c.id) % 40) / 2000,
-                                     -122.4240 + (hashString18(c.id + 'x') % 60) / 3000] };
+  const home = sfAmbientHome(c.id);
   const B = [];
   const at = (h0, h1, spec, st, inside) => B.push({ h0, h1, to: spec, state: st, inside });
   if(/barista|baker|shop|keeper|florist|grocer/.test(role)){

@@ -67,6 +67,7 @@ tests/27_autotest.js
 tests/28_autotest.js
 tests/29_autotest.js
 sf/30_sf_world.js
+sf/30a_sf_names.js
 sf/31_sf_art.js
 sf/32_sf_render.js
 sf/33_sf_cast.js

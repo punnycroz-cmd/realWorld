@@ -1,0 +1,338 @@
+/* sf/30a_sf_names.js — Parody display-name layer (world v2, focus:
+   parody-businesses).
+
+   Locked rule (design doc §11, user 2026-09-22): in-world business names
+   are PARODY (GTA-style imitation), never real SF business names. Street
+   names and public landmarks/civic institutions stay real — geographic
+   facts with no defamation surface.
+
+   The map data (SF_MAP.pois / buildings) keeps real OSM names as CODE
+   KEYS — routines, interiors, and tests depend on them. This module is
+   the display layer: any name that reaches a player's eyes (signage bake,
+   map/street labels, interior headers, feed text, briefings) must pass
+   through sfDisplayName() first.
+
+   Naming authority: world/businesses.md. Machine-readable mirror:
+   world/parody-names.json. */
+
+/* Real/parody name -> canonical display name.
+   Three groups: story-adjacent venues (businesses.md §2), chain/notable
+   parodies (§3a), and interior keys whose superseded real addresses map
+   to the canonical 9xxx registry addresses (address spec §8). */
+const SF_PARODY_NAMES = {
+  // --- story-adjacent (canonical, businesses.md §1/§2) ---
+  'Haus Coffee': 'Mudhaus Coffee',
+  'Cafe La Boheme': 'Mudhaus Coffee',          // real POI under the haus anchor
+  'Taqueria El Farolito': 'Taqueria El Farolote',
+  'El Farolito Bar': 'El Farolote Bar',
+  'U-Save Plumbing and Hardware': 'Auerbach Hardware',
+  'Bi-Rite Market': 'Buy-Rite Market',
+  'Bi-Rite Creamery': 'Buy-Rite Creamery',
+  'Delfina': 'Il Delfino',
+  'Dolores Park Cafe': 'Dolores Perk',
+  'Tartine Bakery': 'Baguette About It Bakery',
+  '500 Club': 'The 600 Club',
+  'Dandelion Chocolate': 'Dandy Lion Chocolate Co.',
+  'Valencia Farmers Market': 'Valencia Growers Market',
+  '13 Bats Tattoo and Piercing': 'Needlepointe Tattoo',
+  'F. Lofrano and Son, Inc.': 'Folsom Auto & Sons',
+  'Guerrero Market & Deli': "Malik's Mini Mart",
+  'Diosa Blooms': 'Bloom & Doom Flowers',
+  // interior keys: superseded real addresses -> canonical 9xxx registry
+  '744 Guerrero': '9418 Guerrero St',
+  '750 Guerrero': '9457 Guerrero St',
+  // --- chains & nationals present in the POI data (§3a) ---
+  'Starbucks': 'Buzz Cup Coffee',
+  'Walgreens': "Wallgreen's",
+  "McDonald's": "McClucky's",
+  'Whole Foods Market': 'Hole Paycheck Market',
+  'Valencia Whole Foods': 'Hole Paycheck Market',
+  'Bank of America': 'First Merchants Bank',
+  'Wells Fargo': 'Goldenvault Bank',
+  'Chase': 'Goldenvault Bank',
+  'EverBank': 'Goldenvault Bank',
+  'BMO': 'First Merchants Bank',
+  'SF Fire Credit Union': 'Mission Credit Union',
+  'Self-Help Federal Credit Union': 'Mission Credit Union',
+  'DHL': 'Mail These Things',
+  'Dollar General': '99¢ Plus Ultra',
+  'AT&T': 'Talk & Text Wireless',
+  'Verizon': 'Talk & Text Wireless',
+  'Metro by T-Mobile': 'Talk & Text Wireless',
+  'Metro By T-Mobile': 'Talk & Text Wireless',
+  'Total Wireless': 'Talk & Text Wireless',
+  'Supercuts': 'Super Cuts',                    // generic-adjacent; CUTS also fine
+  'Skechers Outlet': 'Shoe City',
+  'One Medical': 'Mission Urgent Care',
+  'GoHealth Urgent Care': 'Mission Urgent Care',
+  'Western Dental': 'Mission Dental',
+  'Mathnasium': 'Numbers Up Tutoring',
+  'Pure Barre': 'Barre None Fitness',
+  'Ria': 'Money Wire',
+  'MoneyFast': 'Money Wire',
+  'Cambialo y Mandalo': 'Money Wire',
+  'JM Express': 'Money Wire',
+  'Apoyo Financiero': 'Quick Loans',
+  'Eagle Loan Office': 'Quick Loans',
+  'State Farm': 'Sure Thing Insurance',
+  'Fred Loya Insurance': 'Sure Thing Insurance',
+  'Primera Insurance Agency': 'Sure Thing Insurance',
+  'Pollo Campero': 'Pollito Frito',
+  'Curry Up Now': 'Curry Up Later',
+  'Pressed Juicery': 'Squeeze Juice Co.',
+  'Sidewalk Juice': 'Squeeze Juice Co.',
+  'Mixt': 'Salad Days',
+  'Reformation': 'Second Skin',
+  'Buffalo Exchange': 'Second Skin',
+  'Just For Fun': 'Fun & Games',               // everything store on 24th
+  // --- notable locals: GTA-style flips for spots a camera will read ---
+  'Foreign Cinema': 'Foreign Reels',
+  'Lazy Bear': 'The Idle Bear',
+  'The Chapel': 'The Steeple',
+  'The Valencia Room': 'The Guerrero Room',
+  'Make Out Room': 'The Breakup Room',
+  'Moby Dick': 'The White Whale',
+  'Latin American Club': 'Pan-American Club',
+  "Bender's Bar and Grill": "Fender's Bar & Grill",
+  'The Dubliner': 'The Corkman',
+  'The Valley Tavern': 'The Alley Tavern',
+  'Fort Point Beer Company': 'Fort Pint Beer Co.',
+  'El Techo': 'La Azotea',
+  "Doc's Clock": "Doc's Watch",
+  'El Valenciano': 'El Missionero',
+  'Señor Sisig': 'Señor Sizzle',
+  'ODC Theater': 'KDC Theater',
+  'The Marsh': 'The Bog',
+  'Endgames Improv': 'Opening Night Improv',
+  'Endgames Improv Training Center': 'Opening Night Improv',
+  'Needles And Pens': 'Needles & Puns',
+  'Paxton Gate': 'Odd Lot Curiosities',
+  'Dog Eared Books': 'The Dusty Spine',
+  'Community Thrift Store': 'Second Glance Thrift',
+  'Born Again Thrift': 'Second Glance Thrift',
+  'Landline': 'The Busy Signal',
+  'Arcana': 'The Velvet Hour',
+  'Radio Habana': 'Radio Mission',
+};
+
+/* Kinds whose names are civic / landmark facts and stay REAL (§3c):
+   schools, worship, library, police, post office, public art, toilets,
+   transit infrastructure. Scenery only — never story targets. */
+const SF_REAL_NAME_KINDS = new Set([
+  'place_of_worship', 'school', 'prep_school', 'kindergarten', 'college',
+  'library', 'post_office', 'police', 'community_centre', 'social_facility',
+  'social_centre', 'toilets', 'taxi', 'post_box', 'artwork', 'attraction',
+  'information', 'church', 'civic', 'government',
+]);
+
+/* Kinds that never get a label: housing, garages, misc/junk kinds.
+   Residential building names (real apartment names) are private —
+   they render nothing. */
+const SF_HIDDEN_NAME_KINDS = new Set([
+  'yes', 'apartments', 'apartment', 'residential', 'house', 'detached',
+  'semidetached_house', 'garage', 'roof', 'elevator', 'construction',
+  'fixme', 'disused:clinic', 'vacant', 'funeral_directors',
+]);
+
+/* Generic kind signage — the GTA long tail. Business POIs without a
+   mapped parody name render what they sell, uppercase, no proper noun
+   (businesses.md §3b). Arrays give deterministic variety via name hash. */
+const SF_KIND_SIGNAGE = {
+  restaurant: ['TAQUERIA', 'COMIDA', 'DINER', 'PIZZERIA', 'BIRYANI',
+               'NOODLES', 'SUSHI', 'CURRY', 'PUPUSERIA', 'RAMEN'],
+  cafe: ['CAFÉ', 'COFFEE', 'CAFÉ', 'COFFEE'],
+  fast_food: ['BURGERS', 'FRIED', 'SLICES', 'FRIED CHICKEN'],
+  bar: ['BAR', 'CANTINA', 'BAR', 'CANTINA'],
+  pub: ['BAR', 'CANTINA', 'PUB'],
+  lounge: ['LOUNGE', 'CANTINA'],
+  nightclub: ['CLUB', 'CLUB'],
+  ice_cream: ['ICE CREAM'],
+  bakery: ['PANADERÍA', 'BAKERY', 'DONUTS', 'PANADERÍA'],
+  pastry: ['PANADERÍA', 'BAKERY'],
+  convenience: ['MARKET', 'LIQUOR', 'MARKET', 'LIQUOR'],
+  supermarket: ['GROCERY', 'MARKET', 'GROCERY'],
+  'supermarket;convenience': ['GROCERY'],
+  greengrocer: ['PRODUCE', 'FRUTERÍA'],
+  butcher: ['BUTCHER', 'CARNICERÍA'],
+  seafood: ['SEAFOOD', 'MARISCOS'],
+  alcohol: ['LIQUOR', 'WINE & SPIRITS'],
+  hairdresser: ['CUTS', 'SALON', 'BARBER', 'SALON', 'CUTS'],
+  beauty: ['NAILS', 'SALON', 'SPA', 'WAX STUDIO', 'THREADING'],
+  massage: ['MASSAGE', 'SPA'],
+  'hot_tub;massage': ['SPA'],
+  spa: ['SPA'],
+  clothes: ['VINTAGE', 'THREADS', 'BOUTIQUE'],
+  boutique: ['BOUTIQUE', 'THREADS'],
+  'clothing;furniture': ['THREADS'],
+  'clothes;houseware': ['THREADS'],
+  second_hand: ['THRIFT', 'VINTAGE'],
+  shoes: ['SHOES'],
+  bag: ['BAGS'],
+  fashion_accessories: ['BOUTIQUE'],
+  jewelry: ['JEWELRY', 'JOYERÍA'],
+  tattoo: ['TATTOO'],
+  florist: ['FLOWERS', 'FLORERÍA'],
+  car_repair: ['AUTO REPAIR', 'MECHANIC'],
+  pharmacy: ['PHARMACY', 'FARMACIA'],
+  chemist: ['PHARMACY'],
+  books: ['USED BOOKS', 'BOOKS'],
+  stationery: ['STATIONERY', 'PAPER'],
+  laundry: ['LAUNDRY', 'LAUNDROMAT'],
+  dry_cleaning: ['CLEANERS', 'DRY CLEANING'],
+  dentist: ['DENTAL', 'DENTIST'],
+  doctors: ['CLINIC', 'DOCTOR'],
+  clinic: ['CLINIC', 'URGENT CARE'],
+  optician: ['OPTOMETRY', 'EYEWEAR'],
+  hardware: ['HARDWARE'],
+  paint: ['PAINT'],
+  houseware: ['HOUSEWARES'],
+  'houseware;interior_decoration': ['HOUSEWARES'],
+  'furniture;houseware': ['FURNITURE'],
+  furniture: ['FURNITURE'],
+  interior_decoration: ['HOME DECOR'],
+  carpet: ['CARPETS'],
+  locksmith: ['LOCKSMITH'],
+  gym: ['GYM'],
+  sports_centre: ['GYM'],
+  fitness_centre: ['GYM', 'FITNESS', 'PILATES', 'CROSSFIT'],
+  dojo: ['DOJO', 'MARTIAL ARTS'],
+  dancing_school: ['DANCE'],
+  dance: ['DANCE'],
+  music_school: ['MUSIC LESSONS'],
+  cooking_school: ['COOKING CLASSES'],
+  language_school: ['LANGUAGE SCHOOL'],
+  training: ['CLASSES', 'TUTORING'],
+  bank: ['BANK'],
+  atm: ['ATM'],
+  hotel: ['HOTEL'],
+  guest_house: ['GUEST HOUSE', 'HOTEL'],
+  cannabis: ['DISPENSARY'],
+  tobacco: ['SMOKE', 'SMOKE SHOP'],
+  erotic: ['ADULT SHOP'],
+  psychic: ['PSYCHIC'],
+  gift: ['GIFTS'],
+  antiques: ['ANTIQUES'],
+  gallery: ['GALLERY', 'ART'],
+  art: ['GALLERY'],
+  arts_centre: ['ART CENTER'],
+  theatre: ['THEATER'],
+  studio: ['STUDIO', 'RADIO'],
+  frame: ['FRAMING'],
+  wool: ['YARN'],
+  musical_instrument: ['MUSIC SHOP'],
+  music: ['RECORDS', 'MUSIC'],
+  video: ['VIDEO'],
+  electronics: ['ELECTRONICS'],
+  computer: ['COMPUTERS'],
+  mobile_phone: ['WIRELESS', 'PHONE REPAIR'],
+  printing: ['PRINTING', 'COPIES'],
+  copyshop: ['PRINTING'],
+  mailing_company: ['MAIL & SHIP'],
+  money_transfer: ['MONEY WIRE'],
+  money_lender: ['LOANS'],
+  bureau_de_change: ['CURRENCY EXCHANGE'],
+  pawnbroker: ['PAWN'],
+  travel_agency: ['TRAVEL'],
+  bicycle: ['BIKES', 'BIKE REPAIR'],
+  bicycle_rental: ['BIKE SHARE'],
+  parking: ['PARKING'],
+  marketplace: ['MARKET'],
+  health_food: ['HEALTH FOODS'],
+  herbalist: ['HERBALIST', 'BOTÁNICA'],
+  'religion;candles': ['BOTÁNICA'],
+  religion: ['BOTÁNICA'],
+  'spices;tea': ['SPICES & TEA'],
+  chocolate: ['CHOCOLATE'],
+  confectionery: ['CANDY', 'DULCES'],
+  coffee_roaster: ['COFFEE'],
+  fuel: ['GAS'],
+  taxi_stand: ['TAXI'],
+  pet: ['PET SUPPLY'],
+  pet_grooming: ['PET GROOMING'],
+  veterinary: ['VET', 'ANIMAL HOSPITAL'],
+  baby_goods: ['BABY'],
+  pottery: ['POTTERY'],
+  craft: ['CRAFTS'],
+  sports: ['SPORTING GOODS'],
+  pasta: ['PASTA'],
+  leather: ['LEATHER GOODS'],
+  'bar;restaurant': ['BAR & GRILL', 'CANTINA'],
+  'miniature_golf': ['MINI GOLF'],
+  poi: ['OFFICE', 'SERVICES', 'OFFICE'],   // realtors, tax, law, insurance
+  janitorial_supply: ['JANITORIAL'],
+  perfumery: ['PERFUME'],
+  variety_store: ['99¢ STORE', 'VARIETY'],
+  coffee: ['COFFEE'],
+};
+
+/* Name hints: when a real name telegraphs what it sells, the generic
+   sign should match. Checked before the kind table. Ordered. */
+const SF_NAME_HINTS = [
+  [/taqueria|taco|burrito|mexican|mexicano|oaxaque|jalisco|sisig|papalote|cancun|sabor|altos|san jose|loco/i, 'TAQUERIA'],
+  [/pizza|pizzeria|slice/i, 'PIZZERIA'],
+  [/sushi|ramen|taishoken|michiba|noodle|dumpling|dim sum|udon|tadaima|handroll|saru|isso/i, 'JAPANESE'],
+  [/thai/i, 'THAI'],
+  [/indian|curry|biryani|udupi|masala/i, 'INDIAN'],
+  [/chinese|china|heung|zhengxin|tung sing|yamo|bao |baos|kite asian/i, 'CHINESE'],
+  [/vietnam|pho|banh|banán|kasa\b/i, 'VIETNAMESE'],
+  [/salvador|pupusa|pan lido|santaneca/i, 'PUPUSERIA'],
+  [/ethiopia|habana|caribbean|jamaica|creole/i, 'COMIDA'],
+  [/coffee|café|caff|caffe|espresso|roaster|java|brew\b|linea|spro|supreme|due café|grinds/i, 'COFFEE'],
+  [/\btea\b|boba|matcha|cha-ya/i, 'TEA'],
+  [/juice|juicery|smoothie|acai|bowls/i, 'JUICE'],
+  [/bagel|donut|doughnut|cookie|pastry|bakery|panader|boulangerie|bread|patisserie|tarte|cake|dessert|sweet|chocolate|candy|dulce|confection/i, 'BAKERY'],
+  [/ice cream|creamery|gelato|scoop|frozen/i, 'ICE CREAM'],
+  [/burger|whiz/i, 'BURGERS'],
+  [/greek|mediterranean|souvla|gyro|mezze|mamahuhu|italian|pasta|french|korean|filipino|peruvian|ceviche|arepa|empanada|porten/i, 'COMIDA'],
+  [/grill|bbq|barbecue|rotisserie|smokehouse|diner|kitchen|eatery|ristorante|trattoria|osteria|brunch|breakfast|pancake|waffle|sando|sandwich|deli|picnic|soup|salad|vegan|vegetarian|restaurant|comida|cocina/i, 'COMIDA'],
+  [/bar\b|pub|tavern|lounge|cantina|saloon|cocktail|wine bar|beer|brewing|cervecer|speakeasy/i, 'BAR'],
+  [/club|disco|nightlife|dance hall/i, 'CLUB'],
+  [/liquor|wine|spirits|bottle/i, 'LIQUOR'],
+  [/market|grocery|produce|fruter|greengrocer|supermercado|food|mart\b|deli|bodega|mercado|mini mart|outpost|depot/i, 'MARKET'],
+  [/butcher|carnicer|meat|sausage|pork/i, 'BUTCHER'],
+  [/seafood|mariscos|fish|oyster/i, 'SEAFOOD'],
+  [/barber/i, 'BARBER'],
+  [/nail|manicure|pedicure|mani/i, 'NAILS'],
+  [/hair|salon|cuts|barbershop|coiffure|style|tress|curl|fade|beauty|threading|wax|lash|brow|skin|glow|facial|spa\b/i, 'SALON'],
+  [/massage|acupuncture|reiki/i, 'MASSAGE'],
+  [/tattoo|ink\b|piercing/i, 'TATTOO'],
+  [/flor|bloom|blossom|petal|flower/i, 'FLOWERS'],
+  [/book|literar|librer|read|paper|pen|zine|comic|record|music|vinyl|radio|studio|sound|audio/i, 'BOOKS & MUSIC'],
+  [/galler|art\b|frame|print|pottery|ceramic|craft|knit|yarn|wool|supply/i, 'ART & CRAFT'],
+  [/cloth|apparel|wear|fashion|boutique|vintage|thrift|second|denim|jeans|leather|shoe|kick|sneaker|footwear|thread|dress|garment|reformation/i, 'THREADS'],
+  [/jewel|joyer|gold|silver|watch|accessories|accessor/i, 'JEWELRY'],
+  [/laundr|wash|clean|dry clean/i, 'LAUNDRY'],
+  [/hardware|plumb|paint|tool|supply|lumber|glass|upholst|furniture|home|decor|antiqu|rug|carpet|appliance/i, 'HOME GOODS'],
+  [/auto|car\b|vehicle|motor|tire|collision|smog|repair shop|cyclery|bike|wheel/i, 'AUTO & BIKE'],
+  [/pharm|drug|apothec|herbal|botan|botanica|candle|spiritual|psychic|tarot|cbd|cannabis|dispensar|smoke|tobacco|cigar|vape|erotic|vibration|adult/i, 'SPECIALTY'],
+  [/dent|smile|brace|orthodon|tooth|teeth/i, 'DENTAL'],
+  [/clinic|medical|health|doctor|physician|urgent|optom|eye|vision|optic|pediatr|vet|animal|pet\b|paw|groom/i, 'CLINIC & CARE'],
+  [/gym|fitness|crossfit|pilates|yoga|barre|boxing|martial|jiu|dojo|karate|capoeira|train|athlet|sport|soccer|barbell|climb/i, 'GYM'],
+  [/bank|credit union|loan|money|transfer|insurance|tax|accounting|financial|realty|real estate|propert|law|legal|office|travel|print|copy|mail|ship|locksmith|key/i, 'SERVICES'],
+  [/hotel|inn|guest|hostel|lodge|motel|coliving|nest/i, 'HOTEL'],
+];
+
+/* Name-hash for deterministic signage variety (same name -> same sign). */
+function sfNameHash(s){
+  let h = 5381;
+  for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/* The one entry point. name = code/OSM name, kind = POI or building kind.
+   Returns the string a player may see, or null for "render no label". */
+function sfDisplayName(name, kind){
+  if(!name) return null;
+  const parody = SF_PARODY_NAMES[name];
+  if(parody) return parody;
+  if(kind && SF_REAL_NAME_KINDS.has(kind)) return name;
+  if(kind && SF_HIDDEN_NAME_KINDS.has(kind)) return null;
+  for(const [re, sign] of SF_NAME_HINTS) if(re.test(name)) return sign;
+  const signs = kind && SF_KIND_SIGNAGE[kind];
+  if(signs && signs.length) return signs[sfNameHash(name) % signs.length];
+  // unmapped building names: residential-looking names get no label;
+  // anything else falls back to the generic storefront
+  if(!kind || kind === 'yes' || /apart|condo|tower|plaza|terrace|court|residence|cottage|coliving|campus|building|manor|house$/i.test(name))
+    return null;
+  return 'SHOP';
+}

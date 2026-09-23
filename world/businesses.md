@@ -1,4 +1,4 @@
-# Parody Business Registry — "The Mission" (world v0)
+# Parody Business Registry — "The Mission" (world v2)
 
 Canonical business names for the living world. **Locked rule (design §11,
 user 2026-09-22):** business names are parody — GTA-style imitation — never
@@ -19,11 +19,19 @@ This file is the **maintained parody-name list** the other tracks consume:
 `src/data/sf_map.js` carries ~800 POIs with real OSM names, and
 `src/sf/30_sf_world.js` + `src/sf/33_sf_cast.js` key routines and lookups on
 those strings (e.g. `sfFindPOI('Tartine Bakery')`). **Do not rename the code
-keys** — routines, tests, and interiors depend on them. The fix is a
-display layer: `SF_PARODY_NAMES[codeKey] -> displayName`, consulted wherever
-a name reaches a player (signage bake, map labels, feed text, briefings,
-UI). World-builder owns the map's *contents*; game-systems/art own the
-lookup plumbing (world v3 wires this; until then this table is the spec).
+keys** — routines, tests, and interiors depend on them.
+
+**Display layer — LANDED at world v2.** `src/sf/30a_sf_names.js` defines
+`SF_PARODY_NAMES` (name → parody), `SF_REAL_NAME_KINDS` (civic kinds that
+keep real names), `SF_HIDDEN_NAME_KINDS` (residential/misc kinds that render
+no label), `SF_NAME_HINTS` (name-keyword → signage), `SF_KIND_SIGNAGE`
+(kind → generic labels), and `sfDisplayName(name, kind)` — the single
+entry point. All name render call sites in `31_sf_art.js` (fascia sign
+bake) and `32_sf_render.js` (top-view label, street-view sign, floating
+label, interior header) route through it. Verified: zero real business
+names reach a label; the only pass-throughs are civic-kind names.
+Machine-readable mirror for other tracks: `world/parody-names.json`
+(regenerate with `node devtools/gen_parody_names.js`).
 
 Story-adjacent mappings (locked — bibles and ambients already use the
 canonical side):
@@ -142,24 +150,63 @@ hairdressers, 28 bars, 28 clothes shops, 21 convenience…). Three tiers:
 
 | Real name seen in POI data | Parody display |
 |---|---|
-| Whole Foods Market | **Hole Paycheck Market** |
+| Whole Foods Market / Valencia Whole Foods | **Hole Paycheck Market** |
 | Walgreens | **Wallgreen's** |
 | McDonald's | **McClucky's** |
-| Bi-Rite (any remaining) | **Buy-Rite** variants |
-| Starbucks-class coffee | covered by **Mudhaus** / **Dolores Perk** |
-| Philz-class coffee | **Buzz Cup Coffee** |
-| Bank of America-class banks | **First Merchants Bank of America** → prefer generic "BANK" |
-| Chase/Wells Fargo-class | **Goldenvault Bank** → prefer generic "BANK" |
-| Dollar/variety chains | **99¢ Plus Ultra** |
-| USPS-alike shipping shops | **Mail These Things** |
+| Starbucks | **Buzz Cup Coffee** |
+| Bank of America / BMO | **First Merchants Bank** |
+| Wells Fargo / Chase / EverBank | **Goldenvault Bank** |
+| SF Fire / Self-Help credit unions | **Mission Credit Union** |
+| DHL | **Mail These Things** |
+| AT&T / Verizon / Metro / Total Wireless | **Talk & Text Wireless** |
+| Ria / MoneyFast / Cambialo y Mandalo / JM Express | **Money Wire** |
+| Eagle Loan Office / Apoyo Financiero | **Quick Loans** |
+| State Farm / Fred Loya / Primera Insurance | **Sure Thing Insurance** |
+| Supercuts | **Super Cuts** |
+| Skechers Outlet | **Shoe City** |
+| One Medical / GoHealth Urgent Care | **Mission Urgent Care** |
+| Western Dental | **Mission Dental** |
+| Mathnasium | **Numbers Up Tutoring** |
+| Pure Barre | **Barre None Fitness** |
+| Pollo Campero | **Pollito Frito** |
+| Curry Up Now | **Curry Up Later** |
+| Pressed Juicery / Sidewalk Juice | **Squeeze Juice Co.** |
+| Mixt | **Salad Days** |
+| Reformation / Buffalo Exchange | **Second Skin** |
+| Just For Fun | **Fun & Games** |
+| Dollar/variety chains (if any appear) | **99¢ Plus Ultra** |
 
 Chain names drift per neighborhood; treat the bank as examples, and prefer
 generic labels whenever the joke isn't carrying the scene.
 
-### 3b. Generic kind-signage table (art track: use verbatim)
+### 3b2. Notable-local parody flips (landed v2)
 
-For any business POI without a mapped parody name, render signage as its
-kind label — uppercase, no proper noun:
+For recognizable independents a camera can read, a bespoke flip beats a
+generic label. All in `SF_PARODY_NAMES`:
+
+| Real | Parody | | Real | Parody |
+|---|---|---|---|---|
+| Foreign Cinema | **Foreign Reels** | | Lazy Bear | **The Idle Bear** |
+| The Chapel | **The Steeple** | | The Valencia Room | **The Guerrero Room** |
+| Make Out Room | **The Breakup Room** | | Moby Dick | **The White Whale** |
+| Latin American Club | **Pan-American Club** | | Bender's Bar & Grill | **Fender's Bar & Grill** |
+| The Dubliner | **The Corkman** | | The Valley Tavern | **The Alley Tavern** |
+| Fort Point Beer Co. | **Fort Pint Beer Co.** | | El Techo | **La Azotea** |
+| Doc's Clock | **Doc's Watch** | | El Valenciano | **El Missionero** |
+| Señor Sisig | **Señor Sizzle** | | ODC Theater | **KDC Theater** |
+| The Marsh | **The Bog** | | Endgames Improv | **Opening Night Improv** |
+| Needles And Pens | **Needles & Puns** | | Paxton Gate | **Odd Lot Curiosities** |
+| Dog Eared Books | **The Dusty Spine** | | Community/Born Again Thrift | **Second Glance Thrift** |
+| Landline | **The Busy Signal** | | Arcana | **The Velvet Hour** |
+| Radio Habana | **Radio Mission** | | El Farolito Bar | **El Farolote Bar** |
+
+### 3b. Generic kind-signage table (implemented in code at v2)
+
+For any business POI without a mapped parody name, signage is what it
+sells — uppercase, no proper noun. At v2 this lives in
+`SF_NAME_HINTS` (name keywords — a taqueria gets TAQUERIA, a yoga studio
+gets GYM) falling back to `SF_KIND_SIGNAGE[kind]` with deterministic
+variety by name hash. The table below is the authoring reference:
 
 | OSM kind | Signage | OSM kind | Signage |
 |---|---|---|---|
@@ -212,22 +259,33 @@ GTA-style imitation, applied to the Mission:
   Palmas, Malik's Mini Mart, Flying Pannier, MuleIt, Nimbus9, La Esperanza,
   The Watchbird, Café Cometa, Golden Hour, Buzz Cup, McClucky's,
   Wallgreen's, Hole Paycheck, 99¢ Plus Ultra, Mail These Things,
-  Goldenvault — none are real SF businesses.)
+  Goldenvault — none are real SF businesses. v2 additions spot-checked
+  the same way: Foreign Reels, The Idle Bear, The Steeple, The Guerrero
+  Room, The Breakup Room, The White Whale, Pan-American Club, Fender's,
+  The Corkman, The Alley Tavern, Fort Pint, La Azotea, Doc's Watch,
+  El Missionero, Señor Sizzle, KDC Theater, The Bog, Opening Night,
+  Needles & Puns, Odd Lot Curiosities, The Dusty Spine, Second Glance,
+  The Busy Signal, The Velvet Hour, Radio Mission, Talk & Text, Money
+  Wire, Quick Loans, Sure Thing, Super Cuts, Shoe City, Mission Urgent
+  Care, Mission Credit Union, Numbers Up, Barre None, Pollito Frito,
+  Curry Up Later, Squeeze Juice, Salad Days, Second Skin, Fun & Games —
+  none are real SF businesses.)
 - New story businesses enter through this file first — update the registry,
   then signage. Naming-rights sales to players (monetization plan §3.9)
   use the moderator pre-approval queue and obey this same section.
 
 ## 5. Known debt / flags for other tracks
 
-- `SF_POIS`/`SF_MAP` still hold real names internally — intentional; add
-  the `SF_PARODY_NAMES` display layer rather than editing map data
-  (world v3 task; art signage bake + game feed text must both consult it).
-  **Partially landed at v1:** `SF_WORLD_POIS` in `30_sf_world.js` now
-  registers canonical parody names as resolvable POIs alongside the code
-  keys — routines can key on either. The *display* layer for signage/feed
-  is still pending.
+- `SF_POIS`/`SF_MAP` still hold real names internally — intentional
+  (code keys). **Landed at v2:** `src/sf/30a_sf_names.js` + call-site
+  wiring in `31_sf_art.js` / `32_sf_render.js`; `world/parody-names.json`
+  is the generated mirror. Game feed text must also run names through
+  `sfDisplayName` when it lands (its `41_*` modules live on the game
+  branch — noted for merge).
 - `INTERIOR_NAMES` in `30_sf_world.js` keys on real names — display labels
-  only; keys stay.
+  only; keys stay. Interior headers already render through
+  `sfDisplayName` ('744 Guerrero' → '9418 Guerrero St', '750 Guerrero' →
+  '9457 Guerrero St' — canonical 9xxx registry addresses).
 - ~~A09's code name is `Priya` in `NV_CAST`~~ — **landed at v1:** renamed
   to **Asha** in `pa-chars.js`; collision with C4 Priya Raman resolved.
 - Cast-bible-era addresses (744/750 Guerrero, Capp St studio, Geneva Ave

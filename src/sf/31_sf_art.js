@@ -551,11 +551,12 @@ function sfBldCanvas(b){
           paEllipse(g, ax - aw / 2 + k * 5, dy2 - 18, 2.5, 2.5, awn[4]);
         paR(g, ax - aw / 2, dy2 - 23, aw, 1, awn[5]);
         // painted sign on the fascia
-        if(b.name){
+        const dn = sfDisplayName(b.name, b.kind);
+        if(dn){
           g.fillStyle = '#f8f4e8';
           g.font = 'bold 5px sans-serif';
           g.textAlign = 'center';
-          g.fillText(b.name.slice(0, 22), ax, dy2 - 19.5);
+          g.fillText(dn.slice(0, 22), ax, dy2 - 19.5);
         }
       }
     }
