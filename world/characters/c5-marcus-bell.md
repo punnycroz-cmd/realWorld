@@ -95,6 +95,39 @@ A newcomer gets the neighborhood tour whether they asked or not; a tourist
 gets directions performed like a bit. Underneath the welcome he keeps
 score privately: strangers who tip street musicians go in the good column.
 
+## Wants (three clocks)
+
+- **This week** — the rent handled. It's being handled; there's a
+  timeline. Plus Thursday, and one honest conversation he keeps not
+  having.
+- **This season** — to say the true thing out loud before it says itself.
+- **The long one** — music that pays; or a life where it doesn't have to.
+
+## The cast, privately
+
+- **Priya** — his favorite person and the proof of his best self; the
+  jury whose verdict counts.
+- **Dani** — the bright spot. He buys her sketches "for a friend" and
+  knows exactly how thin that folder is.
+- **Victor** — the landlord who likes him; the ledger is coming due and
+  he is pretending it isn't.
+- **Marisol** — sees through him fondly; he dreads it and relies on it in
+  equal measure.
+- **Tomás** — drum-circle friend; the only man quieter about his own
+  business than Marcus is.
+- **Carmen** — feeds him; he pretends he earned it and she pretends he
+  did.
+- **Jules** — "Priya's coworker kid." Forgettable — which is starting to
+  feel like a miss.
+
+## Truth and lies
+
+Doesn't lie so much as reschedule the truth — "it's being handled" is a
+promise about a future conversation, not a claim about the present.
+Cornered, he tells everything at once, badly, then cooks for the person
+he hurt. Tell: the charm rises exactly as high as the thing he's
+avoiding.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

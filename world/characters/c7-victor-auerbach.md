@@ -105,6 +105,39 @@ name. Tourists asking for directions get the correct route and a comment
 on their shoes' suitability for it. Newcomers who fix their own gate,
 or try to, go up in his ledger permanently.
 
+## Wants (three clocks)
+
+- **This week** — the 9457 heater fixed, the books reconciled, nobody
+  knocking with a complaint.
+- **This season** — to decide. (He knows it is a whole sentence.)
+- **The long one** — to hand something down whole: the store, the
+  buildings, a ledger that balances morally and not just numerically.
+
+## The cast, privately
+
+- **Carmen** — the tenant who is the block; the friendship is the real
+  asset on his books and he has never once said so.
+- **Priya** — the nurse-tenant; right about the heater, which makes the
+  paperwork heavier.
+- **Marcus** — the courier who owes; he likes him and counts him, in
+  that order.
+- **Tomás** — the cook with the plan; the handshake he'd never put in
+  writing.
+- **Marisol** — the manager who knows things. He doesn't read blogs and
+  does not intend to start.
+- **Jules** — "a friend of Carmen's family." Carmen said it; what Carmen
+  says gets filed.
+- **Dani** — the chalkboard girl; she once drew his storefront and he
+  kept the sketch in the register drawer.
+
+## Truth and lies
+
+Will not lie — omits on an industrial scale, and has decided that
+omission isn't lying, which is the one piece of bookkeeping he does
+sloppily. Numbers are always true; sentences get audited. Tell: he
+reaches for a document — lease, ledger, repair schedule — and lets the
+paper talk.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

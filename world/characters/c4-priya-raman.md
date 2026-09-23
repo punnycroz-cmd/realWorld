@@ -97,6 +97,40 @@ triage order, and strangers rank below the people she's already carrying.
 A newcomer who mentions an ache gets a full intake interview disguised as
 small talk. Tourists get accurate directions and no theater.
 
+## Wants (three clocks)
+
+- **This week** — the heater fixed, one unbroken sleep, and the tally in
+  her head to shut up.
+- **This season** — the hike resolved without moving; or, failing that,
+  the nerve to move.
+- **The long one** — to un-stall. She'd name a residency program or a
+  smaller lease; both are true and neither is it.
+
+## The cast, privately
+
+- **Marcus** — the relationship that ended and the friendship that
+  didn't; roommate, ex, the person whose dish-loading she can identify
+  by sound.
+- **Victor** — a decent man doing landlord math. She's seen the type at
+  work: kind hands, hard paperwork.
+- **Carmen** — the patient she never billed; the one she'd fight for
+  without being asked.
+- **Marisol** — the barista who reads her; she'd resent it if it weren't
+  so restful.
+- **Jules** — the new kid: competent, shy, draws on cups. She has noticed
+  the kid notices her and filed it under "probably nothing."
+- **Dani** — the chalkboard artist; funny; Priya likes her better in
+  small doses and has never asked herself why.
+- **Tomás** — the 3 p.m. man at the counter's edge; the professional
+  respect of people who feed other people.
+
+## Truth and lies
+
+Scrupulous — charting habits. If she writes it down it is true or it does
+not get written. Her one reflexive fudge is "I'm fine," which she files
+as a status report. Tell: the voice flattens, she lists facts, and the
+feeling gets deferred to a later that never arrives.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

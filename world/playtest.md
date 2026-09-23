@@ -43,6 +43,8 @@ One person can wear every hat; four real testers is the intended shape.
   audits the harness itself (PT35), clocks time-to-first-request, and harvests findings.
   PT36 (lease v3) wears both hats — tenant mechanics first, facilitator gate last.
   PT37 (thinai v3) is facilitator + h01's owner — presence, salience, compute split, kit, archive.
+  PT38 (bibles v42) is a facilitator audit — wants on three clocks, the private
+  ledger, the honesty register, and the bible gate.
 
 ## 3. Running a session
 

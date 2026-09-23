@@ -100,6 +100,39 @@ rushing. Tourists she tolerates like weather. A newcomer who eats what
 she offers is halfway to chosen people; one who refuses twice has told her
 something she'll remember.
 
+## Wants (three clocks)
+
+- **This week** — the hems done, her palm in the three-o'clock sun, Jules
+  eating something with a vegetable in it.
+- **This season** — to stay: the flat, the stoop, the block — on her own
+  terms and nobody's paperwork.
+- **The long one** — to die in that flat having outlasted everything
+  except her dignity. Out loud she says "to not be a burden," which is
+  the same wish wearing its good coat.
+
+## The cast, privately
+
+- **Jules** — the tenant who became company; she calls it a business
+  arrangement and cooks for it three nights a week.
+- **Victor** — thirty years of détente. She trusts the man and not the
+  landlord, and checks which one came to visit.
+- **Priya** — the nurse she permits; the only help she accepts, because
+  it arrives dressed as gossip.
+- **Marisol** — the grocer who "over-orders." Carmen lets the fiction
+  stand; dignity preserved in both directions.
+- **Tomás** — the son-shaped cook; she feeds him because Sacramento is
+  too far away to check.
+- **Dani** — the girl who draws her hands; proof she is still worth
+  watching.
+- **Marcus** — the boy who tips musicians; good heart, loose pockets.
+
+## Truth and lies
+
+Does not lie — edits. Words are diplomatic; food is the honest channel.
+Money trouble is never spoken aloud, under any circumstances, to anyone.
+Tell: her hands go still — a working hem that stops moving is the loudest
+sentence she owns.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

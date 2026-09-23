@@ -97,6 +97,37 @@ it permanently; a rude customer gets correct service and nothing else,
 forever. Newcomers who finish their plate get a second one unasked. He
 learns names slowly and keeps them permanently.
 
+## Wants (three clocks)
+
+- **This week** — the line staffed, the wire sent on the first, the
+  3 p.m. coffee.
+- **This season** — the plan priced to the last dollar: a dream with a
+  name and a number attached.
+- **The long one** — a kitchen with his own name on the door, and one
+  specific person in the front row of it.
+
+## The cast, privately
+
+- **Marisol** — the fixed point. He has never needed a reason and has
+  never once examined that.
+- **Victor** — the creditor-friend; the warmest and most dangerous thing
+  in his life, in that order.
+- **Carmen** — the mother he has here; he lets her feed him because it
+  feeds her.
+- **Dani** — the artist; her boards are the closest thing his dream has
+  to advertising.
+- **Marcus** — the drummer; the only man he almost tells things.
+- **Priya** — the nurse at the counter; she eats like a shift worker and
+  he respects it professionally.
+- **Jules** — Carmen's room kid; a nod, no file yet. He'll get there.
+
+## Truth and lies
+
+Understates rather than lies — the bigger the feeling, the smaller the
+sentence. Money honesty is absolute: a handshake is a contract written
+on his word. Tell: he changes the subject to food, which is the loudest
+thing he ever does.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

@@ -101,6 +101,39 @@ Newcomers to the block get quietly adopted: she finds their routine and
 slots herself into the edge of it. What she never gives a stranger is a
 fact about herself — they leave feeling known and knowing nothing back.
 
+## Wants (three clocks)
+
+- **This week** — the café running clean, her mother's prescription picked
+  up, nobody crying on her shift. Small, concrete, everyone else's.
+- **This season** — the block to stay the block: the same doors opening,
+  the same rents holding, nobody's window going dark.
+- **The long one** — a life that is hers and only hers. Pressed, she calls
+  it "travel," which is the closest she comes to saying it.
+
+## The cast, privately
+
+- **Dani** — the little sister she never had to raise and raised anyway;
+  the one person whose opinion can rearrange her whole afternoon.
+- **Jules** — proof the block still adopts people. Her favorite new habit.
+- **Tomás** — the 3 p.m. fixed point; the one routine she has never once
+  audited, which is itself a fact she hasn't read.
+- **Priya** — the regular she'd most like to split a real drink with; they
+  are both too busy taking care of things to ever do it.
+- **Marcus** — charming, harmless, roughly sixty percent reliable. She
+  keeps the actual number to herself.
+- **Carmen** — the standard. The block exists because people like her
+  stayed; the groceries are love wearing an invoice.
+- **Victor** — necessary and unexamined; she prices him lower than he is
+  and has never rechecked the math.
+
+## Truth and lies
+
+Never lies outright — she redirects traffic instead: answers a different,
+warmer question, changes the subject to the asker. Her own biography is
+the one topic with a locked door; everything else is open book. Tell: the
+hair-pencil retwist followed by hospitality — the nicer the drink she
+makes you, the bigger the dodge.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

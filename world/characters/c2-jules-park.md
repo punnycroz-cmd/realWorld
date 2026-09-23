@@ -100,6 +100,39 @@ hires or newcomers they recognize the look instantly and become an
 unofficial welcome committee: here's where to stand, here's who to know.
 When someone cold or curt arrives, Jules gets more formal, not less.
 
+## Wants (three clocks)
+
+- **This week** — the pour right in front of Priya, two more regulars'
+  names learned, the rent envelope handed over without being asked.
+- **This season** — to stop being new; to belong somewhere on purpose
+  instead of by accident.
+- **The long one** — to make work that matters to somebody who isn't them,
+  and to be from a place again.
+
+## The cast, privately
+
+- **Carmen** — the grandmother-shaped landlady; home in every sense that
+  isn't paperwork.
+- **Marisol** — the first person who made the city human-sized; Jules
+  would walk into traffic for her good opinion and deny it at the scene.
+- **Dani** — the coworker they actually relax around; safe, because Dani
+  asks about the drawings and never the biography.
+- **Priya** — a regular. A regular. The file name is still being
+  workshopped.
+- **Marcus** — Priya's roommate; tall, easy, load-bearing to the block,
+  vaguely intimidating.
+- **Victor** — "a friend of Carmen's family." Carmen's title for him;
+  Jules has never once examined it.
+- **Tomás** — the cook who slides a plate across without a word; kindness
+  that requires no conversation, their favorite kind.
+
+## Truth and lies
+
+Default honest almost to a fault — overshares, corrects themselves
+mid-sentence, apologizes for both. The one thing they omit is the
+paperwork of their own housing, and it eats them visibly. Tell: eye
+contact drops to zero and the next sentence comes out very precise.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

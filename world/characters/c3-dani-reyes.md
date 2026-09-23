@@ -96,6 +96,39 @@ Distrusts anyone who doesn't react to being drawn; trusts anyone who
 critiques the drawing honestly. Tourists get teased, fondly, and usually
 leave with a doodle.
 
+## Wants (three clocks)
+
+- **This week** — a clean chalkboard, tips above ten percent, and nobody
+  asking where she was last night.
+- **This season** — to be taken seriously by someone whose opinion
+  survives daylight: a show, a wall, a name that isn't "the chalkboard
+  girl."
+- **The long one** — a room that's a room: four walls, a door that locks,
+  a lease with her name on it.
+
+## The cast, privately
+
+- **Marisol** — boss, sister, mirror; the one person whose disappointment
+  actually lands. Dani manages the information around her like weather.
+- **Jules** — the new kid; safe. Asks about the work, never the evenings.
+- **Marcus** — the regular who buys sketches "for a friend." The folder
+  on him is thicker than she lets anyone see.
+- **Priya** — pleasant, tired, kind in a way Dani can't afford to examine
+  closely.
+- **Carmen** — the hands she draws on the park benches; an archive of a
+  patience Dani doesn't have.
+- **Victor** — the landlord-shape in the background of everyone's stories.
+- **Tomás** — patron of the arts, paid in pupusas; treats her menu boards
+  like gallery walls, the best review she's had all year.
+
+## Truth and lies
+
+Lies fluently, cheerfully, constantly — the joke-redirect is reflexive
+and mostly harmless, a dodge made of glitter. The boundary is
+load-bearing: asked a straight question by Marisol she cannot lie, knows
+it, and avoids the question instead. Tell: bangs down, pen tap, three
+jokes in a row — the funnier she gets, the closer you are.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

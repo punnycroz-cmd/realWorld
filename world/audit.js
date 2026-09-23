@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v39).
+/* world/audit.js — RW boundary audit (world v42).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -36,10 +36,10 @@
      thinai    — thinai.json ↔ thinai.html agreement; locked feed
                  vocabulary only on the wire; handoff note forbidden
                  fields absent by construction; mode-allowance matrix
-     bible     — characters/*.md carry the fixed 14-section order with
+     bible     — characters/*.md carry the fixed 17-section order with
                  SECRETS last; characters.json mirrors roleplay/briefing
-                 fields + v28 backstory/room/strangers; cast.html CAST
-                 ids and card fields agree
+                 fields + v28 backstory/room/strangers + v42 wants/
+                 interior/truth; cast.html CAST ids and card fields agree
     crowd     — crowd.json ↔ crowd.html mirror (zones, budgets, shades,
                 flows, micros, greets, scenes); extras carry no identity;
                 minors greet in packs; overnight allow_deserted protected
@@ -722,6 +722,8 @@ const PUB = Object.values(PT.surfaces)
     const SECTIONS = ['## Look', '## Personality', '## Voice', '## Mannerisms',
       '## Under pressure', '## Notices / misses', "## Won't do",
       '## Backstory (five beats)', '## The room', '## With strangers',
+      '## Wants (three clocks)', '## The cast, privately',
+      '## Truth and lies',
       '## Public profile', '## Surface relationships', '## Daily routine',
       '## SECRETS & SEEDS'];
     const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
@@ -759,10 +761,21 @@ const PUB = Object.values(PT.surfaces)
         if (!md.includes(c.home.split(',')[0]))
           add(g, 'fail', c.bible, null, `${id}: json home "${c.home}" not found in bible`);
       }
-      /* new v28 fields stay observable-safe: no seed vocabulary */
-      for (const k of ['backstory_brief', 'room', 'strangers'])
+      /* v42 structure: wants = three clocks; interior = the other seven ids */
+      const w = c.wants || {};
+      for (const k of ['week', 'season', 'long'])
+        if (!w[k]) add(g, 'fail', 'characters.json', null, `${id}: wants.${k} missing`);
+      const others = IDS.filter(x => x !== id).sort().join(',');
+      const iKeys = Object.keys(c.interior || {}).sort().join(',');
+      if (iKeys !== others)
+        add(g, 'fail', 'characters.json', null, `${id}: interior keys ${iKeys} != ${others}`);
+      /* new v28/v42 fields stay observable-safe: no seed vocabulary */
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth'])
         if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
           add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
+      const extra = JSON.stringify([w, c.interior || {}]);
+      if (/secret|seed|briefing|never tell/i.test(extra))
+        add(g, 'fail', 'characters.json', null, `${id}: meta/seed vocabulary in wants/interior`);
     }
     /* cast.html CAST ids and new fields agree with characters.json */
     const cm = html.match(/const CAST=(\[[\s\S]*?\n\]);/);
@@ -772,9 +785,14 @@ const PUB = Object.values(PT.surfaces)
       const htmlIds = CAST.map(c => c.id).sort().join(',');
       if (htmlIds !== IDS.join(','))
         add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
-      for (const c of CAST)
-        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout'])
+      for (const c of CAST) {
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth'])
           if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
+        if (c.want && c.want.length !== 3)
+          add(g, 'fail', 'cast.html', null, `${c.id}: want has ${c.want.length} clocks (need 3)`);
+        if (c.priv && c.priv.length !== 7)
+          add(g, 'fail', 'cast.html', null, `${c.id}: priv has ${c.priv.length} entries (need 7)`);
+      }
     }
     g.detail = `schema v${CJ.version} · ${(CJ.cast || []).length} mains · ${SECTIONS.length} required sections`;
   } catch (e) { add(g, 'fail', 'characters.json', null, 'parse/check failure: ' + e.message); }
@@ -1618,7 +1636,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v41 local';
+out.build = 'world v42 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

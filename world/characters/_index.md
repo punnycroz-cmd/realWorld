@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v28)
+# Main Cast Index — "The Mission" (world v42)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -25,7 +25,7 @@ Every bible uses the same fields:
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
 
-## Roleplay layer (v14, deepened v28)
+## Roleplay layer (v14, deepened v28, v42)
 
 Added sections per bible — enough that a stranger could play the
 character consistently on day one. Field order is fixed:
@@ -49,18 +49,35 @@ character consistently on day one. Field order is fixed:
 11. **With strangers** — default posture toward tourists, newcomers, and
     player-hired characters (v28). Written as tendencies, never rules —
     the brain decides in the moment; this is the prior.
-12. Public profile · surface relationships · daily routine (briefing-safe)
-13. Secrets & seeds (never surfaces — always the LAST section)
+12. **Wants (three clocks)** — v42. Desires on three timescales: this
+    week / this season / the long one. Written as pressures and pulls,
+    never plans — a want is a condition the brain weighs, not a script
+    it follows. The long one may gesture at seed terrain (a life of her
+    own, a kitchen with his name on the door) without stating the seed.
+13. **The cast, privately** — v42. Exactly one line per other main
+    (seven entries): the interior valence of each surface tie — what
+    that person *is* to them. Interiority, not intel: it may carry a
+    feeling the feed would agree with ("he knows how thin the folder
+    is") but never a hidden fact (no amounts, no statuses, no names of
+    what isn't named).
+14. **Truth and lies** — v42. The honesty register: what they never
+    fudge, what they fudge reflexively, and the tell. Written as a
+    speech habit, not a rulebook — the memory layer's per-character
+    distortion priors read this section.
+15. Public profile · surface relationships · daily routine (briefing-safe)
+16. Secrets & seeds (never surfaces — always the LAST section)
 
 `world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
-strangers fields and the briefing-safe block for the brain/prompt layer.
+strangers/wants/interior/truth fields and the briefing-safe block for the
+brain/prompt layer.
 Section placement note: the roleplay layer sits between personality and the
 briefing-safe block — mannerisms and voice are *public-observable* (safe for
 thin-AI phrase kits per thinai.json), while "under pressure" and
 "notices/misses" are written as perception habits — they gesture at blind
-spots without stating the seed behind them; seed content stays in the final
-section only. The `bible` gate in `world/audit.js` enforces the section
-list and order mechanically.
+spots without stating the seed behind them; the v42 interior ledger holds
+valence only (the gate sweeps it for seed/meta vocabulary); seed content
+stays in the final section only. The `bible` gate in `world/audit.js`
+enforces the section list and order mechanically.
 
 ## Roster
 
