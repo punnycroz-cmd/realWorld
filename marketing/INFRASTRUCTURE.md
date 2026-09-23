@@ -16,7 +16,7 @@ to the game-systems track; this doc only specifies what the game build must
 ```
                          ┌─────────────────────────────┐
    player/press ──HTTPS─▶│  CDN + static site host      │  marketing/site/ as-is
-                         │  (realworld-game.example)    │  11 pages, zero build step
+                         │  (realworld-game.example)    │  12 pages, zero build step
                          └──────────────┬──────────────┘
                                         │ iframe (sandboxed)
                                         ▼

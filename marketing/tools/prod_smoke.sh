@@ -15,7 +15,7 @@ echo "=== Real World PROD smoke — $BASE — $(date '+%Y-%m-%d %H:%M %Z') ==="
 
 # 1. Pages 200 + TTFB
 echo "[1] pages"
-for p in "" index.html features.html how-it-works.html demo.html community.html journal.html rules.html pricing.html faq.html press-kit.html; do
+for p in "" index.html features.html cast.html how-it-works.html demo.html community.html journal.html rules.html pricing.html faq.html press-kit.html; do
   read -r code t < <(curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}' "$BASE/$p")
   tgt="/${p:-index}"
   [ "$code" = "200" ] && ok "$tgt  $code  ${t}s" || bad "$tgt  $code"
@@ -38,7 +38,7 @@ done
 # 4. Meta/OG + JSON-LD + placeholder sweep on served HTML
 echo "[4] served HTML: meta + JSON-LD + placeholder sweep"
 mkdir -p /tmp/rw-smoke && rm -f /tmp/rw-smoke/*.html
-for p in index features how-it-works demo community journal rules pricing faq press-kit; do
+for p in index features cast how-it-works demo community journal rules pricing faq press-kit; do
   curl -s "$BASE/$p.html" -o "/tmp/rw-smoke/$p.html"
   grep -q 'og:title' "/tmp/rw-smoke/$p.html" && grep -q 'og:image' "/tmp/rw-smoke/$p.html" \
     && ok "$p OG tags" || bad "$p missing OG"

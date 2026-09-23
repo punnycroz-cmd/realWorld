@@ -75,7 +75,7 @@ first week post-launch; re-score tiers at day-30.
 - Real SF business names — parody names only (world/businesses.md canon:
   Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware).
 
-## 3. Page-by-page spec (all 11 URLs, as shipped)
+## 3. Page-by-page spec (all 12 URLs, as shipped)
 
 Title ≤60 chars, meta ≤155 chars, one H1, canonical, OG+Twitter cards. ✔ = live
 in markup today.
@@ -84,6 +84,7 @@ in markup today.
 |---|---|---|---|---|
 | `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero shot `v17-D` w/ fetchpriority=high |
 | `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
+| `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
@@ -136,7 +137,7 @@ no reviewCount — we have neither and never fake them.
 ## 6. Internal linking
 
 Current architecture: global nav (9 links) + footer (full map) on every page —
-every page is ≤2 clicks from everywhere, which is right at 11 pages.
+every page is ≤2 clicks from everywhere, which is right at 12 pages.
 
 Contextual-link rules (apply to every new page/post):
 
@@ -178,8 +179,8 @@ reported as a quiet week.
 
 Done in markup (verified by `tools/staging_dryrun.sh`, 29 pass / 3 warn):
 - [x] Semantic HTML, one H1/page, alt text on every shot
-- [x] `sitemap.xml` (all 10 indexable pages + image entries + lastmod) & `robots.txt`
-- [x] OG/Twitter cards on all 10 pages; og:image 1200×630; og:site_name (v15)
+- [x] `sitemap.xml` (all 11 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 11 pages; og:image 1200×630; og:site_name (v15)
 - [x] Canonical URLs on every page
 - [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
 - [x] webp companions + lazy-loading + width/height attrs (no CLS)
