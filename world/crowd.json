@@ -1,7 +1,7 @@
 {
-  "version": 15,
+  "version": 29,
   "updated": "2026-09-23",
-  "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). Conditions only — nothing here orders a pawn to do anything.",
+  "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything.",
   "conventions": {
     "hours": "game-local decimal; dayparts are half-open [h0,h1) wrapping at 24",
     "budget": "extras headcount range [lo,hi] the spawner maintains per zone, off-camera only",
@@ -110,6 +110,75 @@
     {"id": "victor-pickup", "label": "Victor's pickup at Gus's", "when": {"dayparts": ["lunch", "afternoon"], "named": ["A10"], "weekly": "fri"}},
     {"id": "doorway-sets", "label": "Doorway sets", "when": {"named": ["A08"], "weather": ["rain"], "note": "Sam under the 600 Club awning — rain is the trigger"}}
   ],
+  "day_shades": {
+    "rule": "named shades multiply zone budgets on calendar conditions; first match wins (first_of_month beats fri); stack with weather, never with each other; budget arithmetic only — no ambient routine changes",
+    "shades": [
+      {"id": "first_of_month", "when": {"dom": 1}, "zone_mult": {"fruteria": 1.5, "minimart": 1.3}, "scene_weight": {"bench-parliament": 1.3}, "note": "the block's payroll rhythm — Luz's busiest day"},
+      {"id": "fri", "when": {"dow": "fri"}, "zone_mult": {"club600": 1.15, "elfarolote": 1.1, "mudhaus": 0.85}, "daypart_zone_mult": {"evening": {"streets": 1.2}}, "note": "evening swell; nobody lingers at Mudhaus Friday afternoon"},
+      {"id": "sun", "when": {"dow": "sun"}, "daypart_zone_mult": {"commute": {"streets": 0.5, "minimart": 0.7}, "rush": {"streets": 0.5, "minimart": 0.7}}, "note": "morning hush; the park owns the day"},
+      {"id": "mon", "when": {"dow": "mon"}, "kind_mult": {"cafe": 0.8}, "note": "the closed-sign shade — bakery/bloomdoom closed_days already bite; the block exhales"}
+    ]
+  },
+  "flow_edges": {
+    "rule": "ordered zone-pair pedestrian currents; bodies in transit, distinct from zone budgets; 60–80% of a rising zone's deficit arrives via the strongest live edge; transit extras dwell ≤90 s per crossed zone; rain halves flow and speeds gait, storm applies its zone mult",
+    "endpoints": ["edge"],
+    "edges": [
+      {"id": "f-edge-mudhaus", "a": "edge", "b": "mudhaus", "dayparts": ["commute", "rush", "lunch", "afternoon"], "flow": {"weekday": [3, 7], "weekend": [4, 9]}, "note": "the morning approach — the crossing fills before the door does"},
+      {"id": "f-mudhaus-park", "a": "mudhaus", "b": "park", "dayparts": ["rush", "midday", "lunch", "afternoon"], "flow": {"weekday": [2, 5], "weekend": [3, 7]}, "note": "coffee-to-grass drift"},
+      {"id": "f-school-park", "a": "edge", "b": "park", "dayparts": ["afternoon"], "hours": [15, 16.5], "flow": {"weekday": [4, 8]}, "micro": "school-bell", "note": "the release current; weekday only"},
+      {"id": "f-streets-elfarolote", "a": "streets", "b": "elfarolote", "dayparts": ["lunch", "evening", "night"], "flow": {"weekday": [3, 6], "weekend": [4, 8]}, "note": "dinner approach"},
+      {"id": "f-club600-edge", "a": "club600", "b": "edge", "dayparts": ["night"], "hours": [23, 26], "flow": {"weekday": [4, 8], "weekend": [7, 12]}, "micro": "last-call-drift", "note": "the way home"},
+      {"id": "f-park-minimart", "a": "park", "b": "minimart", "dayparts": ["midday", "lunch", "afternoon", "evening"], "flow": {"weekday": [1, 3], "weekend": [2, 4]}, "note": "beer-and-ice run"},
+      {"id": "f-edge-streets", "a": "edge", "b": "streets", "dayparts": ["predawn", "commute", "rush", "night"], "flow": {"weekday": [2, 6], "weekend": [1, 4]}, "note": "transit spill — the block absorbs the city's commute"}
+    ]
+  },
+  "micro_events": {
+    "rule": "named mundane deformations — conditions evaluated per tick (microActive), never scheduled, never feed events; internal vocabulary only",
+    "events": [
+      {"id": "sweep-tue", "when": {"dow": "tue", "dayparts": ["rush", "midday"]}, "edge_mult": {"f-edge-streets": 0.8}, "zone_mult": {"streets": 0.9}, "note": "street sweeping — curb lanes clear on the swept side"},
+      {"id": "school-bell", "when": {"dow_not": ["sat", "sun"], "hours": [15, 16.5]}, "edge_mult": {"f-school-park": 2.0}, "zone_floor": {"park": {"afternoon": 2}}, "note": "the release is audible before it's visible"},
+      {"id": "delivery-window", "when": {"dayparts": ["commute", "rush"]}, "dwell": {"zones": ["bakery", "streets"], "extras": [1, 2], "gait": "handtruck"}, "note": "commerce texture, not a scene"},
+      {"id": "last-call-drift", "when": {"hours": [23, 26]}, "edge_mult": {"f-club600-edge": 1.6}, "zone_mult": {"elfarolote": 1.15}, "note": "post-bar tail at the taqueria"},
+      {"id": "sunday-stoop", "when": {"dow": "sun", "dayparts": ["midday", "lunch", "afternoon", "evening"]}, "static_extras": {"where": "residential doorways", "count": [1, 3], "flow": 0}, "note": "stoops read occupied; zero transit"}
+    ]
+  },
+  "persistence": {
+    "walk_chain_window_min": 20,
+    "walk_chain_max_zones": 2,
+    "camera_jump": "keep extras whose last heading points into the new frame; deficits fill at edges",
+    "save_state": "extras excluded — reload repopulates from budgets",
+    "rule": "silhouette reuse is costume continuity, not identity — no id, no name, no ledger presence; a chain is indistinguishable from coincidence by construction"
+  },
+  "appearance_palette": {
+    "rule": "extraLook(day, zone, spawnIndex) — deterministic hash pick; variety without identity; reused under walk-chain windows",
+    "silhouettes": ["commuter-bag", "hoodie-hands-pouched", "dog-lead", "stroller", "bike-shoulder", "toolbelt", "scrubs", "apron", "messenger-sling", "tote-stack", "jogger", "hiker-pack", "suit-loose-tie", "workboots", "skater-carry", "guitar-case", "laundry-bag", "grocery-two-bags", "camera-tourist", "elder-cane", "delivery-hotbox", "flat-cap", "headphones-big", "umbrella-furled"],
+    "gaits": ["purposeful", "amble", "hurry", "meander", "dog-paced", "loaded"],
+    "note": "24 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face"
+  },
+  "greeting_matrix": {
+    "rule": "familiarity weights between named ambients (mains noted where a routine crosses); a 'hi' weight = likely ≤15 s visual beat on same-zone collision, gated on greetable states; never moves a routine; observable-safe — no seed content; minors greet in public groups only",
+    "weights": {"hi": "likely on collision", "lo": "rare — a beat worth noticing", "none": "by design — passes through"},
+    "pairs": [
+      {"a": "A05", "b": "A19", "weight": "hi", "form": "bench-parliament nod — the day's argument resumed mid-sentence", "zones": ["park"]},
+      {"a": "A01", "b": "A13", "weight": "hi", "form": "barista-regular nod, cup already started", "zones": ["mudhaus"]},
+      {"a": "A09", "b": "A01", "weight": "hi", "form": "quiet counter recognition — scrubs acknowledged, not discussed", "zones": ["mudhaus"]},
+      {"a": "A06", "b": "A15", "weight": "lo", "form": "chin-raise at speed — couriers don't stop", "zones": ["streets"]},
+      {"a": "A07", "b": "A04", "weight": "hi", "form": "kid-mango — a slice handed over without a transaction", "zones": ["fruteria", "park"], "minor_pack": true},
+      {"a": "A07", "b": "A20", "weight": "hi", "form": "kid-mango", "zones": ["fruteria", "park"], "minor_pack": true},
+      {"a": "A03", "b": "A05", "weight": "hi", "form": "the counter tab nod — decades of small transactions", "zones": ["minimart"]},
+      {"a": "A14", "b": "A08", "weight": "hi", "form": "late-corner pause — smoke break meets pack-up", "zones": ["club600", "park"]},
+      {"a": "A11", "b": "A05", "weight": "lo", "form": "library-regular wave across the park", "zones": ["park", "library"]},
+      {"a": "A16", "b": "A02", "weight": "hi", "form": "6 a.m. wave — warm bread smells, leashes tangled", "zones": ["park", "bakery"]},
+      {"a": "A02", "b": "A08", "weight": "lo", "form": "pitch-side dog sniff — the dogs know Sam", "zones": ["park"]},
+      {"a": "A17", "b": "A10", "weight": "hi", "form": "hardware-counter mornings — job talk over coffee", "zones": ["auerbach", "minimart"]},
+      {"a": "A14", "b": "A18", "weight": "lo", "form": "Clarion neighbors — flowers and flash sheets", "zones": ["clarion", "bloomdoom"]},
+      {"a": "A12", "b": "A19", "weight": "none", "form": "the metronome doesn't stop — Ray doesn't expect it to", "zones": ["park"]},
+      {"a": "A12", "b": "A05", "weight": "none", "form": "laps don't pause", "zones": ["park"]},
+      {"a": "A04", "b": "A20", "weight": "hi", "form": "pack adjacency — school-release orbit", "zones": ["park", "mudhaus"], "minor_pack": true},
+      {"a": "A10", "b": "C7", "weight": "hi", "form": "the truck argument, continued from last week", "zones": ["folsom"], "main_crossing": true, "note": "same collision the victor-pickup scene detects"},
+      {"a": "A15", "b": "C5", "weight": "lo", "form": "the wordless race — one block at full pace, no greeting", "zones": ["streets"], "main_crossing": true}
+    ]
+  },
   "feed_wording": {
     "venue_band_event": {"kind": "venue", "rate_limit": "once per venue per hour, on band change only", "format": "<venue>: <band word>"},
     "scene_event": {"kind": "scene", "rule": "label only when a band change accompanies the scene; otherwise the frame simply is the scene"},

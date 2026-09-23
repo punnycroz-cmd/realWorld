@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v28)
+# Playtest Harness — "Real World / The Mission" (world v29)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Thirteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Fourteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -101,7 +101,10 @@ writer carries no forbidden field, degrade mains-only, ambients always thin),
 **bible** (characters/*.md carry the fixed 14-section order with SECRETS last,
 five dated backstory beats each; characters.json mirrors roleplay/briefing
 fields + v28 backstory/room/strangers; cast.html CAST ids and card fields
-agree).
+agree), **crowd** (crowd.json ↔ crowd.html mirror — zones, budgets, shades,
+flow edges, micro-events, greeting pairs, scenes; extras carry no
+identity-shaped field; minors greet in packs only; overnight
+allow_deserted protected).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 28,
+ "version": 29,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -1333,6 +1333,65 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT27",
+   "title": "The Crowd v3 — shades, flows, and who nods",
+   "minutes": 15,
+   "persona": "facilitator pressure-testing the v29 crowd depth pass",
+   "goal": "Verify the day shades deform budgets without touching routines, the flow layer reads as bodies in transit, micro-events are internal-only conditions, the greeting matrix shows who visibly knows whom, and the honest hour still reads honest.",
+   "surfaces": [
+    "crowd",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Scrub a weekday from 00:00 to 24:00 watching the venue board and the roster. Then click a zone to open its 24h curve.",
+     "expect": "Zones resolve named faces from routines plus a '+N extras' tail; the roster moves on schedule; 00–04 reads deserted everywhere it should — nothing pads the honest hour. The curve shows the budget shape for the selected zone.",
+     "checkpoints": [
+      "Overnight (00–04) shows deserted bands — protected, never filled",
+      "Extras appear only as '+N' tails — no extra ever carries a name",
+      "The 24h curve redraws under the current shade/weather and marks the current hour"
+     ]
+    },
+    {
+     "do": "Toggle shade to '1st', then 'fri' (at 20:00), then 'sun' (at 07:00), then 'mon'. Watch the venue board and roster each time.",
+     "expect": "The 1st swells Luz's stand and Malik's; Friday night lifts the 600 Club and El Farolote while Mudhaus thins; Sunday morning hushes streets and the minimart; Monday drops café budgets and closes the bakery and Bloom & Doom. No ambient's routine changes — shade is budget arithmetic only.",
+     "checkpoints": [
+      "first_of_month: fruteria ×1.5, minimart ×1.3 — visible in the +N tail",
+      "sun: streets commute/rush halve; library closed-days bite",
+      "mon: bakery/bloomdoom closed; cafés ×0.8",
+      "The roster is identical across shades — routines never bend"
+     ]
+    },
+    {
+     "do": "At weekday 08:30 read the Flow panel and the Micro-texture row; then scrub to 15:15 and to 23:30.",
+     "expect": "Morning shows 'edge → Mudhaus' walking counts; Tuesday-default marks sweep-tue active through midday; 15:15 lights school-bell (edge flow doubles); 23:30 lights last-call-drift (club600 → edge spikes). None of it appears on any feed surface — internal vocabulary only.",
+     "checkpoints": [
+      "Flow rows show 'N–M walking' when live, 'idle' outside their daypart/hour window",
+      "Rain halves live flow counts; a locked/event venue doesn't erase walking",
+      "Micro chips are conditions, not schedules — delivery-window is on every commute+rush"
+     ]
+    },
+    {
+     "do": "At a dry midday, read the park zone row for greeting chips; then evening at Mudhaus; then look for Tom anywhere.",
+     "expect": "Esther↔Ray's bench-parliament chip appears when both are benched; Asha↔Reyes's counter chip appears ~19:30; Tom chips never appear — 'none' weights are by design (the metronome doesn't stop). Minor pairs carry the 'pack' marker.",
+     "checkpoints": [
+      "Greeting chips only render when both ambients actually share the zone — collision, not dispatch",
+      "'none' pairs never chip, and the copy explains why",
+      "Minor-pair chips (kid-mango, pack adjacency) carry the pack marker"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the crowd gate.",
+     "expect": "crowd gate passes: inline DAYPARTS/ZONES/WX/BANDS/SCENES/SHADES/FLOWS/MICROS/GREETS all mirror crowd.json; every scene 'named' and greet pair resolves to a real ambient or main; extras blocks carry no identity-shaped field; overnight keeps allow_deserted.",
+     "checkpoints": [
+      "Gate reports 'schema v29 · 11 zones · 7 edges · 18 pairs'",
+      "A budget drift, an unknown zone in a shade/edge/micro, or a greet weight outside hi/lo/none would FAIL — spot-check the gate",
+      "A minor greet pair without minor_pack, or a 'name' field in an extras block, would FAIL"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1340,7 +1399,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v28 local",
+   "build": "world v29 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },

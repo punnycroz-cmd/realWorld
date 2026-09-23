@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20, PT19 + create v21, PT20 + screen-lab v22, PT21 + audit gate / PT22 + cohort merge v23, PT23 + onboarding v2 / onboard gate v25, PT24 + lease v2 / lease gate v26, PT25 + thinai v2 / thinai gate v27, PT26 + bible gate v28, PT27 + crowd v3 / crowd gate v29). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Import other testers' reports for a cohort view —
@@ -530,11 +530,29 @@ const PTS=[
   ck:["All three v28 fields present on C1–C8","briefing_safe carries exactly the three locked keys","No v28 field contains the words secret/seed/briefing — the gate enforces this"]},
  {do:"Run `node world/audit.js` and read the bible gate; then imagine a hire walking in — pick one main and predict their first interaction from the 'With strangers' section alone.",
   exp:"bible gate passes (14 sections, order enforced, CAST ids agree). The stranger-posture section is specific enough to predict the first beat of a scene without scripting it — tendencies, not rules.",
-  ck:["Gate reports 'schema v28 · 8 mains · 14 required sections'","Removing a section or reordering SECRETS earlier would FAIL — spot-check the gate","Predicted first interactions differ meaningfully per main (food-first vs. question-first vs. measure-first)"]}]}
+  ck:["Gate reports 'schema v28 · 8 mains · 14 required sections'","Removing a section or reordering SECRETS earlier would FAIL — spot-check the gate","Predicted first interactions differ meaningfully per main (food-first vs. question-first vs. measure-first)"]}]},
+{id:"PT27",title:"The Crowd v3 — shades, flows, and who nods",min:15,persona:"facilitator pressure-testing the v29 crowd depth pass",
+ goal:"Verify the day shades deform budgets without touching routines, the flow layer reads as bodies in transit, micro-events are internal-only conditions, the greeting matrix shows who visibly knows whom, and the honest hour still reads honest.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Scrub a weekday from 00:00 to 24:00 watching the venue board and the roster. Then click a zone to open its 24h curve.",
+  exp:"Zones resolve named faces from routines plus a '+N extras' tail; the roster moves on schedule; 00–04 reads deserted everywhere it should — nothing pads the honest hour. The curve shows the budget shape for the selected zone.",
+  ck:["Overnight (00–04) shows deserted bands — protected, never filled","Extras appear only as '+N' tails — no extra ever carries a name","The 24h curve redraws under the current shade/weather and marks the current hour"]},
+ {do:"Toggle shade to '1st', then 'fri' (at 20:00), then 'sun' (at 07:00), then 'mon'. Watch the venue board and roster each time.",
+  exp:"The 1st swells Luz's stand and Malik's; Friday night lifts the 600 Club and El Farolote while Mudhaus thins; Sunday morning hushes streets and the minimart; Monday drops café budgets and closes the bakery and Bloom & Doom. No ambient's routine changes — shade is budget arithmetic only.",
+  ck:["first_of_month: fruteria ×1.5, minimart ×1.3 — visible in the +N tail","sun: streets commute/rush halve; library closed-days bite","mon: bakery/bloomdoom closed; cafés ×0.8","The roster is identical across shades — routines never bend"]},
+ {do:"At weekday 08:30 read the Flow panel and the Micro-texture row; then scrub to 15:15 and to 23:30.",
+  exp:"Morning shows 'edge → Mudhaus' walking counts; Tuesday-default marks sweep-tue active through midday; 15:15 lights school-bell (edge flow doubles); 23:30 lights last-call-drift (club600 → edge spikes). None of it appears on any feed surface — internal vocabulary only.",
+  ck:["Flow rows show 'N–M walking' when live, 'idle' outside their daypart/hour window","Rain halves live flow counts; a locked/event venue doesn't erase walking","Micro chips are conditions, not schedules — delivery-window is on every commute+rush"]},
+ {do:"At a dry midday, read the park zone row for greeting chips; then evening at Mudhaus; then look for Tom anywhere.",
+  exp:"Esther↔Ray's bench-parliament chip appears when both are benched; Asha↔Reyes's counter chip appears ~19:30; Tom chips never appear — 'none' weights are by design (the metronome doesn't stop). Minor pairs carry the 'pack' marker.",
+  ck:["Greeting chips only render when both ambients actually share the zone — collision, not dispatch","'none' pairs never chip, and the copy explains why","Minor-pair chips (kid-mango, pack adjacency) carry the pack marker"]},
+ {do:"Run `node world/audit.js` and read the crowd gate.",
+  exp:"crowd gate passes: inline DAYPARTS/ZONES/WX/BANDS/SCENES/SHADES/FLOWS/MICROS/GREETS all mirror crowd.json; every scene 'named' and greet pair resolves to a real ambient or main; extras blocks carry no identity-shaped field; overnight keeps allow_deserted.",
+  ck:["Gate reports 'schema v29 · 11 zones · 7 edges · 18 pairs'","A budget drift, an unknown zone in a shade/edge/micro, or a greet weight outside hi/lo/none would FAIL — spot-check the gate","A minor greet pair without minor_pack, or a 'name' field in an extras block, would FAIL"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v28";
+const LS="rw_playtest_v29";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
@@ -610,7 +628,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v28 local",started:new Date(S.started).toISOString(),
+    build:"world v29 local",started:new Date(S.started).toISOString(),
     time_to_first_request_min:S.ttfr??null},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};

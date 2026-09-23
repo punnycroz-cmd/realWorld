@@ -35,6 +35,9 @@
                  SECRETS last; characters.json mirrors roleplay/briefing
                  fields + v28 backstory/room/strangers; cast.html CAST
                  ids and card fields agree
+    crowd     — crowd.json ↔ crowd.html mirror (zones, budgets, shades,
+                flows, micros, greets, scenes); extras carry no identity;
+                minors greet in packs; overnight allow_deserted protected
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -575,13 +578,157 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'characters.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G14 crowd ============ */
+{
+  const g = gate('crowd', 'crowd contract (crowd.json ↔ crowd.html mirror; extras carry no identity; greeting/pairing bounds)');
+  try {
+    const CJ = JSONF('crowd.json');
+    const html = rd('crowd.html');
+    const AMB = JSONF('ambients.json');
+    const ambIds = new Set(AMB.ambients.map(a => a.id));
+    const mainIds = new Set(['C1','C2','C3','C4','C5','C6','C7','C8']);
+    /* pull an inline `const NAME=<literal>;` block and eval it */
+    const pull = (name, close) => {
+      const m = html.match(new RegExp('const ' + name + '=(\\' + close[0] + '[\\s\\S]*?\\' + close[1] + ');'));
+      if (!m) throw new Error('inline ' + name + ' not found');
+      return eval('(' + m[1] + ')');
+    };
+    const DP = pull('DAYPARTS', '[]'), ZN = pull('ZONES', '{}'), WXm = pull('WX', '{}'),
+      BD = pull('BANDS', '[]'), SH = pull('SHADES', '{}'), FL = pull('FLOWS', '[]'),
+      MI = pull('MICROS', '[]'), GR = pull('GREETS', '[]'), SC = pull('SCENES', '[]');
+    /* dayparts: id/h0/h1 order + allow_deserted flag */
+    if (DP.length !== CJ.dayparts.length)
+      add(g, 'fail', 'crowd.html', null, `DAYPARTS length ${DP.length} != ${CJ.dayparts.length}`);
+    CJ.dayparts.forEach((d, i) => {
+      const h = DP[i];
+      if (!h || h[0] !== d.id || h[1] !== d.h0 || h[2] !== d.h1)
+        add(g, 'fail', 'crowd.html', null, `daypart ${i} drifted: ${JSON.stringify(h)} vs ${d.id}`);
+      if (d.id === 'overnight' && d.allow_deserted !== true)
+        add(g, 'fail', 'crowd.json', null, 'overnight lost allow_deserted — the honest hour is protected');
+      if (d.id !== 'overnight' && d.allow_deserted)
+        add(g, 'fail', 'crowd.json', null, `${d.id} declares allow_deserted — only 00–04 may read empty`);
+    });
+    /* zones: label/kind/open/closed_days/budget rows deep-equal */
+    const jz = Object.keys(CJ.zones).sort(), hz = Object.keys(ZN).sort();
+    if (jz.join(',') !== hz.join(','))
+      add(g, 'fail', 'crowd.html', null, `zone keys drifted: ${hz.join(',')} != ${jz.join(',')}`);
+    for (const z of jz) {
+      const J = CJ.zones[z], H = ZN[z] || {};
+      for (const k of ['label', 'kind'])
+        if (J[k] !== H[k]) add(g, 'fail', 'crowd.html', null, `zone ${z}.${k}: "${H[k]}" != "${J[k]}"`);
+      if (JSON.stringify(J.open || null) !== JSON.stringify(H.open || null))
+        add(g, 'fail', 'crowd.html', null, `zone ${z}.open drifted`);
+      if (JSON.stringify(J.closed_days || null) !== JSON.stringify(H.closed_days || null))
+        add(g, 'fail', 'crowd.html', null, `zone ${z}.closed_days drifted`);
+      for (const d of ['weekday', 'weekend']) {
+        /* html omits zero rows — compare non-zero budgets key-by-key */
+        const nz = o => Object.fromEntries(Object.entries(o || {}).filter(([, b]) => b[0] || b[1]));
+        if (JSON.stringify(nz(J[d])) !== JSON.stringify(nz(H[d])))
+          add(g, 'fail', 'crowd.html', null, `zone ${z}.${d} budgets drifted`);
+      }
+      /* budget sanity: [lo,hi], lo<=hi, ints */
+      for (const d of ['weekday', 'weekend'])
+        for (const [dp, b] of Object.entries(J[d] || {}))
+          if (!Array.isArray(b) || b.length !== 2 || b[0] > b[1] || b[0] < 0)
+            add(g, 'fail', 'crowd.json', null, `zone ${z}.${d}.${dp}: bad budget ${JSON.stringify(b)}`);
+    }
+    /* weather multipliers + band thresholds */
+    if (JSON.stringify(WXm) !== JSON.stringify(CJ.weather_multipliers))
+      add(g, 'fail', 'crowd.html', null, 'WX block != weather_multipliers');
+    const jBands = Object.values(CJ.conventions.bands).map(b => b[0]);
+    if (JSON.stringify(BD.map(b => b[0])) !== JSON.stringify(jBands))
+      add(g, 'fail', 'crowd.html', null, `BANDS thresholds ${BD.map(b => b[0])} != ${jBands}`);
+    /* scenes: ids/labels match; named refs exist; zone refs exist */
+    const jSc = CJ.scenes.map(s => s.id).sort(), hSc = SC.map(s => s.id).sort();
+    if (jSc.join(',') !== hSc.join(','))
+      add(g, 'fail', 'crowd.html', null, `scene ids drifted: ${hSc.join(',')} != ${jSc.join(',')}`);
+    for (const s of CJ.scenes) {
+      const H = SC.find(x => x.id === s.id);
+      if (H && H.label !== s.label) add(g, 'fail', 'crowd.html', null, `scene ${s.id} label drifted`);
+      for (const n of s.when.named || [])
+        if (!ambIds.has(n) && !mainIds.has(n))
+          add(g, 'fail', 'crowd.json', null, `scene ${s.id}: named "${n}" is not an ambient or main`);
+      if (s.when.zone && !CJ.zones[s.when.zone])
+        add(g, 'fail', 'crowd.json', null, `scene ${s.id}: unknown zone "${s.when.zone}"`);
+    }
+    /* v29 blocks: shades/flows/micros/greets mirror + integrity */
+    const jSh = CJ.day_shades.shades.map(s => s.id).sort();
+    if (JSON.stringify(Object.keys(SH).sort()) !== JSON.stringify(jSh))
+      add(g, 'fail', 'crowd.html', null, `SHADES keys != day_shades ids (${jSh.join(',')})`);
+    for (const s of CJ.day_shades.shades) {
+      for (const z of Object.keys(s.zone_mult || {}))
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `shade ${s.id}: unknown zone ${z}`);
+      for (const k of Object.keys(s.kind_mult || {}))
+        if (!Object.values(CJ.zones).some(zz => zz.kind === k))
+          add(g, 'fail', 'crowd.json', null, `shade ${s.id}: kind_mult "${k}" matches no zone kind`);
+      for (const [dp, mm] of Object.entries(s.daypart_zone_mult || {})) {
+        if (!CJ.dayparts.some(d => d.id === dp)) add(g, 'fail', 'crowd.json', null, `shade ${s.id}: unknown daypart ${dp}`);
+        for (const z of Object.keys(mm)) if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `shade ${s.id}.${dp}: unknown zone ${z}`);
+      }
+      for (const sid of Object.keys(s.scene_weight || {}))
+        if (!jSc.includes(sid)) add(g, 'fail', 'crowd.json', null, `shade ${s.id}: scene_weight "${sid}" is not a scene`);
+    }
+    const jFl = CJ.flow_edges.edges.map(e => e.id).sort();
+    if (JSON.stringify(FL.map(f => f.id).sort()) !== JSON.stringify(jFl))
+      add(g, 'fail', 'crowd.html', null, 'FLOWS ids != flow_edges ids');
+    const flEndpoints = new Set([...Object.keys(CJ.zones), 'edge']);
+    for (const e of CJ.flow_edges.edges) {
+      for (const ep of [e.a, e.b])
+        if (!flEndpoints.has(ep)) add(g, 'fail', 'crowd.json', null, `edge ${e.id}: endpoint "${ep}" is not a zone or 'edge'`);
+      for (const dp of e.dayparts || [])
+        if (!CJ.dayparts.some(d => d.id === dp)) add(g, 'fail', 'crowd.json', null, `edge ${e.id}: unknown daypart ${dp}`);
+      for (const [d, r] of Object.entries(e.flow || {}))
+        if (r[0] > r[1]) add(g, 'fail', 'crowd.json', null, `edge ${e.id}.${d}: bad flow range`);
+    }
+    const jMi = CJ.micro_events.events.map(e => e.id).sort();
+    if (JSON.stringify(MI.map(m => m.id).sort()) !== JSON.stringify(jMi))
+      add(g, 'fail', 'crowd.html', null, 'MICROS ids != micro_events ids');
+    const flIds = new Set(jFl);
+    for (const e of CJ.micro_events.events) {
+      if (!e.when) add(g, 'fail', 'crowd.json', null, `micro ${e.id}: no condition block`);
+      for (const k of Object.keys(e.edge_mult || {}))
+        if (!flIds.has(k)) add(g, 'fail', 'crowd.json', null, `micro ${e.id}: edge_mult "${k}" is not a flow edge`);
+      for (const z of Object.keys(e.zone_mult || {}))
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `micro ${e.id}: unknown zone ${z}`);
+    }
+    /* greeting matrix: ids are ambients or mains, weights legal, minors packed */
+    const jGr = CJ.greeting_matrix.pairs;
+    const hKey = GR.map(x => [x.a, x.b].join(':')).sort(), jKey = jGr.map(x => [x.a, x.b].join(':')).sort();
+    if (JSON.stringify(hKey) !== JSON.stringify(jKey))
+      add(g, 'fail', 'crowd.html', null, 'GREETS pairs != greeting_matrix pairs');
+    const wOk = new Set(['hi', 'lo', 'none']);
+    for (const p of jGr) {
+      for (const x of [p.a, p.b])
+        if (!ambIds.has(x) && !mainIds.has(x))
+          add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: "${x}" is not a cast id`);
+      if (!wOk.has(p.weight)) add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: weight "${p.weight}" not in hi/lo/none`);
+      const minor = id => (AMB.ambients.find(a => a.id === id) || {}).minor;
+      if ((minor(p.a) || minor(p.b)) && !p.minor_pack)
+        add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: minor pair without minor_pack — minors greet in packs only`);
+      if ((ambIds.has(p.a) && ambIds.has(p.b)) === false && !p.main_crossing)
+        add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: a main pair without main_crossing flag`);
+      /* observable-safe: form text carries no seed/meta vocabulary */
+      if (/secret|seed|briefing|must_not_know/i.test(p.form || ''))
+        add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: meta vocabulary in form text`);
+    }
+    /* extras boundary: no identity-shaped fields anywhere in the extra layer */
+    const extraBlocks = [CJ.flow_edges, CJ.micro_events, CJ.persistence, CJ.appearance_palette, CJ.spawner];
+    const exJson = JSON.stringify(extraBlocks);
+    if (/"name"\s*:|"fullName"\s*:|tenant_id|"lease"/.test(exJson))
+      add(g, 'fail', 'crowd.json', null, 'identity/ledger field detected in an extras-layer block');
+    if (!CJ.feed_wording || !CJ.feed_wording.venue_band_event)
+      add(g, 'fail', 'crowd.json', null, 'feed_wording.venue_band_event missing — the wire vocabulary is the boundary');
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs`;
+  } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v28 local';
+out.build = 'world v29 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

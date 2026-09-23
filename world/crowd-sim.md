@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15)
+# Crowd Sim — the block's population model (world v15; deepened v29)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -137,3 +137,139 @@ the spectator wording for each.
   deleting the extra and minting a new ambient (A21+).
 - Never outnumber the named cast in a *named* read — venue rows always
   lead with who, extras are the tail.
+
+---
+
+## 8. The week has a shape (v29)
+
+`weekday`/`weekend` is a coarse split. Real blocks shade further — a
+Tuesday afternoon is not a Friday afternoon. `crowd.json §day_shades`
+carries named shades that multiply zone budgets on specific calendar
+conditions. Shades stack with weather, never with each other (first
+match wins; `first_of_month` beats `fri`).
+
+| shade | when | what it does |
+|---|---|---|
+| `fri` | Fridays | evening/night swell: club600 ×1.15, elfarolote ×1.1, streets evening ×1.2; Mudhaus dies earlier — nobody lingers Friday afternoon |
+| `sun` | Sundays | morning hush: streets commute/rush ×0.5, minimart rush ×0.7; the park owns the day (weekend row already does the work — `sun` adds the *quiet*) |
+| `first_of_month` | the 1st | fruteria ×1.5, minimart ×1.3 all day; bench parliament runs long; this is the block's payroll rhythm, visible to regulars of the feed |
+| `mon` | Mondays | the closed-sign shade: bakery/bloomdoom/library closed_days already bite; `mon` additionally ×0.8 on cafe budgets — the block exhales |
+
+Shades are budget arithmetic only. No named ambient's routine changes —
+Luz doesn't get told it's the 1st; her stand is just busier.
+
+## 9. The flow layer (v29)
+
+Extras don't teleport between venue budgets — they *walk between them*.
+`crowd.json §flow_edges` declares pedestrian currents: ordered zone
+pairs with a per-daypart transit range. `streets` is the sink and
+source; `edge` is the off-map boundary where extras enter and leave the
+world.
+
+What the flow layer is for:
+
+- **Sidewalk truth.** A zone going 4→9 shouldn't read as five people
+  blinking in — the feed sees the crossing fill first, then the door.
+  Spawner drains the deficit along edges: 60–80% of a rising venue's
+  new extras arrive via the strongest active edge, on foot.
+- **Transit legs.** An extra on a flow edge is walking *through* —
+  no queue reflex, minimal dwell (≤90 s inside any zone it crosses).
+  `flow` ranges count bodies in transit, distinct from zone budgets.
+- **Deformation follows physics.** Rain doesn't lower a flow edge to
+  zero while destinations are open — people still walk to dinner; it
+  halves the edge and speeds the gait. `storm` does what it does to
+  everything.
+
+The flow layer is invisible to the feed — no event type, no counts.
+It exists so that motion between zones looks like a city and not a
+teleporter.
+
+## 10. Micro-texture (v29)
+
+Below player events and weather sits a third deformation layer: the
+block's mundane recurring texture. `crowd.json §micro_events` — small,
+named, conditional budget/route effects that regulars learn to expect.
+They never appear on the feed as events; they just make the frame right.
+
+| id | condition | effect |
+|---|---|---|
+| `sweep-tue` | Tuesdays, rush→midday | curb lanes clear on the swept side; streets edge flow ×0.8; parked-car sprites thin where decals say so |
+| `school-bell` | weekday 15:00 ±20 min | streets→park edge doubles; park afternoon floor +2 — the release is audible before it's visible |
+| `delivery-window` | daily commute+rush | bakery/market curb dwell: 1–2 extras at a truck, handtruck gait — commerce texture, not a scene |
+| `last-call-drift` | daily 23:00→close | club600→edge flow spikes; elfarolote night gets the post-bar tail |
+| `sunday-stoop` | sun midday→evening | residential stoops read occupied — static extras at doorways, zero flow |
+
+None of these notify anyone. They're the difference between a crowd
+model and a neighborhood.
+
+## 11. Continuity without identity (v29)
+
+Extras have no identity — but the eye tracks motion. Two rules keep
+the seam invisible *across* zones without giving anyone a self:
+
+- **The walk chain.** When an extra exits a zone toward an adjacent
+  zone's edge within a 20-minute window, the spawner may reuse its
+  `hash(day, zone, spawnIndex)` silhouette at the destination. This is
+  costume continuity, not identity: the pawn carries no state, and a
+  reused silhouette is indistinguishable from coincidence — which is
+  the point. Chains die at 20 minutes or one intermediate zone.
+- **Camera-jump persistence.** Extras already survive a camera cut
+  (§1 rule 2). Addition: a cut *within* a walk window prefers keeping
+  silhouettes whose last heading pointed into the new frame. Nothing
+  persists across reloads — extras remain excluded from save state.
+
+Ledger-level rule unchanged: no id, no name, no archive row. A viewer
+can believe they saw the same dog walker twice; the system neither
+confirms nor remembers.
+
+## 12. The greeting layer (v29)
+
+Named ambients share zones all day; whether they visibly know each
+other is content, not emergence — a stranger should be able to learn
+the block's social graph from the feed. `crowd.json §greeting_matrix`
+declares familiarity weights between named ambients (and notes where
+a main crosses an ambient's routine).
+
+Rules:
+
+- **Weights, not scripts.** A `hi` weight means that when both are in
+  the same zone, a ≤15 s visual beat (nod, chin-raise, two-word pause)
+  is *likely*, gated on both being in a greetable state (not serve-rush,
+  not asleep, not on a minor-guarded beat). A `lo` weight means the beat
+  is rare — Kofe does not stop for Omar; that's the joke of
+  `wordless-race`.
+- **Greetings never move anyone.** No routine changes to make a
+  greeting possible. If Esther is at Dolores Perk and Ray is on the
+  south bench, there is no parliament — the matrix only fires on
+  collision.
+- **The matrix is observable-safe.** Every pair it names is a surface
+  read a patient spectator could assemble. It holds no seed content and
+  never will — secrets live where secrets live.
+- **Minors (A04, A20)** only greet in public zones, in groups — the
+  pack is the unit, never a lone adult-minor pair.
+
+## 13. Spawner contract — additions (v29)
+
+- `crowdBudget(zone, daypart, weather, shade, events)` — §6 signature
+  gains `shade`; shade resolves before weather, first-match-wins.
+- `crowdFlow(edge, daypart, weather) -> [lo,hi]` — bodies in transit
+  per edge; the rising-venue rule (§9) sources 60–80% of a deficit
+  through the strongest live edge.
+- `extraLook(day, zone, spawnIndex)` — deterministic pick from
+  `appearance_palette` (24 silhouettes × gait set × palette); walk
+  chains reuse the pick under the §11 window.
+- `microActive(id, day, daypart) -> bool` — micro-events are
+  conditions evaluated per tick, never scheduled.
+- Greetings: `greetWeight(a, b)` reads §greeting_matrix; the beat is
+  a pose exchange ≤15 s attached to the lower-salience pawn.
+
+## 14. Boundary additions (v29)
+
+- Shades and micro-events are **internal vocabulary** — the feed still
+  says only band words and scene labels. A spectator never sees
+  "first_of_month" on the wire; they see Luz's stand busy on the 1st.
+- Flow edges and walk chains carry **no ledger presence** — transit
+  extras have exactly the same non-existence as parked ones.
+- The greeting matrix is the *only* sanctioned inter-ambient affinity
+  layer below promotion. It cannot create a scene, a rumor, or a
+  storyline — only a nod.

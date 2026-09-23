@@ -5,15 +5,19 @@
 <title>Real World — The Crowd (ambient population model)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Crowd model demo — "The Crowd" (world v15). Internal posture tool.
-  Self-contained: file://-safe, no network. Spec: world/crowd-sim.md.
-  Machine mirror: world/crowd.json (inlined below — hand-synced).
-  A clock scrubber + day/weather/event toggles show where the two-layer
-  crowd lands: named ambients resolve from their routines, extras are
-  budgets (never individuals). Recurring scenes light up when their
-  *conditions* obtain — nobody is sent to fill them.
+  Crowd model demo — "The Crowd" (world v15; v3 build at world v29).
+  Internal posture tool. Self-contained: file://-safe, no network.
+  Spec: world/crowd-sim.md. Machine mirror: world/crowd.json (inlined
+  below — hand-synced; the `crowd` audit gate enforces agreement).
+  v29 adds: day shades (fri/sun/mon/first-of-month), the flow layer
+  (zone-pair transit currents), micro-texture events, walk-chain
+  continuity notes, and the greeting matrix between named ambients.
+  A clock scrubber + day/shade/weather/event toggles show where the
+  two-layer crowd lands. Scenes light up when their *conditions*
+  obtain — nobody is sent to fill them.
   Boundaries: extras have no identity/ledger/feed name; 00–04 may read
-  deserted (protected honest hour); ambients never possessable.
+  deserted (protected honest hour); ambients never possessable; shades
+  and micro-events are internal vocabulary, never feed words.
 -->
 <style>
   :root{
@@ -38,7 +42,8 @@
   @media(max-width:980px){main{grid-template-columns:1fr}}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
   h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
-  .zone{border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:8px;background:var(--panel2)}
+  .zone{border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:8px;background:var(--panel2);cursor:pointer}
+  .zone.sel{border-color:var(--blu)}
   .zone .top{display:flex;align-items:baseline;gap:9px}
   .zone .zn{font-weight:700;font-size:13px}
   .band{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
@@ -50,6 +55,7 @@
   .chip{display:inline-block;font-size:10.5px;border:1px solid var(--line);border-radius:8px;
     padding:0 7px;margin:2px 3px 0 0;color:var(--ink);background:var(--bg)}
   .chip.x{color:var(--dim);border-style:dashed}
+  .chip.g{color:var(--grn);border-style:dashed}
   .zone .sub{font-size:10.5px;color:var(--dim);margin-top:3px;font-family:var(--mono)}
   .meter{height:5px;background:var(--bg);border-radius:3px;margin-top:6px;overflow:hidden}
   .meter i{display:block;height:100%;background:var(--grn)}
@@ -66,6 +72,13 @@
   .cant li{font-size:12px;margin:4px 0;color:var(--dim)}
   .cant b{color:var(--ink);font-weight:600}
   .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:8px}
+  .flow{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12px}
+  .flow .arr{color:var(--blu);font-family:var(--mono);font-size:11px}
+  .flow .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .flow.off{opacity:.4}
+  .mic{display:inline-block;font-size:10.5px;border:1px solid var(--acc);border-radius:8px;color:var(--acc);padding:0 8px;margin:0 5px 5px 0}
+  .mic.off{border-color:var(--line);color:var(--dim);border-style:dashed}
+  #curve{width:100%;height:110px;display:block}
 </style>
 </head>
 <body>
@@ -74,27 +87,39 @@
   <span class="clock"><b id="ck">08:00</b> <small id="dp">rush · weekday</small></span>
   <input type="range" id="scrub" min="0" max="24" step="0.5" value="8">
   <div class="tgl" id="dayTgl">day <button data-v="weekday" class="on">weekday</button><button data-v="weekend">weekend</button></div>
+  <div class="tgl" id="shTgl">shade <button data-v="none" class="on">—</button><button data-v="fri">fri</button><button data-v="sun">sun</button><button data-v="mon">mon</button><button data-v="first_of_month">1st</button></div>
   <div class="tgl" id="wxTgl">wx <button data-v="clear" class="on">clear</button><button data-v="rain">rain</button><button data-v="storm">storm</button><button data-v="heat">heat</button></div>
   <div class="tgl" id="evTgl">event <button data-v="none" class="on">none</button><button data-v="party">block party @ park</button><button data-v="lock">exclusive lock @ Mudhaus</button></div>
 </header>
 <main>
   <div>
     <div class="panel"><h2>Venue board — named faces + extras budget</h2><div id="zones"></div>
-      <div class="fine">Bands: deserted · thin (1–3) · steady (4–8) · busy (9–15) · packed (16+). The feed reports band words, never counts. Extras appear as "+N" tails only — they have no names to show.</div>
+      <div class="fine">Bands: deserted · thin (1–3) · steady (4–8) · busy (9–15) · packed (16+). The feed reports band words, never counts. Extras appear as "+N" tails only — they have no names to show. Click a zone for its 24h curve. Green dashed chips = greeting pairs colliding right now.</div>
+    </div>
+    <div class="panel"><h2>24h curve — <span id="cvz">Mudhaus Coffee</span> extras budget</h2>
+      <canvas id="curve" width="600" height="110"></canvas>
+      <div class="fine">Raw budget midpoint through the day, under the current shade + weather. The named layer is not drawn — it arrives by routine, not budget.</div>
     </div>
   </div>
   <div>
     <div class="panel"><h2>Standing bits — condition check</h2><div id="scenes"></div>
       <div class="fine">Scenes are descriptions of collision. If conditions don't obtain, nothing is dispatched — the bit just doesn't happen today.</div>
     </div>
+    <div class="panel"><h2>Flow layer — bodies in transit</h2><div id="flows"></div>
+      <div class="fine">Pedestrian currents between zones — counts of extras walking, not dwelling. A rising venue draws 60–80% of its deficit along the strongest live edge. Invisible to the feed.</div>
+    </div>
+    <div class="panel"><h2>Micro-texture now</h2><div id="micros"></div>
+      <div class="fine">Mundane recurring deformations — internal vocabulary, never feed events.</div>
+    </div>
     <div class="panel"><h2>Named layer — all 20 ambients now</h2><div class="roster" id="roster"></div></div>
     <div class="panel"><h2>Crowd rules under audit</h2><ul class="cant">
       <li><b>Extras spawn/despawn off-camera only</b> — at block edges, through doors. Nothing pops in view.</li>
-      <li><b>Extras carry nothing:</b> no name, id, ledger row, feed attribution, memory, or request handle.</li>
+      <li><b>Extras carry nothing:</b> no name, id, ledger row, feed attribution, memory, or request handle. Walk chains reuse a silhouette — costume continuity, not identity.</li>
       <li><b>≤3 interactive pawns</b> within range of any main or player character.</li>
       <li><b>00–04 may be deserted.</b> The honest hour is protected — nothing pads it.</li>
-      <li><b>Minors (June, Zee)</b> stay public-space; never request targets.</li>
+      <li><b>Minors (June, Zee)</b> stay public-space; greet in packs; never request targets.</li>
       <li><b>Locked venues clear extras,</b> not staff — a claim empties the crowd, not the people who work there.</li>
+      <li><b>Shades, flows, micro-events stay internal.</b> The wire says band words and scene labels only.</li>
     </ul></div>
   </div>
 </main>
@@ -120,6 +145,45 @@ const WX={clear:{open_air:1,cafe:1,shop:1,stand:1,restaurant:1,bar:1,civic:1},
   storm:{open_air:.05,cafe:1.2,shop:1.1,stand:0,restaurant:1.1,bar:.9,civic:1.3},
   heat:{open_air:1.4,cafe:.9,shop:1,stand:1.3,restaurant:1,bar:1.2,civic:1.2}};
 const BANDS=[[0,"deserted"],[1,"thin"],[4,"steady"],[9,"busy"],[16,"packed"]];
+/* v29 mirrors: shades, flow edges, micro-events, greeting matrix */
+const SHADES={
+  first_of_month:{zone_mult:{fruteria:1.5,minimart:1.3},scene_weight:{"bench-parliament":1.3}},
+  fri:{zone_mult:{club600:1.15,elfarolote:1.1,mudhaus:.85},daypart_zone_mult:{evening:{streets:1.2}}},
+  sun:{daypart_zone_mult:{commute:{streets:.5,minimart:.7},rush:{streets:.5,minimart:.7}}},
+  mon:{kind_mult:{cafe:.8}}};
+const FLOWS=[
+  {id:"f-edge-mudhaus",a:"edge",b:"mudhaus",dp:["commute","rush","lunch","afternoon"],flow:{weekday:[3,7],weekend:[4,9]},note:"the morning approach"},
+  {id:"f-mudhaus-park",a:"mudhaus",b:"park",dp:["rush","midday","lunch","afternoon"],flow:{weekday:[2,5],weekend:[3,7]},note:"coffee-to-grass drift"},
+  {id:"f-school-park",a:"edge",b:"park",dp:["afternoon"],hrs:[15,16.5],flow:{weekday:[4,8]},micro:"school-bell",note:"the release current"},
+  {id:"f-streets-elfarolote",a:"streets",b:"elfarolote",dp:["lunch","evening","night"],flow:{weekday:[3,6],weekend:[4,8]},note:"dinner approach"},
+  {id:"f-club600-edge",a:"club600",b:"edge",dp:["night"],hrs:[23,26],flow:{weekday:[4,8],weekend:[7,12]},micro:"last-call-drift",note:"the way home"},
+  {id:"f-park-minimart",a:"park",b:"minimart",dp:["midday","lunch","afternoon","evening"],flow:{weekday:[1,3],weekend:[2,4]},note:"beer-and-ice run"},
+  {id:"f-edge-streets",a:"edge",b:"streets",dp:["predawn","commute","rush","night"],flow:{weekday:[2,6],weekend:[1,4]},note:"transit spill"}];
+const MICROS=[
+  {id:"sweep-tue",when:{dow:"tue",dp:["rush","midday"]},edge_mult:{"f-edge-streets":.8},zone_mult:{streets:.9},note:"street sweeping"},
+  {id:"school-bell",when:{dow_not:["sat","sun"],hrs:[15,16.5]},edge_mult:{"f-school-park":2},zone_floor:{park:{afternoon:2}},note:"school release current"},
+  {id:"delivery-window",when:{dp:["commute","rush"]},note:"truck curb dwell at bakery/market"},
+  {id:"last-call-drift",when:{hrs:[23,26]},edge_mult:{"f-club600-edge":1.6},zone_mult:{elfarolote:1.15},note:"post-bar tail"},
+  {id:"sunday-stoop",when:{dow:"sun",dp:["midday","lunch","afternoon","evening"]},note:"stoops read occupied"}];
+const GREETS=[
+  {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
+  {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
+  {a:"A09",b:"A01",w:"hi",form:"quiet counter recognition",z:["mudhaus"]},
+  {a:"A06",b:"A15",w:"lo",form:"chin-raise at speed",z:["streets"]},
+  {a:"A07",b:"A04",w:"hi",form:"kid-mango",z:["fruteria","park"],pack:1},
+  {a:"A07",b:"A20",w:"hi",form:"kid-mango",z:["fruteria","park"],pack:1},
+  {a:"A03",b:"A05",w:"hi",form:"counter-tab nod",z:["minimart"]},
+  {a:"A14",b:"A08",w:"hi",form:"late-corner pause",z:["club600","park"]},
+  {a:"A11",b:"A05",w:"lo",form:"library-regular wave",z:["park","library"]},
+  {a:"A16",b:"A02",w:"hi",form:"6 a.m. wave",z:["park","bakery"]},
+  {a:"A02",b:"A08",w:"lo",form:"pitch-side dog sniff",z:["park"]},
+  {a:"A17",b:"A10",w:"hi",form:"hardware-counter mornings",z:["auerbach","minimart"]},
+  {a:"A14",b:"A18",w:"lo",form:"Clarion neighbors",z:["clarion","bloomdoom"]},
+  {a:"A12",b:"A19",w:"none",form:"the metronome doesn't stop",z:["park"]},
+  {a:"A12",b:"A05",w:"none",form:"laps don't pause",z:["park"]},
+  {a:"A04",b:"A20",w:"hi",form:"pack adjacency",z:["park","mudhaus"],pack:1},
+  {a:"A10",b:"C7",w:"hi",form:"the truck argument",z:["folsom"],main:1},
+  {a:"A15",b:"C5",w:"lo",form:"the wordless race",z:["streets"],main:1}];
 /* ambient routines: [h0,h1,zone,state] weekday; off=off-day(s); wk=weekend override */
 const AMB=[
  ["A01","Reyes","barista",[[0,7.5,"home","sleep"],[7.5,18,"mudhaus","serve"],[18,24,"home","home"]],{off:["sun"]}],
@@ -152,15 +216,35 @@ const SCENES=[
  {id:"evening-nurse",label:"The evening nurse",ck:s=>s.dp==="evening"&&inZ("A09","mudhaus"),why:"Asha's counter seat 19:30–21"},
  {id:"victor-pickup",label:"Victor's pickup at Gus's",ck:s=>s.day==="weekday"&&["lunch","afternoon"].includes(s.dp)&&inZ("A10","folsom"),why:"weekly — Fridays (demo: weekday afternoons)"},
  {id:"doorway-sets",label:"Doorway sets",ck:s=>s.wx==="rain"&&inZ("A08","club600"),why:"Sam under the awning — rain is the trigger"}];
-const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom"};
-let S={h:8,day:"weekday",wx:"clear",ev:"none"};
+const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom",edge:"off-map"};
+let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",sel:"mudhaus"};
 
 function daypart(h){for(const d of DAYPARTS){const[h0,h1]=[d[1],d[2]];if(h0<=h&&h<h1)return d[0];}return"overnight";}
+/* shade resolves a day-of-week for closed_days + micro conditions */
+function dowOf(){return S.shade==="fri"?"fri":S.shade==="sun"?"sun":S.shade==="mon"?"mon":S.day==="weekend"?"sat":"tue";}
+/* sun/fri shades imply the matching budget row */
+function effDay(){return S.shade==="sun"?"weekend":S.shade==="fri"?"weekday":S.day;}
+function shadeZoneMult(z,dp){
+  const sh=SHADES[S.shade];if(!sh)return 1;
+  let m=1;
+  if(sh.zone_mult&&sh.zone_mult[z])m*=sh.zone_mult[z];
+  if(sh.daypart_zone_mult&&sh.daypart_zone_mult[dp]&&sh.daypart_zone_mult[dp][z])m*=sh.daypart_zone_mult[dp][z];
+  if(sh.kind_mult&&sh.kind_mult[ZONES[z].kind])m*=sh.kind_mult[ZONES[z].kind];
+  return m;
+}
+function microActive(mc){
+  const w=mc.when,dow=dowOf(),dp=daypart(S.h);
+  if(w.dow&&w.dow!==dow)return false;
+  if(w.dow_not&&w.dow_not.includes(dow))return false;
+  if(w.dp&&!w.dp.includes(dp))return false;
+  if(w.hrs&&!(w.hrs[0]<=S.h&&S.h<w.hrs[1]))return false;
+  return true;
+}
 function ambWhere(a,h,day,wx){
-  const[,name,role,rt,opt]=[a[0],a[1],a[2],a[3],a[4]||{}];
-  const wd=day==="weekend"?"sat":"wed";
-  if(opt.off&&opt.off.includes(wd))return["home","off day"];
-  let table=(day==="weekend"&&opt.wk)?opt.wk:rt;
+  const rt=a[3],opt=a[4]||{};
+  const dow=dowOf();
+  if(opt.off&&opt.off.includes(dow))return["home","off day"];
+  const table=(effDay()==="weekend"&&opt.wk)?opt.wk:rt;
   for(const seg of table)if(seg[0]<=h&&h<seg[1]){
     const zone=seg[2],st=seg[3];
     if(wx==="rain"||wx==="storm"){
@@ -176,55 +260,112 @@ function ambWhere(a,h,day,wx){
   return["home","home"];
 }
 function inZ(id,zone){const a=AMB.find(x=>x[0]===id);return ambWhere(a,S.h,S.day,S.wx)[0]===zone;}
+function budgetMid(z,h,day,wx,shade){
+  const zd=ZONES[z],dp=daypart(h);
+  const o=zd.open;let closed=false;
+  if(o){const[o0,o1]=o;const hh=o1>24?h+24*(h<o0?1:0):h;if(!(o0<=hh&&hh<o1))closed=true;}
+  const d2=shade==="sun"?"weekend":shade==="fri"?"weekday":day;
+  if(zd.closed_days&&zd.closed_days.includes(shade==="fri"?"fri":shade==="sun"?"sun":shade==="mon"?"mon":d2==="weekend"?"sat":"wed"))closed=true;
+  if(closed)return 0;
+  let b=(zd[d2]&&zd[d2][dp])||[0,0];
+  let mid=(b[0]+b[1])/2*WX[wx][zd.kind];
+  const sh=SHADES[shade];
+  if(sh){if(sh.zone_mult&&sh.zone_mult[z])mid*=sh.zone_mult[z];
+    if(sh.daypart_zone_mult&&sh.daypart_zone_mult[dp]&&sh.daypart_zone_mult[dp][z])mid*=sh.daypart_zone_mult[dp][z];
+    if(sh.kind_mult&&sh.kind_mult[zd.kind])mid*=sh.kind_mult[zd.kind];}
+  const dp2=dp;
+  for(const mc of MICROS){
+    const w=mc.when,dow=shade==="fri"?"fri":shade==="sun"?"sun":shade==="mon"?"mon":d2==="weekend"?"sat":"wed";
+    if(w.dow&&w.dow!==dow)continue;
+    if(w.dow_not&&w.dow_not.includes(dow))continue;
+    if(w.dp&&!w.dp.includes(dp2))continue;
+    if(w.hrs&&!(w.hrs[0]<=h&&h<w.hrs[1]))continue;
+    if(mc.zone_mult&&mc.zone_mult[z])mid*=mc.zone_mult[z];
+    if(mc.zone_floor&&mc.zone_floor[z]&&mc.zone_floor[z][dp2]!=null)mid=Math.max(mid,mc.zone_floor[z][dp2]);
+  }
+  return mid;
+}
 function bandOf(z){
-  const zd=ZONES[z];const dp=daypart(S.h);
+  const zd=ZONES[z];
   if(!zd)return"deserted";
+  const mid=budgetMid(z,S.h,S.day,S.wx,S.shade);
   const o=zd.open;let closed=false;
   if(o){const[o0,o1]=o;const hh=o1>24?S.h+24*(S.h<o0?1:0):S.h;if(!(o0<=hh&&hh<o1))closed=true;}
-  if(zd.closed_days&&S.day==="weekend"&&zd.closed_days.includes("sat")&&zd.closed_days.includes("sun"))closed=true;
+  if(zd.closed_days&&zd.closed_days.includes(dowOf()))closed=true;
   if(closed)return"closed";
-  let b=(zd[S.day]&&zd[S.day][dp])||[0,0];
-  let mid=(b[0]+b[1])/2*WX[S.wx][zd.kind];
-  if(S.ev==="party"&&z==="park")mid=18;
-  if(S.ev==="party"&&z!=="park")mid*=0.7;
-  if(S.ev==="lock"&&z==="mudhaus")mid=0;
+  let m=mid;
+  if(S.ev==="party"&&z==="park")m=18;
+  if(S.ev==="party"&&z!=="park")m*=0.7;
+  if(S.ev==="lock"&&z==="mudhaus")m=0;
   const named=AMB.filter(a=>ambWhere(a,S.h,S.day,S.wx)[0]===z).length;
-  const tot=named+mid;
+  const tot=named+m;
   for(let i=BANDS.length-1;i>=0;i--)if(tot>=BANDS[i][0])return BANDS[i][1];
   return"deserted";
 }
 function zoneRow(z){
   const zd=ZONES[z],dp=daypart(S.h);
   const band=bandOf(z);
-  let b=(zd[S.day]&&zd[S.day][dp])||[0,0];
-  let mid=Math.round((b[0]+b[1])/2*WX[S.wx][zd.kind]);
+  let b=(zd[effDay()]&&zd[effDay()][dp])||[0,0];
+  let mid=Math.round(budgetMid(z,S.h,S.day,S.wx,S.shade));
   if(S.ev==="party")mid=Math.round(z==="park"?18:mid*0.7);
   if(S.ev==="lock"&&z==="mudhaus")mid=0;
   const here=AMB.filter(a=>ambWhere(a,S.h,S.day,S.wx)[0]===z);
-  const chips=here.map(a=>`<span class="chip">${a[1]}</span>`).join("")+
+  const gchips=GREETS.filter(g=>!g.main&&g.w!=="none"&&g.z.includes(z)&&
+    here.some(a=>a[0]===g.a)&&here.some(a=>a[0]===g.b))
+    .map(g=>`<span class="chip g" title="${g.form}">${AMB.find(a=>a[0]===g.a)[1]}↔${AMB.find(a=>a[0]===g.b)[1]}${g.pack?" · pack":""}</span>`).join("");
+  const chips=here.map(a=>`<span class="chip">${a[1]}</span>`).join("")+gchips+
     (band!=="closed"&&mid>0?`<span class="chip x">+${mid} extras</span>`:"");
   const pct=band==="closed"?4:{deserted:4,thin:14,steady:38,busy:62,packed:92}[band];
   const col={deserted:"var(--line)",thin:"var(--blu)",steady:"var(--grn)",busy:"var(--acc)",packed:"var(--pink)",closed:"var(--line)"}[band];
-  return `<div class="zone"><div class="top"><span class="zn">${zd.label}</span>
+  const shTag=S.shade!=="none"?" · shade:"+S.shade:"";
+  return `<div class="zone ${S.sel===z?'sel':''}" onclick="S.sel='${z}';render()"><div class="top"><span class="zn">${zd.label}</span>
     <span class="band ${band}">${band}</span></div>
     <div class="who">${chips||'<span style="color:var(--dim);font-size:11px">nobody named — '+(band==="closed"?"dark":"quiet")+'</span>'}</div>
-    <div class="sub">extras budget ${b[0]}–${b[1]} ×${WX[S.wx][zd.kind]} wx${S.ev!=="none"?" · event-modified":""}${zd.open?" · open "+zd.open[0]+"–"+(zd.open[1]>24?zd.open[1]-24+"+":zd.open[1]):""}</div>
+    <div class="sub">extras budget ${b[0]}–${b[1]} ×${WX[S.wx][zd.kind]} wx${shTag}${S.ev!=="none"?" · event-modified":""}${zd.open?" · open "+zd.open[0]+"–"+(zd.open[1]>24?zd.open[1]-24+"+":zd.open[1]):""}</div>
     <div class="meter"><i style="width:${pct}%;background:${col}"></i></div></div>`;
+}
+function flowRow(f){
+  const dp=daypart(S.h);
+  const on=f.dp.includes(dp)&&(!f.hrs||(f.hrs[0]<=S.h&&S.h<f.hrs[1]));
+  let rng=(f.flow[effDay()]||f.flow.weekday||[0,0]).slice();
+  const wxm=WX[S.wx].open_air;
+  rng=[Math.round(rng[0]*wxm),Math.round(rng[1]*wxm)];
+  for(const mc of MICROS){if(microActive(mc)&&mc.edge_mult&&mc.edge_mult[f.id])rng=[Math.round(rng[0]*mc.edge_mult[f.id]),Math.round(rng[1]*mc.edge_mult[f.id])];}
+  const nm=id=>ZONES[id]?ZONES[id].label:ZLABEL[id]||id;
+  return `<div class="flow ${on?'':'off'}"><span class="arr">${nm(f.a)} → ${nm(f.b)}</span>
+    <span style="color:var(--dim)">${f.note}</span><span class="n">${on?rng[0]+"–"+rng[1]+" walking":"idle"}</span></div>`;
 }
 function render(){
   const h=S.h,dp=daypart(h);
   const hh=Math.floor(h),mm=h%1?"30":"00";
   document.getElementById("ck").textContent=String(hh).padStart(2,"0")+":"+mm;
-  document.getElementById("dp").textContent=dp+" · "+S.day+" · "+S.wx+(S.ev!=="none"?" · "+S.ev:"");
+  document.getElementById("dp").textContent=dp+" · "+effDay()+(S.shade!=="none"?" · "+S.shade:"")+" · "+S.wx+(S.ev!=="none"?" · "+S.ev:"");
   document.getElementById("zones").innerHTML=Object.keys(ZONES).map(zoneRow).join("");
   document.getElementById("scenes").innerHTML=SCENES.map(sc=>{
     const live=sc.ck({...S,dp});return `<div class="scene ${live?'live':''}"><span class="dot"></span><b>${sc.label}</b><span class="why">${live?"LIVE — ":""}${sc.why}</span></div>`;}).join("");
+  document.getElementById("flows").innerHTML=FLOWS.map(flowRow).join("");
+  document.getElementById("micros").innerHTML=MICROS.map(m=>
+    `<span class="mic ${microActive(m)?'':'off'}" title="${m.note}">${m.id}</span>`).join("");
   document.getElementById("roster").innerHTML=AMB.map(a=>{
     const[z,st]=ambWhere(a,S.h,S.day,S.wx);
     return `<div class="r ${a[4]&&a[4].minor?'minor':''}"><b>${a[0]} ${a[1]}</b><br><span class="st">${st} · ${ZLABEL[z]||z}</span></div>`;}).join("");
+  /* 24h curve for selected zone */
+  const cv=document.getElementById("curve"),ctx=cv.getContext("2d");
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const vals=[];for(let h2=0;h2<24;h2+=0.5)vals.push(budgetMid(S.sel,h2,S.day,S.wx,S.shade));
+  const mx=Math.max(4,...vals);
+  document.getElementById("cvz").textContent=ZONES[S.sel].label;
+  ctx.strokeStyle="#333c48";ctx.beginPath();ctx.moveTo(0,96);ctx.lineTo(600,96);ctx.stroke();
+  ctx.beginPath();ctx.strokeStyle="#e0b34c";ctx.lineWidth=1.6;
+  vals.forEach((v,i)=>{const x=i/(vals.length-1)*600,y=96-(v/mx)*88;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  ctx.stroke();
+  const cx=S.h/24*600;ctx.strokeStyle="#6ea8d4";ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(cx,4);ctx.lineTo(cx,100);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle="#9a927f";ctx.font="9px monospace";
+  [0,4,6,8,10,13,15,19,21].forEach(t=>ctx.fillText(String(t).padStart(2,"0"),t/24*600+1,108));
 }
 document.getElementById("scrub").oninput=e=>{S.h=+e.target.value;render();};
-[["dayTgl","day"],["wxTgl","wx"],["evTgl","ev"]].forEach(([id,key])=>{
+[["dayTgl","day"],["wxTgl","wx"],["evTgl","ev"],["shTgl","shade"]].forEach(([id,key])=>{
   document.getElementById(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{
     S[key]=b.dataset.v;document.getElementById(id).querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
 });

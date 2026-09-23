@@ -95,10 +95,12 @@ bits — the things regulars of the feed learn to wait for:
 - Per-NPC detail: `world/ambients/a01..a20`
 - Machine-readable registry: `world/ambients.json` (routines keyed to
   `SF_AMBIENT_ROUTINES` in `src/sf/33_sf_cast.js`)
-- Crowd model (v15): `world/crowd-sim.md` + `world/crowd.json` — the
-  two-layer population contract (named ambients + unnamed extras),
-  density bands, weather/event deformation, scene conditions;
-  `world/crowd.html` demos it
+- Crowd model (v15, deepened v29): `world/crowd-sim.md` + `world/crowd.json` —
+  the two-layer population contract (named ambients + unnamed extras),
+  density bands, weather/event deformation, scene conditions, day shades,
+  the flow layer, micro-texture, walk-chain continuity, and the greeting
+  matrix; `world/crowd.html` demos it; the `crowd` audit gate enforces
+  json↔demo agreement
 - Venue names: `world/businesses.md` (canonical parody names; code-side
   resolution via `SF_WORLD_POIS` in `src/sf/30_sf_world.js`)
 - Upgrade path: `world/promotion.md`
