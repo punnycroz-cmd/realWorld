@@ -83,7 +83,7 @@ in markup today.
 
 | Page | Title (shipped) | Primary keyword | Schema | Notes |
 |---|---|---|---|---|
-| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v22-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
+| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v26-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
 | `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
 | `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
@@ -203,7 +203,7 @@ Pending (owner-gated, launch):
 - [ ] PENDING — English only; no hreflang, no localization claims
 
 Performance budget: page payload <3MB excluding gallery (gallery is lazy webp);
-one PNG fallback (v22-C, 2.1MB) exceeds 2MB — accepted, it only loads on
+one PNG fallback (v26-C, 2.1MB) exceeds 2MB — accepted, it only loads on
 browsers without webp.
 
 ## 9. Measurement plan
@@ -223,7 +223,7 @@ browsers without webp.
 - **Press hook 3:** "the game whose devlog is written by its NPCs" — recap format.
 - Community seeding post-launch (owner-approved only): life-sim Discords,
   gamedev/AI communities. Draft posts already in `social/drafts/`.
-- Asset hooks that earn embeds: before/after v1→v22 gallery, the public request
+- Asset hooks that earn embeds: before/after v1→v26 gallery, the public request
   feed screenshot, the "same angle, seventeen iterations later" image pair.
 
 ---
@@ -302,7 +302,7 @@ the owner instead of competing — same rule as internal-link §6.
   fold learnings into the calendar's next 12 weeks.
 
 **Debt register (carried, honest):**
-1. `shots/v22-C.png` is 2.2MB (accepted — webp companion serves modern
+1. `shots/v26-C.png` is 2.2MB (accepted — webp companion serves modern
    browsers; PNG is fallback only). Revisit if CWV flags LCP.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on
    gallery copy until then; expect a CTR jump at G12 flip.

@@ -3,7 +3,7 @@
 - top sources: rps (27), x (21), itch (20)
 - campaigns: launch-2026 (59), press-embargo (27), store-launch (20)
 - funnel: pageview 220 (100% of visits) → engaged 198 (90% of visits) → watch_start 63 (29% of visits) → request_submitted 11 (5% of visits) → character_created 5 (2% of visits)
-- top shots: v22-C.png (12), v1-A.png (9), v16-int-flat.png (8)
+- top shots: v26-C.png (12), v1-A.png (9), v16-int-flat.png (8)
 - 404s: 0
 - action taken: {{one line — what we changed because of the numbers}}
 

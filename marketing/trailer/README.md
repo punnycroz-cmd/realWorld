@@ -50,7 +50,7 @@ never drift from the picture.
 - **Vertical is a center re-frame** — each still uses a 390px column of the
   HUD-free band (`y 100–794`). Watchable for review; the ship cut needs
   native portrait captures.
-- **HUD is cropped out** of the v22 stills (region `[330,100,1440,794]`);
+- **HUD is cropped out** of the published stills (region `[330,100,1440,794]`);
   the shipped trailer should capture with UI hidden per TRAILER-PLAN §4.
 - **Pawn name labels remain in frame** on street shots — mains' public names
   only, no secrets. The ship cut must show a *hired* character in the

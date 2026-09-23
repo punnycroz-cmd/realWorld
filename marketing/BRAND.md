@@ -236,7 +236,7 @@ capture unless it ships. Never use competitor or stock imagery.
 transparent), vignette, wordmark bottom-left, amber rule, subtitle, one
 tagline, "IN DEVELOPMENT" line. Recipe is executable:
 `tools/make_brand_assets.py` (swap `SHOT` when the art track publishes a
-better build — currently `v22-D.png`).
+better build — currently `v26-D.png`).
 
 **Motifs available to layouts:** the 3×3 window grid (section dividers,
 empty states), the cornice line (hairlines), long dusk shadows, fog haze.

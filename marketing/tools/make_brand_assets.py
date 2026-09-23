@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "site", "assets")
 KEYART = os.path.join(ROOT, "press-kit", "keyart")
-SHOT = os.path.join(ROOT, "site", "shots", "v22-D.png")
+SHOT = os.path.join(ROOT, "site", "shots", "v26-D.png")
 
 BG = (20, 22, 28, 255)          # --bg
 PANEL = (29, 32, 41, 255)       # --panel
@@ -197,7 +197,7 @@ def draw_banner(tw, th, tagline, icon_frac=0.62, text_cx=None):
     all content inside the center safe zone. text_cx = horizontal center
     of the text block as a fraction of width (None = centered)."""
     shot = Image.open(SHOT).convert("RGB")
-    # v22 stills carry the dev HUD on the left edge — crop it out (same
+    # published stills carry the dev HUD on the left edge — crop it out (same
     # crop as the trailer animatic: [330,100,1440,794]).
     shot = shot.crop((330, 100, min(1440, shot.width), min(794, shot.height)))
     img = crop_resize(shot, tw, th)

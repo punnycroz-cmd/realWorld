@@ -80,7 +80,7 @@ its channel, timing slot, required asset, and character-count check.
 |---|---|---|
 | `launch-thread.md` | X announcement thread (8 posts) + Bluesky condensed version + pinned-post variant | 3 |
 | `cast-spotlights.md` | 8 cards, one per main character, built from the cast bible — spoiler-safe (see note) | 8 |
-| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v22 captures | 6 |
+| `devlog-clips.md` | 6 captioned clip scripts for TikTok/Shorts keyed to existing v26 captures | 6 |
 | `recap-format.md` | "This Week on the Block" template — the weekly retention post, filled from the public feed (site long-form version: `templates/weekly-recap.md` on `journal.html`) | 1 template + 1 example |
 | `pricing-post.md` | The honesty post: "what a dollar buys" — turns the credit model into a trust signal | 1 |
 | `seeded-questions.md` | 10 discussion starters for Discord/Reddit after launch | 10 |
@@ -104,7 +104,7 @@ Goal: make the concept legible before asking for attention.
 
 | Day | Post | Channel |
 |---|---|---|
-| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v22-D evening shot, slow zoom) | TikTok, X, Shorts |
+| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v26-D evening shot, slow zoom) | TikTok, X, Shorts |
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |

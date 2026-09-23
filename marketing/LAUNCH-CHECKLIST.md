@@ -11,11 +11,17 @@ exists locally, unpublished.
 
 **One-command rehearsal:** `./tools/staging_dryrun.sh` — serves `site/` on
 127.0.0.1, checks every page/asset/meta/budget item, prints pass/warn/fail.
-Last run **2026-09-23: 32 pass / 3 warn / 0 fail** (warns = placeholder domain
-not yet swapped ×2 + 1 PNG >2 MB — all expected pre-launch).
+Last run **2026-09-23: 33 pass / 2 warn / 0 fail** (warns = placeholder domain
+not yet swapped ×2 — expected pre-launch; the PNG-weight warn cleared when the
+gallery moved to the lighter v26 captures).
 **One-command go-gate:** `./tools/preflight.sh` wraps the dry-run plus secret
 scan, sitemap parity, press-kit freshness, and flip-flag status. Last run
-**2026-09-23: 0 fail, 6 warn** — all warns are owner-gated flags (G3/G4/G8/G9/G12).
+**2026-09-23: 0 fail, 5 warn** — all warns are owner-gated flags (G3/G4/G8/G9/G12).
+**One-command gate worksheet:** `./tools/gonogo.sh` prints all 15 gates with
+live AUTO status for the mechanical ones and a pre-filled §6 block for the
+owner decision thread. Last run **2026-09-23: 2/15 auto-green** (G5 gallery +
+G9 zip freshness flipped green during the v38 refresh) — the rest await their
+owner/track triggers, as expected pre-launch.
 
 **Change control:** after any content edit to `site/`, re-run the dry-run and
 log the result in §10 before the checklist may cite it.
@@ -28,9 +34,9 @@ log the result in §10 before the checklist may cite it.
 |---|------|-------|--------|
 | G1 | Owner approves public launch in writing (the go/no-go, §6) | owner | `[ ] PENDING` |
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
-| G3 | Real domain registered; `realworld-game.example` replaced in all 14 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
+| G3 | Real domain registered; `realworld-game.example` replaced in all 15 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = v22 dev build + v16 interior vignettes + v1 early-pass pair) | mkt, needs art publish | `[ ] PENDING` — refresh procedure documented in inbox v3/v5 |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = **v26 dev build** — refreshed v38 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
@@ -79,6 +85,13 @@ latency only.
 | D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`), request-feed health, review-queue depth | continuous | `[ ] PENDING` |
 | D0.10 | Same-day retro note → MARKETINGLOG.md + shared inbox | ~15 min | `[ ] PENDING` |
 
+**Abort points (built in):** D0.5–D0.8 are spaced ≥20 min apart precisely so
+any one can be skipped without pulling the others. If something breaks
+mid-announce: stop posting, hold the remaining drafts, run the matching §5
+rollback row, and pick the incident-comms draft that matches the symptom
+(`social/drafts/incident-comms.md` has 6 pre-written scenarios). A partial
+launch is recoverable; a doubled-down bad launch is not.
+
 ## §4 Launch command card
 
 Everything mechanical on day-0, copy-pasteable. Fill `<domain>` once.
@@ -95,6 +108,7 @@ grep -rIl 'realworld-game.example' site/        # must print nothing (G3)
 grep -n 'data-demo-src' site/demo.html          # must show the live embed URL (G12)
 grep -n 'data-pricing' site/pricing.html        # must show "final" post-G4
 ./tools/analytics_e2e.sh                        # G8 — localhost sink e2e, no args
+./tools/gonogo.sh                               # all-15-gate worksheet + pre-filled §6 block
 ```
 
 ## §5 Rollback runbook
@@ -115,9 +129,22 @@ Trigger conditions and the exact response:
 Full rollback = maintenance page + pause posts + note in shared inbox. No data
 loss possible: the site is fully static and stateless.
 
+### Severity ladder (which row fires when)
+
+| SEV | Definition | Examples | Response scope |
+|-----|-----------|----------|----------------|
+| SEV-1 | Product/site unusable or trust breach | site 5xx >5 min, payment page wrong, feed abuse wave | §5 row + incident-comms draft + owner paged; pause remaining announce posts (§3 abort points) |
+| SEV-2 | Degraded but watchable | demo embed dead, OG cards broken, analytics dark | §5 row; fix forward; comms only if users notice (incident-comms "missed date"-style honesty) |
+| SEV-3 | Cosmetic / single-channel | one social post flopped, minor label mismatch | no rollback; log in MARKETINGLOG; hotfix at leisure |
+
+Draft comms for the six likeliest SEV-1/2 scenarios already exist in
+`social/drafts/incident-comms.md` — each is truth-conditional (post only the
+draft whose claims are verified true at that moment).
+
 ## §6 Go / No-Go template
 
-Copy this block into the owner decision thread at T-48h:
+Copy this block into the owner decision thread at T-48h — or run
+`./tools/gonogo.sh`, which prints it pre-filled with live gate status:
 
 ```
 GO/NO-GO — Real World launch, <date>
@@ -182,6 +209,12 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | build-press-kit.sh (v23, shots v22) | zip rebuilt — 32 files, 8.6 MB |
 | 2026-09-23 | staging_dryrun.sh (v29) | 32 pass / 3 warn / 0 fail — warns: domain ×2, 1 PNG weight |
 | 2026-09-23 | tools/preflight.sh (v29, first run) | 3 pass / 6 warn / 0 fail — warns all owner-gated flags (G3 domain, G4 pricing, G8 endpoint, G9 zip freshness, G12 demo-src, uncommitted files) |
+| 2026-09-23 | tools/preflight.sh (v38) | 5 pass / 5 warn / 0 fail — warns: G3 domain, G4 provisional, G8 endpoint, G9 zip freshness, G12 demo-src |
+| 2026-09-23 | tools/gonogo.sh (v38, first run) | 0/15 auto-green, 15 pending — correct pre-launch: every gate awaits owner/track trigger; flagged G5 delta (shots v22 < published v26) |
+| 2026-09-23 | gallery refresh v22→v26 (v38) | shots + press-kit screenshots swapped, webp regen (4 files, 60–175 KB), keyart rebaked, dist zip rebuilt (42 files), all refs swept |
+| 2026-09-23 | staging_dryrun.sh (v38, shots v26) | 33 pass / 2 warn / 0 fail — warns: domain ×2 only (PNG-weight warn cleared) |
+| 2026-09-23 | tools/preflight.sh (v38) | 5 pass / 5 warn / 0 fail — warns: G3 domain, G4 provisional, G8 endpoint, G12 demo-src, uncommitted files |
+| 2026-09-23 | tools/gonogo.sh (v38, post-refresh) | 2/15 auto-green (G5, G9) — mechanical gates now prove themselves |
 
 ## §11 Never-do list (load-bearing)
 

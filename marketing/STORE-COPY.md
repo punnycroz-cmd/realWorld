@@ -175,7 +175,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v22-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v26-A..D.png` (4 ready, grounded-shadow build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -189,9 +189,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v22-D (director view — the hook), v22-B
-(street level), v22-C (Dolores Park), v16-int-cafe (interior vignette),
-then v22-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v26-D (director view — the hook), v26-B
+(street level), v26-C (Dolores Park), v16-int-cafe (interior vignette),
+then v26-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -250,7 +250,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v22-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v26-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -347,10 +347,10 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v22-D "director view" → "Aerial view
+`press-kit/captions.txt` as canonical): v26-D "director view" → "Aerial view
 of the Mission block at golden hour — the spectator camera's home position.";
-v22-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v22-C park → "Dolores Park edge — palms, lawn,
+v26-B street level → "Street-level view: facades, parody storefront signage,
+a resident mid-errand."; v26-C park → "Dolores Park edge — palms, lawn,
 residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
 the before/after that anchors the devlog series."
@@ -372,7 +372,7 @@ disclosure matrix, pricing phrasing aligned to the monetization plan's
 PROPOSAL numbers without locking them, and the honesty box. **v18 changes:**
 capsule spec → generated `store/capsules/` set + `store/README.md` manifest,
 itch.io embed/project-settings table (§2.5), screenshot ordering, gallery
-rebased on the v22 art build. **v33 changes:** copy re-synced to the world
+rebased on the v26 art build. **v33 changes:** copy re-synced to the world
 track's shipped contracts — request menu table uses `world/requests.json`
 verbatim rates (possess 1.5 cr/min, camera 10 cr/30 min, nudge 40 cr,
 weather 40/70/100, event 200 cr, hire 500 cr + human name review), "create

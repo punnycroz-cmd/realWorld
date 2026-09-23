@@ -132,7 +132,7 @@ village"), recaps target branded/community queries. Rules:
 
 | Piece | State | Source |
 |---|---|---|
-| Devlog 1 — "How the block learned to look like the Mission" | live on `journal.html` | art v1→v22 inbox history + game lease/request systems |
+| Devlog 1 — "How the block learned to look like the Mission" | live on `journal.html` | art v1→v26 inbox history + game lease/request systems |
 | Devlog 2 — "Every request knocks before it enters" | live on `journal.html` | world-v8 `screen.js`/`moderation.json`/`mod-console.html` |
 | Devlog 3 — "Rent is due on the first" | drafted, `marketing/content/devlog-03-rent-is-due.md` | world `jobs-housing.md`, `housing/` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
