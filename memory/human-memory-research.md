@@ -686,3 +686,39 @@ Focus: character-profiles. New primary sources and how they moved the spec:
   closeLoop/openLoopUrge/selfReport/deriveParams side outputs.
   Probes P86–P95. Profiles: +8 clamp rows, new open-loop-carrier
   modifier, domain-expert row superseded, v1.0 note.
+
+## 16. v11 summary — validation-design
+
+`memory/validation-design.md` turns the scattered probes (P1–P95) into a
+validation program: tiered registry (MUST=consensus+machinery / SHOULD=
+established-but-noisy / OBSERVE=debated-hypothesis), a harness contract
+(deterministic cohorts via deriveParams, controlled event generators,
+hidden-field ground-truth tap, JSONL output), and a statistical protocol
+that borrows the replication-crisis toolkit for simulation calibration:
+- **Replication discount** (Open Science Collaboration 2015 — Science
+  349:aac4716: replication effects averaged r=.197 vs .403 published,
+  36% significant): single-study human targets are halved before becoming
+  bands; famous effects are systematically overstated.
+- **Equivalence testing** (Lakens, Scheel & Isager 2018 — AMPPS
+  1(2):259): the model's explicit nulls (no g_mem→misinfo path,
+  vivid↔accuracy independence, ambient-mode equivalence P97) are tested
+  by TOST against a SESOI, not by failing to find an effect.
+- **Effect bands** (Funder & Ozer 2019 — r≈.1/.2/.3 anchors) replace
+  "markedly/significantly" wording; **FDR** (Benjamini & Hochberg 1995)
+  controls the 100-probe battery; researcher-degrees-of-freedom
+  (Simmons, Nelson & Simonsohn 2011) motivates frozen probe numbers and
+  pre-registered bands.
+- **Experiment analogs E1–E11**: whole-paradigm replications through the
+  §10 contract only (Ebbinghaus, Jenkins-Dallenbach, Bahrick, Wagenaar,
+  Loftus 3-stage w/ CIE per Ecker 2022, DRM, Kashima crossover, Bartlett
+  serial reproduction, own-age lineup, age-PM paradox, involuntary-day
+  diary band per Berntsen 1996/Kvavilashvili & Mandler 2004).
+- **Population checks**: profile distinctness (Mahalanobis floor),
+  trait-structure preservation incl. nulls, age-curve conformance sweep,
+  season-field stats (retrieval inequality, rumor-mix diversity, fading-
+  affect positivity Walker 2003, metamemory decorrelation).
+- **L4 believability rubric** with Krippendorff α ≥ .4 — observational,
+  never a gate.
+New probes P96–P105 (registry now P1–P105). Spec → v1.1 (note + hidden-
+field read policy only; no param/schema changes). Boundaries kept:
+research only, no code, no narratives, no push/merge.

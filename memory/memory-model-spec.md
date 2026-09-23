@@ -1,4 +1,19 @@
-# Memory Model Spec v1.0 — implementable human-like memory for RW characters
+# Memory Model Spec v1.1 — implementable human-like memory for RW characters
+
+> **v1.1 note (validation-design):** `memory/validation-design.md`
+> consolidates probes P1–P95 into a tiered registry (MUST/SHOULD/OBSERVE),
+> adds the harness contract (cohorts, event generators, measurement-only
+> hidden-field tap, JSONL output), the statistical protocol (pre-registered
+> bands, TOST equivalence for the model's explicit nulls, BH-FDR, OSC-2015
+> replication discount on single-study targets, regression goldens), an
+> 11-study experiment-analog battery (E1–E11), population-level checks
+> (profile distinctness, trait-structure preservation, age-curve
+> conformance, season-field stats), an L4 believability rubric, acceptance
+> gates for substrate merge, and new probes P96–P105. No parameter or
+> record-schema changes — this version changes only how the model is
+> *tested*. Implementers: §10's hidden flags (`accuracy`, `phantom`,
+> `retracted`, `possessed`, `sleepdep_flag`, `storageS`,
+> `retrievalCount`) are readable by the validation harness ONLY.
 
 > **v1.0 note (character-profiles):** `memory/profile-generation.md` adds
 > the profile compiler (full `deriveParams` pipeline + coherence
@@ -1515,3 +1530,9 @@ the age-PM paradox for free. See `age-development.md` §7.
     `domainMatch` is derived from profile `domains` vs event cue tags
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors
   are just records with `source.kind:"told_by"` + `beliefStatus:"rumor"`.
+- v1.1 (validation-design.md): hidden record fields (`accuracy`,
+  `phantom`, `retracted`, `possessed`, `sleepdep_flag`, `storageS`,
+  `retrievalCount`) are readable by the validation harness as the
+  ground-truth tap; they must NEVER leak into dialogue, briefings, or
+  feed text. Probe/analyzer output schema + acceptance gates live in
+  validation-design.md §§2.5, 8.

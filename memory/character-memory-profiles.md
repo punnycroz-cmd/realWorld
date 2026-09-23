@@ -450,3 +450,15 @@ structure inside it (Carroll 1993; Zhu et al. 2010).
   bounded).
 - Nobody's verbatim survives ~30+ game days intact except bump-era and
   trauma-core records.
+
+## 6. v1.1 note — validation hooks for profiles
+
+`memory/validation-design.md` adds population-level checks that constrain
+profiles: (a) pairwise profile distinctness — the 8 mains' free-param
+vectors must clear a Mahalanobis distance floor vs a random-cohort
+percentile (P98, §6.1 there); (b) trait-structure preservation incl. the
+named nulls over a 500-draw cohort (P99, §6.2); (c) age-curve conformance
+sweep over the knot tables (P100, §6.3). Profiles themselves are
+unchanged — these are tests OF the compiler output, not new compiler
+rules. Clamp ranges in §0 are also the load-time validation contract
+referenced by the harness (§2.2).
