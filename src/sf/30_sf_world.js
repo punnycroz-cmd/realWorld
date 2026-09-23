@@ -94,6 +94,14 @@ function sfGenChunk(cx, cy){
 }
 
 /* ---- collision: buildings block, door thresholds pass ---- */
+const SF_PROP_CELL = new Map(); // "wx,wy" -> [objs] spatial index (v5)
+const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
+                      sfStreetTree: 6, sfCypress: 7, sfPlanter: 5 };
+function sfPropIndex(o){
+  const k = o.wx + ',' + o.wy;
+  if(!SF_PROP_CELL.has(k)) SF_PROP_CELL.set(k, []);
+  SF_PROP_CELL.get(k).push(o);
+}
 function sfCanMoveTo(x, y, v){
   const r = 8;
   if(v && v.inBuilding) return { ok: true, depth: 0, isWater: false, isDeep: false };
@@ -106,14 +114,15 @@ function sfCanMoveTo(x, y, v){
     if(t < 0)
       return { ok: false, reason: 'city_edge' };
   }
-  // street furniture
-  for(const obj of VILLAGE_OBJECTS){
-    if(obj.kind === 'sfLamp'){
-      if(Math.hypot(x - obj.x, y - obj.y) < 8) return { ok: false, reason: 'lamp' };
-    } else if(obj.kind === 'sfBench'){
-      if(Math.hypot(x - obj.x, y - obj.y) < 12) return { ok: false, reason: 'bench' };
-    } else if(obj.kind === 'sfTree' || obj.kind === 'sfPalm'){
-      if(Math.hypot(x - obj.x, y - obj.y) < 9) return { ok: false, reason: 'tree' };
+  // street furniture — spatial index, 3x3 cell neighborhood covers all radii
+  const cx = Math.floor(x / CS), cy = Math.floor(y / CS);
+  for(let dy = -1; dy <= 1; dy++) for(let dx = -1; dx <= 1; dx++){
+    const lst = SF_PROP_CELL.get((cx + dx) + ',' + (cy + dy));
+    if(!lst) continue;
+    for(const obj of lst){
+      const rad = SF_PROP_RAD[obj.kind];
+      if(rad && Math.hypot(x - obj.x, y - obj.y) < rad)
+        return { ok: false, reason: obj.kind.slice(2).toLowerCase() };
     }
   }
   return { ok: true, depth: 0, isWater: false, isDeep: false };
@@ -376,11 +385,100 @@ function sfInitWorld(){
   }
   // street furniture props
   VILLAGE_OBJECTS.length = 0;
+  SF_PROP_CELL.clear();
+  const occ = new Set(); // occupied cells (any prop) for spacing checks
   for(const p of SF_MAP.props){
     const kind = p.k === 'tree' ? 'sfTree' : p.k === 'palm' ? 'sfPalm'
                : p.k === 'bench' ? 'sfBench' : 'sfLamp';
-    VILLAGE_OBJECTS.push({ kind, x: p.x * SF_PXM, y: p.y * SF_PXM,
-                           wx: Math.round(p.x / cm), wy: Math.round(p.y / cm) });
+    const o = { kind, x: p.x * SF_PXM, y: p.y * SF_PXM,
+                wx: Math.round(p.x / cm), wy: Math.round(p.y / cm) };
+    VILLAGE_OBJECTS.push(o); sfPropIndex(o); occ.add(o.wx + ',' + o.wy);
+  }
+  /* ---- v5 procedural vegetation ----
+     Street pit trees along sidewalk edges, park undergrowth (shrubs,
+     flowerbeds, cypress clusters, path palms), and barrel planters at
+     shop doors. Deterministic hashes; spacing via the occ grid. */
+  const occNear = (wx, wy, r) => {
+    for(let dy = -r; dy <= r; dy++) for(let dx = -r; dx <= r; dx++)
+      if(occ.has((wx + dx) + ',' + (wy + dy))) return true;
+    return false;
+  };
+  const doorNear = (wx, wy, r) => {
+    for(let dy = -r; dy <= r; dy++) for(let dx = -r; dx <= r; dx++)
+      if(SF_DOORS.has((wx + dx) + ',' + (wy + dy))) return true;
+    return false;
+  };
+  const addVeg = (kind, wx, wy, fx, fy) => {
+    const o = { kind, x: wx * CS + 16 + (fx || 0), y: wy * CS + 16 + (fy || 0), wx, wy };
+    VILLAGE_OBJECTS.push(o); sfPropIndex(o); occ.add(wx + ',' + wy);
+    return o;
+  };
+  let nStreetTree = 0, nParkVeg = 0, nPathPalm = 0;
+  for(let wy = 1; wy < SF_M.gh - 1; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1; wx++){
+      const t = sfTile(wx, wy);
+      if(t === 11 && nStreetTree < 1100){
+        // sidewalk cell with a street edge: curb-side pit tree
+        let fx = 0, fy = 0;
+        if(sfTile(wx, wy - 1) === 10) fy = -11;
+        else if(sfTile(wx, wy + 1) === 10) fy = 11;
+        else if(sfTile(wx - 1, wy) === 10) fx = -11;
+        else if(sfTile(wx + 1, wy) === 10) fx = 11;
+        else continue;
+        // skip corners, crosswalk approaches, door thresholds, POI cells
+        if(sfTile(wx, wy - 1) === 16 || sfTile(wx, wy + 1) === 16 ||
+           sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16) continue;
+        if(doorNear(wx, wy, 2)) continue;
+        if(phash(wx, wy, 1650) > 0.30) continue;
+        if(occNear(wx, wy, 3)) continue;
+        const v = phash(wx, wy, 1651) < 0.22 ? 1 : (phash(wx, wy, 1652) < 0.18 ? 2 : 0);
+        const o = addVeg('sfStreetTree', wx, wy, fx, fy);
+        o.v = v; nStreetTree++;
+      } else if(t === 13 && nParkVeg < 700){
+        // park grass: shrubs + flowerbeds; denser near paths, sparse inside
+        const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
+                         sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
+        const h1 = phash(wx, wy, 1660);
+        if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
+          addVeg('sfFlowerBed', wx, wy,
+                 (phash(wx, wy, 1661) - 0.5) * 14, (phash(wy, wx, 1662) - 0.5) * 14);
+          nParkVeg++;
+        } else if(h1 < (nearPath ? 0.05 : 0.018) && !occNear(wx, wy, 1)){
+          addVeg('sfShrub', wx, wy,
+                 (phash(wx, wy, 1663) - 0.5) * 16, (phash(wy, wx, 1664) - 0.5) * 16);
+          nParkVeg++;
+        } else if(h1 > 0.996 && !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
+          addVeg('sfCypress', wx, wy,
+                 (phash(wx, wy, 1665) - 0.5) * 10, (phash(wy, wx, 1666) - 0.5) * 10);
+          nParkVeg++;
+        }
+      } else if(t === 15 && nPathPalm < 80){
+        // palm sentinels along park paths, offset onto the grass edge
+        let fx = 0, fy = 0;
+        if(sfTile(wx, wy - 1) === 13) fy = -13;
+        else if(sfTile(wx, wy + 1) === 13) fy = 13;
+        else if(sfTile(wx - 1, wy) === 13) fx = -13;
+        else if(sfTile(wx + 1, wy) === 13) fx = 13;
+        else continue;
+        if(phash(wx, wy, 1670) > 0.05 || occNear(wx, wy, 4)) continue;
+        addVeg('sfPalm', wx, wy, fx, fy); nPathPalm++;
+      }
+    }
+  }
+  // barrel planters flanking shop/POI doors
+  let nPlanter = 0;
+  for(const p of SF_POIS){
+    if(nPlanter >= 70) break;
+    if(p.bld == null || p.bld < 0) continue;
+    const d = SF_DOOR_OF.get(p.bld);
+    if(!d) continue;
+    for(const [dx, dy] of [[2, 0], [-2, 0], [0, 2], [0, -2], [3, 0], [-3, 0]]){
+      const wx = d.wx + dx, wy = d.wy + dy;
+      if(sfTile(wx, wy) !== 11 || occNear(wx, wy, 1)) continue;
+      addVeg('sfPlanter', wx, wy, (phash(wx, wy, 1680) - 0.5) * 8, 0);
+      nPlanter++;
+      break; // one planter per shopfront
+    }
   }
   // interiors for the key locations (door-teleport model)
   const INTERIOR_NAMES = {

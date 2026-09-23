@@ -178,15 +178,28 @@ function sfRenderWorld(cw, ch){
       }
     } else if(d.kind === 'prop'){
       const o = d.o, V = PA.sfVeg;
-      let spr = null;
-      if(o.kind === 'sfTree') spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0];
-      else if(o.kind === 'sfPalm') spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * 2) | 0];
+      let spr = null, shadeR = 0;
+      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; shadeR = 15; }
+      else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; }
+      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; shadeR = 11; }
+      else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; shadeR = 8; }
       else if(o.kind === 'sfBench') spr = V.bench;
       else if(o.kind === 'sfLamp') spr = isNight() ? V.lampOn : V.lampOff;
+      else if(o.kind === 'sfShrub') spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0];
+      else if(o.kind === 'sfFlowerBed') spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0];
+      else if(o.kind === 'sfPlanter') spr = V.planter;
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
         const sy = Math.round((o.y - cam.y) * cam.zoom + ch / 2);
+        // v5: canopy cast shadow pushed down-right like the building sun
+        if(shadeR && !isNight()){
+          ctx.fillStyle = 'rgba(20,26,12,0.22)';
+          ctx.beginPath();
+          ctx.ellipse(sx + shadeR * 0.5 * cam.zoom, sy + shadeR * 0.28 * cam.zoom,
+                      shadeR * cam.zoom, shadeR * 0.42 * cam.zoom, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
       }
@@ -345,6 +358,21 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.stroke();
     ctx.fillStyle = shade(TRIM, 1.05);
     ctx.fillRect(pb[0] - r - 2, pb[1], ww + 4, Math.max(1.5, wh * 0.08));
+    // v5: window flower box on some residential sills
+    if(!isShop && phash(Math.round(wx * 13), Math.round(zB * 29), i + 1700) < 0.15){
+      const bh = Math.max(1.5, wh * 0.1);
+      ctx.fillStyle = night ? '#2a2018' : '#7a4a2e';
+      ctx.fillRect(pb[0] - r - 1, pb[1] + bh * 0.8, ww + 2, bh);
+      ctx.fillStyle = night ? '#1c2a16' : '#3e7a34';
+      ctx.fillRect(pb[0] - r - 1, pb[1] + bh * 0.2, ww + 2, bh * 0.8);
+      if(!night){
+        const cols = ['#e05a5a', '#f0d05a', '#f0a8c8'];
+        for(let k = 0; k < 3; k++){
+          ctx.fillStyle = cols[Math.floor(phash(k, Math.round(wx * 7), 1701) * 3)];
+          ctx.fillRect(pb[0] - r + ww * (0.2 + k * 0.3), pb[1], 2, 2);
+        }
+      }
+    }
     if(style === 0){ // italianate hood moulding + keystone
       ctx.fillRect(pb[0] - r - 2, pt[1] - 1, ww + 4, Math.max(1, wh * 0.05));
       ctx.fillRect(pb[0] - 1, pt[1] - wh * 0.06, 2, wh * 0.08);
@@ -489,6 +517,26 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
           ctx.moveTo(dt[0] - dw - 2, dt[1]); ctx.lineTo(dt[0] + dw + 2, dt[1]);
           ctx.lineTo(pm[0], pm[1]); ctx.closePath(); ctx.fill();
         }
+      }
+    }
+  }
+
+  // v5: climbing ivy on some residential walls — leaf blobs winding up
+  if(!isShop && phash(i, ei, 1705) < 0.32){
+    const u0 = 0.12 + phash(i, ei, 1706) * 0.6;
+    const climb = hm * (0.3 + phash(i, ei, 1707) * 0.45);
+    const nV = Math.max(6, Math.round(climb * 2.4));
+    for(let k = 0; k < nV; k++){
+      const z = (k / nV) * climb;
+      const u = u0 + Math.sin(k * 1.9) * 0.02 + (z / hm) * 0.06;
+      const p = pr(x1 + ex * u, y1 + ey * u, z);
+      if(!p) continue;
+      const rr = Math.max(1.2, 0.3 * F / p[2] * (1 - z / climb * 0.4));
+      ctx.fillStyle = night ? '#1c2a16' : (k % 3 ? '#3e7a34' : '#2e5a24');
+      ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, Math.PI * 2); ctx.fill();
+      if(!night && k % 4 === 0){
+        ctx.fillStyle = '#5a9a48';
+        ctx.fillRect(p[0] - rr * 0.4, p[1] - rr * 0.6, 1.5, 1.5);
       }
     }
   }
@@ -777,14 +825,26 @@ function sfRenderStreet(cw, ch){
       if(!p) continue;
       const sc = F / p[2];
       const V = PA.sfVeg;
-      let spr = null, hm = 5;
-      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0]; hm = 4.4; }
-      else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * 2) | 0]; hm = 6.4; }
+      let spr = null, hm = 5, shadowR = 0;
+      if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; hm = 4.4; shadowR = 1.6; }
+      else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; hm = 6.4; shadowR = 1.1; }
+      else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0]; hm = 3.6; shadowR = 1.2; }
+      else if(o.kind === 'sfCypress'){ spr = V.cypress[Math.abs(hash2(o.wx, o.wy, 9) * V.cypress.length) | 0]; hm = 6.0; shadowR = 0.9; }
       else if(o.kind === 'sfBench'){ spr = V.bench; hm = 0.9; }
       else if(o.kind === 'sfLamp'){ spr = night ? V.lampOn : V.lampOff; hm = 4.5; }
+      else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
+      else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; }
+      else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; }
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const ph = hm * sc, pw = ph * (sprC.width / sprC.height);
+        if(shadowR && !night){
+          ctx.fillStyle = 'rgba(15,20,10,0.28)';
+          ctx.beginPath();
+          ctx.ellipse(p[0] + shadowR * 0.45 * sc, p[1], shadowR * sc,
+                      shadowR * 0.3 * sc, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
         ctx.drawImage(sprC, p[0] - pw / 2, p[1] - ph, pw, ph);
       }
     } else {

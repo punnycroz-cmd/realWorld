@@ -112,6 +112,12 @@ function sfParkGrassTile(v){
       const cx = 4 + Math.floor(phash(i, v, 1030) * 24), cy = 4 + Math.floor(phash(v, i, 1031) * 24);
       paBlob(g, cx, cy, 1.6, G[2]); paPX(g, cx, cy - 1, G[5]);
     }
+    // v5: wildflower speckles scattered through the clover
+    for(let i = 0; i < 6; i++){
+      const cx = 3 + Math.floor(phash(i, v, 1032) * 26), cy = 3 + Math.floor(phash(v, i, 1033) * 26);
+      paPX(g, cx, cy, ['#f0e8f8', '#f8d8e8', '#f0e05a'][i % 3]);
+      if(phash(i, v, 1034) < 0.5) paPX(g, cx + 1, cy, '#e8f0d8');
+    }
   }
   if(v === 2){ // worn picnic patch
     paDithBayer(g, 8, 10, 14, 10, G[3], rampOf('#a89a5a')[3], 0.35);
@@ -224,6 +230,120 @@ function sfPalmTree(v){
   }
   return s;
 }
+/* ---- v5 vegetation: street pit trees, blossom trees, cypress, shrubs,
+   flowerbeds, barrel planters — all deterministic variants ---- */
+function sfStreetTreeSpr(v){
+  // sidewalk pit tree: iron grate, slim trunk, layered round canopy.
+  // v: 0 green, 1 pink blossom (Mission trumpet trees), 2 autumn gold
+  const s = paMk(44, 60), g = s.g;
+  const tr = MAT.trunk, ir = MAT.ironDark;
+  const lf = v === 0 ? MAT.leaf
+           : v === 1 ? rampOf('#e8a0bc')
+           : rampOf('#c9a04a');
+  const ld = v === 0 ? MAT.leafDeep
+           : v === 1 ? rampOf('#a8567a')
+           : rampOf('#8a6c30');
+  // tree grate: dark iron square with slit slots
+  paR(g, 14, 52, 16, 6, ir[2]);
+  paR(g, 14, 52, 16, 1, ir[4]);
+  paR(g, 14, 57, 16, 1, ir[0]);
+  for(let k = 0; k < 3; k++)
+    paLine(g, 18 + k * 4, 53, 18 + k * 4, 56, ir[0]);
+  paEllipse(g, 22, 54, 3, 2, MAT.dirt[2]); // soil in the grate center
+  // slim trunk with a fork
+  paR(g, 21, 36, 2, 17, tr[2]);
+  paPX(g, 21, 37, tr[3]); paPX(g, 21, 44, tr[3]); paPX(g, 22, 50, tr[4]);
+  paLine(g, 22, 38, 17, 32, tr[2]); paLine(g, 22, 39, 27, 31, tr[2]);
+  const blobs = [[22, 26, 13, 10], [12, 31, 8, 6], [32, 30, 8, 6],
+                 [22, 17, 9, 7], [16, 21, 6, 5], [29, 20, 6, 5]];
+  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by, rx, ry, ld[2]);
+  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by - 1, rx - 1, ry - 1, lf[3]);
+  for(const [bx, by, rx, ry] of blobs)
+    paEllipse(g, bx - rx * 0.28, by - ry * 0.45, rx * 0.5, ry * 0.42, lf[4]);
+  paNoise(g, 6, 8, 32, 30, [lf[5], ld[1]], 0.10, 1600 + v);
+  if(v === 1) // blossom clusters catch the light
+    paNoise(g, 8, 10, 28, 24, ['#ffd8e8', '#f4c2d8'], 0.10, 1605);
+  else if(v === 2)
+    paNoise(g, 8, 10, 28, 24, ['#e8c86a'], 0.08, 1606);
+  paEllipse(g, 17, 14, 4, 2.5, lf[5]); // key light catch
+  return s;
+}
+function sfCypressSpr(v){
+  // Monterey cypress column: ragged tapering spire, very Dolores Park
+  const s = paMk(40, 76), g = s.g;
+  const tr = MAT.trunk, lf = rampOf(v === 0 ? '#3a6a34' : '#466e38'),
+        ld = rampOf(v === 0 ? '#244a22' : '#2c4a26');
+  paR(g, 19, 68, 3, 7, tr[2]);
+  paPX(g, 19, 69, tr[3]);
+  // stacked ragged ellipses, widest near 2/3 up
+  for(let k = 0; k < 9; k++){
+    const t = k / 8, y = 66 - k * 6.5;
+    const r = 3.5 + Math.sin(t * Math.PI) * 8 + phash(k, v, 1610) * 2;
+    paEllipse(g, 20 + (phash(k, v, 1611) - 0.5) * 4, y, r, 4.5, ld[2]);
+  }
+  for(let k = 0; k < 9; k++){
+    const t = k / 8, y = 65 - k * 6.5;
+    const r = 3 + Math.sin(t * Math.PI) * 7 + phash(k, v, 1612) * 2;
+    paEllipse(g, 20 + (phash(k, v, 1613) - 0.5) * 4, y, r, 3.8, lf[3]);
+  }
+  // wind-sheared highlights on the upper-left of each tier
+  for(let k = 0; k < 8; k++){
+    const t = k / 8, y = 63 - k * 6.5;
+    const r = 2 + Math.sin(t * Math.PI) * 5;
+    paEllipse(g, 17 + (phash(k, v, 1613) - 0.5) * 4, y, r, 2.2, lf[4]);
+  }
+  paNoise(g, 8, 4, 24, 66, [lf[5], ld[1]], 0.08, 1614 + v);
+  paPX(g, 20, 1, lf[4]); paPX(g, 20, 2, lf[3]); paPX(g, 19, 3, lf[3]); // tip
+  return s;
+}
+function sfShrubSpr(v){
+  // clipped hedge blob with blossom speckles (v1 = flowering)
+  const s = paMk(30, 18), g = s.g;
+  const lf = MAT.leaf, ld = MAT.leafDeep;
+  paEllipse(g, 15, 12, 13, 5.5, ld[1]);
+  paEllipse(g, 15, 10, 12, 5.5, ld[2]);
+  paEllipse(g, 15, 9, 11, 5, lf[3]);
+  paEllipse(g, 11, 7, 6, 3, lf[4]);
+  paNoise(g, 4, 3, 22, 12, [lf[5], ld[0]], 0.10, 1620 + v);
+  if(v === 1)
+    paNoise(g, 5, 4, 20, 9, ['#f0b8d0', '#f8e8f0', '#e8c05a'], 0.09, 1625);
+  return s;
+}
+function sfFlowerBedSpr(v){
+  // low soil strip with a row of bright blooms — park border / parklet
+  const s = paMk(38, 14), g = s.g;
+  const D = MAT.dirt;
+  paEllipse(g, 19, 10, 17, 3.5, D[1]);
+  paEllipse(g, 19, 9, 16, 3, D[2]);
+  paNoise(g, 4, 6, 30, 6, [D[0], D[3]], 0.25, 1630 + v);
+  const cols = v === 0 ? ['#e05a5a', '#f0d05a', '#f8f0e8']
+                     : ['#c86ad0', '#f0a050', '#f8e8f0'];
+  for(let k = 0; k < 8; k++){
+    const bx = 5 + k * 4 + Math.floor(phash(k, v, 1631) * 2),
+          by = 6 + Math.floor(phash(v, k, 1632) * 4);
+    paPX(g, bx, by + 2, MAT.leaf[2]);           // stem
+    paBlob(g, bx, by, 1.3, cols[k % 3]);        // bloom
+    paPX(g, bx, by - 1, cols[(k + 1) % 3]);
+  }
+  for(const lx of [8, 15, 22, 29]) paBlob(g, lx, 10, 2.2, MAT.leaf[2]);
+  return s;
+}
+function sfPlanterSpr(){
+  // sidewalk barrel planter overflowing with greens + blooms
+  const s = paMk(20, 24), g = s.g;
+  const pot = rampOf('#a05a38');
+  paEllipse(g, 10, 21, 8, 2.5, 'rgba(24,18,10,0.3)');
+  paR(g, 4, 14, 12, 7, pot[2]);
+  paEllipse(g, 10, 14, 6, 2.5, pot[3]);
+  paR(g, 4, 17, 12, 1, pot[4]);                     // hoop band
+  paEllipse(g, 10, 14, 5, 2, MAT.dirt[1]);          // soil
+  for(const [bx, by, r] of [[6, 11, 3], [10, 9, 3.6], [14, 11, 3], [10, 13, 2.6]])
+    paBlob(g, bx, by, r, MAT.leaf[3]);
+  paBlob(g, 8, 10, 1.4, MAT.leaf[4]); paBlob(g, 12, 8, 1.4, MAT.leaf[4]);
+  for(const [bx, by, c] of [[6, 9, '#e05a5a'], [10, 7, '#f0d05a'], [14, 10, '#f0a8c8'], [11, 12, '#f8f0e8']])
+    paBlob(g, bx, by, 1.1, c);
+  return s;
+}
 function sfBenchSpr(){
   const s = paMk(36, 22), g = s.g;
   const wd = MAT.wood, ir = MAT.ironDark;
@@ -266,6 +386,12 @@ function buildSfVeg(){
   V.bench = sfBenchSpr();
   V.lampOff = sfLampSpr(false);
   V.lampOn = sfLampSpr(true);
+  // v5 vegetation set
+  V.streetTree = [sfStreetTreeSpr(0), sfStreetTreeSpr(1), sfStreetTreeSpr(2)];
+  V.cypress = [sfCypressSpr(0), sfCypressSpr(1)];
+  V.shrub = [sfShrubSpr(0), sfShrubSpr(1)];
+  V.flowerbed = [sfFlowerBedSpr(0), sfFlowerBedSpr(1)];
+  V.planter = sfPlanterSpr();
 }
 
 /* ---------------- Victorian facade compiler ----------------
@@ -431,6 +557,22 @@ function sfBldCanvas(b){
           g.textAlign = 'center';
           g.fillText(b.name.slice(0, 22), ax, dy2 - 19.5);
         }
+      }
+    }
+    // v5: climbing ivy on some residential walls — leaf blobs along a
+    // slanted vine from the base corner, denser near the ground
+    if(!isShop && hPx > 20 && phash(b.i, w.i, 1640) < 0.34){
+      const t0 = 0.1 + phash(b.i, w.i, 1641) * 0.5;
+      const climb = 0.35 + phash(b.i, w.i, 1642) * 0.45; // fraction of height
+      const iv = MAT.leaf, ivd = MAT.leafDeep;
+      const nV = Math.round(6 + climb * 10);
+      for(let k = 0; k < nV; k++){
+        const f = (k / nV) * climb;
+        const t = t0 + Math.sin(k * 1.7) * 0.03 + f * 0.08;
+        const [vx, vy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, f);
+        const r = 2.4 - f * 1.4 + phash(k, b.i, 1643);
+        paBlob(g, vx, vy, Math.max(0.8, r), k % 3 ? iv[2] : ivd[2]);
+        if(phash(k, w.i, 1644) < 0.4) paPX(g, vx - 1, vy - 1, iv[4]);
       }
     }
     g.restore();
