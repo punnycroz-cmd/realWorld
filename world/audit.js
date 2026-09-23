@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v57).
+/* world/audit.js — RW boundary audit (world v58).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -51,6 +51,10 @@
                 secret-flagged, reserved entries stay empty; v44 storefront
                 layer: storefronts.json ↔ storefront.html STO mirror,
                 doors-only coverage (anchor+street), when-key legality
+    regs      — regulars.json ↔ regulars.html REG mirror; every door venue
+                has ≥1 regular, offstage/reserved carry none; regulars are
+                never own-venue staff; name_basis ⊆ staff; windows overlap
+                posted hours; house_knows stays on the surface bar
     market    — market.json ↔ market.html deep mirror; every churn row
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
@@ -1328,6 +1332,81 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'businesses.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G15b regs ============ */
+{
+  const g = gate('regs', 'regulars contract (regulars.json ↔ regulars.html; surface-knowledge bar; door tiers only)');
+  try {
+    const RJ = JSONF('regulars.json');
+    const html = rd('regulars.html');
+    const m = html.match(/const REG\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline REG not found in regulars.html');
+    const REG = eval('(' + m[1] + ')');
+    if (REG.version !== RJ.version)
+      add(g, 'fail', 'regulars.html', null, `REG version ${REG.version} != regulars.json ${RJ.version}`);
+    for (const k of ['window_keys', 'regulars'])
+      if (JSON.stringify(REG[k] ?? null) !== JSON.stringify(RJ[k] ?? null))
+        add(g, 'fail', 'regulars.html', null, `REG.${k} drifted from regulars.json`);
+    const BJ = JSONF('businesses.json');
+    const DOOR = new Set(['anchor', 'street']);
+    const CASTID = /^[cC]([1-8])$|^[aA](0[1-9]|1[0-9]|20)$/;
+    const DOWS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const openRanges = (b, day) => {
+      if ((b.hours || {}).days && !b.hours.days.includes(day)) return [];
+      const wk = (day === 'sat' || day === 'sun') ? 'weekend' : 'weekday';
+      const rng = (b.hours || {})[wk];
+      return rng ? [rng] : [];
+    };
+    const rDays = w => w.days === 'daily' ? DOWS : w.days === 'weekday' ? DOWS.slice(0, 5) : w.days;
+    let nReg = 0;
+    for (const b of BJ.businesses) {
+      const regs = RJ.regulars[b.id];
+      if (DOOR.has(b.tier) && (!Array.isArray(regs) || !regs.length))
+        add(g, 'fail', 'regulars.json', null, `${b.id} (${b.tier}) has a door but no regulars`);
+      if (!DOOR.has(b.tier) && regs)
+        add(g, 'fail', 'regulars.json', null, `${b.id} (${b.tier}) carries regulars — doors only`);
+      if (!regs) continue;
+      const staffIds = new Set((b.staff || []).map(s => String(s).match(/^([a-zA-Z]\d+)/)[1].toLowerCase()));
+      for (const r of regs) {
+        nReg++;
+        const tag = `${b.id}:${r.who}`;
+        if (!CASTID.test(r.who)) add(g, 'fail', 'regulars.json', null, `${tag}: not a cast id`);
+        if (staffIds.has(String(r.who).toLowerCase()))
+          add(g, 'fail', 'regulars.json', null, `${tag}: venue staff cannot be its own regular`);
+        const w = r.window || {};
+        const days = rDays(w);
+        if (!Array.isArray(days) || !days.length || days.some(d => !DOWS.includes(d)))
+          add(g, 'fail', 'regulars.json', null, `${tag}: bad window.days ${JSON.stringify(w.days)}`);
+        if (!Array.isArray(w.hours) || w.hours.length !== 2 || w.hours[0] < 0 || w.hours[1] > 26.5 || w.hours[0] >= w.hours[1])
+          add(g, 'fail', 'regulars.json', null, `${tag}: bad window.hours ${JSON.stringify(w.hours)}`);
+        else if (Array.isArray(days) && days.every(d => DOWS.includes(d))) {
+          const ok = days.some(day => openRanges(b, day).some(rng => w.hours[1] > rng[0] && w.hours[0] < rng[1]));
+          if (!ok) add(g, 'fail', 'regulars.json', null, `${tag}: window never overlaps ${b.id} open hours`);
+        }
+        if (!r.order || !r.spot) add(g, 'fail', 'regulars.json', null, `${tag}: order and spot are required`);
+        if (!Array.isArray(r.house_knows) || !r.house_knows.length)
+          add(g, 'fail', 'regulars.json', null, `${tag}: house_knows empty — the layer is the knowledge`);
+        for (const s of [r.order, r.spot, ...(r.house_knows || [])])
+          for (const re of BANNED)
+            if (re.test(String(s)))
+              add(g, 'fail', 'regulars.json', null, `${tag}: "${s}" breaches the surface-knowledge bar (${re})`);
+        for (const nb of r.name_basis || [])
+          if (!staffIds.has(String(nb).toLowerCase()))
+            add(g, 'fail', 'regulars.json', null, `${tag}: name_basis "${nb}" is not ${b.id} staff`);
+        if (r.tab != null) {
+          if (typeof r.tab.balance !== 'number' || r.tab.balance < 0)
+            add(g, 'fail', 'regulars.json', null, `${tag}: tab.balance must be a game-dollar number ≥ 0`);
+          if (!r.tab.rule) add(g, 'fail', 'regulars.json', null, `${tag}: tab needs a settlement rule`);
+        }
+      }
+    }
+    for (const id of Object.keys(RJ.regulars || {}))
+      if (!BJ.businesses.some(b => b.id === id))
+        add(g, 'fail', 'regulars.json', null, `regulars key "${id}" is not a business`);
+    g.detail = `schema v${RJ.version} · ${Object.keys(RJ.regulars).length} venues · ${nReg} regulars`;
+  } catch (e) { add(g, 'fail', 'regulars.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ============ G16 market ============ */
 {
   const g = gate('market', 'market layer contract (market.json ↔ market.html; churn resolves to live openings; no credit figures)');
@@ -2003,7 +2082,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v57 || {};
+    const H = PT.harness_ui_v58 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2146,7 +2225,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v57 local';
+out.build = 'world v58 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

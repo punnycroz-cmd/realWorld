@@ -1,6 +1,7 @@
 {
   "_doc": "Machine-readable registry of canonical parody businesses. Naming authority: world/businesses.md; depth layer: world/businesses/*.md (one card per venue). Display layer: src/sf/30a_sf_names.js + world/parody-names.json (generated). Rule: parody names only (design §11); civic/landmark kinds keep real names as scenery. All prices are GAME DOLLARS — never credits, never real USD.",
-  "version": 44,
+  "version": 58,
+  "regulars_layer": "world/regulars.json — v58: per-venue regulars (standing order, window, spot, surface knowledge, name basis, tab); spec world/regulars.md; demo world/regulars.html",
   "storefront_layer": "world/storefronts.json — v44: signage/menu-board/flyer copy per door-having venue (anchor + street tiers only); spec world/storefronts.md; demo world/storefront.html",
   "tiers": {
     "anchor": "interior-capable, request-targetable venue",

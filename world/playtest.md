@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v57)
+# Playtest Harness — "Real World / The Mission" (world v58)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -9,7 +9,7 @@ gate: `node world/audit.js` (see §3a).
 
 The demo surfaces (`feed`, `request`, `mod-console`, `create`, `board`,
 `history`, `onboarding`, `lease`, `thinai`, `cast`, `crowd`, `directory`,
-`timeclock`, `market`, `storefront`, `screen-lab`)
+`timeclock`, `market`, `storefront`, `regulars`, `screen-lab`)
 plus `screen.js` are **local simulations of the product contracts** —
 the request pipeline, the moderation queue, the spectator feed vocabulary. A
 playtest here validates *content, copy, flow, and the locked boundary rules*.
@@ -92,6 +92,10 @@ One person can wear every hat; four real testers is the intended shape.
   mode, wind as a texture condition, season shades under the day
   shades, parliament-in-exile, and the crowd gate's fog/wind +
   all-20-fog checks.
+  PT53 (the House Knows, v58) is a spectator + facilitator audit —
+  the regulars layer across all 20 door venues: standing orders,
+  held seats, name basis, tabs in game dollars, windows that agree
+  with posted hours, and the surface-knowledge bar on every line.
 
 ## 3. Running a session
 

@@ -1,0 +1,637 @@
+{
+  "_doc": "The regulars layer (world v58) — 'the house knows.' Per-venue registry of the people whose order starts before they sit down: standing order, usual window, usual spot, the surface facts the counter carries about them, first-name basis, and tab status. Companion spec: world/regulars.md. Demo: world/regulars.html (inline REG mirror, hand-synced). Machine consumers: the brain/prompt layer (counter-side texture), the crowd/wire layers (who is likely where, when). Rules: every fact is SURFACE knowledge — things a counter worker could plausibly know, same bar as a possession briefing; no secrets, no seeds, no Mission Unfiltered. Tabs are game dollars. Regulars exist only for door tiers (anchor + street); a venue's own staff are never its regulars; name_basis ⊆ the venue's staff.",
+  "version": 58,
+  "window_keys": {
+    "days": "list of dow abbrevs, or 'daily'; 'weekday' = mon–fri",
+    "hours": "[open, close] in world-clock hours, may cross midnight (e.g. [24, 25.5] = 00:00–01:30)"
+  },
+  "regulars": {
+    "mudhaus": [
+      {
+        "who": "c6",
+        "order": "one drip — occupied for two hours, refills declined politely",
+        "window": { "days": ["tue"], "hours": [8, 10] },
+        "spot": "the window two-top",
+        "house_knows": [
+          "Tuesday is hers — the table gets held without being asked",
+          "cash, exact change, counted twice at the counter",
+          "hemming talk is welcome; small talk before the first refill is not"
+        ],
+        "name_basis": ["c1", "c2", "c3", "a01"],
+        "tab": null
+      },
+      {
+        "who": "a13",
+        "order": "a latte, then a second one nobody sees her order",
+        "window": { "days": ["mon", "thu"], "hours": [10, 15] },
+        "spot": "communal table, outlet end",
+        "house_knows": [
+          "headphones on means do-not-disturb — staff run interference on chatty strangers",
+          "the outlet chair is hers by tenure; new laptops get steered elsewhere"
+        ],
+        "name_basis": ["c1", "c3"],
+        "tab": null
+      },
+      {
+        "who": "a17",
+        "order": "two drips to go — one for the guy on the scaffold next door",
+        "window": { "days": "daily", "hours": [6.5, 7.25] },
+        "spot": "the counter, standing",
+        "house_knows": [
+          "in and out before the rush — never waits, never has to",
+          "tips like it's a union rule"
+        ],
+        "name_basis": ["c2", "a01"],
+        "tab": null
+      },
+      {
+        "who": "a09",
+        "order": "oat latte and whichever pastry is oldest",
+        "window": { "days": ["sat"], "hours": [8, 9] },
+        "spot": "the bench end nearest the door",
+        "house_knows": [
+          "straight off a night shift — decaf after nine is automatic, unasked",
+          "nobody asks how the shift was; that's the service"
+        ],
+        "name_basis": ["c3"],
+        "tab": null
+      }
+    ],
+    "el-farolote": [
+      {
+        "who": "a10",
+        "order": "three al pastor, no cilantro, extra napkins",
+        "window": { "days": ["wed", "fri"], "hours": [12, 13] },
+        "spot": "the salsa-bar stool",
+        "house_knows": [
+          "orders in Spanish, answers in monosyllables — both are fluent",
+          "the napkin stack is a running joke both sides honor"
+        ],
+        "name_basis": ["c8"],
+        "tab": null
+      },
+      {
+        "who": "a08",
+        "order": "the post-set burrito — carnitas, on the house half the time",
+        "window": { "days": ["fri", "sat"], "hours": [24, 25.5] },
+        "spot": "the counter end by the register",
+        "house_knows": [
+          "never orders before 1 AM on gig nights — the burrito is the encore",
+          "plays the counter like a tip jar; the staff let him"
+        ],
+        "name_basis": ["c8"],
+        "tab": null
+      },
+      {
+        "who": "c5",
+        "order": "two tacos, whatever protein is cheapest that day",
+        "window": { "days": ["sun"], "hours": [13, 14] },
+        "spot": "the corner table facing the door",
+        "house_knows": [
+          "counts coins on the table before ordering — nobody rushes him",
+          "the door-facing seat: he watches the bikes out the glass"
+        ],
+        "name_basis": ["c8"],
+        "tab": null
+      }
+    ],
+    "auerbach": [
+      {
+        "who": "a17",
+        "order": "nothing — the hardware-store lunch talk is the purchase",
+        "window": { "days": ["tue", "thu"], "hours": [12, 12.75] },
+        "spot": "the paint-stained end of the counter",
+        "house_knows": [
+          "buys a box of screws to be polite — the screws are not the point",
+          "the site next door sends him; Victor knows the lunch break to the minute"
+        ],
+        "name_basis": ["c7"],
+        "tab": null
+      },
+      {
+        "who": "c6",
+        "order": "buttons, zippers, and the occasional lamp part",
+        "window": { "days": ["sat"], "hours": [10, 11] },
+        "spot": "the notions wall",
+        "house_knows": [
+          "brings her own tape measure — the shop's is decorative to her",
+          "Victor prices notions like a neighbor, not a shopkeeper; both pretend otherwise"
+        ],
+        "name_basis": ["c7"],
+        "tab": null
+      }
+    ],
+    "dolores-perk": [
+      {
+        "who": "a05",
+        "order": "coffee, black, one refill",
+        "window": { "days": "daily", "hours": [14, 16.5] },
+        "spot": "the left park-side table",
+        "house_knows": [
+          "the left table is hers and Ray's by tenure — staff wave her through the line on packed days",
+          "fog and rain move her inside without a word; the first clear afternoon moves her back"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a19",
+        "order": "coffee, black, plus a bread-crust pocket for the pigeons",
+        "window": { "days": "daily", "hours": [14, 16.5] },
+        "spot": "the left park-side table, across from Esther",
+        "house_knows": [
+          "pigeon crumbs are tolerated to exactly one table's worth",
+          "he argues the park's politics with Esther; the volume is the regularity"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a12",
+        "order": "a water refill and a banana",
+        "window": { "days": "daily", "hours": [7.5, 8.5] },
+        "spot": "standing at the rail — he never sits",
+        "house_knows": [
+          "the rail is his stretch spot; the lap count is written in his legs"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "buy-rite-market": [
+      {
+        "who": "c1",
+        "order": "the week's list — one cart, Tuesday night",
+        "window": { "days": ["tue"], "hours": [20, 21] },
+        "spot": "produce aisle first, always",
+        "house_knows": [
+          "price-checks the peaches every week like it's a ritual",
+          "checkout staff know her tote by sight"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c8",
+        "order": "ingredients priced like a man doing math in his head",
+        "window": { "days": ["sat", "sun"], "hours": [9, 11] },
+        "spot": "the meat case, then the spice aisle",
+        "house_knows": [
+          "compares every price against Valencia Growers — you can watch him decide",
+          "asks the butcher questions a home cook doesn't ask"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c6",
+        "order": "a small basket, cash",
+        "window": { "days": ["wed"], "hours": [10, 11] },
+        "spot": "in and out — the basket never fills",
+        "house_knows": [
+          "the coin purse is older than most of the staff",
+          "declines bags; brings her own, folded flat as an envelope"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "buy-rite-creamery": [
+      {
+        "who": "a04",
+        "order": "a single scoop, whatever the special is",
+        "window": { "days": "weekday", "hours": [15.5, 16.5] },
+        "spot": "the bench, homework on her knees",
+        "house_knows": [
+          "the scoop is a sometimes-thing — she reads the line's rhythm before joining it",
+          "school bag stays on; she's between the bus and home"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a20",
+        "order": "whatever's cheapest — filmed first, eaten second",
+        "window": { "days": ["sat"], "hours": [14, 15] },
+        "spot": "in the line, phone up",
+        "house_knows": [
+          "the forty-minute line is the point for her — it's content, not delay"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "il-delfino": [
+      {
+        "who": "a11",
+        "order": "one pasta at the bar, a book she's not really reading",
+        "window": { "days": ["thu"], "hours": [18, 19.5] },
+        "spot": "the bar seat nearest the kitchen door",
+        "house_knows": [
+          "the solo Thursday is a standing reservation nobody wrote down",
+          "staff keep her water full and her evening undisturbed — that's the whole service"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c1",
+        "order": "the deuce by the window, when the calendar allows",
+        "window": { "days": ["sat"], "hours": [19.5, 22] },
+        "spot": "the window two-top",
+        "house_knows": [
+          "the hostess knows not to seat her near the kitchen",
+          "industry courtesy runs both directions — she tips like a manager because she is one"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "baguette-about-it": [
+      {
+        "who": "a05",
+        "order": "a morning bun, split with Ray on the walk home",
+        "window": { "days": ["sat"], "hours": [8.5, 9.5] },
+        "spot": "the counter, then the door — it's a handoff",
+        "house_knows": [
+          "Hana sets one aside when the weekend batch runs small",
+          "the split bun is a two-household arrangement the shop honors"
+        ],
+        "name_basis": ["a16"],
+        "tab": null
+      },
+      {
+        "who": "c4",
+        "order": "a country loaf, sliced, plus a croissant eaten on the walk",
+        "window": { "days": ["sun"], "hours": [8, 9] },
+        "spot": "the counter",
+        "house_knows": [
+          "off-shift Sundays only — the loaf is the week's bread",
+          "sellout is 13:00; she has never once cut it close"
+        ],
+        "name_basis": ["a16"],
+        "tab": null
+      }
+    ],
+    "the-600-club": [
+      {
+        "who": "a08",
+        "order": "well whiskey when it's raining, the cheap beer when it isn't",
+        "window": { "days": ["thu"], "hours": [21, 24] },
+        "spot": "the stage corner — the doorway when it's wet",
+        "house_knows": [
+          "his rain pitch is a standing booking nobody wrote down",
+          "the bartender keeps his guitar behind the bar between sets"
+        ],
+        "name_basis": [],
+        "tab": { "running": true, "balance": 22, "rule": "settles in cash on Sundays and in songs the rest of the week" }
+      },
+      {
+        "who": "a14",
+        "order": "a whiskey ginger at the back booth",
+        "window": { "days": ["tue", "fri"], "hours": [21.5, 26] },
+        "spot": "the back booth",
+        "house_knows": [
+          "the booth is hers after tattoo shifts — nobody sits there after ten",
+          "she sketches on napkins; the staff keep the good ones behind the bar"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c5",
+        "order": "one beer, nursed past the point of politeness",
+        "window": { "days": ["sun"], "hours": [20, 22] },
+        "spot": "the bar, game-side",
+        "house_knows": [
+          "Thursday is the drum circle — Sunday he's just tired",
+          "one beer buys him two hours of the game; the bartender's math allows it"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "dandy-lion": [
+      {
+        "who": "c5",
+        "order": "one truffle — the treat he can't afford",
+        "window": { "days": ["fri"], "hours": [18, 19] },
+        "spot": "the sample tray, then the register",
+        "house_knows": [
+          "he circles twice before buying; the staff pretend not to watch",
+          "payday Friday is the only reliable visit"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a04",
+        "order": "a hot chocolate when it's foggy",
+        "window": { "days": ["sun"], "hours": [11, 12] },
+        "spot": "the window ledge",
+        "house_knows": [
+          "gray mornings bring her — weather as a habit",
+          "whipped cream is declined with ceremony every time"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "valencia-growers": [
+      {
+        "who": "c8",
+        "order": "nothing — he's pricing, not buying",
+        "window": { "days": ["sat"], "hours": [8.5, 10.5] },
+        "spot": "every stall, in the same order",
+        "house_knows": [
+          "the vendors know he runs a kitchen by the questions he asks",
+          "he buys one token case of tomatoes to stay a customer"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a07",
+        "order": "a walk of the stalls before her own stand opens",
+        "window": { "days": ["sat"], "hours": [8, 9] },
+        "spot": "the perimeter first, then the competition",
+        "house_knows": [
+          "her regulars migrate here Saturdays — she prices against them and they know it",
+          "the vendors save her the bruised fruit at cost; vendor solidarity outranks rivalry"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "needlepointe": [
+      {
+        "who": "a08",
+        "order": "flash — whatever's new on Bex's sheet",
+        "window": { "days": ["sat"], "hours": [13, 15] },
+        "spot": "the waiting couch",
+        "house_knows": [
+          "reads the flash sheet like a setlist",
+          "his appointments cluster after good tip weeks — the shop can hear a good week on him"
+        ],
+        "name_basis": ["a14"],
+        "tab": null
+      },
+      {
+        "who": "c3",
+        "order": "the walk-in Saturday consultation — usually hypothetical",
+        "window": { "days": ["sat"], "hours": [14, 16] },
+        "spot": "the couch, sketchbook out",
+        "house_knows": [
+          "three consultations, zero tattoos — Bex doesn't push",
+          "her chalkboard style and the flash style are cousins; the shop knows it"
+        ],
+        "name_basis": ["a14"],
+        "tab": null
+      }
+    ],
+    "folsom-auto": [
+      {
+        "who": "a03",
+        "order": "the van's fluids, cash, no receipt questions",
+        "window": { "days": ["mon"], "hours": [8.5, 9.5] },
+        "spot": "the bay door",
+        "house_knows": [
+          "the corner-store van is the oldest thing on the block still running",
+          "Gus keeps it alive out of professional pride — the invoice is honorary"
+        ],
+        "name_basis": ["a10"],
+        "tab": null
+      },
+      {
+        "who": "c5",
+        "order": "courier-bike maintenance — chain, patience, opinions",
+        "window": { "days": ["wed"], "hours": [17, 17.5] },
+        "spot": "the bench out front",
+        "house_knows": [
+          "a bicycle at an auto shop — Gus does it anyway, off the books",
+          "the consult is free; the beer run afterward is the fee"
+        ],
+        "name_basis": ["a10"],
+        "tab": null
+      }
+    ],
+    "maliks": [
+      {
+        "who": "a06",
+        "order": "an energy drink and the cheapest sandwich",
+        "window": { "days": "daily", "hours": [13, 14] },
+        "spot": "the counter, half in the doorway",
+        "house_knows": [
+          "Malik starts the sandwich when the scooter pulls up",
+          "the between-deliveries ten minutes are his only sit-down"
+        ],
+        "name_basis": ["a03"],
+        "tab": { "running": true, "balance": 14.5, "rule": "settles Fridays, cash — never once missed" }
+      },
+      {
+        "who": "a12",
+        "order": "water, exact change, no bag",
+        "window": { "days": "daily", "hours": [8, 8.5] },
+        "spot": "in and out — thirty seconds, tops",
+        "house_knows": [
+          "post-run hydration is a ritual with a handshake",
+          "the exact change is laid out before the bottle leaves the fridge"
+        ],
+        "name_basis": ["a03"],
+        "tab": null
+      },
+      {
+        "who": "c3",
+        "order": "the cigarettes-and-milk order — literally both",
+        "window": { "days": ["fri"], "hours": [22, 23] },
+        "spot": "the counter",
+        "house_knows": [
+          "Malik knows everyone's order — hers is the one he teases",
+          "Friday night is her restock; the chalkboard gets sketched at the counter"
+        ],
+        "name_basis": ["a03"],
+        "tab": null
+      }
+    ],
+    "las-palmas": [
+      {
+        "who": "a05",
+        "order": "a mango, cut into a flower when Luz has time",
+        "window": { "days": ["tue", "thu"], "hours": [10, 11] },
+        "spot": "the crate she sits on",
+        "house_knows": [
+          "the fruit-flower is an unpriced courtesy",
+          "stoop reports get filed here first — Luz hears the block through Esther"
+        ],
+        "name_basis": ["a07"],
+        "tab": null
+      },
+      {
+        "who": "c6",
+        "order": "the day's bruised fruit, at cost",
+        "window": { "days": ["wed"], "hours": [9, 10] },
+        "spot": "the stand's shade side",
+        "house_knows": [
+          "bruised is not a euphemism — she wants it and says so",
+          "Luz sets the box aside before the stand opens"
+        ],
+        "name_basis": ["a07"],
+        "tab": null
+      },
+      {
+        "who": "a19",
+        "order": "whatever's overstocked, plus the day-old bananas",
+        "window": { "days": "daily", "hours": [9, 10] },
+        "spot": "the stand's east post",
+        "house_knows": [
+          "the bananas are for the pigeons and everybody knows it",
+          "he calls her 'hija' — she lets him"
+        ],
+        "name_basis": ["a07"],
+        "tab": null
+      }
+    ],
+    "bloom-and-doom": [
+      {
+        "who": "c6",
+        "order": "ribbon ends and the stems Ida can't sell",
+        "window": { "days": ["thu"], "hours": [10, 11] },
+        "spot": "the worktable corner",
+        "house_knows": [
+          "seamstress and florist trade trimmings both directions",
+          "Carmen hems Ida's aprons; Ida saves Carmen the odd stems — nobody invoices"
+        ],
+        "name_basis": ["a18"],
+        "tab": null
+      },
+      {
+        "who": "a11",
+        "order": "a single stem for the library desk",
+        "window": { "days": ["mon"], "hours": [9, 9.5] },
+        "spot": "mostly the door — she never stays",
+        "house_knows": [
+          "the Monday stem is a budget line she gives herself",
+          "Ida picks it; Vera has never once chosen"
+        ],
+        "name_basis": ["a18"],
+        "tab": null
+      }
+    ],
+    "golden-hour": [
+      {
+        "who": "a05",
+        "order": "two machines, Thursday morning — the same two",
+        "window": { "days": ["thu"], "hours": [8.5, 10.5] },
+        "spot": "the folding table by the window",
+        "house_knows": [
+          "her machines are known — a stranger in one gets looked at",
+          "the bulletin board is her newspaper; she reads it while the dryer runs"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c2",
+        "order": "wash-and-fold drop when the month runs long",
+        "window": { "days": ["sun"], "hours": [21, 23] },
+        "spot": "the corner machines",
+        "house_knows": [
+          "the Friday-night laundromat date is a genre — Jules is the Sunday-night solo version",
+          "she counts quarters on the folding table like a card player"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a09",
+        "order": "scrubs, hot water, nobody talks to her",
+        "window": { "days": ["sat"], "hours": [7, 8.5] },
+        "spot": "the back row",
+        "house_knows": [
+          "the back row stays quiet for a reason — staff and regulars both keep it",
+          "double-load Saturdays after a run of nights"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "dusty-spine": [
+      {
+        "who": "a04",
+        "order": "the YA spin rack — borrowed, not bought",
+        "window": { "days": "weekday", "hours": [15.5, 17] },
+        "spot": "the spin rack, floor if the chair's taken",
+        "house_knows": [
+          "borrowed versus bought is legible in what her tote carries out",
+          "the clerk holds new YA arrivals under the counter for an hour"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "a11",
+        "order": "the free box — alphabetized, unasked",
+        "window": { "days": ["sun"], "hours": [11, 13] },
+        "spot": "the free box out front",
+        "house_knows": [
+          "she's the librarian — the free box's order is her doing",
+          "the clerk pretends not to notice; the noticing is mutual"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "marooned": [
+      {
+        "who": "a08",
+        "order": "one 45 from the dollar bin, every Sunday",
+        "window": { "days": ["sun"], "hours": [11, 12] },
+        "spot": "the dollar bin, knees on the floor",
+        "house_knows": [
+          "the Sunday tithe is a standing beat — the clerk pulls the weird ones for him",
+          "what the bin teaches him turns up in the park set"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c2",
+        "order": "sells back the same three records every broke month",
+        "window": { "days": ["tue"], "hours": [17, 19] },
+        "spot": "the counter",
+        "house_knows": [
+          "the clerk keeps a hold shelf — the buy-back is a payday ritual",
+          "she buys them back when tips recover; the clerk never mentions it"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ],
+    "the-musket": [
+      {
+        "who": "c8",
+        "order": "one cocktail, two small plates — studied like homework",
+        "window": { "days": ["sun"], "hours": [17, 18.5] },
+        "spot": "the bar seat with the kitchen sightline",
+        "house_knows": [
+          "he isn't dining, he's researching — the staff know the restaurant in the notebook",
+          "the bartender answers his questions because the questions are good"
+        ],
+        "name_basis": [],
+        "tab": null
+      },
+      {
+        "who": "c1",
+        "order": "a walk-in bar seat, one drink, early",
+        "window": { "days": ["wed"], "hours": [18, 19.5] },
+        "spot": "the bar end",
+        "house_knows": [
+          "choosing the Musket over Il Delfino's formality is a statement the staff can read",
+          "the industry recognizes its own — the pour is honest and the tab is short"
+        ],
+        "name_basis": [],
+        "tab": null
+      }
+    ]
+  }
+}

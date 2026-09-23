@@ -150,7 +150,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <select id="fOwner" style="max-width:120px" title="owning track — routes the finding in the inbox note"><option>world</option><option>game-systems</option><option>art</option><option>marketing</option></select>
         <select id="fStep" style="max-width:120px" title="finding ref — step inside the open scenario"></select>
         <input id="fTitle" placeholder="finding title">
@@ -197,6 +197,7 @@ const SURF={
   timeclock:{file:"timeclock.html",name:"The Timeclock"},
   market:{file:"market.html",name:"The Board's Metabolism"},
   storefront:{file:"storefront.html",name:"The Storefront"},
+  regulars:{file:"regulars.html",name:"The House Knows"},
   apply:{file:"apply.html",name:"The Tryout"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
@@ -1096,12 +1097,35 @@ const PTS=[
   ck:["Crowd gate detail: 'schema v57 · 17 zones' and passes — no fog_model or SEASONS drift items",
     "No 'no weather.fog answer' fails — all 20 ambients respond to fog (rows or note)",
     "Harness gate: '52 scenarios · N checkpoints · key rw_playtest_v57'; 0 fail overall"]}]}
+,{id:"PT53",title:"The House Knows — the regulars layer (parody businesses, depth pass)",min:10,persona:"long-time spectator — checking whether the counters feel staffed by people who've watched the block for years",
+ goal:"Verify the v58 regulars layer: every door-having venue lists the people whose order starts before they sit down — standing order, usual window, usual spot, surface facts, first-name basis, tab. Windows must overlap posted hours, staff are never their own venue's regulars, and every house_knows line stays on the surface-knowledge bar.",
+ surfaces:["regulars","audit"],steps:[
+ {do:"Open regulars.html. Set day=sat, scrub 08:00 → 10:30, and watch the venue cards.",
+  exp:"Saturday morning lights the market-side regulars: Tomás pricing stalls at Valencia Growers, Esther's set-aside morning bun at Baguette About It, Asha's post-nights scrub load at Golden Hour. 'Regulars in' chips and the count line track the clock.",
+  ck:["Valencia Growers card shows Tomás + Luz inside 08:00–10:30 on sat only — never on a weekday",
+    "Baguette card shows Esther's morning bun window 08:30–09:30; card border marks 'regulars in'",
+    "The header count line reads '49 regulars' total"]},
+ {do:"Scrub day=tue to 08:00–10:00, then thu to 08:30–10:30; compare Mudhaus and Golden Hour.",
+  exp:"Tuesday morning is Carmen's held window two-top at Mudhaus — one drip, two hours. Thursday morning is Esther's two machines at Golden Hour. Each card shows order, spot, house_knows, and (where staffed) the first-name list.",
+  ck:["Mudhaus shows Carmen 'in' tue 08:00–10:00 with name_basis listing Marisol, Jules, Dani, Reyes",
+    "Golden Hour shows Esther thu 08:30–10:30; name_basis absent (no staffed counter)",
+    "Sam's 600 Club tab shows a $22 game-dollar balance with a settlement rule — no credit figure anywhere"]},
+ {do:"Check the offstage/reserved venues are absent and read three house_knows lines at random.",
+  exp:"Flying Pannier, MuleIt, Nimbus9, Mission Unfiltered, La Esperanza, and the spares carry no regulars — an app has no counter, a notebook has no regulars. Every house_knows line reads like something a counter worker could see — nothing resolves a secret.",
+  ck:["No card exists for any offstage or reserved business",
+    "No house_knows line mentions the blog, the loan, or any seed — spot-read three",
+    "Spots name furniture a camera can see ('the salsa-bar stool', 'the left park-side table')"]},
+ {do:"Run `node world/audit.js` and read the regs + biz + harness gates.",
+  exp:"The regs gate reports schema v58 — 20 venues, 49 regulars — with window-overlap, staff-exclusion, name_basis-subset, and surface-knowledge checks all green. The biz gate still passes at v44; the harness gate passes at the v58 key.",
+  ck:["regs gate detail: 'schema v58 · 20 venues · 49 regulars' — PASS",
+    "A regular whose window never overlaps open hours, or a name_basis id not on staff, would FAIL — spot-check by reading the gate",
+    "Harness gate: '53 scenarios · N checkpoints · key rw_playtest_v58'; 0 fail overall"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v57";
-const BUILD="world v57 local";
+const LS="rw_playtest_v58";
+const BUILD="world v58 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

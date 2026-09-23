@@ -1,5 +1,12 @@
-# Parody Business Registry — "The Mission" (world v44)
+# Parody Business Registry — "The Mission" (world v58)
 
+> **v58 additions:** the **regulars layer** — `world/regulars.json` +
+> `world/regulars.md` + `world/regulars.html` ("The House Knows") register,
+> per door-having venue, the people whose order starts before they sit down:
+> standing order, usual window, usual spot, the surface facts the counter
+> carries, first-name basis, and tab status. Doors only; every line obeys the
+> possession-briefing surface bar. See regulars.md.
+>
 > **v44 additions:** the **storefront layer** — `world/storefronts.json` +
 > `world/storefronts.md` + `world/storefront.html` carry the literal copy a
 > camera reads on every door: fascia, window glass, menu board, sidewalk
