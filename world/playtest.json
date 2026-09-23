@@ -1,8 +1,8 @@
 {
   "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
-  "version": 12,
+  "version": 13,
   "scope": {
-    "under_test": ["world/feed.html", "world/request.html", "world/mod-console.html", "world/create.html", "world/board.html", "world/history.html", "world/onboarding.html", "world/lease.html", "world/screen.js"],
+    "under_test": ["world/feed.html", "world/request.html", "world/mod-console.html", "world/create.html", "world/board.html", "world/history.html", "world/onboarding.html", "world/lease.html", "world/thinai.html", "world/screen.js"],
     "not_under_test": ["llm behavior (sim STOPPED — no live world exists)", "real payments", "multiplayer concurrency", "game-track plumbing (gsViewerState/gsRequest* — sf/game-systems)", "rendering (sf/art)"],
     "invariant_reminders": [
       "possession ban on C1–C8 incl. the landlord — no surface may offer it",
@@ -20,7 +20,8 @@
     "board":   { "file": "board.html",       "name": "Housing & Jobs Board","tier": "in-world" },
     "history": { "file": "history.html",     "name": "The Archive",        "tier": "free" },
     "onboard": { "file": "onboarding.html",  "name": "Onboarding (first session)", "tier": "free" },
-    "lease":   { "file": "lease.html",       "name": "The Rent Book",      "tier": "player/admin" }
+    "lease":   { "file": "lease.html",       "name": "The Rent Book",      "tier": "player/admin" },
+    "thinai":  { "file": "thinai.html",      "name": "The Understudy",     "tier": "internal" }
   },
   "severity_rubric": [
     { "id": "blocker", "label": "Blocker", "def": "Breaks a boundary (possession ban, real business name, leaked secret, scripted-AI affordance) or a surface is unusable. Stop the session; report immediately." },
@@ -199,12 +200,32 @@
           "expect": "Offer-at-asking only — no bidding; deed fee is credits, price is game dollars; the two are clearly separated.",
           "checkpoints": ["Deed fee matches plan §2.4 (2,000 cr for 1BR)", "Feed posts 'Sold — <address> changes hands'", "No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"] }
       ]
+    },
+    {
+      "id": "PT11", "title": "The Understudy — thin-AI fallback", "minutes": 15,
+      "persona": "facilitator auditing the seam between brains",
+      "goal": "Drive every brain-mode transition and confirm the seam stays invisible: feed shows only the locked possession vocabulary, thin never touches seeds or commitments.",
+      "surfaces": ["thinai"],
+      "steps": [
+        { "do": "Read the three pawns. Step the clock +1h across a schedule boundary.",
+          "expect": "A01 stays thin forever; h01 thin (owner away); C2 full. Schedule cells advance with the clock; no pawn freezes.",
+          "checkpoints": ["A01 offers no mode but thin — ambient possession/degrade paths do not exist", "Schedule cells match ambients.json hours (Reyes serves 7:30–18)", "Reflex chips appear only on real triggers (morning rush, rain)"] },
+        { "do": "Owner returns → h01 wakes. Then fire 'Possess h01', let the cap land, step time.",
+          "expect": "thin→full is a seam line, never a wire line; possession posts 'running' then 'player session ended'; the handoff note is written on every exit.",
+          "checkpoints": ["Feed lines use only locked vocabulary ('running', 'player session ended')", "Handoff note carries place/doing/pending/near/mood — and no secrets or seed field exists to fill", "Cap resolves through a 'handoff' beat, never a mid-stride swap"] },
+        { "do": "Owner logs off twice: once during full (linger→drop), once tried during possession.",
+          "expect": "Linger grace then thin; possession cannot be dropped mid-session.",
+          "checkpoints": ["Offline drop writes a handoff note and NO feed line", "Logging off during a session is refused with an explanation, not a silent mode change"] },
+        { "do": "Fire 'Brain brownout' on C2, then 'Nudge A01' on-shift and off-shift.",
+          "expect": "Degraded posture is mains-only and seam-internal; nudges accept on role-card fit and decline with the 50% refund line.",
+          "checkpoints": ["Degraded badge + 'public-routine only — no seed access' chip; recovery restores full", "No wire line for degrade/recover — the illusion never breaks", "Declined nudge shows 'resolved · declined (50% auto-refund)'", "Nudge at off-hours declines — thin can't be talked out of its routine"] }
+      ]
     }
   ],
   "session_report_schema": {
-    "session": { "tester": "string", "role": "spectator|player|reviewer|facilitator", "date": "YYYY-MM-DD", "build": "world v12 local", "notes": "string" },
+    "session": { "tester": "string", "role": "spectator|player|reviewer|facilitator", "date": "YYYY-MM-DD", "build": "world v13 local", "notes": "string" },
     "results": [{ "scenario": "PT#", "step": "n", "checkpoint": "string", "verdict": "pass|fail|na", "note": "string" }],
-    "findings": [{ "severity": "blocker|major|minor|nit|question", "surface": "feed|request|mod|create|board|history|onboard|lease|screen", "title": "string", "detail": "string", "steps_to_repro": "string" }],
+    "findings": [{ "severity": "blocker|major|minor|nit|question", "surface": "feed|request|mod|create|board|history|onboard|lease|thinai|screen", "title": "string", "detail": "string", "steps_to_repro": "string" }],
     "triage_owner_map": {
       "world": "all world/* surfaces + copy + content",
       "game-systems": "queue model, classifier plumbing, gsViewerState vocabulary, ledger (at merge)",

@@ -1,0 +1,55 @@
+{
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract, thin capability bounds, and feed visibility. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 13,
+  "brain_modes": {
+    "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
+    "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
+    "possessed": { "who": "h## during an approved session only",     "llm": "suspended — player drives" },
+    "degraded":  { "who": "C1–C8 during brain-service stall",        "llm": false, "posture": "public routine only; no seed access" }
+  },
+  "transitions": [
+    { "id": "offline_drop", "from": "full",      "to": "thin",      "when": "owner offline", "grace_s": 90, "feed": null, "note": "linger covers refresh/disconnect blips" },
+    { "id": "wake",         "from": "thin",      "to": "full",      "when": "owner online",  "grace_s": 0,  "feed": null, "note": "full brain resumes with handoff note as context" },
+    { "id": "possess",      "from": "full|thin", "to": "possessed", "when": "request approved + running", "feed": "request running", "note": "brain suspends for the session" },
+    { "id": "handoff",      "from": "possessed", "to": "full|thin", "when": "cap | end | revoke", "feed": "player session ended", "note": "graceful — current micro-beat finishes first (≤90 s)" },
+    { "id": "degrade",      "from": "full",      "to": "degraded",  "when": "brain-service stall", "feed": null, "mains_only": true },
+    { "id": "recover",      "from": "degraded",  "to": "full",      "when": "service restored", "feed": null }
+  ],
+  "seam_rule": {
+    "beat_budget_s": 90,
+    "text": "mode swaps land between micro-beats, never mid-action; spectators cannot tell; the feed shows only the already-locked possession vocabulary (running / player session ended)"
+  },
+  "handoff_note_schema": {
+    "char": "id", "from": "mode", "to": "mode", "at_min": "int, game-local",
+    "place": "POI/anchor", "doing": "current micro-action",
+    "pending": "one open thread or null", "near": ["char ids"], "mood_hint": "one phrase",
+    "forbidden_fields": ["secrets", "seeds", "relationship_deltas"]
+  },
+  "thin_can": [
+    "run routine schedule cells (ambients.json / bible public routine)",
+    "fire shared + per-card reflexes (condition → posture, never scripts)",
+    "cover needs: hunger, rest, routine obligations — auto-shift wages at baseline, scheduled payments",
+    "phrase-kit small talk (generic bubbles, capped/hr, never voice-specific)",
+    "co-star in screened requests — bounded compliance check, role-card fit, decline keeps 50% refund"
+  ],
+  "thin_cannot": [
+    "start or advance drama seeds — no seed state exists at thin level",
+    "write relationship changes (can only be observed by others)",
+    "make commitments — leases, purchases beyond routine needs, promises",
+    "dialogue beyond the phrase kit — deflects generic when pressed",
+    "be possessed (ambients) or hold admin power (anyone)"
+  ],
+  "feed_visibility": {
+    "public": ["request running", "player session ended"],
+    "never_public": ["offline_drop", "wake", "degrade", "recover", "handoff internals"],
+    "rule": "brain-mode transitions are not admin actions; the seam stays invisible to spectators"
+  },
+  "demo": {
+    "pawns": [
+      { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
+      { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
+      { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" }
+    ],
+    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "brownout", "nudge"]
+  }
+}

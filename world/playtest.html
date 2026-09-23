@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease surface added v12). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease surface v12, PT11 + thinai surface v13). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -156,7 +156,8 @@ const SURF={
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"},
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
-  lease:{file:"lease.html",name:"The Rent Book"}};
+  lease:{file:"lease.html",name:"The Rent Book"},
+  thinai:{file:"thinai.html",name:"The Understudy"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -275,11 +276,26 @@ const PTS=[
   ck:["Cure-or-quit posts a 'housing' feed event with neutral wording (no amounts, no reasons)","Eviction lands as an 'admin' event — 'tenancy ended at <address>' only","A declined review returns the lease to the notice rung, not a dead end"]},
  {do:"In Tenant mode, offer on the for-sale unit (9476 Dolores B).",
   exp:"Offer-at-asking only — no bidding; deed fee is credits, price is game dollars; the two are clearly separated.",
-  ck:["Deed fee matches plan §2.4 (2,000 cr for 1BR)","Feed posts 'Sold — <address> changes hands'","No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"]}]}
+  ck:["Deed fee matches plan §2.4 (2,000 cr for 1BR)","Feed posts 'Sold — <address> changes hands'","No purchase path bypasses the 30-day/reputation landlord gates anywhere on the page"]}]},
+{id:"PT11",title:"The Understudy — thin-AI fallback",min:15,persona:"facilitator auditing the seam between brains",
+ goal:"Drive every brain-mode transition and confirm the seam stays invisible: feed shows only the locked possession vocabulary, thin never touches seeds or commitments.",
+ surfaces:["thinai"],steps:[
+ {do:"Read the three pawns. Step the clock +1h across a schedule boundary.",
+  exp:"A01 stays thin forever; h01 thin (owner away); C2 full. Schedule cells advance with the clock; no pawn freezes.",
+  ck:["A01 offers no mode but thin — ambient possession/degrade paths do not exist","Schedule cells match ambients.json hours (Reyes serves 7:30–18)","Reflex chips appear only on real triggers (morning rush, rain)"]},
+ {do:"Owner returns → h01 wakes. Then fire 'Possess h01', let the cap land, step time.",
+  exp:"thin→full is a seam line, never a wire line; possession posts 'running' then 'player session ended'; the handoff note is written on every exit.",
+  ck:["Feed lines use only locked vocabulary ('running', 'player session ended')","Handoff note carries place/doing/pending/near/mood — and no secrets or seed field exists to fill","Cap resolves through a 'handoff' beat, never a mid-stride swap"]},
+ {do:"Owner logs off twice: once during full (linger→drop), once tried during possession.",
+  exp:"Linger grace then thin; possession cannot be dropped mid-session.",
+  ck:["Offline drop writes a handoff note and NO feed line","Logging off during a session is refused with an explanation, not a silent mode change"]},
+ {do:"Fire 'Brain brownout' on C2, then 'Nudge A01' on-shift and off-shift.",
+  exp:"Degraded posture is mains-only and seam-internal; nudges accept on role-card fit and decline with the 50% refund line.",
+  ck:["Degraded badge + 'public-routine only — no seed access' chip; recovery restores full","No wire line for degrade/recover — the illusion never breaks","Declined nudge shows 'resolved · declined (50% auto-refund)'","Nudge at off-hours declines — thin can't be talked out of its routine"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v12";
+const LS="rw_playtest_v13";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -346,7 +362,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v12 local",started:new Date(S.started).toISOString()},
+    build:"world v13 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }

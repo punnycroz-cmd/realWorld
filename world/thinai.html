@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Understudy (thin-AI fallback)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Thin-AI fallback demo — "The Understudy" (world v13).
+  Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
+  Machine mirror: world/thinai.json.
+  Three pawns, four brain modes: A01 Reyes (ambient — always thin),
+  h01 a hired courier (thin ↔ full ↔ possessed on the owner's presence),
+  C2 Jules (main — full, with the degraded posture for brain-service
+  stalls). A clock stepper + event buttons drive the transitions; the
+  log splits feed-public lines from seam-internal ones.
+  Boundaries: the seam is invisible in-world (no feed line for mode
+  swaps); thin has no seed/secret access at all; ambients are never
+  possessable; nudge declines keep the 50% auto-refund.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .clock{font-family:var(--mono);font-size:12.5px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 12px}
+  .clock small{color:var(--dim)}
+  .ev{display:flex;gap:6px;flex-wrap:wrap}
+  .ev button{font:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--line);border-radius:10px;
+    padding:4px 12px;background:var(--panel2);color:var(--blu);cursor:pointer}
+  .ev button:hover{border-color:var(--blu)}
+  .ev button.warn{color:var(--acc)} .ev button.warn:hover{border-color:var(--acc)}
+  .ev button.bad{color:var(--red)} .ev button.bad:hover{border-color:var(--red)}
+  .step{margin-left:auto;display:flex;gap:6px}
+  .step button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;
+    padding:6px 13px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  main{display:grid;grid-template-columns:minmax(300px,1.4fr) minmax(300px,1fr);gap:16px;
+    max-width:1180px;margin:0 auto;padding:16px 18px}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+  h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+  .pawn{border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-bottom:10px;background:var(--panel2)}
+  .pawn .top{display:flex;align-items:baseline;gap:9px}
+  .pawn .who{font-weight:700;font-size:14px}
+  .pawn .kind{font-size:10.5px;color:var(--dim)}
+  .mode{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:9px;padding:1px 9px;color:var(--dim)}
+  .mode.thin{color:var(--dim);border-color:var(--dim)}
+  .mode.full{color:var(--grn);border-color:var(--grn)}
+  .mode.possessed{color:var(--pink);border-color:var(--pink)}
+  .mode.degraded{color:var(--acc);border-color:var(--acc)}
+  .mode.handoff{color:var(--blu);border-color:var(--blu)}
+  .doing{font-size:12.5px;margin:6px 0 2px}
+  .cell{font-size:11.5px;color:var(--dim)}
+  .rx{display:inline-block;font-size:10px;font-weight:700;border:1px solid var(--acc);color:var(--acc);
+    border-radius:8px;padding:0 8px;margin:5px 5px 0 0}
+  .notebox{font-family:var(--mono);font-size:10.5px;color:var(--dim);background:var(--bg);
+    border:1px dashed var(--line);border-radius:6px;padding:7px 10px;margin-top:8px;white-space:pre-wrap}
+  .notebox b{color:var(--blu);font-family:inherit;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
+  .wiretag,.seamtag{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    border-radius:3px;padding:0 5px;margin-right:6px;border:1px solid}
+  .wiretag{color:var(--grn);border-color:var(--grn)} .seamtag{color:var(--dim);border-color:var(--dim)}
+  .log{list-style:none;margin:0;padding:0;max-height:520px;overflow:auto}
+  .log li{padding:5px 0;border-bottom:1px solid var(--line);font-size:12px}
+  .log .t{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-right:6px}
+  .cant li{font-size:12px;margin:4px 0;color:var(--dim)}
+  .cant b{color:var(--ink);font-weight:600}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:8px}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:8px;padding:8px 18px;font-size:12.5px;display:none;z-index:9}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Understudy</div>
+  <div class="clock" id="clock"></div>
+  <div class="ev" id="ev"></div>
+  <div class="step">
+    <button id="m15">+15 min</button><button id="h1">+1 h</button>
+  </div>
+</header>
+<main>
+  <section>
+    <div class="panel"><h2>Pawns &amp; brain modes</h2><div id="pawns"></div>
+      <div class="fine">Badges are for you, the builder — in-world, the seam is invisible. The feed only ever says "running" / "player session ended".</div>
+    </div>
+    <div class="panel"><h2>Thin can / can't</h2>
+      <ul class="cant">
+        <li><b>Can:</b> routine schedule, reflexes, needs, baseline auto-shift wages, phrase-kit small talk, time-boxed co-star turns.</li>
+        <li><b>Can't:</b> touch drama seeds (no seed state exists), write relationship changes, make commitments, improvise dialogue, be possessed (ambients), hold admin power.</li>
+        <li><b>Worst case:</b> the neighborhood gets quieter — never wronger.</li>
+      </ul>
+    </div>
+  </section>
+  <section>
+    <div class="panel"><h2>Log — feed vs seam</h2><ul class="log" id="log"></ul>
+      <div class="fine"><span class="wiretag">wire</span> public feed line &nbsp; <span class="seamtag">seam</span> internal transition — spectators never see these.</div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+/* mirror of thinai.json demo scenario */
+var LS='rw_thinai_v13';
+function hhmm(m){return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+Math.floor(m%60)).slice(-2);}
+function seed(){return {
+  min:13*60+7, day:4, rain:false, brownout:false, linger:0, possessLeft:0, handoffBeat:0,
+  pawns:{
+    a01:{id:'A01',name:'Reyes',kind:'ambient',mode:'thin',venue:'Mudhaus Coffee'},
+    h01:{id:'h01',name:'the courier (hired)',kind:'hired',mode:'thin',owner:'offline',venue:'Flying Pannier loop',note:null},
+    c2:{id:'C2',name:'Jules',kind:'main',mode:'full',venue:'park / cafe circuit'}
+  }, log:[]
+};}
+var S; try{S=JSON.parse(localStorage.getItem(LS))||seed();}catch(e){S=seed();}
+var $=function(id){return document.getElementById(id);};
+function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none';},2400);}
+function log(tag,tx){S.log.push({m:S.min,tag:tag,tx:tx});if(S.log.length>80)S.log.shift();}
+function wire(tx){log('wire',tx);} function seam(tx){log('seam',tx);}
+
+/* routine cells — condensed from ambients.json + bible routines */
+function cell(id,h){
+  if(id==='a01'){
+    if(h<7.5)return ['home — asleep','sleep'];
+    if(h<18)return ['Mudhaus Coffee — pulling the shift','serve'];
+    if(h<22)return ['home — evening idle','idle'];
+    return ['home — asleep','sleep'];
+  }
+  if(id==='h01'){
+    if(h<8)return ['home — asleep','sleep'];
+    if(h<19)return ['Flying Pannier loop — paper run','carry'];
+    return ['home — off the clock','idle'];
+  }
+  if(h<6)return ['home — asleep','sleep'];
+  if(h<8)return ['park north path — morning run','run'];
+  if(h<17)return ['cafe circuit — working','work'];
+  if(h<20)return ['park — evening sit','sit'];
+  return ['home — night in','idle'];
+}
+function reflexes(id){
+  var r=[];
+  if(S.rain){
+    if(id==='a01')r.push('rush-tempo','counter-circle-tell');
+    if(id==='h01')r.push('rain-covered-routes');
+    if(id==='c2')r.push('shortens the run, never skips it');
+  }
+  if(id==='c2'&&S.brownout)r.push('public-routine only — no seed access');
+  if(id==='a01'&&S.min>=7.5*60&&S.min<9*60)r.push('morning rush double tempo');
+  return r;
+}
+function modeLabel(p){
+  if(S.handoffBeat&&p.id==='h01')return 'handoff';
+  return p.mode;
+}
+function render(){
+  $('clock').innerHTML='Day '+S.day+' · '+hhmm(S.min)+' <small>block time</small>'+(S.rain?' · rain':'')+(S.brownout?' · <span style="color:var(--acc)">brownout</span>':'');
+  var h=S.min/60;
+  $('pawns').innerHTML=['a01','h01','c2'].map(function(id){
+    var p=S.pawns[id],c=cell(id,h),rx=reflexes(id);
+    var out='<div class="pawn"><div class="top"><span class="who">'+p.name+'</span>'+
+      '<span class="kind">'+p.id+' · '+p.kind+(p.owner?' · owner '+p.owner:'')+'</span>'+
+      '<span class="mode '+modeLabel(p)+'">'+modeLabel(p)+'</span></div>'+
+      '<div class="doing">'+c[0]+'</div><div class="cell">schedule cell: '+c[1]+' · venue: '+p.venue+'</div>';
+    if(rx.length)out+='<div>'+rx.map(function(r){return '<span class="rx">'+r+'</span>';}).join('')+'</div>';
+    if(p.note)out+='<div class="notebox"><b>handoff note</b>\n'+JSON.stringify(p.note,null,1)+'</div>';
+    return out+'</div>';
+  }).join('');
+  $('log').innerHTML=S.log.slice().reverse().map(function(e){
+    return '<li><span class="t">d'+S.day+' '+hhmm(e.m)+'</span><span class="'+(e.tag==='wire'?'wiretag':'seamtag')+'">'+e.tag+'</span>'+e.tx+'</li>';
+  }).join('')||'<li style="color:var(--dim)">Nothing yet — step the clock or fire an event.</li>';
+  save();
+}
+function writeNote(p,from,to,doing,pending){
+  var near=[]; if(p.id==='h01')near=['A01','A15'];
+  p.note={char:p.id,from:from,to:to,at_min:S.min,place:p.venue,doing:doing,pending:pending,near:near,mood_hint:'tired, fine'};
+}
+
+/* ---------- events ---------- */
+var EV=[
+ ['Owner logs off',function(){
+   var p=S.pawns.h01;
+   if(p.mode==='possessed'){toast('Session still running — cap it or end it first.');return;}
+   if(p.mode!=='full'){toast('h01 is already on thin — owner was never here.');return;}
+   p.owner='leaving';S.linger=2; /* ticks ≈ 90s grace */
+   seam('owner connection lost — linger grace 90 s starts (refresh-safe)');}],
+ ['Owner returns',function(){
+   var p=S.pawns.h01; p.owner='online';S.linger=0;
+   if(p.mode==='thin'){p.mode='full';seam('h01 thin → full — brain resumes on the handoff note; the day was theirs the whole time');}
+   else seam('owner returns during possession — brain stays suspended, session continues');}],
+ ['Possess h01 · 30 min',function(){
+   var p=S.pawns.h01;
+   if(p.mode==='possessed'){toast('Already driving.');return;}
+   if(p.owner!=='online'){toast('Owner offline — nobody to bill, nobody to drive.');return;}
+   var was=p.mode;p.mode='possessed';S.possessLeft=2; /* 2 demo ticks */
+   wire('request — possess own courier, 30 min — running (okfm)');
+   seam('h01 '+was+' → possessed — brain suspended for the session');}],
+ ['Cap hits',function(){
+   var p=S.pawns.h01;
+   if(p.mode!=='possessed'){toast('No live session to cap.');return;}
+   S.possessLeft=0;S.handoffBeat=1;
+   seam('hard cap — graceful handoff: current micro-beat finishes first (≤90 s), no mid-stride swap');}],
+ ['Rain rolls in / clears',function(){
+   S.rain=!S.rain;
+   if(S.rain){wire('weather — rain over the Mission');seam('reflexes fire: rush-tempo, covered routes, shortened run — condition→posture, not scripts');}
+   else wire('weather — rain clears off the park');}],
+ ['Brain brownout (mains)',function(){
+   var p=S.pawns.c2;S.brownout=!S.brownout;
+   if(S.brownout){p.mode='degraded';seam('C2 full → degraded — public routine only, zero seed access; the show never freezes');}
+   else{p.mode='full';seam('C2 degraded → full — service restored; resume on handoff note');}}],
+ ['Nudge A01',function(){
+   var h=S.min/60;
+   if(h>=7.5&&h<18){wire('request — nudge (ambient co-star) — running (leaf)');
+     seam('A01 compliance check: fits barista role-card → accepts, time-boxed to the request');}
+   else{wire('request — nudge — resolved · declined (50% auto-refund)');
+     seam('A01 declines — off-shift + sleep cell vetoes; nothing persists');}}]
+];
+EV.forEach(function(e){
+  var b=document.createElement('button');b.textContent=e[0];
+  if(/brownout/.test(e[0]))b.className='warn'; if(/Cap/.test(e[0]))b.className='bad';
+  b.onclick=function(){e[1]();render();};$('ev').appendChild(b);
+});
+
+/* ---------- clock ---------- */
+function tick(mins){
+  for(var i=0;i<mins;i+=15){
+    S.min+=15;
+    if(S.min>=1440){S.min-=1440;S.day++;}
+    if(S.linger>0&&--S.linger===0){
+      var p=S.pawns.h01;p.owner='offline';
+      writeNote(p,'full','thin','finishing a delivery handoff','owed Omar a favor-trade reply');
+      p.mode='thin';
+      seam('h01 full → thin — offline drop after linger grace; handoff note written. No feed line: the seam stays invisible.');
+    }
+    if(S.possessLeft>0&&--S.possessLeft===0){
+      S.handoffBeat=1;
+      seam('session cap reached — graceful handoff queued behind the current beat');
+    }
+    if(S.handoffBeat&&i>=15){
+      var q=S.pawns.h01;S.handoffBeat=0;
+      var back=(q.owner==='online')?'full':'thin';
+      writeNote(q,'possessed',back,'finishing a shift side-work list','a half-remembered errand near the park');
+      q.mode=back;
+      wire('request — player session ended');
+      seam('h01 possessed → '+back+' — AI resumes seamlessly on the note');
+    }
+  }
+  render();
+}
+$('m15').onclick=function(){tick(15);};
+$('h1').onclick=function(){tick(60);};
+
+if(!S.log.length)seam('baseline: A01 thin (always), h01 thin (owner away), C2 full (healthy brain service)');
+render();
+</script>
+</body>
+</html>
