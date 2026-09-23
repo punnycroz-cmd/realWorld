@@ -15,6 +15,11 @@ Contents
                      verbatim-safe copy for articles, thumbnails, broadcast
   creator-notes.md   Streamer & creator coverage guide (formats, rules,
                      embargo stance)
+  context.md         Where Real World sits — accurate "X meets Y"
+                     framings + comparison table vs. Sims, FiveM,
+                     Twitch Plays, Second Life; honest weaknesses
+  guided-tour.md     The 10-minute press-preview run sheet (stops,
+                     talking points, presenter hard rules)
   captions.txt       Caption + credit line for every image
   LICENSE.txt        Press asset usage terms
   manifest.json      Machine-readable kit manifest
@@ -30,8 +35,9 @@ Contents
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
   screenshots/       Real captures of the current development build.
-                     v29-* = current renderer (murals, parody signage,
-                     polychrome trim, fire escapes, parked cars);
+                     v30-* = current renderer (murals, parody signage,
+                     polychrome trim, fire escapes, stoops, garage bays,
+                     false-front gables, parked cars);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

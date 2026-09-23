@@ -1,6 +1,6 @@
 # Press Kit — Real World ("The Mission")
 
-**Version:** v32 · 2026-09-23 · **Status:** LOCAL DRAFT — pre-launch.
+**Version:** v47 · 2026-09-23 · **Status:** LOCAL DRAFT — pre-launch.
 Contact fields are placeholders; no public channels exist yet. HTML mirror:
 `marketing/site/press-kit.html`. Downloadable bundle:
 `marketing/press-kit/` — build the zip with `./marketing/build-press-kit.sh`
@@ -88,13 +88,15 @@ date. The founder quote slot below stays empty until the user writes one:
 | Logo — icon mono | **Available** — single-ink SVG (`currentColor`) | `press-kit/logos/logo-icon-mono.svg` |
 | Logo — lockup mono | **Available** — single-ink horizontal lockup SVG (`currentColor`) | `press-kit/logos/logo-primary-mono.svg` |
 | Key art | **Available** — 1920×1080 + 1080×1080 composites on a real build capture | `press-kit/keyart/keyart-16x9.png`, `keyart-square.png` |
-| Screenshots | **Available** — 4 current-build shots (v29) + 2 interior vignettes (v16) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
+| Screenshots | **Available** — 4 current-build shots (v30) + 2 interior vignettes (v16) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
 | Fact sheet | **Available** — print-ready HTML, prints to PDF | `press-kit/fact-sheet.html` |
 | Offline press hub | **Available** — self-contained `index.html` inside the bundle | `press-kit/index.html` |
 | Press release | **Available** — launch release draft, slots marked | `press-kit/press-release-launch.md` |
 | Press Q&A | **Available** — anticipated questions, approved answers | `press-kit/press-qa.md` |
 | Copy deck | **Available** — approved taglines/headlines/phrases + words to avoid | `press-kit/copy-deck.md` |
 | Creator notes | **Available** — streamer coverage guide, formats, embargo stance | `press-kit/creator-notes.md` |
+| Context sheet | **Available** — endorsed "X meets Y" framings, comparison table vs. Sims/FiveM/TPP/SL, honest weaknesses | `press-kit/context.md` |
+| Guided tour | **Available** — 10-minute press-preview run sheet + presenter hard rules | `press-kit/guided-tour.md` |
 | Social banners | **Available** — X/YouTube/Discord/LinkedIn, safe-zone padded | `press-kit/banners/` |
 | Captions/credits | **Available** — per-asset caption + credit line | `press-kit/captions.txt` |
 | Asset license | **Available** — editorial usage terms | `press-kit/LICENSE.txt` |

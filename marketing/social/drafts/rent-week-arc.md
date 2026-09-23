@@ -20,7 +20,7 @@ memory, economy, and admin transparency without explaining the engine.
 > parts that go public. This week: the block's first rent cycle. Thread
 > below as it happens.
 
-Attach: `site/shots/v29-B` still + "development build" label.
+Attach: `site/shots/v30-B` still + "development build" label.
 
 **Day 2 (Tue) — the money split**
 > Two moneys, one block. Rent is game dollars — earned in-world, owed
@@ -53,7 +53,7 @@ week — otherwise skip this post entirely.
 > fee on top. Owners can raise rent — inside caps, with notice ladders —
 > and every admin action they take is feed-public. Power is visible.
 
-Attach: `site/shots/v29-D` evening still.
+Attach: `site/shots/v30-D` evening still.
 
 **Day 6 (Sat) — the human question**
 > People ask "can you just evict someone for fun?" Admin actions are
