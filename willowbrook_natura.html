@@ -28728,6 +28728,206 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  /* ---------------- v48: the lived-in ground line ----------------
+     Curbside Mission: sunken areaway lightwells railed in iron under the
+     raised entries, the black/blue/green toter row tucked against the
+     garden wall, tag-and-buff graffiti on garage doors and blank stucco,
+     and pigeons holding down the parapet coping. Everything hashed per
+     (building, edge) so the street remembers itself frame to frame;
+     shadows and pit light ride the same SF_SUN vector as the walls. */
+
+  // areaway lightwell — a sunken basement pit beside the stoop, fenced
+  // off the sidewalk by a wrought-iron railing, with a barred half-window
+  // in the wall behind it (raised-basement fronts only, never on shops)
+  if(det >= 1 && !isShop && L > 10 && style !== 2 && !mural &&
+     phash(i, ei, 4800) < 0.55){
+    let aU = doorT + (phash(i, ei, 4801) < 0.5 ? -0.42 : 0.42);
+    if(garU > 0 && Math.abs(aU - garU) < 0.20) aU = doorT + (aU < doorT ? 0.42 : -0.42);
+    aU = clamp(aU, 0.16, 0.84);
+    if(Math.abs(aU - doorT) > 0.14 && (garU < 0 || Math.abs(aU - garU) > 0.16)){
+      const aHw = Math.min(0.95, L * 0.10), aDep = 0.85;
+      const ax0 = x1 + ex * (aU - aHw / L), ay0 = y1 + ey * (aU - aHw / L),
+            ax1 = x1 + ex * (aU + aHw / L), ay1 = y1 + ey * (aU + aHw / L);
+      // pit floor: concrete sunk below the pavement, always dimmer than
+      // the sidewalk — it only catches light when the sun is high enough
+      // to see over the railing AND strikes this face (n·L gate)
+      const pitLit = night ? 0.30
+        : 0.30 + 0.55 * Math.max(0, sunK) *
+                 clamp((Math.sin(Math.max(0, SF_SUN.el)) - 0.35) * 2.4, 0, 1);
+      quad([[ax0, ay0, 0.04], [ax1, ay1, 0.04],
+            [ax1 + nx * aDep, ay1 + ny * aDep, 0.04],
+            [ax0 + nx * aDep, ay0 + ny * aDep, 0.04]],
+           shade('#5a564c', pitLit));
+      // pit rim: the sidewalk edge drops into the well — a dark reveal
+      // line along the wall and the two side cheeks
+      quad([[ax0, ay0, 0.04], [ax1, ay1, 0.04],
+            [ax1, ay1, 0.55], [ax0, ay0, 0.55]], 'rgba(14,11,8,0.42)');
+      for(const [sx0, sy0] of [[ax0, ay0], [ax1, ay1]])
+        quad([[sx0, sy0, 0.04], [sx0 + nx * aDep, sy0 + ny * aDep, 0.04],
+              [sx0 + nx * aDep, sy0 + ny * aDep, 0.92], [sx0, sy0, 0.92]],
+             shade('#6a655a', pitLit * 0.8 + 0.15));
+      // barred basement half-window inside the well
+      const wu = aU, wx = x1 + ex * wu, wy = y1 + ey * wu;
+      quad([[wx - ux * 0.34, wy - uy * 0.34, 0.10], [wx + ux * 0.34, wy + uy * 0.34, 0.10],
+            [wx + ux * 0.34, wy + uy * 0.34, 0.72], [wx - ux * 0.34, wy - uy * 0.34, 0.72]],
+           'rgba(10,9,8,0.9)');
+      if(det === 2){
+        ctx.strokeStyle = 'rgba(190,185,170,0.55)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let b2 = -1; b2 <= 1; b2++){
+          const bA = pr(wx + ux * 0.34 * b2 / 1.6 - nx * 0.02,
+                        wy + uy * 0.34 * b2 / 1.6 - ny * 0.02, 0.12),
+                bB = pr(wx + ux * 0.34 * b2 / 1.6 - nx * 0.02,
+                        wy + uy * 0.34 * b2 / 1.6 - ny * 0.02, 0.70);
+          if(bA && bB){ ctx.moveTo(bA[0], bA[1]); ctx.lineTo(bB[0], bB[1]); }
+        }
+        ctx.stroke();
+      }
+      // iron railing: top rail + balusters on the outer edge, returns to
+      // the wall at both ends — the fence that keeps you out of the pit
+      const r0 = pr(ax0 + nx * aDep, ay0 + ny * aDep, 0.94),
+            r1 = pr(ax1 + nx * aDep, ay1 + ny * aDep, 0.94);
+      if(r0 && r1){
+        const iron2 = night ? 'rgba(16,13,11,0.95)' : 'rgba(34,29,25,0.95)';
+        ctx.strokeStyle = iron2; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(r0[0], r0[1]); ctx.lineTo(r1[0], r1[1]);
+        const nb2 = Math.max(3, Math.floor(Math.abs(r1[0] - r0[0]) / 4));
+        for(let k = 0; k <= nb2; k++){
+          const u = k / nb2;
+          const pA = pr(ax0 + nx * aDep + ex * (aHw * 2 / L) * u,
+                        ay0 + ny * aDep + ey * (aHw * 2 / L) * u, 0.05);
+          if(!pA) continue;
+          ctx.moveTo(pA[0], pA[1]);
+          ctx.lineTo(r0[0] + (r1[0] - r0[0]) * u, r0[1] + (r1[1] - r0[1]) * u);
+        }
+        ctx.stroke();
+        // side returns + their posts
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        const rEnds = [[ax0, ay0, r0], [ax1, ay1, r1]];
+        for(const [sx0, sy0, rE] of rEnds){
+          const sT = pr(sx0, sy0, 0.94);
+          if(sT){ ctx.moveTo(sT[0], sT[1]); ctx.lineTo(rE[0], rE[1]); }
+          const sB = pr(sx0, sy0, 0.05);
+          if(sT && sB){ ctx.moveTo(sT[0], sT[1]); ctx.lineTo(sB[0], sB[1]); }
+        }
+        ctx.stroke();
+      }
+    }
+  }
+
+  // the three-toter row — landfill black, recycling blue, compost green —
+  // tucked against the garden wall, each with its own sun-cast smear
+  if(det >= 1 && !mural && phash(i, ei, 4810) < (isShop ? 0.22 : 0.42)){
+    const nBin = 1 + Math.floor(phash(i, ei, 4811) * 3);
+    const bCols = ['#26262a', '#2456a8', '#2e6b34'];
+    const start = phash(i, ei, 4812);
+    for(let k = 0; k < nBin; k++){
+      const bu = clamp(0.07 + ((start + k * 0.9 / Math.max(1, L)) % 0.86), 0.05, 0.93);
+      const bx = x1 + ex * bu + nx * 0.95, by = y1 + ey * bu + ny * 0.95;
+      const col = bCols[(k + Math.floor(start * 3)) % 3];
+      // shadow smear on the pavement — h·cot(el) along the same vector
+      // every other prop uses; dies with the sun and under cloud cover
+      if(!night && SF_SUN.day > 0.15){
+        quad([[bx - ux * 0.30, by - uy * 0.30, 0.02], [bx + ux * 0.30, by + uy * 0.30, 0.02],
+              [bx + ux * 0.30 + SF_SUN.x * 1.0, by + uy * 0.30 + SF_SUN.y * 1.0, 0.02],
+              [bx - ux * 0.30 + SF_SUN.x * 1.0, by - uy * 0.30 + SF_SUN.y * 1.0, 0.02]],
+             `rgba(16,22,40,${0.20 * SF_SUN.day * dim})`);
+      }
+      // body + slightly proud lid, sun-keyed off the wall normal like a
+      // vertical face (toters are matte plastic — cooler than paint)
+      quad([[bx - ux * 0.28, by - uy * 0.28, 0.05], [bx + ux * 0.28, by + uy * 0.28, 0.05],
+            [bx + ux * 0.28, by + uy * 0.28, 1.02], [bx - ux * 0.28, by - uy * 0.28, 1.02]],
+           shade(col, 0.5 + 0.5 * Math.max(0, sunK) * SF_SUN.day + (night ? 0 : 0.1)));
+      quad([[bx - ux * 0.31 - nx * 0.06, by - uy * 0.31 - ny * 0.06, 1.02],
+            [bx + ux * 0.31 - nx * 0.06, by + uy * 0.31 - ny * 0.06, 1.02],
+            [bx + ux * 0.31, by + uy * 0.31, 1.10],
+            [bx - ux * 0.31, by - uy * 0.31, 1.10]],
+           shade(col, 1.25));
+      // lid grab-bar
+      const hA = pr(bx - ux * 0.12, by - uy * 0.12, 1.11),
+            hB = pr(bx + ux * 0.12, by + uy * 0.12, 1.11);
+      if(hA && hB){
+        ctx.strokeStyle = 'rgba(12,12,14,0.7)'; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(hA[0], hA[1]); ctx.lineTo(hB[0], hB[1]); ctx.stroke();
+      }
+    }
+  }
+
+  // tag & buff — Mission ground truth: aerosol throwies on the garage
+  // leaf, paint-roller patches on blank garden walls where last month's
+  // tag got covered (the patch never quite matches the paint)
+  if(det === 2 && !isShop){
+    const aer = ['#8e3a9e', '#3a6ea8', '#c8c8cc', '#b8452e', '#2a2a2e'];
+    if(garU > 0 && phash(i, ei, 4820) < 0.5){
+      // throwie across the door leaf: two hashed zigzag strokes + a
+      // flourish underline, drawn proud of the recessed panel
+      const gx = x1 + ex * garU - nx * 0.11, gy = y1 + ey * garU - ny * 0.11;
+      const tagC = aer[Math.floor(phash(i, ei, 4821) * aer.length)];
+      ctx.strokeStyle = tagC; ctx.globalAlpha = 0.85;
+      ctx.lineWidth = Math.max(1.2, F * 0.05 / 40);
+      ctx.beginPath();
+      for(let s2 = 0; s2 < 2; s2++){
+        let started = false;
+        for(let k = 0; k <= 5; k++){
+          const u = (k / 5 - 0.5) * 1.9 + (s2 - 0.5) * 0.5,
+                z = 0.45 + s2 * 0.55 + Math.sin(k * 2.6 + phash(i, s2, 4822) * 6) * 0.32;
+          const p = pr(gx + ux * u, gy + uy * u, z);
+          if(!p){ started = false; continue; }
+          started ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+          started = true;
+        }
+      }
+      const uA = pr(gx - ux * 1.0, gy - uy * 1.0, 0.22),
+            uB = pr(gx + ux * 1.0, gy + uy * 1.0, 0.30);
+      if(uA && uB){ ctx.moveTo(uA[0], uA[1]); ctx.lineTo(uB[0], uB[1]); }
+      ctx.stroke(); ctx.globalAlpha = 1;
+    } else if(garU < 0 && !mural && phash(i, ei, 4823) < 0.3){
+      // buff patch over the water table: a roller rectangle in paint
+      // that's always a half-shade off, the old tag ghosting through
+      const pu = 0.18 + phash(i, ei, 4824) * 0.6, pw = 0.14 + phash(i, ei, 4825) * 0.12;
+      const px0 = x1 + ex * (pu - pw / 2), py0 = y1 + ey * (pu - pw / 2),
+            px1 = x1 + ex * (pu + pw / 2), py1 = y1 + ey * (pu + pw / 2);
+      // ghost first — the buffed tag bleeding through the new coat
+      ctx.strokeStyle = 'rgba(30,26,30,0.16)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(let k = 0; k <= 4; k++){
+        const p = pr(px0 + (px1 - px0) * k / 4, py0 + (py1 - py0) * k / 4,
+                     0.5 + Math.sin(k * 2.2 + i) * 0.22);
+        if(!p) continue;
+        k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+      }
+      ctx.stroke();
+      quad([[px0, py0, 0.12], [px1, py1, 0.12], [px1, py1, 0.98], [px0, py0, 0.98]],
+           shade(wallBase, 0.86 + phash(i, ei, 4826) * 0.26));
+    }
+  }
+
+  // parapet pigeons — the cornice ledge is pigeon country. Dark little
+  // bodies riding the coping line, each with a pin-shadow on the ledge
+  if(det >= 1 && phash(i, ei, 4830) < 0.5){
+    const nPg = 1 + Math.floor(phash(i, ei, 4831) * 3);
+    for(let k = 0; k < nPg; k++){
+      const pu = 0.15 + phash(i * 3 + k, ei, 4832) * 0.7;
+      const pP = pr(x1 + ex * pu + nx * 0.05, y1 + ey * pu + ny * 0.05, hm + para + 0.02);
+      if(!pP) continue;
+      const bs = Math.max(0.9, F * 0.16 / pP[2]);
+      ctx.fillStyle = 'rgba(10,10,14,0.3)';
+      ctx.beginPath(); ctx.ellipse(pP[0], pP[1] + bs * 0.4, bs * 1.15, bs * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+      const facing = phash(k, i + ei, 4833) < 0.5 ? -1 : 1;
+      ctx.fillStyle = night ? '#23232a' : (k % 3 ? '#45454e' : '#5a5a62');
+      ctx.beginPath(); ctx.ellipse(pP[0], pP[1] - bs * 0.5, bs * 1.0, bs * 0.72, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pP[0] + facing * bs * 0.8, pP[1] - bs * 1.25, bs * 0.42, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#2e2e36';
+      ctx.beginPath();
+      ctx.moveTo(pP[0] - facing * bs * 0.9, pP[1] - bs * 0.55);
+      ctx.lineTo(pP[0] - facing * bs * 1.7, pP[1] - bs * 0.9);
+      ctx.lineTo(pP[0] - facing * bs * 0.9, pP[1] - bs * 0.1);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
   // v25: rain weeps off the cornice — drops fall from the parapet edge,
   // accelerating as they go, and burst on the sidewalk. Only near
   // facades resolve drips; beyond ~90m the rain field itself carries it.
