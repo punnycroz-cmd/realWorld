@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Wire (spectator feed)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Spectator feed — the free "watch the neighborhood" surface (world v5).
+  Self-contained demo: file://-safe, no network. The block clock, venue
+  occupancy, and event stream are simulated locally from the cast's
+  PUBLIC routines (world/characters/*) and the crowd dayparts
+  (world/crowd-scenes.md) — the feed only ever reports what a street
+  camera could see: arrivals, crowds, weather, attributed requests.
+  Spec + copy deck: world/feed-ui.md. Event schema: world/feed.json.
+  Request events reuse the requests.json vocabulary so the two surfaces
+  stay in sync. All names are canonical parody names (world/businesses.md).
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    letter-spacing:.1em;color:var(--grn);border:1px solid var(--grn);border-radius:10px;padding:2px 10px}
+  .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--grn);
+    animation:blink 1.6s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .clock{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--panel2);
+    border:1px solid var(--line);border-radius:6px;padding:5px 12px}
+  .clock small{color:var(--dim)}
+  .wx{font-size:12.5px;color:var(--dim)}
+  .viewers{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .viewers b{color:var(--ink)}
+  main{display:grid;grid-template-columns:minmax(300px,380px) minmax(380px,1fr);gap:18px;
+    max-width:1180px;margin:0 auto;padding:18px 20px}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  h2 .free{color:var(--grn);letter-spacing:.05em;text-transform:none;font-weight:400}
+
+  /* ---- venue occupancy ---- */
+  .venue{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .venue:last-child{border-bottom:0}
+  .vname{font-weight:600;font-size:13.5px;min-width:130px}
+  .vwho{font-size:12px;color:var(--dim);flex:1}
+  .vwho .m{color:var(--ink)}
+  .dotcrowd{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
+  .dotcrowd.hi{background:var(--acc)} .dotcrowd.mid{background:var(--blu)} .dotcrowd.lo{background:var(--line)}
+  .follow{font-size:10.5px;color:var(--blu);cursor:pointer;border:1px solid var(--line);
+    border-radius:8px;padding:1px 8px;flex:none}
+  .follow.on{color:var(--acc);border-color:var(--acc)}
+
+  /* ---- cast strip ---- */
+  .cast{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cp{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px}
+  .cp b{display:block;font-size:12.5px}
+  .cp .at{color:var(--dim)}
+  .cp .ban{color:var(--dim);font-size:10px;letter-spacing:.05em}
+
+  /* ---- the wire ---- */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .chip{font-size:11.5px;border:1px solid var(--line);border-radius:12px;padding:3px 12px;
+    cursor:pointer;color:var(--dim);background:var(--panel2)}
+  .chip.on{color:var(--ink);border-color:var(--acc);background:#2a2618}
+  .wire{list-style:none;margin:0;padding:0}
+  .wire li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:baseline}
+  .wire .t{font-family:var(--mono);font-size:11px;color:var(--dim);flex:none;width:44px}
+  .wire .k{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border-radius:8px;padding:1px 7px;flex:none;width:64px;text-align:center}
+  .k.move{background:#22303f;color:var(--blu)} .k.scene{background:#2b2b28;color:var(--dim)}
+  .k.venue{background:#262b22;color:var(--grn)} .k.weather{background:#202833;color:#8fb8d4}
+  .k.request{background:#33261e;color:var(--acc)} .k.admin{background:#33222c;color:var(--pink)}
+  .k.press{background:#2c2438;color:#b9a0e0} .k.housing{background:#22301f;color:#9fc47f}
+  .k.quiet{background:#1c2129;color:var(--dim)}
+  .wire .who{color:var(--blu)}
+  .wire .st{font-size:10px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
+    margin-left:6px;white-space:nowrap}
+  .st.running{background:#1e3a2c;color:var(--grn)} .st.queued{background:#22303f;color:var(--blu)}
+  .st.resolved,.st.refunded,.st.approved{background:#2b2b28;color:var(--dim)}
+  .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
+  .quietline{color:var(--dim);font-style:italic}
+  .empty{padding:18px 4px;color:var(--dim);font-style:italic;font-size:13px}
+
+  .upsell{margin-top:12px;border:1px dashed var(--line);border-radius:6px;padding:10px 14px;
+    font-size:12.5px;color:var(--dim)}
+  .upsell b{color:var(--ink)}
+  .upsell button{margin-left:10px;font:inherit;font-size:11.5px;padding:3px 12px;border-radius:6px;
+    border:1px solid var(--acc);background:transparent;color:var(--acc);cursor:pointer}
+  .fineprint{max-width:1180px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
+  .fineprint b{color:var(--ink)}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Wire</div>
+  <span class="live">LIVE</span>
+  <div class="clock"><span id="clock">15:04</span> <small id="daypart">the after-school hour</small></div>
+  <div class="wx" id="wx">☀ clear · 68°F · light breeze off the bay</div>
+  <div class="viewers"><b id="vcount">1,412</b> watching</div>
+</header>
+
+<main>
+  <div>
+    <section class="panel">
+      <h2>Now on the block <span class="free">— free forever</span></h2>
+      <div id="venues"></div>
+    </section>
+
+    <section class="panel">
+      <h2>The eight <span class="free">— unpossessable, always on</span></h2>
+      <div class="cast" id="cast"></div>
+    </section>
+
+    <div class="upsell">
+      <b>Director view</b> — multi-cam, follow-mode, replay scrub.
+      View-layer only; it changes nothing in the world. 10 cr / 30 min.
+      <button id="dir">Preview</button>
+    </div>
+  </div>
+
+  <section class="panel" style="margin-bottom:0">
+    <h2>The wire <span class="free">— the street, plus every paid request, attributed</span></h2>
+    <div class="filters" id="filters">
+      <span class="chip on" data-f="all">all</span>
+      <span class="chip" data-f="block">the block</span>
+      <span class="chip" data-f="request">requests</span>
+      <span class="chip" data-f="admin">admin</span>
+      <span class="chip" data-f="followed" id="chipf" style="display:none">followed</span>
+    </div>
+    <ul class="wire" id="wire"></ul>
+  </section>
+</main>
+
+<div class="fineprint">
+  <b>What you're watching:</b> a real neighborhood running on AI, observed the
+  way a camera on the street observes it — arrivals, crowds, weather, the
+  public request feed. Homes are walls: the feed reports "headed home," never
+  what happens inside. Every paid intervention appears here with its payer's
+  handle — including admin actions, which compensate anyone they displace.
+  The cast's private lives are not a tier: secrets aren't hidden behind a
+  paywall, they're not in the building. Watching costs nothing and always will.
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= block clock (demo) ================= */
+/* Demo runs the block clock at ~1 block-minute / second so a sitting shows
+   the whole evening arc. Dayparts from world/crowd-scenes.md §1. */
+var T = 15*60 + 4;                    // start 15:04 — after-school hour
+var TICK_MS = 7000, MIN_PER_TICK = 7; // ~1 min/sec visual pace
+
+function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
+var DAYPARTS = [
+  [240,'the pre-dawn shift'],[360,'the commute front'],[480,'rush'],
+  [600,'the working block'],[780,'lunch + lull'],[900,'the after-school hour'],
+  [1080,'the night shift'],[1260,'close-down'],[1440,'the empty block']
+];
+function daypart(t){ for(var i=0;i<DAYPARTS.length;i++) if(t<DAYPARTS[i][0]) return DAYPARTS[i-1]?DAYPARTS[i-1][1]:'the empty block'; return 'the empty block'; }
+
+/* ================= cast routines (PUBLIC fields only) ================= */
+/* Straight from the bibles' "Daily routine" tables — briefing-safe content. */
+var MAINS = [
+ {id:'C1', name:'Mars Delgado', role:'manager, Mudhaus', home:'9127 Capp St',
+  r:[[0,'home','asleep'],[330,'mudhaus','at Mudhaus — opening, counter'],
+     [840,'rounds','on her rounds — Farolote, the Guerrero stoop, the park, Buy-Rite'],
+     [1080,'mudhaus','at Mudhaus — close-up chatter'],[1290,'home','home']]},
+ {id:'C2', name:'Jules Park', role:'barista, Mudhaus', home:'9418 Guerrero',
+  r:[[0,'home','asleep'],[390,'park','running the park\u2019s north path'],
+     [480,'mudhaus','at Mudhaus — barista shift'],[900,'park','in the park — sketching'],
+     [1140,'home','home at 9418 Guerrero']]},
+ {id:'C3', name:'Dani Reyes', role:'barista, Mudhaus', home:'9263 Geneva',
+  r:[[0,'home','asleep'],[480,'mudhaus','at Mudhaus — barista shift'],
+     [1020,'out','out and about — park, the alley, places she doesn\u2019t announce'],
+     [1260,'home','home-ish']]},
+ {id:'C4', name:'Priya Raman', role:'RN, SF General', home:'9457 Guerrero',
+  r:[[0,'home','asleep'],[390,'work','on shift at SF General'],
+     [1170,'mudhaus','at Mudhaus — the decompression seat'],[1260,'home','home']]},
+ {id:'C5', name:'Marcus Bell', role:'courier, Flying Pannier', home:'9457 Guerrero',
+  r:[[0,'home','asleep'],[480,'loop','on the courier loop'],
+     [1080,'park','at the park — drums, hanging out'],[1260,'home','home']]},
+ {id:'C6', name:'Carmen Echeverría', role:'retired seamstress', home:'9418 Guerrero',
+  r:[[0,'home','asleep'],[420,'stoop','on her stoop — cafecito, watching'],
+     [600,'park','under her palm in the park — sewing, receiving'],
+     [990,'home','home — telenovelas, hemming']]},
+ {id:'C7', name:'Victor Auerbach', role:'owner, Auerbach Hardware', home:'9102 Mission',
+  r:[[0,'home','asleep'],[480,'auerbach','at the hardware counter'],
+     [1080,'home','upstairs — paperwork, ballgame'],[1320,'home','asleep']]},
+ {id:'C8', name:'Tomás Herrera', role:'lead cook, El Farolote', home:'9344 Folsom',
+  r:[[0,'home','asleep'],[540,'loop','on the supplier loop — hardware, market, greenmarket'],
+     [870,'mudhaus','at Mudhaus — the 3 p.m. coffee'],[960,'farolote','on the line at El Farolote']]}
+];
+function whereIs(m,t){ var cur=m.r[0]; for(var i=0;i<m.r.length;i++) if(t>=m.r[i][0]) cur=m.r[i]; return cur; }
+
+/* ambient presence by venue — coarse crowd truth from crowd-scenes.md §2.
+   Each: [startMin, endMin, label]. Weather modifiers are demo-fixed clear. */
+var AMBIENT_AT = {
+  mudhaus:[[450,1080,'Reyes behind the bar'],[540,1020,'Nadia at the corner table'],[1170,1260,'Asha\u2019s counter seat']],
+  park:[[480,1080,'Esther & Ray holding benches'],[420,660,'Doro\u2019s dog loop'],[1020,1140,'June & Zee'],[600,1080,'Sam\u2019s pitch']],
+  farolote:[[780,1380,'the dinner line'],[1140,1440,'post-bar pickup window']],
+  club600:[[1200,1440,'Sam & Bex drift in']],
+  auerbach:[[480,1080,'Victor\u2019s counter; Cole\u2019s site next door']],
+  maliks:[[450,1080,'Malik\u2019s counter']],
+  clarion:[[600,1080,'Bex on breaks, mural traffic']],
+  library:[[450,1050,'Vera at the desk']],
+  perk:[[480,1080,'park-edge tables']],
+  buyrite:[[480,1140,'grocery drip']],
+  block:[]
+};
+var VENUES = [
+  ['mudhaus','Mudhaus Coffee'],['park','Dolores Park'],['farolote','Taqueria El Farolote'],
+  ['club600','The 600 Club'],['auerbach','Auerbach Hardware'],['perk','Dolores Perk'],
+  ['maliks','Malik\u2019s Mini Mart'],['clarion','Clarion Alley'],['library','Mission Branch Library'],
+  ['buyrite','Buy-Rite Market']
+];
+/* which venue ids each main's location keys count toward */
+var LOC2VENUE = {mudhaus:'mudhaus', park:'park', farolote:'farolote', auerbach:'auerbach',
+  stoop:'block', loop:'block', rounds:'block', work:null, out:null, home:null};
+
+/* ================= feed model ================= */
+var FEED = [];               // {t, kind, venue, who, text, status, attrs}
+var followed = {};           // venue -> true
+var filter = 'all';
+
+function push(e){ e.id = FEED.length; FEED.unshift(e); renderWire(); }
+
+function kindVisible(e){
+  if (filter==='all') return true;
+  if (filter==='request') return e.kind==='request'||e.kind==='admin';
+  if (filter==='admin') return e.kind==='admin';
+  if (filter==='followed') return e.venue && followed[e.venue];
+  return e.kind!=='request' && e.kind!=='admin';   // "the block"
+}
+function renderWire(){
+  var w=document.getElementById('wire'); w.innerHTML='';
+  var n=0;
+  for (var i=0;i<FEED.length && n<60;i++){
+    var e=FEED[i]; if(!kindVisible(e)) continue; n++;
+    var li=document.createElement('li');
+    var txt = e.text;
+    if (e.kind==='request' && e.who) txt = '<span class="who">'+e.who+'</span> — '+txt;
+    if (e.status) txt += ' <span class="st '+e.status.replace(' ','_')+'">'+e.status+'</span>';
+    if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
+    li.innerHTML='<span class="t">'+fmt(e.t)+'</span><span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span>';
+    w.appendChild(li);
+  }
+  if (!n){
+    var li=document.createElement('li'); li.className='empty';
+    li.textContent = (T<240||T>=1440)
+      ? 'The empty block. Streetlights, a cat, nothing — the feed doesn\u2019t fill dead air.'
+      : 'Nothing on this filter right now.';
+    w.appendChild(li);
+  }
+}
+
+/* move events from routine transitions */
+var lastLoc = {};
+MAINS.forEach(function(m){ lastLoc[m.id]=whereIs(m,T)[1]; });
+var MOVE_TEXT = {
+  'mudhaus':'{n} ducked into Mudhaus',
+  'park':'{n} drifted into the park',
+  'farolote':'{n} is in at El Farolote',
+  'auerbach':'{n} opened the hardware store counter',
+  'stoop':'{n} is out on the stoop — cafecito in hand',
+  'rounds':'{n} started her afternoon rounds',
+  'loop':'{n} is on the courier loop',
+  'work':'{n} headed in to SF General',
+  'out':'{n} went off the feed — her own business',
+  'home':'{n} headed home'
+};
+function checkMoves(){
+  MAINS.forEach(function(m){
+    var loc = whereIs(m,T)[1];
+    if (loc !== lastLoc[m.id]){
+      var venue = LOC2VENUE[loc]||'block';
+      push({t:T, kind:'move', venue:venue, who:m.id,
+            text:(MOVE_TEXT[loc]||'{n} moved').replace('{n}',m.name)});
+      lastLoc[m.id]=loc;
+    }
+  });
+}
+
+/* scene beats — the standing bits, fired once per window */
+var SCENES = [
+  {t:460, venue:'mudhaus', text:'Rush hour at Mudhaus — Reyes at double tempo, the line to the door'},
+  {t:560, venue:'park',    text:'Bench parliament in session — pigeons and the port, argued as ever'},
+  {t:690, venue:'block',   text:'The wordless race — Marcus and Omar, one block at full pace'},
+  {t:780, venue:'farolote',text:'Lunch rush at El Farolote — the salsa bar\u2019s midday refill'},
+  {t:905, venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter'},
+  {t:1120,venue:'club600', text:'Doorway set — Sam under the 600 Club awning, better acoustics anyway'},
+  {t:1175,venue:'mudhaus', text:'The evening nurse — Asha\u2019s counter seat, phone face-down'},
+  {t:1260,venue:'farolote',text:'Post-bar pickup line forming at El Farolote'}
+];
+/* rotating texture lines, one per tick, daypart-flavored */
+var TEXTURE = [
+  {v:'park',   k:'venue', text:'Buy-Rite Creamery\u2019s line is doing the thing again'},
+  {v:'maliks', k:'venue', text:'Steady drip through Malik\u2019s — lottery tickets and gossip'},
+  {v:'mudhaus',k:'venue', text:'Mudhaus refills — the after-school crowd ordering carefully'},
+  {v:'clarion',k:'venue', text:'A photo crew in Clarion Alley; Bex pretending not to watch'},
+  {v:'park',   k:'venue', text:'Doro\u2019s pack did the north loop — seven dogs, one system'},
+  {v:'buyrite',k:'venue', text:'Buy-Rite restocking the good bread — the word will travel'},
+  {v:'block',  k:'venue', text:'A Muni bus let out a small crowd at 18th — the block absorbs them'},
+  {v:'library',k:'venue', text:'Library quiet hour — Vera reshelving, June\u2019s exam books stacked'}
+];
+var texI=0;
+
+/* request-feed interlopers — attributed, vocabulary per requests.json */
+var REQ_POOL = [
+  {who:'marina_w', text:'weather — clear skies over Dolores Park, 2 h', status:'running'},
+  {who:'r0ok',     text:'queued request expired before activation', status:'refunded'},
+  {who:'pt',       text:'nudge — an ask to Carmen Echeverría · declined by character, 50% refunded', status:'refunded'},
+  {who:'dvh',      text:'possess — own baker, 45 min', status:'resolved'},
+  {who:'leaf',     text:'event — park cleanup at Dolores Park', status:'queued'},
+  {who:'ghostline',text:'request not approved', status:'resolved'},
+  {who:'kes',      text:'camera director — 30 min', status:'running'},
+  {who:'juno_',    text:'nudge — an ask to Tomás Herrera', status:'in_review'}
+];
+var reqI=0, reqEvery=4;      // every ~4 ticks a request event lands
+
+var ADMIN_ONCE = {t: 1088, done:false};
+
+/* ================= occupancy render ================= */
+function renderVenues(){
+  var box=document.getElementById('venues'); box.innerHTML='';
+  VENUES.forEach(function(v){
+    var id=v[0], name=v[1];
+    var mains=[], amb=0, labels=[];
+    MAINS.forEach(function(m){
+      var loc=whereIs(m,T)[1];
+      if (LOC2VENUE[loc]===id) mains.push(m.name.split(' ')[0]);
+    });
+    (AMBIENT_AT[id]||[]).forEach(function(a){ if(T>=a[0]&&T<a[1]){ amb++; labels.push(a[2]); } });
+    var crowd = mains.length+amb;
+    var d = document.createElement('div'); d.className='venue';
+    var who = mains.map(function(m){return '<span class="m">'+m+'</span>';}).join(', ');
+    if (labels.length) who += (who?' · ':'')+labels.join(' · ');
+    if (!who) who='—';
+    d.innerHTML='<span class="dotcrowd '+(crowd>=4?'hi':crowd>=2?'mid':'lo')+'"></span>'+
+      '<span class="vname">'+name+'</span><span class="vwho">'+who+'</span>'+
+      '<span class="follow'+(followed[id]?' on':'')+'" data-v="'+id+'">'+(followed[id]?'following':'follow')+'</span>';
+    box.appendChild(d);
+  });
+  document.querySelectorAll('.follow').forEach(function(b){
+    b.onclick=function(){ var v=b.dataset.v; followed[v]=!followed[v];
+      if(!followed[v]) delete followed[v];
+      document.getElementById('chipf').style.display = Object.keys(followed).length?'':'none';
+      renderVenues(); renderWire(); };
+  });
+}
+function renderCast(){
+  var c=document.getElementById('cast'); c.innerHTML='';
+  MAINS.forEach(function(m){
+    var cur=whereIs(m,T);
+    var d=document.createElement('div'); d.className='cp';
+    d.innerHTML='<b>'+m.name+'</b><span class="at">'+cur[2]+'</span><br><span class="ban">UNPOSSESSABLE</span>';
+    c.appendChild(d);
+  });
+}
+
+/* ================= clock + tick ================= */
+function renderClock(){
+  document.getElementById('clock').textContent=fmt(T);
+  document.getElementById('daypart').textContent=daypart(T);
+}
+var viewerN=1412;
+function tick(){
+  T += MIN_PER_TICK; if (T>=1440) T-=1440;
+  checkMoves();
+  SCENES.forEach(function(s){ if (!s.done && T>=s.t && T<s.t+90){ s.done=true; push({t:T,kind:'scene',venue:s.venue,text:s.text}); }});
+  if (!ADMIN_ONCE.done && T>=ADMIN_ONCE.t){ ADMIN_ONCE.done=true;
+    push({t:T,kind:'admin',venue:'club600',who:'admin',
+      text:'admin action — venue window reset at The 600 Club',status:null,attrs:{compensated_cr:90}}); }
+  if (T>=1260 && T<1290 && !push._q){ push._q=1;
+    push({t:T,kind:'quiet',venue:'block',text:'Close-down. Bar stragglers, the late kitchen, last courier runs.'}); }
+  if (++texI%1===0){ var x=TEXTURE[texI%TEXTURE.length];
+    if (!(T<240||T>=1440)) push({t:T,kind:x.k,venue:x.v,text:x.text}); }
+  if (++tick._r % reqEvery === 0 && !(T<240||T>=1440)){ var r=REQ_POOL[reqI++%REQ_POOL.length];
+    push({t:T,kind:'request',who:r.who,text:r.text,status:r.status}); }
+  viewerN += Math.floor(Math.random()*9)-3; if(viewerN<1200)viewerN=1200;
+  document.getElementById('vcount').textContent=viewerN.toLocaleString();
+  renderClock(); renderVenues(); renderCast();
+}
+tick._r=0;
+
+/* seeds — today so far (mirrors feed.json demo_seeds) */
+[
+ [375,'move','park','Jules out for the morning run — north path loops'],
+ [452,'scene','mudhaus','Rush hour at Mudhaus — Reyes at double tempo, line to the door'],
+ [487,'move','work','Priya headed in to SF General — a twelves day'],
+ [540,'venue','park','Bench parliament in session — Esther and Ray, adjacent sections'],
+ [566,'request',null,'possess — own courier, 30 min','resolved','okfm'],
+ [601,'weather',null,'Fog burned off over the park — full sun'],
+ [647,'press',null,'Mission Unfiltered posted: “The Salsa-Bar Ledger” — anonymous, as always'],
+ [720,'scene','farolote','Lunch prep at El Farolote — the salsa bar\u2019s midday refill'],
+ [783,'request',null,'event — park cleanup at Dolores Park','queued','leaf'],
+ [812,'housing','block','Listing filled — 9457 Guerrero St, Unit 2 comes off the board'],
+ [841,'admin','club600','admin action — venue window reset at The 600 Club',null,'admin',90]
+].forEach(function(s){
+  FEED.push({t:s[0],kind:s[1],venue:s[2],text:s[3],status:s[4],who:s[5],
+             attrs:s[6]?{compensated_cr:s[6]}:undefined});
+});
+FEED.reverse();   // newest first
+
+/* ================= chrome wiring ================= */
+document.querySelectorAll('.chip').forEach(function(ch){
+  ch.onclick=function(){
+    document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
+    ch.classList.add('on'); filter=ch.dataset.f; renderWire();
+  };
+});
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(t._h); t._h=setTimeout(function(){t.style.display='none';},4200); }
+document.getElementById('dir').onclick=function(){
+  toast('Director view: multi-cam, follow-mode, replay — 10 cr/30 min. View-layer only; the world doesn\u2019t notice.');
+};
+
+renderClock(); renderVenues(); renderCast(); renderWire();
+setInterval(tick, TICK_MS);
+</script>
+</body>
+</html>

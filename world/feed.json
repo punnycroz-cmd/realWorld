@@ -1,0 +1,61 @@
+{
+  "doc": "world/feed-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: spectator-feed event schema, event vocabulary, and the demo seed set used by feed.html. The spectator feed is FREE forever (design §5) — it is the product's top of funnel, never metered.",
+  "event_schema": {
+    "id": "string, stable",
+    "t": "block-time minutes since midnight (world clock)",
+    "kind": "one of event_kinds",
+    "venue": "optional venue id (see venues)",
+    "who": "optional character id (C1–C8, A01–A20) or player handle on request events",
+    "text": "display text — surface-level only; never quotes interiors of homes, never secrets",
+    "status": "request events only: one of request_status",
+    "attrs": "optional: { surge, credits, compensated_cr } for transparency lines"
+  },
+  "event_kinds": [
+    "move",      "a named character changes venue (arrivals/departures — public routine only)",
+    "scene",     "recurring crowd-scene beat (crowd-scenes.md §4)",
+    "venue",     "crowd-level note: fills, empties, line out the door",
+    "weather",   "sky changes — including player-called weather, attributed",
+    "request",   "a player request lifecycle event (attributed — design §5 public request feed)",
+    "admin",     "owner/admin action, always attributed, always with compensation note",
+    "press",     "Mission Unfiltered blog post — the blog is public; the author is a secret and never named",
+    "housing",   "public registry events: move-in, listing posted/filled (never terms beyond posted rent)",
+    "quiet"      ,"honest-empty marker for dead dayparts — the feed may go quiet and says so"
+  ],
+  "request_status": ["requested", "in_review", "approved", "running", "queued", "resolved", "refunded", "not approved", "player session ended"],
+  "venues": {
+    "mudhaus":  "Mudhaus Coffee",
+    "park":     "Dolores Park",
+    "farolote": "Taqueria El Farolote",
+    "club600":  "The 600 Club",
+    "auerbach": "Auerbach Hardware",
+    "perk":     "Dolores Perk",
+    "maliks":   "Malik's Mini Mart",
+    "clarion":  "Clarion Alley",
+    "library":  "Mission Branch Library",
+    "buyrite":  "Buy-Rite Market",
+    "block":    "the block (street-level)"
+  },
+  "display_rules": [
+    "surface-only: feed text is what a camera on the street could verify — no thoughts, no dialogue, no home interiors",
+    "homes render as 'home'/'headed home' — residential interiors are never a feed surface",
+    "secrets/drama seeds cannot appear: they are absent from the feed schema (structural, not filtered)",
+    "request text shown verbatim only after the §11 screen passes; denied text is never displayed",
+    "admin actions always carry compensation detail when players were affected",
+    "Mission Unfiltered posts carry no author — the author is a C1 secret and the feed does not speculate",
+    "viewer counts and timestamps are honest — no inflated social proof (no dark patterns)"
+  ],
+  "demo_seeds": [
+    { "t": 375,  "kind": "move",    "who": "C2", "venue": "park",     "text": "Jules out for the morning run — north path loops" },
+    { "t": 452,  "kind": "scene",   "venue": "mudhaus",  "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
+    { "t": 487,  "kind": "move",    "who": "C4", "venue": "buyrite",  "text": "Priya headed in to SF General — a twelves day" },
+    { "t": 540,  "kind": "venue",   "venue": "park",     "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
+    { "t": 566,  "kind": "request", "who": "okfm",       "text": "possess — own courier, 30 min", "status": "resolved" },
+    { "t": 601,  "kind": "weather", "text": "Fog burned off over the park — full sun" },
+    { "t": 647,  "kind": "press",   "text": "Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always" },
+    { "t": 720,  "kind": "scene",   "venue": "farolote", "text": "Lunch prep at El Farolote — the salsa bar gets its midday refill" },
+    { "t": 783,  "kind": "request", "who": "leaf",       "text": "event — park cleanup at Dolores Park", "status": "queued" },
+    { "t": 812,  "kind": "housing", "venue": "block",    "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board" },
+    { "t": 841,  "kind": "admin",   "venue": "club600",  "text": "admin action — venue window reset at The 600 Club", "attrs": { "compensated_cr": 90 } },
+    { "t": 900,  "kind": "scene",   "venue": "park",     "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" }
+  ]
+}
