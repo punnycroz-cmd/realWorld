@@ -72,15 +72,18 @@
       "note": "carries NO amounts — only which knobs visitors touch; reveals demand for class/duration before checkout exists"
     },
     "request_simulated": {
-      "when": "demo.html request simulator 'File it — simulated' completes (v26)",
+      "when": "demo.html request simulator 'File it — simulated' completes (v26; props extended v41)",
       "props": {
-        "action": "possess|venue|weather",
+        "action": "possess|venue|weather|event",
         "class": "compatible|exclusive|flat",
         "minutes": "int — duration simulated",
-        "credits": "int — quoted cost"
+        "credits": "int — quoted cost (lower bound for range-priced actions)",
+        "queued": "bool — −15% queue option checked (v41)",
+        "surge": "bool — surge window shown (exclusive only, v41)",
+        "screened": "clean|harm-targeting|secret-extraction|admin-domain|real-business|surface-relationship|venue-lock (v41)"
       },
       "funnel_stage": "engaged → request intent",
-      "note": "local simulation only — no real request is filed; reveals which request types visitors reach for"
+      "note": "local simulation only — no real request is filed; reveals which request types visitors reach for and how the toy screen classifies their wording"
     },
     "press_kit_download": {
       "when": "click on the kit zip link (data-rw-event on press-kit.html)",

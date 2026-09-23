@@ -86,4 +86,63 @@
       }
     });
   }
+
+  // Theater mode — fullscreen the stage (works for fallback and live embed).
+  var fsBtn = document.getElementById("demo-fs");
+  if (fsBtn && stage.requestFullscreen) {
+    fsBtn.addEventListener("click", function () {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        stage.requestFullscreen();
+      }
+    });
+    document.addEventListener("fullscreenchange", function () {
+      fsBtn.textContent = document.fullscreenElement ? "Exit theater" : "Theater mode";
+    });
+  } else if (fsBtn) {
+    fsBtn.hidden = true;
+  }
+
+  // Block clock — the world runs on Pacific time; this chip shows the real
+  // clock and names the daypart the block is in. Honest: it's just the time.
+  var clock = document.getElementById("demo-clock");
+  if (clock) {
+    var DAYPARTS = [
+      [300, "fog-first hours"],      // 05:00
+      [540, "midday on the block"],  // 09:00
+      [870, "golden-hour run-up"],   // 14:30
+      [1110, "evening service"],     // 18:30
+      [1320, "windows-dark hours"]   // 22:00
+    ];
+    var part = function (mins) {
+      var label = "windows-dark hours";
+      for (var i = 0; i < DAYPARTS.length; i++) {
+        if (mins >= DAYPARTS[i][0]) label = DAYPARTS[i][1];
+      }
+      return label;
+    };
+    var fmt = null;
+    try {
+      fmt = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles", hour12: false,
+        hour: "2-digit", minute: "2-digit"
+      });
+    } catch (e) { fmt = null; }
+    var tick = function () {
+      if (!fmt) { clock.textContent = ""; return; }
+      try {
+        var p = fmt.formatToParts(new Date());
+        var hh = 0, mm = 0;
+        for (var i = 0; i < p.length; i++) {
+          if (p[i].type === "hour") hh = parseInt(p[i].value, 10) % 24;
+          if (p[i].type === "minute") mm = parseInt(p[i].value, 10);
+        }
+        clock.textContent = "On the block: " + (hh < 10 ? "0" : "") + hh + ":" +
+          (mm < 10 ? "0" : "") + mm + " PT — " + part(hh * 60 + mm);
+      } catch (e) { clock.textContent = ""; }
+    };
+    tick();
+    setInterval(tick, 30000);
+  }
 })();

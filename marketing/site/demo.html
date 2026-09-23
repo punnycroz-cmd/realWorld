@@ -113,6 +113,9 @@
     <div class="demo-toolbar">
       <button class="btn btn-ghost btn-sm" id="demo-share" type="button"
               data-rw-event="cta_click" data-rw-props='{"cta":"demo-share"}'>Share this view</button>
+      <button class="btn btn-ghost btn-sm" id="demo-fs" type="button"
+              data-rw-event="cta_click" data-rw-props='{"cta":"demo-fullscreen"}'>Theater mode</button>
+      <span class="demo-clock muted" id="demo-clock" title="The world runs on Pacific time — the clock above is the real one."></span>
       <span class="muted demo-toolbar-note" id="demo-share-status" role="status" aria-live="polite"></span>
     </div>
   </div>
@@ -153,16 +156,28 @@
   <div class="wrap">
     <p class="eyebrow">The feed, previewed</p>
     <h2>What the request feed looks like.</h2>
-    <p class="muted">An illustrative preview of feed entries — the real feed
-    writes itself at launch, and quiet weeks get reported as quiet weeks.</p>
+    <p class="muted">A preview built from the feed&rsquo;s real vocabulary —
+    the event kinds and request statuses below are the ones the live feed
+    uses. The entries themselves are illustrative; the real feed writes
+    itself at launch, and quiet hours get reported as quiet hours.</p>
     <div class="feed-preview" aria-label="Illustrative preview of the public request feed">
-      <div class="feed-row"><span class="feed-time">18:02</span><span class="feed-tag tag-run">running</span><p>A viewer requested evening fog rolling in over Dolores Park — 2 h, compatible.</p></div>
-      <div class="feed-row"><span class="feed-time">18:14</span><span class="feed-tag tag-queue">queued</span><p>Possession request on a resident already booked until 19:00 — queued first-come, auto-refunds if it expires.</p></div>
-      <div class="feed-row"><span class="feed-time">18:31</span><span class="feed-tag tag-done">resolved</span><p>A 30-minute possession ended on schedule — graceful handoff back to the character&rsquo;s AI.</p></div>
-      <div class="feed-row"><span class="feed-time">18:44</span><span class="feed-tag tag-refund">refunded</span><p>A queued request expired before its slot opened — credits returned automatically, logged publicly.</p></div>
+      <div class="feed-row"><span class="feed-time">06:15</span><span class="feed-tag tag-kind">move</span><p>Jules out for the morning run — north path loops.</p></div>
+      <div class="feed-row"><span class="feed-time">07:32</span><span class="feed-tag tag-kind">scene</span><p>Rush hour at Mudhaus — Reyes at double tempo, line to the door.</p></div>
+      <div class="feed-row"><span class="feed-time">09:26</span><span class="feed-tag tag-done">request · resolved</span><p><b>@okfm</b> — possess own courier, 30 min. Requests run attributed, on the public feed.</p></div>
+      <div class="feed-row"><span class="feed-time">10:01</span><span class="feed-tag tag-kind">weather</span><p>Fog burned off over the park — full sun.</p></div>
+      <div class="feed-row"><span class="feed-time">10:47</span><span class="feed-tag tag-kind">press</span><p><i>Mission Unfiltered</i> posted: &ldquo;The Salsa-Bar Ledger&rdquo; — anonymous, as always.</p></div>
+      <div class="feed-row"><span class="feed-time">13:03</span><span class="feed-tag tag-queue">request · queued</span><p><b>@leaf</b> — park cleanup event at Dolores Park. Queued first-come; if the slot never opens it auto-refunds.</p></div>
+      <div class="feed-row"><span class="feed-time">14:01</span><span class="feed-tag tag-refund">admin</span><p>Admin action — venue window reset at The 600 Club. Affected requests compensated 90&nbsp;cr, publicly.</p></div>
+      <div class="feed-row"><span class="feed-time">16:20</span><span class="feed-tag tag-refund">request · not approved</span><p>A request didn&rsquo;t pass screening — the feed shows the outcome, never the screened text. Credits returned in full.</p></div>
+      <div class="feed-row"><span class="feed-time">18:44</span><span class="feed-tag tag-refund">request · refunded</span><p>A queued request expired before its slot opened — credits back automatically, logged in public.</p></div>
       <div class="feed-row"><span class="feed-time">19:03</span><span class="feed-tag tag-cast">cast</span><p>A new resident joined the block — hired by a viewer, screened, signed a lease, moved into a real unit.</p></div>
+      <div class="feed-row"><span class="feed-time">03:40</span><span class="feed-tag tag-kind">quiet</span><p>Quiet hours on the block. The feed says so instead of padding itself.</p></div>
     </div>
-    <p class="muted" style="font-size:13px">Entry labels shown are illustrative; the live feed uses the request classes in the design — compatible, exclusive, queued — plus arrivals, weather, and admin notices.</p>
+    <p class="muted" style="font-size:13px">Kind and status labels are drawn verbatim from the feed schema
+    (<i>move · scene · venue · weather · request · admin · press · housing · cast · quiet</i>;
+    requests carry <i>in_review · approved · running · queued · resolved · refunded ·
+    not approved · player session ended</i>). Feed text stays surface-level:
+    what a street camera could verify — no interiors, no thoughts, no secrets.</p>
   </div>
 </section>
 
@@ -183,6 +198,7 @@
             <option value="possess">Possess your resident — walk the block as them</option>
             <option value="venue">Reserve a venue — The 600 Club&rsquo;s back room for a scene</option>
             <option value="weather">Call the weather — evening fog over the park</option>
+            <option value="event">Trigger an event — a park cleanup at Dolores Park</option>
           </select>
         </label>
         <label class="sim-field" for="rs-duration" id="rs-dur-field">For how long?
@@ -191,14 +207,27 @@
             <output id="rs-duration-out" for="rs-duration">30 min</output>
           </span>
         </label>
+        <label class="sim-field" for="rs-text">Describe it in a sentence — the screen reads the ask
+          <input type="text" id="rs-text" maxlength="140" placeholder="e.g. take my courier on the long way past the park">
+        </label>
+        <div class="sim-flags">
+          <label class="sim-check" for="rs-queued" id="rs-queued-field">
+            <input type="checkbox" id="rs-queued"> Take the queue if it&rsquo;s busy <span class="muted">(−15%)</span>
+          </label>
+          <label class="sim-check" for="rs-surge" id="rs-surge-field" hidden>
+            <input type="checkbox" id="rs-surge"> Prime-time slot <span class="muted">(surge ×1.5–2.5, shown before you pay)</span>
+          </label>
+        </div>
         <button class="btn btn-primary" id="rs-file" type="button"
                 data-rw-event="cta_click" data-rw-props='{"cta":"demo-sim"}'>File it — simulated</button>
       </div>
 
       <div class="sim-result" id="rs-result" aria-live="polite">
-        <p class="muted">Pick an action and file it. The simulation classifies the
-        request the way the real pipeline does — declared upfront, screened,
-        priced by duration, attributed publicly on the feed.</p>
+        <p class="muted">Pick an action, describe it, file it. The simulation
+        classifies and screens the request the way the real pipeline does —
+        declared upfront, intent-screened, priced by duration, attributed
+        publicly on the feed. Try a request that targets someone, or touches a
+        resident&rsquo;s marriage — the screen answers the way the real one would.</p>
       </div>
 
       <div class="sim-feed" id="rs-feed" hidden>
