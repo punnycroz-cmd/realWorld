@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 58,
+ "version": 59,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -37,7 +37,10 @@
    "world/storefronts.md",
    "world/apply.html",
    "world/applications.json",
-   "world/applications.md"
+   "world/applications.md",
+   "world/grievance.html",
+   "world/grievances.json",
+   "world/grievances.md"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -172,6 +175,11 @@
   "regulars": {
    "file": "regulars.html",
    "name": "The House Knows",
+   "tier": "internal"
+  },
+  "grievance": {
+   "file": "grievance.html",
+   "name": "The Ear",
    "tier": "internal"
   }
  },
@@ -2849,6 +2857,56 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT54",
+   "title": "The Ear — the grievance layer (jobs-housing, depth pass)",
+   "minutes": 10,
+   "persona": "long-time spectator — checking whether the block has somewhere to take a wrong besides the feed",
+   "surfaces": [
+    "grievance",
+    "directory",
+    "audit"
+   ],
+   "goal": "Verify the v59 grievance layer: a five-rung informal ladder (aside → named ask → third ear → table → filing), one row per jobs.json employer and per registry building, two offstage parody orgs as rung 4, and feed shapes that print the door and never the name. Pairs with game-v11's dispute verbs — content only, no mechanics.",
+   "steps": [
+    {
+     "do": "Open grievance.html. Read the ladder strip, then click rung 4 (the table) and watch the card grid.",
+     "expect": "Five rungs render with names and knowledge bounds. Selecting rung 4 dims every row whose live_rungs skip the table — MuleIt, Las Palmas, the library, SF General, Capp/Folsom buildings stay lit; solo gigs and owner-occupied 9102 dim.",
+     "checkpoints": [
+      "Ladder shows all five rungs with knowledge-bound lines ('the two people only' → 'public by paper')",
+      "Rung-4 filter dims rows without a table route and keeps rows that reach Calle Justa / The Rent Table",
+      "Header count line tracks the filter ('N at rung 4')"
+     ]
+    },
+    {
+     "do": "Scan the work grid: Mudhaus, MuleIt, Auerbach, Busking. Then the housing grid: 9457 Guerrero vs 9102 Mission.",
+     "expect": "Each card shows ear, live rungs (dot strip), archetype tags, usual fix, paper route, bounds, texture. MuleIt and busking have no ear — the table is rung 1 there. 9102 Mission's ladder collapses to rung 1: the tenant IS the landlord. 9457 carries the contested-raise texture as a ledger fact.",
+     "checkpoints": [
+      "24 work rows + 7 housing rows; every row has an ear line and a paper_route (or the honest 'none')",
+      "No card names a real SF business or prints a rent/check figure — bounds lines mark what doesn't travel",
+      "Org cards list Calle Justa (thu) and The Rent Table (wed, Vera at sign-in) with their covered archetypes"
+     ]
+    },
+    {
+     "do": "Read the feed-shapes panel at the bottom, then open directory.html and find the two new org rows.",
+     "expect": "Feed panel lists the housing lines ('a housing dispute filed — <address>'), the work proposal lines, and a struck-through never-list (names, amounts, who filed). The Directory shows Calle Justa and The Rent Table as offstage orgs with all affordances off.",
+     "checkpoints": [
+      "Every feed line shows a door placeholder — no name, amount, or rung leaks",
+      "Directory BIZ rows exist for both orgs at tier 'offstage' with card links",
+      "knowledge_bounds line is present: parties day-0 → hallway/shift → same street; table files never travel"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the griev + biz + harness gates.",
+     "expect": "The griev gate reports schema v59 — 24 work, 7 housing, 2 orgs — coverage/refs/surface-bar all green. Biz gate passes at v59 with 28 businesses. Harness gate passes at the v59 key.",
+     "checkpoints": [
+      "griev gate detail: 'schema v59 · 24 work · 7 housing · 2 orgs' — PASS",
+      "An employer missing a row, an archetype outside the catalog, or a banned word in a bounds field would FAIL — spot-check by reading the gate",
+      "Harness gate: '54 scenarios · N checkpoints · key rw_playtest_v59'; 0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -2890,10 +2948,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v58 local",
- "harness_ui_v58": {
-  "storage_key": "rw_playtest_v58",
-  "build_tag_prefix": "world v58 local",
+ "build": "world v59 local",
+ "harness_ui_v59": {
+  "storage_key": "rw_playtest_v59",
+  "build_tag_prefix": "world v59 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {

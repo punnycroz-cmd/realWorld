@@ -96,5 +96,11 @@
   "bld-g9263": "housing/9263-geneva.md",
   "bld-f9344": "housing/9344-folsom.md",
   "bld-m9102": "housing/9102-mission.md"
+ },
+ "grievance_layer": {
+  "spec": "grievances.md",
+  "mirror": "grievances.json",
+  "demo": "grievance.html",
+  "note": "the grievance layer (v59) — the informal complaint ladder, per-employer/building ears, the two drop-in tables, rung-5 feed shapes. Content for game-v11 dispute verbs."
  }
 }

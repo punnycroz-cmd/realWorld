@@ -89,6 +89,11 @@
                 content mirror case-for-case; console CHARS whitelist;
                 flag-ledger/shift-report/calibration affordances; no
                 mutation calls on internal surfaces
+    griev     — grievances.json ↔ grievance.html GRJ mirror; every jobs.json
+                employer + housing.json building covered exactly once; venue/
+                org/building refs resolve; live_rungs ⊆ 1–5; archetypes ⊆
+                catalogs; ear cast ids valid; surface-bar sweep on all
+                descriptive fields
     harness   — playtest harness self-contract: storage key + build tag
                 agree with playtest.json; required affordance marks
                 present; scenario integrity (unique PT ids, declared
@@ -247,7 +252,7 @@ const PUB = Object.values(PT.surfaces)
   const INWORLD = new Set(['board.html', 'lease.html', 'timeclock.html',
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
-    'applications.json', 'apply.html']);
+    'applications.json', 'apply.html', 'grievances.json', 'grievance.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -2082,7 +2087,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v58 || {};
+    const H = PT.harness_ui_v59 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2219,13 +2224,114 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'applications.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G24 griev ============ */
+{
+  const g = gate('griev', 'grievance layer contract (grievances.json ↔ grievance.html; employer/building coverage; refs resolve; surface bar)');
+  try {
+    const GJ = JSONF('grievances.json');
+    const html = rd('grievance.html');
+    const m = html.match(/const GRJ = (\{[\s\S]*?\});\n/);
+    if (!m) throw new Error('inline GRJ not found in grievance.html');
+    const GRJ = eval('(' + m[1] + ')');
+    if (JSON.stringify(GRJ) !== JSON.stringify(GJ))
+      add(g, 'fail', 'grievance.html', null, 'inline GRJ drifted from grievances.json');
+    if (GJ.schema !== 'grievance-v1')
+      add(g, 'fail', 'grievances.json', null, `schema "${GJ.schema}" != grievance-v1`);
+
+    const JJ = JSONF('jobs.json'), HJ = JSONF('housing.json'), BJ = JSONF('businesses.json');
+    const bizIds = new Set(BJ.businesses.map(b => b.id));
+    const orgIds = new Set((GJ.orgs || []).map(o => o.id));
+    const CASTID = /[cC][1-8]|[aA](0[1-9]|1[0-9]|20)/;
+    const CASTIDG = /[cC][1-8]|[aA](0[1-9]|1[0-9]|20)/g;
+    const VALIDID = /^[cC][1-8]$|^[aA](0[1-9]|1[0-9]|20)$/;
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const sweep = (fields, tag) => {
+      for (const s of fields)
+        for (const re of BANNED)
+          if (re.test(String(s)))
+            add(g, 'fail', 'grievances.json', null, `${tag}: "${String(s).slice(0, 60)}" breaches the surface bar (${re})`);
+    };
+    const earIds = (ear, tag) => {
+      for (const tok of String(ear).match(CASTIDG) || [])
+        if (!VALIDID.test(tok))
+          add(g, 'fail', 'grievances.json', null, `${tag}: ear token "${tok}" is not a cast id`);
+    };
+
+    /* orgs: ids unique, venue_id resolves to an offstage business */
+    for (const o of GJ.orgs || []) {
+      const b = BJ.businesses.find(x => x.id === o.venue_id);
+      if (!b) add(g, 'fail', 'grievances.json', null, `org ${o.id}: venue_id "${o.venue_id}" not a business`);
+      else if (b.tier !== 'offstage')
+        add(g, 'fail', 'grievances.json', null, `org ${o.id}: venue ${o.venue_id} tier "${b.tier}" — tables are offstage`);
+      sweep([o.name, o.table, o.who_runs, o.what_they_do, o.bounds], `org ${o.id}`);
+    }
+
+    /* ladder: rungs 1..5 unique */
+    const rungs = new Set((GJ.ladder || []).map(r => r.rung));
+    for (const i of [1, 2, 3, 4, 5])
+      if (!rungs.has(i)) add(g, 'fail', 'grievances.json', null, `ladder missing rung ${i}`);
+
+    /* work rows: exactly one per distinct jobs.json employer */
+    const employers = [...new Set(JJ.jobs.map(j => j.employer))];
+    const seen = new Set();
+    const wArch = new Set(Object.keys(GJ.work_archetypes || {}));
+    const hArch = new Set(Object.keys(GJ.housing_archetypes || {}));
+    for (const r of GJ.work || []) {
+      if (seen.has(r.employer)) add(g, 'fail', 'grievances.json', null, `duplicate work row "${r.employer}"`);
+      seen.add(r.employer);
+      if (!employers.includes(r.employer))
+        add(g, 'fail', 'grievances.json', null, `work row "${r.employer}" is not a jobs.json employer`);
+      if (r.venue_id != null && !bizIds.has(r.venue_id))
+        add(g, 'fail', 'grievances.json', null, `${r.employer}: venue_id "${r.venue_id}" is not a business`);
+      if (r.paper_route != null && !orgIds.has(r.paper_route))
+        add(g, 'fail', 'grievances.json', null, `${r.employer}: paper_route "${r.paper_route}" is not an org`);
+      if (!Array.isArray(r.live_rungs) || !r.live_rungs.length || r.live_rungs.some(x => !rungs.has(x)))
+        add(g, 'fail', 'grievances.json', null, `${r.employer}: bad live_rungs ${JSON.stringify(r.live_rungs)}`);
+      for (const a of r.archetypes || [])
+        if (!wArch.has(a)) add(g, 'fail', 'grievances.json', null, `${r.employer}: archetype "${a}" not in work_archetypes`);
+      earIds(r.ear, r.employer);
+      sweep([r.ear, r.usual_fix, r.bounds, r.texture], r.employer);
+    }
+    for (const e of employers)
+      if (!seen.has(e)) add(g, 'fail', 'grievances.json', null, `employer "${e}" has no grievance row`);
+
+    /* housing rows: every building_cards key covered; only ambient-ring extra */
+    const bKeys = new Set(Object.keys(HJ.building_cards || {}));
+    const hSeen = new Set();
+    for (const r of GJ.housing || []) {
+      if (hSeen.has(r.building_id)) add(g, 'fail', 'grievances.json', null, `duplicate housing row "${r.building_id}"`);
+      hSeen.add(r.building_id);
+      if (r.building_id !== 'ambient-ring' && !bKeys.has(r.building_id))
+        add(g, 'fail', 'grievances.json', null, `housing row "${r.building_id}" is not a building_cards key`);
+      if (r.paper_route != null && !orgIds.has(r.paper_route))
+        add(g, 'fail', 'grievances.json', null, `${r.building_id}: paper_route "${r.paper_route}" is not an org`);
+      for (const a of r.archetypes || [])
+        if (!hArch.has(a)) add(g, 'fail', 'grievances.json', null, `${r.building_id}: archetype "${a}" not in housing_archetypes`);
+      earIds(r.ear, r.building_id);
+      sweep([r.ear, r.usual_fix, r.bounds, r.texture], r.building_id);
+    }
+    for (const k of bKeys)
+      if (!hSeen.has(k)) add(g, 'fail', 'grievances.json', null, `building "${k}" has no grievance row`);
+
+    /* feed shapes: the door, never the name — no cast id or name pattern in lines */
+    const fs = GJ.feed_shapes || {};
+    for (const l of (fs.housing || []).concat(fs.work_proposal || []))
+      if (/<addr|<venue>/.test(l) === false && CASTID.test(l))
+        add(g, 'fail', 'grievances.json', null, `feed line carries a name/id: "${l}"`);
+    if (!/door/i.test(fs.contract || ''))
+      add(g, 'fail', 'grievances.json', null, 'feed_shapes.contract must state the door-not-name rule');
+
+    g.detail = `schema v${GJ.version} · ${(GJ.work || []).length} work · ${(GJ.housing || []).length} housing · ${orgIds.size} orgs`;
+  } catch (e) { add(g, 'fail', 'grievances.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v58 local';
+out.build = 'world v59 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

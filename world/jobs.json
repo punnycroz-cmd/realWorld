@@ -354,5 +354,11 @@
    "openings": 0,
    "card": "jobs/public-and-independent.md"
   }
- ]
+ ],
+ "grievance_layer": {
+  "spec": "grievances.md",
+  "mirror": "grievances.json",
+  "demo": "grievance.html",
+  "note": "the grievance layer (v59) — the informal complaint ladder, per-employer/building ears, the two drop-in tables, rung-5 feed shapes. Content for game-v11 dispute verbs."
+ }
 }

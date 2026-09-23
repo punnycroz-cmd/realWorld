@@ -23,6 +23,13 @@
 > — the actor-facing application layer (how a character asks for each live
 > opening or listing, who screens, what the trial/viewing tests, how a no
 > sounds). Player-facing demo: `world/apply.html` ("The Tryout").
+>
+> **v59 depth layer:** `world/grievances.md` + `world/grievances.json` —
+> the grievance layer (what happens when work or housing goes wrong: the
+> five-rung informal ladder, who holds the ear at every employer and
+> building, the two drop-in tables, feed shapes at rung 5). Content for
+> game-v11's dispute verbs. Internal demo: `world/grievance.html`
+> ("The Ear").
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).

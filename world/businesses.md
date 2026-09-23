@@ -1,5 +1,11 @@
-# Parody Business Registry — "The Mission" (world v58)
+# Parody Business Registry — "The Mission" (world v59)
 
+> **v59 additions:** two offstage parody orgs registered — **Calle Justa
+> Workers' Table** (Thursday drop-in worker clinic) and **The Rent Table**
+> (Wednesday tenant counseling, library community room). They are the
+> rung-4 "table" of the grievance layer (`world/grievances.md`): recourse
+> texture with all affordances off — never request targets, never doors.
+>
 > **v58 additions:** the **regulars layer** — `world/regulars.json` +
 > `world/regulars.md` + `world/regulars.html` ("The House Knows") register,
 > per door-having venue, the people whose order starts before they sit down:
@@ -160,6 +166,17 @@ time in. Details beyond the name are world content — safe for briefings.
   secretly writes. In-world media, not a business with a door; its posts
   are a feed surface. SECRET-adjacent: the blog is public, the author is
   not.
+- **Calle Justa Workers' Table** — Thursday 18:00–20:00 drop-in worker
+  clinic (parody of Mission worker-center culture; the name riffs the
+  closed real-world org *Causa Justa*). Folding tables, a sign-in sheet,
+  volunteer shop stewards and a rotating law student. Reads check stubs,
+  writes demand letters workers deliver themselves. Rung 4 of the work
+  grievance ladder — `world/grievances.md`. No door, no camera target.
+- **The Rent Table** — Wednesday 18:30–20:30 tenant counseling in the
+  library community room (parody of tenant-counseling orgs). Notices,
+  habitability, deposit math, roommate shares; **A11 Vera** staffs the
+  sign-in most weeks as a public volunteer. Rung 4 of the housing
+  grievance ladder — `world/grievances.md`. No door.
 
 ### Reserved fictional names (claimed, not yet on the map)
 
