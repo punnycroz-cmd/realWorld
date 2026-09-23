@@ -32,7 +32,7 @@ UTMS = [
     {"utm_source": "discord", "utm_medium": "community", "utm_campaign": "launch-2026"},
 ]
 REFS = ["bsky.app", "pcgamer.com", "itch.io", "news.ycombinator.com", None, None]
-SHOTS = ["v47-A.png", "v47-B.png", "v47-C.png", "v47-D.png",
+SHOTS = ["v48-A.png", "v48-B.png", "v48-C.png", "v48-D.png",
          "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png"]
 CTAS = ["hero", "walkthrough", "footer", "nav", "demo-hero", "demo-ladder",
         "pricing-teaser", "faq-exit"]

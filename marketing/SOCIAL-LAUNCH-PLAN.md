@@ -109,7 +109,7 @@ Goal: make the concept legible before asking for attention.
 
 | Day | Post | Channel |
 |---|---|---|
-| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v47-D evening shot, slow zoom) | TikTok, X, Shorts |
+| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v48-D evening shot, slow zoom) | TikTok, X, Shorts |
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |

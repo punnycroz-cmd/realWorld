@@ -46,10 +46,12 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v47-* = current renderer (murals, parody signage,
+                     v48-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, stoops, garage bays,
-                     false-front gables, Mission ficus street trees,
-                     Dolores palm allée + worn desire-lines, parked cars);
+                     false-front gables, lived-in ground line — areaway
+                     lightwells, toter bins, tag ghosts, cornice pigeons —
+                     Mission ficus street trees, Dolores palm allée +
+                     worn desire-lines, parked cars);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

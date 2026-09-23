@@ -1,9 +1,8 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v63 — store-surface depth pass (review-response templates, itch
-devlog drafts, differentiation block, sale-copy rules, transcreation
-glossary, `tools/store_copy_check.py` validator); v55 refresh: v37 art rebase,
-2026-09-24.** Supersedes v33.
+**Status: v78 — store-operations depth pass (store-page FAQ, refund/support
+copy, itch community policy, wishlist posture, other-storefront audit) +
+v48 art rebase, 2026-09-24.** Supersedes v63.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — the only outstanding art dependency is the
@@ -178,7 +177,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v47-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v48-A..D.png` (4 ready, grounded-shadow build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -192,9 +191,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v47-D (director view — the hook), v47-B
-(street level), v47-C (Dolores Park), v16-int-cafe (interior vignette),
-then v47-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v48-D (director view — the hook), v48-B
+(street level), v48-C (Dolores Park), v16-int-cafe (interior vignette),
+then v48-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -253,7 +252,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v47-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v48-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -356,10 +355,10 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v47-D "director view" → "Aerial view
+`press-kit/captions.txt` as canonical): v48-D "director view" → "Aerial view
 of the Mission block at golden hour — the spectator camera's home position.";
-v47-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v47-C park → "Dolores Park edge — palms, lawn,
+v48-B street level → "Street-level view: facades, parody storefront signage,
+a resident mid-errand."; v48-C park → "Dolores Park edge — palms, lawn,
 residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
 the before/after that anchors the devlog series."
@@ -385,7 +384,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v47-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v48-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -485,7 +484,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v40 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v48 build) | shipped |
 
 ---
 
@@ -628,7 +627,130 @@ re-created — paste this table to any future localizer.
 
 ---
 
-## 20. Versioning note
+## 20. Store-page FAQ block
+
+Storefronts convert on the questions a site FAQ never gets asked. These
+are written for the itch page body (append under the honesty box) and
+double as pinned answers in Steam discussions if the wrapper ships.
+Different register from `site/faq.html` — shorter, purchase-adjacent.
+
+| Q | A (paste-ready) |
+|---|---|
+| Do I have to pay to play? | No. Watching the neighborhood is the game, and it's free forever — every resident, the public request feed, the archive. You only ever pay to *act*: file a time-boxed request, or hire a character onto the cast. |
+| Is this multiplayer? | It's one shared world. Everyone watches the same block; requests from different players can even be compatible and run side by side. But you never directly control anyone else's character — there's no PvP. |
+| Can I possess any character? | Only the one you hired onto the cast. The eight mains can't be possessed by anyone — not players, not us. That's the rule that keeps what you're watching honest. |
+| What happens when my request ends? | A hard cap. At timeout the character's AI resumes seamlessly — you never buy overtime you didn't declare. If your request never fires (queued and expired, or denied), you get an automatic full refund. |
+| What happens to my character when I go offline? | Your hired character drops to "thin AI" — a cheap ambient routine — and wakes back up when you return. They still work their job and pay rent like everyone else. |
+| Can I lose money in this game? | There's nothing to lose. Credits are non-transferable, non-redeemable, and every denied or expired request auto-refunds. The only spend is the upfront, hard-capped request price you saw before you clicked. |
+| Is the AI content moderated? | Player requests and character names pass an intent classifier plus human review before they enter the world. Emergent resident behavior is unscripted, but consequences are handled in-fiction — and the whole request feed is public, so nothing happens off-camera. |
+| Why a browser game? | A neighborhood you can check like a live camera shouldn't need an install. Watch from anything; act when you feel like it. |
+
+---
+
+## 21. Refund, support & billing-issue copy
+
+Store forms and the page footer need one consistent refund story. Every
+phrase below maps to a shipped mechanism (`world/requests.json`
+fairness_invariants, `world/moderation.json` appeal_flow) — do not soften.
+
+**Refund policy (verbatim for store fields):**
+
+> You never pay for something that didn't happen. Requests are priced
+> upfront and hard-capped — no overrun. Queued requests that expire
+> unfired refund automatically in full. Requests that aren't approved
+> refund automatically in full. NPC nudges that get declined refund 50%
+> automatically. If an admin action overrides your running request, you're
+> compensated in credits. Manual refunds for billing errors: email
+> support with the request ID from the public feed.
+
+**Support block (itch "support" field / Steam support info):**
+
+| Field | Value |
+|---|---|
+| Channel | email — `support@<domain>` (**PLACEHOLDER** — owner-gated, G6) |
+| What to include | the request ID from the public feed, your account handle |
+| Response expectation | within 72 h (mirrors the appeal_flow review SLA — one clock, publicly stated) |
+| Never ask for | passwords, payment details beyond the Stripe receipt |
+
+**Chargeback stance:** none stated publicly. Stripe disputes are handled
+by evidence (the public feed is the receipt). Never threaten a user over
+a chargeback; the auto-refund matrix above already removes the legitimate
+reasons.
+
+---
+
+## 22. itch.io community & comments policy
+
+The itch page ships with comments ON — a spectator product lives on
+people talking about what they watched. Rules:
+
+1. **First comment is ours.** At publish, post the §10 maker's-comment
+   text (adapted — no Product Hunt mentions) so the thread opens with a
+   dev voice, not an empty box.
+2. **Reply SLA:** every comment gets a response or a deliberate no-response
+   within 48 h during launch week; canned bases live in §15 (rewrite 20%).
+3. **Ratings:** never ask for ratings, never incentivize them, never
+   reply to a rating. If a public comment echoes a review, use the §15
+   reply voice.
+4. **Moderation:** comments are community-surface — MODERATION-PLAN.md
+   community rules apply (same canned responses as `templates/mod-responses.md`).
+   Report-and-delete only for spam/abuse; criticism stays, always.
+5. **Devlog cadence:** per §16 — launch + weekly for month 1, then per
+   update. A quiet page is worse than an honest "the feed was quiet this
+   week" post.
+6. **No announcements on itch that aren't on the site first.** The site is
+   canonical; itch mirrors within 24 h.
+
+**Press/creator access:** no download keys needed — the free layer *is*
+public. Point press at `press-kit/guided-tour.md` and the live URL; even
+the paid layer is demonstrated on the public feed, which is also public.
+If the itch page ever gates anything behind a paywall option, that's a
+bug — the page must never charge for watching.
+
+---
+
+## 23. Wishlist / "coming soon" posture
+
+itch has no wishlist mechanic — **followers** are the equivalent, and the
+page copy asks for the follow honestly: "Follow for the devlog — every
+update, no noise" (one line, end of page body).
+
+Steam (conditional): a coming-soon page can exist **before** the wrapper,
+but only with (a) the full capsule set (§4 — the library hero is still
+FLAG), (b) the §1.2 short description, and (c) **no release date or
+wording that implies a quarter we haven't committed to** — Steam allows
+"To be announced"; use exactly that. Never run a wishlist-count push for
+a page whose build doesn't exist yet.
+
+Post-launch this section converts to: keep the "follow" ask on itch,
+retire the Steam coming-soon page on wrapper ship day.
+
+---
+
+## 24. Other-storefront audit (verdicts, not plans)
+
+Evaluated against the product (browser-native, free-to-watch, in-world
+credit purchases). Revisit only if platform reality changes.
+
+| Storefront | Verdict | Why / what would need to change |
+|---|---|---|
+| **itch.io** | PRIMARY | Native HTML hosting, free-with-purchases model, devlog surface, creator-friendly rev share. Current plan. |
+| **Steam** | CONDITIONAL | Needs a downloadable wrapper + 30% cut + app fee; full copy maintained in §3. Library hero asset still missing (§4). |
+| Epic Games Store | NO | No browser-product path; self-publishing requires a real downloadable build. Zero upside vs itch for this product. |
+| GOG | NO | DRM-free downloadable catalog only; a server-backed always-online world contradicts the GOG promise. |
+| Humble widget | MAYBE (post-launch) | A widget could sell credit packs on our own site — but Stripe already does that (`deploy/stripe-products.json`); only worth it for bundle reach. Owner decision post-launch. |
+| CrazyGames / Poki / browser portals | NO (as designed) | Their model is ad rev-share inside the game view — conflicts with the opt-in-only rewarded-ads rule (§5 disclosure). Revisit only if a portal accepts an ads-free embed. |
+| Kongregate / Newgrounds | NO | Audience/model mismatch; legacy portals don't fit a persistent shared world. |
+| Mobile stores (iOS/Android) | NO (v1) | The sim is server-side; a native app adds IAP cut, review friction, and push obligations. Browser-first stands; revisit if mobile watching demand proves out in analytics. |
+
+The rule behind every verdict: **the store must never change the
+product's honesty contract** (free watching, opt-in ads, upfront pricing,
+no cash-out). A storefront that can't take the contract doesn't get the
+game.
+
+---
+
+## 25. Versioning note
 
 This file supersedes the v0 DRAFT (single generic template). Changes:
 platform split (itch primary / Steam conditional), capsule spec sheet,
@@ -673,3 +795,15 @@ renumbered §15→§20; §8/§9 now route through the checker.
 **v53 changes:** gallery/capsules/keyart rebased to the art-v36 build
 (Karl's marine layer over the Mission; boom-rig/veiling-glare lens work);
 trailer EDL + all animatics/thumbnails rebuilt on v36 stills.
+**v78 changes:** gallery/capsules/keyart/og-card rebased to the art-v48
+build (lived-in ground line: areaway lightwells, toter bins, garage-door
+throwies, cornice pigeons — same framings/weather pins as v47); trailer
+EDL + animatics/thumbs rebuilt on v48 stills. New §20 store-page FAQ
+block (8 Q&As, purchase-adjacent register), §21 refund/support/billing
+copy (verbatim refund policy + support table + chargeback stance), §22
+itch.io community & comments policy (first comment, reply SLA, ratings
+rules, devlog cadence), §23 wishlist/"coming soon" posture (itch follow
+ask; Steam coming-soon gates incl. "To be announced" only), §24
+other-storefront audit (Epic/GOG/Humble/portals/mobile verdicts);
+versioning note renumbered §20→§25; §14 claim-ledger art-build cite
+refreshed v40→v48.

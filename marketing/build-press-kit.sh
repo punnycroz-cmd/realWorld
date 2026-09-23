@@ -20,11 +20,11 @@ cp site/assets/logo-primary.svg site/assets/logo-primary.png \
    site/assets/logo-icon-animated.svg \
    site/assets/pattern-windows.svg \
    site/assets/favicon.svg "$KIT/logos/"
-cp site/shots/v47-A.png site/shots/v47-B.png site/shots/v47-C.png \
-   site/shots/v47-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
+cp site/shots/v48-A.png site/shots/v48-B.png site/shots/v48-C.png \
+   site/shots/v48-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \
-   site/shots/v47-A.webp site/shots/v47-B.webp site/shots/v47-C.webp \
-   site/shots/v47-D.webp \
+   site/shots/v48-A.webp site/shots/v48-B.webp site/shots/v48-C.webp \
+   site/shots/v48-D.webp \
    "$KIT/screenshots/"
 
 mkdir -p dist

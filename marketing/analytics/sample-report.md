@@ -3,7 +3,7 @@
 - top sources: rps (24), x (21), discord (19)
 - campaigns: launch-2026 (54), press-embargo (24), store-launch (14)
 - funnel: pageview 220 (100% of visits) → engaged 197 (90% of visits) → community 67 (30% of visits) → watch_start 64 (29% of visits) → request_submitted 12 (5% of visits) → character_created 6 (3% of visits)
-- top shots: v16-int-cafe.png (10), v1-A.png (9), v47-D.png (9)
+- top shots: v16-int-cafe.png (10), v1-A.png (9), v48-D.png (9)
 - 404s: 0
 - action taken: {{one line — what we changed because of the numbers}}
 
