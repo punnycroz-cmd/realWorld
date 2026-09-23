@@ -1987,3 +1987,275 @@ rehearsed, and the first decent cue brings it all back.
   stronger inhibitory claims are intentionally NOT adopted —
   §24's TNT is the strong leg already.
 
+# PART VI (v62, 2026-09-23) — the cue's direction, echo, and keeper
+
+v50 asked what a cue is worth; v62 asks the questions the bout itself
+raised: is a cue reversible (§60), does a partial hit feed back as a
+new cue (§61), can an OBJECT carry a cue the brain never encoded
+(§62), does a loud cue do a quiet cue's job in prospective memory
+(§63), who gives the searcher permission to stop guessing (§64), does
+asking the same question twice wear a path (§65), and does a failed
+search reset on a fresh angle (§66). Spec changes land in
+`memory-model-spec.md` v5.10 §5.57–5.62; probes P647–P656.
+
+## 60. Directional cues — associations do not run both ways
+
+- **Kahana & Caplan (2002)** JML 46:111 and the surrounding
+  paired-associate record: forward recall (cue→target in study
+  order) reliably exceeds backward recall (target→cue) under matched
+  conditions; asymmetric-association models fit the data, symmetric
+  ones do not. Rizzuto & Kahana (2001, JML 44) made the same point
+  computationally — the autoassociator can add links it cannot
+  reverse for free. **[CONSENSUS for directionality; the size of the
+  asymmetry is paradigm-dependent — DEBATED]**
+- The social-memory version is older than the lab version: a face is
+  a strong cue for the episode ("I know I've seen him — at the
+  hearing"), while the episode is a weaker cue for the face — and the
+  name leg is weakest of all (§47 Baker paradox already owns the
+  name tier). Person↔event links are likewise directional: "who was
+  at the party?" (event→people) and "when did you last see Jules?"
+  (person→event) are not the same query.
+- Model consequence (§5.57): cue match is now direction-weighted.
+  cueVector entries mint at encoding with an implicit forward
+  orientation (context→content); a reverse query (content cue asks
+  for context) contributes `backcue_mult` ≈ 0.6. Person→event and
+  event→person are the same link read in both directions —
+  `dir_asym` applies per queried field pair, not per record.
+  Recognition mode is exempt (copy cues have no direction).
+
+## 61. Iterated cuing — the fragment is the next cue
+
+- **Norman & Bobrow (1979)** Cog Psych 11:107–123 — "Descriptions":
+  retrieval proceeds through intermediate partial descriptions; a
+  retrieved fragment becomes the next probe's specification.
+- **Williams & Hollan (1981)** Cog Sci 5:87–119 — think-aloud
+  protocols of long-term search: rememberers visibly cycle —
+  retrieve a context, use it to ask a better question, retrieve
+  again. The "meta-knowledge" loop is the mechanism behind §49/§5.42
+  generative descent; v62 generalizes it beyond the period
+  hierarchy.
+- **Koriat & Levy-Sadot (2001)** JEP:G 130:395 — accessibility
+  accrues with each pass: partial products change the FOK and the
+  next search move. This is also why "let me think about it" works —
+  the second pass runs on a richer C.
+- **[CONSENSUS as protocol description; pass-counts are our
+  parameterization — HYPOTHESIS]**
+- Model consequence (§5.58): after a generative bout that emitted
+  partial fields but no target, the emitted fragment set F folds
+  back into C for `recue_passes` ≤ 2 further scans at reduced
+  breadth (`recue_breadth` ≈ 0.6). Each pass re-runs §5.2 with F as
+  additional cue fields (self-origin, so `selfcue_mult` applies —
+  the character generated them). Termination: a pass that adds no
+  new field ends the loop (marginal-productivity stop — pairs with
+  §5.22's failure stop; the two bound effort from above and below).
+  The loop is why a character can say "wait — it was raining that
+  night... and the power was out... it was the storm week" and land
+  on the record three probes late.
+
+## 62. Evocative objects — the cue outside the head
+
+- **Heersmink (2015)** Rev Phil Psych 6:321 ("Dimensions of
+  integration in embedded and extended cognitive systems") + Turkle
+  (2007, *Evocative Objects*): keepsakes, instruments, and rooms
+  function as standing retrieval cues — distributed memory, not
+  metaphor. **[CONSENSUS as phenomenon; quantitative weights are
+  ours — HYPOTHESIS]**
+- **Henkel (2014)** Psych Sci 25:396 ("point-and-shoot memories",
+  verified): photographing an object whole *impaired* later memory
+  for it vs observing — the camera offloads attention; zooming to
+  frame a detail eliminated the impairment (attention re-engaged).
+  **Barasch, Diehl, Silverman & Zauberman (2017)** JPSP 112:741
+  found the complement: photo-taking *can* enhance visual memory
+  through the attention mechanism when the photographer stays
+  engaged; the impairment is the offloading leg, not the act.
+  **[DEBATED — sign depends on engagement; we model both arms]**
+- Review side: Koutstaal et al. (1998/1999) and the autobiographical
+  photo-cueing literature — reviewing photos reinstates; the photo
+  is a durable external cueVector.
+- Model consequence (§5.59): the world gains `artifact` cue anchors.
+  An Event flagged `photographed:true` with `photoMode:"whole"`
+  takes `photo_offload_pen` (×≈0.85 on E — encoding side, attested);
+  `photoMode:"detail"` takes none (locked null `photo_detail_null`).
+  The artifact mints an `objLink` on the record — a standing cue
+  field with `obj_cue_w` ≈ 0.15 that does NOT decay with place:
+  seeing the keepsake cues the event from anywhere, years later
+  (sensory_age_slope applies — old objects reach old memories).
+  Rehearsing with the artifact present (showing the photo while
+  retelling) counts as a §5.9 retrieval for the linked record.
+
+## 63. Pop-out cues — the loud nonfocal cue
+
+- **McDaniel & Einstein (1993)** Memory 1:23–41 (verified):
+  unfamiliar and *context-distinctive* PM target cues significantly
+  improved prospective remembering — distinctiveness partially
+  substitutes for focality.
+- **Brandimonte & Passolunghi (1994)** QJEP 47A:565: cue-
+  distinctiveness benefits grow with retention interval — the odd
+  cue survives the delay that kills the ordinary one.
+- Einstein & McDaniel (2005, Curr Dir 14:286) multiprocess framing:
+  a distinctive cue in a sparse field earns spontaneous retrieval
+  without full monitoring. **[CONSENSUS for direction; magnitude
+  SINGLE-paradigm anchored]**
+- Model consequence (§5.60): PM cues gain a `popout` grade computed
+  from the ambient distinctiveness the game already tracks — a cue
+  event whose novelty ≥ `distinct_gate` (reused — the isolation
+  shield's threshold) in its context gets `pm_popout_gain` ≈ 0.2
+  added to `pm_monitor_p`, bridging nonfocal→focal: "hand the parcel
+  to the man in the parrot suit" needs less monitoring than "hand it
+  to Jules." The benefit grows with arming delay —
+  `pm_popout_gain·(1 + log1p(delayDays/7))` — matching Brandimonte &
+  Passolunghi's interval interaction.
+
+## 64. The asker's license — report option is part of the cue
+
+- **Koriat & Goldsmith (1996)** PBR 103:490 — the monitoring-and-
+  control model: memory report = retrieval accuracy × report policy.
+  Forced responding raises quantity and lowers accuracy; the free-
+  report option lets rememberers withhold. The accuracy/quantity
+  trade-off is a response-decision variable, not a trace property.
+  **[CONSENSUS — one of the best-replicated effects in the field]**
+- Demand characteristics (Orne 1962; eyewitness forced-choice
+  paradigms): a direct question from a present person obliges a
+  search AND pressures emission — "do you remember?" answered with
+  silence costs face. The rapport literature (cognitive-interview
+  follow-ups; Vallano & Schreiber Compo 2011) adds the cooperative
+  leg: a trusted asker lowers the emission threshold productively
+  (more volunteered detail, not more confabulation), a hostile or
+  demanding asker lowers it unproductively.
+- Model consequence (§5.61): a retrieval context carries
+  `asker:{rel, forced}`. `forced:true` probes (interrogation, a
+  pointed "well?") switch emission to forced mode — emit the best
+  candidate above `forced_floor` ≈ 0.25 rather than the honest θ,
+  flagging it `hedged:true` (the "I think so?" answer — quantity up,
+  accuracy down, P653 sign-locks the trade-off). A trusted asker
+  (rel ≥ close) adds `rapport_gain` ≈ 0.1 to search breadth — the
+  character digs deeper for a friend, not harder for a stranger.
+
+## 65. Route practice — the probe wears a path
+
+- Retrieval practice literature, read cue-side: what strengthens in
+  repeated testing is the *cue→target route*, not an abstract trace
+  (Karpicke & Roediger 2008's massed-versus-tested asymmetry;
+  Carpenter & DeLosh 2006, Applied Cog Psych 20:123 — poor cues gain
+  the most from retrieval practice; cue elaboration under weak
+  cues). Re-asking the SAME question is a different operation from
+  asking a DIFFERENT question about the same memory.
+- **[CONSENSUS that repeated retrieval strengthens; the cue-route
+  decomposition is our operationalization — HYPOTHESIS]**
+- Model consequence (§5.62): cueVector field keys mint
+  `routeHeat[j]` — each successful recall via field j adds
+  `route_gain` ≈ 0.05 to that field's w_j for that record (capped at
+  `route_cap` ≈ 1.5× base; decays at `route_hl` ≈ 30d — worn paths
+  fade, they are not grooves). Consequences: the question a
+  character has answered six times comes out fast and polished
+  (route-rehearsed — the "party story" quality); a novel question
+  about the same event starts cold. Combined with §5.22 sampling
+  this produces the human asymmetry: high-route fields dominate the
+  bout, crowding out the details nobody ever asks about.
+
+## 66. Fresh-angle restart — a failed search resets on a new cue
+
+- **Geiselman & Fisher** cognitive-interview mnemonics (Fisher &
+  Geiselman 1992, *Memory-Enhancing Techniques for Investigative
+  Interviewing*): "recall in different order" and "recall from
+  another perspective" are instructed *restart* operations —
+  changing the retrieval path recovers items the first pass missed.
+  CI meta-analyses (Köhnken et al. 1999; Memon, Meissner & Fraser
+  2010, Psych Bull 136:340 — d ≈ 1.2 correct-detail gain, small
+  error cost) place a large share of the CI benefit in the
+  varied-retrieval mnemonics.
+- Mechanistically this is cue-freshness: a second bout on the SAME
+  cue vector inherits §5.13 output interference — the emitted items
+  suppress the rest. A genuinely different cue vector starts a new
+  bout on a new partition of the search set.
+- **[CONSENSUS that varied retrieval helps; the restart-not-
+  continuation operationalization is ours — HYPOTHESIS]**
+- Model consequence (§5.62 tail): when a voluntary bout ends in the
+  §5.22 failure stop, a subsequent bout whose cue keys overlap the
+  failed bout's keys by < `restart_overlap` ≈ 0.4 is a RESTART —
+  output-interference counters reset, kmax restored. Overlap ≥ the
+  gate is a CONTINUATION — counters persist (re-asking the same
+  question immediately is the worst probe, matching the interview
+  literature's warning against repeated identical questioning).
+
+## 67. Cue hierarchy — v62 additions to the §57 table
+
+| Cue/mechanism | v62 status |
+|---|---|
+| cue direction | NEW — forward full-weight, reverse ×backcue_mult (§60) |
+| iterated recue | NEW — emitted fragments re-enter C, ≤2 passes (§61) |
+| artifact/object | NEW — objLink standing cue, age-scaled; photo offload pen at encode (§62) |
+| PM pop-out | NEW — distinctive nonfocal cue ≈ focal, delay-growing (§63) |
+| asker license | NEW — forced probes drop floor + hedge flag; trusted askers widen breadth (§64) |
+| route heat | NEW — per-field practiced-cue weight, capped + decaying (§65) |
+| bout restart | NEW — low-overlap new cues reset output interference (§66) |
+
+## 68. Validation probes P647–P656 (v62 suite)
+
+- **P647 directionality (MUST — sign-locked):** at matched overlap
+  and df, forward queries (context→content) out-recall reverse
+  queries by ≥1.3× on sparse cue sets; recognition-mode probes show
+  no asymmetry (Kahana & Caplan 2002).
+- **P648 iterated cuing (SHOULD):** a generative bout allowed
+  recue passes surfaces strictly more targets than one capped at
+  direct-only; the marginal yield of pass 2 < pass 1 (diminishing —
+  Norman & Bobrow descriptions).
+- **P649 evocative object (MUST):** presence of a linked artifact
+  raises recall of the linked record vs a matched unlinked record at
+  equal cue overlap; the lift is preserved at old record ages where
+  place reinstatement is the only rival cue (sensory-age scaling —
+  the keepsake outlasts the apartment).
+- **P650 photo offload (MUST — two arms):** `photographed:"whole"`
+  events encode weaker (lower E) than matched observed events;
+  `photographed:"detail"` events show NO deficit (locked null —
+  Henkel 2014 zoom arm); photo review strengthens the linked record
+  (Koutstaal arm).
+- **P651 PM pop-out (SHOULD):** a nonfocal PM cue with ambient
+  novelty ≥ `distinct_gate` fires at ≥0.8× the focal rate, vs ≤0.6×
+  for matched ordinary nonfocal cues; the advantage grows with
+  arming delay (Brandimonte & Passolunghi interval arm).
+- **P652 asker license (MUST — sign-locked):** forced probes emit
+  more total fields AND lower field accuracy than free probes on the
+  same store (Koriat & Goldsmith trade-off); trusted askers raise
+  search breadth without raising the error share.
+- **P653 hedged flag (SHOULD):** forced-mode emissions carry
+  `hedged:true` and downstream hearsay propagation (§6.x) inherits
+  the flag at reduced confidence — forced answers enter the rumor
+  ledger marked weak, not clean.
+- **P654 route practice (SHOULD):** a field probed ≥5× on the same
+  record recalls at ≥1.2× its base-field rate while an equally-
+  encoded never-probed field stays at base; route heat decays —
+  re-probe after `route_hl` shows regression toward base.
+- **P655 restart vs continuation (SHOULD):** after a failed bout, a
+  low-overlap cue set yields higher recall than a re-asked identical
+  set on the same records (CI varied-retrieval; Köhnken 1999).
+- **P656 cue-ecology regression (MUST):** P9/P10/P16 (gating,
+  saturation, recognition-failure) still pass — direction weighting,
+  recue passes, and route heat all route through §5.1/§5.2, never
+  around them.
+
+## 69. Honest limits (v62 additions)
+
+- `backcue_mult` is direction-anchored (Kahana & Caplan) but the
+  magnitude is list-paradigm — autobiographical links may be nearer
+  symmetric; flagged.
+- `recue_passes` = 2 is a compute choice; Williams & Hollan's
+  protocols showed longer chains in motivated rememberers. The
+  marginal-stop rule bounds cost; pass depth is clamped, not fitted.
+- `obj_cue_w` has no direct experimental calibration — evocative-
+  objects work is qualitative; we anchor it below place reinstatement
+  and let P649 test the ordering.
+- The photo literature is split: Henkel (impairment) and Barasch
+  (attention benefit) are reconciled by the engagement moderator —
+  our `photoMode` split is the honest version; a world that only
+  ever flags `whole` still runs.
+- `pm_popout_gain` inherits SINGLE-grade replication — effect real,
+  magnitude ours.
+- `rapport_gain` and `forced_floor` operationalize report-option
+  theory; the honest implementation emits the SAME candidates with a
+  lower floor — the pressure is on the report, never on the store.
+- `route_gain` is the smallest effect in the part; it exists to make
+  rehearsed anecdotes distinct from fresh recall, not to move
+  population statistics.
+- `restart_overlap` is a threshold we chose; the CI literature
+  supports the direction, not the number.

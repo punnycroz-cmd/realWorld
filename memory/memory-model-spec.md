@@ -1,5 +1,32 @@
-# Memory Model Spec v5.9 — implementable human-like memory for RW characters
+# Memory Model Spec v5.10 — implementable human-like memory for RW characters
 
+> **v5.10 note (retrieval-cues VI — the cue's direction, echo, and
+> keeper):** `memory/retrieval-cues.md` Part VI (§§60–69).
+> **Directional cues** — cueVector links mint forward
+> (context→content); reverse queries score ×`backcue_mult` 0.6,
+> recognition exempt (Kahana & Caplan 2002). **Iterated cuing** — a
+> generative bout's emitted fragments fold back into C for ≤
+> `recue_passes` 2 self-origin scans at `recue_breadth` 0.6, ending on
+> a no-new-field pass (Norman & Bobrow 1979; Williams & Hollan 1981).
+> **Evocative objects** — artifact `objLink` is a standing cue field
+> (`obj_cue_w` 0.15, age-scaled, place-independent — Heersmink 2015);
+> `photographed:"whole"` events pay `photo_offload_pen` at encode,
+> `"detail"` pays a locked null (Henkel 2014 + Barasch 2017 split
+> arms). **PM pop-out** — a nonfocal cue with novelty ≥
+> `distinct_gate` (reused) earns `pm_popout_gain` on `pm_monitor_p`,
+> growing with arming delay (McDaniel & Einstein 1993; Brandimonte &
+> Passolunghi 1994). **Asker license** — `asker:{rel,forced}`: forced
+> probes emit above `forced_floor` 0.25 with `hedged:true` (Koriat &
+> Goldsmith 1996 quantity/accuracy trade-off — sign-locked); trusted
+> askers add `rapport_gain` to breadth. **Route practice** —
+> per-field `routeHeat` grows `route_gain` 0.05 per successful recall
+> through that field, capped `route_cap` 1.5×, decaying at `route_hl`
+> 30d (the rehearsed anecdote vs the cold question). **Fresh-angle
+> restart** — post-failure bouts with cue-key overlap <
+> `restart_overlap` 0.4 reset output-interference counters; identical
+> re-asks continue them (CI varied-retrieval mnemonics — Geiselman &
+> Fisher). +16 params, probes P647–P656.
+>
 > **v5.9 note (forgetting-curves VI — the curve re-opens, the crowd
 > forgets together):** `memory/forgetting-curves.md` Part VI
 > (§§27–31). **Reconsolidation window** — every successful recall
@@ -4847,6 +4874,136 @@ self-limiting; §34's recall→mood feedback specialized to the
 documented valence route). Emitted tag stays bittersweet ("mixed" —
 the literature's signature; P551).
 
+### 5.57 Directional cues — the link has a head (new in v5.10)
+
+cueVector fields mint with an implicit forward orientation at
+encoding — context describes content (RC§60; Kahana & Caplan 2002 —
+asymmetric links, not a symmetric association matrix). A retrieval
+context that queries in the stored direction (place/people/topic →
+"what happened") scores full `overlap`; a reverse query — content or
+a person fact asking for its context ("when did I last see Jules?",
+"where was that argument?") — contributes `overlap·backcue_mult`
+(≈0.6) per field. The direction is a property of the QUERY: a record
+never stores two copies. Recognition mode is exempt (copy cues have
+no direction — P647 sign-locks the dissociation). Field-pair note:
+person→event and event→person share one link; `backcue_mult`
+applies to whichever direction runs against mint order. Merged
+records (§4.3) keep forward orientation — generic memories answer
+"what was that era like" better than "which specific Tuesday."
+
+### 5.58 Iterated cuing — the fragment re-enters (new in v5.10)
+
+When a generative bout (§5.42) emits partial fields but no target,
+the emitted fragment set `F` folds back into `C` for up to
+`recue_passes` (2) further scans at `search_breadth·recue_breadth`
+(0.6) (RC§61; Norman & Bobrow 1979 — descriptions; Williams &
+Hollan 1981 — the meta-knowledge loop):
+
+```
+after a partial-emission bout:
+    F = emitted verbatim/gist fields (self-origin — §5.2
+        selfcue_mult applies; the character generated them)
+    repeat ≤ recue_passes:
+        C' = C ∪ F ; re-run §5.2/§5.22 on C'
+        if pass adds no new field: stop (marginal stop —
+            pairs with §5.22's failure stop; effort bounded
+            above and below)
+    each pass adds latency_ms·recue_breadth
+```
+
+The loop is voluntary-only (ambient §5.7 is single-pass). Recon-
+structions carry `search.passes` so the harness can count them —
+P648 requires strictly diminishing per-pass yield.
+
+### 5.59 Evocative objects — the external cueVector (new in v5.10)
+
+World artifacts (keepsakes, photos, instruments, letters) carry
+`objLink` — a standing cue field on the linked record (RC§62;
+Heersmink 2015; Turkle 2007 — distributed memory is mechanism, not
+metaphor):
+
+```
+record gains cueVector.objLink = artifactId
+c_obj = w_j·obj_cue_w (0.15)·overlap — place-independent, and
+    age-scaled by the §5.2 sensory term (the keepsake reaches
+    old memories the way odor does — P649)
+photographed events (Event.photographed):
+    "whole":  E *= photo_offload_pen (0.85)   // Henkel 2014
+    "detail": E *= 1.0                        // locked null —
+        photo_detail_null = 0 (Henkel zoom arm; Barasch 2017)
+photo review / retelling with artifact present: counts as a §5.9
+    retrieval for the linked record (Koutstaal 1998 reinstatement)
+```
+
+### 5.60 Pop-out cues — the loud nonfocal (new in v5.10)
+
+PM cue ecology (§5.14) gains a distinctiveness leg (RC§63; McDaniel
+& Einstein 1993; Brandimonte & Passolunghi 1994 — unfamiliar and
+context-distinctive cues raise prospective remembering, more at
+longer intervals):
+
+```
+on each PM monitor roll for a nonfocal cue:
+    if cueEvent.novelty ≥ distinct_gate (reused — §4.30c):
+        pm_monitor_p += pm_popout_gain·(1 + log1p(armedDays/7))
+        // 0.2 base — bridges nonfocal→focal, never exceeds it
+focal cues: unchanged (distinctiveness can't beat a focal cue,
+    only rescue a nonfocal one — P651)
+```
+
+### 5.61 The asker's license — report option on the context (new in v5.10)
+
+`C.asker = {rel ∈ {stranger,known,close,authority}, forced:bool}` —
+who asked is part of the cue (RC§64; Koriat & Goldsmith 1996 — the
+report decision is separate from trace strength):
+
+```
+forced:true:  emit best candidate above forced_floor (0.25)
+    instead of θ; emitted Reconstruction carries hedged:true
+    (report-side flag — same candidate, lower floor; quantity
+    up, accuracy down — P652/P653 sign-locks; demand
+    characteristics, Orne 1962)
+rel ≥ close && !forced:  search_breadth += rapport_gain (0.1)
+    — digs deeper for a friend; error share unchanged
+authority && forced:  forced_floor unchanged, hedged flag +
+    stress leg if §5.4 stress window active
+```
+
+`hedged` propagates: downstream §6.x hearsay mints at reduced
+confidence — a forced "I think so?" enters the rumor ledger weak.
+
+### 5.62 Route practice and the fresh-angle restart (new in v5.10)
+
+**Route heat** (RC§65; Karpicke & Roediger 2008; Carpenter & DeLosh
+2006 — retrieval practice strengthens the cue→target route, weakest
+cues gain most): each cueVector field key carries `routeHeat[j]`;
+
+```
+on successful recall where field j contributed c_j > 0:
+    routeHeat[j] = min(routeHeat[j]·2^(−Δd/route_hl) + route_gain,
+                       route_cap·w_j)   // route_gain 0.05, cap
+                                        // 1.5×, hl 30d
+effective c_j uses w_j_eff = w_j + routeHeat[j]
+```
+
+Rehearsed questions come out fast and polished; novel questions
+about the same event start cold — the party story IS a worn route.
+
+**Bout restart** (RC§66; Fisher & Geiselman 1992 varied-retrieval
+mnemonics; Köhnken 1999 / Memon et al. 2010 CI meta d≈1.2): when a
+voluntary bout ends in the §5.22 failure stop, classify the next
+bout by cue-key overlap with the failed set:
+
+```
+overlap(C_new.keys, C_fail.keys) < restart_overlap (0.4):
+    RESTART — §5.13 output-interference counters reset, kmax
+    restored (a new angle is a new search)
+≥ restart_overlap: CONTINUATION — counters persist (re-asking
+    the same question immediately is the worst probe)
+```
+
+P655 shape-locks restart > continuation on identical stores.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -8488,6 +8645,19 @@ MemoryParams = {
 "hyperbind_gain": 0.0,                        // base .02 + ramp ≥55, §4.30g
 "alf_gain": 0.3, "alf_onset": 7,              // late tail, §4.30h
 "distinct_gate": 0.7, "distinct_pi_w": 0.5,   // isolation shield, §4.30c
+// v5.10 additions (retrieval-cues VI — RC§§60–66)
+"backcue_mult": 0.6,                          // reverse-query leg, §5.57
+"recue_passes": 2, "recue_breadth": 0.6,      // iterated cuing, §5.58
+"obj_cue_w": 0.15,                            // evocative object, §5.59
+"photo_offload_pen": 0.15,                    // encode tax, §5.59
+"photo_detail_null": 0.0,                     // LOCKED — zoom arm, §5.59
+"pm_popout_gain": 0.2,                        // loud nonfocal, §5.60
+"forced_floor": 0.25, "rapport_gain": 0.1,    // asker license, §5.61
+"route_gain": 0.05, "route_cap": 1.5,
+"route_hl": 30,                               // worn path, §5.62
+"restart_overlap": 0.4,                       // fresh-angle gate, §5.62
+// v5.10 locked null: photo_detail_null = 0 (Henkel 2014 — detail-mode
+//   photographing carries no deficit; a build that shows one fails P650).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -9628,6 +9798,24 @@ not resolved (DEBATED magnitude). P509/P511.
     a rehearsal micro-boost, never suppression.
   - Reconstructed encodeDay carries the telescoping bias
     (§4.30f) — report-side only; `createdDay` never mutates.
+  - All snapshot-additive, absent = legacy.
+- v5.10 additions (retrieval-cues.md Part VI §§60–66):
+  - Record/cue fields: `cueVector.objLink` (artifact id — §5.59;
+    world-builder mints it when an Event names a keepsake/photo/
+    letter), per-field `routeHeat[j]` (§5.62 — self-maintained,
+    no writer needed). Event field `photographed:"whole"|"detail"`
+    (§5.59 — world tags the act; absent = no offload penalty).
+    Context field `asker:{rel,forced}` (§5.61 — the conversation
+    layer supplies who asked and whether the probe is forced).
+  - Report-side: Reconstruction gains `search.passes` (int —
+    §5.58 recue count) and `hedged:true` (§5.61 forced-floor
+    emission; hearsay mints from it at reduced confidence —
+    game-systems' rumor ingest should read it).
+  - PM cue events expose `novelty` (already computed for
+    `distinct_gate` — §5.60 reuses it, no new field).
+  - Direction weighting (§5.57) is query-side: callers pass the
+    query direction implicitly via which cue fields are set —
+    no API change, scoring change only.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)

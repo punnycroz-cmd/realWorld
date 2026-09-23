@@ -899,6 +899,14 @@ needs both.
 | hyperbind_gain | 0.0 | 0.4 | spurious-link age ramp ≥55 (v5.9) |
 | alf_gain / alf_onset | 0.0 / 2 | 0.8 / 30 | late-phase tail steepening, age-scaled (v5.9, DEBATED) |
 | distinct_gate / distinct_pi_w | 0.5 / 0.2 | 0.9 / 1.0 | isolation shield on interference (v5.9) |
+| backcue_mult | 0.3 | 0.9 | reverse-query leg weight (v5.10) |
+| recue_passes / recue_breadth | 0 / 0.3 | 3 / 0.9 | iterated-cuing depth + breadth (v5.10) |
+| obj_cue_w | 0.05 | 0.35 | evocative-object standing cue (v5.10) |
+| photo_offload_pen | 0.0 | 0.3 | whole-photo encode tax (v5.10) |
+| pm_popout_gain | 0.0 | 0.4 | distinctive nonfocal PM rescue (v5.10) |
+| forced_floor / rapport_gain | 0.1 / 0.0 | 0.4 / 0.25 | asker license floor + trust breadth (v5.10) |
+| route_gain / route_cap / route_hl | 0.0 / 1.1 / 10 | 0.15 / 2.0 / 90 | worn-path rate, cap, half-life (v5.10) |
+| restart_overlap | 0.2 | 0.7 | fresh-angle restart gate (v5.10) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2809,3 +2817,39 @@ diversity enters through the existing age/trait channels they read:
   not worth keeping / we agreed never to mention it" = forgetEvent
   (starvation, no drama). Same ~10–15% surface effect, different
   machinery, different fiction.
+
+## 44. v5.10 note (retrieval-cues VI — the cue's direction, echo, keeper)
+
+Eight clamp rows added in §0 for the v5.10 machinery. **None are
+trait pins** — all are mechanism constants; bible diversity keeps
+entering through existing channels:
+
+- **`backcue_mult` is a species constant, not a quirk.** Do NOT pin
+  it per-character — individual variation in directionality isn't in
+  the literature. A bible that wants "always knows who but never
+  when" already has it: era/when fields are the weakest cues AND
+  querying them is often a reverse lookup.
+- **`recue_passes` is personality-adjacent through the wrong door.**
+  A persistent thinker isn't a higher `recue_passes` — it's higher
+  `search_breadth`/`fok_retry` (existing). The pass cap is an
+  implementation bound; leave it at 2.
+- **Objects need the world.** `objLink`/`photographed` only do work
+  if events name artifacts — world-builder mints them; a character
+  bible can note "keeps her mother's ring / photographs everything"
+  and the flag does the rest. The photo-offload tax is encode-side:
+  the shutterbug remembers the evening a little thinner unless the
+  shots get reviewed (review = retrieval, the fix is built in).
+- **The asker is a context, not a character.** `forced` probes lower
+  the emission floor — interrogators get MORE words and WORSE ones;
+  `hedged` marks them for the rumor ledger. Rapport gains breadth,
+  never accuracy. Bible note: a character who *feels* interrogated
+  often (paranoid phenotype) lives under forced-floor emissions —
+  that's a style of answer, not a memory defect.
+- **`routeHeat` is invisible bookkeeping** — don't surface it; its
+  product is the difference between the polished six-times-told
+  anecdote and the same record's cold unasked fields. `route_hl`
+  30d keeps paths wearable, not permanent.
+- **`restart_overlap` gates interviews, not people.** The CI
+  contract: after a failed account, change the angle (order,
+  perspective, era) or the counters persist — identical re-asks
+  are the worst probe.

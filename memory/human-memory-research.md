@@ -1826,3 +1826,39 @@ sourced claims (full grounding in forgetting-curves.md §§27–31):
   distinctiveness is interference-resistance, not immortality.
 - Framework anchor: Bjork & Bjork 1992 New Theory of Disuse is the
   S/R root this spec has implemented since v0.9 — now cited.
+
+## 39. v62 addendum — retrieval-cues VI anchors (verified)
+
+The cue has a direction, an echo, and a keeper. This pass's sourced
+claims (full grounding in retrieval-cues.md §§60–69):
+
+- **Associations run forward.** Kahana & Caplan 2002 (JML 46:111) +
+  Rizzuto & Kahana 2001: backward recall loses to forward under
+  matched conditions — a cue is a head+tail, not a symmetric link.
+- **Fragments re-enter the search.** Norman & Bobrow 1979 (Cog
+  Psych 11:107) + Williams & Hollan 1981 (Cog Sci 5:87): retrieved
+  partial descriptions become the next probe's specification —
+  "let me think" is an actual loop.
+- **Objects remember outside the skull.** Heersmink 2015 + Turkle
+  2007 (evocative/distributed memory); Henkel 2014 (Psych Sci
+  25:396 — VERIFIED): whole-object photo-taking impairs memory,
+  detail-zoom eliminates the deficit; Barasch et al. 2017 (JPSP
+  112:741): engaged photographing can help — sign rides engagement.
+- **Loud cues do quiet cues' jobs.** McDaniel & Einstein 1993
+  (Memory 1:23 — VERIFIED) + Brandimonte & Passolunghi 1994:
+  distinctive/unfamiliar PM cues beat ordinary nonfocal ones,
+  increasingly with delay.
+- **The asker sets the report option.** Koriat & Goldsmith 1996
+  (Psych Bull 103:490): forced responding buys quantity at
+  accuracy's price — the trade-off lives in the report decision,
+  not the trace. Orne 1962 demand characteristics; rapport arm via
+  Vallano & Schreiber Compo 2011.
+- **The probe wears a path.** Karpicke & Roediger 2008 + Carpenter
+  & DeLosh 2006: retrieval practice strengthens the cue→target
+  route, weakest cues gaining most — the rehearsed anecdote and
+  the cold question are different roads to the same record.
+- **A failed search restarts on a new angle.** Fisher & Geiselman
+  1992 (change-order/change-perspective mnemonics); Köhnken 1999 +
+  Memon, Meissner & Fraser 2010 (Psych Bull 136:340 — CI meta,
+  d≈1.2 correct-detail): varied retrieval paths recover what the
+  first pass dropped; identical re-asks inherit the damage.

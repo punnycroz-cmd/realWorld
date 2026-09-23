@@ -5259,3 +5259,91 @@ Registry: P1–P646. v61 suite: P637–P646 (2 MUST — P638 sign-locked,
 P641 shape-locked; 8 SHOULD incl. two DEBATED-flagged anchors P637
 and P645 — absence is not asserted anywhere this version; every arm
 asserts a *rate or shape*, the falsifiable kind).
+
+## 117. Probes P647–P656 (v62 suite — retrieval-cues VI)
+
+Source sections: `retrieval-cues.md` §§60–66; spec §5.57–5.62.
+All snapshot-additive; each runs under the §14 B2 baseline unless
+noted.
+
+- **P647 directionality (MUST — sign-locked):** at matched overlap
+  and df, forward queries (context→content) out-recall reverse
+  queries by ≥1.3× on sparse cue sets; recognition-mode probes show
+  no asymmetry (Kahana & Caplan 2002; Rizzuto & Kahana 2001).
+- **P648 iterated cuing (SHOULD):** generative bouts with
+  `recue_passes` enabled surface strictly more targets than
+  direct-only runs; per-pass yield strictly diminishing (pass 2 <
+  pass 1); `search.passes` ≤ 2 always (Norman & Bobrow 1979).
+- **P649 evocative object (MUST):** linked-artifact presence lifts
+  recall of the linked record vs matched unlinked at equal cue
+  overlap; the lift persists at old record ages (≥180d) where
+  place reinstatement is the only rival — the keepsake outlasts
+  the apartment.
+- **P650 photo offload (MUST — two arms, one null):**
+  `photographed:"whole"` events encode lower E than matched
+  observed; `"detail"` events show NO deficit (locked null —
+  Henkel 2014 zoom arm; a build showing a detail-mode deficit
+  FAILS); artifact-present retells strengthen the linked record
+  (Koutstaal arm).
+- **P651 PM pop-out (SHOULD):** nonfocal cue with novelty ≥
+  `distinct_gate` fires at ≥0.8× focal rate vs ≤0.6× for matched
+  ordinary nonfocal; advantage grows with armedDays (Brandimonte &
+  Passolunghi 1994 interval arm).
+- **P652 asker license (MUST — sign-locked):** `forced:true` probes
+  emit more total fields AND lower field accuracy than free probes
+  on identical stores (Koriat & Goldsmith 1996 trade-off);
+  `rel ≥ close` raises breadth without raising error share.
+- **P653 hedged propagation (SHOULD):** forced-mode emissions carry
+  `hedged:true`; hearsay records minted from them carry reduced
+  confidence vs clean-emission controls.
+- **P654 route practice (SHOULD):** a field probed ≥5× recalls at
+  ≥1.2× base rate while equally-encoded never-probed fields stay at
+  base; re-probe after `route_hl` shows regression toward base
+  (worn paths fade).
+- **P655 restart vs continuation (SHOULD — shape):** post-failure,
+  low-overlap cue sets out-recall re-asked identical sets on the
+  same records (CI varied-retrieval; Köhnken 1999; Memon et al.
+  2010).
+- **P656 cue-ecology regression (MUST):** P9/P10/P16 (gating,
+  saturation, recognition-failure) still pass with all v5.10 legs
+  active — direction weighting, recue, route heat route through
+  §5.1/§5.2, never around them.
+
+## 118. Sources verified this version (P647–P656 backing)
+
+- Kahana & Caplan 2002 (J. Mem. Lang. 46:111 — verified:
+  associative symmetry tested and rejected; forward advantage);
+  Rizzuto & Kahana 2001 (JML 44 — autoassociator asymmetry).
+- Norman & Bobrow 1979 (Cog. Psych. 11:107 — descriptions as
+  intermediate retrieval stage); Williams & Hollan 1981 (Cog. Sci.
+  5:87 — think-aloud meta-knowledge loops); Koriat & Levy-Sadot
+  2001 (JEP:G 130:395 — accessibility accrual across passes).
+- Heersmink 2015 (Rev. Phil. Psych. 6:321 — distributed memory
+  taxonomy); Turkle 2007 (Evocative Objects — qualitative anchor);
+  Henkel 2014 (Psych. Sci. 25:396 — VERIFIED this version: whole-
+  object impairment, zoom null); Barasch, Diehl, Silverman &
+  Zauberman 2017 (JPSP 112:741 — attention-mediated benefit arm;
+  DEBATED split adopted); Koutstaal et al. 1998/1999 (photo-review
+  reinstatement).
+- McDaniel & Einstein 1993 (Memory 1:23 — VERIFIED this version:
+  unfamiliar + context-distinctive cues improve PM, Exp. 2
+  significant); Brandimonte & Passolunghi 1994 (QJEP 47A:565 —
+  distinctiveness × retention interval); Einstein & McDaniel 2005
+  (Curr. Dir. 14:286 — multiprocess framing).
+- Koriat & Goldsmith 1996 (Psych. Bull. 103:490 — monitoring-and-
+  control; forced vs free report trade-off, heavily replicated);
+  Orne 1962 (demand characteristics); Vallano & Schreiber Compo
+  2011 (rapport arm, single-team — rep-shrunk weight).
+- Karpicke & Roediger 2008 (Science 319:966 — retrieval-practice
+  asymmetry); Carpenter & DeLosh 2006 (Applied Cog. Psych. 20:123 —
+  weak cues gain most — route-side read is ours, HYPOTHESIS).
+- Fisher & Geiselman 1992 (CI manual — change-order/change-
+  perspective mnemonics); Köhnken, Milne, Memon & Bull 1999
+  (Psych. Pub. Pol. Law 5:3 — CI meta); Memon, Meissner & Fraser
+  2010 (Psych. Bull. 136:340 — verified: d≈1.2 correct-detail,
+  small error cost).
+
+Registry: P1–P656. v62 suite: P647–P656 (4 MUST — P647/P652
+sign-locked, P650 two-arm with locked null, P649/P656 behavioral;
+6 SHOULD incl. one DEBATED-flagged split anchor at P650's Barasch
+leg).
