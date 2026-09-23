@@ -80,7 +80,7 @@ function gsCollectRent(unitId, opts){
     return { ok: false, reason: 'no_active_lease' };
   const u = (typeof gsUnitById === 'function') ? gsUnitById(unitId) : null;
   const b = u && (typeof gsBldById === 'function' ? gsBldById(u.bld_id) : null);
-  const owner = (b && b.owner_id) || 'landlord';
+  const owner = (u && u.owner_id) || (b && b.owner_id) || 'landlord';
   const txn = gsDollarPay(l.tenant_id, owner, l.monthly_rent,
                           'rent ' + (opts && opts.period || ''));
   if(!txn) return { ok: false, reason: 'insufficient_dollars',

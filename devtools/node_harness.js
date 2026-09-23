@@ -3,8 +3,10 @@
 // Stubs the DOM/canvas/window surface the page needs, loads the bundled page
 // JS, fires DOMContentLoaded, and reports the autotest results.
 const fs = require('fs');
-const path = '/home/hatch/workspace/world-sim/willowbrook_natura_test.html';
-const html = fs.readFileSync(path, 'utf-8');
+const path = require('path');
+const page = process.env.GS_TEST_HTML ||
+  require('path').join(__dirname, '..', 'willowbrook_natura_test.html');
+const html = fs.readFileSync(page, 'utf-8');
 const m = html.match(/<script>([\s\S]*)<\/script>/);
 if (!m) { console.error('NO SCRIPT BLOCK'); process.exit(2); }
 const pageJS = m[1];
