@@ -866,6 +866,7 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; propM = 0.35; footM = 0.9; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; propM = 0.7; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
+      else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
       const sprC = spr && (spr.c || spr);
       if(o.kind === 'sfCar' && sprC){
         // v17: parked car — low slab: hard contact shadow + a short
@@ -969,6 +970,29 @@ function sfRenderWorld(cw, ch){
                       0.28 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
       }
       renderChibiPawn(d.v, cw, ch);
+    }
+  }
+
+  // v20: pole-line wires overhead — catenary spans between utility poles
+  // drape across the street canyons at their true 7m height (raised on
+  // screen by the same vertical scale the building sprites use)
+  if(SF_WIRES.length && cam.zoom > 0.5){
+    ctx.strokeStyle = isNight() ? 'rgba(10,10,12,0.55)' : 'rgba(30,26,20,0.55)';
+    ctx.lineWidth = Math.max(0.8, 1.1 * cam.zoom);
+    const zpx = 7.0 * SF_PXM * cam.zoom,
+          sag = 0.55 * SF_PXM * cam.zoom;
+    for(const wg of SF_WIRES){
+      const x1s = (wg.x1 - cam.x) * cam.zoom + cw / 2,
+            y1s = sfSY(wg.y1, ch) - zpx,
+            x2s = (wg.x2 - cam.x) * cam.zoom + cw / 2,
+            y2s = sfSY(wg.y2, ch) - zpx;
+      if((x1s < -40 && x2s < -40) || (x1s > cw + 40 && x2s > cw + 40) ||
+         (y1s < -60 && y2s < -60) || (y1s > ch + 60 && y2s > ch + 60)) continue;
+      ctx.beginPath();
+      ctx.moveTo(x1s, y1s);
+      ctx.quadraticCurveTo((x1s + x2s) / 2, (y1s + y2s) / 2 + sag * 2,
+                           x2s, y2s);
+      ctx.stroke();
     }
   }
 
@@ -1215,10 +1239,58 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  // v20: wood siding courses + rain-weathering on near walls. Real Mission
+  // cladding is horizontal boards — faint courses read as texture, and
+  // soot/water streaks bleeding down from sills and the cornice sell age.
+  if(det === 2 && style !== 2){
+    ctx.strokeStyle = 'rgba(30,24,18,0.11)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let z = 0.35; z < hm - 0.8; z += 0.34){
+      if(mural && z < muralZ1 + 0.2) continue;
+      const lA = pr(x1, y1, z), lB = pr(x2, y2, z);
+      if(!lA || !lB) continue;
+      ctx.moveTo(lA[0], lA[1]); ctx.lineTo(lB[0], lB[1]);
+    }
+    ctx.stroke();
+    for(let k = 0; k < 3; k++){
+      const su = 0.1 + phash(i, k + ei * 3, 1772) * 0.8,
+            sz = hm * (0.45 + phash(k, i + ei, 1773) * 0.45),
+            sl = 1.5 + phash(k, i + ei * 7, 1774) * 3.5;
+      if(mural && sz - sl < muralZ1) continue;
+      const sA = pr(x1 + ex * su, y1 + ey * su, sz),
+            sB = pr(x1 + ex * su, y1 + ey * su, Math.max(0.35, sz - sl));
+      if(!sA || !sB) continue;
+      ctx.fillStyle = `rgba(40,32,22,${0.08 * dim})`;
+      const wpx = Math.max(1.5, F * 0.05 / sA[2]);
+      ctx.fillRect(sA[0] - wpx / 2, sA[1], wpx, sB[1] - sA[1]);
+    }
+  }
+
   // parapet coping + bracketed cornice
   ctx.strokeStyle = shade(TRIM, 1.05);
   ctx.lineWidth = Math.max(1, F * 0.022 / g1[2]);
   ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+  // v20: the cornice is a real projecting box, not a paint line — a fascia
+  // board stands ~0.5m off the wall face over a shaded soffit. The ACC
+  // band/dentils on the wall plane behind read as its backing rail.
+  {
+    const cd = 0.5, cz0 = hm - 0.78, cz1 = hm + para * 0.8;
+    // soffit underside — always in shade (sky never reaches under a cornice)
+    quad([[x1, y1, cz0], [x2, y2, cz0],
+          [x2 + nx * cd, y2 + ny * cd, cz0], [x1 + nx * cd, y1 + ny * cd, cz0]],
+         shade(ACC, 0.6));
+    // fascia face — same sun rule as the wall behind it
+    quad([[x1 + nx * cd, y1 + ny * cd, cz0], [x2 + nx * cd, y2 + ny * cd, cz0],
+          [x2 + nx * cd, y2 + ny * cd, cz1], [x1 + nx * cd, y1 + ny * cd, cz1]],
+         shade(sfSunWallCol(ACC, sunK), Math.min(1.22, 1.04)));
+    const fA = pr(x1 + nx * cd, y1 + ny * cd, cz1),
+          fB = pr(x2 + nx * cd, y2 + ny * cd, cz1);
+    if(fA && fB){
+      ctx.strokeStyle = shade(ACC, 1.18);
+      ctx.lineWidth = Math.max(1, F * 0.02 / g1[2]);
+      ctx.beginPath(); ctx.moveTo(fA[0], fA[1]); ctx.lineTo(fB[0], fB[1]); ctx.stroke();
+    }
+  }
   const cA = pr(x1, y1, hm - 0.45), cB = pr(x2, y2, hm - 0.45);
   if(cA && cB){
     ctx.strokeStyle = ACC;
@@ -1282,6 +1354,25 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     const wh = pb[1] - pt[1], ww = wm * F / pb[2];
     if(ww < 2 || wh < 2.5) return;
     const r = ww / 2;
+    // v20: real window reveals — sashes sit ~13cm deep in the wall. The
+    // side jambs take sun independently (the jamb facing the solar
+    // bearing lights up, the other falls dark) and the header reveal is
+    // always shadow — every opening gets honest depth instead of a decal.
+    if(det === 2){
+      const rw = wm / 2, ins = 0.18;
+      const jx = wx - ux * rw, jy = wy - uy * rw,
+            kx = wx + ux * rw, ky = wy + uy * rw;
+      const kL = sfSunFaceK(ux, uy), kR = sfSunFaceK(-ux, -uy);
+      quad([[jx, jy, zB], [jx - nx * ins, jy - ny * ins, zB],
+            [jx - nx * ins, jy - ny * ins, zT], [jx, jy, zT]],
+           shade(wallCol, 0.5 + 0.35 * Math.max(0, kL)));
+      quad([[kx, ky, zB], [kx, ky, zT],
+            [kx - nx * ins, ky - ny * ins, zT], [kx - nx * ins, ky - ny * ins, zB]],
+           shade(wallCol, 0.5 + 0.35 * Math.max(0, kR)));
+      quad([[jx, jy, zT], [kx, ky, zT],
+            [kx - nx * ins, ky - ny * ins, zT], [jx - nx * ins, jy - ny * ins, zT]],
+           shade(wallCol, 0.42));
+    }
     ctx.fillStyle = ACC;
     ctx.beginPath();
     ctx.moveTo(pb[0] - r - 1, pb[1]); ctx.lineTo(pb[0] - r - 1, pt[1] + r + 1);
@@ -1488,6 +1579,20 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       const bx = x1 + ex * tb + ux * hw, by = y1 + ey * tb + uy * hw;
       const a2x = ax + nx * pd, a2y = ay + ny * pd;
       const b2x = bx + nx * pd, b2y = by + ny * pd;
+      // v20: the bay is a real projection, so it throws its own shadow on
+      // the wall behind — slid along the sun's bearing and dropped by
+      // tan(elevation) over the pd setback. Only when light hits this face.
+      const snW = SF_SUN.x * nx + SF_SUN.y * ny;
+      if(!night && snW < -0.06 && SF_SUN.day > 0.12){
+        const tR = pd / -snW,
+              du = (SF_SUN.x * ux + SF_SUN.y * uy) * tR,
+              dz = Math.tan(Math.max(0, SF_SUN.el)) * tR;
+        quad([[ax + ux * du + nx * 0.02, ay + uy * du + ny * 0.02, zLo - dz],
+              [bx + ux * du + nx * 0.02, by + uy * du + ny * 0.02, zLo - dz],
+              [bx + ux * du + nx * 0.02, by + uy * du + ny * 0.02, zHi - dz],
+              [ax + ux * du + nx * 0.02, ay + uy * du + ny * 0.02, zHi - dz]],
+             `rgba(15,12,8,${0.16 * SF_SUN.day * Math.min(1, -snW * 2.5)})`);
+      }
       quad([[ax, ay, zLo], [ax, ay, zHi], [a2x, a2y, zHi], [a2x, a2y, zLo]],
            shade(wallCol, 0.78));
       quad([[b2x, b2y, zLo], [b2x, b2y, zHi], [bx, by, zHi], [bx, by, zLo]],
@@ -1765,6 +1870,30 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       }
     }
     const dx = x1 + ex * doorT, dy = y1 + ey * doorT;
+    // v20: recessed entry alcove — Mission Victorian doors sit deep in a
+    // porch, not flush on the facade. Cheek walls lit independently by the
+    // sun, a shaded ceiling soffit, and a lintel face frame the opening;
+    // the door itself is drawn on the back wall ~0.8m inside.
+    const alcDep = 0.85, alcHw = 0.78;
+    {
+      const p0x = dx - ux * alcHw, p0y = dy - uy * alcHw,
+            p1x = dx + ux * alcHw, p1y = dy + uy * alcHw;
+      quad([[p0x, p0y, 0.05], [p0x - nx * alcDep, p0y - ny * alcDep, 0.05],
+            [p0x - nx * alcDep, p0y - ny * alcDep, 2.7], [p0x, p0y, 2.7]],
+           shade(wallCol, 0.5 + 0.35 * Math.max(0, sfSunFaceK(ux, uy))));
+      quad([[p1x, p1y, 0.05], [p1x, p1y, 2.7],
+            [p1x - nx * alcDep, p1y - ny * alcDep, 2.7],
+            [p1x - nx * alcDep, p1y - ny * alcDep, 0.05]],
+           shade(wallCol, 0.5 + 0.35 * Math.max(0, sfSunFaceK(-ux, -uy))));
+      quad([[p0x, p0y, 2.7], [p1x, p1y, 2.7],
+            [p1x - nx * alcDep, p1y - ny * alcDep, 2.7],
+            [p0x - nx * alcDep, p0y - ny * alcDep, 2.7]],
+           shade(wallCol, 0.42));
+      // lintel face over the alcove mouth
+      quad([[p0x, p0y, 2.35], [p1x, p1y, 2.35],
+            [p1x, p1y, 2.7], [p0x, p0y, 2.7]],
+           shade(ACC, 0.9));
+    }
     // stoop steps projecting onto the pavement
     quad([[dx - ux * 1.1, dy - uy * 1.1, 0.03], [dx + ux * 1.1, dy + uy * 1.1, 0.03],
           [dx + ux * 1.1 + nx * 1.2, dy + uy * 1.1 + ny * 1.2, 0.03],
@@ -1775,8 +1904,8 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
           [dx - ux * 0.9 + nx * 0.7, dy - uy * 0.9 + ny * 0.7, 0.35]],
          shade('#a39c8e', lit));
     // arched door + pediment
-    const db = pr(dx + nx * 0.15, dy + ny * 0.15, 0.35),
-          dt = pr(dx + nx * 0.15, dy + ny * 0.15, 2.5);
+    const db = pr(dx - nx * (alcDep - 0.05), dy - ny * (alcDep - 0.05), 0.35),
+          dt = pr(dx - nx * (alcDep - 0.05), dy - ny * (alcDep - 0.05), 2.5);
     if(db && dt){
       const dw = 0.55 * F / db[2], dh = db[1] - dt[1];
       if(dw > 2){
@@ -2802,6 +2931,51 @@ function sfRenderStreet(cw, ch){
       const p = pr(o.x / SF_PXM, o.y / SF_PXM, 0);
       if(!p) continue;
       const sc = F / p[2];
+      if(o.kind === 'sfPole'){
+        // v20: projected wood utility pole — tapered post, crossarm with
+        // insulator nubs, occasional transformer can, thin sun-shadow
+        // streak on the pavement. Wires are drawn globally after the
+        // drawables so they span cleanly over the street canyon.
+        const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+        const top = pr(mx, my, 7.2), arm = pr(mx, my, 6.75);
+        if(!top) continue;
+        ctx.fillStyle = `rgba(14,12,8,${night ? 0.3 : 0.2})`;
+        ctx.beginPath();
+        ctx.ellipse(p[0], p[1], 0.35 * sc, Math.max(1.2, 0.11 * sc),
+                    0, 0, Math.PI * 2);
+        ctx.fill();
+        if(!night && SF_SUN.day > 0.08){
+          const tp = pr(mx + SF_SUN.x * 7.2, my + SF_SUN.y * 7.2, 0);
+          if(tp){
+            ctx.strokeStyle = `rgba(15,12,8,${0.3 * Math.min(1, SF_SUN.day + 0.3)})`;
+            ctx.lineWidth = Math.max(1, 0.12 * sc);
+            ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(tp[0], tp[1]); ctx.stroke();
+          }
+        }
+        ctx.strokeStyle = night ? '#16100c' : '#3a2e22';
+        ctx.lineWidth = Math.max(1.5, 0.2 * sc);
+        ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(top[0], top[1]); ctx.stroke();
+        if(arm){
+          const a1 = o.dir === 0 ? pr(mx, my - 0.65, 6.75) : pr(mx - 0.65, my, 6.75),
+                a2 = o.dir === 0 ? pr(mx, my + 0.65, 6.75) : pr(mx + 0.65, my, 6.75);
+          if(a1 && a2){
+            ctx.lineWidth = Math.max(1, 0.11 * sc);
+            ctx.beginPath(); ctx.moveTo(a1[0], a1[1]); ctx.lineTo(a2[0], a2[1]); ctx.stroke();
+            ctx.fillStyle = night ? '#0e0c0a' : '#2a211a';
+            ctx.fillRect(a1[0] - 1, a1[1] - 1, 2, 2);
+            ctx.fillRect(a2[0] - 1, a2[1] - 1, 2, 2);
+          }
+        }
+        if(phash(o.wx, o.wy, 1694) < 0.33){ // transformer can
+          const tc = pr(mx, my, 5.6);
+          if(tc){
+            ctx.fillStyle = night ? '#14100d' : '#241d16';
+            ctx.fillRect(tc[0] - 0.28 * sc, tc[1] - 0.3 * sc,
+                         0.56 * sc, 1.05 * sc);
+          }
+        }
+        continue;
+      }
       const V = PA.sfVeg;
       let spr = null, hm = 5, shadowR = 0;
       if(o.kind === 'sfTree'){ spr = V.tree[Math.abs(hash2(o.wx, o.wy, 7) * V.tree.length) | 0]; hm = 4.4; shadowR = 1.6; }
@@ -2900,6 +3074,34 @@ function sfRenderStreet(cw, ch){
           ctx.strokeText(pv.name, p[0], p[1] - ph - 4);
           ctx.fillStyle = '#fff'; ctx.fillText(pv.name, p[0], p[1] - ph - 4);
         }
+      }
+    }
+  }
+
+  // v20: overhead pole-line wires — catenary spans at ~7m drawn across
+  // the street canyon in front of the facades they serve; two conductor
+  // heights per span like the real duplex runs on Mission pole lines
+  {
+    const wCol = night ? 'rgba(8,8,10,0.85)' : 'rgba(26,22,18,0.8)';
+    for(const wg of SF_WIRES){
+      const ax1 = wg.x1 / SF_PXM, ay1 = wg.y1 / SF_PXM,
+            ax2 = wg.x2 / SF_PXM, ay2 = wg.y2 / SF_PXM;
+      const mxx = (ax1 + ax2) / 2 - camX, myy = (ay1 + ay2) / 2 - camY;
+      const wf = mxx * DX + myy * DY, ws = Math.abs(mxx * DY - myy * DX);
+      if(wf < -12 || wf > 150 || ws > wf * 1.7 + 30) continue;
+      for(const [wz, drop] of [[7.15, 0.55], [6.8, 0.8]]){
+        const pA = pr(ax1, ay1, wz), pB = pr(ax2, ay2, wz);
+        if(!pA || !pB) continue;
+        const mid = (pA[2] + pB[2]) / 2 || 1,
+              sagPx = drop * F / mid;
+        ctx.strokeStyle = wCol;
+        ctx.lineWidth = Math.max(0.7, 0.045 * F / mid);
+        ctx.beginPath();
+        ctx.moveTo(pA[0], pA[1]);
+        ctx.quadraticCurveTo((pA[0] + pB[0]) / 2,
+                             (pA[1] + pB[1]) / 2 + sagPx * 2,
+                             pB[0], pB[1]);
+        ctx.stroke();
       }
     }
   }

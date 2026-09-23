@@ -418,6 +418,17 @@ function sfCarSpr(v, vert){
   r.g.drawImage(src.c, -W0 / 2, -H0 / 2); r.g.restore();
   return r;
 }
+/* v20: utility pole top-view marker — a dark post dot with its crossarm
+   tick perpendicular to the wire run (dir 0 = E-W street, arm runs N-S) */
+function sfPoleSpr(dir){
+  const s = paMk(14, 14), g = s.g;
+  const wd = rampOf('#4a3a28');
+  paEllipse(g, 7, 7, 3, 1.6, 'rgba(24,18,10,0.3)');
+  paR(g, 6, 6, 2, 2, wd[1]);
+  if(dir === 0){ paR(g, 6, 2, 2, 10, wd[2]); paPX(g, 6, 2, wd[0]); paPX(g, 6, 11, wd[0]); }
+  else { paR(g, 2, 6, 10, 2, wd[2]); paPX(g, 2, 6, wd[0]); paPX(g, 11, 6, wd[0]); }
+  return s;
+}
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
@@ -437,6 +448,7 @@ function buildSfVeg(){
     V.car.push(sfCarSpr(cv, false));
     V.car.push(sfCarSpr(cv, true));
   }
+  V.pole = [sfPoleSpr(0), sfPoleSpr(1)]; // v20
 }
 
 /* ---------------- Victorian facade compiler ----------------
@@ -696,6 +708,21 @@ function sfBldCanvas(b, wet){
     paNoise(g, Math.min(w.x1, w.x2), Math.min(w.y1, w.y2) - hPx,
             Math.abs(w.x2 - w.x1) + 1, hPx + Math.abs(w.y2 - w.y1) + 1,
             [wr[2], wr[4]], 0.07, 1310 + w.i);
+    // v20: horizontal siding courses — wood cladding reads as fine
+    // banding even at top-down zoom — plus the shade band the projecting
+    // cornice throws across the wall crown (same physics as street view)
+    if(hPx > 14 && w.len > 10){
+      g.strokeStyle = 'rgba(30,24,18,0.10)'; g.lineWidth = 1;
+      g.beginPath();
+      for(let zz = 3; zz < hPx - 5; zz += 3){
+        g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+      }
+      g.stroke();
+      const eavA = 0.05 + 0.16 * SF_SUN.day * Math.max(0, sunK);
+      g.strokeStyle = `rgba(20,14,8,${eavA})`; g.lineWidth = 4;
+      g.beginPath();
+      g.moveTo(w.x1, w.y1 - hPx + 3); g.lineTo(w.x2, w.y2 - hPx + 3); g.stroke();
+    }
     // cornice: bright accent band + dentil bumps along the top
     const steps = Math.max(1, Math.floor(w.len / 7));
     for(let k = 0; k <= steps; k++){

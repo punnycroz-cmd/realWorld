@@ -95,10 +95,11 @@ function sfGenChunk(cx, cy){
 
 /* ---- collision: buildings block, door thresholds pass ---- */
 const SF_PROP_CELL = new Map(); // "wx,wy" -> [objs] spatial index (v5)
+const SF_WIRES = []; // v20: [{x1,y1,x2,y2}] pole-top wire spans (world px)
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       sfStreetTree: 6, sfCypress: 7, sfPlanter: 5,
-                      sfCar: 15 };
+                      sfCar: 15, sfPole: 5 };
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
 const SF_DECALS = [];
@@ -525,6 +526,45 @@ function sfInitWorld(){
         y: wy * CS + 16 + oy * 9 + ay * jx,
         wx, wy, dir, v: Math.floor(phash(wx, wy, 1692) * 8) };
       VILLAGE_OBJECTS.push(o); sfPropIndex(o); nCars++;
+    }
+  }
+  /* ---- v20: utility poles + overhead wire runs ----
+     Mission streets carry pole lines along the sidewalk edge — a pole
+     every ~9 cells, then catenary spans to the next pole up the run.
+     SF_WIRES stores world-px segments (pole-top to pole-top); both
+     renderers drape them with real sag. */
+  const poleLanes = new Map(); // "dir,lane,side" -> [{slot, o}]
+  let nPoles = 0;
+  for(let wy = 1; wy < SF_M.gh - 1 && nPoles < 700; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1 && nPoles < 700; wx++){
+      if(sfTile(wx, wy) !== 11) continue;
+      let ax = 0, ay = 0, ox = 0, oy = 0;
+      if(sfTile(wx, wy - 1) === 10){ ax = 1; oy = -11; }
+      else if(sfTile(wx, wy + 1) === 10){ ax = 1; oy = 11; }
+      else if(sfTile(wx - 1, wy) === 10){ ay = 1; ox = -11; }
+      else if(sfTile(wx + 1, wy) === 10){ ay = 1; ox = 11; }
+      else continue;
+      const slot = ax ? wx : wy;
+      if(slot % 9 !== (ax ? 2 : 5)) continue;      // ~9m cadence
+      if(phash(wx, wy, 1693) > 0.8) continue;      // occasional gaps
+      if(sfTile(wx + ax, wy + ay) !== 11 ||
+         sfTile(wx - ax, wy - ay) !== 11) continue; // not at intersections
+      if(doorNear(wx, wy, 2) || occNear(wx, wy, 1)) continue;
+      const o = addVeg('sfPole', wx, wy, ox, oy);
+      o.dir = ax ? 0 : 1; // wire run axis: 0 = E-W street
+      const lk = o.dir + ',' + (ax ? wy : wx) + ',' + Math.sign(ax ? oy : ox);
+      if(!poleLanes.has(lk)) poleLanes.set(lk, []);
+      poleLanes.get(lk).push({ slot, o });
+      nPoles++;
+    }
+  }
+  SF_WIRES.length = 0;
+  for(const lst of poleLanes.values()){
+    lst.sort((a, b2) => a.slot - b2.slot);
+    for(let k = 1; k < lst.length; k++){
+      if(lst[k].slot - lst[k - 1].slot > 16) continue;
+      SF_WIRES.push({ x1: lst[k - 1].o.x, y1: lst[k - 1].o.y,
+                      x2: lst[k].o.x, y2: lst[k].o.y });
     }
   }
 
