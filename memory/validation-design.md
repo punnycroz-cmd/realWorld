@@ -210,6 +210,7 @@ Tier rules in §8.
 | P86–P95 | profile-generation.md | compiler determinism, coherence invariants, metamemory decorrelation, expertise bill, open loops, regime overlays, frozen audit | MUST (P86–P91, P95); OBSERVE (P92 Zeigarnik recall advantage — DEBATED per 2025 meta); SHOULD (P93–P94) | exact + T-diff |
 | P96–P105 | validation-design.md §9 | density, ambient equivalence, distinctness, trait structure, curves, caps, rehearsal inequality, metamemory, goldens, non-interference | MUST (P97, P99 nulls, P100, P105); SHOULD (P96, P98, P101–P104) | T-point + T-equiv |
 | P106–P116 | encoding-mechanics.md §12 | generation, enactment-in-aging, doorway, boundary structure, elaboration + maintenance null, intention null, DA asymmetry, production, unitization, survival fold, lapse structure | MUST (P106, P107, P109–P112); SHOULD (P108 doorway — magnitude DEBATED, P113, P114, P116); OBSERVE (P115 survival fold) | T-diff + T-equiv |
+| P117–P126 | forgetting-curves.md §10 | spacing, testing split, failed-retrieval potentiation, reminiscence, quote decay, release-from-PI, childhood ramp, suppression leak, intention persistence, retell-ecology flatness | MUST (P117, P118, P121, P122, P123, P126); SHOULD (P119, P120, P124, P125) | T-diff + T-point |
 
 **Registry rules:** probe numbering is frozen forever (deprecate by
 marking OBSERVE-dead, never renumber). New probes append. Every MUST
@@ -452,6 +453,39 @@ named there. Headline additions:
   failure reinstates the param.
 
 Registry now P1–P116; numbering stable.
+
+---
+
+## 12. New probes P117–P126 (v13, forgetting-curves II suite)
+
+Normative definitions in `forgetting-curves.md` §10; constrained params
+named there. Headline additions:
+
+- **P117 spacing analog (MUST):** 3 retells spaced weekly vs massed
+  same-hour → spaced R@30d ≥1.5× massed. Constrains `lag_opt_ratio`,
+  `massed_retell_mult` (Cepeda 2006 lag-optimum direction).
+- **P118 testing analog (MUST):** recall-grown vs rehear-grown records
+  — S_A > S_B at 14d but R_B ≥ R_A at 1d (the Roediger & Karpicke
+  short-delay inversion). Constrains `s_gain_recall`/`s_gain_rehear`.
+- **P121 quote decay (MUST):** verbatim.quote <0.3 of birth at 1h while
+  gist is intact — wording dies in minutes, meaning persists (Sachs
+  1967). Guards frozen `tau_quote`/`beta_quote`.
+- **P122 release-from-PI (MUST):** 5th same-bucket record depressed vs
+  1st; 6th after a category shift starts near-clean (Wickens 1970).
+  Constrains `pi_ref` + bucket structure.
+- **P123 childhood ramp (MUST):** adult-survival of encodeAge 3/5/8
+  records is graded monotone, and coherence-gated — not a step at 7
+  (Bauer & Larkina 2014/2015). Constrains `amnesia_slope`,
+  `child_consol_*`.
+- **P126 retell-ecology flatness (MUST):** top-decile-E gist curves
+  flatten via `retrievalCount`, not params — the Linton/Wagenaar shape
+  must be *emergent*.
+- **P124 suppression leak (SHOULD):** suppressEvent×3 lowers voluntary
+  hit-rate ≤~15%, storageS unchanged, §5.7 intrusion rate unchanged
+  (Anderson & Green 2001 — small bounded effect; failure mode is
+  suppression too STRONG, not too weak).
+
+Registry now P1–P126; numbering stable.
 
 ---
 

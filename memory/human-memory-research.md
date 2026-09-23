@@ -771,3 +771,67 @@ research only, no code, no narratives, no push/merge.
   teen/older deltas, lapse loadings on poor-sleep/stress/depressive
   modifiers, v1.2 age-sensitivity note.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 18. v13 calibration — forgetting-curves II (active forgetting, 2026-09-23)
+
+`forgetting-curves.md` Part II. Second pass on the decay engine: v1 priced
+*passive* decay; v13 prices the three things that actually decide survival
+in a lived life — rehearsal schedule, competition, control — plus two
+missing decay classes.
+
+- **Spacing/lag** (Cepeda et al. 2006 meta, 839 assessments/317 exps):
+  optimal ISI grows with RI — `lag_mult` log-normal peaking at
+  gap ≈ `lag_opt_ratio`·recordAge (0.15); massed re-access ×`massed_retell_mult`
+  0.4. Back-to-back retelling is mostly wasted [CONSENSUS direction;
+  shape HYPOTHESIS].
+- **Testing vs re-exposure** (Roediger & Karpicke 2006: 5min restudy 81% >
+  test 75%; 1wk test 61% >> restudy 40% — the inversion). `s_gain` split:
+  recall 0.35 / rehear 0.12; rehear refreshes R's clock identically but
+  buys ~⅓ the storage growth. Plus **failed-retrieval potentiation**
+  (Kornell, Hays & Bjork 2009): `attempted` flag → next re-encoding
+  ×(1+potent_gain 0.3).
+- **Reminiscence** (Payne 1987; Scrivner & Safer 1988; Dunning & Stern
+  1994): successive recall attempts surface new verbatim fields at
+  `reminiscence_frac` 0.15 each; net hypermnesia NOT required (eyewitness
+  pattern: reminiscence yes, net gain no — recall-mode only).
+- **Verbatim speech** (Sachs 1967: wording indistinguishable from
+  paraphrase after ~80 syllables ~1min; Jarvella 1971: verbatim covers
+  ~the current clause): `verbatim.quote` gets its own field class —
+  frozen tau_quote 0.02d, beta_quote 0.8. Dialogue quoting beyond the
+  same hour renders as paraphrase + confabulation.
+- **Interference accumulates** (Underwood 1957 — most everyday forgetting
+  is proactive; Wickens 1970 release-from-PI — category shift opens a
+  fresh competition pool; Watkins & Watkins cue-overload; Wixted 2004 —
+  pure decay may contribute little): `n_sim` per-record accumulator,
+  pairwise suppression ×min(1, √n_sim/pi_ref), pi_ref 4.
+- **Childhood amnesia step → ramp** (Bauer & Larkina 2013/2014/2015):
+  children's distributions are exponential (constant-rate forgetting —
+  failed consolidation), adults' power; rates order 4y > 6y > 8y > adult;
+  thematic coherence of the initial report predicts survival. β ramp
+  `1 + amnesia_slope·(1−age/7)` + first-sleep consolidation gate
+  `child_consol_base + coherence·child_consol_gain`. Survivorship cliff,
+  not a delete; power form kept (approximation, flagged).
+- **Deliberate suppression** (Anderson & Green 2001 TNT; Anderson &
+  Huddleston 2012 combined ~8%; Stramaccia 2021 — reduced control in
+  PTSD/depression; 2024 authorship analysis 95% dev-lab vs 68% independent
+  — replication-flagged): `suppressEvent` adds cumulative θ bump
+  (suppress_theta 0.08, cap 0.3), R-side ONLY — storageS untouched,
+  involuntary scan exempt. A leak, not a delete key.
+- **Intentions persist** (Einstein & McDaniel 1990): armed event-based
+  PM records decay at beta_pm 0.15 — retention tested at the cue; fired
+  intentions revert to ordinary episodic decay. Doorway penalty still
+  applies — PM failure is cue-side.
+- **Retell ecology** (Linton; Wagenaar mechanism): daily draw
+  `p_retell = retell_base·E_adj·(1 + retell_social·sharedCue)` — the
+  flat autobiographical curves of Part I now EMERGE from rehearsal
+  survivorship rather than parameter fiat. P126 forces that check.
+- **Procedural** ~never decays: beta_proc 0.02 + relearn_gain applies
+  (Nelson 1985 savings).
+- Spec → v1.3: §4.1 quote class + amnesia ramp, §4.2 PI accumulation,
+  §4.11 s_gain split + lag_mult + potentiation, NEW §4.12 suppression,
+  §4.13 retell ecology, §5.11 reminiscence, §9 beta_pm, schema +n_sim/
+  suppressed/attempted, §7 +19 params, §10 contract additions; probes
+  P117–P126 (registry now P1–P126). Profiles: +17 clamp rows + v1.3
+  age-sensitivity note (mostly age-invariant by design; retell/
+  reminiscence/suppress_cap carry the exceptions).
+- Boundaries kept: research only, no code, no narratives, no push/merge.

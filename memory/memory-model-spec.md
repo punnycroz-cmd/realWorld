@@ -1,4 +1,18 @@
-# Memory Model Spec v1.2 — implementable human-like memory for RW characters
+# Memory Model Spec v1.3 — implementable human-like memory for RW characters
+
+> **v1.3 note (forgetting-curves II):** `memory/forgetting-curves.md` Part
+> II calibrates the *active* side of forgetting: spacing-aware storage
+> growth (Cepeda 2006 lag optimum), the testing/re-exposure split
+> (Roediger & Karpicke 2006 inversion), failed-retrieval potentiation
+> (Kornell 2009), verbatim-quote sub-daily decay (Sachs 1967 — wording
+> dies in ~1 min of intervening speech), accumulating proactive
+> interference with category-shift release (Underwood 1957; Wickens
+> 1970), childhood amnesia step→ramp with coherence-gated survival
+> (Bauer & Larkina 2013–2015), deliberate suppression as a bounded
+> R-side leak (Anderson & Green 2001 — ~8%, replication-flagged),
+> event-based intention persistence, retell-ecology rehearsal draws, and
+> per-attempt reminiscence resurfacing. §7 +19 params; probes P117–P126.
+> All optional w/ defaults; backward compatible.
 
 > **v1.2 note (encoding-mechanics):** `memory/encoding-mechanics.md` adds
 > the processing-side layer §2 was missing: elaboration depth (LoP;
@@ -139,6 +153,12 @@ MemoryRecord = {
                                       // phantom; gets possess_alien
                                       // estrangement discount at recall
                                       // (formal-model.md §6)
+  "n_sim": 0,                         // v1.3: similar records encoded
+                                      // since (§4.2 PI accumulator)
+  "suppressed": 0,                    // v1.3: suppression count (§4.12)
+  "attempted": false,                 // v1.3: failed-recall flag —
+                                      // next re-encoding potentiated
+                                      // (§4.11)
   "accessLog": []                     // optional debug; may be capped
 }
 ```
@@ -467,9 +487,26 @@ R(t) = E_adj · (1 + t/τ)^(-β) + floor
     is for positive/important memories; sad memories show no bump
     (Berntsen & Rubin 2004; Rubin & Berntsen 2003). Per-character
     `bump_peak` jitter ±3y (Janssen et al. 2005: earlier for women).
-  - *Childhood records:* if `encodeAge < amnesia_exit` (7), permanently
-    `β *= amnesia_decay_mult` (1.8) — the exponential forgetting regime
-    of childhood (Bauer & Larkina 2013), erased by ~adulthood.
+  - *Childhood records (v1.3: step → ramp + survivorship):* if
+    `encodeAge < amnesia_exit` (7), permanently
+    `β *= 1 + amnesia_slope·(1 − encodeAge/amnesia_exit)`
+    (`amnesia_slope` ≈ 1.2 → β×2.2 at age 1, β×1.0 at 7 — graded, not a
+    cliff; Bauer & Larkina 2014: forgetting rate orders 4y > 6y > 8y >
+    adult). AND at the first sleep tick the record must pass a
+    consolidation gate:
+    `P(survive childhood) = min(1, child_consol_base + coherence·child_consol_gain)`
+    (`child_consol_base` 0.15, `child_consol_gain` 0.6; coherence =
+    coherentUnit flag or link degree > 0 at birth — thematic coherence
+    predicts survival, Bauer & Larkina 2015). Failed records archive
+    immediately — childhood amnesia is a survivorship cliff, not a
+    delete. `amnesia_decay_mult` is deprecated (≈ ramp midpoint).
+- **Quote field class (v1.3):** `verbatim.quote` decays on a sub-daily
+  schedule — `tau_quote` 0.02d (~30 min), `beta_quote` 0.8, floor 0
+  (Sachs 1967: wording indistinguishable from paraphrase after ~80
+  intervening syllables; Jarvella 1971: verbatim covers ~the current
+  sentence). Same power law, smaller τ — legal per formal-model §1
+  scale invariance. Dialogue quoting beyond the same hour should render
+  as paraphrase/gist + confabulation, not the stored quote.
 - **β_episodic ≈ 0.5 is calibrated**: τ=1.2d, β≈0.47 reproduces Ebbinghaus
   1885 / Murre & Dros 2015 (21% savings @ 31d) for meaningless unrehearsed
   material — the decay floor for episodic content. See
@@ -488,6 +525,16 @@ if similarity > interf_thresh·discrim_mult (param, ~0.6):
 
 Retroactive: newer memory hits older harder (`interf_k` asymmetric, e.g.
 new→old 0.15, old→new 0.05). This is what blurs the 40th identical commute.
+**v1.3 — accumulation + release-from-PI:** each record carries `n_sim`,
+the count of cue-similar records encoded *since* it (increment when a
+new encodeEvent lands sim > interf_thresh in its cue bucket). Pairwise
+suppression scales by `min(1, sqrt(n_sim)/pi_ref)`, `pi_ref` = 4 —
+proactive interference accumulates to collapse within a handful of
+same-category items (Wickens 1970); competition pools are the cue
+buckets themselves, so a *category shift* (new venue, new topic cluster)
+opens a fresh pool and the next record starts near-clean (release-from-
+PI; Underwood 1957: most everyday forgetting is proactive). See
+forgetting-curves.md §7.5.
 **v0.4:** `discrim_mult(age_eff)` ≤1 scales the threshold down with age —
 pattern separation loss means older characters treat *similar-but-distinct*
 records as matches sooner (Yassa et al. 2011; Stark et al. 2013;
@@ -637,11 +684,28 @@ carries `storageS` — how well-learned it is (Bjork & Bjork 1992 New
 Theory of Disuse; formal-model.md §10):
 
 - **Birth:** `storageS = encodingE`.
-- **On successful retrieval:** `S += s_gain·(1−S)·(1−R_pre)` where
-  `R_pre` is strength *before* the §5.9 reboost — the desirable-
+- **On successful retrieval:** `S += s_gain·lag_mult·(1−S)·(1−R_pre)`
+  where `R_pre` is strength *before* the §5.9 reboost — the desirable-
   difficulty term: hard retrievals grow S, easy ones barely do
-  (spacing/lag effect emergent; Cepeda et al. 2006; Karpicke & Roediger
-  2008). s_gain ≈ 0.35.
+  (Karpicke & Roediger 2008). **v1.3 splits s_gain by access kind**
+  (forgetting-curves.md §7.2): `s_gain_recall` = 0.35 for effortful
+  recall of one's own record, `s_gain_rehear` = 0.12 for passive
+  re-exposure (hearAccount match, re-witnessing) — rehear refreshes
+  `lastAccessDay` identically (R-side benefit is the same) but buys ~⅓
+  the storage growth; the Roediger & Karpicke 1-week inversion is the
+  emergent consequence. `lag_mult` is the spacing factor:
+  `exp(−(ln(gap/(lag_opt_ratio·recordAge)))² / (2·lag_width²))` with
+  `lag_opt_ratio` 0.15, `lag_width` 1.0 — S-growth peaks when the gap
+  since last access is ~15% of the record's age (Cepeda et al. 2006:
+  optimal ISI scales with RI); gap < `massed_gap` (0.08d ≈ 2h) instead
+  gets `massed_retell_mult` 0.4 — back-to-back retelling is mostly
+  wasted.
+- **Failed-retrieval potentiation (v1.3):** a recall() attempt that
+  scored the record but missed θ sets `attempted: true`; the next
+  re-encoding/re-exposure of matching content gets
+  `E_new *= (1 + potent_gain)` (0.3) and consumes the flag (Kornell,
+  Hays & Bjork 2009 — struggling to recall, then hearing it, beats never
+  trying).
 - **Decay:** `S *= (1 − s_decay)` daily, s_decay ≈ 0.0008 — near-
   permanent; under the §4.8 terminal ramp s_decay is a capacity param
   (`*= (1 + terminal_gain·t_frac)`).
@@ -657,6 +721,33 @@ Theory of Disuse; formal-model.md §10):
 
 PersonModel tiers are exempt — they keep their own strength ordering
 (adding S/R there doubles bookkeeping for no behavioral gain).
+
+### 4.12 Deliberate suppression — a bounded R-side leak (new in v1.3)
+
+`suppressEvent(charId, recordId)` models a character consciously
+avoiding a memory. Each call: `record.suppressed++` and
+`θ_eff += suppress_theta` (0.08, cumulative, capped at
+`suppress_cap` 0.3). Acts on retrieval-side accessibility ONLY —
+`storageS` untouched; the §5.7 involuntary scan **ignores** suppression
+entirely (the avoided memory is the one that ambushes you in the
+shower). Magnitude deliberately small: TNT suppression-induced
+forgetting is ~8% (Anderson & Green 2001; Anderson & Huddleston 2012)
+with an uneven replication record — `suppress_cap` ×0.5 under trauma/
+depressive modifiers (reduced control where most wanted; Stramaccia et
+al. 2021). forgetting-curves.md §7.7. This is a leak, not a delete key.
+
+### 4.13 Retell ecology — rehearsal emerges (new in v1.3)
+
+Once per daily tick, each live episodic record draws
+`p_retell = retell_base·E_adj·(1 + retell_social·sharedCue)`
+(`retell_base` 0.015/day; `retell_social` 1.0 when a co-present
+participant/topic cue is in context). On fire: §5.9 reboost + §4.11
+S-growth at `s_gain_recall` + §6.1 drift. This is the mechanism behind
+the flat autobiographical curves (Linton; Wagenaar): the top few percent
+of records get rehearsed toward permanence while the rest ride the
+β=0.5 slope — survivorship, not a second functional form
+(forgetting-curves.md §7.9). When the real social/rumor engine exists,
+replace the Bernoulli draw with actual conversation opportunities.
 
 ---
 
@@ -921,6 +1012,20 @@ tier3 name:         roll vs name_thresh (0.55) on nameStrength
   returns candidate persons ranked by `knowsTopics[topic]` strength —
   "I don't know, but Jules would" (transactive memory, §6.14;
   Wegner 1987).
+
+### 5.11 Reminiscence across attempts (new in v1.3)
+
+Successive recall attempts without re-exposure surface *new* verbatim
+fields: on each successful recall, every verbatim field not yet returned
+with residual strength > 0 surfaces independently at
+`reminiscence_frac` (0.15). Reminiscence (new items on attempt n>1) is
+robust; net hypermnesia is NOT required — fields also drop between
+attempts via ordinary field-strength decay, matching the eyewitness
+pattern (Scrivner & Safer 1988; Dunning & Stern 1994: reminiscence
+yes, net gain no; Payne 1987: net gain only for recall-mode, high-
+imagery material). RW effect: retelling the story a second time
+plausibly adds a detail — while others have quietly fallen out
+(forgetting-curves.md §7.3).
 
 ---
 
@@ -1423,7 +1528,27 @@ MemoryParams = {
   "unitize_gain": 0.3,       // coherent-unit link rescue (aging)
   "distinct_gain": 0.15,     // within-context isolation bonus
   "concrete_gain": 0.1,      // sensory/concrete content bonus
-  "mood_cong_encode": 0.1    // mood-congruent elaboration bonus
+  "mood_cong_encode": 0.1,   // mood-congruent elaboration bonus
+  // v1.3 additions (forgetting-curves II — active-forgetting calibration,
+  // forgetting-curves.md §§7–8)
+  "s_gain_recall": 0.35,     // S growth on effortful recall (§4.11)
+  "s_gain_rehear": 0.12,     // S growth on passive re-exposure (§4.11)
+  "lag_opt_ratio": 0.15,     // optimal retell gap / record age (§4.11)
+  "lag_width": 1.0,          // log-normal width of the lag optimum
+  "massed_gap": 0.08,        // days; below → massed_retell_mult
+  "massed_retell_mult": 0.4, // same-conversation retells mostly wasted
+  "potent_gain": 0.3,        // failed recall → next re-encoding boost
+  "pi_ref": 4.0,             // n_sim scale at which PI saturates (§4.2)
+  "amnesia_slope": 1.2,      // childhood β ramp (replaces decay_mult)
+  "child_consol_base": 0.15, // childhood record survival base
+  "child_consol_gain": 0.6,  // coherence → survival (Bauer&Larkina 2015)
+  "suppress_theta": 0.08,    // per-suppression θ bump (§4.12)
+  "suppress_cap": 0.3,       // cumulative suppression ceiling
+  "retell_base": 0.015,      // daily ecology retell draw (§4.13)
+  "retell_social": 1.0,      // shared-cue boost on p_retell
+  "beta_pm": 0.15,           // armed intention decay (§9)
+  "reminiscence_frac": 0.15, // per-attempt field resurfacing (§5.11)
+  "beta_proc": 0.02          // procedural map decay (~never)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -1445,6 +1570,10 @@ MemoryParams = {
 //   lapse_window = 0.02 day (doorway reach, ~30 min);
 //   elaboration weights {0.5·selfRelevance, 0.3·predictionError,
 //   0.2·coherence, 0.3·survivalRelevance} (LoP derivation mix, P110)
+// v1.3 frozen constants (forgetting-curves.md §§7–8):
+//   tau_quote = 0.02, beta_quote = 0.8 (verbatim-speech field class —
+//   Sachs 1967; same for everyone, P121); lag curve SHAPE is frozen
+//   (log-normal), only lag_opt_ratio/lag_width are free
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -1530,6 +1659,11 @@ Prospective memory moved from non-goal to **optional extension** in v0.3:
 through the ordinary §5 formula (older adults unimpaired); uncued deadlines
 resolve via `pm_self` probability (older adults impaired). This reproduces
 the age-PM paradox for free. See `age-development.md` §7.
+**v1.3:** armed event-based Intentions decay at `beta_pm` (0.15) while
+waiting — they barely fade because retention is tested *at the cue*
+(Einstein & McDaniel 1990); on trigger-fire the intention resolves into
+an ordinary episodic record and decays normally. The v1.2 doorway
+penalty still applies — PM failure is a cue problem, not a decay problem.
 
 ## 10. Interface contract for game-systems
 
@@ -1652,3 +1786,18 @@ the age-PM paradox for free. See `age-development.md` §7.
   - `rememberIntention` records are doorway-susceptible: a locShift drops
     their accessibility like any recent record — "walked in and forgot
     why" is emergent
+- v1.3 additions (forgetting-curves.md Part II):
+  - `suppressEvent(charId, recordId)` → deliberate-avoidance operator
+    (§4.12): cumulative θ bump capped at `suppress_cap`, R-side only,
+    §5.7 involuntary scan exempt. The dialogue/behavior layer calls it
+    when a character actively steers away from a memory.
+  - `dailyMemoryTick` additionally runs the §4.13 retell-ecology draw
+    (p_retell per live episodic record) and the childhood consolidation
+    gate on records with encodeAge < amnesia_exit.
+  - record schema gains `n_sim` (§4.2 PI accumulator), `suppressed`
+    (int, §4.12), `attempted` (§4.11 potentiation flag) — all hidden,
+    snapshot-additive, harness-readable like other hidden fields.
+  - `recall`/`hearAccount` reboosts split by kind: recall grows S at
+    s_gain_recall, re-exposure at s_gain_rehear (§4.11); recall results
+    may surface previously-unreturned verbatim fields at
+    `reminiscence_frac` (§5.11).

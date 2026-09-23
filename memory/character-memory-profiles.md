@@ -161,6 +161,37 @@ never copying raw.
 | distinct_gain | 0.0 | 0.4 | within-context isolation bonus (v1.2) |
 | concrete_gain | 0.0 | 0.3 | sensory/concrete content bonus (v1.2) |
 | mood_cong_encode | 0.0 | 0.3 | mood-congruent elaboration bonus (v1.2) |
+| s_gain_recall | 0.2 | 0.5 | S growth on effortful recall (v1.3) |
+| s_gain_rehear | 0.05 | 0.2 | S growth on passive re-exposure (v1.3) |
+| lag_opt_ratio | 0.05 | 0.3 | optimal retell gap / record age (v1.3) |
+| lag_width | 0.6 | 1.6 | width of lag optimum (v1.3) |
+| massed_retell_mult | 0.2 | 0.6 | same-conversation retell waste (v1.3) |
+| potent_gain | 0.0 | 0.5 | failed-recall → re-encoding boost (v1.3) |
+| pi_ref | 2 | 8 | n_sim at which PI saturates (v1.3) |
+| amnesia_slope | 0.6 | 2.0 | childhood β ramp steepness (v1.3) |
+| child_consol_base | 0.05 | 0.3 | childhood survival base rate (v1.3) |
+| child_consol_gain | 0.3 | 0.9 | coherence → survival (v1.3) |
+| suppress_theta | 0.03 | 0.15 | per-suppression θ bump (v1.3) |
+| suppress_cap | 0.15 | 0.45 | cumulative suppression ceiling (v1.3) |
+| retell_base | 0.005 | 0.04 | daily ecology retell draw (v1.3) |
+| retell_social | 0.0 | 2.0 | shared-cue retell boost (v1.3) |
+| beta_pm | 0.05 | 0.3 | armed intention decay (v1.3) |
+| reminiscence_frac | 0.05 | 0.3 | per-attempt field resurfacing (v1.3) |
+| beta_proc | 0.0 | 0.05 | procedural decay (~never) (v1.3) |
+
+**v1.3 forgetting-curves note:** the v1.3 params are mostly
+age-INVARIANT by design — spacing/testing dynamics, quote decay,
+suppression ceilings, and intention persistence are population
+mechanisms. Age-sensitive exceptions: `retell_base`/`retell_social`
+(older adults rehearse less socially → ×0.8 at 65+; gossip modifier
+×1.4 both), `reminiscence_frac` (older ×0.8 — smaller field pools),
+`suppress_cap` (depressive/trauma modifiers ×0.5 — reduced control
+where most wanted, Stramaccia 2021), `child_consol_*` (only evaluated
+for encodeAge < 7 records by construction), `amnesia_slope` (frozen at
+character level — it prices a fact about the encoder's age, not the
+current one). `pi_ref` is FLAT: release-from-PI is age-invariant in
+the paradigm's data; the older-adult PI vulnerability lives in
+`discrim_mult` (§4.2), not here.
 
 **v0.9d frozen constants (deepening pass):** `s_decay` (0.0008),
 `relearn_gain` (0.8), `resurrect_R` (0.35), `tele_cross` (21),
