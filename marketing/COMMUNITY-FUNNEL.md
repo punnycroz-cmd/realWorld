@@ -1,11 +1,15 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v39 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v54 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
 and shipped `tools/build_recap.py`. v39 added the runnable ops kit under
 `community/` — welcome sequence, watch-party playbook, first-100 seeding
-plan, referral loop — plus the `community` analytics stage.)
+plan, referral loop — plus the `community` analytics stage. v54 added the
+measurement + routing layer: `community/funnel-scorecard.md` with
+`tools/funnel_scorecard.py` (stage targets + weekly scorecard from the
+events capture) and `tools/feedback_router.py` +
+`community/feedback-batch.template.md` (§7 loop, automated).)
 **Scope:** spectator → community → player pipeline: surfaces, content strategy,
 moderation, creator outreach, feedback loop, launch infrastructure.
 **Authority:** design doc `rw-game-design-2026-09-22.md` (esp. §5 participation,
@@ -36,6 +40,10 @@ Visitor → Watcher  →  Community  →  Requester  →  Resident    →  Advoc
 | Requester → Resident | Create a character, sign a lease | `character_created` |
 | Resident → Advocate | Recap mentions, clip shares, referral | UTM-tagged inbound shares |
 
+Stage conversion targets and the weekly scorecard that computes them live
+in `community/funnel-scorecard.md` (`tools/funnel_scorecard.py` runs the
+numbers from the events capture + manual Discord counts).
+
 **Design rules for the funnel:**
 
 - Every rung must be reachable *within one session of curiosity* (market report
@@ -63,6 +71,8 @@ Visitor → Watcher  →  Community  →  Requester  →  Resident    →  Advoc
 | Weekly recap post | Stage 1→2 retention engine | TEMPLATE + GENERATOR BUILT (`tools/build_recap.py`, §5a) |
 | Discord server | Stage 2 home: feed discussion, watch parties | OWNER-GATED (create at go) — runnable spec in `community/` kit |
 | Ops kit — `community/` (welcome-sequence, watch-party-playbook, first-100, referral-loop) | Stage 1→2→5 execution layer: copy-ready join flow, event format, seeding plan, honest referral mechanics | BUILT (v39), OWNER-GATED to run |
+| Funnel scorecard — `community/funnel-scorecard.md` + `tools/funnel_scorecard.py` | Whole-funnel measurement: stage targets + weekly paste-ready report | BUILT (v54) — verified vs `analytics/sample-week.ndjson` |
+| Feedback router — `tools/feedback_router.py` + `community/feedback-batch.template.md` | §7 loop automation: sanitized batch → ready-to-paste inbox entry grouped by owning track | BUILT (v54) |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -161,6 +171,7 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 | Cadence | Item | Source material | Template |
 |---|---|---|---|
 | Weekly (Sun) | "This Week on the Block" recap | `world/history.json`-conforming archive | `social/drafts/recap-format.md` + `tools/build_recap.py` (§5a) |
+| Weekly (with recap) | Funnel scorecard + feedback route | events.ndjson + manual counts + batch file | `tools/funnel_scorecard.py` + `tools/feedback_router.py` (v54) |
 | Bi-weekly | Devlog post (itch devlog + blog slot) | track inbox entries, sanitized | `templates/` devlog template (v4 backlog — see §9) |
 | Bi-weekly (offset) | Cast spotlight card | cast bible (public-profile fields only — never secrets) | `social/drafts/cast-spotlights.md` |
 | Event-driven | Request-feed highlights clip | live captures during notable requests | `social/drafts/devlog-clips.md` |
@@ -241,14 +252,22 @@ task in LAUNCH-CHECKLIST.
 `#feedback` + social replies triage weekly:
 
 1. **Collect** — community lead (owner at launch) tags items: bug / balance /
-   content-wish / moderation-issue.
+   content-wish / moderation-issue / faq.
 2. **Sanitize** — strip handles/PII; a complaint about "the request queue"
-   becomes a one-line item.
-3. **Route via shared inbox** — append a `[marketing-community]` entry to
-   `devin-reviews/sf-shared-inbox.md` addressed to the relevant track:
+   becomes a one-line item. Drop each into a batch file in the
+   `community/feedback-batch.template.md` format as they arrive.
+3. **Route via shared inbox** — run
+   `python3 marketing/tools/feedback_router.py <batch>.md`, then paste its
+   output as a `[marketing-community]` entry in
+   `devin-reviews/sf-shared-inbox.md`. The router groups by owning track
+   (bug/balance → game-systems, content-wish → world-builder,
+   moderation-issue → owner-review, faq → site/faq.html candidates),
+   collapses duplicates to ×N, and parks anything malformed in UNROUTED.
+   It prints only — the owner always pastes. Track mapping:
    - request-system friction, queue/classification confusion → game-systems
    - character/business naming, world content wishes → world-builder
-   - visual/camera issues seen in captures → art
+   - visual/camera issues seen in captures → art (tag these by hand in the
+     batch file's unrouted lines, or add them manually)
 4. **Close the loop** — when a shipped change traces to community feedback,
    say so in the recap ("you reported, it's fixed"). This is the cheapest
    retention mechanic that exists.
@@ -285,11 +304,15 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
   "community_join"` to the live link** (event spec'd in analytics-events.json).
 - **Day-7:** first full recap; first watch party if the feed qualifies
   (`community/watch-party-playbook.md` §1 triggers); creator-variant outreach
-  draft; triage first `#feedback` batch into shared inbox; assess #the-feed
+  draft; triage first `#feedback` batch via `feedback_router.py` into shared
+  inbox; run `funnel_scorecard.py` on week-1 events + first manual counts —
+  log it even though targets are still hypotheses; assess #the-feed
   manual-mirror load.
 - **Day-30:** mod recruitment decision; cadence retro (did weekly hold?);
   subreddit/forum revisit; seeding retro per `community/first-100.md` §5;
-  funnel metrics review vs. §1 targets.
+  funnel metrics review — four scorecard weeks vs. `funnel-scorecard.md` §2
+  targets; re-set targets in writing (scorecard §5.3, no silent goalpost
+  moves).
 
 ## 10. Open dependencies
 
