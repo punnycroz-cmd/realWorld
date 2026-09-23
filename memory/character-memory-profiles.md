@@ -139,6 +139,14 @@ never copying raw.
 | contiguity_gain | 0.0 | 0.4 | temporal-neighbor recall bonus — reminiscence cascader (v0.9d) |
 | hindsight_k | 0.1 | 0.6 | prior-assimilation toward known outcome — told-you-so trait (v0.9d) |
 | oc_gain | 0.0 | 0.6 | hard-easy overconfidence at report time (v0.9d) |
+| metamem_r | 0.0 | 0.3 | felt↔actual memory correlation; humans ~0.1–0.2 (v1.0) |
+| self_est_bias | 0.05 | 0.3 | σ of self-model noise — keeps self_est decorrelated (v1.0) |
+| strategy_use | 0.0 | 1.0 | external-memory reliance (lists, transactive asks) (v1.0) |
+| expert_gain | 0.0 | 0.15 | in-domain enc_base boost (v1.0; replaces flat +0.1) |
+| expert_cost | 0.0 | 0.15 | out-of-domain link_p penalty — the Woollett bill (v1.0) |
+| expert_bound | 0.7 | 1.0 | domain-boundary collapse fraction (v1.0) |
+| open_loop_gain | 0.0 | 0.3 | intrusion/drive boost on open records (v1.0) |
+| open_self_gate | 0.0 | 0.7 | selfRelevance floor for open tagging (v1.0) |
 
 **v0.9d frozen constants (deepening pass):** `s_decay` (0.0008),
 `relearn_gain` (0.8), `resurrect_R` (0.35), `tele_cross` (21),
@@ -231,6 +239,19 @@ retain the criticism. Two hard constraints: `name_thresh >
 identity_thresh > familiar_thresh` always, and incongruity (encoding)
 vs stereotype-convergence (transmission) stay uncoupled — Kashima 2000
 needs both.
+
+**v1.0 profile-compiler note:** profiles are now *compiled*, not
+hand-tuned — `profile-generation.md` §1 specifies the full
+`deriveParams` pipeline (curve → modifiers → conditioned trait sampling
+→ loading projection → ±5% residual → clamp + coherence pass) plus
+three side outputs each profile emits: a `SelfModel` (metamemory —
+felt competence correlates with real competence at `metamem_r ≤0.3`,
+so characters can be confidently wrong about their own minds), a
+`DomainTable` (expertise tags with gains AND the Woollett cost), and
+`seedHints` (backstory → initial store incl. `open:true` drama hooks).
+Archetype blocks below remain valid as curve values at their central
+ages; individual profiles for the 8 mains = ProfileInput per bible,
+scheduled at v11.
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -376,8 +397,9 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 | **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15 | cortisol impairs encode+retrieve (R§8) |
 | **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2; **v0.6:** sleepFactor 0.7 < 0.75 → `sleepdep_flag` fires on most new records → permanently higher misinfo adoption on them (Frenda 2014 — the underslept are the gullible) | consolidation failure (R§2, R§8; false-memory.md §3) |
 | **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15; **v0.6:** rumor `hearCount` accumulates faster (more exposures per rumor — repetition, not variety, is the mechanism); rep_gain ×1.1; **v0.8:** audience_tune ×1.5 (their own stories bend their own memory — Higgins & Rholes), sti_prob ×1.2, cred_step ×1.3 (keeps accounts on everyone), social_transmit_gain ×1.15 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion; illusory truth g≈0.37; saying-is-believing) |
+| **Open-loop carrier** (NEW v1.0 — unresolved business) | open_loop_gain ×1.4; open_self_gate −0.1; on close β×1.2 still applies (the relief forgets) | involvement-gated Zeigarnik — intrusion/resumption CONSENSUS, recall advantage DEBATED (2025 meta); profile-generation.md §4 |
 | **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5; **v0.6:** imagine_gain ×1.5 on negative-valence scenarios only — rehearsed fears can flip into remembered ones via §6.9; **v0.8:** mnemic_encode ×0.3 + mnemic_loss ×0.3 — dysphoria removes self-protective forgetting, criticism is retained (Sedikides & Green 2016; social-memory.md §10) | overgeneral memory, mood-congruence, negative rehearsal loop, feared→remembered drift, no self-protective amnesia (R§8; emotional-memory.md §8; Garry 1996) |
-| **Domain expert** (per domain tag) | enc_base +0.1 for events matching domain cue; k_verbatim ×0.7 in-domain | expertise deepens encoding (R§8) |
+| **Domain expert** (per domain tag) | **v1.0 supersedes:** `expert_gain` (default 0.10) ×depth on in-domain enc_base; k_verbatim ×(1−0.4·depth) in-domain; merge_thresh ×(1−0.15·depth) in-domain; link_p ×(1−expert_cost·depth) OUT of domain — expertise has a bill (Woollett & Maguire 2009); gain collapses at the domain edge (Chase & Simon 1973). Domain tags are per-character (`domains:` list) — see profile-generation.md §3 | expertise is additive with age, domain-locked, and costs elsewhere (R§8; Maguire 2000; Recht & Leslie 1989) |
 | **Routine-heavy life** | merge_thresh ×0.9; interf_k ×1.3 | commutes blur together (R§3) |
 | **Isolation / few retellings** | retell_boost ×0.6; memories fade without rehearsal | — |
 | **High cognitive reserve** (education, complex work, social engagement) | reserve +0.2–0.4 → decline params read the curve ~4–10y younger (v0.4) | Stern 2002; Valenzuela & Sachdev 2006 (OR 0.54) |
@@ -388,6 +410,10 @@ with probability `1−specificity` return the generic/merged memory instead of
 the episode — use for the depressive profile.
 
 ## 3. Worked examples (plausible cast slots, placeholders until bibles land)
+
+Fully computed numeric derivations through the v1.0 compiler are in
+`profile-generation.md` §7 (landlord-type 54, grieving barista 26,
+high-reserve fixture 71).
 
 | Slot | Archetype | Modifiers | Character flavor |
 |---|---|---|---|

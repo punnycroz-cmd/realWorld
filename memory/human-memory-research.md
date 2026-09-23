@@ -638,3 +638,51 @@ formalized five mechanisms that were still prose in the spec:
   §10 contract +dateEstimate/orderBefore/learnOutcome/searchCost/
   temporalAnchor. Probes P76–P85. PersonModel exempt from the S/R
   split (own tier ordering suffices — modeling choice).
+
+## 15. v10 calibration summary — profile generation (profile-generation.md)
+
+Focus: character-profiles. New primary sources and how they moved the spec:
+
+- **Metamemory / self-model** (CONSENSUS): self-reported memory barely
+  tracks real memory — Herrmann 1982 (Psychol. Bulletin "Know thy
+  memory": questionnaires are poor predictors of performance); Troyer &
+  Rich 2002 (MMQ): Ability subscale vs word-list r=.10, names r=.09,
+  telephone r=.14 (all n.s.); complaints load on depression/affect, not
+  mechanics (Beaudoin & Desrichard 2011 direction); older adults' felt
+  decline outruns measured decline (Hertzog & Hultsch line).
+  → New `SelfModel` side output: `self_est` per facet sampled
+  independent-of-params + `metamem_r` (0–0.3) + `strategy_use`
+  (compensation tracks *felt* deficit; naturalistic-PM logic). The
+  poignant case (insists memory is fine while it fails) is emergent.
+- **Occupational expertise** (CONSENSUS, sharpened): Chase & Simon 1973
+  (chess-chunking collapses on random boards — domain-locked); Maguire
+  et al. 2000 PNAS (taxi-driver posterior hippocampus grows with years;
+  acquired, not selection — bus-driver control 2006); Woollett &
+  Maguire 2009 (taxi drivers WORSE at new visual associations —
+  expertise has a bill); Recht & Leslie 1989 (child experts out-recall
+  adult novices — expertise additive with age, not gated by it).
+  → domain-expert modifier rewritten: `expert_gain`/`expert_bound`/
+  `expert_cost` (out-of-domain link_p penalty).
+- **Open goals / Zeigarnik layer** (split verdict): Zeigarnik 1927
+  recall advantage = DEBATED — 2025 meta-analysis finds no reliable
+  memory advantage; effect was involvement/authority-gated.
+  Ovsiankina 1928 resumption = CONSENSUS. Goschke & Kuhl 1993
+  intention-superiority (accessibility of pending intentions) direction
+  CONSENSUS. → `open:true` record flag + `open_loop_gain` intrusion/
+  drive boost gated by `open_self_gate` (selfRelevance) + closure →
+  β×1.2 (finished business forgets faster). Gives drama seeds a
+  "keeps bringing it up" knob orthogonal to arousal.
+- **Regime tier** (HYPOTHESIS structure): trait/regime/state three-
+  timescale rule — dated modifier overlays mark records born in a
+  life era ("the divorce years") without mutating the trait vector.
+- **Compiler** (`deriveParams` full spec): ordered 7-step pipeline,
+  conditional-Gaussian trait sampling from pins, coherence invariants
+  (cascade ordering, channel separability, frozen-constant audit P95),
+  deterministic given (pins, seed). Life-history seeding recipe:
+  backstory → era-dated records → run own decay forward; retold
+  stories arrive pre-drifted; PersonModels seeded at cascade tier;
+  dangling threads seed open loops.
+- Spec → v1.0: §7 +8 params, record `open` flag, contract +
+  closeLoop/openLoopUrge/selfReport/deriveParams side outputs.
+  Probes P86–P95. Profiles: +8 clamp rows, new open-loop-carrier
+  modifier, domain-expert row superseded, v1.0 note.

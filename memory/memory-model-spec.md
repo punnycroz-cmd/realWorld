@@ -1,4 +1,14 @@
-# Memory Model Spec v0.9 — implementable human-like memory for RW characters
+# Memory Model Spec v1.0 — implementable human-like memory for RW characters
+
+> **v1.0 note (character-profiles):** `memory/profile-generation.md` adds
+> the profile compiler (full `deriveParams` pipeline + coherence
+> invariants + frozen-constant audit), a metamemory `SelfModel` side-
+> output (felt competence barely tracks real competence — Herrmann 1982),
+> occupational-expertise mechanics with real costs (Chase & Simon
+> boundary, Woollett & Maguire 2009 deficit), and open-goal records
+> (`open` flag — involvement-gated Zeigarnik layer; the reliable effect
+> is intrusion/resumption, not recall advantage). New params are all
+> optional with defaults; backward compatible.
 
 > **v0.9 note (formal-model):** `memory/formal-model.md` now pins what this
 > spec left informal — exact timebase/units, Event/CueContext input schemas
@@ -1294,7 +1304,17 @@ MemoryParams = {
   "round_p": 0.5,            // schema-unit rounding when `when` dead (§6.15)
   "contiguity_gain": 0.15,   // temporal-neighbor drive bonus (§5.4)
   "hindsight_k": 0.35,       // prior-assimilation toward outcome (§6.16)
-  "oc_gain": 0.3             // hard-easy overconfidence at report (§3)
+  "oc_gain": 0.3,            // hard-easy overconfidence at report (§3)
+  // v1.0 additions (profile compiler + metamemory + expertise + open
+  // loops, profile-generation.md §§1–4)
+  "metamem_r": 0.15,         // felt↔actual memory correlation (human ~0.1)
+  "self_est_bias": 0.15,     // σ of the self-model noise term
+  "strategy_use": 0.3,       // external-memory reliance (lists, asking)
+  "expert_gain": 0.10,       // in-domain enc_base boost per domMatch
+  "expert_cost": 0.06,       // out-of-domain link_p penalty (Woollett 2009)
+  "expert_bound": 1.0,       // gain collapse at domain edge (Chase&Simon)
+  "open_loop_gain": 0.12,    // intrusion/drive boost on open:true records
+  "open_self_gate": 0.4      // selfRelevance floor for open tagging
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -1482,5 +1502,16 @@ the age-PM paradox for free. See `age-development.md` §7.
   yields a parameter vector (individual-differences.md §4). Pure
   function; pinning traits makes character generation reproducible
 - `rememberIntention(charId, intention)` → optional PM extension (§9, v0.3)
+- v1.0 additions (profile-generation.md §§2–4):
+  - `deriveParams` now also emits `SelfModel` + `DomainTable` +
+    `seedHints` side outputs; deterministic given (pins, seed); emits
+    frozen constants untouched (P95 audit)
+  - record flag `open` + `closeLoop(charId, recordRef)`;
+    `openLoopUrge(charId) -> [recordRef]` on the ambient scan — open
+    loops intrude (gain) and decay *faster* once closed (β×1.2)
+  - `selfReport(charId, facet) -> self_est` — metacognitive commentary
+    source; deliberately decorrelated (metamem_r ≤0.3) from real params
+  - `encodeEvent` context may carry `open:true` candidates and
+    `domainMatch` is derived from profile `domains` vs event cue tags
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors
   are just records with `source.kind:"told_by"` + `beliefStatus:"rumor"`.
