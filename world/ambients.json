@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 15,
   "updated": "2026-09-23",
   "spec": "Ambient cast registry for The Mission. Mirrors SF_AMBIENT_ROUTINES in src/sf/33_sf_cast.js — this JSON is the readable spec, the JS is the implementation; edit them together. 'poi' values use canonical parody names resolved by SF_WORLD_POIS in src/sf/30_sf_world.js; 'anchor' values are SF_MAP.anchors keys; 'home' is the hashed sfAmbientHome cell.",
   "conventions": {
@@ -7,7 +7,8 @@
     "states": ["sleep", "idle", "rest", "serve", "work", "walk", "sit", "run", "carry", "phone", "chat", "play", "drink"],
     "possession": "ambient NPCs are never possessable (design §9); minors A04/A20 are never request targets",
     "promotion": "see world/promotion.md",
-    "brain_modes": "thin/full/possessed/degraded + handoff contract: world/thinai.json (v13)"
+    "brain_modes": "thin/full/possessed/degraded + handoff contract: world/thinai.json (v13)",
+    "crowd_model": "two-layer population contract (named ambients + unnamed extras): world/crowd.json + world/crowd-sim.md (v15)"
   },
   "ambients": [
     {

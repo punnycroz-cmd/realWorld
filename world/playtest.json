@@ -1,6 +1,6 @@
 {
   "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
-  "version": 14,
+  "version": 15,
   "scope": {
     "under_test": [
       "world/feed.html",
@@ -14,7 +14,9 @@
       "world/thinai.html",
       "world/screen.js",
       "world/cast.html",
-      "world/characters.json"
+      "world/characters.json",
+      "world/crowd.html",
+      "world/crowd.json"
     ],
     "not_under_test": [
       "llm behavior (sim STOPPED — no live world exists)",
@@ -81,6 +83,11 @@
       "file": "cast.html",
       "name": "The Company",
       "tier": "free"
+    },
+    "crowd": {
+      "file": "crowd.html",
+      "name": "The Crowd",
+      "tier": "internal"
     }
   },
   "severity_rubric": [
@@ -596,6 +603,53 @@
           ]
         }
       ]
+    },
+    {
+      "id": "PT13",
+      "title": "The Crowd — two-layer population model",
+      "minutes": 15,
+      "persona": "facilitator auditing ambient coverage + the extras layer",
+      "goal": "Verify the crowd reads lived-in at every hour, that extras obey the no-identity/no-script rules, and that scenes fire on conditions — never on dispatch.",
+      "surfaces": [
+        "crowd"
+      ],
+      "steps": [
+        {
+          "do": "Scrub the clock through a full weekday in clear weather. Watch the venue board and roster.",
+          "expect": "Every zone follows its crowd.json budget; named ambients sit where their ambients.json routines put them; bands read as words, never counts.",
+          "checkpoints": [
+            "Rush (8–10) reads busy at Mudhaus with Reyes + Nadia named, extras shown as '+N' only",
+            "15:00–16:30 weekday fires 'The 15:00 release' only while June/Zee are out",
+            "No extra is ever named, numbered, or individually selectable anywhere on the page"
+          ]
+        },
+        {
+          "do": "Scrub to 02:00, then 04:30. Check the overnight hours.",
+          "expect": "The block honestly empties — overnight is deserted or near it; only the pre-dawn shift (Hana, Kofe) shows at 04:30.",
+          "checkpoints": [
+            "00–04 venues read deserted/closed — nothing pads the honest hour",
+            "'The 4 a.m. handoff' fires in the predawn window on named presence, not a schedule trigger"
+          ]
+        },
+        {
+          "do": "Flip weather to rain, then storm, then heat. Re-check the board.",
+          "expect": "Budgets deform per the weather_multipliers table; named ambients follow their card reflexes (Sam to the doorway, Esther/Ray home, Luz tarps up).",
+          "checkpoints": [
+            "Park empties in rain; cafés/library absorb the overflow (multipliers visible in the budget line)",
+            "'Doorway sets' fires only when it rains AND Sam is at the 600 Club",
+            "Storm reads as emptied outdoors — that emptiness is presented as correct"
+          ]
+        },
+        {
+          "do": "Fire 'block party @ park', then 'exclusive lock @ Mudhaus'. Read the rules panel.",
+          "expect": "Party draws extras to the park (packed) and thins source zones; the lock zeroes the Mudhaus extras budget while staff stay on shift.",
+          "checkpoints": [
+            "Exclusive lock clears extras, never named staff — Reyes stays",
+            "Rules panel states: off-camera spawn only, ≤3 pawns near mains, no extra ledger/feed/request handle",
+            "Minors June and Zee are flagged minor and never appear as request targets"
+          ]
+        }
+      ]
     }
   ],
   "session_report_schema": {
@@ -603,7 +657,7 @@
       "tester": "string",
       "role": "spectator|player|reviewer|facilitator",
       "date": "YYYY-MM-DD",
-      "build": "world v14 local",
+      "build": "world v15 local",
       "notes": "string"
     },
     "results": [
@@ -618,7 +672,7 @@
     "findings": [
       {
         "severity": "blocker|major|minor|nit|question",
-        "surface": "feed|request|mod|create|board|history|onboard|lease|thinai|cast|screen",
+        "surface": "feed|request|mod|create|board|history|onboard|lease|thinai|cast|crowd|screen",
         "title": "string",
         "detail": "string",
         "steps_to_repro": "string"

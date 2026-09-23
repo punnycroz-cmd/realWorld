@@ -95,6 +95,10 @@ bits — the things regulars of the feed learn to wait for:
 - Per-NPC detail: `world/ambients/a01..a20`
 - Machine-readable registry: `world/ambients.json` (routines keyed to
   `SF_AMBIENT_ROUTINES` in `src/sf/33_sf_cast.js`)
+- Crowd model (v15): `world/crowd-sim.md` + `world/crowd.json` — the
+  two-layer population contract (named ambients + unnamed extras),
+  density bands, weather/event deformation, scene conditions;
+  `world/crowd.html` demos it
 - Venue names: `world/businesses.md` (canonical parody names; code-side
   resolution via `SF_WORLD_POIS` in `src/sf/30_sf_world.js`)
 - Upgrade path: `world/promotion.md`

@@ -49,6 +49,9 @@ co-star behavior, promotion packet) live in `world/ambients/`:
 
 Crowd choreography — who's where when, venue crowd profiles, weather and
 event modifiers, spectator-facing scenes — lives in `world/crowd-scenes.md`.
+The population model beneath it (named ambients + unnamed extras layer,
+density budgets, spawn rules) is `world/crowd-sim.md` + `world/crowd.json`
+(v15).
 
 ## Shared reflexes (all ambients — cheap condition checks, never scripts)
 

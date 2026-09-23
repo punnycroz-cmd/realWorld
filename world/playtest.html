@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -158,7 +158,8 @@ const SURF={
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
   lease:{file:"lease.html",name:"The Rent Book"},
   thinai:{file:"thinai.html",name:"The Understudy"},
-  cast:{file:"cast.html",name:"The Company"}};
+  cast:{file:"cast.html",name:"The Company"},
+  crowd:{file:"crowd.html",name:"The Crowd"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -304,11 +305,26 @@ const PTS=[
   ck:["No possess/act request path exists for C1–C8 anywhere on the page","The badge tooltip states the ban covers players AND the owner","No price or credit amount appears on the page"]},
  {do:"Inspect the locked panel; cross-check a surface tie pairwise (C1's Tomás coffee vs C8's Marisol).",
   exp:"The locked panel explains private life is absent from the schema, not a paid unlock; ties agree across cards.",
-  ck:["Locked copy says 'isn't in this schema' — never a paywall or 'coming soon' tease","Ties are symmetric across cards","Nothing states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"]}]}
+  ck:["Locked copy says 'isn't in this schema' — never a paywall or 'coming soon' tease","Ties are symmetric across cards","Nothing states a secret outright — sketchbook contents, evening stops, and the sale stay unnamed"]}]},
+{id:"PT13",title:"The Crowd — two-layer population model",min:15,persona:"facilitator auditing ambient coverage + the extras layer",
+ goal:"Verify the crowd reads lived-in at every hour, that extras obey the no-identity/no-script rules, and that scenes fire on conditions — never on dispatch.",
+ surfaces:["crowd"],steps:[
+ {do:"Scrub the clock through a full weekday in clear weather. Watch the venue board and roster.",
+  exp:"Every zone follows its crowd.json budget; named ambients sit where their ambients.json routines put them; bands read as words, never counts.",
+  ck:["Rush (8–10) reads busy at Mudhaus with Reyes + Nadia named, extras shown as '+N' only","15:00–16:30 weekday fires 'The 15:00 release' only while June/Zee are out","No extra is ever named, numbered, or individually selectable anywhere on the page"]},
+ {do:"Scrub to 02:00, then 04:30. Check the overnight hours.",
+  exp:"The block honestly empties — overnight is deserted or near it; only the pre-dawn shift (Hana, Kofe) shows at 04:30.",
+  ck:["00–04 venues read deserted/closed — nothing pads the honest hour","'The 4 a.m. handoff' fires in the predawn window on named presence, not a schedule trigger"]},
+ {do:"Flip weather to rain, then storm, then heat. Re-check the board.",
+  exp:"Budgets deform per the weather_multipliers table; named ambients follow their card reflexes (Sam to the doorway, Esther/Ray home, Luz tarps up).",
+  ck:["Park empties in rain; cafés/library absorb the overflow (multipliers visible in the budget line)","'Doorway sets' fires only when it rains AND Sam is at the 600 Club","Storm reads as emptied outdoors — that emptiness is presented as correct"]},
+ {do:"Fire 'block party @ park', then 'exclusive lock @ Mudhaus'. Read the rules panel.",
+  exp:"Party draws extras to the park (packed) and thins source zones; the lock zeroes the Mudhaus extras budget while staff stay on shift.",
+  ck:["Exclusive lock clears extras, never named staff — Reyes stays","Rules panel states: off-camera spawn only, ≤3 pawns near mains, no extra ledger/feed/request handle","Minors June and Zee are flagged minor and never appear as request targets"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v14";
+const LS="rw_playtest_v15";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -375,7 +391,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v14 local",started:new Date(S.started).toISOString()},
+    build:"world v15 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }
