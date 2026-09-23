@@ -10,12 +10,182 @@
 <meta property="og:title" content="Real World — FAQ">
 <meta property="og:description" content="Honest answers about the persistent AI neighborhood: what's free, what's paid, and what's off-limits forever.">
 <meta property="og:url" content="https://realworld-game.example/faq.html">
-<meta property="og:image" content="shots/v11-A.png">
+<meta property="og:image" content="assets/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/og-card.png">
 <link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Real World?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A persistent, browser-based life simulation — a \"Truman Show\" you can visit. It's set on real streets around Dolores Park in San Francisco's Mission District, where 28 fictional residents live around the clock on AI. Watching is free. Players pay only for agency: time-boxed requests inside the world, or a character of their own. \"The Mission\" is the first neighborhood."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Watching is free, always — that's the core of the product, not a trial. Paid agency works through requests (priced upfront in credits, capped hard) and character creation. You can also earn small amounts of credits by watching opt-in ads, capped per day."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When can I play?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The game is in active development; there is no public build yet. This site describes the locked design. When a launch date exists, it will be announced here first."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What platform?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The browser — desktop-first. No install, no app store. The spectator experience (the neighborhood and the public feed) is designed to travel well to smaller screens."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the neighborhood a real place?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The streets and park are real Mission District geography — real street names, real corners. Every resident and every house number is fictional: generated addresses sit beyond the real blocks' number ranges, so no fictional door ever maps to a real household."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I possess the main characters?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — never. The eight mains can't be possessed by anyone: not players, not the game's owner. Their storylines stay authorial and their secrets stay theirs. This is the rule that makes watching mean something — we call it the Truman Show contract."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "So who can I control?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only a character you create and hire yourself — your own tenant of the neighborhood. Not other players' characters, not ambient neighbors, not any of the eight mains."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does possessing my character reveal its secrets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Your possession briefing contains a public profile, surface relationships, and a daily routine. Drama seeds — yours included — stay redacted. You discover secrets the same way viewers do: by watching."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my character when I log off?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It drops to lightweight AI — a quiet, cheap version of itself that keeps its routine — and wakes to a full mind when you return. The neighborhood doesn't pause for anyone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does a request work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You declare an action and a duration upfront — \"possess my character for 30 minutes,\" \"rain for two hours\" — and pay credits scaled to that duration. The system classifies it as exclusive, compatible, or queued; enforces first-come-first-served ordering with cooldowns; and caps the charge hard. When time ends, control returns gracefully to the AI."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if my request never activates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Queued requests that expire before activation are automatically refunded. If an admin action overrides something mid-run, affected players are compensated in credits. Everything lands on the public feed, so refunds are visible to all."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I earn credits without paying?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — opt-in rewarded ads, capped per day. Enough for small compatible requests with patience. Credits can't be earned by grinding gameplay; that's a deliberate wall against farming and gray markets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cash out, trade, or sell credits?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — ever. Credits are non-transferable and non-redeemable, and there's no exchange between credits and in-game dollars in either direction. This isn't a missing feature; it's the wall that keeps the economy a game instead of a money service."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there loot boxes or gacha?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Everything purchasable is a direct purchase with a printed price — credit packs, a subscription, request time, character slots, cosmetics. Nothing is randomized."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between credits and game dollars?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Credits are the meta currency (agency: requests, creation). Game dollars are the in-world currency (rent, wages, groceries) and are earned only by living in the world. Your character pays rent and holds a job like every other resident — nobody buys their way out of the sim."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can my character be evicted?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Miss rent and the admin landlord can evict — through admin tools, with a public record. New characters get no exemptions. That's what makes owning a place mean something."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can players grief the neighborhood?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Structurally discouraged: requests can't target harm, humiliation, or property destruction; cooldowns and surge pricing sit on world-scale actions; abusive requests are denied before they run; and the public feed makes every intervention attributable. Reputation consequences persist on characters too — the block remembers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why don't characters have voices?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Deliberate scope. The cast thinks and speaks in text — dramatically cheaper to run at 24/7 scale, and every word stays loggable for moderation. Voice is not on the launch plan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who runs the world?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The game's owner is the neighborhood's sole landlord and admin, acting through admin tools — never by possessing anyone. One of the eight mains is the landlord character inside the fiction. Every admin action is written to the public request feed, so the audience sees exactly what the management does."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this an NFT/crypto thing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. There's no token, no chain, no speculative asset — credits are a closed, non-transferable in-game currency, and nothing in the world is redeemable for real money."
+      }
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
-
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="nav-wrap">
     <a class="brand" href="index.html">REAL WORLD<small>The Mission</small></a>
@@ -25,13 +195,13 @@
       <a href="features.html">Features</a>
       <a href="how-it-works.html">How it works</a>
       <a href="pricing.html">Pricing</a>
-      <a href="faq.html" class="active">FAQ</a>
+      <a href="faq.html" class="active" aria-current="page">FAQ</a>
       <a href="press-kit.html">Press kit</a>
     </nav>
   </div>
 </header>
 
-<main>
+<main id="main">
 
 <section class="hero">
   <div class="wrap">

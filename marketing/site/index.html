@@ -10,11 +10,11 @@
 <meta property="og:title" content="Real World — A Living Neighborhood You Can Watch">
 <meta property="og:description" content="28 fictional residents on a real Mission District block, alive 24/7. Watch free. Pay only for agency — time-boxed requests into a world that keeps living without you.">
 <meta property="og:url" content="https://realworld-game.example/"><!-- PLACEHOLDER domain -->
-<meta property="og:image" content="shots/v11-D.png"><!-- relative for local build; absolute URL at launch -->
+<meta property="og:image" content="assets/og-card.png"><!-- relative for local build; absolute URL at launch -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Real World — A Living Neighborhood You Can Watch">
 <meta name="twitter:description" content="The Truman Show you can visit: 28 AI residents on a real SF block. Free to watch. Agency is what you pay for.">
-<meta name="twitter:image" content="shots/v11-D.png">
+<meta name="twitter:image" content="assets/og-card.png">
 <link rel="stylesheet" href="css/style.css">
 <script type="application/ld+json">
 {
@@ -30,7 +30,7 @@
   "inLanguage": "en",
   "playMode": "MultiPlayer",
   "url": "https://realworld-game.example/",
-  "image": "shots/v11-D.png",
+  "image": "assets/og-card.png",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -42,13 +42,13 @@
 </script>
 </head>
 <body>
-
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="nav-wrap">
     <a class="brand" href="index.html">REAL WORLD<small>The Mission</small></a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
     <nav class="nav-links">
-      <a href="index.html" class="active">Home</a>
+      <a href="index.html" class="active" aria-current="page">Home</a>
       <a href="features.html">Features</a>
       <a href="how-it-works.html">How it works</a>
       <a href="pricing.html">Pricing</a>
@@ -58,7 +58,7 @@
   </div>
 </header>
 
-<main>
+<main id="main">
 
 <!-- HERO -->
 <section class="hero">
@@ -78,7 +78,7 @@
       </div>
     </div>
     <div>
-      <img src="shots/v11-D.png" alt="Director-mode shot over a Mission District block — Victorian rooftops and water towers, development build">
+      <picture><source srcset="shots/v13-D.webp" type="image/webp"><img src="shots/v13-D.png" width="1440" height="900" fetchpriority="high" alt="Director-mode shot over a Mission District block — Victorian rooftops and water towers, development build"></picture>
       <p class="caption">Director-mode view over the block. Pre-release development build; interface shown is a placeholder.</p>
     </div>
   </div>
@@ -169,12 +169,12 @@
     <h2>The block, as it looks today.</h2>
     <p class="muted">Real captures from the current development build (top-down, follow-cam, and director cameras) — plus two shots from the first art pass for contrast. Interface elements are placeholder.</p>
     <div class="gallery">
-      <figure><img src="shots/v11-A.png" alt="Top-down view of the neighborhood around the café block, development build"><figcaption>Top-down over the café block — real street grid, generated addresses.</figcaption></figure>
-      <figure><img src="shots/v11-B.png" alt="Street-level follow camera behind a resident walking, development build"><figcaption>Follow-cam at street level — residents on their afternoon routines.</figcaption></figure>
-      <figure><img src="shots/v11-C.png" alt="Top-down view over Dolores Park with paths and palms, development build"><figcaption>Dolores Park from above — the block's back yard.</figcaption></figure>
-      <figure><img src="shots/v11-D.png" alt="Director-mode low angle over Victorian rooftops, development build"><figcaption>Director mode — the camera treats the neighborhood like a set.</figcaption></figure>
-      <figure><img src="shots/v1-A.png" alt="Early first art pass, top-down, development build"><figcaption>First art pass, same overhead angle — kept honest for comparison.</figcaption></figure>
-      <figure><img src="shots/v1-B.png" alt="Early first art pass, street level, development build"><figcaption>First art pass at street level.</figcaption></figure>
+      <figure><picture><source srcset="shots/v13-A.webp" type="image/webp"><img src="shots/v13-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Top-down view of the neighborhood around the café block, development build"></picture><figcaption>Top-down over the café block — real street grid, generated addresses.</figcaption></figure>
+      <figure><picture><source srcset="shots/v13-B.webp" type="image/webp"><img src="shots/v13-B.png" width="1440" height="900" loading="lazy" decoding="async" alt="Street-level follow camera behind a resident walking, development build"></picture><figcaption>Follow-cam at street level — residents on their afternoon routines.</figcaption></figure>
+      <figure><picture><source srcset="shots/v13-C.webp" type="image/webp"><img src="shots/v13-C.png" width="1440" height="900" loading="lazy" decoding="async" alt="Top-down view over Dolores Park with paths and palms, development build"></picture><figcaption>Dolores Park from above — the block's back yard.</figcaption></figure>
+      <figure><picture><source srcset="shots/v13-D.webp" type="image/webp"><img src="shots/v13-D.png" width="1440" height="900" loading="lazy" decoding="async" alt="Director-mode low angle over Victorian rooftops, development build"></picture><figcaption>Director mode — the camera treats the neighborhood like a set.</figcaption></figure>
+      <figure><picture><source srcset="shots/v1-A.webp" type="image/webp"><img src="shots/v1-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Early first art pass, top-down, development build"></picture><figcaption>First art pass, same overhead angle — kept honest for comparison.</figcaption></figure>
+      <figure><picture><source srcset="shots/v1-B.webp" type="image/webp"><img src="shots/v1-B.png" width="1440" height="900" loading="lazy" decoding="async" alt="Early first art pass, street level, development build"></picture><figcaption>First art pass at street level.</figcaption></figure>
     </div>
   </div>
 </section>

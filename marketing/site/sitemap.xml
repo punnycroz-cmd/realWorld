@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- PLACEHOLDER DOMAIN: replace realworld-game.example with the production
      domain at launch (also update canonical/OG URLs in each page's <head>). -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://realworld-game.example/</loc>
+    <lastmod>2026-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image><image:loc>https://realworld-game.example/shots/v13-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v13-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v13-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v13-D.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/features.html</loc>
