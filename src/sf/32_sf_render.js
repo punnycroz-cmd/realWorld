@@ -145,12 +145,33 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>O</kbd> Orbit</span>' +
     '<span><kbd>Z</kbd>/<kbd>X</kbd> Lens</span>' +
     '<span><kbd>Scroll</kbd> Dolly</span>' +
-    '<span><kbd>WASD</kbd> Fly</span>' +
+    '<span><kbd>WASD</kbd> Fly camera</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>' +
     '<span><kbd>L</kbd> Lens</span>' +
     '<span><kbd>G</kbd> Cutaway</span>' +
     '<span><kbd>T</kbd> Track</span>' +
     '<span><kbd>1-9</kbd> Marks</span>';
+  /* v54: spectator UI realignment — this is a broadcast console, never a
+     game HUD. No element may imply the viewer can BE someone in the
+     world: the title is the show's name, Take Control is gone entirely
+     (the C1–C8 possession ban is absolute), and the only action channel
+     offered is a request into the REQUESTS tab. */
+  if(typeof document.querySelector === 'function'){
+    const ttl = document.querySelector('#top .title');
+    if(ttl) ttl.textContent = 'REAL WORLD · THE MISSION';
+  }
+  const tgl = document.getElementById('btn-toggle-ctrl');
+  if(tgl) tgl.style.display = 'none';
+  const acts = typeof document.querySelector === 'function' &&
+             document.querySelector('.pi-actions');
+  if(acts && !document.getElementById('btn-make-req')){
+    acts.insertAdjacentHTML('beforeend',
+      '<button class="btn" id="btn-make-req" title="Send a request into the world">✉ Request</button>');
+    document.getElementById('btn-make-req').onclick = () => {
+      const tb = document.querySelector('#rwTabs button[data-t="req"]');
+      if(tb) tb.click();
+    };
+  }
 }
 
 /* ---------------- v26: LENS — camera post-processing rig -------------
@@ -3996,6 +4017,96 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       if(f === 0 && Math.abs(t - doorT) < 0.14) continue;
       if(f === 0 && garU > 0 && Math.abs(t - garU) < 0.13) continue;
       drawWin(x1 + ex * t, y1 + ey * t, zB, zT, 1.15);
+      /* v54: lived-in exteriors — what hangs OFF the glass, not just what
+         sits behind it. Per-window deterministic states: iron window
+         boxes spilling geraniums, sleeve AC units staining the stucco
+         below, Juliet rails on the tall parlor openings. Each is a real
+         projection that takes sun on its own face. */
+      if(det === 2 && !mural){
+        const dr = phash(i * 7 + k, f * 13 + ei, 5401);
+        const wx2 = x1 + ex * t, wy2 = y1 + ey * t;
+        if(dr < 0.15){
+          // window box: ledge board proud of the wall, soil, leaf clumps
+          const bw = 0.78, bx0 = wx2 - ux * bw, by0 = wy2 - uy * bw,
+                bx1 = wx2 + ux * bw, by1 = wy2 + uy * bw;
+          quad([[bx0 + nx * 0.16, by0 + ny * 0.16, zB - 0.30],
+                [bx1 + nx * 0.16, by1 + ny * 0.16, zB - 0.30],
+                [bx1 + nx * 0.16, by1 + ny * 0.16, zB - 0.02],
+                [bx0 + nx * 0.16, by0 + ny * 0.16, zB - 0.02]],
+               shade('#7a4a30', Math.min(1.2, lit + 0.1)));
+          quad([[bx0, by0, zB - 0.02], [bx1, by1, zB - 0.02],
+                [bx1 + nx * 0.16, by1 + ny * 0.16, zB - 0.02],
+                [bx0 + nx * 0.16, by0 + ny * 0.16, zB - 0.02]],
+               'rgba(30,22,14,0.85)');
+          const nb2 = 3;
+          for(let m = 0; m < nb2; m++){
+            const uu = (m + 0.5) / nb2,
+                  mx = bx0 + (bx1 - bx0) * uu + nx * 0.10,
+                  my = by0 + (by1 - by0) * uu + ny * 0.10;
+            quad([[mx - ux * 0.14, my - uy * 0.14, zB - 0.02],
+                  [mx + ux * 0.14, my + uy * 0.14, zB - 0.02],
+                  [mx + ux * 0.14, my + uy * 0.14, zB + 0.26],
+                  [mx - ux * 0.14, my - uy * 0.14, zB + 0.26]],
+                 shade('#3e6a34', Math.min(1.25, lit + 0.15)));
+            const fl = phash(m, i * 31 + k, 5409) < 0.7;
+            if(fl){
+              const fp = pr(mx, my + 0, zB + 0.30);
+              if(fp){
+                ctx.fillStyle = ['#d8506a', '#e8a83c', '#e8e0e0'][m % 3];
+                ctx.fillRect(fp[0] - 1.6, fp[1] - 1.6, 3.2, 3.2);
+              }
+            }
+          }
+        } else if(dr < 0.24){
+          // sleeve AC unit under the sill + the rust stain it weeps
+          const aw = 0.55, ax0 = wx2 - ux * aw, ay0 = wy2 - uy * aw,
+                ax1 = wx2 + ux * aw, ay1 = wy2 + uy * aw;
+          quad([[ax0 + nx * 0.34, ay0 + ny * 0.34, zB - 0.52],
+                [ax1 + nx * 0.34, ay1 + ny * 0.34, zB - 0.52],
+                [ax1 + nx * 0.34, ay1 + ny * 0.34, zB - 0.10],
+                [ax0 + nx * 0.34, ay0 + ny * 0.34, zB - 0.10]],
+               shade('#b8b4a8', Math.min(1.15, lit)));
+          quad([[ax0, ay0, zB - 0.10], [ax1, ay1, zB - 0.10],
+                [ax1 + nx * 0.34, ay1 + ny * 0.34, zB - 0.10],
+                [ax0 + nx * 0.34, ay0 + ny * 0.34, zB - 0.10]],
+               shade('#d8d4c8', Math.min(1.15, lit)));
+          const gA2 = pr(ax0 + nx * 0.35, ay0 + ny * 0.35, zB - 0.16),
+                gB2 = pr(ax1 + nx * 0.35, ay1 + ny * 0.35, zB - 0.16),
+                gA3 = pr(ax0 + nx * 0.35, ay0 + ny * 0.35, zB - 0.26),
+                gB3 = pr(ax1 + nx * 0.35, ay1 + ny * 0.35, zB - 0.26);
+          if(gA2 && gB2 && gA3 && gB3){
+            ctx.strokeStyle = 'rgba(40,38,32,0.6)'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(gA2[0], gA2[1]); ctx.lineTo(gB2[0], gB2[1]);
+            ctx.moveTo(gA3[0], gA3[1]); ctx.lineTo(gB3[0], gB3[1]);
+            ctx.stroke();
+          }
+          quad([[wx2 - ux * 0.10, wy2 - uy * 0.10, zB - 0.52],
+                [wx2 + ux * 0.10, wy2 + uy * 0.10, zB - 0.52],
+                [wx2 + ux * 0.10, wy2 + uy * 0.10, zB - 1.1],
+                [wx2 - ux * 0.10, wy2 - uy * 0.10, zB - 1.1]],
+               'rgba(96,72,44,0.28)');
+        } else if(dr < 0.34 && f === 0 && zT - zB > 1.4){
+          // Juliet rail: the tall parlor sash gets an iron guard
+          const jw = 0.85, j0 = pr(wx2 - ux * jw + nx * 0.12, wy2 - uy * jw + ny * 0.12, zB + 0.05),
+                j1 = pr(wx2 + ux * jw + nx * 0.12, wy2 + uy * jw + ny * 0.12, zB + 0.05),
+                j0t = pr(wx2 - ux * jw + nx * 0.12, wy2 - uy * jw + ny * 0.12, zB + 0.85),
+                j1t = pr(wx2 + ux * jw + nx * 0.12, wy2 + uy * jw + ny * 0.12, zB + 0.85);
+          if(j0 && j1 && j0t && j1t){
+            ctx.strokeStyle = 'rgba(26,22,18,0.85)'; ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.moveTo(j0t[0], j0t[1]); ctx.lineTo(j1t[0], j1t[1]);
+            ctx.moveTo(j0[0], j0[1]); ctx.lineTo(j1[0], j1[1]);
+            const nb3 = 5;
+            for(let m = 0; m <= nb3; m++){
+              const uu = m / nb3;
+              ctx.moveTo(j0[0] + (j1[0] - j0[0]) * uu, j0[1] + (j1[1] - j0[1]) * uu);
+              ctx.lineTo(j0t[0] + (j1t[0] - j0t[0]) * uu, j0t[1] + (j1t[1] - j0t[1]) * uu);
+            }
+            ctx.stroke();
+          }
+        }
+      }
     }
   }
 
@@ -4386,6 +4497,38 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.beginPath(); ctx.moveTo(bk[0], bk[1]); ctx.lineTo(bk2[0], bk2[1]); ctx.stroke();
       }
     }
+    /* v54: sidewalk A-board — the chalked sandwich board every Mission
+       cafe kicks out onto the pavement each morning. Two legs splayed
+       toward the street, chalk panel facing foot traffic. */
+    if(det >= 1){
+      const abx = x1 + ex * (s1 + 0.06) + nx * 1.55,
+            aby = y1 + ey * (s1 + 0.06) + ny * 1.55;
+      const awx = ux * 0.42, awy = uy * 0.42;   // half-width along curb
+      const splay = 0.30;
+      // street face (chalk board) + back leg — the hinge rides z 0.95
+      quad([[abx - awx + nx * splay, aby - awy + ny * splay, 0.02],
+            [abx + awx + nx * splay, aby + awy + ny * splay, 0.02],
+            [abx + awx, aby + awy, 0.95],
+            [abx - awx, aby - awy, 0.95]],
+           shade('#2a2620', Math.min(1.15, lit)));
+      quad([[abx - awx - nx * splay, aby - awy - ny * splay, 0.02],
+            [abx + awx - nx * splay, aby + awy - ny * splay, 0.02],
+            [abx + awx, aby + awy, 0.95],
+            [abx - awx, aby - awy, 0.95]],
+           shade('#4a3f30', Math.min(1.1, lit)));
+      // chalk scribbles on the street face — menu lines, not text
+      const c0 = pr(abx - awx * 0.62 + nx * splay * 0.6, aby - awy * 0.62 + ny * splay * 0.6, 0.62),
+            c1 = pr(abx + awx * 0.62 + nx * splay * 0.6, aby + awy * 0.62 + ny * splay * 0.6, 0.62),
+            c2 = pr(abx - awx * 0.62 + nx * splay * 0.8, aby - awy * 0.62 + ny * splay * 0.8, 0.34),
+            c3 = pr(abx + awx * 0.35 + nx * splay * 0.8, aby + awy * 0.35 + ny * splay * 0.8, 0.34);
+      if(c0 && c1 && c2 && c3){
+        ctx.strokeStyle = 'rgba(232,226,204,0.75)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]);
+        ctx.moveTo(c2[0], c2[1]); ctx.lineTo(c3[0], c3[1]);
+        ctx.stroke();
+      }
+    }
   } else if(L > 5){
     // residential ground floor. v30: raised-basement grammar — italianate
     // and stick fronts lift the parlor floor ~1.15m: garage (or a garden
@@ -4553,6 +4696,78 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         }
       }
     }
+
+  /* v54: entry dressing — the things that make a doorway an ADDRESS.
+     A brass number plaque on the wall beside the door (the building's
+     real house number), a mailbox row under it, and potted plants
+     flanking the foot of the stoop — the Mission's universal stoop
+     grammar. Each pot reads sun on its own face. */
+  if(det >= 1 && !isShop){
+    const pz = 1.55 + rD;
+    // house number plate at eye level, hinge side of the alcove
+    const nx0 = dx + ux * (alcHw + 0.30), ny0 = dy + uy * (alcHw + 0.30);
+    const pN = pr(nx0 + nx * 0.02, ny0 + ny * 0.02, pz + 0.24),
+          pN2 = pr(nx0 + nx * 0.02, ny0 + ny * 0.02, pz - 0.10);
+    if(pN && pN2 && b.hn){
+      const ph = Math.abs(pN[1] - pN2[1]);
+      if(ph > 3){
+        const pw = Math.max(ph * 1.9, 7);
+        ctx.fillStyle = shade(ACC, Math.max(0.5, dim));
+        ctx.fillRect(pN[0] - pw / 2, pN[1], pw, ph);
+        ctx.fillStyle = '#f4ead0';
+        ctx.font = `bold ${Math.max(4, ph * 0.62)}px serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(b.hn).slice(0, 5), pN[0], pN[1] + ph / 2);
+        ctx.textBaseline = 'alphabetic';
+      }
+    }
+    // mailbox row just inside the alcove's sunny cheek
+    const mb0 = pr(dx - ux * (alcHw + 0.28) + nx * 0.05, dy - uy * (alcHw + 0.28) + ny * 0.05, 1.05 + rD),
+          mb1 = pr(dx - ux * (alcHw + 0.28) + nx * 0.05, dy - uy * (alcHw + 0.28) + ny * 0.05, 0.72 + rD);
+    if(mb0 && mb1 && Math.abs(mb0[1] - mb1[1]) > 3){
+      const mw = Math.abs(mb0[1] - mb1[1]) * 2.1;
+      ctx.fillStyle = shade('#4a4438', Math.min(1.1, lit));
+      ctx.fillRect(mb1[0] - mw / 2, mb0[1], mw, mb1[1] - mb0[1]);
+      ctx.strokeStyle = 'rgba(220,205,170,0.5)'; ctx.lineWidth = 1;
+      const nm2 = 2;
+      for(let m = 0; m < nm2; m++){
+        const yy = mb0[1] + (mb1[1] - mb0[1]) * (m + 0.5) / nm2;
+        ctx.beginPath(); ctx.moveTo(mb1[0] - mw / 2 + 1, yy);
+        ctx.lineTo(mb1[0] + mw / 2 - 1, yy); ctx.stroke();
+      }
+    }
+    // potted plants flanking the stoop foot — half the row has them
+    if(phash(i, ei, 5418) < 0.5){
+      for(const sgn of [-1, 1]){
+        if(phash(i * 3 + sgn, ei, 5419) < 0.3) continue;
+        const px2 = dx + ux * sgn * 1.45 + nx * (rD ? 1.75 : 1.15),
+              py2 = dy + uy * sgn * 1.45 + ny * (rD ? 1.75 : 1.15);
+        // terracotta pot: two stacked quads, rim lip
+        quad([[px2 - ux * 0.16, py2 - uy * 0.16, 0.02],
+              [px2 + ux * 0.16, py2 + uy * 0.16, 0.02],
+              [px2 + ux * 0.14 + nx * 0.03, py2 + uy * 0.14 + ny * 0.03, 0.38],
+              [px2 - ux * 0.14 + nx * 0.03, py2 - uy * 0.14 + ny * 0.03, 0.38]],
+             shade('#a05a38', Math.min(1.2, lit)));
+        quad([[px2 - ux * 0.19, py2 - uy * 0.19, 0.38],
+              [px2 + ux * 0.19, py2 + uy * 0.19, 0.38],
+              [px2 + ux * 0.19, py2 + uy * 0.19, 0.46],
+              [px2 - ux * 0.19, py2 - uy * 0.19, 0.46]],
+             shade('#8a4c2e', Math.min(1.2, lit)));
+        // foliage tuft — three blobs, taller on the sunward edge
+        const tall = 0.55 + 0.45 * Math.max(0, sfSunFaceK(nx, ny));
+        quad([[px2 - ux * 0.20, py2 - uy * 0.20, 0.44],
+              [px2 + ux * 0.20, py2 + uy * 0.20, 0.44],
+              [px2 + ux * 0.20, py2 + uy * 0.20, 0.44 + tall],
+              [px2 - ux * 0.20, py2 - uy * 0.20, 0.44 + tall]],
+             shade('#3a6630', Math.min(1.2, lit + 0.05)));
+        const tp2 = pr(px2, py2, 0.44 + tall);
+        if(tp2){
+          ctx.fillStyle = shade('#4a7a3a', Math.min(1.25, lit + 0.15));
+          ctx.beginPath(); ctx.arc(tp2[0], tp2[1], Math.max(1.5, 0.16 * F / (tp2[2] || 1)), 0, Math.PI * 2); ctx.fill();
+        }
+      }
+    }
+  }
   }
 
   /* v30: corner boards + downspouts — real SF wood fronts end in a wide
@@ -7117,6 +7332,16 @@ function sfRenderStreet(cw, ch){
           ctx.ellipse(p[0], p[1], pw * 0.4, pw * 0.12, 0, 0, Math.PI * 2);
           ctx.fill();
         }
+        /* v54: face=3 (world +x) mirrors the profile-left sprite as one
+           unit — the sprite AND its source-atop key/fill passes flip
+           together, exactly like the legacy paCharDraw mirror. The
+           ground shadows stay OUTSIDE: they follow the sun vector, not
+           the pawn's facing. Without this every eastbound pawn moonwalks. */
+        const mir54 = pv.face === 3 && pv.state !== 'sit';
+        if(mir54){
+          ctx.save();
+          ctx.translate(p[0] * 2, 0); ctx.scale(-1, 1);
+        }
         ctx.drawImage(fr, p[0] - pw / 2, p[1] - ph, pw, ph);
         /* v42: key & fill — the same two sources that light the street
            light the person. Sun in front of the camera = warm key on the
@@ -7160,6 +7385,7 @@ function sfRenderStreet(cw, ch){
             ctx.globalCompositeOperation = 'source-over';
           }
         }
+        if(mir54) ctx.restore();
         // v25: umbrella over rain-caught pawns — canopy arc tilted into
         // the wind's lateral component, shaft down to the hand
         const uc2 = sfUmbrellaCol(pv);

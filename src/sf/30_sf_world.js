@@ -118,12 +118,15 @@ const SF_DECALS = [];
 const SF_GROUND_OVR = new Map(); // "wx,wy" -> street-view fill color
 /* v40: perimeter palm allée — a park-edge grass cell carries a palm
    every ~7 cells (~14m) along the edge axis, phase-offset per row, the
-   way Dolores Park's palms actually ring the lawn. Pure + deterministic. */
+   way Dolores Park's palms actually ring the lawn. Pure + deterministic.
+   v54: spacing tightened to every ~4 cells (~8m) — at diorama zoom the
+   old cadence scattered into isolated blobs; a real allée reads as a
+   ROW, and the row is what tells the eye "city park, not field". */
 function sfPalmRow(wx, wy){
   const horiz = sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11;
   const u = horiz ? wx : wy, per = horiz ? wy : wx;
-  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 7);
-  return ((u + off) % 7) === 0;
+  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 4);
+  return ((u + off) % 4) === 0;
 }
 function sfPropIndex(o){
   const k = o.wx + ',' + o.wy;
@@ -538,8 +541,8 @@ function sfInitWorld(){
               nParkVeg++;
             }
           }
-        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 4)){
-          // v40: perimeter palm allée — a tall palm every ~7 cells along
+        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 3)){
+          // v40: perimeter palm allée — a tall palm every ~4 cells along
           // the park edge, the row Dolores Park actually wears
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);

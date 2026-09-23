@@ -462,7 +462,8 @@ function renderChibiPawn(v, cw, ch){
   // Name tag
   if(cam.zoom >= 0.8){
     ctx.font = 'bold 11px system-ui, sans-serif';
-    const tag = v.name + (v === VILLAGERS[controlledPawnIdx] ? ' ★' : '');
+    const tag = v.name + (v === VILLAGERS[controlledPawnIdx] &&
+      !(typeof SF_MODE !== 'undefined' && SF_MODE) ? ' ★' : '');
     const tw = ctx.measureText(tag).width;
     ctx.fillStyle = 'rgba(15,23,42,0.85)';
     ctx.fillRect(sx - tw/2 - 4, sy - 78 * cam.zoom, tw + 8, 15);

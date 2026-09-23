@@ -18,6 +18,10 @@ function initControls(){
   });
 
   document.getElementById('btn-toggle-ctrl').onclick = () => {
+    // v54: in the spectator shell possession is off the table entirely —
+    // the button is hidden and the path is a verified no-op even if
+    // invoked programmatically (protects C1–C8 absolutely).
+    if(typeof SF_MODE !== 'undefined' && SF_MODE) return;
     const v = VILLAGERS[inspectedPawnIdx];
     if(v === VILLAGERS[controlledPawnIdx]){
       v.isNPC = true;
