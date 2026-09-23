@@ -1,4 +1,20 @@
-# Memory Model Spec v2.2 — implementable human-like memory for RW characters
+# Memory Model Spec v2.3 — implementable human-like memory for RW characters
+
+> **v2.3 note (validation-design II — the meta layer):**
+> `memory/validation-design.md` Part II (§§22–32) adds the machinery that
+> audits the probe battery itself: identifiability matrix (§7 params get
+> {structural|practical|identified|prior-held} class — Raue et al. 2009;
+> Tulving & Pearlstone 1966 storage/retrieval aliasing), Morris
+> sensitivity screening producing a computed param→observable map,
+> pattern-oriented corroboration (Grimm et al. 2005 — ≥2 independent
+> patterns to claim a constraint), a lesion battery that is the dual of
+> the probe registry, anti-Goodhart seed-split/held-out-probe discipline,
+> simulation-based calibration (Talts et al. 2018), measurement
+> invariance levels for cross-cohort probes (Meredith 1993), and a
+> four-bucket failure triage. **Two new harness hooks in §10:** `lesion`
+> (validation-only mechanism ablation) and the seedBase parity
+> convention. No behavior changes; zero new params; probes P211–P220.
+> All optional, default-neutral.
 
 > **v2.2 note (character-profiles II — the cast pass):**
 > `memory/cast-profiles.md` compiles the 8 mains from the world-track
@@ -3148,6 +3164,25 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - stochastic draws obey the §22 axioms: truncated Gaussians, uniform
     drift steps, integer RNG, `rand(seed, charId, day, opTag, i)`
     namespaced sequencing — probe-safe refactors.
+- v2.3 additions (validation-design.md Part II §§22–32 — harness
+  audit layer; all VALIDATION-ONLY, never callable from world code):
+  - `lesion(mech, mode)` — ablation switch for the §26 lesion battery:
+    `mech` ∈ {`decay`, `encode_mod`, `cue_ctx`, `source_mon`, `social`,
+    `candidates`, `age_scale`}; `mode` ∈ {`off` | `flat` | per-lesion
+    value}. Lesioned runs must be flagged in the probe output schema
+    (`extra.lesion`) and never persisted into a live snapshot —
+    snapshot/load refuses to round-trip a lesioned state by default.
+  - Seed-split convention: `rand` seedBases are partitioned by parity —
+    odd = calibration (tuning iterations), even = confirmation
+    (one-shot scored runs, P214). `deriveParams` seed arguments follow
+    the same partition so cohort construction can't leak across.
+  - `sensSweep(param, lo, hi, steps)` — one-at-a-time parameter sweep
+    helper for §24 Morris screening; returns the composite-observable
+    vector per step. Pure query; does not mutate state.
+  - §7 param table gains a documentation column concept — each param
+    carries `ident_class` ∈ {structural|practical|identified|prior-held}
+    per the validation-design §23 matrix; `prior-held` params are
+    tuning-frozen by process rule (P219), not by code.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

@@ -967,3 +967,372 @@ Registry now P1–P200; numbering stable.
   (floor). Same secret, different digestions.
 
 Registry now P1–P210; numbering stable.
+
+---
+
+# Part II — validating the validator (v23 second pass)
+
+The first pass (§§1–21) built the probe registry, the statistics protocol,
+and the L0–L4 level stack. It has a hole it cannot see from inside: **210
+probes test whether the model produces phenomena; nothing tests whether the
+probes can diagnose failure, whether the parameters are even learnable from
+behavior, or whether the battery itself is gameable.** This part adds the
+meta-layer: identifiability analysis, sensitivity screening, pattern-oriented
+corroboration, a lesion battery that is the dual of the probe registry,
+anti-Goodhart discipline, simulation-based calibration, and measurement
+invariance across cohorts. Every piece is drawn from the computational-model
+validation literature; nothing here is invented notation.
+
+Framing note (claim hygiene): per Oreskes, Shrader-Frechette & Belitz (1994,
+*Science* 263:641–646), open-system models are **corroborated, never
+validated** — confirmation is always relative to a finite test set. We keep
+the word "validation" for the harness but every gate output is phrased as
+"corroborated at version vX" — never "the model is valid."
+
+## 22. Evaludation mapping — where L0–L4 sit in the model cycle
+
+Augusiak, van den Brink & Grimm (2014, *Ecol. Model.* 280:117–128) argue
+"validation" has been stretched to meaninglessness and propose merging it
+with evaluation into **evaludation**: six elements spanning the whole
+modelling cycle. Our apparatus maps cleanly — this mapping is now the
+normative claim of what each layer does:
+
+| evaludation element | our apparatus |
+|---|---|
+| data evaluation | human-anchor corpus (§25.3); source/tier audit of every target band |
+| conceptual-model evaluation | focus docs; this doc's §3.5 exclusion list; probe→mechanism attributions |
+| implementation verification | L0 closed-form goldens; determinism precondition (P68/69) |
+| model output verification | L1 probes P1–P220; §3.4 golden trajectories |
+| model analysis | sensitivity screening (§24), identifiability audit (§23), lesion battery (§26) |
+| model output corroboration | L2 experiment analogs, L3 season field, POM incidence matrix (§25.1) |
+
+TRACE-style documentation (Schmolke et al. 2010; Grimm et al. 2014): the
+spec + this registry + golden vectors + the version log already constitute
+the TRACE analog; §29's failure-triage log is the missing piece — failures
+were reportable but not classifiable, which made diagnosis tribal knowledge.
+
+## 23. Identifiability audit (VA-ID)
+
+A probe can only constrain a parameter if behavior pins that parameter down.
+Two failure modes, both named in the literature:
+
+**Structural non-identifiability** — params that enter observables only
+through a shared combination (Raue et al. 2009, *Bioinformatics* 25:1923–29;
+profile-likelihood method). Documented alias families in this model
+(audited against spec §§2–7):
+
+- **storageS vs θ** — the classic availability/accessibility ambiguity
+  (Tulving & Pearlstone 1966): a record with huge S and unreachable θ is
+  observationally identical to a dead record *until a strong-enough cue
+  arrives*. Resolved only by cue-strength titration experiments (E4-class:
+  recall probability as a function of graded cue overlap separates the two —
+  dead records never return, buried records do). Any probe that scores
+  "absence" without a strong-cue control is measuring θ·S jointly.
+- **share_k × copresent_assume_p** — observed telling rate conflates "wants
+  to tell" with "assumes you already know"; disambiguated only by
+  toldTo-history probes (P148-style), not by rate counts.
+- **arousal encoding gain vs arousal retrieval boost** — both raise
+  survival; only the encoding-side lesion (§26) separates them, plus
+  matched-delay pre-sleep vs post-sleep probing.
+- **elab_gain × scaffold_gain in children** — production deficiency makes
+  the child's own elaboration invisible to probes (P138); scaffolding
+  comparisons are the only lever.
+
+Rule (new, binding): every §7 param gets an entry in the
+**identifiability matrix** = {structural | practical | identified} with its
+disambiguating probe(s). Params marked `prior-held` (structurally
+unidentifiable or practically unrecoverable at feasible n) MUST NOT be
+tuned to pass probes — they carry literature/prior values and are audited
+by P219. This formalizes the "frozen params" convention into a typed
+contract.
+
+**Practical non-identifiability / sloppiness.** Gutenkunst et al. (2007,
+*PLoS Comput Biol* 3:1871) showed multi-parameter mechanistic models are
+"universally sloppy": the sensitivity spectrum decays log-linearly over
+decades — a handful of stiff parameter combinations do all the work, the
+rest are barely constrained even by ideal data. Predicted for our model:
+τ, β, θ, level_frac, and the encoding-scale parameters are stiff; most
+interaction knobs are sloppy. **Consequences, now binding:**
+(1) joint fitting is banned — params are estimated along stiff directions
+only; (2) sloppy params keep prior values and are declared, not fit;
+(3) a probe failure may only trigger retuning of params whose
+identifiability entry is `identified` and which appear in the probe's
+constraint map (§24). This kills the "turn every knob until green" failure
+mode before it exists.
+
+## 24. Sensitivity screening — the constraint map is computed, not asserted
+
+Every probe in the registry says "constrains `param`" — asserted by the
+doc author, never verified. Morris (1991, *Technometrics* 33:161–174)
+elementary-effects screening computes it:
+
+- For each free param, run r≥10 randomized one-at-a-time trajectories
+  across its range, holding cohort/archetype fixed; measure the elementary
+  effect on each of the eight composite observables (formal-model §21) +
+  each MUST probe statistic.
+- Report per param: μ* (mean |effect| — ranks constraint value) and σ
+  (spread — flags interactions/nonlinearity).
+- Output: a **param → observable incidence matrix** shipped as a versioned
+  artifact. Probe "constrains" attributions must match the matrix or be
+  re-flagged; a param with σ≫μ* on an observable must have its attributed
+  probe redesigned as a factorial probe (main + interaction), not read as
+  a main effect.
+- Cheap version for early harness days: sweep each param ±1.5σ around
+  default, compute max displacement of any composite; params displacing
+  nothing beyond MC error → `prior-held` candidates pending the full
+  Morris run.
+
+## 25. Pattern-oriented corroboration (VA-POM)
+
+### 25.1 Multiple weak patterns beat one strong target
+
+Grimm et al. (2005, *Science* 310:987–991) pattern-oriented modeling: a
+bottom-up model earns confidence by reproducing **multiple independent
+patterns** simultaneously, because each additional matched pattern shrinks
+the space of wrong models that could fake all of them. Applied here:
+
+- The probe registry becomes a **pattern × param incidence matrix**
+  (§24's matrix restricted to probe statistics). Claimable constraint
+  tiers: `identified` needs ≥2 independent patterns agreeing on the
+  param's range; `provisionally constrained` = exactly 1; `prior-held` = 0.
+- A probe is "independent" of another if they share neither mechanism nor
+  observable family (e.g., P199 chain attrition and P102 rehearsal
+  inequality both touch retellCount dynamics but measure different
+  observables — counted as one pattern; P199 + E8 compression shape are
+  independent patterns on level_frac).
+- This upgrades §4's tier table: MUST + ≥2-pattern coverage = the only
+  "locked" params; a MUST probe is no longer the unit of confidence, the
+  pattern set is. New probe P220 audits coverage.
+
+### 25.2 Realized discrepancies — passing isn't enough
+
+Gelman, Meng & Stern (1996, *Statistica Sinica* 6:733–807): assess fit by
+comparing observed data to simulated replications on **discrepancy
+statistics chosen to expose the failure you fear**, not the statistic you
+scored. Rule: every MUST/SHOULD probe defines one *secondary* discrepancy
+beyond its pass statistic — e.g., E5 scores adoption rate but also checks
+the conf_out distribution among adopters (real misinformation adopters
+report moderate confidence, not ceiling); P117 scores the spacing ratio
+but also the massed-arm absolute level (spacing can win while both arms
+are dead). Pass-statistic inside band but discrepancy in the extreme tail
+= logged "pass-with-weird-tail" (P218) — qualitatively wrong even at pass.
+
+### 25.3 Human-anchor corpus (versioned)
+
+The probe bands scattered across focus docs get consolidated into a
+versioned table — every quantitative human target in one place, each row:
+`{probe, statistic, band, source, design, replication tier, discount}`.
+Replication tiers: META (meta-analytic anchor — no discount), MULTI
+(replicated single studies — light discount), SINGLE (one famous study —
+OSC discount applies, §3.2). Representative rows (normative set lives in
+the artifact, this is the shape):
+
+| anchor | statistic used | source | tier |
+|---|---|---|---|
+| savings curve shape | power>exp AIC | Murre & Dros 2015 (Ebbinghaus replication) | SINGLE-discounted |
+| permastore plateau | bimodal survival at 20y+ | Bahrick 1984 | MULTI |
+| cue diagnosticity order | what>who>where>when | Wagenaar 1986 | SINGLE-discounted |
+| misinfo adoption | 0.20–0.45 | Loftus 2005 + meta reviews | META |
+| planted rich events | ~50% w/ photo evidence | Wade et al. 2002; ~70% claim Shaw & Porter 2015 (DEBATED — not a MUST anchor) | SINGLE |
+| DRM phantom | 0.15–0.60 relatedness-scaled | Roediger & McDermott 1995 | META-adjacent |
+| collab inhibition | inhibited union < nominal | Weldon & Bellinger 1997; Marion & Thorley 2016 meta | META |
+| PM paradox | event-based ≈0 age diff | Einstein & McDaniel 1990; Henry et al. 2004 meta | META |
+| FOK dissociation | fok ⊥ accuracy | Koriat 1993 | MULTI |
+| involuntary rate | 1–5/day | Berntsen 1996 (diary variance — DEBATED band) | SINGLE |
+
+Anchor-audit rule: when a probe fails and the anchor row is SINGLE-tier,
+the first question is whether the band misstates the literature — fix the
+anchor before touching the model (§29 bucket (d)).
+
+## 26. Lesion battery (VA-L) — the dual of the probe registry
+
+Ablation is the strongest causal test of mechanism: break one thing, watch
+the *predicted* probes fail and everything else stand. Lesions are
+harness-only settings — `lesion(op, mode)` contract hook (spec §10 v2.3):
+a switch that nulls or clamps one mechanism without touching params.
+
+| lesion | mode | must-fail probes | must-not-move probes |
+|---|---|---|---|
+| decay | β→0 (no forgetting) | P1, P117–P120, P126, P197 | P194 FOK, P204 |
+| encoding modulation | E→1 flat | P31, P106, P110, P154 | P9 cue gating, P213-irrelevant |
+| cue context | all cue matches → 1 | P9–P13, P127, P131, P174 | decay family |
+| source monitoring | srcFam never decays | P44, P163, P167, P144 | P1, P31 |
+| social layer | retell/hearAccount no-op | P183–P190, P7 chain probes | P68–P75 machinery |
+| candidate sets | single verbatim fields (pre-v1.8 schema) | P163, P169, P170 | P121 quote decay |
+| age scaling | age_eff frozen at 25 | P17–P30, P136–P153 | P68–P75 |
+
+Coverage rule (P213): every MUST probe must appear in ≥1 row's must-fail
+column — a probe that nothing can break is unfalsifiable decoration and is
+demoted to OBSERVE. Each lesion run also checks the must-not-move column
+with TOST — a lesion that moves unrelated probes means hidden coupling
+(machinery leak), which is a bug report against the spec's modularity, not
+against the probe.
+
+## 27. Anti-Goodhart discipline (VA-AG)
+
+"When a measure becomes a target…" (Goodhart 1975; Strathern 1997). A
+pre-registered battery that implementers can see will be tuned against;
+that is fine *if* generalization is independently audited. Protocol:
+
+1. **Seed split.** seedBase parity partitions the harness: odd seedBases =
+   calibration (tuning may iterate), even = confirmation. A confirmation
+   run is a logged, one-shot scored event — its result hash is committed
+   before the analyzer runs. Calibration-pass + confirmation-fail counts
+   as FAIL and opens a generalization review (P214).
+2. **Held-out probes.** ~15% of the registry (marked `class:
+   confirmation` in the registry artifact, chosen to span every home doc)
+   is excluded from tuning iterations entirely — the test set. MUST-tier
+   confirmation probes can't be waived.
+3. **Composite re-check.** After any tuning change, the eight §21
+   composites (P200) and the P98/P206 distinctness floors re-run — passing
+   the battery by collapsing parameter variance or by local spike fixes
+   is the classic degradation mode.
+4. **Anchor drift rule.** Any param moved >2× from its literature anchor
+   to pass a probe requires a written justification citing human evidence
+   in the version log; silent large moves are reverted at audit (P219).
+5. **Rotating examiner.** The person/tool proposing a spec change does
+   not write the probe that validates it (prevents the test encoding the
+   intended answer).
+
+## 28. Inference calibration — SBC and parameter recovery (VA-SBC)
+
+The model is generative; the fitting problem is inverse. Simulation-based
+calibration (Talts, Betancourt, Simpson, Vehtari & Gelman 2018, arXiv
+1804.06788 — correcting Cook, Gelman & Rubin 2006) tests whether the
+inverse problem is even well-posed:
+
+- Draw θ^sim ~ profile prior (deriveParams ranges); simulate the harness
+  observables; run the recovery/fitting routine; collect where θ^sim falls
+  in the fitted posterior/interval ensemble. Repeat ≥100×.
+- **Uniform rank statistics = calibrated inference** (χ² test). U-shaped
+  ranks = overconfident fits; ∩-shaped = under-confident; skewed = bias.
+  This catches a subtle failure: a probe battery that "constrains" a param
+  that was never recoverable in the first place.
+- Recovery tolerances (pre-registered): `identified` params recovered
+  within ±20% at n=60-cohort data volume; params failing recovery AND
+  flagged sloppy (§24 σ/μ* evidence) are reclassified `prior-held` and
+  their probes downgraded to prior-consistency checks.
+- This is the formal version of "probe → parameter" honesty: P211/P212
+  gate any claim that a MUST probe is doing real constraint work.
+
+## 29. Measurement invariance across cohorts (VA-MI)
+
+Every cross-cohort T-diff probe assumes the instrument measures the same
+construct in both arms. Meredith (1993, *Psychometrika* 58:525–543) gives
+the standard ladder, adapted:
+
+- **Configural** — the probe taps the same construct across age bands
+  (a "hit" in a child cohort = a hit in an elder cohort).
+- **Weak** — the observable loads on the latent equally (cue weighting
+  comparable). Required for any T-diff on rates.
+- **Strong** — thresholds equal; a 0.6 hit-rate means the same latent
+  recall in both arms. Required before attributing a rate gap to age
+  rather than to instrument.
+- **Strict** — residual variances equal. **Deliberately NOT required:**
+  human age groups genuinely differ in variance (IIV rises with age,
+  P173); demanding strict invariance would erase a real phenomenon.
+
+Concrete rules: (1) cross-cohort probes must state their assumed
+invariance level in the registry row; (2) where invariance fails *by
+design* (child verbosity inflating field counts; off-target intrusions
+inflating elder totals), the probe must use a construct-level instrument
+— ranks, ratios, or accuracy-vs-foil measures — not raw counts; (3) a
+T-diff that could be produced by invariance violation alone is demoted
+until re-instrumented (P216 audit).
+
+## 30. Failure triage taxonomy (VA-EP)
+
+Every probe failure gets classified into exactly one bucket — the taxonomy
+replaces ad-hoc debugging lore:
+
+- **(a) implementation bug** — L0 golden mismatch or formula drift; fix
+  code, model untouched.
+- **(b) calibration miss** — right mechanism, wrong constants; retune
+  along identified directions only (§23).
+- **(c) misspecification** — no parameter setting produces the phenomenon
+  (confirmed by a §24 sweep or §28 SBC showing the observable flat across
+  the whole space); this is the only bucket that changes the spec.
+- **(d) bad probe** — the target band misstates the literature (check the
+  anchor row's tier first); fix the anchor, never the model, and log it.
+
+Historical note for the log: several anchors in the corpus are already
+flagged DEBATED (P115 survival, P135 TMR magnitude, P155 sleep-heat,
+P162 reconsolidation, P92 Zeigarnik, E11 diary band) — when they fail,
+bucket (d) is the *prior*, and the burden of proof is on (b)/(c).
+
+## 31. New probes P211–P220 (v23, meta-validation suite)
+
+- **P211 SBC rank uniformity (MUST):** rank statistics of θ^sim in fitted
+  ensembles are uniform for every `identified` param — χ² or the Talts et
+  al. graphical bands; ≥100 replications. Constrains the fitting routine
+  itself; failure = battery claims unearned constraint.
+- **P212 stiff-param recovery (MUST):** params in the stiff set (§24 top
+  eigen-directions, expected: τ, β, θ, level_frac, encoding scale)
+  recovered within ±20% of truth at standard cohort volume.
+- **P213 lesion coverage (MUST — audit):** every MUST probe appears in
+  ≥1 §26 must-fail row; each lesion flips ≥1 predicted probe and moves
+  zero must-not-move probes (TOST, SESOI r=.1). Uncoverable MUST probes
+  demote to OBSERVE.
+- **P214 seed-split generalization (MUST):** confirmation-seed run
+  reproduces every MUST verdict; band-probe CIs must overlap calibration
+  CIs. Divergence = FAIL + generalization review.
+- **P215 held-out discipline (MUST — process):** `class:confirmation`
+  probes show zero tuning-commit diffs since the version they were
+  designated; audit is a version-log check, not a run.
+- **P216 invariance audit (SHOULD):** ≥90% of cross-cohort T-diff probes
+  declare an invariance level; any probe whose gap is reproducible by
+  instrument asymmetry alone is re-instrumented or demoted.
+- **P217 sloppy-spectrum conformance (SHOULD):** observed sensitivity
+  eigenvalues decay roughly log-linearly and ≤10 stiff directions capture
+  ≥90% of composite-observable variance. A spectrum with no sloppy tail
+  means the model is under-parametrized (or the sweep is broken) — both
+  worth knowing. Gutenkunst 2007 expectation, flagged HYPOTHESIS for a
+  memory model.
+- **P218 discrepancy tails (SHOULD):** ≥90% of MUST probes keep their
+  §25.2 realized discrepancy inside posterior-predictive bounds;
+  pass-with-weird-tail cases are logged, not silent.
+- **P219 prior-held hygiene (MUST — process):** params classified
+  `prior-held` show no tuning-commit deltas in the version log; any delta
+  without an identifiability reclassification is a process violation.
+- **P220 POM coverage (SHOULD):** ≥80% of free §7 params participate in
+  ≥2 independent patterns in the incidence matrix; singleton params are
+  listed `provisionally constrained` in the artifact.
+
+Registry now P1–P220; numbering stable.
+
+## 32. Sources new to this version
+
+- Oreskes, Shrader-Frechette & Belitz (1994), *Science* 263:641–646 —
+  corroboration-not-proof framing for open systems.
+- Augusiak, van den Brink & Grimm (2014), *Ecol. Model.* 280:117–128 —
+  "evaludation" cycle; the §22 mapping.
+- Grimm et al. (2005), *Science* 310:987–991 — pattern-oriented modeling;
+  §25.1's multiple-weak-patterns rule.
+- Schmolke et al. (2010); Grimm et al. (2014) — TRACE documentation
+  analog for our spec+registry+goldens+log.
+- Gutenkunst et al. (2007), *PLoS Comput Biol* 3:1871 — universal
+  sloppiness; §23's stiff/sloppy governance.
+- Raue et al. (2009), *Bioinformatics* 25:1923–1929 — structural vs
+  practical identifiability via profile likelihood; §23's matrix.
+- Morris (1991), *Technometrics* 33:161–174 — elementary-effects
+  screening; §24.
+- Talts et al. (2018), arXiv:1804.06788 — simulation-based calibration;
+  §28. (Corrects Cook, Gelman & Rubin 2006; see also Modrák et al. 2023.)
+- Gelman, Meng & Stern (1996), *Statistica Sinica* 6:733–807 — realized
+  discrepancies / posterior predictive checks; §25.2.
+- Meredith (1993), *Psychometrika* 58:525–543 — measurement invariance
+  ladder; §29.
+- Goodhart (1975); Strathern (1997) — measure-into-target pathology;
+  §27.
+- Wade, Garry, Read & Lindsay (2002) — doctored-photo false memories
+  (~50%); anchor table SINGLE tier.
+- Shaw & Porter (2015) — ~70% implanted-crime claim; anchor table,
+  flagged DEBATED (single dramatic study, critiques published).
+
+Established-vs-hypothesis tagging: SBC, TOST, Morris screening,
+profile-likelihood identifiability, invariance ladder, and the
+evaludation cycle are methodological CONSENSUS. Sloppy-spectrum
+conformance (P217) is a borrowed *expectation* — confirmed universal in
+systems biology, plausible-but-unproven for a memory model; flagged
+HYPOTHESIS. The seed-split/held-out-probe protocol is our engineering
+discipline, not literature.
