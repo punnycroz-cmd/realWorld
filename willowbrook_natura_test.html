@@ -34447,6 +34447,38 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       ctx.fillRect(pb[0] - r - 2, pt[1] - 1, ww + 4, Math.max(1, wh * 0.05));
       ctx.fillRect(pb[0] - 1, pt[1] - wh * 0.06, 2, wh * 0.08);
     }
+    /* v51: lamplit spill — a lit sash throws a warm wedge across the
+       pavement in front of the facade and washes the wall around the
+       frame. The wedge runs along the pane's own outward normal (a bay
+       cheek spills at 45° to the sidewalk, not straight out), widening
+       and fading with distance like a real source. */
+    if(litWin && pb[2] < 60){
+      const gnx2 = pnx === undefined ? nx : pnx,
+            gny2 = pny === undefined ? ny : pny;
+      const gN = pr(wx + gnx2 * 0.35, wy + gny2 * 0.35, 0),
+            gF = pr(wx + gnx2 * 2.6, wy + gny2 * 2.6, 0);
+      const wg = ctx.createRadialGradient(pb[0], (pt[1] + pb[1]) / 2, 1,
+                                          pb[0], (pt[1] + pb[1]) / 2,
+                                          ww * 1.7);
+      wg.addColorStop(0, 'rgba(255,205,120,0.20)');
+      wg.addColorStop(1, 'rgba(255,205,120,0)');
+      ctx.fillStyle = wg;
+      ctx.fillRect(pb[0] - ww * 1.7, pt[1] - ww * 0.8,
+                   ww * 3.4, wh + ww * 1.6);
+      if(gN && gF && gF[1] > gN[1] + 1){
+        const tG = ctx.createLinearGradient(0, gN[1], 0, gF[1]);
+        tG.addColorStop(0, 'rgba(255,214,140,0.30)');
+        tG.addColorStop(0.55, 'rgba(255,190,100,0.12)');
+        tG.addColorStop(1, 'rgba(255,180,90,0)');
+        ctx.fillStyle = tG;
+        ctx.beginPath();
+        ctx.moveTo(pb[0] - ww * 0.55, gN[1]);
+        ctx.lineTo(pb[0] + ww * 0.55, gN[1]);
+        ctx.lineTo(gF[0] + ww * 1.5, gF[1]);
+        ctx.lineTo(gF[0] - ww * 1.5, gF[1]);
+        ctx.closePath(); ctx.fill();
+      }
+    }
   };
 
   /* v18: Clarion-Alley mural — a painted panel over the lower wall of
