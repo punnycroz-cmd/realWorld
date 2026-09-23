@@ -61,6 +61,9 @@ function gsRegistryReset(){
   GS_REG.leases.length = 0; GS_REG.mintLog.length = 0;
   GS_REG.retired.length = 0; GS_REG.seq.bld = 0; GS_REG.seq.unit = 0;
   gsRegIndex();
+  /* lease-lifecycle sidecar (applications, sequences) resets with the
+     registry it annotates */
+  if(typeof gsLeaseReset === 'function') gsLeaseReset();
 }
 
 /* Register a building on a street. The generated number is deterministic
@@ -152,6 +155,9 @@ function gsSignLease(unitId, tenantId, spec){
     end: null,
   };
   GS_REG.leases.push(l);
+  /* lifecycle enrichment lives in 41_game_systems_leases.js (loads later);
+     the typeof guard keeps signing legal before it exists */
+  if(typeof gsLeaseInit === 'function') gsLeaseInit(l, spec);
   return l;
 }
 function gsEndLease(unitId, endStamp){
@@ -276,7 +282,12 @@ function gsSeedSF(){
     { spec: { unit_code: 'A', bedrooms: 1, base_rent: 1800, rent_controlled: true } },
     { spec: { unit_code: 'B', bedrooms: 2, base_rent: 2600, rent_controlled: true } },
   ]);
-  leaseOn(b750, 'B', 'C4', { start: '2022-06-01', monthly_rent: 2600, occupants: ['C4', 'C5'] });
+  leaseOn(b750, 'B', 'C4', { start: '2022-06-01', monthly_rent: 2600,
+    occupants: ['C4', 'C5'],
+    /* cast bible: Marcus's half is late about every third month — modeled
+       as a real pay habit on his share, not a scripted anecdote */
+    shares: { C4: { amt: 1300 },
+              C5: { amt: 1300, lateEvery: 3, lateDays: 10 } } });
 
   const bAuer = seedCastHome('auerbach', 'Mission Street', 'mixed-use', [
     { spec: { unit_code: 'A', bedrooms: 1, base_rent: 0, rent_controlled: false } },
@@ -290,6 +301,10 @@ function gsSeedSF(){
           { start: '2023-02-01', monthly_rent: 1100, occupants: ['C3'] });
   leaseOn(pickResOn('Mission Street', 'C8'), 'A', 'C8',
           { start: '2018-05-01', monthly_rent: 2100, occupants: ['C8'] });
+  /* lease lifecycle seed (ambient homes, Jules's violation record, bank
+     balances) lives in 41_game_systems_leases.js and auto-runs at that
+     module's load — it can't be hooked here: gsSeedSF runs during this
+     module's own evaluation, before GS_LEASE exists (TDZ). */
   return n;
 }
 

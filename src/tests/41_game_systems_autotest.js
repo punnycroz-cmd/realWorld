@@ -2,7 +2,9 @@
    PART 41 AUTOTEST — game-systems v0 registry/ledger/bus + v1 request
    lifecycle (real catalogue, effect dispatch, per-minute billing) +
    v2 conflicts (pairwise claims matrix, shared skies, venue permits,
-   paperwork serialization, promotion ordering + handoff).
+   paperwork serialization, promotion ordering + handoff) +
+   v3 lease lifecycle (rent run, shares/habits, arrears, violations,
+   notices, eviction, raises, applications, all-28-cast housed).
    Mode-agnostic: runs in medieval ?test AND ?sf&test. Mutating tests run
    on reset state and the prior contents are restored afterwards, so the
    SF-seeded registry survives the suite untouched.
@@ -57,10 +59,41 @@ runAutoTest = async function(){
         'gs: 750 Guerrero flat lists Priya + Marcus as occupants');
     const b744 = GS_REG.buildings.find(b => b.bld_idx === (SF_MAP.anchors.g744 || {}).bld);
     log(!!b744 && b744.owner_id === 'C7', 'gs: 744 Guerrero anchor is owned by C7');
+
+    // ---- v3: the whole cast is housed through the lease system ----
+    const housed = gsCastHousing();
+    log(housed.total === 28 && housed.housed === 28 && housed.missing.length === 0,
+        'gs: v3 all 28 cast members resolve to a registry unit',
+        housed.missing.join(',') || 'none missing');
+    log(housed.map['C2'] && housed.map['C2'].via === 'unpermitted' &&
+        housed.map['C2'].unit_id === c6.unit_id,
+        'gs: v3 Jules resolves to 744 through the unpermitted-occupant record');
+    log(housed.map['C7'] && housed.map['C7'].via === 'owner',
+        'gs: v3 Victor resolves as owner-occupied above the shop');
+    const ambOk = NV_CAST.filter(c => c.tier === 'ambient').every(c => {
+      const h = housed.map[c.id];
+      return h && h.via === 'lease' && /^9\d{3} /.test(h.address || '');
+    });
+    log(ambOk, 'gs: v3 all 20 ambient cast hold real 9xxx leases on map buildings');
+    const c4l = gsLeasesFor('C4').find(l => l.status === 'active');
+    log(!!c4l && c4l.shares && c4l.shares.C5 && c4l.shares.C5.lateEvery === 3 &&
+        c4l.shares.C5.amt + c4l.shares.C4.amt === c4l.monthly_rent,
+        'gs: v3 the 750 flat splits shares; Marcus is late every third month');
+    const jvio = c6 && (c6.violations || []).find(v => v.who === 'C2');
+    log(!!jvio && jvio.status === 'open' && jvio.discovered === false,
+        'gs: v3 Jules\'s violation is recorded, open, and undiscovered');
+    const enriched = GS_REG.leases.filter(l => l.gsV3);
+    log(enriched.length === GS_REG.leases.length && enriched.length >= 26,
+        'gs: v3 every seeded lease carries lifecycle fields',
+        enriched.length + ' leases');
+    log(gsDollarBalance('C6') > 0 && gsDollarBalance('A01') > 0 &&
+        gsDollarBalance('A20') > 0,
+        'gs: v3 cast bank balances seeded — the rent run moves real dollars');
   }
 
   /* ---------- isolated unit tests on reset state ---------- */
-  const regSnap = gsRegSnapshot(), ledSnap = gsLedgerSnapshot(), busSnap = gsBusSnapshot();
+  const regSnap = gsRegSnapshot(), ledSnap = gsLedgerSnapshot(),
+        busSnap = gsBusSnapshot(), leaseSnap = gsLeaseSnapshot();
   try{
     gsRegistryReset(); gsLedgerReset(); gsBusReset();
 
@@ -673,10 +706,261 @@ runAutoTest = async function(){
         gsUnitById(lu.id).owner_id === 'H10' &&   // registry is separate —
         GS_FEED.length > 0,                        // assert bus-owned state
         'gs: bus snapshot/load round-trips requests, cooldowns, hired + fx state');
+
+    // ================= v3: THE LEASE LIFECYCLE =================
+    // the rent run: charges post on the due day, shares auto-pay,
+    // pro-rated first months, late fees after grace, arrears accrue.
+
+    // ---- v3: signing enriches the lease + pro-rated first month ----
+    const vb = gsRegisterBuilding({ street: 'Vida Street', owner_id: 'll-vida' });
+    const vu = gsRegisterUnit(vb.id, { unit_code: 'A', base_rent: 2000,
+                                       rent_controlled: true });
+    gsDollarGrant('T7', 9000, 'savings'); gsDollarGrant('T8', 4000, 'savings');
+    gsSignLease(vu.id, 'T7', { start: '2026-09-10', monthly_rent: 2000,
+      occupants: ['T7', 'T8'],
+      shares: { T7: { amt: 1200 }, T8: { amt: 800, lateEvery: 3, lateDays: 8 } } });
+    const lv = gsActiveLease(vu.id);
+    log(!!lv && lv.gsV3 === 1 && lv.dueDay === 10 && lv.deposit === 2000 &&
+        Array.isArray(lv.charges) && Array.isArray(lv.notices) &&
+        Array.isArray(lv.violations) && lv.term === 'month-to-month',
+        'gs: v3 signing enriches the lease with lifecycle fields');
+    gsRentTick('2026-09-10');   // move-in day — pro-rated Sep charge
+    const ch0 = lv.charges[0];
+    log(!!ch0 && ch0.kind === 'rent' && ch0.amt === 1400 &&
+        ch0.status === 'paid' && gsDollarBalance('T7') === 8160 &&
+        gsDollarBalance('T8') === 3440 && gsLeaseOwner(lv) === 'll-vida' &&
+        gsDollarBalance('ll-vida') === 1400 &&
+        GS_FEED.some(e => e.type === 'lease' && e.action === 'rent_paid' &&
+                          e.unit === vu.id),
+        'gs: v3 mid-month move-in posts a pro-rated charge, shares auto-pay');
+    gsRentTick('2026-10-05');   // before the 10th — nothing posts yet
+    log(lv.charges.length === 1,
+        'gs: v3 no charge lands before the due day');
+    gsRentTick('2026-10-10');   // Oct charge: seq 2 — T8 still on time
+    log(lv.charges.length === 2 && lv.charges[1].amt === 2000 &&
+        lv.charges[1].status === 'paid' &&
+        gsDollarBalance('T7') === 6960 && gsDollarBalance('T8') === 2640,
+        'gs: v3 monthly charge posts on the due day, split by shares');
+    gsRentTick('2026-11-10');   // Nov charge: seq 3 — T8's habit defers
+    gsRentTick('2026-11-16');   // grace lapsed -> late fee lands on T8 only
+    const owedLv = gsLeaseOwed(lv);
+    log(lv.charges[2].late === true && lv.charges[2].lateFee === 40 &&
+        owedLv.total === 840 && owedLv.by.T8 === 840 && !owedLv.by.T7 &&
+        gsDollarBalance('T7') === 5760,
+        'gs: v3 the habitual-late share defers, earns its own late fee');
+    gsRentTick('2026-11-18');   // catch-up day — T8 pays rent + fee
+    log(lv.charges[2].status === 'paid' && gsDollarBalance('T8') === 1800 &&
+        gsLeaseOwed(lv).total === 0,
+        'gs: v3 the scheduled catch-up clears rent + fee honestly');
+
+    // ---- v3: arrears across missed months -> pay-or-quit -> eviction ----
+    const eb = gsRegisterBuilding({ street: 'Eviction Street', owner_id: 'landlord' });
+    const eu = gsRegisterUnit(eb.id, { unit_code: 'A', base_rent: 1500 });
+    gsDollarGrant('T9', 100, 'nearly broke');
+    gsSignLease(eu.id, 'T9', { start: '2026-08-01', monthly_rent: 1500 });
+    const el = gsActiveLease(eu.id);
+    const euAddr = gsAddressOfUnit(eu.id);
+    gsRentTick('2026-08-01');   // Aug charge: T9 pays only the 100 they have
+    log(gsLeaseOwed(el).total === 1400,
+        'gs: v3 partial payment leaves the shortfall as arrears');
+    gsRentTick('2026-08-07');   // past grace -> 5% late fee
+    gsRentTick('2026-10-02');   // Sep + Oct post late (books ran behind)
+    const owedEl = gsLeaseOwed(el);
+    log(owedEl.total === 4545 && owedEl.by.T9 === 4545 &&
+        el.charges.filter(c => c.late).length === 2,
+        'gs: v3 arrears + capped late fees accumulate across missed months');
+    const noNotice = gsAdminEvict(eu.id, { date: '2026-10-02' });
+    log(!noNotice.ok && noNotice.reason === 'no_executable_notice',
+        'gs: v3 eviction refused without an executable notice');
+    const nt = gsServeNotice(eu.id, 'pay_or_quit', { date: '2026-10-02' });
+    log(nt.ok && nt.notice.deadline === '2026-10-05' &&
+        nt.notice.status === 'open',
+        'gs: v3 pay-or-quit needs arrears and carries a 3-day window');
+    gsRentTick('2026-10-06');   // deadline passed, still owed
+    log(nt.notice.status === 'executable' &&
+        GS_FEED.some(e => e.type === 'lease' &&
+                          e.action === 'notice_executable' && e.unit === eu.id),
+        'gs: v3 an unpaid pay-or-quit becomes executable');
+    const evRes = gsAdminEvict(eu.id, { date: '2026-10-07', reason: 'nonpayment' });
+    const rel = gsSignLease(eu.id, 'T10', { start: '2026-10-15',
+                                          monthly_rent: 1500 });
+    log(evRes.ok && !evRes.noFault && el.status === 'evicted' &&
+        !gsActiveLease(eu.id) === false && nt.notice.status === 'executed' &&
+        gsActiveLease(eu.id) === rel &&
+        gsAddressOfUnit(eu.id) === euAddr &&
+        GS_FEED.some(e => e.type === 'lease' && e.action === 'evict' &&
+                          e.unit === eu.id && e.noFault === false),
+        'gs: v3 eviction ends the lease, frees the unit, keeps the address');
+
+    // ---- v3: curing a pay-or-quit inside the window stops the eviction ----
+    const cb2 = gsRegisterBuilding({ street: 'Cure Street', owner_id: 'landlord' });
+    const cu2 = gsRegisterUnit(cb2.id, { unit_code: 'A', base_rent: 1000 });
+    gsDollarGrant('T11', 400, 'light savings');
+    gsSignLease(cu2.id, 'T11', { start: '2026-09-01', monthly_rent: 1000 });
+    const cl = gsActiveLease(cu2.id);
+    gsRentTick('2026-09-01');   // pays 400 of 1000
+    gsRentTick('2026-09-07');   // late fee 30 -> owed 630
+    const cn0 = gsServeNotice(cu2.id, 'pay_or_quit', { date: '2026-09-08' });
+    gsDollarGrant('T11', 5000, 'paycheck');
+    const paidUp = gsPayRent(cu2.id, 'T11', 5000, '2026-09-09');
+    gsRentTick('2026-09-10');   // inside the 3-day window, owed == 0
+    const evDeny = gsAdminEvict(cu2.id, { date: '2026-09-12' });
+    log(cn0.ok && paidUp.ok && paidUp.paid === 630 &&
+        cn0.notice.status === 'cured' && gsLeaseOwed(cl).total === 0 &&
+        !evDeny.ok && gsActiveLease(cu2.id) === cl,
+        'gs: v3 paying arrears inside the window cures the notice');
+
+    // ---- v3: the Jules arc — violation -> inspect -> cure-or-quit -> cure
+    const jb = gsRegisterBuilding({ street: 'Junit Street', owner_id: 'landlord' });
+    const ju = gsRegisterUnit(jb.id, { unit_code: 'A', base_rent: 1400,
+                                       rent_controlled: true });
+    gsSignLease(ju.id, 'TH', { start: '2020-01-01', monthly_rent: 1400,
+                               occupants: ['TH'] });
+    const jl = gsActiveLease(ju.id);
+    const vio = gsRecordViolation(ju.id, { kind: 'unpermitted_occupant',
+      who: 'TJ', since: '2026-01-01' });
+    log(!!vio && vio.discovered === false &&
+        gsHomeOf('TJ').via === 'unpermitted' &&
+        gsHomeOf('TJ').unit_id === ju.id &&
+        gsResidentsOf(ju.id).indexOf('TJ') >= 0 &&
+        !GS_FEED.some(e => e.type === 'lease' && e.action === 'violation' &&
+                           e.unit === ju.id),
+        'gs: v3 unpermitted occupant resolves as resident; stays off the feed');
+    const tooSoon = gsServeNotice(ju.id, 'cure_or_quit', { date: '2026-10-01' });
+    log(!tooSoon.ok && tooSoon.reason === 'no_discovered_violation',
+        'gs: v3 no cure notice on a violation the landlord cannot know');
+    gsInspectUnit(ju.id, { date: '2026-10-02' });
+    log(vio.discovered === true &&
+        GS_FEED.some(e => e.type === 'lease' && e.action === 'violation' &&
+                          e.violId === vio.id && e.via === 'inspection'),
+        'gs: v3 inspection surfaces the violation to the public record');
+    const cn2 = gsServeNotice(ju.id, 'cure_or_quit', { date: '2026-10-02' });
+    gsCureViolation(ju.id, vio.id, { how: 'added_to_lease', date: '2026-10-03' });
+    gsRentTick('2026-10-06');   // past the deadline, but cured in time
+    log(cn2.ok && cn2.notice.status === 'cured' &&
+        jl.occupants.indexOf('TJ') >= 0 && jl.shares.TJ && jl.shares.TJ.amt === 0,
+        'gs: v3 cure-or-quit cured by putting the occupant on the lease');
+    const vio2 = gsRecordViolation(ju.id, { kind: 'unpermitted_occupant',
+      who: 'TJ2', since: '2026-10-01', discovered: true });
+    gsCureViolation(ju.id, vio2.id, { how: 'departed', date: '2026-10-04' });
+    log(vio2.status === 'cured' && gsHomeOf('TJ2') === null,
+        'gs: v3 a departed occupant stops resolving to the unit');
+
+    // ---- v3: rent raises respect the ordinance ----
+    const rb2 = gsRegisterBuilding({ street: 'Raise Street', owner_id: 'landlord' });
+    const ru2 = gsRegisterUnit(rb2.id, { unit_code: 'A', base_rent: 2000,
+                                         rent_controlled: true });
+    const ruM = gsRegisterUnit(rb2.id, { unit_code: 'B', base_rent: 2000,
+                                         rent_controlled: false });
+    gsDollarGrant('T12', 40000, 'savings');
+    gsSignLease(ru2.id, 'T12', { start: '2020-01-01', monthly_rent: 2000 });
+    const rl = gsActiveLease(ru2.id);
+    const over = gsRaiseRent(ru2.id, 2300, { date: '2026-10-01' });
+    const okRaise = gsRaiseRent(ru2.id, 2140, { date: '2026-10-01' });
+    log(!over.ok && over.reason === 'raise_over_cap' && over.max === 2140 &&
+        okRaise.ok && okRaise.effectiveOn === '2026-10-31',
+        'gs: v3 controlled-unit raises cap at 7% with 30-day notice');
+    gsRentTick('2026-10-15');
+    const rentMid = rl.monthly_rent;
+    gsRentTick('2026-11-01');   // raise effective -> Nov charge bills new rent
+    const novCh = rl.charges.find(c => c.period === '2026-11');
+    log(rentMid === 2000 && rl.monthly_rent === 2140 &&
+        rl.raiseHist.length === 1 && rl.pendingRaise === null &&
+        novCh && novCh.amt === 2140,
+        'gs: v3 the raise takes effect on its date; November bills it');
+    const again = gsRaiseRent(ru2.id, 2200, { date: '2026-11-15' });
+    const fresh = gsRaiseRent(ruM.id, 9999, { date: '2026-10-02' });
+    log(!again.ok && again.reason === 'raise_too_soon' &&
+        fresh && !fresh.ok && fresh.reason === 'no_active_lease',
+        'gs: v3 one raise per 12 months; vacant units cannot be raised');
+
+    // ---- v3: fixed terms roll to month-to-month; tenants can vacate ----
+    const fb = gsRegisterBuilding({ street: 'Fixed Street', owner_id: 'landlord' });
+    const fu = gsRegisterUnit(fb.id, { unit_code: 'A', base_rent: 1800 });
+    gsDollarGrant('T13', 20000, 'savings');
+    gsSignLease(fu.id, 'T13', { start: '2025-10-01', monthly_rent: 1800,
+                                term: 'fixed', endOn: '2026-09-30' });
+    const fl = gsActiveLease(fu.id);
+    const roll = gsRentTick('2026-10-02');
+    log(fl.term === 'month-to-month' && fl.endOn === null &&
+        roll.rolled.indexOf(fu.id) >= 0,
+        'gs: v3 a lapsed fixed term rolls to month-to-month (CA default)');
+    const vac = gsVacate(fu.id, { date: '2026-10-20' });
+    log(vac.ok && fl.status === 'ended' && !gsActiveLease(fu.id) &&
+        gsHomeOf('T13') === null,
+        'gs: v3 tenant vacate ends the lease and un-homes them');
+
+    // ---- v3: applications — apply -> approve -> signed + deposit ----
+    const ab = gsRegisterBuilding({ street: 'Apply Street', owner_id: 'landlord' });
+    const au = gsRegisterUnit(ab.id, { unit_code: 'A', base_rent: 1600 });
+    gsDollarGrant('T14', 10000, 'savings');
+    const app = gsApplyForLease(au.id, 'T14', { date: '2026-10-01' });
+    const dupApp = gsApplyForLease(au.id, 'T14', { date: '2026-10-01' });
+    const apOk = gsApproveApplication(app.id, { date: '2026-10-05' });
+    const stApp = gsLeaseStatement(au.id);
+    log(app.status === 'approved' && apOk.ok &&
+        stApp.tenant === 'T14' &&
+        stApp.charges.some(c => c.kind === 'deposit' && c.amt === 1600 &&
+                                c.status === 'paid') &&
+        gsDollarBalance('T14') === 8400 &&
+        (!dupApp.ok && dupApp.reason === 'already_applied'),
+        'gs: v3 application approves into a signed lease + paid deposit');
+    const app2 = gsApplyForLease(au.id, 'T15', { date: '2026-10-06' });
+    const apOcc = gsApproveApplication(app2.id, { date: '2026-10-07' });
+    gsDenyApplication(app2.id, { date: '2026-10-08', reason: 'waitlist' });
+    log(!apOcc.ok && apOcc.reason === 'unit_occupied' &&
+        app2.status === 'denied',
+        'gs: v3 occupied units cannot be signed into; denials record honestly');
+
+    // ---- v3: evicting a hired character un-homes it; overrides post noFault
+    const hb3 = gsRegisterBuilding({ street: 'Hired Street', owner_id: 'landlord' });
+    const hu3 = gsRegisterUnit(hb3.id, { unit_code: 'A', base_rent: 1000 });
+    gsMarkHired('H40', 'qA', { unitId: hu3.id });
+    gsSignLease(hu3.id, 'H40', { start: '2026-09-01', monthly_rent: 1000,
+                                 occupants: ['H40'] });
+    gsRentTick('2026-09-01');   // H40 has no dollars -> full arrears
+    gsServeNotice(hu3.id, 'pay_or_quit', { date: '2026-09-02' });
+    gsRentTick('2026-09-06');   // deadline lapsed -> executable
+    const evH = gsAdminEvict(hu3.id, { date: '2026-09-07' });
+    log(evH.ok && GS_HIRED.H40 && GS_HIRED.H40.unitId === null &&
+        gsHomeOf('H40') === null,
+        'gs: v3 evicting a hired character strips its registered home');
+    const hb4 = gsRegisterBuilding({ street: 'Owner Street', owner_id: 'landlord' });
+    const hu4 = gsRegisterUnit(hb4.id, { unit_code: 'A', base_rent: 1200 });
+    gsDollarGrant('T20', 9999, 'savings');
+    gsSignLease(hu4.id, 'T20', { start: '2026-09-01', monthly_rent: 1200 });
+    const evNoFault = gsAdminEvict(hu4.id, { date: '2026-09-10',
+      override: true, reason: 'owner move-in' });
+    log(evNoFault.ok && evNoFault.noFault === true &&
+        GS_FEED.some(e => e.type === 'lease' && e.action === 'evict' &&
+                          e.unit === hu4.id && e.noFault === true),
+        'gs: v3 owner override evicts without notice — publicly flagged noFault');
+
+    // ---- v3: admin views + snapshot round-trip of lifecycle state ----
+    const book = gsLeaseBook();
+    const bookRow = book.find(r => r.unit === vu.id);
+    log(Array.isArray(book) && bookRow && bookRow.rent === 2000 &&
+        book.every(r => /^9\d{3} /.test(r.address)),
+        'gs: v3 the landlord rent roll reads real addresses + balances');
+    const stV = gsLeaseStatement(vu.id);
+    log(stV && stV.tenant === 'T7' && stV.charges.length === 3 &&
+        stV.owed.total === 0 && stV.residents.indexOf('T8') >= 0,
+        'gs: v3 per-unit statement shows charges, shares, residents');
+    const lSnap2 = gsRegSnapshot(), sSnap2 = gsLeaseSnapshot();
+    gsRegistryReset();
+    const reLoaded = gsRegLoad(lSnap2) && gsLeaseLoad(sSnap2);
+    const reEl = GS_REG.leases.find(l => l.unit_id === eu.id);
+    const reLv = gsActiveLease(vu.id);
+    log(reLoaded && reEl && reEl.status === 'evicted' &&
+        reEl.noFault === false && reEl.charges.length === 3 &&
+        reLv && reLv.shares.T8.lateEvery === 3 &&
+        GS_LEASE.apps.length > 0,
+        'gs: v3 lifecycle state survives registry+lease snapshot/load');
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{
     gsRegLoad(regSnap); gsLedgerLoad(ledSnap); gsBusLoad(busSnap);
+    gsLeaseLoad(leaseSnap);
   }
 
   const passed = res.filter(r => r.ok).length;

@@ -281,8 +281,9 @@ function gsFxHire(r, now){
     role: (r.params && r.params.role) || 'Resident',
     hiredMin: now, unitId: u.id, spawned: false,  // world spawn lands in v8
   });
-  gsSignLease(u.id, cid, { start: 'hire:' + r.id, monthly_rent: u.base_rent,
-                           occupants: [cid] });
+  gsSignLease(u.id, cid, { start: (typeof gsTodayStr === 'function' &&
+    gsTodayStr()) || ('hire:' + r.id), monthly_rent: u.base_rent,
+    occupants: [cid] });
   gsDollarGrant(cid, u.base_rent * GS_HIRE_STAKE_MULT + GS_HIRE_STAKE_PAD,
                 'move-in stake');
   gsBusEmit('hire', r, { charId: cid, unit: u.id });
