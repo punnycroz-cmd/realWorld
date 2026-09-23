@@ -469,6 +469,11 @@ function renderChibiPawn(v, cw, ch){
     ctx.fillStyle = '#f8fafc';
     ctx.fillText(tag, sx - tw/2, sy - 66 * cam.zoom);
   }
+
+  // production-1: speech bubble above the name tag (sfSayBubble lives in
+  // the SF renderer module; shared script scope, hoisted at call time)
+  if(typeof sfSayBubble === 'function')
+    sfSayBubble(v, sx, sy - 82 * cam.zoom, cam.zoom);
 }
 
 function renderWeatherAtmosphere(cw, ch){

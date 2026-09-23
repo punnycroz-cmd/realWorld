@@ -73,6 +73,7 @@ sf/32_sf_render.js
 sf/33_sf_cast.js
 sf/34_sf_live.js
 sf/35_sf_memory.js
+sf/36_sf_agent.js
 systems/41_game_systems_registry.js
 systems/41_game_systems_ledger.js
 systems/41_game_systems_requests.js

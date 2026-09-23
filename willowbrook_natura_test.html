@@ -6403,6 +6403,11 @@ function renderChibiPawn(v, cw, ch){
     ctx.fillStyle = '#f8fafc';
     ctx.fillText(tag, sx - tw/2, sy - 66 * cam.zoom);
   }
+
+  // production-1: speech bubble above the name tag (sfSayBubble lives in
+  // the SF renderer module; shared script scope, hoisted at call time)
+  if(typeof sfSayBubble === 'function')
+    sfSayBubble(v, sx, sy - 82 * cam.zoom, cam.zoom);
 }
 
 function renderWeatherAtmosphere(cw, ch){
@@ -8371,6 +8376,11 @@ function doSpeakStep(v, step, dtH){
   if(!step.said){
     step.said = true;
     const text = step.text || '...';
+    // production-1: the spoken line gets a visible bubble (sfSayBubble in
+    // the SF renderer reads these three props; also set by sfSay)
+    v.sayText = String(text).slice(0, 90);
+    v.sayUntil = W.tod + 0.35;
+    v.sayAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     for(const o of VILLAGERS){
       if(o === v || o.dead) continue;
       if(distCells(v, o) <= 12){
@@ -32456,11 +32466,76 @@ function sfTerrChunk(cx, cy, wetQ){
    and blit the last frame when it matches: stale by <0.5s at worst,
    ~1 drawImage instead of the full painter's pass. */
 const SF_STILL = { c: null, g: null, key: '' };
+/* production-1: speech bubbles — sayText/sayUntil/sayAt are set by the
+   agent bridge's sfSay and by the speak verb (doSpeakStep). One draw
+   helper serves all three pawn passes (top, street, interior). The
+   still-key folds the live speech state into the frame signature so a
+   new utterance busts the temporal cache instead of never appearing. */
+function sfSaySig(v){
+  if(!v.sayText || !(v.sayUntil > W.tod)) return 0;
+  let h = 5381;
+  const s = String(v.sayText);
+  for(let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
+  return h;
+}
+function sfSayBubble(v, sx, sy, k){
+  if(!v || !v.sayText || !(v.sayUntil > W.tod)) return;
+  k = k || 1;
+  const fpx = Math.max(9, Math.round(11 * k));
+  ctx.font = fpx + 'px system-ui, sans-serif';
+  const words = String(v.sayText).split(/\s+/);
+  const lines = [];
+  let cur = '';
+  for(const w of words){
+    const nxt = cur ? cur + ' ' + w : w;
+    if(nxt.length > 26 && cur){ lines.push(cur); cur = w; }
+    else cur = nxt;
+  }
+  if(cur) lines.push(cur);
+  if(lines.length > 3){ lines.length = 3; lines[2] = lines[2].slice(0, 24) + '…'; }
+  let bw = 0;
+  for(const ln of lines) bw = Math.max(bw, ctx.measureText(ln).width);
+  bw += 16 * k;
+  const lh = fpx + 3 * k, bh = lines.length * lh + 9 * k;
+  // pop-in over the first ~250ms of screen life, scaling from the tail
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  const age = (now - (v.sayAt || now)) / 1000;
+  const pop = age < 0.25 ? 0.55 + 0.45 * (age / 0.25) : 1;
+  const bx = sx - bw / 2, by = sy - bh - 9 * k;
+  ctx.save();
+  ctx.translate(sx, sy); ctx.scale(pop, pop); ctx.translate(-sx, -sy);
+  const r = 7 * k;
+  ctx.beginPath();
+  ctx.moveTo(bx + r, by);
+  ctx.arcTo(bx + bw, by, bx + bw, by + bh, r);
+  ctx.arcTo(bx + bw, by + bh, bx, by + bh, r);
+  ctx.arcTo(bx, by + bh, bx, by, r);
+  ctx.arcTo(bx, by, bx + bw, by, r);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(248,244,232,0.96)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(20,16,12,0.85)';
+  ctx.lineWidth = Math.max(1, 1.2 * k);
+  ctx.stroke();
+  ctx.beginPath();   // tail
+  ctx.moveTo(sx - 5 * k, by + bh - 1);
+  ctx.lineTo(sx + 5 * k, by + bh - 1);
+  ctx.lineTo(sx, by + bh + 8 * k);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(248,244,232,0.96)';
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#1a1410';
+  ctx.textAlign = 'center';
+  for(let i = 0; i < lines.length; i++)
+    ctx.fillText(lines[i], sx, by + 5 * k + fpx + i * lh);
+  ctx.restore();
+}
 function sfStillKey(cw, ch, view, pose){
   let sig = 0;
   for(const v of VILLAGERS)
     sig += Math.round(v.x) + Math.round(v.y) + (v.face || 0) * 13 +
-           (v.inBuilding ? 7919 : 0);
+           (v.inBuilding ? 7919 : 0) + sfSaySig(v);
   return [view, cw, ch, Math.round(SF_WX.t * 2), isNight() ? 1 : 0,
           Math.round(W.tod * 24), SF_SUN.q, Math.round(W.rain * 8),
           Math.round(SF_WX.wet * 8), Math.round(sfCloudCover() * 8),
@@ -37343,6 +37418,9 @@ function sfRenderStreet(cw, ch){
           ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 3;
           ctx.strokeText(pv.name, p[0], p[1] - ph - 4);
           ctx.fillStyle = '#fff'; ctx.fillText(pv.name, p[0], p[1] - ph - 4);
+          // production-1: speech bubble above the name plate
+          sfSayBubble(pv, p[0], p[1] - ph - 14,
+                      Math.max(8, 24 / p[2] * 4) / 11);
         }
       }
     }
@@ -38188,6 +38266,7 @@ function sfRenderInterior(cw, ch, v){
       ctx.fillStyle = 'rgba(16,10,6,0.4)';
       ctx.beginPath(); ctx.ellipse(fx, fy + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
       ctx.drawImage(fr, fx - pw / 2, fy - ph2, pw, ph2);
+      sfSayBubble(o, fx, fy - ph2 - 6, 0.85);   // production-1: occupants speak
     }
     k++;
   }
@@ -38200,6 +38279,7 @@ function sfRenderInterior(cw, ch, v){
       ctx.fillStyle = 'rgba(16,10,6,0.45)';
       ctx.beginPath(); ctx.ellipse(cw / 2, fy + 2, 34, 10, 0, 0, Math.PI * 2); ctx.fill();
       ctx.drawImage(fr, cw / 2 - 36, fy - 96, 72, 96);
+      sfSayBubble(v, cw / 2, fy - 96 - 8, 1);  // production-1: subject speaks
     }
   }
   // location card — canonical parody display name (production-1)
@@ -38529,6 +38609,15 @@ function sfNpcTick(v, dtH){
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
+  // production-1: a parked agent order (36_sf_agent.js, the playtest
+  // bridge) drives this pawn through real sim calls until done/expired,
+  // then the schedule brain resumes. Order channel, not possession.
+  if(v.sfAgent){
+    const a = v.sfAgent;
+    if(a.done || W.tod > a.until) v.sfAgent = null;
+    else if(typeof sfAgentTick === 'function'){ sfAgentTick(v, a, dtH); return; }
+    else v.sfAgent = null;
+  }
   const sched = v.sfSched;
   if(!sched || !sched.length){ v.state = v.moving ? v.state : 'idle'; return; }
   const h = W.tod;
@@ -38773,6 +38862,194 @@ if(typeof window !== 'undefined' && window.__aiBridge){
       ? sfMemProfileFor(cid) : null;
   window.__aiBridge.sfMemWired = () =>
     ['beta_episodic', 'forget_thresh', 'misinfo_suscept'];
+}
+
+/* =====================================================================
+   PART 36 — SF AGENT ACTIONS (production-1 playtest bridge)
+
+   External minds (the 8-agent visual playtest, dev tools) act through
+   sfAgentAct(cid, action) — real sim calls (sfGoTo/sfFollowPath/
+   sfEnterPOI), never direct motor writes. An agent order parks on
+   v.sfAgent and sfNpcTick honors it until done/expired, then the
+   schedule brain resumes. This is the character's brain, not player
+   possession: the production UI exposes no control of the 8 mains.
+
+   Verbs: move <poi> | talk <castId|name> <text> | work | rest | idle |
+          request <kind> <note>   (request files through the REAL bus as
+          spectator 'agent-<cid>' — screen → review → ledger)
+
+   sfAgentState(cid) returns ONLY what a passerby could observe:
+   location, clock, nearby cast, needs bars, recent public Wire lines,
+   and the character's own public routine — no secrets, no private state.
+   ===================================================================== */
+
+function sfPawnOf(cid){
+  return VILLAGERS.find(v => v._castId === cid) ||
+         VILLAGERS.find(v => v.name && v.name.toLowerCase() === String(cid).toLowerCase());
+}
+
+function sfSay(v, text){
+  v.sayText = String(text).slice(0, 90);
+  v.sayUntil = W.tod + 0.35;              // ~21 sim-minutes on screen
+  v.sayAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+}
+
+/* per-tick driver for an active agent order */
+function sfAgentTick(v, a, dtH){
+  if(a.verb === 'move'){
+    const cell = a.cell;
+    if(a.poi && v.inside === a.poi){ v.state = 'idle'; a.done = true; return; }
+    const tx = cell.wx * CS + 16, ty = cell.wy * CS + 16;
+    if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
+      v.sfPath = null; v.moving = false;
+      if(a.poi){ const p = sfFindPOI(a.poi); if(p) sfEnterPOI(v, p.name); }
+      v.state = 'idle'; a.done = true;
+      return;
+    }
+    if(v.inside || v.inBuilding) sfExitPOI(v);
+    if(!v.sfPath || !v.sfPath.length) sfGoTo(v, cell.wx, cell.wy);
+    if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
+    else { v.state = 'idle'; a.done = true; }   // unreachable — fail honest
+    return;
+  }
+  if(a.verb === 'talk'){
+    const t = sfPawnOf(a.to);
+    if(!t){ a.done = true; return; }
+    // leave whatever venue we're in — unless the target is inside it too
+    if((v.inside || v.inBuilding) && !(t.inBuilding && v.inside === t.inside))
+      sfExitPOI(v);
+    const d = Math.hypot(v.x - t.x, v.y - t.y);
+    if(d > CS * 2){
+      if(!v.sfPath || !v.sfPath.length)
+        sfGoTo(v, Math.floor(t.x / CS), Math.floor(t.y / CS));
+      if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
+    } else {
+      // at their door: if they're indoors, step into the venue so the
+      // exchange happens in the same rendered space (interior pass shows
+      // both occupants + the bubble)
+      if(t.inBuilding && t.inside && v.inside !== t.inside)
+        sfEnterPOI(v, t.inside);
+      v.sfPath = null; v.moving = false; v.state = 'idle';
+      v.faceTo = { x: t.x, y: t.y };
+      if(!a.said){
+        a.said = true;
+        sfSay(v, a.text || 'hey');
+        // real memory hooks: both parties record the exchange
+        if(typeof observe === 'function'){
+          observe(v, 'spoke with ' + (t.name || a.to), { topic: 'talk_' + t._castId,
+            source: 'direct', confidence: 0.95, salience: 0.7, bypassAttention: true });
+          observe(t, (v.name || 'someone') + ' said: "' + (a.text || 'hey') + '"',
+            { topic: 'talk_' + v._castId, source: 'direct', confidence: 0.9,
+              salience: 0.7, bypassAttention: true });
+        }
+      }
+    }
+    return;
+  }
+  // work | rest | idle — presence states, renderer shows them in place
+  v.sfPath = null; v.moving = false;
+  v.state = a.verb === 'rest' ? 'rest' : (a.verb === 'work' ? 'work' : 'idle');
+}
+
+/* one action. Returns {ok, ...} — never throws at the caller. */
+function sfAgentAct(cid, act){
+  const v = sfPawnOf(cid);
+  if(!v) return { ok: false, err: 'no character ' + cid };
+  act = act || {};
+  const verb = String(act.verb || 'idle').toLowerCase();
+  const holdH = Math.min(2, Math.max(0.25, +(act.holdH || 1.25))); // ≤2 sim-hrs
+
+  if(verb === 'move'){
+    const p = sfFindPOI(act.to);
+    if(!p) return { ok: false, err: 'unknown place: ' + act.to };
+    const cell = sfHomeCell({ poi: p.name });
+    v.sfAgent = { verb: 'move', poi: p.name, cell, until: W.tod + holdH };
+    return { ok: true, going: p.name };
+  }
+  if(verb === 'talk'){
+    const t = sfPawnOf(act.to);
+    if(!t) return { ok: false, err: 'unknown person: ' + act.to };
+    if(t === v) return { ok: false, err: 'cannot talk to self' };
+    v.sfAgent = { verb: 'talk', to: act.to, text: act.text || 'hey',
+                  until: W.tod + Math.min(holdH, 0.5) };
+    return { ok: true, talking: t.name };
+  }
+  if(verb === 'work' || verb === 'rest' || verb === 'idle'){
+    v.sfAgent = { verb, until: W.tod + holdH };
+    return { ok: true, state: verb };
+  }
+  if(verb === 'request'){
+    /* the agent steps out of the fiction and files as a spectator —
+       the real bus: screen → lane → bill → review. Public-good kinds
+       only: no possess (mains are banned), no hire/buy/listing. */
+    if(typeof gsSubmitRequest !== 'function')
+      return { ok: false, err: 'request bus unavailable' };
+    const kind = (act.kind === 'weather') ? 'weather' : 'street_event';
+    const spec = { playerId: 'agent-' + cid, kind,
+                   durationMin: Math.min(180, Math.max(15, +(act.durationMin || 30))),
+                   params: { note: act.note || undefined } };
+    if(kind === 'weather') spec.params.wx = act.wx || 'clear';
+    else { spec.params.event = act.event || 'block_party';
+           if(act.at) spec.params.at = act.at; }
+    const r = gsSubmitRequest(spec);
+    return { ok: true, request: r };
+  }
+  return { ok: false, err: 'unknown verb ' + verb };
+}
+
+/* observable state only — the playtest briefing rule */
+function sfAgentState(cid){
+  const v = sfPawnOf(cid);
+  if(!v) return null;
+  const poi = v.inside ? sfFindPOI(v.inside) : null;
+  const here = v.inside ? ('inside ' + v.inside)
+    : (function(){
+        let best = null, bd = 60;
+        for(const p of SF_POIS){
+          const c = sfHomeCell({ poi: p.name });
+          const d = Math.hypot(v.x - (c.wx * CS + 16), v.y - (c.wy * CS + 16));
+          if(d < bd){ bd = d; best = p; }
+        }
+        return best ? 'near ' + best.name : 'on the block';
+      })();
+  const near = [];
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId) continue;
+    const d = Math.hypot(v.x - o.x, v.y - o.y);
+    if(d >= CS * 8) continue;
+    // a passerby sees only their own space: street sees street, venue
+    // sees venue
+    const sameSpace = v.inBuilding ? (o.inBuilding && o.inside === v.inside)
+                                   : !o.inBuilding;
+    if(!sameSpace) continue;
+    near.push({ id: o._castId, name: o.name, dist: Math.round(d / CS * 2) + 'm',
+                doing: o.state, says: (o.sayUntil > W.tod ? o.sayText : null) });
+  }
+  const fmtT = t => (t == null) ? '--:--'
+    : ('0' + Math.floor(t / 60) % 24).slice(-2) + ':' + ('0' + (t % 60)).slice(-2);
+  const wire = (typeof GS_WIRE !== 'undefined' ? GS_WIRE : []).slice(-6)
+    .map(e => '[' + fmtT(e.t) + '] ' + (e.who ? e.who + ': ' : '') + e.text);
+  const b = v.body || {};
+  return {
+    you: { id: v._castId, name: v.name, role: v.role },
+    time: 'day ' + W.day + ' ' + ('0' + (W.tod | 0)).slice(-2) + ':' +
+          ('0' + Math.round((W.tod % 1) * 60)).slice(-2),
+    place: here, state: v.state,
+    needs: { satiety: +(b.satiety || 0).toFixed(2),
+             hydration: +(b.hydration || 0).toFixed(2),
+             fatigue: +(b.fatigue || 0).toFixed(2) },
+    nearby: near, wire,
+    order: v.sfAgent ? (v.sfAgent.verb + ' ' + (v.sfAgent.poi || v.sfAgent.to || '')) : null,
+    routine: (v.sfSched || []).map(s => s.h0 + ':00-' + s.h1 + ':00 ' +
+      (s.to && s.to.poi ? s.to.poi : (s.to && s.to.anchor) || 'around')),
+  };
+}
+
+/* bridge surface for tools and the driver */
+if(typeof window !== 'undefined'){
+  window.__aiBridge = window.__aiBridge || {};
+  window.__aiBridge.sfAgentState = sfAgentState;
+  window.__aiBridge.sfAgentAct = sfAgentAct;
 }
 
 /* =====================================================================

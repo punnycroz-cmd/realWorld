@@ -311,6 +311,15 @@ function sfNpcTick(v, dtH){
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
+  // production-1: a parked agent order (36_sf_agent.js, the playtest
+  // bridge) drives this pawn through real sim calls until done/expired,
+  // then the schedule brain resumes. Order channel, not possession.
+  if(v.sfAgent){
+    const a = v.sfAgent;
+    if(a.done || W.tod > a.until) v.sfAgent = null;
+    else if(typeof sfAgentTick === 'function'){ sfAgentTick(v, a, dtH); return; }
+    else v.sfAgent = null;
+  }
   const sched = v.sfSched;
   if(!sched || !sched.length){ v.state = v.moving ? v.state : 'idle'; return; }
   const h = W.tod;

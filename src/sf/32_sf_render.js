@@ -1833,11 +1833,76 @@ function sfTerrChunk(cx, cy, wetQ){
    and blit the last frame when it matches: stale by <0.5s at worst,
    ~1 drawImage instead of the full painter's pass. */
 const SF_STILL = { c: null, g: null, key: '' };
+/* production-1: speech bubbles — sayText/sayUntil/sayAt are set by the
+   agent bridge's sfSay and by the speak verb (doSpeakStep). One draw
+   helper serves all three pawn passes (top, street, interior). The
+   still-key folds the live speech state into the frame signature so a
+   new utterance busts the temporal cache instead of never appearing. */
+function sfSaySig(v){
+  if(!v.sayText || !(v.sayUntil > W.tod)) return 0;
+  let h = 5381;
+  const s = String(v.sayText);
+  for(let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) | 0;
+  return h;
+}
+function sfSayBubble(v, sx, sy, k){
+  if(!v || !v.sayText || !(v.sayUntil > W.tod)) return;
+  k = k || 1;
+  const fpx = Math.max(9, Math.round(11 * k));
+  ctx.font = fpx + 'px system-ui, sans-serif';
+  const words = String(v.sayText).split(/\s+/);
+  const lines = [];
+  let cur = '';
+  for(const w of words){
+    const nxt = cur ? cur + ' ' + w : w;
+    if(nxt.length > 26 && cur){ lines.push(cur); cur = w; }
+    else cur = nxt;
+  }
+  if(cur) lines.push(cur);
+  if(lines.length > 3){ lines.length = 3; lines[2] = lines[2].slice(0, 24) + '…'; }
+  let bw = 0;
+  for(const ln of lines) bw = Math.max(bw, ctx.measureText(ln).width);
+  bw += 16 * k;
+  const lh = fpx + 3 * k, bh = lines.length * lh + 9 * k;
+  // pop-in over the first ~250ms of screen life, scaling from the tail
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  const age = (now - (v.sayAt || now)) / 1000;
+  const pop = age < 0.25 ? 0.55 + 0.45 * (age / 0.25) : 1;
+  const bx = sx - bw / 2, by = sy - bh - 9 * k;
+  ctx.save();
+  ctx.translate(sx, sy); ctx.scale(pop, pop); ctx.translate(-sx, -sy);
+  const r = 7 * k;
+  ctx.beginPath();
+  ctx.moveTo(bx + r, by);
+  ctx.arcTo(bx + bw, by, bx + bw, by + bh, r);
+  ctx.arcTo(bx + bw, by + bh, bx, by + bh, r);
+  ctx.arcTo(bx, by + bh, bx, by, r);
+  ctx.arcTo(bx, by, bx + bw, by, r);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(248,244,232,0.96)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(20,16,12,0.85)';
+  ctx.lineWidth = Math.max(1, 1.2 * k);
+  ctx.stroke();
+  ctx.beginPath();   // tail
+  ctx.moveTo(sx - 5 * k, by + bh - 1);
+  ctx.lineTo(sx + 5 * k, by + bh - 1);
+  ctx.lineTo(sx, by + bh + 8 * k);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(248,244,232,0.96)';
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#1a1410';
+  ctx.textAlign = 'center';
+  for(let i = 0; i < lines.length; i++)
+    ctx.fillText(lines[i], sx, by + 5 * k + fpx + i * lh);
+  ctx.restore();
+}
 function sfStillKey(cw, ch, view, pose){
   let sig = 0;
   for(const v of VILLAGERS)
     sig += Math.round(v.x) + Math.round(v.y) + (v.face || 0) * 13 +
-           (v.inBuilding ? 7919 : 0);
+           (v.inBuilding ? 7919 : 0) + sfSaySig(v);
   return [view, cw, ch, Math.round(SF_WX.t * 2), isNight() ? 1 : 0,
           Math.round(W.tod * 24), SF_SUN.q, Math.round(W.rain * 8),
           Math.round(SF_WX.wet * 8), Math.round(sfCloudCover() * 8),
@@ -6720,6 +6785,9 @@ function sfRenderStreet(cw, ch){
           ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 3;
           ctx.strokeText(pv.name, p[0], p[1] - ph - 4);
           ctx.fillStyle = '#fff'; ctx.fillText(pv.name, p[0], p[1] - ph - 4);
+          // production-1: speech bubble above the name plate
+          sfSayBubble(pv, p[0], p[1] - ph - 14,
+                      Math.max(8, 24 / p[2] * 4) / 11);
         }
       }
     }
@@ -7565,6 +7633,7 @@ function sfRenderInterior(cw, ch, v){
       ctx.fillStyle = 'rgba(16,10,6,0.4)';
       ctx.beginPath(); ctx.ellipse(fx, fy + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
       ctx.drawImage(fr, fx - pw / 2, fy - ph2, pw, ph2);
+      sfSayBubble(o, fx, fy - ph2 - 6, 0.85);   // production-1: occupants speak
     }
     k++;
   }
@@ -7577,6 +7646,7 @@ function sfRenderInterior(cw, ch, v){
       ctx.fillStyle = 'rgba(16,10,6,0.45)';
       ctx.beginPath(); ctx.ellipse(cw / 2, fy + 2, 34, 10, 0, 0, Math.PI * 2); ctx.fill();
       ctx.drawImage(fr, cw / 2 - 36, fy - 96, 72, 96);
+      sfSayBubble(v, cw / 2, fy - 96 - 8, 1);  // production-1: subject speaks
     }
   }
   // location card — canonical parody display name (production-1)
