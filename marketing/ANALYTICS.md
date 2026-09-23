@@ -56,7 +56,7 @@ marketing site — spec'd now so the dashboard schema is stable):
 ```
 visit      pageview                     (site — live now)
   └─engaged  cta_click, screenshot_view, scroll_depth, engaged_time,
-             share_click, price_calc, request_simulated  (site — live now)
+             share_click, price_calc, scene_calc, request_simulated  (site — live now)
     └─press    press_kit_download       (site — live once kit zip is linked)
     └─community community_join, recap_open, watch_party_rsvp
                                         (v40 — PENDING surfaces; see community/)
@@ -102,6 +102,9 @@ per-event props + privacy contract). Site-side events already wired:
   900 ms; props = class / minutes / queued / surge only — **no amounts**.
   Pre-checkout demand signal: which request class and duration visitors
   actually price out.
+- `scene_calc` (v67) — pricing-page scene builder (`js/pricing.js`),
+  debounced 900 ms; props = item:qty csv / queued / surge / preset —
+  **no amounts**. Which bundled scenes visitors price out.
 - `request_simulated` (v26) — demo-page request simulator
   (`js/demo-sim.js`), fires once per simulated filing; props = action /
   class / minutes / credits quoted. Pre-launch demand signal for *which
@@ -245,8 +248,8 @@ One dashboard, four panels — everything derivable from the event spec:
 2. **Site engagement:** `cta_click` rate by `cta` slot; `screenshot_view` by
    shot (tells art which captures sell the game); `scroll_depth` reach per
    page (which pages get read); `engaged_time` medians (attention quality);
-   `share_click` by method (viral loop health); `price_calc` splits
-   (which class/duration visitors price — purchase intent before checkout);
+   `share_click` by method (viral loop health); `price_calc` + `scene_calc` splits
+   (which class/duration/scene-mix visitors price — purchase intent before checkout);
    `outbound_click` targets.
 3. **Funnel:** visit → engaged → watch → request → create, session-joined by
    `sid` + same-day window. First three stages live at launch; last two turn on

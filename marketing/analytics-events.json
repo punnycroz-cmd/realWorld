@@ -72,6 +72,17 @@
       "funnel_stage": "engaged → purchase intent",
       "note": "carries NO amounts — only which knobs visitors touch; reveals demand for class/duration before checkout exists"
     },
+    "scene_calc": {
+      "when": "pricing.html scene-builder stepper/preset/flag changes, debounced 900ms (v67)",
+      "props": {
+        "items": "csv of item:qty pairs, e.g. 'compatible:4,event:1'; 'empty' when cleared",
+        "queued": "bool — sessions queued at −15%",
+        "surge": "bool — surge-window preview on",
+        "preset": "fog|hour|party|movein|reset|none — last preset tapped, or 'none' for manual edits"
+      },
+      "funnel_stage": "engaged → purchase intent",
+      "note": "carries NO credit/USD amounts — item mix and quantities only; reveals which bundled scenes visitors reach for"
+    },
     "request_simulated": {
       "when": "demo.html request simulator 'File it — simulated' completes (v26; props extended v41)",
       "props": {

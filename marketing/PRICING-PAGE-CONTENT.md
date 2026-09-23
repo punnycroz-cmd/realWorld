@@ -33,7 +33,9 @@ and surge on contested resources; admin overrides compensate players.
 1. Owner approves final numbers in writing (checklist gate).
 2. If numbers changed, edit the tables **and pack cards** in `pricing.html`,
    the rate constants in `site/js/pricing.js` (CLASSES / QUEUE_DISCOUNT /
-   SURGE_MIN / SURGE_MAX / USD_PER_CR / PACKS — all at the top of the file),
+   SURGE_MIN / SURGE_MAX / USD_PER_CR / PACKS at the top of the estimator
+   IIFE; ITEMS / PRESETS / the same constants again in the scene-builder
+   IIFE at the bottom — keep both blocks in sync),
    AND update this file.
 3. Change the one attribute. Done — no other edits needed for state.
 
@@ -103,6 +105,27 @@ drift shows as wrong math, not wrong claims).
   `pricing.js`) — applies the +50% first-purchase bonus when picking the
   smallest covering pack; `price_calc` analytics event gains a `first` bool
   (spec/sink/report/dashboard updated in the same commit).
+
+## 1d. Page components (v67)
+
+- **Worked scenes** (`#scenes`, `.scene-card`) — four static cards pricing a
+  scene end-to-end instead of a line item: foggy morning (40–100 cr ≈
+  $0.38–0.94), hour as yourself (88 cr ≈ $0.83; 76 cr queued), block-party
+  headliner (event 150–300 + 30 min exclusive = 330–480 cr ≈ $3.10–4.51),
+  move-in day (slot 500 + 30 min compatible = 544 cr ≈ $5.11 — Starter's 550
+  covers it to the credit, a deliberate copy detail). All math is derived
+  from §2 tables; no new prices invented.
+- **Scene builder** (`#scene-calc`, second IIFE in `js/pricing.js`) —
+  steppers for every priced ingredient (sessions in 15-min floored units,
+  weather/nudge/event/camera/slot), queued −15% and surge ×1.5–2.5 flags
+  applied to the right lines only. Totals print as a low–high range when
+  range-priced items are in the mix; the covering pack is chosen at the TOP
+  of the range, with the first-purchase bonus shown as a cheaper alternate.
+  Emits `scene_calc` (item:qty csv + flags + preset — never amounts).
+- **The promise** (`#promise`) — three commitments: page changes before
+  checkout, purchases keep the terms they were bought on (echoes the
+  final-state banner), provisional→final flips once. No new policy —
+  consolidates what the banner and refund ledger already commit to.
 
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 

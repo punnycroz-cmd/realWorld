@@ -141,11 +141,13 @@
       <a href="#receipt">A receipt</a>
       <a href="#refunds">Refunds</a>
       <a href="#oneshots">One-shots</a>
+      <a href="#scenes">Price a scene</a>
       <a href="#subs">Subscriptions</a>
       <a href="#compare">Compare tiers</a>
       <a href="#cast">Joining the cast</a>
       <a href="#month">A month, priced</a>
       <a href="#regional">Regional pricing</a>
+      <a href="#promise">The promise</a>
       <a href="#quick">Quick answers</a>
       <a href="#never">Never for sale</a>
     </nav>
@@ -392,6 +394,108 @@
   </div>
 </section>
 
+<!-- PRICE A SCENE -->
+<section id="scenes">
+  <div class="wrap">
+    <h2>Price a whole scene, not just a line item</h2>
+    <p class="muted">Nobody buys "6 credits per minute" — they buy a foggy
+    morning, an hour as themselves, a party with their name on it. So here are
+    four real scenes, priced end-to-end with the numbers above
+    <span class="prov-only">(provisional)</span>. Range-priced ingredients show
+    their range; the total is never more than the top of it.</p>
+    <div class="grid grid-4">
+      <div class="card scene-card">
+        <h3>A foggy morning</h3>
+        <p class="scene-math">1 weather block<br>40–100 cr</p>
+        <p class="scene-total">≈ $0.38–0.94</p>
+        <p>Karl rolls in on your word, credited on the public feed. The Pocket
+        pack covers even the priciest block, with change for a camera pass.</p>
+      </div>
+      <div class="card scene-card">
+        <h3>An hour as yourself</h3>
+        <p class="scene-math">60 min compatible<br>4 × 22 = 88 cr</p>
+        <p class="scene-total">≈ $0.83 <span class="muted">(76 cr queued)</span></p>
+        <p>A lunch hour inside your own character — walk to work, order the
+        usual, wave at the neighbors. Still under a dollar.</p>
+      </div>
+      <div class="card scene-card">
+        <h3>Block party headliner</h3>
+        <p class="scene-math">1 event trigger + 30 min exclusive<br>330–480 cr</p>
+        <p class="scene-total">≈ $3.10–4.51</p>
+        <p>A street fair on the calendar and the bandshell held for your set.
+        The Starter pack covers the whole night — even with ×1.5 surge on the
+        venue (150 + 270 = 420 cr).</p>
+      </div>
+      <div class="card scene-card">
+        <h3>Move-in day</h3>
+        <p class="scene-math">1 character slot + 30 min compatible<br>500 + 44 = 544 cr</p>
+        <p class="scene-total">≈ $5.11</p>
+        <p>A place in the cast and your first half hour inside it. The Starter
+        pack covers it to the credit — the lease itself is earned in-world.</p>
+      </div>
+    </div>
+
+    <!-- Scene builder: totals mirror the tables above; JS is a progressive
+         enhancement — without it the worked scenes remain the source of truth. -->
+    <div class="calc scene-calc" id="scene-calc">
+      <fieldset>
+        <legend>Build your own scene</legend>
+        <div class="scene-presets" role="group" aria-label="Preset scenes">
+          <button type="button" class="scene-chip" data-scene="fog">A foggy morning</button>
+          <button type="button" class="scene-chip" data-scene="hour">An hour as yourself</button>
+          <button type="button" class="scene-chip" data-scene="party">Block party headliner</button>
+          <button type="button" class="scene-chip" data-scene="movein">Move-in day</button>
+          <button type="button" class="scene-chip" data-scene="reset">Clear</button>
+        </div>
+        <ul class="scene-rows">
+          <li class="srow" data-item="compatible">
+            <div class="sinfo"><b>Compatible session</b><span>22 cr per 15 min · 120-min cap</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove 15 minutes of compatible session">−</button><output id="sc-q-compatible">0 × 15 min</output><button type="button" data-step="1" aria-label="add 15 minutes of compatible session">+</button></div>
+          </li>
+          <li class="srow" data-item="exclusive">
+            <div class="sinfo"><b>Exclusive session</b><span>90 cr per 15 min · 60-min cap</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove 15 minutes of exclusive session">−</button><output id="sc-q-exclusive">0 × 15 min</output><button type="button" data-step="1" aria-label="add 15 minutes of exclusive session">+</button></div>
+          </li>
+          <li class="srow" data-item="weather">
+            <div class="sinfo"><b>Weather block</b><span>40–100 cr each</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove a weather block">−</button><output id="sc-q-weather">0</output><button type="button" data-step="1" aria-label="add a weather block">+</button></div>
+          </li>
+          <li class="srow" data-item="nudge">
+            <div class="sinfo"><b>NPC nudge</b><span>30–60 cr each · 50% back if declined</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove a nudge">−</button><output id="sc-q-nudge">0</output><button type="button" data-step="1" aria-label="add a nudge">+</button></div>
+          </li>
+          <li class="srow" data-item="event">
+            <div class="sinfo"><b>Event trigger</b><span>150–300 cr each</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove an event">−</button><output id="sc-q-event">0</output><button type="button" data-step="1" aria-label="add an event">+</button></div>
+          </li>
+          <li class="srow" data-item="camera">
+            <div class="sinfo"><b>Camera director</b><span>10 cr per 30 min · spectator-side only</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove 30 minutes of camera director">−</button><output id="sc-q-camera">0 × 30 min</output><button type="button" data-step="1" aria-label="add 30 minutes of camera director">+</button></div>
+          </li>
+          <li class="srow" data-item="slot">
+            <div class="sinfo"><b>Character slot</b><span>500 cr · one-time · max 3 per account</span></div>
+            <div class="stepper"><button type="button" data-step="-1" aria-label="remove a character slot">−</button><output id="sc-q-slot">0</output><button type="button" data-step="1" aria-label="add a character slot">+</button></div>
+          </li>
+        </ul>
+        <div class="scene-flags">
+          <label class="check"><input type="checkbox" id="sc-queued"> Queue the sessions <span class="muted">(−15%, auto-refund if the slot never frees)</span></label>
+          <label class="check"><input type="checkbox" id="sc-surge"> Surge window <span class="muted">(exclusive minutes ×1.5–2.5, shown before you pay)</span></label>
+        </div>
+        <div class="calc-out">
+          <span class="cc-big" id="sc-credits">0 cr</span>
+          <span class="cc-usd" id="sc-usd">add ingredients to price a scene</span>
+          <span class="cc-pack" id="sc-pack"></span>
+          <span class="cc-note" id="sc-note"></span>
+        </div>
+      </fieldset>
+      <noscript><p class="muted" style="margin-top:14px">The scene builder needs JavaScript — the four worked scenes above are priced with the same tables.</p></noscript>
+    </div>
+    <p class="muted">A scene is never a hidden bundle — every ingredient is the
+    same line item from the tables above, bought separately at checkout. This
+    widget exists so the total is never a surprise.</p>
+  </div>
+</section>
+
 <!-- SUBSCRIPTIONS -->
 <section id="subs">
   <div class="wrap">
@@ -575,6 +679,29 @@
     merchant-of-record (Paddle or Lemon Squeezy) takes over when EU/UK volume
     justifies it. Nothing here is a surcharge — only the local equivalent of
     the same printed ladder.</p>
+  </div>
+</section>
+
+<!-- THE PROMISE -->
+<section id="promise">
+  <div class="wrap">
+    <h2>If prices ever change — the promise</h2>
+    <p class="muted">The page you're reading is the whole pricing policy. Three
+    commitments, made here in public so they can't quietly move:</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>This page moves first</h3><p>No price changes at
+      checkout before it changes here — a new number is never discovered on a
+      receipt. The request form always shows the current math before you
+      confirm.</p></div>
+      <div class="card"><h3>Purchases keep their terms</h3><p>Anything bought
+      under one price list finishes under it: credits in your balance stay
+      credits, a running session keeps its quoted rate, and every refund rule
+      above applies the way it read when you paid.</p></div>
+      <div class="card"><h3>One flip, once</h3><p>This page says "provisional"
+      exactly until launch, then flips to final a single time. After that,
+      changes are announced here before they take effect — the same honesty
+      rule as surge.</p></div>
+    </div>
   </div>
 </section>
 
