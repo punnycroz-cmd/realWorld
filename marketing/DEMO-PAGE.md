@@ -4,11 +4,13 @@
 block clock + theater mode + canonical-vocabulary feed preview (v41) +
 rotating dev captures + time-aware viewing guide + cast strip (v56) +
 real app embeds (v61) + guided watch, routine-aware cast chips,
-keyboard deck control, today-vs-launch block (v71); live
+keyboard deck control, today-vs-launch block (v71) + clickable camera
+presets (v86); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
-to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71.
+to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
+seventh pass v86.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -153,6 +155,29 @@ spectator game build; the wire embed is a separate, already-real surface.
   show the day the build ships. Reinforces the one-attribute launch
   switch without promising a date.
 
+## 4a-v. v86 — camera presets
+
+- **`.cam-bar` / `.cam-chip`** — four named presets (Overhead · Street ·
+  Park · Director) sitting between the stage and the toolbar. Each chip
+  maps 1:1 onto the capture deck (`data-shot` = SHOTS index) and jumps
+  the deck on click; `show()` keeps the active chip in sync so
+  auto-cycle, ←/→, and chip clicks all share one highlight. Chips carry
+  `aria-pressed` and emit declarative `cta_click{cta:"demo-cam",cam:<name>}`.
+- **Keyboard 1–4** — number keys pick a preset (form fields excluded,
+  same guard as ←/→); the `#demo-keys` hint names both bindings.
+- **Why presets exist:** the production spectator contract (production-1
+  plan: multi-camera — free pan/zoom, follow-cam on any cast/NPC, named
+  presets, per-viewer state) ships named cameras; the fallback bar lets
+  visitors learn that surface today on honest captures. The bar is
+  **fallback-only** — hidden when a live embed resolves, since the live
+  view carries its own camera UI inside the frame. Copy is precise about
+  this: "the same preset names move inside the live view," and the
+  cam-note promises only what the contract has (free pan, zoom,
+  follow-cam).
+- Clicking a chip while the guided watch runs ends the tour (the viewer
+  took the wheel); auto-cycle restarts after a manual pick so the deck
+  doesn't yank the chosen shot away.
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -176,8 +201,8 @@ persistent world. No liveness implied.
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 14 KB
-  (raised v71 — guided watch + deck controls; was < 6 KB pre-v56),
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 16 KB
+  (raised v86 — camera preset bar; was < 14 KB at v71, < 6 KB pre-v56),
   `demo-sim.js` < 10 KB (raised v41 — screen table + modifiers).
 
 ## 6. Analytics hooks
@@ -220,5 +245,8 @@ analytics-events.json.
   says so (v71).
 - [x] Keyboard deck controls skip form fields; reduced-motion disables
   auto-cycle but not manual flips or the tour (v71).
+- [x] Camera presets drive the deck (click + keys 1–4), track the active
+  shot across every navigation path, hide when the live embed resolves,
+  and promise only contract-verified live cameras (v86).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).

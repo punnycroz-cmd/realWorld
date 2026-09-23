@@ -222,12 +222,23 @@
     var noteText = document.getElementById("demo-note-text");
     var tourBtn = document.getElementById("demo-tour");
     var keysHint = document.getElementById("demo-keys");
+    var camBar = document.getElementById("cam-bar");
+    var camChips = camBar ? camBar.querySelectorAll(".cam-chip") : [];
     var reduced = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var idx = 0, touring = false, tourTimer = null, autoTimer = null;
 
+    function markCam(i) {
+      for (var j = 0; j < camChips.length; j++) {
+        var on = parseInt(camChips[j].getAttribute("data-shot"), 10) === i;
+        camChips[j].classList.toggle("is-active", on);
+        camChips[j].setAttribute("aria-pressed", on ? "true" : "false");
+      }
+    }
+
     function show(i, fade) {
       idx = ((i % SHOTS.length) + SHOTS.length) % SHOTS.length;
+      markCam(idx);
       var base = SHOTS[idx][0], label = SHOTS[idx][1];
       var swap = function () {
         if (srcEl) srcEl.setAttribute("srcset", base + ".webp");
@@ -291,6 +302,24 @@
       }, 8000);
     }
 
+    // Camera presets — clicking a chip jumps the deck to its shot and
+    // resets the auto-cycle so the pick actually lands. The chip's own
+    // data-rw-event emits cta_click{cta:"demo-cam",cam:<name>}.
+    function resetAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      if (!reduced && !touring) startAuto();
+    }
+    for (var ci = 0; ci < camChips.length; ci++) {
+      (function (chip) {
+        chip.addEventListener("click", function () {
+          if (!screen || !img) return;
+          if (touring) endTour(false);
+          show(parseInt(chip.getAttribute("data-shot"), 10), true);
+          resetAuto();
+        });
+      })(camChips[ci]);
+    }
+
     if (screen && img) {
       if (!reduced) startAuto();
       if (tourBtn) {
@@ -310,16 +339,23 @@
         } else if (e.key === "ArrowLeft") {
           if (touring) { if (tourTimer) clearTimeout(tourTimer); tourBeat = Math.max(tourBeat - 2, -1); tourStep(); }
           else show(idx - 1, true);
+        } else if (/^[1-4]$/.test(e.key)) {
+          if (touring) endTour(false);
+          show(parseInt(e.key, 10) - 1, true);
+          resetAuto();
         }
       });
     } else {
       if (tourBtn) tourBtn.hidden = true;
     }
   } else {
-    // Live embed resolved — the guided watch and capture deck are fallback-only.
+    // Live embed resolved — guided watch, capture deck and the site-side
+    // camera bar are fallback-only; the live view carries its own camera UI.
     var tb = document.getElementById("demo-tour");
     if (tb) tb.hidden = true;
     var kh = document.getElementById("demo-keys");
     if (kh) kh.hidden = true;
+    var cb = document.getElementById("cam-bar");
+    if (cb) cb.hidden = true;
   }
 })();

@@ -213,6 +213,25 @@ ul.clean li { margin: 6px 0; }
   display: inline-block; flex: none;
 }
 .demo-stage.is-live .demo-status .dot { background: var(--accent-2); }
+.cam-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 10px 0 2px;
+}
+.cam-label {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); margin-right: 2px;
+}
+.cam-chip {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--muted); background: none;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 4px 14px; transition: border-color .15s, color .15s;
+}
+.cam-chip:hover, .cam-chip:focus-visible { border-color: var(--accent); color: var(--text); }
+.cam-chip.is-active {
+  color: var(--accent-2); border-color: var(--accent-2);
+}
+.cam-note { font-size: 13px; margin-left: 4px; }
 .demo-toolbar { display: flex; align-items: center; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
 .btn-sm { padding: 8px 16px; font-size: 13.5px; cursor: pointer; font-family: inherit; }
 .demo-toolbar-note { font-size: 13.5px; }
