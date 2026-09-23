@@ -154,7 +154,13 @@ function getRiverCenter(wy){
 
 /* ---- Procedural Infinite Chunks ---- */
 const chunks = new Map();
+/* SF scenario: urban chunks come from the OSM grid (src/sf/30_sf_world.js);
+   medieval worldgen is untouched when SF_MODE is off. */
 function genChunk(cx,cy){
+  if(typeof SF_MODE !== 'undefined' && SF_MODE) return sfGenChunk(cx,cy);
+  return genChunkMedieval(cx,cy);
+}
+function genChunkMedieval(cx,cy){
   const N = CHN, n = N*N;
   const ch = {
     cx, cy,

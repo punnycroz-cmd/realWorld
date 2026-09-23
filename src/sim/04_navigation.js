@@ -31,6 +31,7 @@ function getShallowEscapeVector(px, py){
 }
 
 function canMoveTo(x, y, v){
+  if(typeof SF_MODE !== 'undefined' && SF_MODE) return sfCanMoveTo(x, y, v);
   const r = 8; // character collision radius
   const wx = Math.floor(x / CS), wy = Math.floor(y / CS);
   const depth = getWaterDepth(wx, wy);

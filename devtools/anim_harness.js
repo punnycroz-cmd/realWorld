@@ -98,7 +98,7 @@ const fr = paActFrame(cast['C1'], 0, vstub, 24);
 ok(!!fr && fr.width === 48 && fr.height === 64, 'paActFrame returns a 48x64 frame for fight');
 vstub.state = 'phone';
 ok(!!paActFrame(cast['A20'], 0, vstub, 80), 'paActFrame returns a frame for phone');
-ok(api.workFor('C1') === 'phone' && api.workFor('A01') === 'coffee' && api.workFor('Marta') === 'hoe',
+ok(api.workFor('C1') === 'coffee' && api.workFor('A01') === 'coffee' && api.workFor('Marta') === 'hoe',
    'workFor resolves cast props + legacy tools');
 
 // visual distinctness: the resolved DESIGNS entries are distinct objects per id

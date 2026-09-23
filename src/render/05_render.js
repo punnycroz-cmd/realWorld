@@ -68,13 +68,21 @@ function renderWorld(){
     cam.y += (targetPawn.y - cam.y) * 0.1;
   }
 
+  ctx.imageSmoothingEnabled = false;
+
+  // SF Mission scenario: dedicated renderer (top-down or street-level)
+  if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    if(SF_VIEW === 'street') sfRenderStreet(cw, ch);
+    else sfRenderWorld(cw, ch);
+    renderWeatherAtmosphere(cw, ch);
+    return;
+  }
+
   const cs = CS * cam.zoom;
   const wx0 = Math.floor((cam.x - cw/2/cam.zoom) / CS) - 1;
   const wx1 = Math.floor((cam.x + cw/2/cam.zoom) / CS) + 1;
   const wy0 = Math.floor((cam.y - ch/2/cam.zoom) / CS) - 1;
   const wy1 = Math.floor((cam.y + ch/2/cam.zoom) / CS) + 1;
-
-  ctx.imageSmoothingEnabled = false;
 
   function getCvs(spr){
     if(!spr) return null;

@@ -2,6 +2,7 @@
    PART 8: VILLAGER AI & PAWN CONTROLS
    --------------------------------------------------------------------- */
 function updateVillagerAI(v, dtH){
+  if(typeof SF_MODE !== 'undefined' && SF_MODE){ sfNpcTick(v, dtH); return; }
   // Clamp dtH for movement similar to player pawn to avoid jitter at high speeds
   const moveDtH = Math.min(dtH, 0.03);
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);

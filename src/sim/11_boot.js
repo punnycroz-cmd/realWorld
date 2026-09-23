@@ -1,5 +1,26 @@
 function boot(){
   setupCanvas();
+  if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    // SF Mission scenario: real OSM world + the 28-member modern cast
+    sfInitWorld();
+    buildTerrain(); buildVeg(); buildProps(); buildFx();
+    buildSfTerrain(); buildSfVeg();
+    sfInitCast();
+    G.villagers = VILLAGERS;
+    G.inspectedVillager = VILLAGERS[inspectedPawnIdx];
+    initControls();
+    updateHUD();
+    requestAnimationFrame(loop);
+    const qp = new URLSearchParams(location.search);
+    if(qp.get('view') === 'street') SF_VIEW = 'street';
+    if(qp.has('inspect')){
+      const target = qp.get('inspect').toLowerCase();
+      const idx = VILLAGERS.findIndex(v => v.name.toLowerCase() === target);
+      if(idx !== -1){ inspectedPawnIdx = idx; cam.x = VILLAGERS[idx].x; cam.y = VILLAGERS[idx].y; updateHUD(); }
+    }
+    if(qp.has('test') || qp.has('autotest')) runAutoTest();
+    return;
+  }
   initVillageSettlement();
   initVillagers();
 
