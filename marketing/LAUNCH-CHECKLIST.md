@@ -11,8 +11,11 @@ exists locally, unpublished.
 
 **One-command rehearsal:** `./tools/staging_dryrun.sh` — serves `site/` on
 127.0.0.1, checks every page/asset/meta/budget item, prints pass/warn/fail.
-Last run **2026-09-23: 31 pass / 3 warn / 0 fail** (warns = placeholder domain
+Last run **2026-09-23: 32 pass / 3 warn / 0 fail** (warns = placeholder domain
 not yet swapped ×2 + 1 PNG >2 MB — all expected pre-launch).
+**One-command go-gate:** `./tools/preflight.sh` wraps the dry-run plus secret
+scan, sitemap parity, press-kit freshness, and flip-flag status. Last run
+**2026-09-23: 0 fail, 6 warn** — all warns are owner-gated flags (G3/G4/G8/G9/G12).
 
 **Change control:** after any content edit to `site/`, re-run the dry-run and
 log the result in §10 before the checklist may cite it.
@@ -32,11 +35,11 @@ log the result in §10 before the checklist may cite it.
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
 | G9 | Press kit zip rebuilt after G3/G4/G5 land: `./build-press-kit.sh` | mkt | `[x] REHEARSED` — one-command rebuild verified 2026-09-23 |
-| G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 31/3/0, warns = G3 ×2 + 1 PNG weight |
+| G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 32/3/0, warns = G3 ×2 + 1 PNG weight |
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
 | G12 | Demo page live: set `data-demo-src` on `demo.html` `#demo-stage` to the spectator build URL; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels per G15 | owner + game track | `[ ] PENDING` — fallback verified; one-attribute flip at launch |
 | G13 | Moderation readiness: owner picks feed display-filter option A/B/C (MODERATION-PLAN.md §2.3 — `moderation.json.display_filter` mirrors it) and confirms the game build wires the world-v8 contract (`screen.js` verdicts, lane routing, `reason_code` on feed denials, `mod_decision` ledger records — console demo exists at `world/mod-console.html`); `rules.html` copy is option-neutral until decided | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
-| G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; est. 2–3 h |
+| G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate; est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
 
 ## §2 Run of show — T-minus schedule
@@ -82,6 +85,7 @@ Everything mechanical on day-0, copy-pasteable. Fill `<domain>` once.
 
 ```sh
 cd marketing
+./tools/preflight.sh                            # THE go-gate: dry-run + secret scan + switches
 ./tools/staging_dryrun.sh                       # expect 0 fail, 0 warns post-G3
 ./build-press-kit.sh                            # rebuild dist zip post-G3/G4/G5
 ./deploy/deploy-site.sh                         # pure rsync dry-run — rehearse anytime
@@ -99,7 +103,7 @@ Trigger conditions and the exact response:
 
 | Symptom | Threshold | Action |
 |---------|-----------|--------|
-| Site down / 5xx | >5 min | Point DNS/hosting to static maintenance page (`404.html` restyled); game world unaffected |
+| Site down / 5xx | >5 min | Enable maintenance mode: uncomment the Caddyfile maintenance block (serves `deploy/maintenance.html`, provisioned once to `/srv/www/realworld/maintenance.html`) + `caddy reload`; game world unaffected |
 | OG cards broken | any | Revert last deploy; cards are cosmetic — do not hold launch for this alone |
 | Pricing page wrong | any | Flip `data-pricing` back to `"provisional"` + revert commit; purchases pause until fixed |
 | Demo embed dead | any | Remove `data-demo-src` → page degrades to gallery fallback (verified pre-launch); fix forward |
@@ -176,6 +180,8 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | analytics_e2e.sh (v22) | PASS — 1057/1057 fixture events through sink→report |
 | 2026-09-23 | staging_dryrun.sh (v23, shots v22) | 31 pass / 3 warn / 0 fail — warns: domain ×2, 1 PNG weight |
 | 2026-09-23 | build-press-kit.sh (v23, shots v22) | zip rebuilt — 32 files, 8.6 MB |
+| 2026-09-23 | staging_dryrun.sh (v29) | 32 pass / 3 warn / 0 fail — warns: domain ×2, 1 PNG weight |
+| 2026-09-23 | tools/preflight.sh (v29, first run) | 3 pass / 6 warn / 0 fail — warns all owner-gated flags (G3 domain, G4 pricing, G8 endpoint, G9 zip freshness, G12 demo-src, uncommitted files) |
 
 ## §11 Never-do list (load-bearing)
 

@@ -39,8 +39,14 @@ rsync -az --delete $RSYNC_DRY -e "ssh $SSH_OPTS" \
 
 # 2. flip the symlink (atomic)
 if [ "$APPLY" -eq 1 ]; then
+  PREV=$(ssh $SSH_OPTS "$RW_DEPLOY_HOST" "readlink '$RW_DEPLOY_PATH/current' 2>/dev/null || true")
   ssh $SSH_OPTS "$RW_DEPLOY_HOST" "ln -sfn '$REL' '$RW_DEPLOY_PATH/current'"
   echo "== live: $RW_DEPLOY_PATH/current -> $REL"
+  [ -n "$PREV" ] && echo "== rollback: ssh $RW_DEPLOY_HOST \"ln -sfn '$PREV' '$RW_DEPLOY_PATH/current'\""
+  # 3. retention: keep the 5 newest releases, prune the rest
+  ssh $SSH_OPTS "$RW_DEPLOY_HOST" \
+    "cd '$RW_DEPLOY_PATH/releases' && ls -1t | tail -n +6 | xargs -r rm -rf --"
+  echo "== retention: kept 5 newest releases on host"
   echo "== next: run tools/prod_smoke.sh https://<domain>"
 else
   cat <<EOF

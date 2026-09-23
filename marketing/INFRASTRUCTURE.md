@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v14 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v29 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -16,7 +16,7 @@ to the game-systems track; this doc only specifies what the game build must
 ```
                          ┌─────────────────────────────┐
    player/press ──HTTPS─▶│  CDN + static site host      │  marketing/site/ as-is
-                         │  (realworld-game.example)    │  12 pages, zero build step
+                         │  (realworld-game.example)    │  13 pages, zero build step
                          └──────────────┬──────────────┘
                                         │ iframe (sandboxed)
                                         ▼
@@ -88,12 +88,23 @@ Marketing-side surfaces already built; these are the integration points:
 5. **Public request feed endpoint** (design §5) — read-only JSON for
    `#the-feed` mirror + journal recaps; display-filter pass applied per the
    owner's option-A/B/C decision (MODERATION-PLAN.md §2.3) before serving.
+6. **Moderation contract is already canonical** — world-v8 shipped
+   `world/moderation.json` + `screen.js` (`RWScreen.screenRequest`): the
+   game's classifier plumbing must never be MORE permissive than the
+   reference on identical inputs, and feed denials carry `reason_code`
+   verbatim. Marketing copy hard-cites these codes — changes there require
+   a copy sweep (see MODERATION-PLAN.md §9).
+7. **Never-ship surfaces stay off this host** — `world/drama.html` (internal
+   direction board) and `world/playtest.html` are explicitly internal;
+   nothing under `site/` links or mirrors them, and the deploy script only
+   ever rsyncs `site/`. Keep it that way. Playtest findings tagged
+   `triage_owner: marketing` (world-v9 `playtest.json`) route to this track.
 
 ## 4. Environments
 
 | Env | URL | Purpose | State today |
 |---|---|---|---|
-| local | `127.0.0.1:8123` | `tools/staging_dryrun.sh` rehearsal | ✅ 29 pass / 3 warn / 0 fail |
+| local | `127.0.0.1:8123` | `tools/staging_dryrun.sh` rehearsal | ✅ 32 pass / 3 warn / 0 fail; `tools/preflight.sh` GO (0 fail, warns = owner-gated flags) |
 | staging | `staging.<domain>` (owner-gated) | pre-launch full dress rehearsal incl. real DNS + TLS | not provisioned |
 | production | `<domain>` + `play.` + `stats.` | launch | not provisioned |
 
@@ -103,9 +114,14 @@ staging exists mainly to rehearse DNS/TLS/headers and the demo embed.
 ## 5. Provisioning runbook (the "go" session)
 
 Ordered; each step maps to a LAUNCH-CHECKLIST gate. Est. total: ~2–3 h.
+**Step 0, always:** `tools/preflight.sh` — runs the dry-run, a secret scan
+over `site/`+`deploy/`, sitemap parity, press-kit freshness, and reports the
+three owner-gated flip flags (pricing/demo/analytics). Exit 0 = mechanically
+GO; it never publishes anything.
 
 | # | Step | Gate | Est. |
 |---|---|---|---|
+| 0 | `tools/preflight.sh` clean (0 fail) on the commit that will ship | G10 | 2 min |
 | 1 | Owner registers domain; point nameservers (or keep registrar DNS) | G3 | 15 min |
 | 2 | Create DNS records per `deploy/dns-records.example` (apex + `www` redirect + `play.` + `stats.`) | G3/G14 | 15 min |
 | 3 | Provision host (VPS+Caddy or Pages/Netlify project); deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
@@ -121,12 +137,19 @@ Ordered; each step maps to a LAUNCH-CHECKLIST gate. Est. total: ~2–3 h.
 - **Deploy:** `deploy/deploy-site.sh` — `rsync --delete` to a host path, or
   `caddy` reload. Defaults to `--dry-run`; requires `--apply` and
   `RW_DEPLOY_HOST`. Static + atomic: rsync to a `releases/<ts>/` dir and
-  flip a symlink if the host supports it (documented in the script).
-- **Rollback:** keep previous release dir; symlink flip back, or redeploy
-  prior git tag. Worst case = maintenance page (styled `404.html`). No
-  state to lose — the site is stateless. Full table: LAUNCH-CHECKLIST §3.
+  flip a symlink. On apply it prints the exact rollback command (previous
+  release path) and prunes the host to the 5 newest releases.
+- **Rollback:** symlink flip back using the printed command, or redeploy a
+  prior git tag. Worst case = maintenance mode (below). No state to lose —
+  the site is stateless. Full table: LAUNCH-CHECKLIST §5.
+- **Maintenance mode:** `deploy/maintenance.html` is a self-contained page
+  (inline styles, zero asset deps — renders even if a release is broken).
+  It lives OUTSIDE `site/` so it never ships in a deploy; copy it to
+  `/srv/www/realworld/maintenance.html` once at provisioning. Enable/disable
+  = comment flip in `deploy/Caddyfile` + `caddy reload`.
 - **Never deployed:** secrets, `.env`, live keys — `.gitignore` covers
-  `deploy/*.local`, `deploy/.env*`.
+  `deploy/*.local`, `deploy/.env*`; `preflight.sh` §2 re-scans for
+  key-shaped strings as a second line of defense.
 
 ## 7. Security baseline (enforced by `deploy/Caddyfile` headers)
 

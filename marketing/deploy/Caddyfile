@@ -49,3 +49,16 @@ www.realworld-game.example {             # PLACEHOLDER
 # stats.realworld-game.example {
 #     reverse_proxy 127.0.0.1:3000
 # }
+#
+# ── MAINTENANCE MODE (rollback runbook, LAUNCH-CHECKLIST §5) ──────────
+# To park the site: copy deploy/maintenance.html to /srv/www/realworld/
+# maintenance.html once during provisioning; then comment out the apex
+# block above, uncomment this one, `caddy reload`. Every route serves the
+# maintenance page (200 — fine for a short window; Retry-After hints
+# crawlers). Undo = reverse the comments + reload.
+# realworld-game.example {
+#     root * /srv/www/realworld
+#     rewrite * /maintenance.html
+#     file_server
+#     header Retry-After "600"
+# }
