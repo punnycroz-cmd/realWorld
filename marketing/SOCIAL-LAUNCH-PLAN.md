@@ -1,7 +1,8 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v34 — launch-ready drafts + reply bank + capture plan + Reddit
-posts + incident comms + rent-week arc + alt-text bank, 2026-09-23.
+**Status: v49 — launch-ready drafts + reply bank + capture plan + Reddit
+posts + incident comms + rent-week arc + alt-text bank + Archive arc +
+community playtest night, 2026-09-24.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -89,6 +90,8 @@ its channel, timing slot, required asset, and character-count check.
 | `reddit-posts.md` | Dev-authored launch posts for r/indiegames, r/lifesim, r/sanfrancisco + reply rules (v34) | 3 |
 | `incident-comms.md` | Pre-drafted contingency posts: outage, feed-abuse wave, mod blowback, creep-factor pile-on, pricing accusation, missed date (v34) | 6 scenarios |
 | `rent-week-arc.md` | 7-post narrative series on the lease/rent cycle, keyed to world-v12 canonical feed wording (v34) | 7 |
+| `archive-arc.md` | 5-post "the block keeps receipts" series on The Archive — rumor outcomes, permalinks, attributed ledger (v49; post-launch only, canon: world-v20 archive-ui.md) | 5 |
+| `playtest-night.md` | Community playtest night — recruitment posts + facilitator run sheet on the world-v23 harness (v49; double owner-gate) | 3 posts + runbook |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v34) | full asset set |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
@@ -108,7 +111,7 @@ Goal: make the concept legible before asking for attention.
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |
-| T-7  | One week out: launch date + "watch free, forever" | All |
+| T-7  | One week out: launch date + "watch free, forever"; optional playtest-night invite (`playtest-night.md`) if the owner wants a pre-launch cohort | All (invite: X, Bluesky) |
 | T-5  | Devlog clip 2: the public request feed — "every intervention is visible" | TikTok, X |
 | T-4  | Cast spotlight 3: Victor | X, Bluesky |
 | T-3  | Press embargo lifts (per PRESS-OUTREACH); reshare coverage | All |
@@ -142,6 +145,10 @@ Sustainable rhythm, fed by the product itself.
   own 7-post series (`rent-week-arc.md`) — the most legible systems
   story the game tells; every post degrades gracefully if the feed is
   quiet.
+- **Archive arc:** T+14 → T+20, the "block keeps receipts" series
+  (`archive-arc.md`) — rumor outcomes, permalinks, the attributed
+  ledger. Gate: post-launch only; pre-live archive shots must carry the
+  `demo archive` badge in-frame and say "demo" in copy.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
