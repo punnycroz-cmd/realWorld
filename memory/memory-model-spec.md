@@ -1,4 +1,4 @@
-# Memory Model Spec v0.7 — implementable human-like memory for RW characters
+# Memory Model Spec v0.8 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -91,6 +91,32 @@ MemoryRecord = {
 ```json
 CondEntry = { "cue": "mudhaus", "valence": -0.6, "arousal": 0.7,
               "strength": 0.5, "safeCount": 0, "lastFireDay": 500 }
+```
+
+**Social store (v0.8):** one `PersonModel` per known individual — memory
+*for people* is organized around person nodes, not episode lists
+(Hastie & Kumar 1979; Srull & Wyer 1989; social-memory.md §1):
+
+```json
+PersonModel = {
+  "personId": "mara",
+  "familiarity": 0.8,       // "have I met them" — decays slowest
+                           // (beta_semantic·0.5)
+  "identityStrength": 0.6,  // face→biography binding — decays at
+                           // beta_source (associative link, §2 link_p)
+  "nameStrength": 0.4,      // weakest tier — last learned, first lost
+  "traits": {"stingy": 0.6},// spontaneous-trait-inference accumulator (§2)
+  "knowsTopics": ["rent law"], // transactive directory (§6.14, §5.10)
+  "credibility": 0.55,      // LEARNED source credibility — feeds the
+                           // sourceCredibility factor in §6.3 (§6.14)
+  "cheaterLoad": 0.7,       // morality-diagnostic weight accumulator;
+                           // >0.5 slows source decay on linked
+                           // records (§4.10)
+  "categoryTags": ["tenant", "woman", "40s"],  // for §6.10 in-category
+                           // source confusion — supplied by world-builder;
+                           // absent → operator falls back to cue overlap
+  "lastSeenDay": 430
+}
 ```
 
 ---
@@ -196,6 +222,43 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   correct it is (Dawes et al. 2022 aphantasia: fewer episodic details,
   individual-differences.md §2.7). Missing fields are confabulation
   surface at reconstruction (§5.5); vividness never changes accuracy.
+- **Social encoding layer (v0.8)** — for events with `agent != self`
+  (someone else's observed/heard behavior; social-memory.md §2):
+  - *Spontaneous trait inference:* with prob `sti_prob` (0.6), update the
+    actor's `PersonModel.traits[implied] += sti_gain·diag_weight`
+    (sti_gain 0.15) — trait inferences are unintentional and bind to the
+    actor (Winter & Uleman 1984; Uleman et al. 2008 meta; Todorov &
+    Uleman 2003). `diag_weight` = `diag_moral_neg` (1.6) for negative
+    morality-relevant behavior, `diag_ability_pos` (1.3) for positive
+    ability-relevant behavior, else 1.0 — perceived diagnosticity, so
+    one betrayal outweighs months of reliability (Skowronski & Carlston
+    1987/1989). Morality-negative updates also add to
+    `PersonModel.cheaterLoad`.
+  - *Incongruity bonus:* if the behavior's implied trait diverges from
+    the existing model (|implied − model.traits[trait]| > 0.4),
+    `E += incongruity_gain·|Δ|` (0.25) — expectancy-violating behavior is
+    encoded deeper (Hastie & Kumar 1979). Orthogonal to the transmission-
+    stage stereotype pull in §6.12 — incongruity wins at encoding,
+    consistency wins in the chain (Kashima 2000).
+  - *Next-in-line hole:* if the character is preparing their own turn in
+    group talk (`context.preparing: true`), incoming utterances get
+    `attention ×= (1 − next_in_line)` (0.4) — self-rehearsal blanks the
+    previous speaker (Bond 1985).
+  - *Own-age bias:* `PersonModel.familiarity` encodes at
+    `×(1 − oab_loss)` (0.15) for faces outside the character's own age
+    class (±~15y); applies symmetrically at all ages (Rhodes & Anastasi
+    2012, g≈0.37 discriminability). Optional `owngroup_loss` for other
+    category boundaries if world-builder marks them — do not invent.
+  - *Self-threat shallowing:* feedback records about the character
+    (source `told_by`, topic = a self trait) with implied valence < −0.3
+    and selfRelevance > `mnemic_centrality` (0.6) encode at
+    `attention ×= (1 − mnemic_encode)` (0.25) — self-protective
+    not-thinking at intake (Sedikides & Green 2006); waived when the
+    source is a close other (Green et al. 2009); ×0.3 under the
+    depressive modifier (dysphoria removes the protection).
+  - `familiarity`/`identityStrength`/`nameStrength` accrue across
+    encounters: second+ meetings bypass `face_ceiling` for the
+    familiarity tier only — appearance verbatim stays capped.
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -391,6 +454,28 @@ King 1983; Bouton 2004; emotional-memory.md §6):
 - **Reinstatement:** a new event with `arousal ≥ cond_thresh` sharing the
   cue resets `safeCount = 0` and re-adds `cond_gain·arousal` to strength.
 
+### 4.10 Social-source decay modifiers (new in v0.8)
+
+- **Cheater persistence:** records whose `verbatim.who` person has
+  `PersonModel.cheaterLoad > 0.5` decay their source tag at
+  `beta_source·cheat_source_mult` (0.6) — remembering *who* cheated
+  outlives equivalent neutral associations, with NO effect on face
+  recognition or content strength (Buchner, Bell, Mehl & Musch 2009:
+  source-memory advantage η²≈.14, old-new discrimination unaffected;
+  social-memory.md §3). Deliberately NOT on the age-decline curve —
+  preserved in older adults (Bell & Buchner 2012).
+- **Mnemic recall suppression:** records of self-threatening feedback
+  (valence < −0.3, selfRelevance > `mnemic_centrality`, content about a
+  self trait) take `θ += mnemic_loss` (0.15) in **recall mode only —
+  recognition mode exempt** (Green, Sedikides & Gregg 2008: the effect
+  is recall-specific; "forgotten but not gone"). Waived for close-other
+  sources; ×0.3 under the depressive modifier (social-memory.md §10).
+- **PersonModel decay:** `familiarity` at `beta_semantic·0.5`,
+  `identityStrength` at `beta_source` (the associative tier — §2 link_p
+  deficit applies), `nameStrength` at `beta_source·1.2`;
+  `cheaterLoad` decays at `cond_decay·0.3` (moral reputation is sticky);
+  `credibility` and `knowsTopics` do not decay (semantic directory).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -579,6 +664,14 @@ temporary θ bump). Effect attenuates for old memories — bounded per Bäuml's
 long-delay findings (RC§6). **v0.5:** `trauma:true` records are EXEMPT from
 plist_suppress — you cannot talk a character out of parts of a trauma by
 narrating the other parts (emotional-memory.md §7).
+**v0.8 — socially shared RIF:** the listener's OWN related records that
+were not surfaced also take `strength *= (1 − ss_rif_k·listenerAttention)`
+(ss_rif_k ≈ 0.04 — slightly weaker than speaker-side rif_k; listeners
+co-retrieve covertly only when attending; Cuc, Koppel & Hirst 2007;
+autobiographical extension Stone, Barnier, Sutton & Hirst 2010/2013;
+social-memory.md §6). Shared silences: a speaker who always tells one
+version makes listeners progressively unable to recall what she omits.
+Same trauma exemption as plist_suppress.
 
 ### 5.9 Reconsolidation on recall
 
@@ -586,6 +679,36 @@ Each retrieval: `lastAccessDay = now`, `strength += boost·(1-strength)`
 (boost≈0.25, the spacing effect), `retrievalCount++`, `confidence += 0.03`.
 **And** the record re-enters a mutable state: the *current* context writes
 small deltas into it (§7.1). Memory is rewritten on every telling (R§4).
+
+### 5.10 Person recognition — the cascade (new in v0.8)
+
+When `C` is a person copy cue (a face encountered, a photo) and
+`C.targetPerson` resolves, evaluate the `PersonModel` in strict tier
+order (Bruce & Young 1986; Burton, Bruce & Johnston 1990;
+social-memory.md §1):
+
+```
+tier1 familiarity:  roll vs familiar_thresh (0.25) on familiarity
+    fail → "stranger" (even if identity/name would have passed —
+    cascade is ordered; you can't recall the name of a face you
+    don't know)
+tier2 identity:     roll vs identity_thresh (0.4) on identityStrength
+    fail → return {tier:"familiar_only"} — "I know you from
+    somewhere" WITHOUT biography; normal resting state for
+    acquaintances, not a TOT (Muter 1978)
+tier3 name:         roll vs name_thresh (0.55) on nameStrength
+    fail → return identity + tot:true — the feeling-of-knowing
+    state; existing §5.5 TOT rules apply (name tier only)
+```
+
+- Tier strengths update like records: encounter refreshes
+  `lastSeenDay`, boosts the accessed tiers (§5.9 boost applies per tier).
+- `oab_loss` applies at tier1 encoding only; `tot_rate` (v0.4) applies
+  at tier3 as before — name TOT is the commonest TOT (Burke et al. 1991).
+- **Directory mode:** `C.mode == "directory"` ignores the cascade and
+  returns candidate persons ranked by `knowsTopics[topic]` strength —
+  "I don't know, but Jules would" (transactive memory, §6.14;
+  Wegner 1987).
 
 ---
 
@@ -777,11 +900,90 @@ false-memory.md §6):
 sourceInfer(m): if source.confidenceInSource < 0.3:
   external-external: with prob source_confuse (≈0.1, ·discrim_mult for
       age), reassign source.who to the most cue-overlapping plausible
-      source s: P(s) ∝ sim(m.source.cueContext, s)·sourceCredibility(s)
+      source s: P(s) ∝ sim(m.source.cueContext, s)·credibility(s)
       — and confidence += 0.02 (a filled source reads better than blank)
+      v0.8: weight candidates by social category — ~source_cat_share
+      (0.65) of external confusions land on candidates sharing
+      categoryTags with the true source (Taylor et al. 1978 "who said
+      what": within-category errors dominate); if categoryTags absent,
+      fall back to cue overlap alone
   internal-external: source.kind "imagined"→"witnessed" per §6.9 flip
       rule (gate on verbatim richness, not confidence)
 ```
+
+### 6.11 Audience tuning — saying is believing (new in v0.8)
+
+On `retell(charId, audienceId, record)`: if the speaker trusts the
+audience's judgment — `PersonModel[audience].credibility ·
+ingroup_factor > shared_reality_gate` (0.5) — the speaker's OWN record
+drifts toward the version told (Higgins & Rholes 1978; shared-reality
+gating per Echterhoff, Higgins & Groll 2005; robust in the 2025
+Figueroa-Grenett meta, diminished for out-group/identity-threat):
+
+```
+m.emotional.valence += audience_tune (≈0.06)
+                       · sign(audienceStance − m.valence)
+verbatim fields consistent with audienceStance get +0.5·audience_tune
+                       survival on the next §6.1 drift roll
+```
+
+Cumulative across retellings — the habitual spin becomes the memory.
+No tuning to distrusted audiences: compliance is performance, not
+memory. Requires the dialogue layer to supply `audienceStance`; absent
+stance → no-op (social-memory.md §5).
+
+### 6.12 Serial reproduction — rumor chains converge (new in v0.8)
+
+When a `told_by` record is retold onward, apply transmission operators
+(Bartlett 1932; Allport & Postman 1947 leveling/sharpening/assimilation;
+Kashima 2000: stereotype-inconsistent items favored at early chain
+positions, consistent items dominate by ~position 4; Lyons & Kashima
+2003 — convergence stronger when the audience is believed to share the
+stereotype; social-memory.md §4):
+
+```
+chainPos = 1 + speaker's hearCount for this content (or explicit hop)
+per verbatim field transmitted:
+  P(survive) = (1 − level_frac)                 // leveling, ≈0.3
+             · (about a person ? social_transmit_gain : 1)  // ≈1.15,
+               // gossip travels better (Mesoudi et al. 2006)
+             · (schemaConsistent ? 1
+                : si_dropoff · exp(−chainPos/chain_sc_thresh))
+               // si_dropoff 0.75, chain_sc_thresh 4 — the crossover
+gist pulled assimilation_gain (≈0.05) toward speaker schema per hop
+```
+
+The §2 incongruity bonus makes odd details survive hop 1; §6.12's
+consistency pull removes them by hop 4 — both effects are real, at
+different stages. Gossip networks produce short, stereotyped,
+confidently-wrong versions for free.
+
+### 6.13 Collaborative remembering (new in v0.8, optional wrapper)
+
+`groupRecall(members, C)`: group output ≈ `nominal · collab_factor`
+where `collab_factor = collab_base (0.65) · (1 − collab_size_pen·(n−2))
+· (acquainted ? collab_friend_mult (1.2) : 1)` — collaborative
+inhibition, robust across 64 studies (Marion & Thorley 2016; retrieval-
+strategy disruption, Basden et al. 1997). Post-collab benefit: each
+member's recalled items get a normal retell boost, and SS-RIF (§5.8)
+applies to members' unspoken related records. Use for explicit group-
+reconstruction scenes; individual recall is unchanged.
+
+### 6.14 Learned credibility and the transactive directory (new in v0.8)
+
+- **Credibility is a memory, not a score.** `PersonModel[X].credibility`
+  (init 0.5, prior shifted by the `distrust` trait) updates `±cred_step`
+  (0.08, clamp [0.1, 0.95]) whenever X's `told_by` content is later
+  corroborated or contradicted by witnessed evidence — selective trust
+  is learned from reliability history (Koenig & Harris 2005).
+  §6.3/§6.10 read `credibility(X)` from the model; absent a model,
+  default 0.5 (backward-compatible with the old scalar input).
+  Status/power may bias the prior (Carol et al. 2013), never the update.
+- **Directory learning:** when X successfully supplies information on
+  topic T (or demonstrates T-expertise), strengthen
+  `PersonModel[X].knowsTopics[T]`; failed referrals decrement. Serves
+  the §5.10 `"directory"` retrieval mode — "who would know" is itself
+  remembered (Wegner 1987; Wegner, Erber & Raymond 1991 couples).
 
 ---
 
@@ -892,7 +1094,25 @@ MemoryParams = {
   "peak_hour": null,           // circadian peak hour 0..23; null = flat
   "synchrony_gain": 0.06,      // encoding/θ off-peak penalty; ×(1+age_eff/60)
   "vivid_detail": 0.8,         // prob each peripheral field is written at all
-  "conf_bias": 0.0             // trait confidence offset, never touches accuracy
+  "conf_bias": 0.0,            // trait confidence offset, never touches accuracy
+  // v0.8 additions (social-memory calibration, social-memory.md §§14–15)
+  "sti_prob": 0.6, "sti_gain": 0.15,   // spontaneous trait inference (§2)
+  "diag_moral_neg": 1.6, "diag_ability_pos": 1.3, // diagnosticity weights (§2)
+  "incongruity_gain": 0.25,  // expectancy-violation encoding bonus (§2)
+  "next_in_line": 0.4,       // attention loss while preparing own turn (§2)
+  "oab_loss": 0.15,          // other-age familiarity penalty (§2; all ages)
+  "familiar_thresh": 0.25, "identity_thresh": 0.4, "name_thresh": 0.55,
+                             // person-recognition cascade tiers (§5.10)
+  "cheat_source_mult": 0.6,  // β_source mult on cheater-associated records (§4.10)
+  "audience_tune": 0.06, "shared_reality_gate": 0.5, // saying-is-believing (§6.11)
+  "ss_rif_k": 0.04,          // listener co-retrieval suppression (§5.8)
+  "level_frac": 0.3, "si_dropoff": 0.75, "chain_sc_thresh": 4,
+  "assimilation_gain": 0.05, "social_transmit_gain": 1.15, // chains (§6.12)
+  "collab_base": 0.65, "collab_size_pen": 0.1, "collab_friend_mult": 1.2, // §6.13
+  "cred_step": 0.08,         // credibility learning rate (§6.14)
+  "mnemic_loss": 0.15, "mnemic_encode": 0.25, "mnemic_centrality": 0.6,
+                             // mnemic neglect: recall-suppress, encode-shallow (§4.10)
+  "source_cat_share": 0.65   // within-category source confusion (§6.10)
 }
 ```
 
@@ -998,13 +1218,29 @@ the age-PM paradox for free. See `age-development.md` §7.
   suppression of unspoken fields (v0.2, §5.8); v0.6: emit `disputed`
   on hearAccount when a listener's reconstruction contradicted a field
   during the discussion (§6.5)
+- `retell(charId, audienceId, record)` (v0.8, §6.11) → audience-tuned
+  drift of the speaker's own record; requires `audienceStance` from the
+  dialogue layer, gated by `shared_reality_gate`; on `told_by` records
+  additionally runs the §6.12 serial-reproduction operators (leveling,
+  stereotype convergence) — retransmission is the rumor engine
+- `groupRecall(members, C)` (v0.8, §6.13, optional) → collaborative-
+  inhibition wrapper for group-reconstruction scenes; returns the
+  inhibited union and applies postcollab boosts + member-side SS-RIF
+- `recall(charId, cueContext, k)` — v0.8: `cueContext.targetPerson` on a
+  recognition-mode call invokes the §5.10 cascade (returns
+  `familiar_only`/`identity`/`tot` tiers); `cueContext.mode:"directory"`
+  returns `knowsTopics`-ranked candidates (§6.14)
+- `hearAccount` — v0.8: `account` may carry `chainPos`/`hop` for the
+  §6.12 transmission operators; speaker credibility now resolved from
+  `PersonModel[speaker].credibility` (§6.14) when a model exists
 - `dailyMemoryTick(charId, sleepQuality)` → decay/interference/consolidation
   + v0.5: selective emotional consolidation and retrograde stress
   enhancement on the first sleep tick, affect-tag decay split, conditioned
   -affect decay/recovery (§4.9); v0.6: `sleep_gist_boost` on generic +
   phantom records (§4.6), source-decay check feeding `sourceInfer`
   (§6.10)
-- `memorySnapshot/Load(charId)` → serialize the two stores + params
+- `memorySnapshot/Load(charId)` → serialize the stores (episodic,
+  semantic, conditioned-affect, PersonModel social store) + params
 - `deriveParams(archetype, modifiers, traits, seed)` (v0.7) → MemoryParams
   — the character-creation helper: applies the §3 loading table +
   residual jitter + §0 clamps so a bible trait vector deterministically

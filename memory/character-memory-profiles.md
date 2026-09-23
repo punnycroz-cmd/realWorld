@@ -112,6 +112,21 @@ never copying raw.
 | synchrony_gain | 0.0 | 0.15 | off-peak encode/θ penalty, age-scaled (v0.7) |
 | vivid_detail | 0.3 | 1.0 | peripheral field write prob (v0.7) |
 | conf_bias | −0.2 | 0.2 | trait confidence offset, accuracy-untouched (v0.7) |
+| sti_prob / sti_gain | 0.2 / 0.05 | 0.9 / 0.4 | spontaneous trait inference rate/size (v0.8) |
+| diag_moral_neg / diag_ability_pos | 1.0 / 1.0 | 2.5 / 2.0 | diagnosticity weights; moral-neg ≥ ability-pos (v0.8) |
+| incongruity_gain | 0.0 | 0.5 | counter-trait behavior encoding bonus (v0.8) |
+| next_in_line | 0.0 | 0.7 | attention loss while preparing own turn (v0.8) |
+| oab_loss | 0.0 | 0.4 | other-age familiarity penalty, all ages (v0.8) |
+| familiar/identity/name_thresh | 0.15/0.25/0.35 | 0.4/0.6/0.8 | cascade tiers; keep ascending (v0.8) |
+| cheat_source_mult | 0.3 | 1.0 | β_source mult on cheater-linked records (v0.8) |
+| audience_tune / shared_reality_gate | 0.0 / 0.2 | 0.2 / 0.8 | saying-is-believing drift / trust gate (v0.8) |
+| ss_rif_k | 0.0 | 0.12 | listener-side RIF, ≤ rif_k (v0.8) |
+| level_frac / si_dropoff / chain_sc_thresh | 0.1 / 0.4 / 2 | 0.6 / 1.0 / 7 | chain leveling + stereotype convergence (v0.8) |
+| assimilation_gain / social_transmit_gain | 0.0 / 1.0 | 0.15 / 1.4 | gist schema pull / gossip bonus (v0.8) |
+| collab_base / collab_size_pen / collab_friend_mult | 0.4 / 0.0 / 1.0 | 0.9 / 0.25 / 1.4 | group recall (v0.8, optional) |
+| cred_step | 0.02 | 0.2 | credibility learning rate (v0.8) |
+| mnemic_loss / mnemic_encode / mnemic_centrality | 0.0 / 0.0 / 0.4 | 0.35 / 0.5 / 0.8 | mnemic neglect (v0.8) |
+| source_cat_share | 0.4 | 0.9 | in-category source-confusion share (v0.8) |
 
 **v0.3 continuous-curves note:** the archetypes below are now *named knots*
 on the piecewise-linear age curves in `age-development.md` §6 — the runtime
@@ -167,6 +182,29 @@ not lower cie_residual (Brydges 2018), vivid does not touch accuracy
 individual-differences.md §2.13 — cast at most one tail per
 neighborhood.
 
+**v0.8 social-memory note:** every character gains a PersonModel social
+store — person memory has three tiers (familiarity ≫ identity ≫ name)
+and a learned `credibility` per speaker that now feeds §6.3's
+sourceCredibility, so trust is *remembered*, not global. Archetype
+deltas: children get high `sti_prob` (person-attentive) but low
+`cred_step` (trust matures slowly past early selectivity, Koenig &
+Harris 2005) and mnemic neglect off until the self-concept consolidates
+(`mnemic_encode` ~0 below ~10 — HYPOTHESIS). Teens run the highest
+`audience_tune` + `sti_prob` (social world over-encoded already) and
+steep `cred_step` (reputation accounting is the adolescent preoccupation).
+Older adults: `identity_thresh`/`name_thresh` up (familiarity preserved,
+bindings lost — "I know the face"), `oab_loss` unchanged (own-age bias
+is symmetric across age), `cheat_source_mult` flat (cheater memory
+preserved, Bell & Buchner 2012), `ss_rif_k` ×`discrim_mult` up (more
+steerable). The gossip modifier now also raises `audience_tune`
+(retelling literally reshapes their memory), widens `knowsTopics`
+acquisition, and runs the rumor chain's `social_transmit_gain` up.
+Depressives invert mnemic neglect (×0.3 — no self-protection) — they
+retain the criticism. Two hard constraints: `name_thresh >
+identity_thresh > familiar_thresh` always, and incongruity (encoding)
+vs stereotype-convergence (transmission) stay uncoupled — Kashima 2000
+needs both.
+
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
 check emergent behavior. β_episodic / τ_episodic values were re-checked
@@ -218,6 +256,9 @@ theta 0.42 · w_people 0.55 · w_state 0.4
   inverts topic > people — documented deviation, R§7 adolescence)
 rif_k 0.04 · retell_boost 0.3
 drift_p 0.09 · misinfo_suscept 0.45 · confab_fill 0.6
+sti_prob 0.75 · audience_tune 0.10 · cred_step 0.12 · ss_rif_k 0.05
+  (v0.8: person-attentive encoding, peer-tuned retellings rewrite the
+  memory, fast reputation accounting)
 ```
 Emergent: remembers every slight at full heat; social world over-encoded;
 slow to let go of negative affect.
@@ -287,6 +328,10 @@ discrim_mult 0.8 · lure_accept 0.2 (similar-but-new accepted as old)
 specificity 0.75 · pos_spare 0.2 (overgeneral AM; positive cues spared)
 tot_rate 0.12 (name-blanking with feeling-of-knowing; resolves on sight)
 sws_mult 0.85 · ret_noise 0.12 · reserve 0.4 (per-bible; shifts age_eff)
+identity_thresh 0.5 · name_thresh 0.65 · ss_rif_k 0.06
+  (v0.8: knows the face, loses the biography, blanks the name;
+  familiar_only becomes the common state — cheat_source_mult stays
+  flat, cheaters remembered; Bell & Buchner 2012)
 ```
 Emergent: recent events evaporate; youth-era memories are vivid, polished by
 retelling, and partly invented; warm memories outlast grievances.
@@ -303,8 +348,8 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 | **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core); intrusion_thresh −0.15 for threat-cued records (intrusive recall). **v0.5:** seed ≥1 `trauma:true` backstory record + cond_thresh ×0.9, cond_gain ×1.3 (lowered acquisition bar, faster conditioning) — the intrusion discount and fragmented timeline are now record properties (spec §5.7, emotional-memory.md §7) | hyper-encoded threat core, fragmented context; conditioned dread outlives the record (R§5, R§8; RC§5; Bouton 2004) |
 | **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15 | cortisol impairs encode+retrieve (R§8) |
 | **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2; **v0.6:** sleepFactor 0.7 < 0.75 → `sleepdep_flag` fires on most new records → permanently higher misinfo adoption on them (Frenda 2014 — the underslept are the gullible) | consolidation failure (R§2, R§8; false-memory.md §3) |
-| **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15; **v0.6:** rumor `hearCount` accumulates faster (more exposures per rumor — repetition, not variety, is the mechanism); rep_gain ×1.1 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion; illusory truth g≈0.37) |
-| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5; **v0.6:** imagine_gain ×1.5 on negative-valence scenarios only — rehearsed fears can flip into remembered ones via §6.9 | overgeneral memory, mood-congruence, negative rehearsal loop, feared→remembered drift (R§8; emotional-memory.md §8; Garry 1996) |
+| **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15; **v0.6:** rumor `hearCount` accumulates faster (more exposures per rumor — repetition, not variety, is the mechanism); rep_gain ×1.1; **v0.8:** audience_tune ×1.5 (their own stories bend their own memory — Higgins & Rholes), sti_prob ×1.2, cred_step ×1.3 (keeps accounts on everyone), social_transmit_gain ×1.15 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion; illusory truth g≈0.37; saying-is-believing) |
+| **Depressive / ruminative** | w_state ×1.5; neg_affect_decay ×0.7 (negative lingers — dysphoria disrupts FAB, Walker et al. 2003); add `specificity 0.4` → recall returns generic summaries ("I always mess up"); **v0.5:** `rumin_k 0.5` — retell_boost applies selectively to negative-valence records (valence-conditioned rehearsal); mood_bleed ×1.5; **v0.6:** imagine_gain ×1.5 on negative-valence scenarios only — rehearsed fears can flip into remembered ones via §6.9; **v0.8:** mnemic_encode ×0.3 + mnemic_loss ×0.3 — dysphoria removes self-protective forgetting, criticism is retained (Sedikides & Green 2016; social-memory.md §10) | overgeneral memory, mood-congruence, negative rehearsal loop, feared→remembered drift, no self-protective amnesia (R§8; emotional-memory.md §8; Garry 1996) |
 | **Domain expert** (per domain tag) | enc_base +0.1 for events matching domain cue; k_verbatim ×0.7 in-domain | expertise deepens encoding (R§8) |
 | **Routine-heavy life** | merge_thresh ×0.9; interf_k ×1.3 | commutes blur together (R§3) |
 | **Isolation / few retellings** | retell_boost ×0.6; memories fade without rehearsal | — |

@@ -489,3 +489,60 @@ and θ, trait layer + deriveParams in §7/§10; probes P48–P56.
   distortion chains without simulating language-level transmission.
 - Retrieval-probability thresholds can be tuned so characters "forget" the
   majority of ambient events while retaining ~a human-plausible salient set.
+
+---
+
+## 12. Social memory — v8 calibration summary
+
+Focus version. Full treatment in `social-memory.md`; spec → v0.8.
+
+- **Person models** (new store, spec §1/§5.10): person memory organizes
+  around person nodes with a strict cascade — familiarity → identity →
+  name (Bruce & Young 1986; Burton, Bruce & Johnston 1990). Names are
+  the weakest tier (Cohen 1990 Baker-paradox; Burke et al. 1991 TOT).
+  Own-age bias g≈0.37 discriminability at every age (Rhodes & Anastasi
+  2012 meta). `familiar_only` is the normal acquaintance state.
+- **Spontaneous trait inference** (Winter & Uleman 1984; Uleman 2008
+  meta): traits bind to actors automatically; **diagnosticity weighting**
+  — negative morality behaviors weigh ~1.6× (Skowronski & Carlston
+  1987/1989; bad > good, Baumeister 2001); **incongruity advantage** at
+  encoding (Hastie & Kumar 1979) BUT **stereotype-consistency wins in
+  transmission** — Kashima 2000 crossover by chain position ~4. Both
+  kept, uncoupled.
+- **Cheater source memory**: source memory for cheaters η²≈.14, zero
+  old-new advantage (Buchner, Bell, Mehl & Musch 2009; preserved in old
+  age, Bell & Buchner 2012) → `beta_source ×0.6` on cheater-linked
+  records only.
+- **Audience tuning / saying-is-believing** (Higgins & Rholes 1978;
+  Echterhoff et al. 2005 shared-reality gating; Figueroa-Grenett 2025
+  meta robust, diminished out-group): the speaker's OWN record drifts
+  toward the tuned telling — cumulative. Strongest single lever for
+  characters' memories diverging via conversation.
+- **SS-RIF** (Cuc, Koppel & Hirst 2007; autobiographical: Stone et al.
+  2010/2013): speaker's omissions suppress the LISTENER's related
+  memories — `ss_rif_k` ≈ 0.04 scaled by listener attention.
+- **Collaborative inhibition** (Marion & Thorley 2016 meta, 64 studies):
+  groups recall < pooled solo recall; worse for strangers/large groups;
+  post-collab individual benefit exists — optional `groupRecall`
+  wrapper.
+- **Serial reproduction** (Bartlett 1932; Allport & Postman 1947
+  leveling/sharpening/assimilation; Lyons & Kashima 2003 sharedness):
+  per-hop field survival with schema-consistency pull; gossip content
+  transmits better (Mesoudi, Whiten & Dunbar 2006).
+- **Learned credibility** (Koenig & Harris 2005 selective trust):
+  `PersonModel.credibility` updated by verification outcomes — feeds
+  §6.3 sourceCredibility; trust becomes a remembered, per-person,
+  per-listener quantity. Update law is OUR HYPOTHESIS.
+- **Mnemic neglect** (Sedikides, Green & Pinter 2004; Green et al. 2008):
+  self-threatening central feedback recalled worse but recognition
+  intact — "forgotten but not gone"; recall-mode θ penalty only, waived
+  for close others, inverted in dysphoria.
+- **In-category source confusion** (Taylor, Fiske, Etcoff & Ruderman
+  1978): misattributions concentrate within social category —
+  `source_cat_share` ≈ 0.65 on §6.10 reassignments.
+- **Transactive directory** (Wegner 1987; Wegner, Erber & Raymond 1991):
+  `knowsTopics` per person → "ask X" is a memory; powers rumor routing.
+- New params ×23 (spec §7 v0.8 block); probes P57–P67. DEBATED items:
+  cheater-module framing (we model threat-tagging, not a module);
+  mnemic-neglect mechanism (suppression vs. shallow encoding — we
+  implement both); audience-tuning age interactions (kept flat).
