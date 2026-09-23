@@ -105,7 +105,13 @@ let SF_ROADW = null, SF_ROADAX = null, SF_ROADOFF = null;
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       sfStreetTree: 8, sfCypress: 7, sfPlanter: 5,
-                      sfCar: 15, sfPole: 5 };
+                      sfCar: 15, sfPole: 5,
+                      // v53: small enough that a pawn detours around, not
+                      // into — and sfPicnic is intentionally absent (a
+                      // blanket is ground, you can cross it)
+                      sfHydrant: 5, sfTrashCan: 5, sfNewsBox: 7,
+                      sfBikeRack: 8 };
+const SF_PICNIC = []; // v53: Dolores lawn blanket sites (render-gated)
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
 const SF_DECALS = [];
@@ -450,6 +456,7 @@ function sfInitWorld(){
   VILLAGE_OBJECTS.length = 0;
   SF_PROP_CELL.clear();
   SF_PROP_DRAW.clear();
+  SF_PICNIC.length = 0;
   const occ = new Set(); // occupied cells (any prop) for spacing checks
   for(const p of SF_MAP.props){
     const kind = p.k === 'tree' ? 'sfTree' : p.k === 'palm' ? 'sfPalm'
@@ -665,6 +672,116 @@ function sfInitWorld(){
       if(lst[k].slot - lst[k - 1].slot > 16) continue;
       SF_WIRES.push({ x1: lst[k - 1].o.x, y1: lst[k - 1].o.y,
                       x2: lst[k].o.x, y2: lst[k].o.y });
+    }
+  }
+
+  /* ---- v53: the furniture layer — the small grounded objects a real
+     Mission sidewalk carries. Fire hydrants ride the curb edge (a rare
+     gold one honors the repainted hydrant at 20th & Church), dark green
+     litter drums and chained news boxes hold the crosswalk corners,
+     bike racks with locked bikes cluster near shop doors, and the
+     Dolores lawn seeds picnic-blanket spots whose occupancy the weather
+     and the hour decide at render time (sfPicnicFill). All placements
+     are pure hashes of (wx, wy) — the set never depends on load order. */
+  let nHydr = 0, nCan = 0, nBox = 0, nRack = 0;
+  const doorCells = [...SF_DOORS.keys()].map(k => k.split(',').map(Number));
+  for(let wy = 1; wy < SF_M.gh - 1; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1; wx++){
+      const t = sfTile(wx, wy);
+      if(t === 11){
+        // curb-side cell? which side faces the street, and which axis
+        let ax = 0, ay = 0, ox = 0, oy = 0;
+        if(sfTile(wx, wy - 1) === 10){ ax = 1; oy = -12; }
+        else if(sfTile(wx, wy + 1) === 10){ ax = 1; oy = 12; }
+        else if(sfTile(wx - 1, wy) === 10){ ay = 1; ox = -12; }
+        else if(sfTile(wx + 1, wy) === 10){ ay = 1; ox = 12; }
+        else continue;
+        const cornerish = sfTile(wx + ax * 2, wy + ay * 2) === 16 ||
+                          sfTile(wx - ax * 2, wy - ay * 2) === 16 ||
+                          sfTile(wx + ax * 3, wy + ay * 3) === 16 ||
+                          sfTile(wx - ax * 3, wy - ay * 3) === 16 ||
+                          sfTile(wx + ax, wy + ay) === 16 ||
+                          sfTile(wx - ax, wy - ay) === 16;
+        if(occNear(wx, wy, 0)) continue;
+        const slot = ax ? wx : wy;
+        if(cornerish){
+          // corner curb cell: litter drum or a news-box row most often,
+          // a hydrant sometimes — real corners carry all three
+          const r = phash(wx, wy, 5320);
+          if(r < 0.30 && nCan < 900){
+            addVeg('sfTrashCan', wx, wy, ox * 0.7 + (ax ? (phash(wx, wy, 5321) - 0.5) * 12 : 0),
+                                      oy * 0.7 + (ay ? (phash(wx, wy, 5321) - 0.5) * 12 : 0));
+            nCan++;
+          } else if(r < 0.55 && nBox < 500){
+            addVeg('sfNewsBox', wx, wy,
+                   ox * 0.6 + (ax ? (phash(wx, wy, 5322) - 0.5) * 8 : -ox * 0.15),
+                   oy * 0.6 + (ay ? (phash(wx, wy, 5322) - 0.5) * 8 : -oy * 0.15))
+              .v = Math.floor(phash(wx, wy, 5323) * 5);
+            nBox++;
+          } else if(r < 0.72 && nHydr < 800){
+            const o = addVeg('sfHydrant', wx, wy, ox, oy);
+            // golden hydrant: rare, and only on cells ringing the park
+            o.v = (phash(wx, wy, 5324) < 0.04 &&
+                   Math.abs(wx - 300) < 60 && Math.abs(wy - 200) < 120) ? 1 : 0;
+            nHydr++;
+          }
+        } else {
+          // mid-block curb cell: hydrants on an ~11m cadence, drums and
+          // racks thinner — and never inside a door threshold
+          if(slot % 11 === (ax ? 4 : 7) && nHydr < 800 &&
+             phash(wx, wy, 5325) < 0.8 && !doorNear(wx, wy, 1)){
+            addVeg('sfHydrant', wx, wy, ox, oy).v = 0;
+            nHydr++;
+          } else if(slot % 17 === (ax ? 9 : 3) && nCan < 900 &&
+                    phash(wx, wy, 5326) < 0.5 && !doorNear(wx, wy, 1)){
+            addVeg('sfTrashCan', wx, wy, ox * 0.7, oy * 0.7);
+            nCan++;
+          }
+          // bike racks cluster within 4 cells of a shop door — coffee
+          // and taqueria frontage is where SF actually staples them
+          if(nRack < 350 && phash(wx, wy, 5327) < 0.30 && !doorNear(wx, wy, 1)){
+            let nearDoor = false;
+            for(const [dx, dy] of doorCells)
+              if(Math.abs(dx - wx) <= 4 && Math.abs(dy - wy) <= 4){ nearDoor = true; break; }
+            if(nearDoor){
+              addVeg('sfBikeRack', wx, wy, ox * 0.8, oy * 0.8)
+                .v = Math.floor(phash(wx, wy, 5328) * 3);
+              nRack++;
+            }
+          }
+        }
+      } else if(t === 13){
+        /* Dolores lawn picnic spots — a fixed pool of blanket sites on
+           open grass (kept clear of tree trunks and off the paths).
+           sfPicnicFill() at render decides which are occupied: a warm
+           clear afternoon fills the slope, rain or night empties it.
+           Blankets arrive in GROUPS — real Dolores lawns are patchworks
+           of abutting spreads, so a seeded site tries to pull in a
+           neighbor blanket 40% of the time. */
+        if(SF_PICNIC.length >= 1500) continue;
+        if(phash(wx, wy, 5330) > 0.115) continue;
+        if(occNear(wx, wy, 0)) continue;
+        const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
+                         sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
+        if(nearPath && phash(wx, wy, 5331) < 0.55) continue; // sparse on the walk edge
+        const o = addVeg('sfPicnic', wx, wy,
+                         (phash(wx, wy, 5332) - 0.5) * 14,
+                         (phash(wy, wx, 5333) - 0.5) * 14);
+        o.v = Math.floor(phash(wx, wy, 5334) * 6);
+        SF_PICNIC.push(o);
+        if(phash(wx, wy, 5335) < 0.45 && SF_PICNIC.length < 1500){
+          // a friend blanket one cell over — shares the same sunny patch
+          const bx = wx + (phash(wx, wy, 5336) < 0.5 ? 1 : -1),
+                by = wy + (phash(wx, wy, 5337) < 0.5 ? 1 : -1);
+          if(sfTile(bx, by) === 13 && !occNear(bx, by, 0)){
+            const o2 = addVeg('sfPicnic', bx, by,
+                              (phash(bx, by, 5332) - 0.5) * 14,
+                              (phash(by, bx, 5333) - 0.5) * 14);
+            o2.v = Math.floor(phash(bx, by, 5334) * 6);
+            SF_PICNIC.push(o2);
+          }
+        }
+      }
     }
   }
 

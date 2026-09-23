@@ -564,6 +564,24 @@ function sfSoftEllipse(cx, cy, rx, ry, rot, a, soft){
   ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 }
+/* v53: Dolores lawn occupancy — how much of the picnic-blanket pool is
+   in use right now. A warm clear afternoon packs the slope (the real
+   park fills to the paths on a sunny Saturday); rain, wet grass, Karl
+   cover, early morning, and night thin it out. Pure in the sim state —
+   same answer from every camera and every frame. */
+function sfPicnicFill(){
+  if(isNight()) return 0;
+  const warm = clamp((W.temp - 9) / 16, 0, 1);             // cold lawn empties
+  const sunF = clamp(SF_SUN.day * 1.9 + 0.1, 0, 1);        // overcast keeps some
+  const hourF = W.tod < 9 ? 0.05 : W.tod < 11 ? 0.45 :
+                W.tod < 19 ? 1 : W.tod < 20.5 ? 0.5 : 0.08;
+  const wetF = 1 - Math.min(1, W.rain * 1.6 + (SF_WX.wet > 0.55 ? 0.65 : 0) +
+                            (SF_WX.cover || 0) * 0.12);
+  return clamp(0.9 * warm * (0.45 + 0.55 * sunF) * hourF * wetF, 0, 0.92);
+}
+function sfPicnicOn(o){
+  return phash(o.wx, o.wy, 5340) < sfPicnicFill();
+}
 function sfLampsLit(){ return isNight() || SF_SUN.el < 0.09; }
 function sfLampPool(cx, cy, r){
   const g2 = ctx.createRadialGradient(cx, cy, r * 0.05, cx, cy, r);
@@ -2366,6 +2384,30 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfPlanter'){ spr = V.planter; propM = 0.7; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
       else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
+      // v53: the furniture layer — low objects, real heights for the
+      // sun throw, footprint discs so none of them float
+      else if(o.kind === 'sfHydrant' && V.hydrant){ spr = V.hydrant[o.v || 0]; propM = 0.6; footM = 0.3; }
+      else if(o.kind === 'sfTrashCan' && V.trashCan){ spr = V.trashCan; propM = 0.85; footM = 0.4; }
+      else if(o.kind === 'sfNewsBox' && V.newsBox){ spr = V.newsBox[o.v || 0]; propM = 1.1; footM = 0.6; }
+      else if(o.kind === 'sfBikeRack' && V.bikeRack){ spr = V.bikeRack[o.v || 0]; propM = 0.9; footM = 0.9; }
+      else if(o.kind === 'sfPicnic' && V.blanket){
+        // weather- and hour-gated lawn life: empty spots don't draw
+        if(!sfPicnicOn(o)) continue;
+        const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
+        const sy = Math.round(sfSY(o.y, ch));
+        const sprB = V.blanket[o.v || 0];
+        const bw = sprB.c.width * cam.zoom, bh = sprB.c.height * cam.zoom;
+        // cloth lies ON the ground: no cast streak, just the baked
+        // under-shadow plus a stub of sun-throw for the people/cooler
+        if(!isNight() && SF_SUN.day > 0.08){
+          const hmPx = 0.35 * SF_PXM * cam.zoom;
+          sfSoftEllipse(sx + SF_SUN.x * hmPx * 0.5, sy + SF_SUN.y * hmPx * 0.5 * SF_TILT,
+                        bw * 0.4, bh * 0.3, Math.atan2(SF_SUN.y * SF_TILT, SF_SUN.x),
+                        0.18 * Math.min(1, SF_SUN.day + 0.3), 0.5);
+        }
+        ctx.drawImage(sprB.c, sx - bw / 2, sy - bh / 2, bw, bh);
+        continue;
+      }
       const sprC = spr && (spr.c || spr);
       if(o.kind === 'sfCar' && sprC){
         // v17: parked car — low slab: hard contact shadow + a short
@@ -6802,6 +6844,90 @@ function sfRenderStreet(cw, ch){
         }
         continue;
       }
+      if(o.kind === 'sfPicnic'){
+        /* v53: a picnic blanket lies IN the ground plane — project its
+           four cloth corners through sfGroundZ so it drapes the slope,
+           then sit the sunbathers/cooler on it as low lumps. Occupancy
+           is weather- and hour-gated by sfPicnicFill. */
+        if(!sfPicnicOn(o)) continue;
+        const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+        const hw = 1.1, hh = 1.4;  // half-extents in meters
+        const qA = pr(mx - hw, my - hh, sfGroundZ(mx - hw, my - hh) + 0.02),
+              qB = pr(mx + hw, my - hh, sfGroundZ(mx + hw, my - hh) + 0.02),
+              qC = pr(mx + hw, my + hh, sfGroundZ(mx + hw, my + hh) + 0.02),
+              qD = pr(mx - hw, my + hh, sfGroundZ(mx - hw, my + hh) + 0.02);
+        if(!qA || !qB || !qC || !qD) continue;
+        const BC = SF_BLANKET_COLS[(o.v || 0) % SF_BLANKET_COLS.length];
+        const ramp = rampOf(BC.base);
+        // cloth shadow first — the blanket presses a soft pad on the grass
+        ctx.fillStyle = `rgba(14,16,8,${night ? 0.26 : 0.16})`;
+        ctx.beginPath();
+        ctx.moveTo(qA[0], qA[1]); ctx.lineTo(qB[0], qB[1]);
+        ctx.lineTo(qC[0], qC[1] + 0.06 * sc); ctx.lineTo(qD[0], qD[1] + 0.06 * sc);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = night ? ramp[1] : ramp[3];
+        ctx.beginPath();
+        ctx.moveTo(qA[0], qA[1]); ctx.lineTo(qB[0], qB[1]);
+        ctx.lineTo(qC[0], qC[1]); ctx.lineTo(qD[0], qD[1]);
+        ctx.closePath(); ctx.fill();
+        // pattern: gingham/stripe stripes along the quad's own axes
+        ctx.save(); ctx.clip();
+        ctx.strokeStyle = ramp[2]; ctx.lineWidth = Math.max(0.7, 0.05 * sc);
+        for(let k = 1; k < 4; k++){
+          const t = k / 4;
+          ctx.beginPath();
+          ctx.moveTo(qA[0] + (qB[0] - qA[0]) * t, qA[1] + (qB[1] - qA[1]) * t);
+          ctx.lineTo(qD[0] + (qC[0] - qD[0]) * t, qD[1] + (qC[1] - qD[1]) * t);
+          ctx.stroke();
+          if(BC.pat !== 'stripe'){
+            ctx.beginPath();
+            ctx.moveTo(qA[0] + (qD[0] - qA[0]) * t, qA[1] + (qD[1] - qA[1]) * t);
+            ctx.lineTo(qB[0] + (qC[0] - qB[0]) * t, qB[1] + (qC[1] - qB[1]) * t);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+        // sun stub thrown off the people/cooler — low occluder, short throw
+        if(!night && SF_SUN.day > 0.08){
+          const tx2 = mx + SF_SUN.x * 0.45, ty2 = my + SF_SUN.y * 0.45;
+          const tp2 = pr(tx2, ty2, sfGroundZ(tx2, ty2));
+          if(tp2) sfSoftEllipse((p[0] + tp2[0]) / 2, (p[1] + tp2[1]) / 2,
+                               Math.hypot(tp2[0] - p[0], tp2[1] - p[1]) / 2 + 0.4 * sc,
+                               0.3 * sc, Math.atan2(tp2[1] - p[1], tp2[0] - p[0]),
+                               0.16 * Math.min(1, SF_SUN.day + 0.3), 0.5);
+        }
+        // occupants: low skin/shirt mounds lying on the cloth, foreshortened
+        const nP2 = phash(o.v, 3, 5310) < 0.3 ? 0 :
+                    (phash(o.v, 5, 5311) < 0.55 ? 1 : 2);
+        for(let pi = 0; pi < nP2; pi++){
+          const fx2 = (pi - (nP2 - 1) / 2) * 0.5 + (phash(o.v, pi, 5312) - 0.5) * 0.3;
+          const fy2 = (phash(pi, o.v, 5313) - 0.5) * 0.8;
+          const bp = pr(mx + fx2, my + fy2,
+                        sfGroundZ(mx + fx2, my + fy2) + 0.03);
+          if(!bp) continue;
+          const skin = rampOf(SF_SKIN[(o.v + pi) % SF_SKIN.length]);
+          const shirt = rampOf(SF_SHIRT[(o.v + pi * 2) % SF_SHIRT.length]);
+          const prone = phash(o.v, pi, 5314) < 0.5;
+          ctx.fillStyle = prone ? skin[2] : shirt[2];
+          ctx.beginPath();
+          ctx.ellipse(bp[0], bp[1] - 0.06 * sc, 0.5 * sc, 0.14 * sc,
+                      0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = skin[3];
+          ctx.beginPath();
+          ctx.arc(bp[0] - 0.42 * sc, bp[1] - 0.14 * sc, 0.11 * sc,
+                  0, Math.PI * 2); ctx.fill();
+        }
+        // cooler box on the cloth edge — a real cuboid, lid catches sun
+        const cb = pr(mx + 0.8, my + 1.0, sfGroundZ(mx + 0.8, my + 1.0));
+        if(cb){
+          const cw3 = 0.35 * sc, chh3 = 0.3 * sc;
+          ctx.fillStyle = '#b8b8c4';
+          ctx.fillRect(cb[0] - cw3 / 2, cb[1] - chh3, cw3, chh3);
+          ctx.fillStyle = '#e8e8f0';
+          ctx.fillRect(cb[0] - cw3 / 2, cb[1] - chh3, cw3, chh3 * 0.3);
+        }
+        continue;
+      }
       const V = PA.sfVeg;
       let spr = null, hm = 5, shadowR = 0;
       // v31: vegetation draws in ELEVATION — real trunk-to-crown
@@ -6817,6 +6943,11 @@ function sfRenderStreet(cw, ch){
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; shadowR = 0.6; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; shadowR = 0.45; }
+      // v53 furniture — real meter heights, knee-to-waist occluders
+      else if(o.kind === 'sfHydrant'){ spr = V.hydrant[o.v || 0]; hm = 0.62; shadowR = 0.28; }
+      else if(o.kind === 'sfTrashCan'){ spr = V.trashCan; hm = 0.85; shadowR = 0.35; }
+      else if(o.kind === 'sfNewsBox'){ spr = V.newsBox[o.v || 0]; hm = 1.05; shadowR = 0.5; }
+      else if(o.kind === 'sfBikeRack'){ spr = V.bikeRack[o.v || 0]; hm = 0.85; shadowR = 0.7; }
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const ph = hm * sc, pw = ph * (sprC.width / sprC.height);

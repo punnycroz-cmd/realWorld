@@ -741,6 +741,163 @@ function sfPoleSpr(dir){
   else { paR(g, 2, 6, 10, 2, wd[2]); paPX(g, 2, 6, wd[0]); paPX(g, 11, 6, wd[0]); }
   return s;
 }
+/* ---- v53 street furniture: the small iron-and-concrete layer every
+   real Mission sidewalk carries. Plan-view sprites; the street camera
+   draws the same objects as projected 3-D miniatures in
+   sfStreetFurniture() (32_sf_render) so neither view floats them. ---- */
+/* SF fire hydrant — the low-pressure white body with its domed bonnet
+   and twin side caps. v=1 paints it gold: the one at 20th & Church is
+   repainted every April 18, so a rare golden hydrant lives on the
+   Dolores-corner cells. */
+function sfHydrantSpr(v){
+  const s = paMk(14, 18), g = s.g;
+  const C = v === 1 ? rampOf('#d8a824') : rampOf('#e8e4da');
+  const D = v === 1 ? rampOf('#9a7014') : rampOf('#b0aca0');
+  paEllipse(g, 7, 15.5, 5.5, 1.8, 'rgba(24,18,10,0.3)');
+  paR(g, 4, 6, 6, 9, C[3]);                       // barrel
+  paR(g, 4, 6, 2, 9, C[4]);                       // sun-side barrel light
+  paR(g, 8, 6, 2, 9, D[2]);                       // lee side
+  paEllipse(g, 7, 6, 3.4, 2.6, C[4]);             // bonnet dome
+  paPX(g, 7, 3, C[5]); paPX(g, 6, 4, C[5]);
+  paR(g, 2, 8, 2, 3, D[1]); paR(g, 10, 8, 2, 3, D[1]); // side caps
+  paPX(g, 2, 8, C[4]); paPX(g, 11, 8, C[4]);
+  paR(g, 3, 14, 8, 2, D[1]);                      // flange base
+  paR(g, 5, 16, 4, 1, D[0]);
+  return s;
+}
+/* SF corner litter basket — the dark green drum on a concrete foot,
+   black liner lip over the rim. */
+function sfTrashCanSpr(){
+  const s = paMk(14, 18), g = s.g;
+  const G = rampOf('#2e4632'), K = rampOf('#161a14');
+  paEllipse(g, 7, 15.5, 5.5, 2, 'rgba(24,18,10,0.3)');
+  paR(g, 3, 5, 8, 10, G[2]);
+  paR(g, 3, 5, 3, 10, G[3]);
+  paR(g, 9, 5, 2, 10, G[1]);
+  paEllipse(g, 7, 5, 4.4, 2.2, K[3]);             // open black mouth
+  paEllipse(g, 7, 5, 4.4, 1.1, K[1]);
+  paR(g, 3, 7, 8, 1, G[0]);                       // strap band
+  paR(g, 4, 15, 6, 1, G[0]);                      // foot
+  paPX(g, 4, 6, G[4]); paPX(g, 5, 9, G[3]);
+  return s;
+}
+/* News boxes — the row of chained single-sheet boxes real corners hold.
+   v picks 1-3 boxes and their parody-press colors. */
+function sfNewsBoxSpr(v){
+  const s = paMk(30, 18), g = s.g;
+  const cols = [rampOf('#d8b828'), rampOf('#b03030'), rampOf('#2a6a7a'),
+                rampOf('#e8e4da')];
+  paEllipse(g, 15, 16, 13, 1.6, 'rgba(24,18,10,0.3)');
+  const n = 1 + (v % 3);
+  for(let i = 0; i < n; i++){
+    const C = cols[(v + i) % cols.length];
+    const x = 3 + i * 9;
+    paR(g, x, 4, 8, 11, C[2]);                    // body
+    paR(g, x, 4, 8, 3, C[3]);                     // lid
+    paR(g, x + 1, 8, 6, 5, rampOf('#3a4a55')[1]); // window
+    paR(g, x + 1, 8, 6, 1, '#e8e4da');            // paper stack edge
+    paR(g, x, 15, 8, 1, '#22201c');               // feet
+    paPX(g, x + 1, 4, C[5]);
+  }
+  return s;
+}
+/* Sidewalk bike rack — inverted-U hoops with real bikes locked on.
+   Plan view: thin tire ellipses, triangle frames, seat/handlebar ticks. */
+function sfBikeRackSpr(v){
+  const s = paMk(36, 20), g = s.g;
+  const ir = rampOf('#3c4044');
+  const bikeCols = [rampOf('#a03838'), rampOf('#3a5a8a'), rampOf('#e0d8c8'),
+                    rampOf('#4a6a44')];
+  paEllipse(g, 18, 17.5, 16, 1.8, 'rgba(24,18,10,0.28)');
+  const nBike = v === 2 ? 2 : 1;
+  // hoops behind the bikes
+  for(const hx of [8, 20]){
+    paR(g, hx, 5, 2, 9, ir[1]);
+    paR(g, hx, 5, 6, 2, ir[2]);
+    paR(g, hx + 4, 5, 2, 9, ir[1]);
+    paPX(g, hx, 5, ir[4]); paPX(g, hx + 4, 5, ir[4]);
+  }
+  for(let b = 0; b < nBike; b++){
+    const C = bikeCols[(v * 2 + b) % bikeCols.length];
+    const oy = b * 8;
+    // wheels: thin ellipses
+    for(const wx of [9 + b * 10, 21 + b * 10]){
+      paEllipse(g, wx, 12 + oy, 4, 2.4, '#1c1a18');
+      paEllipse(g, wx, 12 + oy, 2.8, 1.4, rampOf('#565a63')[3]);
+    }
+    // frame triangle + seat + bars
+    paLine(g, 9 + b * 10, 12 + oy, 15 + b * 10, 6 + oy, C[3]);
+    paLine(g, 15 + b * 10, 6 + oy, 21 + b * 10, 12 + oy, C[3]);
+    paLine(g, 9 + b * 10, 12 + oy, 21 + b * 10, 12 + oy, C[2]);
+    paPX(g, 14 + b * 10, 5 + oy, '#1c1a18');
+    paLine(g, 21 + b * 10, 12 + oy, 23 + b * 10, 7 + oy, '#2a2c30');
+    paPX(g, 24 + b * 10, 7 + oy, '#1c1a18');
+  }
+  return s;
+}
+/* Dolores picnic blanket — the park's true ground cover. 2.2x2.8m cloth
+   anchored to the lawn: gingham / stripes / solids, a corner cooler,
+   tote bag, and 0-2 reclining sunbathers drawn as plan-view figures. */
+const SF_BLANKET_COLS = [
+  { base: '#d84c44', pat: 'gingham' }, { base: '#2e8aa8', pat: 'stripe' },
+  { base: '#e0b23a', pat: 'solid' },   { base: '#8a5ab8', pat: 'gingham' },
+  { base: '#f0e8da', pat: 'stripe' },  { base: '#3f8a52', pat: 'solid' }];
+const SF_SKIN = ['#e8c8a0', '#c89868', '#8a6248', '#f0d8b8', '#6e4a32'];
+const SF_SHIRT = ['#d85040', '#4a7ab0', '#e8e0d0', '#e0a030', '#5a8a5a',
+                  '#30343c', '#c878a0'];
+function sfBlanketSpr(v){
+  const s = paMk(38, 46), g = s.g;
+  const B = SF_BLANKET_COLS[v % SF_BLANKET_COLS.length];
+  const C = rampOf(B.base);
+  // soft under-shadow + cloth with slightly ragged edge
+  paEllipse(g, 19, 24, 18, 21, 'rgba(20,30,14,0.18)');
+  paR(g, 3, 4, 32, 38, C[3]);
+  paR(g, 3, 4, 32, 2, C[4]); paR(g, 3, 4, 2, 38, C[4]);
+  paR(g, 3, 40, 32, 2, C[2]); paR(g, 33, 4, 2, 38, C[2]);
+  if(B.pat === 'gingham'){
+    for(let k = 0; k < 5; k++){
+      paR(g, 3, 9 + k * 7, 32, 3, C[2]);
+      paR(g, 7 + k * 7, 4, 3, 38, C[2]);
+    }
+    for(let k = 0; k < 5; k++){
+      paR(g, 3, 9 + k * 7, 32, 1, C[5]);
+      paR(g, 7 + k * 7, 4, 1, 38, C[5]);
+    }
+  } else if(B.pat === 'stripe'){
+    for(let k = 0; k < 4; k++) paR(g, 3, 8 + k * 10, 32, 4, C[2]);
+    paR(g, 3, 4, 32, 3, C[5]);
+  } else {
+    paR(g, 8, 9, 22, 28, C[2]); paR(g, 10, 11, 18, 24, C[3]);
+  }
+  paNoise(g, 3, 4, 32, 38, [C[2], C[4]], 0.08, 5300 + v);
+  // cooler box on a corner + a tote slumped beside it
+  const cool = rampOf('#d8d8e0'), tote = rampOf(SF_SHIRT[(v + 3) % SF_SHIRT.length]);
+  paR(g, 26, 34, 8, 7, cool[3]); paR(g, 26, 34, 8, 2, cool[5]);
+  paPX(g, 29, 37, cool[1]);
+  paR(g, 5, 34, 6, 6, tote[2]); paEllipse(g, 8, 34, 3, 2, tote[3]);
+  // sunbathers: head + torso + kicked-out legs, all inside the cloth
+  const nP = phash(v, 3, 5310) < 0.3 ? 0 : (phash(v, 5, 5311) < 0.55 ? 1 : 2);
+  for(let p = 0; p < nP; p++){
+    const px = 10 + p * 12 + Math.floor(phash(v, p, 5312) * 3),
+          py = 12 + Math.floor(phash(p, v, 5313) * 4);
+    const skin = rampOf(SF_SKIN[(v + p) % SF_SKIN.length]);
+    const shirt = rampOf(SF_SHIRT[(v + p * 2) % SF_SHIRT.length]);
+    const prone = phash(v, p, 5314) < 0.5;      // belly-down sunning
+    paEllipse(g, px, py + 8, 4.4, 6.5, prone ? skin[3] : shirt[3]); // torso
+    paEllipse(g, px, py + 8, 4.4, 2, prone ? skin[2] : shirt[2]);
+    paBlob(g, px, py + 1, 3.1, skin[2]);                          // head
+    paPX(g, px - 1, py, skin[4]); paPX(g, px + 1, py, skin[4]);
+    paBlob(g, px, py - 1, 1.6, '#2c2018');                        // hair
+    // legs trail toward the bottom of the cloth
+    paLine(g, px - 2, py + 13, px - 3, py + 19, skin[3]);
+    paLine(g, px + 2, py + 13, px + 3, py + 18, skin[3]);
+    paPX(g, px - 3, py + 20, skin[2]); paPX(g, px + 3, py + 19, skin[2]);
+    if(phash(v, p, 5315) < 0.4){ // book or phone held over the face
+      paR(g, px - 2, py - 4, 4, 3, '#e8e4da'); paPX(g, px, py - 4, '#8a2c2c');
+    }
+  }
+  return s;
+}
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
@@ -768,6 +925,17 @@ function buildSfVeg(){
   V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
   V.sideStreet = [sfFicusSideSpr(), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
   V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
+  // v53: the furniture layer — hydrant (v1 = the golden one), corner
+  // litter drum, chained news boxes, bike rack with locked bikes, and
+  // the Dolores picnic blanket set (6 cloth variants)
+  V.hydrant = [sfHydrantSpr(0), sfHydrantSpr(1)];
+  V.trashCan = sfTrashCanSpr();
+  V.newsBox = [sfNewsBoxSpr(0), sfNewsBoxSpr(1), sfNewsBoxSpr(2),
+               sfNewsBoxSpr(3), sfNewsBoxSpr(4)];
+  V.bikeRack = [sfBikeRackSpr(0), sfBikeRackSpr(1), sfBikeRackSpr(2)];
+  V.blanket = [];
+  for(let bv = 0; bv < SF_BLANKET_COLS.length; bv++)
+    V.blanket.push(sfBlanketSpr(bv));
 }
 
 /* ---------------- Victorian facade compiler ----------------
