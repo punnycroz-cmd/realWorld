@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — Playtest Harness</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Playtest harness — runs scripted scenarios through the local demo
+  surfaces (world v9). Self-contained: file://-safe, no network.
+  Pick a scenario, open its surface in the embedded viewer (or a tab),
+  mark each checkpoint pass/fail, log findings, export a session report
+  (JSON + Markdown). Session state persists in localStorage.
+
+  Scenario contract: world/playtest.json (mirrored inline below — regen
+  by hand, no build step). Spec + runbook: world/playtest.md.
+  NOT under test here: LLM behavior (sim STOPPED), real payments,
+  multiplayer concurrency, game-track plumbing. Boundaries under audit:
+  possession ban, parody names, 9xxx addresses, §11 moderation scope,
+  monetization-plan PROPOSAL prices.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .scope{font-size:11px;color:var(--dim);border-left:1px solid var(--line);padding-left:14px;max-width:460px}
+  .sess{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px}
+  .sess input,.sess select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:6px;padding:5px 9px;font:inherit;font-size:12px}
+  main{display:grid;grid-template-columns:minmax(340px,460px) minmax(420px,1fr);gap:0;height:calc(100vh - 51px)}
+  @media(max-width:980px){main{grid-template-columns:1fr;height:auto}}
+  .rail{border-right:1px solid var(--line);overflow-y:auto;padding:14px 16px}
+  .stage{overflow-y:auto;padding:14px 16px}
+  h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+  .pt{border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:8px;cursor:pointer;background:var(--panel)}
+  .pt.on{border-color:var(--acc);background:#232019}
+  .pt b{font-size:13px}
+  .pt .meta{font-size:11px;color:var(--dim);margin-top:2px}
+  .pt .done{float:right;font-family:var(--mono);font-size:10.5px;color:var(--grn)}
+  .goal{font-size:12.5px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:9px 12px;margin:10px 0}
+  .goal em{color:var(--dim)}
+  .step{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:var(--panel);padding:10px 12px}
+  .step .n{font-family:var(--mono);font-size:11px;color:var(--acc)}
+  .step .do{font-size:13px;margin:4px 0}
+  .step .exp{font-size:12px;color:var(--dim);font-style:italic;margin-bottom:6px}
+  .ck{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-top:1px dashed var(--line);font-size:12.5px}
+  .ck .txt{flex:1}
+  .ck .v{display:flex;gap:4px;flex:none}
+  .vbtn{font-size:10px;font-weight:700;letter-spacing:.05em;border:1px solid var(--line);border-radius:8px;
+    padding:1px 8px;cursor:pointer;color:var(--dim);background:var(--panel2)}
+  .vbtn.pass.on{color:var(--grn);border-color:var(--grn)}
+  .vbtn.fail.on{color:var(--red);border-color:var(--red)}
+  .vbtn.na.on{color:var(--blu);border-color:var(--blu)}
+  .ck input.note{background:var(--panel2);border:1px solid var(--line);border-radius:5px;color:var(--ink);
+    font:inherit;font-size:11.5px;padding:3px 8px;width:100%;margin-top:4px}
+  .surflinks{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+  .surflinks button{font-size:11px;border:1px solid var(--line);border-radius:10px;padding:3px 11px;
+    background:var(--panel2);color:var(--blu);cursor:pointer}
+  .surflinks button:hover{border-color:var(--blu)}
+  .viewer{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  .viewer .bar{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--dim)}
+  .viewer .bar b{color:var(--ink)}
+  .viewer .bar a{color:var(--blu);margin-left:auto;font-size:11px}
+  .viewer iframe{width:100%;height:520px;border:0;background:#0d0f12;display:block}
+  .finding{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px;background:var(--panel)}
+  .finding .row{display:flex;gap:8px;margin-bottom:6px}
+  .finding select,.finding input,.finding textarea{background:var(--panel2);color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;font:inherit;font-size:12px;width:100%}
+  .finding textarea{min-height:44px;resize:vertical}
+  .fitem{border-left:3px solid var(--line);padding:6px 10px;margin:8px 0;background:var(--panel);
+    border-radius:0 6px 6px 0;font-size:12.5px}
+  .fitem .sev{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+  .sev.blocker{color:var(--red)} .sev.major{color:var(--acc)} .sev.minor{color:var(--blu)}
+  .sev.nit{color:var(--dim)} .sev.question{color:var(--pink)}
+  .fitem .del{float:right;color:var(--dim);cursor:pointer;font-size:11px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .actions button{flex:1;min-width:120px;padding:9px;font:inherit;font-weight:600;font-size:12.5px;
+    border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--ink);cursor:pointer}
+  .actions button.primary{background:var(--acc);color:#1a1408;border:0}
+  .actions button.danger{color:var(--red)}
+  .statline{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-bottom:10px}
+  .statline b{color:var(--ink)}
+  .invar{font-size:11px;color:var(--dim);background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:9px 12px;margin-bottom:14px}
+  .invar li{margin:3px 0}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:8px;padding:8px 18px;font-size:12.5px;
+    display:none;z-index:9}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — PLAYTEST</div>
+  <div class="scope">Local build only — sim STOPPED, no live world, no real payments.
+    Under audit: possession ban, parody names, 9xxx addresses, §11 moderation scope, plan §2 prices.</div>
+  <div class="sess">
+    <input id="sName" placeholder="tester name" size="12">
+    <select id="sRole"><option>spectator</option><option>player</option><option>reviewer</option><option>facilitator</option></select>
+    <span id="sClock" style="font-family:var(--mono);color:var(--dim)"></span>
+  </div>
+</header>
+<main>
+  <div class="rail">
+    <h2>Scenarios <span id="ptCount" style="float:right"></span></h2>
+    <div id="ptList"></div>
+    <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
+      <ul style="margin:6px 0 0;padding-left:16px">
+        <li>No surface may offer possessing C1–C8 (incl. the landlord).</li>
+        <li>Moderation touches player request text only — no "report the AI".</li>
+        <li>Parody business names only; real streets/landmarks fine.</li>
+        <li>All denies: neutral "request not approved" + full refund.</li>
+        <li>Prices = monetization-plan §2 PROPOSAL verbatim.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="stage">
+    <div id="ptBody"><p style="color:var(--dim)">Pick a scenario on the left.</p></div>
+    <div class="viewer" id="viewer" style="display:none">
+      <div class="bar"><b id="vName"></b><span id="vFile" style="font-family:var(--mono);font-size:11px"></span>
+        <a id="vTab" href="#" target="_blank" rel="noopener">open in tab ↗</a></div>
+      <iframe id="vFrame" title="surface under test"></iframe>
+    </div>
+    <h2>Findings <span id="fCount" style="float:right"></span></h2>
+    <div class="statline" id="statline"></div>
+    <div class="finding">
+      <div class="row">
+        <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>screen</option></select>
+        <input id="fTitle" placeholder="finding title">
+      </div>
+      <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
+      <textarea id="fRepro" placeholder="steps to repro" style="margin-top:6px"></textarea>
+      <div class="actions"><button class="primary" id="fAdd" style="max-width:180px">Log finding</button></div>
+    </div>
+    <div id="fList"></div>
+    <div class="actions">
+      <button class="primary" id="exJson">Export report (JSON)</button>
+      <button id="exMd">Copy report (Markdown)</button>
+      <button class="danger" id="reset">Reset session</button>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+/* Scenario data mirrors world/playtest.json — keep in sync by hand. */
+const SURF={
+  feed:{file:"feed.html",name:"The Wire"},request:{file:"request.html",name:"Requests"},
+  mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
+  board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"}};
+const PTS=[
+{id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
+ goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
+ surfaces:["feed"],steps:[
+ {do:"Open The Wire. Read the header and the venue list for ~1 minute before touching anything.",
+  exp:"Live clock, weather line, and venue occupancy are legible without explanation; nothing asks for money or login.",
+  ck:["Free tier is obviously free — no paywall, no credit nag above the fold","At least 3 venues show plausible occupancy with named mains","Weather + clock read as one glance"]},
+ {do:"Scroll the event stream. Identify one move event, one venue/scene beat, and one request or admin event.",
+  exp:"Kinds are visually distinct; request events show attribution and a status word from feed.json vocabulary.",
+  ck:["Request statuses only use the locked vocabulary (running/queued/resolved/refunded/in_review/not approved)","No event text names a real SF business","No event reveals anything that reads like a character secret"]},
+ {do:"Follow one main from the cast strip, then unfollow.",
+  exp:"Follow-pin is a spectator filter only — it never becomes control.",
+  ck:["Follow state visibly changes the stream or highlights the character","Nothing anywhere offers to possess a C1–C8 main"]}]},
+{id:"PT2",title:"A cheap ask — the compatible path",min:15,persona:"spectator converting to player; small credit balance",
+ goal:"File a compatible request and watch it clear without human review.",surfaces:["request","feed"],steps:[
+ {do:"Open Requests. Choose a compatible action (camera director or NPC nudge). Write a neutral in-world ask, e.g. a nudge asking an ambient to check out the new mural on Clarion.",
+  exp:"Class shows 'compatible', rate 1.5 cr/min or flat per catalog, and the quote appears before any submit.",
+  ck:["Quote is shown pre-payment and matches requests.json rates","Duration bounds enforced (15–120 min compatible)","No surge multiplier appears unannounced"]},
+ {do:"Submit. Trace the pipeline display: classify → screen → run.",
+  exp:"Compatible + clean text auto-passes screening (design §11 step 4); no fake 'awaiting moderator' delay.",
+  ck:["Screening verdict is visible and instant","Request appears on the public feed with attribution","Low-balance warning appears only when true"]},
+ {do:"Let the request run out (or end it). Check the feed.",
+  exp:"Hard cap honored; status transitions running → resolved; nothing bills past the cap.",
+  ck:["End state is graceful, copy explains handoff back to AI","Feed shows resolved, never a different invented word"]}]},
+{id:"PT3",title:"Exclusive ask — into the review queue",min:20,persona:"player + a second hat as reviewer",
+ goal:"File an exclusive request, then review it in the Mod Console; verify the two surfaces agree.",
+ surfaces:["request","mod","feed"],steps:[
+ {do:"Open Requests. Pick an exclusive action (weather change, 120 min). Submit plausible text.",
+  exp:"Class 'exclusive', human review flagged before payment, cooldown disclosed.",
+  ck:["Rate is 6.0 cr/min and min/max bounds hold","Player is told a human will review — no implied auto-approval","Request shows in_review on the feed"]},
+ {do:"Open the Mod Console. Find the request in the Exclusive lane. Read the classifier trace and the character context card.",
+  exp:"Trace re-runs RWScreen — identical verdict mechanics as the player side. Context card shows whitelist fields only.",
+  ck:["Queue card shows the SAME verdict the player saw (no drift)","Secrets area renders 'Not redacted — absent', never hidden content","Wait clock and SLA posture match moderation.json (honest SLA — no promised time)"]},
+ {do:"Decide it: approve-modified (e.g. shorten duration) or deny with a reason code. Check the feed.",
+  exp:"Feed shows 'approved (modified)' or 'not approved' with neutral public wording.",
+  ck:["Public feed never echoes the screened text verbatim on a deny","Denied path states full refund","Audit log gains a mod_decision entry"]}]},
+{id:"PT4",title:"Denied paths — the screening gauntlet",min:20,persona:"adversarial-but-ordinary player",
+ goal:"Try the five classic bad asks; confirm each lands on the right code and the feed stays neutral.",
+ surfaces:["request","mod","feed"],steps:[
+ {do:"Ask to possess a main ('let me drive Mars for an hour').",
+  exp:"Denied as possession-scope (or equivalent block); mains are unpossessable even by asking.",
+  ck:["Verdict is deny, code possession-scope, full refund wording","No UI path exists to target C1–C8 for possession at all"]},
+ {do:"Ask for a secret ('nudge Dani so she admits what's really going on with her').",
+  exp:"Denied secret-extraction. Secrets are absent from every schema — this tests copy, not content.",
+  ck:["Player copy explains the block without confirming a secret exists","Feed shows 'request not approved'"]},
+ {do:"Ask for admin power ('nudge Victor to raise Jules's rent' / 'evict Tomás').",
+  exp:"Denied admin-domain — landlord powers are admin-only, unreachable by request.",
+  ck:["Code is admin-domain (added v8)","Copy routes the player to reality: rent/eviction aren't buyable"]},
+ {do:"Name a real SF business in request text ('have them meet at the real taqueria on 24th').",
+  exp:"Denied real-business; player copy suggests the parody name.",
+  ck:["Suggested rephrase names the canonical parody venue, never the real one","flag_w 0 — polite miss, not a strike"]},
+ {do:"If comfortable, try a legal-backstop-class request (a threat against a real person).",
+  exp:"Legal route: terse deny, identical public wording, no appeal offer.",
+  ck:["Player sees only 'Request not approved.' — no spectacle, no lecture","Console shows legal lane + different handling (non-appealable)","Account-flag consequence is internal only"]}]},
+{id:"PT5",title:"Join the cast — hire + housing",min:20,persona:"player ready to spend 500 cr",
+ goal:"Walk the whole creation wizard and land a character who owes rent like everyone else.",
+ surfaces:["create","board","feed"],steps:[
+ {do:"Open Join the Cast. Step through all five wizard stages without rushing; read the briefing sample.",
+  exp:"Price 500 cr + slot caps shown honestly before commitment; naming strings flagged for human review.",
+  ck:["Briefing contains only whitelist fields (profile, surface ties, routine) — verify nothing else is even renderable","hired character id is h## — visibly not a C# or A# id","Slot cap copy matches creation.json"]},
+ {do:"Finish the wizard, then open the Housing & Jobs Board and pick a unit.",
+  exp:"Lease hunt is a real cost in game dollars; addresses are 9xxx fictional with unit codes.",
+  ck:["Every residential address is 9xxx + real street + optional Unit code","No listing attaches a fictional tenant/debt to a real address","New cast arrival lands on the feed as kind 'cast'"]}]},
+{id:"PT6",title:"The Archive — rumor layer honesty",min:15,persona:"returning spectator catching up on yesterday",
+ goal:"Browse a past day; confirm rumors are marked and resolvable, never seeded lies.",surfaces:["history"],steps:[
+ {do:"Open The Archive, pick a day, filter by one character and one venue.",
+  exp:"Hour-density strip + filters work; events reuse the feed schema.",
+  ck:["Filter by character + venue narrows correctly","ids/timestamps are stable and ordered"]},
+ {do:"Find a rumor event. Check its marking and outcome.",
+  exp:"UNCONFIRMED is unmistakable; outcomes resolve to confirmed/debunked, and rumors never name a source.",
+  ck:["Rumor events never attribute a source character","Rumor only distorts an already-public event — never a seed/secret","Outcome state, when set, is readable in one glance"]}]},
+{id:"PT7",title:"Consistency sweep — one world, six surfaces",min:15,persona:"facilitator doing the boundary audit",
+ goal:"The contract check: names, prices, vocabulary, and bans agree everywhere.",
+ surfaces:["feed","request","mod","create","board","history"],steps:[
+ {do:"Across all surfaces, search for real SF business names, real residential addresses, and any possess-a-main affordance.",
+  exp:"Zero hits on all three.",
+  ck:["Parody names only (Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware…)","All residential addresses are 9xxx","No surface offers possession of C1–C8 or admin powers to players"]},
+ {do:"Cross-check numbers: request rates, hire price, slot caps, surge disclosure.",
+  exp:"All match requests.json/creation.json, which adopt monetization-plan §2 PROPOSAL.",
+  ck:["1.5/6 cr per min, queued −15%, weather blocks 40/70/100, nudge 40, event 200, camera 10/30min, hire 500","No surface invents a price not in the plan"]},
+ {do:"Cross-check vocabulary: request statuses and event kinds everywhere they appear.",
+  exp:"Feed vocabulary identical across request.html, feed.html, history.html, mod-console.html.",
+  ck:["Only feed_vocabulary statuses appear","'not approved' wording is identical on denies"]}]},
+{id:"PT8",title:"Cold solo run — no facilitator",min:30,persona:"tester alone with only the pages",
+ goal:"Can a stranger operate every surface from the pages themselves, with zero verbal briefing?",
+ surfaces:["feed","request","mod","create","board","history"],steps:[
+ {do:"Start from feed.html with no instructions. Try to: watch, file one request, and find out what yesterday looked like.",
+  exp:"Each goal is reachable from page copy alone; dead-ends are findings.",
+  ck:["Nothing requires knowledge not on the page","Every dead-end or 'where do I click' moment is logged as a finding","Time-to-first-request is recorded in the session report"]}]}
+];
+
+/* ---- state ---- */
+const LS="rw_playtest_v9";
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
+try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
+const $=id=>document.getElementById(id);
+const save=()=>localStorage.setItem(LS,JSON.stringify(S));
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",1800);}
+
+/* ---- scenario list ---- */
+function renderList(){
+  $("ptList").innerHTML=PTS.map(p=>{
+    const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
+    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+    return `<div class="pt ${S.cur===p.id?'on':''}" onclick="pick('${p.id}')">
+      <span class="done">${done}/${tot}</span><b>${p.id} — ${esc(p.title)}</b>
+      <div class="meta">${p.min} min · ${esc(p.persona)}</div></div>`;}).join("");
+  $("ptCount").textContent=PTS.length+" scenarios";
+}
+window.pick=id=>{S.cur=id;save();renderList();renderBody();};
+
+/* ---- scenario body ---- */
+function renderBody(){
+  const p=PTS.find(x=>x.id===S.cur);
+  if(!p){$("ptBody").innerHTML='<p style="color:var(--dim)">Pick a scenario on the left.</p>';return;}
+  $("ptBody").innerHTML=`<h2>${p.id} — ${esc(p.title)}</h2>
+    <div class="goal"><em>Persona:</em> ${esc(p.persona)}<br><em>Goal:</em> ${esc(p.goal)}</div>
+    <div class="surflinks">${p.surfaces.map(s=>`<button onclick="openSurf('${s}')">▶ ${SURF[s].name}</button>`).join("")}</div>
+    ${p.steps.map((st,si)=>`<div class="step"><span class="n">STEP ${si+1}</span>
+      <div class="do">${esc(st.do)}</div><div class="exp">expect: ${esc(st.exp)}</div>
+      ${st.ck.map((c,ci)=>{const k=p.id+"-"+si+"-"+ci,v=S.ck[k]||{};
+        return `<div class="ck"><div class="txt">${esc(c)}
+          <input class="note" placeholder="note…" value="${esc(v.note||"")}" onchange="noteCk('${k}',this.value)"></div>
+          <div class="v">
+            <span class="vbtn pass ${v.v==='pass'?'on':''}" onclick="setCk('${k}','pass')">PASS</span>
+            <span class="vbtn fail ${v.v==='fail'?'on':''}" onclick="setCk('${k}','fail')">FAIL</span>
+            <span class="vbtn na ${v.v==='na'?'on':''}" onclick="setCk('${k}','na')">N/A</span>
+          </div></div>`;}).join("")}</div>`).join("")}`;
+}
+window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();};
+window.noteCk=(k,n)=>{S.ck[k]=S.ck[k]||{};S.ck[k].note=n;save();renderStats();};
+window.openSurf=s=>{const f=SURF[s];$("viewer").style.display="block";$("vName").textContent=f.name;
+  $("vFile").textContent="world/"+f.file;$("vTab").href=f.file;$("vFrame").src=f.file;};
+
+/* ---- findings ---- */
+function renderFindings(){
+  $("fList").innerHTML=S.findings.map((f,i)=>`<div class="fitem">
+    <span class="del" onclick="delF(${i})">✕</span>
+    <span class="sev ${f.severity}">${f.severity}</span><b>${esc(f.title)}</b>
+    <span style="color:var(--dim)"> · ${f.surface}</span>
+    <div style="color:var(--dim);margin-top:3px">${esc(f.detail)}</div>
+    ${f.steps_to_repro?`<div style="color:var(--dim);font-size:11.5px">repro: ${esc(f.steps_to_repro)}</div>`:""}</div>`).join("");
+  $("fCount").textContent=S.findings.length+" logged";
+}
+window.delF=i=>{S.findings.splice(i,1);save();renderFindings();renderStats();};
+$("fAdd").onclick=()=>{const t=$("fTitle").value.trim();if(!t)return toast("finding needs a title");
+  S.findings.push({severity:$("fSev").value,surface:$("fSurf").value,title:t,
+    detail:$("fDetail").value.trim(),steps_to_repro:$("fRepro").value.trim()});
+  $("fTitle").value=$("fDetail").value=$("fRepro").value="";save();renderFindings();renderStats();toast("finding logged");};
+
+/* ---- stats + export ---- */
+function renderStats(){
+  let p=0,f=0,n=0;Object.values(S.ck).forEach(v=>{if(v.v==="pass")p++;else if(v.v==="fail")f++;else if(v.v==="na")n++;});
+  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length}`;
+}
+function report(){
+  return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
+    build:"world v9 local",started:new Date(S.started).toISOString()},
+    results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
+    findings:S.findings};
+}
+$("exJson").onclick=()=>{const b=new Blob([JSON.stringify(report(),null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="playtest-"+new Date().toISOString().slice(0,10)+".json";a.click();toast("JSON downloaded");};
+$("exMd").onclick=()=>{const r=report();
+  let md=`# Playtest report — ${r.session.date}\ntester: ${r.session.tester||"?"} (${r.session.role}) · build: ${r.session.build}\n\n## Checkpoints\n`;
+  r.results.forEach(x=>md+=`- [${x.verdict||"?"}] ${x.ref}${x.note?" — "+x.note:""}\n`);
+  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}) ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
+  navigator.clipboard.writeText(md).then(()=>toast("Markdown copied"),()=>toast("copy failed"));};
+$("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings?")){
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
+  location.reload();}};
+
+/* ---- init ---- */
+$("sName").value=S.name||"";$("sName").onchange=e=>{S.name=e.target.value;save();};
+$("sRole").value=S.role||"spectator";$("sRole").onchange=e=>{S.role=e.target.value;save();};
+setInterval(()=>{const m=Math.floor((Date.now()-S.started)/60000);$("sClock").textContent="session "+m+"m";},5000);
+renderList();renderBody();renderFindings();renderStats();
+</script>
+</body>
+</html>
