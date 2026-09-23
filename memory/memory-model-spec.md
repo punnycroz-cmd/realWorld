@@ -1,5 +1,30 @@
-# Memory Model Spec v5.6 — implementable human-like memory for RW characters
+# Memory Model Spec v5.7 — implementable human-like memory for RW characters
 
+> **v5.7 note (validation-design III — the battery learns to distrust
+> itself):** `memory/validation-design.md` §§105–110 is methodology,
+> no new psychology. **Replication-graded anchoring** — every human
+> anchor carries `rep_grade ∈ {META,RRR,MULTI,SINGLE,CONTESTED}`;
+> SINGLE bands shrink toward the null by `rep_shrink` (OSC 2015 and
+> Camerer 2018 both land near 0.5 replication-ES shrinkage) and
+> CONTESTED effects become *negative* anchors (Hagger 2016's
+> ego-depletion null is a build-must-NOT-produce) — §105, P615/P616.
+> **The baseline ladder** — nested B0–B3 stripped models run the same
+> battery; each rung must beat the one below by a named anchor margin
+> (Roberts & Pashler 2000: good fit ≠ evidence) — §106, P617/P618.
+> **Equifinality audit** — sloppy parameter directions are expected
+> (Gutenkunst 2007); validation targets the stiff manifold only and
+> licenses diversity within observational equivalence — §107,
+> P619–P621. **Timescale validity** — scale-invariant effects probed
+> on ISI/RI ratios (Cepeda 2006), physiology-anchored effects keep
+> absolute times, sub-tick phenomena out of scope by declaration —
+> §108, P622/P623. **Change-impact scheduling** — the §47 coverage
+> matrix becomes the impact graph driving per-version SHOULD/OBSERVE
+> subsets — §109, P624. **Verdict ledger** — probe verdicts become an
+> append-only hash-chained artifact keyed on canonHash + probe_version
+> (applied pre-registration; the validator's own `orphan_rewrite=0`)
+> — §110, P625–P628. +5 params, 2 locked nulls, §14 annex below,
+> probes P615–P628.
+>
 > **v5.6 note (character-profiles V — the self that keeps the books):**
 > `memory/cast-profiles.md` Part IV compiles the new dials onto C1–C8.
 > **The self-view trait is finally owned** — `self_est` ∈[0,1] replaces
@@ -9547,3 +9572,48 @@ scans never skippable). Undeclared approximations are spec violations.
 | verbatim_mint / orphan_rewrite / meanfield_drive | 0.0 each | locked nulls — G1/G2/§13.2 |
 
 Probes P590–P601 in validation-design.md §101.
+
+## 14. Validation annex — the battery's own contracts (new in v5.7)
+
+Machinery for validation-design.md §§105–110. All pop/harness params —
+no psychology moved this version.
+
+### 14.1 Snapshot bookkeeping fields
+
+`memorySnapshot` output gains a read-only `bookkeeping` block:
+`{specVersion, canonHash, seedManifestHash, approxModes}` (the
+approxModes declaration from §13.5 moves here formally). Harness
+verdict rows (§110 ledger) key on canonHash + probe_version; a
+snapshot without bookkeeping is a contract violation, never a
+character-visible field (§12.3 tiers unchanged — bookkeeping sits
+in the harness tier).
+
+### 14.2 Anchor corpus schema
+
+Human-anchor rows: `{anchorId, statistic, band, source, design,
+rep_grade, rep_shrink_applied}`. `rep_grade ∈ {META,RRR,MULTI,
+SINGLE,CONTESTED}`; SINGLE bands apply `rep_shrink`; CONTESTED rows
+assert a null band — they are the only rows whose PASS condition is
+*absence* of an effect.
+
+### 14.3 Baseline-ladder modes
+
+`memoryModelMode ∈ {B0,B1,B2,B3}` — validation/degradation flag,
+never a per-character trait: B0 perfect store; B1 single exponential
+decay, no channels/traits; B2 power-law + E, no trait layer;
+B3 full spec. A build may ship a degraded mode for compute reasons
+only if the missing observable families are enumerated in its release
+manifest.
+
+### 14.4 New params (v5.7 block — all pop/harness, 2 locked nulls)
+
+| param | default | notes |
+|---|---|---|
+| rep_shrink | 0.5 | pop — SINGLE-anchor band shrink toward null |
+| ledger_hash_algo | xxh64 | pop — verdict-ledger chain hash |
+| probe_archive_floor | 10 | pop — versions a superseded probe stays executable |
+| sched_must_cov | 1.0 | harness — MUST coverage fraction per release |
+| sched_impacted_cov | 0.9 | harness — impacted SHOULD coverage floor |
+| oracle_tune / ledger_amend | 0.0 each | locked nulls — instrument constants never tune toward bands; verdict history is never rewritten |
+
+Probes P615–P628 in validation-design.md §111.

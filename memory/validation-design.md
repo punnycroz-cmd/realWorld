@@ -4770,3 +4770,294 @@ three locked nulls: verbatim_mint, orphan_rewrite, meanfield_drive).
 
 Registry: P1–P614. v58 suite: P602–P614 (6 MUST, 5 SHOULD, 2 meta —
 P612/P614 carry the three locked nulls and the trait-confusion ban).
+
+## 105. Replication-graded anchoring (VA-REPL) — the anchor corpus
+## gets honest about the replication crisis (new in v59)
+
+§25.3's `replication tier` field was a start; this section hardens it.
+The corpus's SINGLE tier silently trusts exactly the literature class
+that failed most often under direct replication. The numbers are now
+in the registry:
+
+- **OSC 2015** (Open Science Collaboration, *Science* 349:aac4716 —
+  verified): 100 studies, 36% of replications significant, replication
+  effect sizes averaging **half** the originals (Mr 0.197 vs 0.403).
+  → rule: any SINGLE-tier anchor's band is centered on the *replication*
+  estimate when one exists, else on the original estimate shrunk toward
+  the null by `rep_shrink = 0.5` and widened — never on the famous
+  original number alone.
+- **Camerer et al. 2018** (*Nat Hum Behav* 2:637 — verified): 21
+  Nature/Science social-science experiments, 62% replicated, replication
+  ES ≈ 50% of original, estimated true-positive rate 67%. Same ~0.5
+  shrinkage from a different design class → `rep_shrink` = 0.5 is a
+  defensible corpus default, not a guess.
+- **RRR-failed effects are anchors with the sign flipped.** Hagger et
+  al. 2016 (*Persp Psych Sci* 11:546 — verified: 23 labs, N=2,141,
+  ego-depletion d = 0.04, CI [−0.07, 0.15]) means the model must NOT
+  ship a willpower-resource depletion mechanism that produces d ≥ 0.3
+  sequential-task depletion; if any trait/param reproduces the old
+  textbook effect size, that is a FAIL, not a feature. Same discipline
+  applies to Wagenmakers et al. 2016 facial-feedback RRR. **Negative
+  anchors**: phenomena the battery asserts do NOT appear.
+- **Grade names** (replacing/instantiating §25.3 tiers):
+  `META` = meta-analytic consensus (full weight); `RRR` = passed a
+  registered replication report (full weight); `MULTI` = ≥2 independent
+  replications (light discount); `SINGLE` = one famous study
+  (`rep_shrink` applied); `CONTESTED` = failed direct replication
+  (usable only as a negative anchor; bands around zero).
+- Bias-correction discipline: where the anchor is meta-analytic, prefer
+  the *adjusted* estimate when the meta reports one (trim-and-fill,
+  Duval & Tweedie 2000; PET-PEESE, Stanley & Doucouliagos 2014). An
+  uncorrected meta estimate inherits a partial `rep_shrink`.
+- Standing consequence for this corpus: misinfo adoption stays META
+  (Loftus line replicates), DRM stays META-adjacent, but any anchor
+  that only ever lived in one charismatic study (e.g., single-study
+  priming effects) is demoted from MUST to OBSERVE at best.
+
+## 106. The baseline ladder — what complexity must earn (VA-BASE)
+
+Roberts & Pashler 2000 (*Psych Rev* 107:358 — verified: a good fit
+shows nothing about what the theory *couldn't* fit) is the standing
+warning: the spec has ~400 params now; anchor coverage alone cannot
+justify them. The validator therefore maintains a **baseline ladder**
+— nested stripped models run through the same battery:
+
+| level | model | what it can't do |
+|---|---|---|
+| B0 | perfect store (no decay, no distortion) | forgetting, rumor drift |
+| B1 | single exponential decay, no traits/channels | age bands, diversity |
+| B2 | power-law decay + encoding E, no trait layer | per-character profiles |
+| B3 | full spec | — |
+
+- **Acceptance rule:** each rung must beat the rung below on anchor
+  corpus coverage by a *named margin*: B3's trait layer must deliver
+  the ICC-diversity anchors and the profile-distinctness checks that
+  B2 structurally cannot; B2's decay shape must beat B1 on the
+  savings-curve AIC anchor (Murre & Dros 2015 — power > exp).
+- **Per-param justification:** a param that enters the spec must name
+  ≥1 anchor or probe family it exists for (§24's constraint map,
+  dual direction). Params whose only evidence is "plausible" are
+  flagged `unearned` in the coverage matrix and are first candidates
+  for removal in a model-reduction pass. (This is the Pitt & Myung
+  2002 *Psych Bull* 128:362 lesson: model selection must weigh
+  functional-form flexibility, not parameter count alone — we
+  approximate it with the anchor-coverage margin, which is honest
+  about being an Occam heuristic, not a formal criterion.)
+- The ladder is also the deliverable for game-systems: if compute
+  forces a downgrade, B2 is the declared degraded mode and the spec's
+  degradation ladder names which observables it will miss.
+
+## 107. Equifinality audit (VA-EQUI) — sloppy params are expected,
+## not alarming
+
+Gutenkunst et al. 2007 (*PLoS Comput Biol* 3:e189 — verified: sloppy
+spectra universal; collective fits constrain predictions while leaving
+individual params poorly constrained) + Beven's equifinality (2006,
+hydrology) apply directly: with ~400 params and a few dozen anchored
+statistics, **large flat directions in parameter space are guaranteed**.
+Consequences, made binding:
+
+- Validation targets the **identifiable manifold**, not the parameter
+  vector. The §24 sensitivity screen computes the local Hessian/
+  Fisher spectrum at each cast profile's operating point; eigenvalue
+  spectrum is logged per release. Stiff directions (λ large) must map
+  to anchors; sloppy directions (λ small, log-uniform tail) are
+  *expected* and are licensed diversity — two mains may sit far apart
+  in a sloppy direction and be observationally equivalent.
+- **Diversity-within-equivalence rule:** cast profiles that differ
+  only along sloppy eigendirections are legal (different people, same
+  observable behavior — true to life). Profiles that differ along a
+  *stiff* direction but produce identical observables are a harness
+  bug or a spec over-parameterization — triage (b).
+- **Never chase the "true" params.** SBC (§28) is re-scoped: recovery
+  is required only on stiff directions; demanding full-vector recovery
+  in a sloppy model would manufacture false confidence (the Gutenkunst
+  corollary: complete precision on all params would need impossibly
+  complete data).
+- Practical probe consequence: per-param perturbation probes report
+  which eigendirection they load on; a probe failing only because its
+  target param sits in a flat direction is reclassified OBSERVE —
+  the model is honest that the data can't see it.
+
+## 108. Timescale validity (VA-TSCALE) — validate ratios, not hours
+
+The lab literature's retention intervals are minutes-to-days inside
+task paradigms; the sim's native clock is days. A naive mapping
+("lab hour = sim day") breaks because some effects are scale-invariant
+and some are anchored to physiology:
+
+- **Scale-invariant effects** are validated on *ratios*: distributed-
+  practice optimal ISI grows with retention interval (Cepeda et al.
+  2006, *Psych Bull* 132:354 — verified: ISI and RI operate jointly;
+  the optimum scales roughly proportionally). Probe spacing effects
+  at ISI/RI ratios, not at absolute intervals — the model passes if
+  the ratio-dependence holds at sim scale.
+- **Physiology-anchored effects** keep absolute times: sleep
+  consolidation is tied to the nightly tick (Jenkins & Dallenbach
+  1924 replicates as "post-sleep retention advantage"), circadian
+  variance (§6.x) is hour-of-day absolute. These are validated
+  against the sim's day structure, not rescaled.
+- **Sub-tick effects are out of scope by declaration**: iconic/
+  sensory memory, primacy within a single utterance — characteristic
+  times below one tick. They may be emulated as instantaneous biases
+  (e.g., serial-position weighting inside a single scene encoding)
+  but never probed on timing.
+- The Murre & Dros 2015 replication is the calibration exemplar:
+  it re-derived Ebbinghaus' curve at 20min–31d and found the same
+  shape including the 24h savings bump — evidence that day-scale
+  sims can carry lab-scale anchors via shape comparison (AIC model
+  selection between exp/power/log on the model's own savings curve,
+  E1 already does this; VA-TSCALE adds that the comparison is
+  *shape*-based, not intercept-based).
+
+## 109. Change-impact scheduling (VA-IMPACT) — the battery's
+## per-version subsetting is derived, not habitual
+
+Every-version-full-battery is correct for MUST probes but wasteful for
+the rest; choosing subsets by taste invites drift-blindness. Borrow
+regression-test-selection discipline (Elbaum, Rothermel & Penix 2014,
+TSE — test-impact analysis):
+
+- The §47 coverage matrix doubles as the **impact graph**: spec rows
+  (params, fields, operators) → probes that read them. Each release
+  diffs the spec (canonHash of §7/§10 surface, v5.5 machinery) and
+  emits the impacted row set.
+- **Schedule rule:** MUST probes always run (OBF regime, §44).
+  SHOULD probes run iff they touch an impacted row OR were skipped
+  last release (alternating-look discipline prevents silent rot —
+  a SHOULD probe may never go 2 consecutive versions unrun).
+  OBSERVE probes are sampled at ≥1/3 per release, stratified by
+  home-doc family.
+- A SHOULD probe skipped while its row was impacted is logged as a
+  schedule violation — the registry diff is the audit trail.
+- Cost accounting: per-release sim budget is declared in the registry
+  manifest; the scheduler reports battery coverage fraction
+  (impacted-rows run / impacted-rows total) — must equal 1.0 for
+  MUST, ≥0.9 overall.
+
+## 110. The verdict ledger and probe versioning (VA-VLED)
+
+§3.4 goldens pin *behavior*; nothing yet pins the *verdicts*. The
+battery's own outputs become an append-only, hash-chained artifact:
+
+- Each probe verdict is a record:
+  `{probe_id, probe_version, canonHash(spec), seed_manifest_hash,
+    verdict, statistic, n_eff, icc_hat, reliability_class, date}`.
+  canonHash (spec §13.4) makes "same model, different verdict" and
+  "different model, same verdict" decidable — the two cases §44's
+  regression regime actually needs to separate.
+- **Probe versioning rule:** when spec semantics change under a probe,
+  the probe is versioned (`P142v3`), not edited. Old verdicts are
+  archived, never amended — amending history is the validator's
+  version of the memory model's own `orphan_rewrite=0` locked null
+  (every delta traces to a rule). This is applied pre-registration
+  (Wagenmakers et al. 2012; Nosek et al. 2018 *PNAS* 115:2600): the
+  hypothesis — including the *test's* semantics — is fixed before
+  the run.
+- A regression claim must cite the ledger row pair: same
+  probe_version, different canonHash. Comparing across probe versions
+  is exploratory-only.
+- The ledger is the §8 acceptance-gate input: gates read ledger rows,
+  never rerun raw outputs, so the audit trail and the decision trail
+  can't diverge.
+
+## 111. New probes P615–P628 (v59 suite — validation-design III)
+
+- **P615 anchor grading (MUST — process):** every human-anchor row in
+  the corpus carries `rep_grade ∈ {META,RRR,MULTI,SINGLE,CONTESTED}`
+  + numeric band; SINGLE rows show `rep_shrink` applied. Audit =
+  registry diff; a band centered on an unreplicated original ES is
+  a FAIL.
+- **P616 negative anchors (MUST):** the CONTESTED set is asserted
+  *absent*: ego-depletion arm (sequential self-control task across
+  members) must produce d in [−0.1, 0.15] (Hagger 2016 band);
+  facial-feedback-style embodiment claim must be null. A build that
+  "finds" these effects fails — over-powered folklore is a bug.
+- **P617 baseline ladder margin (MUST):** B0–B3 run the MUST battery:
+  B0 must fail all decay/distortion probes; B1 must fail profile-
+  distinctness (P304-family) and ICC-diversity (P354); B2 must fail
+  the trait-gated probes (P48, P602). B3 must pass strictly more
+  anchor families than B2 — else the trait layer earns nothing and
+  enters `unearned` review.
+- **P618 param earning audit (SHOULD — process):** every §7 param
+  cites ≥1 anchor/probe family in the coverage matrix; params without
+  a citation accumulate `unearned` flags; >10% of params unearned in
+  one release blocks a *new*-param merge until the flag count falls.
+- **P619 sloppy-spectrum report (SHOULD):** each release logs the
+  top-8 stiff eigendirections at each cast operating point + the
+  fraction of param-space variance they carry; every stiff direction
+  must load on ≥1 anchored observable (Gutenkunst expectation:
+  log-uniform tail is fine, stiff-and-unanchored is not).
+- **P620 equivalence-class diversity (SHOULD):** two cast profiles
+  differing only along declared-sloppy directions must remain
+  observationally equivalent (≥90% of their shared probes agree)
+  while keeping distinct trait vectors — diversity WITHIN the
+  equivalence class is legal and desired; probe to keep it honest.
+- **P621 SBC rescope (MUST — process):** parameter-recovery claims in
+  §28 are re-scoped to stiff directions only; a report claiming
+  full-vector recovery is a red flag for overfit, not a success.
+- **P622 ratio-invariance (MUST):** spacing-effect probes run at
+  ISI/RI ∈ {1/20, 1/5, 1} at two different absolute scales (days
+  vs weeks sim-time); the optimal-ratio ordering must hold at both
+  scales (Cepeda 2006 joint ISI×RI dependence) — absolute-time
+  optimization that only works at one scale fails.
+- **P623 sub-tick scope lock (SHOULD):** no probe may assert a
+  timing-dependent effect with characteristic time < 1 tick; registry
+  lint rejects such probe definitions at compile time; instantaneous-
+  bias emulations are allowed and labeled `subtick_emulated`.
+- **P624 impact-schedule conformance (MUST — process):** registry
+  diff emits impacted rows; scheduler manifest shows MUST=1.0
+  coverage, impacted SHOULD rows ≥0.9 run, no SHOULD probe skipped
+  2 consecutive releases while impacted. Violations = release-block.
+- **P625 verdict-ledger integrity (MUST):** every verdict row carries
+  probe_version + canonHash + seed_manifest_hash; a regression claim
+  citing rows with mismatched probe_version is rejected at triage;
+  ledger is append-only (rewrite attempt = integrity FAIL).
+- **P626 verdict-to-gate single source (MUST):** §8 acceptance gates
+  read ledger rows only; harness runs that bypass the ledger cannot
+  flip a gate. Audit = replay a stored verdict set through the gate
+  and confirm identical decisions.
+- **P627 probe-version archive (SHOULD):** superseded probe versions
+  remain executable (archive, not delete) for ≥10 versions — back-
+  testing a historical regression claim against an old canonHash
+  must be possible; then they move to frozen reference.
+- **P628 peeking under the new regime (MUST — meta):** mid-version
+  partial runs (allowed for debugging per §44.2) write no ledger
+  rows and cannot be cited in regression claims; audit = ledger
+  timestamps vs release boundaries.
+
+## 112. Sources verified this version (P615–P628 backing)
+
+- Open Science Collaboration 2015 (*Science* 349:aac4716 — verified:
+  36% replication, replication ES half of original, Mr 0.197 vs
+  0.403; 47% of original ES in replication CI).
+- Camerer et al. 2018 (*Nat Hum Behav* 2:637 — verified: 21 studies,
+  62% significant-replication, ES ≈50%, est. true-positive rate 67%).
+- Hagger et al. 2016 (*Persp Psych Sci* 11:546 — verified: 23 labs,
+  N=2,141, d = 0.04 CI [−0.07, 0.15]); Wagenmakers et al. 2016
+  facial-feedback RRR (CONTESTED anchor class).
+- Gutenkunst et al. 2007 (*PLoS Comput Biol* 3:e189 — verified:
+  sloppy spectra universal across systems-biology models; collective
+  fits constrain predictions not params); Beven 2006 equifinality.
+- Roberts & Pashler 2000 (*Psych Rev* 107:358 — verified: good fit
+  ≠ evidence; flexibility, data variability, alternative outcomes);
+  Pitt & Myung 2002 (*Psych Bull* 128:362 — functional-form
+  flexibility in model selection); Myung, Forster & Browne 2000
+  (*J Math Psych* special issue).
+- Cepeda, Pashler, Vul, Wixted & Rohrer 2006 (*Psych Bull* 132:354 —
+  verified: 839 assessments/317 experiments; ISI×RI joint dependence,
+  optimal ISI grows with RI).
+- Murre & Dros 2015 (*PLoS ONE* 10:e0120644 — verified: Ebbinghaus
+  savings curve replicated 20min–31d, 24h bump, power/log fit
+  comparison).
+- Duval & Tweedie 2000 (trim-and-fill); Stanley & Doucouliagos 2014
+  (meta-regression bias correction); Nosek et al. 2018 (*PNAS*
+  115:2600 — preregistration revolution); Wagenmakers et al. 2012
+  (preregistration in psychology); Elbaum, Rothermel & Penix 2014
+  (regression test selection / test-impact analysis, TSE);
+  Kish 1965 (already §45 — design-effect reuse); Johari et al. 2017
+  (already §44 — peeking, reused for P628).
+
+Registry: P1–P628. v59 suite: P615–P628 (8 MUST, 5 SHOULD, 1 meta —
+P628 carries the peeking ban into the ledger era; P616 makes the
+battery assert *absence* for the first time).
