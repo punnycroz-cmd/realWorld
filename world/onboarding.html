@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — Onboarding (first session)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Onboarding flow — first-session journey (world v11).
+  Self-contained demo: file://-safe, no network. A mini Wire replica
+  (subset of feed.json seeds) hosts the tour so every stage is reachable:
+  S0 watch → S1 tour → S2 handle → S3 wallet → S4 first ask → S5 settle.
+  Spec + copy deck: world/onboarding-ui.md. Mirror: world/onboarding.json.
+  Prices adopt monetization-plan §2 PROPOSAL — do not contradict.
+  Boundaries: watching is free + ungated; no completion rewards; the tour
+  never auto-plays; possession of the main cast is never offered.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    letter-spacing:.1em;color:var(--grn);border:1px solid var(--grn);border-radius:10px;padding:2px 10px}
+  .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--grn)}
+  .clock{font-family:var(--mono);font-size:13px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:6px;padding:5px 12px}
+  .clock small{color:var(--dim)}
+  .wx{font-size:12.5px;color:var(--dim)}
+  .reach{margin-left:auto;background:var(--acc);color:#1a1408;font-weight:700;font-size:12.5px;
+    border:0;border-radius:6px;padding:7px 14px;cursor:pointer}
+  .wallet{font-family:var(--mono);font-size:13px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+  .wallet b{color:var(--acc)}
+  main{display:grid;grid-template-columns:minmax(340px,1fr) minmax(300px,380px);gap:18px;
+    max-width:1180px;margin:0 auto;padding:18px 20px}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  .venue{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .venue:last-child{border-bottom:0}
+  .vname{font-weight:600;font-size:13.5px;min-width:140px}
+  .vwho{font-size:12px;color:var(--dim);flex:1}
+  .vwho .m{color:var(--ink)}
+  .dotcrowd{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
+  .dotcrowd.hi{background:var(--acc)} .dotcrowd.mid{background:var(--blu)} .dotcrowd.lo{background:var(--line)}
+  .follow{font-size:10.5px;color:var(--blu);cursor:pointer;border:1px solid var(--line);
+    border-radius:8px;padding:1px 8px;flex:none}
+  .follow.on{color:var(--acc);border-color:var(--acc)}
+  .feed{list-style:none;margin:0;padding:0;max-height:420px;overflow:auto}
+  .feed li{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .feed .t{font-family:var(--mono);font-size:11px;color:var(--dim);margin-right:8px}
+  .feed .kind{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-right:6px;color:var(--dim)}
+  .feed .kind.request{color:var(--acc);border-color:var(--acc)}
+  .feed .who{color:var(--blu)}
+  .feed .st{font-style:italic;color:var(--dim)}
+  .anchored{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px;
+    box-shadow:0 0 0 4px rgba(224,179,76,.12)}
+  /* ---- onboarding card ---- */
+  .ob{position:sticky;top:16px}
+  .ob .stage-tag{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--blu);margin-bottom:6px}
+  .ob p{margin:6px 0;font-size:13.5px}
+  .ob .tour-n{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .btnrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  button{font:inherit;font-size:13px;font-weight:600;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+  button.go{background:var(--acc);color:#1a1408}
+  button.ghost{background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+  button.text{background:none;color:var(--dim);padding:4px 0;font-weight:400;font-size:12px;text-decoration:underline}
+  input[type=text]{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:6px;padding:8px 10px;font:inherit;font-size:13.5px;margin-top:6px}
+  .note{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:8px}
+  .ok{color:var(--grn);font-size:12px;margin-top:6px}
+  /* ---- checklist ---- */
+  .ck{list-style:none;margin:0;padding:0}
+  .ck li{display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:baseline}
+  .ck li:last-child{border-bottom:0}
+  .ck .box{width:14px;height:14px;border:1px solid var(--dim);border-radius:3px;flex:none;align-self:center;
+    text-align:center;line-height:13px;font-size:10px;color:transparent}
+  .ck li.done .box{background:var(--grn);border-color:var(--grn);color:#10231a}
+  .ck li.done{color:var(--dim)}
+  .ck .opt-tag{margin-left:auto;font-size:10px;color:var(--dim);border:1px solid var(--line);
+    border-radius:8px;padding:0 7px;font-style:italic;flex:none}
+  .ck li.skip .opt-tag{border-color:var(--grn);color:var(--grn)}
+  footer{max-width:1180px;margin:0 auto;padding:6px 20px 30px;color:var(--dim);font-size:12px;
+    display:flex;gap:18px;align-items:baseline}
+  footer a{color:var(--blu);cursor:pointer}
+  footer .reset{margin-left:auto;font-size:11px;color:var(--dim)}
+  .quote{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:9px 13px;
+    font-size:12.5px;margin-top:10px}
+  .quote .line{display:flex;justify-content:space-between;padding:2px 0;color:var(--dim)}
+  .quote .line b{color:var(--ink);font-family:var(--mono)}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);border-radius:6px;padding:10px 18px;font-size:13px;
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Wire</div>
+  <span class="live">LIVE</span>
+  <div class="clock" id="feed-clock">14:32 <small>block time</small></div>
+  <div class="wx">fog burning off · 64°F</div>
+  <div class="wallet" id="wallet" style="display:none"><b id="bal">0</b> cr</div>
+  <button class="reach" id="feed-reachin">Reach in</button>
+</header>
+
+<main>
+  <section>
+    <div class="panel" id="feed-venues">
+      <h2>Who's where — right now</h2>
+      <div id="venues"></div>
+    </div>
+    <div class="panel">
+      <h2>The Wire — public feed <span style="color:var(--grn);text-transform:none;letter-spacing:.03em">(free, always)</span></h2>
+      <ul class="feed" id="stream"></ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel ob" id="obcard"></div>
+    <div class="panel" id="ckpanel" style="display:none">
+      <h2>Getting settled</h2>
+      <ul class="ck" id="cklist"></ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <a id="reopen">New here? Take the tour</a>
+  <span class="reset" id="reset">reset onboarding (demo)</span>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= mini Wire (subset of feed.json seeds) ================= */
+var VENUES = [
+  {n:"Mudhaus Coffee", who:"<span class='m'>Marisol</span> on the machine · Reyes working the line", c:"hi", f:true},
+  {n:"Dolores Park", who:"Jules finishing a run · Esther + Ray, bench parliament", c:"hi"},
+  {n:"Taqueria El Farolote", who:"<span class='m'>Doña</span> tasting the salsa bar", c:"mid"},
+  {n:"Buy-Rite Market", who:"<span class='m'>Priya</span> off-shift soon · Gus stocking", c:"mid"},
+  {n:"Auerbach Hardware", who:"<span class='m'>Victor</span> at the counter · Tuesday repair pile", c:"lo"},
+  {n:"The 600 Club", who:"quiet until evening — Malik next door", c:"lo"}
+];
+document.getElementById('venues').innerHTML = VENUES.map(function(v,i){
+  return '<div class="venue"><span class="dotcrowd '+v.c+'"></span>'+
+    '<span class="vname">'+v.n+'</span><span class="vwho">'+v.who+'</span>'+
+    (v.f?'<span class="follow" id="feed-follow">follow</span>':'<span class="follow">follow</span>')+'</div>';
+}).join('');
+
+var EVENTS = [
+  {t:"14:05", k:"move",   tx:"<b class='who'>Jules</b> out for an afternoon loop — north path"},
+  {t:"14:11", k:"scene",  tx:"Rush tapering at Mudhaus — Reyes catches the line down to four"},
+  {t:"14:18", k:"request",tx:"<b class='who'>okfm</b> — camera director, 30 min", st:"resolved"},
+  {t:"14:22", k:"venue",  tx:"Bench parliament in session — Esther and Ray, adjacent sections"},
+  {t:"14:26", k:"weather",tx:"Fog burned off over the park — full sun"},
+  {t:"14:30", k:"press",  tx:"Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always"},
+  {t:"14:31", k:"housing",tx:"Listing filled — 9457 Guerrero St, Unit 2 comes off the board"}
+];
+function renderStream(){
+  document.getElementById('stream').innerHTML = EVENTS.map(function(e,i){
+    return '<li'+(e.k==='request'&&!i?'':'')+' id="'+(e.k==='request'?'feed-request':'')+'">'+
+      '<span class="t">'+e.t+'</span><span class="kind '+e.k+'">'+e.k+'</span>'+e.tx+
+      (e.st?' <span class="st">· '+e.st+'</span>':'')+'</li>';
+  }).join('');
+}
+renderStream();
+
+/* ================= onboarding state ================= */
+var LS='rw_onboard_v11';
+var S={stage:'S0',beat:0,handle:'',bal:0,ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},skipped:{},dismissed:false,done:false};
+try{var s=JSON.parse(localStorage.getItem(LS)); if(s) S=s;}catch(e){}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+var $=function(id){return document.getElementById(id);};
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none';},2200);}
+
+var CKDEF=[
+  ['watch','Watch the block',false],['tour','Take the tour',false],
+  ['handle','Pick a handle',true],['wallet','Fund the wallet',true],
+  ['ask','File a first request',true],['settle','Settle in',false]];
+function renderCk(){
+  var show = S.ck.watch || S.stage!=='S0';
+  $('ckpanel').style.display = show?'':'none';
+  $('cklist').innerHTML = CKDEF.map(function(c){
+    var done=S.ck[c[0]], sk=S.skipped[c[0]];
+    return '<li class="'+(done?'done ':'')+(sk?'skip':'')+'"><span class="box">✓</span>'+
+      c[1]+(c[2]?'<span class="opt-tag">'+(sk?'skipped — fine':'optional')+'</span>':'')+'</li>';
+  }).join('');
+  if(Object.keys(S.ck).every(function(k){return S.ck[k]||S.skipped[k];}) && !S.done){
+    S.done=true; save(); toast('Settled. The block keeps running — see you around.');
+  }
+}
+function anchor(id){ ['feed-clock','feed-venues','feed-request','feed-follow','feed-reachin'].forEach(function(a){
+  var el=$(a); if(el) el.classList.toggle('anchored', a===id); }); }
+
+/* ---- watch completion: 60s or scroll ---- */
+var watched=false;
+setTimeout(function(){ if(!S.ck.watch){S.ck.watch=true;save();renderCk();} },60000);
+$('stream').addEventListener('scroll',function(){ if(!S.ck.watch){S.ck.watch=true;save();renderCk();} });
+document.querySelectorAll('.follow').forEach(function(f){
+  f.onclick=function(){ f.classList.toggle('on');
+    if(!S.ck.watch){S.ck.watch=true;save();renderCk();} };
+});
+
+/* ================= stages ================= */
+var BEATS=[
+  ['feed-clock',"This is the block's real clock. It runs whether you're here or not — the neighborhood doesn't wait for viewers."],
+  ['feed-venues',"Who's where, right now. Names you see are the main cast — eight people with full lives, plus twenty neighbors."],
+  ['feed-request',"Everything a player does is public. This line is someone paying to reach in — attributed, priced, and visible to everyone."],
+  ['feed-follow',"Follow a face to filter the stream. Watching closer is always free — following is a lens, never a leash."],
+  ['feed-reachin',"Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else."]
+];
+
+function card(tag,body,btns){
+  return '<div class="stage-tag">'+tag+'</div>'+body+'<div class="btnrow">'+btns+'</div>';
+}
+
+function render(){
+  renderCk();
+  var h='';
+  if(S.dismissed||S.done){
+    h=card('Settled','<p>The footer link is always there if you want the tour later.</p>',
+      '<button class="ghost" onclick="stage(\'S1\');S.dismissed=false;S.done=false;S.beat=0;save();render()">Take the tour anyway</button>');
+    anchor(null);
+  } else if(S.stage==='S0'){
+    h=card('Welcome',
+      '<p>You\u2019re watching a real neighborhood — eight people living their day around '+
+      'Dolores Park, twenty neighbors, all of it live.</p>'+
+      '<p>Watch as long as you like; it costs nothing.</p>'+
+      '<p>Want the two-minute tour?</p>',
+      '<button class="go" onclick="startTour()">Take the tour</button>'+
+      '<button class="ghost" onclick="stage(\'S2\')">Skip to setup</button>'+
+      '<button class="text" onclick="dismiss()">Don\u2019t show me this</button>');
+    anchor(null);
+  } else if(S.stage==='S1'){
+    var b=BEATS[S.beat];
+    anchor(b[0]);
+    h=card('Tour · '+ (S.beat+1) +' of '+BEATS.length,
+      '<p>'+b[1]+'</p><div class="tour-n">'+(S.beat+1)+'/'+BEATS.length+'</div>',
+      (S.beat<BEATS.length-1
+        ?'<button class="go" onclick="beat(1)">Next</button>'
+        :'<button class="go" onclick="endTour(true)">Done — what\u2019s next?</button>')+
+      '<button class="text" onclick="endTour(false)">Skip tour</button>');
+  } else if(S.stage==='S2'){
+    anchor(null);
+    h=card('A name for the feed — optional',
+      '<p>Pick the name the feed will attach to anything you do. Requests are public — '+
+      'your asks carry your name, same as everyone.</p>'+
+      '<input type="text" id="handle" maxlength="20" placeholder="handle, e.g. fogwatch" value="'+esc(S.handle)+'">'+
+      '<div class="note">Watching needs no name and never will. Skip freely.</div>',
+      '<button class="go" onclick="setHandle()">That\u2019s me</button>'+
+      '<button class="ghost" onclick="skipTo(\'handle\',\'S3\')">Skip</button>');
+  } else if(S.stage==='S3'){
+    h=card('Two kinds of money — optional',
+      '<p><b>Credits</b> buy agency — requests, hires. That\u2019s what you top up.</p>'+
+      '<p><b>Game dollars</b> are the world\u2019s money — rent and wages. Characters earn '+
+      'them by working. The two never convert.</p>'+
+      '<div class="quote"><div class="line"><span>Roughly</span><b>100 cr ≈ $1</b></div>'+
+      '<div class="line"><span>Camera pass, 30 min</span><b>10 cr ≈ a dime</b></div>'+
+      '<div class="line"><span>First purchase</span><b>+50% once</b></div></div>'+
+      (S.bal>0?'<div class="ok">Funded — '+S.bal.toLocaleString()+' cr in the wallet.</div>':''),
+      (S.bal>0?'<button class="go" onclick="stage(\'S4\')">Continue</button>'
+              :'<button class="go" onclick="topup()">Demo top-up +550 cr ($4.99)</button>')+
+      '<button class="ghost" onclick="skipTo(\'wallet\',\'S4\')">Skip — watching needs no wallet</button>');
+    if(S.bal>0){S.ck.wallet=true;save();}
+  } else if(S.stage==='S4'){
+    if(S.bal<=0){
+      h=card('First ask','<p>Requests cost credits. Skip this — or top up above.</p>',
+        '<button class="ghost" onclick="stage(\'S3\')">Back to wallet</button>'+
+        '<button class="ghost" onclick="skipTo(\'ask\',\'S5\')">Skip</button>');
+    } else {
+      h=card('The cheapest way to reach in',
+        '<p><b>Camera director — 10 cr for 30 min.</b> It changes nothing in the world — '+
+        'just your view. Watch it land on the public feed'+(S.handle?' with <b>'+esc(S.handle)+'</b> on it':'')+'.</p>'+
+        '<p class="note">Compatible requests auto-clear screening; exclusive ones get human '+
+        'review first. Bigger asks — a nudge the character may decline, weather, hiring your '+
+        'own character — all work the same way.</p>',
+        '<button class="go" onclick="fileAsk()">File it — 10 cr</button>'+
+        '<button class="ghost" onclick="skipTo(\'ask\',\'S5\')">Skip</button>');
+    }
+  } else if(S.stage==='S5'){
+    h=card('Settle in',
+      '<p><b>Want a person of your own?</b> Hiring a character is 500 cr — they arrive '+
+      'owing rent like everyone. You set who they are; who they become is theirs.</p>'+
+      '<p>Or just keep watching — the feed never asks for anything.</p>',
+      '<button class="go" onclick="location.href=\'create.html\'">Join the Cast →</button>'+
+      '<button class="ghost" onclick="settle()">Just keep watching</button>');
+  }
+  $('obcard').innerHTML=h;
+}
+window.stage=function(st){S.stage=st;save();render();};
+window.dismiss=function(){S.dismissed=true;save();render();toast('No problem — the block is right there.');};
+window.startTour=function(){S.stage='S1';S.beat=0;save();render();};
+window.beat=function(d){S.beat+=d;save();render();};
+window.endTour=function(fin){S.ck.tour=true;S.stage='S2';save();render();};
+window.setHandle=function(){
+  var v=$('handle').value.trim();
+  if(!v){toast('Pick a handle, or skip — watching needs neither.');return;}
+  S.handle=v;S.ck.handle=true;S.stage='S3';save();render();
+  toast('Welcome, '+v+'.');
+};
+window.skipTo=function(item,st){S.skipped[item]=true;S.stage=st;save();render();};
+window.topup=function(){S.bal+=550;S.ck.wallet=true;save();
+  $('wallet').style.display='';$('bal').textContent=S.bal.toLocaleString();render();
+  toast('+550 cr (Starter pack · $4.99 — PROPOSAL pricing)');};
+window.fileAsk=function(){
+  if(S.bal<10){toast('Balance too low.');return;}
+  S.bal-=10;S.ck.ask=true;S.stage='S5';save();
+  $('bal').textContent=S.bal.toLocaleString();
+  var li=document.createElement('li');
+  li.innerHTML='<span class="t">14:33</span><span class="kind request">request</span>'+
+    '<b class="who">'+(esc(S.handle)||'you')+'</b> — camera director, 30 min'+
+    ' <span class="st">· running</span>';
+  $('stream').prepend(li);
+  render();
+  toast('Filed. Compatible requests auto-clear screening — yours is the simple kind.');
+};
+window.settle=function(){S.ck.settle=true;S.done=true;save();render();};
+
+$('reopen').onclick=function(){S.dismissed=false;S.done=false;S.stage='S0';save();render();};
+$('reset').onclick=function(){localStorage.removeItem(LS);location.reload();};
+
+/* returning viewer: no welcome card, footer link only */
+if(S.dismissed||(S.done&&S.stage!=='S5')){ /* stays collapsed */ }
+if(S.bal>0){$('wallet').style.display='';$('bal').textContent=S.bal.toLocaleString();}
+render();
+</script>
+</body>
+</html>

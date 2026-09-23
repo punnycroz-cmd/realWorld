@@ -1,0 +1,65 @@
+{
+  "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, tour beats, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
+  "version": 11,
+  "storage_key": "rw_onboard_v11",
+  "stages": [
+    { "id": "S0_watch",   "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
+    { "id": "S1_orient",  "tier": "free", "gate": "offered by welcome card; self-dismisses once the viewer has scrolled the feed" },
+    { "id": "S2_name",    "tier": "free", "gate": "optional — handle required only for request attribution + wallet; one field, no email in this build" },
+    { "id": "S3_wallet",  "tier": "meta", "gate": "optional — teaches credits vs game dollars; top-up is skippable forever" },
+    { "id": "S4_first_ask","tier": "paid","gate": "requires balance > 0; recommends camera director 10 cr/30 min (view-layer, zero in-world risk)" },
+    { "id": "S5_resident","tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight" }
+  ],
+  "tour_beats": [
+    { "n": 1, "anchor": "feed-clock",   "copy_key": "tour.clock" },
+    { "n": 2, "anchor": "feed-venues",  "copy_key": "tour.venues" },
+    { "n": 3, "anchor": "feed-request", "copy_key": "tour.public_agency" },
+    { "n": 4, "anchor": "feed-follow",  "copy_key": "tour.follow" },
+    { "n": 5, "anchor": "feed-reachin", "copy_key": "tour.reach_in" }
+  ],
+  "tour_rules": {
+    "skippable": "every beat — Skip ends the whole tour",
+    "auto_play": "never — not on return visits, not after dismissal, not mid-request",
+    "overlay": "coach-mark card beside the anchored element; never a modal over the stream"
+  },
+  "checklist": [
+    { "n": 1, "id": "watch",      "optional": false, "completes_on": "60s on feed OR feed scroll" },
+    { "n": 2, "id": "tour",       "optional": false, "completes_on": "tour_completed | tour_skipped" },
+    { "n": 3, "id": "handle",     "optional": true,  "completes_on": "handle_set" },
+    { "n": 4, "id": "wallet",     "optional": true,  "completes_on": "balance > 0 | explicitly skipped" },
+    { "n": 5, "id": "first_ask",  "optional": true,  "completes_on": "own request reaches feed status 'requested'" },
+    { "n": 6, "id": "settle",     "optional": false, "completes_on": "S5 fork chosen" }
+  ],
+  "checklist_rules": {
+    "optional_items": "marked 'optional' in copy; never styled as failures; percent-complete bars only count chosen (non-skipped) items",
+    "completion_reward": "none — completing onboarding grants no credits/items/status (no-dark-patterns)",
+    "done_state": "thanks the viewer once, collapses permanently"
+  },
+  "first_ask_recommendation": {
+    "action": "camera",
+    "why": "cheapest (10 cr/30 min), compatible class auto-clears, view-layer only — demonstrates declare→classify→screen→run with zero in-world risk",
+    "alt": "possess or nudge offered to players who already hired — nudge copy always states 'the character may decline'",
+    "guided_text": "fixed safe text — onboarding does not re-implement the §11 screen; free text lives in request.html"
+  },
+  "exit_states": {
+    "completed": "all chosen items done — collapses permanently",
+    "dismissed": "one-click don't-show; no confirm-shame, no snooze timer",
+    "parked": "closed mid-way — reopens only via footer link 'New here? Take the tour'; never auto-resurfaces"
+  },
+  "returning_viewer": "session 2+ with state: no welcome card; footer link only",
+  "never": [
+    "gate/dim/delay/nag the free feed; no paywall copy",
+    "offer or imply possession of C1–C8 at any tier",
+    "invent prices/discounts/'limited-time' framing not in plan §2",
+    "auto-play the tour on return visits, after dismissal, or mid-request",
+    "describe requests as guaranteed outcomes",
+    "completion rewards of any kind"
+  ],
+  "analytics_hooks": [
+    "tour_started", "tour_beat", "tour_completed", "tour_skipped",
+    "handle_set", "wallet_explained", "topup_shown", "first_request_filed",
+    "onboard_dismissed",
+    "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
+  ],
+  "demo_limits": "onboarding.html simulates a mini Wire + tour + handle + wallet + guided request locally; no screen.js call (guided text is fixed-safe); at merge anchors bind to real feed.html ids and checklist subscribes to gsViewerState"
+}

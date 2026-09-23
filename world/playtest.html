@@ -154,7 +154,8 @@
 const SURF={
   feed:{file:"feed.html",name:"The Wire"},request:{file:"request.html",name:"Requests"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
-  board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"}};
+  board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"},
+  onboard:{file:"onboarding.html",name:"Onboarding (first session)"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -243,7 +244,22 @@ const PTS=[
  surfaces:["feed","request","mod","create","board","history"],steps:[
  {do:"Start from feed.html with no instructions. Try to: watch, file one request, and find out what yesterday looked like.",
   exp:"Each goal is reachable from page copy alone; dead-ends are findings.",
-  ck:["Nothing requires knowledge not on the page","Every dead-end or 'where do I click' moment is logged as a finding","Time-to-first-request is recorded in the session report"]}]}
+  ck:["Nothing requires knowledge not on the page","Every dead-end or 'where do I click' moment is logged as a finding","Time-to-first-request is recorded in the session report"]}]},
+{id:"PT9",title:"Onboarding — the first session",min:15,persona:"brand-new visitor deciding whether to watch or play",
+ goal:"Verify the journey teaches without gating: free tier stays free, every money step is optional, dismissal is permanent and unpunished.",
+ surfaces:["onboard"],steps:[
+ {do:"Open the page cold. Before touching anything, confirm the feed is fully readable and nothing overlays or dims it.",
+  exp:"Onboarding is a side card, never a modal or a gate; 'watching is free' is stated up front.",
+  ck:["No paywall, no login wall, no countdown anywhere","Welcome card offers the tour — never starts it","'Don't show me this' is one click with no confirm-shame"]},
+ {do:"Take the tour: all 5 beats, then skip it once on a reset.",
+  exp:"Each beat anchors to a real feed element; Skip ends the whole tour; reset onboarding restores a clean first session.",
+  ck:["Coach marks highlight clock/venues/request-event/follow/reach-in","Beat copy names the possession ban and public attribution","Skip completes the checklist item — it never reads as failure"]},
+ {do:"Walk S2–S4: set a handle, read the wallet explainer, demo top-up, file the guided camera-director request.",
+  exp:"Prices match plan §2 verbatim (100 cr ≈ $1, 10 cr/30 min, +50% first purchase, 500 cr hire); the filed request lands on the demo feed attributed to the handle.",
+  ck:["Credits vs game dollars wall is stated in the explainer","Handle/skips are marked optional and styled neutrally (no red, no percent-shame)","Guided request uses fixed safe text — onboarding never duplicates the §11 screen","Feed entry uses request vocabulary (running) + attribution"]},
+ {do:"Dismiss onboarding, reload, confirm it stays gone; then reopen via the footer link.",
+  exp:"Dismissal persists via localStorage; returning state shows footer link only.",
+  ck:["No auto-resurface on reload or timer","Footer link is the only re-entry","Completing the checklist grants nothing — no reward screen, credits, or status"]}]}
 ];
 
 /* ---- state ---- */

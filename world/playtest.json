@@ -2,7 +2,7 @@
   "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
   "version": 9,
   "scope": {
-    "under_test": ["world/feed.html", "world/request.html", "world/mod-console.html", "world/create.html", "world/board.html", "world/history.html", "world/screen.js"],
+    "under_test": ["world/feed.html", "world/request.html", "world/mod-console.html", "world/create.html", "world/board.html", "world/history.html", "world/onboarding.html", "world/screen.js"],
     "not_under_test": ["llm behavior (sim STOPPED — no live world exists)", "real payments", "multiplayer concurrency", "game-track plumbing (gsViewerState/gsRequest* — sf/game-systems)", "rendering (sf/art)"],
     "invariant_reminders": [
       "possession ban on C1–C8 incl. the landlord — no surface may offer it",
@@ -18,7 +18,8 @@
     "mod":     { "file": "mod-console.html", "name": "Mod Console",        "tier": "reviewer" },
     "create":  { "file": "create.html",      "name": "Join the Cast",      "tier": "paid" },
     "board":   { "file": "board.html",       "name": "Housing & Jobs Board","tier": "in-world" },
-    "history": { "file": "history.html",     "name": "The Archive",        "tier": "free" }
+    "history": { "file": "history.html",     "name": "The Archive",        "tier": "free" },
+    "onboard": { "file": "onboarding.html",  "name": "Onboarding (first session)", "tier": "free" }
   },
   "severity_rubric": [
     { "id": "blocker", "label": "Blocker", "def": "Breaks a boundary (possession ban, real business name, leaked secret, scripted-AI affordance) or a surface is unusable. Stop the session; report immediately." },
@@ -157,12 +158,32 @@
           "expect": "Each goal is reachable from page copy alone; dead-ends are findings.",
           "checkpoints": ["Nothing requires knowledge not on the page", "Every dead-end or 'where do I click' moment is logged as a finding", "Time-to-first-request is recorded in the session report"] }
       ]
+    },
+    {
+      "id": "PT9", "title": "Onboarding — the first session", "minutes": 15,
+      "persona": "brand-new visitor deciding whether to watch or play",
+      "goal": "Verify the journey teaches without gating: free tier stays free, every money step is optional, dismissal is permanent and unpunished.",
+      "surfaces": ["onboard"],
+      "steps": [
+        { "do": "Open the page cold. Before touching anything, confirm the feed is fully readable and nothing overlays or dims it.",
+          "expect": "Onboarding is a side card, never a modal or a gate; 'watching is free' is stated up front.",
+          "checkpoints": ["No paywall, no login wall, no countdown anywhere", "Welcome card offers the tour — never starts it", "'Don't show me this' is one click with no confirm-shame"] },
+        { "do": "Take the tour: all 5 beats, then skip it once on a reset.",
+          "expect": "Each beat anchors to a real feed element; Skip ends the whole tour; reset onboarding restores a clean first session.",
+          "checkpoints": ["Coach marks highlight clock/venues/request-event/follow/reach-in", "Beat copy names the possession ban and public attribution", "Skip completes the checklist item — it never reads as failure"] },
+        { "do": "Walk S2–S4: set a handle, read the wallet explainer, demo top-up, file the guided camera-director request.",
+          "expect": "Prices match plan §2 verbatim (100 cr ≈ $1, 10 cr/30 min, +50% first purchase, 500 cr hire); the filed request lands on the demo feed attributed to the handle.",
+          "checkpoints": ["Credits vs game dollars wall is stated in the explainer", "Handle/skips are marked optional and styled neutrally (no red, no percent-shame)", "Guided request uses fixed safe text — onboarding never duplicates the §11 screen", "Feed entry uses request vocabulary (running) + attribution"] },
+        { "do": "Dismiss onboarding, reload, confirm it stays gone; then reopen via the footer link.",
+          "expect": "Dismissal persists via localStorage; returning state shows footer link only.",
+          "checkpoints": ["No auto-resurface on reload or timer", "Footer link is the only re-entry", "Completing the checklist grants nothing — no reward screen, credits, or status"] }
+      ]
     }
   ],
   "session_report_schema": {
     "session": { "tester": "string", "role": "spectator|player|reviewer|facilitator", "date": "YYYY-MM-DD", "build": "world v9 local", "notes": "string" },
     "results": [{ "scenario": "PT#", "step": "n", "checkpoint": "string", "verdict": "pass|fail|na", "note": "string" }],
-    "findings": [{ "severity": "blocker|major|minor|nit|question", "surface": "feed|request|mod|create|board|history|screen", "title": "string", "detail": "string", "steps_to_repro": "string" }],
+    "findings": [{ "severity": "blocker|major|minor|nit|question", "surface": "feed|request|mod|create|board|history|onboard|screen", "title": "string", "detail": "string", "steps_to_repro": "string" }],
     "triage_owner_map": {
       "world": "all world/* surfaces + copy + content",
       "game-systems": "queue model, classifier plumbing, gsViewerState vocabulary, ledger (at merge)",
