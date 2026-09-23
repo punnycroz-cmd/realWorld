@@ -588,6 +588,25 @@ never copying raw.
 | test_fb_req / test_nofb_mult | 0.0 / 0.2 | 0.9 / 1.0 | feedback-gated testing (v5.0) |
 | mon_source_tax / illus_recol_p | 0.0 / 0.0 | 0.3 / 0.4 | recollection-only miscalibration (v5.0) |
 | bump_emit_w | 1.0 | 3.0 | importance-draw bump weight (v5.0) |
+| recol_mult / fam_mult | 0.3 / 0.7 | 1.0 / 1.0 | dual-process emission legs (v5.12; knots at AD§92) |
+| gist_survive_mult | 1.0 | 1.5 | gist-field preservation ≥1 (v5.12) |
+| gist_false_mult | 1.0 | 2.0 | gist-consistent lure endorsement (v5.12; gist-shared only) |
+| pos_gain | 1.0 | 1.5 | positive-candidate emission ranking (v5.12; C.da →1.0) |
+| tod_tax | 0.0 | 0.35 | off-peak controlled-path tax; ages onto synchrony_gain (v5.12) |
+| chronotype | — | — | enum {morning,neutral,evening}; maps to peak_hour (v5.12) |
+| sensory | 0.0 | 1.0 | unaided acuity deficit; bible-set (v5.12) |
+| sens_enc_tax | 0.0 | 0.3 | auditory-channel write loss × sensory (v5.12) |
+| sensory_age_shift | 0 | 6 | age_eff years at sensory=1; non-reversing (v5.12) |
+| comp_gain | 0.0 | 0.15 | low-demand grind bonus, inverted-U (v5.12) |
+| headroom | 0.8 | 2.2 | tier-3 demand ceiling before super-linear fall (v5.12) |
+| enact_rescue | 1.0 | 1.5 | enacted-event E leg, rises w/ age; composes enact_gain (v5.12) |
+| transact_gain | 1.0 | 1.4 | withPartner internal-detail gain; shared history only (v5.12) |
+| pm_time_tax | 1.0 | 1.8 | extra pm_self decline on cueType:time (v5.12) |
+| impl_intent_gain | 0.0 | 0.7 | fraction of pm_time_tax removed by if-then framing (v5.12) |
+| stereo_tax | 0.7 | 1.0 | age_salient retrieval multiplier (v5.12) |
+| sug_age_mult | 1.0 | 1.7 | §6.83 shift-leg age amplifier; yield exempt (v5.12) |
+| fitness_shift | 0 | 3 | max fitness→age_eff years (v5.12; rf_cap 12y combined) |
+| fitness_drift_hl | 0.3 | 3.0 | behavior-drift half-life, years (v5.12, HYPOTHESIS) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -2907,3 +2926,52 @@ through per-character constants:
   memory to be generally hot already has `pub_emo_gain`;
   `pub_reward_gain` is specifically the-wins-stick — don't route
   humiliations through it (that's `pub_emo_gain`/`social_eval`).
+
+## 46. v5.12 note (age-decline VI — the ledger splits)
+
+Twenty-one clamp rows added in §0 for the v5.12 machinery. Two
+new PROFILE fields (`chronotype`, `sensory`) and one re-anchored
+existing trait (`fitness`) — the rest is age-keyed knots evaluated
+inline; bibles never pin "recollection" or "gist" directly:
+
+- **`chronotype` is a circadian fact, not a preference tag.** It
+  maps onto the existing `peak_hour` (v0.7) at profile generation;
+  `tod_tax` is the age knot on the off-peak penalty. 65+ mains
+  default `morning` (~75% of real older adults are morning types —
+  May et al. 1993); an `evening` elder is a deliberate beat, and
+  its off-peak window lands in the morning. Locked `auto_sync_null`
+  means the clock NEVER touches involuntary recall or routine
+  scripts — an old character sleepwalks through their morning
+  coffee ritual identically at 7am and 9pm; the tax is for effort.
+- **`sensory` is the cheapest depth cue in the doc.** `sensory:0.5`
+  on a 70+ bible = unaided hearing loss: auditory fields encode at
+  ~0.85× AND the character's decline curves run `sensory_age_shift`
+  years old. The asymmetry is the contract: restoring sensory
+  (hearing aid beat) removes the encode tax going forward but does
+  NOT refund the shift — arrested cause, not reversed cause. Do
+  not stack it with `med_antichol` for "confused elder" flavor;
+  pick the mechanism the story needs.
+- **`fitness` now moves.** It was a static trait (v1.9); v5.12
+  gives it a half-life (`fitness_drift_hl` ~1y). A bible that says
+  "walks the park loop daily" is writing a memory intervention;
+  one that says "used to walk" prices the decay. Combined
+  reserve+fitness age_eff shift is capped at `rf_cap` 12y — an
+  educated marathoner is NOT 20 years younger in the head.
+- **`transact_gain` needs the spouse.** `withPartner` resolves via
+  PersonModel `rel` + shared-encode overlap — a widowed elder
+  loses the leg entirely (compounds the isolation overlay, §40,
+  but they're distinct: one is a retrieval scaffold, one is a
+  decay lift). Long-married couples in the cast recall richer
+  episodic detail together than apart — write them remembering
+  TOGETHER for the effect to show.
+- **`age_salient` is a context, not a trait.** It taxes retrieval
+  legs only for the duration of the flagged scene; nothing is
+  stored differently. Memory-anxious profiles take the bigger hit
+  (Hess's moderation) — pair with high complaint_k, not with
+  low enc_base.
+- **`reportMode:"know"` is output the dialogue layer must honor.**
+  A know-emission is warm recognition with honest blanks — "I
+  KNOW her… is she from the café?" — not a failed recall and not
+  a confabulated one (confab_fill decides whether the blanks get
+  filled). Forcing the old mains to always emit "remember" throws
+  away the whole R/F split.

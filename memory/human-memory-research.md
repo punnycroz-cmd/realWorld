@@ -1904,3 +1904,50 @@ claims (full grounding in retrieval-cues.md §§60–69):
 - **The teen win sticks.** Davidow et al. 2016: reward-
   associated episodic memory peaks in adolescence — the bump's
   fuel includes a reward circuit, not just firsts.
+
+## 41. v64 addendum — age-decline VI anchors (verified)
+
+- **Recollection dies first; familiarity lingers.** Yonelinas
+  2002 meta: ~2:1 effect-size split; familiarity declines only
+  in the 75+ group. The old adult's "I know you" without "from
+  where" is the correct readout, not a defect.
+- **Gist survives verbatim — and votes.** Balota et al. 1999
+  (DRM): older adults show MORE gist-consistent false alarms
+  alongside LESS veridical recall. Both halves move; the false
+  memory is the preserved gist doing the voting.
+- **Positivity is a goal, not a filter.** Mather & Carstensen
+  2005: the positivity effect is real and memory-level; Mather &
+  Knight 2005: divided attention abolishes it entirely. No
+  control, no bias.
+- **The old brain keeps morning hours.** May, Hasher &
+  Stoltzfus 1993: the age gap vanishes at the older adult's
+  peak time. May & Hasher 1998: it's the inhibitory channel
+  again. Automatic retrieval ignores the clock.
+- **The senses tax the hippocampus.** Baltes & Lindenberger
+  1997: vision+hearing mediate much of "cognitive" aging;
+  Lin et al. 2011: hearing loss predicts dementia, dose-
+  dependent. Degraded input costs even when understood.
+- **Compensation has a ceiling.** Cabeza 2002 (HAROLD) +
+  Reuter-Lorenz & Cappell 2008 (CRUNCH): old brains recruit
+  more at low demand and saturate sooner — inverted-U, grind
+  harder on easy, cliff on hard.
+- **Doing beats watching, and the gap grows.** Bäckman &
+  Nilsson: the enactment advantage is largely age-invariant —
+  the motoric channel declines least.
+- **Old couples think together.** Barnier et al. 2014:
+  long-married older couples recall MORE episodic detail
+  together than alone — a benefit no young couple needed;
+  strangers get collaborative inhibition instead.
+- **The errand has two legs.** Henry et al. 2004 meta:
+  event-based PM ages gently, time-based PM falls hard;
+  if-then framing (Liu & Park 2004) refunds half.
+- **Calling out age taxes the recall.** Hess et al. 2003:
+  stereotype-primed elders recall worse — a retrieval-side
+  context tax, not a storage change.
+- **Suggestibility amplifies through source failure, not
+  acquiescence.** Roediger & Geraci 2007: the old adult's
+  misinformation risk is familiarity-without-recollection —
+  the shift leg, never the yield leg.
+- **Exercise is the modifiable dial.** Erickson et al. 2011
+  RCT: a year of walking ≈ +2% hippocampal volume. Fitness
+  shifts effective age like reserve but drifts with behavior.

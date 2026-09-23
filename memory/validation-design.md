@@ -5438,3 +5438,115 @@ Registry: P1–P666. v63 suite: P657–P666 (4 MUST — P657/P661
 sign-locked, P658/P663 carry locked nulls; 5 SHOULD incl.
 HYPOTHESIS P664 and DEBATED-lite P665; 1 structural regression
 P666).
+
+## 121. Probes P667–P676 (v64 suite — age-decline VI, the ledger splits)
+
+- **P667 R/F split (MUST — sign-lock):** at retrievalAge 78,
+  emissions carrying field-level episodic detail (when/pairing/
+  source) decline ≥1.8× the bare-familiarity decline vs the 30yo
+  baseline; `reportMode:"know"` share rises correspondingly —
+  fails if know-emissions carry source fields (Yonelinas 2002
+  2:1 anchor).
+- **P668 gist asymmetry (MUST — sign-lock + locked null):** at
+  80, gist-consistent lures endorsed at ≥1.5× young rate while
+  unrelated foils endorsed at ≤1.1× — `gist_content_null` fails
+  on ANY unrelated-foil amplification. Veridical verbatim
+  endorsement must fall simultaneously (Balota 1999 double move).
+- **P669 positivity gated (MUST + locked null):** at 75 under
+  full attention, positive-valence candidates out-emit negative
+  at ≥1.2× the 30yo ratio; under `C.da` the ratio returns to
+  baseline exactly — `pos_da_null`. Stored S must be identical
+  across arms (selection-side, never storage-side).
+- **P670 synchrony scope (MUST + locked null):** `chronotype:
+  morning` at 75 recalled off-peak (evening `timeOfDay`) shows
+  controlled-path misses ≥ the `tod_tax` prediction; involuntary
+  emissions and routine-script recall statistically unchanged —
+  `auto_sync_null`. A `neutral` profile shows an intermediate or
+  absent effect (May et al. 2005 replication arm).
+- **P671 sensory cascade (SHOULD):** `sensory:0.6` vs `sensory:0`
+  matched profiles: auditory-channel fields encode ~0.82×, non-
+  auditory fields unchanged, downstream decline legs read
+  `sensory_age_shift` older. Restoring `sensory→0` removes the
+  encode tax but not the shift (asymmetry asserted).
+- **P672 headroom cliff (MUST — shape-lock):** 78yo single-cue
+  recall performance ≥ knot prediction under `comp_gain`
+  (inverted-U leg); tier-3 multi-cue fusion falls super-linearly
+  past `headroom` — a linear decline FAILS. The curve, not the
+  level, is the claim (CRUNCH).
+- **P673 enactment rescue (SHOULD):** `enacted:true` at 80
+  retains ≥0.8 of the 30yo E-advantage ratio while matched
+  `role:"observer"` events retain ≤0.6 — the doing gap WIDENS
+  with age; composes multiplicatively with trait `enact_gain`.
+- **P674 transactive dyad (MUST + locked null):** `withPartner`
+  recall at 78 on shared-encoded records emits ≥1.15× internal-
+  detail fields vs solo; `rel:"acquaintance"` co-recaller shows
+  no gain (plist_suppress baseline only) — `transact_stranger_
+  null`. External/off-topic detail count unchanged (Barnier 2014
+  — the gain is internal-detail-specific).
+- **P675 PM split (MUST):** `cueType:time` intentions at 80 fire
+  at ≤0.7× the `cueType:event` rate (matched arming delay);
+  `impl_intent:true` recovers ≥50% of the gap; event-cue legs
+  keep §5.60 pop-out eligibility, time cues never pop.
+- **P676 suggestibility scope (MUST + locked null):**
+  misinformation adoption at 80 rises on the §6.83 SHIFT leg
+  (≥1.3× young) while yield scores are statistically unchanged —
+  `yield_age_null`; `age_salient` contexts degrade retrieval
+  legs with zero change to stored S (asserted by diffing the
+  record store pre/post).
+
+## 122. Sources verified this version (P667–P676 backing)
+
+- Yonelinas 2002 (*Psych. Bull.* 128:800 — R/F aging meta;
+  recollection declines ~2× familiarity; familiarity decline
+  confined to 75+); Light, Prull, LaVoie & Healy 2004 (dual-
+  process signal-detection corroboration).
+- Koutstaal & Schacter 1997 (*Psych. & Aging* 12:404 — gist-based
+  false recognition elevated in aging); Tun, Wingfield, Rosen &
+  Blanchard 1998; Balota, Cortese, Duchek et al. 1999 (*Psych. &
+  Aging* 14:321 — DRM: old adults ↑false alarms, ↓veridical);
+  Reyna 2012 (fuzzy-trace aging review).
+- Mather & Carstensen 2005 (*Trends Cog. Sci.* 9:496 — positivity
+  effect meta); Reed & Carstensen 2012; Mather & Knight 2005
+  (*Psych. Sci.* 16:691 — DA abolishes the effect: the gate).
+- May, Hasher & Stoltzfus 1993 (*Psych. Sci.* 4:326 — synchrony:
+  no age gap at older adults' peak, large off-peak); May & Hasher
+  1998 (*JEP:HPP* 24:363 — inhibitory mechanism); May 1999
+  (*PBR* 6:142); May, Hasher & Foong 2005 (implicit exempt —
+  automatic retrieval shows no synchrony); Hasher, Goldstein &
+  May 2005.
+- Baltes & Lindenberger 1997 (*Psych. & Aging* 12:12 — sensory
+  common cause); Lin, Metter, O'Brien et al. 2011 (*Arch.
+  Neurol.* 68:214 — hearing→dementia dose-response); Wayne &
+  Johnsrude 2015 (perceptual-effort review).
+- Cabeza 2002 (*Psych. & Aging* 17:85 — HAROLD); Reuter-Lorenz &
+  Cappell 2008 (*Curr. Dir. Psych. Sci.* 17:177 — CRUNCH
+  inverted-U); Schneider-Garces et al. 2010 (load-curve fMRI);
+  Grady 2012 (compensation-vs-dedifferentiation caveat).
+- Bäckman & Nilsson 1985 (enactment age-invariance); Engelkamp &
+  Zimmer (SPT corpus); Cohen 1981.
+- Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Discourse
+  Processes* 48:267); Johansson, Andersson & Rönnberg 2005
+  (*Scand. J. Psych.* 46:349); Barnier, Priddis, Broekhuijse et
+  al. 2014 (*JARMAC* — internal-detail facilitation, old couples
+  only); Harris et al. 2017 (*Memory* — "going episodic" trade-off).
+- Henry, MacLeod, Phillips & Crawford 2004 (*Psych. & Aging*
+  19:27 — PM meta: time-based >> event-based age deficits);
+  Park, Hertzog, Kidder et al. 1997; Kvavilashvili (naturalistic
+  paradox); Liu & Park 2004 (implementation intentions rescue);
+  Chasteen, Park & Schwarz 2001.
+- Hess, Auman, Colcombe & Rahhal 2003 (*Psych. & Aging* 18:3 —
+  stereotype threat on recall); Lamont, Swift & Abrams 2015
+  meta (modest but real).
+- Jacoby 1999 (familiarity exploitation); Roediger & Geraci 2007
+  (*Learn. & Mem.* 14:90 — aging misinformation review);
+  Karpel, Hoyer & Toglia 2001 (boundary conditions); Wylie et
+  al. (conditional nulls — magnitude DEBATED).
+- Erickson, Voss, Prakash et al. 2011 (*PNAS* 108:3017 — aerobic
+  RCT, hippocampal +2%); Hillman, Erickson & Kramer 2008 (*Nat.
+  Rev. Neurosci.* 9:58); Colcombe & Kramer 2003 meta; Maki &
+  Weber 2021 (menopause — deferred, no params).
+
+Registry: P1–P676. v64 suite: P667–P676 — 8 MUST (P667/P668/
+P672 sign- or shape-locked; P669/P670/P674/P676 each carry a
+locked null; P675 the PM split) and 2 SHOULD (P671 cascade
+asymmetry, P673 enactment ratio).

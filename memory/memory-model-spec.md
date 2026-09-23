@@ -1,5 +1,51 @@
-# Memory Model Spec v5.11 — implementable human-like memory for RW characters
+# Memory Model Spec v5.12 — implementable human-like memory for RW characters
 
+> **v5.12 note (age-decline VI — the ledger splits: what old age
+> keeps, rents, and loses):** `memory/age-decline.md` Part VI
+> (§§79–95). **Recollection/familiarity legs** — `recol_mult`/
+> `fam_mult` on emissions: at 80 recollection-priced fields run
+> ~0.55 while bare familiarity runs ~0.9 (Yonelinas 2002 — the
+> best-replicated dissociation in aging); fam-only emissions
+> degrade to `reportMode:"know"` instead of emitting false
+> detail. **Fuzzy-trace asymmetry** — `gist_survive_mult` ≥1 on
+> gist fields while verbatim keeps `k_verbatim` decline, and
+> `gist_false_mult` ~1.6@80 amplifies gist-consistent false
+> alarms ONLY (locked `gist_content_null` — Koutstaal & Schacter
+> 1997; Balota et al. 1999 DRM). **Positivity effect** —
+> `pos_gain` on emission ranking of positive candidates, gated
+> by locked `pos_da_null` (Mather & Carstensen 2005; Mather &
+> Knight 2005: under divided attention the leg vanishes — it's a
+> goal, not a filter). **Synchrony** — `chronotype` profile +
+> `timeOfDay` context: off-peak controlled paths pay `tod_tax`
+> ~0.25@80; locked `auto_sync_null` exempts implicit/involuntary
+> and routine legs (May, Hasher & Stoltzfus 1993; May & Hasher
+> 1998). **Sensory cascade** — `sensory` profile field: auditory
+> encode tax + `sensory_age_shift` on age_eff, encode leg
+> reversible, shift not (Baltes & Lindenberger 1997; Lin 2011).
+> **Compensation headroom** — `comp_gain`/`headroom` inverted-U:
+> old profiles grind a little harder on easy recall and hit a
+> super-linear ceiling on tier-3 demand (Cabeza 2002 HAROLD;
+> Reuter-Lorenz & Cappell 2008 CRUNCH). **Enactment** —
+> `enacted:true` events gain `enact_rescue` ~1.35@80 (age-
+> invariant rescue, Bäckman & Nilsson). **Transactive dyad** —
+> `withPartner` recall on shared-encoded records gains
+> `transact_gain` on internal-detail fields; locked
+> `transact_stranger_null` (Harris et al. 2011; Barnier et al.
+> 2014). **PM split** — Intention `cueType:{event,time}`;
+> `pm_time_tax` loads the pm_self decline on time cues only;
+> `impl_intent` recovers half (Henry et al. 2004; Liu & Park
+> 2004). **Stereotype threat** — `age_salient` context pays
+> `stereo_tax` ~0.85 at retrieval only (Hess et al. 2003).
+> **Suggestibility scope** — `sug_age_mult` ~1.5@85 on the §6.83
+> shift leg; locked `yield_age_null` (Roediger & Geraci 2007).
+> **Fitness** — the existing `fitness` trait re-anchored: ≤3y on
+> age_eff via `fitness_shift`, `rf_cap` 12y on reserve+fitness
+> combined, `fitness_drift_hl` ~1y behavior drift (Erickson et al.
+> 2011). Reuses v0.7 `peak_hour`/`synchrony_gain` (tod_tax is the
+> age knot) and v1.2 `enact_gain` (enact_rescue is the age leg).
+> +19 params, 2 new profile fields, 4 context/event/intention
+> fields, 5 locked nulls, probes P667–P676.
+>
 > **v5.11 note (age-development VI — the infant clock, the seen
 > reminder, the watched channel, the inherited bump, the
 > ungenerable cue):** `memory/age-development.md` Part VI
@@ -3463,6 +3509,39 @@ verified): the §4.17 `pub` overlay gains one leg — inside
 pub_reward_gain)`, `pub_reward_gain` 0.12. Window-scoped,
 reward-only, reverts at close like all pub legs.
 
+### 4.32 The old-age encode legs — dual-process split, gist,
+senses, hands, threat (new in v5.12)
+
+**4.32a R/F mint** (AD§79; Yonelinas 2002 *Psych. Bull.* 128:800
+— verified; Light et al. 2004): record fields carry the
+decline-priced legs — link/context/source fields mint under
+`recol_mult(retrievalAge)` pressure at LATER access (see §5.64a
+for the emission readout); the bare item field rides `fam_mult`.
+Knots AD§92: recol 1.0@30 → 0.55@80 → 0.45@85; fam 1.0 →
+0.9@80 → 0.85@85. The 2:1 slope ratio is the anchor.
+
+**4.32b Trace-type and channel legs** (AD§§80, 83, 85):
+`gist_survive_mult(age)` ≥1 applies to gist/abstract fields at
+sleep ticks (relative preservation vs `k_verbatim` verbatim
+decline — Koutstaal & Schacter 1997). Event `enacted:true` (the
+character physically performed, not observed) gains
+`E *= enact_rescue` — 1.1@30 → 1.35@80 (Bäckman & Nilsson 1985 —
+the motoric leg declines least). Profile `sensory` ∈[0,1]
+(unaided acuity deficit) taxes auditory-channel field writes
+×(1 − 0.3·`sensory`) AND shifts `age_eff` by
+`sensory`·`sensory_age_shift` (4y at sensory=1) — encode leg
+reversible by restoring sensory, shift leg set at bible-write,
+does NOT reverse (Lin et al. 2011 dose-dependent; shift-side
+magnitude HYPOTHESIS).
+
+**4.32c Stereotype context** (AD§88; Hess et al. 2003 —
+verified; Lamont et al. 2015 meta — modest sizes, DEBATED):
+context `age_salient:true` (memory explicitly on display —
+being tested, "senior moment" framing) applies `stereo_tax`
+(~0.85 at ≥65) to wm_complex/pm_self legs at RETRIEVAL and to
+effortful encode legs; stored S untouched. Personality
+moderation via memory-pride/metamemory gap (§41).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -5101,6 +5180,51 @@ argmax(S)` with probability `order_strength_bias` (0.6), else
 the adult path; near-total below ~5. Sign-locked failure: child
 order errors systematically place the STRONGER record later —
 a reinstated (§4.31b) infant record can report as last week.
+
+### 5.64 Old-age retrieval — the ledger reads back (new in v5.12)
+
+**5.64a R/F readout** (AD§79; Yonelinas 2002): on a successful
+recall, each emitted field pays `recol_mult` or rides `fam_mult`
+by type — when/where/pairing/source fields are recollection-
+priced; the bare item/identity is familiarity-priced. When all
+recol-priced fields fail but the item clears θ, emit
+`reportMode:"know"` — hot familiarity, empty context (the
+face-is-warm-name-is-gone emission). Confab_fill decides
+downstream whether the blanks get filled or reported warm.
+
+**5.64b Synchrony and positivity** (AD§§81–82): controlled-path
+scoring (voluntary recall, encode) applies `tod_tax` when
+`timeOfDay` mismatches profile `chronotype` — off-peak drive ×
+(1 − `tod_tax`), 0@30 → 0.25@80. Locked `auto_sync_null`:
+involuntary emissions, implicit legs, routine scripts exempt
+(May et al. 2005). Candidate ranking multiplies positive-valence
+records by `pos_gain(age)` (1.0@50 → 1.3@80) — the retelling
+skew, not the store; locked `pos_da_null`: under C.da,
+pos_gain → 1.0 (Mather & Knight 2005).
+
+**5.64c Compensation headroom** (AD§84; Cabeza 2002; Reuter-
+Lorenz & Cappell 2008 CRUNCH): single-cue low-demand recall
+gains `comp_gain` (inverted-U: +0.05@60, +0.1@70, 0@85);
+tier-3 consumers (multi-cue fusion, reorder — §65) above
+`headroom` demand pay super-linear excess ×(1 +
+`headroom_excess`·(demand − `headroom`)), `headroom` 2.0@30 →
+1.1@80. Grind harder on easy, cliff on hard.
+
+**5.64d Transactive dyad** (AD§86; Harris et al. 2011; Barnier
+et al. 2014): context `withPartner:true` on a record with
+shared-encode overlap between the dyad applies `transact_gain`
+(1.0@50 → 1.25@78) to internal-detail field emissions plus a
+small search-breadth bump (partner interjections = generated
+cues). Locked `transact_stranger_null`: non-shared-history
+co-recallers get only `plist_suppress` inhibition.
+
+**5.64e PM split** (AD§87; Henry et al. 2004 meta; Liu & Park
+2004): Intentions carry `cueType:{event,time}` at mint.
+`cueType:time` pays `pm_time_tax(age)` (1.0@50 → 1.6@85) on top
+of `pm_self` decline; `cueType:event` unchanged; §5.60
+`pm_popout_gain` is event-cue-only by construction. `impl_intent`
+flag (rephrased if-then) removes `impl_intent_gain` (~0.5 late)
+of the time tax.
 
 ---
 
@@ -7657,6 +7781,30 @@ on the teller side (epochal events are the most-told, so they
 inherit the most) and §6.24 canonization (the family archive is
 self-selecting). P660.
 
+### 6.109 The old-age false-memory stack — gist votes, shift amplifies (new in v5.12)
+
+**6.109a Gist-consistent false alarms** (AD§80; Koutstaal &
+Schacter 1997 — verified; Balota et al. 1999 DRM *Psych. &
+Aging* 14:321): the §6.8 gist-lure and phantom-fusion legs gain
+`gist_false_mult(age)` — 1.0@30 → 1.6@80 → 1.75@85 — applied to
+lures/reconstructions sharing the record's gist fields. Locked
+`gist_content_null`: unrelated foils are exempt (≤1.1× young
+rate; P668) — verbatim failure does not generalize to
+anything-goes gullibility, the preserved gist does the voting.
+Failure mode is sign-locked: old characters produce MORE false
+endorsements of plausible versions and LESS veridical verbatim —
+both halves, never just one.
+
+**6.109b Shift-side amplification** (AD§89; Jacoby 1999;
+Roediger & Geraci 2007 — verified direction, magnitude
+DEBATED): the §6.83 shift leg gains `sug_age_mult(age)` — 1.0@50
+→ 1.3@70 → 1.5@85 — riding the existing `misinfo_suscept`
+product (warned/disputed floors unchanged). Locked
+`yield_age_null`: the yield leg is age-flat — old characters
+aren't more acquiescent, they're worse at knowing where they
+heard what (source decay + familiarity-without-recollection,
+the §4.32a readout applied to misinformation).
+
 
 
 All weights live in one per-character params object. Profiles doc assigns
@@ -9979,6 +10127,27 @@ not resolved (DEBATED magnitude). P509/P511.
     supplying ANY cue channel (even a weak `when`) waive it.
   - Profile field `schooled` (§4.31d) is bible-set; all 8 mains
     `full` — it differentiates ambient backstories.
+  - All snapshot-additive, absent = legacy.
+- v5.12 additions (age-decline.md Part VI §§79–95):
+  - Event field `enacted:true` (§4.32b — the character physically
+    performed the sequence; world tags routine manual tasks).
+    Context fields `timeOfDay` (clock hour — §5.64b synchrony),
+    `withPartner:true` (§5.64d — resolves via PersonModel rel +
+    shared-encode overlap), `age_salient:true` (§4.32c — memory-
+    on-display situations). Intention field `cueType` ∈
+    {event,time} minted by the intention source (§5.64e).
+  - Profile fields `chronotype` ∈ {morning,neutral,evening}
+    (65+ mains default morning; maps onto v0.7 `peak_hour`),
+    `sensory` ∈[0,1] (unaided acuity deficit — bible-set, runtime
+    fixable downward only). Existing `fitness` trait gains drift
+    semantics (`fitness_drift_hl`) and the `rf_cap` 12y ceiling
+    on reserve+fitness combined age_eff shift.
+  - Emission `reportMode:"know"` (§5.64a) is now a real emit —
+    callers should render it as warm familiarity with honest
+    blanks, not as a failed recall; `hedged` and `know` compose.
+  - `pos_gain` rides emission ranking (§5.64b) — it biases what
+    gets SAID, never what's stored; rumor ingest downstream
+    inherits the skew for free.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
