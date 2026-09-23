@@ -1,0 +1,278 @@
+{
+  "version": 1,
+  "updated": "2026-09-22",
+  "spec": "Ambient cast registry for The Mission. Mirrors SF_AMBIENT_ROUTINES in src/sf/33_sf_cast.js — this JSON is the readable spec, the JS is the implementation; edit them together. 'poi' values use canonical parody names resolved by SF_WORLD_POIS in src/sf/30_sf_world.js; 'anchor' values are SF_MAP.anchors keys; 'home' is the hashed sfAmbientHome cell.",
+  "conventions": {
+    "hours": "game-local, decimal (19.5 = 19:30)",
+    "states": ["sleep", "idle", "rest", "serve", "work", "walk", "sit", "run", "carry", "phone", "chat", "play", "drink"],
+    "possession": "ambient NPCs are never possessable (design §9); minors A04/A20 are never request targets",
+    "promotion": "see world/promotion.md"
+  },
+  "ambients": [
+    {
+      "id": "A01", "name": "Reyes", "fullName": "Reyes Aguilar", "age": 27,
+      "role": "barista pulling espresso shifts", "venue": "Mudhaus Coffee",
+      "card": "ambients/a01-reyes.md",
+      "routine": [
+        { "h0": 0, "h1": 7.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7.5, "h1": 18, "to": { "poi": "Mudhaus Coffee" }, "state": "serve" },
+        { "h0": 18, "h1": 22, "to": "home", "state": "idle", "inside": true },
+        { "h0": 22, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["rush-tempo", "counter-circle-tell", "quiet-water-cup"],
+      "offDay": "sun", "minor": false
+    },
+    {
+      "id": "A02", "name": "Doro", "fullName": "Dorothea Klein", "age": 41,
+      "role": "dog-walker with a leash hand", "venue": "Dolores Park loops",
+      "card": "ambients/a02-doro.md",
+      "routine": [
+        { "h0": 0, "h1": 7, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7, "h1": 11, "state": "walk", "stops": [{ "anchor": "park_north" }, { "anchor": "park_center" }, { "anchor": "park_south" }] },
+        { "h0": 11, "h1": 16, "to": "home", "state": "rest", "inside": true },
+        { "h0": 16, "h1": 20, "state": "walk", "stops": [{ "anchor": "park_south" }, { "anchor": "park_center" }] },
+        { "h0": 20, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["dog-pull", "vehicle-detour", "off-leash-interpose"],
+      "minor": false
+    },
+    {
+      "id": "A03", "name": "Malik", "fullName": "Malik Haddad", "age": 52,
+      "role": "corner-shop keeper", "venue": "Malik's Mini Mart",
+      "card": "ambients/a03-malik.md",
+      "routine": [
+        { "h0": 0, "h1": 7.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7.5, "h1": 18, "to": { "poi": "Malik's Mini Mart" }, "state": "serve" },
+        { "h0": 18, "h1": 22, "to": "home", "state": "idle", "inside": true },
+        { "h0": 22, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["rush-second-register", "the-stare", "rain-crates-in"],
+      "minor": false
+    },
+    {
+      "id": "A04", "name": "June", "fullName": "June Park", "age": 16,
+      "role": "student hauling a tote of books", "venue": "Mission High School",
+      "card": "ambients/a04-june.md",
+      "routine": [
+        { "h0": 0, "h1": 7.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7.5, "h1": 15, "to": { "poi": "Mission High School" }, "state": "work" },
+        { "h0": 15, "h1": 19, "state": "phone", "stops": [{ "anchor": "park_center" }, { "poi": "Mudhaus Coffee" }] },
+        { "h0": 19, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["holiday-park-inversion", "exam-week-library", "rain-awning-study"],
+      "minor": true
+    },
+    {
+      "id": "A05", "name": "Esther", "fullName": "Esther Goldman", "age": 78,
+      "role": "retiree on a stoop, watching the block", "venue": "park benches + Dolores Perk",
+      "card": "ambients/a05-esther.md",
+      "routine": [
+        { "h0": 0, "h1": 8, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 8, "h1": 12, "state": "sit", "stops": [{ "anchor": "park_center" }, { "poi": "Dolores Perk" }] },
+        { "h0": 12, "h1": 18, "to": { "anchor": "park_south" }, "state": "sit" },
+        { "h0": 18, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["weather-gated-day", "bench-ownership", "witness-posture"],
+      "minor": false
+    },
+    {
+      "id": "A06", "name": "Kofe", "fullName": "Kofe Adeyemi", "age": 29,
+      "role": "delivery rider with a hot box", "venue": "MuleIt delivery spine",
+      "card": "ambients/a06-kofe.md",
+      "routine": [
+        { "h0": 0, "h1": 8, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 8, "h1": 19, "state": "carry", "stops": [
+          { "poi": "Taqueria El Farolote" }, { "poi": "Il Delfino" },
+          { "poi": "Buy-Rite Creamery" }, { "poi": "Dolores Perk" },
+          { "poi": "Mudhaus Coffee" }, { "anchor": "g750" }] },
+        { "h0": 19, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["surge-tightens-loop", "doorway-wait-read", "rain-faster"],
+      "minor": false
+    },
+    {
+      "id": "A07", "name": "Luz", "fullName": "Luz Cárdenas", "age": 45,
+      "role": "street vendor at a fruit stand", "venue": "Frutería Las Palmas (Dolores at 19th)",
+      "card": "ambients/a07-luz.md",
+      "routine": [
+        { "h0": 0, "h1": 7, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7, "h1": 18, "to": { "poi": "Frutería Las Palmas" }, "state": "serve" },
+        { "h0": 18, "h1": 21, "to": "home", "state": "idle", "inside": true },
+        { "h0": 21, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["rain-tarp-halfday", "heat-stays-late", "kid-mango-cooler"],
+      "minor": false
+    },
+    {
+      "id": "A08", "name": "Sam", "fullName": "Sam Okafor", "age": 38,
+      "role": "busker with a guitar on the corner", "venue": "park pitches; The 600 Club",
+      "card": "ambients/a08-sam.md",
+      "routine": [
+        { "h0": 0, "h1": 10, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 10, "h1": 18, "state": "work", "stops": [{ "anchor": "park_north" }, { "anchor": "park_south" }] },
+        { "h0": 18, "h1": 24, "state": "chat", "stops": [{ "poi": "The 600 Club" }, { "anchor": "park_south" }] }
+      ],
+      "reflexes": ["pitch-etiquette-yield", "crowd-edge-not-center", "rain-doorway-set"],
+      "minor": false
+    },
+    {
+      "id": "A09", "name": "Asha", "fullName": "Asha Nair", "age": 33,
+      "role": "nurse in scrubs off a shift", "venue": "SF General; Mudhaus evenings",
+      "card": "ambients/a09-asha.md",
+      "codeNameNote": "NV_CAST name was 'Priya' through v0 — renamed 'Asha' in pa-chars.js at v1 (collision with C4 Priya Raman).",
+      "routine": [
+        { "h0": 0, "h1": 8, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 8, "h1": 19.5, "to": { "poi": "SF General" }, "state": "work" },
+        { "h0": 19.5, "h1": 21, "state": "walk", "stops": [{ "poi": "Mudhaus Coffee" }] },
+        { "h0": 21, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["post-shift-slow-walk", "bench-distress-check", "avoids-crowd-noise"],
+      "minor": false
+    },
+    {
+      "id": "A10", "name": "Gus", "fullName": "Gus Ferreira", "age": 61,
+      "role": "mechanic in oil-stained overalls", "venue": "Folsom Auto & Sons",
+      "card": "ambients/a10-gus.md",
+      "routine": [
+        { "h0": 0, "h1": 6.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 6.5, "h1": 16, "to": { "poi": "Folsom Auto & Sons" }, "state": "work" },
+        { "h0": 16, "h1": 22, "to": "home", "state": "rest", "inside": true },
+        { "h0": 22, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["engine-sound-headtilt", "rain-shop-fills", "commotion-glance-once"],
+      "offDay": "sun", "minor": false
+    },
+    {
+      "id": "A11", "name": "Vera", "fullName": "Vera Osei", "age": 44,
+      "role": "librarian shelving returns", "venue": "Mission Branch Library",
+      "card": "ambients/a11-vera.md",
+      "routine": [
+        { "h0": 0, "h1": 7.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7.5, "h1": 17.5, "to": { "poi": "Mission Branch Library" }, "state": "work" },
+        { "h0": 17.5, "h1": 20, "state": "sit", "stops": [{ "anchor": "park_center" }, { "poi": "Dolores Perk" }] },
+        { "h0": 20, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["reflexive-shush", "rain-overflow-shelter", "reserve-pile"],
+      "offDays": ["sun", "mon"], "minor": false
+    },
+    {
+      "id": "A12", "name": "Tom", "fullName": "Tom Nakamura", "age": 35,
+      "role": "jogger doing laps around the park", "venue": "park perimeter",
+      "card": "ambients/a12-tom.md",
+      "routine": [
+        { "h0": 0, "h1": 6, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 6, "h1": 8, "state": "run", "stops": [{ "anchor": "park_north" }, { "anchor": "park_south" }] },
+        { "h0": 8, "h1": 17, "to": "home", "state": "rest", "inside": true },
+        { "h0": 17, "h1": 19, "state": "run", "stops": [{ "anchor": "park_south" }, { "anchor": "park_center" }] },
+        { "h0": 19, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["weather-adjusts-distance-never-schedule", "distress-assess-and-stop"],
+      "minor": false
+    },
+    {
+      "id": "A13", "name": "Nadia", "fullName": "Nadia Petrov", "age": 31,
+      "role": "tech worker doom-scrolling on the curb", "venue": "Mudhaus corner table",
+      "card": "ambients/a13-nadia.md",
+      "routine": [
+        { "h0": 0, "h1": 9, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 9, "h1": 17, "to": { "poi": "Mudhaus Coffee" }, "state": "phone" },
+        { "h0": 17, "h1": 22, "to": "home", "state": "phone", "inside": true },
+        { "h0": 22, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["headphones-on-loud", "wifi-outage-relocate", "rain-stays-home"],
+      "minor": false
+    },
+    {
+      "id": "A14", "name": "Bex", "fullName": "Rebecca Lindqvist", "age": 29,
+      "role": "tattoo artist on a smoke break", "venue": "Needlepointe Tattoo + Clarion Alley; The 600 Club",
+      "card": "ambients/a14-bex.md",
+      "routine": [
+        { "h0": 0, "h1": 10, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 10, "h1": 18, "state": "work", "stops": [{ "poi": "Needlepointe Tattoo" }, { "poi": "Clarion Alley" }] },
+        { "h0": 18, "h1": 24, "state": "chat", "stops": [{ "poi": "The 600 Club" }, { "anchor": "park_south" }] }
+      ],
+      "reflexes": ["smoke-break-consult", "rain-shop-doorway", "alley-catalog"],
+      "secretAdjacent": "Recognizes the chalkboard/Clarion linework match (C3-adjacent). Ambient = never says it; promotion makes her a live discovery path.",
+      "offDay": "mon", "minor": false
+    },
+    {
+      "id": "A15", "name": "Omar", "fullName": "Omar Haddad", "age": 27,
+      "role": "bike courier with a messenger bag", "venue": "Flying Pannier paper-run loop",
+      "card": "ambients/a15-omar.md",
+      "routine": [
+        { "h0": 0, "h1": 8, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 8, "h1": 19, "state": "carry", "stops": [
+          { "poi": "Auerbach Hardware" }, { "poi": "Mission Branch Library" },
+          { "poi": "Dolores Perk" }, { "poi": "Mudhaus Coffee" }, { "anchor": "g744" }] },
+        { "h0": 19, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["marcus-sighted-one-block-race", "door-code-memory", "rain-fenders-pace-same"],
+      "minor": false
+    },
+    {
+      "id": "A16", "name": "Hana", "fullName": "Hana Lindgren", "age": 47,
+      "role": "baker carrying warm trays", "venue": "Baguette About It Bakery",
+      "card": "ambients/a16-hana.md",
+      "routine": [
+        { "h0": 0, "h1": 4, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 4, "h1": 13, "to": { "poi": "Baguette About It Bakery" }, "state": "serve" },
+        { "h0": 13, "h1": 17, "state": "walk", "stops": [{ "anchor": "park_center" }, { "poi": "Buy-Rite Market" }] },
+        { "h0": 17, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["heat-shortens-bake", "rain-dayold-half-price", "5am-head-tilt"],
+      "offDay": "mon", "minor": false
+    },
+    {
+      "id": "A17", "name": "Cole", "fullName": "Cole Brennan", "age": 36,
+      "role": "construction worker on a scaffold", "venue": "site near Auerbach Hardware",
+      "card": "ambients/a17-cole.md",
+      "routine": [
+        { "h0": 0, "h1": 6.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 6.5, "h1": 16, "to": { "poi": "Auerbach Hardware" }, "state": "work" },
+        { "h0": 16, "h1": 22, "to": "home", "state": "rest", "inside": true },
+        { "h0": 22, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["hardhat-zone-awareness", "rain-interior-work", "scaffold-vantage"],
+      "offDays": ["sat", "sun"], "minor": false
+    },
+    {
+      "id": "A18", "name": "Ida", "fullName": "Ida Johansson", "age": 55,
+      "role": "florist with a basket of bouquets", "venue": "Bloom & Doom Flowers",
+      "card": "ambients/a18-ida.md",
+      "routine": [
+        { "h0": 0, "h1": 7.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7.5, "h1": 18, "to": { "poi": "Bloom & Doom Flowers" }, "state": "serve" },
+        { "h0": 18, "h1": 22, "to": "home", "state": "idle", "inside": true },
+        { "h0": 22, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["stray-stem-to-strangers", "rain-buckets-in", "reads-the-flyer"],
+      "offDay": "mon", "minor": false
+    },
+    {
+      "id": "A19", "name": "Ray", "fullName": "Ray Kowalski", "age": 71,
+      "role": "retired longshoreman feeding pigeons", "venue": "park benches + Dolores Perk",
+      "card": "ambients/a19-ray.md",
+      "routine": [
+        { "h0": 0, "h1": 8, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 8, "h1": 12, "state": "sit", "stops": [{ "anchor": "park_center" }, { "poi": "Dolores Perk" }] },
+        { "h0": 12, "h1": 18, "state": "sit", "stops": [{ "anchor": "park_south" }, { "anchor": "park_center" }] },
+        { "h0": 18, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["weather-gated-park", "bench-claim-by-standing", "pigeon-schedule"],
+      "minor": false
+    },
+    {
+      "id": "A20", "name": "Zee", "fullName": "Zee Okafor-Banks", "age": 17,
+      "role": "teenager glued to a phone", "venue": "Mission High School; park/café perimeter",
+      "card": "ambients/a20-zee.md",
+      "routine": [
+        { "h0": 0, "h1": 7.5, "to": "home", "state": "sleep", "inside": true },
+        { "h0": 7.5, "h1": 15, "to": { "poi": "Mission High School" }, "state": "work" },
+        { "h0": 15, "h1": 19, "state": "phone", "stops": [{ "anchor": "park_center" }, { "poi": "Mudhaus Coffee" }] },
+        { "h0": 19, "h1": 24, "to": "home", "state": "sleep", "inside": true }
+      ],
+      "reflexes": ["films-anything-loud", "sincerity-countermeasures", "pack-migration"],
+      "minor": true
+    }
+  ]
+}

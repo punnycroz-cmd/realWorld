@@ -349,6 +349,44 @@ function sfInitWorld(){
     wx: Math.round(al.auerbach.x / cm), wy: Math.round(al.auerbach.y / cm),
     x: Math.round(al.auerbach.x / cm) * CS + 16, y: Math.round(al.auerbach.y / cm) * CS + 16,
     bld: al.auerbach.bld });
+  // world-content venues: canonical parody names -> real map spots.
+  // src:<name> clones a real/synthetic POI's coords; at:[x,y] is map meters.
+  // (world/businesses.md is the naming authority; routines may key on either name)
+  const SF_WORLD_POIS = [
+    { name: 'Mudhaus Coffee', kind: 'cafe', src: 'Haus Coffee' },
+    { name: 'Taqueria El Farolote', kind: 'restaurant', src: 'Taqueria El Farolito' },
+    { name: 'Buy-Rite Market', kind: 'supermarket', src: 'Bi-Rite Market' },
+    { name: 'Buy-Rite Creamery', kind: 'ice_cream', src: 'Bi-Rite Creamery' },
+    { name: 'Il Delfino', kind: 'restaurant', src: 'Delfina' },
+    { name: 'Dolores Perk', kind: 'cafe', src: 'Dolores Park Cafe' },
+    { name: 'Baguette About It Bakery', kind: 'bakery', src: 'Tartine Bakery' },
+    { name: 'The 600 Club', kind: 'bar', src: '500 Club' },
+    { name: 'Dandy Lion Chocolate Co.', kind: 'chocolate', src: 'Dandelion Chocolate' },
+    { name: 'Valencia Growers Market', kind: 'marketplace', src: 'Valencia Farmers Market' },
+    { name: 'Needlepointe Tattoo', kind: 'tattoo', src: '13 Bats Tattoo and Piercing' },
+    { name: 'Folsom Auto & Sons', kind: 'car_repair', src: 'F. Lofrano and Son, Inc.' },
+    { name: "Malik's Mini Mart", kind: 'convenience', src: 'Guerrero Market & Deli' },
+    { name: 'Bloom & Doom Flowers', kind: 'florist', src: 'Diosa Blooms' },
+    { name: 'Mission Branch Library', kind: 'library',
+      src: 'Mission Temporary Branch, San Francisco Public Library' },
+    { name: 'Frutería Las Palmas', kind: 'greengrocer', at: [669.4, 545.5] }, // Dolores at 19th
+    { name: 'Mission High School', kind: 'school', at: [616.1, 256.0] },     // 18th & Church
+    { name: 'Clarion Alley', kind: 'artwork', at: [1020.9, 111.3] },          // 17th/18th, Mission-Valencia
+    { name: 'SF General', kind: 'clinic', at: [1531.3, 1424.9] },             // E edge — commute off toward Potrero
+  ];
+  for(const w of SF_WORLD_POIS){
+    let rec;
+    if(w.src){
+      const p = sfFindPOI(w.src);
+      if(!p) continue;
+      rec = { wx: p.wx, wy: p.wy, x: p.x, y: p.y, bld: p.bld };
+    } else {
+      const wx = Math.round(w.at[0] / cm), wy = Math.round(w.at[1] / cm);
+      rec = { wx, wy, x: wx * CS + 16, y: wy * CS + 16, bld: -1 };
+    }
+    rec.name = w.name; rec.kind = w.kind;
+    SF_POIS.push(rec);
+  }
   // building world-space records + chunk bucket
   SF_MAP.buildings.forEach((b, i) => {
     const px = b.poly.map(q => [q[0] * SF_PXM, q[1] * SF_PXM]);

@@ -222,11 +222,14 @@ GTA-style imitation, applied to the Mission:
 - `SF_POIS`/`SF_MAP` still hold real names internally — intentional; add
   the `SF_PARODY_NAMES` display layer rather than editing map data
   (world v3 task; art signage bake + game feed text must both consult it).
+  **Partially landed at v1:** `SF_WORLD_POIS` in `30_sf_world.js` now
+  registers canonical parody names as resolvable POIs alongside the code
+  keys — routines can key on either. The *display* layer for signage/feed
+  is still pending.
 - `INTERIOR_NAMES` in `30_sf_world.js` keys on real names — display labels
   only; keys stay.
-- A09's code name is `Priya` in `NV_CAST` (`pa-chars.js`) — collides with
-  C4 Priya Raman. World content calls her **Asha**; code rename flagged
-  (see `world/ambients.md` A09 note).
+- ~~A09's code name is `Priya` in `NV_CAST`~~ — **landed at v1:** renamed
+  to **Asha** in `pa-chars.js`; collision with C4 Priya Raman resolved.
 - Cast-bible-era addresses (744/750 Guerrero, Capp St studio, Geneva Ave
   flat) are superseded by 9xxx numbers per the address spec — see
   `world/characters/_index.md` and `world/jobs-housing.md`.
