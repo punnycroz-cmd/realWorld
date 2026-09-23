@@ -1,9 +1,10 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 17,
+ "version": 19,
  "scope": {
   "under_test": [
    "world/feed.html",
+   "world/wire.html",
    "world/request.html",
    "world/mod-console.html",
    "world/create.html",
@@ -42,6 +43,11 @@
  "surfaces": {
   "feed": {
    "file": "feed.html",
+   "name": "The Wire (lite)",
+   "tier": "free"
+  },
+  "wire": {
+   "file": "wire.html",
    "name": "The Wire",
    "tier": "free"
   },
@@ -783,6 +789,54 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT17",
+   "title": "The Wire v2 — spectator depth",
+   "minutes": 15,
+   "persona": "daily spectator + facilitator auditing the full feed surface",
+   "goal": "Verify the v2 wire: detail/permalinks, request lifecycle trails, follows as filters-only, honest pagination, and the demo/live source badge.",
+   "surfaces": [
+    "wire"
+   ],
+   "steps": [
+    {
+     "do": "Open The Wire. Read the header, then select any request event row.",
+     "expect": "Header shows the source badge ('demo stream' locally); the detail panel renders the full record — id, permalink, status, and the lifecycle trail grouping every status of that request.",
+     "checkpoints": [
+      "Detail panel shows a stable event id and a working permalink (copy link → #e=<id>)",
+      "Request trail lists statuses in order with the selected row marked",
+      "A denied request shows 'request not approved' + why-class only — the screened text never renders"
+     ]
+    },
+    {
+     "do": "Pin one venue (Mudhaus) and one character (C2 Jules). Switch to the 'following' filter.",
+     "expect": "Following filters the stream to pinned entities; followed rows carry a blue edge in every filter; pins are reversible and persist across reload.",
+     "checkpoints": [
+      "Following panel states pins are 'a filter, never control' — public whereabouts only",
+      "No pin anywhere creates a possess/nudge/tip affordance on a main",
+      "Unpinning from the Following panel restores the unfiltered stream"
+     ]
+    },
+    {
+     "do": "Scroll down through the stream while new events arrive, then use 'load older' until exhausted.",
+     "expect": "New events collect behind the 'N new — jump to top' pill instead of moving text under the reader; pagination extends in place; the exhausted footer reads the honest caught-up line and links to The Archive.",
+     "checkpoints": [
+      "The stream never yanks scroll position on new events",
+      "Caught-up copy: 'You're caught up — nothing older than this today.' + Archive link",
+      "Day separator marks 'today — wednesday, sep 23' at the stream top"
+     ]
+    },
+    {
+     "do": "Reload with a permalink (#e=<a seeded request id>) and try the search box.",
+     "expect": "Deep link opens that event's detail on load; search narrows the stream by text/name/venue without touching other filters' honesty.",
+     "checkpoints": [
+      "Deep-linked event renders selected with its detail panel open",
+      "Search + filter compose (e.g. 'Mudhaus' inside 'the block')",
+      "The DEMO badge never claims live data; 'LIVE' refers to the world, not the source"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -790,7 +844,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v18 local",
+   "build": "world v19 local",
    "notes": "string"
   },
   "results": [
@@ -805,7 +859,7 @@
   "findings": [
    {
     "severity": "blocker|major|minor|nit|question",
-    "surface": "feed|request|mod|create|board|history|onboard|lease|thinai|cast|crowd|directory|timeclock|screen",
+    "surface": "feed|wire|request|mod|create|board|history|onboard|lease|thinai|cast|crowd|directory|timeclock|screen",
     "title": "string",
     "detail": "string",
     "steps_to_repro": "string"

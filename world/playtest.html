@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -152,7 +152,8 @@
 <script>
 /* Scenario data mirrors world/playtest.json — keep in sync by hand. */
 const SURF={
-  feed:{file:"feed.html",name:"The Wire"},request:{file:"request.html",name:"Requests"},
+  feed:{file:"feed.html",name:"The Wire (lite)"},wire:{file:"wire.html",name:"The Wire"},
+  request:{file:"request.html",name:"Requests"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"},
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
@@ -358,11 +359,26 @@ const PTS=[
   ck:["Queue discount (−15%) and the ≤24 h hold are visible in the quote BEFORE payment","The request tray card shows paid amount, claim, and hold expiry; cancel returns 100%","Feed entry uses the shared 'queued' vocabulary, attributed to 'you'"]},
  {do:"File a possess session (30 min) with clean intent. During the session read the panel, then press 'Release early'.",
   exp:"Session shows countdown, funded-minutes remaining, and brain state 'suspended — AI resumes on release'; early release performs the same graceful handoff as the cap.",
-  ck:["Feed logs 'player session ended' — identical wording for early release and timeout","No partial refund is promised for unused minutes (you bought the cap)","Low-balance toast fires only when funded minutes or remaining ≤15"]}]}
+  ck:["Feed logs 'player session ended' — identical wording for early release and timeout","No partial refund is promised for unused minutes (you bought the cap)","Low-balance toast fires only when funded minutes or remaining ≤15"]}]},
+{id:"PT17",title:"The Wire v2 — spectator depth",min:15,persona:"daily spectator + facilitator auditing the full feed surface",
+ goal:"Verify the v2 wire: detail/permalinks, request lifecycle trails, follows as filters-only, honest pagination, and the demo/live source badge.",
+ surfaces:["wire"],steps:[
+ {do:"Open The Wire. Read the header, then select any request event row.",
+  exp:"Header shows the source badge ('demo stream' locally); the detail panel renders the full record — id, permalink, status, and the lifecycle trail grouping every status of that request.",
+  ck:["Detail panel shows a stable event id and a working permalink (copy link → #e=<id>)","Request trail lists statuses in order with the selected row marked","A denied request shows 'request not approved' + why-class only — the screened text never renders"]},
+ {do:"Pin one venue (Mudhaus) and one character (C2 Jules). Switch to the 'following' filter.",
+  exp:"Following filters the stream to pinned entities; followed rows carry a blue edge in every filter; pins are reversible and persist across reload.",
+  ck:["Following panel states pins are 'a filter, never control' — public whereabouts only","No pin anywhere creates a possess/nudge/tip affordance on a main","Unpinning from the Following panel restores the unfiltered stream"]},
+ {do:"Scroll down through the stream while new events arrive, then use 'load older' until exhausted.",
+  exp:"New events collect behind the 'N new — jump to top' pill instead of moving text under the reader; pagination extends in place; the exhausted footer reads the honest caught-up line and links to The Archive.",
+  ck:["The stream never yanks scroll position on new events","Caught-up copy: 'You're caught up — nothing older than this today.' + Archive link","Day separator marks 'today — wednesday, sep 23' at the stream top"]},
+ {do:"Reload with a permalink (#e=<a seeded request id>) and try the search box.",
+  exp:"Deep link opens that event's detail on load; search narrows the stream by text/name/venue without touching other filters' honesty.",
+  ck:["Deep-linked event renders selected with its detail panel open","Search + filter compose (e.g. 'Mudhaus' inside 'the block')","The DEMO badge never claims live data; 'LIVE' refers to the world, not the source"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v18";
+const LS="rw_playtest_v19";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -429,7 +445,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v16 local",started:new Date(S.started).toISOString()},
+    build:"world v19 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }

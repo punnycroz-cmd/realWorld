@@ -8,8 +8,24 @@
     "who": "optional character id (C1–C8, A01–A20) or player handle on request events",
     "text": "display text — surface-level only; never quotes interiors of homes, never secrets",
     "status": "request events only: one of request_status",
+    "req": "optional, request events: shared request id — every lifecycle event of one paid intervention carries it; detail views group the status trail on it",
     "reason_code": "optional, denied requests only: fixed enum from world/moderation.json (public sees the why-class, never the screened text beyond the display filter)",
-    "attrs": "optional: { surge, credits, compensated_cr } for transparency lines"
+    "attrs": "optional: { surge, credits, compensated_cr, mentions[] } for transparency lines and follow matching"
+  },
+  "spectator_ui": {
+    "doc": "world v19 — the full spectator surface (world/wire.html, spec world/wire-ui.md). feed.html remains the lightweight variant.",
+    "permalink": "#e=<event id> deep-links one event; ids are stable live → archive (same id resolves in The Archive next day)",
+    "request_threading": "events sharing `req` render as one lifecycle trail (requested → in_review → approved → running → resolved/refunded/not approved)",
+    "follow_targets": {
+      "v:<venue_id>": "pin a venue — free spectator filter, reversible",
+      "c:<char_id>": "pin a character (C/A/h ids) — public whereabouts only; a filter, never control"
+    },
+    "pagination": {
+      "page_size": 60,
+      "older": "'load older' extends the page in place — never a scroll jump",
+      "caught_up": "'You're caught up — nothing older than this today.'; earlier days route to The Archive",
+      "new_events": "scrolled-away viewers see 'N new — jump to top'; the stream never moves text under a reader"
+    }
   },
   "event_kinds": [
     "move",      "a named character changes venue (arrivals/departures — public routine only)",
@@ -51,13 +67,14 @@
     { "t": 452,  "kind": "scene",   "venue": "mudhaus",  "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
     { "t": 487,  "kind": "move",    "who": "C4", "venue": "buyrite",  "text": "Priya headed in to SF General — a twelves day" },
     { "t": 540,  "kind": "venue",   "venue": "park",     "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
-    { "t": 566,  "kind": "request", "who": "okfm",       "text": "possess — own courier, 30 min", "status": "resolved" },
+    { "t": 566,  "kind": "request", "who": "okfm",       "req": "rq-1033", "text": "possess — own courier, 30 min", "status": "resolved" },
     { "t": 601,  "kind": "weather", "text": "Fog burned off over the park — full sun" },
     { "t": 647,  "kind": "press",   "text": "Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always" },
     { "t": 720,  "kind": "scene",   "venue": "farolote", "text": "Lunch prep at El Farolote — the salsa bar gets its midday refill" },
-    { "t": 783,  "kind": "request", "who": "leaf",       "text": "event — park cleanup at Dolores Park", "status": "queued" },
+    { "t": 783,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "event — park cleanup at Dolores Park", "status": "queued" },
     { "t": 812,  "kind": "housing", "venue": "block",    "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board" },
     { "t": 841,  "kind": "admin",   "venue": "club600",  "text": "admin action — venue window reset at The 600 Club", "attrs": { "compensated_cr": 90 } },
+    { "t": 852,  "kind": "request", "who": "leaf",       "req": "rq-1038", "text": "queued request expired before activation — refunded", "status": "refunded" },
     { "t": 900,  "kind": "scene",   "venue": "park",     "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" }
   ]
 }
