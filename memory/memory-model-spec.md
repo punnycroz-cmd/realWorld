@@ -1,4 +1,33 @@
-# Memory Model Spec v2.5 — implementable human-like memory for RW characters
+# Memory Model Spec v2.6 — implementable human-like memory for RW characters
+
+> **v2.6 note (retrieval-cues III — what a cue IS):**
+> `memory/retrieval-cues.md` Part III (§§20–29) goes under the cue
+> field weights to the mechanics: **cue diagnosticity** — match gates,
+> but diagnostic value sets magnitude (Nairne 2002; Poirier et al.
+> 2012; corpus-relative IDF blend over the §4.2 cue buckets) — §5.2;
+> **competitive emission** — bouts and the ambient scan emit by
+> ratio-rule sampling with a failure-stop, not greedy sort (SAM;
+> Raaijmakers & Shiffrin 1981) — NEW §5.22; **retrieval practice** —
+> the recall-vs-re-exposure asymmetry priced and delay-gated
+> (Roediger & Karpicke 2006; Pyc & Rawson 2009) — §5.9; **expanding
+> retrieval** — retell schedule shape priced (Landauer & Bjork 1978)
+> — §4.13; **suppression-induced inhibition** — cue-PRESENT
+> suppression accrues a cue-independent trace decrement
+> (Anderson & Green 2001, DEBATED robustness) — NEW §5.23;
+> **involuntary cue diet** — the ambient scan weights sensory/
+> peripheral up and topic down, verbatim-biased, intrusion_thresh
+> now age-flat (Berntsen & Hall 2004; Schlagman et al. 2007) — §5.7;
+> **intention ecology II** — armed nonfocal intentions add drive to
+> the linked record AND tax all other recall; completed intentions
+> refire as commission errors (Goschke & Kuhl 1993; Smith 2003;
+> Walser et al. 2012) — §5.14; **self-initiation tax** — the age
+> deficit concentrates in cue-sparse retrieval (Craik 1983/1986;
+> Lindenberger & Mayr 2014) — §5.4; **ease inversion** — retrieving
+> MORE can convince the judge of LESS (Schwarz et al. 1991) — NEW
+> §5.24; **access_gap metric** — "forgotten" operationalized as a
+> probe condition (Tulving & Pearlstone 1966) — validation only.
+> +18 params in §7; probes P241–P250 in validation-design.md.
+> All optional, default-neutral.
 
 > **v2.5 note (forgetting-curves III — what the curves are for):**
 > `memory/forgetting-curves.md` Part III (§§12–16) grounds the decay
@@ -1327,6 +1356,14 @@ of records get rehearsed toward permanence while the rest ride the
 (forgetting-curves.md §7.9). When the real social/rumor engine exists,
 replace the Bernoulli draw with actual conversation opportunities.
 
+**v2.6 — expanding retrieval (RC§23):** a retell/rehearsal whose gap
+since `lastAccessDay` exceeds the record's previous access gap earns
+s_gain × `expanding_bonus` (≈1.15) — Landauer & Bjork 1978; the
+massed-vs-spread asymmetry is consensus, expanding-vs-equal
+superiority at long intervals DEBATED (Karpicke & Roediger 2007), so
+the bonus is small. Records gain `prevGapDays` (one hidden field).
+The retell ecology now prices the schedule, not just the count.
+
 ### 4.14 Latent infancy layer — stored but inaccessible (new in v1.5)
 
 Infantile amnesia is an accessibility failure, not a storage failure
@@ -1416,6 +1453,16 @@ fields combine by **noisy-OR**, not sum:
 
 ```
 per-field match:    c_j = w_j · overlap(C_j, m.cueVector_j)      ∈ [0, w_j]
+diagnosticity (v2.6): c_j *= (1 − diag_w
+                            + diag_w·min(−ln(df_j/N_live), ln(diag_cap))
+                                  / ln(diag_cap))                // RC§20
+                    // df_j = live records sharing the cue key (§4.2
+                    // buckets supply the count — no new store);
+                    // a near-unique cue ≈ ×diag_cap, a universal cue
+                    // ≈ ×(1−diag_w). Match still GATES (§5.1);
+                    // diagnosticity prices the cue (Nairne 2002;
+                    // Poirier et al. 2012 — more match can hurt when
+                    // it lowers diagnostic value).
 sensory age scale:  c_sensory = w_sensory · overlap · (1 + sensory_age_slope
                                   · log1p(m.ageDays/30))         // RC§3 Proust
 mismatch penalty:   if a salient sensory field mismatches:
@@ -1534,6 +1581,14 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
   Hess/Lamont literature's effect is real but small (d≈.3 overall,
   d≈.52 stereotype-framed) — this is a situational tax, not a trait
   deficit (age-decline.md §24).
+- **v2.6 — self-initiation tax (retrieval-cues.md §27):** when the
+  arriving context is cue-sparse (`cueMatch_ext` of the best candidate
+  < `selfinit_bar` ≈ 0.3 — a voluntary search with little to go on),
+  θ gains `selfinit_pen·ageScale` (≈0.08) for the call. The age
+  deficit concentrates where retrieval must be self-generated;
+  `env_support_gain` (v0.4) rescues given cues, `selfinit_pen` taxes
+  their absence — separable by design (Craik 1983/1986; Craik & Byrd
+  1982; Lindenberger & Mayr 2014). P248.
 - **v1.6 — positivity at selection:** among near-tied candidates
   (drive within 0.05) prefer the positive-valence record with
   probability `pos_eff` (§2 formula; age-decline.md §18). Older
@@ -1625,6 +1680,25 @@ rehearse the affect, which is why flashbacks don't fade (reconsolidation,
 pathological gain. Tune so a quiet day yields 2–5 spontaneous recalls per
 main character (validation probe P14, RC§8).
 
+**v2.6 — the involuntary cue diet (RC§25):** the scan does NOT reuse
+the voluntary weights — involuntary retrieval is triggered by concrete
+perceptual overlap, not themes (Berntsen & Hall 2004: 53% external /
+27% internal / 20% mixed cues; involuntary pops are *more* specific
+episodes, not vaguer ones):
+
+```
+scan weights:   sensory/place/people fields  × invol_periph_gain  (≈1.6)
+                topic/abstract fields        × invol_topic_pen    (≈0.7)
+surfacing bias: ∝ surviving verbatim-field count (specific episodes
+                surface; generic/merged records get no involuntary pop)
+```
+
+**v2.6 — `intrusion_thresh` is age-flat by rule** (remove it from the
+age-knot table): involuntary-memory rates are roughly age-invariant
+while voluntary recall declines (Schlagman, Kvavilashvili & Schulz
+2007) — age differences in spontaneous recall enter through
+`search_breadth`, not the threshold. P246.
+
 ### 5.8 Retrieval-induced forgetting and part-list cuing
 
 On successful recall of `m`: for each linked/competing record `n` with
@@ -1664,9 +1738,20 @@ Each retrieval: `lastAccessDay = now`, `retrievalCount++`,
 boost** (§4.11; formal-model.md §10):
 
 ```
-S += s_gain·(1−S)·(1−R_pre)          // difficulty-weighted learning
+S += s_gain_eff·(1−S)·(1−R_pre)      // difficulty-weighted learning
 R ← 1 − (1−R_pre)·(1 − retell_boost·(0.5 + 0.5·S))
                                      // high-S records snap back fully
+
+// v2.6 — retrieval-practice pricing (RC§22):
+s_gain_eff = s_gain_recall · (1 + test_gap_gain·log1p(gapDays))
+             // recall leg; gapDays = now − lastAccessDay, ≈0.3 —
+             // delay-gated advantage (Roediger & Karpicke 2006;
+             // Pyc & Rawson 2009 effort hypothesis — the (1−R_pre)
+             // term already carries the difficulty direction)
+re-exposure leg (hearAccount / being narrated at / re-reading):
+s_gain_eff = s_gain_recall · reexp_ratio          // ≈0.35
+             // hearing it again is ~a third of digging it up —
+             // Rowland 2014 meta g≈0.51 for testing > restudy
 ```
 
 Massed retellings (R_pre high) barely grow S — retelling a story the
@@ -1744,7 +1829,9 @@ A multi-item recall bout (`k > 1`, "tell me everything") is NOT k
 independent draws (Tulving & Arbuckle; Roediger & Schmidt 1980; RC§11):
 
 ```
-candidates sorted by drive, emitted greedily
+candidates emitted by §5.22 ratio-rule sampling (v2.6 — replaces the
+v1.4 greedy sort; same observable ordering, adds failure-stop and
+near-miss commissions)
 n-th emitted item: P *= out_int^(n−1)          // ≈0.85 compounding
 each emitted item applies §5.8 rif_k to unemitted same-bucket records
 ```
@@ -1777,6 +1864,29 @@ age_eff/65 clamped 0..1. Henry et al. 2004 meta: nonfocal and time-based
 are age-damaged, focal spared but not immune (P129, P130). RW texture:
 "give Jules this when you see him" almost always lands; "call the
 landlord at 5" fails exactly in proportion to busy-ness and age.
+
+**v2.6 — the armed state has a price and a ghost (RC§26):**
+
+```
+while armed, nonfocal/time intentions only (focal rides the hit rule):
+    intention-linked record:   drive += intent_sup          // ≈0.1
+        // intention superiority — Goschke & Kuhl 1993; pending
+        // errands are hyper-accessible
+    all unrelated recalls:     θ += monitor_cost            // ≈0.03
+        // per armed nonfocal intention — Smith 2003: remembering
+        // to remember taxes the ongoing task
+on completion (fire or closeIntention): record stamps completedDay
+re-encountering the cue inside the tail:
+    p(refire) = pm_commission_p·2^(−Δd/pm_commission_hl)
+              ·(1 + 0.5·ageScale)   // ≈0.2 base, hl ≈2d — commission
+              // errors (Walser et al. 2012 ~25%; Marsh, Hicks &
+              // Bink 1998: completed intentions are INHIBITED below
+              // neutral — after the tail the link is suppressed,
+              // not merely neutral)
+```
+
+A refire is a commission — the act or the reach ("I already gave you
+this, didn't I?"), never a fresh recall. P247.
 
 ### 5.15 Context-scoped extinction — renewal (new in v1.4)
 
@@ -1913,6 +2023,69 @@ delayed product (`drive_achieved`) feeds the SelfModel via `metamem_r`.
 `jol` modulates `strategy_use` (v1.0): low jol × high stakes (open
 loop, intention) → write-it-down/ask-someone behavior. Per-character
 `jol_bias` offsets the intercept — the chronic under/over-estimator.
+
+### 5.22 Competitive emission — the ratio rule (new in v2.6)
+
+Bout emission (§5.13) and the §5.7 ambient scan's competition use
+SAM-style sampling, not a greedy sort (Raaijmakers & Shiffrin 1980/81;
+Gillund & Shiffrin 1984; RC§21):
+
+```
+P(sample i) = drive'_i^sam_tau / Σ_j∈bucket drive'_j^sam_tau  // ≈τ 2
+each sample: emit at §5.4 P(recall); a sampled-but-failed draw
+    counts toward the failure stop
+stop after kmax consecutive failed samples (≈3) or lmax total
+    samples (lmax = search_breadth — reuse, frozen)
+```
+
+Competitors sharing the cue lower P(target) by construction — cue
+overload is emergent competition; the §5.4 log-fan divisor stays as
+the cheap approximation inside single-shot scoring (they measure the
+same phenomenon at two grains — do not stack them by computing fan
+over the post-sampling set). High-drive near-misses get sampled —
+wrong-but-strong retrievals need no extra machinery. P242.
+
+### 5.23 Suppression-induced inhibition — the cue-independent leg (new in v2.6)
+
+§4.12 `suppressEvent` is cue-side avoidance (θ bump against that cue).
+When suppression happens with the record's cue actually IN the active
+context — a real no-think bout — the record itself accrues a
+cue-independent decrement (Anderson & Green 2001: independent-probe
+impairment ⇒ trace-level inhibition; ~8–9% below baseline after 16
+bouts; DEBATED robustness — Bulevich et al. 2006 failures — adopted
+bounded and small; RC§24):
+
+```
+on suppressEvent where the suppressed record's cue was present in C:
+    inhib += tnt_inhib          // ≈0.02 per bout, cap tnt_cap ≈0.2
+retrieval:   P computed on R_eff = R − inhib   // before cue scoring —
+             // every cue loses equally (the independent-probe
+             // signature); emotional/trauma records accrue ×0.3
+```
+
+Cue-side steering (§4.12) makes THIS cue fail; trace-side inhibition
+makes the MEMORY weaker however probed. Never deletion, never §6.19
+repression — effortful, cue-present, bounded. P245 sign-locks both
+properties. `inhib` is hidden, snapshot-additive.
+
+### 5.24 Ease-of-retrieval inversion — more recalled, less believed (new in v2.6)
+
+Aggregate-judgment calls (`judgeFrequency`, `judgeTrait` — the
+dialogue layer's "does this happen a lot?" / "am I the kind of person
+who…?" reads, already fed by `searchCost`) invert past the ease point
+(Schwarz et al. 1991: six assertive acts recalled easily → higher
+self-rated assertiveness than twelve recalled with effort; RC§28):
+
+```
+emitted < ease_n (≈4):   judgedFreq ∝ emitted count
+emitted ≥ ease_n:        judgedFreq ∝ 1/searchCost at stall
+    // a stalling long bout reads "there isn't much" even though more
+    // items came back — experience beats enumeration
+```
+
+P249 is the falsifier: judgedFreq(k=4) > judgedFreq(k=10) on
+stall-prone topics — a decreasing judgment from an increasing count.
+Nothing else in the model produces that signature.
 
 ---
 
@@ -2889,6 +3062,26 @@ MemoryParams = {
   "fam_recog_gate": 0.5,     // familiarity required for face permastore (§4.7)
   "transf_gain": 0.05,       // verbatim-death → gist S boost (§4.16)
   "state_ctx_hl": 21.0,      // internal-state cue drift half-life, days (§5.3)
+  // v2.6 additions (retrieval-cues III — cue mechanics,
+  // retrieval-cues.md Part III §§20–29)
+  "diag_w": 0.5,             // IDF blend into per-field cue weights (§5.2)
+  "diag_cap": 2.0,           // max diagnosticity multiplier (§5.2)
+  "sam_tau": 2.0,            // ratio-rule exponent (§5.22)
+  "kmax": 3,                 // consecutive failed samples → bout stop (§5.22)
+  "reexp_ratio": 0.35,       // re-exposure vs recall s_gain ratio (§5.9)
+  "test_gap_gain": 0.3,      // delay-gate on recall-leg s_gain (§5.9)
+  "expanding_bonus": 1.15,   // gap>prevGap retell s_gain multiplier (§4.13)
+  "tnt_inhib": 0.02,         // per-cue-present-suppression trace decrement (§5.23)
+  "tnt_cap": 0.2,            // cue-independent inhibition ceiling (§5.23)
+  "invol_periph_gain": 1.6,  // ambient-scan sensory/peripheral weight (§5.7)
+  "invol_topic_pen": 0.7,    // ambient-scan abstract-cue discount (§5.7)
+  "intent_sup": 0.1,         // armed-intention drive on linked record (§5.14)
+  "monitor_cost": 0.03,      // θ tax per armed nonfocal intention (§5.14)
+  "pm_commission_p": 0.2,    // completed-intention refire base (§5.14)
+  "pm_commission_hl": 2.0,   // refire half-life, days (§5.14)
+  "selfinit_pen": 0.08,      // sparse-cue θ tax × ageScale (§5.4)
+  "selfinit_bar": 0.3,       // cueMatch below → sparse-cue regime (§5.4)
+  "ease_n": 4,               // ease-of-retrieval flip point (§5.24)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -2936,6 +3129,10 @@ MemoryParams = {
 // v2.4 knot-table updates (existing params, new age knots):
 //   name_penalty: ×(1 + age_eff/80) (Cohen & Faulkner 1986)
 //   df_loss: ×(1 − 0.3·age_eff/80) (Rupprecht & Bäuml 2016)
+// v2.6 frozen constants (retrieval-cues.md Part III):
+//   lmax = search_breadth (reuse — §5.22 stop rule); intrusion_thresh
+//   is now age-FLAT by rule (§5.7, Schlagman et al. 2007 — remove it
+//   from the age-knot table)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -3409,6 +3606,29 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     encodeEvent/recall/hearAccount hit — cheap counter, not a store).
   - Profile layer gains `hsam`/`sdam` modifier names (character-memory-
     profiles.md §13) — they map to existing params, no new spec params.
+- v2.6 additions (retrieval-cues.md Part III §§20–29):
+  - §5.2 cue scoring now applies the diagnosticity blend — implementers
+    need `df_j` counts per cue key; the §4.2 cue buckets supply them.
+  - `recall` bouts (k>1) and `ambientMemoryScan` emit via §5.22
+    ratio-rule sampling + failure-stop; bout results carry `emitted`
+    (ordered) + `stalled: bool`. `judgeFrequency(charId, topic, k)`/
+    `judgeTrait` helpers read the stall state for the §5.24 inversion.
+  - `suppressEvent` gains an optional `cuePresent:true` arg — when set,
+    accrues `inhib` (§5.23); without it, v1.3 behavior unchanged.
+    `inhib` is hidden/harness-readable, never serialized to briefings.
+  - `ambientMemoryScan` applies the §5.7 involuntary weighting
+    internally — no signature change; callers see only the skewed
+    surface distribution.
+  - `rememberIntention` records gain `completedDay`; firing or
+    `closeIntention` sets it. Cue re-encounter within
+    `pm_commission_hl` rolls the §5.14 commission refire — callers
+    receive `commission:true` on the returned intention, never a fresh
+    recall. Armed nonfocal intentions impose `monitor_cost` on
+    unrelated `recall` calls automatically.
+  - records gain `prevGapDays` (§4.13 expanding bonus) — hidden,
+    snapshot-additive.
+  - `recall` applies `selfinit_pen` automatically on cue-sparse calls
+    — no caller action.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

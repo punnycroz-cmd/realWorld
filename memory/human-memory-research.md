@@ -1175,3 +1175,62 @@ in Parts I–II; this pass grounds its purpose and its extremes.
 - Spec → v2.5 (+7 params, 2 axioms, §4.16 new, contract additions);
   profiles +7 clamp rows + 2 modifiers + §13; probes P231–P240.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 26. v26 — retrieval-cues III (what a cue IS, mechanically)
+
+Part III of `retrieval-cues.md`. Parts I–II priced cue fields and cue
+contexts; this pass grounds the cue mechanism itself — diagnosticity,
+competition, the retrieval-practice asymmetry, suppression's second
+channel, the involuntary cue diet, intention states, and two
+judgment-bending retrieval-experience effects.
+
+- **Cue diagnosticity** (Nairne 2002 "the myth of the encoding-
+  retrieval match"; Poirier, Nairne, Morin, Zimmermann, Koutmeridou &
+  Fowler 2012 JEP:LMC — verified: more match can HURT when it lowers
+  cue diagnosticity; Goh & Lu 2012): cue magnitude is corpus-relative.
+  → §5.2 IDF blend over the §4.2 cue buckets (`diag_w`, `diag_cap`);
+  §5.1 gating survives — match still gates, diagnosticity prices.
+- **Competitive emission** (Raaijmakers & Shiffrin 1980/81 SAM;
+  Gillund & Shiffrin 1984): ratio-rule sampling + failure-stop
+  replaces greedy bout emission — cue overload becomes emergent;
+  near-miss commissions free. → NEW §5.22 (`sam_tau`, `kmax`,
+  lmax=search_breadth frozen reuse).
+- **Retrieval practice** (Roediger & Karpicke 2006 — delay-gated
+  testing>restudy; Rowland 2014 meta g≈0.51; Pyc & Rawson 2009
+  retrieval-effort): recall vs re-exposure priced (`reexp_ratio` 0.35)
+  and delay-gated (`test_gap_gain`) — §5.9.
+- **Expanding retrieval** (Landauer & Bjork 1978; Cepeda et al. 2006;
+  expanding-vs-equal DEBATED at long intervals): `expanding_bonus`
+  1.15 on widening-gap retells — §4.13, `prevGapDays` field.
+- **Suppression-induced inhibition** (Anderson & Green 2001 Nature —
+  cue-INDEPENDENT via independent probes, ~8–9% after 16 bouts;
+  DEBATED robustness, Bulevich et al. 2006 failures): cue-present
+  suppression accrues `inhib`, a flat trace decrement vs all cues —
+  NEW §5.23 (`tnt_inhib`, `tnt_cap`; emotional ×0.3). Complements,
+  never merges with, §4.12 cue-side suppression. §6.19 boundary kept.
+- **Involuntary cue diet** (Berntsen & Hall 2004 — 53% external/27%
+  internal/20% mixed cues, more specific episodes; Schlagman et al.
+  2007 age-invariance): ambient scan reweights sensory/peripheral up,
+  topic down, verbatim-biased; intrusion_thresh age-flat by rule —
+  §5.7.
+- **Intention ecology II** (Goschke & Kuhl 1993 intention superiority;
+  Marsh, Hicks & Bink 1998 post-completion inhibition; Smith 2003
+  monitoring cost; Walser et al. 2012 ~25% commission errors): armed
+  nonfocal intentions boost the linked record AND tax all recall;
+  completed intentions refire on cue re-encounter — §5.14
+  (`intent_sup`, `monitor_cost`, `pm_commission_p`, `pm_commission_hl`).
+- **Self-initiation tax** (Craik 1983/1986 environmental support;
+  Craik & Byrd 1982; Lindenberger & Mayr 2014): age deficit
+  concentrates in cue-sparse retrieval — §5.4 `selfinit_pen`/
+  `selfinit_bar`, separable from env_support_gain by design.
+- **Ease-of-retrieval inversion** (Schwarz et al. 1991 — 6 easy vs 12
+  hard assertive acts): past `ease_n` the judgment follows
+  1/searchCost — NEW §5.24. More retrieved, less believed.
+- **Access-gap metric** (Tulving & Pearlstone 1966): "forgotten" is a
+  probe condition — P250 requires ≥60% of uncued failures recover
+  under maximal cueing; gap≈0 everywhere means the cue system is
+  decorative (anti-database audit).
+- Spec → v2.6 (+18 params, NEW §5.22–5.24, §5.2/§5.4/§5.7/§5.9/§5.13/
+  §5.14/§4.13 amendments, contract additions); profiles +18 clamp
+  rows + §14; probes P241–P250.
+- Boundaries kept: research only, no code, no narratives, no push/merge.

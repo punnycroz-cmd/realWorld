@@ -291,6 +291,24 @@ never copying raw.
 | fam_recog_gate | 0.3 | 0.8 | familiarity gate for face permastore (v2.5) |
 | transf_gain | 0.0 | 0.15 | verbatim-death → gist S boost (v2.5) |
 | state_ctx_hl | 7 | 60 | internal-state cue drift half-life, days (v2.5) |
+| diag_w | 0.0 | 0.9 | corpus-relative cue-weight blend (v2.6) |
+| diag_cap | 1.0 | 3.0 | max diagnosticity multiplier (v2.6) |
+| sam_tau | 1.0 | 4.0 | ratio-rule emission exponent (v2.6) |
+| kmax | 1 | 6 | bout failure-stop, consecutive misses (v2.6) |
+| reexp_ratio | 0.1 | 0.8 | re-exposure vs recall s_gain ratio (v2.6) |
+| test_gap_gain | 0.0 | 0.6 | delay-gate on recall-leg s_gain (v2.6) |
+| expanding_bonus | 1.0 | 1.5 | widening-gap retell multiplier (v2.6) |
+| tnt_inhib | 0.0 | 0.06 | per-bout cue-independent inhibition (v2.6) |
+| tnt_cap | 0.0 | 0.35 | inhibition ceiling (v2.6) |
+| invol_periph_gain | 1.0 | 2.5 | ambient-scan sensory/peripheral weight (v2.6) |
+| invol_topic_pen | 0.4 | 1.0 | ambient-scan abstract-cue discount (v2.6) |
+| intent_sup | 0.0 | 0.25 | armed-intention drive bonus (v2.6) |
+| monitor_cost | 0.0 | 0.10 | θ tax per armed nonfocal intention (v2.6) |
+| pm_commission_p | 0.0 | 0.5 | completed-intention refire base (v2.6) |
+| pm_commission_hl | 0.5 | 5.0 | refire half-life, days (v2.6) |
+| selfinit_pen | 0.0 | 0.20 | sparse-cue θ tax × ageScale (v2.6) |
+| selfinit_bar | 0.1 | 0.5 | sparse-cue regime boundary (v2.6) |
+| ease_n | 2 | 7 | ease-of-retrieval inversion point (v2.6) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -963,3 +981,45 @@ identically on everyone. What bibles and modifiers should know:
 - **Reuse calibration (P239)** is a world-health metric, not a profile
   constraint — if it fails, tune the class defaults in spec §7, not the
   profiles.
+
+## 14. v2.6 note — retrieval-cues III: which dials are personality
+
+Almost all v2.6 params are machinery, not personality — they express
+population-level retrieval mechanics, and the right per-character
+variation enters through traits, records, and context instead:
+
+- **`diag_w`/`diag_cap`, `sam_tau`, `kmax`** — retrieval machinery;
+  flat across profiles. Perceived "good memory under cuing" differences
+  come from enc_base/attention loadings, not these.
+- **`reexp_ratio`/`test_gap_gain`** — the testing-effect constants are
+  population-level; a bible that says "learns by doing" should express
+  it as behavior (more self-generated recall occasions in the retell
+  ecology), not a bigger ratio.
+- **`expanding_bonus`** — machinery. The personality-level version of
+  "tells the story at widening intervals" is a social habit, not a
+  param.
+- **`tnt_inhib`/`tnt_cap`** — keep flat; suppression *frequency* is the
+  personality/occupation dial (a character who habitually avoids a
+  topic calls suppressEvent more often). High-neurot and emotional-
+  record resistance is already built in (×0.3) — do not double-count
+  it on the trait side.
+- **`invol_periph_gain`/`invol_topic_pen`** — flat; a mild `vivid`
+  loading on invol_periph_gain (≤+0.3) is defensible for imagistic
+  characters, nothing else.
+- **`intent_sup`/`monitor_cost`/`pm_commission_*`** — machinery; the
+  bible-level dials are intention *formation* frequency (`consc`,
+  already loaded) and attention headroom. pm_commission_p's age
+  scaling is automatic — never pin it on an elder archetype.
+- **`selfinit_pen`/`selfinit_bar`** — age-automatic (×ageScale);
+  pinning it per-character double-counts the decline curve.
+- **`ease_n`** — flat; a chronically self-doubting bible wants
+  `meta_conf`/`self_est_bias`, not a lower ease point.
+- **`intrusion_thresh` is now age-flat** (spec §5.7, v2.6) — remove it
+  from any archetype's age-knot reasoning; older spontaneous recall is
+  throttled by `search_breadth` alone. Profiles that pinned it lower
+  for a "keeps popping up the past" elder should express that via the
+  scan's verbatim-richness exposure instead (denser cueVector encoding
+  → more peripheral cues to trip on).
+- **Deliberate nulls:** no trait → `diag_w` (diagnosticity is corpus
+  statistics, not temperament); no `extra` → `monitor_cost` (the tax
+  is capacity, not sociability); no `open` → `ease_n`.

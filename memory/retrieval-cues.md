@@ -464,3 +464,414 @@ A cheap, invisible mechanic that makes "where you sleep" matter.
 - Reminding chains: lab evidence is for temporal-context reinstatement;
   the non-temporal associative version is standard theory (spreading
   activation) but `chain_gain` is a tuning constant.
+
+---
+
+# PART III (v26, 2026-09-23) — what a cue IS, mechanically
+
+Parts I–II priced cue fields and cue contexts. Part III goes one level
+down: what makes a cue diagnostic at all (§20), what the emission
+competition actually computes (§21), why retrieval practice beats
+re-exposure and when (§22), the shape of a good rehearsal schedule
+(§23), the cue-INDEPENDENT forgetting that suppression produces (§24),
+the different cue diet of involuntary retrieval (§25), what an armed —
+or completed — intention does to the whole cue field (§26), where the
+age deficit actually lives (§27), and two retrieval-experience
+phenomena that bend judgment itself (§28–§29). Spec changes land in
+`memory-model-spec.md` v2.6; probes P241–P250.
+
+## 20. Cue diagnosticity — the match is not the mechanism
+
+The Part I framework treats a cue's weight as a property of its FIELD
+(`w_topic`, `w_place`, …). The diagnosticity literature says that is
+incomplete: what matters is how well the cue picks THIS record out of
+the corpus.
+
+- **Nairne (2002), "The myth of the encoding-retrieval match"**
+  (Memory 10:389–395): cue effectiveness is governed by the
+  *distinctiveness of the cue–target relationship*, not by the
+  encoding-retrieval match per se — match and performance can be
+  decorrelated when diagnostic value is manipulated orthogonally.
+- **Poirier, Nairne, Morin, Zimmermann, Koutmeridou & Fowler (2012)**
+  (JEP:LMC 38:16–29), "Memory as discrimination": four experiments
+  orthogonally crossing cue-target discriminability with match
+  degree — increasing the encoding-retrieval match can *hinder*
+  retrieval when the increased match makes cues less uniquely
+  predictive. Retrieval is discrimination, not resonance.
+- **Goh & Lu (2012)**, "Testing the myth of the encoding-retrieval
+  match": same result in cued recall — diagnostic value (cue-overload
+  manipulation) predicts performance better than absolute match.
+- **[DEBATED as a replacement for specificity — Nairne's framing says
+  diagnosticity, not match, is causal; we adopt BOTH: §5.1 gating is
+  the match's surviving role (an unencoded cue still contributes
+  exactly 0 — P9 stands), and diagnosticity sets the cue's
+  magnitude.]**
+
+Model consequence (§5.2 amendment): each matched field's contribution
+is blended with a corpus-relative diagnosticity term computed from the
+§4.2 cue buckets (no new store — `df_j` = count of live records
+carrying that cue key):
+
+```
+idf_j  = min( −ln(df_j / N_live), ln(diag_cap) )
+c_j    = w_j·overlap_j · (1 − diag_w + diag_w·idf_j/ln(diag_cap))
+```
+
+`diag_w` ≈ 0.5, `diag_cap` ≈ 2 (a maximally-rare cue contributes at
+most ~2× its field weight; a universal cue contributes ~(1−diag_w)×).
+"The kitchen" cues every record in the house — it should barely move
+the needle; "the night the ficus fell" should nearly retrieve by
+itself. This gives the fan effect (§5.4) a second, principled face:
+fan counts competitors on the dominant cue, diagnosticity prices the
+cue itself.
+
+## 21. Competitive emission — the ratio rule under the bout
+
+The Part II bout model (§5.13) emits greedily down a sorted drive
+list. The global-matching tradition (SAM: **Raaijmakers & Shiffrin
+1980/1981**, Psych Review 88:93; **Gillund & Shiffrin 1984**) specifies
+a cleaner engine: retrieval is *sampling*, proportional to relative
+activation, with *recovery* (an item must be sampled AND intact enough
+to image), and the search ends after consecutive failures.
+
+```
+emission loop for a recall bout (and for the §5.7 ambient scan's
+competition):
+    P(sample i) = drive'_i^sam_tau / Σ_j∈bucket drive'_j^sam_tau   // ratio rule
+    sampled i emits at P(recall) from §5.4; a sampled-but-failed
+    draw counts toward kmax
+    stop after kmax consecutive failed samples (≈3) or
+    lmax total samples (lmax = search_breadth — reuse, frozen)
+```
+
+- Competitors sharing the cue lower P(target) *by construction* — cue
+  overload becomes emergent competition, with the §5.4 log-fan divisor
+  retained as the cheap approximation for single-shot scoring.
+- A high-drive near-miss is sampled preferentially — wrong-but-strong
+  retrievals (the plausible neighbor of the true memory) need no extra
+  machinery. `sam_tau` ≈ 2.
+- **[CONSENSUS as a family (ratio-rule global matching); the specific
+  constants are HYPOTHESIS tuning — SAM was fit on list recall.]**
+
+## 22. Retrieval practice — recall is not re-exposure
+
+The §5.9 split (s_gain_recall vs s_gain_rehear) asserted the asymmetry;
+v26 prices it and adds its delay-dependence.
+
+- **Roediger & Karpicke (2006)** Psych Sci 17:249 — testing beats
+  restudy at a 1-week retention interval while restudy beats testing
+  at 5 minutes: the advantage is *delay-gated*.
+- **Rowland (2014)** Psych Bulletin 140:1432 meta-analysis (169
+  comparisons): retrieval practice vs restudy g ≈ 0.50 overall,
+  attenuating with matching processing and strong item-context cues.
+- **Pyc & Rawson (2009)** JML 60:437 — the retrieval-effort
+  hypothesis: *more difficult successful* retrievals produce larger
+  gains (long ISI: .87 vs short ISI .62 final recall), with
+  diminishing returns as the retrieval criterion rises. The §5.9
+  `(1−R_pre)` difficulty weight already encodes this direction; v26
+  confirms the parameterization and adds the gap term.
+- **[CONSENSUS on direction and delay-gating; the ratio constants are
+  HYPOTHESIS.]**
+
+Model consequence (§5.9 amendment):
+
+```
+re-exposure leg (hearAccount, re-reading, being narrated at):
+    s_gain_eff = s_gain_recall · reexp_ratio        // ≈0.35
+delay-gated recall leg:
+    s_gain_eff = s_gain_recall · (1 + test_gap_gain·log1p(gapDays))
+    gapDays = now − m.lastAccessDay;                // ≈0.3
+    // same-day retrieval ≈ re-exposure — the crossover, not a bonus
+    // that fires on massed retellings (§4.13 lag curve unchanged)
+```
+
+RW texture: a rumor *heard* twelve times stays weaker than a story the
+character once painfully dug up themselves. Passivity is cheap;
+retrieval is the workout.
+
+## 23. Expanding retrieval — the schedule's second derivative
+
+- **Landauer & Bjork (1978)**: expanding-interval practice
+  (retrieval at growing gaps) outperforms equal spacing for durable
+  retention; the first success should come while the trace is still
+  easy, later ones as it fades.
+- **Cepeda, Vul, Rohrer, Wixted & Pashler (2006)** meta (839 tests):
+  optimal gap scales with the desired retention interval (the §4.11
+  `lag_opt_ratio` mechanism — unchanged). Expanding-vs-equal
+  superiority is **DEBATED** for long retention intervals (Karpicke &
+  Roediger 2007 find equal-or-better); the massed-vs-either asymmetry
+  is consensus.
+
+Model consequence (§4.13 amendment, one flag): a retell/rehearsal whose
+gap since `lastAccessDay` *exceeds the record's previous access gap*
+gets its s_gain × `expanding_bonus` (≈1.15). Records track only
+`prevGapDays` (one new hidden field). A character who tells the story
+tonight, next week, then next month cements it better than one who
+tells it every day for a week — the retell ecology now prices the
+*schedule*, not just the count.
+
+## 24. Suppression-induced inhibition — the cue-independent forgetting
+
+§4.12's `suppressEvent` is cue-side: steering away raises θ against
+that cue. The Think/No-Think literature documents a second, stronger
+claim — suppression weakens the *trace* for ALL cues.
+
+- **Anderson & Green (2001)** Nature 410:366 — after 16 no-think
+  repetitions, recall drops ~8–9% *below baseline*; the deficit grows
+  with suppression count, resists incentives, and — the signature —
+  appears on **independent probes** (cues never paired with the item
+  at study). Cue-independent impairment ⇒ trace-level inhibition, not
+  cue competition.
+- **DEBATED as robustness:** Bulevich, Roediger, Balota & Butler
+  (2006) reported three failures to replicate; later meta-analyses
+  keep a small positive effect. Anderson & Huddleston (2012) review
+  the supporting program. We adopt a bounded, conservative version.
+- **[CONSENSUS that deliberate suppression can produce small
+  below-baseline impairment; DEBATED magnitude; the independent-probe
+  signature is the design's falsifiable core.]**
+
+Model consequence (new §5.23): when `suppressEvent` fires on a record
+whose cue WAS in the active context (a real no-think bout, not mere
+topic-avoidance), the record accrues `inhib += tnt_inhib` (≈0.02, cap
+`tnt_cap` ≈ 0.2 — sixteen bouts ≈ the Anderson & Green endpoint).
+`inhib` is a flat R-side decrement applied *before* cue scoring — it
+lowers P for every cue equally (the independent-probe property).
+Emotional/trauma records resist (×0.3 — the metas' consistent
+moderator). Distinct from §4.12: that channel makes *this cue* fail;
+this channel makes *the memory* weaker however probed. Never deletion,
+never §6.19 repression — effortful, cue-present, bounded (P245
+sign-locks both properties).
+
+## 25. The involuntary cue diet — different weights, not just a trigger
+
+§5.7's ambient scan reuses the voluntary cue weights. The diary
+literature says involuntary retrieval eats a different diet.
+
+- **Berntsen & Hall (2004)** Mem&Cog 32:789: identifiable cues for
+  most involuntary memories; classified 53% external / 27% internal /
+  20% mixed — and involuntary memories are *more often specific
+  episodes*, more unusual events, with more physical reaction and more
+  mood impact than voluntary word-cued memories. Concrete perceptual
+  overlap, not thematic match, does the triggering (Berntsen 2009;
+  Mace 2004).
+- **Schlagman, Kvavilashvili & Schulz (2007)**: involuntary-memory
+  rates are roughly **age-invariant** while voluntary recall declines
+  — the automatic route is spared where the search route is not.
+- **[CONSENSUS on the cue-type skew and the specificity; age-invariance
+  solid for healthy cohorts.]**
+
+Model consequence (§5.7 amendment): the ambient scan applies its own
+weighting — sensory/peripheral fields (sensory, place, people-present)
+× `invol_periph_gain` (≈1.6), abstract/topic × `invol_topic_pen`
+(≈0.7); and the surfacing draw prefers verbatim-rich records
+(bias ∝ surviving verbatim field count — involuntary pops are
+*specific*). `intrusion_thresh` is henceforth **age-flat by rule** —
+the old-side knots are removed from it; age differences in spontaneous
+recall enter through `search_breadth`, not the threshold (Schlagman
+et al.). A cue you weren't looking for is precisely the kind a smell
+provides; a theme is what you search with, not what ambushes you.
+
+## 26. Intention ecology II — superiority, tax, and the ghost of a done plan
+
+§5.14 priced *whether* the cue fires. The intention literature adds
+three behaviors of the armed state itself.
+
+- **Intention superiority** — Goschke & Kuhl (1993): material related
+  to a pending self-performed intention is hyper-accessible (faster
+  recognition than neutral material). Marsh, Hicks & Bink (1998)
+  JEP:LMC 24:350 replicate for uncompleted intentions — and find
+  *completed* intentions are INHIBITED below neutral (Experiment 2–4).
+- **Monitoring cost** — Smith (2003) JEP:LMC 29:347, "the cost of
+  remembering to remember": an embedded event-based intention slows
+  the ongoing task even on non-target trials — holding a nonfocal
+  intention is not free.
+- **Commission errors** — completed or canceled intentions still fire
+  when the cue reappears: ~25% of participants repeat the response
+  after being told the task is finished (Walser et al. 2012; Scullin,
+  Bugg & colleagues — worse under habitual prior responding, divided
+  attention, and in older adults). Spontaneous retrieval of the
+  finished intention plus a failed executive veto.
+- **[CONSENSUS on all three phenomena; the age-loading on commission
+  errors is solid.]**
+
+Model consequence (§5.14 amendment):
+
+```
+while armed (nonfocal/time only — focal rides §5.14 as-is):
+    intention-linked record:  drive += intent_sup            // ≈0.1
+    all unrelated recalls:    θ += monitor_cost              // ≈0.03
+                              per armed nonfocal intention
+on completion (fire or closeIntention): record gains completedDay
+re-encountering the cue within the tail:
+    p(refire) = pm_commission_p · 2^(−Δdays/pm_commission_hl)
+              · (1 + 0.5·ageScale)   // ≈0.2 base, hl ≈2d
+    a refire is a COMMISSION — the behavior layer must show the act
+    or the reach ("I already gave you this, didn't I?"), not a recall
+```
+
+RW texture: the errand you're carrying makes you a slightly worse
+rememberer of everything else that day; and a finished errand is not
+gone — it is *armed again* if the world re-shows its trigger. Marsh's
+inhibition-below-neutral is the tail's floor: after `pm_commission_hl`
+the intention's cue-link is suppressed, not merely neutral.
+
+## 27. Environmental support II — the deficit lives in self-initiation
+
+§5.4's `env_support_gain` (v0.4) scales cue benefit by age. The other
+half of Craik's environmental-support hypothesis pins down *where* the
+age deficit lives.
+
+- **Craik (1983/1986); Craik & Byrd (1982)**: older adults are hurt
+  most when retrieval requires *self-initiated* processing — sparse
+  external cues force the searcher to generate its own scaffolding.
+  Rich cues disproportionately rescue them precisely because encoding
+  left the trace under-specified (older encoding is sparser — the
+  support substitutes for what encoding didn't lay down).
+- **Lindenberger & Mayr (2014)**: environmental support as the formal
+  complement of self-initiated decline — deficits concentrate where
+  the environment carries no structure.
+- **[CONSENSUS on the interaction; the precise function shape is our
+  parameterization.]**
+
+Model consequence (§5.4 amendment): when an arriving `recall` context
+is *cue-sparse* (`cueMatch_ext` below `selfinit_bar` ≈ 0.3 — a
+voluntary "what was it she said?" with little to go on), θ gains
+`selfinit_pen·ageScale` (≈0.08). The two mechanisms are kept
+separable: `env_support_gain` rescues given cues; `selfinit_pen`
+taxes their absence. Lesion coverage is deliberate — P248 checks the
+age-gap interaction and the lesion battery (validation-design §26)
+gains a probe that can disable each leg independently. Do NOT fold
+one into the other; they fail differently.
+
+## 28. Ease-of-retrieval — when remembering more convinces you less
+
+§5.4 already returns `searchCost` with the `ease_few`/`ease_many`
+bands for judged-frequency hedging. The social-cognition result is
+stronger than "hard → less": past a point the inference *inverts*.
+
+- **Schwarz, Bless, Strack, Klumpp, Rittenauer-Schatka & Simons
+  (1991)** JPSP 61:195 — recalling SIX assertive behaviors (easy)
+  produced higher self-rated assertiveness than recalling TWELVE
+  (hard): content says more, experience says less, and experience
+  wins. Informing subjects about the manipulation abolished the
+  effect — the inference uses the felt difficulty, not the count.
+- **Tversky & Kahneman (1973)** availability — the original "ease
+  implies frequency" heuristic; Schwarz et al. show the ease signal
+  overrides the enumeration signal.
+- **[CONSENSUS — one of social cognition's most replicated paradigms.]**
+
+Model consequence (new §5.24): aggregate-judgment calls
+(`judgeFrequency`, `judgeTrait` — the "does this happen a lot?" /
+"am I the kind of person who…?" queries the dialogue layer already
+reads `searchCost` for) apply the inversion:
+
+```
+if bout emitted < ease_n (≈4):   judgedFreq ∝ emitted count
+else:                            judgedFreq ∝ 1/searchCost at stall
+    // asking for 10 examples of rudeness and stalling at 6 reads as
+    // "I'm not rude" — MORE retrieved, LOWER judged frequency
+```
+
+P249 is the falsifier: judgedFreq(k=4) must exceed
+judgedFreq(k=10) on stall-prone topics. No other mechanism in the
+spec produces a decreasing judgment from an increasing retrieval
+count.
+
+## 29. The accessibility metric — "forgotten" is a probe condition
+
+- **Tulving & Pearlstone (1966)** JVLVB 5:381 — category cues at test
+  recovered most of the free-recall deficit (cued recall ≈ total
+  learned items while uncued recall lost a third to a half depending
+  on list length): the dominant failure mode is *accessibility*, not
+  availability. Tulving's dictum — information available ≠ accessible
+  — is the measurement corollary of everything in this document.
+- **[CONSENSUS — foundational.]**
+
+Model consequence (harness-level, no runtime change): every probe that
+asserts "forgotten" must report `access_gap = P(recall at maximal
+cueing) − P(recall uncued)`. A record failing both probes is gone
+(archived/latent); failing only the sparse probe is cue-failure —
+alive, waiting. P250 defines the discipline: mid-age live records
+should show a LARGE access gap (≥60% of uncued failures recoverable
+under maximal cueing); if the gap collapses to ~0 at high strength,
+the model's cue machinery is decorative, not causal. This is also the
+anti-database audit: a lookup table has access_gap = 0 everywhere.
+
+## 30. Cue hierarchy — v26 additions to the §17 table
+
+| Cue/mechanism | v26 status |
+|---|---|
+| per-field weight | now corpus-relative: × diagnosticity blend (§20) |
+| bout emission | ratio-rule sampling + failure-stop, not greedy sort (§21) |
+| recall vs re-exposure | delay-gated asymmetry quantified (§22) |
+| retell schedule | expanding-gap bonus on s_gain (§23) |
+| suppression | cue-side θ (§4.12) + cue-INDEPENDENT inhib (§24) |
+| involuntary scan | own cue diet — sensory up, topic down, verbatim-biased (§25) |
+| armed intention | +drive on linked record, −θ* on all else; refires after done (§26) |
+| sparse-cue recall | age-scaled θ tax — the deficit's address (§27) |
+| judgment calls | ease inversion past ease_n (§28) |
+| "forgotten" | operationalized as access_gap ≥ threshold (§29) |
+
+## 31. Validation probes P241–P250 (v26 suite)
+
+- **P241 diagnosticity (MUST):** two records with identical raw
+  overlap — one cued by a df≈1% feature, one by df≈40% — the
+  diagnostic cue wins by ≥1.5×; and a context engineered to raise
+  match while raising df must NOT improve recall (Poirier et al.
+  2012 design). P9 must hold simultaneously (unencoded cue still 0).
+- **P242 ratio-rule competition (MUST):** adding same-cue competitors
+  lowers P(target) at constant target drive; emission order is
+  drive-descending; bouts stop after kmax consecutive misses.
+- **P243 testing asymmetry (MUST):** recall-leg s_gain exceeds
+  re-exposure leg by ≥1.5× at ≥3d gaps; at same-day gaps the legs
+  converge within 20% (the Roediger & Karpicke crossover).
+- **P244 expanding schedule (SHOULD):** expanding gaps ≥ equal gaps ≥
+  massed on 30d retention, matched retell count.
+- **P245 suppression inhibition (MUST):** a record suppressed with its
+  cue present shows recall deficit on INDEPENDENT probes
+  (cue-independent — the Anderson & Green signature), bounded by
+  tnt_cap, resisted ×~0.3 by emotional records, never deleted;
+  records "suppressed" without the cue present show ~no inhib accrual.
+- **P246 involuntary diet (SHOULD):** ambient-scan surfaces skew
+  toward sensory/peripheral-cued, verbatim-rich records vs voluntary
+  retrievals; involuntary rate age-flat within ±10% across bands
+  while voluntary recall declines (Schlagman et al. 2007).
+- **P247 intention ecology (MUST):** an armed nonfocal intention
+  measurably raises θ on unrelated recall AND raises drive on the
+  linked record; a completed intention refires ≥10% within 2d on cue
+  re-encounter, higher at 70+ (Walser et al. 2012 ~25% base).
+- **P248 self-initiation (MUST):** the young→old recall gap is ≥2×
+  larger under cue-sparse than cue-rich conditions; lesioning
+  selfinit_pen collapses the sparse-side gap only.
+- **P249 ease inversion (MUST):** judgedFreq(k=4) > judgedFreq(k=10)
+  on stall-prone topics — a decreasing judgment from an increasing
+  retrieval count (Schwarz et al. 1991).
+- **P250 access-gap discipline (MUST — measurement):** ≥60% of
+  uncued-failing live mid-age records recover under maximal cueing;
+  access_gap ≈ 0 across the corpus flags a decorative cue system
+  (the anti-database audit).
+
+## 32. Honest limits (v26 additions)
+
+- Diagnosticity is adopted as a magnitude term alongside — not instead
+  of — the §5.1 match gate; Nairne's stronger claim (match is myth)
+  is DEBATED and not load-bearing here.
+- SAM constants (sam_tau, kmax, lmax) come from list-recall fits;
+  autobiographical competition plausibly uses shallower τ — flagged
+  for Morris screening.
+- reexp_ratio is calibrated off study-restudy comparisons; "hearing
+  a retelling" is a richer re-exposure than re-reading — the ratio
+  may underestimate social re-exposure.
+- TNT adopted conservatively (bounded, small, resisted) given the
+  replication record; the cue-independence property is retained as
+  the mechanism's identity even if magnitudes move.
+- The involuntary cue diet's internal/external split is diary-
+  classified, not modeled — invol_periph_gain is our operationalization
+  of "concrete overlap," not a measured ratio.
+- Commission-error rates vary widely with habitual-responding
+  manipulations; pm_commission_p ≈ 0.2 is mid-range and age-scaled.
+- Ease inversion is demonstrated on self/trait judgments; extending
+  to event-frequency judgments is the standard interpretation
+  (availability) but flagged where the domain shifts.
+- The access-gap metric is a harness discipline, not a mechanism —
+  it constrains what "forgotten" may mean in probes, nothing more.

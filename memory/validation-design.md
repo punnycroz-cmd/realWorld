@@ -1430,3 +1430,60 @@ world's own statistics rather than lab tables (new probe family).
   construction.
 
 Registry now P1–P240; numbering stable.
+
+## 35. New probes P241–P250 (v26, retrieval-cues III suite)
+
+Source: `memory/retrieval-cues.md` Part III (§§20–29). Spec v2.6.
+Tiers per §2.1. This suite audits the cue machinery itself —
+diagnosticity, competition, the retrieval-vs-exposure asymmetry, and
+the measurement discipline for "forgotten."
+
+- **P241 diagnosticity (MUST):** two records at identical raw overlap —
+  one cued by a df≈1% feature, one by df≈40% — the diagnostic cue wins
+  by ≥1.5×; a context engineered to raise match while raising df must
+  NOT improve recall (Poirier, Nairne et al. 2012 design). P9 must
+  hold simultaneously (unencoded cue still contributes 0).
+- **P242 ratio-rule competition (MUST):** adding same-cue competitors
+  lowers P(target) at constant target drive; emission order is
+  drive-descending in aggregate; bouts stop after kmax consecutive
+  misses. Lesion-checkable: disabling §5.22 restores the v1.4 greedy
+  emission.
+- **P243 testing asymmetry (MUST):** recall-leg s_gain exceeds the
+  re-exposure leg by ≥1.5× at ≥3d gaps; at same-day gaps the legs
+  converge within 20% (Roediger & Karpicke 2006 crossover; Pyc &
+  Rawson 2009 difficulty scaling rides the existing (1−R_pre) term).
+- **P244 expanding schedule (SHOULD):** expanding access gaps ≥
+  equal gaps ≥ massed on 30d retention, matched retell count
+  (Landauer & Bjork 1978; expanding-vs-equal superiority at long
+  intervals is DEBATED — the probe asserts ordering, not magnitude).
+- **P245 suppression inhibition (MUST):** records suppressed with the
+  cue present show recall deficit on INDEPENDENT probes (the Anderson
+  & Green 2001 signature), bounded by tnt_cap, resisted ×~0.3 by
+  emotional records, never deleted; cue-absent suppression accrues
+  ~no inhib. Dual property: §4.12 θ-bump behavior unchanged.
+- **P246 involuntary diet (SHOULD):** ambient-scan surfaces skew
+  toward sensory/peripheral-cued, verbatim-rich records vs voluntary
+  retrievals on the same corpus; involuntary rate age-flat within
+  ±10% across bands while voluntary recall declines (Schlagman et al.
+  2007) — intrusion_thresh must have no age knots.
+- **P247 intention ecology (MUST):** an armed nonfocal intention
+  raises θ measurably on unrelated recall AND raises drive on the
+  linked record; a completed intention refires ≥10% within 2 days on
+  cue re-encounter, higher at age_eff ≥70 (Walser et al. 2012 ~25%
+  base; Marsh, Hicks & Bink 1998 post-completion inhibition).
+- **P248 self-initiation (MUST):** the young→old recall gap is ≥2×
+  larger under cue-sparse than cue-rich conditions; lesioning
+  selfinit_pen collapses the sparse-side gap only (env_support_gain
+  untouched — the legs must fail independently).
+- **P249 ease inversion (MUST):** judgedFreq(k=4) > judgedFreq(k=10)
+  on stall-prone topics — a decreasing judgment from an increasing
+  retrieval count (Schwarz et al. 1991). No other mechanism may
+  produce this signature; if found, treat as a bug.
+- **P250 access-gap discipline (MUST — measurement):** ≥60% of
+  uncued-failing live mid-age records recover under maximal cueing
+  (Tulving & Pearlstone 1966 cue-dependent forgetting); access_gap ≈ 0
+  across the corpus flags a decorative cue system — the anti-database
+  audit. Add access_gap to the §2.5 probe-output schema as a standard
+  field on all forgetting probes.
+
+Registry now P1–P250; numbering stable.
