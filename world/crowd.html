@@ -21,6 +21,11 @@
   mode), season shades (fog_season / indian_summer / wet_season) that
   stack under the day shades, two new micro-events (fog-burn,
   west-wind), and the parliament-in-exile scene.
+  v71 adds: the civic year — annual_shades (Carnaval, game days, Día de
+  los Muertos, the holiday lull), calendar-window budget conditions that
+  resolve season → annual → weather and suppress the day shades; plus
+  the posture palette — the honest dwell vocabulary extras and idle
+  ambients hold (the content answer to "Resting peacefully").
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -101,6 +106,7 @@
   <div class="tgl" id="wxTgl">wx <button data-v="clear" class="on">clear</button><button data-v="fog">fog</button><button data-v="wind">wind</button><button data-v="rain">rain</button><button data-v="storm">storm</button><button data-v="heat">heat</button></div>
   <div class="tgl" id="fogTgl">fog <button data-v="burn" class="on">burns off</button><button data-v="allday">all-day</button></div>
   <div class="tgl" id="seaTgl">season <button data-v="6">jun</button><button data-v="9" class="on">sep</button><button data-v="1">jan</button></div>
+  <div class="tgl" id="calTgl">cal <button data-v="none" class="on">—</button><button data-v="carnaval-weekend">carnaval</button><button data-v="game-day">game day</button><button data-v="muertos">muertos</button><button data-v="carfree-sunday">car-free</button><button data-v="holiday-week">holiday</button><button data-v="new-year-lull">lull</button></div>
   <div class="tgl" id="evTgl">event <button data-v="none" class="on">none</button><button data-v="party">block party @ park</button><button data-v="lock">exclusive lock @ Mudhaus</button></div>
 </header>
 <main>
@@ -119,6 +125,9 @@
     </div>
     <div class="panel"><h2>Flow layer — bodies in transit</h2><div id="flows"></div>
       <div class="fine">Pedestrian currents between zones — counts of extras walking, not dwelling. A rising venue draws 60–80% of its deficit along the strongest live edge. Invisible to the feed.</div>
+    </div>
+    <div class="panel"><h2>Dwell postures — <span id="pvz">Mudhaus Coffee</span></h2><div id="postures"></div>
+      <div class="fine">What standing-still looks like: extras inside a zone budget hold one legal posture on a 45–180s dwell timer; an idle ambient's chip reads the honest label, never a nap. Conditions, not dispatches.</div>
     </div>
     <div class="panel"><h2>Micro-texture now</h2><div id="micros"></div>
       <div class="fine">Mundane recurring deformations — internal vocabulary, never feed events.</div>
@@ -139,6 +148,8 @@
       <li><b>Locked venues clear extras,</b> not staff — a claim empties the crowd, not the people who work there.</li>
       <li><b>Shades, flows, micro-events, seasons stay internal.</b> The wire says band words and scene labels only — a gray morning is a reading, never the word "fog_season".</li>
       <li><b>Fog is a depth profile,</b> not a weather binary — it thins the west edge first and burns by ~10:30. An all-day fog sends the bench parliament to Dolores Perk; nobody runs, nobody shelters.</li>
+      <li><b>The calendar owns its days.</b> An annual shade (Carnaval, muertos, a home game) suppresses the day shades, never a routine — Ida still opens Bloom & Doom; the line just forms.</li>
+      <li><b>Idle has an honest name.</b> Postures are dwell conditions on zone kind and pair availability — nobody is dispatched into one, and no label may imply sleep. Minors pair only within the pack.</li>
     </ul></div>
   </div>
 </main>
@@ -193,7 +204,8 @@ const FLOWS=[
   {id:"f-streets-elfarolote",a:"streets",b:"elfarolote",dp:["lunch","evening","night"],flow:{weekday:[3,6],weekend:[4,8]},note:"dinner approach"},
   {id:"f-club600-edge",a:"club600",b:"edge",dp:["night"],hrs:[23,26],flow:{weekday:[4,8],weekend:[7,12]},micro:"last-call-drift",note:"the way home"},
   {id:"f-park-minimart",a:"park",b:"minimart",dp:["midday","lunch","afternoon","evening"],flow:{weekday:[1,3],weekend:[2,4]},note:"beer-and-ice run"},
-  {id:"f-edge-streets",a:"edge",b:"streets",dp:["predawn","commute","rush","night"],flow:{weekday:[2,6],weekend:[1,4]},note:"transit spill"}];
+  {id:"f-edge-streets",a:"edge",b:"streets",dp:["predawn","commute","rush","night"],flow:{weekday:[2,6],weekend:[1,4]},note:"transit spill"},
+  {id:"f-edge-school",a:"edge",b:"school",dp:["commute","rush"],hrs:[7.25,8.5],flow:{weekday:[5,9]},micro:"school-dropoff",note:"the drop-off current"}];
 const MICROS=[
   {id:"sweep-tue",when:{dow:"tue",dp:["rush","midday"]},edge_mult:{"f-edge-streets":.8},zone_mult:{streets:.9},note:"street sweeping"},
   {id:"school-bell",when:{dow_not:["sat","sun"],hrs:[15,16.5]},edge_mult:{"f-school-park":2},zone_floor:{park:{afternoon:2}},note:"school release current"},
@@ -201,7 +213,48 @@ const MICROS=[
   {id:"last-call-drift",when:{hrs:[23,26]},edge_mult:{"f-club600-edge":1.6},zone_mult:{elfarolote:1.15},note:"post-bar tail"},
   {id:"sunday-stoop",when:{dow:"sun",dp:["midday","lunch","afternoon","evening"]},note:"stoops read occupied"},
   {id:"fog-burn",when:{wx:"fog",hrs:[10.5,12.5]},edge_mult:{"f-mudhaus-park":1.5},zone_floor:{park:{midday:6}},note:"the burn-off hour — the park fills in twenty minutes"},
-  {id:"west-wind",when:{wx:"wind",hrs:[14,18]},edge_mult:{"f-park-minimart":.7},zone_mult:{clarion:.8,streets:.9},note:"gusts shorten loitering"}];
+  {id:"west-wind",when:{wx:"wind",hrs:[14,18]},edge_mult:{"f-park-minimart":.7},zone_mult:{clarion:.8,streets:.9},note:"gusts shorten loitering"},
+  {id:"school-dropoff",when:{dow_not:["sat","sun"],hrs:[7.25,8.5]},edge_mult:{"f-edge-school":2},zone_floor:{school:{commute:3}},note:"the morning mirror of school-bell"},
+  {id:"marigold-run",when:{months:[10],dom:[28,31]},zone_mult:{bloomdoom:1.4},silh:["marigold-bag"],note:"the week before — orange bundles leave all day"}];
+/* v71 mirrors: the civic year + the posture palette */
+const ANNUAL={
+  "carnaval-weekend":{zone_mult:{park:1.4,clarion:1.5,streets:1.25,fruteria:1.3,elfarolote:1.2},
+    daypart_zone_mult:{afternoon:{park:1.3,clarion:1.3},evening:{club600:1.2}},
+    edge_mult:{"f-edge-streets":1.5,"f-mudhaus-park":1.4},silh:["jersey-cap","folding-chair"],
+    cal:[5,24],note:"the last weekend of May is never quiet"},
+  "game-day":{zone_mult:{},daypart_zone_mult:{evening:{elfarolote:1.2,streets:1.25,club600:1.1},night:{elfarolote:1.15,club600:1.15}},
+    edge_mult:{"f-streets-elfarolote":1.3,"f-edge-streets":1.2},silh:["jersey-cap"],cal:[7,17],note:"jerseys pass through to dinner"},
+  "muertos":{zone_mult:{bloomdoom:1.6,clarion:1.3},
+    daypart_zone_mult:{evening:{streets:1.35,clarion:1.4},night:{streets:1.2}},
+    edge_mult:{"f-edge-streets":1.3},silh:["marigold-bag"],cal:[11,1],note:"the marigold line, then the evening drift"},
+  "pride-weekend":{zone_mult:{clarion:1.5,park:1.2,streets:1.2},
+    daypart_zone_mult:{afternoon:{park:1.3},night:{club600:1.3}},
+    silh:["jersey-cap","folding-chair"],cal:[6,27],note:"the alley dresses up"},
+  "carfree-sunday":{zone_mult:{streets:1.4,park:1.15},
+    edge_mult:{"f-edge-streets":1.4,"f-mudhaus-park":1.3},
+    silh:["stroller","bike-shoulder","folding-chair"],cal:[8,9],note:"the street itself is the venue"},
+  "labor-day":{zone_mult:{park:1.2,folsom:.5,auerbach:.5,school:.3},
+    daypart_zone_mult:{commute:{streets:.5,minimart:.7},rush:{streets:.5}},cal:[9,7],note:"reads like a Sunday"},
+  "holiday-week":{zone_mult:{mudhaus:.6,bakery:.5,bloomdoom:.7,auerbach:.4,folsom:.3,needlepointe:.5,library:.4,minimart:1.15},
+    daypart_zone_mult:{midday:{park:1.2,streets:1.1},lunch:{park:1.15}},cal:[12,25],note:"half the block is visiting someone"},
+  "new-year-lull":{zone_mult:{streets:.8,mudhaus:.85,elfarolote:.85},
+    daypart_zone_mult:{rush:{streets:.7,mudhaus:.75}},cal:[1,5],note:"the quietest honest stretch"}};
+const PLABELS={idle:"Between things",rest:"Resting",sit:"Sitting",talk:"Talking",chat:"Talking",
+  serve:"Serving",work:"Working",walk:"Walking",run:"Running",carry:"Carrying",phone:"On the phone",
+  play:"Playing",drink:"Drinking",sleep:"Asleep",queue:"Waiting in line",transit:"Passing through"};
+const POSTURES=[
+  {id:"phone-check",kinds:["cafe","shop","civic","open_air","restaurant","bar","stand"],pair:0,read:"the glow-up glance"},
+  {id:"window-shop",kinds:["shop"],pair:0,read:"face to glass, not buying"},
+  {id:"lean-wait",kinds:["open_air","shop","bar","stand"],pair:0,read:"shoulder to a wall, waiting on nobody named"},
+  {id:"pair-chat",kinds:["cafe","open_air","bar","civic"],pair:1,read:"two extras facing in"},
+  {id:"nurse-cup",kinds:["cafe"],pair:0,read:"a twenty-minute coffee held like an hour"},
+  {id:"bench-sprawl",kinds:["open_air"],pair:0,read:"arm along the bench back"},
+  {id:"smoke-stand",kinds:["bar","shop","open_air"],pair:0,read:"the doorway two-step"},
+  {id:"watch-street",kinds:["open_air","stand","shop"],pair:0,read:"stillness aimed at traffic"},
+  {id:"bag-shift",kinds:["shop","stand","open_air"],pair:0,read:"groceries swapped hand to hand"},
+  {id:"stretch-look",kinds:["open_air","civic"],pair:0,read:"stops mid-block, arches, scans"},
+  {id:"read-folded",kinds:["cafe","civic","open_air"],pair:0,read:"a paper folded to one column"},
+  {id:"leash-tangle",kinds:["open_air"],pair:1,read:"two dog leads braided"}];
 const GREETS=[
   {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
   {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
@@ -253,7 +306,9 @@ const SCENES=[
  {id:"evening-nurse",label:"The evening nurse",ck:s=>s.dp==="evening"&&inZ("A09","mudhaus"),why:"Asha's counter seat 19:30–21"},
  {id:"victor-pickup",label:"Victor's pickup at Gus's",ck:s=>s.day==="weekday"&&["lunch","afternoon"].includes(s.dp)&&inZ("A10","folsom"),why:"weekly — Fridays (demo: weekday afternoons)"},
  {id:"doorway-sets",label:"Doorway sets",ck:s=>(s.wx==="rain"||s.wx==="wind")&&inZ("A08","club600"),why:"Sam under the awning — rain or gusts are the trigger"},
- {id:"parliament-in-exile",label:"Parliament in exile",ck:s=>inZ("A05","doloresperk")&&inZ("A19","doloresperk"),why:"benches untenable — rain, storm, or an all-day fog"}];
+ {id:"parliament-in-exile",label:"Parliament in exile",ck:s=>inZ("A05","doloresperk")&&inZ("A19","doloresperk"),why:"benches untenable — rain, storm, or an all-day fog"},
+ {id:"marigold-line",label:"The marigold line",ck:s=>s.annual==="muertos"&&inZ("A18","bloomdoom"),why:"muertos window · Ida working the queue"},
+ {id:"game-night-swell",label:"The game-night swell",ck:s=>s.annual==="game-day"&&["evening","night"].includes(s.dp)&&["busy","packed"].includes(bandOf("elfarolote")),why:"home game · jerseys through to dinner"}];
 const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom",needlepointe:"Needlepointe",doloresperk:"Dolores Perk",edge:"off-map"};
 /* v43: claimable sub-venue resources — mirror crowd.json ambient_resources */
 const RESOURCES=[
@@ -284,7 +339,7 @@ const AMBX={
  A18:{sig:"apron · amble · a basket of loose stems",v:"mon: walks the alley to see what the week did · rain: buckets in off the sidewalk"},
  A19:{sig:"flat-cap · meander · a paper bag of crumbs",v:"rain: retires early — one wet pass for the pigeons · storm: disapproves from his own window · 8:30 and noon: never late for the pigeons"},
  A20:{sig:"headphones-big · meander · a phone held like a camera",v:"weekends: perimeter orbit all day · sun: the pack drifts south toward Luz · rain: compresses to the Mudhaus awning, home earlier"}};
-let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",sel:"mudhaus",month:9,fogAllDay:false};
+let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",annual:"none",sel:"mudhaus",month:9,dom:15,fogAllDay:false};
 function fogStage(h){if(S.wx!=="fog")return null;const st=FOG.profile[daypart(h)];
   if(S.fogAllDay&&st==="burned")return"patchy";return st;}
 function seasonShade(){for(const[id,s]of Object.entries(SEASONS))if(s.months.includes(S.month))return{id,s};return null;}
@@ -309,8 +364,11 @@ function microActive(mc){
   if(w.dow_not&&w.dow_not.includes(dow))return false;
   if(w.dp&&!w.dp.includes(dp))return false;
   if(w.hrs&&!(w.hrs[0]<=S.h&&S.h<w.hrs[1]))return false;
+  if(w.months&&!w.months.includes(S.month))return false;
+  if(w.dom&&!(w.dom[0]<=S.dom&&S.dom<=w.dom[1]))return false;
   return true;
 }
+function annualShade(){return S.annual!=="none"&&ANNUAL[S.annual]?{id:S.annual,s:ANNUAL[S.annual]}:null;}
 function ambWhere(a,h,day,wx){
   const rt=a[3],opt=a[4]||{};
   const dow=dowOf();
@@ -355,7 +413,11 @@ function budgetMid(z,h,day,wx,shade){
   const ss=seasonShade();
   if(ss){if(ss.s.zone_mult&&ss.s.zone_mult[z])mid*=ss.s.zone_mult[z];
     if(ss.s.daypart_zone_mult&&ss.s.daypart_zone_mult[dp]&&ss.s.daypart_zone_mult[dp][z])mid*=ss.s.daypart_zone_mult[dp][z];}
-  const sh=SHADES[shade];
+  /* v71: an annual shade owns its day — the day_shades layer is suppressed */
+  const an=annualShade();
+  if(an){if(an.s.zone_mult&&an.s.zone_mult[z])mid*=an.s.zone_mult[z];
+    if(an.s.daypart_zone_mult&&an.s.daypart_zone_mult[dp]&&an.s.daypart_zone_mult[dp][z])mid*=an.s.daypart_zone_mult[dp][z];}
+  const sh=an?null:SHADES[shade];
   if(sh){if(sh.zone_mult&&sh.zone_mult[z])mid*=sh.zone_mult[z];
     if(sh.daypart_zone_mult&&sh.daypart_zone_mult[dp]&&sh.daypart_zone_mult[dp][z])mid*=sh.daypart_zone_mult[dp][z];
     if(sh.kind_mult&&sh.kind_mult[zd.kind])mid*=sh.kind_mult[zd.kind];}
@@ -404,13 +466,14 @@ function zoneRow(z){
     (band!=="closed"&&mid>0?`<span class="chip x">+${mid} extras</span>`:"");
   const pct=band==="closed"?4:{deserted:4,thin:14,steady:38,busy:62,packed:92}[band];
   const col={deserted:"var(--line)",thin:"var(--blu)",steady:"var(--grn)",busy:"var(--acc)",packed:"var(--pink)",closed:"var(--line)"}[band];
-  const shTag=S.shade!=="none"?" · shade:"+S.shade:"";
+  const shTag=S.shade!=="none"&&!annualShade()?" · shade:"+S.shade:"";
+  const anTag=annualShade()?" · annual:"+S.annual:"";
   const fgTag=S.wx==="fog"?" · fog:"+fogStage(S.h)+(S.fogAllDay?" (all-day)":""):"";
   const ssTag=seasonShade()?" · "+seasonShade().id:"";
   return `<div class="zone ${S.sel===z?'sel':''}" onclick="S.sel='${z}';render()"><div class="top"><span class="zn">${zd.label}</span>
     <span class="band ${band}">${band}</span></div>
     <div class="who">${chips||'<span style="color:var(--dim);font-size:11px">nobody named — '+(band==="closed"?"dark":"quiet")+'</span>'}</div>
-    <div class="sub">extras budget ${b[0]}–${b[1]} ×${WX[S.wx][zd.kind]} wx${shTag}${ssTag}${fgTag}${S.ev!=="none"?" · event-modified":""}${zd.open?" · open "+zd.open[0]+"–"+(zd.open[1]>24?zd.open[1]-24+"+":zd.open[1]):""}</div>
+    <div class="sub">extras budget ${b[0]}–${b[1]} ×${WX[S.wx][zd.kind]} wx${shTag}${anTag}${ssTag}${fgTag}${S.ev!=="none"?" · event-modified":""}${zd.open?" · open "+zd.open[0]+"–"+(zd.open[1]>24?zd.open[1]-24+"+":zd.open[1]):""}</div>
     <div class="meter"><i style="width:${pct}%;background:${col}"></i></div></div>`;
 }
 function flowRow(f){
@@ -420,19 +483,38 @@ function flowRow(f){
   const wxm=WX[S.wx].open_air;
   rng=[Math.round(rng[0]*wxm),Math.round(rng[1]*wxm)];
   for(const mc of MICROS){if(microActive(mc)&&mc.edge_mult&&mc.edge_mult[f.id])rng=[Math.round(rng[0]*mc.edge_mult[f.id]),Math.round(rng[1]*mc.edge_mult[f.id])];}
+  const an=annualShade();
+  if(an&&an.s.edge_mult&&an.s.edge_mult[f.id])rng=[Math.round(rng[0]*an.s.edge_mult[f.id]),Math.round(rng[1]*an.s.edge_mult[f.id])];
   const nm=id=>ZONES[id]?ZONES[id].label:ZLABEL[id]||id;
   return `<div class="flow ${on?'':'off'}"><span class="arr">${nm(f.a)} → ${nm(f.b)}</span>
     <span style="color:var(--dim)">${f.note}</span><span class="n">${on?rng[0]+"–"+rng[1]+" walking":"idle"}</span></div>`;
+}
+/* v71: an idle named ambient in a public zone holds a legal posture —
+   honest label from PLABELS, never "home", never while sleeping */
+function postureOf(a,z,st){
+  if(!["idle","rest","sit"].includes(st)||z==="home"||!ZONES[z])return"";
+  const legal=POSTURES.filter(p=>p.kinds.includes(ZONES[z].kind)&&!p.pair);
+  if(!legal.length)return"";
+  let hsh=0;for(const c of a[0]+daypart(S.h)+z)hsh=(hsh*31+c.charCodeAt(0))>>>0;
+  const p=legal[hsh%legal.length];
+  return` · <span title="${p.read}">holding: ${p.id}</span>`;
 }
 function render(){
   const h=S.h,dp=daypart(h);
   const hh=Math.floor(h),mm=h%1?"30":"00";
   document.getElementById("ck").textContent=String(hh).padStart(2,"0")+":"+mm;
-  document.getElementById("dp").textContent=dp+" · "+effDay()+(S.shade!=="none"?" · "+S.shade:"")+" · "+S.wx+(S.wx==="fog"?"/"+fogStage(S.h):"")+(S.ev!=="none"?" · "+S.ev:"")+" · "+(seasonShade()?seasonShade().id:"—");
+  document.getElementById("dp").textContent=dp+" · "+effDay()+(S.shade!=="none"?" · "+S.shade:"")+" · "+S.wx+(S.wx==="fog"?"/"+fogStage(S.h):"")+(S.ev!=="none"?" · "+S.ev:"")+" · "+(seasonShade()?seasonShade().id:"—")+(annualShade()?" · "+S.annual:"");
   document.getElementById("zones").innerHTML=Object.keys(ZONES).map(zoneRow).join("");
   document.getElementById("scenes").innerHTML=SCENES.map(sc=>{
     const live=sc.ck({...S,dp});return `<div class="scene ${live?'live':''}"><span class="dot"></span><b>${sc.label}</b><span class="why">${live?"LIVE — ":""}${sc.why}</span></div>`;}).join("");
   document.getElementById("flows").innerHTML=FLOWS.map(flowRow).join("");
+  /* v71 postures panel: legal dwell vocabulary for the selected zone's kind */
+  const zk=ZONES[S.sel].kind;
+  document.getElementById("pvz").textContent=ZONES[S.sel].label;
+  document.getElementById("postures").innerHTML=POSTURES.map(p=>{
+    const ok=p.kinds.includes(zk);
+    return `<span class="mic ${ok?'':'off'}" title="${p.read}">${p.id}${p.pair?" ·2":""}</span>`;}).join("")+
+    `<div class="fine">dwell 45–180s · zone kind "${zk}" · pairs need a second dweller — never dispatched</div>`;
   document.getElementById("micros").innerHTML=MICROS.map(m=>
     `<span class="mic ${microActive(m)?'':'off'}" title="${m.note}">${m.id}</span>`).join("");
   document.getElementById("res").innerHTML=RESOURCES.map(r=>{
@@ -444,12 +526,12 @@ function render(){
       <span class="n">${locked?"inside lock — cleared":"claimable"}</span></div>`;}).join("");
   document.getElementById("roster").innerHTML=AMB.map(a=>{
     const[z,st]=ambWhere(a,S.h,S.day,S.wx);
-    return `<div class="r ${a[4]&&a[4].minor?'minor':''} ${S.ambSel===a[0]?'sel':''}" onclick="S.ambSel=S.ambSel==='${a[0]}'?null:'${a[0]}';render()"><b>${a[0]} ${a[1]}</b><br><span class="st">${st} · ${ZLABEL[z]||z}</span></div>`;}).join("");
+    return `<div class="r ${a[4]&&a[4].minor?'minor':''} ${S.ambSel===a[0]?'sel':''}" onclick="S.ambSel=S.ambSel==='${a[0]}'?null:'${a[0]}';render()"><b>${a[0]} ${a[1]}</b><br><span class="st">${PLABELS[st]||st} · ${ZLABEL[z]||z}</span></div>`;}).join("");
   const sel=S.ambSel&&AMB.find(a=>a[0]===S.ambSel);
   document.getElementById("acard").innerHTML=sel?(()=>{const[z,st]=ambWhere(sel,S.h,S.day,S.wx);const x=AMBX[sel[0]]||{};
     const greets=GREETS.filter(g=>g.w!=="none"&&(g.a===sel[0]||g.b===sel[0])).map(g=>{const o=g.a===sel[0]?g.b:g.a;const n=(AMB.find(a=>a[0]===o)||[0,o])[1];return n+" — "+g.form;}).join("; ");
     return `<div class="r" style="margin-top:8px;padding:9px 12px"><b>${sel[0]} ${sel[1]}</b> — ${sel[2]}${sel[4]&&sel[4].minor?' · <span style="color:var(--pink)">minor — public-space only</span>':''}
-      <div class="st" style="margin-top:4px">now: ${st} · ${ZLABEL[z]||z}</div>
+      <div class="st" style="margin-top:4px">now: ${PLABELS[st]||st} · ${ZLABEL[z]||z}${postureOf(sel,z,st)}</div>
       <div style="font-size:11.5px;margin-top:5px"><b>signature:</b> ${x.sig||"—"}</div>
       <div style="font-size:11.5px;margin-top:3px"><b>the week:</b> ${x.v||"—"}</div>
       ${greets?`<div style="font-size:11.5px;margin-top:3px"><b>knows:</b> ${greets}</div>`:""}
@@ -478,6 +560,10 @@ document.getElementById("fogTgl").querySelectorAll("button").forEach(b=>b.onclic
   S.fogAllDay=b.dataset.v==="allday";document.getElementById("fogTgl").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
 document.getElementById("seaTgl").querySelectorAll("button").forEach(b=>b.onclick=()=>{
   S.month=+b.dataset.v;document.getElementById("seaTgl").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
+document.getElementById("calTgl").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  S.annual=b.dataset.v;
+  const an=annualShade();if(an&&an.s.cal){S.month=an.s.cal[0];S.dom=an.s.cal[1];}
+  document.getElementById("calTgl").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
 render();
 </script>
 </body>

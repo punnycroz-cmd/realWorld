@@ -1,7 +1,7 @@
 {
- "version": 57,
+ "version": 71,
  "updated": "2026-09-23",
- "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on.",
+ "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully').",
  "conventions": {
   "hours": "game-local decimal; dayparts are half-open [h0,h1) wrapping at 24",
   "budget": "extras headcount range [lo,hi] the spawner maintains per zone, off-camera only",
@@ -30,7 +30,9 @@
   "ambients": "world/ambients.json — A01..A20, thin AI, routines + reflexes",
   "extras": "no identity/state/ledger/feed name; reflexes limited to yield|queue|shelter|rubberneck",
   "ambient_resources": "claimable sub-venue resources (v43) — a request claims the resource, not the venue; extras budget inside the resource radius → 0 for the window, staff ambient stays on routine",
-  "work_zones": "v43 zones for ambient workplaces; small budgets — most of the crowd inside is staff, not extras"
+  "work_zones": "v43 zones for ambient workplaces; small budgets — most of the crowd inside is staff, not extras",
+  "annual_shades": "v71 calendar-window layer — resolves season → annual (suppresses day shades when active) → weather",
+  "posture_palette": "v71 dwell vocabulary — extras and idle ambients hold labeled postures instead of freezing; honest labels map is the content fix for idle-label lies"
  },
  "dayparts": [
   {
@@ -1265,6 +1267,32 @@
     "zone": "doloresperk"
    },
    "note": "fires whenever the bench parliament is displaced — rain, storm, or an all-day fog. Same table by the window, same argument"
+  },
+  {
+   "id": "marigold-line",
+   "label": "The marigold line",
+   "when": {
+    "annual": "muertos",
+    "named": [
+     "A18"
+    ],
+    "zone": "bloomdoom"
+   },
+   "note": "Día de los Muertos week — the queue for orange bundles forms under Bloom & Doom's awning; Ida works it alone and doesn't hurry"
+  },
+  {
+   "id": "game-night-swell",
+   "label": "The game-night swell",
+   "when": {
+    "annual": "game-day",
+    "dayparts": [
+     "evening",
+     "night"
+    ],
+    "band_at_least": "busy",
+    "zone": "elfarolote"
+   },
+   "note": "jerseys passing through to dinner — a shade condition, not an event anyone was invited to"
   }
  ],
  "day_shades": {
@@ -1488,6 +1516,27 @@
      ]
     },
     "note": "transit spill — the block absorbs the city's commute"
+   },
+   {
+    "id": "f-edge-school",
+    "a": "edge",
+    "b": "school",
+    "dayparts": [
+     "commute",
+     "rush"
+    ],
+    "hours": [
+     7.25,
+     8.5
+    ],
+    "flow": {
+     "weekday": [
+      5,
+      9
+     ]
+    },
+    "micro": "school-dropoff",
+    "note": "the drop-off current — backpacks in, adults peeling back out; weekday only"
    }
   ]
  },
@@ -1627,6 +1676,47 @@
      "streets": 0.9
     },
     "note": "gusts shorten loitering — the alley and the sidewalks thin in the afternoon blow"
+   },
+   {
+    "id": "school-dropoff",
+    "when": {
+     "dow_not": [
+      "sat",
+      "sun"
+     ],
+     "hours": [
+      7.25,
+      8.5
+     ]
+    },
+    "edge_mult": {
+     "f-edge-school": 2.0
+    },
+    "zone_floor": {
+     "school": {
+      "commute": 3
+     }
+    },
+    "note": "the morning mirror of school-bell — the gate crowd arrives before the bell"
+   },
+   {
+    "id": "marigold-run",
+    "when": {
+     "months": [
+      10
+     ],
+     "dom": [
+      28,
+      31
+     ]
+    },
+    "zone_mult": {
+     "bloomdoom": 1.4
+    },
+    "silhouette_hint": [
+     "marigold-bag"
+    ],
+    "note": "the week before — orange bundles leave the shop all day; Ida's busiest stretch"
    }
   ]
  },
@@ -1663,7 +1753,11 @@
    "delivery-hotbox",
    "flat-cap",
    "headphones-big",
-   "umbrella-furled"
+   "umbrella-furled",
+   "jersey-cap",
+   "marigold-bag",
+   "folding-chair",
+   "umbrella-up"
   ],
   "gaits": [
    "purposeful",
@@ -1673,7 +1767,7 @@
    "dog-paced",
    "loaded"
   ],
-  "note": "24 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face"
+  "note": "28 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face. v71 adds calendar telltales (jersey-cap, marigold-bag, folding-chair, umbrella-up) — a silhouette can hint the date, never a name."
  },
  "greeting_matrix": {
   "rule": "familiarity weights between named ambients (mains noted where a routine crosses); a 'hi' weight = likely ≤15 s visual beat on same-zone collision, gated on greetable states; never moves a routine; observable-safe — no seed content; minors greet in public groups only",
@@ -1887,7 +1981,9 @@
   "overnight_honesty": "allow_deserted is protected — no system pads 00–04 to look alive",
   "scripts": "budgets and conditions only; no pawn is ever told where a scene should happen",
   "resources": "a resource claim never touches the staff ambient's routine and never turns an ambient into a protagonist; minors have no claimable resources",
-  "weather_vocab": "fog/wind/season ids are internal vocabulary — the wire still says band words and scene labels; a spectator sees a gray morning, never 'fog_season'"
+  "weather_vocab": "fog/wind/season ids are internal vocabulary — the wire still says band words and scene labels; a spectator sees a gray morning, never 'fog_season'",
+  "civic_vocab": "annual shade ids and posture ids are internal vocabulary — the wire still says band words and scene labels; a spectator sees jerseys and marigolds, never 'muertos'",
+  "postures": "postures are dwell conditions, not scripts — nobody is dispatched into one; minors never pair-posture outside the pack"
  },
  "ambient_resources": {
   "rule": "sub-venue resources a player request can claim for a declared window without locking the venue (design §11 compatible/exclusive classes still apply — a resource claim is an exclusive-class request on the resource, human-reviewed like any exclusive). The claim zeros the extras budget inside the resource radius for the window; the staff ambient keeps their routine — the venue works, the people stay background. Minors never staff or neighbor a claimable resource.",
@@ -1953,5 +2049,448 @@
     "note": "Bex's walk-in chair — a claim holds the slot; flash only, nothing the sheet doesn't already show"
    }
   ]
+ },
+ "annual_shades": {
+  "rule": "named calendar-window conditions resolved AFTER season shades and BEFORE day shades; when an annual shade matches, the day_shades layer is suppressed for that day (the holiday owns the day) — weather still stacks on top. Evaluation: all clauses in a window must match (months/dom/dow/nth = nth occurrence of dow in month); 'windows' lists alternatives (first hit wins). Budget arithmetic only — no routine is ever changed, no pawn is summoned. Ids are internal vocabulary — the wire still says band words and scene labels.",
+  "windows_schema": "{months:[1-12], dom:[lo,hi] inclusive day-of-month, dow:[mon..sun], nth:int} — omit any clause to match all; nth requires dow",
+  "shades": [
+   {
+    "id": "carnaval-weekend",
+    "when": {
+     "months": [
+      5
+     ],
+     "dow": [
+      "sat",
+      "sun"
+     ],
+     "dom": [
+      23,
+      31
+     ]
+    },
+    "zone_mult": {
+     "park": 1.4,
+     "clarion": 1.5,
+     "streets": 1.25,
+     "fruteria": 1.3,
+     "elfarolote": 1.2
+    },
+    "daypart_zone_mult": {
+     "afternoon": {
+      "park": 1.3,
+      "clarion": 1.3
+     },
+     "evening": {
+      "club600": 1.2
+     }
+    },
+    "edge_mult": {
+     "f-edge-streets": 1.5,
+     "f-mudhaus-park": 1.4
+    },
+    "silhouette_hint": [
+     "jersey-cap",
+     "folding-chair"
+    ],
+    "note": "the Mission's festival weekend — the park and the alley draw half the city; regulars learn the last weekend of May is never quiet"
+   },
+   {
+    "id": "game-day",
+    "when": {
+     "months": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "dow": [
+      "tue",
+      "wed",
+      "fri",
+      "sat"
+     ]
+    },
+    "dayparts": [
+     "evening",
+     "night"
+    ],
+    "zone_mult": {},
+    "daypart_zone_mult": {
+     "evening": {
+      "elfarolote": 1.2,
+      "streets": 1.25,
+      "club600": 1.1
+     },
+     "night": {
+      "elfarolote": 1.15,
+      "club600": 1.15
+     }
+    },
+    "edge_mult": {
+     "f-streets-elfarolote": 1.3,
+     "f-edge-streets": 1.2
+    },
+    "silhouette_hint": [
+     "jersey-cap"
+    ],
+    "note": "home-game evenings — the neighborhood isn't the stadium but the jerseys pass through on the way home; a dinner-hour swell, not a scene"
+   },
+   {
+    "id": "muertos",
+    "when": {
+     "months": [
+      11
+     ],
+     "dom": [
+      1,
+      2
+     ]
+    },
+    "zone_mult": {
+     "bloomdoom": 1.6,
+     "clarion": 1.3
+    },
+    "daypart_zone_mult": {
+     "evening": {
+      "streets": 1.35,
+      "clarion": 1.4
+     },
+     "night": {
+      "streets": 1.2
+     }
+    },
+    "edge_mult": {
+     "f-edge-streets": 1.3
+    },
+    "silhouette_hint": [
+     "marigold-bag"
+    ],
+    "note": "marigold week at Bloom & Doom, then the evening procession drift — candles and face paint pass down the commercial corridor; the feed sees the line, never the word"
+   },
+   {
+    "id": "pride-weekend",
+    "when": {
+     "months": [
+      6
+     ],
+     "dow": [
+      "sat",
+      "sun"
+     ],
+     "dom": [
+      20,
+      30
+     ]
+    },
+    "zone_mult": {
+     "clarion": 1.5,
+     "park": 1.2,
+     "streets": 1.2
+    },
+    "daypart_zone_mult": {
+     "afternoon": {
+      "park": 1.3
+     },
+     "night": {
+      "club600": 1.3
+     }
+    },
+    "silhouette_hint": [
+     "jersey-cap",
+     "folding-chair"
+    ],
+    "note": "the last June weekend — the alley dresses up, the park keeps the spill"
+   },
+   {
+    "id": "carfree-sunday",
+    "when": {
+     "months": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "dow": [
+      "sun"
+     ],
+     "nth": 2
+    },
+    "zone_mult": {
+     "streets": 1.4,
+     "park": 1.15
+    },
+    "edge_mult": {
+     "f-edge-streets": 1.4,
+     "f-mudhaus-park": 1.3
+    },
+    "silhouette_hint": [
+     "stroller",
+     "bike-shoulder",
+     "folding-chair"
+    ],
+    "note": "one Sunday a month the commercial corridor runs car-free — strollers and folding chairs where the curb lane was; the street itself is the venue"
+   },
+   {
+    "id": "labor-day",
+    "when": {
+     "months": [
+      9
+     ],
+     "dow": [
+      "mon"
+     ],
+     "dom": [
+      1,
+      7
+     ]
+    },
+    "zone_mult": {
+     "park": 1.2,
+     "folsom": 0.5,
+     "auerbach": 0.5,
+     "school": 0.3
+    },
+    "daypart_zone_mult": {
+     "commute": {
+      "streets": 0.5,
+      "minimart": 0.7
+     },
+     "rush": {
+      "streets": 0.5
+     }
+    },
+    "note": "the first Monday of September reads like a Sunday — the trades stay home, the park takes the overflow"
+   },
+   {
+    "id": "holiday-week",
+    "windows": [
+     {
+      "months": [
+       12
+      ],
+      "dom": [
+       24,
+       26
+      ]
+     },
+     {
+      "months": [
+       1
+      ],
+      "dom": [
+       1,
+       1
+      ]
+     }
+    ],
+    "zone_mult": {
+     "mudhaus": 0.6,
+     "bakery": 0.5,
+     "bloomdoom": 0.7,
+     "auerbach": 0.4,
+     "folsom": 0.3,
+     "needlepointe": 0.5,
+     "library": 0.4,
+     "minimart": 1.15
+    },
+    "daypart_zone_mult": {
+     "midday": {
+      "park": 1.2,
+      "streets": 1.1
+     },
+     "lunch": {
+      "park": 1.15
+     }
+    },
+    "note": "half the block is visiting someone — the counters go dark, Malik stays open, the park gets the family walk"
+   },
+   {
+    "id": "new-year-lull",
+    "windows": [
+     {
+      "months": [
+       12
+      ],
+      "dom": [
+       27,
+       31
+      ]
+     },
+     {
+      "months": [
+       1
+      ],
+      "dom": [
+       2,
+       8
+      ]
+     }
+    ],
+    "zone_mult": {
+     "streets": 0.8,
+     "mudhaus": 0.85,
+     "elfarolote": 0.85
+    },
+    "daypart_zone_mult": {
+     "rush": {
+      "streets": 0.7,
+      "mudhaus": 0.75
+     }
+    },
+    "note": "the between-week — no commute front, no lunch line; the quietest honest stretch of the year"
+   }
+  ]
+ },
+ "posture_palette": {
+  "rule": "dwell vocabulary for anything standing still: extras inside a zone budget who are not in transit or queue hold one posture and rotate on a dwell timer; named ambients whose resolved row is idle/sit/rest in a public zone cycle the same palette — the thin tier renders a small human behavior instead of freezing. Postures are conditions on (zone kind, pair availability), never scripts; nothing is dispatched to fill one. Minors pair only within the pack — a lone minor posture is always solo.",
+  "dur_window_s": [
+   45,
+   180
+  ],
+  "labels": {
+   "idle": "Between things",
+   "rest": "Resting",
+   "sit": "Sitting",
+   "talk": "Talking",
+   "chat": "Talking",
+   "serve": "Serving",
+   "work": "Working",
+   "walk": "Walking",
+   "run": "Running",
+   "carry": "Carrying",
+   "phone": "On the phone",
+   "play": "Playing",
+   "drink": "Drinking",
+   "sleep": "Asleep",
+   "queue": "Waiting in line",
+   "transit": "Passing through"
+  },
+  "postures": [
+   {
+    "id": "phone-check",
+    "kinds": [
+     "cafe",
+     "shop",
+     "civic",
+     "open_air",
+     "restaurant",
+     "bar",
+     "stand"
+    ],
+    "pair": false,
+    "read": "the glow-up glance — pocket, check, pocket"
+   },
+   {
+    "id": "window-shop",
+    "kinds": [
+     "shop"
+    ],
+    "pair": false,
+    "read": "face to glass, hands behind back, not buying"
+   },
+   {
+    "id": "lean-wait",
+    "kinds": [
+     "open_air",
+     "shop",
+     "bar",
+     "stand"
+    ],
+    "pair": false,
+    "read": "shoulder to a wall/pole, one foot up — waiting on someone nobody names"
+   },
+   {
+    "id": "pair-chat",
+    "kinds": [
+     "cafe",
+     "open_air",
+     "bar",
+     "civic"
+    ],
+    "pair": true,
+    "read": "two extras facing in — the block's standing conversations"
+   },
+   {
+    "id": "nurse-cup",
+    "kinds": [
+     "cafe"
+    ],
+    "pair": false,
+    "read": "a twenty-minute coffee held like an hour"
+   },
+   {
+    "id": "bench-sprawl",
+    "kinds": [
+     "open_air"
+    ],
+    "pair": false,
+    "read": "park bench, arm along the back, watching the grass"
+   },
+   {
+    "id": "smoke-stand",
+    "kinds": [
+     "bar",
+     "shop",
+     "open_air"
+    ],
+    "pair": false,
+    "read": "the doorway two-step — outside, one hand cupped"
+   },
+   {
+    "id": "watch-street",
+    "kinds": [
+     "open_air",
+     "stand",
+     "shop"
+    ],
+    "pair": false,
+    "read": "stillness aimed at traffic — the cheapest entertainment on the block"
+   },
+   {
+    "id": "bag-shift",
+    "kinds": [
+     "shop",
+     "stand",
+     "open_air"
+    ],
+    "pair": false,
+    "read": "groceries swapped hand to hand — the wait that isn't rest"
+   },
+   {
+    "id": "stretch-look",
+    "kinds": [
+     "open_air",
+     "civic"
+    ],
+    "pair": false,
+    "read": "stops mid-block, arches, scans — lost or lazy, unreadable"
+   },
+   {
+    "id": "read-folded",
+    "kinds": [
+     "cafe",
+     "civic",
+     "open_air"
+    ],
+    "pair": false,
+    "read": "a paper folded to one column — Esther's posture, borrowed"
+   },
+   {
+    "id": "leash-tangle",
+    "kinds": [
+     "open_air"
+    ],
+    "pair": true,
+    "read": "two dog leads braided, owners untangling — Doro's world, scaled down"
+   }
+  ],
+  "ambient_idle": "when a named ambient's resolved state is idle/sit/rest in a public zone, the renderer picks a legal posture by hash(id, daypart, zone) — honest label from labels[]; never inside 'home', never while sleeping"
  }
 }

@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -436,3 +436,79 @@ Spawner contract addition: `crowdBudget(zone, daypart, weather, shade,
 season, events)` — `season` resolves first; `fogStage(hour, all_day) ->
 deep|patchy|burned` reads `fog_model.day_profile`, and `all_day` holds
 `patchy` through the burned dayparts.
+
+## 21. The civic year (v71)
+
+`annual_shades` is the layer between the climate and the day: named
+calendar-window conditions that resolve **after** `season_shades` and
+**before** `day_shades` — and when one matches, the day shades are
+suppressed for that day. The holiday owns the day; `fri`/`sun`/`mon`/
+`first_of_month` are ordinary-week vocabulary and don't apply when the
+calendar has already claimed the date. Weather still stacks on top —
+a rainy Carnaval is a thin Carnaval, not a cancelled one.
+
+Window grammar (`when` or `windows` for alternatives, first hit wins):
+`months`, `dom` (inclusive day-of-month range), `dow`, and `nth`
+(nth occurrence of `dow` in the month — `nth` requires `dow`). All
+clauses in a window must match. Evaluation is budget arithmetic only:
+`zone_mult`, `daypart_zone_mult`, `edge_mult`, `silhouette_hint`. No
+routine is ever changed and no pawn is summoned — Ida opens Bloom &
+Doom on November 1st exactly like any day; the `×1.6` budget and the
+marigold bags do the storytelling.
+
+The eight shades:
+
+| shade | window | what it does |
+|---|---|---|
+| `carnaval-weekend` | May, Sat–Sun, 23–31 | park/Clarion ×1.4–1.5, afternoon swell, folding chairs on the sidewalk |
+| `game-day` | Apr–Sep, Tue/Wed/Fri/Sat | dinner-hour jersey drift through El Farolote and the 600; a swell, not a scene |
+| `muertos` | Nov 1–2 | Bloom & Doom ×1.6, evening procession drift down the corridor, marigold bags |
+| `pride-weekend` | Jun, Sat–Sun, 20–30 | Clarion dresses up, the park keeps the spill, the 600 runs late |
+| `carfree-sunday` | Mar–Oct, 2nd Sunday | the commercial corridor goes car-free — strollers and folding chairs in the curb lane |
+| `labor-day` | first Mon of Sep | the trades stay home (folsom/auerbach/school ×0.3–0.5), the park takes the overflow |
+| `holiday-week` | Dec 24–26, Jan 1 | half the block is visiting someone — counters dark, Malik open, the family walk in the park |
+| `new-year-lull` | Dec 27–31, Jan 2–8 | no commute front, no lunch line — the quietest honest stretch of the year |
+
+Two scenes and two micro-events ride the layer: `marigold-line` (Ida's
+queue under the awning during `muertos`), `game-night-swell` (jerseys
+through to dinner on `game-day` evenings when the taqueria is already
+busy), `school-dropoff` (the morning mirror of `school-bell` on the new
+`f-edge-school` edge), and `marigold-run` (Oct 28–31, the week before —
+Bloom & Doom's busiest stretch). Four calendar telltale silhouettes
+join the palette: `jersey-cap`, `marigold-bag`, `folding-chair`,
+`umbrella-up`. A silhouette can hint the date, never a name.
+
+Ids are internal vocabulary (`civic_vocab`): the wire still says band
+words and scene labels — a spectator sees jerseys and marigolds, never
+the string "muertos".
+
+## 22. The posture palette (v71)
+
+The fix for "Resting peacefully" everywhere is vocabulary, not
+animation. `posture_palette` is the dwell layer: extras inside a zone
+budget who aren't in transit or queue hold **one posture** and rotate
+on a 45–180 s dwell timer; named ambients whose resolved row is
+idle/sit/rest in a public zone pick a legal posture by
+`hash(id, daypart, zone)`. The thin tier renders a small human
+behavior instead of freezing — and the feed gets an honest label.
+
+- `labels` maps every state id to display copy: `idle` → "Between
+  things", `rest` → "Resting", `sit` → "Sitting", `queue` → "Waiting in
+  line"… **No default may imply sleep.** The label lies die here.
+- Twelve postures, each gated on zone kind and pair availability:
+  `phone-check` anywhere public, `window-shop`/`bag-shift` at shops and
+  stands, `nurse-cup`/`read-folded` at cafés and civic steps,
+  `bench-sprawl`/`watch-street`/`stretch-look` in the open air,
+  `lean-wait`/`smoke-stand` at doorways, and the pair postures
+  `pair-chat` and `leash-tangle` — two dwellers braided into one beat.
+- Postures are **conditions on (zone kind, pair availability), never
+  scripts** — nothing is dispatched to fill one. A pair posture
+  requires two dwellers already present; the second one isn't sent for.
+- Minors pair only within the pack; a lone minor's posture is always
+  solo. Postures never render inside `home` and never while sleeping.
+
+Spawner contract addition: `crowdBudget(zone, daypart, weather, shade,
+season, events, annual)` — `annual` resolves after `season` and
+suppresses `shade` when it matches; `postureFor(zone_kind, pair_ok)`
+draws from the palette; `idleLabel(state)` reads `labels` and is the
+only legal idle read on the wire.

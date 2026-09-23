@@ -1386,7 +1386,72 @@ const PUB = Object.values(PT.surfaces)
     for (const a of AMB.ambients)
       if (!(a.weather && a.weather.fog))
         add(g, 'fail', 'ambients.json', null, `${a.id}: no weather.fog answer — fog is the default SF condition, every card must respond`);
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered`;
+    /* v71: the civic year + posture palette — mirror + integrity */
+    const ANN = pull('ANNUAL', '{}'), POS = pull('POSTURES', '[]'), PLB = pull('PLABELS', '{}');
+    const jAnn = (CJ.annual_shades || {}).shades || [];
+    if (JSON.stringify(Object.keys(ANN).sort()) !== JSON.stringify(jAnn.map(s => s.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'ANNUAL keys != annual_shades ids');
+    const annIds = new Set(jAnn.map(s => s.id)), silh = new Set((CJ.appearance_palette || {}).silhouettes || []);
+    const DOWS = new Set(['mon','tue','wed','thu','fri','sat','sun']);
+    const winCheck = (sid, w) => {
+      for (const m of w.months || [])
+        if (!Number.isInteger(m) || m < 1 || m > 12) add(g, 'fail', 'crowd.json', null, `annual ${sid}: bad month ${m}`);
+      if (w.dom && !(Array.isArray(w.dom) && w.dom.length === 2 && w.dom[0] >= 1 && w.dom[1] <= 31 && w.dom[0] <= w.dom[1]))
+        add(g, 'fail', 'crowd.json', null, `annual ${sid}: bad dom range`);
+      for (const d of w.dow || [])
+        if (!DOWS.has(d)) add(g, 'fail', 'crowd.json', null, `annual ${sid}: bad dow "${d}"`);
+      if (w.nth != null && !w.dow) add(g, 'fail', 'crowd.json', null, `annual ${sid}: nth requires dow`);
+      for (const dp of w.dayparts || [])
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `annual ${sid}: unknown daypart "${dp}"`);
+    };
+    for (const s of jAnn) {
+      const wins = s.windows || (s.when ? [s.when] : []);
+      if (!wins.length) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: no window`);
+      wins.forEach(w => winCheck(s.id, w));
+      for (const z of Object.keys(s.zone_mult || {}))
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: unknown zone ${z}`);
+      for (const [dp, mm] of Object.entries(s.daypart_zone_mult || {})) {
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: unknown daypart ${dp}`);
+        for (const z of Object.keys(mm)) if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `annual ${s.id}.${dp}: unknown zone ${z}`);
+      }
+      for (const e of Object.keys(s.edge_mult || {}))
+        if (!flIds.has(e)) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: edge_mult "${e}" is not a flow edge`);
+      for (const si of s.silhouette_hint || [])
+        if (!silh.has(si)) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: silhouette_hint "${si}" not in appearance_palette`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(s)))
+        add(g, 'fail', 'crowd.json', null, `annual ${s.id}: meta vocabulary`);
+      const H = ANN[s.id];
+      if (H && JSON.stringify(H.zone_mult || null) !== JSON.stringify(s.zone_mult || null))
+        add(g, 'fail', 'crowd.html', null, `ANNUAL.${s.id}.zone_mult drifted`);
+    }
+    for (const s of CJ.scenes)
+      if (s.when && s.when.annual && !annIds.has(s.when.annual))
+        add(g, 'fail', 'crowd.json', null, `scene ${s.id}: unknown annual "${s.when.annual}"`);
+    for (const e of CJ.micro_events.events) {
+      for (const m of (e.when || {}).months || [])
+        if (!Number.isInteger(m) || m < 1 || m > 12) add(g, 'fail', 'crowd.json', null, `micro ${e.id}: bad month ${m}`);
+      if (e.when && e.when.dom && !(e.when.dom[0] <= e.when.dom[1]))
+        add(g, 'fail', 'crowd.json', null, `micro ${e.id}: bad dom range`);
+    }
+    /* posture palette: ids mirror, kinds legal, labels cover every state,
+       pair postures flagged — honest idle vocabulary under audit */
+    const jPos = (CJ.posture_palette || {}).postures || [];
+    if (JSON.stringify(POS.map(p => p.id).sort()) !== JSON.stringify(jPos.map(p => p.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'POSTURES ids != posture_palette ids');
+    const kinds = new Set(Object.values(CJ.zones).map(z => z.kind));
+    for (const p of jPos) {
+      for (const k of p.kinds || [])
+        if (!kinds.has(k)) add(g, 'fail', 'crowd.json', null, `posture ${p.id}: unknown zone kind "${k}"`);
+      if (!p.id || !p.read) add(g, 'fail', 'crowd.json', null, `posture missing id/read`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(p)))
+        add(g, 'fail', 'crowd.json', null, `posture ${p.id}: meta vocabulary`);
+    }
+    const jLbl = (CJ.posture_palette || {}).labels || {};
+    for (const st of [...LEGAL_ST, 'talk', 'queue', 'transit'])
+      if (!jLbl[st]) add(g, 'fail', 'crowd.json', null, `posture_palette.labels missing "${st}" — no state may fall back to a lie`);
+    for (const st of Object.keys(jLbl)) if (!PLB[st])
+      add(g, 'fail', 'crowd.html', null, `PLABELS missing "${st}"`);
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 
