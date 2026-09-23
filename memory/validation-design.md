@@ -659,3 +659,60 @@ named there. Headline additions — the compensation layer:
   `collab_partner_gain` (Barnier et al. 2014 crossover).
 
 Registry now P1–P153; numbering stable.
+
+## 16. New probes P154–P162 (v17, emotional-memory II suite)
+
+Normative definitions in `emotional-memory.md` §24; constrained
+params named there. Headline additions — the affect-tag layer:
+
+- **P154 peak-end tag (MUST):** two episodes, same mean affect and
+  duration; A spikes arousal 0.9 mid-way and ends calm, B flat 0.5.
+  Stored `arousal_tag` must satisfy tag(A) > tag(B) by ≥30%, and
+  doubling duration moves neither tag >5% (duration neglect,
+  Kahneman et al. 1993). FAIL if tag = mean. Constrains `peak_w`,
+  `end_w`, `affectSeries`.
+- **P155 sleep strips heat (SHOULD):** arousal-0.8 record's arousal
+  tag falls faster across sleep ticks than across matched waking
+  intervals; `trauma:true` control unaffected; content strength and
+  arousal MUST decouple (same-ratio decay = FAIL). Constrains
+  `sleep_affect_strip` (Walker & van der Helm 2009 — flagged
+  DEBATED; if the harness can't distinguish, the param stays at
+  default, never silently raised).
+- **P156 item-context tradeoff (MUST):** arousal-0.75 event vs
+  matched neutral → higher core-field accuracy, LOWER `when`/source
+  accuracy, fewer links; arousal-0.4 record shows the split
+  attenuated ≥50% (graded — Kensinger & Schacter 2005; Madan 2017).
+  Constrains `emo_assoc_loss`.
+- **P157 verbal dampening (SHOULD):** identical negative record,
+  social retell ×6 vs solo rehearsal ×6 → social path arousal tag
+  lower by ≈`verbal_dampen`×6, solo unchanged; strength rises in
+  BOTH paths (cooler ≠ weaker — the discriminating clause, Lieberman
+  2007). Constrains `verbal_dampen`.
+- **P158 regulation split (SHOULD):** `regulate_style` 0.15 vs 0.85
+  characters on the same hot event → suppressor record weaker
+  overall; reappraiser normal strength but cooler tag. FAIL if both
+  lose strength (Richards & Gross 2000 sign-lock). Constrains
+  `reg_suppress_cost`, `reg_reappraise_k`.
+- **P159 generalization gradient (MUST):** conditioned dread at
+  place P emits detectable affect at similar place Q, none at
+  dissimilar R; a 2-trauma-load character emits at intermediate
+  similarity where 0-load does not (Lissek 2010 flattening).
+  Constrains `gen_width`.
+- **P160 FAB self-boundary (MUST — sign-locked):** matched negative
+  events at selfRelevance 0.8 vs 0.2 → 30d later the self event's
+  negative tag faded ~1.3× positive rate; the non-self event fades
+  at POSITIVE baseline. FAIL if non-self negative affect shows the
+  gated rate (Walker 2003). Constrains `fab_self_gate`.
+- **P161 contagion (SHOULD):** same account, flat vs expressive
+  teller, high-empathy listener → listener arousal scales with
+  `speaker_express`; an arousal-0.9 expressive telling can mint a
+  CondEntry on a place never personally encoded (Olsson & Phelps
+  2007 vicarious conditioning). Constrains `contagion_k`,
+  `empathy_trait`.
+- **P162 reconsolidation extinction (SHOULD):** safe exposure inside
+  `reconsol_window` of a fire → suppressor marked `deep`; after
+  `recovery_days` quiet, deep suppressor intact while a normal
+  suppressor decayed by `recovery_frac` (Schiller 2010 — flagged
+  DEBATED). Constrains `reconsol_window`, `reconsol_extinct_gain`.
+
+Registry now P1–P162; numbering stable.

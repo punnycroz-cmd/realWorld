@@ -522,3 +522,485 @@ condition that would invalidate the mechanism as implemented.
   depression's encoding deficit) — only the retrieval/retention
   phenotype. If bibles need it, it's a `enc_base` modifier, not new
   machinery.
+
+---
+
+# Part II — v17: the affect-tag layer (2026-09-23, second pass)
+
+Part I (v0.5) built the *record-level* machinery: consolidation bonus,
+blink, valence-fidelity split, stress timing, conditioned affect, trauma
+phenotype, mood bleed. Part II deepens what Part I left as scalars: **how
+the emotional tag is born** (§13), **how it changes at sleep** (§14),
+**the item-vs-context tradeoff generalized** (§15), **what retelling does
+to feeling** (§16), **emotion-regulation personality** (§17),
+**generalization of conditioned affect** (§18), **the self-boundary of
+the fading affect bias** (§19), **contagion through hearsay** (§20),
+**reconsolidation-window extinction** (§21), then spec delta (§22), age
+guidance (§23), probes P154–P162 (§24), honest limits (§25).
+
+Tag convention unchanged: **[CONSENSUS] / [DEBATED] / [HYPOTHESIS]**.
+
+---
+
+## 13. The affect tag is born by peak-end, not by mean
+
+Part I took the event's `arousal`/`valence` fields as given. Inside an
+episode, felt affect fluctuates; what survives into the summary tag is
+not the integral. The peak-end literature:
+
+- Kahneman, Fredrickson, Schreiber & Redelmeier 1993 (Psychol. Sci.,
+  cold-pressor): remembered pain tracks peak + end intensity; duration
+  is neglected — a longer trial ending less painfully is preferred.
+- Redelmeier & Kahneman 1996 (Pain, colonoscopy): same result in a
+  real medical episode — peak + end dominated retrospective ratings,
+  duration essentially zero weight.
+- Fredrickson & Kahneman 1993 (J. Pers. Soc. Psychol.): duration
+  neglect formalized for affective episodes generally.
+- Do, Rupert & Wolford 2008 (Psychon. Bull. Rev.): peak-end holds for
+  real-world emotional episodes; the *end* component grows with delay.
+- Kemp, Burt & Furneaux 2008: peak-end predicts affective forecasting
+  errors — the tag is what gets consulted later.
+
+**[CONSENSUS]** for the peak-end/duration-neglect pattern in
+retrospective affect; **[DEBATED]** whether it is encoding or
+reconstruction — we treat it as a *birth-time* tag-setting rule because
+the sim needs a stored scalar, and the behavioral consequence
+(retrospective judgment driven by peak+end) is identical.
+
+**Spec consequence (§2, tag-setting — supersedes "event carries a
+scalar"):** when `encodeEvent` receives an episode with an affect
+trajectory (game-systems supplies `affectSeries` when available, else
+the scalar as before):
+
+```
+arousal_tag  = peak_w·max_t(arousal) + end_w·arousal(final tick)
+valence_tag  = peak_w·valence(peak_arousal tick) + end_w·valence(end)
+duration enters NOWHERE in the tag — only via n_sim/interference
+peak_w ≈ 0.55, end_w ≈ 0.45
+```
+
+Consequences the world gets for free: a bad evening rescued by a kind
+last ten minutes *feels* kinder in memory than it deserved; a long
+pleasant day and a short pleasant day leave the same tag (duration
+neglect); endings are leverage — whoever controls the end of a scene
+controls the tag. (P154)
+
+---
+
+## 14. Sleep quiets the feeling, not the story — probably
+
+Walker & van der Helm 2009 (Psychol. Bull., "Overnight therapy?") —
+the REM-sleep depotentiation hypothesis: sleep consolidates emotional
+*content* while stripping the *affective tone*. Evidence pro: amygdala
+reactivity to previously-shown emotional stimuli is reduced after
+sleep/REM (van der Helm et al. 2011 Curr. Biol.); emotional memory
+trade-off consolidates preferentially over sleep (Payne & Kensinger
+2011). Evidence con: several failures to find affect stripping —
+Wiesner et al. 2015; Groch et al. 2015; some datasets show arousal
+preserved or even amplified by sleep. Meta-state: content
+consolidation [CONSENSUS]; affect stripping [DEBATED — plausible,
+unreplicated in clean form].
+
+**Spec consequence (§2 sleep tick — small, flagged):**
+
+```
+at each sleep tick:  emotional.arousal *= (1 − sleep_affect_strip)
+                     sleep_affect_strip ≈ 0.04, episodic records,
+                     capped: arousal never drops below 0.15 by this path
+exempt:              trauma:true records — §7's re-stamping and the
+                     clinical fact that traumatic affect does NOT quiet
+                     over sleep are the same modeling decision
+```
+
+Kept deliberately small (a ~4%/night creep, compounding to ~half the
+felt heat over 17 nights) and separately toggleable — if future data
+kill depotentiation, set 0. The everyday signature it produces is
+correct either way: the fight from last month is remembered clearly
+and doesn't hurt like it did. The valence tag is untouched —
+`arousal_affect_decay` (v0.5) handles within-record decay; this term
+is the *sleep-specific* channel. (P155)
+
+---
+
+## 15. Arousal buys the item and sells the context — generalizing §7
+
+Part I gave trauma records a fragmented frame. The lab result is
+graded, not thresholded:
+
+- Kensinger & Schacter 2005 (NeuroImage): amygdala engagement at
+  encoding predicts subsequent *item* memory but NOT context/source
+  memory — the amygdala boosts "what" and lets "where/when/who-else"
+  fall.
+- Bisby & Burgess 2014 (Cereb. Cortex) / Bisby, Horner, Hørlyck &
+  Burgess 2016: negative emotion reduces associative memory for items
+  encountered together; context resistance manipulations.
+- Madan, Caplan, Lau & Fujiwara 2012; Madan et al. 2017: arousal
+  impairs *associative* memory while sparing or enhancing item memory —
+  graded by arousal, not gated by a threshold.
+- Rimmele, Davachi et al. 2011: emotion enhances item recognition,
+  impairs source/context detail, same stimulus set.
+
+**[CONSENSUS]** — the item-context tradeoff is one of the best-
+replicated dissociations in the emotional-memory literature.
+
+**Spec consequence (§2 — extends ABC into the relational layer):**
+ABC (§2.1) reallocates strength *within* the event's fields; the
+item-context tradeoff reallocates *between* item fields and the
+event's connective tissue:
+
+```
+for episodic records with arousal ≥ 0.5:
+    link_p_eff   = link_p · (1 − emo_assoc_loss·arousal)   // ≈0.25
+    verbatim.when strength *= (1 − emo_assoc_loss·arousal)
+    source-tag initial strength *= (1 − emo_assoc_loss·arousal)
+emo_assoc_loss ≈ 0.25 — half the effect at arousal 1.0, graded
+```
+
+Emergent and correct: the insult is unforgettable, which booth it
+happened in is gone; she remembers the announcement perfectly and
+swears she heard it from Priya — she read it in the group chat.
+§7's trauma phenotype (`when`/ordering at half strength) is now the
+endpoint of this graded curve, not a special case — keep the trauma
+clause as an *additional* hard halving on top. (P156)
+
+---
+
+## 16. Saying it changes it — verbal dampening of the affect tag
+
+Part I's retelling machinery (retell_boost on strength, drift on
+content) left the affect tag inert — retold records kept their heat
+forever except for slow decay. But putting feelings into words measurably
+quiets them:
+
+- Lieberman et al. 2007 (Psychol. Sci.): affect labeling reduces
+  amygdala response — verbalizing emotion down-regulates it.
+- Pennebaker's disclosure literature (1997 review): structured
+  verbal/written processing reduces intrusive affect over repetitions.
+- Retrieval-extinction adjacency: recounting in a safe context is the
+  naturalistic version of an extinction trial (§21 below).
+- Counter-force already modeled: §5.9 re-stamps arousal on intrusion;
+  rumination (§8) rehearses affect. The split that resolves it is
+  *social* retelling dampens, *solitary* rehearsal doesn't —
+  consistent with the disclosure literature being interpersonal or
+  expressive, and rumination being internally repetitive.
+
+**[CONSENSUS]** that affect labeling/disclosure down-regulates felt
+affect; **[HYPOTHESIS]** the social/solitary split as the sim
+mechanism.
+
+**Spec consequence (§6.11 / §5.5):**
+
+```
+on retell (audience present):  emotional.arousal *= (1 − verbal_dampen)
+                               verbal_dampen ≈ 0.05 per telling,
+                               valence untouched
+exempt:                        trauma:true records (§7 — intrusions
+                               re-stamp; disclosure doesn't mute the
+                               flashback, it may do nothing at all)
+solitary rehearsal (§4.13 draw with no audienceId): NO dampen —
+                               the ruminator's loop stays hot
+```
+
+Emergent: the character who *talks about* the breakup cools off; the
+one who replays it alone at 2 a.m. keeps it radioactive. Combined with
+§19's FAB gate this gives the two real routes to an emotional scar:
+never tell it, or tell it to no effect (trauma). (P157)
+
+---
+
+## 17. Regulation style is a personality parameter
+
+Part I had one regulation-adjacent hook (`daLoad`). The individual-
+difference literature separates two strategies with opposite memory
+costs:
+
+- Richards & Gross 1999, 2000 (JPSP): **expressive suppression**
+  (holding the face still) consumes self-regulatory resource *during*
+  the event → memory for the event itself is impaired. Reappraisal —
+  reinterpreting the situation — does NOT impair memory; it changes
+  what gets stored.
+- Dillon, Ritchey, Johnson & LaBar 2007: reappraisal alters the
+  affective tag of what is later remembered (down-regulated arousal
+  encodes weaker).
+- Sheppes & Gross reviews: habitual style is trait-stable and predicts
+  which mechanism runs.
+
+**[CONSENSUS]** on the suppression-costs/reappraisal-transforms split.
+
+**Spec consequence (§2 — one new trait + two paths):**
+
+```
+trait regulate_style ∈ [0,1]:  0 = habitual suppressor, 1 = reappraiser
+suppressor (regulate_style < 0.5):
+    on events with arousal ≥ reg_thresh (0.6):
+        enc_base *= (1 − reg_suppress_cost·(1−regulate_style))
+        // reg_suppress_cost ≈ 0.2 — the act of holding still
+        // eats the encoding budget; the stoic remembers less of
+        // the hard day
+reappraiser (regulate_style ≥ 0.5):
+    on events with arousal ≥ reg_thresh:
+        arousal_tag *= (1 − reg_reappraise_k·(regulate_style−0.5)·2)
+        // reg_reappraise_k ≈ 0.25 — the tag is born cooler;
+        // then §13 peak-end applies to the reappraised series
+```
+
+Trait feeds from the bible like `stereo_suscept`. Emergent: the
+unflappable landlord genuinely *has* less to remember from the
+eviction scene — not because he hid it, but because composure taxed
+the recorder; the therapist-type remembers it fine but less hot.
+(P158)
+
+---
+
+## 18. Conditioned affect generalizes — and trauma widens the gradient
+
+§4.9's CondEntry keyed on exact cue match. Conditioning is not
+exact-match:
+
+- Dunsmoor et al. 2009 (Nat. Neurosci.): conditioned fear generalizes
+  to perceptually similar stimuli along a gradient.
+- Dunsmoor & Paz 2015 (Annu. Rev.): generalization is tuned by
+  anxiety — anxious/traumatized brains generalize *broadly*
+  (Lissek et al. 2005, 2010: panic/PTSD patients show flat
+  generalization gradients — the conditioned response doesn't fall
+  off with dissimilarity).
+- Conceptual generalization (Dunsmoor, Martin & LaBar 2012): fear
+  transfers across *category* membership, not just perceptual
+  similarity — the cue-vector machinery can express this directly.
+
+**[CONSENSUS]** on gradient existence and anxiety-broadening.
+
+**Spec consequence (§4.9 upgrade — similarity-keyed firing):**
+
+```
+on ambient/context ticks, for each CondEntry e:
+    sim = cueVector similarity(e.cue, C cues)   // same sim machinery
+                                               // as cueMatch
+    if sim ≥ 1 − gen_width:   emit valence·strength·sim
+gen_width ≈ 0.25 default; trauma modifier and each trauma:true record
+    widen the character's effective width: gen_width_eff =
+    min(0.6, gen_width + 0.15·n_trauma_records)
+extinction accrues to safeCount keyed on the *fired similarity band*,
+so close-but-safe neighbors partially extinguish (gradient-shaped
+extinction — mirrors acquisition)
+```
+
+Emergent: mugged outside Mudhaus → dreads Mudhaus, uneasy on that
+whole block, faintly wary of all dark storefronts; after the second
+assault, the whole street after dark is hot. Positive conditioning
+generalizes too — the bakery that smells like the good summer. (P159)
+
+---
+
+## 19. The fading affect bias has a self-boundary — gossip doesn't heal
+
+`neg_affect_decay` (v0) applied the FAB globally. The boundary
+conditions:
+
+- Walker, Skowronski & Thompson 2003 (Rev. Gen. Psychol.): FAB —
+  negative affect fades faster than positive — is established for
+  *autobiographical* events and functions as self-enhancement.
+- Ritchie, Skowronski et al. 2006/2015: FAB attenuates or reverses
+  in dysphoria (already modeled via the depressive modifier ×0.7) —
+  and is weaker for events *about other people*; the mechanism is
+  self-referential reappraisal, which doesn't run on gossip.
+- Related self-protective asymmetry: mnemic neglect (v0.8,
+  `mnemic_*`) already gates on self-relevance — the FAB boundary is
+  the same shape.
+
+**[CONSENSUS]** for the self-relevance boundary; the others-events
+clause is thinner → mark the non-self case **[DEBATED]** and gate it.
+
+**Spec consequence (§4.5 refinement — gate, not new rate):**
+
+```
+neg_affect_decay applies only if record.selfRelevance_eff ≥
+    fab_self_gate (0.4)
+below the gate: negative affect decays at the POSITIVE baseline rate
+    (no asymmetry) — the bad thing that happened to your coworker
+    stays exactly as bad in memory; only *your* wounds heal faster
+depressive modifier ×0.7 now reads as ×0.7 on the gated rate —
+    dysphoria weakens the self-referential repair, unchanged intent
+```
+
+Emergent: a character's own humiliation fades in felt sting, but
+*witnessed* injustices keep their charge — which is why old grievances
+about what was done to *others* (the eviction everyone watched) can
+power collective memory long after personal slights cooled. Also
+fixes a subtle wrongness in v0: a neighborhood scandal remembered by
+spectators was losing its negative valence like a personal
+embarrassment. (P160)
+
+---
+
+## 20. Contagion: hearsay carries heat, scaled by the teller
+
+`hearAccount` records inherited content but the arousal they stored was
+unspecified. Social sharing of emotion:
+
+- Rimé's social-sharing-of-emotion program (1995, 2009 review): people
+  retell emotional events at rates proportional to intensity; the
+  *listener's* response is an emotional event of its own.
+- Hatfield, Cacioppo & Rapson 1993: emotional contagion — expressed
+  affect transfers to perceivers, moderated by expressivity of sender
+  and susceptibility of receiver.
+- Peters & Kashima 2007, 2015: shared emotion in rumor/gossip
+  propagation — emotional content travels further; listener arousal is
+  the transmission fuel (ties to `retell_social`).
+- Harber & Cohen 2005: emotional arousal in the teller increases
+  sharing intent — the loud version propagates.
+
+**[CONSENSUS]** direction; magnitudes ours to set **[HYPOTHESIS]**.
+
+**Spec consequence (§6.3 / hearAccount — tag on secondhand records):**
+
+```
+on hearAccount, the told_by record's tag:
+    arousal = source_arousal · contagion_k · speaker_express
+                  · (0.5 + 0.5·empathy_trait)
+    contagion_k ≈ 0.5 — secondhand is half as hot, not zero;
+    speaker_express ∈ [0.5,1.5] from PersonModel/display stats,
+    empathy_trait from bible (profiles: low-empathy characters hear
+    tragedies cold)
+    valence adopts the account's valence directly (sign survives
+    retelling; magnitude is what attenuates)
+feeds §18: a high-arousal hearsay record CAN still cross cond_thresh —
+    secondhand trauma conditions places the character has never been
+    scared in personally (vicarious conditioning — real, Olsson &
+    Phelps 2007)
+```
+
+Emergent: the rumor about the fire leaves a warm shadow of dread on
+the building even for people who weren't there; the dry reteller
+inoculates, the dramatic one infects. Vicarious conditioning is the
+mechanism that lets neighborhood-wide trauma exist. (P161)
+
+---
+
+## 21. Reconsolidation-window extinction — the timing carve-out
+
+§4.9 extinction was context-bound suppression. One stronger tool exists:
+
+- Schiller et al. 2010 (Nature): extinction training delivered
+  *inside* the reconsolidation window (~10min–6h after fear reactivation)
+  prevents the return of fear — the original association is updated,
+  not merely suppressed (in humans, persistent at 1 year).
+- Replication state **[DEBATED]**: several partial replications and
+  some failures (Chalkia et al. 2020 meta-analysis finds the effect
+  real but fragile — boundary conditions on the reminder trial).
+- Mechanism consensus **[CONSENSUS]**: reactivated memories are
+  labile for a window (Nader, Schafe & LeDoux 2000); what happens in
+  the window writes deeper than what happens outside it.
+
+**Spec consequence (§4.9 addition — one flag, one rule):**
+
+```
+when a CondEntry fires (ambient or recall), set lastFireDay and open
+    reconsol_open = true for reconsol_window days (0.25 ≈ 6h)
+a safe exposure while reconsol_open:  safeCount += reconsol_extinct_gain
+    (3.0) AND mark suppressor deep:true — spontaneous recovery
+    (§4.9 recovery) does NOT erode deep suppressors
+a safe exposure outside the window: safeCount += 1 as before (erasable)
+```
+
+Emergent: the character who goes back to the bar *that same night,
+still shaken* and has a fine time gets a repair that lasts; the one
+who waits three weeks gets a fragile truce that a quiet month
+unwrites. This is also the sim's exposure-therapy mechanic —
+cheap, timing-based, and falsifiable. (P162)
+
+---
+
+## 22. Spec delta (v1.6 → v1.7)
+
+| § | Change |
+|---|---|
+| §2 | affect tag set by peak-end (`peak_w`, `end_w`, `affectSeries` optional input); `emo_assoc_loss` graded item-context tradeoff on link_p/`when`/source-tag; `regulate_style`/`reg_thresh`/`reg_suppress_cost`/`reg_reappraise_k` regulation paths |
+| §2 sleep | `sleep_affect_strip` on arousal tag (0.04, trauma-exempt, DEBATED flag); `tag_capture` folded: §2.3 post_stress_gain now also fires cue-agnostic at half strength — behavioral-tagging rescue of weak temporal neighbors (Dunsmoor, Murty et al. 2015) |
+| §4.5 | `fab_self_gate` — FAB gated by selfRelevance_eff |
+| §4.9 | CondEntry firing → similarity gradient `gen_width`, widened by trauma load; `reconsol_window`/`reconsol_extinct_gain` deep-suppressor path |
+| §6.3 | hearsay tag: `contagion_k`, `speaker_express`, `empathy_trait` |
+| §6.11 | `verbal_dampen` on retell (trauma-exempt; solo rehearsal exempt) |
+| §7 | +12 params: peak_w, end_w, emo_assoc_loss, sleep_affect_strip, regulate_style, reg_thresh, reg_suppress_cost, reg_reappraise_k, gen_width, reconsol_window, reconsol_extinct_gain, contagion_k, verbal_dampen, fab_self_gate |
+| §10 | encodeEvent accepts `affectSeries`; hearAccount accepts `speaker_express`; new read `genWidth(charId)` for behavior layer |
+
+## 23. Age guidance (extends §10 of Part I)
+
+- `peak_w`/`end_w`: **end-weight rises with age** — older adults weight
+  ends more in retrospective affect (consistent with positivity +
+  endings; mark [HYPOTHESIS], end_w knot +0.1 at 70).
+- `sleep_affect_strip`: slightly *reduced* in older adults (REM
+  fraction declines) — ×0.8 at 70 [HYPOTHESIS].
+- `emo_assoc_loss`: flat — the tradeoff is amygdala-mediated, preserved.
+- `gen_width`: widens with trauma *count* only — lifetime-load model,
+  not age-per-se.
+- `contagion_k` × `empathy_trait`: empathy roughly preserved in aging;
+  keep flat, let bible variation carry differences.
+- `regulate_style`: older adults skew reappraisive (SST) — prior mean
+  shifts +0.15 past 60 [HYPOTHESIS].
+- Children: `peak_w` higher (~0.7), end-weight lower — children's
+  retrospective affect is peak-dominated [HYPOTHESIS].
+
+## 24. Validation probes P154–P162
+
+- **P154 peak-end (MUST):** two episodes identical in mean and
+  duration; A spikes arousal 0.9 mid-way and ends calm, B flat 0.5.
+  Stored tag must track peak+end: A.arousal_tag > B.arousal_tag by
+  ≥30%; doubling duration must move neither tag >5% (duration
+  neglect). FAIL if tag = mean.
+- **P155 sleep strips heat (SHOULD):** arousal-0.8 record: arousal tag
+  falls faster across sleep ticks than across matched waking days;
+  trauma:true control unaffected. FAIL if content strength and arousal
+  decay at the same ratio (they must decouple).
+- **P156 item-context tradeoff (MUST):** arousal-0.75 event vs neutral:
+  emotional record keeps higher core-field accuracy, lower
+  `when`/source accuracy, and fewer associative links — graded, so an
+  arousal-0.4 record shows the split attenuated ≥50%.
+- **P157 verbal dampening (SHOULD):** identical negative record
+  retold to audiences vs rehearsed solo ×6: social path's arousal
+  tag lower by ~verbal_dampen×6; solo unchanged; strength rises in
+  BOTH paths (cooler ≠ weaker — this is the discriminating clause).
+- **P158 regulation split (SHOULD):** suppressor vs reappraiser trait
+  on the same hot event: suppressor record weaker overall; reappraiser
+  record normal strength, cooler tag. FAIL if both lose strength.
+- **P159 generalization gradient (MUST):** conditioned dread at place
+  P emits detectable affect at a perceptually-similar place Q and
+  none at dissimilar R; a 2-trauma-load character emits at
+  intermediate similarity where a 0-load character does not.
+- **P160 FAB self-boundary (MUST — sign-locked):** matched negative
+  events, selfRelevance 0.8 vs 0.2: after 30 days the self event's
+  negative tag has faded ~1.3× the positive rate; the other-relevant
+  event fades at the POSITIVE baseline. FAIL if non-self negative
+  affect fades at the gated rate.
+- **P161 contagion (SHOULD):** same account from flat vs expressive
+  speaker to a high-empathy listener: listener record's arousal
+  scales with speaker_express; an arousal-0.9 expressive telling can
+  mint a CondEntry on a place the listener has never encoded
+  personally (vicarious conditioning).
+- **P162 reconsolidation extinction (SHOULD):** safe exposure within
+  reconsol_window of a fire → suppressor marked deep; after
+  recovery_days quiet, deep suppressor intact while a normal
+  suppressor has decayed by recovery_frac.
+
+## 25. Honest limits (Part II)
+
+- **affectSeries granularity** depends on game-systems supplying
+  within-event affect samples; with a scalar the formula degenerates
+  cleanly to peak=end=value — backward compatible by construction.
+- **Sleep depotentiation** is the least-settled mechanism in this
+  version — hence small, trauma-exempt, toggleable. If it dies, the
+  everyday "cooled-off memory" phenomenon is still produced by
+  `arousal_affect_decay` + verbal_dampen + FAB; sleep_affect_strip is
+  one of three redundant paths, by design.
+- **Gen_width keying** uses the existing cueVector similarity —
+  conceptual generalization (Dunsmoor 2012) comes free only where
+  cueVectors share topic/people fields; pure perceptual similarity is
+  a world-side representation question.
+- **contagion_k** magnitudes are calibrated guesses; the literature
+  fixes direction and moderator structure, not effect size in this
+  form.
+- **Peak-end for negative-vs-positive asymmetry** unexplored here —
+  the literature is thinner than the marketing of it.
+- Nothing here models *anticipatory* affect (dread of a future event
+  altering encoding of the wait) — Intention records (§9) could carry
+  an affect tag; flagged as open loop for a future version.

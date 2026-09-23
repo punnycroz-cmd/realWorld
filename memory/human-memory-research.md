@@ -985,3 +985,60 @@ selective, positive, scaffolded, socially compensated, confidently wrong.
   additions. Probes P145–P153 (registry P1–P153); profiles +9 clamp
   rows + E-block + v1.6 note.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 22. v17 summary — emotional-memory II (the affect-tag layer, 2026-09-23)
+
+Second pass on emotion (emotional-memory.md Part II). v0.5 built the
+record-level machinery; this pass deepens the tag itself — how it's
+born, how it cools, how it spreads.
+
+- **Peak-end tag-setting** (Kahneman, Fredrickson, Schreiber &
+  Redelmeier 1993; Redelmeier & Kahneman 1996; Fredrickson &
+  Kahneman 1993; Do, Rupert & Wolford 2008): the stored affect tag =
+  `peak_w·max + end_w·end` (0.55/0.45), duration-neglecting —
+  endings are leverage, long good days and short good days tag alike.
+- **Sleep depotentiation** (Walker & van der Helm 2009; van der Helm
+  et al. 2011; DEBATED — Wiesner 2015, Groch 2015 non-replications):
+  `sleep_affect_strip` 0.04/night on arousal tag only, trauma-exempt.
+  Kept small and toggleable; two redundant cooling paths back it.
+- **Item-context tradeoff generalized** (Kensinger & Schacter 2005;
+  Bisby & Burgess 2014; Madan et al. 2017): `emo_assoc_loss` 0.25 —
+  graded cost to link_p/`when`/source-tag for arousal ≥0.5; trauma's
+  fragmented frame is now the curve's endpoint, not a special case.
+- **Verbal dampening** (Lieberman et al. 2007 affect labeling;
+  Pennebaker disclosure): `verbal_dampen` 0.05 per SOCIAL retell on
+  arousal; solo rehearsal exempt — rumination stays hot.
+- **Regulation trait** (Richards & Gross 1999/2000; Dillon et al.
+  2007): `regulate_style` — suppressors pay `reg_suppress_cost` on
+  enc_base (composure taxes the recorder), reappraisers store cooler
+  tags via `reg_reappraise_k`.
+- **Conditioned-affect generalization** (Dunsmoor et al. 2009;
+  Lissek et al. 2005/2010; Dunsmoor, Martin & LaBar 2012): CondEntry
+  fires on similarity ≥ `1−gen_width`, emitted ∝ sim; trauma load
+  widens the gradient (+0.15/record, cap 0.6) — anxiety flattens
+  discrimination.
+- **Reconsolidation-window extinction** (Schiller et al. 2010;
+  DEBATED per Chalkia et al. 2020): safe exposure inside
+  `reconsol_window` (0.25d) of a fire writes a `deep` suppressor
+  immune to spontaneous recovery — the exposure-therapy mechanic.
+- **FAB self-boundary** (Walker, Skowronski & Thompson 2003;
+  Ritchie et al.): `fab_self_gate` 0.4 — the fading affect bias only
+  heals self-relevant wounds; witnessed wrongs keep their charge.
+  Fixes v0's wrong asymmetry on spectator memories.
+- **Contagion / vicarious conditioning** (Rimé 1995/2009; Hatfield
+  et al. 1993; Peters & Kashima 2015; Olsson & Phelps 2007):
+  told_by arousal = `source·contagion_k·speaker_express·(0.5+0.5·
+  empathy)`; hearsay can mint CondEntries on never-visited places —
+  the neighborhood-wide-trauma mechanism.
+- **Tag capture** (Dunsmoor, Murty, Davachi & Phelps 2015; Redondo &
+  Morris 2011): §2.3 retrograde gain extended cue-agnostic at half
+  strength — weak traces beside a strong emotional event are
+  partially rescued at consolidation.
+- Spec → v1.7: §2 peak-end + emo_assoc_loss + regulation + tag
+  capture + sleep_affect_strip; §4.5 fab_self_gate; §4.9 gradient +
+  reconsol path; §6.3 hearsay tag; §6.11 verbal_dampen; §7 +14
+  params; §10 contract additions. Probes P154–P162 (registry
+  P1–P162); profiles +15 clamp rows, 2 new modifiers
+  (stoic/suppressor, high-empath), trauma & depressive modifier
+  updates, v1.7 note.
+- Boundaries kept: research only, no code, no narratives, no push/merge.

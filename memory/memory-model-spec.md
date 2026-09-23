@@ -1,4 +1,28 @@
-# Memory Model Spec v1.6 — implementable human-like memory for RW characters
+# Memory Model Spec v1.7 — implementable human-like memory for RW characters
+
+> **v1.7 note (emotional-memory II — the affect-tag layer):**
+> `memory/emotional-memory.md` Part II deepens what v0.5 left as
+> scalars: the affect tag is born by **peak-end, not mean** (Kahneman
+> et al. 1993; Redelmeier & Kahneman 1996; duration neglect) — §2;
+> **sleep strips heat, not story** — `sleep_affect_strip`, trauma-exempt
+> (Walker & van der Helm 2009; DEBATED, toggleable) — §2 sleep;
+> arousal buys the item and **sells the context** — `emo_assoc_loss`,
+> graded link_p/`when`/source cost ≥0.5 arousal, generalizing the
+> trauma phenotype (Kensinger & Schacter 2005; Bisby & Burgess 2014;
+> Madan et al. 2017) — §2; **saying it changes it** — `verbal_dampen`
+> on social retell, solo rehearsal exempt (Lieberman 2007) — §6.11;
+> **regulation style** is a trait: suppressors encode less, reappraisers
+> encode cooler tags (Richards & Gross 2000; Dillon 2007) — §2;
+> conditioned affect **generalizes along a similarity gradient** widened
+> by trauma load (Dunsmoor 2009; Lissek 2010) + **reconsolidation-window
+> extinction** writes deep suppressors (Schiller 2010, DEBATED
+> boundary) — §4.9; the **FAB has a self-boundary** — `fab_self_gate`,
+> gossip negativity does not heal (Walker 2003) — §4.5; **hearsay
+> carries heat** — `contagion_k` × speaker_express × empathy, vicarious
+> conditioning (Rimé 2009; Olsson & Phelps 2007) — §6.3; §2.3 gains
+> **tag-capture**: cue-agnostic half-strength rescue of weak temporal
+> neighbors (Dunsmoor, Murty et al. 2015). +14 params in §7; probes
+> P154–P162 in validation-design.md §16.
 
 > **v1.6 note (age-decline II — the compensation layer):**
 > `memory/age-decline.md` Part II adds what aging minds do
@@ -320,6 +344,33 @@ Postman 1964; Hyde & Jenkins 1973).
   encoded *better* than neutral, Kensinger et al. 2006) and
   `peripheral_f *= (1 − arousal_narrowing·arousal)` (weapon-focus loss as
   before, Mather & Sutherland 2011; emotional-memory.md §2.1).
+- **Affect tag by peak-end (v1.7):** the stored `emotional` tag is set
+  from the episode's affect trajectory, not its mean. When the event
+  carries `affectSeries` (optional; game-systems supplies within-event
+  samples when it has them), `arousal_tag = peak_w·max(arousal) +
+  end_w·arousal(end)` (peak_w≈0.55, end_w≈0.45); `valence_tag` takes
+  valence at the peak-arousal tick and at the end, same weights.
+  Duration enters nowhere — the tag is duration-neglecting (Kahneman,
+  Fredrickson, Schreiber & Redelmeier 1993; Redelmeier & Kahneman 1996;
+  Do et al. 2008; emotional-memory.md §13). Scalar-only events
+  degenerate cleanly (peak=end=value).
+- **Item-context tradeoff (v1.7):** for episodic records with
+  `arousal ≥ 0.5`, graded connective-tissue cost
+  `link_p_eff = link_p·(1 − emo_assoc_loss·arousal)` and birth strength
+  of `verbatim.when` + source tag ×(1 − emo_assoc_loss·arousal),
+  `emo_assoc_loss ≈ 0.25` — arousal buys the item and sells the frame
+  (Kensinger & Schacter 2005; Bisby & Burgess 2014; Madan et al. 2017;
+  emotional-memory.md §15). The §7 trauma clause halves `when`/
+  ordering ON TOP of this — trauma is the endpoint of a graded curve,
+  not a separate phenomenon.
+- **Regulation style (v1.7):** trait `regulate_style ∈ [0,1]` (0 =
+  suppressor, 1 = reappraiser; bible-set). On `arousal ≥ reg_thresh`
+  (0.6) events: suppressors pay `enc_base *= (1 −
+  reg_suppress_cost·(1−regulate_style))`, reg_suppress_cost≈0.2
+  (suppression taxes the recorder — Richards & Gross 1999/2000);
+  reappraisers get `arousal_tag *= (1 − reg_reappraise_k·
+  (regulate_style−0.5)·2)`, reg_reappraise_k≈0.25, applied before the
+  peak-end tag is stored (Dillon et al. 2007; emotional-memory.md §17).
 - **Emotional blink (v0.5):** if `arousal ≥ emo_blink_thresh` (0.7), each
   cue-*unrelated* record created within ±`emo_blink_window` (0.03 day)
   takes `encodingE *= (1 − emo_blink_loss)` (≈0.3) — retro- and
@@ -425,6 +476,22 @@ Postman 1964; Hyde & Jenkins 1973).
   `strength += post_stress_gain·(1−strength)` (≈0.15) — post-learning
   arousal strengthens prior congruent traces (Cahill et al. 2003;
   emotional-memory.md §2.3).
+- **Tag capture (v1.7 — extends §2.3):** cue-UNRELATED weak records
+  (encodingE < 0.5) inside `post_stress_window` of a
+  `arousal ≥ emo_blink_thresh` event get HALF the retrograde gain
+  (`post_stress_gain·0.5`) — behavioural-tagging rescue: a strong
+  emotional event stabilizes temporally adjacent weak traces even
+  without semantic overlap (Dunsmoor, Murty, Davachi & Phelps 2015;
+  Redondo & Morris 2011). The blink (§2) still hits them at encoding;
+  tag-capture partially repays survivors at consolidation — net: the
+  day of the fight is dim except what touched it.
+- **Sleep strips heat (v1.7 — DEBATED, toggleable):** at each sleep
+  tick, `emotional.arousal *= (1 − sleep_affect_strip)` (≈0.04),
+  floor 0.15, episodic only, `trauma:true` EXEMPT — Walker & van der
+  Helm 2009 depotentiation hypothesis; replication is shaky
+  (emotional-memory.md §14), so this is small and one of three
+  redundant cooling paths (§4.5 arousal_affect_decay, §6.11
+  verbal_dampen). Valence untouched.
 - **Sleep-deprivation susceptibility flag (v0.6):** if the character's
   `sleepFactor` on the record's `createdDay` was < 0.75, set
   `sleepdep_flag: true` — a PERMANENT marker raising that record's later
@@ -709,6 +776,14 @@ the affect tag decays at `arousal_affect_decay` (×1.4 vs valence) — felt
 intensity quiets faster than felt sign [HYPOTHESIS — emotional-memory.md
 §12]. Dysphoria disrupts FAB (Walker et al. 2003): the depressive modifier's
 `neg_affect_decay ×0.7` already encodes this.
+**v1.7 — self-boundary:** `neg_affect_decay` applies only when the
+record's `selfRelevance_eff ≥ fab_self_gate` (0.4); below the gate,
+negative affect decays at the POSITIVE baseline rate — the bias is
+self-referential repair, not a general solvent (Walker, Skowronski &
+Thompson 2003; Ritchie et al. 2006/2015; emotional-memory.md §19).
+Emergent: personal slights cool; witnessed wrongs done to others keep
+their charge — collective memory of a public injustice outlasts
+private hurt.
 
 ### 4.6 Consolidation window (new in v0.1)
 
@@ -802,6 +877,22 @@ King 1983; Bouton 2004; emotional-memory.md §6):
   quiet months.
 - **Reinstatement:** a new event with `arousal ≥ cond_thresh` sharing the
   cue resets `safeCount = 0` and re-adds `cond_gain·arousal` to strength.
+- **Generalization gradient (v1.7):** firing is similarity-keyed, not
+  exact-match — `emit = valence·strength·sim` whenever
+  `sim(cue, C cues) ≥ 1 − gen_width` (gen_width ≈ 0.25). Effective
+  width widens with trauma load: `gen_width_eff = min(0.6, gen_width +
+  0.15·n_trauma_records)` — anxiety flattens the gradient (Dunsmoor et
+  al. 2009; Lissek et al. 2005/2010; Dunsmoor, Martin & LaBar 2012
+  conceptual transfer comes free via shared topic/people fields).
+  safeCount accrues in the fired similarity band, so close-but-safe
+  neighbors partially extinguish.
+- **Reconsolidation-window extinction (v1.7 — DEBATED):** on fire,
+  set `reconsol_open` for `reconsol_window` (0.25 day ≈ 6h). A safe
+  exposure inside the window adds `safeCount +=
+  reconsol_extinct_gain` (3.0) and marks the suppressor `deep:true` —
+  spontaneous recovery does NOT erode deep suppressors (Schiller et
+  al. 2010; fragile in replication — Chalkia et al. 2020; treat as
+  the sim's exposure-therapy mechanic, emotional-memory.md §21).
 
 ### 4.10 Social-source decay modifiers (new in v0.8)
 
@@ -1442,6 +1533,16 @@ if similarity(myMemory, heardAccount) > 0.4:
         Paterson-line meta k=8; false-memory.md §1)
     heardAccount may merge into myMemory.source ("told_by" contamination)
 ```
+**Hearsay carries heat (v1.7):** a `told_by` record's affect tag is
+`arousal = source_arousal · contagion_k · speaker_express ·
+(0.5 + 0.5·empathy_trait)` — contagion_k≈0.5 (secondhand is half as
+hot), `speaker_express ∈ [0.5,1.5]` from the telling's delivery,
+`empathy_trait` bible-set; `valence` adopts the account's sign
+(Rimé 2009 social sharing; Hatfield et al. 1993 contagion; Peters &
+Kashima 2015). A high-arousal hearsay record CAN cross `cond_thresh`
+— vicarious conditioning mints dread of places never personally
+feared (Olsson & Phelps 2007; emotional-memory.md §20).
+
 This is THE rumor-propagation hook: a rumor is a `beliefStatus:"rumor"` record
 that can contaminate witnessed memories it resembles. (R§6 misinformation
 effect — the most replicated result in memory science; 2025 meta
@@ -1631,6 +1732,14 @@ Allain 2012). On a MISS the retell proceeds and emits
 "you told me" beat or let it slide). Misses dominate — old
 characters repeat stories to the same listener far more than they
 wrongly withhold (age-decline.md §20).
+
+**v1.7 — verbal dampening:** on retell with an audience,
+`m.emotional.arousal *= (1 − verbal_dampen)` (≈0.05 per telling;
+valence untouched; `trauma:true` exempt — §7's re-stamping owns
+traumatic affect). §4.13 solo retell-ecology draws (no audienceId)
+do NOT dampen — disclosure is interpersonal; rumination stays hot
+(Lieberman et al. 2007 affect labeling; Pennebaker disclosure;
+emotional-memory.md §16).
 
 ### 6.12 Serial reproduction — rumor chains converge (new in v0.8)
 
@@ -2002,6 +2111,23 @@ MemoryParams = {
   //   self_est_bias: +0.3@6 → 0 adult → −0.05@70 (children overpredict)
   //   offtarget_p: 0.01@20 → 0.03@50 → 0.15@80; mild elevation <10 (§5.19)
   //   source_confuse: external channel rides old-side knots ~1.8×@75 (§6.10)
+  // v1.7 additions (emotional-memory II — the affect-tag layer,
+  // emotional-memory.md Part II §§13–21)
+  "peak_w": 0.55,            // peak weight in tag-setting (§2; end_w = 1−)
+  "end_w": 0.45,             // end weight; +0.1 knot @70 (§2, §23 EM-II)
+  "emo_assoc_loss": 0.25,    // graded item-context tradeoff ≥0.5 arousal (§2)
+  "sleep_affect_strip": 0.04,// per-sleep arousal-tag decay; trauma-exempt,
+                             // DEBATED flag — set 0 if depotentiation dies
+  "regulate_style": 0.5,     // trait: 0 suppressor → 1 reappraiser (§2)
+  "reg_thresh": 0.6,         // arousal where regulation engages
+  "reg_suppress_cost": 0.2,  // enc_base cost for suppressors (§2)
+  "reg_reappraise_k": 0.25,  // arousal-tag cooling for reappraisers (§2)
+  "gen_width": 0.25,         // conditioned-affect similarity gradient (§4.9)
+  "reconsol_window": 0.25,   // days; post-fire extinction bonus window (§4.9)
+  "reconsol_extinct_gain": 3.0, // in-window safeCount gain → deep suppressor
+  "contagion_k": 0.5,        // hearsay arousal transmission (§6.3)
+  "verbal_dampen": 0.05,     // per-social-retell arousal decay; trauma-exempt
+  "fab_self_gate": 0.4,      // selfRelevance floor for neg_affect_decay (§4.5)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -2318,3 +2444,30 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - record schema gains `toldTo` (hidden map) and verbatim fields may
     carry `hyperbound` (hidden) — snapshot-additive, never serialized
     to briefings/feed.
+- v1.7 additions (emotional-memory.md Part II — the affect-tag layer):
+  - `encodeEvent` event may carry `affectSeries` — within-event
+    arousal/valence samples; when present the stored tag is peak-end
+    weighted (`peak_w`/`end_w`), duration-neglecting (§2). Scalar
+    events behave exactly as before.
+  - `encodeEvent` event may carry `regulate_style`-relevant context
+    implicitly — the trait is per-character (bible); suppressors pay
+    `reg_suppress_cost` on `enc_base`, reappraisers store a cooler
+    `arousal_tag` (§2).
+  - records with `arousal ≥ 0.5` pay `emo_assoc_loss` on link_p,
+    `verbatim.when`, and source-tag birth strength — the graded
+    item-context tradeoff (§2); §7's trauma clause stacks on top.
+  - `hearAccount`/`account` may carry `speaker_express` (0.5–1.5) —
+    secondhand records' arousal = `source_arousal·contagion_k·
+    speaker_express·(0.5+0.5·empathy_trait)`; hearsay can mint
+    CondEntries on places never personally feared (§6.3, §4.9).
+  - `conditionedAffect` firing is similarity-keyed (§4.9
+    `gen_width`, trauma-widened) — callers should expect nonzero
+    responses for *similar*, not just matching, cues. `CondEntry`
+    gains hidden `reconsol_open`/`deep` suppressor flags.
+  - `retell` applies `verbal_dampen` to `emotional.arousal` when an
+    audience is present; solo §4.13 draws do not; `trauma:true`
+    records exempt (§6.11).
+  - `dailyMemoryTick` sleep phase applies `sleep_affect_strip` to
+    episodic arousal tags (trauma-exempt, flagged DEBATED —
+    emotional-memory.md §14) and the §2.3 tag-capture half-strength
+    rescue of weak cue-unrelated neighbors of emotional events.
