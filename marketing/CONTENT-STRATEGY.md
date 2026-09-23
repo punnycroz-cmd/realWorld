@@ -137,7 +137,7 @@ village"), recaps target branded/community queries. Rules:
 
 | Piece | State | Source |
 |---|---|---|
-| Devlog 1 — "How the block learned to look like the Mission" | live on `journal.html` | art v1→v26 inbox history + game lease/request systems |
+| Devlog 1 — "How the block learned to look like the Mission" | live on `journal.html` | art v1→v28 inbox history + game lease/request systems |
 | Devlog 2 — "Every request knocks before it enters" | live on `journal.html` | world-v8 `screen.js`/`moderation.json`/`mod-console.html` |
 | Devlog 3 — "Rent is due on the first" | live on `journal.html` (v42) | world `jobs-housing.md`, `leases.json`, `housing/` |
 | Devlog 4 — "The Wire: every event gets a permalink" | live on `journal.html` (v42); record at `marketing/content/devlog-04-the-wire.md` | game-v6 `41_game_systems_feed.js`, world-v19 `wire.html`/`wire-ui.md`/`feed.json` |

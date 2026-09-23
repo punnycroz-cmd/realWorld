@@ -65,7 +65,8 @@ class PageParser(HTMLParser):
         self.viewport = None
         self.og = {}            # property -> content
         self.twitter = {}       # name -> content
-        self.imgs = []          # (src, alt_or_None)
+        self.imgs = []          # (src, alt_or_None, attrs_dict)
+        self.srcsets = []       # srcset strings from <source>/<img>
         self.links = []         # (href, anchor_text)
         self._link_href = None  # current open <a>
         self._link_text = []
@@ -94,7 +95,11 @@ class PageParser(HTMLParser):
         elif tag == "link" and a.get("rel") == "canonical":
             self.canonical = a.get("href")
         elif tag == "img":
-            self.imgs.append((a.get("src", ""), a.get("alt")))
+            self.imgs.append((a.get("src", ""), a.get("alt"), a))
+            if a.get("srcset"):
+                self.srcsets.append(a["srcset"])
+        elif tag == "source" and a.get("srcset"):
+            self.srcsets.append(a["srcset"])
         elif tag == "a" and a.get("href"):
             self._link_href = a["href"]
             self._link_text = []
@@ -202,13 +207,20 @@ def audit_page(fname, html):
     if p.jsonld_raw:
         ok(f"{label}: {len(p.jsonld_raw)} JSON-LD block(s) parse — {sorted(t for t in types if t)}")
 
-    # --- images: alt + weight ---
-    no_alt = [s for s, a in p.imgs if a is None]
+    # --- images: alt + weight + dimensions + srcset resolution ---
+    no_alt = [s for s, a, _ in p.imgs if a is None]
     if no_alt:
         bad(f"{label}: {len(no_alt)} <img> missing alt attribute: {no_alt[:3]}")
     elif p.imgs:
         ok(f"{label}: all {len(p.imgs)} images carry alt")
-    for src, _ in p.imgs:
+    no_dims = [s for s, _, a in p.imgs if "width" not in a or "height" not in a]
+    if no_dims:
+        warn(f"{label}: {len(no_dims)} <img> missing width/height (CLS risk): {no_dims[:3]}")
+    raster_refs = [s for s, _, _ in p.imgs]
+    for ss in p.srcsets:
+        # "a.webp 1x, b.webp 2x" or bare "a.webp" — take the URL part of each candidate
+        raster_refs += [c.strip().split(" ")[0] for c in ss.split(",") if c.strip()]
+    for src in raster_refs:
         if not src or src.startswith(("http", "//", "data:")):
             continue
         fpath = os.path.join(SITE, src.split("#")[0].split("?")[0])
@@ -217,7 +229,19 @@ def audit_page(fname, html):
             if size > IMG_WARN_BYTES and not src.endswith(".webp"):
                 warn(f"{label}: {src} is {size/1e6:.1f}MB raster (>{IMG_WARN_BYTES//1e6}MB budget)")
         else:
-            bad(f"{label}: img target missing on disk: {src}")
+            bad(f"{label}: image target missing on disk: {src}")
+
+    # --- og:image resolves to a real file (once domain is stripped) ---
+    ogimg = p.og.get("og:image", "")
+    if ogimg:
+        if PLACEHOLDER_DOMAIN in ogimg:
+            ogrel = ogimg.split(PLACEHOLDER_DOMAIN, 1)[1].lstrip("/")
+            if not os.path.exists(os.path.join(SITE, ogrel)):
+                bad(f"{label}: og:image file missing on disk: {ogrel}")
+        elif ogimg.startswith(("http", "//")):
+            pass  # real domain post-launch — validated by prod_smoke instead
+        elif not os.path.exists(os.path.join(SITE, ogimg)):
+            bad(f"{label}: og:image file missing on disk: {ogimg}")
 
     # --- anchors ---
     for href, text in p.links:

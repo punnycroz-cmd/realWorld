@@ -3,7 +3,7 @@
 - top sources: x (26), rps (24), bsky (18)
 - campaigns: launch-2026 (62), press-embargo (24), store-launch (14)
 - funnel: pageview 220 (100% of visits) → engaged 197 (90% of visits) → community 63 (29% of visits) → watch_start 61 (28% of visits) → request_submitted 14 (6% of visits) → character_created 9 (4% of visits)
-- top shots: v1-A.png (15), v26-D.png (8), v16-int-cafe.png (8)
+- top shots: v1-A.png (15), v28-D.png (8), v16-int-cafe.png (8)
 - 404s: 0
 - action taken: {{one line — what we changed because of the numbers}}
 
