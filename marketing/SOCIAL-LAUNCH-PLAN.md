@@ -1,6 +1,7 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v22 — launch-ready drafts + reply bank + capture plan, 2026-09-23.
+**Status: v34 — launch-ready drafts + reply bank + capture plan + Reddit
+posts + incident comms + rent-week arc + alt-text bank, 2026-09-23.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -85,6 +86,10 @@ its channel, timing slot, required asset, and character-count check.
 | `seeded-questions.md` | 10 discussion starters for Discord/Reddit after launch | 10 |
 | `reply-bank.md` | Pre-approved answers to the 15 predictable comment types (v22) | 15 |
 | `profile-copy.md` | Per-platform bios, pinned posts, video descriptions, tag sets (v22) | 5 platforms |
+| `reddit-posts.md` | Dev-authored launch posts for r/indiegames, r/lifesim, r/sanfrancisco + reply rules (v34) | 3 |
+| `incident-comms.md` | Pre-drafted contingency posts: outage, feed-abuse wave, mod blowback, creep-factor pile-on, pricing accusation, missed date (v34) | 6 scenarios |
+| `rent-week-arc.md` | 7-post narrative series on the lease/rent cycle, keyed to world-v12 canonical feed wording (v34) | 7 |
+| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v34) | full asset set |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
 author of "Mission Unfiltered") is *load-bearing season-one material*. Cards
@@ -133,6 +138,10 @@ Sustainable rhythm, fed by the product itself.
 - **Devlog clips:** remaining 3 drip over weeks 1–3; then clip whatever the
   feed produces — the live-capture pipeline and the clip-worthy moment
   taxonomy are specced in `social/capture-plan.md`.
+- **Rent Week arc:** T+7 → T+13, the first in-world rent cycle gets its
+  own 7-post series (`rent-week-arc.md`) — the most legible systems
+  story the game tells; every post degrades gracefully if the feed is
+  quiet.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
@@ -159,7 +168,8 @@ The thin line between seeding and astroturf — we stay on the right side:
   ("I built a neighborhood where..."), in subs that allow self-promo, on
   their self-promo days. No purchased upvotes, no alt accounts, no "found
   this cool game" posts. r/sanfrancisco gets the local angle variant
-  (real streets, fictional residents — disclose fully).
+  (real streets, fictional residents — disclose fully). Full drafted
+  posts + per-sub reply rules: `drafts/reddit-posts.md`.
 - **Feed-honesty rule:** never screenshot a request feed that isn't real.
   If launch hour has zero player requests, post "the feed is empty — be the
   first" (it's a better post anyway). Absolutely no fake requests to
@@ -194,7 +204,8 @@ Pre-send checklist (every post):
 - [ ] Pricing numbers match the monetization plan and carry PROPOSAL status
       where the site does.
 - [ ] Screenshots are from `site/shots/` (real captures), labeled
-      "development build" pre-launch.
+      "development build" pre-launch; every image post carries alt text
+      from `social/alt-text.md`.
 - [ ] Marisol/season-one secrets teased, not confirmed (§4 spoiler rule).
 
 ## 9. UTM & measurement conventions
