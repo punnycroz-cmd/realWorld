@@ -6097,3 +6097,93 @@ Registry: P1–P732. v69 suite: P721–P732 — 5 MUST
 (P721–P723, P726–P728; P722/P723/P726/P728 carry locked
 nulls) and 7 SHOULD (P724/P725/P729–P732; P731/P732
 carry lock arms).
+
+## 133. v69 formal-model probes — composition, context, surface (P733–P744)
+
+Formal/consistency probes for spec §15 / formal-model.md Part VII.
+These are machinery probes — they constrain the *algebra*, not a
+psychological effect size.
+
+- **P733** θ saturation (MUST — locked null): maximal legal
+  penalty stack (stress>thresh inside lag window + daLoad=1 +
+  evaluative + off-peak synchrony + selfinit + sem_search_tax) on
+  age_eff=85; θ_eff ≤ θ + `theta_cap` identically; tanh
+  monotonicity. `theta_unbounded = 0`.
+- **P734** gain saturation (MUST — locked null): all E-gain legs
+  composed simultaneously on a maximally-tagged event (self-agent
+  + arousal + novelty + generated + enacted + spoken + boundary +
+  isolated + value + mood-congruent); E_eff < 1 strictly and
+  monotone non-decreasing in each leg. `e_overbound = 0`.
+- **P735** modifier-ledger auditability (MUST): fuzz 10⁴ kernel
+  calls; every effective-param deviation from base replays through
+  `modLedger` entries in application order, bit-exact per §13.4;
+  any unexplained deviation = FAIL (the param-side orphan_rewrite).
+- **P736** graceful degradation (MUST — sign-locked axiom): at
+  maximal θ shift, strength-1 maximal-cue records recall ≥
+  `grace_floor` (0.05) over 10⁴ draws. The substrate may degrade
+  a mind; it may not disable it.
+- **P737** surface-map completeness (MUST): fuzz emission field
+  combinations; every combination resolves to a `surfMap` row or
+  a declared OPTIONAL; unknown combination = contract violation,
+  never default rendering.
+- **P738** hedge direction (MUST — sign-locked): hedged:true
+  surfaces carry modal-uncertainty marks 100%; hearer-side
+  adoption of hedged content never exceeds hedged-strength entry
+  (S1 — no strengthening in transmission through the surface).
+- **P739** content:null honesty (MUST — locked null): aff_flash
+  and orphan_eval emissions produce zero content-field wording
+  across the fuzz corpus. `surf_mint = 0` — feeling without scene
+  is a first-class output.
+- **P740** latency isolation (SHOULD): latency_ms bounded by
+  lat_cap·`lat_mult_cap`; cross-record correlation of latency
+  with θ = 0 — display observable only, never retrieval input
+  (re-asserts P374 under the registry).
+- **P741** context persistence (SHOULD): undelivered-since-t
+  place cues re-match with probability ≈ exp(−Δt/`ctx_tau`)
+  ± sampling noise; `|C.fields| ≤ att_span_ctx` invariant across
+  10⁴ context transitions; internal fields exempt.
+- **P742** oracle null (MUST — locked null): contexts injected
+  with fields never delivered to the character yield cueMatch
+  contribution 0 identically. `ctx_oracle = 0`.
+- **P743** declaration gate (SHOULD — meta): every MemoryParams
+  key resolves a paramDecl {class, signature, aliases}; every
+  decl's probe ref resolves; undeclared key = build error under
+  `identi_gate:"enforce"`.
+- **P744** stiff-direction report (SHOULD — meta): validation runs
+  emit top-k stiff directions of the param→verdict Jacobian on the
+  full 28-character trait joint; new-params/no-new-stiff-directions
+  parity is reported (not gated) per version.
+
+## 134. Sources verified this version (P733–P744 backing)
+
+- Craik, Govoni, Naveh-Benjamin & Anderson 1996 (*Psychol Sci*
+  7:52 — age×divided-attention joint hit is bounded and
+  sub-additive); Naveh-Benjamin, Craik, Guez & Kreuger 2000;
+  Shields, Sazma, McCullough & Yonelinas 2017 (*Psych Bull*
+  143:636 — stress×emotion retrieval meta, 113 studies). Basis of
+  the saturating-additive law L1 (functional form is HYPOTHESIS;
+  the bounded sub-additive sign is the empirical constraint).
+- Tulving & Osler 1968 (*JEP* 77:593 — cue redundancy doesn't pay
+  twice) — precedent for reusing noisy-OR on gains (L2).
+- Roberts & Pashler 2000 (*Psych Rev* 107:358 — fits constrain
+  theory only where the theory can fail) — warrant for bounded
+  composition and the declaration gate.
+- Estes 1955 (*Psych Rev* 62:74 — stimulus fluctuation); Mensink
+  & Raaijmakers 1988 (*J Math Psych* 32:434 — context-drift
+  forgetting); Howard & Kahana 2002 (*J Math Psych* 46:269 —
+  retrieved context) — context-as-decaying-state grounding.
+- Miller 1956 (7±2 — conservative cue-set cardinality basis for
+  `att_span_ctx`; marked HYPOTHESIS).
+- Koriat & Goldsmith 1996 (*Psych Rev* 103:490 — monitor-control;
+  the hedge is informative); Brennan & Williams 1995 (*J Mem Lang*
+  34:237 — listeners read hedges as FOK); Brown 1991 (*Psych
+  Bull* 109:204 — TOT phenomenology); Smith & Clark 1993
+  (*JPSP* 65:186 — response-time/memory-access covariance —
+  latency-as-observable).
+- Gutenkunst et al. 2007 (*PLoS Comput Biol* 3:e189 — sloppy
+  directions) — the stiff/sloppy class definitions and P744's
+  Jacobian report.
+
+Registry: P1–P744. v69 suite: P733–P744 — 7 MUST (P733–P739,
+P742; P733/P734/P739/P742 carry locked nulls; P736/P738 sign-
+locked) and 5 SHOULD (P740–P744; P743/P744 meta).

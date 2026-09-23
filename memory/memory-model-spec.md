@@ -1,4 +1,39 @@
-# Memory Model Spec v5.17 — implementable human-like memory for RW characters
+# Memory Model Spec v5.18 — implementable human-like memory for RW characters
+
+> **v5.18 note (formal-model VII — the composition algebra, the
+> context lifecycle, the surface contract):**
+> `memory/formal-model.md` Part VII (§§52–59) closes four
+> meta-formal holes — pure machinery, zero new psychology.
+> **Terminus registry + composition algebra** — every call-time
+> modifier targets one of five declared termini (threshold/gain/
+> rate/probability/flag) with a declared algebra: additive θ
+> penalties compose through `θ_cap·tanh(Σδ/θ_cap)` (sub-additive
+> joint load, per Craik 1996 / Shields 2017 combined-load studies),
+> E-gains compose noisy-OR (reuse of §5.2's saturator), rate
+> multipliers cap at `lat_mult_cap` — LOCKED: θ never diverges
+> (`theta_unbounded`), gains never exceed asymptote
+> (`e_overbound`), and at maximal θ shift a strength-1 record still
+> recalls ≥ `grace_floor` (graceful-degradation axiom) — §52/§53.
+> **Modifier ledger** — `modLedger` per-call audit field records
+> every effective-param deviation {mod, §, terminus, delta};
+> replay must reproduce effective params bit-exactly (the param-
+> side twin of §13.1's `lastRewrite`). **Context lifecycle** — C is
+> a substrate state: fields enter only if DELIVERED (current
+> payload), PERSISTED (`exp(−Δt/ctx_tau)` survival), or INTERNAL
+> (mood/stress/anchor); `|C.fields| ≤ att_span_ctx`; LOCKED
+> `ctx_oracle` — undelivered cues contribute 0 at admission, not
+> just at match — §54. **Surface realization contract** — closed
+> `surfMap` table: emission field combos → required/forbidden
+> surface marks (know→no episodic detail, hedged→modal, coarse→era
+> wording, tot→TOT marker, aff_flash/content:null→affect only,
+> phantom→NO ROW); S1 strengthening ban (surface may weaken claims,
+> never strengthen); LOCKED `surf_mint` — the surface mints no
+> content — §55. **Identifiability gate** — every MemoryParams key
+> must carry a paramDecl {class, signature probe, aliases} or
+> `deriveParams` refuses it; P744 reports stiff directions per
+> version — §56. +13 params, +4 locked nulls, +0 traits; §10
+> contract adds modLedger/surfMap/context-lifecycle. Registry
+> P733–P744.
 
 > **v5.17 note (social-memory VII — the ledger nobody keeps):
 > `memory/social-memory.md` Part VII (§§96–105) adds ten
@@ -10026,6 +10061,25 @@ MemoryParams = {
 //   `orphan_eval:true`; op `relationship:end` consumes
 //   idiom_orphan_loss. No new traits (loadings ride
 //   jealous/rumin/attach_*/distrust/self_srv/nfc/sex).
+// v5.18 additions (formal-model VII — FM§§52–56; all pop/harness,
+//   no psychology moved)
+"theta_cap": 1.2,                                // §52 saturating θ accumulator
+"e_comp": "noisy-or",                            // §52 gain-block algebra (enum)
+"lat_mult_cap": 3.0,                             // §52 rate-terminus ceiling
+"grace_floor": 0.05,                             // §52 worst-case recall floor
+"mod_ledger": 1,                                 // §53 harness — per-call trace
+"ctx_tau": 30,                                   // §54 sim-min persistence
+"att_span_ctx": 5,                               // §54 C cardinality (HYPOTHESIS)
+"surf_map": "v1",                                // §55 realization table version
+"identi_gate": "enforce",                        // §56 declaration gate
+// v5.18 locked nulls: theta_unbounded (P733 — θ shift never
+//   diverges); e_overbound (P734 — gains never exceed asymptote);
+//   surf_mint (P739 — surface mints no content fields);
+//   ctx_oracle (P742 — undelivered cues contribute 0 at admission).
+// v5.18 fields: per-call `modLedger` entries (M-tier, harness tier,
+//   never serialized); C gains admission provenance + persistence
+//   state; emission→surface consumes closed `surfMap` (unknown
+//   combination = contract violation).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -11376,6 +11430,30 @@ not resolved (DEBATED magnitude). P509/P511.
   - All snapshot-additive, absent = legacy; no new traits
     (loadings ride jealous/rumin/attach_*/distrust/
     self_srv/nfc/sex).
+- v5.18 additions (formal-model.md Part VII §§52–56 — machinery,
+  no psychology):
+  - **Composition algebra.** Every call-time modifier on θ/E/
+    rate termini composes per §52 (tanh-saturating θ penalties,
+    noisy-OR gains, capped rate multipliers). Implementers MUST
+    NOT apply raw `+=`/`×=` on a shared terminus outside the
+    registry — the registry is the legality check.
+  - **`modLedger`** — per-call modifier trace (M-tier, harness-
+    readable like `lastRewrite`; never serialized into
+    character-visible state). `mod_ledger` flag gates recording,
+    never the math.
+  - **Context lifecycle.** `cueContext` is substrate-maintained:
+    fields admit only via DELIVERED/PERSISTED(`ctx_tau`)/INTERNAL;
+    `|C.fields| ≤ att_span_ctx`. Callers supply the event payload;
+    the substrate builds C — callers may NOT inject arbitrary cue
+    fields (`ctx_oracle` locked null).
+  - **`surfMap`** — closed emission→surface table (§55). Dialogue
+    resolves every emission through it; unknown field combination
+    = contract violation, not a default. Strengthening ban: the
+    surface may weaken a claim, never upgrade one.
+  - **Declaration gate.** Every MemoryParams key needs a
+    paramDecl (§56); `deriveParams` refuses undeclared keys when
+    `identi_gate:"enforce"`.
+  - All snapshot-additive; no new traits, no new storage classes.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
@@ -11619,3 +11697,73 @@ manifest.
 | oracle_tune / ledger_amend | 0.0 each | locked nulls — instrument constants never tune toward bands; verdict history is never rewritten |
 
 Probes P615–P628 in validation-design.md §111.
+
+## 15. Composition, context, and surface annex (new in v5.18)
+
+Machinery for formal-model.md Part VII. All pop/harness params — no
+psychology moved this version.
+
+### 15.1 The terminus registry
+
+Five termini, declared algebra each: **threshold** (θ family —
+saturating-additive `θ + θ_cap·tanh(Σδ/θ_cap)`); **gain** (E/S/R
+blocks — noisy-OR `1 − Π(1−g_i)`, same saturator as §5.2);
+**rate** (β/latency multipliers — product, `lat_mult_cap` ceiling);
+**probability** (p_* — clamp [0,1] last); **flag/enum** (§28 FSM
+only). Laws: L1/L2 saturation, L3 terminus legality (modifiers write
+only their declared terminus), L4 dedup per (modifier, opTag), L5
+floor survival (worst-case θ still recalls strength-1 records at ≥
+`grace_floor`).
+
+### 15.2 The modifier ledger
+
+Kernel calls append `{mod, src§, terminus, delta, context}` to
+`modLedger` (M-tier, harness-readable, never serialized to character-
+visible state). M1 completeness / M2 terminus legality / M3 ordered
+replay bit-exactness per §13.4 float rules. `mod_ledger` gates
+recording only.
+
+### 15.3 Context lifecycle
+
+`cueContext` fields admit iff DELIVERED (current payload),
+PERSISTED (prior admission surviving `exp(−Δt_min/ctx_tau)` —
+field-level survival roll, not partial weight), or INTERNAL
+(mood/stress/temporalAnchor/self-origin — persist while true, exempt
+from `att_span_ctx`). Cardinality ≤ `att_span_ctx`, overflow drops
+oldest admission. `ctx_oracle` locked null: undelivered, unpersisted,
+non-internal fields contribute 0 at admission.
+
+### 15.4 The surface contract
+
+`surfMap` closed table (formal-model.md §55): emission field
+combination → required/forbidden surface marks; unknown combination =
+contract violation. S1: surface may only weaken claim strength vs the
+emission (hedged→asserted illegal). S2/`surf_mint` locked null:
+surface mints no content fields (`content:null` renders as content-
+free affect). `phantom:true` has no row — reaching surfMap is itself
+a violation.
+
+### 15.5 The identifiability gate
+
+Every MemoryParams key carries `paramDecl = {class ∈ stiff|sloppy|
+locked_null|harness, signature, aliases}`. `identi_gate:"enforce"`:
+`deriveParams` refuses undeclared keys; probe registry refuses
+dangling refs. Each validation run reports the top-k stiff directions
+of the param→verdict Jacobian over the full trait joint (P744).
+
+### 15.6 New params (v5.18 block — all pop/harness, 4 locked nulls)
+
+| param | default | notes |
+|---|---|---|
+| theta_cap | 1.2 | pop — θ saturating accumulator scale |
+| e_comp | noisy-or | pop — gain-block algebra enum |
+| lat_mult_cap | 3.0 | pop — rate-terminus ceiling |
+| grace_floor | 0.05 | pop — worst-case recall floor |
+| mod_ledger | 1 | harness — per-call modifier trace |
+| ctx_tau | 30 | pop — sim-min context persistence |
+| att_span_ctx | 5 | pop — C cardinality (HYPOTHESIS) |
+| surf_map | v1 | pop — realization table version |
+| identi_gate | enforce | harness — declaration gate |
+| theta_unbounded / e_overbound / surf_mint / ctx_oracle | 0.0 each | locked nulls — §52/§55/§54 |
+
+Probes P733–P744 in validation-design.md §133.

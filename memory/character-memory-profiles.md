@@ -993,6 +993,11 @@ needs both.
 | idiom_mint_p / idiom_dyad_gate / idiom_retell_gain / idiom_orphan_loss | 0.1 / 0.6 / 0.0 / 0.1 | 0.6 / 1.0 / 0.5 / 0.8 | dyad-locked cues + dissolution cost (v5.17) |
 | rival_cue_gain / rival_disengage_loss | 0.0 / 0.1 | 0.6 / 0.6 | threat-cue encoding + attention lock (v5.17) |
 | prov_flat_p | 0.1 | 0.7 | provenance-stack thinning per retell (v5.17) |
+| theta_cap | 0.8 | 1.8 | saturating θ accumulator scale (v5.18) |
+| lat_mult_cap | 2.0 | 4.0 | rate-terminus ceiling (v5.18) |
+| grace_floor | 0.02 | 0.15 | worst-case recall floor at θ cap (v5.18) |
+| ctx_tau | 10 | 90 | sim-min context-field persistence (v5.18) |
+| att_span_ctx | 3 | 8 | cueContext cardinality bound (v5.18, HYPOTHESIS) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3329,3 +3334,40 @@ Bible-facing guidance:
   arriving unmoored. Locked: a thinned chain can never
   exceed the last teller's credibility — hearsay doesn't
   launder into eyewitness (P732).
+
+## 52. v5.18 note (formal-model VII — bounds on how wrong a context
+can make a mind)
+
+Five clamp rows added in §0 (`theta_cap`, `lat_mult_cap`,
+`grace_floor`, `ctx_tau`, `att_span_ctx` — all population/harness
+machinery, none bible-facing per-character). ZERO new traits.
+This version is pure substrate machinery; the bible-facing guidance
+is about what it *guarantees* writers:
+
+- **There is now a worst case, and it still answers.** No stack of
+  stress + distraction + age + evaluative pressure can push a
+  character's recall below `grace_floor` on their strongest
+  memories. A bible CAN write "the worst day of her life" without
+  worrying the sim produces an automaton — degradation saturates
+  (P736). Humans under maximal load are *bad*, not *broken*.
+- **Modifiers now carry receipts.** Every call-time deviation logs
+  a `modLedger` entry — when a character performs oddly, the trace
+  names the mechanism (stress leg, synchrony leg, DA leg), not
+  "the model felt like it."
+- **The world cannot hand a character a cue they never perceived.**
+  `ctx_oracle` is locked: undelivered cue fields contribute zero
+  at admission. Consequence for world-builder: if you want a smell
+  to trigger Proust, the event must actually deliver it —
+  `sensory:["espresso"]` in the payload or it never existed.
+- **Emissions can't be lied about downstream.** `surfMap` is
+  closed: hedged recalls must surface hedged, `know` modes can't
+  sprout scene detail, `aff_flash`/`orphan_eval` render affect
+  with NO content (`surf_mint` locked). A character who feels
+  unease without a reason literally cannot be given a confabulated
+  reason by the dialogue layer — the surface lies are now contract
+  violations, not style choices.
+- **Every parameter must declare what observes it.** `identi_gate`
+  means a param without a probe signature is a build error. For
+  bible authors: nothing you pin can silently do nothing — if a
+  trait loading doesn't move a declared observable, the harness
+  says so.

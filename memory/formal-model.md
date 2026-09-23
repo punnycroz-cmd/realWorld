@@ -2150,3 +2150,319 @@ spec violations you commit quietly (§48). Zero new storage, zero new
 per-character params, zero new psychology — the substrate now has a
 content algebra and a population-level ground truth to calibrate
 against.
+
+# Part VII — v69 deepening pass: the composition algebra, the context lifecycle, and the surface contract (P733–P744)
+
+Parts I–VI pinned ordering, measurement, society semantics, the
+transition system, the content algebra, and the canonical form. Three
+holes remain, all of the same kind — quantities that are *read*
+everywhere but *law* nowhere:
+
+(a) **Modifiers have no composition discipline.** Across §§2–6 the spec
+accrues terms onto a handful of shared termini — `θ +=` (stress,
+synchrony, self-initiation, stereotype threat, semantic search,
+suppression, divided attention…), `E *=` / `E +=` (arousal, self-
+reference, generation, enactment, spacing…), `latency_ms ×=` (age, DA,
+search-cost…). Each mechanism is locally defensible; the *joint* is
+unregulated. Stack the four worst θ penalties on an 85-year-old
+evaluative context and θ_eff diverges — an impossible human (real
+worst-case recall degrades toward floor, never to certainty-zero on the
+strongest memory; the empirical literature's combined-load studies —
+Craik et al. 1996 age×DA; Shields et al. 2017 stress×emotion — all
+show bounded, sub-additive joint hits). Nothing in the spec currently
+*prevents* the divergence, because each modifier was written assuming
+it applied alone.
+
+(b) **The context C is a noun, not a process.** Part I §2 defined the
+CueContext schema; §41 defined the world's delivery obligations for
+*events*. But C's own lifecycle was never specified: how long does a
+place cue persist after the character leaves the venue? Which fields
+may legally enter C (the oracle problem — a context containing cues
+the character never perceived is free retrieval)? How many fields can
+C hold? Every call consumes C; nobody defines how C is made.
+
+(c) **The emission→surface map is scattered prose.** Reconstructions
+now carry ~15 surface-relevant fields (`reportMode`, `hedged`,
+`dayConf`+coarse fields, `tot`, `aff_flash`, `orphan_eval`,
+`latency_ms`, `noticed_discrepancy`, `forgiven`…), each with a
+dialogue instruction buried in a §10 note or a section tail. There is
+no completeness check — an emission field the dialogue layer doesn't
+know silently renders as fluent confident speech, which is precisely
+the failure mode (unhedged hedged recall, confabulated aff_flash
+scenes) the model exists to prevent. "The surface lied about the
+memory" must be a decidable predicate.
+
+(d) **Identifiability debt.** Part I §4 audited the ~120 params that
+existed at v0.9; ~500 params have been added since, mostly with
+implicit identifiability arguments ("P<n> observes this"). The audit
+needs a mechanical form: every param must *declare* its signature
+observable and probe, or it doesn't exist.
+
+This pass is again pure machinery: zero new psychology, zero new
+per-character params. The four locked nulls in §59 document the
+boundary (bounded θ, bounded E, no surface minting, no oracle cues).
+
+## 52. The terminus registry — every modifier has a declared algebra
+
+A **terminus** is a mutable quantity that modifiers target. The spec
+has exactly five termini; every param that shifts behavior at call
+time acts on one of them:
+
+| terminus | symbol | algebra | bound |
+|---|---|---|---|
+| threshold | θ (recall θ, resurrect_thresh-relative θ_eff, FOK θ_fok, JOL θ_jol) | saturating-additive | θ_eff = θ + θ_cap·tanh(Σδ_i/θ_cap), θ_cap = 1.2 |
+| gain | E (encoding strength terms), S/R boosts | noisy-OR toward 1 | E_eff = 1 − Π_i(1 − g_i) on the gain block — the SAME saturation §5.2 uses for cues; reuse, never a second saturator |
+| rate | β multipliers, decay floors, latency multipliers | product, capped | lat_mult_cap = 3.0; per-rate caps declared at definition |
+| probability | p_* emission/adoption/flip probabilities | clamp [0,1] last | existing style unchanged |
+| flag/enum | beliefStatus, reportMode, mode dispatch | FSM only (§28) | unchanged |
+
+**Composition laws** (checked by P733/P734/P736):
+
+- **L1 saturation.** Σδ_i on a threshold terminus enters through
+  tanh — the first penalty costs full price, the fifth is nearly free.
+  This is a modeling HYPOTHESIS (no direct human calibration), chosen
+  because it is the unique bounded smooth monotone homogeneous rule;
+  the empirical requirement is only the SIGN: joint impairment is
+  strictly sub-additive in every combined-load study in the corpus
+  (Craik et al. 1996; Naveh-Benjamin et al. 2000; Shields et al. 2017).
+- **L2 gain saturation.** Gains on E compose by noisy-OR — two "big"
+  encoding bonuses never exceed 1, matching the cue rule's precedent
+  (Tulving & Osler's principle that redundancy doesn't pay twice).
+- **L3 terminus legality.** A modifier may write only its declared
+  terminus: `pspeed` touches latency, never θ (existing explicit null,
+  P443 — now enforced by registry membership, not comment).
+- **L4 dedup.** A modifier instance applies once per call — keyed by
+  (modifier id, opTag); double-counting the same § on one call is a
+  spec violation even if numerically legal.
+- **L5 floor survival.** θ_eff ≥ cap region must still permit the
+  strongest records: logistic(k·drive) at max θ shift and strength=1
+  stays ≥ `grace_floor` (0.05). The human worst case is *degraded*,
+  not *disabled* — this is an axiom of the substrate (a person under
+  every load still answers their own name).
+
+Roberts & Pashler 2000 (*Psych Rev* 107:358 — good fits constrain
+theory only when the theory can fail) is the methodological warrant:
+an unbounded composition space can fit anything, so bounded algebra is
+what makes the model falsifiable at all.
+
+## 53. The modifier ledger — the call-time audit field
+
+Every kernel call (`encodeEvent`, `recall`, `dailyMemoryTick`,
+`hearAccount`, `retell`) that evaluates a terminus appends to a
+per-call `modLedger` (harness tier, M-tier, never serialized into
+character-visible state — same discipline as `lastRewrite` in §45):
+
+```
+modLedger += {mod:"stress_retrieve_loss", src:"§5.4", terminus:"theta",
+              delta:+0.14, context:{stress:0.8, lag:35}}
+```
+
+Properties:
+
+- **M1 completeness.** Every effective-parameter deviation from the
+  character's base params on that call appears exactly once (P735
+  fuzzes — an unexplained θ_eff ≠ base is an orphan, symmetric to
+  §45.2's orphan_rewrite).
+- **M2 legality.** Each entry's `terminus` matches the modifier's
+  declared class in the §52 registry — a "gain" writing θ is malformed.
+- **M3 replayability.** Replaying the ledger on the base params must
+  reproduce the effective params bit-exactly (§47 float order applies
+  — ledger entries record in application order).
+
+The ledger is the missing half of §48's approximation license: the
+license says *what* may differ, the ledger says *why* a call differed.
+`mod_ledger` (harness flag, default on in validation builds, off
+allowed in production for perf) gates whether entries are recorded —
+the *math* is identical either way.
+
+## 54. The context lifecycle — C as a decaying state
+
+C is not an argument the world hands in complete form; it is a
+substrate-maintained state per character with three legal provenances:
+
+```
+C.fields := admitted set, where field f may enter iff
+  (a) DELIVERED — present in the current event/context payload
+      (world obligation §41), or
+  (b) PERSISTED — admitted earlier and still within
+      ctx_persist(Δt) = exp(−Δt_min/ctx_tau), rolled per field at
+      admission-of-next-context (a left-the-room trace, not a
+      permanent cue), or
+  (c) INTERNAL — character-state fields (mood, stress, temporalAnchor,
+      self-origin elaborations per §5.2 cue ownership); these persist
+      while true, not on ctx_tau
+```
+
+`ctx_tau` ≈ 30 sim-min — a guess-HYPOTHESIS within the stimulus-
+fluctuation tradition (Estes 1955; context-drift forgetting models:
+Mensink & Raaijmakers 1988, *J Math Psych* 32:434; the retrieval-side
+analog of Howard & Kahana's 2002 drifting context). Persistence is a
+*field-level survival roll*, not a continuous weight — a field either
+stays in C (full match value) or exits; partial-weight ghosts would
+break §5.1's gate semantics.
+
+**Cardinality bound:** `|C.fields| ≤ att_span_ctx` (≈5, HYPOTHESIS —
+deliberately near working-memory range, Miller 1956's 7±2 read
+conservatively for a *cue* set not an item set). On overflow, fields
+are dropped by ascending admission age (internal fields exempt —
+mood is always admissible). This is the answer to "why doesn't the
+character use every available cue": the cue set itself is capacity-
+limited at admission, upstream of §5.2's combination rule.
+
+**The oracle null.** A field that is neither delivered, persisted, nor
+internal contributes exactly 0 — enforced at admission, not at match
+(§5.1 already enforces at match; admission-side enforcement makes a
+*construction* bug detectable rather than silently absorbed). `ctx_oracle`
+is a locked null: there is no code path by which an undelivered cue
+enters C (P742).
+
+## 55. The surface realization contract — every emission field has a face
+
+`surfMap` is a closed table: emission field combination → required
+surface marks + forbidden surface marks. Dialogue generation (game-
+systems/world dialogue layer) consumes the emission + this table.
+Unknown combination = contract violation (P737), never a silent
+default — silence is exactly how "Resting peacefully" happened on the
+art side, and the memory surface has the same failure shape.
+
+| emission carries | REQUIRED surface mark | FORBIDDEN |
+|---|---|---|
+| reportMode:"know" | warm/familiar framing, no episodic detail fields | any scene-particular wording (would mint content the record lacks) |
+| hedged:true (forced floor, §5.61) | modal uncertainty ("I think", "maybe") | assertoric wording; hedged → asserted strengthening downstream (Koriat & Goldsmith 1996 — the listener's FOK reads the hedge: Brennan & Williams 1995, *J Mem Lang* 34:237) |
+| coarse fields present (whenEstimate era/season) | coarse temporal wording ("early spring") | any exact date; the day field is never surfaced raw |
+| tot:true | TOT marker ("right on the tip of my tongue" — Brown 1991, *Psych Bull* 109:204, the canonical phenomenology) | silent omission; a confident wrong name substituted for the blanked one |
+| aff_flash:true, content:null | affect expression ONLY ("something about that song") | any scene content — `surf_mint` locked null |
+| orphan_eval:true | evaluation-without-warrant form ("I just don't trust him — couldn't say why") | any invented episode (joins `orphan_reason_null` at the surface) |
+| noticed_discrepancy:true | OPTIONAL surface (silent tell is legal) | mandatory surface — the character noticed, didn't necessarily say |
+| latency_ms ≥ lat_cap | hesitation beat marker in the utterance stream | rendering latency back into confidence/θ (P374's isolation, re-asserted) |
+| forgiven:true | intact content + dampened sting | "I don't remember it" |
+| phantom:true (record-side) | NO ROW — a phantom flag reaching surfMap is a contract violation, full stop (I7) | everything |
+
+**S1 strengthening ban.** The surface layer may only ever weaken
+claim strength relative to emission fields (asserted → hedged is
+legal; hedged → asserted is not). Deletion/softening is a ρ_del-class
+act; strengthening is a ρ_emb-class act and ρ_emb requires a retell
+trigger — the surface is not a retell.
+
+**S2 surf_mint null.** No surface rule may mint content fields the
+emission doesn't carry. `content:null` emissions render as
+content-free affect; this is the formal version of "the character
+feels something, and CANNOT lie about the details because there are
+none."
+
+## 56. The identifiability gate — declarations, not vibes
+
+Extend Part I §4's audit to a mechanical registry. Every param in the
+§7 MemoryParams block must carry a declaration:
+
+```
+paramDecl = {name, class ∈ {stiff, sloppy, locked_null, harness},
+             signature: <observable/probe refs>, aliases: [params it
+             trades with]}
+```
+
+- **stiff** = at least one registered probe's verdict moves outside
+  band when the param moves ±1 clamp-step (the Gutenkunst 2007 sloppy-
+  directions direction, operationalized).
+- **sloppy** = declared trade partner exists (e.g. cue-noise vs
+  θ offsets produce identical recall curves) and the probe suite
+  knowingly constrains only the combination — legal, but must say so.
+- **locked_null** = §7's ~40 named zeros; their declaration is the
+  probe that would catch a nonzero value.
+- **harness** = pop/harness machinery (this Part's params; §13–14's).
+
+The gate (P743): `deriveParams` refuses a MemoryParams key with no
+declaration; the probe registry refuses a param with a declared probe
+that doesn't reference it. Undeclared params are unratified — the
+formal version of "if nothing measures it, it isn't real."
+
+The companion report (P744): each validation run emits the current
+stiff-direction decomposition (top-k eigenvectors of the param→probe-
+verdict Jacobian over the 28-character joint). A version that adds 20
+params and no new stiff directions is flagged — it added machinery
+that changes nothing observable, which is either a bug or a
+declaration lie.
+
+## 57. New params (spec §7 v5.18 block) — audit-compliant
+
+| param | default | free? | observable |
+|---|---|---|---|
+| theta_cap | 1.2 | pop | P733 — saturating θ accumulator scale |
+| e_comp | "noisy-or" | pop (enum) | P734 — gain-block algebra |
+| lat_mult_cap | 3.0 | pop | P736/P740 — rate-terminus ceiling |
+| grace_floor | 0.05 | pop | P736 — worst-case recall floor at θ cap |
+| mod_ledger | 1 | harness | P735 — per-call modifier trace |
+| ctx_tau | 30 | pop — sim-min | P741 — context field persistence |
+| att_span_ctx | 5 | pop — HYPOTHESIS | P741 — C cardinality bound |
+| surf_map | "v1" | pop (table ver) | P737/P738/P739 |
+| identi_gate | "enforce" | harness | P743 — declaration enforcement |
+| theta_unbounded | 0.0 | locked null | P733 — θ shift never diverges |
+| e_overbound | 0.0 | locked null | P734 — gains never exceed asymptote |
+| surf_mint | 0.0 | locked null | P739 — surface mints no content |
+| ctx_oracle | 0.0 | locked null | P742 — undelivered cues contribute 0 |
+
+13 entries, **0 per-character**. The four locked nulls document that
+divergent thresholds, over-1 gains, surface-minted content, and oracle
+cues are permanently zero degrees of freedom.
+
+## 58. Formal/consistency probes (P733–P744)
+
+- **P733 θ saturation (MUST):** compose the maximal legal penalty
+  stack (stress>thresh + lag-window + daLoad=1 + evaluative + off-peak
+  + selfinit + sem_search) on an age_eff=85 character; θ_eff ≤ θ +
+  θ_cap always; tanh monotonicity holds (`theta_unbounded = 0`).
+- **P734 gain saturation (MUST):** compose every E-gain leg
+  simultaneously on a maximally-tagged event; E_eff < 1 strictly, and
+  adding a further gain is monotone ≤ (`e_overbound = 0`).
+- **P735 modifier-ledger auditability (MUST):** fuzz 10⁴ kernel calls;
+  every effective-param deviation from base replays through modLedger
+  entries bit-exactly; unexplained deviation = FAIL.
+- **P736 graceful degradation (MUST — sign-locked):** at maximal θ
+  shift, a strength-1 maximal-cue record still recalls ≥ grace_floor
+  (0.05) over 10⁴ draws — the substrate degrades, never disables.
+- **P737 surface-map completeness (MUST):** enumerate all emission
+  field combinations reachable in a 10⁴-run fuzz; every combination
+  resolves to a surfMap row or a declared OPTIONAL; unknown = FAIL.
+- **P738 hedge direction (MUST — sign-locked):** hedged:true emissions
+  surface with modal-uncertainty marks in 100% of cases; surface-
+  emitted claims downstream of hedged emissions never enter hearers'
+  stores at >hedged strength (S1 propagation).
+- **P739 content:null honesty (MUST — locked null):** aff_flash /
+  orphan_eval emissions produce zero content-field words on the
+  surface across the fuzz corpus (`surf_mint = 0`).
+- **P740 latency isolation (SHOULD):** latency_ms ∈ [0, lat_cap·max
+  legal mult]; correlation of latency with θ across matched records =
+  0 under the registry — latency is a display observable, never a
+  retrieval input.
+- **P741 context persistence (SHOULD):** a place cue admitted at t
+  and undelivered since survives re-match with probability ≈
+  exp(−Δt/ctx_tau) ± sampling noise; |C.fields| ≤ att_span_ctx
+  invariant across 10⁴ context transitions.
+- **P742 oracle null (MUST — locked null):** inject contexts with
+  fields never delivered to the character; cueMatch contribution of
+  the oracle field = 0 identically (`ctx_oracle = 0`).
+- **P743 declaration gate (SHOULD — meta):** registry completeness —
+  every MemoryParams key has a paramDecl; every paramDecl's probe ref
+  resolves; undeclared param = build error.
+- **P744 stiff-direction report (SHOULD — meta):** each validation run
+  emits top-k stiff directions of the param→verdict Jacobian on the
+  full trait joint; version-over-version new-param/stiff-direction
+  parity reported, not gated.
+
+## 59. Summary for game-systems
+
+One composition algebra to implement instead of reading fifty "+="
+sites (§52 — five termini, declared algebras, saturated composition;
+the spec can no longer produce impossible humans by stacking legal
+penalties); one ledger making every call-time deviation explainable
+(§53 — the audit twin of §45's rewrite catalog: content deltas got
+`lastRewrite`, param deltas get `modLedger`); one context lifecycle
+closing the oracle hole (§54 — C is built by the substrate from
+delivered/persisted/internal fields, capacity-bounded; the world
+cannot hand the character a cue they never perceived); one closed
+surface map making dialogue-covers-up-emission a contract violation
+instead of an accident (§55); one declaration gate keeping the
+parameter file honest as it grows (§56). Zero new storage classes,
+zero new per-character params, zero new psychology — the substrate now
+has a bound on how wrong a context can make a mind, and a complete
+map of what a memory may look like on its way out the mouth.

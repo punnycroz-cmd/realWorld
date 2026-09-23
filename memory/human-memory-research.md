@@ -2294,3 +2294,39 @@ checked against primary sources this version.
   Bartlett 1932 leveling + §4 chain work + beta_source
   decay on embedded attribution stacks. `prov_upgrade_null`
   locked — flattening loses truth, never launders it.
+
+## 47. Addendum — v70 anchors (formal-model VII, spec v5.18)
+
+Machinery version — the sources below ground the *bounds*, not new
+effects.
+
+- **Combined loads degrade sub-additively.** Craik, Govoni,
+  Naveh-Benjamin & Anderson 1996 (*Psychol Sci* 7:52 — age ×
+  divided attention); Naveh-Benjamin, Craik, Guez & Kreuger 2000;
+  Shields, Sazma, McCullough & Yonelinas 2017 (*Psych Bull*
+  143:636 — 113-study stress × emotion retrieval meta). Every
+  combined-manipulation result in the corpus shows bounded joint
+  impairment — the sign behind the saturating-additive θ law;
+  the tanh form itself is a modeling HYPOTHESIS.
+- **Redundancy doesn't pay twice.** Tulving & Osler 1968
+  (*JEP* 77:593) — the cue-combination precedent the gain-side
+  noisy-OR reuses.
+- **Context drifts.** Estes 1955 (*Psych Rev* 62:74 — stimulus
+  fluctuation); Mensink & Raaijmakers 1988 (*J Math Psych*
+  32:434 — context-drift model of forgetting); Howard & Kahana
+  2002 (*J Math Psych* 46:269 — retrieved context). `ctx_tau`
+  field-persistence is the retrieval-side analog.
+- **Hedges communicate epistemic state.** Koriat & Goldsmith
+  1996 (*Psych Rev* 103:490); Brennan & Williams 1995 (*J Mem
+  Lang* 34:237 — listeners recover FOK from hedged speech);
+  Brown 1991 (*Psych Bull* 109:204 — TOT phenomenology review);
+  Smith & Clark 1993 (*JPSP* 65:186 — latency as access signal).
+  Grounds the surfMap rows: hedge markers, TOT markers, and
+  hesitation beats are *honest signals*, not decoration.
+- **Fits must be able to fail.** Roberts & Pashler 2000 (*Psych
+  Rev* 107:358); Gutenkunst et al. 2007 (*PLoS Comput Biol*
+  3:e189 — sloppy directions). Warrant for the composition
+  bounds and the §56 declaration gate.
+- **Capacity note.** Miller 1956 (*Psych Rev* 63:81 — 7±2) —
+  conservative basis for `att_span_ctx` ≈ 5 as a *cue-set*
+  bound; flagged HYPOTHESIS (cue admission ≠ chunk capacity).
