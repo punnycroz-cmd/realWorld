@@ -78,6 +78,7 @@ const GS_REQ = {
   reqs: [],          // every request ever filed (audit trail)
   cdP: {},           // 'playerId|kind' -> cooldown-until minute
   cdG: {},           // 'kind'        -> global cooldown-until minute
+  cdClaim: {},       // claim res    -> cooldown-until ("one per resource /24h")
   actions: {},       // kind -> action spec
 };
 const GS_FEED = [];        // public request feed — append-only (v6 formats it)
@@ -368,7 +369,12 @@ gsDefineAction('possess', {
 });
 gsDefineAction('weather', {
   scope: 'global', exclusive: true, ratePerMin: 6,
-  minMin: 10, maxMin: 240, cdPlayerMin: 120, cdGlobalMin: 60, ttlMin: 60,
+  minMin: 10, maxMin: 240, cdPlayerMin: 240, cdGlobalMin: 240, ttlMin: 60,
+  /* v7: weather is the contract's 'exclusive' class — every sky change
+     parks for a human before it runs (requests.json classes.exclusive
+     + moderation.json exclusive lane). cooldowns are the contract's
+     4-hour exclusive cooldown; the sky itself rests 4h (spec range 4-8). */
+  review: 'always',
   effect: 'maintained',
   allow: (r) => (r.params && GS_WX_KINDS[r.params.wx]) ? true : 'bad_weather',
   activate: gsFxWxOn, deactivate: gsFxWxOff,
@@ -380,8 +386,21 @@ gsDefineAction('weather', {
 gsDefineAction('street_event', {
   scope: 'global', exclusive: false, ratePerMin: 5,
   minMin: 15, maxMin: 180, cdPlayerMin: 240, ttlMin: 120,
+  /* v7: event permits are exclusive-class too (requests.json) — human
+     review before activation — and a venue that ran an event rests 24h:
+     "one event per resource per 24h" is a claim-level cooldown stamped
+     when the permit activates, refused by allow() at file + promotion. */
+  review: 'always', cdClaimMin: 1440,
   effect: 'maintained',
-  allow: (r) => (r.params && GS_EVENT_KINDS[r.params.event]) ? true : 'bad_event',
+  allow: (r, now) => {
+    if(!(r.params && GS_EVENT_KINDS[r.params.event])) return 'bad_event';
+    const meta = GS_EVENT_KINDS[r.params.event];
+    const at = gsNormVenue(r.params.at);
+    if(meta.venue && at &&
+       (GS_REQ.cdClaim['venue:' + at] || 0) > (now || 0))
+      return 'venue_rest';
+    return true;
+  },
   activate: gsFxEventOn, deactivate: gsFxEventOff,
   claims: (r) => {
     const meta = GS_EVENT_KINDS[(r.params && r.params.event)] || {};
@@ -533,7 +552,11 @@ function gsRequestsConflict(ra, rb){
 function gsFindBlockers(r){
   const n = (r.n != null) ? r.n : Infinity;
   return GS_REQ.reqs.filter(x => x.n < n &&
-    (x.status === 'active' || x.status === 'queued') &&
+    (x.status === 'active' || x.status === 'queued' ||
+     /* v7: an exclusive request parked for review AT its activation
+        still holds the FCFS slot it earned — nothing leapfrogs while a
+        human decides (requests.json: review on activation) */
+     (x.status === 'in_review' && x.holdsLine)) &&
     gsRequestsConflict(x, r));
 }
 /* the clashing claim resources on r's side — for feed/viewer display */
@@ -618,8 +641,52 @@ function gsQueuePosition(id){
   return ahead + 1;
 }
 
-/* surge hook — v7 anti-grief replaces the constant with queue-depth math */
-function gsSurgeFactor(resKey){ return 1; }
+/* ================= v7: SURGE — the cover charge goes up when there's a
+   line (requests.json surge + monetization §2.3) =================
+   Pressure = recent (6h) non-denied requests sharing a claim resource.
+   A same-player re-filing on a target-scope request does not count —
+   re-driving your own hire is the play loop, not contention; world-scale
+   filings always count (back-to-back weather IS the grief), and primetime
+   (18:00-23:00 PT) adds one step for global asks. 1.5x at first pressure,
+   +0.25 per step after, capped 2.5x — the contract's range verbatim. The
+   multiplier is computed BEFORE payment and returned by gsPriceQuote. */
+const GS_SURGE_CFG = { windowMin: 360, base: 1.5, step: 0.25, cap: 2.5 };
+const GS_QUEUE_DISCOUNT = 0.15;   // a queued filing bills at -15%
+function gsBusPtMin(now){
+  /* SF wall-time minute-of-day — the same clock the wire stamps with */
+  if(typeof gsWireClock === 'function'){
+    const c = gsWireClock(now);
+    if(c && c.t != null) return c.t;
+  }
+  return ((Math.floor(now) % 1440) + 1440) % 1440;
+}
+function gsBusPrimetime(now){
+  const t = gsBusPtMin(now);
+  return t >= 18 * 60 && t < 23 * 60;
+}
+function gsSurgePressure(cand, now){
+  const res = {};
+  for(const c of gsClaimsOf(cand)) res[c.res] = 1;
+  if(!Object.keys(res).length) return 0;
+  const a = GS_REQ.actions[cand.kind];
+  const worldAsk = !!(a && a.scope === 'global');
+  let n = 0;
+  for(const r of GS_REQ.reqs){
+    if(r.submittedMin == null ||
+       (now - r.submittedMin) > GS_SURGE_CFG.windowMin) continue;
+    if(r.status === 'denied' || r.status === 'failed') continue;
+    if(!worldAsk && r.playerId === cand.playerId) continue;
+    for(const c of gsClaimsOf(r)) if(res[c.res]){ n++; break; }
+  }
+  if(worldAsk && gsBusPrimetime(now)) n++;
+  return n;
+}
+function gsSurgeFactor(cand, now){
+  const p = gsSurgePressure(cand, now);
+  if(p <= 0) return 1;
+  return Math.min(GS_SURGE_CFG.cap,
+                  GS_SURGE_CFG.base + GS_SURGE_CFG.step * (p - 1));
+}
 
 /* ---- effect dispatch plumbing ---- */
 function gsFxActivate(r, now){
@@ -632,11 +699,18 @@ function gsFxActivate(r, now){
     r.status = 'failed'; r._now = now;
     r.failReason = (res && res.reason) || 'effect_failed';
     if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'activation failed');
-                      r.refunded = r.billed; }
+                      r.refunded = (r.refunded || 0) + r.billed; }
     gsBusEmit('fail', r, { reason: r.failReason, refund: r.billed });
     return false;
   }
   r.fxOn = true;
+  /* v7: a consumed permit rests the venue — "one event per resource per
+     24h" (requests.json). Stamped at ACTIVATION (the slot was used the
+     moment it ran, even if admin-ended later); allow() refuses the venue
+     while it rests, at file time and again at promotion. */
+  if(a.cdClaimMin)
+    for(const c of gsClaimsOf(r))
+      if(c.cls === 'venue') GS_REQ.cdClaim[c.res] = now + a.cdClaimMin;
   return true;
 }
 function gsFxDeactivate(r, now, why){
@@ -661,29 +735,49 @@ function gsPromoteAll(now){
       next.status = 'expired'; next._now = now;  // TTL lapsed: refund,
       if(next.billed > 0){ gsCreditRefund(next.playerId, next.billed,
                                            'queue expired');   // don't run
-                           next.refunded = next.billed; }       // a dead request
+                           next.refunded = (next.refunded || 0) +
+                                           next.billed; }       // a dead request
       gsBusEmit('expire', next, { refund: next.billed });
       continue;
     }
     const a = GS_REQ.actions[next.kind];
     if(a && a.allow){
       const why = a.allow({ playerId: next.playerId, target: next.target,
-                            kind: next.kind, params: next.params });
+                            kind: next.kind, params: next.params }, now);
       if(why !== true){
         next.status = 'failed'; next._now = now; next.failReason = why;
         if(next.billed > 0){ gsCreditRefund(next.playerId, next.billed,
                                              'conditions changed');
-                             next.refunded = next.billed; }
+                             next.refunded = (next.refunded || 0) +
+                                             next.billed; }
         gsBusEmit('fail', next, { reason: why, refund: next.billed,
                                   stale: true });
         continue;                                // FCFS: try the next in line
       }
     }
     if(gsFindBlockers(next).length) continue;    // still blocked — hold the line
+    /* v7: the exclusive class reviews AT ACTIVATION (requests.json:
+       "review happens on activation, not while waiting"). The request
+       leaves the queue but keeps holding its earned FCFS slot via
+       holdsLine — a parked-for-review exclusive still blocks everything
+       behind it, so nobody leapfrogs while the human reads. */
+    if(!gsIsAdmin(next.playerId) && a && a.review === 'always' &&
+       next.reviewedMin == null){
+      next.status = 'in_review'; next.holdsLine = true;
+      next.expireMin = null;
+      next.reviewExpireMin = now + GS_REVIEW_TTL_MIN;
+      next.lane = next.lane || 'exclusive';
+      gsBusEmit('review', next, { action: 'in_review',
+        code: next.screen || null, lane: 'exclusive',
+        atActivation: true, expiresInMin: GS_REVIEW_TTL_MIN });
+      continue;
+    }
     next.status = 'active'; next.startMin = now;
     next.endMin = now + next.durationMin; next.expireMin = null;
     next._now = now;
-    gsBusEmit('approve', next, { promoted: true, price: next.price });
+    gsBusEmit('approve', next, { promoted: true, price: next.billed,
+      surge: next.surge > 1 ? next.surge : null,
+      discount: next.discount || null });
     if(!gsFxActivate(next, now)) continue;       // activation failed: next
   }
 }
@@ -706,6 +800,15 @@ function gsSubmitRequest(spec, nowMin){
   if(!a) return deny('unknown_action');
   if(a.scope === 'target' && !target) return deny('missing_target');
   if(!(dur >= a.minMin && dur <= a.maxMin)) return deny('bad_duration');
+  /* v7 door policy (41G): the account exists from its first knock on the
+     door; suspended/held accounts are refused before content is even
+     read, and flagged accounts route every filing through the human
+     lane. Admin bypasses — the owner IS the reviewer. */
+  if(typeof gsAccountSeen === 'function') gsAccountSeen(pid, now);
+  var acctGate = null;
+  if(!gsIsAdmin(pid) && typeof gsAccountGate === 'function')
+    acctGate = gsAccountGate(pid, now);
+  if(acctGate && acctGate.deny) return deny(acctGate.deny);
   /* v5 intent screen (design §11.3/§11.4): classify the request's own
      text before any billing — a denied intent never moves credits.
      Review-tier hits park the request in_review for a human resolution
@@ -723,20 +826,23 @@ function gsSubmitRequest(spec, nowMin){
     }
     if(scr && scr.verdict === 'review') screened = scr;
   }
-  if(a.allow){ const why = a.allow({ playerId: pid, target, kind, params });
+  /* v7 flood control: the door opens only so often — per-player filings
+     per hour and live-request caps refuse pre-billing (a script can file
+     forever; the bus just says no). */
+  if(!gsIsAdmin(pid) && typeof gsRateCheck === 'function'){
+    const rc = gsRateCheck(pid, now);
+    if(rc) return deny(rc);
+  }
+  /* v7 appeal finality: a request text that was denied twice is closed —
+     the appeal lane already had its say; refiling it is refused. */
+  if(!gsIsAdmin(pid) && typeof gsFinalText === 'function' &&
+     gsFinalText(pid, spec))
+    return deny('appeal_final');
+  if(a.allow){ const why = a.allow({ playerId: pid, target, kind, params },
+                                   now);
                if(why !== true) return deny(why); }
   if((GS_REQ.cdP[pid + '|' + kind] || 0) > now) return deny('cooldown');
   if((GS_REQ.cdG[kind] || 0) > now) return deny('global_cooldown');
-
-  const resKey = gsResourceKey(kind, target);
-  const price = Math.ceil(a.ratePerMin * dur * gsSurgeFactor(resKey));
-  /* admin ('owner'/'admin') files free — the owner exercises power through
-     admin tools (design §3), never buys it back from themselves. Admin
-     requests join the same FCFS line as everyone else's — the override
-     mechanism is the revoke switch, not queue privilege. */
-  if(price > 0 && !gsIsAdmin(pid) &&
-     !gsCreditSpend(pid, price, kind + ' request'))
-    return deny('insufficient_credits');
 
   /* v2 pairwise conflicts: the request queues iff ANY earlier live
      request (active or queued) clashes with one of its claims — a
@@ -745,17 +851,53 @@ function gsSubmitRequest(spec, nowMin){
   const claims = gsClaimsOf(cand);
   const blockers = gsFindBlockers(cand);
   const conflict = blockers.length > 0;
-  const parked = screened && !gsIsAdmin(pid);
+  /* v7 lane decision BEFORE billing: screening hits, flagged accounts,
+     player-authored naming strings, and UNBLOCKED exclusive-class asks
+     (weather, street_event — requests.json human review) park in_review.
+     A blocked exclusive QUEUES like anything else — review happens on
+     activation, not while waiting (requests.json resource_board). */
+  const named = (kind === 'hire' && params && typeof params.name === 'string'
+                 && params.name.trim().length > 0);
+  const parked = !gsIsAdmin(pid) &&
+    !!(screened || (acctGate && acctGate.review) || named ||
+       (a.review === 'always' && !conflict));
+  /* v7 pricing: base rate x minutes x surge; the surge is computed BEFORE
+     payment and disclosed via gsPriceQuote. A filing that joins the line
+     immediately bills at -15% — patience is cheaper (queue discount). */
+  const surge = gsSurgeFactor(cand, now);
+  const price = Math.ceil(a.ratePerMin * dur * surge);
+  const discounted = conflict && !parked && !gsIsAdmin(pid);
+  const billed = discounted ? Math.ceil(price * (1 - GS_QUEUE_DISCOUNT))
+                            : price;
+  /* admin ('owner'/'admin') files free — the owner exercises power through
+     admin tools (design §3), never buys it back from themselves. Admin
+     requests join the same FCFS line as everyone else's — the override
+     mechanism is the revoke switch, not queue privilege. */
+  if(billed > 0 && !gsIsAdmin(pid) &&
+     !gsCreditSpend(pid, billed, kind + ' request'))
+    return deny('insufficient_credits');
+
+  const resKey = gsResourceKey(kind, target);
   const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
     kind, target, durationMin: dur, params, price, resKey, claims,
-    billed: gsIsAdmin(pid) ? 0 : price,
-    rateApplied: dur > 0 ? price / dur : 0,
+    billed: gsIsAdmin(pid) ? 0 : billed,
+    surge, discount: discounted ? GS_QUEUE_DISCOUNT : 0,
+    rateApplied: dur > 0 ? (gsIsAdmin(pid) ? 0 : billed) / dur : 0,
     submittedMin: now, status: conflict ? 'queued' : 'active',
     startMin: conflict ? null : now,
     endMin: conflict ? null : now + dur,
     expireMin: conflict ? now + a.ttlMin : null,
     usedMin: 0, refunded: 0, fxOn: false, _now: now };
-  if(screened) r.screen = screened.code;
+  if(screened){ r.screen = screened.code; r.lane = 'screen'; }
+  else if(named) r.lane = 'naming';
+  else if(a.review === 'always'){
+    r.lane = 'exclusive';
+    /* moderation.json: a first-week account reaching for world-scale
+       agency is flagged for the reviewer on sight */
+    if(typeof gsAcctAgeDays === 'function' && gsAcctAgeDays(pid, now) < 3)
+      r.screen = 'first-time-exclusive';
+  }
+  else if(acctGate && acctGate.review) r.lane = 'flagged';
   if(parked){
     /* review tier: billed upfront like any queued request, but it never
        enters the line — gsReviewResolve (or the TTL lapse) decides.
@@ -766,16 +908,20 @@ function gsSubmitRequest(spec, nowMin){
   }
   GS_REQ.reqs.push(r);
   if(parked){
-    gsBusEmit('review', r, { action: 'in_review', code: screened.code,
-      price, expiresInMin: GS_REVIEW_TTL_MIN });
+    gsBusEmit('review', r, { action: 'in_review', code: r.screen || null,
+      lane: r.lane || null, price: r.billed, surge: surge > 1 ? surge : null,
+      expiresInMin: GS_REVIEW_TTL_MIN });
     return r;
   }
   if(conflict){
     r.queuedBehind = blockers.map(b => b.id);
-    gsBusEmit('queue', r, { price, pos: gsQueuePosition(r.id),
-      blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(cand) });
+    gsBusEmit('queue', r, { price: r.billed, pos: gsQueuePosition(r.id),
+      blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(cand),
+      surge: surge > 1 ? surge : null,
+      discount: r.discount || null });
   } else {
-    gsBusEmit('approve', r, { price });
+    gsBusEmit('approve', r, { price: r.billed,
+      surge: surge > 1 ? surge : null });
     if(gsFxActivate(r, now) && gsLowCredit(pid))
       gsBusEmit('warn', r, { low_credits: true,
                              balance: gsCreditBalance(pid) });
@@ -797,14 +943,14 @@ function gsBusTick(nowMin){
       r.status = 'expired'; r._now = now; r.reason = 'review_lapsed';
       if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
                                        'review lapsed');
-                        r.refunded = r.billed; }
+                        r.refunded = (r.refunded || 0) + r.billed; }
       gsBusEmit('expire', r, { refund: r.billed, via: 'review' });
       continue;
     }
     if(r.status === 'queued' && r.expireMin != null && now > r.expireMin){
       r.status = 'expired'; r._now = now;
       if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'queue expired');
-                        r.refunded = r.billed; }
+                        r.refunded = (r.refunded || 0) + r.billed; }
       gsBusEmit('expire', r, { refund: r.billed });
       continue;
     }
@@ -850,7 +996,7 @@ function gsCancelRequest(id, nowMin, by){
   r.status = 'cancelled'; r._now = now; r.by = by || 'player';
   gsFxDeactivate(r, now, 'cancelled');
   if(refund > 0){ gsCreditRefund(r.playerId, refund, 'cancelled');
-                  r.refunded = refund; }
+                  r.refunded = (r.refunded || 0) + refund; }
   gsBusEmit('cancel', r, { by: r.by, refund, usedMin: r.usedMin });
   /* v2 fix: freeing a resource (or a queue slot, when a queued request
      is cancelled) must promote — v1 waited for a natural completion and
@@ -887,33 +1033,93 @@ function gsReviewResolve(id, approve, opts){
   const now = (opts.nowMin != null) ? opts.nowMin : gsNowMin();
   const r = gsRequestById(id);
   if(!r || r.status !== 'in_review') return null;
-  gsBusEmit('review', r, { action: approve ? 'approved' : 'denied',
+  /* v7 appeal rule (moderation.json): a different reviewer must take the
+     appeal — enforced, not just shown on the console. */
+  if(r.appealOf && opts.by && r.origReviewer &&
+     opts.by === r.origReviewer)
+    return { error: 'same_reviewer', id: r.id };
+  const a = GS_REQ.actions[r.kind];
+  /* approve-modified (moderation.json 'approved (modified)'): a reviewer
+     may trim duration/scope, never widen it; the unused minutes refund
+     at the applied rate before the request enters the line. */
+  var modified = false;
+  if(approve && opts.modifyMin != null && a &&
+     opts.modifyMin >= a.minMin && opts.modifyMin < r.durationMin){
+    r.durationMin = Math.floor(opts.modifyMin);
+    r.price = Math.ceil(a.ratePerMin * r.durationMin * (r.surge || 1));
+    modified = true;
+  }
+  gsBusEmit('review', r, { action: approve
+    ? (modified ? 'approved_modified' : 'approved') : 'denied',
     code: opts.code || r.screen || null, by: opts.by || 'reviewer' });
   r._now = now;
+  r.reviewedBy = opts.by || 'reviewer';
   if(!approve){
     r.status = 'denied';
     r.reason = opts.code || 'review_denied';
     r.screenDenied = r.reason;         // a reviewer denial is a content denial
     if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'review denied');
-                    r.refunded = r.billed; }
+                    r.refunded = (r.refunded || 0) + r.billed; }
+    /* a second denial is final for that request text (moderation.json) */
+    if(r.appealOf && typeof gsAppealFinal === 'function')
+      gsAppealFinal(r, now);
     gsBusEmit('deny', r, { reason: r.reason, via: 'review',
                            refund: r.billed });
+    if(r.holdsLine){ r.holdsLine = false; gsPromoteAll(now); }
     return r;
+  }
+  /* v7: the door can close while a request waits — re-check the account
+     gate at approval (a suspended account's parked request cannot run). */
+  if(!gsIsAdmin(r.playerId) && typeof gsAccountGate === 'function'){
+    const g = gsAccountGate(r.playerId, now);
+    if(g && g.deny){
+      r.status = 'denied'; r.reason = g.deny;
+      if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
+                                       'account closed');
+                        r.refunded = (r.refunded || 0) + r.billed; }
+      gsBusEmit('deny', r, { reason: g.deny, via: 'review',
+                             refund: r.billed });
+      if(r.holdsLine){ r.holdsLine = false; gsPromoteAll(now); }
+      return r;
+    }
+  }
+  /* v7 appeals re-bill on approval: the original charge was refunded at
+     denial; the appealed run pays once — the appeal itself is free. */
+  if(r.appealOf && r.billed <= 0 && !gsIsAdmin(r.playerId)){
+    if(!gsCreditSpend(r.playerId, r.price, r.kind + ' request (appeal)')){
+      r.status = 'failed'; r.failReason = 'insufficient_credits';
+      gsBusEmit('fail', r, { reason: 'insufficient_credits', refund: 0 });
+      if(r.holdsLine){ r.holdsLine = false; gsPromoteAll(now); }
+      return r;
+    }
+    r.billed = r.price;
+    r.rateApplied = r.durationMin > 0 ? r.billed / r.durationMin : 0;
+  }
+  if(modified && r.billed > 0){
+    /* refund the trimmed minutes at the (possibly discounted) rate */
+    const want = r.discount ? Math.ceil(r.price * (1 - r.discount))
+                            : r.price;
+    const diff = r.billed - want;
+    if(diff > 0){
+      gsCreditRefund(r.playerId, diff, 'review modified');
+      r.refunded = (r.refunded || 0) + diff; r.billed = want;
+      r.rateApplied = r.durationMin > 0 ? r.billed / r.durationMin : 0;
+    }
   }
   /* approval = entering the line NOW: fresh sequence (no leapfrog of
      requests filed while it parked) and a fresh queue TTL. */
   r.n = ++GS_REQ.seq;
   r.reviewedMin = now;
-  const a = GS_REQ.actions[r.kind];
   if(a && a.allow){
     const why = a.allow({ playerId: r.playerId, target: r.target,
-                          kind: r.kind, params: r.params });
+                          kind: r.kind, params: r.params }, now);
     if(why !== true){
       r.status = 'failed'; r.failReason = why;
       if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
                                        'conditions changed');
-                      r.refunded = r.billed; }
+                      r.refunded = (r.refunded || 0) + r.billed; }
       gsBusEmit('fail', r, { reason: why, refund: r.billed, stale: true });
+      if(r.holdsLine){ r.holdsLine = false; gsPromoteAll(now); }
       return r;
     }
   }
@@ -922,14 +1128,29 @@ function gsReviewResolve(id, approve, opts){
     r.status = 'queued';
     r.expireMin = now + (a.ttlMin || 60);
     r.queuedBehind = blockers.map(b => b.id);
-    gsBusEmit('queue', r, { price: r.price, pos: gsQueuePosition(r.id),
+    /* v7: the patience discount lands here — a reviewed request that
+       still has to wait bills at -15% and the difference comes back */
+    if(!r.discount && r.billed > 0){
+      const want = Math.ceil(r.price * (1 - GS_QUEUE_DISCOUNT));
+      const diff = r.billed - want;
+      if(diff > 0){
+        gsCreditRefund(r.playerId, diff, 'queue discount');
+        r.refunded = (r.refunded || 0) + diff; r.billed = want;
+        r.rateApplied = r.durationMin > 0 ? r.billed / r.durationMin : 0;
+      }
+      r.discount = GS_QUEUE_DISCOUNT;
+    }
+    gsBusEmit('queue', r, { price: r.billed, pos: gsQueuePosition(r.id),
       blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(r),
-      reviewed: true });
+      reviewed: true, surge: r.surge > 1 ? r.surge : null,
+      discount: r.discount || null });
     return r;
   }
   r.status = 'active'; r.startMin = now;
   r.endMin = now + r.durationMin; r.expireMin = null;
-  gsBusEmit('approve', r, { price: r.price, reviewed: true });
+  r.holdsLine = false;              // the held slot is now just running
+  gsBusEmit('approve', r, { price: r.billed, reviewed: true,
+    surge: r.surge > 1 ? r.surge : null });
   gsFxActivate(r, now);
   return r;
 }
@@ -979,6 +1200,9 @@ function gsViewerState(nowMin){
       pos: gsQueuePosition(r.id), expiresInMin: +(r.expireMin - now).toFixed(1),
       blockedBy: gsFindBlockers(r)
         .filter(b => b.status === 'active').map(b => b.id),
+      price: r.billed,
+      surge: (r.surge && r.surge > 1) ? r.surge : null,
+      discount: r.discount || null,
     });
   }
   return {
@@ -1002,6 +1226,10 @@ function gsViewerState(nowMin){
     sessions: gsCoSessions(),
     weather: GS_WX_OVR.wx ? { wx: GS_WX_OVR.wx, untilMin: GS_WX_OVR.untilMin,
       sponsors: Object.keys(GS_WX_OVR.sponsors || {}).length } : null,
+    /* v7: the resource board (requests.json) — per-claim state for every
+       contended resource, free/cool/locked/queued with honest times */
+    board: (typeof gsResourceBoard === 'function')
+      ? gsResourceBoard(now) : {},
   };
 }
 function gsActiveSessions(now){
@@ -1050,14 +1278,16 @@ if(typeof registerSimTick === 'function') registerSimTick(gsSysTick);
 /* ---- JSON persistence (request trail + cooldowns + feed + live fx) ---- */
 function gsBusSnapshot(){
   return JSON.stringify({ seq: GS_REQ.seq, reqs: GS_REQ.reqs,
-    cdP: GS_REQ.cdP, cdG: GS_REQ.cdG,
+    cdP: GS_REQ.cdP, cdG: GS_REQ.cdG, cdClaim: GS_REQ.cdClaim,
     feed: GS_FEED, feedN: GS_FEED_SEQ.n, hired: GS_HIRED,
     possess: GS_POSSESS, events: GS_EVENTS,
     listings: GS_LISTINGS, wxOvr: GS_WX_OVR, fxSeq: GS_FX_SEQ.n,
     plog: (typeof gsPossessSnapshot === 'function')
           ? gsPossessSnapshot() : null,             // v5 driving record
     wire: (typeof gsWireSnapshot === 'function')
-          ? gsWireSnapshot() : null });             // v6 formatted feed
+          ? gsWireSnapshot() : null,                // v6 formatted feed
+    grief: (typeof gsGriefSnapshot === 'function')
+           ? gsGriefSnapshot() : null });           // v7 door-policy state
 }
 function gsBusLoad(json){
   try{
@@ -1065,6 +1295,7 @@ function gsBusLoad(json){
     if(!d || !Array.isArray(d.reqs)) return false;
     GS_REQ.seq = d.seq || 0; GS_REQ.reqs = d.reqs;
     GS_REQ.cdP = d.cdP || {}; GS_REQ.cdG = d.cdG || {};
+    GS_REQ.cdClaim = d.cdClaim || {};
     GS_FEED.length = 0; if(d.feed) GS_FEED.push.apply(GS_FEED, d.feed);
     GS_FEED_SEQ.n = d.feedN || 0;
     for(const k in GS_HIRED) delete GS_HIRED[k];
@@ -1086,6 +1317,8 @@ function gsBusLoad(json){
     /* v6: restore the formatted wire verbatim; a snapshot without one
        leaves the cursor at 0 and the wire rebuilds from the feed */
     if(typeof gsWireLoad === 'function') gsWireLoad(d.wire);
+    /* v7: account flags, appeals, ads + rep notebook */
+    if(typeof gsGriefLoad === 'function') gsGriefLoad(d.grief);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1101,6 +1334,7 @@ function gsBusLoad(json){
 
 function gsBusReset(){
   GS_REQ.reqs.length = 0; GS_REQ.cdP = {}; GS_REQ.cdG = {};
+  GS_REQ.cdClaim = {};
   GS_FEED.length = 0; GS_FEED_SEQ.n = 0;
   /* v5: reset removes hired bodies too — a reset world has exactly the
      cast it started with (the pawn is despawned, its _ci tombstoned) */
@@ -1116,6 +1350,7 @@ function gsBusReset(){
   GS_FX_SEQ.n = 0;
   if(typeof gsPossessReset === 'function') gsPossessReset();
   if(typeof gsWireReset === 'function') gsWireReset();       // v6
+  if(typeof gsGriefReset === 'function') gsGriefReset();     // v7
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */
@@ -1132,4 +1367,25 @@ if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.gsReviewQueue = () => gsReviewQueue();
   window.__aiBridge.gsReviewResolve = (id, approve, opts) =>
     gsReviewResolve(id, approve, opts);
+  /* v7 door-policy surface (the pre-payment receipt + the board) */
+  window.__aiBridge.gsPriceQuote = (spec) =>
+    (typeof gsPriceQuote === 'function') ? gsPriceQuote(spec) : null;
+  window.__aiBridge.gsResourceBoard = () =>
+    (typeof gsResourceBoard === 'function') ? gsResourceBoard() : {};
+  window.__aiBridge.gsWatchAd = (pid) =>
+    (typeof gsWatchAd === 'function') ? gsWatchAd(pid) : null;
+  window.__aiBridge.gsAdStatus = (pid) =>
+    (typeof gsAdStatus === 'function') ? gsAdStatus(pid) : null;
+  window.__aiBridge.gsAppealRequest = (id, opts) =>
+    (typeof gsAppealRequest === 'function') ? gsAppealRequest(id, opts) : null;
+  window.__aiBridge.gsAppealStats = () =>
+    (typeof gsAppealStats === 'function') ? gsAppealStats() : null;
+  window.__aiBridge.gsFlagStatus = (pid) =>
+    (typeof gsFlagStatus === 'function') ? gsFlagStatus(pid) : null;
+  window.__aiBridge.gsEscalateLegal = (id) =>
+    (typeof gsEscalateLegal === 'function') ? gsEscalateLegal(id) : false;
+  window.__aiBridge.gsRepLedger = (id) =>
+    (typeof gsRepLedger === 'function') ? gsRepLedger(id) : [];
+  window.__aiBridge.gsModMetrics = () =>
+    (typeof gsModMetrics === 'function') ? gsModMetrics() : null;
 }

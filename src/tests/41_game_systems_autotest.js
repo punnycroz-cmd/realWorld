@@ -346,8 +346,15 @@ runAutoTest = async function(){
                                  params: { wx: 'clear' } }, 1);
     const ev = gsSubmitRequest({ playerId: 'pB', kind: 'street_event', durationMin: 30,
                                  params: { event: 'block_party' } }, 1);
+    /* v7: weather + street_event are the contract's exclusive class —
+       they park in_review for a human before they ever touch the world */
+    log(wx.status === 'in_review' && ev.status === 'in_review' &&
+        wx.lane === 'exclusive' && ev.lane === 'exclusive',
+        'gs: v7 exclusive-class filings park in human review on sight');
+    gsReviewResolve(wx.id, true, { nowMin: 1 });
+    gsReviewResolve(ev.id, true, { nowMin: 1 });
     log(wx.status === 'active' && ev.status === 'active',
-        'gs: benign weather + outdoor event co-run (v2: compatible classes)');
+        'gs: benign weather + outdoor event co-run once cleared (v2: compatible classes)');
 
     // ---- bus: FCFS promotion (same submit minute -> filing order holds) ----
     gsMarkHired('H4', 'pB');
@@ -379,10 +386,12 @@ runAutoTest = async function(){
     log(cA.status === 'completed' && cdTry.status === 'denied' && cdTry.reason === 'cooldown',
         'gs: per-player cooldown blocks refiling after completion');
     const wA = gsSubmitRequest({ playerId: 'pA', kind: 'weather', durationMin: 10,
-                                 params: { wx: 'clear' } }, 300);
-    gsBusTick(311);
+                                 params: { wx: 'clear' } }, 380);
+    gsReviewResolve(wA.id, true, { nowMin: 380 });   // v7: exclusive lane
+    gsBusTick(391);   /* the sky rests 4h after any weather call — the v7
+                       contract cooldown (requests.json exclusive class) */
     const wOther = gsSubmitRequest({ playerId: 'pB', kind: 'weather', durationMin: 10,
-                                     params: { wx: 'rain' } }, 312);
+                                     params: { wx: 'rain' } }, 392);
     log(wA.status === 'completed' && wOther.reason === 'global_cooldown',
         'gs: global cooldown applies to every player');
 
@@ -394,7 +403,7 @@ runAutoTest = async function(){
     gsCancelRequest(kQ.id, 401, 'player');
     gsCancelRequest(kA.id, 401, 'admin');
     log(kQ.status === 'cancelled' && kA.status === 'cancelled' && kA.by === 'admin' &&
-        gsCreditBalance('pA') === balK + kQ.price + kA.price,
+        gsCreditBalance('pA') === balK + kQ.billed + kA.billed,
         'gs: cancel + admin revoke refund the full upfront price');
 
     // ---- bus: feed is append-only with monotonic sequence + event kinds ----
@@ -463,6 +472,7 @@ runAutoTest = async function(){
     W.hum = 0.5; W.temp = 20;
     const wxR = gsSubmitRequest({ playerId: 'pD', kind: 'weather', durationMin: 30,
                                   params: { wx: 'rain' } }, 3000);
+    gsReviewResolve(wxR.id, true, { nowMin: 3000 }); // v7: review clears it
     gsApplyWxOverride();                           // one frame's application
     const rainOn = wxR.status === 'active' && GS_WX_OVR.wx === 'rain' &&
                    W.rain === 0.75 && W.storm === 0.10 &&
@@ -479,6 +489,7 @@ runAutoTest = async function(){
                                   durationMin: 30,
                                   params: { event: 'mural_tour',
                                             at: 'Clarion Alley' } }, 9000);
+    gsReviewResolve(ev1.id, true, { nowMin: 9000 }); // v7: exclusive lane
     const evOn = ev1.status === 'active' &&
       GS_EVENTS.some(e => e.event === 'mural_tour' && e.at === 'Clarion Alley' &&
                           e.reqId === ev1.id);
@@ -493,6 +504,9 @@ runAutoTest = async function(){
     const hire = gsSubmitRequest({ playerId: 'pD', kind: 'hire', target: hu.id,
                                    durationMin: 5,
                                    params: { name: 'Newcomer Nan' } }, 4000);
+    /* v7: player-authored naming strings always route through the naming
+       lane — a human reads 'Newcomer Nan' before the character exists */
+    gsReviewResolve(hire.id, true, { nowMin: 4000 });
     const hiredId = Object.keys(GS_HIRED).find(k =>
       GS_HIRED[k] && GS_HIRED[k].unitId === hu.id);
     const hire2 = gsSubmitRequest({ playerId: 'pD', kind: 'hire', target: hu.id,
@@ -573,7 +587,8 @@ runAutoTest = async function(){
                       // expiry needs now > expireMin, so sq2 is still live and
                       // hits the stale revalidation path instead            
     log(sq1.status === 'completed' && sq2.status === 'failed' &&
-        sq2.refunded === 40 && gsCreditBalance('pD') === sq2Bal + 40 &&
+        sq2.refunded === sq2.billed &&
+        gsCreditBalance('pD') === sq2Bal + sq2.billed &&
         GS_FEED.some(e => e.type === 'fail' && e.req === sq2.id && e.stale),
         'gs: v1 queued request gone stale fails + full refund at promotion');
 
@@ -631,6 +646,15 @@ runAutoTest = async function(){
                                 params: { wx: 'rain' } }, 20001);      // identical
     const wxB = gsSubmitRequest({ playerId: 'qB', kind: 'weather', durationMin: 30,
                                 params: { wx: 'heatwave' } }, 20002);  // contradictory
+    /* v7: every sky filing lands in_review first — the exclusive lane
+       reviews BEFORE the world sees anything; approvals re-enter the
+       line at approval-time with a fresh sequence */
+    log(wxA.status === 'in_review' && wxC.status === 'in_review' &&
+        wxB.status === 'in_review',
+        'gs: v7 all weather filings park in_review (exclusive lane)');
+    gsReviewResolve(wxA.id, true, { nowMin: 20000, by: 'mod-a' });
+    gsReviewResolve(wxC.id, true, { nowMin: 20001, by: 'mod-a' });
+    gsReviewResolve(wxB.id, true, { nowMin: 20002, by: 'mod-a' });
     log(wxA.status === 'active' && wxB.status === 'queued' &&
         wxB.queuedBehind.indexOf(wxA.id) >= 0 &&
         wxB.queuedBehind.indexOf(wxC.id) >= 0 &&
@@ -685,9 +709,22 @@ runAutoTest = async function(){
         GS_POSSESS.H21 && GS_POSSESS.H21.playerId === 'qB',
         'gs: v2 sky holds while a co-sponsor remains; next possess promotes');
     gsBusTick(20052);   // wxC rain ends at 20051 — the sky releases
-    const approv = GS_FEED.filter(e => e.type === 'approve' && e.promoted &&
+    /* v7: wxB was already human-reviewed at filing — it activates straight
+       off the queue. evM/evT were never reviewed, so they park AT
+       ACTIVATION (requests.json: 'review happens on activation') holding
+       their FCFS slots — wxD stays queued behind wxB's running sky */
+    log(wxC.status === 'completed' &&
+        wxB.status === 'active' &&
+        evM.status === 'in_review' && evM.holdsLine === true &&
+        evT.status === 'in_review' && evT.holdsLine === true &&
+        wxD.status === 'queued' &&
+        gsFindBlockers(wxD).some(b => b.id === wxB.id),
+        'gs: v7 promoted exclusives review at activation, still holding the line');
+    gsReviewResolve(evM.id, true, { nowMin: 20052, by: 'mod-a' });
+    gsReviewResolve(evT.id, true, { nowMin: 20052, by: 'mod-a' });
+    const approv = GS_FEED.filter(e => e.type === 'approve' &&
                                        e.min === 20052);
-    log(wxC.status === 'completed' && GS_WX_OVR.wx === 'heatwave' &&
+    log(GS_WX_OVR.wx === 'heatwave' &&
         wxB.status === 'active' && evM.status === 'active' &&
         evT.status === 'active' && wxD.status === 'queued' &&
         approv.length === 3 &&
@@ -696,12 +733,16 @@ runAutoTest = async function(){
         'gs: v2 cascade promotes heatwave + market + tour in strict FCFS order');
     log(allQueuedBlocked(), 'gs: v2 invariant holds after the cascade');
     gsBusTick(20083);   // heatwave + mural tour end at 20082
-    log(wxD.status === 'expired' && wxD.refunded === wxD.price,
+    log(wxD.status === 'expired' && wxD.refunded === wxD.billed,
         'gs: v2 queued request that never unblocks before TTL refunds in full');
 
-    // ---- v2: venue permits — one event per location; roving passes through
+    // ---- v2/v7: venue permits — one event per location, then the venue
+    //      RESTS 24h (requests.json: one event per resource per day).
+    //      The rest is stamped at activation; a filing into a resting
+    //      venue is refused honestly ('venue_rest'), not queued.
     const evP = gsSubmitRequest({ playerId: 'qA', kind: 'street_event',
         durationMin: 40, params: { event: 'parade', at: 'Valencia Street' } }, 20100);
+    gsReviewResolve(evP.id, true, { nowMin: 20100, by: 'mod-a' });
     const evB = gsSubmitRequest({ playerId: 'qB', kind: 'street_event',
         durationMin: 30, params: { event: 'block_party',
                                    at: '  VALENCIA   Street ' } }, 20101);
@@ -709,27 +750,43 @@ runAutoTest = async function(){
         durationMin: 30, params: { event: 'street_fair', at: 'Mission Street' } }, 20102);
     const evR = gsSubmitRequest({ playerId: 'qF', kind: 'street_event',
         durationMin: 20, params: { event: 'mural_tour', at: 'Valencia Street' } }, 20103);
-    log(evP.status === 'active' && evB.status === 'queued' &&
-        gsQueuePosition(evB.id) === 1 &&
+    gsReviewResolve(evF.id, true, { nowMin: 20102, by: 'mod-a' });
+    gsReviewResolve(evR.id, true, { nowMin: 20103, by: 'mod-a' });
+    log(evP.status === 'active' &&
+        evB.status === 'denied' && evB.reason === 'venue_rest' &&
         evF.status === 'active' && evR.status === 'active' &&
         gsNormVenue('  VALENCIA   Street ') === 'valencia street' &&
-        gsViewerState(20101).queues['g:street_event']
-          .some(q => q.id === evB.id && q.blockedBy.indexOf(evP.id) >= 0),
-        'gs: v2 one permit per venue (normalized); other venues + roving tours co-run');
-    gsBusTick(20141);   // parade ends 20140 -> block_party takes the venue
-    log(evP.status === 'completed' && evB.status === 'active' &&
-        GS_EVENTS.some(e => e.event === 'block_party'),
-        'gs: v2 queued permit activates the moment the venue frees up');
-    // severe weather may not be summoned over the running event either
+        gsResourceBoard(20105)['venue:valencia street'].state === 'locked',
+        'gs: v7 one permit per venue per 24h — rest is denied, not queued');
+    /* the venue stays off-limits for the whole 24h rest — later same-
+       venue filings are refused outright, not parked or queued */
+    const evP2 = gsSubmitRequest({ playerId: 'qD', kind: 'street_event',
+        durationMin: 30, params: { event: 'street_fair', at: 'Valencia Street' } }, 20110);
+    log(evP2.status === 'denied' && evP2.reason === 'venue_rest',
+        'gs: v7 the venue stays off-limits for the whole rest window');
+    /* severe weather may not be summoned over a running event either —
+       the sky rests 4h after the last weather call (contract cooldown_h),
+       so this probe runs on a fresh venue once the global cooldown frees */
+    const evX = gsSubmitRequest({ playerId: 'qD', kind: 'street_event',
+        durationMin: 40, params: { event: 'street_fair',
+                                   at: 'Precita Park' } }, 20330);
+    gsReviewResolve(evX.id, true, { nowMin: 20330, by: 'mod-a' });
     const stQ = gsSubmitRequest({ playerId: 'qE', kind: 'weather', durationMin: 10,
-                                params: { wx: 'storm' } }, 20150);
-    log(stQ.status === 'queued' &&
-        gsFindBlockers(stQ).some(b => b.id === evB.id),
+                                params: { wx: 'storm' } }, 20331);
+    log(evX.status === 'active' && stQ.status === 'queued' &&
+        gsFindBlockers(stQ).some(b => b.id === evX.id),
         'gs: v2 you cannot summon a storm over a permitted outdoor event');
-    gsBusTick(20172);   // block_party ends 20171 -> storm promotes
-    log(evB.status === 'completed' && stQ.status === 'active' &&
-        GS_WX_OVR.wx === 'storm',
-        'gs: v2 held storm request runs once the last outdoor event clears');
+    gsBusTick(20371);   // street fair ends 20370 -> storm reaches its slot...
+    log(evX.status === 'completed' && stQ.status === 'in_review' &&
+        stQ.holdsLine === true,
+        'gs: v7 the promoted storm parks at activation for its human read');
+    gsReviewResolve(stQ.id, true, { nowMin: 20371, by: 'mod-a' });
+    log(stQ.status === 'active' && GS_WX_OVR.wx === 'storm' &&
+        gsResourceBoard(20372)['venue:valencia street'].state === 'cool' &&
+        gsResourceBoard(20372)['venue:valencia street'].leftMin > 1000,
+        'gs: v2+v7 the storm runs once cleared — and the used venue ' +
+        'rests on the board for its full 24h');
+    gsBusTick(20390);   // storm ends 20381 -> the sky goes quiet
 
     // ---- v2: registry paperwork serializes — a buy waits behind a hire
     const pb = gsRegisterBuilding({ street: 'Escrow Street', owner_id: 'landlord' });
@@ -738,6 +795,7 @@ runAutoTest = async function(){
                       durationMin: 60, params: { ask: 300000 } }, 20200);
     const hr = gsSubmitRequest({ playerId: 'qA', kind: 'hire', target: pu.id,
                                durationMin: 5, params: { name: 'Tenant Tess' } }, 20201);
+    gsReviewResolve(hr.id, true, { nowMin: 20201, by: 'mod-a' }); // naming lane
     gsDollarGrant('H25', 400000, 'v2 purse');
     const by = gsSubmitRequest({ playerId: 'qB', kind: 'buy', target: pu.id,
                                durationMin: 1, params: { buyerId: 'H25' } }, 20202);
@@ -791,6 +849,7 @@ runAutoTest = async function(){
     // ---- v2: sponsored sky survives snapshot/load
     const sA = gsSubmitRequest({ playerId: 'qS', kind: 'weather', durationMin: 20,
                                params: { wx: 'fog' } }, 30000);
+    gsReviewResolve(sA.id, true, { nowMin: 30000, by: 'mod-a' });  // exclusive lane
     const sB = gsSubmitRequest({ playerId: 'owner', kind: 'weather', durationMin: 40,
                                params: { wx: 'fog' } }, 30001);
     const snap2 = gsBusSnapshot();
@@ -1348,12 +1407,15 @@ runAutoTest = async function(){
     const secrR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
         target: 'H60', durationMin: 10,
         note: "reveal the secret he's hiding" }, 50003);
+    /* v7: the deny verdicts accrue flag weight — after score 6 the door
+       suspends sT for 72h, so the remaining probes file past each
+       successive suspension (the ladder test below leans on this) */
     const scopeR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
         target: 'H60', durationMin: 10,
-        params: { note: 'possess Marisol for me' } }, 50004);
+        params: { note: 'possess Marisol for me' } }, 54400);
     const admR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
         target: 'H60', durationMin: 10,
-        params: { note: 'raise her rent while I drive' } }, 50005);
+        params: { note: 'raise her rent while I drive' } }, 58750);
     log(harmR.reason === 'harm-targeting' &&
         legalR.reason === 'legal-backstop' &&
         secrR.reason === 'secret-extraction' &&
@@ -1591,16 +1653,16 @@ runAutoTest = async function(){
         laneR2.refunded === laneR2.billed,
         'gs: v5 admin revoke reaches the review lane, fully compensated');
     /* fixation signal: refused attempts on one target escalate clean
-       requests into review (sT already carries content denials too) */
+       requests into review. v7: sU probes her own hire with real-business
+       asks — denied outright but flag-weight 0, so the account can still
+       file the fourth one (that IS the point of a weight-0 verdict) */
     gsMarkHired('H64', 'sT', { name: 'Pattern Pat' });
-    gsSubmitRequest({ playerId: 'sT', kind: 'possess', target: 'H64',
-        durationMin: 10, params: { note: 'make them cry' } }, 50800);
-    gsSubmitRequest({ playerId: 'sT', kind: 'possess', target: 'H64',
-        durationMin: 10, params: { note: 'smash their stuff' } }, 50801);
-    gsSubmitRequest({ playerId: 'sT', kind: 'possess', target: 'H64',
-        durationMin: 10, params: { note: 'ruin their day' } }, 50802);
-    const patR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
-        target: 'H64', durationMin: 10,
+    gsCreditGrant('sU', 5000, 'v7 stake'); gsMarkHired('H65', 'sU');
+    for(let i = 0; i < 3; i++)
+      gsSubmitRequest({ playerId: 'sU', kind: 'possess', target: 'H65',
+        durationMin: 10, params: { note: 'meet me at Bi-Rite' } }, 50800 + i);
+    const patR = gsSubmitRequest({ playerId: 'sU', kind: 'possess',
+        target: 'H65', durationMin: 10,
         params: { note: 'a walk in the park' } }, 50803);
     log(patR.status === 'in_review' && patR.screen === 'repeat-pattern' &&
         gsExplainRequest(patR.id).note.indexOf('review') >= 0,
@@ -1646,16 +1708,17 @@ runAutoTest = async function(){
         target: hu5.id, durationMin: 5,
         params: { name: 'Spawn Sam', role: 'baker' } }, 50699);
     const hiredBefore = Object.keys(GS_HIRED).length;
-    for(const cid of ['H60', 'H61', 'H62', 'H63', 'H64'])
+    for(const cid of ['H60', 'H61', 'H62', 'H63', 'H64', 'H65'])
       gsReleaseHired(cid, 'suite done');
     log(capTry5.status === 'denied' && capTry5.reason === 'cast_cap' &&
-        Object.keys(GS_HIRED).length === hiredBefore - 5 &&
+        Object.keys(GS_HIRED).length === hiredBefore - 6 &&
         !gsLeasesFor('H62').some(l => l.status === 'active') &&
         GS_FEED.some(e => e.type === 'hire' && e.action === 'release'),
         'gs: v5 cast cap denies honestly; released seats open again');
     const hire5 = gsSubmitRequest({ playerId: 'sB', kind: 'hire',
         target: hu5.id, durationMin: 5,
         params: { name: 'Spawn Sam', role: 'baker' } }, 50700);
+    gsReviewResolve(hire5.id, true, { nowMin: 50700 });   // v7: naming lane
     const h5id = Object.keys(GS_HIRED).find(k =>
         GS_HIRED[k] && GS_HIRED[k].unitId === hu5.id);
     if(typeof SF_MODE !== 'undefined' && SF_MODE){
@@ -1715,6 +1778,7 @@ runAutoTest = async function(){
     gsCreditGrant('pQ', 500, 'wire stake');
     const wWx = gsSubmitRequest({ playerId: 'pQ', kind: 'weather',
       durationMin: 20, params: { wx: 'rain' } }, 60080);
+    gsReviewResolve(wWx.id, true, { nowMin: 60080 });    // v7: exclusive lane
     const wWx2 = gsSubmitRequest({ playerId: 'pW', kind: 'weather',
       durationMin: 20, params: { wx: 'clear' } }, 60081);
     log(wWx.status === 'active' && wWx2.status === 'queued' &&
@@ -1898,6 +1962,335 @@ runAutoTest = async function(){
         wVS.feed.every(e => typeof e.text === 'string' && e.kind) &&
         wVS.feedRaw.every(e => e.type && e.n != null),
         'gs: v6 viewerState.feed is the display-safe wire; feedRaw is raw');
+
+    /* ================= v7: THE DOOR POLICY (anti-grief) =================
+       every venue has a door policy: who gets in, how often, what it
+       costs tonight, and who the door remembers. Account flags, rate
+       caps, surge + patience pricing, the appeal lane, the legal kill
+       switch, the ad trickle, the rep notebook, the resource board —
+       all enforced before a credit moves wrongly. */
+
+    // ---- v7: the pre-payment receipt is the door's own math ----
+    gsMarkHired('H70', 'pV');
+    const qt0 = gsPriceQuote({ playerId: 'pV', kind: 'possess',
+      target: 'H70', durationMin: 10 }, 62000);
+    log(qt0.ok && qt0.base === 40 && qt0.total === 40 && qt0.surge === 1 &&
+        qt0.wouldQueue === false && qt0.wouldReview === false &&
+        qt0.ratePerMin === 4 && qt0.refundNote.length > 0,
+        'gs: v7 gsPriceQuote — the honest receipt before a credit moves');
+    const qtW = gsPriceQuote({ playerId: 'pV', kind: 'weather',
+      durationMin: 10, params: { wx: 'fog' } }, 62000);
+    log(qtW.ok && qtW.wouldReview === true && qtW.lane === 'exclusive' &&
+        qtW.queueDiscount === 0,
+        'gs: v7 the receipt names the review lane honestly');
+    log(gsPriceQuote({ playerId: 'pV', kind: 'possess',
+        target: 'C1', durationMin: 10 }, 62000).deny === 'possession_ban',
+        'gs: v7 the receipt refuses what the door would refuse');
+
+    // ---- v7: surge — pressure on a shared resource raises the cover ----
+    gsCreditGrant('gA', 5000, 'stake'); gsCreditGrant('gB', 5000, 'stake');
+    gsCreditGrant('gC', 5000, 'stake'); gsCreditGrant('gD', 5000, 'stake');
+    gsCreditGrant('gE', 5000, 'stake');
+    const gW1 = gsSubmitRequest({ playerId: 'gA', kind: 'weather',
+      durationMin: 10, params: { wx: 'fog' } }, 62000);
+    const gW2 = gsSubmitRequest({ playerId: 'gB', kind: 'weather',
+      durationMin: 10, params: { wx: 'heatwave' } }, 62001);
+    const gW3 = gsSubmitRequest({ playerId: 'gC', kind: 'weather',
+      durationMin: 10, params: { wx: 'fog' } }, 62002);
+    log(gW1.status === 'in_review' && gW1.billed === 60 && gW1.surge === 1 &&
+        gW2.status === 'in_review' && gW2.billed === 90 &&
+        gW2.surge === 1.5 &&
+        gW3.status === 'in_review' && gW3.billed === 105 &&
+        gW3.surge === 1.75,
+        'gs: v7 surge — pressure on the sky raises the cover charge');
+    const qtS = gsPriceQuote({ playerId: 'gW9', kind: 'weather',
+      durationMin: 10, params: { wx: 'fog' } }, 62003);
+    log(qtS.ok && qtS.surge === 2 && qtS.surgePressure === 3 &&
+        qtS.total === 120 && qtS.wouldReview === true,
+        'gs: v7 the receipt shows surge + lane before payment');
+    gsReviewResolve(gW1.id, true,  { nowMin: 62004 });   // fog runs
+    gsReviewResolve(gW3.id, false, { code: 'gray-zone', nowMin: 62005 });
+    gsReviewResolve(gW2.id, true,  { nowMin: 62006 });   // contradicts: queues
+    log(gW1.status === 'active' && gW3.status === 'denied' &&
+        gW2.status === 'queued' && gW2.discount === 0.15 &&
+        gW2.billed === 77 && gW2.refunded === 13,
+        'gs: v7 review->queue reconciles the patience discount');
+    const gW4 = gsSubmitRequest({ playerId: 'gD', kind: 'weather',
+      durationMin: 10, params: { wx: 'storm' } }, 62007);
+    /* pressure = 2 live sky filings (gW1 active, gW2 parked; gW3's denial
+       doesn't count) -> surge 1.75 -> 105 list -> -15% patience = 90 */
+    log(gW4.status === 'queued' && gW4.billed === 90 &&
+        gW4.surge === 1.75 && gW4.discount === 0.15,
+        'gs: v7 surge + patience discount compose on a queued filing');
+    /* cancelling the running sky promotes the queue in FCFS order —
+       gW2 was already reviewed (activates); gW4 reviews AT activation
+       and holds its slot while a human reads (no leapfrog). The board
+       reads 'queued' — never 'free' — while the line is held. */
+    gsCancelRequest(gW1.id, 62010, 'player');
+    gsCancelRequest(gW2.id, 62013, 'admin');
+    const gW5 = gsSubmitRequest({ playerId: 'gE', kind: 'weather',
+      durationMin: 10, params: { wx: 'clear' } }, 62013);
+    const boardV = gsResourceBoard(62014);
+    log(gW2.status === 'cancelled' && gW4.status === 'in_review' &&
+        gW4.holdsLine === true && gW5.status === 'queued' &&
+        boardV['sky'] && boardV['sky'].state === 'queued' &&
+        boardV['sky'].depth === 1,
+        'gs: v7 review-at-activation holds the FCFS slot; board reads queued');
+    gsReviewResolve(gW4.id, false, { code: 'gray-zone', nowMin: 62015 });
+    log(gW5.status === 'in_review' && gW5.holdsLine === true,
+        'gs: v7 the next in line reviews at activation, not while waiting');
+    gsReviewResolve(gW5.id, true, { nowMin: 62016 });
+    log(gW5.status === 'active',
+        'gs: v7 the cleared sky runs on approval');
+    gsCancelRequest(gW5.id, 62020, 'player');
+    /* primetime (18:00-23:00 PT) adds one surge step to world-scale
+       asks — find a primetime minute on this clock and prove the bump */
+    let pm = null;
+    for(let m = 63000; m < 63000 + 2880 && pm == null; m += 60)
+      if(gsBusPrimetime(m)) pm = m;
+    gsCreditGrant('gPT', 5000, 'stake');
+    const wPT = gsSubmitRequest({ playerId: 'gPT', kind: 'weather',
+      durationMin: 10, params: { wx: 'clear' } }, pm);
+    log(pm != null && wPT.status === 'in_review' &&
+        wPT.surge === 1.5 && wPT.billed === 90,
+        'gs: v7 primetime adds a surge step to world-scale asks');
+    gsReviewResolve(wPT.id, false, { code: 'gray-zone', nowMin: pm + 1 });
+
+    // ---- v7: the door opens only so often — rate caps, pre-billing ----
+    gsCreditGrant('rT', 5000, 'stake');
+    let lastR = null;
+    for(let i = 0; i < 20; i++)
+      lastR = gsSubmitRequest({ playerId: 'rT', kind: 'possess',
+        target: 'H' + (220 + i), durationMin: 10 }, 62100);
+    const r21 = gsSubmitRequest({ playerId: 'rT', kind: 'possess',
+        target: 'H240', durationMin: 10 }, 62100);
+    log(lastR.status === 'denied' && lastR.reason === 'not_your_character' &&
+        r21.status === 'denied' && r21.reason === 'rate_limited' &&
+        gsCreditBalance('rT') === 5000,     // refused filings never billed
+        'gs: v7 20 filings/hour per player — the 21st is refused free');
+    /* eight live seats per player — the ninth waits outside */
+    gsCreditGrant('rV', 5000, 'stake');
+    const liveReqs = [];
+    for(let i = 0; i < 8; i++){
+      gsMarkHired('H3' + (10 + i), 'rV');
+      liveReqs.push(gsSubmitRequest({ playerId: 'rV', kind: 'possess',
+        target: 'H3' + (10 + i), durationMin: 60 }, 62200));
+    }
+    gsMarkHired('H318', 'rV');
+    const ninth = gsSubmitRequest({ playerId: 'rV', kind: 'possess',
+        target: 'H318', durationMin: 60 }, 62200);
+    log(liveReqs.every(r => r.status === 'active') &&
+        ninth.status === 'denied' && ninth.reason === 'too_many_live',
+        'gs: v7 flood-of-queue cap — 8 live requests max, rest refused');
+    for(const r of liveReqs) gsCancelRequest(r.id, 62201, 'player');
+
+    // ---- v7: the account flag ladder — the door remembers verdicts ----
+    /* sT's earlier content denials (harm +2, legal +3, secrets +1, scope
+       +1, admin +1 = 8) still ride the account: suspended til ~63070,
+       flagged for review til ~68830. Pattern Pat was released with the
+       v5 seat cleanup — sT hires them back for the ladder walk. */
+    gsMarkHired('H64', 'sT', { name: 'Pattern Pat' });
+    const suspTry = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H64', durationMin: 10 }, 51000);
+    log(suspTry.status === 'denied' &&
+        suspTry.reason === 'account_suspended',
+        'gs: v7 flag score 6+ suspends request privileges for 72h');
+    const flagR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H64', durationMin: 10 }, 63200);
+    /* past suspension but still flagged: a clean filing still parks — the
+       fixation history (5 screen denials in 30d) is the more specific lane */
+    log(flagR.status === 'in_review' && flagR.screen === 'repeat-pattern' &&
+        gsFlagStatus('sT', 63200).score === 8,
+        'gs: v7 flag score 3+ routes every filing through human review');
+    gsReviewResolve(flagR.id, false, { code: 'gray-zone', nowMin: 63201 });
+    gsFlagBump('sT', 3, 'legal-backstop', 62300);   // a legal verdict lands
+    const holdTry = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H64', durationMin: 10 }, 62301);
+    log(gsFlagStatus('sT', 62301).ownerHold === true &&
+        gsFlagStatus('sT', 62301).score === 11 &&
+        holdTry.status === 'denied' && holdTry.reason === 'account_review',
+        'gs: v7 owner-hold at 9 — only the owner reopens the door');
+    log(gsFlagScore('sT', 62300 + 31 * 1440) === 10,
+        'gs: v7 the flag score decays one point per clean 30 days');
+    gsFlagClear('sT', 'owner', 62302);
+    const freeTry = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H64', durationMin: 10 }, 62302);
+    log(gsFlagStatus('sT', 62302).score === 0 &&
+        freeTry.status === 'active',
+        'gs: v7 gsFlagClear is the owner tool — the account walks again');
+    gsCancelRequest(freeTry.id, 62303, 'player');
+
+    // ---- v7: the appeal lane — once, free, different reviewer, final ----
+    gsCreditGrant('aP', 5000, 'stake'); gsMarkHired('H71', 'aP');
+    const aP0 = gsCreditBalance('aP');
+    const den1 = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
+        target: 'H71', durationMin: 10,
+        params: { note: 'confront the neighbors about the fence' } }, 62400);
+    log(den1.status === 'in_review' && den1.billed === 40,
+        'gs: v7 appealable requests park first (gray-zone here)');
+    gsReviewResolve(den1.id, false, { code: 'gray-zone', by: 'mod1',
+                                      nowMin: 62401 });
+    log(den1.status === 'denied' && gsCreditBalance('aP') === aP0,
+        'gs: v7 the denied request refunds before the appeal window opens');
+    const ap1 = gsAppealRequest(den1.id, { playerId: 'aP', nowMin: 62402 });
+    log(ap1.ok && ap1.request.status === 'in_review' &&
+        ap1.request.appealOf === den1.id && ap1.request.billed === 0 &&
+        gsCreditBalance('aP') === aP0,
+        'gs: v7 appeals file free — the run re-bills only on approval');
+    const sameMod = gsReviewResolve(ap1.request.id, true,
+                                    { by: 'mod1', nowMin: 62403 });
+    log(sameMod && sameMod.error === 'same_reviewer' &&
+        ap1.request.status === 'in_review',
+        'gs: v7 appeals refuse the original reviewer');
+    gsReviewResolve(ap1.request.id, true, { by: 'mod2', nowMin: 62404 });
+    log(ap1.request.status === 'active' &&
+        gsCreditBalance('aP') === aP0 - 40 &&
+        !GS_WIRE.some(e => /confront the neighbors/.test(e.text)),
+        'gs: v7 an overturned appeal re-bills once — and the once-denied ' +
+        'text still never airs');
+    gsCancelRequest(ap1.request.id, 62410, 'player');
+    const den2 = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
+        target: 'H71', durationMin: 10,
+        params: { note: 'confront the noisy upstairs flat' } }, 62500);
+    gsReviewResolve(den2.id, false, { code: 'gray-zone', by: 'mod1',
+                                      nowMin: 62501 });
+    const ap2 = gsAppealRequest(den2.id, { playerId: 'aP', nowMin: 62502 });
+    gsReviewResolve(ap2.request.id, false, { code: 'gray-zone', by: 'mod2',
+                                             nowMin: 62503 });
+    const refile = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
+        target: 'H71', durationMin: 10,
+        params: { note: 'confront the noisy upstairs flat' } }, 62504);
+    const reword = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
+        target: 'H71', durationMin: 10,
+        params: { note: 'check in on the neighbors' } }, 62505);
+    log(ap2.ok && ap2.request.status === 'denied' &&
+        refile.status === 'denied' && refile.reason === 'appeal_final' &&
+        gsAppealRequest(den2.id, { playerId: 'aP', nowMin: 62505 })
+          .err === 'already_appealed' &&
+        reword.status === 'in_review' && reword.screen === 'repeat-pattern',
+        'gs: v7 second denial is final — refiling refused, a reworded ' +
+        'ask is new (and the fixation history still routes it to review)');
+    gsReviewResolve(reword.id, true, { nowMin: 62506 });
+    gsCancelRequest(reword.id, 62507, 'player');
+    log(gsAppealRequest(reword.id, { playerId: 'aP', nowMin: 62510 })
+          .err === 'not_denied' &&
+        gsAppealRequest(den1.id, { playerId: 'OTHER', nowMin: 62510 })
+          .err === 'not_your_request',
+        'gs: v7 appeal eligibility is enforced — owner + denied only');
+
+    // ---- v7: the legal kill switch — full refund, ordinary wording ----
+    gsCreditGrant('lT', 5000, 'stake'); gsMarkHired('H72', 'lT');
+    const lQ = gsSubmitRequest({ playerId: 'lT', kind: 'possess',
+        target: 'H72', durationMin: 30 }, 62600);
+    const lBal = gsCreditBalance('lT');
+    log(gsEscalateLegal(lQ.id, 62610) === true &&
+        lQ.status === 'denied' && lQ.reason === 'legal-backstop' &&
+        lQ.refunded === lQ.billed &&
+        gsCreditBalance('lT') === lBal + lQ.billed &&
+        GS_WIRE.some(e => e.req === lQ.id &&
+          e.text === 'request not approved' &&
+          e.reason_code === 'legal-backstop') &&
+        !GS_WIRE.some(e => /legal kill|lawsuit|attorney/i.test(e.text)),
+        'gs: v7 legal kills mid-flight — full refund, ordinary deny wording');
+    const lFlags = gsFlagStatus('lT', 62611);
+    log(lFlags.score === 3 && lFlags.reviewUntil > 62611,
+        'gs: v7 the legal verdict lands the +3 flag — a week of review');
+    const lNext = gsSubmitRequest({ playerId: 'lT', kind: 'possess',
+        target: 'H72', durationMin: 10 }, 62612);
+    log(lNext.status === 'in_review' && lNext.lane === 'flagged',
+        'gs: v7 a flagged account files through human review for a week');
+    gsReviewResolve(lNext.id, false, { code: 'gray-zone', nowMin: 62613 });
+
+    // ---- v7: the ad trickle — the only free mint, honestly capped ----
+    const adP = 'aViewer';
+    const ad0 = gsCreditBalance(adP);
+    let adOk = 0, adCap = null;
+    for(let i = 0; i < 6; i++){
+      const w = gsWatchAd(adP, 62700);
+      if(w && w.ok) adOk++; else adCap = w;
+    }
+    log(adOk === 5 && adCap && adCap.capHit === true &&
+        gsCreditBalance(adP) === ad0 + 10 &&
+        gsAdStatus(adP, 62700).capLeft === 0,
+        'gs: v7 ads mint 2cr/view, capped at 5 per PT day — never a flood');
+    log(gsWatchAd(adP, 62700 + 1440).ok === true,
+        'gs: v7 the ad cap resets with the Pacific day');
+
+    // ---- v7: the resource board — free / cool / locked / queued ----
+    gsMarkHired('H73', 'bP'); gsCreditGrant('bP', 5000, 'stake');
+    const bA = gsSubmitRequest({ playerId: 'bP', kind: 'possess',
+        target: 'H73', durationMin: 30 }, 62800);
+    const bQ = gsSubmitRequest({ playerId: 'bP', kind: 'possess',
+        target: 'H73', durationMin: 10 }, 62801);
+    const bEv = gsSubmitRequest({ playerId: 'bP', kind: 'street_event',
+        durationMin: 20,
+        params: { event: 'park_cleanup', at: 'Boardwalk Plaza' } }, 62803);
+    gsReviewResolve(bEv.id, true, { nowMin: 62803, by: 'mod-b' });
+    const board2 = gsResourceBoard(62804);
+    log(bA.status === 'active' && bQ.status === 'queued' &&
+        bQ.billed === 34 &&                     // ceil(40 * 0.85)
+        bEv.status === 'active' &&
+        board2['char:H73'].state === 'locked' &&
+        board2['char:H73'].depth === 1 &&
+        board2['char:H73'].holder === bA.id,
+        'gs: v7 the board shows the lock holder + queue depth honestly');
+    gsCancelRequest(bQ.id, 62805, 'player');
+    gsCancelRequest(bA.id, 62806, 'player');
+    gsCancelRequest(bEv.id, 62810, 'player');
+    const board3 = gsResourceBoard(62811);
+    log(board3['venue:boardwalk plaza'] &&
+        board3['venue:boardwalk plaza'].state === 'cool' &&
+        board3['venue:boardwalk plaza'].leftMin > 1400 &&
+        board3['char:H73'] === undefined,       // freed seats leave the board
+        'gs: v7 the board reads cool on a resting venue, frees closed seats');
+
+    // ---- v7: the driven wallet — card limit + real payees only ----
+    gsMarkHired('H74', 'wP'); gsCreditGrant('wP', 5000, 'stake');
+    gsDollarGrant('H74', 2000, 'savings');
+    const wS = gsSubmitRequest({ playerId: 'wP', kind: 'possess',
+        target: 'H74', durationMin: 30 }, 62900);
+    const payGhost = gsPossessPay('H74', 'wP', 'GHOST-99', 10, 'x', 62901);
+    const pay600 = gsPossessPay('H74', 'wP', 'A02', 600, 'big', 62902);
+    const pay499 = gsPossessPay('H74', 'wP', 'A02', 499, 'ok', 62903);
+    const payMore = gsPossessPay('H74', 'wP', 'A02', 10, 'over', 62904);
+    log(wS.status === 'active' &&
+        payGhost.err === 'unknown_payee' &&
+        pay600.err === 'spend_cap' &&
+        pay499.ok === true &&
+        payMore.err === 'spend_cap' &&
+        gsDollarBalance('H74') === 2000 - 499,
+        'gs: v7 the driven card caps at $500/session + real payees only');
+    gsCancelRequest(wS.id, 62910, 'admin');
+
+    // ---- v7: the owner dashboard + the reputation notebook ----
+    const mm = gsModMetrics(62920);
+    log(mm && mm.reviewDepth >= 0 && mm.medianDecisionMin != null &&
+        mm.denialsByCode['legal-backstop'] >= 1 &&
+        mm.denialsByCode['rate_limited'] >= 1 &&
+        mm.appeals.filed >= 2 && mm.appeals.overturned >= 1 &&
+        mm.appeals.denied >= 1 && mm.appeals.refused >= 1,
+        'gs: v7 the owner dashboard reads denials, appeals, wait times');
+    log(gsRepLedger('sT').some(e => e.kind === 'flag' && e.w === 3) &&
+        gsRepLedger('sT').some(e => e.kind === 'cleared') &&
+        gsRepLedger('rT').some(e => e.kind === 'rate') &&
+        gsRepLedger('owner').some(e => e.kind === 'legal_kill'),
+        'gs: v7 the rep notebook records flags, floods, legal kills, clears');
+    log(!GS_WIRE.some(e => /flag|suspend|account|appeal/i.test(e.text)),
+        'gs: v7 account state never reaches the public wire');
+
+    // ---- v7: the door policy survives snapshot/load ----
+    const gSnap = gsBusSnapshot();
+    gsBusReset();
+    log(gsBusLoad(gSnap) &&
+        gsFlagStatus('lT', 62930).reviewUntil > 0 &&
+        gsAdStatus(adP, 62700 + 1440).viewsToday === 1 &&
+        gsRepLedger('sT').length > 0,
+        'gs: v7 flags, ads + the notebook ride the bus snapshot');
+    const refile2 = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
+        target: 'H71', durationMin: 10,
+        params: { note: 'confront the noisy upstairs flat' } }, 62930);
+    log(refile2.status === 'denied' && refile2.reason === 'appeal_final',
+        'gs: v7 appeal finality survives snapshot/load');
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

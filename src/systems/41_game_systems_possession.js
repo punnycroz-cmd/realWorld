@@ -43,6 +43,12 @@
 
 /* ---- session constants ---- */
 const GS_POSSESS_WIND_MIN = 5;    // wind-down warning threshold
+/* v7: a driver can spend the character's dollars, but the card has a
+   limit — non-rent spend is capped per session so a possession can't
+   drain a wallet to a stranger in one sitting. Rent settlement bypasses
+   the cap: paying debts is never grief. And payees must exist — a
+   character, the landlord, or a dollar account already on the books. */
+const GS_POSSESS_SPEND_MAX = 500;
 const GS_POSSESS_LOG = [];        // the driving record — append-only
 const GS_PLOG_SEQ = { n: 0 };
 const GS_PLOG_MAX = 240;          // ring cap — plenty of show history
@@ -150,9 +156,16 @@ const GS_INTENT_RULES = [
 function gsScreenHistory(pid, target, spec, now){
   const f = [];
   const reqs = (typeof GS_REQ === 'object' && GS_REQ.reqs) || [];
+  /* an owner-cleared account (gsFlagClear) starts its pattern ledger
+     fresh — forgivenMin is the watermark; nothing filed after `now`
+     can testify either */
+  const fl = (typeof GS_FLAGS === 'object' && GS_FLAGS[pid]) || null;
+  const forgiven = fl ? (fl.forgivenMin || 0) : 0;
   let refusedTgt = 0, denied = 0;
   for(const r of reqs){
     if(r.playerId !== pid || r.submittedMin == null) continue;
+    if(r.submittedMin > now) continue;
+    if(forgiven && r.submittedMin <= forgiven) continue;
     if(r.target === target &&
        (r.status === 'denied' || r.status === 'failed') &&
        (now - r.submittedMin) <= 7 * 1440) refusedTgt++;
@@ -751,13 +764,28 @@ function gsPossessPay(cid, playerId, to, amt, reason, nowMin){
   if(!(amt > 0)) return { ok: false, err: 'bad_amount' };
   if(!to || typeof to !== 'string' || to === cid)
     return { ok: false, err: 'bad_payee' };   // and you can't pay yourself
+  /* v7 payee check — dollars may only move to a real account: a cast
+     member, the landlord, or an entity already holding dollars. Money
+     can't vanish into an invented id. */
+  const known = to === 'landlord' ||
+    (typeof gsCharKind === 'function' && !!gsCharKind(to)) ||
+    (typeof GS_LEDGER !== 'undefined' && GS_LEDGER.dollars &&
+     GS_LEDGER.dollars[to] != null);
+  if(!known) return { ok: false, err: 'unknown_payee' };
   const lease = (typeof gsLeasesFor === 'function')
     ? gsLeasesFor(cid).find(l => l.status === 'active') : null;
+  const isRent = !!(lease && typeof gsLeaseOwner === 'function' &&
+    to === gsLeaseOwner(lease) && typeof gsPayRent === 'function' &&
+    gsLeaseOwed(lease).total > 0);
+  if(amt > gsDollarBalance(cid))
+    return { ok: false, err: 'insufficient_dollars',
+             balance: gsDollarBalance(cid) };
+  /* the session card limit — non-rent spend only */
+  if(!isRent && ((sess.spent || 0) + amt) > GS_POSSESS_SPEND_MAX)
+    return { ok: false, err: 'spend_cap', cap: GS_POSSESS_SPEND_MAX,
+             spent: sess.spent || 0 };
   let paid = amt, settled = null;
-  if(lease && typeof gsLeaseOwner === 'function' &&
-     to === gsLeaseOwner(lease) &&
-     typeof gsPayRent === 'function' &&
-     gsLeaseOwed(lease).total > 0){
+  if(isRent){
     const res = gsPayRent(lease.unit_id, cid, amt,
       (typeof gsTodayStr === 'function') ? gsTodayStr() : null);
     if(!res.ok) return { ok: false, err: res.reason, balance: gsDollarBalance(cid) };

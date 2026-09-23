@@ -249,6 +249,9 @@ function gsWireNoteOf(r, status){
   if(r.status === 'denied' || r.status === 'failed' ||
      r.status === 'expired') return null;
   if(status === 'in_review' || r.status === 'in_review') return null;
+  /* once-denied text stays off the wire even when an appeal overturns
+     the run — the action may air; the ask that needed two reads does not */
+  if(r.appealOf) return null;
   if(GS_WIRE_CFG.displayFilter === 'B') return null;
   if(GS_WIRE_CFG.displayFilter === 'C' && status !== 'resolved')
     return null;
@@ -382,6 +385,7 @@ function gsWireFormat(evt){
     if(o.credits != null) attrs.credits = o.credits;
     if(o.compensated != null) attrs.compensated_cr = o.compensated;
     if(o.surge != null) attrs.surge = o.surge;
+    if(o.discount != null) attrs.discount = o.discount;
     if(Object.keys(attrs).length) e.attrs = attrs;
     return e;
   };
@@ -392,6 +396,7 @@ function gsWireFormat(evt){
     case 'approve': {
       const out = [mk('request', sum() + gsWireNoteSuffix(r, 'running'),
         { status: 'running', who: evt.player, credits: evt.price,
+          surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
       /* player-called sky: the weather change itself is a feed kind,
@@ -415,6 +420,7 @@ function gsWireFormat(evt){
       return [mk('request', sum() + gsWireNoteSuffix(r, 'queued') +
         ' — in line (#' + (evt.pos || '?') + ')',
         { status: 'queued', who: evt.player, credits: evt.price,
+          surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
 
@@ -466,6 +472,12 @@ function gsWireFormat(evt){
         return [mk('request', sum() + gsWireNoteSuffix(r, 'approved') +
           ' — cleared review',
           { status: 'approved', who: evt.player })];
+      /* v7: a reviewer may approve with narrowed scope — the wire's own
+         status vocabulary already has the words for it */
+      if(evt.action === 'approved_modified')
+        return [mk('request', sum() + gsWireNoteSuffix(r, 'approved') +
+          ' — cleared review, trimmed',
+          { status: 'approved (modified)', who: evt.player })];
       return [];                      // 'denied' is covered by the deny line
 
     case 'warn':
