@@ -5550,3 +5550,126 @@ Registry: P1–P676. v64 suite: P667–P676 — 8 MUST (P667/P668/
 P672 sign- or shape-locked; P669/P670/P674/P676 each carry a
 locked null; P675 the PM split) and 2 SHOULD (P671 cascade
 asymmetry, P673 enactment ratio).
+
+## 123. Probes P677–P686 (v65 suite — emotional-memory VI, the
+residue layer)
+
+- **P677 grief oscillation (MUST):** mark a high-trust dyad
+  partner `deceased`; over 90 simulated days the survivor's
+  loss/restore residence must (a) start loss-dominant, (b) rise
+  in restore share, (c) keep nonzero late loss episodes —
+  monotone trend WITH oscillation; deceased-linked emissions
+  carry `absence:true` in loss mode / `presence:true` in restore
+  mode; the store is untouched (`grief_erasure_null` — record
+  decay must match live-person controls). FAIL if mode is
+  one-directional or if records decay faster than controls.
+- **P678 forward-leak asymmetry (MUST — sign lock):** encode a
+  neutral→NEGATIVE(arousal 0.9)→neutral sandwich: the
+  negative→following link must exceed the preceding→negative
+  link (`emo_fwd_gain` vs `emo_back_loss`); both differ from a
+  matched neutral control; the hot record's `when` resists
+  telescoping (`teles_when_immune`) while neighbors' `when`
+  drifts late. FAIL on symmetric loss or hot-record telescoping.
+- **P679 counterconditioning rival (MUST):** negative CondEntry
+  on cue X, then three positive X-events: the cue must hold TWO
+  entries (both valences); fired affect = strength-weighted
+  mixture; the negative entry's renewal channel still fires on
+  context change. FAIL if positive events decrement or merge
+  the negative entry.
+- **P680 capitalization gate (MUST):** retell a positive record
+  to `ac_response:active_constructive` vs `passive` audiences:
+  S gain only in the active arm (≥`capitalize_gain`·0.8);
+  verbatim fields identical pre/post both arms
+  (`cap_content_null`); affect tag creeps positive only in the
+  active arm.
+- **P681 tone survival (MUST):** speech record with prosody −0.7
+  vs neutral prosody, decayed 60d: (a) prosody field strength >
+  content verbatim by the `tone_survive_mult` ratio; (b) content
+  affect tag shifted `prosody_leak_k`·prosody at encode and
+  unchanged when the prosody field itself decays — the leak is
+  irreversible.
+- **P682 affect flashback (MUST):** drive a CondEntry's source
+  below θ, present the cue: emission must be `aff_flash:true`
+  with `content:null` — affect, zero fields, zero confidence.
+  FAIL if content fields emit or a scene is confabulated
+  (`aff_flash_verbatim`); below `aff_flash_thresh` nothing emits.
+- **P683 jealousy vigilance (SHOULD — trait gate):** identical
+  partner+rival co-presence on `jealous` 0.8 vs 0.2: the high
+  arm mints `rival:true`, encodes at `rival_vigil_gain`, and
+  accrues a mild negative person-CondEntry; the low arm mints
+  nothing. `infid_cue:sexual` vs `emotional` must weight by
+  profile `sex` per the Schützwohl multipliers.
+- **P684 awe signature (SHOULD — HYPOTHESIS arm):** `awe:true`
+  vs matched positive non-awe event: awe record must show thin
+  self fields + strong gist + `schema_gap` confab resistance +
+  full arousal tag. FAIL if self fields mint at ordinary
+  strength — the small self is the signature.
+- **P685 directed-forgetting resistance (MUST):** `dforget` on
+  arousal-0.8-negative vs arousal-0.3-neutral records: the hot
+  record must outlast `df_theta_eff` by the `emo_df_resist`
+  factor; the ≥0.8-negative arm must NEVER starve (locked
+  exemption); under `suppress:true` the resistance halves.
+- **P686 safety signal (MUST — locked null):** CondEntry firing
+  with vs without a trusted co-present person: fired affect is
+  lower with the safe person (`safety_suppress`·tier) while the
+  entry's `strength` and `safeCount` are IDENTICAL afterward
+  (`safety_unlearn_null`); the cue alone later refires at
+  pre-suppression strength. FAIL if fire-time suppression
+  accrues extinction credit.
+
+## 124. Sources verified this version (P677–P686 backing)
+
+- Stroebe & Schut 1999 (*Death Studies* 23:197 — dual-process
+  model: loss/restoration oscillation, dosage); Stroebe & Schut
+  2010 (DPM decade review); Stroebe, Schut & Stroebe 2005/2016
+  overload extension; Klass, Silverman & Nickman 1996
+  (*Continuing Bonds* — maintained inner relationship);
+  Ratcliffe 2020 (*Eur. J. Philos.* — the presence/absence
+  phenomenological flip on identical content).
+- Bisby & Burgess 2013 (*Learn. & Mem.* 21:21 — negative affect
+  impairs associative, spares item memory); Bisby, Burgess &
+  Brewin 2020 (*Curr. Dir.* 29:267 — coherence loss ↔ PTSD);
+  2023 *Cognition & Emotion* forward-favouring pair (N=72+150 —
+  negative→E+1 binding > E−1→negative); Palombo et al. 2021
+  (*Psych. Sci.* — "what"↑, "which"↓, emotional "when" preserved
+  while neutrals mislocalize late).
+- Keller et al. 2020 (counterconditioning review + OSF
+  pre-registered meta — CC > extinction on relapse channels,
+  modest); Raes & De Raedt 2012 (*Behav. Ther.* 43:757 — CC
+  reduces evaluative conditioning d≈0.2, expectancy intact);
+  Bouton 2004 (no special permanence — DEBATED distinctness).
+- Gable, Reis, Impett & Asher 2004 (*JPSP* 87:228 —
+  capitalization: sharing positives boosts PA beyond the event,
+  gated on active-constructive response); Gable et al. 2006
+  (*JPSP* 91:904 — ACR reception predicts relationship outcomes
+  over negative-event support); Langston 1994 (*JPSP* 67:1112).
+- Schirmer & Escoffier 2010 (*PLoS ONE* "Mark My Words" —
+  prosody shifts word valence in memory, independent of prosody
+  recall — implicit leak); Chappuis et al. 2014 (*Interspeech* —
+  prosody-induced EEM replicated ×3); voice-in-engaging-context
+  single-exposure acquisition at 1 week.
+- Maner et al. 2009 ("Intrasexual vigilance" — jealous-primed
+  individuals attend→encode→remember attractive same-sex rivals,
+  trait-gated); Schützwohl & Koch 2004 (sex-differentiated
+  delayed recall of sexual vs emotional infidelity cues);
+  Maner & Shackelford 2008 (jealousy basic-cognition review).
+- Keltner & Haidt 2003 (*Cogn. & Emot.* 17:297 — vastness +
+  accommodation); Shiota, Keltner & Mossman 2007 (self-
+  diminishing appraisals); Piff et al. 2015 (*JPSP* 108:883 —
+  small self); Rudd, Vohs & Aaker 2012 (*Psych. Sci.* — awe
+  expands perceived time). Memory signature = our HYPOTHESIS.
+- Hauswald et al. 2010 (*SCAN* — directed forgetting for neutral
+  but not arousing-negative pictures); 2021 *Mem. & Cogn.*
+  item-method meta (emotional DF ~4.2pp smaller, arousal-
+  moderated); van Schie et al. 2013 (direct-suppression
+  comparability — DEBATED, weak-end adopted); Anderson &
+  Hanslmayr 2014 (suppression mechanisms).
+- Hornstein & Eisenberger (safety-signal / social-buffering
+  direction — fire-time inhibition); Bouton (conditioned
+  inhibitors — expression suppressed, association intact);
+  Coan et al. 2006 anchor reused for the tier table.
+
+Registry: P1–P686. v65 suite: P677–P686 — 8 MUST (P678 sign-
+locked; P677/P679/P680/P682/P685/P686 each carry a locked null
+or locked exemption) and 2 SHOULD (P683 trait gate, P684 the
+awe HYPOTHESIS arm).

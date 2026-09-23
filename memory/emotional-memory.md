@@ -2969,3 +2969,686 @@ Registry now P1–P554; numbering stable.
   "same kind of event" — coarse but legible; the n_recur reset
   at arousal 0.8 is locked because without it the model would
   habituate a character out of noticing escalation.
+
+---
+
+# Part VI — v65: the afterlife of feeling — the tone outlives the words, the dead keep their cues, and safety has a face (2026-09-23, sixth pass)
+
+Five passes built the emotional tag: born by peak-end, priced at
+consolidation, split by valence, traded against context, dampened by
+telling, healed by time and forgiveness. What remains unpriced is
+where affect lives when the episode is gone — the person who died,
+the voice that carried the insult, the rival who never did anything
+at all. This pass pushes into the residue layer: grief's oscillating
+ecology, the direction asymmetry of emotional binding, the second
+tag that counterconditioning mints instead of erasing the first, the
+amplification of shared good news, prosody's implicit leak, the
+content-less flashback, rival vigilance, the small self of awe,
+the hot record that refuses the delete, and the safety signal that
+quiets a firing cue without ever unlearning it.
+
+## 70. Grief oscillates — the dead stay in the cue ecology
+
+When a person dies, the records don't — every person-cued record
+keeps its `people` field, every place smells of them, and the
+CondEntry they minted keeps firing. The bereavement literature
+supplies the dynamics:
+
+- Stroebe & Schut 1999 (Death Studies 23:197 — the dual-process
+  model, verified): adaptive grieving OSCILLATES between
+  loss-oriented coping (confronting memories, the pang when the cue
+  fires) and restoration-oriented coping (new routines, suppression,
+  ordinary days). Dosage is intrinsic — respite is part of the
+  mechanism, not avoidance failure.
+- Klass, Silverman & Nickman 1996 (continuing bonds — verified):
+  the bereaved maintain an inner relationship with the deceased —
+  inner conversations, consulting them in decisions, sensing
+  presence. The bond is maintained, not extinguished; the 1990s
+  consensus overturned the older "detachment = health" assumption.
+- The presence/absence flip (Ratcliffe 2020 review; phenomenology —
+  verified): the SAME vivid memory of the deceased can be warm
+  (they feel present) or stabbing (they feel absent) depending on
+  which property the context makes salient — mode-dependent valence
+  on identical content.
+
+**Spec consequence (§6.110):**
+
+```
+PersonModel gains { deceased:true, deathDay }  — world marks it;
+the person's cue stays live in every record that references them.
+
+char gains grief state: { mode: "loss"|"restore",
+                          modeDay, bond_strength }
+  — mode flips stochastically: p_switch = grief_osc_k·(1 + load)
+    per focused tick, grief_osc_k ≈ 0.15; early bereavement starts
+    in loss mode and restore-mode residence rises monotonically
+    with days since deathDay (grief_restore_slope ≈ +0.02/day,
+    saturating ~0.8) — the oscillation decays toward restoration,
+    never to zero (DPM: oscillation is lifelong at lower amplitude).
+
+In loss mode (the pang ecology):
+  - deceased-person cues fire CondEntry AND pull person-linked
+    records at intrusion_thresh − grief_pang_gain (≈0.15) —
+    the spouse's coffee cup intrudes
+  - emissions of deceased-linked records carry absence:true —
+    the valence of the tag is REPORTED with sign flipped toward
+    negative (the warm memory reads as loss; Ratcliffe's
+    absence-salient context)
+  - bond_strength accrues +bond_gain (0.02) per loss-mode day
+
+In restore mode:
+  - pang discount waived; deceased-linked records retrieve
+    normally and emissions carry presence:true — same record,
+    positive valence report (the memory feels like having them
+    back, continuing bonds)
+  - loss-mode intrusions suppressed at ×(1 − restore_suppress)
+    (0.4) — dosage, not deletion
+
+Continuing bonds (emission): at low ambient-load ticks,
+p = bond_talk_p·bond_strength (bond_talk_p ≈ 0.05) mints an
+inner-speech emission addressed TO the deceased (the talk-to-them
+beat) — dialogue renders it as private apostrophe; it rehear ses
+nothing new (no verbatim gain) but sustains bond_strength.
+
+Locked null: grief_erasure_null = 0 — no decay, rewrite, or
+suppressor is applied to deceased-linked records THEMSELVES;
+grief is an emission-mode and cue-ecology phenomenon, the store
+is untouched (DPM is about coping orientation, not memory loss).
+```
+
+Emergent: the widow who speaks to her dead husband at the sink;
+the griever fine for weeks who crumbles at the smell of his soap;
+the same photo that comforts on Tuesday and destroys on Thursday —
+all from one state variable and the existing cue machinery. (P677)
+
+---
+
+## 71. Emotion binds forward and breaks backward — the directional leak
+
+§2's emotional blink taxed *neighbors' strength* symmetrically.
+The relational-memory literature has since shown the loss is
+directional and the gain is directional too:
+
+- Bisby & Burgess 2013 (Learn. & Mem. 21:21 — verified): negative
+  affect impairs ASSOCIATIVE memory (item-item, item-context
+  binding) while sparing item memory — coherence loss, not
+  content loss. Bisby, Burgess & Brewin 2020 (Curr. Dir. 29:267)
+  tie it to PTSD: the traumatic event's elements stay loose.
+- The 2023 Cognition & Emotion discovery+preregistered-replication
+  pair (N=72+150 — verified): a "forward-favouring" asymmetry —
+  the association from a negative item to the FOLLOWING neutral
+  item is encoded STRONGER than from the preceding neutral to the
+  negative one. Emotion leaks downstream: what came after the bad
+  thing binds to it; what came before stays loose.
+- Palombo et al. 2021 (Psych. Sci. — verified): emotion enhances
+  "what", impairs "which", and for "when" — the emotional item's
+  own temporal position is preserved while neutral items are
+  systematically mislocalized later. The hot event keeps its
+  timestamp; the timeline warps around it.
+
+**Spec consequence (§6.111):**
+
+```
+on encodeEvent with arousal ≥ emo_blink_thresh:
+  for each neighbor within emo_blink_window (existing blink):
+    if neighbor.timestamp < event.timestamp (E−1, before):
+        neighbor→event link_p *= (1 − emo_back_loss)   // ≈0.4 —
+            the antecedent stays loose: you can't recall what led
+            up to the crash, it "came out of nowhere"
+    if neighbor.timestamp > event.timestamp (E+1, after):
+        link_p(event→neighbor) *= (1 + emo_fwd_gain)   // ≈0.2 —
+            forward-favouring: the thing right after the bad thing
+            binds TO it (this is the θ-shaped bridge the 2023
+            study measured)
+  within-event coherence: verbatim fields of the event's own
+    record mint at E·(1 − emo_coh_loss·neg_w) pairwise-binding
+    penalty ≈0.25 — the elements exist but the joint is weak;
+    retrieval emits fragments, not scenes (Bisby PTSD signature)
+  the hot record's own verbatim.when is EXEMPT from the §4.30f
+    telescoping bias (teles_when_immune:true at arousal ≥ 0.85 —
+    Palombo: the emotional item keeps "when")
+```
+
+Emergent: characters narrate disasters as "suddenly" — no lead-up
+retrievable, the aftermath welded to the event; eyewitness order
+claims around hot events are reliably wrong in the backward
+direction only. (P678)
+
+---
+
+## 72. Counterconditioning mints a rival tag, not an eraser
+
+§4.9's extinction is inhibitory — the fear stays, suppressed.
+A second procedure exists: pair the feared cue with a POSITIVE
+outcome. The literature:
+
+- Keller et al. 2020 (Behav. Res. Ther. review — verified;
+  pre-registered multilevel meta on OSF): counterconditioning is
+  expected to beat extinction specifically on RELAPSE channels —
+  renewal, reinstatement, spontaneous recovery — because it
+  changes the cue's evaluative valence rather than merely
+  inhibiting the response. Effect sizes are modest.
+- Mechanism (Baeyens evaluative conditioning; Raes & De Raedt
+  2012 — verified): counterconditioning reduces EVALUATIVE
+  conditioning efficiently (d ≈ 0.2) but leaves OUTCOME
+  EXPECTANCY nearly intact — the cue is felt as nicer, not as
+  safer-by-prediction.
+- Bouton 2004: counter-conditioned responses revert like
+  extinguished ones when tested in isolation — no special
+  permanence. [DEBATED whether CC is a distinct process or a
+  bolstered extinction.]
+
+**Spec consequence (§6.112a):**
+
+```
+on a positive event (valence > +0.3, arousal ≥ cond_thresh·0.6)
+    sharing a cue with an existing NEGATIVE CondEntry:
+  mint a SECOND CondEntry on the same cue, valence positive,
+    strength = cond_gain·arousal·cc_eval_gain   // cc_eval_gain
+    ≈0.6 — the rival tag; the cue now has TWO entries
+  DO NOT touch the negative entry's strength or safeCount —
+    evaluative valence moved, expectancy didn't
+at fire time: a cue with rival entries emits the STRENGTH-
+  weighted mixture:  affect += Σ(valence_i·strength_i·sim) — the
+  feared neighbor you learn to like emits ambivalence, not a
+  smoothed-over average; the negative entry's extinction channels
+  (renewal/recovery/reinstatement) all still apply to ITS entry
+```
+
+Emergent: the character who learns to love the bar where the
+fight happened still flinches when it rains (renewal context) —
+the fondness is real and so is the residue; they coexist on the
+same cue. (P679)
+
+---
+
+## 73. Capitalization — sharing the good news deepens it
+
+§16 priced telling as dampening for NEGATIVE events. The positive
+side has the opposite sign:
+
+- Gable, Reis, Impett & Asher 2004 (JPSP 87:228 — verified):
+  communicating a personal positive event raises positive affect
+  ABOVE the event's own impact; the increment is gated by the
+  listener's response — only ACTIVE-CONSTRUCTIVE responses
+  (enthusiastic elaboration) pay; passive-constructive and
+  destructive responses pay nothing.
+- Langston 1994 (JPSP 67:1112): expressive response to positive
+  events is a capitalization attempt — retelling the good news is
+  itself a positive event.
+- Follow-up replication work (incl. better event-memory after
+  active-constructive reception): shared positive events are
+  remembered better — the retell rehearsed it AND the response
+  re-stamped it.
+
+**Spec consequence (§6.113):**
+
+```
+retell(charId, audienceId, record) where record.valence > +0.3:
+  // capitalization leg — positive sharing amplifies (opposite of
+  // §16 verbal_dampen which remains negative-valence only)
+  audience response ∈ {active_constructive, passive, destructive}
+    — world supplies from the listener's reaction event
+  if active_constructive:
+      record.S *= (1 + capitalize_gain)          // ≈0.15 — the
+          // shared triumph consolidates harder
+      record.affect_tag.valence += cap_val_gain·(1 − valence)
+          // ≈0.1 — the felt goodness creeps toward 1
+      affect_arousal += small bump (the telling WAS arousing)
+  if passive or destructive: no gain — the shrugged-off
+      promotion barely counts as shared
+  Locked null cap_content_null = 0: capitalization moves strength
+      and affect, NEVER verbatim fields — the story grows warmer,
+      not more detailed (the re-stamp is evaluative, not factual)
+```
+
+Emergent: characters who share wins with enthusiastic partners
+hold those wins brighter and longer; the same win told to a
+flat roommate fades at the ordinary rate — the audience response,
+not the event, sets the memorial weight of good news. (P680)
+
+---
+
+## 74. The tone survives the words — prosody as a separate field
+
+Records of speech currently keep content verbatim. But listeners
+keep the VOICE too, and it decays on its own schedule:
+
+- Schirmer & Escoffier 2010 (PLoS ONE "Mark My Words" —
+  verified): neutral words heard in emotional prosody acquire a
+  shifted affective representation in memory — rated more
+  negative (sad voice) or positive (happy voice) at test —
+  and the shift did NOT depend on remembering the prosody
+  itself: it is an implicit residue, not a retrieved field.
+- Chappuis et al. 2014 (Interspeech — verified): prosody-induced
+  emotional enhancement of memory is real and replicates across
+  three studies; angry/happy/fearful voices show different
+  item-vs-periphery facilitation.
+- Voice-in-context study (verified): voices experienced in an
+  emotionally engaging context are recognized after ONE exposure,
+  intact at one week — the vocal-affect channel consolidates fast.
+
+**Spec consequence (§6.114):**
+
+```
+speech Event gains optional field `prosody` ∈ [-1,+1] (valence
+  of delivery — world tags sharp/warm/wounded); the record mints
+  it as its own verbatim field `prosody`
+decay: verbatim.prosody decays at k_verbatim·tone_survive_mult
+  (≈0.5 — the tone outlives the sentence; HYPOTHESIS magnitude,
+  CONSENSUS that vocal-affect channels consolidate fast)
+implicit leak (Schirmer & Escoffier): at encode, the CONTENT's
+  valence tag shifts: affect_tag.valence += prosody_leak_k·prosody
+  (≈0.15) — sarcastic praise lands colder in the store even when
+  the prosody field itself is long gone; the leak is irreversible
+  because it was never a retrievable field, it re-tagged the
+  content
+record flag `heard:voice` on first-person-audio records —
+  voice identity joins the person cue naturally
+```
+
+Emergent: "I don't remember what she said, but she said it
+sweetly / like a slap" — the survivor field is prosody; and the
+content's emotional color carries the delivery's bias forever,
+invisible to the rememberer. (P681)
+
+---
+
+## 75. The affect flashback — dread with no picture
+
+The CondEntry table already survives its episodic source
+(§1 Bechara split). But §4.9's fire path emits affect only into
+`C.affect` — there is no EMISSION type for the felt state with no
+episode attached. Clinical phenomenology needs one:
+
+- Brewin 2015 (re-experiencing taxonomy): intrusive phenomena
+  span full sensory re-experiencing down to affect-only
+  "emotional flashbacks" — panic, shame, or dread arriving with
+  no retrievable scene. [DEBATED boundary vs ordinary anxiety;
+  the dissociation is clinically standard]
+- Ehlers & Clark 2000 model: trauma cues can trigger the
+  CONDITIONED response without successful episodic retrieval —
+  sensation without autobiographical access.
+- Our machinery already asserts the substrate: `strength` decays
+  at cond_decay while records decay at β_episodic — the tag
+  outlives its source by construction.
+
+**Spec consequence (§5.65):**
+
+```
+when a CondEntry fires (§4.9 fire path) and its SOURCE record
+  is below θ (forgotten, below-wall, or never minted — e.g.,
+  §58 instructed route): emit an aff_flash emission:
+  { affect:{valence, arousal·strength}, aff_flash:true,
+    content:null } — pure felt state, no fields, no confidence,
+  no source attribution. Dialogue renders: free-floating dread,
+  "something about this place."
+  if the source record IS retrievable: ordinary re-experiencing
+  emission as before — aff_flash is the below-wall branch only
+gate: aff_flash_thresh ≈ 0.3 — fired strength below it emits
+  nothing (sub-threshold residue stays silent in C.affect only)
+locked null aff_flash_verbatim = 0: an aff_flash NEVER emits
+  content fields — if the episode can't be retrieved, the
+  flashback can't contain it (no false-picture minting)
+```
+
+Emergent: characters get moods with no story — the ex-friend's
+street feels wrong for no stated reason; the listener inherits
+the affect without inheriting a rumor. (P682)
+
+---
+
+## 76. Jealousy — the rival who never acted still gets remembered
+
+The vigilance literature is thin but real:
+
+- Maner et al. 2009 ("Intrasexual vigilance" — verified): priming
+  infidelity concerns produced, in chronically jealous
+  individuals, early attentional vigilance to attractive
+  same-sex targets AND enhanced encoding/memory for them —
+  a coordinated implicit cascade (attend → encode → remember →
+  evaluate negatively). Effects trait-gated: low-jealousy
+  individuals showed none of it.
+- Schützwohl & Koch 2004 (verified): a week after hearing an
+  ambiguous couple's-evening story, participants' recall was
+  biased by sex-differentiated jealousy cues — memorial recall
+  privileged the infidelity cue class relevant to the reader's
+  sex (sexual vs emotional infidelity).
+
+**Spec consequence (§4.33a):**
+
+```
+trait `jealous` ∈ [0,1] (correlated w/ attach_anx, distrust —
+  loads through the §7 trait layer)
+on encodeEvent: if event.people includes BOTH the character's
+  partner AND a person flagged/attributable as rival-role, AND
+  jealous ≥ 0.5:  E *= (1 + rival_vigil_gain)   // ≈0.25 — the
+  partner-plus-rival co-occurrence encodes hot even at neutral
+  arousal; record mints rival:true
+rival:true records: decay at β·(1 − rival_stick_k) (≈0.3 slower)
+  and mint a mild negative CondEntry on the rival person-cue
+  (trust_neg_gain·0.5 — below-betrayal but above baseline)
+sex-differentiated cue class (Schützwohl): Event tag
+  `infid_cue:{sexual,emotional}` — male-profiled characters
+  weight sexual ×1.3, emotional ×0.8; female-profiled reverse
+  (trait `sex` mediates; apply as rival_vigil_gain multiplier)
+```
+
+Emergent: the jealous character "just remembers" every time the
+partner chatted with that one neighbor — the rival's face
+consolidates at partner-presence, no incident required. (P683)
+
+---
+
+## 77. Awe — the small self encodes wide
+
+The discrete-emotion tag (§26) has no slot for awe, and awe has a
+documented phenomenology worth a record signature:
+
+- Keltner & Haidt 2003 (Cogn. & Emot. 17:297 — verified): awe =
+  perceived vastness + need for accommodation (the experience
+  doesn't fit existing schemas).
+- Shiota, Keltner & Mossman 2007 (verified): awe is
+  stimulus-focused and self-DIMINISHING — small-self reports,
+  reduced need for cognitive closure; asocial elicitors dominate
+  (nature, art — not social reward).
+- Piff et al. 2015 (JPSP — verified): awe → small self →
+  prosociality. Rudd, Vohs & Aaker 2012: awe expands perceived
+  time (time-affluence).
+- Memory consequences are NOT directly measured — [HYPOTHESIS]
+  arm, constructed from the appraisals: accommodation failure →
+  schema can't scaffold the record → verbatim fields thin, gist
+  huge; self-diminishment → self-as-actor fields thin; time
+  expansion → dur_dil reuse.
+
+**Spec consequence (§4.33b):**
+
+```
+Event flag `awe:true` (world tags vista/transcendent moments —
+  the parrot murmuration, the skyline through fog):
+  verbatim.self fields mint at ×(1 − awe_self_loss)   // ≈0.4 —
+      the character is small in their own memory of it
+  gist field mints at full + awe_gist_gain (≈0.3) and semantic
+      node "awe-places" mints/links at boosted strength — the
+      PLACE becomes a meaning-anchor (revisiting the overlook
+      re-primes the record via place cue, §4.30 place reinstate)
+  verbatim.duration × (1 + dur_dil·arousal)  — reuse §45,
+      Rudd's time-expansion is the same channel
+  affect tag: positive valence + HIGH arousal is legal here —
+      awe is the lab's exception to valence-arousal confound;
+      keep arousal full (goosebumps are arousal)
+  schema_gap flag: the record resists confab_fill at ×(1 −
+      awe_gap_resist) ≈0.5 — accommodation failed at encode, the
+      gap stays a gap (awe memories stay strange)
+```
+
+Emergent: the character who saw the eclipse over the park tells
+it badly and forever — thin self-detail, huge gist, "you can't
+describe it," and the overlook keeps the charge for years. (P684)
+
+---
+
+## 78. The hot record refuses the delete — directed-forgetting resistance
+
+§4.30b's `forgetEvent`/`dforget` treats all records alike. The
+suppression literature says emotional records resist:
+
+- Hauswald et al. 2010 (SCAN, ERP — verified): item-cued directed
+  forgetting succeeded for neutral but FAILED for arousing
+  negative pictures — "due to their deeper incidental processing,
+  highly arousing negative pictures are exempt from directed
+  forgetting."
+- 2021 item-method directed-forgetting meta (Mem. & Cogn. —
+  verified): directed forgetting exists for emotional items but
+  is reliably SMALLER than for neutral (≈4.2pp less on average;
+  larger gaps when the emotional items are more arousing).
+- Counter-evidence: van Schie et al. 2013 — under controlled
+  DIRECT-suppression strategy, negative items were comparably
+  inhibited; strategy, not valence, drives the deficit.
+  [DEBATED — take the weak end: resistance, not immunity.]
+- PTSD/OCD clinical reports: suppressive control over intrusions
+  is harder — consistent with resistance scaling with arousal.
+
+**Spec consequence (§6.115):**
+
+```
+forgetEvent / dforget flag: effective starvation threshold scales
+  df_theta_eff = df_theta·(1 − emo_df_resist·arousal)
+  // emo_df_resist ≈ 0.5 — an arousal-0.8 record must decay ~40%
+  // deeper than a neutral one before the flag lets go; ecology
+  // starvation takes longer on hot records
+exempt band: valence<0 AND arousal ≥ 0.8 records ignore dforget
+  entirely (Hauswald exemption — the traumatic record cannot be
+  told to go away; the flag is stored but inert)
+the DEBATED arm is honored by keeping emo_df_resist ≤ 0.5 — under
+  strong direct suppression (cueContext.suppress:true) the
+  resistance halves again (strategy matters, van Schie)
+```
+
+Emergent: "stop thinking about it" works on the errand and fails
+on the humiliation; a character's deliberate suppression of a hot
+record runs the machinery but the record keeps clearing the
+starvation floor. (P685)
+
+---
+
+## 79. The safety signal — a trusted presence quiets a firing cue
+
+§44 attenuated encoding when a trusted person is co-present at
+the BAD event. The complementary channel — safety at FIRE time —
+is separate and verified:
+
+- Hornstein & Eisenberger work on social safety signaling
+  (verified literature direction): a trusted other's presence
+  functions as a learned safety signal that suppresses the
+  conditioned response itself — not the encoding of new threat,
+  but the expression of old fear.
+- Extinction-analog framing (Bouton): safety signals are
+  conditioned INHIBITORS — they suppress CR expression while the
+  CS-US association stays intact. Suppression ≠ unlearning:
+  remove the safety signal and the fear returns at full
+  strength (the locked null).
+- This is why "I'll go with you" works at the feared place
+  itself, not just on the way to it.
+
+**Spec consequence (§6.112b):**
+
+```
+at CondEntry fire time (§4.9): if a co-present person's
+  PersonModel.trust ≥ secure_trust:
+    fired affect *= (1 − safety_suppress·tier_mult)
+    safety_suppress ≈ 0.35 — the held hand quiets the firing cue;
+    tier_mult shared with §44's table (partner 1.0·relQuality,
+    close friend 0.6, stranger ~0.2)
+LOCKED NULL safety_unlearn_null = 0: safety suppression does NOT
+  decrement strength or increment safeCount — the entry is
+  inhibited at expression, not extinguished; the cue alone later
+  fires at full remaining strength (inhibitor, not exposure)
+interaction: presence of the safe person during a SAFE-day cue
+  exposure still accrues safeCount normally — you can also
+  genuinely extinguish; the two channels stack (inhibition now,
+  extinction accruing)
+```
+
+Emergent: the character who can only enter the feared venue with
+the trusted friend — and whose fear is undiminished the day she
+goes alone; company is a suppressor, never a cure. (P686)
+
+---
+
+## 80. Spec delta (v5.12 → v5.13)
+
+Params (all new, clamp ranges in profiles §0):
+
+- `grief_osc_k` 0.15, `grief_restore_slope` 0.02/day (sat 0.8),
+  `grief_pang_gain` 0.15, `restore_suppress` 0.4, `bond_gain`
+  0.02, `bond_talk_p` 0.05, `grief_erasure_null` 0 — §70
+- `emo_back_loss` 0.4, `emo_fwd_gain` 0.2, `emo_coh_loss` 0.25,
+  `teles_when_immune` flag at arousal ≥0.85 — §71
+- `cc_eval_gain` 0.6 (rival-entry mint multiplier), mixed-cue
+  mixture rule — §72
+- `capitalize_gain` 0.15, `cap_val_gain` 0.1, audience
+  `ac_response` gate, `cap_content_null` 0 — §73
+- `tone_survive_mult` 0.5, `prosody_leak_k` 0.15, Event/record
+  `prosody` field — §74
+- `aff_flash` emission mode, `aff_flash_thresh` 0.3,
+  `aff_flash_verbatim` 0 — §75
+- `jealous` trait, `rival_vigil_gain` 0.25, `rival_stick_k` 0.3,
+  `rival:true` + `infid_cue` event tags — §76
+- `awe:true` Event flag, `awe_self_loss` 0.4, `awe_gist_gain`
+  0.3, `awe_gap_resist` 0.5 — §77
+- `emo_df_resist` 0.5, arousal-0.8-negative exemption (locked) —
+  §78
+- `safety_suppress` 0.35 (fire-time inhibition),
+  `safety_unlearn_null` 0 — §79
+
+Fields: PersonModel `deceased`/`deathDay`; char state `grief`
+{mode, modeDay, bond_strength}; record `rival:true`,
+`prosody` verbatim field, `teles_when_immune`; emission
+`aff_flash:true`, `absence:true`/`presence:true` on
+deceased-linked emissions; Event `prosody`, `awe:true`,
+`infid_cue:{sexual,emotional}`; retell context `ac_response`.
+Locked nulls: grief_erasure_null, cap_content_null,
+aff_flash_verbatim, safety_unlearn_null.
+
+## 81. Age guidance (extends §§10/23/37/53/67)
+
+- `grief_*`: DPM oscillation operates across the lifespan; older
+  widows' restore-mode residence rises faster (established coping
+  literature — bereavement outcome improves with age into the
+  60s; ×1.2 slope at 65+, [HYPOTHESIS] curve). Children below ~10
+  get the pang ecology but weaker continuing-bonds semantics
+  (bond_talk_p ×0.5 — concept of death consolidation, HYPOTHESIS).
+- `emo_fwd_gain`/`emo_back_loss`: flat — the asymmetry is
+  attentional, not developmental. `emo_coh_loss` may sharpen in
+  old age (associative deficit compounds — ×1.2 at 75,
+  HYPOTHESIS, bridges to AD§78 segmentation).
+- `cc_eval_gain`: flat; evaluative conditioning is among the most
+  age-invariant learning channels.
+- `capitalize_gain`: slightly higher at 65+ (positivity emphasis
+  compounds — ×1.15, HYPOTHESIS).
+- `tone_survive_mult`: flat; `prosody_leak_k` higher under hearing
+  loss (the degraded-content listener leans harder on the voice —
+  ×1.3 when sensory>0.4, composition with v5.12 sensory).
+- `aff_flash`: no age curve — the channel is conditioning-age,
+  not calendar-age.
+- `rival_vigil_gain`: flat adult; declines in elder profiles
+  (mate-value ecology shifts — ×0.6 at 65+, HYPOTHESIS).
+- `awe_*`: awe-proneness may rise with age (small-self
+  accessibility); keep encode constants flat, raise `awe:true`
+  minting rate ×1.2 at 65+ via the Event side (world tags).
+- `emo_df_resist`: rises with age ×1.3 at 70+ (inhibitory
+  decline compounds emotional resistance — DEBATED; SHOULD).
+- `safety_suppress`: flat; partner-dependence composes with
+  §5.64d transactive dyad naturally.
+
+## 82. Validation probes (P677–P686; registry continues)
+
+- **P677 grief oscillation (MUST):** kill a high-trust dyad
+  partner; over 90 simulated days the widow's loss/restore mode
+  residence must show (a) early loss dominance, (b) rising
+  restore share, (c) nonzero loss episodes late — monotone trend
+  with oscillation, never a clean one-way decay; deceased-linked
+  emissions carry absence:true in loss mode and presence:true in
+  restore mode; the store itself is untouched
+  (grief_erasure_null). FAIL if mode is monotone one-direction or
+  if records decay faster than matched live-person records.
+- **P678 forward-leak asymmetry (MUST — sign lock):** encode a
+  neutral→NEGATIVE→neutral sandwich at arousal 0.9: the
+  negative→following link must exceed the preceding→negative
+  link (fwd > back); both must differ from a matched
+  neutral-sandwich control; the hot record's own `when` field
+  must resist the telescoping bias (teles_when_immune) while
+  neighbors' `when` drift. FAIL on symmetric loss or on the hot
+  record telescoping.
+- **P679 counterconditioning rival (MUST):** negative CondEntry
+  on cue X, then three positive X-events: cue must hold TWO
+  entries (both valences present); fired affect must be the
+  strength-weighted MIXTURE (ambivalence), not a merged scalar;
+  the negative entry's renewal channel must still fire on
+  context change. FAIL if the positive events decrement or
+  replace the negative entry.
+- **P680 capitalization gate (MUST):** retell a positive record
+  to active_constructive vs passive audiences: S gain only in the
+  active arm (≥capitalize_gain·0.8); verbatim fields identical
+  pre/post in both arms (cap_content_null); valence tag creeps
+  positive in the active arm only.
+- **P681 tone survival (MUST):** speech record with prosody −0.7
+  vs neutral prosody, decayed 60 days: (a) prosody field
+  strength > content verbatim fields by the tone_survive_mult
+  ratio; (b) content affect tag shifted by prosody_leak_k at
+  encode and UNCHANGED by prosody-field decay — the leak is
+  irreversible.
+- **P682 affect flashback (MUST):** drive a CondEntry's source
+  record below θ (decay or forgetEvent), then present the cue:
+  emission must be aff_flash:true with content:null — affect
+  present, no fields; FAIL if any content fields emit or if
+  confidence emits. Below aff_flash_thresh: no emission at all.
+- **P683 jealousy vigilance (SHOULD — trait gate):** identical
+  partner+rival co-presence events on jealous 0.8 vs 0.2
+  characters: high arm mints rival:true, encodes at
+  rival_vigil_gain, and accrues a mild negative person-CondEntry;
+  low arm mints none of it. infid_cue:sexual vs emotional must
+  weight by profile sex per the Schützwohl multipliers.
+- **P684 awe signature (SHOULD — HYPOTHESIS arm):** awe:true
+  event vs matched positive non-awe: awe record must show thin
+  self fields + strong gist + schema_gap resistance to
+  confab_fill + full arousal tag; FAIL if self fields mint at
+  ordinary strength (small-self is the signature).
+- **P685 directed-forgetting resistance (MUST):** dforget on
+  arousal-0.8-negative vs arousal-0.3-neutral records: the hot
+  record must stay above df_theta_eff longer (resist factor) and
+  the ≥0.8 negative arm must NEVER starve (locked exemption);
+  under suppress:true contexts the resistance halves (strategy
+  arm).
+- **P686 safety signal (MUST — locked null):** CondEntry firing
+  with vs without a trusted co-present person: fired affect lower
+  with the safe person (safety_suppress), while entry strength
+  and safeCount are IDENTICAL across arms afterward
+  (safety_unlearn_null — inhibition, not extinction); cue alone
+  later refires at pre-suppression strength.
+
+Registry now P1–P686; numbering stable.
+
+## 83. Honest limits (Part VI)
+
+- **Grief modes** compress the DPM's rich account into a two-state
+  oscillator with a monotone restore slope. Real oscillation is
+  event-triggered (a funeral spikes loss mode for days) — our
+  stochastic switch approximates it; a cue-triggered mode-flip
+  refinement is flagged for a future pass.
+- **Forward-favouring** is a two-study finding (72+150); the
+  mechanism (post-encoding attentional capture of the E+1 item)
+  is inferred, not shown. We implement the directional asymmetry
+  and flag the magnitude as calibrated guess.
+- **Counterconditioning** magnitude (cc_eval_gain 0.6) exceeds
+  the lab's d≈0.2 on evaluative ratings deliberately — the lab
+  measures a single rating, we mint a rival TAG whose long-run
+  effect must survive the ecology; treat as prior.
+- **Capitalization** measures affect/well-being, not record
+  strength directly — the memory benefit is attested in
+  follow-ups but thin. The ACR gate is the load-bearing part and
+  is well-replicated.
+- **Prosody** survival asymmetry (×0.5 decay) is a modeling
+  hypothesis on top of verified effects (implicit leak is
+  established; the half-life ratio is ours).
+- **Affect flashbacks** are clinically real but the clean
+  dissociation from episodic content is DEBATED (Brewin's
+  taxonomy vs single-memory accounts); we implement the
+  below-wall branch because our architecture makes it nearly
+  free and it is behaviorally distinct.
+- **Jealousy** is the thinnest literature in the pass — two
+  programs, modest Ns, evolutionary framing contested. The
+  trait gate (jealous ≥0.5) is the honest implementation: the
+  literature only supports effects in high-jealousy individuals.
+- **Awe** has NO direct memory literature — §77 is a labeled
+  HYPOTHESIS built from awe's appraisal structure (accommodation
+  failure → thin verbatim, small self → thin self fields).
+  P684 tests internal consistency, not fidelity to a corpus.
+- **Directed-forgetting resistance** sits between Hauswald's
+  exemption and van Schie's comparability — we take the weak
+  end (resist ≤0.5, strategy-halving) and lock only the
+  ≥0.8-negative exemption, which is the best-replicated cell.
+- **Safety signals** are real conditioned inhibitors but our
+  tier_mult reuses §44's relationship table by analogy — the
+  fire-time suppression magnitude (0.35) is a prior.

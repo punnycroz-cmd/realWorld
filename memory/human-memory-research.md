@@ -1951,3 +1951,60 @@ claims (full grounding in retrieval-cues.md §§60–69):
 - **Exercise is the modifiable dial.** Erickson et al. 2011
   RCT: a year of walking ≈ +2% hippocampal volume. Fitness
   shifts effective age like reserve but drifts with behavior.
+
+## 42. v65 addendum — emotional-memory VI anchors (verified)
+
+- **Grief oscillates, it doesn't work through.** Stroebe & Schut
+  1999 (*Death Studies* 23:197): adaptive coping is a two-mode
+  oscillation (loss-oriented confrontation vs restoration-
+  oriented respite) with dosage intrinsic — respite is part of
+  the mechanism. Klass, Silverman & Nickman 1996: continuing
+  bonds — the inner relationship persists (inner speech,
+  consultation), overturning the detachment assumption.
+  Ratcliffe 2020: the same vivid memory reads as presence or
+  absence depending on context — a mode-dependent valence flip
+  on identical content.
+- **Emotion binds forward, breaks backward.** Bisby & Burgess
+  2013: negative affect impairs associative binding, spares
+  items — coherence loss. The 2023 *Cognition & Emotion* pair
+  (discovery + preregistered replication): the negative→E+1
+  link encodes STRONGER than E−1→negative — forward-favouring.
+  Palombo et al. 2021: "what"↑, "which"↓, and the emotional
+  item keeps its "when" while neutrals mislocalize late.
+- **Counterconditioning changes valence, not expectancy.** Keller
+  et al. 2020 review + pre-registered meta: CC outperforms
+  extinction specifically on relapse channels; Raes & De Raedt
+  2012: evaluative conditioning moves (d≈0.2), outcome
+  expectancy doesn't — the rival tag, not the eraser.
+- **Shared good news deepens.** Gable et al. 2004 (*JPSP*
+  87:228): capitalization attempts raise PA beyond the event —
+  gated on the listener's ACTIVE-CONSTRUCTIVE response; the
+  shrugged-off win doesn't count.
+- **The tone survives the words.** Schirmer & Escoffier 2010:
+  prosody shifts the remembered valence of content implicitly —
+  listeners needn't recall the tone for it to have stained the
+  words. Chappuis et al. 2014: prosody-induced EEM replicates.
+- **Dread can arrive with no picture.** Brewin 2015
+  re-experiencing taxonomy + Ehlers & Clark 2000: affect-only
+  intrusions are clinically standard (boundary with ordinary
+  anxiety DEBATED); our CondEntry-outlives-source architecture
+  produces them nearly for free.
+- **The rival gets remembered for existing.** Maner et al. 2009:
+  infidelity-primed, chronically jealous individuals show an
+  attend→encode→remember cascade on attractive same-sex targets;
+  Schützwohl & Koch 2004: sex-differentiated recall of
+  infidelity cue classes a week later.
+- **Awe writes a strange record.** Keltner & Haidt 2003:
+  vastness + accommodation failure; Shiota et al. 2007:
+  self-diminishing. No direct memory corpus — our thin-self /
+  thick-gist / unfillable-gap signature is labeled HYPOTHESIS.
+- **Hot records refuse the delete.** Hauswald et al. 2010
+  (*SCAN*): arousing negatives exempt from directed forgetting;
+  2021 item-method meta: emotional DF ~4.2pp smaller; van Schie
+  2013: under controlled direct suppression, comparable —
+  weak-end adopted, strategy halves the resistance.
+- **A trusted hand quiets the firing cue.** Bouton's conditioned
+  inhibitors + the Hornstein/Eisenberger social-safety
+  direction: presence suppresses the CONDITIONED RESPONSE at
+  expression; the association is untouched — inhibition, never
+  unlearning (our locked null).

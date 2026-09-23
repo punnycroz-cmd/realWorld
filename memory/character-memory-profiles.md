@@ -937,6 +937,19 @@ needs both.
 | school_strat_adv / meta_school_gain | 0.0 / 0.0 | 1.5 / 0.15 | schooling onset-delay + meta gap (v5.11) |
 | pub_reward_gain | 0.0 | 0.3 | adolescent reward overlay leg (v5.11) |
 | schooled | — | — | bible enum {full,partial,none}, mains all full (v5.11) |
+| grief_osc_k / grief_restore_slope | 0.05 / 0.005 | 0.3 / 0.05 | DPM mode-switch + restore slope (v5.13) |
+| grief_pang_gain / restore_suppress | 0.05 / 0.1 | 0.3 / 0.7 | loss-mode intrusion discount / restore suppression (v5.13) |
+| bond_gain / bond_talk_p | 0.0 / 0.0 | 0.06 / 0.15 | continuing-bonds accrual + apostrophe rate (v5.13) |
+| emo_back_loss / emo_fwd_gain | 0.1 / 0.0 | 0.7 / 0.5 | directional leak around hot events (v5.13) |
+| emo_coh_loss | 0.0 | 0.5 | within-event coherence penalty on negatives (v5.13) |
+| cc_eval_gain | 0.2 | 1.0 | counterconditioning rival-tag mint (v5.13) |
+| safety_suppress | 0.1 | 0.6 | trusted-presence fire inhibition (v5.13) |
+| capitalize_gain / cap_val_gain | 0.0 / 0.0 | 0.4 / 0.3 | ACR-gated positive retell re-stamp (v5.13) |
+| tone_survive_mult / prosody_leak_k | 0.2 / 0.0 | 1.0 / 0.4 | prosody field decay ratio + implicit leak (v5.13) |
+| aff_flash_thresh | 0.1 | 0.5 | below-wall CondEntry emission gate (v5.13) |
+| jealous / rival_vigil_gain / rival_stick_k | 0.0 / 0.0 / 0.0 | 1.0 / 0.6 / 0.6 | rival vigilance trait + encode + stickiness (v5.13) |
+| awe_self_loss / awe_gist_gain / awe_gap_resist | 0.1 / 0.0 / 0.0 | 0.7 / 0.6 / 0.8 | small-self encode signature (v5.13) |
+| emo_df_resist | 0.0 | 0.5 | directed-forgetting resistance, ≤0.5 locked (v5.13) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2975,3 +2988,49 @@ inline; bibles never pin "recollection" or "gist" directly:
   a confabulated one (confab_fill decides whether the blanks get
   filled). Forcing the old mains to always emit "remember" throws
   away the whole R/F split.
+
+## 47. v5.13 note (emotional-memory VI — the residue layer:
+the dead, the tone, the rival, the safe hand)
+
+Thirteen clamp rows added in §0 for the v5.13 machinery. One new
+TRAIT (`jealous`), one new PersonModel field pair
+(`deceased`/`deathDay`), one new character state (`grief`), three
+new event tags (`prosody`, `awe`, `infid_cue`), one retell
+context (`ac_response`), two emission modes (`aff_flash`,
+`absence`/`presence` on deceased-linked emissions). Bible-visible
+guidance:
+
+- **`deceased`/`deathDay` is a world-fact, not a bible mood.** Mark
+  the PersonModel; the substrate owns the mode oscillator. A
+  widowed main written before v5.13 (the landlord's late spouse,
+  an ambient's dead sibling) now has a defined memorial ecology:
+  loss-mode days spike cue-triggered pangs, restore-mode days let
+  the same records emit warm presence — and nothing about the
+  RECORDS changes. Bibles may write grief-stage backstory; they
+  must not expect erasure or flat fading (grief_erasure_null).
+- **`jealous` composes with attach_anx but is not it.** A
+  low-anxious, high-jealous character is a real phenotype —
+  specific, behavioral, rival-keyed vigilance with no general
+  worry. Keep the two distinct in bibles; the infid_cue
+  multipliers are sex-mediated per Schützwohl — don't write the
+  direction backward.
+- **`ac_response` is the audience's variable, supplied at retell.**
+  World-side dialogue decides whether the listener was
+  active-constructive; the substrate only reads it. A character
+  whose partner is written flat/unresponsive accrues no
+  capitalization on shared wins — an invisible relationship cost
+  that will show up as dimmer positive records.
+- **`prosody` is a speech-event field.** World events that
+  specify delivery valence (said coldly, said warmly) mint the
+  field and the implicit leak; absent = neutral, nothing
+  happens. The leak's irreversibility is the point — a sarcastic
+  compliment's sting survives the record of the joke.
+- **`awe:true` is an Event tag, not a trait.** Any character can
+  have an awe record; awe-proneness is world-side tagging
+  frequency (§81 raises it at 65+). The signature — thin self,
+  thick gist, unfillable gap — is the emotion's own; don't reach
+  for it on merely-happy events.
+- **`safety_suppress` reads the same trust table as §44.** A
+  character whose best-trusted person is also low-relQuality
+  gets the stranger's-hand residue — check the relationship
+  matrix, not the cast list.

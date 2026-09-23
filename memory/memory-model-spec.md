@@ -1,5 +1,46 @@
-# Memory Model Spec v5.12 — implementable human-like memory for RW characters
+# Memory Model Spec v5.13 — implementable human-like memory for RW characters
 
+> **v5.13 note (emotional-memory VI — the afterlife of feeling:
+> the tone outlives the words, the dead keep their cues, and
+> safety has a face):** `memory/emotional-memory.md` Part VI
+> (§§70–83). **Grief oscillation** — PersonModel `deceased` +
+> char `grief` {mode, bond_strength}: loss/restore modes flip the
+> SIGN of deceased-linked emissions (absence vs presence) and
+> modulate pang intrusion — the store is never touched (Stroebe &
+> Schut 1999 DPM; Klass et al. 1996 continuing bonds — locked
+> `grief_erasure_null`). **Directional leak** — negative events
+> bind FORWARD to the following neutral (`emo_fwd_gain`) while
+> the backward link pays `emo_back_loss` and within-event
+> coherence pays `emo_coh_loss`; the hot record's own `when` is
+> telescoping-exempt (Bisby & Burgess 2013/2017; the 2023
+> forward-favouring replication; Palombo et al. 2021).
+> **Counterconditioning** — positive events on a feared cue mint
+> a RIVAL positive CondEntry, never decrement the negative one;
+> mixed cues emit strength-weighted ambivalence (Keller et al.
+> 2020 meta; Raes & De Raedt 2012). **Capitalization** — retell
+> of a positive record to an `active_constructive` audience
+> re-stamps S + valence; verbatim untouched, locked
+> `cap_content_null` (Gable et al. 2004). **Prosody** — speech
+> records mint a `prosody` field decaying at half the verbatim
+> rate AND leak prosody·`prosody_leak_k` into the content tag at
+> encode — irreversible (Schirmer & Escoffier 2010). **Affect
+> flashback** — a fired CondEntry whose source is below θ emits
+> `aff_flash` (affect only, content:null; locked
+> `aff_flash_verbatim`). **Jealousy** — trait-gated
+> `rival_vigil_gain` on partner+rival co-presence, rival person
+> entries, sex-differentiated `infid_cue` (Maner et al. 2009;
+> Schützwohl & Koch 2004). **Awe** — `awe:true` mints thin self
+> fields + strong gist + `schema_gap` confab resistance
+> (Keltner & Haidt 2003; Shiota et al. 2007 — memory signature
+> HYPOTHESIS). **DF resistance** — `emo_df_resist` scales
+> df_theta by arousal; ≥0.8-negative records are exempt (Hauswald
+> et al. 2010; 2021 item-method meta; van Schie 2013 weak-end).
+> **Safety signal** — co-present trusted person suppresses
+> CondEntry FIRE ×(1 − `safety_suppress`·tier) without touching
+> strength/safeCount — inhibition, locked `safety_unlearn_null`
+> (Bouton inhibitors; Hornstein & Eisenberger direction).
+> +20 params, 4 locked nulls, probes P677–P686.
+>
 > **v5.12 note (age-decline VI — the ledger splits: what old age
 > keeps, rents, and loses):** `memory/age-decline.md` Part VI
 > (§§79–95). **Recollection/familiarity legs** — `recol_mult`/
@@ -3542,6 +3583,31 @@ being tested, "senior moment" framing) applies `stereo_tax`
 effortful encode legs; stored S untouched. Personality
 moderation via memory-pride/metamemory gap (§41).
 
+### 4.33 The social-emotional encode legs — rivals and awe
+(new in v5.13)
+
+**4.33a Rival vigilance** (EM§76; Maner et al. 2009 — verified;
+Schützwohl & Koch 2004): trait `jealous` ∈[0,1] (loads with
+attach_anx/distrust in §7). If an event's `people` includes the
+character's partner AND a rival-role person AND `jealous ≥ 0.5`:
+`E *= (1 + rival_vigil_gain)` (~0.25) even at neutral arousal,
+record mints `rival:true` (decay β·(1 − `rival_stick_k`, ~0.3)
+plus a mild negative person-CondEntry at `trust_neg_gain`·0.5).
+Event tag `infid_cue:{sexual,emotional}` multiplies
+`rival_vigil_gain` ×1.3/×0.8 by profile `sex` (male arm weights
+sexual, female arm emotional — Schützwohl recall bias).
+
+**4.33b Awe signature** (EM§77; Keltner & Haidt 2003; Shiota et
+al. 2007 — phenomenology verified, memory signature HYPOTHESIS):
+Event flag `awe:true` mints self-field verbatim at
+×(1 − `awe_self_loss`) (~0.4 — the small self), gist at
+×(1 + `awe_gist_gain`) (~0.3), `schema_gap:true` (confab_fill
+resistance ×(1 − `awe_gap_resist`) ~0.5 — accommodation failed,
+the gap stays a gap), duration via §45 `dur_dil`, arousal tag
+kept FULL (awe is the positive-arousal exception — goosebumps
+are arousal). Place-linked semantic "awe-places" node gains a
+boosted link (revisiting re-primes via §4.30 place reinstate).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -5225,6 +5291,25 @@ of `pm_self` decline; `cueType:event` unchanged; §5.60
 `pm_popout_gain` is event-cue-only by construction. `impl_intent`
 flag (rephrased if-then) removes `impl_intent_gain` (~0.5 late)
 of the time tax.
+
+### 5.65 The affect flashback — the below-wall CondEntry branch
+(new in v5.13)
+
+(EM§75; Brewin 2015 taxonomy; Ehlers & Clark 2000 — the
+dissociation is clinically standard, DEBATED as a boundary vs
+ordinary anxiety.) When a §4.9 CondEntry fires and its source
+record is below θ (forgotten, below-wall, or never minted —
+instructed/vicarious routes), emit an `aff_flash` emission:
+`{ affect:{valence, arousal·strength}, aff_flash:true,
+content:null }` — pure felt state, no fields, no confidence, no
+source attribution. Dialogue renders free-floating dread /
+"something about this place." If the source IS retrievable the
+ordinary re-experiencing emission runs instead — aff_flash is
+the below-wall branch only. Gate: `aff_flash_thresh` ≈0.3 —
+fired strength below it contributes to C.affect silently.
+Locked `aff_flash_verbatim` = 0: an aff_flash NEVER emits
+content — if the episode can't be retrieved, the flashback
+can't contain it (no false-picture minting).
 
 ---
 
@@ -7805,6 +7890,116 @@ aren't more acquiescent, they're worse at knowing where they
 heard what (source decay + familiarity-without-recollection,
 the §4.32a readout applied to misinformation).
 
+### 6.110 Grief oscillation — the dead stay in the cue ecology
+(new in v5.13)
+
+(EM§70; Stroebe & Schut 1999 DPM — verified; Klass, Silverman &
+Nickman 1996 continuing bonds; Ratcliffe 2020 presence/absence
+flip.) PersonModel gains `deceased:true`/`deathDay` (world-set);
+the person-cue stays live in every record referencing them.
+Char state `grief:{mode∈{loss,restore}, modeDay, bond_strength}`:
+p_switch = `grief_osc_k`·(1 + load) per focused tick (≈0.15);
+restore-mode residence rises `grief_restore_slope` ≈0.02/day,
+saturating ~0.8 — oscillation decays toward restoration, never
+to zero. Loss mode: deceased-person cues pull linked records at
+`intrusion_thresh − grief_pang_gain` (0.15) and emissions carry
+`absence:true` (the tag's valence REPORTS flipped toward
+negative — the warm memory reads as loss). Restore mode: pang
+discount waived, emissions carry `presence:true` (continuing
+bonds — same record, positive report), intrusions suppressed
+×(1 − `restore_suppress`) (0.4). Continuing bonds: at low-load
+ticks p = `bond_talk_p`·bond_strength (0.05) mints an inner-
+speech emission addressed to the deceased — rehearses nothing,
+sustains bond_strength (+`bond_gain` 0.02/loss-day). Locked
+`grief_erasure_null` = 0: deceased-linked records take NO decay,
+rewrite, or suppressor — grief is emission-mode and cue-ecology,
+the store is untouched.
+
+### 6.111 The directional leak — forward binds, backward breaks
+(new in v5.13)
+
+(EM§71; Bisby & Burgess 2013/2017; 2023 Cogn. & Emot.
+forward-favouring pair — verified; Palombo et al. 2021.) On
+encodeEvent with arousal ≥ `emo_blink_thresh`, neighbors inside
+`emo_blink_window` split by direction: E−1 (preceding) neighbor→
+event `link_p *= (1 − emo_back_loss)` (~0.4 — the lead-up stays
+loose, "it came out of nowhere"); E+1 (following) event→neighbor
+`link_p *= (1 + emo_fwd_gain)` (~0.2 — binds downstream). The
+event's own record pays `emo_coh_loss` (~0.25) on pairwise
+field-binding — elements exist, the joint is weak; retrieval
+emits fragments, not scenes (the PTSD-coherence signature). The
+hot record's `verbatim.when` is exempt from §4.30f telescoping
+(`teles_when_immune` at arousal ≥0.85 — the emotional item keeps
+"when" while neighbors mislocalize late).
+
+### 6.112 Counterconditioning and the safety signal — two
+conditioned-affect additions (new in v5.13)
+
+**6.112a Rival tags** (EM§72; Keller et al. 2020 meta; Raes &
+De Raedt 2012; Bouton 2004 — CC beats extinction on relapse
+channels, modest): a positive event (valence >+0.3, arousal ≥
+`cond_thresh`·0.6) sharing a cue with a NEGATIVE CondEntry mints
+a second, positive entry on the same cue at strength
+`cond_gain·arousal·cc_eval_gain` (~0.6). The negative entry's
+strength/safeCount are untouched — evaluative valence moved,
+expectancy didn't. Firing emits the strength-weighted mixture
+Σ(valence_i·strength_i·sim) — ambivalence, not a smoothed
+scalar; relapse channels (renewal/recovery/reinstatement) still
+apply per-entry.
+
+**6.112b Safety signal at fire time** (EM§79; Bouton conditioned
+inhibitors; Hornstein & Eisenberger direction — verified):
+CondEntry fire with a co-present person at PersonModel.trust ≥
+`secure_trust`: fired affect ×(1 − `safety_suppress`·tier_mult)
+(~0.35; tier_mult shares §44's table — partner 1.0·relQuality,
+close friend 0.6, stranger ~0.2). Locked `safety_unlearn_null`
+= 0: suppression touches NEITHER strength nor safeCount — the
+entry is inhibited at expression, never extinguished; the cue
+alone refires at full remaining strength.
+
+### 6.113 Capitalization — shared good news deepens (new in
+v5.13)
+
+(EM§73; Gable, Reis, Impett & Asher 2004 JPSP 87:228 — verified;
+Langston 1994.) `retell` of a valence>+0.3 record reads the
+audience-response context `ac_response` ∈ {active_constructive,
+passive, destructive}: on active_constructive only,
+`S *= (1 + capitalize_gain)` (~0.15) and
+`affect_tag.valence += cap_val_gain·(1 − valence)` (~0.1 — felt
+goodness creeps up). Passive/destructive arms gain nothing.
+Locked `cap_content_null` = 0: capitalization moves S and the
+tag, NEVER verbatim fields — warmer, not more detailed.
+Asymmetric with §16 `verbal_dampen`, which stays negative-
+valence only.
+
+### 6.114 The tone survives the words — the prosody field (new
+in v5.13)
+
+(EM§74; Schirmer & Escoffier 2010 — verified implicit leak;
+Chappuis et al. 2014 prosody-EEM.) Speech Events may carry
+`prosody` ∈[−1,+1] (delivery valence — world tags). The record
+mints `verbatim.prosody` as its own field, decaying at
+`k_verbatim`·`tone_survive_mult` (~0.5 — tone outlives sentence;
+magnitude HYPOTHESIS). At encode, the content's affect tag
+shifts `valence += prosody_leak_k·prosody` (~0.15) — the leak
+is irreversible and survives the prosody field itself (the
+sarcastic praise lands cold forever). `heard:voice` records
+attach voice identity to the person cue.
+
+### 6.115 Hot records refuse the delete — directed-forgetting
+resistance (new in v5.13)
+
+(EM§78; Hauswald et al. 2010 SCAN — arousing negatives exempt;
+2021 item-method meta — emotional DF smaller ~4.2pp; van Schie
+et al. 2013 counterpoint — DEBATED, weak end taken.) `forgetEvent`/
+`dforget` starvation threshold scales:
+`df_theta_eff = df_theta·(1 − emo_df_resist·arousal)`,
+`emo_df_resist` ≤0.5 — hot records must decay deeper before the
+flag lets go. Locked exemption: valence<0 AND arousal ≥0.8
+records ignore dforget entirely (flag stored, inert). Under
+`cueContext.suppress:true` the resistance halves — strategy
+matters (van Schie arm).
+
 
 
 All weights live in one per-character params object. Profiles doc assigns
@@ -8944,6 +9139,35 @@ MemoryParams = {
 //   full); knot notes — infant_beta_*/obs_gain/free_recall_tax/
 //   order_strength_* are age-keyed curves evaluated on encodeAge /
 //   retrievalAge inline; pub_reward_gain reverts at pub_window close.
+// v5.13 additions (emotional-memory VI — EM§§70–79)
+"grief_osc_k": 0.15, "grief_restore_slope": 0.02, // DPM osc, §6.110
+"grief_pang_gain": 0.15, "restore_suppress": 0.4,
+"bond_gain": 0.02, "bond_talk_p": 0.05,         // bonds, §6.110
+"grief_erasure_null": 0.0,                      // LOCKED — store untouched
+"emo_back_loss": 0.4, "emo_fwd_gain": 0.2,      // leak, §6.111
+"emo_coh_loss": 0.25, "teles_when_immune": 0.85,// arousal gate
+"cc_eval_gain": 0.6,                            // rival tag, §6.112a
+"safety_suppress": 0.35,                        // fire-time, §6.112b
+"safety_unlearn_null": 0.0,                     // LOCKED — no unlearn
+"capitalize_gain": 0.15, "cap_val_gain": 0.1,   // §6.113
+"cap_content_null": 0.0,                        // LOCKED — tag only
+"tone_survive_mult": 0.5, "prosody_leak_k": 0.15,// §6.114
+"aff_flash_thresh": 0.3,                        // §5.65
+"aff_flash_verbatim": 0.0,                      // LOCKED — no content
+"rival_vigil_gain": 0.25, "rival_stick_k": 0.3, // §4.33a
+"awe_self_loss": 0.4, "awe_gist_gain": 0.3,
+"awe_gap_resist": 0.5,                          // §4.33b
+"emo_df_resist": 0.5,                           // ≤0.5 locked, §6.115
+// v5.13 locked nulls: grief_erasure_null (P677 — deceased-linked
+//   records never decay/rewrite differently); cap_content_null
+//   (P680 — capitalization moves S and tag only);
+//   aff_flash_verbatim (P682 — below-wall flashback emits zero
+//   fields); safety_unlearn_null (P686 — fire suppression never
+//   decrements strength/safeCount). Plus the §6.115 arousal≥0.8
+//   negative exemption from dforget (locked band, Hauswald).
+// v5.13 trait/state fields: IndivTraits + `jealous` (loads
+//   attach_anx/distrust); char state `grief` {mode, modeDay,
+//   bond_strength}; PersonModel `deceased`/`deathDay`.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -8960,7 +9184,9 @@ the locked-null birth_order — Part V §60; v5.4 adds keeper —
 SM Part V §76; v5.6 adds `self_est` (self-evaluation — NOT metamemory;
 P614 null-locks the confusion), `elabor` (co-narration style), and
 `neurot_report` (self-reported distress — diverges from `neurot` only
-under defensiveness, the §6.102 repressor divergence)) — sampled MVN(0, R) with the sparse correlation matrix in
+under defensiveness, the §6.102 repressor divergence); v5.13 adds
+`jealous` — romantic-rival vigilance, loads attach_anx/distrust,
+EM§76) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -10148,6 +10374,34 @@ not resolved (DEBATED magnitude). P509/P511.
   - `pos_gain` rides emission ranking (§5.64b) — it biases what
     gets SAID, never what's stored; rumor ingest downstream
     inherits the skew for free.
+  - All snapshot-additive, absent = legacy.
+- v5.13 additions (emotional-memory.md Part VI §§70–83):
+  - PersonModel gains `deceased`/`deathDay` (world-set on death;
+    the person-cue stays live in referencing records — §6.110);
+    char state `grief:{mode,modeDay,bond_strength}` is
+    substrate-owned; emissions on deceased-linked records carry
+    `absence:true`/`presence:true` by mode — dialogue renders the
+    SAME content warmly vs as loss, never edits it.
+  - Event fields (optional, default-neutral): `prosody` ∈[−1,+1]
+    on speech events (world tags delivery valence — §6.114);
+    `awe:true` (vista/transcendent moments — §4.33b);
+    `infid_cue:{sexual,emotional}` (§4.33a — partner+rival
+    co-presence; trait `jealous` ≥0.5 gates the leg).
+  - `retell` context gains `ac_response` ∈ {active_constructive,
+    passive, destructive} (world supplies the listener's reaction
+    — §6.113; absent = passive, no gain).
+  - `conditionedAffect` now returns the strength-weighted MIXTURE
+    over rival entries on the same cue (§6.112a — callers get
+    signed ambivalence, e.g. {−0.4:+0.5}, not a pre-merged
+    scalar); and `cueContext.suppress:true` halves
+    `emo_df_resist` (§6.115 — the direct-suppression strategy
+    flag).
+  - Emission `aff_flash:true` (§5.65) is a new emit class —
+    content:null, no confidence; dialogue must render felt-state
+    only and MUST NOT confabulate a scene for it
+    (`aff_flash_verbatim` locked).
+  - Record flags: `rival:true`, `schema_gap:true`,
+    `teles_when_immune` (§6.111), verbatim field `prosody`.
   - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
