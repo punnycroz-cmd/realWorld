@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 19,
+ "version": 20,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -10,6 +10,7 @@
    "world/create.html",
    "world/board.html",
    "world/history.html",
+   "world/archive.html",
    "world/onboarding.html",
    "world/lease.html",
    "world/thinai.html",
@@ -73,6 +74,11 @@
   },
   "history": {
    "file": "history.html",
+   "name": "The Archive (lite)",
+   "tier": "free"
+  },
+  "archive": {
+   "file": "archive.html",
    "name": "The Archive",
    "tier": "free"
   },
@@ -837,6 +843,54 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT18",
+   "title": "The Archive v2 — five views, one scope",
+   "minutes": 15,
+   "persona": "returning spectator catching up on the week + facilitator auditing the history surface",
+   "goal": "Verify the full archive: day browsing with honest gaps, structural person/venue trails, the rumor board's outcome honesty, the attributed ledger, permalinks, and the demo/live source badge.",
+   "surfaces": [
+    "archive"
+   ],
+   "steps": [
+    {
+     "do": "Open The Archive. Read the header, pick two different days from 'Days on record', and click an hour on the density strip.",
+     "expect": "Badge reads 'demo archive' locally; each day shows its own count/meta; today's day is flagged ● and unwritten hours are dimmed and unclickable; hour isolate/release works.",
+     "checkpoints": [
+      "Entry counts on the day list agree with the rows shown",
+      "Long quiet stretches render '— off the feed —' lines instead of filler",
+      "Today carries the 'still being written' marker"
+     ]
+    },
+    {
+     "do": "Switch to 'by person' → Jules (C2), then 'by venue' → Mudhaus. Read the trails.",
+     "expect": "Trails group events under day separators newest-first with 'open day' jumps; person head reads 'public whereabouts only' with honest sighting counts; venue head uses the canonical parody name.",
+     "checkpoints": [
+      "Person trail matches who + mentions[] only — nothing that looks string-matched into private text",
+      "Dani's off-the-feed evening is preserved as absence — no inferred whereabouts",
+      "No affordance anywhere offers control, possession, or a tip on any character"
+     ]
+    },
+    {
+     "do": "Switch to 'word on the block'. Read the tally, open one resolved rumor and the still-open one, then click through to its day.",
+     "expect": "Tally counts agree with the cards; every card is marked UNCONFIRMED, place-sourced, and shows its outcome line; click-through lands on the correct day with the record open.",
+     "checkpoints": [
+      "No rumor names a source person anywhere",
+      "Outcome states render distinctly (open/debunked/faded/stood)",
+      "A rumor's text only ever distorts something already public — no seed-flavored content"
+     ]
+    },
+    {
+     "do": "Switch to 'the ledger'. Read the summary strip and scan the week. Open a request record and walk its trail.",
+     "expect": "Ledger shows payer handles + statuses verbatim, summary counts match the rows, admin actions show compensation where present; req-threaded events render a clickable lifecycle trail.",
+     "checkpoints": [
+      "Attribution is verbatim — handles and 'admin' are never anonymized in hindsight",
+      "A denied request shows 'not approved' + why-class only — screened text never renders",
+      "Permalink copy works and #e=<id> reload resolves the right day + record"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -844,7 +898,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v19 local",
+   "build": "world v20 local",
    "notes": "string"
   },
   "results": [
@@ -859,7 +913,7 @@
   "findings": [
    {
     "severity": "blocker|major|minor|nit|question",
-    "surface": "feed|wire|request|mod|create|board|history|onboard|lease|thinai|cast|crowd|directory|timeclock|screen",
+    "surface": "feed|wire|request|mod|create|board|history|archive|onboard|lease|thinai|cast|crowd|directory|timeclock|screen",
     "title": "string",
     "detail": "string",
     "steps_to_repro": "string"

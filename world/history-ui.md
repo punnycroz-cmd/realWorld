@@ -7,8 +7,12 @@ product one day later.
 
 Companion artifacts:
 
+- `world/archive.html` — the full history-browser application (v20);
+  spec in `world/archive-ui.md`. Supersedes history.html as the primary
+  archive surface.
 - `world/history.html` — working demo (file://-safe; day data inlined,
-  mirrors `history.json`). Every state below is reachable in it.
+  mirrors `history.json`). Kept as the lightweight day-browser variant.
+  Every state below is reachable in it.
 - `world/history.json` — machine-readable archive schema + the seed days.
 - Upstream contracts: `world/feed.json` (event kinds/status vocabulary —
   shared verbatim), `world/feed-ui.md` §3 (display rules — inherited

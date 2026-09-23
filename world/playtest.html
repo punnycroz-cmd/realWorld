@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18, PT17 + wire v19, PT18 + archive v20). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -155,7 +155,8 @@ const SURF={
   feed:{file:"feed.html",name:"The Wire (lite)"},wire:{file:"wire.html",name:"The Wire"},
   request:{file:"request.html",name:"Requests"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast"},
-  board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive"},
+  board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive (lite)"},
+  archive:{file:"archive.html",name:"The Archive"},
   onboard:{file:"onboarding.html",name:"Onboarding (first session)"},
   lease:{file:"lease.html",name:"The Rent Book"},
   thinai:{file:"thinai.html",name:"The Understudy"},
@@ -374,11 +375,26 @@ const PTS=[
   ck:["The stream never yanks scroll position on new events","Caught-up copy: 'You're caught up — nothing older than this today.' + Archive link","Day separator marks 'today — wednesday, sep 23' at the stream top"]},
  {do:"Reload with a permalink (#e=<a seeded request id>) and try the search box.",
   exp:"Deep link opens that event's detail on load; search narrows the stream by text/name/venue without touching other filters' honesty.",
-  ck:["Deep-linked event renders selected with its detail panel open","Search + filter compose (e.g. 'Mudhaus' inside 'the block')","The DEMO badge never claims live data; 'LIVE' refers to the world, not the source"]}]}
+  ck:["Deep-linked event renders selected with its detail panel open","Search + filter compose (e.g. 'Mudhaus' inside 'the block')","The DEMO badge never claims live data; 'LIVE' refers to the world, not the source"]}]},
+{id:"PT18",title:"The Archive v2 — five views, one scope",min:15,persona:"returning spectator catching up on the week + facilitator auditing the history surface",
+ goal:"Verify the full archive: day browsing with honest gaps, structural person/venue trails, the rumor board's outcome honesty, the attributed ledger, permalinks, and the demo/live source badge.",
+ surfaces:["archive"],steps:[
+ {do:"Open The Archive. Read the header, pick two different days from 'Days on record', and click an hour on the density strip.",
+  exp:"Badge reads 'demo archive' locally; each day shows its own count/meta; today's day is flagged ● and unwritten hours are dimmed and unclickable; hour isolate/release works.",
+  ck:["Entry counts on the day list agree with the rows shown","Long quiet stretches render '— off the feed —' lines instead of filler","Today carries the 'still being written' marker"]},
+ {do:"Switch to 'by person' → Jules (C2), then 'by venue' → Mudhaus. Read the trails.",
+  exp:"Trails group events under day separators newest-first with 'open day' jumps; person head reads 'public whereabouts only' with honest sighting counts; venue head uses the canonical parody name.",
+  ck:["Person trail matches who + mentions[] only — nothing that looks string-matched into private text","Dani's off-the-feed evening is preserved as absence — no inferred whereabouts","No affordance anywhere offers control, possession, or a tip on any character"]},
+ {do:"Switch to 'word on the block'. Read the tally, open one resolved rumor and the still-open one, then click through to its day.",
+  exp:"Tally counts agree with the cards; every card is marked UNCONFIRMED, place-sourced, and shows its outcome line; click-through lands on the correct day with the record open.",
+  ck:["No rumor names a source person anywhere","Outcome states render distinctly (open/debunked/faded/stood)","A rumor's text only ever distorts something already public — no seed-flavored content"]},
+ {do:"Switch to 'the ledger'. Read the summary strip and scan the week. Open a request record and walk its trail.",
+  exp:"Ledger shows payer handles + statuses verbatim, summary counts match the rows, admin actions show compensation where present; req-threaded events render a clickable lifecycle trail.",
+  ck:["Attribution is verbatim — handles and 'admin' are never anonymized in hindsight","A denied request shows 'not approved' + why-class only — screened text never renders","Permalink copy works and #e=<id> reload resolves the right day + record"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v19";
+const LS="rw_playtest_v20";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -445,7 +461,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v19 local",started:new Date(S.started).toISOString()},
+    build:"world v20 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }

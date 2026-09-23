@@ -43,7 +43,8 @@ file://-safe fallback for press/playtest.
 
 - **Newest-first**, 60 per page. "load older" extends the page (no jump);
   exhausted pages show the honest marker: *"You're caught up — nothing older
-  than this today."* Older days route to The Archive (`history.html`).
+  than this today."* Older days route to The Archive (`archive.html`;
+  `history.html` remains the lightweight day-browser variant).
 - **"N new" pill.** When the viewer has scrolled away from the top, incoming
   events accumulate behind a sticky pill ("3 new — jump to top") instead of
   yanking the scroll position. The wire never moves text out from under a
