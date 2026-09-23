@@ -25,6 +25,23 @@
       "spec": "world/creation-ui.md" }
   ],
   "feed_vocabulary": ["requested", "in_review", "approved", "approved (modified)", "running", "queued", "resolved", "refunded", "not approved", "admin action", "player session ended"],
+  "resource_board": {
+    "doc": "v18 — the claims matrix rendered legibly to players, before any money is spent",
+    "claim_keys": ["char:<h##>", "sky", "venue:<poi>", "openair", "paper:<id>", "listing:<id>"],
+    "states": { "free": "bookable now", "cool": "post-exclusive cooldown, shows minutes left, never skippable", "locked": "exclusive running, shows holder + minutes left", "queued": "queue depth shown as a count, never a position auction" },
+    "on_free": "queued requests activate in FCFS order; review happens on activation, not while waiting"
+  },
+  "possession_briefing": {
+    "doc": "design §7 whitelist — previewed in the request form before payment; identical card to what the session opens on",
+    "fields": ["who", "profile", "surface_relationships", "daily_routine", "scope"],
+    "secrets": "absent_by_schema — the record carries no secret field; UI copy says 'not redacted: absent'",
+    "merge_target": "game-v5 gsPossessBrief / gsBriefingAudit — same whitelist, enforced once"
+  },
+  "session_controls": {
+    "end_early": "graceful handoff identical to cap expiry; feed logs 'player session ended'; unused minutes inside the cap are not refunded",
+    "low_balance_warning": "toast at ≤15 funded minutes or ≤15 min left, whichever first; one-click top-up",
+    "brain_state_shown": "possession only — 'suspended — AI resumes on release'"
+  },
   "moderation_contract": "world/moderation.json — reason codes attach to 'not approved' feed entries; display filter (redact/withhold/quarantine) is an owner decision at build time",
   "fairness_invariants": [
     "cooldowns never purchasable",

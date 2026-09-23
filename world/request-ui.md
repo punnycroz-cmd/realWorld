@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4)
+# Request UI — spec & copy deck (world v4, deepened v18)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -81,7 +81,53 @@ queued-expiry auto-refund · admin overrides compensate publicly · no auctions 
 FCFS within class (queued-priority ties break subscriber-favor *within queued
 class only* per plan §2.5).
 
-## 7. Demo limits (what's simulated)
+## 7. v18 — resource board, briefing preview, queue path, session controls
+
+**Resource board.** A strip above the form shows every shared claim the
+claims matrix cares about (`char:h01`, `sky`, `venue:*`, `openair`):
+`free` / `cooldown · N left` / `locked · N left · <holder>` / queue depth.
+It exists so FCFS is *legible* — a player can see why their exclusive is
+busy before they spend anything. Cooldowns display a countdown and are
+never skippable; the board is the anti-dark-pattern surface.
+
+**Possession briefing preview.** Picking "possess your character" renders
+the exact §7 whitelist card the player will get: public profile, surface
+relationships, daily routine, scope note (only your own character, brain
+suspended while driven). The secrets line reads **"not redacted — absent"**
+— the schema carries no secret field, so there is nothing to leak and
+nothing to redact. Same wording as the reviewer console's whitelist bar.
+
+**Queued path.** When the chosen claim is locked or cooling, exclusive
+requests cannot file directly — the submit button becomes "Resource busy —
+queue to file" and a queue checkbox appears: −15% rate shown in the quote,
+slot held ≤24 h, expiry auto-refunds. Queued entries land in **Your
+requests** with a cancel-for-full-refund affordance. On free-up the slot
+activates in order and goes to human review *on activation* (queued
+requests never die waiting on a human — clock starts at activation).
+
+**Session controls.** Running sessions show: countdown, funded-minutes
+remaining on balance, brain state (possession only: "suspended — AI
+resumes on release"), and a **Release early** button. Early release is
+the same graceful handoff as the cap — logged "player session ended",
+no partial refund (you bought the cap, not the minutes).
+
+**Your requests tray.** Every filed request gets a private card with
+status chip + timeline, mirroring what lands publicly on the feed.
+
+### v18 copy deck additions
+
+| Moment | Copy |
+|---|---|
+| Busy resource | "This resource is busy — exclusive requests can queue (−15%) or wait." |
+| Queue checkbox | "Queue it — hold my slot up to 24 h at −15%; if it never activates, auto-refund." |
+| Queue filed | "Queued — slot held up to 24 h. Cancel anytime for a full refund." |
+| Slot reached | "slot reached — human review on activation" |
+| Queued cancel | "Cancelled — N cr back. Queued requests never keep your money." |
+| Resource freed | "<name> is free again — queued requests activate in order." |
+| Release early | "Released early — AI resumed mid-action. Unused time inside the cap is not refunded." |
+| Briefing secrets bar | "secrets, drama seeds, inner life — not redacted: absent." |
+
+## 8. Demo limits (what's simulated)
 
 `request.html` ships without the game request bus (it lives on
 `sf/game-systems`): classification, review, sessions, and feed are local

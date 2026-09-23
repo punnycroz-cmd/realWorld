@@ -744,6 +744,45 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT16",
+   "title": "Requests v2 — briefing, queue & handoff",
+   "minutes": 12,
+   "persona": "player with a hired character (h01) and ~1,240 cr",
+   "goal": "Verify the v18 request surface: resource board legibility, the possession briefing whitelist, the queued path, and end-early handoff.",
+   "surfaces": [
+    "request"
+   ],
+   "steps": [
+    {
+     "do": "Open Requests. Read the resource board before touching the form; then pick 'Possess your character' → Dana Okafor.",
+     "expect": "Board shows free/cooldown/locked states with times before any money is mentioned; the briefing card renders unprompted with profile, surface relationships, routine, and scope.",
+     "checkpoints": [
+      "Sky reads 'cooldown · N left' and The 600 Club reads 'locked' with a holder name — states are legible pre-payment",
+      "Briefing contains ONLY the §7 whitelist — the secrets line says 'not redacted: absent', no secret field exists",
+      "Main-cast targets stay disabled/unpossessable in the dropdown"
+     ]
+    },
+    {
+     "do": "Pick 'Event trigger' → The 600 Club (locked). Read the quote, tick 'Queue it', submit with neutral text.",
+     "expect": "Direct submit is blocked while busy; the queued path offers −15%, files to 'Your requests' as queued with a cancel-for-full-refund affordance, and posts 'queued' to the public feed.",
+     "checkpoints": [
+      "Queue discount (−15%) and the ≤24 h hold are visible in the quote BEFORE payment",
+      "The request tray card shows paid amount, claim, and hold expiry; cancel returns 100%",
+      "Feed entry uses the shared 'queued' vocabulary, attributed to 'you'"
+     ]
+    },
+    {
+     "do": "File a possess session (30 min) with clean intent. During the session read the panel, then press 'Release early'.",
+     "expect": "Session shows countdown, funded-minutes remaining, and brain state 'suspended — AI resumes on release'; early release performs the same graceful handoff as the cap.",
+     "checkpoints": [
+      "Feed logs 'player session ended' — identical wording for early release and timeout",
+      "No partial refund is promised for unused minutes (you bought the cap)",
+      "Low-balance toast fires only when funded minutes or remaining ≤15"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -751,7 +790,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v17 local",
+   "build": "world v18 local",
    "notes": "string"
   },
   "results": [

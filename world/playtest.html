@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16, PT15 + timeclock v17, PT16 + request v18). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -346,11 +346,23 @@ const PTS=[
   ck:["The page is marked internal and states amounts never leave internal surfaces","Marcus's cushion (~$480) and Carmen's (~$230) read fragile; no card names a secret","Game dollars only — no credit or USD figure appears anywhere"]},
  {do:"Open the Money calendar tab. Cross-check the payday/rent rules against leases.json and jobs-housing §5.",
   exp:"Weekly Friday / biweekly Friday cadence, rent due 1st grace through 5th, late fee 5% cap $50 — identical wording to leases.json.",
-  ck:["Late fee terms match leases.json verbatim (5%, $50 cap)","Owner draws are listed irregular — never a promised payday","No surface on the page offers any way to act on a shift or a budget"]}]}
+  ck:["Late fee terms match leases.json verbatim (5%, $50 cap)","Owner draws are listed irregular — never a promised payday","No surface on the page offers any way to act on a shift or a budget"]}]},
+{id:"PT16",title:"Requests v2 — briefing, queue & handoff",min:12,persona:"player with a hired character (h01) and ~1,240 cr",
+ goal:"Verify the v18 request surface: resource board legibility, the possession briefing whitelist, the queued path, and end-early handoff.",
+ surfaces:["request"],steps:[
+ {do:"Open Requests. Read the resource board before touching the form; then pick 'Possess your character' → Dana Okafor.",
+  exp:"Board shows free/cooldown/locked states with times before any money is mentioned; the briefing card renders unprompted with profile, surface relationships, routine, and scope.",
+  ck:["Sky reads 'cooldown · N left' and The 600 Club reads 'locked' with a holder name — states are legible pre-payment","Briefing contains ONLY the §7 whitelist — the secrets line says 'not redacted: absent', no secret field exists","Main-cast targets stay disabled/unpossessable in the dropdown"]},
+ {do:"Pick 'Event trigger' → The 600 Club (locked). Read the quote, tick 'Queue it', submit with neutral text.",
+  exp:"Direct submit is blocked while busy; the queued path offers −15%, files to 'Your requests' as queued with a cancel-for-full-refund affordance, and posts 'queued' to the public feed.",
+  ck:["Queue discount (−15%) and the ≤24 h hold are visible in the quote BEFORE payment","The request tray card shows paid amount, claim, and hold expiry; cancel returns 100%","Feed entry uses the shared 'queued' vocabulary, attributed to 'you'"]},
+ {do:"File a possess session (30 min) with clean intent. During the session read the panel, then press 'Release early'.",
+  exp:"Session shows countdown, funded-minutes remaining, and brain state 'suspended — AI resumes on release'; early release performs the same graceful handoff as the cap.",
+  ck:["Feed logs 'player session ended' — identical wording for early release and timeout","No partial refund is promised for unused minutes (you bought the cap)","Low-balance toast fires only when funded minutes or remaining ≤15"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v17";
+const LS="rw_playtest_v18";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
