@@ -579,7 +579,7 @@ function sfRenderWorld(cw, ch){
   for(const d of drawables){
     if(d.kind === 'bld'){
       const b = d.b;
-      const art = getSfBldArt(b.i);
+      const art = getSfBldArt(b.i, SF_WX.wet > 0.45 ? 1 : 0); // v12: wet bake
       const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom);
       // v8 diorama: anchor the sprite's SOUTH footprint edge to the tilted
       // ground so facades stand on the correct pavement line; the roof plane
@@ -1564,6 +1564,37 @@ function sfRenderStreet(cw, ch){
         if(!facingCam) continue;
         sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
       }
+      // v12: roofscape — same deterministic typology as the baked sprite
+      // (flat | gable | mansard | hip), so the silhouette you see from the
+      // street is the one you saw from above.
+      const isShopR = !!b.name || phash(b.i, 5, 1303) < 0.12;
+      const rk = sfRoofKind(b, isShopR, b._area * SF_PXM * SF_PXM);
+      const RFm = sfRoofFrame(P);
+      const riseM = rk === 'mansard'
+        ? Math.min(2.6, Math.max(1.2, RFm.wMax * 0.4))
+        : Math.min(3.4, Math.max(1.6, RFm.wMax * 0.52));
+      const liftM = (x, y) => sfRoofLift(RFm, rk === 'hip' ? 'hip' : 'gable', x, y);
+      const PColR = rampOf(SF_PITCH_COLS[Math.floor(phash(b.i, 23, 1391) * SF_PITCH_COLS.length)]);
+      const shingR = rk === 'mansard' ? MAT.slate : PColR;
+      const fillProj = (pts, fill) => { // pts: [x,y,z] meters; null-safe
+        let started = false;
+        ctx.beginPath();
+        for(const [qx, qy, qz] of pts){
+          const p = pr(qx, qy, qz);
+          if(!p) return;
+          started ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+          started = true;
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill; ctx.fill();
+      };
+      const edgeLitM = (a, bq) => { // outward normal of edge a->b (meter space)
+        let ex2 = bq[0] - a[0], ey2 = bq[1] - a[1];
+        const L2 = Math.hypot(ex2, ey2) || 1;
+        let nx2 = ey2 / L2, ny2 = -ex2 / L2;
+        if(b._ccw){ nx2 = -nx2; ny2 = -ny2; }
+        return sfRoofFaceLit(nx2, ny2);
+      };
       // roof cap: per-building tar color + subtle sun shading + parapet lip
       const ROOF = rampOf(SF_ROOF_COLS[Math.floor(phash(b.i, 11, 1302) * SF_ROOF_COLS.length)]);
       const rpts = [];
@@ -1571,7 +1602,80 @@ function sfRenderStreet(cw, ch){
         const p = pr(x, y, hm);
         if(p) rpts.push(p);
       }
-      if(rpts.length > 2){
+      if(rk !== 'flat' && RFm.wMax >= 1){
+        // ---- pitched roofscape: gable / mansard / hip over the parapet ----
+        const wetG = SF_WX.wet > 0.45;
+        const dimR = night ? 0.3 : 1;
+        const colAt = (lit) => night
+          ? (lit ? '#3a3430' : '#241f1c')
+          : shade(lit ? shingR[4] : shingR[1], wetG ? 0.78 : 1);
+        // gable rake walls / frieze under lifted edges (hip eaves stay flat)
+        if(rk === 'gable'){
+          for(let e2 = 0; e2 < n; e2++){
+            const a = P[e2], bq = P[(e2 + 1) % n];
+            const la = liftM(a[0], a[1]) * riseM, lb = liftM(bq[0], bq[1]) * riseM;
+            if(la < 0.1 && lb < 0.1) continue;
+            fillProj([[a[0], a[1], hm], [bq[0], bq[1], hm],
+                      [bq[0], bq[1], hm + lb], [a[0], a[1], hm + la]],
+                     shade('#8a8478', dimR * (edgeLitM(a, bq) ? 1.0 : 0.72)));
+          }
+        }
+        if(rk === 'gable'){
+          for(const keepPos of [false, true]){
+            const half = sfClipHalf(P, RFm, keepPos);
+            if(half.length < 3) continue;
+            const lit = !keepPos; // w<0 side faces up/left = sunward
+            fillProj(half.map(p => [p[0], p[1], hm + liftM(p[0], p[1]) * riseM]),
+                     colAt(lit));
+          }
+          // ridge cap
+          let rA = 1e9, rB = -1e9;
+          for(const keepPos of [false, true]) for(const p of sfClipHalf(P, RFm, keepPos)){
+            const w = RFm.alongX ? p[1] - RFm.cy : p[0] - RFm.cx;
+            if(Math.abs(w) < 0.1){
+              const u = RFm.alongX ? p[0] : p[1];
+              if(u < rA) rA = u; if(u > rB) rB = u;
+            }
+          }
+          if(rB > rA){
+            const pa2 = RFm.alongX ? pr(rA, RFm.cy, hm + riseM) : pr(RFm.cx, rA, hm + riseM);
+            const pb2 = RFm.alongX ? pr(rB, RFm.cy, hm + riseM) : pr(RFm.cx, rB, hm + riseM);
+            if(pa2 && pb2){
+              ctx.strokeStyle = night ? '#3a3430' : shingR[5];
+              ctx.lineWidth = Math.max(1, 0.14 * F / pa2[2]);
+              ctx.beginPath(); ctx.moveTo(pa2[0], pa2[1]); ctx.lineTo(pb2[0], pb2[1]); ctx.stroke();
+            }
+          }
+        } else if(rk === 'mansard'){
+          const k = 0.36;
+          const inset = P.map(p => [RFm.cx + (p[0] - RFm.cx) * (1 - k),
+                                    RFm.cy + (p[1] - RFm.cy) * (1 - k)]);
+          for(let e2 = 0; e2 < n; e2++){
+            const a = P[e2], bq = P[(e2 + 1) % n];
+            const ia = inset[e2], ib = inset[(e2 + 1) % n];
+            fillProj([[a[0], a[1], hm], [bq[0], bq[1], hm],
+                      [ib[0], ib[1], hm + riseM], [ia[0], ia[1], hm + riseM]],
+                     colAt(edgeLitM(a, bq)));
+          }
+          fillProj(inset.map(p => [p[0], p[1], hm + riseM]),
+                   night ? '#221f1d' : shade(ROOF[3], wetG ? 0.78 : 1));
+        } else { // hip: triangle fan to the ridge point over the centroid
+          for(let e2 = 0; e2 < n; e2++){
+            const a = P[e2], bq = P[(e2 + 1) % n];
+            fillProj([[a[0], a[1], hm], [bq[0], bq[1], hm],
+                      [RFm.cx, RFm.cy, hm + riseM]],
+                     colAt(edgeLitM(a, bq)));
+          }
+        }
+        // wet sheen + aerial haze over the pitched silhouette
+        const rHz = sfHazeA(d.fwd);
+        if(rHz > 0.02 && rpts.length > 2){
+          ctx.fillStyle = `rgba(${SF_WX.hazeRGB},${rHz})`;
+          ctx.beginPath();
+          rpts.forEach((p, i2) => i2 ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+          ctx.closePath(); ctx.fill();
+        }
+      } else if(rpts.length > 2){
         let yMin = Infinity, yMax = -Infinity;
         for(const p of rpts){ yMin = Math.min(yMin, p[1]); yMax = Math.max(yMax, p[1]); }
         const rg = ctx.createLinearGradient(0, yMin, 0, yMax);
@@ -1603,31 +1707,58 @@ function sfRenderStreet(cw, ch){
       }
       // v4: rooftop furniture silhouettes — water tanks, pipes, antennas,
       // dishes rising above the parapet, scattered inside the footprint.
+      // v12: pitched roofs get ridge-line chimneys/antennas grounded on the
+      // lifted surface instead of flat-roof clutter.
       const roofAreaM = b._area; // P is in meters -> m² (v10: cached)
-      const nRoof = Math.min(5, Math.floor(roofAreaM / 55));
+      const pitched = rk !== 'flat' && RFm.wMax >= 1;
+      const nRoof = pitched
+        ? Math.min(2, Math.floor(roofAreaM / 90) + 1)
+        : Math.min(5, Math.floor(roofAreaM / 55));
       let cxm = 0, cym = 0;
       for(const [x, y] of P){ cxm += x; cym += y; }
       cxm /= P.length; cym /= P.length;
+      const axU = RFm.alongX ? [1, 0] : [0, 1];
       for(let k = 0; k < nRoof; k++){
         const e2 = P[Math.floor(phash(b.i, k, 1505) * P.length)];
         const t = 0.25 + phash(k, b.i, 1506) * 0.5;
-        const fx = cxm + (e2[0] - cxm) * t, fy = cym + (e2[1] - cym) * t;
-        const kind = Math.floor(phash(b.i, k, 1507) * 5);
-        const base = pr(fx, fy, hm);
+        let fx = cxm + (e2[0] - cxm) * t, fy = cym + (e2[1] - cym) * t;
+        if(pitched && rk !== 'mansard'){
+          // hug the ridge line / apex
+          const off = (phash(b.i, k, 1510) - 0.5) * 2 * (RFm.alongX ? 1 : 1) * 2.4;
+          fx = cxm + axU[0] * off; fy = cym + axU[1] * off;
+        }
+        const zR = pitched
+          ? (rk === 'mansard' ? riseM : liftM(fx, fy) * riseM)
+          : 0;
+        const kind = pitched
+          ? (phash(b.i, k, 1511) < 0.7 ? 5 : 2)
+          : Math.floor(phash(b.i, k, 1507) * 5);
+        const base = pr(fx, fy, hm + zR);
         if(!base || base[2] > 200) continue;
         const sc = F / base[2];
         ctx.strokeStyle = night ? '#1c1a18' : '#4a4540';
         ctx.fillStyle = night ? '#262220' : '#6a5f52';
-        if(kind === 0 && roofAreaM > 110){
+        if(kind === 5){ // v12 brick chimney + terracotta pot on the ridge
+          const bw2 = Math.max(3, 0.8 * sc), bh2 = Math.max(4, 1.4 * sc);
+          ctx.fillStyle = night ? '#241d1a' : '#8a5a48';
+          ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, bh2);
+          ctx.fillStyle = night ? '#2e2622' : '#c89078';
+          ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, Math.max(1, bh2 * 0.14));
+          ctx.fillStyle = night ? '#1c1815' : '#6a4034';
+          ctx.fillRect(base[0] - bw2 / 2 - 1, base[1] - bh2 - 2, bw2 + 2, 2.5);
+          ctx.beginPath();
+          ctx.ellipse(base[0], base[1] - bh2 - 4, Math.max(1.2, bw2 * 0.16), Math.max(1.6, bw2 * 0.22), 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if(kind === 0 && roofAreaM > 110){
           // water tank: legs + banded barrel + cone cap
-          const lb = pr(fx, fy, hm), lt = pr(fx, fy, hm + 1.4),
-                tb = pr(fx, fy, hm + 1.4), tt = pr(fx, fy, hm + 3.4),
-                tp = pr(fx, fy, hm + 4.2);
+          const lb = pr(fx, fy, hm + zR), lt = pr(fx, fy, hm + zR + 1.4),
+                tb = pr(fx, fy, hm + zR + 1.4), tt = pr(fx, fy, hm + zR + 3.4),
+                tp = pr(fx, fy, hm + zR + 4.2);
           if(!lb || !lt || !tb || !tt || !tp) continue;
           const rw = Math.max(3, 1.6 * sc);
           ctx.lineWidth = Math.max(1, 0.12 * sc);
           for(const off of [-0.7, 0.7]){
-            const pl = pr(fx + off, fy, hm), pt2 = pr(fx + off * 0.6, fy, hm + 1.4);
+            const pl = pr(fx + off, fy, hm + zR), pt2 = pr(fx + off * 0.6, fy, hm + zR + 1.4);
             if(pl && pt2){ ctx.beginPath(); ctx.moveTo(pl[0], pl[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke(); }
           }
           ctx.fillRect(tb[0] - rw, tt[1], rw * 2, tb[1] - tt[1]);
@@ -1638,14 +1769,14 @@ function sfRenderStreet(cw, ch){
           ctx.moveTo(tb[0] - rw, tt[1]); ctx.lineTo(tb[0] + rw, tt[1]);
           ctx.lineTo(tp[0], tp[1]); ctx.closePath(); ctx.fill();
         } else if(kind === 1){ // vent pipe with cap
-          const pt2 = pr(fx, fy, hm + 0.9 + phash(k, b.i, 1508));
+          const pt2 = pr(fx, fy, hm + zR + 0.9 + phash(k, b.i, 1508));
           if(!pt2) continue;
           ctx.lineWidth = Math.max(1.2, 0.14 * sc);
           ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
           ctx.fillStyle = night ? '#2a2725' : '#8a8478';
           ctx.beginPath(); ctx.ellipse(pt2[0], pt2[1], Math.max(1.5, 0.25 * sc), Math.max(0.8, 0.1 * sc), 0, 0, Math.PI * 2); ctx.fill();
         } else if(kind === 2){ // antenna mast + crossbars
-          const pt2 = pr(fx, fy, hm + 3 + phash(k, b.i, 1509) * 2);
+          const pt2 = pr(fx, fy, hm + zR + 3 + phash(k, b.i, 1509) * 2);
           if(!pt2) continue;
           ctx.lineWidth = Math.max(0.8, 0.06 * sc);
           ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
@@ -1662,7 +1793,7 @@ function sfRenderStreet(cw, ch){
           ctx.fillStyle = night ? '#1c1a18' : shade(ROOF[1], 0.9);
           ctx.beginPath(); ctx.ellipse(base[0], base[1] - bh2 / 2, bw2 * 0.28, bh2 * 0.3, 0, 0, Math.PI * 2); ctx.fill();
         } else { // satellite dish
-          const pt2 = pr(fx, fy, hm + 1.2);
+          const pt2 = pr(fx, fy, hm + zR + 1.2);
           if(!pt2) continue;
           ctx.lineWidth = Math.max(1, 0.08 * sc);
           ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();

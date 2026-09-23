@@ -407,9 +407,76 @@ const SF_WALL_COLS = [
 const SF_TRIM_COLS = ['#f8f4e8', '#4a3a30', '#2e4a5a', '#7a3a30', '#f0e0c0'];
 const SF_ROOF_COLS = ['#6b6560', '#7a7268', '#5d5a55', '#84786a',
                       '#8a6a52', '#74584a', '#5f6e62', '#707a84'];
+/* v12: pitched-roof material ramps — Mission shingle / slate / terracotta.
+   Shared by the baked top-down sprite AND the street-view roof pass so a
+   building keeps the same roof silhouette in every camera. */
+const SF_PITCH_COLS = ['#8a4a3a', '#7a5c48', '#5d6b7d', '#6e5a4a',
+                       '#94554a', '#4e5a68', '#7c6a58', '#8a6248'];
 
-function sfBldCanvas(b){
-  const pad = 16;
+/* Deterministic roof typology. Real Mission rows mix flat tar roofs behind
+   parapets (mostly commercial), gabled Victorian fronts, mansard caps, and
+   shallow hip roofs. Returns 'flat' | 'gable' | 'mansard' | 'hip'.
+   roofArea is in px² (m² * SF_PXM² works too). */
+function sfRoofKind(b, isShop, roofArea){
+  if(roofArea < 800) return 'flat';
+  const r = phash(b.i, 21, 1390);
+  if(isShop) return r < 0.58 ? 'flat' : (r < 0.78 ? 'mansard' : (r < 0.92 ? 'gable' : 'hip'));
+  return r < 0.42 ? 'gable' : (r < 0.66 ? 'mansard' : (r < 0.86 ? 'hip' : 'flat'));
+}
+/* Roof geometry frame: centroid + ridge axis (the footprint's longer bbox
+   axis) + perpendicular half-extent + max radial extent. Coordinate-free —
+   callers pass px or meter polygons. */
+function sfRoofFrame(P){
+  const n = P.length;
+  let cx = 0, cy = 0, x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for(const p of P){
+    cx += p[0]; cy += p[1];
+    if(p[0] < x0) x0 = p[0]; if(p[0] > x1) x1 = p[0];
+    if(p[1] < y0) y0 = p[1]; if(p[1] > y1) y1 = p[1];
+  }
+  cx /= n; cy /= n;
+  const alongX = (x1 - x0) >= (y1 - y0); // ridge runs along x
+  let wMax = 1, dMax = 1;
+  for(const p of P){
+    const w = Math.abs((alongX ? p[1] - cy : p[0] - cx));
+    if(w > wMax) wMax = w;
+    const d = Math.hypot(p[0] - cx, p[1] - cy);
+    if(d > dMax) dMax = d;
+  }
+  return { cx, cy, alongX, wMax, dMax };
+}
+/* 0 at eaves -> 1 at ridge for gable/hip typologies */
+function sfRoofLift(F, kind, x, y){
+  if(kind === 'gable'){
+    const w = F.alongX ? y - F.cy : x - F.cx;
+    return Math.max(0, 1 - Math.abs(w) / F.wMax);
+  }
+  if(kind === 'hip')
+    return Math.max(0, 1 - Math.hypot(x - F.cx, y - F.cy) / F.dMax);
+  return 0;
+}
+/* Half-plane clip of a polygon at the ridge axis (w = 0). keepPos keeps
+   the w>=0 side. Plain Sutherland–Hodgman on the perpendicular coord. */
+function sfClipHalf(P, F, keepPos){
+  const wOf = p => F.alongX ? p[1] - F.cy : p[0] - F.cx;
+  const out = [], n = P.length;
+  for(let i = 0; i < n; i++){
+    const a = P[i], b2 = P[(i + 1) % n], wa = wOf(a), wb = wOf(b2);
+    const ina = keepPos ? wa >= 0 : wa <= 0, inb = keepPos ? wb >= 0 : wb <= 0;
+    if(ina) out.push(a);
+    if(ina !== inb){
+      const t = wa / (wa - wb);
+      out.push([a[0] + (b2[0] - a[0]) * t, a[1] + (b2[1] - a[1]) * t]);
+    }
+  }
+  return out;
+}
+/* sunlit? — the sun sits upper-left (SF_SUN shadows fall +x,+y), so a slope
+   face whose outward normal has negative screen x/y catches the light */
+function sfRoofFaceLit(nx, ny){ return (nx + ny) < 0; }
+
+function sfBldCanvas(b, wet){
+  const pad = 26; // v12: ridge + chimney height needs more headroom
   const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
   const hBase = Math.ceil(b.by1 - b.by0);
   const hPx = Math.ceil(b.hPx);
@@ -578,11 +645,32 @@ function sfBldCanvas(b){
     g.restore();
   }
 
-  // pass 2: roof polygon at -hPx — tar-and-gravel texture, not flat grey
+  // pass 2: roof — v12 roofscape typology. Every building deterministically
+  // gets flat tar | gable | mansard | hip (sfRoofKind, shared with the
+  // street view so silhouettes agree). Pitched faces are lit consistently:
+  // the sun sits upper-left (SF_SUN), so faces whose outward normal points
+  // up/left are bright, faces pointing down/right fall dark.
+  const roofArea = Math.abs(area);
+  const rk = sfRoofKind(b, isShop, roofArea);
+  const PC = rampOf(SF_PITCH_COLS[Math.floor(phash(b.i, 23, 1391) * SF_PITCH_COLS.length)]);
+  const RF = sfRoofFrame(P);
+  const wetF = wet ? 0.78 : 1; // soaked roofing darkens
+  const rl = (x0, y0, x1, y1, col) =>
+    paLine(g, Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1), col);
+  const polyFill = (pts, dy, fill) => {
+    g.fillStyle = fill;
+    g.beginPath();
+    pts.forEach(([x, y], i2) => i2
+      ? g.lineTo(x, y - hPx - (dy || 0))
+      : g.moveTo(x, y - hPx - (dy || 0)));
+    g.closePath(); g.fill();
+  };
+  if(rk === 'flat' || RF.wMax < 6){
+  // flat tar-and-gravel roof, parapeted — the old pass 2, wet-aware
   g.beginPath();
   P.forEach(([x, y], i) => i ? g.lineTo(x, y - hPx) : g.moveTo(x, y - hPx));
   g.closePath();
-  g.fillStyle = ROOF[3]; g.fill();
+  g.fillStyle = shade(ROOF[3], wetF); g.fill();
   g.save(); g.clip();
   // dithered shading + gravel speckle so the roof reads as a surface
   paDithBayer(g, pad, pad, wPx - pad * 2, hBase + pad, ROOF[3], ROOF[4], 0.22);
@@ -591,7 +679,6 @@ function sfBldCanvas(b){
   for(let sx2 = pad + 6; sx2 < wPx - pad; sx2 += 11)
     paLine(g, sx2, pad, sx2, pad + hBase, shade(ROOF[3], phash(sx2, b.i, 1366) < 0.5 ? 0.92 : 1.08));
   // skylight ellipses
-  const roofArea = Math.abs(area);
   const nSky = Math.min(3, Math.floor(roofArea / 2200));
   for(let k = 0; k < nSky; k++){
     const cx = pad + (wPx - pad * 2) * phash(b.i, k, 1367);
@@ -599,6 +686,12 @@ function sfBldCanvas(b){
     paEllipse(g, cx, cy, 4, 2.6, ROOF[1]);
     paEllipse(g, cx, cy - 0.5, 3, 1.8, '#9ab4c4');
     paEllipse(g, cx - 1, cy - 1, 1.2, 0.8, '#d8e8f0');
+  }
+  // wet sheet-water glints between the seams
+  if(wet) for(let k = 0; k < 5; k++){
+    const cx = pad + (wPx - pad * 2) * phash(b.i, k, 1901);
+    const cy = pad + hBase * phash(k, b.i, 1902);
+    paEllipse(g, cx, cy, 5, 2, 'rgba(180,205,230,0.35)');
   }
   g.restore();
   // parapet cornice: bright trim along every outward roof edge
@@ -700,13 +793,232 @@ function sfBldCanvas(b){
       }
     }
   }
+  } else {
+    /* ---- v12: pitched roofscape (gable / mansard / hip) ----
+       All heights are pixel lifts above the eave line (y - hPx - lift).
+       Lit faces use PC[4..5], shaded faces PC[1..2] — sun is upper-left. */
+    const liftOf = p => sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', p[0], p[1]);
+    const rise = rk === 'mansard'
+      ? Math.min(11, Math.max(5, RF.wMax * 0.4))
+      : Math.min(15, Math.max(6, RF.wMax * 0.52));
+    const shingle = rk === 'mansard' ? MAT.slate : PC;
+
+    // 1. rake / frieze walls under lifted roof edges — gable ends read as
+    //    triangles of wall between the flat eave line and the slope.
+    //    (hip roofs have eaves all around: no rake walls)
+    if(rk === 'gable'){
+      for(let i = 0; i < n; i++){
+        const a = P[i], bq = P[(i + 1) % n];
+        const la = liftOf(a) * rise, lb = liftOf(bq) * rise;
+        if(la < 0.4 && lb < 0.4) continue;
+        g.fillStyle = shade(wallBase, 0.74);
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx); g.lineTo(bq[0], bq[1] - hPx);
+        g.lineTo(bq[0], bq[1] - hPx - lb); g.lineTo(a[0], a[1] - hPx - la);
+        g.closePath(); g.fill();
+        g.strokeStyle = 'rgba(20,16,12,0.35)'; g.lineWidth = 1; g.stroke();
+        // gable-end trim board along the rake
+        g.strokeStyle = TRIM; g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx - la); g.lineTo(bq[0], bq[1] - hPx - lb);
+        g.stroke();
+      }
+    }
+
+    if(rk === 'gable'){
+      // 2. two slope faces split at the ridge axis, each vertex lifted by
+      //    its perpendicular distance from the ridge
+      for(const keepPos of [false, true]){
+        const half = sfClipHalf(P, RF, keepPos);
+        if(half.length < 3) continue;
+        const lit = !keepPos; // w<0 side faces up/left = toward the sun
+        const col = lit ? shingle[4] : shingle[2];
+        g.fillStyle = shade(col, wetF);
+        g.beginPath();
+        for(let i = 0; i < half.length; i++){
+          const p = half[i], ly = p[1] - hPx - liftOf(p) * rise;
+          i ? g.lineTo(p[0], ly) : g.moveTo(p[0], ly);
+        }
+        g.closePath(); g.fill();
+        // shingle courses: lines parallel to the ridge, clipped to the face
+        g.save(); g.clip();
+        let fX0 = 1e9, fX1 = -1e9, fY0 = 1e9, fY1 = -1e9;
+        for(const p of half){
+          const ly = p[1] - hPx - liftOf(p) * rise;
+          if(p[0] < fX0) fX0 = p[0]; if(p[0] > fX1) fX1 = p[0];
+          if(ly < fY0) fY0 = ly; if(ly > fY1) fY1 = ly;
+        }
+        for(let c2 = 0; c2 < 8; c2++){
+          const q = 0.15 + c2 * 0.11;
+          if(RF.alongX){
+            const yy = (keepPos ? fY1 : fY0) + (keepPos ? -1 : 1) * q * rise;
+            rl(fX0, yy, fX1, yy, c2 % 2 ? shade(col, 0.86) : shade(col, 1.1));
+          } else {
+            const xx = (keepPos ? fX1 : fX0) + (keepPos ? -1 : 1) * q * rise;
+            rl(xx, fY0, xx, fY1, c2 % 2 ? shade(col, 0.86) : shade(col, 1.1));
+          }
+        }
+        paNoise(g, fX0, fY0, fX1 - fX0 + 1, fY1 - fY0 + 1,
+                [shingle[1], shingle[5]], 0.10, 1378 + b.i + (keepPos ? 7 : 0));
+        if(wet && lit) // rain sheen on the sun-facing slope
+          paDithBayer(g, fX0, fY0, fX1 - fX0 + 1, fY1 - fY0 + 1,
+                      'rgba(190,214,238,0.30)', 'rgba(190,214,238,0)', 0.4);
+        g.restore();
+      }
+      // ridge cap: bright line where the faces meet + vent nubs
+      let rA = 1e9, rB = -1e9;
+      for(const keepPos of [false, true]) for(const p of sfClipHalf(P, RF, keepPos)){
+        const w = RF.alongX ? p[1] - RF.cy : p[0] - RF.cx;
+        if(Math.abs(w) < 1){
+          const u = RF.alongX ? p[0] : p[1];
+          if(u < rA) rA = u; if(u > rB) rB = u;
+        }
+      }
+      if(rB > rA){
+        const ry = RF.alongX ? RF.cy - hPx - rise : 0;
+        if(RF.alongX){
+          rl(rA, ry + 1, rB, ry + 1, shade(shingle[1], 0.9));
+          rl(rA, ry, rB, ry, shingle[5]);
+        } else {
+          const rx = RF.cx; // ridge line is vertical: x = RF.cx
+          for(let yy = rA; yy <= rB; yy++) paPX(g, rx, yy - hPx - rise, shingle[5]);
+          for(let yy = rA; yy <= rB; yy += 2) paPX(g, rx + 1, yy - hPx - rise + 1, shade(shingle[1], 0.9));
+        }
+      }
+    } else if(rk === 'mansard'){
+      // 2. mansard: steep shingle skirt rising to a setback flat deck
+      const k = 0.36;
+      const inset = P.map(p => [RF.cx + (p[0] - RF.cx) * (1 - k),
+                                RF.cy + (p[1] - RF.cy) * (1 - k)]);
+      for(let i = 0; i < n; i++){
+        const a = P[i], bq = P[(i + 1) % n];
+        const [nx, ny] = edgeOutward(a[0], a[1], bq[0], bq[1]);
+        const litF = sfRoofFaceLit(nx, ny);
+        const ia = inset[i], ib = inset[(i + 1) % n];
+        g.fillStyle = litF ? shade(shingle[3], wetF) : shade(shingle[1], wetF);
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx); g.lineTo(bq[0], bq[1] - hPx);
+        g.lineTo(ib[0], ib[1] - hPx - rise); g.lineTo(ia[0], ia[1] - hPx - rise);
+        g.closePath(); g.fill();
+        // skirt shingle band
+        g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 1;
+        const m1 = [(a[0] + ia[0]) / 2, (a[1] + ia[1]) / 2],
+              m2 = [(bq[0] + ib[0]) / 2, (bq[1] + ib[1]) / 2];
+        g.beginPath();
+        g.moveTo(m1[0], m1[1] - hPx - rise / 2); g.lineTo(m2[0], m2[1] - hPx - rise / 2);
+        g.stroke();
+      }
+      // deck: flat crown with parapet trim + quiet clutter
+      polyFill(inset, rise, shade(ROOF[3], wetF));
+      g.save();
+      g.beginPath();
+      inset.forEach(([x, y], i2) => i2
+        ? g.lineTo(x, y - hPx - rise) : g.moveTo(x, y - hPx - rise));
+      g.closePath(); g.clip();
+      paDithBayer(g, pad, pad, wPx - pad * 2, hBase, ROOF[3], ROOF[4], 0.2);
+      paNoise(g, pad, pad, wPx - pad * 2, hBase, [ROOF[2], ROOF[1]], 0.2, 1392 + b.i);
+      g.restore();
+      for(let i = 0; i < inset.length; i++){
+        const a = inset[i], bq = inset[(i + 1) % inset.length];
+        const [nx, ny] = edgeOutward(a[0], a[1], bq[0], bq[1]);
+        if(ny <= 0.05) continue;
+        g.strokeStyle = TRIM; g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx - rise); g.lineTo(bq[0], bq[1] - hPx - rise);
+        g.stroke();
+      }
+      // 1-2 deck boxes / vent pipes, kept inside the inset
+      const nD = Math.min(3, Math.floor(roofArea / 2600) + 1);
+      for(let k2 = 0; k2 < nD; k2++){
+        const dx = RF.cx + (phash(b.i, k2, 1393) - 0.5) * (wPx - pad * 2) * (1 - k * 2) * 0.7;
+        const dy = RF.cy + (phash(k2, b.i, 1394) - 0.5) * hBase * (1 - k * 2) * 0.7;
+        const ey = dy - hPx - rise;
+        if(k2 % 2 === 0){
+          paR(g, dx - 3, ey - 2, 6, 4, shade(ROOF[3], 1.12));
+          paR(g, dx - 3, ey - 2, 6, 1, ROOF[5]);
+          paEllipse(g, dx, ey, 1.6, 1.1, ROOF[1]);
+        } else {
+          paR(g, dx - 1, ey - 4, 2, 5, ROOF[1]);
+          paEllipse(g, dx, ey - 4, 1.6, 1, ROOF[5]);
+        }
+      }
+      // cornice line at the eave keeps the facade grammar
+      for(let i = 0; i < n; i++){
+        const a = P[i], bq = P[(i + 1) % n];
+        const [nx, ny] = edgeOutward(a[0], a[1], bq[0], bq[1]);
+        if(ny <= 0.05) continue;
+        g.strokeStyle = TRIM; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(a[0], a[1] - hPx); g.lineTo(bq[0], bq[1] - hPx); g.stroke();
+      }
+    } else { // hip: triangle fan to a ridge point over the centroid
+      const apex = [RF.cx, RF.cy - hPx - rise];
+      for(let i = 0; i < n; i++){
+        const a = P[i], bq = P[(i + 1) % n];
+        const [nx, ny] = edgeOutward(a[0], a[1], bq[0], bq[1]);
+        const lit = sfRoofFaceLit(nx, ny);
+        g.fillStyle = shade(lit ? shingle[4] : shingle[2], wetF);
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx); g.lineTo(bq[0], bq[1] - hPx);
+        g.lineTo(apex[0], apex[1]); g.closePath(); g.fill();
+        // hip rafter line from eave corner to apex
+        g.strokeStyle = 'rgba(0,0,0,0.16)'; g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx); g.lineTo(apex[0], apex[1]); g.stroke();
+      }
+      paNoise(g, pad, pad, wPx - pad * 2, hBase + pad,
+              [shingle[1], shingle[5]], 0.06, 1395 + b.i);
+      paEllipse(g, apex[0], apex[1], 2.2, 1.4, shingle[5]); // cap
+      if(wet) paEllipse(g, apex[0], apex[1], 3.5, 2, 'rgba(190,214,238,0.25)');
+    }
+
+    // eave gutter line: gable traces the lifted silhouette (rakes included),
+    // hip traces the flat eave outline (mansard trims itself)
+    if(rk !== 'mansard'){
+      for(let i = 0; i < n; i++){
+        const a = P[i], bq = P[(i + 1) % n];
+        const la = rk === 'gable' ? liftOf(a) * rise : 0;
+        const lb = rk === 'gable' ? liftOf(bq) * rise : 0;
+        g.strokeStyle = shade(TRIM, 0.85); g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(a[0], a[1] - hPx - la); g.lineTo(bq[0], bq[1] - hPx - lb);
+        g.stroke();
+      }
+    }
+
+    // pitched-roof furniture: brick chimneys + ridge vents on the ridge,
+    // grounded on the lifted surface — nothing floats
+    const nCh = Math.min(3, Math.floor(roofArea / 2600) + 1);
+    const axU = RF.alongX ? [1, 0] : [0, 1];
+    const span = (RF.alongX ? wPx : hBase) * 0.28;
+    for(let k2 = 0; k2 < nCh; k2++){
+      const off = (phash(b.i, k2, 1396) - 0.5) * 2 * span * 0.8;
+      const px3 = RF.cx + axU[0] * off, py3 = RF.cy + axU[1] * off;
+      const ly3 = (rk === 'mansard')
+        ? py3 - hPx - rise
+        : py3 - hPx - sfRoofLift(RF, rk === 'hip' ? 'hip' : 'gable', px3, py3) * rise;
+      if(rk === 'mansard'){ // chimneys pierce the deck edge
+        paR(g, px3 - 2, ly3 - 8, 5, 9, shade('#8a5a48', wetF));
+        paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
+        paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
+      } else if(k2 % 3 === 2){ // low-profile ridge vent
+        rl(px3 - 4, ly3, px3 + 4, ly3, shingle[1]);
+        rl(px3 - 4, ly3 - 1, px3 + 4, ly3 - 1, shingle[2]);
+      } else {
+        paR(g, px3 - 2, ly3 - 8, 5, 9, shade('#8a5a48', wetF));
+        paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
+        paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
+        paR(g, px3 + 2, ly3 + 1, 5, 2, 'rgba(20,14,8,0.28)'); // drip shadow
+      }
+    }
+  }
   return { c: S.c, ox: pad, oy: pad + hPx };
 }
 function frameDoorCol(isShop, trim){ return isShop ? '#3a3a40' : trim; }
 
 const SF_BLD_CACHE = new Map();
-function getSfBldArt(i){
-  let a = SF_BLD_CACHE.get(i);
-  if(!a){ a = sfBldCanvas(SF_BLD[i]); SF_BLD_CACHE.set(i, a); }
+function getSfBldArt(i, wet){
+  const key = i + ':' + (wet ? 1 : 0); // v12: wet roofs are a separate bake
+  let a = SF_BLD_CACHE.get(key);
+  if(!a){ a = sfBldCanvas(SF_BLD[i], wet); SF_BLD_CACHE.set(key, a); }
   return a;
 }
