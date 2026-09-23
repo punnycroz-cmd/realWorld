@@ -835,3 +835,48 @@ missing decay classes.
   age-sensitivity note (mostly age-invariant by design; retell/
   reminiscence/suppress_cap carry the exceptions).
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 19. v14 summary — retrieval-cues II (the cue's job description, 2026-09-23)
+
+Second pass on `retrieval-cues.md`. v2 answered which cues retrieve;
+v14 prices HOW: the match between cue and the *process* used at encoding,
+the self-destructive economics of exhaustive recall, the two retrieval
+routes for intentions, context-scoped safety learning, TOT microdynamics,
+memory-as-its-own-cue, and overnight reactivation.
+
+- **Transfer-appropriate processing** (Morris, Bransford & Franks 1977;
+  Roediger, Weldon & Challis 1989): cue effectiveness is gated by
+  processing-channel match — `encodeOps` on the record vs `C.ops` on the
+  context, `tap_mismatch` 0.55 multiplicative. Complements encoding
+  specificity rather than competing with it.
+- **Output interference** (Tulving & Arbuckle 1963/66; Roediger & Schmidt
+  1980; Criss et al. 2011): bout recall is greedy + compounding
+  (`out_int` 0.85/item) and each emitted item part-list-suppresses the
+  rest — "tell me everything" returns less than item-wise probing, and
+  interrogation ordering matters (cognitive-interview implication).
+- **Prospective cue ecology** (Einstein & McDaniel 1990; multiprocess —
+  McDaniel & Einstein 2000; Henry et al. 2004 meta): focal event cues
+  fire near-automatic and age-flat (`pm_focal_hit` 0.9); nonfocal cues
+  and time-based intentions need monitoring/clock checks that are
+  age- and load-impaired. The prospective paradox now has a mechanism.
+- **Contextual renewal** (Bouton 2004): extinction is context-bound new
+  learning, not erasure — `extinctCtx` scoping + `renewal_frac` 0.6
+  response elsewhere. Calm learned in one place does not generalize.
+- **TOT microdynamics** (Abrams et al. 2007 — first-syllable primes
+  resolve, first-letter don't; Warriner & Humphreys 2008 — unresolved
+  TOTs are implicitly learned, ~2× recurrence): `tot_fields` state,
+  `tot_resolve_p`, `tot_persist`.
+- **Reminding chains**: a retrieved record emits its cueVector as a
+  derived context for its `links`, depth-1, `chain_gain` 0.5 — the
+  associative version of temporal contiguity; reminiscence cascades
+  become social ("that reminds me…").
+- **Sleep cuing / TMR** (Rasch et al. 2007; replications d≈0.3–0.4):
+  SWS reactivation is cue-bound and encoding-specificity-bound —
+  `tmr_gain` 0.12 on declarative records sharing a sensory cue with the
+  sleep context; procedural and cue-absent controls null.
+- Spec → v1.4: schema +`encodeOps`/`tot_fields`/CondEntry `extinctCtx`;
+  NEW §5.12–5.18; §7 +11 params; §10 contract additions; probes
+  P127–P135 (registry now P1–P135). Profiles: +11 clamp rows + v1.4
+  age/trait-sensitivity note (PM monitoring, TOT resolution, renewal
+  under trauma, chain_gain as the storyteller trait).
+- Boundaries kept: research only, no code, no narratives, no push/merge.

@@ -1,4 +1,20 @@
-# Memory Model Spec v1.3 — implementable human-like memory for RW characters
+# Memory Model Spec v1.4 — implementable human-like memory for RW characters
+
+> **v1.4 note (retrieval-cues II):** `memory/retrieval-cues.md` Part II
+> gives cues a job description: transfer-appropriate processing — a cue
+> matches the *process* used at encoding, not just its features (Morris,
+> Bransford & Franks 1977); output interference — exhaustive recall
+> self-destructs (Tulving & Arbuckle; Roediger & Schmidt 1980);
+> prospective cue ecology — focal event cues fire near-automatically and
+> age-flat, nonfocal/time-based need costly monitoring (Einstein &
+> McDaniel 1990; Henry et al. 2004 meta); context-scoped extinction and
+> ABA renewal (Bouton 2004); stateful TOTs with phonological resolution
+> and error-repetition learning (Abrams et al. 2007; Warriner & Humphreys
+> 2008); reminding chains — a retrieved record cues its links (§5.17);
+> and sleep-context cuing (Rasch et al. 2007 — SWS reactivation is
+> cue-bound). New §5.12–5.18; schema +`encodeOps`/`extinctCtx`/`tot_fields`;
+> §7 +11 params; probes P127–P135. All optional w/ defaults; backward
+> compatible.
 
 > **v1.3 note (forgetting-curves II):** `memory/forgetting-curves.md` Part
 > II calibrates the *active* side of forgetting: spacing-aware storage
@@ -159,6 +175,15 @@ MemoryRecord = {
   "attempted": false,                 // v1.3: failed-recall flag —
                                       // next re-encoding potentiated
                                       // (§4.11)
+  "encodeOps": "semantic",            // v1.4: dominant processing channel
+                                      // at encoding (semantic|perceptual|
+                                      // social|enactive) — derived from
+                                      // v1.2 engagement/elaboration;
+                                      // retrieval-side TAP gate (§5.12)
+  "tot_fields": {},                   // v1.4: {field: unresolvedTOTcount}
+                                      // — error repetition is field-
+                                      // specific (§5.16, Warriner &
+                                      // Humphreys 2008)
   "accessLog": []                     // optional debug; may be capped
 }
 ```
@@ -176,7 +201,10 @@ MemoryRecord = {
 
 ```json
 CondEntry = { "cue": "mudhaus", "valence": -0.6, "arousal": 0.7,
-              "strength": 0.5, "safeCount": 0, "lastFireDay": 500 }
+              "strength": 0.5, "safeCount": 0, "lastFireDay": 500,
+              "extinctCtx": [] }     // v1.4: contexts where extinction
+                                     // exposures happened — suppression
+                                     // is context-scoped (§5.15, Bouton)
 ```
 
 **Social store (v0.8):** one `PersonModel` per known individual — memory
@@ -1027,6 +1055,125 @@ imagery material). RW effect: retelling the story a second time
 plausibly adds a detail — while others have quietly fallen out
 (forgetting-curves.md §7.3).
 
+### 5.12 Transfer-appropriate processing — ops gate (new in v1.4)
+
+A cue matches the *processing channel* used at encoding, not just stored
+features (Morris, Bransford & Franks 1977; RC§10). Context `C` carries
+`C.ops` — the dominant channel of the current processing context
+(semantic = topic talk; perceptual = sights/sounds; social = people
+focus; enactive = doing the same kind of thing):
+
+```
+cueMatch_ext *= (C.ops == m.encodeOps ? 1.0 : tap_mismatch)   // ≈0.55
+```
+
+Applied multiplicatively to the whole external match, AFTER the §5.1
+gate and §5.2 combination, BEFORE mood/state terms. TAP never zeroes
+recall — it reorders which cue wins. `encodeOps` is set at encoding from
+the v1.2 `engagement`/elaboration channel (enacted→enactive;
+spoken/heard→perceptual default; generated→semantic; social events→
+social). Absent → default by source.kind. P127.
+
+### 5.13 Output interference — exhaustive recall self-destructs (new in v1.4)
+
+A multi-item recall bout (`k > 1`, "tell me everything") is NOT k
+independent draws (Tulving & Arbuckle; Roediger & Schmidt 1980; RC§11):
+
+```
+candidates sorted by drive, emitted greedily
+n-th emitted item: P *= out_int^(n−1)          // ≈0.85 compounding
+each emitted item applies §5.8 rif_k to unemitted same-bucket records
+```
+
+Two consequences the game reads: interrogation-style exhaustive prompts
+return a strong 2–3 details then trail off (cognitive-interview
+ordering — free narrative first); and the trailing-off is real
+forgetting — what wasn't said is weakened for tomorrow.
+
+### 5.14 Prospective cue ecology — focal vs monitored firing (new in v1.4)
+
+`rememberIntention` records gain `cueType` (`"event"|"time"`, default
+event) and `focal` (bool — is the cue the object of the character's
+current attention when it appears). On each ambient/tick where the
+intention is armed (§4.x `beta_pm` decay unchanged):
+
+```
+event + focal:    fires at pm_focal_hit (≈0.9) when the cue appears in C
+                  — near-automatic, age-flat (Einstein & McDaniel 1990)
+event + nonfocal: fires only on a monitor roll: p = pm_monitor_p
+                  · attentionHeadroom · (1 − pm_time_age_loss·ageScale)
+time:             no external cue — ambient clock-check draw pm_clock_p
+                  per tick, also ×(1 − pm_time_age_loss·ageScale); fires
+                  only if the check lands inside the intention window
+```
+
+Focality is evaluated by game-systems from the attention budget (cue is
+what the character is already doing vs. peripheral). `ageScale` =
+age_eff/65 clamped 0..1. Henry et al. 2004 meta: nonfocal and time-based
+are age-damaged, focal spared but not immune (P129, P130). RW texture:
+"give Jules this when you see him" almost always lands; "call the
+landlord at 5" fails exactly in proportion to busy-ness and age.
+
+### 5.15 Context-scoped extinction — renewal (new in v1.4)
+
+§4.9's `extinct_suppress` was global; Bouton's central finding is that
+extinction is a new inhibitory association bound to the context it was
+learned in (Bouton 2004; RC§13). Now: each safe exposure in context `ctx`
+adds `ctx` to `extinctCtx`; `extinct_suppress` applies ONLY when the
+current place ∈ `extinctCtx`. Elsewhere the conditioned entry fires at
+`strength · renewal_frac` — i.e. `renewal_frac` (≈0.6) of the
+pre-extinction response returns on a context switch (ABA renewal).
+
+`recovery_days`/`recovery_frac` still govern spontaneous recovery inside
+an extinctCtx. RW texture: weeks of calm park visits do NOT generalize to
+the alley — calm was learned in the park (P131).
+
+### 5.16 Stateful TOTs — resolution cues and error repetition (new in v1.4)
+
+The §5.5 `tot:true` flag becomes stateful via `tot_fields` (schema v1.4):
+
+```
+on unresolved TOT on field f:   tot_fields[f]++
+next attempt on f:            tot_rate_eff = tot_rate · tot_persist^tot_fields[f]
+                              // ≈1.5 — learning to fail (Warriner &
+                              // Humphreys 2008: ~2× after long dwell)
+resolution cues:   syllable cue ("it starts with 'Mar-…'") resolves at
+                   tot_resolve_p ≈ 0.3 → clears tot_fields[f], field fills
+                   letter-only cue: tot_resolve_p/3 (Abrams 2007: first-
+                   syllable primes resolve; first-letter primes don't)
+                   extra semantic description of referent: ≈0
+on resolution:     normal §5.9 reboost; tot_fields[f] cleared
+recognition cue:   resolves at near-young rates (§5.5 unchanged)
+```
+
+A character who blanks on a name at dinner plausibly blanks on the SAME
+name next week — error repetition is a property of the failed mapping,
+not the item (P132, P133).
+
+### 5.17 Reminding chains — a retrieved record is a cue (new in v1.4)
+
+On a successful recall of `m`, emit a derived context
+`C′ = m.cueVector` and run one restricted scan over `m`'s linked records
+(`links`, §2 `link_p`), scored at `chain_gain` (≈0.5) × normal drive,
+depth capped at 1 — a retrieved memory cues its associates even when the
+external context doesn't (RC§15; temporal version already exists as
+contiguityTerm — this is the associative version). Reminded records get
+the normal §5.9 reboost: being reminded strengthens. Produces the
+reminiscence cascade — one character's story pulls the other's related
+story up unprompted. `searchCost` of the derived scan is discarded;
+depth-2 is a digression, not memory (P134).
+
+### 5.18 Sleep-context cuing — TMR analog (new in v1.4)
+
+During the nightly consolidation tick (§4.6), records sharing a salient
+`sensory` cue with the SLEEP context get an extra `tmr_gain` (≈0.12) on
+the consolidation boost — declarative only, procedural exempt, and ONLY
+if the cue was encoded on the record (Rasch et al. 2007: odor absent at
+learning → zero effect; REM/wake presentation → zero effect). Ties the
+§5.1 gate into consolidation: where you sleep votes on what survives
+(P135 — direction SHOULD, magnitude OBSERVE; design extrapolation,
+RC§19).
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -1548,7 +1695,19 @@ MemoryParams = {
   "retell_social": 1.0,      // shared-cue boost on p_retell
   "beta_pm": 0.15,           // armed intention decay (§9)
   "reminiscence_frac": 0.15, // per-attempt field resurfacing (§5.11)
-  "beta_proc": 0.02          // procedural map decay (~never)
+  "beta_proc": 0.02,         // procedural map decay (~never)
+  // v1.4 additions (retrieval-cues II, retrieval-cues.md Part II)
+  "tap_mismatch": 0.55,      // ops-channel mismatch penalty on cueMatch (§5.12)
+  "out_int": 0.85,           // per-emitted-item compounding in bouts (§5.13)
+  "pm_focal_hit": 0.9,       // focal event-cue fire rate, age-flat (§5.14)
+  "pm_monitor_p": 0.4,       // nonfocal cue monitor-roll base (§5.14)
+  "pm_clock_p": 0.1,         // per-tick clock-check for time intentions (§5.14)
+  "pm_time_age_loss": 0.4,   // age scaling on nonfocal/time PM (§5.14)
+  "renewal_frac": 0.6,       // context-switch affect renewal (§5.15)
+  "tot_resolve_p": 0.3,      // syllable-cue TOT resolution (§5.16)
+  "tot_persist": 1.5,        // tot_rate multiplier per unresolved TOT (§5.16)
+  "chain_gain": 0.5,         // derived-cue strength on linked records (§5.17)
+  "tmr_gain": 0.12           // sleep-context sensory consolidation edge (§5.18)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -1801,3 +1960,30 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     s_gain_recall, re-exposure at s_gain_rehear (§4.11); recall results
     may surface previously-unreturned verbatim fields at
     `reminiscence_frac` (§5.11).
+- v1.4 additions (retrieval-cues.md Part II):
+  - `cueContext.ops` — the dominant processing channel of the retrieval
+    context (semantic|perceptual|social|enactive); mismatched vs the
+    record's `encodeOps` attenuates cueMatch_ext ×`tap_mismatch` (§5.12).
+    Callers may omit → neutral (no penalty).
+  - `recall(charId, cueContext, k)` with k>1 runs a §5.13 bout: emitted
+    items compound `out_int` and part-list-suppress the unemitted;
+    single-item calls unaffected.
+  - `rememberIntention(charId, intention)` gains `cueType`
+    (`"event"|"time"`) and `focal` — firing routes per §5.14; game-systems
+    supplies `focal` from the attention budget when the cue appears.
+  - `conditionedAffect` reads `extinctCtx` — `extinct_suppress` applies
+    only inside an extinction context; elsewhere the entry fires at
+    `strength·renewal_frac` (§5.15). Safe-exposure events pass their
+    place id so the set accrues.
+  - Reconstruction may carry `tot_fields` state — `syllableCue` on
+    cueContext resolves a flagged TOT at `tot_resolve_p`; unresolved
+    TOTs raise that field's next-attempt `tot_rate` ×`tot_persist`
+    (§5.16).
+  - successful `recall` runs a depth-1 derived scan over `links` at
+    `chain_gain` — returned Reconstructions may carry `viaReminding: m_id`
+    (§5.17).
+  - `dailyMemoryTick` applies the §5.18 `tmr_gain` consolidation edge to
+    records sharing a sensory cue with the sleep context; procedural and
+    cue-absent records exempt.
+  - record schema gains `encodeOps` and `tot_fields`; CondEntry gains
+    `extinctCtx` — all hidden/harness-readable like other state fields.

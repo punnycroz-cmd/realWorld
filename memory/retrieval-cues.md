@@ -206,3 +206,261 @@ Implementable acceptance tests (extend P1–P8 from `forgetting-curves.md`):
 - Context-dependence in *emotional-rich* autobiographical events may exceed
   Smith & Vela's word-list d≈0.28 (their stimuli were impoverished); we take
   it as a floor.
+
+---
+
+# PART II (v14, 2026-09-23) — the cue's job description
+
+v2 answered "which cues work." v14 answers the harder questions the first
+pass left informal: does the cue match the *kind* of processing done at
+encoding (§10), what does asking for EVERYTHING do to what comes back
+(§11), how do intentions fire — cue-driven vs clock-driven (§12), does
+extinguished affect really die or just go dormant per-place (§13), how do
+tip-of-the-tongue states resolve and why do they recur (§14), can a
+retrieved memory itself be the cue (§15), and does what the character
+sleeps near decide what survives the night (§16). Spec changes land in
+`memory-model-spec.md` v1.4 §5.12–5.18; probes P127–P135.
+
+## 10. Transfer-appropriate processing — a cue matches a PROCESS, not a thing
+
+**Morris, Bransford & Franks (1977)** JVLVB 16:519–533: semantic study
+tasks produce better semantic-test performance and *worse* rhyme-test
+performance than rhyme study — and vice versa. Encoding specificity
+(§1, Tulving & Thomson) says cue must match stored features; TAP says it
+must match the stored *processing type*. The two are complementary —
+TAP is specificity at the level of operations rather than items
+(Roediger, Weldon & Challis 1989; Roediger 1990 dissociations between
+data-driven and conceptually-driven tasks). **[CONSENSUS for the
+dissociation; the size of the penalty is paradigm-dependent — DEBATED]**
+
+Model consequence: the record schema gains `encodeOps` in v1.4 — the
+elaboration channel that fired at encoding (semantic / perceptual /
+social / enactive), derived from the v1.2 `engagement`/elaboration
+fields. v1.4 uses it on the retrieval side: the context's
+dominant processing channel `C.ops` is compared to `m.encodeOps` and
+mismatch attenuates the WHOLE external match multiplicatively
+(`tap_mismatch` ≈ 0.55) rather than zeroing it — TAP never abolishes
+recall, it reshapes which cue wins. A character who lived an event
+perceptually (a fight they froze through) is better cued by returning to
+the alley than by talking about "that night"; a character who narrated
+it to themselves is better cued by the topic. This is the mechanistic
+basis for why the same event is differently reachable for witnesses who
+encoded it differently.
+
+## 11. Output interference — "tell me everything" is self-defeating
+
+- **Tulving & Arbuckle (1963/1966):** cue effectiveness drops sharply as
+  output order advances; items recalled early are recalled well, items
+  recalled late are recalled poorly — the FIRST outputs are nearly free,
+  later outputs suffer cumulative loss.
+- **Roediger & Schmidt (1980)** JEP:HLM 6:91–105: output interference is
+  caused by the emitted items themselves acting as part-list cues on the
+  remainder — the damage is a function of how much has already been
+  recalled, not elapsed time (interpolated unrelated output doesn't hurt;
+  interpolated *same-category* output does).
+- **Criss, Malmberg & Shiffrin (2011)** JML 64:316 — output interference
+  is best modeled as retrieval-induced context change: each response
+  updates the search set.
+- **[CONSENSUS]** Model consequence: a multi-item recall bout is NOT k
+  independent draws. v1.4 §5.13: candidates sorted by drive, the n-th
+  emitted item's P scaled by `out_int^(n−1)` (`out_int` ≈ 0.85 — ~15%
+  compounding loss per emitted item), and each emitted item applies the
+  §5.8 rif_k decrement to unretrieved competitors in the same bucket.
+  Game-readable consequence: "tell me everything about that night"
+  returns the 2–3 strongest details richly and then trails off — and the
+  trailing-off is REAL forgetting, the unspoken details are weakened for
+  tomorrow (§5.8). Interrogation-style exhaustive prompting is the worst
+  possible way to get a human's full account — matching the eyewitness
+  literature's preference for free narrative first (Fisher & Geiselman
+  cognitive-interview program).
+
+## 12. Prospective cue ecology — two different machines for "remember to"
+
+The spec's `beta_pm` (v1.3) decays the armed intention, but nothing yet
+decides whether the cue fires. The literature splits prospective memory
+into two retrieval routes with different cue requirements:
+
+- **Event-based PM** (cue in the environment): Einstein & McDaniel (1990)
+  JEP:LMC 16:717 — older adults showed NO deficit on event-based PM while
+  showing large deficits on retrospective memory; the cue does the work.
+- **Time-based PM** (no external cue): same paper's successors — Park et
+  al. (1997), Einstein et al. (1995) — time-based PM is reliably
+  age-impaired because nothing cues it; retrieval must be *self-initiated*
+  (clock checks).
+- **Multiprocess framework** (McDaniel & Einstein 2000, Applied Cog Psych
+  14:S127; Henry, MacLeod, Phillips & Crawford 2004 meta, Psych & Aging
+  19:27 — 117 effect sizes): focal cues (the cue is exactly what ongoing
+  processing is about — seeing the mailbox when walking past it) trigger
+  near-automatic spontaneous retrieval; nonfocal cues (the cue is present
+  but peripheral) require costly monitoring. Age damage concentrates on
+  nonfocal and time-based; focal is spared but NOT immune (meta: both
+  impairment classes >0).
+- **[CONSENSUS on the focal/nonfocal and event/time asymmetries]**
+- Model consequence (§5.14): intention records gain `cueType` and
+  `focal`. Event+focal → fires on context match at `pm_focal_hit` ≈ 0.9
+  (age-flat). Event+nonfocal → fires only on a monitor roll
+  `pm_monitor_p` ≈ 0.4, scaled down by distraction and age.
+  Time-based → no cue at all; a `pm_clock_p` ambient clock-check draw
+  per tick, window-gated, older characters check less
+  (`pm_time_age_loss` ≈ 0.4). RW texture: a character told "give Jules
+  this envelope when you see him" succeeds almost always; "call the
+  landlord at 5" is forgotten exactly in proportion to how busy and how
+  old the character is — the classic prospective-paradox pattern already
+  probed by E10, now mechanized.
+
+## 13. Renewal — extinction is context-scoped, not global
+
+§4.9 already fades conditioned affect with `cond_decay` and suppresses it
+with `extinct_suppress`, and `recovery_days`/`recovery_frac` give Bouton's
+spontaneous recovery. What was missing is Bouton's central finding
+(**Bouton 2004**, Psych Bulletin 130:80; Bouton, Westbrook, Corcoran &
+Maren 2006): extinction is a *new inhibitory association bound to the
+context of extinction*, not erasure. ABA renewal — fear conditioned in A,
+extinguished in B, returns in A — is robust across species and paradigms;
+ABC and AAB variants are weaker but present. **[CONSENSUS]**
+
+Model consequence (§5.15): `extinct_suppress` applies only inside the
+context(s) where the extinction exposures happened — store
+`extinctCtx[]` on the conditioned-affect record. In any other context
+the conditioned response returns at `renewal_frac` (≈0.6) of its
+pre-extinction strength. A character who "got over" Dolores Park after
+weeks of calm visits still feels it in the alley where it happened —
+calm was learned *in the park*. Trauma records keep their exemption
+stack (§5.8, §6.x); renewal is the emotional memory that doesn't fade
+because it never generalized.
+
+## 14. TOT resolution and TOT recurrence — partial cues and error learning
+
+- **Abrams, Trunk & Merrill (2007)** Mem&Cog 35:538 (+ Abrams & Rodriguez
+  2005): TOTs resolve via PHONOLOGICAL priming — first-SYLLABLE primes
+  significantly increase resolution; first-LETTER primes do not.
+  Semantic associates alone don't crack it. **[CONSENSUS, lab-verbal
+  paradigm]**
+- **Warriner & Humphreys (2008)** QJEP 61:738 — "learning to fail": a
+  TOT that persists unresolved is itself implicitly learned; the same
+  item TOTs again ~2× baseline rate on retest 48h later, scaling with
+  dwell time in the state. Follow-ups (D'Angelo & Humphreys 2015;
+  Frontiers 2019 replication) confirm error repetition and find the same
+  wrong *interlopers* recur. **[CONSENSUS on repetition; mechanism —
+  implicit learning vs. local minimum — DEBATED]**
+- Model consequence (§5.16): the §5.5 `tot:true` flag becomes stateful.
+  A failed name-field retrieval stamps `tot_count`; next attempt on that
+  field rolls against `tot_rate × tot_persist` (≈1.5). A syllable-class
+  cue (someone offers "it starts with 'Mar-…'") resolves at
+  `tot_resolve_p` ≈ 0.3; a letter-only cue at `tot_resolve_p/3`;
+  extra semantic description of the person adds ~0. And a character who
+  blanks on a name at dinner will plausibly blank on the SAME name next
+  week — one of the most recognizable human memory behaviors, now
+  parameterized.
+
+## 15. Reminding — a retrieved memory is itself a cue
+
+Contiguity (§5.4, v0.9) lets a recalled record cue its TEMPORAL
+neighbors. But the dominant everyday case is associative: "that reminds
+me of…" — a retrieved record's associative links (link_p edges, §2)
+re-expose the retriever to the parent's cue pattern, giving linked
+records a second chance even when the current context doesn't cue them.
+Temporal-context models already show recall of an item reinstates the
+context that cues the next (Howard & Kahana 2002 — the basis of
+contiguityTerm); associative chaining generalizes the same machinery to
+non-temporal links. **[CONSENSUS that remindings occur and drive free-
+recall organization; the two-hop attenuation constant is HYPOTHESIS]**
+
+Model consequence (§5.17): on a successful recall, emit a derived
+context `C′ = parent.cueVector` restricted to linked records, scored at
+`chain_gain` ≈ 0.5 of normal drive, depth capped at 1 (two hops is a
+digression, not memory). Reminded records undergo normal §5.9
+reconsolidation — being reminded strengthens. This produces the
+reminiscence cascade as a social phenomenon: one character's story pulls
+up the other's related story unprompted.
+
+## 16. Sleep cuing — the overnight cue that votes on what survives
+
+**Rasch, Büchel, Gais & Born (2007)** Science 315:1426: odor present at
+learning and re-presented during slow-wave sleep improved declarative
+retention; the same odor during REM or wake did nothing, and odor absent
+at learning did nothing — reactivation during SWS is cue-dependent and
+encoding-specificity-bound. Replications/extensions (Rudoy et al. 2009
+sound cues; meta-analyses — Hu, Cheng & colleagues 2020 — moderate but
+reliable d ≈ 0.3–0.4) support targeted memory reactivation as real but
+bounded. **[CONSENSUS that cuing during SWS biases consolidation toward
+cued records; effect size modest]**
+
+Model consequence (§5.18): during the nightly consolidation tick (§4.6),
+records sharing a salient sensory cue with the SLEEP context get an
+extra `tmr_gain` (≈0.12) on the consolidation boost — declarative only,
+procedural exempt (Rasch null), cue-absent-at-encoding records exempt
+(the Rasch no-odor control). RW texture: sleeping in the apartment where
+the day happened, or next to the same person, biases what consolidates.
+A cheap, invisible mechanic that makes "where you sleep" matter.
+
+## 17. Updated cue hierarchy (supersedes §7 table where marked)
+
+| Cue field | Effectiveness | v14 additions |
+|---|---|---|
+| topic/gist | strongest | modulated by TAP match (§10) |
+| people present | strong ≈ place | unchanged |
+| place reinstatement | strong matched, small absolute | unchanged; also gates renewal (§13) |
+| sensory/odor | weak recent, strong for old | ALSO consolidates during sleep (§16) |
+| mood-state match | weak, erasable | unchanged |
+| process-type match | NEW — multiplicative gate on all above | tap_mismatch ≈0.55 |
+| emitted items in same bout | NEW — negative cue on remainder | out_int ≈0.85/item |
+| prospective cue, focal | NEW — near-automatic | pm_focal_hit ≈0.9, age-flat |
+| prospective cue, nonfocal/time | NEW — monitoring-dependent | age-impaired |
+| retrieved parent record | NEW — derived cue for links | chain_gain ≈0.5 |
+| phonological (syllable) | NEW — resolves TOT only | tot_resolve_p ≈0.3 |
+
+## 18. Validation probes P127–P135 (v14 suite)
+
+- **P127 TAP gate (MUST):** matched `encodeOps`/`C.ops` vs mismatched at
+  equal cueVector overlap → recall ratio ≥1.5, and a cue absent at
+  encoding still contributes 0 under either ops match (P9 must hold
+  simultaneously). Morris, Bransford & Franks 1977.
+- **P128 output interference (MUST):** exhaustive multi-item recall
+  returns fewer total fields than the sum of item-wise single recalls;
+  returned order is drive-descending; unreturned competitors measurably
+  weakened next day (couples to §5.8). Roediger & Schmidt 1980.
+- **P129 focal vs nonfocal PM (MUST):** event+focal intention hits
+  ≥0.85; event+nonfocal ≤0.6 under distraction, in the same character.
+  Henry et al. 2004.
+- **P130 PM age gradient (MUST):** time-based PM hit-rate declines
+  across bands while event+focal stays ~flat (decline allowed, ≤0.15
+  absolute). Einstein & McDaniel 1990; Henry et al. 2004.
+- **P131 ABA renewal (SHOULD):** conditioned affect extinguished in
+  context B recurs at ≥0.5 of pre-extinction strength on returning to A;
+  within-B it stays suppressed until `recovery_days`. Bouton 2004.
+- **P132 TOT resolution asymmetry (SHOULD):** syllable cue resolves a
+  flagged TOT at ~0.3; letter cue ≤ one-third of that; added semantic
+  description ≈ 0. Abrams et al. 2007.
+- **P133 TOT recurrence (SHOULD):** a field that TOT'd unresolved re-TOTs
+  at 1.5–2.5× `tot_rate` on the next attempt; a resolved TOT does not
+  (error repetition is specific to the error, not the item). Warriner &
+  Humphreys 2008.
+- **P134 reminding chain (SHOULD):** retrieving a record surfaces each
+  linked record at ≈`chain_gain`×parent-driven probability; no depth-2
+  surfacing; reminded record's §5.9 boost applies.
+- **P135 sleep cuing (SHOULD):** day-old records sharing the sleep
+  context's sensory cue show +8–15% next-day R vs non-matched controls;
+  procedural records and encoding-absent-cue records show null (Rasch
+  et al. 2007). OBSERVE-tier for magnitude, SHOULD for direction.
+
+## 19. Honest limits (v14 additions)
+
+- TAP's mismatch penalty is a single-study-adjacent constant (0.55);
+  paradigms give reliable direction, not a fixed number — flagged for
+  calibration.
+- Output-interference constants come from list recall; autobiographical
+  multi-event recall plausibly shows shallower slopes (situation-model
+  integration, Radvansky) — `out_int` is a floor on damage.
+- PM numbers are lab-paradigm; the focal/nonfocal distinction assumes
+  the game can classify cue focality at runtime — spec defines focality
+  as "cue is the object of current attention," which game-systems can
+  evaluate from the attention budget.
+- Renewal literature is mostly fear-conditioning; extending to
+  character-level affect is an extrapolation (marked).
+- TMR uses controlled odor cues; "sleep context" as cue is a design
+  extrapolation — the mechanism (SWS reactivation of cue-matched
+  declarative records) is real, the RW trigger is our hypothesis.
+- Reminding chains: lab evidence is for temporal-context reinstatement;
+  the non-temporal associative version is standard theory (spreading
+  activation) but `chain_gain` is a tuning constant.

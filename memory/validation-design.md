@@ -211,6 +211,7 @@ Tier rules in §8.
 | P96–P105 | validation-design.md §9 | density, ambient equivalence, distinctness, trait structure, curves, caps, rehearsal inequality, metamemory, goldens, non-interference | MUST (P97, P99 nulls, P100, P105); SHOULD (P96, P98, P101–P104) | T-point + T-equiv |
 | P106–P116 | encoding-mechanics.md §12 | generation, enactment-in-aging, doorway, boundary structure, elaboration + maintenance null, intention null, DA asymmetry, production, unitization, survival fold, lapse structure | MUST (P106, P107, P109–P112); SHOULD (P108 doorway — magnitude DEBATED, P113, P114, P116); OBSERVE (P115 survival fold) | T-diff + T-equiv |
 | P117–P126 | forgetting-curves.md §10 | spacing, testing split, failed-retrieval potentiation, reminiscence, quote decay, release-from-PI, childhood ramp, suppression leak, intention persistence, retell-ecology flatness | MUST (P117, P118, P121, P122, P123, P126); SHOULD (P119, P120, P124, P125) | T-diff + T-point |
+| P127–P135 | retrieval-cues.md §18 | TAP gate, output interference, focal/nonfocal PM, PM age gradient, ABA renewal, TOT resolution + recurrence, reminding chains, sleep cuing | MUST (P127–P130); SHOULD (P131–P134); SHOULD-direction/OBSERVE-magnitude (P135) | T-diff + T-point + T-equiv (P130 focal leg) |
 
 **Registry rules:** probe numbering is frozen forever (deprecate by
 marking OBSERVE-dead, never renumber). New probes append. Every MUST
@@ -520,3 +521,44 @@ replication discount are methodological CONSENSUS. The L3 bands (event
 density, involuntary rate, valence drift share, retrieval inequality)
 are HYPOTHESES calibrated to plausibility — they're stated as ranges
 precisely because the literature doesn't pin them tighter.
+
+---
+
+## 13. New probes P127–P135 (v14, retrieval-cues II suite)
+
+Normative definitions in `retrieval-cues.md` §18; constrained params
+named there. Headline additions:
+
+- **P127 TAP gate (MUST):** matched vs mismatched `encodeOps`/`C.ops` at
+  equal feature overlap → ≥1.5× recall ratio, and P9's absent-cue zero
+  must hold under either ops match. Constrains `tap_mismatch`
+  (Morris, Bransford & Franks 1977).
+- **P128 output interference (MUST):** a k>1 bout returns fewer total
+  fields than item-wise single recalls summed; emission order is
+  drive-descending; unemitted same-bucket records measurably weaker next
+  day (couples §5.13 to §5.8). Constrains `out_int`.
+- **P129 focal vs nonfocal PM (MUST):** event+focal ≥0.85 hit; event+
+  nonfocal ≤0.6 under distraction, same character, same intention
+  strength. Constrains `pm_focal_hit`/`pm_monitor_p` (Henry et al. 2004).
+- **P130 PM age gradient (MUST):** time-based hit-rate declines across
+  bands; event+focal leg TOST-equivalent within ±0.15. Constrains
+  `pm_clock_p`, `pm_time_age_loss` (Einstein & McDaniel 1990).
+- **P131 ABA renewal (SHOULD):** conditioned affect extinguished in B
+  returns ≥0.5 of pre-extinction on return to A; stays suppressed in B
+  until `recovery_days`. Constrains `renewal_frac`, `extinctCtx`
+  scoping (Bouton 2004).
+- **P132 TOT resolution asymmetry (SHOULD):** syllable cue ≈0.3
+  resolution; letter cue ≤⅓ of that; semantic description ≈0.
+  Constrains `tot_resolve_p` (Abrams et al. 2007).
+- **P133 TOT recurrence (SHOULD):** unresolved TOT field re-TOTs at
+  1.5–2.5× base rate next attempt; resolved field does not. Constrains
+  `tot_persist` (Warriner & Humphreys 2008).
+- **P134 reminding chain (SHOULD):** retrieved parent surfaces each
+  linked record at ≈`chain_gain`-scaled probability; no depth-2; the
+  surfaced record carries §5.9 reboost. Constrains `chain_gain`.
+- **P135 sleep cuing (SHOULD-direction / OBSERVE-magnitude):** sensory
+  cue shared with sleep context → +8–15% next-day R on day-old
+  declarative records; procedural and cue-absent-at-encoding controls
+  null (Rasch et al. 2007). Constrains `tmr_gain`.
+
+Registry now P1–P135; numbering stable.

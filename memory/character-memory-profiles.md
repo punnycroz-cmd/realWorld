@@ -178,6 +178,17 @@ never copying raw.
 | beta_pm | 0.05 | 0.3 | armed intention decay (v1.3) |
 | reminiscence_frac | 0.05 | 0.3 | per-attempt field resurfacing (v1.3) |
 | beta_proc | 0.0 | 0.05 | procedural decay (~never) (v1.3) |
+| tap_mismatch | 0.35 | 0.75 | ops-channel mismatch penalty (v1.4) |
+| out_int | 0.7 | 0.95 | per-item bout loss; LOW = trails off fast (v1.4) |
+| pm_focal_hit | 0.75 | 0.97 | focal event-cue fire rate (v1.4) |
+| pm_monitor_p | 0.15 | 0.6 | nonfocal monitor roll (v1.4) |
+| pm_clock_p | 0.04 | 0.2 | time-based clock-check rate (v1.4) |
+| pm_time_age_loss | 0.1 | 0.6 | nonfocal/time PM age scaling (v1.4) |
+| renewal_frac | 0.3 | 0.85 | context-switch affect renewal (v1.4) |
+| tot_resolve_p | 0.15 | 0.5 | syllable-cue TOT resolution (v1.4) |
+| tot_persist | 1.0 | 2.2 | TOT error-repetition multiplier (v1.4) |
+| chain_gain | 0.15 | 0.8 | reminding-cascade strength (v1.4) |
+| tmr_gain | 0.0 | 0.25 | sleep-context consolidation edge (v1.4) |
 
 **v1.3 forgetting-curves note:** the v1.3 params are mostly
 age-INVARIANT by design — spacing/testing dynamics, quote decay,
@@ -192,6 +203,22 @@ character level — it prices a fact about the encoder's age, not the
 current one). `pi_ref` is FLAT: release-from-PI is age-invariant in
 the paradigm's data; the older-adult PI vulnerability lives in
 `discrim_mult` (§4.2), not here.
+
+**v1.4 retrieval-cues note:** most v1.4 params are population mechanisms
+(flat). The exceptions carry real diversity: `pm_monitor_p`/`pm_clock_p`
+fall and `pm_time_age_loss` rises on the §6 age curve (older adults lose
+self-initiated PM, keep focal event cues — Einstein & McDaniel 1990);
+`tot_resolve_p` rides the same age trajectory as `tot_rate` (older adults
+need the syllable more and benefit from it — Abrams older-adult TOT work);
+`tot_persist` is trait-loaded (ruminative/perseverative characters HIGH —
+they learn their failures); `chain_gain` is the reminiscence-cascader
+trait (storytellers HIGH, taciturn LOW); `out_int` pairs with
+`search_breadth` — older adults emit fewer items so compounding matters
+less in absolute terms but starts lower; `renewal_frac` is higher under
+the trauma modifier (context-bound safety learning is exactly what PTSD
+fails at — Bouton extension, flagged extrapolation); `tmr_gain` scales
+with `sleepFactor` (no SWS, no reactivation). `tap_mismatch` is flat —
+the gate is structural.
 
 **v0.9d frozen constants (deepening pass):** `s_decay` (0.0008),
 `relearn_gain` (0.8), `resurrect_R` (0.35), `tele_cross` (21),
