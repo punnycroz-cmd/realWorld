@@ -1,6 +1,6 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v69 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v84 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
 and shipped `tools/build_recap.py`. v40 added the runnable ops kit under
@@ -13,7 +13,13 @@ events capture) and `tools/feedback_router.py` +
 the two remaining run-by-hand launch surfaces: `community/feed-mirror.md`
 (#the-feed manual curation — the day-0 dependency that previously had
 rules only inside §3) and `community/mod-ramp.md` (day-14 moderator
-recruit/onboard/scope/offboard kit).)
+recruit/onboard/scope/offboard kit). v84 added the programming layer:
+`community/programming-calendar.md` (single weekly grid every cadence
+slot lands on, with quiet-week fallbacks + copy-ready prompts),
+`community/clips-and-highlights.md` (Stage-5 `#clips` channel spec —
+member captures as the organic advocacy path), and
+`community/incident-comms.md` (community-facing incident playbook —
+holding statements, response clocks, one-voice rule).)
 **Scope:** spectator → community → player pipeline: surfaces, content strategy,
 moderation, creator outreach, feedback loop, launch infrastructure.
 **Authority:** design doc `rw-game-design-2026-09-22.md` (esp. §5 participation,
@@ -79,6 +85,9 @@ numbers from the events capture + manual Discord counts).
 | Feedback router — `tools/feedback_router.py` + `community/feedback-batch.template.md` | §7 loop automation: sanitized batch → ready-to-paste inbox entry grouped by owning track | BUILT (v54) |
 | Feed-mirror curation spec — `community/feed-mirror.md` | `#the-feed` manual mirror: selection criteria, verbatim post format, daily routine, bot-scaling trigger | BUILT (v69), OWNER-GATED to run — day-0 dep (D0.8b) |
 | Mod ramp — `community/mod-ramp.md` | Day-14 moderator kit: when/who to recruit, the ask, onboarding, decide-vs-escalate scope, `#mod-log` format, offboarding | BUILT (v69), OWNER-GATED to run |
+| Programming calendar — `community/programming-calendar.md` | Stage 2 retention: one weekly grid all cadence slots land on (recap, rumor thread, clinic, town hall) with quiet-week fallbacks + copy-ready prompts | BUILT (v84), OWNER-GATED to run |
+| Clips channel — `community/clips-and-highlights.md` | Stage 5 advocacy: `#clips` member-capture spec — pin-ready rules, upstream flow into socials/recap/scorecard, creator boundary | BUILT (v84), OWNER-GATED to run |
+| Incident comms — `community/incident-comms.md` | Trust layer: community-facing incident playbook — classes, response clocks, copy-ready holding statements, one-voice rule | BUILT (v84), OWNER-GATED to run |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -110,6 +119,9 @@ One server, minimal channels. A quiet 40-channel server reads dead; a busy
      support. Pinned: how-it-works link + pricing link.
    - `#feedback` — bugs, suggestions. Feeds §7 loop below.
    - `#announcements` — owner-only posts; weekly recap lives here + socials.
+   - `#clips` — member captures of the feed/neighborhood; the Stage-5
+     advocacy surface. Pin-ready rules + upstream flow in
+     `community/clips-and-highlights.md`.
 4. Bots: none required at launch. (If raid protection becomes needed: a
    verification-gate bot is the only acceptable addition — decide then.)
 5. Server rules: see §4.2. Welcome flow, rules-gate text, pinned posts, and
@@ -189,6 +201,13 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 | Event-driven | Request-feed highlights clip | live captures during notable requests | `social/drafts/devlog-clips.md` |
 | Launch day | Announcement thread | — | `social/drafts/launch-thread.md` |
 | Launch week | Seeded discussion questions | — | `social/drafts/seeded-questions.md` |
+| Sun 18:05 (with recap) | Open-rumor thread | recap's unconfirmed hook | `community/programming-calendar.md` §3 |
+| Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/programming-calendar.md` §3 |
+| Monthly (1st Sat) | Town hall text AMA | — | `community/programming-calendar.md` §2/§3 |
+
+Every recurring slot lands on the single weekly grid in
+`community/programming-calendar.md` — that file owns the week shape and
+the quiet-week fallbacks.
 
 **Cadence rule:** under-promise on schedule. A weekly recap that never misses
 beats a daily cadence that dies in week 3. Quiet weeks publish anyway — "a
@@ -308,7 +327,10 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 
 ## 9. Day-0 / day-7 / day-30 community tasks
 
-- **Day-0:** run §3 checklist; pin rules + feedback asks; post welcome note
+- **Day-0:** run §3 checklist (incl. `#clips` + its pinned rules per
+  `community/clips-and-highlights.md` §2); pin rules + feedback asks;
+  keep `community/incident-comms.md` §2 open in a tab — day-0 is when
+  the response clocks first tick; post welcome note
   (all copy in `community/welcome-sequence.md` §2); start the `#the-feed`
   mirror per `community/feed-mirror.md` (§1 criteria, §2 format, §3 routine);
   generate first recap with `build_recap.py` against the live archive if a
@@ -317,13 +339,16 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
   "community_join"` to the live link** (event spec'd in analytics-events.json).
 - **Day-14:** mod-recruitment need check per `community/mod-ramp.md` §1 —
   defer to day-30 if none of the triggers apply.
-- **Day-7:** first full recap; first watch party if the feed qualifies
+- **Day-7:** first full recap + first open-rumor thread; first request
+  clinic if any request was filed (`programming-calendar.md` §1); first
+  watch party if the feed qualifies
   (`community/watch-party-playbook.md` §1 triggers); creator-variant outreach
   draft; triage first `#feedback` batch via `feedback_router.py` into shared
   inbox; run `funnel_scorecard.py` on week-1 events + first manual counts —
   log it even though targets are still hypotheses; assess #the-feed
   manual-mirror load.
-- **Day-30:** mod recruitment decision (or mod-system review per
+- **Day-30:** first town hall on the next 1st-Saturday boundary; mod
+  recruitment decision (or mod-system review per
   `mod-ramp.md` §7 if already staffed); cadence retro (did weekly hold?);
   subreddit/forum revisit; seeding retro per `community/first-100.md` §5;
   funnel metrics review — four scorecard weeks vs. `funnel-scorecard.md` §2
