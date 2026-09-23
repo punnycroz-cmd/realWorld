@@ -27762,8 +27762,10 @@ function sfInitWorld(){
         if(sfTile(wx, wy - 1) === 16 || sfTile(wx, wy + 1) === 16 ||
            sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16) continue;
         if(doorNear(wx, wy, 2)) continue;
-        if(phash(wx, wy, 1650) > 0.30) continue;
-        if(occNear(wx, wy, 3)) continue;
+        // v21: real Mission streets carry a pit tree every ~8-10m —
+        // coverage roughly doubles, spacing relaxed one cell
+        if(phash(wx, wy, 1650) > 0.55) continue;
+        if(occNear(wx, wy, 2)) continue;
         const v = phash(wx, wy, 1651) < 0.22 ? 1 : (phash(wx, wy, 1652) < 0.18 ? 2 : 0);
         const o = addVeg('sfStreetTree', wx, wy, fx, fy);
         o.v = v; nStreetTree++;
@@ -27771,8 +27773,21 @@ function sfInitWorld(){
         // park grass: shrubs + flowerbeds; denser near paths, sparse inside
         const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
                          sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
+        const nearWalk = sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11 ||
+                         sfTile(wx - 1, wy) === 11 || sfTile(wx + 1, wy) === 11;
         const h1 = phash(wx, wy, 1660);
-        if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
+        // v21: Dolores Park is TREE-dotted, not bare lawn — big leafy
+        // canopy trees inside the grass, palms ringing the park edge,
+        // cypress in clustered stands (they grow in groves, not alone)
+        if(h1 > 0.975 && !occNear(wx, wy, 4) && !nearPath){
+          addVeg('sfTree', wx, wy,
+                 (phash(wx, wy, 1667) - 0.5) * 10, (phash(wy, wx, 1668) - 0.5) * 10);
+          nParkVeg++;
+        } else if(nearWalk && h1 < 0.07 && !occNear(wx, wy, 4)){
+          addVeg('sfPalm', wx, wy,
+                 (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
+          nParkVeg++;
+        } else if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
           addVeg('sfFlowerBed', wx, wy,
                  (phash(wx, wy, 1661) - 0.5) * 14, (phash(wy, wx, 1662) - 0.5) * 14);
           nParkVeg++;
@@ -27780,12 +27795,19 @@ function sfInitWorld(){
           addVeg('sfShrub', wx, wy,
                  (phash(wx, wy, 1663) - 0.5) * 16, (phash(wy, wx, 1664) - 0.5) * 16);
           nParkVeg++;
-        } else if(h1 > 0.996 && !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
-          addVeg('sfCypress', wx, wy,
-                 (phash(wx, wy, 1665) - 0.5) * 10, (phash(wy, wx, 1666) - 0.5) * 10);
-          nParkVeg++;
+        } else if(h1 > 0.99 && !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
+          // grove: up to 3 cypresses clustered around the seed cell
+          const nCl = 1 + Math.floor(phash(wx, wy, 1675) * 3);
+          for(let ci = 0; ci < nCl; ci++){
+            const cx2 = wx + Math.floor(phash(wx, wy, 1677 + ci) * 3) - 1;
+            const cy2 = wy + Math.floor(phash(wy, wx, 1681 + ci) * 3) - 1;
+            if(sfTile(cx2, cy2) !== 13 || occNear(cx2, cy2, 1)) continue;
+            addVeg('sfCypress', cx2, cy2,
+                   (phash(cx2, cy2, 1665) - 0.5) * 10, (phash(cy2, cx2, 1666) - 0.5) * 10);
+            nParkVeg++;
+          }
         }
-      } else if(t === 15 && nPathPalm < 80){
+      } else if(t === 15 && nPathPalm < 170){
         // palm sentinels along park paths, offset onto the grass edge
         let fx = 0, fy = 0;
         if(sfTile(wx, wy - 1) === 13) fy = -13;
@@ -27793,7 +27815,7 @@ function sfInitWorld(){
         else if(sfTile(wx - 1, wy) === 13) fx = -13;
         else if(sfTile(wx + 1, wy) === 13) fx = 13;
         else continue;
-        if(phash(wx, wy, 1670) > 0.05 || occNear(wx, wy, 4)) continue;
+        if(phash(wx, wy, 1670) > 0.14 || occNear(wx, wy, 4)) continue;
         addVeg('sfPalm', wx, wy, fx, fy); nPathPalm++;
       }
     }
@@ -28144,29 +28166,74 @@ function buildSfTerrain(){
 }
 
 /* ---------------- vegetation & street furniture ---------------- */
+/* v21: leaf-cluster canopy engine. Crowns are no longer stacked flat
+   ellipses — each is hundreds of deterministic leaf clusters scattered
+   through a dome volume. Per-cluster shading faces a baked key light
+   (afternoon sun from the west = sprite upper-left): lit rim, mid tone,
+   deep-shade core toward the lower-right, plus a sky-lit edge sparkle.
+   o: {n density, shear (leeward wind shear, grows with -y), wRx leeward
+   rx multiplier, bloom [petal colors], seed salt base} */
+function sfLeafCanopy(g, cx, cy, rx, ry, seed, lf, ld, o){
+  o = o || {};
+  const n = o.n || Math.round(rx * ry * 2.6);
+  const shear = o.shear || 0, wRx = o.wRx || 1;
+  const salt = 1800 + (seed % 97) * 13;
+  for(let i = 0; i < n; i++){
+    const a = phash(i, seed, salt + 1) * Math.PI * 2;
+    const rr = Math.sqrt(phash(seed, i, salt + 2));       // uniform dome fill
+    let ex = Math.cos(a) * rr;
+    const px = cx + (ex < 0 ? ex : ex * wRx) * rx +
+               shear * (1 - (0.5 + Math.sin(a) * rr * 0.5)) +
+               (phash(i, seed, salt + 3) - 0.5) * 2.5;
+    const py = cy + Math.sin(a) * rr * ry + (phash(seed, i, salt + 4) - 0.5) * 2.5;
+    const nx = (px - cx) / rx, ny = (py - cy) / ry;       // dome normal proxy
+    const lit = nx * -0.62 + ny * -0.78;                // key light upper-left
+    const h = phash(i, seed, salt + 5);
+    const col = lit > 0.42 ? (h < 0.55 ? lf[5] : lf[4])
+              : lit > -0.05 ? (h < 0.6 ? lf[3] : lf[4])
+              : (h < 0.62 ? ld[2] : ld[1]);
+    const sz = 1.3 + phash(i, seed, salt + 6) * 1.9;
+    paEllipse(g, px, py, sz, sz * 0.62, col);
+    if(h > 0.5) paEllipse(g, px - 0.6, py - 0.8, sz * 0.55, sz * 0.36,
+                          lit > 0.1 ? lf[5] : lf[3]);   // leaf-top catch
+  }
+  if(o.bloom){ // blossom speckle scattered on the lit half
+    const bn = Math.round(n * 0.16);
+    for(let i = 0; i < bn; i++){
+      const a = phash(i, seed, salt + 7) * Math.PI * 2;
+      const rr = Math.sqrt(phash(seed, i, salt + 8));
+      const px = cx + Math.cos(a) * rr * rx * 0.9, py = cy + Math.sin(a) * rr * ry * 0.9;
+      if((px - cx) / rx * -0.62 + (py - cy) / ry * -0.78 < 0.1) continue;
+      paPX(g, Math.round(px), Math.round(py), o.bloom[i % o.bloom.length]);
+      if(phash(i, seed, salt + 9) < 0.4) paPX(g, Math.round(px) + 1, Math.round(py), o.bloom[(i + 1) % o.bloom.length]);
+    }
+  }
+}
 function sfLeafyTree(v){
-  // broad blob-canopy park tree: layered ellipses over a forked trunk
+  // broad park tree: forked trunk under a leaf-cluster crown
   const s = paMk(56, 64), g = s.g;
   const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
-  paLine(g, 27, 60, 27, 40, tr[2]);
-  paLine(g, 28, 60, 28, 40, tr[3]);
-  paLine(g, 27, 44, 20, 36, tr[2]); paLine(g, 28, 44, 36, 34, tr[2]);
-  paLine(g, 27, 48, 22, 42, tr[3]); paLine(g, 28, 48, 33, 42, tr[3]);
+  // under-canopy occlusion mass (keeps the core deep)
   const blobs = v === 0
     ? [[28, 26, 17, 12], [16, 33, 10, 8], [40, 32, 10, 8], [28, 16, 11, 8], [22, 22, 9, 7], [34, 21, 8, 6]]
     : v === 1
     ? [[28, 28, 15, 11], [15, 32, 9, 7], [41, 33, 9, 7], [26, 17, 10, 8], [35, 20, 8, 6]]
     : [[28, 24, 18, 13], [14, 31, 9, 8], [42, 30, 9, 8], [28, 13, 10, 7]];
-  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by, rx, ry, ld[2]);
-  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by - 1, rx - 1, ry - 1, lf[3]);
-  for(const [bx, by, rx, ry] of blobs)
-    paEllipse(g, bx - rx * 0.25, by - ry * 0.45, rx * 0.55, ry * 0.45, lf[4]);
-  paNoise(g, 8, 4, 40, 40, [lf[5], lf[2]], 0.10, 1200 + v);
-  paEllipse(g, 20, 12, 5, 3, lf[5]); // key light catch
+  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  paLine(g, 27, 60, 27, 40, tr[2]);
+  paLine(g, 28, 60, 28, 40, tr[3]);
+  paLine(g, 27, 44, 20, 36, tr[2]); paLine(g, 28, 44, 36, 34, tr[2]);
+  paLine(g, 27, 48, 22, 42, tr[3]); paLine(g, 28, 48, 33, 42, tr[3]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx, by, rx, ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, 1200 + v * 31 + bi, lf, ld, { n: Math.round(rx * ry * 2.2) });
+  }
+  paEllipse(g, 19, 11, 4, 2, lf[5]); // key light catch
   return s;
 }
 function sfPalmTree(v){
-  // Mission palm: curved trunk + radiating drooping fronds
+  // Mission palm: curved trunk, dead-frond skirt, pinnate fronds —
+  // each frond a rachis curve with leaflet pairs tapering to the tip
   const s = paMk(56, 72), g = s.g;
   const tr = rampOf('#9a7a4e'), lf = rampOf('#4e9a44'), ld = rampOf('#357030');
   const lean = v === 0 ? 3 : -3;
@@ -28176,21 +28243,32 @@ function sfPalmTree(v){
     if(y % 5 === 0) paPX(g, x, 68 - y, tr[4]);
   }
   const tx = 28 + Math.round(lean * 0.8) - lean, ty = 28;
+  // dead-frond skirt under the crown (dry thatch, real Mission palms)
+  const sk = rampOf('#8a6a38');
+  for(let f = 0; f < 7; f++){
+    const ang = Math.PI * 0.15 + f * (Math.PI * 0.7 / 6);
+    const fx = Math.cos(ang), fy = Math.abs(Math.sin(ang));
+    for(let k = 1; k <= 6; k++)
+      paPX(g, Math.round(tx + fx * k * 1.2), Math.round(ty + 3 + fy * k * 1.4), sk[k < 4 ? 2 : 1]);
+  }
   paEllipse(g, tx, ty + 2, 3, 3, tr[2]); // crown nut cluster
   paBlob(g, tx - 2, ty + 4, 1.6, '#6b4a26'); paBlob(g, tx + 2, ty + 4, 1.6, '#6b4a26');
-  for(let f = 0; f < 9; f++){
-    const ang = -Math.PI * 0.05 - f * (Math.PI * 0.9 / 8);
+  for(let f = 0; f < 10; f++){
+    const ang = -Math.PI * 0.05 - f * (Math.PI * 0.95 / 9);
     const fx = Math.cos(ang), fy = Math.sin(ang);
     const len = 15 + (f % 3) * 3;
-    const col = f % 2 ? lf[3] : lf[2];
     for(let k = 1; k <= len; k++){
-      const px = Math.round(tx + fx * k), py = Math.round(ty + fy * k + k * k * 0.045);
-      paPX(g, px, py, col);
-      if(k % 3 === 0) paPX(g, px, py + 1, ld[2]);
+      const px = tx + fx * k, py = ty + fy * k + k * k * 0.045;
+      paPX(g, Math.round(px), Math.round(py), k % 3 === 0 ? ld[2] : lf[3]); // rachis
+      if(k > 2){ // leaflet pairs, longest mid-frond, sun-lit tops
+        const lw = Math.max(1, 3.2 - k * 0.16);
+        const lc = fy < -0.3 ? lf[4] : (k % 2 ? lf[3] : lf[2]);
+        paLine(g, Math.round(px), Math.round(py),
+               Math.round(px - fy * lw), Math.round(py + fx * lw + 1), lc);
+      }
     }
-    // frond tip highlight
     const px = Math.round(tx + fx * len), py = Math.round(ty + fy * len + len * len * 0.045);
-    paPX(g, px, py, lf[5]);
+    paPX(g, px, py, lf[5]); // frond tip catch
   }
   return s;
 }
@@ -28218,57 +28296,52 @@ function sfStreetTreeSpr(v){
   paR(g, 21, 36, 2, 17, tr[2]);
   paPX(g, 21, 37, tr[3]); paPX(g, 21, 44, tr[3]); paPX(g, 22, 50, tr[4]);
   paLine(g, 22, 38, 17, 32, tr[2]); paLine(g, 22, 39, 27, 31, tr[2]);
+  // leaf-cluster crown over a dark occlusion core; v1 = blossom,
+  // v2 = autumn gold (Mission trumpet trees / ginkgo street rows)
   const blobs = [[22, 26, 13, 10], [12, 31, 8, 6], [32, 30, 8, 6],
                  [22, 17, 9, 7], [16, 21, 6, 5], [29, 20, 6, 5]];
-  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by, rx, ry, ld[2]);
-  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by - 1, rx - 1, ry - 1, lf[3]);
-  for(const [bx, by, rx, ry] of blobs)
-    paEllipse(g, bx - rx * 0.28, by - ry * 0.45, rx * 0.5, ry * 0.42, lf[4]);
-  paNoise(g, 6, 8, 32, 30, [lf[5], ld[1]], 0.10, 1600 + v);
-  if(v === 1) // blossom clusters catch the light
-    paNoise(g, 8, 10, 28, 24, ['#ffd8e8', '#f4c2d8'], 0.10, 1605);
-  else if(v === 2)
-    paNoise(g, 8, 10, 28, 24, ['#e8c86a'], 0.08, 1606);
-  paEllipse(g, 17, 14, 4, 2.5, lf[5]); // key light catch
+  for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  for(let bi = 0; bi < blobs.length; bi++){
+    const [bx, by, rx, ry] = blobs[bi];
+    sfLeafCanopy(g, bx, by, rx, ry, 1600 + v * 41 + bi, lf, ld,
+      { n: Math.round(rx * ry * 2.4),
+        bloom: v === 1 ? ['#ffd8e8', '#f4c2d8', '#f8ecf2']
+             : v === 2 ? ['#e8c86a', '#f0d888'] : null });
+  }
+  paEllipse(g, 16, 13, 3.5, 2, lf[5]); // key light catch
   return s;
 }
 function sfCypressSpr(v){
-  // Monterey cypress column: ragged tapering spire, very Dolores Park
-  const s = paMk(40, 76), g = s.g;
+  // Monterey cypress FLAG FORM: Pacific westerlies shear the crown
+  // leeward — tight windward face, foliage streamed east, ragged top.
+  const s = paMk(48, 76), g = s.g;
   const tr = MAT.trunk, lf = rampOf(v === 0 ? '#3a6a34' : '#466e38'),
         ld = rampOf(v === 0 ? '#244a22' : '#2c4a26');
-  paR(g, 19, 68, 3, 7, tr[2]);
-  paPX(g, 19, 69, tr[3]);
-  // stacked ragged ellipses, widest near 2/3 up
+  // slight leeward trunk lean
+  paLine(g, 18, 74, 20, 68, tr[2]); paLine(g, 19, 74, 21, 68, tr[1]);
+  paPX(g, 18, 69, tr[3]);
+  // stacked ragged tiers, widest low-mid, sheared progressively east
   for(let k = 0; k < 9; k++){
-    const t = k / 8, y = 66 - k * 6.5;
+    const t = k / 8, y = 68 - k * 7;
     const r = 3.5 + Math.sin(t * Math.PI) * 8 + phash(k, v, 1610) * 2;
-    paEllipse(g, 20 + (phash(k, v, 1611) - 0.5) * 4, y, r, 4.5, ld[2]);
+    paEllipse(g, 20 + t * 7 + (phash(k, v, 1611) - 0.5) * 3, y, r, 4.2, ld[1]);
   }
   for(let k = 0; k < 9; k++){
-    const t = k / 8, y = 65 - k * 6.5;
-    const r = 3 + Math.sin(t * Math.PI) * 7 + phash(k, v, 1612) * 2;
-    paEllipse(g, 20 + (phash(k, v, 1613) - 0.5) * 4, y, r, 3.8, lf[3]);
+    const t = k / 8, y = 67 - k * 7;
+    const r = 3 + Math.sin(t * Math.PI) * 7 + phash(k, v, 1612) * 1.6;
+    sfLeafCanopy(g, 20 + t * 7, y, r, 4.0, 1614 + v * 17 + k, lf, ld,
+                 { n: Math.round(r * 11), shear: t * 2.5, wRx: 1.35 });
   }
-  // wind-sheared highlights on the upper-left of each tier
-  for(let k = 0; k < 8; k++){
-    const t = k / 8, y = 63 - k * 6.5;
-    const r = 2 + Math.sin(t * Math.PI) * 5;
-    paEllipse(g, 17 + (phash(k, v, 1613) - 0.5) * 4, y, r, 2.2, lf[4]);
-  }
-  paNoise(g, 8, 4, 24, 66, [lf[5], ld[1]], 0.08, 1614 + v);
-  paPX(g, 20, 1, lf[4]); paPX(g, 20, 2, lf[3]); paPX(g, 19, 3, lf[3]); // tip
+  paNoise(g, 8, 4, 34, 66, [lf[5], ld[0]], 0.06, 1618 + v);
+  paPX(g, 27, 1, lf[4]); paPX(g, 26, 2, lf[3]); paPX(g, 28, 3, lf[3]); // streamed tip
   return s;
 }
 function sfShrubSpr(v){
-  // clipped hedge blob with blossom speckles (v1 = flowering)
+  // clipped hedge — leaf-cluster texture, blossom speckles (v1 flowering)
   const s = paMk(30, 18), g = s.g;
   const lf = MAT.leaf, ld = MAT.leafDeep;
-  paEllipse(g, 15, 12, 13, 5.5, ld[1]);
-  paEllipse(g, 15, 10, 12, 5.5, ld[2]);
-  paEllipse(g, 15, 9, 11, 5, lf[3]);
-  paEllipse(g, 11, 7, 6, 3, lf[4]);
-  paNoise(g, 4, 3, 22, 12, [lf[5], ld[0]], 0.10, 1620 + v);
+  paEllipse(g, 15, 11, 13, 5.5, ld[1]);
+  sfLeafCanopy(g, 15, 10, 12, 5, 1620 + v, lf, ld, { n: 64 });
   if(v === 1)
     paNoise(g, 5, 4, 20, 9, ['#f0b8d0', '#f8e8f0', '#e8c05a'], 0.09, 1625);
   return s;

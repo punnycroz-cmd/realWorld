@@ -440,8 +440,10 @@ function sfInitWorld(){
         if(sfTile(wx, wy - 1) === 16 || sfTile(wx, wy + 1) === 16 ||
            sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16) continue;
         if(doorNear(wx, wy, 2)) continue;
-        if(phash(wx, wy, 1650) > 0.30) continue;
-        if(occNear(wx, wy, 3)) continue;
+        // v21: real Mission streets carry a pit tree every ~8-10m —
+        // coverage roughly doubles, spacing relaxed one cell
+        if(phash(wx, wy, 1650) > 0.55) continue;
+        if(occNear(wx, wy, 2)) continue;
         const v = phash(wx, wy, 1651) < 0.22 ? 1 : (phash(wx, wy, 1652) < 0.18 ? 2 : 0);
         const o = addVeg('sfStreetTree', wx, wy, fx, fy);
         o.v = v; nStreetTree++;
@@ -449,8 +451,21 @@ function sfInitWorld(){
         // park grass: shrubs + flowerbeds; denser near paths, sparse inside
         const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
                          sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
+        const nearWalk = sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11 ||
+                         sfTile(wx - 1, wy) === 11 || sfTile(wx + 1, wy) === 11;
         const h1 = phash(wx, wy, 1660);
-        if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
+        // v21: Dolores Park is TREE-dotted, not bare lawn — big leafy
+        // canopy trees inside the grass, palms ringing the park edge,
+        // cypress in clustered stands (they grow in groves, not alone)
+        if(h1 > 0.975 && !occNear(wx, wy, 4) && !nearPath){
+          addVeg('sfTree', wx, wy,
+                 (phash(wx, wy, 1667) - 0.5) * 10, (phash(wy, wx, 1668) - 0.5) * 10);
+          nParkVeg++;
+        } else if(nearWalk && h1 < 0.07 && !occNear(wx, wy, 4)){
+          addVeg('sfPalm', wx, wy,
+                 (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
+          nParkVeg++;
+        } else if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
           addVeg('sfFlowerBed', wx, wy,
                  (phash(wx, wy, 1661) - 0.5) * 14, (phash(wy, wx, 1662) - 0.5) * 14);
           nParkVeg++;
@@ -458,12 +473,19 @@ function sfInitWorld(){
           addVeg('sfShrub', wx, wy,
                  (phash(wx, wy, 1663) - 0.5) * 16, (phash(wy, wx, 1664) - 0.5) * 16);
           nParkVeg++;
-        } else if(h1 > 0.996 && !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
-          addVeg('sfCypress', wx, wy,
-                 (phash(wx, wy, 1665) - 0.5) * 10, (phash(wy, wx, 1666) - 0.5) * 10);
-          nParkVeg++;
+        } else if(h1 > 0.99 && !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
+          // grove: up to 3 cypresses clustered around the seed cell
+          const nCl = 1 + Math.floor(phash(wx, wy, 1675) * 3);
+          for(let ci = 0; ci < nCl; ci++){
+            const cx2 = wx + Math.floor(phash(wx, wy, 1677 + ci) * 3) - 1;
+            const cy2 = wy + Math.floor(phash(wy, wx, 1681 + ci) * 3) - 1;
+            if(sfTile(cx2, cy2) !== 13 || occNear(cx2, cy2, 1)) continue;
+            addVeg('sfCypress', cx2, cy2,
+                   (phash(cx2, cy2, 1665) - 0.5) * 10, (phash(cy2, cx2, 1666) - 0.5) * 10);
+            nParkVeg++;
+          }
         }
-      } else if(t === 15 && nPathPalm < 80){
+      } else if(t === 15 && nPathPalm < 170){
         // palm sentinels along park paths, offset onto the grass edge
         let fx = 0, fy = 0;
         if(sfTile(wx, wy - 1) === 13) fy = -13;
@@ -471,7 +493,7 @@ function sfInitWorld(){
         else if(sfTile(wx - 1, wy) === 13) fx = -13;
         else if(sfTile(wx + 1, wy) === 13) fx = 13;
         else continue;
-        if(phash(wx, wy, 1670) > 0.05 || occNear(wx, wy, 4)) continue;
+        if(phash(wx, wy, 1670) > 0.14 || occNear(wx, wy, 4)) continue;
         addVeg('sfPalm', wx, wy, fx, fy); nPathPalm++;
       }
     }
