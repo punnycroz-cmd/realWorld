@@ -1,4 +1,39 @@
-# Memory Model Spec v3.4 — implementable human-like memory for RW characters
+# Memory Model Spec v3.5 — implementable human-like memory for RW characters
+
+> **v3.5 note (encoding-mechanics III — the capacity/competition
+> layer):** `memory/encoding-mechanics.md` Part III (§§30–38) prices
+> what else was on screen and what was still open when a trace was
+> born: **perceptual load** — the scene's crowding raises `att_min`
+> for ambient records and thins peripherals, while LOW load spills
+> involuntary capacity onto incidentals and absorbed scenes suppress
+> lapses (Lavie 1995/2005; Cartwright-Finch & Lavie 2006; Murphy &
+> Greene 2016 eyewitness result — `load_flag` births misinfo-prone
+> records) — §30; **capacity bound** `wm_cap` (Cowan 2001, 4±1) —
+> events write at most wm_cap full-strength elements, chunking via
+> `coherentUnit`/DomainTable widens experts — §31; **attention
+> residue** — post-boundary residual daLoad, worse after interruptions,
+> relieved by clean closure (Leroy 2009) — §32; **next-in-line** —
+> turn-anticipation hits attention+elaboration on other-agent content,
+> an encoding locus per Bond 1985 — §33; **pending-intention ecology**
+> — tonic daLoad hum from open loops, cue heating on goal-related
+> material, and post-completion inhibition of the intention record
+> itself (Goschke & Kuhl 1993; Marsh, Hicks & Bink 1998) — §34;
+> **cognitive offloading** — `offload` events write hollow records
+> (weak content, strong `extref` pointer); `offloadAttend` (zooming)
+> nulls the cost; `extCue` intentions pay less tonic but bind cues
+> half as well (Sparrow/Liu/Wegner 2011; Henkel 2014; Risko & Gilbert
+> 2016) — §35; **threat capture** — `threatCue` records prioritize
+> while co-occurring neutrals drain, scaled by trait anxiety per
+> Bar-Haim 2007's absent-in-nonanxious meta — §36; **pre-sleep
+> adjacency** — last-3h episodic records gain a shield at the sleep
+> tick (Jenkins & Dallenbach 1924; Gais 2006) — §37; **varied-context
+> re-encoding** — spaced re-activations in NEW contexts append cue
+> fields (doors, not strength; Smith & Rothkopf 1984) — §38. Deliberate
+> nulls: primacy (absorbed by boundary_gain+elaboration), reactive
+> JOL (gen_gain), seductive details (daLoad), massed re-encoding
+> (existing rails), reward (value_select fold), momentary suppression
+> (suppress_da_map), post-learning exercise. +18 params in §7, +9
+> frozen constants; probes P358–P367. All optional, default-neutral.
 
 > **v3.4 note (character-profiles II — the narrative-self layer):**
 > `memory/cast-profiles.md` Part II (§§8–10) adds the layer that makes
@@ -1231,6 +1266,69 @@ Postman 1964; Hyde & Jenkins 1973).
     hand_mix` (0.015) episodic recall only and `beta_source −=
     0.05·hand_mix`; all encoding/face/wmc params flat
     (Lyle, McCabe & Roediger 2008 task pattern).
+
+- **Perceptual load (v3.5):** Event field `perceptLoad` ∈ [0,1]
+  (scene perceptual crowding on the focal task; default 0.4). For
+  non-focal records formed in the same tick:
+  `att_min_eff = att_min·(1 + load_att_raise·perceptLoad)` (1.0) and
+  `E ×= (1 − load_periph_supp·perceptLoad)` (0.5) — early selection:
+  high-load scenes starve ambient material (Cartwright-Finch & Lavie
+  2006; Murphy & Greene 2016 — central detail spared, peripheral
+  lost). At `perceptLoad < 0.3` ambient attention ×(1 + `load_spill`)
+  (0.2) — spare capacity spills involuntarily (Lavie). All records:
+  `lapse_p ×= (1 − load_lapse_relief·perceptLoad)` (0.5) — absorbed
+  scenes leave nothing to wander with (Forster & Lavie 2009). Records
+  born at perceptLoad ≥ `load_flag_thresh` (0.6) set `load_flag` —
+  permanent +0.1 misinformation adoption on §6.3 (Murphy & Greene's
+  suggestion result; mirrors sleepdep_flag).
+- **Capacity bound (v3.5):** `wm_cap` (4, ±1 by wmc, ×(1−0.15·
+  age_eff/80)). If an event's writable elements (verbatim fields +
+  cueVector keys + participant links) exceed wm_cap, rank by
+  attention×selfRelevance; top wm_cap write normally, remainder write
+  with prob `vivid_detail·cap_spill` (0.5) at ×0.6 strength.
+  `coherentUnit` merges bound fields into one element; DomainTable
+  strength ≥0.6 merges up to `floor(domainStrength·3)` in-domain
+  elements — chunking, not cheating (Cowan 2001; Chase & Simon).
+- **Attention residue (v3.5):** on `boundary:true` events tagged
+  `interrupted`/`closedClean`, subsequent-tick records take effective
+  `daLoad += residue_load·residue_decay^t` for `residue_ticks` (3)
+  — `residue_load` 0.3 ×1.3 if interrupted, ×0.5 if closedClean
+  (Leroy 2009: the prior event model occupies working memory past
+  the boundary).
+- **Next-in-line (v3.5):** Event flag `floor_next:true` (character
+  composing an imminent turn). Other-agent content takes
+  `attention ×= (1 − next_inline_cost)` AND `elaboration ×= (1 −
+  next_inline_cost)` (0.35) — encoding locus (Bond 1985); flag may
+  reach `nil_reach` (3) utterances back (Brenner 1973 scallop).
+  The character's own turn record is exempt.
+- **Pending-intention ecology (v3.5):** while n Intentions pending,
+  `daLoad += pending_intrude·min(n,5)` (0.04, cap `pending_intrude_cap`
+  0.2); records cue-overlapping a pending intention's ifCue/thenAct
+  get `E += pending_cue_gain` (0.15); on fire/cancel the intention
+  record stops s_gain receipts and β ×= `intent_done_decay` (1.3) —
+  completed < neutral (Marsh, Hicks & Bink 1998).
+- **Cognitive offloading (v3.5):** Event flag `offload:true` →
+  `E ×= (1 − offload_cost)` (0.2), verbatim ×(1−0.5·offload_cost);
+  `offloadAttend:true` nulls the cost (Henkel zoom). Record gains
+  `extref` field at birth strength `offload_where_gain` (0.3) — hollow
+  records: weak content, strong pointer (Sparrow, Liu & Wegner 2011).
+  Intentions with `extCue:true` pay `pending_intrude ×= 0.3` but
+  internal cue-binding ×`extcue_bind_mult` (0.5) — external reminders
+  discharge the loop AND the vigilance (Risko & Gilbert 2016).
+- **Threat capture (v3.5):** Event flag `threatCue:true` →
+  `E += threat_capture` (0.2) on the threat record; co-occurring
+  non-threat records ×=(1 − `threat_drain`·(0.3 + 0.7·traitAnx))
+  (0.3) — anxiety-moderated per Bar-Haim 2007 (d=.45, ~absent in
+  nonanxious); composes with ABC (item-level) — this is scene-level.
+- **Pre-sleep adjacency (v3.5):** episodic records created within
+  `pre_sleep_window` (0.125 day, ~3h) before the sleep tick get
+  `strength += pre_sleep_gain·(1−strength)` (0.1) at that tick —
+  interference-avoidance by adjacency (Jenkins & Dallenbach 1924;
+  Gais, Lucas & Born 2006). Orthogonal to sleepFactor and emo_consol.
+- **Varied-context re-encoding (v3.5):** when `spacingBonus` fires,
+  if cueContext tags differ from the record's stored context keys,
+  append up to `ctx_var_add` (2) cue fields — new retrieval routes
+  accrue on re-activation (Smith & Rothkopf 1984; Smith & Vela 2001).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -4143,6 +4241,26 @@ MemoryParams = {
   "invol_pos_bias": 0.2,     // positive share boost, involuntary scan
   "ambient_cap_mult": 0.4,   // ambient NPC live-store cap multiplier
   "ambient_trait_sigma": 0.3,// ambient trait-sample σ (narrow band)
+  // v3.5 additions (encoding-mechanics III — capacity/competition
+  // layer, encoding-mechanics.md Part III §§30–38)
+  "load_att_raise": 1.0,     // perceptual load raises ambient att_min (§30)
+  "load_periph_supp": 0.5,   // peripheral E suppression under load (§30)
+  "load_spill": 0.2,         // low-load involuntary spillover (§30)
+  "load_lapse_relief": 0.5,  // absorbed task → fewer lapses (§30)
+  "wm_cap": 4,               // chunk bound on record width (§31)
+  "cap_spill": 0.5,          // overflow-field write probability (§31)
+  "residue_load": 0.3,       // post-boundary residual daLoad (§32)
+  "residue_decay": 0.5,      // per-tick residue decay (§32)
+  "next_inline_cost": 0.35,  // turn-anticipation encoding hit (§33)
+  "pending_intrude": 0.04,   // per-pending-intention tonic daLoad (§34)
+  "pending_cue_gain": 0.15,  // goal-related cue heating (§34)
+  "intent_done_decay": 1.3,  // completed-intention β mult (§34)
+  "offload_cost": 0.2,       // offloaded-content E penalty (§35)
+  "offload_where_gain": 0.3, // extref pointer birth strength (§35)
+  "threat_capture": 0.2,     // threat-stimulus E priority (§36)
+  "threat_drain": 0.3,       // co-occurring neutral suppression (§36)
+  "pre_sleep_gain": 0.1,     // pre-sleep-window shield (§37)
+  "ctx_var_add": 2,          // new-context cue fields on re-activation (§38)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -4231,6 +4349,12 @@ MemoryParams = {
 //   recov_tol = 0.10, bh_q = 0.10, probe_n_prop = 384, probe_n_sign = 60
 //   (harness-level — live in the probe harness, not MemoryParams);
 //   degradation ladder L0–L4 is a documented-modes contract, not params
+// v3.5 frozen constants (encoding-mechanics.md §40):
+//   residue_ticks = 3; nil_reach = 3 utterances; pre_sleep_window =
+//   0.125 day (~3h — Gais 2006); pending_intrude_cap = 0.2 (n cap 5);
+//   offload_intrude_relief = 0.3; extcue_bind_mult = 0.5;
+//   suppress_da_map = 0.2 (momentary suppression → daLoad);
+//   perceptLoad_low = 0.3; load_flag_thresh = 0.6
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -4893,6 +5017,20 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     promoted); promotion path = full MVN sample + SelfModel backfill.
   - Snapshot-additive: `selfdef`/`meaning`/`sdmCat` absent = legacy
     records; `defens` absent = 0.
+- v3.5 additions (encoding-mechanics.md Part III §§30–38):
+  - Event fields (all optional, default-neutral): `perceptLoad` ∈
+    [0,1]; `floor_next:true`; `offload:true`/`offloadAttend:true`;
+    `threatCue:true`; boundary events may carry `interrupted`/
+    `closedClean` for the residue modifier.
+  - Record fields: `extref` (external-store pointer — device, note,
+    person-who-knows; a successful extref hit lets reconstruction
+    legitimately terminate at the pointer, §35); flag `load_flag`
+    (born under perceptLoad ≥0.6 → +0.1 §6.3 adoption, §30).
+  - Intention field `extCue:true` (externally reminded) — tonic
+    relief × cue-binding trade (§35); fire/cancel now also stops
+    s_gain receipts and applies `intent_done_decay` to β (§34).
+  - Snapshot-additive: all fields absent = legacy behavior;
+    `perceptLoad` absent = 0.4 default.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

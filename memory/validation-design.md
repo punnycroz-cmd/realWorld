@@ -2413,3 +2413,73 @@ CONSENSUS. Applications flagged HYPOTHESIS: treating probe ICC as a
 diversity health-metric (§45.3 — ours), world-benchmark forensic quiz
 thresholds (§51 — ours), compound-lesion monotonicity as an
 invariant (§52 — plausible, not literature-guaranteed).
+
+## 55. New probes P358–P367 (v36 suite — encoding-mechanics III)
+
+Full spec of each probe is in `encoding-mechanics.md` §41; registry
+entries below carry tier, sign-lock, and guard role only. All bands
+follow the §3 replication-discount protocol; cluster-aware CIs per §45.
+
+- **P358 perceptual load (MUST):** perceptLoad 0.8 vs 0.2 at matched
+  focal content → ≥30% fewer ambient records, thinner peripheral fields
+  on survivors, central fields spared (TOST); low-load spillover
+  direction required; residual primacy audit ≤0.03 rides this probe.
+- **P359 load×lapse (SHOULD):** lapse incidence at high perceptLoad
+  ≤60% of low-load incidence — absorbed scenes trade unexplained holes
+  for filtered absences (Forster & Lavie sign-locked).
+- **P360 capacity bound (MUST):** >wm_cap-element events write ≤ wm_cap
+  full-strength fields; coherentUnit/DomainTable≥0.6 events exceed the
+  nominal bound only via chunk-merge accounting (audit the merge math,
+  not the count).
+- **P361 attention residue (SHOULD):** interrupted-boundary dip >
+  closedClean dip > pressured-complete dip (Leroy ordering); residue
+  confined to residue_ticks.
+- **P362 next-in-line (MUST):** floor_next tick → other-agent recall
+  deficit NOT rescued by cued recall (encoding locus — Bond 1985);
+  own-turn record exempt; deficit scales with turn complexity
+  (Brenner slope).
+- **P363 pending-intention ecology (MUST):** tonic drain measurable;
+  goal-cue heating positive; completed/canceled intention records
+  decay FASTER than never-fired matched (sign-locked — Marsh
+  inhibition); reward-fold residual ≤0.02.
+- **P364 offloading (MUST):** hollow-record signature — content recall
+  down, extref recall ≥ content recall; offloadAttend TOST-equivalent
+  to observed; extCue intentions miss more cue firings on reminder
+  failure (dependency direction).
+- **P365 threat capture (SHOULD):** threatCue advantage + same-tick
+  neutral drain; drain scales with traitAnx, floor-preserved in
+  nonanxious band (Bar-Haim moderation — bias attenuates, doesn't vanish).
+- **P366 pre-sleep adjacency (SHOULD):** last-3h records outlive
+  matched morning-encoded at equal objective delay (J&D direction);
+  invariant under sleepFactor manipulation.
+- **P367 context variability (SHOULD):** varied-context re-activated
+  records retrievable across MORE cue contexts than same-context at
+  matched strength — door-count, not strength.
+
+Registry now P1–P367; numbering stable.
+
+## 56. Sources new to this version
+
+Lavie 1995/2005 (load theory); Cartwright-Finch & Lavie 2006 (Cognition
+102:321 — verified: load-induced inattentional blindness); Forster &
+Lavie 2009 (Cognition 111:345 — verified: load suppresses
+mind-wandering); QJEP 2022 IB systematic review/metas (perceptual
+account supported, cognitive-load account unclear — kept SHOULD-tier);
+Murphy & Greene 2016 (Front. Psych. 7:1322 — verified: eyewitness load,
+peripheral loss + suggestion susceptibility, cross-modal); Cowan 2001
+(BBS 24 — verified: magical number 4); Leroy 2009 (OBHDP 109:168 —
+verified: attention residue + moderators); Brenner 1973 (JVLVB 12:320 —
+verified: scallop effect); Bond 1985 (JPSP 48:853 — verified: encoding
+locus, instruction reversal); Goschke & Kuhl 1993 (JEP:LMC 19:1211 —
+verified: intention superiority); Marsh, Hicks & Bink 1998 (JEP:LMC
+24:350 — verified: completed < neutral); Marsh & Hicks 1998 (M&C
+26:633 — verified: canceled intentions inhibited); Sparrow, Liu &
+Wegner 2011 (Science 333:776 — verified); Henkel 2014 (Psych. Sci.
+25:396 — verified: photo impairment + zoom exemption); Risko & Gilbert
+2016 (TiCS 20:676 — verified); Öhman & Mineka 2001; Bar-Haim et al.
+2007 (Psych. Bull. 133:1 — verified: 172 studies, d=.45, absent in
+nonanxious); Cisler & Koster 2010 (Clin. Psych. Rev. — verified
+components review); Jenkins & Dallenbach 1924 (Am. J. Psych. 35:605 —
+verified); Gais, Lucas & Born 2006 (Learn. Mem. 13:259 — verified);
+Glenberg 1979; Smith & Rothkopf 1984; Smith & Vela 2001 (PB&R meta —
+verified). Deliberate-null citations in encoding-mechanics.md §39.

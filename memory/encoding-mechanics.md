@@ -809,3 +809,441 @@ P230 audits), state→daLoad weights {pain .4, hunger .2, fatigue .3}.
 - Deliberate-null sources: Diemand-Yauman et al. 2011 vs Rummer et al.
   2016 / Xie et al. 2018 (disfluency collapse); Hintzman 2011
   (remindings — cross-ref).
+
+---
+
+# Part III — encoding-mechanics, third pass (v36 focus)
+
+**Version tag:** spec v3.5. Part I priced *how* an event was processed;
+Part II priced the *motivational state* and *content class*. Part III
+prices the **capacity and competition structure of the moment itself** —
+what else was on screen (perceptual load), how much could fit (capacity),
+what the previous moment left behind (attention residue), what the
+character was about to do (next-in-line, pending intentions), what they
+handed off to a device (offloading), what grabbed the encoder from
+outside (threat capture), and two cheap temporal/context modifiers
+(sleep-adjacency, varied-context re-encoding). 18 new params, 7 frozen
+constants, 10 probes (P358–P367).
+
+## 30. Perceptual load — the scene's crowding sets the encode bar (CONSENSUS direction; magnitude ESTABLISHED)
+
+Lavie's load theory (Lavie 1995; Lavie 2005; Cartwright-Finch & Lavie
+2006, Cognition 102:321 — verified): when the attended task carries high
+*perceptual* load, capacity is exhausted by the focal material itself and
+irrelevant stimuli are filtered at early selection — including stimuli
+that would otherwise be unmissable (load-induced inattentional
+blindness, replicated in the QJEP 2022 meta of IB manipulations). At
+LOW perceptual load, spare capacity spills over involuntarily and
+distractors are processed — the theory's signature asymmetry. Murphy &
+Greene (2016, Front. Psych. — verified) ran the paradigm on eyewitness
+memory: high load left CENTRAL detail intact while peripheral details
+(passerby at the edge of the scene) degraded and leading-question
+susceptibility rose; the effect crossed modalities (visual load hurt
+auditory recall). Forster & Lavie (2009, Cognition 111:345 — verified):
+high perceptual load REDUCES mind-wandering — an absorbed task leaves no
+spare capacity for the mind to wander with.
+
+This is NOT §4's `daLoad`. `daLoad` is a competing task pulling central/
+working-memory resources (late-selection, qualitative shallowing);
+`perceptLoad` is the focal channel itself being saturated — a different
+knob with different consequences: high daLoad degrades the focal record;
+high perceptLoad protects the focal record and kills the ambient ones.
+
+**Formalization.** Event field `perceptLoad ∈ [0,1]` (scene perceptual
+crowding on the focal task — world supplies from occupancy/visual-density
+tags; default 0.4):
+
+```
+for non-focal (ambient/incidental) records formed in the same tick:
+    att_min_eff = att_min·(1 + load_att_raise·perceptLoad)   (load_att_raise ≈ 1.0)
+    if written at all: E ×= (1 − load_periph_supp·perceptLoad) (≈ 0.5)
+at perceptLoad < 0.3: ambient attention ×(1 + load_spill)      (≈ 0.2 — spillover)
+all records this tick: lapse_p ×= (1 − load_lapse_relief·perceptLoad) (≈0.5 — Forster & Lavie)
+records born at perceptLoad ≥ 0.6: set load_flag:true — later
+    misinformation adoption +0.1 on the §6.3 path (Murphy & Greene
+    suggestion result; mirrors sleepdep_flag's permanent-marker trick)
+```
+
+RW consequence: a packed, loud party writes deep records about the
+person the character was talking to and almost nothing about the room —
+and the few room-records that exist are MORE rumor-malleable. An empty
+afternoon writes everything faintly, including the odd detail that will
+cue a memory years later.
+
+## 31. Capacity bound — the record has a width, not a wish (CONSENSUS)
+
+Cowan (2001, BBS 24 — verified): the focus of attention holds ~4 chunks
+(3–5), not Miller's 7. Until now the spec let an event write as many
+fields as `vivid_detail` allowed; nothing stopped a 9-element event from
+minting a 9-field record. Humans don't do that — they bind what fits and
+the rest is thin air.
+
+**Formalization.** Param `wm_cap` (default 4, integer, trait-jittered
+±1 by `wmc`; mild age scaling `×(1 − 0.15·age_eff/80)`). At encode,
+count the event's writable elements (verbatim fields + cueVector keys +
+participant links). If n > wm_cap: rank elements by `attention×
+selfRelevance` (per-field priority, same sort key as the ABC central/
+peripheral split); the top `wm_cap` write normally; the remainder write
+with probability `vivid_detail·cap_spill` (cap_spill ≈ 0.5) at strength
+×0.6. Chunking already exists in the model's language: `coherentUnit`
+merges its bound fields into ONE element (a signature action is one
+chunk), and DomainTable strength ≥0.6 merges up to
+`floor(domainStrength·3)` in-domain elements — the expert literally sees
+fewer things (Chase & Simon 1973, reuse, no new param). This is the
+mechanism behind "she caught four of the nine things he said" — and the
+correcting answer to any complaint that the archive is too complete.
+
+## 32. Attention residue — the previous scene doesn't end on time (ESTABLISHED, org-lit source)
+
+Leroy (2009, OBHDP 109:168 — verified): switching to a new task leaves
+part of attention behind on the prior task — especially when the prior
+task was unfinished or interrupted — degrading performance on the new
+one; completing the prior task under closure reduces (doesn't erase) the
+residue. Event-segmentation machinery (§5, Part I) prices the boundary
+ITSELF; the residue is what hangs over the far side of it.
+
+**Formalization.** When a `boundary:true` event fires, the world tags it
+`interrupted:true` if the prior segment was cut off (unfinished task,
+mid-conversation exit) or `closedClean:true` if it reached a natural end.
+For the next `residue_ticks` (3 ticks, frozen) after the boundary,
+records take an effective `daLoad += residue_load·residue_decay^t`
+(`residue_load` ≈ 0.3, `residue_decay` ≈ 0.5). Modifiers:
+`residue_load ×= 1.3` on `interrupted`, `×= 0.5` on `closedClean` —
+Leroy's two moderators, both verified directions. Routed through daLoad
+(not a new channel) because the residue IS central-resource
+competition — the prior event model still occupies working memory.
+RW consequence: "she came to dinner still inside the meeting" is now a
+computable sentence — and post-conflict scenes write thinner records,
+which is exactly how the worst weeks of a life compress in hindsight.
+
+## 33. Next-in-line — the turn you were about to take (CONSENSUS, small lit)
+
+Brenner (1973, JVLVB 12:320 — verified): turn-takers recall less of what
+was said immediately before their own turn — the "scallop" dip, growing
+with performance difficulty. Bond (1985, JPSP 48:853 — verified):
+it is an ENCODING failure, not retrieval — semantic cues don't rescue it,
+but instructing subjects to elaborate beforehand reverses it; Bond,
+Omar, Pitre & Lashley (1991) narrowed the mechanism to elaborative-
+rehearsal failure specifically (eye contact irrelevant). For a dialogue-
+heavy sim this is the single highest-yield conversational encoding fact
+in the literature: people remember what THEY said (gen_gain, Part I)
+and not what you answered.
+
+**Formalization.** Event flag `floor_next:true` on records formed while
+the character was composing an imminent utterance or action (dialogue
+layer supplies — it knows the turn queue). On such records, for all
+other-agent content: `attention ×= (1 − next_inline_cost)` AND
+`elaboration ×= (1 − next_inline_cost)` (`next_inline_cost` ≈ 0.35 —
+the elaboration leg is the literature's named mechanism, so the hit is
+double-channel like daLoad but driven by internal composition, not an
+external task). The character's OWN turn record is exempt (it carries
+gen_gain anyway). Window: the tick(s) the character holds floor_next —
+typically one turn back; Brenner's scallop reached ~3 items, so the
+flag may persist up to 3 utterances back on long self-monologues
+(frozen `nil_reach` = 3).
+
+## 34. Pending-intention pull — open loops tax the encoder and heat their cues (CONSENSUS on direction)
+
+Goschke & Kuhl (1993, JEP:LMC 19:1211 — verified): uncompleted
+intentions sit in persisting activation — the intention-superiority
+effect — even with rehearsal prohibited. Marsh, Hicks & Bink (1998,
+JEP:LMC 24:350 — verified): COMPLETED intentions drop BELOW neutral
+activation — completion inhibits, doesn't just release; Marsh & Hicks
+(1998, M&C 26:633 — verified): canceled intentions are likewise
+inhibited. §5.14 already fires the cues; Part III prices the encoding-
+side ecology the same activation creates:
+
+**Formalization.**
+- **Tonic drain:** while the character holds n pending Intentions,
+  effective `daLoad += pending_intrude·min(n, 5)` (`pending_intrude` ≈
+  0.04, cap 0.2) — the intention set is a permanent low-grade second
+  task. This is the mechanistic twin of §32's residue (residue is a
+  closed-model echo; this is an open-model hum).
+- **Cue heating:** records whose cueVector overlaps a pending
+  intention's `ifCue`/`thenAct` get `E += pending_cue_gain` (0.15) —
+  goal-relevant material encodes hotter while the loop is open
+  (Goschke & Kuhl's accessibility finding applied at birth).
+- **Completion release:** when an Intention fires or is canceled, its
+  record stops accruing `s_gain` receipts and its β ×=
+  `intent_done_decay` (1.3) — the Marsh "completed < neutral" result:
+  people really do forget what they already did. (Distinct from the
+  prospective-cue miss — the action happened; its representation fades
+  faster than a never-fired plan. The "did I send that email" doubt
+  rides §5.21's metamemory instruments, not this decay.)
+
+## 35. Cognitive offloading — the device remembers, so the person doesn't (ESTABLISHED, modern-life-critical)
+
+Sparrow, Liu & Wegner (2011, Science 333:776 — verified): expecting
+future access to information lowers recall of the information and raises
+recall of WHERE to find it — transactive memory with a search engine.
+Henkel (2014, Psych. Sci. 25:396 — verified): photographing objects
+impaired memory for the objects and their details — EXCEPT when the
+photographer zoomed/attended to a feature, which eliminated the cost.
+Risko & Gilbert (2016, TiCS 20:676 — verified): offloading is a
+metacognition-guided trade — people offload more when internal demand
+is high and their confidence low; Gilbert's intention-offloading work
+shows external reminders genuinely free internal resources.
+
+**Formalization.** Event flag `offload:true` (the character photographed
+it, wrote it down, dictated it, or expects it retrievable online):
+
+```
+E ×= (1 − offload_cost)                    (offload_cost ≈ 0.2)
+verbatim fields ×(1 − 0.5·offload_cost)
+if offloadAttend:true (attended capture — zoom, deliberate framing):
+    cost is null (Henkel's zoom condition)
+record gains field `extref` (where the trace lives — phone, notebook,
+    the person who was told) at birth strength offload_where_gain (0.3)
+```
+
+The `extref` field is the whole point: the record isn't deleted, it's
+*hollow* — strong pointer, weak content. At reconstruction (§5.5) a
+successful extref hit produces "I don't remember it, but it's on my
+phone" — retrieval can legitimately STOP at the pointer (dialogue: "hang
+on, let me check"). Intention offloading composes: an Intention with
+`extCue:true` (phone reminder) pays `pending_intrude ×= 0.3` (frozen
+`offload_intrude_relief`) — external reminders genuinely discharge the
+tonic cost — but its internal cue-binding is `×0.5` (frozen
+`extcue_bind_mult`): if the reminder doesn't fire, the character is less
+likely to notice the cue themselves (Risko & Gilbert's dependency
+finding). Bible dial in profiles: `offload_propensity` (frequency of
+offload flags — a habit, not a capacity).
+
+## 36. Threat capture — the scene's danger eats the frame (CONSENSUS on anxious amplification; DEBATED in nonanxious)
+
+Öhman & Mineka (2001): threat stimuli capture attention via a priority
+channel; Bar-Haim, Lamy, Pergamin, Bakermans-Kranenburg & van IJzendoorn
+(2007, Psych. Bull. 133:1 — verified: 172 studies, N≈4,000, d = 0.45)
+found the bias robust across paradigms in anxious participants and
+essentially ABSENT in nonanxious — the moderation is the finding.
+Cisler & Koster (2010, Clin. Psych. Rev. — verified) decompose it into
+facilitated capture + delayed disengagement. Encoding-side consequence:
+a threat stimulus in the scene wins the competition the same way an
+emotional-central field wins the ABC — but at the SCENE level, eating
+co-occurring neutral records.
+
+**Formalization.** Event flag `threatCue:true` on the threatening
+element of the scene (world supplies: weapon, aggressive posture,
+phobic-class object, threat-relevant face). The threat record gets
+`E += threat_capture` (0.2). Co-occurring non-threat records in the
+same tick take `E ×= (1 − threat_drain_eff)` where
+`threat_drain_eff = threat_drain·(0.3 + 0.7·traitAnx)` (`threat_drain`
+≈ 0.3; traitAnx = neurot>0/anxiety loading — Bar-Haim's absent-in-
+nonanxious result is honored by the 0.3 floor, not deleted: everyone
+prioritizes a little, the anxious lose the frame). Composes with —
+doesn't duplicate — the arousal ABC (item-level field reallocation) and
+v3.1's socialThreat retrieval vigilance: this is the birth-side channel
+that was missing. The threat record's own cues feed §4.9 conditioned
+acquisition normally — the flashbulb of fear is complete.
+
+## 37. Sleep-adjacency — the last hours of the day are protected (CONSENSUS direction; effect-size ESTABLISHED)
+
+Jenkins & Dallenbach (1924, Am. J. Psych. 35:605 — verified, the
+landmark): forgetting is slower across sleep than across equal wake
+time — sleep protects against interference. Gais, Lucas & Born (2006,
+Learn. Mem. 13:259 — verified): declarative memory is enhanced when
+sleep follows within a few hours of learning, independent of time of
+day. The sim already prices sleep QUALITY (`sleepFactor`); what it
+didn't price is that material encoded near the day's sleep boundary
+gets consolidated before wake-interference can accrue — the evening
+conversation outlives the morning one at matched objective delay.
+
+**Formalization.** Frozen `pre_sleep_window` = 0.125 day (~3h, Gais's
+"within a few hours"). At the day's sleep-consolidation tick, episodic
+records created inside the window get `strength += pre_sleep_gain·
+(1 − strength)` (`pre_sleep_gain` ≈ 0.1). Deliberately orthogonal to
+`sleepFactor` (this is adjacency, not depth) and to §2's emo_consol
+path (arousal-independent). Small by design — the mechanism is
+interference-avoidance, same family as Part II's rest_gain.
+
+## 38. Varied-context re-encoding — each new setting builds a new door (ESTABLISHED, meta-weak but real)
+
+Glenberg (1979); Smith & Rothkopf (1984 — verified); Smith & Vela (2001,
+PB&R meta — verified): material restudied/re-encountered in VARIED
+contexts is recalled better than material always met in one context —
+each new context adds retrieval routes (decontextualization). §2's
+spacingBonus already boosts the OLD record on spaced re-activation;
+what it doesn't do is WIDEN it — a record re-met only in the same room
+keeps the same thin cue set forever.
+
+**Formalization.** When spacingBonus fires (re-activation past
+`spacing_min_gap`), if the current cueContext differs from the record's
+stored tags (place/mood/social keys that don't match), append up to
+`ctx_var_add` (2) cue fields from the new context — the record accrues
+doors, not strength. Same-context re-encounters add nothing beyond the
+existing spacingBonus. RW consequence: the friend you only ever see at
+the bar is a bar-locked memory; the colleague you also bumped into at
+the market, the hospital, the funeral — reachable from everywhere. This
+is the encoding-side half of why socially mobile lives have more
+recoverable pasts.
+
+## 39. Deliberate non-adds (v36)
+
+- **Serial-position primacy:** first items in an episode already collect
+  `boundary_gain` (they sit at the opening boundary) plus whatever
+  elaboration they drew; Rundus's rehearsal account routes through
+  `elaboration`. A dedicated primacy param would double-count — P358's
+  harness audit includes a residual-primacy check (≤0.03).
+- **Reactive JOL:** making a judgment-of-learning slightly improves
+  learning (Soderstrom et al. 2015 meta — small positive reactivity). A
+  JOL is a generated self-judgment; if the world emits one as an event
+  it collects `gen_gain` normally. No param.
+- **Seductive details:** salient-irrelevant content harming focal
+  encoding (Harp & Mayer) rides `daLoad` + the §30 incidental machinery
+  — a fascinating tangent IS a competing task. No param.
+- **Massed re-encoding damp:** repetition without spacing already dies
+  on three existing rails — `novelty→0` merge (§4.3), spacingBonus's
+  `spacing_min_gap` floor, and the Part-I maintenance-rehearsal null.
+  No `reencode_damp`.
+- **Reward motivation:** anticipatory reward enhances hippocampal
+  encoding (Adcock et al. 2006) — but §2's `value_select`/importance
+  channel already routes goal-relevant value. Reward is folded into
+  `importance`, not a separate term (HYPOTHESIS fold; residual-audit
+  ≤0.02 under P363's harness).
+- **Momentary suppression flag:** event-level "keeping a poker face" is
+  already two-channeled — `regulate_style` on arousal events (v1.7) +
+  frozen map: non-arousal suppression effort → `daLoad += 0.2` (frozen
+  `suppress_da_map`). No param.
+- **Acute post-learning exercise:** consolidation-side arousal already
+  rides `post_stress_gain`/sleep paths; exercise's benefit is small and
+  mechanism-overlapping. Noted so nobody re-adds it.
+- **Modality (heard vs read) at matched content:** no reliable life-
+  sim-level asymmetry beyond `prod_gain`/engagement already priced.
+
+## 40. Parameter summary (new in v3.5 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `load_att_raise` | 1.0 | 0–2.0 | perceptual load raises ambient att_min | Cartwright-Finch & Lavie 2006 |
+| `load_periph_supp` | 0.5 | 0–0.8 | peripheral-record E suppression under load | Murphy & Greene 2016 |
+| `load_spill` | 0.2 | 0–0.5 | low-load involuntary spillover | Lavie 1995/2005 |
+| `load_lapse_relief` | 0.5 | 0–1.0 | absorbed task → fewer lapses | Forster & Lavie 2009 |
+| `wm_cap` | 4 | 3–5 | chunk bound on record width | Cowan 2001 |
+| `cap_spill` | 0.5 | 0–1.0 | overflow-field write probability | Cowan 2001 |
+| `residue_load` | 0.3 | 0–0.6 | post-boundary residual daLoad | Leroy 2009 |
+| `residue_decay` | 0.5 | 0.2–0.8 | per-tick residue decay | Leroy 2009 |
+| `next_inline_cost` | 0.35 | 0–0.7 | turn-anticipation encoding hit | Brenner 1973; Bond 1985 |
+| `pending_intrude` | 0.04 | 0–0.1 | per-pending-intention tonic daLoad | Marsh, Hicks & Bink 1998 |
+| `pending_cue_gain` | 0.15 | 0–0.4 | goal-related cue heating | Goschke & Kuhl 1993 |
+| `intent_done_decay` | 1.3 | 1.0–2.0 | completed-intention β mult | Marsh, Hicks & Bink 1998 |
+| `offload_cost` | 0.2 | 0–0.5 | offloaded-content E penalty | Henkel 2014; Sparrow 2011 |
+| `offload_where_gain` | 0.3 | 0–0.6 | extref pointer birth strength | Sparrow, Liu & Wegner 2011 |
+| `threat_capture` | 0.2 | 0–0.5 | threat-stimulus E priority | Öhman & Mineka 2001 |
+| `threat_drain` | 0.3 | 0–0.7 | co-occurring neutral suppression | Bar-Haim 2007 d=.45 |
+| `pre_sleep_gain` | 0.1 | 0–0.3 | pre-sleep-window shield at consolidation | J&D 1924; Gais 2006 |
+| `ctx_var_add` | 2 | 0–4 | new-context cue fields on re-activation | Smith & Rothkopf 1984 |
+
+**Frozen constants (v3.5):** `residue_ticks = 3`, `nil_reach = 3`
+(utterances), `pre_sleep_window = 0.125` day (~3h), `pending_intrude_cap
+= 0.2` (n cap 5), `offload_intrude_relief = 0.3` (extCue intentions pay
+30% tonic), `extcue_bind_mult = 0.5` (offloaded intentions bind internal
+cues half as well), `suppress_da_map = 0.2` (momentary suppression →
+daLoad), `perceptLoad_low = 0.3` (spillover threshold), `load_flag_thresh
+= 0.6` (misinfo-susceptible birth marker).
+
+## 41. Validation probes P358–P367
+
+- **P358 (MUST) perceptual load:** at matched focal content,
+  perceptLoad 0.8 vs 0.2 → fewer ambient records written (≥30% fewer),
+  weaker peripheral fields on survivors, central fields statistically
+  spared (Murphy & Greene asymmetry); low-load side shows MORE
+  incidentals (spillover direction); residual primacy check ≤0.03
+  (§39 audit).
+- **P359 (SHOULD) load×lapse:** lapse incidence at perceptLoad 0.8 is
+  ≤60% of lapse incidence at perceptLoad 0.2 (Forster & Lavie sign) —
+  the counterintuitive lock: absorbed scenes produce FEWER unexplained
+  holes while producing more absent-by-filter ones.
+- **P360 (MUST) capacity bound:** 9-element events write ≤ wm_cap
+  full-strength fields; overflow elements appear at ≤ cap_spill rate;
+  `coherentUnit` and DomainTable ≥0.6 events write MORE elements
+  effectively (chunking) — the expert record is wider without being
+  stronger per field.
+- **P361 (SHOULD) attention residue:** interrupted-boundary →
+  measurable daLoad-equivalent dip on records in the next 2–3 ticks
+  (band from residue_load/decay); closedClean boundary → dip present
+  but ≤ half (Leroy's moderator ordering: interrupted > clean-close >
+  pressured-complete).
+- **P362 (MUST) next-in-line:** floor_next tick → recall deficit on
+  other-agent content from the immediately-prior utterance at matched
+  E (Bond's encoding locus — cued recall does NOT rescue it), own-turn
+  record unaffected; deficit scales with the turn's self-composed
+  complexity (Brenner's performance-difficulty slope).
+- **P363 (MUST) pending-intention ecology:** ≥1 pending Intention →
+  tonic encoding dip measurable as daLoad-equivalent; goal-overlapping
+  cues encode hotter (pending_cue_gain); completed/canceled intention
+  records decay FASTER than never-fired matched records (Marsh
+  inhibition direction — sign-locked); reward residual audit ≤0.02
+  (§39 fold).
+- **P364 (MUST) offloading:** offload events → lower content recall
+  with extref recall ≥ content recall (the hollow-record signature);
+  offloadAttend nulls the cost (TOST vs observed); extCue intentions
+  pay reduced tonic but miss MORE cue firings if the reminder fails
+  (dependency direction, Risko & Gilbert).
+- **P365 (SHOULD) threat capture:** threatCue records beat matched
+  neutral records; same-tick neutrals drained; drain scales with
+  traitAnx and approaches zero (floor 0.3·threat_drain) in the
+  nonanxious band — Bar-Haim's moderation preserved, not absolute.
+- **P366 (SHOULD) pre-sleep:** records encoded inside pre_sleep_window
+  outlive matched morning-encoded records at equal objective delay
+  (J&D direction; band admits the effect is modest); independent of
+  sleepFactor manipulation (adjacency, not depth).
+- **P367 (SHOULD) context variability:** records re-activated in
+  DIFFERENT contexts accumulate cue fields and remain retrievable
+  across more cue contexts than same-context re-activated records at
+  matched strength — the door-count effect, not a strength effect.
+
+## 42. Spec deltas delivered (v3.5)
+
+- `memory-model-spec.md` → v3.5: §2 +9 mechanism bullets (perceptual
+  load, capacity bound, attention residue, next-in-line,
+  pending-intention ecology, offloading, threat capture, pre-sleep
+  adjacency, varied-context re-encoding); §7 +18 params; frozen
+  constants +9; §10 contract additions — Event fields `perceptLoad`,
+  `floor_next`, `offload`, `offloadAttend`, `threatCue`,
+  `interrupted`/`closedClean` on boundary events; record field
+  `extref`; Intention field `extCue`; record flag `load_flag`.
+- `character-memory-profiles.md`: §0 +18 clamp rows; §22 v3.5 note —
+  which of these are personality vs ecology (offload_propensity is a
+  bible habit; traitAnx already exists via neurot; wm_cap jitters with
+  wmc — no new trait).
+- `validation-design.md`: registry → P1–P367 (new §55, sources §56).
+- `human-memory-research.md`: §35 v36 summary appended.
+
+## 43. Sources new to this version (all verified 2026-09-23)
+
+- Lavie 1995 (JEP:HPP 21:451); Lavie 2005 (TiCS 9:75); Cartwright-Finch
+  & Lavie 2006 (Cognition 102:321 — load-induced inattentional
+  blindness); Macdonald & Lavie 2008 (JEP:HPP 34:1078); Forster &
+  Lavie 2009 (Cognition 111:345 — load reduces mind-wandering); QJEP
+  2022 systematic review + three metas on IB (17470218211064903 —
+  perceptual-load account supported, cognitive-load account unclear);
+  Murphy & Greene 2016 (Front. Psych. 7:1322 — eyewitness load,
+  peripheral loss + suggestion, cross-modal).
+- Cowan 2001 (BBS 24:87 — magical number 4).
+- Leroy 2009 (OBHDP 109:168 — attention residue; unfinished/interrupted
+  task residue; closure-under-pressure moderator).
+- Brenner 1973 (JVLVB 12:320 — scallop effect); Bond 1985 (JPSP
+  48:853 — encoding locus, instruction reversal); Bond & Kirkpatrick
+  1982 (JESP 18:307); Bond et al. 1991 (PSPB — elaborative-rehearsal
+  mechanism).
+- Goschke & Kuhl 1993 (JEP:LMC 19:1211 — intention superiority);
+  Marsh, Hicks & Bink 1998 (JEP:LMC 24:350 — completed < neutral);
+  Marsh & Hicks 1998 (M&C 26:633 — canceled intentions inhibited).
+- Sparrow, Liu & Wegner 2011 (Science 333:776 — Google effects:
+  content ↓, where-to-find ↑); Henkel 2014 (Psych. Sci. 25:396 —
+  photo-taking impairment, zoom exemption); Risko & Gilbert 2016
+  (TiCS 20:676 — offloading review, metacognitive gating); Gilbert
+  2022 (intention-offloading review).
+- Öhman & Mineka 2001 (fear module); Bar-Haim, Lamy, Pergamin,
+  Bakermans-Kranenburg & van IJzendoorn 2007 (Psych. Bull. 133:1 —
+  172 studies, d=.45, absent in nonanxious); Cisler & Koster 2010
+  (Clin. Psych. Rev. 30:203 — components review).
+- Jenkins & Dallenbach 1924 (Am. J. Psych. 35:605); Gais, Lucas &
+  Born 2006 (Learn. Mem. 13:259 — sleep within hours, circadian-
+  independent).
+- Glenberg 1979; Smith & Rothkopf 1984; Smith & Vela 2001 (PB&R
+  meta — environmental context effects reliable, modest).
+- Deliberate-null sources: Rundus 1971 (primacy=rehearsal);
+  Soderstrom et al. 2015 (JOL reactivity meta); Harp & Mayer 1998
+  (seductive details); Adcock et al. 2006 (reward anticipation →
+  hippocampus); Roig et al. 2013 (post-learning exercise).

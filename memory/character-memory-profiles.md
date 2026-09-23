@@ -430,6 +430,17 @@ never copying raw.
 | script_age_pull | 0.0 | 0.5 | normative-age pull on lifescript records (v3.4) |
 | invol_pos_bias | 0.0 | 0.5 | positive share boost, involuntary scan (v3.4) |
 | ambient_cap_mult / ambient_trait_sigma | 0.2 / 0.15 | 0.7 / 0.5 | ambient tier: cap / trait band (v3.4) |
+| load_att_raise / load_periph_supp | 0 / 0 | 2.0 / 0.8 | perceptual-load scene filter (v3.5) |
+| load_spill / load_lapse_relief | 0 / 0 | 0.5 / 1.0 | low-load spillover; absorbed-task lapse relief (v3.5) |
+| wm_cap / cap_spill | 3 / 0 | 5 / 1.0 | chunk bound + overflow write rate (v3.5) |
+| residue_load / residue_decay | 0 / 0.2 | 0.6 / 0.8 | post-boundary residual drain (v3.5) |
+| next_inline_cost | 0 | 0.7 | turn-anticipation encoding hit (v3.5) |
+| pending_intrude / pending_cue_gain | 0 / 0 | 0.1 / 0.4 | open-loop tonic + cue heating (v3.5) |
+| intent_done_decay | 1.0 | 2.0 | completed-intention β mult (v3.5) |
+| offload_cost / offload_where_gain | 0 / 0 | 0.5 / 0.6 | hollow records / pointer strength (v3.5) |
+| threat_capture / threat_drain | 0 / 0 | 0.5 / 0.7 | threat priority + neutral drain (v3.5) |
+| pre_sleep_gain | 0 | 0.3 | last-hours-of-day consolidation shield (v3.5) |
+| ctx_var_add | 0 | 4 | new-context cue fields on re-activation (v3.5) |
 
 **v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
 only new per-char dial — how long a trusted correction keeps a record
@@ -1481,3 +1492,50 @@ edit content fields — only `meaning` — so a redemption-teller's
 facts stay checkable; `defens` does NOT load `self_share_pen` (that
 is `selfconceal`'s channel — the two traits dissociate, which is
 why a secretive-but-unrepressed character keeps a vivid inner life).
+
+## 22. v3.5 note — encoding-mechanics III: which of these are personality
+
+The v3.5 layer is mostly ECOLOGY — perceptual load, interruptions,
+turn position, pending errands, device habits — supplied by the world
+and dialogue layers, not the bible. The per-character surfaces:
+
+- **`wm_cap` / `cap_spill`:** the one true capacity dial. Jitter
+  `wm_cap` ±1 on `wmc` (already correlated); `cap_spill` high fits a
+  character who catches stray details — pair it with high `vivid_detail`,
+  never as a substitute. Do NOT raise `wm_cap` to make a character
+  "smart" — it only widens the record, it doesn't deepen it; depth is
+  `elab_gain`'s job.
+- **`offload_propensity` (bible habit, not a param):** how often the
+  world emits `offload` events FOR this character — the phone-first
+  personality. High on a documentary/tech-forward cast member; near
+  zero on the notebook-keeper and the distrustful elder. The `extref`
+  pointer then writes automatically. A high-offload character's archive
+  SHOULD feel hollow — lots of "it's on my phone" reconstructions.
+- **`threat_drain` (via traitAnx):** rides the existing `neurot`>0
+  loading — no new trait. The nonanxious floor (0.3·threat_drain) is
+  a population constant; pin `threat_drain` high only on profiles
+  already carrying threat-vigilance machinery (v3.1 socialThreat,
+  trauma profiles). A calm profile under threat_drain 0.6 reads wrong —
+  the meta says the bias nearly vanishes without anxiety.
+- **`residue_load`:** mild personality surface — ruminative profiles
+  (high neurot, high stress-state) may take +0.1; the Leroy moderators
+  (interrupted ×1.3 / closedClean ×0.5) are frozen and apply to all.
+- **`pending_intrude`:** mostly state (how many open loops the world
+  hands the character). Slightly higher default on scatterbrain/
+  low-consc profiles — they hold more intentions AND feel them more.
+- **`next_inline_cost`:** population-flat. The behavior it produces
+  ("knows their own line, not your reply") needs no trait — but a
+  socially anxious profile may be flagged `floor_next` MORE often by
+  the dialogue layer (rehearsing responses), which is the real
+  individual-difference channel.
+- **Ecology-only, never pin:** `load_*` (scene property), `floor_next`
+  (turn queue), `pre_sleep_gain` (flat — adjacency is physics),
+  `ctx_var_add` (flat — the world decides how varied a life is;
+  a stay-home routine life gets fewer doors naturally).
+
+Explicit nulls preserved (P358/P360/P364/P365 guards): `wm_cap` does
+NOT raise E or elaboration — it caps width only; `offload` records
+are NOT deleted, they keep cue access via extref; `threat_drain` does
+NOT scale with arousal (that is ABC's channel — a scary stimulus and
+a scary event are priced separately); `load_flag` is permanent like
+sleepdep_flag — born-in-a-crowd records stay suggestion-prone.

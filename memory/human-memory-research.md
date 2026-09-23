@@ -1633,3 +1633,61 @@ the ambient-tier formalization.
   not mnemonic; Victor's transactive widowhood now removes his
   mnemic-relief channel too (v22 Harris finding × v34 Green finding
   compose).
+
+## 35. v36 — encoding-mechanics III: the capacity/competition layer (2026-09-23)
+
+Third pass on `encoding-mechanics.md` (Part III §§30–43). Parts I–II
+priced how an event was processed and the encoder's motivational state;
+Part III prices the moment's competition structure — what else was on
+screen, what could fit, what was still open, what was handed off.
+
+- **Perceptual load is a different knob than divided attention.**
+  Lavie's load theory (1995/2005; Cartwright-Finch & Lavie 2006 —
+  verified): high perceptual load exhausts capacity on focal material,
+  filtering irrelevants at early selection (load-induced inattentional
+  blindness, meta-confirmed); LOW load spills involuntarily onto
+  distractors. Murphy & Greene (2016 — verified): high-load witnesses
+  keep central detail, lose peripherals, become more suggestible.
+  Forster & Lavie (2009 — verified): absorbed scenes suppress
+  mind-wandering. Spec: `perceptLoad` field drives `att_min_eff`,
+  peripheral suppression, low-load spillover, lapse relief, and a
+  permanent `load_flag` suggestion marker (sleepdep_flag's trick).
+- **Records have a width.** Cowan 2001 (verified, 4±1 chunks): events
+  now write at most `wm_cap` full-strength elements; overflow fields
+  survive at reduced rate/strength; `coherentUnit`/DomainTable merge
+  elements — experts see fewer chunks (Chase & Simon reuse).
+- **Boundaries leak.** Leroy 2009 (verified): post-boundary attention
+  residue — interrupted prior segments leave more, clean closes less —
+  modeled as decaying daLoad over 3 ticks. Brenner 1973 + Bond 1985
+  (verified): the next-in-line effect is an ENCODING failure on
+  other-agent content while composing a turn — `floor_next` flag.
+- **Open loops hum.** Goschke & Kuhl 1993 + Marsh, Hicks & Bink 1998
+  (verified): pending intentions hold persisting activation (tonic
+  daLoad + cue heating) and completed/canceled ones drop BELOW
+  neutral — `intent_done_decay` makes done errands fade fastest.
+- **Offloading writes hollow records.** Sparrow, Liu & Wegner 2011 +
+  Henkel 2014 + Risko & Gilbert 2016 (all verified): expecting
+  external storage lowers content memory but strengthens
+  where-to-find-it memory; zooming/attending nulls the camera cost.
+  `offload` events → weak content + strong `extref` pointer; `extCue`
+  intentions discharge the tonic but bind internal cues half as well.
+- **Threat eats the frame.** Bar-Haim et al. 2007 (verified: 172
+  studies, d=.45, absent in nonanxious): `threatCue` records
+  prioritize while co-occurring neutrals drain, anxiety-scaled —
+  the scene-level complement to item-level ABC.
+- **Two cheap temporal/context modifiers:** pre-sleep adjacency
+  (Jenkins & Dallenbach 1924; Gais 2006 — last-3h records shielded at
+  the sleep tick) and varied-context re-encoding (Smith & Rothkopf
+  1984 — spaced re-activations in new contexts append cue fields:
+  doors, not strength).
+- **Deliberate nulls:** primacy (boundary_gain+elaboration absorb),
+  reactive JOL (gen_gain), seductive details (daLoad), massed
+  re-encoding (existing rails), reward (value_select fold), momentary
+  suppression (suppress_da_map), post-learning exercise, raw modality.
+- Spec v3.4→v3.5: §2 +9 bullets, §7 +18 params, +9 frozen constants,
+  §10 contract fields (perceptLoad/floor_next/offload/offloadAttend/
+  threatCue/interrupted/closedClean/extref/load_flag/extCue);
+  profiles §0 +12 clamp rows + §22; probes P358–P367 (registry P1–P367).
+  4 source families web-verified (Lavie corpus, Leroy, Bond/Brenner,
+  Sparrow/Henkel/Risko-Gilbert, Goschke-Kuhl/Marsh, Bar-Haim, J&D/Gais,
+  Cowan, Smith-Rothkopf) — DOIs/effect directions confirmed.
