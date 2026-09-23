@@ -1,4 +1,11 @@
-# Parody Business Registry — "The Mission" (world v2)
+# Parody Business Registry — "The Mission" (world v16)
+
+> **v16 depth layer:** the naming policy below remains canonical. The
+> registry now has a machine mirror at `world/businesses.json` (tiers,
+> hours, staff, affordances, hooks), per-venue cards at
+> `world/businesses/*.md`, and an internal demo at `world/directory.html`
+> ("The Directory" — open/closed by clock, clearance-gated hooks). A
+> second wave of corridor flips landed in `SF_PARODY_NAMES` (§3b2).
 
 Canonical business names for the living world. **Locked rule (design §11,
 user 2026-09-22):** business names are parody — GTA-style imitation — never
@@ -199,6 +206,52 @@ generic label. All in `SF_PARODY_NAMES`:
 | Dog Eared Books | **The Dusty Spine** | | Community/Born Again Thrift | **Second Glance Thrift** |
 | Landline | **The Busy Signal** | | Arcana | **The Velvet Hour** |
 | Radio Habana | **Radio Mission** | | El Farolito Bar | **El Farolote Bar** |
+
+**v16 second wave** — corridor independents a camera will read (all in
+`SF_PARODY_NAMES`, mirrored in `parody-names.json`):
+
+| Real | Parody | | Real | Parody |
+|---|---|---|---|---|
+| Mission Chinese Food | **Bamboo Mission** | | Tacolicious | **Tacobulous** |
+| Taco Loco | **Taco Cuerdo** | | Souvla | **Souvluck** |
+| Ritual Coffee Roasters | **Habit Coffee Roasters** | | Craftsman and Wolves | **Craftsman and Foxes** |
+| La Taqueria | **El Taqueria** | | Papalote Mexican Grill | **El Volantín Grill** |
+| Mr. Pickle's | **Ms. Brine's Sandwich Shop** | | Whiz Burgers | **Whiz-Bang Burgers** |
+| Rosamunde Sausage Grill | **Rosalinda Sausage Grill** | | Stranded Records | **Marooned Records** |
+| Mission Comics and Art | **Mission Panels & Art** | | Good Vibrations | **Good Sensations** |
+| KitTea Cat Lounge | **Purr Cup Cat Lounge** | | Beauty Bar | **The Powder Room** |
+| Clooney's Pub | **Rooney's Pub** | | Royal Cuckoo | **The Royal Cockatoo** |
+| Beretta | **The Musket** | | Loló | **Yoló** |
+| Cha Cha Cha | **Cha Cha Chá Cantina** | | Boogaloos | **Boogie Lou's** |
+| The Sycamore | **The Hickory** | | Lone Palm | **The Lonely Palm** |
+| The Liberties | **The Freedoms** | | Casements | **The Wake** |
+| Wildhawk | **Tame Dove** | | 20 Spot | **19 Spot** |
+| El Toro | **El Buey** | | La Corneta | **La Trompeta** |
+| Mosto | **La Mostaza** | | Balancoire | **Balancín** |
+| El Trebol | **Cuatro Hojas** | | Laszlo | **Boris** |
+| Teeth | **Molars** | | Evil Eye | **The Wink** |
+| The Beehive | **Honeycomb Lounge** | | Buddy | **Chum** |
+| Gray Area | **The Grey Zone** | | Mission Cultural Center | **Centro Cultural La Misión** |
+| Holey Moley | **Hole in Fun** | | Smitten | **Crush Creamery** |
+| Easy Breezy | **Breezy Easy Frozen** | | Arizmendi Bakery | **Knead & Co. Bakery** |
+| Fayes Coffee | **Faze Coffee** | | Mission St Oyster Bar | **Half-Shell Social** |
+| Hi Lo BBQ | **Lo Hi Smokehouse** | | Lovejoy's Tea Room | **Joylove Tea Room** |
+| Valencia Cyclery | **Valencia Velo** | | The New Wheel | **The Old Wheel Bike Shop** |
+| Imagiknit | **Knit Happens** | | Bolerium Books | **The Dust Jacket** |
+| Russo Music | **Allegro Music** | | Bernal Cutlery | **Keen Edge** |
+| Natural Resources | **Small Wonders** | | Ministry of Scent | **The Nose Knows** |
+| Video Wave | **Rewind Video** | | Topdrawer | **Bottom Drawer** |
+| El Capitan Hotel | **El Almirante Hotel** | | Milagros de Mexico | **Milagros Market** |
+| Dogue | **Pawsh** | | Aveda Institute | **Veda Beauty Institute** |
+| The Marsh Cafe | **The Bog Café** | | Shuggie's Trash Pie | **Trash Panda Pie Co.** |
+| Old Jerusalem | **Newer Jerusalem** | | | |
+
+Also at v16: `party` → PARTY SUPPLY and `garden_centre` → PLANTS/NURSERY
+kind signage — the last three SHOP fallbacks (Gallardos Party Favors, San
+Francisco Tropical, The Mellow Mission) now render real generic labels.
+Audit: 161 parody / 74 civic-real / 0 unlabeled. These are signage-level
+venues with no cast ties — promote to `world/businesses.json` + a card
+only when a routine, job, or storyline attaches.
 
 ### 3b. Generic kind-signage table (implemented in code at v2)
 

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Directory (parody business registry)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Business registry demo — "The Directory" (world v16). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/businesses.json
+  (mirrored inline below — hand-synced). Card depth: world/businesses/*.md.
+  Shows: every canonical parody business, open/closed by clock, tier and
+  affordances, staff chips, game-$ price points, spectator hooks.
+  Clearance toggle: PUBLIC hides secret-adjacent hooks (Mission Unfiltered
+  authorship, the La Esperanza loan) exactly as briefings/feed would.
+  Boundaries: parody names only; game-$ prices are in-world money, never
+  credits; "hooks" are conditions for the sim, never scripts.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .clock{font-family:var(--mono);font-size:15px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 14px}
+  .clock small{color:var(--dim);font-size:10.5px}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim)}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  input[type=range]{width:200px;accent-color:var(--acc)}
+  main{max-width:1180px;margin:0 auto;padding:16px 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+  .biz{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .biz.closed{opacity:.62}
+  .biz .top{display:flex;align-items:baseline;gap:8px}
+  .biz h3{margin:0;font-size:15px}
+  .biz .tier{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:8px;padding:1px 7px;color:var(--dim)}
+  .tier.anchor{color:var(--acc);border-color:var(--acc)}
+  .tier.street{color:var(--blu);border-color:var(--blu)}
+  .tier.offstage{color:var(--dim)}
+  .tier.reserved{color:var(--pink);border-color:var(--pink);border-style:dashed}
+  .open{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+  .open.y{color:var(--grn)} .open.n{color:var(--dim)}
+  .biz .corner{font-size:11px;color:var(--dim);font-family:var(--mono);margin-top:2px}
+  .biz .hrs{font-size:11px;color:var(--dim);font-family:var(--mono)}
+  .row{font-size:11.5px;margin-top:7px}
+  .row b{color:var(--dim);font-weight:600;font-size:10px;letter-spacing:.07em;text-transform:uppercase}
+  .chip{display:inline-block;font-size:10.5px;border:1px solid var(--line);border-radius:8px;
+    padding:0 7px;margin:2px 3px 0 0;color:var(--ink);background:var(--bg)}
+  .chip.secret{border-color:var(--pink);color:var(--pink)}
+  .chip.aff{border-style:dashed;color:var(--dim)}
+  .hook{font-size:12px;color:var(--dim);margin:3px 0 0 0;padding-left:14px;position:relative}
+  .hook::before{content:"·";position:absolute;left:4px;color:var(--acc)}
+  .hook.redacted{color:var(--pink);font-style:italic}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin:14px 0}
+  .count{font-size:11px;color:var(--dim);font-family:var(--mono)}
+  .card{font-size:10px;font-family:var(--mono);color:var(--dim);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — THE DIRECTORY</div>
+  <span class="clock"><b id="ck">12:00</b> <small id="dp">midday · weekday</small></span>
+  <input type="range" id="scrub" min="0" max="24" step="0.5" value="12">
+  <div class="tgl" id="dayTgl">day <button data-v="weekday" class="on">weekday</button><button data-v="weekend">weekend</button><button data-v="sat">saturday</button></div>
+  <div class="tgl" id="tierTgl">tier <button data-v="all" class="on">all</button><button data-v="anchor">anchor</button><button data-v="street">street</button><button data-v="offstage">offstage</button><button data-v="reserved">reserved</button></div>
+  <div class="tgl" id="clrTgl">clearance <button data-v="internal" class="on">internal</button><button data-v="public">public</button></div>
+  <span class="count" id="cnt"></span>
+</header>
+<main>
+  <p class="fine">Parody names only — every door below is a fictional business on a real street (design §11).
+  Prices are <b>game dollars</b>, in-world money — never credits, never USD. Hooks are conditions the sim may
+  notice, never scripts it must run. Civic landmarks (SF General, the library, Dolores Park) keep real names as
+  scenery and are deliberately absent here.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+/* ---- inline mirror of world/businesses.json (hand-synced, v16) ---- */
+const BIZ = [
+ {id:'mudhaus', name:'Mudhaus Coffee', kind:'cafe', tier:'anchor', corner:'24th St mid-block',
+  hours:{weekday:[6.5,19], weekend:[7,20]}, staff:['C1 Marisol (mgr)','C2 Jules','C3 Dani','A01 Reyes'],
+  owner:'absentee LLC (off-screen)', afford:['venue lock','event','nudge','hires'],
+  prices:'drip $3.50 · latte $5.50 · pour-over $6.50', card:'world/businesses/mudhaus.md',
+  hooks:['7:30–9:30 rush packs the counter','closing inventory = tip jar counted twice'],
+  secret_hooks:['the Mission Unfiltered laptop appears on the manager\u2019s table after close']},
+ {id:'el-farolote', name:'Taqueria El Farolote', kind:'restaurant', tier:'anchor', corner:'Mission at 24th',
+  hours:{weekday:[10,25.5], weekend:[10,26.5]}, staff:['C8 Tomás (lead cook)'], owner:'off-screen family',
+  afford:['venue lock','nudge','hires'], prices:'super burrito $12 · taco $3.75', card:'world/businesses/el-farolote.md',
+  hooks:['post-bar rush after 1 AM is the loudest hour','Tomás prices suppliers at the Saturday growers market'],
+  secret_hooks:['the La Esperanza notebook lives under the register']},
+ {id:'auerbach', name:'Auerbach Hardware', kind:'hardware', tier:'anchor', corner:'Mission St (9102 Unit 2 upstairs = Victor\u2019s flat)',
+  hours:{weekday:[8,18], weekend:[9,17]}, staff:['C7 Victor (proprietor)'], owner:'C7, third generation',
+  afford:['nudge','hires'], prices:'key cut $4 · tool rental $18/half-day', card:'world/businesses/auerbach.md',
+  hooks:['Tuesday = repair day; tenant work orders stack on the counter','Cole\u2019s lunch-stop from the site next door'],
+  secret_hooks:['the handshake ledger sits in the back drawer, off the books']},
+ {id:'dolores-perk', name:'Dolores Perk', kind:'cafe', tier:'anchor', corner:'park edge, Dolores side',
+  hours:{weekday:[7,17], weekend:[7,18]}, staff:[], owner:'off-screen',
+  afford:['event','hires'], prices:'coffee $3.75 · sandwich $9.50', card:'world/businesses/dolores-perk.md',
+  hooks:['Esther + Ray hold the same two tables most afternoons','sunny weekend: 40-min line, everyone takes it to the grass']},
+ {id:'buy-rite-market', name:'Buy-Rite Market', kind:'supermarket', tier:'street', corner:'18th St',
+  hours:{weekday:[8,21], weekend:[8,21]}, staff:[], owner:'off-screen',
+  afford:['hires'], prices:'fancy grocery run ~$45 · out-of-season peach $4', card:'world/businesses/buy-rite.md',
+  hooks:['the whole cast\u2019s grocery runs pass through — collision density is the content']},
+ {id:'buy-rite-creamery', name:'Buy-Rite Creamery', kind:'ice_cream', tier:'street', corner:'18th St, beside the market',
+  hours:{weekday:[11,22], weekend:[11,23]}, staff:[], owner:'off-screen',
+  afford:['hires'], prices:'scoop $5.50 · sundae $9', card:'world/businesses/buy-rite.md',
+  hooks:['the line is a standing park-spillover scene — weather multiplies it']},
+ {id:'il-delfino', name:'Il Delfino', kind:'restaurant', tier:'street', corner:'18th St',
+  hours:{weekday:[17.5,22.5], weekend:[17.5,23]}, staff:[], owner:'off-screen',
+  afford:['event','hires'], prices:'pasta $24 · two-top w/ wine ~$110', card:'world/businesses/il-delfino.md',
+  hooks:['the window two-top is a public statement — who sits with whom is information']},
+ {id:'baguette', name:'Baguette About It Bakery', kind:'bakery', tier:'street', corner:'18th / Guerrero side',
+  hours:{weekday:[7,15], weekend:[7,16]}, staff:['A16 Hana (baker)'], owner:'off-screen',
+  afford:['nudge','hires'], prices:'morning bun $5 · country loaf $11', card:'world/businesses/baguette.md',
+  hooks:['4 AM bake light = the block\u2019s first lit window','~13:00 sellout — the CLOSED sign is a character']},
+ {id:'the-600-club', name:'The 600 Club', kind:'bar', tier:'street', corner:'Guerrero side',
+  hours:{weekday:[16,26], weekend:[14,26]}, staff:[], owner:'off-screen',
+  afford:['venue lock','event'], prices:'beer $6 · well $9 · open-mic free (booked in-world)', card:'world/businesses/the-600-club.md',
+  hooks:['wet Thursdays: Sam\u2019s rain songs','Bex\u2019s back-booth occupancy tracks her tattoo workload','the block\u2019s canonical event-request venue']},
+ {id:'dandy-lion', name:'Dandy Lion Chocolate Co.', kind:'chocolate', tier:'street', corner:'Valencia side',
+  hours:{weekday:[10,19], weekend:[10,20]}, staff:[], owner:'off-screen',
+  afford:[], prices:'bar $12 · hot chocolate $6', card:'world/businesses/dandy-lion.md',
+  hooks:['a Dandy Lion bag in hand signals intent — who receives it is the story','Marcus\u2019s want-he-can\u2019t-spend beat']},
+ {id:'valencia-growers', name:'Valencia Growers Market', kind:'marketplace', tier:'street', corner:'Valencia, weekly stalls',
+  hours:{weekday:null, weekend:[8,14], days:['sat']}, staff:[], owner:'vendor collective',
+  afford:['event'], prices:'produce bag ~$20', card:'world/businesses/valencia-growers.md',
+  hooks:['Saturday compression: everyone who cooks, same six hours','Luz\u2019s regulars defect weekly and she notices']},
+ {id:'needlepointe', name:'Needlepointe Tattoo', kind:'tattoo', tier:'street', corner:'Clarion-adjacent',
+  hours:{weekday:[12,20], weekend:[12,20]}, staff:['A14 Bex'], owner:'off-screen collective',
+  afford:['nudge'], prices:'shop minimum $80 · flash $120+', card:'world/businesses/needlepointe.md',
+  hooks:['Bex\u2019s flash sheet rotates with her mood — the wall is a readout']},
+ {id:'folsom-auto', name:'Folsom Auto & Sons', kind:'car_repair', tier:'street', corner:'Folsom side',
+  hours:{weekday:[8,17.5], weekend:null}, staff:['A10 Gus'], owner:'off-screen',
+  afford:['nudge'], prices:'oil $65 · brakes $380', card:'world/businesses/folsom-auto.md',
+  hooks:['radio always a ballgame — the day it isn\u2019t, something\u2019s wrong']},
+ {id:'maliks', name:'Malik\u2019s Mini Mart', kind:'convenience', tier:'street', corner:'Guerrero corner',
+  hours:{weekday:[7,23], weekend:[8,24]}, staff:['A03 Malik (owner-clerk)'], owner:'A03',
+  afford:['nudge'], prices:'chips $2.50 · six-pack $11', card:'world/businesses/maliks.md',
+  hooks:['the counter is the block\u2019s most reliable rumor node','bulletin board = world-state at a glance']},
+ {id:'las-palmas', name:'Frutería Las Palmas', kind:'greengrocer', tier:'street', corner:'Dolores at 19th (stand)',
+  hours:{weekday:[8,18], weekend:[8,18]}, staff:['A07 Luz'], owner:'A07 family stand',
+  afford:['nudge'], prices:'fruit cup $6 · mango $2', card:'world/businesses/las-palmas.md',
+  hooks:['weather-locked: rain day = an empty dry square of sidewalk']},
+ {id:'bloom-and-doom', name:'Bloom & Doom Flowers', kind:'florist', tier:'street', corner:'24th side',
+  hours:{weekday:[9,18], weekend:[10,16]}, staff:['A18 Ida'], owner:'A18',
+  afford:['nudge'], prices:'stem $4 · bouquet $35', card:'world/businesses/bloom-and-doom.md',
+  hooks:['a big van load tells spectators something is coming — the what stays in-world','window display is a mood ring for the cast']},
+ {id:'flying-pannier', name:'Flying Pannier Courier Co-op', kind:'poi', tier:'offstage', corner:'no door — locker wall + group chat',
+  hours:{weekday:[7,19], weekend:[9,17]}, staff:['C5 Marcus'], owner:'worker-owned',
+  afford:['nudge'], prices:'—', card:'world/businesses/flying-pannier.md',
+  hooks:['Marcus\u2019s manifest is a camera path through the whole block']},
+ {id:'muleit', name:'MuleIt', kind:'poi', tier:'offstage', corner:'an app — no door anywhere',
+  hours:{weekday:[0,24], weekend:[0,24]}, staff:['A06 Kofe'], owner:'off-screen platform',
+  afford:['hires'], prices:'—', card:'world/businesses/muleit.md',
+  hooks:['always hiring because always losing people — the churn is the business model']},
+ {id:'nimbus9', name:'Nimbus9', kind:'poi', tier:'offstage', corner:'remote — Nadia\u2019s kitchen table',
+  hours:{weekday:[9,17], weekend:null}, staff:['A13 Nadia'], owner:'off-screen tech co.',
+  afford:[], prices:'—', card:'world/businesses/nimbus9.md',
+  hooks:['deliberately faceless — an income and a schedule, nothing more']},
+ {id:'mission-unfiltered', name:'Mission Unfiltered', kind:'poi', tier:'offstage', corner:'anonymous blog — a feed surface',
+  hours:null, staff:[], owner:'anonymous',
+  afford:[], prices:'—', card:'world/businesses/mission-unfiltered.md',
+  hooks:['posts appear after events the author couldn\u2019t have attended — a spectator puzzle'],
+  secret_hooks:['SECRET-adjacent: the blog is public, the author (C1) is never exposed']},
+ {id:'la-esperanza', name:'Pupusería La Esperanza', kind:'restaurant', tier:'reserved', corner:'exists only in Tomás\u2019s notebook',
+  hours:null, staff:[], owner:'nobody yet',
+  afford:[], prices:'—', card:'world/businesses/la-esperanza.md',
+  hooks:['if it opens it is an earned world-event — savings, vacancy, lease — never a spawn'],
+  secret_hooks:['a $6,000 handshake loan from Victor is the whole capital stack']},
+ {id:'spares', name:'Reserved spare names', kind:'poi', tier:'reserved', corner:'unassigned',
+  hours:null, staff:[], owner:'unassigned',
+  afford:[], prices:'—', card:'world/businesses/spares.md',
+  hooks:['The Watchbird · Café Cometa · Golden Hour Laundromat — mintable when the world grows a door']},
+];
+const state = { t:12, day:'weekday', tier:'all', clr:'internal' };
+const $ = id => document.getElementById(id);
+function fmt(h){ const hh=Math.floor(h)%24, mm=h%1?'30':'00'; return String(hh).padStart(2,'0')+':'+mm; }
+function hoursFor(b){
+  if(!b.hours) return null;
+  let h = state.day==='weekday' ? b.hours.weekday : b.hours.weekend;
+  if(state.day==='sat' && b.hours.days && !b.hours.days.includes('sat')) h=null;
+  if(state.day==='weekend' && b.hours.days && b.hours.days.includes('sat')) h=null;
+  return h;
+}
+function isOpen(b){ const h=hoursFor(b); if(!h) return null; const t=state.t%24;
+  return h[0]<=h[1] ? (t>=h[0]&&t<h[1]) : (t>=h[0]||t<h[1]-24); }
+function hrsText(b){ const h=hoursFor(b); if(!b.hours) return 'no public hours';
+  if(b.hours.days) return 'Saturdays '+fmt(b.hours.weekend[0])+'–'+fmt(b.hours.weekend[1]);
+  if(!h) return 'closed '+state.day+'s';
+  return fmt(h[0])+'–'+fmt(h[1]%24); }
+function render(){
+  $('ck').textContent = fmt(state.t);
+  $('dp').textContent = (state.t<6?'overnight':state.t<11?'morning':state.t<16?'midday':state.t<21?'evening':'late night')+' · '+state.day;
+  const grid=$('grid'); grid.innerHTML='';
+  let n=0;
+  for(const b of BIZ){
+    if(state.tier!=='all' && b.tier!==state.tier) continue;
+    n++;
+    const open=isOpen(b);
+    const d=document.createElement('div');
+    d.className='biz'+(open===false?' closed':'');
+    const hooks=b.hooks.map(h=>`<p class="hook">${h}</p>`).join('');
+    const sec=(state.clr==='internal'&&b.secret_hooks)
+      ? b.secret_hooks.map(h=>`<p class="hook redacted">[internal] ${h}</p>`).join('') : '';
+    const redact = state.clr==='public'&&b.secret_hooks
+      ? `<p class="hook redacted">[redacted at public clearance — briefing rule]</p>` : '';
+    d.innerHTML=`<div class="top"><h3>${b.name}</h3><span class="tier ${b.tier}">${b.tier}</span>`+
+      (open===null?'<span class="open n">—</span>':open?'<span class="open y">open now</span>':'<span class="open n">closed</span>')+
+      `</div><div class="corner">${b.corner}</div><div class="hrs">${hrsText(b)}</div>`+
+      (b.staff.length?`<div class="row"><b>staff</b> ${b.staff.map(s=>`<span class="chip">${s}</span>`).join('')}</div>`:'')+
+      `<div class="row"><b>owner</b> ${b.owner}</div>`+
+      (b.afford.length?`<div class="row"><b>affords</b> ${b.afford.map(a=>`<span class="chip aff">${a}</span>`).join('')}</div>`:'')+
+      `<div class="row"><b>prices</b> ${b.prices}</div>`+hooks+sec+redact+
+      `<div class="card">${b.card}</div>`;
+    grid.appendChild(d);
+  }
+  $('cnt').textContent = n+' / '+BIZ.length+' shown';
+}
+$('scrub').oninput=e=>{state.t=+e.target.value;render();};
+for(const [id,key] of [['dayTgl','day'],['tierTgl','tier'],['clrTgl','clr']])
+  $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $(id).querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); state[key]=b.dataset.v; render(); });
+render();
+</script>
+</body>
+</html>

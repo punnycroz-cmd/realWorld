@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Playtest harness — runs scripted scenarios through the local demo
-  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15). Self-contained: file://-safe, no network.
+  surfaces (world v9; PT10 + lease v12, PT11 + thinai v13, PT12 + cast v14, PT13 + crowd v15, PT14 + directory v16). Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
   (JSON + Markdown). Session state persists in localStorage.
@@ -133,7 +133,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>screen</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>screen</option></select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -159,7 +159,8 @@ const SURF={
   lease:{file:"lease.html",name:"The Rent Book"},
   thinai:{file:"thinai.html",name:"The Understudy"},
   cast:{file:"cast.html",name:"The Company"},
-  crowd:{file:"crowd.html",name:"The Crowd"}};
+  crowd:{file:"crowd.html",name:"The Crowd"},
+  directory:{file:"directory.html",name:"The Directory"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
  goal:"Decide in 90 seconds whether this block is worth watching — without spending anything.",
@@ -320,11 +321,23 @@ const PTS=[
   ck:["Park empties in rain; cafés/library absorb the overflow (multipliers visible in the budget line)","'Doorway sets' fires only when it rains AND Sam is at the 600 Club","Storm reads as emptied outdoors — that emptiness is presented as correct"]},
  {do:"Fire 'block party @ park', then 'exclusive lock @ Mudhaus'. Read the rules panel.",
   exp:"Party draws extras to the park (packed) and thins source zones; the lock zeroes the Mudhaus extras budget while staff stay on shift.",
-  ck:["Exclusive lock clears extras, never named staff — Reyes stays","Rules panel states: off-camera spawn only, ≤3 pawns near mains, no extra ledger/feed/request handle","Minors June and Zee are flagged minor and never appear as request targets"]}]}
+  ck:["Exclusive lock clears extras, never named staff — Reyes stays","Rules panel states: off-camera spawn only, ≤3 pawns near mains, no extra ledger/feed/request handle","Minors June and Zee are flagged minor and never appear as request targets"]}]},
+{id:"PT14",title:"The Directory — parody business registry",min:10,persona:"reviewer auditing business coverage and name-policy compliance",
+ goal:"Verify every canonical business renders with correct tier/hours/staff, open-now state tracks the clock honestly, secret-adjacent hooks redact at public clearance, and no real SF business name appears anywhere.",
+ surfaces:["directory"],steps:[
+ {do:"Browse the full grid at midday weekday. Spot-check Mudhaus, El Farolote, Auerbach, and three street venues.",
+  exp:"22 entries render with tier chips, corner descriptions, staff chips matching jobs-housing.md, and game-$ prices — no credits, no USD.",
+  ck:["Anchor venues show venue-lock/event affordances; offstage orgs show none","Staff lists agree with jobs.json (C1/C2/C3/A01 at Mudhaus; C8 at El Farolote)","No card, hook, or chip names a real SF business — parody names only"]},
+ {do:"Scrub the clock to 02:00, then 08:00, then Saturday 10:00.",
+  exp:"Open-now badges follow each business's hours honestly; El Farolote stays open past midnight, most doors read closed at 02:00, Valencia Growers exists only on Saturday.",
+  ck:["02:00 — nearly everything reads closed; the badge never pads","Growers market reads closed on weekday AND weekend toggles, open on Saturday","Folsom Auto reads closed all weekend (M–F shop)"]},
+ {do:"Flip clearance to public. Re-read Mudhaus, El Farolote, Auerbach, Mission Unfiltered, La Esperanza.",
+  exp:"Secret-adjacent hooks (the blog laptop, the notebook, the handshake ledger, the loan, the author) collapse to a redaction line — visible as a deliberate absence.",
+  ck:["No card states the Mission Unfiltered author at either clearance","The La Esperanza card never offers a 'fund it / open it' affordance","Redaction lines label themselves internal — nothing just vanishes silently"]}]}
 ];
 
 /* ---- state ---- */
-const LS="rw_playtest_v15";
+const LS="rw_playtest_v16";
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],started:Date.now()};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S=s;}catch(e){}
 const $=id=>document.getElementById(id);
@@ -391,7 +404,7 @@ function renderStats(){
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
-    build:"world v15 local",started:new Date(S.started).toISOString()},
+    build:"world v16 local",started:new Date(S.started).toISOString()},
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }
