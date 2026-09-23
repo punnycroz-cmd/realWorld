@@ -5,14 +5,14 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v32)
+## Published shots (`site/shots/`, development build v36)
 
 | File | Alt text |
 |---|---|
-| `v32-A` | Top-down view of a sunlit Mission District block: gabled rooftops, a corner taqueria, tiny figures on the sidewalks. Development build. |
-| `v32-B` | Street-level view down a Mission block at golden hour — bay windows, bougainvillea on a sunlit wall, parked cars, residents walking. Development build. |
-| `v32-C` | Dolores Park from overhead — mature tree crowns, leaf litter, and lawn cured gold in the September dry season. Development build. |
-| `v32-D` | Director-mode view over Victorian rooftops at golden hour — water towers, laundry lines, long shadows. Development build. |
+| `v36-A` | Top-down view of the Mission block at 24th and Mission under Karl's marine layer — fog pools over rooftops while streets stay lit below. Development build. |
+| `v36-B` | Street-level view in the fog: a controlled resident stands mid-errand on a gray sidewalk, facades and parked cars fading into the marine layer. Development build. |
+| `v36-C` | Dolores Park from overhead under a drifting fog sheet — mature tree crowns and paths visible through the marine layer. Development build. |
+| `v36-D` | Director-mode street view under a clear evening sky — REC and DIRECTOR badges, pastel facades, laundry lines, a named resident on the corner. Development build. |
 | `v16-int-cafe` | Interior still: a corner cafe — counter, chalk menu, two residents mid-conversation. Development build. |
 | `v16-int-flat` | Interior still: a small apartment — sofa, window over the street, one resident reading. Development build. |
 | `v1-A` / `v1-B` | Earliest surviving build of the block — flat lighting, simple facades. Kept for before/after posts only; always paired with a current shot. |

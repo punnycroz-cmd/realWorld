@@ -11,16 +11,16 @@ exists locally, unpublished.
 
 **One-command rehearsal:** `./tools/staging_dryrun.sh` — serves `site/` on
 127.0.0.1, checks every page/asset/meta/budget item, prints pass/warn/fail.
-Last run **2026-09-23: 33 pass / 2 warn / 0 fail** (warns = placeholder domain
-not yet swapped ×2 — expected pre-launch; the PNG-weight warn cleared when the
-gallery moved to the lighter v26 captures).
+Last run **2026-09-24 (v53): 34 pass / 2 warn / 0 fail** (warns = placeholder
+domain not yet swapped ×2 — expected pre-launch).
 **One-command go-gate:** `./tools/preflight.sh` wraps the dry-run plus secret
 scan, sitemap parity, press-kit freshness, and flip-flag status. Last run
-**2026-09-23: 0 fail, 5 warn** — all warns are owner-gated flags (G3/G4/G8/G9/G12).
-**One-command gate worksheet:** `./tools/gonogo.sh` prints all 15 gates with
+**2026-09-24 (v53): 5 pass / 5 warn / 0 fail** — all warns are owner-gated
+flags (G3/G4/G8/G12 + uncommitted work-in-progress).
+**One-command gate worksheet:** `./tools/gonogo.sh` prints all 16 gates with
 live AUTO status for the mechanical ones and a pre-filled §6 block for the
-owner decision thread. Last run **2026-09-23: 2/15 auto-green** (G5 gallery +
-G9 zip freshness flipped green during the v38 refresh) — the rest await their
+owner decision thread. Last run **2026-09-24 (v53): 2/16 auto-green** (G5
+gallery + G9 zip freshness after the v36 refresh) — the rest await their
 owner/track triggers, as expected pre-launch.
 
 **Change control:** after any content edit to `site/`, re-run the dry-run and
@@ -36,7 +36,7 @@ log the result in §10 before the checklist may cite it.
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced in all 15 files (canonical links, OG URLs, `sitemap.xml`, `robots.txt`). Sweep: `grep -rIl realworld-game.example site/` must return empty | owner + mkt | `[ ] PENDING` — sweep is automated in dry-run §4 |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = **v32 dev build** — refreshed v50 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = **v36 dev build** — refreshed v53 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
@@ -47,6 +47,7 @@ log the result in §10 before the checklist may cite it.
 | G13 | Moderation readiness: owner confirms the shipped feed display-filter default (game-v6 ships `GS_WIRE_CFG.displayFilter='A'`, all three modes implemented; `gsWireSetFilter` flips it in one call — MODERATION-PLAN.md §2.3) and confirms the game build wires the world-v8 contract (`screen.js` verdicts, lane routing, `reason_code` on feed denials, `mod_decision` ledger records — console demo exists at `world/mod-console.html`); record one `gsWireAudit()` → `{ok:true}` on staging data in the rehearsal log | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
 | G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate, `tools/ship.sh` runs steps 0–4 as one command; monitor spec in `deploy/monitoring.example`; est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
+| G16 | Onboarding contract: the shipped build runs the world-v25 flow (persona fork watch/play, handle format + reserved-name check, declined-ask refund lesson, parked/returning states — `world/onboarding-ui.md` §10–17) and emits the four onboarding hooks (`persona_chosen`, `handle_taken_shown`, `decline_lesson_shown`, `returning_session` — spec'd in `analytics-events.json`, adopted v51) to the endpoint configured in G8. Verify on staging with a scripted watch-persona and play-persona run | owner + game/world track | `[ ] PENDING` — marketing sink/report/dashboard already accept all four; the game-side emitters are the missing half |
 
 ## §2 Run of show — T-minus schedule
 
@@ -57,7 +58,7 @@ The ordered countdown. Each line is owner-visible; nothing executes early.
 | T-7d | Content freeze on `site/` (bugfixes only); social drafts re-read against BRAND.md voice; press list re-confirmed with owner | G6 |
 | T-5d | Full local rehearsal: dry-run + press-kit rebuild + animatic review; log results in §10 | G9, G10 |
 | T-3d | Staging deploy at placeholder domain; run `tools/prod_smoke.sh` against staging; OG card validated in a share-preview tool | G14 (staging half) |
-| T-48h | Go/No-Go issued (§6 template); if GO, flip G4 pricing + G15 vocab sync in ONE commit on `sf/marketing` | all gates |
+| T-48h | Go/No-Go issued (§6 template); if GO, flip G4 pricing + G15 vocab sync in ONE commit on `sf/marketing`; confirm G16 staging verification is logged | all gates |
 | T-24h | Final dry-run on the exact commit that will ship; press kit zip rebuilt and staged; day-0 posts loaded into drafts folder in send order | G9, G10 |
 | T-2h | Production deploy D0.1 + smoke D0.2; demo flip D0.3b verified end-to-end | §3 |
 | T-0 | Announce: devlog post D0.5 → channels D0.6 → press D0.7 → community D0.8/D0.8b, spaced ≥20 min apart so each can be pulled independently | §3 |
@@ -82,7 +83,7 @@ latency only.
 | D0.7 | Send press kit link to owner-approved press list (angle templates in PRESS-OUTREACH.md) | ~30 min | `[~] DRAFTED` — 3 pitch angles ready |
 | D0.8 | Community posts where welcome (owner-approved subs/Discords only) | ~30 min | `[~] DRAFTED` — seeded-questions.md |
 | D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual), welcome post, rules pinned (verbatim from `rules.html` per MODERATION-PLAN.md §3.2), `#mod-log` private channel created, canned responses (`templates/mod-responses.md`) posted to mod channel; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 + G13 |
-| D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`), request-feed health, review-queue depth | continuous | `[ ] PENDING` |
+| D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`) + onboarding hooks (`persona_chosen` split, `handle_taken_shown`, `decline_lesson_shown` — G16), request-feed health, review-queue depth | continuous | `[ ] PENDING` |
 | D0.10 | Same-day retro note → MARKETINGLOG.md + shared inbox | ~15 min | `[ ] PENDING` |
 
 **Abort points (built in):** D0.5–D0.8 are spaced ≥20 min apart precisely so
@@ -151,10 +152,11 @@ Copy this block into the owner decision thread at T-48h — or run
 
 ```
 GO/NO-GO — Real World launch, <date>
-Gates: G1..G15 status: <x/15 green>
+Gates: G1..G16 status: <x/16 green>
 Blocking items: <list or none>
 Known warnings: <dry-run warns accepted as non-blocking>
 Feed display-filter option (G13): A / B / C — <confirm shipped default A or flip via gsWireSetFilter>
+Onboarding hooks (G16): <staging run logged — persona split seen end-to-end>
 Decision: GO / NO-GO — <owner name>, <timestamp>
 ```
 
@@ -186,6 +188,7 @@ the checklist exists so a GO is boring.
 - [ ] PENDING — Trailer greenlight decision based on week-1 spectator retention (TRAILER-PLAN.md + `trailer/` animatics ready to execute)
 - [ ] PENDING — Moderation week-1: review-queue depth + denial-rate first look; confirm recap can quote aggregate moderation stats (MODERATION-PLAN.md §6)
 - [ ] PENDING — Live-moment capture pipeline check: clips banked per `social/capture-plan.md` taxonomy
+- [ ] PENDING — Onboarding funnel first look: `persona_chosen` watch/play split, `handle_taken_shown` rate, `decline_lesson_shown` rate vs. fixture expectations (ANALYTICS.md §3); leaks → shared inbox for the world track
 
 ## §9 Day 30 — first month
 
@@ -228,8 +231,41 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | gallery refresh v29→v30 (v47) + press-kit docs | shots + press-kit screenshots swapped, webp regen, keyart/banners/capsules/og-card rebaked, dist zip rebuilt (41 files); NEW press-kit/context.md + guided-tour.md; staging_dryrun 34 pass / 2 warn / 0 fail; seo_audit 63 pass / 24 warn / 0 fail |
 | 2026-09-24 | gallery refresh v30→v31 (v48) + STORE-COPY expansion | shots + press-kit screenshots swapped, webp regen, keyart/banners/capsules/og-card rebaked, all 3 animatics rebuilt on v31 stills, dist zip rebuilt (41 files); STORE-COPY +5 sections (PH card, itch theme, Steam sysreqs, A/B descs, claim ledger); staging_dryrun 34 pass / 2 warn / 0 fail; seo_audit 63 pass / 24 warn / 0 fail; preflight GO |
 | 2026-09-24 | gallery refresh v31→v32 (v50) + trailer-plan upgrade | shots + press-kit screenshots swapped, webp regen, captions/alt-text updated for v32 (cured Sept turf, bougainvillea), keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v32 + NEW 6s bumper program, --thumbs renderer, --verify accuracy check; all animatics + boards rebuilt, dist zip rebuilt |
+| 2026-09-24 | gallery refresh v32→v36 (v53) + checklist third pass | shots + press-kit screenshots swapped (v34 then v36 — art published twice mid-version), webp regen, captions/alt-text rewritten for the Karl marine-layer set, keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v36, all 4 animatics + 3 thumbnails rebuilt; dist zip rebuilt (41 files); NEW gate G16 (world-v25 onboarding contract + 4 hooks), NEW §11 rehearsal coverage matrix, never-do → §12 |
+| 2026-09-24 | staging_dryrun.sh (v53, shots v36) | 34 pass / 2 warn / 0 fail — warns: domain ×2 only |
+| 2026-09-24 | tools/preflight.sh (v53) | 5 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
+| 2026-09-24 | tools/gonogo.sh (v53, 16 gates) | 2/16 auto-green (G5, G9) — G16 added as TRACK gate |
 
-## §11 Never-do list (load-bearing)
+## §11 Rehearsal coverage matrix
+
+Every gate and every day-0 task, mapped to the artifact or rehearsal that
+proves it. "Proof" = a script whose result is logged in §10, or a document
+that exists in this tree. A row with no proof column entry is a hole — fix
+it before citing the gate.
+
+| Item | Proof of readiness | Last rehearsed |
+|------|--------------------|----------------|
+| G3 domain swap | `staging_dryrun.sh` §4 sweep + `grep` card line | every dry-run |
+| G4 pricing flip | `data-pricing` attribute + `gonogo.sh` AUTO check | flip rehearsed 2026-09-23 |
+| G5 gallery freshness | `gonogo.sh` AUTO diff vs `published/VERSION` | v53 (v32→v36) |
+| G8 analytics | `tools/analytics_e2e.sh` end-to-end fixture | 2026-09-23 (1057/1057) |
+| G9 press-kit zip | `build-press-kit.sh` + `gonogo.sh` freshness check | v53 rebuild |
+| G10 dry-run | `tools/staging_dryrun.sh` | every version |
+| G12 demo flip | `demo.html` fallback verified; `data-demo-src` grep in command card | fallback rehearsed |
+| G13 moderation | `MODERATION-PLAN.md` + `world/mod-console.html` demo; `gsWireAudit()` staging run still owed | spec only — needs game build |
+| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` | 2026-09-23 ship.sh green |
+| G15 feed vocab | `world/feed.json` canonical list quoted in gate text | diff owed at flip |
+| G16 onboarding | `analytics-events.json` hooks + sink/report/dashboard support (v51); staging run owed | spec only — needs game build |
+| D0.1 deploy | `deploy/deploy-site.sh` (dry-run rehearsed) | 2026-09-23 |
+| D0.2 prod smoke | `tools/prod_smoke.sh` vs localhost staging | rehearsed |
+| D0.3/D0.3b flips | documented attributes (`data-pricing`, `data-demo-src`) | attribute greps in §4 |
+| D0.4 sitemap submit | sitemap.xml valid + prod_smoke checks it | every dry-run |
+| D0.5–D0.8 posts | `social/drafts/` — launch-thread, timeline, pitches, seeds | drafted, not sent |
+| D0.8b community | `COMMUNITY-FUNNEL.md` §3 + `rules.html` + `templates/mod-responses.md` | spec complete |
+| D0.9 monitoring | `tools/uptime_probe.sh` + `deploy/monitoring.example` + ANALYTICS dashboard | probe HEALTHY 2026-09-23 |
+| §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts | maintenance flip documented |
+
+## §12 Never-do list (load-bearing)
 
 - No publishing, posting, account registration, ad spend, or press contact without explicit owner approval — ever.
 - No fake testimonials or invented quotes. No astroturfing.

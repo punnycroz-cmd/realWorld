@@ -68,10 +68,10 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:12 | S2 | Top-down dawn over the Mudhaus block (v32-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
-| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v32-B framing). | **[T]** "Twenty-eight people live here." |
-| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v32-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
-| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v32-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
+| 2 | 0:05–0:12 | S2 | Top-down dawn over the Mudhaus block (v36-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v36-B framing). | **[T]** "Twenty-eight people live here." |
+| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v36-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
+| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v36-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
 | 6 | 0:33–0:40 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
 | 7 | 0:40–0:47 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
 | 8 | 0:47–0:54 | S8 | Same park shot as S4, now raining — wet bake, dark pavement, pawns scatter. | **[T]** "Weather. Events. A character of your own." |
@@ -102,10 +102,10 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v32-A.png` |
-| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v32-B.png` |
-| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v32-C.png` |
-| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v32-D.png` |
+| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v36-A.png` |
+| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v36-B.png` |
+| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v36-C.png` |
+| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v36-D.png` |
 | S6 | Public feed overlay, entries ticking | any | game-systems feed API (`__aiBridge` viewer state) |
 | S7 | Request card UI: action + duration + credits | n/a | request pipeline, design doc §11 |
 | S8 | S4 framing repeated, wet bake + rain | rain override | `GS_WX_OVR` weather override exists in the sim |
@@ -115,7 +115,7 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 | S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v32 stills with slow push-ins (Ken Burns) and
+trailer against the existing v36 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 **This is exactly what the animatic does** — see §11. The plan marks every
 shot that MUST be re-captured from live footage before the trailer ships:
@@ -230,16 +230,16 @@ All three are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
 in `edl.json` — same stills, brand palette, and redact machinery as the
 animatics:
 
-1. **The watcher** (`thumb-watcher.png`, style `rec`): v32-D director
+1. **The watcher** (`thumb-watcher.png`, style `rec`): v36-D director
    shot, vignette-darkened edges, red "REC · live — 24/7" cluster,
    title small at the bottom. The debug "DIRECTOR" badge is
    redact-blurred. Sells the Truman-Show premise instantly.
-2. **The handoff** (`thumb-handoff.png`, style `split`): v32-B street
+2. **The handoff** (`thumb-handoff.png`, style `split`): v36-B street
    shot split down the middle — left labeled `AI`, right `YOU` on a
    brightened half, orange seam. Pawn name tags are redact-blurred so
    the AI/YOU split can't read as possessing a main. Sells the hook
    mechanic.
-3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v32-D
+3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v36-D
    under the night grade, wordmark + accent rule only. Quietest option;
    best for press embeds.
 
@@ -265,7 +265,7 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v32 series + v16
+`marketing/trailer/` (§11), stills in `site/shots/` (v36 series + v16
 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures

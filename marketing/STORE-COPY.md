@@ -1,7 +1,7 @@
 # Store Copy — Real World ("The Mission")
 
 **Status: v48 — launch-surface expansion (Product Hunt card, itch theme,
-Steam sysreqs, A/B short descriptions, claim ledger) + v32 art rebase,
+Steam sysreqs, A/B short descriptions, claim ledger) + v36 art rebase,
 2026-09-24.** Supersedes v33.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
@@ -177,7 +177,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v32-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v36-A..D.png` (4 ready, grounded-shadow build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -191,9 +191,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v32-D (director view — the hook), v32-B
-(street level), v32-C (Dolores Park), v16-int-cafe (interior vignette),
-then v32-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v36-D (director view — the hook), v36-B
+(street level), v36-C (Dolores Park), v16-int-cafe (interior vignette),
+then v36-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -252,7 +252,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v32-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v36-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -349,10 +349,10 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v32-D "director view" → "Aerial view
+`press-kit/captions.txt` as canonical): v36-D "director view" → "Aerial view
 of the Mission block at golden hour — the spectator camera's home position.";
-v32-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v32-C park → "Dolores Park edge — palms, lawn,
+v36-B street level → "Street-level view: facades, parody storefront signage,
+a resident mid-errand."; v36-C park → "Dolores Park edge — palms, lawn,
 residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
 the café venue from the street camera."; v1 pair → "Same engine, day one —
 the before/after that anchors the devlog series."
@@ -378,7 +378,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (44) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v32-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v36-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -478,7 +478,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v32 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v36 build) | shipped |
 
 ---
 
@@ -508,3 +508,6 @@ keyart rebased to the art-v31 build; §1.2 char count corrected (226→222).
 **v50 changes:** gallery/capsules/keyart rebased to the art-v32 build
 (dry-season turf, bougainvillea on sun-exposed walls); trailer EDL now
 targets v32 stills and gains a 6s bumper program + thumbnail renderer.
+**v53 changes:** gallery/capsules/keyart rebased to the art-v36 build
+(Karl's marine layer over the Mission; boom-rig/veiling-glare lens work);
+trailer EDL + all animatics/thumbnails rebuilt on v36 stills.
