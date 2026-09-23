@@ -65,7 +65,7 @@ const api = eval(m[1] + `
     sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
     SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
     sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
-    sfVegSideSpr, sfBigTreeSpr, VILLAGE_OBJECTS })`);
+    sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -264,6 +264,30 @@ const api = eval(m[1] + `
   ok(bigs > 10 && bigs < trees, 'v31 park groves carry mature crowns (' + bigs + '/' + trees + ')');
   const pits = api.VILLAGE_OBJECTS.filter(o => o.kind === 'sfStreetTree').length;
   ok(pits > 600, 'v31 street pit coverage raised (' + pits + ')');
+
+  // v32 turf calendar: dryness is a month-of-year curve (Sept peak),
+  // per-cell cure is deterministic, bounded, and patchy
+  ok(api.PA.sf && api.PA.sf.parkDry && api.PA.sf.parkDry.length === 3,
+     'v32 cured-grass tile set baked');
+  const mo0 = api.W.month;
+  api.W.month = 9;
+  ok(api.sfDrySeason() > 0.7, 'September turf is cured (got ' + api.sfDrySeason() + ')');
+  api.W.month = 2;
+  ok(api.sfDrySeason() < 0.2, 'February turf is green (got ' + api.sfDrySeason() + ')');
+  api.W.month = 9;
+  let gold = 0, grassCells = 0;
+  for(let gy = 0; gy < api.SF_M.gh; gy++)
+    for(let gx = 0; gx < api.SF_M.gw; gx++){
+      if(api.sfTile(gx, gy) !== 13) continue;
+      grassCells++;
+      if(api.sfGrassDry(gx, gy) > 0.5) gold++;
+    }
+  ok(grassCells > 0 && gold > grassCells * 0.15 && gold < grassCells * 0.95,
+     'September cure lands in drifts (' + gold + '/' + grassCells + ')');
+  const d9 = api.sfGrassDry(1, 1);
+  ok(api.sfGrassDry(1, 1) === d9, 'sfGrassDry deterministic');
+  ok(d9 >= 0 && d9 <= 1, 'sfGrassDry bounded 0..1');
+  api.W.month = mo0;
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');

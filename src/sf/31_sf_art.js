@@ -124,6 +124,29 @@ function sfParkGrassTile(v){
   }
   return s;
 }
+function sfParkGoldTile(v){
+  // v32: cured summer turf — the same lawn after the rainless season.
+  // Gold stems over surviving green fingers, pale seed heads, and a
+  // scalped wear patch; same 32px tile grammar as sfParkGrassTile.
+  const s = paMk(32, 32), g = s.g;
+  const G = rampOf('#b8a052');          // cured gold
+  const GR = rampOf('#7d9a4e');         // surviving green
+  paR(g, 0, 0, 32, 32, G[3]);
+  // faint mow memory + green fingers where irrigation reach lingers
+  paDithBayer(g, 0, v % 2 ? 4 : 12, 32, 8, G[3], GR[3], 0.30);
+  paNoise(g, 0, 0, 32, 32, [G[2], G[4], GR[2]], 0.18, 3830 + v);
+  tBlades(g, 10, 3840 + v, [G[4], G[5], G[2]]);
+  if(v === 1){ // nodding seed heads
+    for(let i = 0; i < 7; i++){
+      const cx = 3 + Math.floor(phash(i, v, 3850) * 26),
+            cy = 3 + Math.floor(phash(v, i, 3851) * 26);
+      paPX(g, cx, cy, '#e0c878'); paPX(g, cx, cy + 1, G[2]);
+    }
+  }
+  if(v === 2) // scalped bald patch
+    paDithBayer(g, 9, 9, 13, 12, G[3], rampOf('#9a8a58')[3], 0.4);
+  return s;
+}
 function sfParkPathTile(m){
   const s = paMk(32, 32), g = s.g;
   const T = rampOf('#d0b78e'); // decomposed granite tan
@@ -173,6 +196,7 @@ function buildSfTerrain(){
   T.sidewalk = [];
   for(let m = 0; m < 16; m++) T.sidewalk.push(sfSidewalkTile(m));
   T.park = [sfParkGrassTile(0), sfParkGrassTile(1), sfParkGrassTile(2)];
+  T.parkDry = [sfParkGoldTile(0), sfParkGoldTile(1), sfParkGoldTile(2)];
   T.parkpath = [];
   for(let m = 0; m < 16; m++) T.parkpath.push(sfParkPathTile(m));
   T.lot = [sfLotTile(0), sfLotTile(1)];
@@ -1075,20 +1099,35 @@ function sfBldCanvas(b, wet){
         }
       }
     }
-    // v5: climbing ivy on some residential walls — leaf blobs along a
-    // slanted vine from the base corner, denser near the ground
+    // v5/v32: climbing vines on residential walls — plain ivy OR the
+    // Mission's signature bougainvillea drape. Bougainvillea throws a
+    // second wandering strand, masses its foliage in bigger tufts, and
+    // sets papery magenta bracts only on the SUNLIT upper growth — a
+    // canyon-shaded north wall greens but never flowers (sunK gates it).
     if(!isShop && hPx > 20 && phash(b.i, w.i, 1640) < 0.34){
+      const boug = phash(b.i, w.i, 3800) < 0.5;
       const t0 = 0.1 + phash(b.i, w.i, 1641) * 0.5;
       const climb = 0.35 + phash(b.i, w.i, 1642) * 0.45; // fraction of height
       const iv = MAT.leaf, ivd = MAT.leafDeep;
-      const nV = Math.round(6 + climb * 10);
-      for(let k = 0; k < nV; k++){
-        const f = (k / nV) * climb;
-        const t = t0 + Math.sin(k * 1.7) * 0.03 + f * 0.08;
-        const [vx, vy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, f);
-        const r = 2.4 - f * 1.4 + phash(k, b.i, 1643);
-        paBlob(g, vx, vy, Math.max(0.8, r), k % 3 ? iv[2] : ivd[2]);
-        if(phash(k, w.i, 1644) < 0.4) paPX(g, vx - 1, vy - 1, iv[4]);
+      const strands = boug ? 2 : 1;
+      const nV = Math.round(6 + climb * (boug ? 16 : 10));
+      for(let s2 = 0; s2 < strands; s2++){
+        const so = s2 ? (phash(b.i, w.i, 3801) - 0.5) * 0.22 : 0;
+        for(let k = 0; k < nV; k++){
+          const f = (k / nV) * climb * (s2 ? 0.78 : 1);
+          const t = t0 + so + Math.sin(k * 1.7 + s2 * 2.1) * 0.03 + f * 0.08;
+          const [vx, vy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, f);
+          const r = (boug ? 3.0 : 2.4) - f * 1.4 + phash(k, b.i + s2, 1643);
+          paBlob(g, vx, vy, Math.max(0.8, r), k % 3 ? iv[2] : ivd[2]);
+          if(phash(k, w.i, 1644) < 0.4) paPX(g, vx - 1, vy - 1, iv[4]);
+          if(boug && f > climb * 0.42 &&
+             phash(k, b.i + s2 * 7, 3802) < 0.18 + sunK * 0.55){
+            const bc = ['#d6387f', '#b02868', '#e85a9a', '#8e2058'][(k + s2) % 4];
+            paBlob(g, vx + (phash(k, s2, 3803) - 0.5) * 3,
+                      vy - 1 - phash(k, s2, 3804) * 2,
+                      1.5 + phash(k, s2, 3805) * 1.2, bc);
+          }
+        }
       }
     }
     g.restore();

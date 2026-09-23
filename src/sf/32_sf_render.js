@@ -413,6 +413,27 @@ function sfSunWallCol(base, k){
     return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.58 * Math.min(1, k));
   return mix(shade(base, lit), '#7183a4', 0.22 * (1 - Math.max(0, k) * SF_SUN.day));
 }
+/* ---------------- v32: the Mediterranean turf calendar ----------------
+   The Mission gets ~0mm of rain from June to October — lawn turf cures
+   to gold through the dry season and greens again with the winter
+   storms. sfDrySeason is a pure function of the simulated month; the
+   cure lands patchy (sfGrassDry hashes per cell) and the irrigated
+   fringe along paths and park-edge sidewalks stays green longest. */
+function sfDrySeason(){
+  const mo = (typeof W !== 'undefined' && W.month) ||
+             ({ Winter: 1, Spring: 4, Summer: 7, Autumn: 10 })[W.season] || 9;
+  return clamp(1 - Math.abs(mo - 9) / 3.4, 0, 1);   // peaks ~September
+}
+function sfGrassDry(wx, wy){
+  const d = sfDrySeason();
+  if(d <= 0.02) return 0;
+  const irrig = (sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
+                 sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15 ||
+                 sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11 ||
+                 sfTile(wx - 1, wy) === 11 || sfTile(wx + 1, wy) === 11)
+                ? 0.55 : 1;
+  return d * irrig * (0.35 + 0.65 * phash(wx, wy, 3820));
+}
 /* ---------------- v23: street-canyon sun occlusion ----------------
    The Mission's signature light: a low sun fires down the street grid,
    so the row on the sunward side throws the whole canyon into shade
@@ -1108,7 +1129,7 @@ function sfDecalChunk(g, cx, cy){
   g.restore();
 }
 function sfTerrChunk(cx, cy, wetQ){
-  const key = cx + ',' + cy + ',' + wetQ;
+  const key = cx + ',' + cy + ',' + wetQ + ',' + Math.round(sfDrySeason() * 4);
   const hit = SF_TERR.cache.get(key);
   if(hit){ // LRU touch
     SF_TERR.cache.delete(key); SF_TERR.cache.set(key, hit); return hit;
@@ -1163,7 +1184,8 @@ function sfStillKey(cw, ch, view, pose){
   return [view, cw, ch, Math.round(SF_WX.t * 2), isNight() ? 1 : 0,
           Math.round(W.tod * 24), SF_SUN.q, Math.round(W.rain * 8),
           Math.round(SF_WX.wet * 8), Math.round(sfCloudCover() * 8),
-          Math.round(SF_WX.gust * 4), Math.round(sig), inspectedPawnIdx]
+          Math.round(SF_WX.gust * 4), Math.round(sig), inspectedPawnIdx,
+          Math.round(sfDrySeason() * 4)]
           .concat(pose).join(',');
 }
 function sfStillHit(key){
@@ -1309,6 +1331,9 @@ function sfTerrainTile(wx, wy, tt){
       return T.parkpath[m];
     }
     case 13:
+      // v32: cured dry-season cells flip to the gold tile set
+      if(sfGrassDry(wx, wy) > 0.5)
+        return T.parkDry[Math.abs(hash2(wx, wy, SEED + 64) * 3) | 0];
       return T.park[Math.abs(hash2(wx, wy, SEED + 62) * 3) | 0];
     case 12:
       return T.sidewalk[0]; // concrete pad beneath buildings
@@ -1608,13 +1633,19 @@ function sfRenderWorld(cw, ch){
         }
         // v6: canopy sway on the wind (trees only; storms rock harder)
         // v7: modulated by the gust envelope — canopies breathe in waves
+        // v32: second-harmonic leaf shiver on gusts + the crown center
+        // drifts downwind (foliage streams, trunk stays planted)
         const sway = vegK
-          ? Math.sin(SF_WX.t * 1.7 + o.x * 0.05 + o.y * 0.03) *
-            0.022 * (0.3 + SF_WX.gust * 0.9 + W.storm * 1.4)
+          ? (Math.sin(SF_WX.t * 1.7 + o.x * 0.05 + o.y * 0.03) * 0.022 +
+             Math.sin(SF_WX.t * 4.6 + o.x * 0.13 + o.y * 0.07) *
+             0.010 * SF_WX.gust) *
+            (0.3 + SF_WX.gust * 0.9 + W.storm * 1.4)
           : 0;
         if(sway){
           ctx.save(); ctx.translate(sx, sy); ctx.rotate(sway);
-          ctx.drawImage(sprC, -pw / 2, -ph + 4 * cam.zoom, pw, ph);
+          const wlx = Math.cos(W.windAng || 0) * sway * ph * 0.5,
+                wly = Math.sin(W.windAng || 0) * sway * ph * 0.5 * SF_TILT;
+          ctx.drawImage(sprC, -pw / 2 + wlx, -ph + 4 * cam.zoom + wly, pw, ph);
           ctx.restore();
         } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
         // v31: crowns answer the REAL sun — a warm wash on the sunward
@@ -2981,22 +3012,43 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
-  // v5: climbing ivy on some residential walls — leaf blobs winding up
+  // v5/v32: climbing vines on some residential walls — ivy OR
+  // bougainvillea, the Mission's signature facade drape. Bougainvillea
+  // runs a second wandering strand and sets papery magenta bracts only
+  // where the wall actually catches sun (sfSunFaceK on the wall normal)
+  // and only on the upper growth — shade and night keep it green.
   if(det === 2 && !isShop && !mural && phash(i, ei, 1705) < 0.32){
+    const boug = phash(i, ei, 3810) < 0.5;
     const u0 = 0.12 + phash(i, ei, 1706) * 0.6;
     const climb = hm * (0.3 + phash(i, ei, 1707) * 0.45);
-    const nV = Math.max(6, Math.round(climb * 2.4));
-    for(let k = 0; k < nV; k++){
-      const z = (k / nV) * climb;
-      const u = u0 + Math.sin(k * 1.9) * 0.02 + (z / hm) * 0.06;
-      const p = pr(x1 + ex * u, y1 + ey * u, z);
-      if(!p) continue;
-      const rr = Math.max(1.2, 0.3 * F / p[2] * (1 - z / climb * 0.4));
-      ctx.fillStyle = night ? '#1c2a16' : (k % 3 ? '#3e7a34' : '#2e5a24');
-      ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, Math.PI * 2); ctx.fill();
-      if(!night && k % 4 === 0){
-        ctx.fillStyle = '#5a9a48';
-        ctx.fillRect(p[0] - rr * 0.4, p[1] - rr * 0.6, 1.5, 1.5);
+    const nV = Math.max(6, Math.round(climb * (boug ? 3.4 : 2.4)));
+    const sunK = night ? 0 : Math.max(0, sfSunFaceK(nx, ny));
+    const strands = boug ? 2 : 1;
+    for(let s2 = 0; s2 < strands; s2++){
+      const so = s2 ? (phash(i, ei, 3811) - 0.5) * 0.2 : 0;
+      for(let k = 0; k < nV; k++){
+        const z = (k / nV) * climb * (s2 ? 0.8 : 1);
+        const u = u0 + so + Math.sin(k * 1.9 + s2 * 2.3) * 0.02 + (z / hm) * 0.06;
+        const p = pr(x1 + ex * u, y1 + ey * u, z);
+        if(!p) continue;
+        const rr = Math.max(1.2, (boug ? 0.38 : 0.3) * F / p[2] *
+                            (1 - z / climb * 0.4));
+        ctx.fillStyle = night ? '#1c2a16' : (k % 3 ? '#3e7a34' : '#2e5a24');
+        ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, Math.PI * 2); ctx.fill();
+        if(!night && k % 4 === 0){
+          ctx.fillStyle = '#5a9a48';
+          ctx.fillRect(p[0] - rr * 0.4, p[1] - rr * 0.6, 1.5, 1.5);
+        }
+        if(boug && z > climb * 0.4 &&
+           phash(k, i + s2 * 11, 3812) < 0.16 + sunK * 0.55){
+          ctx.fillStyle = night ? '#3c1a30'
+            : ['#d6387f', '#b02868', '#e85a9a', '#8e2058'][(k + s2) % 4];
+          ctx.beginPath();
+          ctx.arc(p[0] + (phash(k, s2, 3813) - 0.5) * rr * 2,
+                  p[1] - rr * (0.6 + phash(k, s2, 3814)),
+                  rr * (0.7 + phash(k, s2, 3815) * 0.5), 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
   }
@@ -3467,7 +3519,18 @@ function sfRenderStreet(cw, ch){
 
   // ground tiles far -> near
   const COLS = { 10: '#50555e', 11: '#bdb7ac', 12: '#7a7268', 13: '#6cae52',
-                 14: '#bdb7ac', 15: '#d0b78e', 16: '#8a8f98', 0: '#a8977a' };
+                 14: '#bdb7ac', 15: '#d0b78e', 16: '#8a8f98', 0: '#a8977a',
+                 23: '#b3a05e' };   // v32: pseudo-tile — cured grass far LOD
+  // v32: turf cure ramp — 7 pooled styles from watered green to dry gold,
+  // picked per cell by sfGrassDry so the park dries in real drifts
+  const grassSt = [];
+  {
+    const gcA = sfHX('#6cae52'), gcB = sfHX('#c4a862');
+    for(let q = 0; q <= 6; q++)
+      grassSt[q] = `rgb(${Math.round(gcA.r + (gcB.r - gcA.r) * q / 6)},` +
+                   `${Math.round(gcA.g + (gcB.g - gcA.g) * q / 6)},` +
+                   `${Math.round(gcA.b + (gcB.b - gcA.b) * q / 6)})`;
+  }
   /* v29: the ground pass used to allocate ~18k small arrays per frame and
      re-project shared edges up to 5x (base quad + 4 risers) — the single
      biggest JS+GC cost in street view. Now: persistent typed cell buffers
@@ -3587,10 +3650,13 @@ function sfRenderStreet(cw, ch){
     const qb = Math.round(sfHazeA(cfwd) * 24);
     if(cfwd > FAR_D && ovr === undefined){
       // far LOD: haze folded into the tile color, one quad total
-      qE(farCol(t, qb), T0, T0 + 2, T0 + 4, T0 + 6);
+      qE(farCol(t === 13 && sfGrassDry(gx, gy) > 0.5 ? 23 : t, qb),
+         T0, T0 + 2, T0 + 4, T0 + 6);
       continue;
     }
-    qE(ovr !== undefined ? ovr : (COLS[t] || '#a8977a'), T0, T0 + 2, T0 + 4, T0 + 6);
+    qE(ovr !== undefined ? ovr
+       : t === 13 ? grassSt[Math.min(6, Math.floor(sfGrassDry(gx, gy) * 7))]
+       : (COLS[t] || '#a8977a'), T0, T0 + 2, T0 + 4, T0 + 6);
     const nm = nb[gy * SF_M.gw + gx];   // 4 bits/dir (n,s,w,e): 10|11|16|oob
     const subQ = (x0, y0, x1, y1, style, z) => {
       const q1 = pr(wxm + x0, wym + y0, z), q2 = pr(wxm + x1, wym + y0, z),
@@ -4490,8 +4556,11 @@ function sfRenderStreet(cw, ch){
         if(vegK){
           // v31: crowns lean on the wind — a horizontal shear pivoted at
           // the root, so trunks stay planted while foliage streams
-          const lean = Math.sin(SF_WX.t * 1.4 + o.x * 0.04 + o.y * 0.03) *
-                       (0.015 + SF_WX.gust * 0.05 + W.storm * 0.08) *
+          // v32: a faster leaf-shiver harmonic rides the gust envelope
+          const lean = (Math.sin(SF_WX.t * 1.4 + o.x * 0.04 + o.y * 0.03) *
+                        (0.015 + SF_WX.gust * 0.05 + W.storm * 0.08) +
+                        Math.sin(SF_WX.t * 4.3 + o.x * 0.09 + o.y * 0.05) *
+                        0.012 * SF_WX.gust) *
                        Math.cos(W.windAng - SF_CAM.yaw);
           ctx.save(); ctx.translate(p[0], p[1]);
           ctx.transform(1, 0, lean, 1, 0, 0);
