@@ -1,4 +1,26 @@
-# Memory Model Spec v4.3 — implementable human-like memory for RW characters
+# Memory Model Spec v4.4 — implementable human-like memory for RW characters
+
+> **v4.4 note (formal-model V — the transition system, the
+> lifecycle, the information boundary):** `memory/formal-model.md`
+> Part V (§§36–44) types the substrate. **Probe semantics** —
+> a probe is a predicate over the seed-distribution of
+> trajectories, never a single-run check — §36. **Ledger total
+> order** — Lamport (1978): partial happens-before extended by
+> `ledgerSeq` — §36. **Record lifecycle FSM** — proposed/live/
+> permastore/archived/dropped with guards and a per-op legality
+> table (merge archives its parts; resurrect is the only
+> archived→live edge; permastore freezes R not content) — §37.
+> **Op catalog** — every op's read/write set, RNG streams,
+> atomicity, and class; the commutativity theorem licenses a
+> parallel scheduler: per-char serialization + sorted-charId
+> dyad locks is all the ordering required — §38. **Information
+> boundary** — three field tiers (C/M/E) and Goguen & Meseguer
+> (1982) non-interference: `accuracy`/`phantom` are evaluator
+> oracles that must steer nothing — zero-tolerance mutation
+> probe — §39. **Invariant taxonomy** I1–I12 and the two-sided
+> world↔substrate delivery contract — §§40–41. +7 params (all
+> pop/harness + 3 locked nulls — §12 annex); probes P457–P468.
+> Machinery only: no new mechanism, no new per-char params.
 
 > **v4.3 note (social-memory IV — the ledger's failure modes):**
 > `memory/social-memory.md` Part IV (§§48–64) closes the social
@@ -6918,3 +6940,77 @@ bounds anchor chains (visited set) and scans (session_scan_cap);
 validation = clamp+log | reject-NaN | skip-missing | degrade-unknown;
 snapshots carry `specVersion`, migrate() is additive-only with a
 `legacy` archive; degradation = documented L0–L4 modes only.
+
+## 12. Transition-system annex — lifecycle, op catalog, boundary (new in v4.4)
+
+Normative pointer to `formal-model.md` §§36–44. Implementation-facing
+summary; the formal doc is the authority.
+
+### 12.1 Record lifecycle FSM
+
+States `proposed → live → {permastore | archived → dropped}`; flags are
+never states. Legal exits: `live→archived` (R < forget_thresh at tick
+step 11); `live→permastore` (semantic, S ≥ permastore_thresh); merge
+moves *participants* to `archived` — merge never drops; `archived→live`
+exists ONLY via maximal-cue resurrect (`cueMatch_ext > resurrect_thresh`,
+R ← min(resurrect_R, S) then reboost); `archived→dropped` at cap
+overflow (terminal; id retained forensically); `permastore` freezes R —
+retrieval/retell/drift still apply (permastore is retention, not
+protection). No op may edit an archived record; resurrection works on a
+re-lived copy.
+
+### 12.2 Op catalog and the commutativity theorem
+
+Classes: **P** pure reader (no writes, no accessLog), **W** single-char
+writer, **D** dyadic (commits speaker-side first, §26.2), **T** tick
+(atomic vs broadcasts), **G** global pure. Legal parallelization =
+per-character serialization + sorted-charId dyad locks + P∘anything
+commuting across characters. Any interleaving respecting those rules
+must equal the canonical sequential run — no weaker consistency model
+is legal. `reader_pure` = {dateEstimate, orderBefore,
+conditionedAffect, selfReport, judgeFrequency, consensusEstimate,
+openLoopUrge, snapshot} — these must leave zero state delta (P465):
+dateEstimate is not rehearsal.
+
+### 12.3 Information boundary — field tiers
+
+**C** (character-visible emissions): verbatim/gist/cueVector, confidence,
+beliefStatus, affect tags, tot/fok/searchCost flags, familiarity tier.
+**M** (mechanism — may steer dynamics, never emitted as a value):
+strength, storageS, encodingE, hearCount/retellCount/retrievalCount,
+lastAccessDay, `possessed`, sleepdep_flag, `open`, `bs_stale`, jol,
+params. **E** (evaluator oracle — steers nothing, harness-only):
+`accuracy`, `phantom`, ledger truth, true createdDay, `legacy`.
+Non-interference (Goguen & Meseguer 1982): runs differing only in
+E-tier values must produce identical C/M state and emissions —
+zero tolerance (P457). The Koriat FOK null (§5.21) is an instance:
+`accuracy` steering retrieval would be an M-field mislabeled E.
+
+### 12.4 World obligations (delivery contract)
+
+Broadcast completeness (every participant gets encodeEvent, audited at
+delivery), per-character ledger-order delivery, at-most-once
+dailyMemoryTick per day boundary, pending buffer ≤ `pending_event_cap`,
+snapshots only at ledger boundaries. Substrate owes atomicity,
+determinism, tier discipline, ladder-only degradation (§31 of
+formal-model.md).
+
+### 12.5 New params (v4.4 block — all pop/harness, 3 locked nulls)
+
+| param | default | notes |
+|---|---|---|
+| eval_delta_tol | 0.0 | harness — P457 tolerance is zero |
+| pending_event_cap | 64 | pop — world delivery bound |
+| dyad_lock_order | charId-sort | pop — deadlock-free pair order |
+| reader_pure | op set in §12.2 | pop — purity list |
+| accuracy_leak / phantom_steer / future_read_w | 0.0 each | locked nulls — oracles, labels, prescience are never dials |
+
+### 12.6 Invariants I1–I12
+
+Boundedness; counter monotonicity; createdDay/encodeAge immutability;
+lastAccessDay ∈ [createdDay, now]; no future reads; FSM legality +
+absorbing `dropped`; E-tier write-once; seed+ledger uniqueness;
+era/capacity separation; beliefStatus FSM legality; C-tier-only
+emissions; caps bind only at declared thresholds. Full table + check
+points: formal-model.md §40. Probes P457–P468 in
+validation-design.md §73.

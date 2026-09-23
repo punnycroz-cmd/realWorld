@@ -1953,3 +1953,23 @@ them uncertain.
   undoes retell confidence inflation; wmc never gates the symmetry
   assumption; distrust never blocks the sleeper effect (temporal,
   not dispositional).
+
+## 29. v4.4 note (formal-model V — the machinery layer)
+
+No new per-character params and no new clamp rows this version — the
+v4.4 pass (formal-model.md Part V, spec §12) is substrate machinery:
+record lifecycle FSM, op read/write sets + commutativity, the
+three-tier field boundary, invariants, and the world's delivery
+contract. **Bible-visible consequence is a null:** every per-char
+profile remains exactly as loaded — nothing in v4.4 differentiates
+people. The three locked nulls (`accuracy_leak`, `phantom_steer`,
+`future_read_w`) are worth one line each for bible authors because
+they name things a bible might *want* to write and cannot: no trait
+makes a character's confidence track their accuracy (the oracle
+steers nothing — even a "lucid" character's metacognition runs on
+M-tier machinery, never the E-tier ruler); no trait lets a character
+feel "this one is fake" about phantom records (the label steers
+nothing — phantom content has to *earn* distrust through plausibility
+like everything else); no trait grants prescience (déjà vu and
+premonition flavor must be built from `fok`/`imagined` machinery, not
+from peeking at the ledger).

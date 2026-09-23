@@ -3227,3 +3227,68 @@ recall of partner's past); Karney & Coombs 2000 (memory bias in
 early marriage); Holmberg & Holmes 1994 (relationship-memory
 review); Emberson, Lupyan, Goldstein & Spivey 2010 (Psych Sci —
 overheard halfalogues capture attention).
+
+## 73. New probes P457–P468 (v45 suite — formal-model V, formal-model.md §43)
+
+Machinery probes — they test the transition system, not a phenomenon.
+All are harness-level assertions; none cites a human target.
+
+- **P457 oracle non-interference (MUST — zero tolerance):** run a
+  fixed seed twice; between runs mutate `accuracy` and `phantom` on a
+  random 20% of records → all C/M-tier state and every emission
+  bit-identical (eval_delta_tol = 0). FAIL on any delta: an oracle
+  field steered something. Extends I7.
+- **P458 lifecycle legality (MUST):** fuzz 10⁴ random legal-input op
+  sequences → every record transition ∈ the §37 FSM table; no op
+  reads `dropped` records; every `archived→live` edge traceable to a
+  maximal-cue resurrect; merge never drops its participants.
+- **P459 commutativity (MUST — structure):** same-character
+  `reader_pure` pairs swap with state-hash equality; cross-character
+  op pairs commute; a parallel-schedule run (per-char queues +
+  sorted dyad locks) reproduces the canonical sequential run on
+  shared seeds. Any divergence fails — §38's license is conditional.
+- **P460 dyad lock order (MUST):** concurrent retell(A,B) and
+  retell(B,A) both complete with deterministic results across
+  replays; the sorted-first pair's speaker drift commits before the
+  other's transmission. Deadlock is a fail.
+- **P461 archive monotonicity (MUST):** `archived→live` only via the
+  resurrect path; `dropped` absorbing; hearCount/retellCount/
+  retrievalCount/opSeq monotone across all fuzzed sequences (I2/I6).
+- **P462 delivery contract (MUST):** instrumented world feed → every
+  participant of every ledger event received an encodeEvent; each
+  dailyMemoryTick fired exactly once per boundary; no op observed
+  worldDay > now. A world-side violation fails *this* probe so it
+  can't masquerade as a memory miscalibration.
+- **P463 invariant suite (MUST — meta):** I1–I12 instrumented at op
+  boundaries across the fuzz corpus; an invariant without a check is
+  itself reported as a failure.
+- **P464 serialization audit (MUST):** scan every briefing, feed
+  entry, and emitted Reconstruction for M/E-tier field names and
+  value-correlations → zero hits (I11).
+- **P465 reader purity (SHOULD):** each `reader_pure` op leaves a
+  state-hash-identical snapshot (no accessLog, no counter, no
+  lastAccessDay touch) — dateEstimate is not rehearsal.
+- **P466 trigger completeness (SHOULD):** scripted environment events
+  (sleep boundary, locShift, unfocused tick, outcome resolution,
+  promotion) invoke their designated op exactly once each.
+- **P467 refactor stability (SHOULD):** inject an extra draw inside
+  one operator → all other operators' golden RNG streams and §21
+  composite fingerprints bit-identical.
+- **P468 emission typing (SHOULD):** generated field-lineage table —
+  every emitted value traces to a C-tier field or a declared
+  mechanism output; untraceable lineage fails.
+
+Registry: P1–P468. v45 suite: P457–P468 (8 MUST, 4 SHOULD).
+
+## 74. Sources new to this version
+
+Lamport 1978 (CACM 21:558 — partial happens-before extended to a
+total order; ledgerSeq is the tiebreak); Goguen & Meseguer 1982
+(IEEE Symp. Security & Privacy pp.11–20 — non-interference as the
+formal statement of the hidden-field policy); Koriat 1995 (JEP:LMC
+21:311 — FOK blind to correctness: the motivating instance for the
+E-tier rule); Bahrick, Bahrick & Wittlinger 1975 (permastore is
+retention-of-availability, not protection from distortion — the
+§37 permastore semantics); Landauer 1986 (drop-is-the-only-
+deletion rationale, I6). All other content is bookkeeping law —
+HYPOTHESIS throughout, no new human claims.

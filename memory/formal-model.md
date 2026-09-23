@@ -1510,3 +1510,335 @@ one validation contract, one degradation ladder, and the fitting
 protocol that keeps every future version honest. Runtime cost: a
 boolean + lazy recompute — nil. The fitting layer costs harness
 time, not game time.
+
+---
+
+# Part V — v45 deepening pass: the transition system, the lifecycle, and the information boundary (P457–P468)
+
+Parts I–IV pinned order/units/budget, formalized mechanisms, closed the
+measurement/numerics holes, and gave the society layer its semantics and
+fitting protocol. What remains informal is the *type theory of the whole
+thing*: (a) the spec's ~25 ops are prose contracts — none declares its
+read/write set, its atomicity boundary, or whether it commutes with a
+neighbor op, so a parallel implementation cannot be checked for legality;
+(b) record legality is scattered across §§4.x/5.x/6.x — "archived records
+can resurrect" appears in three places with three phrasings and no single
+state machine an implementer can exhaustively test; (c) hidden fields are
+governed by one emphatic sentence ("NEVER serialize") — a wish, not a
+property; a spec needs the *reason* (which fields may steer behavior vs
+which are pure evaluator oracles) and a falsifiable test; (d) a probe has
+never been formally defined — it is a predicate over a *distribution* of
+runs, and the sloppy-model audit (§4/§32) silently relies on that; (e) the
+world owes the substrate guarantees — delivery completeness, tick
+at-most-once — that no section states, so a world bug is currently
+indistinguishable from a memory bug. This pass formalizes all five. Spec
+refs are to spec v4.3. New content is machinery: **no new psychological
+mechanism, no new per-character params** — three explicit locked nulls
+document the boundary, per the §4 audit rule.
+
+## 36. State space, kernels, and what a probe IS
+
+**Per-character state** `M_c = (Episodic, Semantic, CondTable,
+PersonModels, RelEdges, Intentions, params, rngState, clock)`. params are
+frozen at `deriveParams` modulo the yearly age re-anchor and overlays —
+they are part of state because migration and re-anchoring write them.
+
+**Society state** `S = (ledger, ledgerDay, ledgerSeq, {charId → M_c},
+sessionSet)`. The ledger supplies a **total order** extending the world's
+partial happens-before: `order(x,y) = (x.worldDay, x.ledgerSeq)` —
+Lamport's (1978, CACM 21:558) construction: take the partial order of
+causality, extend by any consistent total order (ledger sequence number),
+get an ordering every observer agrees on. `worldDay` alone is *not* a
+total order (simultaneous events exist); `ledgerSeq` is the tiebreak
+already used by §1's arrival-order rule.
+
+**Ops as deterministic transitions.** Every op is a function
+`op : (S, input, stream) → (S', output)` where `stream` is the op's
+namespaced slice of the seeded RNG (§22 axiom 4). Because the stream is
+deterministic given the seed, each op is a **Markov kernel that
+degenerates to a function** — the stochasticity lives entirely in the
+seed, not in the transition. This is why P68 determinism is a theorem,
+not a hope.
+
+**Probe semantics (the missing definition).** A probe `P_n(φ, b)` is a
+predicate over the *distribution* of trajectories induced by the seed:
+`PASS ⇔ Pr_seed[φ(trajectory)] ≥ b` estimated over ≥ n independent seeds
+with the §32.2 statistics (Wilson CIs, BH per family). Sign-locked probes
+assert `Pr[sign(effect) = spec] ≥ 1−α`. A probe is **never** a predicate
+on one run — a single run passing by luck is the exact failure mode the
+statistics layer exists to reject. This definition retroactively
+legitimizes every MUST/SHOULD in the registry: they were always
+distribution predicates; now the harness knows it.
+
+**Refactor-stability lemma.** Inserting a draw into op A cannot shift
+op B's stream because streams are namespaced by `(charId, worldDay,
+opTag)` — not by global position. Consequence: probe goldens are stable
+under *localized* edits; a refactor that changes B's output without
+touching B's code is detectable as an axiom-4 violation (P467).
+
+## 37. The record lifecycle — one FSM, exhaustively testable
+
+Every MemoryRecord occupies exactly one lifecycle state; flags
+(`consolidating`, `phantom`, `possessed`, `open`, `doubted`,
+`discredited`, `canonized`) are orthogonal annotations, never states.
+This replaces the prose scattered across §§4.4, 4.7, 4.11, 5.9, 6.8.
+
+| state | entry | exit | invariant while resident |
+|---|---|---|---|
+| `proposed` | encodeEvent starts | →`live` on commit; →*none* on abort | invisible to all reads |
+| `live` | commit; resurrect | →`archived` (R<forget_thresh at tick step 11); →`dropped` (never direct); semantic→`permastore` | readable by all ops |
+| `permastore` | semantic, S≥permastore_thresh, age≥permastore_age | →`archived` only via lesion/migration (never decay) | R frozen; still cues & emits |
+| `archived` | R crossing | →`live` ONLY via §4.11 resurrect (maximal-cue: cueMatch_ext>resurrect_thresh); →`dropped` at cap_archive overflow below 0.5·forget_thresh | invisible to normal recall; sourceInfer/dateEstimate still run; merge parts live here |
+| `dropped` | archive overflow; legacy purge | — terminal | unreachable by every op; id retained for forensics |
+
+**Guards worth pinning** (the three that were ambiguous):
+
+1. **Merge does not delete.** §4.3 genericization moves the *participants*
+   to `archived` (they're the evidence the generic summarizes) — a merge
+   must never drop them; dropping is an archive-overflow decision only.
+2. **Resurrection is the only `archived→live` edge, and it is
+   cue-gated.** No drift, retell, or reconsolidation may touch an
+   archived record — a dead memory can be *re-found* but cannot be
+   *re-edited* (psychologically: the reconstruction happens on a
+   newly-live copy; the archived original is read-only evidence —
+   consistent with the §5.5 nonbelieved-memory semantics).
+3. **`permastore` freezes R, not the record.** Retrieval, retell, and
+   distortion operators still apply — Bahrick permastore is a
+   *retention* phenomenon; the content remains reconstructible and
+   corruptible (this is why v4.3's reunion probe can still show wrong
+   names on recognized faces).
+
+**Op legality by state** (the table implementers fuzz, P458):
+
+| op | proposed | live | permastore | archived | dropped |
+|---|---|---|---|---|---|
+| recall/scan | — | ✓ | ✓ | resurrect-path only | — |
+| retell/drift/reconsolidate | — | ✓ | ✓ | — | — |
+| merge (as input) | — | sub-salience only | — | — | — |
+| interference/RIF | — | ✓ | ✓ | — | — |
+| sourceInfer/dateEstimate | — | ✓ | ✓ | ✓ | — |
+| resurrect | — | — | — | ✓ | — |
+| drop | — | — | — | ✓ | — |
+
+## 38. Op catalog — read/write sets, atomicity, commutativity
+
+The §10 contract, re-expressed as a transition table. `R`/`W` annotate
+the caller's own store vs other stores. Classes: **P** pure reader (no
+writes incl. accessLog), **W** single-char writer, **D** dyadic (two
+stores), **T** tick, **G** global pure.
+
+| op | class | writes | reads foreign state | RNG streams | atomic boundary |
+|---|---|---|---|---|---|
+| encodeEvent | W | own Episodic + CondTable + PersonModel stub | none (context passed in) | 1 | per call |
+| broadcastEvent | W×n | n stores | none | n (one per charId) | whole batch vs ticks (§26.1) |
+| recall | W | own (reconsolidation, RIF, accessLog, searchCost out) | none | 1 | per call |
+| ambientMemoryScan | W | own | none | 1 | per call |
+| retell(A,B,m) | D | A's m THEN B's store | B's store | 2 | commits at §26.2 step boundary |
+| hearAccount | W | own | none (account is input) | 1 | per call |
+| discussEvent | D×2 | both | both | 2 | two sequenced retells |
+| groupRecall | D×n | all members | all members | n | session-scoped |
+| imagineEvent/learnOutcome/suppressEvent/closeLoop/feedback/setOverlay | W | own | none | 1 | per call |
+| interviewMode/identifyFromSet/swapReport | W | own (session-scoped context) | none | 1 | session-scoped |
+| dailyMemoryTick | T | own all stores | none | 1 | per char-day; may not interleave a broadcast |
+| rememberIntention | W | own Intentions | none | 1 | per call |
+| openLoopUrge/selfReport/consensusEstimate/judgeFrequency | P | none (output only) | none | 0 | per call |
+| dateEstimate/orderBefore/conditionedAffect | P | none — **explicitly no accessLog write** | none | 0 | per call |
+| deriveParams/migrate | G | new store | none | 0–1 | pure |
+| memorySnapshot/societySnapshot | P | none (read+copy) | read-only | 0 | ledger boundary only |
+| lesion/sensSweep/tagEvent/answerProbe | harness | own | none | 1 | between ops |
+
+**Commutativity theorem (the scheduler's license).**
+
+- **P∘P commute** trivially. A pure reader also commutes with any writer
+  on a *different* character.
+- **Ops on disjoint character sets commute.** Proof obligation: no op
+  writes foreign state — every cross-character effect travels through
+  the ledger or through an explicit D-class call whose ordering is
+  pinned (§26.2). This holds by inspection of the table: the W column
+  never contains a foreign charId.
+- **Same-character op pairs never commute** (recall writes via
+  reconsolidation+RIF even when it "only reads"). Per-character op
+  queues are serialized — always.
+- **Dyadic ops sharing a character serialize in sorted-charId lock
+  order** (`dyad_lock_order`): for concurrent `retell(A,B)` and
+  `retell(B,A)`, A-side steps of the (A,B) pair run first —
+  deterministic, deadlock-free because the order is a total order on
+  pairs. Two dyads {A,B} and {C,D} with disjoint members run fully
+  parallel.
+- **Consequence (P459):** any interleaving that respects per-char
+  serialization + dyad lock order is observational-equivalent to some
+  sequential run. A parallel scheduler is *legal iff* its outputs equal
+  the canonical sequential run — that's the whole correctness
+  criterion; no weaker consistency model is permitted because the
+  probes were calibrated against sequential semantics.
+
+## 39. The information boundary — non-interference, three tiers
+
+"NEVER serialize hidden fields" is currently enforced by vigilance. The
+actual structure is a three-tier information policy — Goguen &
+Meseguer's (1982, IEEE S&P pp.11–20) non-interference applied to field
+classes, not users:
+
+| tier | name | rule | members |
+|---|---|---|---|
+| **C** | character-visible | may appear in emissions (Reconstruction fields, reported confidence, beliefStatus, TOT/FOK flags, familiarity tier) | verbatim fields, gist, cueVector, confidence, beliefStatus, valence/arousal tags, tot, fok, searchCost |
+| **M** | mechanism | may *steer dynamics* (gate, weight, threshold), never appears as an emitted value | strength, storageS, encodingE, hearCount, retellCount, retrievalCount, lastAccessDay, `possessed`, sleepdep_flag, `open`, `bs_stale`, jol, drift counters, CondEntry internals, param values |
+| **E** | evaluator oracle | may steer **nothing**; a pure label for the harness/history browser | `accuracy`, `phantom`, ledger ground truth, true `createdDay`, `legacy` block |
+
+**The property (non-interference, made falsifiable).** For any two
+society states S, S′ differing only in E-tier field values, and any op
+sequence, the two induced trajectories must produce **identical
+emissions and identical C/M-tier states** — tolerance zero, not noise
+(`eval_delta_tol = 0`). Concretely: flipping `phantom` or `accuracy` on
+a record post-hoc must change *nothing* the character does or says —
+P457 mutation-tests exactly this.
+
+Two subtleties the prose never made safe:
+
+1. **M-tier may gate existence, not value.** `possessed` legitimately
+   steers behavior (the §6 estrangement discount) — that's why it's M,
+   not E. But no emission may *be* the flag ("as a possessed person, I…"
+   is a leak; the discount is the only legal symptom).
+2. **The §19.1 FOK null is an instance, now promoted to law.** Koriat's
+   (1995) finding that FOK is blind to correctness was hand-coded as
+   "fok never clamped by accuracy" — under tier-E semantics this isn't a
+   rule about FOK, it's the definition of `accuracy`: an oracle field
+   that steers anything is a mislabeled M-field and P457 catches it.
+
+This is deliberately *not* security theater — it's the spec's answer to
+"how does the history browser read accuracy without contaminating the
+simulation?" Answer: E-tier reads are harness-only by construction, and
+the probe proves contamination impossible rather than discouraged.
+
+## 40. Invariant taxonomy — specification by invariants
+
+Probes test points; invariants are universal quantifiers over all legal
+runs. Each names scope, check point, and enforcing probe:
+
+| id | invariant | scope | checked | probe |
+|---|---|---|---|---|
+| I1 | all [0,1] fields in range (β-products within clamps) | record/store | every op exit | P70 |
+| I2 | hearCount, retellCount, retrievalCount, opSeq monotone nondecreasing | record/store | tick | P461/P463 |
+| I3 | createdDay, encodeAge immutable | record | always | P329 |
+| I4 | lastAccessDay ≥ createdDay; lastAccessDay ≤ now | record | write | P463 |
+| I5 | no op reads worldDay > its call-time now (no future reads) | society | always | P462/P463 |
+| I6 | lifecycle transitions ∈ §37 table only; `dropped` absorbing | record | tick | P458/P461 |
+| I7 | E-tier fields write-once at mint, mutable only by harness | record | fuzz | P457 |
+| I8 | seed+ledger ⇒ unique state | society | replay | P68/P325 |
+| I9 | era params read frozen encodeAge; capacity reads age_eff | param | mutation test | P329 |
+| I10 | beliefStatus transitions ∈ §28 FSM only | record | write | P326 |
+| I11 | emissions contain only C-tier values or mechanism outputs | emission | serializer | P464/P468 |
+| I12 | caps bind only at declared thresholds; no silent loss | store | tick | P74/P197 |
+
+I2/I6 are the psychologically loaded ones: monotonicity is what makes
+the archive a *history* (you cannot un-hear a rumor — doubt marks it,
+the count stays), and absorbing-drop is the only place the model is
+allowed true deletion (Landauer: the store is huge but the index is
+not — §5).
+
+## 41. The world's side of the contract — delivery obligations
+
+Every prior section specified what the substrate does; nothing said what
+the world must guarantee for those semantics to be meaningful. Two-sided
+contract — a world violation is a world bug, not a memory miscalibration:
+
+**The world owes:**
+
+- **Broadcast completeness:** every ledger event is delivered to every
+  participant + witness within the same atomic batch (§26.1). A dropped
+  delivery is a dropped witness — indistinguishable downstream from
+  "encoded then forgot," and therefore must be *audited at delivery*,
+  not inferred (P462).
+- **Per-character order:** a character's ops arrive in ledger order.
+  The world may interleave across characters freely (commutativity §38)
+  but may never reorder one character's queue.
+- **At-most-once ticks:** `dailyMemoryTick(c, day d)` fires exactly once
+  per char per crossed day boundary. Double-firing compounds decay —
+  scale-invariance (§1) does NOT rescue a duplicated discrete step
+  (interference pairs, merges, extinction counters are event-counted).
+- **Bounded pending buffer:** events between a character's ops ≤
+  `pending_event_cap` (64) — overflow is a degradation-ladder trigger
+  (§31), never a silent drop.
+- **Snapshot legality:** societySnapshot requests only at ledger
+  boundaries (§26.3).
+
+**The substrate owes:**
+
+- Atomicity per §38 table; determinism (I8); tier discipline (I7/I11);
+  degradation only via the §31 ladder (no improvised decay-skip);
+  malformed-input semantics per §30.
+
+This is what makes a bug report actionable: "character X has no record
+of the fire" decomposes into (world) was the event delivered? →
+(substrate) was it gated by att_min? → (substrate) did it die same-day?
+— three different owners, currently conflated.
+
+## 42. New params (spec §7 v4.4 block) — audit-compliant
+
+| param | default | free? | observable |
+|---|---|---|---|
+| eval_delta_tol | 0.0 | harness | P457 — zero, not epsilon |
+| pending_event_cap | 64 | pop | P462 buffer bound |
+| dyad_lock_order | "charId-sort" | pop | P460 |
+| reader_pure | {dateEstimate, orderBefore, conditionedAffect, selfReport, judgeFrequency, consensusEstimate, openLoopUrge, snapshot} | pop | P465 |
+| accuracy_leak | 0.0 | locked null | P457 — oracle steers nothing |
+| phantom_steer | 0.0 | locked null | P457/P458 — label steers nothing |
+| future_read_w | 0.0 | locked null | P462 — no future reads, ever |
+
+7 entries, **0 per-character** — the transition-system layer is pure
+machinery; the three locked nulls document that oracle visibility,
+phantom labeling, and prescience are permanently zero degrees of
+freedom, not tunable dials someone might later "improve."
+
+## 43. Formal/consistency probes (P457–P468)
+
+- **P457 oracle non-interference (MUST — zero-tolerance):** run twice;
+  mutate `accuracy`/`phantom` on 20% of records between runs → C/M-tier
+  state and all emissions bit-identical (eval_delta_tol = 0). FAIL on
+  any delta — an oracle that steers is a mechanism mislabeled.
+- **P458 lifecycle legality (MUST):** 10⁴ random op sequences; every
+  observed transition ∈ §37 table; no op reads `dropped`; every
+  `archived→live` traceable to a maximal-cue resurrect.
+- **P459 commutativity (MUST — structure):** same-char pure-reader
+  pairs swap freely (state hash equal); cross-char op pairs commute;
+  a parallel-schedule run equals the canonical sequential run on
+  shared seeds. FAIL on divergence — the scheduler violated §38.
+- **P460 dyad lock order (MUST):** concurrent retell(A,B)+retell(B,A)
+  both complete, result deterministic across replays, A-side drift of
+  the sorted-first pair committed before the other's transmission.
+- **P461 archive monotonicity (MUST):** archived→live only via
+  resurrect; `dropped` absorbing; I2 counters monotone across all
+  fuzzed sequences.
+- **P462 delivery contract (MUST):** instrumented world feed → every
+  participant of every event received an encodeEvent (coverage audit);
+  dailyMemoryTick fired once per boundary; no op observed worldDay >
+  now (future_read_w = 0).
+- **P463 invariant suite (MUST — meta):** I1–I12 checked at op
+  boundaries over the fuzz corpus; any unchecked invariant is itself a
+  failure (invariants without checks are wishes).
+- **P464 serialization audit (MUST):** every briefing/emission/feed
+  artifact scanned for M/E-tier field names and value correlations;
+  zero hits.
+- **P465 reader purity (SHOULD):** `reader_pure` ops produce
+  state-hash-identical before/after snapshots (no accessLog, no
+  counter) — dateEstimate must not count as rehearsal.
+- **P466 trigger completeness (SHOULD):** scripted environment events
+  (sleep boundary, locShift, unfocused tick, outcome resolution) each
+  invoke their designated op exactly once — never twice, never zero.
+- **P467 refactor stability (SHOULD):** add a draw inside op A → op
+  B's golden stream bit-identical; probe fingerprints (§21) unchanged.
+- **P468 emission typing (SHOULD):** auto-generated field-lineage
+  table — every emitted field traces to a C-tier source or a declared
+  mechanism output; untraceable lineage = FAIL.
+
+## 44. Summary for game-systems
+
+One state machine to fuzz (§37), one op table to implement against
+(§38 — read/write sets are the locking spec), one parallelization
+license (commutativity theorem: per-char serialization + sorted dyad
+locks is all the ordering you need), one three-tier field policy
+replacing the "NEVER serialize" sentence, twelve invariants replacing
+scattered correctness hopes, and a two-sided delivery contract so a
+missing memory can be assigned to a guilty layer. Zero new storage,
+zero new per-char params, zero new psychology — this pass is the
+substrate's constitution, and every future mechanism lands on it.
