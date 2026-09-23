@@ -23,11 +23,11 @@ cp site/assets/logo-primary.svg site/assets/logo-primary.png \
 mkdir -p "$KIT/badges"
 cp site/assets/badge-watched.svg site/assets/badge-watched-mono.svg \
    "$KIT/badges/"
-cp site/shots/v50-A.png site/shots/v50-B.png site/shots/v50-C.png \
-   site/shots/v50-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
+cp site/shots/v51-A.png site/shots/v51-B.png site/shots/v51-C.png \
+   site/shots/v51-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \
-   site/shots/v50-A.webp site/shots/v50-B.webp site/shots/v50-C.webp \
-   site/shots/v50-D.webp \
+   site/shots/v51-A.webp site/shots/v51-B.webp site/shots/v51-C.webp \
+   site/shots/v51-D.webp \
    "$KIT/screenshots/"
 
 mkdir -p dist

@@ -12,30 +12,30 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v50-A.png       1440x900 (approx)
-  The Mission block at 24th and Mission from overhead as Karl — the
-  marine layer — rolls in canyon-channeled: fog fingers creep along the
-  real street grid and pool over the rooftops while the avenues stay
-  lit. The character panel shows Jules, a hired resident, mid-routine;
-  the harness UI is development chrome, not part of the shipped
-  spectator view.
+screenshots/v51-A.png       1440x900 (approx)
+  The Mission block around 24th and Mission from overhead on an autumn
+  afternoon (Day 22, 16:30): street grid, parked cars, crosswalks, and
+  the park edge read clearly. The resident inspector is open on Jules,
+  a hired resident, mid-routine — needs, mood, and recent thoughts are
+  all spectator-readable. The HUD shown is the real spectator chrome of
+  the development build.
 
-screenshots/v50-B.png       1440x900 (approx)
-  Street-level follow-cam on the Mudhaus block: marine haze owns the
-  far end of the street while warm sun holds the near facades. Jules
-  stands mid-block, name tags (Dani, Priya) hold at their doors.
+screenshots/v51-B.png       1440x900 (approx)
+  Street-level view up the block past storefronts and stoops: autumn
+  leaves drift through the frame, parked cars line the curb, and
+  residents (Dani, Priya, Jules) carry name tags overhead. The
+  inspector stays open on Jules.
 
-screenshots/v50-C.png       1440x900 (approx)
-  Dolores Park from above as the fingered fog front stalls against the
-  surrounding blocks and pours down the avenues — mature crowns and
-  worn desire-lines show through the thinning layer. The neighborhood's
-  back yard under a moving edge, not a blanket.
+screenshots/v51-C.png       1440x900 (approx)
+  The park from above as Karl — the marine layer — pools at the edges
+  of the frame: mature crowns, worn desire-lines, and the palm allée
+  show through the thinning fog. The neighborhood's back yard under a
+  moving edge, not a blanket.
 
-screenshots/v50-D.png       1440x900 (approx)
-  Director mode on the Victorian row under a clean evening sky: REC
-  cluster and DIRECTOR badge up top, soft warm light lanes rake the
-  roofline, pastel facades step with the slope of the block, a named
-  resident (Carme) waits on the corner. The camera treats the
+screenshots/v51-D.png       1440x900 (approx)
+  Director mode over the rooftops under a clean autumn sky: REC cluster
+  and DIRECTOR badge up top, shopfront awnings and pastel facades step
+  with the block, leaves drift across the lens. The camera treats the
   neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
@@ -46,7 +46,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v50-A / v50-B.
+  First art pass, for before/after coverage. Pair with v51-A / v51-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

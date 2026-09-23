@@ -49,7 +49,7 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v50-* = current renderer (murals, parody signage,
+                     v51-* = current renderer (murals, parody signage,
                      polychrome trim, fire escapes, stoops, garage bays,
                      false-front gables, lived-in ground line — areaway
                      lightwells, toter bins, tag ghosts, cornice pigeons —
