@@ -889,6 +889,16 @@ needs both.
 | statlearn_gain / statlearn_min / statlearn_win / statlearn_age_w | 0.0 / 2 / 7 / 0.0 | 0.3 / 8 / 90d / 1.0 | co-occurrence semantic mint (v5.8) |
 | cheat_link_gain | 0.0 | 0.5 | self/ingroup-harmed actor↔act link (v5.8) |
 | zeig_resist / zeig_win_ext | 0.0 / 0.5 | 0.7 / 4 | interrupted-intention persistence (v5.8, OBSERVE) |
+| recons_win / recons_drift_mult / recons_upd_p / recons_risk | 0.05 / 1.0 / 0.0 / 0.0 | 0.5 / 2.5 / 0.7 / 0.3 | labile window size + in-window edit rates (v5.9, DEBATED) |
+| srif_mult | 0.0 | 1.0 | listener-side RIF share of speaker dose; ≤1 always (v5.9) |
+| consol_sel_w / consol_sel_arous | 0.0 / 0.3 | 0.9 / 0.8 | sleep selectivity weight / arousal gate (v5.9) |
+| sleep_span_gain | 0.0 | 0.4 | slept-gap retell S bonus (v5.9) |
+| interf_sim_peak / interf_sim_width / sim_repeat | 0.4 / 0.15 / 0.85 | 0.7 / 0.5 / 0.97 | Osgood surface shape + repetition boundary (v5.9) |
+| teles_c / teles_tau | 0.0 / 30 | 0.3 / 400 | forward-telescoping bias scale (v5.9) |
+| df_theta | 0.0 | 0.15 | directed-forgetting θ surcharge (v5.9) |
+| hyperbind_gain | 0.0 | 0.4 | spurious-link age ramp ≥55 (v5.9) |
+| alf_gain / alf_onset | 0.0 / 2 | 0.8 / 30 | late-phase tail steepening, age-scaled (v5.9, DEBATED) |
+| distinct_gate / distinct_pi_w | 0.5 / 0.2 | 0.9 / 1.0 | isolation shield on interference (v5.9) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2765,3 +2775,37 @@ actually KNOW (the emergent shadow):
   three locked nulls (`interleave_verbal_null`, `cheat_recog_null`,
   `disfluency_gain`) are adjudicated absences, not zeros awaiting
   tuning.
+
+## 43. v5.9 note (forgetting-curves VI — decay-side constants)
+
+Eleven clamp rows added in §0 for the v5.9 machinery. **None are
+trait pins** — every v5.9 dial is a mechanism constant; profile
+diversity enters through the existing age/trait channels they read:
+
+- **Reconsolidation is a world-timing dial, not a personality dial.**
+  `recons_*` params govern how editable a freshly-recalled memory is;
+  a bible that wants a character "rewritten by every retelling" raises
+  retell ecology / rumination (existing traits), never recons_win —
+  the window is physiology.
+- **Hyper-binding is the age tax bible-writers will feel:** elders
+  mint spurious pair links at encode (≈0.10 at 80 under default
+  ramp), so old characters produce confident wrong co-occurrences
+  AND their interference pools run contaminated — expect "she was
+  there that day" errors and faster crowd-blur from the same cause.
+  `age_eff` carries it, so high-`reserve`/`fitness` elders are
+  partially spared (the ramp rides the same effective-age curve).
+- **ALF is the "sharp yesterday, gone last month" phenotype** —
+  intercept intact, tail steepened past `alf_onset`. Distinct from
+  the general age-β rise (everything faster) and from dementia
+  modifiers (pathological; ALF must NOT stack on them — clamp
+  enforced in §0).
+- **Selective sleep (`expRel`) is a world-builder hook**: events the
+  character knows will matter (a promised telling, a warning, a
+  deadline) consolidate preferentially. Scenes that announce their
+  future relevance literally survive better — authorable via the
+  Event flag, not a trait.
+- **`dforget` vs suppression:** bible guidance — "avoids thinking
+  about it" = suppressEvent (effortful, leaks under trauma); "it's
+  not worth keeping / we agreed never to mention it" = forgetEvent
+  (starvation, no drama). Same ~10–15% surface effect, different
+  machinery, different fiction.

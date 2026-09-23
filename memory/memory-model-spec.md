@@ -1,5 +1,37 @@
-# Memory Model Spec v5.8 — implementable human-like memory for RW characters
+# Memory Model Spec v5.9 — implementable human-like memory for RW characters
 
+> **v5.9 note (forgetting-curves VI — the curve re-opens, the crowd
+> forgets together):** `memory/forgetting-curves.md` Part VI
+> (§§27–31). **Reconsolidation window** — every successful recall
+> opens a `labile_until` 0.25d window: §6 drift/misinfo ops run
+> ×`recons_drift_mult` inside it, same-cluster events can *update*
+> stored fields (`recons_upd_p`), and weak records recalled into
+> conflicting scenes can lose strength (`recons_risk`) — retrieval is
+> when the curve gets edited (Nader 2000; Hupbach 2007 — DEBATED-
+> bounded). **Socially shared RIF** — a teller's omissions suppress
+> the listener's matching-but-unretold fields at `srif_mult` 0.6 of
+> the speaker dose (Cuc, Koppel & Hirst 2007): narration is a
+> community forgetting channel. **Selective sleep** — consol benefit
+> weighted by arousal/`expRel` expectancy tag (Payne 2008; Wilhelm
+> 2011); neutral days get half. **Sleep-spaced retells** —
+> `sleep_span_gain` 0.15 when a retell gap crosses a sleep tick
+> (Mazza 2016). **Osgood surface** — pairwise interference becomes a
+> Gaussian inverted-U in similarity (peak `interf_sim_peak` 0.55);
+> sim ≥`sim_repeat` 0.9 routes to a rehearsal leg, sim <0.3 escapes
+> n_sim (Osgood 1949). **Telescoping** — reconstructed encodeDay
+> pulls toward the present (`teles_c` 0.12/`teles_tau` 120d; common-
+> mode, orderRecall untouched). **Directed forgetting** — new op
+> `forgetEvent`/`dforget` flag: ecology-starved (`df_theta` 0.05), a
+> weaker non-inhibitory sibling of suppression (Bjork 1970). **Hyper-
+> binding** — spurious pair links minted at encode, age-ramped ≥55
+> (Campbell, Hasher & Thomas 2010). **ALF tail** — β gains a
+> late-phase age term (`alf_gain` 0.3 after `alf_onset` 7d): the old
+> keep the intercept, lose the tail (Elliott 2014, DEBATED).
+> **Isolation shield** — novelty ≥`distinct_gate` takes suppression
+> ×`distinct_pi_w` 0.5 (von Restorff; Hunt 1995). Framework anchor
+> cited: Bjork & Bjork 1992 (our S/R split is the disuse theory).
+> +20 params, probes P637–P646.
+>
 > **v5.8 note (encoding-mechanics V — the attempt before the trace):**
 > `memory/encoding-mechanics.md` Part V (§§58–70). **Pretest
 > potentiation** — a FAILED recall attempt marks the topic; the next
@@ -3257,6 +3289,74 @@ episodic record; instructed via hearAccount with teller arousal ≥
 cond_thresh: `inst_cond_mult·cond_gain·arousal` (0.3), no episodic
 record. Same decay/extinction/renewal/generalization machinery;
 applies to positive conditioning too (P547).
+
+### 4.30 The curve re-opens — labile windows, social silence, selective sleep, similarity surface, signed drift (new in v5.9)
+
+Full derivations in `forgetting-curves.md` Part VI (§§27–31).
+
+**4.30a Reconsolidation window.** Every successful `recall`/
+`hearAccount` reboost (§5.9) opens `labile_until = now + recons_win`
+(0.25d) on the record. While open: §6 drift/misinfo ops against it run
+×`recons_drift_mult` (1.5); an incoming event sharing the cue-cluster
+updates stored fields at `recons_upd_p` (0.3, `lastRewrite` audit
+stamped); a weak record (R < `recons_risk_gate` 0.25) hit by
+conflicting input can *lose* strength (`recons_risk` 0.1 of the op's
+magnitude as loss). Post-window the reboosted strength locks in.
+Retelling refreshes AND exposes — the nightly rehasher is narrating a
+slowly different fight. (Nader 2000; Hupbach 2007 — DEBATED-bounded.)
+
+**4.30b Directed forgetting.** `forgetEvent(charId, recordId)` sets
+`dforget:true`: excluded from §4.13 retell ecology and §5.26
+forward-test boost, θ surcharge `df_theta` (0.05). storageS,
+intrude_w, and the §5.7 scan untouched — starvation, not inhibition
+(Bjork 1970; Basden 1993). The weak voluntary sibling of §4.12
+suppression.
+
+**4.30c Osgood surface — similarity-shaped PI.** §4.2 pairwise
+suppression and the `n_sim` accumulator are similarity-weighted by
+`osgood(sim) = exp(−((sim − interf_sim_peak)/interf_sim_width)²)`,
+`interf_sim_peak` 0.55, `interf_sim_width` 0.3. Boundary legs:
+`sim ≥ sim_repeat` (0.9) routes to a rehearsal micro-boost (§5.9 rates
+×0.3 — re-living the same event is practice, not competition);
+`sim < 0.3` escapes the bucket entirely. Isolation shield: novelty ≥
+`distinct_gate` (0.7) records take suppression ×`distinct_pi_w` (0.5)
+— the weird event keeps its own lane.
+
+**4.30d Selective sleep consolidation.** §4.6's `consol_beta_mult`
+benefit weights by `consol_sel = consol_sel_w·max(arousal −
+consol_sel_arous,0)/(1−consol_sel_arous) + (1−consol_sel_w)·expRel`:
+effective `consol_beta_mult' = consol_beta_mult·(0.5 + 0.5·consol_sel)`.
+`consol_sel_w` 0.5, `consol_sel_arous` 0.5; `expRel` is an Event flag
+(world tags known-future-relevance at encode). Sleep is a curator, not
+a blanket (Payne 2008; Wilhelm 2011). Intentions' `cueBind` sleep leg
+(§9) is unaffected — separate machinery.
+
+**4.30e Sleep-span retell bonus.** §4.11 `lag_mult` gains
+`×(1 + sleep_span_gain)` (0.15) when the retell gap crosses ≥1 sleep
+tick, at matched wall-clock gap (Mazza 2016 — "sleep on it" is the
+optimal rehearsal gap).
+
+**4.30f Telescoping — signed when-bias.** Reconstructed encodeDay
+pulls toward the present: `t̂ = t_age·(1 − teles_c·(1 −
+exp(−t_age/teles_tau)))`, `teles_c` 0.12, `teles_tau` 120d
+(Rubin & Baddeley 1989; Janssen 2006). Stored `createdDay` never
+mutates; the bias is report-side and common-mode — `orderRecall`
+(§5.40) is largely unaffected at long range, which is the datum
+(right about sequence, wrong about when).
+
+**4.30g Hyper-binding.** At encode, a same-scene entity pair mints a
+spurious link at `hyperbind_p = 0.02 + hyperbind_gain·max(0,
+age_eff − 55)/25` (≈0.10 at 80; Campbell, Hasher & Thomas 2010).
+Hyper-bound pairs share n_sim buckets — older pools are contaminated —
+and can emit confident wrong co-occurrences ("she was there that
+day"). An encode-side tax with a decay-side consequence.
+
+**4.30h ALF tail.** β gains a late-phase age term: `β_eff(t) =
+β·(1 + alf_gain·max(0, age_eff − 60)/20·min(1, t_age/alf_onset))`,
+`alf_gain` 0.3, `alf_onset` 7d (Elliott, Isaac & Muhlert 2014 —
+healthy-aging arm DEBATED). Intercept intact, tail steepens: sharp on
+the week, gone by the month. Disabled under dementia modifiers (the
+age-decline machinery already covers pathological loss).
 
 ---
 
@@ -8375,6 +8475,19 @@ MemoryParams = {
 //   cheat_recog_null = 0 (describe-only cheaters — no recognition
 //   boost, Buchner 2009); disfluency_gain = 0 (Xie 2018 d≈0.01 —
 //   CONTESTED anchor, P636 asserts absence).
+// v5.9 additions (forgetting-curves VI — FC§§27–31)
+"recons_win": 0.25, "recons_drift_mult": 1.5, // labile window, §4.30a
+"recons_upd_p": 0.3, "recons_risk": 0.1, "recons_risk_gate": 0.25,
+"srif_mult": 0.6,                             // listener SSRIF, §5.8
+"consol_sel_w": 0.5, "consol_sel_arous": 0.5, // selective sleep, §4.30d
+"sleep_span_gain": 0.15,                      // slept-gap retell, §4.30e
+"interf_sim_peak": 0.55, "interf_sim_width": 0.3, // Osgood, §4.30c
+"sim_repeat": 0.9,                            // repetition leg, §4.30c
+"teles_c": 0.12, "teles_tau": 120,            // when-bias, §4.30f
+"df_theta": 0.05,                             // forgetEvent, §4.30b
+"hyperbind_gain": 0.0,                        // base .02 + ramp ≥55, §4.30g
+"alf_gain": 0.3, "alf_onset": 7,              // late tail, §4.30h
+"distinct_gate": 0.7, "distinct_pi_w": 0.5,   // isolation shield, §4.30c
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -9497,6 +9610,25 @@ not resolved (DEBATED magnitude). P509/P511.
     boundaries on open Intentions; `cooccur` rides the same
     entity-pair census the §6.93 usuals layer already counts.
     All snapshot-additive, absent = legacy.
+- v5.9 additions (forgetting-curves.md Part VI §§27–31):
+  - Record fields: `labile_until` (day float — opened by §5.9
+    reboosts; §6 drift ops read it, §4.30a), `dforget:true`
+    (§4.30b — set by `forgetEvent`, never by decay). Event field:
+    `expRel:true` (§4.30d — world tags known-future-relevance at
+    encode: promised retellings, warnings, deadlines).
+  - New contract op `forgetEvent(charId, recordId)` (§4.30b) —
+    M-class, storageS-untouched; world-builder calls it on resolved
+    errands / dropped grudges / agreed silences.
+  - §5.8 RIF is now two-sided: `hearAccount` applies the listener
+    dose (×`srif_mult`) to unretold same-cluster records of each
+    hearer — narrated omissions suppress the audience (P638
+    sign-lock: listener ≤ speaker).
+  - §4.2 suppression and `n_sim` accrual are similarity-weighted by
+    the Osgood Gaussian (§4.30c); `sim ≥ sim_repeat` encodes produce
+    a rehearsal micro-boost, never suppression.
+  - Reconstructed encodeDay carries the telescoping bias
+    (§4.30f) — report-side only; `createdDay` never mutates.
+  - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

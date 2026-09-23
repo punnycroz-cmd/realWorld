@@ -1790,3 +1790,39 @@ whether an event ever becomes a trace.
   interrupted, pretest_mark, cooccur); profiles §0 +9 clamp rows +
   §42; probes P629–P636 (registry P1–P636). 8 source families
   web-verified.
+
+## 38. v61 addendum — forgetting-curves VI anchors (verified)
+
+The forgetting curve is not smooth and not private. This pass's
+sourced claims (full grounding in forgetting-curves.md §§27–31):
+
+- **Recall re-opens the file.** Nader, Schafe & LeDoux 2000 (Nature
+  406:722) + Hupbach et al. 2007 (L&M 14:47): reactivated memories
+  enter a labile window where they can be updated or lost — adopted
+  weakly (replication record honest: Bos 2014 boundary conditions).
+  Retrieval is when distortion enters.
+- **The teller forgets for the room.** Cuc, Koppel & Hirst 2007
+  (Psych Sci 18:727): speaker-side retrieval-induced forgetting
+  propagates to listeners — narrated omissions suppress the
+  audience's related records. Collective forgetting has a mechanism.
+- **Sleep curates.** Payne et al. 2008 (Psych Sci 19:781) + Wilhelm
+  et al. 2011 (J Neurosci 31:1563): sleep preferentially consolidates
+  arousing and expected-to-matter content; Mazza et al. 2016 (Psych
+  Sci 27:1321): spacing across sleep doubles retention per practice.
+- **Interference peaks at middling similarity.** Osgood 1949's
+  transfer surface — identical encodes rehearse, dissimilar ones
+  never compete, near-twins blur most.
+- **Dates slide toward now.** Rubin & Baddeley 1989; Janssen et al.
+  2006 (Psych Bull 132:677): forward telescoping grows with record
+  age — characters can be wrong about when while right about order.
+- **"Let it go" is a third operator.** Bjork 1970 / MacLeod 1998
+  directed forgetting: rehearsal withdrawal, ~10–20% cost — weaker
+  and non-inhibitory vs Anderson suppression.
+- **Aging taxes the tail and the binding.** Campbell, Hasher &
+  Thomas 2010 hyper-binding (elders mint wrong co-occurrences);
+  Elliott, Isaac & Muhlert 2014 ALF (intercept intact, multi-day
+  tail steepens — DEBATED in healthy aging).
+- **The weird survives the crowd.** von Restorff 1933; Hunt 1995 —
+  distinctiveness is interference-resistance, not immortality.
+- Framework anchor: Bjork & Bjork 1992 New Theory of Disuse is the
+  S/R root this spec has implemented since v0.9 — now cited.

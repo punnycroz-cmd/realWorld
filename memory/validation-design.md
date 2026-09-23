@@ -5161,3 +5161,101 @@ Registry: P1–P636. v60 suite: P629–P636 (3 MUST — P630 sign-locked,
 P632 interaction-shape, P636 the second CONTESTED-anchor absence
 assertion after P616; 3 SHOULD; 1 OBSERVE — Zeigarnik is the first
 OBSERVE-tier encode mechanic whose ledger verdict can retire it).
+
+## 115. Probes P637–P646 (v61 suite — forgetting-curves VI)
+
+All bands follow the §14.2 rep_grade conventions; SINGLE-literature
+effects carry `rep_shrink` on the band. Anchors: FC Part VI §§27–31.
+
+- **P637 reconsolidation window (SHOULD — DEBATED-flagged):** a
+  record recalled at day 5 then hit by a misinformation event at
+  +0.1d adopts the false field ≥1.5× more often than a matched
+  record hit at +0.5d (window closed); `recons_upd_p` incorporation
+  emits `lastRewrite` stamps; a weak (R<recons_risk_gate) record
+  recalled into conflicting input loses measurable strength — never
+  deletion. The window is a *when*, not a *whether*: the same ops
+  fire either way, only the rate multiplies.
+- **P638 listener SSRIF (MUST — sign-locked):** narrator tells half
+  of a shared cluster; listener recall of the untold-but-related
+  fields drops vs unrelated controls at ≤`srif_mult`× the speaker's
+  own RIF dose — listener suppression may never exceed the
+  speaker's (Cuc, Koppel & Hirst 2007 ordering).
+- **P639 selective sleep (SHOULD):** `expRel` or arousal≥
+  `consol_sel_arous` records out-retain matched neutral records
+  across a sleep boundary by ≥1.3× on the consolidation leg; the
+  advantage collapses at sleepQuality 0.3 — selectivity rides the
+  same tick, not a separate system.
+- **P640 sleep-span bonus (SHOULD):** two retells at equal
+  wall-clock gaps — one crossing a sleep tick, one not — the slept
+  pair shows ≥1.15× storageS growth at 30d (Mazza 2016 direction;
+  band rep-shrunk).
+- **P641 Osgood surface (MUST — shape-locked):** suppression-vs-
+  similarity is non-monotone — maximum within ±0.1 of
+  `interf_sim_peak`, ~0 below sim 0.3, and `sim ≥ sim_repeat`
+  encodes produce a net POSITIVE strength delta (repetition leg).
+  A monotone-in-sim build fails regardless of magnitude.
+- **P642 telescoping (SHOULD):** median reconstructed-when error is
+  negative-signed (toward present) and grows with record age toward
+  ~`teles_c`·age; sub-week records ~unbiased; `orderRecall`
+  accuracy unchanged at long range — the bias is common-mode.
+- **P643 directed forgetting (SHOULD):** `dforget` records draw zero
+  retell events and no §5.26 boost; voluntary hit-rate drops
+  10–15% vs matched controls at 14d; storageS, `intrude_w`, and
+  scan intrusion rate TOST-equivalent — starvation, not inhibition.
+- **P644 hyper-binding (SHOULD):** 75yo profiles mint spurious
+  pair-links ≥4× the 30yo rate at encode; linked pairs produce
+  confident wrong co-occurrence reports; older n_sim pools show
+  higher effective interference at equal true similarity.
+- **P645 ALF tail (SHOULD — DEBATED-flagged):** at age_eff 75 the
+  R@30d/R@1d ratio drops ≥8% vs age_eff 25 while R@1d is TOST-
+  equivalent — intercept held, tail steepened; inert at 40; must
+  NOT stack under dementia modifiers.
+- **P646 isolation shield (SHOULD):** novelty ≥`distinct_gate`
+  records in dense buckets lose ≤60% the R of matched low-novelty
+  records at 14d; decay rate itself unchanged — distinctiveness is
+  interference-resistance, not immortality.
+
+## 116. Sources verified this version (P637–P646 backing)
+
+- Nader, Schafe & LeDoux 2000 (Nature 406:722 — verified:
+  reactivation lability under protein-synthesis blockade); Hupbach,
+  Gomez, Hardt & Nadel 2007 (Learning & Memory 14:47 — verified:
+  reminder-dependent episodic updating); Bos et al. 2014 (Neurobiol.
+  Learn. Mem. — boundary conditions/replication limits; the
+  DEBATED flag's basis).
+- Cuc, Ozuru, Manier & Hirst 2006 (Psych. Sci. 17:939) and Cuc,
+  Koppel & Hirst 2007 (Psych. Sci. 18:727 — verified: within-
+  speaker RIF propagates to listeners); Stone, Coman, Brown,
+  Koppel & Hirst 2012 (Memory Studies 5:121 — silence as
+  collective-forgetting mechanism); Coman, Manier & Hirst 2009.
+- Payne, Stickgold, Swanberg & Kensinger 2008 (Psych. Sci. 19:781
+  — verified: sleep preserves negative objects over backgrounds);
+  Wilhelm, Diekelmann, Molzow, Ayoub, Molle & Born 2011
+  (J. Neurosci. 31:1563 — verified: expectancy-tagged memories
+  preferentially consolidated); van Dongen et al. 2012.
+- Mazza, Gerbier, Gustin, Kasikci, Koenig, Toppino & Magnin 2016
+  (Psych. Sci. 27:1321 — verified: sleep between sessions doubles
+  retention at 1wk and 6mo at equal practice; single-team — band
+  rep-shrunk).
+- Osgood 1949 (Psych. Rev. 56:132 — transfer-and-retroaction
+  surface; canonical inverted-U); McGeoch similarity tradition;
+  Wixted 2004 (Annual Review — already §7.5).
+- Rubin & Baddeley 1989; Thompson, Skowronski & Lee 1988; Janssen,
+  Chessa & Murre 2006 (Psych. Bull. 132:677 — verified: time-
+  perception model, forward telescoping magnitude vs age).
+- Bjork 1970; Basden, Basden & Gargano 1993 (JEP:LMC 19:579 —
+  item/list directed forgetting); MacLeod 1998 (chapter review);
+  Bjork & Bjork 1992 (New Theory of Disuse — the S/R root).
+- Campbell, Hasher & Thomas 2010 (Psych. Sci. 21:399 — verified:
+  hyper-binding of extraneous pairings in older adults); Campbell,
+  Trelle & Hasher 2012 (extension).
+- Elliott, Isaac & Muhlert 2014 (Cortex review — ALF: intact short-
+  delay, accelerated multi-day loss; strong in clinical cohorts,
+  healthy-aging arm DEBATED); Muhlert et al. 2010.
+- von Restorff 1933; Hunt 1995 (Memory 3 — distinctiveness
+  principle); Hunt & Worthen 2006 (edited volume).
+
+Registry: P1–P646. v61 suite: P637–P646 (2 MUST — P638 sign-locked,
+P641 shape-locked; 8 SHOULD incl. two DEBATED-flagged anchors P637
+and P645 — absence is not asserted anywhere this version; every arm
+asserts a *rate or shape*, the falsifiable kind).
