@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Wire — Real World spectator feed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- MARKETING SITE COPY (sf/marketing v61): verbatim world/wire.html v3
+     (world-v33) + these patches: site meta tags, back-nav link, archive
+     link repointed to wire-archive.html, analytics include, sr-only h1.
+     Re-apply the same five patches when refreshing from the world branch. -->
+<meta name="description" content="The Wire is Real World's free spectator feed — the live block plus every paid request, attributed. This preview runs the app's demo stream.">
+<link rel="canonical" href="https://realworld-game.example/wire.html"><!-- PLACEHOLDER domain: replace at launch -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Real World">
+<meta property="og:title" content="The Wire — the block, live and attributed">
+<meta property="og:description" content="Free spectator feed of a persistent AI neighborhood. Demo stream preview — the badge never lies.">
+<meta property="og:url" content="https://realworld-game.example/wire.html"><!-- PLACEHOLDER domain -->
+<meta property="og:image" content="assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Wire — Real World">
+<meta name="twitter:description" content="The live block plus every paid request, attributed. Free to watch, always.">
+<meta name="twitter:image" content="assets/og-card.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<!--
+  The Wire v2 — the full spectator feed application (world v19).
+  Supersedes feed.html (v5) as the primary "watch the neighborhood"
+  surface; feed.html stays as the lightweight embed/minimal variant.
+
+  File://-safe, no network. Two data sources, one schema
+  (world/feed.json):
+    - LIVE  — if window.__aiBridge exposes the game feed
+      (gsViewerState().feed per game-v6), we render it.
+    - DEMO  — otherwise a local simulated stream driven by the mains'
+      PUBLIC routines + crowd dayparts, seeded with feed.json
+      demo_seeds. The demo never pretends to be live: the header
+      carries a DEMO badge.
+  New in v2 (spec: world/wire-ui.md):
+    - event detail panel + stable permalink (#e=<id>)
+    - request lifecycle threading (req id groups status trail)
+    - follow pins for venues AND characters (free, spectator-only)
+    - pagination ("load older") + honest caught-up marker
+    - "N new" pill when scrolled away — the stream never yanks scroll
+    - day boundary separators; archive link for older days
+  New in v3 (world v33):
+    - zen mode (lean-back theater view — rails off, view-layer only)
+    - hold — freezes the DISPLAY, never the world; honest backlog count
+    - "reaching in now" strip — live request cards (running / in_review /
+      queued), every one attributed; admin actions join it
+    - keyboard: j/k select · enter detail · / search · f following ·
+      z zen · ? help · esc back out
+    - #r=<req> request permalink; mentions chips; pin-from-detail
+    - density toggle (cozy/compact, persisted); reduced-motion honored
+  Boundaries: surface-only text, homes are walls, secrets absent by
+  schema, parody names only, mains unpossessable, attribution on every
+  paid intervention. Watching is free forever.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);
+    background:var(--panel);flex-wrap:wrap;position:sticky;top:0;z-index:5}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    letter-spacing:.1em;color:var(--grn);border:1px solid var(--grn);border-radius:10px;padding:2px 10px}
+  .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--grn);
+    animation:blink 1.6s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .src{font-size:10px;font-weight:700;letter-spacing:.08em;border-radius:8px;padding:2px 8px;
+    border:1px solid var(--line);color:var(--dim)}
+  .src.demo{color:var(--acc);border-color:var(--acc)}
+  .clock{font-family:var(--mono);font-size:13px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:6px;padding:5px 12px}
+  .clock small{color:var(--dim)}
+  .wx{font-size:12.5px;color:var(--dim)}
+  .viewers{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .viewers b{color:var(--ink)}
+
+  main{display:grid;grid-template-columns:minmax(240px,300px) minmax(380px,1fr) minmax(240px,300px);
+    gap:16px;max-width:1360px;margin:0 auto;padding:16px 20px;align-items:start}
+  @media(max-width:1100px){main{grid-template-columns:minmax(240px,300px) 1fr}.railR{display:none}}
+  @media(max-width:800px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+  h2{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  h2 .free{color:var(--grn);letter-spacing:.05em;text-transform:none;font-weight:400}
+
+  /* ---- venues ---- */
+  .venue{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .venue:last-child{border-bottom:0}
+  .vname{font-weight:600;font-size:13px;min-width:118px}
+  .vwho{font-size:11.5px;color:var(--dim);flex:1}
+  .vwho .m{color:var(--ink)}
+  .dotcrowd{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
+  .dotcrowd.hi{background:var(--acc)} .dotcrowd.mid{background:var(--blu)} .dotcrowd.lo{background:var(--line)}
+  .pin{font-size:10.5px;color:var(--blu);cursor:pointer;border:1px solid var(--line);
+    border-radius:8px;padding:1px 8px;flex:none;background:transparent;font:inherit}
+  .pin.on{color:var(--acc);border-color:var(--acc)}
+
+  /* ---- cast strip ---- */
+  .cp{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .cp:last-child{border-bottom:0}
+  .cp b{min-width:96px}
+  .cp .at{color:var(--dim);flex:1;font-size:11.5px}
+  .cp .ban{color:var(--dim);font-size:9px;letter-spacing:.05em;flex:none}
+
+  /* ---- filters ---- */
+  .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+  .chip{font-size:11px;border:1px solid var(--line);border-radius:12px;padding:3px 11px;
+    cursor:pointer;color:var(--dim);background:var(--panel2);font:inherit}
+  .chip.on{color:var(--ink);border-color:var(--acc);background:#2a2618}
+  .chip .n{color:var(--acc);font-family:var(--mono);font-size:10px}
+  .search{margin-left:auto;background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    color:var(--ink);font:inherit;font-size:11.5px;padding:3px 12px;width:150px}
+
+  /* ---- stream ---- */
+  .wire{list-style:none;margin:0;padding:0}
+  .wire li{display:flex;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line);
+    font-size:13px;align-items:baseline;border-radius:4px;cursor:pointer}
+  .wire li:hover{background:var(--panel2)}
+  .wire li.sel{background:#242a20;border-left:2px solid var(--acc)}
+  .wire li.fol{box-shadow:inset 2px 0 0 var(--blu)}
+  .wire .t{font-family:var(--mono);font-size:11px;color:var(--dim);flex:none;width:42px}
+  .wire .k{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border-radius:8px;padding:1px 7px;flex:none;width:60px;text-align:center}
+  .k.move{background:#22303f;color:var(--blu)} .k.scene{background:#2b2b28;color:var(--dim)}
+  .k.venue{background:#262b22;color:var(--grn)} .k.weather{background:#202833;color:#8fb8d4}
+  .k.request{background:#33261e;color:var(--acc)} .k.admin{background:#33222c;color:var(--pink)}
+  .k.press{background:#2c2438;color:#b9a0e0} .k.housing{background:#22301f;color:#9fc47f}
+  .k.cast{background:#1f3038;color:#7fc4c4} .k.quiet{background:#1c2129;color:var(--dim)}
+  .wire .who{color:var(--blu)}
+  .wire .st{font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
+    margin-left:6px;white-space:nowrap}
+  .st.running{background:#1e3a2c;color:var(--grn)} .st.queued{background:#22303f;color:var(--blu)}
+  .st.resolved,.st.refunded,.st.approved,.st.approved__modified_,.st.player_session_ended{background:#2b2b28;color:var(--dim)}
+  .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
+  .st.not_approved{background:#33222c;color:var(--pink)}
+  .daysep{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--dim);
+    font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+  .daysep::before,.daysep::after{content:"";flex:1;border-top:1px solid var(--line)}
+  .quietline{color:var(--dim);font-style:italic}
+  .empty{padding:18px 4px;color:var(--dim);font-style:italic;font-size:13px}
+
+  .streamfoot{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:12px;color:var(--dim)}
+  .streamfoot button{font:inherit;font-size:11.5px;padding:4px 14px;border-radius:6px;
+    border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
+  .streamfoot a{color:var(--blu)}
+  .caughtup{font-style:italic}
+
+  .newpill{position:sticky;top:58px;z-index:4;display:none;margin:0 auto 8px;width:max-content;
+    background:var(--acc);color:#1a1408;font-size:11.5px;font-weight:700;border-radius:14px;
+    padding:4px 16px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.5)}
+
+  /* ---- detail panel ---- */
+  .det .k{margin-right:8px}
+  .det .dt{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .det .dtext{font-size:13.5px;margin:8px 0}
+  .det .meta{font-size:11.5px;color:var(--dim);margin:4px 0}
+  .det .meta b{color:var(--ink);font-weight:600}
+  .trail{margin:10px 0;padding-left:0;list-style:none;border-left:2px solid var(--line)}
+  .trail li{padding:3px 0 3px 12px;position:relative;font-size:12px;color:var(--dim)}
+  .trail li::before{content:"";position:absolute;left:-5px;top:9px;width:8px;height:8px;
+    border-radius:50%;background:var(--line)}
+  .trail li.cur{color:var(--ink)} .trail li.cur::before{background:var(--acc)}
+  .plink{display:flex;gap:6px;margin-top:10px}
+  .plink input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+    color:var(--dim);font-family:var(--mono);font-size:10.5px;padding:4px 8px}
+  .plink button{font:inherit;font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--blu);cursor:pointer}
+  .detempty{color:var(--dim);font-size:12.5px;font-style:italic}
+
+  .upsell{border:1px dashed var(--line);border-radius:6px;padding:10px 14px;font-size:12.5px;color:var(--dim)}
+  .upsell b{color:var(--ink)}
+  .upsell button{margin-left:8px;font:inherit;font-size:11.5px;padding:3px 12px;border-radius:6px;
+    border:1px solid var(--acc);background:transparent;color:var(--acc);cursor:pointer}
+  .fineprint{max-width:1360px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
+  .fineprint b{color:var(--ink)}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
+
+  /* ---- v33: zen / hold / live-now / keys / density ---- */
+  .hbtn{font:inherit;font-size:11px;padding:4px 12px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+  .hbtn.on{color:var(--acc);border-color:var(--acc)}
+  body.zen .railL,body.zen .railR,body.zen .fineprint{display:none}
+  body.zen main{grid-template-columns:minmax(0,1fr);max-width:860px}
+  body.zen .wire li{font-size:15.5px;padding:11px 8px}
+  body.zen .panel{border-width:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+  body.compact .wire li{padding:3px 6px;font-size:12px}
+  .livenow{display:none;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .lncard{display:flex;align-items:baseline;gap:7px;border:1px solid var(--line);border-radius:8px;
+    padding:4px 10px;font-size:11.5px;cursor:pointer;background:var(--panel2)}
+  .lncard:hover{border-color:var(--acc)}
+  .lncard .who{color:var(--blu)}
+  .lncard .st{margin-left:0}
+  .lncard.admin{border-color:var(--pink)}
+  .holdbar{display:none;margin:0 0 10px;border:1px solid var(--acc);border-radius:8px;
+    background:#2a2618;color:var(--ink);font-size:12px;padding:6px 12px;cursor:pointer}
+  .mchip{display:inline-block;font-size:10.5px;border:1px solid var(--line);border-radius:10px;
+    padding:1px 9px;margin:2px 4px 0 0;cursor:pointer;color:var(--blu);background:var(--panel2)}
+  .mchip.on{color:var(--acc);border-color:var(--acc)}
+  .dbtn{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--blu)}
+  .dbtn.on{color:var(--acc);border-color:var(--acc)}
+  .keypop{position:fixed;inset:0;display:none;background:rgba(10,12,15,.72);z-index:8}
+  .keycard{max-width:380px;margin:12vh auto 0;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:20px 24px}
+  .keycard h2{margin-bottom:10px}
+  .keycard table{border-collapse:collapse;font-size:12.5px}
+  .keycard td{padding:3px 14px 3px 0;color:var(--dim)}
+  .keycard td.k{font-family:var(--mono);color:var(--acc);white-space:nowrap}
+  .wire li:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+  @media (prefers-reduced-motion:reduce){.live::before{animation:none}}
+</style>
+</head>
+<body data-page="wire">
+<h1 style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">The Wire — Real World spectator feed</h1>
+<header>
+  <a href="demo.html" class="hbtn" style="text-decoration:none" title="back to the Real World site">← site</a>
+  <div class="logo">Real <span>World</span> — The Wire</div>
+  <span class="live">LIVE</span>
+  <span class="src demo" id="srcBadge">demo stream</span>
+  <div class="clock"><span id="clock">15:04</span> <small id="daypart">the after-school hour</small></div>
+  <div class="wx" id="wx">☀ clear · 68°F · light breeze off the bay</div>
+  <button class="hbtn" id="hold" title="freeze the display — the world keeps running">hold</button>
+  <button class="hbtn" id="zen" title="lean-back view — just the stream">zen</button>
+  <div class="viewers"><b id="vcount">1,412</b> watching</div>
+</header>
+
+<main>
+  <div class="railL">
+    <section class="panel">
+      <h2>Now on the block <span class="free">— free forever</span></h2>
+      <div id="venues"></div>
+    </section>
+    <section class="panel">
+      <h2>The eight <span class="free">— unpossessable, always on</span></h2>
+      <div id="cast"></div>
+    </section>
+    <div class="upsell">
+      <b>Director view</b> — multi-cam, follow-mode, replay scrub.
+      View-layer only; it changes nothing in the world. 10 cr / 30 min.
+      <button id="dir">Preview</button>
+    </div>
+  </div>
+
+  <section class="panel" style="margin-bottom:0">
+    <h2>The wire <span class="free">— the street, plus every paid request, attributed</span></h2>
+    <div class="filters" id="filters">
+      <button class="chip on" data-f="all">all</button>
+      <button class="chip" data-f="block">the block</button>
+      <button class="chip" data-f="request">requests</button>
+      <button class="chip" data-f="admin">admin</button>
+      <button class="chip" data-f="followed" id="chipf" style="display:none">following <span class="n" id="fn"></span></button>
+      <input class="search" id="q" placeholder="search the wire…" aria-label="search the wire">
+      <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
+    </div>
+    <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
+    <div class="holdbar" id="holdbar"></div>
+    <div class="newpill" id="newpill"></div>
+    <ul class="wire" id="wire" role="log" aria-live="polite" aria-label="the wire — public feed"></ul>
+    <div class="streamfoot">
+      <button id="older">load older</button>
+      <span id="foot" class="caughtup"></span>
+      <button id="keys" title="keyboard shortcuts">keys</button>
+      <a href="wire-archive.html" style="margin-left:auto">earlier days → The Archive</a>
+    </div>
+  </section>
+
+  <div class="railR">
+    <section class="panel det" id="det">
+      <h2>Event</h2>
+      <div id="detBody"><div class="detempty">Select any wire line for its record —
+        id, permalink, and (for requests) the whole status trail.</div></div>
+    </section>
+    <section class="panel">
+      <h2>Following</h2>
+      <div id="folllist" style="font-size:12.5px;color:var(--dim)">Nothing pinned. Follow a
+        venue or a character on the left — free, instant, reversible. It filters the wire;
+        it never touches the world.</div>
+    </section>
+  </div>
+</main>
+
+<div class="fineprint">
+  <b>What you're watching:</b> a real neighborhood running on AI, observed the
+  way a camera on the street observes it — arrivals, crowds, weather, the
+  public request feed. Homes are walls: the feed reports "headed home," never
+  what happens inside. Every paid intervention appears here with its payer's
+  handle — including admin actions, which compensate anyone they displace.
+  Event ids are stable; anything on the wire can be permalinked and found in
+  The Archive tomorrow. The cast's private lives are not a tier: secrets
+  aren't hidden behind a paywall, they're not in the building. Watching costs
+  nothing and always will.
+</div>
+
+<div class="keypop" id="keypop" role="dialog" aria-label="keyboard shortcuts">
+  <div class="keycard">
+    <h2>Keys — the wire, hands off the mouse</h2>
+    <table>
+      <tr><td class="k">j / k</td><td>move selection down / up the stream</td></tr>
+      <tr><td class="k">enter</td><td>open / close the event record</td></tr>
+      <tr><td class="k">/</td><td>search the wire</td></tr>
+      <tr><td class="k">f</td><td>filter to followed venues + characters</td></tr>
+      <tr><td class="k">z</td><td>zen — lean-back view (esc or z again to leave)</td></tr>
+      <tr><td class="k">h</td><td>hold the display — the world keeps running</td></tr>
+      <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
+      <tr><td class="k">?</td><td>this card</td></tr>
+    </table>
+    <div style="margin-top:12px;font-size:11.5px;color:var(--dim)">Everything here is
+      view-layer. No key, button, or pin on this page can touch the world.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================= source: live bridge or local demo ================= */
+var BRIDGE = (typeof __aiBridge!=="undefined" && __aiBridge && __aiBridge.gsViewerState) ? __aiBridge : null;
+var LIVE = !!BRIDGE;
+if (LIVE) { var b=document.getElementById('srcBadge'); b.textContent='live'; b.className='src'; }
+
+/* ================= block clock (demo) ================= */
+var T = 15*60 + 4;
+var TICK_MS = 7000, MIN_PER_TICK = 7;
+function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
+var DAYPARTS = [
+  [240,'the pre-dawn shift'],[360,'the commute front'],[480,'rush'],
+  [600,'the working block'],[780,'lunch + lull'],[900,'the after-school hour'],
+  [1080,'the night shift'],[1260,'close-down'],[1440,'the empty block']
+];
+function daypart(t){ for(var i=0;i<DAYPARTS.length;i++) if(t<DAYPARTS[i][0]) return DAYPARTS[i-1]?DAYPARTS[i-1][1]:'the empty block'; return 'the empty block'; }
+
+/* ================= cast routines (PUBLIC fields only) ================= */
+var MAINS = [
+ {id:'C1', name:'Mars Delgado', role:'manager, Mudhaus',
+  r:[[0,'home','asleep'],[330,'mudhaus','at Mudhaus — opening, counter'],
+     [840,'rounds','on her rounds — Farolote, the Guerrero stoop, the park, Buy-Rite'],
+     [1080,'mudhaus','at Mudhaus — close-up chatter'],[1290,'home','home']]},
+ {id:'C2', name:'Jules Park', role:'barista, Mudhaus',
+  r:[[0,'home','asleep'],[390,'park','running the park\u2019s north path'],
+     [480,'mudhaus','at Mudhaus — barista shift'],[900,'park','in the park — sketching'],
+     [1140,'home','home at 9418 Guerrero']]},
+ {id:'C3', name:'Dani Reyes', role:'barista, Mudhaus',
+  r:[[0,'home','asleep'],[480,'mudhaus','at Mudhaus — barista shift'],
+     [1020,'out','off the feed — her own business'],[1260,'home','home-ish']]},
+ {id:'C4', name:'Priya Raman', role:'RN, SF General',
+  r:[[0,'home','asleep'],[390,'work','on shift at SF General'],
+     [1170,'mudhaus','at Mudhaus — the decompression seat'],[1260,'home','home']]},
+ {id:'C5', name:'Marcus Bell', role:'courier, Flying Pannier',
+  r:[[0,'home','asleep'],[480,'loop','on the courier loop'],
+     [1080,'park','at the park — drums, hanging out'],[1260,'home','home']]},
+ {id:'C6', name:'Carmen Echeverría', role:'retired seamstress',
+  r:[[0,'home','asleep'],[420,'stoop','on her stoop — cafecito, watching'],
+     [600,'park','under her palm in the park — sewing, receiving'],
+     [990,'home','home — telenovelas, hemming']]},
+ {id:'C7', name:'Victor Auerbach', role:'owner, Auerbach Hardware',
+  r:[[0,'home','asleep'],[480,'auerbach','at the hardware counter'],
+     [1080,'home','upstairs — paperwork, ballgame'],[1320,'home','asleep']]},
+ {id:'C8', name:'Tomás Herrera', role:'lead cook, El Farolote',
+  r:[[0,'home','asleep'],[540,'loop','on the supplier loop — hardware, market, greenmarket'],
+     [870,'mudhaus','at Mudhaus — the 3 p.m. coffee'],[960,'farolote','on the line at El Farolote']]}
+];
+var CHAR_NAME = {}; MAINS.forEach(function(m){ CHAR_NAME[m.id]=m.name; });
+CHAR_NAME.A01='Reyes'; CHAR_NAME.A04='June'; CHAR_NAME.A20='Zee'; CHAR_NAME.A09='Asha';
+CHAR_NAME.A07='Doro'; CHAR_NAME.A11='Sam'; CHAR_NAME.A13='Bex'; CHAR_NAME.A05='Esther';
+CHAR_NAME.A06='Ray'; CHAR_NAME.A02='Nadia'; CHAR_NAME.A15='Vera'; CHAR_NAME.A03='Malik';
+CHAR_NAME.A17='Cole'; CHAR_NAME.A08='Luz'; CHAR_NAME.A16='Hana'; CHAR_NAME.A12='Kofe';
+CHAR_NAME.h01='Dana Okafor (a hired resident)';
+
+function whereIs(m,t){ var cur=m.r[0]; for(var i=0;i<m.r.length;i++) if(t>=m.r[i][0]) cur=m.r[i]; return cur; }
+
+var AMBIENT_AT = {
+  mudhaus:[[450,1080,'Reyes behind the bar'],[540,1020,'Nadia at the corner table'],[1170,1260,'Asha\u2019s counter seat']],
+  park:[[480,1080,'Esther & Ray holding benches'],[420,660,'Doro\u2019s dog loop'],[1020,1140,'June & Zee'],[600,1080,'Sam\u2019s pitch']],
+  farolote:[[780,1380,'the dinner line'],[1140,1440,'post-bar pickup window']],
+  club600:[[1200,1440,'Sam & Bex drift in']],
+  auerbach:[[480,1080,'Victor\u2019s counter; Cole\u2019s site next door']],
+  maliks:[[450,1080,'Malik\u2019s counter']],
+  clarion:[[600,1080,'Bex on breaks, mural traffic']],
+  library:[[450,1050,'Vera at the desk']],
+  perk:[[480,1080,'park-edge tables']],
+  buyrite:[[480,1140,'grocery drip']],
+  block:[]
+};
+var VENUES = [
+  ['mudhaus','Mudhaus Coffee'],['park','Dolores Park'],['farolote','Taqueria El Farolote'],
+  ['club600','The 600 Club'],['auerbach','Auerbach Hardware'],['perk','Dolores Perk'],
+  ['maliks','Malik\u2019s Mini Mart'],['clarion','Clarion Alley'],['library','Mission Branch Library'],
+  ['buyrite','Buy-Rite Market']
+];
+var VENUE_NAME = {}; VENUES.forEach(function(v){ VENUE_NAME[v[0]]=v[1]; }); VENUE_NAME.block='the block';
+var LOC2VENUE = {mudhaus:'mudhaus', park:'park', farolote:'farolote', auerbach:'auerbach',
+  stoop:'block', loop:'block', rounds:'block', work:null, out:null, home:null};
+
+/* ================= feed store ================= */
+var FEED = [];            // newest-first; {id,t,kind,venue,who,text,status,req,reason_code,attrs}
+var feedN = 0;
+var follows = {};         // 'v:<venue>' | 'c:<charId>' -> true
+try{ follows = JSON.parse(localStorage.getItem('rw_wire_follows')||'{}'); }catch(e){}
+function saveFollows(){ try{ localStorage.setItem('rw_wire_follows',JSON.stringify(follows)); }catch(e){} }
+var filter='all', query='', selId=null, page=1, PAGE=60, pendingNew=0;
+var held=false, heldCount=0;          /* display hold — the world never pauses */
+var zen=false;
+var density='cozy';
+try{ density = localStorage.getItem('rw_wire_density')||'cozy'; }catch(e){}
+if (density==='compact') document.body.classList.add('compact');
+
+function eid(){ return 'd0923-'+(++feedN); }   // demo ids; live feed supplies its own
+function push(e){ e.id = e.id || eid(); e.seq = feedN; FEED.unshift(e); return e; }
+function findEvent(id){ for (var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
+function trailFor(req){ return FEED.filter(function(e){return e.req===req;}).sort(function(a,b){return a.seq-b.seq;}); }
+
+/* status trail order for request lifecycle display */
+var TRAIL_ORDER = ['requested','in_review','approved','approved (modified)','running','queued','resolved','refunded','not approved','player session ended'];
+
+/* ================= visibility ================= */
+function followsMatch(e){
+  if (e.venue && follows['v:'+e.venue]) return true;
+  if (e.who && follows['c:'+e.who]) return true;
+  if (e.attrs && e.attrs.mentions) return e.attrs.mentions.some(function(c){return follows['c:'+c];});
+  return false;
+}
+function kindVisible(e){
+  var ok;
+  if (filter==='all') ok = true;
+  else if (filter==='request') ok = e.kind==='request';
+  else if (filter==='admin') ok = e.kind==='admin';
+  else if (filter==='followed') ok = followsMatch(e);
+  else ok = e.kind!=='request' && e.kind!=='admin' && e.kind!=='quiet';
+  if (ok && query){
+    var hay = (e.text+' '+(e.who||'')+' '+(CHAR_NAME[e.who]||'')+' '+(VENUE_NAME[e.venue]||'')).toLowerCase();
+    ok = hay.indexOf(query.toLowerCase())>=0;
+  }
+  return ok;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function stKey(s){ return String(s).replace(/[ ()]/g,'_').toLowerCase(); }
+
+/* ================= stream render ================= */
+function rowHtml(e){
+  var txt = esc(e.text);
+  if (e.kind==='request' && e.who) txt = '<span class="who">'+esc(e.who)+'</span> — '+txt;
+  if (e.status) txt += ' <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span>';
+  if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
+  var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'');
+  return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
+    '<span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span></li>';
+}
+function renderWire(){
+  var w=document.getElementById('wire'); w.innerHTML='';
+  var n=0, cap=page*PAGE;
+  for (var i=0;i<FEED.length && n<cap;i++){
+    var e=FEED[i]; if(!kindVisible(e)) continue;
+    w.insertAdjacentHTML('beforeend', rowHtml(e));
+    n++;
+  }
+  if (n) w.insertAdjacentHTML('afterbegin',
+    '<li class="daysep" style="cursor:default">today — wednesday, sep 23</li>');
+  if (!n){
+    var li2=document.createElement('li'); li2.className='empty';
+    li2.textContent = (T<240||T>=1440)
+      ? 'The empty block. Streetlights, a cat, nothing — the feed doesn\u2019t fill dead air.'
+      : 'Nothing on this filter right now.';
+    w.appendChild(li2);
+  }
+  var more = FEED.filter(kindVisible).length > n;
+  document.getElementById('older').style.display = more?'':'none';
+  document.getElementById('foot').textContent = more
+    ? ''
+    : (n ? 'You\u2019re caught up — nothing older than this today.'
+         : 'The wire is quiet. The Archive holds earlier days.');
+  w.querySelectorAll('.ev').forEach(function(li){
+    li.onclick=function(){ select(li.dataset.id); };
+    li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
+  });
+  renderLiveNow();
+}
+
+/* ================= reaching-in-now strip =================
+   The public request feed's live edge: every request whose latest
+   status is still open (requested / in_review / approved / queued /
+   running), plus recent admin actions. Attribution is the point —
+   the strip answers "who is reaching into the world right now?"
+   without the viewer digging for it. Never shows denied text. */
+var LIVE_STATUSES = {requested:1, in_review:1, approved:1, 'approved (modified)':1, queued:1, running:1};
+function renderLiveNow(){
+  var box=document.getElementById('livenow');
+  var latest={}, order=[];
+  FEED.forEach(function(e){
+    if (e.kind!=='request' || !e.req) return;
+    if (!(e.req in latest)){ latest[e.req]={status:e.status, who:e.who, req:e.req, id:e.id}; order.push(e.req); }
+  });
+  var cards = order.filter(function(r){ return LIVE_STATUSES[latest[r].status]; })
+                   .slice(0,6).map(function(r){
+    var l=latest[r];
+    return '<span class="lncard" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
+      '<span class="who">'+esc(l.who||'?')+'</span>'+
+      '<span class="st '+stKey(l.status)+'">'+esc(l.status)+'</span></span>';
+  });
+  /* admin actions from the last ~45 block-minutes ride the same strip */
+  FEED.forEach(function(e){
+    if (e.kind==='admin' && (T - e.t) <= 45)
+      cards.unshift('<span class="lncard admin" data-id="'+e.id+'" title="admin action — always attributed">'+
+        '<span class="who">admin</span><span>⚙</span></span>');
+  });
+  if (!cards.length){ box.style.display='none'; return; }
+  box.style.display='flex';
+  box.innerHTML='<span style="font-size:10.5px;color:var(--dim);letter-spacing:.08em;'+
+    'text-transform:uppercase;align-self:center">reaching in now</span>'+cards.join('');
+  box.querySelectorAll('.lncard').forEach(function(c){
+    c.onclick=function(){ select(c.dataset.id); };
+  });
+}
+
+/* new-events pill: never yank scroll */
+var wireEl = document.getElementById('wire');
+var stickTop = true;
+window.addEventListener('scroll', function(){
+  stickTop = window.scrollY < 120;
+  if (stickTop && pendingNew){ pendingNew=0; renderWire(); updatePill(); }
+});
+function updatePill(){
+  var p=document.getElementById('newpill');
+  if (pendingNew>0){ p.style.display='block'; p.textContent = pendingNew+' new — jump to top'; }
+  else p.style.display='none';
+}
+document.getElementById('newpill').onclick=function(){
+  pendingNew=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
+};
+function ingest(e){
+  push(e);
+  if (held){ heldCount++; updateHoldBar(); return; }
+  if (stickTop || selId) renderWire(); else { pendingNew++; updatePill(); }
+}
+
+/* hold — freezes the DISPLAY only. Events keep accruing; the bar
+   reports the honest backlog. The world never pauses for a viewer. */
+function updateHoldBar(){
+  var b=document.getElementById('holdbar');
+  if (!held){ b.style.display='none'; return; }
+  b.style.display='block';
+  b.textContent = heldCount
+    ? 'display held — ' + heldCount + ' new event' + (heldCount===1?'':'s') +
+      ' behind this bar. The world didn\u2019t pause; the display did. Click to catch up.'
+    : 'display held — the world keeps running. Click to catch up.';
+}
+function toggleHold(){
+  held=!held;
+  document.getElementById('hold').classList.toggle('on',held);
+  if (!held){ heldCount=0; updateHoldBar(); renderWire(); }
+  else updateHoldBar();
+}
+
+/* ================= detail panel + permalink ================= */
+function select(id){
+  selId = (selId===id)?null:id;
+  renderWire(); renderDetail();
+  if (selId) history.replaceState(null,'','#e='+selId);
+}
+function permalink(e){
+  var u = location.href.split('#')[0];
+  return u+'#e='+e.id;
+}
+function renderDetail(){
+  var box=document.getElementById('detBody');
+  var e = selId && findEvent(selId);
+  if (!e){ box.innerHTML='<div class="detempty">Select any wire line for its record — id, permalink, and (for requests) the whole status trail.</div>'; return; }
+  var h='<span class="k '+e.kind+'">'+e.kind+'</span><span class="dt">'+fmt(e.t)+' · '+e.id+'</span>';
+  h+='<div class="dtext">'+esc(e.text)+'</div>';
+  if (e.venue) h+='<div class="meta">venue — <b>'+esc(VENUE_NAME[e.venue]||e.venue)+'</b></div>';
+  if (e.who) h+='<div class="meta">'+((e.kind==='request'||e.kind==='cast')?'filed by':'who')+' — <b>'+esc(CHAR_NAME[e.who]||e.who)+'</b></div>';
+  if (e.status) h+='<div class="meta">status — <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span></div>';
+  if (e.reason_code) h+='<div class="meta">why-class — <b>'+esc(e.reason_code)+'</b> <span style="color:var(--dim)">(the screened text is never public)</span></div>';
+  if (e.attrs && e.attrs.compensated_cr) h+='<div class="meta">compensation — <b>'+e.attrs.compensated_cr+' cr</b> credited to affected players</div>';
+  if (e.attrs && e.attrs.sponsors && e.attrs.sponsors.length)
+    h+='<div class="meta">co-sponsors — <b>'+e.attrs.sponsors.map(esc).join(', ')+'</b>'+
+       ' <span style="color:var(--dim)">(same world event, not a discount)</span></div>';
+  if (e.attrs && e.attrs.surge)
+    h+='<div class="meta">surge — <b>priced at surge</b> <span style="color:var(--dim)">(contested resource, disclosed at filing)</span></div>';
+  if (e.attrs && e.attrs.mentions && e.attrs.mentions.length){
+    h+='<div class="meta">also seen — ' + e.attrs.mentions.map(function(c){
+      var k='c:'+c, on=follows[k];
+      return '<span class="mchip'+(on?' on':'')+'" data-k="'+k+'">'+
+        esc(CHAR_NAME[c]||c)+(on?' · pinned':'')+'</span>';
+    }).join('') + '</div>';
+  }
+  /* pin-from-detail: who + venue get inline follow buttons (view-layer only) */
+  var pins=[];
+  if (e.venue && VENUE_NAME[e.venue]) pins.push({k:'v:'+e.venue, label:VENUE_NAME[e.venue]});
+  if (e.who && CHAR_NAME[e.who] && /^[CAh]/.test(e.who))
+    pins.push({k:'c:'+e.who, label:CHAR_NAME[e.who]+' (public whereabouts only)'});
+  if (pins.length){
+    h+='<div class="meta" style="margin-top:8px">pin — ' + pins.map(function(p){
+      return '<button class="dbtn'+(follows[p.k]?' on':'')+'" data-k="'+p.k+'">'+
+        (follows[p.k]?'pinned':'pin')+' '+esc(p.label)+'</button>';
+    }).join(' ') + '</div>';
+  }
+  if (e.req){
+    var tr=trailFor(e.req);
+    h+='<div class="meta" style="margin-top:8px">request '+esc(e.req)+' — lifecycle:</div><ul class="trail">';
+    tr.forEach(function(x){
+      h+='<li class="'+(x.id===e.id?'cur':'')+'">'+fmt(x.t)+' — '+esc(x.status||x.kind)+(x.id===e.id?' ·':'')+'</li>';
+    });
+    h+='</ul>';
+  }
+  h+='<div class="plink"><input readonly value="'+esc(permalink(e))+'" aria-label="permalink"><button id="cplink">copy link</button></div>';
+  h+='<div class="meta" style="margin-top:8px">ids are stable — this event will sit in The Archive under the same id.</div>';
+  box.innerHTML=h;
+  var b=document.getElementById('cplink');
+  if (b) b.onclick=function(){
+    var inp=box.querySelector('.plink input'); inp.select();
+    try{ document.execCommand('copy'); toast('link copied'); }
+    catch(_){ toast('permalink: '+permalink(e)); }
+  };
+  box.querySelectorAll('.mchip,.dbtn').forEach(function(c){
+    c.onclick=function(){ toggleFollow(c.dataset.k); renderDetail(); };
+  });
+}
+
+/* ================= follows ================= */
+function renderFollows(){
+  var keys=Object.keys(follows);
+  var chip=document.getElementById('chipf');
+  chip.style.display = keys.length?'':'none';
+  document.getElementById('fn').textContent = keys.length||'';
+  var list=document.getElementById('folllist');
+  if (!keys.length){
+    list.innerHTML='Nothing pinned. Follow a venue or a character on the left — free, instant, reversible. It filters the wire; it never touches the world.';
+    return;
+  }
+  list.innerHTML=keys.map(function(k){
+    var label = k[0]==='v' ? VENUE_NAME[k.slice(2)]||k : (CHAR_NAME[k.slice(2)]||k)+' <span style="color:var(--dim)">(public whereabouts only)</span>';
+    return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+label+
+      ' <span class="pin on" data-k="'+k+'" style="float:right">unpin</span></div>';
+  }).join('');
+  list.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){ delete follows[p.dataset.k]; saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire(); };
+  });
+}
+function toggleFollow(k){
+  if (follows[k]) delete follows[k]; else follows[k]=true;
+  saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire();
+}
+
+/* ================= left rail ================= */
+function renderVenues(){
+  var box=document.getElementById('venues'); box.innerHTML='';
+  VENUES.forEach(function(v){
+    var id=v[0], name=v[1];
+    var mains=[], amb=0, labels=[];
+    MAINS.forEach(function(m){
+      var loc=whereIs(m,T)[1];
+      if (LOC2VENUE[loc]===id) mains.push(m.name.split(' ')[0]);
+    });
+    (AMBIENT_AT[id]||[]).forEach(function(a){ if(T>=a[0]&&T<a[1]){ amb++; labels.push(a[2]); } });
+    var crowd = mains.length+amb;
+    var d = document.createElement('div'); d.className='venue';
+    var who = mains.map(function(m){return '<span class="m">'+m+'</span>';}).join(', ');
+    if (labels.length) who += (who?' · ':'')+labels.join(' · ');
+    if (!who) who='—';
+    var k='v:'+id;
+    d.innerHTML='<span class="dotcrowd '+(crowd>=4?'hi':crowd>=2?'mid':'lo')+'"></span>'+
+      '<span class="vname">'+name+'</span><span class="vwho">'+who+'</span>'+
+      '<button class="pin'+(follows[k]?' on':'')+'" data-k="'+k+'">'+(follows[k]?'pinned':'pin')+'</button>';
+    box.appendChild(d);
+  });
+  box.querySelectorAll('.pin').forEach(function(p){ p.onclick=function(){ toggleFollow(p.dataset.k); }; });
+}
+function renderCast(){
+  var c=document.getElementById('cast'); c.innerHTML='';
+  MAINS.forEach(function(m){
+    var cur=whereIs(m,T), k='c:'+m.id;
+    var d=document.createElement('div'); d.className='cp';
+    d.innerHTML='<b>'+m.name.split(' ')[0]+'</b><span class="at">'+esc(cur[2])+'</span>'+
+      '<span class="ban">UNPOSSESSABLE</span>'+
+      '<button class="pin'+(follows[k]?' on':'')+'" data-k="'+k+'">'+(follows[k]?'pinned':'pin')+'</button>';
+    c.appendChild(d);
+  });
+  c.querySelectorAll('.pin').forEach(function(p){ p.onclick=function(){ toggleFollow(p.dataset.k); }; });
+}
+
+/* ================= demo generators ================= */
+var lastLoc = {};
+MAINS.forEach(function(m){ lastLoc[m.id]=whereIs(m,T)[1]; });
+var MOVE_TEXT = {
+  'mudhaus':'{n} ducked into Mudhaus',
+  'park':'{n} drifted into the park',
+  'farolote':'{n} is in at El Farolote',
+  'auerbach':'{n} opened the hardware store counter',
+  'stoop':'{n} is out on the stoop — cafecito in hand',
+  'rounds':'{n} started her afternoon rounds',
+  'loop':'{n} is on the courier loop',
+  'work':'{n} headed in to SF General',
+  'out':'{n} went off the feed — her own business',
+  'home':'{n} headed home'
+};
+function checkMoves(){
+  MAINS.forEach(function(m){
+    var loc = whereIs(m,T)[1];
+    if (loc !== lastLoc[m.id]){
+      var venue = LOC2VENUE[loc]||'block';
+      ingest({t:T, kind:'move', venue:venue, who:m.id,
+            text:(MOVE_TEXT[loc]||'{n} moved').replace('{n}',m.name)});
+      lastLoc[m.id]=loc;
+    }
+  });
+}
+var SCENES = [
+  {t:460, venue:'mudhaus', text:'Rush hour at Mudhaus — Reyes at double tempo, the line to the door'},
+  {t:560, venue:'park',    text:'Bench parliament in session — pigeons and the port, argued as ever'},
+  {t:690, venue:'block',   text:'The wordless race — Marcus and Omar, one block at full pace'},
+  {t:780, venue:'farolote',text:'Lunch rush at El Farolote — the salsa bar\u2019s midday refill'},
+  {t:905, venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter'},
+  {t:1120,venue:'club600', text:'Doorway set — Sam under the 600 Club awning, better acoustics anyway'},
+  {t:1175,venue:'mudhaus', text:'The evening nurse — Asha\u2019s counter seat, phone face-down'},
+  {t:1260,venue:'farolote',text:'Post-bar pickup line forming at El Farolote'}
+];
+var TEXTURE = [
+  {v:'park',   k:'venue', text:'Buy-Rite Creamery\u2019s line is doing the thing again'},
+  {v:'maliks', k:'venue', text:'Steady drip through Malik\u2019s — lottery tickets and gossip'},
+  {v:'mudhaus',k:'venue', text:'Mudhaus refills — the after-school crowd ordering carefully'},
+  {v:'clarion',k:'venue', text:'A photo crew in Clarion Alley; Bex pretending not to watch'},
+  {v:'park',   k:'venue', text:'Doro\u2019s pack did the north loop — seven dogs, one system'},
+  {v:'buyrite',k:'venue', text:'Buy-Rite restocking the good bread — the word will travel'},
+  {v:'block',  k:'venue', text:'A Muni bus let out a small crowd at 18th — the block absorbs them'},
+  {v:'library',k:'venue', text:'Library quiet hour — Vera reshelving, June\u2019s exam books stacked'}
+];
+var texI=0;
+
+/* demo request threads — each req lands 'requested', then advances a status
+   every few ticks so the lifecycle trail has something to show */
+var reqSeq = 1040;
+var REQ_NEW = [
+  {who:'marina_w', text:'weather — clear skies over Dolores Park, 2 h', path:['requested','approved','running','resolved']},
+  {who:'r0ok',     text:'event — stoop-sale window on Guerrero',        path:['requested','queued','refunded'], refundNote:'queued request expired before activation'},
+  {who:'pt',       text:'nudge — an ask to Carmen Echeverría',          path:['requested','in_review','not approved'], reason:'admin-domain'},
+  {who:'leaf',     text:'event — park cleanup at Dolores Park',         path:['requested','approved','running','resolved']},
+  {who:'kes',      text:'camera director — 30 min',                     path:['running','player session ended']},
+  {who:'juno_',    text:'nudge — an ask to Tomás Herrera',              path:['requested','in_review','approved (modified)','running','resolved']},
+  {who:'ghostline',text:'a request',                                    path:['requested','not approved'], redacted:true}
+];
+var reqQueue=[], reqClock=0;
+function reqTick(){
+  /* advance an open thread */
+  for (var i=0;i<reqQueue.length;i++){
+    var r=reqQueue[i];
+    if (r.step < r.def.path.length){
+      r.step++;
+      var st=r.def.path[r.step];
+      var e={t:T, kind:'request', who:r.def.who, req:r.id, status:st};
+      e.text = r.def.redacted && st==='not approved' ? 'request not approved'
+             : (r.def.refundNote && st==='refunded' ? r.def.refundNote+' — refunded' : r.def.text);
+      if (r.def.reason && st==='not approved') e.reason_code=r.def.reason;
+      ingest(e);
+      if (r.step>=r.def.path.length-1) reqQueue.splice(i,1);
+      return;
+    }
+  }
+  /* or mint a new thread every ~4 ticks */
+  if (reqClock++ % 4===0 && REQ_NEW.length){
+    var def=REQ_NEW.shift();
+    var id='rq-'+(++reqSeq);
+    var e2={t:T, kind:'request', who:def.who, req:id, status:def.path[0],
+            text:(def.path[0]==='not approved')?'request not approved':def.text};
+    if (def.sponsors) e2.attrs={sponsors:def.sponsors};
+    ingest(e2);
+    if (def.path.length>1) reqQueue.push({id:id,def:def,step:0});
+  }
+}
+var ADMIN_ONCE = {t:1088, done:false};
+
+/* demo seeds — same set as feed.json demo_seeds (hand-synced) */
+function seedFeed(){
+  [
+    {t:375, kind:'move',    who:'C2', venue:'park',    text:'Jules out for the morning run — north path loops'},
+    {t:452, kind:'scene',   venue:'mudhaus', text:'Rush hour at Mudhaus — Reyes at double tempo, line to the door'},
+    {t:487, kind:'move',    who:'C4', venue:'buyrite', text:'Priya headed in to SF General — a twelves day'},
+    {t:540, kind:'venue',   venue:'park',    text:'Bench parliament in session — Esther and Ray, adjacent sections'},
+    {t:566, kind:'request', who:'okfm', req:'rq-1033', text:'possess — own courier, 30 min', status:'resolved'},
+    {t:601, kind:'weather', text:'Fog burned off over the park — full sun'},
+    {t:647, kind:'press',   text:'Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always'},
+    {t:720, kind:'scene',   venue:'farolote', text:'Lunch prep at El Farolote — the salsa bar gets its midday refill'},
+    {t:783, kind:'request', who:'leaf', req:'rq-1038', text:'event — park cleanup at Dolores Park', status:'queued'},
+    {t:806, kind:'cast',    who:'okfm', venue:'block',   text:'a new face on the block — Dana Okafor, a hired resident, settling in'},
+    {t:812, kind:'housing', venue:'block',   text:'Listing filled — 9457 Guerrero St, Unit 2 comes off the board'},
+    {t:841, kind:'admin',   venue:'club600', text:'admin action — venue window reset at The 600 Club', attrs:{compensated_cr:90}},
+    {t:878, kind:'request', who:'tide_9', req:'rq-1039', text:'weather — evening fog return, 1 h', status:'running',
+      attrs:{sponsors:['tide_9','loam','marina_w'], surge:true}},
+    {t:900, kind:'scene',   venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter', attrs:{mentions:['A04','A20']}}
+  ].forEach(function(e){ push(e); });
+  /* give the queued seed its follow-up so the trail reads honestly */
+  push({t:812+40, kind:'request', who:'leaf', req:'rq-1038',
+        text:'queued request expired before activation — refunded', status:'refunded'});
+}
+
+/* ================= live ingest (merge seam, game-v6) ================= */
+var liveSeen = {};
+function livePoll(){
+  try{
+    var vs = BRIDGE.gsViewerState();
+    var feed = (vs && vs.feed) || [];
+    /* feed entries already match feed.json schema — normalize + dedupe */
+    feed.forEach(function(e){
+      if (!liveSeen[e.id]){ liveSeen[e.id]=true; push(e); }
+    });
+    FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
+    renderWire();
+    if (BRIDGE.gsWireStats){
+      var s=BRIDGE.gsWireStats();
+      if (s && s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
+    }
+  }catch(err){ /* bridge hiccup — keep last good frame */ }
+}
+
+/* ================= clock/tick ================= */
+function renderClock(){
+  document.getElementById('clock').textContent=fmt(T);
+  document.getElementById('daypart').textContent=daypart(T);
+}
+var viewerN=1412;
+function tick(){
+  T += MIN_PER_TICK;
+  renderClock(); renderVenues(); renderCast();
+  checkMoves();
+  SCENES.forEach(function(s){ if (!s.done && T>=s.t){ s.done=true; ingest({t:T,kind:'scene',venue:s.venue,text:s.text}); } });
+  var tx=TEXTURE[texI++ % TEXTURE.length];
+  ingest({t:T, kind:tx.k, venue:tx.v, text:tx.text});
+  reqTick();
+  if (!ADMIN_ONCE.done && T>=ADMIN_ONCE.t){
+    ADMIN_ONCE.done=true;
+    ingest({t:T, kind:'admin', venue:'auerbach', text:'admin action — sidewalk repair window at Auerbach Hardware', attrs:{compensated_cr:45}});
+  }
+  if (T % 20 < MIN_PER_TICK) { viewerN += (viewerN*0.002*Math.random()|0)+1; document.getElementById('vcount').textContent=viewerN.toLocaleString(); }
+}
+
+/* ================= controls ================= */
+document.getElementById('filters').addEventListener('click', function(ev){
+  var c = ev.target.closest('.chip'); if(!c) return;
+  filter = c.dataset.f; page=1;
+  document.querySelectorAll('#filters .chip').forEach(function(x){ x.classList.toggle('on', x===c); });
+  renderWire();
+});
+document.getElementById('q').addEventListener('input', function(ev){ query=ev.target.value.trim(); page=1; renderWire(); });
+document.getElementById('older').onclick=function(){ page++; renderWire(); };
+document.getElementById('dir').onclick=function(){ toast('View-layer only; the world doesn\u2019t notice.'); };
+document.getElementById('hold').onclick=toggleHold;
+document.getElementById('holdbar').onclick=toggleHold;
+document.getElementById('zen').onclick=function(){ setZen(!zen); };
+document.getElementById('dens').onclick=function(){
+  density = (density==='compact')?'cozy':'compact';
+  document.body.classList.toggle('compact',density==='compact');
+  document.getElementById('dens').classList.toggle('on',density==='compact');
+  try{ localStorage.setItem('rw_wire_density',density); }catch(e){}
+};
+document.getElementById('dens').classList.toggle('on',density==='compact');
+document.getElementById('keys').onclick=function(){ toggleKeys(true); };
+document.getElementById('keypop').onclick=function(ev){ if(ev.target.id==='keypop') toggleKeys(false); };
+function toggleKeys(on){ document.getElementById('keypop').style.display=on?'block':'none'; }
+function setZen(on){
+  zen=!!on;
+  document.body.classList.toggle('zen',zen);
+  document.getElementById('zen').classList.toggle('on',zen);
+}
+/* j/k move the selection through the currently visible rows */
+function stepSel(dir){
+  var rows=[].slice.call(document.querySelectorAll('#wire .ev'));
+  if (!rows.length) return;
+  var i = selId ? rows.findIndex(function(r){return r.dataset.id===selId;}) : -1;
+  i = (i<0) ? (dir>0?0:rows.length-1) : Math.max(0,Math.min(rows.length-1,i+dir));
+  selId=rows[i].dataset.id;
+  renderWire(); renderDetail();
+  history.replaceState(null,'','#e='+selId);
+  var el=document.querySelector('#wire .ev[data-id="'+selId+'"]');
+  if (el) el.scrollIntoView({block:'nearest'});
+}
+document.addEventListener('keydown', function(ev){
+  var tag=(ev.target.tagName||'').toLowerCase();
+  if (tag==='input'||tag==='textarea'){
+    if (ev.key==='Escape'){ ev.target.value=''; query=''; page=1; renderWire(); ev.target.blur(); }
+    return;
+  }
+  if (ev.key==='j'){ stepSel(1); ev.preventDefault(); }
+  else if (ev.key==='k'){ stepSel(-1); ev.preventDefault(); }
+  else if (ev.key==='/'){ ev.preventDefault(); document.getElementById('q').focus(); }
+  else if (ev.key==='f'){ var c=document.getElementById('chipf'); if (c.style.display!=='none'){ c.click(); } }
+  else if (ev.key==='z'){ setZen(!zen); }
+  else if (ev.key==='h'){ toggleHold(); }
+  else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
+  else if (ev.key==='Escape'){
+    if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
+    else if (zen) setZen(false);
+    else if (selId){ selId=null; renderWire(); renderDetail(); history.replaceState(null,'','#'); }
+  }
+});
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(function(){t.style.display='none';},2000); }
+
+/* ================= boot ================= */
+renderFollows();
+if (LIVE){
+  livePoll(); setInterval(livePoll, 1500);
+} else {
+  seedFeed(); renderWire(); renderVenues(); renderCast(); renderClock();
+  setInterval(tick, TICK_MS);
+}
+var deep = location.hash.match(/^#e=(.+)$/);
+if (deep){ selId=deep[1]; renderDetail(); renderWire(); }
+var deepR = location.hash.match(/^#r=(.+)$/);
+if (deepR){
+  /* request permalink — resolve to the newest event in the trail */
+  var rid=deepR[1], hit=null;
+  for (var i=0;i<FEED.length;i++) if (FEED[i].req===rid){ hit=FEED[i]; break; }
+  if (hit){ selId=hit.id; renderWire(); renderDetail(); }
+  else toast('request '+rid+' isn\u2019t on today\u2019s wire — try The Archive');
+}
+var deepZ = location.hash.match(/#z=1/);
+if (deepZ) setZen(true);
+</script>
+<script src="js/analytics.js" defer></script>
+</body>
+</html>

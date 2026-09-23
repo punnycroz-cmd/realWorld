@@ -95,7 +95,9 @@ in markup today.
 | `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
 | `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
-| `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src` |
+| `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src`; embeds the real wire app (demo stream) since v61 |
+| `/wire.html` | The Wire — Real World spectator feed | AI spectator feed, live AI world | — | Real world-v33 app, verbatim + 4 documented patches; demo-badged until `__aiBridge` exists |
+| `/wire-archive.html` | The Archive — Real World history browser | game event archive | — | Real world-v34 app, verbatim + 3 documented patches; demo-badged; distinct from `/archive.html` (explainer owns "archive" queries, this is the running app) |
 | `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md |
 | `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 26 Qs (jobs Q added v60); JSON-LD ↔ visible parity enforced by seo_audit.py |
@@ -192,8 +194,8 @@ Done in markup (verified by `tools/staging_dryrun.sh` **and**
 `tools/seo_audit.py` 66 pass / 0 fail at v60 — the audit runs inside
 `tools/preflight.sh` step [1b], so regressions block a GO verdict):
 - [x] Semantic HTML, one H1/page, alt text on every shot
-- [x] `sitemap.xml` (all 14 indexable pages + image entries + lastmod) & `robots.txt`
-- [x] OG/Twitter cards on all 14 indexable pages; og:image 1200×630; og:site_name (v15)
+- [x] `sitemap.xml` (all 16 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 16 indexable pages; og:image 1200×630; og:site_name (v15)
 - [x] Canonical URLs on every page
 - [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
 - [x] webp companions + lazy-loading + width/height attrs (no CLS)

@@ -186,6 +186,33 @@
   </div>
 </section>
 
+<!-- THE REAL INTERFACE — world-v33 wire app running its built-in demo stream -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The interface, running</p>
+    <h2>This is the actual Wire — not a mockup.</h2>
+    <p class="muted">Below is the real spectator application, embedded and
+    running on its built-in <b>demo stream</b> — the badge in its header
+    tells you so, and it will still tell you so at launch when the same
+    frame shows live data. Filter the feed, open a request thread, pin a
+    resident, hit <i>hold</i>. Nothing here touches the world; the Wire is
+    view-layer only.</p>
+    <div class="demo-stage">
+      <iframe class="demo-frame app-frame" src="wire.html"
+              title="The Wire — Real World spectator feed, demo stream"
+              loading="lazy"></iframe>
+    </div>
+    <div class="demo-toolbar">
+      <a class="btn btn-ghost btn-sm" href="wire.html"
+         data-rw-event="cta_click" data-rw-props='{"cta":"demo-wire","dest":"wire"}'>Open the Wire full-screen</a>
+      <a class="btn btn-ghost btn-sm" href="wire-archive.html"
+         data-rw-event="cta_click" data-rw-props='{"cta":"demo-wire","dest":"wire-archive"}'>Browse yesterday in the Archive</a>
+      <span class="muted demo-toolbar-note">Demo stream — simulated events,
+      clearly badged inside the app.</span>
+    </div>
+  </div>
+</section>
+
 <!-- TRY A REQUEST — local simulation of the real pipeline -->
 <section id="try">
   <div class="wrap">

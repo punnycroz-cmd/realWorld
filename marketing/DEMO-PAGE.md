@@ -100,6 +100,31 @@ says "Simulation only," and simulated feed rows are marked "filed by you
   routine hook, all from cast.html public profiles — no secrets) linking to
   cast.html. 4/2/1-column `.cast-strip` grid.
 
+## 4a-iii. v61 — the real interface, embedded
+
+The page now embeds the actual spectator applications, copied verbatim from
+the world branch and running their built-in demo modes:
+
+- `site/wire.html` — world `wire.html` v3 (world-v33): full spectator feed
+  (filters, request threading, follow pins, hold, zen mode, #e=/#r=/#z=
+  permalinks, keyboard map). Demo stream seeds itself from `feed.json`
+  vocabulary and carries the app's own `demo stream` badge.
+- `site/wire-archive.html` — world `archive.html` v3 (world-v34): history
+  browser (day/person/venue/threads/word/ledger views) on the demo week.
+
+Both are file://-safe, zero-network until `__aiBridge` exists — at which
+point the same files render live data and flip their badges themselves.
+Patches applied on top of the verbatim copies (re-apply on refresh, noted
+in a header comment inside each file): site meta/OG tags, a back-nav link,
+`data-page` + analytics.js include, and in wire.html the `archive.html`
+href repointed to `wire-archive.html` (site `archive.html` is the marketing
+explainer, not the app).
+
+Placement: a "The interface, running" section between the feed preview and
+the request simulator, iframe `.demo-frame.app-frame` (72vh, lazy). The
+`data-demo-src` launch switch is UNCHANGED — it still waits for the live
+spectator game build; the wire embed is a separate, already-real surface.
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -138,6 +163,9 @@ analytics-events.json.
 
 - **Game-systems/world:** needs the spectator build URL + embed permission
   (same-origin or CSP `frame-ancestors`). Until then `data-demo-src` stays empty.
+  The wire/wire-archive embeds (v61) are the world's own demo-mode apps —
+  they go live automatically when `__aiBridge` is present; on a static host
+  they stay in honest demo mode.
 - **Art:** fallback capture is `shots/v39-A.*`; swap when a better canonical
   shot is published (same filename convention).
 - Feed row labels must mirror the live feed's real vocabulary at launch —

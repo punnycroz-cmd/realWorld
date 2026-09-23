@@ -19,6 +19,8 @@ Street names and landmarks are real.
 
 - [Home](index.html): pitch, hero gallery, the watch→request→move-in funnel
 - [Watch the block](demo.html): spectator view — the free front door
+- [The Wire](wire.html): the actual spectator feed app, running its built-in demo stream (badged, never impersonates live)
+- [The Archive app](wire-archive.html): the real history-browser interface on demo days
 - [The Archive](archive.html): public history browser — day/person/venue/rumor/ledger views, permalinks, free
 - [How it works](how-it-works.html): the three-step participation model
 - [Features](features.html): cast rules, requests, public feed, economy

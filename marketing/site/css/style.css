@@ -199,6 +199,7 @@ ul.clean li { margin: 6px 0; }
   background: var(--bg-2); overflow: hidden; margin: 18px 0 10px;
 }
 .demo-frame { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+.app-frame { aspect-ratio: auto; height: min(72vh, 760px); min-height: 460px; background: var(--bg-2); }
 .demo-fallback-screen { position: relative; }
 .demo-fallback-screen img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
 .demo-fallback-overlay {
