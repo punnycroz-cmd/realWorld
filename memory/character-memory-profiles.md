@@ -467,6 +467,15 @@ never copying raw.
 | pm_action_p / pm_vague_win | 0.5 / 0 | 1.0 / 1.0 | PM action recall + vague window (v3.7) |
 | boundary_cue_drop / doorway_pen / post_boundary_win / boundary_hit | 0 / 0 / 0 / 0 | 0.8 / 0.5 / 0.1 / 0.2 | doorway/boundary drop (v3.7) |
 | iso_first | 0 | 0.3 | isolated-record bout-first bonus (v3.7) |
+| verbal_lock_thresh | 0.2 | 0.9 | preverbal-record verbal-output gate (v3.8) |
+| script_default_age / sort_window | 5 / 1 | 12 / 8 | child script-report age cutoff / assimilation window (v3.8) |
+| script_intrusion_p / assim_p | 0 / 0 | 0.6 / 0.8 | modal-filler intrusion / in-window deviation loss (v3.8) |
+| schema_assim_p / schema_viol_loss / schema_flip_age | 0 / 0 / 6 | 0.5 / 0.4 / 14 | child schema-normalization channel (v3.8) |
+| choose_p / seq_choose_gain / showup_mult | 0 / 1.0 / 1.0 | 1.0 / 2.0 / 2.5 | forced-pick refusal channel (v3.8) |
+| suggest_repeat_mult / neutral_inoc / stereo_prime / embellish_p / taint_exit | 1.0 / 0.7 / 1.0 / 0 / 6 | 2.0 / 1.0 / 2.0 / 0.7 / 12 | child interview sign-split (v3.8) |
+| date_loc_exit / child_date_mult / cyclic_acc | 5 / 1.0 / 0.3 | 12 / 8 / 1.0 | child dating mode (v3.8) |
+| stress_flip_age / child_stress_gain / child_stress_inoc | 5 / 0 / 0.5 | 12 / 0.3 / 1.0 | child stress inversion (v3.8) |
+| sem_accrual | 0.5 | 2.5 | crystallized growth rate (midlife knots, v3.8) |
 
 **v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
 only new per-char dial — how long a trusted correction keeps a record
@@ -1667,3 +1676,37 @@ flips the CONGRUENCE SIGN only inside a repair-mode bout — it does
 not invert mood-congruent selection globally; `pm_vague` is a
 retrieval state flag, never a stored intention change — the
 intention record itself is intact.
+
+## 25. v3.8 note — age-development IV: what a bible can and can't move
+
+The v3.8 layer is mostly ERA machinery — it reads `encodeAge` and
+`age_now`, not personality. Per-character surfaces:
+
+- **`reminiscence_env`** (v1.5, unchanged): still the dial that
+  moves the child's amnesia boundary — it also feeds
+  `verbal_age`'s effective knots in spirit (an elaborative
+  household accelerates productive language; profiles may shift
+  the verbal_age knots ±0.5y with it — documented coupling, not
+  a new param).
+- **Stereotype strength (PersonModel rigidity):** the real input
+  to `schema_assim_p` — a bible sets *which* schemas a child
+  holds hard (gender, class, "how birthdays go"), not the rate.
+  A child raised with rigid role expectations normalizes
+  violations more; a low-stereotype child shows no differential,
+  per Liben & Signorella.
+- **`low_reserve`:** now carries the OLD midlife knots (enc_base
+  .84@50 etc.) — reserve it for bibles that want the declining
+  50-year-old as a phenotype (sedentary, disengaged, ill), not as
+  the population default.
+- **Population-flat:** `choose_p` curve, `taint_exit`,
+  `date_loc_exit`, `stress_flip_age`, `script_default_age`,
+  `verbal_lock_thresh`, `embellish_p` — developmental constants.
+  `sem_accrual` may ride `expert_gain`'s `depth` for domain
+  knowledge only; the population curve is the default.
+
+Explicit nulls (guards): `verbal_void` is a record property — no
+profile makes a character narrate preverbal traces; `forced_pick`
+confidence suppression does NOT exist (children choose
+confidently — do not add a humility dial); script-mode intrusion
+fields are emitted as ordinary fields — a profile cannot flag
+them uncertain.

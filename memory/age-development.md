@@ -1000,3 +1000,423 @@ New params: `first_gain` 0.2, `transition_gain` 0.4,
   if implementers collapse item-lure and gist-lure into one dial, the
   U-shape inverts and children come out *less* error-prone — the
   single most common misread of the development literature.
+
+---
+
+# Part IV — v39 deepening (2026-09-23): what the child channels never modeled — locked languages, scripts as default report, the interview as hazard, the lineup that can't be refused, midlife as a real regime, and dating without a timeline
+
+Fourth pass. The first three passes built the era structure
+(amnesia/bump/firsts), the channel split (suggestion vs gist vs
+item), and the overlays (sleep phase, narrative, hormones). This pass
+owns what was left: the **format** of early traces (preverbal records
+can't be told), the **default report** of childhood (the routine, not
+the instance), the **interview itself as a distortion operator**
+(repetition maintains, suggestion taints — sign matters), the
+**forced-pick asymmetry** of child identification, **midlife as a
+genuine knot regime** rather than a plateau to skip, **dating without
+a location sense**, and the **child stress sign** (distress helps at
+the top of the range — opposite of the adult worry).
+
+## 36. Preverbal traces are locked in their encoding language — the tell-block
+
+- **Simcock & Hayne 2002** (Psych. Sci. 13:225; the cleanest single
+  result in the amnesia literature): children 27–39 months
+  experienced a unique event, were tested 6 or 12 months later —
+  AFTER acquiring most of the vocabulary needed to describe it.
+  Verbal AND nonverbal memory were intact. But **no child ever
+  verbally reported any aspect of the event that had not been in
+  their productive vocabulary at encoding**. The memory exists; the
+  translation does not. Language development is thereby a load-
+  bearing wall of childhood amnesia — not because early events were
+  unencoded, but because they were encoded in a code the later self
+  cannot speak. **[CONSENSUS finding; mechanism attribution to
+  language per se DEBATED — Richardson & Hayne 2007 reviews
+  alternatives]**
+- Consequence the earlier passes missed: §11's latent traces and §26's
+  surviving early semantics are real but **told-shaped**: an adult
+  character CAN have an intact affective/behavioral trace of a
+  pre-2.5y event and yet be literally unable to narrate it — the
+  record retrieves on sensory cues and returns affect + motor fields
+  with an empty verbal field.
+
+**Spec consequence (v3.8):** records gain `verbal_age` = productive-
+language level at encodeAge (knots: 0 below ~2y, 0.4 at 2.5, 0.8 at
+4, 1.0 at 6). On `retell`/`recall` verbal-channel output of any
+record with `verbal_age < verbal_lock_thresh` (0.6), verbal fields
+emit at `verbal_age` fidelity — the reconstruction returns sensory/
+affect/motor fields and `verbal_void: true` for dialogue to render
+as "…I don't know, it's just a feeling — warm kitchen, big hands."
+Nonverbal cues (odor, song, posture) retrieve these records normally
+— §38's `familiar_only` and §11's latent reinstatement are their
+natural retrieval paths. **[HYPOTHESIS parameterization of CONSENSUS
+result]**
+
+## 37. Scripts are the child's default report — the routine swallows the instance
+
+- **Nelson & Gruendel 1981/1986** (GER theory; Schank & Abelson
+  lineage): even 3-year-olds hold well-organized generalized event
+  representations — "what happens at dinner" — in canonical temporal
+  order with slot-fillers, and produce script-language reports
+  ("you do X"). This is the *building block* of child event memory,
+  not an adult decoration. **[CONSENSUS]**
+- **Hudson & Nelson 1986:** asked about a specific instance vs the
+  routine, children report *more* for the general question — the
+  script is the stronger representation; the instance is the
+  derivative. **[CONSENSUS]**
+- **Brubacher, Powell et al. (2011, ACP; Baker-Ward et al. 2020):**
+  across repeated-event studies, children recall details that were
+  INVARIANT across occurrences more often and more accurately than
+  details that varied; as the specific-occurrence record decays,
+  reports collapse into script content — and the most common child
+  error is **script intrusion**: reporting a typical element that
+  didn't occur this time. **[CONSENSUS]**
+- Crucially the deviation side does NOT invert: once a script exists,
+  even young children recall deviation episodes better than routine
+  ones (Fivush, Hudson & Nelson 1984; Nelson 1986 review). The child
+  failure is at the *sorting* stage — one odd instance inside the
+  first 4–5 exposures gets assimilated INTO the script rather than
+  flagged deviant. **[CONSENSUS; sorting-window duration DEBATED]**
+
+**Spec consequence (v3.8):** repeated-event records (same
+`eventClass`, `reps ≥ 3`) mint a `script` node keyed to the class —
+invariant fields accrue `script_mass` (child knots: accrual rate
+×1.5 below 8, adult baseline), variable fields accrue per-occurrence
+only. Retrieval below age ~8 on a repeated class returns the script
+node by default (`script_default_age` 8): the specific-occurrence
+record needs a distinctive cue field to surface. Intrusion operator:
+on script-mode recall, each unfilled slot samples the modal filler
+with `script_intrusion_p` (0.3 child → 0.1 adult) — flagged inside
+the reconstruction as ordinary fields (children can't tell script
+from instance — that IS the finding). Deviation records encoded
+within the first `sort_window` (4) occurrences get `assimilated`
+into the script at `assim_p` (0.4 below 8) instead of minting
+deviant — after the window, deviations mint normally and keep their
+adult advantage. **[HYPOTHESIS parameterization of CONSENSUS
+pattern]**
+
+## 38. Schema assimilation in children — the sign adults don't share
+
+- **Liben & Signorella 1980** (Child Dev. 51:11): 1st/2nd graders
+  shown gender-traditional/nontraditional/neutral pictures — highly
+  stereotyped children later recognized significantly MORE
+  traditional than nontraditional; low-stereotyped children showed no
+  differential. Memory follows the child's schema strength.
+- **Signorella & Liben 1984** (Child Dev. 55:393): across K/2nd/4th,
+  highly stereotyped children recalled more traditional items;
+  **reconstructions ran nontraditional→traditional** (a female
+  firefighter remembered as male) — active transformation toward
+  schema, and the bias grows with task difficulty. **[CONSENSUS
+  direction]**
+- Adult readers will object that schema-INCONSISTENT items are
+  remembered better — true for adults in easy tasks (the von Restorff
+  family). The child data says: when the schema is strong and the
+  task is hard, children normalize the violation — and children are
+  *always* in the hard-task regime. Two forces, different age
+  weights, no contradiction.
+
+**Spec consequence (v3.8):** on `dailyMemoryTick`, records whose
+fields violate an active schema slot (PersonModel stereotype,
+world-rule expectation — `schema_violation > 0`) get a field-level
+transform with `schema_assim_p`: knots 0.25 at 6 → 0.1 at 12 →
+0.05 adult — the violating field value drifts toward the modal
+schema value (mirroring §6.12's stereotype convergence but
+intra-record, silent, child-weighted). Simultaneously, survival of
+the un-transformed record drops (`schema_viol_loss` 0.15 child)
+— unassimilated violations are forgotten rather than preserved.
+Adults keep the §3 distinctiveness advantage on violations
+(`isolated` already exists); the child path replaces it below
+`schema_flip_age` (10). Scales with the character's own
+stereotype-strength (PersonModel `cred`/trait rigidity as the
+bible dial). **[HYPOTHESIS parameterization of CONSENSUS finding]**
+
+## 39. The lineup a child can't refuse — forced-pick asymmetry
+
+- **Pozzulo & Lindsay 1998** (Law & Hum. Behav. 22:549; meta, 1,066
+  children / 1,020 adults): target-PRESENT lineups — children >5
+  match adult correct-ID rates; only preschoolers (~4) lag.
+  Target-ABSENT — **children of EVERY age tested, including
+  adolescents (M 12–13), correctly reject below adult rates.** The
+  child deficit is not discrimination, it's refusal: presented a
+  choice set, children choose. Sequential presentation WIDENS the
+  child–adult gap (opposite of the adult sequential-superiority
+  effect); practice/training did not rescue correct rejection.
+  **[CONSENSUS — meta-analytic]**
+- **Fitzgerald & Price 2015** (Psych. Bull. 141:1228; 91 studies,
+  20,244 participants, lifespan): replicates the child choosing
+  bias; signal-detection shows young adults best, children poor
+  discriminability — and **older adults land at the same place,
+  slightly worse than children.** The refusal deficit is U-shaped
+  like everything else in this file. **[CONSENSUS]**
+- **Lindsay et al. 1997** (LHB 21:391): showups (single-suspect
+  presentations) produce the worst child false-positive rates —
+  the coercive single-choice format children can least resist.
+
+**Spec consequence (v3.8):** `identifyFromSet(charId, candidates,
+{mode})` — the recognition contract gains a refusal channel. Under
+`mode:"forced"` or a coercive single-option set, if no candidate
+clears θ, output picks the argmax anyway with probability
+`choose_p(age_now)`: knots 0.85 at 5 → 0.7 at 8 → 0.55 at 13 →
+0.3 adult → 0.55 at 70 → 0.7 at 85 (Fitzgerald & Price U). Under
+`mode:"free"` the §5.10 cascade runs as now. Sequential candidate
+order adds `seq_choose_gain` ×1.3 to choose_p below 13 (children
+choose MORE under sequential — sign-locked, opposite adults).
+`showup_mult` ×1.5 on single-candidate presentations. The picked
+record carries `forced_pick: true` internally — downstream
+sourceInfer treats it as low-credibility, but the character's
+reported confidence does NOT reflect the coercion (children are
+confident choosers). **[HYPOTHESIS parameterization of
+meta-analytic CONSENSUS]**
+
+## 40. The interview is an operator, and its sign depends on content — maintain vs taint
+
+- **Leichtman & Ceci 1995** (Dev. Psych. 31:568; the "Sam Stone"
+  study, n=176, ages 3–6): a stranger's bland 2-minute visit; four
+  weekly interviews then a fifth at week 10. Control (neutral
+  interviews): accurate reports, ~10% of youngest assented to
+  misleading probes, **5% stuck with it under "did you SEE him do
+  it?"** — and 0% of 5–6y. Suggestion-only: substantial false
+  reports. Stereotype-only: modest. **Stereotype + repeated
+  suggestion: 46% of 3–4y spontaneously narrated the misdeeds in
+  free recall, 72% under probes** — with fabricated perceptual
+  detail and gestures. False-event memory was manufactured by the
+  interview schedule, not the event. **[CONSENSUS — landmark]**
+- **Goodman, Bottoms, Schwartz-Kenney & Rudy 1991** (J. Narr. Life
+  Hist. 1:69): same repeated-interview design on a REAL stressful
+  event (inoculation, 3–7y) — multiple NEUTRAL interviews
+  *maintained* memory and *strengthened* suggestion resistance;
+  interviewer support reduced suggestibility further.
+  **[CONSENSUS]**
+- The pair is the finding: repetition is not the variable —
+  repetition carries whatever valence the interviewer loads.
+  Neutral retellings consolidate; suggestive retellings taint; and
+  the taint compounds (each interview re-exposes AND re-encodes the
+  suggested content with rising fluency).
+
+**Spec consequence (v3.8):** `hearAccount`/`discussEvent` already
+increment `hearCount`; child records add sign-splitting on
+repetition: **neutral repeat** (`account.fidelity ≈ record`):
+child_consol_gain applies per repetition AND `misinfo_suscept_eff`
+on that record ×0.9 per neutral interview (practice inoculation —
+Goodman 1991). **Suggestive repeat** (fields conflict): adoption
+per exposure compounds — `suggest_repeat_mult` 1.25 below age 8
+(1.0 adult) multiplies p_adopt per successive conflicting account
+of the same event, and each adopted field writes `embellish`
+fields on subsequent retells at `embellish_p` 0.3 (the fabricated
+perceptual detail Sam Stone kids produced — false records accrue
+richness, defeating any richness-based detector). **Stereotype
+gate:** if PersonModel[speaker or target].trait-schema matches the
+suggested valence (`stereo_prime`), p_adopt ×1.4 below 8 — the
+pre-existing expectation is half the taint. Effects gate on
+`encodeAge_now < taint_exit` (9) with ramp; adult suggestive-repeat
+stays at §6.3 baseline. **[CONSENSUS phenomenon; compounding
+magnitudes HYPOTHESIS]**
+
+## 41. Midlife is a real regime — the plateau with a slope inside it
+
+- **Schaie, Seattle Longitudinal** (Schaie 1996/2005/2013 summaries):
+  7-year-interval within-person data, 20s→80s, successive cohorts.
+  First three cycles: **no reliable average decrement before ~60**;
+  later cycles: small significant decrement in the 50s for *some*
+  abilities and cohorts; average pre-60 decline <0.2 sd even where
+  found; at 81, fewer than half of individuals showed reliable
+  7-year decline on a given ability. **[CONSENSUS — the landmark
+  longitudinal dataset]**
+- **Peaks differ by ability:** Reasoning/Spatial/Word-fluency peak
+  young-adult; **Verbal and Number abilities peak in LATE midlife**
+  (~50s). Perceptual speed declines roughly linearly FROM young
+  adulthood — speed is the outlier, not the rule.
+- **The cross-sectional lie (revisited, sharpened):** Park/Salthouse
+  cross-sectional curves put episodic decline onset in the 20s–30s;
+  SLS puts reliable decline ~60. Part I's §6 knots split the
+  difference quietly (enc_base flat 18–35, −0.16 by 50) — that's
+  closer to cross-sectional truth. For RW the resolution is
+  operational: **the capacity curves should track longitudinal
+  (within-person) shape** — a character doesn't get dumber by cohort
+  membership — so midlife knots relax: enc_base 30→50 stays ~0.97,
+  the §6 50-knot (.84) is revised to .94; beta_episodic 50-knot
+  1.31→1.15; theta 50-knot 1.18→1.08. Cross-sectional steepness is
+  retained ONLY for perceptual speed (search_breadth 50-knot
+  unchanged) and for world-builder characters explicitly tagged
+  `low_reserve` — §8 reserve shift already implements the
+  between-person version. **[DEBATED literature; knot revision is
+  our HYPOTHESIS synthesis]**
+- **Crystallized growth continues:** vocabulary/world-knowledge
+  rises into the 60s — semantic accrual rate `sem_gain` stays
+  positive 30–60 (new knot row) while episodic flatlines: midlife
+  characters literally know more while remembering the same amount
+  — the mechanic behind the genre-true "knows everything,
+  misremembers the meeting" shopkeeper.
+
+**Spec consequence (v3.8):** §6 knot table rows updated (enc_base,
+beta_episodic, theta at the 50 knot; semantic knots gain a
+`sem_accrual` row: 0.3→0.6 between 30–60 meaning semantics keep
+consolidating). `low_reserve` modifier keeps the OLD knots —
+between-person variance is now explicitly a modifier, not baked
+into the population curve.
+
+## 42. Dating without a timeline — children have distance, not location
+
+- **Friedman 1991** (Child Dev. 62:139): 4/6/8y judged relative
+  recency of two classroom events (1 vs 7 weeks prior) and localized
+  the older by time-of-day, day-of-week, month, season. **Even 4y
+  succeeded at recency ordering and time-of-day; day/week/month/
+  season localization only emerged 6–8.** Distance and location are
+  separate senses with separate schedules. **[CONSENSUS]**
+- **Friedman & Kemp 1998** (Cog. Dev. 13:335): children <6
+  discriminate "which was longer ago" between birthday/Christmas
+  accurately when separated — recency comparison is a basic
+  trace-strength property, near-age-invariant — but correctly
+  *interpreting* location/relative-position information required
+  >9y. **[CONSENSUS]**
+- Adult dating (§6.15) runs on reconstruction from landmarks,
+  scripts, telescoping — location machinery. Children run on
+  distance machinery: the trace's strength/sharpness IS the date.
+
+**Spec consequence (v3.8):** `dateEstimate` gains an age gate:
+`date_loc_exit` (8) — below it, the §6.15 location pipeline
+(script_date_pull, landmark anchors, rounding) is **disabled**, not
+weakened; `orderBefore` still works at near-adult fidelity
+(distance sense intact); `dateEstimate` returns coarse cyclic-
+context buckets instead — `cyclic_date` ∈ {time-of-day, season,
+routine-anchor} with `cyclic_acc` 0.7 but absolute `reportedDay`
+drawn from huge sigma (`date_sigma × child_date_mult` 4.0) — a
+6-year-old can tell you it was "in the morning, when it was cold"
+and cannot tell you it was Tuesday, March. Above `date_loc_exit`,
+the adult pipeline phases in linearly over ~2y. **[CONSENSUS
+pattern; knot values HYPOTHESIS]**
+
+## 43. Child stress inverts — at the top of the range, distress helps
+
+- **Goodman, Hirschman, Hepps & Rudy 1991** (Merrill-Palmer Q.
+  37:109; venipuncture/inoculation, 3–7y, delays 2 days–1 year):
+  correct free recall **did not vary with age**; stress showed NO
+  effect until very high distress — at which point it had a
+  *beneficial* effect on free recall AND on resistance to
+  suggestion. Children's accuracy was unrelated to parental
+  stressfulness ratings. **[CONSENSUS finding; generalization to
+  abuse-type events DEBATED — Goodman herself cautions]**
+- This pairs with §19's `child_trauma_off` (same arousal reads more
+  overwhelming) without contradiction: the threshold is about
+  *regulation*, the encoding boost is about *salience*. A terrified
+  child encodes the central event hard — and still can't regulate
+  the aftermath. `child_trauma_off` gates the trauma tag;
+  `child_stress_gain` gates the encoding multiplier — both from the
+  same arousal value, different downstreams.
+
+**Spec consequence (v3.8):** encoding's arousal term gets an age
+split at `stress_flip_age` (8): below it, `stress_encode_loss` →
+`child_stress_gain` (sign flip: arousal > `stress_thresh` ADDS
+`child_stress_gain` 0.1 to E instead of subtracting), and adopted-
+suggestion on high-arousal child records ×0.8 (stress inoculates
+the core — Goodman 1991). Peripheral fields still narrow via
+`arousal_narrowing` as before (the kid remembers the needle, not
+the room). **[CONSENSUS direction; gain magnitude HYPOTHESIS]**
+
+## 44. Knot-table revision summary (v3.8)
+
+| param | old 50-knot | new | why |
+|---|---|---|---|
+| enc_base | .84 | .94 | SLS longitudinal: no reliable decrement <60 |
+| beta_episodic | 1.31 | 1.15 | same |
+| theta | 1.18 | 1.08 | same |
+| search_breadth | (unchanged) | — | perceptual speed IS linear-from-20s — keep |
+| NEW `sem_accrual` | — | 30:1.0, 50:1.4, 60:1.6, 75:1.0 | crystallized growth into the 60s |
+
+New params (defaults): `verbal_age` knots {2:0, 2.5:.4, 4:.8, 6:1};
+`verbal_lock_thresh` .6; `script_default_age` 8;
+`script_intrusion_p` .3→.1 curve; `sort_window` 4; `assim_p` .4;
+`schema_assim_p` {.6:.25, 12:.1, 20:.05}; `schema_flip_age` 10;
+`schema_viol_loss` .15; `choose_p` knots {5:.85, 8:.7, 13:.55,
+25:.3, 70:.55, 85:.7}; `seq_choose_gain` 1.3; `showup_mult` 1.5;
+`suggest_repeat_mult` 1.25; `stereo_prime` 1.4; `embellish_p` .3;
+`taint_exit` 9; `neutral_inoc` .9; `date_loc_exit` 8;
+`child_date_mult` 4.0; `cyclic_acc` .7; `stress_flip_age` 8;
+`child_stress_gain` .1; `child_stress_inoc` .8.
+
+## 45. Validation probes (P389–P398; registry continues P1–P388)
+
+- **P389 preverbal lock (MUST — structural):** record minted at
+  verbal_age .3 retrieved at age 8 by odor cue returns
+  sensory+affect fields, `verbal_void:true`, zero verbal content —
+  despite the character now possessing full vocabulary; verbal
+  retell of the same record emits the void, not a translation.
+  FAIL if any verbal field materializes.
+- **P390 script default (MUST — sign):** 5 reps of eventClass at
+  age 6, then recall with no distinctive cue → reconstruction
+  dominated by invariant/script fields, one unfilled slot shows
+  modal-filler intrusion ≥25% of trials; same test at 30 returns
+  the latest occurrence. FAIL if the child returns the
+  instance-first ordering.
+- **P391 sort window (MUST):** deviant occurrence inside first 4
+  reps at age 6 assimilates ≥35%; deviant occurrence at rep 6
+  mints as deviation with the adult advantage. Sign-locked.
+- **P392 schema assimilation (MUST — sign):** schema-violating
+  field at age 6 drifts toward modal value or is forgotten ≥
+  adult rate; the SAME violation at 25 gets the `isolated`
+  distinctiveness advantage. The two channels must diverge —
+  fails if child shows the adult advantage.
+- **P393 forced pick (MUST — sign-locked):** target-absent
+  identification under `mode:"forced"`: false-pick rate at 6 >
+  at 25 >... wait — at 6 HIGHER than 25; at 75 ≥ child rate.
+  Free mode at 6 rejects fine. Sequential widens child–adult
+  gap; showup worst. Three sign-locks, fail any → fail.
+- **P394 taint cascade (MUST — dose-response):** 3–4y target,
+  stereo-matched suggester, 4 weekly suggestive accounts →
+  false-event report ≥40% free / ≥65% probe, with `embellish`
+  fields present; control neutral-interview arm <12% assent.
+  Numbers locked to Leichtman & Ceci within ±10pp.
+- **P395 maintain-not-taint (MUST):** identical schedule,
+  neutral accounts → record strength grows and subsequent
+  suggestive adoption drops ≥15% vs no-interview arm. The
+  schedule's sign must flip on content.
+- **P396 midlife shape (MUST):** simulated 35→55 span, default
+  params → episodic recall decline <0.1 sd while semantic pool
+  keeps growing; low_reserve modifier restores the steeper
+  curve. FAIL if midlife decline matches the old .84 knot.
+- **P397 child dating (MUST — structural):** encodeAge 6 record:
+  `orderBefore` vs a second record succeeds near-adult;
+  `dateEstimate` returns cyclic bucket (correct ~70%) with
+  absolute sigma ≥3× adult; no landmark/script pull applied.
+  Structural gate on `date_loc_exit`, not magnitude.
+- **P398 child stress inversion (MUST — sign):** arousal .9 event
+  at encodeAge 6 vs 25: child record E higher AND later misinfo
+  adoption LOWER on the core; peripheral fields still narrowed.
+  FAIL if child and adult move in the same direction.
+
+## 46. Spec changes (v3.7 → v3.8) — delta table
+
+| # | Change | Grounding |
+|---|---|---|
+| G1 | `verbal_age` + `verbal_lock` on retell/recall verbal output; `verbal_void` return flag | §36 (Simcock & Hayne 2002) |
+| G2 | `script` nodes on repeated eventClass; `script_default_age`, `script_intrusion_p`, `sort_window`/`assim_p` | §37 (Nelson & Gruendel; Hudson & Nelson; Brubacher et al.) |
+| G3 | `schema_assim_p` child-weighted field transform + `schema_viol_loss`; replaces `isolated` advantage below `schema_flip_age` | §38 (Liben & Signorella 1980/1984) |
+| G4 | `identifyFromSet` refusal channel: `choose_p(age)` U-curve, `seq_choose_gain` sign-locked, `showup_mult`, `forced_pick` flag | §39 (Pozzulo & Lindsay 1998; Fitzgerald & Price 2015) |
+| G5 | Repetition sign-split: `neutral_inoc` vs `suggest_repeat_mult`+`stereo_prime`+`embellish_p` below `taint_exit` | §40 (Leichtman & Ceci 1995; Goodman et al. 1991) |
+| G6 | Midlife knot revision (enc_base/beta_episodic/theta at 50) + `sem_accrual` row; cross-sectional steepness moved to `low_reserve` | §41 (Schaie SLS 1996/2005) |
+| G7 | `date_loc_exit` gate: below 8, location pipeline off, `orderBefore` intact, cyclic-bucket return | §42 (Friedman 1991; Friedman & Kemp 1998) |
+| G8 | `stress_flip_age` encoding split: `child_stress_gain` + `child_stress_inoc` below 8 | §43 (Goodman et al. 1991) |
+
+## 47. Honest limits, fourth pass
+
+- Simcock & Hayne is one lab's paradigm (event-based, n modest);
+  the verbal-lock claim is strong *for their design* — we
+  generalize it to all preverbal records, which the literature
+  supports directionally but not at our resolution.
+- The script machinery's `sort_window`=4 is a clean number the
+  literature only gestures at ("initial four or five exposures") —
+  fitted, flagged.
+- choose_p knots interpolate between meta-analytic bins; the
+  adolescent plateau (~adult hits, child-level rejection) is real,
+  the exact .55 is ours.
+- P394's dose-response numbers target Leichtman & Ceci's actual
+  percentages — the only probe in this suite tied to absolute
+  human rates rather than signs; appropriate since the study is
+  the landmark, risky since n=176 with wide CIs.
+- The midlife revision (G6) is the pass's most consequential
+  edit: it changes felt character age — a 50-year-old now reads
+  ~35 on episodic capacity. If playtesting wants the genre-
+  stereotype "declining 50-year-old," that's `low_reserve`, a
+  bible choice, not the population default — which is the point.
+- `schema_assim_p` presumes PersonModel/world-rule schemas are
+  queryable at tick-time; ambient NPCs lack them and simply skip
+  the operator (graceful by construction).

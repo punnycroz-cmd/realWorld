@@ -2649,3 +2649,80 @@ Milne, Memon & Bull 1999 (meta d=0.87/0.28, accuracy 85% vs 82%
 — verified); Memon, Meissner & Fraser 2010 (PP&L 16:340 — older-
 witness moderator); Hunt & McDaniel 1993 (distinctiveness
 principle).
+
+## 61. New probes P389–P398 (v39 suite — age-development IV)
+
+- **P389 preverbal lock (MUST — structural):** record minted at
+  verbal_age 0.3 retrieved at age 8 by odor cue returns sensory+
+  affect fields with `verbal_void:true` and zero verbal content —
+  despite full current vocabulary; retell emits the void.
+- **P390 script default (MUST — sign):** 5-rep eventClass at age
+  6, cueless recall → script-mode reconstruction, ≥25% of trials
+  show a modal-filler intrusion; at 30 the latest occurrence
+  returns. Fails on instance-first child ordering.
+- **P391 sort window (MUST):** deviation inside first 4 reps at
+  age 6 assimilates ≥35%; deviation at rep 6 mints with adult
+  advantage. Sign-locked both arms.
+- **P392 schema assimilation (MUST — sign):** schema-violating
+  field at 6 drifts modal-ward or is lost ≥ adult rate; same
+  violation at 25 keeps `isolated` advantage. Channels must
+  diverge.
+- **P393 forced pick (MUST — three sign-locks):** target-absent
+  forced-mode false-pick 6 > 25; 75 ≥ 6-ish rate; free-mode at 6
+  rejects; sequential widens the child–adult gap; showup worst.
+- **P394 taint cascade (MUST — dose-response):** 3–4y, stereo-
+  matched suggester, 4 weekly suggestive accounts → false-event
+  report 40–56% free / 62–82% probe with `embellish` fields;
+  neutral arm <12% (locked to Leichtman & Ceci 1995 ±10pp).
+- **P395 maintain-not-taint (MUST):** same schedule, neutral
+  accounts → record strengthens, subsequent suggestive adoption
+  drops ≥15% vs no-interview arm.
+- **P396 midlife shape (MUST):** 35→55 default sim → episodic
+  decline <0.1 sd while semantic pool grows; `low_reserve`
+  restores the steeper curve. Fails if midlife matches the old
+  .84 knot.
+- **P397 child dating (MUST — structural):** encodeAge-6 record:
+  `orderBefore` near-adult; `dateEstimate` returns cyclic bucket
+  (acc ~0.7) + absolute sigma ≥3× adult; no script/landmark pull.
+- **P398 child stress inversion (MUST — sign):** arousal 0.9 at
+  encodeAge 6 vs 25: child E higher, core misinfo adoption lower,
+  peripherals still narrowed. Fails if directions match adults.
+
+Registry now P1–P398; numbering stable.
+
+## 62. Sources new to this version
+
+Simcock & Hayne 2002 (Psych Sci 13:225 — verified: no child
+verbally reported preverbal-vocabulary content at 6/12-mo test);
+Nelson & Gruendel 1981 (GERs); Hudson & Nelson 1986 (general >
+specific reports); Fivush, Hudson & Nelson 1984; Nelson 1986
+(ACP review — deviations advantaged once script exists);
+Brubacher, Roberts & Powell 2011; Baker-Ward et al. 2020
+(invariant > variable recall; script intrusions as modal error);
+Liben & Signorella 1980 (Child Dev 51:11 — verified); Signorella
+& Liben 1984 (Child Dev 55:393 — nontraditional→traditional
+reconstructions, difficulty-graded); Pozzulo & Lindsay 1998
+(LHB 22:549 — verified: >5y adult-level hits, all ages fail
+target-absent rejection incl. adolescents, sequential widens
+gap, training null); Fitzgerald & Price 2015 (Psych Bull
+141:1228 — verified: 91 studies/20,244; child and older-adult
+discriminability deficits); Lindsay et al. 1997 (LHB 21:391 —
+showup worst); Leichtman & Ceci 1995 (Dev Psych 31:568 —
+verified: 46% free-narrative / 72% probe false misdeed reports
+in 3–4y stereotype+suggestion arm; ~10%/5%/0% control arm);
+Goodman, Bottoms, Schwartz-Kenney & Rudy 1991 (J Narr Life Hist
+1:69 — verified: multiple neutral interviews maintain memory +
+reduce suggestibility; support helps); Goodman, Hirschman,
+Hepps & Rudy 1991 (Merrill-Palmer Q 37:109 — verified: free
+recall age-invariant 3–7y; extreme distress beneficial for free
+recall + suggestion resistance); Goodman, Quas, Batterman-Faunce,
+Riddlesberger & Kuhn 1994 (VCAT catheterization — age diffs
+3–4y vs older, understanding/support predict accuracy); Schaie
+1996/2005/2013 SLS summaries (verified: no reliable avg
+decrement <60 in early cycles, small 50s decrement some
+abilities/cohorts, <0.2 sd pre-60, <50% individuals declining
+at 81; verbal/number peak late-midlife, perceptual speed linear
+from young adulthood); Friedman 1991 (Child Dev 62:139 —
+verified: 4y recency+time-of-day OK, day/week/month/season 6–8);
+Friedman & Kemp 1998 (Cog Dev 13:335 — recency discrimination
+early, location interpretation >9); Friedman 2003 (review).
