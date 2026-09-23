@@ -1152,3 +1152,158 @@ unless their variant table shows rotating shifts.
 ### 14.11 Probes filed
 
 P469–P480 → validation-design.md §75.
+
+---
+
+# Part IV — v58 pass: the self layer (spec v5.6)
+
+The v5.6 params give every main a standing self-view and the evaluative
+machinery around it. Pins below are derived from the existing bible facts
+already cited in §3/§9 — nothing here introduces new narrative content;
+each pin is justified by a trait already on file. Defaults apply where no
+pin is listed. `remin_style` is pinned only for C6/C7 (55+ gate).
+
+## 15. The 8 mains — self-layer pins
+
+### C1 Marisol, 29 — `self_est 0.66` · `selfverif_w 0.5` · `self_complex 6`
+(confidante/manager/daughter/blogger/friend/secret-keeper — a
+crowded self, which is also her protection) · `self_comp 0.4` ·
+`savor_k 0.45` `dampen_k 0.35` · `elabor 0.85` — the cast's co-narrator:
+she draws stories out of everyone (consistency: `share_k 1.1`, dest_mem
+0.85, gossip depth 0.9 — her questions are the mechanism that made her
+the ledger) · `future_cont 0.6` · `counterf_k 0.15`. Net: her archive is
+deep partly because she *interviews*; her own secret rides the intrusion
+channel as before — self_complex 6 keeps the blog crisis from eating
+every domain at once.
+
+### C2 Jules, 26 — `self_est 0.45` · `selfverif_w 0.75` · `self_complex 3`
+(newcomer/thin: the sketcher, the tenant, the crush — three rooms and
+the walls are fresh) · `self_comp 0.2` · `future_cont 0.8` ·
+`pself_mint 0.25` (the imagined Mission life IS a possible-self
+archive — hoped: belongs; feared: found out) · `savor_k 0.6`
+`dampen_k 0.45` (self-est-gated dampening prior active) ·
+`elabor 0.5`. Net: the most volatile mood in the cast — spillover
+divisor 3 — and the only main whose negative self-referent feedback
+gets KEPT (selfverif high + self_est low → §6.100 consistency release:
+the slight that confirms the fear is retained).
+
+### C3 Dani, 24 — `self_est 0.55` · `selfverif_w 0.45` · `self_complex 4`
+· `savor_k 0.7` `dampen_k 0.15` (the chalkboard artist savors — positive
+evenings encode fat) · `elabor 0.6` · `future_cont 0.5`. Net: the
+positive ledger runs richest here; contamination-leaning script
+(`script_redeem −0.1`) plus savorer = bright archive, sharp drops.
+
+### C4 Priya, 31 — `self_est 0.65` · `selfverif_w 0.7` (nurse: accepts
+hard feedback — clinical debrief culture is self-verification trained)
+· `self_complex 5` · `self_comp 0.8` (the hospital stays at the
+hospital — maximum compartmentalization, consistent with
+`regulate`-adjacent pins and mnem_neg 0.30) · `dampen_k 0.5` ·
+`counterf_k 0.2` (near-miss debriefs are occupational) ·
+`elabor 0.55`. Net: negative events land inside walled aspects —
+the shift went badly AND it stayed at work.
+
+### C5 Marcus, 34 — `self_est 0.72` · `selfverif_w 0.3` (the
+self-enhancer — defens −0.2 means even the gate he has is rarely
+armed) · `self_complex 3` · `future_cont 0.3` (lives now — his
+long-horizon intentions file on the debtor channel: reliable surprise
+at his own commitments) · `savor_k 0.55`. Net: mnemic neglect at full
+strength — he protects a view he likes; the phenotype is sunny and
+shallowly defended.
+
+### C6 Carmen, 74 — `self_est 0.6` · `selfverif_w 0.55` ·
+`self_complex 7` (a life of many rooms: Havana, Miami, the shop, the
+marriage, the stoop) · `self_comp 0.5` · `remin_style
+{transmissive 0.6, integrative 0.4}` · `remin_w 0.65` (the stoop IS
+reminiscence ecology) · `counterf_k 0.1` · `regret_opp_gate 0.85` —
+with ONE inaction-regret record pinned `oppOpen:false → gate held`
+(the unsaid thing to the husband: the door closed when he died, and
+healthy disengagement never quite fired — regret_inact_mult 0.45
+keeps it at ~2× half-life decades on). Net: her archive is told into
+shape — teaching stories polish, private ones fade; integrative draws
+mint the persSem synthesis that reads as wisdom.
+
+### C7 Victor, 58 — `self_est 0.55` · `selfverif_w 0.5` ·
+`self_complex 2` (the store and the widower — the thinnest self in the
+cast; the offer threatens EVERYTHING because there is no third room) ·
+`self_comp 0.9` (the drawers are literally the trait) · **`repress`
+maximal in cast** — derived from defens +1.2 × neurot_report floor:
+predicted `repress ≈ 0.8` → negative-childhood recall drive ×0.6,
+earliest negative memory shifted ~+1.2y, negative-retrieval latency
+×1.3; recognition intact; nothing deleted. His childhood is thin on
+the negative side BY CONSTRUCTION. · `remin_style {instrumental 0.7,
+obsessive 0.3}` — he rehearses the past as problem-solving, and the
+0.3 obsessive tail is the drawer that opens at 3am ·
+`regret_inact_mult` applies to the inaction records around the
+marriage's last year · `dampen_k 0.7` (savor nothing) ·
+`future_cont 0.4`. Net: the defended archive — complete records, shut
+doors, and a two-room self that makes the sale decision total.
+
+### C8 Tomás, 36 — `self_est 0.6` · `selfverif_w 0.5` · `self_complex 4`
+(San Miguel / Miami / kitchen / family — the immigrant's aspect set is
+cross-language by construction; his `aspect` tags split pre/post-12
+along the existing lang boundary) · `self_comp 0.3` · `savor_k 0.65`
+(the kitchen is a savoring ecology) · `elabor 0.7` (kitchen talk —
+the cook who makes the line tell their day) · `future_cont 0.5` ·
+`counterf_k 0.15`. Net: warm positive ledger, mid complexity, and an
+aspect structure the lang_mismatch machinery already respects.
+
+## 16. Distinctness — third-pass notes
+
+The self layer adds a second orthogonal axis to every signature: Mars's
+six-room self vs Victor's two-room self now produce opposite failure
+geometries (a hit to Mars lands in one of six aspects; a hit to Victor
+lands in half of everything). Jules is the only consistency-keeper;
+Marcus the only full-strength neglecter; C4/C7 both wall off negatives
+but C4 does it by compartmentalization (the bad room exists, door
+closed) while C7 does it by access suppression (the door was never
+built). Those read differently on screen.
+
+## 17. Probes filed
+
+P602–P614 → validation-design.md §103.
+
+## 18. Sources added this version
+
+- Sedikides & Green 2000 (*JPSP* 79:906 — verified): mnemic neglect =
+  incongruence-negativity management; the self-consistency gate.
+- Green, Pinter & Sedikides 2004 (*EJSP* 35:225); Green, Sedikides &
+  Gregg 2007 (*JESP* 44:547 — verified): recall-only boundary,
+  "forgotten but not gone"; repressors show ENHANCED mnemic neglect.
+- Sedikides & Green 2016 (*EJoSP* review — verified): moderator list
+  incl. anxiety/dysphoria; recognition-sparing.
+- Newman, Duff & Baumeister 1997 (*JPSP* 73) — mnemic neglect origin
+  study (reused).
+- Linville 1985 (*Social Cognition* 3:94 — verified) & 1987 (*JPSP*
+  52:663 — verified): self-complexity affective-extremity and
+  stress-buffer claims; Rafaeli-Mor & Steinberg 2003 (*PSPR* 6 —
+  verified): the DEBATED caveat — weak buffering, reactivity
+  moderation survives, stronger for uplifts.
+- Showers 1992 (*JPSP* 62) — compartmentalization of negative
+  self-aspects.
+- Weinberger, Schwartz & Davidson 1979 (*J Abnorm Psychol* 88) —
+  repressor classification; Davis & Schwartz 1987 (*JPSP* 52:155 —
+  verified): fewer/later negative childhood recalls; Davis 1995
+  (*J Abnorm Psychol* 103:288 — verified): slower negative retrieval,
+  paternal-antipathy reports; Davis 1990 — recognition β unchanged.
+- Watt & Wong 1991 (*J Gerontol Soc Work* 16:37 + *Psych & Aging*
+  6:272 — both verified): six reminiscence types; successful aging =
+  integrative/instrumental up, obsessive down.
+- Webster 1993 (*JPSP* 65) — RFS individual differences (reused).
+- Gilovich & Medvec 1994 (*JPSP* 67:357 — verified) & 1995 (*Psych
+  Rev* 102:379 — verified): action short-term / inaction long-term
+  regret pattern.
+- Wrosch & Heckhausen control-theory regret line (Wrosch et al.
+  2005/2007) — opportunity-gated disengagement.
+- Bryant & Veroff 2007 (*Savoring*, Erlbaum — verified); Feldman,
+  Joormann & Johnson 2008 (*Cog Ther Res* 32:507 — verified):
+  dampening prospectively predicts depression; Wood, Heimpel &
+  Michela 2003 (*JPSP* 85:566 — verified): self-esteem gates
+  savor-vs-dampen.
+- Ersner-Hershfield, Wimmer & Knutson 2009 (*SCAN* 4:85 — verified)
+  + Ersner-Hershfield, Garton et al. 2009 (*JDM* 4:280 — verified):
+  future self-continuity individual differences, saving behavior.
+- Markus & Nurius 1986 (*Am Psych* 41:954 — verified): possible
+  selves.
+- Fivush & Fromhoff 1988; Reese, Haden & Fivush 1993 — elaborative
+  reminiscing style (developmental base; adult extension is our
+  HYPOTHESIS, flagged §6.107).

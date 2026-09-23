@@ -1,5 +1,37 @@
-# Memory Model Spec v5.5 — implementable human-like memory for RW characters
+# Memory Model Spec v5.6 — implementable human-like memory for RW characters
 
+> **v5.6 note (character-profiles V — the self that keeps the books):**
+> `memory/cast-profiles.md` Part IV compiles the new dials onto C1–C8.
+> **The self-view trait is finally owned** — `self_est` ∈[0,1] replaces
+> the free-floating "self-esteem" the spec had been borrowing since
+> §6.15; distinct from metamemory `self_est.global` (P614 null-locks
+> the confusion) — §6.99. **The consistency gate** — mnemic neglect is
+> corrected to its actual boundary: it neglects negative-central-
+> INCONSISTENT feedback only; negative-consistent material is retained
+> (Sedikides & Green 2000; Green et al. 2007 — recall-only, re-locked)
+> — §6.100. **Self-complexity** — `self_complex` aspects divide
+> affective spillover (Linville 1985/87; DEBATED-flagged per
+> Rafaeli-Mor & Steinberg 2003: reactivity moderation, not a buffer
+> guarantee) + `self_comp` compartmentalization (Showers 1992) —
+> §6.101. **The repressor phenotype** — `repress` derived from
+> defens×low-distress-report: fewer/later/slower negative childhood
+> recalls, recognition spared, records never deleted (Davis & Schwartz
+> 1987; Davis 1995) — §6.102. **Reminiscence functions** — Watt & Wong
+> 1991's six styles route 55+ idle rehearsal; integrative mints
+> persSem synthesis, obsessive feeds rumination — §6.103. **The regret
+> economy** — counterfactual mints, action-vs-inaction half-life split
+> (Gilovich & Medvec 1994/95), opportunity-gated disengagement
+> (Wrosch) — §6.104. **Savoring/dampening valves** — positive-event
+> encode and rehearsal gain, dampen self-esteem-gated (Bryant & Veroff
+> 2007; Feldman et al. 2008; Wood et al. 2003) — §6.105.
+> **Future-self continuity** — low `future_cont` files long-horizon
+> intentions on the DEBTOR side of the promise ledger; `pself`
+> possible-self records as landmarks (Ersner-Hershfield 2009; Markus
+> & Nurius 1986) — §6.106. **Elaborative co-narration** — `elabor`
+> speaker-side trait deepens both parties' shared records (Fivush
+> line, adult extension is HYPOTHESIS) — §6.107. +16 params, 3 locked
+> nulls, probes P602–P614.
+>
 > **v5.5 note (formal-model VI — the content algebra, the ensemble
 > layer, and the canonical form):** `memory/formal-model.md` Part VI
 > (§§45–51) is machinery, no new psychology. **The rewrite catalog** —
@@ -6904,7 +6936,245 @@ redemption tax (P588).
 
 ---
 
-## 7. Character parameter table (schema)
+### 6.99 The self-view trait — `self_est` finally owned (new in v5.6)
+
+The spec has been *borrowing* a self-view since v0.9 — `tdist_self`
+(§6.15, Ross & Wilson self-esteem-moderated distancing), `selfDiscrepant`
+(§5.39), `mnem_neg` (§6.34b) all reference a self-evaluation that was
+never a trait. v5.6 owns it: **`self_est` ∈ [0,1]**, an IndivTrait-class
+bible pin (population default ~0.62; trait-σ mapping σ·0.15 + 0.62,
+clamped). It is the person's standing evaluation of their own worth —
+NOT `SelfModel.self_est.global` (that's the metamemory estimate of
+memory competence; a character can think her memory is bad and herself
+fine, and vice versa — the two are independent channels, P614 locks the
+confusion out of the generator). `self_est` loads: `tdist_self` effective
+weight (§6.15 — high self_est pushes failures farther), `mnem_neg`
+gating (§6.100), observer-perspective emissions on self-discrepant
+records (§5.39 feeds off it via `selfDiscrepant` polarity), and the
+savor/dampen balance (§6.105, Wood, Heimpel & Michela 2003 — low
+self-esteem *dampens* positive affect rather than savoring it).
+
+### 6.100 The consistency gate — mnemic neglect only neglects the
+### inconsistent (new in v5.6)
+
+**Correction to §6.34b.** The mnemic-neglect literature's actual
+boundary: the recall penalty applies to feedback that is negative,
+central, AND **self-inconsistent** — it is incongruence-negativity
+management (Sedikides & Green 2000, *JPSP* 79:906 — the model's own
+original name). A person with a negative self-view does not protect
+against negative self-referent material; it is *consistent*, and it is
+retained — the phenotype is the insult-collector, not the
+self-protector (Green, Pinter & Sedikides 2004; Newman, Duff &
+Baumeister 1997). Model: feedback records carry
+`selfCongruent` (does the content match `self_est`'s valence and the
+aspect's standing self-schema). The §6.34b drive penalty becomes:
+
+```
+mnem_pen = mnem_neg·(1 + 0.5·max(0,defens)) · (1 − selfverif_w·selfCongruent)
+```
+
+with `selfverif_w` ∈ [0,1] (default 0.6 — Swann's self-verification
+line: consistency preference is real but usually weaker than
+enhancement; selfverif_w > ~0.7 = the self-verifier who prefers the
+true-but-bad). `selfCongruent` for negative-central content ≈
+(1 − self_est) blended with per-aspect schema. Existing boundary
+UNTOUCHED and re-locked: the effect is **recall-only** — recognition
+shows no mnemic neglect (Green, Sedikides & Gregg 2007 — "forgotten
+but not gone"), and self-affirmation averts it (Sedikides & Green 2016
+review). P602 sign-locks the crossover: low-self_est ×
+negative-consistent must recall ≥ positive control.
+
+### 6.101 Self-complexity — how many rooms the self has (new in v5.6)
+
+**[DEBATED]** Linville (1985 *Social Cognition* 3:94; 1987 *JPSP*
+52:663): self-knowledge is partitioned into self-aspects (roles,
+relationships, traits); people with more, more-distinct aspects show
+smaller affect/self-appraisal swings after domain success or failure —
+don't put all your eggs in one cognitive basket. The 2003 Rafaeli-Mor
+& Steinberg meta-analysis (*PSPR* 6) is the required caveat: the
+stress-buffering claim is weak/heterogeneous; the reliable piece is
+**moderation of reactivity**, stronger for uplifting than adverse
+events. Model accordingly — `self_complex` is a SPILLOVER parameter,
+never a wellbeing guarantee:
+
+```
+aspect(rec) = dominant self-aspect tag (role/relationship domain) at encode
+spillover_gain = base_mood_bleed / max(2, self_complex)   // Linville divisor
+self_comp ∈ [0,1]   // Showers 1992 compartmentalization: negative
+                    // aspects walled off → negative events bleed only
+                    // within their aspect; ×(1−self_comp) on cross-
+                    // aspect negative spread, positive spread unchanged
+```
+
+`self_complex` ∈ {2..8}, default ~4. Low-complexity characters (the
+newcomer with two aspects; the widower who is only the store) take
+full-strength mood capture from any domain event — the mechanism that
+makes a one-role character's bad week *total*. Locked null
+`sc_capacity_null`: self_complex partitions indexing, it adds zero
+storage capacity and zero accuracy.
+
+### 6.102 The repressor phenotype — access suppression, not erasure
+### (new in v5.6)
+
+**[CONSENSUS]** Weinberger, Schwartz & Davidson (1979) defined the
+phenotype: **low self-reported distress + high defensiveness** —
+repressors are not calm people, they are defended people. Davis &
+Schwartz (1987, *JPSP* 52:155; Davis 1995 *J Abnorm Psychol* 103:288):
+repressors free-recall **fewer negative childhood memories**, report a
+**substantially older earliest negative memory**, and are **slower to
+retrieve negative** (not positive) childhood material; Davis (1990,
+recognition β) shows the deficit is accessibility, not a conservative
+report criterion. Model: `repress` is a DERIVED pin —
+`repress = clamp(defens·(1 − neurot_report), 0, 1)` where the bible's
+"unflappable/never complains" lowers neurot_report without touching
+the `neurot` trait's physiological side (the repressor's body still
+keeps score). Effects, all R-side (retrieval accessibility), never
+record deletion — locked null `repr_erase_null`:
+
+```
+negative-childhood recall drive   ×= (1 − 0.5·repress)
+earliest-negative age             += repr_neg_shift·repress   (0–3y)
+negative-retrieval latency        ×= (1 + 0.4·repress)
+amnesia_exit (neg-valence only)   += up to 1.5y·repress
+```
+
+Recognition probes of the same records: **unaffected** (locked
+boundary, Davis 1990). Cast shadow: the cast's maximum-repress
+profile (C7) has a childhood that is *literally thinner on the
+negative side* — the archive is intact, the doors are shut.
+
+### 6.103 Reminiscence functions — what old age rehearses (new in v5.6)
+
+**[CONSENSUS]** Watt & Wong (1991, *J Gerontol Soc Work* 16:37; 1991
+*Psychology & Aging* 6:272 — verified): reminiscence is six different
+activities, and only some are adaptive — **integrative** (life-review
+synthesis, meaning-making), **instrumental** (rehearsing past
+problem-solving for present problems), **transmissive** (teaching
+stories to the young), **narrative** (canonized entertainment),
+**escapist** (positive-only retreat into the good old days),
+**obsessive** (negative replay — guilt, rumination). Successful agers
+show more integrative/instrumental and less obsessive reminiscence.
+`remin_style` (enum, 55+ only — below that the machinery is retell
+ecology) routes each idle-reminiscence tick to a record pool:
+
+```
+integrative   → cross-period draw, mints persSem synthesis records
+                (the meaning-making output — feeds §4.23 ps_* minting)
+instrumental  → procedural/script records matching CURRENT open loops
+transmissive  → moral-loaded records, biased to younger audiences
+narrative     → high-retell-count canon (existing polish path)
+escapist      → valence>0 pool only; negative draws suppressed
+obsessive     → valence<0 pool only; feeds rumination counters
+```
+
+`remin_w` ∈ [0,1] scales how much idle cognition goes to reminiscence
+at all (vs present concerns). A character may blend two styles
+(`{integrative:0.6, transmissive:0.4}`). The styles produce measurably
+different ARCHIVES after sim-years: an obsessive elder's accessible
+pool skews negative, an escapist's skews golden — same records,
+different diet. P606.
+
+### 6.104 The regret economy — counterfactual mints and the inaction
+### tail (new in v5.6)
+
+**[CONSENSUS]** Gilovich & Medvec (1994 *JPSP* 67:357; 1995 *Psych
+Rev* 102:379 — verified): regrettable ACTIONS hurt more short-term
+(counterfactual salience), regrettable INACTIONS hurt more long-term —
+dissonance processes repair action regrets, inaction regrets never get
+a closing event and stay cognitively available. Wrosch & Heckhausen's
+control-theory work (Wrosch et al. 2005/2007): regrets with remaining
+opportunity stay hot and motivate; once opportunity closes, adaptive
+disengagement lets them decay — persistent hot regret after closure is
+the depressive signature. Model: near-miss outcomes mint
+`counterfactual:true` tags at rate `counterf_k` ∈ [0,0.4] (loads on
+`rum`-adjacent traits — a counterfactual mint is a small rehearsal).
+Regret records decay asymmetrically:
+
+```
+action regret    β ×= 1.0   (normal channel decay — repair happens)
+inaction regret  β ×= regret_inact_mult (0.2–0.7, default 0.45 —
+                 roughly 2× the action-regret half-life)
+reopen: an opportunity cue (the same choice comes round again)
+        restores the record at cue strength, once per window
+regret_opp_gate ∈[0,1]: 1 = healthy disengagement (opportunity
+        closed → decay accelerates ×1.5); 0 = rumination lock
+```
+
+P607 sign-locks the crossover (action > inaction early, inaction >
+action late); P608 checks the opportunity gate.
+
+### 6.105 Savoring and dampening — the positive ledger's two valves
+### (new in v5.6)
+
+**[CONSENSUS]** Positive-affect regulation is asymmetric and
+trait-variable (Bryant & Veroff 2007, *Savoring*; Feldman, Joormann &
+Johnson 2008 *Cog Ther Res* 32:507 — verified): **savoring** actively
+prolongs positive experience; **dampening** suppresses it, prospectively
+predicts depressive symptoms (Raes et al. 2012), and is self-esteem-
+gated (Wood, Heimpel & Michela 2003, *JPSP* 85:566 — verified: low
+self-esteem dampens, high self-esteem savors). Model:
+
+```
+positive-event E        ×= (1 + 0.4·savor_k − 0.3·dampen_k)
+positive rehearsal p    ×= (1 + savor_k − 0.8·dampen_k)
+positive-affect decay   β_emo_pos ×= (1 + 0.5·dampen_k − 0.3·savor_k)
+dampen_k prior          = clamp(0.5 + 0.4·(0.62 − self_est) + 0.3·depr, 0, 1)
+```
+
+`savor_k`, `dampen_k` ∈ [0,1], independent dials — the savorer-who-
+also-dampens exists ( savoring capacity ≠ habit). Downstream null to
+respect: dampened positive events are still *encoded* — thin and
+fast-fading, not absent. P609.
+
+### 6.106 Future-self continuity — obligations to a stranger (new in
+### v5.6)
+
+**[CONSENSUS→DEBATED boundary]** Ersner-Hershfield, Wimmer & Knutson
+(2009, *SCAN* 4:85; Ersner-Hershfield et al. 2009 *JDM* 4:280 —
+verified): people differ in felt continuity with their future self;
+low-continuity people discount the future self like a different person
+(Parfit's multiple-selves, operationalized). Markus & Nurius (1986,
+*Am Psych* 41:954): **possible selves** — hoped-for and feared future
+self-representations — organize motivation and self-evaluation. Model:
+
+- `future_cont` ∈ [0,1] (default ~0.55). Long-horizon Intention
+  records (deadline > ~90 days) minted by a low-future_cont character
+  store with `owner:"future-self"` semantics — they inherit the
+  **debtor side** of the §6.90 promise ledger (cue-bound, not
+  `pm_self`-driven): the character who books obligations her future
+  self will experience as someone else's promises. High future_cont
+  keeps long-range intentions on the normal self channel.
+- `pself` records: minted from `concerns` at rate `pself_mint` ∈
+  [0,0.3] — hoped/feared future selves as landmark records that serve
+  as retrieval anchors for self-relevant draws and as `w_self`
+  boosters on matching present events (the feared self casts a shadow
+  on every resembling event). Feared-pself intrusions ride the
+  intrusion channel at half weight.
+
+P610 checks the debtor-continuity mapping; the null to respect:
+future_cont moves *commitment structure*, never accuracy.
+
+### 6.107 Elaborative co-narration — the interviewer inside the friend
+### (new in v5.6)
+
+**[CONSENSUS in developmental work; HYPOTHESIS extension to adults]**
+The maternal reminiscing-style literature (Fivush & Fromhoff 1988;
+Reese, Haden & Fivush 1993) established that a high-**elaborative**
+co-narrator — one who asks open questions, adds evaluative detail,
+confirms and extends — produces richer shared encoding in the child.
+v5.6 extends the mechanism to adult dyads (modeling hypothesis;
+consistent with the shared-reality and collaborative-memory layers
+already spec'd): `elabor` ∈ [0,1] is a *speaker-side* trait — the
+person who draws stories out of people. When a high-elabor character
+co-experiences or co-narrates an episode, BOTH parties' records gain
+`elabor_dyad_gain` ∈ [0,0.4] extra detail-field density (the
+elaborator's questions force detail into existence — Saying more
+makes more remembered, cf. Higgins & Rholes). Pairs asymmetrically
+with `collab_inhib` (§6.69): collaboration still costs the raw-list
+recall while buying the detail — the elaborator's dyad knows fewer
+items but knows them deeper. P611.
+
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -7959,6 +8229,28 @@ MemoryParams = {
 //   post-commit — G1); orphan_rewrite = 0 (every content delta
 //   traces to the §13.1 catalog — G2); meanfield_drive = 0 (the
 //   mean field predicts K(t), it never steers spread — §13.2).
+// v5.6 additions (character-profiles V — the self layer)
+"self_est": 0.62,                 // standing self-evaluation, §6.99
+"selfverif_w": 0.6,               // consistency-vs-enhancement gate, §6.100
+"self_complex": 4,                // self-aspects count 2..8, §6.101
+"self_comp": 0.5,                 // compartmentalization, Showers §6.101
+"repress": 0.0,                   // DERIVED defens·(1−neurot_report), §6.102
+"repr_neg_shift": 1.5,            // years, earliest-negative shift, §6.102
+"remin_w": 0.5,                   // idle-reminiscence share, 55+, §6.103
+//   remin_style is an enum field, not a param — see §6.103 table
+"counterf_k": 0.15,               // near-miss counterfactual mint, §6.104
+"regret_inact_mult": 0.45,        // inaction-regret β multiplier, §6.104
+"regret_opp_gate": 0.8,           // opportunity-closure disengagement, §6.104
+"savor_k": 0.5, "dampen_k": 0.4,  // positive-affect valves, §6.105
+"future_cont": 0.55,              // future-self continuity, §6.106
+"pself_mint": 0.1,                // possible-self record rate, §6.106
+"elabor": 0.4, "elabor_dyad_gain": 0.2, // co-narration, §6.107
+// v5.6 locked nulls: se_accuracy_null = 0 (self_est moves selection
+//   and valence, never fidelity — P612); sc_capacity_null = 0
+//   (self_complex partitions indexing, adds no storage/accuracy —
+//   §6.101); repr_erase_null = 0 (repress suppresses ACCESS, the
+//   records are never deleted — §6.102, Davis 1990 recognition-null
+//   included).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7972,7 +8264,10 @@ depr, ptsd, attach_anx, attach_avoid, persp_obs, supp, reap,
 pspeed, mindful, scc, smoker — Part IV §43; v5.3 adds self_srv,
 alexith, media_m, early_adv, circ_irr, chron_pain, music, rosy, and
 the locked-null birth_order — Part V §60; v5.4 adds keeper —
-SM Part V §76) — sampled MVN(0, R) with the sparse correlation matrix in
+SM Part V §76; v5.6 adds `self_est` (self-evaluation — NOT metamemory;
+P614 null-locks the confusion), `elabor` (co-narration style), and
+`neurot_report` (self-reported distress — diverges from `neurot` only
+under defensiveness, the §6.102 repressor divergence)) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -9033,6 +9328,27 @@ not resolved (DEBATED magnitude). P509/P511.
     sub-sample) are legal iff they satisfy §13.5's three conditions;
     an enabled mode is declared on `memorySnapshot` output.
   - All machinery: no new per-character params, no new psychology.
+- v5.6 additions (character-profiles V — the self layer,
+  cast-profiles.md Part IV):
+  - IndivTraits gains `self_est`, `elabor`, `neurot_report` (§6.99/
+    §6.107/§6.102 — self_est is self-evaluation, never metamemory;
+    neurot_report is the self-described distress channel that diverges
+    from `neurot` under defensiveness).
+  - Records may carry `aspect` (self-aspect tag, §6.101 — world tags
+    role/relationship domain at encode) and feedback records gain
+    `selfCongruent` (§6.100 — derived, never authored).
+  - Records may carry `counterfactual:true` (§6.104 — minted on
+    near-miss outcomes; world tags `near_miss` on the event) and
+    regret-class records gain `regret:{kind:action|inaction,
+    oppOpen:bool}` — `oppOpen` flips are world-supplied.
+  - New record class `pself` (§6.106 — possible-self landmarks;
+    snapshot-visible, never dialogue-emitted as facts).
+  - Long-horizon Intentions may carry `owner:"future-self"`
+    (§6.106 — they then ride the §6.90 debtor channel, not pm_self).
+  - Idle-reminiscence ticks on 55+ characters emit `reminiscence`
+    routings carrying the remin_style tag (§6.103 — integrative
+    routings may mint persSem synthesis records per §4.23).
+  - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

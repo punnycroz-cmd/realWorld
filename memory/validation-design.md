@@ -4659,3 +4659,114 @@ defined over the seed-ensemble distribution per §36 probe semantics.
 
 Registry: P1–P601. v57 suite: P590–P601 (7 MUST, 5 SHOULD —
 three locked nulls: verbatim_mint, orphan_rewrite, meanfield_drive).
+
+## 103. Probes P602–P614 (v58 — character-profiles V, the self layer)
+
+- **P602 consistency gate (MUST — sign-locked):** two characters,
+  identical negative-central feedback records, differing only in
+  `self_est` (0.3 vs 0.8). Low-self_est character: negative-consistent
+  feedback recalls ≥ positive-central control (mnem_neg released by
+  `selfverif_w·selfCongruent`); high-self_est character: classic MNE
+  (negative-inconsistent < all controls). Recognition on the same
+  records shows NO effect in either profile — the recall-only boundary
+  is re-locked (Green, Sedikides & Gregg 2007).
+- **P603 spillover divisor (MUST):** identical domain-failure event
+  stream into characters at self_complex ∈ {2, 4, 8}; measured
+  cross-domain mood bleed scales ~1/max(2,self_complex) within
+  tolerance; self_comp 0.9 vs 0.1 separates NEGATIVE cross-aspect
+  spread while positive spread is unchanged (Showers asymmetry).
+- **P604 uplift moderation (SHOULD — DEBATED-flagged):** per
+  Rafaeli-Mor & Steinberg 2003, self_complex's moderation of affect
+  response is at least as strong for UPLIFTING events as for adverse
+  ones; a build where the buffer works only on negatives fails the
+  hypothesis-check (the original Linville buffering claim is not
+  required to pass).
+- **P605 repressor phenotype (MUST):** characters at repress ≈ 0.8 vs
+  ≈ 0.0: fewer negative childhood recalls, earliest negative memory
+  older by ≥ `repr_neg_shift·0.6`, negative-retrieval latency up,
+  positive channels unchanged; recognition probes on the suppressed
+  records identical (Davis 1990); `repr_erase_null` — record store
+  count and content bit-identical to a zero-repress control (doors
+  shut, archive whole).
+- **P606 reminiscence diet (SHOULD):** 55+ characters run 180-day idle
+  cycles per remin_style; accessible-pool valence skews negative for
+  obsessive, positive for escapist; integrative raises §4.23 persSem
+  mint count; transmissive biases emissions to younger listeners.
+  remin_w 0 produces ordinary retell ecology.
+- **P607 regret crossover (MUST — sign-locked):** matched action and
+  inaction regret records: action regret's accessibility exceeds
+  inaction early (window ≤ ~14 days), inaction exceeds action late
+  (window ≥ ~180 days) — the Gilovich & Medvec temporal pattern, not
+  either half alone.
+- **P608 opportunity gate (SHOULD):** an inaction regret with
+  `oppOpen:true` reopens at cue strength on a matching-choice event;
+  flipping `oppOpen:false` accelerates decay ×1.5 at
+  regret_opp_gate=1 and does nothing at 0 (rumination lock).
+- **P609 positive valves (MUST):** savor_k 0.8 vs dampen_k 0.8 on
+  identical positive-event streams: savorer's positive records encode
+  stronger, rehearse more, and fade slower; dampener's thin but are
+  PRESENT (encoded, not absent) — and accuracy metrics identical in
+  both arms.
+- **P610 debtor-future-self (SHOULD):** long-horizon Intentions
+  (>90d) minted at future_cont 0.2 vs 0.8: the low-continuity
+  character's intentions behave as §6.90 debtor-class (cue-bound,
+  breach-surprise phenotype); high-continuity rides pm_self.
+- **P611 elaborator's dyad (SHOULD):** shared episodes co-encoded
+  with elabor 0.9 vs 0.1 partner: BOTH parties' records gain detail-
+  field density ∝ elabor_dyad_gain, while raw-item count still shows
+  §6.69 collaborative inhibition — deeper, not longer lists.
+- **P612 locked nulls (MUST):** se_accuracy_null — varying self_est
+  0.15→0.95 changes selection/valence/perspective metrics but moves
+  zero accuracy measure; sc_capacity_null — self_complex changes no
+  store capacity or fidelity; repr_erase_null — see P605.
+- **P613 epoch boundary (SHOULD):** a bible-declared identity-change
+  event marks `selfEpoch`; pre-boundary records acquire
+  `selfDiscrepant` per §5.39 → observer-perspective emission rate
+  rises on old-self records only; post-boundary records unaffected.
+- **P614 self_est ≠ metamemory (MUST — null-lock):** the generator
+  must NOT correlate `self_est` with `SelfModel.self_est.global`
+  beyond the MVN residual — pin self_est ±2σ and verify the
+  metamemory estimate stays in its own distribution; the two "self
+  estimates" are different channels and conflating them is a
+  compile-time FAIL.
+
+## 104. Sources verified this version (P602–P614 backing)
+
+- Sedikides & Green 2000 (*JPSP* 79:906 — verified via 2016 review
+  record): mnemic neglect as incongruence-negativity management;
+  Green, Pinter & Sedikides 2004 (*EJSP* 35:225); Green, Sedikides &
+  Gregg 2007 (*JESP* 44:547 — verified abstract: recall impaired,
+  recognition unimpaired, ego-deflation boundary); Sedikides, Green
+  & Pinter 2016 mnemic-neglect review (*EJoSP* — verified: repressors
+  show ENHANCED mnemic neglect; anxiety/dysphoria moderators).
+- Linville 1985 (*Soc Cogn* 3:94 — verified) & 1987 (*JPSP* 52:663 —
+  verified); Rafaeli-Mor & Steinberg 2003 (*PSPR* 6:60 — verified
+  abstract: weak buffering, moderation of uplifts); Showers 1992
+  (*JPSP* 62 — compartmentalization).
+- Weinberger, Schwartz & Davidson 1979; Davis & Schwartz 1987
+  (*JPSP* 52:155 — verified abstract: fewer negative memories, older
+  earliest negative); Davis 1995 (*J Abnorm Psychol* 103:288 —
+  verified abstract: slower negative retrieval, free + cued recall);
+  Davis 1990 (*Aust J Psychol* — recognition β unchanged, verified).
+- Watt & Wong 1991 (*J Gerontol Soc Work* 16:37 + *Psych & Aging*
+  6:272 — both verified abstracts: six types; successful-ager
+  integrative/instrumental advantage).
+- Gilovich & Medvec 1994 (*JPSP* 67:357) + 1995 (*Psych Rev* 102:379
+  — both verified): action/inaction temporal regret pattern; Wrosch
+  et al. regret-opportunity line (control theory).
+- Bryant & Veroff 2007 (*Savoring* — verified); Feldman, Joormann &
+  Johnson 2008 (*Cog Ther Res* — verified: RPA dampening scale,
+  depression prediction); Wood, Heimpel & Michela 2003 (*JPSP*
+  85:566 — verified: self-esteem gates savoring vs dampening);
+  Joormann & Siemer 2004 (*J Abnorm Psychol* 113:179 — verified:
+  happy-memory mood repair fails in dysphoria).
+- Ersner-Hershfield, Wimmer & Knutson 2009 (*SCAN* 4:85 — verified)
+  + Ersner-Hershfield, Garton, Ballard, Samanez-Larkin & Knutson
+  2009 (*JDM* 4:280 — verified: continuity index predicts saving);
+  Markus & Nurius 1986 (*Am Psych* 41:954 — verified).
+- Fivush & Fromhoff 1988; Reese, Haden & Fivush 1993 — elaborative
+  reminiscing style (developmental consensus; the adult-dyad
+  extension is flagged HYPOTHESIS in §6.107).
+
+Registry: P1–P614. v58 suite: P602–P614 (6 MUST, 5 SHOULD, 2 meta —
+P612/P614 carry the three locked nulls and the trait-confusion ban).

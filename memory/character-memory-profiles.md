@@ -869,6 +869,18 @@ needs both.
 | ostrac_gain / ostrac_persist / excl_scope_drift / ostrac_vigil | 0.2 / 0 / 0 / 0 | 1.0 / 0.6 / 0.5 / 0.6 | exclusion hot-encode + scope drift (v5.4) |
 | h_dap_thresh / anchor_date_gain | 0.5 / 0 | 0.9 / 0.6 | living-in-history anchor gate (v5.4) |
 | rev_moral_neg / rev_moral_pos / rev_abil / moral_bad_thresh / moral_repair_k | 1.0 / 0.1 / 0.4 / −0.6 / 1.5 | 2.5 / 0.8 / 1.2 / 0.0 / 6 | domain×valence revision gains + redemption tax (v5.4) |
+| self_est | 0.15 | 0.95 | trait — standing self-evaluation; NOT metamemory (v5.6) |
+| selfverif_w | 0.0 | 1.0 | consistency gate on mnem_neg; >0.7 = self-verifier (v5.6) |
+| self_complex | 2 | 8 | self-aspect count — spillover divisor (v5.6) |
+| self_comp | 0.0 | 1.0 | negative-aspect compartmentalization (v5.6) |
+| repress | 0.0 | 1.0 | DERIVED defens·(1−neurot_report) — never pinned (v5.6) |
+| repr_neg_shift | 0.0 | 3.0 | years; earliest-negative-memory shift (v5.6) |
+| remin_w | 0.0 | 1.0 | idle-reminiscence share, 55+ only (v5.6) |
+| counterf_k | 0.0 | 0.4 | near-miss counterfactual mint rate (v5.6) |
+| regret_inact_mult / regret_opp_gate | 0.2 / 0.0 | 0.7 / 1.0 | inaction β-mult + disengagement gate (v5.6) |
+| savor_k / dampen_k | 0.0 / 0.0 | 1.0 / 1.0 | positive-affect valves (v5.6) |
+| future_cont / pself_mint | 0.0 / 0.0 | 1.0 / 0.3 | future-self continuity + pself mint (v5.6) |
+| elabor / elabor_dyad_gain | 0.0 / 0.0 | 1.0 / 0.4 | co-narration style + shared-detail gain (v5.6) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2609,3 +2621,97 @@ liar's ledger), never through a hole. And the Jensen rule (§13.3):
 the block's rumor behavior is a property of the *cast ensemble*, so
 two mains with wild `misinfo_suscept`/`retell` extremes change the
 neighborhood's epidemiology, not just their own heads.
+
+## 41. v5.6 note (character-profiles V — the self that keeps the books)
+
+Clamp rows added in §0 for the sixteen v5.6 params. This pass owns the
+self-view the spec had been borrowing (`tdist_self`, `selfDiscrepant`,
+`mnem_neg` all referenced a self-evaluation that was never a trait) and
+adds the evaluative machinery around it. What bible authors should
+actually touch:
+
+- **`self_est` (trait, 0.15–0.95):** the new bible pin — the person's
+  standing evaluation of their own worth. Pin from the bible's
+  self-regard register ("she knows exactly what she is" → 0.7+; "he
+  apologizes for existing" → ≤0.35). **Do NOT confuse with
+  `SelfModel.self_est.global`** — that is what the character believes
+  about their *memory*; `self_est` is what they believe about
+  *themselves*. A character can hold both combinations, and P614
+  null-locks any generator that conflates them. Loads distancing
+  (§6.15), the §6.100 consistency gate, and the dampen prior (§6.105).
+- **`selfverif_w` (0–1):** the consistency-vs-enhancement dial. Default
+  0.6 — most people prefer feeling good to being confirmed (Swann).
+  >0.7 = the self-verifier who hoards the accurate insult; pair with
+  low `self_est` for the insult-collector phenotype (negative feedback
+  is *consistent* → the mnem_neg penalty releases it → she keeps every
+  slight). This is the mechanism that makes a low-self-view character
+  *not* benefit from mnemic neglect — self-protection protects a view
+  worth protecting.
+- **`self_complex` / `self_comp`:** how many rooms the self has
+  (2–8) and whether the bad rooms have doors (0–1). A bible that
+  writes a one-role character (the store, the job, the widow) is
+  claiming self_complex ≈ 2 — their bad week is TOTAL because the
+  spillover divisor is 2, not because they're fragile. The 2003
+  meta-analysis caveat stands: this is DEBATED as a stress buffer —
+  treat it as a reactivity dial, never a resilience guarantee, and
+  never a capacity dial (`sc_capacity_null` locked).
+- **`repress` is DERIVED, never pinned.** The bible writes
+  defensiveness + "never complains" (low `neurot_report`); the
+  compiler produces the phenotype — thinner negative childhood
+  recall, later first negative memory, slower negative retrieval.
+  Recognition of the same records is untouched (Davis 1990 locked
+  boundary) and `repr_erase_null` forbids record deletion — the
+  repressor's archive is complete behind shut doors. If a bible
+  wants a character who "has no childhood," this is the mechanism —
+  not amnesia pins.
+- **`remin_style` (55+ enum blend):** pin on elders only, from the
+  bible's late-life register. `transmissive` for the block's
+  teacher-archive (C6); `instrumental` for the problem-rehearser;
+  `narrative` for the raconteur; `escapist` for the golden-days
+  nostalgist; `obsessive` for the guilt-replayer; `integrative`
+  for the meaning-maker (the only style that mints persSem
+  synthesis — integrative reminiscence literally semanticizes a
+  life). Styles change what the accessible archive BECOMES over
+  sim-years, so they compound — pick them to match the character's
+  trajectory, not their current mood.
+- **`counterf_k` / `regret_inact_mult` / `regret_opp_gate`:** the
+  regret economy. `counterf_k` loads on rumination-adjacent pins —
+  the near-miss reliver. `regret_opp_gate` is the adaptive dial: 1 =
+  opportunity closed → let it go; →0 = the character who cannot
+  stop grieving what is already impossible (depressive signature —
+  pair with `depr`). The action/inaction half-life split is
+  mechanism, not personality — sign-locked by P607.
+- **`savor_k` / `dampen_k`:** independent valves. The savorer holds
+  a good evening longer; the dampener talks themselves out of it.
+  `dampen_k` has a computed prior from `self_est`/`depr` — pin only
+  to deviate (a high-self-esteem dampener is legal and reads
+  distinctly: confident but joyless). Both move encoding and
+  rehearsal, never accuracy — the dampened event is thin, not false.
+- **`future_cont` / `pself_mint`:** low future_cont is the character
+  who books obligations her future self will experience as someone
+  else's promises — she is reliably surprised by her own calendar
+  (the debtor-channel mapping is the point). `pself_mint` on the
+  dreamer and the dreading — the feared self is a landmark that
+  darkens resembling present events.
+- **`elabor` / `elabor_dyad_gain`:** the interviewer inside the
+  friend — pin on characters who draw stories out of people (the
+  confidante, the bartender-adjacent listener). The gain lands on
+  BOTH parties' records — being known well by an elaborator makes
+  your own archive denser. Adult extension is HYPOTHESIS-flagged;
+  the developmental base (Fivush) is consensus.
+- **Never pin (mechanism constants / locked):** `repr_neg_shift`
+  population scale, the recall-only mnem_neg boundary (recognition
+  spared — Green et al. 2007), `se_accuracy_null` (self-esteem moves
+  selection and valence, NEVER fidelity — a confident character is
+  not a more accurate one), `sc_capacity_null`, `repr_erase_null`,
+  the action/inaction decay sign, `owner:"future-self"` semantics
+  (compiler-set from future_cont, not authored).
+- **Emergent cast shadow:** (a) Victor's childhood is literally
+  thinner on the negative side — the archive is whole, the doors
+  are shut; (b) a low-self_est main keeps every slight because it
+  confirms — mnemic neglect protects only views worth protecting;
+  (c) Carmen's transmissive blend means her archive gets TOLD into
+  shape — teaching stories polish, private ones fade; (d) the
+  newcomer with two self-aspects has the most volatile mood in the
+  cast — same events, divisor 2; (e) the low-future_cont character
+  keeps breaking dates with a stranger who turns out to be herself.
