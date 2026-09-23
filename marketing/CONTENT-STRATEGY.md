@@ -146,14 +146,19 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 7 — "Now hiring: the block posts real jobs" | live on `journal.html` (v57); record at `marketing/content/devlog-07-now-hiring.md` | world-v31 `market.md`/`market.json`, game-v8 `41_game_systems_hiring.js`, `requests.json` hire row |
 | Devlog 8 — "The wallet shows its math" | live on `journal.html` (v72); record at `marketing/content/devlog-08-the-wallet.md` | world-v32 `requests.json → wallet/appeals/co_sponsor/session_extend` + `request-ui.md` §8 |
 | Devlog 9 — "Every door has a tryout" | live on `journal.html` (v72); record at `marketing/content/devlog-09-every-door-has-a-tryout.md` | world-v45 `applications.md`/`applications.json` (16 job arcs, 8 housing rows, decline bank, never-list) + `apply.html` |
+| Devlog 10 — "The Ear: complaints climb a ladder" | live on `journal.html` (v87); record at `marketing/content/devlog-10-the-ear.md` | world-v59 `grievances.md`/`grievances.json` (5-rung ladder, 24 work + 7 housing rows, 2 offstage parody orgs) + `grievance.html`; game-v11 `gsFileDispute`/`gsResolveDispute` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
 storefront-layer devlog (world-v44 `storefronts.json` fascia/window/
-aframe/flyers/neon copy — draft once the art track renders the authored
-text on glass, so the post can show it); lease-ledger devlog deep-dive (devlog-3 covers the intro;
-a ledger-mechanics follow-up still has room), a transparency note format
-for moderation stats once the live feed emits `moderation.json`-shaped
-events, a wire.html-screenshot post if the world/art tracks publish a
-spectator-app capture, memory-model explainer once game-systems implements
-the memory spec (research-only today — do not preview).
+aframe/flyers/neon copy — still gated: art-v43 shipped the storefront
+glass/menu-board/neon render *boxes* but not the authored text on them;
+draft once the render draws the authored copy so the post can show it);
+lease-ledger devlog deep-dive (devlog-3 covers the intro;
+a ledger-mechanics follow-up still has room), a wire.html-screenshot
+post if the world/art tracks publish a spectator-app capture,
+memory-model explainer once game-systems implements
+the memory spec (research-only today — do not preview). The moderation
+transparency-note format is no longer backlog — the template ships at
+`templates/transparency-report.md` (fill when the live feed emits
+`moderation.json`-shaped stats).
