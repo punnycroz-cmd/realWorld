@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 69,
+ "version": 70,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -43,7 +43,10 @@
    "world/grievances.md",
    "world/menus.html",
    "world/menus.json",
-   "world/menus.md"
+   "world/menus.md",
+   "world/exit.html",
+   "world/exits.json",
+   "world/exits.md"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -188,6 +191,11 @@
   "menus": {
    "file": "menus.html",
    "name": "The Board",
+   "tier": "internal"
+  },
+  "exits": {
+   "file": "exit.html",
+   "name": "The Last Shift",
    "tier": "internal"
   }
  },
@@ -3445,6 +3453,56 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT66",
+   "title": "The Last Shift — the exit layer (job departures + unit turnover)",
+   "minutes": 10,
+   "persona": "long-time spectator — checking whether the block knows how things end, not just how they start",
+   "surfaces": [
+    "exits",
+    "apply",
+    "audit"
+   ],
+   "goal": "Verify the v73 exit layer: every jobs.json employer carries an exit row (notice norm, who takes the news, last-shift texture, reference worth, what stays); every housing.json building + the ambient ring carries a turnover row (30-day notice + 21-day deposit clock on registry units, off-registry empties by construction); feed shapes print the door, never the name; game dollars only.",
+   "steps": [
+    {
+     "do": "Open exit.html (file://). Read the work cards with the 'housing' side off, then toggle sides and the noticed/no-notice kind filter.",
+     "expect": "24 work cards — one per board employer. Each shows a notice norm in days (0 where there's no boss to tell: MuleIt, busking, hemming), who takes the news and where, a last-shift texture line, what a reference is worth, and what stays behind.",
+     "checkpoints": [
+      "24 work cards; Mudhaus's row reads Marisol/counter-before-9 and El Farolote's reads Tomás/kitchen-after-lunch",
+      "notice_days 0 rows are exactly the boss-less jobs — app, corner, word-of-mouth",
+      "The kind filter partitions cleanly: 'no-notice' shows only 0-day rows"
+     ]
+    },
+    {
+     "do": "Toggle to housing. Read the seven cards, then cross-check two against housing.json and the grievance layer's ear rows.",
+     "expect": "6 registry buildings + the ambient ring. Registry units carry 30-day notice and the 21-day deposit clock; 9102 Mission (owner-occupied) and the ring are empty by construction — kept unit, off-registry churn, no notice or deposit rows.",
+     "checkpoints": [
+      "9418/9457 Guerrero read owner-direct turnover through Victor's Tuesday process; Capp/Folsom read management-mailbox",
+      "9263 Geneva reads as a family-decision-first vacancy — the informal share leaves no paper",
+      "9102 Mission has null notice/deposit and a 'kept unit' texture — never a turnover"
+     ]
+    },
+    {
+     "do": "Read the feed-shapes panel at the top and compare with grievances.json's contract.",
+     "expect": "Work exits render as venue doors (a job opening posted / a card came down / a new face behind the counter — <venue>); housing exits as addresses, reusing the live 'a tenant gave notice' line. The never list bars leaver names, reasons, deposit amounts, declines, and named quit/eviction events.",
+     "checkpoints": [
+      "No feed line carries a name or cast id — the door-not-name rule matches the grievance layer",
+      "Deposit letters, deductions, and notices are ledger facts — never feed events",
+      "Game dollars only throughout; no credit figure or USD framing anywhere"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the exits + harness gates.",
+     "expect": "The exits gate reports schema v73 — 24 work + 7 housing rows — with bidirectional employer coverage vs jobs.json, building coverage vs housing.json keys + ambient-ring, 30/21-day registry norms, banned-vocab sweep, door-not-name feed shapes, and the EXITS inline mirror deep-compared. Harness gate reports 66 scenarios at the v70 key.",
+     "checkpoints": [
+      "exits gate detail: 'schema v73 · 24 work · 7 housing' — PASS",
+      "A missing employer row, a 25-day notice on a registry unit, or a named feed line would FAIL — spot-check the gate code",
+      "Harness gate: '66 scenarios · N checkpoints · key rw_playtest_v70'; 0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -3486,10 +3544,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v69 local",
- "harness_ui_v69": {
-  "storage_key": "rw_playtest_v69",
-  "build_tag_prefix": "world v69 local",
+ "build": "world v70 local",
+ "harness_ui_v70": {
+  "storage_key": "rw_playtest_v70",
+  "build_tag_prefix": "world v70 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3536,7 +3594,8 @@
    "rw_playtest_v66",
    "rw_playtest_v67",
    "rw_playtest_v68",
-   "rw_playtest_v69"
+   "rw_playtest_v69",
+   "rw_playtest_v70"
   ]
  }
 }

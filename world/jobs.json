@@ -1,6 +1,12 @@
 {
  "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
- "version": 45,
+ "version": 73,
+ "exit_layer": {
+  "spec": "exits.md",
+  "mirror": "exits.json",
+  "demo": "exit.html",
+  "note": "v73 — how each employer's exits look: notice norms, who takes the news, last-shift texture, reference worth, what stays; feed shapes print the venue door, never the name"
+ },
  "application_layer": {
   "spec": "applications.md",
   "mirror": "applications.json",

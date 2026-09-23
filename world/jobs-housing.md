@@ -30,6 +30,13 @@
 > building, the two drop-in tables, feed shapes at rung 5). Content for
 > game-v11's dispute verbs. Internal demo: `world/grievance.html`
 > ("The Ear").
+>
+> **v73 depth layer:** `world/exits.md` + `world/exits.json` — the exit
+> layer (how work ends and units empty: notice norms, who takes the news,
+> last-shift texture, reference worth; 30-day notice + 21-day deposit
+> clock per building, turnover scope, relist path; feed shapes print the
+> door, never the name). Internal demo: `world/exit.html`
+> ("The Last Shift").
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).

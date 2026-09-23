@@ -15,7 +15,7 @@
   PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery,
   PT62 + onboarding v5 eligibility layer / onboard gate v67,
   PT63 + lease v68 hand-off layer / lease gate v68, PT64 + thinai v69 long-outage layer,
-  PT65 + menus v72 / menus gate).
+  PT65 + menus v72 / menus gate, PT66 + exits v73 / exits gate v73).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -157,7 +157,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>menus</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>menus</option><option>exits</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <select id="fOwner" style="max-width:120px" title="owning track — routes the finding in the inbox note"><option>world</option><option>game-systems</option><option>art</option><option>marketing</option></select>
         <select id="fStep" style="max-width:120px" title="finding ref — step inside the open scenario"></select>
         <select id="fTmpl" style="max-width:130px" title="prefill from a boundary-break template — seeds the form, never logs by itself">
@@ -216,6 +216,7 @@ const SURF={
   regulars:{file:"regulars.html",name:"The House Knows"},
   grievance:{file:"grievance.html",name:"The Ear"},
   menus:{file:"menus.html",name:"The Board"},
+  exits:{file:"exit.html",name:"The Last Shift"},
   apply:{file:"apply.html",name:"The Tryout"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
@@ -1414,12 +1415,36 @@ const PTS=[
   exp:"The menus gate reports schema v72 — 20 menus, 101 items — with doors-only coverage, cat/when enum checks, sig presence, banned-vocab sweep, board-price agreement, and the MENUS inline mirror deep-compared. Biz gate still passes at v72; harness gate reports 65 scenarios at the v69 key.",
   ck:["menus gate detail: 'schema v72 · 20 menus · 101 items' — PASS",
     "A menu on an offstage venue, a missing signature, or a board/menu price mismatch would FAIL — spot-check the gate code",
-    "Harness gate: '65 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}];
+    "Harness gate: '65 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}
+,{id:"PT66",title:"The Last Shift — the exit layer (job departures + unit turnover)",min:10,
+ persona:"long-time spectator — checking whether the block knows how things end, not just how they start",
+ goal:"Verify the v73 exit layer: every jobs.json employer carries an exit row (notice norm, who takes the news, last-shift texture, reference worth, what stays); every housing.json building + the ambient ring carries a turnover row (30-day notice + 21-day deposit clock on registry units, off-registry empties by construction); feed shapes print the door, never the name; game dollars only.",
+ surfaces:["exits","apply","audit"],steps:[
+ {do:"Open exit.html (file://). Read the work cards with the 'housing' side off, then toggle sides and the noticed/no-notice kind filter.",
+  exp:"24 work cards — one per board employer. Each shows a notice norm in days (0 where there's no boss to tell: MuleIt, busking, hemming), who takes the news and where, a last-shift texture line, what a reference is worth, and what stays behind.",
+  ck:["24 work cards; Mudhaus's row reads Marisol/counter-before-9 and El Farolote's reads Tomás/kitchen-after-lunch",
+    "notice_days 0 rows are exactly the boss-less jobs — app, corner, word-of-mouth",
+    "The kind filter partitions cleanly: 'no-notice' shows only 0-day rows"]},
+ {do:"Toggle to housing. Read the seven cards, then cross-check two against housing.json and the grievance layer's ear rows.",
+  exp:"6 registry buildings + the ambient ring. Registry units carry 30-day notice and the 21-day deposit clock; 9102 Mission (owner-occupied) and the ring are empty by construction — kept unit, off-registry churn, no notice or deposit rows.",
+  ck:["9418/9457 Guerrero read owner-direct turnover through Victor's Tuesday process; Capp/Folsom read management-mailbox",
+    "9263 Geneva reads as a family-decision-first vacancy — the informal share leaves no paper",
+    "9102 Mission has null notice/deposit and a 'kept unit' texture — never a turnover"]},
+ {do:"Read the feed-shapes panel at the top and compare with grievances.json's contract.",
+  exp:"Work exits render as venue doors (a job opening posted / a card came down / a new face behind the counter — <venue>); housing exits as addresses, reusing the live 'a tenant gave notice' line. The never list bars leaver names, reasons, deposit amounts, declines, and named quit/eviction events.",
+  ck:["No feed line carries a name or cast id — the door-not-name rule matches the grievance layer",
+    "Deposit letters, deductions, and notices are ledger facts — never feed events",
+    "Game dollars only throughout; no credit figure or USD framing anywhere"]},
+ {do:"Run `node world/audit.js` and read the exits + harness gates.",
+  exp:"The exits gate reports schema v73 — 24 work + 7 housing rows — with bidirectional employer coverage vs jobs.json, building coverage vs housing.json keys + ambient-ring, 30/21-day registry norms, banned-vocab sweep, door-not-name feed shapes, and the EXITS inline mirror deep-compared. Harness gate reports 66 scenarios at the v70 key.",
+  ck:["exits gate detail: 'schema v73 · 24 work · 7 housing' — PASS",
+    "A missing employer row, a 25-day notice on a registry unit, or a named feed line would FAIL — spot-check the gate code",
+    "Harness gate: '66 scenarios · N checkpoints · key rw_playtest_v70'; 0 fail overall"]}]}];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v69";
-const BUILD="world v69 local";
+const LS="rw_playtest_v70";
+const BUILD="world v70 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

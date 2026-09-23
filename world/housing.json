@@ -1,6 +1,12 @@
 {
  "doc": "Housing — machine-readable mirror of world/jobs-housing.md §3 + world/housing/. The registry seed in jobs-housing.md is canonical JSON per address spec §4; this file adds listing copy + building card links. Money is game dollars; deed fees are credits (PROPOSAL per monetization §2.4). Lifecycle (application → rent run → notices → disputes → turnover/purchase) lives in world/leases.json + world/lease-ui.md (v12); demo: world/lease.html.",
- "version": 45,
+ "version": 73,
+ "exit_layer": {
+  "spec": "exits.md",
+  "mirror": "exits.json",
+  "demo": "exit.html",
+  "note": "v73 — turnover per building: 30-day notice + 21-day deposit clock on registry units, turnover scope, relist path; owner-occupied + ambient-ring rows empty by construction"
+ },
  "application_layer": {
   "spec": "applications.md",
   "mirror": "applications.json",

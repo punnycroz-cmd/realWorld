@@ -254,7 +254,8 @@ const PUB = Object.values(PT.surfaces)
   const INWORLD = new Set(['board.html', 'lease.html', 'timeclock.html',
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
-    'applications.json', 'apply.html', 'grievances.json', 'grievance.html']);
+    'applications.json', 'apply.html', 'grievances.json', 'grievance.html',
+    'exits.json', 'exit.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -2488,7 +2489,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v69 || {};
+    const H = PT.harness_ui_v70 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2726,13 +2727,94 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'grievances.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G23b exits ============ */
+{
+  const g = gate('exits', 'exit layer contract (exits.json ↔ exit.html; employer/building coverage; door-not-name feed shapes; game dollars only)');
+  try {
+    const XJ = JSONF('exits.json');
+    const html = rd('exit.html');
+    /* deep mirror: inline EXITS == exits.json (doc line exempt) */
+    const m = html.match(/const EXITS = (\{[\s\S]*?\n\});/);
+    if (!m) throw new Error('inline EXITS block not found in exit.html');
+    const INL = eval('(' + m[1] + ')');
+    const strip = o => { const c = JSON.parse(JSON.stringify(o)); delete c.doc; return c; };
+    if (JSON.stringify(strip(INL)) !== JSON.stringify(strip(XJ)))
+      add(g, 'fail', 'exit.html', null, 'inline EXITS != exits.json (hand-sync drift)');
+    if (XJ.schema !== 'exits-v1')
+      add(g, 'fail', 'exits.json', null, `schema "${XJ.schema}" != exits-v1`);
+    /* no credit figures anywhere in this layer */
+    const xtxt = rd('exits.json');
+    for (const mm of xtxt.matchAll(/\b\d[\d,]*\s*cr\b/gi))
+      add(g, 'fail', 'exits.json', null, `credit figure in exit layer: "${mm[0]}"`);
+    /* every jobs.json employer covered exactly once */
+    const JJ = JSONF('jobs.json');
+    const empAll = new Set(JJ.jobs.map(j => j.employer));
+    const seen = new Set();
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const sweep = (fields, tag) => {
+      for (const s of fields)
+        for (const re of BANNED)
+          if (re.test(String(s))) add(g, 'fail', 'exits.json', null, `${tag}: banned vocab (${re}) in "${String(s).slice(0, 60)}"`);
+    };
+    for (const r of XJ.work || []) {
+      const tag = `work:${r.employer}`;
+      if (seen.has(r.employer)) add(g, 'fail', 'exits.json', null, `duplicate work row "${r.employer}"`);
+      seen.add(r.employer);
+      if (!empAll.has(r.employer)) add(g, 'fail', 'exits.json', null, `work row "${r.employer}" is not a jobs.json employer`);
+      if (typeof r.notice_days !== 'number' || r.notice_days < 0)
+        add(g, 'fail', 'exits.json', null, `${tag}: notice_days must be a number ≥ 0 (0 = no boss to tell)`);
+      for (const k of ['notice_to', 'last_shift', 'reference', 'stays', 'texture'])
+        if (!r[k]) add(g, 'fail', 'exits.json', null, `${tag}: missing field "${k}"`);
+      sweep([r.notice_to, r.last_shift, r.reference, r.stays, r.texture], tag);
+    }
+    for (const e of empAll)
+      if (!seen.has(e)) add(g, 'fail', 'exits.json', null, `employer "${e}" has no exit row`);
+    /* every housing.json building_cards key + ambient-ring covered once */
+    const HJ = JSONF('housing.json');
+    const bKeys = new Set(Object.keys(HJ.building_cards || {}));
+    bKeys.add('ambient-ring');
+    const hSeen = new Set();
+    for (const r of XJ.housing || []) {
+      const tag = `housing:${r.building_id}`;
+      if (hSeen.has(r.building_id)) add(g, 'fail', 'exits.json', null, `duplicate housing row "${r.building_id}"`);
+      hSeen.add(r.building_id);
+      if (!bKeys.has(r.building_id)) add(g, 'fail', 'exits.json', null, `${tag}: not a building_cards key or ambient-ring`);
+      const registry = r.building_id !== 'ambient-ring' && r.building_id !== 'bld-m9102';
+      if (registry && r.notice_days !== 30)
+        add(g, 'fail', 'exits.json', null, `${tag}: registry units carry the 30-day notice norm`);
+      if (registry && r.deposit_clock_days !== 21)
+        add(g, 'fail', 'exits.json', null, `${tag}: deposit clock is 21 days (lease layer agreement)`);
+      for (const k of ['turnover_scope', 'relist', 'texture'])
+        if (!r[k]) add(g, 'fail', 'exits.json', null, `${tag}: missing field "${k}"`);
+      sweep([r.turnover_scope, r.relist, r.texture], tag);
+    }
+    for (const k of bKeys)
+      if (!hSeen.has(k)) add(g, 'fail', 'exits.json', null, `building "${k}" has no exit row`);
+    /* feed shapes: the door, never the name — no cast id or name pattern */
+    const CASTID = /[cC][1-8]|[aA](0[1-9]|1[0-9]|20)/;
+    const fs = XJ.feed_shapes || {};
+    for (const l of (fs.work || []).concat(fs.housing || []))
+      if (!/<addr|<venue>/.test(l) && CASTID.test(l))
+        add(g, 'fail', 'exits.json', null, `feed line carries a name/id: "${l}"`);
+    if (!/door/i.test(fs.contract || ''))
+      add(g, 'fail', 'exits.json', null, 'feed_shapes.contract must state the door-not-name rule');
+    if (!Array.isArray(fs.never) || !fs.never.length)
+      add(g, 'fail', 'exits.json', null, 'feed_shapes.never list missing');
+    /* exit-kind catalogs declared */
+    for (const cat of ['job_exit_kinds', 'housing_exit_kinds'])
+      for (const k of Object.keys(XJ[cat] || {}))
+        if (!/^[a-z_]+$/.test(k)) add(g, 'fail', 'exits.json', null, `bad ${cat} key "${k}"`);
+    g.detail = `schema v${XJ.version} · ${(XJ.work || []).length} work · ${(XJ.housing || []).length} housing`;
+  } catch (e) { add(g, 'fail', 'exits.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v59 local';
+out.build = 'world v73 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {
