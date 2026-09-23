@@ -1,4 +1,4 @@
-# Memory Model Spec v0 — implementable human-like memory for RW characters
+# Memory Model Spec v0.1 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -88,6 +88,13 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   are thinned at birth (weapon focus, R§2): drop peripheral cueVector entries.
 - `selfRelevance` 0..1 — event touches the character's goals/identity/people.
   Strongest single booster (self-reference effect).
+- **Stress penalty (new in v0.1):** if `arousal > stress_thresh` (0.8),
+  verbatim-field strength at birth is multiplied by
+  `(1 − stress_encode_loss)`, default loss 0.31 (Deffenbacher et al. 2004
+  meta-analysis, d≈−0.31).
+- **Face ceiling (new in v0.1):** verbatim strength for a single-encounter
+  stranger's face/appearance is capped at `face_ceiling` (0.67) regardless
+  of E (Deffenbacher et al. 2008 — eyewitness identification upper bound).
 - `novelty` — distance of event from the character's event schema for its type
   (0 = routine, 1 = unprecedented). Routine repeats get novelty→0 and merge
   instead (§5.3 genericization).
@@ -126,10 +133,16 @@ R(t) = E_adj · (1 + t/τ)^(-β) + floor
   episodic τ≈1.2, β≈0.5; semantic τ≈30, β≈0.2; verbatim fields decay at
   `β·k_verbatim` (k≈2.5) relative to gist.
 - `floor` ≈ 0.05·emotional.arousal — strong emotional memories asymptote above
-  zero (they never fully die, they go quiet).
+  zero (they never fully die, they go quiet). NOTE (Talarico & Rubin 2003):
+  high arousal does NOT change β — flashbulb details decay on the same curve
+  as ordinary ones; arousal only raises floor and confidence.
 - **Era bonus:** memories whose `cueVector.era` falls in the character's
   reminiscence-bump window (formed at character age 15–25) use `β·0.6`
   permanently (R§7).
+- **β_episodic ≈ 0.5 is calibrated**: τ=1.2d, β≈0.47 reproduces Ebbinghaus
+  1885 / Murre & Dros 2015 (21% savings @ 31d) for meaningless unrehearsed
+  material — the decay floor for episodic content. See
+  `forgetting-curves.md` §2.1 and the calibrated retention table §4 thereof.
 
 ### 4.2 Interference
 
@@ -164,6 +177,26 @@ narrates the event back). Emotional associations (§1) may outlive the record.
 ~1.3× faster than positive** (fading affect bias, R§5). Older-adult profiles
 raise the asymmetry (positivity effect).
 
+### 4.6 Consolidation window (new in v0.1)
+
+Sleep shields young memories from interference (Jenkins & Dallenbach 1924:
+8h asleep → 56.5% vs 8h awake → 46% recall; Murre & Dros 2015's 24h plateau).
+A record younger than `consol_window_days` (default 1.0 — hasn't crossed a
+sleep tick yet) is **interference-exposed at full rate** (§4.2 applies
+normally) but decays only during the sleep tick, at
+`consol_beta_mult` (0.5) × its normal β. Effect: day-1 survival is bimodal —
+events that reach the sleep tick keep most of their strength; same-day
+interference before sleep is what kills them. See `forgetting-curves.md` §2.8.
+
+### 4.7 Permastore transition (new in v0.1)
+
+Semantic records show a discrete two-regime life (Bahrick 1984: items live
+0–6 years or >25 years, little in between). At each daily tick, a semantic
+record with age ≥ `permastore_age` (180 game days) and strength ≥
+`permastore_thresh` (0.25) sets `permastore: true` and freezes decay
+(β→0). Well-consolidated world knowledge is effectively permanent; fresh
+facts still decay normally. See `forgetting-curves.md` §2.3.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven
@@ -188,6 +221,10 @@ P(recall m) = logistic( k · (cueMatch + stateBonus + recencyBump(m)
 - `recencyBump` = `rec_k · exp(-(now - createdDay)/rec_τ)`, rec_τ≈2 days.
 - Mood-congruent recall: mood `C.mood` (valence −1..1) makes same-valence
   memories more likely — a bad day literally recalls bad memories.
+- **Cue-weight ordering constraint (new in v0.1):** Wagenaar 1986 —
+  what > who ≈ where >> when. Enforce `w_topic ≥ w_people ≈ w_place >
+  w_sensory`, and treat era/when as a *weak* cue; `verbatim.when` takes
+  1.5× drift (`drift_p·1.5`) — humans misdate events monotonically with age.
 
 ### 5.2 What retrieval returns
 
@@ -281,13 +318,17 @@ MemoryParams = {
   "neg_affect_decay": 1.3,   // multiplier on positive baseline
   // retrieval
   "theta": 0.45, "w_str": 0.8, "w_state": 0.3, "w_place": 0.3,
-  "w_people": 0.35, "w_topic": 0.25, "w_sensory": 0.1,
+  "w_people": 0.33, "w_topic": 0.36, "w_sensory": 0.1,
   "rec_k": 0.3, "rec_tau_days": 2.0, "rif_k": 0.05,
   "retell_boost": 0.25,
   // distortion
   "drift_p": 0.08, "misinfo_suscept": 0.35, "confab_fill": 0.5,
   // age/identity (set once, era window for reminiscence bump)
-  "birthWorldDay": -9125, "bump_beta_mult": 0.6
+  "birthWorldDay": -9125, "bump_beta_mult": 0.6,
+  // v0.1 additions (forgetting-curve calibration, forgetting-curves.md §3)
+  "consol_window_days": 1.0, "consol_beta_mult": 0.5,
+  "permastore_age": 180, "permastore_thresh": 0.25,
+  "face_ceiling": 0.67, "stress_thresh": 0.8, "stress_encode_loss": 0.31
 }
 ```
 
@@ -301,7 +342,8 @@ should validate params into those ranges at load.
 - **On event:** encoding pass §2 (O(1)).
 - **Daily tick:** decay pass §4.1 (all records), interference/genericization
   §4.2–4.3 only on records sharing cue keys (bucket by cue, never O(n²)),
-  sleep consolidation §2, affect fade §4.5.
+  sleep consolidation §2 (also applies §4.6 consol_beta_mult to same-day
+  records), affect fade §4.5, permastore check §4.7 on semantic records.
 - **On conversation/perception:** retrieval §5 → reconstruction →
   reconsolidation §5.4 → drift §6.1; rumor heard → §6.3; co-discussion → §6.5.
 - **Budget:** expect ~200–800 live records per main character; archive below

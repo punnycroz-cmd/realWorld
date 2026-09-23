@@ -114,6 +114,16 @@ prediction-error, repetition-with-spacing, and sleep state. See spec §4.
 **Model consequence:** forgetting = trace decay (power-law in time) ×
 interference from similar neighbors × retrieval history. Not a TTL.
 
+**v1 calibration (see `forgetting-curves.md` for full fits):** Rubin & Wenzel
+1996 (105 functions × 210 datasets → power/log/√t-exp/√t-hyperbola tie;
+autobiographical is the exception); Murre & Dros 2015 (Ebbinghaus replicated,
+24h sleep plateau); β_episodic ≈ 0.47 at τ=1.2d reproduces Ebbinghaus;
+Bahrick 1984 permastore (semantic two-regime life); Wagenaar 1986 cue order
+what > who ≈ where >> when; Deffenbacher 2008 face-strength ceiling ~0.67;
+Deffenbacher 2004 stress encoding cost d≈−0.31; Jenkins & Dallenbach 1924
+sleep-shielding; Park et al. 2002 linear age decline in episodic, rising
+semantic.
+
 ---
 
 ## 4. Retrieval: how memories come back

@@ -36,10 +36,22 @@ never copying raw.
 | misinfo_suscept | 0.05 | 0.70 | rumor adoption |
 | confab_fill | 0.1 | 0.9 | gap-filling propensity |
 | bump_beta_mult | 0.3 | 1.0 | reminiscence-bump retention bonus |
+| consol_window_days | 0.5 | 2.0 | pre-first-sleep regime (v0.1) |
+| consol_beta_mult | 0.3 | 0.8 | decay rate during consolidation window |
+| permastore_age | 90 | 365 | game days before semantic freeze check |
+| permastore_thresh | 0.15 | 0.40 | strength needed to freeze |
+| face_ceiling | 0.5 | 0.8 | stranger verbatim cap (Deffenbacher 2008) |
+| stress_thresh | 0.7 | 0.95 | arousal level triggering encode loss |
+| stress_encode_loss | 0.2 | 0.4 | verbatim E penalty under stress |
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
-check emergent behavior.
+check emergent behavior. β_episodic / τ_episodic values were re-checked
+against fitted human curves in v1 (`forgetting-curves.md` §4) — all
+archetypes sit between the Ebbinghaus floor (β≈0.47, meaningless material)
+and the autobiographical plateau; the age gradient on β_episodic (child 0.65
+→ young adult 0.42 → older 0.72) mirrors Park et al. 2002's linear lifespan
+decline while β_semantic stays flat.
 
 ## 1. Age-band archetypes
 
@@ -74,7 +86,9 @@ sleepFactor 0.85 (chronic sleep debt)
 beta_episodic 0.45 · beta_semantic 0.22 · beta_source 0.9 · k_verbatim 2.4
 tau_episodic 1.4 · interf_k 0.12 · interf_thresh 0.6 · merge_thresh 0.82
 forget_thresh 0.07 · neg_affect_decay 0.9 (grudges PERSIST)
-theta 0.42 · w_people 0.55 (social cues dominate) · w_state 0.4
+theta 0.42 · w_people 0.55 · w_state 0.4
+  (deliberate Wagenaar-ordering violation: adolescent social encoding
+  inverts topic > people — documented deviation, R§7 adolescence)
 rif_k 0.04 · retell_boost 0.3
 drift_p 0.09 · misinfo_suscept 0.45 · confab_fill 0.6
 ```
@@ -92,7 +106,7 @@ sleepFactor 1.0
 beta_episodic 0.42 · beta_semantic 0.18 · beta_source 0.8 · k_verbatim 2.2
 tau_episodic 1.5 · interf_k 0.10 · interf_thresh 0.62 · merge_thresh 0.82
 forget_thresh 0.07 · neg_affect_decay 1.25
-theta 0.40 · w_str 0.9 · w_place 0.3 · w_people 0.35 · w_topic 0.3
+theta 0.40 · w_str 0.9 · w_place 0.3 · w_people 0.33 · w_topic 0.36
 rif_k 0.05 · retell_boost 0.28
 drift_p 0.07 · misinfo_suscept 0.30 · confab_fill 0.45 · bump_beta_mult 0.6
 ```
