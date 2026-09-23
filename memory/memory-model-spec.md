@@ -1,4 +1,41 @@
-# Memory Model Spec v4.7 — implementable human-like memory for RW characters
+# Memory Model Spec v4.8 — implementable human-like memory for RW characters
+
+> **v4.8 note (retrieval-cues V — the cue's plan, rival, and
+> reach):** `memory/retrieval-cues.md` Part V (§§46–56) prices
+> five cue legs none of the earlier parts owned and tightens four
+> existing ones: **implementation intentions** — `impl:{cue,
+> action}` on armed intentions binds the cue in advance
+> (near-focal firing, half monitor cost, half doorway dip,
+> rigidity on unplanned cues; Gollwitzer & Sheeran 2006 PM-arm
+> d≈.40) — §5.14; **the Baker paradox** — `name_sem_gap` on the
+> tier-3 name roll makes names lose to the same phonological
+> token used as semantic content (McWeeny et al. 1987; Cohen
+> 1990) — §5.10; **enactment** — `enactive` records carry a
+> self-origin motor cue that rescues sparse-cue recall and is
+> doorway-immune (Roberts et al. 2022 meta) — §5.41;
+> **generative vs direct retrieval** — broad queries enter at
+> period/generic level and descend per-level before emitting the
+> episode (Conway & Pleydell-Pearce 2000; Haque & Conway 2001) —
+> §5.42; **life-script cues** — `milestone` records gain drive on
+> life-scoped queries, positive-skewed (Berntsen & Rubin 2004) —
+> §5.43; **hypermnesia** — spaced bouts grow reminiscence_frac,
+> massed ones don't (Erdelyi & Becker 1974; Roediger & Thorpe
+> 1978) — §5.11 amendment; **cross-cueing** — partner emissions
+> cue the listener at `crosscue_mult` scaled by closeness,
+> strangers ≈0.4 (collaborative inhibition IS the cue gap;
+> Meudell et al. 1995 emergent-memory null honored) — §6.69
+> amendment; **pharmacological state-dependence** — `encodePhys`
+> match adds `sdr_gain` on sparse free recall only, recognition-
+> locked null (Goodwin et al. 1969; Eich 1980) — §5.46;
+> **arousal narrowing at retrieval** — high C.arousal taxes
+> peripheral cue fields and boosts the dominant candidate
+> (Easterbrook 1959; Christianson 1992 — retrieval-side
+> HYPOTHESIS) — §5.47; **TOT aging** — rate up, resolution down,
+> alternates down (Burke et al. 1991) — §5.16; **directed
+> forgetting** — `df` flag starves rehearsal and taxes sparse
+> probes, reversible under rich cues, never deletes (MacLeod
+> 1998; soft-DF only) — §5.48. +18 params in §7; probes
+> P513–P524. All optional, default-neutral.
 
 > **v4.7 note (forgetting-curves V — the channel curves):**
 > `memory/forgetting-curves.md` Part V (§§22–26) splits the decay
@@ -1081,6 +1118,16 @@ MemoryRecord = {
   "source": "event",                  // event|told|imagined|dream —
                                       // dream minted at sleep tick,
                                       // wake-gated (§4.24)
+  // v4.8 additions (retrieval-cues V — cue plan/rival/reach):
+  "encodePhys": "sober",              // sober|intoxicated|sleepdep|
+                                      // caffeinated — pharmacological
+                                      // bucket for the SDR leg (§5.46)
+  "milestone": false,                 // transitional-life-event tag —
+                                      // life-script cue privilege
+                                      // (§5.43, Berntsen & Rubin 2004)
+  "df": false,                        // directed-forget flag — soft,
+                                      // reversible, rehearsal-
+                                      // starvation only (§5.48)
   "accessLog": []                     // optional debug; may be capped
 }
 // v4.7 derived channel weights (not stored): recol_w = mean surviving
@@ -3188,6 +3235,15 @@ tier3 name:         roll vs name_thresh (0.55) on nameStrength
   Mara's name?"); free-recall name production keeps the full
   β_source schedule (~60% loss over 48y). The recall/recognition
   split on the name tier IS the reunion signature (P446).
+- **Baker-paradox gap (v4.8):** the same phonological token is
+  cheaper as semantic content than as a name — tier-3 rolls pay
+  `name_sem_gap` (0.08) when the requested content is the name;
+  descriptive/identity recall about the same person never pays
+  it (McWeeny et al. 1987 homonyms; Cohen 1990 association-
+  poverty account). A name that doubles as meaningful content
+  (nickname, name-as-trait) pays ×0.3. Independent of `tot_rate`
+  — the gap widens the everyday blank window, TOT still gates
+  the agonized one (P514).
 
 ### 5.11 Reminiscence across attempts (new in v1.3)
 
@@ -3202,6 +3258,25 @@ yes, net gain no; Payne 1987: net gain only for recall-mode, high-
 imagery material). RW effect: retelling the story a second time
 plausibly adds a detail — while others have quietly fallen out
 (forgetting-curves.md §7.3).
+
+**v4.8 — the gap gate (RC§51):** `reminiscence_frac` is
+schedule-sensitive:
+
+```
+gap < hyper_gap (0.5d) since last bout on the same query:
+    reminiscence_frac unchanged — massed retrieval mostly
+    re-samples (Roediger & Thorpe 1978 time-on-search null)
+gap ≥ hyper_gap: reminiscence_frac ×= hyper_gain (1.5) —
+    spaced attempts re-enter the §5.42 hierarchy on a different
+    path AND the interim consolidation reshuffled strength;
+    verbatim-rich records get the full leg, gist-only ×0.5
+    (Erdelyi & Becker 1974 pictures-vs-words)
+```
+
+Cumulative yield across spaced bouts CAN now net-gain where the
+eyewitness-paradigm version above stays conservative — the two
+claims coexist because they answer different questions (P519
+locks the metric to cumulative unique fields).
 
 ### 5.12 Transfer-appropriate processing — ops gate (new in v1.4)
 
@@ -3300,6 +3375,27 @@ fail → `pm_vague` flag: urgency without content — high FOK, no plan
     TOT-recur via §5.16
 ```
 
+**v4.8 — implementation intentions (RC§46):** arming may carry
+`impl:{cue, action}` — an if-then plan formed at intention-creation
+(bible trait `planStyle` gates spontaneous formation; the dialogue
+layer may also phrase errands as plans). An impl intention:
+
+```
+cue link:   cueBind_init ×= impl_bind_gain          // 1.5
+fire:       nonfocal impl rolls against
+            pm_monitor_p + impl_focal_lift          // +0.3 — near-
+            // focal; the plan pre-loads the cue (Gollwitzer &
+            // Sheeran 2006 PM-arm d≈.40, not the headline .65)
+monitor:    monitor_cost ×(1 − impl_cost_mult)      // 0.5 — the
+            // cue is armed, vigilance unneeded
+boundary:   doorway_pen (§5.29) halved — consolidated binding,
+            // not held activation
+rigidity:   cues NOT in the plan fire at the ordinary nonfocal
+            rate — delegation is cue-specific (P513)
+whole leg:  × ii_age_gate(age_now) — the v2.8 age gate below
+            (Chasteen 2001 rescue at 65–75, fails ≥76)
+```
+
 PM success = detecting the cue AND recalling the action (Einstein &
 McDaniel multiprocess decomposition); the retrospective leg shares
 ordinary recall's age/load deficits while focal detection stays
@@ -3364,6 +3460,24 @@ resolution cues:   syllable cue ("it starts with 'Mar-…'") resolves at
                    extra semantic description of referent: ≈0
 on resolution:     normal §5.9 reboost; tot_fields[f] cleared
 recognition cue:   resolves at near-young rates (§5.5 unchanged)
+```
+
+**v4.8 — the age gradient (RC§55, Burke et al. 1991):**
+
+```
+tot_rate_eff    ×= (1 + tot_age_k·ageScale)      // ≈0.8 — more
+                // TOTs, stacked on the tot_persist leg above
+tot_resolve_p   ×= (1 − tot_res_age_loss·ageScale)// ≈0.4 — slower
+                // resolution, phonological cueing still works
+                // (James & Burke 2000)
+persistent-alternate interlopers ×= (1 − tot_alt_age_loss·
+                ageScale)                        // ≈0.5 — older
+                // TOTs are EMPTIER, not wronger (fewer wrong-
+                // word intruders — weaker connection, not a
+                // stronger competitor)
+recent-contact  names (lastSeenDay < 30d) resist the age leg
+                ×0.5 — Burke's recently-uncontacted-acquaintance
+                clause (P515)
 ```
 
 A character who blanks on a name at dinner plausibly blanks on the SAME
@@ -3875,6 +3989,134 @@ orderRecall(charId, a, b):
 Emergent: "did she quit before or after the lease fight?" is a
 schema-shaped coin flip at distance even with both memories live.
 P506 requires the dissociation — content intact, order lost.
+
+### 5.41 Enactment — the motor self-cue (new in v4.8)
+
+Records with `enactive` in `encodeOps` carry a self-origin motor
+channel (RC§48; Cohen 1981; Engelkamp & Zimmer 1984; Roberts et
+al. 2022 meta — planning is the primary contributor, movement
+secondary):
+
+```
+sparse-cue conditions (cueMatch_ext < selfinit_bar):
+    score the motor field at w_sensory·enact_selfcue (1.3),
+    origin = self for the §33 selfcue_mult leg — enacted events
+    are self-cuing, less cue-hungry than verbal ones (Nilsson
+    2000 nonstrategic account)
+reenactment at retrieval (C.ops == enactive, action matches):
+    drive × enact_recall_gain (1.15) — reenactment effect,
+    Kormi-Nouri 1995
+boundary: motor channel is immune to §5.29 boundary_cue_drop —
+    the cue walks through the doorway with you (P516)
+```
+
+### 5.42 Generative vs direct retrieval — the search has an entry floor (new in v4.8)
+
+Voluntary `recall` chooses a route by cue strength (RC§49;
+Conway & Pleydell-Pearce 2000; Haque & Conway 2001):
+
+```
+drive_max over scored candidates:
+    ≥ gen_direct_bar (0.7):   DIRECT — emit immediately,
+        latency_min; the strong-cue path, no descent
+    < gen_direct_bar:         GENERATIVE — first emit the best
+        period/generic node (§4.18 period or §4.20 script node,
+        or the record's gist field), then a descent roll per
+        level at hier_descent_p (0.6); each level adds latency
+        and re-scores with the period's fields folded into C
+    descent stall → emit the generic + `vague:true` — "that
+        summer we had the roach problem" is an output, not a
+        failure
+hier_descent_p ×= (1 − 0.3·ageScale) — older characters stall
+    one level up: period answers where episodes exist (the §27
+    self-initiation deficit, one mechanism down)
+ambient scan / involuntary: always direct — §5.7 unchanged
+```
+
+Reconstructions carry `retrievalMode:"direct"|"generative"`.
+P517 locks the ordering: broad cue → period first, episode
+after; strong cue → episode immediately.
+
+### 5.43 Life-script cues — the cultural index (new in v4.8)
+
+Event records may carry `milestone:true` (transitional firsts —
+moves, weddings, births, graduations; world/bible tag). On
+period-scoped or life-story queries (`C.period` set, or the
+§6.34 narrative-self path):
+
+```
+milestone records:  drive += lifecue_gain (0.12)
+    ×(1 + 0.5·valence+)   // positive-skewed — the script
+                          // maintains positive transitions,
+                          // not negative (Berntsen & Rubin
+                          // 2004; Rubin & Berntsen 2003)
+encodeAge in bump window: multiplicative with bump_beta_mult —
+    the script supplies the cue, the bump supplies strength
+non-milestone records: no bonus; fan grows as milestones crowd
+    the bucket (P518)
+```
+
+### 5.44–5.45 — reserved (none; cross-cueing lives at §6.69,
+hypermnesia amended §5.11)
+
+### 5.46 Pharmacological state-dependence — the dissociative leg (new in v4.8)
+
+Records gain `encodePhys` — the pharmacological-state bucket at
+encoding (`sober|intoxicated|sleepdep|caffeinated` — coarse, reuse
+§2 intox flags). At retrieval (RC§53; Goodwin et al. 1969; Eich
+1980 compendium; Weingartner et al. 1976):
+
+```
+voluntary RECALL only, m.encodePhys == C.phys:
+    w_j += sdr_gain (0.08)·(1 − cueMatch_external)
+         ·(1 − 0.5·richness)
+    // Eich erasure: external cues outshine state; Weingartner:
+    // rich records don't need the state leg
+recognition mode: sdr_gain = 0 — locked null (Goodwin's
+    recognition arm showed nothing)
+mismatch: no penalty (unlike sensory_mismatch_pen — the
+    literature shows null, not negative)
+```
+
+### 5.47 Arousal narrowing at retrieval (new in v4.8)
+
+When `C.arousal ≥ arousal_cue_hi` (0.7) during a voluntary bout
+(RC§54; Easterbrook 1959 cue-utilization; Christianson 1992;
+Mather & Sutherland 2011 ABC — retrieval-side HYPOTHESIS):
+
+```
+peripheral/weak fields contribute ×(1 − arousal_cue_narrow)
+    // 0.6 — place, peripheral people, uncued detail
+central fields (gist, topic, self-origin): unaffected
+dominant competitor: top-drive item ×(1 + arousal_dom_gain)
+    // 0.1 — arousal amplifies the leader (ABC)
+content unchanged — this taxes the CUE SET, not the record;
+    the same record recalls fully under calm cues (P522)
+```
+
+### 5.48 Directed forgetting — the soft flag (new in v4.8)
+
+Records gain `df:true` when the character is instructed or
+motivated to forget (RC§56; Bjork 1970; MacLeod 1998; Golding &
+MacLeod 1998 — rehearsal-starvation version, NOT active
+inhibition):
+
+```
+voluntary recall on sparse cues (cueMatch_ext < selfinit_bar):
+    θ += df_pen (0.06)
+rich cues or recognition mode: df_pen ×0.3 — the flag yields
+    to any real cue (reversible by construction)
+rehearsal channels quieted: retell/reminiscence selection
+    ×(1 − df_rehearse_pen)  // 0.6 — the mechanism IS the
+    // starvation; a df record that does get retrieved runs
+    // normal §5.9 and rejoins the ecology
+emotional/trauma records resist ×0.3 (same resistance as §24);
+df never archives or deletes by itself
+```
+
+Distinct from §5.23 `inhib`: TNT accrues a cue-independent
+deficit; df shows NO deficit under rich cueing (P523 sign-locks
+the dissociation).
 
 ---
 
@@ -5619,6 +5861,28 @@ cite-guarded (older-couple magnitudes understudied — HYPOTHESIS
 would predict larger inhibition via search_breadth already being low;
 the knot is left flat until evidence).
 
+**v4.8 — cross-cueing (RC§52):** partner emissions enter the
+listener's context as ext-origin cues weighted by closeness:
+
+```
+cue_j ×= crosscue_mult:  RelEdge < crosscue_close_bar (0.7) →
+    crosscue_far (0.4); ≥ bar → crosscue_close (0.8) —
+    approaches but never reaches selfcue_mult (Andersson &
+    Rönnberg 1997 friends; PMID 41620537 partner cues resemble
+    self-cues). Strangers' cues near-ordinary — this IS the
+    inhibition: collaborative deficit = the cue gap between two
+    organizations (reduced-cue-effectiveness account)
+emergent records (surfaced ONLY via partner cues, unreachable
+    solo): capped at crosscue_emergent_p (0.03) — the Meudell
+    et al. 1992/1995 emergent-memory null during bouts;
+    re-exposure strengthening rides §5.9 and CAN surface on
+    the listener's next SOLO recall (Blumen & Rajaram 2008
+    delayed benefit — free via existing machinery)
+```
+
+Dyad output stays < pooled solo on shared topics (P520 — the
+inhibition is not erased; closeness narrows it, never flips it).
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -6512,6 +6776,33 @@ MemoryParams = {
 //   beta_pm_fired, transg_vivid_mult, vis_fam_floor declared AGE-FLAT
 //   cite-guarded (dream decline with age is handled via dreamRecall
 //   trait jitter + sleepQuality, not a knot).
+// v4.8 additions (retrieval-cues V — the cue's plan, rival, and
+//   reach, retrieval-cues.md §§46–56)
+"impl_bind_gain": 1.5, "impl_focal_lift": 0.3, "impl_cost_mult": 0.5,
+"name_sem_gap": 0.08,                        // §5.10 Baker paradox
+"enact_selfcue": 1.3, "enact_recall_gain": 1.15,   // §5.41
+"gen_direct_bar": 0.7, "hier_descent_p": 0.6,      // §5.42 routes
+"lifecue_gain": 0.12,                          // §5.43 milestone drive
+"hyper_gap": 0.5, "hyper_gain": 1.5,           // §5.11 spaced bouts
+"crosscue_far": 0.4, "crosscue_close": 0.8, "crosscue_close_bar": 0.7,
+"crosscue_emergent_p": 0.03,                   // §6.69 partner cues
+"sdr_gain": 0.08,                              // §5.46 encodePhys leg
+"arousal_cue_hi": 0.7, "arousal_cue_narrow": 0.6,
+"arousal_dom_gain": 0.1,                       // §5.47
+"tot_age_k": 0.8, "tot_res_age_loss": 0.4, "tot_alt_age_loss": 0.5,
+"df_pen": 0.06, "df_rehearse_pen": 0.6,        // §5.48
+// v4.8 locked nulls: sdr_gain = 0 in recognition mode (Goodwin
+//   1969); encodePhys mismatch = 0 cost (Eich 1980 — null, not
+//   penalty); df never archives/deletes and shows no deficit under
+//   rich cues (soft-DF only — the strong inhibitory version stays
+//   §5.23's TNT); milestone must NOT alter accuracy (retrieval
+//   privilege only); impl rigidity: unplanned cues never gain the
+//   impl lift (P513).
+// v4.8 knot notes: hier_descent_p carries its own ×(1−0.3·ageScale)
+//   inline; tot_* age terms carry theirs inline; all other v4.8
+//   params declared AGE-FLAT cite-guarded (crosscue_* is dyad-
+//   property, not age; enact_* claimed age-flat by Roberts 2022
+//   patient arms).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7411,6 +7702,28 @@ not resolved (DEBATED magnitude). P509/P511.
     the event layer to flag own-violation acts; skill `kind` tags on
     the jobs content (bartending floor-presence=cont, POS
     workflow=cog). All snapshot-additive, absent = legacy.
+- v4.8 additions (retrieval-cues.md Part V §§46–56):
+  - Intention field: `impl:{cue, action}` — an if-then plan at
+    arming (§5.14; near-focal firing, half monitor cost, half
+    doorway dip, rigidity on unplanned cues, ×ii_age_gate).
+  - Record fields: `encodePhys` (§5.46 — coarse pharm bucket),
+    `milestone:true` (§5.43 life-script), `df:true` (§5.48
+    directed-forget).
+  - Reconstruction gains `retrievalMode:"direct"|"generative"`
+    (§5.42) and may carry `vague:true` on stalled generative
+    descents — dialogue renders the period-level answer ("that
+    summer…"), not silence.
+  - Context gains `C.phys` (current pharm bucket) and
+    `C.period` (life-period-scoped query marker for §5.43).
+  - jointRecall internals: partner emissions enter the listener's
+    context at `crosscue_mult` by RelEdge (§6.69); no contract
+    signature change.
+  - World-builder hooks: `planStyle` bible trait (0–1 — how often
+    a character spontaneously if-then plans; load on `consc`/
+    `meta_conf`-adjacent pins); `milestone` event tag on
+    transitional firsts; `df` set by the dialogue layer's
+    secrecy/avoidance bookkeeping. All snapshot-additive,
+    absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

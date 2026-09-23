@@ -1321,3 +1321,669 @@ in line.
 - Isolation's fan immunity assumes singleton buckets; two
   isolates sharing a cue key collapse the privilege — intended,
   two oddities in one room stop being odd.
+
+---
+
+# PART V (v50, 2026-09-23) — the cue's plan, rival, and reach
+
+Parts I–IV priced cue fields, cue mechanics, cue ownership, and the
+retrieval moment. Part V prices what was left: the cue a character
+*manufactures for their future self* (§46), the cue that loses to
+its own homonym (§47), the cue the body carries (§48), the two
+routes a search can take (§49), the culturally supplied cue menu
+(§50), what SPACED repetition of the same search yields (§51), the
+partner's cues — why they mostly fail and when they don't (§52),
+the pharmacological version of state-dependence (§53), arousal at
+the moment of search (§54), why older speakers blank on names
+(§55), and the reversible "forget it" flag (§56). Spec changes
+land in `memory-model-spec.md` v4.8; probes P513–P524.
+
+## 46. Implementation intentions — the cue you arm in advance
+
+§5.14 prices whether an armed intention's cue fires, and §9's
+`cueBind` lets sleep consolidate the link. What neither models is
+the *formation act*: Gollwitzer's program shows the same intention
+with and without an if-then plan is a different machine.
+
+- **Gollwitzer (1999)** Am Psych 54:493 — "implementation
+  intentions: strong effects of simple plans": forming "When
+  situation X arises, I will do Y" delegates initiation to the
+  specified cue; the cue becomes chronically accessible and the
+  response partially automatized.
+- **Gollwitzer & Sheeran (2006)** meta, 94 tests — goal attainment
+  d = .65 overall; the PROSPECTIVE-MEMORY subset (62 tests) is
+  d ≈ .40 — smaller but reliable, and mechanized exactly as cue
+  accessibility + automatic initiation.
+- **Chasteen, Park & Schwarz (2001)** Psych Sci 12:457 — older
+  adults benefit as much or more: the plan substitutes for the
+  self-initiated retrieval §27 shows aging removes.
+- **[CONSENSUS on effect and mechanism — the PM-specific effect
+  size is the honest number, not the headline .65.]**
+
+Model consequence (§5.14 amendment): `rememberIntention` /
+`armIntention` gain an optional `impl:{cue, action}` — an if-then
+plan formulated at arming (bible trait `planStyle` gates how often
+a character spontaneously forms them; the dialogue/request layer
+can also phrase errands as plans). An impl intention:
+
+```
+cue link:   cueBind_init ×= impl_bind_gain        // ≈1.5
+fire:       nonfocal impl intentions roll against
+            pm_monitor_p + impl_focal_lift        // ≈+0.3 —
+            near-focal, because the plan PRE-loads the cue;
+            monitor_cost (§26) drops ×(1 − impl_cost_mult)  // ≈0.5 —
+            the cue is armed, no vigilance needed
+exemption:  doorway_pen (§5.29) halved — the cue-binding is
+            consolidated, not just held
+cost:       an impl plan fixes ONE cue — cues not in the plan
+            fire at the ordinary nonfocal rate (rigidity:
+            Gollwitzer's delegation is cue-specific)
+```
+
+RW texture: "when I pass the mailbox I'll drop the rent check"
+survives the doorway and the busy afternoon; "I should remember
+to water her plants" does not. The character who narrates their
+own if-thens out-loud plans — that phrasing is the trait.
+
+## 47. The Baker paradox — the name tier loses to its own homonym
+
+§5.10's person cascade ends at a name tier that already carries
+`tot_rate` and `name_fan`. The deeper asymmetry: names are harder
+than person-semantic facts *even when the token is identical*.
+
+- **McWeeny, Young, Hay & Ellis (1987)** Br J Psych 78:143 —
+  subjects learn face–name and face–occupation pairs using
+  HOMONYMS (Mr. Baker vs. baker): surnames recalled far worse
+  than occupations with context, frequency, and related-item
+  cuing all equated.
+- **Cohen (1990)** Br J Psych 81:287 — names are semantically
+  thin: meaningless possessions are as hard as names; making the
+  OCCUPATION meaningless erases the name deficit; meaningful
+  items are accessed before meaningless ones. The name deficit
+  is an association-poverty deficit, not a word-class deficit.
+- **Cohen & Burke (1993)** and the plausible-phonology hypothesis
+  (Brédart 1993, Br J Psych 84:51): a name tolerates almost any
+  phonology — "Dreaner" is a plausible surname, not a plausible
+  job — so name retrieval can't use semantic constraints to
+  prune candidates.
+- **[CONSENSUS on the phenomenon and the association-poverty
+  account; serial-access vs interactive-activation mechanics
+  DEBATED (Stanhope & Cohen 1993).]**
+
+Model consequence (§5.10 amendment): the cascade is ordered, but
+the same PHONOLOGICAL token is cheaper as semantic content than
+as a name. Implement as a name-tier-specific penalty, separate
+from `tot_rate`:
+
+```
+name_thresh_eff = name_thresh + name_sem_gap        // ≈0.08
+    // applied only when the requested content is the name —
+    // descriptive recall about the same person (knowsTopics,
+    // identity fields) never pays it
+    // a name whose phonology doubles as meaningful content
+    // (a nickname, a name that IS their trait — "Rusty" for the
+    //  redhead) drops the gap: name_sem_gap → name_sem_gap·0.3
+TOT already gates the failure mode; name_sem_gap widens the
+    window in which tier-3 fails — the everyday blank, not the
+    agonized TOT
+```
+
+RW texture: the character who can tell you everything about the
+woman at the produce stall — her feud with the landlord, her
+jokes — and cannot produce her name. Not a TOT, not a decay
+event: the name was always the weakest field in the model.
+
+## 48. Enactment — the motor cue that needs no scene
+
+`encodeOps` already distinguishes `enactive` records (§5.12);
+§33's self-cue advantage is verbal. The action-memory literature
+adds a cue that rides the BODY, not the place.
+
+- **Cohen (1981)**; **Engelkamp & Zimmer (1984)** — subject-
+  performed tasks (SPTs: "roll the marble," performed at study)
+  are recalled better than verbal-task items; a third "motor
+  program" encodes independently of verbal/visual channels.
+- **Roberts et al. (2022) meta** (Psych Bulletin 148:1 —
+  systematic review, behavioral + neuroimaging + patient
+  studies): the enactment effect is robust across test formats,
+  retention intervals, instruction types; primary contribution
+  is ACTION PLANNING, secondary is the movement itself; even
+  motor-impaired patients benefit.
+- **Reenactment at test** (Engelkamp tradition; Kormi-Nouri 1995):
+  recognition improves when the test item is re-enacted —
+  motor output is itself a cue.
+- **Nonstrategic encoding** (Nilsson 2000 review): SPT advantage
+  survives without strategy — enacted items are self-cuing,
+  less cue-hungry than verbal ones.
+- **[CONSENSUS on direction and on the planning>movement
+  decomposition; size of the self-cue advantage vs rich external
+  cues is our extrapolation.]**
+
+Model consequence (new §5.41): records whose `encodeOps`
+includes `enactive` carry a self-origin motor channel:
+
+```
+sparse-cue conditions (cueMatch_ext < selfinit_bar):
+    enactive records score the motor field at
+    w_sensory · enact_selfcue                // ≈1.3 —
+    // enactment is its own context; needs no reinstatement
+    origin = self for the §33 selfcue_mult leg
+reenactment at retrieval (C.ops == enactive AND the action
+    matches): recall drive × enact_recall_gain   // ≈1.15
+immune to boundary_cue_drop (§5.29): the cue is the body,
+    it walks through the doorway with you
+```
+
+RW texture: the tenant who can't recall the landlord's voicemail
+re-enacts the motion and remembers where they put the key —
+procedural echo of the event, not a place cue. And characters
+who DO things remember their own deeds under sparse prompting
+better than anything they only heard about.
+
+## 49. Generative vs direct retrieval — the search has an entry floor
+
+The spec's recall is one scored competition (§5.22 ratio rule).
+Conway's model says there are two routes into the corpus and
+they feel different.
+
+- **Conway & Pleydell-Pearce (2000)** Psych Rev 107:261 — the
+  autobiographical knowledge base is hierarchical: lifetime
+  periods → general events → event-specific knowledge. Voluntary
+  recall is GENERATIVE: control processes shape cues iteratively,
+  descending until a specific episode stabilizes; involuntary
+  recall is DIRECT: the cue lands on the episode with no search.
+- **Haque & Conway (2001)** Memory 9 — probe protocols early in
+  retrieval show ABSTRACT knowledge dominating, event-specific
+  knowledge arriving late; some retrievals arrive "very fast and
+  full" — direct retrieval observed inside a voluntary paradigm.
+- **[CONSENSUS on the hierarchy and the two routes; the
+  voluntary/involuntary mapping is DEBATED (Barzykowski &
+  Staugaard 2016 — some involuntary memories are also
+  constructed).]**
+
+Model consequence (new §5.42): a voluntary `recall` context
+lands at a level set by cue specificity:
+
+```
+drive_max over corpus:
+    ≥ gen_direct_bar (≈0.7):   DIRECT — emit immediately,
+        latency_min; the strong-cue path, no descent needed
+    < gen_direct_bar:          GENERATIVE — first pass returns
+        the best PERIOD/GENERIC node (a §4.18 period or §4.20
+        script node, or the record's gist field), then a descent
+        roll per level at hier_descent_p (≈0.6), each level
+        adding latency and re-scoring with the accumulated
+        context (the period's own fields join C)
+    descent stall → emit the generic + "vague" flag
+        // "that summer we had the roach problem…" IS a
+        // legitimate output, not a failure
+age: hier_descent_p ×(1 − 0.3·ageScale) — older characters
+    stall one level up: the answer exists, it arrives as the
+    story of a period rather than the episode (self-initiation
+    §27 is the same deficit one mechanism down)
+ambient scan / involuntary: always direct — §5.7 unchanged
+```
+
+RW texture: "tell me about your twenties" returns a period, then
+— if the descent rolls well — the apartment, then the night.
+Interrogators who want the episode must supply specific cues
+(gen_direct_bar) or sit through the descent. §5.30's
+interviewMode free-pass step gets this for free: narrative-first
+questioning rides the hierarchy down.
+
+## 50. Life-script cues — the culture supplies the index
+
+§4.18 chapters the corpus into periods; §6.34 gives the self
+anchors. Berntsen & Rubin's program shows the retrieval of
+important events is guided by a culturally shared TIMETABLE.
+
+- **Berntsen & Rubin (2004)** Mem&Cog 32:427 — three converging
+  demonstrations: age norms concentrate transitional events in
+  the 15–30 window; 1,485 respondents date their most important
+  POSITIVE events to that window (negative events show no bump);
+  hypothetical-life scripts predict which event types get
+  recalled at all. Life scripts "structure retrieval processes
+  and spaced practice."
+- **Rubin & Berntsen (2003)** Mem&Cog 31:886 — life scripts
+  maintain memories of highly positive, not negative, events;
+  the script is a retrieval scaffold, not a pleasantness filter
+  on experience.
+- **[CONSENSUS that a culturally shared transitional-event
+  index exists and biases recall toward the bump window;
+  whether it EXPLAINS the bump vs piggybacks on it is DEBATED.]**
+
+Model consequence (new §5.43): event records gain a
+`milestone:true` tag (world/bible supplies: firsts, weddings,
+moves, graduations, births — transitional events). On queries
+scoped to a life period or a life story (C.period set, or the
+§6.34 narrative-self "tell your life" path):
+
+```
+milestone records:  drive += lifecue_gain        // ≈0.12
+    // stronger for positive valence: ×(1 + 0.5·valence+)
+    // the script's asymmetry — positive transitions over-recall,
+    // negative ones ride ordinary drive
+encodeAge in bump window (bump_lo..bump_hi): stack is
+    multiplicative with the existing bump_beta_mult retention
+    — the script supplies the CUE, the bump supplies the strength
+non-milestone records in the same query pay no penalty — but
+    fan grows: the milestones crowd the bucket
+```
+
+RW texture: asked to recount their life, every character reaches
+for the same skeleton — first apartment, the wedding, the
+move — and the rest of the corpus waits for a cue the script
+doesn't index. It is also a SOCIAL cue: characters cue each
+other with script terms ("when did you move here?") that work
+better than date probes (§6.15) precisely because the script
+pre-indexed the target.
+
+## 51. Hypermnesia — the second dig finds what the first dropped
+
+§5.11 provides reminiscence (new fields surfacing on successive
+attempts) but explicitly does NOT require net gain. The
+hypermnesia literature says spaced attempts CAN net-gain, and
+prices the conditions.
+
+- **Erdelyi & Becker (1974)** Cog Psych 6:159 — repeated forced
+  recall of PICTURES improves across trials ("hypermnesia");
+  words stay flat; interpolated thinking intervals enhance it.
+- **Roediger & Thorpe (1978)** Mem&Cog 6:554 — both materials
+  show trial-over-trial gains, but cumulative unique items do
+  NOT exceed one equal-length recall period: hypermnesia is
+  largely a time-on-search effect; gains continue even after
+  long recall — "subjective retrieval cues" keep working.
+- **Erdelyi, Finks & Feigin-Pfau (1989)** JEP:LMC 15:275 —
+  hypermnesia OVER DAYS: with imagery/material support, net
+  recall grows across days — the Ebbinghaus curve locally
+  inverted for cumulative yield.
+- **Otani & Hodge (1991)** review; **Payne (1987)** review —
+  conditions: imageable material, repeated tests, spaced
+  intervals; losses between attempts are real too (reminiscence
+  vs forgetting race, gains must exceed).
+- **[CONSENSUS that cumulative yield grows with spaced attempts
+  on rich material; whether net-recall-per-moment exceeds a
+  single long search is DEBATED — we adopt the cumulative
+  metric, which is what a day-scale sim observes.]**
+
+Model consequence (§5.11 amendment): the reminiscence leg is
+gap-sensitive:
+
+```
+same-context bout, gap < hyper_gap (≈0.5d):
+    reminiscence_frac unchanged (≈0.15) — massed retrieval
+    mostly re-samples; Roediger & Thorpe's time-on-search
+spaced bout, gap ≥ hyper_gap:
+    reminiscence_frac ×= hyper_gain            // ≈1.5
+    // new fields AND new linked records surface — each spaced
+    // attempt re-enters the hierarchy (§5.42) on a different
+    // path; the night's consolidation (§4.6) has also reshuffled
+    // strength, changing what the same cues reach
+verbatim-rich / imageable records: the leg applies at full;
+    gist-only/generic records: ×0.5 (Erdelyi & Becker's
+    pictures-vs-words asymmetry)
+```
+
+RW texture: the third retelling of the vacation — weeks
+apart — genuinely surfaces the moment the first two didn't;
+asking twice in one evening does not. "Sleep on it and ask
+again" is a real interrogation strategy (and §5.30 step 4's
+delayed second pass already banks on it).
+
+## 52. Cross-cueing — the partner's cue is a WORSE cue, usually
+
+§6.69's collaborative inhibition says dyads recall less than two
+solos pooled. The cue literature explains WHY — and finds the
+one condition where the partner helps.
+
+- **Reduced cue effectiveness** (Andersson & Rönnberg 1995/1996;
+  Andersson, Hitch & Meudell 2006): a partner's recall outputs
+  are retrieval cues for YOU — but they are someone else's cues,
+  spoken, ill-timed, and they arrive mid-search where spoken
+  part-list cues do the most damage (Andersson, Hitch &
+  Meudell's timing manipulation: distributed spoken cues
+  inhibit MORE than visual pre-cues — §6 part-list made
+  temporal). The dyad's deficit IS the cue gap between two
+  people's organizations.
+- **Cross-cueing null** (Meudell, Hitch & Boyle 1995, QJEP
+  48:141; Meudell, Hitch & Kirby 1992): directly hunting for
+  "emergent" memories the partner unlocks — category-cue
+  manipulations included — repeatedly found NONE during the
+  collaborative bout itself. Cross-cueing benefits, where
+  found, appear in LATER individual recall (Blumen & Rajaram
+  2008), after the interference is gone.
+- **The exception is intimacy**: friends help each other where
+  strangers can't (Andersson & Rönnberg 1997, Eur J Cog Psych
+  9:273 — friends' cues approach self-cue quality); partner-
+  generated cues are more idiosyncratic/personalized than
+  strangers' and more effective (PMID 41620537 — couples'
+  cues resemble self-generated cues).
+- **[CONSENSUS: partner cues are on-average worse than own cues
+  (this IS collaborative inhibition); CONSENSUS that close
+  partners narrow the gap; the emergent-memory claim is
+  a long-standing NULL during bouts — we adopt it.]**
+
+Model consequence (§6.69 amendment — jointRecall internals):
+
+```
+during jointRecall, partner emissions enter the listener's
+    context as cues at origin = ext, but weighted:
+        cue_j ×= crosscue_mult(closeness)
+        stranger/acquaintance: ≈0.4 — near-ordinary ext cue,
+            plus the §5.8 part-list damage on the listener's
+            unspoken fields (already modeled — this is WHY
+            dyads lose)
+        close partner (RelEdge ≥ crosscue_close, ≈0.7):
+            ≈0.8 — approaches selfcue_mult without reaching it
+            // the couple who finishes each other's memories is
+            // real; the stranger who "jogs your memory" mostly
+            // interrupts it
+emergent records (listener records surfaced ONLY via partner
+    cues, unreachable solo): permitted at crosscue_emergent_p
+    (≈0.03) — rare per the Meudell nulls; the honest behavior
+    is that nothing new surfaces DURING the bout but the
+    re-exposure leaves a §5.9-strengthened trace that CAN
+    surface on the listener's next solo recall (Blumen &
+    Rajaram's delayed effect — free via existing machinery)
+```
+
+RW texture: the married pair reconstructing the burglary really
+do pull each other back into it; two near-strangers doing the
+same exercise mostly overwrite each other's search sets. The
+mechanic rewards casting pairs who share history — and prices
+the police-interview-by-committee as the worst cuing ecology.
+
+## 53. Pharmacological state-dependence — the dissociative leg
+
+§4 mood-state-dependence (Eich meta) models valence-matched
+retrieval. The pharmacological version is older and stranger:
+what was encoded intoxicated can be MORE retrievable
+intoxicated — despite being globally weaker.
+
+- **Goodwin, Powell, Bremer, Hoine & Stern (1969)** Science
+  163:1358 — alcohol state-dependent effects in man: recall
+  transfer better intoxicated→intoxicated than
+  intoxicated→sober; RECOGNITION unaffected by state change.
+  The dissociation is real and modality-specific from the
+  first demonstration.
+- **Eich (1980)** Mem&Cog 8:157 — the compendium of 27 human
+  state-dependence studies: SDR appears in FREE RECALL and
+  evaporates under cued recall — state is a WEAK cue,
+  out-shone by any real one (the same erasure rule §4 found
+  for mood: Mecklenbräuker & Hager 1984).
+- **Weingartner, Adefris, Eich & Murphy (1976)** JEP:HLM 2:83 —
+  dissociation strongest for LOW-imagery items: state cues
+  help only what lacks richer cues to lean on.
+- **[CONSENSUS that drug-state SDR exists, is small, is
+  recall-specific (recognition-null), and is erased by
+  external cues — the three bounds are the design.]**
+
+Model consequence (new §5.46): records gain `encodePhys` —
+the pharmacological state bucket at encoding
+(sober / intoxicated / sleepdep / caffeinated — coarse, 3–4
+buckets, reuse §2's existing intox flags). At retrieval:
+
+```
+if m.encodePhys == C.phys AND voluntary RECALL mode:
+    w_j += sdr_gain                       // ≈0.08 — small by law
+    ×(1 − cueMatch_external)              // Eich's erasure:
+                                          // external cues outshine
+    ×(1 − 0.5·richness)                   // Weingartner: rich
+                                          // records don't need it
+recognition mode: sdr_gain = 0            // Goodwin's null,
+                                          // locked
+mismatch costs nothing (unlike sensory_mismatch_pen — the
+    literature shows no penalty arm; null, not negative)
+```
+
+RW texture: the regular who was told something at the bar
+retrieves it AT the bar again — half from the place (§2), a
+slice from the state. The drunk story resurfaces drunk. And
+the sim's drug-state bookkeeping finally reaches the retrieval
+side, matching the encoding side it already pays.
+
+## 54. Arousal at the moment of search — the retrieval-side narrowing
+
+§2's `arousal_narrowing` and `abc_gain` narrow ENCODING to the
+central gist; §35 prices stress-at-test as a θ penalty. The
+Easterbrook argument is broader: arousal narrows the usable
+cue range itself — and nothing in the spec yet narrows what
+a panicked searcher can use.
+
+- **Easterbrook (1959)** — cue-utilization range narrows with
+  arousal; at high arousal only central, high-drive cues
+  register.
+- **Christianson (1992)** Psych Bulletin 111:284 — emotional
+  stress and eyewitness memory: recall concentrates on central
+  details; peripheral details fall away. (His review centers
+  encoding; the retrieval-side extension is our modeling
+  hypothesis — the same cue-range logic applies to the search
+  set.)
+- **Mather & Sutherland (2011)** — arousal-biased competition:
+  arousal amplifies whatever is already dominant and suppresses
+  the rest — in search terms, the leader gets stronger cues,
+  the field gets quieter.
+- **[CONSENSUS on the encoding-side phenomenon and the ABC
+  principle; retrieval-side cue narrowing is our HYPOTHESIS —
+  bounded small and sign-locked by P522.]**
+
+Model consequence (new §5.47): when `C.arousal ≥ arousal_cue_hi`
+(≈0.7) during a voluntary bout:
+
+```
+peripheral/weak fields contribute ×(1 − arousal_cue_narrow)
+                                  // ≈0.6 — place, peripheral
+                                  // people, uncued detail
+central fields (gist, topic, self-origin): unaffected
+dominant competitor boost: top drive item ×(1 + arousal_dom_gain)
+                                  // ≈0.1 — ABC: arousal amplifies
+                                  // the leading candidate
+result: an interrogation DURING the crisis returns the wound
+    and the weapon — never the bystander's shoes; calm recall
+    later reaches the periphery (and §35's lag means later
+    is ALSO impaired — a real double-bind for the witness)
+```
+
+## 55. TOT aging — the phonology leg dies first
+
+§5.16 made TOTs stateful; §5.10 already noted name TOT is the
+commonest TOT. The diary data add the age gradient and a
+surprising sign on the interlopers.
+
+- **Burke, MacKay, Worthley & Wade (1991)** JML 30:542 — diary
+  + lab: TOT frequency increases with age; TOT targets are
+  infrequent words and PROPER NAMES of recently-uncontacted
+  acquaintances, especially for older adults; phonological
+  priming resolves; and OLDER adults show FEWER persistent
+  alternates (wrong-word intruders) than young — the aged
+  deficit is a weaker connection, not a stronger competitor.
+- **Maylor (1990)**; **James & Burke (2000)** — age-TOT
+  replication; phonological cueing resolves aged TOTs, keeping
+  the syllable-leg valid across the lifespan.
+- **[CONSENSUS on frequency-up, alternates-down with age.]**
+
+Model consequence (§5.16 amendment):
+
+```
+tot_rate_eff = tot_rate · (1 + tot_age_k·ageScale)   // ≈0.8 —
+              // stacked on the existing tot_persist leg
+tot_resolve_p ×= (1 − tot_res_age_loss·ageScale)     // ≈0.4 —
+              // resolution cues still work, slower
+persistent-alternate interloper rate ×= (1 − tot_alt_age_loss·
+              ageScale)                             // ≈0.5 —
+              // old TOTs are emptier, not wronger
+interaction: recently-contacted names (lastSeenDay < ~30d)
+              resist the age leg ×0.5 — Burke's "recently
+              uncontacted acquaintances" clause
+```
+
+RW texture: the 70-year-old blanks on the neighbor's name
+twice as often — and, curiously, less often blurts the WRONG
+name. An empty mouth, not a wrong answer.
+
+## 56. Directed forgetting — "forget it" is a real flag, but a soft one
+
+§24's TNT is effortful suppression WITH the cue present.
+Directed forgetting is the coarser cousin: be told to forget,
+and the item becomes harder to retrieve — mostly because it
+stops being rehearsed.
+
+- **Bjork (1970/1972)** — list-method/item-method DF
+  dissociation: forget-instructed items show reduced recall;
+  mechanisms differ (list-method: context segregation;
+  item-method: selective rehearsal of remember-items).
+- **MacLeod (1998)** chapter; **Golding & MacLeod (1998)**
+  — DF effects are largely retrieval-side inaccessibility,
+  reversible: recognition is far less impaired than recall,
+  and forget-cues lose power with reminders/reinstating
+  context.
+- **[CONSENSUS that DF is real, modest, recall-weighted, and
+  largely reversible — the mechanism (rehearsal-starvation vs
+  active inhibition) is DEBATED; we implement the soft version
+  and keep §24's TNT as the strong one.]**
+
+Model consequence (new §5.48): event records gain `df:true`
+when the character is instructed/motivated to forget (dialogue
+layer: "don't tell anyone — forget this happened," or self-
+directed avoidance of a topic — distinct from §4.12 suppression,
+which is cue-specific steering):
+
+```
+voluntary recall on sparse cues (cueMatch_ext < selfinit_bar):
+    θ += df_pen                          // ≈0.06 — modest
+rich cues or recognition mode: df_pen → ×0.3 — the flag
+    yields to any real cue; the memory was never inhibited,
+    only unrehearsed
+rehearsal channels quieted: retell/reminiscence picks the
+    record at ×(1 − df_rehearse_pen) ≈0.6 — the mechanism IS
+    the starvation; a df record that DOES get retrieved runs
+    normal §5.9 and rejoins the ecology
+never: df never reaches archived/deleted status, never applies
+    to trauma/emotional records (×0.3 — same resistance as §24)
+```
+
+RW texture: "forget I said anything" works about as well as it
+does for people — the secret doesn't die, it just stops being
+rehearsed, and the first decent cue brings it all back.
+
+## 57. Cue hierarchy — v50 additions to the §43 table
+
+| Cue/mechanism | v50 status |
+|---|---|
+| impl intention | NEW — if-then plan binds cue, near-focal, half doorway cost (§46) |
+| name vs semantic | NEW — same-token asymmetry, name_sem_gap on tier-3 (§47) |
+| motor/enactive | NEW — self-origin body cue, sparse-cue rescue, doorway-immune (§48) |
+| retrieval route | NEW — direct vs generative descent; vague-first outputs (§49) |
+| life-script | NEW — milestone drive bonus on life queries, positive-skewed (§50) |
+| spaced repetition of search | AMENDED — reminiscence_frac gap-gated (§51) |
+| partner cues | NEW — crosscue_mult by closeness; emergent rare; delayed benefit free (§52) |
+| drug-state | NEW — encodePhys match leg, recall-only, erased by ext cues (§53) |
+| retrieval arousal | NEW — peripheral cue narrowing + dominant boost (§54) |
+| TOT age | AMENDED — rate up, resolution down, alternates down (§55) |
+| df flag | NEW — rehearsal-starvation penalty, reversible, sparse-cue-only (§56) |
+
+## 58. Validation probes P513–P524 (v50 suite)
+
+- **P513 implementation intention (MUST):** `impl` nonfocal
+  intentions fire ≥0.75 (vs plain nonfocal ≤0.6 under matched
+  distraction), pay ≤50% monitor_cost, and lose ≤half the
+  doorway dip; cues NOT in the plan fire at ordinary nonfocal
+  rates (rigidity). Gollwitzer & Sheeran 2006 (PM-arm d≈.40).
+- **P514 Baker paradox (MUST):** at matched token and exposure,
+  name-tier recall is measurably worse than occupation/identity
+  recall of the same person (Cohen 1990); meaningful-name
+  exceptions narrow the gap (McWeeny et al. 1987).
+- **P515 TOT aging (MUST):** tot_rate_eff rises and
+  tot_resolve_p falls monotonically with ageScale; persistent-
+  alternate rate FALLS with ageScale; recent-contact names
+  resist (Burke et al. 1991).
+- **P516 enactment (SHOULD):** enactive-ops records out-recall
+  verbal-ops records under sparse cues; reenacted retrieval
+  adds a measurable gain; enactive cues survive locShift
+  boundaries that drop peripheral context (Roberts et al.
+  2022; Kormi-Nouri reenactment).
+- **P517 generative descent (SHOULD):** a broad period-scoped
+  query emits the period/generic node FIRST and a specific
+  episode only after descent rolls; a ≥gen_direct_bar cue
+  emits the episode immediately with lower latency; stall →
+  vague-flagged generic, not silence (Haque & Conway 2001).
+- **P518 life-script (SHOULD):** milestone-positive records
+  over-recall on life-story queries vs matched non-milestone
+  positives; the milestone advantage is larger inside the
+  bump window; negative milestones gain less than positive
+  (Berntsen & Rubin 2004 asymmetry).
+- **P519 hypermnesia (MUST):** cumulative unique verbatim
+  fields across two bouts spaced ≥hyper_gap exceed a single
+  bout's yield for verbatim-rich records; massed same-day
+  second bouts do NOT; gist-only records show the weaker
+  pictures-vs-words asymmetry (Erdelyi & Becker 1974;
+  Roediger & Thorpe 1978).
+- **P520 cross-cueing (SHOULD):** close-partner emissions cue
+  listener records at measurably higher rates than stranger
+  emissions at matched overlap; solo-unreachable records
+  surface during the bout rarely (≤crosscue_emergent_p
+  tolerance) but show post-bout strengthening — dyadic
+  output still ≤ pooled solo (§6.69 must hold — inhibition
+  not erased, Coman/Meudell nulls honored).
+- **P521 pharmacological SDR (SHOULD):** encodePhys-matched
+  recall beats mismatched on sparse free recall; the
+  advantage vanishes under rich external cues AND under
+  recognition mode (locked null — Goodwin 1969); mismatch
+  never costs (no penalty arm — Eich 1980).
+- **P522 arousal narrowing (SHOULD):** under C.arousal ≥
+  arousal_cue_hi, peripheral-field contribution to emitted
+  reconstructions falls ≥50% vs calm retrieval while central
+  fields hold; the effect is at CUE level (search set), not
+  content erasure — the same record fully recalls under calm
+  cues (Christianson 1992 logic, retrieval-side flagged
+  HYPOTHESIS).
+- **P523 directed forgetting (MUST):** df-flagged records
+  show reduced sparse-probe recall vs controls AND recover
+  under rich cueing/recognition (reversibility — MacLeod);
+  they never delete/archive from the flag alone; emotional
+  records resist; distinct from §5.23 inhib — df shows NO
+  independent-probe deficit under rich cues (Golding &
+  MacLeod 1998).
+- **P524 cue-ecology regression (MUST):** with all v4.8 legs
+  active, P9 (unencoded cue = 0), P10 (saturation <1.6×),
+  and P16 (recognition-failure cases) still pass — new cue
+  channels must route through §5.1/§5.2, never around them.
+
+## 59. Honest limits (v50 additions)
+
+- impl_* constants adopt the PM-arm effect size (d≈.40), not
+  the headline goal-attainment .65 — the PM arm is the
+  relevant paradigm; rigidity is consensus-shaped but
+  unfitted.
+- name_sem_gap is calibrated to the homonym paradigms'
+  direction, not a fitted magnitude — name difficulty varies
+  with familiarity, and the gap should shrink on high-contact
+  persons via existing exposure floors rather than a second
+  parameter.
+- enact_selfcue assumes the game can flag `encodeOps`
+  enactive at runtime; the literature's SPT list paradigm is
+  far from autobiographical action memory — flagged as a
+  HYPOTHESIS extension beyond the lab.
+- gen_direct_bar/hier_descent_p operationalize Conway's
+  hierarchy in one draw each — the real model iterates; our
+  single-roll descent is the cheap version, flagged.
+- lifecue_gain is a directional adoption of the script result;
+  the "positive-only" valence asymmetry is the reliable half.
+- hyper_gain measures CUMULATIVE yield across spaced bouts —
+  Roediger & Thorpe's null on equal-time comparisons is
+  honored by leaving massed bouts unchanged.
+- crosscue_mult's closeness scaling is our operationalization
+  of the friends/partner results; the emergent-memory rate is
+  deliberately near the Meudell null.
+- sdr_gain applies to coarse pharmacological buckets; finer
+  state granularity is unsupported — the literature's effects
+  are small even at gross state changes.
+- §54's retrieval-side arousal narrowing is the weakest
+  citation in the part (encoding-side literature, retrieval-
+  side hypothesis) — bounded at ≈0.6 and sign-locked by P522.
+- tot_age_k is anchored to Burke's diary frequencies
+  qualitatively; the alternates-down arm is adopted verbatim.
+- df_pen is the soft DF (rehearsal-starvation) version; the
+  stronger inhibitory claims are intentionally NOT adopted —
+  §24's TNT is the strong leg already.
+

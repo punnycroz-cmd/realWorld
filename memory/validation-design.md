@@ -3797,3 +3797,125 @@ structure-MUST counted above).
   deactivation); Bugg & Scullin 2013 (commission-error aftereffects).
 - Standing, Conezio & Haber 1970 (*Percept. Psychophys.* 8:73);
   Standing 1973 (*LM&C* 1:757 — 10k-picture recognition).
+
+## 87. New probes P513–P524 (v50 suite — retrieval-cues V,
+## the cue's plan, rival, and reach; retrieval-cues.md Part V,
+## spec v4.8)
+
+- **P513 implementation intention (MUST):** `impl`-armed nonfocal
+  intentions fire ≥0.75 under matched distraction (vs plain
+  nonfocal ≤0.6 — P129 must still hold), pay ≤50% monitor_cost,
+  and lose ≤half the §5.29 doorway dip; cues NOT in the plan fire
+  at ordinary nonfocal rates (rigidity sign-lock). Whole leg
+  scales with ii_age_gate: ≥76 benefit collapses (Chasteen 2001;
+  Kretschmer-Trendowicz 2009). Gollwitzer & Sheeran 2006 PM-arm
+  d≈.40.
+- **P514 Baker paradox (MUST):** at matched token and exposure,
+  tier-3 name production is measurably worse than
+  occupation/identity recall of the same person (Cohen 1990);
+  meaningful-token names narrow the gap ×~0.3 (McWeeny et al.
+  1987 homonym design — same phonology, different content type).
+- **P515 TOT aging (MUST):** tot_rate_eff rises and tot_resolve_p
+  falls monotonically with ageScale; persistent-alternate
+  interloper rate FALLS with ageScale (Burke et al. 1991's
+  emptier-not-wronger signature); names contacted within 30d
+  resist the age leg ×~0.5.
+- **P516 enactment (SHOULD):** enactive-ops records out-recall
+  verbal-ops records under sparse cues; reenacted retrieval adds
+  a measurable gain; enactive cue legs survive locShift
+  boundaries that drop peripheral context (Roberts et al. 2022;
+  Kormi-Nouri 1995 reenactment).
+- **P517 generative descent (SHOULD):** a period-scoped broad
+  query emits the period/generic node first and a specific
+  episode only after descent rolls; a ≥gen_direct_bar cue emits
+  the episode immediately at lower latency; a stalled descent
+  emits a `vague:true` generic, not silence
+  (Haque & Conway 2001 early-vs-late protocol ordering).
+- **P518 life-script (SHOULD):** milestone-positive records
+  over-recall on life-story queries vs matched non-milestone
+  positives; the milestone advantage is larger inside the bump
+  window; negative milestones gain measurably less than positive
+  (Berntsen & Rubin 2004 valence asymmetry). Accuracy of
+  retrieved content is unaffected — retrieval privilege only.
+- **P519 hypermnesia (MUST):** cumulative unique verbatim fields
+  across two bouts spaced ≥hyper_gap exceed a single bout's
+  yield for verbatim-rich records; massed same-day second bouts
+  do NOT (Roediger & Thorpe 1978 time-on-search null honored);
+  gist-only records show the weaker pictures-vs-words asymmetry
+  (Erdelyi & Becker 1974).
+- **P520 cross-cueing (SHOULD):** close-partner emissions (RelEdge
+  ≥crosscue_close_bar) cue listener records at measurably higher
+  rate than stranger emissions at matched overlap; solo-
+  unreachable records surface during the bout ≤crosscue_emergent_p
+  tolerance (Meudell et al. 1995 null honored) but show post-bout
+  §5.9 strengthening; jointRecall dyad output stays < pooled solo
+  — closeness narrows, never flips.
+- **P521 pharmacological SDR (SHOULD):** encodePhys-matched recall
+  beats mismatched on sparse free recall; the advantage vanishes
+  under rich external cues (Eich 1980 erasure) AND under
+  recognition mode (Goodwin et al. 1969 — locked null); mismatch
+  never costs (null, not penalty).
+- **P522 arousal narrowing (SHOULD):** under C.arousal ≥
+  arousal_cue_hi, peripheral-field contribution to emitted
+  reconstructions falls ≥50% vs calm retrieval while central
+  fields hold; the SAME record fully recalls under calm cues —
+  cue-set tax, not content erasure (retrieval-side extension of
+  Easterbrook/Christianson — flagged HYPOTHESIS).
+- **P523 directed forgetting (MUST):** df-flagged records show
+  reduced sparse-probe recall vs controls AND recover under rich
+  cueing/recognition (MacLeod 1998 reversibility); they never
+  archive/delete from the flag alone; emotional records resist
+  ×~0.3; df shows NO independent-probe deficit under rich cues —
+  the dissociation from §5.23's inhib is sign-locked (Golding &
+  MacLeod 1998).
+- **P524 cue-ecology regression (MUST):** with all v4.8 legs
+  active, P9 (unencoded cue = 0), P10 (saturation <1.6×), and
+  P16 (recognition-failure cases) still pass — every new cue
+  channel routes through §5.1/§5.2, never around them.
+
+Registry: P1–P524. v50 suite: P513–P524 (6 MUST, 6 SHOULD).
+
+## 88. Sources new to this version
+
+- Gollwitzer 1999 (*Am. Psych.* 54:493); Gollwitzer & Sheeran 2006
+  (*AESP* 38:69 — verified: overall d=.65, prospective-memory
+  subset 62 tests d≈.40 — the PM arm is the honest constant);
+  Chasteen, Park & Schwarz 2001 (*Psych. Sci.* 12:457).
+- McWeeny, Young, Hay & Ellis 1987 (*Br. J. Psych.* 78:143 — the
+  Baker-paradox homonym design); Cohen 1990 (*Br. J. Psych.*
+  81:287 — association-poverty account); Cohen & Burke 1993
+  (*Br. J. Psych.* 84:51 plausible-phonology); Stanhope & Cohen
+  1993 (serial-access vs IAC — DEBATED mechanics).
+- Cohen 1981; Engelkamp & Zimmer 1984; Kormi-Nouri 1995
+  (reenactment); Nilsson 2000 (nonstrategic review); Roberts et
+  al. 2022 (*Psych. Bulletin* 148:1 — verified enactment meta:
+  planning primary, movement secondary, patient studies intact).
+- Conway & Pleydell-Pearce 2000 (*Psych. Rev.* 107:261 — SMS
+  hierarchy); Haque & Conway 2001 (*Memory* 9 — early-abstract /
+  late-specific protocol probes, direct-retrieval cases).
+- Berntsen & Rubin 2004 (*Mem. Cogn.* 32:427 — verified);
+  Rubin & Berntsen 2003 (*Mem. Cogn.* 31:886 — positive-only
+  script maintenance).
+- Erdelyi & Becker 1974 (*Cog. Psych.* 6:159 — verified);
+  Roediger & Thorpe 1978 (*Mem. Cogn.* 6:554 — verified
+  time-on-search account); Erdelyi, Finks & Feigin-Pfau 1989;
+  Payne 1987 review; Otani & Hodge 1991 review.
+- Andersson & Rönnberg 1995/1996, 1997 (*Eur. J. Cog. Psych.*
+  9:273 — friends' cues ≈ self-cues); Andersson, Hitch & Meudell
+  2006 (spoken distributed cues inhibit more); Meudell, Hitch &
+  Boyle 1995 (*QJEP* 48:141 — emergent-memory NULL); Meudell,
+  Hitch & Kirby 1992; Blumen & Rajaram 2008 (delayed cross-cue
+  benefit); PubMed 41620537 (partner-cue personalization study).
+- Goodwin, Powell, Bremer, Hoine & Stern 1969 (*Science*
+  163:1358 — verified: recall SDR, recognition null); Eich 1980
+  (*Mem. Cogn.* 8:157 — 27-study compendium, free-recall-only
+  signature); Weingartner, Adefris, Eich & Murphy 1976
+  (*JEP:HLM* 2:83 — low-imagery moderator).
+- Easterbrook 1959; Christianson 1992 (*Psych. Bulletin*
+  111:284); Mather & Sutherland 2011 (ABC — retrieval-side
+  extension flagged HYPOTHESIS).
+- Burke, MacKay, Worthley & Wade 1991 (*JML* 30:542 — verified:
+  age-up TOTs, proper names dominant, fewer persistent
+  alternates in older adults); Maylor 1990; James & Burke 2000.
+- Bjork 1970/1972; MacLeod 1998; Golding & MacLeod 1998
+  (rehearsal-starvation DF — soft version adopted).

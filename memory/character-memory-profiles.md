@@ -552,6 +552,20 @@ never copying raw.
 | beta_pm_fired | 0.2 | 1.5 | post-resolution intention decay (v4.7) |
 | transg_vivid_mult | 1.0 | 2.0 | own-violation vividness decay; accuracy locked null (v4.7) |
 | vis_fam_floor | 0.0 | 0.3 | Standing recognition bound on visual records (v4.7) |
+| impl_bind_gain / impl_focal_lift / impl_cost_mult | 1.0 / 0 / 0 | 2.0 / 0.5 / 0.8 | if-then plan legs (v4.8) |
+| name_sem_gap | 0.0 | 0.2 | Baker-paradox tier-3 penalty (v4.8) |
+| enact_selfcue / enact_recall_gain | 0.8 / 1.0 | 2.0 / 1.4 | motor self-cue legs (v4.8) |
+| gen_direct_bar | 0.5 | 0.9 | direct-retrieval gate (v4.8) |
+| hier_descent_p | 0.3 | 0.9 | generative descent per level; own age knot (v4.8) |
+| lifecue_gain | 0.0 | 0.3 | milestone drive on life queries (v4.8) |
+| hyper_gap / hyper_gain | 0.2 / 1.0 | 1.5 / 2.0 | spaced-bout reminiscence legs (v4.8) |
+| crosscue_far / crosscue_close / crosscue_close_bar | 0.1 / 0.5 / 0.5 | 0.7 / 1.2 / 0.9 | partner-cue legs; close < selfcue_mult (v4.8) |
+| crosscue_emergent_p | 0.0 | 0.1 | emergent-memory cap — keep near null (v4.8) |
+| sdr_gain | 0.0 | 0.2 | pharm-state match leg; recognition-null locked (v4.8) |
+| arousal_cue_hi / arousal_cue_narrow / arousal_dom_gain | 0.5 / 0.3 / 0 | 0.9 / 0.9 / 0.3 | retrieval-side narrowing (v4.8) |
+| tot_age_k / tot_res_age_loss / tot_alt_age_loss | 0 / 0 / 0 | 1.5 / 0.8 / 0.9 | TOT age legs (v4.8) |
+| df_pen / df_rehearse_pen | 0.0 / 0.3 | 0.2 / 0.9 | directed-forget soft legs (v4.8) |
+| planStyle | 0.0 | 1.0 | bible trait — spontaneous if-then planning (v4.8) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -2133,3 +2147,42 @@ bible authors: this pass separates *what a character relives* from
 - **Ecology-only, never pin:** `order_*` (reconstruction physics),
   `vis_fam_floor` (Standing bound), `dream_cond_mult` (residue
   physics).
+
+## 33. v4.8 note (retrieval-cues V — the cue's plan, rival, and reach)
+
+Clamp rows added in §0 for the v4.8 params. What bible authors
+should actually touch:
+
+- **`planStyle` (trait, 0–1):** the one new bible pin. High =
+  the character who narrates errands as if-then plans ("when I
+  pass the mailbox I'll drop the check") — their armed
+  intentions fire near-focally, pay half the monitor tax, and
+  survive doorways. Low = vague intentions that leak. Load on
+  `consc`-adjacent pins; NOT a competence halo — the old-old
+  benefit collapses through `ii_age_gate` regardless of style
+  (Kretschmer-Trendowicz 2009). Do not give the whole cast high
+  planStyle — the literature's effect lives on the DELIBERATE
+  plan, not a personality-wide bonus.
+- **`name_sem_gap`:** population default, do not pin per
+  character. What varies by bible is upstream: contact recency
+  (`lastSeenDay`) and nickname usage — a bible whose character
+  goes by "Rusty" narrows their OWN-name gap through the
+  meaningful-token exemption, not a param.
+- **`milestone` / `df` / `encodePhys`:** event/record tags, not
+  traits. Bibles tag transitional firsts (the wedding, the
+  move) for the §5.43 script privilege; the dialogue layer sets
+  `df` from secrecy bookkeeping ("forget I said anything");
+  `encodePhys` rides existing intox state.
+- **`tot_*` age legs:** age-driven only — the elderly profile
+  gets emptier, more frequent TOTs for free. Do not stack a
+  bible pin; a famously-forgetful character uses existing
+  `tot_rate`, not the age legs.
+- **`crosscue_*`:** dyad-property, never a trait. The married
+  pair's memory-finishing comes from RelEdge ≥ 0.7, which the
+  bible's relationship map supplies — cast pairs who share
+  history get the effect, acquaintances don't.
+- **Ecology-only, never pin:** `enact_*` (encodeOps flag),
+  `gen_direct_bar`/`hier_descent_p` (route physics),
+  `hyper_*` (schedule physics), `sdr_gain`, `arousal_*`,
+  `lifecue_gain`, `impl_bind_gain`/`impl_focal_lift`/
+  `impl_cost_mult` (mechanism constants).
