@@ -1,7 +1,8 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v48 — launch-surface expansion (Product Hunt card, itch theme,
-Steam sysreqs, A/B short descriptions, claim ledger); v55 refresh: v37 art rebase,
+**Status: v63 — store-surface depth pass (review-response templates, itch
+devlog drafts, differentiation block, sale-copy rules, transcreation
+glossary, `tools/store_copy_check.py` validator); v55 refresh: v37 art rebase,
 2026-09-24.** Supersedes v33.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
@@ -34,11 +35,11 @@ Pick per context; all are ≤80 chars.
 
 | Tagline | Chars | Use |
 |---|---|---|
-| A neighborhood that never stops performing. | 44 | Primary tagline |
+| A neighborhood that never stops performing. | 43 | Primary tagline |
 | Watch for free. Reach in for a price. | 37 | Pricing-context pages |
-| Twenty-eight lives on a real Mission block. | 44 | Social bios |
-| The Truman Show, except Truman is the whole street. | 50 | Press/pitch only (comparative, not on storefront boilerplate) |
-| Free to watch. Yours to change. | 30 | Short ads / social cards |
+| Twenty-eight lives on a real Mission block. | 43 | Social bios |
+| The Truman Show, except Truman is the whole street. | 51 | Press/pitch only (comparative, not on storefront boilerplate) |
+| Free to watch. Yours to change. | 31 | Short ads / social cards |
 
 ### 1.2 Short description
 *(≤300 chars — Steam "short description", itch.io "short description/tagline"
@@ -326,6 +327,12 @@ capsules (Steam policy).
 | Tags (itch) | ~10 shown | 10 | ✓ |
 | Tags (Steam) | 20 max | 20 | ✓ |
 
+This table is verified mechanically — run
+`python3 tools/store_copy_check.py` before every submission and after any
+copy or asset edit. It recomputes every claimed char count (§1.1, §1.2,
+§10, §13), checks §4 "Done" assets exist on disk, confirms the §5
+disclosure rows, and scans for banned marketing words. 0 fail required.
+
 ---
 
 ## 9. Submission packet (paste-ready runbook)
@@ -342,7 +349,7 @@ When the owner says "go", submitting the itch.io page is one sitting:
 | 6 | Embed config | §2.5 — page-only until the build ships |
 | 7 | Fill disclosure/IAP forms | §5 verbatim |
 | 8 | Screenshot captions | `press-kit/captions.txt` |
-| 9 | Fact-check pass | every number vs `world/requests.json` + PRICING-PAGE-CONTENT.md §2 |
+| 9 | Fact-check pass | `python3 tools/store_copy_check.py` (0 fail) + every number vs `world/requests.json` + PRICING-PAGE-CONTENT.md §2 |
 | 10 | Set visibility draft → owner review → public | owner decision |
 
 Steam (conditional): same packet with §3 fields + §4 capsule set; the only
@@ -375,7 +382,7 @@ drafted; submission is owner-gated like everything else.
 | Field | Limit | Draft |
 |---|---|---|
 | Name | ~60 | `Real World — The Mission` |
-| Tagline | 60 | `A neighborhood that never stops performing.` (44) |
+| Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
 | Media | — | gallery: `keyart-16x9.png` + `v40-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
@@ -482,7 +489,146 @@ source contract changes, the claim changes — never the reverse.
 
 ---
 
-## 15. Versioning note
+## 15. Store review & comment response templates
+
+Storefronts are two-way: itch comments, Steam reviews (post-wrapper), PH
+comments. Rules first, then canned replies. These mirror
+`templates/mod-responses.md` tone — neutral, factual, never defensive.
+
+**Rules**
+
+1. Reply as the dev, first person, signed "— the Real World devs". No
+   marketing voice, no copy-paste feel — rewrite each canned line 20%.
+2. Never argue a reviewer's experience; correct only factual errors, once.
+3. Never promise dates or unbuilt features. "On the list" is the maximum.
+4. Moderation questions get the public-feed answer (§9 feed-vocabulary):
+   denials read "request not approved", every deny refunds, appeals are
+   72 h human review. Never discuss a specific flag.
+5. Pricing complaints get the two-sentence answer: watching is free
+   forever; paid actions are priced upfront and auto-refund if they never
+   fire. No justifying the ladder beyond that.
+6. Harassment/dogpile → do not engage; use platform report tools and the
+   incident-comms drafts (`social/drafts/incident-comms.md`).
+
+**Canned replies**
+
+- *"It's just watching, not a game"*: "Fair — watching is the free layer and
+  it's built to stand alone. The paid layer is agency, not access: requests,
+  possession of your own hired character, the housing ladder."
+- *"Creepy / surveillance vibes"*: "We hear this a lot. The residents are
+  fictional AI characters — no real people, no real data. Every intervention
+  anyone buys is on the public request feed; nothing happens off-camera."
+- *"Pay-to-win"*: "There's no win state to buy. Requests are time-boxed and
+  priced upfront, the mains can't be possessed by anyone (including us),
+  and cooldowns aren't purchasable — queuing is first-come-first-served."
+- *"My request was denied, scam"*: "Denied requests refund in full —
+  automatically. If yours didn't, email the support address with the
+  request ID from the public feed. We never post denial reasons publicly;
+  you can appeal via the 72 h review."
+- *"AI slop"*: "The residents are LLM-driven, disclosed on the store page.
+  Player text is screened on the way in, and the mains' storylines are
+  author-seeded — the sim is the product, and we say so."
+- *Feature request*: "Thanks — logging it. The request catalog and resident
+  tools are the active surface; if it lands it'll show up in a devlog here."
+
+---
+
+## 16. itch.io devlog posts (store-surface drafts)
+
+itch devlogs are part of the storefront — they rank on the page and feed
+followers. Three drafts keyed to launch beats; reuse the journal.html
+posts' images (`press-kit/screenshots/`). Post manually — nothing here is
+scheduled anywhere.
+
+**Post 1 — launch day** · title: *The block is live — watch free, forever.*
+Body: what Real World is in 3 sentences (§1.3 first paragraph), the request
+menu table (§2.2 verbatim), the honesty box, link to the public request
+feed. Close: "Every request anyone files shows up on the feed — the
+moderation model is public too."
+
+**Post 2 — week 1** · title: *A week on the block: what people actually
+asked for.* Body: 3–5 real feed moments (pull from `tools/build_recap.py`
+output — never invent), one moderation stat (approved/modified/denied
+counts from the transparency report format in `world/moderation.json`),
+one thing we're tuning. If the feed was quiet, say so and recap resident
+storylines instead — the honesty contract applies here too.
+
+**Post 3 — month 1** · title: *Month one: the request economy in numbers.*
+Body: request mix by action type, queue wait reality, refund count,
+first hire-on-cast characters (public names only), next planned request
+types marked PROVISIONAL. End with the feedback channel.
+
+Cadence target: launch + weekly for month 1, then per update. Each post
+gets one screenshot and one feed pull-quote — never a wall of text.
+
+---
+
+## 17. "How is this different from…" (differentiation block)
+
+For store FAQ sections, PH comments, and review replies — the honest
+one-paragraph answers. Verified against the design doc; no strawmen.
+
+| "Isn't this just…" | The accurate answer |
+|---|---|
+| The Sims | Sims is a dollhouse you own; Real World is a shared street you watch. One persistent shard runs 24/7 whether you're there or not, the mains can't be controlled by anyone, and intervention is time-boxed requests — not god-mode. |
+| AI Town / Smallville demos | Those are research sandboxes. Real World wraps the same idea in a designed product: authored mains, a public request economy with real moderation, a housing ladder, and a spectator feed built for watching. |
+| Twitch Plays / crowd-control games | Crowd input there is chaos-voting on one stream. Here each request is an individual purchase, screened, priced, logged to a public feed — and the world doesn't pause for the streamer. |
+| Second Life / IMVU | Those are avatar social platforms — you *are* your character. In Real World you hire a character onto an existing cast; the other 27 residents are AI, the social fabric is simulated, and you can also never touch it — just watch. |
+| A idle/incremental game | The sim isn't a numbers treadmill and watching isn't gated. The free layer is the spectator experience itself. |
+
+Never answer with "we're like X but better" — name the mechanic, not
+the adjective.
+
+---
+
+## 18. Sale & discount copy rules
+
+itch.io supports sales/bundles; Steam (conditional) has discount events.
+The brand rules that keep a discount honest:
+
+1. **Only the paid agency layer ever discounts.** Watching is already
+   free — never frame "free to watch" as a sale.
+2. **No urgency theater.** No countdown copy, no "last chance", no
+   "X% claimed". A sale is a date range and a price, stated flatly.
+3. **Credits are virtual currency (PROPOSAL ladder).** Discount the
+   credit pack price, never the in-world exchange rate — "50% more
+   credits per dollar" is the honest phrasing, never "credits worth more".
+4. **Subscriptions don't discount at launch.** First sub discount is an
+   owner decision; if run, annual-frame only ("founding rate"), never a
+   monthly race-to-zero.
+5. **Every sale page repeats the disclosure line verbatim** (§1.5):
+   credits are non-transferable, non-redeemable, purchases final except
+   auto-refunds. A sale never weakens the refund story.
+6. **Post-sale comms:** one devlog note (per §16 format) naming the dates
+   and the restored price. No "you missed it" guilt copy.
+
+Draft sale blurb (itch "sale" description field, ≤140 chars):
+
+> Credit packs are 30% off through <date>. Watching stays free; every
+> request is still priced upfront and auto-refunds if it never fires.
+
+---
+
+## 19. Transcreation glossary (extends §7)
+
+Terms that must survive localization unchanged or be deliberately
+re-created — paste this table to any future localizer.
+
+| Term | Handling | Why |
+|---|---|---|
+| Real World (title) | never translate | brand + trademark surface |
+| The Mission / the block | keep "The Mission" + localize "the block" as the neighborhood idiom of the locale | proper-noun pun — literal translation reads as a task |
+| watch / reach in | transcreate as a verb pair | the whole funnel is the watch→act gradient |
+| hire a character (onto the cast) | keep the casting metaphor | "hire" not "create" is canonical (`world/creation.json`) |
+| request / request feed | translate plainly, keep "feed" as the public-ledger noun | transparency vocabulary must stay concrete |
+| credits / game dollars | translate; keep the two-currency distinction explicit | confusing them is the most common monetization misunderstanding |
+| resident / ambient / main | translate; keep the 8/20 hierarchy terms distinct | the cast structure is a selling point |
+| Parody venue names (Mudhaus, El Farolote, Auerbach Hardware…) | never translate; gloss on first use only | `world/businesses.md` canonical |
+| "request not approved" | translate verbatim-neutrally, no softer variant | feed vocabulary is a contract — euphemisms break it |
+
+---
+
+## 20. Versioning note
 
 This file supersedes the v0 DRAFT (single generic template). Changes:
 platform split (itch primary / Steam conditional), capsule spec sheet,
@@ -514,6 +660,15 @@ stills.
 **v60 changes:** gallery/keyart/capsules/og-card rebased to the art-v40
 build (Mission-Revival pediments, wire shadows); trailer EDL/animatics/
 thumbnails rebuilt on v40 stills.
+**v63 changes:** new `tools/store_copy_check.py` validator (recomputes
+every claimed char count, verifies §4 assets on disk, checks §5
+disclosure rows, scans banned words) — its first run caught five real
+miscounts in §1.1/§10 tagline lengths, now corrected (44→43 ×2, 50→51,
+30→31). New §15 store review/comment response templates, §16 itch.io
+devlog drafts (launch/week-1/month-1), §17 differentiation block
+(Sims/AI Town/Twitch Plays/Second Life/idle), §18 sale & discount copy
+rules + draft sale blurb, §19 transcreation glossary; versioning note
+renumbered §15→§20; §8/§9 now route through the checker.
 
 **v53 changes:** gallery/capsules/keyart rebased to the art-v36 build
 (Karl's marine layer over the Mission; boom-rig/veiling-glare lens work);
