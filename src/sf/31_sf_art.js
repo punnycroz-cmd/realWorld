@@ -468,6 +468,67 @@ function sfRoofKind(b, isShop, roofArea){
   if(isShop) return r < 0.58 ? 'flat' : (r < 0.78 ? 'mansard' : (r < 0.92 ? 'gable' : 'hip'));
   return r < 0.42 ? 'gable' : (r < 0.66 ? 'mansard' : (r < 0.86 ? 'hip' : 'flat'));
 }
+
+/* ---------------- v18 facade dressing ----------------
+   Painted-Lady polychromy (a second saturated accent color on ~45% of
+   residential facades), Clarion-Alley style ground-floor murals, and a
+   parody-name signage layer. Shared by the baked top-down sprite and the
+   street view so a building keeps its identity in every camera. */
+const SF_ACCENT_COLS = ['#2e5a78', '#7a3040', '#3a6a44', '#8a5424',
+                        '#5a3a68', '#2a6a60', '#a04a30', '#4a507a'];
+const SF_SIGN_COLS = ['#28424e', '#5a2a30', '#2a4a34', '#4a3a24',
+                      '#503a58', '#6e3a22', '#243a56'];
+/* mural palettes: [sky top, sky low, sun] then layered hill colors */
+const SF_MURAL_SKY = [['#2a88b8', '#f2c14a', '#e87830'],
+                      ['#2456a0', '#e87830', '#f0d040'],
+                      ['#5a3a8a', '#e8b040', '#e85a5a'],
+                      ['#2a7a5a', '#f0d040', '#e87830']];
+const SF_MURAL_HILL = ['#1e5a3a', '#c84838', '#284a78', '#7a3a28', '#d8a028'];
+const SF_TILE_COLS = [['#2a6a6a', '#e8e0c8'], ['#7a2a30', '#e8d8b0'],
+                      ['#2a4a6a', '#d8e0e0'], ['#4a5a2a', '#e8e0c0']];
+/* user-locked rule: businesses on screen are GTA-style parodies, never
+   real SF names. Code keys stay real for routines/lookups — this is the
+   display layer (mirrors world/businesses.md on the sf/world branch). */
+const SF_PARODY_NAMES = {
+  'Haus Coffee': 'MUDHAUS COFFEE',
+  'Taqueria El Farolito': 'TAQUERIA EL FAROLOTE',
+  'Auerbach Hardware': 'AUERBACH HARDWARE',
+  'Bi-Rite Market': 'BUY-RITE MARKET',
+  'Bi-Rite Creamery': 'BUY-RITE CREAMERY',
+  'Delfina': 'IL DELFINO',
+  'Dolores Park Cafe': 'DOLORES PERK',
+  'Tartine Bakery': 'BAGUETTE ABOUT IT',
+  '500 Club': 'THE 600 CLUB',
+  'Dandelion Chocolate': 'DANDY LION CHOCOLATE',
+  'Valencia Farmers Market': 'VALENCIA GROWERS MKT',
+};
+const SF_GENERIC_SIGN = {
+  restaurant: 'TAQUERIA', cafe: 'CAFÉ', bar: 'CANTINA', pub: 'PUB',
+  fast_food: 'TAQUERIA', convenience: 'MINI MART', supermarket: 'MERCADO',
+  clothes: 'VINTAGE', hairdresser: 'SALON', beauty: 'BOTANICA',
+  bakery: 'PANADERÍA', laundry: 'LAVANDERÍA', dry_cleaning: 'CLEANERS',
+  tattoo: 'TATTOO', books: 'LIBRERÍA', florist: 'FLORES',
+  gallery: 'GALERÍA', gift: 'CURIOS', jewelry: 'JOYERÍA',
+  shoes: 'ZAPATERÍA', hardware: 'FERRETERÍA', car_repair: 'AUTO SHOP',
+  fitness_centre: 'GYM', bank: 'BANCO', ice_cream: 'HELADERÍA',
+  variety_store: 'BODEGA', alcohol: 'LIQUOR', tobacco: 'SMOKE SHOP',
+  mobile_phone: 'PHONES', houseware: 'HOUSEWARE', massage: 'SPA',
+  dentist: 'DENTAL', hotel: 'HOTEL', money_transfer: 'ENVÍOS',
+  kindergarten: 'DAYCARE', social_facility: 'CENTRO', poi: 'STORE',
+};
+function sfSignName(b){
+  if(b.name && SF_PARODY_NAMES[b.name]) return SF_PARODY_NAMES[b.name];
+  return SF_GENERIC_SIGN[b.kind] || (b.name ? null : 'STORE');
+}
+/* one mural per wall, deterministic — the same gate drives the street
+   view and the baked sprite so the colorful band agrees in both */
+function sfMuralWall(i, ei, L, isShop){
+  return !isShop && L > 8 && phash(i, ei, 1750) < 0.34;
+}
+function sfAccentOf(i, TRIM, isShop){
+  if(isShop || phash(i, 23, 1753) >= 0.45) return TRIM;
+  return SF_ACCENT_COLS[Math.floor(phash(i, 19, 1752) * SF_ACCENT_COLS.length)];
+}
 /* Roof geometry frame: centroid + ridge axis (the footprint's longer bbox
    axis) + perpendicular half-extent + max radial extent. Coordinate-free —
    callers pass px or meter polygons. */
@@ -556,6 +617,9 @@ function sfBldCanvas(b, wet){
   const TRIM = SF_TRIM_COLS[Math.floor(phash(b.i, 9, 1301) * SF_TRIM_COLS.length)];
   const ROOF = rampOf(SF_ROOF_COLS[Math.floor(phash(b.i, 11, 1302) * SF_ROOF_COLS.length)]);
   const isShop = !!(b.name) || phash(b.i, 5, 1303) < 0.12;
+  // v18: Painted-Lady polychromy — 45% of homes get a saturated accent
+  // color for frames/cornice instead of the neutral trim
+  const ACC = sfAccentOf(b.i, TRIM, isShop);
   const nFloors = Math.max(1, Math.round(b.hPx / 16));
   // local coords: poly px relative to bx0/by0, then +pad; base bottom at
   // canvas y = pad + hPx + (py - by0)
@@ -632,27 +696,45 @@ function sfBldCanvas(b, wet){
     paNoise(g, Math.min(w.x1, w.x2), Math.min(w.y1, w.y2) - hPx,
             Math.abs(w.x2 - w.x1) + 1, hPx + Math.abs(w.y2 - w.y1) + 1,
             [wr[2], wr[4]], 0.07, 1310 + w.i);
-    // cornice: bright trim band + dentil bumps along the top
+    // cornice: bright accent band + dentil bumps along the top
     const steps = Math.max(1, Math.floor(w.len / 7));
     for(let k = 0; k <= steps; k++){
       const [cx, cy] = wallAt(w.x1, w.y1, w.x2, w.y2, k / steps, 1);
-      paEllipse(g, cx, cy + 1, 2, 2, TRIM);
+      paEllipse(g, cx, cy + 1, 2, 2, ACC);
     }
-    g.strokeStyle = TRIM; g.lineWidth = 2;
+    g.strokeStyle = ACC; g.lineWidth = 2;
     g.beginPath();
     g.moveTo(w.x1, w.y1 - hPx); g.lineTo(w.x2, w.y2 - hPx); g.stroke();
     // second trim band under cornice
-    g.strokeStyle = shade(TRIM, 0.85); g.lineWidth = 1;
+    g.strokeStyle = shade(ACC, 0.85); g.lineWidth = 1;
     g.beginPath();
     g.moveTo(w.x1, w.y1 - hPx + 4); g.lineTo(w.x2, w.y2 - hPx + 4); g.stroke();
+    // v18: Clarion-style mural band across the lower wall — a painted
+    // sky field, sun disc and layered hill silhouettes baked into the
+    // sprite so the top-down view shows the same splash of color
+    const muralH = sfMuralWall(b.i, w.i, w.len, isShop)
+      ? Math.min(hPx - 6, Math.max(10, hPx * 2 / nFloors)) : 0;
+    if(muralH){
+      const mk = SF_MURAL_SKY[Math.floor(phash(b.i, w.i, 1756) * SF_MURAL_SKY.length)];
+      const mx0 = Math.min(w.x1, w.x2), mw = Math.abs(w.x2 - w.x1);
+      paR(g, mx0, w.y1 - muralH, mw, muralH, mk[1]);
+      paR(g, mx0, w.y1 - muralH, mw, muralH * 0.45, mk[0]);
+      paEllipse(g, mx0 + mw * 0.72, w.y1 - muralH * 0.62,
+                Math.max(3, mw * 0.07), muralH * 0.18, mk[2]);
+      paR(g, mx0, w.y1 - muralH * 0.4, mw, muralH * 0.4,
+          SF_MURAL_HILL[Math.floor(phash(b.i, w.i, 1757) * SF_MURAL_HILL.length)]);
+      paR(g, mx0, w.y1 - muralH * 0.18, mw, muralH * 0.18,
+          SF_MURAL_HILL[Math.floor(phash(b.i, w.i, 1758) * SF_MURAL_HILL.length)]);
+    }
     // windows per floor: capsule sashes with arched tops + sills
     const bays = Math.max(1, Math.floor(w.len / 22));
     for(let f = 0; f < nFloors; f++){
       const fv = 1 - (f + 0.72) / (nFloors + 0.4); // vertical band for floor f
+      if(muralH && hPx * fv < muralH) continue;
       for(let k = 0; k < bays; k++){
         const t = (k + 0.5) / bays;
         const [wx, wy] = wallAt(w.x1, w.y1, w.x2, w.y2, t, fv);
-        const frameC = TRIM,
+        const frameC = ACC,
               // v14: sunward glass catches the warm sky reflection
               glassC = (SF_SUN.day > 0.3 && sunK > 0.35)
                 ? mix('#7a94a8', '#ffd9a0', 0.4 + SF_SUN.warm * 0.3)
@@ -668,7 +750,7 @@ function sfBldCanvas(b, wet){
         paLine(g, wx, wy - 7, wx, wy + 4, frameC);        // muntin
         paLine(g, wx - 3, wy - 1, wx + 3, wy - 1, frameC);
         paPX(g, wx - 2, wy - 5, glassHi); paPX(g, wx - 1, wy - 6, glassHi); // glint
-        paR(g, wx - 5, wy - 9, 10, 1, shade(TRIM, 0.8));  // lintel
+        paR(g, wx - 5, wy - 9, 10, 1, shade(ACC, 0.8));  // lintel
       }
     }
     // Victorian bay window bump on tall fronts
@@ -679,12 +761,12 @@ function sfBldCanvas(b, wet){
       paEllipse(g, bx, by - 1, 6, Math.min(10, hPx * 0.4 - 1), wr[3]);
       for(let f = 0; f < nFloors; f++){
         const wy2 = by - (f - (nFloors - 1) / 2) * 15;
-        paEllipse(g, bx, wy2 - 3, 3, 3, TRIM);
-        paR(g, bx - 3, wy2 - 3, 6, 6, TRIM);
+        paEllipse(g, bx, wy2 - 3, 3, 3, ACC);
+        paR(g, bx - 3, wy2 - 3, 6, 6, ACC);
         paEllipse(g, bx, wy2 - 3, 2, 2, '#7a94a8');
         paR(g, bx - 2, wy2 - 3, 4, 5, '#7a94a8');
       }
-      paEllipse(g, bx, by - Math.min(11, hPx * 0.4) - 1, 7, 3, TRIM); // bay cornice
+      paEllipse(g, bx, by - Math.min(11, hPx * 0.4) - 1, 7, 3, ACC); // bay cornice
     }
     // ground floor: door + stoop (and awning for shops) on front faces
     if(w.facing === 'front' && w.len > 20){
@@ -707,12 +789,13 @@ function sfBldCanvas(b, wet){
         for(let k = 0; k <= Math.floor(aw / 5); k++)
           paEllipse(g, ax - aw / 2 + k * 5, dy2 - 18, 2.5, 2.5, awn[4]);
         paR(g, ax - aw / 2, dy2 - 23, aw, 1, awn[5]);
-        // painted sign on the fascia
-        if(b.name){
+        // painted sign on the fascia — parody display name only
+        const sg = sfSignName(b);
+        if(sg){
           g.fillStyle = '#f8f4e8';
           g.font = 'bold 5px sans-serif';
           g.textAlign = 'center';
-          g.fillText(b.name.slice(0, 22), ax, dy2 - 19.5);
+          g.fillText(sg.slice(0, 22), ax, dy2 - 19.5);
         }
       }
     }
