@@ -7,11 +7,13 @@ should be published without owner approval (see `../TRAILER-PLAN.md` §9).
 
 | File | Purpose |
 |------|---------|
-| `edl.json` | Machine-readable edit decision list — the source of truth for all three cuts (hero 85s, teaser 15s, vertical 30s). Shots, timing, cards, motion, grades, recapture flags, audio presets, per-program `canvas`. |
+| `edl.json` | Machine-readable edit decision list — the source of truth for all four cuts (hero 85s, teaser 15s, vertical 30s, bumper 6s) plus the thumbnail specs. Shots, timing, cards, motion, grades, recapture flags, audio presets, per-program `canvas`. |
 | `build-animatic.py` | Renders every frame with PIL and pipes to ffmpeg. Produces the mp4s, `.srt` caption files, scratch-audio variants, and `--board` contact sheets. |
 | `out/animatic-hero.mp4` | Rendered 85s hero animatic (silent master). |
 | `out/animatic-teaser.mp4` | Rendered 15s teaser animatic. |
 | `out/animatic-vertical.mp4` | Rendered 30s 9:16 vertical animatic (720×1280). |
+| `out/animatic-bumper.mp4` | Rendered 6s bumper (pre-roll / Shorts end-screen). |
+| `out/thumb-{watcher,handoff,dusk}.png` | The three thumbnail concepts from TRAILER-PLAN §8, rendered at 1280×720 via `--thumbs`. HUD badges and pawn name tags are redact-blurred per the `thumbnails` specs in `edl.json`. |
 | `out/animatic-*-scratch.mp4` | Same cuts with a procedural temp-audio bed (room tone, swell, rain, crickets — synthesized in `synth()`). Mood/timing reference only; the ship score is a licensing task (TRAILER-PLAN §5). |
 | `out/board-*.png` | Storyboard contact sheets — one frame per shot + timing/kind/recapture label. |
 | `out/captions-*.srt` | Caption files generated from the EDL card timings. |
@@ -23,6 +25,8 @@ should be published without owner approval (see `../TRAILER-PLAN.md` §9).
 python3 build-animatic.py            # all programs
 python3 build-animatic.py vertical   # one program
 python3 build-animatic.py --board    # storyboard sheets for all programs
+python3 build-animatic.py --thumbs   # render thumbnail concepts
+python3 build-animatic.py --check    # validate the EDL without rendering
 ```
 
 Requires: `python3` + Pillow, `ffmpeg` (libx264 + aac). No network, no keys.
@@ -34,7 +38,8 @@ Edit `edl.json` — timings (`t`, seconds), card text, shot order, zoom/pan,
 `timer` (draining possession bar), `transition` (`cut` | `dip`),
 `audio` (`room` | `swell` | `ticks` | `thunder` | `rain` | `night` |
 `resolve` | omit for silence), `redact` (crop-space rects to blur debug
-name tags), and per-program `canvas` (`[w,h]`).
+name tags), per-program `canvas` (`[w,h]`), and the top-level
+`thumbnails` list (`style`: `rec` | `split` | `wordmark`).
 Then rebuild. The `.srt` files regenerate from the same data — captions can
 never drift from the picture.
 

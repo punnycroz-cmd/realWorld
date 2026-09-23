@@ -5,11 +5,16 @@ Renders every frame with PIL (Ken Burns motion, brand title cards, mocked
 feed/request UI, dip-to-black transitions, persistent DEVELOPMENT BUILD bug)
 and pipes raw frames to ffmpeg -> mp4. Fully local; no uploads, no keys.
 
-Usage:  python3 build-animatic.py [--program hero|teaser|vertical|all]
+Usage:  python3 build-animatic.py [--program hero|teaser|vertical|bumper|all]
         python3 build-animatic.py --board [program]
+        python3 build-animatic.py --thumbs
+        python3 build-animatic.py --check
 Output: out/animatic-<program>.mp4 + captions-<program>.srt
         out/animatic-<program>-scratch.mp4 (scratch audio bed, if shots
-        carry an "audio" preset) + out/board-<program>.png contact sheets.
+        carry an "audio" preset) + out/board-<program>.png contact sheets
+        + out/thumb-*.png rendered thumbnail concepts (--thumbs).
+--check validates the EDL (files, fields, crops, copy length, durations)
+without rendering; exits non-zero on FAIL.
 """
 
 import array
@@ -426,6 +431,172 @@ class Build:
         sheet.save(path)
         print(f"  -> {path} ({len(shots)} shots)")
 
+    # ---------- thumbnails ----------
+
+    def thumb(self, spec):
+        """Render one thumbnail concept from edl["thumbnails"] at 1280x720."""
+        self.set_canvas(1280, 720)
+        shot = {"src": spec["src"], "crop": spec.get("crop"),
+                "redact": spec.get("redact")}
+        img = self.still(shot)
+        if spec.get("grade"):
+            img = self.grade(img, spec["grade"])
+        d = ImageDraw.Draw(img)
+        style = spec["style"]
+
+        if style == "rec":
+            # The watcher: darkened edges, red REC cluster, small title.
+            img = self.vignette(img, 0.55)
+            d = ImageDraw.Draw(img)
+            d.ellipse((56, 52, 92, 88), fill=self.c["accent3"])
+            d.text((106, 55), "REC", font=self.f_sub, fill=self.c["accent3"])
+            d.text((106, 100), "live — 24/7", font=self.f_bug, fill=self.c["muted"])
+            title = "REAL WORLD — THE MISSION"
+            tw = d.textlength(title, font=self.f_sub)
+            d.text(((W - tw) / 2, H - 96), title, font=self.f_sub, fill=self.c["text"])
+        elif style == "split":
+            # The handoff: same frame, AI | YOU across a center seam.
+            half = W // 2
+            left = img.crop((0, 0, half, H))
+            right = ImageEnhance.Brightness(
+                img.crop((half, 0, W, H))).enhance(1.12)
+            img.paste(left, (0, 0))
+            img.paste(right, (half, 0))
+            img = self.vignette(img, 0.3)
+            d = ImageDraw.Draw(img)
+            d.line((half, 0, half, H), fill=self.c["accent"], width=3)
+            for label, cx, col in ((spec.get("left", "AI"), half // 2, self.c["accent2"]),
+                                   (spec.get("right", "YOU"), half + half // 2, self.c["accent"])):
+                t = f" {label} "
+                tw = d.textlength(t, font=self.f_chip)
+                d.rectangle((cx - tw / 2 - 11, H - 150, cx + tw / 2 + 11, H - 150 + 34),
+                            fill=(0, 0, 0), outline=col, width=2)
+                d.text((cx - tw / 2, H - 150 + 5), t, font=self.f_chip, fill=col)
+            title = "REAL WORLD — THE MISSION"
+            tw = d.textlength(title, font=self.f_sub)
+            d.text(((W - tw) / 2, H - 80), title, font=self.f_sub, fill=self.c["text"])
+        elif style == "wordmark":
+            # The block at dusk: quiet grade, wordmark only.
+            img = self.vignette(img, 0.45)
+            d = ImageDraw.Draw(img)
+            title = "REAL WORLD"
+            tw = d.textlength(title, font=self.f_end)
+            x = (W - tw) / 2
+            d.text((x, H / 2 - 110), title, font=self.f_end, fill=self.c["text"])
+            d.rectangle((x, H / 2 + 26, x + tw, H / 2 + 32), fill=self.c["accent"])
+            sub = "T H E   M I S S I O N"
+            tw2 = d.textlength(sub, font=self.f_sub)
+            d.text(((W - tw2) / 2, H / 2 + 52), sub, font=self.f_sub, fill=self.c["accent"])
+        return img
+
+    def thumbs(self):
+        specs = self.edl.get("thumbnails") or []
+        for spec in specs:
+            img = self.thumb(spec)
+            path = os.path.join(HERE, "out", f"thumb-{spec['id']}.png")
+            img.save(path)
+            print(f"  -> {path} ({spec['style']})")
+
+    # ---------- EDL validation ----------
+
+    KIND_FIELDS = {
+        "still": ("src",),
+        "feedline": ("line",),
+        "feed": ("lines",),
+        "ledger": ("lines",),
+        "requestcard": ("fields",),
+        "endcard": ("title", "subtitle"),
+    }
+    AUDIO_PRESETS = {"room", "swell", "ticks", "thunder", "rain", "night",
+                     "resolve", "silence"}
+    TRANSITIONS = {"cut", "dip"}
+    # soft ceilings per program (seconds) — warn, not fail
+    DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5, "bumper": 6.5}
+    CARD_MAX = 80  # title-card readability ceiling
+
+    def check(self):
+        issues = []  # (level, msg)
+
+        def fail(m):
+            issues.append(("FAIL", m))
+
+        def warn(m):
+            issues.append(("WARN", m))
+
+        progs = self.edl["programs"]
+        seen_files = set()
+        for name, prog in progs.items():
+            shots = prog.get("shots") or []
+            if not shots:
+                fail(f"{name}: no shots")
+                continue
+            for key in ("file", "captions"):
+                if key not in prog:
+                    fail(f"{name}: missing '{key}'")
+                elif prog[key] in seen_files:
+                    fail(f"{name}: duplicate output '{prog[key]}'")
+                else:
+                    seen_files.add(prog[key])
+            total = sum(s.get("t", 0) for s in shots)
+            cap = self.DURATION_MAX.get(name)
+            if cap and total > cap:
+                warn(f"{name}: {total:.1f}s exceeds {cap}s deliverable ceiling")
+            for s in shots:
+                sid = f"{name}/{s.get('id', '?')}"
+                kind = s.get("kind")
+                if kind not in self.KIND_FIELDS:
+                    fail(f"{sid}: unknown kind '{kind}'")
+                    continue
+                if not isinstance(s.get("t"), (int, float)) or s["t"] <= 0:
+                    fail(f"{sid}: bad duration {s.get('t')}")
+                for f_ in self.KIND_FIELDS[kind]:
+                    if f_ not in s:
+                        fail(f"{sid}: missing '{f_}'")
+                if s.get("card") and len(s["card"]) > self.CARD_MAX:
+                    warn(f"{sid}: card {len(s['card'])}ch > {self.CARD_MAX}")
+                if s.get("audio") and s["audio"] not in self.AUDIO_PRESETS:
+                    fail(f"{sid}: unknown audio preset '{s['audio']}'")
+                if s.get("transition") and s["transition"] not in self.TRANSITIONS:
+                    fail(f"{sid}: unknown transition '{s['transition']}'")
+                if kind == "still" and "src" in s:
+                    path = os.path.join(self.shots_dir, s["src"])
+                    if not os.path.exists(path):
+                        fail(f"{sid}: missing still {s['src']}")
+                    elif s.get("crop"):
+                        with Image.open(path) as im:
+                            bw, bh = im.size
+                        x0, y0, x1, y1 = s["crop"]
+                        if not (0 <= x0 < x1 <= bw and 0 <= y0 < y1 <= bh):
+                            fail(f"{sid}: crop {s['crop']} outside {bw}x{bh}")
+                if kind == "requestcard":
+                    for f_ in ("action", "duration", "cost", "status"):
+                        if f_ not in (s.get("fields") or {}):
+                            fail(f"{sid}: fields missing '{f_}'")
+                if kind == "endcard" and s.get("url") and s["url"] != "{{URL}}":
+                    warn(f"{sid}: endcard url is not the {{URL}} placeholder")
+        for spec in self.edl.get("thumbnails") or []:
+            tid = f"thumbnails/{spec.get('id', '?')}"
+            if spec.get("style") not in ("rec", "split", "wordmark"):
+                fail(f"{tid}: unknown style '{spec.get('style')}'")
+            path = os.path.join(self.shots_dir, spec.get("src", ""))
+            if not os.path.exists(path):
+                fail(f"{tid}: missing still {spec.get('src')}")
+            elif spec.get("crop"):
+                with Image.open(path) as im:
+                    bw, bh = im.size
+                x0, y0, x1, y1 = spec["crop"]
+                if not (0 <= x0 < x1 <= bw and 0 <= y0 < y1 <= bh):
+                    fail(f"{tid}: crop outside {bw}x{bh}")
+        for lvl, m in issues:
+            print(f"  [{lvl}] {m}")
+        nfail = sum(1 for l, _ in issues if l == "FAIL")
+        nwarn = sum(1 for l, _ in issues if l == "WARN")
+        print(f"check: {len(progs)} programs, "
+              f"{sum(len(p['shots']) for p in progs.values())} shots, "
+              f"{len(self.edl.get('thumbnails') or [])} thumbnails — "
+              f"{nfail} fail / {nwarn} warn")
+        return nfail == 0
+
     # ---------- assembly ----------
 
     def build(self, name, prog):
@@ -503,6 +674,11 @@ def main():
         for name, prog in progs.items():
             b.board(name, prog)
         return
+    if which == "--thumbs":
+        b.thumbs()
+        return
+    if which == "--check":
+        sys.exit(0 if b.check() else 1)
     progs = edl["programs"] if which == "all" else {which: edl["programs"][which]}
     for name, prog in progs.items():
         b.build(name, prog)
