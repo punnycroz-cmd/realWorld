@@ -1,0 +1,355 @@
+{
+  "_comment": "Edit decision list \u2014 Real World 'The Mission' trailer. Machine-readable source of truth for TRAILER-PLAN.md \u00a73/\u00a77. Consumed by build-animatic.py. Timing in seconds at fps below. 'recapture' marks shots that MUST be re-cut from live game footage before ship; stills are pre-production only.",
+  "canvas": [
+    1440,
+    900
+  ],
+  "fps": 24,
+  "brand": {
+    "bg": "#14161c",
+    "panel": "#1d2029",
+    "border": "#2c303c",
+    "text": "#ece7dc",
+    "muted": "#9aa0ae",
+    "accent": "#e8a04c",
+    "accent2": "#4f9d69",
+    "accent3": "#d4645c",
+    "dev_bug": "DEVELOPMENT BUILD"
+  },
+  "shots_dir": "../site/shots",
+  "assets_dir": "../site/assets",
+  "programs": {
+    "hero": {
+      "file": "animatic-hero.mp4",
+      "captions": "captions-hero.srt",
+      "shots": [
+        {
+          "id": "S1",
+          "t": 5.0,
+          "kind": "feedline",
+          "line": "06:01 \u2014 Mars opened Mudhaus.",
+          "card": null,
+          "transition": "cut",
+          "note": "Cold open. Feed line types on black. Audio: room tone, espresso fades up."
+        },
+        {
+          "id": "S2",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-A.png",
+          "zoom": [
+            1.0,
+            1.1
+          ],
+          "pan": "left",
+          "card": "A neighborhood in San Francisco.",
+          "transition": "dip",
+          "recapture": false,
+          "note": "Top-down dawn over the caf\u00e9 block. Slow drift.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S3",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-B.png",
+          "zoom": [
+            1.05,
+            1.14
+          ],
+          "pan": "right",
+          "card": "Twenty-eight people live here.",
+          "transition": "dip",
+          "recapture": true,
+          "note": "Street-follow behind a resident on 24th St. Ship version needs a walking pawn.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S4",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-C.png",
+          "zoom": [
+            1.0,
+            1.08
+          ],
+          "pan": "up",
+          "card": "They work. They fall in love. They keep secrets.",
+          "transition": "dip",
+          "recapture": false,
+          "note": "Dolores Park overhead \u2014 palms, paths, drifting pawns.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S5",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-D.png",
+          "zoom": [
+            1.02,
+            1.15
+          ],
+          "pan": "right",
+          "card": "None of them know you're watching.",
+          "transition": "dip",
+          "recapture": false,
+          "note": "Director-mode low orbit: rooftops, water towers, long shadows. First music swell.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S6",
+          "t": 7.0,
+          "kind": "feed",
+          "lines": [
+            "06:01  Mars opened Mudhaus.",
+            "06:14  Vic unboxed a shipment at Auerbach Hardware.",
+            "06:40  Jules signed the lease on 9418 Guerrero St, Unit 3B.",
+            "07:05  Priya asked Tom\u00e1s about the rooftop garden.",
+            "07:31  Dani ordered at Dolores Perk. Again.",
+            "08:02  Carmen's window box bloomed overnight."
+          ],
+          "card": "Watching is free. Always.",
+          "transition": "dip",
+          "recapture": true,
+          "note": "Public feed overlay, entries ticking. Ship version = real feed UI capture."
+        },
+        {
+          "id": "S7",
+          "t": 7.0,
+          "kind": "requestcard",
+          "fields": {
+            "action": "rain \u2014 Dolores Park",
+            "duration": "2 h",
+            "cost": "credits/min \u00b7 declared upfront \u00b7 hard cap",
+            "status": "APPROVED \u2014 queued \u2192 live"
+          },
+          "card": "Want to reach in? File a request.",
+          "transition": "cut",
+          "recapture": true,
+          "note": "Request card fills on screen; approve tick. Sound: held breath, first thunder."
+        },
+        {
+          "id": "S8",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-C.png",
+          "zoom": [
+            1.0,
+            1.1
+          ],
+          "pan": "down",
+          "grade": "wet",
+          "card": "Weather. Events. A character of your own.",
+          "transition": "dip",
+          "recapture": true,
+          "note": "S4 framing repeated in rain \u2014 hard dry\u2192wet cut is the money beat. Sim supports weather override (GS_WX_OVR).",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S9",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-B.png",
+          "zoom": [
+            1.1,
+            1.18
+          ],
+          "pan": "right",
+          "chip": [
+            "AI",
+            "YOU"
+          ],
+          "card": "Drive the character you hired \u2014 only yours.",
+          "transition": "dip",
+          "recapture": true,
+          "note": "Possession handoff: card flips AI\u2192YOU mid-shot. Accuracy-critical: hired character only.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S10",
+          "t": 7.0,
+          "kind": "still",
+          "src": "v19-B.png",
+          "zoom": [
+            1.18,
+            1.1
+          ],
+          "pan": "left",
+          "chip": [
+            "YOU",
+            "AI"
+          ],
+          "timer": true,
+          "card": "When time's up, the sim takes the wheel back.",
+          "transition": "dip",
+          "recapture": true,
+          "note": "Timer drains; graceful handoff. Pawn keeps walking \u2014 no stutter.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S11",
+          "t": 6.0,
+          "kind": "ledger",
+          "lines": [
+            "@wren_44      rain over the park, 2 h        ran \u2014 public",
+            "@northbeach   hired a new resident           queued \u2014 refunded",
+            "@lamps        moved into 9418 Guerrero 3B    live",
+            "admin         lease dispute resolved          logged"
+          ],
+          "card": "Every move is public. The audience sees everything.",
+          "transition": "dip",
+          "recapture": true,
+          "note": "Request-feed montage WITH attribution \u2014 transparency is the feature."
+        },
+        {
+          "id": "S12",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v19-D.png",
+          "zoom": [
+            1.05,
+            1.0
+          ],
+          "pan": "right",
+          "grade": "night",
+          "card": null,
+          "transition": "dip",
+          "recapture": false,
+          "note": "Night falls \u2014 sodium pools, one lit window (v15+ lamp engine). Music resolves.",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "S13",
+          "t": 5.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Watch free. Move in when you're ready.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "note": "Logo on black. Optional VO: 'The neighborhood is live.'"
+        }
+      ]
+    },
+    "teaser": {
+      "file": "animatic-teaser.mp4",
+      "captions": "captions-teaser.srt",
+      "shots": [
+        {
+          "id": "T1",
+          "t": 4.0,
+          "kind": "still",
+          "src": "v19-A.png",
+          "zoom": [
+            1.0,
+            1.12
+          ],
+          "pan": "left",
+          "card": "A neighborhood that doesn't know it's watched.",
+          "transition": "cut",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "T2",
+          "t": 4.0,
+          "kind": "still",
+          "src": "v19-C.png",
+          "zoom": [
+            1.08,
+            1.0
+          ],
+          "pan": "down",
+          "grade": "wet",
+          "card": "Watching is free.",
+          "transition": "cut",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "T3",
+          "t": 4.0,
+          "kind": "still",
+          "src": "v19-B.png",
+          "zoom": [
+            1.05,
+            1.15
+          ],
+          "pan": "right",
+          "chip": [
+            "AI",
+            "YOU"
+          ],
+          "card": "Reaching in costs credits.",
+          "transition": "cut",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ]
+        },
+        {
+          "id": "T4",
+          "t": 3.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": null,
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip"
+        }
+      ]
+    }
+  }
+}

@@ -1,8 +1,10 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan, v5 (2026-09-22). Nothing filmed yet — this doc
-is written so a video editor (or a later marketing version) can produce the
-trailer from it alone.
+**Status:** production-ready plan + rendered animatics, v20 (2026-09-23).
+The hero and teaser cuts now exist as real mp4s — `trailer/out/animatic-*.mp4`,
+built by `trailer/build-animatic.py` from the machine-readable EDL in
+`trailer/edl.json` (§11). Live footage still pending; the animatic locks
+timing, copy, and structure so the ship cut is a recapture job, not a rewrite.
 **Owner-gated:** publishing the finished video anywhere requires explicit owner
 approval. All captures come from the local dev build or the shipped game.
 **Accuracy rule:** every claim below is verified against
@@ -30,8 +32,9 @@ In priority order — if a viewer remembers only these, the trailer worked:
 Things the trailer must **never** imply: possessing arbitrary characters,
 mind-control/dialogue-steering (requests inject as *opportunities* — the AI
 decides how to render them), voice chat/TTS (cut from v1), cash-out/RMT,
-loot boxes, MMO scale, real SF business names (parody names only — use generic
-descriptors until `world/businesses.md` lands).
+loot boxes, MMO scale, real SF business names (parody names only — canonical
+list is `world/parody-names.json`, RESOLVED since world-v2: Mudhaus Coffee,
+Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 
 ## 2. Deliverables
 
@@ -57,13 +60,13 @@ shot sources keyed to §4.
 
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
-| 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened the café.` | Sound: room tone, espresso machine fades up. |
+| 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
 | 2 | 0:05–0:12 | S2 | Top-down dawn over the café block (v19-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
 | 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v19-B framing). | **[T]** "Twenty-eight people live here." |
 | 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v19-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
 | 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v19-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
-| 6 | 0:33–0:40 | S6 | Feed overlay (UI capture): entries tick by — a lease signed, a rumor, a shift started. | **[T]** "Watching is free. Always." |
-| 7 | 0:40–0:47 | S7 | Request card UI fills on screen: `REQUEST: rain, 2 h — declared upfront, 12 cr`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
+| 6 | 0:33–0:40 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
+| 7 | 0:40–0:47 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
 | 8 | 0:47–0:54 | S8 | Same park shot as S4, now raining — wet bake, dark pavement, pawns scatter. | **[T]** "Weather. Events. A character of your own." |
 | 9 | 0:54–1:01 | S9 | Possession handoff: character card flips `AI → YOU`, street cam follows the pawn turning mid-block. | **[T]** "Drive the character you hired — only yours." |
 | 10 | 1:01–1:08 | S10 | Hard-cap moment: timer drains, card flips `YOU → AI`, pawn keeps walking without a stutter. | **[T]** "When time's up, the sim takes the wheel back." |
@@ -80,8 +83,9 @@ shot sources keyed to §4.
 - **The possession shots (S9/S10)** are the accuracy-critical beats: show the
   hired character only, the declared duration, and the graceful AI handoff.
   Do not cut them in a way that reads as "possess anyone."
-- **Price on screen:** leave the `12 cr` placeholder generic; final numbers are
-  PROPOSAL pending owner sign-off (see monetization plan). Swap before ship.
+- **Price on screen:** keep cost phrased as `credits/min · declared upfront ·
+  hard cap` — final numbers are PROPOSAL pending owner sign-off (see the
+  monetization plan + `PRICING-PAGE-CONTENT.md`). Swap before ship.
 
 ## 4. Shot list — capture session runbook
 
@@ -104,11 +108,20 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 | S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v16 stills with slow push-ins (Ken Burns) and
+trailer against the existing v19 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
-The plan marks every shot that MUST be re-captured from live footage before
-the trailer ships: **S6–S11** (UI beats). S2–S5 and S12 may ship from
-high-res stills in a pinch.
+**This is exactly what the animatic does** — see §11. The plan marks every
+shot that MUST be re-captured from live footage before the trailer ships:
+**S3, S6–S11** (UI + motion beats; `"recapture": true` in `edl.json`).
+S2–S5 and S12 may ship from high-res stills in a pinch.
+
+**HUD caveat (found while building the animatic):** the published v19 stills
+carry the full debug HUD — top bar with a legacy project title, left
+character card reading "Jules … CONTROLLED", bottom control strip. Showing a
+main marked CONTROLLED would directly contradict the possession ban, so the
+animatic crops every still to a HUD-free region (`[330,100,1440,794]`).
+The ship capture must run with UI hidden — and the possession beats (S9/S10)
+must feature a **player-hired** character, never one of the 8 mains.
 
 ## 5. Music & sound
 
@@ -178,8 +191,12 @@ promises — reuse `press-kit/keyart/` if a painted look is wanted.
 
 ## 9. Pre-flight accuracy checklist (run before export)
 
-- [ ] No real SF business names in frame or copy (parody list pending →
-      generic descriptors only). Real streets/landmarks OK.
+- [ ] No real SF business names in frame or copy — canonical parody names
+      only (`world/parody-names.json`: Mudhaus Coffee, Dolores Perk,
+      Auerbach Hardware, Taqueria El Farolote, Buy-Rite …).
+      Real streets/landmarks OK.
+- [ ] No debug HUD in frame (top bar, character card, controls strip) —
+      animatic crops to `[330,100,1440,794]`; ship captures hide the UI.
 - [ ] Possession beat shows hired character only; duration + hard cap visible.
 - [ ] No voice/dialogue, no cash-out, no loot boxes, no "MMO" wording.
 - [ ] Credit numbers on screen match the monetization plan *or* are generic.
@@ -189,10 +206,33 @@ promises — reuse `press-kit/keyart/` if a painted look is wanted.
 
 ## 10. Handoff
 
-Everything an editor needs is in this repo: stills in `site/shots/` (v16
-series + v1 early-pass pair), brand assets in `site/assets/` + `press-kit/`,
-voice/tone spec in `marketing/BRAND.md` *(planned — if absent, use the
-SOCIAL-LAUNCH-PLAN voice spec: neighborly, dry, specific)*, description copy in
-§6, store context in `STORE-COPY.md`. Open dependencies: live UI captures for
-S6–S11 (game build), final credit numbers (owner), parody business names
-(world track). None block pre-production of the animatic.
+Everything an editor needs is in this repo: the rendered animatics + EDL in
+`marketing/trailer/` (§11), stills in `site/shots/` (v19 series + v16
+interiors + v1 early-pass pair), brand assets in `site/assets/` +
+`press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
+§6, store context in `STORE-COPY.md`. Open dependencies: live UI captures
+for the recapture-flagged shots (game build), final credit numbers (owner).
+Parody names are RESOLVED (`world/parody-names.json`).
+
+## 11. Animatic — rendered pre-production cut (NEW in v20)
+
+`marketing/trailer/` contains a self-contained pipeline that turns this plan
+into watchable video:
+
+- **`edl.json`** — machine-readable edit decision list. Both programs
+  (`hero` 85s, `teaser` 15s): every shot's source still, timing, card text,
+  Ken Burns zoom/pan, color grade (`wet`/`night` simulated the §8 beat and
+  the night look), possession chip + draining timer overlays, transition
+  type, and a `recapture` flag = the §4 must-recapture list.
+- **`build-animatic.py`** — PIL renders every frame (feed mock, request-card
+  mock, attribution ledger, end card, `DEVELOPMENT BUILD` corner bug,
+  dip-to-black transitions) and pipes to ffmpeg → mp4. No audio (music is a
+  licensing task, §5). Rebuild: `python3 build-animatic.py`.
+- **`out/animatic-hero.mp4` / `animatic-teaser.mp4`** — the rendered cuts.
+- **`out/captions-*.srt`** — generated from the same EDL, so captions can
+  never drift from picture.
+
+Use it to review pacing/copy with the owner before any capture session, as
+the timing reference for the editor, and as the muted-safe proof that the
+cut reads without sound. When the game ships UI captures, swap
+`"src"` stills for footage per shot — timing and copy stay locked.
