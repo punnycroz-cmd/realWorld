@@ -1,0 +1,32 @@
+{
+  "doc": "world/request-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: action catalog, rates, and feed vocabulary. Prices adopt rw-monetization-plan-2026-09-22 §2.2–2.3 (PROPOSAL — do not contradict in player-facing copy).",
+  "currency": "credits",
+  "classes": {
+    "compatible": { "rate_cr_per_min": 1.5, "min_min": 15, "max_min": 120, "review": "auto" },
+    "exclusive":  { "rate_cr_per_min": 6.0, "min_min": 15, "max_min": 60,  "review": "human", "cooldown_h": 4 },
+    "queued":     { "discount": 0.15, "queue_hold_h": 24, "expiry": "auto-refund" }
+  },
+  "surge": { "multiplier_range": [1.5, 2.5], "window_h": 6, "primetime_local": "18:00-23:00", "shown_pre_payment": true },
+  "actions": [
+    { "id": "possess",  "label": "Possess your character", "class": "compatible", "billing": "per_min",
+      "targets": "own_hired_character_only", "note": "Mains (C1–C8) + landlord unpossessable — locked. Briefing = public profile + surface relationships + routine only." },
+    { "id": "weather",  "label": "Weather change", "class": "exclusive", "billing": "flat_by_block",
+      "claims": ["sky"], "blocks": [ { "min": 60, "cr": 40 }, { "min": 120, "cr": 70 }, { "min": 240, "cr": 100 } ],
+      "global_cooldown_h": [4, 8] },
+    { "id": "nudge",    "label": "NPC nudge", "class": "compatible", "billing": "flat", "cr": 40,
+      "refund_on_decline": 0.5, "note": "An ask, not mind-control — the character may decline." },
+    { "id": "event",    "label": "Event trigger", "class": "exclusive", "billing": "flat", "cr": 200,
+      "claims": ["venue:*", "openair"], "note": "Drama-manager-mediated; one per resource per 24 h." },
+    { "id": "camera",   "label": "Camera director", "class": "compatible", "billing": "flat", "cr_per_30min": 10,
+      "note": "Spectator-side only; changes nothing in-world." }
+  ],
+  "feed_vocabulary": ["requested", "in_review", "approved", "running", "queued", "resolved", "refunded", "not approved", "admin action", "player session ended"],
+  "fairness_invariants": [
+    "cooldowns never purchasable",
+    "surge multiplier shown before payment",
+    "hard cap — no overrun; forced graceful handoff at zero",
+    "queued expiry auto-refunds",
+    "admin overrides compensate affected players",
+    "no auctions for slots; FCFS within class"
+  ]
+}
