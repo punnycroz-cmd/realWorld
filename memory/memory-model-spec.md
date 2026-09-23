@@ -1,5 +1,23 @@
-# Memory Model Spec v5.4 — implementable human-like memory for RW characters
+# Memory Model Spec v5.5 — implementable human-like memory for RW characters
 
+> **v5.5 note (formal-model VI — the content algebra, the ensemble
+> layer, and the canonical form):** `memory/formal-model.md` Part VI
+> (§§45–51) is machinery, no new psychology. **The rewrite catalog** —
+> all content mutation is recompiled into 11 typed rules (ρ_sub …
+> ρ_fab) on a V/G/K/T field lattice with grammar invariants G1–G4:
+> verbatim is conserved (write-once, monotone non-increasing), every
+> delta carries a `lastRewrite` audit trace — §13.1. **The ensemble
+> layer** — rumor spread formalized as a Maki–Thompson contact process
+> on the four-factor p_tx kernel; mean-field gives a *prediction band*
+> (Sudbury 1985 ~0.203 never-hear asymptote, venue-corrected), never a
+> driver — §13.2. **The Jensen rule** — ensemble probes run the
+> 28-character parameter joint; a mean-param verdict is inadmissible —
+> §13.3. **Canonical form** — `hash(S)==hash(S′)` finally defined:
+> sorted keys, r64-shortest floats, illegal NaN, ordered reductions —
+> §13.4. **Approximation license** — lazy decay + session batching
+> legal-by-construction under approx_tol — §13.5. +9 machinery params,
+> 3 locked nulls, probes P590–P601.
+>
 > **v5.4 note (social-memory V — who keeps whom):**
 > `memory/social-memory.md` Part V (§§65–80) prices the
 > asymmetries of who is remembered and why. **Names gate behind
@@ -7933,6 +7951,14 @@ MemoryParams = {
 //   path (opposite source-memory signs); arousal/conf alone never
 //   mints h_dap anchors.
 // v5.4 trait: keeper ∈ N(0,1), bible-pinnable (Rosenthal skew).
+// v5.5 additions (formal-model VI — machinery, pop/harness only)
+"canon_float": "r64-shortest", "hash_algo": "xxh64",   // §13.4 canon
+"fp_tol": 1e-12, "approx_tol": 1e-3,                   // §13.4/§13.5 tols
+"mix_correct": 0.6, "mix_band": 0.15,                // §13.2 mean-field
+// v5.5 locked nulls: verbatim_mint = 0 (no rewrite rule writes V
+//   post-commit — G1); orphan_rewrite = 0 (every content delta
+//   traces to the §13.1 catalog — G2); meanfield_drive = 0 (the
+//   mean field predicts K(t), it never steers spread — §13.2).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -8991,6 +9017,22 @@ not resolved (DEBATED magnitude). P509/P511.
     (§6.98: rev_moral_neg/rev_moral_pos/rev_abil + moral_bad_thresh
     threshold + moral_repair_k tax).
   - All snapshot-additive, absent = legacy.
+- v5.5 additions (formal-model.md Part VI §§45–51):
+  - Every record gains M-tier audit field `lastRewrite = {rule, day,
+    cause-ref}` — written by every content mutation; never emitted
+    (§13.1 catalog; P590).
+  - Rumor coverage is now a calibrated quantity: the substrate reports
+    K(t) knower counts to the harness; ensemble probes compare against
+    the §13.2 mean-field band (`mix_correct`, `mix_band`).
+  - `canonSerialize`/`canonHash` join the op catalog as G-class pure
+    ops (§13.4) — required by P594/P601; `state hash` in P459/P465/
+    P467 now refers to `canonHash` output.
+  - Ensemble probes MUST run the full parameter joint; mean-param
+    runs are diagnostics only (§13.3, P593).
+  - Approximation modes (lazy decay, session batching, census
+    sub-sample) are legal iff they satisfy §13.5's three conditions;
+    an enabled mode is declared on `memorySnapshot` output.
+  - All machinery: no new per-character params, no new psychology.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
@@ -9106,3 +9148,86 @@ era/capacity separation; beliefStatus FSM legality; C-tier-only
 emissions; caps bind only at declared thresholds. Full table + check
 points: formal-model.md §40. Probes P457–P468 in
 validation-design.md §73.
+
+## 13. Content-algebra and ensemble annex — rewrite catalog, mean-field, canonical form (new in v5.5)
+
+Normative pointer to `formal-model.md` §§45–51. Implementation-facing
+summary; the formal doc is the authority.
+
+### 13.1 Field tiers and the rewrite catalog
+
+Every record field is exactly one content tier: **V** (verbatim —
+write-once at encode, decays only), **G** (gist — full rewrite
+target), **K** (schema skeleton — only ρ_abs/ρ_mrg), **T** (tags:
+valence/beliefStatus/flags — bounded drift rules only), **M** (meta —
+mechanism fields, never rewritten by the catalog). Every legal content
+mutation is an instance of the 11-rule catalog ρ_sub / ρ_ins / ρ_del /
+ρ_abs / ρ_ret / ρ_vd / ρ_mrg / ρ_emb / ρ_tune / ρ_den / ρ_fab —
+trigger and rate come from the existing §4–§6 mechanisms; the catalog
+adds operand types and postconditions, not new psychology. Grammar
+invariants: **G1** no rule writes V post-commit (verbatim is
+conserved — Bartlett/Loftus reconstructive consensus made decidable);
+**G2** every delta writes `lastRewrite` (M-tier audit, never emitted);
+**G3** operand legality (ρ_mrg inputs live sub-salience only, never
+outputs V; ρ_emb writes G only); **G4** T-tier moves are bounded
+monotone steps and beliefStatus moves only via the §12.3/§28 FSM.
+Psychological license for "retellings rewrite": Hirst & Echterhoff
+2012 (Annu Rev Psychol 63:55) and Higgins & Rholes 1978 (JESP
+14:363).
+
+### 13.2 The ensemble layer — rumor as a contact process
+
+Per-encounter transmission `p_tx(A→B)` = P(A retrieves) · P(A emits) ·
+P(B encodes hearsay) · p_adopt(B|account) — all existing kernels.
+Society object K(t) = knower count, Maki–Thompson (1973)
+ignorant/spreader/stifler structure on the world-supplied contact
+graph. Mean-field calibrator: `R_eff = κ·p̄_tx·τ_survive`; never-hear
+fraction → ~0.203 under homogeneous mixing (Sudbury 1985, J Appl Prob
+22:443), lifted by `mix_correct` on the venue-clustered RW graph.
+**The mean field predicts — it never steers** (`meanfield_drive = 0`):
+coverage outside `mix_band` localizes a bug to one of the four p_tx
+factors (P592/P598). Correction half-life `τ_corr > τ_rumor` with a
+`cie_residual` floor (P597) — the correction outruns nobody.
+
+### 13.3 The Jensen rule
+
+Adoption is concave in susceptibility and retrieval is convex at the
+floor, so `E_θ[K(t)] ≠ K(t|E[θ])`. Ensemble probes MUST run the full
+parameter joint (IndivTraits MVN + jitter); a mean-param run is a
+diagnostic, never a verdict (P593). Diversity isn't aesthetics — the
+society-level statistic is unreachable from any single θ.
+
+### 13.4 Canonical form and canonHash
+
+`canonSerialize(S)`: lexicographic key order; sets sorted by id;
+floats as IEEE-754 shortest round-trip decimals (`canon_float =
+"r64-shortest"`); −0→+0; NaN/±Inf illegal in state; all spec
+summations evaluated in canonical operand order (FP non-associativity
+— Goldberg 1991; Monniaux 2008). `canonHash` = `hash_algo` (xxh64)
+over canonical bytes. Bit-identical required within a build;
+`fp_tol` applies to cross-port comparisons only. `state hash` in
+P459/P465/P467 means `canonHash` output.
+
+### 13.5 The approximation license
+
+An approximation `op̃` is legal iff it preserves I1–I12, consumes the
+identical RNG stream (draw-count parity per opTag), and keeps probe
+statistics within `approx_tol` of canonical. Declared-legal: lazy
+decay materialization (exact modulo §13.4 float order — P595),
+session batching of tick effects (params frozen per-day → the
+deferral is exact), census sub-sampling (statistics only — lifecycle
+scans never skippable). Undeclared approximations are spec violations.
+
+### 13.6 New params (v5.5 block — all pop/harness, 3 locked nulls)
+
+| param | default | notes |
+|---|---|---|
+| canon_float | r64-shortest | pop — float canon rule |
+| hash_algo | xxh64 | pop — canonHash algorithm |
+| fp_tol | 1e-12 | harness — cross-port only |
+| approx_tol | 1e-3 | harness — statistic-level |
+| mix_correct | 0.6 | pop — venue-clustering lift on 0.203 |
+| mix_band | ±0.15 | harness — coverage band half-width |
+| verbatim_mint / orphan_rewrite / meanfield_drive | 0.0 each | locked nulls — G1/G2/§13.2 |
+
+Probes P590–P601 in validation-design.md §101.

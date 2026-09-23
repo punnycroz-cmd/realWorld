@@ -1842,3 +1842,311 @@ scattered correctness hopes, and a two-sided delivery contract so a
 missing memory can be assigned to a guilty layer. Zero new storage,
 zero new per-char params, zero new psychology — this pass is the
 substrate's constitution, and every future mechanism lands on it.
+
+# Part VI — v57 deepening pass: the content algebra, the ensemble layer, and the canonical form (P590–P601)
+
+Parts I–V pinned order/units/budget, mechanisms, numerics, society
+semantics, and the transition system. Three holes remain, all of the
+same kind — quantities the probes *reference* but nothing *defines*:
+
+(a) **Content mutation has no grammar.** The spec's distortion
+mechanics (misinformation merge §6.3, gist abstraction §6.4, audience
+tuning §6.11, embellishment, valence drift, merge-participant
+archiving, source retagging) are ~15 prose passages. Nothing says
+which field tiers a rule may touch, whether "retell may never mint a
+verbatim field" is a law or a coincidence, or how an implementer
+audits that every content delta has a lawful cause. The probes assert
+distortion *rates*; nothing asserts distortion *legality*.
+
+(b) **The kernels never got lifted.** Every prior section is
+per-character. But the substrate's purpose is a *society* — rumors
+spread, consensus forms, corrections lag. There is no closed-form
+prediction for how far a rumor travels, so game-systems cannot tell a
+bug from a boring Tuesday. The rumor literature (Daley & Kendall
+1965; Maki & Thompson 1973; Sudbury 1985) already solved the
+mean-field version of exactly our propagation structure.
+
+(c) **`state hash` is used but undefined.** P459/P465/P467 all say
+"state-hash-identical" — no serialization order, float convention, or
+hash function is specified, so two honest implementations can produce
+different "equal" hashes. And every optimization an implementer will
+inevitably want (lazy decay, session batching) is currently a spec
+violation by default because no approximation license exists.
+
+This pass is again pure machinery: zero new psychology, zero new
+per-character params. The two locked nulls in §49 document the
+boundary (verbatim conservation, rewrite auditability).
+
+## 45. The field lattice and the rewrite catalog
+
+### 45.1 Field tiers (content lattice, orthogonal to §39's C/M/E)
+
+Every record field belongs to exactly one **content tier** — this is
+about *what kind of content*, not visibility:
+
+| tier | name | members | mutability |
+|---|---|---|---|
+| **V** | verbatim | literal strings/captures written at commit | write-once at encode; decays (loses entries) only via §4.x decay and ρ_del; **no rewrite rule may create a V field** |
+| **G** | gist | reconstructed detail fields (who/what/where specifics), semantic content | full rewrite target: substitute, insert, delete, embellish, merge |
+| **K** | schema | slot skeleton, category tags, personSem tier, gist type | rewritten only by ρ_abs (abstraction) and ρ_mrg (merge) |
+| **T** | tag | valence/arousal, beliefStatus, src flags, disputed/retracted | drift rules only — bounded monotone steps, never V/G content |
+| **M** | meta | strengths, counters, createdDay, accessLog | mechanism fields; §37/§40 invariants; never rewritten by the content catalog |
+
+The psychologically loaded claim is **verbatim conservation**:
+verbatim trace is created at encoding and is thereafter a finite,
+non-renewable resource — every later surface on the record is
+reconstruction or hearsay copy. This is the model's formal version of
+the reconstructive-memory consensus (Bartlett 1932; Neisser 1967;
+Loftus's post-event literature): the spec already *behaves* this way;
+§50's probes make a violation a build error, not a surprise.
+
+### 45.2 The closed rewrite catalog
+
+Every legal mutation of V/G/K/T content is an instance of one rule.
+Each rule declares trigger, rate expression (existing params only —
+the catalog *indexes* the spec's rates, it adds none), operand tiers,
+and postcondition.
+
+| rule | name | trigger (spec §) | operand | postcondition |
+|---|---|---|---|---|
+| ρ_sub | substitute | misinfo account contested (§6.3) | G-field ← account content | `lastRewrite={ρ_sub, src:accountId}`; V untouched |
+| ρ_ins | insert-schema | gist slot empty at reconstruct (confab_fill) | G-field ← schema default | marked confab-sourced in audit |
+| ρ_del | elide | field below emit floor at retell/output | G/V entry dropped from emission; field strength decays | emission-only unless decay crosses forget floor |
+| ρ_abs | abstract | gist retrieved ≥ gist_abs_thresh (§6.4) | spawns Semantic record; K-slot generalized | source episodic unchanged |
+| ρ_ret | retag-source | source.confidenceInSource decay (§6.4) | T-field rewrites attribution | content fields untouched |
+| ρ_vd | valence-drift | tick/retell drift steps (§11.2 drift_k) | T valence/arousal ±bounded step | |Δ| ≤ drift bound per step |
+| ρ_mrg | merge-participant | sub-salience merge (§4.3) | participants → archived; generic K/G spawned | **never drops** (§37); output tier ≤ G |
+| ρ_emb | embellish | adopted content retold (§6.3 embellish_p) | G-field ← new detail minted | G only — embellishments are gist-tier forever |
+| ρ_tune | audience-tune | retell with audience stance (§6.11) | T valence + G selection bias toward stance | bounded by audience_tune per telling |
+| ρ_den | deny-rot | speaker denies (§6.95) | G detail decay accelerated (dif_mult) | denied record weakened, src of denial weakened |
+| ρ_fab | fabricate | speaker fabricates (§6.95) | new record G-tier with src-flag | src-flag decays; content lives on |
+
+**Grammar invariants** (checked by P590/P591/P600):
+
+- **G1 verbatim conservation.** No rule writes a V field. Post-commit,
+  the V multiset is monotone non-increasing (entries lost, never
+  gained). A rule emitting V-tier output is malformed by definition.
+- **G2 auditability.** Every content delta on a record carries
+  `lastRewrite = {rule, day, cause-ref}` — an M-tier audit field,
+  never emitted. An untraceable mutation is an implementation bug
+  (P590 fuzzes for exactly this).
+- **G3 operand legality.** ρ_mrg inputs are `live` sub-salience only
+  (§37 table); ρ_sub never operates on V; ρ_emb outputs G only.
+- **G4 bounded tags.** T-tier moves are bounded monotone steps —
+  valence cannot jump neutral→extreme in one tick; beliefStatus moves
+  only via the §28 FSM.
+
+This is not a new mechanism — it is the spec's distortion prose
+recompiled into a rewrite system so that "the memory changed
+illegally" becomes a decidable predicate. The psychological
+justification that retellings *rewrite* (rather than annotate) is
+Hirst & Echterhoff 2012 (*Annu Rev Psychol* 63:55 — conversational
+remembering reshapes speaker memory: SS-RIF, audience tuning, social
+contagion) and Higgins & Rholes 1978 (*JESP* 14:363 — saying-is-
+believing: the tuned message becomes the remembered content).
+
+## 46. The ensemble layer — society-level predictions
+
+### 46.1 The rumor contact process
+
+A rumor is a record content-hash `h` propagating through the contact
+graph (world supplies encounters). Define per-encounter transmission:
+
+```
+p_tx(A→B) = P(A holds live h-record) · P(A emits h | retrieved, session)
+            · P(B encodes hearsay) · p_adopt(B | account)
+```
+
+All four factors are existing kernels (retrieval drive §3.2, retell
+emission §6.x, hearsay encode §6.3 gate, adoption §6.3–6.5). The
+ensemble object is `K(t)` = number of characters holding a live
+h-record at day t — three subpopulations, Maki–Thompson (1973)
+structure:
+
+- **Ignorant** — no h-record.
+- **Spreader** — live h-record, retell drive above emission floor.
+- **Stifler** — record dead/archived, or holder stifled by contact
+  with a knower (interest loss — the DK/MT removal channel maps to
+  our `hearCount` saturation + retell-drive decay on known-knowns).
+
+### 46.2 Mean-field prediction (the calibrator's license)
+
+Under homogeneous mixing (encounter rate κ/day, mean transmission
+p̄_tx, mean live-window τ_survive days):
+
+```
+R_eff = κ · p̄_tx · τ_survive      // reproduction number
+final never-hear fraction → ~0.203 as N→∞ for the classical
+   MT process (Sudbury 1985, J Appl Prob 22:443); on the RW
+   contact graph with venue clustering, predicted fraction rises
+   by mix_correct — a STRUCTURAL correction, not a fitted knob
+```
+
+The ensemble layer's deliverable is a **prediction interval, not a
+driver**: run the simulation, measure K(t), compare to the mean-field
+band. Agreement within `mix_band` = calibrated society; disagreement
+= a bug localized to one of the four factors (P592 decomposes).
+**`meanfield_drive` is a locked null** — the mean field predicts,
+it never steers; implementing spread *as* the ODE would erase the
+per-character heterogeneity that is the entire point.
+
+### 46.3 The Jensen caveat — probes run the joint, not the mean
+
+p_adopt is concave in susceptibility (saturating adoption), and
+retrieval drive is convex in record strength at the floor — so
+
+```
+E_θ[K(t)] ≠ K(t | E_θ[θ])      (Jensen — strict inequality both
+                                directions depending on regime)
+```
+
+Consequence: a probe that runs "the average character" N times is
+measuring a different quantity than the 28-character parameter joint.
+**Ensemble probes MUST sample the full parameter joint** (the
+IndivTraits MVN + jitter pipeline), and any mean-param run is a
+diagnostic, never a verdict (P593). This is the formal reason
+"diversity by design" is not aesthetics: the society-level statistic
+is not reachable from any single parameter vector.
+
+### 46.4 Correction dynamics — the lag metric
+
+A trusted correction (§6.6) does not propagate on the rumor's own
+channel symmetric to the original: corrections spread on the same
+contact process but with `p_tx` degraded by lower retell drive
+(corrections are boring) — while the retracted record's influence
+persists at `cie_residual`. Define **correction half-life**
+`τ_corr` = time for the doubter fraction among knowers to halve.
+Predictions: `τ_corr > τ_rumor` (the lie outruns the correction —
+the spec's own mechanism implies it); residual influence never
+reaches zero (`cie_residual` floor). Both are falsifiable (P597).
+
+## 47. Canonical form and the state hash
+
+P459/P465/P467/P594 all reduce to `hash(S) == hash(S′)`; the hash was
+never defined. Canonical serialization:
+
+1. **Key order:** lexicographic by UTF-8 bytes at every map level.
+2. **Sets:** sorted by element id before serialization.
+3. **Floats:** IEEE-754 double, shortest round-trip decimal
+   (Burger & Dybvig 1996 class — the representation where
+   read(write(x)) ≡ x bit-exact); `−0` canonicalizes to `+0`; **NaN
+   and ±Inf are illegal in state** — a NaN reaching the serializer is
+   a domain error (§30), not a hash input.
+4. **Integers/enums:** fixed-width, enum → stable string.
+5. **Hash:** `hash_algo` (xxh64-class) over the canonical byte stream.
+6. **Ordered reductions:** any floating-point sum in spec math
+   (simOp weights, β-products, census) is evaluated in **canonical
+   order** — sorted operand list, sequential accumulate. FP addition
+   is non-associative (Goldberg 1991, *ACM Comput Surv* 23:5;
+   Monniaux 2008, *ACM TOPLAS* 30:12 on the unsoundness of
+   treating FP as reals); unordered reduction = nondeterminism.
+
+**Two tolerances, sharply separated:**
+
+- `bit-identical` — required within one build/toolchain. Same seed +
+  same ledger ⇒ same hash. No epsilon.
+- `fp_tol` (1e-12) — permitted ONLY for cross-port comparisons
+  (different math libraries, different compilers). A probe run under
+  port-comparison mode declares it; P594 pins which is in force.
+
+## 48. The approximation license — the fast/slow split
+
+Every optimization is currently illegal because only the canonical
+kernel is defined. The license: an approximation `op̃` of op `op` is
+**legal iff** (i) it preserves invariants I1–I12; (ii) it consumes
+the identical RNG stream (draw count + namespacing — refactor
+stability §36); (iii) on the probe corpus, probe statistics computed
+under `op̃` differ from canonical by < `approx_tol` (1e-3) — measured
+on the *statistic*, not per-draw.
+
+Declared-legal approximations (the ones implementers will actually
+need):
+
+- **Lazy decay materialization:** R computed on read as
+  `R_commit · decay(Δdays)` instead of daily stepping — legal iff
+  identical within `fp_tol`; the decay function is continuous so this
+  is exact modulo float order (which §47 pins).
+- **Session batching:** within a conversationSession, tick-time
+  effects (drift, decay) may defer to session end — params are frozen
+  per-day (adiabatic: the slow variable is constant over the fast
+  run), so the deferral is exact, not approximate.
+- **Census skip:** dailyMemoryTick's store sweep may sub-sample the
+  archive for statistics (not for lifecycle decisions — FSM scans are
+  never skippable).
+
+## 49. New params (spec §7 v5.5 block) — audit-compliant
+
+| param | default | free? | observable |
+|---|---|---|---|
+| canon_float | "r64-shortest" | pop | P594 — float canon rule |
+| hash_algo | "xxh64" | pop | P594/P601 |
+| fp_tol | 1e-12 | harness | P594/P595 — cross-port only |
+| approx_tol | 1e-3 | harness | P596 — statistic-level |
+| mix_correct | 0.6 | pop | P592 — venue-clustering lift on the 0.203 asymptote |
+| mix_band | ±0.15 | harness | P592 prediction interval half-width |
+| verbatim_mint | 0.0 | locked null | P591 — no rule writes V post-commit |
+| orphan_rewrite | 0.0 | locked null | P590 — every delta traces to a rule |
+| meanfield_drive | 0.0 | locked null | P593 — mean field predicts, never steers |
+
+9 entries, **0 per-character**. The three locked nulls document that
+verbatim creation, unaudited mutation, and ODE-driven spread are
+permanently zero degrees of freedom.
+
+## 50. Formal/consistency probes (P590–P601)
+
+- **P590 rewrite auditability (MUST):** fuzz 10⁴ op sequences; every
+  content delta on every record carries a `lastRewrite` traceable to
+  the §45.2 catalog with legal operand tiers. FAIL on any orphan
+  (`orphan_rewrite = 0`).
+- **P591 verbatim conservation (MUST):** post-commit, the V-field
+  multiset is monotone non-increasing; any rule application emitting
+  V output = FAIL (`verbatim_mint = 0`). Hearsay copies land G-tier.
+- **P592 rumor coverage calibration (MUST — quantitative):** seed a
+  rumor in one venue; simulated K(∞)/N falls inside the mean-field
+  band `0.797 ± mix_band` corrected by `mix_correct` over ≥200 seeds.
+  Decompose failure to one of the four p_tx factors before debugging.
+- **P593 Jensen discipline (MUST — meta):** every ensemble probe
+  reports the parameter-joint verdict; a mean-param run is logged as
+  diagnostic only. FAIL if a registry verdict was computed at
+  `E[θ]` (`meanfield_drive = 0` for predictions too).
+- **P594 canonical hash (MUST):** serialize→hash equal under field
+  insertion-order permutation and set-order permutation; NaN/−0
+  rejected at the serializer; within-build runs bit-identical,
+  cross-port within `fp_tol`.
+- **P595 lazy-decay equivalence (MUST):** materialize-on-read R vs
+  daily-stepped R identical within `fp_tol` on the golden corpus;
+  lifecycle transitions identical (FSM decisions never flip).
+- **P596 approximation license (SHOULD):** each declared `op̃`
+  preserves I1–I12 and keeps probe statistics within `approx_tol`;
+  RNG stream consumption identical (draw-count parity per opTag).
+- **P597 correction half-life (SHOULD — sign-locked):** trusted
+  correction halves doubter fraction within `τ_corr` > `τ_rumor`;
+  residual influence asymptotes at ≥ `cie_residual`, never 0.
+- **P598 transmission decomposition (SHOULD):** from simulated dyad
+  data, recover the four p_tx factors (retrieve/emit/encode/adopt)
+  within §4 identifiability bounds — a factor that can't be recovered
+  is a param that isn't real.
+- **P599 stifler extinction (SHOULD):** when `R_eff < 1` (holders'
+  records die faster than transmission), the rumor dies out —
+  coverage ceiling observed, never sustained spread on dead records.
+- **P600 grammar operand legality (MUST):** ρ_mrg never outputs V;
+  ρ_sub never reads V as target; ρ_emb writes G only; T-tier steps
+  bounded per G4 — fuzz the catalog itself, not just runs.
+- **P601 canon round-trip (SHOULD):** deserialize(serialize(S)) ≡ S
+  bit-identical including rngState; snapshot→migrate→snapshot is
+  lossless on C/M tiers (E-tier oracle fields exempt per I7).
+
+## 51. Summary for game-systems
+
+One rewrite catalog to implement against (§45 — every content change
+has a rule name, an operand type, and an audit trail); one ensemble
+prediction layer (§46 — Maki–Thompson mean-field gives you the
+"is the rumor working?" calibrator, with the Jensen rule that probes
+run the 28-character joint, never the average person); one canonical
+form making `hash(S) == hash(S′)` decidable (§47 — ordered floats,
+sorted keys, illegal NaN); one approximation license so lazy decay
+and session batching are legal-by-construction instead of
+spec violations you commit quietly (§48). Zero new storage, zero new
+per-character params, zero new psychology — the substrate now has a
+content algebra and a population-level ground truth to calibrate
+against.

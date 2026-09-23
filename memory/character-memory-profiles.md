@@ -2589,3 +2589,23 @@ dials — most interact with bible role assignments, not just traits.
   the caught lie outlives its retraction; (d) "who was at the
   party" is always partly fiction; (e) moral reputation is a
   ratchet — cheap to lose, expensive to buy back.
+
+## 40. v5.5 note (formal-model VI — machinery pass)
+
+**No new clamp rows, no new traits.** The v5.5 params
+(`canon_float`, `hash_algo`, `fp_tol`, `approx_tol`, `mix_correct`,
+`mix_band` + three locked nulls) are population/harness machinery —
+they configure the simulator, not a mind. Nothing here is
+bible-pinnable, and that is the point: Part VI formalizes how records
+may legally change (the §13.1 rewrite catalog) and what the society
+should predict (the §13.2 rumor mean-field), both identical for all
+28 characters.
+
+What bible writers DO get from v5.5: the guarantee that a character's
+memory can only lie in 11 named ways (the ρ-rules) — so a character
+who "remembers wrong" is always lying through a spec'd channel
+(misinformation, schema fill, embellishment, audience tuning, the
+liar's ledger), never through a hole. And the Jensen rule (§13.3):
+the block's rumor behavior is a property of the *cast ensemble*, so
+two mains with wild `misinfo_suscept`/`retell` extremes change the
+neighborhood's epidemiology, not just their own heads.

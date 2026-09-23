@@ -4567,3 +4567,95 @@ Registry: P1–P565. v54 suite: P555–P565 (7 MUST, 4 SHOULD).
 Registry: P1–P589. v56 suite: P578–P589 (8 MUST, 4 SHOULD —
 P582 carries a locked null on the demeanor channel; P585
 sign-locks the denial/fabrication split).
+
+## 101. Probes P590–P601 (v57 — formal-model VI, the content algebra,
+## the ensemble layer, and the canonical form; formal-model.md Part VI,
+## spec v5.5)
+
+All machinery probes — zero psychology under test. Every one is
+defined over the seed-ensemble distribution per §36 probe semantics.
+
+- **P590 rewrite auditability (MUST):** 10⁴ fuzzed op sequences;
+  every content delta on every record carries `lastRewrite` ∈ the
+  §13.1/§45.2 catalog with legal operand tiers. Orphan rewrite =
+  FAIL (`orphan_rewrite = 0`, locked).
+- **P591 verbatim conservation (MUST — boundary-locked):** the V-tier
+  field multiset is monotone non-increasing post-commit across all
+  fuzzed runs; hearsay/imagination copies land G-tier; any rule
+  emitting V = FAIL (`verbatim_mint = 0`, locked).
+- **P592 rumor coverage calibration (MUST — quantitative):** rumor
+  seeded in one venue on the world contact graph; terminal knower
+  fraction inside the mean-field band `0.797 ± mix_band` corrected by
+  `mix_correct`, ≥200 seeds, Wilson CI on the coverage estimate.
+  FAIL decomposes to the responsible p_tx factor via P598 before any
+  debugging begins.
+- **P593 Jensen discipline (MUST — meta):** registry verdicts cite
+  parameter-joint ensembles only; a probe verdict computed at E[θ]
+  is inadmissible. Harness-side check: verdict records carry the
+  ensemble descriptor; mean-param runs logged diagnostic-only
+  (`meanfield_drive = 0` for spread prediction as well).
+- **P594 canonical hash (MUST):** canonHash invariant under field
+  insertion-order and set-order permutations; NaN/−0 rejected at
+  canonSerialize; same-build runs bit-identical, cross-port deltas
+  within `fp_tol` and only under declared port-comparison mode.
+- **P595 lazy-decay equivalence (MUST):** materialize-on-read R vs
+  daily-stepped R within `fp_tol` on the golden corpus; every
+  lifecycle transition identical (no FSM decision flips).
+- **P596 approximation license (SHOULD):** each declared `op̃`
+  preserves I1–I12, keeps probe statistics within `approx_tol`, and
+  matches canonical RNG stream consumption (draw-count parity per
+  opTag). Undeclared approximation detected = FAIL.
+- **P597 correction half-life (SHOULD — sign-locked):** a trusted
+  correction halves the doubter fraction at `τ_corr` strictly greater
+  than the original rumor's `τ_rumor`; residual inference asymptotes
+  at ≥ `cie_residual`, never 0 — the correction is remembered and
+  the misinformation still leaks.
+- **P598 transmission decomposition (SHOULD):** simulated dyad data
+  recovers the four p_tx factors (retrieve/emit/encode/adopt) within
+  the §4 identifiability bounds; an unrecoverable factor flags a
+  param that isn't real.
+- **P599 stifler extinction (SHOULD):** with `R_eff < 1` (records die
+  faster than transmission), coverage saturates and the rumor
+  extincts — never sustained spread on dead records.
+- **P600 grammar operand legality (MUST):** fuzz the catalog itself:
+  ρ_mrg never outputs V and only reads live sub-salience inputs;
+  ρ_sub never targets V; ρ_emb writes G only; T-tier steps bounded
+  per G4; beliefStatus transitions ∈ §28 FSM.
+- **P601 canon round-trip (SHOULD):** deserialize(canonSerialize(S))
+  ≡ S bit-identical including rngState; snapshot→migrate→snapshot
+  lossless on C/M tiers (E-tier exempt per I7).
+
+## 102. Sources verified this version (P590–P601 backing)
+
+- Daley & Kendall 1965 (*J Inst Maths Applics* 1:42 — verified via
+  citation record: stochastic rumours, the ign/spreader/stifler
+  partition; the 1964 Nature 204:171 note is the popular version);
+  Maki & Thompson 1973 (*Mathematical Models and Applications*,
+  Prentice-Hall — verified: the initiator-only removal variant our
+  retell-saturation channel maps to); Sudbury 1985 (*J Appl Prob*
+  22:443 — verified abstract: never-hear fraction converges in
+  probability to ≈0.203 as N→∞; DOI 10.2307/3213787); Pittel 1990
+  (*J Appl Prob* 27:14 — DK variant analysis).
+- Hirst & Echterhoff 2012 (*Annu Rev Psychol* 63:55 — verified:
+  conversational remembering reshapes speaker memory; SS-RIF,
+  audience tuning, social contagion, propagation across networks;
+  DOI 10.1146/annurev-psych-120710-100340); Higgins & Rholes 1978
+  (*JESP* 14:363 — verified: saying-is-believing, audience-tuned
+  message becomes remembered content; DOI
+  10.1016/0022-1031(78)90032-X); Echterhoff, Higgins & Groll 2005
+  (*JPSP* 89:257 — shared-reality mediation of the tuning bias);
+  Coman, Manier & Hirst network-propagation line (PMID 21910558 —
+  RIF/practice effects propagate transitively through conversations).
+- Bartlett 1932 (*Remembering* — reconstructive canon behind G1);
+  Loftus post-event line (verbatim non-renewability); Koriat &
+  Goldsmith 1996 (*Psych Rev* 103:490 — output is controlled
+  reconstruction, the metamemory basis for treating emitted content
+  as rewrite output, not readout).
+- Goldberg 1991 (*ACM Comput Surv* 23:5 — FP canon); Monniaux 2008
+  (*ACM TOPLAS* 30:12 — verified: treating FP as reals is unsound;
+  ordered-reduction requirement); Burger & Dybvig 1996 (shortest
+  round-trip printing); Lamport 1978 (reused — total-order
+  construction from §36).
+
+Registry: P1–P601. v57 suite: P590–P601 (7 MUST, 5 SHOULD —
+three locked nulls: verbatim_mint, orphan_rewrite, meanfield_drive).
