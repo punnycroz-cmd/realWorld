@@ -1,10 +1,15 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v60 · 2026-09-23 (fourth pass — gallery refresh v37→v40 across
+**Version:** v75 · 2026-09-24 (fifth pass — live SERP landscape validation:
+Midsummer's cancelled "Burbank" confirms orphan demand for "Truman Show
+game"; FAQ 26→29 — multiplayer / missed-events / day-night graduated from
+the §16 bank; ItemList JSON-LD shipped on features; Tier-2 keyword map
+gains the Burbank cluster).
+**v60** (fourth pass): gallery refresh v37→v40 across
 site/press-kit/keyart/capsules/og-card/trailer; FAQ 25→26 with the jobs
 question; seo_audit.py +3 machine checks: title/description uniqueness,
 sitemap lastmod sanity, llms.txt link + FAQ-count parity; keyword map gains
-the jobs/hire cluster from game-v8 canon).
+the jobs/hire cluster from game-v8 canon.
 **v45** (third pass): audit tooling extended (srcset/og:image/CLS checks,
 question bank, future indexable surfaces register). **v46 delta:** gallery
 refresh v28→v29; new 14th page `/archive.html` added to §3 and §13.
@@ -58,7 +63,8 @@ first week post-launch; re-score tiers at day-30.
 | Sims alternative free | Medium | faq + journal essay | NOT a Sims clone — pitch "watch, don't decorate" |
 | games like Twitch Plays Pokémon | Low-med | journal essay | Collective-agency ancestry — honest lineage post |
 | GTA RP browser game | Low | journal essay | "Second life with job and rent" is proven demand (FiveM) |
-| Paralives release / Paralives alternative | Medium | faq comparison block | Waiting-audience capture; never disparage |
+| Paralives release / Paralives alternative | Medium | faq comparison block | Waiting-audience capture; never disparage. Still delayed (v75 check) — demand stays pent-up |
+| Burbank game / games like Burbank | Low-med, disappointed | faq comparison + journal essay | Jake Solomon's cancelled "Sims + Truman Show" (Midsummer, closed 2026) — press-proven demand, zero product. §18 |
 | cozy life sim 2026 | Medium | index support copy | Tone match, "but with stakes" |
 
 ### Tier 3 — mechanic & place long tail (cheap wins, journal fodder)
@@ -92,7 +98,7 @@ in markup today.
 | Page | Title (shipped) | Primary keyword | Schema | Notes |
 |---|---|---|---|---|
 | `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v44-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
-| `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | — | Candidate for ItemList of features later |
+| `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | ✔ ItemList (v75) | 6-item feature-pillar list mirroring the page's h2 sections |
 | `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src`; embeds the real wire app (demo stream) since v61 |
@@ -100,7 +106,7 @@ in markup today.
 | `/wire-archive.html` | The Archive — Real World history browser | game event archive | — | Real world-v34 app, verbatim + 3 documented patches; demo-badged; distinct from `/archive.html` (explainer owns "archive" queries, this is the running app) |
 | `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md; scene builder + worked scenes (v67) |
-| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 26 Qs (jobs Q added v60); JSON-LD ↔ visible parity enforced by seo_audit.py |
+| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 29 Qs (jobs Q v60; multiplayer/missed-events/day-night graduated v75); JSON-LD ↔ visible parity enforced by seo_audit.py |
 | `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
 | `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
 | `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
@@ -137,6 +143,7 @@ the brand); log every variant flip + dates in MARKETINGLOG.
 | Type | Where | Status |
 |---|---|---|
 | VideoGame | index | ✔ shipped (genre, platform, free offer, author, `screenshot[]`, `isAccessibleForFree`) |
+| ItemList | features | ✔ shipped (v75) — 6 feature pillars, urls anchored to the page |
 | WebPage + isAccessibleForFree | demo | ✔ shipped |
 | FAQPage | faq | ✔ shipped — MUST mirror visible questions; sync on every edit |
 | Article | journal posts | PENDING — add when posts get their own URLs |
@@ -204,7 +211,7 @@ Done in markup (verified by `tools/staging_dryrun.sh` **and**
 - [x] Every meta description ≤155 chars (8 fixed in v30 after audit found them)
 - [x] VideoGame `screenshot[]` — all four current gallery shots
 - [x] `llms.txt` at site root — entity briefing for AI answer engines
-- [x] FAQ visible↔schema parity machine-checked (26 questions)
+- [x] FAQ visible↔schema parity machine-checked (29 questions, v75)
 - [x] Title & meta-description uniqueness across all pages machine-checked (v60)
 - [x] Sitemap lastmod dates ISO + never future-dated (v60)
 - [x] llms.txt link targets resolve + "N questions" claim matches live
@@ -254,7 +261,7 @@ Which rich result each page is built to win — checked by `seo_audit.py`:
 | SERP feature | Page | Asset that earns it |
 |---|---|---|
 | VideoGame rich result (screenshots, free offer) | index | VideoGame JSON-LD + `screenshot[]` + `isAccessibleForFree` |
-| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 26 Qs incl. the Sims/InZOI comparison (v30) and the jobs question (v60) |
+| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 29 Qs incl. the Sims/InZOI comparison (v30), the jobs question (v60), multiplayer + missed-events + day-night (v75) |
 | Image pack | index, features, press-kit | sitemap `image:` entries + descriptive alt + real shot filenames |
 | Sitelinks | index | flat nav + consistent titles — earned, not markup |
 | "Free" qualifier snippets | demo, pricing | `isAccessibleForFree` + "free, always" copy in first 155 chars |
@@ -358,11 +365,11 @@ already owns the cluster.
 | can I co-sign / co-sponsor someone's request | faq | QUEUE — world-v32 `co_sponsor` contract is real; add when wire shows it |
 | can I link to a specific request or event | archive + how-it-works | QUEUE — world-v33 `#r=` permalinks; add when the wire is public |
 | do the characters know you're watching | index copy ("none know you're watching") | QUEUE — graduate to faq if the query shows up |
-| is it multiplayer | faq | QUEUE — asymmetric shared world; needs wording care |
+| is it multiplayer | faq | ✔ answered (v75 — one shared block, compatible requests co-scene; not co-op control) |
 | can you romance / date a character | faq | QUEUE — only if asked; no romance mechanic to promise |
 | what time zone does the neighborhood run on | faq | QUEUE — add post-launch if seen |
-| can you watch old events / is there a history | faq + journal recaps | QUEUE — history browser lands with game |
-| is there a day/night cycle | features | QUEUE — real sun engine exists; verify wording first |
+| can you watch old events / is there a history | faq + archive | ✔ answered (v75 — Archive surface exists on-site, demo-badged) |
+| is there a day/night cycle | faq | ✔ answered (v75 — real solar engine, real-time routines; canon since art-v14) |
 | who made it / what engine | press-kit + Organization schema | pending domain flip |
 
 Rules: a question graduates to faq.html only when (a) a real channel shows the
@@ -386,3 +393,33 @@ built today, and none must cannibalize an owner page in §13.
 Rule: before any of these ships, add its row to §13's register with an owner
 declaration. New surfaces are the #1 way a site this size starts competing
 with itself.
+
+## 18. SERP landscape validation (v75)
+
+First live check of the niche's actual search results (previously §2 volumes
+were estimates with no tool access). Four findings, all sourced:
+
+1. **"Truman Show game" is confirmed orphan demand.** Midsummer Studios'
+   *Burbank* — Jake Solomon's "Sims + The Truman Show" pitch — was cancelled
+   when the studio closed in 2026 (Eurogamer, GameRant coverage). The press
+   proved the phrase converts to coverage and curiosity, and there is now
+   *no product* to land on. Tier-1 target stands; Tier-2 gains the Burbank
+   cluster (§2). Journal essay angle: honest lineage — "the Truman Show
+   game that didn't die," never disparaging a cancelled peer.
+2. **"Watch AI villagers" has hobbyist supply, no commercial product.**
+   Smallville-descendant projects (Tokenbury, LLM-agent demos) validate the
+   audience's appetite but ship no game. We are the only spectator-first
+   commercial attempt — keep the demo page as the cluster owner.
+3. **InZOI's documented weakness is our pitch.** Post-launch coverage and
+   KRAFTON's own follow-ups center on a "shallow/lifeless Live Mode" — and
+   InZOI is now building "Canvastown," a multiplayer RP mode, which
+   validates that the genre's audience wants *people in a shared place*,
+   not more build tools. Comparison copy stays factual: we answer "the
+   citizens feel dead" with a written cast and persistent memory, and we
+   answer "I want to be inside it" with the move-in ladder.
+4. **Paralives still delayed.** The waiting-audience capture angle in §2
+   remains live; keep the FAQ comparison block honest and current — check
+   competitor status again at the next pass.
+
+**Action carried forward:** before each future pass, re-run this check —
+competitor launches/shutdowns are the cheapest keyword-map updates we get.
