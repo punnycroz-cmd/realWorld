@@ -806,6 +806,35 @@ function sfBldCanvas(b, wet){
       g.moveTo(w.x1, w.y1 - hPx - 1); g.lineTo(w.x2, w.y2 - hPx - 1);
       g.stroke();
     }
+    // v30: false-front gable cap — same gate as the street view
+    // (sfGableFront takes meters; the wall strip runs 4.2px per meter),
+    // drawn as a shingled triangle rising over the cornice line so the
+    // top-down silhouette carries the same sawtooth.
+    {
+      const gh = sfGableFront(b.i, w.i, w.len / SF_PXM, isShop,
+                              Math.max(1, Math.round(b.hPx / 12.6)));
+      if(gh > 0){
+        const ghP = gh * 4.2;
+        const [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);
+        const gcol = sfSunWallCol(shade(wallBase, 0.88), sunK);
+        g.fillStyle = gcol;
+        g.beginPath();
+        g.moveTo(w.x1, w.y1 - hPx); g.lineTo(w.x2, w.y2 - hPx);
+        g.lineTo(mx, my - ghP); g.closePath(); g.fill();
+        g.strokeStyle = 'rgba(24,18,12,0.3)'; g.lineWidth = 1;
+        for(let r = 1; r <= 3; r++){
+          const u = r / 4;
+          const rx = w.x1 + (mx - w.x1) * u, ry = (w.y1 - hPx) - u * ghP;
+          const lx = w.x2 + (mx - w.x2) * u, ly = (w.y2 - hPx) - u * ghP;
+          g.beginPath(); g.moveTo(rx, ry); g.lineTo(lx, ly); g.stroke();
+        }
+        g.strokeStyle = ACC; g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(w.x1, w.y1 - hPx); g.lineTo(mx, my - ghP);
+        g.lineTo(w.x2, w.y2 - hPx); g.stroke();
+        paEllipse(g, mx, my - ghP - 2, 1.6, 1.6, ACC);
+      }
+    }
     // v18: Clarion-style mural band across the lower wall — a painted
     // sky field, sun disc and layered hill silhouettes baked into the
     // sprite so the top-down view shows the same splash of color

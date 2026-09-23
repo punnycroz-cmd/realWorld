@@ -1858,6 +1858,26 @@ function sfRenderWorld(cw, ch){
    courses, hooded capsule windows, projecting bay windows, and a styled
    ground floor (storefront / stoop / garage). All in world-space meters,
    projected through pr(). */
+
+/* v30: two pure facade gates shared between the street pass and the
+   baked top-down sprite, so the skyline agrees in both views.
+   sfGableFront -> false-front gable rise in meters (0 = flat cornice).
+   Mission rows alternate flat cornices with triangular parapet gables —
+   the gable lives IN the wall plane (a false front), so it never adds
+   footprint and stays invisible to collision/shadow footprint logic.
+   sfGarageU -> center u of a ground-floor garage opening (-1 = none).
+   The raised-basement + garage + up-stoop front is THE San Francisco
+   residential grammar: cars at grade, door up a flight. */
+function sfGableFront(i, ei, L, isShop, floors){
+  if(isShop || floors < 2 || L < 8 || phash(i, ei, 3300) >= 0.34) return 0;
+  return 1.3 + phash(i, ei, 3301) * 0.8;
+}
+function sfGarageU(i, ei, L, isShop, style, mural, doorT){
+  if(isShop || mural || style === 2 || L < 8.5 ||
+     phash(i, ei, 3302) >= 0.5) return -1;
+  return doorT + (phash(i, ei, 3303) < 0.5 ? -0.30 : 0.30);
+}
+
 function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, fwd){
   const i = b.i;
   const wallBase = SF_WALL_COLS[Math.floor(phash(i, 7, 1300) * SF_WALL_COLS.length)];
@@ -2042,6 +2062,91 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  /* v30: false-front gable — a triangular parapet pediment rises over the
+     cornice on a third of tall residential fronts. It stands in the wall
+     plane (a real false front: the roof hides behind it), gets the same
+     sun key as the wall, fish-scale shingles + rake trim when the lens is
+     near, and a finial rod at the apex. Drawn before the det-0 return so
+     the far skyline keeps its sawtooth. */
+  const gableH = sfGableFront(i, ei, L, isShop, Math.max(1, Math.round(hm / 3)));
+  if(gableH > 0){
+    const gz0 = hm + para * 0.55, gz1 = hm + para + gableH,
+          gmx = x1 + ex * 0.5, gmy = y1 + ey * 0.5;
+    const ga = pr(x1, y1, gz0), gb = pr(x2, y2, gz0), gm = pr(gmx, gmy, gz1);
+    if(ga && gb && gm){
+      // pediment face — sun-keyed like the wall, a shade darker
+      const gcol = sfSunWallCol(shade(wallBase, 0.88), sunK);
+      ctx.fillStyle = gcol;
+      ctx.beginPath();
+      ctx.moveTo(ga[0], ga[1]); ctx.lineTo(gb[0], gb[1]);
+      ctx.lineTo(gm[0], gm[1]); ctx.closePath(); ctx.fill();
+      // fish-scale shingles: scallop arcs row over row, clipped to the
+      // pediment — the signature texture of a Queen Anne gable end
+      if(det === 2){
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(ga[0], ga[1]); ctx.lineTo(gb[0], gb[1]);
+        ctx.lineTo(gm[0], gm[1]); ctx.closePath(); ctx.clip();
+        ctx.strokeStyle = 'rgba(24,18,12,0.30)'; ctx.lineWidth = 1;
+        const rows = Math.max(2, Math.floor(gableH / 0.28));
+        for(let r = 0; r < rows; r++){
+          const u = (r + 1) / (rows + 1);
+          const rx = ga[0] + (gm[0] - ga[0]) * u, ry = ga[1] + (gm[1] - ga[1]) * u;
+          const lx = gb[0] + (gm[0] - gb[0]) * u, ly = gb[1] + (gm[1] - gb[1]) * u;
+          const wpx = lx - rx, nSc = Math.max(1, Math.floor(Math.abs(wpx) / 9));
+          for(let k = 0; k < nSc; k++){
+            const sx = rx + wpx * (k + 0.5) / nSc;
+            ctx.beginPath();
+            ctx.arc(sx, ry, Math.abs(wpx) / nSc * 0.55, Math.PI, 0, false);
+            ctx.stroke();
+          }
+        }
+        // round attic vent centered in the gable
+        const vc = pr(gmx, gmy, gz0 + gableH * 0.42);
+        if(vc){
+          const vr = Math.max(2, F * 0.18 / vc[2]);
+          ctx.fillStyle = shade(gcol, 0.7);
+          ctx.beginPath(); ctx.arc(vc[0], vc[1], vr, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = shade(ACC, 1.05);
+          ctx.beginPath(); ctx.arc(vc[0], vc[1], vr, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+      }
+      // rake trim — bright accent lines on both sloped edges
+      ctx.strokeStyle = shade(ACC, 1.08); ctx.lineWidth = Math.max(1.2, F * 0.03 / ga[2]);
+      ctx.beginPath();
+      ctx.moveTo(ga[0], ga[1]); ctx.lineTo(gm[0], gm[1]);
+      ctx.lineTo(gb[0], gb[1]);
+      ctx.stroke();
+      // apex finial: short rod + ball
+      const fm = pr(gmx, gmy, gz1 + 0.32);
+      if(fm && det >= 1){
+        ctx.strokeStyle = shade(ACC, 0.75); ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(gm[0], gm[1]); ctx.lineTo(fm[0], fm[1]); ctx.stroke();
+        ctx.fillStyle = shade(ACC, 1.1);
+        ctx.beginPath(); ctx.arc(fm[0], fm[1], Math.max(1.4, F * 0.06 / fm[2]), 0, Math.PI * 2); ctx.fill();
+      }
+      // the gable throws a sliver of shade onto the fascia below when the
+      // sun strikes this face
+      const snW2 = SF_SUN.x * nx + SF_SUN.y * ny;
+      if(!night && snW2 < -0.1 && SF_SUN.day > 0.2){
+        const shp = Math.min(0.5, 0.6 / -snW2 * Math.tan(Math.max(0, SF_SUN.el)) * 0.3);
+        quad([[x1, y1, gz0 - shp], [x2, y2, gz0 - shp],
+              [x2, y2, gz0 + 0.02], [x1, y1, gz0 + 0.02]],
+             `rgba(20,14,8,${0.22 * SF_SUN.day})`);
+      }
+      // the gable fades into the same marine haze as the wall under it
+      const ghz = sfHazeA(fwd);
+      if(ghz > 0.02){
+        ctx.globalAlpha = ghz; ctx.fillStyle = `rgb(${SF_WX.hazeRGB})`;
+        ctx.beginPath();
+        ctx.moveTo(ga[0], ga[1]); ctx.lineTo(gb[0], gb[1]);
+        ctx.lineTo(gm[0], gm[1]); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
   // v10 silhouette tier: >160m — face + parapet + marine haze, done.
   if(det === 0){
     const hz0 = sfHazeA(fwd);
@@ -2161,6 +2266,36 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.beginPath();
     ctx.moveTo(pb[0] - r, pt[1] + wh * 0.45); ctx.lineTo(pb[0] + r, pt[1] + wh * 0.45);
     ctx.stroke();
+    // v30: lived-in dressing — some sashes sit half-open (the lower sash
+    // raised shows a room-dark gap at the meeting rail), a few sills
+    // carry a window AC unit, a few upper windows get a Juliette rail
+    if(det === 2 && !litWin && !night){
+      if(ww > 5 && phash(Math.round(wx * 19), Math.round(zB * 23), i + 3310) < 0.11){
+        ctx.fillStyle = 'rgba(18,14,10,0.72)';
+        ctx.fillRect(pb[0] - r, pt[1] + wh * 0.42, ww, wh * 0.30);
+        ctx.fillStyle = 'rgba(230,222,200,0.7)';
+        ctx.fillRect(pb[0] - r, pt[1] + wh * 0.40, ww, Math.max(1, wh * 0.03));
+      }
+      if(ww > 5 && phash(Math.round(wx * 23), Math.round(zB * 29), i + 3311) < 0.07){
+        const aw = ww * 0.55, ah = Math.max(2, wh * 0.22);
+        ctx.fillStyle = '#b8b4a8';
+        ctx.fillRect(pb[0] - aw / 2, pb[1] + 1, aw, ah);
+        ctx.fillStyle = '#8a867c';
+        ctx.fillRect(pb[0] - aw / 2 + 1, pb[1] + 2, aw - 2, ah * 0.4);
+      }
+      if(zB > 2.5 && ww > 5 &&
+         phash(Math.round(wx * 29), Math.round(zB * 31), i + 3312) < 0.10){
+        ctx.strokeStyle = 'rgba(24,20,16,0.85)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        const railB = pb[1] + 2, railT = pb[1] - wh * 0.30;
+        ctx.moveTo(pb[0] - r - 1, railT); ctx.lineTo(pb[0] + r + 1, railT);
+        for(let k = 0; k <= 4; k++){
+          const rx = pb[0] - r - 1 + (ww + 2) * k / 4;
+          ctx.moveTo(rx, railT); ctx.lineTo(rx, railB);
+        }
+        ctx.stroke();
+      }
+    }
     ctx.fillStyle = shade(ACC, 1.05);
     ctx.fillRect(pb[0] - r - 2, pb[1], ww + 4, Math.max(1.5, wh * 0.08));
     // v5: window flower box on some residential sills
@@ -2279,12 +2414,16 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // upper-floor window grid
   const bays = Math.max(1, Math.floor(L / 3.2));
   const doorT = style === 2 ? 0.68 : 0.5;
+  // v30: ground-floor garage opening beside the entry (SF soft-story
+  // rhythm: garage door at grade + door up the stoop)
+  const garU = sfGarageU(i, ei, L, isShop, style, mural, doorT);
   for(let f = isShop ? 1 : 0; f < floors; f++){
     const zB = hm * f / floors + 0.55, zT = hm * (f + 1) / floors - 0.5;
     if(mural && zB < muralZ1) continue;
     for(let k = 0; k < bays; k++){
       const t = (k + 0.5) / bays;
       if(f === 0 && Math.abs(t - doorT) < 0.14) continue;
+      if(f === 0 && garU > 0 && Math.abs(t - garU) < 0.13) continue;
       drawWin(x1 + ex * t, y1 + ey * t, zB, zT, 1.15);
     }
   }
@@ -2575,7 +2714,10 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       }
     }
   } else if(L > 5){
-    // residential ground floor: stoop + arched door (+ garage on marina rows)
+    // residential ground floor. v30: raised-basement grammar — italianate
+    // and stick fronts lift the parlor floor ~1.15m: garage (or a garden
+    // flat window) at grade, the door up a real run of steps with cheek
+    // walls and a handrail. Marina rows keep their grade-level garage.
     if(style === 2){
       const gx = x1 + ex * 0.3, gy = y1 + ey * 0.3;
       quad([[gx - ux * 1.4, gy - uy * 1.4, 0.05], [gx + ux * 1.4, gy + uy * 1.4, 0.05],
@@ -2591,42 +2733,131 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       }
     }
     const dx = x1 + ex * doorT, dy = y1 + ey * doorT;
+    const rD = style === 2 ? 0 : 1.15;  // raised-entry landing height
+    // water table: the garden level reads as a separate, darker band of
+    // concrete/stucco under a projecting ledge course
+    if(rD){
+      quad([[x1, y1, 0.02], [x2, y2, 0.02], [x2, y2, 1.06], [x1, y1, 1.06]],
+           'rgba(22,18,12,0.14)');
+      quad([[x1, y1, 1.02], [x2, y2, 1.02],
+            [x2 + nx * 0.09, y2 + ny * 0.09, 1.02],
+            [x1 + nx * 0.09, y1 + ny * 0.09, 1.02]],
+           shade(ACC, 0.85));
+      // garden flat: either a garage bay or a low casement window
+      if(garU > 0){
+        const gx = x1 + ex * garU, gy = y1 + ey * garU;
+        const gh2 = 1.3; // garage half-width (2.6m opening)
+        // recessed dark opening, then the door leaf inside it
+        quad([[gx - ux * gh2, gy - uy * gh2, 0.04], [gx + ux * gh2, gy + uy * gh2, 0.04],
+              [gx + ux * gh2, gy + uy * gh2, 2.15], [gx - ux * gh2, gy - uy * gh2, 2.15]],
+             'rgba(16,12,9,0.9)');
+        const gdz = 0.10;
+        quad([[gx - ux * gh2 + ux * 0.12 - nx * gdz, gy - uy * gh2 + uy * 0.12 - ny * gdz, 0.04],
+              [gx + ux * gh2 - ux * 0.12 - nx * gdz, gy + uy * gh2 - uy * 0.12 - ny * gdz, 0.04],
+              [gx + ux * gh2 - ux * 0.12 - nx * gdz, gy + uy * gh2 - uy * 0.12 - ny * gdz, 2.0],
+              [gx - ux * gh2 + ux * 0.12 - nx * gdz, gy - uy * gh2 + uy * 0.12 - ny * gdz, 2.0]],
+             shade(wallBase, 0.92));
+        // panel ribs — horizontal bands the door folds on
+        for(let s = 1; s <= 3; s++){
+          const z = s * 0.5;
+          const lA = pr(gx - ux * (gh2 - 0.14) - nx * gdz, gy - uy * (gh2 - 0.14) - ny * gdz, z),
+                lB = pr(gx + ux * (gh2 - 0.14) - nx * gdz, gy + uy * (gh2 - 0.14) - ny * gdz, z);
+          if(!lA || !lB) continue;
+          ctx.strokeStyle = 'rgba(20,16,12,0.55)'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(lA[0], lA[1]); ctx.lineTo(lB[0], lB[1]); ctx.stroke();
+        }
+        // header trim over the opening
+        quad([[gx - ux * (gh2 + 0.15), gy - uy * (gh2 + 0.15), 2.15],
+              [gx + ux * (gh2 + 0.15), gy + uy * (gh2 + 0.15), 2.15],
+              [gx + ux * (gh2 + 0.15), gy + uy * (gh2 + 0.15), 2.38],
+              [gx - ux * (gh2 + 0.15), gy - uy * (gh2 + 0.15), 2.38]],
+             shade(ACC, 0.95));
+      } else {
+        // low casement in the basement band beside the entry
+        const wx = x1 + ex * (doorT + (phash(i, ei, 3304) < 0.5 ? 0.28 : -0.28)),
+              wy = y1 + ey * (doorT + (phash(i, ei, 3304) < 0.5 ? 0.28 : -0.28));
+        drawWin(wx, wy, 0.4, 0.95, 0.8);
+      }
+    }
     // v20: recessed entry alcove — Mission Victorian doors sit deep in a
     // porch, not flush on the facade. Cheek walls lit independently by the
     // sun, a shaded ceiling soffit, and a lintel face frame the opening;
     // the door itself is drawn on the back wall ~0.8m inside.
-    const alcDep = 0.85, alcHw = 0.78;
+    const alcDep = 0.85, alcHw = 0.78, alcZ = 0.05 + rD, alcT = 3.5;
     {
       const p0x = dx - ux * alcHw, p0y = dy - uy * alcHw,
             p1x = dx + ux * alcHw, p1y = dy + uy * alcHw;
-      quad([[p0x, p0y, 0.05], [p0x - nx * alcDep, p0y - ny * alcDep, 0.05],
-            [p0x - nx * alcDep, p0y - ny * alcDep, 2.7], [p0x, p0y, 2.7]],
+      quad([[p0x, p0y, alcZ], [p0x - nx * alcDep, p0y - ny * alcDep, alcZ],
+            [p0x - nx * alcDep, p0y - ny * alcDep, alcT], [p0x, p0y, alcT]],
            shade(wallCol, 0.5 + 0.35 * Math.max(0, sfSunFaceK(ux, uy))));
-      quad([[p1x, p1y, 0.05], [p1x, p1y, 2.7],
-            [p1x - nx * alcDep, p1y - ny * alcDep, 2.7],
-            [p1x - nx * alcDep, p1y - ny * alcDep, 0.05]],
+      quad([[p1x, p1y, alcZ], [p1x, p1y, alcT],
+            [p1x - nx * alcDep, p1y - ny * alcDep, alcT],
+            [p1x - nx * alcDep, p1y - ny * alcDep, alcZ]],
            shade(wallCol, 0.5 + 0.35 * Math.max(0, sfSunFaceK(-ux, -uy))));
-      quad([[p0x, p0y, 2.7], [p1x, p1y, 2.7],
-            [p1x - nx * alcDep, p1y - ny * alcDep, 2.7],
-            [p0x - nx * alcDep, p0y - ny * alcDep, 2.7]],
+      quad([[p0x, p0y, alcT], [p1x, p1y, alcT],
+            [p1x - nx * alcDep, p1y - ny * alcDep, alcT],
+            [p0x - nx * alcDep, p0y - ny * alcDep, alcT]],
            shade(wallCol, 0.42));
       // lintel face over the alcove mouth
-      quad([[p0x, p0y, 2.35], [p1x, p1y, 2.35],
-            [p1x, p1y, 2.7], [p0x, p0y, 2.7]],
+      quad([[p0x, p0y, alcT - 0.35], [p1x, p1y, alcT - 0.35],
+            [p1x, p1y, alcT], [p0x, p0y, alcT]],
            shade(ACC, 0.9));
     }
-    // stoop steps projecting onto the pavement
-    quad([[dx - ux * 1.1, dy - uy * 1.1, 0.03], [dx + ux * 1.1, dy + uy * 1.1, 0.03],
-          [dx + ux * 1.1 + nx * 1.2, dy + uy * 1.1 + ny * 1.2, 0.03],
-          [dx - ux * 1.1 + nx * 1.2, dy - uy * 1.1 + ny * 1.2, 0.03]],
-         shade('#8a8478', lit));
-    quad([[dx - ux * 0.9, dy - uy * 0.9, 0.05], [dx + ux * 0.9, dy + uy * 0.9, 0.05],
-          [dx + ux * 0.9 + nx * 0.7, dy + uy * 0.9 + ny * 0.7, 0.35],
-          [dx - ux * 0.9 + nx * 0.7, dy - uy * 0.9 + ny * 0.7, 0.35]],
-         shade('#a39c8e', lit));
-    // arched door + pediment
-    const db = pr(dx - nx * (alcDep - 0.05), dy - ny * (alcDep - 0.05), 0.35),
-          dt = pr(dx - nx * (alcDep - 0.05), dy - ny * (alcDep - 0.05), 2.5);
+    // v30: the stoop is a real stair — six treads run from the raised
+    // landing down to the pavement between sloped cheek walls, with a
+    // handrail on the open side. Marina entries stay at grade.
+    if(rD){
+      const sHw = 0.92, run = 1.62, nSt = 6;
+      for(let s = 0; s < nSt; s++){
+        const zt = rD - s * (rD - 0.08) / nSt,
+              zb = zt - (rD - 0.08) / nSt,
+              o0 = s * run / nSt, o1 = (s + 1) * run / nSt;
+        quad([[dx - ux * sHw + nx * o0, dy - uy * sHw + ny * o0, zt],
+              [dx + ux * sHw + nx * o0, dy + uy * sHw + ny * o0, zt],
+              [dx + ux * sHw + nx * o1, dy + uy * sHw + ny * o1, zt],
+              [dx - ux * sHw + nx * o1, dy - uy * sHw + ny * o1, zt]],
+             shade('#a39c8e', lit));
+        quad([[dx - ux * sHw + nx * o1, dy - uy * sHw + ny * o1, zb],
+              [dx + ux * sHw + nx * o1, dy + uy * sHw + ny * o1, zb],
+              [dx + ux * sHw + nx * o1, dy + uy * sHw + ny * o1, zt],
+              [dx - ux * sHw + nx * o1, dy - uy * sHw + ny * o1, zt]],
+             shade('#6e675c', lit));
+      }
+      // cheek walls flanking the flight, tops sloping down with it
+      for(const sgn of [-1, 1]){
+        const cx0 = dx + ux * sgn * sHw, cy0 = dy + uy * sgn * sHw;
+        quad([[cx0, cy0, 0.02], [cx0, cy0, rD + 0.06],
+              [cx0 + nx * run, cy0 + ny * run, 0.10],
+              [cx0 + nx * run, cy0 + ny * run, 0.02]],
+             shade('#8a8478', lit * (0.5 + 0.35 * Math.max(0, sfSunFaceK(sgn * ux, sgn * uy)) + 0.4)));
+      }
+      // handrail: posts at top and bottom of the flight + a sloped rail
+      const rTop = pr(dx + ux * sHw, dy + uy * sHw, rD + 0.85),
+            rBot = pr(dx + ux * sHw + nx * run, dy + uy * sHw + ny * run, 0.85),
+            rP0 = pr(dx + ux * sHw, dy + uy * sHw, rD),
+            rP1 = pr(dx + ux * sHw + nx * run, dy + uy * sHw + ny * run, 0.02);
+      if(rTop && rBot && rP0 && rP1){
+        ctx.strokeStyle = 'rgba(30,24,18,0.9)'; ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(rP0[0], rP0[1]); ctx.lineTo(rTop[0], rTop[1]);
+        ctx.moveTo(rP1[0], rP1[1]); ctx.lineTo(rBot[0], rBot[1]);
+        ctx.moveTo(rTop[0], rTop[1]); ctx.lineTo(rBot[0], rBot[1]);
+        ctx.stroke();
+      }
+    } else {
+      // at-grade pad stoop (marina rows)
+      quad([[dx - ux * 1.1, dy - uy * 1.1, 0.03], [dx + ux * 1.1, dy + uy * 1.1, 0.03],
+            [dx + ux * 1.1 + nx * 1.2, dy + uy * 1.1 + ny * 1.2, 0.03],
+            [dx - ux * 1.1 + nx * 1.2, dy - uy * 1.1 + ny * 1.2, 0.03]],
+           shade('#8a8478', lit));
+      quad([[dx - ux * 0.9, dy - uy * 0.9, 0.05], [dx + ux * 0.9, dy + uy * 0.9, 0.05],
+            [dx + ux * 0.9 + nx * 0.7, dy + uy * 0.9 + ny * 0.7, 0.35],
+            [dx - ux * 0.9 + nx * 0.7, dy - uy * 0.9 + ny * 0.7, 0.35]],
+           shade('#a39c8e', lit));
+    }
+    // arched door + pediment (raised: the door leaf rides the landing)
+    const db = pr(dx - nx * (alcDep - 0.05), dy - ny * (alcDep - 0.05), 0.07 + rD),
+          dt = pr(dx - nx * (alcDep - 0.05), dy - ny * (alcDep - 0.05), 2.5 + rD * 0.75);
     if(db && dt){
       const dw = 0.55 * F / db[2], dh = db[1] - dt[1];
       if(dw > 2){
@@ -2640,7 +2871,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.moveTo(db[0] - dw, db[1]); ctx.lineTo(db[0] - dw, dt[1] + dw);
         ctx.arc(db[0], dt[1] + dw, dw, Math.PI, 0, true);
         ctx.lineTo(db[0] + dw, db[1]); ctx.closePath(); ctx.fill();
-        const pm = pr(dx, dy, 2.9);
+        const pm = pr(dx, dy, 2.9 + rD * 0.75);
         if(pm){
           ctx.fillStyle = shade(TRIM, 0.95);
           ctx.beginPath();
@@ -2648,6 +2879,49 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
           ctx.lineTo(pm[0], pm[1]); ctx.closePath(); ctx.fill();
         }
       }
+    }
+  }
+
+  /* v30: corner boards + downspouts — real SF wood fronts end in a wide
+     trim pilaster at each edge, italianate walls swap it for staggered
+     quoin blocks, and a downspout pipe drops from the cornice soffit at
+     one end carrying roof water to a sidewalk boot. */
+  if(det === 2){
+    const cbCol = style === 0 ? shade(wallCol, 1.06) : ACC;
+    for(const uu of [0.012, 0.988]){
+      const cx = x1 + ex * uu, cy = y1 + ey * uu;
+      quad([[cx - ux * 0.14, cy - uy * 0.14, 0.04], [cx + ux * 0.14, cy + uy * 0.14, 0.04],
+            [cx + ux * 0.14, cy + uy * 0.14, hm - 0.55], [cx - ux * 0.14, cy - uy * 0.14, hm - 0.55]],
+           shade(cbCol, 0.98));
+      // quoins: alternating blocks proud of the corner (italianate only)
+      if(style === 0){
+        for(let k = 0; k < Math.floor(hm / 1.1); k++){
+          if(k % 2) continue;
+          const z = 0.5 + k * 1.1;
+          quad([[cx - ux * 0.22, cy - uy * 0.22, z], [cx + ux * 0.22, cy + uy * 0.22, z],
+                [cx + ux * 0.22, cy + uy * 0.22, z + 0.5],
+                [cx - ux * 0.22, cy - uy * 0.22, z + 0.5]],
+               shade(cbCol, 1.1));
+        }
+      }
+    }
+    // downspout at the end that sees less sun, hugging the corner board
+    const du = sfSunFaceK(ux, uy) > 0 ? 0.045 : 0.955;
+    const dxx = x1 + ex * du + nx * 0.12, dyy = y1 + ey * du + ny * 0.12;
+    const dT = pr(dxx, dyy, hm - 0.8), dB = pr(dxx, dyy, 0.12);
+    if(dT && dB){
+      ctx.strokeStyle = shade(cbCol, 0.62); ctx.lineWidth = Math.max(1.2, F * 0.025 / dT[2]);
+      ctx.beginPath(); ctx.moveTo(dT[0], dT[1]); ctx.lineTo(dB[0], dB[1]); ctx.stroke();
+      // strap bands + the elbow boot kicking out at the curb
+      ctx.strokeStyle = 'rgba(20,16,12,0.5)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let k = 1; k <= 3; k++){
+        const yv = dT[1] + (dB[1] - dT[1]) * k / 4;
+        ctx.moveTo(dT[0] - 2, yv); ctx.lineTo(dT[0] + 2, yv);
+      }
+      const bt = pr(dxx + nx * 0.3, dyy + ny * 0.3, 0.05);
+      if(bt){ ctx.moveTo(dB[0], dB[1]); ctx.lineTo(bt[0], bt[1]); }
+      ctx.stroke();
     }
   }
 

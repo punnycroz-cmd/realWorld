@@ -64,7 +64,7 @@ const api = eval(m[1] + `
     SF_INTERIORS, SF_BLD, CS, G, SF_WX, sfPuddleAt, sfUmbrellaCol,
     sfGhostSet, sfSegHit, sfCamMarkSave, sfCamMarkGo, SF_CAM, SF_CUT,
     SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
-    sfNbMasks, sfOvrNums, SF_GROUND_OVR })`);
+    sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -224,6 +224,29 @@ const api = eval(m[1] + `
   ok(ovn && ovn.size === api.SF_GROUND_OVR.size,
      'numeric ground-override map mirrors string map 1:1');
   ok(api.sfOvrNums() === ovn, 'override map is cached (same instance)');
+
+  // v30 facade grammar: gable fronts + raised-basement garage gates are
+  // pure deterministic functions over the real map
+  let gables = 0, garages = 0, edges = 0;
+  for(const b of api.SF_BLD){
+    const nP = b.px.length, isShop = !!b.name;
+    const floors = Math.max(1, Math.round(b.hPx / 12.6));
+    for(let e = 0; e < nP; e++){
+      const a = b.px[e], c = b.px[(e + 1) % nP];
+      const Lm = Math.hypot(c[0] - a[0], c[1] - a[1]) / api.SF_PXM;
+      edges++;
+      gables += api.sfGableFront(b.i, e, Lm, isShop, floors) > 0 ? 1 : 0;
+      garages += api.sfGarageU(b.i, e, Lm, isShop, 0, false, 0.5) > 0 ? 1 : 0;
+    }
+  }
+  ok(gables > 20 && gables < edges * 0.5,
+     'gable fronts on a plausible share of edges (' + gables + '/' + edges + ')');
+  ok(garages > 20 && garages < edges * 0.5,
+     'garage bays on a plausible share of edges (' + garages + ')');
+  ok(api.sfGableFront(3, 0, 12, false, 3) === api.sfGableFront(3, 0, 12, false, 3),
+     'sfGableFront deterministic');
+  ok(api.sfGableFront(3, 0, 12, true, 3) === 0 && api.sfGarageU(3, 0, 12, true, 0, false, 0.5) === -1,
+     'shops never get gables or garages');
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');
