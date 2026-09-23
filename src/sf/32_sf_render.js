@@ -547,8 +547,15 @@ function sfSoftEllipse(cx, cy, rx, ry, rot, a, soft){
   if(rx < 0.5 || ry < 0.5) return;
   ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot || 0); ctx.scale(rx, ry);
   const g2 = ctx.createRadialGradient(0, 0, clamp(soft, 0.05, 0.95), 0, 0, 1);
-  g2.addColorStop(0, `rgba(18,15,8,${a})`);
-  g2.addColorStop(1, 'rgba(18,15,8,0)');
+  // v42: a cast shadow is not darkness — it is the skylight alone. On a
+  // clear afternoon the umbra fills with cool blue airlight; only at
+  // night or under a closed deck does it fall back to neutral dark.
+  const sky = isNight() ? 0 : SF_SUN.day;
+  const sr = Math.round(18 + (24 - 18) * sky),
+        sg2 = Math.round(15 + (34 - 15) * sky),
+        sb = Math.round(8 + (62 - 8) * sky);
+  g2.addColorStop(0, `rgba(${sr},${sg2},${sb},${a})`);
+  g2.addColorStop(1, `rgba(${sr},${sg2},${sb},0)`);
   ctx.fillStyle = g2;
   ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
@@ -1430,6 +1437,11 @@ function sfTerrChunk(cx, cy, wetQ){
   if(hit){ // LRU touch
     SF_TERR.cache.delete(key); SF_TERR.cache.set(key, hit); return hit;
   }
+  // v42: warm sunlit-ground wash — constant for the whole chunk (the key
+  // already carries SF_SUN.q, so each sun sector rebakes its own tint)
+  SF_TERR.litA = +(0.11 * SF_SUN.day *
+    clamp(Math.sin(Math.max(0, SF_SUN.el)) * 1.5, 0, 1) *
+    (0.45 + 0.55 * SF_SUN.warm)).toFixed(3);
   if(typeof document === 'undefined') return null;
   const csz = CS, cszT = CS * SF_TILT;   // canonical scale = zoom 1
   const c = document.createElement('canvas');
@@ -1462,6 +1474,14 @@ function sfTerrChunk(cx, cy, wetQ){
           g.fillStyle = `rgba(30,40,66,${(-aa).toFixed(3)})`;
           g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
         }
+      }
+      // v42: the warm key — open ground is sun-struck, not just unshadowed.
+      // A faint gold wash (scaled by elevation + golden-hour warmth) sits
+      // under every cast-shadow sprite, so lit pavement reads warm against
+      // the cool skylight-only shade the buildings throw over it.
+      if(SF_TERR.litA > 0.004){
+        g.fillStyle = `rgba(255,210,142,${SF_TERR.litA})`;
+        g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
       }
       // v7: wetness memory — soaked hardscape darkens, puddles glint
       if(SF_WX.wet > 0.05 && (tt === 10 || tt === 11 || tt === 14 || tt === 16)){
@@ -2482,7 +2502,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
            sfElevM(x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm) - zb + 0.02],
           [x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm,
            sfElevM(x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm) - zb + 0.02]],
-         `rgba(15,12,8,${0.06 + 0.14 * SF_SUN.day})`);
+         `rgba(24,34,60,${0.06 + 0.14 * SF_SUN.day})`);
     ctx.fillStyle = wallCol;
     ctx.beginPath();
     ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
@@ -2508,7 +2528,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
          sfElevM(x2 + SF_SUN.x * hm, y2 + SF_SUN.y * hm) - zb + 0.02],
         [x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm,
          sfElevM(x1 + SF_SUN.x * hm, y1 + SF_SUN.y * hm) - zb + 0.02]],
-       `rgba(15,12,8,${0.06 + 0.14 * SF_SUN.day})`);
+       `rgba(24,34,60,${0.06 + 0.14 * SF_SUN.day})`);
 
   // wall face: vertical gradient — sky-lit top, AO near the pavement
   const wgr = ctx.createLinearGradient(0, Math.min(p1[1], p2[1]), 0, Math.max(g1[1], g2[1]));
@@ -2521,6 +2541,17 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = 'rgba(20,16,12,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+  /* v42: coping flash — the parapet cap is a HORIZONTAL face: it takes
+     direct sun even when the wall below faces away, so every roofline
+     carries a thin warm line under a real sun. The canyon-shade pass
+     (drawn after) cuts it wherever the opposite row actually shadows
+     the crown — cause and effect stay in order. */
+  if(!night && SF_SUN.day > 0.2){
+    const ca = 0.26 * SF_SUN.day * (0.35 + 0.65 * SF_SUN.warm);
+    ctx.strokeStyle = `rgba(255,228,172,${ca.toFixed(3)})`;
+    ctx.lineWidth = Math.max(1, F * 0.12 / Math.max(1, (p1[2] + p2[2]) / 2));
+    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+  }
 
   // v15: wall-base ambient occlusion — the lowest meter of facade is
   // starved of skylight by its own mass; a soft band hugs the pavement
@@ -3128,7 +3159,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
               [bx + ux * du + nx * 0.02, by + uy * du + ny * 0.02, zLo - dz],
               [bx + ux * du + nx * 0.02, by + uy * du + ny * 0.02, zHi - dz],
               [ax + ux * du + nx * 0.02, ay + uy * du + ny * 0.02, zHi - dz]],
-             `rgba(15,12,8,${0.16 * SF_SUN.day * Math.min(1, -snW * 2.5)})`);
+             `rgba(24,34,60,${0.16 * SF_SUN.day * Math.min(1, -snW * 2.5)})`);
       }
       quad([[ax, ay, zLo], [ax, ay, zHi], [a2x, a2y, zHi], [a2x, a2y, zLo]],
            shade(wallCol, 0.78));
@@ -4283,13 +4314,23 @@ function sfRenderStreet(cw, ch){
     sc[4] = sc[0] - r2; sc[5] = sc[0] + r2; sc[6] = sc[1] - r2; sc[7] = sc[1] + r2;
   }
   // per-frame style tables — one string per quantized level, not per cell
-  const hzSt = [], shSt = [], slpW = [], slpC = [];
+  const hzSt = [], shSt = [], slpW = [], slpC = [], litSt = [];
   for(let q = 0; q <= 24; q++) hzSt[q] = `rgba(${SF_WX.hazeRGB},${q / 24})`;
   for(let q = 0; q <= 8; q++){
     shSt[q] = `rgba(28,36,60,${q / 24})`;
     slpW[q] = `rgba(255,240,205,${q / 24})`;   // sun-facing slope
     slpC[q] = `rgba(38,50,78,${q / 24})`;      // shying slope
   }
+  /* v42: the warm key — pavement in open sun is NOT neutral ground minus
+     shade, it is sun-struck: ~5500K direct light over cool skylight. Lit
+     cells get a gold kiss scaled by solar elevation (low sun spreads
+     thinner) and golden-hour warmth, so the street reads two-tone —
+     warm where the sun lands, cool where only the sky lights it. */
+  const litK = (night ? 0 : SF_SUN.day) *
+             clamp(Math.sin(Math.max(0, SF_SUN.el)) * 1.5, 0, 1) *
+             (0.45 + 0.55 * SF_SUN.warm);
+  for(let q = 0; q <= 8; q++)
+    litSt[q] = `rgba(255,208,138,${(q / 24 * 0.55).toFixed(3)})`;
   const hzRGBv = SF_WX.hazeRGB.split(',');
   const hzR = +hzRGBv[0], hzG = +hzRGBv[1], hzB = +hzRGBv[2];
   const wetV = SF_WX.wet, wetSt = `rgba(26,34,52,${wetV * 0.2})`;
@@ -4473,6 +4514,13 @@ function sfRenderStreet(cw, ch){
     if(csh > 0.04){
       const qa = Math.round(csh * 0.34 * 24);
       if(qa > 0) qE(shSt[Math.min(8, qa)], T0, T0 + 2, T0 + 4, T0 + 6);
+    }
+    // v42: the sun's warm key on whatever the shade leaves lit — grass,
+    // asphalt, sidewalk all read gold in open sun, cool where cloud,
+    // canyon or Karl already claimed the cell (lit ∝ 1 - csh)
+    if(litK > 0.04 && csh < 0.9){
+      const ql = Math.min(8, Math.round(litK * (1 - csh) * 8));
+      if(ql > 0) qE(litSt[ql], T0, T0 + 2, T0 + 4, T0 + 6);
     }
     // v7: wetness memory — hardscape darkens, puddles mirror the sky
     if(wetV > 0.05 && (t === 10 || t === 11 || t === 14 || t === 16)){
@@ -5355,7 +5403,7 @@ function sfRenderStreet(cw, ch){
           const tpx = mx + SF_SUN.x * 7.2, tpy = my + SF_SUN.y * 7.2;
           const tp = pr(tpx, tpy, sfGroundZ(tpx, tpy));
           if(tp){
-            ctx.strokeStyle = `rgba(15,12,8,${0.3 * Math.min(1, SF_SUN.day + 0.3)})`;
+            ctx.strokeStyle = `rgba(24,34,60,${0.3 * Math.min(1, SF_SUN.day + 0.3)})`;
             ctx.lineWidth = Math.max(1, 0.12 * sc);
             ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(tp[0], tp[1]); ctx.stroke();
           }
@@ -5558,6 +5606,48 @@ function sfRenderStreet(cw, ch){
           ctx.fill();
         }
         ctx.drawImage(fr, p[0] - pw / 2, p[1] - ph, pw, ph);
+        /* v42: key & fill — the same two sources that light the street
+           light the person. Sun in front of the camera = warm key on the
+           sunward flank + cool skylight fill lee; sun behind = warm rim
+           on both shoulders (a backlit figure reads as contour, not
+           detail). Canyon-shaded pawns get neither — they stand in
+           skylight only, which the cool veil below already says. */
+        if(!night && SF_SUN.day > 0.2){
+          const litP = clamp(1 - pvShade / 1.4, 0, 1);
+          if(litP > 0.05){
+            const sF = SF_SUN.toX * DX + SF_SUN.toY * DY;
+            const sS = SF_SUN.toX * DY - SF_SUN.toY * DX;   // >0 sun right
+            const key = 0.30 * SF_SUN.day * (0.4 + 0.6 * SF_SUN.warm) * litP;
+            ctx.globalCompositeOperation = 'source-atop';
+            let lg;
+            if(sF > 0.25){
+              const sgn = sS >= 0 ? 1 : -1;
+              lg = ctx.createLinearGradient(p[0] - sgn * pw * 0.5, 0,
+                                            p[0] + sgn * pw * 0.5, 0);
+              lg.addColorStop(0, `rgba(64,84,132,${(key * 0.5).toFixed(3)})`);
+              lg.addColorStop(0.55, 'rgba(0,0,0,0)');
+              lg.addColorStop(1, `rgba(255,212,148,${key.toFixed(3)})`);
+            } else {
+              lg = ctx.createLinearGradient(p[0] - pw * 0.5, 0,
+                                            p[0] + pw * 0.5, 0);
+              lg.addColorStop(0, `rgba(255,206,140,${(key * 0.85).toFixed(3)})`);
+              lg.addColorStop(0.28, 'rgba(0,0,0,0)');
+              lg.addColorStop(0.72, 'rgba(0,0,0,0)');
+              lg.addColorStop(1, `rgba(255,206,140,${(key * 0.85).toFixed(3)})`);
+            }
+            ctx.fillStyle = lg;
+            ctx.fillRect(p[0] - pw / 2, p[1] - ph, pw, ph);
+            // top light — head and shoulders catch the sun's elevation
+            const tk = 0.16 * SF_SUN.day *
+                       clamp(Math.sin(Math.max(0, SF_SUN.el)) * 1.4, 0, 1) * litP;
+            const tg = ctx.createLinearGradient(0, p[1] - ph, 0, p[1] - ph * 0.45);
+            tg.addColorStop(0, `rgba(255,226,170,${tk.toFixed(3)})`);
+            tg.addColorStop(1, 'rgba(255,226,170,0)');
+            ctx.fillStyle = tg;
+            ctx.fillRect(p[0] - pw / 2, p[1] - ph, pw, ph * 0.55);
+            ctx.globalCompositeOperation = 'source-over';
+          }
+        }
         // v25: umbrella over rain-caught pawns — canopy arc tilted into
         // the wind's lateral component, shaft down to the hand
         const uc2 = sfUmbrellaCol(pv);

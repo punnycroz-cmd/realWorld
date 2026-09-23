@@ -893,8 +893,9 @@ function sfPtInPoly(P, x, y){
    slides its contact shadow along the live solar vector — same direction
    and length scale as the building's own footprint shadow. */
 function sfPropShadow(g, x, y, h, r){
+  // v42: skylight-lit umbra — cool airlight fill, same as street view
   paEllipse(g, x + h * SF_SUN.x + r * 0.4, y + h * SF_SUN.y, r * 1.5, r * 0.55,
-            `rgba(20,14,8,${0.10 + 0.18 * SF_SUN.day})`);
+            `rgba(26,36,64,${0.10 + 0.18 * SF_SUN.day})`);
 }
 
 function sfBldCanvas(b, wet){
