@@ -574,6 +574,20 @@ function sfLampPool(cx, cy, r){
 /* umbra fraction for a cast shadow of horizontal throw `len` — the sun's
    ~0.5° disc makes the penumbra grow with distance from the occluder */
 function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
+/* v46: crown-true shadows — look up the baked crown lobe set for a prop
+   (declared in SF_CROWN beside the sprites in 31_sf_art.js) so the plan
+   view can cast the tree's real outline. Same variant hashes as the
+   sprite pickers below. Returns {w,h,lobes}|null. */
+function sfCrownSpec(kind, o){
+  const C = typeof SF_CROWN !== 'undefined' ? SF_CROWN : null;
+  if(!C) return null;
+  if(kind === 'sfTree')
+    return (o.big ? C.big : C.tree)[Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0];
+  if(kind === 'sfStreetTree') return C.street[o.v != null ? o.v : 0];
+  if(kind === 'sfCypress')
+    return C.cypress[Math.abs(hash2(o.wx, o.wy, 9) * C.cypress.length) | 0];
+  return null;
+}
 
 /* ---------------- v33: FORWARD SCATTER & CANYON BOUNCE ----------------
    Two missing pieces of real daylight, both driven by the same SF_SUN:
@@ -2137,11 +2151,46 @@ function sfRenderWorld(cw, ch){
           const rot = Math.atan2(shy, shx);
           // v15: penumbral canopy shadow — umbra core, soft falloff edge;
           // the longer the throw, the wider the penumbra spreads
-          sfSoftEllipse(sx + shx, sy + shy,
-                        shadeR * cam.zoom * stretch,
-                        shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), rot,
-                        0.26 * Math.min(1, SF_SUN.day + 0.3),
-                        sfUmbra(Math.hypot(shx, shy)));
+          const aS = 0.26 * Math.min(1, SF_SUN.day + 0.3),
+                um = sfUmbra(Math.hypot(shx, shy));
+          if(o.kind === 'sfPalm'){
+            // v46: a palm crown is a rosette — its shadow is a star of
+            // narrow frond streaks radiating from the crown-nut shadow,
+            // plus the thin trunk streak back to the root
+            sfSoftEllipse(sx + shx * 0.5, sy + shy * 0.5,
+                          Math.hypot(shx, shy) * 0.5 + 1.5 * cam.zoom,
+                          Math.max(1.2, 1.6 * cam.zoom), rot, aS * 0.8, um);
+            for(let f = 0; f < 8; f++){
+              const fa = f * (Math.PI * 2 / 8) + 0.45;
+              const fl = (11 + (f % 3) * 2.5) * cam.zoom * (0.75 + stretch * 0.3);
+              sfSoftEllipse(sx + shx + Math.cos(fa) * fl * 0.55,
+                            sy + shy + Math.sin(fa) * fl * 0.55,
+                            fl * 0.55, Math.max(1.1, 1.5 * cam.zoom), fa,
+                            aS * 0.55, 0.45);
+            }
+          } else {
+            const spec = sfCrownSpec(o.kind, o);
+            if(spec){
+              // v46: crown-true shade — each baked crown lobe re-stamped
+              // on the ground along the sun throw; overlapping lobes build
+              // the umbra, gaps between lobes stay lit (dappled edge)
+              for(let li = 0; li < spec.lobes.length; li++){
+                const lb = spec.lobes[li];
+                const rr = Math.max(lb[2], lb[3]);
+                sfSoftEllipse(
+                  sx + (lb[0] - spec.w / 2) * cam.zoom + shx,
+                  sy + (lb[1] - spec.h + 4) * cam.zoom + shy,
+                  rr * cam.zoom * stretch,
+                  Math.max(1.4 * cam.zoom, rr * 0.5 * cam.zoom * Math.max(0.45, SF_TILT)),
+                  rot, aS * 0.55, um * 0.8);
+              }
+            } else {
+              sfSoftEllipse(sx + shx, sy + shy,
+                            shadeR * cam.zoom * stretch,
+                            shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), rot,
+                            aS, um);
+            }
+          }
         }
         // v19: grounding pass — every prop sits in a tight ambient-occlusion
         // disc at its footprint (also the only shade under overcast/night),
@@ -5979,6 +6028,8 @@ function sfRenderStreet(cw, ch){
         ctx.beginPath();
         ctx.ellipse(p[0], p[1], fr, Math.max(1.2, fr * 0.32), 0, 0, Math.PI * 2);
         ctx.fill();
+        const vegK = o.kind === 'sfTree' || o.kind === 'sfPalm' ||
+                     o.kind === 'sfStreetTree' || o.kind === 'sfCypress';
         // v14: shadow thrown along the true sun vector — tip projected
         // through pr so length/direction track the solar elevation
         if(shadowR && !night && SF_SUN.day > 0.08){
@@ -5989,12 +6040,21 @@ function sfRenderStreet(cw, ch){
           const ang = Math.atan2(ty - p[1], tx - p[0]);
           const len = Math.hypot(tx - p[0], ty - p[1]);
           // v15: penumbral prop shadow — soft falloff grows with throw
-          sfSoftEllipse((p[0] + tx) / 2, (p[1] + ty) / 2,
-                        shadowR * sc + len / 2, shadowR * 0.3 * sc, ang,
-                        0.32 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+          // v46: a tree crown is WIDE — its ground streak is a mottled
+          // band of lobe shadows fanned across the throw direction,
+          // not one clean cigar (props keep the single streak)
+          const nSt = vegK ? 3 : 1;
+          for(let sI = 0; sI < nSt; sI++){
+            const off = vegK ? (sI - 1) : 0;
+            const mxx = (p[0] + tx) / 2 - Math.sin(ang) * off * (shadowR * sc * 0.9),
+                  myy = (p[1] + ty) / 2 + Math.cos(ang) * off * (shadowR * sc * 0.9);
+            sfSoftEllipse(mxx, myy,
+                          shadowR * sc * (vegK ? 0.8 : 1) + len / 2,
+                          shadowR * 0.3 * sc, ang + off * 0.16,
+                          (vegK ? 0.19 : 0.32) * Math.min(1, SF_SUN.day + 0.3),
+                          sfUmbra(len));
+          }
         }
-        const vegK = o.kind === 'sfTree' || o.kind === 'sfPalm' ||
-                     o.kind === 'sfStreetTree' || o.kind === 'sfCypress';
         if(vegK){
           // v31: crowns lean on the wind — a horizontal shear pivoted at
           // the root, so trunks stay planted while foliage streams

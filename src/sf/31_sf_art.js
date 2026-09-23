@@ -247,21 +247,60 @@ function sfLeafCanopy(g, cx, cy, rx, ry, seed, lf, ld, o){
     }
   }
 }
+/* ---- v46: CROWN LOBE REGISTRY — the crown of every top-view tree is
+   declared once here as sprite-space lobes [cx,cy,rx,ry]. The sprite bake
+   draws them; the plan-view cast shadow re-stamps the SAME lobes along the
+   sun vector, so the shade on the ground is the crown's true scalloped
+   outline instead of a generic ellipse. Cypress lobes are synthesized from
+   its tier formula (hash jitter omitted — shadow is approximate). */
+const SF_CROWN = {
+  tree: [
+    { w:56, h:64, lobes:[[28,26,17,12],[16,33,10,8],[40,32,10,8],[28,16,11,8],[22,22,9,7],[34,21,8,6]] },
+    { w:56, h:64, lobes:[[28,28,15,11],[15,32,9,7],[41,33,9,7],[26,17,10,8],[35,20,8,6]] },
+    { w:56, h:64, lobes:[[28,24,18,13],[14,31,9,8],[42,30,9,8],[28,13,10,7]] } ],
+  street: [ // v0 = ficus (84x76), v1 trumpet / v2 ginkgo (44x60)
+    { w:84, h:76, lobes:[[42,34,26,19],[22,40,15,11],[62,38,15,11],[42,18,18,13],
+                         [30,26,13,10],[56,24,13,10],[16,32,9,7],[68,30,9,7],[42,48,20,10]] },
+    { w:44, h:60, lobes:[[22,26,13,10],[12,31,8,6],[32,30,8,6],[22,17,9,7],[16,21,6,5],[29,20,6,5]] },
+    { w:44, h:60, lobes:[[22,26,13,10],[12,31,8,6],[32,30,8,6],[22,17,9,7],[16,21,6,5],[29,20,6,5]] } ],
+  big: [
+    { w:128, h:120, lobes:[[64,58,34,25],[34,70,24,17],[94,68,24,17],[64,32,26,17],
+                           [44,46,20,13],[86,44,20,13],[64,82,30,15],[26,60,14,11],[102,58,14,11]] },
+    { w:128, h:120, lobes:[[64,48,30,26],[38,62,22,17],[90,60,22,17],[64,24,22,16],
+                           [46,36,17,12],[82,34,17,12],[64,76,26,15],[30,48,13,10],[98,46,13,10]] },
+    { w:128, h:120, lobes:[[64,62,38,22],[30,66,24,15],[98,64,24,15],[64,36,30,15],
+                           [40,50,20,12],[88,48,20,12],[64,82,30,13]] } ],
+  cypress: [0, 1].map(v => ({ w:48, h:76, lobes: (() => {
+    const L = [];
+    for(let k = 0; k < 9; k++){ const t = k / 8;
+      L.push([20 + t * 7, 67 - k * 7, 3 + Math.sin(t * Math.PI) * 7, 4.0]); }
+    return L; })() }))
+};
+/* branch scaffold: dark fan lines from a fork point into each lobe —
+   visible through the gaps between lobes, so a crown reads as limbs
+   carrying leaf masses, not a stack of green blobs */
+function sfBranchFan(g, fx, fy, blobs, col){
+  for(const [bx, by] of blobs) paLine(g, fx, fy, Math.round(bx), Math.round(by), col);
+}
+/* sun-cap: a warm wash on each lobe's upper-left face (the baked key
+   light) so lobes separate tonally instead of merging into one mass */
+function sfLobeCaps(g, blobs, col){
+  for(const [bx, by, rx, ry] of blobs)
+    paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, col);
+}
 function sfLeafyTree(v){
   // broad park tree: forked trunk under a leaf-cluster crown
   const s = paMk(56, 64), g = s.g;
   const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
   // under-canopy occlusion mass (keeps the core deep)
-  const blobs = v === 0
-    ? [[28, 26, 17, 12], [16, 33, 10, 8], [40, 32, 10, 8], [28, 16, 11, 8], [22, 22, 9, 7], [34, 21, 8, 6]]
-    : v === 1
-    ? [[28, 28, 15, 11], [15, 32, 9, 7], [41, 33, 9, 7], [26, 17, 10, 8], [35, 20, 8, 6]]
-    : [[28, 24, 18, 13], [14, 31, 9, 8], [42, 30, 9, 8], [28, 13, 10, 7]];
+  const blobs = SF_CROWN.tree[v].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
   paLine(g, 27, 60, 27, 40, tr[2]);
   paLine(g, 28, 60, 28, 40, tr[3]);
   paLine(g, 27, 44, 20, 36, tr[2]); paLine(g, 28, 44, 36, 34, tr[2]);
   paLine(g, 27, 48, 22, 42, tr[3]); paLine(g, 28, 48, 33, 42, tr[3]);
+  sfBranchFan(g, 28, 42, blobs, tr[1]);       // v46
+  sfLobeCaps(g, blobs, lf[3]);                // v46
   for(let bi = 0; bi < blobs.length; bi++){
     const [bx, by, rx, ry] = blobs[bi];
     sfLeafCanopy(g, bx, by, rx, ry, 1200 + v * 31 + bi, lf, ld, { n: Math.round(rx * ry * 2.2) });
@@ -336,9 +375,10 @@ function sfStreetTreeSpr(v){
   paLine(g, 22, 38, 17, 32, tr[2]); paLine(g, 22, 39, 27, 31, tr[2]);
   // leaf-cluster crown over a dark occlusion core; v1 = blossom,
   // v2 = autumn gold (Mission trumpet trees / ginkgo street rows)
-  const blobs = [[22, 26, 13, 10], [12, 31, 8, 6], [32, 30, 8, 6],
-                 [22, 17, 9, 7], [16, 21, 6, 5], [29, 20, 6, 5]];
+  const blobs = SF_CROWN.street[v].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  sfBranchFan(g, 22, 38, blobs, tr[1]);       // v46
+  sfLobeCaps(g, blobs, lf[3]);                // v46
   for(let bi = 0; bi < blobs.length; bi++){
     const [bx, by, rx, ry] = blobs[bi];
     sfLeafCanopy(g, bx, by, rx, ry, 1600 + v * 41 + bi, lf, ld,
@@ -371,10 +411,10 @@ function sfFicusSpr(){
   paR(g, 40, 50, 5, 18, tr[2]); paR(g, 41, 50, 2, 18, tr[3]);
   paPX(g, 44, 58, tr[4]);
   // crown: wide layered dome, much broader than a pit tree's
-  const blobs = [[42, 34, 26, 19], [22, 40, 15, 11], [62, 38, 15, 11],
-                 [42, 18, 18, 13], [30, 26, 13, 10], [56, 24, 13, 10],
-                 [16, 32, 9, 7], [68, 30, 9, 7], [42, 48, 20, 10]];
+  const blobs = SF_CROWN.street[0].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
+  sfBranchFan(g, 42, 50, blobs, tr[1]);       // v46
+  sfLobeCaps(g, blobs, lf[3]);                // v46
   for(let bi = 0; bi < blobs.length; bi++){
     const [bx, by, rx, ry] = blobs[bi];
     sfLeafCanopy(g, bx, by, rx, ry, 3800 + bi, lf, ld,
@@ -489,15 +529,10 @@ function sfBigTreeSpr(v){
   const s = paMk(128, 120), g = s.g;
   const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
   // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
-  const blobs = v === 0
-    ? [[64,58,34,25],[34,70,24,17],[94,68,24,17],[64,32,26,17],
-       [44,46,20,13],[86,44,20,13],[64,82,30,15],[26,60,14,11],[102,58,14,11]]
-    : v === 1
-    ? [[64,48,30,26],[38,62,22,17],[90,60,22,17],[64,24,22,16],
-       [46,36,17,12],[82,34,17,12],[64,76,26,15],[30,48,13,10],[98,46,13,10]]
-    : [[64,62,38,22],[30,66,24,15],[98,64,24,15],[64,36,30,15],
-       [40,50,20,12],[88,48,20,12],[64,82,30,13]];
+  const blobs = SF_CROWN.big[v].lobes;
   for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
+  sfBranchFan(g, 64, 92, blobs, tr[1]);       // v46
+  sfLobeCaps(g, blobs, lf[3]);                // v46
   // trunk + forked scaffold limbs peeking under the crown edge
   paR(g, 62, 96, 5, 20, tr[2]); paR(g, 63, 96, 2, 20, tr[3]);
   paLine(g, 63, 100, 44, 84, tr[2]); paLine(g, 64, 100, 84, 82, tr[2]);
