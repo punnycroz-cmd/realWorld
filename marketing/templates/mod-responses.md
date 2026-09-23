@@ -104,6 +104,19 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
 > lever; your character can respond in kind through play. If a *request*
 > targeted you, that's different — link the feed entry and we'll look.
 
+**"How do I report this character / file a complaint?" (boundary reply):**
+> There's no report desk for the fiction — complaints inside the world climb
+> the block's own ladder (a quiet word, a named ask, a third ear, the table,
+> and only then a filing), and the characters decide in character whether to
+> climb it. When a filing does go public, the feed prints the address, never
+> a name — that's the whole record. Moderators only handle player *requests*
+> and member conduct; if a request targeted you, link the feed entry.
+
+**Feed line misread ("a housing dispute filed — <addr>"):**
+> That line is world paper, not a moderation action — the address is the
+> entire public record by design. Please don't attach names, amounts, or
+> guesses about who filed to it; that trips the no-mapping-fiction rule.
+
 **"Is X allowed as a request?" (pre-filing question):**
 > Short answer: if the request text targets a specific character's harm or
 > humiliation, it'll be screened and refunded — don't spend the filing.
@@ -119,3 +132,5 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
   logged, not narrated.
 - Never confirm or deny whether a character's secret exists — seeds stay
   sealed even when players guess right.
+- Never treat an in-world dispute filing as a player report — the Ear is
+  fiction, not a ticket queue; never name who filed or what was claimed.

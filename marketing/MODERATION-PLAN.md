@@ -1,6 +1,6 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v73 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v88 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -10,7 +10,10 @@ v73: aligned to world-v36's obfuscation code + corpus conformance gate,
 world-v43's claimable ambient resources, world-v45's silent declines,
 world-v46's approve-modified offer/upfront charge/hold clock, world-v47's
 declared-cost chips, and game-v9's costar action — see §2.0, §2.1, §4,
-§5, §7, §9.)
+§5, §7, §9; v88: aligned to world-v59's grievance layer ("the Ear") +
+game-v11's dispute/reputation verbs — new §2.6 draws the boundary between
+in-world complaints and moderation, §4 +2 rows, §6 +1 row, §7 +2 rows,
+§9 re-struck.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -393,6 +396,41 @@ before reuse:
   have them burn down the restaurant" fails intent screening at the text
   stage even though possession itself is legal.
 
+### 2.6 Disputes & grievances — in-world complaints are not moderation (world-v59 + game-v11)
+
+world-v59 shipped the Ear (`world/grievances.json`, schema `grievance-v1`)
+and game-v11 shipped the verbs it renders (`gsFileDispute` /
+`gsResolveDispute` + the reputation journal `GS_CREP`). This is a third
+*complaint-looking* surface that is emphatically **not** a third
+moderation surface — the scope statement at the top still holds:
+
+- **The ladder is fiction.** Five rungs — the aside → the named ask → the
+  third ear → the table → the filing. Rungs 1–4 emit **no feed events**;
+  a complaint goes public only when it becomes paper (rung 5). Conditions,
+  never scripts: a character decides in character whether to climb.
+- **The feed prints the door, never the name.** Canonical lines
+  (game-v11, kind `housing`): `a housing dispute filed — <address>`,
+  `a housing dispute resolved — <address>`, `a tenant gave notice —
+  <address>`, `neighbors comparing notes — <address>`. Proposed work
+  analog on the game track's desk (`feed_shapes.work_proposal`, not yet
+  canonical): `a workplace complaint raised — <venue>` (kind `work`).
+  Never: names, amounts, who filed, the archetype, the rung reached.
+- **Outcomes are in-world.** Disputes resolve through the world —
+  settlement, notice, reputation (`gsCharRepResponse`: the organized
+  "neighbors comparing notes" beat). There is no moderator ruling, no
+  ticket queue, no appeal to us. A member who wants a character punished
+  gets pointed at the world, not at #mod-log.
+- **Two offstage orgs exist as texture** — Calle Justa Workers' Table
+  (Thu) and The Rent Table (Wed, library community room) — parody orgs
+  cleared for copy. They are venues in the fiction, not a player
+  helpdesk.
+
+The moderation boundary rule: **if the complaint is about what a
+character did, it belongs to the Ear; if it's about what a player asked
+for, it belongs to §2; if it's about what a member posted, it belongs to
+§3.** Mods never adjudicate disputes — a feed line naming an address is
+the whole of the public record, and no one may attach names to it.
+
 ---
 
 ## 3. Surface 2 — community moderation
@@ -461,6 +499,8 @@ not policy discretion.
 | Feed text-filter bypass | Profanity/PII renders on public feed | Option-A redact retroactively if supported; else owner hide; fix filter | Yes |
 | Coordinated raid on Discord | Mass join + spam | Verification gate (pre-approved addition), timeouts, recap honesty next post | No |
 | Press asks "can players do anything horrible?" | Interview question | Answer with the pipeline: screened intent, human review, attribution, hard caps — pitch is transparency, not promises | Prepared quote in PRESS-OUTREACH.md |
+| Member files/wants a "report" on a character | "How do I report what she did to my tenant?" | Not a moderation case — the in-world channel is the dispute ladder (world-v59): aside → named ask → third ear → table → filing, all character-run. Mods point at the world and stop; never open a ticket | No |
+| Dispute feed line misread as a mod notice | "a housing dispute filed — 9457 Guerrero St" read as a strike against a player | Explain the door-not-name rule: the address is the whole public record by design; it's world paper, not a moderation action; nobody may attach names to it — doing so in community spaces trips rule 2 | No |
 
 ## 5. Appeals & refunds (requests) — aligned to `moderation.json` appeal_flow
 
@@ -507,6 +547,7 @@ not policy discretion.
 | Screen-corpus conformance | `world/audit.js` G21 ↔ `screen-corpus.json` (80 cases, world-v36) | green at current `RWScreen.VERSION`; a red corpus is a launch blocker same as a wire-audit fail |
 | Costar decline rate | feed `— resolved · declined` lines (game-v9) | exists, low; a ~0% rate means declines aren't reaching the feed, ~100% means pricing/scoping is off |
 | Modified-offer decline rate | offer-card accept/decline counts (world-v46 contract) | some declines are healthy — proof trims are real offers; a ~0% decline rate means trims are too timid to notice |
+| Boundary-confusion rate | mod tickets/DMs asking to "report" a character vs. feed dispute lines (`a housing dispute filed — <addr>`) | low; a rising ticket rate means public copy blurs the §2.6 boundary — fix copy, never open the ticket |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -538,6 +579,8 @@ the counters.
 | "Queued requests show a live hold clock — if the hold expires before activation you get every credit back" | "Queued requests are under review" — review happens on activation; queued and in-review are different states |
 | "A character can turn down a co-star request — the decline is public on the feed and half the credits come back" | "Paid requests always happen" / "characters can't refuse you" — the whole point is they can |
 | "The screening engine is versioned and regression-tested — every rule ships with test cases, and the game build's classifier can only be stricter than the public reference, never looser" | Publishing the corpus or rule internals — the corpus is conformance tooling, not a public how-to-dodge list |
+| "The block has its own complaint channel — disputes climb an in-world ladder and only the last rung reaches the feed, as an address, never a name" | "Report a character's behavior and moderators will act" — there is no ticket queue for the fiction; disputes resolve in-world |
+| "When the feed says 'a housing dispute filed — <address>', that address is the entire public record" | Attaching names, amounts, or filers to dispute lines — the door-not-name rule is contractual, not a style choice |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -595,3 +638,17 @@ pages + this table update in the same commit.
 - Costar-action decline semantics — DELIVERED by game-v9 (`completed` +
   half refund + feed line). No moderation action needed; §4 runbook row +
   §7 copy row added so mods don't misread declines as denials.
+- Dispute/grievance feed vocabulary — PARTIALLY DELIVERED: housing lines
+  (`a housing dispute filed|resolved — <addr>`, `a tenant gave notice —
+  <addr>`, `neighbors comparing notes — <addr>`, kind `housing`) are
+  canonical per game-v11; the work analog (`a workplace complaint
+  raised|settled — <venue>`, kind `work`) is world-v59's
+  `feed_shapes.work_proposal` PROPOSAL on the game track's desk — §2.6
+  copy stays housing-canonical until it's adopted. §6a report may count
+  dispute lines as a *world* stat, never as moderation actions.
+- Merge plumbing status — production-1 (in-flight builder session) pins
+  marketing v84 + game v11 + world v58 and plans to wire
+  `world/request.html`'s pipeline to `__aiBridge` when present; the §2.2
+  PENDING list (queue data model, classifier port under the
+  stricter-or-equal rule, `mod_decision` ledger writes) lands or doesn't
+  there. Re-check against the merged build when production-1 reports.
