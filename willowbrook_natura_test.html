@@ -38257,59 +38257,131 @@ function sfRenderInterior(cw, ch, v){
     }
   }
 
-  /* --- v43: the room is lived in, not staged ---
-     Wall clock on the left wall reads the real sim clock; the hall
-     door opens on the right wall; flats get a radiator under the
-     windows and (sometimes) the house cat asleep on the sill. */
+  /* --- v52: the room is metric now ------------------------------
+     The shell has always been one-point perspective; this pass finally
+     treats it as a real room. A pinhole camera stands in the doorway at
+     eye height and the vanishing point becomes a projection: props are
+     placed in meters (x lateral from room center, z depth from the door,
+     h height) and projected through it. Furniture is true cuboids with
+     separately lit top/front/side faces, pendant lamps shrink with
+     depth, pictures hang ON the receding side walls, occupants scale by
+     1/z, and every prop casts its shadow along the real sun vector that
+     enters through the windows. */
+  const RM_W = 7;                                        // room width (m)
+  const eyeH = (bB - vpy) * RM_W / (bR - bL);            // doorway eye height
+  const roomH = eyeH + (vpy - bT) * RM_W / (bR - bL);    // ceiling height
+  const RM_D = 8.4 + phash(seed, 0, 5200) * 1.6;         // back-wall depth (m)
+  const RM_F = (bR - bL) * RM_D / RM_W;                  // focal length, px·m
+  const RM = (x, z, h) => {
+    const zz = Math.max(1.1, z);
+    return { x: vpx + x * RM_F / zz, y: vpy + (eyeH - h) * RM_F / zz, s: RM_F / zz };
+  };
+  const zNear = eyeH * RM_F / (ch - vpy);                // closest visible depth
+  // the sun enters through the back-wall windows and travels toward the
+  // door: floor shadows run toward the camera, sideways with toX, and
+  // stretch with cot(el) exactly like the shadows outside
+  const cotEl = clamp(1 / Math.tan(Math.max(0.08, SF_SUN.el || 0.6)), 0.4, 2.6);
+  const shX = -SF_SUN.toX * cotEl * 0.8, shZ = -0.7 * cotEl;
+  function rmPoly(pts, fill){
+    ctx.fillStyle = fill; ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath(); ctx.fill();
+  }
+  // soft floor shadow: the footprint extruded along the sun's floor vector
+  function rmShadow(x0, z0, x1, z1, h, a){
+    const dx = shX * h, dz = shZ * h;
+    rmPoly([RM(x0, z0, 0), RM(x1, z0, 0), RM(x1 + dx, z0 + dz, 0),
+            RM(x1 + dx, z1 + dz, 0), RM(x0 + dx, z1 + dz, 0), RM(x0 + dx, z0 + dz, 0)],
+           `rgba(24,16,9,${a})`);
+  }
+  // cuboid: near face + top (when below eye level) + the side that faces
+  // the room center. Top faces catch the window sun; sides sit in shade.
+  function rmBox(x0, z0, x1, z1, h0, h1, col){
+    const xc = (x0 + x1) / 2;
+    if(Math.abs(xc) > (x1 - x0) / 2 - 0.01){
+      const xs = xc > 0 ? x0 : x1;
+      rmPoly([RM(xs, z1, h0), RM(xs, z1, h1), RM(xs, z0, h1), RM(xs, z0, h0)],
+             shade(col, 0.64));
+    }
+    rmPoly([RM(x0, z0, h0), RM(x1, z0, h0), RM(x1, z0, h1), RM(x0, z0, h1)], col);
+    if(h1 < eyeH * 1.02)
+      rmPoly([RM(x0, z0, h1), RM(x1, z0, h1), RM(x1, z1, h1), RM(x0, z1, h1)],
+             sunIn ? mix(shade(col, 1.22), '#ffe4b0', 0.30 * sunK) : shade(col, 1.18));
+  }
+  // horizontal disc (table tops, rugs, lamp pools) — foreshortened for eye height
+  function rmDisc(x, z, r, h, fill){
+    const p = RM(x, z, h);
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, r * p.s, r * p.s * Math.max(0.10, (eyeH - h) / z), 0, 0, Math.PI * 2);
+    ctx.fill();
+    return p;
+  }
+  // quad hanging on a side wall plane (sgn -1 left / +1 right)
+  function rmWallQuad(sgn, z0, z1, h0, h1, fill){
+    const x = sgn * RM_W / 2;
+    rmPoly([RM(x, z0, h0), RM(x, z1, h0), RM(x, z1, h1), RM(x, z0, h1)], fill);
+  }
+  // quad on an interior partition face x=const between z0..z1
+  function rmFaceX(x, z0, z1, h0, h1, fill){
+    rmPoly([RM(x, z0, h0), RM(x, z1, h0), RM(x, z1, h1), RM(x, z0, h1)], fill);
+  }
+
+  // wall clock on the left wall reads the real sim clock — compressed by
+  // the receding wall exactly like every other depth feature
   {
-    const kx = bL * 0.52, ky = bT + (bB - bT) * 0.34, kr = 15;
+    const zc = 5.0, p = RM(-RM_W / 2, zc, 2.05),
+          kr = 0.22 * p.s, krx = kr * (RM_W / 2) / zc;
     ctx.fillStyle = '#e8e0cc';
-    ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, krx, kr, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#2c2418'; ctx.lineWidth = 2; ctx.stroke();
     ctx.strokeStyle = '#3a3028'; ctx.lineWidth = 1;
     ctx.beginPath();
     for(let k = 0; k < 12; k++){
       const a = k / 12 * Math.PI * 2;
-      ctx.moveTo(kx + Math.cos(a) * kr * 0.82, ky + Math.sin(a) * kr * 0.82);
-      ctx.lineTo(kx + Math.cos(a) * kr * 0.94, ky + Math.sin(a) * kr * 0.94);
+      ctx.moveTo(p.x + Math.cos(a) * krx * 0.82, p.y + Math.sin(a) * kr * 0.82);
+      ctx.lineTo(p.x + Math.cos(a) * krx * 0.94, p.y + Math.sin(a) * kr * 0.94);
     }
     const hr = ((W.tod || 12) % 12) / 12 * Math.PI * 2 - Math.PI / 2,
           mn = ((W.tod || 0) % 1) * Math.PI * 2 - Math.PI / 2;
-    ctx.moveTo(kx, ky); ctx.lineTo(kx + Math.cos(hr) * kr * 0.5, ky + Math.sin(hr) * kr * 0.5);
-    ctx.moveTo(kx, ky); ctx.lineTo(kx + Math.cos(mn) * kr * 0.78, ky + Math.sin(mn) * kr * 0.78);
+    ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + Math.cos(hr) * krx * 0.5, p.y + Math.sin(hr) * kr * 0.5);
+    ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + Math.cos(mn) * krx * 0.78, p.y + Math.sin(mn) * kr * 0.78);
     ctx.stroke();
   }
-  // hall doorway on the right wall — a darker opening with a lit transom
+  // hall door on the right wall — a real projected opening, not a decal
   {
-    const dx0 = bR + (cw - bR) * 0.28, dx1 = bR + (cw - bR) * 0.62;
-    const dT = bT + (ch * 0.06) * 0.9, dB = bB + (ch - bB) * 0.42;
-    ctx.fillStyle = '#241a10';
-    ctx.beginPath();
-    ctx.moveTo(dx0, dT + 8); ctx.lineTo(dx1, dT); ctx.lineTo(dx1, dB - 10);
-    ctx.lineTo(dx0, dB); ctx.closePath(); ctx.fill();
+    const lit = lamps || night;
+    rmWallQuad(1, 4.1, 5.1, 0, 2.1, '#241a10');
+    rmWallQuad(1, 4.25, 4.95, 0.14, 1.95, '#31241a');   // recessed panel
     ctx.strokeStyle = shade('#e8dcc8', 0.8); ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = (lamps || night) ? 'rgba(255,206,120,0.5)' : 'rgba(160,150,130,0.35)';
-    ctx.beginPath();
-    ctx.moveTo(dx0 + 4, dT + 12); ctx.lineTo(dx1 - 4, dT + 5);
-    ctx.lineTo(dx1 - 4, dT + 20); ctx.lineTo(dx0 + 4, dT + 26);
-    ctx.closePath(); ctx.fill();
+    const dPts = [RM(RM_W / 2, 4.1, 0), RM(RM_W / 2, 5.1, 0),
+                  RM(RM_W / 2, 5.1, 2.1), RM(RM_W / 2, 4.1, 2.1)];
+    ctx.beginPath(); ctx.moveTo(dPts[0].x, dPts[0].y);
+    for(let i = 1; i < 4; i++) ctx.lineTo(dPts[i].x, dPts[i].y);
+    ctx.closePath(); ctx.stroke();
+    rmWallQuad(1, 4.2, 5.0, 2.16, 2.46,                 // lit transom
+               lit ? 'rgba(255,206,120,0.55)' : 'rgba(160,150,130,0.3)');
+    const knob = RM(RM_W / 2, 4.35, 1.0);
+    ctx.fillStyle = '#c8a44a';
+    ctx.beginPath(); ctx.arc(knob.x, knob.y, 2.5, 0, Math.PI * 2); ctx.fill();
   }
 
-  /* --- furniture, per archetype --- */
+  /* --- furniture, per archetype — all in meters --- */
   const lampGlow = lamps || night;
   if(shop){
-    // back-bar shelves with cups/jars
+    // back-bar shelves moved to the LEFT wall (they were floating inside
+    // the storefront glass before) — two projected boards with cups
     for(let s = 0; s < 2; s++){
-      const sy = bT + (bB - bT) * (0.16 + s * 0.12);
-      const sx0 = bL + (bR - bL) * 0.10, sx1 = sx0 + (bR - bL) * 0.26;
-      ctx.fillStyle = '#4a3626'; ctx.fillRect(sx0, sy, sx1 - sx0, 4);
+      const sh = 1.45 + s * 0.42;
+      rmWallQuad(-1, 5.9, 7.6, sh, sh + 0.06, '#4a3626');
       for(let k = 0; k < 6; k++){
-        ctx.fillStyle = ['#c9b89a', '#8a5a3a', '#5a7a8a', '#d8d0c0'][k % 4];
-        ctx.fillRect(sx0 + 4 + k * (sx1 - sx0 - 8) / 6, sy - 8, 6, 8);
+        const cz = 6.05 + k * 0.24 + phash(k, s, seed + 1912) * 0.06;
+        rmWallQuad(-1, cz, cz + 0.13, sh + 0.06, sh + 0.24,
+                   ['#c9b89a', '#8a5a3a', '#5a7a8a', '#d8d0c0'][(k + s) % 4]);
       }
     }
-    // menu board
+    // menu board stays on the back wall (it IS the back wall)
     const mx0 = bR - (bR - bL) * 0.34, my0 = bT + (bB - bT) * 0.10;
     ctx.fillStyle = '#2a2620';
     ctx.fillRect(mx0, my0, (bR - bL) * 0.24, (bB - bT) * 0.34);
@@ -38322,47 +38394,9 @@ function sfRenderInterior(cw, ch, v){
       ctx.lineTo(mx0 + (bR - bL) * 0.24 - 8 - phash(k, seed, 1910) * 30, my0 + 10 + k * 11);
       ctx.stroke();
     }
-    // the counter: front face + lighter top, espresso machine + pastry case
-    const cx0 = cw * 0.52, cx1 = cw * 0.94, cy0 = ch * 0.62, cy1 = ch * 0.80;
-    ctx.fillStyle = '#5a3a22'; ctx.fillRect(cx0, cy0, cx1 - cx0, cy1 - cy0);
-    ctx.fillStyle = '#8a6a45'; ctx.fillRect(cx0 - 8, cy0 - 10, cx1 - cx0 + 16, 12);
-    ctx.fillStyle = '#c8b490'; ctx.fillRect(cx0 - 8, cy0 - 10, cx1 - cx0 + 16, 3);
-    // espresso machine silhouette
-    ctx.fillStyle = '#2c2c30';
-    ctx.fillRect(cx0 + 14, cy0 - 46, 54, 38);
-    ctx.fillStyle = '#b8bcc4'; ctx.fillRect(cx0 + 20, cy0 - 40, 42, 8);
-    ctx.fillStyle = '#d8a44a'; ctx.fillRect(cx0 + 24, cy0 - 24, 8, 10);
-    // pastry case: glass dome over warm crumb
-    ctx.fillStyle = '#7a4a26'; ctx.fillRect(cx1 - 78, cy0 - 20, 60, 10);
-    ctx.fillStyle = 'rgba(210,228,240,0.5)';
-    ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 20, 30, 14, 0, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = '#e0b060';
-    ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 22, 22, 8, 0, Math.PI, 0); ctx.fill();
-    // v35: espresso machine breathes steam while the café is open
-    if(arch === 'cafe' && !night){
-      ctx.strokeStyle = 'rgba(240,240,235,0.4)'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      const ph = Math.floor(SF_WX.t * 2);
-      for(let k = 0; k < 3; k++){
-        const sx2 = cx0 + 30 + k * 9, sy2 = cy0 - 48;
-        const w = Math.sin(ph + k * 2.1) * 5;
-        ctx.moveTo(sx2, sy2);
-        ctx.quadraticCurveTo(sx2 + w, sy2 - 12, sx2 + w * 0.4, sy2 - 24);
-      }
-      ctx.stroke();
-    }
-    // v35: taqueria — salsa bar along the left wall, papel picado overhead
+    // v52: taqueria — papel picado overhead (ceiling, screen-space ok)
     if(arch === 'taqueria'){
-      const sbx = cw * 0.06, sby = ch * 0.60, sbw = cw * 0.16, sbh = ch * 0.16;
-      ctx.fillStyle = 'rgba(20,14,8,0.35)';
-      ctx.beginPath(); ctx.ellipse(sbx + sbw / 2, sby + sbh + 6, sbw * 0.62, 10, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#8a2f24'; ctx.fillRect(sbx, sby, sbw, sbh);
-      ctx.fillStyle = '#c8b490'; ctx.fillRect(sbx - 4, sby - 8, sbw + 8, 10);
-      for(let k = 0; k < 3; k++){ // salsa bowls: roja, verde, crema
-        ctx.fillStyle = ['#b03020', '#4a7a2e', '#e8d8b0'][k];
-        ctx.beginPath(); ctx.ellipse(sbx + 16 + k * (sbw - 32) / 2, sby - 12, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
-      }
-      for(const [y0, sag] of [[ch * 0.06, 26], [ch * 0.13, 20]]){ // papel picado strings
+      for(const [y0, sag] of [[ch * 0.06, 26], [ch * 0.13, 20]]){
         ctx.strokeStyle = 'rgba(40,30,20,0.8)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(cw * 0.10, y0);
         ctx.quadraticCurveTo(cw * 0.5, y0 + sag * 2, cw * 0.90, y0); ctx.stroke();
@@ -38375,22 +38409,28 @@ function sfRenderInterior(cw, ch, v){
           ctx.closePath(); ctx.fill();
         }
       }
+      // salsa bar along the left wall — a projected counter now
+      rmShadow(-3.3, 4.8, -2.3, 6.0, 1.0, sunIn ? 0.26 * sunK + 0.08 : 0.15);
+      rmBox(-3.3, 4.8, -2.3, 6.0, 0, 1.0, '#8a2f24');
+      rmBox(-3.36, 4.74, -2.24, 6.06, 1.0, 1.07, '#c8b490');
+      for(let k = 0; k < 3; k++)  // roja, verde, crema
+        rmDisc(-2.8, 5.0 + k * 0.5, 0.09, 1.07, ['#b03020', '#4a7a2e', '#e8d8b0'][k]);
     }
-    // v35: hardware — a tall aisle shelf silhouette right of center and a
-    // pegboard square on the back wall hung with tool shadows
+    // v52: hardware — tall aisle shelf as a real cuboid with goods on the
+    // face that looks into the room
     if(arch === 'hardware'){
-      const axx = cw * 0.10, axy = ch * 0.44, axw = cw * 0.11, axh = ch * 0.42;
-      ctx.fillStyle = 'rgba(20,14,8,0.4)';
-      ctx.beginPath(); ctx.ellipse(axx + axw / 2, axy + axh + 4, axw * 0.7, 9, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#3c4048'; ctx.fillRect(axx, axy, axw, axh);
+      rmShadow(-3.3, 4.2, -2.0, 7.4, 2.2, sunIn ? 0.26 * sunK + 0.08 : 0.16);
+      rmBox(-3.3, 4.2, -2.0, 7.4, 0, 2.2, '#3c4048');
       for(let s = 0; s < 5; s++){
-        const sy = axy + 8 + s * (axh - 16) / 5;
-        ctx.fillStyle = '#5a6068'; ctx.fillRect(axx + 3, sy, axw - 6, 3);
-        for(let k = 0; k < 5; k++){
-          ctx.fillStyle = ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80', '#4a6a4a'][Math.floor(phash(k, s, seed + 3880) * 5)];
-          ctx.fillRect(axx + 6 + k * (axw - 12) / 5, sy - 9, (axw - 12) / 6, 9);
+        const sh = 0.35 + s * 0.42;
+        rmFaceX(-2.0, 4.25, 7.35, sh, sh + 0.035, '#5a6068');
+        for(let k = 0; k < 6; k++){
+          const gz = 4.35 + k * 0.5 + phash(k, s, seed + 3880) * 0.12;
+          rmFaceX(-2.0, gz, gz + 0.3, sh + 0.035, sh + 0.035 + 0.16 + phash(k, s, seed + 3884) * 0.14,
+                  ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80', '#4a6a4a'][Math.floor(phash(k, s, seed + 3885) * 5)]);
         }
       }
+      // pegboard on the back wall with hung tool silhouettes
       const pgx = bL + (bR - bL) * 0.06, pgy = bT + (bB - bT) * 0.12;
       const pgw = (bR - bL) * 0.22, pgh = (bB - bT) * 0.30;
       ctx.fillStyle = '#8a7a5a'; ctx.fillRect(pgx, pgy, pgw, pgh);
@@ -38399,65 +38439,100 @@ function sfRenderInterior(cw, ch, v){
         ctx.fillRect(pgx + 6 + phash(k, seed, 3881) * (pgw - 18),
                      pgy + 6 + phash(k, seed, 3882) * (pgh - 18), 4, 10 + phash(k, seed, 3883) * 8);
     }
-    // cafe tables + chairs between camera and counter
-    for(let k = 0; k < 2; k++){
-      const tx = cw * (0.16 + k * 0.18), ty = ch * (0.78 + k * 0.06);
-      const tr = cw * 0.055;
-      ctx.fillStyle = 'rgba(20,14,8,0.35)';
-      ctx.beginPath(); ctx.ellipse(tx, ty + tr * 0.5, tr * 1.1, tr * 0.3, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#3a2c1c'; ctx.fillRect(tx - 3, ty, 6, tr * 0.9);
-      ctx.fillStyle = '#d8cba8';
-      ctx.beginPath(); ctx.ellipse(tx, ty, tr, tr * 0.34, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#8a6a45'; ctx.lineWidth = 2; ctx.stroke();
-      for(const cs of [-1, 1]){ // chairs
-        ctx.fillStyle = '#4a3626';
-        ctx.fillRect(tx + cs * tr * 1.35 - 6, ty - 14, 12, 26);
+    // cafe tables + chairs, placed in the room and shrinking with depth
+    const tbls = arch === 'hardware' ? [] : [[-1.7, 4.7], [-0.3, 6.2], [-2.5, 6.9]];
+    for(const [tx, tz] of tbls){
+      if(tz > RM_D - 0.9) continue;
+      rmShadow(tx - 0.5, tz - 0.4, tx + 0.5, tz + 0.4, 0.75, sunIn ? 0.26 * sunK + 0.06 : 0.13);
+      for(const cs of [-1, 1]){  // chairs: small cuboids flanking the table
+        const chx = tx + cs * 0.78;
+        rmBox(chx - 0.2, tz - 0.2, chx + 0.2, tz + 0.2, 0, 0.45, '#4a3626');
+        rmBox(chx + (cs > 0 ? 0.08 : -0.28), tz - 0.2, chx + (cs > 0 ? 0.28 : -0.08), tz + 0.2, 0.45, 0.92, '#4a3626');
       }
+      { // pedestal + disc top
+        const pb = RM(tx, tz, 0), pt = RM(tx, tz, 0.72);
+        ctx.strokeStyle = '#3a2c1c'; ctx.lineWidth = Math.max(2, 0.05 * pb.s);
+        ctx.beginPath(); ctx.moveTo(pb.x, pb.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+        rmDisc(tx, tz, 0.5, 0.74, '#d8cba8');
+        const p = RM(tx, tz, 0.74);
+        ctx.strokeStyle = '#8a6a45'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, 0.5 * p.s, 0.5 * p.s * Math.max(0.10, (eyeH - 0.74) / tz), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    // the counter: a real box you could lean on, stone top overhang
+    rmShadow(0.9, 4.2, 3.3, 5.3, 1.05, sunIn ? 0.30 * sunK + 0.08 : 0.16);
+    rmBox(0.9, 4.2, 3.3, 5.3, 0, 1.05, '#5a3a22');
+    rmBox(0.82, 4.12, 3.38, 5.34, 1.05, 1.12, '#c8b490');
+    // espresso machine + pastry case ride the counter top
+    rmBox(1.05, 4.35, 1.7, 5.05, 1.12, 1.62, '#2c2c30');
+    rmBox(1.12, 4.33, 1.63, 4.52, 1.50, 1.56, '#b8bcc4');
+    {
+      const p = RM(1.32, 4.32, 1.30);
+      ctx.fillStyle = '#d8a44a'; ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
+      // steam while the café is open
+      if(arch === 'cafe' && !night){
+        ctx.strokeStyle = 'rgba(240,240,235,0.4)'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        const ph = Math.floor(SF_WX.t * 2), st = RM(1.35, 4.5, 1.62);
+        for(let k = 0; k < 3; k++){
+          const sx2 = st.x - 12 + k * 9, sy2 = st.y;
+          const w = Math.sin(ph + k * 2.1) * 5;
+          ctx.moveTo(sx2, sy2);
+          ctx.quadraticCurveTo(sx2 + w, sy2 - 12, sx2 + w * 0.4, sy2 - 24);
+        }
+        ctx.stroke();
+      }
+    }
+    rmBox(2.5, 4.35, 3.15, 5.0, 1.12, 1.42, '#7a4a26');
+    { // glass dome over the pastry case, warm crumb inside
+      const p = RM(2.82, 4.33, 1.42), gw = 0.34 * p.s, gh = 0.22 * p.s;
+      ctx.fillStyle = '#e0b060';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + gh * 0.4, gw * 0.7, gh * 0.4, 0, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = 'rgba(210,228,240,0.45)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y, gw * 0.5, gh * 0.55, 0, Math.PI, 0); ctx.fill();
     }
   } else {
     // flat: rug, sofa, bookshelf, floor lamp, framed art, sill plant
-    ctx.fillStyle = shop ? '#7a4a3a' : '#8a4a42';
-    ctx.beginPath(); ctx.ellipse(vpx, ch * 0.82, cw * 0.16, ch * 0.075, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#5e342e'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.ellipse(vpx, ch * 0.82, cw * 0.13, ch * 0.058, 0, 0, Math.PI * 2); ctx.stroke();
-    // sofa against the left wall
-    const sox = cw * 0.10, soy = ch * 0.66;
-    ctx.fillStyle = 'rgba(20,14,8,0.35)';
-    ctx.beginPath(); ctx.ellipse(sox + 60, soy + 66, 72, 14, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#5a6a58';
-    ctx.fillRect(sox, soy, 120, 56);
-    ctx.fillStyle = '#6d7e6a'; ctx.fillRect(sox, soy - 22, 120, 26);
-    ctx.fillStyle = '#4a5848';
-    ctx.fillRect(sox, soy + 20, 12, 36); ctx.fillRect(sox + 108, soy + 20, 12, 36);
-    ctx.fillStyle = '#c9a86a'; ctx.fillRect(sox + 16, soy - 14, 26, 18);
-    ctx.fillStyle = '#a85a5a'; ctx.fillRect(sox + 76, soy - 14, 26, 18);
-    // bookshelf right
-    const bsx = cw * 0.80, bsy = ch * 0.42, bsw = cw * 0.14, bsh = ch * 0.34;
-    ctx.fillStyle = '#4a3423'; ctx.fillRect(bsx, bsy, bsw, bsh);
+    rmDisc(0, 5.6, 1.35, 0.01, '#8a4a42');
+    rmDisc(0, 5.6, 0.95, 0.012, '#7c443c');
+    // sofa against the left wall: seat + back + arms + cushions
+    rmShadow(-3.4, 4.4, -2.35, 6.6, 0.95, sunIn ? 0.26 * sunK + 0.08 : 0.15);
+    rmBox(-3.4, 4.4, -2.35, 6.6, 0, 0.45, '#5a6a58');
+    rmBox(-3.42, 4.4, -2.95, 6.6, 0.45, 0.95, '#4a5848');
+    rmBox(-3.4, 4.4, -2.35, 4.85, 0.45, 0.72, '#52624f');
+    rmBox(-3.4, 6.15, -2.35, 6.6, 0.45, 0.72, '#52624f');
+    rmBox(-3.32, 4.95, -2.45, 5.7, 0.45, 0.58, '#c9a86a');
+    rmBox(-3.32, 5.75, -2.45, 6.5, 0.45, 0.58, '#a85a5a');
+    // bookshelf on the right wall, deep enough to clear the hall door —
+    // books on the face toward the room
+    const bsZ1 = Math.min(8.2, RM_D - 0.4);
+    rmShadow(2.55, 5.7, 3.42, bsZ1, 2.15, sunIn ? 0.26 * sunK + 0.08 : 0.16);
+    rmBox(2.55, 5.7, 3.42, bsZ1, 0, 2.15, '#4a3423');
     for(let s = 0; s < 4; s++){
-      const sy = bsy + 12 + s * (bsh - 20) / 4;
-      ctx.fillStyle = '#3a281a'; ctx.fillRect(bsx + 5, sy, bsw - 10, 3);
-      for(let k = 0; k < 9; k++){
-        const bh2 = 12 + phash(k, s, seed + 1915) * 10;
-        ctx.fillStyle = ['#8a4a3a', '#3a5a7a', '#7a8a4a', '#b0905a', '#5a4a7a'][Math.floor(phash(k, s, seed + 1916) * 5)];
-        ctx.fillRect(bsx + 8 + k * (bsw - 16) / 9, sy - bh2 + 2, (bsw - 16) / 11, bh2);
+      const sh = 0.42 + s * 0.45;
+      rmFaceX(2.55, 5.75, bsZ1 - 0.05, sh, sh + 0.035, '#3a281a');
+      for(let k = 0; k < 8; k++){
+        const bz = 5.85 + k * ((bsZ1 - 6.15) / 8) + phash(k, s, seed + 1915) * 0.06;
+        rmFaceX(2.55, bz, bz + 0.19, sh + 0.035, sh + 0.035 + 0.16 + phash(k, s, seed + 1916) * 0.12,
+                ['#8a4a3a', '#3a5a7a', '#7a8a4a', '#b0905a', '#5a4a7a'][Math.floor(phash(k, s, seed + 1917) * 5)]);
       }
     }
-    // framed pictures on the back wall — v43: a cluster, not a pair
-    for(let k = 0; k < 2; k++){
-      const fx = bL + (bR - bL) * (0.06 + k * 0.82), fy = bT + (bB - bT) * 0.16;
-      ctx.fillStyle = '#3a2c1c'; ctx.fillRect(fx, fy, 44, 56);
-      ctx.fillStyle = ['#7a9ab0', '#b0785a'][k];
-      ctx.fillRect(fx + 4, fy + 4, 36, 48);
-    }
-    for(let k = 0; k < 3; k++){    // snapshot cluster beside the left frame
+    // framed art hangs ON the side walls now — it recedes with the room
+    rmWallQuad(-1, 6.9, 7.7, 1.5, 2.25, '#3a2c1c');
+    rmWallQuad(-1, 6.98, 7.62, 1.57, 2.18, '#7a9ab0');
+    rmWallQuad(-1, 7.9, 8.5, 1.45, 2.1, '#3a2c1c');
+    rmWallQuad(-1, 7.98, 8.42, 1.52, 2.03, '#b0785a');
+    // snapshot cluster between the back-wall windows
+    for(let k = 0; k < 3; k++){
       const fx = bL + (bR - bL) * (0.50 + phash(k, seed, 4350) * 0.05),
             fy = bT + (bB - bT) * (0.15 + k * 0.13);
       ctx.fillStyle = '#4a3a28'; ctx.fillRect(fx, fy, 16, 20);
       ctx.fillStyle = ['#c9b89a', '#8aa0b0', '#b0905a'][k];
       ctx.fillRect(fx + 2, fy + 2, 12, 16);
     }
-    // v43: steam radiator under each window — the SF flat staple
+    // steam radiator under each window — the SF flat staple (back wall)
     let wi = 0;
     for(const [wx0, wy0, wx1, wy1] of winRects){
       const rx0 = wx0 + 4, rx1 = wx1 - 4, ry = bB - 6, rh = 26;
@@ -38485,85 +38560,96 @@ function sfRenderInterior(cw, ch, v){
         ctx.quadraticCurveTo(cx2 + 18, cy2 - 2, cx2 + 16, cy2 + 3); ctx.stroke();
       }
     }
-    // floor lamp with a lit cone at dusk
-    const lx = cw * 0.32, ly = ch * 0.60;
-    ctx.fillStyle = '#2c241c'; ctx.fillRect(lx - 2, ly - 60, 4, 62);
-    ctx.fillStyle = lampGlow ? '#f0d8a0' : '#c8b890';
-    ctx.beginPath(); ctx.moveTo(lx - 16, ly - 58); ctx.lineTo(lx + 16, ly - 58);
-    ctx.lineTo(lx + 10, ly - 78); ctx.lineTo(lx - 10, ly - 78); ctx.closePath(); ctx.fill();
-    if(lampGlow){
-      const lg = ctx.createRadialGradient(lx, ly - 62, 4, lx, ly - 62, 90);
-      lg.addColorStop(0, 'rgba(255,214,140,0.4)');
-      lg.addColorStop(1, 'rgba(255,214,140,0)');
-      ctx.fillStyle = lg; ctx.fillRect(lx - 90, ly - 150, 180, 180);
+    // floor lamp: pole + shade at a meter position, glow + floor pool at dusk
+    {
+      const lx = -1.2, lz = 5.2;
+      const pb = RM(lx, lz, 0), pt = RM(lx, lz, 1.7);
+      rmShadow(lx - 0.16, lz - 0.16, lx + 0.16, lz + 0.16, 1.6, sunIn ? 0.22 * sunK + 0.05 : 0.10);
+      ctx.strokeStyle = '#2c241c'; ctx.lineWidth = Math.max(2, 0.035 * pb.s);
+      ctx.beginPath(); ctx.moveTo(pb.x, pb.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+      const s0 = RM(lx, lz, 1.45), s1 = RM(lx, lz, 1.75);
+      rmPoly([{x: s0.x - 0.20 * s0.s, y: s0.y}, {x: s0.x + 0.20 * s0.s, y: s0.y},
+              {x: s1.x + 0.11 * s1.s, y: s1.y}, {x: s1.x - 0.11 * s1.s, y: s1.y}],
+             lampGlow ? '#f0d8a0' : '#c8b890');
+      if(lampGlow){
+        const g = RM(lx, lz, 1.5), gr = 0.9 * g.s;
+        const lg = ctx.createRadialGradient(g.x, g.y, 4, g.x, g.y, gr);
+        lg.addColorStop(0, 'rgba(255,214,140,0.4)');
+        lg.addColorStop(1, 'rgba(255,214,140,0)');
+        ctx.fillStyle = lg; ctx.fillRect(g.x - gr, g.y - gr, gr * 2, gr * 2);
+        rmDisc(lx, lz, 1.0, 0.01, 'rgba(255,208,130,0.14)');
+      }
     }
-    // plant on the floor by the window
-    ctx.fillStyle = '#8a5a3a'; ctx.fillRect(bL + 14, bB - 4, 20, 16);
-    ctx.fillStyle = '#3e7a34';
-    for(let k = 0; k < 5; k++)
-      paBlob(ctx, bL + 24 + Math.cos(k * 1.3) * 10, bB - 14 - k * 5, 7, k % 2 ? '#3e7a34' : '#2e5a24');
+    // potted plant on the floor by the window
+    rmBox(-3.2, 7.4, -2.75, 7.85, 0, 0.32, '#8a5a3a');
+    for(let k = 0; k < 5; k++){
+      const fp = RM(-2.97 + Math.cos(k * 1.3) * 0.10, 7.6, 0.40 + k * 0.16);
+      paBlob(ctx, fp.x, fp.y, 0.11 * fp.s, k % 2 ? '#3e7a34' : '#2e5a24');
+    }
   }
-  // pendant lamps: cord + shade + warm pool when lit (cafés keep them on
-  // all day; flats light them at dusk)
+  // pendant lamps: real cords from the ceiling plane, shades that shrink
+  // with depth, warm pools on the floor when lit
   const nPend = shop ? 3 : 1;
   for(let k = 0; k < nPend; k++){
-    const px = cw * (nPend === 1 ? 0.5 : 0.3 + k * 0.2);
-    const py = ch * 0.30;
-    ctx.strokeStyle = '#241c14'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, py); ctx.stroke();
-    ctx.fillStyle = shop ? '#3a5a4a' : '#7a6a58';
-    ctx.beginPath(); ctx.moveTo(px - 12, py); ctx.lineTo(px + 12, py);
-    ctx.lineTo(px + 7, py - 12); ctx.lineTo(px - 7, py - 12); ctx.closePath(); ctx.fill();
+    const lx = nPend === 1 ? 0 : [-1.5, 0.2, 1.8][k],
+          lz = nPend === 1 ? 5.2 : [4.0, 5.6, 4.8][k];
+    const pc = RM(lx, lz, roomH), ph2 = RM(lx, lz, 2.42), pt = RM(lx, lz, 2.62);
+    ctx.strokeStyle = '#241c14'; ctx.lineWidth = Math.max(1.5, 0.015 * pc.s);
+    ctx.beginPath(); ctx.moveTo(pc.x, pc.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+    rmPoly([{x: ph2.x - 0.20 * ph2.s, y: ph2.y}, {x: ph2.x + 0.20 * ph2.s, y: ph2.y},
+            {x: pt.x + 0.11 * pt.s, y: pt.y}, {x: pt.x - 0.11 * pt.s, y: pt.y}],
+           shop ? '#3a5a4a' : '#7a6a58');
     if(lampGlow || shop){
-      const a = lampGlow ? 0.5 : 0.18;
-      const lg = ctx.createRadialGradient(px, py + 6, 2, px, py + 6, 60);
+      const a = lampGlow ? 0.5 : 0.18, g = RM(lx, lz, 2.35), gr = 0.55 * g.s;
+      const lg = ctx.createRadialGradient(g.x, g.y, 2, g.x, g.y, gr);
       lg.addColorStop(0, `rgba(255,208,130,${a})`);
       lg.addColorStop(1, 'rgba(255,208,130,0)');
-      ctx.fillStyle = lg; ctx.fillRect(px - 60, py - 30, 120, 150);
+      ctx.fillStyle = lg; ctx.fillRect(g.x - gr, g.y - gr, gr * 2, gr * 2);
       ctx.fillStyle = `rgba(255,230,170,${a + 0.2})`;
-      ctx.beginPath(); ctx.arc(px, py + 3, 3.5, 0, Math.PI * 2); ctx.fill();
-      // v35: each lamp throws a matching warm pool on the floor below
-      if(lampGlow){
-        const pg = ctx.createRadialGradient(px, ch * 0.82, 6, px, ch * 0.82, 95);
-        pg.addColorStop(0, 'rgba(255,208,130,0.16)');
-        pg.addColorStop(1, 'rgba(255,208,130,0)');
-        ctx.fillStyle = pg;
-        ctx.beginPath(); ctx.ellipse(px, ch * 0.82, 95, 26, 0, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.beginPath(); ctx.arc(g.x, g.y, Math.max(2, 0.035 * g.s), 0, Math.PI * 2); ctx.fill();
+      if(lampGlow) rmDisc(lx, lz, 0.9, 0.01, 'rgba(255,208,130,0.14)');
     }
   }
 
-  /* --- occupants: other pawns inside the same venue, sorted by depth --- */
+  /* --- occupants: placed in the room, scaled by 1/z, far first --- */
   const inside = [];
-  for(const o of VILLAGERS)
-    if(o.inBuilding && o.inside === name && o !== v) inside.push(o);
-  let k = 0;
-  for(const o of inside.slice(0, 4)){
-    const u = 0.2 + phash(k, seed, 1920) * 0.6;
-    const fy = ch * (0.60 + phash(k, seed, 1921) * 0.18);
-    const fx = bL + (bR - bL) * u;
-    const sc = 0.62 + (fy / ch - 0.6) * 1.6;  // deeper = smaller
-    const F3 = PA.chars && PA.chars[o._ci != null ? o._ci : 0];
-    const fr = F3 && F3[0] && (paActFrame(F3, 0, o, G.frame) || F3[0].idle[0]);
-    if(fr){
-      const pw = 72 * sc, ph2 = 96 * sc;
-      ctx.fillStyle = 'rgba(16,10,6,0.4)';
-      ctx.beginPath(); ctx.ellipse(fx, fy + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.drawImage(fr, fx - pw / 2, fy - ph2, pw, ph2);
-      sfSayBubble(o, fx, fy - ph2 - 6, 0.85);   // production-1: occupants speak
+  {
+    let k = 0;
+    for(const o of VILLAGERS){
+      if(!(o.inBuilding && o.inside === name && o !== v)) continue;
+      inside.push({ o,
+        x: (phash(k, seed, 1920) * 2 - 1) * 2.3,
+        z: 4.0 + phash(k, seed, 1921) * Math.max(1.5, RM_D - 5.2) });
+      k++;
     }
-    k++;
+    inside.sort((a, b) => b.z - a.z);
   }
-  // the followed pawn, front and center, grounded on the floorboards
+  for(const m of inside.slice(0, 4)){
+    const p = RM(m.x, m.z, 0), ph2 = 1.68 * p.s, pw = ph2 * 0.75;
+    const F3 = PA.chars && PA.chars[m.o._ci != null ? m.o._ci : 0];
+    const fr = F3 && F3[0] && (paActFrame(F3, 0, m.o, G.frame) || F3[0].idle[0]);
+    if(fr){
+      if(sunIn) rmShadow(m.x - 0.28, m.z - 0.2, m.x + 0.28, m.z + 0.2, 1.6, 0.20 * sunK);
+      ctx.fillStyle = 'rgba(16,10,6,0.4)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.imageSmoothingEnabled = false;   // pixel sprites stay crisp at room scale
+      ctx.drawImage(fr, p.x - pw / 2, p.y - ph2, pw, ph2);
+      ctx.imageSmoothingEnabled = true;
+      sfSayBubble(m.o, p.x, p.y - ph2 - 6, 0.85);   // production-1: occupants speak
+    }
+  }
+  // the followed pawn, just inside the door, grounded on the floorboards
   const F2 = PA.chars && PA.chars[v._ci != null ? v._ci : 0];
   if(F2 && F2[0]){
     const fr = paActFrame(F2, 0, v, G.frame) || F2[0].idle[0];
     if(fr){
-      const fy = ch * 0.86;
+      const p = RM(0, Math.max(zNear + 0.6, 3.4), 0), ph2 = 1.68 * p.s, pw = ph2 * 0.75;
       ctx.fillStyle = 'rgba(16,10,6,0.45)';
-      ctx.beginPath(); ctx.ellipse(cw / 2, fy + 2, 34, 10, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.drawImage(fr, cw / 2 - 36, fy - 96, 72, 96);
-      sfSayBubble(v, cw / 2, fy - 96 - 8, 1);  // production-1: subject speaks
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(fr, p.x - pw / 2, p.y - ph2, pw, ph2);
+      ctx.imageSmoothingEnabled = true;
+      sfSayBubble(v, p.x, p.y - ph2 - 8, 1);  // production-1: subject speaks
     }
   }
   // location card — canonical parody display name (production-1)
