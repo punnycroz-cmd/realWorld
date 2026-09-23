@@ -71,6 +71,57 @@
   <div class="wrap">
     <p class="eyebrow">Latest — devlog</p>
     <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v72</p>
+      <h2>The menu is the truth.</h2>
+      <p>
+        A chalkboard can say anything. What's behind the counter is the
+        question — so all twenty door-having venues on the block now carry
+        a written catalog: <b>101 items</b>, each with a name you'd say
+        out loud, a price in game dollars, a category, an availability
+        condition, and one line of counter voice. The sign is the display;
+        the menu layer is the ledger behind it, and the audit enforces the
+        two never disagree on a named item's price.
+      </p>
+      <p>
+        Every venue keeps at least one signature item — the order a
+        stranger should guess first. The super burrito at
+        <b>Taqueria El Farolote</b> is $12 and priced for the post-bar
+        line. The open-mic slot at <b>The 600 Club</b> is $0, because the
+        stage is the point. The free box outside <b>The Dusty Spine</b>
+        is $0 for the same reason in reverse. And twelve items carry the
+        price <i>"ask"</i> — the regular at <b>Mudhaus Coffee</b>, the
+        usual at <b>Malik's Mini Mart</b> — because some prices are a
+        relationship, not a number.
+      </p>
+      <p>
+        The same rules as the rest of the block apply. Conditions, never
+        scripts: an item's <code>when</code> reflects rain, heat,
+        Saturday, late — nothing obliges a resident to order anything.
+        Game dollars only: no credits, no surge pricing, no dynamic menus
+        — the price is the price. And the layer is honest about its role:
+        it's the catalog a commerce system reads, so that "ordered the
+        usual" in the <a href="how-it-works.html">request feed</a> can
+        only render if the usual actually exists — and a future
+        order-something request spends a resident's own game dollars at a
+        listed price, never one invented at runtime.
+      </p>
+      <p class="muted">
+        Sources: the menu layer is the world track's
+        <code>world/menus.md</code>/<code>menus.json</code> (v72 — 20
+        venues, 101 items, 20 signature lines), demoed in
+        <code>world/menus.html</code> ("The Board"). Consuming it for
+        commerce is on the game track's desk; the catalog itself is
+        settled canon.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-24 · Development build v59</p>
       <h2>The Ear: complaints climb a ladder.</h2>
       <p>

@@ -147,6 +147,7 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 8 — "The wallet shows its math" | live on `journal.html` (v72); record at `marketing/content/devlog-08-the-wallet.md` | world-v32 `requests.json → wallet/appeals/co_sponsor/session_extend` + `request-ui.md` §8 |
 | Devlog 9 — "Every door has a tryout" | live on `journal.html` (v72); record at `marketing/content/devlog-09-every-door-has-a-tryout.md` | world-v45 `applications.md`/`applications.json` (16 job arcs, 8 housing rows, decline bank, never-list) + `apply.html` |
 | Devlog 10 — "The Ear: complaints climb a ladder" | live on `journal.html` (v87); record at `marketing/content/devlog-10-the-ear.md` | world-v59 `grievances.md`/`grievances.json` (5-rung ladder, 24 work + 7 housing rows, 2 offstage parody orgs) + `grievance.html`; game-v11 `gsFileDispute`/`gsResolveDispute` |
+| Devlog 11 — "The menu is the truth." | live on `journal.html` (v102); record at `marketing/content/devlog-11-the-menu.md` | world-v72 `menus.md`/`menus.json` (20 door venues, 101 items, sig/`ask`/`when` rules, board-agreement gate G15c) + `menus.html` ("The Board") |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
@@ -154,6 +155,9 @@ storefront-layer devlog (world-v44 `storefronts.json` fascia/window/
 aframe/flyers/neon copy — still gated: art-v43 shipped the storefront
 glass/menu-board/neon render *boxes* but not the authored text on them;
 draft once the render draws the authored copy so the post can show it);
+commerce-layer devlog (devlog-11 covered the catalog; the "order-
+something" request type + character commerce are gated on the game
+track consuming `menus.json` — draft when it lands);
 lease-ledger devlog deep-dive (devlog-3 covers the intro;
 a ledger-mechanics follow-up still has room), a wire.html-screenshot
 post if the world/art tracks publish a spectator-app capture,
