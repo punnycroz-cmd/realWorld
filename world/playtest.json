@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 64,
+ "version": 65,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -3152,6 +3152,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT60",
+   "title": "The harness round three — finding templates, hide-finished, handoff card (v65)",
+   "minutes": 10,
+   "persona": "facilitator mid-cohort — wants faster honest logging and a clean pass to the next tester",
+   "goal": "Verify the v65 harness pass: the finding-template dropdown seeds severity + wording for the five boundary breaks without ever logging on its own, 'hide finished' clears fully-verdicted scenarios from the rail, and 'Copy handoff' emits a paste-ready resume block for the next tester.",
+   "surfaces": [
+    "harness",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open the 'template…' dropdown in the findings form and pick 'possession affordance'. Read what it wrote, then pick each of the other four templates in turn.",
+     "expect": "Each pick flips severity to the boundary-appropriate value (blocker for possession / real-biz / AI-moderation, major for price / deny wording) and seeds title + detail + repro with the locked-rule wording. Nothing is logged — 'Log finding' is still required, and the seeded text stays editable.",
+     "checkpoints": [
+      "Template prefills severity + title + detail + repro but never logs — the form still waits for 'Log finding'",
+      "All five templates map to a locked rule (possession ban, parody names, §2 PROPOSAL prices, deny wording, §11 moderation scope)",
+      "Seeded text is editable before logging — templates seed, they don't dictate"
+     ]
+    },
+    {
+     "do": "Verdict every checkpoint of one scenario (any short one), then tick 'hide finished' in the rail header. Untick it, then tick it alongside 'smoke set only'.",
+     "expect": "The fully-verdicted scenario leaves the rail and the progress line's denominator narrows honestly; a scenario with even one unverdicted checkpoint stays. Both filters compose — smoke + hide finished shows only unfinished smoke items. The setting survives a reload.",
+     "checkpoints": [
+      "hide finished drops only scenarios where every checkpoint carries a verdict",
+      "It composes with the smoke filter — neither filter eats the other's meaning",
+      "The setting persists across reload (session state, rw_playtest_v65)"
+     ]
+    },
+    {
+     "do": "Log one nit finding (any wording), then hit 'Copy handoff' and paste it into a scratch note.",
+     "expect": "The clipboard holds a '## [world-playtest-handoff | date | tester (role)]' block: build + session minutes + 'resume at PT#' naming the open scenario, a remaining list of per-scenario unverdicted counts matching the rail's N/M math, an open-findings list carrying every severity (not just blocker/major — that's the inbox note's job), and ttfr when set.",
+     "checkpoints": [
+      "Handoff names the exact scenario to resume at and never invents a verdict",
+      "Remaining counts match the rail's N/M math exactly",
+      "Open findings list all severities with refs and owner routing"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the harness gate.",
+     "expect": "The harness gate passes at key rw_playtest_v65 / build 'world v65 local' with the v65 marks present (fTmpl, hideDone, exHandoff, handoff writer) and reports 60 scenarios; the mirror gate confirms the PT60 hand-sync.",
+     "checkpoints": [
+      "Harness gate: '60 scenarios · N checkpoints · key rw_playtest_v65'; 0 fail overall",
+      "A missing fTmpl / hideDone / exHandoff id or the old LS key would FAIL — spot-check",
+      "Mirror gate reports inline == contract after the PT60 hand-sync"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -3193,10 +3242,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v64 local",
- "harness_ui_v64": {
-  "storage_key": "rw_playtest_v64",
-  "build_tag_prefix": "world v64 local",
+ "build": "world v65 local",
+ "harness_ui_v65": {
+  "storage_key": "rw_playtest_v65",
+  "build_tag_prefix": "world v65 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3214,6 +3263,9 @@
   "debrief": "five fixed prompts mirroring playtest.md §6 — verdict chip (n/a|clear|stumbled|blocker) + one line each; persisted in S.debrief; exported as session.debrief + a Markdown '## Debrief' section (v51)",
   "coverage": "cohort panel gains a Coverage table — per-scenario 'N/M checkpoints verdicted by anyone' + median time-open vs estimate — and a never-verdicted refs list, capped with an ellipsis tail (v51)",
   "inbox_note": "Copy inbox note emits a [world-playtest] block: header line + blocker/major findings grouped under owner headers (world / game-systems / art / marketing) — the §5 triage paste",
+  "finding_templates": "fTmpl dropdown seeds severity + title + detail + repro for the five boundary breaks (possession affordance / real business name / price off PROPOSAL / deny wording / AI-moderation surface); seeds only — Log finding still required, seeded text editable (v65)",
+  "hide_finished": "hideDone checkbox drops scenarios whose every checkpoint carries a verdict; composes with the smoke filter; persisted in session state (v65)",
+  "session_handoff": "Copy handoff emits a [world-playtest-handoff] block — build + session minutes + resume-at scenario + per-scenario remaining counts + all open findings + ttfr when set; the relay note for the next tester (v65)",
   "required_marks": [
    "rw_playtest_v57",
    "rw_playtest_v62",
@@ -3230,7 +3282,13 @@
    "S.debrief",
    "#pt=",
    "rw_playtest_v63",
-   "rw_playtest_v64"
+   "rw_playtest_v64",
+   "rw_playtest_v65",
+   "id=\"fTmpl\"",
+   "id=\"hideDone\"",
+   "id=\"exHandoff\"",
+   "FTEMPLATES",
+   "world-playtest-handoff"
   ]
  }
 }

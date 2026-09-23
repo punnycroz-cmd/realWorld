@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v64)
+# Playtest Harness — "Real World / The Mission" (world v65)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -127,6 +127,10 @@ One person can wear every hat; four real testers is the intended shape.
   executes), live re-sort on a tier-crossing legal confirm, and the
   'export ledger records' flow that emits canonical mod_decision records
   with neutral feed lines while the seeded baseline stays aggregate.
+  PT60 (harness v65) is a facilitator audit — the finding-template
+  dropdown seeding the five boundary breaks without logging on its own,
+  the 'hide finished' rail filter composing with the smoke set, and the
+  'Copy handoff' resume block for tester-to-tester relay.
 
 ## 3. Running a session
 
@@ -196,6 +200,23 @@ v51 harness affordances (PT47 exercises all of them):
   the rail order (clamped, honors the smoke filter); the deep-link hash
   updates on each hop.
 
+v65 harness affordances (PT60 exercises all of them):
+
+- **Finding templates** — a `template…` dropdown in the findings form
+  seeds severity + title + detail + repro for the five boundary breaks:
+  possession affordance on a main, real business name, price off the §2
+  PROPOSAL, deny wording, AI-moderation surface. Templates seed only —
+  nothing is logged until `Log finding`, and the seeded text stays
+  editable.
+- **Hide finished** — a rail checkbox drops scenarios whose every
+  checkpoint carries a verdict; it composes with `smoke set only`
+  (neither filter eats the other's meaning), narrows the progress line's
+  denominator honestly, and persists in session state.
+- **Copy handoff** — emits a `[world-playtest-handoff]` block for the
+  next tester: build, session minutes, the exact scenario to resume at,
+  per-scenario remaining counts matching the rail's N/M math, every open
+  finding at any severity with refs and owner routing, and ttfr when set.
+
 A full pass (PT1–PT8) is ~2.5 h. A smoke pass is PT1 + PT4 + PT7 + PT21
 (~50 min) — free-tier, every deny path, the boundary audit, and the machine gate.
 
@@ -263,7 +284,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v51 mark present, scenario integrity — unique PT ids,
+harness_ui_v65 mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).

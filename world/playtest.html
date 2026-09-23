@@ -10,7 +10,8 @@
   PT47 + harness v51 session-debrief / cohort coverage / owner routing / walk keys,
   PT48 + onboarding v4 time layer / onboard gate v53, PT49 + lease v5 / lease gate v54,
   PT50 + thinai v5 / thinai gate v55, PT51 + bible v56 / bible gate v56,
-  PT52 + crowd v5 marine layer / crowd gate v57).
+  PT52 + crowd v5 marine layer / crowd gate v57,
+  PT60 + harness v65 finding templates / hide-finished filter / session handoff).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -127,6 +128,8 @@
     <div class="statline" id="prog"></div>
     <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px;cursor:pointer">
       <input type="checkbox" id="smk"> smoke set only <span style="font-family:var(--mono)">(PT1·PT4·PT7·PT21)</span></label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px;cursor:pointer">
+      <input type="checkbox" id="hideDone"> hide finished <span style="font-family:var(--mono)">(every checkpoint verdicted)</span></label>
     <div id="ptList"></div>
     <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
       <ul style="margin:6px 0 0;padding-left:16px">
@@ -153,6 +156,14 @@
         <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <select id="fOwner" style="max-width:120px" title="owning track — routes the finding in the inbox note"><option>world</option><option>game-systems</option><option>art</option><option>marketing</option></select>
         <select id="fStep" style="max-width:120px" title="finding ref — step inside the open scenario"></select>
+        <select id="fTmpl" style="max-width:130px" title="prefill from a boundary-break template — seeds the form, never logs by itself">
+          <option value="">template…</option>
+          <option value="possess">possession affordance</option>
+          <option value="realbiz">real business name</option>
+          <option value="price">price off PROPOSAL</option>
+          <option value="deny">deny wording</option>
+          <option value="aireport">AI-moderation surface</option>
+        </select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -166,6 +177,7 @@
       <button class="primary" id="exJson">Export report (JSON)</button>
       <button id="exMd">Copy report (Markdown)</button>
       <button id="exInbox" title="blocker/major findings only — the §5 triage paste">Copy inbox note</button>
+      <button id="exHandoff" title="paste-ready block for the next tester — resume point, remaining counts, open findings">Copy handoff</button>
       <button id="exImport">Import report…</button>
       <input type="file" id="exFile" accept=".json" style="display:none" multiple>
       <button class="danger" id="reset">Reset session</button>
@@ -1259,12 +1271,36 @@ const PTS=[
   ck:["Mod gate: 0 fail; v64 marks all present in mod-console.html",
     "Harness gate: '59 scenarios · N checkpoints · key rw_playtest_v64'; 0 fail overall",
     "No world-mutation call (fetch/XHR/gsRequest*/gsAdmin) appears on mod-console.html — internal surfaces stay read-only"]}]}
+,{id:"PT60",title:"The harness round three — finding templates, hide-finished, handoff card (v65)",min:10,
+ persona:"facilitator mid-cohort — wants faster honest logging and a clean pass to the next tester",
+ goal:"Verify the v65 harness pass: the finding-template dropdown seeds severity + wording for the five boundary breaks without ever logging on its own, 'hide finished' clears fully-verdicted scenarios from the rail, and 'Copy handoff' emits a paste-ready resume block for the next tester.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Open the 'template…' dropdown in the findings form and pick 'possession affordance'. Read what it wrote, then pick each of the other four templates in turn.",
+  exp:"Each pick flips severity to the boundary-appropriate value (blocker for possession / real-biz / AI-moderation, major for price / deny wording) and seeds title + detail + repro with the locked-rule wording. Nothing is logged — 'Log finding' is still required, and the seeded text stays editable.",
+  ck:["Template prefills severity + title + detail + repro but never logs — the form still waits for 'Log finding'",
+    "All five templates map to a locked rule (possession ban, parody names, §2 PROPOSAL prices, deny wording, §11 moderation scope)",
+    "Seeded text is editable before logging — templates seed, they don't dictate"]},
+ {do:"Verdict every checkpoint of one scenario (any short one), then tick 'hide finished' in the rail header. Untick it, then tick it alongside 'smoke set only'.",
+  exp:"The fully-verdicted scenario leaves the rail and the progress line's denominator narrows honestly; a scenario with even one unverdicted checkpoint stays. Both filters compose — smoke + hide finished shows only unfinished smoke items. The setting survives a reload.",
+  ck:["hide finished drops only scenarios where every checkpoint carries a verdict",
+    "It composes with the smoke filter — neither filter eats the other's meaning",
+    "The setting persists across reload (session state, rw_playtest_v65)"]},
+ {do:"Log one nit finding (any wording), then hit 'Copy handoff' and paste it into a scratch note.",
+  exp:"The clipboard holds a '## [world-playtest-handoff | date | tester (role)]' block: build + session minutes + 'resume at PT#' naming the open scenario, a remaining list of per-scenario unverdicted counts matching the rail's N/M math, an open-findings list carrying every severity (not just blocker/major — that's the inbox note's job), and ttfr when set.",
+  ck:["Handoff names the exact scenario to resume at and never invents a verdict",
+    "Remaining counts match the rail's N/M math exactly",
+    "Open findings list all severities with refs and owner routing"]},
+ {do:"Run `node world/audit.js` and read the harness gate.",
+  exp:"The harness gate passes at key rw_playtest_v65 / build 'world v65 local' with the v65 marks present (fTmpl, hideDone, exHandoff, handoff writer) and reports 60 scenarios; the mirror gate confirms the PT60 hand-sync.",
+  ck:["Harness gate: '60 scenarios · N checkpoints · key rw_playtest_v65'; 0 fail overall",
+    "A missing fTmpl / hideDone / exHandoff id or the old LS key would FAIL — spot-check",
+    "Mirror gate reports inline == contract after the PT60 hand-sync"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v64";
-const BUILD="world v64 local";
+const LS="rw_playtest_v65";
+const BUILD="world v65 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -1275,7 +1311,7 @@ const DEBRIEF=[
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
 const OWNER_SUGGEST={screen:"world",lab:"world",audit:"world",harness:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
 const $=id=>document.getElementById(id);
 const save=()=>{localStorage.setItem(LS,JSON.stringify(S));
@@ -1290,11 +1326,14 @@ function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";set
 
 /* ---- scenario list ---- */
 function renderList(){
-  const list=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
+  const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
+    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+    return {tot,done};};
+  let list=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
+  if(S.hideDone)list=list.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
   let totAll=0,doneAll=0,leftMin=0;
   $("ptList").innerHTML=list.map(p=>{
-    const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
-    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+    const {tot,done}=ckDone(p);
     totAll+=tot;doneAll+=done;leftMin+=p.min*(tot-done)/tot;
     const spent=Math.floor((S.times[p.id]||0)/60000);
     return `<div class="pt ${S.cur===p.id?'on':''}" onclick="pick('${p.id}')">
@@ -1356,6 +1395,26 @@ function renderFindings(){
 window.delF=i=>{S.findings.splice(i,1);save();renderFindings();renderStats();};
 window.copyRef=r=>{const pt=(r||"").split("·")[0];
   navigator.clipboard.writeText("playtest.html#pt="+pt).then(()=>toast("repro link copied"),()=>toast("copy failed"));};
+/* finding templates (v65) — seed the form for the five boundary breaks; never auto-log */
+const FTEMPLATES={
+ possess:{sev:"blocker",title:"surface offers possessing a main (C1–C8)",
+   detail:"Boundary break — no surface may offer possession of any of the 8 mains, incl. the landlord. Affordance seen: ",
+   repro:"surface + control label + what it appeared to grant"},
+ realbiz:{sev:"blocker",title:"real SF business name in world content",
+   detail:"Parody-name rule broken — a real business name where only parody names are allowed (real streets/landmarks are fine). Name seen: ",
+   repro:"surface + where the name appears"},
+ price:{sev:"major",title:"price copy off the monetization-plan §2 PROPOSAL numbers",
+   detail:"Copy cites a number not in the PROPOSAL set, or words a price the plan fixes differently. Seen: ",
+   repro:"surface + exact wording"},
+ deny:{sev:"major",title:"deny copy reads as accusation or drops the refund",
+   detail:"All denies must be neutral 'request not approved' + full refund. This copy instead: ",
+   repro:"surface + deny path taken"},
+ aireport:{sev:"blocker",title:"UI implies moderating or reporting AI behavior",
+   detail:"Moderation scope is player request text only (+ legal backstop) — no 'report the AI' surface may exist. This offers: ",
+   repro:"surface + control label"}};
+$("fTmpl").onchange=e=>{const t=FTEMPLATES[e.target.value];e.target.value="";if(!t)return;
+  $("fSev").value=t.sev;$("fTitle").value=t.title;$("fDetail").value=t.detail;$("fRepro").value=t.repro;
+  toast("template loaded — edit, then Log finding");};
 $("fSurf").onchange=e=>{$("fOwner").value=OWNER_SUGGEST[e.target.value]||"world";};
 $("fAdd").onclick=()=>{const t=$("fTitle").value.trim();if(!t)return toast("finding needs a title");
   const stp=$("fStep").value;
@@ -1484,8 +1543,24 @@ $("exInbox").onclick=()=>{const r=report();
     md+=`- ${o}:\n`+l.map(x=>`  - **${x.severity}** ${x.ref||x.surface}: ${x.title}${x.detail?" — "+x.detail:""}`).join("\n")+"\n";});}
   else md+="- no blocker/major findings\n";
   navigator.clipboard.writeText(md).then(()=>toast("inbox note copied"),()=>toast("copy failed"));};
+/* session handoff (v65) — a paste-ready block for the next tester: where this
+   session stopped, what's left per scenario, and every open finding */
+$("exHandoff").onclick=()=>{
+  const date=new Date().toISOString().slice(0,10);
+  let md=`## [world-playtest-handoff | ${date} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · session ${Math.floor((Date.now()-S.started)/60000)}m · resume at ${S.cur||"scenario picker"}`;
+  if(S.ttfr!=null)md+=` · ttfr ${S.ttfr} min`;
+  md+="\n- remaining:";
+  const rem=PTS.map(p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
+    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+    return tot-done?`${p.id} ${tot-done}/${tot}`:null;}).filter(Boolean);
+  md+=rem.length?" "+rem.join(" · "):" none — every checkpoint verdicted";
+  if(S.findings.length)md+="\n- open findings:\n"+S.findings.map(f=>
+    `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}`).join("\n");
+  else md+="\n- no findings logged";
+  navigator.clipboard.writeText(md+"\n").then(()=>toast("handoff copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */
@@ -1522,6 +1597,7 @@ $("sName").value=S.name||"";$("sName").onchange=e=>{S.name=e.target.value;save()
 $("sRole").value=S.role||"spectator";$("sRole").onchange=e=>{S.role=e.target.value;save();};
 $("sTtfr").value=S.ttfr??"";$("sTtfr").onchange=e=>{S.ttfr=e.target.value===""?null:+e.target.value;save();};
 $("smk").checked=!!S.smoke;$("smk").onchange=e=>{S.smoke=e.target.checked;save();renderList();};
+$("hideDone").checked=!!S.hideDone;$("hideDone").onchange=e=>{S.hideDone=e.target.checked;save();renderList();};
 /* deep link: #pt=<id> boots straight into a scenario; unknown ids ignored */
 const _hm=location.hash.match(/^#pt=(\w+)$/);
 if(_hm&&PTS.some(p=>p.id===_hm[1])){S.cur=_hm[1];S.cur_since=Date.now();}
