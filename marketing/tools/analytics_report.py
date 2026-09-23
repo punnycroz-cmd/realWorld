@@ -14,8 +14,8 @@ Usage:
 
 Funnel stages (from analytics-events.json):
     visit(pageview) → engaged(cta_click/scroll_depth/screenshot_view)
-      → press(press_kit_download) / watch(watch_start)
-      → request(request_submitted) → create(character_created)
+      → press(press_kit_download) / community(community_join/recap_open)
+      / watch(watch_start) → request(request_submitted) → create(character_created)
 Session-joined on `sid` (a per-tab nonce — NOT a visitor id; treat
 "uniques" here as session counts. True daily-unique counting is the
 server-side salted-hash job described in ANALYTICS.md §1).
@@ -25,9 +25,10 @@ import json
 import sys
 from collections import Counter, defaultdict
 
-FUNNEL = ["pageview", "engaged", "watch_start", "request_submitted", "character_created"]
+FUNNEL = ["pageview", "engaged", "community", "watch_start", "request_submitted", "character_created"]
 ENGAGED_EVENTS = {"cta_click", "scroll_depth", "screenshot_view", "share_click",
                   "price_calc", "request_simulated"}
+COMMUNITY_EVENTS = {"community_join", "recap_open", "watch_party_rsvp"}
 
 
 def load(path):
@@ -50,6 +51,8 @@ def stage_of(evt):
         return "pageview"
     if name in ENGAGED_EVENTS:
         return "engaged"
+    if name in COMMUNITY_EVENTS:
+        return "community"
     return name
 
 

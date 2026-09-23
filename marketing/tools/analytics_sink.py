@@ -27,6 +27,8 @@ ALLOWED_EVENTS = {
     "scroll_depth", "engaged_time", "share_click",
     "press_kit_download", "price_calc", "request_simulated",
     "watch_start", "request_submitted", "character_created",
+    # community funnel (v39 — see marketing/community/)
+    "community_join", "recap_open", "watch_party_rsvp",
     # onboarding (world-v11 onboarding.json analytics_hooks — game-side at merge)
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
     "handle_set", "wallet_explained", "topup_shown", "first_request_filed",

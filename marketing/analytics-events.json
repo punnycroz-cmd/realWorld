@@ -161,6 +161,27 @@
       "props": { "source": "cta|settings|post-request" },
       "funnel_stage": "create",
       "status": "PENDING — game build"
+    },
+    "community_join": {
+      "when": "click on the community invite link (community.html / recap posts)",
+      "props": { "surface": "community.html|demo.html|recap-post|other" },
+      "funnel_stage": "community",
+      "status": "PENDING — invite link is a placeholder until the server exists (COMMUNITY-FUNNEL.md §3); wire data-rw-event=\"community_join\" onto the real link at go time",
+      "note": "join INTENT only — actual Discord joins are counted server-side, manually (community/first-100.md §4: no cross-platform tracking)"
+    },
+    "recap_open": {
+      "when": "a 'This Week on the Block' recap post is opened (devlog/blog permalink)",
+      "props": { "issue": "recap-YYYY-MM-DD slug", "surface": "devlog|site|other" },
+      "funnel_stage": "community",
+      "status": "PENDING — recap permalink surface exists post-launch",
+      "note": "Stage 1→2 retention metric (COMMUNITY-FUNNEL.md §1); never carries reader identity"
+    },
+    "watch_party_rsvp": {
+      "when": "a member reacts/RSVPs to a watch-party announcement (Discord-side)",
+      "props": { "event": "event slug, e.g. fog-party-YYYY-MM-DD" },
+      "funnel_stage": "community",
+      "status": "PENDING — Discord-side, manual count at launch (community/watch-party-playbook.md §3)",
+      "note": "no per-member data — a count, not a list"
     }
   },
   "privacy": {

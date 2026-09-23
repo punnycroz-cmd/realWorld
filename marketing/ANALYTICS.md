@@ -58,6 +58,8 @@ visit      pageview                     (site — live now)
   └─engaged  cta_click, screenshot_view, scroll_depth, engaged_time,
              share_click, price_calc, request_simulated  (site — live now)
     └─press    press_kit_download       (site — live once kit zip is linked)
+    └─community community_join, recap_open, watch_party_rsvp
+                                        (v39 — PENDING surfaces; see community/)
       └─watch  watch_start              (game embed — PENDING, roadmap v12)
         └─onboard  tour_started … onboard_dismissed  (game — PENDING, v36)
           └─request request_submitted, first_request_filed  (game — PENDING)
@@ -237,6 +239,9 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - [ ] `tools/analytics_e2e.sh` re-run against staging after endpoint is set
 - [ ] Privacy line added to FAQ/footer when collection goes live
 - [ ] `press_kit_download` hook added when the kit zip gets a public link
+- [ ] `community_join` hook added when the invite link goes live (v39);
+      `recap_open` / `watch_party_rsvp` are post-launch surfaces — counted
+      manually until then (community/first-100.md §4)
 - [ ] Game embed emits `watch_start` / `request_submitted` / `character_created`
       per `analytics-events.json` (coordination note for game/world track)
 - [ ] Game emits the nine onboarding events per world-v11 contract

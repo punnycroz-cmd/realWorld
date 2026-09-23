@@ -91,6 +91,14 @@ def main():
                        "minutes": rnd.choice([5, 10, 30]),
                        "credits": rnd.choice([8, 45, 90, 180])},
                       utm=utm, ref=ref, ts=ts + 20000)
+        if rnd.random() < 0.15:  # community intent: invite click / recap read
+            yield_evt("community_join", "/community.html", sid,
+                      {"surface": rnd.choice(["community.html", "demo.html", "recap-post"])},
+                      utm=utm, ref=ref, ts=ts + 10000)
+        if rnd.random() < 0.2:
+            yield_evt("recap_open", "/recap-2026-09-20.html", sid,
+                      {"issue": "recap-2026-09-20", "surface": rnd.choice(["devlog", "site"])},
+                      utm=utm, ref=ref, ts=ts + 11000)
         if rnd.random() < 0.28:  # watch
             yield_evt("watch_start", "/demo.html", sid,
                       {"source": "demo_page", "mode": rnd.choice(["live", "fallback"])},

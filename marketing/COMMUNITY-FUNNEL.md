@@ -1,9 +1,11 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v24 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v39 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
-and shipped `tools/build_recap.py`.)
+and shipped `tools/build_recap.py`. v39 added the runnable ops kit under
+`community/` — welcome sequence, watch-party playbook, first-100 seeding
+plan, referral loop — plus the `community` analytics stage.)
 **Scope:** spectator → community → player pipeline: surfaces, content strategy,
 moderation, creator outreach, feedback loop, launch infrastructure.
 **Authority:** design doc `rw-game-design-2026-09-22.md` (esp. §5 participation,
@@ -59,7 +61,8 @@ Visitor → Watcher  →  Community  →  Requester  →  Resident    →  Advoc
 | The Wire — `world/feed.html` (world track) | Stage 1 surface: live spectator feed UI demo | EXISTS on sf/world — borrow as contract, not as an asset |
 | The Archive — `world/history.html` + `world/history.json` (world track) | Stage 1→2: free back-catalog; recap source data | EXISTS on sf/world — `history.json` is the recap input format |
 | Weekly recap post | Stage 1→2 retention engine | TEMPLATE + GENERATOR BUILT (`tools/build_recap.py`, §5a) |
-| Discord server | Stage 2 home: feed discussion, watch parties | OWNER-GATED (create at go) |
+| Discord server | Stage 2 home: feed discussion, watch parties | OWNER-GATED (create at go) — runnable spec in `community/` kit |
+| Ops kit — `community/` (welcome-sequence, watch-party-playbook, first-100, referral-loop) | Stage 1→2→5 execution layer: copy-ready join flow, event format, seeding plan, honest referral mechanics | BUILT (v39), OWNER-GATED to run |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -91,7 +94,8 @@ One server, minimal channels. A quiet 40-channel server reads dead; a busy
    - `#announcements` — owner-only posts; weekly recap lives here + socials.
 4. Bots: none required at launch. (If raid protection becomes needed: a
    verification-gate bot is the only acceptable addition — decide then.)
-5. Server rules: see §4.2.
+5. Server rules: see §4.2. Welcome flow, rules-gate text, pinned posts, and
+   first-week cadence are copy-ready in `community/welcome-sequence.md`.
 
 **Naming honesty:** Discord invite links on the site stay as labeled
 placeholders (`community.html` shows "opens at launch") until the owner runs
@@ -273,14 +277,19 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 
 ## 9. Day-0 / day-7 / day-30 community tasks
 
-- **Day-0:** run §3 checklist; pin rules + feedback asks; post welcome note;
+- **Day-0:** run §3 checklist; pin rules + feedback asks; post welcome note
+  (all copy in `community/welcome-sequence.md` §2);
   generate first recap with `build_recap.py` against the live archive if a
   pre-launch feed existed (else "week zero" post). Verify `community.html`
-  invite link swap (placeholder → real).
-- **Day-7:** first full recap; creator-variant outreach draft; triage first
-  `#feedback` batch into shared inbox; assess #the-feed manual-mirror load.
+  invite link swap (placeholder → real) **and add `data-rw-event=
+  "community_join"` to the live link** (event spec'd in analytics-events.json).
+- **Day-7:** first full recap; first watch party if the feed qualifies
+  (`community/watch-party-playbook.md` §1 triggers); creator-variant outreach
+  draft; triage first `#feedback` batch into shared inbox; assess #the-feed
+  manual-mirror load.
 - **Day-30:** mod recruitment decision; cadence retro (did weekly hold?);
-  subreddit/forum revisit; funnel metrics review vs. §1 targets.
+  subreddit/forum revisit; seeding retro per `community/first-100.md` §5;
+  funnel metrics review vs. §1 targets.
 
 ## 10. Open dependencies
 
