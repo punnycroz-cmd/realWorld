@@ -66,7 +66,8 @@ const api = eval(m[1] + `
     SF_LENS, SF_PXM, sfGroundZ, SF_CURB_H, sfCurbFaceCol,
     sfNbMasks, sfOvrNums, SF_GROUND_OVR, sfGableFront, sfGarageU,
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
-    sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN })`);
+    sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
+    sfKarlK, sfKarlPoly, sfKarlFront })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -304,6 +305,42 @@ const api = eval(m[1] + `
      'sfBounceK deterministic');
   ok(api.sfCanyonShade(1, 1, -1) >= 0, 'canyon probe bounded');
   api.SF_SUN.day = day0;
+
+  // v34 Karl's front: intrusion strength is a bounded pure function of the
+  // live weather state — diurnal-gated (burns off midday, evening push),
+  // humidity-fed, wind-carried; the map clip produces a real polygon whose
+  // front edge sits deepest downwind
+  const t0 = api.W.tod, h0 = api.W.hum, ws0 = api.W.windSpd, wa0 = api.W.windAng;
+  let bounded = true;
+  for(let tt = 0; tt < 24; tt += 3){
+    api.W.tod = tt;
+    const k = api.sfKarlK();
+    if(!(k >= 0 && k <= 1)) bounded = false;
+  }
+  ok(bounded, 'sfKarlK bounded 0..1 across the day');
+  api.W.tod = 8; api.W.hum = 0.9;
+  const kWet = api.sfKarlK();
+  api.W.hum = 0.3;
+  const kDry = api.sfKarlK();
+  ok(kWet > kDry, 'humid morning intrudes harder than dry (' +
+     kWet.toFixed(2) + ' vs ' + kDry.toFixed(2) + ')');
+  api.W.hum = 0.9;
+  api.W.tod = 13; const kMid = api.sfKarlK();
+  api.W.tod = 17.5; const kEve = api.sfKarlK();
+  ok(kEve > kMid, 'evening push beats midday burn-off (' +
+     kEve.toFixed(2) + ' vs ' + kMid.toFixed(2) + ')');
+  ok(api.sfKarlK() === api.sfKarlK(), 'sfKarlK deterministic');
+  const kp = api.sfKarlPoly(0.4);
+  ok(kp.length >= 3 && kp.length <= 6,
+     'karl poly clips map rect to a polygon (' + kp.length + ' verts)');
+  const mw2 = api.SF_M.gw * api.SF_M.cell_m, mh2 = api.SF_M.gh * api.SF_M.cell_m;
+  ok(kp.every(p => p[0] >= -0.01 && p[0] <= mw2 + 0.01 &&
+                   p[1] >= -0.01 && p[1] <= mh2 + 0.01),
+     'karl poly stays inside the map bounds');
+  const kf = api.sfKarlFront(kp);
+  ok(kf && kf.length === 2, 'karl front edge resolves');
+  ok(api.sfKarlPoly(0).length === 0, 'no front, no polygon');
+  api.W.tod = t0; api.W.hum = h0; api.W.windSpd = ws0; api.W.windAng = wa0;
 
   console.log('---');
   console.log(pass + ' passed, ' + fail + ' failed');

@@ -30614,6 +30614,65 @@ function sfParkCenterM(){
   return SF_PARK_C;
 }
 
+/* ---------------- v34: Karl's leading edge --------------------------
+   The marine layer used to be an omnidirectional horizon band that grew
+   only with humidity — real SF fog is an ENTITY: it piles up against the
+   coastal hills all day, then the afternoon sea breeze shoves a ragged
+   wall of it over the ridge and down into the Mission. sfKarlK() scores
+   intrusion strength 0..1 from the live drivers: humidity feeds it, the
+   diurnal cycle gates it (burns off midday, returns on the evening push),
+   cloud cover thickens it, and it only advances when the wind has fetch
+   to carry it. sfKarlPoly() clips the map rect to the half-plane behind
+   the fog front — the upwind edge where Karl pours in. Both views draw
+   the SAME front. */
+function sfKarlK(){
+  const t = W.tod;
+  const diur = clamp(0.12 + 0.85 * Math.max(
+    Math.exp(-Math.pow((t - 7.5) / 4.2, 2)),      // overnight/morning deck
+    clamp((t - 15.2) / 3.4, 0, 1)), 0, 1);         // evening push
+  const hum = clamp((W.hum - 0.35) / 0.5, 0, 1);
+  const fetch = clamp(W.windSpd / 2.4, 0, 1);
+  return clamp(diur * 0.5 + hum * 0.4 + sfCloudCover() * 0.2 +
+               fetch * 0.15 - 0.24, 0, 1);
+}
+/* fog region in world meters: the map rect clipped to the half-plane
+   upwind of the intrusion front. front 0..1 = fraction of map covered. */
+function sfKarlPoly(front){
+  if(front <= 0.01) return [];
+  const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
+  const wx = Math.cos(W.windAng), wy = Math.sin(W.windAng);
+  const rect = [[0, 0], [mw, 0], [mw, mh], [0, mh]];
+  let lo = Infinity, hi = -Infinity;
+  for(const c of rect){
+    const p = c[0] * wx + c[1] * wy;
+    if(p < lo) lo = p; if(p > hi) hi = p;
+  }
+  const lim = lo + front * (hi - lo);
+  const out = [];
+  for(let e = 0; e < 4; e++){
+    const a = rect[e], b = rect[(e + 1) % 4];
+    const pa = a[0] * wx + a[1] * wy, pb = b[0] * wx + b[1] * wy;
+    if(pa <= lim) out.push(a);
+    if((pa <= lim) !== (pb <= lim)){
+      const s = (lim - pa) / (pb - pa);
+      out.push([a[0] + (b[0] - a[0]) * s, a[1] + (b[1] - a[1]) * s]);
+    }
+  }
+  return out;
+}
+/* the two fog-poly vertices lying deepest downwind = the front line */
+function sfKarlFront(poly){
+  if(poly.length < 3) return null;
+  const wx = Math.cos(W.windAng), wy = Math.sin(W.windAng);
+  let i0 = -1, i1 = -1, p0 = -Infinity, p1 = -Infinity;
+  for(let i = 0; i < poly.length; i++){
+    const p = poly[i][0] * wx + poly[i][1] * wy;
+    if(p > p0){ p1 = p0; i1 = i0; p0 = p; i0 = i; }
+    else if(p > p1){ p1 = p; i1 = i; }
+  }
+  return [poly[i0], poly[i1]];
+}
+
 /* ---------------- v25: the wet-world pack -------------------------
    Rain used to be a screen-space streak overlay over dry geometry — the
    world itself never got wet beyond a dark tint. Now water has a body:
@@ -31673,9 +31732,12 @@ function sfRenderWorld(cw, ch){
     ctx.lineCap = 'butt';
   }
 
-  // 2e. v7: fog fingers — low mist drifting through Dolores Park on humid days
-  if(!isNight() && W.hum > 0.6){
-    const fogF = clamp((W.hum - 0.6) * 2.2, 0, 0.8);
+  // 2e. v7: fog fingers — low mist drifting through Dolores Park on humid
+  //   days (v34: they also ride in ahead of Karl's front)
+  const karlK = sfKarlK();
+  if(!isNight() && (W.hum > 0.6 || karlK > 0.2)){
+    const fogF = Math.max(clamp((W.hum - 0.6) * 2.2, 0, 0.8),
+                          clamp(karlK * 0.55, 0, 0.5));
     if(fogF > 0.04){
       const [pcx, pcy] = sfParkCenterM();
       for(let k = 0; k < 9; k++){
@@ -31694,6 +31756,62 @@ function sfRenderWorld(cw, ch){
         ctx.beginPath();
         ctx.ellipse(sx, sy, rr, rr * 0.4 * SF_TILT, W.windAng * 0.3, 0, Math.PI * 2);
         ctx.fill();
+      }
+    }
+  }
+
+  // 2e2. v34: Karl's tongue — the marine layer pouring over the upwind
+  //   (ocean-side) edge of the map on the afternoon push: a soft sheet
+  //   clipped to the real map rect, ragged lobes drifting along its
+  //   leading edge. The same front the street view draws as a wall.
+  if(karlK > 0.04 && !isNight()){
+    const kpoly = sfKarlPoly(karlK * 0.32);
+    const kfront = sfKarlFront(kpoly);
+    if(kpoly.length >= 3 && kfront){
+      const toS = p => [ (p[0] * SF_PXM - cam.x) * cam.zoom + cw / 2,
+                         sfSY(p[1] * SF_PXM, ch) ];
+      const pts = kpoly.map(toS);
+      const fa = toS(kfront[0]), fb = toS(kfront[1]);
+      // gradient runs from the upwind corner (deep fog) toward the front
+      const wvx = Math.cos(W.windAng), wvy = Math.sin(W.windAng);
+      let up = pts[0], upP = Infinity;
+      for(let i = 0; i < pts.length; i++){
+        const p = kpoly[i][0] * wvx + kpoly[i][1] * wvy;
+        if(p < upP){ upP = p; up = pts[i]; }
+      }
+      const fmx = (fa[0] + fb[0]) / 2, fmy = (fa[1] + fb[1]) / 2;
+      const kg = ctx.createLinearGradient(up[0], up[1],
+                                          fmx + (fmx - up[0]) * 0.25,
+                                          fmy + (fmy - up[1]) * 0.25);
+      kg.addColorStop(0, `rgba(228,234,240,${0.12 + karlK * 0.38})`);
+      kg.addColorStop(0.75, `rgba(228,234,240,${0.06 + karlK * 0.22})`);
+      kg.addColorStop(1, 'rgba(228,234,240,0)');
+      ctx.fillStyle = kg;
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.closePath(); ctx.fill();
+      // ragged leading edge: soft lobes spaced along the front line,
+      // creeping downwind on the gust envelope
+      const segLen = Math.hypot(fb[0] - fa[0], fb[1] - fa[1]);
+      const nb = Math.max(4, Math.min(14, Math.round(segLen / 90)));
+      const tx = (fb[0] - fa[0]) / (segLen || 1),
+            ty = (fb[1] - fa[1]) / (segLen || 1),
+            nx = -ty, ny = tx;                        // screen normal
+      const push = SF_WX.gust * 14;
+      for(let k = 0; k < nb; k++){
+        const u = (k + 0.5) / nb;
+        const jx = (phash(k, 72, 3861) - 0.5) * segLen / nb * 0.9;
+        const jy = (phash(k, 73, 3862) - 0.5) * 60 +
+                   Math.sin(SF_WX.t * 0.21 + k * 1.9) * 8 + push;
+        const bx = fa[0] + (fb[0] - fa[0]) * u + tx * jx + nx * jy;
+        const by = fa[1] + (fb[1] - fa[1]) * u + ty * jx + ny * jy;
+        const rr = (46 + phash(k, 74, 3863) * 60) * (0.6 + cam.zoom);
+        const rg = ctx.createRadialGradient(bx, by, 0, bx, by, rr);
+        rg.addColorStop(0, `rgba(230,236,242,${karlK * 0.3})`);
+        rg.addColorStop(1, 'rgba(230,236,242,0)');
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.arc(bx, by, rr, 0, Math.PI * 2); ctx.fill();
       }
     }
   }
@@ -33328,6 +33446,48 @@ function sfRenderStreet(cw, ch){
     fg.addColorStop(0.72, `rgba(216,226,233,${fogA})`);
     fg.addColorStop(1, `rgba(206,216,226,${fogA * 0.75})`);
     ctx.fillStyle = fg; ctx.fillRect(0, horizon - fh, cw, fh + 40);
+    // v34: Karl's wall — the same intrusion front as the top-view tongue,
+    // seen edge-on. It only towers on the OCEAN side: strength scales with
+    // how squarely the camera looks upwind into the fetch. Ragged cellular
+    // top like a real fog bank rolling over the ridge; crowns catch warm
+    // sun at golden hour.
+    {
+      const kwx = Math.cos(W.windAng), kwy = Math.sin(W.windAng);
+      const upFace = clamp(-(DX * kwx + DY * kwy), 0, 1);
+      const karlA = sfKarlK() * (0.2 + 0.8 * upFace);
+      if(karlA > 0.04 && W.rain < 0.7){
+        const wallH = fh * (0.6 + karlA * 2.4) + 8;
+        const kg2 = ctx.createLinearGradient(0, horizon - wallH, 0, horizon + 34);
+        kg2.addColorStop(0, `rgba(232,236,242,${0.45 * karlA})`);
+        kg2.addColorStop(0.8, `rgba(208,218,230,${0.85 * karlA})`);
+        kg2.addColorStop(1, `rgba(198,210,222,${0.55 * karlA})`);
+        ctx.fillStyle = kg2;
+        ctx.beginPath();
+        ctx.moveTo(-4, horizon + 34);
+        const nd = 9;
+        ctx.moveTo(0, horizon);
+        for(let k = 0; k <= nd; k++){
+          const bx = (k / nd) * cw;
+          const bh = wallH * (0.5 + phash(k, 71, 3860) * 0.62) *
+                     (0.85 + 0.15 * Math.sin(SF_WX.t * 0.11 + k * 1.7));
+          ctx.quadraticCurveTo(bx - cw / nd / 2, horizon - bh * 1.5,
+                               bx, horizon - bh);
+        }
+        // sun-warmed fog crowns at golden hour — the top edge glows while
+        // the streets below are already in the fog's own shadow
+        if(wK > 0.35 && sunFwd > 0.1){
+          ctx.save();
+          ctx.strokeStyle = `rgba(255,${222 - Math.round(wK * 40)},` +
+            `${186 - Math.round(wK * 60)},${0.3 * karlA * wK})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.lineTo(cw + 4, horizon + 34);
+        ctx.lineTo(-4, horizon + 34);
+        ctx.closePath(); ctx.fill();
+      }
+    }
     // v7: rainbow — a faint arc at the anti-solar point while a shower clears
     if(SF_WX.wet > 0.12 && W.rain < 0.3 && cover < 0.8 && sunFwd < -0.1){
       const aSide = -sunSide;
