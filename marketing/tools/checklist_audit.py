@@ -16,11 +16,16 @@ less boring than it should be. This tool mechanically verifies:
      style references inside the checklist AND inside tools/gonogo.sh
      agree with the real gate count; gonogo.sh emits one line per gate.
   7. Never-do list (§12) present and non-empty.
+  8. Live world-contract freshness: the version pins quoted in the gates
+     (feed request_status list, onboarding storage key + hook count, and
+     every world analytics_hook being spec'd, playtest PT range) are
+     diffed against the live world-sim-world worktree. Skips with a WARN
+     when that worktree isn't mounted.
 
 Usage: ./tools/checklist_audit.py   (run from marketing/ or repo root)
 Exit:  0 = no FAILs (warns allowed), 1 = any FAIL.
 """
-import os, re, sys
+import json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHECKLIST = os.path.join(ROOT, "LAUNCH-CHECKLIST.md")
@@ -146,6 +151,65 @@ if nd and nd.group(0).count("\n-") >= 3:
     ok("§12 never-do list present")
 else:
     bad("§12 never-do list missing or gutted")
+
+# ── 8. live world-contract freshness ──
+WORLD = os.path.join("/home/hatch/workspace/world-sim-world", "world")
+if not os.path.isdir(WORLD):
+    warn("world worktree not mounted — contract freshness unchecked")
+else:
+    # feed vocabulary quoted in G15 vs live feed.json
+    try:
+        feed = json.load(open(os.path.join(WORLD, "feed.json"), encoding="utf-8"))
+        statuses = feed["request_status"]
+        if isinstance(statuses, dict):
+            statuses = list(statuses)
+        missing = [s for s in statuses if s not in live_text]
+        if missing:
+            bad(f"feed request_status values not quoted in G15: {missing}")
+        else:
+            ok(f"G15 quotes all {len(statuses)} live request_status values")
+    except Exception as e:
+        warn(f"feed.json unreadable: {e}")
+
+    # onboarding storage key + hook contract vs live onboarding.json
+    try:
+        ob = json.load(open(os.path.join(WORLD, "onboarding.json"), encoding="utf-8"))
+        key = ob.get("storage_key")
+        if key and key in live_text:
+            ok(f"onboarding storage key {key} matches live contract")
+        else:
+            bad(f"onboarding storage key drift — live={key!r}")
+        hooks = [h.split(" ")[0] for h in ob.get("analytics_hooks", [])
+                 if not h.startswith("plus")]
+        cited = {int(m.group(1)) for m in re.finditer(r"(\d+)-hook", live_text)}
+        if cited and cited != {len(hooks)}:
+            bad(f"checklist cites {sorted(cited)}-hook set; live contract "
+                f"has {len(hooks)} analytics_hooks")
+        elif cited:
+            ok(f"onboarding hook count {len(hooks)} matches checklist")
+        spec = json.load(open(os.path.join(ROOT, "analytics-events.json"),
+                              encoding="utf-8"))["events"]
+        unspec = [h for h in hooks if h not in spec]
+        if unspec:
+            bad(f"world analytics_hooks missing from analytics-events.json: {unspec}")
+        else:
+            ok(f"all {len(hooks)} world analytics_hooks spec'd in analytics-events.json")
+    except Exception as e:
+        warn(f"onboarding.json unreadable: {e}")
+
+    # playtest scenario range cited vs live playtest.json
+    try:
+        pt = json.load(open(os.path.join(WORLD, "playtest.json"), encoding="utf-8"))
+        n = len(pt.get("scenarios", []))
+        refs = {int(m.group(1)) for m in re.finditer(r"PT1[–-]PT(\d+)", live_text)}
+        if refs and refs != {n}:
+            bad(f"playtest range drift — checklist {sorted(refs)} vs live PT1–PT{n}")
+        elif refs:
+            ok(f"playtest scenario range PT1–PT{n} matches live harness")
+        else:
+            warn("no PT1–PTn citation found in checklist")
+    except Exception as e:
+        warn(f"playtest.json unreadable: {e}")
 
 print(f"\nchecklist audit: {PASS} pass / {WARN} warn / {FAIL} fail")
 sys.exit(1 if FAIL else 0)
