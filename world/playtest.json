@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 34,
+ "version": 35,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -367,7 +367,7 @@
    ],
    "steps": [
     {
-     "do": "Open Join the Cast. Step through all five wizard stages without rushing; read the briefing sample.",
+     "do": "Open Join the Cast. Step through all six wizard stages without rushing; read the briefing sample.",
      "expect": "Price 500 cr + slot caps shown honestly before commitment; naming strings flagged for human review.",
      "checkpoints": [
       "Briefing contains only whitelist fields (profile, surface ties, routine) — verify nothing else is even renderable",
@@ -1708,6 +1708,64 @@
       "Gate reports '7 days · 85 events mirrored · 7 threads'",
       "A drifted demo event, a one-member thread, or a rumor with a who would FAIL — spot-check",
       "Nineteen gates total; overall 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT33",
+   "title": "Join the Cast v3 — the whole board, move-in math, bill-on-approval",
+   "minutes": 15,
+   "persona": "player comparing jobs and deposits before spending 500 cr + facilitator on the seam",
+   "goal": "Verify the v35 creation additions: the whole job board renders open AND filled posts, move-in math shows first month + deposit honestly (payment plan when the arrival bank can't cover it), payday cadence rides each job row and the first-week card, and the 500 cr hire bills on approval only.",
+   "surfaces": [
+    "create",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open Join the Cast. Read the header source badge, then go to step 3 and read the work board — open rows first, then open the 'filled posts' fold.",
+     "expect": "Badge reads 'demo board' off-bridge (live board when the bridge is up). Every posted row renders: 'N openings' chips on finite posts, 'always hiring' on MuleIt, 'pays weekly — Friday, end of day' or 'pays every other Friday' on each row. The fold lists filled posts (manager, lead cook, mechanic, RN…) marked 'filled' and unselectable; Marooned Records carries 'word of mouth — never a posted card'.",
+     "checkpoints": [
+      "Filled rows are visible but disabled — the board reads honestly, not just the open doors",
+      "Openings counts are verbatim numbers, not vague 'hiring' labels",
+      "The badge never claims live when the bridge is absent"
+     ]
+    },
+    {
+     "do": "Pick 'Delivery rider — MuleIt', then choose the Treat Ave room. Read the move-in card. Switch to the Capp St studio and read it again.",
+     "expect": "Room share shows first month $700 + deposit $350 (0.5× rule) leaving $550. The studio shows deposit $1,300; with $1,600 arrival money it lands the payment-plan line — 'a stated plan, not a waived one' — instead of pretending the deposit was paid.",
+     "checkpoints": [
+      "Every home row carries 'deposit $N' in its note",
+      "Move-in card itemizes first month + deposit and the bank-left figure",
+      "No path ever presents a waived deposit as paid — shortfall rides a stated plan",
+      "Runway recomputes on post-move-in cash, not the gross $1,600"
+     ]
+    },
+    {
+     "do": "Read step 5 with a weekly-pay job picked, then go back and pick a mid-band job (line cook) and compare the PAYDAY row.",
+     "expect": "Weekly rows add 'PAYDAY — pays weekly — Friday, end of day — the first one lands the Friday after the 5th'; biweekly rows read 'pays every other Friday'. 'Arrives without work' shows no payday line.",
+     "checkpoints": [
+      "Payday cadence matches shifts.md: entry/informal weekly, mid/top biweekly",
+      "The card stays a starting rhythm — 'not a script' copy intact"
+     ]
+    },
+    {
+     "do": "Open step 6 and read the quote card line by line.",
+     "expect": "Quote lists name/age/pronouns/look, work + payday line, home + rent, a Move-in line ('first month $N + deposit $N', payment-plan note when it applies), arrival money after move-in, and 'Character hire · charged on approval — 500 cr'.",
+     "checkpoints": [
+      "No 'charged upfront' wording survives — billing is on approval only",
+      "'denied applications never bill' still on the review footnote",
+      "On the bridge, gsHireQuote's extra disclosure lines append as a second card; off-bridge the local card stands alone"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the creation gate.",
+     "expect": "creation gate passes: JOBS eval'd and field-compared to jobs.json (30 rows · 13 filled), HOMES to housing.json (4), LOOK to record_schema, draft key rw_create_draft_v22 agrees, deposit rule + payment-plan honesty present, bill-on-approval + live-seam reads present, and no world-mutation call on the surface.",
+     "checkpoints": [
+      "Gate reports '30 board rows (13 filled) · 4 homes · schema v22'",
+      "A drifted wage/openings count, a missing deposit line, or a gsSubmit/fetch call would FAIL — spot-check",
+      "Twenty gates total; overall 0 fail"
      ]
     }
    ]

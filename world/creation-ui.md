@@ -1,9 +1,39 @@
-# Character Creation — spec & copy deck (world v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v35 — the flow now reads the real market and the real lease math:**
+
+- **Live seam.** `create.html` consumes the game-v8 bridge surfaces when
+  `__aiBridge` is present: `gsJobBoard()` (openings), `gsHireNameCheck(name)`
+  (the create-form availability gate), `gsHireQuote(spec)` (pre-payment
+  disclosure card), `gsHireSlots(pid)` (account cap/used). All reads are
+  defensive — any missing/malformed surface falls back to the local mirrors,
+  and a header badge states `live board` | `demo board` so the demo never
+  pretends to be live. The seam is read-only: no `gsRequest*`/`gsHire*`/
+  `gsLease*` mutation is ever called from the demo.
+- **The whole board.** Every posted job row renders — finite openings show
+  their count ("2 openings"), always-hiring gigs are labeled, and filled
+  posts (openings 0) sit behind a "13 posts are filled" fold so a newcomer
+  reads the market honestly instead of a board that only shows open doors.
+  Word-of-mouth posts (market.json channel) carry their channel label.
+- **Honest move-in math.** Signing is atomic per `leases.json`: first month
+  + deposit (1× rent; 0.5× for a room share) leave the bank together. The
+  flow now says so on every home row ("deposit $N"), in a move-in ledger
+  card, and in the review quote. When the $1,600 arrival bank can't cover
+  both, the deposit rides a **stated payment plan** against the first
+  paychecks — never a waived deposit presented as paid. Runway recomputes
+  on post-move-in cash, not the gross arrival figure.
+- **Payday rhythm.** Per `shifts.md`: entry/informal roles pay weekly
+  Friday EOD; mid/top pay every other Friday. Job rows carry the cadence,
+  the first-week step gains a PAYDAY line ("the first one lands the Friday
+  after the 5th"), and the review quote lists it.
+- **Bill on approval.** The 500 cr charge lands only when the application
+  is approved (game-v8 `billOnApproval`). Copy now reads "charged on
+  approval"; "denied applications never bill" stays verbatim.
 
 **v21 — the flow is now six steps and closes its own loops:**
 
@@ -139,6 +169,23 @@ whitelist serves the mod console (moderation §4).
 | Step 4 unaffordable | "Out of reach on that income — pick a cheaper door or a better job." |
 | Step 4 footnote | "Miss rent and the landlord's office notices — arrears, notices, eviction. Same ledger as everyone on the block." |
 | Review footnote | "Denied applications never bill." |
+| Step 3 header | "The whole Mission board — open posts, filled posts." |
+| Step 3 filled fold | "N posts are filled right now — the board turns over · see them" |
+| Step 3 openings chip | "N openings" · "always hiring" · "filled" |
+| Step 3 payday chip | "pays weekly — Friday, end of day" · "pays every other Friday" |
+| Step 3 wom label | "word of mouth — never a posted card" |
+| Step 4 header | "first month + deposit (1× rent; 0.5× for a room share) leave their $1,600 arrival money on day one" |
+| Step 4 home row | "… · deposit $N" appended to the listing note |
+| Move-in card (covered) | "first month's rent $N / deposit $N / leaves the bank at signing $N → $N left" |
+| Move-in card (plan) | "first month leaves ($N left) · deposit $N on a payment plan" + "a stated plan, not a waived one" |
+| Step 5 payday row | "PAYDAY — pays weekly — Friday, end of day — the first one lands the Friday after the 5th" |
+| Review: move-in line | "first month $N + deposit $N" + "(deposit on a payment plan)" when it applies |
+| Review: arrival line | "$1,600 → $N after move-in" |
+| Review: hire line | "Character hire · charged on approval — 500 cr" |
+| Pipeline: charge stage | "Charged on approval — 500 cr · slot N of M" |
+| Pipeline: lease stage | "Lease signed — <address> · $N/mo · first month + deposit (…payment plan) paid in game dollars" |
+| Runway (short) | "runs dry in ≈N months after move-in, wages helping" · covered: "income covers the rent — sustainable" |
+| Source badge | "demo board" (mirrors) · "live board" (bridge up) |
 | Deny: name collision | "That name is taken — the block already has one. Pick a name that's theirs alone." |
 | Deny: real person | "New arrivals are fictional people — you can't hire a real person into the world." |
 | Deny: harm-written | "Writing a character to hurt or humiliate others isn't a creation — it's a denied request." |
@@ -169,7 +216,18 @@ whitelist serves the mod console (moderation §4).
   `appeal_of` are passed in `req.player` — the game queue must honor the
   different-reviewer route (moderation.json `appeal-resubmit`).
 - Demo account is Resident-tier (2 slots) purely so the flow is exercisable —
-  slot-cap math lives in creation.json, not the page.
-- Draft autosave is localStorage-only in the demo; at merge the draft can be
-  server-side per-account, keyed on the same fields (no screened text is
-  stored anywhere it isn't already submitted).
+  slot-cap math lives in creation.json, not the page. When the bridge is up,
+  `gsHireSlots(pid)` supplies cap/used and the badge flips to `live board`.
+- Draft autosave is localStorage-only in the demo (`rw_create_draft_v22`); at
+  merge the draft can be server-side per-account, keyed on the same fields
+  (no screened text is stored anywhere it isn't already submitted).
+- v35 seam contract (game-v8): the page READS `gsJobBoard` / `gsHireNameCheck`
+  / `gsHireQuote` / `gsHireSlots` only. Submit stays a simulated pipeline —
+  at merge it becomes the real `gsRequest`/`gsHire`/`gsLease` chain; the
+  demo's job/home mirrors are hand-maintained from jobs.json + housing.json
+  and must be resynced when those files change (the audit `creation` gate
+  catches drift on employer/role/wage/address/rent).
+- Deposit shortfall: creation never waives deposits — when the arrival bank
+  can't cover first month + deposit, the lease application carries the
+  `deposit` payment-plan flag (leases.json `deposit` field, game-v8) and the
+  copy says "payment plan", never "waived".

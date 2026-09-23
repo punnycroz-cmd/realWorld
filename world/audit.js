@@ -58,6 +58,11 @@
                 agree; kinds/statuses in-vocabulary; rumors never person-
                 sourced; honesty strings + v34 affordances present; no
                 world-mutation call on the surface
+    creation  — creation.json ↔ create.html mirror: JOBS/HOMES/LOOK eval'd
+                and field-compared to jobs.json/housing.json/record_schema;
+                move-in math (deposit + payment plan), payday cadence,
+                bill-on-approval, live-seam reads present and no mutation
+                call on the surface; draft key + deny codes agree
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -1167,13 +1172,136 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'history.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G20 creation ============ */
+{
+  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look mirrors; move-in math; bill-on-approval; read-only seam)');
+  try {
+    const CJ = JSONF('creation.json');
+    const JJ = JSONF('jobs.json');
+    const HJ = JSONF('housing.json');
+    const FJ = JSONF('feed.json');
+    const html = rd('create.html');
+    /* contract blocks the v35 surface depends on */
+    for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist'])
+      if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
+    if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
+    if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
+    if (!/payment plan/.test(CJ.move_in_math.shortfall_rule))
+      add(g, 'fail', 'creation.json', null, 'deposit shortfall must ride a stated payment plan');
+    if (!(CJ.screening.deny_codes || []).includes('name-collision'))
+      add(g, 'fail', 'creation.json', null, 'name-collision deny code missing');
+    /* JOBS mirror eval + field compare against jobs.json */
+    const jm = /var JOBS = (\[[\s\S]*?\]);/.exec(html);
+    if (!jm) add(g, 'fail', 'create.html', null, 'JOBS block not found');
+    const DJOBS = jm ? eval(jm[1]) : [];
+    const jjRow = (e, r) => JJ.jobs.find(x => x.employer === e && x.role === r);
+    let seek = 0;
+    for (const j of DJOBS) {
+      if (j.id === 'seeking') { seek++; continue; }
+      const row = jjRow(j.employer, j.role);
+      if (!row) { add(g, 'fail', 'create.html', null, `demo job "${j.employer} — ${j.role}" not in jobs.json`); continue; }
+      if (+row.wage !== +j.wage) add(g, 'fail', 'create.html', null, `${j.id}: wage ${j.wage} != jobs.json ${row.wage}`);
+      if (+row.openings !== +j.openings) add(g, 'fail', 'create.html', null,
+        `${j.id}: openings ${j.openings} != jobs.json ${row.openings}`);
+      if (!(j.pay === 'weekly' || j.pay === 'biweekly')) add(g, 'fail', 'create.html', null, `${j.id}: bad pay cadence "${j.pay}"`);
+    }
+    if (seek !== 1 || DJOBS[DJOBS.length - 1].id !== 'seeking')
+      add(g, 'fail', 'create.html', null, '"seeking" must appear exactly once, last on the board');
+    /* filled rows must stay unselectable (rendered with .dis) */
+    if (!/foldFilled|filledBox/.test(html))
+      add(g, 'fail', 'create.html', null, 'filled-posts fold absent — board must show filled rows');
+    /* HOMES mirror */
+    const hm = /var HOMES = (\[[\s\S]*?\]);/.exec(html);
+    const DHOMES = hm ? eval(hm[1]) : [];
+    const liveAddrs = new Set(HJ.listings_live.map(l => l.address));
+    const ladderAddrs = new Set(HJ.listings_ladder.map(l => l.address.replace(' (room)', '')));
+    for (const h2 of DHOMES) {
+      const a = h2.address.replace(' (room)', '');
+      if (!liveAddrs.has(a) && !ladderAddrs.has(a))
+        add(g, 'fail', 'create.html', null, `demo home "${h2.address}" not in housing.json listings`);
+      const live = HJ.listings_live.find(l => l.address === a);
+      const lad = HJ.listings_ladder.find(l => l.address.replace(' (room)', '') === a);
+      const rent = (live || lad || {}).rent;
+      if (rent != null && +rent !== +h2.rent)
+        add(g, 'fail', 'create.html', null, `${h2.id}: rent ${h2.rent} != housing.json ${rent}`);
+    }
+    /* LOOK pickers == record_schema.look */
+    const lm = /var LOOK = (\{[\s\S]*?\});/.exec(html);
+    const DLOOK = lm ? eval('(' + lm[1] + ')') : {};
+    const SL = CJ.record_schema.look;
+    if (JSON.stringify(DLOOK.build) !== JSON.stringify(SL.build))
+      add(g, 'fail', 'create.html', null, 'look.build drifted from record_schema');
+    if (JSON.stringify((DLOOK.palette || []).map(p => p.n.trim())) !== JSON.stringify(SL.palette))
+      add(g, 'fail', 'create.html', null, 'look.palette drifted from record_schema');
+    if (JSON.stringify(DLOOK.signature) !== JSON.stringify(SL.signature))
+      add(g, 'fail', 'create.html', null, 'look.signature drifted from record_schema');
+    /* draft key + deposit rule agreement */
+    const dk = (CJ.draft.storage.match(/rw_create_draft_v\d+/) || [])[0];
+    if (!dk || !html.includes(dk)) add(g, 'fail', 'create.html', null, `draft key "${dk}" not in page`);
+    if (!/depFor/.test(html) || !/0\.5/.test(html))
+      add(g, 'fail', 'create.html', null, 'deposit rule (1× flat / 0.5× room share) not implemented');
+    const roomRow = DHOMES.find(h2 => h2.room);
+    if (!roomRow) add(g, 'fail', 'create.html', null, 'no room-share home flagged for the 0.5× deposit rule');
+    /* honesty strings the surface MUST carry */
+    const MUST = [
+      [/charged on approval/i, 'bill-on-approval wording'],
+      [/denied applications never bill/i, 'deny-never-bills promise'],
+      [/available on the block/, 'name-check ok copy'],
+      [/taken — the block already has one/, 'name-check taken copy'],
+      [/first month \+ deposit/, 'move-in math copy'],
+      [/payment plan/, 'deposit-shortfall honesty'],
+      [/stated plan, not a waived one/, 'no-waived-deposit honesty'],
+      [/out of reach on that income/, '55% ceiling state'],
+      [/not a script/, 'emergence honesty'],
+      [/18 minimum/, 'adults-only line'],
+      [/different reviewer/, 'resubmit routing'],
+      [/unpossessable/i, 'possession-ban line'],
+      [/thin AI/, 'thin-AI honesty'],
+      [/pays weekly — Friday, end of day/, 'weekly payday copy'],
+      [/every other Friday/, 'biweekly payday copy'],
+      [/word of mouth — never a posted card/, 'wom channel label'],
+      [/always hiring/, 'churn-gig label'],
+      [/filled/, 'filled-state label'],
+      [/demo board|live board/, 'source badge'],
+      [/screen\.js/, 'shared engine script tag'],
+      [/RWScreen\.screenRequest/, 'shared engine call'],
+      [/gsJobBoard/, 'live seam: job board'],
+      [/gsHireNameCheck/, 'live seam: name check'],
+      [/gsHireQuote/, 'live seam: quote'],
+      [/gsHireSlots/, 'live seam: slots'],
+      [/TAKEN/, 'local name registry']
+    ];
+    for (const [re, label] of MUST)
+      if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);
+    /* briefing whitelist — only profile/relationships/routine rendered */
+    for (const k of CJ.briefing_whitelist)
+      if (!new RegExp(k.replace(/ /g, '\\s*'), 'i').test(html))
+        add(g, 'fail', 'create.html', null, `briefing whitelist line "${k}" absent`);
+    /* feed vocabulary: the page's request-feed lines use request-action
+       names + public wire kinds only — nothing invented */
+    const feedKinds = new Set(FJ.event_kinds.filter((v, i) => i % 2 === 0)
+      .concat(['hire', 'possess', 'nudge', 'event', 'queued']));
+    for (const m of html.matchAll(/feedAdd\('you','(\w+) —/g))
+      if (!feedKinds.has(m[1])) add(g, 'fail', 'create.html', null, `feed kind "${m[1]}" outside request-feed vocabulary`);
+    /* read-only seam: no world-mutation call may appear on the page.
+       gsJobBoard/gsHireNameCheck/gsHireQuote/gsHireSlots are reads; the
+       submit pipeline is simulated locally — never a real endpoint. */
+    html.split('\n').forEach((ln, i) => {
+      if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest(Submit|Approve|Deny|Resolve)|gsHire(Submit|Activate|Allow)|gsHiredTakeJob|gsApplyForLease|gsSignLease/i.test(ln))
+        add(g, 'fail', 'create.html', i + 1, `world-mutation call on the creation surface: ${ln.trim().slice(0, 100)}`);
+    });
+    g.detail = `${DJOBS.length} board rows (${DJOBS.filter(j=>j.openings===0).length} filled) · ` +
+      `${DHOMES.length} homes · schema v${CJ.version} · draft ${dk}`;
+  } catch (e) { add(g, 'fail', 'creation.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v34 local';
+out.build = 'world v35 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

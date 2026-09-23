@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v34)
+# Playtest Harness — "Real World / The Mission" (world v35)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -36,7 +36,7 @@ What IS under test — the five invariants, checked on every scenario:
 One person can wear every hat; four real testers is the intended shape.
 
 - **Spectator** — PT1, PT6, PT8, PT31, PT32. Free-tier only; never touches a wallet.
-- **Player** — PT2, PT3 (first half), PT4, PT5, PT9, PT23, PT30. Files requests, hires a character.
+- **Player** — PT2, PT3 (first half), PT4, PT5, PT9, PT23, PT30, PT33. Files requests, hires a character.
 - **Reviewer** — PT3 (second half), PT4. Wears the mod hat; judges queue honesty.
 - **Facilitator** — PT7 + session stewardship. Owns the boundary checklist,
   runs the machine audit (PT21, PT24/PT25 last steps), merges cohort reports (PT22),
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Nineteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Twenty gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -126,7 +126,13 @@ deep mirror — DEMO_DAYS/THREADS eval'd and field-compared; thread
 registry ↔ event tags agree with ≥2 members each; rumors never
 person-sourced; kinds/statuses inside feed.json vocabulary; honesty
 strings + v34 affordances present; no world-mutation call on the
-surface).
+surface), **creation** (creation.json ↔ create.html: JOBS/HOMES/LOOK
+eval'd and field-compared to jobs.json/housing.json/record_schema;
+filled posts visible-but-unselectable; deposit 1× / 0.5×-room rule +
+stated payment plan on shortfall; payday cadence; bill-on-approval;
+live-seam reads gsJobBoard/gsHireNameCheck/gsHireQuote/gsHireSlots
+present and no mutation call on the surface; draft key + deny codes
+agree).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

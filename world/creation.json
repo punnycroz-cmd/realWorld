@@ -1,9 +1,9 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 21,
+  "version": 22,
   "price": {
     "hire_cr": 500,
-    "billing": "flat, one-time, charged upfront after screening passes",
+    "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
     "includes": ["character slot", "basic wardrobe", "starter apartment hunt"],
     "refund_rule": "denied applications never bill; a post-review denial auto-refunds in full",
     "slot_cap": { "base": 1, "resident_sub": 2, "director_sub": 3, "hard_max_per_account": 3 }
@@ -50,11 +50,36 @@
     "arrival_bank_game_dollars": 1600,
     "rent_to_income_ceiling_pct": 55,
     "ceiling_rule": "units above the ceiling are visible but unselectable — the honest 'out of reach' state at pick time, never a surprise denial after payment",
-    "runway_rule": "if projected income < rent, the UI shows months-until-broke on arrival money (+wages); 'arrives without work' is allowed but the runway is displayed verbatim",
+    "runway_rule": "if projected income < rent, the UI shows months-until-broke on post-move-in cash (+wages); 'arrives without work' is allowed but the runway is displayed verbatim",
     "currency_wall": "rent is game dollars only — credits are never offered for it anywhere in the flow"
   },
+  "move_in_math": {
+    "doc": "v35 — signing is atomic per leases.json sign_atomic: first month + deposit leave the bank together. The flow must show this before signing, never quietly ignore it.",
+    "deposit_flat": "1x monthly rent",
+    "deposit_room_share": "0.5x monthly rent",
+    "shortfall_rule": "if arrival bank < first month + deposit, the deposit rides a stated payment plan against the first paychecks — shown verbatim, never a waived deposit presented as paid",
+    "day_one_cash": "arrival bank − first month − deposit (or − first month only when the plan applies)"
+  },
+  "payday": {
+    "doc": "shifts.md cadence rendered per job row and in the first-week step",
+    "weekly": "entry + informal roles — Friday, end of day; the first true paycheck lands the Friday after the 5th",
+    "biweekly": "mid/top roles — every other Friday"
+  },
+  "job_board": {
+    "doc": "the whole posted board renders — open and filled. jobs.json is canonical.",
+    "openings": "finite counts shown verbatim (n openings); -1 = always hiring (churn gig)",
+    "filled": "openings=0 rows stay visible behind a fold, unselectable — the board reads honestly instead of showing only open doors",
+    "channels": "word-of-mouth posts (market.json channel) carry the label — never a posted card, ask at the counter",
+    "seeking": "'arrives without work' is always selectable — savings only"
+  },
+  "live_seam": {
+    "doc": "create.html reads game-v8 bridge surfaces when __aiBridge is present; mirrors otherwise. Read-only — the demo never calls a mutation.",
+    "reads": ["gsJobBoard()", "gsHireNameCheck(name)", "gsHireQuote(spec)", "gsHireSlots(pid)"],
+    "never": ["gsRequestSubmit", "gsHireActivate", "gsHiredTakeJob", "gsApplyForLease", "gsSignLease", "fetch", "XHR"],
+    "badge": "header shows 'live board' | 'demo board' — the page never pretends to be live"
+  },
   "draft": {
-    "storage": "localStorage rw_create_draft_v21 — fields + step + resubmit count",
+    "storage": "localStorage rw_create_draft_v22 — fields + step + resubmit count",
     "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
   },
   "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
