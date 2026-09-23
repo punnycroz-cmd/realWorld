@@ -866,3 +866,497 @@ quality, not content quality.
   a few strong pairs) is more defensible than its magnitudes.
 - Sex effects are small on purpose — the meta-analytic reality is a
   material-specific tilt, and overshooting it produces caricature.
+
+---
+
+# Part III — v31: the third axis of difference (the face store,
+# neurodivergence, suggestibility as trait, vigilance, intensity,
+# and the hormones we refuse to model)
+
+Part I gave every character a correlated trait vector. Part II added
+state noise, language, culture, metacognition, knowledge, and drift.
+What remains unmodeled are the axes where *which store* differs per
+person (faces vs episodes), where *diagnostic phenotypes* carry
+parameter signatures the Big Five can't express (ADHD, autism), where
+social pressure rather than content does the distorting
+(suggestibility), where the difference is in what counts as
+*threat-worthy* (vigilance), in raw *amplitude* (affect intensity),
+and in endocrine states the field itself is still arguing about.
+
+## 20. `face_ability` — the dissociable store
+
+Face recognition is a *separable* ability from episodic memory, with
+its own trait axis and its own tails. Developmental prosopagnosia
+(DP) prevalence ≈2.5% (Kennerknecht et al. 2006, n=689; worldwide
+survey mean 0.93–2.29%, Kennerknecht et al. 2017; cutoff-dependent
+range 0.64–5.42%, DeGutis et al. 2023, n=3116). At the other tail,
+super-recognizers (Russell, Duchaine & Nakayama 2009; Ramon, Bobak &
+White 2019) score ≥+2σ on face-memory batteries — also ~1–2%.
+Crucially the axis is *store-specific*: DP cases show intact verbal
+and non-face visual memory (the deficit localizes to face-identity
+processing; Dalrymple et al. 2011; Bate et al. 2019 subtypes
+dissociate perception, unfamiliar-face memory, and familiar-face
+recognition). This is the cleanest trait in the whole vector: it
+loads on the §5.10 PersonModel cascade and on essentially nothing
+else.
+
+- `face_ability` σ ∈ [−3, +3]; r(face_ability, g_mem) ≈ +0.2
+  (partially separable factor — CONSENSUS, Wilmer et al. 2010
+  "specificity" finding), r(wmc) ≈ 0.
+- Loadings: PersonModel `familiarity` accrual `× (1 +
+  fam_gain·face_ability)` with fam_gain ≈ 0.35; `familiar_thresh`
+  offset `− fam_thresh_off·face_ability` (0.03) — better face
+  learners cross tier-1 sooner AND accumulate faster. Tiers 2–3
+  (identity, name) get HALF the loading — names are partly a verbal
+  store (Cohen 1990 Baker/baker asymmetry stays).
+- Explicit nulls (falsifiable): `face_ability → beta_episodic` = 0;
+  `face_ability → misinfo_suscept` = 0; `face_ability → vivid_detail`
+  = 0 on non-face fields. A face-blind character remembers the
+  *conversation* fine — she just can't pick the speaker out again.
+  This dissociation is the probe (P298).
+- Tail recipes: DP ≈ face_ability ≤ −2σ (familiar_thresh ≈ 0.31,
+  accrual ×0.3 — she learns "the woman with the red coat", not the
+  face); super-recognizer ≥ +2σ (familiar_thresh ≈ 0.19, accrual
+  ×1.7 — one crowded-room glance mints a durable PersonModel).
+  Both tails are bible-usable without touching episodic params.
+
+## 21. `adhd` — an encoding deficit wearing a memory costume
+
+The adult-ADHD meta-analytic picture is sharper than the folklore:
+long-term memory deficits in ADHD are *acquisition* deficits —
+verbal LTM impaired, visual LTM intact, and the LTM deficit is
+statistically carried by the encoding deficit with NO retrieval
+deficit once material is learned (Skodzik, Holling & Pedersen 2017
+meta-analysis — "a learning deficit induced at the stage of
+encoding"). Working-memory deficits are large (Alderson et al. 2013
+meta, adult ADHD; Kofler et al. 2018 children d ≈ 1.17–1.44 across
+WM components, episodic buffer itself intact). Interference pattern
+is asymmetric: children with ADHD show LESS proactive-interference
+cost (g = −0.53) but MORE retroactive-interference cost
+(g = +0.17) and worse memory-control tasks (g = 0.35; Söderlund et
+al. 2022 meta — read as shallow upfront binding, fragile new
+traces). Prospective memory is reliably impaired (Altgassen et al.;
+intention execution, not formation).
+
+- `adhd` σ ∈ [0, +3] (phenotype intensity, one-tailed);
+  r(inattn) +0.5 (same surface behavior, different mechanism —
+  inattn is trait mind-wandering, adhd adds the WM/interference
+  signature and the arousal-gating below).
+- Loadings (all encoding-side, per Skodzik): `omit_p += 0.04/σ`;
+  `vivid_detail` on VERBAL fields only `×(1 − 0.12·adhd)`;
+  `pm_self ×(1 − 0.15·adhd)`; `iiv_sigma += 0.02·adhd` (IIV is a
+  documented ADHD signature — Kofler 2013 variability meta);
+  retroactive interference `interf_k += 0.03·adhd` on records born
+  within `consol_window_days` only (fragile-new-trace account).
+- Explicit nulls: `adhd → beta_*` = 0 (storage is intact);
+  `adhd → theta` = 0; `adhd → misinfo_suscept` = 0. The probe is
+  the asymmetry itself (P299): impaired at birth, normal after
+  consolidation, normal retrieval.
+- `hyperfocus_gate` (0.5, DEBATED-clinical-lore): on records with
+  `interest ≥ 0.8` the omit_p and att_min penalties INVERT —
+  `E += hyperfocus_gate·adhd·0.1` — attention that won't allocate
+  on demand over-allocates on capture. Marked HYPOTHESIS:
+  self-report-consistent, thin experimental literature (Ozel-Kizil
+  et al. 2016). Optional; default on but small.
+- Age knot: adult attenuation `×(1 − 0.2·max(0, age_eff−40)/30)` —
+  persistence estimates vary wildly (DEBATED; Faraone et al. 2006
+  meta ~65% partial remission); we attenuate the *loads*, not the
+  trait.
+
+## 22. `asd` — the gist-side reversal
+
+Autistic memory is the natural adversary of our §6 machinery: the
+meta-analytic result is DECREASED suggestibility and false-memory
+susceptibility vs general population (z = −2.37, p = .018 —
+Maras et al. 2019/2021 ID+ASD meta; the same meta found ID
+INCREASED, z = 6.10). The mechanism picture is now nuanced: recent
+DRM work finds comparable false-recognition *rates* but absent
+implicit spreading-activation priming (Murphy, Ichijo, Bird &
+Cooper 2025 — autistic adults falsely recognize lures they were
+never implicitly primed by; explicit association intact). Weak
+central coherence (Happé 1997) predicts the reduced gist
+extraction; source-monitoring deficits (Lind & Bowler 2009 —
+self-generated vs other-generated detail confusion, real vs
+imagined confusion) predict the opposite-direction hole. And
+autobiographical specificity is reduced — OGM in ASD (Crane &
+Goddard 2008; Crane et al. meta) — detail-rich in perception,
+summary-poor in self-narrative.
+
+- `asd` σ ∈ [0, +3]; r(extra) ≈ −0.3, r(gc) ≈ +0.1, r(neurot)
+  ≈ +0.2 (comorbid anxiety is the norm, not the mechanism).
+- Loadings — the FTT-inversion bundle: `phantom_p ×(1 −
+  asd_gist_pen·asd)` (0.15 — fewer gist-lure phantoms);
+  `lure_accept −= 0.02·asd`; `misinfo_suscept ×(1 − 0.1·asd)` on
+  *leading-question* accounts only (Yield channel; the meta effect
+  is on suggestibility, not rumor-merging — boundary-locked, P300);
+  `k_verbatim −= asd_verbatim_gain·asd` (0.08 — verbatim fields
+  decay slower; detail-preserving phenotype, Maras & Bowler 2014
+  "verbatim memory" reviews); `source_confuse += asd_src_gain·asd`
+  (0.05 — Lind & Bowler); `specificity ×(1 − asd_spec_loss·asd)`
+  (0.1 — OGM) gated to self-cued/people-cued recall only, NOT
+  sensory cues (sensory-cued autobiographical retrieval is a
+  documented ASD strength — Crane, Goddard & Pring).
+- Explicit nulls: `asd → beta_episodic` = 0; `asd → E` = 0 on
+  non-social events; `asd → sleep/consolidation` = 0. The profile
+  is: same decay, sharper verbatim residue, fewer gist ghosts,
+  more source confusion, thinner self-narrative — a recognizably
+  different *texture* at identical hit-rates.
+
+## 23. `suggs` — yielding is a trait, and it is not distrust
+
+Part I's `distrust` models memory *self*-distrust. The Gudjonsson
+Suggestibility Scales measure a different thing: Yield (giving in
+to leading questions) and Shift (changing answers under negative
+feedback/interpersonal pressure), and the two components correlate
+poorly with each other (Gudjonsson 1984/1997; Gignac & Powell 2009
+CFA, n=220 children). SEM work routes suggestibility through
+fearful-avoidant attachment and compliance — Shift specifically is
+carried by compliant tendencies + distress, not by memory quality
+(Drake 2010). So `suggs` is a *social-pressure* trait layered on
+the content channel:
+
+- `suggs` σ; r(neurot) +0.3, r(meta_conf) −0.3, r(attach_avoid)
+  +0.15 (Drake's FAA path — direction only), r(asd) −0.2 (§22),
+  r(g_mem) ≈ −0.1 (weak — Yield 1 correlates with narrative recall
+  quality only modestly; Gudjonsson's own data).
+- Loadings: `misinfo_suscept += suggs_yield·suggs` (0.06) on
+  accounts the hearer cannot verify (Yield); NEW flag
+  `hearAccount{negativeFeedback:true}` — authoritative contradiction
+  of the hearer's own prior report — triggers the Shift path:
+  `confidence −= suggs_shift·suggs` (0.08) AND the challenged field
+  accepts the challenger's candidate at `misinfo_suscept·1.5` —
+  pressure flips answers, not beliefs (the record's beliefStatus
+  may stay put while the REPORTED field changes; implement as a
+  report-side override on the reconstruction, not a stored edit).
+- Explicit nulls: `suggs → beta_*` = 0; `suggs → E` = 0;
+  `suggs → confab_fill` = 0 — GSS-confabulation is scored separately
+  and we already have confab_fill; do not double-load.
+
+## 24. `vigil` — whose threat gets remembered
+
+Two literatures converge on the same parameter signature: lonely
+individuals show hypervigilance for SOCIAL threat with downstream
+attentional, confirmatory, and *memorial* biases — they remember
+more negative social information (Cacioppo & Hawkley 2009 review;
+Spithoven et al. 2017 SIP-model review — the bias is specific to
+the social context). Trait anxiety shows a recall-side memory bias
+for threatening material (Mitte 2008 meta, 165 studies/9046 Ss:
+significant for RECALL, null for recognition and implicit memory —
+the bias lives in reconstruction, not copy cues). Both are
+content-class gated: social-threat tagged events, not all negatives.
+
+- `vigil` σ; r(neurot) +0.45 (overlapping but separable — neurot is
+  general negative tone, vigil is threat-channel gating),
+  r(social) −0.2 (loneliness composite).
+- Loadings: on records the event layer tags `socialThreat:true` —
+  `w_emo_neg ×(1 + vigil_social_gain·vigil)` (0.15, encode-side);
+  recall-side drive `+= vigil_recall_bias·vigil` (0.05) when
+  `cueContext.mode == "recall"` only — the Mitte boundary: no
+  recognition-mode effect (P303 sign-locks this). Also a small
+  confirmatory loop: PersonModel[other].traits["threatening"]
+  accrues `sti_gain ×(1 + 0.2·vigil)` on negative social inferences
+  only (the SIP confirmation path).
+- Explicit nulls: `vigil → w_emo_neg` on non-social records = 0;
+  `vigil → recognition` = 0 (Mitte); `vigil → beta_*` = 0.
+
+## 25. `aim` — the amplitude trait
+
+Affect Intensity (Larsen & Diener 1985; Larsen 1987 review; AIM
+scale) is stable, trait-like, and orthogonal to hedonic level —
+high-AIM people respond to the same stimulus with stronger affect
+of BOTH valences. The cognitive-operation finding is the one we
+need: high-AIM individuals run more personalizing and
+generalizing/elaborative operations *only on affective stimuli* —
+neutral stimuli produce no group difference (Larsen, Diener &
+Cropanzano 1987). That is a valence-gated double loading, not a
+global E boost.
+
+- `aim` σ; r(neurot) +0.2, r(extra) +0.25 (positive-affect
+  intensity side — Diener et al. 1985).
+- Loadings (affective records only — |valence| ≥ 0.3 gate):
+  `w_emo_pos AND w_emo_neg both ×(1 + aim_emo_gain·aim)` (0.10 —
+  valence-symmetric, unlike every other emotional dial);
+  `link_p ×(1 + aim_link_gain·aim)` (0.05 — the elaborative-ops
+  finding); stored `arousal` tag `+= 0.05·aim` (amplitude, not
+  duration — arousal_affect_decay unchanged, so high-AIM records
+  are born hotter but cool on schedule).
+- Explicit nulls: `aim → E` on neutral records = 0 (Larsen 1987 —
+  the gate is the finding); `aim → beta_*` = 0; `aim → decay of
+  affect tags` = 0 — intensity ≠ persistence.
+
+## 26. `hand_mix` — a small retrieval-side axis (the weird one)
+
+Inconsistent-handers show a robust episodic-retrieval advantage —
+free recall, source memory, paired associates — hypothesized to
+reflect greater corpus-callosum-mediated interhemispheric
+interaction (Propper, Christman & Phaneuf 2005; Lyle, McCabe &
+Roediger 2008: advantage ONLY on hemispheric-interaction tasks —
+paired associates + source — null on face recognition and digit
+span; Prichard, Propper & Christman 2013 review). The effect is
+retrieval-side: inconsistent-handers show right-frontal recall
+activity differences, not encoding differences (Lyle et al. 2017
+fNIRS replication).
+
+- `hand_mix` σ (0 = strongly consistent handed, +σ = mixed);
+  deliberately uncorrelated with everything except a cosmetic
+  r(sex) ≈ −0.1.
+- Loadings: `theta −= handmix_ret_gain·hand_mix` (0.015) on
+  episodic recall only; `beta_source −= 0.05·hand_mix` (source
+  memory is the second hemispheric-interaction task). Explicit
+  nulls (Lyle 2008 task pattern): `hand_mix → familiar_thresh` = 0;
+  `hand_mix → wmc` = 0; `hand_mix → encoding params` = 0.
+- This is the cheapest trait we ship: small, one-sided,
+  retrieval-only. It exists because real individual-differences
+  research includes exactly this kind of weird, reliable,
+  theoretically-loaded effect — and it gives world-builder a
+  "lefty" flavor dial with actual phenomenology (they remember
+  conversations slightly better and misattribute them slightly
+  less).
+
+## 27. `name_fan` — the store has a load factor (emergent, not a trait)
+
+Not a trait — a missing mechanic Part III noticed. PersonModel
+name retrieval should degrade with *directory size*: the fan effect
+(§5.4, `fan_k`) already applies to records but the §5.10 cascade's
+tier-3 name roll is fan-free. Real name retrieval is a
+one-to-one mapping task over an unbounded store — and it is the
+commonest adult memory complaint. Fix: tier-3 roll pays
+`name_fan_k·ln(1 + nPersons)` (0.03) where nPersons = count of
+PersonModels with familiarity ≥ familiar_thresh. Consequences are
+the phenomenology: the hermit with 9 models names everyone; the
+bartender with 400 models is a permanent "hey… you!" generator —
+same trait vector, different store load. (Modeling hypothesis —
+the fan literature is item-level; the person-store extension is
+ours. Magnitude tuned so 10→200 persons costs ≈0.16 on the roll.)
+
+## 28. Substance II — cannabis is not a smaller alcohol
+
+Part II gave `context.intox` an alcohol calibration (anterograde
+loss, fragmentary blackout ≥0.8). Cannabis needs the same slot with
+a DIFFERENT distortion signature: THC produces a smaller anterograde
+encoding cost but an acute *false-memory* cost — higher DRM false
+recognition (a liberal "yes" bias strengthening as association
+weakens) AND higher misinformation susceptibility in VR eyewitness
+and perpetrator paradigms, all effects restricted to the acute
+intoxication window and absent at 1-week sober retrieval (Kloft et
+al. 2020, PNAS, n=64, double-blind RCT). Encoding AND retrieval
+under influence both mattered; residual next-day effects were not
+detected.
+
+- `context.intox` gains optional `kind` (`"alcohol"` default |
+  `"cannabis"`). Cannabis: `E *= (1 − intox·0.4·(1 −
+  intox_encode_mult))` — shallower anterograde slope than alcohol
+  (the blackout route is mostly absent; chronic heavy use is a
+  separate debated literature — we don't model it); BUT during the
+  window `misinfo_suscept += cann_misinfo_gain·intox` (0.20) and
+  `lure_accept += cann_lure_gain·intox` (0.15), both gated
+  acute-phase only — sober-cued retrieval of intox-encoded records
+  inherits the encoding deficit, never the susceptibility
+  (Kloft's 1-week null: the bias was in the intoxicated mind, not
+  the stored trace). `intox_state_dep` applies as for alcohol
+  (same mechanism).
+- Modeling note: this makes a stoned witness *say yes more*, not
+  *remember worse in storage* — the record is thin but the
+  distortion is in the acquisition of new claims during the window.
+
+## 29. Reproductive-hormone axes — one overlay, one gate, one refusal
+
+- **Menopause transition (meno state, 0..1).** The honest finding
+  is a *transient learning-curve flattening*, not a decline: SWAN
+  (Greendale et al. 2009, n=2362, 4y longitudinal) — premenopausal
+  and postmenopausal women improved with practice; perimenopausal
+  women did not (no practice gain), then rebounded to premenopausal
+  levels post-transition. Penn Ovarian Aging (Epperson et al. 2013,
+  n=403, 14y): delayed verbal recall declined early-transition,
+  immediate recall late-transition, age-adjusted. Model: `meno`
+  state overlay for profiles aged ~45–55 — during the window,
+  `s_gain_recall/s_gain_rehear ×(1 − meno_learn_pen·meno)` (0.15 —
+  the *practice* gain, not the trace) and `enc_base ×(1 −
+  0.08·meno)` on verbal material; overlay EXPIRES (rebound is the
+  phenomenon — P304). Subjective complaints exceed the objective
+  effect → `complaint_k` may take +0.1·meno (consistent with §13's
+  complaint/accuracy decoupling — Jonker 2000).
+- **Pregnancy (preg state, third-trimester gate).** Davies et al.
+  2018 meta (20 studies, 709 pregnant/521 controls): overall
+  cognitive SMD ≈ 0.52, memory SMD 1.47 cross-sectional in
+  trimester 3 (large CI), longitudinal memory decline SMD ≈ 0.33
+  developing across trimesters 1→2. Real but modest and
+  heavily confounded by sleep/affect — model as
+  `preg ∈ {0,1}` with `E ×preg_trim3_mult` (0.9) gated to
+  trimester 3 + `iiv_sigma += 0.02`; optional, bible-triggered.
+- **Menstrual cycle — deliberate null.** Posttraumatic-film and
+  emotional-memory cycle findings exist (Andreano, Ertman, Cahill
+  tradition) but are small, stimulus-specific, and have not
+  replicated cleanly; the field is DEBATED with no stable
+  direction. We implement NO cycle state — a documented refusal,
+  not an oversight. If the literature consolidates, the `meno`
+  overlay machinery is the insertion point.
+
+## 30. Extended trait vector and R additions (Part III)
+
+```json
+IndivTraits += {
+  "face_ability": 0.0, // §20 — separable face store; DP/SR tails
+  "adhd": 0.0,         // §21 — acquisition-deficit phenotype (one-tailed)
+  "asd": 0.0,          // §22 — gist-side reversal phenotype (one-tailed)
+  "suggs": 0.0,        // §23 — interrogative suggestibility (Yield/Shift)
+  "vigil": 0.0,        // §24 — social-threat memory bias
+  "aim": 0.0,          // §25 — affect intensity, valence-symmetric
+  "hand_mix": 0.0      // §26 — inconsistent-handedness retrieval edge
+}
+```
+
+R additions:
+
+```
+face_ability·g_mem  +0.20  (partially separable — Wilmer 2010)
+adhd·inattn         +0.50  (shared surface, different mechanism)
+adhd·iiv            +0.30  (IIV is an ADHD signature — Kofler 2013)
+asd·extra           −0.30
+asd·neurot          +0.20  (comorbid anxiety, not mechanism)
+suggs·neurot        +0.30
+suggs·meta_conf     −0.30
+suggs·attach_avoid  +0.15  (Drake 2010 FAA path, direction only)
+suggs·asd           −0.20  (meta-analytic resistance, §22)
+vigil·neurot        +0.45
+vigil·social        −0.20  (loneliness composite)
+aim·extra           +0.25
+aim·neurot          +0.20
+hand_mix·(all)      ~0     (uncorrelated by design)
+```
+
+### Loading table additions (rows beyond §17)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| face_ability | familiarity accrual | ×(1+0.35·f)/σ | CONSENSUS (DP/SR tails) |
+| face_ability | familiar_thresh | −0.03/σ | CONSENSUS dir. |
+| face_ability | identity/name tiers | ×0.5 of above | HYPOTHESIS (verbal half) |
+| adhd | omit_p | +0.04/σ | CONSENSUS dir. (Skodzik 2017) |
+| adhd | vivid_detail (verbal fields) | ×−0.12/σ | CONSENSUS dir. |
+| adhd | pm_self | ×−0.15/σ | CONSENSUS dir. (Altgassen) |
+| adhd | iiv_sigma | +0.02/σ | CONSENSUS dir. (Kofler 2013) |
+| adhd | interf_k (≤consol_window records) | +0.03/σ | CONSENSUS dir. (RI↑) |
+| adhd | E on interest≥0.8 records | +hyperfocus_gate·adhd·0.1 | HYPOTHESIS |
+| asd | phantom_p | ×−0.15/σ | CONSENSUS dir. (meta z=−2.37) |
+| asd | lure_accept | −0.02/σ | CONSENSUS dir. |
+| asd | misinfo_suscept (leading accounts) | ×−0.10/σ | CONSENSUS dir. |
+| asd | k_verbatim | −0.08/σ | CONSENSUS dir. (verbatim strength) |
+| asd | source_confuse | +0.05/σ | CONSENSUS dir. (Lind & Bowler 2009) |
+| asd | specificity (self/people-cued) | ×−0.10/σ | CONSENSUS dir. (Crane & Goddard) |
+| suggs | misinfo_suscept (unverifiable) | +0.06/σ | CONSENSUS dir. (GSS Yield) |
+| suggs | conf loss on negativeFeedback | −0.08/σ | CONSENSUS dir. (GSS Shift) |
+| vigil | w_emo_neg (socialThreat records) | ×+0.15/σ | CONSENSUS dir. |
+| vigil | recall drive (threat, recall-mode) | +0.05/σ | CONSENSUS (Mitte 2008 recall-only) |
+| aim | w_emo_pos & w_emo_neg (affective only) | ×+0.10/σ | CONSENSUS dir. (Larsen 1987) |
+| aim | link_p (affective only) | ×+0.05/σ | CONSENSUS dir. |
+| hand_mix | theta (episodic recall) | −0.015/σ | CONSENSUS dir. (Lyle 2008) |
+| hand_mix | beta_source | −0.05/σ | CONSENSUS dir. |
+| (state) meno | s_gain_recall/rehear | ×−0.15·meno | CONSENSUS (SWAN rebound) |
+| (state) preg | E (trimester 3) | ×0.90 | CONSENSUS dir. (Davies 2018) |
+| (state) intox.kind=cannabis | misinfo_suscept / lure_accept | +0.20/+0.15·intox | CONSENSUS (Kloft 2020) |
+
+**New explicit nulls** (Part III's falsifiable edge):
+- `face_ability →` every episodic param = 0 (the store dissociates).
+- `adhd → beta_*/theta` = 0 — encoding deficit, intact storage.
+- `asd → beta_*/E(non-social)` = 0 — texture differs, rate doesn't.
+- `suggs → beta_*/E/confab_fill` = 0 — pressure channel only.
+- `vigil → recognition-mode drive` = 0 (Mitte: recall-only bias).
+- `vigil →` non-social records = 0 (SIP social-context gating).
+- `aim →` neutral records = 0 (Larsen 1987: the gate IS the finding).
+- `aim →` affect-tag decay = 0 — born hotter, cools on schedule.
+- `hand_mix →` encoding params / face tiers / wmc = 0 (Lyle 2008
+  task pattern — retrieval-side only).
+- `menstrual cycle →` ANY param = unimplemented (§29 refusal).
+- `intox.kind=cannabis →` sober-phase susceptibility = 0 (Kloft
+  1-week null — acute window only).
+
+## 31. Falsifiable probes (P298–P309; validation-design §40)
+
+- **P298 face-store dissociation (MUST — sign-locked):** a
+  face_ability=−2σ profile fails ≥70% of tier-1 familiarity rolls
+  on twice-met strangers while its episodic hit-rate on the SAME
+  encounters stays within ±10% of a 0σ profile. Constrains
+  `fam_gain`/`fam_thresh_off`; FAILS if episodic params co-move.
+- **P299 ADHD acquisition-not-storage (MUST — sign-locked):**
+  adhd=+2σ encodes ~25% fewer records in a busy window; surviving
+  records show normal beta_episodic and normal theta-gated recall
+  at 7d. FAIL if retrieval-phase measures degrade beyond the
+  encoding loss. Constrains §21 loadings.
+- **P300 ASD double signature (MUST — sign-locked):** asd=+2σ
+  shows LOWER phantom/lure rates AND LOWER leading-question
+  adoption AND HIGHER source_confuse flips than 0σ — three signs
+  at once (the meta + Lind & Bowler). FAIL if susceptibility and
+  source-confusion move together.
+- **P301 cannabis window (MUST — sign-locked):** hearAccount
+  during intox.kind=cannabis@0.7 adopts ≥1.5× placebo; the same
+  account heard next-day sober adopts at baseline; retrieval of
+  cannabis-window records shows encoding thinness but no elevated
+  adoption. Constrains cann_*.
+- **P302 Shift not Yield (SHOULD):** negativeFeedback challenges
+  flip reported fields in high-suggs profiles at ≥2× low-suggs
+  while beliefStatus flips at lower rate — report changes outrun
+  belief changes (GSS structure).
+- **P303 vigil mode-gate (MUST — sign-locked):** vigil=+2σ recalls
+  social-threat records above baseline; recognition-mode hit-rate
+  on identical records is at baseline (Mitte null). Non-social
+  negative records: no effect (SIP gate).
+- **P304 meno rebound (SHOULD):** meno=1 overlay reduces
+  rehearsal-practice S-growth ≥10% during the window and returns
+  to premeno trajectory at expiry — FAIL if the deficit persists
+  (the rebound is the phenomenon).
+- **P305 pregnancy gate (SHOULD):** preg effect absent in
+  trimesters 1–2, present (E ×0.9 + iiv bump) in trimester 3 only.
+- **P306 aim gate (MUST):** aim=±2σ profiles differ on affective
+  records (E, links, arousal tags) and are IDENTICAL on neutral
+  records — the neutral-half null is the finding (Larsen 1987).
+- **P307 hand-mix retrieval-only (OBSERVE):** hand_mix=+2σ shows a
+  small episodic-recall edge and null differences on face tiers,
+  wmc probes, and all encoding metrics (Lyle 2008 task pattern).
+- **P308 name fan (SHOULD):** two identical profiles, 15 vs 250
+  familiar PersonModels — the dense store misses tier-3 name rolls
+  ≥1.5× more; tiers 1–2 affected ≤half as much.
+- **P309 neurodivergence portfolio (OBSERVE — anti-Goodhart):** in
+  a 500-profile cohort with realistic trait marginals (adhd/asd/
+  DP at population prevalences), extreme-phenotype characters are
+  distinguishable by their *pattern of nulls* (which measures stay
+  normal) at least as much as by their deficits — FAIL if any
+  phenotype degrades every metric globally.
+
+## 32. What Part III still refuses to model
+
+- Psychosis-spectrum memory phenomena (delusional memory,
+  hallucination-derived records) — beyond the honest limits of
+  the episodic machinery and of this doc's evidence base.
+- Medication effects beyond the intox/deprivation state slots —
+  benzodiazepine anterograde effects fit the `intox` slot shape if
+  ever needed; stimulant effects on ADHD profiles are a treatment
+  question we leave to a future pass.
+- Savant/HSAM overlap with asd — the literature's co-occurrence
+  claims are too unstable; §2.13's HSAM recipe stands alone.
+- Any trait loading we could not anchor: handedness stayed small
+  precisely because the literature, while real, is single-lab-
+  weighted; face_ability got the strongest loadings because its
+  tails are population-validated.
+
+## 33. Part III honest limits
+
+- `adhd`/`asd` are modeled as continuous phenotype intensities,
+  not diagnoses — real characters get partial signatures, which is
+  also closer to the spectrum literature than binary flags.
+- The hyperfocus inversion is clinical-lore-grade evidence; it is
+  small, gated, and flagged HYPOTHESIS. If playtests produce
+  ADHD profiles that remember *interesting* things implausibly
+  well, drop `hyperfocus_gate` to 0 — the consensus bundle
+  survives without it.
+- `vigil`'s confirmatory PersonModel loop is the softest new
+  mechanism (SIP-model inference, not a measured effect size);
+  keep it ≤0.2 and let P303 guard the recall gate instead.
+- `name_fan` is a modeling hypothesis — plausible, cheap, and
+  falsifiable (P308), but the fan literature is item-level.
+- Cannabis calibration rests on one well-powered RCT (Kloft 2020);
+  magnitudes (0.20/0.15) are judgment fits to "elevated acutely,
+  absent at 1 week", not measured slopes.
+- The meno overlay models the *population-average* transition;
+  vasomotor/depression-mediated variance folds into existing
+  stress/sleep states rather than dedicated params.

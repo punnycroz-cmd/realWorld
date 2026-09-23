@@ -1419,3 +1419,45 @@ P290 rate-locked; P297 portfolio anti-Goodhart). All sources verified
 via web (DOIs and effect sizes confirmed).
 
 Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 31. v31 calibration summary — individual-differences III
+
+Third pass on individual-differences.md (Part III, §§20–33). What
+this version adds beyond the v7 trait layer and v19 second axis:
+
+- **A separable store, finally.** face_ability is the first trait
+  that provably does NOT ride g_mem — DP prevalence ~2.5%
+  (Kennerknecht 2006; 0.64–5.42% by cutoff, DeGutis 2023) and
+  super-recognizers ~1–2% (Russell 2009) bound real tails; Wilmer
+  2010's specificity finding licenses the r≈0.2 partial
+  correlation. The P298 probe makes the dissociation falsifiable:
+  face-blind ≠ forgetful.
+- **Neurodivergent phenotypes as parameter signatures.** ADHD is
+  modeled as the literature says it is: an acquisition deficit
+  (Skodzik 2017 — verbal LTM only, carried by encoding, retrieval
+  intact), not a forgetting profile. ASD gets the FTT-inversion
+  bundle — the meta-analytic decrease in suggestibility (z=−2.37)
+  coexisting with Lind & Bowler source-monitoring costs and
+  Crane & Goddard OGM is exactly the kind of non-monotone
+  signature the param model exists to express; P300 sign-locks
+  the three directions jointly.
+- **Suggestibility splits from distrust.** GSS Yield/Shift are
+  poorly correlated subfactors (Gignac & Powell 2009); we honor
+  that by making Shift a report-side override — social pressure
+  flips what a character SAYS faster than what they BELIEVE
+  (hearAccount{negativeFeedback}).
+- **The mode-gate discipline.** Mitte 2008's recall-only threat
+  bias and Larsen 1987's affective-only intensity gate are the
+  kind of findings this spec can state as explicit nulls —
+  vigil and aim exist precisely because their nulls are
+  informative. P303/P306 encode the nulls as MUSTs.
+- **Documented refusal as a research deliverable.** The menstrual-
+  cycle state is deliberately unimplemented (§29): small,
+  unstable, non-replicating effects get a named refusal, not a
+  parameter. This is the "established vs hypothesis" bar working
+  as designed — the strongest claims got loadings, the weakest
+  got a written reason they didn't.
+- Spec → v3.1 (+19 params, 7 trait axes, 2 state overlays,
+  hearAccount negativeFeedback + intox.kind contract); validation
+  → P1–P309. 15+ sources verified via web (prevalence figures,
+  meta-analytic effect sizes, the Kloft acute-vs-1-week pattern).

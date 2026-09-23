@@ -1726,3 +1726,93 @@ Chang 2022 conjoint-recognition meta (JEP:LMC, 537 datasets);
 Dalton & Daneman 2006 (Memory 14:486–501); Ibabe & Sporer 2004;
 Newman, Garry, Bernstein, Kantner & Lindsay 2012 (PBR 19:969–974);
 Alter & Oppenheimer 2009.
+
+## 40. New probes P298–P309 (v31, individual-differences III suite)
+
+- **P298 face-store dissociation (MUST — sign-locked):**
+  face_ability=−2σ profile fails ≥70% of tier-1 familiarity rolls on
+  twice-met strangers while episodic hit-rate on the SAME encounters
+  stays within ±10% of a 0σ profile. FAIL if episodic params co-move
+  (the dissociation is the phenotype). Constrains `fam_gain`,
+  `fam_thresh_off`.
+- **P299 ADHD acquisition-not-storage (MUST — sign-locked):**
+  adhd=+2σ encodes ~25% fewer records in a busy window; survivors
+  show normal β_episodic and normal θ-gated recall at 7d; fresh
+  records (≤consol_window) show elevated interference cost. FAIL if
+  retrieval-phase measures degrade beyond the encoding loss
+  (Skodzik 2017). Constrains §21 loadings.
+- **P300 ASD triple signature (MUST — sign-locked):** asd=+2σ shows
+  LOWER phantom/lure rates AND LOWER leading-question adoption AND
+  HIGHER source_confuse flips than 0σ — three signs at once
+  (Maras meta; Lind & Bowler 2009). FAIL if susceptibility and
+  source-confusion move together.
+- **P301 cannabis window (MUST — sign-locked):** hearAccount at
+  intox.kind=cannabis@0.7 adopts ≥1.5× placebo; the same account
+  heard next-day sober adopts at baseline; retrieval of
+  cannabis-window records shows encoding thinness but no elevated
+  adoption (Kloft 2020 acute-only). Constrains `cann_*`.
+- **P302 Shift ≠ Yield (SHOULD):** negativeFeedback challenges flip
+  reported fields in high-suggs profiles at ≥2× low-suggs while
+  beliefStatus flips at a strictly lower rate — report outruns
+  belief (GSS structure).
+- **P303 vigil mode-gate (MUST — sign-locked):** vigil=+2σ recalls
+  socialThreat records above baseline; recognition-mode hit-rate on
+  identical records at baseline (Mitte 2008 null); non-social
+  negative records unaffected (SIP gate).
+- **P304 meno rebound (SHOULD):** meno=1 overlay reduces
+  rehearsal-practice S-growth ≥10% during the window and returns to
+  premeno trajectory at expiry — FAIL if deficit persists (SWAN
+  rebound IS the phenomenon).
+- **P305 pregnancy gate (SHOULD):** preg effect absent trimesters
+  1–2, present (E ×0.9 + iiv bump) in trimester 3 only (Davies 2018).
+- **P306 aim gate (MUST):** aim=±2σ profiles differ on affective
+  records (E, links, arousal tags) and are IDENTICAL on neutral
+  records — the neutral-half null is the finding (Larsen 1987).
+- **P307 hand-mix retrieval-only (OBSERVE):** hand_mix=+2σ shows a
+  small episodic-recall edge, null differences on face tiers, wmc
+  probes, and all encoding metrics (Lyle 2008 task pattern).
+- **P308 name fan (SHOULD):** identical profiles, 15 vs 250 familiar
+  PersonModels — the dense store misses tier-3 name rolls ≥1.5×
+  more; tiers 1–2 affected ≤half as much.
+- **P309 phenotype-nulls portfolio (OBSERVE — anti-Goodhart):** in a
+  500-profile cohort at population prevalences (DP ~2.5%, adhd/asd
+  tails), extreme-phenotype characters are distinguishable by their
+  *pattern of nulls* (which measures stay normal) at least as much
+  as by their deficits — FAIL if any phenotype degrades every
+  metric globally.
+
+Registry now P1–P309; numbering stable.
+
+### Sources new to this version
+
+Kennerknecht et al. 2006 (AJMG — HPA prevalence 2.47%);
+Kennerknecht et al. 2017 worldwide survey (0.93–2.29%);
+DeGutis et al. 2023 (Cognition — cutoff-dependent 0.64–5.42%);
+Russell, Duchaine & Nakayama 2009 (super-recognizers);
+Ramon, Bobak & White 2019; Wilmer et al. 2010 (face-ability
+specificity); Bate et al. 2019 (DP subtypes); Skodzik, Holling &
+Pedersen 2017 (J. Att. Disord. meta — encoding-stage deficit,
+verbal only); Alderson et al. 2013 (adult WM meta); Kofler et al.
+2018 (children WM d≈1.17–1.44, episodic buffer intact); Söderlund
+et al. 2022 (interference meta: PI g=−0.53 children, RI g=+0.17);
+Ozel-Kizil et al. 2016 (hyperfocus, flagged weak);
+Maras et al. 2019/2021 (JIDR meta — ASD decreased suggestibility
+z=−2.37, ID increased z=6.10); Murphy, Ichijo, Bird & Cooper 2025
+(DRM — comparable false recognition, absent implicit priming);
+Lind & Bowler 2009 (ASD source-monitoring); Crane & Goddard 2008
+(ASD OGM); Happé 1997 (WCC); Gudjonsson 1984/1997 (GSS Yield/
+Shift); Gignac & Powell 2009 (GSS2 CFA, Yield1–Shift poorly
+correlated); Drake 2010 (SEM — FAA/compliance→Shift);
+Cacioppo & Hawkley 2009 (loneliness hypervigilance review);
+Spithoven et al. 2017 (lonely SIP-model review); Mitte 2008
+(Psych. Bull. 134:886–911 — recall-only threat memory bias,
+165 studies); Larsen & Diener 1985; Larsen 1987 (AIM review);
+Larsen, Diener & Cropanzano 1987 (affective-gated cognitive ops);
+Propper, Christman & Phaneuf 2005; Lyle, McCabe & Roediger 2008
+(Neuropsych. 22:523 — task-selective nSR advantage); Lyle et al.
+2017 (fNIRS replication); Kloft, Otgaar, Blokland, Monds, Toennes,
+Loftus & Ramaekers 2020 (PNAS 117:4585–4594 — acute THC false-
+memory, 1-week null); Greendale et al. 2009 (SWAN, n=2362 —
+perimenopausal practice-gain loss + rebound); Epperson et al. 2013
+(Penn Ovarian, n=403, 14y); Davies et al. 2018 (MJA 208:35–40 —
+pregnancy meta SMD 0.52/1.47-t3).

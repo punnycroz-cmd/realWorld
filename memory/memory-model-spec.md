@@ -1,4 +1,36 @@
-# Memory Model Spec v3.0 — implementable human-like memory for RW characters
+# Memory Model Spec v3.1 — implementable human-like memory for RW characters
+
+> **v3.1 note (individual-differences III — which store, which
+> phenotype, whose pressure):** `memory/individual-differences.md`
+> Part III (§§20–33) adds seven IndivTraits axes + two hormone/state
+> overlays + one emergent store mechanic. **`face_ability`** — the
+> separable store: loads ONLY on the §5.10 cascade (DP ~2.5%,
+> super-recognizers ~1–2%, Kennerknecht 2006; Russell 2009; episodic
+> params explicitly flat). **`adhd`** — an acquisition-deficit
+> phenotype: encoding-side loads only, intact storage/retrieval
+> (Skodzik et al. 2017 meta; Kofler WM d≈1.2; RI↑/PI↓ Söderlund
+> 2022) + optional `hyperfocus_gate` (HYPOTHESIS). **`asd`** — the
+> gist-side reversal: fewer phantoms/lures/leading-question
+> adoption, MORE source confusion, verbatim preserved longer, OGM
+> on self-cued recall (meta z=−2.37; Murphy et al. 2025; Lind &
+> Bowler 2009; Crane & Goddard 2008). **`suggs`** — GSS Yield +
+> Shift: new `hearAccount{negativeFeedback}` report-flip path
+> (Gudjonsson 1984; Drake 2010). **`vigil`** — social-threat memory
+> bias, recall-mode only (Cacioppo & Hawkley 2009; Mitte 2008 —
+> recognition null is part of the model). **`aim`** — affect
+> intensity: valence-symmetric w_emo load gated to affective
+> records (Larsen & Diener 1985; the neutral-record null IS the
+> finding). **`hand_mix`** — small retrieval-only episodic edge
+> (Lyle, McCabe & Roediger 2008 task pattern). **`name_fan`** —
+> tier-3 name rolls pay ln-directory-size cost (modeling
+> hypothesis). **Cannabis** — `context.intox.kind`: shallower
+> anterograde loss than alcohol but acute misinfo/lure
+> susceptibility, gone at sober retrieval (Kloft et al. 2020
+> PNAS). **meno/preg overlays** — SWAN transient practice-gain
+> flattening with post-transition rebound (Greendale 2009;
+> Epperson 2013); trimester-3-gated pregnancy effect (Davies 2018
+> meta); menstrual cycle = documented REFUSAL. +19 params in §7;
+> probes P298–P309. All optional, default-neutral.
 
 > **v3.0 note (false-memory III — the passive channels, distortion
 > nobody commits):** `memory/false-memory.md` Part III (§§26–37)
@@ -1050,6 +1082,48 @@ Postman 1964; Hyde & Jenkins 1973).
   - *OGM gate:* the depressive/rumin_k gist-loss terms (v0.5/v1.7)
     apply only for age_now ≥ 12 — children's negative records
     fragment, they don't overgeneralize (Sumner 2011).
+- **v3.1 additions** (individual-differences.md Part III §§20–30):
+  - *ADHD signature (encode-side only):* `adhd` trait σ adds
+    `omit_p += 0.04·adhd`; verbal-field write prob
+    `vivid_detail ×(1 − 0.12·adhd)`; records born within
+    `consol_window_days` carry `interf_k += 0.03·adhd` (fragile
+    new traces — RI↑, Söderlund 2022); on `interest ≥ 0.8` records
+    the penalties INVERT via `E += hyperfocus_gate·adhd·0.1`
+    (HYPOTHESIS — set 0 to disable). No beta_*/theta loads ever
+    (Skodzik 2017: acquisition deficit, intact storage).
+  - *ASD signature:* `k_verbatim −= 0.08·asd` (verbatim survives
+    longer — Maras & Bowler); `phantom_p ×(1 − 0.15·asd)` and
+    `lure_accept −= 0.02·asd` (reduced gist-side false content);
+    `specificity ×(1 − 0.1·asd)` on self/people-cued recall only —
+    sensory-cued recall unaffected (Crane & Goddard OGM + ASD
+    sensory-route strength).
+  - *Social-threat gate:* records the event layer tags
+    `socialThreat:true` take `w_emo_neg ×(1 + vigil_social_gain·
+    vigil)` (0.15) at encode; nothing else changes (SIP social-
+    context gating — Cacioppo & Hawkley 2009).
+  - *Affect-intensity gate:* records with |valence| ≥ 0.3 take
+    `w_emo_pos`/`w_emo_neg` BOTH `×(1 + aim_emo_gain·aim)` (0.10)
+    and `link_p ×(1 + aim_link_gain·aim)` (0.05); stored arousal
+    tag `+= 0.05·aim`. Neutral records: ZERO effect — the gate is
+    the finding (Larsen, Diener & Cropanzano 1987).
+  - *Hormone overlays (state, not trait):* `context.meno` ∈ [0,1]
+    → `s_gain_recall`/`s_gain_rehear ×(1 − meno_learn_pen·meno)`
+    (0.15 — practice-gain flattening, SWAN) and `enc_base ×(1 −
+    0.08·meno)` on verbal material; overlay EXPIRES — the rebound
+    is the phenomenon (Greendale 2009). `context.preg` =1 gated to
+    trimester 3 → `E ×preg_trim3_mult` (0.9) + `iiv_sigma += 0.02`
+    (Davies 2018). No menstrual-cycle state — documented refusal.
+  - *Cannabis:* `context.intox.kind == "cannabis"` → anterograde
+    `E *= (1 − intox·0.4·(1 − intox_encode_mult))` (shallower than
+    alcohol); during the window `misinfo_suscept +=
+    cann_misinfo_gain·intox` (0.20) and `lure_accept +=
+    cann_lure_gain·intox` (0.15) — acute-phase only, sober
+    retrieval inherits thin encoding but NO susceptibility
+    (Kloft et al. 2020: 1-week null).
+  - *Handedness:* `hand_mix` σ → `theta −= handmix_ret_gain·
+    hand_mix` (0.015) episodic recall only and `beta_source −=
+    0.05·hand_mix`; all encoding/face/wmc params flat
+    (Lyle, McCabe & Roediger 2008 task pattern).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -1770,6 +1844,10 @@ contiguityTerm(m) = C.temporalAnchor == null ? 0 :
 // C.temporalAnchor = createdDay of the last record recalled this
 // conversation — recall reinstates temporal context, which cues
 // neighbors-in-time with forward asymmetry (Howard & Kahana 1999/2002)
+// v3.1 (§§24–26): on socialThreat:true records, recall-mode drive
+//   += vigil_recall_bias·vigil (recognition-mode flat — Mitte 2008);
+//   episodic-recall θ −= handmix_ret_gain·hand_mix (retrieval-only —
+//   Lyle 2008).
 P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
 ```
 
@@ -2048,6 +2126,18 @@ tier3 name:         roll vs name_thresh (0.55) on nameStrength
   `lastSeenDay`, boosts the accessed tiers (§5.9 boost applies per tier).
 - `oab_loss` applies at tier1 encoding only; `tot_rate` (v0.4) applies
   at tier3 as before — name TOT is the commonest TOT (Burke et al. 1991).
+- **`face_ability` (v3.1, individual-differences.md §20):** familiarity
+  accrual `×(1 + fam_gain·face_ability)` (0.35) and
+  `familiar_thresh −= fam_thresh_off·face_ability` (0.03); tiers 2–3
+  take HALF the loading (names are partly a verbal store — Cohen 1990
+  asymmetry preserved). NOTHING else in the spec reads this trait —
+  face-blind characters remember the encounter fine (P298
+  dissociation guard).
+- **`name_fan` (v3.1, §27):** tier-3 roll additionally pays
+  `name_fan_k·ln(1 + nPersons)` (0.03), nPersons = PersonModels at
+  familiarity ≥ familiar_thresh — store-load cost; tiers 1–2 pay
+  half. Modeling hypothesis; emergent — same traits, the bartender
+  blanks more names than the hermit (P308).
 - **Directory mode:** `C.mode == "directory"` ignores the cascade and
   returns candidate persons ranked by `knowsTopics[topic]` strength —
   "I don't know, but Jules would" (transactive memory, §6.14;
@@ -2422,6 +2512,16 @@ if simOp(myMemory, heardAccount, "sim_misinfo") > 0.4:
                 · (disputed ? dispute_mult : 1)    // ~0.05 — live dispute
                                                    // blocks (Wade 2018)
                 · (sleepdep_flag ? sleepdep_misinfo_gain : 1)  // Frenda 2014
+                // v3.1: acute intox.kind=="cannabis" adds
+                // cann_misinfo_gain·intox to misinfo_suscept
+                // upstream; state expires with the window —
+                // sober-heard accounts never inherit it (Kloft
+                // 2020 1-week null). hearAccount{negativeFeedback:
+                // true} invokes the §23 Shift path: reported-field
+                // flip at misinfo_suscept·1.5 + confidence loss
+                // suggs_shift·suggs — report-side override, the
+                // stored record's beliefStatus does not move
+                // (GSS Shift ≠ Yield — report outruns belief).
                 · (neg_core_resist if valence<−0.3 & arousal>0.6 core field)
                                                    // v0.5, kept
                 · (contradicts known semantic (strength ≥ know_protect_thresh)
@@ -3530,6 +3630,10 @@ MemoryParams = {
   "secret_mindwander": 0.08, // confidential-record intrusion boost (§5.7)
   // IndivTraits gains axis 15: attach_avoid (σ, r(extra)≈−0.3,
   // r(neurot)≈0 — avoidance carries the memory deficit, anxiety doesn't)
+  // v3.1: IndivTraits axes 16–22 — face_ability, adhd, asd, suggs,
+  // vigil, aim, hand_mix (individual-differences.md §30 + R rows);
+  // state overlays context.meno / context.preg / intox.kind are
+  // states, NOT traits — never in the trait vector.
   // v2.4 additions (encoding-mechanics II — motivational state and
   // content class, encoding-mechanics.md Part II §§15–26)
   "abe_gain": 0.15,          // detection-event E boost (§2; Swallow & Jiang)
@@ -3649,6 +3753,18 @@ MemoryParams = {
   "phantom_recoll": 0.35,    // vivid-gate crossing prob (§6.30)
   "group_damp": 0.75,        // per-extra-discussant damping (§6.5)
   "truthy_gain": 0.10,       // nonprobative dressing → corroboration (§6.7)
+  // v3.1 additions (individual-differences III — Part III §§20–30)
+  "fam_gain": 0.35, "fam_thresh_off": 0.03,  // face_ability loads (§5.10)
+  "name_fan_k": 0.03,        // tier-3 ln-directory cost (§5.10, §27)
+  "hyperfocus_gate": 0.5,    // adhd interest-inversion (§2, HYPOTHESIS)
+  "asd_gist_pen": 0.15, "asd_verbatim_gain": 0.08,
+  "asd_spec_loss": 0.10, "asd_src_gain": 0.05, // §2 + §6.10 loads
+  "suggs_yield": 0.06, "suggs_shift": 0.08,  // GSS Yield/Shift (§6.3)
+  "vigil_social_gain": 0.15, "vigil_recall_bias": 0.05, // §2/§5.4
+  "aim_emo_gain": 0.10, "aim_link_gain": 0.05, // §2 valence-gated
+  "handmix_ret_gain": 0.015, // theta offset, episodic recall only
+  "meno_learn_pen": 0.15, "preg_trim3_mult": 0.9, // §2 overlays
+  "cann_misinfo_gain": 0.20, "cann_lure_gain": 0.15, // §2/§6.3
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -4315,6 +4431,24 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
   - Snapshot-additive: `frame` tags on candidates, `verbalized`
     flag on records, field-level `lastRecallDay` — all
     default-neutral.
+- v3.1 additions (individual-differences.md Part III §§20–30):
+  - `hearAccount` gains optional `negativeFeedback:true` —
+    authoritative challenge to the hearer's own prior report;
+    invokes the Shift path (§6.3): reported-field flip +
+    confidence loss, report-side only. Default absent.
+  - `context.intox` gains optional `kind` ("alcohol" | "cannabis";
+    §2/§6.3); `context` gains optional `meno` ∈ [0,1] and
+    `preg` ∈ {0,1} state overlays (§2) — states, never traits.
+  - Events may carry `socialThreat:true` (event layer tags social
+    evaluation/rejection/hostility — the `vigil` encode+recall
+    gates read it; untagged events unaffected).
+  - `PersonModel[p]` familiarity accrual now reads `face_ability`
+    (§5.10) and tier-3 pays `name_fan_k` on directory size — both
+    automatic, no caller action.
+  - `deriveParams` accepts IndivTraits axes 16–22; all optional,
+    default 0.
+  - Snapshot-additive: `intox.kind` on records (default
+    "alcohol"), `socialThreat` tag on records — default-neutral.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

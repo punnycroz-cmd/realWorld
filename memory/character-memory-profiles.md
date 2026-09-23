@@ -383,6 +383,25 @@ never copying raw.
 | phantom_recoll | 0.0 | 0.7 | vivid-gate crossing prob (v3.0) |
 | group_damp | 0.5 | 1.0 | per-extra-discussant damping (v3.0) |
 | truthy_gain | 0.0 | 0.3 | nonprobative dressing corroboration (v3.0) |
+| fam_gain | 0.0 | 0.7 | face_ability→familiarity accrual (v3.1) |
+| fam_thresh_off | 0.0 | 0.06 | face_ability→tier-1 offset (v3.1) |
+| name_fan_k | 0.0 | 0.06 | tier-3 directory-size cost (v3.1) |
+| hyperfocus_gate | 0.0 | 1.0 | adhd interest-inversion (v3.1, HYPOTHESIS) |
+| asd_gist_pen | 0.0 | 0.3 | asd phantom/lure suppression (v3.1) |
+| asd_verbatim_gain | 0.0 | 0.2 | asd verbatim-survival (v3.1) |
+| asd_spec_loss | 0.0 | 0.2 | asd self-cued OGM (v3.1) |
+| asd_src_gain | 0.0 | 0.15 | asd source-confusion (v3.1) |
+| suggs_yield | 0.0 | 0.12 | GSS Yield→misinfo (v3.1) |
+| suggs_shift | 0.0 | 0.16 | GSS Shift→report-flip (v3.1) |
+| vigil_social_gain | 0.0 | 0.3 | social-threat encode gain (v3.1) |
+| vigil_recall_bias | 0.0 | 0.1 | threat recall-mode drive (v3.1) |
+| aim_emo_gain | 0.0 | 0.2 | affective-only w_emo load (v3.1) |
+| aim_link_gain | 0.0 | 0.1 | affective-only link load (v3.1) |
+| handmix_ret_gain | 0.0 | 0.03 | retrieval-only θ offset (v3.1) |
+| meno_learn_pen | 0.0 | 0.3 | meno practice-gain flattening (v3.1) |
+| preg_trim3_mult | 0.7 | 1.0 | trimester-3 E multiplier (v3.1) |
+| cann_misinfo_gain | 0.0 | 0.4 | acute cannabis misinfo add (v3.1) |
+| cann_lure_gain | 0.0 | 0.3 | acute cannabis lure add (v3.1) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -1238,3 +1257,65 @@ variation enters through traits, records, and context instead:
   `react_suscept_mult`, `phantom_recoll`, `group_damp`,
   `truthy_gain`, `conj_thresh`, `cat_resist` carry NO age knots —
   P286/P291/P295 guards.
+
+## 19. v3.1 note — individual-differences III: phenotype bundles and the
+## nulls that define them
+
+Seven new trait axes (individual-differences.md §30). The design rule
+this pass: **a phenotype is defined as much by what stays normal as by
+what breaks.** Pin accordingly — do not leak signature loads into
+params the literature holds flat.
+
+- **`face_ability`** — the cleanest dial. Loads ONLY on the §5.10
+  cascade. A face-blind bible character (≤−2σ, ~2.5% prevalence —
+  Kennerknecht 2006) fails tier-1 familiarity on repeat encounters but
+  remembers the conversation verbatim: compensate in fiction via
+  voice/gait/context cues (the real DP strategy), NOT by raising
+  `identity_thresh`. A super-recognizer (≥+2σ) mints PersonModels off
+  single crowded-room glances. NEVER co-pin episodic params — the
+  dissociation is the phenotype (P298).
+- **`adhd`** — acquisition-deficit bundle: pin `adhd` σ, leave
+  `beta_*`/`theta` untouched. The character *was there but didn't get
+  it*: meetings evaporate (omit_p), names and spoken details thin
+  (verbal vivid_detail), intentions die (pm_self), new learning is
+  fragile for ~24h (interf_k on fresh records), and day-to-day
+  consistency is low (iiv). `hyperfocus_gate` gives the counterweight —
+  high-interest events encode *better*; if playtests make him a
+  super-encoder, drop the gate before touching the consensus loads.
+- **`asd`** — the FTT reversal: pin `asd` σ for a character whose
+  memory is *more literal* — fewer gist-phantoms, fewer leading-
+  question adoptions, verbatim residue that outlasts everyone's, BUT
+  more source confusions ("did I say it or did they?") and thinner
+  self-narrative specificity. Do NOT also cut `misinfo_suscept` on
+  rumor content — the resistance is to leading questions, not to
+  learning from talk (P300 guards the split).
+- **`suggs`** — interrogative suggestibility. Distinct from `distrust`
+  (self-doubt) and `fantasy` (generation): the high-suggs character
+  *yields* — adopt unverifiable claims faster, and flip their own
+  report under authoritative pushback while privately still believing
+  it. For bibles: a people-pleaser pins suggs+compliance (Shift-heavy);
+  a merely-uncertain one pins distrust. The difference shows under
+  `negativeFeedback`, not in baseline gullibility.
+- **`vigil`** — the lonely/vigilant profile. Social-threat events
+  encode hotter and come back more on recall — but recognition is
+  untouched and non-social records untouched. Pair with `social` −σ
+  for the loneliness composite; do NOT use it for general pessimism
+  (that's neurot).
+- **`aim`** — amplitude, not valence. The high-aim character's
+  emotional events encode hotter on BOTH valences and link more —
+  neutral days are identical to everyone else's. This is the trait for
+  "she feels everything", NOT for "she's always upset" (that's neurot).
+- **`hand_mix`** — flavor dial with real phenomenology: tiny
+  episodic-recall edge + slightly better source memory, nothing else.
+  A lefty character remembers conversations a bit better and
+  misattributes them a bit less; nobody should be able to see the
+  difference except in cohort stats.
+- **States, not traits:** `meno` (midlife female profiles, ~45–55,
+  self-limiting — complaints > deficit is accurate), `preg`
+  (trimester-3 gate), `intox.kind` ("cannabis" — thinner window
+  encoding + acute yes-bias; the stoned witness believes the rumor,
+  not forgets the event). Menstrual cycle: deliberately unimplemented.
+- **`name_fan`** — emergent, not a dial: directory size does the work.
+  The bartender blanks names at default params; the recluse doesn't.
+  Do not pin `name_fan_k` to make a character "bad with names" — give
+  her a bigger world instead.
