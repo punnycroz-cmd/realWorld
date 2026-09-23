@@ -4338,3 +4338,120 @@ Registry: P1–P565. v54 suite: P555–P565 (7 MUST, 4 SHOULD).
   confusion; act-monitoring rescues; DOI 10.1177/0146167220929203);
   Scullin, Bugg & McDaniel 2011 (*Psychol Aging* 27:46 —
   verified: ~25% PM commission errors; DOI 10.1037/a0026112).
+
+## 97. Probes P566–P577 (v55 — individual-differences V, the
+## lived-in mind; individual-differences.md Part V, spec v5.3)
+
+- **P566 ego ledger (MUST — sign-locked):** two characters co-do a
+  chore event; self_srv=+1.5 vs −1.5 both recall own-contribution
+  fields denser, but the +1.5's other-actor fields are thinner;
+  summing the two reports' responsibility shares exceeds 100%
+  (Ross & Sicoly signature); solo-event recall identical across
+  traits (null half).
+- **P567 flat-and-fluent (MUST — both signs):** alexith=+1.5 records
+  carry ~30% thinner emoTag detail on emotional events AND answer
+  "how did you feel" probes with fluent confabulated affect at
+  near-normal confidence; neutral-event records within jitter; a
+  *silent* alexith (no confabulated answer) or a globally-vague one
+  both fail.
+- **P568 filter leak, storage intact (MUST — sign-locked):**
+  media_m=+1.5 shows elevated plist-suppression leakage and
+  source_confuse under competing-representation paradigms while
+  hit-rate on single-channel attended material and beta_* decay
+  curves match baseline within jitter — a general memory deficit
+  fails the probe (Ophir's effect is filtering).
+- **P569 adversity targets control (MUST — sign-locked):**
+  early_adv=1.5 shifts wmc-side params (misinfo, source_confuse,
+  plist_suppress, stress_retrieve_loss) while enc_base/beta_* on
+  neutral material stay within jitter — a storage deficit fails
+  (Evans 2009's pathway is control).
+- **P570 variance not level (MUST — null-locked):** circ_irr=+1.5 vs
+  0 at matched mean sleep/chronotype: day-level peak_hour and
+  sleepFactor dispersion ~1.5× wider, but 30-day mean retrieval
+  performance within jitter — a mean deficit fails.
+- **P571 pain is a now-tax (MUST — sign-locked):** pain_state=0.6
+  during encoding → attended-E reduced ~pain_tax and routine
+  omit_p up; recall of records encoded pre-pain at baseline;
+  pain_state→0 next day → full recovery with no residual decay
+  delta — any retrograde or residual effect fails.
+- **P572 load spends monitoring (MUST):** identical pm_self profile
+  under task_load 0 vs 0.8 → intention-execution miss rate rises
+  ~task_load_cost; non-PM attended encoding and stored strengths
+  identical; lifting the load restores baseline same-window.
+- **P573 musician lock (MUST — sign-locked):** music=+2 shows
+  verbal-channel enc advantage on spoken-word records with
+  visual/spatial records within jitter (Chan 1998's own null is
+  the bound).
+- **P574 rosy arc ordering (SHOULD — sign-locked):** same event,
+  rosy=+1.5: anticip trace valence > in-event emoTag valence <
+  7-day-later recalled valence (the three-point ordering);
+  negative-field drift faster than positive-field; fact fields
+  unchanged (Mitchell 1997).
+- **P575 birth-order honesty lock (MUST — null-locked):** 200
+  character draws, birth_order ∈ {1st..4th} randomized vs pinned:
+  all MemoryParams pairwise-correlated with birth_order at |r|<0.05
+  — ANY systematic loading fails. The probe exists so a future
+  "middle-child" tweak lands as a *decision*, not a drift.
+- **P576 alexithymia FAB (SHOULD):** alexith=+1.5 shows reduced
+  fading-affect bias — negative emoTag strength at +30d closer to
+  birth value than alexith=−1.5 (Muir 2016).
+- **P577 compound ledger (SHOULD):** self_srv=+1.5 × rosy=+1.5
+  character retells a shared chore as both own-heavier AND
+  warmer — the two operators compose without interaction term
+  (additivity audit; a super-additive compound flags a bug).
+
+## 98. Sources verified this version (P566–P577 backing)
+
+- Ross & Sicoly 1979 (*JPSP* 37:322 — verified canonical: married
+  couples'/roommates'/teams' responsibility estimates sum >100%;
+  asymmetric availability of own contributions; DOI
+  10.1037/0022-3514.37.3.322).
+- Vermeulen & Luminet 2009 (*PAID* 47:305 — verified: alexithymia
+  memory deficit concentrated on emotional words); Luminet et al.
+  2005 (*J Res Pers* 40:713 — levels-of-processing: shallow affect
+  encoding, not retrieval block); Muir, Madill & Brown 2016
+  (*Cogn Emot* 31:1392 — reduced fading-affect bias in high
+  alexithymia); systematic review PMC6497026 2019 (explicit
+  emotional memory reduced, neutral intact); Camia, Desmedt &
+  Luminet 2020 (narrative elaboration of negative events
+  impoverished; specificity spared — small-N qualitative).
+- Ophir, Nass & Wagner 2009 (*PNAS* 106:15583 — verified canonical:
+  heavy media multitaskers worse at filtering/task-switching, not
+  better at juggling; DOI 10.1073/pnas.0903620106); Cain & Mitroff
+  2011 (distractor-filtering deficit replicated); Uncapher et al.
+  2016 (*Psychon Bull Rev* — more mind-wandering, worse episodic
+  task performance); Uncapher & Wagner 2018 review (cost runs
+  through encoding attention, not storage).
+- Evans & Schamberg 2009 (*PNAS* 106:6545 — verified: childhood
+  poverty duration → adult WM capacity via allostatic load;
+  survives income mobility; DOI 10.1073/pnas.0811910106); Lupien
+  et al. 2009 (maternal SES/care → adult hippocampal volume);
+  Evans et al. 2007 (stress-physiology mediation).
+- Cho 2001 (*Nat Neurosci* 4:567 — verified direction: chronic jet
+  lag → temporal-lobe/cognitive deficits in aircrew; magnitude
+  DEBATED); Costa 2010 (shift-work review — sleep fragmentation
+  the dominant pathway).
+- Moriarty, McGuire & Finn 2011 (*Prog Neurobiol* 93:385 —
+  verified: chronic pain impairs attention/executive/memory via
+  continuous attentional demand); Berryman et al. 2013 (*Pain*
+  meta — verified via PubMed 27583141: d ≈ −0.31..−0.57 on
+  WM/verbal learning, test-dependent).
+- Marsh & Hicks 1998 (*JEP:LMC* 24:350 — verified: event-based PM
+  degrades under ongoing-task demands; intention intact,
+  monitoring spent; DOI 10.1037/0278-7393.24.2.350); Einstein &
+  McDaniel program (DA costs focal-task dependent).
+- Chan, Ho & Cheung 1998 (*Nature* 396:128 — verified: childhood
+  music training → better verbal memory, visual null t=1.00 n.s.;
+  DOI 10.1038/24075); Ho, Cheung & Chan 2003 (child arm replicates
+  the verbal/visual split).
+- Mitchell, Thompson, Peterson & Cronk 1997 (*JASP* 27 — verified:
+  rosy-view three-point arc; anticipated > experienced <
+  remembered evaluations across event types).
+- Rohrer, Egloff & Schmukle 2015 (*PNAS* 112:14224 — verified:
+  N=20,186, three national panels, no birth-order effects on
+  extraversion/stability/agreeableness/conscientiousness/
+  imagination; ~0.1 SD intelligence tilt only; DOI
+  10.1073/pnas.1506451112); Damian & Roberts 2015 concur.
+
+Registry: P1–P577. v55 suite: P566–P577 (8 MUST, 4 SHOULD — P575
+is the first null-locked honesty probe in the registry).

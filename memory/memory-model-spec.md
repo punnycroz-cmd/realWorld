@@ -1,5 +1,31 @@
-# Memory Model Spec v5.2 — implementable human-like memory for RW characters
+# Memory Model Spec v5.3 — implementable human-like memory for RW characters
 
+> **v5.3 note (individual-differences V — the lived-in mind):**
+> `memory/individual-differences.md` Part V (§§49–62) adds the
+> everyday-life axes. **The ego's ledger** — `self_srv` writes
+> self-contribution fields denser and co-actor fields thinner on
+> shared events (Ross & Sicoly 1979; joint reports sum >100%) —
+> §6.85. **Flat affect, fluent answer** — `alexith` thins emoTag
+> encoding and *confabulates* affect on probe at normal confidence
+> (Vermeulen & Luminet 2009; Muir 2016 reduced fading-affect bias) —
+> §6.86. **Split attention** — `media_m` leaks the interference
+> filter (plist_suppress/source_confuse up, storage null) (Ophir,
+> Nass & Wagner 2009). **Hard beginnings** — `early_adv` taxes
+> wmc-side params only (Evans & Schamberg 2009). **Unsettled
+> clocks** — `circ_irr` jitters peak_hour/sleepFactor day-to-day
+> (variance claim, not level) (Cho 2001). **The now-tax** —
+> `pain_state` cuts encoding while active, no retrograde, no
+> residue (Moriarty 2011); `task_load` spends PM/monitoring
+> bandwidth (Marsh & Hicks 1998) — both new context fields, §6.87.
+> **Material-locked advantage** — `music` boosts verbal-channel
+> encoding only, visual null (Chan, Ho & Cheung 1998). **Kinder
+> recall** — `rosy` tilts reappraisal positive and fades negative
+> detail faster (Mitchell et al. 1997 three-point arc) — §6.88.
+> **The mandated null** — `birth_order` exists as a bible field
+> with every loading locked 0.0 (Rohrer, Egloff & Schmukle 2015,
+> N=20,186) — a trait layer that cannot say "no effect" is
+> unfalsifiable.
+>
 > **v5.2 note (false-memory V — the arrival channels):**
 > `memory/false-memory.md` Part V (§§52–64) prices what the earlier
 > distortion passes left implicit. **First believable account anchors** —
@@ -6565,6 +6591,120 @@ intending (P565).
 
 ---
 
+### 6.85 The ego's ledger — self-fields dense, co-actor fields thin
+### (new in v5.3)
+
+Ross & Sicoly 1979 (JPSP 37:322 — verified): recalled own-vs-other
+contributions to shared work sum over 100%; asymmetric availability,
+not just motivational claiming. Mechanism here is record-level: at
+encoding of multi-actor events, fields tagged `actor:self` gain
+E ×(1 + `sself_enc`·self_srv) and `actor:other` fields lose
+E ×(1 − `sself_other_loss`·self_srv). No retrieval change — w_self
+cue-matching already favors self-tagged records; the asymmetry is
+born in the stored record, so two co-actors' later reports sum
+>100% emergently (P566). Locked nulls: solo events untouched; all
+misinfo/distortion params untouched — bookkeeping asymmetry, not
+suggestibility.
+
+### 6.86 Flat affect and split attention — two everyday leaks (new
+### in v5.3)
+
+**Alexithymia (affect-channel deficit + fluent confabulation).**
+Systematic review 2019 (PMC6497026 — verified): emotional-material
+memory reduced, neutral intact; Vermeulen & Luminet 2009 (PAID
+47:305 — deficit concentrated on emotion words); Luminet et al.
+2005 (shallow affect encoding, not a retrieval block); Muir, Madill
+& Brown 2016 (Cognition & Emotion 31:1392 — reduced fading-affect
+bias). `alex_flat` (0–0.7): emoTag field-write richness and the
+w_emo arousal boost both scale ×(1 − alex_flat·alexith) at encoding.
+`alex_confab` (0–0.9): when a probe demands affect the record
+lacks, the §6.79 why-mint machinery supplies fluent, confident,
+invented feeling — the character answers, does not go silent.
+`neg_affect_decay` shifts toward 1 by ×(1 − 0.15·alexith)
+(Muir 2016 direction: the unfelt feeling also never fades). Locked
+nulls: neutral material = 0; non-affective specificity = 0 (P567).
+
+**Media multitasking (filter leak, not storage leak).** Ophir, Nass
+& Wagner 2009 (PNAS 106:15583 — verified): heavy multitaskers worse
+at filtering irrelevant representations; Uncapher et al. 2016 —
+more mind-wandering, worse episodic performance; Uncapher & Wagner
+2018 — the cost runs through encoding attention, not storage.
+Loadings: `plist_suppress` ×(1 + 0.30·media_m),
+`source_confuse` ×(1 + 0.20·media_m), `omit_p` +0.03·media_m on
+routine events, `search_breadth` +1·media_m (broader, shallower).
+Locked nulls: all beta_* decay rates = 0; enc_base on attended
+high-salience events = 0 (P568).
+
+### 6.87 Hard beginnings, unsettled clocks, and the now-tax (new in
+### v5.3)
+
+**`early_adv` ∈[0,2] — baseline-setting trait.** Evans & Schamberg
+2009 (PNAS 106:6545 — verified): childhood poverty → adult WMC
+deficit via allostatic load; control deficit, not storage; survives
+income mobility. Loads only on wmc-side params:
+`misinfo_suscept` ×(1 + 0.08·a), `source_confuse` ×(1 + 0.12·a),
+`plist_suppress` ×(1 + 0.15·a), `stress_retrieve_loss`
+×(1 + 0.15·a). Locked nulls: enc_base, beta_*, semantic = 0
+(P569). Bible-visible backstory trait — set from childhood
+circumstances, never present personality.
+
+**`circ_irr` — irregularity as variance.** Cho 2001 (Nat Neurosci
+4:567 — direction verified, magnitude DEBATED); Costa 2010
+shift-work reviews. Each dailyMemoryTick draws
+peak_hour += N(0, `circ_jitter`·6h) and sleepFactor
+×exp(N(0, circ_jitter·0.15)); `iiv_sigma` += 0.5·circ_irr·base.
+Locked null: ALL mean-level params = 0 — a variance claim, never a
+deficit claim (P570).
+
+**`pain_state` ∈[0,1] (state) / `chron_pain` ∈[0,2] (prevalence
+trait).** Moriarty et al. 2011 (Prog Neurobiol 93:385 — verified:
+pain taxes via continuous attentional demand); Berryman et al. 2013
+meta (d ≈ −0.31..−0.57 WM/verbal). `E` ×(1 − `pain_tax`·p) on
+attended events (pain_tax ≈ 0.15), ×2 on low-salience; `omit_p`
++0.10·p on routine records; `chron_pain` → complaint_k +0.10.
+Locked nulls (P571): retrieval of pre-pain records = 0; post-pain
+residue = 0 — anterograde attention tax only.
+
+**`task_load` ∈[0,1] (context field on encodeEvent/recall).**
+Marsh & Hicks 1998 (JEP:LMC 24:350 — verified: PM degrades under
+ongoing-task demands; monitoring bandwidth spent, intention
+intact). `pm_self` effective ×(1 − `task_load_cost`·l),
+task_load_cost ≈ 0.5; `omit_p` +0.15·l on low-salience events;
+peripheral-field enc ×(1 − 0.20·l). Locked nulls (P572): non-PM
+attended encoding = 0; stored strength = 0; no carryover when the
+load lifts.
+
+### 6.88 Material lock, kinder recall, and the mandated null (new
+### in v5.3)
+
+**`music` ∈[0,2] — channel-locked advantage.** Chan, Ho & Cheung
+1998 (Nature 396:128 — verified: verbal memory advantage, visual
+null, t=1.00 n.s.); Ho, Cheung & Chan 2003 (child arm replicates
+the split). E on lang-tagged verbal fields ×(1 + 0.04·music);
+retell narrative fluency +0.03·music. Locked null: every
+non-verbal channel = 0 — a musician who remembers faces better is
+the bug P573 catches.
+
+**`rosy` — the rosy-view arc.** Mitchell et al. 1997 (verified
+three-point arc: anticipated > experienced < remembered valence).
+`rosy_retro` (0–0.4): on emission, positive-arc events' reported
+emoTag tilts positive — implemented as a direction bias on §6.82
+`reappr_k`; negative-detail fields drift at drift_p ×(1 + 0.5·rosy)
+(annoyances fade faster than pleasures — the asymmetry IS the arc);
+§4.28 anticip traces mint at +0.1·rosy positive skew. Locked nulls
+(P574): non-valenced fields = 0; trauma-flagged records = 0 (rides
+§6.82's existing gate).
+
+**`birth_order` — the mandated null.** Rohrer, Egloff & Schmukle
+2015 (PNAS 112:14224 — verified: N=20,186, three national panels,
+no effects on Big-Five traits; ~0.1 SD intelligence tilt only);
+Damian & Roberts 2015 concur. The field exists in IndivTraits as a
+bible-visible DOCUMENTED NULL: every loading locked at 0.0, R-row
+zero. P575 null-locks it — a trait layer that cannot express "no
+effect" is unfalsifiable, and unfalsifiable is unbelievable.
+
+---
+
 ## 7. Character parameter table (schema)
 
 All weights live in one per-character params object. Profiles doc assigns
@@ -7568,6 +7708,24 @@ MemoryParams = {
 //   process-debrief is the ONLY anchor-eviction path; act-monitoring
 //   is the ONLY intent_done rescue — attention on the doing, never
 //   the intending.
+// v5.3 additions (individual-differences V — ID§§49–62)
+"sself_enc": 0.15, "sself_other_loss": 0.2,    // §6.85 ego ledger legs
+"alex_flat": 0.3, "alex_confab": 0.5,          // §6.86 affect channel
+"circ_jitter": 0.1,                            // §6.87 clock variance (0–0.4)
+"pain_tax": 0.15,                              // §6.87 anterograde pain tax
+"task_load_cost": 0.5,                         // §6.87 PM monitoring spend
+"rosy_retro": 0.2,                             // §6.88 rosy-arc amplitude
+// v5.3 locked nulls: self_srv → solo-event + all distortion params
+//   = 0; alexith → neutral material + non-affective specificity = 0;
+//   media_m → beta_* + attended enc_base = 0; early_adv → enc_base/
+//   beta_*/semantic = 0 (control deficit only); circ_irr → ALL
+//   mean-level params = 0 (variance claim only); pain_state →
+//   pre-pain retrieval + post-pain residue = 0; task_load → non-PM
+//   encoding + stored strength = 0; music → all non-verbal channels
+//   = 0; rosy → non-valenced fields + trauma records = 0;
+//   birth_order → EVERYTHING = 0 (mandated null, Rohrer 2015).
+// v5.3 state fields (context, not traits): task_load, pain_state ∈
+//   [0,1] on encodeEvent/recall contexts.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -7578,8 +7736,10 @@ checker, culture_self, fitness, aging_rate, dissoc, empathy, langs,
 iiv; v2.8 adds `hearing` — age-correlated, trait-jittered; v3.1 adds
 face_ability, adhd, asd, suggs, vigil, aim, hand_mix; v4.2 adds
 depr, ptsd, attach_anx, attach_avoid, persp_obs, supp, reap,
-pspeed, mindful, scc, smoker — Part IV §43) — sampled MVN(0, R) with the sparse correlation matrix in
-`individual-differences.md` §4/§17/§30/§43 (pinned traits conditioned per the
+pspeed, mindful, scc, smoker — Part IV §43; v5.3 adds self_srv,
+alexith, media_m, early_adv, circ_irr, chron_pain, music, rosy, and
+the locked-null birth_order — Part V §60) — sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4/§17/§30/§43/§60 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
 v0's independent ±10% jitter: real individual differences are
@@ -8582,6 +8742,25 @@ not resolved (DEBATED magnitude). P509/P511.
   - Records/candidates may carry `anchored:true` (§6.75 flag,
     hidden) and provenance "claimed" (§6.76 own-emission) —
     snapshot-additive, absent = legacy.
+- v5.3 additions (individual-differences.md Part V §§49–62):
+  - Event/record fields may carry `actor:self|actor:other` tags on
+    multi-actor events (§6.85 — world tags participants; the ego
+    ledger prices the asymmetry at encoding, not at reporting).
+  - `encodeEvent`/`recall` contexts gain `task_load` and
+    `pain_state` ∈[0,1] (§6.87 — world supplies the day's load and
+    pain; both are anterograde, no carryover).
+  - `answerProbe` affect probes on alexith>0 records may emit
+    §6.79-minted confabulated feeling at near-normal confidence
+    (`alex_confab`) — fluent invented affect is a FEATURE, flag it
+    `confabulated_affect:true` for the ledger only.
+  - `dailyMemoryTick` applies `circ_jitter` draws to peak_hour and
+    sleepFactor (§6.87 — variance, never mean shift).
+  - Recall emissions apply §6.88 `rosy_retro` positive tilt via the
+    §6.82 reappraisal path; §4.28 anticip traces mint at +0.1·rosy
+    skew.
+  - IndivTraits gains `birth_order` as a DOCUMENTED NULL — bible
+    field, every loading locked 0.0 (§6.88; P575 null-locks it).
+  - All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

@@ -850,6 +850,13 @@ needs both.
 | yield_suscept / shift_suscept | 0.05 / 0.05 | 0.7 / 0.7 | GSS two-factor split (v5.2) |
 | shift_int_frac | 0.1 | 0.7 | internalized fraction of pressured flips (v5.2) |
 | intent_done_p / comm_err_p | 0.0 / 0.0 | 0.3 / 0.5 | intention-completion mint + re-fire (v5.2) |
+| sself_enc / sself_other_loss | 0.0 / 0.0 | 0.3 / 0.4 | ego-ledger encode asymmetry (v5.3) |
+| alex_flat / alex_confab | 0.0 / 0.0 | 0.7 / 0.9 | affect-channel deficit + minted feeling (v5.3) |
+| circ_jitter | 0.0 | 0.4 | daily peak/sleepFactor variance (v5.3) |
+| pain_tax / task_load_cost | 0.05 / 0.2 | 0.3 / 0.8 | anterograde now-tax + PM spend (v5.3) |
+| rosy_retro | 0.0 | 0.4 | rosy-arc positive tilt on emission (v5.3) |
+| task_load / pain_state | 0.0 / 0.0 | 1.0 / 1.0 | context fields, not traits (v5.3) |
+| birth_order | — | — | DOCUMENTED NULL — every loading locked 0.0 (v5.3) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2442,3 +2449,62 @@ dials are character-visible:
   corroborate it — only independent origin chains turn rumor into
   "fact"; (e) "I meant to" quietly becomes "I did" on the
   routine chores — rent-payment claims are now falsifiable drama.
+
+## 38. v5.3 note (individual-differences V — the lived-in mind)
+
+Clamp rows added in §0 for the v5.3 params. These are the everyday
+dials — most mains should carry at least one non-zero.
+
+- **`self_srv` (trait) → `sself_enc`/`sself_other_loss`:** the ego
+  ledger. Almost everyone is positive here (Ross & Sicoly's couples
+  ALL summed >100%); the rare underclaimer pairs high self_srv on
+  encoding with high distrust. Set high on the scorekeeper, the
+  martyr, the "I do everything around here" roommate.
+- **`alexith` (trait) → `alex_flat`/`alex_confab`:** the
+  emotionally flat character is NOT silent about feelings — they
+  answer fluently and invented-ly (`alex_confab` high). Their
+  stored records are genuinely thinner on emoTag; the confident
+  answer is confabulation, and the character believes it. Negative
+  affect also lingers (reduced fading-affect bias) — the unfelt
+  feeling never gets elaborated away. Pair negatively with
+  `emo_gran`/`checker`.
+- **`media_m` (trait):** the split-attention habit — phone-in-hand
+  characters. Filter leaks (plist_suppress/source_confuse up,
+  search broader and shallower) but storage is intact: a HMM
+  character who attends fully encodes normally. Distinct from
+  `inattn` (endogenous daydreaming) — correlate +0.3, don't merge.
+- **`early_adv` ∈[0,2] (backstory trait):** set ONLY from childhood
+  circumstances — poverty, instability, harsh caregiving. It taxes
+  wmc-side params (misinfo, source_confuse, suppression,
+  stress-retrieval) and never enc_base/storage — the Evans &
+  Schamberg finding is a lifelong *control* tax that present
+  comfort does not remove. A character can be poor-grown and
+  rich-now and still carry it.
+- **`circ_irr` ∈[0,2] (trait):** rotating-shift nurses, bakers,
+  gig workers. It is VARIANCE, not deficit — peak_hour and
+  sleepFactor jitter day-to-day while the 30-day mean is unchanged.
+  Orthogonal to chronotype: a morning-type on night shifts is both.
+- **`chron_pain` ∈[0,2] (prevalence trait) / `pain_state` ∈[0,1]
+  (world-supplied day state):** the bad-back character. Pain taxes
+  encoding attention NOW (anterograde only — no retrograde, no
+  residue when it lifts) and they KNOW it (complaint_k +0.10).
+- **`task_load` ∈[0,1] (context, not trait):** slammed-shift days.
+  Spends prospective-memory/monitoring bandwidth — intentions fail
+  while attended encoding stays intact. Lifts with the shift.
+- **`music` ∈[0,2] (bible-pinned training):** verbal-channel
+  encoding only — small, real, material-locked (Chan 1998). A
+  musician with better face memory is a bug, not a character.
+- **`rosy` (trait) → `rosy_retro`:** the rosy-view arc — positive
+  events are remembered kinder than lived, negative detail fades
+  faster. Anticipation skews positive too (three-point arc).
+  Depressives run flat/inverted — keep rosy·depr negative.
+- **`birth_order`:** write it in the bible freely (first/middle/
+  youngest is good fiction) — it moves NOTHING. Locked null, N=20k
+  (Rohrer 2015). Do not let a future "middle-child syndrome" tweak
+  sneak a loading in; P575 exists to catch exactly that.
+- **Cast shadow:** (a) every shared chore is now a latent dispute —
+  two characters' honest ledgers sum >100%; (b) the alexithymic
+  main answers "how did you feel" fluently and wrongly; (c) the
+  pain patient forgets the day, not the past; (d) the busiest
+  character drops the most intentions — PM failure is load, not
+  flakiness; (e) the null axis keeps the whole trait layer honest.

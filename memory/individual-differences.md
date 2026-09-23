@@ -1943,3 +1943,517 @@ the depletion-release mechanic for free.
   reconstructive-feedback hypothesis in Robinson & Swanson) is
   DEBATED — we let ordinary drift_p do the damage and add no
   dedicated observer-decay operator.
+
+---
+---
+
+# Part V — v55: the fifth axis of difference (the lived-in mind:
+# ego bookkeeping, flat affect, split attention, hard beginnings,
+# irregular clocks, pain, load, and the nulls that keep us honest)
+
+**Version focus:** v55 · **Date:** 2026-09-23 · **Builds on:** Parts
+I–IV, spec v5.2, profiles §37.
+
+Parts I–IV built the ability axes (g_mem, wmc), the clinical phenotypes
+(depr, ptsd, attach), the metacognitive layer (meta_conf, checker,
+complaint), and the substance states. What is left is the *texture of
+an ordinary week*: the person who always did more than their share,
+the one who can't say what they felt, the one whose attention is
+permanently three-way split, the night-shift worker whose clock never
+settles, the one living with a bad back, the one drowning in a busy
+day. Part V adds nine axes — seven traits, two states, one mandated
+null — and keeps the Part III/IV discipline: every axis carries its
+explicit-null scope so it stays falsifiable.
+
+New traits: `self_srv`, `alexith`, `media_m`, `early_adv`, `circ_irr`,
+`chron_pain`, `music`, `rosy`. New states: `task_load`, `pain_state`.
+Documented null: `birth_order`. New params: §60 loading table →
+spec §7 + §§6.85–6.88 mechanics.
+
+---
+
+## 49. `self_srv` — the ego's ledger never balances
+
+Ross & Sicoly 1979 (JPSP 37:322 — verified canonical): in married
+couples, roommates, and project teams, each member's recalled
+contribution exceeds their partner's account of them — self-and-other
+responsibility estimates sum **over 100%**; the bias is asymmetric
+recall (own acts more available), not just motivational claiming.
+Greenwald 1980's "totalitarian ego" framed the general architecture;
+Schacter's misattribution work and Dunning's self-serving recall
+reviews replicate the direction. The phenomenon is *encoding-and-
+retrieval*, not merely reporting: people encode their own acts with
+more self-reference machinery and retrieve others' contributions with
+fewer cues.
+
+Model — two params, one trait:
+- `sself_enc` (0–0.3): at encoding of shared/multi-actor events,
+  fields tagged `actor:self` get E ×(1 + sself_enc·self_srv);
+  fields `actor:other` get E ×(1 − sself_other_loss·self_srv).
+- `sself_other_loss` (0–0.4): the other-side symmetric loss — fewer
+  peripheral fields written on co-actors' contributions.
+- Emission-side: `w_self` cue-matching already favors self-tagged
+  records; no change. The asymmetry is born at the record level —
+  a joint chore later recalled as "I did most of it" because the
+  self-half is genuinely denser, not because the character lies.
+  Summing both partners' self-reports across a shared event yields
+  >100% — the Ross & Sicoly signature, emergent (P566).
+
+Loadings: `self_srv` correlates with `meta_conf` (+0.25, confident
+people keep flattering ledgers — HYPOTHESIS) and, negatively, with
+`distrust` (−0.30 — the self-doubting underclaim; R§4 additions).
+Explicit nulls: `self_srv` → any accuracy param on *solo* events = 0
+(no co-actor, no ledger); → misinfo/distortion params = 0 — the ego
+ledger is a bookkeeping asymmetry, not a suggestibility axis.
+
+## 50. `alexith` — the feeling that was never written, and the fluent
+## answer anyway
+
+Systematic review (PMC6497026, 2019 — verified): explicit memory for
+emotional material is consistently reduced in high-alexithymia
+individuals while neutral memory is intact; Vermeulen & Luminet 2009
+(PAID 47:305 — verified: overall deficit concentrated on emotion
+words); Luminet et al. 2005 (JRP 40:713 — verified: the deficit is a
+levels-of-processing one — shallow encoding of affect, not a retrieval
+block); Muir, Madill & Brown 2016 (Cognition & Emotion 31:1392 —
+verified: high alexithymia shows *reduced fading-affect bias* —
+negative affect fades slower, i.e. `neg_affect_decay` toward 1);
+Camia, Desmedt & Luminet 2020 (verified): narrative elaboration of
+negative events specifically impoverished — the memory exists but the
+*emotional telling* is thin.
+
+This is NOT the same axis as `emo_gran` (v4.0 granularity) or
+`mindful` (Part IV): granularity is reporting precision; alexithymia
+is an *encoding-channel* deficit for affect plus a confabulation
+exposure. Model:
+- `alex_flat` (0–0.7): emoTag richness / affective field-write at
+  encoding ×(1 − alex_flat·alexith); the w_emo arousal boost on E
+  reduced by the same fraction — emotional events encode closer to
+  neutral for this character.
+- `alex_confab` (0–0.9): when a probe demands affect the record
+  lacks ("how did you feel?"), the answer mints via the §6.79
+  reason-mint machinery at `alex_confab` probability — fluent,
+  confident, *confabulated* feeling. The high-alexith character does
+  not go silent; they say something plausible and believe it.
+- `neg_affect_decay` toward 1 (×(1 − 0.15·alexith)): reduced FAB —
+  the negative residue lingers precisely because it was never
+  elaborated (Muir 2016 direction).
+- Explicit nulls: `alexith` → neutral-material encoding/retrieval =
+  0; → non-affective specificity = 0 (Camia 2020's specificity null —
+  the deficit is emotional processing, not episode access).
+
+The signature (P567): a character who cannot narrate the feeling but
+confidently supplies one anyway — thinner stored affect AND fluent
+invented affect, on the same record.
+
+## 51. `media_m` — attention paid in three currencies
+
+Ophir, Nass & Wagner 2009 (PNAS 106:15583 — verified canonical):
+heavy media multitaskers are *worse* at filtering irrelevant
+representations — more susceptible to interference, worse
+task-switching — not better at juggling; Cain & Mitroff 2011
+replicated the distractor-filtering deficit; Uncapher et al. 2016
+(Psychon Bull Rev — verified): HMMs show more mind-wandering and
+worse episodic-memory task performance; the literature direction is
+attentional-filter failure, NOT storage failure (Uncapher & Wagner
+2018 review — the memory-cost pathway runs through encoding
+attention).
+
+Model (trait, attention-side only):
+- `inattn`-adjacent but distinct: `inattn` is endogenous
+  mind-wandering (Part II); `media_m` is *exogenous* split-attention
+  habit — they correlate (+0.30, HYPOTHESIS) but are not merged: a
+  character can be a deliberate single-tasker who still daydreams.
+- Loadings: `plist_suppress` ×(1 + 0.30·media_m) — the filter leaks
+  exactly where the literature says it leaks (competing
+  representations intrude); `source_confuse` ×(1 + 0.20·media_m);
+  `omit_p` +0.03·media_m on routine events (encoding attention
+  diverted); `search_breadth` +1·media_m — broader, shallower search,
+  the "exploration not exploitation" signature.
+- Explicit nulls: `media_m` → beta_* decay rates = 0; → enc_base on
+  high-salience attended events = 0 — the cost is in *what gets
+  filtered*, not in storage. A HMM character who attends fully
+  encodes normally (P568's null half).
+
+## 52. `early_adv` — the childhood that set the baseline
+
+Evans & Schamberg 2009 (PNAS 106:6545 — verified): childhood
+poverty duration predicts adult working-memory capacity, mediated by
+allostatic load — the deficit is in *control*, not storage, and
+survives income mobility. Lupien et al. 2009 (verified): maternal
+SES/care environment → hippocampal volume differences in adulthood;
+harsh-family-environment work (Evans et al. 2007) shows
+stress-physiology mediation. Early adversity also predicts adult OGM
+phenotypes through the depr/dissoc machinery (Parts III–IV) — the
+trait should feed those channels, not duplicate them.
+
+Model — a *set-the-baseline* trait, not a dynamic one:
+- `early_adv` ∈ [0,2] (one-sided: adversity shifts, advantage is
+  the reference — asymmetry matches the literature's threshold-
+  shaped findings, HYPOTHESIS on the shape).
+- Loadings: `wmc`-side params only — `misinfo_suscept`
+  ×(1 + 0.08·early_adv), `source_confuse` ×(1 + 0.12·early_adv),
+  `plist_suppress` ×(1 + 0.15·early_adv); `stress_retrieve_loss`
+  ×(1 + 0.15·early_adv); `stress` trait drawn +0.4·early_adv
+  correlated (allostatic mediation — the Evans path);
+  R: `early_adv`·`neurot` +0.30.
+- Explicit nulls: `early_adv` → `g_mem` storage params (enc_base,
+  beta_*) = 0 — the Evans finding is a WMC/control deficit, not a
+  storage deficit (P569's null half); → semantic memory = 0.
+- Bible note: this is a backstory trait — world-builder sets it from
+  childhood circumstances, never from present personality. A
+  character who "grew up with nothing" carries a measurable,
+  lifelong *filtering* tax that no amount of present comfort removes
+  — that IS the Evans finding.
+
+## 53. `circ_irr` — the clock that never settles
+
+Chronic circadian disruption (shift work, irregular schedules) is a
+real-world condition the Mission's nurses, bakers, and gig workers
+live inside. Cho 2001 (Nat Neurosci 4:567 — verified): chronic jet
+lag in airline crew → temporal-lobe volume and cognitive deficits
+(direction verified; magnitude contested — mark DEBATED size);
+shift-work reviews (Costa 2010) document sleep fragmentation as the
+dominant pathway; the mechanism is not exotic — it is our existing
+sleepFactor/iiv/synchrony machinery pushed off-schedule.
+
+Model — irregularity as *variance in the clock*, not a moved clock:
+- `circ_jitter` (0–0.4): each dailyMemoryTick draws that day's
+  effective `peak_hour += N(0, circ_jitter·6h)` and
+  `sleepFactor` draws ×exp(N(0, circ_jitter·0.15)) — the
+  never-settled signature: synchrony benefits arrive on the wrong
+  day as often as the right one.
+- `iiv_sigma` += 0.5·circ_irr·base — day-to-day performance spread
+  widens (§10 machinery, no new code).
+- Explicit null: `circ_irr` → mean-level params = 0 — the model
+  claim is *irregularity*, not deficit; a stable-schedule version
+  of the same character has the same mean. P570 tests the variance
+  claim, not a level claim.
+
+## 54. `chron_pain` / `pain_state` — the tax on now
+
+Moriarty, McGuire & Finn 2011 (Prog Neurobiol 93:385 — verified):
+chronic pain impairs attention, executive function, and memory —
+the proposed mechanism is pain's *continuous attentional demand*,
+not tissue damage; Berryman et al. 2013 meta-analysis (Pain —
+verified via PubMed 27583141): small-to-moderate deficits
+d ≈ −0.31 to −0.57 on working-memory/verbal-learning measures,
+test-dependent; analgesic side-effects a confound we do not model.
+
+Model — trait sets prevalence, state does the taxing:
+- `chron_pain` ∈ [0,2]: expected fraction of days with
+  `pain_state` > 0 (world supplies the day's pain level; base rate
+  is the trait).
+- `pain_state` ∈ [0,1] (state on encodeEvent/recall calls):
+  `E *= (1 − pain_tax·pain_state)` with `pain_tax` ≈ 0.15 at
+  state=1 on attended events, ×2 on low-salience ones (pain eats
+  the *spare* attention first — HYPOTHESIS ordering on CONSENSUS
+  direction); `omit_p` += 0.10·pain_state on routine records.
+- Explicit null (the sign-locked half, P571): `pain_state` →
+  retrieval of records encoded *before* the pain window = 0 —
+  the tax is anterograde-ish (attention at encoding), not a
+  blanket cognitive fog; retrograde effects falsify the
+  attentional-demand mechanism. Pain off → full recovery: no
+  residue. `chron_pain` → complaint_k +0.10 (they DO report it —
+  unlike Heffernan's smokers, pain patients know their days are
+  harder).
+
+## 55. `task_load` — the busy-day state the trait layer couldn't hold
+
+Marsh & Hicks 1998 (JEP:LMC 24:350 — verified): event-based
+prospective memory degrades under ongoing-task demands — the
+intention is intact, the monitoring bandwidth is spent; Einstein,
+McDaniel et al.'s program confirms divided-attention costs are
+focal-task dependent. This is the *state* half of inattn/media_m:
+even a disciplined character fails PM on a slammed shift.
+
+Model — context field, not a trait:
+- `cueContext.task_load` / `eventContext.task_load` ∈ [0,1]:
+  `pm_self` effective ×(1 − task_load_cost·task_load),
+  `task_load_cost` ≈ 0.5; `omit_p` += 0.15·task_load on
+  low-salience events during the loaded window; `enc_base` on
+  peripheral fields ×(1 − 0.20·task_load) — busy days write
+  thinner records (HYPOTHESIS magnitude).
+- Explicit nulls (P572): `task_load` → non-PM, attended-event
+  encoding = 0; → already-encoded record strength = 0 — load
+  spends monitoring, it does not erase storage. The state lifts
+  with the shift: no carryover, unlike pain's day-scale and
+  circ_irr's indefinite regime.
+
+## 56. `music` — the material-locked advantage
+
+Chan, Ho & Cheung 1998 (Nature 396:128 — verified): adults with
+childhood music training show better *verbal* memory (spoken-word
+lists, F=17.69) with NO visual-memory difference (t=1.00, n.s.);
+Ho, Cheung & Chan 2003 child arm verified the split holds
+developmentally. The finding's beauty is its *material lock* — a
+left-temporal-organizational advantage, not "musicians are
+smarter."
+
+Model — channel-scoped, sub-jitter magnitude:
+- `music` ∈ [0,2] (training years/depth, bible-pinned):
+  enc on `lang`-tagged verbal/conversation fields ×(1 + 0.04·music)
+  and retell narrative fluency +0.03·music.
+- Explicit nulls (P573's locked half): `music` → visual/spatial/
+  place fields = 0; → any non-verbal channel = 0 — a musician who
+  also remembers faces better is the bug the null catches.
+
+## 57. `rosy` — the remembering is kinder than the living
+
+Mitchell, Thompson, Peterson & Cronk 1997 (JESP 33:421 — verified,
+three studies): anticipation of a trip is MORE positive than the
+in-trip experience, and recollection is MORE positive than both —
+the "rosy view" arc; in-event negativity is driven by distraction/
+disappointment and fades within days. This is a *trait* as much as
+a phenomenon: some people run the arc on every event, others
+experience-straight.
+
+Model — rides the existing reappraisal machinery:
+- `rosy` N(0,1) → `rosy_retro` (0–0.4): on emission, positive-arc
+  events' reported emoTag shifts +(rosy_retro) toward positive —
+  implemented as a positive tilt on §6.82 `reappr_k` (reappr
+  direction biased, not just magnitude); negative-detail fields
+  drift at `drift_p ×(1 + 0.5·rosy)` — the annoyances fade
+  *faster* than the pleasures, which is the asymmetry that makes
+  the arc.
+- Anticipation side: v53's `anticip` pre-traces mint at
+  +(0.1·rosy) positive skew — the same trait predicts the rosy
+  anticipation half (Mitchell's finding is a three-point arc;
+  P574 tests all three points' ordering).
+- Explicit null: `rosy` → non-valenced fields (who/where/what) =
+  0 — it repaints feelings, it does not move facts; →
+  trauma-flagged records = 0 (trauma exemption rides §6.82's
+  existing gate).
+
+## 58. `birth_order` — the mandated null
+
+Rohrer, Egloff & Schmukle 2015 (PNAS 112:14224 — verified:
+N=20,186 across three national panels): NO birth-order effects on
+extraversion, emotional stability, agreeableness,
+conscientiousness, or imagination, powered to detect tiny effects;
+only a ~0.1 SD intelligence tilt survives. Damian & Roberts 2015
+concur. Lay psychology insists the middle child "remembers
+differently" — the data say no.
+
+Model — `birth_order` exists in IndivTraits **only as a documented
+null**: it is a bible-visible field (world-builder will want to
+write sibling order; it is good fiction) with **every loading
+fixed at 0.0** and an R-matrix of zero. P575 is a null-locked
+probe: any nonzero param correlation between birth-order draws
+FAILS validation. This is the honesty axis: the trait layer must
+be able to say "this folk axis does nothing" — a system that can
+only find effects is unfalsifiable, and unfalsifiable is
+unbelievable.
+
+## 59. Cross-version interactions (audit)
+
+- `self_srv` × `reappr_k` (§6.82): the ledger is a *record-level*
+  asymmetry (encoding); reappraisal is emission-level. A high-rosy
+  high-self_srv character remembers doing more AND it feeling
+  better — the compound is the classic "I carried us and it was
+  fine" narrator. Keep separable: P566 measures field counts,
+  P574 measures tag drift.
+- `alexith` × `checker` (Part IV): opposite poles on the affect
+  axis — the checker over-verifies feelings it has, the alexith
+  confabulates feelings it lacks. R: alexith·checker −0.20.
+- `alexith` × `distrust` +0.25: fluent confabulated affect reads
+  as certainty — alexithymics report LESS memory complaint on
+  emotional events (HYPOTHESIS extension of Jonker's complaint
+  structure).
+- `media_m` × `iiv` (Part II): both widen variance; media_m's is
+  attentional (filter leakage), iiv's is endogenous noise. R +0.25.
+- `early_adv` × `depr` (Part IV): adversity feeds depr through
+  shared neurot/stress, AND its wmc-side tax composes — the
+  double-hit phenotype is documented in the adversity-OGM
+  literature; additivity + clamp, same policy as Part IV §48.
+- `circ_irr` × `chronotype` (Part I): circ_irr jitters *which day*
+  the peak lands; chronotype sets *where* it lands. Orthogonal:
+  a morning-type baker on rotating shifts is peak-chronotype +
+  high-irregularity — both true at once.
+- `pain_state` × `depleted` (Part IV): both tax attention;
+  they stack additively at encoding (clamp E ≥ 0.05) — a depleted
+  day on a pain day is the worst-case corner.
+- `task_load` × `supp` (Part IV §38): suppression's social-field
+  tax and load's PM tax are different budgets (regulation vs
+  monitoring); a character can suppress without load and carry
+  load without suppressing — keep as independent multipliers.
+- `music` × `langs` (Part II): music boosts verbal-channel enc
+  in *any* of the character's languages — the advantage is
+  channel-level, not language-level.
+
+## 60. Extended trait vector, R additions, loading table (Part V)
+
+```json
+IndivTraits += {
+  "self_srv":  0.0,   // ego ledger asymmetry (Ross & Sicoly 1979)
+  "alexith":   0.0,   // affect-encoding deficit + confabulated feeling
+  "media_m":   0.0,   // exogenous split-attention habit (Ophir 2009)
+  "early_adv": 0.0,   // childhood adversity → wmc-side baseline tax [0,2]
+  "circ_irr":  0.0,   // chronic circadian irregularity → clock variance
+  "chron_pain":0.0,   // pain-day prevalence [0,2]; pain_state is the tax
+  "music":     0.0,   // music training → verbal-channel enc only [0,2]
+  "rosy":      0.0,   // rosy-view arc amplitude (Mitchell 1997)
+  "birth_order": 0    // DOCUMENTED NULL — every loading fixed 0.0 (§58)
+}
+State fields += {
+  "task_load":  0.0,  // context [0,1] — PM/monitoring bandwidth spent
+  "pain_state": 0.0   // context [0,1] — today's attentional pain tax
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+self_srv·meta_conf  +0.25    (confident ledgers stay flattering)
+self_srv·distrust   −0.30    (self-doubt underclaims)
+alexith·distrust    +0.25    (flat affect, fluent certainty)
+alexith·checker     −0.20    (opposite poles on affect verification)
+alexith·emo_gran    −0.35    (granularity is the report-side sibling)
+media_m·inattn      +0.30    (exogenous/endogenous split-attention cousins)
+media_m·iiv         +0.25
+early_adv·neurot    +0.30    (allostatic mediation — CONSENSUS dir.)
+early_adv·stress    +0.40    (Evans 2009 pathway — CONSENSUS dir.)
+early_adv·wmc       −0.35    (the trait's own loading IS the wmc tax)
+circ_irr·stress     +0.20
+circ_irr·sleep      −0.35    (irregular clocks are bad sleepers)
+chron_pain·sleep    −0.30
+chron_pain·stress   +0.25
+music·gc            +0.20    (musicians skew educated — sampling corr.)
+rosy·extra          +0.25    (positive-outlook overlap — DEBATED)
+rosy·depr           −0.30    (depressives run the arc flat/inverted)
+birth_order·*       0.0      (mandated — see §58)
+```
+
+### Loading table additions (rows beyond §43)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| self_srv | sself_enc (new) | +0.15/σ | CONSENSUS dir. (Ross & Sicoly 1979) |
+| self_srv | sself_other_loss (new) | +0.20/σ | CONSENSUS dir. |
+| alexith | alex_flat (new) | +0.30/σ·(trait∈[0,2]) | CONSENSUS (Vermeulen & Luminet 2009; review 2019) |
+| alexith | alex_confab (new) | +0.30/σ·[0,2] | CONSENSUS dir. (Luminet 2005 — the answer still comes) |
+| alexith | neg_affect_decay | ×(1 − 0.15·alexith) | CONSENSUS dir. (Muir 2016 FAB reduction) |
+| media_m | plist_suppress | ×(1 + 0.30·m) | CONSENSUS (Ophir 2009) |
+| media_m | source_confuse | ×(1 + 0.20·m) | CONSENSUS dir. |
+| media_m | omit_p | +0.03·m | CONSENSUS dir. (Uncapher 2016) |
+| media_m | search_breadth | +1·m | HYPOTHESIS |
+| early_adv | misinfo_suscept | ×(1 + 0.08·a) | CONSENSUS dir. (Evans 2009 wmc path) |
+| early_adv | source_confuse | ×(1 + 0.12·a) | CONSENSUS dir. |
+| early_adv | plist_suppress | ×(1 + 0.15·a) | CONSENSUS dir. |
+| early_adv | stress_retrieve_loss | ×(1 + 0.15·a) | CONSENSUS dir. |
+| circ_irr | circ_jitter (new) | +0.2·c | CONSENSUS mechanism / DEBATED size (Cho 2001) |
+| circ_irr | iiv_sigma | +0.5·c·base | CONSENSUS dir. |
+| chron_pain | pain-day prevalence | = chron_pain/2 | CONSENSUS (Berryman 2013 magnitudes) |
+| (state) pain_state | E (attended) | ×(1 − pain_tax·p), tax 0.15 | CONSENSUS dir. (Moriarty 2011) |
+| (state) pain_state | E (low-salience) | ×(1 − 2·pain_tax·p) | HYPOTHESIS ordering |
+| (state) pain_state | omit_p | +0.10·p | CONSENSUS dir. |
+| (state) task_load | pm_self eff | ×(1 − task_load_cost·l), cost 0.5 | CONSENSUS (Marsh & Hicks 1998) |
+| (state) task_load | omit_p | +0.15·l | CONSENSUS dir. |
+| (state) task_load | enc peripheral | ×(1 − 0.20·l) | HYPOTHESIS |
+| music | E on lang/verbal fields | ×(1 + 0.04·m) | CONSENSUS (Chan, Ho & Cheung 1998) |
+| music | retell narrative fluency | +0.03·m | DEBATED extension |
+| rosy | rosy_retro (new) | +0.2·r | CONSENSUS (Mitchell 1997 arc) |
+| rosy | drift_p on negative fields | ×(1 + 0.5·r) | CONSENSUS dir. (arc asymmetry) |
+| rosy | anticip trace skew | +0.1·r | CONSENSUS dir. (anticipation arm) |
+| birth_order | ALL | **0.0 — locked** | CONSENSUS NULL (Rohrer 2015) |
+
+**New explicit nulls** (Part V's falsifiable edge):
+- `self_srv` → solo-event params, distortion params = 0 (P566).
+- `alexith` → neutral material, non-affective specificity = 0 (P567).
+- `media_m` → decay rates, attended-event enc_base = 0 (P568).
+- `early_adv` → enc_base/beta_*/semantic = 0 (P569).
+- `circ_irr` → mean-level params = 0 — variance claim only (P570).
+- `pain_state` → pre-pain-window retrieval = 0; post-pain residue =
+  0 (P571).
+- `task_load` → non-PM attended encoding, stored strength = 0 (P572).
+- `music` → non-verbal channels = 0 (P573 — Chan's visual null).
+- `rosy` → non-valenced fields, trauma records = 0 (P574).
+- `birth_order` → everything = 0 (P575 — the honesty lock).
+
+## 61. Falsifiable probes (P566–P577; validation-design §97)
+
+- **P566 ego ledger (MUST — sign-locked):** two characters co-do a
+  chore event; self_srv=+1.5 vs −1.5 both recall own-contribution
+  fields denser, but the +1.5's other-actor fields are thinner;
+  summing the two reports' responsibility shares exceeds 100%
+  (Ross & Sicoly signature); solo-event recall identical across
+  traits (null half).
+- **P567 flat-and-fluent (MUST — both signs):** alexith=+1.5 records
+  carry ~30% thinner emoTag detail on emotional events AND answer
+  "how did you feel" probes with fluent confabulated affect at
+  near-normal confidence; neutral-event records within jitter; a
+  *silent* alexith (no confabulated answer) or a globally-vague one
+  both fail.
+- **P568 filter leak, storage intact (MUST — sign-locked):**
+  media_m=+1.5 shows elevated plist-suppression leakage and
+  source_confuse under competing-representation paradigms while
+  hit-rate on single-channel attended material and beta_* decay
+  curves match baseline within jitter — a general memory deficit
+  fails the probe (Ophir's effect is filtering).
+- **P569 adversity targets control (MUST — sign-locked):**
+  early_adv=1.5 shifts wmc-side params (misinfo, source_confuse,
+  plist_suppress, stress_retrieve_loss) while enc_base/beta_* on
+  neutral material stay within jitter — a storage deficit fails
+  (Evans 2009's pathway is control).
+- **P570 variance not level (MUST — null-locked):** circ_irr=+1.5 vs
+  0 at matched mean sleep/chronotype: day-level peak_hour and
+  sleepFactor dispersion ~1.5× wider, but 30-day mean retrieval
+  performance within jitter — a mean deficit fails.
+- **P571 pain is a now-tax (MUST — sign-locked):** pain_state=0.6
+  during encoding → attended-E reduced ~pain_tax and routine
+  omit_p up; recall of records encoded pre-pain at baseline;
+  pain_state→0 next day → full recovery with no residual decay
+  delta — any retrograde or residual effect fails.
+- **P572 load spends monitoring (MUST):** identical pm_self profile
+  under task_load 0 vs 0.8 → intention-execution miss rate rises
+  ~task_load_cost; non-PM attended encoding and stored strengths
+  identical; lifting the load restores baseline same-window.
+- **P573 musician lock (MUST — sign-locked):** music=+2 shows
+  verbal-channel enc advantage on spoken-word records with
+  visual/spatial records within jitter (Chan 1998's own null is
+  the bound).
+- **P574 rosy arc ordering (SHOULD — sign-locked):** same event,
+  rosy=+1.5: anticip trace valence > in-event emoTag valence <
+  7-day-later recalled valence (the three-point ordering);
+  negative-field drift faster than positive-field; fact fields
+  unchanged (Mitchell 1997).
+- **P575 birth-order honesty lock (MUST — null-locked):** 200
+  character draws, birth_order ∈ {1st..4th} randomized vs pinned:
+  all MemoryParams pairwise-correlated with birth_order at |r|<0.05
+  — ANY systematic loading fails. The probe exists so a future
+  "middle-child" tweak lands as a *decision*, not a drift.
+- **P576 alexithymia FAB (SHOULD):** alexith=+1.5 shows reduced
+  fading-affect bias — negative emoTag strength at +30d closer to
+  birth value than alexith=−1.5 (Muir 2016).
+- **P577 compound ledger (SHOULD):** self_srv=+1.5 × rosy=+1.5
+  character retells a shared chore as both own-heavier AND
+  warmer — the two operators compose without interaction term
+  (additivity audit; a super-additive compound flags a bug).
+
+## 62. Part V honest limits
+
+- `self_srv`'s two-param split (self-boost + other-loss) is our
+  decomposition; Ross & Sicoly established the net asymmetry, not
+  the encoding-vs-retrieval apportioning — we put it at encoding
+  because their own-availability account fits, but a
+  retrieval-weighted implementation would also match the data.
+- `alexith` extrapolates word-list and review-level findings to
+  autobiographical records; the Camia 2020 specificity *null* is
+  small-N qualitative — our "specificity spared" null rests on it
+  and is the least-certain lock in Part V.
+- `early_adv`'s one-sided [0,2] shape is hypothesis; the
+  literature shows threshold-ish adversity effects but no clean
+  dose curve.
+- `circ_irr`'s jitter form is mechanism-consistent (Cho's size
+  estimates are contested; we claim variance, not damage).
+- `task_load`/`pain_state` are single-scalar states; real load and
+  pain fluctuate within a day — the 0–1 grain is an implementer's
+  compromise, not a literature quantity.
+- `rosy` treats a group-level arc as a stable trait; Mitchell's
+  studies measure the phenomenon, individual-difference stability
+  is assumed (weakest transfer in Part V — bound by rosy_retro ≤0.4).
+- `music`'s effect sizes are small-N (Chan n≈60); the material
+  lock is solid, the 0.04 magnitude is calibration judgment.
+- The birth-order null is the strongest finding in the part —
+  three national panels, null across five traits — and it is the
+  only axis where "do nothing" IS the model.
