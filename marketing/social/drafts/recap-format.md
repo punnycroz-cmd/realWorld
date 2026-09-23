@@ -36,7 +36,7 @@ Honesty rule: only real events. A quiet week is a quiet week — say so.
 > This Week on the Block — Sept 22–28:
 >
 > Somebody paid for a thunderstorm over Dolores Park on Thursday and the
-> drum circle moved under the awning at the café. Marcus knew about it
+> drum circle moved under the awning at Mudhaus. Marcus knew about it
 > before the clouds did — couriers always do.
 >
 > 37 requests filed this week. 31 ran. 6 expired in queue and refunded —

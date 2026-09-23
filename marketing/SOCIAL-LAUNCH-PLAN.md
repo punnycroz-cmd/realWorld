@@ -1,6 +1,7 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v4 — launch-ready drafts, 2026-09-22. LOCAL ONLY.** Nothing in this
+**Status: v19 — launch-ready drafts + reply bank + capture plan, 2026-09-23.
+LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
 runbook they flip it with. All copy verified against the locked design doc
@@ -9,9 +10,10 @@ runbook they flip it with. All copy verified against the locked design doc
 
 Companion files:
 - `social/drafts/` — the post bank (copy-paste ready, placeholders marked)
+- `social/capture-plan.md` — which live moments to clip and how (v19)
 - `STORE-COPY.md` — canonical taglines and descriptions (do not fork wording)
 - `PRESS-OUTREACH.md` — press runs parallel to social; same embargo rules
-- `BRAND voice` — see §8 (no separate BRAND.md yet; voice defined here)
+- `BRAND.md` — canonical voice/palette; §8 here is the social-specific subset
 
 ---
 
@@ -81,6 +83,8 @@ its channel, timing slot, required asset, and character-count check.
 | `recap-format.md` | "This Week on the Block" template — the weekly retention post, filled from the public feed (site long-form version: `templates/weekly-recap.md` on `journal.html`) | 1 template + 1 example |
 | `pricing-post.md` | The honesty post: "what a dollar buys" — turns the credit model into a trust signal | 1 |
 | `seeded-questions.md` | 10 discussion starters for Discord/Reddit after launch | 10 |
+| `reply-bank.md` | Pre-approved answers to the 15 predictable comment types (v19) | 15 |
+| `profile-copy.md` | Per-platform bios, pinned posts, video descriptions, tag sets (v19) | 5 platforms |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
 author of "Mission Unfiltered") is *load-bearing season-one material*. Cards
@@ -127,7 +131,8 @@ Sustainable rhythm, fed by the product itself.
   `recap-format.md`). This is the highest-leverage recurring post.
 - **Cast spotlights:** remaining 5 mains drip over weeks 1–2.
 - **Devlog clips:** remaining 3 drip over weeks 1–3; then clip whatever the
-  feed produces (player-requested events are content).
+  feed produces — the live-capture pipeline and the clip-worthy moment
+  taxonomy are specced in `social/capture-plan.md`.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
@@ -179,10 +184,10 @@ Pre-send checklist (every post):
 - [ ] Claims match the design doc: free watch tier, request model,
       possession rules (only your own hired character), 8 mains
       unpossessable by anyone.
-- [ ] No real SF business names — canonical parody names only (Mudhaus
-      Coffee, El Farolote, Flying Pannier, Auerbach Hardware — source:
-      world track `world/characters/_index.md`; `world/businesses.md`
-      becomes the authority when published). Street/landmark names fine.
+- [ ] No real SF business names — canonical parody names only (source of
+      truth: world track `world/parody-names.json`, generated from
+      `world/businesses.md`; e.g. Mudhaus Coffee, Taqueria El Farolote,
+      Buy-Rite Market, The 600 Club). Street/landmark names fine.
 - [ ] No fake testimonials, invented quotes, or fabricated player behavior.
 - [ ] No "coming soon" on cut features (voice/TTS v1, ambient-NPC
       possession/economies, cash-out, loot boxes).
@@ -216,8 +221,12 @@ MARKETINGLOG.md (template pending ANALYTICS.md, focus v9).
   the possession ban protects the mains' storylines, not feelings. Honest
   beats cute.
 - **Empty-feed risk at launch:** covered in §7 — an empty feed is content.
-- **Parody-name dependency:** RESOLVED for the cast-spotlight set —
-  `cast-spotlights.md` now uses canonical names (Mudhaus Coffee, El
-  Farolote, Flying Pannier, Auerbach Hardware). Residual: other drafts
-  still use generic descriptors where a venue isn't load-bearing; sweep
-  again when `world/businesses.md` publishes the full list.
+- **Parody-name dependency:** RESOLVED (v19). The world track published
+  `world/parody-names.json` (89 canonical mappings, generated from
+  `world/businesses.md`); drafts were swept — the last generic descriptors
+  in `recap-format.md` and `devlog-clips.md` now use canonical names, and
+  new copy must too. If world adds mappings, mirror them into future copy;
+  no re-sweep needed for existing drafts (they only name load-bearing venues).
+- **Replies are now pre-approved too:** `reply-bank.md` covers the 15
+  predictable comment types; anything outside it still needs the §8
+  checklist and (inside the first-20 gate) owner review.

@@ -59,7 +59,7 @@ end card "Watch free — {{URL}}".
 ### Clip 6 — "The blog" (post-launch, week 2)
 
 - Card: "Everyone on this block reads the same neighborhood blog."
-- Footage: café-adjacent shot; second card: "Nobody knows who writes it."
+- Footage: Mudhaus-adjacent shot; second card: "Nobody knows who writes it."
 - Text: "A flyer says two buildings are quietly for sale. The draft post
   that names them is sitting in someone's notebook."
 - End card. (Tease only — never confirm authorship.)
