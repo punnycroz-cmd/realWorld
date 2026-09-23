@@ -29993,6 +29993,621 @@ function sfLiveTick(dtH){
 registerSimTick(sfLiveTick);
 if(SF_MODE) sfSyncClock();
 
+/* =====================================================================
+   PART 41A: GAME SYSTEMS — ADDRESS / BUILDING / UNIT / LEASE REGISTRY
+   Implements rw-address-system-spec.md for "The Mission" scenario.
+
+   - Real street names, system-generated 9xxx house numbers placed above
+     every real block maximum (spec §3): gen = 9000 + hash(street|idx) % 900.
+   - Address encodes PLACE only: buildings/units are immutable across tenant
+     turnover; tenants/dates/rents live in `leases` (spec §4/§5).
+   - The landlord AI may MINT new addresses only through gsMintAddress
+     (clerk role, spec §6): generate-don't-invent, register before telling
+     anyone, never reuse a retired number, log the event.
+   - In-memory + JSON-loadable (gsRegSnapshot/gsRegLoad). Deterministic:
+     no Math.random anywhere in this module.
+
+   This module is world-model only — it never touches the renderer. It is
+   active data in BOTH scenarios (the registry exists even when SF_MODE is
+   off; only the SF_MAP auto-seed is gated).
+   ===================================================================== */
+
+const GS_REG = {
+  buildings: [],   // {id, address, street, hn, style, units:[unitId], owner_id, bld_idx, status}
+  units: [],       // {id, bld_id, unit_code, bedrooms, base_rent, rent_controlled}
+  leases: [],      // {unit_id, tenant_id, start, monthly_rent, occupants, status, end}
+  mintLog: [],     // {stamp, reason, address, bld_id}
+  retired: [],     // bld ids whose numbers are permanently withdrawn
+  seq: { bld: 0, unit: 0 },
+};
+/* derived indexes — rebuilt by gsRegIndex(), never serialized */
+const GS_REG_BLD = new Map();    // id -> building
+const GS_REG_UNIT = new Map();   // id -> unit
+const GS_REG_USED = new Map();   // street -> Set(used house numbers)
+
+function gsStamp(){
+  return (typeof W !== 'undefined') ? { day: W.day, tod: +W.tod.toFixed(2) } : null;
+}
+
+/* spec §3: deterministic number above any real block maximum */
+function gsAddrNumber(street, idx){
+  return 9000 + (hashString18(street + '|' + idx) % 900);
+}
+
+/* spec §2 address format: "9431 Guerrero Street, San Francisco, CA[ Unit 3B]" */
+function gsFmtAddr(hn, street, unitCode){
+  let a = hn + ' ' + street + ', San Francisco, CA';
+  if(unitCode) a += ' Unit ' + unitCode;
+  return a;
+}
+
+function gsRegIndex(){
+  GS_REG_BLD.clear(); GS_REG_UNIT.clear(); GS_REG_USED.clear();
+  for(const b of GS_REG.buildings){
+    GS_REG_BLD.set(b.id, b);
+    if(!GS_REG_USED.has(b.street)) GS_REG_USED.set(b.street, new Set());
+    GS_REG_USED.get(b.street).add(b.hn);
+  }
+  for(const u of GS_REG.units) GS_REG_UNIT.set(u.id, u);
+}
+
+function gsRegistryReset(){
+  GS_REG.buildings.length = 0; GS_REG.units.length = 0;
+  GS_REG.leases.length = 0; GS_REG.mintLog.length = 0;
+  GS_REG.retired.length = 0; GS_REG.seq.bld = 0; GS_REG.seq.unit = 0;
+  gsRegIndex();
+}
+
+/* Register a building on a street. The generated number is deterministic
+   given registration order; collisions on the same street bump the index
+   until a free number is found (spec §3 collision rule). Returns the
+   building record. */
+function gsRegisterBuilding(spec){
+  const street = spec.street;
+  if(!street) return null;
+  const used = GS_REG_USED.get(street) || new Set();
+  let idx = GS_REG.buildings.filter(b => b.street === street).length;
+  let hn = gsAddrNumber(street, idx);
+  while(used.has(hn)){ idx++; hn = gsAddrNumber(street, idx); }
+  const b = {
+    id: 'bld-' + (++GS_REG.seq.bld),
+    hn,
+    street,
+    address: gsFmtAddr(hn, street),
+    style: spec.style || 'residential',
+    units: [],
+    owner_id: spec.owner_id || 'landlord',
+    bld_idx: (spec.bldIdx != null ? spec.bldIdx : null),
+    status: 'standing',
+  };
+  GS_REG.buildings.push(b);
+  GS_REG_BLD.set(b.id, b);
+  if(!GS_REG_USED.has(street)) GS_REG_USED.set(street, used);
+  used.add(hn);
+  return b;
+}
+
+function gsRegisterUnit(bldId, spec){
+  const b = GS_REG_BLD.get(bldId);
+  if(!b) return null;
+  const code = spec && spec.unit_code != null ? String(spec.unit_code) : null;
+  const u = {
+    id: bldId + '-' + (code || ('u' + (++GS_REG.seq.unit))),
+    bld_id: bldId,
+    unit_code: code,
+    bedrooms: spec && spec.bedrooms != null ? spec.bedrooms : 1,
+    base_rent: spec && spec.base_rent != null ? spec.base_rent : 2000,
+    rent_controlled: !!(spec && spec.rent_controlled),
+  };
+  GS_REG.units.push(u);
+  GS_REG_UNIT.set(u.id, u);
+  b.units.push(u.id);
+  return u;
+}
+
+/* Full display address for a unit: building address + " Unit X" if coded */
+function gsAddressOfUnit(unitId){
+  const u = GS_REG_UNIT.get(unitId);
+  if(!u) return null;
+  const b = GS_REG_BLD.get(u.bld_id);
+  return b ? gsFmtAddr(b.hn, b.street, u.unit_code) : null;
+}
+
+function gsBldById(id){ return GS_REG_BLD.get(id) || null; }
+function gsUnitById(id){ return GS_REG_UNIT.get(id) || null; }
+function gsUnitsOf(bldId){
+  const b = GS_REG_BLD.get(bldId);
+  return b ? b.units.map(id => GS_REG_UNIT.get(id)) : [];
+}
+function gsFindBuildingByAddr(addr){
+  return GS_REG.buildings.find(b => b.address === addr) || null;
+}
+
+/* ---- leases (spec §4: tenant names/dates/rents live HERE, never in the
+   address). Signing a new lease on a unit honestly ends the prior one. ---- */
+function gsActiveLease(unitId){
+  return GS_REG.leases.find(l => l.unit_id === unitId &&
+    (l.status === 'active' || l.status === 'owner-occupied')) || null;
+}
+function gsLeasesFor(tenantId){
+  return GS_REG.leases.filter(l => l.tenant_id === tenantId);
+}
+function gsSignLease(unitId, tenantId, spec){
+  const u = GS_REG_UNIT.get(unitId);
+  if(!u) return null;
+  const prior = gsActiveLease(unitId);
+  if(prior){ prior.status = 'ended'; prior.end = (spec && spec.start) || null; }
+  const l = {
+    unit_id: unitId,
+    tenant_id: tenantId,
+    start: (spec && spec.start) || null,
+    monthly_rent: (spec && spec.monthly_rent != null ? spec.monthly_rent : u.base_rent),
+    occupants: (spec && spec.occupants) || [tenantId],
+    status: (spec && spec.status) || 'active',
+    end: null,
+  };
+  GS_REG.leases.push(l);
+  return l;
+}
+function gsEndLease(unitId, endStamp){
+  const l = gsActiveLease(unitId);
+  if(!l) return false;
+  l.status = 'ended'; l.end = endStamp || null;
+  return true;
+}
+/* admin-only eviction path — distinct status so reputation (v11) can tell
+   a contested eviction from a clean move-out */
+function gsEvictLease(unitId, endStamp, reason){
+  const l = gsActiveLease(unitId);
+  if(!l) return false;
+  l.status = 'evicted'; l.end = endStamp || null; l.reason = reason || 'eviction';
+  return true;
+}
+
+/* spec §6 — landlord-as-clerk minting. The ONLY legal way to create an
+   address at runtime: generate per §3, register before anyone is told,
+   never reuse retired numbers, log the event for the world timeline. */
+function gsMintAddress(street, reason, opts){
+  const b = gsRegisterBuilding(Object.assign({ street }, opts || {}));
+  if(!b) return null;
+  GS_REG.mintLog.push({ stamp: gsStamp(), reason: reason || 'minted',
+                        address: b.address, bld_id: b.id });
+  return b;
+}
+/* Retire a building (demolition/merge): the number is never reused because
+   GS_REG_USED keeps it forever. */
+function gsRetireBuilding(bldId, reason){
+  const b = GS_REG_BLD.get(bldId);
+  if(!b || b.status === 'retired') return false;
+  b.status = 'retired';
+  GS_REG.retired.push(bldId);
+  GS_REG.mintLog.push({ stamp: gsStamp(), reason: 'retired: ' + (reason || ''),
+                        address: b.address, bld_id: bldId });
+  return true;
+}
+
+/* ---- JSON persistence ---- */
+function gsRegSnapshot(){
+  return JSON.stringify({
+    buildings: GS_REG.buildings, units: GS_REG.units, leases: GS_REG.leases,
+    mintLog: GS_REG.mintLog, retired: GS_REG.retired, seq: GS_REG.seq,
+  });
+}
+function gsRegLoad(json){
+  try{
+    const d = JSON.parse(json);
+    if(!d || !Array.isArray(d.buildings) || !Array.isArray(d.units) ||
+       !Array.isArray(d.leases)) return false;
+    GS_REG.buildings = d.buildings; GS_REG.units = d.units;
+    GS_REG.leases = d.leases;
+    GS_REG.mintLog = d.mintLog || []; GS_REG.retired = d.retired || [];
+    GS_REG.seq = d.seq || { bld: GS_REG.buildings.length, unit: GS_REG.units.length };
+    gsRegIndex();
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ---- SF seed: mint registry addresses for every residential building in
+   SF_MAP plus the cast's canonical homes (cast-bible-2026-09-22). Runs at
+   load under SF_MODE; also callable from tests after gsRegistryReset(). ---- */
+const GS_RES_KINDS = { apartments: 1, residential: 1, house: 1,
+                       detached: 1, semidetached_house: 1 };
+
+function gsSeedSF(){
+  if(typeof SF_MAP === 'undefined' || !SF_MAP || !SF_MAP.buildings) return 0;
+  const doneIdx = new Set(GS_REG.buildings.map(b => b.bld_idx));
+  let n = 0;
+  // generic residential stock
+  SF_MAP.buildings.forEach((b, i) => {
+    if(!b.st || !GS_RES_KINDS[b.kind] || doneIdx.has(i)) return;
+    const rb = gsRegisterBuilding({
+      street: b.st, bldIdx: i, owner_id: 'landlord',
+      style: b.kind === 'apartments' ? 'apartment building' : 'residential',
+    });
+    if(!rb) return;
+    doneIdx.add(i); n++;
+    if(b.kind === 'apartments'){
+      for(const code of ['A', 'B', 'C', 'D'])
+        gsRegisterUnit(rb.id, { unit_code: code, bedrooms: 1 + (hashString18(rb.id + code) % 3),
+          base_rent: 2200 + (hashString18(rb.id + code) % 1600),
+          rent_controlled: (hashString18(rb.id + code) % 10) < 7 });
+    } else {
+      gsRegisterUnit(rb.id, { bedrooms: 2 + (hashString18(rb.id) % 3),
+        base_rent: 2400 + (hashString18(rb.id) % 1800),
+        rent_controlled: (hashString18(rb.id) % 10) < 7 });
+    }
+  });
+  // cast homes — canonical per the cast bible (Victor = C7 owns both
+  // Guerrero buildings; Jules is deliberately NOT on the 744 lease)
+  const al = SF_MAP.anchors || {};
+  const seedCastHome = (anchorKey, street, style, units) => {
+    const a = al[anchorKey];
+    const bldIdx = a ? a.bld : null;
+    if(bldIdx != null && doneIdx.has(bldIdx))
+      return GS_REG.buildings.find(x => x.bld_idx === bldIdx);
+    const rb = gsRegisterBuilding({ street, bldIdx, owner_id: 'C7', style });
+    if(bldIdx != null) doneIdx.add(bldIdx);
+    if(rb) for(const u of units) gsRegisterUnit(rb.id, u.spec);
+    return rb;
+  };
+  const pickResOn = (street, seed) => {
+    const cand = GS_REG.buildings.filter(b => b.street === street &&
+      GS_RES_KINDS[(SF_MAP.buildings[b.bld_idx] || {}).kind]);
+    return cand.length ? cand[hashString18(seed) % cand.length] : null;
+  };
+  const leaseOn = (bld, unitCode, tenantId, spec) => {
+    if(!bld) return;
+    const u = gsUnitsOf(bld.id).find(x => x.unit_code === unitCode) || gsUnitsOf(bld.id)[0];
+    if(u) gsSignLease(u.id, tenantId, spec);
+  };
+
+  const b744 = seedCastHome('g744', 'Guerrero Street', 'Victorian', [
+    { spec: { unit_code: 'A', bedrooms: 2, base_rent: 1400, rent_controlled: true } },
+    { spec: { unit_code: 'B', bedrooms: 2, base_rent: 2400, rent_controlled: true } },
+  ]);
+  leaseOn(b744, 'A', 'C6', { start: '1989-03-15', monthly_rent: 1400, occupants: ['C6'] });
+
+  const b750 = seedCastHome('g750', 'Guerrero Street', 'Victorian', [
+    { spec: { unit_code: 'A', bedrooms: 1, base_rent: 1800, rent_controlled: true } },
+    { spec: { unit_code: 'B', bedrooms: 2, base_rent: 2600, rent_controlled: true } },
+  ]);
+  leaseOn(b750, 'B', 'C4', { start: '2022-06-01', monthly_rent: 2600, occupants: ['C4', 'C5'] });
+
+  const bAuer = seedCastHome('auerbach', 'Mission Street', 'mixed-use', [
+    { spec: { unit_code: 'A', bedrooms: 1, base_rent: 0, rent_controlled: false } },
+  ]);
+  leaseOn(bAuer, 'A', 'C7', { start: '1998-01-01', monthly_rent: 0,
+                              occupants: ['C7'], status: 'owner-occupied' });
+
+  leaseOn(pickResOn('Capp Street', 'C1'), 'A', 'C1',
+          { start: '2019-09-01', monthly_rent: 1850, occupants: ['C1'] });
+  leaseOn(pickResOn('24th Street', 'C3'), 'A', 'C3',
+          { start: '2023-02-01', monthly_rent: 1100, occupants: ['C3'] });
+  leaseOn(pickResOn('Mission Street', 'C8'), 'A', 'C8',
+          { start: '2018-05-01', monthly_rent: 2100, occupants: ['C8'] });
+  return n;
+}
+
+if(typeof SF_MODE !== 'undefined' && SF_MODE) gsSeedSF();
+
+/* =====================================================================
+   PART 41B: GAME SYSTEMS — TWO-CURRENCY LEDGER
+   rw-game-design-2026-09-22 §6: two currencies that NEVER mix.
+
+   - credits  (meta): player agency. Bought with real money / earned via
+     ads. Accounts keyed by player id ('p:*' convention, not enforced).
+   - dollars  (in-world): rent, wages, groceries. Accounts keyed by entity
+     id — cast id ('C6'), hired-character id, business id ('landlord',
+     'haus-coffee').
+
+   Rules:
+   - Append-only transaction log GS_LEDGER.txns; balances are derived views.
+   - Dollars are conserved: moves go account->account except explicit
+     'mint'/'burn' admin faucets (marked in the log; admin-only).
+   - Credits are likewise conserved; refunds are explicit txns.
+   - No fractional units — integers only. Deterministic, no Math.random.
+   ===================================================================== */
+
+const GS_LEDGER = {
+  credits: {},   // playerId -> int balance
+  dollars: {},   // entityId -> int balance
+  txns: [],      // {n, cur, from, to, amt, reason, stamp}
+  seq: 0,
+};
+const GS_LOW_CREDIT = 50;  // low-balance warning threshold (design §5.4)
+
+function gsLedgerReset(){
+  GS_LEDGER.credits = {}; GS_LEDGER.dollars = {};
+  GS_LEDGER.txns.length = 0; GS_LEDGER.seq = 0;
+}
+
+function gsBalance(cur, id){
+  const T = (cur === 'credits') ? GS_LEDGER.credits : GS_LEDGER.dollars;
+  return T[id] || 0;
+}
+function gsCreditBalance(pid){ return gsBalance('credits', pid); }
+function gsDollarBalance(id){ return gsBalance('dollars', id); }
+function gsLowCredit(pid){ return gsCreditBalance(pid) < GS_LOW_CREDIT; }
+
+/* internal: append a txn and update balances. from/to may be 'mint'/'burn'. */
+function gsPostTxn(cur, from, to, amt, reason){
+  amt = Math.floor(amt);
+  if(!(amt > 0) || !to) return null;
+  const T = (cur === 'credits') ? GS_LEDGER.credits : GS_LEDGER.dollars;
+  if(from !== 'mint'){
+    if((T[from] || 0) < amt) return null;      // insufficient: atomic no-op
+    T[from] -= amt;
+  }
+  if(to !== 'burn') T[to] = (T[to] || 0) + amt;
+  const txn = { n: ++GS_LEDGER.seq, cur, from, to, amt,
+                reason: reason || '', stamp: gsStamp() };
+  GS_LEDGER.txns.push(txn);
+  return txn;
+}
+
+/* ---- credits (player agency) ---- */
+function gsCreditGrant(pid, amt, reason){   // purchase / ad reward / admin top-up
+  return gsPostTxn('credits', 'mint', pid, amt, reason || 'grant');
+}
+function gsCreditSpend(pid, amt, reason){   // returns txn or null (insufficient)
+  return gsPostTxn('credits', pid, 'burn', amt, reason || 'spend');
+}
+function gsCreditRefund(pid, amt, reason){
+  return gsPostTxn('credits', 'mint', pid, amt, reason || 'refund');
+}
+
+/* ---- game dollars (rent / wages / in-world) ---- */
+function gsDollarGrant(id, amt, reason){    // admin faucet — wages enter via employers
+  return gsPostTxn('dollars', 'mint', id, amt, reason || 'grant');
+}
+function gsDollarPay(from, to, amt, reason){
+  return gsPostTxn('dollars', from, to, amt, reason || 'payment');
+}
+
+/* rent collection through the registry: active lease -> tenant pays the
+   building's owner_id in dollars. Admin tooling calls this. */
+function gsCollectRent(unitId, opts){
+  const l = (typeof gsActiveLease === 'function') ? gsActiveLease(unitId) : null;
+  if(!l || l.status !== 'active' || !(l.monthly_rent > 0))
+    return { ok: false, reason: 'no_active_lease' };
+  const u = (typeof gsUnitById === 'function') ? gsUnitById(unitId) : null;
+  const b = u && (typeof gsBldById === 'function' ? gsBldById(u.bld_id) : null);
+  const owner = (b && b.owner_id) || 'landlord';
+  const txn = gsDollarPay(l.tenant_id, owner, l.monthly_rent,
+                          'rent ' + (opts && opts.period || ''));
+  if(!txn) return { ok: false, reason: 'insufficient_dollars',
+                    tenant: l.tenant_id, due: l.monthly_rent };
+  return { ok: true, txn, tenant: l.tenant_id, owner, amt: l.monthly_rent };
+}
+
+/* conservation probes for tests/audit */
+function gsLedgerTotal(cur){
+  const T = (cur === 'credits') ? GS_LEDGER.credits : GS_LEDGER.dollars;
+  let s = 0; for(const k in T) s += T[k];
+  return s;
+}
+function gsLedgerSnapshot(){
+  return JSON.stringify({ credits: GS_LEDGER.credits, dollars: GS_LEDGER.dollars,
+                          txns: GS_LEDGER.txns, seq: GS_LEDGER.seq });
+}
+function gsLedgerLoad(json){
+  try{
+    const d = JSON.parse(json);
+    if(!d || !d.credits || !d.dollars || !Array.isArray(d.txns)) return false;
+    GS_LEDGER.credits = d.credits; GS_LEDGER.dollars = d.dollars;
+    GS_LEDGER.txns = d.txns; GS_LEDGER.seq = d.seq || d.txns.length;
+    return true;
+  }catch(e){ return false; }
+}
+
+/* =====================================================================
+   PART 41C: GAME SYSTEMS — REQUEST BUS (player agency)
+   rw-game-design-2026-09-22 §5: to act inside the world a player files a
+   REQUEST declaring action + duration upfront. The bus classifies
+   conflicts (exclusive / compatible / queued), charges credits scaled by
+   duration paid upfront (hard cap — no overrun), queues first-come-first-
+   served, and auto-refunds requests that expire before activation.
+
+   Skeleton scope (v0): lifecycle + classification + cooldowns + ledger
+   charging + public feed log. Effect dispatch (actually steering a
+   character or the weather) is v1+ — requests resolve to 'completed'
+   honestly without pretending to have moved the world.
+
+   Time unit: real minutes (the show runs on real SF time). All entry
+   points take an explicit nowMin so tests stay deterministic.
+   ===================================================================== */
+
+const GS_REQ = {
+  seq: 0,
+  reqs: [],          // every request ever filed (audit trail)
+  cdP: {},           // 'playerId|kind' -> cooldown-until minute
+  cdG: {},           // 'kind'        -> global cooldown-until minute
+  actions: {},       // kind -> action spec
+};
+const GS_FEED = [];        // public request feed — append-only (v6 formats it)
+const GS_BUS_HOOKS = [];   // feed/event listeners: fn(evt)
+const GS_FEED_SEQ = { n: 0 };
+
+/* core cast are NEVER possessable (design §2/§7 — not even by the owner) */
+const GS_CORE_CAST = { C1:1, C2:1, C3:1, C4:1, C5:1, C6:1, C7:1, C8:1 };
+/* hired characters: charId -> owning playerId. Filled by the hiring
+   system (v8); exposed now so the possession gate is real from day one. */
+const GS_HIRED = {};
+
+function gsNowMin(){ return Date.now() / 60000; }
+
+function gsBusEmit(type, req, extra){
+  const evt = Object.assign({
+    n: ++GS_FEED_SEQ.n, min: req && req._now != null ? req._now : null,
+    type, player: req && req.playerId, kind: req && req.kind,
+    target: req && req.target, req: req && req.id,
+  }, extra || {});
+  GS_FEED.push(evt);
+  for(const fn of GS_BUS_HOOKS){ try{ fn(evt); }catch(e){} }
+  return evt;
+}
+function gsBusOnEvent(fn){ GS_BUS_HOOKS.push(fn); }
+
+/* ---- action catalogue ----
+   spec: { scope:'target'|'global', exclusive:bool, ratePerMin:int,
+           minMin, maxMin, cdPlayerMin, cdGlobalMin, ttlMin,
+           allow(req) -> true | reason-string }                        */
+function gsDefineAction(kind, spec){
+  GS_REQ.actions[kind] = Object.assign({
+    scope: 'target', exclusive: true, ratePerMin: 1,
+    minMin: 1, maxMin: 240, cdPlayerMin: 0, cdGlobalMin: 0, ttlMin: 60,
+    allow: null,
+  }, spec || {});
+}
+
+function gsMarkHired(charId, playerId){ GS_HIRED[charId] = playerId; }
+function gsIsPossessable(charId, playerId){
+  if(GS_CORE_CAST[charId]) return false;      // absolute ban, incl. owner
+  return GS_HIRED[charId] === playerId;        // only YOUR hired character
+}
+
+/* default action kinds — the v0 catalogue. Rates are placeholder credits/
+   minute pending the pricing decision (design §9.3). */
+gsDefineAction('possess', {
+  scope: 'target', exclusive: true, ratePerMin: 2,
+  minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30,
+  allow: (r) => gsIsPossessable(r.target, r.playerId)
+    ? true : (GS_CORE_CAST[r.target] ? 'possession_ban' : 'not_your_character'),
+});
+gsDefineAction('weather', {
+  scope: 'global', exclusive: true, ratePerMin: 5,
+  minMin: 10, maxMin: 240, cdPlayerMin: 120, cdGlobalMin: 60, ttlMin: 60,
+});
+gsDefineAction('street_event', {
+  scope: 'global', exclusive: false, ratePerMin: 3,
+  minMin: 15, maxMin: 180, cdPlayerMin: 240, ttlMin: 120,
+});
+
+function gsResourceKey(kind, target){
+  const s = GS_REQ.actions[kind];
+  return (s && s.scope === 'global') ? 'g:' + kind : 't:' + kind + ':' + target;
+}
+function gsActiveOn(resKey){
+  return GS_REQ.reqs.filter(r => r.resKey === resKey && r.status === 'active');
+}
+function gsQueueOf(resKey){
+  return GS_REQ.reqs.filter(r => r.resKey === resKey && r.status === 'queued')
+                    .sort((a, b) => a.submittedMin - b.submittedMin ||
+                                   a.n - b.n);
+}
+function gsRequestById(id){
+  return GS_REQ.reqs.find(r => r.id === id) || null;
+}
+
+/* surge hook — v7 anti-grief replaces the constant with queue-depth math */
+function gsSurgeFactor(resKey){ return 1; }
+
+/* file a request. Returns the request record (status: active | queued |
+   denied). Denials never bill; queued requests bill upfront and are
+   auto-refunded if they expire before activation (design §5.4–5.5). */
+function gsSubmitRequest(spec, nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const pid = spec.playerId, kind = spec.kind, target = spec.target || null;
+  const dur = spec.durationMin;
+  const a = GS_REQ.actions[kind];
+  const deny = (reason) => {
+    const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
+      kind, target, durationMin: dur, price: 0, status: 'denied', reason,
+      submittedMin: now, _now: now };
+    GS_REQ.reqs.push(r); gsBusEmit('deny', r, { reason }); return r;
+  };
+  if(!a) return deny('unknown_action');
+  if(a.scope === 'target' && !target) return deny('missing_target');
+  if(!(dur >= a.minMin && dur <= a.maxMin)) return deny('bad_duration');
+  if(a.allow){ const why = a.allow({ playerId: pid, target, kind });
+               if(why !== true) return deny(why); }
+  if((GS_REQ.cdP[pid + '|' + kind] || 0) > now) return deny('cooldown');
+  if((GS_REQ.cdG[kind] || 0) > now) return deny('global_cooldown');
+
+  const resKey = gsResourceKey(kind, target);
+  const price = Math.ceil(a.ratePerMin * dur * gsSurgeFactor(resKey));
+  if(price > 0 && !gsCreditSpend(pid, price, kind + ' request'))
+    return deny('insufficient_credits');
+
+  const conflict = a.exclusive && gsActiveOn(resKey).length > 0;
+  const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
+    kind, target, durationMin: dur, price, resKey, submittedMin: now,
+    status: conflict ? 'queued' : 'active',
+    startMin: conflict ? null : now,
+    endMin: conflict ? null : now + dur,
+    expireMin: conflict ? now + a.ttlMin : null,
+    _now: now };
+  GS_REQ.reqs.push(r);
+  gsBusEmit(conflict ? 'queue' : 'approve', r, { price });
+  return r;
+}
+
+/* advance the bus: complete finished actives (set cooldowns, promote the
+   FCFS head of the resource queue), expire stale queued requests with a
+   full auto-refund. */
+function gsBusTick(nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  for(const r of GS_REQ.reqs){
+    if(r.status === 'queued' && now > r.expireMin){
+      r.status = 'expired'; r._now = now;
+      if(r.price > 0) gsCreditRefund(r.playerId, r.price, 'queue expired');
+      gsBusEmit('expire', r, { refund: r.price });
+    }
+    if(r.status === 'active' && now >= r.endMin){
+      r.status = 'completed'; r._now = now;
+      const a = GS_REQ.actions[r.kind];
+      if(a.cdPlayerMin) GS_REQ.cdP[r.playerId + '|' + r.kind] = now + a.cdPlayerMin;
+      if(a.cdGlobalMin) GS_REQ.cdG[r.kind] = now + a.cdGlobalMin;
+      gsBusEmit('complete', r);
+      const next = gsQueueOf(r.resKey)[0];
+      if(next && next.status === 'queued'){
+        next.status = 'active'; next.startMin = now;
+        next.endMin = now + next.durationMin; next.expireMin = null;
+        next._now = now;
+        gsBusEmit('approve', next, { promoted: true });
+      }
+    }
+  }
+}
+
+/* cancel a pending/active request with a full refund. Admin revokes
+   compensate the player (design §3/§8) — always full price. */
+function gsCancelRequest(id, nowMin, by){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const r = gsRequestById(id);
+  if(!r || (r.status !== 'queued' && r.status !== 'active')) return false;
+  r.status = 'cancelled'; r._now = now; r.by = by || 'player';
+  if(r.price > 0) gsCreditRefund(r.playerId, r.price, 'cancelled');
+  gsBusEmit('cancel', r, { by: r.by, refund: r.price });
+  return true;
+}
+
+/* ---- JSON persistence (request trail + cooldowns + feed) ---- */
+function gsBusSnapshot(){
+  return JSON.stringify({ seq: GS_REQ.seq, reqs: GS_REQ.reqs,
+    cdP: GS_REQ.cdP, cdG: GS_REQ.cdG,
+    feed: GS_FEED, feedN: GS_FEED_SEQ.n, hired: GS_HIRED });
+}
+function gsBusLoad(json){
+  try{
+    const d = JSON.parse(json);
+    if(!d || !Array.isArray(d.reqs)) return false;
+    GS_REQ.seq = d.seq || 0; GS_REQ.reqs = d.reqs;
+    GS_REQ.cdP = d.cdP || {}; GS_REQ.cdG = d.cdG || {};
+    GS_FEED.length = 0; if(d.feed) GS_FEED.push.apply(GS_FEED, d.feed);
+    GS_FEED_SEQ.n = d.feedN || 0;
+    for(const k in GS_HIRED) delete GS_HIRED[k];
+    if(d.hired) Object.assign(GS_HIRED, d.hired);
+    return true;
+  }catch(e){ return false; }
+}
+
+function gsBusReset(){
+  GS_REQ.reqs.length = 0; GS_REQ.cdP = {}; GS_REQ.cdG = {};
+  GS_FEED.length = 0; GS_FEED_SEQ.n = 0;
+  for(const k in GS_HIRED) delete GS_HIRED[k];
+}
+
 /* SF scenario autotest — appends SF assertions to the in-page ?test suite.
    Runs only when SF_MODE (?sf&test). Wraps runAutoTest (permitted hook point:
    the no-new-wraps law only covers planTick/simTick/bodyTick/updateVillagerAI). */
@@ -30069,6 +30684,286 @@ runAutoTest = async function(){
   const passed = res.filter(r => r.ok).length;
   el.textContent += `\n==== SF ${passed}/${res.length} passed ====\n`;
   document.title = `SFTEST ${passed}/${res.length}`;
+};
+
+/* =====================================================================
+   PART 41 AUTOTEST — game-systems v0 skeleton (registry / ledger / bus).
+   Mode-agnostic: runs in medieval ?test AND ?sf&test. Mutating tests run
+   on reset state and the prior contents are restored afterwards, so the
+   SF-seeded registry survives the suite untouched.
+   ===================================================================== */
+
+const __runAutoTest41 = runAutoTest;
+runAutoTest = async function(){
+  let baseErr = null;
+  try { await __runAutoTest41(); } catch(e){ baseErr = e; }
+  const out = document.getElementById('autotest');
+  if(out) out.style.display = 'block';
+  const res = [];
+  function log(ok, name, detail){
+    res.push({ ok, name });
+    const line = (ok ? 'PASS: ' : 'FAIL: ') + name + (detail ? ' — ' + detail : '');
+    try { console.log(line); } catch(e){}
+    if(out) out.textContent += line + '\n';
+  }
+  if(baseErr) log(false, 'gs: inner autotest threw', String(baseErr && baseErr.message || baseErr));
+
+  /* ---------- SF-mode: assert the live seeded registry (read-only) ---------- */
+  if(typeof SF_MODE !== 'undefined' && SF_MODE){
+    const nB = GS_REG.buildings.length;
+    log(nB > 200, 'gs: SF seed minted residential buildings', nB + ' buildings');
+    log(GS_REG.buildings.every(b => b.hn >= 9000 && b.hn < 9900),
+        'gs: every seeded number is 9xxx (above real block maxima)');
+    const perStreet = {};
+    for(const b of GS_REG.buildings) perStreet[b.street] = (perStreet[b.street] || 0) + 1;
+    let conform = true, unique = true;
+    const seen = new Set();
+    for(const b of GS_REG.buildings){
+      const key = b.street + '|' + b.hn;
+      if(seen.has(key)) unique = false;
+      seen.add(key);
+      let hit = false;
+      for(let i = 0; i <= perStreet[b.street] + 2 && !hit; i++)
+        if(gsAddrNumber(b.street, i) === b.hn) hit = true;
+      if(!hit) conform = false;
+    }
+    log(conform, 'gs: every seeded number satisfies 9000 + hash(street|idx) % 900');
+    log(unique, 'gs: no two buildings share a number on one street');
+    const c6 = gsLeasesFor('C6').find(l => l.status === 'active');
+    const c6b = c6 && gsBldById(gsUnitById(c6.unit_id).bld_id);
+    log(!!c6b && c6b.street === 'Guerrero Street',
+        'gs: Carmen (C6) holds a Guerrero St lease', c6b ? c6b.address : 'none');
+    log(gsLeasesFor('C2').length === 0,
+        'gs: Jules (C2) has NO lease — unpermitted tenancy per cast bible');
+    log(gsLeasesFor('C7').some(l => l.status === 'owner-occupied'),
+        'gs: Victor (C7) owner-occupies above the shop');
+    const c4 = gsLeasesFor('C4').find(l => l.status === 'active');
+    log(!!c4 && c4.occupants.indexOf('C5') >= 0,
+        'gs: 750 Guerrero flat lists Priya + Marcus as occupants');
+    const b744 = GS_REG.buildings.find(b => b.bld_idx === (SF_MAP.anchors.g744 || {}).bld);
+    log(!!b744 && b744.owner_id === 'C7', 'gs: 744 Guerrero anchor is owned by C7');
+  }
+
+  /* ---------- isolated unit tests on reset state ---------- */
+  const regSnap = gsRegSnapshot(), ledSnap = gsLedgerSnapshot(), busSnap = gsBusSnapshot();
+  try{
+    gsRegistryReset(); gsLedgerReset(); gsBusReset();
+
+    // ---- registry: spec §3 number generation ----
+    const f = (s, i) => 9000 + (hashString18(s + '|' + i) % 900);
+    log(gsAddrNumber('Guerrero Street', 0) === f('Guerrero Street', 0) &&
+        gsAddrNumber('Dolores Street', 7) === f('Dolores Street', 7),
+        'gs: gsAddrNumber implements the spec formula exactly');
+    let inRange = true, det = true;
+    for(const s of ['Guerrero Street', 'Dolores Street', '24th Street', 'Capp Street'])
+      for(let i = 0; i < 40; i++){
+        const n = gsAddrNumber(s, i);
+        if(!(n >= 9000 && n < 9900)) inRange = false;
+        if(gsAddrNumber(s, i) !== n) det = false;
+      }
+    log(inRange, 'gs: generated numbers always land in [9000, 9900)');
+    log(det, 'gs: number generation is deterministic (same input, same number)');
+
+    // ---- registry: buildings / units / address format ----
+    const b1 = gsRegisterBuilding({ street: 'Guerrero Street', style: 'Victorian' });
+    log(!!b1 && /^9\d{3} Guerrero Street, San Francisco, CA$/.test(b1.address),
+        'gs: minted address matches spec format', b1 && b1.address);
+    const u1 = gsRegisterUnit(b1.id, { unit_code: 'A', bedrooms: 2, base_rent: 1400 });
+    log(gsAddressOfUnit(u1.id) === b1.address + ' Unit A',
+        'gs: unit address appends " Unit A"', gsAddressOfUnit(u1.id));
+    const nums = new Set();
+    for(let i = 0; i < 30; i++) nums.add(gsRegisterBuilding({ street: 'Test Street' }).hn);
+    log(nums.size === 30, 'gs: 30 registrations on one street, zero number collisions');
+
+    // ---- registry: lease lifecycle + address immutability across turnover ----
+    const l1 = gsSignLease(u1.id, 'C6', { start: '1989-03-15', monthly_rent: 1400 });
+    log(!!l1 && gsActiveLease(u1.id).tenant_id === 'C6', 'gs: lease signs and activates');
+    const addrBefore = gsAddressOfUnit(u1.id);
+    const l2 = gsSignLease(u1.id, 'H1', { start: '2026-09-22', monthly_rent: 2400 });
+    log(l1.status === 'ended' && gsActiveLease(u1.id) === l2 &&
+        gsAddressOfUnit(u1.id) === addrBefore,
+        'gs: tenant turnover ends prior lease, address unchanged');
+    log(gsEvictLease(u1.id, { day: 1 }, 'nonpayment') &&
+        gsActiveLease(u1.id) === null && l2.status === 'evicted',
+        'gs: eviction frees the unit with a distinct status');
+
+    // ---- registry: clerk minting + retired numbers never reused ----
+    const minted = gsMintAddress('Test Street', 'garage conversion');
+    const mLog = GS_REG.mintLog[GS_REG.mintLog.length - 1];
+    log(!!minted && mLog && mLog.bld_id === minted.id && /garage/.test(mLog.reason),
+        'gs: gsMintAddress registers + logs the mint event');
+    const dead = gsRegisterBuilding({ street: 'Dead Street' });
+    const deadHn = dead.hn;
+    gsRetireBuilding(dead.id, 'demolished');
+    for(let i = 0; i < 25; i++) gsRegisterBuilding({ street: 'Dead Street' });
+    const reused = GS_REG.buildings.some(b => b.street === 'Dead Street' &&
+      b.hn === deadHn && b.id !== dead.id);
+    log(dead.status === 'retired' && !reused &&
+        GS_REG_USED.get('Dead Street').has(deadHn),
+        'gs: retired number is permanently withdrawn from circulation');
+
+    // ---- registry: JSON snapshot round-trip ----
+    const snap = gsRegSnapshot();
+    const nBld = GS_REG.buildings.length, nLease = GS_REG.leases.length;
+    gsRegistryReset();
+    const emptyOk = GS_REG.buildings.length === 0;
+    log(emptyOk && gsRegLoad(snap) && GS_REG.buildings.length === nBld &&
+        GS_REG.leases.length === nLease && !!gsBldById(b1.id) &&
+        gsActiveLease(u1.id) === null,
+        'gs: registry snapshot/load round-trips buildings, units, leases');
+
+    // ---- ledger: credits ----
+    gsCreditGrant('pA', 100, 'test grant');
+    log(gsCreditBalance('pA') === 100, 'gs: credit grant posts');
+    gsCreditSpend('pA', 40, 'test spend');
+    const spendFail = gsCreditSpend('pA', 1000, 'overdraw');
+    log(gsCreditBalance('pA') === 60 && spendFail === null,
+        'gs: credit spend debits; overdraw is an atomic no-op');
+    gsCreditRefund('pA', 15, 'test refund');
+    log(gsCreditBalance('pA') === 75 && gsLowCredit('pA') === false &&
+        gsLowCredit('pB') === true,
+        'gs: refund posts; low-credit warning threshold works');
+
+    // ---- ledger: dollars, conservation, rent through the registry ----
+    gsDollarGrant('T1', 3000, 'move-in fund');
+    const rb = gsRegisterBuilding({ street: 'Rent Street', owner_id: 'landlord' });
+    const ru = gsRegisterUnit(rb.id, { unit_code: 'A', base_rent: 2000 });
+    gsSignLease(ru.id, 'T1', { monthly_rent: 2000 });
+    const before = gsLedgerTotal('dollars');
+    const rc = gsCollectRent(ru.id, { period: '2026-10' });
+    log(rc.ok && gsDollarBalance('T1') === 1000 && gsDollarBalance('landlord') === 2000,
+        'gs: rent collection moves dollars tenant -> owner');
+    log(gsLedgerTotal('dollars') === before,
+        'gs: dollars are conserved across payments (no source/sink leak)');
+    const rc2 = gsCollectRent(ru.id, { period: '2026-11' });
+    log(!rc2.ok && rc2.reason === 'insufficient_dollars' && gsDollarBalance('T1') === 1000,
+        'gs: rent fails honestly when tenant cannot pay');
+    const nTxn = GS_LEDGER.txns.length;
+    log(GS_LEDGER.txns.every((t, i) => t.n === i + 1) && GS_LEDGER.txns.length === nTxn,
+        'gs: txn log is append-only with monotonic sequence');
+    const lSnap = gsLedgerSnapshot();
+    gsLedgerReset();
+    log(gsLedgerLoad(lSnap) && gsCreditBalance('pA') === 75,
+        'gs: ledger snapshot/load round-trips balances + txn log');
+
+    // ---- bus: possession ban is absolute (denied before billing) ----
+    gsCreditGrant('pA', 10000, 'stake'); gsCreditGrant('pB', 10000, 'stake');
+    const pAStake = gsCreditBalance('pA');
+    let allBanned = true;
+    for(const c of ['C1','C2','C3','C4','C5','C6','C7','C8']){
+      const r = gsSubmitRequest({ playerId: 'pA', kind: 'possess', target: c,
+                                  durationMin: 10 }, 0);
+      if(!(r.status === 'denied' && r.reason === 'possession_ban')) allBanned = false;
+    }
+    const ownerTry = gsSubmitRequest({ playerId: 'owner', kind: 'possess',
+                                     target: 'C7', durationMin: 10 }, 0);
+    log(allBanned && ownerTry.status === 'denied' &&
+        gsCreditBalance('pA') === pAStake,
+        'gs: possess denied for all C1-C8 (incl. owner) before billing');
+
+    // ---- bus: only your own hired character is possessable ----
+    const notYours = gsSubmitRequest({ playerId: 'pA', kind: 'possess',
+                                     target: 'H1', durationMin: 10 }, 0);
+    gsMarkHired('H1', 'pA'); gsMarkHired('H2', 'pA'); gsMarkHired('H3', 'pB');
+    const okReq = gsSubmitRequest({ playerId: 'pA', kind: 'possess',
+                                  target: 'H1', durationMin: 30 }, 0);
+    log(notYours.reason === 'not_your_character' &&
+        okReq.status === 'active' && okReq.price === 60 &&
+        gsCreditBalance('pA') === pAStake - 60,
+        'gs: hired character possess activates, billed rate x duration upfront');
+
+    // ---- bus: duration bounds + unknowns denied ----
+    const dLo = gsSubmitRequest({ playerId: 'pA', kind: 'possess', target: 'H2', durationMin: 1 }, 0);
+    const dHi = gsSubmitRequest({ playerId: 'pA', kind: 'possess', target: 'H2', durationMin: 999 }, 0);
+    const dUn = gsSubmitRequest({ playerId: 'pA', kind: 'fly', durationMin: 10 }, 0);
+    const dNo = gsSubmitRequest({ playerId: 'pA', kind: 'possess', durationMin: 10 }, 0);
+    log(dLo.reason === 'bad_duration' && dHi.reason === 'bad_duration' &&
+        dUn.reason === 'unknown_action' && dNo.reason === 'missing_target',
+        'gs: duration bounds + unknown action + missing target all denied');
+
+    // ---- bus: conflict classes — exclusive queues, compatible co-runs ----
+    const q1 = gsSubmitRequest({ playerId: 'pA', kind: 'possess',
+                               target: 'H1', durationMin: 10 }, 1);
+    const co = gsSubmitRequest({ playerId: 'pA', kind: 'possess',
+                               target: 'H2', durationMin: 10 }, 1);
+    log(q1.status === 'queued' && co.status === 'active' &&
+        gsActiveOn('t:possess:H1').length === 1 && gsActiveOn('t:possess:H2').length === 1,
+        'gs: same-target possess queues (exclusive); different-target runs (compatible)');
+    const wx = gsSubmitRequest({ playerId: 'pB', kind: 'weather', durationMin: 60 }, 1);
+    const ev = gsSubmitRequest({ playerId: 'pB', kind: 'street_event', durationMin: 30 }, 1);
+    log(wx.status === 'active' && ev.status === 'active',
+        'gs: non-exclusive street_event co-runs with active weather');
+
+    // ---- bus: FCFS promotion (same submit minute -> filing order holds) ----
+    gsMarkHired('H4', 'pB');
+    const fA = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H4', durationMin: 10 }, 5);
+    const fB = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H4', durationMin: 10 }, 5);
+    const fC = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H4', durationMin: 10 }, 5);
+    gsBusTick(16);
+    const order1 = fA.status === 'completed' && fB.status === 'active' && fC.status === 'queued';
+    gsBusTick(27);
+    const order2 = fB.status === 'completed' && fC.status === 'active';
+    log(order1 && order2, 'gs: queue promotes strictly first-come-first-served');
+
+    // ---- bus: queued expiry auto-refunds in full ----
+    // (active runs 60min so the queued req's 30min TTL lapses before the slot frees)
+    gsMarkHired('H5', 'pB');
+    const eA = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H5', durationMin: 60 }, 100);
+    const balBefore = gsCreditBalance('pB');
+    const eQ = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H5', durationMin: 10 }, 100);
+    gsBusTick(100 + 30 + 1);
+    log(eA.status === 'active' && eQ.status === 'expired' &&
+        gsCreditBalance('pB') === balBefore,
+        'gs: queued request that expires before activation is auto-refunded');
+
+    // ---- bus: cooldowns gate refiling ----
+    gsMarkHired('H6', 'pB');
+    const cA = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H6', durationMin: 5 }, 200);
+    gsBusTick(206);
+    const cdTry = gsSubmitRequest({ playerId: 'pB', kind: 'possess', target: 'H6', durationMin: 5 }, 207);
+    log(cA.status === 'completed' && cdTry.status === 'denied' && cdTry.reason === 'cooldown',
+        'gs: per-player cooldown blocks refiling after completion');
+    const wA = gsSubmitRequest({ playerId: 'pA', kind: 'weather', durationMin: 10 }, 300);
+    gsBusTick(311);
+    const wOther = gsSubmitRequest({ playerId: 'pB', kind: 'weather', durationMin: 10 }, 312);
+    log(wA.status === 'completed' && wOther.reason === 'global_cooldown',
+        'gs: global cooldown applies to every player');
+
+    // ---- bus: cancel refunds; admin revoke compensates in full ----
+    gsMarkHired('H7', 'pA');
+    const kA = gsSubmitRequest({ playerId: 'pA', kind: 'possess', target: 'H7', durationMin: 10 }, 400);
+    const kQ = gsSubmitRequest({ playerId: 'pA', kind: 'possess', target: 'H7', durationMin: 10 }, 400);
+    const balK = gsCreditBalance('pA');
+    gsCancelRequest(kQ.id, 401, 'player');
+    gsCancelRequest(kA.id, 401, 'admin');
+    log(kQ.status === 'cancelled' && kA.status === 'cancelled' && kA.by === 'admin' &&
+        gsCreditBalance('pA') === balK + kQ.price + kA.price,
+        'gs: cancel + admin revoke refund the full upfront price');
+
+    // ---- bus: feed is append-only with monotonic sequence + event kinds ----
+    const kinds = new Set(GS_FEED.map(e => e.type));
+    let mono = true;
+    for(let i = 1; i < GS_FEED.length; i++) if(GS_FEED[i].n <= GS_FEED[i - 1].n) mono = false;
+    log(mono && kinds.has('deny') && kinds.has('approve') && kinds.has('queue') &&
+        kinds.has('expire') && kinds.has('complete') && kinds.has('cancel'),
+        'gs: public feed logs every lifecycle event, monotonic order');
+
+    // ---- bus: snapshot round-trip ----
+    const bSnap = gsBusSnapshot();
+    const nReqs = GS_REQ.reqs.length;
+    gsBusReset();
+    log(gsBusLoad(bSnap) && GS_REQ.reqs.length === nReqs &&
+        GS_HIRED.H1 === 'pA' && gsRequestById(fC.id).status === 'completed' &&
+        GS_FEED.length > 0,
+        'gs: bus snapshot/load round-trips requests, cooldowns, hired roster');
+  }catch(e){
+    log(false, 'gs: suite threw', String(e && e.message || e));
+  }finally{
+    gsRegLoad(regSnap); gsLedgerLoad(ledSnap); gsBusLoad(busSnap);
+  }
+
+  const passed = res.filter(r => r.ok).length;
+  if(out) out.textContent += '\n==== GS ' + passed + '/' + res.length + ' passed ====\n';
 };
 
 /* Boot entry hook. Kept in the LAST module of _order.txt so that even a
