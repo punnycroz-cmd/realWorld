@@ -40,15 +40,15 @@ log the result in §10 before the checklist may cite it.
 | G1 | Owner approves public launch in writing (the go/no-go, §6) | owner | `[ ] PENDING` |
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced everywhere it ships (canonical links, OG URLs, `sitemap.xml`, `robots.txt`, Caddyfile/netlify DNS+env). One command: `tools/swap_domain.sh <domain>` then `--check` must print CLEAN | owner + mkt | `[ ] PENDING` — swap tool rehearsed v59 (apply→check→revert round-trip clean) |
-| G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
+| G4 | Pricing flip: owner approves final numbers → `tools/flip_flags.sh --set pricing=final` (sets `data-pricing="final"` on `pricing.html` `<body>` — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed via flip_flags.sh round-trip v74, attribute is live CSS |
 | G5 | Screenshot gallery refreshed with launch-build captures (current = **v44 dev build** — refreshed v72 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
-| G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
+| G8 | Analytics: shim wired on all 16 pages but INERT — `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every `js/analytics.js` include in one pass, after owner picks backend (Umami spec ready at `deploy/umami.compose.example`; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23); flip_flags endpoint set/revert rehearsed v74 |
 | G9 | Press kit zip rebuilt after G3/G4/G5 land: `./build-press-kit.sh` | mkt | `[x] REHEARSED` — one-command rebuild verified 2026-09-23 |
 | G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 32/3/0, warns = G3 ×2 + 1 PNG weight |
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
-| G12 | Demo page live: set `data-demo-src` on `demo.html` `#demo-stage` to the spectator build URL; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels per G15 | owner + game track | `[ ] PENDING` — fallback verified; one-attribute flip at launch |
+| G12 | Demo page live: `tools/flip_flags.sh --set demo=<spectator-url>` sets `data-demo-src` on `demo.html` `#demo-stage`; verify `?embed=` staging pass + `watch_start{mode:"live"}` event; sync feed-preview labels per G15 | owner + game track | `[ ] PENDING` — fallback verified; flip rehearsed via flip_flags.sh v74 |
 | G13 | Moderation readiness: owner confirms the shipped feed display-filter default (game-v6 ships `GS_WIRE_CFG.displayFilter='A'`, all three modes implemented; `gsWireSetFilter` flips it in one call — MODERATION-PLAN.md §2.3) and confirms the game build wires the world-v8 contract (`screen.js` verdicts, lane routing, `reason_code` on feed denials, `mod_decision` ledger records — console demo exists at `world/mod-console.html`); confirm the private appeal path is reachable in the request flow (world-v32 `requests.json.appeals` — 72 h, different reviewer, charge re-applies only on approval); record one `gsWireAudit()` → `{ok:true}` on staging data in the rehearsal log | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
 | G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate, `tools/ship.sh` runs steps 0–4 as one command; monitor spec in `deploy/monitoring.example`; est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, approved (modified), running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
@@ -83,7 +83,7 @@ latency only.
 | D0.1 | Deploy `marketing/site/` to production hosting at real domain via `deploy/deploy-site.sh --apply` (or git-connected host) | ~15 min | `[ ] PENDING` — script rehearsed dry-run |
 | D0.2 | Run production smoke pass: `tools/prod_smoke.sh https://<domain>` — pages 200, sitemap+robots, JSON-LD parses, security headers, served-placeholder sweep; OG card renders in a share validator | ~10 min | `[x] REHEARSED` locally — prod_smoke.sh is the live counterpart of the dry-run |
 | D0.3 | Flip "in development" labels → launch copy; CTA → live watch URL | ~20 min | `[ ] PENDING` |
-| D0.3b | Demo page flip: set `data-demo-src` on `demo.html`, reload, confirm iframe mounts and `watch_start` fires with `mode:"live"`; confirm feed-preview labels match the live feed (G15) | ~10 min | `[ ] PENDING` — gated on G12 + G15 |
+| D0.3b | Demo page flip: `tools/flip_flags.sh --set demo=<spectator-url>` on `demo.html`, redeploy, confirm iframe mounts and `watch_start` fires with `mode:"live"`; confirm feed-preview labels match the live feed (G15) | ~10 min | `[ ] PENDING` — gated on G12 + G15 |
 | D0.4 | Submit `sitemap.xml` to Search Console + Bing Webmaster | ~10 min | `[ ] PENDING` (owner accounts) |
 | D0.5 | Publish launch devlog post ("the door is open") | ~15 min | `[~] DRAFTED` — social/drafts/launch-thread.md |
 | D0.6 | Post launch announcement on registered channels (owner approves each post) | ~30 min | `[~] DRAFTED` — SOCIAL-LAUNCH-PLAN.md timeline |
@@ -106,6 +106,7 @@ Everything mechanical on day-0, copy-pasteable. Fill `<domain>` once.
 
 ```sh
 cd marketing
+./tools/runofshow.sh                            # "where am I in the countdown?" — live status per §2 item (read-only)
 ./tools/ship.sh                                 # THE go command: preflight→kit→deploy→smoke (bare = rehearsal)
 ./tools/ship.sh --apply                         # ships for real — needs RW_DEPLOY_* env + RW_DOMAIN
 ./tools/preflight.sh                            # THE go-gate: dry-run + secret scan + switches
@@ -117,6 +118,12 @@ cd marketing
 ./tools/uptime_probe.sh https://<domain>        # health probe — external-monitor stopgap (cron */5)
 ./tools/swap_domain.sh <domain>                 # G3 — placeholder→domain sweep (site/ + deploy/)
 ./tools/swap_domain.sh --check <domain>         # must print CLEAN (G3)
+./tools/dns_check.sh <domain> [<apex-ip>]       # G3/G14 — live DNS matches the spec (read-only)
+./tools/flip_flags.sh --check                   # report all three launch switches (G4/G8/G12)
+./tools/flip_flags.sh --set pricing=final       # G4 — one attribute, same-commit sync still owed
+./tools/flip_flags.sh --set endpoint=<url>      # G8 — data-endpoint on all 16 pages
+./tools/flip_flags.sh --set demo=<url>          # G12 — data-demo-src on demo.html
+./tools/flip_flags.sh --revert                  # all three back to pre-launch state
 ./tools/rehearse_host.sh                        # deploy/rollback/retention drill on a local fake host
 ./tools/stripe_webhook_fixture.py --out /tmp/f.json   # signed test event for the crediting path
 grep -n 'data-demo-src' site/demo.html          # must show the live embed URL (G12)
@@ -267,6 +274,9 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | tools/preflight.sh (v68, +checklist-audit step) | 6 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
 | 2026-09-24 | gallery refresh v43→v44 (v72) | shots + press-kit screenshots swapped, webp regen, keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v44, all 5 animatics + boards + 3 thumbnails rebuilt; dist zip rebuilt (42 files). NOTE: first copy raced the art publish (truncated PNG mid-write) — always `cmp` against published/ before swapping |
 | 2026-09-24 | tools/preflight.sh (v72, post-refresh) | 7 pass / 5 warn / 0 fail — GO; brand_audit + checklist_audit clean |
+| 2026-09-24 | tools/flip_flags.sh (v74, first run) | PASS — `--check` reports provisional/empty/unset; `--set` applied all three (pricing→final, endpoint→16 pages, demo→URL), `--check` verified consistency incl. multi-page endpoint parity; `--revert` restored pre-launch state with `git status` clean |
+| 2026-09-24 | tools/dns_check.sh (v74, first run) | PASS vs example.com — apex/www/play/stats resolution paths exercised; bad-domain arg rejected; expected-IP mismatch path produces FAIL |
+| 2026-09-24 | tools/runofshow.sh (v74, first run) | PASS — countdown dashboard reports live done/pending per §2 item: switches provisional/empty/unset, placeholder domain count, deploy env unset, kit zip staged; exit 0, read-only |
 
 ## §11 Rehearsal coverage matrix
 
@@ -283,14 +293,14 @@ it before citing the gate.
 | G7 legal pass | payment/refund/privacy/age wording inventory lives in STORE-COPY disclosure matrix + rules.html; owner counsel review owed | spec complete |
 | G11 community surfaces | `COMMUNITY-FUNNEL.md` §3 setup checklist + `community.html` placeholder swap | spec complete |
 | G3 domain swap | `tools/swap_domain.sh` apply→`--check`→`--revert` + `staging_dryrun.sh` §4 sweep | 2026-09-23 (v59 round-trip) |
-| G4 pricing flip | `data-pricing` attribute + `gonogo.sh` AUTO check | flip rehearsed 2026-09-23 |
+| G4 pricing flip | `tools/flip_flags.sh --set pricing=final` + `gonogo.sh` AUTO check | flip rehearsed 2026-09-24 (v74 round-trip) |
 | G5 gallery freshness | `gonogo.sh` AUTO diff vs `published/VERSION` | v53 (v32→v36) |
-| G8 analytics | `tools/analytics_e2e.sh` end-to-end fixture | 2026-09-23 (1057/1057) |
+| G8 analytics | `tools/flip_flags.sh --set endpoint=` + `deploy/umami.compose.example` + `tools/analytics_e2e.sh` end-to-end fixture | 2026-09-23 e2e (1057/1057); endpoint flip rehearsed 2026-09-24 (v74) |
 | G9 press-kit zip | `build-press-kit.sh` + `gonogo.sh` freshness check | v53 rebuild |
 | G10 dry-run | `tools/staging_dryrun.sh` | every version |
-| G12 demo flip | `demo.html` fallback verified; `data-demo-src` grep in command card | fallback rehearsed |
+| G12 demo flip | `demo.html` fallback verified; `tools/flip_flags.sh --set demo=` + `--check` in command card | fallback rehearsed; flip rehearsed 2026-09-24 (v74) |
 | G13 moderation | `MODERATION-PLAN.md` + `world/mod-console.html` demo; `gsWireAudit()` staging run still owed | spec only — needs game build |
-| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) | 2026-09-23 ship.sh + rehearse_host green |
+| G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) + `tools/dns_check.sh` (DNS verify) + `tools/runofshow.sh` (countdown status) | 2026-09-23 ship.sh + rehearse_host green; dns_check + runofshow rehearsed 2026-09-24 (v74) |
 | G15 feed vocab | `world/feed.json` canonical list quoted in gate text | diff owed at flip |
 | G16 onboarding | `analytics-events.json` 9-hook set (v51 four + v39 five) + sink/report/dashboard support; staging run incl. `?hired=1` owed | spec only — needs game build |
 | G17 human playtest | `world/playtest.html` harness (world-v37: PT1–PT35, `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |

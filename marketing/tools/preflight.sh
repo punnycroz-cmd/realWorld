@@ -69,13 +69,21 @@ done
 [ "$SECRETS" -eq 0 ] && ok "no secret-shaped strings in shippable files"
 
 # ── 3. Flip-flag report — the three launch switches ──
-echo "[3] launch switches (informational — owner-gated flips)"
+echo "[3] launch switches (informational — owner-gated flips via tools/flip_flags.sh)"
 PRICE=$(grep -oE 'data-pricing="[^"]*"' "$SITE/pricing.html" | head -1 | cut -d'"' -f2)
-[ "$PRICE" = "final" ] && ok "pricing: FINAL (G4 flipped)" || warn "pricing: ${PRICE:-unset} — flip to \"final\" at T-48h after owner approves numbers (G4)"
+[ "$PRICE" = "final" ] && ok "pricing: FINAL (G4 flipped)" || warn "pricing: ${PRICE:-unset} — flip_flags.sh --set pricing=final at T-48h after owner approves numbers (G4)"
 DEMO=$(grep -oE 'data-demo-src="[^"]*"' "$SITE/demo.html" | head -1 | cut -d'"' -f2)
-[ -n "$DEMO" ] && ok "demo embed: $DEMO (G12 live)" || warn "demo embed: fallback gallery (G12) — set data-demo-src at T-2h"
+[ -n "$DEMO" ] && ok "demo embed: $DEMO (G12 live)" || warn "demo embed: fallback gallery (G12) — flip_flags.sh --set demo=<url> at T-2h"
 ENDPT=$(grep -rhoE 'data-endpoint="[^"]+"' "$SITE"/*.html | head -1 | cut -d'"' -f2)
-[ -n "$ENDPT" ] && ok "analytics endpoint: $ENDPT (G8 live)" || warn "analytics: inert, no data-endpoint (G8) — set after backend pick"
+[ -n "$ENDPT" ] && ok "analytics endpoint: $ENDPT (G8 live)" || warn "analytics: inert, no data-endpoint (G8) — flip_flags.sh --set endpoint=<url> after backend pick"
+# Parity: if an endpoint exists anywhere it must be identical on every page.
+EPCOUNT=$(grep -rl 'data-endpoint=' "$SITE"/*.html 2>/dev/null | wc -l)
+INCOUNT=$(grep -l '<script src="js/analytics.js"' "$SITE"/*.html | wc -l)
+if [ -n "$ENDPT" ] && [ "$EPCOUNT" != "$INCOUNT" ]; then
+  bad "data-endpoint on $EPCOUNT of $INCOUNT pages — rerun tools/flip_flags.sh --set endpoint=<url>"
+elif [ -n "$ENDPT" ]; then
+  ok "endpoint consistent on all $EPCOUNT pages"
+fi
 
 # ── 4. Sitemap ↔ pages parity ──
 echo "[4] sitemap parity"

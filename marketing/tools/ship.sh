@@ -83,8 +83,10 @@ echo
 # ── 5. Punch list ────────────────────────────────────────────────────
 echo "[5/5] post-deploy punch list"
 cat <<'EOF'
-  [ ] demo embed: set data-demo-src on site/demo.html → redeploy (G12)
-  [ ] analytics: confirm events arriving on stats.<domain> (G8)
+  [ ] demo embed: ./tools/flip_flags.sh --set demo=<url> → redeploy (G12)
+  [ ] analytics: ./tools/flip_flags.sh --set endpoint=<url> if not yet live;
+      confirm events arriving on stats.<domain> (G8)
+  [ ] DNS sanity: ./tools/dns_check.sh <domain>  (read-only)
   [ ] monitor: arm uptime probes per deploy/monitoring.example
       (or cron ./tools/uptime_probe.sh https://<domain> as a stopgap)
   [ ] OG card: paste the URL in a share-preview validator once

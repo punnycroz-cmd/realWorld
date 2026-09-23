@@ -13,6 +13,7 @@ Everything here is LOCAL/draft until the owner gates open
 | `stripe-products.json` | Product/price manifest for Stripe provisioning — numbers = PRICING-PAGE-CONTENT.md §2 (PROPOSAL until G4). |
 | `infra.env.example` | Secrets/env inventory. Copy to `infra.env.local` (gitignored) at provisioning; never commit values. |
 | `monitoring.example` | Uptime/alert spec: 6 HTTP probes, TLS-expiry alerting, 2-severity routing, per-failure response playbook. Feed to any external monitor, or cron `../tools/uptime_probe.sh` as the self-hosted stopgap. |
+| `umami.compose.example` | Self-hosted analytics backend spec (Umami + Postgres) for `stats.<domain>` — matches the Caddyfile `stats.` reverse_proxy block. Fill 2 secrets on the host, `docker compose up -d`, then `../tools/flip_flags.sh --set endpoint=...`. |
 
 Post-deploy verification: `../tools/prod_smoke.sh https://<domain>` — the
 production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2).
@@ -29,3 +30,11 @@ Companion tools (all local, nothing publishes):
 - `../tools/stripe_webhook_fixture.py` — emits a correctly-signed
   `checkout.session.completed` + `Stripe-Signature` header so the game-side
   crediting consumer can be rehearsed before a Stripe account exists.
+- `../tools/flip_flags.sh` — the three owner-gated launch switches
+  (G4 pricing, G8 analytics endpoint, G12 demo embed) as one command:
+  `--set key=value`, `--check` reports, `--revert` restores pre-launch state.
+- `../tools/dns_check.sh <domain> [apex-ip]` — read-only verification that
+  live DNS matches `dns-records.example` (apex/www/play/stats); runbook step 2.
+- `../tools/runofshow.sh` — countdown dashboard: live done/pending status for
+  every mechanical §2 run-of-show item (switches, domain swap, DNS, deploy
+  env, kit zip). Read-only; `RW_DOMAIN=<domain>` adds the live DNS row.
