@@ -1,11 +1,16 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v58 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v73 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
 world-v32's shipped private appeal path, world-v33 wire request
-permalinks, and game-v8's shipped hire-name check — see §2.0, §5, §9.)
+permalinks, and game-v8's shipped hire-name check — see §2.0, §5, §9;
+v73: aligned to world-v36's obfuscation code + corpus conformance gate,
+world-v43's claimable ambient resources, world-v45's silent declines,
+world-v46's approve-modified offer/upfront charge/hold clock, world-v47's
+declared-cost chips, and game-v9's costar action — see §2.0, §2.1, §4,
+§5, §7, §9.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -65,7 +70,8 @@ Spec is no longer speculative. Delivered on `sf/world` (read-only for us):
   game track: the shipped classifier must never be *more permissive* than
   `RWScreen.screenRequest` on identical inputs.
 - **`world/moderation.json`** — the machine-readable contract this plan now
-  defers to: 7 deny + 7 review reason codes (with flag weights, refund rules,
+  defers to: 7 deny + 8 review reason codes (with flag weights, refund rules,
+  — the 8th review code `obfuscation-attempt` landed in world-v36),
   feed wording), 5 queue lanes, SLA target, account-flag thresholds,
   reviewer whitelist, appeal flow, display-filter options A/B/C.
 - **`world/mod-console.html`** — working review-queue demo (lanes, live
@@ -123,6 +129,77 @@ Delivered since v43 (world-v32, world-v33, game-v8):
   inside ordinary requests still route through screening (PENDING plumbing,
   §2.2/§9).
 
+Delivered since v58 (world-v36/v39/v43/v45/v46/v47, game-v9):
+
+- **`world/screen.js` v36 + `screen-corpus.json` (80 cases) + `screen-lab.html`
+  (world-v36)** — the classifier hardened against the oldest dodge: spaced-
+  letter runs (≥3 single-letter tokens) collapse in place before matching,
+  and a run no rule can read is itself a flag — new review-tier code
+  **`obfuscation-attempt`** (flag_w 0, feed `in_review`; the human sees the
+  collapsed text in the trace). The corpus is now a real conformance suite:
+  `world/audit.js` gate **G21** diffs `screen-corpus.json` ↔ the inline
+  `screen-lab.html` corpus case-for-case and checks taxonomy agreement with
+  `screen.js`. Rule-change workflow is contractual: every new rule ships
+  with ≥3 cases including a near-miss that must NOT trip it; the game-track
+  port may be stricter, never more permissive. The console gained a flag
+  ledger + **shift report** panel — a seeded 30-day baseline + session
+  decisions folded in, which is the studio-side source for the §6a monthly
+  report (`moderation.json.transparency_report`, fields list verbatim).
+- **`world/onboarding.html` v3 (world-v39)** — the review lesson is now
+  player-facing: stage S4c walks a new player through a scripted exclusive
+  weather ask that comes back "not approved — refunded," so the first denial
+  a player meets is a tutorial, not a surprise. Audit gate G10 bans
+  appeal/denial-reason leaks in onboarding copy — the demo teaches the
+  *flow*, never codes a player could route around.
+- **`world/crowd.json §ambient_resources` (world-v43)** — five claimable
+  sub-venue `res-*` slots joined the claims space: **exclusive class, human
+  review, claims the resource never the venue**. Moderation relevance: the
+  exclusive lane is no longer only venues/sky — a request can lock a stool,
+  a corner table, a work zone slot; same screening, same review lane, same
+  attribution.
+- **`world/applications.json` (world-v45)** — the tryout layer (16 job arcs,
+  8 housing rows) ships with a moderation-friendly invariant the plan now
+  relies on: **declines never emit feed events — no new kinds**. A rejected
+  application is private by construction; there is nothing to redact, no
+  spectator spectacle for a failed tryout.
+- **`world/request.html` v46 (world-v46)** — the reviewed-request half of
+  the pipeline is now player-visible end to end:
+  - **Approve-modified is an offer, not a bill.** A trimmed request returns
+    "approved (modified)" with old → new terms and both prices; *accept*
+    runs the trim at the re-quoted total (upfront difference refunded),
+    *decline* refunds the full upfront charge. Declining costs nothing —
+    "ambiguity resolves against the player" rendered as UI.
+  - **Honest upfront charge.** Credits now leave at declare (ledger line
+    "(upfront)") instead of at run — every refund path (deny, queued
+    cancel/expiry, modified decline, nudge 50%) is a real ledger credit.
+    "Denied requests never bill" stays literally true: charge out, charge
+    back, net zero.
+  - **Queued hold clock.** Queued cards show the hold live
+    (`hold 22 h 24 min left of 24 h · expiry auto-refunds`) and expire in
+    view. Review happens on activation, never while waiting — a queued
+    request is not "in review," copy must not blur the two.
+  - **Scheduled exclusives fire on the feed** (`running`/`resolved` with
+    the filer's handle; trimmed terms say "(trimmed terms)"). Attribution
+    is now visible end-to-end, which is what §2.4 step 5 promised.
+  - **Demo hooks.** `window.RW_DEMO_EVENTS` emits `request_submitted`,
+    `review_lesson_shown`, `review_outcome_seen`, `low_balance_simulated`,
+    `handoff_seen` — the marketing funnel's PENDING onboarding hooks now
+    have a producer to conformance-check against `analytics-events.json`.
+- **`world/wire.html` v4 (world-v47)** — declared-cost chips: feed emitters
+  may set `attrs.credits`/`attrs.minutes`, rendered as "declared — N cr ·
+  M min (paid upfront, hard cap)". Spectators see what an intervention cost
+  at a glance — price transparency is now a wire feature, not a claim.
+- **`41_game_systems_offline.js` + costar action (game-v9)** — two
+  moderation-relevant edges shipped: `gsPossessDeny` gained
+  `owner_offline` (checked at file AND promote — possession can't sneak in
+  while the owner is away); the new **`costar`** bus action (2 cr/min,
+  5–60 min, claims `char:<cid>`) can be *declined* by the character — the
+  decline resolves the request `completed` with a **half refund** and a
+  feed line "— resolved · declined". A decline is a world outcome, not a
+  moderation event: it stays on the feed, attributed, unlike a denial.
+  Brain-mode transitions deliberately emit NO feed events — thin/possessed
+  flips are not public spectacle.
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -156,7 +233,10 @@ shows the neutral `request not approved`):
 `surface-relationship` (touches a main's job/marriage/friendship) ·
 `venue-lock` · `repeat-pattern` (same_target_7d ≥ 3 or denied_30d ≥ 2 — the
 fixation heuristic) · `real-person-mention` · `appeal-resubmit` ·
-`first-time-exclusive` (acct < 3 days old filing an exclusive).
+`first-time-exclusive` (acct < 3 days old filing an exclusive) ·
+`obfuscation-attempt` (world-v36: spaced-letter runs ≥3 tokens collapse
+in place before matching; a run no rule can read routes to a human, who
+sees the collapsed text in the trace — flag_w 0, appealable).
 
 Player-facing wording is per-code canned copy in `screen.js`
 `REASON_CODES.player_msg` — reviewers pick a code, never free-type player
@@ -188,7 +268,7 @@ shopping list is now mostly built by world-v8:
    home_address, public_profile, surface_relationships, routine`). Secrets
    aren't redacted; they're absent from the schema entirely.
 3. **Reason codes — DELIVERED, expanded.** Canonical taxonomy in §2.1
-   (7 deny + 7 review codes) replaces the v13 four-code enum. `policy-other`
+   (7 deny + 8 review codes) replaces the v13 four-code enum. `policy-other`
    is retired — if a deny doesn't fit a code, the code list is wrong, not
    the request.
 4. **Queue depth alert — DELIVERED as spec.** Threshold 20 pending → owner
@@ -206,9 +286,15 @@ classifier wiring into `41_game_systems_requests.js`, SLA timers, and
 (world-v32), request permalinks + mention/sponsor attribution chips
 (world-v33), and the hire-name gate `gsHireNameCheck` (game-v8 — naming
 lane delivered for hire/create names; free-text naming strings inside
-ordinary requests still await classifier plumbing). The console demo
-defines expected review behavior; `RWScreen` verdicts are the reference
-outputs.
+ordinary requests still await classifier plumbing); since v58: the
+`obfuscation-attempt` code + spaced-letter collapse + 80-case conformance
+corpus + G21 audit gate + shift-report panel (world-v36), the player-facing
+review lesson (world-v39), claimable `res-*` ambient resources in the
+exclusive class (world-v43), and the full player-side reviewed-request
+flow — modified-offer accept/decline, upfront charge, hold clock,
+scheduled-fire attribution (world-v46). The console demo defines expected
+review behavior; `RWScreen` verdicts + the corpus are the reference
+outputs — merge keeps the stricter-or-equal rule verbatim.
 
 **Honest-SLA rule:** copy may say "exclusive requests are reviewed by a
 human before they run." Copy must never promise a review *time* — a queue
@@ -364,6 +450,10 @@ not policy discretion.
 | Rent/eviction grief wave | Queue fills with "raise her rent" style asks | All die on `admin-domain` (deny, refund, flag +1); recap may note the attempt class in aggregate | No |
 | Naming-lane abuse | Offensive hire name / plaque string | `gsHireNameCheck` blocks cast/ambient/role-word names at the create form (game-v8); screened strings deny via `identity-fraud`/`legal-backstop` as applicable; string never reaches the world | No |
 | Appeal-cycle abuse | Denied requester refiles the same text to farm new appeals | Re-submissions route to the `appeal-resubmit` lane — different reviewer, *not* a fresh appeal; `repeat-pattern` engages at denied_30d ≥ 2; flags accumulate per §2.4a | No |
+| Obfuscation wave | Requests arrive spaced-letter or leetspeak ("m a k e  h e r …") | Engine collapses runs before matching (world-v36); if the collapsed text is still illegible the `obfuscation-attempt` code routes it to a human; canned reply exists (§B templates) — never accuse, just state the readable-text rule | No |
+| Costar request declined by the character | Feed shows "— resolved · declined" + half refund | Working as designed — a decline is a world outcome, not a denial: no refund ticket, no appeal (the request ran and the character said no). Mods point to the feed line; do NOT open a review case | No |
+| Modified-offer confusion | Player doesn't understand "approved (modified)" | Point to the offer card: accept runs the trim at the re-quoted price (difference refunded), decline refunds the full upfront charge. Declining costs nothing; the trim was reviewer-set, ambiguity resolves against the player — canned reply in templates | No |
+| Hold-clock expiry panic | "My request sat 24 h and vanished" | Working as designed — queued ≠ in review; review happens on activation. Expiry auto-refunds in full; the feed line "queued request expired before activation" is the public record | No |
 | Credit scam in Discord | "selling credits" posts | Instant ban + pinned PSA reminder credits are non-transferable | No |
 | Doxxing attempt (mapping fiction → real door) | Member posts real-address guesses | Instant ban, delete content, note in #mod-log | Owner informed after |
 | CSAM/illegal request text | Classifier flags legal-backstop | Escalate-legal: kill pre-run or mid-flight, account flag +3, owner notified, ledger legal-deny; public wording identical to a normal deny; owner decides legal reporting | Yes — immediately |
@@ -379,7 +469,12 @@ not policy discretion.
   abuse is deterred by account flags (§2.4a), which cost privileges rather
   than money.
 - Queued-and-expired → auto-refunded (design §5, LOCKED).
-- Approve-modified → unused credits auto-refund; trim-only, logged.
+- Approve-modified → the request card becomes an **offer** (world-v46),
+  not a bill: old → new terms and both prices shown; *accept* runs the
+  trimmed version at the re-quoted total (upfront difference auto-refunds),
+  *decline* refunds the full upfront charge. Trim-only, never expanded,
+  logged; declining costs nothing — "ambiguity resolves against the
+  player" is a UI rule, not a slogan.
 - Admin override of an active request → affected players compensated (§3).
 - **Appeal window 72 h**, routed to a **different reviewer** — the console
   shows the original reviewer id on the appeal card so the rule is checkable.
@@ -409,6 +504,9 @@ not policy discretion.
 | Community ladder actions | #mod-log | warns >> timeouts >> bans |
 | Feed-filter flag rate | display filter — measurable via `gsWireAudit` + `GS_WIRE_SUP` suppression counters (game-v6) | low; spikes = coordinated test or broken filter |
 | Wire audit result | `gsWireAudit()` → `{ok, issues[]}` | ok:true always — a fail is a launch blocker |
+| Screen-corpus conformance | `world/audit.js` G21 ↔ `screen-corpus.json` (80 cases, world-v36) | green at current `RWScreen.VERSION`; a red corpus is a launch blocker same as a wire-audit fail |
+| Costar decline rate | feed `— resolved · declined` lines (game-v9) | exists, low; a ~0% rate means declines aren't reaching the feed, ~100% means pricing/scoping is off |
+| Modified-offer decline rate | offer-card accept/decline counts (world-v46 contract) | some declines are healthy — proof trims are real offers; a ~0% decline rate means trims are too timid to notice |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -435,6 +533,11 @@ the counters.
 | "Denied request text never appears on the public feed — enforced in code and audited" | Implying approved requests are pre-scripted — the AI renders them in character |
 | "Hire names are checked before they're accepted — you can't name a character after a cast member, a neighbor, or a real person" | "Names are moderated by hand" — the create-form check is code (`gsHireNameCheck`), not a reviewer |
 | "Every request — and every denial — has a permalink you can link" | "Moderation is fully transparent" — individual appeals and flags stay private by design |
+| "If a reviewer trims your request, it comes back as an offer — accept it at the new price or decline for a full refund. Trims only ever shrink a request, never grow it" | "Reviewers adjust your request" — the player decides; a modified offer is never auto-run |
+| "Credits are charged when you file, and every path that doesn't run — denied, expired, declined-offer — refunds in full automatically" | "You only pay for approved requests" — the charge lands at declare; the net-zero is via refund, and copy must keep that ordering honest |
+| "Queued requests show a live hold clock — if the hold expires before activation you get every credit back" | "Queued requests are under review" — review happens on activation; queued and in-review are different states |
+| "A character can turn down a co-star request — the decline is public on the feed and half the credits come back" | "Paid requests always happen" / "characters can't refuse you" — the whole point is they can |
+| "The screening engine is versioned and regression-tested — every rule ships with test cases, and the game build's classifier can only be stricter than the public reference, never looser" | Publishing the corpus or rule internals — the corpus is conformance tooling, not a public how-to-dodge list |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -476,3 +579,19 @@ pages + this table update in the same commit.
   by world-v33; the day-30 report template may now link whole request
   lifecycles, not just events (§6a; template update still owed at first
   issue).
+- ~~Classifier hardening vs text obfuscation~~ — DELIVERED by world-v36
+  (spaced-letter collapse + `obfuscation-attempt` review code + 80-case
+  corpus + G21 gate). Remaining at merge: port `screen.js` into the game
+  bundle under the stricter-or-equal rule; the corpus is the conformance
+  suite.
+- ~~Player-facing approve-modified flow~~ — DELIVERED by world-v46 (offer
+  card, accept/decline, upfront-difference refund). Remaining: game-side
+  offer state in the request bus.
+- ~~Onboarding moderation education~~ — DELIVERED by world-v39 (S4c
+  scripted denial+refund lesson) and world-v46 demo hooks
+  (`review_lesson_shown`/`review_outcome_seen` emit to `RW_DEMO_EVENTS`).
+  Marketing action owed: conformance-check those event names against
+  `analytics-events.json` at merge (PENDING hooks now have a producer).
+- Costar-action decline semantics — DELIVERED by game-v9 (`completed` +
+  half refund + feed line). No moderation action needed; §4 runbook row +
+  §7 copy row added so mods don't misread declines as denials.

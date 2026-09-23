@@ -44,6 +44,31 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
 > charged if it's approved; the original refund already landed. Nothing
 > about this appears on the public feed beyond the usual aggregate count.
 
+**Request approved (modified) — the offer:**
+> A reviewer approved a trimmed version of request [#ID]: [old terms] →
+> [new terms]. It's an offer, not a bill — accept and it runs at [N] cr
+> ([K] cr comes back), or decline and the full [M] cr upfront charge is
+> refunded. Trims only ever shrink a request, never grow it; declining
+> costs nothing.
+
+**Queued request expired (hold clock):**
+> Request [#ID] was queued and its hold ran out before a slot opened — it
+> expired and refunded in full. Queued isn't "in review": review happens
+> when a request activates. Compatible requests skip the queue entirely if
+> you want a faster path.
+
+**Co-star request declined by the character:**
+> Request [#ID] ran and the character declined — that's a world outcome,
+> not a moderation denial: it resolved "completed," half the credits were
+> refunded, and the feed line is the public record. Characters can say no;
+> there's nothing to appeal because nothing was blocked.
+
+**Request routed to review for unreadable text (`obfuscation-attempt`):**
+> Request [#ID] went to human review because the text wasn't readable as
+> filed (spaced-out or obfuscated wording). Write the request in plain
+> text and it'll classify normally — the reviewer sees the same words you
+> typed, nothing more sinister than that.
+
 **Hire name rejected (create form, `gsHireNameCheck`):**
 > That name isn't available — hire names can't reuse a cast member's, a
 > neighbor's, or a real person's name. Pick a different one and the

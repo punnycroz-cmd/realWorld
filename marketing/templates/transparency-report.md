@@ -26,6 +26,14 @@
   (<cr> credits returned), denied <n>.
 - Median time in review: **<n> min**. (Internal target 15; we publish the
   real number, not the target.)
+- Modified offers extended: **<n>** — accepted <n>, declined <n>
+  (<cr> credits returned on declines). Trims only ever shrink a request.
+- Screen-engine version: **<RWScreen.VERSION>** — corpus green (<n> cases)
+  this month. The public reference classifier is the conformance floor;
+  the shipped one can only be stricter.
+- Requests declined by characters (co-star): **<n>** — resolved completed,
+  <cr> credits returned at the half-refund rate. A character saying no is
+  a world outcome, not a denial; we count it here so the number is public.
 
 ## Appeals & flags
 
