@@ -2726,3 +2726,79 @@ from young adulthood); Friedman 1991 (Child Dev 62:139 —
 verified: 4y recency+time-of-day OK, day/week/month/season 6–8);
 Friedman & Kemp 1998 (Cog Dev 13:335 — recency discrimination
 early, location interpretation >9); Friedman 2003 (review).
+
+## 63. New probes P399–P408 (v40 suite — age-decline V)
+
+- **P399 implicit spared (MUST — ratio):** matched encode; 30d
+  later explicit recall collapses 30→85 as usual while `impl_str`
+  effects (emission ordering, re-exp savings) decline ≤0.35× the
+  explicit drop. Fails if impl_str ages at β_episodic rate.
+- **P400 thin futures (MUST):** `imagineEvent` at 78 emits ≤0.7×
+  the verbatim-field count of the 25yo simulation; `recast_p`
+  share of old simulations traces to single source records;
+  imagination inflation correspondingly reduced (emergent check).
+- **P401 commission errors (MUST — crossover):** completed
+  intention, cue re-presented inside `deact_window`: 78yo
+  commission rate ≥3× the 25yo's AND rises with prior `fires` for
+  old but not young (Scullin 4-target sign-lock); resisted
+  commissions reduce subsequent rate (practice arm).
+- **P402 spacing null (MUST — explicit null):** massed vs spaced
+  retell schedules produce identical spacing-benefit ratios at 30
+  and 80 (within 15%) despite lower old absolute retention.
+- **P403 own-age bias (MUST — criterion null):** same-ageBand
+  targets show higher hit AND lower FA (d′ gain, not bias shift);
+  criterion measure unchanged — fails if implemented as θ shift.
+- **P404 update resistance (SHOULD):** corrected field at 78
+  re-emits the superseded value ≥25% of the time at
+  supplantDay+30; resurrected old values carry above-median
+  confidence.
+- **P405 fluency fame (SHOULD):** repeated sourceless exposure →
+  75yo emits `attribution:"known_around"` at ≥4× the 25yo rate;
+  never on first exposure (famScore gate intact).
+- **P406 semantic split (SHOULD):** 80yo's open-ended semantic
+  listing is slower/fewer while direct fact lookup stays at young
+  level — access taxed, store intact.
+- **P407 same-day blur (SHOULD):** two same-day same-place events:
+  cross-contamination rate rises 30→85 via the denser context pool
+  (`ctx_flux_mult` mechanism); different-day pairs unchanged.
+- **P408 offload paradox (SHOULD):** 75yo chooses `offload:true`
+  more often than 25yo yet still below her own optimal rate
+  (`offload_bias` <1); offloaded items skew high-importance
+  (`offload_select`).
+
+Registry now P1–P408; numbering stable.
+
+## 64. Sources new to this version
+
+La Voie & Light 1994 (Psychol Aging 9:539 — verified meta, 39
+effect sizes, weighted age-difference d≈0.30, smaller than the
+same experiments' recognition/recall effects); Ward, Berry, Kassel
+et al. 2020 (Psych Sci lifespan, contamination-controlled —
+implicit decline real but small, DEBATED vs spared-null);
+Fleischman & Gabrieli 1998 (implicit-in-aging review); Addis, Wong
+& Schacter 2008 (Psych Sci 19:33 — verified: older adults fewer
+internal details past AND future; detail counts correlate with
+relational memory); Addis, Musicaro, Pan & Schacter 2010 (Psychol
+Aging 25:369 — recombination task, deficit survives recast
+blocking); Addis, Roberts & Schacter 2011 (detail cues rescue);
+Scullin, Bugg, McDaniel & Einstein 2011 (Mem Cogn 39:1232 —
+preserved spontaneous retrieval, impaired deactivation); Scullin,
+Bugg & McDaniel 2012 (Psychol Aging 27:46 — verified ~25%
+commission errors, old > young, 4-target > 0-target in old);
+Walser, Plessow, Goschke & Fischer 2015 (forgetting practice floors
+commission errors both ages); Balota, Duchek & Paullin 1989
+(Psychol Aging 4:3 — spacing/lag preserved; model fit: less
+context encoded, slower contextual fluctuation); Bercovitz et al.
+2017 + Eur J Ageing 2023 (spacing intact at 10-day lags);
+Tsai, Scarampi, Kliegel & Gilbert 2023 (Psychol Aging — verified:
+elders use MORE reminders, reduced pro-reminder bias vs optimum);
+Scarampi et al. 2023 + Exp2 subjective-value arm (PMC10524137 —
+elders offload the important items); Rhodes & Anastasi 2012
+(Psych Bull 138:146 — verified: hits g=+0.23, FA g=−0.23, d′
+g=+0.37, criterion g=−0.01); Hartman & Hasher 1991 (Psychol Aging
+6:42 — superseded endings re-emerge); May, Zacks, Hasher &
+Multhaup 1999 (garden-path persistence); Bartlett, Strater &
+Fulton 1991 (Mem Cogn 19:348 — false fame/recency elevated in
+old); Dywan & Jacoby 1990 (fluency misattribution); Tombaugh,
+Kozak & Rees 1999 (fluency norms — access declines, vocabulary
+holds); Salthouse 1996 (processing speed).

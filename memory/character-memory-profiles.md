@@ -476,6 +476,28 @@ never copying raw.
 | date_loc_exit / child_date_mult / cyclic_acc | 5 / 1.0 / 0.3 | 12 / 8 / 1.0 | child dating mode (v3.8) |
 | stress_flip_age / child_stress_gain / child_stress_inoc | 5 / 0 / 0.5 | 12 / 0.3 / 1.0 | child stress inversion (v3.8) |
 | sem_accrual | 0.5 | 2.5 | crystallized growth rate (midlife knots, v3.8) |
+| implicit_decline | 1.0 | 1.5 | ×impl_decay_mult; ~0.3× explicit aging (v3.9) |
+| sim_detail_mult / recast_p | 0.4 / 0 | 1.2 / 0.6 | future-simulation richness / single-record recast (v3.9) |
+| pm_deactivate / comm_habit_gain | 0.5 / 0 | 1.0 / 0.3 | completed-intention suppression / repetition boost (v3.9) |
+| ctx_flux_mult | 0.5 | 1.2 | context-drift rate; <1 denser same-day pool (v3.9) |
+| offload_pref / offload_bias / offload_select | 0.5 / 0.3 / 0 | 2.0 / 1.2 / 1.0 | reminder use / benefit-pricing / value selectivity (v3.9) |
+| own_age_gain | 0 | 0.3 | same-ageBand d′ gain, criterion untouched (v3.9) |
+| update_resist | 0 | 0.5 | superseded-version leak-back rate (v3.9) |
+| fame_fluency | 0 | 0.3 | sourceless-fluency→prominence attribution (v3.9) |
+| sem_search_tax / lat_age_mult | 0 / 1.0 | 0.12 / 2.0 | semantic-list θ tax / latency age scale (v3.9) |
+
+**v3.9 age-decline note (residual channels):** all v3.9 params are
+reserve-shifted capacity dials EXCEPT `own_age_gain` (expertise —
+follows the character's exposure history, not decline). Bible
+guidance: `pm_deactivate` low + `comm_habit_gain` high on a routine-
+bound elder produces the bought-it-twice beat; `update_resist` high
+is the "she still lives on Folsom" character — pair with a recent
+move in the backstory. `fame_fluency` belongs on socially embedded
+elders (more gossip exposure → more fluency to misattribute).
+`offload_bias` low on a proud character = refuses the notebook,
+loses the errand — the metacognitive miss is the drama. `impl_str`
+is store-side, not a dial. `spacing_gain` stays flat — do not pin
+it low on old characters; their distributed retells work fine.
 
 **v3.3 note (society/cache/fitting layer):** `doubt_persist` is the
 only new per-char dial — how long a trusted correction keeps a record

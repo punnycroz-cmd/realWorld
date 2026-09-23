@@ -1,4 +1,35 @@
-# Memory Model Spec v3.8 — implementable human-like memory for RW characters
+# Memory Model Spec v3.9 — implementable human-like memory for RW characters
+
+> **v3.9 note (age-decline V — the residual channels):**
+> `memory/age-decline.md` Part IV (§§49–62) prices what survives
+> intact, what silently repeats, and what misattributes its own
+> fluency: **implicit channel** — `impl_str` record field decays at
+> ~0.5× episodic rate, ages at ~0.3× the explicit deficit, feeds
+> emission ordering / famScore / re-encoding savings, never θ-gated
+> (La Voie & Light 1994; Ward et al. 2020 debate noted) — §5.35;
+> **thin futures** — `sim_detail_mult` + `recast_p` on imagineEvent:
+> old simulations mint fewer verbatim fields or recast one whole
+> past record (Addis, Wong & Schacter 2008; Addis et al. 2010) —
+> §5.34; **intention deactivation** — completed intentions keep
+> firing inside `deact_window` at `comm_err_p`, WORSE for
+> repeatedly-performed intentions in old (Scullin, Bugg, McDaniel &
+> Einstein 2011/2012; Walser 2015 practice floors it) — §5.33;
+> **spacing null + slow context flux** — spacing benefit age-flat,
+> `ctx_flux_mult` slows ctxShift → denser same-day interference
+> pools (Balota, Duchek & Paullin 1989) — §4.22; **offloading
+> asymmetry** — elders offload more but under-price the aid vs
+> optimum, selectively for high-value items (Tsai, Scarampi,
+> Kliegel & Gilbert 2023) — §2 offload terms; **own-age bias** —
+> `own_age_gain` on discriminability only, criterion untouched
+> (Rhodes & Anastasi 2012 meta) — §5.36; **update resistance** —
+> reconsolidation writes mint versioned pairs at `update_resist`,
+> superseded values leak back with age (Hartman & Hasher 1991) —
+> §6.37; **fluency fame** — sourceless familiarity misattributes to
+> prominence at `fame_fluency` (Bartlett, Strater & Fulton 1991) —
+> §6.38; **semantic access tax** — `sem_search_tax` on open-ended
+> semantic recall while direct lookup stays fluent (Tombaugh 1999;
+> Rönnlund 2005) + `lat_age_mult` on §5.25 latency — §5.4/§5.25.
+> +14 params in §7, probes P399–P408. All optional, default-neutral.
 
 > **v3.8 note (age-development IV — the child channels that were
 > never modeled):** `memory/age-development.md` Part IV (§§36–47)
@@ -1420,6 +1451,14 @@ Postman 1964; Hyde & Jenkins 1973).
   Intentions with `extCue:true` pay `pending_intrude ×= 0.3` but
   internal cue-binding ×`extcue_bind_mult` (0.5) — external reminders
   discharge the loop AND the vigilance (Risko & Gilbert 2016).
+  **v3.9 (AD§53):** the offload *decision* ages: `offload:true`
+  chosen with rate ×`offload_pref(age_eff)` (1.0 ≤50 → 1.3 at 70 →
+  1.5 at 85 — elders use more reminders) but the expected-benefit
+  term in the choice ×`offload_bias(age_eff)` (1.0 → 0.6 at 85 —
+  elders under-price the aid vs their own optimum, Tsai, Scarampi,
+  Kliegel & Gilbert 2023); `offload_select(age_eff)` (0.3 → 0.65)
+  = probability the offloaded item is the high-importance one
+  (subjective-value arm, Exp 2). P408.
 - **Threat capture (v3.5):** Event flag `threatCue:true` →
   `E += threat_capture` (0.2) on the threat record; co-occurring
   non-threat records ×=(1 − `threat_drain`·(0.3 + 0.7·traitAnx))
@@ -2185,6 +2224,22 @@ steepness is between-person variance (cohort, education, health),
 now explicitly a bible choice rather than the population default.
 P396.
 
+### 4.22 Contextual fluctuation slows with age — same-day blur (new in v3.9)
+
+Balota, Duchek & Paullin 1989 (Psychol Aging 4:3) model fit: elders
+encode less context per moment AND their context vector fluctuates
+more slowly (AD§52). Two consequences:
+
+- `ctx_flux_mult(age_eff)` — knots 1.0 ≤50 → 0.85 at 70 → 0.7 at 85 —
+  scales every `ctxShift` magnitude (§5.29 boundaries, day
+  boundaries, locShift): the old context drifts less, so same-day
+  records share more context features → the §4.2 `sim_interf` pool
+  is denser within-day → "which Tuesday thing" confusions rise with
+  age while cross-day separation is preserved. P407.
+- `spacing_gain` is an **explicit age-null** (Balota 1989; Bercovitz
+  2017 — spacing benefit fully preserved): distributed retells are
+  the elder's best rehearsal economics; no knots added. P402.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -2383,6 +2438,13 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
   (drive within 0.05) prefer the positive-valence record with
   probability `pos_eff` (§2 formula; age-decline.md §18). Older
   reminiscence leans warm even when the archive doesn't.
+- **v3.9 — semantic access tax:** open-ended semantic retrieval
+  (list-generate queries against the semantic store — "name the
+  vendors on the block") pays `θ += sem_search_tax(age_eff)`
+  (knots 0 ≤50 → 0.03 at 70 → 0.06 at 85). Direct fact lookup /
+  item recognition exempt — the store is rich, the index is slow
+  (Tombaugh, Kozak & Rees 1999 fluency norms; Rönnlund 2005;
+  age-decline.md §57). P406.
 
 ### 5.5 What retrieval returns
 
@@ -3020,6 +3082,9 @@ observable channel on R. Display/validation only — latency must never
 feed back into θ or strength. P374.
 **v3.7:** `latency_ms ×= (1 + lat_da_mult·cueContext.daLoad)` — the
 retrieval-time DA tax lives here, not in accuracy (RC§34).
+**v3.9:** `latency_ms ×= lat_age_mult(age_eff)` — knots 1.0 ≤50 →
+1.3 at 70 → 1.6 at 85 (Salthouse speed; AD§57). Display only —
+latency still never feeds θ.
 
 ### 5.26 Forward testing — remembering primes learning (new in v3.7)
 
@@ -3174,6 +3239,82 @@ REFUSAL:
   meta's null) — no training flag exists by design.
 
 P393.
+
+### 5.33 Intention deactivation — the finished errand keeps firing (new in v3.9)
+
+Scullin, Bugg, McDaniel & Einstein 2011 (Mem Cogn 39:1232): aging
+leaves spontaneous retrieval intact but impairs *deactivation* of
+completed intentions (AD§51). After an intention record completes,
+for `deact_window` ≈ 7 game-days a matching cue still rolls the
+§5.14 fire test at scaled probability:
+
+```
+comm_err_p = (1 − pm_deactivate(age_eff))·cueMatch
+             · (1 + min(fires,5)·comm_habit_gain)
+pm_deactivate: 0.95 ≤50 → 0.85 at 70 → 0.7 at 85
+comm_habit_gain ≈ 0.1 — repeated performance raises commission
+  risk for OLD only (Scullin, Bugg & McDaniel 2012, Psychol Aging
+  27:46, ~25% commission errors; 4-target > 0-target in old)
+```
+
+A commission fire emits `commission:true` — the action starts and
+is catchable by dialogue ("I already paid the rent… didn't I?");
+uncaught, it re-executes (stamps bought twice). Each *resisted*
+commission multiplies `pm_deactivate` ×1.15 within the window —
+`deact_practice_gain` (Walser et al. 2015: forgetting practice
+floors commission errors in both ages). The §34 cue-richness that
+rescues old PM is exactly what refuses to switch off — same arm,
+opposite sign. P401 sign-locks the age×repetition crossover.
+
+### 5.34 Episodic future simulation — old plans are thin plans (new in v3.9)
+
+`imagineEvent` (§6.9) ages like recall (Addis, Wong & Schacter 2008,
+Psychol Sci 19:33 — the internal-detail deficit extends forward;
+Addis et al. 2010 recombination paradigm — it's a recombination
+deficit, not pure recasting):
+
+- `sim_detail_mult(age_eff)` — 1.0 ≤50 → 0.8 at 70 → 0.65 at 85 —
+  scales the verbatim-field count a simulated record is minted
+  with. Old futures are skeletal: the plan, not the particulars.
+- `recast_p(age_eff)` — 0.1 ≤50 → 0.25 at 70 → 0.4 at 85 —
+  probability the simulation is a decorated copy of ONE existing
+  record (same place/people, new `when`) rather than recombined
+  parts; inherits source verbatim at `sim_detail_mult` richness.
+- Emergent: imagination inflation shrinks for elders — thin
+  simulations inflate less. Env-supported simulation (detail cues
+  supplied) rescues part of the deficit (Addis et al. 2011) — ride
+  the existing `env_support_gain`, no new term.
+
+P400.
+
+### 5.35 The implicit channel — fluency outlives recall (new in v3.9)
+
+Records gain `impl_str` (minted 1.0; decays at
+`β_impl = beta_episodic·impl_decay_mult`, impl_decay_mult = 0.5;
+NEVER gated by θ). It is report-free and does three things:
+
+1. §5.22 emission ordering — among near-tied drives, higher
+   `impl_str` wins.
+2. §5.28 `famScore` input — contributes `impl_fam_w` (0.4)·impl_str.
+3. Re-encoding savings — re-exp on a record with impl_str ≥ 0.5
+   gains `impl_reexp_gain` (0.1) on E (Ebbinghaus savings channel).
+
+Aging: `implicit_decline(age_eff)` — 1.0 ≤50 → 1.15 at 70 → 1.3 at
+85 — multiplies impl_decay_mult: a real but small decline sized
+~0.3× the explicit one (La Voie & Light 1994 meta, 39 effects,
+d≈0.30 vs several-times-larger explicit effects; Ward et al. 2020
+lifespan — deficit survives contamination controls, noted DEBATED).
+P399 tests the ratio, not the null.
+
+### 5.36 Own-age bias — discriminability, not criterion (new in v3.9)
+
+§5.10 person cascade: when the target's `ageBand` (floor(age/15))
+matches the recognizer's, familiarity AND identity tier rolls get
+`+own_age_gain` (0.15) and the false-alarm term gets `−own_age_gain`.
+Criterion/θ untouched — Rhodes & Anastasi 2012 meta (Psych Bull
+138:146): hits g=+0.23, FA g=−0.23, d′ g=+0.37, criterion g=−0.01
+(null). NOT reserve-shifted — contact/expertise, follows exposure
+history. P403 fails any criterion-shaped implementation.
 
 ---
 
@@ -4281,6 +4422,35 @@ unlock it). Nonverbal cues (odor, song, posture) retrieve these
 records at normal rates — §5.28 `familiar_only` and §5.20 latent
 reinstatement are their natural routes. P389.
 
+### 6.37 Update resistance — the old version re-emerges (new in v3.9)
+
+Hartman & Hasher 1991 (Psychol Aging 6:42): elders recall the
+original endings they themselves replaced; May, Zacks, Hasher &
+Multhaup 1999 garden-path — the superseded interpretation persists
+(AD§55). On a §5.9 reconsolidation write that changes a verbatim
+field, with probability `update_resist(age_eff)` — 0.05 ≤50 → 0.2
+at 70 → 0.35 at 85 — the field mints a **versioned pair**
+`{old_v, new_v, supplantDay}` instead of overwriting. Later
+reconstructions emit `new_v` with probability `new_v_share` = 0.7,
+decaying −0.01/day after supplantDay, floor 0.5 — the correction
+fades back toward the original. Resurrected old values stack
+`conf_inflate_old` — "she still lives on Folsom," said with
+certainty, six months after the move. P404.
+
+### 6.38 Fluency fame — familiar reads as notable (new in v3.9)
+
+Bartlett, Strater & Fulton 1991 (Mem Cogn 19:348): false fame and
+false recency both elevated in older adults — sourceless fluency
+gets attributed to prominence (AD§56). When §5.28 emits
+`familiar_only` on a person/name cue with famScore ≥ fam_bar and
+the source unresolved for `fame_window` ≥ 30 days, the emission
+may carry `attribution:"known_around"` with probability
+`fame_fluency(age_eff)` — 0.02 ≤50 → 0.08 at 70 → 0.15 at 85
+(young knot near-zero; young fluency reads as déjà vu via
+`deja_prop` instead). Rumor consequence: repeated gossip exposure
+manufactures notability for elders — fluency inflates reputation
+salience without any source. P405.
+
 ---
 
 ## 7. Character parameter table (schema)
@@ -4962,6 +5132,28 @@ MemoryParams = {
 //   enc_base: .84 → .94@50; beta_episodic: 1.31 → 1.15@50;
 //   theta: 1.18 → 1.08@50. search_breadth unchanged (perceptual speed
 //   IS linear-from-20s). Prior knots reinstated under low_reserve.
+// v3.9 additions (age-decline V — residual channels, age-decline.md §§49–62)
+"implicit_decline": 1.0,   // ×impl_decay_mult; knots →1.15@70, 1.3@85
+"sim_detail_mult": 1.0,    // imagined-future verbatim count; →0.65@85
+"recast_p": 0.1,           // imagine-as-copy-of-one-record; →0.4@85
+"pm_deactivate": 0.95,     // completed-intention suppression; →0.7@85
+"comm_habit_gain": 0.0,    // ×fires commission boost (old only)
+"ctx_flux_mult": 1.0,      // ctxShift magnitude; →0.7@85 (Balota 1989)
+"offload_pref": 1.0,       // offload-choice rate; →1.5@85
+"offload_bias": 1.0,       // benefit weight in offload choice; →0.6@85
+"offload_select": 0.3,     // high-value share of offloaded; →0.65@85
+"own_age_gain": 0.15,      // same-ageBand d′ gain; criterion untouched
+"update_resist": 0.05,     // versioned-pair mint on rewrite; →0.35@85
+"fame_fluency": 0.02,      // sourceless-fluency→prominence; →0.15@85
+"sem_search_tax": 0.0,     // θ on open-ended semantic recall; →0.06@85
+"lat_age_mult": 1.0,       // ×latency_ms; →1.6@85
+// v3.9 frozen constants: deact_window=7d; new_v_share 0.7 −0.01/d
+//   floor 0.5; fame_window=30d; impl_decay_mult=0.5; impl_fam_w=0.4;
+//   impl_reexp_gain=0.1; deact_practice_gain=1.15/resist.
+// v3.9 explicit nulls: spacing_gain (age-flat — Balota 1989); pm_focal
+//   reaffirmed. Record fields: impl_str; versioned pair {old_v,new_v,
+//   supplantDay}; attribution:"known_around" on familiar_only;
+//   commission:true on intention fires.
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -5708,6 +5900,22 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     Interview schedules are memory operators, not probes.
   - Record schema: `verbal_age` (0..1, minted); `script` nodes are
     store-internal. All snapshot-additive, absent = legacy.
+- v3.9 additions (age-decline.md Part IV §§49–62):
+  - Intention records may emit `commission:true` — a completed
+    intention re-fired inside `deact_window` (§5.33). Dialogue may
+    render catch-yourself ("I already… didn't I?") or let it
+    re-execute; the flag marks it either way.
+  - `imagineEvent` outputs now carry `sim_detail_mult`-scaled
+    verbatim counts and may be `recast` copies of a single source
+    record (§5.34) — downstream, thin imaginations inflate less.
+  - `familiar_only` emissions may carry `attribution:"known_around"`
+    (§6.38) — sourceless fluency misread as prominence, old only.
+  - Record schema: `impl_str` (implicit strength, θ-exempt,
+    slow-decaying, §5.35); verbatim fields may be versioned pairs
+    `{old_v, new_v, supplantDay}` (§6.37) — reconstructors must
+    sample per `new_v_share`; all snapshot-additive, absent=legacy.
+  - `latency_ms` now scales with `lat_age_mult` — longer hesitations
+    are a normal-aging display channel, not a bug.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
