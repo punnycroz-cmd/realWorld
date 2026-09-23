@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13)
+# Thin-AI Fallback — spec (world v13; second pass v41)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -137,13 +137,18 @@ serve."
 
 ## 8. Demo & playtest
 
-`world/thinai.html` — "The Understudy" (v2, world v27): three pawns
-(A01 always thin, h01 cycling thin→possessed→handoff, C2 showing the
-degraded path), a clock stepper, a service-capacity slider, event
-buttons (log off / return / possess / cap / rain / press / co-star),
-needs meters, a baseline-wage ledger, the live handoff note with
-staleness, and a split log marking which lines are feed-public vs
-seam-internal. Playtests: PT11 + PT25 in `world/playtest.json`.
+`world/thinai.html` — "The Understudy" (v3, world v41): four pawns
+(A01 always thin; h01 cycling thin→possessed→handoff; C2 *and* C6
+showing the salience-ordered degrade ladder — Carmen alone at home
+thins before Jules mid-scene), a clock stepper, service-capacity
+buttons, event buttons (log off / return / possess / cap / rain /
+press / ask / co-star), needs meters, a baseline-wage ledger, a
+compute ledger (llm_min / thin_min / player_min), an owner report,
+the live handoff note + stale-note archive, the authored phrase kit,
+and a split log marking which lines are feed-public vs seam-internal.
+The page carries a LIVE SEAM badge: when `window.__aiBridge` exposes
+the game-v9 offline surfaces it reads them; otherwise it runs on the
+inline mirror. Playtests: PT11 + PT25 + PT37 in `world/playtest.json`.
 
 ## 9. Degrade ladder (mains, brain-service capacity)
 
@@ -294,3 +299,125 @@ baseline wage accrual and a scheduled rent draft on the day boundary;
 and a 24-h-old handoff note archiving itself. Every one of those lines
 is seam-internal except the locked feed vocabulary — which is the whole
 argument of this file.
+
+## 17. Presence model (who counts as "online")
+
+Presence is a three-state signal on the *owner*, not the pawn:
+
+| state | meaning |
+|-------|---------|
+| `online` | an open session/heartbeat exists |
+| `lingering` | connection lost ≤ 90 s ago — refresh-safe grace |
+| `offline` | no session, linger expired |
+
+- **Filing a request stamps presence** — a filed request is a sign of
+  life; the owner can't be billed for a session they aren't around to
+  drive. (`gsPresenceSeen` on the game side.)
+- **Possession requires `online`** — deny code `owner_offline` is
+  checked at file *and* at promote (the owner may have dropped between
+  approval and activation). Denied-at-file requests never bill;
+  denied-at-promote resolves with the standard refund path.
+- **Disconnect order is fixed:** a live session holds the connection
+  open, so "owner logs off mid-possession" can't happen — disconnect
+  ends the session first (cap semantics), then linger applies to the
+  now-`full` brain.
+
+## 18. Compute ledger — the honest split
+
+Every tick, every pawn lands in exactly one bucket:
+
+| bucket | modes | cost |
+|--------|-------|------|
+| `llm_min` | `full` | paid compute |
+| `thin_min` | `thin`, `degraded` | ~free — schedule + reflexes |
+| `player_min` | `possessed` | ~free — the human is the compute |
+
+This split is the product's cost story, not decoration: 20 ambients
+and every offline hire run on `thin_min`, degraded mains stay honest
+(they're still thin compute — resilience, not a feature), and
+possession minutes are nearly cost-free to serve, matching plan §0.
+Surfaced internally via `gsComputeStats()`; never a spectator surface.
+
+## 19. Owner report
+
+A player who owns a hired character gets an `owner report` — the
+offline analogue of a baby monitor:
+
+- **Scope:** own hired pawns only. Never another player's pawn, never
+  a main, never an ambient.
+- **Fields:** mode-agnostic place + doing, wages accrued since last
+  visit (baseline rate), scheduled obligations met or lapsed, open
+  co-star windows.
+- **Never:** the handoff note verbatim, other characters' state, or
+  anything seed-adjacent (absent by construction — thin never had it).
+- **Tone:** a ledger, not a diary. "Your courier worked the loop, rent
+  drafted, one favor-thread pending" is mechanics, not narration.
+
+## 20. Salience ordering (degrade ladder detail)
+
+§9's "lowest scene-salience first" is now concrete:
+
+- **Salience factors:** watchers on the venue/scene; a live scene in
+  progress; mid-conversation.
+- **Tie-break:** deterministic — fewer watchers, then longer idle,
+  then id order. Never random, never alphabetic, never player-visible.
+- **Recovery** restores in the same order as capacity returns.
+- Example the demo exercises: Carmen (C6) alone at home on a Tuesday
+  evening is the lowest-salience main on the block; Jules (C2)
+  mid-scene at a crowded cafe is near the top. At 60% capacity, Carmen
+  thins first; at 30%, both. Neither gets a feed line.
+
+## 21. Phrase kit — the authored vocabulary
+
+§11's contract is now stocked. The full kit lives in
+`thinai.json → phrase_kit.lines`, mirrored in the demo:
+
+- **greeting:** morning / hey / how's it
+- **queue:** big line today / they're backed up again / worth the
+  wait, probably
+- **weather:** fog came in early / sun finally burned through /
+  supposed to clear up later / cold for September
+- **game:** heard the game last night / they blew it in the ninth /
+  big one this weekend
+- **closing:** take it easy / see you around / have a good one
+- **deflect** (direct questions only): can't complain / you know how
+  it is / we'll see
+- **silence** (at cap): a nod / a half-wave / a shrug and a smile
+
+Every line passes the interchangeability test — any of the 20
+ambients could say any of them. The kit is deliberately boring:
+weather-talk is the whole point. Adding a line requires it to survive
+the §11 never-list; a character-voice catchphrase in the kit is a bug.
+
+## 22. Reflex registry
+
+Two layers, both condition → posture, never scripts:
+
+- **Shared reflexes** (every pawn): `rain-shelter` (covered routes,
+  awnings), `dusk-home` (drift toward home cells when the lights come
+  on), `commotion-look` (pause, look, resume — rubberneck, never
+  investigate), `cold-hunch` (hunched walk, shorter outdoor cells).
+- **Per-card reflexes** live on the ambient cards
+  (`ambients.json → reflexes`): A01's `rush-tempo`, Doro's
+  `off-leash-interpose`, Esther's `weather-gated-day`, etc.
+- A reflex can *veto* a co-star ask (off-shift, sleep cell, past shift
+  end). A reflex can never *create* an obligation — reflexes shape
+  posture, not commitments.
+
+## 23. Handoff-note archive
+
+Stale notes (≥24 h game time) no longer vanish — they move to a
+note archive: read-only, seam-internal, never feed. Purpose is
+audit/replay (did the seam drop something?) — a stale note is a
+yesterday, not a loose end, so archive entries are never re-read by a
+waking brain. The demo renders the archive under the log.
+
+## 24. Live seam (demo ↔ game-v9)
+
+The demo reads the game-v9 offline module through `window.__aiBridge`
+when present: `gsBrainMode`, `gsThinScheduleView`, `gsNeedsView`,
+`gsObligations`, `gsComputeStats`, `gsServiceEval`, `gsOfflineReport`.
+Two hard rules: **`gsHandoffRead` is never called** (the one-time read
+belongs to the receiving brain — the demo mirrors notes instead) and
+**no `gs*` mutator is ever invoked** (the demo is a mirror, never a
+driver). Off-bridge, the inline mirror runs and the badge says MIRROR.

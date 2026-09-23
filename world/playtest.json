@@ -1979,6 +1979,82 @@
           ]
         }
       ]
+    },
+    {
+      "id": "PT37",
+      "title": "The Understudy round two — presence, salience ladder, compute split, owner report, phrase kit, note archive",
+      "minutes": 15,
+      "persona": "facilitator + a player who owns h01",
+      "goal": "Verify the v41 thin-AI pass: four pawns with C6 on the degrade ladder, salience-ordered brownouts, owner_offline denial, the llm_min/thin_min/player_min compute ledger, the own-pawns-only owner report, the authored phrase kit with deflects, and the 24 h handoff-note archive.",
+      "surfaces": [
+        "thinai",
+        "audit"
+      ],
+      "steps": [
+        {
+          "do": "Load The Understudy. Read the four pawn cards and the badge in the header.",
+          "expect": "A01 thin (always), h01 thin with owner offline, C2 + C6 full. The badge reads 'MIRROR — no bridge' off the game build (or 'LIVE · __aiBridge' on it); mode badges and the salience scores are marked builder-only.",
+          "checkpoints": [
+            "Four pawns render; C6 carries Carmen's routine (stoop cafecito, her palm, home)",
+            "Badge honestly reports LIVE or MIRROR — never implies a bridge that isn't there",
+            "Header states the seam is invisible in-world"
+          ]
+        },
+        {
+          "do": "Press 'Service 60%' then 'Service 30%' then 'Service 100%'. Watch which main degrades first.",
+          "expect": "At 60% the lowest-salience main thins (C6 at home/idle outranks C2 mid-scene downward — salience is shown on each main card); at 30% both mains are degraded; at 100% both recover. Every step logs a seam line; the feed never hears about it.",
+          "checkpoints": [
+            "Degrade order follows salience, not alphabet or load order",
+            "Degraded mains carry the 'public-routine only — no seed access' reflex",
+            "No wire line fires for any degrade or recover step"
+          ]
+        },
+        {
+          "do": "With the owner offline, press 'Possess h01 · 30 min'. Then 'Owner returns', possess for real, step the clock twice.",
+          "expect": "The offline attempt is refused with the owner_offline deny code — nobody to bill, nobody to drive. Once online, the session runs, the wire pair 'running' / 'player session ended' lands, and the handoff goes through the beat-clean seam.",
+          "checkpoints": [
+            "owner_offline is a deny code, checked at file AND at promote",
+            "Graceful handoff finishes the current beat (≤90 s) — never mid-stride",
+            "Feed vocabulary stays exactly 'request — … running' / 'player session ended'"
+          ]
+        },
+        {
+          "do": "Step +1 h several times with a session live and mains healthy vs degraded. Read the compute ledger.",
+          "expect": "llm_min accrues only while a pawn is full; thin_min for thin and degraded; player_min for possessed. The panel states possession minutes are nearly cost-free to serve.",
+          "checkpoints": [
+            "The three buckets partition every pawn-minute — no double counting",
+            "Degraded mains count as thin_min, not llm_min",
+            "Compute ledger is marked internal/owner tooling, never a spectator surface"
+          ]
+        },
+        {
+          "do": "Press 'Press A01 (small talk)' four times inside one clock hour, then 'Ask A01 a direct question'. Read the phrase-kit panel.",
+          "expect": "Three capped generic bubbles from the authored kit, then silence (a nod, a half-wave, a shrug). The direct question draws a deflect ('can't complain' / 'you know how it is' / 'we'll see') — never an answer.",
+          "checkpoints": [
+            "Every kit line is interchangeable across characters — none is Reyes-only",
+            "The 3/hr cap goes quiet instead of repeating",
+            "Deflects answer nothing — the full brain logs a non-conversation"
+          ]
+        },
+        {
+          "do": "Read the owner report for h01, then step +24 h until a handoff note goes stale.",
+          "expect": "The owner report shows place/doing, wages since last visit, and obligations — never the note verbatim, never another character's state. A stale note moves to the archive panel instead of vanishing.",
+          "checkpoints": [
+            "Owner report covers own hired pawns only",
+            "Archived notes are read-only seam material — 'a yesterday, not a loose end'",
+            "The wake path still consumes a live note exactly once"
+          ]
+        },
+        {
+          "do": "Run `node world/audit.js` and read the thinai gate.",
+          "expect": "thinai gate passes: schema v41, storage key rw_thinai_v41, MODES↔pawns matrix incl. c6, wire vocabulary enforced, writeNote free of forbidden fields, v41 blocks present (presence/compute_ledger/owner_report/live_seam/reflex_registry), 7 phrase categories ≥3 lines, no BRIDGE.* calls on the page.",
+          "checkpoints": [
+            "Gate reports 'schema v41 · 4 pawns · key rw_thinai_v41'",
+            "A gsHandoffRead call, a degraded ambient, or a possessed main would FAIL — spot-check",
+            "All gates green; overall 0 fail"
+          ]
+        }
+      ]
     }
   ],
   "harness_ui_v37": {

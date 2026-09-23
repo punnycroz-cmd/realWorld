@@ -1,6 +1,6 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle, degrade ladder, needs model, phrase-kit contract, co-star bounds, scheduled obligations, feed visibility. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 27,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering, needs model, authored phrase kit, reflex registry, co-star bounds, scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 41,
   "brain_modes": {
     "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
     "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
@@ -19,6 +19,13 @@
     "beat_budget_s": 90,
     "text": "mode swaps land between micro-beats, never mid-action; spectators cannot tell; the feed shows only the already-locked possession vocabulary (running / player session ended)"
   },
+  "presence": {
+    "states": ["online", "lingering", "offline"],
+    "linger_s": 90,
+    "seen_on_filing": "filing any request stamps presence — a filed request is a sign of life (gsPresenceSeen)",
+    "billing_rule": "possession requires the owner online to bill and to drive; deny code 'owner_offline' at file and at promote",
+    "disconnect_order": "a live session holds the connection open — disconnect ends the session first (cap semantics), then linger applies to the now-full brain"
+  },
   "handoff_note_schema": {
     "char": "id", "from": "mode", "to": "mode", "at_min": "int, game-local",
     "place": "POI/anchor", "doing": "current micro-action",
@@ -29,7 +36,8 @@
     "write": "on every exit into thin|full — one note per pawn, newest wins",
     "read": "once by the receiving brain, then held as recent context",
     "stale_after_h": 24,
-    "stale": "archives silently (seam line in demo; nothing in-world)"
+    "stale": "archives to the note archive (seam line in demo; nothing in-world)",
+    "archive": "stale notes keep for audit/replay — read-only, seam-internal, never feed; a stale note is a yesterday, not a loose end"
   },
   "degrade_ladder": {
     "metric": "brain-service capacity %",
@@ -38,6 +46,11 @@
       { "min_pct": 30, "posture": "mains degrade lowest scene-salience first" },
       { "min_pct": 0,  "posture": "all mains degraded" }
     ],
+    "salience": {
+      "factors": ["watchers on the venue/scene", "a live scene in progress", "mid-conversation"],
+      "tie_break": "deterministic — fewer watchers, then longer idle, then id order; never random, never alphabetic",
+      "rule": "degrade lowest salience first; recovery restores in the same order as capacity returns"
+    },
     "order": "salience-ranked (watchers/live scene), never alphabetic, never player-visible",
     "unaffected": ["ambients (never on the service)", "possessed pawns (the player is the compute)"],
     "feed": null
@@ -51,8 +64,27 @@
     "cap_per_hour": 3,
     "register": "weather / queues / the game on the bar TV / generic greetings",
     "rule": "interchangeable across characters — a line only Reyes could say does not belong",
+    "lines": {
+      "greeting": ["morning", "hey", "how's it"],
+      "queue": ["big line today", "they're backed up again", "worth the wait, probably"],
+      "weather": ["fog came in early", "sun finally burned through", "supposed to clear up later", "cold for September"],
+      "game": ["heard the game last night", "they blew it in the ninth", "big one this weekend"],
+      "closing": ["take it easy", "see you around", "have a good one"],
+      "deflect": ["can't complain", "you know how it is", "we'll see"],
+      "silence": ["a nod", "a half-wave", "a shrug and a smile"]
+    },
     "never": ["character-voice catchphrases", "opinions on named characters", "references to events not on the public feed", "answers to direct questions — generic deflect instead"],
     "at_cap": "thin goes quiet — nod, gesture, silence"
+  },
+  "reflex_registry": {
+    "shared": [
+      { "id": "rain-shelter",  "when": "rain starts",          "posture": "covered routes, awnings, indoors where the cell allows" },
+      { "id": "dusk-home",     "when": "streetlights on",      "posture": "drift toward home cells; evening cells tighten" },
+      { "id": "commotion-look","when": "sirens / crowd noise", "posture": "pause, look, resume — rubberneck, never investigate" },
+      { "id": "cold-hunch",    "when": "cold snap",            "posture": "hunched walk, hands in pockets, shorter outdoor cells" }
+    ],
+    "per_card": "per-character reflexes live on the ambient cards (ambients.json `reflexes`) — condition → posture, never scripts",
+    "rule": "a reflex can veto a co-star ask (off-shift, sleep cell, past shift end); it can never create an obligation"
   },
   "co_star": {
     "who": ["ambients", "offline hired pawns"],
@@ -67,6 +99,27 @@
     "standing_tab": "settles at the routine stop, posted price",
     "cannot_originate": "thin never incurs a new obligation — no purchases beyond routine needs, no commitments",
     "shortfall": "lapses into the normal ledger path (late-fee ladder) as if online; fallback is never a shield"
+  },
+  "compute_ledger": {
+    "buckets": {
+      "llm_min":    "minutes a pawn ran `full` — paid compute",
+      "thin_min":   "minutes a pawn ran `thin` or `degraded` — schedule + reflexes, ~free",
+      "player_min": "minutes a pawn ran `possessed` — the human is the compute, ~free"
+    },
+    "rule": "the honest split is the product's cost story: possession minutes are nearly cost-free to serve; degraded mains still count as thin_min (resilience, not a feature)",
+    "surface": "gsComputeStats() — internal/owner tooling; never a spectator surface"
+  },
+  "owner_report": {
+    "who": "a player sees their own hired pawns only — never another player's, never a main, never an ambient",
+    "fields": ["mode-agnostic place + doing", "wages accrued since last visit (baseline)", "scheduled obligations met/lapsed", "open co-star windows"],
+    "never": ["handoff-note contents verbatim", "other characters' state", "any seed/secret-adjacent field (absent by construction)"],
+    "tone": "a ledger, not a diary — 'your courier worked the loop, rent drafted, one favor-thread pending' is mechanics, not narration"
+  },
+  "live_seam": {
+    "bridge": "window.__aiBridge (game-v9 offline module)",
+    "reads": ["gsBrainMode(cid)", "gsThinScheduleView(cid,day)", "gsNeedsView(cid)", "gsObligations(cid)", "gsComputeStats()", "gsServiceEval()", "gsOfflineReport(pid)"],
+    "never_calls": ["gsHandoffRead — one-time read reserved for the receiving brain; the demo mirrors notes instead", "any gs* mutator — the demo is a mirror, never a driver"],
+    "fallback": "when the bridge is absent the demo runs on the inline mirror and the badge says so"
   },
   "thin_can": [
     "run routine schedule cells (ambients.json / bible public routine)",
@@ -88,12 +141,13 @@
     "rule": "brain-mode transitions are not admin actions; the seam stays invisible to spectators"
   },
   "demo": {
-    "storage_key": "rw_thinai_v27",
+    "storage_key": "rw_thinai_v41",
     "pawns": [
       { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
       { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
-      { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" }
+      { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" },
+      { "id": "C6",  "name": "Carmen", "kind": "main", "modes": ["full", "degraded"], "venue": "her stoop / her palm / home" }
     ],
-    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "co_star_a01", "service_100", "service_60", "service_30", "reset"]
+    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "service_100", "service_60", "service_30", "reset"]
   }
 }

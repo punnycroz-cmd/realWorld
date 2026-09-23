@@ -42,6 +42,7 @@ One person can wear every hat; four real testers is the intended shape.
   runs the machine audit (PT21, PT24/PT25 last steps), merges cohort reports (PT22),
   audits the harness itself (PT35), clocks time-to-first-request, and harvests findings.
   PT36 (lease v3) wears both hats — tenant mechanics first, facilitator gate last.
+  PT37 (thinai v3) is facilitator + h01's owner — presence, salience, compute split, kit, archive.
 
 ## 3. Running a session
 

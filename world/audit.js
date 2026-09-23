@@ -676,6 +676,38 @@ const PUB = Object.values(PT.surfaces)
     /* linger grace figure agrees */
     if (TJ.transitions.find(t => t.id === 'offline_drop').grace_s !== 90)
       add(g, 'fail', 'thinai.json', null, 'linger grace drifted from 90 s');
+    /* ---- v41 second pass ---- */
+    for (const blk of ['presence', 'compute_ledger', 'owner_report', 'live_seam', 'reflex_registry'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v41 block "${blk}" missing`);
+    if (TJ.presence && TJ.presence.linger_s !== 90)
+      add(g, 'fail', 'thinai.json', null, 'presence.linger_s drifted from 90');
+    if (TJ.presence && !/owner_offline/.test(TJ.presence.billing_rule || ''))
+      add(g, 'fail', 'thinai.json', null, 'presence.billing_rule lost the owner_offline deny code');
+    const buckets = TJ.compute_ledger && TJ.compute_ledger.buckets || {};
+    for (const b of ['llm_min', 'thin_min', 'player_min'])
+      if (!buckets[b]) add(g, 'fail', 'thinai.json', null, `compute bucket "${b}" missing`);
+    const LINES = TJ.phrase_kit && TJ.phrase_kit.lines || {};
+    for (const cat of ['greeting', 'queue', 'weather', 'game', 'closing', 'deflect', 'silence'])
+      if (!Array.isArray(LINES[cat]) || LINES[cat].length < 3)
+        add(g, 'fail', 'thinai.json', null, `phrase_kit.lines.${cat} missing or <3 lines`);
+    if ((TJ.reflex_registry?.shared || []).length < 4)
+      add(g, 'fail', 'thinai.json', null, 'reflex_registry.shared has <4 entries');
+    if (!/archive/.test(TJ.note_lifecycle?.stale || '') || !TJ.note_lifecycle.archive)
+      add(g, 'fail', 'thinai.json', null, 'note_lifecycle lost the archive path');
+    if (TJ.live_seam && (TJ.live_seam.never_calls || []).join(' ').indexOf('gsHandoffRead') < 0)
+      add(g, 'fail', 'thinai.json', null, 'live_seam.never_calls must name gsHandoffRead');
+    /* html mirror: v41 surfaces + no bridge mutation */
+    const MUST41 = [
+      [/owner_offline/, 'presence deny code owner_offline'],
+      [/llm_min/, 'compute ledger buckets'],
+      [/salience/i, 'degrade salience ordering'],
+      [/archive/i, 'note archive surface'],
+      [/gsHandoffRead/, 'handoff-read never-called note']
+    ];
+    for (const [re, label] of MUST41)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v41 copy: ${label}`);
+    if (/BRIDGE\.gs\w+\s*\(/.test(html))
+      add(g, 'fail', 'thinai.html', null, 'demo calls a bridge function — mirror only, never a driver');
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
@@ -1586,7 +1618,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v40 local';
+out.build = 'world v41 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {
