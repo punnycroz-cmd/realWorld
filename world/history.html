@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Archive (history browser)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  History browser — "The Archive" (world v6). The spectator layer of the
+  canonical ledger: every day the wire ever showed, replayable. Scope is
+  IDENTICAL to the live feed — a spectator could have seen all of this
+  standing on the street. Homes are walls; secrets are absent by
+  construction (the schema has no field that could carry one).
+  Rumor entries ("word on the block") are shown UNCONFIRMED with their
+  outcome — they may only ever distort events that were already public.
+  Demo is file://-safe; day data below mirrors world/history.json.
+  Spec + copy deck: world/history-ui.md.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --pink:#d48bb0; --rum:#c9a35a;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .tag{font-size:11px;color:var(--grn);border:1px solid var(--grn);border-radius:10px;padding:2px 10px;font-weight:700;letter-spacing:.08em}
+  .scope{margin-left:auto;font-size:12px;color:var(--dim);max-width:420px}
+  main{max-width:1180px;margin:0 auto;padding:18px 20px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:16px}
+
+  /* ---- day picker ---- */
+  .days{display:flex;gap:6px;flex-wrap:wrap}
+  .day{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:6px;
+    padding:5px 11px;cursor:pointer;color:var(--dim);background:var(--panel2)}
+  .day.on{color:var(--ink);border-color:var(--acc);background:#2a2618}
+  .day small{display:block;font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+  .day .live-dot{color:var(--grn)}
+
+  /* ---- hour strip ---- */
+  .hours{display:flex;gap:2px;margin:14px 0 4px;height:34px;align-items:flex-end}
+  .hr{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:3px 3px 0 0;
+    cursor:pointer;min-height:3px;position:relative}
+  .hr:hover{border-color:var(--blu)}
+  .hr.sel{border-color:var(--acc);background:#2a2618}
+  .hrlabels{display:flex;gap:2px;font-family:var(--mono);font-size:9.5px;color:var(--dim)}
+  .hrlabels span{flex:1;text-align:left}
+  .hrlabels span:nth-child(odd){visibility:hidden}
+
+  /* ---- controls ---- */
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+  select,.search{font:inherit;font-size:12.5px;background:var(--panel2);color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+  .search{flex:1;min-width:160px}
+  .chiprow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+  .chip{font-size:11.5px;border:1px solid var(--line);border-radius:12px;padding:3px 12px;
+    cursor:pointer;color:var(--dim);background:var(--panel2)}
+  .chip.on{color:var(--ink);border-color:var(--acc);background:#2a2618}
+
+  /* ---- day summary ---- */
+  .dayhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:6px}
+  .dayhead h3{margin:0;font-size:17px;font-weight:600}
+  .dayhead .meta{font-size:12px;color:var(--dim)}
+  .writing{font-size:11px;color:var(--grn);border:1px dashed var(--grn);border-radius:8px;padding:2px 10px}
+
+  /* ---- event list ---- */
+  .evs{list-style:none;margin:0;padding:0}
+  .hoursep{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--dim);
+    text-transform:uppercase;padding:14px 0 4px;border-bottom:1px solid var(--line)}
+  .evs li.ev{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:baseline;cursor:pointer}
+  .evs li.ev:hover{background:rgba(255,255,255,.02)}
+  .ev .t{font-family:var(--mono);font-size:11px;color:var(--dim);flex:none;width:44px}
+  .ev .k{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border-radius:8px;padding:1px 7px;flex:none;width:64px;text-align:center}
+  .k.move{background:#22303f;color:var(--blu)} .k.scene{background:#2b2b28;color:var(--dim)}
+  .k.venue{background:#262b22;color:var(--grn)} .k.weather{background:#202833;color:#8fb8d4}
+  .k.request{background:#33261e;color:var(--acc)} .k.admin{background:#33222c;color:var(--pink)}
+  .k.press{background:#2c2438;color:#b9a0e0} .k.housing{background:#22301f;color:#9fc47f}
+  .k.quiet{background:#1c2129;color:var(--dim)}
+  .k.rumor{background:#2f2817;color:var(--rum)}
+  .ev .who{color:var(--blu)}
+  .unc{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--rum);
+    border:1px dashed var(--rum);border-radius:8px;padding:0 6px;margin-left:6px}
+  .st{font-size:10px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;margin-left:6px;white-space:nowrap}
+  .st.running{background:#1e3a2c;color:var(--grn)} .st.queued{background:#22303f;color:var(--blu)}
+  .st.resolved,.st.refunded,.st.approved{background:#2b2b28;color:var(--dim)}
+  .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
+  .detail{display:block;width:100%;margin-top:5px;font-size:11.5px;color:var(--dim);
+    border-left:2px solid var(--line);padding-left:10px}
+  .detail b{color:var(--ink);font-weight:600}
+  .outcome-debunked{color:var(--red)} .outcome-stood{color:var(--grn)} .outcome-faded{color:var(--dim)}
+  .gap{color:var(--dim);font-style:italic;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .empty{padding:18px 4px;color:var(--dim);font-style:italic;font-size:13px}
+  .fineprint{max-width:1180px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
+  .fineprint b{color:var(--ink)}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
+    border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
+    display:none;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Archive</div>
+  <span class="tag">FREE</span>
+  <div class="scope">Every day the wire ever showed — replayed exactly as a spectator
+    saw it. Nothing in here a street camera couldn't have seen.</div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Pick a day</h2>
+    <div class="days" id="days"></div>
+    <div class="hours" id="hours"></div>
+    <div class="hrlabels" id="hrlabels"></div>
+    <div class="controls">
+      <select id="fchar"><option value="">anyone on the block</option></select>
+      <select id="fvenue"><option value="">anywhere</option></select>
+      <input class="search" id="fsearch" placeholder="search the record — names, places, “cleanup”, “fog”…">
+    </div>
+    <div class="chiprow" id="kinds">
+      <span class="chip on" data-k="all">all</span>
+      <span class="chip" data-k="block">the block</span>
+      <span class="chip" data-k="rumor">word on the block</span>
+      <span class="chip" data-k="request">requests</span>
+      <span class="chip" data-k="admin">admin</span>
+      <span class="chip" data-k="press">Mission Unfiltered</span>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-bottom:0">
+    <div class="dayhead">
+      <h3 id="dtitle">—</h3>
+      <span class="meta" id="dmeta"></span>
+      <span class="writing" id="dwrite" style="display:none">still being written — archive holds through the last completed hour</span>
+    </div>
+    <ul class="evs" id="evs"></ul>
+  </section>
+</main>
+
+<div class="fineprint">
+  <b>What the archive is:</b> the same spectator layer the live wire shows —
+  arrivals, crowds, weather, attributed requests, word on the block. It is
+  not a director's cut: nothing was added in hindsight and nothing was cut.
+  Homes are walls — "headed home" is where coverage ends. <b>Word on the
+  block</b> entries are talk overheard in public, always marked
+  <b>UNCONFIRMED</b>; when the talk resolves, the archive shows how it
+  landed. A rumor can only ever be a distorted retelling of something that
+  was already public — the schema has no field that could carry anything
+  else. Today stays open until the hour completes; denied request text was
+  never written anywhere, so it can't be found here either.
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= data — mirror of world/history.json days ================= */
+var DAYS = {
+"2026-09-17": [
+ {id:"d0917-01",t:371,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0917-02",t:395,kind:"move",who:"C1",venue:"mudhaus",text:"Mars in early at Mudhaus — opening, counter"},
+ {id:"d0917-03",t:462,kind:"scene",venue:"mudhaus",mentions:["A01"],text:"Rush hour at Mudhaus — Reyes at double tempo, line to the door"},
+ {id:"d0917-04",t:489,kind:"move",who:"C4",text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0917-05",t:540,kind:"venue",venue:"park",mentions:["A05","A19"],text:"Bench parliament in session — Esther and Ray, adjacent sections"},
+ {id:"d0917-06",t:598,kind:"weather",text:"Fog burned off over the park — full sun by ten"},
+ {id:"d0917-07",t:692,kind:"scene",venue:"block",mentions:["C5","A15"],text:"The wordless race — Marcus and Omar, one block at full pace"},
+ {id:"d0917-08",t:783,kind:"rumor",venue:"farolote",src:"farolote",outcome:{state:"debunked",note:"no breakfast menu ever appeared; by Friday the talk had moved on"},text:"Word on the block — someone says El Farolote is about to do breakfast"},
+ {id:"d0917-09",t:840,kind:"move",who:"C1",venue:"block",text:"Mars started her afternoon rounds"},
+ {id:"d0917-10",t:905,kind:"scene",venue:"park",mentions:["A04","A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0917-11",t:1021,kind:"request",who:"dvh",text:"possess — own baker, 45 min",status:"resolved"},
+ {id:"d0917-12",t:1147,kind:"request",who:"pt",text:"nudge — an ask to Mars Delgado · declined by character, 50% refunded",status:"refunded"},
+ {id:"d0917-13",t:1178,kind:"scene",venue:"mudhaus",mentions:["A09"],text:"The evening nurse — Asha's counter seat, phone face-down"},
+ {id:"d0917-14",t:1262,kind:"quiet",venue:"block",text:"Close-down. Bar stragglers, the late kitchen, last courier runs."}
+],
+"2026-09-18": [
+ {id:"d0918-01",t:368,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0918-02",t:459,kind:"scene",venue:"mudhaus",mentions:["A01"],text:"Rush hour at Mudhaus — Reyes at double tempo, line to the door"},
+ {id:"d0918-03",t:512,kind:"rumor",venue:"maliks",src:"maliks",outcome:{state:"debunked",note:"all three baristas on shift by 08:00 — the talk died on sight"},text:"Word on the block — someone's cousin heard Mudhaus fired a barista"},
+ {id:"d0918-04",t:604,kind:"move",who:"C6",venue:"park",text:"Carmen under her palm in the park — sewing, receiving"},
+ {id:"d0918-05",t:661,kind:"venue",venue:"buyrite",text:"Buy-Rite restocking the good bread — the word will travel"},
+ {id:"d0918-06",t:733,kind:"press",text:"Mission Unfiltered posted: \u201cTwo Receipts, One Counter\u201d — anonymous, as always"},
+ {id:"d0918-07",t:787,kind:"scene",venue:"farolote",mentions:["C8"],text:"Lunch rush at El Farolote — the salsa bar's midday refill"},
+ {id:"d0918-08",t:904,kind:"scene",venue:"park",mentions:["A04","A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0918-09",t:1033,kind:"request",who:"kes",text:"camera director — 30 min",status:"resolved"},
+ {id:"d0918-10",t:1124,kind:"scene",venue:"club600",mentions:["A08"],text:"Doorway set — Sam under the 600 Club awning, better acoustics anyway"},
+ {id:"d0918-11",t:1205,kind:"venue",venue:"club600",mentions:["A08","A14"],text:"Friday crowd at the 600 Club — Sam and Bex drifted in"},
+ {id:"d0918-12",t:1291,kind:"quiet",venue:"block",text:"The honestest hour — a cat on a stoop, the laundromat hum."}
+],
+"2026-09-19": [
+ {id:"d0919-01",t:420,kind:"venue",venue:"park",mentions:["A02"],text:"Saturday — Doro's pack did the north loop early, seven dogs, one system"},
+ {id:"d0919-02",t:478,kind:"move",who:"C8",venue:"block",text:"Tomás on the supplier loop — hardware, market, greenmarket"},
+ {id:"d0919-03",t:552,kind:"request",who:"leaf",text:"event — park cleanup at Dolores Park",status:"running"},
+ {id:"d0919-04",t:588,kind:"scene",venue:"park",text:"Park cleanup underway — gloves, bags, a drone overhead nobody asked for"},
+ {id:"d0919-05",t:640,kind:"venue",venue:"clarion",mentions:["A14"],text:"A photo crew in Clarion Alley; Bex pretending not to watch"},
+ {id:"d0919-06",t:651,kind:"request",who:"leaf",text:"event — park cleanup at Dolores Park",status:"resolved"},
+ {id:"d0919-07",t:702,kind:"rumor",venue:"clarion",src:"clarion",outcome:{state:"faded",note:"no crew came back; chalked up to a wedding shoot"},text:"Word on the block — a film crew is scouting Clarion for something"},
+ {id:"d0919-08",t:794,kind:"venue",venue:"park",text:"The park is doing a full Saturday — blankets edge to edge"},
+ {id:"d0919-09",t:871,kind:"move",who:"C8",venue:"mudhaus",text:"Tomás at Mudhaus — the 3 p.m. coffee, late today"},
+ {id:"d0919-10",t:990,kind:"venue",venue:"maliks",mentions:["A03"],text:"Steady drip through Malik's — lottery tickets and gossip"},
+ {id:"d0919-11",t:1180,kind:"venue",venue:"farolote",text:"Post-bar pickup line forming at El Farolote"},
+ {id:"d0919-12",t:1330,kind:"quiet",venue:"block",text:"Late Saturday — the last line at Farolote, then nothing."}
+],
+"2026-09-20": [
+ {id:"d0920-01",t:421,kind:"move",who:"C6",venue:"block",text:"Carmen out on the stoop — cafecito in hand, Sunday edition"},
+ {id:"d0920-02",t:505,kind:"weather",who:"marina_w",text:"Drizzle over the park, 2 h — called by marina_w",attrs:{credits:70}},
+ {id:"d0920-03",t:510,kind:"request",who:"marina_w",text:"weather — drizzle over Dolores Park, 2 h",status:"running"},
+ {id:"d0920-04",t:622,kind:"venue",venue:"park",mentions:["A05","A19"],text:"Bench parliament under umbrellas — Esther and Ray, unmoved"},
+ {id:"d0920-05",t:714,kind:"housing",venue:"block",text:"Move-in at 9263 Geneva Ave, Unit 2 — the block absorbs another"},
+ {id:"d0920-06",t:793,kind:"venue",venue:"mudhaus",text:"Slow Sunday at Mudhaus — the corner table claimed early"},
+ {id:"d0920-07",t:890,kind:"rumor",venue:"block",src:"block",outcome:{state:"debunked",note:"the meter man was reading, not ticketing — block exhaled"},text:"Word on the block — parking control swept Guerrero this morning, nobody caught it"},
+ {id:"d0920-08",t:1012,kind:"move",who:"C4",venue:"mudhaus",text:"Priya at Mudhaus — the decompression seat after a twelves"},
+ {id:"d0920-09",t:1150,kind:"quiet",venue:"block",text:"Sunday night — windows lit, nobody performing."}
+],
+"2026-09-21": [
+ {id:"d0921-01",t:362,kind:"weather",text:"Karl came in low overnight — the block in grayscale till noon"},
+ {id:"d0921-02",t:374,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops, fog-pale"},
+ {id:"d0921-03",t:455,kind:"scene",venue:"mudhaus",mentions:["A01","A13"],text:"Rush hour at Mudhaus — Reyes at double tempo; Nadia claimed the corner table early"},
+ {id:"d0921-04",t:492,kind:"move",who:"C4",text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0921-05",t:540,kind:"move",who:"C8",venue:"block",text:"Tomás on the supplier loop — hardware, market, greenmarket"},
+ {id:"d0921-06",t:601,kind:"venue",venue:"library",mentions:["A11","A04"],text:"Library quiet hour — Vera reshelving, June's exam books stacked"},
+ {id:"d0921-07",t:655,kind:"request",who:"pt",text:"nudge — an ask to Carmen Echeverría · declined by character, 50% refunded",status:"refunded"},
+ {id:"d0921-08",t:703,kind:"weather",text:"The fog tore open over Dolores — hard shadows by 11:45"},
+ {id:"d0921-09",t:782,kind:"rumor",venue:"club600",src:"club600",outcome:{state:"debunked",note:"the doorway set ran on schedule that same night"},text:"Word on the block — somebody's saying the 600 Club lost its license"},
+ {id:"d0921-10",t:905,kind:"scene",venue:"park",mentions:["A04","A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0921-11",t:1020,kind:"move",who:"C3",text:"Dani went off the feed — her own business"},
+ {id:"d0921-12",t:1120,kind:"scene",venue:"club600",mentions:["A08"],text:"Doorway set — Sam under the 600 Club awning, license talk notwithstanding"},
+ {id:"d0921-13",t:1265,kind:"quiet",venue:"block",text:"Close-down. Bar stragglers, the late kitchen, last courier runs."}
+],
+"2026-09-22": [
+ {id:"d0922-01",t:375,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0922-02",t:452,kind:"scene",venue:"mudhaus",mentions:["A01"],text:"Rush hour at Mudhaus — Reyes at double tempo, line to the door"},
+ {id:"d0922-03",t:487,kind:"move",who:"C4",text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0922-04",t:540,kind:"venue",venue:"park",mentions:["A05","A19"],text:"Bench parliament in session — Esther and Ray, adjacent sections"},
+ {id:"d0922-05",t:566,kind:"request",who:"okfm",text:"possess — own courier, 30 min",status:"resolved"},
+ {id:"d0922-06",t:601,kind:"weather",text:"Fog burned off over the park — full sun"},
+ {id:"d0922-07",t:647,kind:"press",text:"Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always"},
+ {id:"d0922-08",t:690,kind:"request",who:"marina_w",text:"weather — clear skies over Dolores Park, 2 h",status:"resolved"},
+ {id:"d0922-09",t:720,kind:"scene",venue:"farolote",mentions:["C8"],text:"Lunch rush at El Farolote — the salsa bar's midday refill"},
+ {id:"d0922-10",t:783,kind:"request",who:"leaf",text:"event — park cleanup at Dolores Park",status:"queued"},
+ {id:"d0922-11",t:812,kind:"housing",venue:"block",text:"Listing filled — 9457 Guerrero St, Unit 2 comes off the board"},
+ {id:"d0922-12",t:841,kind:"admin",venue:"club600",who:"admin",text:"admin action — venue window reset at The 600 Club",attrs:{compensated_cr:90}},
+ {id:"d0922-13",t:900,kind:"scene",venue:"park",mentions:["A04","A20"],text:"The 15:00 release — June to the park with books, Zee's pack on the perimeter"},
+ {id:"d0922-14",t:1077,kind:"request",who:"r0ok",text:"queued request expired before activation",status:"refunded"},
+ {id:"d0922-15",t:1175,kind:"scene",venue:"mudhaus",mentions:["A09"],text:"The evening nurse — Asha's counter seat, phone face-down"},
+ {id:"d0922-16",t:1260,kind:"venue",venue:"farolote",text:"Post-bar pickup line forming at El Farolote"},
+ {id:"d0922-17",t:1298,kind:"quiet",venue:"block",text:"The honestest hour — don't fill it."}
+],
+"2026-09-23": [
+ {id:"d0923-01",t:369,kind:"move",who:"C2",venue:"park",text:"Jules out for the morning run — north path loops"},
+ {id:"d0923-02",t:398,kind:"move",who:"C1",venue:"mudhaus",text:"Mars in early at Mudhaus — opening, counter"},
+ {id:"d0923-03",t:458,kind:"scene",venue:"mudhaus",mentions:["A01","A13"],text:"Rush hour at Mudhaus — Reyes at double tempo; Nadia on the corner table"},
+ {id:"d0923-04",t:486,kind:"move",who:"C4",text:"Priya headed in to SF General — a twelves day"},
+ {id:"d0923-05",t:539,kind:"venue",venue:"park",mentions:["A05","A19"],text:"Bench parliament in session — Esther and Ray, adjacent sections"},
+ {id:"d0923-06",t:612,kind:"venue",venue:"auerbach",mentions:["C7","A17"],text:"Victor's counter steady; Cole's site next door on second shift"},
+ {id:"d0923-07",t:676,kind:"rumor",venue:"buyrite",src:"buyrite",outcome:null,text:"Word on the block — Buy-Rite is about to raise the price of the good bread"},
+ {id:"d0923-08",t:704,kind:"request",who:"juno_",text:"nudge — an ask to Tomás Herrera",status:"in_review"}
+]
+};
+var TODAY = "2026-09-23";
+
+var NAMES = {C1:"Mars Delgado",C2:"Jules Park",C3:"Dani Reyes",C4:"Priya Raman",
+  C5:"Marcus Bell",C6:"Carmen Echeverría",C7:"Victor Auerbach",C8:"Tomás Herrera",
+  A01:"Reyes",A02:"Doro",A03:"Malik",A04:"June",A05:"Esther",A08:"Sam",A09:"Asha",
+  A11:"Vera",A13:"Nadia",A14:"Bex",A15:"Omar",A17:"Cole",A19:"Ray",A20:"Zee"};
+var VENUES = {mudhaus:"Mudhaus Coffee",park:"Dolores Park",farolote:"Taqueria El Farolote",
+  club600:"The 600 Club",auerbach:"Auerbach Hardware",perk:"Dolores Perk",
+  maliks:"Malik's Mini Mart",clarion:"Clarion Alley",library:"Mission Branch Library",
+  buyrite:"Buy-Rite Market",block:"the block"};
+var WDAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+/* ================= state ================= */
+var day = TODAY, selHour = -1, kindF = "all", q = "", fchar = "", fvenue = "";
+
+function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+/* ---- day pills ---- */
+function renderDays(){
+  var box=document.getElementById('days'); box.innerHTML='';
+  Object.keys(DAYS).sort().forEach(function(d){
+    var dt=new Date(d+'T12:00:00');
+    var b=document.createElement('span'); b.className='day'+(d===day?' on':'');
+    b.innerHTML=WDAYS[dt.getDay()].slice(0,3)+'<small>'+d.slice(5)+'</small>'+
+      (d===TODAY?'<small class="live-dot">● today</small>':'');
+    b.onclick=function(){ day=d; selHour=-1; renderAll(); };
+    box.appendChild(b);
+  });
+}
+
+/* ---- hour strip ---- */
+function renderHours(){
+  var box=document.getElementById('hours'); box.innerHTML='';
+  var lb=document.getElementById('hrlabels'); lb.innerHTML='';
+  var counts=new Array(24).fill(0);
+  (DAYS[day]||[]).forEach(function(e){ counts[Math.floor(e.t/60)]++; });
+  var max=Math.max.apply(null,counts.concat([1]));
+  for(var h=0;h<24;h++){
+    var s=document.createElement('div'); s.className='hr'+(h===selHour?' sel':'');
+    s.style.height=Math.max(3,counts[h]/max*32)+'px';
+    s.title=('0'+h).slice(-2)+':00 — '+counts[h]+' event'+(counts[h]===1?'':'s');
+    (function(hh){ s.onclick=function(){ selHour=(selHour===hh?-1:hh); renderHours(); renderEvs(); }; })(h);
+    box.appendChild(s);
+    var l=document.createElement('span'); l.textContent=('0'+h).slice(-2); lb.appendChild(l);
+  }
+}
+
+/* ---- selects ---- */
+function renderSelects(){
+  var cs=document.getElementById('fchar'), vs=document.getElementById('fvenue');
+  if (!cs.dataset.built){
+    Object.keys(NAMES).sort().forEach(function(id){
+      var o=document.createElement('option'); o.value=id;
+      o.textContent=NAMES[id]+(id[0]==='C'?' (main)':''); cs.appendChild(o); });
+    Object.keys(VENUES).forEach(function(id){
+      var o=document.createElement('option'); o.value=id; o.textContent=VENUES[id]; vs.appendChild(o); });
+    cs.dataset.built=1;
+    cs.onchange=function(){ fchar=cs.value; renderEvs(); };
+    vs.onchange=function(){ fvenue=vs.value; renderEvs(); };
+    document.getElementById('fsearch').oninput=function(){ q=this.value.toLowerCase(); renderEvs(); };
+  }
+}
+
+/* ---- event list ---- */
+function passes(e){
+  if (selHour>=0 && Math.floor(e.t/60)!==selHour) return false;
+  if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
+  if (kindF==='rumor' && e.kind!=='rumor') return false;
+  if (kindF==='request' && e.kind!=='request') return false;
+  if (kindF==='admin' && e.kind!=='admin') return false;
+  if (kindF==='press' && e.kind!=='press') return false;
+  if (fvenue && e.venue!==fvenue && !(e.venue==null&&fvenue==='block')) return false;
+  if (fchar && e.who!==fchar && !(e.mentions&&e.mentions.indexOf(fchar)>=0)) return false;
+  if (q){
+    var hay=(e.text+' '+(NAMES[e.who]||e.who||'')+' '+(VENUES[e.venue]||'')).toLowerCase();
+    if (hay.indexOf(q)<0) return false;
+  }
+  return true;
+}
+
+function detailHTML(e){
+  var bits=['<b>'+e.id+'</b>'];
+  if (e.venue) bits.push('at '+(VENUES[e.venue]||e.venue));
+  if (e.who && NAMES[e.who]) bits.push('who: '+NAMES[e.who]);
+  else if (e.who) bits.push('player: '+e.who);
+  if (e.mentions&&e.mentions.length) bits.push('seen: '+e.mentions.map(function(m){return NAMES[m]||m;}).join(', '));
+  if (e.kind==='rumor'){
+    bits.push('overheard near '+(VENUES[e.src]||'the block'));
+    if (e.outcome) bits.push('<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+e.outcome.note);
+    else bits.push('<span class="outcome-faded">still open — the block hasn\u2019t settled it</span>');
+  }
+  if (e.attrs&&e.attrs.compensated_cr) bits.push('affected players compensated '+e.attrs.compensated_cr+' cr');
+  if (e.attrs&&e.attrs.credits) bits.push(e.attrs.credits+' cr');
+  return bits.join(' · ');
+}
+
+function renderEvs(){
+  var ul=document.getElementById('evs'); ul.innerHTML='';
+  var evs=(DAYS[day]||[]).filter(passes), lastH=-1, shown=0;
+  evs.forEach(function(e){
+    var h=Math.floor(e.t/60);
+    if (h!==lastH){ lastH=h; shown++;
+      var s=document.createElement('li'); s.className='hoursep';
+      s.textContent=('0'+h).slice(-2)+':00 hour'; ul.appendChild(s); }
+    var li=document.createElement('li'); li.className='ev';
+    var txt=esc(e.text);
+    if (e.kind==='request'&&e.who) txt='<span class="who">'+e.who+'</span> — '+txt;
+    if (e.kind==='weather'&&e.who&&e.who!=='admin') {/* attribution already in text */}
+    if (e.status) txt+=' <span class="st '+e.status.replace(' ','_')+'">'+e.status+'</span>';
+    if (e.kind==='rumor') txt+=' <span class="unc">unconfirmed</span>';
+    li.innerHTML='<span class="t">'+fmt(e.t)+'</span><span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'<span class="detail" style="display:none">'+detailHTML(e)+'</span></span>';
+    li.onclick=function(){ var d=li.querySelector('.detail'); d.style.display=d.style.display==='none'?'block':'none'; };
+    ul.appendChild(li);
+  });
+  if (!evs.length){
+    var li=document.createElement('li'); li.className='empty';
+    li.textContent='No entries on this slice — the block was quiet, uncovered, or the hour hasn\u2019t completed. The archive doesn\u2019t fill dead air.';
+    ul.appendChild(li);
+  }
+  /* day header */
+  var dt=new Date(day+'T12:00:00');
+  document.getElementById('dtitle').textContent=WDAYS[dt.getDay()]+', '+day;
+  var n=(DAYS[day]||[]).length, nr=(DAYS[day]||[]).filter(function(e){return e.kind==='rumor';}).length;
+  document.getElementById('dmeta').textContent=n+' entries'+(nr?' · '+nr+' word-on-the-block':'')+' · coverage: street-level only';
+  document.getElementById('dwrite').style.display=(day===TODAY)?'':'none';
+}
+
+document.querySelectorAll('#kinds .chip').forEach(function(ch){
+  ch.onclick=function(){
+    document.querySelectorAll('#kinds .chip').forEach(function(c){c.classList.remove('on');});
+    ch.classList.add('on'); kindF=ch.dataset.k; renderEvs();
+  };
+});
+
+function renderAll(){ renderDays(); renderHours(); renderSelects(); renderEvs(); }
+renderAll();
+</script>
+</body>
+</html>

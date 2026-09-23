@@ -1,0 +1,128 @@
+{
+  "doc": "world/history-ui.md is canonical for behavior + copy. This file is the machine-readable archive: the spectator layer of the canonical ledger, one day-object per block day. Event schema is feed.json's, extended with `day` (inherited from the day key), `mentions`, and the `rumor` kind. The archive is FREE — it shows exactly what a spectator could have observed live, nothing more. Homes are walls; secrets are absent by construction (there is no field that could carry one).",
+  "day_schema": {
+    "id": "e.g. d0921-07 — stable, citeable",
+    "t": "block-time minutes since midnight",
+    "kind": "feed.json event_kinds PLUS 'rumor'",
+    "venue": "optional venue id (feed.json venues)",
+    "who": "optional character id (C1–C8, A01–A20) or player handle on request events",
+    "mentions": "optional array of character ids named in the text — makes per-character history structural, not string-matched",
+    "text": "display text — surface-level only",
+    "status": "request events only (feed.json request_status)",
+    "attrs": "optional { surge, credits, compensated_cr }",
+    "src": "rumor events only — where the talk was overheard (a venue id or 'the block')",
+    "outcome": "rumor events only — { state: 'debunked'|'faded'|'stood', note } filled in when the talk resolves; null while open"
+  },
+  "rumor_kind": [
+    "rumor", "word on the block — talk overheard in public, shown UNCONFIRMED, never sourced to a named character, may only ever distort events that were already public; a rumor that happens to be true about a secret is a bug, not content"
+  ],
+  "coverage_rules": [
+    "the archive holds the SPECTATOR layer only — identical scope to the live wire, replayed",
+    "uncovered stretches render as honest gaps ('off the feed'), not interpolated filler",
+    "request text in the archive is the same screened text the live wire showed; denied bodies were never written",
+    "rumor entries carry no author — attribution is a place ('overheard near Malik's'), never a name",
+    "admin/request attribution is preserved verbatim from the live feed — the archive does not sanitize history",
+    "today's day-object exists but ends at the last completed hour — the archive does not write the present"
+  ],
+  "days": {
+    "2026-09-17": [
+      { "id": "d0917-01", "t": 371, "kind": "move",    "who": "C2", "venue": "park",    "text": "Jules out for the morning run — north path loops" },
+      { "id": "d0917-02", "t": 395, "kind": "move",    "who": "C1", "venue": "mudhaus", "text": "Mars in early at Mudhaus — opening, counter" },
+      { "id": "d0917-03", "t": 462, "kind": "scene",   "venue": "mudhaus", "mentions": ["A01"], "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
+      { "id": "d0917-04", "t": 489, "kind": "move",    "who": "C4", "venue": null,      "text": "Priya headed in to SF General — a twelves day" },
+      { "id": "d0917-05", "t": 540, "kind": "venue",   "venue": "park",     "mentions": ["A05","A19"], "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
+      { "id": "d0917-06", "t": 598, "kind": "weather", "text": "Fog burned off over the park — full sun by ten" },
+      { "id": "d0917-07", "t": 692, "kind": "scene",   "venue": "block",    "mentions": ["C5","A15"], "text": "The wordless race — Marcus and Omar, one block at full pace" },
+      { "id": "d0917-08", "t": 783, "kind": "rumor",   "venue": "farolote", "src": "farolote", "outcome": { "state": "debunked", "note": "no breakfast menu ever appeared; by Friday the talk had moved on" }, "text": "Word on the block — someone says El Farolote is about to do breakfast" },
+      { "id": "d0917-09", "t": 840, "kind": "move",    "who": "C1", "venue": "block",   "text": "Mars started her afternoon rounds" },
+      { "id": "d0917-10", "t": 905, "kind": "scene",   "venue": "park",     "mentions": ["A04","A20"], "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" },
+      { "id": "d0917-11", "t": 1021, "kind": "request", "who": "dvh", "text": "possess — own baker, 45 min", "status": "resolved" },
+      { "id": "d0917-12", "t": 1147, "kind": "request", "who": "pt", "text": "nudge — an ask to Mars Delgado · declined by character, 50% refunded", "status": "refunded" },
+      { "id": "d0917-13", "t": 1178, "kind": "scene",  "venue": "mudhaus", "mentions": ["A09"], "text": "The evening nurse — Asha's counter seat, phone face-down" },
+      { "id": "d0917-14", "t": 1262, "kind": "quiet",  "venue": "block",    "text": "Close-down. Bar stragglers, the late kitchen, last courier runs." }
+    ],
+    "2026-09-18": [
+      { "id": "d0918-01", "t": 368, "kind": "move",    "who": "C2", "venue": "park",    "text": "Jules out for the morning run — north path loops" },
+      { "id": "d0918-02", "t": 459, "kind": "scene",   "venue": "mudhaus", "mentions": ["A01"], "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
+      { "id": "d0918-03", "t": 512, "kind": "rumor",   "venue": "maliks",   "src": "maliks", "outcome": { "state": "debunked", "note": "all three baristas on shift by 08:00 — the talk died on sight" }, "text": "Word on the block — someone's cousin heard Mudhaus fired a barista" },
+      { "id": "d0918-04", "t": 604, "kind": "move",    "who": "C6", "venue": "park",    "text": "Carmen under her palm in the park — sewing, receiving" },
+      { "id": "d0918-05", "t": 661, "kind": "venue",   "venue": "buyrite",  "text": "Buy-Rite restocking the good bread — the word will travel" },
+      { "id": "d0918-06", "t": 733, "kind": "press",   "text": "Mission Unfiltered posted: “Two Receipts, One Counter” — anonymous, as always" },
+      { "id": "d0918-07", "t": 787, "kind": "scene",   "venue": "farolote", "mentions": ["C8"], "text": "Lunch rush at El Farolote — the salsa bar's midday refill" },
+      { "id": "d0918-08", "t": 904, "kind": "scene",   "venue": "park",     "mentions": ["A04","A20"], "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" },
+      { "id": "d0918-09", "t": 1033, "kind": "request", "who": "kes", "text": "camera director — 30 min", "status": "resolved" },
+      { "id": "d0918-10", "t": 1124, "kind": "scene",  "venue": "club600",  "mentions": ["A08"], "text": "Doorway set — Sam under the 600 Club awning, better acoustics anyway" },
+      { "id": "d0918-11", "t": 1205, "kind": "venue",  "venue": "club600",  "mentions": ["A08","A14"], "text": "Friday crowd at the 600 Club — Sam and Bex drifted in" },
+      { "id": "d0918-12", "t": 1291, "kind": "quiet",  "venue": "block",    "text": "The honestest hour — a cat on a stoop, the laundromat hum." }
+    ],
+    "2026-09-19": [
+      { "id": "d0919-01", "t": 420, "kind": "venue",   "venue": "park",     "mentions": ["A02"], "text": "Saturday — Doro's pack did the north loop early, seven dogs, one system" },
+      { "id": "d0919-02", "t": 478, "kind": "move",    "who": "C8", "venue": "block",   "text": "Tomás on the supplier loop — hardware, market, greenmarket" },
+      { "id": "d0919-03", "t": 552, "kind": "request", "who": "leaf", "text": "event — park cleanup at Dolores Park", "status": "running" },
+      { "id": "d0919-04", "t": 588, "kind": "scene",   "venue": "park",     "text": "Park cleanup underway — gloves, bags, a drone overhead nobody asked for" },
+      { "id": "d0919-05", "t": 640, "kind": "venue",   "venue": "clarion",  "mentions": ["A14"], "text": "A photo crew in Clarion Alley; Bex pretending not to watch" },
+      { "id": "d0919-06", "t": 651, "kind": "request", "who": "leaf", "text": "event — park cleanup at Dolores Park", "status": "resolved" },
+      { "id": "d0919-07", "t": 702, "kind": "rumor",   "venue": "clarion",  "src": "clarion", "outcome": { "state": "faded", "note": "no crew came back; chalked up to a wedding shoot" }, "text": "Word on the block — a film crew is scouting Clarion for something" },
+      { "id": "d0919-08", "t": 794, "kind": "venue",   "venue": "park",     "text": "The park is doing a full Saturday — blankets edge to edge" },
+      { "id": "d0919-09", "t": 871, "kind": "move",    "who": "C8", "venue": "mudhaus", "text": "Tomás at Mudhaus — the 3 p.m. coffee, late today" },
+      { "id": "d0919-10", "t": 990, "kind": "venue",   "venue": "maliks",   "mentions": ["A03"], "text": "Steady drip through Malik's — lottery tickets and gossip" },
+      { "id": "d0919-11", "t": 1180, "kind": "venue",  "venue": "farolote", "text": "Post-bar pickup line forming at El Farolote" },
+      { "id": "d0919-12", "t": 1330, "kind": "quiet",  "venue": "block",    "text": "Late Saturday — the last line at Farolote, then nothing." }
+    ],
+    "2026-09-20": [
+      { "id": "d0920-01", "t": 421, "kind": "move",    "who": "C6", "venue": "block",   "text": "Carmen out on the stoop — cafecito in hand, Sunday edition" },
+      { "id": "d0920-02", "t": 505, "kind": "weather", "who": "marina_w", "text": "Drizzle over the park, 2 h — called by marina_w", "attrs": { "credits": 70 } },
+      { "id": "d0920-03", "t": 510, "kind": "request", "who": "marina_w", "text": "weather — drizzle over Dolores Park, 2 h", "status": "running" },
+      { "id": "d0920-04", "t": 622, "kind": "venue",   "venue": "park",     "mentions": ["A05","A19"], "text": "Bench parliament under umbrellas — Esther and Ray, unmoved" },
+      { "id": "d0920-05", "t": 714, "kind": "housing", "venue": "block",    "text": "Move-in at 9263 Geneva Ave, Unit 2 — the block absorbs another" },
+      { "id": "d0920-06", "t": 793, "kind": "venue",   "venue": "mudhaus",  "text": "Slow Sunday at Mudhaus — the corner table claimed early" },
+      { "id": "d0920-07", "t": 890, "kind": "rumor",   "venue": "block",    "src": "block", "outcome": { "state": "debunked", "note": "the meter man was reading, not ticketing — block exhaled" }, "text": "Word on the block — parking control swept Guerrero this morning, nobody caught it" },
+      { "id": "d0920-08", "t": 1012, "kind": "move",   "who": "C4", "venue": "mudhaus", "text": "Priya at Mudhaus — the decompression seat after a twelves" },
+      { "id": "d0920-09", "t": 1150, "kind": "quiet",  "venue": "block",    "text": "Sunday night — windows lit, nobody performing." }
+    ],
+    "2026-09-21": [
+      { "id": "d0921-01", "t": 362, "kind": "weather", "text": "Karl came in low overnight — the block in grayscale till noon" },
+      { "id": "d0921-02", "t": 374, "kind": "move",    "who": "C2", "venue": "park",    "text": "Jules out for the morning run — north path loops, fog-pale" },
+      { "id": "d0921-03", "t": 455, "kind": "scene",   "venue": "mudhaus", "mentions": ["A01","A13"], "text": "Rush hour at Mudhaus — Reyes at double tempo; Nadia claimed the corner table early" },
+      { "id": "d0921-04", "t": 492, "kind": "move",    "who": "C4", "venue": null,      "text": "Priya headed in to SF General — a twelves day" },
+      { "id": "d0921-05", "t": 540, "kind": "move",    "who": "C8", "venue": "block",   "text": "Tomás on the supplier loop — hardware, market, greenmarket" },
+      { "id": "d0921-06", "t": 601, "kind": "venue",   "venue": "library",  "mentions": ["A11","A04"], "text": "Library quiet hour — Vera reshelving, June's exam books stacked" },
+      { "id": "d0921-07", "t": 655, "kind": "request", "who": "pt", "text": "nudge — an ask to Carmen Echeverría · declined by character, 50% refunded", "status": "refunded" },
+      { "id": "d0921-08", "t": 703, "kind": "weather", "text": "The fog tore open over Dolores — hard shadows by 11:45" },
+      { "id": "d0921-09", "t": 782, "kind": "rumor",   "venue": "club600",  "src": "club600", "outcome": { "state": "debunked", "note": "the doorway set ran on schedule that same night" }, "text": "Word on the block — somebody's saying the 600 Club lost its license" },
+      { "id": "d0921-10", "t": 905, "kind": "scene",   "venue": "park",     "mentions": ["A04","A20"], "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" },
+      { "id": "d0921-11", "t": 1020, "kind": "move",   "who": "C3", "venue": null,      "text": "Dani went off the feed — her own business" },
+      { "id": "d0921-12", "t": 1120, "kind": "scene",  "venue": "club600",  "mentions": ["A08"], "text": "Doorway set — Sam under the 600 Club awning, license talk notwithstanding" },
+      { "id": "d0921-13", "t": 1265, "kind": "quiet",  "venue": "block",    "text": "Close-down. Bar stragglers, the late kitchen, last courier runs." }
+    ],
+    "2026-09-22": [
+      { "id": "d0922-01", "t": 375, "kind": "move",    "who": "C2", "venue": "park",    "text": "Jules out for the morning run — north path loops" },
+      { "id": "d0922-02", "t": 452, "kind": "scene",   "venue": "mudhaus", "mentions": ["A01"], "text": "Rush hour at Mudhaus — Reyes at double tempo, line to the door" },
+      { "id": "d0922-03", "t": 487, "kind": "move",    "who": "C4", "venue": null,      "text": "Priya headed in to SF General — a twelves day" },
+      { "id": "d0922-04", "t": 540, "kind": "venue",   "venue": "park",     "mentions": ["A05","A19"], "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
+      { "id": "d0922-05", "t": 566, "kind": "request", "who": "okfm", "text": "possess — own courier, 30 min", "status": "resolved" },
+      { "id": "d0922-06", "t": 601, "kind": "weather", "text": "Fog burned off over the park — full sun" },
+      { "id": "d0922-07", "t": 647, "kind": "press",   "text": "Mission Unfiltered posted: “The Salsa-Bar Ledger” — anonymous, as always" },
+      { "id": "d0922-08", "t": 690, "kind": "request", "who": "marina_w", "text": "weather — clear skies over Dolores Park, 2 h", "status": "resolved" },
+      { "id": "d0922-09", "t": 720, "kind": "scene",   "venue": "farolote", "mentions": ["C8"], "text": "Lunch rush at El Farolote — the salsa bar's midday refill" },
+      { "id": "d0922-10", "t": 783, "kind": "request", "who": "leaf", "text": "event — park cleanup at Dolores Park", "status": "queued" },
+      { "id": "d0922-11", "t": 812, "kind": "housing", "venue": "block",    "text": "Listing filled — 9457 Guerrero St, Unit 2 comes off the board" },
+      { "id": "d0922-12", "t": 841, "kind": "admin",   "venue": "club600",  "who": "admin", "text": "admin action — venue window reset at The 600 Club", "attrs": { "compensated_cr": 90 } },
+      { "id": "d0922-13", "t": 900, "kind": "scene",   "venue": "park",     "mentions": ["A04","A20"], "text": "The 15:00 release — June to the park with books, Zee's pack on the perimeter" },
+      { "id": "d0922-14", "t": 1077, "kind": "request", "who": "r0ok", "text": "queued request expired before activation", "status": "refunded" },
+      { "id": "d0922-15", "t": 1175, "kind": "scene",  "venue": "mudhaus", "mentions": ["A09"], "text": "The evening nurse — Asha's counter seat, phone face-down" },
+      { "id": "d0922-16", "t": 1260, "kind": "venue",  "venue": "farolote", "text": "Post-bar pickup line forming at El Farolote" },
+      { "id": "d0922-17", "t": 1298, "kind": "quiet",  "venue": "block",    "text": "The honestest hour — don't fill it." }
+    ],
+    "2026-09-23": [
+      { "id": "d0923-01", "t": 369, "kind": "move",    "who": "C2", "venue": "park",    "text": "Jules out for the morning run — north path loops" },
+      { "id": "d0923-02", "t": 398, "kind": "move",    "who": "C1", "venue": "mudhaus", "text": "Mars in early at Mudhaus — opening, counter" },
+      { "id": "d0923-03", "t": 458, "kind": "scene",   "venue": "mudhaus", "mentions": ["A01","A13"], "text": "Rush hour at Mudhaus — Reyes at double tempo; Nadia on the corner table" },
+      { "id": "d0923-04", "t": 486, "kind": "move",    "who": "C4", "venue": null,      "text": "Priya headed in to SF General — a twelves day" },
+      { "id": "d0923-05", "t": 539, "kind": "venue",   "venue": "park",     "mentions": ["A05","A19"], "text": "Bench parliament in session — Esther and Ray, adjacent sections" },
+      { "id": "d0923-06", "t": 612, "kind": "venue",   "venue": "auerbach", "mentions": ["C7","A17"], "text": "Victor's counter steady; Cole's site next door on second shift" },
+      { "id": "d0923-07", "t": 676, "kind": "rumor",   "venue": "buyrite",  "src": "buyrite", "outcome": null, "text": "Word on the block — Buy-Rite is about to raise the price of the good bread" },
+      { "id": "d0923-08", "t": 704, "kind": "request", "who": "juno_", "text": "nudge — an ask to Tomás Herrera", "status": "in_review" }
+    ]
+  }
+}
