@@ -156,6 +156,21 @@ semantic.
 **Model consequence:** retrieval should be a stochastic function of cue-match,
 trace strength, mood/state congruence, and cue competition — never a key lookup.
 
+**v2 calibration (full derivations in `retrieval-cues.md`):** Tulving & Osler
+1968 → cues must be encoded to work AND cue combination saturates (noisy-OR,
+not sum); Tulving & Thomson 1973 + Muter 1978 → recognition/recall asymmetry
+(~53% recognition failure of recallable names); Watkins & Watkins 1975 +
+Anderson & Reder 1999 → log-fan dilution, merged memories = one fan item
+(Radvansky 1993); Smith & Vela 2001 meta → place reinstatement d≈0.23, grows
+with interval, mental reinstatement substitutes ~0.6×; Chu & Downes 2000/2002
+→ odor cues shift the reminiscence bump to ages 6–10, age-scaled sensory
+weight + incongruent-sensory penalty; Eich 1989 + Mecklenbräuker & Hager 1984
+→ mood-state dependence split from mood congruence, small and erased by
+external cues (w_msd·(1−cueMatch_ext)); Berntsen 2009/2013 → involuntary
+recall is the default mode (~3× voluntary, 2–5/day, unfocused attention) →
+ambientMemoryScan; Roediger 1973 → part-list cuing suppresses listener's
+unspoken fields in discussEvent.
+
 ---
 
 ## 5. Emotional memory

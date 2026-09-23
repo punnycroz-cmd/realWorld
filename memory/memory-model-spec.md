@@ -1,4 +1,4 @@
-# Memory Model Spec v0.1 — implementable human-like memory for RW characters
+# Memory Model Spec v0.2 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -46,6 +46,9 @@ MemoryRecord = {
   "confidence": 0.7,                  // subjective certainty; independent of accuracy
   "accuracy": 0.95,                   // ground-truth drift accumulator (hidden from char)
   "emotional": { "valence": -0.6, "arousal": 0.8 },  // affect tag, own decay
+  "encodeMood": -0.2,                    // character's mood at encoding (v0.2;
+                                         // distinct from event valence —
+                                         // drives mood-STATE dependency §5.4)
   "cueVector": { "place": "mudhaus", "people": ["mara"],
                  "topic": ["rent"], "sensory": ["espresso"],
                  "mood": -0.4, "era": "current" },
@@ -199,34 +202,78 @@ facts still decay normally. See `forgetting-curves.md` §2.3.
 
 ---
 
-## 5. Retrieval — probabilistic, cue-driven
+## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
 
-### 5.1 Retrieval probability
+Calibration for everything in this section: `retrieval-cues.md` (RC§n).
+v0.2 changes: encoding-specificity gate, saturating cue combination, log fan,
+place-reinstatement term, age-scaled sensory cues, mood-state dependency
+(distinct from mood congruence), recognition-vs-recall modes, involuntary
+retrieval, part-list cuing.
 
-Given a retrieval context `C` (current place, present people, active topics,
-sensory inputs, current mood):
+### 5.1 Cue gating — only encoded cues exist (new in v0.2)
+
+A retrieval context `C` (current place, present people, active topics, sensory
+inputs, current mood, mode) matches memory `m` **only on fields present in
+`m.cueVector`**. A cue the character never encoded contributes exactly 0 —
+Tulving & Osler 1968: cues present only at retrieval do nothing (RC§1).
+Absent fields are not "partial credit," they are not cues.
+
+### 5.2 Saturating cue combination (replaces v0 weighted sum)
+
+Two simultaneous cues are no better than one (Tulving & Osler 1968), so cue
+fields combine by **noisy-OR**, not sum:
 
 ```
-cueMatch(m) = Σ_j w_j · overlap(C_j, m.cueVector_j)        // weighted across fields
-stateBonus  = w_state · (1 - |m.emotional.valence - C.mood|)   // mood congruence
-P(recall m) = logistic( k · (cueMatch + stateBonus + recencyBump(m)
-                           + m.strength·w_str - θ) )
-              / (1 + fan(m))                                  // fan effect
+per-field match:    c_j = w_j · overlap(C_j, m.cueVector_j)      ∈ [0, w_j]
+sensory age scale:  c_sensory = w_sensory · overlap · (1 + sensory_age_slope
+                                  · log1p(m.ageDays/30))         // RC§3 Proust
+mismatch penalty:   if a salient sensory field mismatches:
+                    cueMatch -= sensory_mismatch_pen (0.05)      // RC§3
+cueMatch_ext = 1 − Π_j (1 − min(c_j, 1))                         // saturates at 1
+place reinstate:    if C.place == m.cueVector.place:
+                    cueMatch_ext += place_reinstate · (1 + log1p(m.ageDays/30))
+                    // grows with memory age — Smith & Vela interval interaction
+mental reinstate:   if C is a guided reconstruction (co-conversationalist
+                    describes the scene): += mental_reinstate (≈0.6×
+                    place_reinstate)                              // RC§2
 ```
 
-- `fan(m)` = number of other memories sharing m's dominant cue (cue dilution,
-  R§4).
-- `θ` = retrieval threshold param; `k` = sharpness (~8). Sample stochastically —
-  retrieval is a dice roll, not a lookup.
-- `recencyBump` = `rec_k · exp(-(now - createdDay)/rec_τ)`, rec_τ≈2 days.
-- Mood-congruent recall: mood `C.mood` (valence −1..1) makes same-valence
-  memories more likely — a bad day literally recalls bad memories.
-- **Cue-weight ordering constraint (new in v0.1):** Wagenaar 1986 —
-  what > who ≈ where >> when. Enforce `w_topic ≥ w_people ≈ w_place >
-  w_sensory`, and treat era/when as a *weak* cue; `verbatim.when` takes
-  1.5× drift (`drift_p·1.5`) — humans misdate events monotonically with age.
+Cue-weight ordering constraint (v0.1, kept): `w_topic ≥ w_people ≈ w_place >
+w_sensory` (Wagenaar 1986); era/when stays weak, `verbatim.when` drifts at
+`drift_p·1.5`.
 
-### 5.2 What retrieval returns
+### 5.3 Mood terms — congruence vs state-dependence (split in v0.2)
+
+Two separate phenomena (RC§4):
+
+```
+moodCongruence = w_state · (1 − |m.emotional.valence − C.mood|)/2
+                 // event valence × current mood — CONSENSUS, larger effect
+moodStateDep   = w_msd · (1 − |m.encodeMood − C.mood|)/2
+                 · (1 − cueMatch_ext)
+                 // encoder mood match — small, and ERASED by strong
+                 // external cues (Eich meta; Mecklenbräuker & Hager)
+```
+
+### 5.4 Retrieval probability
+
+```
+drive(m) = cueMatch_ext + moodCongruence + moodStateDep
+           + recencyBump(m) + m.strength·w_str − θ
+P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
+```
+
+- `fan(m)` = number of OTHER live records sharing m's dominant cue;
+  **merged/generic memories (§4.3) count as one fan item** — situation-model
+  integration abolishes fan cost (Radvansky et al. 1993). Log divisor per
+  ACT-R fits (Anderson & Reder 1999); `fan_k` ≈ 0.4.
+- `θ` = retrieval threshold param; `k` = sharpness (~8). Dice roll, not lookup.
+- `recencyBump` = `rec_k · exp(−(now − createdDay)/rec_τ)`, rec_τ≈2 days.
+- **Archived records** (strength < forget_thresh, §4.4) are reachable only if
+  `cueMatch_ext > resurrect_thresh` (≈0.85) — a near-total context
+  reinstatement or someone narrating the event back (maximal cue).
+
+### 5.5 What retrieval returns
 
 Not the record — a **reconstruction**:
 1. Return `gist` verbatim fields only if `verbatimStrength` survives; else
@@ -235,13 +282,50 @@ Not the record — a **reconstruction**:
    source tag has decayed (§7.3) — then it may be returned as fact.
 3. Attach `confidence` for downstream dialogue hedging ("I think…", "I'm sure…").
 
-### 5.3 Retrieval-induced forgetting
+### 5.6 Recognition vs recall modes (new in v0.2)
+
+`recall(charId, C, k)` takes a `mode` field on `C`:
+- `"recall"` (default): contextual reconstruction — the formula in §5.4.
+- `"recognition"`: C is a copy cue (a face, a photo, a name spoken aloud).
+  Verbatim/copy fields match at full `w_str`, but contextual fields don't
+  apply. Crucially, recognition can FAIL for memories that recall would
+  return — Tulving & Thomson 1973, recognition failure of recallable words
+  (RC§1; Muter 1978: ~53% failure for names later recalled). Implement: in
+  recognition mode, records whose `cueVector` lacks the copy feature get
+  `cueMatch_ext · recogn_pen` (≈0.4). A character can fail to "place" a face
+  yet recall the person perfectly given the right context — and vice versa.
+
+### 5.7 Involuntary retrieval (new in v0.2)
+
+Memory surfaces without search — the normal case, not the exception
+(Berntsen: involuntary ≈ 3× voluntary frequency, 2–5/day, arising under
+unfocused attention; RC§5). Each ambient tick (when the character is NOT in
+focused task/conversation), run a cheap cue scan over live records:
+```
+if character attention state == "unfocused":
+    for records sharing any cue key with current C:
+        if cueMatch_ext(m) > intrusion_thresh (≈0.75):
+            m surfaces spontaneously → normal reconsolidation §5.8 applies
+```
+`intrusion_thresh` drops ~0.15 under active stress and for trauma-tagged
+records (trauma modifier) — intrusive memory is the same machinery at
+pathological gain. Tune so a quiet day yields 2–5 spontaneous recalls per
+main character (validation probe P14, RC§8).
+
+### 5.8 Retrieval-induced forgetting and part-list cuing
 
 On successful recall of `m`: for each linked/competing record `n` with
 similarity > 0.5 that was NOT recalled, `n.strength *= (1 - rif_k)` (rif_k≈0.05).
 Retelling a story forgets the details you skipped (R§3).
 
-### 5.4 Reconsolidation on recall
+**Part-list cuing (v0.2):** in `discussEvent`, the speaker's narration IS a
+part-list cue for the listener (Roediger 1973; RC§6). Fields the speaker
+covered → misinformation merge §6.3 as before; fields the speaker *omitted*
+→ `plist_suppress` (≈0.05 strength + one-day retrievability penalty via
+temporary θ bump). Effect attenuates for old memories — bounded per Bäuml's
+long-delay findings (RC§6).
+
+### 5.9 Reconsolidation on recall
 
 Each retrieval: `lastAccessDay = now`, `strength += boost·(1-strength)`
 (boost≈0.25, the spacing effect), `retrievalCount++`, `confidence += 0.03`.
@@ -321,6 +405,17 @@ MemoryParams = {
   "w_people": 0.33, "w_topic": 0.36, "w_sensory": 0.1,
   "rec_k": 0.3, "rec_tau_days": 2.0, "rif_k": 0.05,
   "retell_boost": 0.25,
+  // v0.2 additions (retrieval-cue calibration, retrieval-cues.md §8)
+  "fan_k": 0.4,                  // log-fan divisor strength (ACT-R consistent)
+  "place_reinstate": 0.15,       // matched-place cue bonus, grows w/ record age
+  "mental_reinstate": 0.09,      // guided-reconstruction fraction of above
+  "sensory_age_slope": 0.8,      // odor cues reach older memories (Proust)
+  "sensory_mismatch_pen": 0.05,  // wrong sensory cue hurts (Chu & Downes 2002)
+  "w_msd": 0.1,                  // mood-state dependency, small + erasable
+  "recogn_pen": 0.4,             // copy-cue penalty vs contextual recall
+  "intrusion_thresh": 0.75,      // involuntary-recall cue threshold
+  "resurrect_thresh": 0.85,      // cue level to reach archived records
+  "plist_suppress": 0.05,        // part-list cuing suppression in discussEvent
   // distortion
   "drift_p": 0.08, "misinfo_suscept": 0.35, "confab_fill": 0.5,
   // age/identity (set once, era window for reminiscence bump)
@@ -345,7 +440,10 @@ should validate params into those ranges at load.
   sleep consolidation §2 (also applies §4.6 consol_beta_mult to same-day
   records), affect fade §4.5, permastore check §4.7 on semantic records.
 - **On conversation/perception:** retrieval §5 → reconstruction →
-  reconsolidation §5.4 → drift §6.1; rumor heard → §6.3; co-discussion → §6.5.
+  reconsolidation §5.9 → drift §6.1; rumor heard → §6.3; co-discussion → §6.5
+  (with part-list suppression §5.8).
+- **Ambient tick (unfocused attention):** involuntary-retrieval scan §5.7 —
+  bucketed by cue key, same O(near-fan) cost class as interference.
 - **Budget:** expect ~200–800 live records per main character; archive below
   threshold. Ambient NPCs run the same equations with a coarser tick and
   smaller caps (they're thin-AI anyway).
@@ -359,9 +457,13 @@ field-level. No neural plausibility — functional equivalence only.
 ## 10. Interface contract for game-systems
 
 - `encodeEvent(charId, event, context) -> MemoryRecord|null`
-- `recall(charId, cueContext, k) -> [Reconstruction]` (with confidence, beliefStatus)
+- `recall(charId, cueContext, k) -> [Reconstruction]` (with confidence,
+  beliefStatus); `cueContext.mode` ∈ `"recall" | "recognition"` (v0.2, §5.6)
+- `ambientMemoryScan(charId, context) -> [Reconstruction]` — involuntary
+  recall for unfocused ticks (v0.2, §5.7)
 - `hearAccount(charId, speakerId, account)` → misinformation merge
-- `discussEvent(charA, charB, eventRef)` → bidirectional merge
+- `discussEvent(charA, charB, eventRef)` → bidirectional merge + part-list
+  suppression of unspoken fields (v0.2, §5.8)
 - `dailyMemoryTick(charId, sleepQuality)` → decay/interference/consolidation
 - `memorySnapshot/Load(charId)` → serialize the two stores + params
 - Belief layer: `beliefStatus` on records IS the belief-vs-fact hook; rumors

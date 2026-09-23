@@ -43,6 +43,16 @@ never copying raw.
 | face_ceiling | 0.5 | 0.8 | stranger verbatim cap (Deffenbacher 2008) |
 | stress_thresh | 0.7 | 0.95 | arousal level triggering encode loss |
 | stress_encode_loss | 0.2 | 0.4 | verbatim E penalty under stress |
+| fan_k | 0.2 | 0.8 | log-fan divisor strength (v0.2) |
+| place_reinstate | 0.05 | 0.30 | matched-place cue bonus (v0.2) |
+| mental_reinstate | 0.03 | 0.20 | ≤ place_reinstate; ≈0.6× default (v0.2) |
+| sensory_age_slope | 0.0 | 2.0 | odor cue reaches older memories (v0.2) |
+| sensory_mismatch_pen | 0.0 | 0.15 | incongruent-sensory penalty (v0.2) |
+| w_msd | 0.0 | 0.25 | mood-state dependency; weak by design (v0.2) |
+| recogn_pen | 0.2 | 0.7 | copy-cue penalty, recognition mode (v0.2) |
+| intrusion_thresh | 0.5 | 0.95 | lower = more spontaneous recalls (v0.2) |
+| resurrect_thresh | 0.7 | 0.95 | cue level to un-archive records (v0.2) |
+| plist_suppress | 0.0 | 0.15 | part-list cuing suppression (v0.2) |
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -144,6 +154,8 @@ beta_episodic 0.72 · beta_semantic 0.22 · beta_source 1.7 · k_verbatim 3.5
 tau_episodic 1.0 · interf_k 0.18 · interf_thresh 0.55 · merge_thresh 0.72
 forget_thresh 0.12 · neg_affect_decay 1.7 (positivity effect)
 theta 0.52 · w_state 0.35 · w_sensory 0.2 (Proust cues — smell triggers recall)
+sensory_age_slope 1.3 · intrusion_thresh 0.65 (drifts into the past often)
+plist_suppress 0.08 (easily steered by what others said)
 rif_k 0.08 · retell_boost 0.35 (much-retold old stories stay sharp — and drifted)
 drift_p 0.14 · misinfo_suscept 0.50 · confab_fill 0.8 · bump_beta_mult 0.5
 ```
@@ -156,7 +168,7 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 
 | Modifier | Deltas | Rationale |
 |---|---|---|
-| **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core) | hyper-encoded threat core, fragmented context (R§5, R§8) |
+| **Trauma history** | w_emo ×1.4; arousal_narrowing ×1.3; beta_source ×1.3; drift_p ×1.3 under stress; misinfo_suscept ×0.9 for the trauma topic only (hyperconsolidated core); intrusion_thresh −0.15 for threat-cued records (intrusive recall) | hyper-encoded threat core, fragmented context (R§5, R§8; RC§5) |
 | **High-stress job / chronic stress** | enc_base ×0.85; theta ×1.15 (stress impairs retrieval); beta_episodic ×1.15 | cortisol impairs encode+retrieve (R§8) |
 | **Poor sleep / insomnia** | sleepFactor → 0.7; enc_base ×0.9; drift_p ×1.2 | consolidation failure (R§2, R§8) |
 | **Highly social / gossip** | retell_boost ×1.3; w_people ×1.3; misinfo_suscept ×1.2 (hears everything twice); drift_p ×1.15 | rehearsal-rich, drift-rich memory (R§4, R§6 social contagion) |
