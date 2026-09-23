@@ -1,6 +1,12 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v75 · 2026-09-24 (fifth pass — live SERP landscape validation:
+**Version:** v90 · 2026-09-23 (sixth pass — merged onto production baseline
+`7eb476a`; SERP re-validation: **Paralives shipped** May 25 2026 ($39.99 EA,
+78k peak, mixed) — comparison angle flips from waiting-capture to
+disappointed-demand; InZOI's Canvastown went social-MMO (Sept 2026) —
+thesis confirmed; FAQ 29→31 — co-sponsor + permalink questions graduated
+from the §16 bank now that the wire app ships on-site with both).
+**v75** (fifth pass — live SERP landscape validation:
 Midsummer's cancelled "Burbank" confirms orphan demand for "Truman Show
 game"; FAQ 26→29 — multiplayer / missed-events / day-night graduated from
 the §16 bank; ItemList JSON-LD shipped on features; Tier-2 keyword map
@@ -63,7 +69,7 @@ first week post-launch; re-score tiers at day-30.
 | Sims alternative free | Medium | faq + journal essay | NOT a Sims clone — pitch "watch, don't decorate" |
 | games like Twitch Plays Pokémon | Low-med | journal essay | Collective-agency ancestry — honest lineage post |
 | GTA RP browser game | Low | journal essay | "Second life with job and rent" is proven demand (FiveM) |
-| Paralives release / Paralives alternative | Medium | faq comparison block | Waiting-audience capture; never disparage. Still delayed (v75 check) — demand stays pent-up |
+| Paralives alternative / Paralives review | Medium | faq comparison block | SHIPPED May 25 2026 ($39.99 EA, 78k peak, mixed — Live Mode thin per critics; §19). Capture post-launch disappointment, never disparage |
 | Burbank game / games like Burbank | Low-med, disappointed | faq comparison + journal essay | Jake Solomon's cancelled "Sims + Truman Show" (Midsummer, closed 2026) — press-proven demand, zero product. §18 |
 | cozy life sim 2026 | Medium | index support copy | Tone match, "but with stakes" |
 
@@ -106,7 +112,7 @@ in markup today.
 | `/wire-archive.html` | The Archive — Real World history browser | game event archive | — | Real world-v34 app, verbatim + 3 documented patches; demo-badged; distinct from `/archive.html` (explainer owns "archive" queries, this is the running app) |
 | `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md; scene builder + worked scenes (v67) |
-| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 29 Qs (jobs Q v60; multiplayer/missed-events/day-night graduated v75); JSON-LD ↔ visible parity enforced by seo_audit.py |
+| `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 31 Qs (jobs Q v60; multiplayer/missed-events/day-night v75; co-sponsor + permalink Qs v90); JSON-LD ↔ visible parity enforced by seo_audit.py |
 | `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
 | `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
 | `/journal.html` | The Dispatch — Real World Journal | devlog, weekly recap | — | Add Article JSON-LD per post when volume justifies |
@@ -211,7 +217,7 @@ Done in markup (verified by `tools/staging_dryrun.sh` **and**
 - [x] Every meta description ≤155 chars (8 fixed in v30 after audit found them)
 - [x] VideoGame `screenshot[]` — all four current gallery shots
 - [x] `llms.txt` at site root — entity briefing for AI answer engines
-- [x] FAQ visible↔schema parity machine-checked (29 questions, v75)
+- [x] FAQ visible↔schema parity machine-checked (31 questions, v90)
 - [x] Title & meta-description uniqueness across all pages machine-checked (v60)
 - [x] Sitemap lastmod dates ISO + never future-dated (v60)
 - [x] llms.txt link targets resolve + "N questions" claim matches live
@@ -262,7 +268,7 @@ Which rich result each page is built to win — checked by `seo_audit.py`:
 | SERP feature | Page | Asset that earns it |
 |---|---|---|
 | VideoGame rich result (screenshots, free offer) | index | VideoGame JSON-LD + `screenshot[]` + `isAccessibleForFree` |
-| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 29 Qs incl. the Sims/InZOI comparison (v30), the jobs question (v60), multiplayer + missed-events + day-night (v75) |
+| FAQ rich result / People-Also-Ask | faq | FAQPage schema, parity-enforced 31 Qs incl. the Sims/InZOI comparison (v30), the jobs question (v60), multiplayer + missed-events + day-night (v75), co-sponsor + permalinks (v90) |
 | Image pack | index, features, press-kit | sitemap `image:` entries + descriptive alt + real shot filenames |
 | Sitelinks | index | flat nav + consistent titles — earned, not markup |
 | "Free" qualifier snippets | demo, pricing | `isAccessibleForFree` + "free, always" copy in first 155 chars |
@@ -363,8 +369,8 @@ already owns the cluster.
 | what's the difference between watching and playing | how-it-works | ✔ covered on-page |
 | how long is a request / what do credits buy | pricing | ✔ covered on-page |
 | can my character get a job / who pays them | faq "Can my character get a job — and who pays them?" | ✔ answered (v60 — job board, Friday payroll, bill-on-approval) |
-| can I co-sign / co-sponsor someone's request | faq | QUEUE — world-v32 `co_sponsor` contract is real; add when wire shows it |
-| can I link to a specific request or event | archive + how-it-works | QUEUE — world-v33 `#r=` permalinks; add when the wire is public |
+| can I co-sign / co-sponsor someone's request | faq | ✔ answered (v90 — wire app on-site renders `sponsors[]` chips; exclusive requests stay single-owner) |
+| can I link to a specific request or event | faq + archive | ✔ answered (v90 — `#e=`/`#r=` permalinks live in the shipped wire/archive apps) |
 | do the characters know you're watching | index copy ("none know you're watching") | QUEUE — graduate to faq if the query shows up |
 | is it multiplayer | faq | ✔ answered (v75 — one shared block, compatible requests co-scene; not co-op control) |
 | can you romance / date a character | faq | QUEUE — only if asked; no romance mechanic to promise |
@@ -424,3 +430,33 @@ were estimates with no tool access). Four findings, all sourced:
 
 **Action carried forward:** before each future pass, re-run this check —
 competitor launches/shutdowns are the cheapest keyword-map updates we get.
+
+## 19. SERP re-validation (v90) — the landscape moved
+
+Re-ran the §18 live check. Three findings changed the map:
+
+1. **Paralives shipped.** Early Access launched **May 25, 2026** at $39.99
+   (Steam), peaking ~78k concurrents with mixed reviews — critics' repeated
+   complaint is a thin Live Mode, and the studio's own roadmap calls
+   Jun–Sep 2026 a stabilization window. §2 Tier-2 row updated: the angle is
+   no longer "waiting audience" but **post-launch disappointed demand** —
+   the exact query shift is "Paralives review / is Paralives good / Paralives
+   alternative." Comparison copy rule stands: factual, never disparaging;
+   we contrast *verbs* (decorate/control vs. witness/influence), not quality.
+   Journal essay candidate: "what the first month of a life sim proves"
+   — honest genre analysis, not a hit piece.
+2. **InZOI went social.** KRAFTON's September 2026 Canvastown previews
+   confirm a multiplayer RP mode (~50 players per channel, role assignment,
+   a persistent shared town in testing). The biggest-budget competitor is
+   spending real money to add the thing we already are: *people sharing one
+   persistent place*. §18 finding 3 upgraded from "validates" to
+   "confirms." Watch for Canvastown's launch date — if it lands before us,
+   "shared AI town" demand gets primed for free.
+3. **The orphan demand is still orphaned.** Burbank remains cancelled
+   (Midsummer closure, Feb 2026) and no new "Truman Show game" product has
+   shipped or been announced since v75. Tier-1 head term uncontested for
+   another quarter at minimum.
+
+**Carried action:** re-run this check every pass. Next check should also
+query "Paralives alternative" SERP composition — whoever ranks there now
+is our real keyword neighbor, not the genre leaders.
