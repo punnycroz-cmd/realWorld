@@ -41,7 +41,7 @@ log the result in §10 before the checklist may cite it.
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced everywhere it ships (canonical links, OG URLs, `sitemap.xml`, `robots.txt`, Caddyfile/netlify DNS+env). One command: `tools/swap_domain.sh <domain>` then `--check` must print CLEAN | owner + mkt | `[ ] PENDING` — swap tool rehearsed v59 (apply→check→revert round-trip clean) |
 | G4 | Pricing flip: owner approves final numbers → set `data-pricing="final"` on `pricing.html` `<body>` (one attribute — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = **v43 dev build** — refreshed v68 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = **v44 dev build** — refreshed v72 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture | owner | `[ ] PENDING` |
 | G8 | Analytics: shim wired on all pages but INERT — set `data-endpoint` on `js/analytics.js` include after owner picks backend (Umami/Plausible CE/first-party sink; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23) |
@@ -239,8 +239,8 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | staging_dryrun.sh (v38, shots v26) | 33 pass / 2 warn / 0 fail — warns: domain ×2 only (PNG-weight warn cleared) |
 | 2026-09-23 | tools/preflight.sh (v38) | 5 pass / 5 warn / 0 fail — warns: G3 domain, G4 provisional, G8 endpoint, G12 demo-src, uncommitted files |
 | 2026-09-23 | tools/gonogo.sh (v38, post-refresh) | 2/15 auto-green (G5, G9) — mechanical gates now prove themselves |
-| 2026-09-23 | tools/ship.sh (v44, first run, rehearsal mode) | full pipeline green: preflight GO (4 pass / 6 warn / 0 fail) → dist zip rebuilt → deploy dry-run (env unset) → punch list printed |
-| 2026-09-23 | tools/uptime_probe.sh (v44, vs localhost staging) | HEALTHY — 4×200 + brand marker; TLS check correctly WARNs on non-HTTPS |
+| 2026-09-23 | tools/ship.sh (v43, first run, rehearsal mode) | full pipeline green: preflight GO (4 pass / 6 warn / 0 fail) → dist zip rebuilt → deploy dry-run (env unset) → punch list printed |
+| 2026-09-23 | tools/uptime_probe.sh (v43, vs localhost staging) | HEALTHY — 4×200 + brand marker; TLS check correctly WARNs on non-HTTPS |
 | 2026-09-24 | gallery refresh v26→v28 (v45) | shots + press-kit screenshots swapped, webp regen, keyart+banners rebaked, animatics rebuilt (hero/teaser/vertical), dist zip rebuilt (39 files) |
 | 2026-09-24 | staging_dryrun.sh (v45, shots v28) | 33 pass / 2 warn / 0 fail — warns: domain ×2 only |
 | 2026-09-24 | tools/seo_audit.py (v45, extended) | 58 pass / 23 warn / 0 fail — new srcset/og:image/CLS checks active; warns: domain, PNG-fallback weight, thin-desc legacy |
@@ -265,6 +265,8 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-24 | tools/gonogo.sh (v68, 17 gates) | 2/17 auto-green (G5, G9) — G16 label now world-v39/9-hook, G17 added as OWNER gate |
 | 2026-09-24 | staging_dryrun.sh (v68, shots v43) | 36 pass / 2 warn / 0 fail — warns: domain ×2 only |
 | 2026-09-24 | tools/preflight.sh (v68, +checklist-audit step) | 6 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
+| 2026-09-24 | gallery refresh v43→v44 (v72) | shots + press-kit screenshots swapped, webp regen, keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v44, all 5 animatics + boards + 3 thumbnails rebuilt; dist zip rebuilt (42 files). NOTE: first copy raced the art publish (truncated PNG mid-write) — always `cmp` against published/ before swapping |
+| 2026-09-24 | tools/preflight.sh (v72, post-refresh) | 7 pass / 5 warn / 0 fail — GO; brand_audit + checklist_audit clean |
 
 ## §11 Rehearsal coverage matrix
 

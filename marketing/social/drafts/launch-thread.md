@@ -2,14 +2,14 @@
 
 Channels: X (full thread), Bluesky (condensed), pinned-post variant.
 Fill `{{URL}}` = landing site, `{{WATCH}}` = spectator/demo link, `{{DATE}}`.
-Assets: `shots/v43-D.png` (evening hero), `shots/v43-A.png` (day block),
+Assets: `shots/v44-D.png` (evening hero), `shots/v44-A.png` (day block),
 `assets/og-card.png`. All captioned "development build" until launch.
 
 ---
 
 ## X thread (8 posts)
 
-**1/8** — the hook, with `v43-D.png` attached:
+**1/8** — the hook, with `v44-D.png` attached:
 
 > There's a block in San Francisco's Mission District where twenty-eight
 > people are awake right now. They have jobs, feuds, secrets, rent due.

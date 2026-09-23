@@ -25,7 +25,7 @@ keeps living when you log off.
 > they need a room and a job like anyone else, and they're the only
 > character you'll ever possess. {{URL}}/how-it-works.html
 
-Attach: `site/shots/v43-A` still + "development build" label.
+Attach: `site/shots/v44-A` still + "development build" label.
 
 **Post 2 (Tue) — the math**
 > Moving in costs credits and game dollars — the split is the point.
@@ -59,7 +59,7 @@ Attach: none needed; text post.
 > watching your own is different. {{URL}}/how-it-works.html
 
 Attach: live feed screenshot if a `payroll`/`job` event ran — otherwise
-a `site/shots/v43-D` evening still.
+a `site/shots/v44-D` evening still.
 
 **Post 6 (Sun) — the milestone**
 > Move-in week on the block: {{N}} characters hired onto the cast, {{N}}

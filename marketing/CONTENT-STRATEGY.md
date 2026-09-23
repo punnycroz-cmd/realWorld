@@ -144,12 +144,14 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 5 — "Meet the venues" | live on `journal.html` (v57); record at `marketing/content/devlog-05-meet-the-venues.md` | world `businesses.json` (25 live venues + `web` mesh) + `businesses/` + `directory.html` (world-v16/v30) |
 | Devlog 6 — "The Archive: the block keeps its receipts" | live on `journal.html` (v46); record at `marketing/content/devlog-06-the-archive.md` | world-v20 `archive.html`/`archive-ui.md`/`history.json`, game-v6 `gsWireDays`/`gsWireArchiveDay` |
 | Devlog 7 — "Now hiring: the block posts real jobs" | live on `journal.html` (v57); record at `marketing/content/devlog-07-now-hiring.md` | world-v31 `market.md`/`market.json`, game-v8 `41_game_systems_hiring.js`, `requests.json` hire row |
-| Devlog 8 — "The wallet shows its math" | drafted, `marketing/content/devlog-08-the-wallet.md` | world-v32 `requests.json → wallet/appeals/co_sponsor/session_extend` + `request-ui.md` §8 |
+| Devlog 8 — "The wallet shows its math" | live on `journal.html` (v72); record at `marketing/content/devlog-08-the-wallet.md` | world-v32 `requests.json → wallet/appeals/co_sponsor/session_extend` + `request-ui.md` §8 |
+| Devlog 9 — "Every door has a tryout" | live on `journal.html` (v72); record at `marketing/content/devlog-09-every-door-has-a-tryout.md` | world-v45 `applications.md`/`applications.json` (16 job arcs, 8 housing rows, decline bank, never-list) + `apply.html` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
-Backlog (write when the source lands — never ahead of it): publish
-devlog-08 once its checklist passes against both `requests.json` and
-`pricing.html`; lease-ledger devlog deep-dive (devlog-3 covers the intro;
+Backlog (write when the source lands — never ahead of it):
+storefront-layer devlog (world-v44 `storefronts.json` fascia/window/
+aframe/flyers/neon copy — draft once the art track renders the authored
+text on glass, so the post can show it); lease-ledger devlog deep-dive (devlog-3 covers the intro;
 a ledger-mechanics follow-up still has room), a transparency note format
 for moderation stats once the live feed emits `moderation.json`-shaped
 events, a wire.html-screenshot post if the world/art tracks publish a

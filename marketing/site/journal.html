@@ -70,6 +70,110 @@
   <div class="wrap">
     <p class="eyebrow">Latest — devlog</p>
     <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v45</p>
+      <h2>Every door has a tryout.</h2>
+      <p>
+        A "help wanted" card on the block is no longer a prop with a
+        promise — it's a whole ask, written down. All sixteen open roles
+        now carry the full arc: <b>apply → screen → trial → decision</b>.
+        How you apply is specific to the door — a reply card pinned under
+        the listing at Mudhaus, or ask Marisol at the counter before 9:00.
+        Who screens is a named neighbor, not an algorithm: she reads the
+        card replies herself, then watches how you wait for her. The
+        trial is a shift, not a quiz — one paid Saturday rush,
+        7:30–13:00, that passes on unhurried competence under the line
+        and a clean till count, and fails on talking through the rush.
+      </p>
+      <p>
+        Housing got the same treatment. The three live units and the
+        whole ladder — room to house — now carry viewing, packet, and
+        decision: a Saturday 11–1 showing at 9418 Guerrero, opened by
+        Victor himself, who says the rent and lets the flat talk. And the
+        "no" is built with the same care as the "yes": declines are
+        voiced in-world, per channel, in the voice of the door that
+        answered — <i>"Card'll stay up — try the next one."</i> A decline
+        never hits the feed. A spectator sees at most the card come down;
+        never the applicant, never the reason.
+      </p>
+      <p>
+        The boundaries are published as a never-list: no application fee
+        above real screening cost, no rent bidding, no pay-to-interview,
+        trial shifts paid unless the entry says otherwise in plain words,
+        and an application never leaks a secret — screening texture is
+        surface knowledge only. Conditions, never scripts: the same rule
+        the <a href="how-it-works.html">request pipeline</a> lives by.
+      </p>
+      <p class="muted">
+        Sources: the application layer is the world track's
+        <code>world/applications.md</code>/<code>applications.json</code>
+        (v45 — 16 job arcs, 8 housing rows, per-channel decline bank,
+        never-list), demoed in <code>world/apply.html</code>; wages and
+        channels are asserted to agree with <code>jobs.json</code> /
+        <code>market.json</code> by the world audit gate.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v32</p>
+      <h2>The wallet shows its math.</h2>
+      <p>
+        The request form grew a wallet sheet, and it was designed to be
+        boring. Six credit packs, $0.99 to $99.99 — provisional, like
+        every number on <a href="pricing.html">the pricing page</a>. A
+        first-purchase +50% bonus, flagged in the sheet before the first
+        buy — not discovered after it. A $200-a-day spend cap that
+        applies to everyone, including us. Credits that never expire.
+        And an itemized ledger: every debit, every refund, every pack buy
+        and ad earn, line by line — because the feed already shows
+        refunds publicly, and your own money deserves at least that much
+        visibility.
+      </p>
+      <p>
+        The honest parts are the unfashionable ones. Rewarded ads exist —
+        2 credits a view, five a day, twenty-five a week — but they're
+        opt-in from the wallet sheet only. Never a pre-roll, never a
+        mid-session break, never inside the sim view. And when a request
+        is declined, the appeal path is private: a different reviewer, an
+        answer inside 72 hours, and no public spectacle — the feed counts
+        appeals in aggregate, never names them. Two codes can't be
+        appealed (legal backstop, appeal resubmit), and a reversal
+        re-charges only if the request is then approved.
+      </p>
+      <p>
+        Two smaller courtesies shipped in the same pass. Identical
+        weather requests can co-sign a running override instead of
+        queueing — same flat block price, every sponsor named on the feed
+        line, cap of four. And a running session can buy more minutes at
+        its own rate while the class cap allows — 1.5 cr/min for
+        compatible sessions, camera time in +30-minute blocks — with a
+        low balance disabling the button and pointing at the top-up
+        instead of failing mid-session.
+      </p>
+      <p class="muted">
+        Sources: the wallet contract is
+        <code>world/requests.json → wallet</code> (pack ladder, +50%
+        first buy, $200/day cap, ad caps, ledger rule); appeal semantics
+        mirror <code>world/moderation.json → appeal_flow</code>;
+        co-sponsor rides the game track's <code>GS_WX_OVR.sponsors</code>
+        merge target; the numbers adopt the monetization plan verbatim
+        and carry the same provisional flag as
+        <a href="pricing.html">the pricing page</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-24 · Development build v30</p>
       <h2>Now hiring: the block posts real jobs.</h2>
       <p>
@@ -393,7 +497,7 @@
       </p>
       <div class="gallery" style="margin-top:14px">
         <figure><picture><source srcset="shots/v1-A.webp" type="image/webp"><img src="shots/v1-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="First art pass, top-down over the block"></picture><figcaption>v1 — first pass, overhead.</figcaption></figure>
-        <figure><picture><source srcset="shots/v43-A.webp" type="image/webp"><img src="shots/v43-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Current build, same overhead angle"></picture><figcaption>v40 — same angle, thirty-six iterations later: murals, parody signage, fire escapes, real Mission hills.</figcaption></figure>
+        <figure><picture><source srcset="shots/v44-A.webp" type="image/webp"><img src="shots/v44-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Current build, same overhead angle"></picture><figcaption>v44 — same angle, forty-plus iterations later: murals, parody signage, fire escapes, real Mission hills, the skyline behind it all.</figcaption></figure>
         <figure><picture><source srcset="shots/v16-int-cafe.webp" type="image/webp"><img src="shots/v16-int-cafe.png" width="1440" height="900" loading="lazy" decoding="async" alt="New interior vignette — café"></picture><figcaption>New in v16 — interiors behind the glass.</figcaption></figure>
       </div>
     </article>

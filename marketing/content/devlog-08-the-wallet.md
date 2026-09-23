@@ -1,6 +1,6 @@
-# DRAFT — Devlog 8: "The wallet shows its math."
+# Devlog 8: "The wallet shows its math."
 
-Status: DRAFT (v57). NOT yet on `site/journal.html`. Source landed at
+Status: PUBLISHED (v72) on `site/journal.html`. Source landed at
 world-v32: `world/requests.json → wallet/appeals/co_sponsor/session_extend`
 + `world/request.html` v3 (wallet sheet UI) + `world/request-ui.md` §8.
 Publish text-only per `templates/devlog-post.md` when ready.
@@ -58,20 +58,22 @@ devlog must not contradict the page.
 </article>
 ```
 
-## Accuracy checklist (run at publish)
+## Accuracy checklist (run at publish — all passed at v72)
 
-- [ ] Pack ladder still $0.99/100 → $99.99/14000 (`requests.json wallet.packs`
+- [x] Pack ladder still $0.99/100 → $99.99/14000 (`requests.json wallet.packs`
       vs `site/pricing.html` — they must agree or the post doesn't ship).
-- [ ] +50% first purchase, once, disclosed before buy — `first_purchase_bonus`.
-- [ ] $200/day spend cap; no expiration — `daily_spend_cap_usd`, `no_expiration`.
-- [ ] Ad numbers 2cr/view, 5/day, 25/week, opt-in placement wording —
+- [x] +50% first purchase, once, disclosed before buy — `first_purchase_bonus`.
+- [x] $200/day spend cap; no expiration — `daily_spend_cap_usd`, `no_expiration`.
+- [x] Ad numbers 2cr/view, 5/day, 25/week, opt-in placement wording —
       `rewarded_ads.placement` verbatim.
-- [ ] Appeal window 72 h, different reviewer, not-appealable codes
+- [x] Appeal window 72 h, different reviewer, not-appealable codes
       `legal-backstop` + `appeal-resubmit`, aggregate-only feed visibility,
       reversal re-charges only on approval — `appeals` block.
-- [ ] Co-sponsor: compatible class, same flat block price, cap 4, named
+- [x] Co-sponsor: compatible class, same flat block price, cap 4, named
       attribution, declared intents only — `co_sponsor` block.
-- [ ] Session extend: 1.5 cr/min compatible, camera 10 cr per +30 min,
+- [x] Session extend: 1.5 cr/min compatible, camera 10 cr per +30 min,
       class caps hold (120 min compatible) — `session_extend` block.
-- [ ] Confirm nothing above is labeled PROPOSAL on the site — pricing.html
+- [x] Confirm nothing above is labeled PROPOSAL on the site — pricing.html
       provisional-flag wording must be reused if still provisional.
+      → pricing still `data-pricing="provisional"` at publish; the post
+      carries "provisional, like every number on the pricing page" inline.

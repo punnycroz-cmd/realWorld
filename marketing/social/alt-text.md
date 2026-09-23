@@ -5,14 +5,14 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v43)
+## Published shots (`site/shots/`, development build v44)
 
 | File | Alt text |
 |---|---|
-| `v43-A` | Top-down view of the Mission block at 24th and Mission under Karl's marine layer — fog pools over rooftops while streets stay lit below. Development build. |
-| `v43-B` | Street-level view in the fog: a controlled resident stands mid-errand on a gray sidewalk, facades and parked cars fading into the marine layer. Development build. |
-| `v43-C` | Dolores Park from overhead under a drifting fog sheet — mature tree crowns and paths visible through the marine layer. Development build. |
-| `v43-D` | Director-mode street view under a clear evening sky — REC and DIRECTOR badges, pastel facades, laundry lines, a named resident on the corner. Development build. |
+| `v44-A` | Top-down view of the Mission block at 24th and Mission under Karl's marine layer — fog pools over rooftops while streets stay lit below. Development build. |
+| `v44-B` | Street-level view in the fog: a controlled resident stands mid-errand on a gray sidewalk, facades and parked cars fading into the marine layer. Development build. |
+| `v44-C` | Dolores Park from overhead under a drifting fog sheet — mature tree crowns and paths visible through the marine layer. Development build. |
+| `v44-D` | Director-mode street view under a clear evening sky — REC and DIRECTOR badges, pastel facades, laundry lines, a named resident on the corner. Development build. |
 | `v16-int-cafe` | Interior still: a corner cafe — counter, chalk menu, two residents mid-conversation. Development build. |
 | `v16-int-flat` | Interior still: a small apartment — sofa, window over the street, one resident reading. Development build. |
 | `v1-A` / `v1-B` | Earliest surviving build of the block — flat lighting, simple facades. Kept for before/after posts only; always paired with a current shot. |
