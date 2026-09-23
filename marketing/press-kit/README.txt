@@ -6,7 +6,14 @@ published. Contact fields are placeholders until launch.
 
 Contents
 --------
+  index.html         START HERE — self-contained offline press hub
+                     (links all assets/documents; needs no server)
   fact-sheet.html    Print-ready fact sheet (open in a browser, Print → PDF)
+  press-release-launch.md  Launch press release — draft with fill-in slots
+  press-qa.md        Anticipated press Q&A with approved answers
+  captions.txt       Caption + credit line for every image
+  LICENSE.txt        Press asset usage terms
+  manifest.json      Machine-readable kit manifest
   logos/             Primary lockup (light text, for dark bgs) +
                      dark-ink lockup (logo-primary-dark.svg, for light bgs) +
                      icon + single-ink mono icon; SVG and PNG; favicon.
@@ -14,8 +21,9 @@ Contents
   keyart/            1920x1080 and 1080x1080 key art (built on a real
                      development-build capture)
   screenshots/       Real captures of the current development build.
-                     v17-* = current renderer (pitched roofs, roof props, parked cars,
-                     perspective interior vignettes — café + flat);
+                     v18-* = current renderer (murals, parody signage,
+                     polychrome trim, fire escapes, parked cars);
+                     v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 
 Usage rules for press/creators

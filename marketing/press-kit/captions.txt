@@ -1,0 +1,47 @@
+REAL WORLD — "THE MISSION" — CAPTIONS & CREDITS
+================================================
+
+Credit line for all images:  "Real World (in development) — [STUDIO NAME]"
+Replace [STUDIO NAME] at launch. Keep the "in development" wording.
+
+keyart/keyart-16x9.png      1920x1080
+  Key art: a development-build capture of the Mission block at golden
+  hour under the Real World title. Hero image for articles and listings.
+
+keyart/keyart-square.png    1080x1080
+  Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
+  reach in."
+
+screenshots/v18-A.png       1440x900 (approx)
+  The café block from overhead — real Mission street grid, parody
+  storefront signage, mural walls, generated addresses.
+
+screenshots/v18-B.png       1440x900 (approx)
+  Street-level follow camera: polychrome Victorian trim, cast-iron fire
+  escapes, a resident on an afternoon routine.
+
+screenshots/v18-C.png       1440x900 (approx)
+  Dolores Park from above — the neighborhood's back yard, with court and
+  path decals baked into the terrain.
+
+screenshots/v18-D.png       1440x900 (approx)
+  Director mode: the camera treats the neighborhood like a film set.
+
+screenshots/v16-int-cafe.png
+  Interior vignette: inside the corner café — interiors render behind the
+  storefront glass.
+
+screenshots/v16-int-flat.png
+  Interior vignette: a residential flat — where the residents actually live.
+
+screenshots/v1-A.png / v1-B.png
+  First art pass, for before/after coverage. Pair with v18-A / v18-B.
+
+logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
+logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.
+logos/logo-icon.svg/.png       The lit-window mark, square.
+logos/logo-icon-mono.svg       Single-ink version (inherits text color).
+logos/favicon.svg              Site favicon.
+
+Do not recolor, stretch, or redraw the lit-window mark. Do not imply
+endorsement. Do not present placeholder contact fields as real contact info.

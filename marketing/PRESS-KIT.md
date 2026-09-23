@@ -1,11 +1,12 @@
 # Press Kit — Real World ("The Mission")
 
-**Version:** v2 · 2026-09-22 · **Status:** LOCAL DRAFT — pre-launch.
+**Version:** v17 · 2026-09-23 · **Status:** LOCAL DRAFT — pre-launch.
 Contact fields are placeholders; no public channels exist yet. HTML mirror:
 `marketing/site/press-kit.html`. Downloadable bundle:
 `marketing/press-kit/` — build the zip with `./marketing/build-press-kit.sh`
-(outputs `marketing/dist/real-world-press-kit.zip`). Outreach template +
-pitch drafts + embargo policy: `PRESS-OUTREACH.md`.
+(outputs `marketing/dist/real-world-press-kit.zip`). The bundle opens with
+`press-kit/index.html`, a self-contained offline press hub. Outreach
+template + pitch drafts + embargo policy: `PRESS-OUTREACH.md`.
 
 ---
 
@@ -86,9 +87,15 @@ date. The founder quote slot below stays empty until the user writes one:
 | Logo — icon | **Available** — SVG + 512×512 PNG; favicon SVG | `press-kit/logos/logo-icon.{svg,png}`, `press-kit/logos/favicon.svg` |
 | Logo — icon mono | **Available** — single-ink SVG (`currentColor`) | `press-kit/logos/logo-icon-mono.svg` |
 | Key art | **Available** — 1920×1080 + 1080×1080 composites on a real build capture | `press-kit/keyart/keyart-16x9.png`, `keyart-square.png` |
-| Screenshots | **Available** — 4 current-build shots (v17) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
+| Screenshots | **Available** — 4 current-build shots (v18) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
 | Fact sheet | **Available** — print-ready HTML, prints to PDF | `press-kit/fact-sheet.html` |
-| Trailer | **Not yet produced** — see TRAILER-PLAN.md when it lands | — |
+| Offline press hub | **Available** — self-contained `index.html` inside the bundle | `press-kit/index.html` |
+| Press release | **Available** — launch release draft, slots marked | `press-kit/press-release-launch.md` |
+| Press Q&A | **Available** — anticipated questions, approved answers | `press-kit/press-qa.md` |
+| Captions/credits | **Available** — per-asset caption + credit line | `press-kit/captions.txt` |
+| Asset license | **Available** — editorial usage terms | `press-kit/LICENSE.txt` |
+| Manifest | **Available** — machine-readable kit contents | `press-kit/manifest.json` |
+| Trailer | **Not yet produced** — see TRAILER-PLAN.md | — |
 
 Regenerate all raster brand assets with `python3 marketing/tools/make_brand_assets.py`
 (SVGs are the hand-authored vector sources; PNGs/key art are derived).
