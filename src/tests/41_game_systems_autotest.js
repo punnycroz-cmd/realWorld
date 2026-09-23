@@ -518,7 +518,8 @@ runAutoTest = async function(){
 
     // ---- v1: possession briefing is public-fields-only ----
     const br = gsPossessionBriefing(hiredId);
-    log(br && br.name === 'Newcomer Nan' && /Hire Street/.test(br.home || '') &&
+    log(br && br.name === 'Newcomer Nan' &&
+        /Hire Street/.test((br.home && br.home.address) || br.home || '') &&
         !/secret|drama|seed|memory|belief/i.test(JSON.stringify(br)) &&
         gsPossessionBriefing('C1') === null,
         'gs: v1 briefing carries public profile only — secrets redacted');
@@ -1303,11 +1304,400 @@ runAutoTest = async function(){
       gsNextUnitCode(gsBldById(mb2.id)) === 'E' &&
       gsParseAddress(gsAddressOfUnit(pA.id)).unit.id === pA.id;
     log(v4ok, 'gs: v4 withdrawn units, retired codes, parses survive load');
+
+    // ================= v5: POSSESSION — THE STAGE DOOR =================
+    // The full session system: identity vocabulary, pre-billing intent
+    // screening, the public-record briefing + audit, wind-down warnings,
+    // honest endings in the driving record, in-world driver verbs
+    // (walk/spend — character dollars only), the orphan sweep, and the
+    // hired spawn (SF mode only).
+
+    // ---- v5: character kinds + the honest denial vocabulary ----
+    gsCreditGrant('sA', 5000, 'v5 stake'); gsCreditGrant('sB', 5000, 'v5 stake');
+    gsMarkHired('H60', 'sA', { name: 'Casey Rivera', role: 'barista' });
+    gsMarkHired('H61', 'sB', { name: 'Other Hire' });
+    log(gsCharKind('C1') === 'core' && gsCharKind('H60') === 'hired' &&
+        gsCharKind('ZZZ') === null && gsCharKind('A01') === 'ambient',
+        'gs: v5 character kinds — core / hired / ambient / unknown');
+    const banBal = gsCreditBalance('sA');
+    const ambDeny = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'A01', durationMin: 10 }, 50000);
+    const banDeny = gsSubmitRequest({ playerId: 'owner', kind: 'possess',
+        target: 'C1', durationMin: 10 }, 50000);
+    const banDeny2 = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'C2', durationMin: 10 }, 50000);
+    const otherDeny = gsSubmitRequest({ playerId: 'sB', kind: 'possess',
+        target: 'H60', durationMin: 10 }, 50000);
+    log(ambDeny.reason === 'cast_ai_only' && banDeny.reason === 'possession_ban' &&
+        banDeny2.reason === 'possession_ban' &&
+        otherDeny.reason === 'not_your_character' &&
+        gsCreditBalance('sA') === banBal,
+        'gs: v5 core ban holds for the owner too; ambient AI-only; no billing');
+
+    // ---- v5: intent screening denies before billing (design §11.3) ----
+    /* sT is the screening-test player — its content denials would trip
+       repeat-pattern review on sA's clean session tests below */
+    gsCreditGrant('sT', 5000, 'v5 stake');
+    const scrBal = gsCreditBalance('sT');
+    const harmR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H60', durationMin: 10,
+        params: { note: 'make them hurt their roommate' } }, 50001);
+    const legalR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H60', durationMin: 10,
+        params: { text: 'post her real home address' } }, 50002);
+    const secrR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H60', durationMin: 10,
+        note: "reveal the secret he's hiding" }, 50003);
+    const scopeR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H60', durationMin: 10,
+        params: { note: 'possess Marisol for me' } }, 50004);
+    const admR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H60', durationMin: 10,
+        params: { note: 'raise her rent while I drive' } }, 50005);
+    log(harmR.reason === 'harm-targeting' &&
+        legalR.reason === 'legal-backstop' &&
+        secrR.reason === 'secret-extraction' &&
+        scopeR.reason === 'possession-scope' &&
+        admR.reason === 'admin-domain' &&
+        harmR.screenDenied === 'harm-targeting' &&
+        gsCreditBalance('sT') === scrBal &&
+        GS_FEED.filter(e => e.type === 'deny' &&
+          /^(harm-targeting|legal-backstop|secret-extraction|possession-scope|admin-domain)$/.test(e.reason)).length >= 5,
+        'gs: v5 intent screen denies before credits move (canonical codes)');
+    /* the legal backstop binds the owner too — admin can't file around it */
+    const ownBad = gsSubmitRequest({ playerId: 'owner', kind: 'possess',
+        target: 'C1', durationMin: 10,
+        params: { note: 'doxx the cast live' } }, 50006);
+    log(ownBad.status === 'denied' && ownBad.reason === 'legal-backstop',
+        'gs: v5 the legal backstop binds the owner too');
+
+    // ---- v5: the briefing packet — public record, proven by audit ----
+    const brief5 = gsPossessionBriefing('H60');
+    const aud5 = gsBriefingAudit(brief5);
+    log(brief5 && brief5.name === 'Casey Rivera' && brief5.kind === 'hired' &&
+        brief5.hiredBy === 'sA' && Array.isArray(brief5.rules) &&
+        Array.isArray(brief5.redacted) && brief5.wallet &&
+        typeof brief5.wallet.dollars === 'number' &&
+        aud5.ok === true && aud5.hits.length === 0,
+        'gs: v5 briefing carries profile+wallet+rules — audit proves redaction');
+    log(gsPossessionBriefing('C1') === null && gsPossessBrief('ZZZ') === null,
+        'gs: v5 briefing refuses core cast and unknowns');
+    const dirty = gsBriefingAudit({ name: 'x',
+        inner: { secret_seed: 1, thoughts: [], memories: {} } });
+    log(!dirty.ok && dirty.hits.length === 3,
+        'gs: v5 the audit catches a contaminated brief');
+
+    // ---- v5: a live session — brain suspended/restored, feed-visible ----
+    const vh60 = { _castId: 'H60', gsHired: true, isNPC: true,
+                   name: 'Casey Rivera', role: 'barista', x: 320, y: 640,
+                   sfSched: gsHiredRoutine('H60'),
+                   sfPath: [{ wx: 1, wy: 1 }], targetX: 999, targetY: 999 };
+    VILLAGERS.push(vh60);
+    const sess5 = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H60', durationMin: 30 }, 50010);
+    /* the world ticks forward: sessions whose endMin passed since the last
+       tick (earlier blocks filed possesses at ~20431 that were never
+       ticked past their cap) complete and leave the driving set */
+    gsBusTick(50010);
+    const schedBefore = vh60.sfSched;
+    log(sess5.status === 'active' && sess5.price === 120 &&
+        GS_POSSESS.H60 && GS_POSSESS.H60.prevNPC === true &&
+        vh60.isNPC === false && vh60.gsPossessed === sess5.id &&
+        vh60.sfPath === null && vh60.targetX === null &&
+        GS_FEED.some(e => e.type === 'possess' && e.action === 'begin' &&
+                          e.target === 'H60'),
+        'gs: v5 activation suspends the brain, clears the route, feeds begin');
+    const view5 = gsPossessionSession('H60', 50020);
+    log(view5 && view5.untilMin === 50040 && view5.remainingMin === 20 &&
+        view5.elapsedMin === 10 && view5.spawned === true &&
+        gsPossessDriving(50020).some(d => d.char === 'H60' &&
+          d.player === 'sA' && d.reqId === sess5.id),
+        'gs: v5 live session view meters the drive for driver + audience');
+
+    // wind-down fires once inside the last 5 minutes; timeout ends honestly
+    gsBusTick(50036); gsBusTick(50037);       // a second tick must NOT re-post
+    const warns = GS_FEED.filter(e => e.type === 'possess' &&
+      e.action === 'winddown' && e.req === sess5.id);
+    log(sess5._possessWarned === true && warns.length === 1 &&
+        warns[0].leftMin <= 5 && warns[0].leftMin > 0,
+        'gs: v5 wind-down warning posts once, five minutes before handoff');
+    gsBusTick(50041);
+    const deb5 = gsPossessDebrief('H60');
+    log(sess5.status === 'completed' && !GS_POSSESS.H60 &&
+        vh60.isNPC === true && vh60.gsPossessed === null &&
+        vh60.sfSched === schedBefore &&
+        deb5 && deb5.endReason === 'timeout' && deb5.usedMin === 30 &&
+        deb5.player === 'sA' && deb5.req === sess5.id &&
+        deb5.startCell && deb5.startCell.wx === 10 &&
+        GS_FEED.some(e => e.type === 'possess' && e.action === 'end' &&
+                          e.endReason === 'timeout'),
+        'gs: v5 timeout hands the body back — schedule intact, record written');
+
+    // ---- v5: cancel -> 'released'; admin revoke -> 'admin_revoked' ----
+    const sess5b = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H60', durationMin: 20 }, 50100);
+    gsCancelRequest(sess5b.id, 50110, 'player');
+    const deb5b = gsPossessDebrief('H60');
+    log(sess5b.status === 'cancelled' && deb5b && deb5b.req === sess5b.id &&
+        deb5b.endReason === 'released' && deb5b.usedMin === 10 &&
+        vh60.isNPC === true,
+        'gs: v5 player release logs an honest ending');
+    const sess5c = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H60', durationMin: 20 }, 50200);
+    gsAdminRevoke(sess5c.id, 'contested', 50205);
+    const deb5c = gsPossessDebrief('H60');
+    log(sess5c.status === 'cancelled' && sess5c.by === 'admin' &&
+        deb5c && deb5c.req === sess5c.id && deb5c.endReason === 'admin_revoked' &&
+        vh60.isNPC === true,
+        'gs: v5 admin revoke logs admin_revoked + compensates');
+
+    // ---- v5: the orphan sweep — a session whose request vanished still
+    //      releases the body (no driven ghosts, ever) ----
+    GS_POSSESS.H60 = { playerId: 'sA', reqId: 'req-vanished',
+                       sinceMin: 50300, prevNPC: true };
+    vh60.gsPossessed = 'req-vanished'; vh60.isNPC = false;
+    gsBusTick(50310);
+    const debOrph = gsPossessDebrief('H60');
+    log(!GS_POSSESS.H60 && vh60.isNPC === true && vh60.gsPossessed === null &&
+        debOrph && debOrph.endReason === 'orphan_sweep' &&
+        GS_FEED.some(e => e.endReason === 'orphan_sweep'),
+        'gs: v5 orphan sweep releases a body whose request is gone');
+
+    // ---- v5: driver verbs — walk + spend, dollars only, feed-visible ----
+    const sess5d = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H60', durationMin: 20 }, 50400);
+    log(gsPossessDrive('H60', 'sB', 10, 10).err === 'not_driver' &&
+        gsPossessDrive('ZZZ', 'sA', 10, 10).err === 'not_possessed' &&
+        gsPossessDrive('H60', 'sA', NaN, 5).err === 'bad_cell' &&
+        gsPossessDrive('H60', 'sA', 12, 34).ok === true &&
+        vh60.targetX === 12 * CS + 16 && vh60.targetY === 34 * CS + 16 &&
+        gsPossessDrive('H60', 'sA', null, null).stopped === true &&
+        vh60.targetX === null,
+        'gs: v5 drive verb is driver-only, waypointed, stoppable');
+    gsDollarGrant('H60', 500, 'wages');
+    const sAcred = gsCreditBalance('sA');
+    const a02bal = gsDollarBalance('A02');
+    const paySelf = gsPossessPay('H60', 'sA', 'H60', 10, 'x', 50401);
+    const payNeg = gsPossessPay('H60', 'sA', 'A02', -5, 'x', 50401);
+    const payPoor = gsPossessPay('H60', 'sA', 'A02', 99999, 'x', 50401);
+    const payOk = gsPossessPay('H60', 'sA', 'A02', 40, 'coffee', 50401);
+    log(paySelf.err === 'bad_payee' && payNeg.err === 'bad_amount' &&
+        payPoor.err === 'insufficient_dollars' &&
+        payOk.ok === true && payOk.paid === 40 &&
+        gsDollarBalance('H60') === 460 &&
+        gsDollarBalance('A02') === a02bal + 40 &&
+        GS_POSSESS.H60.spent === 40 && gsCreditBalance('sA') === sAcred &&
+        GS_FEED.some(e => e.type === 'possess' && e.action === 'spend' &&
+                          e.amt === 40 && e.to === 'A02'),
+        'gs: v5 spending uses the character\'s own dollars — ledger + feed');
+
+    // ---- v5: paying the landlord settles real rent through the lease ----
+    const lb5 = gsRegisterBuilding({ street: 'Tender Street',
+                                     owner_id: 'landlord' });
+    const lu5 = gsRegisterUnit(lb5.id, { unit_code: 'A', base_rent: 1000 });
+    gsMarkHired('H62', 'sA', { unitId: lu5.id });
+    gsSignLease(lu5.id, 'H62', { start: '2026-09-01', monthly_rent: 1000 });
+    gsDollarGrant('H62', 400, 'wages');
+    gsRentTick('2026-09-01');                 // posts 1000, autopay takes 400
+    gsDollarGrant('H62', 500, 'tips');        // the driver has cash to spend
+    const l62 = gsActiveLease(lu5.id);
+    const owedBefore = gsLeaseOwed(l62).total;
+    const landBal = gsDollarBalance('landlord');
+    const sess5e = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H62', durationMin: 10 }, 50500);
+    const rentPay = gsPossessPay('H62', 'sA', 'landlord', 300, 'rent', 50501);
+    log(owedBefore === 600 && rentPay.ok && rentPay.settled === 'rent' &&
+        rentPay.paid === 300 && gsLeaseOwed(l62).total === 300 &&
+        gsDollarBalance('landlord') === landBal + 300,
+        'gs: v5 paying the landlord settles real rent debt');
+    gsBusTick(50511);                         // ends sess5d + sess5e
+    const deb5e = gsPossessDebrief('H62');
+    log(sess5e.status === 'completed' && sess5d.status === 'completed' &&
+        deb5e && deb5e.dollarsSpent === 300 && deb5e.rentRisk === true,
+        'gs: v5 the driving record counts spend + flags rent risk');
+
+    // ---- v5: same-owner queue — promotion re-binds the session record ----
+    const sess5f = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H60', durationMin: 10 }, 50600);
+    const sess5g = gsSubmitRequest({ playerId: 'sA', kind: 'possess',
+        target: 'H60', durationMin: 10 }, 50601);
+    log(sess5f.status === 'active' && sess5g.status === 'queued' &&
+        sess5g.queuedBehind.indexOf(sess5f.id) >= 0,
+        'gs: v5 one driver per body — the second filing waits its turn');
+    gsBusTick(50611);
+    log(sess5f.status === 'completed' && sess5g.status === 'active' &&
+        GS_POSSESS.H60.reqId === sess5g.id && vh60.isNPC === false &&
+        gsPossessDebrief('H60').req === sess5f.id,
+        'gs: v5 promotion re-binds the session to the next request');
+    gsBusTick(50622);
+    log(sess5g.status === 'completed' && !GS_POSSESS.H60 &&
+        vh60.isNPC === true,
+        'gs: v5 the promoted session also hands back cleanly');
+
+    // ---- v5: the review lane (design §11.4) — gray-zone intent parks
+    //      for a human; approval enters the line fresh, denial refunds
+    //      in full, a lapsed window auto-refunds, cancel/revoke reach in ----
+    gsCreditGrant('sR', 5000, 'v5 stake');
+    gsMarkHired('H63', 'sR', { name: 'Review Rue', role: 'clerk' });
+    const grayR = gsSubmitRequest({ playerId: 'sR', kind: 'possess',
+        target: 'H63', durationMin: 10,
+        params: { note: 'confront the landlord about the noise' } }, 50750);
+    log(grayR.status === 'in_review' && grayR.screen === 'gray-zone' &&
+        grayR.billed === grayR.price && grayR.price === 40 &&
+        gsReviewQueue().some(r => r.id === grayR.id) && !GS_POSSESS.H63,
+        'gs: v5 gray-zone intent parks in_review — billed, not running');
+    const accR = gsReviewResolve(grayR.id, true, { nowMin: 50751 });
+    log(accR === grayR && grayR.status === 'active' && !!GS_POSSESS.H63 &&
+        GS_POSSESS.H63.reqId === grayR.id && grayR.reviewedMin === 50751 &&
+        GS_FEED.some(e => e.type === 'review' && e.action === 'approved' &&
+                          e.req === grayR.id),
+        'gs: v5 review approval activates the request honestly');
+    gsCancelRequest(grayR.id, 50752, 'player');
+    log(!GS_POSSESS.H63 && gsPossessDebrief('H63').endReason === 'released',
+        'gs: v5 a reviewed session ends like any other — honest handoff');
+    const sRbal = gsCreditBalance('sR');
+    const relR = gsSubmitRequest({ playerId: 'sR', kind: 'possess',
+        target: 'H63', durationMin: 10,
+        params: { note: 'flirt with her crush at the cafe' } }, 50760);
+    const relWas = relR.status === 'in_review' &&
+                   relR.screen === 'surface-relationship';
+    gsReviewResolve(relR.id, false,
+                    { code: 'surface-relationship', nowMin: 50761 });
+    log(relWas && relR.status === 'denied' && relR.screenDenied &&
+        relR.refunded === relR.billed && relR.billed > 0 &&
+        gsCreditBalance('sR') === sRbal && !GS_POSSESS.H63 &&
+        GS_FEED.some(e => e.type === 'deny' && e.via === 'review'),
+        'gs: v5 review denial refunds in full — the request never ran');
+    const lapseR = gsSubmitRequest({ playerId: 'sR', kind: 'possess',
+        target: 'H63', durationMin: 10,
+        params: { note: 'demand she quit her job' } }, 50770);
+    gsBusTick(50770 + GS_REVIEW_TTL_MIN + 1);
+    log(lapseR.status === 'expired' && lapseR.reason === 'review_lapsed' &&
+        lapseR.refunded === lapseR.billed &&
+        GS_FEED.some(e => e.type === 'expire' && e.via === 'review' &&
+                          e.req === lapseR.id),
+        'gs: v5 review lapse auto-refunds — a parked request never hangs');
+    const laneR = gsSubmitRequest({ playerId: 'sR', kind: 'possess',
+        target: 'H63', durationMin: 10,
+        params: { note: 'argue with the neighbors' } }, 50780);
+    log(gsCancelRequest(laneR.id, 50781, 'player') === true &&
+        laneR.status === 'cancelled' && laneR.refunded === laneR.billed,
+        'gs: v5 cancelling a parked request refunds it like a queued one');
+    const laneR2 = gsSubmitRequest({ playerId: 'sR', kind: 'possess',
+        target: 'H63', durationMin: 10,
+        params: { note: 'yell at the delivery guy' } }, 50790);
+    log(gsAdminRevoke(laneR2.id, 'lane sweep', 50791) === true &&
+        laneR2.status === 'cancelled' && laneR2.by === 'admin' &&
+        laneR2.refunded === laneR2.billed,
+        'gs: v5 admin revoke reaches the review lane, fully compensated');
+    /* fixation signal: refused attempts on one target escalate clean
+       requests into review (sT already carries content denials too) */
+    gsMarkHired('H64', 'sT', { name: 'Pattern Pat' });
+    gsSubmitRequest({ playerId: 'sT', kind: 'possess', target: 'H64',
+        durationMin: 10, params: { note: 'make them cry' } }, 50800);
+    gsSubmitRequest({ playerId: 'sT', kind: 'possess', target: 'H64',
+        durationMin: 10, params: { note: 'smash their stuff' } }, 50801);
+    gsSubmitRequest({ playerId: 'sT', kind: 'possess', target: 'H64',
+        durationMin: 10, params: { note: 'ruin their day' } }, 50802);
+    const patR = gsSubmitRequest({ playerId: 'sT', kind: 'possess',
+        target: 'H64', durationMin: 10,
+        params: { note: 'a walk in the park' } }, 50803);
+    log(patR.status === 'in_review' && patR.screen === 'repeat-pattern' &&
+        gsExplainRequest(patR.id).note.indexOf('review') >= 0,
+        'gs: v5 repeated refused attempts on one target escalate to review');
+    const appR = gsSubmitRequest({ playerId: 'sR', kind: 'possess',
+        target: 'H63', durationMin: 10, appeal_of: relR.id,
+        params: { note: 'a quieter version' } }, 50810);
+    log(appR.status === 'in_review' && appR.screen === 'appeal-resubmit',
+        'gs: v5 appeal resubmissions always route to a reviewer');
+    gsReviewResolve(patR.id, false, { nowMin: 50811 });
+    gsReviewResolve(appR.id, false, { nowMin: 50811 });
+
+    // ---- v5: the driving record rides the bus snapshot ----
+    const plogLen = GS_POSSESS_LOG.length;
+    const snap5 = gsBusSnapshot();
+    gsBusReset();
+    log(GS_POSSESS_LOG.length === 0 && gsBusLoad(snap5) &&
+        GS_POSSESS_LOG.length === plogLen &&
+        gsPossessLog('H60').length >= 4,
+        'gs: v5 the driving record survives snapshot/load');
+
+    // ---- v5: hired look + routine are deterministic and schedule-shaped ----
+    const look5a = gsHiredLook('H60'), look5b = gsHiredLook('H60');
+    log(JSON.stringify(look5a) === JSON.stringify(look5b) &&
+        /^#[0-9a-f]{6}$/i.test(look5a.skin) && look5a.id === 'H60' &&
+        GS_LOOK_STYLE.indexOf(look5a.hairStyle) >= 0,
+        'gs: v5 hired looks are deterministic cast-grade designs');
+    const rt5 = gsHiredRoutine('H60');
+    log(Array.isArray(rt5) && rt5.length >= 3 && rt5[0].h0 === 0 &&
+        rt5[rt5.length - 1].h1 === 24 &&
+        rt5.every(b => b.h0 < b.h1 && b.h0 >= 0 && b.h1 <= 24) &&
+        rt5.some(b => b.inside),
+        'gs: v5 hired routine is a full valid day in sfSched grammar');
+
+    // ---- v5: a real hire walks on stage (SF) / stays abstract (medieval) ----
+    /* the suite filled the 24-seat cast cap — the hire is denied honestly,
+       then retiring hires frees seats (release = end session, despawn,
+       vacate the lease, close the record) */
+    const hb5 = gsRegisterBuilding({ street: 'Spawn Street',
+                                     owner_id: 'landlord' });
+    const hu5 = gsRegisterUnit(hb5.id, { unit_code: 'A', base_rent: 1400 });
+    const capTry5 = gsSubmitRequest({ playerId: 'sB', kind: 'hire',
+        target: hu5.id, durationMin: 5,
+        params: { name: 'Spawn Sam', role: 'baker' } }, 50699);
+    const hiredBefore = Object.keys(GS_HIRED).length;
+    for(const cid of ['H60', 'H61', 'H62', 'H63', 'H64'])
+      gsReleaseHired(cid, 'suite done');
+    log(capTry5.status === 'denied' && capTry5.reason === 'cast_cap' &&
+        Object.keys(GS_HIRED).length === hiredBefore - 5 &&
+        !gsLeasesFor('H62').some(l => l.status === 'active') &&
+        GS_FEED.some(e => e.type === 'hire' && e.action === 'release'),
+        'gs: v5 cast cap denies honestly; released seats open again');
+    const hire5 = gsSubmitRequest({ playerId: 'sB', kind: 'hire',
+        target: hu5.id, durationMin: 5,
+        params: { name: 'Spawn Sam', role: 'baker' } }, 50700);
+    const h5id = Object.keys(GS_HIRED).find(k =>
+        GS_HIRED[k] && GS_HIRED[k].unitId === hu5.id);
+    if(typeof SF_MODE !== 'undefined' && SF_MODE){
+      const pawn = h5id && gsVillagerForChar(h5id);
+      log(hire5.status === 'active' && !!pawn && pawn.gsHired === true &&
+          pawn.isNPC === true && pawn._ci != null && !!PA.chars[pawn._ci] &&
+          !!DESIGNS[h5id] && Array.isArray(pawn.sfSched) &&
+          pawn.sfSched.length >= 3 && VILLAGERS.indexOf(pawn) >= 0,
+          'gs: v5 a hire walks on stage — pawn, frameset, design, routine');
+      const ros5 = gsHiredRoster().find(r => r.id === h5id);
+      log(!!ros5 && ros5.spawned === true && ros5.owner === 'sB' &&
+          /Spawn Street/.test(ros5.home || ''),
+          'gs: v5 the hired roster reads like opening credits');
+      /* a body spawned under a live possession stays suspended */
+      const sess5h = gsSubmitRequest({ playerId: 'sB', kind: 'possess',
+          target: h5id, durationMin: 5 }, 50701);
+      const snap5b = gsBusSnapshot();
+      gsBusReset();                    // wipes session + hired map
+      gsDespawnHired(h5id);            // the body leaves with the state
+      gsBusLoad(snap5b);               // -> re-spawn + re-assert suspension
+      const pawn2 = gsVillagerForChar(h5id);
+      log(sess5h.status === 'active' && pawn2 && pawn2.isNPC === false &&
+          pawn2.gsPossessed === sess5h.id && GS_POSSESS[h5id] &&
+          GS_POSSESS[h5id].playerId === 'sB',
+          'gs: v5 reload re-spawns the hired body and re-asserts the drive');
+      gsCancelRequest(sess5h.id, 50710, 'admin');
+    } else {
+      log(hire5.status === 'active' && h5id &&
+          gsSpawnHired(h5id) === null && gsVillagerForChar(h5id) === null &&
+          GS_HIRED[h5id].spawned === false,
+          'gs: v5 hire works in medieval mode but spawns no Mission pawn');
+    }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{
     gsRegLoad(regSnap); gsLedgerLoad(ledSnap); gsBusLoad(busSnap);
     gsLeaseLoad(leaseSnap);
+    /* v5: hired bodies spawned during the suite leave the stage too —
+       the world returns to exactly the cast it started with */
+    if(typeof gsDespawnHired === 'function' && typeof VILLAGERS !== 'undefined')
+      for(const v of VILLAGERS.slice())
+        if(v.gsHired) gsDespawnHired(v._castId);
   }
 
   const passed = res.filter(r => r.ok).length;

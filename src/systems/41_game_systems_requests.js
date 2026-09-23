@@ -97,7 +97,7 @@ const GS_HIRE_STAKE_MULT = 2;   // move-in stake = 2 months rent + pad
 const GS_HIRE_STAKE_PAD = 1200;
 
 /* ---- live effect state (the world-side residue of active requests) ---- */
-const GS_POSSESS = {};     // charId -> {playerId, reqId, sinceMin}
+const GS_POSSESS = {};     // charId -> {playerId, reqId, sinceMin, prevNPC, ...}
 /* the sky may have several sponsors when identical forecasts co-run
    (design §5: only CONTRADICTORY weather is exclusive) — sponsors maps
    reqId -> that request's endMin; the override holds while it is
@@ -107,6 +107,10 @@ const GS_WX_OVR = { wx: null, untilMin: 0, reqId: null, baseHum: null,
 const GS_EVENTS = [];      // {id, event, at, sinceMin, untilMin, reqId, playerId}
 const GS_LISTINGS = {};    // unitId -> {ask, by, sinceMin, reqId}
 const GS_FX_SEQ = { n: 0 };
+/* §11.4: a request the intent screen flags for human eyes parks in
+   'in_review' at most this long — lapse auto-refunds (moderation.json:
+   queued/under-review requests that expire before activation auto-refund). */
+const GS_REVIEW_TTL_MIN = 720;
 
 function gsNowMin(){ return Date.now() / 60000; }
 function gsIsAdmin(pid){ return pid === 'owner' || pid === 'admin'; }
@@ -158,7 +162,7 @@ function gsIsPossessable(charId, playerId){
 }
 
 /* ---- live villager lookup: hired characters join VILLAGERS under
-   _castId (v8 spawn path); possession flips isNPC, which suspends the AI
+   _castId (v5 spawn path); possession flips isNPC, which suspends the AI
    schedule (updateVillagerAI) and hands the body to updatePlayerPawn. ---- */
 function gsVillagerForChar(cid){
   if(typeof VILLAGERS === 'undefined') return null;
@@ -168,9 +172,13 @@ function gsIsBrainSuspended(cid){ return !!GS_POSSESS[cid]; }
 
 /* ---- effect implementations ---- */
 function gsFxPossessOn(r, now){
-  GS_POSSESS[r.target] = { playerId: r.playerId, reqId: r.id, sinceMin: now };
   const v = gsVillagerForChar(r.target);
-  if(v){ v.gsPossessed = r.id; v.isNPC = false; }  // LLM/AI brain suspended
+  GS_POSSESS[r.target] = { playerId: r.playerId, reqId: r.id, sinceMin: now,
+                           prevNPC: v ? v.isNPC : true };
+  if(v){ v.gsPossessed = r.id; v.isNPC = false;    // LLM/AI brain suspended
+         v.targetX = null; v.targetY = null; v.sfPath = null; }
+  /* v5: the session record picks up meters, pickup cell, feed 'begin' */
+  if(typeof gsPossessOn === 'function') gsPossessOn(r, now);
   /* compatible multiplayer made visible (design §5): when this activation
      puts two DIFFERENT players behind two different characters at once,
      that's a shared scene — report it on the feed as one. */
@@ -185,10 +193,17 @@ function gsFxPossessOn(r, now){
   }
   return true;
 }
-function gsFxPossessOff(r){
+function gsFxPossessOff(r, now, why){
+  const sess = GS_POSSESS[r.target];
+  /* v5: write the driving record while the session is still live */
+  if(typeof gsPossessOff === 'function') gsPossessOff(r, now, why);
   delete GS_POSSESS[r.target];
   const v = gsVillagerForChar(r.target);
-  if(v && v.gsPossessed === r.id){ v.gsPossessed = null; v.isNPC = true; }
+  if(v && v.gsPossessed === r.id){
+    v.gsPossessed = null;
+    v.isNPC = (sess && sess.prevNPC != null) ? sess.prevNPC : true;
+    v.targetX = null; v.targetY = null; v.sfPath = null;  // AI resumes here
+  }
 }
 
 const GS_WX_KINDS = {   // honest Mission-plausible sky states (Karl included)
@@ -282,13 +297,16 @@ function gsFxHire(r, now){
   gsMarkHired(cid, r.playerId, {
     name: (r.params && r.params.name) || ('Resident ' + cid),
     role: (r.params && r.params.role) || 'Resident',
-    hiredMin: now, unitId: u.id, spawned: false,  // world spawn lands in v8
+    hiredMin: now, unitId: u.id, spawned: false,
   });
   gsSignLease(u.id, cid, { start: (typeof gsTodayStr === 'function' &&
     gsTodayStr()) || ('hire:' + r.id), monthly_rent: u.base_rent,
     occupants: [cid] });
   gsDollarGrant(cid, u.base_rent * GS_HIRE_STAKE_MULT + GS_HIRE_STAKE_PAD,
                 'move-in stake');
+  /* v5: the hired character walks onto the stage — a real pawn with a
+     deterministic look and a routine anchored to this lease's door */
+  if(typeof gsSpawnHired === 'function') gsSpawnHired(cid);
   gsBusEmit('hire', r, { charId: cid, unit: u.id });
   return true;
 }
@@ -341,8 +359,10 @@ gsDefineAction('possess', {
   scope: 'target', exclusive: true, ratePerMin: 4,
   minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30,
   effect: 'maintained',
-  allow: (r) => gsIsPossessable(r.target, r.playerId)
-    ? true : (GS_CORE_CAST[r.target] ? 'possession_ban' : 'not_your_character'),
+  allow: (r) => (typeof gsPossessDeny === 'function')
+    ? (gsPossessDeny(r.target, r.playerId) || true)      // v5: ambient denied too
+    : (gsIsPossessable(r.target, r.playerId)
+       ? true : (GS_CORE_CAST[r.target] ? 'possession_ban' : 'not_your_character')),
   activate: gsFxPossessOn, deactivate: gsFxPossessOff,
   claims: (r) => [{ cls: 'char', res: 'char:' + r.target }],
 });
@@ -548,6 +568,9 @@ function gsExplainRequest(id){
     o.note = act.length
       ? 'waiting for ' + act.join(', ') + ' to finish (' + o.on.join('; ') + ')'
       : 'in line behind ' + line.join(', ');
+  } else if(r.status === 'in_review'){
+    o.code = r.screen || null;
+    o.note = 'awaiting human review' + (o.code ? ' (' + o.code + ')' : '');
   } else if(r.status === 'active'){
     o.note = 'running';
   } else {
@@ -683,6 +706,23 @@ function gsSubmitRequest(spec, nowMin){
   if(!a) return deny('unknown_action');
   if(a.scope === 'target' && !target) return deny('missing_target');
   if(!(dur >= a.minMin && dur <= a.maxMin)) return deny('bad_duration');
+  /* v5 intent screen (design §11.3/§11.4): classify the request's own
+     text before any billing — a denied intent never moves credits.
+     Review-tier hits park the request in_review for a human resolution
+     (GS_REVIEW_TTL_MIN, then auto-refund). Admin filings are screened too
+     — the legal backstop binds the owner — but never parked: the owner IS
+     the reviewer, so a review hit on an admin request is just recorded. */
+  var screened = null;
+  if(typeof gsIntentScreen === 'function'){
+    const scr = gsIntentScreen({ playerId: pid, kind, target, params,
+      note: spec.note, appeal_of: spec.appeal_of, now });
+    if(scr && scr.verdict === 'deny'){
+      const dr = deny(scr.code);
+      dr.screenDenied = scr.code;      // content denials feed repeat-pattern
+      return dr;
+    }
+    if(scr && scr.verdict === 'review') screened = scr;
+  }
   if(a.allow){ const why = a.allow({ playerId: pid, target, kind, params });
                if(why !== true) return deny(why); }
   if((GS_REQ.cdP[pid + '|' + kind] || 0) > now) return deny('cooldown');
@@ -705,6 +745,7 @@ function gsSubmitRequest(spec, nowMin){
   const claims = gsClaimsOf(cand);
   const blockers = gsFindBlockers(cand);
   const conflict = blockers.length > 0;
+  const parked = screened && !gsIsAdmin(pid);
   const r = { id: 'req-' + (++GS_REQ.seq), n: GS_REQ.seq, playerId: pid,
     kind, target, durationMin: dur, params, price, resKey, claims,
     billed: gsIsAdmin(pid) ? 0 : price,
@@ -714,7 +755,21 @@ function gsSubmitRequest(spec, nowMin){
     endMin: conflict ? null : now + dur,
     expireMin: conflict ? now + a.ttlMin : null,
     usedMin: 0, refunded: 0, fxOn: false, _now: now };
+  if(screened) r.screen = screened.code;
+  if(parked){
+    /* review tier: billed upfront like any queued request, but it never
+       enters the line — gsReviewResolve (or the TTL lapse) decides.
+       Claims are re-evaluated at approval; the world may have moved. */
+    r.status = 'in_review'; r.startMin = null; r.endMin = null;
+    r.expireMin = null;
+    r.reviewExpireMin = now + GS_REVIEW_TTL_MIN;
+  }
   GS_REQ.reqs.push(r);
+  if(parked){
+    gsBusEmit('review', r, { action: 'in_review', code: screened.code,
+      price, expiresInMin: GS_REVIEW_TTL_MIN });
+    return r;
+  }
   if(conflict){
     r.queuedBehind = blockers.map(b => b.id);
     gsBusEmit('queue', r, { price, pos: gsQueuePosition(r.id),
@@ -735,6 +790,17 @@ function gsSubmitRequest(spec, nowMin){
 function gsBusTick(nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   for(const r of GS_REQ.reqs.slice()){
+    /* an unreviewed request lapses out of the lane with a full refund —
+       it never ran, so it never should have kept the money */
+    if(r.status === 'in_review' && r.reviewExpireMin != null &&
+       now > r.reviewExpireMin){
+      r.status = 'expired'; r._now = now; r.reason = 'review_lapsed';
+      if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
+                                       'review lapsed');
+                        r.refunded = r.billed; }
+      gsBusEmit('expire', r, { refund: r.billed, via: 'review' });
+      continue;
+    }
     if(r.status === 'queued' && r.expireMin != null && now > r.expireMin){
       r.status = 'expired'; r._now = now;
       if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'queue expired');
@@ -753,6 +819,8 @@ function gsBusTick(nowMin){
     }
   }
   gsPromoteAll(now);
+  /* v5: wind-down warnings + the orphan sweep ride the same bus beat */
+  if(typeof gsPossessTick === 'function') gsPossessTick(now);
 }
 
 /* cancel a queued/active request.
@@ -764,10 +832,12 @@ function gsBusTick(nowMin){
 function gsCancelRequest(id, nowMin, by){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   const r = gsRequestById(id);
-  if(!r || (r.status !== 'queued' && r.status !== 'active')) return false;
+  if(!r || (r.status !== 'queued' && r.status !== 'active' &&
+            r.status !== 'in_review')) return false;
   const isAdmin = (by === 'admin' || by === 'owner');
   let refund;
-  if(r.status === 'queued' || isAdmin){
+  /* queued or still-parked requests never ran — the full bill comes back */
+  if(r.status === 'queued' || r.status === 'in_review' || isAdmin){
     refund = r.billed;
   } else {
     const unusedWholeMin = Math.max(0, Math.floor(r.endMin - now));
@@ -793,10 +863,72 @@ function gsCancelRequest(id, nowMin, by){
 function gsAdminRevoke(id, reason, nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   const r = gsRequestById(id);
-  if(!r || (r.status !== 'queued' && r.status !== 'active')) return false;
+  if(!r || (r.status !== 'queued' && r.status !== 'active' &&
+            r.status !== 'in_review')) return false;
   gsBusEmit('admin', { playerId: 'owner', kind: 'admin', id: null, _now: now },
             { action: 'revoke', target: id, reason: reason || 'revoked' });
   return gsCancelRequest(id, now, 'admin');
+}
+
+/* ---- the review lane (design §11.4): gray-zone intent hits park in
+   'in_review' until a human resolves them. gsReviewResolve is the
+   reviewer's door — approve enters the line AT APPROVAL TIME (a fresh
+   sequence number, so a parked request can't leapfrog requests filed
+   while it waited) and re-runs standing validity, since the world may
+   have moved under it; deny refunds in full. Both land on the feed. */
+function gsReviewQueue(){
+  return GS_REQ.reqs.filter(r => r.status === 'in_review');
+}
+function gsReviewResolve(id, approve, opts){
+  opts = opts || {};
+  const now = (opts.nowMin != null) ? opts.nowMin : gsNowMin();
+  const r = gsRequestById(id);
+  if(!r || r.status !== 'in_review') return null;
+  gsBusEmit('review', r, { action: approve ? 'approved' : 'denied',
+    code: opts.code || r.screen || null, by: opts.by || 'reviewer' });
+  r._now = now;
+  if(!approve){
+    r.status = 'denied';
+    r.reason = opts.code || 'review_denied';
+    r.screenDenied = r.reason;         // a reviewer denial is a content denial
+    if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'review denied');
+                    r.refunded = r.billed; }
+    gsBusEmit('deny', r, { reason: r.reason, via: 'review',
+                           refund: r.billed });
+    return r;
+  }
+  /* approval = entering the line NOW: fresh sequence (no leapfrog of
+     requests filed while it parked) and a fresh queue TTL. */
+  r.n = ++GS_REQ.seq;
+  r.reviewedMin = now;
+  const a = GS_REQ.actions[r.kind];
+  if(a && a.allow){
+    const why = a.allow({ playerId: r.playerId, target: r.target,
+                          kind: r.kind, params: r.params });
+    if(why !== true){
+      r.status = 'failed'; r.failReason = why;
+      if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
+                                       'conditions changed');
+                      r.refunded = r.billed; }
+      gsBusEmit('fail', r, { reason: why, refund: r.billed, stale: true });
+      return r;
+    }
+  }
+  const blockers = gsFindBlockers(r);
+  if(blockers.length){
+    r.status = 'queued';
+    r.expireMin = now + (a.ttlMin || 60);
+    r.queuedBehind = blockers.map(b => b.id);
+    gsBusEmit('queue', r, { price: r.price, pos: gsQueuePosition(r.id),
+      blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(r),
+      reviewed: true });
+    return r;
+  }
+  r.status = 'active'; r.startMin = now;
+  r.endMin = now + r.durationMin; r.expireMin = null;
+  gsBusEmit('approve', r, { price: r.price, reviewed: true });
+  gsFxActivate(r, now);
+  return r;
 }
 /* every admin action lands on the public feed (design §3 transparency) */
 function gsAdminAction(label, detail, nowMin){
@@ -827,6 +959,11 @@ function gsRequestMeter(id, nowMin){
       .filter(b => b.status === 'active').map(b => b.id);
     m.on = gsLiveClashes(r).map(gsClaimLabel);
   }
+  if(r.status === 'in_review'){
+    m.reviewCode = r.screen || null;
+    m.reviewExpiresInMin = r.reviewExpireMin != null
+      ? +(r.reviewExpireMin - now).toFixed(1) : null;
+  }
   return m;
 }
 function gsViewerState(nowMin){
@@ -846,6 +983,12 @@ function gsViewerState(nowMin){
     feed: GS_FEED.slice(-50),
     active: gsActiveSessions(now),
     queues,
+    review: gsReviewQueue().map(r => ({ id: r.id, player: r.playerId,
+      kind: r.kind, target: r.target, code: r.screen || null,
+      expiresInMin: r.reviewExpireMin != null
+        ? +(r.reviewExpireMin - now).toFixed(1) : null })),
+    driving: (typeof gsPossessDriving === 'function')
+      ? gsPossessDriving(now) : [],
     listings: JSON.parse(JSON.stringify(GS_LISTINGS)),
     events: GS_EVENTS.map(e => Object.assign({}, e)),
     sessions: gsCoSessions(),
@@ -862,8 +1005,10 @@ function gsActiveSessions(now){
 
 /* possession briefing (design §7 — public fields ONLY; drama seeds and
    secrets are redacted by construction: they never enter this object).
-   v5 deepens this into the full pre-possession packet. */
+   v5's gsPossessBrief is the full packet (wallet, lease, routine, rules,
+   audit); this stub remains the fallback shape if that module is absent. */
 function gsPossessionBriefing(charId){
+  if(typeof gsPossessBrief === 'function') return gsPossessBrief(charId);
   const owner = gsHiredOwner(charId);
   if(!owner) return null;
   const h = GS_HIRED[charId];
@@ -900,7 +1045,9 @@ function gsBusSnapshot(){
     cdP: GS_REQ.cdP, cdG: GS_REQ.cdG,
     feed: GS_FEED, feedN: GS_FEED_SEQ.n, hired: GS_HIRED,
     possess: GS_POSSESS, events: GS_EVENTS,
-    listings: GS_LISTINGS, wxOvr: GS_WX_OVR, fxSeq: GS_FX_SEQ.n });
+    listings: GS_LISTINGS, wxOvr: GS_WX_OVR, fxSeq: GS_FX_SEQ.n,
+    plog: (typeof gsPossessSnapshot === 'function')
+          ? gsPossessSnapshot() : null });          // v5 driving record
 }
 function gsBusLoad(json){
   try{
@@ -925,6 +1072,11 @@ function gsBusLoad(json){
       GS_WX_OVR.sponsors = GS_WX_OVR.reqId
         ? { [GS_WX_OVR.reqId]: GS_WX_OVR.untilMin } : {};
     GS_FX_SEQ.n = d.fxSeq || 0;
+    if(typeof gsPossessLoad === 'function') gsPossessLoad(d.plog);
+    /* v5: hired cast are world residents — any whose body is missing
+       walks back on stage before we re-assert possession on them */
+    if(typeof gsSpawnHired === 'function')
+      for(const cid in GS_HIRED) gsSpawnHired(cid);
     // re-assert brain suspension on any already-spawned villagers
     for(const cid in GS_POSSESS){
       const v = gsVillagerForChar(cid);
@@ -937,6 +1089,11 @@ function gsBusLoad(json){
 function gsBusReset(){
   GS_REQ.reqs.length = 0; GS_REQ.cdP = {}; GS_REQ.cdG = {};
   GS_FEED.length = 0; GS_FEED_SEQ.n = 0;
+  /* v5: reset removes hired bodies too — a reset world has exactly the
+     cast it started with (the pawn is despawned, its _ci tombstoned) */
+  if(typeof gsDespawnHired === 'function' && typeof VILLAGERS !== 'undefined')
+    for(const v of VILLAGERS.slice())
+      if(v.gsHired) gsDespawnHired(v._castId);
   for(const k in GS_HIRED) delete GS_HIRED[k];
   for(const k in GS_POSSESS) delete GS_POSSESS[k];
   GS_EVENTS.length = 0;
@@ -944,6 +1101,7 @@ function gsBusReset(){
   GS_WX_OVR.wx = null; GS_WX_OVR.untilMin = 0; GS_WX_OVR.reqId = null;
   GS_WX_OVR.baseHum = null; GS_WX_OVR.sponsors = {};
   GS_FX_SEQ.n = 0;
+  if(typeof gsPossessReset === 'function') gsPossessReset();
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */
@@ -957,4 +1115,7 @@ if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.gsExplainRequest = (id) => gsExplainRequest(id);
   window.__aiBridge.gsConflictRules = () => gsConflictRules();
   window.__aiBridge.gsCoSessions = () => gsCoSessions();
+  window.__aiBridge.gsReviewQueue = () => gsReviewQueue();
+  window.__aiBridge.gsReviewResolve = (id, approve, opts) =>
+    gsReviewResolve(id, approve, opts);
 }

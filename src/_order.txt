@@ -76,6 +76,7 @@ systems/41_game_systems_ledger.js
 systems/41_game_systems_requests.js
 systems/41_game_systems_leases.js
 systems/41_game_systems_addressing.js
+systems/41_game_systems_possession.js
 tests/30_sf_autotest.js
 tests/41_game_systems_autotest.js
 sim/99_boot_hook.js
