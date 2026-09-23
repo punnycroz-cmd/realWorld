@@ -399,3 +399,413 @@ established-noisy; OBSERVE = debated). Bands use the §3 protocol
 - Roediger & Karpicke 2006; Rowland 2014 (meta) — testing effect
   (cross-ref only).
 - Paivio — dual coding / concreteness.
+
+---
+
+# Part II — encoding-mechanics, second pass (v24 focus)
+
+**Version tag:** spec v2.4. Part I priced *how* an event was processed
+(depth, engagement mode, segmentation, lapses). Part II adds the
+**motivational state** the encoder was in (attentional boost, curiosity,
+teach-expectancy, implementation intention), the **post-encoding minute**
+(wakeful rest), the **content-class asymmetries** humans show at the door
+(proper names, other-group faces, in-domain expertise), the **socially
+instructed hole** (item-method directed forgetting), and one **engagement
+mode that beats enactment** (drawing/crafting). 12 new params, 3 frozen
+constants, 10 probes (P221–P230).
+
+## 15. The attentional boost effect — detection rescues the mundane (ESTABLISHED)
+
+Swallow & Jiang (2010, Cognition 115:118; 2014 update with a true
+baseline, Atten. Percept. Psychophys. 76:466 — the effect is a genuine
+boost over no-task baseline, not distractor suppression): while
+participants encoded a stream of background images, detecting an
+occasional *target* in an unrelated monitoring stream IMPROVED memory
+for the background item shown at that instant — dual-task cost runs
+backwards at the moment a goal-relevant event is detected. Robust across
+modalities (auditory oddball → visual memory), not dependent on rarity
+(Swallow & Jiang 2011 — goal-relevance, not infrequency), eliminated when
+the detection task is omitted or when target decision requires arbitrary
+mapping (the boost is tied to the *target decision*, per the dual-task
+interaction model). Mechanism is attributed to a transient temporal-
+orienting / LC–NE burst; mechanism DEBATED, phenomenon reliable.
+
+**Why it matters for RW:** it inverts the naïve reading of Part I's DA
+machinery. `daLoad` hurts ambient encoding — but a *detection* event
+(the toast popping, the doorbell, spotting the person you were watching
+for) momentarily amplifies whatever else was on screen. The sim gets
+"she noticed the coat because the doorbell rang" for free.
+
+**Formalization.** Event flag `detected:true` (the event is a task-
+relevant detection — something the character was watching/listening
+for, including prospective-memory cue firings). At the same sim tick:
+
+```
+E_detected += abe_gain                          (abe_gain ≈ 0.15)
+other same-tick records: E += abe_gain·abe_spill_mult   (≈ 0.5·0.15)
+```
+
+Frozen constant `abe_window = 1 tick` — the boost is phasic (~sub-second
+to seconds; Murphy et al. 2021-style temporal proximity results support
+keeping it tight). Boundary conditions encoded structurally: requires an
+active monitoring set (the character must have a live Intention or watch
+task — §5.14's focal machinery supplies it), and the boost applies to
+concurrently *attended* material only — records already under
+`attention < att_min` stay unwritten (boost × 0 attention is still 0).
+
+## 16. Curiosity — a state that encodes what it didn't ask for (ESTABLISHED, size DEBATED)
+
+Gruber, Gelman & Ranganath (2014, Neuron 84:486): high-curiosity states
+enhance memory for the answer (obviously) AND for unrelated incidental
+faces presented during the curious state — dopaminergic anticipation
+(midbrain/NAcc → hippocampus) does double duty. Murphy, Dehmelt,
+Yonelinas, Ranganath & Gruber (2021, Learn. Mem. 28:34): the incidental
+benefit is temporally locked to curiosity *elicitation*, not sustained
+anticipation or satisfaction — encode "shortly after the question lands."
+A 2025 meta-analysis (PB&R; "Mnemonic benefits of state curiosity")
+finds the target benefit reliable and the incidental spillover real but
+smaller — mark spillover SHOULD-tier. Gruber & Ranganath's PACE
+framework (TiCS 2019) places curiosity downstream of prediction error —
+which the spec already computes.
+
+**Formalization.** New derived Event field `curiosity ∈ [0,1]` —
+default derivation `curiosity = clamp(predictionError·interest`, 0,1)
+where `interest` = topic overlap with the character's goal/domain list
+(world supplies topic tags; fall back to selfRelevance). Then:
+
+```
+E += curios_gain·curiosity                (curios_gain ≈ 0.2)
+same-tick/+1-tick unrelated records: E += curios_spill·curiosity  (≈0.1)
+```
+
+`curios_spill` applies ONLY within the elicitation window (frozen
+`curios_window = 1 tick`, per Murphy 2021's proximity result) and only
+to records that survive att_min — a curious moment quietly preserves the
+wallpaper. Trait loading: `open` raises `curiosity` (starved→fed
+interest channel, individual-differences row). This is the encoding-side
+reason RW characters remember the *irrelevant detail* from a day they
+were dying to know something — the user's "selective, cue-laden"
+requirement now has a second spillover channel beside tag-capture (§2
+v1.7).
+
+## 17. Wakeful rest — the minute after matters (ESTABLISHED, magnitude noisy)
+
+Dewar, Alber, Butler, Cowan & Della Sala (2012, Psych. Sci. 23:955):
+10 minutes of quiet wakeful rest after learning boosted retention at
+7 days — no interim retrieval needed; mechanism = post-encoding replay
+protected from interference (Tambini, Ketz & Davachi 2010; Carr, Jadhav
+& Frank 2011 rodent replay). Effect demonstrated in healthy OLDER adults
+(Dewar's sample was 61–87) and in amnesic patients — it is a cheap,
+age-robust consolidation shield, not an encoding strategy.
+
+**Formalization.** Frozen constant `rest_window = 0.007` day (~10 min).
+A record's post-encoding minute is "rested" if the world logged ≤1 new
+same-modality event for this character in the window (cheap density
+check on the event ledger). Rested records get, at window close:
+
+```
+strength += rest_gain·(1 − strength)       (rest_gain ≈ 0.12)
+```
+
+— a small retroactive interference discount. Deliberately NOT gated on
+sleep or arousal (it is not consolidation machinery, it is interference
+avoidance — Dewar's own framing). Age-flat by design (demonstrated
+61–87). HYPOTHESIS for the sim: this is the quiet-mechanism that makes
+"a long pause after the news" legible to viewers — the character who
+sits still after bad news remembers it better.
+
+## 18. Implementation intentions — cue-bound plans encode as commands (CONSENSUS)
+
+Gollwitzer (1999); Gollwitzer & Sheeran (2006, AESP 38:69 — 94 tests,
+d = .65 on goal attainment): an intention stated as "when cue X, I will
+do Y" outperforms an equivalent bare goal intention; component processes
+verified — the specified cue becomes hyper-accessible and the response
+partially automatized (Webb & Sheeran 2006). This is an ENCODING-side
+phenomenon: the if–then format writes a stronger cue→action binding at
+intention formation, which §5.14's prospective machinery then fires on.
+
+**Formalization.** Intention records (§9/§5.14) gain optional fields
+`ifCue` (concrete trigger cue) and `thenAct`. When both are populated:
+
+```
+intention.cueBinding += impl_intent_gain          (≈0.25, applied to the
+                                                   focal-cue leg of §5.14)
+nonfocal-cue cost unchanged — if–then plans do not rescue vague cues
+```
+
+Deliberate scope limit: the gain lands on cue-binding strength, not on
+the intention's memory record itself (people forget the *plan* while the
+trigger still fires — the literature's automatization claim). Trait
+loading: `consc` raises the probability a character *forms* if–then
+intentions at all (world-builder dial: planners vs drifters) — the param
+itself is population-flat.
+
+## 19. Learning by teaching expectancy — "I'll have to explain this" (ESTABLISHED)
+
+Fiorella & Mayer (2013); Kobayashi (2019 meta, JPR — 28 studies):
+expecting to teach material improves learning even when teaching never
+happens — g ≈ 0.35 for preparing-to-teach alone, g ≈ 0.56 when teaching
+follows; interactive-teaching expectancy > non-interactive. Mechanism:
+organization + elaboration at intake (the encoder builds an explainable
+structure, not a test-proof one).
+
+**Formalization.** Event flag `willTeach:true` — set when the character
+encodes information they expect to relay *with intent to inform* (the
+waiter memorizing the specials for tables, C5 preparing to tell the
+flatmate about the rent). `E += teach_expect_gain·(0.5 + 0.5·interactive)`
+(≈0.2; interactive flag if the expected audience will push back —
+gossip-to-be-challenged encodes deeper than a note-to-self).
+The `retell`/`hearAccount` machinery then delivers the second half of
+the meta's effect naturally through §4.11 S-growth — no double counting:
+teach_expect_gain is birth-side only. Trait loading: none direct —
+`social` trait raises how often willTeach fires (world-layer frequency),
+not its size.
+
+## 20. Proper names — the semantically empty field (CONSENSUS)
+
+Cohen (1990, BJPsych 81:287): names for unfamiliar faces are recalled no
+better than meaningless non-words and worse than occupations —
+homonym-matched ("Mr Baker" vs "baker") the NAME still loses (McWeeny et
+al. 1987), because names lack the semantic hooks elaboration grabs.
+Stanhope & Cohen (1993): distinctiveness of the name itself helps —
+a distinctive name is learned faster. Cohen & Faulkner (1986): the
+name deficit is sharply age-graded.
+
+**Formalization.** `verbatim.name` fields on non-familiar persons
+(PersonModel.familiarity < `know_protect_thresh`) take birth strength
+`×(1 − name_penalty)` (≈0.3) — the field most likely to be confabulated
+later is now born thinnest, which is exactly the human phenomenology
+("I know he's a teacher — his name is…"). Exemptions, all sourced:
+`coherentUnit:true` names (name on an already-familiar face — unitized),
+distinctive names (`isolated` applies to the name field), and names the
+character generated/spoke themselves (gen_gain/prod_gain on the field).
+Age scaling: `name_penalty ×(1 + age_eff/80)` — the classic TOT
+generator for the old cohort (Cohen & Faulkner 1986). This slots into
+the §5.10 person-recognition cascade: faces survive, names die first —
+already the model's direction, now priced at birth instead of only at
+decay.
+
+## 21. Other-group faces — owngroup_loss made real (CONSENSUS, gated on world data)
+
+Meissner & Brigham (2001, PP&L 7:3 — 39 articles, 91 samples, N≈5,000):
+own-race bias is a mirror pattern — own-group faces yield more hits AND
+fewer false alarms; aggregate discriminability advantage significant;
+moderated by interracial contact. Adolescent meta (2024, PMC11446075):
+g ≈ 0.24, small but positive — the bias is present early, not acquired
+late. Part I left `owngroup_loss` as an optional stub; this version
+makes it a real param with the same shape as `oab_loss`:
+
+**Formalization.** `PersonModel.familiarity` accrual ×(1 − owngroup_loss)
+(0.15) when the world supplies a group tag on the person and it differs
+from the character's; the tag list is world-builder's data decision —
+memory spec takes the flag, never invents categories. Reduced by
+contact: `×(1 − 0.5·contact_share)` where `contact_share` = fraction of
+the character's PersonModel roster sharing that group tag (perceptual-
+expertise moderator in the meta). Symmetric at all ages; present in
+childhood per the adolescent meta (no ramp below ~10 — treat as flat,
+flag HYPOTHESIS for <10).
+
+## 22. Expertise — the domain is an encoding substrate (CONSENSUS)
+
+Chase & Simon (1973) — chess masters' memory advantage is domain-locked
+(random boards: no advantage); Ericsson & Kintsch (1995) long-term
+working memory — experts encode domain events into retrieval structures
+that bypass raw-capacity limits. For RW this means `enc_base` is the
+wrong lever for experts: the DomainTable (cast-profiles §3) should gate
+a CONTENT-SCOPED encoding bonus.
+
+**Formalization.** Event field `domain` (topic tag, world-supplied).
+When `domain ∈ character.DomainTable` with strength ≥ 0.6:
+
+```
+E += expert_encode_gain·domainStrength        (expert_encode_gain ≈ 0.15)
+peripheral-field write prob: vivid_detail × expert_detail_w   (≈1.2, clamp 1.0)
+```
+
+— experts write WIDER records in-domain (more chunks bound, Chase &
+Simon's larger chunk count), not just stronger ones. Deliberate nulls:
+no transfer (expert_encode_gain never applies outside DomainTable);
+no θ-side discount in-domain (expertise's retrieval advantage is
+already carried by denser links); complements — never overlaps —
+`expert_lure` (§6.3/§5.6): experts encode in-domain events deeper AND
+accept in-domain gist lures faster. Both edges are the same sword.
+
+## 23. Directed forgetting — "forget I said that" is an encoding instruction (ESTABLISHED, bounded)
+
+Item-method directed forgetting (MacLeod 1998 review; Rupprecht &
+Bäuml 2016 aging meta, Psych. Aging — young d≈1.17, old d≈0.81):
+a per-item forget cue produces a real, moderate R–F gap, driven by
+selective rehearsal cessation on F-items — an ENCODING mechanism
+(list-method is retrieval-side inhibition; §4.12 already owns that
+channel — no overlap). Hall et al. (2021 meta, PB&R): emotional items
+resist ~4.2% — negative/self-relevant content partially overrides the
+instruction. Clinical populations show REDUCED directed forgetting
+(2023 meta, osf.io/9vdgc) — load `neurot`/`stress` negatively.
+
+**Formalization.** `tagEvent(charId, recordRef, {forget:true})` —
+in-world trigger: "let's never mention this," "you didn't hear it from
+me" (non-secret content; secrets use `confidential`). Effect: the
+record's retell/rehearsal eligibility drops (`s_gain` receipts
+×(1 − df_loss), df_loss ≈ 0.3, applied on every subsequent rehearsal
+opportunity — the instruction blocks elaboration AFTER birth, matching
+item-method's rehearsal-cessation account) and `strength` takes a
+one-time `×(1 − df_loss·(1 − arousal)·(1 − 0.5·neurot>0))` — emotional
+and ruminative content resists exactly as the metas say. The record is
+never deleted and keeps ordinary cue access — directed forgetting
+produces weaker memories, not absent ones (RW consequence: "we agreed
+to forget it" makes the thing fade faster, never un-happens it).
+Contrast documented: §6.19 — this is not repression; the instruction is
+external, bounded, and leaves a retrievable trace.
+
+## 24. Crafted engagement — drawing beats enacting (ESTABLISHED, small-n lit)
+
+Wammes, Meade & Fernandes (2016, QJEP 69:1752; Fernandes, Wammes &
+Meade 2018 CDPS review): drawing a to-be-remembered item beats writing,
+visualizing, elaborating, and even tracing — the trace integrates
+elaborative + pictorial + motor codes. Meade, Wammes & Fernandes (2019,
+Exp. Aging Res.): preserved in healthy older adults AND probable
+dementia — the strongest single-mode encoding gain in the literature at
+our grain.
+
+**Formalization.** Extend `engagement` enum with `"crafted"` (drawing,
+writing by hand, physically building the thing). HYPOTHESIS fold, per
+the mechanism account: crafted events collect `enact_gain + gen_gain +
+concrete_gain` — no new param. If a later version finds crafting
+super-additive beyond that sum, reinstate a dedicated term (P230
+guards). Rare in a life-sim — grocery lists, sketches, the landlord's
+ledger — but the cheapest way to make a keepsake record almost
+indestructible, and the dementia-resilience finding makes it the third
+age-robust channel beside enactment and unitization.
+
+## 25. Deliberate non-adds (v24)
+
+- **Disfluency / hard-to-read fonts** (Diemand-Yauman, Oppenheimer &
+  Vaughan 2011): multiple failed replications and meta-analytic collapse
+  (Rummer et al. 2016; Xie et al. 2018) — a "desirable difficulty" that
+  isn't. No param; noted so nobody adds it later.
+- **Glucose/caffeine at encoding:** thin, noisy literature at our grain;
+  arousal-level effects ride `synchrony`/`stress` already. No params.
+- **Pain/hunger/fatigue states:** no dedicated channels — they are
+  secondary-task pulls and ride `daLoad` (HYPOTHESIS fold; if the world
+  supplies `context.pain` etc., map to daLoad at fixed weights
+  0.4/0.2/0.3 — frozen).
+- **Encoding specificity / cue-overload:** retrieval-side machinery
+  (§5.2); nothing here.
+- **Remindings at encoding** (Hintzman 2011 — a new event that reminds
+  of an old trace integrates them): §5.17's reminding chain already
+  writes the link on the retrieval path; spacingBonus boosts the old
+  record on re-encounter. Cross-reference only.
+- **List-method directed forgetting:** retrieval inhibition, owned by
+  §4.12 suppression — kept out of §2 by the same method split the
+  literature uses (MacLeod 1998).
+
+## 26. Parameter summary (new in v2.4 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `abe_gain` | 0.15 | 0–0.4 | detection-event encoding boost | Swallow & Jiang 2010/2014; ESTABLISHED |
+| `abe_spill_mult` | 0.5 | 0–1 | same-tick spillover fraction | Swallow & Jiang 2010 |
+| `curios_gain` | 0.2 | 0–0.5 | curiosity-state target gain | Gruber 2014; 2025 meta |
+| `curios_spill` | 0.1 | 0–0.3 | incidental-material spillover | Murphy 2021 (window-locked) |
+| `rest_gain` | 0.12 | 0–0.3 | post-encoding quiet-window shield | Dewar 2012 |
+| `impl_intent_gain` | 0.25 | 0–0.6 | if–then cue-binding strength | Gollwitzer & Sheeran 2006 d=.65 |
+| `teach_expect_gain` | 0.2 | 0–0.5 | preparing-to-teach elaboration | Kobayashi 2019 g=.35 |
+| `name_penalty` | 0.3 | 0–0.6 | unfamiliar-person name thinning | Cohen 1990; age-scaled |
+| `owngroup_loss` | 0.15 | 0–0.4 | other-group familiarity accrual cut | Meissner & Brigham 2001 |
+| `expert_encode_gain` | 0.15 | 0–0.4 | in-domain encoding bonus | Chase & Simon 1973; E&K 1995 |
+| `expert_detail_w` | 1.2 | 1–1.5 | in-domain record width multiplier | chunking |
+| `df_loss` | 0.3 | 0–0.6 | item-method forget-instruction cost | MacLeod 1998; Rupprecht 2016 |
+
+**Frozen constants (v2.4):** `abe_window = 1 tick`, `curios_window =
+1 tick` (phasic elicitation only — Murphy 2021), `rest_window = 0.007`
+day (~10 min, Dewar 2012), crafted-mode fold (enact+gen+concrete sum —
+P230 audits), state→daLoad weights {pain .4, hunger .2, fatigue .3}.
+
+## 27. Validation probes P221–P230
+
+- **P221 (MUST) attentional boost:** detected:true events recall higher
+  than matched non-detection events (T-diff d ∈ [0.2, 0.6]) AND same-tick
+  co-encoded ambient records beat surrounding ambient records; both
+  effects vanish when the character holds no monitoring set
+  (Swallow & Jiang's task-dependence).
+- **P222 (SHOULD) curiosity spillover:** high-curiosity events → +recall
+  on target AND on unrelated same-window records; spillover absent
+  outside curios_window (Murphy 2021 proximity).
+- **P223 (SHOULD) wakeful rest:** rested vs busy-window records differ
+  at 7 days (≥1.2× retained proportion); effect flat across age bands
+  (Dewar's 61–87 sample) and absent when the window contains ≥2 new
+  same-modality events.
+- **P224 (MUST) implementation intentions:** if–then intentions
+  (ifCue+thenAct populated) fire ≥1.5× vague ones on the focal-cue
+  channel at matched schedule; nonfocal-cue firing unchanged
+  (boundary of the mechanism).
+- **P225 (SHOULD) teach expectancy:** willTeach events → higher delayed
+  recall and higher organization subscore (linked-record completeness);
+  interactive flag > non-interactive (Kobayashi 2019 moderator).
+- **P226 (MUST) name penalty:** unfamiliar-person `verbatim.name`
+  recalled worse than same-person semantic facts at matched E
+  (Cohen homonym design); penalty shrinks with familiarity tier and
+  grows with age_eff (Cohen & Faulkner 1986).
+- **P227 (SHOULD) owngroup:** other-group PersonModels accrue
+  familiarity slower and show the mirror pattern (fewer hits AND more
+  false alarms — not just criterion shift; Meissner & Brigham);
+  contact_share attenuates.
+- **P228 (SHOULD) expertise:** in-domain events get more populated
+  verbatim fields + higher E; zero out-of-domain transfer (TOST);
+  expert_lure path unchanged (double-edged check).
+- **P229 (MUST) directed forgetting:** forget-tagged records show the
+  R–F gap (~30% relative at df_loss 0.3), never delete (all records
+  still cue-accessible), emotional records resist by the meta's ~4%
+  margin, high-neurot cohort resists more.
+- **P230 (SHOULD) crafted mode:** crafted events ≥ enacted on
+  recognition, preserved-or-larger in the 65+ cohort (Meade 2019
+  dementia result as ceiling case); the no-new-param fold is audited —
+  residual crafted-specific variance beyond the three-gain sum ≤0.02.
+
+## 28. Spec deltas delivered (v2.4)
+
+- `memory-model-spec.md` → v2.4: §2 +8 bullets (ABE, curiosity,
+  wakeful rest, implementation intentions, teach expectancy, name
+  penalty, owngroup, expertise, directed forgetting, crafted mode);
+  §7 +12 params + 5 frozen constants; §10 contract additions —
+  Event fields `detected`, `curiosity`, `willTeach`/`interactive`,
+  `domain`, `engagement:"crafted"`; Intention fields `ifCue`/`thenAct`;
+  `tagEvent` gains `{forget:true}`.
+- `character-memory-profiles.md`: +12 clamp rows; archetype deltas
+  (expert via DomainTable — automatic; older adult name_penalty ↑ via
+  age_eff — automatic; high-`consc` bibles form more if–then
+  intentions; high-`neurot` resist df_loss — P229); v2.4 note §12.
+- `validation-design.md`: registry → P1–P230.
+- `human-memory-research.md`: §24 v24 summary appended.
+
+## 29. Sources new to this version (all verified 2026-09-23)
+
+- Swallow & Jiang 2010 (Cognition 115:118); Swallow & Jiang 2011
+  (APP 74:70 — goal-relevance not rarity); Swallow & Jiang 2014
+  (APP 76:466 — true-baseline boost); Swallow & Jiang 2013 (Front.
+  Psych. 4:274 — review + dual-task interaction model).
+- Gruber, Gelman & Ranganath 2014 (Neuron 84:486); Murphy, Dehmelt,
+  Yonelinas, Ranganath & Gruber 2021 (Learn. Mem. 28:34 — proximity);
+  Gruber & Ranganath 2019 (TiCS — PACE); PB&R 2025 state-curiosity
+  meta (s13423-025-02800-8).
+- Dewar, Alber, Butler, Cowan & Della Sala 2012 (Psych. Sci. 23:955);
+  Tambini, Ketz & Davachi 2010 — replay substrate.
+- Gollwitzer 1999 (Am. Psych. 54:493); Gollwitzer & Sheeran 2006
+  (AESP 38:69 — 94 tests, d=.65); Webb & Sheeran 2006 (JESP 43:295).
+- Fiorella & Mayer 2013 (Contemp. Ed. Psych. 38:281); Kobayashi 2019
+  (JPR meta — g .35/.56, 28 studies).
+- Cohen 1990 (BJPsych 81:287); McWeeny et al. 1987 (homonym design);
+  Stanhope & Cohen 1993; Cohen & Faulkner 1986 (age gradient);
+  Cohen & Burke 1993 (Memory 1:249 review).
+- Meissner & Brigham 2001 (PP&L 7:3 — 39 articles/91 samples);
+  adolescent ORB meta 2024 (PMC11446075, g≈0.24).
+- Chase & Simon 1973; Ericsson & Kintsch 1995 (LTWM).
+- MacLeod 1998 (directed-forgetting review); Rupprecht & Bäuml 2016
+  aging meta (young d 1.17 / old d 0.81); Hall et al. 2021 (PB&R —
+  emotional resist ~4.2%); clinical DF meta 2023 (osf 9vdgc).
+- Wammes, Meade & Fernandes 2016 (QJEP 69:1752); Fernandes, Wammes &
+  Meade 2018 (CDPS 27:302); Meade, Wammes & Fernandes 2019 (Exp. Aging
+  Res. — dementia-preserved).
+- Deliberate-null sources: Diemand-Yauman et al. 2011 vs Rummer et al.
+  2016 / Xie et al. 2018 (disfluency collapse); Hintzman 2011
+  (remindings — cross-ref).

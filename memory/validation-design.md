@@ -1336,3 +1336,53 @@ conformance (P217) is a borrowed *expectation* — confirmed universal in
 systems biology, plausible-but-unproven for a memory model; flagged
 HYPOTHESIS. The seed-split/held-out-probe protocol is our engineering
 discipline, not literature.
+
+## 33. New probes P221–P230 (v24, encoding-mechanics II suite)
+
+Encoding-state and content-class probes; spec v2.4 terms. Tiers per
+§2.1; anchors vs the encoding-mechanics.md §29 verified sources.
+
+- **P221 attentional boost (MUST):** `detected:true` events recall
+  higher than matched non-detection events (T-diff d ∈ [0.2, 0.6]) AND
+  same-tick co-encoded ambient records beat surrounding ambient records;
+  BOTH effects vanish when the character holds no monitoring set —
+  Swallow & Jiang's task-dependence is the boundary condition, not the
+  boost itself.
+- **P222 curiosity spillover (SHOULD):** high-curiosity events →
+  +recall on the target AND on unrelated same-window records; spillover
+  absent outside `curios_window` (Murphy 2021 proximity result is the
+  falsifiable edge — a sustained-anticipation implementation fails).
+- **P223 wakeful rest (SHOULD):** rested vs busy-window records differ
+  at 7-day retention (≥1.2× proportion retained); flat across age bands
+  (Dewar's 61–87 sample); absent when the window contains ≥2 new
+  same-modality events.
+- **P224 implementation intentions (MUST):** ifCue+thenAct intentions
+  fire ≥1.5× vague ones on the focal-cue channel at matched schedule;
+  nonfocal-cue firing statistically unchanged — the mechanism is
+  binding strength, not vigilance (Gollwitzer & Sheeran 2006).
+- **P225 teach expectancy (SHOULD):** willTeach events → higher delayed
+  recall + higher organization subscore (linked-record completeness);
+  interactive > non-interactive moderator per Kobayashi 2019.
+- **P226 name penalty (MUST):** unfamiliar-person `verbatim.name`
+  recalled worse than same-person semantic facts at matched E (Cohen
+  homonym design); penalty shrinks with familiarity tier, grows with
+  age_eff — the old-cohort TOT generator (Cohen & Faulkner 1986).
+- **P227 owngroup (SHOULD):** other-group PersonModels accrue
+  familiarity slower; mirror pattern in recognition (fewer hits AND
+  more false alarms — NOT a pure criterion shift, Meissner & Brigham
+  2001); `contact_share` attenuates.
+- **P228 expertise (SHOULD):** in-domain events get more populated
+  verbatim fields AND higher E; out-of-domain transfer TOST-null
+  (Chase & Simon random-boards null is the design's spine);
+  `expert_lure` path unchanged — both edges of the sword present.
+- **P229 directed forgetting (MUST):** forget-tagged records show the
+  R–F gap (~30% relative at default df_loss), never delete (all
+  cue-accessible at retrieval), emotional records resist ≈4% (Hall
+  2021), high-neurot and older cohorts resist more (Rupprecht & Bäuml
+  2016 d 1.17→0.81).
+- **P230 crafted mode (SHOULD):** `engagement:"crafted"` ≥ enacted on
+  recognition, preserved-or-larger at 65+ (Meade 2019 dementia ceiling);
+  fold audit — residual crafted variance beyond enact+gen+concrete
+  ≤0.02 E, else reinstate a dedicated param.
+
+Registry now P1–P230; numbering stable.

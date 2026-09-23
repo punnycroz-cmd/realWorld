@@ -1076,3 +1076,53 @@ into the spec; the 8 mains were then compiled into
   `lifeEvents` ProfileInput field); profiles +5 clamp rows + §11;
   probes P201–P210.
 - Boundaries kept: research only, no code, no narratives, no push/merge.
+
+## 24. v24 — encoding-mechanics II (state around intake, class at the door)
+
+Second pass on `memory/encoding-mechanics.md` (Part II, §§15–29). Where
+Part I priced processing mode, Part II prices the *motivational state*
+surrounding the event and the *content class* walking through the door.
+All sources verified via web on 2026-09-23.
+
+- **Attentional boost effect** (Swallow & Jiang 2010 Cognition; 2014
+  APP true-baseline): detecting a task-relevant target *boosts* memory
+  for concurrent background items — dual-task cost inverts at the
+  detection instant. Requires a live monitoring set; eliminated without
+  it. → `abe_gain` + `abe_spill_mult`, `abe_window` frozen at 1 tick.
+- **Curiosity spillover** (Gruber, Gelman & Ranganath 2014 Neuron;
+  Murphy et al. 2021 Learn. Mem. — elicitation-locked; PB&R 2025 meta):
+  dopaminergic anticipation boosts the target AND incidental co-timed
+  material. → `curios_gain`/`curios_spill`, `curios_window` frozen.
+- **Wakeful rest** (Dewar et al. 2012 Psych. Sci.; Tambini 2010 replay):
+  ~10 min quiet after encoding → better 7-day retention, age-flat
+  (demonstrated 61–87). → `rest_gain`, `rest_window` frozen 0.007d.
+- **Implementation intentions** (Gollwitzer & Sheeran 2006, 94 tests
+  d=.65): if–then plans bind their cue harder at formation.
+  → `impl_intent_gain` on Intention cueBinding (focal leg only).
+- **Teach expectancy** (Fiorella & Mayer 2013; Kobayashi 2019 meta
+  g=.35/.56, interactive moderator): expecting to explain organizes
+  intake. → `teach_expect_gain`.
+- **Proper names** (Cohen 1990 homonym design; Cohen & Faulkner 1986
+  age gradient): names ≈ meaningless non-words at birth.
+  → `name_penalty`, age-scaled, coherentUnit/isolated/self-gen exempt.
+- **Other-group faces** (Meissner & Brigham 2001 meta, 91 samples —
+  mirror pattern; adolescent meta 2024 g≈0.24): `owngroup_loss`
+  promoted from stub to param, contact-moderated.
+- **Expertise** (Chase & Simon 1973 random-boards null; Ericsson &
+  Kintsch 1995): domain-locked encoding advantage, wider records.
+  → `expert_encode_gain`/`expert_detail_w`, DomainTable-gated, zero
+  transfer by construction.
+- **Item-method directed forgetting** (MacLeod 1998; Rupprecht & Bäuml
+  2016 aging d 1.17→0.81; Hall 2021 emotional-resist ~4.2%; clinical
+  meta 2023): "forget it" is an encoding instruction — rehearsal
+  cessation, never deletion. → `df_loss` via `tagEvent{forget:true}`.
+- **Crafted engagement** (Wammes, Meade & Fernandes 2016; Meade 2019 —
+  dementia-preserved): drawing > writing/elaborating/tracing.
+  Folded as enact+gen+concrete sum — no new param; P230 audits.
+- Deliberate non-adds: disfluency (replication collapse — Rummer 2016),
+  glucose/caffeine, dedicated pain/hunger/fatigue channels (fold to
+  daLoad at frozen weights), remindings-at-encode (§5.17 owns),
+  list-method DF (§4.12 owns).
+- Spec → v2.4 (+12 params, 5 frozen constants, 2 knot rows, contract
+  additions); profiles +12 clamp rows + §12; probes P221–P230.
+- Boundaries kept: research only, no code, no narratives, no push/merge.

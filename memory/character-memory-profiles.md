@@ -272,6 +272,18 @@ never copying raw.
 | attach_ret_cost | 0.0 | 0.4 | searchCost add on attachment records (v2.2) |
 | self_share_pen | 0.0 | 0.9 | transmission cut on selfRelevance≥0.6 (v2.2) |
 | secret_mindwander | 0.0 | 0.3 | confidential-record intrusion boost (v2.2) |
+| abe_gain | 0.0 | 0.4 | detection-event encoding boost (v2.4) |
+| abe_spill_mult | 0.0 | 1.0 | same-tick ambient spillover fraction (v2.4) |
+| curios_gain | 0.0 | 0.5 | curiosity-state target encoding gain (v2.4) |
+| curios_spill | 0.0 | 0.3 | incidental curiosity spillover (v2.4) |
+| rest_gain | 0.0 | 0.3 | wakeful-rest consolidation shield (v2.4) |
+| impl_intent_gain | 0.0 | 0.6 | if–then plan cue binding (v2.4) |
+| teach_expect_gain | 0.0 | 0.5 | preparing-to-teach elaboration (v2.4) |
+| name_penalty | 0.0 | 0.6 | unfamiliar-name birth thinning (v2.4) |
+| owngroup_loss | 0.0 | 0.4 | other-group familiarity accrual cut (v2.4) |
+| expert_encode_gain | 0.0 | 0.4 | in-domain encoding bonus (v2.4) |
+| expert_detail_w | 1.0 | 1.5 | in-domain record width multiplier (v2.4) |
+| df_loss | 0.0 | 0.6 | forget-instruction rehearsal cut (v2.4) |
 
 **v1.6 age-decline note (compensation layer):** the v1.6 params split
 into reserve-shifted capacity params (`value_select`, `hyperbind_p`,
@@ -870,3 +882,44 @@ promised. This note covers only what bibles/mods must know:
   `secret_mindwander` does NOT depend on concealment opportunities
   (Slepian: mind-wandering ≫ concealment, and only mind-wandering
   predicts the cost).
+
+## 12. v2.4 note — encoding-mechanics II: state and content dials
+
+Most v2.4 params need NO per-character work — they are event/context-
+gated (detected, curiosity, willTeach, rested, domain match) and land
+identically on everyone. What bibles and modifiers should know:
+
+- **`name_penalty`** is age-automatic (×(1+age_eff/80)) — do not also
+  pin it on the older-adult archetype or it double-counts. A bible that
+  says "never forgets a name" should pin `name_penalty` LOW (~0.1)
+  explicitly; that is a real, rare phenotype (super-recognizers of the
+  name channel) and it overrides the age scaling.
+- **`owngroup_loss`** rides world-supplied group tags + roster contact —
+  never pin it as a personality trait. `contact_share` is computed, not
+  authored; a character raised in a mixed neighborhood gets a low
+  effective loss for free.
+- **`expert_encode_gain`/`expert_detail_w`** are DomainTable-driven;
+  expertise dials live in `cast-profiles.md`, not in this table. The
+  deliberate null is the point: an expert outside their domain is
+  ordinary (Chase & Simon random-board result) — never add a general
+  "smart memory" bump instead.
+- **`df_loss`** resistance is trait-loaded already (neurot>0 halves it;
+  age_eff shrinks it ~30% by 80). The ruminator and the elder both
+  fail at "forget I said that" through different routes — no extra
+  modifier needed.
+- **`curios_gain`/`curios_spill`** scale implicitly with `open` via the
+  `curiosity` derivation — do not pin the gains on curious bibles;
+  pin `open`.
+- **`impl_intent_gain`** is population-flat; the personality dial is
+  `consc` → *formation frequency* (planners vs drifters). A bible that
+  says "always has a plan" raises consc, not this param.
+- **`rest_gain`** stays flat across age (demonstrated in 61–87;
+  Dewar 2012) — the one age-robust *quiet* channel. It is a lifestyle
+  frequency dial too: hectic lives produce fewer rested windows
+  automatically; don't pin the gain down for busy characters.
+- **Deliberate nulls:** no trait → `abe_gain` (temporal orienting is
+  machinery, not personality); no `wmc` → `abe_spill_mult` (the boost is
+  a detection-bound burst, not capacity); `meta_cal` does not touch
+  `name_penalty` (people KNOW names are hard — the deficit is real, not
+  metacognitive); no positive-mood → teach_expect interaction (the
+  effect is organizational, not hedonic).

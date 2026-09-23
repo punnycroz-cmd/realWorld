@@ -1,4 +1,28 @@
-# Memory Model Spec v2.3 — implementable human-like memory for RW characters
+# Memory Model Spec v2.4 — implementable human-like memory for RW characters
+
+> **v2.4 note (encoding-mechanics II — motivational state and content
+> class):** `memory/encoding-mechanics.md` Part II (§§15–29) prices the
+> state around intake and the content class at the door: **attentional
+> boost** — a `detected:true` event raises its own E AND co-temporal
+> ambient records (dual-task cost runs backwards at detection; Swallow &
+> Jiang 2010/2014) — §2; **curiosity spillover** — curious states boost
+> the target and unrelated same-window records, window-locked (Gruber et
+> al. 2014; Murphy et al. 2021) — §2; **wakeful rest** — a quiet
+> ~10-minute post-encoding window shields new traces from interference
+> (Dewar et al. 2012, age-flat) — §2; **implementation intentions** —
+> ifCue+thenAct plans bind their trigger ~d=.65 harder (Gollwitzer &
+> Sheeran 2006) — §2/§5.14; **teach expectancy** — expecting to relay
+> organizes intake (Kobayashi 2019 meta g=.35) — §2; **proper-name
+> penalty** — unfamiliar-person names born thin, age-scaled (Cohen 1990)
+> — §2; **owngroup_loss made real** — contact-moderated, mirror-pattern
+> (Meissner & Brigham 2001) — §2; **expertise** — in-domain events
+> encode deeper AND wider, zero transfer (Chase & Simon 1973) — §2;
+> **item-method directed forgetting** — `tagEvent{forget:true}` blocks
+> rehearsal after birth; weakens, never deletes (MacLeod 1998;
+> emotional/neurot resist per metas) — §2; **crafted engagement** —
+> drawing/building collects enact+gen+concrete, dementia-robust (Wammes
+> et al. 2016; Meade et al. 2019) — §2. +12 params in §7; probes
+> P221–P230 in validation-design.md. All optional, default-neutral.
 
 > **v2.3 note (validation-design II — the meta layer):**
 > `memory/validation-design.md` Part II (§§22–32) adds the machinery that
@@ -778,6 +802,58 @@ Postman 1964; Hyde & Jenkins 1973).
   promotes item-specific/verbatim processing while negative CONTENT
   (§6.3 `neg_gist_gain`) foments gist-side distortion. The two
   halves live on different channels; do not merge them.
+- **v2.4 additions** (encoding-mechanics.md Part II §§15–24):
+  - *Attentional boost:* event flag `detected:true` (task-relevant
+    detection while a monitoring set is live — incl. §5.14 focal-cue
+    firings) → `E += abe_gain` (0.15) on the detected event AND
+    `E += abe_gain·abe_spill_mult` (0.5) on every other record created
+    the same tick (`abe_window = 1 tick`, frozen). Records already under
+    `att_min` stay unwritten — boost × 0 attention is 0 (Swallow & Jiang
+    2010/2014).
+  - *Curiosity:* derived Event field `curiosity ∈ [0,1]`
+    (`clamp(predictionError·interest, 0, 1)`; `open` raises it) →
+    `E += curios_gain·curiosity` (0.2); unrelated surviving records
+    within `curios_window` (1 tick, frozen — elicitation-locked, Murphy
+    et al. 2021) get `E += curios_spill·curiosity` (0.1).
+  - *Wakeful rest:* a record is `rested` if ≤1 new same-modality event
+    lands for the character within `rest_window` (0.007 day, frozen)
+    after birth; at window close `strength += rest_gain·(1 − strength)`
+    (0.12) — replay shield, age-flat, not gated on sleep/arousal
+    (Dewar et al. 2012).
+  - *Implementation intentions:* Intention records with `ifCue` AND
+    `thenAct` populated get `cueBinding += impl_intent_gain` (0.25) on
+    the §5.14 focal-cue leg — the gain is on the binding, not the plan
+    record (automatization account; Gollwitzer & Sheeran 2006 d=.65).
+    `consc` trait raises formation frequency (world-layer), not size.
+  - *Teach expectancy:* `willTeach:true` (+ optional `interactive`) →
+    `E += teach_expect_gain·(0.5 + 0.5·interactive)` (0.2) — organizing
+    to explain; the post-teach half arrives via §4.11 S-growth, no
+    double count (Kobayashi 2019 g=.35/.56).
+  - *Proper names:* `verbatim.name` on persons with PersonModel
+    familiarity < `know_protect_thresh` born at `×(1 − name_penalty)`
+    (0.3), age-scaled `×(1 + age_eff/80)`; exempt when the name is
+    `coherentUnit`/`isolated`/self-generated (Cohen 1990; Cohen &
+    Faulkner 1986).
+  - *Other-group faces:* `owngroup_loss` (0.15) now a real param —
+    familiarity accrual cut when world supplies a differing group tag,
+    attenuated `×(1 − 0.5·contact_share)` by roster contact (Meissner &
+    Brigham 2001 mirror pattern; flat ≥10, HYPOTHESIS below).
+  - *Expertise:* `domain` field matching DomainTable strength ≥0.6 →
+    `E += expert_encode_gain·domainStrength` (0.15) and peripheral write
+    prob `vivid_detail × expert_detail_w` (1.2, clamp 1.0) — wider AND
+    deeper in-domain, zero transfer (Chase & Simon 1973).
+  - *Directed forgetting:* `tagEvent{forget:true}` → one-time
+    `strength ×= (1 − df_loss·(1−arousal)·(1 − 0.5·[neurot>0]))` and
+    permanently halves s_gain rehearsal receipts (rehearsal-cessation
+    account; MacLeod 1998). Never deletes; cue access unchanged
+    (emotional ~4% resist — Hall 2021; older adults shallower —
+    Rupprecht & Bäuml 2016: scale df_loss ×(1 − 0.3·age_eff/80)).
+  - *Crafted mode:* `engagement:"crafted"` (drawing/handwriting/
+    building) collects `enact_gain + gen_gain + concrete_gain` — no new
+    param; preserved-or-larger in 65+ (Wammes 2016; Meade 2019; P230
+    audits the fold).
+  - *State folds (frozen):* `context.pain`/`hunger`/`fatigue` map to
+    `daLoad` at weights 0.4/0.2/0.3 — no dedicated channels.
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -2702,6 +2778,20 @@ MemoryParams = {
   "secret_mindwander": 0.08, // confidential-record intrusion boost (§5.7)
   // IndivTraits gains axis 15: attach_avoid (σ, r(extra)≈−0.3,
   // r(neurot)≈0 — avoidance carries the memory deficit, anxiety doesn't)
+  // v2.4 additions (encoding-mechanics II — motivational state and
+  // content class, encoding-mechanics.md Part II §§15–26)
+  "abe_gain": 0.15,          // detection-event E boost (§2; Swallow & Jiang)
+  "abe_spill_mult": 0.5,     // same-tick spillover fraction (§2)
+  "curios_gain": 0.2,        // curiosity-state target gain (§2; Gruber 2014)
+  "curios_spill": 0.1,       // incidental spillover, window-locked (§2)
+  "rest_gain": 0.12,         // wakeful-rest shield (§2; Dewar 2012)
+  "impl_intent_gain": 0.25,  // if–then cue binding (§2; Gollwitzer&Sheeran .65)
+  "teach_expect_gain": 0.2,  // preparing-to-teach elaboration (§2; Kobayashi)
+  "name_penalty": 0.3,       // unfamiliar-name birth thinning (§2; Cohen 1990)
+  "owngroup_loss": 0.15,     // other-group familiarity cut (§2; M&B 2001)
+  "expert_encode_gain": 0.15,// in-domain E bonus (§2; Chase & Simon)
+  "expert_detail_w": 1.2,    // in-domain record width mult (§2)
+  "df_loss": 0.3,            // item-method forget-instruction cost (§2)
 }
 
 // v0.9 FROZEN population constants — same for every character, never in
@@ -2741,6 +2831,14 @@ MemoryParams = {
 //   corroborate_conf: ×(1 + 0.2·(age_eff−65)/20) above 65 (§6.20)
 //   copresent_assume_p: ×(1 + 0.3·age_eff/60) (§6.21)
 //   absorb_p: rides discrim_mult (source-decay scaling, §6.23)
+// v2.4 frozen constants (encoding-mechanics.md §26):
+//   abe_window = 1 tick; curios_window = 1 tick (elicitation-locked —
+//   Murphy 2021); rest_window = 0.007 day (~10 min — Dewar 2012);
+//   crafted fold = enact+gen+concrete sum (P230 audits); state→daLoad
+//   weights {pain 0.4, hunger 0.2, fatigue 0.3}
+// v2.4 knot-table updates (existing params, new age knots):
+//   name_penalty: ×(1 + age_eff/80) (Cohen & Faulkner 1986)
+//   df_loss: ×(1 − 0.3·age_eff/80) (Rupprecht & Bäuml 2016)
 // (tau_*/collab_*/arousal_affect_decay/rep_cap remain in the table above
 // for backward compatibility; loaders should treat them as constants.)
 ```
@@ -3183,6 +3281,20 @@ penalty still applies — PM failure is a cue problem, not a decay problem.
     carries `ident_class` ∈ {structural|practical|identified|prior-held}
     per the validation-design §23 matrix; `prior-held` params are
     tuning-frozen by process rule (P219), not by code.
+- v2.4 additions (encoding-mechanics.md Part II §§15–24):
+  - `encodeEvent` Event fields: `detected:true` (requires a live
+    monitoring set/Intention to be meaningful), `curiosity` 0..1 (world
+    may override the derived value), `willTeach`/`interactive`,
+    `domain` (topic tag — matches against the character's DomainTable),
+    `engagement:"crafted"` (new enum value). All optional.
+  - Intention records gain optional `ifCue`/`thenAct` — populating BOTH
+    turns on `impl_intent_gain` on the §5.14 focal leg.
+  - `tagEvent(charId, recordRef, {forget:true})` — new flag beside
+    `confidential`; halves future s_gain receipts + one-time strength
+    cut per §2 v2.4; harness-readable `forget_flag` on the record.
+  - `context.pain`/`hunger`/`fatigue` (0..1) map to `daLoad` at the
+    frozen §2 v2.4 weights — callers supply raw state, never pre-
+    composed daLoad (the mapping is spec, not caller judgment).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
