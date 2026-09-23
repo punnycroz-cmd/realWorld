@@ -27153,9 +27153,21 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     ctx.moveTo(pb[0] - r, pb[1]); ctx.lineTo(pb[0] - r, pt[1] + r);
     ctx.arc(pb[0], pt[1] + r, r, Math.PI, 0, true);
     ctx.lineTo(pb[0] + r, pb[1]); ctx.closePath(); ctx.fill();
-    // v16: what's inside — blinds, curtains, or a sill plant silhouette
+    // v43: what's inside is a real miniature room now — floor line, a
+    // furnishing silhouette, and often a warm lamp or an occupant. The
+    // room reads darker toward the top (ceiling) like the door-teleport
+    // interiors do; the glass still catches the sky on top of it all.
     if(seeIn && ww > 6){
-      if(treat < 0.15){            // venetian blinds, half down
+      const roomSeed = (i * 131 + Math.round(wx * 31) * 7 + Math.round(zB * 17)) >>> 0;
+      const occ = phash(roomSeed, 0, 4321);       // furnishing variant
+      const lamOn = phash(roomSeed, 1, 4322) < 0.34; // lamp left on by day
+      // floor line: warm boards in the bottom fifth of the opening
+      ctx.fillStyle = 'rgba(122,88,52,0.9)';
+      ctx.fillRect(pb[0] - r, pb[1] - wh * 0.20, ww, wh * 0.20);
+      ctx.strokeStyle = 'rgba(24,16,10,0.6)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pb[0] - r, pb[1] - wh * 0.20);
+      ctx.lineTo(pb[0] + r, pb[1] - wh * 0.20); ctx.stroke();
+      if(occ < 0.14){              // venetian blinds, half down
         ctx.fillStyle = 'rgba(214,204,180,0.85)';
         ctx.fillRect(pb[0] - r, pt[1] + wh * 0.06, ww, wh * 0.42);
         ctx.strokeStyle = 'rgba(80,66,48,0.8)'; ctx.lineWidth = 1;
@@ -27165,16 +27177,80 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
           ctx.moveTo(pb[0] - r, yy); ctx.lineTo(pb[0] + r, yy);
         }
         ctx.stroke();
-      } else if(treat < 0.30){     // side curtains
+      } else if(occ < 0.30){       // gathered side curtains, room behind
         ctx.fillStyle = 'rgba(188,168,140,0.9)';
-        ctx.fillRect(pb[0] - r, pt[1], ww * 0.3, wh);
-        ctx.fillRect(pb[0] + r - ww * 0.3, pt[1], ww * 0.3, wh);
-      } else {                     // plant on the sill
+        ctx.fillRect(pb[0] - r, pt[1], ww * 0.22, wh);
+        ctx.fillRect(pb[0] + r - ww * 0.22, pt[1], ww * 0.22, wh);
+        ctx.fillStyle = 'rgba(168,148,120,0.9)';   // tie-back folds
+        ctx.fillRect(pb[0] - r, pt[1] + wh * 0.5, ww * 0.22, wh * 0.06);
+        ctx.fillRect(pb[0] + r - ww * 0.22, pt[1] + wh * 0.5, ww * 0.22, wh * 0.06);
+      } else if(occ < 0.40){       // plant on the sill
         ctx.fillStyle = 'rgba(46,90,40,0.9)';
         ctx.beginPath();
-        ctx.arc(pb[0], pb[1] - wh * 0.16, r * 0.5, 0, Math.PI * 2); ctx.fill();
+        ctx.arc(pb[0], pb[1] - wh * 0.28, r * 0.42, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();
+        ctx.arc(pb[0] - r * 0.3, pb[1] - wh * 0.22, r * 0.28, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = 'rgba(90,52,30,0.9)';
-        ctx.fillRect(pb[0] - r * 0.22, pb[1] - wh * 0.12, r * 0.44, wh * 0.12);
+        ctx.fillRect(pb[0] - r * 0.22, pb[1] - wh * 0.18, r * 0.44, wh * 0.12);
+      } else if(occ < 0.52){       // bookshelf wall: two shelf rows of spines
+        for(let s = 0; s < 2; s++){
+          const sy = pt[1] + wh * (0.42 + s * 0.26);
+          ctx.fillStyle = 'rgba(30,20,12,0.9)';
+          ctx.fillRect(pb[0] - r + 1, sy + wh * 0.16, ww - 2, 1.5);
+          const nb = Math.max(3, Math.floor(ww / 4));
+          for(let k = 0; k < nb; k++){
+            const bh2 = wh * (0.09 + phash(k, roomSeed, 4323) * 0.07);
+            ctx.fillStyle = ['rgba(138,74,58,0.95)', 'rgba(58,90,122,0.95)',
+                             'rgba(122,138,74,0.95)', 'rgba(176,144,90,0.95)'][Math.floor(phash(k, roomSeed, 4324) * 4)];
+            ctx.fillRect(pb[0] - r + 2 + k * (ww - 4) / nb, sy + wh * 0.16 - bh2,
+                         (ww - 4) / nb - 1, bh2);
+          }
+        }
+      } else if(occ < 0.64){       // someone home: shoulders at a table edge
+        const px2 = pb[0] + (phash(roomSeed, 2, 4325) - 0.5) * ww * 0.4;
+        const fh = wh * 0.34;
+        ctx.fillStyle = 'rgba(26,16,10,0.9)';
+        ctx.fillRect(px2 - ww * 0.16, pb[1] - wh * 0.20 - 2, ww * 0.32, 3); // table top
+        ctx.beginPath();
+        ctx.arc(px2, pb[1] - wh * 0.20 - fh * 0.9, ww * 0.09, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(px2 - ww * 0.13, pb[1] - wh * 0.20 - fh * 0.72, ww * 0.26, fh * 0.55);
+      } else if(occ < 0.76){       // hanging pendant, cone glow down
+        const px2 = pb[0];
+        ctx.strokeStyle = 'rgba(14,10,6,0.9)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(px2, pt[1]); ctx.lineTo(px2, pt[1] + wh * 0.3); ctx.stroke();
+        ctx.fillStyle = 'rgba(38,56,46,0.95)';
+        ctx.beginPath();
+        ctx.moveTo(px2 - ww * 0.13, pt[1] + wh * 0.3);
+        ctx.lineTo(px2 + ww * 0.13, pt[1] + wh * 0.3);
+        ctx.lineTo(px2 + ww * 0.08, pt[1] + wh * 0.22);
+        ctx.lineTo(px2 - ww * 0.08, pt[1] + wh * 0.22);
+        ctx.closePath(); ctx.fill();
+        const lg = ctx.createRadialGradient(px2, pt[1] + wh * 0.32, 1,
+                                            px2, pt[1] + wh * 0.32, ww * 0.5);
+        lg.addColorStop(0, 'rgba(255,206,120,0.5)');
+        lg.addColorStop(1, 'rgba(255,206,120,0)');
+        ctx.fillStyle = lg;
+        ctx.fillRect(px2 - ww * 0.5, pt[1] + wh * 0.1, ww, wh * 0.6);
+      } else if(occ < 0.88){       // framed print + radiator under the sill
+        ctx.fillStyle = 'rgba(40,28,18,0.9)';
+        ctx.fillRect(pb[0] - ww * 0.14, pt[1] + wh * 0.14, ww * 0.28, wh * 0.2);
+        ctx.fillStyle = 'rgba(140,160,180,0.8)';
+        ctx.fillRect(pb[0] - ww * 0.11, pt[1] + wh * 0.17, ww * 0.22, wh * 0.14);
+        ctx.fillStyle = 'rgba(200,196,186,0.55)';
+        for(let k = 0; k < 4; k++)
+          ctx.fillRect(pb[0] - r + 2 + k * ww * 0.22, pb[1] - wh * 0.18, ww * 0.1, wh * 0.14);
+      }
+      // a lit table lamp warms the whole reveal — day or dusk
+      if(lamOn || litWin){
+        const lx2 = pb[0] + ww * 0.28, ly2 = pb[1] - wh * 0.22;
+        const lg = ctx.createRadialGradient(lx2, ly2, 1, lx2, ly2, ww * 0.45);
+        lg.addColorStop(0, 'rgba(255,196,110,0.55)');
+        lg.addColorStop(1, 'rgba(255,196,110,0)');
+        ctx.fillStyle = lg;
+        ctx.fillRect(lx2 - ww * 0.45, ly2 - ww * 0.45, ww * 0.9, ww * 0.9);
+        ctx.fillStyle = 'rgba(255,226,160,0.9)';
+        ctx.fillRect(lx2 - 1.5, ly2 - 4, 3, 4);
       }
       // glass still catches the sky — faint reflection over the room
       ctx.fillStyle = 'rgba(160,190,214,0.16)';
@@ -27561,6 +27637,71 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         lg.addColorStop(1, 'rgba(255,206,120,0)');
         ctx.fillStyle = lg;
         ctx.fillRect(lt[0] - 16, lt[1] - 10, 32, 34);
+      }
+      // v43: the box is a real room — checker floor converging on the
+      // back wall, a menu board beside the shelf line, a seated patron
+      // at a window table, and a neon OPEN sign wired in the corner.
+      { // checker tile floor, foreshortened toward the back
+        for(let r2 = 0; r2 < 2; r2++){
+          const d0 = 0.06 + r2 * 0.16, d1 = 0.06 + (r2 + 1) * 0.16;
+          const nt = 8;
+          for(let k = 0; k < nt; k++){
+            if((k + r2) % 2) continue;
+            const q0 = sp(0.05 + 0.9 * k / nt, 0.02, d0),
+                  q1 = sp(0.05 + 0.9 * (k + 1) / nt, 0.02, d0),
+                  q2 = sp(0.05 + 0.9 * (k + 1) / nt, 0.02, d1),
+                  q3 = sp(0.05 + 0.9 * k / nt, 0.02, d1);
+            ctx.fillStyle = 'rgba(190,178,152,0.28)';
+            ctx.beginPath(); ctx.moveTo(q0[0], q0[1]); ctx.lineTo(q1[0], q1[1]);
+            ctx.lineTo(q2[0], q2[1]); ctx.lineTo(q3[0], q3[1]);
+            ctx.closePath(); ctx.fill();
+          }
+        }
+        // menu board on the back wall
+        const m0 = sp(0.68, 0.72, 1), m1 = sp(0.88, 0.34, 1);
+        ctx.fillStyle = '#241f18';
+        ctx.fillRect(m0[0], m0[1], m1[0] - m0[0], Math.abs(m1[1] - m0[1]));
+        ctx.strokeStyle = 'rgba(216,203,168,0.8)'; ctx.lineWidth = 1;
+        ctx.strokeRect(m0[0], m0[1], m1[0] - m0[0], Math.abs(m1[1] - m0[1]));
+        ctx.strokeStyle = 'rgba(230,220,190,0.6)';
+        const nln = 3;
+        for(let k = 0; k < nln; k++){
+          const yy = m0[1] + Math.abs(m1[1] - m0[1]) * (k + 1) / (nln + 1);
+          ctx.beginPath(); ctx.moveTo(m0[0] + 2, yy);
+          ctx.lineTo(m1[0] - 2 - phash(k, i, 4330) * (m1[0] - m0[0]) * 0.3, yy);
+          ctx.stroke();
+        }
+        // seated patron at a window table, mid-depth
+        const tp = sp(0.30 + phash(i, ei, 4331) * 0.2, 0.10, 0.30);
+        const ts = Math.abs(gA[1] - tA[1]) / 46;
+        ctx.fillStyle = 'rgba(14,9,5,0.85)';
+        ctx.beginPath();                       // table
+        ctx.ellipse(tp[0] + 14 * ts, tp[1] - 6 * ts, 12 * ts, 4 * ts, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(tp[0] - 7 * ts, tp[1] - 26 * ts, 14 * ts, 22 * ts); // torso
+        ctx.beginPath();
+        ctx.arc(tp[0], tp[1] - 31 * ts, 4.6 * ts, 0, Math.PI * 2); ctx.fill(); // head
+        // neon OPEN hung in the glass near one edge — lit dusk onward
+        if(phash(i, ei, 4332) < 0.5){
+          const np = sp(0.86, 0.62, 0.06);
+          const nw2 = 16 * ts, nh2 = 7 * ts;
+          const on = night || sfLampsLit();
+          if(on){
+            const ng = ctx.createRadialGradient(np[0], np[1], 1, np[0], np[1], nw2);
+            ng.addColorStop(0, 'rgba(255,80,60,0.5)');
+            ng.addColorStop(1, 'rgba(255,80,60,0)');
+            ctx.fillStyle = ng;
+            ctx.fillRect(np[0] - nw2, np[1] - nw2, nw2 * 2, nw2 * 2);
+          }
+          ctx.strokeStyle = on ? '#ff5a48' : 'rgba(150,70,60,0.8)';
+          ctx.lineWidth = Math.max(1, 1.4 * ts);
+          ctx.strokeRect(np[0] - nw2 / 2, np[1] - nh2 / 2, nw2, nh2);
+          ctx.fillStyle = on ? '#ffd8cc' : 'rgba(200,120,110,0.8)';
+          ctx.font = `${Math.max(4, 5.5 * ts)}px sans-serif`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('OPEN', np[0], np[1]);
+          ctx.textBaseline = 'alphabetic';
+        }
       }
       // glass over the room: sky reflection + a diagonal glare swipe
       ctx.fillStyle = night ? 'rgba(60,70,95,0.18)' : 'rgba(150,185,215,0.22)';
@@ -30229,6 +30370,31 @@ function sfRenderInterior(cw, ch, v){
   ctx.strokeStyle = shade('#e8dcc8', 0.85); ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(bL, bB); ctx.lineTo(bR, bB); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(bL, bT); ctx.lineTo(bR, bT); ctx.stroke();
+  // v43: Edwardian shell dressing — a wallpaper frieze band between the
+  // picture rail and the crown, and pressed-tin ceiling squares in the
+  // shop venues (the Mission's old storefronts kept their tin ceilings)
+  ctx.fillStyle = shade(wallT, 1.10);
+  ctx.fillRect(bL, bT, bR - bL, (bB - bT) * 0.14);
+  ctx.strokeStyle = 'rgba(60,44,26,0.30)'; ctx.lineWidth = 1;
+  for(let k = 0; k <= 18; k++){
+    const fx2 = bL + (bR - bL) * k / 18;
+    ctx.beginPath(); ctx.moveTo(fx2, bT + 2);
+    ctx.lineTo(fx2, bT + (bB - bT) * 0.14 - 2); ctx.stroke();
+  }
+  if(shop){
+    ctx.strokeStyle = 'rgba(20,14,8,0.22)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let k = 0; k <= 8; k++){
+      const t = k / 8;
+      ctx.moveTo(cw * t, 0); ctx.lineTo(bL + (bR - bL) * t, bT);
+    }
+    for(let k = 1; k <= 3; k++){
+      const t = Math.pow(k / 3, 1.4);
+      const y = bT * t, xl = bL * t, xr = bR + (cw - bR) * t;
+      ctx.moveTo(xl, y); ctx.lineTo(xr, y);
+    }
+    ctx.stroke();
+  }
   // v35: corner ambient occlusion — the room's deepest corners hold the
   // least bounced light, so each wall junction gets a soft dark lobe
   for(const [ax, ay, ar] of [[bL, bT, 130], [bR, bT, 130], [bL, bB, 150], [bR, bB, 150],
@@ -30381,6 +30547,45 @@ function sfRenderInterior(cw, ch, v){
     }
   }
 
+  /* --- v43: the room is lived in, not staged ---
+     Wall clock on the left wall reads the real sim clock; the hall
+     door opens on the right wall; flats get a radiator under the
+     windows and (sometimes) the house cat asleep on the sill. */
+  {
+    const kx = bL * 0.52, ky = bT + (bB - bT) * 0.34, kr = 15;
+    ctx.fillStyle = '#e8e0cc';
+    ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#2c2418'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = '#3a3028'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let k = 0; k < 12; k++){
+      const a = k / 12 * Math.PI * 2;
+      ctx.moveTo(kx + Math.cos(a) * kr * 0.82, ky + Math.sin(a) * kr * 0.82);
+      ctx.lineTo(kx + Math.cos(a) * kr * 0.94, ky + Math.sin(a) * kr * 0.94);
+    }
+    const hr = ((W.tod || 12) % 12) / 12 * Math.PI * 2 - Math.PI / 2,
+          mn = ((W.tod || 0) % 1) * Math.PI * 2 - Math.PI / 2;
+    ctx.moveTo(kx, ky); ctx.lineTo(kx + Math.cos(hr) * kr * 0.5, ky + Math.sin(hr) * kr * 0.5);
+    ctx.moveTo(kx, ky); ctx.lineTo(kx + Math.cos(mn) * kr * 0.78, ky + Math.sin(mn) * kr * 0.78);
+    ctx.stroke();
+  }
+  // hall doorway on the right wall — a darker opening with a lit transom
+  {
+    const dx0 = bR + (cw - bR) * 0.28, dx1 = bR + (cw - bR) * 0.62;
+    const dT = bT + (ch * 0.06) * 0.9, dB = bB + (ch - bB) * 0.42;
+    ctx.fillStyle = '#241a10';
+    ctx.beginPath();
+    ctx.moveTo(dx0, dT + 8); ctx.lineTo(dx1, dT); ctx.lineTo(dx1, dB - 10);
+    ctx.lineTo(dx0, dB); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = shade('#e8dcc8', 0.8); ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = (lamps || night) ? 'rgba(255,206,120,0.5)' : 'rgba(160,150,130,0.35)';
+    ctx.beginPath();
+    ctx.moveTo(dx0 + 4, dT + 12); ctx.lineTo(dx1 - 4, dT + 5);
+    ctx.lineTo(dx1 - 4, dT + 20); ctx.lineTo(dx0 + 4, dT + 26);
+    ctx.closePath(); ctx.fill();
+  }
+
   /* --- furniture, per archetype --- */
   const lampGlow = lamps || night;
   if(shop){
@@ -30528,12 +30733,47 @@ function sfRenderInterior(cw, ch, v){
         ctx.fillRect(bsx + 8 + k * (bsw - 16) / 9, sy - bh2 + 2, (bsw - 16) / 11, bh2);
       }
     }
-    // framed pictures on the back wall
+    // framed pictures on the back wall — v43: a cluster, not a pair
     for(let k = 0; k < 2; k++){
       const fx = bL + (bR - bL) * (0.06 + k * 0.82), fy = bT + (bB - bT) * 0.16;
       ctx.fillStyle = '#3a2c1c'; ctx.fillRect(fx, fy, 44, 56);
       ctx.fillStyle = ['#7a9ab0', '#b0785a'][k];
       ctx.fillRect(fx + 4, fy + 4, 36, 48);
+    }
+    for(let k = 0; k < 3; k++){    // snapshot cluster beside the left frame
+      const fx = bL + (bR - bL) * (0.50 + phash(k, seed, 4350) * 0.05),
+            fy = bT + (bB - bT) * (0.15 + k * 0.13);
+      ctx.fillStyle = '#4a3a28'; ctx.fillRect(fx, fy, 16, 20);
+      ctx.fillStyle = ['#c9b89a', '#8aa0b0', '#b0905a'][k];
+      ctx.fillRect(fx + 2, fy + 2, 12, 16);
+    }
+    // v43: steam radiator under each window — the SF flat staple
+    let wi = 0;
+    for(const [wx0, wy0, wx1, wy1] of winRects){
+      const rx0 = wx0 + 4, rx1 = wx1 - 4, ry = bB - 6, rh = 26;
+      ctx.fillStyle = 'rgba(16,10,6,0.3)';
+      ctx.beginPath(); ctx.ellipse((rx0 + rx1) / 2, ry + 2, (rx1 - rx0) * 0.6, 5, 0, 0, Math.PI * 2); ctx.fill();
+      for(let k = 0; k < 6; k++){
+        const fx2 = rx0 + (rx1 - rx0) * k / 5;
+        ctx.fillStyle = '#b8b0a0';
+        ctx.beginPath(); ctx.ellipse(fx2, ry - rh / 2, (rx1 - rx0) / 12, rh / 2, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.strokeStyle = 'rgba(60,50,40,0.6)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(rx0, ry); ctx.lineTo(rx1, ry); ctx.stroke();
+      // the house cat asleep on the sill, when the seed says so
+      if(phash(seed, wi++, 4351) < 0.5){
+        const cx2 = (wx0 + wx1) / 2 + (phash(seed, 7, 4352) - 0.5) * (wx1 - wx0) * 0.4,
+              cy2 = wy1 + 4;
+        ctx.fillStyle = '#3a3230';
+        ctx.beginPath(); ctx.ellipse(cx2, cy2 - 5, 14, 7, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx2 - 12, cy2 - 8, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();                          // ear + tail curl
+        ctx.moveTo(cx2 - 15, cy2 - 12); ctx.lineTo(cx2 - 13, cy2 - 16); ctx.lineTo(cx2 - 10, cy2 - 12);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#3a3230'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(cx2 + 12, cy2 - 4);
+        ctx.quadraticCurveTo(cx2 + 18, cy2 - 2, cx2 + 16, cy2 + 3); ctx.stroke();
+      }
     }
     // floor lamp with a lit cone at dusk
     const lx = cw * 0.32, ly = ch * 0.60;
