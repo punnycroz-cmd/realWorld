@@ -66,6 +66,9 @@ for want in "pageview" "watch_start" "request_submitted" "character_created" "fu
 done
 python3 tools/analytics_validate.py "$WORK/captured.ndjson" --warn-extra-props \
   || { echo "[e2e] FAIL: capture violates analytics-events.json"; exit 1; }
+python3 tools/analytics_coverage.py >/dev/null \
+  || { echo "[e2e] FAIL: site/spec drift — run tools/analytics_coverage.py"; exit 1; }
+echo "[e2e] coverage audit: clean"
 python3 tools/ab_compare.py "$WORK/captured.ndjson" > "$WORK/ab.md" \
   && echo "[e2e] ab_compare -> $WORK/ab.md"
 echo "[e2e] report head:"; head -8 "$WORK/report.md"

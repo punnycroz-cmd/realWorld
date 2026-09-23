@@ -116,7 +116,14 @@ def main():
                       {"action": rnd.choice(["possess", "venue", "weather"]),
                        "class": rnd.choice(["compatible", "exclusive", "flat"]),
                        "minutes": rnd.choice([5, 10, 30]),
-                       "credits": rnd.choice([8, 45, 90, 180])},
+                       "credits": rnd.choice([8, 45, 90, 180]),
+                       "queued": rnd.random() < 0.3,
+                       "surge": rnd.random() < 0.15,
+                       "screened": rnd.choice(
+                           ["clean", "clean", "clean", "clean",
+                            "surface-relationship", "venue-lock",
+                            "harm-targeting", "secret-extraction",
+                            "admin-domain", "real-business"])},
                       utm=utm, ref=ref, ts=ts + 20000)
         if rnd.random() < 0.15:  # community intent: invite click / recap read
             yield_evt("community_join", "/community.html", sid,

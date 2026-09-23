@@ -17,7 +17,7 @@
       "when": "once per page load, auto",
       "props": {
         "title": "document.title",
-        "page": "body[data-page] slug: index|features|how-it-works|demo|cast|journal|community|rules|pricing|faq|press-kit|brand|archive|wire|wire-archive|404",
+        "page": "body[data-page] slug: index|features|how-it-works|demo|cast|journal|community|rules|pricing|faq|press-kit|brand|archive|gallery|wire|wire-archive|404",
         "vw": "viewport width (for layout QA)",
         "lang": "navigator.language"
       },
@@ -26,9 +26,10 @@
     "cta_click": {
       "when": "click on any element carrying data-rw-event=\"cta_click\"",
       "props": {
-        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-tour|demo-tour-done|demo-wire|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer",
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-tour|demo-tour-done|demo-wire|demo-cam|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer",
         "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive",
-        "href": "raw href (same-site)"
+        "href": "raw href (same-site)",
+        "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)"
       },
       "funnel_stage": "visit → engaged"
     },
@@ -111,7 +112,8 @@
     "press_kit_download": {
       "when": "click on the kit zip link (data-rw-event on press-kit.html)",
       "props": { "file": "zip filename" },
-      "funnel_stage": "press"
+      "funnel_stage": "press",
+      "status": "PENDING — kit zip link is not yet on press-kit.html (build-press-kit.sh produces it locally; wire data-rw-event when the public link lands)"
     },
     "tour_started": {
       "when": "onboarding tour begins (game-side; world-v11 onboarding.json analytics_hooks)",

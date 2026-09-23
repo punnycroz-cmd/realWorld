@@ -1,9 +1,9 @@
-## metrics — week {{ISO week}}
-- sessions: 220 · pageviews: 220 · events: 1540
-- top sources: rps (23), discord (20), x (20)
-- campaigns: launch-2026 (57), press-embargo (23), store-launch (18)
-- funnel: pageview 220 (100% of visits) → engaged 195 (89% of visits) → community 72 (33% of visits) → watch_start 67 (30% of visits) → request_submitted 15 (7% of visits) → character_created 7 (3% of visits)
-- top shots: v16-int-cafe.png (10), v50-B.png (10), v1-A.png (9)
+## metrics — week 2026-W39
+- sessions: 220 · pageviews: 220 · events: 1641
+- top sources: rps (27), discord (27), itch (25)
+- campaigns: launch-2026 (63), press-embargo (27), store-launch (25)
+- funnel: pageview 220 (100% of visits) → engaged 192 (87% of visits) → community 64 (29% of visits) → watch_start 70 (32% of visits) → request_submitted 20 (9% of visits) → character_created 10 (5% of visits)
+- top shots: v1-A.png (14), v50-B.png (10), v16-int-cafe.png (10)
 - 404s: 0
 - action taken: {{one line — what we changed because of the numbers}}
 
@@ -12,30 +12,33 @@
 | stage | sessions | vs prev |
 |---|---|---|
 | pageview | 220 | — |
-| engaged | 195 | 89% |
-| community | 72 | 37% |
-| watch_start | 67 | 93% |
-| request_submitted | 15 | 22% |
-| character_created | 7 | 47% |
+| engaged | 192 | 87% |
+| community | 64 | 33% |
+| watch_start | 70 | 109% |
+| request_submitted | 20 | 29% |
+| character_created | 10 | 50% |
 
-**pageviews by page:** index (59), how-it-works (32), demo (29), features (28), cast (16), faq (15), journal (13), pricing (10), community (9), rules (5), press-kit (4)
+**pageviews by page:** index (64), demo (34), how-it-works (26), features (19), cast (18), pricing (15), journal (12), faq (9), rules (9), press-kit (8), community (6)
 
-**cta_click by slot:** walkthrough (16), demo-hero (15), footer (10), faq-exit (10), nav (9), hero (7), pricing-teaser (5), demo-ladder (5)
+**cta_click by slot:** nav (15), walkthrough (13), hero (11), pricing-teaser (11), footer (10), demo-ladder (10), demo-hero (10), faq-exit (7)
 
-**scroll depth reach:** ≥25%: 148, ≥50%: 124, ≥75%: 86, ≥100%: 46 (of 404 marks)
+**scroll depth reach:** ≥25%: 145, ≥50%: 122, ≥75%: 88, ≥100%: 51 (of 406 marks)
 
-**engaged seconds by page:** index: 8685s, how-it-works: 5372s, features: 4646s, demo: 4376s, cast: 2365s, faq: 2307s, journal: 1842s, community: 1470s, pricing: 1169s, rules: 895s, press-kit: 557s
+**engaged seconds by page (median | total):** index: 171s | 10046s, demo: 201s | 5832s, how-it-works: 154s | 3837s, features: 144s | 2955s, cast: 172s | 2809s, pricing: 112s | 1927s, journal: 124s | 1561s, faq: 208s | 1485s, press-kit: 138s | 1355s, rules: 101s | 1140s, community: 141s | 757s
 
-**price estimator uses:** exclusive (3), compatible (2), exclusive+queued+surge+first (1), exclusive+first (1) — avg 54 min priced per use
+**price estimator uses:** exclusive (4), exclusive+queued+first (2), exclusive+first (2), compatible (2), compatible+first (1), exclusive+queued+surge+first (1), exclusive+queued (1) — avg 46 min priced per use
 
-**sub breakeven verdicts:** resident (1), tie (1), director (1), packs (1) — which payment path the widget computed cheapest
+**scene builder item mix (qty summed):** compatible ×8, exclusive ×2, event ×1, weather ×1 — presets tapped: hour (2), fog (1), none (1)
 
-**request simulator (action/class):** possess/exclusive (9), weather/exclusive (7), weather/compatible (6), possess/compatible (5), venue/flat (5), weather/flat (4), venue/exclusive (3), possess/flat (3), venue/compatible (2)
+**sub breakeven verdicts:** tie (3), none (2), resident (1) — which payment path the widget computed cheapest
 
-**onboarding (world-v11/v25/v39/v53 hooks, game-side):** archive_beat_seen: 11, decline_lesson_shown: 5, handle_set: 14, handle_taken_shown: 5, handoff_seen: 10, low_balance_simulated: 10, onboard_dismissed: 5, persona_chosen: 34, queue_lesson_shown: 13, queue_outcome_seen: 13, returning_session: 4, review_lesson_shown: 11, review_outcome_seen: 11, topup_shown: 9, tour_beat: 92, tour_completed: 16, tour_skipped: 18, tour_started: 34, wallet_explained: 24
-  persona split: watch (22), play (12)
-  tour_skipped at beat: 0 ×4, 1 ×5, 2 ×4, 3 ×5
+**request simulator (action/class):** weather/exclusive (9), possess/exclusive (8), venue/compatible (7), weather/flat (6), venue/exclusive (6), venue/flat (5), weather/compatible (4), possess/compatible (4), possess/flat (3)
+**request simulator screen codes:** clean (20), venue-lock (8), harm-targeting (6), real-business (5), admin-domain (5), surface-relationship (4), secret-extraction (4) — how the toy screen classifies visitor wording
 
-**referrer hosts:** itch.io (48), news.ycombinator.com (47), bsky.app (45), pcgamer.com (15)
+**onboarding (world-v11/v25/v39/v53 hooks, game-side):** archive_beat_seen: 14, decline_lesson_shown: 9, handle_set: 20, handle_taken_shown: 3, handoff_seen: 13, hired_return: 4, low_balance_simulated: 13, onboard_dismissed: 6, persona_chosen: 40, queue_lesson_shown: 10, queue_outcome_seen: 10, returning_session: 3, review_lesson_shown: 13, review_outcome_seen: 13, topup_shown: 13, tour_beat: 112, tour_completed: 19, tour_skipped: 21, tour_started: 40, wallet_explained: 28
+  persona split: watch (30), play (10)
+  tour_skipped at beat: 0 ×4, 1 ×6, 2 ×3, 3 ×8
 
-**raw event counts:** scroll_depth: 404, pageview: 220, engaged_time: 220, tour_beat: 92, cta_click: 77, watch_start: 67, screenshot_view: 50, recap_open: 46, request_simulated: 44, community_join: 36, persona_chosen: 34, tour_started: 34, wallet_explained: 24, tour_skipped: 18, tour_completed: 16, request_submitted: 15, handle_set: 14, queue_lesson_shown: 13, queue_outcome_seen: 13, archive_beat_seen: 11, review_lesson_shown: 11, review_outcome_seen: 11, low_balance_simulated: 10, handoff_seen: 10, topup_shown: 9, character_created: 7, price_calc: 7, handle_taken_shown: 5, decline_lesson_shown: 5, onboard_dismissed: 5, sub_calc: 4, returning_session: 4, scene_calc: 4
+**referrer hosts:** bsky.app (50), itch.io (41), news.ycombinator.com (40), pcgamer.com (36)
+
+**raw event counts:** scroll_depth: 406, pageview: 220, engaged_time: 220, tour_beat: 112, cta_click: 87, watch_start: 70, screenshot_view: 59, request_simulated: 52, recap_open: 41, persona_chosen: 40, tour_started: 40, community_join: 29, wallet_explained: 28, tour_skipped: 21, request_submitted: 20, handle_set: 20, tour_completed: 19, archive_beat_seen: 14, topup_shown: 13, low_balance_simulated: 13, handoff_seen: 13, review_lesson_shown: 13, review_outcome_seen: 13, price_calc: 13, queue_lesson_shown: 10, queue_outcome_seen: 10, character_created: 10, decline_lesson_shown: 9, sub_calc: 6, onboard_dismissed: 6, hired_return: 4, scene_calc: 4, handle_taken_shown: 3, returning_session: 3

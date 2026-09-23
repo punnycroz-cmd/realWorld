@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v81 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v96 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -215,6 +215,47 @@ first run caught real drift — the spec's page-slug and CTA-slot lists were
 a version behind the site, and `watch_start` was missing the `mode` prop the
 demo emitter already sends. All fixed in `analytics-events.json` (v66).
 
+### Coverage audit — site ↔ spec (v96)
+
+`tools/analytics_coverage.py` is the static twin of the validator: instead of
+checking captured events, it checks the SITE against the spec — no browser,
+no sink, no events needed. Run it after any site page or emitter change:
+
+```bash
+python3 marketing/tools/analytics_coverage.py
+```
+
+It fails (exit 1) when: a page doesn't load `js/analytics.js` or carries a
+`data-page` slug outside the spec's pageview domain; a `data-rw-event` names
+an unknown event or sends undeclared/invalid props; a `window.rw.track()`
+call in `site/js/` does the same; or a spec event marked live on the site has
+no emitter at all. PENDING game-side events warn instead of failing.
+
+Its first run (v96) caught 18 real findings — `cta:"demo-cam"` + a `cam`
+prop, `cta:"gallery-footer"`, and `data-page="gallery"` were all shipped on
+the site but missing from `analytics-events.json`, and `press_kit_download`
+was marked live though the kit zip link isn't published yet. All fixed in
+the spec. `analytics_e2e.sh` and `metrics_weekly.sh` both gate on it.
+
+### Weekly metrics run — one command (v96)
+
+```bash
+./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv]
+```
+
+Validates the capture → audits coverage → renders the §8 block + §7 detail
+labelled with the ISO week of the newest event → writes
+`marketing/analytics/weekly-<ISOweek>.md` (gitignored — the committed
+reference output stays `sample-report.md`). Fill "action taken", paste the
+block into MARKETINGLOG.md.
+
+### Experiment program (v96)
+
+A/B readouts are run through `tools/ab_compare.py`; which tests exist and
+how winners get called lives in **`marketing/EXPERIMENTS.md`** — a registry
+with fixed decision rules (n≥30, two-week confirmation, guardrails). Log
+the test before the tagged link goes out; null results get recorded too.
+
 ### A/B / creative readout (v66)
 
 `tools/ab_compare.py` — splits sessions by a utm dimension (default
@@ -277,7 +318,8 @@ One dashboard, four panels — everything derivable from the event spec:
    `share_click` by method (viral loop health); `price_calc` + `scene_calc` +
    `sub_calc` splits (which class/duration/scene-mix/sub-verdict visitors
    price — purchase intent before checkout);
-   `outbound_click` targets.
+   `outbound_click` targets; `cta_click{cam}` camera-preset picks (v96 —
+   which spectator angle visitors try first).
 3. **Funnel:** visit → engaged → watch → request → create, session-joined by
    `sid` + same-day window. First three stages live at launch; last two turn on
    when the game embed emits.
@@ -330,6 +372,10 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - [ ] Production collector implements the §1 daily-hash unique contract
       (or run our sink with `--uniques`); `analytics_report.py --uniques`
       renders the per-day counts
+- [ ] `tools/analytics_coverage.py` clean after any page/emitter change —
+      also gated inside `analytics_e2e.sh` and `metrics_weekly.sh` (v96)
+- [ ] Every A/B test registered in EXPERIMENTS.md before its tagged links
+      go out; decision rules there are fixed, not per-test (v96)
 
 ## 10. Hard rules
 

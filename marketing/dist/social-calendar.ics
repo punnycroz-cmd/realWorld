@@ -1,0 +1,11 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//real-world-marketing//social-schedule//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:social-schedule-undated@realworld
+DTSTAMP:20260923T224329Z
+DTSTART;VALUE=DATE:20260923
+SUMMARY:Real World social calendar — launch_date not set (schedule.json)
+END:VEVENT
+END:VCALENDAR
