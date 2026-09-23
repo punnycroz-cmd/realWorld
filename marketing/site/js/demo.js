@@ -145,4 +145,75 @@
     tick();
     setInterval(tick, 30000);
   }
+
+  // Viewing-guide highlight — mark which "day on the block" card matches the
+  // current Pacific daypart. Same clock the world runs on; honest by build.
+  var strip = document.getElementById("day-strip");
+  if (strip) {
+    var ptNow = function () {
+      try {
+        var f = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Los_Angeles", hour12: false,
+          hour: "2-digit", minute: "2-digit"
+        });
+        var p = f.formatToParts(new Date()), h = 0, m = 0;
+        for (var i = 0; i < p.length; i++) {
+          if (p[i].type === "hour") h = parseInt(p[i].value, 10) % 24;
+          if (p[i].type === "minute") m = parseInt(p[i].value, 10);
+        }
+        return h + m / 60;
+      } catch (e) { return null; }
+    };
+    var markNow = function () {
+      var now = ptNow();
+      if (now === null) return;
+      var cards = strip.querySelectorAll(".card[data-from]");
+      for (var i = 0; i < cards.length; i++) {
+        var from = parseFloat(cards[i].getAttribute("data-from"));
+        var to = parseFloat(cards[i].getAttribute("data-to"));
+        var inWin = from < to ? (now >= from && now < to) : (now >= from || now < to);
+        cards[i].classList.toggle("is-now", inWin);
+        var chip = cards[i].querySelector(".watch-now");
+        if (chip) chip.hidden = !inWin;
+      }
+    };
+    markNow();
+    setInterval(markNow, 60000);
+  }
+
+  // Fallback capture rotator — while the live embed is unwired, cycle the
+  // published development captures. Always captioned "Development capture" —
+  // it never pretends to be live. Off under prefers-reduced-motion and when
+  // the tab is hidden.
+  if (!url) {
+    var SHOTS = [
+      ["shots/v37-A", "the block from overhead under the marine layer"],
+      ["shots/v37-B", "street-level follow-cam inside the fog"],
+      ["shots/v37-C", "Dolores Park under a drifting fog tongue"],
+      ["shots/v37-D", "director mode — pastel rowhouses on the sloped block"]
+    ];
+    var screen = stage.querySelector(".demo-fallback-screen");
+    var img = screen && screen.querySelector("img");
+    var srcEl = screen && screen.querySelector("source");
+    var cap = document.getElementById("demo-cap");
+    var reduced = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (screen && img && !reduced) {
+      var idx = 0;
+      setInterval(function () {
+        if (document.hidden) return;
+        idx = (idx + 1) % SHOTS.length;
+        var base = SHOTS[idx][0], label = SHOTS[idx][1];
+        var swap = function () {
+          if (srcEl) srcEl.setAttribute("srcset", base + ".webp");
+          img.src = base + ".png";
+          img.alt = "Development capture — " + label + ".";
+          if (cap) cap.textContent = "Development capture — " + label;
+          screen.classList.remove("is-fading");
+        };
+        screen.classList.add("is-fading");
+        setTimeout(swap, 480);
+      }, 8000);
+    }
+  }
 })();

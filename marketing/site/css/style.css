@@ -316,6 +316,40 @@ ul.clean li { margin: 6px 0; }
   color: var(--accent); letter-spacing: .06em;
 }
 
+/* demo page v56: viewing-guide highlight, capture rotator, cast strip */
+.day-strip .card { position: relative; transition: border-color .3s; }
+.day-strip .card.is-now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.watch-now {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
+  padding: 2px 9px; background: var(--panel);
+}
+.day-strip .card.is-now .day-time { color: var(--accent-2); }
+.cast-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 860px) { .cast-strip { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .cast-strip { grid-template-columns: 1fr; } }
+.cast-chip {
+  display: block; padding: 12px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--panel); text-decoration: none;
+  transition: border-color .2s;
+}
+.cast-chip:hover, .cast-chip:focus-visible { border-color: var(--accent); }
+.cast-chip b { display: block; font-size: 14.5px; color: var(--text); margin-bottom: 3px; }
+.cast-chip span { font-size: 13px; color: var(--muted); line-height: 1.45; display: block; }
+.demo-cap {
+  position: absolute; left: 12px; bottom: 12px; z-index: 2;
+  font-size: 12px; letter-spacing: .05em; color: var(--text);
+  background: rgba(0,0,0,.55); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 12px; pointer-events: none;
+}
+.demo-fallback-screen picture, .demo-fallback-screen img { transition: opacity .45s; }
+.demo-fallback-screen.is-fading img { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .demo-fallback-screen img { transition: none; }
+  .day-strip .card { transition: none; }
+}
+
 /* ---------- journal (journal.html) ---------- */
 .journal-post { padding: 26px 28px; }
 .journal-post h2, .journal-post h3 { margin-top: 4px; }

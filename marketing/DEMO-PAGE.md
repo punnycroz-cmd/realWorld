@@ -1,11 +1,12 @@
 # Demo page spec — `site/demo.html` ("Watch the block")
 
 **Owner:** marketing track. **Status:** fallback + request simulator v2 +
-block clock + theater mode + canonical-vocabulary feed preview (v41); live
+block clock + theater mode + canonical-vocabulary feed preview (v41) +
+rotating dev captures + time-aware viewing guide + cast strip (v56); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
-to v11; second pass v26; third pass v41.
+to v11; second pass v26; third pass v41; fourth pass v56.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -82,9 +83,27 @@ Honesty rules: the widget never claims to file anything, the result card
 says "Simulation only," and simulated feed rows are marked "filed by you
 (simulated)". Emits `request_simulated` with `screened` prop (v41).
 
+## 4a-ii. v56 upgrades
+
+- **Rotating fallback captures** — while `data-demo-src` is empty, the
+  fallback screen cycles v37-A–D every 8 s (crossfade) with a `.demo-cap`
+  caption chip that always reads "Development capture — …" verbatim. Off
+  under `prefers-reduced-motion` and paused while the tab is hidden; never
+  runs once the live iframe replaces the fallback.
+- **Time-aware viewing guide** — the "A day on the block" cards now carry
+  `data-from`/`data-to` PT-hour windows; `demo.js` marks the matching card
+  `.is-now` and reveals its "on the block now" chip, refreshed each minute.
+  Windows cover 05–09 / 09–14:30 / 14:30–18:30 / 18:30–05 (the last wraps
+  midnight). Honest by construction — same `America/Los_Angeles` clock the
+  world follows; the schedule claims, not a live feed.
+- **Cast strip** — "Who you might see" section with 8 chips (name + one-line
+  routine hook, all from cast.html public profiles — no secrets) linking to
+  cast.html. 4/2/1-column `.cast-strip` grid.
+
 ## 4b. Day strip (v26)
 
-Static "A day on the block" cards (06:10 / 12:30 / 16:30 / 23:40). All copy
+"A day on the block" cards (v26; hour-range windows + live `is-now`
+highlight in v56 — see §4a-ii). All copy
 restates design-doc facts — real-sun schedule, jobs/routines, lamps at dusk,
 persistent world. No liveness implied.
 

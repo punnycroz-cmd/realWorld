@@ -95,11 +95,13 @@
             <source srcset="shots/v37-A.webp" type="image/webp">
             <img src="shots/v37-A.png" alt="Development capture of the Mission block from overhead under the marine layer — fog pooling over rooftops while the street grid stays readable." loading="lazy">
           </picture>
+          <span class="demo-cap" id="demo-cap">Development capture — the block from overhead under the marine layer</span>
           <div class="demo-fallback-overlay">
             <p class="demo-status"><span class="dot" aria-hidden="true"></span> Spectator build not wired in yet</p>
-            <p class="muted">What you&rsquo;re looking at is a real capture of the
-            development build. At launch this frame is the live world — same
-            view, but it never stops moving.</p>
+            <p class="muted">What you&rsquo;re looking at cycles through real
+            captures of the development build — each one labeled. At launch
+            this frame is the live world: same views, but it never stops
+            moving.</p>
             <a class="btn btn-ghost" href="index.html#gallery" data-rw-event="cta_click" data-rw-props='{"cta":"demo-fallback","dest":"gallery"}'>Browse the captures</a>
           </div>
         </div>
@@ -244,34 +246,61 @@
   </div>
 </section>
 
+<!-- WHO YOU MIGHT SEE -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Who you might see</p>
+    <h2>Eight residents with standing routines — and twenty neighbors around them.</h2>
+    <p class="muted">The mains below have jobs, leases, and habits you can learn
+    to read. Full profiles (minus their secrets — those stay sealed) live on
+    the <a href="cast.html">cast page</a>.</p>
+    <div class="cast-strip">
+      <a class="cast-chip" href="cast.html"><b>Mars Delgado</b><span>opens Mudhaus at six, walks the block each afternoon</span></a>
+      <a class="cast-chip" href="cast.html"><b>Jules Park</b><span>morning runner, north-path loops before the café shift</span></a>
+      <a class="cast-chip" href="cast.html"><b>Dani Reyes</b><span>Mudhaus&rsquo;s chalkboard hand — look for new window paint</span></a>
+      <a class="cast-chip" href="cast.html"><b>Priya Raman</b><span>RN on twelves — same seat, same oat latte after shift</span></a>
+      <a class="cast-chip" href="cast.html"><b>Marcus Bell</b><span>courier for the Flying Pannier; Thursday jam by the park</span></a>
+      <a class="cast-chip" href="cast.html"><b>Carmen Echeverría</b><span>744 Guerrero since &rsquo;89 — the block&rsquo;s memory</span></a>
+      <a class="cast-chip" href="cast.html"><b>Victor Auerbach</b><span>hardware counter by day; landlord of two Victorians</span></a>
+      <a class="cast-chip" href="cast.html"><b>Tomás Herrera</b><span>lead cook at Taqueria El Farolote, supplier loop at dawn</span></a>
+    </div>
+  </div>
+</section>
+
 <!-- A DAY ON THE BLOCK -->
 <section>
   <div class="wrap">
     <p class="eyebrow">A day on the block</p>
     <h2>The world keeps its own hours.</h2>
     <p class="muted">The block runs on the real sun — light, weather, and
-    routines follow the clock whether or not anyone is watching.</p>
-    <div class="grid grid-4 day-strip">
-      <div class="card">
-        <span class="day-time">06:10</span>
+    routines follow the clock whether or not anyone is watching. The card
+    lit below is where the block is <i>right now</i> — the schedule is real
+    even before the feed is.</p>
+    <div class="grid grid-4 day-strip" id="day-strip">
+      <div class="card" data-from="5" data-to="9">
+        <span class="watch-now" hidden>on the block now</span>
+        <span class="day-time">05:00–09:00</span>
         <h3>Fog first</h3>
         <p>Gray over the rooftops. Early shifts leave for work; the lights
         at Mudhaus come on before the sun does.</p>
       </div>
-      <div class="card">
-        <span class="day-time">12:30</span>
+      <div class="card" data-from="9" data-to="14.5">
+        <span class="watch-now" hidden>on the block now</span>
+        <span class="day-time">09:00–14:30</span>
         <h3>Lunch rush</h3>
         <p>Counter seats fill, somebody&rsquo;s late for a shift, somebody
         else is very publicly not speaking to somebody.</p>
       </div>
-      <div class="card">
-        <span class="day-time">16:30</span>
+      <div class="card" data-from="14.5" data-to="18.5">
+        <span class="watch-now" hidden>on the block now</span>
+        <span class="day-time">14:30–18:30</span>
         <h3>Golden hour</h3>
         <p>Long shadows down the hill, decks and rooftops in use — the
         hour the block is most itself.</p>
       </div>
-      <div class="card">
-        <span class="day-time">23:40</span>
+      <div class="card" data-from="18.5" data-to="5">
+        <span class="watch-now" hidden>on the block now</span>
+        <span class="day-time">18:30–05:00</span>
         <h3>Windows dark</h3>
         <p>Sodium lamps on, The 600 Club winds down. The block sleeps — but it
         never pauses, and it&rsquo;s still there at 4 a.m.</p>
