@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — Onboarding (first session, v4)</title>
+<title>Real World — Onboarding (first session, v5)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Onboarding flow — first-session journey (world v53, v4 of the v11 demo).
+  Onboarding flow — first-session journey (world v67, v5 of the v11 demo).
   Self-contained demo: file://-safe, no network. A mini Wire replica
   (subset of feed.json seeds) hosts the tour so every stage is reachable:
 
@@ -32,6 +32,13 @@
   Feed vocabulary verbatim from requests.json (queued / refunded /
   player session ended / queued request expired before activation) —
   no new wording invented; queue depth is a count, never a position.
+  New in v67 — the eligibility layer: a one-question age band (S2a)
+  sits between handle and wallet. Under-13 renders "the watching
+  account" (S3u) — spectator-only, no packs, no asks, checklist
+  relabeled honestly. 13–17 and rather-not-say carry the spending-
+  limits disclosure and no ads affordance. 18+ sees the plan §2.7
+  rewarded path verbatim: 2 cr per opt-in sponsored message, 5/day,
+  never inside the stream. The band never gates the feed or the tour.
   Spec + copy deck: world/onboarding-ui.md.
   Mirror: world/onboarding.json. Prices adopt monetization-plan §2 PROPOSAL —
   do not contradict. Boundaries: watching is free + ungated; nothing is
@@ -235,8 +242,9 @@ function feedAdd(k, html, st){
 }
 
 /* ================= onboarding state ================= */
-var LS='rw_onboard_v53';
+var LS='rw_onboard_v67';
 var S={stage:'S0',beat:0,persona:null,handle:'',bal:0,spentFirst:false,
+  band:null,adViews:0,
   ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},
   skipped:{},dismissed:false,parked:false,done:false,returning:false,req:null,hired:false};
 try{var s=JSON.parse(localStorage.getItem(LS)); if(s) S=Object.assign(S,s);}catch(e){}
@@ -260,7 +268,8 @@ function renderCk(){
     var done=S.ck[c[0]], sk=S.skipped[c[0]];
     var tag='';
     if(c[2]) tag='<span class="opt-tag">'+(sk?'skipped — fine':
-      (S.persona==='watch'?'only if you ever want to act':'optional'))+'</span>';
+      (S.band==='u13'?'spectator account — watching only':
+      (S.persona==='watch'?'only if you ever want to act':'optional')))+'</span>';
     return '<li class="'+(done?'done ':'')+(sk?'skip':'')+'"><span class="box">✓</span>'+c[1]+tag+'</li>';
   }).join('');
   if(Object.keys(S.ck).every(function(k){return S.ck[k]||S.skipped[k];}) && !S.done){
@@ -332,7 +341,15 @@ function card(tag,body,btns,closable){
     '<div class="stage-tag">'+tag+'</div>'+body+'<div class="btnrow">'+btns+'</div>';
 }
 
+/* paid stages — the band question fronts these; it gates the wallet and the
+   asks, never the feed, the tour, or the free cards */
+var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1};
+function normalizeStage(){
+  if(!S.band && PAID_STAGES[S.stage]) S.stage='S2a';
+  if(S.band==='u13' && PAID_STAGES[S.stage]) S.stage='S3u';
+}
 function render(){
+  normalizeStage();
   renderCk();
   var h='';
   if(S.dismissed||S.done||S.parked){
@@ -392,8 +409,31 @@ function render(){
       '<div class="note">Residents\u2019 names are reserved — you can\u2019t be \u201cVictor\u201d on the feed. '+
       'Watching needs no name and never will. Skip freely.</div>',
       '<button class="go" onclick="setHandle()">That\u2019s me</button>'+
-      '<button class="ghost" onclick="skipTo(\'handle\',\'S3\')">Skip</button>');
+      '<button class="ghost" onclick="skipTo(\'handle\',\'S2a\')">Skip</button>');
     setTimeout(function(){ if($('handle')) window.onHandleInput(); },0);
+  } else if(S.stage==='S2a'){
+    h=card('Who\u2019s asking — one question',
+      '<p>Money features differ by age. Pick the band that fits this account — '+
+      'it decides what the next card offers. Watching is identical for every '+
+      'band, always free, and this question never gates it.</p>'+
+      '<div class="fork">'+
+      '<button onclick="band(\'u13\')"><b>Under 13</b><small>A watching account — no wallet, no requests, nothing to buy.</small></button>'+
+      '<button onclick="band(\'teen\')"><b>13\u201317</b><small>Wallet and requests work; under-18 spending limits apply.</small></button>'+
+      '<button onclick="band(\'adult\')"><b>18 or older</b><small>The full ladder, plus the opt-in sponsored-message path.</small></button>'+
+      '<button onclick="band(\'na\')"><b>Rather not say</b><small>Fine — money features treat the account as under-18.</small></button>'+
+      '</div>',
+      '<button class="ghost" onclick="stage(\'S5\')">Skip — I\u2019ll only ever watch</button>', true);
+    anchor(null);
+  } else if(S.stage==='S3u'){
+    h=card('The watching account',
+      '<p>This account watches — that\u2019s the whole product, not a restricted '+
+      'version of it. The feed, the Archive, the block\u2019s whole week: all of '+
+      'it, free, always.</p>'+
+      '<p class="note">Wallets and requests are for older accounts. Nothing '+
+      'here is missing — there was never anything to unlock.</p>',
+      '<button class="go" onclick="settle()">Got it — back to the block</button>'+
+      '<button class="ghost" onclick="stage(\'S2a\')">Wrong band? Fix it</button>', true);
+    anchor(null);
   } else if(S.stage==='S3'){
     h=card('Two kinds of money — optional',
       '<p><b>Credits</b> buy agency — requests, hires. That\u2019s what you top up.</p>'+
@@ -404,9 +444,23 @@ function render(){
       }).join('')+'</div>'+
       '<div class="note">Full ladder, PROPOSAL pricing. First purchase adds +50%, once — '+
       'stated here, not at checkout. Watching needs none of this.</div>'+
+      (S.band==='adult'
+        ?'<div class="note" id="adsline">No card? A sponsored message earns <b>2 cr</b> — '+
+          'up to 5 a day, opt-in from this card only. Never in the stream, never '+
+          'before you can watch.'+
+          (S.adViews<5
+            ?' <span class="suggest" id="adBtn" onclick="adView()">watch one (demo) — +2 cr</span>'+
+              ' <span class="tour-n" id="adCount">'+S.adViews+'/5 today</span>'
+            :' <span class="tour-n" id="adCount">That\u2019s today\u2019s five — the cap resets tomorrow.</span>')+
+          '</div>'
+        :'<div class="note">Under-18 accounts carry spending limits — any cap is '+
+          'stated before a purchase, never after.'+
+          (S.band==='na'?' You chose not to say, so this account is treated as under-18.':'')+
+          '</div>')+
       (S.bal>0?'<div class="ok">Funded — '+S.bal.toLocaleString()+' cr in the wallet.</div>':''),
       (S.bal>0?'<button class="go" onclick="stage(\'S4\')">Continue</button>'
               :'<button class="go" onclick="topup()">Demo top-up — Starter 550 cr ($4.99)</button>')+
+      '<button class="ghost" onclick="stage(\'S2a\')">Wrong band? Fix it</button>'+
       '<button class="ghost" onclick="skipTo(\'wallet\',\'S4\')">Skip — watching needs no wallet</button>');
     if(S.bal>0){S.ck.wallet=true;save();}
   } else if(S.stage==='S4'){
@@ -521,16 +575,35 @@ function render(){
       '<button class="go" onclick="S.hired=false;settle()">Got it — to the block</button>', true);
     anchor(null);
   } else if(S.stage==='S5'){
-    h=card('Settle in',
-      '<p><b>Want a person of your own?</b> Hiring a character is 500 cr — they arrive '+
-      'owing rent like everyone. You set who they are; who they become is theirs.</p>'+
-      '<p>Or just keep watching — the feed never asks for anything.</p>',
-      '<button class="go" onclick="location.href=\'create.html\'">Join the Cast →</button>'+
-      '<button class="ghost" onclick="settle()">Just keep watching</button>');
+    if(S.band==='u13'){
+      h=card('Settle in',
+        '<p>Just keep watching — the feed never asks for anything, and on this '+
+        'account there\u2019s nothing else to set up. Hiring and requests are for '+
+        'older accounts; the block is the whole show either way.</p>',
+        '<button class="go" onclick="settle()">Just keep watching</button>');
+    } else {
+      h=card('Settle in',
+        '<p><b>Want a person of your own?</b> Hiring a character is 500 cr — they arrive '+
+        'owing rent like everyone. You set who they are; who they become is theirs.</p>'+
+        '<p>Or just keep watching — the feed never asks for anything.</p>',
+        '<button class="go" onclick="location.href=\'create.html\'">Join the Cast →</button>'+
+        '<button class="ghost" onclick="settle()">Just keep watching</button>');
+    }
   }
   $('obcard').innerHTML=h;
 }
-window.stage=function(st){S.stage=st;save();render();};
+window.stage=function(st){S.stage=st;normalizeStage();save();render();};
+window.band=function(b){S.band=b;save();stage(b==='u13'?'S3u':'S3');};
+window.adView=function(){
+  /* opt-in only, adult band only, 5/day cap (plan §2.7 verbatim) — the
+     affordance is rendered only on the adult wallet card; this guard is
+     belt-and-suspenders, the button simply doesn't exist otherwise */
+  if(S.band!=='adult'||S.adViews>=5){return;}
+  S.adViews++; S.bal+=2; save();
+  $('wallet').style.display='';$('bal').textContent=S.bal.toLocaleString();
+  render();
+  toast('+2 cr — a sponsored message, watched because you chose to.');
+};
 window.dismiss=function(){S.dismissed=true;save();render();toast('No problem — the block is right there.');};
 window.park=function(){S.parked=true;save();render();};
 window.fork=function(p){S.persona=p;S.stage='S0f';save();render();};
@@ -541,14 +614,17 @@ window.endTour=function(){S.ck.tour=true;
 window.setHandle=function(){
   var v=$('handle').value.trim(), r=handleCheck(v);
   if(!r.ok){toast(r.msg);return;}
-  S.handle=v;S.ck.handle=true;S.stage='S3';save();render();
+  S.handle=v;S.ck.handle=true;stage('S2a');save();
   toast('Welcome, '+v+'.');
 };
 window.skipTo=function(item,st){S.skipped[item]=true;S.stage=st;save();render();};
-window.topup=function(){S.bal+=550;S.ck.wallet=true;S.spentFirst=true;save();
+window.topup=function(){
+  if(S.band==='u13'||!S.band){toast('Watching account — no wallet.');return;}
+  S.bal+=550;S.ck.wallet=true;S.spentFirst=true;save();
   $('wallet').style.display='';$('bal').textContent=S.bal.toLocaleString();render();
   toast('+550 cr (Starter pack · $4.99 — PROPOSAL pricing)');};
 window.fileAsk=function(){
+  if(S.band==='u13'||!S.band){toast('Watching account — requests aren\u2019t on this account.');return;}
   if(S.bal<10){toast('Balance too low.');return;}
   S.bal-=10;S.ck.ask=true;S.req='running';save();
   $('bal').textContent=S.bal.toLocaleString();
@@ -564,6 +640,7 @@ window.resolveAsk=function(){
   toast('Hard cap reached — the session ended itself, nothing billed past it.');
 };
 window.fileNudge=function(){
+  if(S.band==='u13'||!S.band){toast('Watching account — requests aren\u2019t on this account.');return;}
   if(S.bal<40){toast('Balance too low — the nudge costs 40 cr.');return;}
   S.bal-=40; save();
   $('bal').textContent=S.bal.toLocaleString();
@@ -580,6 +657,7 @@ window.fileNudge=function(){
   }, 2600);
 };
 window.fileWeather=function(){
+  if(S.band==='u13'||!S.band){toast('Watching account — requests aren\u2019t on this account.');return;}
   if(S.bal<40){toast('Balance too low — the weather ask is 40 cr.');return;}
   S.bal-=40; S.req='inreview'; save();
   $('bal').textContent=S.bal.toLocaleString();
@@ -599,6 +677,7 @@ window.resolveReview=function(){
   toast('Not approved — and all 40 cr came back on its own.');
 };
 window.fileQueue=function(){
+  if(S.band==='u13'||!S.band){toast('Watching account — requests aren\u2019t on this account.');return;}
   if(S.bal<34){toast('Balance too low — the queued ask is 34 cr.');return;}
   S.bal-=34; S.req='queued'; save();
   $('bal').textContent=S.bal.toLocaleString();

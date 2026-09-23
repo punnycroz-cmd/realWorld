@@ -1,14 +1,16 @@
 {
   "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
-  "version": 53,
-  "storage_key": "rw_onboard_v53",
+  "version": 67,
+  "storage_key": "rw_onboard_v67",
   "stages": [
     { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
     { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
     { "id": "S1_orient",   "tier": "free", "gate": "offered by welcome/fork card; self-dismisses once the viewer has scrolled the feed" },
     { "id": "S1w_watch_done", "tier": "free", "gate": "watcher-fork landing after the tour: 'you're set' card; setup steps remain available but unpushed" },
     { "id": "S2_name",     "tier": "free", "gate": "optional — handle required only for request attribution + wallet; one field, no email in this build; live availability + reserved-name check" },
-    { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever" },
+    { "id": "S2a_band",    "tier": "free", "gate": "one-question age band before any money surface — under 13 / 13–17 / 18 or older / rather not say; fronts every paid stage, never gates the feed or the tour" },
+    { "id": "S3u_under13", "tier": "free", "gate": "under-13 landing instead of the wallet — 'the watching account': spectator-only, no packs, no asks, nothing framed as missing" },
+    { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever; adult band also sees the rewarded-ads line (2 cr/view, 5/day, opt-in)" },
     { "id": "S4_first_ask","tier": "paid", "gate": "requires balance > 0; recommends camera director 10 cr/30 min (view-layer, zero in-world risk); optional second guided ask demonstrates a DECLINED nudge + 50% auto-refund" },
     { "id": "S4b_declined","tier": "paid", "gate": "optional teaching beat — a fixed-safe nudge scripted to be declined so the player watches the refund land" },
     { "id": "S4c_review",  "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask (40 cr, exclusive class) scripted to return 'not approved — refunded' so the player sees human review + auto-refund" },
@@ -69,6 +71,22 @@
     { "n": 5, "id": "first_ask",  "optional": true,  "completes_on": "own request reaches feed status 'requested'" },
     { "n": 6, "id": "settle",     "optional": false, "completes_on": "S5 fork chosen (or S1w 'just keep watching' on the watch path)" }
   ],
+  "age_band": {
+    "where": "S2a — one question after the handle step, before the wallet; reachable again via 'wrong band? fix it' on S3/S3u",
+    "options": ["u13", "teen", "adult", "na"],
+    "u13": "spectator-only — S3u replaces the wallet; paid stages redirect to S3u; checklist money items relabel 'spectator account — watching only'; S5 shows no hire button; copy must read as the whole product, never a restriction",
+    "teen": "wallet + requests work; the under-18 spending-limits disclosure rides the wallet card; no rewarded-ads line",
+    "adult": "full ladder + the rewarded-ads line (see rewarded_ads)",
+    "na": "rather-not-say is treated as under-18 for every money surface — stated on the card, never punished; watching identical",
+    "rules": "the band gates money surfaces only — the feed, the tour, the Archive, and every free card are identical for all four bands; the pick is stored once and correctable, not re-asked"
+  },
+  "rewarded_ads": {
+    "doc": "plan §2.7 verbatim — the free-credit path, adults only",
+    "rate_cr": 2, "daily_cap": 5,
+    "placement": "opt-in only, on the wallet card (S3) — never pre-roll, never mid-session, never inside the sim view",
+    "eligibility": "adult band only — the affordance is not rendered for teen / na / u13 / unset",
+    "demo": "'watch one (demo)' credits +2 cr with a 'N/5 today' counter; at the cap the line says the cap resets tomorrow — no countdown, no urgency"
+  },
   "checklist_rules": {
     "optional_items": "marked 'optional' in copy ('only if you ever want to act' on the watch path); never styled as failures; percent-complete bars only count chosen (non-skipped) items",
     "completion_reward": "none — completing onboarding grants no credits/items/status (no-dark-patterns)",
@@ -142,7 +160,12 @@
     "deep-link into a paid step (deep links are returning/hired only)",
     "show queue position or sell queue priority — depth is a count, FCFS is the rule",
     "frame the Archive, the block's rhythm, or catching up as urgency — the world waits, nothing is on a timer for the viewer",
-    "imply a hired character suffers, waits, or misses the player while offline — thin AI is stated as fact, never as guilt"
+    "imply a hired character suffers, waits, or misses the player while offline — thin AI is stated as fact, never as guilt",
+    "gate the feed, the tour, or any free card behind the age band — it fronts money surfaces only",
+    "frame the under-13 spectator account as a restriction, a downgrade, or something to grow out of — it is the whole product",
+    "render the rewarded-ads affordance for any band but adult — the guard is structural, not cosmetic",
+    "quote a minor spend-cap figure — the plan sets none, so the card says limits apply without a number",
+    "re-ask the band as a nag — it is stored once and correctable via 'wrong band? fix it'"
   ],
   "analytics_hooks": [
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
@@ -152,7 +175,9 @@
     "review_lesson_shown", "review_outcome_seen", "low_balance_simulated",
     "handoff_seen", "hired_return",
     "queue_lesson_shown", "queue_outcome_seen", "archive_beat_seen",
+    "band_declared (no band value in props — eligibility is not funnel data)",
+    "ads_line_shown", "ad_demo_viewed",
     "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
   ],
-  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + wallet + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', and the queued ask is scripted to lapse — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"
+  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + age band + wallet (+ demo ad views) + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', and the queued ask is scripted to lapse — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"
 }

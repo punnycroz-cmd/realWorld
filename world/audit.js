@@ -671,6 +671,43 @@ const PUB = Object.values(PT.surfaces)
       if (['rw_onboard_v25', 'rw_onboard_v39'].includes(OB.storage_key))
         add(g, 'fail', 'onboarding.json', null, 'v53 schema still on an old storage key');
     }
+    /* ---- v67 blocks: the eligibility layer ---- */
+    if (OB.version >= 67) {
+      const MUST67 = [
+        [/under 13/i, 'under-13 band offered'],
+        [/13\u201317|13-17/i, 'teen band offered'],
+        [/18 or older/i, 'adult band offered'],
+        [/rather not say/i, 'declined band offered'],
+        [/watching account/i, 'under-13 spectator-only wording'],
+        [/2 cr/, 'rewarded-ad rate verbatim (2 cr/view)'],
+        [/opt-in/i, 'ads opt-in placement stated'],
+        [/never in the stream/i, 'ads never inside the sim view'],
+        [/spending limits/i, 'under-18 spend-limit disclosure'],
+        [/wrong band\? fix it/i, 'band correction affordance']
+      ];
+      for (const [re, label] of MUST67)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v67 honesty copy: ${label}`);
+      /* the ads affordance must be structurally gated on the adult band —
+         not rendered for teen/na/u13, and adView() re-checks the guard */
+      if (!/S\.band===?['"]adult['"]/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'rewarded-ads affordance not gated on the adult band');
+      if (!/adViews\s*>=?\s*5/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'ads daily cap (5) not enforced in adView');
+      /* the band fronts paid stages only — it must never gate the free ones */
+      if (!html.includes('normalizeStage'))
+        add(g, 'fail', 'onboarding.html', null, 'stage normalizer missing — paid stages unguarded');
+      for (const s of ['u13', 'teen', 'adult', 'na'])
+        if (!new RegExp(`band\\(\\\\?['"]${s}\\\\?['"]\\)`).test(html))
+          add(g, 'fail', 'onboarding.html', null, `age-band option '${s}' has no handler`);
+      if (!OB.age_band || !OB.rewarded_ads)
+        add(g, 'fail', 'onboarding.json', null, 'v67 contract blocks (age_band / rewarded_ads) missing');
+      else {
+        if (OB.rewarded_ads.rate_cr !== 2 || OB.rewarded_ads.daily_cap !== 5)
+          add(g, 'fail', 'onboarding.json', null, 'rewarded_ads drifts from plan §2.7 (2 cr, 5/day)');
+      }
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v67 schema still on an old storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }
@@ -2230,7 +2267,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v66 || {};
+    const H = PT.harness_ui_v67 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v66)
+# Playtest Harness — "Real World / The Mission" (world v67)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -136,6 +136,12 @@ One person can wear every hat; four real testers is the intended shape.
   suspicion ceilings at every rung, the comedy-duty roster whose only
   mechanism is a review flag, and the dormant-only residue nursery,
   checked against the §19 legality checklist.
+  PT62 (onboarding v5 — the eligibility layer, v67) is a first-session
+  audit — the one-question age band fronting every paid stage but never
+  the feed or the tour, the under-13 'watching account' with no packs or
+  asks and honestly relabeled checklist items, the under-18
+  spending-limits disclosure that quotes no invented figure, and the
+  adults-only rewarded-ads line at plan §2.7 verbatim.
 
 ## 3. Running a session
 
@@ -232,6 +238,17 @@ promoted only at a declared season boundary). drama.html stays internal
 — PT61 runs it through `audit` surface + a file:// eyeball, and it is
 deliberately absent from the harness's own surface dropdown.
 
+v67 content under test (PT62 exercises it): the onboarding flow's
+eligibility layer — the S2a age-band card (under 13 / 13–17 / 18 or
+older / rather not say) that fronts the wallet and the asks via
+`normalizeStage()` while gating nothing free; S3u 'the watching
+account' for under-13 (no packs, no asks, checklist relabeled
+'spectator account — watching only', S5 drops the hire button); the
+under-18 spending-limits disclosure (limits apply, no figure quoted);
+and the adult-only rewarded-ads line at plan §2.7 verbatim (2 cr/view,
+5/day, opt-in, never in the stream) with a demo +2 cr affordance and
+N/5 counter.
+
 A full pass (PT1–PT8) is ~2.5 h. A smoke pass is PT1 + PT4 + PT7 + PT21
 (~50 min) — free-tier, every deny path, the boundary audit, and the machine gate.
 
@@ -299,7 +316,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v66 mark present, scenario integrity — unique PT ids,
+harness_ui_v67 mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).

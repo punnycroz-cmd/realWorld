@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -452,3 +452,125 @@ version that taught thin-AI without the no-nag clause would be incomplete.
 - At merge: queue holds resolve on the real resource board
   (`requests.json.resource_board` — `sky` claim, FCFS activation, review on
   activation not while waiting); the demo's fixed lapse stays demo-only.
+
+---
+
+## v67 — the fifth pass: the eligibility layer
+
+v11–v53 taught a stranger everything about *what the world is* and *how
+asks behave*. What the funnel never did was ask the one compliance question
+the monetization plan already mandates: **who is holding the account** —
+because §2.7 restricts rewarded ads to adults and §6 makes under-13
+accounts spectator-only. v67 adds that single question, placed so it can
+never feel like a gate.
+
+### 30. The age band (S2a) — who the account is
+
+One question, rendered as a four-option fork card after the handle step and
+before the wallet:
+
+> "Money features differ by age. Pick the band that fits this account — it
+> decides what the next card offers. Watching is identical for every band,
+> always free, and this question never gates it."
+
+| Band | What the next card offers |
+|------|---------------------------|
+| Under 13 | A watching account — no wallet, no requests, nothing to buy |
+| 13–17 | Wallet and requests work; under-18 spending limits apply |
+| 18 or older | The full ladder, plus the opt-in sponsored-message path |
+| Rather not say | Fine — money features treat the account as under-18 |
+
+- The band fronts **every paid stage** (`S3`, `S4*`) via `normalizeStage()` —
+  unset redirects to S2a; `u13` redirects to S3u. It fronts nothing free:
+  the feed, the tour, the Archive, the fork, and the handle step are
+  identical for all four bands.
+- The pick is stored once in session state and correctable in place via a
+  **"Wrong band? Fix it"** link on both wallet variants — never re-asked,
+  never nagged.
+- A skip line carries the eternal exit: *"Skip — I'll only ever watch."*
+
+### 31. The watching account (S3u) — under-13, honestly
+
+Under-13 replaces the wallet card entirely:
+
+> "This account watches — that's the whole product, not a restricted
+> version of it. The feed, the Archive, the block's whole week: all of it,
+> free, always. Wallets and requests are for older accounts. Nothing here
+> is missing — there was never anything to unlock."
+
+- No pack ladder, no top-up, no ask filing, no ads affordance — the
+  affordances are absent by construction (paid handlers also bail on
+  `u13`), not merely hidden.
+- The checklist's money items (handle / wallet / first ask) relabel to
+  *"spectator account — watching only"* — never styled as failures.
+- S5 on a `u13` band drops the hire button; the settle card says watching
+  is the whole show. The tone test: a child reading S3u should feel
+  *done*, not *denied*.
+
+### 32. Under-18 bands — teen and rather-not-say
+
+`teen` and `na` share the money surface: the wallet works, requests work,
+and one disclosure line rides the wallet card:
+
+> "Under-18 accounts carry spending limits — any cap is stated before a
+> purchase, never after." (`na` adds: "You chose not to say, so this
+> account is treated as under-18.")
+
+The plan (§6) hard-caps minors but sets no figure — so the card **states
+that limits apply and quotes no number**. Quoting one would be inventing
+pricing.
+
+### 33. The free-credit path — rewarded ads, adults only
+
+Plan §2.7 verbatim, surfaced for the first time: on the adult wallet card
+only,
+
+> "No card? A sponsored message earns **2 cr** — up to 5 a day, opt-in from
+> this card only. Never in the stream, never before you can watch."
+
+- The demo affordance (*"watch one (demo) — +2 cr"*) credits +2 cr with a
+  `N/5 today` counter; at the cap the line reads *"That's today's five —
+  the cap resets tomorrow"* — no countdown, no urgency framing.
+- Eligibility is structural: the line and button render only when
+  `S.band==='adult'`, and `adView()` re-checks the guard. Teen, na, u13,
+  and unset accounts never see the affordance — consistent with the plan's
+  "no rewarded ads to under-18 accounts."
+- Placement obeys the locked rule: opt-in only, on the wallet card — never
+  pre-roll, never mid-session, never inside the sim view.
+
+### 34. Edge cases (v67 additions)
+
+| Case | Behavior |
+|------|----------|
+| Band unset, saved stage is a paid one | `normalizeStage()` in `render()` redirects to S2a — stale state can't skip the question |
+| u13 files nothing | every paid handler (`topup`, `fileAsk`, `fileNudge`, `fileWeather`, `fileQueue`) bails with a neutral toast even if reached |
+| u13 + `?hired=1` | the first-day card still renders (the hire exists), but requests aren't offered on the account — same band rules |
+| Rather-not-say | treated as under-18 on every money surface; watching identical; stated on the card, never punished |
+| Wrong band picked | "Wrong band? Fix it" returns to S2a — correction is free, no confirm-shame |
+| Ads at daily cap | line flips to the cap message; the affordance disappears, no countdown |
+
+### 35. v67 merge notes
+
+- `storage_key` → `rw_onboard_v67` (v53/v67 states coexist harmlessly; the
+  demo reads only its own key).
+- At merge the band comes from the **account record**, not a per-session
+  self-declaration — this demo's self-pick models the shape only; any
+  verification flow (age assurance, parental approval) is production work,
+  out of scope here.
+- New analytics hooks (v67): `band_declared` (no band value in props —
+  eligibility is not funnel data), `ads_line_shown`, `ad_demo_viewed` —
+  same envelope, stage + opted_out props only.
+- The rewarded-ads line is the first surface of the §2.7 path; the wallet
+  card in `request.html` may adopt the same wording at merge rather than
+  re-derive it.
+
+### 36. What v67 still must never do
+
+- Never gate the feed, the tour, or any free card behind the age band.
+- Never frame the under-13 spectator account as a restriction, downgrade,
+  or something to grow out of.
+- Never render the ads affordance for a non-adult band — the guard is
+  structural, not cosmetic.
+- Never quote a minor spend-cap figure the plan doesn't set.
+- Never treat the band answer as targeting data — it decides which card
+  renders, nothing else.

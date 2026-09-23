@@ -12,7 +12,8 @@
   PT50 + thinai v5 / thinai gate v55, PT51 + bible v56 / bible gate v56,
   PT52 + crowd v5 marine layer / crowd gate v57,
   PT60 + harness v65 finding templates / hide-finished filter / session handoff;
-  PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery).
+  PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery,
+  PT62 + onboarding v5 eligibility layer / onboard gate v67).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -1316,12 +1317,36 @@ const PTS=[
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 18 pressure rows · schema drama-v4'",
     "A missing pair, an off-enum relation, or a seed without all three ceilings would FAIL — spot-check",
     "Harness gate: '61 scenarios · N checkpoints · key rw_playtest_v66'; 0 fail overall"]}]}
+,{id:"PT62",title:"Onboarding v5 — the eligibility layer (age bands + the free-credit path)",min:12,
+ persona:"first-session tester toggling account bands — wants proof the funnel never punishes the watching-only account",
+ goal:"Verify the v67 onboarding pass: a one-question age band (S2a) fronts every paid stage but never the feed or the tour; under-13 renders 'the watching account' (S3u) with no packs, no asks, no ads and honestly relabeled checklist items; 13–17 and rather-not-say carry the spending-limits disclosure with no ads affordance and no invented cap figure; 18+ sees the plan §2.7 rewarded path verbatim (2 cr, 5/day, opt-in, never in the stream).",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§30–36 and onboarding.json's age_band / rewarded_ads blocks against monetization plan §2.7 and §6.",
+  exp:"Every claim matches the plan verbatim — 2 cr per view, 5/day cap, opt-in only, never pre-roll/mid-session/inside the sim view, adults only; under-13 spectator-only; the under-18 disclosure states that limits apply without quoting a figure the plan never set.",
+  ck:["Four bands declared (u13 / teen / adult / na) and the band gates money surfaces only — never the feed, tour, or free cards",
+    "rewarded_ads contract reads rate_cr 2, daily_cap 5, adult-band-only eligibility",
+    "No minor spend-cap number anywhere — the disclosure says limits apply, full stop"]},
+ {do:"Open onboarding.html (file://), reset onboarding, walk: fork → tour → handle → the band card. Pick 'Under 13'.",
+  exp:"The wallet card is replaced by 'The watching account' — no pack ladder, no top-up, no ads line. The checklist's money items relabel 'spectator account — watching only' without failure styling. S5 shows no Join the Cast button. The feed and tour are identical throughout.",
+  ck:["S3u copy reads as the whole product — 'nothing here is missing', never a restriction",
+    "Paid stages unreachable: any path to S3/S4 lands on S3u; paid handlers bail with a neutral toast",
+    "'Wrong band? Fix it' returns to S2a — correction is free, no confirm-shame"]},
+ {do:"Reset, retake the flow picking '18 or older', reach the wallet card, click 'watch one (demo)'.",
+  exp:"The adult wallet carries the §2.7 line verbatim — 'a sponsored message earns 2 cr — up to 5 a day, opt-in from this card only. Never in the stream.' Each click credits +2 cr with an N/5 counter; at five the affordance is replaced by the cap line, no countdown. Repeat with '13–17' and 'Rather not say': both show the spending-limits note and neither shows the ads line.",
+  ck:["Ads affordance exists only on the adult band — teen/na cards render the limits disclosure instead",
+    "Counter is honest (N/5 today) and the cap message carries no urgency",
+    "Demo top-up and all guided asks still work on teen/na/adult bands"]},
+ {do:"Run `node world/audit.js` and read the onboard + harness gates.",
+  exp:"The onboard gate passes the v67 checks: all ten honesty strings, the structural adult-band guard on the ads affordance, the 5/day cap enforcement, normalizeStage present, all four band handlers wired, and the rewarded_ads contract not drifting from §2.7. Harness gate reports 62 scenarios at the v67 key.",
+  ck:["Onboard gate: 0 fail; detail reports 'schema v67 · 7 beats · key rw_onboard_v67'",
+    "An ungated ads button, a quoted minor cap, or a missing band option would FAIL — spot-check",
+    "Harness gate: '62 scenarios · N checkpoints · key rw_playtest_v67'; 0 fail overall"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v66";
-const BUILD="world v66 local";
+const LS="rw_playtest_v67";
+const BUILD="world v67 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
