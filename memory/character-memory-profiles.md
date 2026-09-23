@@ -61,6 +61,19 @@ never copying raw.
 | link_p | 0.3 | 0.95 | associative-edge formation prob (v0.3) |
 | w_emo_pos / w_emo_neg | 0.3 | 2.0 | valence-split arousal weight (v0.3) |
 | pm_self | 0.2 | 0.95 | self-initiated intention recall (v0.3, optional) |
+| search_breadth | 3 | 15 | candidates scored per recall (v0.4) |
+| env_support_gain | 1.0 | 1.6 | cueMatch_ext multiplier; ≥1, rises w/ age (v0.4) |
+| discrim_mult | 0.6 | 1.0 | scales interf/merge thresholds; ≤1 (v0.4) |
+| lure_accept | 0.0 | 0.4 | similar-cue false-positive in recognition (v0.4) |
+| specificity | 0.3 | 1.0 | episode-vs-generic return rate (v0.4; also §2 depressive) |
+| pos_spare | 0.0 | 0.5 | positive-cue sparing on specificity (v0.4) |
+| tot_rate | 0.0 | 0.3 | name-field blanking probability (v0.4) |
+| sws_mult | 0.5 | 1.1 | episodic consolidation age scaling (v0.4) |
+| ret_noise | 0.0 | 0.25 | σ of drive noise (v0.4) |
+| reserve | 0.0 | 1.0 | cognitive reserve → age_eff shift (v0.4) |
+| reserve_shift | 4 | 15 | years offset at reserve=1 (v0.4) |
+| terminal_window | 500 | 2200 | game days before deathDay (v0.4, optional) |
+| terminal_gain / terminal_loss | 0 / 0 | 4 / 0.9 | terminal ramp magnitudes (v0.4) |
 
 **v0.3 continuous-curves note:** the archetypes below are now *named knots*
 on the piecewise-linear age curves in `age-development.md` §6 — the runtime
@@ -70,6 +83,13 @@ age; era effects (amnesia ramp, bump window) are applied per-record from
 `encodeAge`, not from the profile. The two distortion channels now have
 opposite age gradients (suggestion U-shaped, gist monotonic — see
 `age-development.md` §4).
+
+**v0.4 decline-layer note:** decline-side params additionally evaluate at
+`age_eff = age_now − reserve·reserve_shift` (spec §4.8) — a high-reserve
+70-year-old reads the curve at ~63. `deathDay` unset for all archetypes
+(terminal ramp off). Midlife knots flattened per Rönnlund 2005
+longitudinal plateau 35–60 (age-decline.md §11); decline-curve knot rows
+in `age-decline.md` §13.
 
 Missing values in a template inherit `DEFAULT` (spec §7). Every value below is
 within clamps; behavioral notes explain the intent so implementers can sanity-
@@ -179,6 +199,11 @@ drift_p 0.14 · misinfo_suscept 0.50 · confab_fill 0.8 · bump_beta_mult 0.5
 link_p 0.45 (associative deficit — knows *that*, not *with whom/where*)
 w_emo_pos 1.25 · w_emo_neg 0.85 (positivity at encoding, SST)
 pm_self 0.45 (event-cued intentions fine; bare deadlines slip)
+search_breadth 7 · env_support_gain 1.3 (cue-rich contexts rescue recall)
+discrim_mult 0.8 · lure_accept 0.2 (similar-but-new accepted as old)
+specificity 0.75 · pos_spare 0.2 (overgeneral AM; positive cues spared)
+tot_rate 0.12 (name-blanking with feeling-of-knowing; resolves on sight)
+sws_mult 0.85 · ret_noise 0.12 · reserve 0.4 (per-bible; shifts age_eff)
 ```
 Emergent: recent events evaporate; youth-era memories are vivid, polished by
 retelling, and partly invented; warm memories outlast grievances.
@@ -200,6 +225,8 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 | **Domain expert** (per domain tag) | enc_base +0.1 for events matching domain cue; k_verbatim ×0.7 in-domain | expertise deepens encoding (R§8) |
 | **Routine-heavy life** | merge_thresh ×0.9; interf_k ×1.3 | commutes blur together (R§3) |
 | **Isolation / few retellings** | retell_boost ×0.6; memories fade without rehearsal | — |
+| **High cognitive reserve** (education, complex work, social engagement) | reserve +0.2–0.4 → decline params read the curve ~4–10y younger (v0.4) | Stern 2002; Valenzuela & Sachdev 2006 (OR 0.54) |
+| **Low engagement / isolated aging** | reserve −0.2 | earlier apparent decline |
 
 Optional derived param `specificity ∈ [0,1]` (default 1): on reconstruction,
 with probability `1−specificity` return the generic/merged memory instead of

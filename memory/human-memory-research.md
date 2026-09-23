@@ -300,6 +300,30 @@ optional `Intention`/`pm_self` extension. Mather & Carstensen 2005 →
 `w_emo_pos`/`w_emo_neg` split. Continuous knot table replaces band
 lookup (spec v0.3).
 
+**v4 calibration (full derivations in `age-decline.md`):** decline-side
+mechanisms and modulators. Craik 1983/2022 + Angel et al. 2010 +
+context-reinstatement meta (g=0.32, no age difference): deficits live in
+self-initiated retrieval → `env_support_gain(age)` on cueMatch_ext,
+`search_breadth` candidate cap, place-reinstate explicitly NOT
+age-penalized. Hasher & Zacks 1988 + Autobiographical Interview meta
+(internal details down, external up) → `discrim_mult` on thresholds +
+confab_fill second anchor. Stark/Yassa 2011–2015 pattern separation →
+`discrim_mult` + `lure_accept` false-positive in recognition. Jacoby
+recollection/familiarity split + Piolino 2009 + AMT meta →
+`specificity` capacity curve with `pos_spare` positive-cue sparing.
+Burke et al. 1991 TOT → `tot_rate` partial retrieval (name-blanking,
+feeling-of-knowing, recognition-resolvable). Mander et al. 2013 →
+`sws_mult(age)` on episodic consolidation only. Stern 2002 +
+Valenzuela & Sachdev 2006 (OR 0.54) + 2024 life-course meta →
+`reserve`/`age_eff` shift (~10y compression, decline params only).
+Wilson et al. 2003 (43-month change point, 6×) + Wilson 2012 terminal
+dedifferentiation (domain correlations .25–.46 → .83–.89) →
+`deathDay`/`terminal_window` global ramp, reserve-exempt. Li &
+Lindenberger dedifferentiation → `ret_noise` σ on drive. Rönnlund
+2005 Betula longitudinal → midlife knots flattened (no episodic
+decline before ~60). New knot table age-decline.md §13; probes
+P23–P30 (spec v0.4).
+
 ---
 
 ## 8. Individual differences (within-age variation)

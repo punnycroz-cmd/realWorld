@@ -1,4 +1,4 @@
-# Memory Model Spec v0.3 — implementable human-like memory for RW characters
+# Memory Model Spec v0.4 — implementable human-like memory for RW characters
 
 **Track:** memory-research (sf/memory) · **Audience:** game-systems track (implements
 substrate items: memory salience/decay, rumor distortion, belief-vs-fact)
@@ -121,7 +121,10 @@ E = E0 · attention · (1 + w_emo·arousal + w_self·selfRelevance
   cross-episode grafting downstream.
 - **Sleep modifier:** at end of each world day, consolidation pass multiplies
   all same-day `encodingE` by `sleepFactor` (param; poor sleep ≈ 0.7–0.85,
-  good ≈ 1.0–1.1). (R§2, R§8.)
+  good ≈ 1.0–1.1). (R§2, R§8.) **v0.4:** `sleepFactor_eff = sleepFactor ·
+  sws_mult(age_eff)` applied to **episodic** records only — slow-wave-sleep
+  decline selectively impairs episodic consolidation in old age (Mander et
+  al. 2013; age-decline.md §7). Semantic records keep unscaled `sleepFactor`.
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -178,19 +181,26 @@ within Δt window):
 
 ```
 similarity(a,b) = jaccard(cueVector a, cueVector b)
-if similarity > interf_thresh (param, ~0.6):
+if similarity > interf_thresh·discrim_mult (param, ~0.6):
     each suppresses the other: strength *= (1 - interf_k · similarity)
 ```
 
 Retroactive: newer memory hits older harder (`interf_k` asymmetric, e.g.
 new→old 0.15, old→new 0.05). This is what blurs the 40th identical commute.
+**v0.4:** `discrim_mult(age_eff)` ≤1 scales the threshold down with age —
+pattern separation loss means older characters treat *similar-but-distinct*
+records as matches sooner (Yassa et al. 2011; Stark et al. 2013;
+age-decline.md §4). Knots: 1.0 ≤50 → 0.72 at 85.
 
 ### 4.3 Genericization (schema merging)
 
-If `similarity(a,b) > merge_thresh` (~0.8) AND both below salience threshold:
+If `similarity(a,b) > merge_thresh·discrim_mult` (~0.8) AND both below
+salience threshold:
 merge into one **generic memory** — keep shared gist ("my morning commute"),
 drop both verbatims, `type` stays episodic but flag `"generic": true`.
-This is routine-collapse (R§3) and costs almost nothing to run.
+This is routine-collapse (R§3) and costs almost nothing to run. v0.4:
+same `discrim_mult` age scaling — genericization runs at elevated gain in
+old characters (pattern-separation deficit, age-decline.md §4).
 
 ### 4.4 Forgetting threshold
 
@@ -223,6 +233,39 @@ record with age ≥ `permastore_age` (180 game days) and strength ≥
 `permastore_thresh` (0.25) sets `permastore: true` and freezes decay
 (β→0). Well-consolidated world knowledge is effectively permanent; fresh
 facts still decay normally. See `forgetting-curves.md` §2.3.
+
+### 4.8 Lifespan decline layer — reserve and terminal decline (new in v0.4)
+
+Two global modifiers wrap all age-declining capacity params
+(age-decline.md §§8–9):
+
+- **Cognitive reserve:** each character has `reserve ∈ [0,1]` (set at
+  character creation from education/occupation/engagement; default 0.4).
+  Decline-side capacity params evaluate at `age_eff = age_now −
+  reserve·reserve_shift` (`reserve_shift` ≈ 10y). Applies to: enc_base,
+  beta_episodic, beta_source, theta, link_p, discrim_mult, lure_accept,
+  tot_rate, search_breadth, sws_mult, pm_self, ret_noise, specificity.
+  Does NOT apply to era terms (encodeAge is fact) or to
+  misinfo_suscept/confab_fill (meaning-machinery, not fluid capacity).
+  High reserve = later decline onset, similar slope (compression
+  pattern; Stern 2002; Valenzuela & Sachdev 2006, OR 0.54).
+- **Terminal decline (optional):** if a character's `deathDay` is set
+  (scripted death only) and `age_eff ≥ 55` and
+  `deathDay − worldDay < terminal_window` (~1100 game days, Wilson et
+  al. 2003 change-point ≈43 months), apply a **global ramp** to all
+  capacity params simultaneously:
+  ```
+  t_frac = 1 − (deathDay − worldDay)/terminal_window   // 0→1
+  beta_*        *= (1 + terminal_gain·t_frac)           // terminal_gain≈2
+  enc_base, link_p, search_breadth, sws_mult
+                *= (1 − terminal_loss·t_frac)           // terminal_loss≈0.5
+  theta, tot_rate, drift_p, confab_fill += terminal_loss·t_frac·default
+  ```
+  One ramp on everything implements terminal dedifferentiation —
+  preterminal domain declines correlate 0.25–0.46, terminal 0.83–0.89;
+  everything falls together (Wilson et al. 2012). Reserve does NOT
+  delay the terminal window (Wilson et al. 2008: not modified by
+  education). Most characters never set `deathDay` — absent = off.
 
 ---
 
@@ -282,8 +325,8 @@ moodStateDep   = w_msd · (1 − |m.encodeMood − C.mood|)/2
 ### 5.4 Retrieval probability
 
 ```
-drive(m) = cueMatch_ext + moodCongruence + moodStateDep
-           + recencyBump(m) + m.strength·w_str − θ
+drive(m) = cueMatch_ext·env_support_gain + moodCongruence + moodStateDep
+           + recencyBump(m) + m.strength·w_str − θ + N(0, ret_noise)
 P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
 ```
 
@@ -296,6 +339,21 @@ P(recall m) = logistic( k · drive(m) ) / (1 + fan_k · ln(1 + fan(m)))
 - **Archived records** (strength < forget_thresh, §4.4) are reachable only if
   `cueMatch_ext > resurrect_thresh` (≈0.85) — a near-total context
   reinstatement or someone narrating the event back (maximal cue).
+- **v0.4 — environmental support (age-decline.md §1):**
+  `env_support_gain(age_eff)` ≥1 multiplies cueMatch_ext's contribution —
+  cue-rich contexts disproportionately rescue older retrieval; deficits
+  concentrate in self-initiated (low-cue) search (Craik 1983/2022; Angel
+  et al. 2010). Do NOT age-penalize the place-reinstate term — older
+  adults benefit equally (2024 context-reinstatement meta, g=0.32).
+- **v0.4 — retrieval noise:** `N(0, ret_noise(age_eff))` added to drive;
+  σ 0.05 young → 0.16 at 85 (dedifferentiation/within-person variability,
+  Li & Lindenberger; age-decline.md §10). Same draw logic perturbs
+  `misinfo_suscept`/`tot_rate` rolls.
+- **v0.4 — search breadth:** score at most `search_breadth(age_eff)`
+  candidate records per recall call (cue-bucket preselection, then rank
+  by drive; ~12 young → 5 at 85). Older characters surface fewer
+  candidates with identical cue math (processing-resource decline,
+  Craik; Salthouse; age-decline.md §2). Also caps §5.7 scan breadth.
 
 ### 5.5 What retrieval returns
 
@@ -305,6 +363,21 @@ Not the record — a **reconstruction**:
 2. If `beliefStatus` is `rumor`, return content tagged as uncertain **unless**
    source tag has decayed (§7.3) — then it may be returned as fact.
 3. Attach `confidence` for downstream dialogue hedging ("I think…", "I'm sure…").
+4. **v0.4 — specificity gate:** before reconstruction, with probability
+   `1 − specificity_eff` return the generic/merged record covering this
+   episode instead (overgeneral autobiographical memory in aging,
+   Piolino et al. 2006/2009; Autobiographical Interview meta — fewer
+   internal, more external details; age-decline.md §5).
+   `specificity_eff = specificity(age_eff)·(1 + pos_spare·valence)` for
+   valence>0 (`pos_spare`≈0.2 — positive-cue sparing, AMT meta 2025).
+5. **v0.4 — TOT partial retrieval:** when a surviving
+   `verbatim.who`/name field is requested, blank it with probability
+   `tot_rate(age_eff)` (×1.5 for proper-name fields; ×higher if the
+   referent's records are nonrecent — Rastle & Burke 1996): return the
+   record with the name slot empty and a `tot: true` flag — a
+   feeling-of-knowing state, not a missing memory (Burke et al. 1991;
+   age-decline.md §6). A subsequent recognition-mode cue resolves it at
+   near-young rates (resolution spared with age).
 
 ### 5.6 Recognition vs recall modes (new in v0.2)
 
@@ -318,6 +391,12 @@ Not the record — a **reconstruction**:
   recognition mode, records whose `cueVector` lacks the copy feature get
   `cueMatch_ext · recogn_pen` (≈0.4). A character can fail to "place" a face
   yet recall the person perfectly given the right context — and vice versa.
+- **Lure acceptance (v0.4):** in recognition mode, a cue that is
+  *similar-but-not-identical* (feature overlap ∈ [0.5,1.0)) is accepted as
+  a match with probability `lure_accept(age_eff)·overlap` — the
+  pattern-separation deficit produces false "yes, that's the scarf"
+  endorsements, robust to instructions (Stark et al. 2013/2015;
+  age-decline.md §4).
 
 ### 5.7 Involuntary retrieval (new in v0.2)
 
@@ -466,6 +545,21 @@ MemoryParams = {
   "w_emo_pos": 1.0, "w_emo_neg": 1.0,   // valence-asymmetric arousal weight
                                        // (older: pos 1.25 / neg 0.85)
   "pm_self": 0.8               // self-initiated intention recall (optional §9)
+  // v0.4 additions (age-decline calibration, age-decline.md §§13–14)
+  "search_breadth": 12,        // max candidates scored per recall (age curve)
+  "env_support_gain": 1.0,     // ≥1; cueMatch_ext multiplier (age curve)
+  "discrim_mult": 1.0,         // ≤1; scales interf/merge thresh (age curve)
+  "lure_accept": 0.05,         // similar-cue false-positive rate (age curve)
+  "specificity": 1.0,          // prob of returning episode vs generic (age)
+  "pos_spare": 0.2,            // positive-cue sparing on specificity
+  "tot_rate": 0.04,            // name-field blanking, feeling-of-knowing
+  "sws_mult": 1.0,             // episodic consolidation age scaling
+  "ret_noise": 0.05,           // σ of noise added to drive
+  "reserve": 0.4,              // cognitive reserve 0..1 → age_eff shift
+  "reserve_shift": 10.0,       // years of effective-age offset at reserve=1
+  "deathDay": null,            // optional scripted-death day → terminal ramp
+  "terminal_window": 1100,     // game days; Wilson 2003 ≈43 months
+  "terminal_gain": 2.0, "terminal_loss": 0.5
 }
 ```
 
@@ -477,7 +571,11 @@ intrusion_thresh, w_emo, w_self, att_min, pm_self) with the knot table in
 `age-development.md` §6, evaluated at runtime and re-anchored yearly. Era
 params use `encodeAge` on the record instead. The profile archetypes are
 named knots on these curves — individual profiles = curve value ⊕
-modifiers ⊕ jitter, unchanged.
+modifiers ⊕ jitter, unchanged. **v0.4:** decline-side capacity params
+evaluate at `age_eff = age_now − reserve·reserve_shift` (§4.8); the
+age-decline knot rows are in `age-decline.md` §13 (search_breadth,
+env_support_gain, discrim_mult, lure_accept, specificity, tot_rate,
+sws_mult, ret_noise — decline curves, ≥30 side).
 
 Suggested clamp ranges are in `character-memory-profiles.md` §0 — implementers
 should validate params into those ranges at load.
@@ -514,7 +612,10 @@ the age-PM paradox for free. See `age-development.md` §7.
 
 - `encodeEvent(charId, event, context) -> MemoryRecord|null`
 - `recall(charId, cueContext, k) -> [Reconstruction]` (with confidence,
-  beliefStatus); `cueContext.mode` ∈ `"recall" | "recognition"` (v0.2, §5.6)
+  beliefStatus); `cueContext.mode` ∈ `"recall" | "recognition"` (v0.2, §5.6);
+  a Reconstruction may carry `tot: true` with blanked name fields
+  (v0.4, §5.5) — dialogue should render it as feeling-of-knowing
+  ("…the woman from Mudhaus, name's right there")
 - `ambientMemoryScan(charId, context) -> [Reconstruction]` — involuntary
   recall for unfocused ticks (v0.2, §5.7)
 - `hearAccount(charId, speakerId, account)` → misinformation merge
