@@ -472,27 +472,89 @@ function sfBldCanvas(b){
     g.strokeStyle = shade(ROOF[1], 0.8); g.lineWidth = 1.5;
     g.beginPath(); g.moveTo(x1, y1 - hPx + 4); g.lineTo(x2, y2 - hPx + 4); g.stroke();
   }
-  // roof furniture on big roofs: vent capsules + AC blobs + pipe stacks
+  // roof furniture on big roofs — deterministic mix of SF rooftop clutter.
+  // NOTE: paLine requires integer endpoints (Bresenham loop has no cap),
+  // so every coordinate below is rounded before it reaches paLine.
   if(roofArea > 900){
-    for(let k = 0; k < Math.min(6, roofArea / 1300); k++){
+    const rl = (x0, y0, x1, y1, col) =>
+      paLine(g, Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1), col);
+    // shop roofs sometimes get a railed sun deck with planks + umbrella
+    if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
+      const dw = Math.round((wPx - pad * 2) * 0.4), dh = Math.round(hBase * 0.42);
+      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 4, 1371));
+      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 6, 1372));
+      paR(g, dx0, dy0, dw, dh, shade(ROOF[3], 1.18));
+      for(let px2 = dx0 + 3; px2 < dx0 + dw; px2 += 4)
+        rl(px2, dy0 + 1, px2, dy0 + dh - 1, shade(ROOF[3], 1.02));
+      g.strokeStyle = shade(TRIM, 0.9); g.lineWidth = 1;
+      g.strokeRect(dx0, dy0, dw, dh);
+      g.strokeStyle = shade(TRIM, 1.15);
+      g.strokeRect(dx0 - 1, dy0 - 1, dw + 2, dh + 2);
+      const ux2 = Math.round(dx0 + dw * 0.3), uy2 = Math.round(dy0 + dh * 0.35);
+      paEllipse(g, ux2 + 2, uy2 + 2, 5, 2, 'rgba(20,14,8,0.25)');
+      paEllipse(g, ux2, uy2, 5, 3.4, '#d8e8f0');
+      paEllipse(g, ux2, uy2 - 0.5, 4, 2.6, '#e8f0f6');
+      paPX(g, ux2, uy2, '#8a6a45');
+      for(let k = 0; k < 3; k++){
+        const tx2 = Math.round(dx0 + dw * (0.55 + 0.15 * k)), ty2 = Math.round(dy0 + dh * 0.6);
+        paEllipse(g, tx2, ty2, 2.4, 1.6, '#7a5a3a');
+        paEllipse(g, tx2, ty2 - 0.5, 1.8, 1.1, '#9a7a55');
+      }
+    }
+    const nItem = Math.min(8, Math.floor(roofArea / 1100) + 1);
+    for(let k = 0; k < nItem; k++){
       const t1 = phash(b.i, k, 1360), t2 = phash(k, b.i, 1361);
-      const cx = pad + (wPx - pad * 2) * t1, cy = pad + hBase * t2;
-      const kind = Math.floor(phash(b.i, k, 1369) * 4);
+      const cx = Math.round(pad + (wPx - pad * 2) * t1), cy = Math.round(pad + hBase * t2);
+      const kind = Math.floor(phash(b.i, k, 1369) * 9);
       if(kind === 0){ // mushroom vent
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
         paEllipse(g, cx, cy - 1.5, 2, 1.4, ROOF[5]);
-      } else if(kind === 1){ // AC unit blob
-        paBlob(g, cx, cy, 3.2, shade(ROOF[3], 1.15));
-        paBlob(g, cx, cy - 1, 2.4, ROOF[5]);
-        paPX(g, cx, cy - 1, ROOF[1]);
+      } else if(kind === 1){ // AC unit: box + fan ring + grille
+        paR(g, cx - 3, cy - 2, 7, 5, shade(ROOF[3], 1.15));
+        paR(g, cx - 3, cy - 2, 7, 1, ROOF[5]);
+        paEllipse(g, cx, cy, 2, 1.6, ROOF[1]);
+        paEllipse(g, cx, cy - 0.5, 1.3, 1, ROOF[2]);
+        paPX(g, cx, cy - 1, ROOF[5]);
       } else if(kind === 2){ // pipe stack
         paR(g, cx - 1, cy - 4, 2, 5, ROOF[1]);
         paEllipse(g, cx, cy - 4, 1.6, 1, ROOF[5]);
-      } else { // brick chimney + cap + drip shadow
+      } else if(kind === 3){ // brick chimney + cap + drip shadow
         paR(g, cx - 2, cy - 7, 5, 8, '#8a5a48');
         paR(g, cx - 2, cy - 7, 5, 1, '#c89078');
         paR(g, cx - 3, cy - 9, 7, 2, '#6a4034');
         paR(g, cx + 2, cy + 1, 4, 2, 'rgba(20,14,8,0.3)');
+      } else if(kind === 4){ // rooftop water tank — the SF skyline icon
+        paEllipse(g, cx + 3, cy + 3, 5, 2, 'rgba(20,14,8,0.3)');
+        for(const lx of [-3, 3]) rl(cx + lx, cy + 2, cx + lx * 0.6, cy - 2, '#5a4a3a');
+        paEllipse(g, cx, cy - 3, 4.5, 3, '#7a5f45');
+        paR(g, cx - 4.5, cy - 6, 9, 4, '#8a6f52');
+        paR(g, cx - 4.5, cy - 4, 9, 1, '#6a5440');
+        paEllipse(g, cx, cy - 6.5, 4, 2, '#a88a68');
+        paEllipse(g, cx, cy - 8, 2, 1.4, '#6a5440');
+      } else if(kind === 5){ // solar panel array: tilted dark glass + grid
+        const pw2 = 12, ph2 = 6;
+        paR(g, cx - pw2 / 2 + 1, cy - ph2 / 2 + 3, pw2, ph2, 'rgba(20,14,8,0.25)');
+        paR(g, cx - pw2 / 2, cy - ph2 / 2, pw2, ph2, '#1e3450');
+        paR(g, cx - pw2 / 2, cy - ph2 / 2, pw2, 1, '#4a7ab0');
+        for(let gx2 = 1; gx2 < 3; gx2++)
+          rl(cx - pw2 / 2 + gx2 * pw2 / 3, cy - ph2 / 2, cx - pw2 / 2 + gx2 * pw2 / 3, cy + ph2 / 2, '#3a5a80');
+        rl(cx - pw2 / 2, cy, cx + pw2 / 2, cy, '#3a5a80');
+        rl(cx - 3, cy + ph2 / 2, cx - 3, cy + ph2 / 2 + 2, '#5a5a55');
+        rl(cx + 3, cy + ph2 / 2, cx + 3, cy + ph2 / 2 + 2, '#5a5a55');
+      } else if(kind === 6){ // roof hatch box
+        paR(g, cx - 2.5, cy - 3, 5, 4, shade(ROOF[3], 0.9));
+        paR(g, cx - 2.5, cy - 3, 5, 1, ROOF[5]);
+        paR(g, cx - 2, cy - 4, 4, 1, shade(ROOF[5], 0.9));
+      } else if(kind === 7){ // antenna mast + crossbars
+        rl(cx, cy + 2, cx, cy - 9, '#4a4a48');
+        rl(cx - 3, cy - 5, cx + 3, cy - 5, '#4a4a48');
+        rl(cx - 2, cy - 7, cx + 2, cy - 7, '#4a4a48');
+        paPX(g, cx, cy - 9, '#c94040');
+      } else { // satellite dish on a stub pole
+        rl(cx, cy + 1, cx, cy - 3, '#6a6a66');
+        paEllipse(g, cx - 1.5, cy - 4, 3, 2, '#d8d8d0');
+        paEllipse(g, cx - 1.5, cy - 4.5, 2, 1.2, '#f0f0e8');
+        rl(cx - 1.5, cy - 4, cx + 2, cy - 5.5, '#6a6a66');
       }
     }
   }

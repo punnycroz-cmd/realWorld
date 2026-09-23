@@ -660,15 +660,108 @@ function sfRenderStreet(cw, ch){
         if(!facingCam) continue;
         sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
       }
-      // roof cap
-      ctx.fillStyle = night ? '#2a2624' : '#5d5850';
-      ctx.beginPath();
-      let started = false;
+      // roof cap: per-building tar color + subtle sun shading + parapet lip
+      const ROOF = rampOf(SF_ROOF_COLS[Math.floor(phash(b.i, 11, 1302) * SF_ROOF_COLS.length)]);
+      const rpts = [];
       for(const [x, y] of P){
         const p = pr(x, y, hm);
-        if(p){ started ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); started = true; }
+        if(p) rpts.push(p);
       }
-      if(started){ ctx.closePath(); ctx.fill(); }
+      if(rpts.length > 2){
+        let yMin = Infinity, yMax = -Infinity;
+        for(const p of rpts){ yMin = Math.min(yMin, p[1]); yMax = Math.max(yMax, p[1]); }
+        const rg = ctx.createLinearGradient(0, yMin, 0, yMax);
+        if(night){ rg.addColorStop(0, '#221f1d'); rg.addColorStop(1, '#2e2a27'); }
+        else { rg.addColorStop(0, shade(ROOF[4], 1.06)); rg.addColorStop(1, shade(ROOF[2], 0.94)); }
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        rpts.forEach((p, i2) => i2 ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = night ? '#1a1816' : shade(ROOF[1], 0.85);
+        ctx.lineWidth = 1; ctx.stroke();
+        // faint tar-paper seams across the roof plane
+        if(!night && rpts.length >= 3){
+          ctx.save(); ctx.clip();
+          ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
+          const xMin = Math.min(...rpts.map(p => p[0])),
+                xMax = Math.max(...rpts.map(p => p[0]));
+          for(let sx = xMin + 14; sx < xMax; sx += 26){
+            ctx.beginPath(); ctx.moveTo(sx, yMin); ctx.lineTo(sx, yMax); ctx.stroke();
+          }
+          ctx.restore();
+        }
+      }
+      // v4: rooftop furniture silhouettes — water tanks, pipes, antennas,
+      // dishes rising above the parapet, scattered inside the footprint.
+      const roofAreaM = Math.abs(area); // P is in meters -> m²
+      const nRoof = Math.min(5, Math.floor(roofAreaM / 55));
+      let cxm = 0, cym = 0;
+      for(const [x, y] of P){ cxm += x; cym += y; }
+      cxm /= P.length; cym /= P.length;
+      for(let k = 0; k < nRoof; k++){
+        const e2 = P[Math.floor(phash(b.i, k, 1505) * P.length)];
+        const t = 0.25 + phash(k, b.i, 1506) * 0.5;
+        const fx = cxm + (e2[0] - cxm) * t, fy = cym + (e2[1] - cym) * t;
+        const kind = Math.floor(phash(b.i, k, 1507) * 5);
+        const base = pr(fx, fy, hm);
+        if(!base || base[2] > 200) continue;
+        const sc = F / base[2];
+        ctx.strokeStyle = night ? '#1c1a18' : '#4a4540';
+        ctx.fillStyle = night ? '#262220' : '#6a5f52';
+        if(kind === 0 && roofAreaM > 110){
+          // water tank: legs + banded barrel + cone cap
+          const lb = pr(fx, fy, hm), lt = pr(fx, fy, hm + 1.4),
+                tb = pr(fx, fy, hm + 1.4), tt = pr(fx, fy, hm + 3.4),
+                tp = pr(fx, fy, hm + 4.2);
+          if(!lb || !lt || !tb || !tt || !tp) continue;
+          const rw = Math.max(3, 1.6 * sc);
+          ctx.lineWidth = Math.max(1, 0.12 * sc);
+          for(const off of [-0.7, 0.7]){
+            const pl = pr(fx + off, fy, hm), pt2 = pr(fx + off * 0.6, fy, hm + 1.4);
+            if(pl && pt2){ ctx.beginPath(); ctx.moveTo(pl[0], pl[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke(); }
+          }
+          ctx.fillRect(tb[0] - rw, tt[1], rw * 2, tb[1] - tt[1]);
+          ctx.fillStyle = night ? '#1e1c1a' : '#54483c';
+          ctx.fillRect(tb[0] - rw, tb[1] - (tb[1] - tt[1]) * 0.45, rw * 2, Math.max(1, (tb[1] - tt[1]) * 0.08));
+          ctx.fillStyle = night ? '#262220' : '#7a6a58';
+          ctx.beginPath();
+          ctx.moveTo(tb[0] - rw, tt[1]); ctx.lineTo(tb[0] + rw, tt[1]);
+          ctx.lineTo(tp[0], tp[1]); ctx.closePath(); ctx.fill();
+        } else if(kind === 1){ // vent pipe with cap
+          const pt2 = pr(fx, fy, hm + 0.9 + phash(k, b.i, 1508));
+          if(!pt2) continue;
+          ctx.lineWidth = Math.max(1.2, 0.14 * sc);
+          ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
+          ctx.fillStyle = night ? '#2a2725' : '#8a8478';
+          ctx.beginPath(); ctx.ellipse(pt2[0], pt2[1], Math.max(1.5, 0.25 * sc), Math.max(0.8, 0.1 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        } else if(kind === 2){ // antenna mast + crossbars
+          const pt2 = pr(fx, fy, hm + 3 + phash(k, b.i, 1509) * 2);
+          if(!pt2) continue;
+          ctx.lineWidth = Math.max(0.8, 0.06 * sc);
+          ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
+          const bw2 = Math.max(2, 0.8 * sc);
+          for(const zz of [0.75, 0.9]){
+            const py = base[1] + (pt2[1] - base[1]) * zz;
+            ctx.beginPath(); ctx.moveTo(pt2[0] - bw2 * (1 - zz * 0.4), py);
+            ctx.lineTo(pt2[0] + bw2 * (1 - zz * 0.4), py); ctx.stroke();
+          }
+        } else if(kind === 3){ // AC box humping the parapet line
+          const bw2 = Math.max(3, 1.1 * sc), bh2 = Math.max(2, 0.5 * sc);
+          ctx.fillStyle = night ? '#242120' : shade(ROOF[3], 1.15);
+          ctx.fillRect(base[0] - bw2 / 2, base[1] - bh2, bw2, bh2);
+          ctx.fillStyle = night ? '#1c1a18' : shade(ROOF[1], 0.9);
+          ctx.beginPath(); ctx.ellipse(base[0], base[1] - bh2 / 2, bw2 * 0.28, bh2 * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+        } else { // satellite dish
+          const pt2 = pr(fx, fy, hm + 1.2);
+          if(!pt2) continue;
+          ctx.lineWidth = Math.max(1, 0.08 * sc);
+          ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
+          ctx.fillStyle = night ? '#2e2b29' : '#c8c8c0';
+          ctx.beginPath();
+          ctx.ellipse(pt2[0], pt2[1], Math.max(2, 0.55 * sc), Math.max(1.2, 0.3 * sc), -0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
       if(b.name){
         const p = pr(b.x / SF_PXM, b.y / SF_PXM, hm + 1.5);
         if(p){
