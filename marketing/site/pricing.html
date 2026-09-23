@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Credits &amp; Pricing — Real World</title>
-<meta name="description" content="What agency costs in Real World: credit packs, request pricing, the Resident subscription. Watching is always free. All figures provisional pre-launch.">
+<meta name="description" content="Watching is always free. Credit packs from $0.99, requests priced per minute upfront with a hard cap, Resident and Director subscriptions. The whole price list, honestly labeled.">
 <link rel="canonical" href="https://realworld-game.example/pricing.html"><!-- PLACEHOLDER domain -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Real World — Credits &amp; Pricing">
@@ -18,7 +18,20 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-page="pricing">
+<!--
+  ════════════════════════════════════════════════════════════════════
+  PRICING STATE SWITCH — ONE FLAG, ONE EDIT.
+  All prices below are PROPOSAL figures from
+  devin-reviews/rw-monetization-plan-2026-09-22.md.
+
+  To flip this page from provisional to final at launch:
+    1. Owner signs off on final numbers (edit the tables if they change).
+    2. Change data-pricing="provisional" to data-pricing="final" on <body>.
+  That single attribute hides every "provisional" badge/banner and shows
+  the final-state copy. See marketing/PRICING-PAGE-CONTENT.md.
+  ════════════════════════════════════════════════════════════════════
+-->
+<body data-page="pricing" data-pricing="provisional">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="nav-wrap">
@@ -42,11 +55,15 @@
     <p class="eyebrow">Pricing</p>
     <h1>Free to watch. Priced to reach in.</h1>
     <p class="lead">Observation costs nothing, forever. Credits — the meta currency —
-    buy moments of agency and a place in the cast. Here's the whole shape of it.</p>
-    <div class="notice"><span class="provisional">Provisional</span><br>
+    buy moments of agency and a place in the cast. Every price is printed before
+    you pay; nothing is randomized.</p>
+    <div class="notice prov-only"><span class="provisional">Provisional</span><br>
     Every number on this page is a <b>pre-launch planning figure</b> anchored to
     published competitor pricing — not a live store price. Final pricing is set
     at launch and this page will say so when it is.</div>
+    <div class="notice green final-only"><b>Final pricing.</b> These are the
+    launch prices. If they ever change, this page changes first — and any
+    purchase made before a change keeps the terms it was bought on.</div>
   </div>
 </section>
 
@@ -55,22 +72,33 @@
   <div class="wrap">
     <h2>Credit packs</h2>
     <p class="muted">Credits are spent on requests, world changes, and character
-    creation. They're non-transferable and never redeemable for money.</p>
+    creation. They're non-transferable, never redeemable for money, and never
+    expire. About a cent each — the same unit price players already know from
+    Robux and V-Bucks.</p>
     <div class="tbl-wrap">
     <table>
-      <tr><th>Pack</th><th>Credits</th><th>Price <span class="provisional">(provisional)</span></th><th>Per credit</th></tr>
-      <tr><td>Pocket</td><td>500</td><td>$4.99</td><td>~$0.010</td></tr>
-      <tr><td>Regular</td><td>1,100</td><td>$9.99</td><td>~$0.009</td></tr>
-      <tr><td>Neighbor</td><td>2,400</td><td>$19.99</td><td>~$0.008</td></tr>
-      <tr><td>Block</td><td>6,500</td><td>$49.99</td><td>~$0.008</td></tr>
+      <tr><th>Pack</th><th>Credits</th><th>Price <span class="provisional prov-only">(provisional)</span></th><th>Bonus</th><th>Per credit</th></tr>
+      <tr><td>Pocket</td><td>100</td><td>$0.99</td><td>—</td><td>$0.0099</td></tr>
+      <tr><td>Starter</td><td>550</td><td>$4.99</td><td>+10%</td><td>$0.0091</td></tr>
+      <tr><td>Regular</td><td>1,150</td><td>$9.99</td><td>+15%</td><td>$0.0087</td></tr>
+      <tr><td>Plus</td><td>2,500</td><td>$19.99</td><td>+25%</td><td>$0.0080</td></tr>
+      <tr><td>Pro</td><td>6,750</td><td>$49.99</td><td>+35%</td><td>$0.0074</td></tr>
+      <tr><td>Mogul</td><td>14,000</td><td>$99.99</td><td>+40%</td><td>$0.0071</td></tr>
     </table>
     </div>
-    <p class="muted">Pack names are placeholders. The ~$0.01/credit anchor follows
-    the industry-standard virtual-currency unit.</p>
-    <div class="notice green"><b>Or earn them.</b> Opt-in rewarded ads pay a few
-    credits per view, capped per day — enough to file a small compatible request
-    without ever opening a wallet. Credits can never be farmed by gameplay
-    grinding; that's deliberate, and it keeps gray markets out.</div>
+    <ul class="clean">
+      <li><b>First purchase +50%:</b> your first pack — any tier, one time — pays
+      half again as many credits.</li>
+      <li><b>Regional pricing:</b> packs are priced in local currency on a
+      published, purchasing-power-adjusted table. No silent geo-markup — and
+      since credits can't be transferred, regional pricing can't be arbitraged.</li>
+      <li><b>Spend caps:</b> $200/day default ($500 on verified accounts);
+      minor accounts are hard-capped.</li>
+    </ul>
+    <div class="notice green"><b>Or earn them.</b> Opt-in rewarded ads pay
+    <b>2 credits per view</b>, capped at 5 per day — about $0.45 a week of free
+    credits. Enough for a small request, deliberately never a wage. Credits can't
+    be farmed by gameplay grinding; that's the wall that keeps gray markets out.</div>
   </div>
 </section>
 
@@ -78,61 +106,141 @@
 <section>
   <div class="wrap">
     <h2>What requests cost</h2>
-    <p class="muted">Every request declares its action and duration upfront and is
-    priced in credits scaled to that duration. Hard cap — no overruns.</p>
+    <p class="muted">Every request declares its action and exact duration upfront
+    and pays in credits scaled to that duration. Hard cap — no overruns, no debt.
+    When time ends, control hands back gracefully to the AI.</p>
     <div class="tbl-wrap">
     <table>
-      <tr><th>Request class</th><th>Example</th><th>Cost <span class="provisional">(provisional)</span></th></tr>
-      <tr><td><b>Compatible</b> — runs alongside other activity</td><td>An open-mic night at the café for 30 min</td><td>25–75 credits</td></tr>
-      <tr><td><b>Exclusive</b> — locks a character or resource</td><td>Possess your own character for 1 hour; call rain for 2 hours</td><td>150–400 credits + peak-hour surge</td></tr>
-      <tr><td><b>Queued</b> — fires when the slot frees</td><td>Same as above, on a waitlist</td><td>Same class price, ~10% less</td></tr>
+      <tr><th>Request class</th><th>Rate <span class="provisional prov-only">(provisional)</span></th><th>≈ USD</th><th>Session cap</th></tr>
+      <tr><td><b>Compatible</b> — runs alongside other activity (e.g. possess your own character)</td><td>1.5 cr/min</td><td>~$0.85/hr</td><td>120 min</td></tr>
+      <tr><td><b>Exclusive</b> — locks a shared resource (a venue, an event window)</td><td>6 cr/min</td><td>~$3.30/hr</td><td>60 min</td></tr>
+      <tr><td><b>Queued</b> — fires when the slot frees</td><td>class rate −15%</td><td>—</td><td>same</td></tr>
     </table>
     </div>
     <ul class="clean">
-      <li>Queued requests that expire before activation are <b>auto-refunded</b>.</li>
-      <li>Admin overrides that cancel your run are <b>refunded in credits</b>.</li>
-      <li>Every request posts to the public feed — you always know what a moment cost and who bought it.</li>
+      <li><b>15-minute minimum</b> — a 15-min compatible session is ~22 credits,
+      about twenty cents. The cheapest moment of agency costs less than a gumball.</li>
+      <li><b>Surge pricing is honest:</b> ×1.5–2.5 on a resource that was
+      exclusively used in the last 6 hours or during prime-time windows — shown
+      on the request form <i>before</i> you pay. Never after.</li>
+      <li>Queued requests that expire before activation are <b>auto-refunded</b>.
+      Admin overrides that cancel your run are <b>refunded in credits</b>.</li>
+      <li>Cooldowns are never for sale. They're a fairness mechanism, not a
+      revenue lever — you can't pay to skip them.</li>
+      <li>Every request posts to the public feed — you always know what a moment
+      cost and who bought it.</li>
     </ul>
   </div>
 </section>
 
-<!-- CHARACTER + SUBSCRIPTION -->
+<!-- ONE-SHOT ACTIONS -->
+<section>
+  <div class="wrap">
+    <h2>One-shot actions</h2>
+    <p class="muted">Not every intervention is a session. Flat prices, declared
+    upfront <span class="provisional prov-only">(all provisional)</span>:</p>
+    <div class="tbl-wrap">
+    <table>
+      <tr><th>Action</th><th>What it does</th><th>Cost</th></tr>
+      <tr><td><b>Weather change</b></td><td>Rain, fog, or sun for a declared block — affects everyone, credited to you on the public feed</td><td>40–100 cr per block</td></tr>
+      <tr><td><b>NPC nudge</b></td><td>Suggest a course of action to a main character — they may decline, in character</td><td>30–60 cr <b>(50% auto-refund if declined)</b></td></tr>
+      <tr><td><b>Event trigger</b></td><td>Schedule a block party, street fair, blackout, park cleanup into the world calendar</td><td>150–300 cr</td></tr>
+      <tr><td><b>Camera director</b></td><td>Multi-cam, follow-mode, replay scrub — spectator-side only, changes nothing in-world</td><td>10 cr / 30 min</td></tr>
+    </table>
+    </div>
+    <p class="muted">We sell the ask, not the outcome: the nudge refund exists so
+    you're paying for a moment of drama, not a mind-control guarantee. Players
+    direct situations, never dialogue.</p>
+  </div>
+</section>
+
+<!-- SUBSCRIPTIONS -->
+<section>
+  <div class="wrap">
+    <h2>Subscriptions <span class="provisional prov-only">(provisional)</span></h2>
+    <p class="muted">Optional, monthly, cancelable. Perks are discounted currency,
+    convenience, and cosmetics — never power over free players.</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Resident — $4.99/mo</h3>
+        <ul class="clean">
+          <li>600 credits/mo stipend (≈$5.40 bought à la carte)</li>
+          <li>+1 character slot (total 2)</li>
+          <li>Queued-request priority — tie-breaks in your favor <i>within the
+          queued class only</i>; it can never preempt an active session</li>
+          <li>Weekly illustrated life digest for your street</li>
+          <li>Profile badge; no daily ad grind needed for the stipend</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Director — $11.99/mo</h3>
+        <ul class="clean">
+          <li>Everything in Resident</li>
+          <li>1,500 credits/mo total stipend</li>
+          <li>+1 more character slot (total 3)</li>
+          <li><b>Camera director mode unlocked</b> — multi-cam, replays, clips</li>
+          <li>Monthly exclusive cosmetic; name in the show credits</li>
+          <li>Early access to new request types</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted">Watching stays free without either tier — always. The
+    fairness audit: every perk is (a) discounted currency, (b) convenience or
+    cosmetics, or (c) a view-layer feature. None touches what a free player can
+    do in the world.</p>
+  </div>
+</section>
+
+<!-- CHARACTER CREATION -->
 <section>
   <div class="wrap">
     <h2>Joining the cast</h2>
     <div class="grid grid-2">
       <div class="card">
-        <h3>Character creation slot <span class="provisional">provisional</span></h3>
-        <p><b>500 credits</b> per character, or included with a Resident
-        subscription. Creating a character also requires renting in-game housing
-        with game dollars — nobody skips the lease.</p>
+        <h3>Character slot — 500 credits <span class="provisional prov-only">provisional</span></h3>
+        <p>One-time per character (≈$4.50). Includes basic wardrobe and the
+        starter apartment hunt. Max 3 characters per account. Creating a
+        character also requires renting in-game housing with game dollars —
+        nobody skips the lease.</p>
       </div>
       <div class="card">
-        <h3>Resident subscription <span class="provisional">provisional</span></h3>
-        <p><b>$4.99/mo:</b> a monthly credit stipend (600), one extra character
-        slot, priority position in the request queue, and a profile badge.
-        Watching stays free without it — always.</p>
+        <h3>Housing — game dollars only</h3>
+        <p>Rooms from ~$700/mo to whole Victorians at ~$5,500/mo — all in
+        in-world currency earned by working a job ($16–50/hr). Credits cannot
+        pay rent. Miss rent and the admin landlord can evict, on the public
+        record. That's what makes owning mean something.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PROPERTY -->
+<!-- PROPERTY LADDER -->
 <section>
   <div class="wrap">
     <h2>The property ladder</h2>
     <div class="tbl-wrap">
     <table>
-      <tr><th>Step</th><th>Paid in</th><th>Cost <span class="provisional">(provisional)</span></th></tr>
-      <tr><td>Rent a room or flat</td><td>Game dollars (weekly)</td><td>Earned in-world — never purchasable with credits</td></tr>
-      <tr><td>Buy a property (deed fee)</td><td>Credits, one-time</td><td>1,000–5,000 credits by tier</td></tr>
-      <tr><td>Property tax + upkeep</td><td>Game dollars (weekly)</td><td>Tuned against a working wage</td></tr>
-      <tr><td>Landlord license</td><td>Credits, one-time + gates</td><td>2,000 credits — requires owning ≥30 days + reputation threshold</td></tr>
+      <tr><th>Step</th><th>Paid in</th><th>Cost <span class="provisional prov-only">(provisional)</span></th></tr>
+      <tr><td>Rent a room or flat</td><td>Game dollars (monthly)</td><td>Earned in-world — never purchasable with credits</td></tr>
+      <tr><td>Buy a property (deed fee)</td><td>Credits, one-time</td><td>1,000–5,000 cr by tier (studio → whole Victorian)</td></tr>
+      <tr><td>Mortgage, property tax, upkeep</td><td>Game dollars</td><td>Tuned against a working wage</td></tr>
+      <tr><td>Landlord license</td><td>Credits, one-time + gates</td><td>2,000 cr — requires owning ≥30 days + reputation threshold</td></tr>
     </table>
     </div>
     <div class="notice"><b>The anti-pay-to-win rule, in one sentence:</b> status is
     earned in-world and only accelerated by spend. Dollars can't buy landlord
     standing, and credits can't buy reputation.</div>
+  </div>
+</section>
+
+<!-- COSMETICS -->
+<section>
+  <div class="wrap">
+    <h2>Cosmetics — direct purchase only</h2>
+    <p class="muted">Outfits 150–400 cr, premium sets 600–900 cr, furniture
+    100–1,200 cr, vanity touches (renames, unit plaques) 100–250 cr
+    <span class="prov-only">— all provisional</span>. Everything is previewed
+    before purchase. There is no chance mechanic anywhere in the store.</p>
   </div>
 </section>
 
@@ -142,10 +250,31 @@
     <h2>What money can never do here</h2>
     <div class="grid grid-3">
       <div class="card"><h3>Never buys the cast</h3><p>The eight mains can't be possessed at any price — by anyone, including us.</p></div>
-      <div class="card"><h3>Never cashes out</h3><p>Credits are a closed loop: non-transferable, non-redeemable, no trading, no gifting of exclusive requests.</p></div>
-      <div class="card"><h3>Never hides its odds</h3><p>There are none — no loot boxes, no gacha. Every price is printed before you pay.</p></div>
+      <div class="card"><h3>Never cashes out</h3><p>Credits are a closed loop: non-transferable, non-redeemable, no trading, no exchange for game dollars in either direction.</p></div>
+      <div class="card"><h3>Never hides its odds</h3><p>There are none — no loot boxes, no gacha. Every price is printed before you pay, surge included.</p></div>
     </div>
-    <div class="btn-row"><a class="btn btn-ghost" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"footer","dest":"how-it-works"}'>← How the request system works</a></div>
+    <details style="margin-top:22px">
+      <summary>Why these prices? (the comparison table)</summary>
+      <p>Anchors verified against live competitor pricing on 2026-09-22 — the
+      full source list lives in our monetization plan. The short version:</p>
+      <div class="tbl-wrap">
+      <table>
+        <tr><th>Our anchor</th><th>Market reference (USD)</th></tr>
+        <tr><td>~$0.01 per credit</td><td>Robux effective rate at scale; V-Bucks ≈$0.011; Twitch bit $0.014</td></tr>
+        <tr><td>$0.99 floor pack</td><td>Robux/V-Bucks entry-tier packs</td></tr>
+        <tr><td>Resident $4.99/mo</td><td>Roblox Plus $4.99, Second Life Plus $5.50, Habbo Club $3.99</td></tr>
+        <tr><td>Director $11.99/mo</td><td>Fortnite Crew $11.99</td></tr>
+        <tr><td>Exclusive ~$3.30/hr</td><td>FiveM/GTA-RP priority queue £5–20/mo — sold per-session instead so nobody squats</td></tr>
+        <tr><td>Deed fee $9–45</td><td>The Sims 4 DLC band ($9.99–39.99)</td></tr>
+      </table>
+      </div>
+      <p>One honest structural note: possession minutes cost us almost nothing
+      to serve — a human brain replaces the LLM while you play. Request pricing
+      is scarcity pricing (fair access to shared resources), not cost recovery,
+      and we say so.</p>
+    </details>
+    <div class="btn-row"><a class="btn btn-ghost" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"footer","dest":"how-it-works"}'>← How the request system works</a>
+    <a class="btn btn-ghost" href="faq.html" data-rw-event="cta_click" data-rw-props='{"cta":"footer","dest":"faq"}'>Money questions in the FAQ →</a></div>
   </div>
 </section>
 
@@ -172,7 +301,8 @@
   </div>
   <div class="wrap foot-note">
     © <span id="year"></span> Real World team. All characters are fictional; the neighborhood is real geography.
-    This is a pre-launch draft site — all prices are provisional planning figures.
+    <span class="prov-only">This is a pre-launch draft site — all prices are provisional planning figures.</span>
+    <span class="final-only">Prices shown are the live launch prices.</span>
   </div>
 </footer>
 

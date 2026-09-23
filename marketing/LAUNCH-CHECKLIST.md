@@ -15,8 +15,10 @@ Legend: `[ ] PENDING` = not done, not started (or drafted-but-unpublished).
 - [ ] PENDING — Game build verified live and stable enough for spectators
 - [ ] PENDING — Real domain registered; placeholder `realworld-game.example`
       replaced in: `site/` canonical links, OG URLs, `sitemap.xml`, `robots.txt`
-- [ ] PENDING — All pricing figures on `pricing.html` flipped from PROVISIONAL
-      to final, re-approved by owner
+- [ ] PENDING — Pricing flip: owner approves final numbers, then set
+      `data-pricing="final"` on `pricing.html` `<body>` (one attribute — see
+      PRICING-PAGE-CONTENT.md §1). Sync faq.html + pricing-post.md + store
+      copy in the same commit if numbers changed
 - [ ] PENDING — Logo + key art delivered (brand-identity focus, roadmap) and
       placed in `site/assets/` + press kit
 - [ ] PENDING — Press contact email + social handles actually registered
