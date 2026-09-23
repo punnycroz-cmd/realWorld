@@ -881,6 +881,14 @@ needs both.
 | savor_k / dampen_k | 0.0 / 0.0 | 1.0 / 1.0 | positive-affect valves (v5.6) |
 | future_cont / pself_mint | 0.0 / 0.0 | 1.0 / 0.3 | future-self continuity + pself mint (v5.6) |
 | elabor / elabor_dyad_gain | 0.0 / 0.0 | 1.0 / 0.4 | co-narration style + shared-detail gain (v5.6) |
+| pretest_gain / pretest_win | 0.0 / 0.01 | 0.5 / 0.5d | failed-recall potentiation mark (v5.8) |
+| hypercorr_gain / hypercorr_age_mult | 0.0 / 0.0 | 0.6 / 1.0 | confidence-scaled correction encoding (v5.8) |
+| interleave_gain / interleave_win | 0.0 / 0.1 | 0.4 / 3d | cross-category contrast legs; verbal null locked (v5.8) |
+| jol_fluency_bias | 0.0 | 0.4 | massed-fluency JOL over-read, report-side (v5.8) |
+| env_enc_gain | 0.0 | 0.5 | support→elaboration leg, ×(1−si_res) (v5.8) |
+| statlearn_gain / statlearn_min / statlearn_win / statlearn_age_w | 0.0 / 2 / 7 / 0.0 | 0.3 / 8 / 90d / 1.0 | co-occurrence semantic mint (v5.8) |
+| cheat_link_gain | 0.0 | 0.5 | self/ingroup-harmed actor↔act link (v5.8) |
+| zeig_resist / zeig_win_ext | 0.0 / 0.5 | 0.7 / 4 | interrupted-intention persistence (v5.8, OBSERVE) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -2715,3 +2723,45 @@ actually touch:
   newcomer with two self-aspects has the most volatile mood in the
   cast — same events, divisor 2; (e) the low-future_cont character
   keeps breaking dates with a stranger who turns out to be herself.
+
+## 42. v5.8 note (encoding-mechanics V — the attempt before the trace)
+
+Clamp rows added in §0 for the nine v5.8 param rows. **None of these
+are trait pins** — every v5.8 dial is a mechanism constant; the
+character differences emerge from the fields and the existing trait
+machinery, not from new bible numbers. What bible authors should
+actually KNOW (the emergent shadow):
+
+- **Older mains get their encoding back through `envSupport`, not
+  through trying harder.** §61's complementarity means a scripted,
+  cued, structured day (regulars, familiar tasks, a spouse who
+  finishes sentences) is when the 70-year-old encodes like a
+  40-year-old; the same character in an unstructured novel setting
+  falls off the curve. Write elders INTO routines and their memory
+  reads younger; drop them into chaos and the deficit appears.
+  Same field, second reader: `envSupport` also rescues the
+  hypercorrection the old otherwise lose (§59 — they CAN update
+  confidently-wrong beliefs, but only when the world scaffolds it).
+- **The kid learns "who sits where" faster than anyone** —
+  `statlearn_age_w` weights the co-occurrence mint toward children
+  (Saffran); a young character accumulates sourced-less social
+  knowledge (who belongs with whom, which routine goes with which
+  hour) with NO episodic record behind it. The elders accumulate it
+  too, just slower — the ambient regular's "the usuals" layer is this
+  channel at population scale.
+- **The failed-recall mark is where believable "oh NOW I remember"
+  moments come from** — a character who reached for a name and
+  missed encodes the correction deeply when it arrives minutes
+  later (§58). It's also where believable "I crammed it and still
+  blanked" come from — `jol_fluency_bias` makes massed preparation
+  FEEL learned (§60's illusion is report-side only; the archive
+  disagrees).
+- **Trust violations weld the actor to the act ONLY when the
+  character had skin in the game** (§63) — "he cheated ME/us" mints
+  the hot link; "she heard he's a cheat" encodes the rumor normally.
+  A bible that wants a character who never lets a betrayal go should
+  make sure the betrayals are in-group, not described.
+- **Never pin:** all 15 v5.8 params are mechanism constants; the
+  three locked nulls (`interleave_verbal_null`, `cheat_recog_null`,
+  `disfluency_gain`) are adjudicated absences, not zeros awaiting
+  tuning.

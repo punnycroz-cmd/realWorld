@@ -1747,3 +1747,46 @@ Fourth pass on `memory/encoding-mechanics.md` (Part IV §§44–57, spec
   (Wood & Cowan PubMed, Conway DOI, Stangor & McMillan DOI, Nairne
   PubMed, Gable & Harmon-Jones DOIs, Urry/Morehead replication
   records).
+
+## 37. v60 — encoding-mechanics V: the attempt before the trace (2026-09-23)
+
+Part V closes the loop between encoding and what preceded it —
+the retrieval attempts, scaffolds, and co-occurrences that decide
+whether an event ever becomes a trace.
+
+- **The failed search warms the landing.** Kornell, Hays & Bjork
+  2009 + Richland, Kornell & Kao 2009 (both verified): an
+  unsuccessful retrieval attempt potentiates encoding of the answer
+  when it arrives — `pretest_mark` is content-locked and attempt-
+  gated (shown-but-unattempted = nothing, Richland Exp. 5). The
+  complement to §5.26's global forward-test boost: that one fires on
+  success, this on failure.
+- **Confident errors correct deepest.** Butterfield & Metcalfe 2001
+  hypercorrection (verified PMID 11713883) — correction E scales
+  with errConf; the old lose it unsupported (Metcalfe 2015
+  PMC3604148) and get it back under support (Cyr & Anderson 2013) —
+  both arms ride the same `envSupport` field, one mechanism.
+- **The scaffold does the work.** Craik's environmental support is
+  now two-legged: retrieval-side `env_support_gain` (v0.4) and the
+  new encode leg `env_enc_gain` ×(1−si_res) — complementarity means
+  the SAME scaffold that rescues the elder gives the young nothing
+  (Craik & Rose 2012; Naveh-Benjamin 2002 — verified).
+- **Knowledge with no episode.** Saffran 1996 + Turk-Browne 2005:
+  co-occurrence tallies mint θ-exempt links — the "just knows who
+  sits where" channel the episodic store can't produce.
+- **The moral-encoding edge is narrow on purpose.** Bell, Buchner &
+  Musch 2010 (experience-near cheating → recognition+source) vs
+  Buchner et al. 2009 (describe-only → source only, recognition
+  null — locked as `cheat_recog_null`).
+- **Interleaving teaches the difference, not the item** — contrast
+  legs get `interleave_gain`; episodic E unchanged; verbal material
+  locked null (Brunmair & Richter meta g=−0.39). JOL over-reads
+  massed fluency (Kornell & Bjork's illusion — report-side only).
+- **Adjudicated absences:** disfluency_gain = 0 (Xie 2018 d≈0.01;
+  Rummer 2016; Metacogn. Learn. 2016 special issue) — the second
+  CONTESTED-anchor absence assertion after P616.
+- Spec v5.7→v5.8: §2 +9 bullets, param block +16 params +3 locked
+  nulls, §10 contract fields (envSupport, corrects, harmedParty,
+  interrupted, pretest_mark, cooccur); profiles §0 +9 clamp rows +
+  §42; probes P629–P636 (registry P1–P636). 8 source families
+  web-verified.

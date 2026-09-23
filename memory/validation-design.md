@@ -5061,3 +5061,103 @@ battery's own outputs become an append-only, hash-chained artifact:
 Registry: P1–P628. v59 suite: P615–P628 (8 MUST, 5 SHOULD, 1 meta —
 P628 carries the peeking ban into the ledger era; P616 makes the
 battery assert *absence* for the first time).
+
+## 113. Probes P629–P636 (v60 suite — encoding-mechanics V)
+
+All bands follow the §14.2 rep_grade conventions; SINGLE-literature
+effects carry `rep_shrink` on the band.
+
+- **P629 pretest potentiation (SHOULD):** failed-recall marks → next
+  same-topic event recalls ≥1.3× matched unmarked at 7d; marks set
+  without an actual retrieval attempt produce NO boost (Richland
+  2009 Exp. 5 gate — the attempt, not the prompt); the wrong guess
+  mints as a competitor record (`gen_gain`) but the corrected answer
+  must out-recall it ≥2:1 at delay. Guards against conflation with
+  §5.26's global forward-test boost — mark is content-locked, not
+  window-global.
+- **P630 hypercorrection (MUST — sign-locked):** correction retention
+  monotone-increasing in pre-correction error confidence in young
+  adults; 65+ slope ≤ half the young slope at envSupport=0 AND ≥0.8×
+  the young slope at envSupport=1 — Cyr & Anderson's support rescue
+  must ride the SAME `envSupport` field as P632 (a second age-rescue
+  mechanism = spec violation).
+- **P631 interleaving (SHOULD):** cross-category discrimination
+  (PersonModel tier boundaries, domain attribution) better after
+  interleaved vs massed re-encodings on perceptual/person material
+  (band g ∈ [0.2, 0.7], Brunmair & Richter); verbal/expository
+  material |gain| ≤ 0.02 — the `interleave_verbal_null` guard.
+- **P632 env support at encoding (MUST — interaction shape):**
+  free-recall age gap shrinks ≥30% at envSupport=1 vs 0; support
+  must NOT lift young adults equivalently (a build where it helps
+  everyone equally is a flat-E bug — complementarity, not additive);
+  older cohort shows the largest si_res-weighted gain.
+- **P633 statistical learning (SHOULD):** entity pairs with
+  cooccur ≥ statlearn_min mint a θ-exempt link with NO episodic
+  record behind it — the character passes a familiarity/source-free
+  "knows who sits where" check while recall probes return null;
+  age gradient child > adult > old within the DEBATED band.
+- **P634 cheater link (SHOULD — two-armed):** self/ingroup-harmed
+  violations mint the actor↔violation link at the boosted rate AND
+  source memory for the pair survives ≥1.4× neutral at 30d;
+  describe-only (outgroup/none) cheater content shows |E − E_neutral|
+  ≤ 0.03 — the Buchner 2009 recognition null enforced structurally.
+- **P635 Zeigarnik (OBSERVE):** interrupted Intentions retain
+  §34 cue-heating ≥1.5× longer than completed ones and resist §5.33
+  deactivation by `zeig_resist`; wide band (moderated lit); if the
+  §5.33 deactivation probes regress, this term loses (§110 ledger
+  verdict accepts it).
+- **P636 disfluency absence (MUST — CONTESTED/negative anchor):**
+  degraded/effortful presentation at matched attention/elaboration
+  yields |d| ≤ 0.1 vs fluent — asserts ABSENCE per §14.2 semantics
+  (Xie 2018 meta d≈0.01; Rummer 2016 replications null; Metacogn.
+  Learn. 2016 special issue >1000 participants). A build that
+  "finds" the desirable-difficulty benefit here fails.
+
+## 114. Sources verified this version (P629–P636 backing)
+
+- Kornell, Hays & Bjork 2009 (JEP:LMC 35:989 — verified via DOI/
+  abstract: unsuccessful retrieval enhances subsequent learning;
+  failed attempts excluded from analysis, both paradigms);
+  Richland, Kornell & Kao 2009 (JEP:Applied 15:243 — verified:
+  5 experiments, attempt-required gate, italics-control arm);
+  Grimaldi & Karpicke 2012; Wong & Lim 2022 (derring — folded).
+- Butterfield & Metcalfe 2001 (JEP:LMC 27:1491 — verified: PMID
+  11713883, high-confidence errors hypercorrected); Butterfield &
+  Metcalfe 2006 (Metacogn. Learn. 1:69 — attentional-capture via
+  tone-detection probe); Metcalfe, Casal-Roscum, Radin & Friedman
+  2015 (PMC3604148 — verified: older adults' correspondence n.s.);
+  Cyr & Anderson 2013 (PB&R — verified: support restores the effect).
+- Kornell & Bjork 2008 (Appl. Cogn. Psych. — verified: artist-style
+  induction, massed judged better despite worse); Brunmair & Richter
+  2019 (Psych. Bull. 145:1029 — verified: 59 studies/238 effects,
+  g=0.42 overall, paintings 0.67, words −0.39, similarity
+  moderators).
+- Craik 1983/1986; Craik & Rose 2012 (Neurosci. Biobehav. Rev. —
+  verified: encoding-side review, self-initiation/environmental-
+  support complementarity, schematic support from the knowledge
+  base); Naveh-Benjamin, Craik & Ben-Shaul 2002 (Aging Neuropsychol.
+  Cogn. 9:276 — verified: support at encoding+retrieval shrinks the
+  age gap).
+- Saffran, Aslin & Newport 1996 (Science 274:1926 — verified:
+  8-month-old statistical segmentation); Turk-Browne, Jungé & Scholl
+  2005 (verified: adult incidental visual statistical learning);
+  Aslin 2017 (review).
+- Buchner, Bell, Mehl & Musch 2009 (Evol. Hum. Behav. 30:212 —
+  verified: no recognition boost, better source memory for
+  cheaters); Mehl & Buchner 2007/2008 (EHB 29:35 — Mealey
+  occupation-status confound); Bell, Buchner & Musch 2010
+  (Cognition — verified: game-suffered cheating enhances recognition
+  AND source); Mealey, Daood & Krage 1996 (canonical target).
+- Zeigarnik 1927 (interrupted-task recall — direction real, size
+  DEBATED; OBSERVE tier).
+- Diemand-Yauman, Oppenheimer & Vaughan 2011 (Cognition 118:114 —
+  the claim); Rummer, Schweppe & Schwede 2016 (Metacogn. Learn.
+  special issue — verified: 3 direct replications null, no
+  distinctiveness rescue); Metacognition & Learning 2016 special
+  issue (6 studies, >1000 participants); Xie et al. 2018 meta
+  (d ≈ 0.01 — verified via abstract).
+
+Registry: P1–P636. v60 suite: P629–P636 (3 MUST — P630 sign-locked,
+P632 interaction-shape, P636 the second CONTESTED-anchor absence
+assertion after P616; 3 SHOULD; 1 OBSERVE — Zeigarnik is the first
+OBSERVE-tier encode mechanic whose ledger verdict can retire it).

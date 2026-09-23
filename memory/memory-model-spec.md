@@ -1,5 +1,32 @@
-# Memory Model Spec v5.7 — implementable human-like memory for RW characters
+# Memory Model Spec v5.8 — implementable human-like memory for RW characters
 
+> **v5.8 note (encoding-mechanics V — the attempt before the trace):**
+> `memory/encoding-mechanics.md` Part V (§§58–70). **Pretest
+> potentiation** — a FAILED recall attempt marks the topic; the next
+> matching event encodes hot (Kornell 2009; Richland 2009 — attempt
+> required, content-locked; complements §5.26's successful-recall
+> global boost). **Hypercorrection** — corrective feedback encodes ∝
+> the error's confidence (Butterfield & Metcalfe 2001), attenuated in
+> the old unless supported (Metcalfe 2015; Cyr & Anderson 2013 rides
+> `envSupport`). **Interleaving** — cross-category re-encoding order
+> feeds discriminative legs, NOT episodic E; verbal material locked
+> null (Brunmair & Richter 2019 g=−0.39); JOL over-reads massed
+> encodings (`jol_fluency_bias` — report bias, never strength).
+> **Environmental support AT ENCODING** — `envSupport` ×(1−si_res)
+> feeds elaboration; the scaffold substitutes for self-initiation,
+> complementarity not freebie (Craik 1983; Craik & Rose 2012;
+> Naveh-Benjamin 2002). **Statistical learning** — co-occurrence
+> tallies mint θ-exempt semantic/impl links with no episode behind
+> them (Saffran 1996; Turk-Browne 2005) — "just knows" knowledge.
+> **Cheater link** — self/ingroup-harmed violations mint the
+> actor↔act link hot (Bell 2010); describe-only content gets NO
+> recognition boost (`cheat_recog_null` — Buchner 2009's null made
+> structural). **Zeigarnik** — interrupted Intentions resist
+> deactivation and keep cue-heating longer (OBSERVE tier). **Locked
+> nulls:** `disfluency_gain = 0` (Xie 2018 meta d≈0.01 — CONTESTED
+> anchor asserting absence), `interleave_verbal_null`,
+> `cheat_recog_null`. +16 params, probes P629–P636.
+>
 > **v5.7 note (validation-design III — the battery learns to distrust
 > itself):** `memory/validation-design.md` §§105–110 is methodology,
 > no new psychology. **Replication-graded anchoring** — every human
@@ -2188,6 +2215,64 @@ Postman 1964; Hyde & Jenkins 1973).
   `extref` (§35); `note:"generative"` → `elaboration +=
   note_gen_gain` (0.10). Locked null `note_mode_null` = 0 — device
   modality adds nothing (Urry et al. 2021; Morehead et al. 2019).
+- **Pretest potentiation (v5.8):** a failed `recall`/selfReport
+  (searchCost incurred, no emit) stamps `pretest_mark:{topicKey,day}`
+  (lifetime `pretest_win` ≈0.05d); next same-topic event `E +=
+  pretest_gain` (0.2) — the failed search warms the landing
+  (Kornell et al. 2009; Richland et al. 2009: attempt REQUIRED —
+  shown-unattempted sets no mark; content-locked, not global —
+  §5.26's fwd boost is the other arm). The wrong guess mints at
+  `gen_gain` as a competitor record — the cost is real.
+- **Hypercorrection (v5.8):** correction events (`type:"correction"`
+  or witnessed contradiction of a stored field) gain `E +=
+  hypercorr_gain·errConf·(0.5+0.5·envSupport)·(1 − hypercorr_age_mult
+  ·(1−envSupport)·deficit_proxy)` — confident errors correct
+  deepest (Butterfield & Metcalfe 2001), old cohort halved unless
+  supported (Metcalfe 2015; Cyr & Anderson 2013's rescue rides the
+  SAME envSupport field — one mechanism). The error record persists
+  (§13.1 rewrites govern); `cie_residual` is its downstream leak.
+- **Interleaving (v5.8):** consecutive same-axis encodings that are
+  DIFFERENT categories within `interleave_win` (0.5d) feed
+  discriminative legs `+ interleave_gain` (0.15) — PersonModel tier
+  boundaries, domain attribution; episodic E unchanged. Locked null
+  `interleave_verbal_null = 0` (words/expository: meta g=−0.39 —
+  blocking may win). `jol` output over-reads massed/fluent encodings
+  +`jol_fluency_bias` (0.15) — felt ease ≠ stored strength
+  (Kornell & Bjork 2008's illusion, report-side only).
+- **Environmental support at encoding (v5.8):** Event field
+  `envSupport ∈ [0,1]` (world supplies the processing frame — guided
+  task, scripted routine, cued interlocutor). `elaboration +=
+  env_enc_gain·envSupport·(1 − si_res)` (0.2; si_res = self-initiation
+  resource, derived 1−deficit_proxy) — support substitutes for the
+  self-initiation the old lack (Craik 1983/1986; Craik & Rose 2012;
+  Naveh-Benjamin, Craik & Ben-Shaul 2002). Complementarity, not
+  freebie: the young get ~nothing (their si_res is already doing it).
+  Encoding leg of the retrieval-side `env_support_gain` pair.
+- **Statistical learning (v5.8):** per-char co-occurrence tally per
+  entity-pair over `statlearn_win` (30d); at ≥`statlearn_min` (3) each
+  further co-occurrence mints `statlearn_gain` (0.08) onto the pair's
+  θ-exempt semantic/impl link — knowledge with no episode behind it
+  (Saffran 1996; Turk-Browne 2005). Age weight `statlearn_age_w`
+  (0.3): child ×(1+w), old ×(1−0.5w) — gradient DEBATED, existence
+  CONSENSUS. The bridge to "who sits where" without a Tuesday.
+- **Cheater link (v5.8):** `harmedParty ∈ {self,ingroup,outgroup,
+  none}` on norm-violation events; self/ingroup-harmed →
+  `link_p_eff = link_p + cheat_link_gain·(1−link_p)` (0.2) — victim-
+  side welding of actor to act (Bell, Buchner & Musch 2010 — the
+  effect needs skin in the game). Locked null `cheat_recog_null = 0`:
+  describe-only (outgroup/none) cheater content gets NO item-
+  recognition boost (Buchner et al. 2009 — source memory improves,
+  recognition does not).
+- **Zeigarnik (v5.8, OBSERVE):** `interrupted:true` Intentions take
+  `zeig_resist` (0.3) off §5.33's deactivation pull and keep §34
+  cue-heating ×`zeig_win_ext` (2.0) — the half-finished errand stays
+  warm. If §5.33 probes regress, this term loses (§110 ledger).
+- **Disfluency — locked null (v5.8):** `disfluency_gain = 0`.
+  Perceptual effort adds nothing at encoding (Xie et al. 2018 meta
+  d≈0.01; Rummer et al. 2016 replications null; Metacogn. Learn.
+  2016 special issue). Difficulty that deepens SEMANTIC processing
+  helps (Part I); difficulty that makes input harder to READ does
+  not — CONTESTED anchor asserting absence (§14.2, P636).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -8276,6 +8361,20 @@ MemoryParams = {
 //   §6.101); repr_erase_null = 0 (repress suppresses ACCESS, the
 //   records are never deleted — §6.102, Davis 1990 recognition-null
 //   included).
+// v5.8 additions (encoding-mechanics V — EM§§58–70)
+"pretest_gain": 0.2, "pretest_win": 0.05,    // failed-recall mark, §58
+"hypercorr_gain": 0.25, "hypercorr_age_mult": 0.5, // §59, support-gated
+"interleave_gain": 0.15, "interleave_win": 0.5,    // §60 contrast legs
+"jol_fluency_bias": 0.15,                  // JOL massed over-read, §60
+"env_enc_gain": 0.2,                       // encode-side support, §61
+"statlearn_gain": 0.08, "statlearn_min": 3, "statlearn_win": 30,
+"statlearn_age_w": 0.3,                    // co-occurrence mint, §62
+"cheat_link_gain": 0.2,                    // victim-side link, §63
+"zeig_resist": 0.3, "zeig_win_ext": 2.0,   // interrupted intent, §64
+// v5.8 locked nulls: interleave_verbal_null = 0 (meta g=−0.39);
+//   cheat_recog_null = 0 (describe-only cheaters — no recognition
+//   boost, Buchner 2009); disfluency_gain = 0 (Xie 2018 d≈0.01 —
+//   CONTESTED anchor, P636 asserts absence).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -9374,6 +9473,30 @@ not resolved (DEBATED magnitude). P509/P511.
     routings carrying the remin_style tag (§6.103 — integrative
     routings may mint persSem synthesis records per §4.23).
   - All snapshot-additive, absent = legacy.
+- v5.8 additions (encoding-mechanics.md Part V §§58–70):
+  - Event fields (all optional, default-neutral): `envSupport` ∈
+    [0,1] (§61 — world supplies the processing frame; also consumed
+    by §59's age-rescue term — ONE field, two readers);
+    `corrects:{topic, errConf}` on correction events (§59 — errConf
+    is the confidence of the error being corrected, read off the
+    stored record, never authored); `harmedParty` ∈ {self, ingroup,
+    outgroup, none} on norm-violation events (§63); `interrupted:true`
+    on the boundary that ends a task mid-flight (§64).
+  - Char state (snapshot): `pretest_mark` map {topicKey → expiry}
+    (§58 — set by FAILED recall attempts only; a shown-but-unattempted
+    prompt sets nothing); `cooccur` tallies per entity-pair with
+    `statlearn_win` expiry (§62 — mints θ-exempt links, never
+    records).
+  - Report-side: `jol`/`selfReport` metamemory reads apply
+    `jol_fluency_bias` on massed/fluent encodings (§60 — felt ease
+    is emitted, never stored as strength).
+  - World-builder hooks: `envSupport` comes from the scene's
+    structure tag (guided task, scripted routine, cued interlocutor);
+    `harmedParty` comes from the norm-violation tagger (who was
+    harmed relative to the witness); `interrupted` from task
+    boundaries on open Intentions; `cooccur` rides the same
+    entity-pair census the §6.93 usuals layer already counts.
+    All snapshot-additive, absent = legacy.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

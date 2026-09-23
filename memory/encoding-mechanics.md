@@ -1648,3 +1648,422 @@ cannot report their own staleness flag).
   null + verbatim-overlap survivor); Morehead, Dunlosky & Rawson
   2019 (Educ. Psych. Rev. 31:753 — replication/extension);
   Kobayashi 2005 (Contemp. Educ. Psych. 30:242 — note-taking meta).
+
+---
+
+# Part V — encoding-mechanics, fifth pass (v60 focus)
+
+**Version tag:** spec v5.8. Parts I–IV priced what the event was, how
+it was processed, what state the encoder was in, and the social cast
+around it. Part V closes the loop between encoding and *the attempts
+that precede it* (pretest potentiation, hypercorrection), the
+**scaffold the world provides** (environmental support at encoding —
+the encode-side leg Craik's theory always had and the spec only had at
+retrieval), the **channel that needs no episode at all** (statistical
+learning / co-occurrence), the **discriminative ordering of
+re-encoding** (interleaving), the **moral-encoding edge** (cheater
+source-link — narrowed by the 2009 null), one DEBATED persistence
+effect (Zeigarnik), and one adjudicated non-effect locked as a null
+(disfluency — the CONTESTED-anchor class §14.2 was built for).
+14 new params, 3 locked nulls, 8 probes (P629–P636).
+
+## 58. Pretest potentiation — the failed search warms the landing (ESTABLISHED)
+
+Kornell, Hays & Bjork (2009, JEP:LMC 35:989 — verified: fictional
+general-knowledge questions and weak-associate guessing, failed
+attempts excluded from analysis): an *unsuccessful* retrieval attempt
+before the answer arrives produces better subsequent learning than the
+same time spent reading. Richland, Kornell & Kao (2009, JEP:Applied
+15:243 — verified: five experiments, benefit survives italics-matched
+attention-direction controls, but NOT when the question is merely
+shown without an attempt — the attempt, not the prompt, potentiates).
+Grimaldi & Karpicke 2012; Little & Bjork 2016; Kornell & Vaughn 2016
+(review). Mechanism DEBATED — mediator-network activation vs
+attentional orienting — but the phenomenon replicates. Related:
+deliberate-error generation ("derring effect," Wong & Lim 2022) is the
+same engine — generating a guess, even a wrong one, potentiates the
+correction.
+
+**Boundary vs existing machinery:** §5.26 forward testing is a
+*successful* recall bout warming the encoder globally for `fwd_win`;
+this is the *failed* attempt potentiating the *specific content*. No
+overlap: §5.26 fires on emit, this fires on search-without-emit.
+
+**Formalization.** A `recall`/`selfReport` probe that fails
+(searchCost incurred, nothing emitted above θ) stamps
+`pretest_mark:{topicKey, day}` on char state, lifetime `pretest_win`
+(≈0.05 day — same scene, next conversation). The next event whose
+topic matches `topicKey` while a mark is live:
+
+```
+E += pretest_gain                       (0.2, gated: mark live)
+```
+
+The wrong guess itself mints a generated record at `gen_gain` —
+it competes later (error intrusion risk is the honest cost), but the
+corrected answer out-encodes it. Two structural gates, per the
+literature: the attempt must actually run (a shown-but-unattempted
+question sets no mark — Richland 2009 Exp. 5), and the boost is
+content-locked, not global (unlike fwd_test_gain). RW consequence:
+the character who *tried* to remember the neighbor's name at the gate
+encodes it for keeps when someone says it ten minutes later; the
+character who never reached for it lets it slide again.
+
+## 59. Hypercorrection — confident error, deep correction (CONSENSUS core; age-moderated)
+
+Butterfield & Metcalfe (2001, JEP:LMC 27:1491 — verified): errors
+endorsed with HIGH confidence are more likely to be corrected by
+feedback than low-confidence errors — the counterintuitive result,
+replicated widely (Butterfield & Metcalfe 2006, Metacogn. Learn. 1:69
+— attentional-capture account: tone detection is selectively impaired
+during feedback to high-confidence errors — the correction grabs
+attention). Metcalfe, Casal-Roscum, Radin & Friedman (2015, PMC3604148
+— verified): older adults show a DIMINISHED hypercorrection —
+confidence-correction correspondence not significantly >0 — despite
+higher overall accuracy and intact metacognition. Cyr & Anderson
+(2013, PB&R — verified): the age deficit shrinks/vanishes when the
+learning context provides support (multiple-choice vs free recall) —
+the moderation is *support-dependent*, which is exactly §61's lever.
+
+**Formalization.** Corrective-feedback events — `account` carrying
+`type:"correction"` (§6.6 path) or a witnessed event that
+contradicts a stored field — gain a term proportional to the
+*confidence of the error being corrected*:
+
+```
+E += hypercorr_gain · errConf · (0.5 + 0.5·envSupport)
+      · (1 − hypercorr_age_mult·(1 − envSupport)·deficit_proxy)
+```
+
+`hypercorr_gain` ≈ 0.25; `hypercorr_age_mult` ≈ 0.5 (older cohort's
+advantage halves unsupported; Cyr & Anderson's support rescue rides
+the SAME `envSupport` field as §61 — one mechanism, not two).
+`deficit_proxy` = the character's self-initiation deficit
+(1 − si_res, §61). The error record is NOT deleted — §13.1 rewrite
+rules govern content change; hypercorrection is the *encoding* of the
+correction event, which is why confident-but-wrong characters still
+emit the error when the correction decays — the continued-influence
+residual (`cie_residual`) now has an upstream partner.
+
+## 60. Interleaving — contrast encodes the difference (ESTABLISHED; sign flips by material)
+
+Kornell & Bjork (2008, Appl. Cogn. Psych. — verified: artist-style
+induction; spacing helped INDUCTION, against the "spacing is the
+enemy of induction" prior; participants rated massed as more
+effective even after their own scores proved otherwise — the
+metacognitive illusion). Brunmair & Richter (2019, Psych. Bull.
+145:1029 meta — verified: 59 studies / 238 effects: overall g = 0.42;
+visual/category material best — paintings g = 0.67; math tasks small
+g = 0.34; **words/expository text: blocked BEAT interleaved,
+g = −0.39**). Moderator pattern: interleaving wins when categories
+are similar and within-category items differ — it teaches the
+*difference*, not the item.
+
+**Formalization.** Track re-encoding order per knowledge axis
+(PersonModel acquaintance categories, domain tags). When two
+consecutive encodings on the same axis are DIFFERENT categories
+(interleaved) vs same (massed), and the pair falls within
+`interleave_win` (0.5 day):
+
+```
+discriminative legs (PersonModel tier boundaries, domain
+  attribution): link/field contrast += interleave_gain   (0.15)
+episodic E: unchanged — induction is about telling things apart
+locked null: interleave_verbal_null = 0 — expository/verbal
+  material gets NO interleave term (meta g < 0; blocking legal)
+```
+
+The metacognitive side: `jol` output (§5.21) over-reads massed/fluent
+encodings — add `jol_fluency_bias` (0.15) to JOL emission for
+massed-context items (Bjork's desirable-difficulty illusion; the
+character "feels" the cramming worked). This is a report-side bias,
+never a strength term — `se_accuracy_null`'s cousin: felt ease is
+not stored strength.
+
+## 61. Environmental support at encoding — the scaffold does the work (CONSENSUS)
+
+Craik (1983, 1986 — verified review thread) proposed memory tasks
+differ in required *self-initiated processing* and compensable
+*environmental support*, complementary: less support → more
+self-initiation needed; older adults' deficit is disproportionately
+in self-initiation, so support at ENCODING (and retrieval —
+spec already has the retrieval leg via `env_support_gain`, §5.4)
+disproportionately rescues them. Craik & Rose (2012, Neurosci.
+Biobehav. Rev. — verified: encoding-focused review; schematic
+support from the knowledge base counts as support). Naveh-Benjamin,
+Craik & Ben-Shaul (2002, Aging Neuropsychol. Cogn. 9:276 — verified:
+cued-recall support at encoding AND retrieval shrinks the age gap).
+
+**Formalization.** New Event field `envSupport ∈ [0,1]` — how much of
+the processing structure the world supplies: guided interaction,
+scripted routine, an interlocutor who cues, a task with the frame
+built in. Define `si_res = clamp(1 − deficit_proxy, 0.3, 1)` —
+self-initiation resource; `deficit_proxy` derives from the existing
+age/executive machinery (age_eff-driven; traits `wmc`, `consc` add).
+
+```
+elaboration += env_enc_gain · envSupport · (1 − si_res)   (env_enc_gain ≈ 0.2)
+```
+
+The term is automatically age-targeted — the SAME mechanism that
+makes the 70-year-old encode fine in a structured familiar setting
+gives the 25-year-old nothing (their self-initiation is already
+doing the work; support is redundant, not additive — Craik's
+complementarity, not a freebie). Distinct from §7 unitization
+(unitization binds elements into one item; env support supplies the
+processing frame) and from retrieval-side env_support_gain (that one
+rescues *cues given*; this one rescues *encoding structure given*).
+P632 asserts the interaction: the age gap must shrink under
+envSupport=1 vs 0 — a build where support helps everyone equally is
+a failure (that's just E), as is one where it helps nobody.
+
+## 62. Statistical learning — co-occurrence without episode (CONSENSUS phenomenon; sim channel HYPOTHESIS)
+
+Saffran, Aslin & Newport (1996, Science 274:1926): 8-month-olds
+segment speech from transitional probabilities after ~2 min of
+exposure — no intention, no instruction, no episodic store to speak
+of. Turk-Browne, Jungé & Scholl (2005): adults show the same
+incidental statistical extraction for visual streams; Aslin 2017
+review. This is the channel that produces knowledge nobody can source:
+you "just know" who sits where, which shelf the mugs live on, that
+those two always arrive together — no Tuesday you can name underwrote
+it.
+
+**Formalization.** The sim already counts co-occurrence for the
+usuals layer (§6.93); extend the counter to a semantic-leg mint:
+per character, per entity-pair (person×place, person×person,
+object×place), maintain `cooccur` tally over `statlearn_win` (30 d).
+When tally ≥ `statlearn_min` (3), each further co-occurrence adds
+`statlearn_gain` (0.08) to the pair's semantic/impl link — θ-exempt
+like `impl_str` (§5.35), survives independent of any episodic record.
+Age weighting `statlearn_age_w` (0.3): children ×(1+age_w),
+older adults ×(1−age_w·0.5) — infant statistical learning is the
+proven engine; adult intact; old-age decline modest (HYPOTHESIS
+gradient — the age literature on implicit/statistical learning is
+mixed, mark DEBATED on slope, CONSENSUS on existence).
+
+RW payoff: this is what lets an ambient character greet the right
+regulars with the right order on day 90 without a single retrievable
+episode — the archive stays empty, the knowledge is real. The bridge
+between the episodic store and "how the world just is."
+
+## 63. Cheater encoding — the victim-side link, not the face (ESTABLISHED, narrow claim)
+
+The literature is precise about WHERE the effect lives. Buchner,
+Bell, Mehl & Musch (2009, Evol. Hum. Behav. 30:212 — verified):
+NO enhanced old-new recognition for cheater faces; better SOURCE
+memory — you remember the cheating-context association, not the face
+better. Mehl & Buchner 2007/2008: the Mealey 1996 canonical result
+failed to generalize (occupation-status confound reversed it). Bell,
+Buchner & Musch (2010, Cognition — verified): when cheating is
+suffered in an actual social-dilemma interaction (experience-near,
+not trait-description), BOTH recognition and source memory improve.
+So: the module fires on *being cheated (or your people being
+cheated)*, not on hearing someone described as a cheat.
+
+**Formalization.** The spec's decay-side `cheat_source_mult` (§4.10)
+and `cheaterLoad` accumulator stay. Add the encoding leg: Event
+field `harmedParty ∈ {self, ingroup, outgroup, none}` on
+norm-violation events. When harmedParty ∈ {self, ingroup}, the
+actor↔violation associative link mints at
+
+```
+link_p_eff = link_p + cheat_link_gain·(1 − link_p)   (≈ 0.2)
+```
+
+— violated trust welds the actor to the act (the person's *name* gets
+bound to *what they did*, which is exactly what gossip needs and
+exactly what the 2009 source-memory result says survives). Locked
+null `cheat_recog_null = 0`: describe-only cheater content (hearsay,
+harmedParty = outgroup/none) gets NO item-recognition E boost —
+encoding the rumor normally is the 2009 null honored. The
+experience-near gate is Bell 2010's finding made structural: only
+skin-in-the-game violations get the module.
+
+## 64. Zeigarnik — the interrupted task stays warm (DEBATED size; CONSENSUS direction)
+
+Zeigarnik (1927): interrupted tasks recalled better than completed —
+a real effect in the original and in several replications, but the
+modern verdict is mixed and moderated (task involvement, ego-threat
+explanations, weak meta support — mark OBSERVE). What the sim already
+has: §34 pending-intention pull taxes the encoder while loops are
+open, and §5.33 deactivates Intentions on completion. The Zeigarnik
+claim adds one thing those don't: the *interrupted* open loop is
+hotter than the merely-pending one — the task material itself stays
+access-privileged until closure.
+
+**Formalization.** `Intention` records interrupted mid-execution
+(world flag `interrupted:true` on the boundary that ended the task)
+get `zeig_resist` (0.3) subtracted from §5.33's deactivation pull and
+their §34 cue-heating persists ×`zeig_win_ext` (2.0). Completion, not
+interruption, is what lets a task go cold — which is why the
+half-finished errand nags at dinner and the finished one doesn't.
+OBSERVE-tier: P635 bands wide; if the effect can't be produced
+without breaking §5.33's deactivation probes, it loses — the ledger
+accepts that verdict.
+
+## 65. Disfluency — adjudicated, locked null (CONTESTED → negative anchor)
+
+Diemand-Yauman, Oppenheimer & Vaughan (2011, Cognition 118:114):
+hard-to-read fonts improved retention — a flagship "desirable
+difficulty" result. The replication record killed it: Rummer,
+Schweppe & Schwede (2016) direct replications null (and no
+distinctiveness rescue); the Metacognition & Learning 2016 special
+issue assembled six studies, >1000 participants, mostly null; Xie
+et al. (2018) meta d ≈ 0.01. This is precisely the CONTESTED-anchor
+class §14.2 was built for: the model must NOT produce a disfluency
+benefit. **Locked null `disfluency_gain = 0`** — perceptual effort
+adds nothing at encoding; if a build shows degraded-input events
+encoding better at matched attention/elaboration, that is a bug
+(P636 asserts absence). Note the asymmetry the null protects:
+difficulty that produces deeper *semantic* processing encodes better
+(Part I elaboration); difficulty that merely makes the input harder
+to *read* does not — the pipeline, not the friction, is what matters.
+
+## 66. Deliberate non-adds (v60)
+
+- **Transfer-appropriate processing:** §5.12 has it — `encodeOps`
+  is already set at encoding from the engagement channel and read at
+  retrieval (`tap_mismatch`). This version adds nothing; the encode-
+  side ops label was already priced.
+- **Encoding-mode × retrieval-mode for cheater content:** source-vs-
+  item asymmetry is the §63 formalization itself — no extra term.
+- **Familiarity-only encode band:** §4.23's channel split + §5.35's
+  `impl_str` already give recollection-free familiarity; the
+  co-occurrence mint (§62) is the accumulation mechanism it lacked —
+  a new `fam_encode_min` threshold would double-count the att_min gate.
+- **Own-name / own-face at encoding:** §45 breakthrough is the
+  privileged-detection machinery; no second channel.
+- **Mood-dependent encoding:** §8 mood congruence (v1.2) already
+  clamps to thin ambient content; a stronger claim isn't supported.
+- **Reward anticipation:** folded into `value_select`/importance in
+  Part III (§39) — no re-add.
+- **Bizarreness:** folded into `isolated`/`distinct_gain` in Part I;
+  no re-add.
+- **Acute exercise / caffeine timing:** consolidation-side, already
+  adjudicated (`caff_consol_gain`, exercise non-add Part III).
+
+## 67. Parameter summary (new in v5.8 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `pretest_gain` | 0.2 | 0–0.5 | failed-recall potentiation of next same-topic event | Kornell et al. 2009; Richland et al. 2009 |
+| `pretest_win` | 0.05 | 0.01–0.5 d | mark lifetime (same scene / next hour) | Richland 2009 (proximity) |
+| `hypercorr_gain` | 0.25 | 0–0.6 | correction E ∝ error confidence | Butterfield & Metcalfe 2001/2006 |
+| `hypercorr_age_mult` | 0.5 | 0–1 | age attenuation of hypercorrection, support-gated | Metcalfe et al. 2015; Cyr & Anderson 2013 |
+| `interleave_gain` | 0.15 | 0–0.4 | cross-category contrast on discriminative legs | Kornell & Bjork 2008; Brunmair & Richter 2019 |
+| `interleave_win` | 0.5 | 0.1–3 d | re-encoding-order window | Brunmair & Richter 2019 |
+| `jol_fluency_bias` | 0.15 | 0–0.4 | JOL over-read on massed/fluent encodings | Kornell & Bjork 2008 (illusion); Bjork desirable-difficulty |
+| `env_enc_gain` | 0.2 | 0–0.5 | support→elaboration leg, ×(1−si_res) | Craik 1983/1986; Craik & Rose 2012; Naveh-Benjamin 2002 |
+| `statlearn_gain` | 0.08 | 0–0.3 | per-co-occurrence semantic/impl link mint | Saffran 1996; Turk-Browne 2005 |
+| `statlearn_min` | 3 | 2–8 | co-occurrence threshold before minting | Saffran 1996 |
+| `statlearn_win` | 30 | 7–90 d | tally window | HYPOTHESIS |
+| `statlearn_age_w` | 0.3 | 0–1 | child-weighting of the channel | Saffran 1996 (gradient DEBATED) |
+| `cheat_link_gain` | 0.2 | 0–0.5 | actor↔violation link mint, self/ingroup-harmed only | Bell, Buchner & Musch 2010 |
+| `zeig_resist` | 0.3 | 0–0.7 | interrupted-Intention deactivation resistance | Zeigarnik 1927 (OBSERVE) |
+| `zeig_win_ext` | 2.0 | 0.5–4 | cue-heating persistence multiplier | Zeigarnik (moderated) |
+
+**Locked nulls (v5.8):** `interleave_verbal_null = 0` (no interleave
+gain on verbal/expository material — meta g = −0.39);
+`cheat_recog_null = 0` (no item-recognition boost for describe-only
+cheater content — Buchner 2009); `disfluency_gain = 0` (perceptual
+difficulty adds nothing — Xie 2018 meta d ≈ 0.01; Rummer 2016).
+
+## 68. Validation probes P629–P636
+
+- **P629 pretest potentiation (SHOULD):** failed-recall marks → next
+  same-topic event recalls ≥1.3× matched unmarked at 7d; marks set
+  without an actual retrieval attempt produce NO boost (Richland Exp.
+  5 gate); the wrong guess mints as a competitor record (gen_gain)
+  but the corrected answer must out-recall it ≥2:1 at delay.
+- **P630 hypercorrection (MUST — sign-locked):** correction retention
+  is monotone-increasing in pre-correction error confidence in young
+  adults; 65+ cohort's slope ≤ half the young slope at envSupport=0
+  AND ≥0.8× the young slope at envSupport=1 (Cyr & Anderson rescue
+  rides the SAME field — a second age-rescue mechanism is a flag).
+- **P631 interleaving (SHOULD):** cross-category discrimination
+  (PersonModel tier boundaries, domain attribution) better after
+  interleaved vs massed sequences on perceptual/person material;
+  verbal material shows |gain| ≤ 0.02 (locked-null guard).
+- **P632 environmental support at encoding (MUST — interaction
+  shape):** free-recall age gap shrinks ≥30% at envSupport=1 vs 0;
+  support must NOT lift young adults equivalently (complementarity —
+  a build where support helps everyone equally is a flat-E bug);
+  older cohort shows the largest si_res-weighted gain.
+- **P633 statistical learning (SHOULD):** entity pairs with
+  cooccur ≥ statlearn_min mint a θ-exempt link with NO episodic
+  record behind it — the character can pass a familiarity/source-free
+  "knows who sits where" check while recall probes return null;
+  gradient child > adult > old within the DEBATED band.
+- **P634 cheater link (SHOULD — two-armed):** self/ingroup-harmed
+  violations mint the actor↔violation link at the boosted rate AND
+  source memory for the pair survives ≥1.4× neutral at 30d;
+  describe-only (outgroup/none) cheater content shows |E − E_neutral|
+  ≤ 0.03 (the 2009 null enforced — recognition-side flat).
+- **P635 Zeigarnik (OBSERVE):** interrupted Intentions retain cue-
+  heating ≥1.5× longer than completed ones and resist deactivation
+  by zeig_resist; wide band; if §5.33 deactivation probes regress,
+  the effect loses (per §110 ledger verdict).
+- **P636 disfluency absence (MUST — CONTESTED/negative anchor):**
+  degraded/effortful presentation at matched attention/elaboration
+  yields |d| ≤ 0.1 vs fluent — asserts ABSENCE per §14.2 semantics;
+  a build that "finds" the desirable-difficulty benefit here fails.
+
+## 69. Spec deltas delivered (v5.8)
+
+- `memory-model-spec.md` → v5.8: §2 +6 bullets (pretest, hypercorr,
+  interleave, env-support-at-encode, statlearn, cheater-link,
+  zeigarnik — as bullets, all Event/state fields optional w/
+  defaults); §7-style param block +16 params +3 locked nulls; §10
+  contract + Event fields (`envSupport`, `corrects:{topic,errConf}`,
+  `harmedParty`, `interrupted:true`, `interleaved` internal,
+  `pretest_mark` char-state) and JOL `jol_fluency_bias` report bias.
+- `character-memory-profiles.md`: §0 +9 clamp rows; §42 v5.8 note —
+  what bible authors should touch: none of these are trait pins
+  (all mechanism constants), but profiles read the emergent shadow
+  (older mains lean on envSupport + cheat link + statlearn; kids lean
+  on statlearn + pretest).
+- `validation-design.md`: §§113–114 — probes P629–P636 + sources.
+  Registry P1–P636.
+- `human-memory-research.md`: §37 v60 summary appended.
+
+## 70. Sources new to this version (all verified 2026-09-23)
+
+- Kornell, Hays & Bjork 2009 (JEP:LMC 35:989 — verified via DOI/
+  abstract record: unsuccessful retrieval enhances subsequent
+  learning; fictional general-knowledge + weak-associate paradigms);
+  Richland, Kornell & Kao 2009 (JEP:Applied 15:243 — verified:
+  5 experiments, attempt-required gate, italics-control arm).
+- Butterfield & Metcalfe 2001 (JEP:LMC 27:1491 — verified: high-
+  confidence errors hypercorrected; PMID 11713883); Butterfield &
+  Metcalfe 2006 (Metacogn. Learn. 1:69 — attentional-capture account,
+  tone-detection probe); Metcalfe, Casal-Roscum, Radin & Friedman
+  2015 (PMC3604148 — verified: older adults' hypercorrection
+  diminished, conf-correction correspondence n.s.); Cyr & Anderson
+  2013 (PB&R — verified: support restores the older-adult effect).
+- Kornell & Bjork 2008 (Appl. Cogn. Psych. — verified: artist-style
+  induction, massed judged better despite worse performance);
+  Brunmair & Richter 2019 (Psych. Bull. 145:1029 — verified: g=0.42
+  overall; paintings 0.67; words −0.39; similarity moderators).
+- Craik 1983/1986; Craik & Rose 2012 (Neurosci. Biobehav. Rev. —
+  verified: encoding-side review, self-initiation/environmental-
+  support complementarity); Naveh-Benjamin, Craik & Ben-Shaul 2002
+  (Aging Neuropsychol. Cogn. 9:276 — verified: cued-recall support
+  at encoding + retrieval shrinks age gap).
+- Saffran, Aslin & Newport 1996 (Science 274:1926 — verified:
+  8-month-old statistical segmentation); Turk-Browne, Jungé & Scholl
+  2005; Aslin 2017 (review).
+- Buchner, Bell, Mehl & Musch 2009 (Evol. Hum. Behav. 30:212 —
+  verified: no recognition boost, better source memory for cheaters);
+  Mehl & Buchner 2007/2008 (EHB 29:35 — the Mealey confound);
+  Bell, Buchner & Musch 2010 (Cognition — verified: game-experienced
+  cheating enhances both recognition and source); Mealey, Daood &
+  Krage 1996 (canonical target that failed to generalize).
+- Zeigarnik 1927 (interrupted-task recall — direction real, size
+  DEBATED; marked OBSERVE).
+- Diemand-Yauman, Oppenheimer & Vaughan 2011 (Cognition 118:114 —
+  the claim); Rummer, Schweppe & Schwede 2016 (Metacogn. Learn.
+  special issue — verified: 3 direct replications null, no
+  distinctiveness rescue); Metacognition & Learning 2016 special
+  issue (6 studies, >1000 participants — verified); Xie et al. 2018
+  meta (d ≈ 0.01 — verified via abstract).
