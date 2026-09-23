@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v14)
+# Main Cast Index — "The Mission" (world v28)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -25,10 +25,10 @@ Every bible uses the same fields:
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
 
-## Roleplay layer (v14)
+## Roleplay layer (v14, deepened v28)
 
-Five added sections per bible — enough that a stranger could play the
-character consistently on day one. Field order is now fixed:
+Added sections per bible — enough that a stranger could play the
+character consistently on day one. Field order is fixed:
 
 1. header facts (age/ethnicity/pronouns, job, home)
 2. Look
@@ -38,16 +38,29 @@ character consistently on day one. Field order is now fixed:
 6. **Under pressure** — stress signature
 7. **Notices / misses** — perception profile (what the brain sees vs. skips)
 8. **Won't do** — hard behavioral boundaries
-9. Public profile · surface relationships · daily routine (briefing-safe)
-10. Secrets & seeds (never surfaces)
+9. **Backstory (five beats)** — dated biography (v28). Public-history only:
+   the beats may foreshadow a seed's *terrain* (a face-down laptop, a
+   face-down notebook) but never state the seed. Think of these as the
+   parts a patient viewer could assemble from months of watching.
+10. **The room** — camera-legible home description (v28): what the viewer
+    actually sees if the feed ever looks inside. Observable objects only;
+    a telling detail is allowed ("two drawers never open at once"), its
+    explanation is not.
+11. **With strangers** — default posture toward tourists, newcomers, and
+    player-hired characters (v28). Written as tendencies, never rules —
+    the brain decides in the moment; this is the prior.
+12. Public profile · surface relationships · daily routine (briefing-safe)
+13. Secrets & seeds (never surfaces — always the LAST section)
 
-`world/characters.json` mirrors sections 4–8 plus the briefing-safe block
-for the brain/prompt layer. Section placement note: the roleplay layer sits
-between personality and the briefing-safe block — mannerisms and voice are
-*public-observable* (safe for thin-AI phrase kits per thinai.json), while
-"under pressure" and "notices/misses" are written as perception habits —
-they gesture at blind spots without stating the seed behind them; seed
-content stays in section 10 only.
+`world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
+strangers fields and the briefing-safe block for the brain/prompt layer.
+Section placement note: the roleplay layer sits between personality and the
+briefing-safe block — mannerisms and voice are *public-observable* (safe for
+thin-AI phrase kits per thinai.json), while "under pressure" and
+"notices/misses" are written as perception habits — they gesture at blind
+spots without stating the seed behind them; seed content stays in the final
+section only. The `bible` gate in `world/audit.js` enforces the section
+list and order mechanically.
 
 ## Roster
 

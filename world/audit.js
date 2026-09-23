@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v27).
+/* world/audit.js — RW boundary audit (world v28).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -31,6 +31,10 @@
      thinai    — thinai.json ↔ thinai.html agreement; locked feed
                  vocabulary only on the wire; handoff note forbidden
                  fields absent by construction; mode-allowance matrix
+     bible     — characters/*.md carry the fixed 14-section order with
+                 SECRETS last; characters.json mirrors roleplay/briefing
+                 fields + v28 backstory/room/strangers; cast.html CAST
+                 ids and card fields agree
 
    Under audit: the locked boundaries only. NOT under test here or anywhere
    in this harness: LLM behavior (sim STOPPED), real payments, concurrency,
@@ -503,13 +507,81 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G13 bible ============ */
+{
+  const g = gate('bible', 'character-bible contract (characters/*.md sections ↔ characters.json ↔ cast.html)');
+  try {
+    const CJ = JSONF('characters.json');
+    const html = rd('cast.html');
+    /* the fixed section list, in fixed order (index file §"field order") */
+    const SECTIONS = ['## Look', '## Personality', '## Voice', '## Mannerisms',
+      '## Under pressure', '## Notices / misses', "## Won't do",
+      '## Backstory (five beats)', '## The room', '## With strangers',
+      '## Public profile', '## Surface relationships', '## Daily routine',
+      '## SECRETS & SEEDS'];
+    const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
+    const byId = {};
+    for (const c of CJ.cast || []) byId[c.id] = c;
+    for (const id of IDS) {
+      const c = byId[id];
+      if (!c) { add(g, 'fail', 'characters.json', null, `${id} missing from cast`); continue; }
+      /* json mirror completeness */
+      for (const k of CJ.conventions.roleplay_fields)
+        if (c[k] === undefined) add(g, 'fail', 'characters.json', null, `${id}: roleplay field "${k}" missing`);
+      for (const k of CJ.conventions.briefing_safe_fields)
+        if (!(c.briefing_safe || {})[k]) add(g, 'fail', 'characters.json', null, `${id}: briefing_safe.${k} missing`);
+      if (c.seed_lock !== true) add(g, 'fail', 'characters.json', null, `${id}: seed_lock not true`);
+      /* bible file exists + section order + secrets last */
+      if (!fs.existsSync(path.join(W, c.bible))) {
+        add(g, 'fail', c.bible, null, `${id}: bible file missing`);
+      } else {
+        const md = rd(c.bible);
+        let pos = -1;
+        for (const s of SECTIONS) {
+          const i = md.indexOf(s);
+          if (i < 0) add(g, 'fail', c.bible, null, `${id}: section "${s}" missing`);
+          else if (i < pos) add(g, 'fail', c.bible, null, `${id}: section "${s}" out of order`);
+          else pos = i;
+        }
+        const sec = md.indexOf('## SECRETS & SEEDS');
+        if (sec >= 0 && /(^|\n)## /.test(md.slice(sec + 1)))
+          add(g, 'fail', c.bible, null, `${id}: a ## section follows SECRETS & SEEDS — secrets must be last`);
+        /* five beats actually five */
+        const bs = md.slice(md.indexOf('## Backstory'), md.indexOf('## The room'));
+        const beats = (bs.match(/^- \*\*\d/gm) || []).length;
+        if (beats < 5) add(g, 'fail', c.bible, null, `${id}: backstory has ${beats} dated beats (<5)`);
+        /* home address in the bible header agrees with the json */
+        if (!md.includes(c.home.split(',')[0]))
+          add(g, 'fail', c.bible, null, `${id}: json home "${c.home}" not found in bible`);
+      }
+      /* new v28 fields stay observable-safe: no seed vocabulary */
+      for (const k of ['backstory_brief', 'room', 'strangers'])
+        if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
+          add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
+    }
+    /* cast.html CAST ids and new fields agree with characters.json */
+    const cm = html.match(/const CAST=(\[[\s\S]*?\n\]);/);
+    if (!cm) add(g, 'fail', 'cast.html', null, 'inline CAST block not found');
+    else {
+      const CAST = eval(cm[1]);
+      const htmlIds = CAST.map(c => c.id).sort().join(',');
+      if (htmlIds !== IDS.join(','))
+        add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
+      for (const c of CAST)
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout'])
+          if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
+    }
+    g.detail = `schema v${CJ.version} · ${(CJ.cast || []).length} mains · ${SECTIONS.length} required sections`;
+  } catch (e) { add(g, 'fail', 'characters.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v27 local';
+out.build = 'world v28 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

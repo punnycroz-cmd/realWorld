@@ -67,6 +67,36 @@ the point) and never misses a payment. Never flirts — devotion expresses
 as punctuality and soup. Never takes a shortcut on food, even at 1 a.m.,
 even alone.
 
+## Backstory (five beats)
+
+- **1990** — born in San Miguel, El Salvador; kitchen-raised — his mother's
+  pupusas are the standard everything else is measured against.
+- **2002** — arrives in the Mission at 12. Learns English in a middle-school
+  cafeteria and keeps the accent on purpose.
+- **2011** — dishwasher at El Farolote at 21. The fifteen-year climb —
+  dishes to prep to line to lead — is the biography he actually tells.
+- **2019** — becomes lead cook; starts the monthly wire to his mother and
+  has never once missed it.
+- **2024** — starts walking the supplier loop with a notebook; regulars
+  notice him pricing equipment the way other people browse listings.
+
+## The room (camera-legible)
+
+A studio kept like a station: bed square, shoes lined by the door —
+immaculate Jordans first — a small table with a chair pushed in at an
+exact angle. Fridge full of other people's leftovers he's portioning to
+give away. One photograph of his mother taped inside a cabinet door, where
+he sees it reaching for glasses. A shelf of recipe clippings and a
+notebook that stays face-down when anyone visits.
+
+## With strangers
+
+Formal, quiet, and generous in that order — a stranger gets fed before
+they get talked to. He watches how people treat service workers and files
+it permanently; a rude customer gets correct service and nothing else,
+forever. Newcomers who finish their plate get a second one unasked. He
+learns names slowly and keeps them permanently.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

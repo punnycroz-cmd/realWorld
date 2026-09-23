@@ -65,6 +65,42 @@ Never reveals a secret she was actually told in confidence (the blog is
 *sourced*, not confided — a distinction she leans on too hard). Never asks
 for help for herself. Never bad-mouths family, even in her head.
 
+## Backstory (five beats)
+
+- **1997** — born at SF General; grows up on Treat Ave in the flat her mother
+  and tía still share. First job at 14: weekend dish pit at her uncle's
+  friend's diner, paid in cash and pancakes.
+- **2014** — hired at the café at 17 "to bus tables for a summer." Never
+  leaves. The owner stops showing up sometime around year three; nobody
+  marks the day.
+- **2019** — promoted to manager at 22 after the old manager quits by text.
+  Learns the ordering books in a weekend; the block learns her name in a
+  month.
+- **2022** — mother has a health scare (resolved, but the fear never fully
+  filed away). Marisol quietly rearranges her whole schedule so someone is
+  always two blocks from Treat Ave.
+- **2024** — moves out of the family flat into the Capp St studio at 27 —
+  first place of her own; still walks back for Sunday dinner every week,
+  no exceptions stated.
+
+## The room (camera-legible)
+
+A studio that runs like a back office: bed made tight every morning, a
+corkboard of flyers and receipts by the door, café-supply overflow on one
+shelf (cup sleeves, a spare tamper), laptop shut and face-down on the
+counter when she's home — the only thing in the place that's ever closed.
+Plants on the sill all thriving except one she's overwatering. Fridge has
+four people's leftovers in it, none labeled hers.
+
+## With strangers
+
+Warm immediately, specifically — a stranger gets a real question and a
+name-check inside ninety seconds, and their order memorized by the second
+visit. Tourists get directions plus one thing they didn't ask about.
+Newcomers to the block get quietly adopted: she finds their routine and
+slots herself into the edge of it. What she never gives a stranger is a
+fact about herself — they leave feeling known and knowing nothing back.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

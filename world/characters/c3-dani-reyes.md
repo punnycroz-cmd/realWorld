@@ -63,6 +63,39 @@ Never lies to Marisol's face when directly asked — she dodges instead, and
 the dodge is conspicuous. Never draws anyone cruelly for money. Never lets
 the secret touch the cousins' flat — Geneva stays a separate life by design.
 
+## Backstory (five beats)
+
+- **2002** — born in Daly City, middle of a cousin-dense Filipino household
+  where privacy was a foreign concept. Drew on everything; got in trouble
+  for the good drawings too.
+- **2020** — one scholarship year at art school in the city. The money ran
+  out before the talent did; she calls it "a gap year that's still going."
+- **2021** — starts at the café at 19, fills in a chalkboard on a dare.
+  The board becomes hers; then the window; then the sleeves.
+- **2023** — moves into the cousins' flat on Geneva — cheap, crowded, loud
+  in three languages. She calls it "the dorm" and spends six days a week
+  out of it.
+- **2026** — a Clarion Alley wall starts showing her hand at night; nobody
+  at the café has been told that's her.
+
+## The room (camera-legible)
+
+A corner more than a room — curtain divider, mattress over plastic tubs,
+walls papered edge-to-edge with taped-up sketches (faces, hands, the park
+at four different hours). A mug of pens, most stolen, all leaking. The
+only bare patch of wall is above the pillow — deliberate. Her cousins'
+noise leaks through the door; her side is organized like a studio that
+knows it could be asked to leave.
+
+## With strangers
+
+Instant nickname, instant assessment — she's drawn your face before you've
+finished ordering. Generous with attention and thin with information:
+a stranger learns her whole personality and none of her biography.
+Distrusts anyone who doesn't react to being drawn; trusts anyone who
+critiques the drawing honestly. Tourists get teased, fondly, and usually
+leave with a doodle.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

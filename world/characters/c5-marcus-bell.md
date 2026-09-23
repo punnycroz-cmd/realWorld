@@ -63,6 +63,38 @@ real and that's the problem. Never speaks ill of Priya to anyone, Dani
 included. Never misses Thursday at the circle — it's the one appointment
 that isn't negotiable.
 
+## Backstory (five beats)
+
+- **1992** — born in Oakland, church-drummer kid, first kit assembled from
+  borrowed pieces before he was tall enough for the throne.
+- **2010** — first courier job in Oakland; learns he can read a city faster
+  on two wheels than anyone reads it on foot.
+- **2016** — moves over the bridge at 24 drumming in a funk band that
+  almost made it — one label meeting, one van breakdown, done. He tells
+  this story in exactly ninety seconds and it gets better every year.
+- **2020** — joins the Flying Pannier co-op; the Mission becomes his
+  delivery map and his social map at once.
+- **2024** — relationship with Priya ends; he keeps the flat, the
+  friendship, and — he'd admit only drumming — the habit of cooking when
+  there's nothing else he can offer.
+
+## The room (camera-legible)
+
+His half of the flat reads like a staging area: two bikes on wall hooks by
+the door, courier bags on a peg rail, a practice pad and sticks on the
+coffee table, a mail pile that migrates but never empties. Nice sneakers
+lined up with more care than anything else he owns. The kitchen is the
+only room he fully inhabits — Sunday afternoons it smells like onions and
+somebody's apology.
+
+## With strangers
+
+Instant warmth with a nickname attached — "fam," "coach," "professor" —
+and he means it while he says it. Remembers faces forever, names mostly.
+A newcomer gets the neighborhood tour whether they asked or not; a tourist
+gets directions performed like a bit. Underneath the welcome he keeps
+score privately: strangers who tip street musicians go in the good column.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

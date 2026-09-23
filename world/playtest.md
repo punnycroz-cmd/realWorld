@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v27)
+# Playtest Harness — "Real World / The Mission" (world v28)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -81,7 +81,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Twelve gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Thirteen gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -97,7 +97,11 @@ honesty strings, every wire push on a neutral feed template, licensed-landlord
 eviction is file-only — no evictConfirm path from the landlord mode),
 **thinai** (thinai.json ↔ thinai.html: storage key, inline MODES matrix matches
 the json pawn modes, every wire push on locked feed vocabulary, handoff-note
-writer carries no forbidden field, degrade mains-only, ambients always thin).
+writer carries no forbidden field, degrade mains-only, ambients always thin),
+**bible** (characters/*.md carry the fixed 14-section order with SECRETS last,
+five dated backstory beats each; characters.json mirrors roleplay/briefing
+fields + v28 backstory/room/strangers; cast.html CAST ids and card fields
+agree).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

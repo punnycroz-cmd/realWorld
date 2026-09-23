@@ -68,6 +68,38 @@ expressed only through refusal of small luxuries. Never breaks a
 confidence, including Jules's tenancy — she'd carry it to the
 convalescent home.
 
+## Backstory (five beats)
+
+- **1952** — born in Havana; leaves for Miami in 1981 with a sewing kit and
+  her mother's comb, which is still in her hair most days.
+- **1983** — reaches San Francisco; garment-shop piecework in the Mission.
+  Thirty years of hems, cuffs, and other people's weddings.
+- **1989** — moves into 9418 Guerrero, Unit A with her husband. The flat
+  outlives him; the sewing room stays his for thirty years until a kid from
+  Portland moves into it.
+- **1990s–2010s** — raises her son in this flat; he leaves for Sacramento
+  and calls monthly. She has outlasted four landlords' worth of neighbors.
+- **2013** — retires from the shop; the hemming follows her home by word
+  of mouth and has never stopped.
+
+## The room (camera-legible)
+
+The flat is forty years of decisions kept: her husband's sewing table still
+working by the front window, walls of thread spools sorted by color,
+photographs in frames that got dusted this morning, a cafetera that has
+never once been put away. Doilies she made and would call practical, not
+decorative. The only new thing in the room is whatever she's sewing —
+there is always something she's sewing.
+
+## With strangers
+
+Food first, questions second — a stranger at her stoop gets cafecito before
+they get asked their name, and then they get asked their name directly,
+plus where their mother is from. Formality is respect: full names, no
+rushing. Tourists she tolerates like weather. A newcomer who eats what
+she offers is halfway to chosen people; one who refuses twice has told her
+something she'll remember.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

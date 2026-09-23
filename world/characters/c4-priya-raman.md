@@ -67,6 +67,36 @@ mutual friends (the tally is private and she's ashamed of it). Never asks
 Victor for a favor personally — she'll fight him on principle but won't
 beg.
 
+## Backstory (five beats)
+
+- **1995** — born in Fremont, Tamil household, parents who still text her
+  in all caps. Expected to be a doctor; became a nurse instead and the
+  family made peace with it in record time (for them).
+- **2017** — BSN, first job on a telemetry floor. Learns the skill she'll
+  be known for: staying calm is a choice you make before the shift starts.
+- **2021** — moves to SF General med-surg. Three twelves a week; the
+  schedule looks brutal and is the only shape her life holds.
+- **2022** — moves into 9457 Guerrero with Marcus, then-boyfriend.
+- **2024** — the relationship ends amicably; the lease doesn't. Two years
+  of "temporary" roommate arrangement that nobody has renegotiated.
+
+## The room (camera-legible)
+
+Her half of the top-floor flat is the ordered half: books spine-out,
+a row of small plants on the fire-escape landing she waters on a schedule,
+one mug always aligned with the table's edge. The fridge door carries
+a shift calendar, a rent notice turned face-down, and a photo of the flat's
+better days nobody's taken down. Kitchen is hers on Sundays — clean
+counters, sharp knives, silence she chooses.
+
+## With strangers
+
+Polite, assessing, unhurried — she reads a stranger's health before their
+mood and files both quietly. Not cold: the warmth is real but it has a
+triage order, and strangers rank below the people she's already carrying.
+A newcomer who mentions an ache gets a full intake interview disguised as
+small talk. Tourists get accurate directions and no theater.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

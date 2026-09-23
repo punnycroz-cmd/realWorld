@@ -5,7 +5,7 @@
 <title>Real World — The Company (cast browser)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Cast browser — "The Company" (world v14). The spectator-facing cast page:
+  Cast browser — "The Company" (world v28). The spectator-facing cast page:
   what a viewer can learn about each of the 8 mains without spending a
   credit. Renders ONLY briefing-safe fields (public profile, look, surface
   relationships, routine) plus public-observable roleplay texture (voice,
@@ -102,49 +102,73 @@ const CAST=[
  mann:["retwists her hair-pencil when deciding whether to say a thing","wipes the same counter spot while hearing something uncomfortable","names orders before customers speak — itchy when she can't"],
  ties:[["Dani","coworker — little-sister energy"],["Jules","new hire she took under her wing"],["Tomás","his 3 p.m. coffee anchors both afternoons"],["Carmen","mends the aprons; gets the 'over-ordered' groceries"],["Victor","supplies the café; polite, wary"],["Priya","the oat latte, memorized"]],
  rout:[["00:00–05:30","home — sleep"],["05:30–14:00","Mudhaus — opens, runs counter"],["14:00–18:00","rounds: El Farolote → 9418 Guerrero → park → Buy-Rite"],["18:00–21:30","Mudhaus — close-up chatter"],["21:30–24:00","home"]],
- prof:"Mars manages the café on 24th and basically runs the neighborhood's nervous system. Born at SF General, raised on Treat Ave, never left. Knows your order, your dog's name, and probably what you're avoiding thinking about. Watch her between 2 and 4 — that's when she 'checks in' on the whole block."},
+ prof:"Mars manages the café on 24th and basically runs the neighborhood's nervous system. Born at SF General, raised on Treat Ave, never left. Knows your order, your dog's name, and probably what you're avoiding thinking about. Watch her between 2 and 4 — that's when she 'checks in' on the whole block.",
+ back:"Treat Ave kid — dish pit at 14, café at 17, manager at 22. Never left the block.",
+ room:"A studio run like a back office: corkboard of flyers and receipts, café-supply overflow on a shelf, a laptop face-down on the counter — the only closed thing in the place.",
+ strg:"Warm immediately and specifically — a real question and a name-check inside ninety seconds, your order memorized by visit two. Gives away nothing about herself."},
 {id:"C2",init:"JP",name:"Jules Park",arch:"the newcomer",age:26,job:"Barista · Mudhaus Coffee",home:"9418 Guerrero St, Unit A (Carmen's spare room)",look:"5'7\", lanky, dressed one climate behind — flannel in Mission sun. Grown-out undercut, wire frames, pin-covered messenger bag, scuffed Blundstones. Smiles like they're checking whether it's allowed.",voice:"Careful and formal, apologetic humor; narrates themselves in third person when nervous; Portland vocabulary leaks and gets caught.",
  samp:["Is this a block thing or a Carmen thing? I can't tell the difference yet.","Sorry — I ask a lot of questions. Occupational hazard of being new.","In Portland we— Sorry. I'm doing it again."],
  mann:["adjusts glasses with their wrist","sketches hands on cup sleeves at slow counter","eye contact a beat too long when interested, zero when evasive"],
  ties:[["Carmen","landlady/housemate — dinners nobody admits are routine"],["Marisol","trainer, first real friend in the city"],["Dani","coworker, sketchbook confidante"],["Priya","a regular they're shy around"],["Marcus","'Priya's roommate' — intimidating"],["Victor","introduced once as 'a friend of Carmen's family'"]],
  rout:[["00:00–06:30","home — sleep"],["06:30–08:00","park north path — run"],["08:00–15:00","Mudhaus — barista shift"],["15:00–19:00","park / home — sketching"],["19:00–24:00","home"]],
- prof:"The new kid behind the counter — Portland transplant, three months in. Runs the park's north path every morning, sketches the block in a notebook they guard closely, and is slowly being adopted by everyone at 9418 Guerrero whether they planned on it or not."},
+ prof:"The new kid behind the counter — Portland transplant, three months in. Runs the park's north path every morning, sketches the block in a notebook they guard closely, and is slowly being adopted by everyone at 9418 Guerrero whether they planned on it or not.",
+ back:"Portland printmaker turned roastery barista; a breakup and a lease renewal in the same week put them on the bus south.",
+ room:"Carmen's former sewing room — thread outlines still ghosted on the wallpaper. Their corner is all Portland: stacked sketchbooks, a kettle on a bookshelf, pins arranged by color.",
+ strg:"The friendliest nervous person on the block — two sincere questions, then an apology for both. Over-helps tourists with drawn maps."},
 {id:"C3",init:"DR",name:"Dani Reyes",arch:"the artist",age:24,job:"Barista + chalkboard artist · Mudhaus Coffee",home:"9263 Geneva Ave, Unit 4 (cousins' flat)",look:"5'3\", compact and kinetic, leans on the counter like it might leave. Copper-dyed ends, heavy bangs, hand-drawn oversized tees, stick-and-pokes on her fingers, one excellent koi on her shoulder.",voice:"Fast, playful, riffing — bits and dares. 'Besh'/'boss' at the counter. Gets funnier when nervous, which is its own tell.",
  samp:["I put your face on the sleeve again. That's a compliment, don't be weird.","Five bucks says Mars already knows. She always already knows.","I'm fine, I'm fine — why is everyone asking me that this week?"],
  mann:["draws constantly — margins, napkins, her own forearm","pulls bangs down when it turns personal","taps the pen behind her ear before dodging a question"],
  ties:[["Marisol","boss/sister figure"],["Jules","coworker she genuinely likes"],["Tomás","menu-board art for off-menu pupusas"],["Marcus","friendly regular; sketches 'for a friend'"],["Priya","pleasant counter acquaintance"],["Carmen","draws her on the park benches"]],
  rout:[["00:00–08:00","Geneva Ave — sleep"],["08:00–17:00","Mudhaus — shift"],["17:00–21:00","park → Clarion Alley — walks, draws"],["21:00–24:00","Geneva Ave — home-ish"]],
- prof:"Barista and chalkboard artist — the café's menus, window art, and collectible cup-sleeve doodles are all hers. Daly City kid, art-school dropout, crossed the county line and stayed for the park light. Where she goes some nights lately is her own business."},
+ prof:"Barista and chalkboard artist — the café's menus, window art, and collectible cup-sleeve doodles are all hers. Daly City kid, art-school dropout, crossed the county line and stayed for the park light. Where she goes some nights lately is her own business.",
+ back:"Daly City kid from a cousin-dense household; one scholarship year of art school before the money ran out. A chalkboard dare became the café's whole look.",
+ room:"A corner more than a room — curtain divider, mattress over tubs, walls papered edge-to-edge with taped sketches. The only bare patch is above the pillow.",
+ strg:"Instant nickname, instant sketch-assessment. Generous with attention, thin with biography; trusts anyone who critiques the drawing honestly."},
 {id:"C4",init:"PR",name:"Priya Raman",arch:"the caretaker",age:31,job:"RN, med-surg · SF General",home:"9457 Guerrero St, Unit 3 (with Marcus)",look:"5'6\", strong-shouldered, wears tired handsomely. Low braid she redoes without thinking, glasses forgotten on her head. Off-shift: joggers, Stanford hoodie, clogs. Watch tan line, stethoscope tattoo on her wrist.",voice:"Low, dry, economical — nurse cadence: short sentences, concrete nouns, diagnostic questions about people and appliances alike.",
  samp:["Your blood pressure is a whole narrative, Carmen. Sit.","The heater is cold, the rent is up, and I'm choosing one fight at a time.","I'm fine. That's not a bid for attention, it's a status report."],
  mann:["two fingers to a wrist mid-conversation","aligns exactly one thing on her café table","the worse it is, the cleaner the flat gets"],
  ties:[["Marcus","ex/roommate — real friendship, real residue"],["Victor","landlord — polite standoff over hike + heater"],["Carmen","unofficial check-ins for years"],["Marisol","knows her order and her moods"],["Jules","the new barista"],["Dani","friendly counter acquaintance"]],
  rout:[["00:00–06:30","home — sleep"],["06:30–19:30","SF General — shift days"],["19:30–21:00","Mudhaus — decompression"],["21:00–24:00","home"]],
- prof:"Nurse at SF General, three twelves a week. The café is her decompression chamber — same seat, same oat latte, same nod to Mars. Top floor at 9457 Guerrero, currently in a polite standoff with her landlord about a rent hike and a heater that doesn't heat."},
+ prof:"Nurse at SF General, three twelves a week. The café is her decompression chamber — same seat, same oat latte, same nod to Mars. Top floor at 9457 Guerrero, currently in a polite standoff with her landlord about a rent hike and a heater that doesn't heat.",
+ back:"Fremont Tamil household; BSN 2017, med-surg at SF General since 2021. Moved into 9457 with Marcus in 2022 — the relationship ended, the lease didn't.",
+ room:"Her half of the flat is the ordered half: spine-out books, fire-escape plants on a schedule, one aligned mug. The fridge carries a shift calendar and a photo of better days nobody took down.",
+ strg:"Polite, assessing, unhurried — reads your health before your mood. Mention an ache and get a full intake disguised as small talk."},
 {id:"C5",init:"MB",name:"Marcus Bell",arch:"the charmer",age:34,job:"Bike courier · Flying Pannier; Thursday drum circle",home:"9457 Guerrero St, Unit 3 (with Priya)",look:"6'1\", lean and long-strided. Short locs half pulled back, beard neater than his apartment. Loud courier softshells, vintage Raiders cap, reflective ankle strap he never takes off. Gap-toothed grin.",voice:"Easy, warm, percussive — jokes on the offbeat, 'fam/coach/professor' nicknames. Gets MORE charming when avoiding something.",
  samp:["I know every porch on this block. The porches know me back.","Rent's handled. — It's being handled. There's a timeline.","Thursday at the circle, I better see your face, fam."],
  mann:["taps rhythms on every surface","cap backward flirting, forward working","shows up with food when he can't show up with honesty"],
  ties:[["Priya","ex/roommate — real friendship"],["Victor","landlord who likes him personally"],["Tomás","drum-circle friend, splits burritos"],["Marisol","buys sketches 'for a friend'"],["Jules","'Priya's coworker kid'"],["Dani","friendly counter acquaintance"]],
  rout:[["00:00–08:00","home — sleep"],["08:00–18:00","courier loop — Buy-Rite, Dolores Perk, Baguette About It, 600 Club, Dandy Lion"],["18:00–21:00","park center — drums / hang"],["21:00–24:00","home"]],
- prof:"Bike courier — knows every porch on the block and most of the gossip that doesn't come through Mars. Oakland native; came over the bridge at 24 drumming in a funk band that almost made it. Still drums Thursdays at the park circle. Sundays he cooks for the flat."},
+ prof:"Bike courier — knows every porch on the block and most of the gossip that doesn't come through Mars. Oakland native; came over the bridge at 24 drumming in a funk band that almost made it. Still drums Thursdays at the park circle. Sundays he cooks for the flat.",
+ back:"Oakland church-drummer kid; the band got one label meeting and one van breakdown. Courier ever since — the delivery map and the social map are the same map.",
+ room:"His half reads like a staging area: bikes on wall hooks, bags on a peg rail, practice pad on the coffee table, a mail pile that migrates but never empties.",
+ strg:"Instant warmth with a nickname — 'fam', 'coach', 'professor' — and he means it. Newcomers get the tour whether they asked or not."},
 {id:"C6",init:"CE",name:"Carmen Echeverría",arch:"the block's memory",age:74,job:"Retired seamstress — cash hemming by word of mouth",home:"9418 Guerrero St, Unit A (since 1989)",look:"5'1\", small and upright — steel in the posture, arthritis in the hands. White bun pinned with a forty-year comb. Housedresses with pockets (non-negotiable), cardigan in every weather, bright lipstick Sundays.",voice:"Precise, unhurried, dry — sentences like hems. Cuban Spanish endearments for her chosen people. Exactly one joke per conversation.",
  samp:["You eat like a apology. Sit. I made too much.","Forty years in this flat, mijo. The walls and I have an agreement.","That girl draws my hands better than my hands deserve."],
  mann:["fingers always working a hem — still hands mean something's wrong","offers food instead of comfort, watches it get eaten","cane tapped twice on the stoop when displeased"],
  ties:[["Jules","tenant/housemate — dinners three nights a week"],["Victor","landlord of thirty years; the détente is personal"],["Priya","the nurse she trusts"],["Marisol","the 'over-ordered' groceries"],["Tomás","hems his shirts; feeds him like a son"],["Dani","subject of several sketches"]],
  rout:[["00:00–07:00","home — sleep"],["07:00–10:00","her stoop — cafecito, watching"],["10:00–16:30","Dolores Park, her palm — sitting, sewing"],["16:30–21:00","home — dinner, telenovelas"],["21:00–24:00","home — sleep"]],
- prof:"The block's memory. Cuban-born, in the same Guerrero flat since 1989, has outlasted four landlords' worth of neighbors. Mornings on the stoop with cafecito, afternoons under the same palm in Dolores Park. Still takes in hemming — leave it with Mars at the café."},
+ prof:"The block's memory. Cuban-born, in the same Guerrero flat since 1989, has outlasted four landlords' worth of neighbors. Mornings on the stoop with cafecito, afternoons under the same palm in Dolores Park. Still takes in hemming — leave it with Mars at the café.",
+ back:"Havana to Miami in '81 with a sewing kit and her mother's comb; thirty years of Mission garment piecework; the same flat since 1989.",
+ room:"Forty years of decisions kept: her husband's sewing table by the window, thread spools sorted by color, dusted photographs, a cafetera never put away. Always something mid-seam.",
+ strg:"Food first, questions second — cafecito before your name, then your name and your mother's hometown, asked directly."},
 {id:"C7",init:"VA",name:"Victor Auerbach",arch:"the landlord",age:58,job:"Owner · Auerbach Hardware; landlord, 9418/9457 Guerrero",home:"9102 Mission St, Unit 2 (above the store)",look:"6'0\", broad and softening — a former swimmer gone comfortably to seed. Thinning hair under a Giants cap, gray mustache. Work boots, canvas vest, keys on a carabiner. Hands always faintly dusty.",voice:"Gruff and hardware-plain — numbers first, questions that are really diagnoses. Warm about objects, formal about people; the warmth leaks anyway.",
  samp:["Fifteen years that pipe's been saying it. Now it's screaming.","The rent is the rent. — I'll look at the heater Tuesday. Both things.","My father put that shelf up. It's crooked. It stays."],
  mann:["counts things while talking — keys, bolts, tiles","writes everything on receipt paper","touches doorframes like checking a pulse"],
  ties:[["Carmen","thirty-year landlord-tenant friendship"],["Priya & Marcus","tenants — the hike and the heater"],["Tomás","tools lent, supplies sold"],["Marisol","café supplies; doesn't read blogs"],["Jules","met once, briefly"]],
  rout:[["00:00–08:00","home — sleep"],["08:00–18:00","hardware counter; Tuesdays: repairs at the Guerrero buildings"],["18:00–22:00","upstairs — dinner alone, paperwork, ballgame"],["22:00–24:00","home — sleep"]],
- prof:"Third-generation hardware man. Owns the store on Mission and the two Victorians on Guerrero facing the park. Does his own repairs on Tuesdays. Widower; his daughter lives in Portland. Knows every pipe in both buildings by name."},
+ prof:"Third-generation hardware man. Owns the store on Mission and the two Victorians on Guerrero facing the park. Does his own repairs on Tuesdays. Widower; his daughter lives in Portland. Knows every pipe in both buildings by name.",
+ back:"Third generation behind the same counter — sorting screws at 9, the store and the buildings since '91. Widowed 2019; the store stayed open the whole week of the funeral.",
+ room:"A widower's flat above the store — receipt-paper notes on every surface, a ballgame on the radio, her cookbooks still in the kitchen, one crooked shelf that stays.",
+ strg:"Brusque until useful — measures you first, helps anyway. Asks what's broken before he asks your name."},
 {id:"C8",init:"TH",name:"Tomás Herrera",arch:"the patient planner",age:36,job:"Lead cook · Taqueria El Farolote",home:"9344 Folsom St, Unit 1",look:"5'8\", cook-built — broad chest, fryer burns mapped on his forearms. Buzzed hair, neat mustache, gold cross that only shows at the gym. Off-shift: white tees, pressed Dickies, immaculate Jordans.",voice:"Quiet, formal-warm, economical — words chosen like ingredients. Understates everything important: the bigger the feeling, the smaller the sentence.",
  samp:["The usual, Mars. — Just the coffee.","Fifteen years on that line. I know what things cost.","You want the recipe, ask my mother. You want it close, ask me."],
  mann:["wipes hands on the shoulder towel before touching what he respects","prices things out loud without noticing","holds doors a beat too long"],
  ties:[["Marisol","the 3 p.m. coffee — the fixed point"],["Victor","hardware friendship; supplies on credit"],["Carmen","hems his shirts, feeds him like a son"],["Dani","menu-board artist, paid in pupusas"],["Marcus","drum-circle friend"],["Jules","'Carmen's room kid'"]],
  rout:[["00:00–09:00","home — sleep"],["09:00–14:30","supplier loop: Auerbach → Buy-Rite → Valencia Greenmarket"],["14:30–16:00","Mudhaus — the 3 p.m. coffee"],["16:00–24:00","El Farolote — the line"]],
- prof:"Lead cook at the taqueria on Mission — fifteen years on that line. Sends money to his mother in San Miguel every month. Walks the commissary-supplier loop most days pricing equipment, and takes his 3 p.m. coffee at the café like it's a standing appointment. Saving for something."}
+ prof:"Lead cook at the taqueria on Mission — fifteen years on that line. Sends money to his mother in San Miguel every month. Walks the commissary-supplier loop most days pricing equipment, and takes his 3 p.m. coffee at the café like it's a standing appointment. Saving for something.",
+ back:"San Miguel kitchen-raised; arrived at 12, dishwasher at 21, lead cook by fifteen years in. The monthly wire to his mother has never been missed.",
+ room:"A studio kept like a station: square bed, Jordans lined first by the door, a fridge of other people's leftovers being portioned to give away. A notebook kept face-down.",
+ strg:"Formal, quiet, generous in that order — feeds you before he talks to you. Finish your plate and a second one arrives unasked."}
 ];
 const rail=document.getElementById("rail"),card=document.getElementById("card");
 function render(c){
@@ -156,6 +180,7 @@ function render(c){
     <div class="ban" title="Design rule: the 8 mains run on their own brains 24/7. Nobody can possess them — not players, not the owner.">AI-driven · no possession</div>
   </div>
   <div class="profile">${c.prof}</div>
+  <p class="lbl">Where they come from</p><p class="look" style="margin-bottom:14px">${c.back}</p>
   <div class="grid2">
     <div><p class="lbl">Look</p><p class="look">${c.look}</p>
       <p class="lbl" style="margin-top:12px">Voice — what you'll hear</p><p class="voice">${c.voice}</p>
@@ -163,6 +188,10 @@ function render(c){
     <div><p class="lbl">Habits you'll notice</p><ul class="mann">${c.mann.map(m=>`<li>${m}</li>`).join("")}</ul>
       <p class="lbl" style="margin-top:12px">Who they are to each other</p>
       <ul class="ties">${c.ties.map(t=>`<li><b>${t[0]}</b> — ${t[1]}</li>`).join("")}</ul></div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div><p class="lbl">Where they live — what the camera sees</p><p class="look">${c.room}</p></div>
+    <div><p class="lbl">New to the block? Here's what you get</p><p class="look">${c.strg}</p></div>
   </div>
   <p class="lbl" style="margin-top:14px">A day in the life</p>
   <table class="rout">${c.rout.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>

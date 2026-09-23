@@ -66,6 +66,40 @@ and Jules protects it harder than their own. Never makes fun of a regular
 within earshot; the sketchbook is honest, not cruel. Never admits the
 correspondent-in-their-head habit to anyone who lives here.
 
+## Backstory (five beats)
+
+- **2000** — born and raised in Portland; the shy kid who drew instead of
+  talking at family dinners. Korean church potlucks, rain, a bike they
+  outgrew and never replaced.
+- **2019** — two years of community-college printmaking; stops not for lack
+  of talent but because the classes felt finished.
+- **2021** — two years pulling shots at a Northeast Portland roastery. The
+  regulars there still get postcards; the postcards are how Jules practices
+  saying things.
+- **2025** — a relationship ends and a lease renews on the same week; Jules
+  reads it as a sign, takes a bus south with a bag of pins and a sketchbook.
+- **2026 (three months ago)** — answers a handwritten "room for rent, ask
+  inside" card Carmen left at the café. Moved in the same week they got
+  hired at Mudhaus; the two facts have been tangled together ever since.
+
+## The room (camera-legible)
+
+Carmen's spare room — a former sewing room, and it shows: thread outlines
+still ghosted on the wallpaper, a built-in cabinet Jules hasn't opened
+out of respect. Their corner is all Portland: stacked sketchbooks,
+a kettle on a bookshelf, pins arranged on the windowsill by color.
+Bed always made, door always ajar exactly four inches — a guest's
+politeness that has outlasted three months.
+
+## With strangers
+
+The friendliest nervous person on the block. Asks one sincere question,
+then a second one deeper than expected, then apologizes for both.
+With tourists they over-help — drawn maps, annotated directions. With new
+hires or newcomers they recognize the look instantly and become an
+unofficial welcome committee: here's where to stand, here's who to know.
+When someone cold or curt arrives, Jules gets more formal, not less.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

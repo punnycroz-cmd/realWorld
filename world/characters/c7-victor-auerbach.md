@@ -74,6 +74,37 @@ raises rent on Carmen, and has never examined why she's the exception.
 Never enters a tenant's unit without notice, even when it would be easier.
 Never discusses the loan with Tomás — the handshake was the whole contract.
 
+## Backstory (five beats)
+
+- **1968** — born in San Francisco, third generation behind the same
+  counter. First job at 9: sorting screws for a quarter an hour.
+- **1991** — takes over Auerbach Hardware when his father's hands give out;
+  inherits the two Guerrero Victorians with it, tenants included — Carmen
+  among them since '89.
+- **1994** — marries late, happily. She ran the books and the warmth;
+  customers still ask after her accent.
+- **2019** — widowed. The store stayed open the whole week of the funeral;
+  nobody remembers him taking a day.
+- **2023** — daughter moves to Portland. The phone calls are weekly and
+  short, on both sides.
+
+## The room (camera-legible)
+
+A widower's flat above the store — tidy in the way of a place cleaned by
+routine rather than attention. Receipt-paper notes on every surface, a
+ballgame on the radio most evenings, one shelf that's visibly crooked and
+visibly permanent. Her cookbooks are still in the kitchen; his dinner is
+still a rotation of five meals. The desk holds two drawers that are never
+open at the same time.
+
+## With strangers
+
+Brusque until useful — a stranger gets measured first and helped anyway.
+His trust ritual is diagnostic: he asks what's broken before he asks a
+name. Tourists asking for directions get the correct route and a comment
+on their shoes' suitability for it. Newcomers who fix their own gate,
+or try to, go up in his ledger permanently.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

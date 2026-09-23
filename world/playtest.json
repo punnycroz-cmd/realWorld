@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 27,
+ "version": 28,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -1284,6 +1284,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT26",
+   "title": "The bibles — backstory, room, strangers",
+   "minutes": 15,
+   "persona": "facilitator auditing the v28 character-bible depth pass",
+   "goal": "Verify every bible now carries the fixed 14-section order (backstory beats, camera-legible room, stranger posture before the briefing-safe block, SECRETS last), that characters.json mirrors the new fields, and that The Company renders them without leaking seed content.",
+   "surfaces": [
+    "cast",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open The Company and read two full cards end to end, including the new 'Where they come from', 'Where they live', and 'New to the block?' blocks.",
+     "expect": "Every card gains the three new blocks between the profile and the routine table; copy reads as observable texture a patient viewer could assemble — no card states a secret outright.",
+     "checkpoints": [
+      "All 8 cards carry back/room/stranger copy — no card is thinner than another",
+      "Telling details gesture at terrain (face-down laptop, face-down notebook, two drawers) without explaining it",
+      "No card names the blog, the loan, the tenancy status, or who is secretly dating whom"
+     ]
+    },
+    {
+     "do": "Cross-check a card against its bible file in world/characters/ — read the Backstory, The room, and With strangers sections for the same character.",
+     "expect": "The card compresses the bible faithfully; the bible's five dated beats agree with the header facts (age, job, home); nothing in the three new sections repeats SECRETS & SEEDS content.",
+     "checkpoints": [
+      "Bible section order matches _index.md: the three new sections sit between 'Won't do' and 'Public profile'",
+      "SECRETS & SEEDS is the last ## section in every bible",
+      "Backstory beats are dated and public-history only — foreshadowing allowed, seed statements not"
+     ]
+    },
+    {
+     "do": "Read characters.json for one cast member: confirm backstory_brief, room, strangers exist and carry no seed vocabulary; confirm briefing_safe is still only profile/surface_ties/routine_pointer.",
+     "expect": "v28 fields present on all 8 entries; seed_lock stays a pointer, not data; the new fields are observable-safe text only.",
+     "checkpoints": [
+      "All three v28 fields present on C1–C8",
+      "briefing_safe carries exactly the three locked keys",
+      "No v28 field contains the words secret/seed/briefing — the gate enforces this"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the bible gate; then imagine a hire walking in — pick one main and predict their first interaction from the 'With strangers' section alone.",
+     "expect": "bible gate passes (14 sections, order enforced, CAST ids agree). The stranger-posture section is specific enough to predict the first beat of a scene without scripting it — tendencies, not rules.",
+     "checkpoints": [
+      "Gate reports 'schema v28 · 8 mains · 14 required sections'",
+      "Removing a section or reordering SECRETS earlier would FAIL — spot-check the gate",
+      "Predicted first interactions differ meaningfully per main (food-first vs. question-first vs. measure-first)"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -1291,7 +1340,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v27 local",
+   "build": "world v28 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "notes": "string"
   },
