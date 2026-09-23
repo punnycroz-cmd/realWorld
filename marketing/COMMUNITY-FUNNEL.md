@@ -1,6 +1,6 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v84 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v99 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
 and shipped `tools/build_recap.py`. v40 added the runnable ops kit under
@@ -19,7 +19,12 @@ slot lands on, with quiet-week fallbacks + copy-ready prompts),
 `community/clips-and-highlights.md` (Stage-5 `#clips` channel spec —
 member captures as the organic advocacy path), and
 `community/incident-comms.md` (community-facing incident playbook —
-holding statements, response clocks, one-voice rule).)
+holding statements, response clocks, one-voice rule). v99 closed the two
+remaining soft spots: `community/server-blueprint.json` + `tools/
+server_blueprint.py` (§3 as machine-checkable data — `--render` prints the
+create-at-go checklist, `--check` verifies a real server export before the
+site links it) and `community/feed-mirror-bot-spec.md` (§8's last SPEC row —
+the post-launch mirror bot fully designed, still gated by feed-mirror §5).)
 **Scope:** spectator → community → player pipeline: surfaces, content strategy,
 moderation, creator outreach, feedback loop, launch infrastructure.
 **Authority:** design doc `rw-game-design-2026-09-22.md` (esp. §5 participation,
@@ -102,7 +107,19 @@ newsletter (no email infra budgeted; recap posts carry the same job).
 One server, minimal channels. A quiet 40-channel server reads dead; a busy
 6-channel server reads alive.
 
-**Setup checklist (owner-gated, ~1 session):**
+**The checklist is now data.** `community/server-blueprint.json` holds the
+whole server — name, community features, rules-gate text, welcome screen,
+roles, channels with read-only/private flags and pin lists — and
+`tools/server_blueprint.py` is its interface: `--render` prints the steps
+below from the JSON (so this doc and the checklist can't drift),
+`--emit-dump` produces a fill-in audit file, and `--check <dump>` verifies
+the created server (simple dump *or* a Discord guild-template export)
+before the site invite link goes live — name, roles, every channel's
+presence/type, read-only enforcement on `#the-feed`/`#announcements`,
+`#mod-log` privacy, and a warn on any extra public text channel.
+
+**Setup checklist (owner-gated, ~1 session — `server_blueprint.py --render`
+prints this from the blueprint):**
 1. Create server "Real World — The Mission". Community server toggle ON.
 2. Roles: `@owner` (admin), `@mod` (volunteer, appointed post-launch only),
    `@resident` (self-assign via rules acceptance — cosmetic, no gates).
@@ -127,9 +144,14 @@ One server, minimal channels. A quiet 40-channel server reads dead; a busy
 5. Server rules: see §4.2. Welcome flow, rules-gate text, pinned posts, and
    first-week cadence are copy-ready in `community/welcome-sequence.md`.
 
+6. Verify: `server_blueprint.py --emit-dump > dump.json`, fill it in (or
+   export the guild template), `--check dump.json` — invite link swap
+   happens only on PASS.
+
 **Naming honesty:** Discord invite links on the site stay as labeled
 placeholders (`community.html` shows "opens at launch") until the owner runs
-this checklist. Never link a server that doesn't exist.
+this checklist and the blueprint check passes. Never link a server that
+doesn't exist.
 
 ---
 
@@ -313,9 +335,9 @@ ticket? (Market report flags this UX question as existential.)
 
 | Need | Options | Decision status |
 |---|---|---|
-| Discord server | free tier; community toggle | OWNER-GATED creation, §3 checklist |
+| Discord server | free tier; community toggle | OWNER-GATED creation — spec is machine-checkable: `community/server-blueprint.json` + `server_blueprint.py --render/--check` (v99) |
 | Devlog host | itch.io devlog (bundled with store presence) | OWNER-GATED account |
-| Feed→Discord mirror | manual curation at launch; bot post-launch | SPEC — not a launch dep |
+| Feed→Discord mirror | manual curation at launch; bot post-launch | DESIGNED (v99 `community/feed-mirror-bot-spec.md`) — build OWNER-GATED + blocked on feed-mirror §5 trigger; not a launch dep |
 | Moderation tooling | Discord native + rules channel | SUFFICIENT at launch scale |
 | Status/comms channel | `#announcements` + recap honesty | BUILT into plan |
 | Analytics on joins | Discord member count, manual weekly note | feeds ANALYTICS.md weekly report |
@@ -327,8 +349,10 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 
 ## 9. Day-0 / day-7 / day-30 community tasks
 
-- **Day-0:** run §3 checklist (incl. `#clips` + its pinned rules per
-  `community/clips-and-highlights.md` §2); pin rules + feedback asks;
+- **Day-0:** run §3 checklist via `server_blueprint.py --render`, then
+  `--check` the created server before the invite link goes live (incl.
+  `#clips` + its pinned rules per `community/clips-and-highlights.md` §2);
+  pin rules + feedback asks;
   keep `community/incident-comms.md` §2 open in a tab — day-0 is when
   the response clocks first tick; post welcome note
   (all copy in `community/welcome-sequence.md` §2); start the `#the-feed`
