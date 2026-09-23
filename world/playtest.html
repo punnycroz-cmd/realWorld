@@ -1144,12 +1144,35 @@ const PTS=[
   ck:["griev gate detail: 'schema v59 · 24 work · 7 housing · 2 orgs' — PASS",
     "An employer missing a row, an archetype outside the catalog, or a banned word in a bounds field would FAIL — spot-check by reading the gate",
     "Harness gate: '54 scenarios · N checkpoints · key rw_playtest_v59'; 0 fail overall"]}]}
+,{id:"PT55",title:"The Counter — request UI live seam, pre-flight check, receipts (v60)",min:10,persona:"first-time payer — wants to know exactly what filing costs and what a no looks like, before spending",
+ goal:"Verify the v60 request-UI pass: the __aiBridge live seam (mirror/live badge, capability-checked gsRequestSubmit write path), 'check wording first — free' pre-flight screen (same engine, before money moves, never a gate), and the per-request receipt drawer (declared terms · intent · charge · claim · trail · rq-<id>).",
+ surfaces:["request","audit"],steps:[
+ {do:"Open request.html. Read the header badge, then click 'check wording first — free' with a benign intent ('Dana takes the long way through the park').",
+  exp:"Off the game build the badge reads 'mirror — local pipeline' (on the bus it would read 'live · __aiBridge'). The pre-flight line shows 'screens clean' in green — no wallet change, no feed line.",
+  ck:["Badge reads 'mirror — local pipeline' and sits in the header next to the wallet",
+    "Pre-flight pass copy: 'screens clean — nothing in the text trips the intent screen.'",
+    "Balance and feed are untouched by the check — screening is free"]},
+ {do:"Type 'Get Jules fired from Mudhaus — she deserves a setback.' and check wording again. Then submit the request anyway.",
+  exp:"The preview denies with code harm-targeting and says 'Screening is free; file anyway and it refunds in full.' — and submit stays clickable (the preview informs, never gates). Filing runs the real screen: denied, upfront charge refunded in the ledger.",
+  ck:["Deny preview shows the code (harm-targeting) plus the neutral player message — never an accusation",
+    "Submit is NOT disabled by a failed preview — not a shadow ban",
+    "On file, the pipeline denies, the ledger shows charge out + deny refund, and the card gains an appeal affordance"]},
+ {do:"File a clean request (possess Dana, 15 min). As it runs, click the card header and read the receipt.",
+  exp:"The card expands into a receipt: declared action · target · duration, the filed intent text, the upfront charge, the claim key, and a timestamped trail that grows with each pipeline stage — ending in 'rq-<id> — mirrors the public feed lines'.",
+  ck:["Receipt shows declared terms, intent text, 'charged upfront' amount, and claim key (char:h01)",
+    "Trail lines append at each transition — declared → screened → running → handoff",
+    "Receipt ends with the rq-<id> ref that matches the request on the public feed"]},
+ {do:"Run `node world/audit.js` and read the request + harness gates.",
+  exp:"The request gate reports 'seam wired' and passes the v60 checks: bridge detect strings, capability-guarded gsRequestSubmit, pre-flight copy, receipt affordances. Harness gate reports 55 scenarios at the v60 key.",
+  ck:["request gate detail ends 'seam wired' — PASS",
+    "Removing the LIVE && BRIDGE. guard, the preflight copy, or the rq- ref would FAIL — spot-check by reading the gate",
+    "Harness gate: '55 scenarios · N checkpoints · key rw_playtest_v60'; 0 fail overall"]}]}
 ];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v59";
-const BUILD="world v59 local";
+const LS="rw_playtest_v60";
+const BUILD="world v60 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

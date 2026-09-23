@@ -96,9 +96,32 @@
     "feed": "'running' when the event fires, 'resolved' when it ends — attribution (the filer's handle) stays on both lines",
     "trimmed": "events running under modified terms say so on the fire line"
   },
+  "live_seam": {
+    "doc": "v60 — the page is bridged when the game request bus is present (production-1's flag item)",
+    "detect": "window.__aiBridge with gsViewerState — badge reads 'live · __aiBridge', else 'mirror — local pipeline'",
+    "reads": {
+      "gsViewerState()": ".feed entries render onto the public feed (deduped by id; status → chip via the feed_vocabulary map); .sessions drive the resource board's locked states by claim key",
+      "gsCoSessions()": "optional — live sponsor lists for co-sponsorable claims (game-v2 GS_WX_OVR.sponsors)",
+      "gsExplainRequest(id)": "optional — live request detail for the receipt drawer"
+    },
+    "write": "gsRequestSubmit({action, target, duration_min, text, queued, co_sponsor, quote_cr}) — capability-checked at file time; absent → the local pipeline runs as the contract reference; a refused call falls back the same way",
+    "fallback": "demo claims/feed stand in for resources the bus doesn't name; a poll hiccup keeps the last good frame"
+  },
+  "preflight_check": {
+    "doc": "v60 — 'check wording first — free' runs RWScreen.screenRequest on the current form before money moves",
+    "cost": "free — screening never touches the wallet; credits move only on file",
+    "honesty": "the preview verdict is the same one the pipeline would reach — shown early so a doomed request costs the player nothing, not even a refund wait",
+    "not_a_shadow_ban": "a 'would not be approved' preview never blocks filing — the player may still file; deny then auto-refunds in full. The button informs, it does not gate",
+    "emits": "preflight_check (RW_DEMO_EVENTS) — merge-checkable hook"
+  },
+  "receipt": {
+    "doc": "v60 — every request card expands into a receipt: declared action/target/duration, intent text, upfront charge, claim key, and a timestamped status trail",
+    "trail": "declared → screened → (queued | review | co-sponsor filed) → running → resolved/refunded; appeals, holds, modified terms all append — the private mirror of the public feed lines",
+    "ref": "rq-<id> — stated on the receipt; the feed lines it mirrors carry the same request"
+  },
   "demo_hooks": {
     "doc": "v46 — merge points for the analytics spec (marketing analytics-events.json PENDING hooks); local-only in-page array window.RW_DEMO_EVENTS, nothing leaves the file",
-    "emitted": ["request_submitted", "review_lesson_shown", "review_outcome_seen", "low_balance_simulated", "handoff_seen"]
+    "emitted": ["request_submitted", "review_lesson_shown", "review_outcome_seen", "low_balance_simulated", "handoff_seen", "preflight_check"]
   },
   "session_extend": {
     "doc": "v32 — a running session may buy more minutes at its own rate while the class cap allows",

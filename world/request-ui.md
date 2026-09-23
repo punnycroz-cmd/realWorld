@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -250,11 +250,60 @@ names against `analytics-events.json` before wiring the real bus.
 || Event fires | "<event> fired" (feed `running`), "<event> ended" (feed `resolved`) |
 || Hire route | "File in The Registry →" (button); "billed only on approval — denied applications never charge" |
 
-## 10. Demo limits (what's simulated)
+## 10. v60 — the live seam, pre-flight check, receipts
+
+**Live seam (merge seam, the production-1 flag).** `request.html` was the
+last major surface still purely simulated. v60 wires it the way wire.html
+and create.html already are: `__aiBridge` presence flips the header badge
+`mirror — local pipeline` → `live · __aiBridge` and starts a 3 s poll.
+Reads: `gsViewerState().feed` renders onto the public feed (deduped by
+entry id; statuses map onto the §5 vocabulary — `in_review`→review chip,
+`approved (modified)`→modified chip, etc.); `gsViewerState().sessions`
+drives the resource board's locked states by claim key; `gsCoSessions()`
+(when present) supplies live sponsor lists; `gsExplainRequest(id)` (when
+present) fills the receipt drawer's live block. Write: filing
+capability-detects `gsRequestSubmit({action, target, duration_min, text,
+queued, co_sponsor, quote_cr})` — the merge contract in `requests.json
+live_seam.write`. Absent or refusing, the local pipeline runs unchanged;
+it stays the contract reference. Demo claims stand in for resources the
+bus doesn't name, so the board never lies about what it can't see.
+
+**Pre-flight check — "check wording first — free".** A button under the
+intent box runs `RWScreen.screenRequest` on the current form before any
+money moves. Same engine, same verdict the pipeline would reach — just
+earlier: `screens clean`, `gray-zone → a human reads it (free)`, or
+`would not be approved (<code>)` with the neutral player message. It is
+deliberately *not* a shadow ban: a failed preview never disables submit —
+filing anyway still runs the real screen and auto-refunds in full on deny.
+Screening is free; credits move only on file. Emits `preflight_check`.
+
+**Receipt drawer.** Every "Your requests" card header is clickable and
+opens a receipt: declared action · target · duration, the filed intent
+text, the upfront charge, the claim key, and a timestamped status trail
+(declared → screened → queued/review/co-sponsored → running → resolved/
+refunded; appeals, holds, and modified terms all append). The receipt
+ends with `rq-<id>` — the same request the public feed lines carry, so a
+player can always reconcile their private card against the public record.
+
+### v60 copy deck additions
+
+||| Moment | Copy |
+|---|---|---|
+||| Source badge | "mirror — local pipeline" / "live · __aiBridge" |
+||| Pre-flight button | "check wording first — free" |
+||| Pre-flight pass | "screens clean — nothing in the text trips the intent screen." |
+||| Pre-flight review | "gray-zone wording — a human reviewer would read this first (that review is already free)." |
+||| Pre-flight deny | "would not be approved (<code>) — <neutral msg> Screening is free; file anyway and it refunds in full." |
+||| Live file toast | "Filed live — the request bus carries it from here." |
+||| Receipt ref | "rq-<id> — mirrors the public feed lines" |
+
+## 11. Demo limits (what's simulated)
 
 `request.html` ships without the game request bus (it lives on
-`sf/game-systems`): classification, review, sessions, and feed are local
-simulation. Screening is NOT a demo stub — it calls the shared engine
+`sf/game-systems`): off the bus, classification, review, sessions, and
+feed are local simulation — but the live seam (§10) reads the real bus
+when it's present, so the same file is the production surface. Screening
+is NOT a demo stub — it calls the shared engine
 `world/screen.js` (`RWScreen.screenRequest`), the same function the mod
 console (`world/mod-console.html`, v8) runs, implementing the §3 contract +
 reason taxonomy in `world/moderation.json`. At merge, the demo's

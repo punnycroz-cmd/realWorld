@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v58).
+/* world/audit.js — RW boundary audit (world v60).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -65,7 +65,9 @@
                 v46: approve-modified offer (trim-only, decline = full refund),
                 honest upfront charge, queue hold clock + expiry, scheduled
                 events fire, hire routes to create.html, demo hooks;
-                dark-pattern vocabulary absent
+                dark-pattern vocabulary absent; v60: live seam
+                (__aiBridge detect, capability-guarded gsRequestSubmit),
+                pre-flight check (free, never a gate), receipt drawer
     wire      — feed.json ↔ wire.html: every event kind/status has a chip
                 style; honesty strings + live seam + v33 affordances present;
                 demo seeds mirrored; NO button offers a world-touching verb
@@ -1598,7 +1600,33 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'request.html', null, 'hire must route to create.html, not file a request');
     if (!html.includes('RW_DEMO_EVENTS'))
       add(g, 'fail', 'request.html', null, 'demo event hooks (RW_DEMO_EVENTS) missing');
-    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'}`;
+    /* v60 — live seam: the page is bridged when __aiBridge is present */
+    const LS = RJ.live_seam || {};
+    if (!LS.write || !/gsRequestSubmit/.test(LS.write))
+      add(g, 'fail', 'requests.json', null, 'live_seam.write must name gsRequestSubmit as the merge contract');
+    for (const s of ['__aiBridge', 'gsViewerState', 'srcBadge',
+                     'mirror — local pipeline', 'live · __aiBridge',
+                     'gsRequestSubmit', 'gsExplainRequest', 'gsCoSessions', 'livePoll'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `live-seam surface missing "${s}"`);
+    /* the write path must be capability-guarded — never an unconditional call */
+    if (!/LIVE && BRIDGE\.gsRequestSubmit/.test(html))
+      add(g, 'fail', 'request.html', null, 'gsRequestSubmit must be capability-checked (LIVE && BRIDGE.) before filing');
+    /* v60 — pre-flight check: same engine, before money moves, never a gate */
+    const PF = RJ.preflight_check || {};
+    if (!/never blocks filing|does not gate/.test((PF.not_a_shadow_ban || '')))
+      add(g, 'fail', 'requests.json', null, 'preflight_check must carry the not-a-shadow-ban rule');
+    if (!(RJ.demo_hooks.emitted || []).includes('preflight_check'))
+      add(g, 'fail', 'requests.json', null, 'demo_hooks.emitted missing preflight_check');
+    for (const s of ['pfbtn', 'check wording first', 'Screening is free',
+                     'screens clean', 'preflight_check', 'gray-zone'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `pre-flight surface missing "${s}"`);
+    /* v60 — receipt drawer: declared terms + charge + claim + trail */
+    const RC = RJ.receipt || {};
+    if (!RC.ref || !/rq-/.test(RC.ref))
+      add(g, 'fail', 'requests.json', null, 'receipt contract must carry the rq-<id> ref');
+    for (const s of ['data-rc', 'rtrail', 'trail(', 'receipt', 'rq-'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `receipt surface missing "${s}"`);
+    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'} · seam ${LS.write ? 'wired' : 'MISSING'}`;
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -2087,7 +2115,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v59 || {};
+    const H = PT.harness_ui_v60 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

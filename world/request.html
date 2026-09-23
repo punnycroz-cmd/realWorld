@@ -26,6 +26,14 @@
   exclusives actually fire on the feed, and Hire a character routes to
   create.html (The Registry) instead of filing here. Demo event hooks
   (window.RW_DEMO_EVENTS) mark the merge points for analytics.
+  v60 adds: the live seam — when __aiBridge (game request bus) is present,
+  gsViewerState() drives the feed + resource board, gsCoSessions() the
+  co-sponsor lists, gsExplainRequest(id) live receipts, and filing goes to
+  gsRequestSubmit; off the bus everything below runs as the contract
+  reference and the badge says MIRROR. Also v60: "check wording first — free"
+  runs the same RWScreen screen before money moves (a deny preview, not a
+  shadow ban), and every request card opens into a receipt — declared terms,
+  upfront charge, claim, and the status trail that mirrors the feed.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -42,6 +50,9 @@
   header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
   .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
   .logo span{color:var(--acc)}
+  .srcb{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:10px;padding:2px 9px;color:var(--dim)}
+  .srcb.live{color:var(--grn);border-color:var(--grn)}
   .wallet{margin-left:auto;font-family:var(--mono);font-size:13px;background:var(--panel2);
     border:1px solid var(--line);border-radius:6px;padding:6px 12px}
   .wallet b{color:var(--acc)}
@@ -175,11 +186,26 @@
   .modcard{margin-top:10px;border:1px solid var(--acc);border-radius:6px;padding:9px 12px;font-size:12.5px;display:none}
   .modcard .mtitle{color:var(--acc);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
   .hirecard{margin-top:10px;border:1px solid var(--blu);border-radius:6px;padding:10px 12px;font-size:12.5px;display:none}
+  /* v60 — pre-flight check + receipt drawer */
+  .pfline{display:flex;gap:10px;align-items:center;margin-top:6px}
+  .pfbtn{font:inherit;font-size:11.5px;background:none;border:1px solid var(--line);border-radius:6px;
+    color:var(--dim);cursor:pointer;padding:4px 10px}
+  .pfbtn:hover{color:var(--ink);border-color:var(--dim)}
+  .pfout{font-size:11.5px;display:none}
+  .pfout.pass{color:var(--grn)} .pfout.review{color:var(--acc)} .pfout.deny{color:var(--red)}
+  .rcpt{display:none;margin-top:6px;border-top:1px dashed var(--line);padding-top:6px;font-size:11.5px}
+  .rcpt .rl{display:flex;justify-content:space-between;padding:1px 0;color:var(--dim)}
+  .rcpt .rl b{color:var(--ink);font-family:var(--mono);font-weight:400}
+  .rcpt .rtrail{margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .rcpt .rtrail div{padding:1px 0}
+  .myreq .rt{cursor:pointer}
+  .myreq .rarrow{float:right;color:var(--dim);font-size:11px}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">Real <span>World</span> — The Mission</div>
+  <span class="srcb" id="srcBadge">mirror — local pipeline</span>
   <div class="wallet"><b id="bal">1,240</b> cr <span class="topup" id="topup">+ wallet</span></div>
 </header>
 
@@ -208,6 +234,10 @@
 
     <label for="intent">What should happen? <span class="note" style="display:inline">(your intent — characters decide how)</span></label>
     <textarea id="intent" placeholder="e.g. Dana takes the long way through the park and stops for coffee"></textarea>
+    <div class="pfline">
+      <button class="pfbtn" id="pfbtn" type="button">check wording first — free</button>
+      <span class="pfout" id="pfout"></span>
+    </div>
 
     <div class="qopt" id="qopt">
       <label><input type="checkbox" id="queueMe"> <b>Queue it</b> — this resource is busy.
@@ -282,6 +312,17 @@
 
 <script src="screen.js"></script>
 <script>
+/* ================= live seam (v60) =================
+   If the game request bus is present (__aiBridge, sf/game-systems), this
+   page reads it: gsViewerState() drives the public feed + resource board,
+   gsCoSessions() the co-sponsor lists, gsExplainRequest(id) live receipts.
+   Filing capability-detects gsRequestSubmit — absent on the demo page, so
+   the local pipeline below runs and the badge says so. Same pattern as
+   wire.html/create.html; the local sim stays the contract reference. */
+var BRIDGE = (typeof __aiBridge!=="undefined" && __aiBridge && __aiBridge.gsViewerState) ? __aiBridge : null;
+var LIVE = !!BRIDGE;
+if (LIVE){ var sb=document.getElementById('srcBadge'); sb.textContent='live · __aiBridge'; sb.className='srcb live'; }
+
 /* ================= demo state ================= */
 var BAL = 1240;
 var RATES = { compatible: 1.5, exclusive: 6.0 };            // cr/min, plan §2.2
@@ -381,8 +422,9 @@ var FEED = [
   {t:'18:02', who:'dvh', txt:'possess — own baker, 45 min', st:'resolved', tail:'player session ended'}
 ];
 
-var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin}
+var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin, intent, trail}
 var reqSeq = 100;
+function trail(r, what){ (r.trail = r.trail || []).push({ t:new Date().toTimeString().slice(0,5), what:what }); }
 
 /* status chip labels — feed vocabulary (requests.json feed_vocabulary) */
 var STLBL = { modified: 'approved (modified)' };
@@ -494,6 +536,7 @@ setInterval(function(){
     r.holdMin -= HOLD_TICK_MIN; qChanged=true;
     if (r.holdMin<=0){
       r.holdMin=0; r.st='refunded'; r.canCancel=false;
+      trail(r,'hold expired before activation — '+r.paid+' cr auto-refunded');
       if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
       chg(r.paid, 'queued hold expired — '+r.label+' (auto-refund)');
       r.sub+=' · hold expired before activation — '+r.paid+' cr auto-refunded';
@@ -512,11 +555,57 @@ function resolveSponsors(ck){
   MYREQ.forEach(function(r){
     if (r.claim===ck && r.st==='running' && r.co){
       r.st='resolved'; r.sub+=' · the call ended — both sponsors on the feed';
+      trail(r,'resolved — sponsor call ended');
       feedAdd('you', r.label, 'resolved');
     }
   });
   renderMine();
 }
+
+/* ================= live ingest (v60 merge seam) =================
+   Reads only. Feed entries already carry the feed.json status vocabulary;
+   sessions map onto the resource board's claim keys (char:*, sky, venue:*,
+   openair). Board entries the bus doesn't claim stay in their demo state —
+   the demo claims stand in for resources the live state doesn't name. */
+var liveSeen = {};
+function livePoll(){
+  try{
+    var vs = BRIDGE.gsViewerState();
+    var feed = (vs && vs.feed) || [];
+    feed.forEach(function(e){
+      if (e.id && !liveSeen[e.id]){
+        liveSeen[e.id]=true;
+        var st=(e.status||'resolved'), sk=st.replace(/[ ()]/g,'_');
+        var cmap={in_review:'review', approved:'resolved', approved_modified:'modified',
+          not_approved:'resolved', requested:'queued', player_session_ended:'resolved'};
+        sk = cmap[sk] || sk;
+        var li=document.createElement('li');
+        li.innerHTML='<span class="t">'+(e.t!=null?e.t:'—')+'</span>'+
+          '<span class="who">'+(e.who||'—')+'</span> '+(e.text||e.txt||'')+
+          ' <span class="st '+sk+'">'+st+'</span>';
+        $('feed').prepend(li);
+      }
+    });
+    var sess = (vs && vs.sessions) || [];
+    for (var k in CLAIMS){
+      var c=CLAIMS[k], live = null;
+      for (var i=0;i<sess.length;i++) if (sess[i].claim===k || sess[i].on===k) live=sess[i];
+      if (live){
+        if (c.state!=='locked'){ c.state='locked'; }
+        c.left = live.left_min!=null?live.left_min:(live.left||c.left);
+        c.by = live.who||live.holder||c.by;
+      }
+    }
+    if (BRIDGE.gsCoSessions){
+      var cos = BRIDGE.gsCoSessions() || {};
+      for (var ck in cos) if (CLAIMS[ck])
+        CLAIMS[ck].wx = CLAIMS[ck].wx || {what:cos[ck].what||'the running call', block_min:cos[ck].block_min||60, cr:cos[ck].cr||40, sponsors:[]},
+        CLAIMS[ck].wx.sponsors = cos[ck].sponsors || CLAIMS[ck].wx.sponsors;
+    }
+    renderBoard();
+  }catch(err){ /* bridge hiccup — keep last good frame, badge stays live */ }
+}
+if (LIVE) setInterval(livePoll, 3000);
 
 /* ================= briefing preview ================= */
 function renderBrief(t){
@@ -546,6 +635,26 @@ function screenText(action, target, text, exclusive){
   });
   return { r: res.verdict, code: res.code, msg: res.player_msg };
 }
+
+/* v60 — pre-flight check: the same screen, run before money moves.
+   Screening is free; credits only move when a request is filed. The
+   verdict shown here is the same one the pipeline would reach — this
+   button just moves it in front of the charge. */
+$('pfbtn').onclick=function(){
+  var a = ACTIONS[actSel.selectedIndex], t = curTarget();
+  var out = $('pfout');
+  if (a.per==='route'){ out.className='pfout review'; out.style.display='inline';
+    out.textContent='The Registry screens applications itself — file there.'; return; }
+  var scr = screenText(a.id+' '+t.label, t.id, $('intent').value.trim(), a.cls==='exclusive');
+  out.style.display='inline';
+  if (scr.r==='deny'){ out.className='pfout deny';
+    out.textContent='would not be approved ('+scr.code+') — '+scr.msg+' Screening is free; file anyway and it refunds in full.'; }
+  else if (scr.r==='review'){ out.className='pfout review';
+    out.textContent='gray-zone wording — a human reviewer would read this first (that review is already free).'; }
+  else { out.className='pfout pass';
+    out.textContent='screens clean — nothing in the text trips the intent screen.'; }
+  rwEmit('preflight_check',{action:a.id, verdict:scr.r});
+};
 
 /* ================= claims / queue ================= */
 function claimOf(a, t){
@@ -697,15 +806,27 @@ function renderMine(){
   ul.innerHTML='';
   MYREQ.forEach(function(r){
     var li=document.createElement('li');
-    li.innerHTML='<div class="rt"><b>'+r.label+'</b><span class="st '+r.st+'">'+(STLBL[r.st]||r.st)+'</span></div>'+
+    li.innerHTML='<div class="rt" data-rc="'+r.id+'"><b>'+r.label+'</b><span class="rarrow">'+(r.open?'▾':'▸')+'</span><span class="st '+r.st+'">'+(STLBL[r.st]||r.st)+'</span></div>'+
       '<div class="sub">'+r.sub+'</div>'+
       (r.mini?'<div class="mini">'+r.mini+'</div>':'')+
+      (r.open?'<div class="rcpt" style="display:block">'+
+        '<div class="rl"><span>declared</span><b>'+(r.declared||'—')+'</b></div>'+
+        '<div class="rl"><span>intent</span><b>'+(r.intent||'(none filed)')+'</b></div>'+
+        '<div class="rl"><span>charged upfront</span><b>'+r.paid+' cr</b></div>'+
+        (r.claim?'<div class="rl"><span>claim</span><b>'+r.claim+'</b></div>':'')+
+        '<div class="rtrail">'+((r.trail||[]).map(function(x){return '<div>'+x.t+' · '+x.what+'</div>';}).join(''))+'</div>'+
+        '<div class="rl"><span>receipt</span><b>rq-'+r.id+' — mirrors the public feed lines</b></div>'+
+        (LIVE && r.busId && BRIDGE.gsExplainRequest ? liveExplain(r) : '')+
+      '</div>':'')+
       (r.modOffer?'<span class="mbtn acc" data-ok="'+r.id+'">accept the trimmed version — '+r.modOffer.refund+' cr back</span>'+
                  '<span class="mbtn dec" data-no="'+r.id+'">decline — '+r.paid+' cr full refund</span>':'')+
       (r.canCancel?'<span class="xbtn" data-rq="'+r.id+'">cancel — auto-refund</span>':'')+
       (r.canAppeal?'<span class="abtn" data-ap="'+r.id+'">appeal — different reviewer, ≤'+APPEAL_H+' h</span>':'')+
       (r.needsFunds?'<span class="abtn" data-fund="'+r.id+'">top up to run — '+r.paid+' cr</span>':'');
     ul.appendChild(li);
+  });
+  ul.querySelectorAll('.rt').forEach(function(x){
+    x.onclick=function(){ var r=findReq(+x.dataset.rc); if(r){ r.open=!r.open; renderMine(); } };
   });
   ul.querySelectorAll('.xbtn').forEach(function(x){
     x.onclick=function(){ cancelReq(+x.dataset.rq); };
@@ -730,6 +851,7 @@ function renderMine(){
 function appealReq(id){
   var r=findReq(id); if(!r||!r.canAppeal) return;
   r.canAppeal=false; r.st='appeal';
+  trail(r,'appeal filed — different reviewer, ≤'+APPEAL_H+' h · private, never on the feed');
   r.sub+=' · appealed — a different reviewer decides within '+APPEAL_H+' h';
   renderMine();
   toast('Appeal filed — it goes to a different reviewer. Appeals never appear on the public feed.');
@@ -769,11 +891,25 @@ function fundReq(id){
   renderMine();
 }
 function findReq(id){ for (var i=0;i<MYREQ.length;i++) if (MYREQ[i].id===id) return MYREQ[i]; }
+/* live receipt detail — gsExplainRequest(id) is the bus-side explainer
+   (game-v2); when bridged and the filing carried a bus id, the receipt
+   shows the live classification/claims/review state verbatim */
+function liveExplain(r){
+  try{
+    var ex = BRIDGE.gsExplainRequest(r.busId);
+    if (!ex) return '';
+    var rows='';
+    for (var k in ex) rows+='<div class="rl"><span>live · '+k+'</span><b>'+
+      (typeof ex[k]==='object'?JSON.stringify(ex[k]):ex[k])+'</b></div>';
+    return '<div class="rl"><span>bus id</span><b>'+r.busId+'</b></div>'+rows;
+  }catch(err){ return ''; }
+}
 function cancelReq(id){
   var r=findReq(id); if(!r||!r.canCancel) return;
   r.canCancel=false;
   if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
   chg(r.paid, 'cancel — '+r.label+' (queued cancel refund)');
+  trail(r,'cancelled before activation — '+r.paid+' cr back');
   r.st='refunded'; r.sub+=' · cancelled before activation — '+r.paid+' cr returned';
   feedAdd('you', r.label+' — cancelled before activation','refunded');
   toast('Cancelled — '+r.paid+' cr back. Queued requests never keep your money.');
@@ -784,6 +920,7 @@ function promoteQueued(ck){
   for (var i=0;i<MYREQ.length;i++){ var r=MYREQ[i];
     if (r.claim===ck && r.st==='queued'){
       r.st='review'; r.holdMin=0; r.sub+=' · slot reached — human review on activation';
+      trail(r,'slot reached — review on activation (hold clock stopped)');
       feedAdd('you', r.label+' — slot reached, in review','review');
       setTimeout(function(rr){ return function(){
         rr.st='resolved'; rr.canCancel=false;
@@ -854,6 +991,7 @@ function showModOffer(a, t, q, dm, text, label, mine, mod){
 function acceptMod(id){
   var r=findReq(id); if(!r||!r.modOffer) return;
   var off=r.modOffer; r.modOffer=null; $('modcard').style.display='none';
+  trail(r,'accepted modified terms'+(off.refund>0?' — '+off.refund+' cr refunded':''));
   if (off.refund>0) chg(off.refund,'approve-modified — unused credits auto-refund');
   r.sub+=' · accepted';
   stage('Accepted modified terms','done',off.total+' cr'+(off.refund>0?' · '+off.refund+' cr refunded':''));
@@ -863,6 +1001,7 @@ function declineMod(id){
   var r=findReq(id); if(!r||!r.modOffer) return;
   r.modOffer=null; $('modcard').style.display='none';
   chg(r.paid,'declined modified terms — full refund');
+  trail(r,'declined modified terms — '+r.paid+' cr back in full');
   r.st='refunded'; r.sub+=' · declined the modified terms — '+r.paid+' cr refunded in full';
   feedAdd('you', r.label+' — modified terms declined, refunded in full','refunded');
   stage('Declined','done','full refund — the trim was an offer, not a bill');
@@ -887,10 +1026,31 @@ go.onclick = function(){
   go.disabled = true;
 
   var label = a.label.toLowerCase()+' — '+(text||t.label);
-  var mine = { id:++reqSeq, label:label, st:'requested',
+  var mine = { id:++reqSeq, label:label, st:'requested', intent:text,
+    declared:a.label+' · '+t.label+(dm?' · '+fmtMin(dm):''),
     sub:q.cls+' · '+q.total+' cr upfront · hard cap', paid:q.total,
     claim:ck, canCancel:false, mini:'declared '+new Date().toTimeString().slice(0,5) };
+  trail(mine, 'declared — '+mine.declared);
   MYREQ.unshift(mine); renderMine();
+
+  /* v60 — live write path: when the game request bus is bridged, filing
+     goes to it (gsRequestSubmit, the documented merge contract in
+     requests.json live_seam) and the feed/board poll carries the truth.
+     Absent the bridge — every local demo — the simulated pipeline below
+     is the contract reference and runs unchanged. */
+  var liveFile = LIVE && BRIDGE.gsRequestSubmit ? BRIDGE.gsRequestSubmit : null;
+  if (liveFile){
+    try{
+      var rid = liveFile({ action:a.id, target:t.id, duration_min:dm,
+        text:text, queued:queued, co_sponsor:co, quote_cr:q.total });
+      mine.busId = rid || null;
+      trail(mine, 'filed to the request bus'+(rid?' — '+rid:''));
+      mine.mini+=' · filed live';
+      renderMine(); go.disabled=false;
+      toast('Filed live — the request bus carries it from here.');
+      return;
+    }catch(err){ trail(mine,'bus refused — local pipeline continues'); }
+  }
 
   /* the upfront charge is real — credits leave at declare time, and every
      refund path below (deny, queue expiry, modified decline, nudge 50%) is
@@ -914,6 +1074,7 @@ go.onclick = function(){
       chg(q.total, 'deny refund — '+label);
       stage('Refund', 'done', q.total + ' cr returned — denied requests never bill');
       mine.st='resolved'; mine.sub+=' · not approved ('+scr.code+') · refunded in full';
+      trail(mine,'screened — denied ('+scr.code+') · '+q.total+' cr refunded');
       if (!NONAPPEAL[scr.code]) mine.canAppeal=true;
       else mine.sub+=' · this denial class is not appealable';
       feedAdd('you', label+' — request not approved', 'resolved');
@@ -925,6 +1086,7 @@ go.onclick = function(){
 
     if (co){
       CLAIMS[ck].wx.sponsors.push('you');
+      trail(mine,'co-sponsor filed — joins the running call');
       stage('Co-sponsor filed','done','joins the running call — auto-run on pass');
       mine.st='running'; mine.co=true; mine.claim=ck;
       mine.sub+=' · co-sponsoring "'+CLAIMS[ck].wx.what+'" · sponsors: '+CLAIMS[ck].wx.sponsors.join(' + ');
@@ -936,6 +1098,7 @@ go.onclick = function(){
     if (queued){
       stage('Queued', 'done', 'slot held ≤'+QUEUE_HOLD_H+' h · expires → auto-refund · review on activation');
       mine.st='queued'; mine.canCancel=true; mine.holdMin=QUEUE_HOLD_H*60;
+      trail(mine,'queued — slot held ≤24 h · '+q.total+' cr held');
       mine.sub+=' · waiting on '+CLAIMS[ck].name;
       mine.mini='hold '+fmtMin(mine.holdMin)+' left · expiry auto-refunds';
       if (CLAIMS[ck]) CLAIMS[ck].qa=(CLAIMS[ck].qa||0)+1;
@@ -949,7 +1112,7 @@ go.onclick = function(){
     if (needsHuman){
       var s3 = stage('Human review', 'wait', scr.r==='review'?'gray-zone wording':'all exclusive requests get eyes');
       if (!lessonShown){ lessonShown=true; rwEmit('review_lesson_shown',{trigger:'first_review'}); }
-      mine.st='review'; feedAdd('you', label, 'review'); renderMine();
+      mine.st='review'; feedAdd('you', label, 'review'); trail(mine,'in human review'); renderMine();
       setTimeout(function(){
         var mod = modPlan(a, dm, text);
         if (mod){
@@ -969,7 +1132,8 @@ function run(a, t, q, dm, text, label, mine){
   var nudgeDeclined = (a.id==='nudge' && /decline|refuse|no thanks/i.test($('intent').value)) ||
                       (a.id==='nudge' && Math.random() < 0.3);
   /* credits already left at declare — see the upfront charge in the ledger */
-  mine.st='running'; feedAdd('you', label+' ('+(a.per==='min'?dm+' min':a.per==='block'?(dm/60)+' h':'one-shot')+')', 'running');
+  mine.st='running'; trail(mine,'running — injected as opportunity');
+  feedAdd('you', label+' ('+(a.per==='min'?dm+' min':a.per==='block'?(dm/60)+' h':'one-shot')+')', 'running');
   renderMine();
 
   if (a.id==='nudge'){
@@ -1067,6 +1231,7 @@ function endSession(a, t, mine, left, early){
   $('sess').style.display='none';
   rwEmit('handoff_seen',{action:a.id, early:!!early});
   mine.st='resolved'; mine.sub+= early ? ' · released early ('+left+' min unused — you paid the cap, no more)' : ' · ran to cap';
+  trail(mine, early ? 'released early — graceful handoff, '+left+' min unused' : 'ran to cap — graceful handoff');
   feedAdd('you', a.label.toLowerCase()+' session','resolved','player session ended');
   stage('Handoff','done',(early?'released early · ':'')+'AI resumed mid-action · player session ended');
   if (early) toast('Released early — AI resumed mid-action. Unused time inside the cap is not refunded.');

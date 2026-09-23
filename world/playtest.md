@@ -100,6 +100,10 @@ One person can wear every hat; four real testers is the intended shape.
   grievance layer: the five-rung ladder, per-employer/per-building
   ears, the two offstage parody tables at rung 4, door-not-name feed
   shapes, and the griev gate's coverage + surface-bar checks.
+  PT55 (the Counter, v60) is a payer audit — request.html's live seam
+  (mirror/live badge, capability-checked gsRequestSubmit write path),
+  the free pre-flight wording check (same screen, before money moves,
+  never a gate), and the per-request receipt drawer with its rq- ref.
 
 ## 3. Running a session
 
