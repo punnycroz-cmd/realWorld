@@ -214,6 +214,27 @@
       "funnel_stage": "onboard",
       "status": "PENDING — game build"
     },
+    "queue_lesson_shown": {
+      "when": "the queued-ask lesson is shown — S4e teaches that filing while a resource is claimed lands 'queued' at the −15% rate (game-side; world-v53 queue_lesson block)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence only — measures reach of the queue teaching moment; never carries the request text or the resource name"
+    },
+    "queue_outcome_seen": {
+      "when": "the scripted queue outcome is seen — S4e demo resolves 'queued request expired before activation' + full auto-refund (game-side; world-v53)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "presence + opt-out flag only; the outcome itself is always the scripted expiry — no real request outcomes leak into onboarding analytics"
+    },
+    "archive_beat_seen": {
+      "when": "tour beat 7 surfaces the feed-archive link under the Wire stream (game-side; world-v53 archive_beat block — merge target needs a feed-archive anchor on the real Wire)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "measures discovery of the history surface; stage + opt-out only"
+    },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
       "props": { "stage": "onboarding stage id" },
@@ -265,7 +286,7 @@
   "privacy": {
     "cookies": false,
     "persistent_ids": false,
-    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored",
+    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored — implemented in analytics_sink.py --uniques (v81)",
     "opt_out": ["navigator.doNotTrack", "navigator.globalPrivacyControl", "?nocollect=1", "localStorage rw:no-collect=1", "rw.optOut()"],
     "inert_by_default": true
   }

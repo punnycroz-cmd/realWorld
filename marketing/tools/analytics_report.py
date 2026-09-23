@@ -56,7 +56,7 @@ def stage_of(evt):
     return name
 
 
-def report(evts, week=None):
+def report(evts, week=None, uniques_path=None):
     sessions = defaultdict(set)           # sid -> set of stages reached
     sids = set()
     pageviews = Counter()
@@ -132,7 +132,9 @@ def report(evts, week=None):
                       "persona_chosen", "handle_taken_shown",
                       "decline_lesson_shown", "returning_session",
                       "review_lesson_shown", "review_outcome_seen",
-                      "low_balance_simulated", "handoff_seen", "hired_return"):
+                      "low_balance_simulated", "handoff_seen", "hired_return",
+                      "queue_lesson_shown", "queue_outcome_seen",
+                      "archive_beat_seen"):
             onboard[name] += 1
             if name == "tour_skipped":
                 tour_skip_beats[props.get("at_beat", "?")] += 1
@@ -158,6 +160,19 @@ def report(evts, week=None):
     out.append(f"## metrics — week {week or '{{ISO week}}'}")
     out.append(f"- sessions: {len(sids)} · pageviews: {sum(pageviews.values())} "
                f"· events: {sum(events_total.values())}")
+    if uniques_path:
+        try:
+            per_day = defaultdict(set)
+            with open(uniques_path, encoding="utf-8") as f:
+                for line in f:
+                    day, _, h = line.rstrip("\n").partition("\t")
+                    if day and h:
+                        per_day[day].add(h)
+            if per_day:
+                out.append("- uniques (daily-hash, §1): " + ", ".join(
+                    f"{d}: {len(per_day[d])}" for d in sorted(per_day)))
+        except OSError as e:
+            print(f"# warn: uniques file unreadable: {e}", file=sys.stderr)
     if sources:
         out.append("- top sources: " + ", ".join(f"{s} ({n})" for s, n in sources.most_common(3)))
     else:
@@ -209,7 +224,7 @@ def report(evts, week=None):
             f"{k} ({n})" for k, n in sim_uses.most_common()))
         out.append("")
     if onboard:
-        out.append("**onboarding (world-v11/v25/v39 hooks, game-side):** " + ", ".join(
+        out.append("**onboarding (world-v11/v25/v39/v53 hooks, game-side):** " + ", ".join(
             f"{k}: {v}" for k, v in sorted(onboard.items())))
         if personas:
             out.append("  persona split: " + ", ".join(
@@ -233,6 +248,9 @@ def main():
     ap.add_argument("ndjson", help="event file written by analytics_sink.py")
     ap.add_argument("--week", default=None, help="ISO week label for the report header")
     ap.add_argument("--json", action="store_true", help="dump raw aggregates instead of markdown")
+    ap.add_argument("--uniques", default=None,
+                    help="daily-hash TSV written by analytics_sink.py --uniques; "
+                         "adds a 'uniques by day' line to the report")
     args = ap.parse_args()
     evts = load(args.ndjson)
     if args.json:
@@ -242,7 +260,7 @@ def main():
                           "sessions": len({e.get("sid") for e in evts if e.get("sid")})},
                          indent=2, sort_keys=True))
         return
-    print(report(evts, args.week))
+    print(report(evts, args.week, uniques_path=args.uniques))
 
 
 if __name__ == "__main__":

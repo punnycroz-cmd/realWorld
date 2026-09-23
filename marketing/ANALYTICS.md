@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v66 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v81 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -21,6 +21,9 @@ would contradict the brand. So:
 - Sessions are a random nonce in `sessionStorage` — dies when the tab closes.
 - Unique-visitor counting is a **server-side** concern: daily-rotating
   `hash(salt + IP + UA + date)`, salt discarded daily. Raw IPs are never stored.
+  Implemented locally (v81) via `analytics_sink.py --uniques`: the sidecar
+  TSV stores `day<TAB>hash` only — salts live in memory, rotate per UTC day,
+  and are never written, so hashes can't be correlated across days.
 - Referrer is reduced to its **host** on the client.
 - Honors **Do Not Track**, **Global Privacy Control**, `?nocollect=1`,
   `localStorage["rw:no-collect"]`, and `window.rw.optOut()`.
@@ -67,9 +70,9 @@ visit      pageview                     (site — live now)
             └─create character_created  (game — PENDING)
 ```
 
-**Onboarding events (v36 + v51 + v68):** the world track's onboarding contract
+**Onboarding events (v36 + v51 + v68 + v81):** the world track's onboarding contract
 (`world/onboarding-ui.md` / `world/onboarding.json analytics_hooks`)
-names eighteen events emitted at merge. v11's nine: `tour_started`,
+names twenty-one events emitted at merge. v11's nine: `tour_started`,
 `tour_beat`, `tour_completed`, `tour_skipped` (carries `at_beat`),
 `handle_set`, `wallet_explained`, `topup_shown`, `first_request_filed`,
 `onboard_dismissed`. v25 added four (§17): `persona_chosen` (carries
@@ -83,13 +86,20 @@ identity exists). v39 added five (storage key `rw_onboard_v39`):
 `outcome` prop uses feed-vocabulary values only),
 `low_balance_simulated` (opt-in sim → "player session ended"; `opted_in`
 flag, no amounts), `handoff_seen` (graceful session handoff state),
-`hired_return` (`?hired=1` deep link → first-day card S6). All eighteen
+`hired_return` (`?hired=1` deep link → first-day card S6). v53 added
+three (storage key `rw_onboard_v53`): `queue_lesson_shown` (the S4e
+"filed while claimed → queued at −15%" lesson), `queue_outcome_seen`
+(the scripted "queued request expired before activation" + full
+auto-refund outcome — presence only, the scripted expiry is the only
+value), `archive_beat_seen` (tour beat 7's feed-archive link). All
+twenty-one
 are in `analytics-events.json`, the sink
 allowlist, the report's onboarding block (with a persona split line), and
 the local dashboard. Per the world contract they carry `stage` +
-`opted_out`/`persona` only — **no per-step dwell, no handle values (not
-even rejected ones), no amounts**. That constraint is load-bearing (no
-funnel-pressure instrumentation) and enforced by the spec's prop lists.
+`opted_out`/`persona`/`opted_in` only — **no per-step dwell, no handle
+values (not even rejected ones), no amounts, no request text**. That
+constraint is load-bearing (no funnel-pressure instrumentation) and
+enforced by the spec's prop lists.
 
 Full field-level spec: **`marketing/analytics-events.json`** (envelope +
 per-event props + privacy contract). Site-side events already wired:
@@ -158,8 +168,9 @@ browser check. Ctrl-C frees both ports; artifacts land in /tmp/rw-analytics-e2e.
 Manual equivalent:
 
 ```bash
-# terminal 1 — the capture sink
-python3 marketing/tools/analytics_sink.py --port 8970 --out /tmp/rw-events.ndjson
+# terminal 1 — the capture sink (+ optional daily-hash uniques sidecar)
+python3 marketing/tools/analytics_sink.py --port 8970 --out /tmp/rw-events.ndjson \
+    --uniques /tmp/rw-uniques.tsv
 
 # terminal 2 — serve the site
 cd marketing/site && python3 -m http.server 8080
@@ -170,7 +181,8 @@ cd marketing/site && python3 -m http.server 8080
 ### Reporting on captured data
 
 ```bash
-python3 marketing/tools/analytics_report.py /tmp/rw-events.ndjson --week 2026-W39
+python3 marketing/tools/analytics_report.py /tmp/rw-events.ndjson --week 2026-W39 \
+    --uniques /tmp/rw-uniques.tsv
 ```
 
 Prints the §8 weekly block pre-filled (sessions, sources, funnel with
@@ -250,7 +262,8 @@ for A/B creative variants (`thumb-a`, `teaser-15s`).
 
 One dashboard, four panels — everything derivable from the event spec:
 
-1. **Acquisition:** unique visitors/day (server-side daily hash), top referrer
+1. **Acquisition:** unique visitors/day (server-side daily hash — locally:
+   `analytics_sink.py --uniques` + `analytics_report.py --uniques`), top referrer
    hosts, sessions by `utm_source`/`utm_campaign`.
 2. **Site engagement:** `cta_click` rate by `cta` slot; `screenshot_view` by
    shot (tells art which captures sell the game); `scroll_depth` reach per
@@ -299,13 +312,17 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
       manually until then (community/first-100.md §4)
 - [ ] Game embed emits `watch_start` / `request_submitted` / `character_created`
       per `analytics-events.json` (coordination note for game/world track)
-- [ ] Game emits the eighteen onboarding events per world-v11/v25/v39
+- [ ] Game emits the twenty-one onboarding events per world-v11/v25/v39/v53
       contract (`tour_*`, `persona_chosen`, `handle_set`,
       `handle_taken_shown`, `wallet_explained`, `topup_shown`,
       `decline_lesson_shown`, `first_request_filed`, `onboard_dismissed`,
       `returning_session`, `review_lesson_shown`, `review_outcome_seen`,
-      `low_balance_simulated`, `handoff_seen`, `hired_return`) —
+      `low_balance_simulated`, `handoff_seen`, `hired_return`,
+      `queue_lesson_shown`, `queue_outcome_seen`, `archive_beat_seen`) —
       stage + opted_out/persona/outcome/opted_in only
+- [ ] Production collector implements the §1 daily-hash unique contract
+      (or run our sink with `--uniques`); `analytics_report.py --uniques`
+      renders the per-day counts
 
 ## 10. Hard rules
 

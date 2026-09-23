@@ -32,8 +32,9 @@ echo "[e2e] 1/6 generating fixture -> $WORK/fixture.ndjson"
 python3 tools/make_analytics_fixture.py --sessions 220 > "$WORK/fixture.ndjson"
 wc -l < "$WORK/fixture.ndjson" | xargs echo "[e2e] fixture events:"
 
-echo "[e2e] 2/6 starting sink on :$SINK_PORT"
-python3 tools/analytics_sink.py --port "$SINK_PORT" --out "$WORK/captured.ndjson" &
+echo "[e2e] 2/6 starting sink on :$SINK_PORT (with --uniques sidecar)"
+python3 tools/analytics_sink.py --port "$SINK_PORT" --out "$WORK/captured.ndjson" \
+    --uniques "$WORK/uniques.tsv" &
 PIDS+=($!)
 sleep 0.5
 
@@ -47,9 +48,17 @@ sent=$(wc -l < "$WORK/fixture.ndjson")
 got=$(wc -l < "$WORK/captured.ndjson")
 echo "[e2e] captured $got / $sent events"
 [ "$got" -eq "$sent" ] || { echo "[e2e] FAIL: sink dropped events"; exit 1; }
+# uniques sidecar: one line per request, each a daily-rotating salted hash —
+# never a raw IP/UA (ANALYTICS.md §1)
+grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}	[0-9a-f]{20}$' "$WORK/uniques.tsv" \
+  || { echo "[e2e] FAIL: uniques sidecar malformed"; exit 1; }
+! grep -Eq '127\.0\.0\.1|curl/' "$WORK/uniques.tsv" \
+  || { echo "[e2e] FAIL: uniques sidecar leaked raw IP/UA"; exit 1; }
+echo "[e2e] uniques sidecar: $(wc -l < "$WORK/uniques.tsv") hashed rows, no raw IP/UA"
 
 echo "[e2e] 4/6 generating report -> $WORK/report.md"
-python3 tools/analytics_report.py "$WORK/captured.ndjson" --week e2e > "$WORK/report.md"
+python3 tools/analytics_report.py "$WORK/captured.ndjson" --week e2e \
+    --uniques "$WORK/uniques.tsv" > "$WORK/report.md"
 
 echo "[e2e] 5/6 asserting report sanity + validating capture against the spec"
 for want in "pageview" "watch_start" "request_submitted" "character_created" "funnel:"; do
@@ -74,7 +83,7 @@ cat <<EOF
         http://127.0.0.1:$SITE_PORT/?rw_endpoint=http://127.0.0.1:$SINK_PORT/e
       (the ?rw_endpoint= override only works on localhost — see analytics.js)
       Scroll/click, then Ctrl-C here and run:
-        python3 tools/analytics_report.py $WORK/captured.ndjson
+        python3 tools/analytics_report.py $WORK/captured.ndjson --uniques $WORK/uniques.tsv
 [e2e] Waiting — Ctrl-C to stop servers.
 EOF
 wait

@@ -146,6 +146,17 @@ def main():
                     yield_evt("review_outcome_seen", "/demo.html", sid,
                               {"stage": "s4c", "outcome": "not approved"},
                               utm=utm, ref=ref, ts=ts + 63600)
+                if rnd.random() < 0.3:  # queued-ask lesson (v53 S4e)
+                    yield_evt("queue_lesson_shown", "/demo.html", sid,
+                              {"stage": "s4e", "opted_out": False},
+                              utm=utm, ref=ref, ts=ts + 63400)
+                    yield_evt("queue_outcome_seen", "/demo.html", sid,
+                              {"stage": "s4e", "opted_out": False},
+                              utm=utm, ref=ref, ts=ts + 63450)
+                if rnd.random() < 0.45:  # archive link beat (v53 beat 7)
+                    yield_evt("archive_beat_seen", "/demo.html", sid,
+                              {"stage": "s7", "opted_out": False},
+                              utm=utm, ref=ref, ts=ts + 63480)
                 if rnd.random() < 0.2:  # opt-in low-balance sim (v39)
                     yield_evt("low_balance_simulated", "/demo.html", sid,
                               {"stage": "s5", "opted_in": True},
