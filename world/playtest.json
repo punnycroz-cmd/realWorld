@@ -4779,7 +4779,47 @@
      ]
     }
    ]
+  },
+{
+ "id": "PT93",
+ "title": "The live session layer v102 \u2014 request.html rides the bus end-to-end",
+ "minutes": 8,
+ "persona": "merge auditor \u2014 wants proof the bridged request card is driven by the bus, not just filed to it",
+ "goal": "Verify the v102 live session layer: request.html capability-checks gsRequestMeter / gsCancelRequest / gsAppealRequest / gsWatchAd / gsAdStatus / gsPossessionBriefing / gsConflictRules / gsAppealStats behind the same LIVE flag as the filing seam; requests.json documents them in live_seam.reads + live_writes + live_meter; the request gate enforces every surface name plus the own-position-only queue honesty line.",
+ "surfaces": [
+  "request",
+  "audit"
+ ],
+ "steps": [
+  {
+   "do": "Read the v102 block at the top of world/request.html, then find liveSess and the meter pass inside livePoll (search 'v102').",
+   "expect": "The header comment names all eight bus surfaces with their capability-check rule. liveSess renders remainingMin/spentSoFar/lowCredits as a live session card ('the bus holds the clock'); the meter pass maps queued\u2192queuePos, in_review\u2192reviewCode+expiry, active\u2192session, and terminal states\u2192status+refund onto the card.",
+   "checkpoints": [
+    "gsRequestMeter drives the card verbatim \u2014 queued position, review clock, active remaining, terminal refunds",
+    "Queue position copy reads 'place N in line \u2014 yours can only shrink, never grow' \u2014 the holder's own place, never the queue's order",
+    "Release early files gsCancelRequest and the copy says the bus settles unused minutes by its own rule"
+   ]
+  },
+  {
+   "do": "Read cancelReq, appealReq, renderAds/the ad button, renderBrief, and renderBoard \u2014 every live write and read is behind LIVE && BRIDGE.<fn>.",
+   "expect": "Cancel and appeal file on the bus only when r.busId exists; appeal refusal codes map to neutral wording (already_appealed, window_closed\u2026); the ad button mints through gsWatchAd and treats capHit as an honest refusal; the briefing prefers gsPossessionBriefing with the absent-by-schema bar unchanged; gsConflictRules renders under the board; gsAppealStats adds one aggregate line, never per-appeal feed items.",
+   "checkpoints": [
+    "No live call is unconditional \u2014 every one is inside LIVE && BRIDGE.<fn> with try/catch",
+    "Appeal refuses read neutral \u2014 no accusation, no theater",
+    "Absent-by-schema secrets bar present on both demo and live briefing cards"
+   ]
+  },
+  {
+   "do": "Run node world/audit.js and read the request gate; then open world/requests.json live_writes/live_meter and world/request-ui.md \u00a713.",
+   "expect": "Request gate passes with the v102 checks green (live_writes names gsCancelRequest/gsAppealRequest/gsWatchAd; live_meter carries queuePos/remainingMin/terminal; all eight surface strings present in the HTML). Prose spells the meter-is-truth rule and the own-position-only distinction.",
+   "checkpoints": [
+    "Request gate: 0 fail; detail still reports 'seam wired'",
+    "A missing live_writes/live_meter block or a dropped surface string FAILs the gate \u2014 spot-check mentally",
+    "Harness gate: '93 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v93'; 0 fail overall"
+   ]
   }
+ ]
+}
  ],
  "session_report_schema": {
   "session": {

@@ -2688,6 +2688,24 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'requests.json', null, 'receipt contract must carry the rq-<id> ref');
     for (const s of ['data-rc', 'rtrail', 'trail(', 'receipt', 'rq-'])
       if (!html.includes(s)) add(g, 'fail', 'request.html', null, `receipt surface missing "${s}"`);
+    /* v102 — the live session layer: meter + live writes + live reads,
+       all capability-checked like the filing seam */
+    const LW = RJ.live_writes || {};
+    if (!/gsCancelRequest/.test(LW.cancel || '') || !/gsAppealRequest/.test(LW.appeal || '') ||
+        !/gsWatchAd/.test(LW.ad || ''))
+      add(g, 'fail', 'requests.json', null, 'live_writes must name gsCancelRequest / gsAppealRequest / gsWatchAd');
+    const LM = RJ.live_meter || {};
+    if (!/queuePos/.test(LM.queued || '') || !/remainingMin/.test(LM.active || '') ||
+        !/nothing billed/.test(LM.terminal || ''))
+      add(g, 'fail', 'requests.json', null, 'live_meter must carry queuePos / remainingMin / terminal projections');
+    for (const s of ['gsRequestMeter', 'gsCancelRequest', 'gsAppealRequest', 'gsAdStatus',
+                     'gsWatchAd', 'gsPossessionBriefing', 'gsConflictRules', 'gsAppealStats',
+                     'liveSess', 'only shrink, never grow', 'the bus holds the clock',
+                     'rulesNote', 'apstats'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `v102 live-session surface missing "${s}"`);
+    /* own queue position is shown to the holder only — never the queue's order */
+    if (!/can only shrink, never grow/.test(html))
+      add(g, 'fail', 'request.html', null, 'queue position must carry the only-shrink honesty line');
     g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'} · seam ${LS.write ? 'wired' : 'MISSING'}`;
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }

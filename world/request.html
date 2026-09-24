@@ -51,6 +51,19 @@
   gsPriceQuote() adds a live-check line to the quote — the bus's own
   math shown before payment, informative never blocking. Feed entries
   carrying the v14 status "booked" render as a booked chip.
+  v102 adds the live session layer — the bus's remaining read/write
+  surfaces join the seam, all capability-checked: gsRequestMeter(id)
+  is polled per bridged filing and drives the card verbatim (own queue
+  position — "yours can only shrink", the review SLA clock, active
+  remainingMin/spentSoFar/lowCredits on the session card, refund totals
+  on terminal states); cancel and appeal go through gsCancelRequest /
+  gsAppealRequest (the bus enforces one-appeal / 72 h / different
+  reviewer and settles refunds by its own accounting); the wallet's
+  rewarded-ad button mints through gsWatchAd with gsAdStatus counters;
+  the possession briefing prefers gsPossessionBriefing(charId) served
+  live; and gsConflictRules() renders the claims matrix in plain English
+  under the resource board. Off the bus nothing below changes — the
+  local pipeline stays the contract reference.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -234,6 +247,7 @@
     <div class="board" id="board"></div>
     <div class="note">Shared resources — first-come-first-served, never auctioned.
       Cooldowns are never for sale.</div>
+    <div class="note" id="rulesNote"></div>
 
     <label for="action">Action</label>
     <select id="action"></select>
@@ -294,6 +308,7 @@
   <section class="panel">
     <h2>Your requests</h2>
     <ul class="myreq" id="myreq"></ul>
+    <div class="note" id="apstats"></div>
     <h2>Public request feed <span class="note" style="display:inline">— every request, attributed</span></h2>
     <ul class="feed" id="feed"></ul>
     <h2>Credits ledger <span class="note" style="display:inline">— every debit and refund, itemized</span></h2>
@@ -627,10 +642,33 @@ function buyPack(p){
   renderPacks(); refreshQuote();
 }
 function renderAds(){
+  /* v102 — bridged: the bus's own counters (gsAdStatus) drive the row;
+     the bus counts per PT-day, the weekly cap is its business too. */
+  if (LIVE && BRIDGE.gsAdStatus){
+    try{
+      var st = BRIDGE.gsAdStatus('you');
+      if (st){ $('adcount').textContent = (st.viewsToday||0)+' seen today · '+
+          (st.capLeft!=null?st.capLeft+' left':'cap held by the bus')+' · +'+(st.perView||AD_CR)+' cr each';
+        $('adbtn').disabled = (st.capLeft||0) <= 0;
+        return; }
+    }catch(e){}
+  }
   $('adcount').textContent = adsDay+'/'+AD_DAY+' today · '+adsWeek+'/'+AD_WEEK+' this week';
   $('adbtn').disabled = (adsDay>=AD_DAY || adsWeek>=AD_WEEK);
 }
 $('adbtn').onclick=function(){
+  /* v102 — bridged: gsWatchAd mints the credit on the bus; capHit is an
+     honest refusal, not an error */
+  if (LIVE && BRIDGE.gsWatchAd){
+    try{
+      var r = BRIDGE.gsWatchAd('you');
+      if (r && r.ok){ chg(r.credits||AD_CR,'rewarded ad view (live)');
+        toast('+'+(r.credits||AD_CR)+' cr — thanks for watching');
+        renderAds(); return; }
+      if (r && r.capHit){ toast('Daily cap reached — a taste, not a wage. Ads reset tomorrow.');
+        renderAds(); return; }
+    }catch(e){}
+  }
   if (adsDay>=AD_DAY || adsWeek>=AD_WEEK) return;
   adsDay++; adsWeek++;
   chg(AD_CR,'rewarded ad view');
@@ -655,6 +693,17 @@ function renderBoard(){
           (c.note?'<div class="cd">'+c.note+'</div>':'')+'</div>';
   }
   $('board').innerHTML=html;
+  /* v102 — the classification why: gsConflictRules() is the bus's claims
+     matrix in plain English. Shown when bridged so 'exclusive' reads as
+     a fact about shared resources, never as a tax. */
+  if (LIVE && BRIDGE.gsConflictRules){
+    try{
+      var rules = BRIDGE.gsConflictRules() || [];
+      $('rulesNote').innerHTML = rules.length
+        ? 'Why these classes — the bus\u2019s claims matrix: ' + rules.join(' · ')
+        : '';
+    }catch(e){}
+  }
 }
 /* demo tick — drain cooldowns/locks (1 tick ≈ 1 min of resource time) and
    queued-request hold clocks (1 tick ≈ 48 min of the 24 h hold, so the
@@ -814,6 +863,63 @@ function livePoll(){
       BOOKW.push({claim:w.claim, start:st, min:w.min||60,
                   who:w.who||'—', what:w.what||'booked window'});
     });
+    /* v102 — the live session layer: gsRequestMeter(id) is the bus's
+       per-request meter. Cards filed live mirror it — own queue
+       position (it can only shrink, never grow — shown to the holder,
+       never an auction), the review SLA clock, active remaining/spent,
+       and refund totals on terminal states. Local stand-ins yield
+       wherever the meter answers; a hiccup keeps the last good frame. */
+    if (BRIDGE.gsRequestMeter){
+      var mChanged=false, sessAlive=false;
+      MYREQ.forEach(function(r){
+        if (!r.busId) return;
+        try{
+          var m = BRIDGE.gsRequestMeter(r.busId);
+          if (!m) return;
+          r._meter = m;
+          if (m.status==='queued'){
+            if (r.st!=='queued'){ r.st='queued'; mChanged=true; }
+            var mini = (m.queuePos ? 'place '+m.queuePos+' in line — yours can only shrink, never grow'
+                                   : 'queued on the bus') +
+              (m.blockedBy && m.blockedBy.length ? ' · waiting on '+m.blockedBy.join(', ') : '');
+            if (r.mini!==mini){ r.mini=mini; mChanged=true; }
+          } else if (m.status==='in_review'){
+            if (r.st!=='review'){ r.st='review'; mChanged=true; }
+            var mini2 = 'in human review' +
+              (m.reviewExpiresInMin!=null ? ' · '+fmtMin(Math.max(0,Math.ceil(m.reviewExpiresInMin)))+' left for a decision' : '') +
+              (m.reviewCode ? ' · '+String(m.reviewCode).replace(/_/g,' ') : '');
+            if (r.mini!==mini2){ r.mini=mini2; mChanged=true; }
+          } else if (m.status==='active'){
+            if (r.st!=='running'){ r.st='running'; mChanged=true; }
+            liveSess(r, m); sessAlive = (liveSessId===r.id);
+          } else if (m.status==='denied'){
+            if (r.st!=='resolved'){ r.st='resolved';
+              r.sub+=' · not approved ('+(m.reviewCode||'denied')+') · nothing billed';
+              trail(r,'bus: denied — nothing billed'); mChanged=true; }
+          } else if (m.status==='cancelled' || m.status==='completed' ||
+                     m.status==='expired' || m.status==='failed'){
+            if (r.st!=='resolved' && r.st!=='refunded'){
+              r.st = (m.status==='cancelled' || (m.refunded||0)>0) ? 'refunded' : 'resolved';
+              r.sub+=' · '+m.status.replace(/_/g,' ')+(m.refunded?' · '+m.refunded+' cr refunded by the bus':'');
+              trail(r,'bus: '+m.status+(m.refunded?' — '+m.refunded+' cr refunded':''));
+              mChanged=true; }
+          }
+        }catch(e){ /* per-request hiccup — last good frame stands */ }
+      });
+      if (liveSessId!=null && !sessAlive){ $('sess').style.display='none'; liveSessId=null; }
+      if (mChanged) renderMine();
+    }
+    /* v102 — appeal aggregate: gsAppealStats() counts in public; the
+       appeals themselves never reach the feed */
+    if (BRIDGE.gsAppealStats){
+      try{
+        var ap = BRIDGE.gsAppealStats();
+        if (ap && ap.filed) $('apstats').textContent =
+          'appeals on the bus: '+ap.filed+' filed · '+
+          (ap.reversalRate!=null ? Math.round(ap.reversalRate*100)+'% reversed' : 'none reversed yet')+
+          ' — aggregate only; individual appeals never appear on the feed';
+      }catch(e){}
+    }
     renderBoard();
   }catch(err){ /* bridge hiccup — keep last good frame, badge stays live */ }
 }
@@ -822,8 +928,36 @@ if (LIVE) setInterval(livePoll, 3000);
 /* ================= briefing preview ================= */
 function renderBrief(t){
   var box=$('brief');
-  if (!t.brief || !BRIEFINGS[t.id]){ box.style.display='none'; return; }
+  if (!t.brief){ box.style.display='none'; return; }
+  /* v102 — bridged: gsPossessionBriefing(charId) serves the same §7
+     whitelist live. A null/thin packet falls back to the demo card;
+     the absent-by-schema bar never moves either way. */
+  if (LIVE && BRIDGE.gsPossessionBriefing){
+    var lb=null;
+    try{ lb = BRIDGE.gsPossessionBriefing(t.id) || null; }catch(e){}
+    if (lb){
+      var LK={name:'Who', role:'Role', home:'Home', routine:'Daily routine',
+              possessedBy:'Currently driven by'};
+      var rows='';
+      for (var k in lb){
+        if (k==='id' || lb[k]==null) continue;
+        rows+='<div class="brow"><span class="k">'+(LK[k]||String(k).replace(/_/g,' '))+'</span><br>'+
+          (typeof lb[k]==='object'?JSON.stringify(lb[k]):lb[k])+'</div>';
+      }
+      box.innerHTML='<div class="bhead"><span>Possession briefing — live</span><span>whitelist · §7 · gsPossessionBriefing</span></div>'+
+        '<div class="bbody">'+rows+
+        '<div class="brow"><span class="k">Scope</span><br>You may possess only your own hired '+
+        'character — nobody else, ever. While you drive, the AI brain is suspended; on release '+
+        'or timeout it resumes seamlessly.</div>'+
+        '<div class="absent">secrets, drama seeds, inner life — <b>not redacted: absent</b>. '+
+          'The live packet carries no field that holds them. Learn them by watching.</div>'+
+        '</div>';
+      box.style.display='block';
+      return;
+    }
+  }
   var b=BRIEFINGS[t.id];
+  if (!b){ box.style.display='none'; return; }
   box.innerHTML='<div class="bhead"><span>Possession briefing</span><span>whitelist · §7</span></div>'+
     '<div class="bbody">'+
     '<div class="brow"><span class="k">Who</span><br>'+b.who+'</div>'+
@@ -1120,6 +1254,28 @@ function renderMine(){
    count them in aggregate. A different reviewer decides; upheld is final. */
 function appealReq(id){
   var r=findReq(id); if(!r||!r.canAppeal) return;
+  /* v102 — filed-live denials appeal through the bus: gsAppealRequest
+     enforces one-appeal / 72 h window / different-reviewer itself, and
+     the appeal record is a parked request billed 0 — the run re-bills
+     only on approval. Refusals map to neutral wording, never theater. */
+  if (LIVE && r.busId && BRIDGE.gsAppealRequest){
+    var res=null;
+    try{ res=BRIDGE.gsAppealRequest(r.busId,{playerId:'you'}); }catch(e){}
+    if (res && res.ok){
+      r.canAppeal=false; r.st='appeal';
+      trail(r,'appeal filed on the bus — different reviewer, ≤'+APPEAL_H+' h · private, never on the feed');
+      r.sub+=' · appealed — a different reviewer decides within '+APPEAL_H+' h';
+      toast('Appeal filed — it goes to a different reviewer. Appeals never appear on the public feed.');
+      renderMine();
+    } else {
+      var WHY={ not_denied:'that request is not in a denied state',
+        not_your_request:'only the filer can appeal', already_appealed:'one appeal per request — already filed',
+        appeal_final:'the second review was final', not_appealable:'this denial class is not appealable',
+        window_closed:'the 72 h appeal window has closed' };
+      toast('Appeal refused — '+(WHY[res&&res.err]||'the bus declined it')+'.');
+    }
+    return;
+  }
   r.canAppeal=false; r.st='appeal';
   trail(r,'appeal filed — different reviewer, ≤'+APPEAL_H+' h · private, never on the feed');
   r.sub+=' · appealed — a different reviewer decides within '+APPEAL_H+' h';
@@ -1174,8 +1330,53 @@ function liveExplain(r){
     return '<div class="rl"><span>bus id</span><b>'+r.busId+'</b></div>'+rows;
   }catch(err){ return ''; }
 }
+/* v102 — live session card: for a possess/camera request the bus reports
+   'active', gsRequestMeter supplies remainingMin / spentSoFar / lowCredits
+   — real minutes, not the demo tick. Release early files gsCancelRequest;
+   the bus settles unused minutes by its own rule (unused whole minutes at
+   the applied rate) and the meter reports what came back. */
+var liveSessId=null;
+function liveSess(r, m){
+  var sess=$('sess'); sess.style.display='block';
+  var leftMin=Math.max(0,Math.ceil(m.remainingMin||0));
+  sess.innerHTML='<h2>Live session — '+r.label+'</h2>' +
+    '<div class="clock">'+leftMin+':00</div>' +
+    '<div class="srow"><span>hard cap · the bus holds the clock</span><span>'+
+      (m.spentSoFar!=null?m.spentSoFar+' cr spent so far':'')+'</span></div>' +
+    (m.lowCredits?'<div class="srow"><span>balance</span><span style="color:var(--acc)">low — top up to keep the session healthy</span></div>':'') +
+    (r.action==='possess'?'<div class="srow"><span>brain</span><span>suspended — AI resumes on release</span></div>':'') +
+    '<div class="note">At zero the bus hands control back to the AI seamlessly — logged on the feed as \u201cplayer session ended\u201d.</div>' +
+    '<button class="ghost" id="endearly">Release early — graceful handoff; the bus settles unused minutes</button>';
+  $('endearly').onclick=function(){
+    try{ if (BRIDGE.gsCancelRequest) BRIDGE.gsCancelRequest(r.busId); }catch(e){}
+    sess.style.display='none'; liveSessId=null;
+    trail(r,'released early on the bus — unused minutes settle per its rule');
+    toast('Released early — AI resumed mid-action. The bus settles unused minutes by its own rule.');
+    renderMine();
+  };
+  liveSessId=r.id;
+}
 function cancelReq(id){
   var r=findReq(id); if(!r||!r.canCancel) return;
+  /* v102 — filed-live cards cancel on the bus itself: gsCancelRequest
+     settles the refund (queued/in-review = full bill; active = unused
+     whole minutes at the applied rate) and emits the feed line — the
+     poll carries it back. A refusal is honest: the request already left
+     a cancellable state and the meter reports where it stands. */
+  if (LIVE && r.busId && BRIDGE.gsCancelRequest){
+    var ok=false;
+    try{ ok=!!BRIDGE.gsCancelRequest(r.busId); }catch(e){}
+    if (ok){
+      r.canCancel=false; r.st='refunded';
+      trail(r,'cancelled on the request bus — refund settles per its accounting');
+      r.sub+=' · cancelled on the bus — refund settles per its accounting';
+      toast('Cancelled on the request bus — the feed will show the refund.');
+      renderMine();
+    } else {
+      toast('The bus refused the cancel — it may already be running. The meter reports the outcome on the card.');
+    }
+    return;
+  }
   r.canCancel=false;
   /* v74 — a booked window cancels free until it starts: full refund, the
      Book releases the span, and the feed line stays neutral */
@@ -1352,6 +1553,10 @@ go.onclick = function(){
           mine.st = rec.status==='queued' ? 'queued' :
                     rec.status==='booked' ? 'approved' : mine.st;
           if (rec.status==='booked') mine.booked=true;
+          /* v102 — queued/booked live filings stay cancellable; the
+             affordance files gsCancelRequest on the bus (a refusal is
+             honest — the meter reports where the request stands) */
+          if (rec.status==='queued' || rec.status==='booked') mine.canCancel=true;
           trail(mine, 'filed to the request bus — '+(rec.id||'?')+
                       (rec.status ? ' · '+rec.status : ''));
           mine.mini+=' · filed live'+(rec.status==='queued'?' · queued on the bus':

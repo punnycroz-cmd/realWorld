@@ -292,6 +292,14 @@ One person can wear every hat; four real testers is the intended shape.
   household honestly carries none. Vacant listings show texture, never
   people; the perks table covers every jobs.json employer once —
   texture, never compensation; the ambient ring stays a direction.
+  PT93 (The live session layer v102 / request.html) audits the second
+  bus pass — a bridged request card is driven by the bus end-to-end:
+  gsRequestMeter mirrors status verbatim (own queue position that can
+  only shrink, the review SLA clock, the live session's remaining /
+  spent / low-credits), gsCancelRequest and gsAppealRequest are the live
+  write paths, gsWatchAd/gsAdStatus run the wallet's rewarded ads,
+  gsPossessionBriefing serves the §7 whitelist live, gsConflictRules
+  explains the classes, and gsAppealStats surfaces in aggregate only.
 
 ## 3. Running a session
 

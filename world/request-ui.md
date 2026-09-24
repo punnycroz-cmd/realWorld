@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88 + v102)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -418,3 +418,70 @@ booked chip; the rest of the vocabulary map is unchanged.
 |||| Live check | "Live check — N cr · surge ×S — the bus's own math" |
 |||| Live deny line | "the bus would refuse this as filed (<reason>). Filing anyway is safe: refused requests never bill." |
 |||| Board booked note | "booked: 21:30 · marina_w" |
+
+## 13. v102 — the live session layer
+
+v88 aligned the *filing* seam with the bus; v102 wires the bus's
+remaining read/write surfaces so a bridged request card is driven by the
+bus end-to-end, not just at file time. Every call is capability-checked;
+absent any surface the local path runs as the contract reference,
+unchanged.
+
+**The meter (`gsRequestMeter`).** Polled inside `livePoll` for every
+filing that carries a `busId`. The card mirrors bus status verbatim:
+
+- `queued` → `queuePos` renders as **"place N in line — yours can only
+  shrink, never grow"** — the holder sees *their own* position only.
+  That is not a position auction (the fairness invariant stands): the
+  queue's order is never published, only the holder's place in it.
+  `blockedBy` names the active blockers.
+- `in_review` → `reviewCode` + `reviewExpiresInMin` — the human-review
+  SLA clock sits on the card, matching the review-queue countdown.
+- `active` → `remainingMin` / `spentSoFar` / `lowCredits` drive the
+  **live session card**: real minutes, not the demo tick; the bus holds
+  the clock. Possession still shows the brain line ("suspended — AI
+  resumes on release"). **Release early** files `gsCancelRequest` — the
+  bus settles unused minutes by its own rule (unused whole minutes at
+  the applied rate), and the meter reports what came back. The demo's
+  "no partial refund" wording only ever described the local pipeline;
+  live, the bus's accounting is the truth and the copy says so.
+- `denied` → "not approved · nothing billed" (the door refused
+  pre-billing).
+- `cancelled` / `completed` / `expired` / `failed` → status + `refunded`
+  total mirror onto the card and into the receipt trail.
+
+**Live writes.** `gsCancelRequest(busId)` backs the cancel affordance on
+queued/booked cards filed live — queued/in-review refunds the full bill,
+active refunds unused whole minutes; a `false` return is honest ("the
+bus refused — it may already be running; the meter reports the
+outcome"). `gsAppealRequest(busId, {playerId})` backs the appeal
+affordance on live denials — the bus enforces one-appeal / 72 h /
+different-reviewer itself, and refusal codes map to neutral wording
+(`already_appealed`, `appeal_final`, `window_closed`, …). The wallet's
+rewarded-ad button mints through `gsWatchAd(playerId)` with
+`gsAdStatus(playerId)` counters; `capHit` is an honest refusal, not an
+error.
+
+**Live reads.** `gsPossessionBriefing(charId)` serves the §7 whitelist
+live — same absent-by-schema bar, generic field rendering, demo card as
+fallback. `gsConflictRules()` renders the claims matrix in plain English
+under the resource board so "exclusive" reads as a fact about shared
+resources, never as a tax. `gsAppealStats()` adds one aggregate line
+under Your requests ("N filed · R% reversed — aggregate only");
+individual appeals still never appear on the feed.
+
+### v102 copy deck additions
+
+|||||| Moment | Copy |
+||||||---|---|
+|||||| Queue position | "place N in line — yours can only shrink, never grow" |
+|||||| Review clock | "in human review · N min left for a decision" |
+|||||| Live session head | "hard cap · the bus holds the clock" |
+|||||| Live low balance | "low — top up to keep the session healthy" |
+|||||| Live release | "Release early — graceful handoff; the bus settles unused minutes" |
+|||||| Live cancel ok | "Cancelled on the request bus — the feed will show the refund." |
+|||||| Live cancel refused | "The bus refused the cancel — it may already be running. The meter reports the outcome on the card." |
+|||||| Live appeal refuse | "Appeal refused — <neutral reason>." (e.g. "one appeal per request — already filed") |
+|||||| Appeal aggregate | "appeals on the bus: N filed · R% reversed — aggregate only; individual appeals never appear on the feed" |
+|||||| Live ad cap | "Daily cap reached — a taste, not a wage. Ads reset tomorrow." |
+|||||| Rules line | "Why these classes — the bus's claims matrix: <rules>" |

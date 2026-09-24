@@ -106,10 +106,28 @@
       "gsExplainRequest(id)": "optional — live request detail for the receipt drawer",
       "gsBookCalendar()": "optional (game-v14) — the public booked-window strip {req,claim,res,start_min,min,start,day,who,what}, merged with vs.calendar deduped by claim+start",
       "gsBookableSlots(spec,count)": "optional (game-v14) — bus-offered windows union into the When picker; a window the bus refuses is simply never offered",
-      "gsPriceQuote(spec)": "optional (game-v7+) — the pre-payment receipt runs the submit path's math without mutating; rendered as a 'Live check' parity line on the quote — informative, never a gate (a deny warns: refused requests never bill)"
+      "gsPriceQuote(spec)": "optional (game-v7+) — the pre-payment receipt runs the submit path's math without mutating; rendered as a 'Live check' parity line on the quote — informative, never a gate (a deny warns: refused requests never bill)",
+      "gsRequestMeter(id)": "v102 — the per-request meter, polled per bridged filing; see live_meter",
+      "gsPossessionBriefing(charId)": "v102 — the §7 whitelist served live; a null/thin packet falls back to the demo card, the absent-by-schema bar never moves",
+      "gsConflictRules()": "v102 — the claims matrix in plain English, rendered under the resource board when bridged",
+      "gsAdStatus(playerId)": "v102 — {viewsToday, capLeft, perView} drives the wallet's rewarded-ad row",
+      "gsAppealStats()": "v102 — aggregate appeal counts only (filed / reversalRate); individual appeals never reach the feed"
     },
     "write": "gsSubmitRequest(spec) — the bus's real name since game-v14; gsRequestSubmit is honored as a legacy alias. Spec carries both vocabularies: bus keys {playerId, kind (event files as 'street_event' per the game-v14 merge note), target, durationMin, note, params, start_slot(minutes-from-now)} plus the documented world keys {action, duration_min, text, queued, co_sponsor, quote_cr}. Capability-checked at file time; absent → the local pipeline runs as the contract reference. The returned record is the truth: status 'denied' means the door refused pre-billing — no local charge ever lands for a denied live filing.",
     "fallback": "demo claims/feed stand in for resources the bus doesn't name; a poll hiccup keeps the last good frame"
+  },
+  "live_writes": {
+    "doc": "v102 — the live session layer: bridged cards act on the bus itself, capability-checked like gsSubmitRequest. Absent any of these, the local path runs as the contract reference.",
+    "cancel": "gsCancelRequest(busId) — queued/in-review refunds the full bill; active refunds unused whole minutes at the applied rate; the bus emits the feed line and the meter reports the outcome. A false return is honest — the request already left a cancellable state.",
+    "appeal": "gsAppealRequest(busId, {playerId}) — the bus enforces one-appeal / 72 h window / different-reviewer; the appeal record is a parked request billed 0 that re-bills only on approval. Refusal codes map to neutral wording (not_denied / not_your_request / already_appealed / appeal_final / not_appealable / window_closed).",
+    "ad": "gsWatchAd(playerId) — mints +2 cr on the bus, 5/PT-day cap; capHit is an honest refusal, not an error."
+  },
+  "live_meter": {
+    "doc": "v102 — gsRequestMeter(busId) is polled inside livePoll; the request card mirrors bus status verbatim. Meter = truth; local stand-ins yield wherever it answers.",
+    "queued": "queuePos renders as 'place N in line — yours can only shrink, never grow' — the holder's own position, never the queue's order and never an auction; blockedBy names the active blockers.",
+    "in_review": "reviewCode + reviewExpiresInMin render the human-review SLA clock on the card.",
+    "active": "remainingMin / spentSoFar / lowCredits drive the live session card (the bus holds the clock, not the demo tick). Release early files gsCancelRequest — the bus settles unused minutes by its own rule.",
+    "terminal": "denied → 'not approved · nothing billed'; cancelled/completed/expired/failed → status + refunded total mirrored on the card and in the receipt trail."
   },
   "preflight_check": {
     "doc": "v60 — 'check wording first — free' runs RWScreen.screenRequest on the current form before money moves",
