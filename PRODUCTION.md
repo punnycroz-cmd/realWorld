@@ -26,7 +26,7 @@ git clone https://github.com/punnycroz-cmd/realWorld.git
 cd realWorld && git checkout sf/production-3
 
 # front door (marketing landing) — opens the hub
-open marketing/index.html            # or just open the file in a browser
+open marketing/site/index.html       # or just open the file in a browser
 
 # or go straight to the production hub
 open production/hub.html             # game + Wire + Drive + Archive + shell
