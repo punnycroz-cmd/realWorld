@@ -1,26 +1,27 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v155 (2026-09-24);
+**Status:** production-ready plan + rendered animatics, v170 (2026-09-24);
 all stills on the **art-v64** build — the street-detail build
 (cast-iron tree grate wells + sidewalk utility lids over the v63
-wall-impostor atlas). v155 added a tenth cut: the 45s **"Briefing
-Cut"** (§7.7) — the possession-briefing trailer that dramatizes the
-design's subtlest accuracy rule: the hire comes with public record only,
-and the secrets stay sealed behind literal redaction bars (new uicard
-`redacted` row rendering). Prior: v140 added the 44s **"Cast Cut"** (§7.6);
-v128 rebased to art-v64 (re-pinned every `redact` rect) + the 40s
-**"Booking Cut"** (§7.5). The §4 sunbeam caveat stays closed
-(the v56 fix carried forward).
+wall-impostor atlas). v170 added an eleventh cut: the 52s
+**"Consequence Cut"** (§7.8) — the production-3 observer-loop trailer:
+an unexpected choice, a week away, and the visible consequence on return
+(catch-up edition + stakeless prediction shown as flagged CONCEPT UI).
+Prior: v155 added the 45s **"Briefing Cut"** (§7.7); v140 the 44s
+**"Cast Cut"** (§7.6); v128 rebased to art-v64 (re-pinned every `redact`
+rect) + the 40s **"Booking Cut"** (§7.5). The §4 sunbeam caveat stays
+closed (the v56 fix carried forward).
 Earlier baseline: v110 rebase to art-v56 (sunbeam fix build) + the 45s
 "One Day" cut and `dusk` grade; v95 rebase to art-v55 plus the art-v52
 metric-projection **interior stills** (v52-INT-{cafe,flat,hw,taq}) — the
 trailer goes indoors (hero S5b, Move-In M5, thumbnail #4, Day Y3).
-Ten cuts now exist as real mp4s — hero 90s, teaser 15s, the
+Eleven cuts now exist as real mp4s — hero 90s, teaser 15s, the
 9:16 vertical 30s, a 6s bumper, the 50s "Feed Cut" alternate-concept
 trailer (§7.2, added v65), the 60s "Move-In Cut" player-journey
 trailer (§7.3, added v80), the 45s "One Day" cut (§7.4, v110), the
 40s "Booking Cut" (§7.5, v125), the 44s "Cast Cut" ensemble
-teaser (§7.6, v140), and the 45s "Briefing Cut" (§7.7, v155) —
+teaser (§7.6, v140), the 45s "Briefing Cut" (§7.7, v155), and the
+52s "Consequence Cut" observer-loop trailer (§7.8, v170) —
 `trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
 `trailer/edl.json` (§11). Upload-ready metadata (titles, descriptions,
@@ -77,6 +78,7 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Booking Cut (alt concept) | 40 s | 16:9 | feature-announce post, how-it-works embed, devlog on the request pipeline — rendered (§7.5) |
 | Cast Cut (alt concept) | 44 s | 16:9 | cast-announce posts, press-kit character embed, store page third video — rendered (§7.6) |
 | Briefing Cut (alt concept) | 45 s | 16:9 | possession explainer embed, FAQ "can I buy secrets?" answer, store feature video — rendered (§7.7) |
+| Consequence Cut (alt concept) | 52 s | 16:9 | return-visit pitch, second hero A/B, consequence-continuity devlog, weekly clip template — rendered (§7.8) |
 | Thumbnail stills | — | 16:9 | YouTube/itch — four concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
@@ -545,6 +547,61 @@ fail).
 answer to "can I buy my way into the storylines?", the store page's
 feature-video slot, and as the canonical reply clip when the community
 asks "is it pay-to-know?" — it answers a FAQ no other cut covers.
+
+### 7.8 The Consequence Cut — observer-loop trailer (v170 — rendered)
+
+`edl.json` carries an eleventh `"consequence"` program (52 s, 16:9)
+rendered to `out/animatic-consequence.mp4` + `captions-consequence.srt` +
+`board-consequence.png` (+ scratch bed). Seventh creative concept — the
+**return visit's** trailer, built directly on the production-3 direction
+(Astra review §5–§6): the audience benefit is intelligible, consequential
+change, and the free loop is catch up → follow → predict → inspect →
+return. Every prior cut sells a verb (watch, join, book, hire). This one
+sells *coming back* — an unexpected choice, a week away, and the visible
+consequence waiting on return. It is also the template for the launch
+content strategy: a short contextualized clip of an unexpected choice and
+its later consequence, ending in the thread, not a street camera.
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | R1 feedline cold open | `15:00 — Tomás took the corner seat at Mudhaus.` types on black |
+| 0:04–0:11 | R2 ambient feed, three day-stamped repeats | "Some things you could set your watch to." |
+| 0:11–0:15 | R3 feedline, hard silence | `DAY 10 · 15:00 — the corner seat stayed empty.` |
+| 0:15–0:21 | R4 Mudhaus interior, slow drift | "Nobody explains it. There is no narrator." |
+| 0:21–0:29 | R5 `uicard` SINCE YOU LAST WATCHED — 3 verified changes | "You leave for a week. The block keeps score." |
+| 0:29–0:35 | R6 street level, `dusk` grade | "Same street. A different neighborhood." |
+| 0:35–0:42 | R7 feed: day-12 consequence lines | "A choice on day 10 changed day 12. Nobody scripted it." |
+| 0:42–0:47 | R8 `uicard` YOUR CALL — stakeless prediction | "Make the call. Come back and check." |
+| 0:47–0:52 | R9 end card | "REAL WORLD — THE MISSION. Come back tomorrow. It'll be different. {{URL}}" |
+
+**Accuracy anchors (verify before ship):**
+
+- **The story is borrowed from the real playtest**, not invented: the
+  production-2 report documents Tomás auditing his own missed 3pm ritual.
+  The animatic compresses it to day-numbers; the ship cut must re-cut R2–R7
+  from actual feed history (all carry `recapture: true`).
+- **R5 and R8 are CONCEPT UI**, flagged in their EDL notes and in
+  metadata.json's description: the catch-up edition (≤3 verified changes
+  since last visit) and the stakeless prediction are production-3
+  direction surfaces, not shipped screens. If the direction changes, this
+  cut — not any shipped-UI claim — takes the edit. R8's stamp is
+  deliberately "NO STAKES — JUST YOUR NAME ON IT": the prediction is a
+  marked guess, never a wager (no betting mechanics exist or are implied).
+- **No hidden state is shown as fact.** R5/R7 report only observable
+  events ("kept the seat empty", "asked after him") — never inferred
+  motive or private memory (Astra §5's hard rule).
+- **No cast steering implied.** The choice that breaks the ritual is the
+  character's own; no request card appears anywhere in the cut — the one
+  trailer where nothing is bought. That is the point: consequence is the
+  product, intervention is optional.
+- The end-card tagline "Come back tomorrow. It'll be different." is the
+  retention pitch verbatim — it promises change, not a specific outcome.
+
+**Placement:** the return-visit pitch wherever the funnel needs it —
+second hero A/B against the Feed Cut, the devlog post on consequence
+continuity, the press embed answering "why would anyone come back?", and
+the template for the weekly choice→consequence clip format in
+`social/drafts/choice-and-consequence.md`.
 
 ## 8. Thumbnail concepts (v95 — rendered)
 

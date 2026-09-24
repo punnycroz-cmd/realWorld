@@ -161,6 +161,25 @@
     "0:40 end card"
    ],
    "use": "how-it-works possession section, FAQ 'can I learn secrets?' embed, store page feature video, community reply to 'is it pay-to-know?'"
+  },
+  "consequence": {
+   "file": "out/animatic-consequence.mp4",
+   "length_s": 52,
+   "title": "Real World — The Mission | The Consequence Cut",
+   "thumbnail": "thumb-watcher.png",
+   "description": "Tomás took the corner seat at Mudhaus every day — until he didn't. Nobody explains it; there is no narrator. Leave for a week and the catch-up edition shows the three verified changes you missed. A choice on day 10 changed day 12. Nobody scripted it. Come back tomorrow — it'll be different.\n\n{{URL}}\n\nDevelopment-build footage. Catch-up and prediction cards are concept mocks of the observer loop, not shipped UI.",
+   "chapters": [
+    "0:00 the ritual",
+    "0:04 day after day",
+    "0:11 the empty seat",
+    "0:15 no narrator",
+    "0:21 the catch-up edition",
+    "0:29 same street, different neighborhood",
+    "0:35 day 12 — consequence",
+    "0:42 your call",
+    "0:47 end card"
+   ],
+   "use": "production-3 observer-loop trailer — return-visit pitch, second hero A/B, devlog on consequence continuity, press embed for 'why come back'"
   }
  }
 }
