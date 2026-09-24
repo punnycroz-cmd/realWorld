@@ -113,6 +113,27 @@
     "owner_docket": "score ≥ 9 lifts the account into a docket block at the top — 'account review — owner decision'. The console recommends; it never executes an account action. The owner reads the log and decides.",
     "visibility": "internal only — flags are never shown publicly and never monetized around (account_flags.rules)"
   },
+  "review_locks": {
+    "surface": "mod-console v4 (world v78) — queue items carry claimed_by/claimed_at; one reviewer per request",
+    "rule": "deciding an unclaimed item claims it first; a claim by another reviewer withholds the decision bar entirely ('their call to make'); the claimer can release back to the queue. A claim is a lock against double-deciding, not a score or a privilege.",
+    "merge_target": "game-systems: claim = a short-lived queue lock keyed to reviewer identity (SSO at merge; the demo switcher stands in); claims release on decide, on explicit release, or on reviewer offline — never on timeout-for-money, the request's own clock already handles expiry+refund"
+  },
+  "appeal_workspace": {
+    "surface": "mod-console v4 — appeal items render the original decision card beside the new text: original request id, denial date, code, original reviewer, original text",
+    "different_reviewer_rule": "ENFORCED, not advisory — if the current reviewer decided the original, the decision bar is withheld and decide() refuses. Prior versions showed orig_reviewer so the rule was checkable; v78 makes it structural.",
+    "question": "the reviewer's only question: is the new text substantially different? If not, a second denial is final for that request text (same code). If yes, judge the new text on its own merits. Appeals never re-charge the player.",
+    "seed": "rq-1038 carries orig:{when, reviewer, code, text} — the demo makes the block reachable by switching the reviewer picker to s.oha"
+  },
+  "handoff_notes": {
+    "surface": "mod-console v4 — per-request internal notes between reviewers (shift handoffs, second opinions)",
+    "record": { "t": "HH:MM", "who": "reviewer handle", "text": "free text — reviewers write for reviewers" },
+    "rule": "internal only — notes never appear on the public feed, never export to the ledger, never reach the player. Leaving a note does not require holding the claim — handoffs cross reviewers by design.",
+    "not_for": "notes are not a shadow decision channel — they carry context, not verdicts; the audit log stays the only decision record"
+  },
+  "reviewer_stats": {
+    "surface": "mod-console v4 — shift report gains 'decisions this session, by reviewer' (count only)",
+    "rule": "aggregate-per-reviewer counts are fine inside the studio report; they never leave it — the public recap stays counts-of-decisions only, no reviewer attribution, per appeal_flow.feed_visibility"
+  },
   "ledger_records": {
     "surface": "mod-console audit log 'export ledger records' (v64)",
     "record": { "rec": "mod_decision", "ts": "YYYY-MM-DD HH:MM", "reviewer": "handle", "request_id": "rq-*", "player": "handle", "decision": "approve|modify|deny|escalate", "code": "reason code or null", "flag_w": "0–3", "appeal_of": "rq-* or null", "feed_line": "public wording — 'request not approved' on every deny class incl. legal; attributed wording on approvals" },

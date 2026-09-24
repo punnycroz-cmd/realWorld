@@ -2468,7 +2468,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G21 mod ============ */
 {
-  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50+v64 affordances)');
+  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50+v64+v78 affordances)');
   try {
     const MJ = JSONF('moderation.json');
     const window = {};
@@ -2521,6 +2521,14 @@ const PUB = Object.values(PT.surfaces)
       [/never monetized around/, 'v64 flags-never-public rule copy'],
       [/exportLedger|export ledger records/, 'v64 ledger export affordance'],
       [/mod_decision/, 'v64 canonical ledger record shape'],
+      [/claimed_by/, 'v78 review-lock field'],
+      [/releaseClaim|their call to make/, 'v78 claim/release affordance'],
+      [/DIFFERENT-REVIEWER RULE|different-reviewer rule/i, 'v78 enforced appeal block'],
+      [/Appeal workspace/, 'v78 appeal workspace card'],
+      [/Handoff notes — internal only/, 'v78 handoff-notes surface'],
+      [/never the feed or the ledger|never the feed, never the ledger/i, 'v78 notes visibility rule'],
+      [/revSel|setReviewer/, 'v78 reviewer identity switcher'],
+      [/by_reviewer/, 'v78 per-reviewer session stats'],
       [/screen\.js/, 'shared engine script tag'],
       [/RWScreen\.screenRequest/, 'shared engine call']
     ];
@@ -2534,6 +2542,18 @@ const PUB = Object.values(PT.surfaces)
       for (const k of Object.keys(ch))
         if (!WL.has(k)) add(g, 'fail', 'mod-console.html', null,
           `CHARS.${id}.${k} outside the reviewer whitelist (${[...WL].join('/')}) — secrets must be absent, not renamed`);
+    /* 4b. v78 contract blocks present in moderation.json */
+    for (const k of ['review_locks', 'appeal_workspace', 'handoff_notes', 'reviewer_stats'])
+      if (!MJ[k]) add(g, 'fail', 'moderation.json', null, `v78 contract block "${k}" missing`);
+    if (MJ.appeal_workspace && !/ENFORCED/.test(MJ.appeal_workspace.different_reviewer_rule || ''))
+      add(g, 'fail', 'moderation.json', null, 'appeal_workspace must state the different-reviewer rule is enforced');
+    /* seeded affordances the demo must keep reachable */
+    if (!/claimed_by:'m\.chen'/.test(mc))
+      add(g, 'fail', 'mod-console.html', null, 'no seeded claimed item — the lock state must be demoable');
+    if (!/orig:\{when:/.test(mc))
+      add(g, 'fail', 'mod-console.html', null, 'appeal seed missing orig decision card data');
+    if (!/notes:\[\{t:/.test(mc))
+      add(g, 'fail', 'mod-console.html', null, 'no seeded handoff note');
     /* 5. screen-lab v36 affordances */
     const LMUST = [
       [/Reviewer calibration/, 'calibration section'],
@@ -2560,7 +2580,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v74 || {};
+    const H = PT.harness_ui_v75 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

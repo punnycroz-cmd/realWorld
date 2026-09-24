@@ -10,7 +10,10 @@
   obfuscation-attempt seed row; v50 adds a separator-evasion seed row that
   still lands the real charge after normalization; v64 adds the flag roster
   — per-account flag standing + the owner docket — and the ledger export
-  that turns session decisions into canonical mod_decision records).
+  that turns session decisions into canonical mod_decision records; v78 adds
+  the second-eyes layer — reviewer identity, claim/release locks (one
+  reviewer per request), the appeal different-reviewer rule enforced as a
+  hard block, internal handoff notes, and the appeal workspace card).
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -110,6 +113,9 @@
     in-world consequences handle everything else. You see public-profile fields;
     secrets aren't redacted here, they're absent.</div>
   <div class="metrics">
+    <div class="metric"><b><select id="revSel" onchange="setReviewer(this.value)" style="font-family:var(--mono);font-size:12px;padding:2px 4px">
+      <option value="you">you</option><option value="s.oha">s.oha</option><option value="m.chen">m.chen</option>
+    </select></b><span>reviewer (demo)</span></div>
     <div class="metric"><b><a href="screen-lab.html" style="color:var(--blu);text-decoration:none">Screen Lab →</a></b><span>corpus + try-it</span></div>
     <div class="metric"><b><span id="repBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleReport()">shift report</span></b><span>aggregate only</span></div>
     <div class="metric"><b><span id="rosBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleRoster()">flag roster</span></b><span id="rosSub">internal only</span></div>
@@ -240,13 +246,15 @@ var QUEUE = [
     target_label:'Dolores Park', dur:'one-shot', credits:200, cls:'exclusive',
     claims:'openair — clear (last event 26h ago)',
     text:'Saturday-afternoon block party on the flat near the playground — food tables, a little music.',
-    submitted:ago(11), verdict:{v:'pass', code:'pass'} },
+    submitted:ago(11), verdict:{v:'pass', code:'pass'},
+    claimed_by:'m.chen', claimed_at:ago(4) },
 
   { id:'rq-1040', lane:'review', player:'pt', action:'nudge', target:'c4',
     target_label:'Priya Raman', dur:'one-shot', credits:40, cls:'compatible',
     claims:'none',
     text:'Nudge Priya to finally confront Marcus about the rent split — put her in a mood where she brings it up.',
-    submitted:ago(14), verdict:{v:'review', code:'surface-relationship'} },
+    submitted:ago(14), verdict:{v:'review', code:'surface-relationship'},
+    notes:[{t:'14:02', who:'s.oha', text:'Fourth Priya ask from pt this week — pattern, not fixation yet. The nudge itself is mild; if a repeat lands, escalate the pattern, not this text.'}] },
 
   { id:'rq-1039', lane:'review', player:'r0ok', action:'nudge', target:'c7',
     target_label:'Victor Auerbach', dur:'one-shot', credits:40, cls:'compatible',
@@ -259,7 +267,9 @@ var QUEUE = [
     claims:'none', appeal_of:'rq-1017',
     appeal_text:'It was just a fun idea, I didn\u2019t mean anything creepy by it. Asking again nicely.',
     text:'Have Mars admit she writes the Mission Unfiltered blog — original denied 2026-09-22.',
-    submitted:ago(31), orig_reviewer:'s.oha', verdict:{v:'deny', code:'secret-extraction', appealed:true} },
+    submitted:ago(31), orig_reviewer:'s.oha', verdict:{v:'deny', code:'secret-extraction', appealed:true},
+    orig:{when:'2026-09-22', reviewer:'s.oha', code:'secret-extraction',
+      text:'Make Mars admit on camera that she runs the Mission Unfiltered blog.'} },
 
   { id:'rq-1037', lane:'naming', player:'noreply_9', action:'hire', target:'new',
     target_label:'New character naming string', dur:'one-shot', credits:500, cls:'compatible',
@@ -325,7 +335,11 @@ var PRIOR = { window:'trailing 30 days (seeded demo)',
   median_decision_min:11, comp_cr:1260, flags_issued:31 };
 var LANE = 'all';
 var SEL = null;
-var REVIEWER = 'you (demo reviewer)';
+/* v78: reviewer identity — the demo switcher stands in for SSO. Every claim,
+   note, and decision attributes to this handle; the appeal lane reads it for
+   the different-reviewer rule. */
+var REVIEWER = 'you';
+function setReviewer(h){ REVIEWER=h; toast('Reviewing as '+h+' — claims, notes, and decisions attribute to this handle.'); renderAll(); }
 var LANES = [['all','All'],['exclusive','Exclusive'],['review','Gray-zone'],['appeal','Appeals'],['naming','Naming'],['legal','Legal']];
 
 var $ = function(id){ return document.getElementById(id); };
@@ -360,7 +374,9 @@ function renderQueue(){
     d.innerHTML='<div class="top"><span>'+q.id+' · <span class="who">'+q.player+'</span></span>'+
       '<span class="wait '+wcls+'">'+fmtWait(q.submitted)+'</span></div>'+
       '<div class="what">'+q.action+' → '+q.target_label+' <span class="badge '+laneBadge+'">'+q.lane+'</span></div>'+
-      '<div class="sub">'+q.verdict.v+' · '+(q.verdict.code||'—')+' · '+q.credits+' cr</div>';
+      '<div class="sub">'+q.verdict.v+' · '+(q.verdict.code||'—')+' · '+q.credits+' cr'+
+      (q.claimed_by?' · <span style="color:var(--blu)">claimed by '+(q.claimed_by===REVIEWER?'you':q.claimed_by)+'</span>':'')+
+      ((q.notes&&q.notes.length)?' · '+q.notes.length+' note'+(q.notes.length>1?'s':''):'')+'</div>';
     d.onclick=function(){SEL=q.id; renderAll();};
     el.appendChild(d);
   });
@@ -384,6 +400,10 @@ function renderDetail(){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q){ el.innerHTML='<div class="empty">Select a request from the queue.</div>'; return; }
   var p=PLAYERS[q.player]||{};
+  /* v78 locks: one reviewer per request (claim), and the appeal lane refuses
+     the original reviewer outright — enforced, not advisory. */
+  var lockedOut = q.claimed_by && q.claimed_by!==REVIEWER;
+  var appealBlocked = q.appeal_of && q.orig_reviewer===REVIEWER;
   var html='';
   html+='<div class="kv"><span>Request</span><b>'+q.id+'</b></div>';
   html+='<div class="kv"><span>Player</span><b>'+q.player+' · acct '+(p.acct_age_d||'?')+'d · '+q.credits+' cr paid</b></div>';
@@ -393,6 +413,34 @@ function renderDetail(){
   if(q.appeal_text){
     html+='<div class="reqtext" style="border-left-color:var(--pink)"><b>Appeal</b> (original reviewer '+q.orig_reviewer+' — you must not be them): \u201C'+q.appeal_text+'\u201D</div>';
   }
+  /* appeal workspace: the original decision, side by side — the reviewer's
+     only question is whether the new text is substantially different */
+  if(q.appeal_of && q.orig){
+    html+='<div class="card" style="border-color:var(--pink);margin-top:8px"><h3>Appeal workspace — original decision</h3>'+
+      '<div class="kv"><span>Original request</span><b>'+q.appeal_of+' · denied '+q.orig.when+'</b></div>'+
+      '<div class="kv"><span>Original code / reviewer</span><b>'+q.orig.code+' · '+q.orig.reviewer+'</b></div>'+
+      '<div class="reqtext" style="border-left-color:var(--line);font-size:12px">\u201C'+q.orig.text+'\u201D</div>'+
+      '<div class="redact-note" style="font-style:normal">Is the new text substantially different? If it isn\u2019t, a second denial is final for this request text — say so with the same code. If it is, judge the new text on its own merits. Appeals never re-charge the player.</div></div>';
+  }
+  /* claim row — one reviewer per request; a claim is a lock, not a score */
+  if(q.claimed_by){
+    html+='<div class="trace" style="color:var(--blu)">claimed by '+(q.claimed_by===REVIEWER?'you ('+REVIEWER+')':q.claimed_by)+
+      (q.claimed_by===REVIEWER?' — <span id="relBtn" style="cursor:pointer;text-decoration:underline" onclick="releaseClaim()">release</span>':' — their call to make')+'</div>';
+  }else{
+    html+='<div class="trace">unclaimed — <span id="claimBtn" style="cursor:pointer;color:var(--blu);text-decoration:underline" onclick="claim()">claim</span> · deciding an unclaimed item claims it first</div>';
+  }
+  if(appealBlocked){
+    html+='<div class="trace" style="color:var(--red)">DIFFERENT-REVIEWER RULE — you decided the original ('+q.appeal_of+'). Appeals route to a second pair of eyes; the decision bar is withheld. Hand it back to the queue.</div>';
+  }
+  /* handoff notes — internal only; never the feed, never the ledger */
+  if(q.notes&&q.notes.length){
+    html+='<div class="card" style="margin-top:8px"><h3>Handoff notes — internal only</h3>';
+    q.notes.forEach(function(n){
+      html+='<div class="kv"><span>'+n.t+' · '+n.who+'</span><b style="max-width:62%;text-align:right;font-weight:400">'+n.text+'</b></div>';
+    });
+    html+='</div>';
+  }
+  html+='<div class="denyrow show" id="noterow" style="margin-top:8px"><input type="text" id="notetext" placeholder="note for the next reviewer — internal only, never the feed or the ledger" style="flex:1"><button class="ghost" onclick="addNote()">leave note</button></div>';
   /* classifier trace — run live through the shared engine to show the mechanics */
   var res=RWScreen.screenRequest({action:q.action,target_id:q.target,target_label:q.target_label,text:q.text,player:{acct_age_d:p.acct_age_d,denied_30d:p.denied_30d,same_target_7d:p.same_target_7d,appeal_of:q.appeal_of},exclusive:q.cls==='exclusive'});
   var hits=res.trace.filter(function(t){return t.matched;});
@@ -402,13 +450,20 @@ function renderDetail(){
   if(q.lane==='legal'){
     html+='<div class="trace" style="color:var(--red)">LEGAL LANE — kill before run. Public wording is always \u201Crequest not approved\u201D. Flag account (+3). Notify owner. No appeal.</div>';
   }
-  /* actions */
-  html+='<div class="actions">'+
-    '<button class="approve" onclick="decide(\'approve\')">Approve</button>'+
-    '<button class="modify" onclick="showMod()">Approve modified</button>'+
-    '<button class="deny" onclick="showDeny()">Deny</button>'+
-    (q.lane==='legal'?'<button class="ghost" onclick="decide(\'escalate\')">Confirm legal flag</button>':'')+
-    '</div>';
+  /* actions — withheld entirely when the item is claimed by another reviewer
+     or when the appeal's original reviewer is you */
+  if(lockedOut){
+    html+='<div class="actions"><div class="trace" style="color:var(--blu);margin:0">Claimed by '+q.claimed_by+' — one reviewer per request. Their decision, not yours.</div></div>';
+  }else if(appealBlocked){
+    html+='<div class="actions"><div class="trace" style="color:var(--red);margin:0">No decision controls — the different-reviewer rule owns this item.</div></div>';
+  }else{
+    html+='<div class="actions">'+
+      '<button class="approve" onclick="decide(\'approve\')">Approve</button>'+
+      '<button class="modify" onclick="showMod()">Approve modified</button>'+
+      '<button class="deny" onclick="showDeny()">Deny</button>'+
+      (q.lane==='legal'?'<button class="ghost" onclick="decide(\'escalate\')">Confirm legal flag</button>':'')+
+      '</div>';
+  }
   html+='<div class="modrow" id="modrow"><span style="color:var(--dim);font-size:12px">Trim duration/scope to</span>'+
     '<input type="text" id="modto" placeholder="e.g. 60 min, park section only" style="flex:1">'+
     '<button class="modify" onclick="decide(\'modify\')">Confirm</button></div>';
@@ -439,9 +494,40 @@ function bumpFlag(p, w, why){
   var t=flagTier(p.flag_score);
   return flagTier(before)!==t?t:null;
 }
+/* v78: claim / release / handoff notes */
+function claim(){
+  var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
+  if(!q||q.claimed_by) return;
+  q.claimed_by=REVIEWER; q.claimed_at=NOW;
+  toast(q.id+' claimed — one reviewer per request.');
+  renderAll();
+}
+function releaseClaim(){
+  var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
+  if(!q||q.claimed_by!==REVIEWER) return;
+  delete q.claimed_by; delete q.claimed_at;
+  toast(q.id+' released back to the queue.');
+  renderAll();
+}
+function addNote(){
+  var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
+  var inp=$('notetext');
+  if(!q||!inp||!inp.value.trim()) return;
+  var t=new Date();
+  (q.notes=q.notes||[]).push({t:('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),
+    who:REVIEWER, text:inp.value.trim()});
+  toast('Note left on '+q.id+' — internal only. Never the feed, never the ledger.');
+  renderAll();
+}
 function decide(kind){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q) return;
+  /* v78 guards — the UI withholds the buttons; this is the belt to that suspenders */
+  if(q.claimed_by && q.claimed_by!==REVIEWER){
+    toast(q.id+' is claimed by '+q.claimed_by+' — their call.'); return; }
+  if(q.appeal_of && q.orig_reviewer===REVIEWER){
+    toast('Different-reviewer rule — you decided the original. Back to the queue.'); return; }
+  if(!q.claimed_by){ q.claimed_by=REVIEWER; q.claimed_at=NOW; }
   var p=PLAYERS[q.player]||{};
   var outcome, rec={decision:kind, code:null, flag_w:0, feed:null};
   if(kind==='approve'){
@@ -520,7 +606,7 @@ function shiftStats(){
   var s={requests:PRIOR.requests, approved:PRIOR.approved, modified:PRIOR.modified,
     denied:PRIOR.denied, legal_confirmed:PRIOR.legal_confirmed,
     appeals_filed:PRIOR.appeals_filed, appeals_reversed:PRIOR.appeals_reversed,
-    flags_issued:PRIOR.flags_issued, by_code:{}};
+    flags_issued:PRIOR.flags_issued, by_code:{}, by_reviewer:{}};
   for(var k in PRIOR.by_code) s.by_code[k]=PRIOR.by_code[k];
   AUDIT.forEach(function(a){
     s.requests++;
@@ -535,6 +621,7 @@ function shiftStats(){
     var fm=a.outcome.match(/Flag \+(\d)/);
     if(fm) s.flags_issued+=+fm[1];
     if(/\[APPEAL/.test(a.outcome)) s.appeals_filed++;
+    s.by_reviewer[a.who]=(s.by_reviewer[a.who]||0)+1;
   });
   return s;
 }
@@ -555,6 +642,9 @@ function renderReport(){
   html+='<div class="kv"><span>Median decision</span><b>'+PRIOR.median_decision_min+' min (SLA target 15)</b></div>';
   html+='<div class="kv"><span>Compensation paid</span><b>'+PRIOR.comp_cr+' cr — admin overrides auto-refund</b></div>';
   html+='<div class="kv"><span>Flag weight issued</span><b>+'+s.flags_issued+' across all accounts · thresholds at 3/6/9</b></div>';
+  var rws=Object.keys(s.by_reviewer);
+  if(rws.length) html+='<div class="kv"><span>Decisions this session, by reviewer</span><b>'+
+    rws.map(function(r){return r+': '+s.by_reviewer[r];}).join(' · ')+'</b></div>';
   html+='<h2 style="margin:12px 0 6px">Denials + reviews by code</h2>';
   Object.keys(s.by_code).sort(function(a,b){return s.by_code[b]-s.by_code[a];}).forEach(function(k){
     html+='<div class="kv"><span>'+k+'</span><b>'+s.by_code[k]+'</b></div>';

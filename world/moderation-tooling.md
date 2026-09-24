@@ -214,7 +214,53 @@ the collapse landing the real `admin-domain` charge, the teaching point
 of the whole normalization layer: the evasion changes the typography,
 never the charge.
 
-## 12. v64 — the roster & record layer
+## 12a. v78 — the second-eyes layer (Mod Console v4)
+
+**Reviewer identity.** A header picker stands in for SSO (`you` / `s.oha` /
+`m.chen` in the demo). Every claim, note, and decision attributes to the
+active handle — the audit log and the ledger export already carried `who`;
+now the handle is a first-class input, not just a label.
+
+**Review locks.** Queue items carry `claimed_by`/`claimed_at`; one reviewer
+per request. Deciding an unclaimed item claims it first (zero-friction for
+the common case). An item claimed by another reviewer shows "claimed by X —
+their call to make" in queue and detail and the decision bar is withheld
+entirely; the claimer sees "release". `decide()` re-checks both locks so the
+rule survives a stale render. A claim is a lock against double-deciding —
+never a score, never a priority claim, never monetizable.
+
+**Different-reviewer, enforced.** The appeal lane always *showed*
+`orig_reviewer` so the rule was checkable; v78 makes it structural: if the
+active reviewer decided the original, the decision bar is withheld and
+`decide()` refuses — "appeals route to a second pair of eyes". Seed rq-1038
+(orig reviewer s.oha) makes the block reachable by switching the picker.
+
+**Appeal workspace.** Appeal items render the original decision card beside
+the new text: original request id, denial date, code, reviewer, and the
+original text itself. The reviewer's only question is printed on the card:
+*is the new text substantially different?* If not, a second denial is final
+for that request text; if yes, judge the new text on its own merits. Appeals
+never re-charge the player (locked §5).
+
+**Handoff notes.** Per-request internal notes (`{t, who, text}`) for shift
+handoffs and second opinions. Internal only — never the feed, never the
+ledger export, never the player. Leaving a note doesn't require holding the
+claim; handoffs cross reviewers by design. Notes carry context, not verdicts
+— the audit log stays the only decision record. Seed: rq-1040 carries a
+handoff from s.oha on the pt/Priya pattern.
+
+**Per-reviewer session stats.** The shift report gains one aggregate line —
+"decisions this session, by reviewer" (counts only). It lives inside the
+studio report and never leaves it: the public recap stays decision-counts
+only, no reviewer attribution.
+
+Contract: `moderation.json` gains `review_locks`, `appeal_workspace`,
+`handoff_notes`, `reviewer_stats`. The merge note for game-systems: claims
+are short-lived queue locks keyed to reviewer SSO; they release on decide,
+on release, or on reviewer-offline — never interact with the request's own
+expiry/refund clock.
+
+## 12b. v64 — the roster & record layer
 
 **Flag roster (Mod Console v3).** The flag ledger existed only inside
 per-request context cards — a reviewer could see one player's score but

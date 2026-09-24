@@ -1462,10 +1462,10 @@ const PTS=[
     "The picker stops offering the span you booked while it is held",
     "Every feed line uses the existing vocabulary — booking mints no new status chip"]},
  {do:"Run `node world/audit.js` and read the book + request + harness gates.",
-  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 70 scenarios at the v74 key.",
+  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 71 scenarios at the v75 key.",
   ck:["book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
     "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
-    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"]}]}
+    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"]}]}
 ,{id:"PT68",title:"The Wire v6 — the schedule + the person layer",min:10,
  persona:"daily spectator — knows the wire, wants the day's shape",
  goal:"Verify the v75 spectator-feed pass: the on-the-book strip shows only windows still ahead and never sells one; 'their wire today' counts the wire per person without inventing coverage; thread mute hides a request from your display only; the search match count is honest; every addition stays view-layer.",
@@ -1486,10 +1486,10 @@ const PTS=[
     "Muted events still count in 'the day so far' — the recap counts the wire, not your view",
     "'N matching' counts text + who + resolved names + venue names across the whole feed"]},
  {do:"Run `node world/audit.js` and read the wire + harness gates.",
-  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 70 scenarios at the v74 key.",
+  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 71 scenarios at the v75 key.",
   ck:["wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' — PASS",
     "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL — spot-check the gate code",
-    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"]}]}
+    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"]}]}
 ,{id:"PT69",title:"The Archive v6 — the shape layer (same hour, day vs day, finer trail cuts)",min:10,
  persona:"returning spectator — wants the shape of the week, not just its days",
  goal:"Verify the v76 archive pass: the same-hour view counts one hour of day across every archived day without promising a schedule; day vs day compares two days in counted columns only; the person lens cuts a trail finer without widening scope; copy record carries the source badge; j/k walks the day rows.",
@@ -1510,10 +1510,10 @@ const PTS=[
     "The copied line opens 'real world — the archive — record <id> (demo archive)' — badge included",
     "j/k are inert while focus is in the search box"]},
  {do:"Run `node world/audit.js` and read the archive + harness gates.",
-  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 70 scenarios at the v74 key.",
+  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 71 scenarios at the v75 key.",
   ck:["archive gate detail ends 'schema archive-v6' — PASS",
     "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
-    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"]}]},
+    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"]}]},
  {id:"PT70",title:"Join the Cast v6 — the sketch & the seats layer (v77)",min:12,
  persona:"paid-tier player on a full block — wants a second character and keeps asking what it costs to skip the line",
  goal:"Verify the v77 creation pass: the structured look picks draw a live canvas sketch on step 2 and ride the review card; the roster panel states the block's hired-face cap verbatim; a full card routes signing to a free, first-come seat waitlist that never bills, expires offers at 48 h, and sells no sooner seat; a second hire is stated as a stranger to the first.",
@@ -1539,16 +1539,50 @@ const PTS=[
     "The briefing whitelist is unchanged: profile / surface relationships / routine, secrets still 'none written'",
     "No affordance links the two characters — no shared bank, no shared knowledge"]},
  {do:"Run `node world/audit.js` and read the creation + harness gates.",
-  exp:"Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 70 scenarios at the v74 key.",
+  exp:"Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 71 scenarios at the v75 key.",
   ck:["Creation gate detail reports schema v25 + waitlist key rw_create_wait_v25",
-    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall",
-    "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}];
+    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}
+,{id:"PT71",title:"Mod Console v4 — the second-eyes layer (v78)",min:11,
+ persona:"reviewer on a two-person shift — a queue, a partner, and one appeal",
+ goal:"Verify the v78 console pass: reviewer identity attributes claims/notes/decisions; a claim locks the item for other reviewers (buttons withheld, decide() refuses); the appeal different-reviewer rule is enforced, not advisory; handoff notes are internal-only and claim-free; the appeal workspace shows the original decision beside the new text; the shift report counts decisions per reviewer.",
+ surfaces:["mod","audit"],steps:[
+ {do:"Open mod-console.html (file://). Read the header reviewer picker, then select rq-1041 (Dolores Park block party) from the queue.",
+  exp:"The picker offers you / s.oha / m.chen (demo stand-in for SSO). rq-1041's detail shows 'claimed by m.chen — their call to make'; the queue row shows 'claimed by m.chen'. The decision bar is replaced by 'Claimed by m.chen — one reviewer per request.' — no Approve/Deny controls render.",
+  ck:["The lock withholds the whole decision bar — not a disabled button, no controls",
+    "The handoff-note composer still renders on a claimed item — notes cross reviewers by design",
+    "Queue rows surface the claim inline — 'claimed by m.chen' visible without opening the item"]},
+ {do:"Select an unclaimed item (e.g. rq-1035 venue-lock). Click 'claim', then 'release', then click Approve on any unclaimed item.",
+  exp:"Claim writes 'claimed by you (<handle>)' with a release link; release returns the item to 'unclaimed'. Approving an unclaimed item auto-claims it first, then logs the decision to the audit trail under the current handle.",
+  ck:["Deciding an unclaimed item claims it first — zero-friction common case, still attributed",
+    "The toast + audit line name the active reviewer handle",
+    "Release returns the item to unclaimed — a claim is a lock, not a score"]},
+ {do:"Switch the reviewer picker to s.oha, then open appeal rq-1038.",
+  exp:"The detail shows the appeal workspace card — original request rq-1017, denied 2026-09-22, code secret-extraction, reviewer s.oha, original text — plus the red line 'DIFFERENT-REVIEWER RULE — you decided the original' and 'No decision controls — the different-reviewer rule owns this item.' Switching back to you restores the decision bar.",
+  ck:["The rule is enforced — controls withheld AND decide() refuses, not just a warning",
+    "The workspace prints the reviewer's only question: 'Is the new text substantially different?' plus 'a second denial is final' and 'appeals never re-charge'",
+    "Switching identity is the only thing that changes reachability — same item, same text"]},
+ {do:"As you, open rq-1040 (pt → Priya nudge). Read the seeded handoff note, then leave a note of your own and export ledger records.",
+  exp:"A 'Handoff notes — internal only' card shows s.oha's note on the pt/Priya pattern; the composer placeholder reads 'note for the next reviewer — internal only, never the feed or the ledger'. Your note lands attributed to you and the queue row gains '· N notes'. The ledger export contains decisions only — notes never appear in it.",
+  ck:["Notes attribute to the writing reviewer and timestamp",
+    "Ledger export carries zero note content — internal only is structural",
+    "Notes are reachable without holding the claim"]},
+ {do:"Decide two items as different reviewers (switch the picker between), then open 'shift report'.",
+  exp:"The report gains 'Decisions this session, by reviewer' — counts only, e.g. 'you: 1 · s.oha: 0'. Everything else unchanged: aggregate-only, no request text, no handles beyond the internal report.",
+  ck:["Per-reviewer counts live inside the studio report only — never the public recap",
+    "The report still shows corpus green at engine v50 — the screening engine itself did not change",
+    "Deny still previews canned player copy + neutral feed line + flag weight"]},
+ {do:"Run `node world/audit.js` and read the mod + harness gates.",
+  exp:"Mod gate passes the v78 marks: claimed_by, releaseClaim, DIFFERENT-REVIEWER RULE, Appeal workspace, Handoff notes — internal only, revSel/setReviewer, by_reviewer, plus the four moderation.json contract blocks (review_locks/appeal_workspace/handoff_notes/reviewer_stats) and the three seeded affordances (claimed item, orig card, note). Harness gate reports 71 scenarios at the v75 key.",
+  ck:["mod gate detail still reports taxonomy/corpus agreement — 15 codes, 94 mirrored cases, engine v50",
+    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gs*) appears on mod-console.html — internal surface"]}]}];
 
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73 */
-const LS="rw_playtest_v74";
-const BUILD="world v74 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74 */
+const LS="rw_playtest_v75";
+const BUILD="world v75 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
