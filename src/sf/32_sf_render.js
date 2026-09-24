@@ -282,7 +282,10 @@ function sfLensBegin(cw, ch){
   }
   if(SF_LENS.frame.width !== W || SF_LENS.frame.height !== H){
     SF_LENS.frame.width = W; SF_LENS.frame.height = H;
-    SF_LENS.blur.width = W; SF_LENS.blur.height = H;
+    // blur plate at half res — a defocus buffer loses nothing to
+    // downscaling and the per-frame blur cost quarters
+    SF_LENS.blur.width = Math.max(1, W >> 1);
+    SF_LENS.blur.height = Math.max(1, H >> 1);
     SF_LENS.mask.width = W; SF_LENS.mask.height = H;
     SF_LENS.pat = null;
   }
@@ -328,9 +331,9 @@ function sfLensEnd(cw, ch){
   let bOk = false;
   if(B && typeof bg.filter !== 'undefined'){
     bg.setTransform(1, 0, 0, 1, 0, 0);
-    bg.clearRect(0, 0, W, H);
-    bg.filter = `blur(${Math.max(3, Math.round(H * 0.014))}px)`;
-    bg.drawImage(F, 0, 0);
+    bg.clearRect(0, 0, B.width, B.height);
+    bg.filter = `blur(${Math.max(2, Math.round(B.height * 0.014))}px)`;
+    bg.drawImage(F, 0, 0, B.width, B.height);
     bg.filter = 'none';
     bOk = true;
   }
@@ -436,7 +439,7 @@ function sfLensEnd(cw, ch){
     mg.fillStyle = eg;
     mg.fillRect(0, 0, W, H);
     mg.globalCompositeOperation = 'source-in';   // keep B only under mask
-    mg.drawImage(B, 0, 0);
+    mg.drawImage(B, 0, 0, W, H);
     mg.globalCompositeOperation = 'source-over';
     ctx.drawImage(M, 0, 0);
   }
@@ -491,7 +494,7 @@ function sfLensEnd(cw, ch){
       // v56: glare falls off quadratically — a dry clear afternoon stays
       // crisp off-axis instead of the whole frame milking over
       ctx.globalAlpha = 0.02 + 0.11 * SF_LENS.sunK * SF_LENS.sunK;
-      ctx.drawImage(B, 0, 0);
+      ctx.drawImage(B, 0, 0, W, H);
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
     }
@@ -583,7 +586,7 @@ function sfLensEnd(cw, ch){
     ctx.globalCompositeOperation = 'screen';
     ctx.globalAlpha = nK2 ? 0.035 : 0.025 + 0.03 * (1 - covK) *
                       (typeof SF_SUN !== 'undefined' ? SF_SUN.day : 0.5);
-    ctx.drawImage(B, 0, 0);
+    ctx.drawImage(B, 0, 0, W, H);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }

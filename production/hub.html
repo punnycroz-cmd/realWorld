@@ -5948,7 +5948,13 @@ function setupCanvas(){
   cv = document.getElementById('cv');
   ctx = cv.getContext('2d');
   function resize(){
-    dpr = window.devicePixelRatio || 1;
+    // render cost scales with dpr² — on 2x/3x screens the frame paints
+    // 4-9x the pixels for sharpness most observers can't tell apart.
+    // Cap at 1.5; ?hires=1 opts back into native resolution.
+    dpr = (typeof location !== 'undefined' &&
+           /[?&]hires=1/.test(location.search))
+          ? (window.devicePixelRatio || 1)
+          : Math.min(window.devicePixelRatio || 1, 1.5);
     cv.width = window.innerWidth * dpr;
     cv.height = (window.innerHeight - 44) * dpr;
   }
@@ -26494,7 +26500,10 @@ function sfLensBegin(cw, ch){
   }
   if(SF_LENS.frame.width !== W || SF_LENS.frame.height !== H){
     SF_LENS.frame.width = W; SF_LENS.frame.height = H;
-    SF_LENS.blur.width = W; SF_LENS.blur.height = H;
+    // blur plate at half res — a defocus buffer loses nothing to
+    // downscaling and the per-frame blur cost quarters
+    SF_LENS.blur.width = Math.max(1, W >> 1);
+    SF_LENS.blur.height = Math.max(1, H >> 1);
     SF_LENS.mask.width = W; SF_LENS.mask.height = H;
     SF_LENS.pat = null;
   }
@@ -26540,9 +26549,9 @@ function sfLensEnd(cw, ch){
   let bOk = false;
   if(B && typeof bg.filter !== 'undefined'){
     bg.setTransform(1, 0, 0, 1, 0, 0);
-    bg.clearRect(0, 0, W, H);
-    bg.filter = `blur(${Math.max(3, Math.round(H * 0.014))}px)`;
-    bg.drawImage(F, 0, 0);
+    bg.clearRect(0, 0, B.width, B.height);
+    bg.filter = `blur(${Math.max(2, Math.round(B.height * 0.014))}px)`;
+    bg.drawImage(F, 0, 0, B.width, B.height);
     bg.filter = 'none';
     bOk = true;
   }
@@ -26648,7 +26657,7 @@ function sfLensEnd(cw, ch){
     mg.fillStyle = eg;
     mg.fillRect(0, 0, W, H);
     mg.globalCompositeOperation = 'source-in';   // keep B only under mask
-    mg.drawImage(B, 0, 0);
+    mg.drawImage(B, 0, 0, W, H);
     mg.globalCompositeOperation = 'source-over';
     ctx.drawImage(M, 0, 0);
   }
@@ -26703,7 +26712,7 @@ function sfLensEnd(cw, ch){
       // v56: glare falls off quadratically — a dry clear afternoon stays
       // crisp off-axis instead of the whole frame milking over
       ctx.globalAlpha = 0.02 + 0.11 * SF_LENS.sunK * SF_LENS.sunK;
-      ctx.drawImage(B, 0, 0);
+      ctx.drawImage(B, 0, 0, W, H);
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
     }
@@ -26795,7 +26804,7 @@ function sfLensEnd(cw, ch){
     ctx.globalCompositeOperation = 'screen';
     ctx.globalAlpha = nK2 ? 0.035 : 0.025 + 0.03 * (1 - covK) *
                       (typeof SF_SUN !== 'undefined' ? SF_SUN.day : 0.5);
-    ctx.drawImage(B, 0, 0);
+    ctx.drawImage(B, 0, 0, W, H);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }
@@ -40371,14 +40380,23 @@ function sfCamPipDraw(cw, ch){
     if(had) SF_CAM_VIEWS['pip'] = had; else delete SF_CAM_VIEWS['pip'];
   }
   if(!SF_PIP.view) return;
-  /* ~5 Hz refresh: a parked feed still breathes (pawns, wind, clouds)
+  /* ~1 Hz refresh: a parked feed still breathes (pawns, wind, clouds)
      but never costs more than one fifth of the frame budget. The chrome
-     draws every frame — only the feed inside is throttled. */
-  const tNow = (typeof SF_WX !== 'undefined' && SF_WX.t) || 0;
-  if(tNow - SF_PIP.tLast >= 0.2){
+     draws every frame — only the feed inside is throttled. Wall-clock,
+     not SF_WX.t: the sim clock scales with W.speed, so any multiplier
+     above 1× was silently un-throttling the second scene render. */
+  const tNow = (typeof performance !== 'undefined'
+                ? performance.now() : Date.now()) / 1000;
+  if(tNow - SF_PIP.tLast >= 1.0){
     SF_PIP.tLast = tNow;
     SF_PIP._in = true;
-    try{ sfCamRender(SF_PIP.view, SF_PIP.cv); } finally { SF_PIP._in = false; }
+    // 384×216 parked feed: the soft-optics stack (blur plate, bokeh
+    // mask, ghosts) is illegible at this size — skip the lens pass and
+    // its per-frame full-frame blur entirely
+    const svLens = (typeof SF_LENS !== 'undefined') && SF_LENS.on;
+    if(svLens) SF_LENS.on = false;
+    try{ sfCamRender(SF_PIP.view, SF_PIP.cv); }
+    finally { SF_PIP._in = false; if(svLens) SF_LENS.on = true; }
   }
 
   const pw = SF_PIP.cv.width, ph2 = SF_PIP.cv.height;

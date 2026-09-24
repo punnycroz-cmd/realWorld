@@ -8,7 +8,13 @@ function setupCanvas(){
   cv = document.getElementById('cv');
   ctx = cv.getContext('2d');
   function resize(){
-    dpr = window.devicePixelRatio || 1;
+    // render cost scales with dpr² — on 2x/3x screens the frame paints
+    // 4-9x the pixels for sharpness most observers can't tell apart.
+    // Cap at 1.5; ?hires=1 opts back into native resolution.
+    dpr = (typeof location !== 'undefined' &&
+           /[?&]hires=1/.test(location.search))
+          ? (window.devicePixelRatio || 1)
+          : Math.min(window.devicePixelRatio || 1, 1.5);
     cv.width = window.innerWidth * dpr;
     cv.height = (window.innerHeight - 44) * dpr;
   }

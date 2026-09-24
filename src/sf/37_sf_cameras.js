@@ -247,14 +247,23 @@ function sfCamPipDraw(cw, ch){
     if(had) SF_CAM_VIEWS['pip'] = had; else delete SF_CAM_VIEWS['pip'];
   }
   if(!SF_PIP.view) return;
-  /* ~5 Hz refresh: a parked feed still breathes (pawns, wind, clouds)
+  /* ~1 Hz refresh: a parked feed still breathes (pawns, wind, clouds)
      but never costs more than one fifth of the frame budget. The chrome
-     draws every frame — only the feed inside is throttled. */
-  const tNow = (typeof SF_WX !== 'undefined' && SF_WX.t) || 0;
-  if(tNow - SF_PIP.tLast >= 0.2){
+     draws every frame — only the feed inside is throttled. Wall-clock,
+     not SF_WX.t: the sim clock scales with W.speed, so any multiplier
+     above 1× was silently un-throttling the second scene render. */
+  const tNow = (typeof performance !== 'undefined'
+                ? performance.now() : Date.now()) / 1000;
+  if(tNow - SF_PIP.tLast >= 1.0){
     SF_PIP.tLast = tNow;
     SF_PIP._in = true;
-    try{ sfCamRender(SF_PIP.view, SF_PIP.cv); } finally { SF_PIP._in = false; }
+    // 384×216 parked feed: the soft-optics stack (blur plate, bokeh
+    // mask, ghosts) is illegible at this size — skip the lens pass and
+    // its per-frame full-frame blur entirely
+    const svLens = (typeof SF_LENS !== 'undefined') && SF_LENS.on;
+    if(svLens) SF_LENS.on = false;
+    try{ sfCamRender(SF_PIP.view, SF_PIP.cv); }
+    finally { SF_PIP._in = false; if(svLens) SF_LENS.on = true; }
   }
 
   const pw = SF_PIP.cv.width, ph2 = SF_PIP.cv.height;
